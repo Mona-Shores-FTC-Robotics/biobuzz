@@ -79,18 +79,73 @@ not ours — when Pedro releases a new Quickstart, re-copy it rather than patchi
 it in place.
 
 Two of those files are deliberately stubs upstream, and are where our robot
-configuration will eventually go:
+configuration goes. Both are now filled in; everything else in the package is
+still untouched upstream code.
 
-- **`Constants.java`** — `create(HardwareMap)` currently returns `null`. It
-  needs to return `new Follower(drivetrain, localizer, foresight)` once the
-  drivetrain and localizer are configured.
-- **`Tuning.java`** — empty. Tuners are registered by adding `@Tuner`-annotated
-  fields holding the `Procedure` subclasses from `pedro/procedures/`.
+- **`Constants.java`** — holds `drivetrainConfig` (mecanum), `localizerConfig`
+  (Pinpoint) and `foresightConfig`, plus the factory methods AutoTune needs.
 
-Until those are filled in, **nothing in this package registers an OpMode** —
-there is not a single `@TeleOp` or `@Autonomous` annotation in it, and it
-compiles to an inert set of classes. That is expected on a toolchain-only
-branch; it is not a sign the copy went wrong.
+  **The argument order in the old stub comment was wrong.** It suggested
+  `new Follower(drivetrain, localizer, foresight)`; the real 3.0.1 signature is
+  `Follower(Localizer, Drivetrain, Algorithm)` — localizer first. Upstream's own
+  `procedures/Tests.java` builds it in the correct order, so the comment was the
+  outlier, not the library.
+
+- **`Tuning.java`** — registers the procedures that match our hardware.
+
+  **`@Tuner` goes on a method, not a field.** The earlier wording here said
+  "`@Tuner`-annotated fields", which does not work: the annotation is
+  `@Target(METHOD)`, and `TunerScanner.scan` walks `getDeclaredMethods()`
+  requiring each one to be **static, zero-argument, and to return `Procedure`**.
+  It throws `IllegalArgumentException` otherwise — *"Method %s.%s is annotated
+  with @Tuner, but is not static."* — during OpMode discovery, so a mistake here
+  takes down robot startup rather than failing quietly.
+
+**Nothing in this package registers an OpMode**, and that is still true now that
+the stubs are filled in — there is not a single `@TeleOp` or `@Autonomous`
+annotation in it. AutoTune creates its tuning OpModes at runtime from the
+registered procedures; they never exist as annotated classes here.
+
+### Our hardware, and what still needs measuring
+
+| | |
+|---|---|
+| Drivetrain | Mecanum — `frontLeft`, `frontRight`, `backLeft`, `backRight` |
+| Localizer | goBILDA Pinpoint (`pinpoint`), goBILDA 4-bar odometry pods |
+
+Three groups of values in `Constants.java` are **placeholders that AutoTune
+replaces**, and the robot will not drive correctly until it has:
+
+1. Motor directions — currently the conventional left-reversed guess.
+2. Pinpoint pod directions and X/Y offsets — currently `FORWARD` and `0.0`.
+   Zero offsets treat the pods as sitting on the tracking centre, so heading
+   changes corrupt the position estimate.
+3. All of `foresightConfig` — currently empty, see below.
+
+Run the tuners in this order; each produces the values the next one needs.
+**Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.** Each ends on a page
+of generated Java to paste over the matching block in `Constants.java`.
+
+### Foresight cannot be configured off the robot
+
+`foresightConfig` is intentionally an empty lambda. Twelve of `ForesightConfig`'s
+variables are declared `ConfigVar.required(…)` with **no default** —
+`headingFeedback`, `forwardTranslational`, `strafeTranslational`, `brake`,
+`coast`, the linear/quadratic/heading brake coefficients, both
+`maxAchievable*Velocity` and both `natural*Deceleration`. Reading an unset one
+throws `IllegalStateException("Config variable has not been set")`.
+
+Those twelve are exactly what the Foresight Tuner measures. There is no
+"defaults for now" option and nothing here should be guessed: they are
+properties of this robot's mass, wheels and battery. `Constants.createAlgorithm()`
+probes one of them and fails at init with a message naming the fix, because the
+bare library error surfaces partway through following a path with no field name
+and no hint.
+
+The drivetrain and localizer configs are complete, so the Mecanum, Pinpoint and
+Foresight tuners all run today, as do the Tests procedure's localization,
+odometry, pose and driving tests. Only its hold, line and curve tests need a
+tuned Foresight, since only those build a `Follower`.
 
 ## Deliberately excluded
 
