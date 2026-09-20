@@ -129,8 +129,86 @@ configuration will eventually go:
 
 Until those are filled in, **nothing in this package registers an OpMode** —
 there is not a single `@TeleOp` or `@Autonomous` annotation in it, and it
-compiles to an inert set of classes. That is expected on a toolchain-only
-branch; it is not a sign the copy went wrong.
+compiles to an inert set of classes. That is expected — it is not a sign the
+copy went wrong. (The one OpMode this module does register lives in
+`shooter/`, below.)
+
+## The `shooter` package
+
+`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
+speed test rig: spin the three launcher wheels up, read the RPM, and tune the
+gains. It registers one OpMode, **Flywheel Speed Test** (TeleOp, group
+`Shooter`).
+
+It exists to characterize shooting speeds on **last season's DECODE robot**
+before BIOBUZZ hardware is ready, so it is deliberately standalone — no
+drivetrain, no pathing, no intake, no feeder, and no dependency on
+`pedro/Constants.java` being filled in. Point it at a robot with the three
+launcher motors in its config and it runs.
+
+### Zero recompiles
+
+The whole point is that a student meeting never has to touch Android Studio.
+Everything numeric is a live Panels field under `FlywheelBank → config`:
+
+| Group | What's in it |
+|---|---|
+| `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
+| `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
+| `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
+| `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
+| `left` / `center` / `right` | `motorName`, `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
+
+`motorName` is live too: change it and the rig powers the old motor down and
+binds the new one on the next loop. That is the escape hatch for a robot config
+that spells a name differently — no recompile, no OpMode restart.
+
+On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
+by the fine step, **dpad left/right** by the coarse step. The Driver Station
+shows the same lane table as Panels, so the rig is still usable with no laptop
+connected.
+
+### What was ported from DECODE, and what wasn't
+
+Ported forward from `subsystems/LauncherSubsystem.java` and
+`subsystems/launcher/config/LauncherFlywheelConfig.java`:
+
+- the control law, unchanged —
+  `power = (kS + kV * targetRpm) + kP * (targetRpm - measuredRpm)`, scaled by
+  battery voltage and clipped to `[0, 1]`;
+- the starting gains (kS `0.10`, kV `0.00017`, kP `0.001`), which were identical
+  across both DECODE robots, so they are a real starting point and not a guess;
+- voltage compensation, unchanged;
+- the "don't wrap flywheels in `CachingHardware`" rule, and DECODE's reason for
+  it: a wheel held at near-constant power gets every repeat `setPower` dropped by
+  the cache, so a hub that zeroes the motor behind the cache's back stays dead.
+
+Two things were deliberately **not** ported, both because a measurement rig has
+different duties than a match robot:
+
+- **`Math.abs()` on the measured velocity.** DECODE took the absolute value,
+  which makes a backwards-spinning wheel look perfectly healthy. Here RPM keeps
+  its sign, a backwards wheel never reaches speed, and the readout says which
+  lane to flip.
+- **`fallbackReadyMs`.** DECODE declared a lane ready on a timer when the encoder
+  looked dead — the right call when a match is running. On a rig whose whole job
+  is measurement, a lane that never reaches speed has to keep saying so.
+
+`RobotProfile`'s two-robot machinery did not come across either. DECODE needed
+`invalidate()` / `reloadProfileConfigs()` because its config defaults were
+resolved per robot from the WiFi SSID, which is not known when Panels' boot-time
+`@Configurable` scan runs. These defaults are plain constants, so none of that
+applies.
+
+### No command framework
+
+The rig is a plain `OpMode` — no Ivy `Command`, no scheduler. DECODE was already
+on Ivy (at `com.pedropathing:ivy:1.0.0`, the Pedro 2 coordinates; this repo has
+`com.pedropathing.ivy:pedro:1.1.1`), but its flywheel control lived in the
+subsystem, not in a command, so there was no command class to port in the first
+place. A rig with one behaviour has nothing for a scheduler to arbitrate. When
+the real BIOBUZZ launcher lands and shots have to be sequenced against an intake,
+that is the point to introduce Ivy commands.
 
 ## Deliberately excluded
 

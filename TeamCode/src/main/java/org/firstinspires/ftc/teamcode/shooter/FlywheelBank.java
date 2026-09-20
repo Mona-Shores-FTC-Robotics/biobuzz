@@ -1,0 +1,439 @@
+package org.firstinspires.ftc.teamcode.shooter;
+
+import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
+
+import org.firstinspires.ftc.teamcode.shooter.config.FlywheelLaneConfig;
+import org.firstinspires.ftc.teamcode.shooter.config.FlywheelTuningConfig;
+
+import java.util.EnumMap;
+
+/**
+ * The three flywheel motors and the speed control around them.
+ *
+ * <p>Control model, ported verbatim from DECODE's {@code LauncherSubsystem}:
+ *
+ * <pre>power = (kS + kV * targetRpm) + kP * (targetRpm - measuredRpm)</pre>
+ *
+ * feedforward for the bulk of the power, a small proportional term for the
+ * error, the whole thing scaled by battery voltage and clipped to [0, 1]. The
+ * rig never commands negative power, so a wrongly-configured lane coasts rather
+ * than fighting itself.
+ *
+ * <p>Two deliberate departures from DECODE, both because this is a measurement
+ * rig and not a match robot:
+ *
+ * <ul>
+ *   <li><b>Measured RPM keeps its sign.</b> DECODE took
+ *       {@code Math.abs(motor.getVelocity())}, which makes a backwards-spinning
+ *       wheel look perfectly healthy. Here a backwards wheel reads negative,
+ *       never reaches speed, and the OpMode says so in as many words.</li>
+ *   <li><b>No ready-on-a-timer fallback.</b> See
+ *       {@code FlywheelTuningConfig.Readiness#atSpeedHoldMs}.</li>
+ * </ul>
+ *
+ * <p>Motors are intentionally not wrapped in CachingHardware — DECODE's note
+ * applies unchanged: a flywheel sits at near-constant power for the whole run,
+ * so the cache drops every repeat {@code setPower}, and if the hub ever zeroes
+ * the motor behind the cache's back the stale cache suppresses every recovery
+ * write.
+ *
+ * <p>This is a plain class, not an Ivy subsystem. The rig has one behaviour and
+ * no command to schedule, so there is nothing for a scheduler to arbitrate.
+ */
+@Configurable
+public class FlywheelBank {
+
+    /**
+     * The live tuning tree Panels edits. Static because that is how Panels'
+     * {@code @Configurable} scan finds it.
+     *
+     * <p>Unlike DECODE this needs no {@code reloadProfileConfigs()} dance: these
+     * defaults are plain constants, not a per-robot profile resolved from the
+     * WiFi SSID, so nothing here depends on the robot having been identified by
+     * the time the boot-time scan runs.
+     */
+    public static FlywheelTuningConfig config = new FlywheelTuningConfig();
+
+    private final HardwareMap hardwareMap;
+    private final EnumMap<FlywheelLane, Flywheel> flywheels = new EnumMap<>(FlywheelLane.class);
+
+    private boolean spinning = false;
+    private double lastVoltage = Double.NaN;
+    private double lastVoltageMultiplier = 1.0;
+
+    public FlywheelBank(HardwareMap hardwareMap) {
+        this.hardwareMap = hardwareMap;
+        for (FlywheelLane lane : FlywheelLane.values()) {
+            flywheels.put(lane, new Flywheel(lane));
+        }
+    }
+
+    /** Binds motors and leaves everything stopped. Safe to call more than once. */
+    public void initialize() {
+        spinning = false;
+        for (Flywheel flywheel : flywheels.values()) {
+            flywheel.bind();
+            flywheel.stopHardware();
+        }
+    }
+
+    /** Commands every enabled lane to its target speed. */
+    public void spinUp() {
+        spinning = true;
+    }
+
+    /** Cuts power to every lane. Wheels coast down (zero-power behaviour is FLOAT). */
+    public void stop() {
+        spinning = false;
+    }
+
+    public boolean isSpinning() {
+        return spinning;
+    }
+
+    /** Run once per OpMode loop: re-reads config, measures, and drives the motors. */
+    public void periodic() {
+        lastVoltageMultiplier = computeVoltageMultiplier();
+        for (Flywheel flywheel : flywheels.values()) {
+            flywheel.bind();
+            flywheel.update(lastVoltageMultiplier);
+        }
+    }
+
+    public Flywheel lane(FlywheelLane lane) {
+        return flywheels.get(lane);
+    }
+
+    /** Battery voltage last sampled, or NaN if no voltage sensor answered. */
+    public double getBatteryVoltage() {
+        return lastVoltage;
+    }
+
+    public double getVoltageMultiplier() {
+        return lastVoltageMultiplier;
+    }
+
+    /** True when at least one lane is enabled and every enabled lane is at speed. */
+    public boolean isEveryEnabledLaneAtSpeed() {
+        boolean any = false;
+        for (Flywheel flywheel : flywheels.values()) {
+            if (!flywheel.isEnabled()) {
+                continue;
+            }
+            any = true;
+            if (!flywheel.isAtSpeed()) {
+                return false;
+            }
+        }
+        return any;
+    }
+
+    /**
+     * Ported from DECODE's {@code getVoltageCompensationMultiplier()}: scale
+     * power by {@code nominal / measured} so gains found on a full pack still
+     * hold on a tired one.
+     */
+    private double computeVoltageMultiplier() {
+        try {
+            lastVoltage = hardwareMap.voltageSensor.iterator().next().getVoltage();
+        } catch (Exception ignored) {
+            // No voltage sensor in this configuration, or the hub did not answer.
+            lastVoltage = Double.NaN;
+            return 1.0;
+        }
+        FlywheelTuningConfig.VoltageCompensation compensation = config.voltageCompensation;
+        if (!compensation.enabled) {
+            return 1.0;
+        }
+        double voltage = Math.max(lastVoltage, compensation.minVoltage);
+        if (voltage <= 0.0) {
+            return 1.0;
+        }
+        return Range.clip(compensation.nominalVoltage / voltage, 0.5, 2.0);
+    }
+
+    private FlywheelLaneConfig configFor(FlywheelLane lane) {
+        switch (lane) {
+            case LEFT:
+                return config.left;
+            case CENTER:
+                return config.center;
+            case RIGHT:
+            default:
+                return config.right;
+        }
+    }
+
+    /**
+     * Safely retrieves a motor from the hardware map. Returns null if the motor
+     * is not found or the name is empty, so a rig with only one wheel wired up
+     * still runs that wheel instead of crashing at init.
+     */
+    private static DcMotorEx tryGetMotor(HardwareMap hardwareMap, String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return null;
+        }
+        try {
+            return hardwareMap.get(DcMotorEx.class, name.trim());
+        } catch (IllegalArgumentException ignored) {
+            // Motor not in the active Robot Configuration — degrade gracefully.
+            return null;
+        }
+    }
+
+    /** One flywheel: its motor, its measurements, and its slice of the control law. */
+    public class Flywheel {
+
+        private final FlywheelLane lane;
+
+        private DcMotorEx motor;
+        /** Motor name currently bound, so a live edit in Panels triggers a re-bind. */
+        private String boundMotorName;
+        /** Direction currently applied, so a live edit is applied with power cut. */
+        private Boolean appliedReversed;
+
+        private double commandedRpm = 0.0;
+        private double measuredRpm = 0.0;
+        private double measuredTicksPerSec = 0.0;
+        private double appliedPower = 0.0;
+        private boolean atSpeed = false;
+
+        private long commandedAtNs = 0L;
+        private long inToleranceSinceNs = 0L;
+        private double lastSpinUpMs = Double.NaN;
+
+        Flywheel(FlywheelLane lane) {
+            this.lane = lane;
+        }
+
+        public FlywheelLane getLane() {
+            return lane;
+        }
+
+        /** False when the lane is switched off in Panels. */
+        public boolean isEnabled() {
+            return cfg().enabled;
+        }
+
+        /** False when no motor by the configured name exists in the Robot Configuration. */
+        public boolean isConnected() {
+            return motor != null;
+        }
+
+        public String getMotorName() {
+            return cfg().motorName;
+        }
+
+        /** Signed — a negative value means the wheel is turning the wrong way. */
+        public double getMeasuredRpm() {
+            return measuredRpm;
+        }
+
+        public double getMeasuredTicksPerSec() {
+            return measuredTicksPerSec;
+        }
+
+        /** Zero whenever the lane is stopped or disabled. */
+        public double getCommandedRpm() {
+            return commandedRpm;
+        }
+
+        public double getErrorRpm() {
+            return commandedRpm - measuredRpm;
+        }
+
+        public double getAppliedPower() {
+            return appliedPower;
+        }
+
+        public boolean isAtSpeed() {
+            return atSpeed;
+        }
+
+        /**
+         * Milliseconds from the last change of command to first touching
+         * tolerance, or NaN if it has not got there since. This is the number
+         * worth writing down: it is what "characterize the spin-up" means.
+         */
+        public double getLastSpinUpMs() {
+            return lastSpinUpMs;
+        }
+
+        /**
+         * True when the wheel is turning backwards under a forward command —
+         * i.e. the {@code reversed} tick box for this lane is wrong.
+         */
+        public boolean isRunningBackwards() {
+            return commandedRpm > 0.0 && measuredRpm < -1.0;
+        }
+
+        /**
+         * Looks up the motor if the configured name has changed. Powers the old
+         * motor down first so a rename never leaves a wheel spinning untracked.
+         */
+        void bind() {
+            String name = cfg().motorName;
+            String wanted = name == null ? "" : name.trim();
+            // Keyed on the name, not on motor != null: a name that is not in the
+            // robot config must not be re-looked-up every loop, because a failed
+            // hardwareMap.get() costs a thrown exception each time. The map's
+            // contents cannot change mid-OpMode, so only a fresh name is worth
+            // retrying — which is exactly what editing it in Panels gives us.
+            if (wanted.equals(boundMotorName)) {
+                return;
+            }
+            if (motor != null) {
+                motor.setPower(0.0);
+            }
+            motor = tryGetMotor(hardwareMap, wanted);
+            boundMotorName = wanted;
+            appliedReversed = null;
+            commandedRpm = 0.0;
+            commandedAtNs = 0L;
+            resetReadiness();
+            if (motor != null) {
+                motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                applyDirection();
+            }
+        }
+
+        void stopHardware() {
+            appliedPower = 0.0;
+            commandedRpm = 0.0;
+            commandedAtNs = 0L;
+            resetReadiness();
+            if (motor != null) {
+                motor.setPower(0.0);
+            }
+        }
+
+        void update(double voltageMultiplier) {
+            if (motor == null) {
+                measuredTicksPerSec = 0.0;
+                measuredRpm = 0.0;
+                appliedPower = 0.0;
+                commandedRpm = 0.0;
+                commandedAtNs = 0L;
+                resetReadiness();
+                return;
+            }
+
+            applyDirection();
+
+            measuredTicksPerSec = motor.getVelocity();
+            measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
+
+            double target = desiredRpm();
+            setCommandedRpm(target);
+
+            if (target <= 0.0) {
+                motor.setPower(0.0);
+                appliedPower = 0.0;
+                return;
+            }
+
+            FlywheelLaneConfig laneConfig = cfg();
+            double feedforward = laneConfig.kS + laneConfig.kV * target;
+            double feedback = laneConfig.kP * (target - measuredRpm);
+            double power = Range.clip((feedforward + feedback) * voltageMultiplier, 0.0, 1.0);
+
+            motor.setPower(power);
+            appliedPower = power;
+
+            updateReadiness(target);
+        }
+
+        /** Target this lane should be at right now: 0 unless spinning and enabled. */
+        private double desiredRpm() {
+            FlywheelLaneConfig laneConfig = cfg();
+            if (!spinning || !laneConfig.enabled) {
+                return 0.0;
+            }
+            double target = config.target.targetRpm + laneConfig.rpmTrim;
+            return Range.clip(target, 0.0, Math.max(0.0, config.target.maxRpm));
+        }
+
+        /**
+         * Records the new command and, when it actually changed, restarts the
+         * spin-up clock so the reported time belongs to the current target.
+         */
+        private void setCommandedRpm(double target) {
+            boolean changed = Math.abs(target - commandedRpm) > 1.0;
+            commandedRpm = target;
+            if (changed) {
+                resetReadiness();
+                restartSpinUpClock();
+            }
+        }
+
+        private void updateReadiness(double target) {
+            boolean within = Math.abs(target - measuredRpm) <= config.readiness.rpmToleranceRpm;
+            if (!within) {
+                inToleranceSinceNs = 0L;
+                atSpeed = false;
+                return;
+            }
+            long now = System.nanoTime();
+            if (inToleranceSinceNs == 0L) {
+                inToleranceSinceNs = now;
+                if (commandedAtNs != 0L && Double.isNaN(lastSpinUpMs)) {
+                    lastSpinUpMs = (now - commandedAtNs) / 1e6;
+                }
+            }
+            atSpeed = (now - inToleranceSinceNs) >= config.readiness.atSpeedHoldMs * 1e6;
+        }
+
+        private void resetReadiness() {
+            inToleranceSinceNs = 0L;
+            atSpeed = false;
+            lastSpinUpMs = Double.NaN;
+        }
+
+        /**
+         * Restarts the spin-up stopwatch. Called whenever the wheel is going to
+         * have to get back to speed from wherever it is now — a new target, or a
+         * direction flip that cut power mid-run.
+         */
+        private void restartSpinUpClock() {
+            commandedAtNs = commandedRpm > 0.0 ? System.nanoTime() : 0L;
+        }
+
+        /**
+         * Applies the {@code reversed} tick box if it has changed since last
+         * loop, cutting power first — the wheel then coasts through the flip
+         * rather than being commanded hard the other way.
+         */
+        private void applyDirection() {
+            boolean reversed = cfg().reversed;
+            if (appliedReversed != null && appliedReversed == reversed) {
+                return;
+            }
+            motor.setPower(0.0);
+            appliedPower = 0.0;
+            motor.setDirection(reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
+            appliedReversed = reversed;
+            resetReadiness();
+            restartSpinUpClock();
+        }
+
+        private double ticksPerSecondToRpm(double ticksPerSecond) {
+            double ticksPerRev = config.measurement.ticksPerRev;
+            double gearRatio = config.measurement.gearRatio;
+            double divisor = ticksPerRev * gearRatio;
+            if (divisor == 0.0) {
+                return 0.0;
+            }
+            return ticksPerSecond * 60.0 / divisor;
+        }
+
+        private FlywheelLaneConfig cfg() {
+            return configFor(lane);
+        }
+    }
+}
