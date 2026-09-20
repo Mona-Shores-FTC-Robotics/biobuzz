@@ -15,7 +15,7 @@ and why — so the reasoning survives past whoever added it.
 
 | Library | Artifact | Purpose |
 |---|---|---|
-| Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Fast dex scanning at OpMode discovery time — roughly 50% faster init than the SDK's plain reflective scan. Also the discovery mechanism AutoTune is built on (see below), so it is no longer optional. |
+| Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Hot code reload — pushes only TeamCode to the robot, turning a ~40s reinstall into under a second (see [Deploying to the robot](#deploying-to-the-robot)). Also gives fast dex scanning at OpMode discovery, roughly 50% faster init than the SDK's reflective scan, and is the discovery mechanism AutoTune is built on, so it is no longer optional. |
 | Pedro Pathing (core) | `com.pedropathing:core:3.0.1` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
 | Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.1` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
 | Pedro AutoTune | `com.pedropathing:tuning:1.0.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
@@ -70,6 +70,46 @@ others in the same commit:
 One non-obvious consequence: `Load:0.3.2` pulls `com.android.tools.build:gradle`
 transitively, so the `buildscript` block in `TeamCode/build.gradle` needs
 `google()` in its repositories. `Load:0.2.4` did not.
+
+## Deploying to the robot
+
+Two buttons, from the run-configuration dropdown next to the green ▶ in Android
+Studio. You do not need a terminal for either.
+
+| Dropdown entry | What it does | Speed |
+|---|---|---|
+| **TeamCode** | Full APK rebuild, uninstall, reinstall | ~40s |
+| **Sloth Load** | Hot-reloads only your TeamCode classes | under 1s |
+
+`Sloth Load` comes from `.run/Sloth Load.run.xml`, committed at the repo root, so
+it appears for everyone who clones — no per-laptop setup. (It runs
+`:TeamCode:deploySloth` underneath, if you ever want it from a terminal.)
+
+### First-time setup, once per laptop
+
+1. Open the **TeamCode** run configuration and set **Module** to the real
+   TeamCode module. On a fresh clone it defaults to `<no module>`, and deploys
+   fail in a way that does not obviously point at this.
+2. Connect the robot — USB-C, or over Wi-Fi with
+   `adb connect 192.168.43.1:5555` (Control Hub) or `192.168.49.1:5555`
+   (phone RC).
+3. Run **TeamCode** once. Sloth reloads code into an app that is already
+   installed; it cannot do the first install itself.
+
+After that, **Sloth Load** is the everyday button.
+
+### When Sloth is not enough
+
+Sloth only reloads classes under `org.firstinspires.ftc.teamcode`. Use the full
+**TeamCode** install whenever you have changed:
+
+- any `.gradle` file
+- dependencies (added, removed, or version-bumped)
+- anything in `FtcRobotController/`
+
+Symptom of getting this wrong: the robot keeps running the *old* behaviour and
+nothing looks broken. If a change seems to have had no effect, do a full install
+before debugging anything else.
 
 ## The `pedro` package
 
