@@ -12,17 +12,19 @@ apply plugin: 'com.android.application'
 
 // Sloth Load plugin — enables Sinister fast dex scanning at OpMode discovery
 // time (~50% faster init vs. plain FTC SDK reflective scanning). Required for
-// the Sloth runtime dependency below to function. See TeamCode/README.md for
-// why this is here and its SDK 11.2.1 / Gradle 9 compatibility status.
+// the Sloth runtime dependency below to function. Must stay version-locked to
+// the Sloth runtime and to the Sloth-variant builds of Panels / FTC Dashboard;
+// see TeamCode/README.md.
 buildscript {
     repositories {
         mavenCentral()
+        google() // Load 0.3.2 pulls com.android.tools.build:gradle transitively
         maven {
             url "https://repo.dairy.foundation/releases"
         }
     }
     dependencies {
-        classpath "dev.frozenmilk:Load:0.2.4"
+        classpath "dev.frozenmilk:Load:0.3.2"
     }
 }
 
@@ -40,7 +42,6 @@ android {
 }
 
 repositories {
-    maven { url = 'https://maven.pedropathing.com' }
     maven { url = "https://mymaven.bylazar.com/releases" }
     maven { url = "https://repo.dairy.foundation/releases" }
     maven { url = "https://repo.dairy.foundation/snapshots" }
@@ -51,12 +52,25 @@ dependencies {
 
     // Sloth runtime — Sinister fast dex scanning. Paired with the Sloth Load
     // Gradle plugin applied above.
-    implementation("dev.frozenmilk.sinister:Sloth:0.2.4")
+    implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
 
-    // Pedro Pathing (path following) + Ivy (command-based control flow).
-    implementation('com.pedropathing:ftc:2.1.2')
-    // Ivy 1.0.x moved to the com.pedropathing.ivy group; pedro = pathing integration.
-    implementation('com.pedropathing.ivy:pedro:1.0.1')
+    // Pedro Pathing 3.x. The 2.x `com.pedropathing:ftc` fat artifact no longer
+    // exists: 3.x splits into `core` (pure Java pathing/math, no Android or FTC
+    // SDK types) and `revhub` (the REV hardware layer — drivetrains, localizers,
+    // IMU). `revhub` already brings `core` transitively; `core` is declared
+    // explicitly so its version is pinned here rather than inherited.
+    implementation('com.pedropathing:core:3.0.1')
+    implementation('com.pedropathing:revhub:3.0.1')
+
+    // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
+    // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the
+    // reason the Sloth stack above is pinned to 0.3.2 (AutoTune requires it).
+    implementation('com.pedropathing:tuning:1.0.1')
+
+    // Ivy (command-based control flow). 1.1.x is the Pedro 3 pairing —
+    // 1.1.1 is compiled against com.pedropathing:core:3.0.0. 1.0.1 was built
+    // against Pedro 2 and will not link against the 3.x classes.
+    implementation('com.pedropathing.ivy:pedro:1.1.1')
 
     // Dairy CachingHardware: wraps motors/servos to skip redundant
     // setPower/setPosition calls when the new value is within tolerance of
@@ -64,12 +78,12 @@ dependencies {
     implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
 
     // Panels — Sloth-compatible variant (replaces com.bylazar:fullpanels)
-    implementation("com.bylazar.sloth:fullpanels:0.2.4+1.0.12")
+    implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
 
     // FTC Dashboard — Sloth-compatible variant (replaces
     // com.acmerobotics.dashboard:dashboard). Kept alongside Panels for
     // passive monitoring / future AdvantageScope integration.
-    implementation("com.acmerobotics.slothboard:dashboard:0.2.4+0.5.1")
+    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
     testImplementation 'junit:junit:4.13.2'
 }
