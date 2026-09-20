@@ -53,6 +53,20 @@ others in the same commit:
    `strictly` is Panels telling us it means it. `1.2.0` is also what the stock
    FTC SDK and the Pedro Quickstart both declare.
 
+   **The `1.7.1` this replaced was not fixing anything** — checked, because a
+   silent downgrade of something load-bearing would be a nasty surprise later.
+   The trail: DECODE `5b9446e` (2026-05-16) raised it `1.2.0` → `1.7.1` as one
+   bullet in a six-line bulk dependency refresh, no reason given, "not yet
+   verified on robot"; this repo's `f71afce` then copied it across "to match",
+   and the README that commit added — which documented everything else, down to
+   libraries deliberately *not* included — never mentions appcompat at all.
+   Nothing in either stack ever asked for it: `CachingHardware:1.0.0` and
+   Panels `0.2.4+1.0.5` both declare appcompat **`1.2.0`**, as ordinary
+   (non-strict) `requires`, so Gradle silently resolved them up to `1.7.1`
+   because higher wins. Building `master` with appcompat forced to `1.2.0`
+   succeeds. So there is no latent bug waiting to resurface: the downgrade
+   restores the version two of our own dependencies were asking for.
+
 One non-obvious consequence: `Load:0.3.2` pulls `com.android.tools.build:gradle`
 transitively, so the `buildscript` block in `TeamCode/build.gradle` needs
 `google()` in its repositories. `Load:0.2.4` did not.
