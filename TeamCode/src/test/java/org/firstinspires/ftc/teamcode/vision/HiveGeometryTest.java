@@ -33,25 +33,31 @@ public class HiveGeometryTest {
                 publishedExtent, HiveGeometry.OPENING_VERTICAL_EXTENT_IN, 0.05);
     }
 
-    /** The derived swing, which is what makes height usable as a state discriminator. */
+    /**
+     * The swing of a point half a CELL spacing from the pivot. Not the tags' swing —
+     * see {@code HiveCellPosesTest.stickerRiseIsAboutFourteenInches}.
+     */
     @Test
-    public void stateHeightDeltaIsAboutNineInches() {
+    public void halfSpacingPointRisesAboutNineInches() {
         assertEquals(9.42, HiveGeometry.STATE_HEIGHT_DELTA_IN, 0.01);
     }
 
     /**
-     * The separation has to exceed the classifier's two acceptance bands, or UP and
-     * DOWN overlap and {@code CellStateTracker} correctly refuses to distinguish them.
-     * This is the constraint that sets the default tolerance.
+     * The tags' separation has to exceed the classifier's two acceptance bands, or UP
+     * and DOWN overlap and {@code CellStateTracker} correctly refuses to distinguish
+     * them. Uses the worst case over where the unmeasured tag row can sit on the
+     * sticker.
      */
     @Test
     public void stateSeparationExceedsTheClassifierTolerance() {
         double bandsWidth = 2.0 * CellStateTracker.Geometry.heightToleranceIn;
+        double worstSeparation =
+                HiveCellPoses.STICKER_STATE_RISE_IN - HiveCellPoses.TAG_ROW_OFFSET_BOUND_IN;
         assertTrue(
                 "Tolerance " + CellStateTracker.Geometry.heightToleranceIn
                         + "in leaves no dead band across a "
-                        + HiveGeometry.STATE_HEIGHT_DELTA_IN + "in swing",
-                HiveGeometry.STATE_HEIGHT_DELTA_IN > bandsWidth);
+                        + worstSeparation + "in swing",
+                worstSeparation > bandsWidth);
     }
 
     /** The raised opening must sit above the HIVE's lowest point, or a figure is misread. */

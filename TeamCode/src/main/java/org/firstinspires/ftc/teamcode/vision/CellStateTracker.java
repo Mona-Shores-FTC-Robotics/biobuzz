@@ -39,16 +39,28 @@ public class CellStateTracker {
      * Diagnostics</b>, which displays the measured row height for exactly this
      * purpose.
      *
-     * <p>The absolute heights are not published. The Competition Manual gives the
-     * pivot height, the tilt and the CELL spacing, but locates the AprilTag cluster
-     * only by reference-hole alignment — §9.9 says those holes "can be used to
-     * measure the location of the AprilTag Cluster relative to the rest of the
-     * FIELD", i.e. FIRST expects teams to measure it. See {@link HiveGeometry}.
+     * <p>The absolute heights are not in the Competition Manual, which locates the
+     * AprilTag cluster only by reference-hole alignment (§9.9). The field CAD does
+     * give them, transcribed in {@link HiveCellPoses}: sticker centres at
+     * <b>49.67 in</b> raised and <b>35.65 in</b> lowered, a rise of
+     * {@link HiveCellPoses#STICKER_STATE_RISE_IN} ≈ 14.02 in. The tag row can sit up
+     * to ±0.31 in off those heights, because its position on the sticker isn't in
+     * the CAD.
      *
-     * <p>What <em>is</em> known from the manual is the <b>difference</b> between the
-     * two: {@link HiveGeometry#STATE_HEIGHT_DELTA_IN}, about nine inches. That is
-     * what makes this classifier viable before anything has been measured, and it
-     * is what sets the default tolerance below.
+     * <p><b>Correction, 2026-09-21:</b> this previously said the rise was about nine
+     * inches ({@link HiveGeometry#STATE_HEIGHT_DELTA_IN}). That figure is for a point
+     * half a CELL spacing from the pivot; the stickers sit further out.
+     *
+     * <p><b>Status, 2026-09-21: still unmeasured, on purpose.</b> Nobody has had a
+     * robot in front of a real HIVE yet, and the CAD cannot stand in for it: these
+     * are heights <em>as the camera measures them</em>, so they absorb the camera
+     * axis convention and mount calibration along with the field itself. Copying
+     * them from CAD would hide exactly the upstream errors that comparing a reading
+     * against the CAD is meant to catch. Procedure: run <b>Vision: Sighting
+     * Diagnostics</b>, settle a cell, read the labelled {@code ROW HEIGHT}, tip it,
+     * read again. The readings should land near 49.7 / 35.7 in and about 14 in
+     * apart. If they don't, chase the axis convention and mount geometry before
+     * recording anything.
      */
     @Configurable
     public static class Geometry {
@@ -61,16 +73,18 @@ public class CellStateTracker {
         /**
          * How far from a nominal height still counts as that state, inches.
          *
-         * <p>Two bands of this width have to fit inside the roughly nine-inch swing
-         * between states with room to spare, or UP and DOWN stop being
-         * distinguishable — {@code HiveGeometryTest} asserts that they do. 2.5"
-         * leaves a dead band of about 4.4" that reads as UNKNOWN, which is where a
-         * cell mid-tip lands.
+         * <p>Two bands of this width have to fit inside the swing between states with
+         * room to spare, or UP and DOWN stop being distinguishable —
+         * {@code HiveGeometryTest} asserts that they do. Against the CAD's ~14 in
+         * swing, 2.5" leaves a dead band of about 9" that reads as UNKNOWN, which is
+         * where a cell mid-tip lands. (It was sized against a ~9.4 in swing that
+         * turned out to be the wrong number; see above.)
          *
          * <p>Erring small is the safe direction: a tolerance that is too tight costs
          * availability, where one that is too loose misclassifies and feeds a wrong
-         * pose into localization. Revisit once the real heights are measured and the
-         * true separation is known.
+         * pose into localization. Left at 2.5" on 2026-09-21: the wider real swing
+         * would allow more, but frame-to-frame and tip-to-tip spread are unmeasured,
+         * and those should set it rather than the swing.
          */
         public static double heightToleranceIn = 2.5;
     }

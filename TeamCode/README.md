@@ -274,25 +274,58 @@ redundancy catches a misread figure at build time rather than on the field.
 | Frame width × depth | 49.46 × 38.95 in | §9.6.1 |
 | CELL opening | 20 × 14 × 12 in | §9.6.2, Fig 9-11 |
 
-The one derived number that matters: **a given cell's tags rise about 9.42 in
-between its lowered and raised positions.** For any point rigidly attached to the
-rocker the difference works out to `2 · dx · sin(tilt)`, where `dx` is its
-horizontal distance from the pivot with the rocker level — the vertical component
-cancels — so it comes out to `CELL_SPACING_IN · sin(30°)` without needing to know
-where the tag plane sits. That is what makes height a usable state discriminator
-before anything has been measured, and it is what sets the classifier tolerance.
+The one derived number that matters is how far a cell's tags rise between its
+lowered and raised positions: **about 14.02 in**, from the field CAD (below). For
+any point rigidly attached to the rocker the difference works out to
+`2 · dx · sin(tilt)`, where `dx` is its horizontal distance from the pivot with the
+rocker level. The vertical component cancels, but `dx` does not. The stickers sit
+14.02 in out, so they rise 14.02 in. That is what makes height a usable state
+discriminator, and what the classifier tolerance is checked against.
+
+> **Correction, 2026-09-21.** This section used to say the tags rise ~9.42 in,
+> computed as `CELL_SPACING_IN · sin(30°)`, on the claim that it didn't depend on
+> where the tag plane sits. It does, through `dx`: 9.42 in is the rise of a point
+> half a CELL spacing out from the pivot, which the stickers are not.
+> `HiveGeometry.STATE_HEIGHT_DELTA_IN` keeps that value, relabelled. A robot
+> reading of ~14 in apart is correct, not a sign of an upstream error.
 
 A useful self-check fell out of this: the manual's own opening heights span
 65.6 − 53.5 = 12.1 in, and a 14 in opening tilted 30° from horizontal spans
 14·cos(30°) = 12.12 in. That agreement is what confirms the 30° is measured from
 horizontal rather than from vertical. It is a test, not a comment.
 
-**What the manual does not publish is any XY coordinate for the clusters.** §9.9
-is explicit that the sticker's Reference Holes "can be used to measure the location
-of the AprilTag Cluster relative to the rest of the FIELD" — FIRST expects teams to
-measure it, and the Initial Field Element Assembly Guide likewise locates the
-sticker by hole alignment with no numeric offsets. So the eight cluster poses are
-still an open measurement task.
+**The manual publishes no XY coordinate for the clusters; the field CAD does.**
+§9.9 says the sticker's Reference Holes "can be used to measure the location of the
+AprilTag Cluster relative to the rest of the FIELD", and the assembly guide gives
+no numeric offsets. FIRST's field CAD (`am-5850 BIOBUZZ 8-10-26.STEP`, exported from
+the public Onshape document) models both the holes and the sticker, so
+`HiveCellPoses` transcribes the sticker poses from it:
+
+| | raised | lowered |
+|---|---|---|
+| Sticker centre height | 49.670 in | 35.651 in |
+| Out from pivot (horizontal) | 12.885 in | 11.397 in |
+| Tag normal | 30° off straight down, tilted away from the pivot | 30° off straight down, tilted toward it |
+| Opening faces | away from pivot, 30° upward | away from pivot, 30° downward |
+
+Laterally every sticker is centred on its HIVE, at x = ±12.75 in. Where the CAD and
+the manual overlap they agree: pivot 43.950 in, HIVEs 25.50 in apart, tilt 30.0°,
+raised opening rim at 53.36 / 65.48 in against 53.5 / 65.6 in. The Reference Holes
+are two ½ in holes 14 in apart in each HIVE Goal Bottom Skin, centred on the
+sticker's notched edge.
+
+The CAD holds each cell in one state only. The other four poses are the same rigid
+rocker swung 60° about its pivot bearing, and `HiveCellPosesTest` checks each of
+them against the other HIVE's modelled cell, to 0.001 in.
+
+Poses are in a **HIVE frame**: +X toward the blue HIVE, +Y toward the SCORING cells,
++Z up, origin at field centre on the tiles. They aren't in the FTC field frame
+because the CAD and ftc-docs disagree on handedness if "AUDIENCE" cells are taken
+to be on the audience side. `HiveCellPoses` has the details; settle it on a field.
+
+Two things the CAD cannot give, because it models the sticker as a blank plate:
+where the tag row sits across the 5 in sticker (±0.625 in, left NaN) and which end
+carries the lowest tag id.
 
 ### Cell state: UP, DOWN, or don't ask
 
@@ -327,18 +360,24 @@ Ordered roughly by what unblocks what.
 
 1. **Measure the two tag-row heights** and put them in `CellStateTracker.Geometry`.
    Until this happens the state classifier returns UNKNOWN for everything and no
-   field pose is derivable. The manual gives the *difference* (~9.42 in, above) but
-   not the absolutes. Cheapest possible task — settle a cell, read the labelled row
-   height off the diagnostics OpMode, tip it, read it again. The two readings should
-   come out about 9.4 in apart; if they don't, something upstream is wrong and worth
-   chasing before going further.
-2. **Measure the eight cluster poses** — four cells, two states each — in field
-   coordinates. Not published, so this comes from the field CAD checked against a
-   real field, or from the Reference Holes as §9.9 suggests. This is the actual
-   input the field-pose layer needs. `HiveGeometry` constrains the answer: the HIVE
-   structure is centred on the field, the two HIVES are 25.5 in apart laterally, and
-   each cell sits about 8.2 in horizontally and 4.7 in vertically from its pivot at
-   43.95 in.
+   field pose is derivable. Cheapest possible task — settle a cell, read the labelled
+   row height off the diagnostics OpMode, tip it, read it again. The CAD predicts
+   about **49.7 / 35.7 in, ~14 in apart**, not the ~9.4 in this item used to quote
+   (see the correction above). If the readings disagree with that, chase the axis
+   convention and mount geometry before recording anything. *Still open as of
+   2026-09-21 — no field access yet. Don't copy the CAD numbers in: these are
+   camera-measured heights, and the point of comparing against the CAD is to catch
+   camera errors.*
+2. ~~**Measure the eight cluster poses** — four cells, two states each — in field
+   coordinates.~~ Done 2026-09-21 from the field CAD: `vision/HiveCellPoses.java`,
+   guarded by `HiveCellPosesTest`. Sticker pose, tag normal and opening direction
+   for all eight. The remainder is item 2a.
+   - **2a. Pin down the three things the CAD can't.** (i) The tag row's offset
+     across the sticker, `HiveCellPoses.TAG_ROW_OFFSET_TOWARD_OPENING_IN`,
+     currently NaN: a ruler on a real sticker, from the notched edge to the tag
+     centres. (ii) Which end of the row carries the lowest id: **Vision: Raw Tag
+     Dump**. (iii) The FTC field-frame mapping: stand at the audience and note which
+     side the red HIVE and the "AUDIENCE" cells are on.
 3. **Build the field-pose layer.** Robot-in-field from cell-in-field composed with
    the measured cell-relative geometry, solving from whichever cells are visible and
    settled, each with its own state. Gate every candidate against odometry so a
@@ -362,8 +401,10 @@ the raised and the lowered cell's clusters in the same side elevation. The geome
 agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
 stays within 30° of vertical in both positions rather than rotating away.
 
-Read off a figure rather than measured, so confirm it on a real field — actual
-sightlines also depend on camera height and range. But plan for both cells being
+The field CAD confirms the geometry: in every one of the eight poses the tag normal
+points 30° off straight down (`HiveCellPosesTest.tagsFaceDownThirtyDegreesOffVerticalInBothStates`).
+Still confirm it on a real field — actual sightlines also depend on camera height,
+range and what else on the HIVE is in the way. But plan for both cells being
 readable, which is the harder case and also the more useful one.
 
 ### What was dropped from the DECODE port, and why

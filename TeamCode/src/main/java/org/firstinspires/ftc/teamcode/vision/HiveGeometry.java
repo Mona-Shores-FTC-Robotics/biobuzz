@@ -90,20 +90,23 @@ public final class HiveGeometry {
     // ---------------------------------------------------------------
 
     /**
-     * How much a given CELL's tag plane rises between its lowered and raised
-     * positions, inches. <b>Derived, not published.</b>
+     * How much a point half a CELL spacing out from the pivot rises between the
+     * lowered and raised positions, inches. <b>Derived, not published — and not the
+     * tags.</b>
      *
      * <p>For any point rigidly attached to the rocker, the height difference between
      * the two stable states works out to {@code 2 * dx * sin(tilt)}, where {@code dx}
      * is the point's horizontal distance from the pivot axis with the rocker level —
-     * the vertical component cancels. Taking the CELL centres as symmetric about the
-     * pivot puts {@code dx} at half the cell spacing, giving
-     * {@code CELL_SPACING_IN * sin(CELL_TILT_DEG)}.
+     * the vertical component cancels. With {@code dx} at half the cell spacing this
+     * gives {@code CELL_SPACING_IN * sin(CELL_TILT_DEG)}, about 9.42 in.
      *
-     * <p>This is what makes height a usable state discriminator: roughly nine inches
-     * of separation, comfortably more than AprilTag range noise. It holds even though
-     * the <em>absolute</em> heights are still unmeasured, because it depends only on
-     * the geometry of the swing.
+     * <p><b>Correction, 2026-09-21:</b> this was originally documented as the rise of
+     * the tag row, on the grounds that the result didn't depend on where the tag plane
+     * sits. It does, through {@code dx}. The field CAD puts the stickers 14.02 in from
+     * the pivot with the rocker level, well outboard of half the spacing, so the tags
+     * rise about 14.02 in. Use {@link HiveCellPoses#STICKER_STATE_RISE_IN} for
+     * anything about tag heights. This constant is kept only because it follows
+     * directly from the manual's figures.
      */
     public static final double STATE_HEIGHT_DELTA_IN =
             CELL_SPACING_IN * Math.sin(Math.toRadians(CELL_TILT_DEG));
