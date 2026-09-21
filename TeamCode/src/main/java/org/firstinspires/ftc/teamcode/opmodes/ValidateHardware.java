@@ -18,8 +18,10 @@ import java.util.TreeSet;
  * <p>This is the run-time half of the drift check. {@code RobotConfigXmlTest}
  * proves at build time that the bundled XML and the Java agree; this proves
  * that what is actually plugged into the robot agrees with both. They catch
- * different things: the wrong configuration selected, an unplugged or dead
- * device, or somebody running a hand-made configuration.
+ * different things: the wrong configuration selected, a device missing from
+ * it or on a hub that is not connected, or somebody running a hand-made
+ * configuration. (A cable unplugged from a connected hub is not visible by
+ * name; the SDK still creates the device.)
  *
  * <p>It exists because "could not find device" mid-match is a bad way to learn
  * about a rename, and because last season's silent-{@code null} lookups

@@ -10,8 +10,10 @@ import java.util.Map;
  * A do-nothing device that fills the slot of one that is missing, so the rest of the robot keeps
  * running.
  *
- * <p>This is how a robot with an unplugged drive motor still drives on three wheels instead of
- * sitting out the match. {@link HardwareCheck#prepare} registers one of these in the
+ * <p>This is how a robot whose configuration lacks a drive motor, or whose Expansion Hub is not
+ * connected, still drives on the rest instead of sitting out the match (a cable unplugged from a
+ * connected hub is a different case; see {@link HardwareCheck}).
+ * {@link HardwareCheck#prepare} registers one of these in the
  * {@code HardwareMap} under the missing device's name; every later
  * {@code hardwareMap.get(DcMotorEx.class, name)} — ours, or a library's such as Pedro's
  * {@code Mecanum} — then gets the stand-in instead of throwing. The missing device is reported by

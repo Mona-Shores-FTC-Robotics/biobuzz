@@ -205,10 +205,24 @@ configuration, and does two things for each problem:
 | **Reported** | by name, in init telemetry | by name, in init telemetry |
 | **Keeps running** | a do-nothing `StandIn` is put in the `HardwareMap` under the missing name, so every later `hardwareMap.get(...)` — ours or Pedro's — succeeds | no stand-in is possible; code that needs it asks `check.isMissing(DeviceNames.PINPOINT)` and picks its own fallback |
 
-So a robot with a dead drive motor drives on three wheels, and the drive team
+So a robot missing a drive motor drives on three wheels, and the drive team
 knows why before the match starts. Pedro's `Mecanum` accepts the stand-in
 because it only ever calls `DcMotorEx` interface methods, and a test pins that
 down (see [Updating Pedro Pathing](#updating-pedro-pathing)).
+
+**What "missing" means — and what it does not catch.** The SDK builds the
+`HardwareMap` from the *configuration*, not by detecting what is plugged in. So
+`HardwareCheck` sees a device as missing when its name is absent from the map:
+
+| Situation | In the map? | What happens |
+|---|---|---|
+| Name not in the active config (wrong config, typo, DS copy with a device deleted) | no | reported + stand-in |
+| A whole hub not connected (e.g. Expansion Hub cable loose at boot) | no — the SDK skips a missing hub's devices | reported + stand-in for each |
+| USB camera unplugged at boot | no | reported |
+| **A motor or servo cable unplugged from a hub that is connected** | **yes** | **not detected by name.** The SDK still creates the device and commands to it do nothing — which does not crash either. Spotting it needs behaviour (an encoder that never moves), which is a job for a future per-loop check, not this one |
+| An I2C device (Pinpoint) with its cable unplugged | yes | not detected by name; the driver reports its own device status |
+
+Both "not detected" rows are already non-fatal; they are just not yet *reported*.
 
 Why the Pinpoint is different: a stand-in is a `java.lang.reflect.Proxy`, which
 can implement interfaces but not classes, and `GoBildaPinpointDriver` is a

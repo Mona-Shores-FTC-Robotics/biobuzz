@@ -23,8 +23,9 @@ import java.util.Map;
  * HardwareCheck.prepare(hardwareMap).addTo(telemetry);
  * }</pre>
  *
- * <p>The rule this implements is <b>never silent, never fatal</b>. A robot with a broken device
- * must still play the match, and the drive team must still find out before it starts:
+ * <p>The rule this implements is <b>never silent, never fatal</b>. A robot with a device missing
+ * from its {@code HardwareMap} must still play the match, and the drive team must still find out
+ * before it starts:
  *
  * <ul>
  *   <li><b>Not silent:</b> each missing or wrong-typed device, a missing or unrecognised
@@ -34,6 +35,10 @@ import java.util.Map;
  *       each missing motor or servo, so code that looks the device up gets a do-nothing device
  *       instead of an exception. Four drive motors minus one still drives.
  * </ul>
+ *
+ * <p>"Missing" means absent from the map, because the SDK builds the map from the configuration.
+ * A motor cable unplugged from a connected hub is <em>not</em> detected here: the device still
+ * exists and simply does nothing. See the README table under "Never silent, never fatal".
  *
  * <p>A missing I2C device (the Pinpoint) cannot be stood in for — see {@link StandIn}. Code that
  * depends on one must ask {@link #isMissing(String)} and decide its own fallback.

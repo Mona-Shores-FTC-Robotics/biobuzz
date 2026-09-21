@@ -39,7 +39,7 @@ public class PedroCompatibilityTest {
 
     /**
      * Canary: Pedro's drivetrain must still run on stand-in motors, because that is what keeps a
-     * robot with a dead drive motor driving.
+     * robot missing a drive motor driving.
      *
      * <p>It works today because {@code Mecanum} fetches motors with
      * {@code hardwareMap.get(DcMotorEx.class, name)} and only calls {@code DcMotorEx} interface
