@@ -556,6 +556,12 @@ unaffected — it only reloads TeamCode classes.
 - **Marrow** (`io.github.skeleton-army.marrow`) — a newer reactive-behavior
   library that layers on NextFTC/FTCLib/SolversLib. No evidence yet of use by
   competitive teams; worth revisiting, not a default include.
+- **AdvantageScope Lite** — *no longer excluded.* This entry used to say "add
+  it back only if that debugging workflow is actually resumed". It was, so #38
+  added `page.j5155.AdvantageScope:lite:v26.0.0` and it is now a normal
+  dependency — see [AdvantageScope](#advantagescope) for the version and size
+  caveats. Kept here as a history note so the reversal is visible rather than
+  looking like the entry was never written.
 - **`exportPaths` Gradle task** — a nice-to-have that exports autonomous
   paths as `.pp` files for the Pedro Pathing visualizer. Not added here
   because it depends on a `util.ExportAutoPaths` utility class that doesn't

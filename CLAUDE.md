@@ -29,8 +29,11 @@ Filling those two stubs is the critical path. See the board.
   **Exception:** `pedro/Constants.java` and `pedro/Tuning.java` *are* ours to fill in. They are the
   one hole in this rule.
 - **Do not re-add the deliberately excluded set**: NextFTC, `com.pedropathing:telemetry`, Road
-  Runner, AdvantageScope Lite, Marrow, or the `maven.pedropathing.com` repository.
+  Runner, Marrow, or the `maven.pedropathing.com` repository.
   → `TeamCode/README.md` § "Deliberately excluded"
+  **History:** AdvantageScope Lite was on this list until #38. It was never excluded on the
+  merits — the entry said to add it back "only if that debugging workflow is actually resumed",
+  and it has been. It is now a normal dependency. → `TeamCode/README.md` § "AdvantageScope"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
