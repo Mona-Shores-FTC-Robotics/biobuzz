@@ -3,18 +3,35 @@
 FTC 2026–27 season: **BIOBUZZ**, the game within FIRST's **CANOPY** season umbrella. Two robots,
 one repo. This is a fork of the stock `FtcRobotController` SDK project.
 
-## Read this first: there is no robot code yet
+## Read this first: what exists, and what is still a placeholder
 
-This is expected, not a broken checkout. Do not go looking for missing subsystems, and do not
-regenerate them.
+> **History note.** Until 21 Sep 2026 this section said `TeamCode` was toolchain-only, that
+> `Constants.create()` returned `null`, and that filling those stubs was the critical path. PRs
+> #16–#19 made all of that false in one afternoon and this section was not updated with them — so
+> for a few hours it told sessions not to look for code that existed. Treat anything you remember
+> along those lines as stale.
 
-- `TeamCode` is **toolchain-only**. The 11 files under `.../teamcode/pedro/` are a verbatim copy of
-  the Pedro Pathing Quickstart v3.0.1.
-- `pedro/Constants.java` — `create()` returns `null`.
-- `pedro/Tuning.java` — empty, `// Tuners go here`.
-- There is not one `@TeleOp` or `@Autonomous` outside the stock `FtcRobotController` samples.
+**There is robot code now** — roughly 3,200 team-authored Java lines, six registered OpModes and
+six unit test classes.
 
-Filling those two stubs is the critical path. See the board.
+| Package | What it is |
+|---|---|
+| `hardware/` | `DeviceNames` (the only place a hardware name may be written), robot identity, active-config resolution |
+| `pedro/` | Pathing. `Constants.java` and `Tuning.java` are **ours and filled in**; everything else is upstream |
+| `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
+| `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
+| `opmodes/` | Ours, including `ValidateHardware` and the vision calibration OpModes |
+| `util/`, `src/test/` | Shared helpers; six test classes, run by CI |
+
+**Do not edit** `pedro/procedures/**` or `FtcRobotController/` — both are upstream and get re-copied
+wholesale. That rule has exactly one hole, named above: `Constants.java` and `Tuning.java`.
+
+**The critical path is now tuning, not code.** Merging #17 made AutoTune *runnable*; it did not make
+the numbers *right*. Every drivetrain offset, motor direction and `ForesightConfig` value on `master`
+is a placeholder, and `Constants.createAlgorithm()` deliberately throws at init with a message naming
+the fix, because twelve Foresight variables are `required` with no defaults — they are properties of
+this robot's mass, wheels and battery and cannot be guessed. So the next real work is a session on
+each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
 
 ## Hard constraints — breaking these costs a meeting
 
@@ -110,7 +127,7 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 | Path | Ours? |
 |---|---|
 | `TeamCode/src/main/java/.../teamcode/pedro/procedures/` | No — upstream Quickstart, re-copy on upgrade |
-| `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning}.java` | **Yes** — the two stubs to fill |
+| `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning}.java` | **Yes** — ours, and filled in |
 | `TeamCode/src/main/java/.../teamcode/hardware/` | Yes — device names, robot identity |
 | `TeamCode/src/main/java/.../teamcode/opmodes/` | Yes |
 | `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs |
@@ -120,7 +137,13 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 
 ## Notes for remote sessions
 
-- **`gh` is not installed.** Use the GitHub MCP tools for all GitHub access.
+- **`gh` is not installed *in these remote containers*.** Use the GitHub MCP tools for all
+  GitHub access from a Claude session. This says nothing about your laptop — `gh` on Windows,
+  macOS or Linux is the normal way for a person to drive this repo, and some things (running
+  the **Set up season board** workflow, for one) are easiest that way.
+- **Routine-fired sessions have neither `gh` nor the GitHub MCP tools**, so they can read the
+  repo and `git log` but not issues or PRs. A scheduled standup needs one of the two added to
+  the environment before it can do its job.
 - **No robot is attached.** Anything requiring hardware must stop and produce instructions for a
   meeting rather than guessing at values.
 - Gradle needs network. If the sandbox blocks it, say so — do not report the build as broken.
