@@ -1,68 +1,71 @@
-# Contributing to the FTC SDK
+# Contributing — Mona Shores FTC (19429 & 20245)
 
-The following is a set of guidelines for contributing the FIRST FTC SDK.  The FTC Technology Team welcomes suggestions for improvements to core software, ideas for new features, requests for built-in support of new sensors, and well written bug reports.
+> **History note.** This file used to be the stock upstream FTC guide to contributing to the
+> *FIRST* SDK itself — the one that opens "STOP! ... do not push this button." That was never aimed
+> at us. This replaces it with how *this team* works.
 
-## How can I contribute?
+If you have never contributed to a repo before, start at Rung 0 and work down. You cannot break
+anything: CI compiles, lints and tests every pull request, and `master` is protected.
 
-### Pull requests
+## The ladder
 
-__STOP!__  If you are new to git, do not understand the mechanics of forks, branches, and pulls, if what you just read is confusing, __do not__ push this button.  Most likely it won't do what you think it will.
+Each rung has a visible artifact, so you can see your own progress.
 
-![Pull Button](../doc/media/PullRequest.PNG)
+| Rung | What you do | You're done when |
+|---|---|---|
+| **0 — Exists** | GitHub account, added as a collaborator, repo cloned, Android Studio syncs. Do the once-per-laptop setup in `TeamCode/README.md` — the **Module** field defaults to `<no module>` and deploys fail confusingly if you skip it. | You've commented on the Meeting Log saying "cloned, synced" |
+| **1 — Runs** | Run the **Validate Hardware** OpMode on a robot and report what it printed. No git, no editing. | An issue is closed with the output pasted in |
+| **2 — Changes something and sees it** | Edit one telemetry string, hit **Sloth Load**, and watch your own words appear on the Driver Station in under a second. Then `git checkout -- .` | A mentor watched it happen. Nothing is committed |
+| **3 — First PR** | Take a `good-first-task`. It's `desk-ok`, so you can do this at home at 9pm. Branch → edit → commit → push → PR → watch three checks go green → get a review → merge. | A merged PR with your name on it |
+| **4 — First code PR** | Something in Java, where CI genuinely catches mistakes. | A merged PR touching a `.java` file — **with at least one requested change**, because taking a review is part of the rung |
+| **5 — Owns an issue** | Take a `student-ready` issue end to end. Ask questions *in the issue*. A mentor reviews but doesn't touch your branch. | An issue assigned to you, closed by your own PR |
+| **6 — Reviews** | Review another student's PR before a mentor does. Run it, read it, ask one question. | A submitted review |
 
-If you are looking at this button then you've pushed some changes to your team's fork of ftctechnh/ftc_app.  Congratulations!  You are almost certainly finished.
+Rung 2 exists for one reason: the gap between "I typed something" and "the robot said it" is about
+one second on this project. That is worth feeling early.
 
-The vast majority of pull requests seen on the ftctechnh/ftc_app repository are not intended to be merged into the official SDK.  Team software is just that, your team's.  It's specific to the tasks you are trying to accomplish, the testing you are doing, and goals your team has.  You don't want that pushed into the official SDK.
+## Finding something to work on
 
-If what you've read so far makes little sense, there are some very good git learning resources online.  
-[Git Book](https://git-scm.com/book/en/v2)  
-[Interactive Git Tutorial](https://try.github.io)
+Filter the issue list by label.
 
-### Guidlines for experienced GIT users.
+- **`good-first-task`** — never opened a PR? Start here. One file, an obviously correct answer.
+- **`student-ready`** — you can own this from start to finish.
+- **`needs-pairing`** — grab a mentor first; you drive.
+- **`mentor-only`** — locked dependency versions, CI, or something ahead of where the team is.
 
-If you are absolutely certain that you want to push the big green button above, read on.  Otherwise back _slowly away from keyboard_.
+And check what it needs:
 
-The real intent for advanced users is often to issue a pull request from the [branch](https://www.atlassian.com/git/tutorials/using-branches/git-branch) on a local fork back to master on either the same local fork or a child of the team fork and not on the parent ftctechnh/ftc_app.  See [Creating a Pull Request](https://help.github.com/articles/creating-a-pull-request-from-a-fork/).
+- **`desk-ok`** — laptop only. Do it at home.
+- **`needs:robot`** — you need a physical robot. There are two, so these are scarce.
+- **`needs:field`** — you need the field and game elements too. Scarcer still.
 
-If that is indeed the intent, then you can merge your [topic branch](https://git-scm.com/book/en/v2/Git-Branching-Branching-Workflows#Topic-Branches) into master locally by hand before pushing it up to github, or if you want a pull request for pulls between branches on the same repository because, say, you want team members to look at your software before merging into master, you can select the base fork from the dropdown on the "Open a pull request" page and select your team repo instead of ftctechnh's.
+**Claim an issue by assigning yourself** before you start, so two people don't do the same work.
 
-Alternatively, if you have a team repository forked from ftctechnh/ftc_app, and then team members individually fork from your team repository, then pull requests from the individual team member's forks will have the main team repository automatically selected as the base fork for the pull. And you won't inadvertently request to pull your team software into ftctechnh's repository.
+## How we work
 
-The latter would be the "best" way to manage software among a large team. But as with all things git there are many options.
+- **An issue exists before a branch does.** Every PR says `Closes #N`.
+- Branch names: `feat/ fix/ tune/ chore/ docs/ spike/` + a short description.
+- **Never commit directly to `master`.**
+- **If you rename a branch, its PR closes.** Open a new one immediately — this has already stranded
+  finished work on this repo twice.
+- Commit messages: imperative subject ("Add flywheel velocity telemetry"), and the body explains
+  *why*, not *what*. The diff already says what.
+- A red CI check is investigated, not re-run.
 
-Pull requests that do not fall into the category above are evaluated by the FTC Technology Team on a case-by-case basis.  Please note however that the deployment model of the SDK does not support direct pulls into ftctechnh/ftc_app.  
+## Writing things down
 
-### Report bugs
+The rule this team documents by:
 
-This section guides you through filing a bug report.  The better the report the more likely it is to be root caused and fixed.  Please refrain from feature requests or software enhancements when opening new issues.  See Suggesting Enhancements below.
+> Record what was included, what was deliberately left out, and why — so the reasoning survives past
+> whoever added it.
 
-#### Before submitting a bug report
+Write down the options you **rejected**, not just the one you chose. When you change an earlier
+decision, add a note saying the old one was stale rather than quietly overwriting it.
+`TeamCode/README.md` is the worked example.
 
-- Check the [forums](http://ftcforum.firstinspires.org/forum.php) to see if someone else has run into the problem and whether there is an official solution that doesn't require a new SDK.
+## Getting unstuck
 
-- Perform a search of current [issues](https://github.com/FIRST-Tech-Challenge/FtcRobotController/issues) to see if the problem has already been reported.  If so, add a comment to the existing issue instead of creating a new one.
+Ask in the issue — not in a DM. An answer in the issue helps the next person too.
 
-#### How Do I Submit A (Good) Bug Report?
-
-Bugs are tracked as GitHub issues. Create an issue on ftctechnh/ftc_app and provide the following information.
-Explain the problem and include additional details to help maintainers reproduce the problem:
-
-- Use a clear and descriptive title for the issue to identify the problem.
-
-- Describe the exact steps which reproduce the problem in as many details as possible.
-
-- Provide specific examples to demonstrate the steps.
-
-- Describe the behavior you observed after following the steps and point out what exactly is the problem with that behavior. Explain which behavior you expected to see instead and why. If applicable, include screenshots which show you following the described steps and clearly demonstrate the problem.
-
-- If you're reporting that the RobotController crashed, include the logfile with a stack trace of the crash.  [Example of good bug report with stack trace](https://github.com/ftctechnh/ftc_app/issues/224)
-
-- If the problem wasn't triggered by a specific action, describe what you were doing before the problem happened and share more information using the guidelines below.
-
-### Suggesting Enhancements
-
-FIRST volunteers are awesome.  You all have great ideas and we want to hear them.  
-
-Enhancements should be broadly applicable to a large majority of teams, should not force teams to change their workflow, and should provide real value to the mission of FIRST as it relates to engaging youth in engineering activities.
-
-The best way to get momentum behind new features is to post a description of your idea in the discussions section of this repository.  Build community support for it.  The FTC Technology Team monitors the discussions.  We'll hear you and if there's a large enough call for the feature it's very likely to get put on the list for a future release.
+If no mentor is free, a Claude session with the `first-pr-coach` skill will walk you through a first
+PR step by step without doing it for you.

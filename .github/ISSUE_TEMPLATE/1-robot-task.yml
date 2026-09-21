@@ -1,0 +1,87 @@
+name: Robot code task
+description: Something the robot should do that it does not do yet.
+labels: ["type:feature"]
+body:
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - area:drivetrain
+        - area:autonomous
+        - area:teleop
+        - area:vision
+        - area:mechanism
+        - area:hardware-config
+        - area:build-ci
+        - area:docs
+        - area:tooling
+    validations:
+      required: true
+
+  - type: dropdown
+    id: robot
+    attributes:
+      label: Which robot
+      options:
+        - Both
+        - "19429"
+        - "20245"
+      default: 0
+    validations:
+      required: true
+
+  - type: textarea
+    id: behaviour
+    attributes:
+      label: What should the robot do differently when this is done?
+      description: Describe the behaviour, not the implementation.
+    validations:
+      required: true
+
+  - type: textarea
+    id: where-to-start
+    attributes:
+      label: Where to start
+      description: >
+        Which file to open first, and an existing file to copy the pattern from.
+        This field is what turns "a task" into "a task a student can actually pick up".
+    validations:
+      required: true
+
+  - type: textarea
+    id: done
+    attributes:
+      label: How we'll know it works
+      description: A telemetry value, an OpMode to run, or a CI check. Not "it works".
+    validations:
+      required: true
+
+  - type: dropdown
+    id: access
+    attributes:
+      label: What's needed to do this
+      options:
+        - "desk-ok — laptop only, can be done at home"
+        - "needs:robot — requires a physical robot"
+        - "needs:field — requires the field and game elements too"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: ownership
+    attributes:
+      label: Who can take this
+      options:
+        - "good-first-task — safe for someone who has never opened a PR"
+        - "student-ready — a student can own this end to end"
+        - "needs-pairing — student drives, mentor sits with them"
+        - "mentor-only — locked versions, CI, or ahead of the team's knowledge"
+    validations:
+      required: true
+
+  - type: input
+    id: blocked-by
+    attributes:
+      label: Blocked by
+      placeholder: "#20, #26"
