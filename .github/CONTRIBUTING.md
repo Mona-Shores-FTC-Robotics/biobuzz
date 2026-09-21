@@ -24,6 +24,35 @@ Each rung has a visible artifact, so you can see your own progress.
 Rung 2 exists for one reason: the gap between "I typed something" and "the robot said it" is about
 one second on this project. That is worth feeling early.
 
+## Proposing something
+
+**You do not have to wait to be given work. Anyone can propose something the robot should do.**
+
+Open an issue with the **"Idea — something the robot should do"** template. You do not need to know
+how to build it, how long it takes, or whether it's even possible. If you drive the robot, you
+already know things nobody else on the team knows.
+
+### What happens to your idea
+
+Every Saturday we read the new proposals **out loud, together**, and decide as a group. One of four
+things happens, and we always say which and why:
+
+| Outcome | What it means |
+|---|---|
+| **Accepted** | It becomes real work — it gets a priority, an area and a milestone, and goes on the board |
+| **Folded in** | Someone already proposed something close. Yours gets linked to theirs so both names are on it |
+| **Parked** | Good idea, wrong month. It moves to the Backlog milestone and stays open |
+| **Answered** | There's a reason it won't work, and we write that reason down |
+
+**Parked is not a no.** It is the most common outcome for a good idea, and it means we come back to
+it. Nothing gets closed without an explanation, ever.
+
+### Help run triage
+
+Each week one student helps run triage alongside a mentor — reading the proposals, asking the
+questions, helping decide. Ask if you want a turn. Having a hand in deciding *what* the team does is
+the point of all of this, not a reward for doing enough of the other stuff first.
+
 ## Finding something to work on
 
 Filter the issue list by label.

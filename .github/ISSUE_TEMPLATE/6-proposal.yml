@@ -1,0 +1,69 @@
+name: Idea — something the robot should do
+description: Propose something. You do not need to know how to build it.
+labels: ["proposal", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        **Anyone can file one of these, and you can't get it wrong.** You do not need to
+        know how to build it, how long it takes, or whether it's possible. That's what
+        triage is for — we read these together at the Saturday meeting and decide as a
+        group. Five minutes is plenty.
+
+  - type: input
+    id: what
+    attributes:
+      label: What should the robot do?
+      placeholder: "Point at the nearest HIVE cell when I hold a button"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: helps
+    attributes:
+      label: How does this help us win?
+      description: Your best guess. Nobody will hold you to it.
+      options:
+        - Scores more points
+        - Makes us faster (more cycles per match)
+        - Makes us more reliable (fewer things going wrong)
+        - Makes the robot easier to drive
+        - Helps in autonomous
+        - Not sure — it just seems useful
+    validations:
+      required: true
+
+  - type: textarea
+    id: why
+    attributes:
+      label: Why do you think so?
+      description: >
+        One or two sentences. "Because lining up by eye takes forever and I miss half
+        my shots" is a great answer.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: When in the match?
+      options:
+        - Autonomous (first 30 seconds)
+        - Driver control
+        - Endgame
+        - Any time / not sure
+    validations:
+      required: true
+
+  - type: textarea
+    id: seen
+    attributes:
+      label: Have you seen another team do this? (optional)
+      description: A match video, a team number, or "saw it at a scrimmage" all help.
+
+  - type: markdown
+    attributes:
+      value: >
+        **What happens next:** at triage we either accept it, fold it into a similar
+        idea, park it for later, or answer it if there's a reason it won't work. We
+        always say which and why. **Parked is not a no** — it means not this month.
