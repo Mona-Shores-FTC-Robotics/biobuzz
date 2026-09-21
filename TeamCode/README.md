@@ -132,6 +132,196 @@ there is not a single `@TeleOp` or `@Autonomous` annotation in it, and it
 compiles to an inert set of classes. That is expected on a toolchain-only
 branch; it is not a sign the copy went wrong.
 
+## The `vision` package
+
+`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/vision/` tracks the BIOBUZZ
+HIVE CELLs with a Limelight 3A. It reports where a cell is **relative to the
+robot** — range, bearing and elevation in the chassis frame — and deliberately
+produces no field pose.
+
+### Why it does not produce a field pose yet
+
+BIOBUZZ publishes no AprilTag field positions. Not imprecise ones — none:
+
+```
+AprilTagGameDatabase.getBioBuzzTagLibrary()
+  getAllTags()      -> empty
+  lookupTag(30..45) -> null for every id
+  getAllClusters()  -> 4 clusters, every fieldPosition = (0, 0, 0)
+```
+
+Those zeros are deliberate rather than an unfilled TODO — the same convention FIRST
+used in DECODE, where the fixed goal tags 20/24 carried real coordinates while the
+Obelisk tags 21-23, repositioned between matches, were published as zeros. The SDK
+12.0 release notes say why, in bold: *"Unfortunately, since BIOBUZZ AprilTags move,
+they are not suitable for absolute Field Localization."*
+
+**Read that statement carefully — it is narrower than it first looks.** FIRST cannot
+ship one field position per tag in a library every team shares, so their library does
+not support localization. That is not the same as the poses being unknowable. The
+HIVE CELLs are bistable: they pivot between two mechanically-defined positions and
+dwell there (hence `Goal Pivot Assembly` and the flanged bearings in the field CAD).
+Two known poses per cluster is a perfectly tractable thing to model — it is just
+something a team has to measure and maintain itself, which is exactly why FIRST
+cannot do it for everyone.
+
+So the plan is a field pose derived from **eight** measured cluster poses — four
+cells, two states each — plus a state classifier and a transition filter. See
+"Open work" below. Until those poses are measured, this package reports only
+robot-relative geometry, which is what a turret needs anyway and is the substrate
+the field-pose layer will sit on.
+
+#### Why we will compute it ourselves rather than use MegaTag
+
+`Limelight3A.uploadFieldmap()` exists, so uploading a per-state `.fmap` and letting
+MegaTag solve looks tempting. Don't: **the four cells can be in different states at
+the same time**, so no single field map is ever correct. Solving from whichever cells
+are visible, each with its own state, handles mixed states naturally. Runtime map
+swapping would also be slow and would still be wrong half the time.
+
+Nothing here calls `getBotpose()`, `getBotpose_MT2()` or `updateRobotOrientation()`,
+and the field-pose layer should not either.
+
+#### Localization from these tags is a correction, not a reset
+
+A damped, pivoting, volunteer-assembled game element will not return to precisely the
+same pose on every tip. A hive-derived pose deserves considerably larger covariance
+than a wall tag would, should be gated against odometry, and should never hard-reset
+the pose estimate. The spread across many tips is worth measuring — point **Vision:
+Noise Tuner** at a cell and tip it by hand between samples.
+
+### What the SDK does publish, and how we use it
+
+Cluster-internal geometry is real and useful. Each cell carries four tags at
+published offsets from the cluster origin, and that origin sits at the centre of
+the cell opening rather than on the tags themselves:
+
+| Cell | Tag ids | Member offsets (in, cluster frame) |
+|---|---|---|
+| `RED_SCORING` | 30-33 | x = -6.5 / -2.75 / +2.75 / +6.5 |
+| `RED_AUDIENCE` | 34-37 | y = +7.1874 (all members) |
+| `BLUE_AUDIENCE` | 38-41 | z = -5.6220 (all members) |
+| `BLUE_SCORING` | 42-45 | tag size 3.25" |
+
+So one visible tag locates the cell, and two or more locate the centre of the tag
+row *exactly* — the lateral axis falls out of the tag positions, no orientation
+convention needed. That is what keeps the aim point from jumping as members drop
+in and out of view, which is the failure mode of picking a single best tag each
+frame. With only one tag visible the lateral direction is unknowable and the point
+can sit up to 6.5" off along the row; `CellSighting.lateralCorrectionApplied()`
+reports that case rather than hiding it.
+
+Cell *identity* is read from the SDK at runtime through the public
+`AprilTagLibrary.lookupCluster(int)`, so a future correction is picked up for free.
+The member offsets are not reachable through public API — `clusterMembers` is
+package-private — so they are transcribed in `BiobuzzTags` and `BiobuzzTagsTest`
+reads the SDK's real values reflectively and fails if the two ever drift apart.
+
+### Two conventions that need ten minutes on the robot
+
+Everything above is verified against the SDK and covered by unit tests. Two things
+cannot be settled without hardware, and both are isolated to one place each:
+
+1. **The camera's axis convention.** Limelight documents `targetpose_cameraspace`
+   as +X right, +Y down, +Z forward, but the FTC SDK wrapper passes the three
+   numbers straight through from the camera's JSON without normalising them, so
+   nothing in the SDK proves it. Run **Vision: Raw Tag Dump** and check. If it is
+   different, fix `CameraMount.cameraAxesToRobotAxes` — one method, and
+   `CameraMountTest` covers the rest of the chain.
+2. **The offset from the tag row out to the cell opening.** A fixed
+   `(0, +7.187, -5.622)` inches in the cluster plane, but applying it needs the
+   cluster's 3D orientation, which needs the Euler convention the Limelight reports
+   yaw/pitch/roll in — also not pinned down by the SDK. It is mostly vertical and
+   depthward, so it barely affects bearing. **A turret aiming on bearing can ignore
+   it; a shooter solving for elevation cannot.**
+
+### Setup this depends on
+
+- Limelight in the hardware map as `limelight`.
+- An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
+  range is off by a constant factor, with nothing about the output looking broken.
+- That pipeline emitting **full 3D pose**. Without it no sighting can be built at
+  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and both
+  diagnostic OpModes display it, so the failure says what it is instead of just
+  reporting "no target".
+
+### The OpModes, in the order to run them
+
+All three are under the **Vision** group and are enabled, not `@Disabled`.
+
+1. **Vision: Raw Tag Dump** — raw per-fiducial numbers before any of our maths.
+   Settles the axis convention above.
+2. **Vision: Sighting Diagnostics** — live range/bearing/elevation per cell, with
+   camera mounting live-tunable in Panels. The tape-measure check.
+3. **Vision: Noise Tuner** — running mean and standard deviation of a stationary
+   sighting. Re-measure at a few distances; AprilTag noise grows quickly with range.
+
+### Cell state: UP, DOWN, or don't ask
+
+Because the cells are bistable, "where is this cell" reduces to "which of two poses,
+and what are the two". `CellStateTracker` answers the first half.
+
+It classifies on the **height of the tag row above the floor**, which falls straight
+out of the measurement and depends only on the camera's axis convention — not on the
+Euler convention for yaw/pitch/roll, which nothing in the SDK pins down. Orientation
+would work too and is worth adding as a confirming second opinion later, but height
+needs one fewer unverified assumption in the path to a decision that gates
+localization.
+
+Two properties are deliberate and worth not "fixing":
+
+- **A height matching neither nominal classifies as UNKNOWN.** That is the transition
+  signal — it means the tracker never has to detect motion directly.
+- **Confirming a state is slow, losing one is instant.** Establishing UP or DOWN takes
+  several consecutive agreeing frames spanning a dwell time; a single contrary frame
+  drops it. Briefly reporting UNKNOWN during a real tip costs nothing. Confidently
+  reporting a stale UP for a cell that has already dropped injects a badly wrong pose.
+
+`CellStateTracker.Geometry` defaults both nominal heights to NaN, which makes every
+cell report UNKNOWN until someone measures them. That is intentional; an unmeasured
+field is not a reason to guess. **Vision: Sighting Diagnostics** prints the measured
+row height per cell, labelled, so settling a cell and reading it off is the whole
+procedure.
+
+### Open work
+
+Ordered roughly by what unblocks what:
+
+1. **Measure the two tag-row heights** and put them in `CellStateTracker.Geometry`.
+   Until this happens the state classifier returns UNKNOWN for everything and no
+   field pose is derivable. Cheapest possible task — settle a cell, read the number
+   off the diagnostics OpMode, repeat with it tipped.
+2. **Find out whether a chassis-mounted camera can see the DOWN-state tags at all.**
+   The tags are on the undersides of the cells; when a cell drops, its tags may face
+   the floor. If they are never readable the classification problem collapses — a
+   visible tag would imply UP. Worth answering early, because it could delete most
+   of the work below.
+3. **Measure the eight cluster poses** — four cells, two states each — in field
+   coordinates. Neither pose is published, so this comes from the field CAD, checked
+   against the real field. This is the actual input the field-pose layer needs.
+4. **Build the field-pose layer.** Robot-in-field from cell-in-field composed with
+   the measured cell-relative geometry, solving from whichever cells are visible and
+   settled, each with its own state. Gate every candidate against odometry
+   (innovation gating) so a misclassified state or a mid-tip reading is rejected
+   before it reaches the estimator.
+5. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
+   tip it by hand between samples. The spread across tips — not the frame-to-frame
+   noise — is what sets the covariance a hive-derived pose deserves.
+6. **Add orientation as a confirming discriminator**, once the Limelight's Euler
+   convention has been established on the robot.
+
+### What was dropped from the DECODE port, and why
+
+| Dropped | Why |
+|---|---|
+| MegaTag1/MegaTag2 pose, `PoseFrames` MT converters | No single field map is ever correct, since cells can be in different states at once. The field-pose layer will compute this itself |
+| `shouldUpdateOdometry()` / relocalization gate | Will return, gated on cell state and innovation rather than on tag freshness alone |
+| `setRobotHeading()` / `updateRobotOrientation()` | Only feeds MegaTag2 |
+| `FieldConstants` | DECODE game geometry — goals, motif tags, incenter/Chebyshev aim points. None of it transfers |
+| `RobotState` global statics | Process-global mutable state written from inside a constructor |
+| Mecanum drive code in the pattern-recognition OpMode | Out of scope; there is no drivetrain yet |
+| Reflective `getTargetArea` / `getPoseAmbiguity` lookups | `getTargetArea()` is ordinary public API, and `getPoseAmbiguity()` does not exist on `LLResultTypes.FiducialResult` at all — that fallback silently returned 0.0 every time |
+
 ## Deliberately excluded
 
 - **NextFTC** — the previous command framework. Migrated off it onto Ivy;
