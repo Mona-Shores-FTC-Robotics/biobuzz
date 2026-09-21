@@ -26,7 +26,9 @@ seconds maybe twice a week, which is cheap next to the alternative.
 
 ### `gh` is not installed
 
-Remote Claude Code containers for this repo have `git`, `java` and `gradle` but **no `gh` CLI**. Any
+Remote Claude Code containers for this repo have `git`, `java` and `gradle` but **no `gh` CLI**
+(verified — the only `gh` on the filesystem is an X11 keyboard layout). A `gh` on your own laptop
+is a different thing and works fine; this is only about what a session can reach. Any
 allow-list entry for `gh ...` would be dead weight. All GitHub access goes through the GitHub MCP
 tools, which is why the read side of those is allow-listed above.
 
