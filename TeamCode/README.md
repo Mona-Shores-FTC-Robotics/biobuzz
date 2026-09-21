@@ -106,6 +106,8 @@ Sloth only reloads classes under `org.firstinspires.ftc.teamcode`. Use the full
 - any `.gradle` file
 - dependencies (added, removed, or version-bumped)
 - anything in `FtcRobotController/`
+- anything under `TeamCode/src/main/res/` — **including the robot configs** in
+  `res/xml/`. Those are Android resources, not classes
 
 Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
@@ -115,14 +117,16 @@ before debugging anything else.
 
 The hardware configuration lives in this repository, ships inside the APK, and
 is read-only on the Driver Station. Nobody hand-edits a configuration on the DS,
-and nothing is pushed over adb.
+and nothing is pushed over adb. (The one sanctioned exception is an emergency
+port fix at an event; see [When a port dies at an event](#when-a-port-dies-at-an-event).)
 
 | | |
 |---|---|
 | The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
-| The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
+| The init-time check | `HardwareCheck.prepare(hardwareMap)` — every match OpMode; reports problems, never stops the robot |
+| The detailed view | the **Validate Hardware** OpMode (Diagnostics group) |
 
 ### How it reaches the robot
 
@@ -151,6 +155,15 @@ Adding a robot is two edits — a `res/xml/robot_<name>.xml` and a matching
 price there is no reason to cap the number of robots: a spare chassis, or last
 season's bot kept as a test mule, costs one file.
 
+Both robots declare an Expansion Hub at RS-485 address 2, empty for now, as on
+both DECODE robots. Until one is actually connected the SDK logs that it cannot
+find it; that is harmless.
+
+**Same names on both robots, always.** Only hub and port numbers may differ
+between `robot_19429.xml` and `robot_20245.xml` — that is how last season's
+blown-port workarounds should be expressed. The test enforces it: every file must
+declare exactly the names in `DeviceNames`.
+
 One known limit: the test requires every robot to declare every device. A
 stripped prototype missing a subsystem would fail it. With only a drivetrain and
 odometry today, any rollable chassis has all five, so this hasn't bitten yet —
@@ -169,38 +182,123 @@ from the Panels dashboard**, two clicks from a launcher gain. Two OpModes
 bypassed the registry with raw `"lf"` / `"rf"` literals anyway. A device name is
 identity, not tuning.
 
-### No silent hardware lookups
+### Never silent, never fatal
 
-Never write a lookup helper that swallows a missing device. Last season's
-`CachedHardware.tryMotor` caught `IllegalArgumentException` and returned `null`,
-and every subsystem used it. Three lane colour sensors were commented out of
-both robot XMLs during a driver rollback and never restored — the Java kept
-asking for `lane_left_color`, got `null`, and degraded quietly for weeks. The
-"could not find device" crash this pattern was meant to avoid is *more*
-informative than what replaced it. If a device is genuinely optional, make that
-an explicit, named decision.
+> **History note.** An earlier version of this section was titled "No silent
+> hardware lookups" and argued that the SDK's "could not find device" crash was
+> *more* informative than a swallowed `null`, so a missing device should stop the
+> OpMode. The diagnosis was right; the remedy was not what the team wants. A
+> crash at init means the drive team sits out the match over one unplugged
+> camera or motor. The rule is now **never silent, never fatal**.
+
+Every match OpMode starts with one line:
+
+```java
+HardwareCheck.prepare(hardwareMap).addTo(telemetry);
+```
+
+That call never throws. It checks every device in `DeviceNames`, plus the active
+configuration, and does two things for each problem:
+
+| | Motors and servos | I2C devices (Pinpoint) |
+|---|---|---|
+| **Reported** | by name, in init telemetry | by name, in init telemetry |
+| **Keeps running** | a do-nothing `StandIn` is put in the `HardwareMap` under the missing name, so every later `hardwareMap.get(...)` — ours or Pedro's — succeeds | no stand-in is possible; code that needs it asks `check.isMissing(DeviceNames.PINPOINT)` and picks its own fallback |
+
+So a robot with a dead drive motor drives on three wheels, and the drive team
+knows why before the match starts. Pedro's `Mecanum` accepts the stand-in
+because it only ever calls `DcMotorEx` interface methods, and a test pins that
+down (see [Updating Pedro Pathing](#updating-pedro-pathing)).
+
+Why the Pinpoint is different: a stand-in is a `java.lang.reflect.Proxy`, which
+can implement interfaces but not classes, and `GoBildaPinpointDriver` is a
+concrete class. Faking a localizer would also be worse than useless — the robot
+would think it is standing still while it drives.
+
+Things to know:
+
+- **Stand-ins last until the robot restarts.** The SDK builds one `HardwareMap`
+  and keeps it across OpModes. After fixing the wiring, use DS menu → Restart
+  Robot, or the real device stays hidden behind the stand-in.
+- **The tuners refuse stand-ins.** `Tuning.realDrivetrain` stops the Foresight
+  tuner and Tests if any drive motor is a stand-in, because tuning a robot with
+  a do-nothing motor produces numbers someone then pastes and trusts. (The
+  Mecanum Tuner uses `hardwareMap.dcMotor`, which stand-ins are never added to,
+  so it already fails with "could not find device".)
+- **Still never write a `try*` helper that returns `null`.** That was last
+  season's actual failure: DECODE's `CachedHardware.tryMotor` swallowed the
+  exception, and three lane colour sensors commented out of both robot XMLs
+  went unnoticed for weeks. The difference now is that the missing device is
+  named on the Driver Station screen every single init.
+
+Rejected: **letting every subsystem null-check its own devices.** That is what
+DECODE did. It spreads the decision across every file, each subsystem has to
+remember to do it, and none of them reports anything. One check at init that
+covers every name in `DeviceNames` cannot forget a device.
 
 ### Robot identity comes from the active config
 
-`ActiveConfig.requireIdentity()` reads the active configuration's name and maps
-it to a `RobotIdentity`. Somebody already has to pick a config once per robot,
-so that pick does double duty — and wiring and per-robot constants can never
-disagree about which robot this is.
+`ActiveConfig.identity()` reads the active configuration's name and maps it to a
+`RobotIdentity`. Somebody already has to pick a config once per robot, so that
+pick does double duty — and wiring and per-robot constants can never disagree
+about which robot this is.
 
-An unrecognised config **fails loudly**. Last season had four disagreeing
-fallbacks: an initial `"UNKNOWN"`, a `setRobotName(null)` that became 19429, a
-log line announcing 19429, and a profile builder that actually used 20245. A
-robot could run one robot's tuning while telling you it was using the other's.
+> **History note.** This section used to say an unrecognised config "fails
+> loudly", via `ActiveConfig.requireIdentity()`, which threw. It was removed
+> before anything called it, for the same never-fatal reason as above, and
+> because it would have thrown on the event workflow's "Save As" copy (next
+> section).
+
+What happens now:
+
+- **Names match by prefix.** `robot_19429 port fix` is still 19429.
+- **Unknown means `null`, never a guess.** Last season had four disagreeing
+  fallbacks: an initial `"UNKNOWN"`, a `setRobotName(null)` that became 19429, a
+  log line announcing 19429, and a profile builder that actually used 20245. A
+  robot could run one robot's tuning while telling you it was using the other's.
+  `HardwareCheck` reports a `null` identity at init instead.
+- **Cross-checked against the Control Hub's name.** Each hub is named after its
+  team (`19429-RC`, `20245-RC`). If the hub says 19429 and the active config
+  says 20245, init shows `WRONG ROBOT'S CONFIG` and which one to select. The
+  config name alone cannot catch that mistake, because it is the thing that is
+  wrong. The name comes from the SDK's public `DeviceNameManager`, not the
+  hidden Wi-Fi API DECODE used.
 
 Rejected:
 
-- **Control Hub WiFi SSID** (what DECODE used) — needs a hidden Android API via
-  reflection, and resolves *after* the class load that needs it. That ordering
-  bug is why that project needed `RobotProfile.invalidate()` plus a
-  hand-maintained list of `reloadProfileConfigs()` calls; forget to extend the
-  list when you add a subsystem and you silently get stale values.
+- **Control Hub Wi-Fi SSID as *the* identity** (what DECODE used) — needs a
+  hidden Android API via reflection, which was not ready on a cold boot and
+  needed a retry loop. It also resolved *after* the class load that needed it.
+  That ordering bug is why that project needed `RobotProfile.invalidate()` plus
+  a hand-maintained list of `reloadProfileConfigs()` calls; forget to extend
+  the list when you add a subsystem and you silently get stale values. The hub
+  name is used here only as a cross-check, and read the supported way.
 - **Hub serial number** — stable but opaque; a hub swap becomes a hex-string
   hunt.
+
+### When a port dies at an event
+
+Ports fail mid-season. DECODE went through several. There are two ways to deal
+with it, and both keep the robot playing.
+
+**With a laptop (preferred).** Edit the robot's `res/xml/robot_<team>.xml` to
+move the device to a working port, then do a full **TeamCode** install, over a
+**USB-C cable** if Wi-Fi is being unreliable. It takes about 40 seconds.
+**Sloth Load cannot do this**: it reloads Java classes only, and an XML file is
+an Android resource. The bundled config updates, nothing else changes, and the
+fix is already in the repo when you commit it.
+
+**Without a laptop.** On the Driver Station: Configure Robot → open the robot's
+config → change the port → **Save As** a new name that *starts with* the
+original, e.g. `robot_19429 port3 dead` → Activate it. The SDK allows editing a
+read-only config as long as you save it under a new name. Identity still
+resolves by prefix. Every init then warns that the config was made on the
+Driver Station, until someone copies the change into the repo and re-activates
+the bundled config. That warning is deliberate: it is the reminder that the
+repo is out of date.
+
+Either way, the device *names* never change. Only the port does, and names are
+all the code sees.
 
 ### Why bundled, and not DECODE's `adb push`
 
@@ -299,12 +397,42 @@ still untouched upstream code.
   requiring each one to be **static, zero-argument, and to return `Procedure`**.
   It throws `IllegalArgumentException` otherwise — *"Method %s.%s is annotated
   with @Tuner, but is not static."* — during OpMode discovery, so a mistake here
-  takes down robot startup rather than failing quietly.
+  takes down robot startup rather than failing quietly. Methods *without*
+  `@Tuner` are skipped before those checks (verified in the `tuning:1.0.1`
+  bytecode), which is why `Tuning` can also hold the ordinary helper
+  `realDrivetrain`.
 
 **Nothing in this package registers an OpMode**, and that is still true now that
 the stubs are filled in — there is not a single `@TeleOp` or `@Autonomous`
 annotation in it. AutoTune creates its tuning OpModes at runtime from the
 registered procedures; they never exist as annotated classes here.
+
+### Updating Pedro Pathing
+
+The hardware-configuration work is built so that it **never blocks a Pedro
+update**, including mid-season. It changes nothing about how Pedro works: Pedro
+is still configured through its own `MecanumConfig` / `PinpointConfig` in
+`Constants.java`, and looks motors up through the ordinary `HardwareMap`. The
+only coupling is that `Constants` reads device names from `DeviceNames` instead
+of spelling them out.
+
+Procedure:
+
+1. Bump `com.pedropathing:core` and `:revhub` together in `TeamCode/build.gradle`,
+   plus `:tuning` to the AutoTune release that matches (and check the
+   version-lock rules above).
+2. Re-copy the Quickstart's `pedro/` package **except `Constants.java` and
+   `Tuning.java`**. Those two are ours. If the new Quickstart changed them,
+   merge its changes into ours by hand rather than overwriting.
+3. Push. CI tells you what, if anything, the update broke:
+
+| Test | Fails when | What to do |
+|---|---|---|
+| `PedroCompatibilityTest.pedroUsesTheDeviceNamesTheRobotHas` | a name in `Constants` is not the `DeviceNames` constant — usually after pasting an AutoTune block, which spells names as literals, or after overwriting `Constants.java` | put `DeviceNames.FRONT_LEFT` etc. back |
+| `PedroCompatibilityTest.pedroDrivetrainRunsOnStandInMotors` | the new Pedro no longer accepts a `StandIn` motor, e.g. it asks for the concrete `DcMotorImplEx` | **still take the update.** The worst case is that a missing drive motor goes back to stopping the OpMode with "could not find device" — the SDK's normal behaviour. Adapting `HardwareCheck` is a separate, later job |
+| Compile errors in `Constants.java` / `Tuning.java` | Pedro renamed config fields or tuner constructors | ordinary migration, same as any Pedro major version |
+
+Nothing in `hardware/` depends on Pedro at all, so none of it needs touching.
 
 ### Our hardware, and what still needs measuring
 
