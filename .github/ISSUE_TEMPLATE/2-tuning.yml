@@ -1,0 +1,67 @@
+name: Tuning / calibration run
+description: A value that has to be measured on a robot and committed.
+labels: ["type:tuning", "needs:robot"]
+body:
+  - type: dropdown
+    id: robot
+    attributes:
+      label: Which robot
+      description: No default — tuning numbers are per-robot.
+      options:
+        - "19429"
+        - "20245"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: tuner
+    attributes:
+      label: Which tuner
+      options:
+        - MecanumTuner
+        - PinpointTuner
+        - ThreeWheelTuner
+        - ThreeWheelIMUTuner
+        - TwoWheelTuner
+        - OTOSTuner
+        - OctoQuadTuner
+        - ForesightTuner
+        - Tests
+    validations:
+      required: true
+
+  - type: textarea
+    id: procedure
+    attributes:
+      label: Procedure
+      description: The steps, from TeamCode/README.md or the AutoTune page.
+    validations:
+      required: true
+
+  - type: textarea
+    id: before
+    attributes:
+      label: Values before
+
+  - type: textarea
+    id: after
+    attributes:
+      label: Values after
+      description: Fill this in during the meeting — this issue doubles as the tuning log.
+
+  - type: input
+    id: lands
+    attributes:
+      label: Where the value lands
+      placeholder: "pedro/Constants.java — followerConstants.mass"
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: done
+    attributes:
+      label: Done when
+      options:
+        - label: Committed to Constants.java
+        - label: Recorded in doc/TUNING.md
+        - label: Re-validated on the robot after committing
