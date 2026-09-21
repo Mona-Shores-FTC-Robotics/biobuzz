@@ -519,18 +519,60 @@ Two setup notes:
   [AdvantageScope Lite FTC repo](https://github.com/j5155/AdvantageScope-Lite-FTC)
   and add it through **File → Upload Asset**, or the 2D and 3D field views stay
   empty. This is per-robot, not per-laptop.
+- **That bundle has no BIOBUZZ field** — see below before anyone goes hunting
+  for one.
 - **Keys are slash-delimited on purpose.** AdvantageScope renders `shooter/left/…`
   as a browsable tree. Publish flat keys and you get thirty loose series instead
   of one node per lane.
 
+### No BIOBUZZ field, and why that is fine for now
+
+The default asset bundle dates from **September 2025** — a year before BIOBUZZ
+was revealed — so it carries DECODE at best. Don't spend meeting time looking
+for a BIOBUZZ field in it; there isn't one.
+
+This costs the **shooter rig nothing**. That rig publishes RPM, power, current
+and error: all line graphs, no pose. The 2D and 3D field tabs go unused, so a
+missing field asset changes nothing about tuning flywheels.
+
+It starts to matter when `pedro/Constants.java` is filled in and someone wants to
+watch the robot move on a field. By then a community asset will likely exist. If
+not, it is an upload rather than a code change — a folder named
+`Field2d_BIOBUZZ` or `Field3d_BIOBUZZ` containing:
+
+| File | What it is |
+|---|---|
+| `config.json` | `isFTC: true`, `center-rotated` coordinates (FTC traditional), field dimensions in inches |
+| `image.png` | the flat overhead image, for the 2D view |
+| `model.glb` | the 3D model, if you want the 3D view too |
+
+Zip it, **File → Upload Asset**, done. Custom asset zips can hold any folder
+structure, several assets at once, and even nested zips.
+
+### It replays logs, not just live data
+
+`File → Open Logs` reads Road Runner and PsiKit logs — including ones recorded
+before AdvantageScope was installed. The logs folder is configurable in
+preferences.
+
+Worth knowing for characterization specifically: nobody reads a spin-up curve
+well while three wheels are spinning next to them. Record the session, pull the
+curves apart afterwards at a desk.
+
 ### Version, and why it will not move
 
-Only `v26.0.0` is published to the dairy maven repo, dated **2025-09-07**.
-Upstream AdvantageScope is very actively developed, but this FTC package has not
-been republished in a year, so don't wait on a bump. The official Lite targets
-the **Systemcore** control system from 2027 onward; the build we use is j5155's
-unofficial port for the current hardware, and the AdvantageScope/WPILib
-developers do not support it.
+Only `v26.0.0` is published to the dairy maven repo, dated **2025-09-07**, and
+the source repo's last commit is the same day. This is not work sitting
+unreleased — the project went quiet, so no bump is coming and no fix is waiting
+in the wings. If it ever breaks against an SDK or Sloth bump, nobody is
+currently maintaining it.
+
+That is likely deliberate rather than abandonment. The official Lite targets the
+**Systemcore** control system, and AdvantageScope's own docs say full FTC support
+arrives with the 2027-28 transition. The build we use is j5155's unofficial port
+for current hardware, listed under "Unofficial Distributions" and explicitly not
+supported by the AdvantageScope/WPILib developers. Right tool for this season,
+knowingly temporary.
 
 It is Sloth-aware despite not being part of the locked set: it resolves
 `com.acmerobotics.slothboard:core` and the `com.bylazar.sloth:*` modules at our
