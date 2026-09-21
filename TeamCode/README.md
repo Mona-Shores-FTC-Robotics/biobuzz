@@ -168,6 +168,29 @@ by the fine step, **dpad left/right** by the coarse step. The Driver Station
 shows the same lane table as Panels, so the rig is still usable with no laptop
 connected.
 
+### First time on the robot
+
+**Nobody has run this on a robot yet.** Before you rely on it at a meeting, put
+the robot somewhere the flywheels can spin free and walk through this once:
+
+1. **Does the OpMode show up?** Look for **Flywheel Speed Test** in the TeleOp
+   list on the Driver Station. If it isn't there, do a full **TeamCode**
+   install rather than a Sloth Load.
+2. **Does Panels come up?** Open Panels and look for `FlywheelBank → config`.
+   Nobody has run Panels on the Sloth `0.3.2` stack yet, so this is the step
+   most likely to surprise you. If it doesn't appear, the Driver Station
+   readout still works and the gamepad still tunes the target speed.
+3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
+   land on `[READY]`.
+4. **Is any lane showing a negative RPM?** That wheel is spinning backwards —
+   tick `reversed` for it in Panels and it should flip positive. (DECODE's
+   robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+5. **Does the RPM look believable?** If it's off by a constant factor — double,
+   half, ten times — the encoder maths is wrong, not the motor. Fix
+   `measurement.ticksPerRev` first, then `gearRatio`.
+
+Once those five pass, the rig works. Press B to stop; the wheels coast down.
+
 ### What was ported from DECODE, and what wasn't
 
 Ported forward from `subsystems/LauncherSubsystem.java` and
