@@ -1,0 +1,154 @@
+# Creates the labels and milestones the season board runs on.
+#
+# Run it from the Actions tab: "Set up season board" -> "Run workflow".
+# Leave dry_run checked the first time to see what it would do.
+#
+# This replaces a scripts/setup-board.sh that assumed Linux and a locally
+# installed, authenticated `gh`. Most of this team is on Windows, several have
+# never opened a terminal, and a setup step with three prerequisites is a step
+# exactly one person ever runs. A workflow needs a browser and nothing else:
+# `gh` is preinstalled on the runner, and GITHUB_TOKEN needs no setup.
+#
+# Idempotent — re-running updates colours, descriptions and dates rather than
+# failing, which matters because the milestone dates below are placeholders and
+# will be re-run once the real league schedule is published.
+
+name: Set up season board
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Preview only — list what would change, without changing it"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      DRY_RUN: ${{ inputs.dry_run }}
+
+    steps:
+      - name: Say what mode this is
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "::notice::DRY RUN — nothing will be changed. Re-run with dry_run unchecked to apply."
+          else
+            echo "::notice::APPLYING changes to $REPO"
+          fi
+
+      - name: Create or update labels
+        run: |
+          set -euo pipefail
+
+          existing="$(gh label list --repo "$REPO" --limit 200 --json name --jq '.[].name')"
+
+          label() {
+            local name="$1" color="$2" desc="$3" verb
+            if grep -qxF "$name" <<<"$existing"; then verb=update; else verb=create; fi
+
+            if [ "$DRY_RUN" = "true" ]; then
+              printf '  would %-6s %s\n' "$verb" "$name"
+              return
+            fi
+
+            if [ "$verb" = update ]; then
+              gh label edit "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null
+            else
+              gh label create "$name" --repo "$REPO" --color "$color" --description "$desc" >/dev/null
+            fi
+            printf '  %-8s %s\n' "${verb}d" "$name"
+          }
+
+          echo "Priority — exactly one per issue"
+          label "P0-blocking" "b60205" "Something else cannot start until this lands. Cap: 3 open."
+          label "P1-now"      "d93f0b" "This milestone."
+          label "P2-next"     "fbca04" "Next milestone."
+          label "P3-later"    "c5def5" "Real, but not scheduled."
+
+          echo "Area — one or more"
+          for a in drivetrain autonomous teleop vision mechanism hardware-config build-ci docs tooling; do
+            label "area:$a" "1d76db" "Subsystem or part of the project this touches."
+          done
+
+          echo "Type — exactly one"
+          label "type:feature"  "0e8a16" "New robot behaviour or capability."
+          label "type:bug"      "d73a4a" "Something does not work."
+          label "type:tuning"   "5319e7" "A value to be measured on a robot and committed."
+          label "type:chore"    "cfd3d7" "Maintenance, config, or cleanup."
+          label "type:decision" "e99695" "A choice to be made before work proceeds."
+          label "type:spike"    "bfd4f2" "Time-boxed investigation. Never merged - converted to issues."
+
+          echo "Access — exactly one: what is needed to do this"
+          label "desk-ok"     "c2e0c6" "Laptop only. Can be done at home."
+          label "needs:robot" "f9d0c4" "Requires a physical robot. Only two exist - scarce."
+          label "needs:field" "f7c6c7" "Requires the field and game elements too. Scarcer still."
+
+          echo "Ownership — exactly one: who may take this"
+          label "good-first-task" "7057ff" "Safe for someone who has never opened a PR. One file, obvious answer, CI proves it."
+          label "student-ready"   "0075ca" "A student can own this end to end; a mentor reviews."
+          label "needs-pairing"   "006b75" "Student drives, mentor sits with them."
+          label "mentor-only"     "b60205" "Locked versions, CI, or ahead of the team's knowledge. A growing count here is a warning sign."
+
+          echo "Status — as needed"
+          label "blocked"         "000000" "Waiting on something else. Say what in the issue."
+          label "needs-decision"  "e99695" "Blocked on a human choice."
+          label "awaiting-review" "fbca04" "PR open, waiting on a reviewer. 48h SLA for student PRs."
+          label "on-robot-now"    "ff8c00" "Someone is physically on this robot right now. Do not double-book."
+          label "meeting-brief"   "ededed" "Orchestrator output - the meeting log."
+          label "robot:19429"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
+          label "robot:20245"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
+
+      - name: Create or update milestones
+        run: |
+          set -euo pipefail
+
+          echo "::warning::Milestone dates are PLACEHOLDERS - replace them with the real Michigan FTC league schedule."
+          echo "::warning::The capability descriptions below are built on a scoring table gathered from the BIOBUZZ game reveal and secondary sources, NOT from a direct read of the Competition Manual. Confirm HIVE TIP = 20, in-CELL = 2, LEAVE = 3, PARK = 5 and the SWARM/POLLINATOR ranking-point conditions before relying on them."
+
+          milestone() {
+            local title="$1" due="$2" desc="$3" num
+            num="$(gh api "repos/$REPO/milestones?state=all&per_page=100" --jq ".[] | select(.title==\"$title\") | .number")"
+
+            if [ "$DRY_RUN" = "true" ]; then
+              if [ -n "$num" ]; then printf '  would update %s\n' "$title"; else printf '  would create %s\n' "$title"; fi
+              return
+            fi
+
+            if [ -n "$num" ]; then
+              gh api -X PATCH "repos/$REPO/milestones/$num" -f due_on="$due" -f description="$desc" >/dev/null
+              printf '  updated  %s\n' "$title"
+            else
+              gh api -X POST "repos/$REPO/milestones" -f title="$title" -f due_on="$due" -f description="$desc" >/dev/null
+              printf '  created  %s\n' "$title"
+            fi
+          }
+
+          milestone "M0 - Foundation"          "2026-10-05T00:00:00Z" "Hardware config landed; ValidateHardware passes on both robots; CI green with real tests; agent scaffolding in place."
+          milestone "M1 - It drives"           "2026-10-19T00:00:00Z" "Constants.create() returns a real Follower; drivetrain tuned; a driver can drive both robots under Ivy teleop."
+          milestone "M2 - It scores"           "2026-11-16T00:00:00Z" "Repeatable POLLEN launch into a CELL; intake rejects opposing-alliance NECTAR; an auto that reliably banks LEAVE (3) + PARK (5) every single time; drivers practising."
+          milestone "M3 - League Meet 1"       "2026-12-07T00:00:00Z" "First HIVE TIP on demand - at 20 points it is worth roughly ten balls left in-CELL, so tipping is the game, not filling. Pose-driven aiming (distance to velocity); one scoring auto per robot; teleop cycle time logged."
+          milestone "M4 - League Meet 2"       "2027-01-18T00:00:00Z" "Tip REPEATEDLY - re-aim at the newly-presented CELL after each tip, and drive launcher throughput, since cycle time not accuracy is what converts into tips. Per-alliance-position autos; failure modes documented."
+          milestone "M5 - League Championship" "2027-02-15T00:00:00Z" "Both robots competition-reliable; endgame FLOWER routine (owned-FLOWER 2 each, bottom NECTAR bonus 5); SWARM and POLLINATOR ranking-point conditions encoded in strategy; no unexplained resets."
+          milestone "M6 - States"              "2027-04-12T00:00:00Z" "Freeze: tuning, repair and driver practice only. No new mechanisms."
+          milestone "Backlog"                  "2027-06-30T00:00:00Z" "Not scheduled. An issue with no milestone is invisible to the standup, so park it here instead."
+
+      - name: What to do next
+        run: |
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Nothing was changed. Re-run with dry_run unchecked to apply."
+          else
+            echo "Board is set up. Next: seed the backlog, then set branch protection on"
+            echo "master to require review from Code Owners so .github/CODEOWNERS has teeth."
+          fi

@@ -1,0 +1,57 @@
+name: Something on the robot doesn't work
+description: Report a bug.
+labels: ["type:bug"]
+body:
+  - type: dropdown
+    id: robot
+    attributes:
+      label: Which robot
+      options:
+        - "19429"
+        - "20245"
+        - Both
+    validations:
+      required: true
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected instead
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Which OpMode, what you pressed.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: frequency
+    attributes:
+      label: Does it happen every time?
+      options:
+        - Always
+        - Sometimes
+        - Happened once
+    validations:
+      required: true
+
+  - type: input
+    id: last-good
+    attributes:
+      label: Last known-good commit
+      placeholder: "don't know"
+
+  - type: checkboxes
+    id: full-install
+    attributes:
+      label: Before reporting
+      description: >
+        Sloth Load only reloads TeamCode classes. If a .gradle file changed and you only
+        hot-reloaded, the robot is still running the old code and nothing looks broken.
+      options:
+        - label: I did a full **TeamCode** install, not just Sloth Load, since the last .gradle change.
+          required: true
