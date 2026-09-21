@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!--
+  Robot configuration for team 20245.
+
+  THIS FILE IS THE SOURCE OF TRUTH FOR THIS ROBOT'S WIRING.
+
+  It ships inside the APK, so it appears in the Driver Station's configuration
+  list as "robot_20245" as soon as the app is installed. Nothing is pushed over
+  adb and nothing is typed on the Driver Station. Because it is bundled, the DS
+  configuration editor shows it read-only - it cannot drift from this file.
+
+  The one manual step that remains: on each robot, select this configuration
+  once (DS -> Configure Robot -> Activate). An APK cannot set the active
+  configuration; it is a SharedPreferences value on the Robot Controller.
+
+  PORTS ARE A SPECIFICATION, NOT A DESCRIPTION. If the robot is wired
+  differently, either rewire to match this file or edit this file to match the
+  robot. Either is fine - but one of them has to happen, and this file is the
+  side that gets reviewed.
+
+  Device names here must match org.firstinspires.ftc.teamcode.hardware.DeviceNames.
+  RobotConfigXmlTest fails the build if they ever disagree.
+
+  Note on I2C: `bus` is the attribute that matters. The SDK reads `bus` and only
+  falls back to `port` when `bus` is absent (LynxI2cDeviceConfiguration
+  .deserializeAttributes). They are kept equal here so the file cannot be
+  misread.
+-->
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+
+            <!-- Drivetrain: mecanum. Layout carried over from the DECODE
+                 season's robots, which used these same four ports. -->
+            <goBILDA5202SeriesMotor name="frontRight" port="0" />
+            <goBILDA5202SeriesMotor name="frontLeft"  port="1" />
+            <goBILDA5202SeriesMotor name="backRight"  port="2" />
+            <goBILDA5202SeriesMotor name="backLeft"   port="3" />
+
+            <!-- Odometry: goBILDA Pinpoint on I2C bus 1. -->
+            <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
+
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>

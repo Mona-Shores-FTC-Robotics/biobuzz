@@ -111,6 +111,166 @@ Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
 
+## Robot configuration
+
+The hardware configuration lives in this repository, ships inside the APK, and
+is read-only on the Driver Station. Nobody hand-edits a configuration on the DS,
+and nothing is pushed over adb.
+
+| | |
+|---|---|
+| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot |
+| The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
+| The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
+| The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
+
+### How it reaches the robot
+
+Install the app. That's it — a bundled `res/xml` config appears in the DS
+configuration list automatically.
+
+**One manual step survives, once per robot: select the config and Activate it.**
+The active configuration is a `SharedPreferences` value on the Robot Controller.
+An APK cannot set it, so this cannot be automated — the design works around it
+rather than pretending otherwise. It survives reinstalls, so it really is once
+per robot (until a factory reset or a new hub).
+
+### Changing ports, and adding a robot
+
+**Ports in these files are a specification, not a description.** If a robot is
+wired differently, either rewire it to match the file or edit the file to match
+the robot. Either is fine. What is not fine is the two disagreeing silently,
+which is what the test prevents.
+
+Adding a device is three edits — a constant in `DeviceNames`, an entry in
+`DeviceNames.ALL`, and the element in **every** `robot_*.xml`. Miss the third
+and the test names the file.
+
+Adding a robot is two edits — a `res/xml/robot_<name>.xml` and a matching
+`RobotIdentity` constant. The test asserts those two sets match exactly. At that
+price there is no reason to cap the number of robots: a spare chassis, or last
+season's bot kept as a test mule, costs one file.
+
+One known limit: the test requires every robot to declare every device. A
+stripped prototype missing a subsystem would fail it. With only a drivetrain and
+odometry today, any rollable chassis has all five, so this hasn't bitten yet —
+but it is a real boundary, not an oversight.
+
+### Device names are never string literals
+
+`DeviceNames` is the only place a hardware name may be written. Not a literal in
+an OpMode, and above all not a field on a tunable config object.
+
+Last season's project had a five-constant registry (`Constants.HardwareNames`)
+that covered five of twenty-one devices. Every other name lived as a mutable
+`public String motorName = "launcher_left"` on a config object held by an
+`@Configurable` static field — which meant **the device name was live-editable
+from the Panels dashboard**, two clicks from a launcher gain. Two OpModes
+bypassed the registry with raw `"lf"` / `"rf"` literals anyway. A device name is
+identity, not tuning.
+
+### No silent hardware lookups
+
+Never write a lookup helper that swallows a missing device. Last season's
+`CachedHardware.tryMotor` caught `IllegalArgumentException` and returned `null`,
+and every subsystem used it. Three lane colour sensors were commented out of
+both robot XMLs during a driver rollback and never restored — the Java kept
+asking for `lane_left_color`, got `null`, and degraded quietly for weeks. The
+"could not find device" crash this pattern was meant to avoid is *more*
+informative than what replaced it. If a device is genuinely optional, make that
+an explicit, named decision.
+
+### Robot identity comes from the active config
+
+`ActiveConfig.requireIdentity()` reads the active configuration's name and maps
+it to a `RobotIdentity`. Somebody already has to pick a config once per robot,
+so that pick does double duty — and wiring and per-robot constants can never
+disagree about which robot this is.
+
+An unrecognised config **fails loudly**. Last season had four disagreeing
+fallbacks: an initial `"UNKNOWN"`, a `setRobotName(null)` that became 19429, a
+log line announcing 19429, and a profile builder that actually used 20245. A
+robot could run one robot's tuning while telling you it was using the other's.
+
+Rejected:
+
+- **Control Hub WiFi SSID** (what DECODE used) — needs a hidden Android API via
+  reflection, and resolves *after* the class load that needs it. That ordering
+  bug is why that project needed `RobotProfile.invalidate()` plus a
+  hand-maintained list of `reloadProfileConfigs()` calls; forget to extend the
+  list when you add a subsystem and you silently get stale values.
+- **Hub serial number** — stable but opaque; a hub swap becomes a hex-string
+  hunt.
+
+### Why bundled, and not DECODE's `adb push`
+
+Last season shipped `deploy_config19429.bat` / `deploy_config20245.bat`, which
+`adb push`ed an XML from the repo root to `/sdcard/FIRST/`. It worked. Bundling
+beats it on every axis: no adb, no Wi-Fi-to-robot step, no Windows-only script
+with a hardcoded `%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`, no "did
+anyone re-run the bat after pulling?", and adding a third robot no longer means
+copy-pasting a third 58-line script.
+
+The one that matters most: a config in `/sdcard/FIRST/` **is editable in the DS
+editor**, and an edit there silently diverges from the repo copy until someone
+re-runs the script and clobbers it. A bundled config is read-only, so that drift
+path is closed rather than discouraged. Run **Validate Hardware** to find out
+whether the active config is bundled (`RESOURCE`) or somebody's hand-made one
+(`LOCAL_STORAGE`).
+
+### Why a test, and not code generation
+
+Generating the XML from Java (or Java from the XML) would make drift impossible
+rather than merely detected. It was rejected: it needs a Gradle codegen task
+wired into generated source or resource directories, against a build whose
+Sloth / Load / AGP versions are locked together as described above. A plain JVM
+test gets the same practical guarantee with no build-tooling risk, better error
+messages, and it runs in a `testDebugUnitTest` CI job that already existed with
+nothing in it. Cheap beat clever.
+
+### `<Robot>` carries no `name` attribute — deliberately
+
+`RobotConfigFileManager.getXMLFiles()` names a bundled config from the `<Robot>`
+element's `name` attribute, **falling back to the resource entry name**:
+
+```java
+RobotConfigResFilter.getRootAttribute(parser, "Robot", "name",
+                                      resources.getResourceEntryName(id))
+```
+
+Omitting `name` means the filename is the one and only string identifying a
+robot, it is visible in the repo, and it is greppable. Adding one would create a
+second identity string free to disagree with the first — a new drift surface in
+a change whose whole point is closing them. The test enforces its absence.
+
+### I2C: `bus` is the attribute that matters
+
+`LynxI2cDeviceConfiguration.deserializeAttributes` reads `bus`, and only falls
+back to `port` when `bus` is absent. `port` is otherwise vestigial for I2C
+devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
+`port="0" bus="1"` and behaved identically, which is why — the `port` difference
+was cosmetic. These files keep the two equal so the file cannot be misread.
+
+### Risk: bundled configs depend on Sloth, not just the SDK
+
+**This is load-bearing and completely non-obvious.** Sloth reflectively
+overwrites `ClassManager`'s `filters` field with
+`dev.frozenmilk.sinister.sdk.FalseEmptySet` (see
+`dev.frozenmilk.sinister.sdk.SDKClassFilterRemover`), which drops **all** SDK
+class filters — including `RobotConfigResFilter`, the thing that discovers
+app-bundled configs.
+
+Bundled configs work anyway only because Sloth ships its own replacement:
+`dev.frozenmilk.sinister.sdk.RobotConfigResScanner`, whose `IdResFilter` and
+`IdTemplateResFilter` call `RobotConfigFileManager.setXmlResourceIdSupplier` /
+`setXmlResourceTemplateIdSupplier`. Sloth also ships `ConfigurationTypeScanner`,
+which is what keeps custom `@DeviceProperties` drivers registering.
+
+So config discovery is a **Sloth 0.3.2** feature here, not an SDK one. A Sloth
+bump can break it with no compile error. **Symptom: the configs simply stop
+appearing in the Driver Station list.** If that happens after a dependency
+change, look here first, and add it to the version-lock constraints above.
+
 ## The `pedro` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` is copied verbatim
@@ -119,19 +279,82 @@ not ours — when Pedro releases a new Quickstart, re-copy it rather than patchi
 it in place.
 
 Two of those files are deliberately stubs upstream, and are where our robot
-configuration will eventually go:
+configuration goes. Both are now filled in; everything else in the package is
+still untouched upstream code.
 
-- **`Constants.java`** — `create(HardwareMap)` currently returns `null`. It
-  needs to return `new Follower(drivetrain, localizer, foresight)` once the
-  drivetrain and localizer are configured.
-- **`Tuning.java`** — empty. Tuners are registered by adding `@Tuner`-annotated
-  fields holding the `Procedure` subclasses from `pedro/procedures/`.
+- **`Constants.java`** — holds `drivetrainConfig` (mecanum), `localizerConfig`
+  (Pinpoint) and `foresightConfig`, plus the factory methods AutoTune needs.
 
-Until those are filled in, **nothing in this package registers an OpMode** —
-there is not a single `@TeleOp` or `@Autonomous` annotation in it, and it
-compiles to an inert set of classes. That is expected — it is not a sign the
-copy went wrong. (The one OpMode this module does register lives in
-`shooter/`, below.)
+  **The argument order in the old stub comment was wrong.** It suggested
+  `new Follower(drivetrain, localizer, foresight)`; the real 3.0.1 signature is
+  `Follower(Localizer, Drivetrain, Algorithm)` — localizer first. Upstream's own
+  `procedures/Tests.java` builds it in the correct order, so the comment was the
+  outlier, not the library.
+
+- **`Tuning.java`** — registers the procedures that match our hardware.
+
+  **`@Tuner` goes on a method, not a field.** The earlier wording here said
+  "`@Tuner`-annotated fields", which does not work: the annotation is
+  `@Target(METHOD)`, and `TunerScanner.scan` walks `getDeclaredMethods()`
+  requiring each one to be **static, zero-argument, and to return `Procedure`**.
+  It throws `IllegalArgumentException` otherwise — *"Method %s.%s is annotated
+  with @Tuner, but is not static."* — during OpMode discovery, so a mistake here
+  takes down robot startup rather than failing quietly.
+
+**Nothing in this package registers an OpMode**, and that is still true now that
+the stubs are filled in — there is not a single `@TeleOp` or `@Autonomous`
+annotation in it. AutoTune creates its tuning OpModes at runtime from the
+registered procedures; they never exist as annotated classes here.
+The module's one annotated OpMode lives in `shooter/`, documented below.
+
+### Our hardware, and what still needs measuring
+
+| | |
+|---|---|
+| Drivetrain | Mecanum — `frontLeft`, `frontRight`, `backLeft`, `backRight` |
+| Localizer | goBILDA Pinpoint (`pinpoint`), goBILDA 4-bar odometry pods |
+
+Three groups of values in `Constants.java` are **placeholders that AutoTune
+replaces**, and the robot will not drive correctly until it has:
+
+1. Motor directions — currently the conventional left-reversed guess.
+2. Pinpoint pod directions and X/Y offsets — currently `FORWARD` and `0.0`.
+   Zero offsets treat the pods as sitting on the tracking centre, so heading
+   changes corrupt the position estimate.
+3. All of `foresightConfig` — currently empty, see below.
+
+### Reaching AutoTune
+
+There is no OpMode to select. AutoTune's `Hooks` class starts a web server when
+the Robot Controller's event loop initializes, so it is running as soon as the
+app is: connect to the robot's wifi and open **`http://192.168.43.1:10158`**
+(`192.168.49.1` if the RC is a phone rather than a Control Hub). The procedures
+registered in `Tuning.java` are listed there.
+
+Run the tuners in this order; each produces the values the next one needs.
+**Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.** Each ends on a page
+of generated Java to paste over the matching block in `Constants.java`.
+
+### Foresight cannot be configured off the robot
+
+`foresightConfig` is intentionally an empty lambda. Twelve of `ForesightConfig`'s
+variables are declared `ConfigVar.required(…)` with **no default** —
+`headingFeedback`, `forwardTranslational`, `strafeTranslational`, `brake`,
+`coast`, the linear/quadratic/heading brake coefficients, both
+`maxAchievable*Velocity` and both `natural*Deceleration`. Reading an unset one
+throws `IllegalStateException("Config variable has not been set")`.
+
+Those twelve are exactly what the Foresight Tuner measures. There is no
+"defaults for now" option and nothing here should be guessed: they are
+properties of this robot's mass, wheels and battery. `Constants.createAlgorithm()`
+probes one of them and fails at init with a message naming the fix, because the
+bare library error surfaces partway through following a path with no field name
+and no hint.
+
+The drivetrain and localizer configs are complete, so the Mecanum, Pinpoint and
+Foresight tuners all run today, as do the Tests procedure's localization,
+odometry, pose and driving tests. Only its hold, line and curve tests need a
+tuned Foresight, since only those build a `Follower`.
 
 ## The `shooter` package
 

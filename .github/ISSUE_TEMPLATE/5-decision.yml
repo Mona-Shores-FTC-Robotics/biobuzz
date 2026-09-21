@@ -1,0 +1,50 @@
+name: Design decision to make
+description: A choice that needs making before work can proceed.
+labels: ["type:decision", "needs-decision"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: The question
+    validations:
+      required: true
+
+  - type: textarea
+    id: options
+    attributes:
+      label: The options
+      description: One per option, with the case for it.
+      value: |
+        **Option A** —
+
+        **Option B** —
+
+        **Option C** —
+    validations:
+      required: true
+
+  - type: textarea
+    id: unknowns
+    attributes:
+      label: What we'd need to know to decide
+
+  - type: input
+    id: decide-by
+    attributes:
+      label: Decide by
+      placeholder: YYYY-MM-DD
+    validations:
+      required: true
+
+  - type: input
+    id: who
+    attributes:
+      label: Who decides
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: >
+        **Close this** by commenting the chosen option *and why the others were rejected*,
+        then linking the doc where that reasoning now lives.

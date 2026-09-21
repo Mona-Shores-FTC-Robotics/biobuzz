@@ -1,0 +1,52 @@
+name: Good first task (mentor-authored)
+description: A small, safe, desk-only task for someone who has never opened a PR.
+labels: ["good-first-task", "desk-ok"]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        For a true first task, spell the answer out. The learning here is git and the
+        review cycle — not the edit.
+
+  - type: input
+    id: goal
+    attributes:
+      label: One-line goal
+    validations:
+      required: true
+
+  - type: textarea
+    id: files
+    attributes:
+      label: Exact file(s) and line(s) to change
+    validations:
+      required: true
+
+  - type: textarea
+    id: change
+    attributes:
+      label: What to change it to
+    validations:
+      required: true
+
+  - type: textarea
+    id: check
+    attributes:
+      label: How to check it
+      description: An exact command, or "CI will prove it".
+    validations:
+      required: true
+
+  - type: input
+    id: duration
+    attributes:
+      label: Roughly how long
+      placeholder: 15 min / 30 min / 1 hour
+
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Author confirmation
+      options:
+        - label: This is one file, has an obviously correct answer, and CI catches a mistake.
+          required: true

@@ -1,0 +1,36 @@
+# Review required on the paths where a silent break costs a competition day.
+#
+# Deliberately narrow. Broad code-owner rules stall a volunteer team; these four
+# areas are the ones where a mistake is invisible until the robot is on the field.
+#
+# WHO: the programming mentors for this season. Six handles, five people - one of
+# them runs two accounts, and both are listed so a review request reaches him
+# whichever he is signed into.
+#
+# This is also the pool the season-standup skill assigns issues to, which is why
+# it is scoped to mentors actively doing software rather than to every admin: an
+# inactive admin assigned an issue is a silently stalled task, and a code-owner
+# review from someone with no basis to judge a dependency lock either blocks the
+# PR or becomes a rubber stamp. Either way the gate stops meaning anything.
+#
+# NOTE: this file only has teeth once branch protection on `master` is set to
+# "Require review from Code Owners". Until then it is advisory.
+#
+# A misspelled handle, or one without repository access, silently matches NOBODY
+# rather than erroring. Check changes here against the collaborator list by eye.
+
+# Dependency versions are a locked set - see TeamCode/README.md
+/build.dependencies.gradle   @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+/TeamCode/build.gradle       @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+/build.common.gradle         @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+/gradle/wrapper/             @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+
+# CI and dependency automation
+/.github/workflows/          @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+/.github/dependabot.yml      @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+
+# Robot hardware configuration - the XML and the constants must agree
+/TeamCode/src/main/res/xml/   @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06
+
+# Upstream code we do not patch
+/FtcRobotController/         @dustinhans @stewartl42 @stew-larsen @GreeneRich @medendoc @DesignFlaw06

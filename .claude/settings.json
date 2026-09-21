@@ -1,0 +1,51 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git log:*)",
+      "Bash(git diff:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(git remote -v)",
+      "Bash(git ls-files:*)",
+      "Bash(git rev-parse:*)",
+      "Bash(git fetch:*)",
+      "Bash(./gradlew assembleDebug:*)",
+      "Bash(./gradlew :TeamCode:lintDebug:*)",
+      "Bash(./gradlew testDebugUnitTest:*)",
+      "Bash(./gradlew :TeamCode:dependencies:*)",
+      "Bash(./gradlew tasks:*)",
+      "Bash(ls:*)",
+      "Bash(find:*)",
+      "Bash(cat:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "mcp__github__list_issues",
+      "mcp__github__issue_read",
+      "mcp__github__search_issues",
+      "mcp__github__list_pull_requests",
+      "mcp__github__pull_request_read",
+      "mcp__github__search_pull_requests",
+      "mcp__github__get_file_contents",
+      "mcp__github__list_commits",
+      "mcp__github__list_branches",
+      "mcp__github__get_label",
+      "mcp__github__list_repository_collaborators",
+      "mcp__github__actions_list",
+      "mcp__github__actions_get",
+      "mcp__github__get_job_logs",
+      "mcp__github__get_check_run"
+    ],
+    "deny": [
+      "Edit(FtcRobotController/**)",
+      "Write(FtcRobotController/**)",
+      "Edit(TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/procedures/**)",
+      "Write(TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/procedures/**)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ]
+  }
+}
