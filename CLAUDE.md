@@ -117,7 +117,13 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 
 ## Notes for remote sessions
 
-- **`gh` is not installed.** Use the GitHub MCP tools for all GitHub access.
+- **`gh` is not installed *in these remote containers*.** Use the GitHub MCP tools for all
+  GitHub access from a Claude session. This says nothing about your laptop — `gh` on Windows,
+  macOS or Linux is the normal way for a person to drive this repo, and some things (running
+  the **Set up season board** workflow, for one) are easiest that way.
+- **Routine-fired sessions have neither `gh` nor the GitHub MCP tools**, so they can read the
+  repo and `git log` but not issues or PRs. A scheduled standup needs one of the two added to
+  the environment before it can do its job.
 - **No robot is attached.** Anything requiring hardware must stop and produce instructions for a
   meeting rather than guessing at values.
 - Gradle needs network. If the sandbox blocks it, say so — do not report the build as broken.
