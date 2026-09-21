@@ -37,6 +37,18 @@ import java.util.EnumMap;
  *       {@code FlywheelTuningConfig.Readiness#atSpeedHoldMs}.</li>
  * </ul>
  *
+ * <p>Two things the rig gained once it had to run a bench prototype rather than
+ * a finished DECODE robot, both in {@link FlywheelTuningConfig}:
+ *
+ * <ul>
+ *   <li><b>Open loop.</b> {@code openLoop.enabled} drives every lane at a fixed
+ *       power with no speed target, which is how kV is measured directly and
+ *       how a wheel with no working encoder still gets spun.</li>
+ *   <li><b>A named diagnosis per lane.</b> {@link FlywheelDiagnosis} replaces
+ *       the readout's ad-hoc state strings, and adds the one this rig could not
+ *       previously tell you: power applied, encoder still reading zero.</li>
+ * </ul>
+ *
  * <p>Motors are intentionally not wrapped in CachingHardware — DECODE's note
  * applies unchanged: a flywheel sits at near-constant power for the whole run,
  * so the cache drops every repeat {@code setPower}, and if the hub ever zeroes
@@ -119,8 +131,16 @@ public class FlywheelBank {
         return lastVoltageMultiplier;
     }
 
-    /** True when at least one lane is enabled and every enabled lane is at speed. */
+    /**
+     * True when at least one lane is enabled and every enabled lane is at speed.
+     *
+     * <p>Always false in open loop: there is no speed target to be at, so
+     * claiming readiness would be a lie the rumble would repeat every loop.
+     */
     public boolean isEveryEnabledLaneAtSpeed() {
+        if (config.openLoop.enabled) {
+            return false;
+        }
         boolean any = false;
         for (Flywheel flywheel : flywheels.values()) {
             if (!flywheel.isEnabled()) {
@@ -224,6 +244,8 @@ public class FlywheelBank {
         private long commandedAtNs = 0L;
         private long inToleranceSinceNs = 0L;
         private double lastSpinUpMs = Double.NaN;
+        /** When power last rose to the dead-encoder threshold, or 0 if it is below it. */
+        private long powerSinceNs = 0L;
 
         Flywheel(FlywheelLane lane) {
             this.lane = lane;
@@ -285,9 +307,45 @@ public class FlywheelBank {
         /**
          * True when the wheel is turning backwards under a forward command —
          * i.e. the {@code reversed} tick box for this lane is wrong.
+         *
+         * <p>Delegates to {@link #getDiagnosis()} so the threshold lives in one
+         * place. It previously hardcoded -1 RPM here, which a stationary
+         * encoder can produce from quantization alone.
          */
         public boolean isRunningBackwards() {
-            return commandedRpm > 0.0 && measuredRpm < -1.0;
+            return getDiagnosis() == FlywheelDiagnosis.BACKWARDS;
+        }
+
+        /**
+         * How long power has been continuously at or above
+         * {@code diagnostics.deadEncoderPower}, in milliseconds; 0 when it is
+         * below it. This is the clock that separates "has not spun up yet" from
+         * "is never going to".
+         */
+        public double getMsAtPower() {
+            return powerSinceNs == 0L ? 0.0 : (System.nanoTime() - powerSinceNs) / 1e6;
+        }
+
+        /** What this lane is doing, and whether somebody has to go and fix it. */
+        public FlywheelDiagnosis getDiagnosis() {
+            return FlywheelDiagnosis.evaluate(
+                    isEnabled(),
+                    isConnected(),
+                    config.openLoop.enabled,
+                    isDriven(),
+                    atSpeed,
+                    measuredRpm,
+                    appliedPower,
+                    getMsAtPower(),
+                    config.diagnostics);
+        }
+
+        /** True when this lane is being asked to spin right now, in either mode. */
+        private boolean isDriven() {
+            if (!spinning || !isEnabled()) {
+                return false;
+            }
+            return config.openLoop.enabled || commandedRpm > 0.0;
         }
 
         /**
@@ -305,6 +363,7 @@ public class FlywheelBank {
             appliedReversed = null;
             commandedRpm = 0.0;
             commandedAtNs = 0L;
+            powerSinceNs = 0L;
             resetReadiness();
             if (motor != null) {
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -317,6 +376,7 @@ public class FlywheelBank {
             appliedPower = 0.0;
             commandedRpm = 0.0;
             commandedAtNs = 0L;
+            powerSinceNs = 0L;
             resetReadiness();
             if (motor != null) {
                 motor.setPower(0.0);
@@ -330,6 +390,7 @@ public class FlywheelBank {
                 appliedPower = 0.0;
                 commandedRpm = 0.0;
                 commandedAtNs = 0L;
+                powerSinceNs = 0L;
                 resetReadiness();
                 return;
             }
@@ -339,12 +400,18 @@ public class FlywheelBank {
             measuredTicksPerSec = motor.getVelocity();
             measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
 
+            if (config.openLoop.enabled) {
+                updateOpenLoop();
+                return;
+            }
+
             double target = desiredRpm();
             setCommandedRpm(target);
 
             if (target <= 0.0) {
                 motor.setPower(0.0);
                 appliedPower = 0.0;
+                trackPowerClock(0.0);
                 return;
             }
 
@@ -355,8 +422,47 @@ public class FlywheelBank {
 
             motor.setPower(power);
             appliedPower = power;
+            trackPowerClock(power);
 
             updateReadiness(target);
+        }
+
+        /**
+         * Fixed power, no speed target, no readiness.
+         *
+         * <p><b>Voltage compensation is deliberately not applied here.</b> The
+         * whole value of open loop is that the number you dialled in is the
+         * number the motor got, so {@code power / settled RPM} is a kV you can
+         * write down. Scaling it by the battery multiplier would make that
+         * division quietly wrong by exactly that factor — the same trap the
+         * README flags for reading kV off a graph of applied power.
+         */
+        private void updateOpenLoop() {
+            setCommandedRpm(0.0);
+
+            double power = 0.0;
+            if (spinning && cfg().enabled) {
+                power = Range.clip(config.openLoop.power, 0.0, 1.0);
+            }
+            motor.setPower(power);
+            appliedPower = power;
+            trackPowerClock(power);
+        }
+
+        /**
+         * Runs the stopwatch behind {@link FlywheelDiagnosis#DEAD_ENCODER}:
+         * starts when power reaches the threshold, resets the moment it drops
+         * back below, so the elapsed time always belongs to one continuous
+         * stretch of the wheel being told to move.
+         */
+        private void trackPowerClock(double power) {
+            if (power >= config.diagnostics.deadEncoderPower) {
+                if (powerSinceNs == 0L) {
+                    powerSinceNs = System.nanoTime();
+                }
+            } else {
+                powerSinceNs = 0L;
+            }
         }
 
         /** Target this lane should be at right now: 0 unless spinning and enabled. */
@@ -428,6 +534,7 @@ public class FlywheelBank {
             appliedPower = 0.0;
             motor.setDirection(reversed ? DcMotorSimple.Direction.REVERSE : DcMotorSimple.Direction.FORWARD);
             appliedReversed = reversed;
+            powerSinceNs = 0L;
             resetReadiness();
             restartSpinUpClock();
         }

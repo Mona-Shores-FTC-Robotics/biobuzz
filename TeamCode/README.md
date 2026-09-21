@@ -500,15 +500,21 @@ tuned Foresight, since only those build a `Follower`.
 ## The `shooter` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
-speed test rig: spin the three launcher wheels up, read the RPM, and tune the
-gains. It registers one OpMode, **Flywheel Speed Test** (TeleOp, group
-`Shooter`).
+speed test rig: spin the launcher wheels up, read the RPM, and tune the gains.
+It registers one OpMode, **Flywheel Speed Test** (TeleOp, group `Shooter`).
 
-It exists to characterize shooting speeds on **last season's DECODE robot**
-before BIOBUZZ hardware is ready, so it is deliberately standalone — no
-drivetrain, no pathing, no intake, no feeder, and no dependency on
-`pedro/Constants.java` being filled in. Point it at a robot with the three
-launcher motors in its config and it runs.
+It is deliberately standalone — no drivetrain, no pathing, no intake, no
+feeder, and no dependency on `pedro/Constants.java` being filled in. Point it
+at anything with launcher motors in its config and it runs.
+
+> **History note.** This section used to say the rig existed to characterize
+> **last season's DECODE robot**, and described it as spinning "the three
+> launcher wheels". Both were true when it was written and neither is a
+> constraint. It was pointed at a two-motor BIOBUZZ bench prototype before it
+> ever ran on a DECODE robot, which is what added
+> [open loop](#open-loop-and-what-it-is-for) and the
+> [`[ENCDR]` diagnosis](#when-a-lane-says-encdr). Three lanes is the maximum
+> it supports, not the number it needs.
 
 ### Zero recompiles
 
@@ -519,7 +525,9 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 |---|---|
 | `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
+| `openLoop` | `enabled`, `power`, `stepPower` — fixed power, no speed target |
 | `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
+| `diagnostics` | the thresholds behind `[ENCDR]` and `[BACK!]` |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
 | `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
 
@@ -529,10 +537,101 @@ name is a failed build rather than something to discover at a meeting. An
 earlier version of this rig carried an editable `motorName` ported forward from
 DECODE — the very pattern `DeviceNames` exists to end.
 
-On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
-by the fine step, **dpad left/right** by the coarse step. The Driver Station
-shows the same lane table as Panels, so the rig is still usable with no laptop
-connected.
+On the gamepad: **A** spins up, **B** stops, **X** toggles open loop, **dpad
+up/down** moves the target by the fine step, **dpad left/right** by the coarse
+step, and the **bumpers** move the open-loop power. The dpad always moves the
+closed-loop target and the bumpers always move the open-loop power whichever
+mode is live, so one button switches between two set-up modes. The Driver
+Station shows the same lane table as Panels, so the rig is still usable with no
+laptop connected.
+
+### Running it on a two-wheel bench prototype
+
+Nothing needs changing. Every lane is switched off independently, so a
+two-wheel prototype is the three-lane rig with `center` unticked in Panels —
+the readout says `[ off ]` for it rather than reporting a fault. A lane whose
+motor is genuinely absent from the configuration says `[ n/c ]` and names it.
+
+The motors still have to be in the **active Robot Configuration** under the
+names in `DeviceNames` — `launcher_left`, `launcher_center`, `launcher_right`.
+For a prototype, that means wiring its two motors into the ports
+`robot_19429.xml` / `robot_20245.xml` already declare for the launcher
+(Expansion Hub ports 2 and 0) rather than inventing names, because the names
+are build-time-checked against those files and a new one is a code change, not
+a Driver Station change.
+
+| The prototype has | Do this |
+|---|---|
+| Two motors | Untick `center`. Wire the other two to the launcher ports above. |
+| Motors that are not goBILDA 5202s | Fix `measurement.ticksPerRev` first — see below. It is the number everything else is measured against. |
+| No encoders wired | Use [open loop](#open-loop-and-what-it-is-for). Closed-loop speed control is not possible without them. |
+
+**`ticksPerRev` is per motor, and the default assumes a goBILDA/REV brushed
+motor at 28 ticks per motor revolution.** A different motor makes every RPM on
+the screen wrong by a constant factor, in a way that looks like a tuning
+problem and is not. Check it before anything else.
+
+### Open loop, and what it is for
+
+**X** switches the rig from holding a speed to holding a **power**. kS, kV, kP,
+`targetRpm` and readiness are all ignored; the bumpers move the power and the
+RPM readout becomes a pure measurement.
+
+It exists for two jobs:
+
+- **Measuring kV directly instead of by bisection.** Hold a power, let the RPM
+  settle, and kV is `power ÷ settled RPM`. Two or three powers across the range
+  gives a better kV in a minute than an afternoon of guessing. The closed-loop
+  instructions used to say "raise kV until the measured RPM settles near the
+  target" — the same measurement, run backwards, one guess at a time.
+- **Spinning a wheel whose encoder does not work.** A prototype built the week
+  before a meeting often has motor power wired and nothing else. Closed loop
+  cannot run without a measurement, but shots can still be thrown and a hood
+  angle still judged, and the rig should not be the reason the afternoon stops.
+
+**Voltage compensation is deliberately not applied in open loop.** The whole
+value of the mode is that the number you dialled in is the number the motor
+got, so `power ÷ settled RPM` is a kV you can write down. Scaling it by the
+battery multiplier would make that division quietly wrong by exactly that
+factor.
+
+Two things the readout does **not** show in open loop, on purpose: the error
+column and the spin-up column. Both are measured against a speed target, and
+there isn't one — printing a number there would invite someone to tune against
+it.
+
+### When a lane says `[ENCDR]`
+
+This is the fault the rig previously could not name, and the most likely thing
+to be wrong on a new prototype.
+
+A lane with no working encoder reads **0 RPM while the power climbs to 1.00**,
+because the controller is chasing an error that never closes. The old readout
+rendered that as `[spin ] 0 1500 1.00` — visually identical to a wheel that is
+merely slow, and indistinguishable from a gains problem. People tune for an
+hour against a number that is never going to move.
+
+`[ENCDR]` fires when all three hold at once: power at or above
+`diagnostics.deadEncoderPower` (0.15), speed below `deadEncoderRpm` (10), for
+at least `deadEncoderAfterMs` (1000 ms). A healthy flywheel shows its first
+non-zero tick in far less than a second, so it cannot fire during a normal
+spin-up.
+
+What it means, in order of likelihood: the encoder cable is unplugged at one
+end; the motor has no encoder at all; the wheel is mechanically jammed. Check
+by hand in that order.
+
+**Rejected:** keying on `getVelocity()` returning exactly `0.0`. A disconnected
+port does return a clean zero — but so does a wheel that has not broken away
+yet, and an encoder with a flaky ground returns sporadic noise rather than
+zero. "Commanded real power for a real length of time and still not moving"
+catches the flaky case too.
+
+`FlywheelDiagnosis` is a plain enum with a `static` decision function taking
+only numbers, so `FlywheelDiagnosisTest` runs the whole state table in CI with
+no Android device, no `HardwareMap` and no robot. That test is what caught the
+`[open ]` tag being one character wider than the others and silently breaking
+the lane table's alignment.
 
 ### First time on the robot
 
@@ -546,16 +645,22 @@ the robot somewhere the flywheels can spin free and walk through this once:
    Nobody has run Panels on the Sloth `0.3.2` stack yet, so this is the step
    most likely to surprise you. If it doesn't appear, the Driver Station
    readout still works and the gamepad still tunes the target speed.
-3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
-   land on `[READY]`.
+3. **Press X, then A.** Open loop first, at the default 0.20 power. Every
+   enabled lane should turn and show a non-zero RPM. A lane reading `[ENCDR]`
+   has no working encoder — fix that before tuning anything, because no gain
+   closes a loop with no measurement in it.
 4. **Is any lane showing a negative RPM?** That wheel is spinning backwards —
    tick `reversed` for it in Panels and it should flip positive. (DECODE's
    robot 20245 ran its right lane reversed; 19429 ran all three forward.)
 5. **Does the RPM look believable?** If it's off by a constant factor — double,
    half, ten times — the encoder maths is wrong, not the motor. Fix
    `measurement.ticksPerRev` first, then `gearRatio`.
+6. **Write down a power and its settled RPM.** kV is the one divided by the
+   other, and it is the number the next step needs.
+7. **Press X again for closed loop, then A.** With that kV entered and kP at 0,
+   the lanes should climb to the target and land on `[READY]`.
 
-Once those five pass, the rig works. Press B to stop; the wheels coast down.
+Once those seven pass, the rig works. Press B to stop; the wheels coast down.
 
 ### What was ported from DECODE, and what wasn't
 

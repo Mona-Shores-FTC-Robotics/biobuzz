@@ -18,7 +18,9 @@ public class FlywheelTuningConfig {
 
     public Measurement measurement = new Measurement();
     public Target target = new Target();
+    public OpenLoop openLoop = new OpenLoop();
     public Readiness readiness = new Readiness();
+    public Diagnostics diagnostics = new Diagnostics();
     public VoltageCompensation voltageCompensation = new VoltageCompensation();
 
     public FlywheelLaneConfig left = new FlywheelLaneConfig();
@@ -57,6 +59,45 @@ public class FlywheelTuningConfig {
         public double coarseStepRpm = 100;
     }
 
+    /**
+     * Drive the wheels at a fixed power with no speed target at all.
+     *
+     * <p>Two jobs, and the rig needs both:
+     *
+     * <ul>
+     *   <li><b>It measures kV directly instead of by bisection.</b> Hold a
+     *       power, wait for the RPM to settle, and kV is
+     *       {@code power / settled RPM} with kS folded in at the low end. The
+     *       closed-loop instructions used to say "raise kV until the measured
+     *       RPM settles near the target", which is the same measurement done
+     *       backwards, by hand, one guess at a time.</li>
+     *   <li><b>It still spins a wheel whose encoder does not work.</b> A
+     *       prototype thrown together the week before a meeting often has motor
+     *       power and nothing else wired. Closed loop cannot run without an
+     *       encoder — but shots can still be thrown and a hood angle still
+     *       judged, so the rig should not be the reason the afternoon stops.
+     *       {@link org.firstinspires.ftc.teamcode.shooter.FlywheelDiagnosis#DEAD_ENCODER}
+     *       names that case; this is what you do about it.</li>
+     * </ul>
+     */
+    public static class OpenLoop {
+        /**
+         * When on, every enabled lane is driven at {@link #power} and the RPM
+         * readout becomes a measurement rather than a target. kS/kV/kP,
+         * {@code targetRpm} and readiness are all ignored while this is on.
+         */
+        public boolean enabled = false;
+
+        /**
+         * Motor power, 0.0-1.0, applied to every enabled lane. Starts low: a
+         * bench prototype is usually clamped to a table by hope alone.
+         */
+        public double power = 0.20;
+
+        /** Left/right bumper step. */
+        public double stepPower = 0.05;
+    }
+
     /** What counts as "at speed". */
     public static class Readiness {
         /** Acceptable RPM error when considering a lane ready to fire. */
@@ -73,6 +114,40 @@ public class FlywheelTuningConfig {
          * lane that never reaches speed must keep saying so.
          */
         public double atSpeedHoldMs = 250;
+    }
+
+    /**
+     * Thresholds for the faults the rig names out loud. See
+     * {@link org.firstinspires.ftc.teamcode.shooter.FlywheelDiagnosis}.
+     *
+     * <p>These are deliberately tunable rather than constants: a direct-drive
+     * flywheel and a belted one reach measurable speed at very different powers,
+     * and a threshold that cries wolf gets ignored, which is worse than not
+     * having it.
+     */
+    public static class Diagnostics {
+        /**
+         * Power at or above which the wheel is definitely being told to move.
+         * Below this, a stationary wheel is not evidence of anything.
+         */
+        public double deadEncoderPower = 0.15;
+
+        /** Speed below which the encoder is reporting "not turning". */
+        public double deadEncoderRpm = 10;
+
+        /**
+         * How long both conditions must hold together before the rig calls it.
+         * One second is many times longer than any flywheel takes to show its
+         * first non-zero tick, so this cannot fire during a healthy spin-up.
+         */
+        public double deadEncoderAfterMs = 1000;
+
+        /**
+         * Negative RPM past which a lane is called backwards rather than noisy.
+         * The first version of this test used 1 RPM, which a stationary encoder
+         * can produce from quantization alone.
+         */
+        public double backwardsRpm = 10;
     }
 
     /** Ported unchanged from DECODE's {@code LauncherVoltageCompensationConfig}. */
