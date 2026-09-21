@@ -83,8 +83,12 @@ rename.
   `Merge pull request #13 from .../tooling/sloth-run-config` is still readable a season later and a
   random name is not. Rename an auto-generated `claude/*` branch *before* opening the PR.
 - Commit style: imperative subject; the body explains *why*, not *what*.
-- CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on every PR. **A red CI is
-  investigated, not re-run.**
+- CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on **every push to every branch**,
+  not only on PRs. **A red CI is investigated, not re-run.**
+- Those three jobs are **required status checks** on `master` (since 21 Sep 2026), with `strict`
+  on and admins included. So a PR cannot merge red, and it cannot merge behind `master` — expect
+  to press *Update branch* when someone else merges first. Nobody can override this, which is the
+  point; the cost is that if CI itself breaks, fixing CI is the only way to merge anything.
 
 ## House documentation style
 
