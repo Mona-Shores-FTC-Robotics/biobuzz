@@ -37,7 +37,10 @@
       "mcp__github__actions_list",
       "mcp__github__actions_get",
       "mcp__github__get_job_logs",
-      "mcp__github__get_check_run"
+      "mcp__github__get_check_run",
+      "Bash(gh api:*)",
+      "Bash(gh auth status)",
+      "Bash(gh --version)"
     ],
     "deny": [
       "Edit(FtcRobotController/**)",
@@ -46,6 +49,18 @@
       "Write(TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/procedures/**)",
       "Bash(git push --force:*)",
       "Bash(git push -f:*)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/session-start.sh"
+          }
+        ]
+      }
     ]
   }
 }
