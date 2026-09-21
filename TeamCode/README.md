@@ -122,6 +122,14 @@ replaces**, and the robot will not drive correctly until it has:
    changes corrupt the position estimate.
 3. All of `foresightConfig` — currently empty, see below.
 
+### Reaching AutoTune
+
+There is no OpMode to select. AutoTune's `Hooks` class starts a web server when
+the Robot Controller's event loop initializes, so it is running as soon as the
+app is: connect to the robot's wifi and open **`http://192.168.43.1:10158`**
+(`192.168.49.1` if the RC is a phone rather than a Control Hub). The procedures
+registered in `Tuning.java` are listed there.
+
 Run the tuners in this order; each produces the values the next one needs.
 **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.** Each ends on a page
 of generated Java to paste over the matching block in `Constants.java`.
