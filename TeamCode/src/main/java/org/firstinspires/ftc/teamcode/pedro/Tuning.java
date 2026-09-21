@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.pedro;
 
+import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.tuning.autotune.Procedure;
 import com.pedropathing.tuning.autotune.Tuner;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
+import org.firstinspires.ftc.teamcode.hardware.StandIn;
 import org.firstinspires.ftc.teamcode.pedro.procedures.ForesightTuner;
 import org.firstinspires.ftc.teamcode.pedro.procedures.MecanumTuner;
 import org.firstinspires.ftc.teamcode.pedro.procedures.PinpointTuner;
@@ -37,7 +42,7 @@ public class Tuning {
 
     @Tuner(name = "Foresight Tuner")
     public static Procedure foresightTuner() {
-        return new ForesightTuner(Constants::createLocalizer, Constants::createDrivetrain);
+        return new ForesightTuner(Constants::createLocalizer, Tuning::realDrivetrain);
     }
 
     /**
@@ -47,6 +52,29 @@ public class Tuning {
      */
     @Tuner(name = "Tests")
     public static Procedure tests() {
-        return new Tests(Constants::createDrivetrain, Constants::createLocalizer, Constants::createAlgorithm);
+        return new Tests(Tuning::realDrivetrain, Constants::createLocalizer, Constants::createAlgorithm);
+    }
+
+    /**
+     * {@link Constants#createDrivetrain}, but refusing to run on a {@link StandIn}.
+     *
+     * <p>Match OpModes put do-nothing stand-ins in the {@code HardwareMap} for missing motors so
+     * the robot keeps playing (see {@code HardwareCheck}), and the SDK keeps that map until the
+     * robot restarts. A tuner run afterwards would otherwise measure a robot with a motor that
+     * does nothing and hand you numbers to paste. The Mecanum Tuner needs no such guard: it looks
+     * motors up through {@code hardwareMap.dcMotor}, which stand-ins are never added to, so it
+     * already fails with "could not find device".
+     */
+    static Mecanum realDrivetrain(HardwareMap hardwareMap) {
+        for (String name : new String[] {DeviceNames.FRONT_LEFT, DeviceNames.FRONT_RIGHT,
+                DeviceNames.BACK_LEFT, DeviceNames.BACK_RIGHT}) {
+            if (StandIn.is(hardwareMap.tryGet(DcMotorEx.class, name))) {
+                throw new IllegalStateException("Drive motor \"" + name + "\" is missing; a "
+                        + "stand-in is filling in for it. Tuning would measure a motor that does "
+                        + "nothing. Fix the wiring, restart the robot (DS menu -> Restart Robot), "
+                        + "then tune.");
+            }
+        }
+        return Constants.createDrivetrain(hardwareMap);
     }
 }
