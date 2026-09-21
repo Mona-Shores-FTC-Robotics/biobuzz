@@ -111,6 +111,147 @@ Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
 
+### When a Wi-Fi deploy fails
+
+Deploying over Wi-Fi has worked only some of the time, both last season
+(DECODE) and now, and nobody has pinned down why. USB-C has always worked. This
+section records what we know, what we only suspect, and what we ruled out, so
+the next person does not start from zero. **Nothing below has been confirmed as
+*the* cause on our robots yet.** When one of these fixes clearly works (or
+clearly doesn't), update this section and say which.
+
+#### Checklist — do these in order, stop when it works
+
+Run the commands in the Android Studio **Terminal** tab. If `adb` is "not
+recognized", use the full path:
+`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
+
+1. **Is the laptop on the robot's network?** Check the Wi-Fi menu: the robot
+   adapter should show the robot's own network as *Connected*, even though it says "No internet". If it has dropped off, click
+   **Connect** on it by hand (see *Windows drops the robot network* below for
+   why by hand matters).
+2. **Can the laptop reach the hub at all?** In a PowerShell terminal:
+   `Test-NetConnection 192.168.43.1 -Port 5555`.
+   `TcpTestSucceeded : True` means the network is fine and the problem is adb —
+   go to step 3. `False` means it is a network problem — go to step 5.
+3. **Look at what adb thinks:** `adb devices`.
+   - `192.168.43.1:5555  device` — adb is fine; re-run the deploy.
+   - `… offline`, or nothing listed — continue.
+4. **Reset the connection:** `adb disconnect`, then
+   `adb connect 192.168.43.1:5555`, then `adb devices` again. If it still says
+   `offline`, or you saw a message like `adb server version (…) doesn't match
+   this client (…); killing…`, run `adb kill-server`, then connect again.
+   Deploy.
+5. **Check Windows is using the right adapter:**
+   `Find-NetRoute -RemoteIPAddress 192.168.43.1 | Select InterfaceAlias`.
+   It must name the adapter joined to the robot. If it names the other adapter,
+   that adapter is also on a `192.168.43.x` network (a phone hotspot is the
+   usual culprit) — join a different internet network, or turn the second
+   adapter off while you deploy.
+6. **Still failing:** power-cycle the robot, wait for its Wi-Fi to come back,
+   rejoin it, and start at step 1. If it fails again, plug in USB-C and move
+   on — then note what you saw in the tracking issue.
+
+#### Candidate causes
+
+| Cause | Status | Why it would look intermittent | Fix |
+|---|---|---|---|
+| Sloth Load disconnects Wi-Fi adb after it deploys | **Confirmed in Sloth's code**, not yet watched happening on the robot | Depends on whether adb was already connected when you pressed the button | Run `adb connect` yourself before deploying (checklist step 4) |
+| Windows drops the robot network ("soft disconnect") | Hypothesis — documented Windows behaviour | Only happens once the network has been idle for a while, and after sleep/restart | Connect to the robot network by hand each session |
+| adb holding a dead connection | Hypothesis — very common adb behaviour | Appears after the robot reboots or the laptop sleeps | `adb disconnect` / `adb kill-server` (checklist step 4) |
+| Two copies of adb restarting each other | **Partly tested** — see below | Only when the other program is running | Use one adb; close other adb tools while deploying |
+| Laptop routes `192.168.43.1` out the wrong adapter | Hypothesis | Depends on which network the second adapter is on that day | Checklist step 5 |
+| Wi-Fi congestion | Hypothesis — likely at events, unlikely in our room | Worse when many robots are powered on | Move the hub to 5 GHz, if our USB adapter supports it |
+| USB Wi-Fi adapter power-saving | Hypothesis | Adapter naps when the laptop thinks it is idle | Turn power-saving off (below) |
+
+**Sloth Load disconnects Wi-Fi adb after it deploys.** Read from the compiled
+`dev.frozenmilk:Load:0.3.2` plugin (not its docs — it has none on this). Its
+default `autoconnect` mode is `MAINTAIN`, aimed at `192.168.43.1`. Before
+deploying it runs `adb devices`; if nothing is listed it runs
+`adb connect 192.168.43.1` itself, deploys, and then runs `adb disconnect`
+**with no address** — which drops *every* Wi-Fi adb connection, not just its
+own. So a Sloth Load that started with nothing connected leaves nothing
+connected, and the **TeamCode** install you try next finds no robot. It also
+means that if `adb devices` lists anything at all — even a stale `offline`
+entry — Sloth assumes it is connected and does not reconnect. Connecting by
+hand first (checklist step 4) avoids both. The setting can be changed in
+`TeamCode/build.gradle`, but that is a Gradle change and deliberately not made
+here; try the habit first.
+
+**Windows drops the robot network.** With two Wi-Fi adapters, Windows'
+connection manager by default tries to keep only the connections it needs.
+Microsoft documents that it keeps networks you **connected to by hand this
+session** and the preferred internet connection, and "soft-disconnects" the
+rest: it stops sending new connections over that network, then disconnects it
+once traffic drops below a threshold (checked every 30 seconds). The robot
+network has no internet, so if Windows joined it *automatically* — at startup
+or after sleep — it is a candidate to be dropped as soon as nobody is using it.
+That fits the pattern of deploys working while you are actively deploying and
+failing after a break. It also fits the observation that **having the REV
+Hardware Client open seemed to help**: the Hardware Client keeps talking to
+the hub, so the network never goes idle. That link is a guess, not a
+measurement. The laptop-wide fix is the Group Policy setting *Minimize the
+number of simultaneous connections to the Internet or a Windows Domain* set to
+`0`; that changes Windows behaviour for the whole laptop, so it is a
+mentor decision, not a checklist step.
+([Microsoft: Windows Connection Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/mobilebroadband/understanding-and-configuring-windows-connection-manager))
+
+**Two copies of adb.** Only one adb *server* runs per laptop, and every adb
+program talks to it. If a program with an **older** adb starts, it kills the
+server and starts its own, dropping every connection — the telltale is the
+`doesn't match this client … killing` message. Candidates on our laptops:
+Android Studio's copy (the one Sloth and the TeamCode install use), the copy
+DECODE committed at `adb/adb.exe`, and any copy the REV Hardware Client or
+tools like scrcpy bring along. **Tested on one mentor laptop:** DECODE's copy
+(platform-tools 36.0.0) and Android Studio's (37.0.1) share a server without
+killing each other — both speak adb protocol 41 — so that pair is not the
+problem there. The REV Hardware Client's copy has not been checked; run
+`adb version` on each copy you find and compare the first line. Note this
+cause would make things *worse* with the Hardware Client open, so it does not
+explain the "Hardware Client helps" observation.
+
+**The hub's adb port.** The Control Hub listens for adb on port 5555 out of
+the box; REV's docs say it "is configured to support ADB wireless connections
+on port 5555". We found nothing saying the REV Hardware Client turns that port
+on or off, so do not open the Hardware Client as a ritual — if it helps, it is
+more likely for the keep-the-network-busy reason above.
+([REV: Deploying code wirelessly](https://docs.revrobotics.com/duo-control/managing-the-control-system/android-studio-using-wireless-adb))
+
+**Wrong route.** Every Control Hub hands out `192.168.43.x` addresses, and so
+do many Android phone hotspots. If the internet adapter is on a phone hotspot,
+Windows has two networks claiming `192.168.43.1` and may send adb to the
+phone. Checklist step 5 shows which one it picked.
+
+**Congestion and power-saving.** Busy 2.4 GHz channels at events can make
+connections slow enough to time out. The hub's band and channel can be changed
+from its Manage page (`http://192.168.43.1:8080`); only move to 5 GHz if the USB
+adapter can see it. For power-saving: Device Manager → Network adapters → the
+USB Wi-Fi adapter → *Power Management*, untick *Allow the computer to turn off
+this device to save power*; also set *USB selective suspend* to *Disabled* in
+the power plan's advanced settings.
+
+**Ruled out or out of scope.**
+- *Static electricity* — it is a real cause of robots dropping out *on the
+  field*, but it would not make a laptop on a desk fail to reach a hub that is
+  otherwise running normally. Not pursued.
+- *DECODE's robot-identity code*, which read the hub's own Wi-Fi name through a
+  hidden Android API, ran on the robot and never touched the laptop's
+  connection. It is being replaced separately.
+
+#### When to just use USB-C
+
+Use the cable, and don't debug, when:
+
+- you are at a competition, or a meeting is about to end — debug Wi-Fi on
+  practice time, not match time;
+- the checklist has failed once already this session;
+- you are doing a full **TeamCode** install and Wi-Fi has been flaky today — a
+  half-finished reinstall over a dropping link can leave the robot without a
+  working app until the next good install.
+
+USB-C needs no `adb connect`: plug in, check `adb devices` shows a serial
+number, and deploy.
+
 ## Robot configuration
 
 The hardware configuration lives in this repository, ships inside the APK, and
@@ -457,6 +598,252 @@ subsystem, not in a command, so there was no command class to port in the first
 place. A rig with one behaviour has nothing for a scheduler to arbitrate. When
 the real BIOBUZZ launcher lands and shots have to be sequenced against an intake,
 that is the point to introduce Ivy commands.
+
+## The `vision` package
+
+`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/vision/` tracks the BIOBUZZ
+HIVE CELLs with a Limelight 3A. It reports where a cell is **relative to the
+robot** — range, bearing and elevation in the chassis frame — and deliberately
+produces no field pose.
+
+### Why it does not produce a field pose yet
+
+BIOBUZZ publishes no AprilTag field positions. Not imprecise ones — none:
+
+```
+AprilTagGameDatabase.getBioBuzzTagLibrary()
+  getAllTags()      -> empty
+  lookupTag(30..45) -> null for every id
+  getAllClusters()  -> 4 clusters, every fieldPosition = (0, 0, 0)
+```
+
+Those zeros are deliberate rather than an unfilled TODO — the same convention FIRST
+used in DECODE, where the fixed goal tags 20/24 carried real coordinates while the
+Obelisk tags 21-23, repositioned between matches, were published as zeros. The SDK
+12.0 release notes say why, in bold: *"Unfortunately, since BIOBUZZ AprilTags move,
+they are not suitable for absolute Field Localization."*
+
+**Read that statement carefully — it is narrower than it first looks.** FIRST cannot
+ship one field position per tag in a library every team shares, so their library does
+not support localization. That is not the same as the poses being unknowable. The
+HIVE CELLs are bistable: they pivot between two mechanically-defined positions and
+dwell there (hence `Goal Pivot Assembly` and the flanged bearings in the field CAD).
+Two known poses per cluster is a perfectly tractable thing to model — it is just
+something a team has to measure and maintain itself, which is exactly why FIRST
+cannot do it for everyone.
+
+So the plan is a field pose derived from **eight** measured cluster poses — four
+cells, two states each — plus a state classifier and a transition filter. See
+"Open work" below. Until those poses are measured, this package reports only
+robot-relative geometry, which is what a turret needs anyway and is the substrate
+the field-pose layer will sit on.
+
+#### Why we will compute it ourselves rather than use MegaTag
+
+`Limelight3A.uploadFieldmap()` exists, so uploading a per-state `.fmap` and letting
+MegaTag solve looks tempting. Don't: **the four cells can be in different states at
+the same time**, so no single field map is ever correct. Solving from whichever cells
+are visible, each with its own state, handles mixed states naturally. Runtime map
+swapping would also be slow and would still be wrong half the time.
+
+Nothing here calls `getBotpose()`, `getBotpose_MT2()` or `updateRobotOrientation()`,
+and the field-pose layer should not either.
+
+#### Localization from these tags is a correction, not a reset
+
+A damped, pivoting, volunteer-assembled game element will not return to precisely the
+same pose on every tip. A hive-derived pose deserves considerably larger covariance
+than a wall tag would, should be gated against odometry, and should never hard-reset
+the pose estimate. The spread across many tips is worth measuring — point **Vision:
+Noise Tuner** at a cell and tip it by hand between samples.
+
+### What the SDK does publish, and how we use it
+
+Cluster-internal geometry is real and useful. Each cell carries four tags at
+published offsets from the cluster origin, and that origin sits at the centre of
+the cell opening rather than on the tags themselves:
+
+| Cell | Tag ids | Member offsets (in, cluster frame) |
+|---|---|---|
+| `RED_SCORING` | 30-33 | x = -6.5 / -2.75 / +2.75 / +6.5 |
+| `RED_AUDIENCE` | 34-37 | y = +7.1874 (all members) |
+| `BLUE_AUDIENCE` | 38-41 | z = -5.6220 (all members) |
+| `BLUE_SCORING` | 42-45 | tag size 3.25" |
+
+So one visible tag locates the cell, and two or more locate the centre of the tag
+row *exactly* — the lateral axis falls out of the tag positions, no orientation
+convention needed. That is what keeps the aim point from jumping as members drop
+in and out of view, which is the failure mode of picking a single best tag each
+frame. With only one tag visible the lateral direction is unknowable and the point
+can sit up to 6.5" off along the row; `CellSighting.lateralCorrectionApplied()`
+reports that case rather than hiding it.
+
+Cell *identity* is read from the SDK at runtime through the public
+`AprilTagLibrary.lookupCluster(int)`, so a future correction is picked up for free.
+The member offsets are not reachable through public API — `clusterMembers` is
+package-private — so they are transcribed in `BiobuzzTags` and `BiobuzzTagsTest`
+reads the SDK's real values reflectively and fails if the two ever drift apart.
+
+### Two conventions that need ten minutes on the robot
+
+Everything above is verified against the SDK and covered by unit tests. Two things
+cannot be settled without hardware, and both are isolated to one place each:
+
+1. **The camera's axis convention.** Limelight documents `targetpose_cameraspace`
+   as +X right, +Y down, +Z forward, but the FTC SDK wrapper passes the three
+   numbers straight through from the camera's JSON without normalising them, so
+   nothing in the SDK proves it. Run **Vision: Raw Tag Dump** and check. If it is
+   different, fix `CameraMount.cameraAxesToRobotAxes` — one method, and
+   `CameraMountTest` covers the rest of the chain.
+2. **The offset from the tag row out to the cell opening.** A fixed
+   `(0, +7.187, -5.622)` inches in the cluster plane, but applying it needs the
+   cluster's 3D orientation, which needs the Euler convention the Limelight reports
+   yaw/pitch/roll in — also not pinned down by the SDK. It is mostly vertical and
+   depthward, so it barely affects bearing. **A turret aiming on bearing can ignore
+   it; a shooter solving for elevation cannot.**
+
+### Setup this depends on
+
+- Limelight in the hardware map as `limelight`.
+- An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
+  range is off by a constant factor, with nothing about the output looking broken.
+- That pipeline emitting **full 3D pose**. Without it no sighting can be built at
+  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and both
+  diagnostic OpModes display it, so the failure says what it is instead of just
+  reporting "no target".
+
+### The OpModes, in the order to run them
+
+All three are under the **Vision** group and are enabled, not `@Disabled`.
+
+1. **Vision: Raw Tag Dump** — raw per-fiducial numbers before any of our maths.
+   Settles the axis convention above.
+2. **Vision: Sighting Diagnostics** — live range/bearing/elevation per cell, with
+   camera mounting live-tunable in Panels. The tape-measure check.
+3. **Vision: Noise Tuner** — running mean and standard deviation of a stationary
+   sighting. Re-measure at a few distances; AprilTag noise grows quickly with range.
+
+### Published HIVE geometry
+
+`HiveGeometry` transcribes what the Competition Manual does publish, each value
+tagged with the figure it came from. `HiveGeometryTest` cross-checks the numbers
+against each other, because the manual over-determines the geometry and that
+redundancy catches a misread figure at build time rather than on the field.
+
+| | | source |
+|---|---|---|
+| Pivot axis above tiles | 43.95 in | §9.6.1, Fig 9-8 |
+| CELL tilt from horizontal | 30° | Fig 9-10 |
+| CELL spacing within a HIVE | 18.84 in | Fig 9-9 |
+| Red↔blue HIVE centre spacing | 25.5 in | Fig 9-10 |
+| Bottom of HIVE above tiles | 25.5 in | Fig 9-10 |
+| Raised opening, bottom / top | 53.5 / 65.6 in | Fig 9-10 |
+| Frame width × depth | 49.46 × 38.95 in | §9.6.1 |
+| CELL opening | 20 × 14 × 12 in | §9.6.2, Fig 9-11 |
+
+The one derived number that matters: **a given cell's tags rise about 9.42 in
+between its lowered and raised positions.** For any point rigidly attached to the
+rocker the difference works out to `2 · dx · sin(tilt)`, where `dx` is its
+horizontal distance from the pivot with the rocker level — the vertical component
+cancels — so it comes out to `CELL_SPACING_IN · sin(30°)` without needing to know
+where the tag plane sits. That is what makes height a usable state discriminator
+before anything has been measured, and it is what sets the classifier tolerance.
+
+A useful self-check fell out of this: the manual's own opening heights span
+65.6 − 53.5 = 12.1 in, and a 14 in opening tilted 30° from horizontal spans
+14·cos(30°) = 12.12 in. That agreement is what confirms the 30° is measured from
+horizontal rather than from vertical. It is a test, not a comment.
+
+**What the manual does not publish is any XY coordinate for the clusters.** §9.9
+is explicit that the sticker's Reference Holes "can be used to measure the location
+of the AprilTag Cluster relative to the rest of the FIELD" — FIRST expects teams to
+measure it, and the Initial Field Element Assembly Guide likewise locates the
+sticker by hole alignment with no numeric offsets. So the eight cluster poses are
+still an open measurement task.
+
+### Cell state: UP, DOWN, or don't ask
+
+Because the cells are bistable, "where is this cell" reduces to "which of two poses,
+and what are the two". `CellStateTracker` answers the first half.
+
+It classifies on the **height of the tag row above the floor**, which falls straight
+out of the measurement and depends only on the camera's axis convention — not on the
+Euler convention for yaw/pitch/roll, which nothing in the SDK pins down. Orientation
+would work too and is worth adding as a confirming second opinion later, but height
+needs one fewer unverified assumption in the path to a decision that gates
+localization.
+
+Two properties are deliberate and worth not "fixing":
+
+- **A height matching neither nominal classifies as UNKNOWN.** That is the transition
+  signal — it means the tracker never has to detect motion directly.
+- **Confirming a state is slow, losing one is instant.** Establishing UP or DOWN takes
+  several consecutive agreeing frames spanning a dwell time; a single contrary frame
+  drops it. Briefly reporting UNKNOWN during a real tip costs nothing. Confidently
+  reporting a stale UP for a cell that has already dropped injects a badly wrong pose.
+
+`CellStateTracker.Geometry` defaults both nominal heights to NaN, which makes every
+cell report UNKNOWN until someone measures them. That is intentional; an unmeasured
+field is not a reason to guess. **Vision: Sighting Diagnostics** prints the measured
+row height per cell, labelled, so settling a cell and reading it off is the whole
+procedure.
+
+### Open work
+
+Ordered roughly by what unblocks what.
+
+1. **Measure the two tag-row heights** and put them in `CellStateTracker.Geometry`.
+   Until this happens the state classifier returns UNKNOWN for everything and no
+   field pose is derivable. The manual gives the *difference* (~9.42 in, above) but
+   not the absolutes. Cheapest possible task — settle a cell, read the labelled row
+   height off the diagnostics OpMode, tip it, read it again. The two readings should
+   come out about 9.4 in apart; if they don't, something upstream is wrong and worth
+   chasing before going further.
+2. **Measure the eight cluster poses** — four cells, two states each — in field
+   coordinates. Not published, so this comes from the field CAD checked against a
+   real field, or from the Reference Holes as §9.9 suggests. This is the actual
+   input the field-pose layer needs. `HiveGeometry` constrains the answer: the HIVE
+   structure is centred on the field, the two HIVES are 25.5 in apart laterally, and
+   each cell sits about 8.2 in horizontally and 4.7 in vertically from its pivot at
+   43.95 in.
+3. **Build the field-pose layer.** Robot-in-field from cell-in-field composed with
+   the measured cell-relative geometry, solving from whichever cells are visible and
+   settled, each with its own state. Gate every candidate against odometry so a
+   misclassified state or a mid-tip reading is rejected before it reaches the
+   estimator.
+4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
+   tip it by hand between samples. The spread across tips — not the frame-to-frame
+   noise — is what sets the covariance a hive-derived pose deserves.
+5. **Add orientation as a confirming discriminator**, once the Limelight's Euler
+   convention has been established on the robot.
+
+#### Settled: can the camera see the lowered cell's tags?
+
+Yes, most likely — so there is no shortcut here, and height classification is
+genuinely needed.
+
+The question was whether a lowered cell's tags rotate out of view, which would have
+meant "a visible tag implies UP" and deleted most of the work above. They do not.
+Figure 9-7 labels the cluster "**AprilTag Cluster under each CELL**" and shows both
+the raised and the lowered cell's clusters in the same side elevation. The geometry
+agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
+stays within 30° of vertical in both positions rather than rotating away.
+
+Read off a figure rather than measured, so confirm it on a real field — actual
+sightlines also depend on camera height and range. But plan for both cells being
+readable, which is the harder case and also the more useful one.
+
+### What was dropped from the DECODE port, and why
+
+| Dropped | Why |
+|---|---|
+| MegaTag1/MegaTag2 pose, `PoseFrames` MT converters | No single field map is ever correct, since cells can be in different states at once. The field-pose layer will compute this itself |
+| `shouldUpdateOdometry()` / relocalization gate | Will return, gated on cell state and innovation rather than on tag freshness alone |
+| `setRobotHeading()` / `updateRobotOrientation()` | Only feeds MegaTag2 |
+| `FieldConstants` | DECODE game geometry — goals, motif tags, incenter/Chebyshev aim points. None of it transfers |
+| `RobotState` global statics | Process-global mutable state written from inside a constructor |
+| Mecanum drive code in the pattern-recognition OpMode | Out of scope; there is no drivetrain yet |
+| Reflective `getTargetArea` / `getPoseAmbiguity` lookups | `getTargetArea()` is ordinary public API, and `getPoseAmbiguity()` does not exist on `LLResultTypes.FiducialResult` at all — that fallback silently returned 0.0 every time |
 
 ## Deliberately excluded
 

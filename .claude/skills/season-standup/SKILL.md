@@ -20,7 +20,41 @@ Determine today's date and which meeting is next:
 
 Saturday is a different brief, not a longer one.
 
-## 2. Read, in this order
+## 2. How to read the board
+
+**If you have `mcp__github__*` tools, use them.** If you do not — which is the case in every
+session fired by a scheduled Routine — use `gh api`. The session-start hook installs `gh`, and
+`GH_TOKEN` is already in the environment.
+
+**`gh pr list` and `gh issue list` do NOT work here.** They use GitHub's GraphQL API, which is
+blocked from Claude Code sessions. Ignore `gh auth status` complaining the token is invalid; that
+check hits an endpoint outside the session's scope. REST works:
+
+```bash
+R=Mona-Shores-FTC-Robotics/biobuzz
+
+# Open PRs
+gh api "repos/$R/pulls?state=open&per_page=50" \
+  --jq '.[] | "#\(.number) \(.title) [\(.head.ref)]"'
+
+# Open issues (the pull_request filter matters - PRs come back from this endpoint too)
+gh api "repos/$R/issues?state=open&per_page=100" \
+  --jq '.[] | select(.pull_request==null)
+        | "#\(.number) [\([.labels[].name]|join(","))] \(.assignee.login // "UNASSIGNED") \(.title)"'
+
+# CI on a PR's head
+gh api "repos/$R/commits/<sha>/check-runs" --jq '.check_runs[] | "\(.name): \(.conclusion // .status)"'
+
+# Milestones, and the Meeting Log thread
+gh api "repos/$R/milestones?per_page=20" --jq '.[] | "\(.number): \(.title)"'
+gh api "repos/$R/issues/25/comments?per_page=5" --jq '.[-2:][] | .body'
+```
+
+If neither the MCP tools nor `gh` are available, **stop and say so**. Do not produce a brief from
+repo files alone — one missing the PR and issue state is confidently wrong, which is worse than no
+brief at all.
+
+## 3. Read, in this order
 
 Order matters — later reads are interpreted in light of earlier ones.
 
@@ -33,7 +67,7 @@ Order matters — later reads are interpreted in light of earlier ones.
    bypassed the board is exactly how finished work gets stranded here; look for it every time.
 6. The collaborator list, to know who exists.
 
-## 3. Run the health checks
+## 4. Run the health checks
 
 Report each as PASS/FAIL **naming the offending items**, not just a count.
 
@@ -49,12 +83,12 @@ Report each as PASS/FAIL **naming the offending items**, not just a count.
 | Branches with commits and no open PR or linked issue | 0 |
 | `type:decision` issues past their decide-by date | 0 |
 
-## 4. Propose priorities
+## 5. Propose priorities
 
 **Top 3 only.** Each justified by *what it unblocks*, referencing the dependency chain. More than
 three priorities is no priorities.
 
-## 5. Assign one task per mentor, and say what tier it suits
+## 6. Assign one task per mentor, and say what tier it suits
 
 **Issues are assigned to mentors, never to students.** The mentor is accountable for shepherding a
 student through the work and picks which student at the meeting. They know their students; the board
@@ -75,11 +109,11 @@ If a **tier** has no open work — nothing at `good-first-task`, say, or nothing
 robot is torn down — **say so loudly**. That is a backlog failure, not a scheduling detail, and it
 means restocking outranks whatever else was planned.
 
-## 6. Draft the mutations
+## 7. Draft the mutations
 
 List proposed label / assignee / milestone changes explicitly. **Do not apply them yet.**
 
-## 7. Output, then stop for approval
+## 8. Output, then stop for approval
 
 Use this format exactly — it gets read on a phone in a parking lot.
 
