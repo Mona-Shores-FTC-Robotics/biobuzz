@@ -1,9 +1,18 @@
 name: CI
 
 on:
-  pull_request:
-    branches: [master]
+  # Every branch, not just master: work pushed before a PR exists used to get no
+  # signal at all, so a branch could accumulate broken commits for a whole meeting
+  # and only discover it at PR time. Runs are ~1m24s and the repo is public, so
+  # Actions minutes are free — there is nothing to save by waiting for the PR.
   push:
+    branches: ['**']
+  # Kept alongside the push trigger so PRs opened from a fork are still checked.
+  # The cost is that a push to a branch with an open PR produces two runs: `push`
+  # and `pull_request` land in different concurrency groups and do not cancel
+  # each other. Accepted deliberately — dropping this trigger would dedupe, but
+  # would leave fork PRs unchecked.
+  pull_request:
     branches: [master]
   workflow_dispatch:
 
