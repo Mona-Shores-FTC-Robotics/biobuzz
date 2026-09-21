@@ -56,8 +56,12 @@ rename.
 - Branch prefixes: `feat/ fix/ tune/ chore/ docs/ spike/`. Web sessions auto-name
   `claude/<adjective>-<name>-<hash>`; that is fine for agent work, but still carry `Closes #N`.
 - **Never commit to `master`.** Never force-push a branch someone else may have checked out.
-- **Renaming a branch closes its PR.** If you rename, open a new PR from the new name immediately —
-  this has already stranded finished work twice.
+- **Rename a branch with GitHub's button, never by delete-and-repush.** Repo → Branches → the
+  pencil icon retargets any open PR to the new name. Deleting the old branch and pushing a new one
+  instead closes the PR, and the work goes unreferenced — that is what stranded #14 and #15.
+- The branch name is written into the merge commit permanently, so
+  `Merge pull request #13 from .../tooling/sloth-run-config` is still readable a season later and a
+  random name is not. Rename an auto-generated `claude/*` branch *before* opening the PR.
 - Commit style: imperative subject; the body explains *why*, not *what*.
 - CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on every PR. **A red CI is
   investigated, not re-run.**
@@ -90,6 +94,8 @@ hardware abstraction, test rigs, tuning harnesses — is `mentor-only`. Robot be
 ```
 
 The first build in a fresh container downloads the whole Android/Gradle cache and takes minutes.
+All three need an Android SDK — `sdk.dir` in `local.properties`, which is gitignored. Without it
+Gradle stops at `SDK location not found`, which is an environment problem, not a broken build.
 
 Deploying is a run configuration in Android Studio, not a terminal command: **Sloth Load** (<1s hot
 reload) for everyday work, **TeamCode** (~40s full install) when you changed any `.gradle` file,
