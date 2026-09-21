@@ -111,6 +111,147 @@ Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
 
+### When a Wi-Fi deploy fails
+
+Deploying over Wi-Fi has worked only some of the time, both last season
+(DECODE) and now, and nobody has pinned down why. USB-C has always worked. This
+section records what we know, what we only suspect, and what we ruled out, so
+the next person does not start from zero. **Nothing below has been confirmed as
+*the* cause on our robots yet.** When one of these fixes clearly works (or
+clearly doesn't), update this section and say which.
+
+#### Checklist — do these in order, stop when it works
+
+Run the commands in the Android Studio **Terminal** tab. If `adb` is "not
+recognized", use the full path:
+`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
+
+1. **Is the laptop on the robot's network?** Check the Wi-Fi menu: the robot
+   adapter should show the robot's own network as *Connected*, even though it says "No internet". If it has dropped off, click
+   **Connect** on it by hand (see *Windows drops the robot network* below for
+   why by hand matters).
+2. **Can the laptop reach the hub at all?** In a PowerShell terminal:
+   `Test-NetConnection 192.168.43.1 -Port 5555`.
+   `TcpTestSucceeded : True` means the network is fine and the problem is adb —
+   go to step 3. `False` means it is a network problem — go to step 5.
+3. **Look at what adb thinks:** `adb devices`.
+   - `192.168.43.1:5555  device` — adb is fine; re-run the deploy.
+   - `… offline`, or nothing listed — continue.
+4. **Reset the connection:** `adb disconnect`, then
+   `adb connect 192.168.43.1:5555`, then `adb devices` again. If it still says
+   `offline`, or you saw a message like `adb server version (…) doesn't match
+   this client (…); killing…`, run `adb kill-server`, then connect again.
+   Deploy.
+5. **Check Windows is using the right adapter:**
+   `Find-NetRoute -RemoteIPAddress 192.168.43.1 | Select InterfaceAlias`.
+   It must name the adapter joined to the robot. If it names the other adapter,
+   that adapter is also on a `192.168.43.x` network (a phone hotspot is the
+   usual culprit) — join a different internet network, or turn the second
+   adapter off while you deploy.
+6. **Still failing:** power-cycle the robot, wait for its Wi-Fi to come back,
+   rejoin it, and start at step 1. If it fails again, plug in USB-C and move
+   on — then note what you saw in the tracking issue.
+
+#### Candidate causes
+
+| Cause | Status | Why it would look intermittent | Fix |
+|---|---|---|---|
+| Sloth Load disconnects Wi-Fi adb after it deploys | **Confirmed in Sloth's code**, not yet watched happening on the robot | Depends on whether adb was already connected when you pressed the button | Run `adb connect` yourself before deploying (checklist step 4) |
+| Windows drops the robot network ("soft disconnect") | Hypothesis — documented Windows behaviour | Only happens once the network has been idle for a while, and after sleep/restart | Connect to the robot network by hand each session |
+| adb holding a dead connection | Hypothesis — very common adb behaviour | Appears after the robot reboots or the laptop sleeps | `adb disconnect` / `adb kill-server` (checklist step 4) |
+| Two copies of adb restarting each other | **Partly tested** — see below | Only when the other program is running | Use one adb; close other adb tools while deploying |
+| Laptop routes `192.168.43.1` out the wrong adapter | Hypothesis | Depends on which network the second adapter is on that day | Checklist step 5 |
+| Wi-Fi congestion | Hypothesis — likely at events, unlikely in our room | Worse when many robots are powered on | Move the hub to 5 GHz, if our USB adapter supports it |
+| USB Wi-Fi adapter power-saving | Hypothesis | Adapter naps when the laptop thinks it is idle | Turn power-saving off (below) |
+
+**Sloth Load disconnects Wi-Fi adb after it deploys.** Read from the compiled
+`dev.frozenmilk:Load:0.3.2` plugin (not its docs — it has none on this). Its
+default `autoconnect` mode is `MAINTAIN`, aimed at `192.168.43.1`. Before
+deploying it runs `adb devices`; if nothing is listed it runs
+`adb connect 192.168.43.1` itself, deploys, and then runs `adb disconnect`
+**with no address** — which drops *every* Wi-Fi adb connection, not just its
+own. So a Sloth Load that started with nothing connected leaves nothing
+connected, and the **TeamCode** install you try next finds no robot. It also
+means that if `adb devices` lists anything at all — even a stale `offline`
+entry — Sloth assumes it is connected and does not reconnect. Connecting by
+hand first (checklist step 4) avoids both. The setting can be changed in
+`TeamCode/build.gradle`, but that is a Gradle change and deliberately not made
+here; try the habit first.
+
+**Windows drops the robot network.** With two Wi-Fi adapters, Windows'
+connection manager by default tries to keep only the connections it needs.
+Microsoft documents that it keeps networks you **connected to by hand this
+session** and the preferred internet connection, and "soft-disconnects" the
+rest: it stops sending new connections over that network, then disconnects it
+once traffic drops below a threshold (checked every 30 seconds). The robot
+network has no internet, so if Windows joined it *automatically* — at startup
+or after sleep — it is a candidate to be dropped as soon as nobody is using it.
+That fits the pattern of deploys working while you are actively deploying and
+failing after a break. It also fits the observation that **having the REV
+Hardware Client open seemed to help**: the Hardware Client keeps talking to
+the hub, so the network never goes idle. That link is a guess, not a
+measurement. The laptop-wide fix is the Group Policy setting *Minimize the
+number of simultaneous connections to the Internet or a Windows Domain* set to
+`0`; that changes Windows behaviour for the whole laptop, so it is a
+mentor decision, not a checklist step.
+([Microsoft: Windows Connection Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/mobilebroadband/understanding-and-configuring-windows-connection-manager))
+
+**Two copies of adb.** Only one adb *server* runs per laptop, and every adb
+program talks to it. If a program with an **older** adb starts, it kills the
+server and starts its own, dropping every connection — the telltale is the
+`doesn't match this client … killing` message. Candidates on our laptops:
+Android Studio's copy (the one Sloth and the TeamCode install use), the copy
+DECODE committed at `adb/adb.exe`, and any copy the REV Hardware Client or
+tools like scrcpy bring along. **Tested on one mentor laptop:** DECODE's copy
+(platform-tools 36.0.0) and Android Studio's (37.0.1) share a server without
+killing each other — both speak adb protocol 41 — so that pair is not the
+problem there. The REV Hardware Client's copy has not been checked; run
+`adb version` on each copy you find and compare the first line. Note this
+cause would make things *worse* with the Hardware Client open, so it does not
+explain the "Hardware Client helps" observation.
+
+**The hub's adb port.** The Control Hub listens for adb on port 5555 out of
+the box; REV's docs say it "is configured to support ADB wireless connections
+on port 5555". We found nothing saying the REV Hardware Client turns that port
+on or off, so do not open the Hardware Client as a ritual — if it helps, it is
+more likely for the keep-the-network-busy reason above.
+([REV: Deploying code wirelessly](https://docs.revrobotics.com/duo-control/managing-the-control-system/android-studio-using-wireless-adb))
+
+**Wrong route.** Every Control Hub hands out `192.168.43.x` addresses, and so
+do many Android phone hotspots. If the internet adapter is on a phone hotspot,
+Windows has two networks claiming `192.168.43.1` and may send adb to the
+phone. Checklist step 5 shows which one it picked.
+
+**Congestion and power-saving.** Busy 2.4 GHz channels at events can make
+connections slow enough to time out. The hub's band and channel can be changed
+from its Manage page (`http://192.168.43.1:8080`); only move to 5 GHz if the USB
+adapter can see it. For power-saving: Device Manager → Network adapters → the
+USB Wi-Fi adapter → *Power Management*, untick *Allow the computer to turn off
+this device to save power*; also set *USB selective suspend* to *Disabled* in
+the power plan's advanced settings.
+
+**Ruled out or out of scope.**
+- *Static electricity* — it is a real cause of robots dropping out *on the
+  field*, but it would not make a laptop on a desk fail to reach a hub that is
+  otherwise running normally. Not pursued.
+- *DECODE's robot-identity code*, which read the hub's own Wi-Fi name through a
+  hidden Android API, ran on the robot and never touched the laptop's
+  connection. It is being replaced separately.
+
+#### When to just use USB-C
+
+Use the cable, and don't debug, when:
+
+- you are at a competition, or a meeting is about to end — debug Wi-Fi on
+  practice time, not match time;
+- the checklist has failed once already this session;
+- you are doing a full **TeamCode** install and Wi-Fi has been flaky today — a
+  half-finished reinstall over a dropping link can leave the robot without a
+  working app until the next good install.
+
+USB-C needs no `adb connect`: plug in, check `adb devices` shows a serial
+number, and deploy.
+
 ## Robot configuration
 
 The hardware configuration lives in this repository, ships inside the APK, and
