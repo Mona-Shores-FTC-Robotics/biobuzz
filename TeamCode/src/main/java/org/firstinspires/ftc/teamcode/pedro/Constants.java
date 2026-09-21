@@ -12,6 +12,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 /**
  * Robot configuration for Pedro Pathing.
@@ -35,15 +36,17 @@ public class Constants {
     /**
      * Drivetrain: four-motor mecanum.
      *
-     * <p>The names must match the Robot Controller configuration. The directions are the
+     * <p>The names come from {@link DeviceNames}, which {@code RobotConfigXmlTest} checks against
+     * the bundled {@code res/xml} configs — so a name here cannot silently drift from the Robot
+     * Controller's. The directions are the
      * conventional result for mirror-mounted motors (left side reversed) and are a
      * <b>placeholder</b> — the Mecanum Tuner spins each motor and tells you the real answer.
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
-        c.frontLeftName.set("frontLeft");
-        c.frontRightName.set("frontRight");
-        c.backLeftName.set("backLeft");
-        c.backRightName.set("backRight");
+        c.frontLeftName.set(DeviceNames.FRONT_LEFT);
+        c.frontRightName.set(DeviceNames.FRONT_RIGHT);
+        c.backLeftName.set(DeviceNames.BACK_LEFT);
+        c.backRightName.set(DeviceNames.BACK_RIGHT);
 
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
@@ -61,7 +64,7 @@ public class Constants {
      * corrupt the position estimate until the real values are in.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
-        c.name.set("pinpoint");
+        c.name.set(DeviceNames.PINPOINT);
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
         c.xPodOffset.set(0.0);
