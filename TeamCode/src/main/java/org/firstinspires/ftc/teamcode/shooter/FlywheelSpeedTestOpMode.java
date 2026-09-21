@@ -33,9 +33,10 @@ import java.util.Locale;
  *
  * <h2>In Panels</h2>
  * <p>{@code FlywheelBank → config}: target RPM and its limits, tolerance,
- * ticks-per-rev and gear ratio, voltage compensation, and per-lane motor name,
- * enable, reverse, RPM trim and kS/kV/kP. Every one of them takes effect on the
- * next loop — including the motor name, which re-binds the hardware live.
+ * ticks-per-rev and gear ratio, voltage compensation, and per-lane enable,
+ * reverse, RPM trim and kS/kV/kP. Every one of them takes effect on the next
+ * loop. The motor names are not among them — they come from {@code DeviceNames}
+ * and are checked against the bundled robot configurations at build time.
  *
  * <h2>Tuning order that works</h2>
  * <ol>
@@ -98,8 +99,8 @@ public class FlywheelSpeedTestOpMode extends OpMode {
 
     @Override
     public void init_loop() {
-        // Re-bind so a motor name fixed in Panels before START is picked up, and
-        // the "not in the robot config" warning clears as soon as it is right.
+        // Keep measuring during init so a missing motor is reported before
+        // anyone presses play.
         bank.periodic();
         telemetry.addLine("Flywheel Speed Test ready.");
         telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");

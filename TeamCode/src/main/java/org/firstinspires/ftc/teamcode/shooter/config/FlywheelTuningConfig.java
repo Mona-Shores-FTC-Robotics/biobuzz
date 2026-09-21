@@ -21,9 +21,9 @@ public class FlywheelTuningConfig {
     public Readiness readiness = new Readiness();
     public VoltageCompensation voltageCompensation = new VoltageCompensation();
 
-    public FlywheelLaneConfig left = FlywheelLaneConfig.forMotor("launcher_left");
-    public FlywheelLaneConfig center = FlywheelLaneConfig.forMotor("launcher_center");
-    public FlywheelLaneConfig right = FlywheelLaneConfig.forMotor("launcher_right");
+    public FlywheelLaneConfig left = new FlywheelLaneConfig();
+    public FlywheelLaneConfig center = new FlywheelLaneConfig();
+    public FlywheelLaneConfig right = new FlywheelLaneConfig();
 
     /** How encoder ticks become RPM. Get this wrong and every number below lies. */
     public static class Measurement {

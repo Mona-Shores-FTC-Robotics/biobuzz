@@ -41,5 +41,14 @@
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
 
         </LynxModule>
+
+        <!-- Expansion Hub: the launcher flywheels. Ports are carried over from
+             the DECODE season's Driver Station configurations, which wired all
+             three launcher motors identically on both robots. -->
+        <LynxModule name="Expansion Hub" port="2">
+            <goBILDA5202SeriesMotor name="launcher_right"  port="0" />
+            <goBILDA5202SeriesMotor name="launcher_center" port="1" />
+            <goBILDA5202SeriesMotor name="launcher_left"   port="2" />
+        </LynxModule>
     </LynxUsbDevice>
 </Robot>

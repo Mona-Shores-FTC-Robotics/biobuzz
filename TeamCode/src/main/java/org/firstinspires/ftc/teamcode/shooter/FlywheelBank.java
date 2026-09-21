@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.shooter.config.FlywheelLaneConfig;
 import org.firstinspires.ftc.teamcode.shooter.config.FlywheelTuningConfig;
 
@@ -157,6 +158,23 @@ public class FlywheelBank {
         return Range.clip(compensation.nominalVoltage / voltage, 0.5, 2.0);
     }
 
+    /**
+     * The hardware name for a lane. Comes from {@link DeviceNames}, which
+     * {@code RobotConfigXmlTest} holds to the bundled robot configurations, so
+     * a name that is not on the robot fails the build rather than the meeting.
+     */
+    private static String motorNameFor(FlywheelLane lane) {
+        switch (lane) {
+            case LEFT:
+                return DeviceNames.LAUNCHER_LEFT;
+            case CENTER:
+                return DeviceNames.LAUNCHER_CENTER;
+            case RIGHT:
+            default:
+                return DeviceNames.LAUNCHER_RIGHT;
+        }
+    }
+
     private FlywheelLaneConfig configFor(FlywheelLane lane) {
         switch (lane) {
             case LEFT:
@@ -192,8 +210,8 @@ public class FlywheelBank {
         private final FlywheelLane lane;
 
         private DcMotorEx motor;
-        /** Motor name currently bound, so a live edit in Panels triggers a re-bind. */
-        private String boundMotorName;
+        /** True once {@link #bind()} has run, whether or not it found the motor. */
+        private boolean bound;
         /** Direction currently applied, so a live edit is applied with power cut. */
         private Boolean appliedReversed;
 
@@ -226,7 +244,7 @@ public class FlywheelBank {
         }
 
         public String getMotorName() {
-            return cfg().motorName;
+            return motorNameFor(lane);
         }
 
         /** Signed — a negative value means the wheel is turning the wrong way. */
@@ -273,25 +291,17 @@ public class FlywheelBank {
         }
 
         /**
-         * Looks up the motor if the configured name has changed. Powers the old
-         * motor down first so a rename never leaves a wheel spinning untracked.
+         * Looks the motor up once. The name is a constant now, so there is
+         * nothing to re-bind — and a miss must not be retried every loop,
+         * because a failed {@code hardwareMap.get()} costs a thrown exception
+         * each time and the map cannot change mid-OpMode.
          */
         void bind() {
-            String name = cfg().motorName;
-            String wanted = name == null ? "" : name.trim();
-            // Keyed on the name, not on motor != null: a name that is not in the
-            // robot config must not be re-looked-up every loop, because a failed
-            // hardwareMap.get() costs a thrown exception each time. The map's
-            // contents cannot change mid-OpMode, so only a fresh name is worth
-            // retrying — which is exactly what editing it in Panels gives us.
-            if (wanted.equals(boundMotorName)) {
+            if (bound) {
                 return;
             }
-            if (motor != null) {
-                motor.setPower(0.0);
-            }
-            motor = tryGetMotor(hardwareMap, wanted);
-            boundMotorName = wanted;
+            bound = true;
+            motor = tryGetMotor(hardwareMap, motorNameFor(lane));
             appliedReversed = null;
             commandedRpm = 0.0;
             commandedAtNs = 0L;
