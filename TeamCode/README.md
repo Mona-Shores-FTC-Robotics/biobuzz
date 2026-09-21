@@ -380,11 +380,13 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
 | `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
-| `left` / `center` / `right` | `motorName`, `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
+| `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
 
-`motorName` is live too: change it and the rig powers the old motor down and
-binds the new one on the next loop. That is the escape hatch for a robot config
-that spells a name differently — no recompile, no OpMode restart.
+The motor names are deliberately **not** in that tree. They live in
+`DeviceNames`, and `RobotConfigXmlTest` holds them to `robot_*.xml`, so a wrong
+name is a failed build rather than something to discover at a meeting. An
+earlier version of this rig carried an editable `motorName` ported forward from
+DECODE — the very pattern `DeviceNames` exists to end.
 
 On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
 by the fine step, **dpad left/right** by the coarse step. The Driver Station

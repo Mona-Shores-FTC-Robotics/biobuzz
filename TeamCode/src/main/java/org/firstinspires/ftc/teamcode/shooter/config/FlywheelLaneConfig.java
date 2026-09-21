@@ -1,29 +1,26 @@
 package org.firstinspires.ftc.teamcode.shooter.config;
 
 /**
- * Everything the rig needs to know about one flywheel motor. One instance per
- * lane lives inside {@link FlywheelTuningConfig}, so Panels shows three
- * identical sub-trees under {@code left} / {@code center} / {@code right}.
+ * The tunable settings for one flywheel lane. One instance per lane lives inside
+ * {@link FlywheelTuningConfig}, so Panels shows three identical sub-trees under
+ * {@code left} / {@code center} / {@code right}.
  *
  * <p>Ported from DECODE's {@code LauncherFlywheelConfig}, which declared three
  * separate near-identical classes for the same job. One shared class keeps the
  * Panels tree the same shape while leaving a single place to edit a field.
  *
- * <p><b>No constructor arguments.</b> Panels reflects over the live object, and
- * every config object it walks needs to stay a plain mutable bean. Defaults that
- * differ per lane (the motor name) are applied by {@link #forMotor(String)}.
+ * <p><b>The motor name is not here.</b> It lives in
+ * {@link org.firstinspires.ftc.teamcode.hardware.DeviceNames}, checked against
+ * the bundled robot configurations by {@code RobotConfigXmlTest}. An earlier
+ * version of this class carried an editable {@code motorName}, ported forward
+ * from DECODE — that is the exact pattern {@code DeviceNames} was written to
+ * end, and a wrong name is now a failed build rather than something to notice
+ * at a meeting.
+ *
+ * <p><b>No constructor arguments.</b> Panels reflects over the live object, so
+ * every config object it walks has to stay a plain mutable bean.
  */
 public class FlywheelLaneConfig {
-
-    /**
-     * Name of this flywheel motor in the active Robot Configuration.
-     *
-     * <p>Editable live: if you change it, the rig drops the old motor (powering
-     * it down first) and looks up the new one on the next loop. That is the
-     * escape hatch for a robot config that spells a name differently — no
-     * recompile, no OpMode restart.
-     */
-    public String motorName = "";
 
     /** Untick to leave this lane's motor alone entirely (it is never powered). */
     public boolean enabled = true;
@@ -62,11 +59,4 @@ public class FlywheelLaneConfig {
      * Set to 0 for pure feedforward. Increase slowly if RPM drifts under load.
      */
     public double kP = 0.001;
-
-    /** Builds a lane config pre-set to {@code motorName}. */
-    public static FlywheelLaneConfig forMotor(String motorName) {
-        FlywheelLaneConfig config = new FlywheelLaneConfig();
-        config.motorName = motorName;
-        return config;
-    }
 }

@@ -36,6 +36,12 @@ public final class DeviceNames {
     // Odometry.
     public static final String PINPOINT = "pinpoint";
 
+    // Launcher flywheels, left to right as seen from behind the robot. Carried
+    // over from the DECODE robots, which wired all three on the Expansion Hub.
+    public static final String LAUNCHER_LEFT = "launcher_left";
+    public static final String LAUNCHER_CENTER = "launcher_center";
+    public static final String LAUNCHER_RIGHT = "launcher_right";
+
     /**
      * What kind of port a device occupies. Determines which XML element tags
      * are legal for it, and which Java class {@code ValidateHardware} asks the
@@ -73,5 +79,8 @@ public final class DeviceNames {
             new Device(FRONT_RIGHT, Kind.MOTOR),
             new Device(BACK_LEFT, Kind.MOTOR),
             new Device(BACK_RIGHT, Kind.MOTOR),
+            new Device(LAUNCHER_LEFT, Kind.MOTOR),
+            new Device(LAUNCHER_CENTER, Kind.MOTOR),
+            new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(PINPOINT, Kind.I2C)));
 }
