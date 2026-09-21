@@ -22,7 +22,8 @@ and why — so the reasoning survives past whoever added it.
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
-| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. Kept in case we resume AdvantageScope integration (it piggybacks on FTC Dashboard's packet stream). |
+| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. **Also the data path for AdvantageScope** — it reads this packet stream. |
+| AdvantageScope Lite | `page.j5155.AdvantageScope:lite:v26.0.0` | AdvantageScope hosted on the robot at `http://192.168.43.1:8080/as/` — no desktop install. Auto-connects to the FTC Dashboard stream above. See [AdvantageScope](#advantagescope). |
 
 Limelight3A support (`com.qualcomm.hardware.limelightvision`) needs no separate
 dependency — it ships as part of the SDK's `Hardware` artifact in
@@ -534,6 +535,52 @@ by the fine step, **dpad left/right** by the coarse step. The Driver Station
 shows the same lane table as Panels, so the rig is still usable with no laptop
 connected.
 
+### What it publishes, and where
+
+Three places at once, and you can use any of them alone:
+
+| Where | What you get |
+|---|---|
+| **AdvantageScope** | Full tree under `shooter/`, graphable and replayable. See [AdvantageScope](#advantagescope). |
+| **Panels** | The same numbers as graphable series, plus the lane table as text |
+| **Driver Station** | The lane table — works with no laptop at all |
+
+Per lane, under `shooter/left/`, `shooter/center/`, `shooter/right/`:
+
+| Key | Why you care |
+|---|---|
+| `velocity_rpm` / `target_rpm` / `error_rpm` | The basic picture. Plot measured against target. |
+| `velocity_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
+| `power_applied` | What actually reached the motor, after voltage compensation and clipping |
+| `power_feedforward` / `power_feedback` | **The tuning signal.** See below. |
+| `current_amps` / `power_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
+| `at_speed` / `spin_up_ms` | Readiness, and time-to-first-in-tolerance |
+
+Plus `shooter/battery_volts`, `shooter/voltage_multiplier`, `shooter/loop_ms`
+and `shooter/spinning`.
+
+### Reading the feedforward / feedback split
+
+This is the part worth understanding, because it turns tuning from guesswork
+into reading a graph.
+
+The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
+those two halves separately:
+
+- **`power_feedforward` should be carrying nearly all the power** once the wheel
+  is at speed. That is the whole point of feedforward — it predicts the power
+  needed rather than reacting to being wrong.
+- **`power_feedback` should settle near zero.** If it is doing real work at
+  steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
+  rather than raising kP.
+
+At steady state, kV ≈ `power_feedforward` ÷ `target_rpm` — both numbers are on
+the graph, so you can read the correct value off directly instead of bisecting.
+
+One trap: `shooter/voltage_multiplier` scales the applied power. Derive kV from
+`power_feedforward` (before compensation), not from `power_applied` (after), or
+your answer is off by exactly that factor.
+
 ### First time on the robot
 
 **Nobody has run this on a robot yet.** Before you rely on it at a meeting, put
@@ -845,6 +892,110 @@ readable, which is the harder case and also the more useful one.
 | Mecanum drive code in the pattern-recognition OpMode | Out of scope; there is no drivetrain yet |
 | Reflective `getTargetArea` / `getPoseAmbiguity` lookups | `getTargetArea()` is ordinary public API, and `getPoseAmbiguity()` does not exist on `LLResultTypes.FiducialResult` at all — that fallback silently returned 0.0 every time |
 
+
+## AdvantageScope
+
+AdvantageScope is hosted **on the robot**: connect to the robot's WiFi and open
+`http://192.168.43.1:8080/as/`. No desktop install, nothing to keep in sync.
+
+It reads the FTC Dashboard packet stream, so anything published as a
+`TelemetryPacket` shows up automatically — including Pedro Pathing's own output.
+
+Two setup notes:
+
+- **Upload the assets once.** Download `AllAssetsDefaultFTC.zip` from the
+  [AdvantageScope Lite FTC repo](https://github.com/j5155/AdvantageScope-Lite-FTC)
+  and add it through **File → Upload Asset**, or the 2D and 3D field views stay
+  empty. This is per-robot, not per-laptop.
+- **Get the bundle from upstream, not from the j5155 repo.** The j5155 README
+  links to it, but the file itself lives in Mechanical-Advantage's
+  [AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+  under the `bundles-v1` release, and that one is current.
+- **Keys are slash-delimited on purpose.** AdvantageScope renders `shooter/left/…`
+  as a browsable tree. Publish flat keys and you get thirty loose series instead
+  of one node per lane.
+
+### The BIOBUZZ field is there — get the bundle from upstream
+
+**Correction.** An earlier version of this section said the asset bundle predated
+BIOBUZZ and carried DECODE at best. That was wrong, and wrong in an
+understandable-but-lazy way: the j5155 runtime went dormant in September 2025, and
+its README links to `AllAssetsDefaultFTC.zip`, so the bundle looked frozen too.
+It is not. The assets are a **separate, upstream, actively maintained** artifact —
+the dormant runtime says nothing about them.
+
+`AllAssetsDefaultFTC.zip` ships from Mechanical-Advantage's
+[AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+(`bundles-v1`, 36 MB, refreshed **2026-09-12**). It contains three seasons of FTC
+fields in both 2D and 3D:
+
+| Asset | Season |
+|---|---|
+| `Field2d_20262027FTCFieldV1` / `Field3d_20262027FTCFieldV1` | **2026-2027 — BIOBUZZ** |
+| `Field2d_20252026FTCFieldV2` / `Field3d_20252026FTCFieldV2` | 2025-2026 — DECODE |
+| `Field2d_20242025FTCFieldV2` / `Field3d_20242025FTCFieldV3` | 2024-2025 |
+
+plus `Robot_FTCDriveBaseV2`, `Robot_FrogBotV2` and joystick models.
+
+The BIOBUZZ field declares `"isFTC": true`, `"coordinateSystem": "center-rotated"`
+and a 143.182-inch square — so it is a real FTC field in FTC coordinates, not an
+FRC asset with a relabelled name. **Upload it and the field views work this
+season.** Nothing to build.
+
+Worth keeping straight, because the two halves age differently:
+
+| Piece | Source | State |
+|---|---|---|
+| The Lite **runtime** (`page.j5155.AdvantageScope:lite`) | j5155, unofficial | dormant since 2025-09-07 |
+| The **field assets** (`AllAssetsDefaultFTC.zip`) | Mechanical-Advantage, upstream | current, refreshed 2026-09-12 |
+
+So the season's field arrives for free. It is the runtime that will eventually
+need replacing, not the artwork.
+
+None of this affects the shooter rig either way — it publishes line graphs and no
+pose, so the field tabs go unused. It matters once `pedro/Constants.java` is
+filled in and someone wants to watch the robot move.
+
+If a future season's field is ever missing, custom assets are still just a zip:
+a folder named `Field2d_NAME` or `Field3d_NAME` holding a `config.json` (with
+`isFTC` and `center-rotated`), an `image.png`, and a `model.glb` for 3D. Upload
+through **File → Upload Asset**.
+
+### It replays logs, not just live data
+
+`File → Open Logs` reads Road Runner and PsiKit logs — including ones recorded
+before AdvantageScope was installed. The logs folder is configurable in
+preferences.
+
+Worth knowing for characterization specifically: nobody reads a spin-up curve
+well while three wheels are spinning next to them. Record the session, pull the
+curves apart afterwards at a desk.
+
+### Version, and why it will not move
+
+Only `v26.0.0` is published to the dairy maven repo, dated **2025-09-07**, and
+the source repo's last commit is the same day. This is not work sitting
+unreleased — the project went quiet, so no bump is coming and no fix is waiting
+in the wings. If it ever breaks against an SDK or Sloth bump, nobody is
+currently maintaining it.
+
+That is likely deliberate rather than abandonment. The official Lite targets the
+**Systemcore** control system, and AdvantageScope's own docs say full FTC support
+arrives with the 2027-28 transition. The build we use is j5155's unofficial port
+for current hardware, listed under "Unofficial Distributions" and explicitly not
+supported by the AdvantageScope/WPILib developers. Right tool for this season,
+knowingly temporary.
+
+It is Sloth-aware despite not being part of the locked set: it resolves
+`com.acmerobotics.slothboard:core` and the `com.bylazar.sloth:*` modules at our
+exact `0.3.2+` versions rather than dragging in a plain
+`com.acmerobotics.dashboard`. Verified with `:TeamCode:dependencies`; no
+`exclude` is needed, and one should not be added back without a reason.
+
+It adds about **7.9 MB** of web assets to the APK (roughly 5% of the uncompressed
+total), so the ~40s full `TeamCode` install gets slightly slower. `Sloth Load` is
+unaffected — it only reloads TeamCode classes.
+
 ## Deliberately excluded
 
 - **NextFTC** — the previous command framework. Migrated off it onto Ivy;
@@ -856,11 +1007,15 @@ readable, which is the harder case and also the more useful one.
   `1.0.0` and was never updated for Pedro 3.)
 - **Road Runner / `maven.brott.dev`** — not in use; the maven repo isn't
   declared here to avoid an unused, unexplained entry.
-- **AdvantageScope Lite** — not currently wired in. Add it back only if that
-  debugging workflow is actually resumed.
 - **Marrow** (`io.github.skeleton-army.marrow`) — a newer reactive-behavior
   library that layers on NextFTC/FTCLib/SolversLib. No evidence yet of use by
   competitive teams; worth revisiting, not a default include.
+- **AdvantageScope Lite** — *no longer excluded.* This entry used to say "add
+  it back only if that debugging workflow is actually resumed". It was, so #38
+  added `page.j5155.AdvantageScope:lite:v26.0.0` and it is now a normal
+  dependency — see [AdvantageScope](#advantagescope) for the version and size
+  caveats. Kept here as a history note so the reversal is visible rather than
+  looking like the entry was never written.
 - **`exportPaths` Gradle task** — a nice-to-have that exports autonomous
   paths as `.pp` files for the Pedro Pathing visualizer. Not added here
   because it depends on a `util.ExportAutoPaths` utility class that doesn't

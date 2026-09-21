@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.shooter.config.FlywheelLaneConfig;
 import org.firstinspires.ftc.teamcode.shooter.config.FlywheelTuningConfig;
@@ -219,6 +221,8 @@ public class FlywheelBank {
         private double measuredRpm = 0.0;
         private double measuredTicksPerSec = 0.0;
         private double appliedPower = 0.0;
+        private double feedforwardPower = 0.0;
+        private double feedbackPower = 0.0;
         private boolean atSpeed = false;
 
         private long commandedAtNs = 0L;
@@ -267,6 +271,41 @@ public class FlywheelBank {
 
         public double getAppliedPower() {
             return appliedPower;
+        }
+
+        /**
+         * The feedforward half of the last command, {@code kS + kV * target},
+         * before voltage compensation. Published separately from
+         * {@link #getFeedbackPower()} because the split is the whole story when
+         * tuning: feedforward should be carrying nearly all of it, and a
+         * feedback term doing heavy lifting means kV is wrong.
+         */
+        public double getFeedforwardPower() {
+            return feedforwardPower;
+        }
+
+        /** The feedback half, {@code kP * error}, before voltage compensation. */
+        public double getFeedbackPower() {
+            return feedbackPower;
+        }
+
+        /**
+         * Motor current, or NaN if the hardware did not answer. Ported back from
+         * DECODE: after RPM this is the most informative signal on a flywheel,
+         * because it shows load — a binding wheel or an over-tight belt reads
+         * here long before it shows up as a speed the rig cannot hold.
+         */
+        public double getCurrentAmps() {
+            if (motor == null) {
+                return Double.NaN;
+            }
+            try {
+                return motor.getCurrent(CurrentUnit.AMPS);
+            } catch (Exception ignored) {
+                // Hardware can transiently fail (hub stalls, OpMode shutdown).
+                // NaN lets telemetry consumers drop the sample.
+                return Double.NaN;
+            }
         }
 
         public boolean isAtSpeed() {
@@ -328,6 +367,8 @@ public class FlywheelBank {
                 measuredTicksPerSec = 0.0;
                 measuredRpm = 0.0;
                 appliedPower = 0.0;
+                feedforwardPower = 0.0;
+                feedbackPower = 0.0;
                 commandedRpm = 0.0;
                 commandedAtNs = 0L;
                 resetReadiness();
@@ -345,12 +386,16 @@ public class FlywheelBank {
             if (target <= 0.0) {
                 motor.setPower(0.0);
                 appliedPower = 0.0;
+                feedforwardPower = 0.0;
+                feedbackPower = 0.0;
                 return;
             }
 
             FlywheelLaneConfig laneConfig = cfg();
             double feedforward = laneConfig.kS + laneConfig.kV * target;
             double feedback = laneConfig.kP * (target - measuredRpm);
+            feedforwardPower = feedforward;
+            feedbackPower = feedback;
             double power = Range.clip((feedforward + feedback) * voltageMultiplier, 0.0, 1.0);
 
             motor.setPower(power);
