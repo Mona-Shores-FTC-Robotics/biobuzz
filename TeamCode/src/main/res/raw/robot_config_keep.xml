@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The robot configurations in res/xml/robot_*.xml are never referenced from
+  code. The SDK (via Sloth's RobotConfigResScanner) finds them by scanning the
+  R$xml class at run time, which Android's static analysis cannot see.
+
+  Without this file, lint reports them as UnusedResources, and if resource
+  shrinking (shrinkResources) were ever turned on, the build would delete them
+  from the APK and they would silently vanish from the Driver Station list.
+  Nothing enables shrinking today; this is insurance.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@xml/robot_*" />

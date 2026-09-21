@@ -41,5 +41,11 @@
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
 
         </LynxModule>
+
+        <!-- Expansion Hub at RS-485 address 2, as on both DECODE robots. Nothing
+             is plugged into it yet; declared now so the first mechanism device has
+             an obvious home. -->
+        <LynxModule name="Expansion Hub" port="2">
+        </LynxModule>
     </LynxUsbDevice>
 </Robot>
