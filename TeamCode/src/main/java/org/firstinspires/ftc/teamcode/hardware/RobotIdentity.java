@@ -35,8 +35,8 @@ package org.firstinspires.ftc.teamcode.hardware;
  */
 public enum RobotIdentity {
 
-    TEAM_19429("robot_19429"),
-    TEAM_20245("robot_20245");
+    TEAM_19429("robot_19429", "19429"),
+    TEAM_20245("robot_20245", "20245");
 
     /**
      * The bundled configuration's name, which is also its resource entry name,
@@ -53,28 +53,69 @@ public enum RobotIdentity {
      */
     public final String configName;
 
-    RobotIdentity(String configName) {
+    /**
+     * The team number, which each Control Hub's device name (and Wi-Fi network
+     * name) contains — e.g. {@code 19429-RC}. Used only to cross-check the
+     * active configuration; see {@link #fromDeviceName(String)}.
+     */
+    public final String teamNumber;
+
+    RobotIdentity(String configName, String teamNumber) {
         this.configName = configName;
+        this.teamNumber = teamNumber;
     }
 
     /**
      * Resolves a configuration name to a robot, or returns {@code null} if the
      * name is not one of ours.
      *
+     * <p>Matches by <b>prefix</b>, so {@code "robot_19429 fix"} is still 19429.
+     * That is the event workflow: a bundled config is read-only on the Driver
+     * Station, and the SDK's answer is "edit it, then save it under a new
+     * name". The copy must keep meaning the same robot. {@link HardwareCheck}
+     * separately warns that such a copy is not the bundled file.
+     *
      * <p>Returns {@code null} rather than falling back to a default on purpose.
      * Last season had four disagreeing fallbacks — an initial {@code "UNKNOWN"},
      * a {@code setRobotName(null)} that became 19429, a log line announcing
      * 19429, and a profile builder that actually used 20245 — so a robot could
-     * run one robot's tuning while telling you it was using the other's.
-     * Callers that need a robot should use {@link ActiveConfig#requireIdentity()},
-     * which fails loudly instead.
+     * run one robot's tuning while telling you it was using the other's. A
+     * {@code null} here is reported by {@link HardwareCheck}; it never guesses.
      */
     public static RobotIdentity fromConfigName(String configName) {
+        if (configName == null) {
+            return null;
+        }
         for (RobotIdentity identity : values()) {
-            if (identity.configName.equals(configName)) {
+            if (configName.startsWith(identity.configName)) {
                 return identity;
             }
         }
         return null;
+    }
+
+    /**
+     * Resolves a Control Hub device name (e.g. {@code "19429-RC"}) to a robot,
+     * or returns {@code null} if it contains no known team number, or more than
+     * one.
+     *
+     * <p>This is a cross-check, not the identity. It exists to catch the one
+     * mistake the active config cannot see about itself: 20245's configuration
+     * selected on 19429's Control Hub.
+     */
+    public static RobotIdentity fromDeviceName(String deviceName) {
+        if (deviceName == null) {
+            return null;
+        }
+        RobotIdentity match = null;
+        for (RobotIdentity identity : values()) {
+            if (deviceName.contains(identity.teamNumber)) {
+                if (match != null) {
+                    return null;
+                }
+                match = identity;
+            }
+        }
+        return match;
     }
 }

@@ -35,6 +35,12 @@ Filling those two stubs is the critical path. See the board.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
   field localization**. They may still be useful for *relative* aim correction.
+- **Missing hardware is never silent and never fatal.** Match OpModes start with
+  `HardwareCheck.prepare(hardwareMap).addTo(telemetry)`. Never write a `try*` lookup that returns
+  `null`, and never let a missing device throw at init. → `TeamCode/README.md` § "Never silent,
+  never fatal"
+- **Device names live only in `hardware/DeviceNames.java`**, and are identical on both robots —
+  only ports differ between `robot_19429.xml` and `robot_20245.xml`.
 - **A Sloth bump can break bundled-config discovery with no compile error.** Config discovery relies
   on Sloth's `RobotConfigResScanner`, which replaces the SDK's `RobotConfigResFilter`. Symptom:
   configs stop appearing in the Driver Station list. Validate on a robot after any Sloth change.

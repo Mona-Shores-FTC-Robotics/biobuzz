@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.hardware;
 import com.qualcomm.ftccommon.configuration.RobotConfigFile;
 import com.qualcomm.ftccommon.configuration.RobotConfigFileManager;
 
+import org.firstinspires.ftc.robotcore.internal.network.DeviceNameManagerFactory;
+
 /**
  * Reads which Driver Station configuration is currently active, and turns that
  * into a {@link RobotIdentity}.
@@ -46,33 +48,41 @@ public final class ActiveConfig {
     }
 
     /**
-     * The robot this code is running on.
+     * The robot this code is running on, according to the active
+     * configuration — or {@code null} if no configuration is active or it is
+     * not one of ours.
      *
-     * @throws IllegalStateException if no configuration is active, or the
-     *     active one is not one of this project's. Deliberately loud: a silent
-     *     default is how last season's project ran one robot's tuning while
-     *     reporting the other's.
+     * <p>Never throws, and never guesses. {@link HardwareCheck} reports a
+     * {@code null} here by name at init. An earlier version of this class
+     * offered {@code requireIdentity()}, which threw instead; it was removed
+     * before anything called it, because "the robot refuses to start" is the
+     * outcome the team most wants to avoid at a competition, and because it
+     * would have thrown on a Driver Station "Save As" copy made to work
+     * around a dead port.
      */
-    public static RobotIdentity requireIdentity() {
-        String activeName = name();
-        if (activeName == null) {
-            throw new IllegalStateException(
-                    "No Driver Station configuration is active. On the Driver Station: "
-                            + "Configure Robot -> select " + knownConfigNames() + " -> Activate.");
-        }
-        RobotIdentity identity = RobotIdentity.fromConfigName(activeName);
-        if (identity == null) {
-            throw new IllegalStateException(
-                    "Active Driver Station configuration is \"" + activeName + "\", which is not "
-                            + "one of this project's robots (" + knownConfigNames() + "). Either "
-                            + "activate one of those on the Driver Station, or add a "
-                            + "res/xml/<name>.xml and a matching RobotIdentity constant. "
-                            + "Run the \"Validate Hardware\" OpMode for details.");
-        }
-        return identity;
+    public static RobotIdentity identity() {
+        return RobotIdentity.fromConfigName(name());
     }
 
-    private static String knownConfigNames() {
+    /**
+     * The Control Hub's device name (also its Wi-Fi network name), e.g.
+     * {@code "19429-RC"}, or {@code null} if it cannot be read.
+     *
+     * <p>Read through the SDK's own {@code DeviceNameManager}, which the Robot
+     * Controller app starts before any OpMode can run. This is <em>not</em>
+     * last season's approach: DECODE reached the Wi-Fi access-point
+     * configuration through a hidden Android API by reflection, which was not
+     * ready on a cold boot and needed a retry loop.
+     */
+    public static String deviceName() {
+        try {
+            return DeviceNameManagerFactory.getInstance().getDeviceName();
+        } catch (RuntimeException | LinkageError e) {
+            return null;
+        }
+    }
+
+    static String knownConfigNames() {
         StringBuilder names = new StringBuilder();
         for (RobotIdentity identity : RobotIdentity.values()) {
             if (names.length() > 0) {
