@@ -519,35 +519,59 @@ Two setup notes:
   [AdvantageScope Lite FTC repo](https://github.com/j5155/AdvantageScope-Lite-FTC)
   and add it through **File → Upload Asset**, or the 2D and 3D field views stay
   empty. This is per-robot, not per-laptop.
-- **That bundle has no BIOBUZZ field** — see below before anyone goes hunting
-  for one.
+- **Get the bundle from upstream, not from the j5155 repo.** The j5155 README
+  links to it, but the file itself lives in Mechanical-Advantage's
+  [AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+  under the `bundles-v1` release, and that one is current.
 - **Keys are slash-delimited on purpose.** AdvantageScope renders `shooter/left/…`
   as a browsable tree. Publish flat keys and you get thirty loose series instead
   of one node per lane.
 
-### No BIOBUZZ field, and why that is fine for now
+### The BIOBUZZ field is there — get the bundle from upstream
 
-The default asset bundle dates from **September 2025** — a year before BIOBUZZ
-was revealed — so it carries DECODE at best. Don't spend meeting time looking
-for a BIOBUZZ field in it; there isn't one.
+**Correction.** An earlier version of this section said the asset bundle predated
+BIOBUZZ and carried DECODE at best. That was wrong, and wrong in an
+understandable-but-lazy way: the j5155 runtime went dormant in September 2025, and
+its README links to `AllAssetsDefaultFTC.zip`, so the bundle looked frozen too.
+It is not. The assets are a **separate, upstream, actively maintained** artifact —
+the dormant runtime says nothing about them.
 
-This costs the **shooter rig nothing**. That rig publishes RPM, power, current
-and error: all line graphs, no pose. The 2D and 3D field tabs go unused, so a
-missing field asset changes nothing about tuning flywheels.
+`AllAssetsDefaultFTC.zip` ships from Mechanical-Advantage's
+[AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+(`bundles-v1`, 36 MB, refreshed **2026-09-12**). It contains three seasons of FTC
+fields in both 2D and 3D:
 
-It starts to matter when `pedro/Constants.java` is filled in and someone wants to
-watch the robot move on a field. By then a community asset will likely exist. If
-not, it is an upload rather than a code change — a folder named
-`Field2d_BIOBUZZ` or `Field3d_BIOBUZZ` containing:
-
-| File | What it is |
+| Asset | Season |
 |---|---|
-| `config.json` | `isFTC: true`, `center-rotated` coordinates (FTC traditional), field dimensions in inches |
-| `image.png` | the flat overhead image, for the 2D view |
-| `model.glb` | the 3D model, if you want the 3D view too |
+| `Field2d_20262027FTCFieldV1` / `Field3d_20262027FTCFieldV1` | **2026-2027 — BIOBUZZ** |
+| `Field2d_20252026FTCFieldV2` / `Field3d_20252026FTCFieldV2` | 2025-2026 — DECODE |
+| `Field2d_20242025FTCFieldV2` / `Field3d_20242025FTCFieldV3` | 2024-2025 |
 
-Zip it, **File → Upload Asset**, done. Custom asset zips can hold any folder
-structure, several assets at once, and even nested zips.
+plus `Robot_FTCDriveBaseV2`, `Robot_FrogBotV2` and joystick models.
+
+The BIOBUZZ field declares `"isFTC": true`, `"coordinateSystem": "center-rotated"`
+and a 143.182-inch square — so it is a real FTC field in FTC coordinates, not an
+FRC asset with a relabelled name. **Upload it and the field views work this
+season.** Nothing to build.
+
+Worth keeping straight, because the two halves age differently:
+
+| Piece | Source | State |
+|---|---|---|
+| The Lite **runtime** (`page.j5155.AdvantageScope:lite`) | j5155, unofficial | dormant since 2025-09-07 |
+| The **field assets** (`AllAssetsDefaultFTC.zip`) | Mechanical-Advantage, upstream | current, refreshed 2026-09-12 |
+
+So the season's field arrives for free. It is the runtime that will eventually
+need replacing, not the artwork.
+
+None of this affects the shooter rig either way — it publishes line graphs and no
+pose, so the field tabs go unused. It matters once `pedro/Constants.java` is
+filled in and someone wants to watch the robot move.
+
+If a future season's field is ever missing, custom assets are still just a zip:
+a folder named `Field2d_NAME` or `Field3d_NAME` holding a `config.json` (with
+`isFTC` and `center-rotated`), an `image.png`, and a `model.glb` for 3D. Upload
+through **File → Upload Asset**.
 
 ### It replays logs, not just live data
 
