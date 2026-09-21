@@ -256,6 +256,44 @@ All three are under the **Vision** group and are enabled, not `@Disabled`.
 3. **Vision: Noise Tuner** — running mean and standard deviation of a stationary
    sighting. Re-measure at a few distances; AprilTag noise grows quickly with range.
 
+### Published HIVE geometry
+
+`HiveGeometry` transcribes what the Competition Manual does publish, each value
+tagged with the figure it came from. `HiveGeometryTest` cross-checks the numbers
+against each other, because the manual over-determines the geometry and that
+redundancy catches a misread figure at build time rather than on the field.
+
+| | | source |
+|---|---|---|
+| Pivot axis above tiles | 43.95 in | §9.6.1, Fig 9-8 |
+| CELL tilt from horizontal | 30° | Fig 9-10 |
+| CELL spacing within a HIVE | 18.84 in | Fig 9-9 |
+| Red↔blue HIVE centre spacing | 25.5 in | Fig 9-10 |
+| Bottom of HIVE above tiles | 25.5 in | Fig 9-10 |
+| Raised opening, bottom / top | 53.5 / 65.6 in | Fig 9-10 |
+| Frame width × depth | 49.46 × 38.95 in | §9.6.1 |
+| CELL opening | 20 × 14 × 12 in | §9.6.2, Fig 9-11 |
+
+The one derived number that matters: **a given cell's tags rise about 9.42 in
+between its lowered and raised positions.** For any point rigidly attached to the
+rocker the difference works out to `2 · dx · sin(tilt)`, where `dx` is its
+horizontal distance from the pivot with the rocker level — the vertical component
+cancels — so it comes out to `CELL_SPACING_IN · sin(30°)` without needing to know
+where the tag plane sits. That is what makes height a usable state discriminator
+before anything has been measured, and it is what sets the classifier tolerance.
+
+A useful self-check fell out of this: the manual's own opening heights span
+65.6 − 53.5 = 12.1 in, and a 14 in opening tilted 30° from horizontal spans
+14·cos(30°) = 12.12 in. That agreement is what confirms the 30° is measured from
+horizontal rather than from vertical. It is a test, not a comment.
+
+**What the manual does not publish is any XY coordinate for the clusters.** §9.9
+is explicit that the sticker's Reference Holes "can be used to measure the location
+of the AprilTag Cluster relative to the rest of the FIELD" — FIRST expects teams to
+measure it, and the Initial Field Element Assembly Guide likewise locates the
+sticker by hole alignment with no numeric offsets. So the eight cluster poses are
+still an open measurement task.
+
 ### Cell state: UP, DOWN, or don't ask
 
 Because the cells are bistable, "where is this cell" reduces to "which of two poses,
@@ -285,30 +323,48 @@ procedure.
 
 ### Open work
 
-Ordered roughly by what unblocks what:
+Ordered roughly by what unblocks what.
 
 1. **Measure the two tag-row heights** and put them in `CellStateTracker.Geometry`.
    Until this happens the state classifier returns UNKNOWN for everything and no
-   field pose is derivable. Cheapest possible task — settle a cell, read the number
-   off the diagnostics OpMode, repeat with it tipped.
-2. **Find out whether a chassis-mounted camera can see the DOWN-state tags at all.**
-   The tags are on the undersides of the cells; when a cell drops, its tags may face
-   the floor. If they are never readable the classification problem collapses — a
-   visible tag would imply UP. Worth answering early, because it could delete most
-   of the work below.
-3. **Measure the eight cluster poses** — four cells, two states each — in field
-   coordinates. Neither pose is published, so this comes from the field CAD, checked
-   against the real field. This is the actual input the field-pose layer needs.
-4. **Build the field-pose layer.** Robot-in-field from cell-in-field composed with
+   field pose is derivable. The manual gives the *difference* (~9.42 in, above) but
+   not the absolutes. Cheapest possible task — settle a cell, read the labelled row
+   height off the diagnostics OpMode, tip it, read it again. The two readings should
+   come out about 9.4 in apart; if they don't, something upstream is wrong and worth
+   chasing before going further.
+2. **Measure the eight cluster poses** — four cells, two states each — in field
+   coordinates. Not published, so this comes from the field CAD checked against a
+   real field, or from the Reference Holes as §9.9 suggests. This is the actual
+   input the field-pose layer needs. `HiveGeometry` constrains the answer: the HIVE
+   structure is centred on the field, the two HIVES are 25.5 in apart laterally, and
+   each cell sits about 8.2 in horizontally and 4.7 in vertically from its pivot at
+   43.95 in.
+3. **Build the field-pose layer.** Robot-in-field from cell-in-field composed with
    the measured cell-relative geometry, solving from whichever cells are visible and
-   settled, each with its own state. Gate every candidate against odometry
-   (innovation gating) so a misclassified state or a mid-tip reading is rejected
-   before it reaches the estimator.
-5. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
+   settled, each with its own state. Gate every candidate against odometry so a
+   misclassified state or a mid-tip reading is rejected before it reaches the
+   estimator.
+4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
    tip it by hand between samples. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.
-6. **Add orientation as a confirming discriminator**, once the Limelight's Euler
+5. **Add orientation as a confirming discriminator**, once the Limelight's Euler
    convention has been established on the robot.
+
+#### Settled: can the camera see the lowered cell's tags?
+
+Yes, most likely — so there is no shortcut here, and height classification is
+genuinely needed.
+
+The question was whether a lowered cell's tags rotate out of view, which would have
+meant "a visible tag implies UP" and deleted most of the work above. They do not.
+Figure 9-7 labels the cluster "**AprilTag Cluster under each CELL**" and shows both
+the raised and the lowered cell's clusters in the same side elevation. The geometry
+agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
+stays within 30° of vertical in both positions rather than rotating away.
+
+Read off a figure rather than measured, so confirm it on a real field — actual
+sightlines also depend on camera height and range. But plan for both cells being
+readable, which is the harder case and also the more useful one.
 
 ### What was dropped from the DECODE port, and why
 

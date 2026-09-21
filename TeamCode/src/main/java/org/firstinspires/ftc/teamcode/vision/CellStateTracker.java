@@ -37,7 +37,18 @@ public class CellStateTracker {
      * {@link HiveCellState#UNKNOWN}. That is intentional — an unmeasured field is
      * not a reason to guess. Read the real numbers off <b>Vision: Sighting
      * Diagnostics</b>, which displays the measured row height for exactly this
-     * purpose, and confirm them against the field CAD.
+     * purpose.
+     *
+     * <p>The absolute heights are not published. The Competition Manual gives the
+     * pivot height, the tilt and the CELL spacing, but locates the AprilTag cluster
+     * only by reference-hole alignment — §9.9 says those holes "can be used to
+     * measure the location of the AprilTag Cluster relative to the rest of the
+     * FIELD", i.e. FIRST expects teams to measure it. See {@link HiveGeometry}.
+     *
+     * <p>What <em>is</em> known from the manual is the <b>difference</b> between the
+     * two: {@link HiveGeometry#STATE_HEIGHT_DELTA_IN}, about nine inches. That is
+     * what makes this classifier viable before anything has been measured, and it
+     * is what sets the default tolerance below.
      */
     @Configurable
     public static class Geometry {
@@ -47,8 +58,21 @@ public class CellStateTracker {
         /** Height of the tag row above the floor with the cell lowered, inches. */
         public static double downRowHeightIn = Double.NaN;
 
-        /** How far from a nominal height still counts as that state, inches. */
-        public static double heightToleranceIn = 3.0;
+        /**
+         * How far from a nominal height still counts as that state, inches.
+         *
+         * <p>Two bands of this width have to fit inside the roughly nine-inch swing
+         * between states with room to spare, or UP and DOWN stop being
+         * distinguishable — {@code HiveGeometryTest} asserts that they do. 2.5"
+         * leaves a dead band of about 4.4" that reads as UNKNOWN, which is where a
+         * cell mid-tip lands.
+         *
+         * <p>Erring small is the safe direction: a tolerance that is too tight costs
+         * availability, where one that is too loose misclassifies and feeds a wrong
+         * pose into localization. Revisit once the real heights are measured and the
+         * true separation is known.
+         */
+        public static double heightToleranceIn = 2.5;
     }
 
     private final int requiredSamples;
