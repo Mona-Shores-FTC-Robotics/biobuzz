@@ -37,6 +37,17 @@ public enum FlywheelDiagnosis {
     STOPPED("[stop ]", ""),
 
     /**
+     * Went past {@code limits.overspeedRpm}; power is cut and stays cut until
+     * stop is pressed.
+     */
+    OVERSPEED("[OVER!]",
+            "went past the overspeed limit — power is cut and latched off. Press B,"
+                    + " then work out why before pressing A again. A wheel that ran away"
+                    + " from a modest target usually means the load came off it, or"
+                    + " ticksPerRev is wrong and the real speed was always higher than"
+                    + " the screen said."),
+
+    /**
      * Real power has been applied for long enough that the wheel should be
      * moving, and the encoder still reads nothing.
      */
@@ -81,14 +92,17 @@ public enum FlywheelDiagnosis {
     /**
      * Classifies one lane from its measurements.
      *
-     * <p>Order matters. A backwards wheel and a dead encoder are both checked
-     * before anything reports progress, because both look like "not at speed
-     * yet" and only one of them resolves itself by waiting.
+     * <p>Order matters. Overspeed outranks everything a lane could otherwise be
+     * called, because power is already cut and no other reading describes the
+     * lane usefully while it is latched. A backwards wheel and a dead encoder
+     * are both checked before anything reports progress, because both look like
+     * "not at speed yet" and only one of them resolves itself by waiting.
      *
      * @param enabled      lane is ticked on in Panels
      * @param connected    a motor by this lane's name exists in the config
      * @param openLoop     the rig is commanding raw power, not a speed
      * @param driven       this lane is being asked to spin right now
+     * @param overspeed    the overspeed cutout has tripped and is latched
      * @param atSpeed      inside tolerance for the required hold time
      * @param measuredRpm  signed — negative means the wheel turns backwards
      * @param appliedPower what was last written to the motor, 0.0–1.0
@@ -100,6 +114,7 @@ public enum FlywheelDiagnosis {
             boolean connected,
             boolean openLoop,
             boolean driven,
+            boolean overspeed,
             boolean atSpeed,
             double measuredRpm,
             double appliedPower,
@@ -114,6 +129,9 @@ public enum FlywheelDiagnosis {
         }
         if (!driven) {
             return STOPPED;
+        }
+        if (overspeed) {
+            return OVERSPEED;
         }
         if (measuredRpm < -limits.backwardsRpm) {
             return BACKWARDS;

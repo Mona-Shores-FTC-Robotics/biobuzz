@@ -72,6 +72,16 @@ import java.util.Locale;
  *
  * <p>The spin-up column is the number to write down: milliseconds from the
  * command to the first time the wheel touched tolerance.
+ *
+ * <h2>The limits are not suggestions</h2>
+ *
+ * <p>{@code limits.maxPower} caps applied power and {@code limits.overspeedRpm}
+ * cuts a lane and latches it off. Both exist because a target RPM is only a
+ * request: a loaded wheel chasing a speed it cannot reach sits at full power,
+ * and full power is free speed the instant the load comes off. The {@code %fs}
+ * column is the one to watch — it reports measured speed as a percentage of
+ * {@code measurement.freeSpeedRpm}, which is what "is this motor working too
+ * hard" actually means.
  */
 @TeleOp(name = "Flywheel Speed Test", group = "Shooter")
 public class FlywheelSpeedTestOpMode extends OpMode {
@@ -227,6 +237,19 @@ public class FlywheelSpeedTestOpMode extends OpMode {
      * itself.
      */
     private void reportProblems() {
+        // A ceiling at or above free speed is not a ceiling. This is a typo a
+        // person makes in Panels in one keystroke, and its only symptom
+        // otherwise is a wheel that quietly never stops accelerating.
+        double freeSpeed = FlywheelBank.config.measurement.freeSpeedRpm;
+        double maxRpm = FlywheelBank.config.target.maxRpm;
+        if (freeSpeed > 0.0 && maxRpm >= freeSpeed) {
+            telemetry.addData("CEILING TOO HIGH",
+                    "target.maxRpm is %.0f and free speed is %.0f — a target the wheel"
+                            + " can never reach holds power at maximum indefinitely."
+                            + " Set maxRpm well below free speed.",
+                    maxRpm, freeSpeed);
+        }
+
         for (FlywheelLane lane : FlywheelLane.values()) {
             FlywheelBank.Flywheel flywheel = bank.lane(lane);
             FlywheelDiagnosis diagnosis = flywheel.getDiagnosis();
@@ -258,13 +281,19 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                     FlywheelBank.config.target.coarseStepRpm);
         }
 
+        telemetry.addData("Limits", "%.0f rpm max, power %.2f, cutout %.0f rpm  (free %.0f)",
+                FlywheelBank.config.target.maxRpm,
+                FlywheelBank.config.limits.maxPower,
+                FlywheelBank.config.limits.overspeedRpm,
+                FlywheelBank.config.measurement.freeSpeedRpm);
+
         double voltage = bank.getBatteryVoltage();
         telemetry.addData("Battery", Double.isNaN(voltage)
                 ? "no sensor"
                 : String.format(Locale.US, "%.2f V  (power x%.2f)", voltage, bank.getVoltageMultiplier()));
 
         telemetry.addLine();
-        telemetry.addLine("    state    rpm    err    pwr   spin-up");
+        telemetry.addLine("    state    rpm  %fs    err    pwr  spin-up");
         for (FlywheelLane lane : FlywheelLane.values()) {
             telemetry.addLine(laneLine(lane));
         }
@@ -304,10 +333,15 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         boolean hasTarget = !FlywheelBank.config.openLoop.enabled;
         double spinUpMs = flywheel.getLastSpinUpMs();
 
-        return String.format(Locale.US, "%s   %s %6.0f %6s  %5.2f   %s",
+        double fraction = flywheel.getFractionOfFreeSpeed();
+
+        return String.format(Locale.US, "%s   %s %6.0f %4s %6s  %5.2f  %s",
                 lane.tag,
                 diagnosis.tag,
                 flywheel.getMeasuredRpm(),
+                Double.isNaN(fraction)
+                        ? "--"
+                        : String.format(Locale.US, "%.0f%%", fraction * 100.0),
                 hasTarget ? String.format(Locale.US, "%.0f", flywheel.getErrorRpm()) : "--",
                 flywheel.getAppliedPower(),
                 (hasTarget && !Double.isNaN(spinUpMs))
@@ -332,6 +366,8 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 panels.addData(prefix + "_error", flywheel.getErrorRpm());
                 panels.addData(prefix + "_power", flywheel.getAppliedPower());
                 panels.addData(prefix + "_at_speed", flywheel.isAtSpeed() ? 1.0 : 0.0);
+                panels.addData(prefix + "_pct_free_speed", flywheel.getFractionOfFreeSpeed() * 100.0);
+                panels.addData(prefix + "_overspeed", flywheel.isOverspeed() ? 1.0 : 0.0);
             }
             panels.addData("battery_volts", bank.getBatteryVoltage());
             panels.addData("open_loop", FlywheelBank.config.openLoop.enabled ? 1.0 : 0.0);

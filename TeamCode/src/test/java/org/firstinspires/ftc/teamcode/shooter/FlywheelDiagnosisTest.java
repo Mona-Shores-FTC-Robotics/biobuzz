@@ -25,11 +25,13 @@ public class FlywheelDiagnosisTest {
     private final FlywheelTuningConfig.Diagnostics limits =
             new FlywheelTuningConfig.Diagnostics();
 
-    /** Closed loop, lane wired and ticked on, with the numbers under test. */
+    private final FlywheelTuningConfig defaults = new FlywheelTuningConfig();
+
+    /** Closed loop, lane wired and ticked on, not tripped, with the numbers under test. */
     private FlywheelDiagnosis closedLoop(boolean driven, boolean atSpeed, double rpm,
                                          double power, double msAtPower) {
-        return FlywheelDiagnosis.evaluate(true, true, false, driven, atSpeed, rpm, power,
-                msAtPower, limits);
+        return FlywheelDiagnosis.evaluate(true, true, false, driven, false, atSpeed, rpm,
+                power, msAtPower, limits);
     }
 
     // ------------------------------------------------------- the normal path
@@ -37,13 +39,15 @@ public class FlywheelDiagnosisTest {
     @Test
     public void anUntickedLaneIsOffWhateverElseIsTrue() {
         assertEquals(FlywheelDiagnosis.OFF,
-                FlywheelDiagnosis.evaluate(false, true, false, true, false, 0, 1.0, 5000, limits));
+                FlywheelDiagnosis.evaluate(false, true, false, true, false, false, 0, 1.0, 5000,
+                        limits));
     }
 
     @Test
     public void aMissingMotorOutranksEverythingButBeingSwitchedOff() {
         assertEquals(FlywheelDiagnosis.NOT_IN_CONFIG,
-                FlywheelDiagnosis.evaluate(true, false, false, true, false, 0, 1.0, 5000, limits));
+                FlywheelDiagnosis.evaluate(true, false, false, true, false, false, 0, 1.0, 5000,
+                        limits));
     }
 
     @Test
@@ -97,7 +101,8 @@ public class FlywheelDiagnosisTest {
         // Open loop exists partly *because* of dead encoders, so it must still
         // be the mode that tells you that is what you are looking at.
         assertEquals(FlywheelDiagnosis.DEAD_ENCODER,
-                FlywheelDiagnosis.evaluate(true, true, true, true, false, 0.0, 0.6, 2000, limits));
+                FlywheelDiagnosis.evaluate(true, true, true, true, false, false, 0.0, 0.6, 2000,
+                        limits));
     }
 
     // ------------------------------------------------------ wrong direction
@@ -129,7 +134,44 @@ public class FlywheelDiagnosisTest {
         // There is no target in open loop, so AT_SPEED would be meaningless
         // even when the caller passes atSpeed=true from a stale closed-loop run.
         assertEquals(FlywheelDiagnosis.OPEN_LOOP,
-                FlywheelDiagnosis.evaluate(true, true, true, true, true, 2400, 0.4, 3000, limits));
+                FlywheelDiagnosis.evaluate(true, true, true, true, false, true, 2400, 0.4, 3000,
+                        limits));
+    }
+
+    // ---------------------------------------------------------- overspeed
+
+    @Test
+    public void aTrippedLaneReportsOverspeedAheadOfAnythingElse() {
+        // Power is already cut, so every other reading describes a wheel that is
+        // coasting down rather than the reason anyone should be looking at it.
+        assertEquals(FlywheelDiagnosis.OVERSPEED,
+                FlywheelDiagnosis.evaluate(true, true, false, true, true, true, 5500, 0.0, 0,
+                        limits));
+    }
+
+    @Test
+    public void overspeedOutranksADeadEncoderReading() {
+        // Power cut to zero and a coasting wheel briefly satisfy neither test
+        // cleanly; the latch is authoritative over anything inferred from RPM.
+        assertEquals(FlywheelDiagnosis.OVERSPEED,
+                FlywheelDiagnosis.evaluate(true, true, false, true, true, false, 0.0, 0.0, 9000,
+                        limits));
+    }
+
+    @Test
+    public void overspeedOutranksABackwardsWheel() {
+        assertEquals(FlywheelDiagnosis.OVERSPEED,
+                FlywheelDiagnosis.evaluate(true, true, false, true, true, false, -5800, 0.0, 0,
+                        limits));
+    }
+
+    @Test
+    public void aSwitchedOffLaneIsNeverReportedAsOverspeed() {
+        // Nothing is being driven, so a stale latch must not shout at somebody
+        // about a lane they already turned off.
+        assertEquals(FlywheelDiagnosis.OFF,
+                FlywheelDiagnosis.evaluate(false, true, false, true, true, false, 5500, 0.0, 0,
+                        limits));
     }
 
     // ------------------------------------------------------------- advice
@@ -159,6 +201,28 @@ public class FlywheelDiagnosisTest {
     }
 
     // ------------------------------------------- the defaults hang together
+
+    @Test
+    public void theDefaultLimitsFormAChainBelowFreeSpeed() {
+        double freeSpeed = defaults.measurement.freeSpeedRpm;
+
+        assertTrue("target.maxRpm defaulted to exactly free speed once, which let the"
+                        + " rig ask for the one thing the limits exist to prevent",
+                defaults.target.maxRpm < freeSpeed);
+
+        // maxPower is the limit that actually binds, so the speed it permits
+        // unloaded has to sit between the target ceiling and the cutout — above
+        // the ceiling or the rig cannot reach its own target, below the cutout
+        // or the cutout nuisance-trips on a rig that is behaving.
+        double reachable = defaults.limits.maxPower * freeSpeed;
+        assertTrue("maxPower must still allow the highest requestable target",
+                reachable > defaults.target.maxRpm);
+        assertTrue("the cutout must sit above what maxPower can reach, or it fires"
+                        + " on a healthy rig at the top of its range",
+                defaults.limits.overspeedRpm > reachable);
+        assertTrue("the cutout must still be below free speed to be worth having",
+                defaults.limits.overspeedRpm < freeSpeed);
+    }
 
     @Test
     public void theDefaultThresholdsSeparateSpinUpFromFailure() {

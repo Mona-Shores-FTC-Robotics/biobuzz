@@ -100,9 +100,18 @@ public class FlywheelBank {
         spinning = true;
     }
 
-    /** Cuts power to every lane. Wheels coast down (zero-power behaviour is FLOAT). */
+    /**
+     * Cuts power to every lane. Wheels coast down (zero-power behaviour is FLOAT).
+     *
+     * <p>Also the only thing that clears a latched overspeed trip. Pressing stop
+     * is how a person acknowledges the trip, so clearing it anywhere else would
+     * let the rig re-arm itself without anyone having looked at the wheel.
+     */
     public void stop() {
         spinning = false;
+        for (Flywheel flywheel : flywheels.values()) {
+            flywheel.clearOverspeed();
+        }
     }
 
     public boolean isSpinning() {
@@ -246,6 +255,8 @@ public class FlywheelBank {
         private double lastSpinUpMs = Double.NaN;
         /** When power last rose to the dead-encoder threshold, or 0 if it is below it. */
         private long powerSinceNs = 0L;
+        /** Latched by an overspeed trip; cleared only by {@link FlywheelBank#stop()}. */
+        private boolean overspeed = false;
 
         Flywheel(FlywheelLane lane) {
             this.lane = lane;
@@ -326,6 +337,25 @@ public class FlywheelBank {
             return powerSinceNs == 0L ? 0.0 : (System.nanoTime() - powerSinceNs) / 1e6;
         }
 
+        /** True while the overspeed cutout is tripped and holding power off. */
+        public boolean isOverspeed() {
+            return overspeed;
+        }
+
+        /**
+         * Measured speed as a fraction of the motor's free speed, or NaN if no
+         * free speed is configured. The number worth watching on a bench: an
+         * absolute RPM says nothing about how hard the motor is working.
+         */
+        public double getFractionOfFreeSpeed() {
+            double freeSpeed = config.measurement.freeSpeedRpm;
+            return freeSpeed > 0.0 ? measuredRpm / freeSpeed : Double.NaN;
+        }
+
+        void clearOverspeed() {
+            overspeed = false;
+        }
+
         /** What this lane is doing, and whether somebody has to go and fix it. */
         public FlywheelDiagnosis getDiagnosis() {
             return FlywheelDiagnosis.evaluate(
@@ -333,6 +363,7 @@ public class FlywheelBank {
                     isConnected(),
                     config.openLoop.enabled,
                     isDriven(),
+                    overspeed,
                     atSpeed,
                     measuredRpm,
                     appliedPower,
@@ -364,6 +395,7 @@ public class FlywheelBank {
             commandedRpm = 0.0;
             commandedAtNs = 0L;
             powerSinceNs = 0L;
+            overspeed = false;
             resetReadiness();
             if (motor != null) {
                 motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -400,6 +432,20 @@ public class FlywheelBank {
             measuredTicksPerSec = motor.getVelocity();
             measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
 
+            // Checked before either control mode, and on magnitude, so a
+            // backwards wheel running away is caught by the same test.
+            double overspeedRpm = config.limits.overspeedRpm;
+            if (overspeedRpm > 0.0 && Math.abs(measuredRpm) >= overspeedRpm) {
+                overspeed = true;
+            }
+            if (overspeed) {
+                motor.setPower(0.0);
+                appliedPower = 0.0;
+                trackPowerClock(0.0);
+                resetReadiness();
+                return;
+            }
+
             if (config.openLoop.enabled) {
                 updateOpenLoop();
                 return;
@@ -418,7 +464,8 @@ public class FlywheelBank {
             FlywheelLaneConfig laneConfig = cfg();
             double feedforward = laneConfig.kS + laneConfig.kV * target;
             double feedback = laneConfig.kP * (target - measuredRpm);
-            double power = Range.clip((feedforward + feedback) * voltageMultiplier, 0.0, 1.0);
+            double power = Range.clip((feedforward + feedback) * voltageMultiplier,
+                    0.0, maxPower());
 
             motor.setPower(power);
             appliedPower = power;
@@ -442,11 +489,21 @@ public class FlywheelBank {
 
             double power = 0.0;
             if (spinning && cfg().enabled) {
-                power = Range.clip(config.openLoop.power, 0.0, 1.0);
+                power = Range.clip(config.openLoop.power, 0.0, maxPower());
             }
             motor.setPower(power);
             appliedPower = power;
             trackPowerClock(power);
+        }
+
+        /**
+         * The applied-power ceiling, clamped into range so a mistyped
+         * {@code limits.maxPower} cannot become "no limit". A zero or negative
+         * value would stop the rig dead and read as a broken motor, so it floors
+         * at something that still turns a wheel.
+         */
+        private double maxPower() {
+            return Range.clip(config.limits.maxPower, 0.05, 1.0);
         }
 
         /**

@@ -512,9 +512,15 @@ at anything with launcher motors in its config and it runs.
 > launcher wheels". Both were true when it was written and neither is a
 > constraint. It was pointed at a two-motor BIOBUZZ bench prototype before it
 > ever ran on a DECODE robot, which is what added
-> [open loop](#open-loop-and-what-it-is-for) and the
-> [`[ENCDR]` diagnosis](#when-a-lane-says-encdr). Three lanes is the maximum
-> it supports, not the number it needs.
+> [open loop](#open-loop-and-what-it-is-for), the
+> [`[ENCDR]` diagnosis](#when-a-lane-says-encdr) and the
+> [speed and power limits](#the-limits-and-why-they-are-what-they-are). Three
+> lanes is the maximum it supports, not the number it needs.
+>
+> The same section also documented a `target.maxRpm` of 6000 as a "hard
+> ceiling". It was a real ceiling against DECODE's geared launcher motors and is
+> not one against the bench prototype's 6000 RPM pair, where it is exactly free
+> speed. Treat any memory of 6000 as a safe maximum as stale.
 
 ### Zero recompiles
 
@@ -523,9 +529,10 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 
 | Group | What's in it |
 |---|---|
-| `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
+| `measurement` | `ticksPerRev`, `gearRatio`, `freeSpeedRpm` — how ticks become RPM, and what the motor can do flat out |
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
 | `openLoop` | `enabled`, `power`, `stepPower` — fixed power, no speed target |
+| `limits` | `maxPower`, `overspeedRpm` — [what the rig will not do](#the-limits-and-why-they-are-what-they-are) |
 | `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
 | `diagnostics` | the thresholds behind `[ENCDR]` and `[BACK!]` |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
@@ -563,13 +570,63 @@ a Driver Station change.
 | The prototype has | Do this |
 |---|---|
 | Two motors | Untick `center`. Wire the other two to the launcher ports above. |
-| Motors that are not goBILDA 5202s | Fix `measurement.ticksPerRev` first — see below. It is the number everything else is measured against. |
+| **6000 RPM motors** | The defaults already assume these — see below. Confirm `measurement.freeSpeedRpm` is 6000 and leave the `limits` alone until you have watched the wheel. |
+| A gearbox or belt | Set `gearRatio`, and set `freeSpeedRpm` to what the **wheel** can do, not the bare motor. |
 | No encoders wired | Use [open loop](#open-loop-and-what-it-is-for). Closed-loop speed control is not possible without them. |
 
-**`ticksPerRev` is per motor, and the default assumes a goBILDA/REV brushed
-motor at 28 ticks per motor revolution.** A different motor makes every RPM on
-the screen wrong by a constant factor, in a way that looks like a tuning
-problem and is not. Check it before anything else.
+**`ticksPerRev` is per motor, and 28 is the bare-shaft count for a goBILDA/REV
+brushed motor.** A 6000 RPM motor is the 1:1 version of that — no gearbox — so
+28 ticks/rev with `gearRatio` 1.0 is the right starting point for the bench
+prototype. Confirm it anyway on the first run: a wrong ticks-per-rev makes every
+RPM on screen wrong by a constant factor, in a way that looks like a tuning
+problem and is not. It is also the one error the
+[overspeed cutout](#the-limits-and-why-they-are-what-they-are) is likely to
+catch for you, by tripping on a speed the screen is understating.
+
+### The limits, and why they are what they are
+
+**These motors free-run at 6000 RPM and must never be run there.** That is a
+hardware constraint, so the rig enforces it rather than documenting it.
+
+`target.maxRpm` **defaulted to 6000** when the rig was written against DECODE —
+exactly the free speed of the motors now on the bench, so the ceiling permitted
+precisely the thing it exists to prevent. It is now 4500.
+
+But a speed ceiling alone was never enough, and this is the part worth
+understanding. **An RPM target is a request; power is what the motor receives.**
+A loaded wheel chasing a speed it cannot reach never closes its error, so the P
+term holds power at maximum for as long as the rig runs — and maximum power *is*
+free speed the instant the load comes off. A ball clearing the wheels, a belt
+jumping, someone lifting the prototype off the bench. So there are three limits,
+and they only make sense as a chain:
+
+| Limit | Default | What it is |
+|---|---|---|
+| `target.maxRpm` | 4500 | 75% of free speed — the most that can be **asked for** |
+| `limits.maxPower` | 0.85 | ≈5100 RPM unloaded — the most the motor can physically **do** |
+| `limits.overspeedRpm` | 5400 | 90% of free speed — the **cutout**, above what `maxPower` can reach |
+
+Each sits above the one before. That ordering is the whole design: the cutout
+cannot nuisance-trip on a rig that is behaving, because `maxPower` physically
+cannot drive the wheel to it. Reaching the cutout means something is wrong that
+the power cap did not stop. `FlywheelDiagnosisTest` asserts the chain, so
+raising one number without looking at the others fails CI rather than quietly
+removing the protection.
+
+**An overspeed trip latches.** Power is cut for that lane and stays cut until
+somebody presses **B**. Momentary cutouts oscillate — cutting power drops the
+speed, which clears the condition, which restores power — and a wheel bouncing
+against its own safety limit at the top of its range is worse than either state.
+The trip is compared against the *magnitude* of the measured speed, so a wheel
+running away backwards is caught by the same test.
+
+**If you cannot reach a target you need**, raise `limits.maxPower` deliberately
+and re-check the chain — do not raise `maxRpm` alone, which only lets the rig ask
+for more of what it already cannot deliver.
+
+The `%fs` column in the lane table is the number to watch: measured speed as a
+percentage of `measurement.freeSpeedRpm`. "3,400 RPM" says nothing on its own;
+"57% of free speed" says how hard the motor is working.
 
 ### Open loop, and what it is for
 
@@ -655,12 +712,20 @@ the robot somewhere the flywheels can spin free and walk through this once:
 5. **Does the RPM look believable?** If it's off by a constant factor — double,
    half, ten times — the encoder maths is wrong, not the motor. Fix
    `measurement.ticksPerRev` first, then `gearRatio`.
-6. **Write down a power and its settled RPM.** kV is the one divided by the
+6. **Watch the `%fs` column, not just the RPM.** It should track the power you
+   dialled in — 0.20 power on a free-spinning wheel is roughly 20% of free
+   speed. Wildly more means `ticksPerRev` is wrong; the
+   [overspeed cutout](#the-limits-and-why-they-are-what-they-are) may well trip
+   and tell you so first.
+7. **Write down a power and its settled RPM.** kV is the one divided by the
    other, and it is the number the next step needs.
-7. **Press X again for closed loop, then A.** With that kV entered and kP at 0,
+8. **Press X again for closed loop, then A.** With that kV entered and kP at 0,
    the lanes should climb to the target and land on `[READY]`.
 
-Once those seven pass, the rig works. Press B to stop; the wheels coast down.
+Once those eight pass, the rig works. Press B to stop; the wheels coast down.
+
+Nothing in that procedure goes near free speed: it starts at 0.20 power and the
+default target is 1500 RPM, a quarter of what these motors can do.
 
 ### What was ported from DECODE, and what wasn't
 
