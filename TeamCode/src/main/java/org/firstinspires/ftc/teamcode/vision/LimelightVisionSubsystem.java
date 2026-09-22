@@ -159,8 +159,16 @@ public class LimelightVisionSubsystem {
             if (nowMs - lastPollMs < Tuning.pollIntervalMs) return;
             lastPollMs = nowMs;
 
-            poll();
+            // Expire first. poll() overwrites a cell's sighting in place, so a
+            // stale entry polled in the same tick would look fresh by the time
+            // expireStaleSightings() saw it — and its tracker would never be
+            // reset. The pre-blackout candidate run would then be extended by
+            // the new observation instead of restarted, handing back a settled
+            // UP or DOWN with none of the three-sample dwell re-earned. Only
+            // reachable when a tick is missed across the expiry window (a loop
+            // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
+            poll();
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
