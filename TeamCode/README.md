@@ -22,7 +22,8 @@ and why — so the reasoning survives past whoever added it.
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
-| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. Kept in case we resume AdvantageScope integration (it piggybacks on FTC Dashboard's packet stream). |
+| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. **Also the data path for AdvantageScope** — it reads this packet stream. |
+| AdvantageScope Lite | `page.j5155.AdvantageScope:lite:v26.0.0` | AdvantageScope hosted on the robot at `http://192.168.43.1:8080/as/` — no desktop install. Auto-connects to the FTC Dashboard stream above. See [AdvantageScope](#advantagescope). |
 
 Limelight3A support (`com.qualcomm.hardware.limelightvision`) needs no separate
 dependency — it ships as part of the SDK's `Hardware` artifact in
@@ -110,6 +111,147 @@ Sloth only reloads classes under `org.firstinspires.ftc.teamcode`. Use the full
 Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
+
+### When a Wi-Fi deploy fails
+
+Deploying over Wi-Fi has worked only some of the time, both last season
+(DECODE) and now, and nobody has pinned down why. USB-C has always worked. This
+section records what we know, what we only suspect, and what we ruled out, so
+the next person does not start from zero. **Nothing below has been confirmed as
+*the* cause on our robots yet.** When one of these fixes clearly works (or
+clearly doesn't), update this section and say which.
+
+#### Checklist — do these in order, stop when it works
+
+Run the commands in the Android Studio **Terminal** tab. If `adb` is "not
+recognized", use the full path:
+`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`.
+
+1. **Is the laptop on the robot's network?** Check the Wi-Fi menu: the robot
+   adapter should show the robot's own network as *Connected*, even though it says "No internet". If it has dropped off, click
+   **Connect** on it by hand (see *Windows drops the robot network* below for
+   why by hand matters).
+2. **Can the laptop reach the hub at all?** In a PowerShell terminal:
+   `Test-NetConnection 192.168.43.1 -Port 5555`.
+   `TcpTestSucceeded : True` means the network is fine and the problem is adb —
+   go to step 3. `False` means it is a network problem — go to step 5.
+3. **Look at what adb thinks:** `adb devices`.
+   - `192.168.43.1:5555  device` — adb is fine; re-run the deploy.
+   - `… offline`, or nothing listed — continue.
+4. **Reset the connection:** `adb disconnect`, then
+   `adb connect 192.168.43.1:5555`, then `adb devices` again. If it still says
+   `offline`, or you saw a message like `adb server version (…) doesn't match
+   this client (…); killing…`, run `adb kill-server`, then connect again.
+   Deploy.
+5. **Check Windows is using the right adapter:**
+   `Find-NetRoute -RemoteIPAddress 192.168.43.1 | Select InterfaceAlias`.
+   It must name the adapter joined to the robot. If it names the other adapter,
+   that adapter is also on a `192.168.43.x` network (a phone hotspot is the
+   usual culprit) — join a different internet network, or turn the second
+   adapter off while you deploy.
+6. **Still failing:** power-cycle the robot, wait for its Wi-Fi to come back,
+   rejoin it, and start at step 1. If it fails again, plug in USB-C and move
+   on — then note what you saw in the tracking issue.
+
+#### Candidate causes
+
+| Cause | Status | Why it would look intermittent | Fix |
+|---|---|---|---|
+| Sloth Load disconnects Wi-Fi adb after it deploys | **Confirmed in Sloth's code**, not yet watched happening on the robot | Depends on whether adb was already connected when you pressed the button | Run `adb connect` yourself before deploying (checklist step 4) |
+| Windows drops the robot network ("soft disconnect") | Hypothesis — documented Windows behaviour | Only happens once the network has been idle for a while, and after sleep/restart | Connect to the robot network by hand each session |
+| adb holding a dead connection | Hypothesis — very common adb behaviour | Appears after the robot reboots or the laptop sleeps | `adb disconnect` / `adb kill-server` (checklist step 4) |
+| Two copies of adb restarting each other | **Partly tested** — see below | Only when the other program is running | Use one adb; close other adb tools while deploying |
+| Laptop routes `192.168.43.1` out the wrong adapter | Hypothesis | Depends on which network the second adapter is on that day | Checklist step 5 |
+| Wi-Fi congestion | Hypothesis — likely at events, unlikely in our room | Worse when many robots are powered on | Move the hub to 5 GHz, if our USB adapter supports it |
+| USB Wi-Fi adapter power-saving | Hypothesis | Adapter naps when the laptop thinks it is idle | Turn power-saving off (below) |
+
+**Sloth Load disconnects Wi-Fi adb after it deploys.** Read from the compiled
+`dev.frozenmilk:Load:0.3.2` plugin (not its docs — it has none on this). Its
+default `autoconnect` mode is `MAINTAIN`, aimed at `192.168.43.1`. Before
+deploying it runs `adb devices`; if nothing is listed it runs
+`adb connect 192.168.43.1` itself, deploys, and then runs `adb disconnect`
+**with no address** — which drops *every* Wi-Fi adb connection, not just its
+own. So a Sloth Load that started with nothing connected leaves nothing
+connected, and the **TeamCode** install you try next finds no robot. It also
+means that if `adb devices` lists anything at all — even a stale `offline`
+entry — Sloth assumes it is connected and does not reconnect. Connecting by
+hand first (checklist step 4) avoids both. The setting can be changed in
+`TeamCode/build.gradle`, but that is a Gradle change and deliberately not made
+here; try the habit first.
+
+**Windows drops the robot network.** With two Wi-Fi adapters, Windows'
+connection manager by default tries to keep only the connections it needs.
+Microsoft documents that it keeps networks you **connected to by hand this
+session** and the preferred internet connection, and "soft-disconnects" the
+rest: it stops sending new connections over that network, then disconnects it
+once traffic drops below a threshold (checked every 30 seconds). The robot
+network has no internet, so if Windows joined it *automatically* — at startup
+or after sleep — it is a candidate to be dropped as soon as nobody is using it.
+That fits the pattern of deploys working while you are actively deploying and
+failing after a break. It also fits the observation that **having the REV
+Hardware Client open seemed to help**: the Hardware Client keeps talking to
+the hub, so the network never goes idle. That link is a guess, not a
+measurement. The laptop-wide fix is the Group Policy setting *Minimize the
+number of simultaneous connections to the Internet or a Windows Domain* set to
+`0`; that changes Windows behaviour for the whole laptop, so it is a
+mentor decision, not a checklist step.
+([Microsoft: Windows Connection Manager](https://learn.microsoft.com/en-us/windows-hardware/drivers/mobilebroadband/understanding-and-configuring-windows-connection-manager))
+
+**Two copies of adb.** Only one adb *server* runs per laptop, and every adb
+program talks to it. If a program with an **older** adb starts, it kills the
+server and starts its own, dropping every connection — the telltale is the
+`doesn't match this client … killing` message. Candidates on our laptops:
+Android Studio's copy (the one Sloth and the TeamCode install use), the copy
+DECODE committed at `adb/adb.exe`, and any copy the REV Hardware Client or
+tools like scrcpy bring along. **Tested on one mentor laptop:** DECODE's copy
+(platform-tools 36.0.0) and Android Studio's (37.0.1) share a server without
+killing each other — both speak adb protocol 41 — so that pair is not the
+problem there. The REV Hardware Client's copy has not been checked; run
+`adb version` on each copy you find and compare the first line. Note this
+cause would make things *worse* with the Hardware Client open, so it does not
+explain the "Hardware Client helps" observation.
+
+**The hub's adb port.** The Control Hub listens for adb on port 5555 out of
+the box; REV's docs say it "is configured to support ADB wireless connections
+on port 5555". We found nothing saying the REV Hardware Client turns that port
+on or off, so do not open the Hardware Client as a ritual — if it helps, it is
+more likely for the keep-the-network-busy reason above.
+([REV: Deploying code wirelessly](https://docs.revrobotics.com/duo-control/managing-the-control-system/android-studio-using-wireless-adb))
+
+**Wrong route.** Every Control Hub hands out `192.168.43.x` addresses, and so
+do many Android phone hotspots. If the internet adapter is on a phone hotspot,
+Windows has two networks claiming `192.168.43.1` and may send adb to the
+phone. Checklist step 5 shows which one it picked.
+
+**Congestion and power-saving.** Busy 2.4 GHz channels at events can make
+connections slow enough to time out. The hub's band and channel can be changed
+from its Manage page (`http://192.168.43.1:8080`); only move to 5 GHz if the USB
+adapter can see it. For power-saving: Device Manager → Network adapters → the
+USB Wi-Fi adapter → *Power Management*, untick *Allow the computer to turn off
+this device to save power*; also set *USB selective suspend* to *Disabled* in
+the power plan's advanced settings.
+
+**Ruled out or out of scope.**
+- *Static electricity* — it is a real cause of robots dropping out *on the
+  field*, but it would not make a laptop on a desk fail to reach a hub that is
+  otherwise running normally. Not pursued.
+- *DECODE's robot-identity code*, which read the hub's own Wi-Fi name through a
+  hidden Android API, ran on the robot and never touched the laptop's
+  connection. It is being replaced separately.
+
+#### When to just use USB-C
+
+Use the cable, and don't debug, when:
+
+- you are at a competition, or a meeting is about to end — debug Wi-Fi on
+  practice time, not match time;
+- the checklist has failed once already this session;
+- you are doing a full **TeamCode** install and Wi-Fi has been flaky today — a
+  half-finished reinstall over a dropping link can leave the robot without a
+  working app until the next good install.
+
+USB-C needs no `adb connect`: plug in, check `adb devices` shows a serial
+number, and deploy.
 
 ## Robot configuration
 
@@ -380,16 +522,64 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
 | `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
-| `left` / `center` / `right` | `motorName`, `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
+| `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
 
-`motorName` is live too: change it and the rig powers the old motor down and
-binds the new one on the next loop. That is the escape hatch for a robot config
-that spells a name differently — no recompile, no OpMode restart.
+The motor names are deliberately **not** in that tree. They live in
+`DeviceNames`, and `RobotConfigXmlTest` holds them to `robot_*.xml`, so a wrong
+name is a failed build rather than something to discover at a meeting. An
+earlier version of this rig carried an editable `motorName` ported forward from
+DECODE — the very pattern `DeviceNames` exists to end.
 
 On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
 by the fine step, **dpad left/right** by the coarse step. The Driver Station
 shows the same lane table as Panels, so the rig is still usable with no laptop
 connected.
+
+### What it publishes, and where
+
+Three places at once, and you can use any of them alone:
+
+| Where | What you get |
+|---|---|
+| **AdvantageScope** | Full tree under `shooter/`, graphable and replayable. See [AdvantageScope](#advantagescope). |
+| **Panels** | The same numbers as graphable series, plus the lane table as text |
+| **Driver Station** | The lane table — works with no laptop at all |
+
+Per lane, under `shooter/left/`, `shooter/center/`, `shooter/right/`:
+
+| Key | Why you care |
+|---|---|
+| `velocity_rpm` / `target_rpm` / `error_rpm` | The basic picture. Plot measured against target. |
+| `velocity_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
+| `power_applied` | What actually reached the motor, after voltage compensation and clipping |
+| `power_feedforward` / `power_feedback` | **The tuning signal.** See below. |
+| `current_amps` / `power_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
+| `at_speed` / `spin_up_ms` | Readiness, and time-to-first-in-tolerance |
+
+Plus `shooter/battery_volts`, `shooter/voltage_multiplier`, `shooter/loop_ms`
+and `shooter/spinning`.
+
+### Reading the feedforward / feedback split
+
+This is the part worth understanding, because it turns tuning from guesswork
+into reading a graph.
+
+The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
+those two halves separately:
+
+- **`power_feedforward` should be carrying nearly all the power** once the wheel
+  is at speed. That is the whole point of feedforward — it predicts the power
+  needed rather than reacting to being wrong.
+- **`power_feedback` should settle near zero.** If it is doing real work at
+  steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
+  rather than raising kP.
+
+At steady state, kV ≈ `power_feedforward` ÷ `target_rpm` — both numbers are on
+the graph, so you can read the correct value off directly instead of bisecting.
+
+One trap: `shooter/voltage_multiplier` scales the applied power. Derive kV from
+`power_feedforward` (before compensation), not from `power_applied` (after), or
+your answer is off by exactly that factor.
 
 ### First time on the robot
 
@@ -702,6 +892,110 @@ readable, which is the harder case and also the more useful one.
 | Mecanum drive code in the pattern-recognition OpMode | Out of scope; there is no drivetrain yet |
 | Reflective `getTargetArea` / `getPoseAmbiguity` lookups | `getTargetArea()` is ordinary public API, and `getPoseAmbiguity()` does not exist on `LLResultTypes.FiducialResult` at all — that fallback silently returned 0.0 every time |
 
+
+## AdvantageScope
+
+AdvantageScope is hosted **on the robot**: connect to the robot's WiFi and open
+`http://192.168.43.1:8080/as/`. No desktop install, nothing to keep in sync.
+
+It reads the FTC Dashboard packet stream, so anything published as a
+`TelemetryPacket` shows up automatically — including Pedro Pathing's own output.
+
+Two setup notes:
+
+- **Upload the assets once.** Download `AllAssetsDefaultFTC.zip` from the
+  [AdvantageScope Lite FTC repo](https://github.com/j5155/AdvantageScope-Lite-FTC)
+  and add it through **File → Upload Asset**, or the 2D and 3D field views stay
+  empty. This is per-robot, not per-laptop.
+- **Get the bundle from upstream, not from the j5155 repo.** The j5155 README
+  links to it, but the file itself lives in Mechanical-Advantage's
+  [AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+  under the `bundles-v1` release, and that one is current.
+- **Keys are slash-delimited on purpose.** AdvantageScope renders `shooter/left/…`
+  as a browsable tree. Publish flat keys and you get thirty loose series instead
+  of one node per lane.
+
+### The BIOBUZZ field is there — get the bundle from upstream
+
+**Correction.** An earlier version of this section said the asset bundle predated
+BIOBUZZ and carried DECODE at best. That was wrong, and wrong in an
+understandable-but-lazy way: the j5155 runtime went dormant in September 2025, and
+its README links to `AllAssetsDefaultFTC.zip`, so the bundle looked frozen too.
+It is not. The assets are a **separate, upstream, actively maintained** artifact —
+the dormant runtime says nothing about them.
+
+`AllAssetsDefaultFTC.zip` ships from Mechanical-Advantage's
+[AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
+(`bundles-v1`, 36 MB, refreshed **2026-09-12**). It contains three seasons of FTC
+fields in both 2D and 3D:
+
+| Asset | Season |
+|---|---|
+| `Field2d_20262027FTCFieldV1` / `Field3d_20262027FTCFieldV1` | **2026-2027 — BIOBUZZ** |
+| `Field2d_20252026FTCFieldV2` / `Field3d_20252026FTCFieldV2` | 2025-2026 — DECODE |
+| `Field2d_20242025FTCFieldV2` / `Field3d_20242025FTCFieldV3` | 2024-2025 |
+
+plus `Robot_FTCDriveBaseV2`, `Robot_FrogBotV2` and joystick models.
+
+The BIOBUZZ field declares `"isFTC": true`, `"coordinateSystem": "center-rotated"`
+and a 143.182-inch square — so it is a real FTC field in FTC coordinates, not an
+FRC asset with a relabelled name. **Upload it and the field views work this
+season.** Nothing to build.
+
+Worth keeping straight, because the two halves age differently:
+
+| Piece | Source | State |
+|---|---|---|
+| The Lite **runtime** (`page.j5155.AdvantageScope:lite`) | j5155, unofficial | dormant since 2025-09-07 |
+| The **field assets** (`AllAssetsDefaultFTC.zip`) | Mechanical-Advantage, upstream | current, refreshed 2026-09-12 |
+
+So the season's field arrives for free. It is the runtime that will eventually
+need replacing, not the artwork.
+
+None of this affects the shooter rig either way — it publishes line graphs and no
+pose, so the field tabs go unused. It matters once `pedro/Constants.java` is
+filled in and someone wants to watch the robot move.
+
+If a future season's field is ever missing, custom assets are still just a zip:
+a folder named `Field2d_NAME` or `Field3d_NAME` holding a `config.json` (with
+`isFTC` and `center-rotated`), an `image.png`, and a `model.glb` for 3D. Upload
+through **File → Upload Asset**.
+
+### It replays logs, not just live data
+
+`File → Open Logs` reads Road Runner and PsiKit logs — including ones recorded
+before AdvantageScope was installed. The logs folder is configurable in
+preferences.
+
+Worth knowing for characterization specifically: nobody reads a spin-up curve
+well while three wheels are spinning next to them. Record the session, pull the
+curves apart afterwards at a desk.
+
+### Version, and why it will not move
+
+Only `v26.0.0` is published to the dairy maven repo, dated **2025-09-07**, and
+the source repo's last commit is the same day. This is not work sitting
+unreleased — the project went quiet, so no bump is coming and no fix is waiting
+in the wings. If it ever breaks against an SDK or Sloth bump, nobody is
+currently maintaining it.
+
+That is likely deliberate rather than abandonment. The official Lite targets the
+**Systemcore** control system, and AdvantageScope's own docs say full FTC support
+arrives with the 2027-28 transition. The build we use is j5155's unofficial port
+for current hardware, listed under "Unofficial Distributions" and explicitly not
+supported by the AdvantageScope/WPILib developers. Right tool for this season,
+knowingly temporary.
+
+It is Sloth-aware despite not being part of the locked set: it resolves
+`com.acmerobotics.slothboard:core` and the `com.bylazar.sloth:*` modules at our
+exact `0.3.2+` versions rather than dragging in a plain
+`com.acmerobotics.dashboard`. Verified with `:TeamCode:dependencies`; no
+`exclude` is needed, and one should not be added back without a reason.
+
+It adds about **7.9 MB** of web assets to the APK (roughly 5% of the uncompressed
+total), so the ~40s full `TeamCode` install gets slightly slower. `Sloth Load` is
+unaffected — it only reloads TeamCode classes.
+
 ## Deliberately excluded
 
 - **NextFTC** — the previous command framework. Migrated off it onto Ivy;
@@ -713,11 +1007,15 @@ readable, which is the harder case and also the more useful one.
   `1.0.0` and was never updated for Pedro 3.)
 - **Road Runner / `maven.brott.dev`** — not in use; the maven repo isn't
   declared here to avoid an unused, unexplained entry.
-- **AdvantageScope Lite** — not currently wired in. Add it back only if that
-  debugging workflow is actually resumed.
 - **Marrow** (`io.github.skeleton-army.marrow`) — a newer reactive-behavior
   library that layers on NextFTC/FTCLib/SolversLib. No evidence yet of use by
   competitive teams; worth revisiting, not a default include.
+- **AdvantageScope Lite** — *no longer excluded.* This entry used to say "add
+  it back only if that debugging workflow is actually resumed". It was, so #38
+  added `page.j5155.AdvantageScope:lite:v26.0.0` and it is now a normal
+  dependency — see [AdvantageScope](#advantagescope) for the version and size
+  caveats. Kept here as a history note so the reversal is visible rather than
+  looking like the entry was never written.
 - **`exportPaths` Gradle task** — a nice-to-have that exports autonomous
   paths as `.pp` files for the Pedro Pathing visualizer. Not added here
   because it depends on a `util.ExportAutoPaths` utility class that doesn't

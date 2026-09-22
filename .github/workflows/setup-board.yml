@@ -107,6 +107,8 @@ jobs:
           label "awaiting-review" "fbca04" "PR open, waiting on a reviewer. 48h SLA for student PRs."
           label "on-robot-now"    "ff8c00" "Someone is physically on this robot right now. Do not double-book."
           label "meeting-brief"   "ededed" "Orchestrator output - the meeting log."
+          label "proposal"        "0e8a16" "An idea for something the robot should do. Anyone can file one - no technical knowledge needed."
+          label "needs-triage"    "fbca04" "Not yet read at triage. No priority or milestone until it has been."
           label "robot:19429"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
           label "robot:20245"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
 

@@ -46,8 +46,11 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
   **Exception:** `pedro/Constants.java` and `pedro/Tuning.java` *are* ours to fill in. They are the
   one hole in this rule.
 - **Do not re-add the deliberately excluded set**: NextFTC, `com.pedropathing:telemetry`, Road
-  Runner, AdvantageScope Lite, Marrow, or the `maven.pedropathing.com` repository.
+  Runner, Marrow, or the `maven.pedropathing.com` repository.
   → `TeamCode/README.md` § "Deliberately excluded"
+  **History:** AdvantageScope Lite was on this list until #38. It was never excluded on the
+  merits — the entry said to add it back "only if that debugging workflow is actually resumed",
+  and it has been. It is now a normal dependency. → `TeamCode/README.md` § "AdvantageScope"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
@@ -80,8 +83,12 @@ rename.
   `Merge pull request #13 from .../tooling/sloth-run-config` is still readable a season later and a
   random name is not. Rename an auto-generated `claude/*` branch *before* opening the PR.
 - Commit style: imperative subject; the body explains *why*, not *what*.
-- CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on every PR. **A red CI is
-  investigated, not re-run.**
+- CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on **every push to every branch**,
+  not only on PRs. **A red CI is investigated, not re-run.**
+- Those three jobs are **required status checks** on `master` (since 21 Sep 2026), with `strict`
+  on and admins included. So a PR cannot merge red, and it cannot merge behind `master` — expect
+  to press *Update branch* when someone else merges first. Nobody can override this, which is the
+  point; the cost is that if CI itself breaks, fixing CI is the only way to merge anything.
 
 ## House documentation style
 
