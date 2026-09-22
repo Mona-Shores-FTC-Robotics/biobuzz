@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -144,30 +143,19 @@ public class CellStateTrackerTest {
     }
 
     /**
-     * The asymmetry the class documents, for the case the suite never covered.
+     * The other half of "losing one takes a single contrary observation".
      *
-     * <p>{@code CellStateTracker}'s javadoc says "Losing one takes a single contrary
-     * observation." That holds for UNKNOWN, which {@link #asingleUnknownClearsASettledState}
-     * and {@link #aTipNeverReportsTheOldStateMidTransition} both cover. It does not
-     * hold for a contrary <em>known</em> state: {@code update()} clears {@code settled}
-     * immediately only when the observation is UNKNOWN, so a direct UP to DOWN flip
-     * keeps reporting UP until DOWN earns its own three samples and 250ms.
+     * <p>{@link #asingleUnknownClearsASettledState} covers a contrary UNKNOWN. This
+     * covers a contrary <em>known</em> state, which for a long time behaved
+     * differently: {@code update()} cleared {@code settled} only for UNKNOWN, so a
+     * direct UP to DOWN flip went on reporting UP until DOWN had earned three samples
+     * and 250ms of its own.
      *
      * <p>The usual physical tip passes through mid-tip heights that classify UNKNOWN,
-     * which hides this. A dropout during the tip does not — the cell reappears already
-     * settled the other way, and this path runs.
-     *
-     * <p><b>Ignored because it fails today.</b> It is written against the documented
-     * behaviour rather than the implemented one, deliberately, so that the
-     * contradiction lives somewhere executable instead of only in a review comment.
-     * Resolving it is a one-line change to {@code update()} — clear {@code settled}
-     * on any disagreeing observation, not just UNKNOWN — or a correction to the
-     * javadoc if the current behaviour is what is actually wanted. Whichever way it
-     * goes, delete the {@code @Ignore}.
+     * so {@link #aTipNeverReportsTheOldStateMidTransition} never exercised this path
+     * and the gap survived. A dropout during the tip does reach it — the cell
+     * reappears already settled the other way, with no UNKNOWN frame in between.
      */
-    @Ignore("Fails by design: asserts the behaviour CellStateTracker's javadoc promises,"
-            + " which update() does not implement. Un-ignore once the code or the doc is"
-            + " corrected — see the javadoc on this method.")
     @Test
     public void aSingleContraryObservationClearsASettledState() {
         CellStateTracker tracker = new CellStateTracker(3, 250L);
@@ -177,9 +165,13 @@ public class CellStateTrackerTest {
         tracker.update(HiveCellState.UP, ms(200));
         assertEquals(HiveCellState.UP, tracker.update(HiveCellState.UP, ms(300)));
 
-        // Today this returns UP, and goes on returning UP until DOWN has three
-        // samples and 250ms of its own behind it.
+        // One DOWN is enough to drop UP. It is not enough to establish DOWN — that
+        // still needs three samples and 250ms, which is the point of the asymmetry.
         assertEquals(HiveCellState.UNKNOWN, tracker.update(HiveCellState.DOWN, ms(320)));
         assertFalse(tracker.isSettled());
+        assertEquals(HiveCellState.DOWN, tracker.candidateState());
+
+        assertEquals(HiveCellState.UNKNOWN, tracker.update(HiveCellState.DOWN, ms(420)));
+        assertEquals(HiveCellState.DOWN, tracker.update(HiveCellState.DOWN, ms(580)));
     }
 }
