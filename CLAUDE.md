@@ -48,9 +48,15 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
 - **Do not re-add the deliberately excluded set**: NextFTC, `com.pedropathing:telemetry`, Road
   Runner, Marrow, or the `maven.pedropathing.com` repository.
   → `TeamCode/README.md` § "Deliberately excluded"
-  **History:** AdvantageScope Lite was on this list until #38. It was never excluded on the
-  merits — the entry said to add it back "only if that debugging workflow is actually resumed",
-  and it has been. It is now a normal dependency. → `TeamCode/README.md` § "AdvantageScope"
+  **AdvantageScope Lite is on that list**, and the reason is worth knowing before you argue
+  with it: it binds **port 8080**, which FTC Dashboard already holds, so the RC throws
+  `BindException`, ANRs, and never reaches ready. The Driver Station just says *no heartbeat*
+  with empty OpMode lists. It compiles and installs perfectly, so only a robot catches it.
+  Desktop AdvantageScope reads the Dashboard stream and does the same job.
+  **History:** this entry said the opposite for three days. It came off the list in #38 (the
+  original entry said to re-add it "only if that debugging workflow is actually resumed", and it
+  had been), then #44 put it back after it bricked a robot at a meeting.
+  → `TeamCode/README.md` § "AdvantageScope"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
