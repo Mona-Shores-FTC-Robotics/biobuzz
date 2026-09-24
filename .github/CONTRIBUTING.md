@@ -34,8 +34,8 @@ already know things nobody else on the team knows.
 
 ### What happens to your idea
 
-Every Saturday we read the new proposals **out loud, together**, and decide as a group. One of four
-things happens, and we always say which and why:
+When we get to them, we read new proposals together and decide. One of four things happens, and we
+always say which and why:
 
 | Outcome | What it means |
 |---|---|
@@ -47,11 +47,10 @@ things happens, and we always say which and why:
 **Parked is not a no.** It is the most common outcome for a good idea, and it means we come back to
 it. Nothing gets closed without an explanation, ever.
 
-### Help run triage
+### Help decide
 
-Each week one student helps run triage alongside a mentor — reading the proposals, asking the
-questions, helping decide. Ask if you want a turn. Having a hand in deciding *what* the team does is
-the point of all of this, not a reward for doing enough of the other stuff first.
+If you want a hand in deciding *what* the team works on, say so and you'll get one. That is the
+point of all this, not a reward for doing enough of the other stuff first.
 
 ## Finding something to work on
 
