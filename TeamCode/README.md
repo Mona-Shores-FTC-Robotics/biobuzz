@@ -895,7 +895,7 @@ readable, which is the harder case and also the more useful one.
 
 ## AdvantageScope
 
-> **History note.** From #38 until #44 this section told you to open AdvantageScope
+> **History note.** From #38 until #56 this section told you to open AdvantageScope
 > **on the robot** at `http://192.168.43.1:8080/as/`, via the
 > `page.j5155.AdvantageScope:lite` dependency. **That combination bricks the Robot
 > Controller** — see below. The dependency is gone. AdvantageScope still works;
@@ -971,7 +971,7 @@ tell you why.
   on the Driver Station. Desktop AdvantageScope covers the same workflow with
   no port to fight over.
   *History:* this entry originally said to add it back "only if that debugging
-  workflow is actually resumed"; #38 did exactly that and #44 took it out after
+  workflow is actually resumed"; #38 did exactly that and #56 took it out after
   it killed a robot mid-meeting. Both reversals are kept visible rather than
   overwritten. Re-adding it needs the port collision solved first.
 - **`exportPaths` Gradle task** — a nice-to-have that exports autonomous

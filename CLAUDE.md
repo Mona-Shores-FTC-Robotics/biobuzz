@@ -55,7 +55,7 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
   Desktop AdvantageScope reads the Dashboard stream and does the same job.
   **History:** this entry said the opposite for three days. It came off the list in #38 (the
   original entry said to re-add it "only if that debugging workflow is actually resumed", and it
-  had been), then #44 put it back after it bricked a robot at a meeting.
+  had been), then #56 put it back after it bricked a robot at a meeting.
   → `TeamCode/README.md` § "AdvantageScope"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
