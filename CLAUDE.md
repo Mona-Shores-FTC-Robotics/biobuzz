@@ -77,6 +77,15 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
   AdvantageScope entry below gives. That entry's *mechanism* — two NanoHTTPD servers, one
   socket, the loser throwing on a bare thread — is right. Its culprit is wrong: AdvantageScope
   Lite was not installed on any build that died.
+- **The dashboard stack is settled: Sloth + Panels + Pedro + Ivy, and nothing else.** Panels is
+  the only dashboard — telemetry, graphs, field view, capture, OpMode control, configurables and
+  the Limelight proxy all come from it, at `http://192.168.43.1:8001`. Decided 25 Sep 2026, by
+  the mentor, after the Panels/Dashboard collision above forced a choice. **This supersedes the
+  note in the AdvantageScope entry below calling a restored AdvantageScope path "open work, not
+  a settled exclusion"** — as of this decision it is settled, and an OpMode that wants a graph
+  publishes to Panels rather than waiting for one. Design new code for this stack: new
+  instrumentation goes to `PanelsTelemetry`, new tunables get `@Configurable`.
+  → `TeamCode/README.md` § "The Panels stack: seeing data and changing values at a meeting"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute

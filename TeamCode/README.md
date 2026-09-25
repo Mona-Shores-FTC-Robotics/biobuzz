@@ -910,9 +910,13 @@ readable, which is the harder case and also the more useful one.
 > Dashboard is no longer installed**, so that stream does not exist and none of
 > the instructions below currently work. See [Why FTC Dashboard is not in the
 > dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set). Getting
-> AdvantageScope back is wanted and is tracked separately; the section is kept
-> because the reasoning in it is still correct about everything except whether
-> the data path exists.
+> The section is kept because the reasoning in it is still correct about
+> everything except whether the data path exists.
+>
+> **Settled, 25 Sep 2026.** This banner previously said getting AdvantageScope
+> back "is wanted and is tracked separately". It is not being got back. The
+> stack is Sloth + Panels + Pedro + Ivy, and Panels' Graph and Capture views do
+> this job. See [The Panels stack](#the-panels-stack-seeing-data-and-changing-values-at-a-meeting).
 >
 > **History note.** From #38 until #56 this section told you to open AdvantageScope
 > **on the robot** at `http://192.168.43.1:8080/as/`, via the
@@ -995,6 +999,82 @@ tell you why.
 > The stack trace is a bare thread entry point and names nobody, so identify the
 > loser from what initialises immediately before the crash.
 
+## The Panels stack: seeing data and changing values at a meeting
+
+**The decision, 24 Sep 2026: Panels is the whole dashboard.** Sloth, Pedro, Ivy and Panels; no
+FTC Dashboard, no AdvantageScope Lite, no desktop AdvantageScope. Design for Panels rather than
+treating it as one of several outputs.
+
+Two things forced it and one thing makes it comfortable. Panels and Dashboard cannot both be
+installed (see the next section). AdvantageScope's FTC support is labelled *experimental* by its
+own documentation and is not officially supported until the Systemcore transition in 2027-28,
+which is not this season. And Panels already covers every job we were splitting across three
+tools.
+
+### Getting to it
+
+Join the robot's Wi-Fi, then **`http://192.168.43.1:8001`** on a Control Hub. (Phone RC would be
+`192.168.49.1:8001`.) Port 8001 is Panels' own; the `8080` you may remember is the SDK's web
+server, which is still there and still serves the RC's own pages.
+
+### Seeing data
+
+| Want | Use | Entry point |
+|---|---|---|
+| Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
+| Text lines | Telemetry | same manager → `debug(line)` |
+| Robot pose and paths | Field View | Pedro's `Drawing` / `Follower.telemetryDebug()` — **not wired up here yet** |
+| Replay a run afterwards | Capture | browser-side, nothing to write |
+| Start/stop OpModes from the laptop | OpMode Control | browser-side |
+| Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
+
+Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
+`try`/`catch` that swallows. `FlywheelSpeedTestOpMode.publishPanels()` is the reference
+implementation: telemetry must never take a mechanism down mid-run.
+
+Keys are flat strings. Panels does not render a `a/b/c` key tree the way AdvantageScope did, so
+prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
+
+### Changing values live
+
+`@Configurable` on the class, and the fields it exposes must be **`public`, `static`, and
+non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
+
+The pattern this repo uses, and the one to copy, is a single static root holding plain nested
+objects — `FlywheelBank` declares:
+
+```java
+@Configurable
+public class FlywheelBank {
+    public static FlywheelTuningConfig config = new FlywheelTuningConfig();
+```
+
+and everything under `FlywheelTuningConfig` is ordinary instance fields. Panels reflects through
+the static root into the tree, so one annotation exposes the whole structure and the sub-configs
+stay readable as normal Java.
+
+Three things that will cost you a meeting if you forget them:
+
+- **A field with no annotation above it simply never appears.** No error, no warning — it is
+  just absent from the tree. `VisionSightingDiagnostics` carries a note about exactly this
+  happening once already.
+- **It is one-way.** Edits in Panels reach the robot immediately. Values changed *in code* do
+  not push back to the browser until you refresh it, so a stale-looking number in the UI may not
+  be what the robot is using.
+- **Read from the source every time.** Do not copy a configurable into a local field at init and
+  use the local afterwards — you will be reading the value from before the edit, and it will
+  look like the edit did nothing.
+
+### What is not wired up yet
+
+Recorded here so it is a choice rather than a surprise:
+
+| Gap | Cost |
+|---|---|
+| Only `FlywheelSpeedTestOpMode` publishes to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Nothing draws the Field View. Pedro 3 ships a `Drawing` class that prepares Panels Field in Pedro units, and `Follower.telemetryDebug()` uses it. | Path tuning has no visual, which is the main reason Field View exists. |
+| No shared helper, so each OpMode publishes in its own style. | Key names and update cadence will drift between OpModes. |
+
 ## Why FTC Dashboard is not in the dependency set
 
 > **History note.** Everything in this file that predates 24 Sep 2026 assumes FTC
@@ -1069,8 +1149,24 @@ no stream to read. That is a real loss and is not meant to be permanent — see
   FTC Dashboard already binds; the loser throws `BindException`, the RC ANRs,
   and the robot never reaches ready. See
   [AdvantageScope](#advantagescope) for the full failure and what it looks like
-  on the Driver Station. Desktop AdvantageScope covers the same workflow with
-  no port to fight over.
+  on the Driver Station.
+
+  **History note, 25 Sep 2026.** This bullet used to end "Desktop AdvantageScope
+  covers the same workflow with no port to fight over." That is no longer true:
+  desktop AdvantageScope read FTC Dashboard's stream, and Dashboard is gone too.
+  Neither *mechanism* in this bullet changed — the port collision is still real —
+  but the consolation prize it offered does not exist. Panels' Graph and Capture
+  views are the replacement. See [The Panels stack](#the-panels-stack-seeing-data-and-changing-values-at-a-meeting).
+- **FTC Dashboard** (`com.acmerobotics.slothboard:dashboard`) — cannot coexist
+  with Panels; the RC crash-loops on `BindException` with both installed. Panels
+  won because seven files import `com.bylazar.*` and one imported
+  `com.acmerobotics.*`. See [Why FTC Dashboard is not in the dependency
+  set](#why-ftc-dashboard-is-not-in-the-dependency-set).
+- **Desktop AdvantageScope** — not a dependency, but worth recording as a
+  rejected *tool*: it consumed Dashboard's packet stream, so it fell with
+  Dashboard. Its own documentation calls FTC support experimental and dates
+  official support to the Systemcore transition in 2027–28, which is not this
+  season. Settled 25 Sep 2026 rather than left open.
   *History:* this entry originally said to add it back "only if that debugging
   workflow is actually resumed"; #38 did exactly that, and #56 took it back out
   on the port collision. #56 was initially written up as the fix for a dead
