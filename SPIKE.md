@@ -121,3 +121,32 @@ Bisecting by hand has already gone wrong once here, so check rather than assume:
   `com.bylazar.*`, so the build fails and the hub silently keeps the old APK — which is how a
   "fix" got tested that was never actually installed. Excluding all of our source at once
   avoids that class of mistake.
+
+## For when team code comes back: `@Pinned` and native libraries
+
+From the Dairy Discord `#help`, 24 Sep 2026 — Oscar, who wrote Sloth, to someone whose
+shared object (`.so`) in their TeamCode gradle project was misbehaving:
+
+> **Oscar:** you're not using sloth to hot reload I presume
+> **Bee:** correct
+> **Oscar:** ok, just add `@Pinned` to the top of the opmode
+> …
+> **Oscar:** I've never had much opportunity to test native libraries with sloth and I'm sure
+> there's a setting I have wrong for them lol
+
+`@Pinned` keeps a class in the app classloader instead of letting Sloth move it into the
+reloadable one. **This does not explain step A** — that APK has no team OpMode to annotate, and
+the boot still ANRs. It is recorded here because two things in it are load-bearing later:
+
+- **Sloth is in the boot path even without hot reload.** Bee was doing full installs, and the
+  fix was still a Sloth annotation. Our own step-A log agrees: `SlothTeamCodeLoader: Staged
+  TeamCode Load` and `Processing TeamCode Load` run on every boot, with zero team code in the
+  APK. "We deploy with the TeamCode run config, so Sloth isn't involved" is false.
+- **Sloth's native-library handling is under-tested, by its author's own account.** We carry
+  `packagingOptions { jniLibs.useLegacyPackaging true }` (stock SDK boilerplate, not ours), and
+  the SDK's own natives — UVC, EOCV (`PreLoadEOCV: preloading EOCV`), the `/dev/ttyS1` serial
+  driver — all initialise during the same boot window that is timing out.
+
+If the boot still ANRs once AutoTune is gone, and it starts correlating with team OpModes that
+touch vision, `@Pinned` on those OpModes is the next thing to try — and it costs one annotation,
+not a dependency change.
