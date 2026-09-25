@@ -23,7 +23,6 @@ and why — so the reasoning survives past whoever added it.
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
 | FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. **Also the data path for AdvantageScope** — it reads this packet stream. |
-| AdvantageScope Lite | `page.j5155.AdvantageScope:lite:v26.0.0` | AdvantageScope hosted on the robot at `http://192.168.43.1:8080/as/` — no desktop install. Auto-connects to the FTC Dashboard stream above. See [AdvantageScope](#advantagescope). |
 
 Limelight3A support (`com.qualcomm.hardware.limelightvision`) needs no separate
 dependency — it ships as part of the SDK's `Hardware` artifact in
@@ -902,9 +901,19 @@ readable, which is the harder case and also the more useful one.
 > it runs on your laptop instead.
 
 Run AdvantageScope on a laptop and point it at the robot's **FTC Dashboard**
-stream — it auto-detects Dashboard, so anything published as a `TelemetryPacket`
-appears with no extra setup, including Pedro Pathing's output and the whole
-`shooter/` tree.
+stream. It is not automatic — you have to tell it where the robot is and which
+kind of source it is:
+
+1. In AdvantageScope's preferences, set the **robot address** to `192.168.43.1`
+   (the Control Hub) and the **live source** to **FTC Dashboard**.
+2. **File → Connect to Robot.**
+
+Once connected, anything published as a `TelemetryPacket` shows up — Pedro
+Pathing's output and the whole `shooter/` tree included.
+
+> Nobody on the team has run this end to end yet, so treat the menu names as
+> approximate. If your build words them differently, correct this list rather
+> than working around it.
 
 Keys are slash-delimited on purpose: AdvantageScope renders `shooter/left/…` as a
 browsable tree. Publish flat keys and you get thirty loose series instead of one
