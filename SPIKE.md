@@ -179,6 +179,38 @@ not to re-add AdvScope, but it is not the cause of the dead hub, and the history
 `CLAUDE.md` that says #56 "was first written up as the fix for a Control Hub that would not
 start — it was not" is now confirmed from a capture rather than from memory.
 
+### The collision is inside the RC process, not on the hub
+
+`adb shell netstat -an` while the hub was looping shows **no listener on 8080, 8081 or any
+other port the RC uses** — only `:53` (DNS) and `:5555` (adb). That is weak on its own, because
+the RC holds 8080 for only ~5 s of each ~35 s cycle and a single sample usually misses it. But
+it points at the reading that fits every observation:
+
+**`Address already in use` does not require a second process.** Two NanoHTTPD servers in the
+same process collide identically. The RC's own log has it holding both ports before it dies:
+
+```
+21:07:35.724  CoreRobotWebServer      started port=8080
+21:07:35.733  TooTallWebSocketServer  Started WebSocket server on port 8081
+21:07:39.300  FATAL EXCEPTION: Thread-13   BindException        (+3.56 s)
+```
+
+A third server asking for an unused port would simply get it. It failed, so it asked for 8080 or
+8081 — both held by the RC itself moments earlier.
+
+This is the same mechanism `CLAUDE.md` attributes to AdvantageScope Lite, with a different
+culprit, since AdvScope is not in this APK. It also explains the one fact that never fit: the
+loop **survived a full Control Hub reinstall** (`CLAUDE.md`'s `#56` history note). Nothing on
+the hub was ever part of it, so reinstalling the hub could not have helped.
+
+Timing is metronomic across every capture — measured from `Robot Status: stopped, scanning for
+USB devices` to `FATAL EXCEPTION`:
+
+| Cycle | Gap |
+|---|---|
+| PID 30466 | 21:07:35.740 → 21:07:39.300 = **3.56 s** |
+| PID 30865 | 21:08:11.082 → 21:08:14.588 = **3.51 s** |
+
 ### Why step D removes Panels rather than something else
 
 Panels is the only remaining artifact in the APK that stands up its own NanoHTTPD. Removing it
