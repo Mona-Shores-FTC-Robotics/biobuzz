@@ -59,7 +59,7 @@ dependencies {
 
     implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
     implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
-    // rung 3: implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
     // rung 4: implementation('com.pedropathing:core:3.0.1')
     // implementation('com.pedropathing:revhub:3.0.1')
     // rung 5: implementation('com.pedropathing.ivy:pedro:1.1.1')
