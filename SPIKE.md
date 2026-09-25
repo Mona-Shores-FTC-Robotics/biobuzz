@@ -310,6 +310,57 @@ issue, not in this branch.
 one socket, the loser throwing on a bare thread — and named the wrong library. The mechanism was
 right. AdvScope was never installed when the hub was dying.
 
+## Measured, 24 Sep 2026: the contested port is 8001, and the collision is in-process
+
+Sampling `netstat` once a second for 40 s through the crash loop, filtered to `:8001` and
+`:8080`, returned **13 lines from 40 samples**:
+
+| Samples | Printed | Meaning |
+|---|---|---|
+| 4 | `:::8080` and `:::8001` | RC alive, both bound |
+| 5 | `:::8001` only | 8080 released at the crash, 8001 still held |
+| 31 | *nothing* | neither bound — the next process's boot phase |
+
+8001 is up for roughly **9 s of each ~40 s cycle**. It is not persistent. It appears around when
+8080 does, outlives 8080 by ~5 s (the gap between the `BindException` and the process kill), and
+disappears when the process dies.
+
+`adb shell ps` at the same time showed **exactly one** `com.qualcomm.ftcrobotcontroller`
+process. So there is no squatter and no orphaned instance: one thing inside the RC binds 8001,
+and a second thing inside the same RC asks for 8001 and throws.
+
+> **History note.** Two readings in this file were wrong and are corrected here. The step-C
+> section reasoned that Panels must want 8080 or 8081 — it wants 8001. A later reading of a
+> single empty `netstat` concluded there was an external squatter holding 8001 across RC
+> restarts; that sample had landed in the 31-second window when nothing is bound. The
+> in-process reading is the one the measurement supports.
+
+### The seam, not the libraries
+
+Sinister runs its load pass **twice per boot**, the second fired by `SlothTeamCodeLoader` once
+the main boot finishes, and both Panels plugin scanners appear in each pass. If the second pass
+re-initialises Panels' server, it asks for a port the first pass already holds.
+
+This is worth stating carefully, because the obvious summary — "Panels is broken" — is wrong on
+its face. Panels works for teams across FTC. The Sloth repackage exists *precisely* so Panels
+survives Sloth's classloader swap, so blaming it for a double initialisation is blaming the
+mitigation. What the evidence supports is narrower and more useful: **the Panels/Sloth seam
+re-initialises a bound server**, which is an upstream bug in the interaction, not a
+misconfiguration on our side and not a reason to abandon either library.
+
+Supporting detail from the POMs, which also shows why "it must be Panels' own NanoHTTPD" needed
+checking rather than assuming:
+
+| Artifact | Declares its own NanoHTTPD? |
+|---|---|
+| `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | yes — `org.nanohttpd:nanohttpd-websocket:2.3.1` |
+| `com.pedropathing:tuning:1.0.1` (AutoTune) | yes — same |
+| `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | **no** — sixteen plugin subartifacts, `kotlin-stdlib`, nothing else |
+
+`fullpanels` pulls no nanohttpd of its own, so whatever binds 8001 does so through a transitive
+or SDK-provided copy. That does not change the measurement, but it is why the write-up says
+*something in the RC* rather than naming a class we have not seen in a stack trace.
+
 ## For when team code comes back: `@Pinned` and native libraries
 
 From the Dairy Discord `#help`, 24 Sep 2026 — Oscar, who wrote Sloth, to someone whose
