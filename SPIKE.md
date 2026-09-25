@@ -1,7 +1,12 @@
 # Spike: does the locked dependency set boot on its own?
 
 **This branch is not for merging.** It exists to answer one question with a robot, because
-nothing about it is visible from a desk. Delete the branch when the answer is written down.
+nothing about it is visible from a desk.
+
+> **The answer is at the bottom: [Panels is the third NanoHTTPD](#answer-24-sep-2026-panels-is-the-third-nanohttpd).**
+> Everything between here and there is the road to it, including two theories that were wrong
+> (a port collision that wasn't there in step A, and an install-restart race that a battery pull
+> disproved). They are kept because the wrong turns are most of what this cost.
 
 ## The question
 
@@ -226,6 +231,54 @@ becomes which port it wants and who already has it. **If step D still crashes**,
 not in the APK, and the next suspect is something persistent on the hub itself — check with
 `adb shell netstat -an` while the RC is in its loop and see which ports are held when no RC
 process exists.
+
+## Answer, 24 Sep 2026: Panels is the third NanoHTTPD
+
+**Step D boots. Step C does not, even from a cold boot.** The two trees differ by one line.
+
+| | Step C | Step D |
+|---|---|---|
+| `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | present | **removed** |
+| Everything else | identical | identical |
+| After a **TeamCode install** | `BindException` loop | Driver Station heartbeat, OpMode list |
+| After a **battery pull and cold boot** | `BindException` loop | — (already working) |
+
+The cold-boot leg is what makes this conclusive. Step D was first tested on a freshly powered
+hub, which raised a competing explanation: that the loop is an *install-restart race* — Android
+Studio force-stops the RC and it relaunches ~1 s later, before the previous instance's sockets
+are released — and that step D passed only because it got a clean boot. That theory fit an
+uncomfortable amount of history, including why a full hub reinstall never helped (`CLAUDE.md`'s
+`#56` note), why `netstat` found no squatter, and why step A booted while step C did not.
+
+**It was wrong.** Step C was installed, confirmed looping, then power-cycled with nothing else
+changed, and came back with no heartbeat. A cold boot does not rescue it. The difference is
+Panels.
+
+### What is still unknown
+
+- **Which port Panels wants.** The RC holds 8080 (`CoreRobotWebServer`) and 8081
+  (`TooTallWebSocketServer`) by the time Panels dies 3.5 s later, and a server asking for a free
+  port would have got one — so it is asking for one of those two. Nothing in the log prints the
+  number, because NanoHTTPD's `ServerRunnable` throws before it logs.
+- **Whether it is configurable.** If Panels exposes a port setting, this is a one-line fix and
+  the locked set survives intact.
+- **Whether it is a Panels-plus-Sloth interaction rather than Panels alone.** Sinister registers
+  *two* Panels scanners — `com.bylazar.configurables.Plugin` and `com.bylazar.opmodecontrol.Plugin`
+  — and the fatal lands ~200 ms after the JIT compiles
+  `com.bylazar.panels.plugins.PluginsManager.init`. If that manager stands a server up once per
+  plugin, Panels is colliding with *itself*, which would be a bug in the `0.3.2+1.0.13`
+  Sloth-variant build rather than in the idea of running Panels at all.
+
+### What this costs on master
+
+Removing Panels was free in this spike because no team source compiles here. On master it is
+not: **seven files import `com.bylazar.*`**. Dropping Panels means either porting those to
+Dashboard telemetry or losing what they display. That is a real decision and it belongs in an
+issue, not in this branch.
+
+`CLAUDE.md`'s AdvantageScope Lite entry described this exact mechanism — two NanoHTTPD servers,
+one socket, the loser throwing on a bare thread — and named the wrong library. The mechanism was
+right. AdvScope was never installed when the hub was dying.
 
 ## For when team code comes back: `@Pinned` and native libraries
 
