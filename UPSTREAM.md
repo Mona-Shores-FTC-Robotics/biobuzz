@@ -114,5 +114,16 @@ Dashboard's presence is required to trigger it, needs someone who knows the inte
 - Not AdvantageScope Lite, which we had previously blamed for an 8080 collision; it is not in
   this APK and 8080 binds cleanly.
 
+**Configuration context, in case it narrows the repro.** Sloth itself is not unusual here —
+`com.pedropathing:tuning:1.0.1` (Pedro 3's AutoTune) declares `dev.frozenmilk.sinister:Sloth:0.3.2`
+at runtime, so every Pedro 3 team using AutoTune has the Sloth runtime. It pulls neither Panels
+nor Dashboard, though. What is unusual about this project is installing **both** Sloth-fork
+dashboards at once; most teams pick one. We had both because desktop AdvantageScope reads
+Dashboard's packet stream and we wanted it.
+
+Also worth noting: on our full dependency set, **three** artifacts declare
+`org.nanohttpd:nanohttpd-websocket:2.3.1` — Panels, Dashboard and AutoTune — alongside the SDK's
+own two servers on 8080 and 8081. The reproduction above trims that to two, which is enough.
+
 **Happy to run anything on the hub.** We have adb access and can reproduce on demand in about
 40 seconds.
