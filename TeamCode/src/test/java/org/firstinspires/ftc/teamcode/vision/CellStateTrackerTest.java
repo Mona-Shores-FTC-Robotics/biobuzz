@@ -141,4 +141,37 @@ public class CellStateTrackerTest {
         assertEquals(HiveCellState.UP, tracker.update(HiveCellState.UP, ms(0)));
         assertEquals(HiveCellState.UNKNOWN, tracker.update(null, ms(10)));
     }
+
+    /**
+     * The other half of "losing one takes a single contrary observation".
+     *
+     * <p>{@link #asingleUnknownClearsASettledState} covers a contrary UNKNOWN. This
+     * covers a contrary <em>known</em> state, which for a long time behaved
+     * differently: {@code update()} cleared {@code settled} only for UNKNOWN, so a
+     * direct UP to DOWN flip went on reporting UP until DOWN had earned three samples
+     * and 250ms of its own.
+     *
+     * <p>The usual physical tip passes through mid-tip heights that classify UNKNOWN,
+     * so {@link #aTipNeverReportsTheOldStateMidTransition} never exercised this path
+     * and the gap survived. A dropout during the tip does reach it — the cell
+     * reappears already settled the other way, with no UNKNOWN frame in between.
+     */
+    @Test
+    public void aSingleContraryObservationClearsASettledState() {
+        CellStateTracker tracker = new CellStateTracker(3, 250L);
+
+        tracker.update(HiveCellState.UP, ms(0));
+        tracker.update(HiveCellState.UP, ms(100));
+        tracker.update(HiveCellState.UP, ms(200));
+        assertEquals(HiveCellState.UP, tracker.update(HiveCellState.UP, ms(300)));
+
+        // One DOWN is enough to drop UP. It is not enough to establish DOWN — that
+        // still needs three samples and 250ms, which is the point of the asymmetry.
+        assertEquals(HiveCellState.UNKNOWN, tracker.update(HiveCellState.DOWN, ms(320)));
+        assertFalse(tracker.isSettled());
+        assertEquals(HiveCellState.DOWN, tracker.candidateState());
+
+        assertEquals(HiveCellState.UNKNOWN, tracker.update(HiveCellState.DOWN, ms(420)));
+        assertEquals(HiveCellState.DOWN, tracker.update(HiveCellState.DOWN, ms(580)));
+    }
 }
