@@ -1,0 +1,38 @@
+<component name="ProjectRunConfigurationManager">
+  <!--
+    Deletes the Sloth payload the hub is holding in
+    /storage/emulated/0/FIRST/dairy/sloth.
+
+    Sloth's own README warns that a stale payload "can make it impossible for
+    you to upload code to your robot, as the old sloth loaded code keeps
+    replacing it", and names it a common issue for teams picking up Pedro 3 in
+    the 2026-27 season. The supported fix is to run this task before every full
+    TeamCode install, as a before-launch step on the TeamCode run configuration
+    - which is per-machine IDE state and so cannot be committed here. This
+    standalone configuration is the shared fallback: run it by hand before a
+    full install, or add it to your own TeamCode configuration's Before launch
+    list, dragged to the top.
+  -->
+  <configuration default="false" name="Remove Sloth Remote" type="GradleRunConfiguration" factoryName="Gradle">
+    <ExternalSystemSettings>
+      <option name="executionName" />
+      <option name="externalProjectPath" value="$PROJECT_DIR$" />
+      <option name="externalSystemIdString" value="GRADLE" />
+      <option name="scriptParameters" value="" />
+      <option name="taskDescriptions">
+        <list />
+      </option>
+      <option name="taskNames">
+        <list>
+          <option value=":TeamCode:removeSlothRemote" />
+        </list>
+      </option>
+      <option name="vmOptions" />
+    </ExternalSystemSettings>
+    <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+    <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+    <DebugAllEnabled>false</DebugAllEnabled>
+    <RunAsTest>false</RunAsTest>
+    <method v="2" />
+  </configuration>
+</component>

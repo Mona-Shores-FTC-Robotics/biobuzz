@@ -22,7 +22,11 @@ and why — so the reasoning survives past whoever added it.
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
-| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. **Also the data path for AdvantageScope** — it reads this packet stream. |
+
+
+FTC Dashboard used to be the tenth row of that table. It is gone — not because it
+is unwanted, but because it and Panels cannot both be installed on this robot.
+See [Why FTC Dashboard is not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
 
 Limelight3A support (`com.qualcomm.hardware.limelightvision`) needs no separate
 dependency — it ships as part of the SDK's `Hardware` artifact in
@@ -536,27 +540,34 @@ connected.
 
 ### What it publishes, and where
 
-Three places at once, and you can use any of them alone:
+> **History note.** This said *three* places, the third being an FTC Dashboard
+> packet stream keyed `shooter/<lane>/…` that desktop AdvantageScope read as a
+> browsable tree. Dashboard is no longer installed — see [Why FTC Dashboard is
+> not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
+> **No measurement was lost**: the four series only Dashboard carried are now
+> published to Panels alongside the rest. The keys are flat and prefixed
+> `left_` / `center_` / `right_` rather than slash-delimited, because Panels
+> does not render a tree.
+
+Two places at once, and you can use either alone:
 
 | Where | What you get |
 |---|---|
-| **AdvantageScope** | Full tree under `shooter/`, graphable and replayable. See [AdvantageScope](#advantagescope). |
-| **Panels** | The same numbers as graphable series, plus the lane table as text |
+| **Panels** | Every series below as a graphable trace, plus the lane table as text |
 | **Driver Station** | The lane table — works with no laptop at all |
 
-Per lane, under `shooter/left/`, `shooter/center/`, `shooter/right/`:
+Per lane, prefixed `left_`, `center_`, `right_`:
 
 | Key | Why you care |
 |---|---|
-| `velocity_rpm` / `target_rpm` / `error_rpm` | The basic picture. Plot measured against target. |
-| `velocity_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
-| `power_applied` | What actually reached the motor, after voltage compensation and clipping |
-| `power_feedforward` / `power_feedback` | **The tuning signal.** See below. |
-| `current_amps` / `power_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
-| `at_speed` / `spin_up_ms` | Readiness, and time-to-first-in-tolerance |
+| `_rpm` / `_target` / `_error` | The basic picture. Plot measured against target. |
+| `_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
+| `_power` | What actually reached the motor, after voltage compensation and clipping |
+| `_ff` / `_fb` | **The tuning signal.** See below. |
+| `_amps` / `_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
+| `_at_speed` / `_spin_up_ms` | Readiness, and time-to-first-in-tolerance |
 
-Plus `shooter/battery_volts`, `shooter/voltage_multiplier`, `shooter/loop_ms`
-and `shooter/spinning`.
+Plus `battery_volts`, `voltage_multiplier`, `loop_ms` and `spinning`.
 
 ### Reading the feedforward / feedback split
 
@@ -566,10 +577,10 @@ into reading a graph.
 The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
 those two halves separately:
 
-- **`power_feedforward` should be carrying nearly all the power** once the wheel
+- **`_ff` (feedforward) should be carrying nearly all the power** once the wheel
   is at speed. That is the whole point of feedforward — it predicts the power
   needed rather than reacting to being wrong.
-- **`power_feedback` should settle near zero.** If it is doing real work at
+- **`_fb` (feedback) should settle near zero.** If it is doing real work at
   steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
   rather than raising kP.
 
@@ -894,6 +905,15 @@ readable, which is the harder case and also the more useful one.
 
 ## AdvantageScope
 
+> **Superseded, 24 Sep 2026 — read this first.** This section describes running
+> AdvantageScope on your laptop against FTC Dashboard's packet stream. **FTC
+> Dashboard is no longer installed**, so that stream does not exist and none of
+> the instructions below currently work. See [Why FTC Dashboard is not in the
+> dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set). Getting
+> AdvantageScope back is wanted and is tracked separately; the section is kept
+> because the reasoning in it is still correct about everything except whether
+> the data path exists.
+>
 > **History note.** From #38 until #56 this section told you to open AdvantageScope
 > **on the robot** at `http://192.168.43.1:8080/as/`, via the
 > `page.j5155.AdvantageScope:lite` dependency. That dependency wants port 8080,
@@ -974,6 +994,61 @@ tell you why.
 > failure — one NanoHTTPD losing a socket race — not which library is losing it.
 > The stack trace is a bare thread entry point and names nobody, so identify the
 > loser from what initialises immediately before the crash.
+
+## Why FTC Dashboard is not in the dependency set
+
+> **History note.** Everything in this file that predates 24 Sep 2026 assumes FTC
+> Dashboard is installed: the `Included` table listed it, the `shooter` package
+> published to it, and the AdvantageScope section treated it as the data path.
+> Those passages have been corrected in place where they were load-bearing, but
+> if you find one that still assumes it, this section is what supersedes it.
+
+**Panels and FTC Dashboard each work perfectly alone. With both installed, the
+Robot Controller does not start.** It crash-loops:
+
+```
+CoreRobotWebServer      started port=8080
+TooTallWebSocketServer  Started WebSocket server on port 8081
+... ~3.5 s later ...
+FATAL EXCEPTION: Thread-13
+java.net.BindException: Address already in use
+    at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1763)
+```
+
+The thread dies, the RC never reaches `Robot Status: running`, `FtcAccessPointService`
+relaunches it about ten seconds later, and it repeats until the battery comes out.
+The Driver Station shows **no heartbeat and empty OpMode lists**, which is a
+symptom that looks like a code problem and is not one.
+
+| Panels | FTC Dashboard | Result |
+|---|---|---|
+| yes | yes | crash loop |
+| yes | **no** | **boots** |
+| **no** | yes | **boots** |
+
+Established on a Control Hub v1.0 (SDK 12.0, Sloth 0.3.2, Panels
+`0.3.2+1.0.13`, Dashboard `0.3.2+0.6.0`) on 24 Sep 2026, with **no team-authored
+Java in the APK at all** — so nothing of ours is involved. It survives a cold
+boot, so it is not an install-time race. Full working in `SPIKE.md` and
+`LADDER.md` at the repo root, including the readings that were wrong on the way.
+
+**What is known about the mechanism:** port **8001** — Panels' documented port —
+is bound and then requested again *inside a single Robot Controller process*
+(`ps` shows one process, and 8001's lifetime tracks it). Neither artifact
+declares a dependency on the other; both pull
+`org.nanohttpd:nanohttpd-websocket:2.3.1` and both exclude the core `nanohttpd`,
+expecting the SDK's bundled `fi.iki.elonen` classes — which is the class in the
+crash stack. Beyond that it needs the maintainers, and it is worth reporting
+upstream to Dairy Foundation (who build both Sloth variants) and bylazar.
+
+**Why Dashboard rather than Panels was the one dropped:** seven files import
+`com.bylazar.*`; one imported `com.acmerobotics.*`. The cost was one OpMode's
+telemetry block against seven files of migration.
+
+**What this costs, and it is not nothing:** the desktop AdvantageScope stream.
+AdvantageScope reads Dashboard's packet stream, and with no Dashboard there is
+no stream to read. That is a real loss and is not meant to be permanent — see
+[AdvantageScope](#advantagescope).
 
 ## Deliberately excluded
 
