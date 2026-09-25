@@ -42,8 +42,52 @@ a capture that stops sooner proves nothing.
 |---|---|---|---|---|
 | **A** | *Exclude all team-authored Java from the build* | Sloth + Pedro + AutoTune + Panels + Dashboard, no team code, **no** AdvantageScope Lite | The locked set is fine — the cause is back in our source, bisect it | It was never our code; the fix is in the dependency set |
 | **B** | *Add AdvantageScope Lite back* | Step A **+** `page.j5155.AdvantageScope:lite:v26.0.0` | AdvScope Lite is **not** the 8080 collider — `CLAUDE.md`'s entry is wrong again | AdvScope Lite **is** the collider — #56 was right and something re-added it |
+| **C** | *Step A minus AutoTune* | Sloth + Pedro core/revhub + Ivy + CachingHardware + Panels + Dashboard | AutoTune's `TunerScanner` is what pushes boot past the watchdog timeout | Boot is slow for some other reason; measure the next-longest scanner |
 
-Run A first. B is only meaningful if A boots.
+Run A first. B is only meaningful if A boots. **C was added after A ran — see below.**
+
+## Result of step A, 24 Sep 2026
+
+> **History note.** Everything above this section was written before the step-A capture and
+> assumed a `BindException`. The capture does not support that, and the "if it crashes" column
+> for step A is the wrong dichotomy. Read the table above as the plan that was made, not as a
+> description of what is wrong.
+
+**There is no `BindException` anywhere in the step-A capture.** `CoreRobotWebServer` binds 8080
+and `TooTallWebSocketServer` binds 8081, once each, and both succeed. Nothing tries for a third
+port. Whatever produced the earlier trace, it is not reproducible on this tree.
+
+**Step A booted.** PID 19363 reached `Robot Status: running`, enumerated the whole DECODE
+hardware map (`lf`, `rb`, `pinpoint`, `launcher_*`, `limelight`, …), discovered the Driver
+Station at `192.168.43.21`, and sent `CMD_NOTIFY_OP_MODE_LIST`. It then ran for about a minute
+until an `am force-stop` killed it — that kill is Android Studio starting the next install
+(`dex2oat ... vmdl2146490354.tmp`), not a crash.
+
+What the capture *does* show, twice:
+
+| Fact | Evidence |
+|---|---|
+| The RC ANRs during boot, on the watchdog service | `ANR in com.qualcomm.ftcrobotcontroller / Reason: executing service …FtcRobotControllerWatchdogService`, at 20:50:49 and again at 20:52:17 |
+| One thread is pinned at ~100% user CPU across the ANR window | `97% 19502/default threadp` (cycle 1), `94% 20405/default threadp` (cycle 2) |
+| That thread is running AutoTune's scanner | `running scanner com.pedropathing.tuning.autotune.TunerScanner` 20:50:39.261 → `finished` 20:50:51.488 — **12.2 s**. In cycle 2 it starts at 20:52:08.068 and never logs `finished` before the process is killed 13 s later |
+| It is the only non-Sloth scanner in the boot list | Sinister's `found scanner` lines: `TunerScanner` plus twelve `dev.frozenmilk.sinister.*` ones |
+| The APK really was step A | Sloth registered only `{Basic: Omni Linear OpMode}`, `Test Gamepad`, `Test Hardware`, `Manual Control`, `Stop Robot` — none of our five |
+
+So the failure mode to chase is **slow boot, not a port collision**: Sinister's boot runs on the
+main thread and waits on its scanners, `FtcRobotControllerWatchdogService` has 20 s to return,
+and `TunerScanner` alone eats 12–19 s of that. Add team code — more classes to scan, five more
+OpModes to register — and the same boot has less headroom, which is a coherent account of *no
+heartbeat with empty OpMode lists* that needs no third NanoHTTPD at all.
+
+Two caveats worth keeping honest. The second cycle's 19 s is inflated: `dex2oat` for the
+incoming install was competing for the same four cores. And an ANR on a service start is not
+by itself fatal — cycle 1 ANR'd and still reached `running` — so the timeout is necessary but
+maybe not sufficient, and the margin is what matters.
+
+**`dev.frozenmilk.dairy:CachingHardware` is not implicated.** It appears nowhere in the
+capture: no log tag, no class-load failure, and no registered Sinister scanner. It is a thin
+wrapper around `DcMotor`/`Servo` that does nothing until an OpMode constructs one, and with no
+team code in the APK nothing ever does.
 
 ### Confirming which build is actually on the hub
 

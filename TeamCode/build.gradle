@@ -75,7 +75,13 @@ dependencies {
     // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
     // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the
     // reason the Sloth stack above is pinned to 0.3.2 (AutoTune requires it).
-    implementation('com.pedropathing:tuning:1.0.1')
+    // SPIKE ONLY — see SPIKE.md § "Step C". AutoTune installs a Sinister
+    // scanner, com.pedropathing.tuning.autotune.TunerScanner, which burned
+    // 12.2s of solid CPU during boot on the 2026-09-24 step-A capture (and was
+    // still running 13s in when the next cycle was killed). That is the only
+    // non-Sloth scanner in the boot list, and the watchdog ANR names the thread
+    // it runs on. Commented out to see whether boot stops timing out.
+    // implementation('com.pedropathing:tuning:1.0.1')
 
     // Ivy (command-based control flow). 1.1.x is the Pedro 3 pairing —
     // 1.1.1 is compiled against com.pedropathing:core:3.0.0. 1.0.1 was built
@@ -96,12 +102,6 @@ dependencies {
     // AdvantageScope at this stream. It owns port 8080 — see the README before
     // adding anything else that binds a port.
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
-
-    // SPIKE ONLY — see SPIKE.md. Re-added exactly as de00ee4 removed it, to
-    // test whether this is the third NanoHTTPD that fails to bind. It hosts
-    // AdvantageScope on the robot at http://192.168.43.1:8080/as/ , which is
-    // the port FTC Dashboard above already owns.
-    implementation("page.j5155.AdvantageScope:lite:v26.0.0")
 
     testImplementation 'junit:junit:4.13.2'
 }
