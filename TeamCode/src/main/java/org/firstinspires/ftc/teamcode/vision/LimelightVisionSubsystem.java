@@ -159,8 +159,16 @@ public class LimelightVisionSubsystem {
             if (nowMs - lastPollMs < Tuning.pollIntervalMs) return;
             lastPollMs = nowMs;
 
-            poll();
+            // Expire first. poll() overwrites a cell's sighting in place, so a
+            // stale entry polled in the same tick would look fresh by the time
+            // expireStaleSightings() saw it — and its tracker would never be
+            // reset. The pre-blackout candidate run would then be extended by
+            // the new observation instead of restarted, handing back a settled
+            // UP or DOWN with none of the three-sample dwell re-earned. Only
+            // reachable when a tick is missed across the expiry window (a loop
+            // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
+            poll();
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -246,9 +254,17 @@ public class LimelightVisionSubsystem {
 
     private void expireStaleSightings() {
         long cutoffNs = System.nanoTime() - Tuning.sightingExpiryMs * 1_000_000L;
-        Iterator<CellSighting> it = sightings.values().iterator();
+        Iterator<Map.Entry<HiveCell, CellSighting>> it = sightings.entrySet().iterator();
         while (it.hasNext()) {
-            if (it.next().captureTimeNs() < cutoffNs) it.remove();
+            Map.Entry<HiveCell, CellSighting> entry = it.next();
+            if (entry.getValue().captureTimeNs() < cutoffNs) {
+                // A cell that has not been observed recently must not retain its
+                // previous settled state. Otherwise state(cell) could report UP
+                // or DOWN indefinitely after the robot turns away from the cell.
+                CellStateTracker tracker = stateTrackers.get(entry.getKey());
+                if (tracker != null) tracker.reset();
+                it.remove();
+            }
         }
     }
 
@@ -275,6 +291,12 @@ public class LimelightVisionSubsystem {
      * <p>A field pose must not be derived from a cell reporting UNKNOWN.
      */
     public HiveCellState state(HiveCell cell) {
+        CellSighting sighting = sightings.get(cell);
+        if (sighting == null
+                || sighting.ageMs() > Tuning.sightingExpiryMs) {
+            return HiveCellState.UNKNOWN;
+        }
+
         CellStateTracker tracker = stateTrackers.get(cell);
         return tracker == null ? HiveCellState.UNKNOWN : tracker.settledState();
     }
