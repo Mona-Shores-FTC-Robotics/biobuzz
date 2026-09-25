@@ -1107,6 +1107,29 @@ Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not ava
 circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
 the honest shape rather than a compromise.
 
+### Bringing the field view up on a robot
+
+In order. Most of a lost morning is steps 1 and 2.
+
+| # | Do | If it goes wrong |
+|---|---|---|
+| 1 | Deploy with the **TeamCode** run config, not Sloth Load | This branch changes `build.gradle`. Sloth Load hot-reloads classes only, so the robot keeps the old dependency set and every symptom below is a lie |
+| 2 | If the upload hangs or is refused, run **Remove Sloth Remote**, then deploy again | A stale payload in `/storage/emulated/0/FIRST/dairy/sloth` can make upload impossible. Sloth's own README calls this common this season |
+| 3 | Power-cycle. Wait for the RC to reach `Robot Status: running` and the DS to show a heartbeat | No heartbeat and empty OpMode lists means the `BindException` crash loop is back — check that nothing re-added FTC Dashboard, and that step 1 was a full install |
+| 4 | Laptop onto the robot's Wi-Fi → `http://192.168.43.1:8001` → Field plugin | Port **8001**, not 8080. 8080 is the SDK's own web server and will happily serve you an unrelated page |
+| 5 | Run **Loop Time Baseline**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
+| 6 | Look for the white cross at field centre | Visible means canvas, background and coordinate frame are all fine. Absent with frames climbing means the browser, not the robot |
+| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
+
+**Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
+offsets and directions in `Constants.localizerConfig` are still zeros and placeholders. A dot that
+moves but drifts, or strafes when you push forward, or spins the wrong way, is the *expected* state
+before the Pinpoint Tuner runs — it is the thing the field view exists to show you. The field view
+is working as soon as the dot responds to the robot moving at all.
+
+That is also the order to work in: field view up first, *then* tune, because watching the dot is how
+you tell whether the offsets you just pasted in were right.
+
 ### Loop time: `LoopTimeBaseline`
 
 The reference TeleOp, under **Diagnostics**. It does the four things every real loop does — read

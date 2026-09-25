@@ -48,6 +48,10 @@ import org.firstinspires.ftc.teamcode.util.WelfordVariance;
  * <p>Graph the {@code loop_*} keys in Panels rather than reading them as text — a stall is obvious
  * as a spike and nearly invisible as a number that flickers once.
  *
+ * <p>{@code field_frames_sent} is the one to check first if the field view looks dead, and the
+ * white cross at field centre is the second: between them they say whether the drawing path works,
+ * which is otherwise indistinguishable from a pose stuck at the origin.
+ *
  * <h2>Controls</h2>
  *
  * <ul>
@@ -75,6 +79,15 @@ public class LoopTimeBaseline extends LinearOpMode {
     private final WelfordVariance driveCostMs = new WelfordVariance();
     private final WelfordVariance fieldCostMs = new WelfordVariance();
     private final WelfordVariance telemetryCostMs = new WelfordVariance();
+
+    /**
+     * Frames actually pushed to the field view.
+     *
+     * <p>Published as {@code field_frames_sent}, and it is the first thing to look at when the
+     * field view looks dead. Climbing means the drawing path works and the problem is the pose or
+     * the browser; stuck at zero means it is the drawing path.
+     */
+    private int fieldFrames = 0;
 
     @Override
     public void runOpMode() {
@@ -126,8 +139,10 @@ public class LoopTimeBaseline extends LinearOpMode {
             // Skipped on roughly nineteen loops in twenty; see FieldView for why that is
             // deliberate rather than a sampling shortcut.
             if (fieldView.shouldDraw()) {
+                fieldView.drawCentreReference();
                 fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
                 fieldView.send();
+                fieldFrames++;
             }
             long t3 = System.nanoTime();
 
@@ -138,6 +153,7 @@ public class LoopTimeBaseline extends LinearOpMode {
 
             if (gamepad1.back && !lastBack) {
                 loop.reset();
+                fieldFrames = 0;
                 odometryCostMs.reset();
                 driveCostMs.reset();
                 fieldCostMs.reset();
@@ -179,6 +195,7 @@ public class LoopTimeBaseline extends LinearOpMode {
         panels.addData("cost_drive_ms", driveCostMs.mean());
         panels.addData("cost_field_ms", fieldCostMs.mean());
         panels.addData("cost_telemetry_ms", telemetryCostMs.mean());
+        panels.addData("field_frames_sent", fieldFrames);
 
         if (localized) {
             panels.addData("pose_x_in", pose.x());

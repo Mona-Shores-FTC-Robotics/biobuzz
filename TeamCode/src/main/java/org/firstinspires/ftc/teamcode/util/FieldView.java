@@ -43,6 +43,12 @@ import com.bylazar.field.PanelsField;
  *
  * <p>Drawing is skipped entirely on most loops, which is also why field view costs almost nothing
  * in {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ *
+ * <h2>The background is already the right one</h2>
+ *
+ * <p>Panels ships a BIOBUZZ field image and, as of {@code field 0.3.2+1.0.7}, uses its dark variant
+ * as the default background. Nothing needs setting. ({@code FieldImages} also still carries last
+ * season's DECODE field, if a rig ever wants it.)
  */
 public final class FieldView {
 
@@ -55,6 +61,16 @@ public final class FieldView {
      * and a circle plus a heading line is the honest thing to draw instead.
      */
     public static final double ROBOT_RADIUS_INCHES = 9.0;
+
+    /**
+     * Field centre in Pedro's frame, in inches.
+     *
+     * <p>Pedro puts the origin at a corner and runs 0..144 on both axes. Panels' {@code
+     * PEDRO_PATHING} preset is what converts that to its own centre-origin frame — it offsets by
+     * (-72, -72), rotates 90° and flips Y. Poses go in as Pedro reports them; nothing here needs
+     * converting.
+     */
+    public static final double FIELD_CENTRE_INCHES = 72.0;
 
     private final FieldManager field;
     private final double robotRadius;
@@ -99,6 +115,22 @@ public final class FieldView {
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 1.0);
         field.moveCursor(x, y);
         field.line(x + robotRadius * Math.cos(heading), y + robotRadius * Math.sin(heading));
+    }
+
+    /**
+     * A fixed cross at field centre, for telling "the field view is broken" from "the pose is
+     * wrong".
+     *
+     * <p>Those two look identical when the pose is stuck at the origin, which is exactly what
+     * happens with no odometry pod fitted. If this cross is on screen, the canvas, the background
+     * and the coordinate frame are all working and the problem is upstream in the pose.
+     */
+    public void drawCentreReference() {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 0.5);
+        field.moveCursor(FIELD_CENTRE_INCHES - 4.0, FIELD_CENTRE_INCHES);
+        field.line(FIELD_CENTRE_INCHES + 4.0, FIELD_CENTRE_INCHES);
+        field.moveCursor(FIELD_CENTRE_INCHES, FIELD_CENTRE_INCHES - 4.0);
+        field.line(FIELD_CENTRE_INCHES, FIELD_CENTRE_INCHES + 4.0);
     }
 
     /** Marks a point — a path target, a detected game element, wherever you were aiming. */
