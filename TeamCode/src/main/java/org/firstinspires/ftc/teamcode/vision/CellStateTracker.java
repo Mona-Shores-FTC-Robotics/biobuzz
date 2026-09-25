@@ -148,10 +148,18 @@ public class CellStateTracker {
             candidateSamples++;
         }
 
-        if (observed == HiveCellState.UNKNOWN) {
-            // Distrust immediately: a cell we cannot classify is a cell we must not
-            // localize against, even if it was settled a moment ago.
+        // Distrust immediately: any observation that disagrees with the settled state
+        // drops it. That covers UNKNOWN — a cell we cannot classify is a cell we must
+        // not localize against, even if it was settled a moment ago — and equally the
+        // opposite state, which is what a tip looks like when its mid-transition
+        // frames were missed. Re-establishing a state always goes back through the
+        // sample and dwell requirements below, so this is the "quick to distrust"
+        // half of the asymmetry and nothing short-circuits the "slow to trust" half.
+        if (observed != settled) {
             settled = HiveCellState.UNKNOWN;
+        }
+
+        if (observed == HiveCellState.UNKNOWN) {
             return settled;
         }
 
