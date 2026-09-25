@@ -3,44 +3,27 @@ apply plugin: 'com.android.application'
 //
 // build.gradle in TeamCode
 //
-// Most of the definitions for building your module reside in a common, shared
-// file 'build.common.gradle'. Being factored in this way makes it easier to
-// integrate updates to the FTC into your code. If you really need to customize
-// the build definitions, you can place those customizations in this file, but
-// please think carefully as to whether such customizations are really necessary
-// before doing so.
+// LADDER BRANCH — see LADDER.md at the repo root.
+//
+// This file is generated one rung at a time. Each rung is a commit that adds
+// exactly one library to the one before it. Install a rung with the TeamCode
+// run configuration, watch the hub, record pass or fail, move to the next.
+//
+// It is not master's build.gradle and is not for merging. The per-dependency
+// rationale comments that belong here live on master; they were stripped so
+// that the only difference between two rungs is the dependency being tested.
+//
 
-// Sloth Load plugin — enables Sinister fast dex scanning at OpMode discovery
-// time (~50% faster init vs. plain FTC SDK reflective scanning). Required for
-// the Sloth runtime dependency below to function. Must stay version-locked to
-// the Sloth runtime and to the Sloth-variant builds of Panels / FTC Dashboard;
-// see TeamCode/README.md.
-buildscript {
-    repositories {
-        mavenCentral()
-        google() // Load 0.3.2 pulls com.android.tools.build:gradle transitively
-        maven {
-            url "https://repo.dairy.foundation/releases"
-        }
-    }
-    dependencies {
-        classpath "dev.frozenmilk:Load:0.3.2"
-    }
-}
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
-apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
-    // SPIKE ONLY — see SPIKE.md at the repo root. Points the Java source sets
-    // at a directory that does not exist, so the APK is built from the locked
-    // dependency set and nothing of ours. Every team-authored file is still on
-    // disk and still tracked by git; only the compiler stops seeing them.
-    // Deleting this sourceSets block restores the normal build.
+    // No team-authored Java compiles until rung 8. Every file is still on disk
+    // and still tracked by git; only the compiler stops seeing them.
     sourceSets {
         main.java.srcDirs = ['src/spike/no-team-code']
         test.java.srcDirs = []
@@ -60,55 +43,14 @@ repositories {
 dependencies {
     implementation project(':FtcRobotController')
 
-    // Sloth runtime — Sinister fast dex scanning. Paired with the Sloth Load
-    // Gradle plugin applied above.
-    implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
-
-    // Pedro Pathing 3.x. The 2.x `com.pedropathing:ftc` fat artifact no longer
-    // exists: 3.x splits into `core` (pure Java pathing/math, no Android or FTC
-    // SDK types) and `revhub` (the REV hardware layer — drivetrains, localizers,
-    // IMU). `revhub` already brings `core` transitively; `core` is declared
-    // explicitly so its version is pinned here rather than inherited.
-    implementation('com.pedropathing:core:3.0.1')
-    implementation('com.pedropathing:revhub:3.0.1')
-
-    // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
-    // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the
-    // reason the Sloth stack above is pinned to 0.3.2 (AutoTune requires it).
-    // SPIKE ONLY — see SPIKE.md § "Step C". AutoTune installs a Sinister
-    // scanner, com.pedropathing.tuning.autotune.TunerScanner, which burned
-    // 12.2s of solid CPU during boot on the 2026-09-24 step-A capture (and was
-    // still running 13s in when the next cycle was killed). That is the only
-    // non-Sloth scanner in the boot list, and the watchdog ANR names the thread
-    // it runs on. Commented out to see whether boot stops timing out.
-    // implementation('com.pedropathing:tuning:1.0.1')
-
-    // Ivy (command-based control flow). 1.1.x is the Pedro 3 pairing —
-    // 1.1.1 is compiled against com.pedropathing:core:3.0.0. 1.0.1 was built
-    // against Pedro 2 and will not link against the 3.x classes.
-    implementation('com.pedropathing.ivy:pedro:1.1.1')
-
-    // Dairy CachingHardware: wraps motors/servos to skip redundant
-    // setPower/setPosition calls when the new value is within tolerance of
-    // the cached one.
-    implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
-
-    // Panels — Sloth-compatible variant (replaces com.bylazar:fullpanels)
-    // SPIKE ONLY — see SPIKE.md § "Step D". The step-C capture crashes twice
-    // with java.net.BindException on Thread-13, ~1.2s after the JIT compiles
-    // com.bylazar.panels.plugins.PluginsManager.init, while 8080 and 8081 are
-    // already bound and healthy. Panels is the only remaining thing in the APK
-    // that stands up its own NanoHTTPD. Normally this line cannot be removed
-    // because seven team files import com.bylazar.* — but no team source
-    // compiles in this tree, so here it costs nothing.
-    // implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
-
-    // FTC Dashboard — Sloth-compatible variant (replaces
-    // com.acmerobotics.dashboard:dashboard). Kept alongside Panels for passive
-    // monitoring, and it is what AdvantageScope reads: point desktop
-    // AdvantageScope at this stream. It owns port 8080 — see the README before
-    // adding anything else that binds a port.
-    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+    // rung 1: implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
+    // rung 2: implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+    // rung 3: implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+    // rung 4: implementation('com.pedropathing:core:3.0.1')
+    // implementation('com.pedropathing:revhub:3.0.1')
+    // rung 5: implementation('com.pedropathing.ivy:pedro:1.1.1')
+    // rung 6: implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
+    // rung 7: implementation('com.pedropathing:tuning:1.0.1')
 
     testImplementation 'junit:junit:4.13.2'
 }
