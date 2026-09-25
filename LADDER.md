@@ -8,7 +8,8 @@ This goes bottom-up instead. Rung 0 is the stock SDK and nothing else. Each rung
 one library to the rung before it. The first rung that fails names the library, and the rung
 before it proves everything underneath is fine.
 
-**Start with rung 2.** Not rung 0 — rung 2. See "Start here" below.
+**Rung 2 passed.** Panels alone boots and holds both ports steadily. The fault is Panels
+**together with** FTC Dashboard. Rung 3 is the confirming install — see "Where this stands".
 
 ## The rungs
 
@@ -20,7 +21,7 @@ between rungs), wait 90 s, record the result.
 |---|---|---|---|---|
 | **0** | `1167036` | stock SDK only | | |
 | **1** | `e4bd21b` | + Sloth runtime and Load plugin | | |
-| **2** | `f2ad429` | + Panels (no Dashboard) | | |
+| **2** | `f2ad429` | + Panels (no Dashboard) | **YES** | 8001 and 8080 both held continuously, 24 Sep 2026 |
 | **3** | `d129b48` | + FTC Dashboard (both present) | | |
 | **4** | `7ddea32` | + Pedro core and revhub | | |
 | **5** | `9c1fd59` | + Ivy | | |
@@ -30,18 +31,29 @@ between rungs), wait 90 s, record the result.
 
 No team-authored Java compiles until rung 8, so nothing of ours can be blamed for rungs 0–7.
 
-## Start here: rung 2
+## Where this stands: rung 2 passed, rung 3 is next
 
 Every test the spike ran had FTC Dashboard present. Step D removed Panels and kept Dashboard.
 **Panels without Dashboard was never tried**, and it is the most informative single install
 available:
 
-| Rung 2 result | What it means | Next |
-|---|---|---|
-| **Boots** | Panels alone is fine. The fault is the Panels + Dashboard pair, or the order they initialise in. | Rung 3 confirms it, and that is a precise upstream bug report. |
-| **Crash loop** | Panels alone is enough to do it, with nothing else present. | Rung 1 confirms Sloth alone is fine, and it is a precise upstream bug report. |
+**Result, 24 Sep 2026: rung 2 boots.** Sampling `netstat` once a second showed `:::8001` and
+`:::8080` both `LISTEN` on every sample with no gaps. In the failing configuration 8080 appears
+for ~4 s of each ~40 s cycle and 8001 for ~9 s; here both are simply steady.
 
-Either answer is a lead. There is no outcome where rung 2 tells you nothing.
+So Panels alone is not the fault. Panels binds 8001, keeps it, and the Robot Controller lives.
+
+**Rung 3 (`d129b48`) adds FTC Dashboard and nothing else.** If it crash-loops, the reproduction
+is two dependencies on an APK with no team code:
+
+```groovy
+implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
+implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+```
+
+That is small enough for a maintainer to reproduce in one sitting, which is the whole point of
+the ladder. If rung 3 *passes*, the fault is further up and rungs 4–7 find it the same way.
 
 ## Running a rung
 
