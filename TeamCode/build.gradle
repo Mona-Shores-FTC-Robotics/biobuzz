@@ -36,6 +36,16 @@ apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
+    // SPIKE ONLY — see SPIKE.md at the repo root. Points the Java source sets
+    // at a directory that does not exist, so the APK is built from the locked
+    // dependency set and nothing of ours. Every team-authored file is still on
+    // disk and still tracked by git; only the compiler stops seeing them.
+    // Deleting this sourceSets block restores the normal build.
+    sourceSets {
+        main.java.srcDirs = ['src/spike/no-team-code']
+        test.java.srcDirs = []
+    }
+
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
