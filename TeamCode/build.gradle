@@ -97,5 +97,11 @@ dependencies {
     // adding anything else that binds a port.
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 
+    // SPIKE ONLY — see SPIKE.md. Re-added exactly as de00ee4 removed it, to
+    // test whether this is the third NanoHTTPD that fails to bind. It hosts
+    // AdvantageScope on the robot at http://192.168.43.1:8080/as/ , which is
+    // the port FTC Dashboard above already owns.
+    implementation("page.j5155.AdvantageScope:lite:v26.0.0")
+
     testImplementation 'junit:junit:4.13.2'
 }
