@@ -14,10 +14,24 @@ apply plugin: 'com.android.application'
 // that the only difference between two rungs is the dependency being tested.
 //
 
+buildscript {
+    repositories {
+        mavenCentral()
+        google()
+        maven {
+            url "https://repo.dairy.foundation/releases"
+        }
+    }
+    dependencies {
+        classpath "dev.frozenmilk:Load:0.3.2"
+    }
+}
+
 
 // Include common definitions from above.
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
+apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
@@ -43,7 +57,7 @@ repositories {
 dependencies {
     implementation project(':FtcRobotController')
 
-    // rung 1: implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
+    implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
     // rung 2: implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
     // rung 3: implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
     // rung 4: implementation('com.pedropathing:core:3.0.1')
