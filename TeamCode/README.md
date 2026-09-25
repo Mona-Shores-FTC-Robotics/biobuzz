@@ -896,9 +896,17 @@ readable, which is the harder case and also the more useful one.
 
 > **History note.** From #38 until #56 this section told you to open AdvantageScope
 > **on the robot** at `http://192.168.43.1:8080/as/`, via the
-> `page.j5155.AdvantageScope:lite` dependency. **That combination bricks the Robot
-> Controller** — see below. The dependency is gone. AdvantageScope still works;
-> it runs on your laptop instead.
+> `page.j5155.AdvantageScope:lite` dependency. That dependency wants port 8080,
+> which FTC Dashboard already binds — see below. It is gone. AdvantageScope still
+> works; it runs on your laptop instead.
+>
+> **Correction, same day.** #56 was first written up as the *cause* of a Control
+> Hub that would not start. It was not. With the dependency removed and a full
+> reinstall confirmed on the hub, the Robot Controller kept dying in the same
+> `BindException` restart loop. Two NanoHTTPD servers wanting 8080 is a real
+> conflict and the removal stands on that alone — but it did not fix the outage,
+> and the cause of that outage was still open when this was written. Do not read
+> the section below as a closed case.
 
 Run AdvantageScope on a laptop and point it at the robot's **FTC Dashboard**
 stream. It is not automatic — you have to tell it where the robot is and which
@@ -958,6 +966,15 @@ FTC Dashboard, or move one of them to another port. Do not just re-add the
 dependency; it will take the robot down the same way, and the symptom will not
 tell you why.
 
+> **What this section does and does not establish.** The port-8080 collision is
+> real and is reason enough to keep the dependency out. What is *not* established
+> is that it caused the September 2026 outage: the same `BindException` loop
+> continued after the dependency was removed and the hub fully reinstalled. If
+> you are debugging a "no heartbeat" RC, this page tells you the shape of the
+> failure — one NanoHTTPD losing a socket race — not which library is losing it.
+> The stack trace is a bare thread entry point and names nobody, so identify the
+> loser from what initialises immediately before the crash.
+
 ## Deliberately excluded
 
 - **NextFTC** — the previous command framework. Migrated off it onto Ivy;
@@ -980,9 +997,11 @@ tell you why.
   on the Driver Station. Desktop AdvantageScope covers the same workflow with
   no port to fight over.
   *History:* this entry originally said to add it back "only if that debugging
-  workflow is actually resumed"; #38 did exactly that and #56 took it out after
-  it killed a robot mid-meeting. Both reversals are kept visible rather than
-  overwritten. Re-adding it needs the port collision solved first.
+  workflow is actually resumed"; #38 did exactly that, and #56 took it back out
+  on the port collision. #56 was initially written up as the fix for a dead
+  Control Hub — it was not; the RC kept crashing identically once it was gone.
+  Both reversals are kept visible rather than overwritten. Re-adding it needs the
+  port collision solved first.
 - **`exportPaths` Gradle task** — a nice-to-have that exports autonomous
   paths as `.pp` files for the Pedro Pathing visualizer. Not added here
   because it depends on a `util.ExportAutoPaths` utility class that doesn't
