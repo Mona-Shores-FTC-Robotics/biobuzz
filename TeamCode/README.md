@@ -1023,7 +1023,7 @@ server, which is still there and still serves the RC's own pages.
 |---|---|---|
 | Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
 | Text lines | Telemetry | same manager → `debug(line)` |
-| Robot pose and paths | Field View | Pedro's `Drawing` / `Follower.telemetryDebug()` — **not wired up here yet** |
+| Robot pose and paths | Field View | `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
 | Replay a run afterwards | Capture | browser-side, nothing to write |
 | Start/stop OpModes from the laptop | OpMode Control | browser-side |
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
@@ -1031,6 +1031,12 @@ server, which is still there and still serves the RC's own pages.
 Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
 `try`/`catch` that swallows. `FlywheelSpeedTestOpMode.publishPanels()` is the reference
 implementation: telemetry must never take a mechanism down mid-run.
+
+**`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
+SDK's `Telemetry` and mirrors the same lines to the Driver Station, so one set of `addData` calls
+feeds the graph on the laptop and the text on the phone. `LoopTimeBaseline.publish()` uses it.
+There is no reason to maintain two parallel sets of telemetry calls, and the older OpModes that do
+predate this being known.
 
 Keys are flat strings. Panels does not render a `a/b/c` key tree the way AdvantageScope did, so
 prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
@@ -1065,15 +1071,84 @@ Three things that will cost you a meeting if you forget them:
   use the local afterwards — you will be reading the value from before the edit, and it will
   look like the edit did nothing.
 
-### What is not wired up yet
+### The Field view, and why Pedro's drawing helper is not how we get there
+
+> **History note, 25 Sep 2026 — this section replaces a wrong one.** For a few hours this file said
+> "Pedro 3 ships a `Drawing` class that prepares Panels Field in Pedro units, and
+> `Follower.telemetryDebug()` uses it", and listed calling it as the work to do. That class is not
+> in anything we depend on. It was written from Pedro's documentation rather than from the jars.
+
+`Drawing` and `Follower.telemetryDebug()` live in **`com.pedropathing:telemetry`**, which is on the
+[deliberately excluded](#deliberately-excluded) list — still published at `1.0.0`, never updated for
+Pedro 3. Checked by listing every class in `core-3.0.1`, `revhub-3.0.1`, `tuning-1.0.1`,
+`ivy:core-1.1.1` and `ivy:pedro-1.1.1`: no `Drawing`, and no reference to Panels anywhere in the
+set. So the choice was re-adding an excluded, Pedro-2-era dependency, or drawing two shapes
+ourselves.
+
+Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
+`FieldPresets.PEDRO_PATHING` is one of its four built-in presets, next to the default FTC and Road
+Runner frames, so the conversion Pedro's helper would have done is done by a library we already
+have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
+
+**The throttle is the part that will bite you.** `FieldManager.update()` sends only when
+`canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
+done *nothing*, and that includes not clearing the canvas, so shapes added since the last send stay
+in the list. A 200 Hz loop that draws unconditionally ships twenty overlapping robots in one
+canvas. Gate on `shouldDraw()`:
+
+```java
+if (fieldView.shouldDraw()) {
+    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+    fieldView.send();
+}
+```
+
+Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
+circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
+the honest shape rather than a compromise.
+
+### Loop time: `LoopTimeBaseline`
+
+The reference TeleOp, under **Diagnostics**. It does the four things every real loop does — read
+gamepads, read odometry, write motor powers, publish telemetry — and times each separately, so a
+regression next month points at a culprit instead of at "the loop".
+
+| Key | What it is for |
+|---|---|
+| `loop_hz`, `loop_mean_ms` | The headline. Note it at the start of a build session and again at the end. |
+| `loop_max_ms` | Stalls. A 4 ms loop with one 180 ms hitch per match loses a path segment and moves the mean by almost nothing. |
+| `loop_sd_ms` | Separates "steady but slow" (usually a blocking read to cache) from "fast but spiky" (usually GC). |
+| `loop_slow_pct` | Fraction of loops over 10 ms. Over a whole match, 2% and 40% are different problems. |
+| `cost_odometry_ms`, `cost_drive_ms`, `cost_field_ms`, `cost_telemetry_ms` | Where the time went. |
+
+Graph these rather than reading them as text — a stall is obvious as a spike and nearly invisible
+as a number that flickers once.
+
+Two design decisions worth knowing before you change it:
+
+- **It does not use the follower.** `Constants.create()` needs Foresight, and
+  `Constants.createAlgorithm()` deliberately throws until the Foresight Tuner has run. A baseline
+  OpMode that cannot init on an untuned robot is useless in September. This one takes the
+  drivetrain and localizer directly and drives open-loop, which also makes it the right tool
+  *during* Pinpoint tuning — the field view shows whether the offsets you just pasted track when
+  you push the robot around.
+- **Missing hardware degrades it rather than stopping it.** No Pinpoint means no pose, but the
+  loop is still measurable. `ValidateHardware` is the OpMode whose job is to name what is missing.
+
+The statistics live in `util/LoopTimer.java`, which has no SDK dependency and is unit-tested
+against a fake clock. The rule that test exists to protect: the first `lap()` records nothing,
+because the interval spanning init is usually the largest of the run and would own `maxMs()`
+permanently.
+
+### What is still not wired up
 
 Recorded here so it is a choice rather than a surprise:
 
 | Gap | Cost |
 |---|---|
-| Only `FlywheelSpeedTestOpMode` publishes to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
-| Nothing draws the Field View. Pedro 3 ships a `Drawing` class that prepares Panels Field in Pedro units, and `Follower.telemetryDebug()` uses it. | Path tuning has no visual, which is the main reason Field View exists. |
-| No shared helper, so each OpMode publishes in its own style. | Key names and update cadence will drift between OpModes. |
+| Only `FlywheelSpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
+| No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
 
 ## Why FTC Dashboard is not in the dependency set
 
@@ -1139,6 +1214,13 @@ no stream to read. That is a real loss and is not meant to be permanent — see
   forward; if a file needs it, port that file to the current telemetry API
   instead of re-adding the dependency. (It still exists on Maven Central at
   `1.0.0` and was never updated for Pedro 3.)
+
+  **Also, 25 Sep 2026:** this is where Pedro's `Drawing` class and
+  `Follower.telemetryDebug()` live, which is the reason someone will reach for
+  it. They are not worth the dependency: Panels ships a `PEDRO_PATHING` field
+  preset, so the coordinate conversion is already available, and
+  `util/FieldView.java` does the drawing in about forty lines. See [The Field
+  view](#the-field-view-and-why-pedros-drawing-helper-is-not-how-we-get-there).
 - **Road Runner / `maven.brott.dev`** — not in use; the maven repo isn't
   declared here to avoid an unused, unexplained entry.
 - **Marrow** (`io.github.skeleton-army.marrow`) — a newer reactive-behavior

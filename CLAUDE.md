@@ -11,8 +11,8 @@ one repo. This is a fork of the stock `FtcRobotController` SDK project.
 > for a few hours it told sessions not to look for code that existed. Treat anything you remember
 > along those lines as stale.
 
-**There is robot code now** — roughly 3,200 team-authored Java lines, six registered OpModes and
-six unit test classes.
+**There is robot code now** — roughly 3,600 team-authored Java lines, seven registered OpModes and
+seven unit test classes.
 
 | Package | What it is |
 |---|---|
@@ -21,7 +21,7 @@ six unit test classes.
 | `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
 | `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
 | `opmodes/` | Ours, including `ValidateHardware` and the vision calibration OpModes |
-| `util/`, `src/test/` | Shared helpers; six test classes, run by CI |
+| `util/`, `src/test/` | Shared helpers — `LoopTimer`, `FieldView`, `WelfordVariance`, `Alliance`; seven test classes, run by CI |
 
 **Do not edit** `pedro/procedures/**` or `FtcRobotController/` — both are upstream and get re-copied
 wholesale. That rule has exactly one hole, named above: `Constants.java` and `Tuning.java`.
