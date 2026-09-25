@@ -422,7 +422,7 @@ and reached from an OpMode that extends `RobotOpMode`. Four files carry the whol
 | `subsystems/Subsystem.java` | The contract: `initialize()`, `update()`, `stop()`, plus a `default periodic()` you get free |
 | `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
 | `Robot.java` | The parts list — every subsystem, built once |
-| `opmodes/RobotOpMode.java` | The base OpMode. Builds `Robot`, runs the scheduler, shuts down |
+| `opmodes/RobotOpMode.java` | The base OpMode. Sets `MANUAL` bulk caching and clears it each loop, builds `Robot`, runs the scheduler, shuts down |
 
 The point is not elegance, it is having an answer to *"where does my code go?"*. Adding a method
 to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.

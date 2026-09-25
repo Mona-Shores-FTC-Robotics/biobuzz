@@ -1,10 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.pedropathing.ivy.Scheduler;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+
+import java.util.List;
 
 /**
  * The base class for OpModes that drive the whole robot. It builds the {@link Robot}, runs the Ivy
@@ -31,6 +34,17 @@ import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
  * <p>{@code robot} is already built by the time {@link #onInit()} runs, every subsystem has been
  * initialized, and every subsystem is being stepped. You do not call {@code Scheduler.reset()},
  * {@code Scheduler.execute()} or {@code robot.stop()} anywhere — that is what this class is for.
+ *
+ * <h2>Bulk caching is handled here — do not touch it</h2>
+ *
+ * <p>Every hub is put in {@code MANUAL} bulk caching mode before the robot is built, and the cache
+ * is cleared at the top of every {@code init_loop()} and {@code loop()}, before any of your code or
+ * any subsystem runs. So all the encoder, velocity and digital reads in one loop cost one trip to
+ * each hub instead of one trip per read.
+ *
+ * <p>Do not set a caching mode in a subclass, and do not clear the cache yourself. {@code MANUAL}
+ * without a clear returns the same stale values forever and does not complain; having exactly one
+ * place that does both is what makes that mistake impossible.
  *
  * <h2>Why this exists</h2>
  *
@@ -89,6 +103,9 @@ public abstract class RobotOpMode extends OpMode {
      */
     private boolean schedulerInUse;
 
+    /** Every hub, so the cache can be cleared each loop without looking them up again. */
+    private List<LynxModule> hubs;
+
     // ------------------------------------------------------------------ hooks
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -125,6 +142,12 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void init() {
+        // Before the robot is built, so nothing a subsystem reads during init is uncached.
+        hubs = hardwareMap.getAll(LynxModule.class);
+        for (LynxModule hub : hubs) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+        }
+
         robot = new Robot(hardwareMap);
         robot.initialize();
 
@@ -143,6 +166,7 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void init_loop() {
+        clearBulkCache();
         if (schedulerInUse) {
             Scheduler.execute();
         }
@@ -156,6 +180,7 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void loop() {
+        clearBulkCache();
         if (schedulerInUse) {
             Scheduler.execute();
         }
@@ -173,5 +198,15 @@ public abstract class RobotOpMode extends OpMode {
             robot.stop();
         }
         Scheduler.reset();
+    }
+
+    /**
+     * Throw away last loop's hub reads, so the next read fetches fresh values. First thing in every
+     * loop, before the scheduler or any subsystem reads anything.
+     */
+    private void clearBulkCache() {
+        for (LynxModule hub : hubs) {
+            hub.clearBulkCache();
+        }
     }
 }
