@@ -1,15 +1,13 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.ivy.Scheduler;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.CellStateTracker;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
-import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 
 /**
  * Live view of every HIVE CELL the camera can see, in robot-frame terms.
@@ -42,46 +40,21 @@ import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
  */
 @TeleOp(name = "Vision: Sighting Diagnostics", group = "Vision")
 @Configurable
-public class VisionSightingDiagnostics extends OpMode {
+public class VisionSightingDiagnostics extends RobotOpMode {
 
     /** Optional ground-truth range, inches, for a quick accuracy read. Zero disables. */
     public static double expectedRangeIn = 0.0;
 
-    private LimelightVisionSubsystem vision;
-
     @Override
-    public void init() {
-        vision = new LimelightVisionSubsystem(hardwareMap);
-        vision.initialize();
-
-        Scheduler.reset();
-        Scheduler.schedule(vision.periodic());
-
-        telemetry.addLine("=== Sighting Diagnostics ===");
-        if (!vision.isAvailable()) {
-            telemetry.addLine("LIMELIGHT NOT FOUND");
-            telemetry.addData("Reason", vision.unavailableReason());
-        } else {
-            telemetry.addLine("Set CameraMount.* in Panels to match the real mounting.");
-            telemetry.addLine("Set expectedRangeIn to compare against a tape measure.");
-        }
-        telemetry.update();
+    protected void onInit() {
+        VisionTelemetry.addBanner(telemetry, robot.vision, "Sighting Diagnostics",
+                "Set CameraMount.* in Panels to match the real mounting.",
+                "Set expectedRangeIn to compare against a tape measure.");
     }
 
     @Override
-    public void init_loop() {
-        Scheduler.execute();
-    }
-
-    @Override
-    public void loop() {
-        Scheduler.execute();
-
-        telemetry.addData("Camera", vision.isAvailable() ? vision.state() : "UNAVAILABLE");
-        telemetry.addData("Fresh frames", vision.freshResultCount());
-        telemetry.addData("3D poses missing", vision.framesMissing3dPose());
-        telemetry.addData("Update", "%.2f ms", vision.lastPeriodicMs());
-        telemetry.addLine();
+    protected void onLoop() {
+        VisionTelemetry.addStatusHeader(telemetry, robot.vision);
 
         telemetry.addLine("--- MOUNTING (tune in Panels) ---");
         telemetry.addData("fwd / left / up", "%.2f / %.2f / %.2f in",
@@ -105,7 +78,7 @@ public class VisionSightingDiagnostics extends OpMode {
 
         boolean any = false;
         for (HiveCell cell : HiveCell.values()) {
-            CellSighting sighting = vision.sighting(cell);
+            CellSighting sighting = robot.vision.sighting(cell);
             if (sighting == null) continue;
             any = true;
 
@@ -127,9 +100,9 @@ public class VisionSightingDiagnostics extends OpMode {
             telemetry.addData("  ROW HEIGHT", "%.2f in  <- record for UP/DOWN geometry",
                     sighting.rowCentreRobot().z());
             telemetry.addData("  state", "%s (candidate %s x%d)",
-                    vision.state(cell),
-                    vision.stateTracker(cell).candidateState(),
-                    vision.stateTracker(cell).candidateSamples());
+                    robot.vision.state(cell),
+                    robot.vision.stateTracker(cell).candidateState(),
+                    robot.vision.stateTracker(cell).candidateSamples());
 
             if (expectedRangeIn > 0.0) {
                 double error = sighting.groundRangeIn() - expectedRangeIn;
@@ -145,11 +118,5 @@ public class VisionSightingDiagnostics extends OpMode {
         }
 
         telemetry.update();
-    }
-
-    @Override
-    public void stop() {
-        if (vision != null) vision.stop();
-        Scheduler.reset();
     }
 }

@@ -412,6 +412,88 @@ bump can break it with no compile error. **Symptom: the configs simply stop
 appearing in the Driver Station list.** If that happens after a dependency
 change, look here first, and add it to the version-lock constraints above.
 
+## The subsystem convention
+
+Every mechanism is a class in `subsystems/` implementing `Subsystem`, built in `Robot`,
+and reached from an OpMode that extends `RobotOpMode`. Four files carry the whole pattern:
+
+| File | What it is |
+|---|---|
+| `subsystems/Subsystem.java` | The contract: one `update()`, plus a `default periodic()` you get free |
+| `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
+| `Robot.java` | The parts list — every subsystem, built once |
+| `opmodes/RobotOpMode.java` | The base OpMode. Builds `Robot`, runs the scheduler, shuts down |
+
+The point is not elegance, it is having an answer to *"where does my code go?"*. Adding a method
+to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.
+
+### `update()` is the contract, `periodic()` is an adapter
+
+`update()` is one step of the mechanism's work, called once per loop. `periodic()` wraps that same
+method as an Ivy `Command` for OpModes running the `Scheduler`.
+
+**Prefer calling `update()` directly in TeleOp.** `Scheduler.execute()` allocates roughly three
+objects on every call even when nothing is scheduled — it copies its running-command deque and
+iterates the copy, then does an `O(n·m)` `removeAll`. Routing a drivetrain through it costs that and
+buys nothing, because no second command is competing for the drivetrain. In Autonomous, arbitration
+is the entire point and the scheduler earns its keep. `RobotOpMode.useScheduler()` picks between
+them.
+
+To be clear about scale: this is **microseconds, not milliseconds**, and it will not be anyone's
+loop-time problem. It is a reason to prefer the simpler code, not a reason to fear the scheduler.
+
+### What the interface deliberately leaves out
+
+`initialize()` and `stop()` are **not** on `Subsystem`, though most subsystems have both. They mean
+genuinely different things here, and a shared interface forcing one meaning would make working code
+bend to fit:
+
+- `FlywheelBank.stop()` cuts power but leaves the object live and still being stepped.
+  `LimelightVisionSubsystem.stop()` is teardown — it stops the device, clears sightings, resets trackers.
+- `LimelightVisionSubsystem` binds hardware in its *constructor*; `FlywheelBank` binds in `initialize()`.
+
+So `Robot` names each one explicitly instead of pretending they are interchangeable.
+
+**If the interface makes your subsystem awkward, change the interface — do not work around it.** It
+was designed against one existing subsystem and will meet its second one soon.
+
+### This does not supersede "No command framework"
+
+The [shooter rig](#no-command-framework) stays a plain `OpMode` with no scheduler. That section
+already anticipated this: *"when the real BIOBUZZ launcher lands and shots have to be sequenced
+against an intake, that is the point to introduce Ivy commands."* The launcher has not landed. A rig
+with one behaviour still has nothing for a scheduler to arbitrate.
+
+### Why this shape, and what was rejected
+
+Checked against `core-1.1.1-sources.jar` rather than DECODE's Ivy 1.0.0 usage:
+
+| | Finding |
+|---|---|
+| A `Subsystem` type in Ivy | **None** — 20 source files, no base type. Ours is not a reinvention |
+| `requiring()` | `requiring(Object...)`; `requirements()` is `Set<Object>` — so a `default periodic()` on an interface compiles |
+| Default commands in `Scheduler` | **Not in 1.1.1** — [Ivy PR #7](https://github.com/Pedro-Pathing/Ivy/pull/7), unlanded. DECODE's priority-0 `defaultDrive().schedule()` is a workaround for that gap, and copying it here would be cargo-culting a missing feature |
+
+**Ivy itself recommends none of this.** Its docs say *"a requirement can be any object"* and
+[Scheduling and OpMode use](https://pedropathing.com/docs/ivy/creating-opmodes) shows
+`Scheduler.reset()`/`execute()` written inline in a `LinearOpMode`, with no base class. We follow the
+pattern Ivy's [example repos](https://pedropathing.com/docs/ivy/example-repos) converged on instead —
+#22131 Traffic Cones has exactly this `Robot` + `RobotOpMode` pair — and we do it knowingly.
+
+Rejected along the way:
+
+- **Porting DECODE's architecture wholesale.** Its skeleton is ~260 lines, but its subsystems are
+  6,098 and `DriveSubsystem` alone is 1,713 — a season of aim assist and vision relocalisation
+  accreted onto one class. And you cannot port subsystems for mechanisms that do not exist: BIOBUZZ
+  has no intake, launcher or lighting designed yet, so `IntakeSubsystem`'s 1,307 lines would be
+  inherited assumptions about last season's hardware.
+- **A throwaway experiment branch, deleted either way.** It wastes the work, and rebuilding from
+  scratch afterwards is precisely what a green student cannot do.
+- **A full `initialize`/`update`/`periodic`/`stop` interface.** More compiler guidance, at the cost
+  of papering over the real `stop()` disagreement above.
+- **No interface at all**, which is what both Ivy and DECODE do. Most honest to the library — but
+  then the compiler tells a beginner nothing, which is the one thing this is for.
+
 ## The `pedro` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` is copied verbatim
