@@ -8,8 +8,8 @@ This goes bottom-up instead. Rung 0 is the stock SDK and nothing else. Each rung
 one library to the rung before it. The first rung that fails names the library, and the rung
 before it proves everything underneath is fine.
 
-**Rung 2 passed.** Panels alone boots and holds both ports steadily. The fault is Panels
-**together with** FTC Dashboard. Rung 3 is the confirming install — see "Where this stands".
+**The fault is the pair.** Panels with Dashboard removed boots; Dashboard with Panels removed
+boots. Neither is broken alone. See "Where this stands".
 
 ## The rungs
 
@@ -21,7 +21,7 @@ between rungs), wait 90 s, record the result.
 |---|---|---|---|---|
 | **0** | `1167036` | stock SDK only | | |
 | **1** | `e4bd21b` | + Sloth runtime and Load plugin | | |
-| **2** | `f2ad429` | + Panels (no Dashboard) | **YES** | 8001 and 8080 both held continuously, 24 Sep 2026 |
+| **2** | `f2ad429` | + Panels (no Dashboard) | not run | superseded — see below |
 | **3** | `d129b48` | + FTC Dashboard (both present) | | |
 | **4** | `7ddea32` | + Pedro core and revhub | | |
 | **5** | `9c1fd59` | + Ivy | | |
@@ -37,14 +37,34 @@ Every test the spike ran had FTC Dashboard present. Step D removed Panels and ke
 **Panels without Dashboard was never tried**, and it is the most informative single install
 available:
 
-**Result, 24 Sep 2026: rung 2 boots.** Sampling `netstat` once a second showed `:::8001` and
-`:::8080` both `LISTEN` on every sample with no gaps. In the failing configuration 8080 appears
-for ~4 s of each ~40 s cycle and 8001 for ~9 s; here both are simply steady.
+> **History note.** This section first recorded a rung 2 pass. Rung 2 was not what ran — the
+> install was a hand-edit of the working tree with only `com.acmerobotics.slothboard:dashboard`
+> commented out, so Panels *and* the rest of the stack were present. The conclusion is the same
+> and the evidence is stronger, but the commit named was wrong.
 
-So Panels alone is not the fault. Panels binds 8001, keeps it, and the Robot Controller lives.
+**Result, 24 Sep 2026: with FTC Dashboard removed and Panels present, the hub boots.** Sampling
+`netstat` once a second showed `:::8001` and `:::8080` both `LISTEN` on every sample, no gaps. In
+the failing configuration 8080 is up ~4 s of each ~40 s cycle and 8001 ~9 s; here both are steady.
 
-**Rung 3 (`d129b48`) adds FTC Dashboard and nothing else.** If it crash-loops, the reproduction
-is two dependencies on an APK with no team code:
+Put that beside step D from `SPIKE.md`, which removed **Panels** and kept **Dashboard**, and also
+booted:
+
+| Panels | Dashboard | Result |
+|---|---|---|
+| yes | yes | crash loop |
+| yes | **no** | **boots** |
+| **no** | yes | **boots** |
+| no | no | (not needed) |
+
+**Neither library is broken on its own. The two of them together are.** That is a pairwise
+interaction, and it is a far better lead than "Panels is the problem" — which is what the spike
+concluded and which this contradicts.
+
+One detail still to confirm: whether team source was compiling in that run. It does not change
+the pairing, but it changes how small the reproduction is.
+
+**Rung 3 (`d129b48`) is still the install worth doing**, because it pins the reproduction to
+three lines on an APK with no team code and nothing else in it:
 
 ```groovy
 implementation("dev.frozenmilk.sinister:Sloth:0.3.2")
@@ -52,8 +72,13 @@ implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
 implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
 ```
 
-That is small enough for a maintainer to reproduce in one sitting, which is the whole point of
-the ladder. If rung 3 *passes*, the fault is further up and rungs 4–7 find it the same way.
+If rung 3 crash-loops, that is the whole bug report. If it passes, something further up the
+ladder is needed to trigger the pair, and rungs 4–7 find it the same way.
+
+Both artifacts declare `org.nanohttpd:nanohttpd-websocket:2.3.1` and both exclude the core
+`nanohttpd`, expecting the SDK's bundled `fi.iki.elonen` classes — which is exactly the class in
+the crash stack. Neither declares a dependency on the other. That is as far as the POMs go; the
+rest needs the maintainers.
 
 ## Running a rung
 
