@@ -43,8 +43,9 @@ a capture that stops sooner proves nothing.
 | **A** | *Exclude all team-authored Java from the build* | Sloth + Pedro + AutoTune + Panels + Dashboard, no team code, **no** AdvantageScope Lite | The locked set is fine — the cause is back in our source, bisect it | It was never our code; the fix is in the dependency set |
 | **B** | *Add AdvantageScope Lite back* | Step A **+** `page.j5155.AdvantageScope:lite:v26.0.0` | AdvScope Lite is **not** the 8080 collider — `CLAUDE.md`'s entry is wrong again | AdvScope Lite **is** the collider — #56 was right and something re-added it |
 | **C** | *Step A minus AutoTune* | Sloth + Pedro core/revhub + Ivy + CachingHardware + Panels + Dashboard | AutoTune's `TunerScanner` is what pushes boot past the watchdog timeout | Boot is slow for some other reason; measure the next-longest scanner |
+| **D** | *Step C minus Panels* | Step C **−** `com.bylazar.sloth:fullpanels` | Panels is the third NanoHTTPD, and the `BindException` is its | The collider is something else in the locked set, or is not in the APK at all |
 
-Run A first. B is only meaningful if A boots. **C was added after A ran — see below.**
+Run A first. B is only meaningful if A boots. **C and D were both added after A ran — see below.**
 
 ## Result of step A, 24 Sep 2026
 
@@ -121,6 +122,78 @@ Bisecting by hand has already gone wrong once here, so check rather than assume:
   `com.bylazar.*`, so the build fails and the hub silently keeps the old APK — which is how a
   "fix" got tested that was never actually installed. Excluding all of our source at once
   avoids that class of mistake.
+
+## Result of step C, 24 Sep 2026
+
+> **History note.** The step-A section above says, in bold, that there is no `BindException`
+> anywhere. That was true of the step-A capture and is **false of this tree** — the
+> `BindException` is back, twice, in the step-C capture. Both faults are real and they are
+> independent. Read the step-A section as a correct account of a slow boot and a wrong account
+> of what is killing the robot.
+
+**The install took.** `SlothTeamCodeLoader: hash discrepancy, application has changed` at
+21:00:17.377 (PID 25611), and Sinister's `found scanner` list is fifteen entries with **no
+`TunerScanner`** — `FtcDashboardScanner`, two Panels `Plugin`s, and twelve
+`dev.frozenmilk.sinister.*`.
+
+**Dropping AutoTune fixed the slow boot and did not fix the robot.**
+
+| | Step A (with AutoTune) | Step C (without) |
+|---|---|---|
+| Longest single scanner | `TunerScanner` **12.2 s** | `ConfigurationTypeScanner` **3.9 s** |
+| Whole Sinister boot | 12–19 s | **~5 s** (21:00:52.951 → 21:00:57.882) |
+| `ANR in com.qualcomm.ftcrobotcontroller` | twice | **none in the capture** |
+| Outcome | booted, ran ~1 min | crash loop, never reaches `running` |
+
+So the watchdog-timeout theory was right about AutoTune and wrong about the consequence. With
+15 s of headroom recovered the RC still dies, so the ANR was a symptom sharing a boot window
+with the real fault, not the fault.
+
+**What kills it is a port bind, and the log now names the neighbourhood.** Both cycles are
+identical:
+
+```
+21:00:23.185  CoreRobotWebServer      started port=8080          <- succeeds
+21:00:23.193  TooTallWebSocketServer  Started ... port 8081      <- succeeds
+21:00:25.13   (Thread-13) OnBotJava / ExternalLibrariesLoader / OnBotJavaLoader staged
+21:00:26.585  Compiler allocated 4MB to compile com.bylazar.panels.plugins.PluginsManager.init
+21:00:26.770  NetworkSecurityConfig   No Network Security Config specified
+21:00:26.790  FATAL EXCEPTION: Thread-13
+              java.net.BindException: Address already in use
+                at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1763)
+```
+
+Cycle 2 repeats it at 21:01:01.644 / .815 / .834 on PID 26031. The RC dies at `Robot Status:
+stopped, scanning for USB devices` — it never reaches `running`, and the DS therefore never
+gets an OpMode list, which is the *no heartbeat, empty lists* the students see.
+
+| Fact | Evidence |
+|---|---|
+| 8080 and 8081 are both healthy | `CoreRobotWebServer started port=8080` and `TooTallWebSocketServer Started WebSocket server on port 8081`, once each per cycle, no error |
+| The dying thread is the one Panels initialises on | `FATAL EXCEPTION: Thread-13`, and Thread-13 (tid 25921 / 26322) is the thread that logged the `OnBotJava` and `ExternalLibrariesLoader` staging 1.5 s earlier |
+| Panels is executing at the moment of the crash | `Compiler allocated 4MB to compile void com.bylazar.panels.plugins.PluginsManager.init(...)` 205 ms before the fatal, in both cycles |
+| AdvantageScope Lite is excluded | It is not in this APK at all, and the two ports it was accused of fighting over both bind cleanly |
+
+**`CLAUDE.md`'s AdvantageScope-Lite entry does not explain this.** It may still be a fair reason
+not to re-add AdvScope, but it is not the cause of the dead hub, and the history note in
+`CLAUDE.md` that says #56 "was first written up as the fix for a Control Hub that would not
+start — it was not" is now confirmed from a capture rather than from memory.
+
+### Why step D removes Panels rather than something else
+
+Panels is the only remaining artifact in the APK that stands up its own NanoHTTPD. Removing it
+is normally impossible without touching team source — seven files import `com.bylazar.*`, which
+is exactly how a "fix" got tested earlier in the week that never compiled and never installed
+(see Rejected alternatives). In this tree no team source compiles, so the line can simply go.
+
+The locked-version rule is not being broken: nothing is bumped, one artifact is removed for one
+install, and the branch is not for merging.
+
+**If step D boots**, the fix is a Panels port setting or a Panels version, and the question
+becomes which port it wants and who already has it. **If step D still crashes**, the collider is
+not in the APK, and the next suspect is something persistent on the hub itself — check with
+`adb shell netstat -an` while the RC is in its loop and see which ports are held when no RC
+process exists.
 
 ## For when team code comes back: `@Pinned` and native libraries
 

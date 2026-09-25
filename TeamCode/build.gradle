@@ -94,7 +94,14 @@ dependencies {
     implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
 
     // Panels — Sloth-compatible variant (replaces com.bylazar:fullpanels)
-    implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+    // SPIKE ONLY — see SPIKE.md § "Step D". The step-C capture crashes twice
+    // with java.net.BindException on Thread-13, ~1.2s after the JIT compiles
+    // com.bylazar.panels.plugins.PluginsManager.init, while 8080 and 8081 are
+    // already bound and healthy. Panels is the only remaining thing in the APK
+    // that stands up its own NanoHTTPD. Normally this line cannot be removed
+    // because seven team files import com.bylazar.* — but no team source
+    // compiles in this tree, so here it costs nothing.
+    // implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
 
     // FTC Dashboard — Sloth-compatible variant (replaces
     // com.acmerobotics.dashboard:dashboard). Kept alongside Panels for passive
