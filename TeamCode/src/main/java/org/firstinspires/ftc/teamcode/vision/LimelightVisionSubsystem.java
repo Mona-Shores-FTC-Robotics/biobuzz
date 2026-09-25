@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -11,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ import java.util.Map;
  *       say so out loud instead of just reporting "no target".</li>
  * </ul>
  */
-public class LimelightVisionSubsystem {
+public class LimelightVisionSubsystem implements Subsystem {
 
     /** Hardware map name this looks for. */
     public static final String DEFAULT_DEVICE_NAME = "limelight";
@@ -125,6 +124,7 @@ public class LimelightVisionSubsystem {
     public State state() { return state; }
 
     /** Selects the configured pipeline and starts streaming. Safe if unavailable. */
+    @Override
     public void initialize() {
         if (!available) {
             state = State.UNAVAILABLE;
@@ -136,20 +136,13 @@ public class LimelightVisionSubsystem {
     }
 
     /**
-     * The scheduler-driven update loop. Schedule once during OpMode init; it runs
-     * until the scheduler is reset.
+     * One update step. Called every loop, either directly by a LinearOpMode or through
+     * {@link Subsystem#periodic()} under the Ivy scheduler.
      *
-     * <p>This <em>returns</em> a command — it does not do the work itself. It has
-     * to be handed to {@code Scheduler.schedule(...)} or nothing polls the camera.
+     * <p>{@code periodic()} is inherited unchanged from {@link Subsystem} — the default there is
+     * exactly what this class used to declare for itself.
      */
-    public Command periodic() {
-        return Commands.infinite(this::update).requiring(this);
-    }
-
-    /**
-     * One update step. Public so a LinearOpMode that isn't running the Ivy
-     * scheduler can drive it directly; under the scheduler use {@link #periodic()}.
-     */
+    @Override
     public void update() {
         long startNs = System.nanoTime();
         try {
@@ -358,6 +351,7 @@ public class LimelightVisionSubsystem {
     public LLResult lastResult() { return lastResult; }
 
     /** Stops streaming. Safe to call during OpMode teardown. */
+    @Override
     public void stop() {
         try {
             if (available) limelight.stop();
