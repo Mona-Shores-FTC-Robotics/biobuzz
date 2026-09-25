@@ -256,18 +256,48 @@ Panels.
 
 ### What is still unknown
 
-- **Which port Panels wants.** The RC holds 8080 (`CoreRobotWebServer`) and 8081
-  (`TooTallWebSocketServer`) by the time Panels dies 3.5 s later, and a server asking for a free
-  port would have got one — so it is asking for one of those two. Nothing in the log prints the
-  number, because NanoHTTPD's `ServerRunnable` throws before it logs.
+- ~~**Which port Panels wants.**~~ **Answered, and it changes the shape of the problem:
+  Panels serves on 8001**, not 8080 or 8081 (`ftcontrol.bylazar.com` documents the dashboard at
+  `192.168.43.1:8001`). So Panels is *not* fighting `CoreRobotWebServer` or FTC Dashboard for a
+  port — the reasoning above ("it must be asking for 8080 or 8081") was wrong. Something already
+  holds **8001** when Panels asks for it, and the only plausible candidate is Panels itself.
 - **Whether it is configurable.** If Panels exposes a port setting, this is a one-line fix and
   the locked set survives intact.
-- **Whether it is a Panels-plus-Sloth interaction rather than Panels alone.** Sinister registers
-  *two* Panels scanners — `com.bylazar.configurables.Plugin` and `com.bylazar.opmodecontrol.Plugin`
-  — and the fatal lands ~200 ms after the JIT compiles
-  `com.bylazar.panels.plugins.PluginsManager.init`. If that manager stands a server up once per
-  plugin, Panels is colliding with *itself*, which would be a bug in the `0.3.2+1.0.13`
-  Sloth-variant build rather than in the idea of running Panels at all.
+- **Whether it is a Panels-plus-Sloth interaction rather than Panels alone.** This is now the
+  leading account. Sinister runs its load pass **twice per boot**, and both Panels scanners
+  appear in each pass:
+
+  ```
+  21:08:05.583  running scanners for load          <- pass 1
+  21:08:05.585    running scanner com.bylazar.configurables.Plugin
+  21:08:10.311    running scanner com.bylazar.opmodecontrol.Plugin
+  21:08:10.671  ...booted
+  21:08:10.674  SlothTeamCodeLoader: Processing TeamCode Load
+  21:08:10.704  running scanners for load          <- pass 2, triggered by Sloth
+  21:08:10.706    running scanner com.bylazar.configurables.Plugin
+  21:08:10.768    running scanner com.bylazar.opmodecontrol.Plugin
+  21:08:14.588  FATAL EXCEPTION: Thread-13  BindException
+  ```
+
+  The second pass exists *because of Sloth* — `SlothTeamCodeLoader` fires a load event after the
+  main boot, and Sinister re-runs every registered scanner. If `PluginsManager.init` stands the
+  8001 server up on each pass, the second one binds a port the first already holds. That is
+  Panels colliding with Panels, and it would explain why most teams never see this: they run
+  vanilla Panels without the Sloth variant, so there is only ever one pass.
+
+### There is no newer version to move to
+
+Checked both Maven repos directly, 24 Sep 2026:
+
+| Artifact | Repo | Versions published |
+|---|---|---|
+| `com.bylazar:fullpanels` | `mymaven.bylazar.com` | 1.0.0 … **1.0.13** (latest, 13 Sep 2026) |
+| `com.bylazar.sloth:fullpanels` | `repo.dairy.foundation` | **`0.3.2+1.0.13` — the only one** |
+
+We are on the newest upstream Panels, and the Sloth-variant repackage has exactly one published
+build. **There is no upgrade path.** The fix is a port setting, a way to stop the double
+initialisation, or an upstream report to Dairy Foundation (who build the variant) and bylazar
+(who build Panels).
 
 ### What this costs on master
 
