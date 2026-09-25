@@ -20,8 +20,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  *       device name as a string here, because a name written twice is a name that can disagree with
  *       itself, and a unit test enforces that rule.</li>
  *   <li><b>Write {@link #update()}</b>. That is the one method {@link Subsystem} requires.</li>
- *   <li><b>Add a field for it</b> in {@link org.firstinspires.ftc.teamcode.Robot} and build it in
- *       that constructor, so every OpMode can reach it.</li>
+ *   <li><b>Wire it into {@link org.firstinspires.ftc.teamcode.Robot}</b>: add a field, build it in
+ *       the constructor, and add it to the {@code subsystems} list so it gets stepped. If it has
+ *       start-up or shut-down work, also call that from {@code Robot.initialize()} and
+ *       {@code Robot.stop()} — those name each subsystem by hand and do not read the list. The
+ *       steps are spelled out in {@code Robot}'s own javadoc.</li>
  * </ol>
  *
  * <h2>Things worth knowing before you start</h2>

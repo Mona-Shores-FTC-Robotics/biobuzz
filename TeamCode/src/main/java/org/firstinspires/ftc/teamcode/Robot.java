@@ -23,11 +23,14 @@ import java.util.List;
  *       {@code subsystems/} package and fill it in.</li>
  *   <li>Add a {@code public final} field for it here.</li>
  *   <li>Build it in the constructor below.</li>
- *   <li>Add it to {@link #subsystems} so it gets stepped and stopped with everything else.</li>
+ *   <li>Add it to {@link #subsystems} so it gets stepped every loop.</li>
+ *   <li>If it has start-up or shut-down work, call it from {@link #initialize()} and
+ *       {@link #stop()} below. Those name each subsystem explicitly and do <i>not</i> read the list
+ *       — a subsystem that is only in the list gets stepped but never started or stopped.</li>
  * </ol>
  *
- * <p>That is the whole pattern. Four steps, and no file outside {@code subsystems/} has to know
- * anything about how your mechanism works.
+ * <p>That is the whole pattern, and no file outside {@code subsystems/} has to know anything about
+ * how your mechanism works.
  *
  * <h2>What is deliberately missing</h2>
  *
