@@ -62,7 +62,7 @@ dependencies {
     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
     implementation('com.pedropathing:core:3.0.1')
     implementation('com.pedropathing:revhub:3.0.1')
-    // rung 5: implementation('com.pedropathing.ivy:pedro:1.1.1')
+    implementation('com.pedropathing.ivy:pedro:1.1.1')
     // rung 6: implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
     // rung 7: implementation('com.pedropathing:tuning:1.0.1')
 
