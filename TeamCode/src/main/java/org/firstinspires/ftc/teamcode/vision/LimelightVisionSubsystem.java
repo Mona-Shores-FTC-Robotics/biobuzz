@@ -124,6 +124,7 @@ public class LimelightVisionSubsystem implements Subsystem {
     public State state() { return state; }
 
     /** Selects the configured pipeline and starts streaming. Safe if unavailable. */
+    @Override
     public void initialize() {
         if (!available) {
             state = State.UNAVAILABLE;
@@ -350,6 +351,7 @@ public class LimelightVisionSubsystem implements Subsystem {
     public LLResult lastResult() { return lastResult; }
 
     /** Stops streaming. Safe to call during OpMode teardown. */
+    @Override
     public void stop() {
         try {
             if (available) limelight.stop();

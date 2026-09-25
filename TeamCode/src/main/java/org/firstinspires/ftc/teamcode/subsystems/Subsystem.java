@@ -7,8 +7,26 @@ import com.pedropathing.ivy.commands.Commands;
  * One mechanism on the robot: a motor, a set of motors, a camera, an arm.
  *
  * <p><b>If you are writing your first subsystem, copy {@link ExampleSubsystem} and rename it.</b>
- * This interface asks you for exactly one method — {@link #update()} — and the compiler will tell
- * you if you forget it.
+ * This interface asks you for three methods — {@link #initialize()}, {@link #update()} and
+ * {@link #stop()} — and the compiler will tell you if you forget one. Leaving a body empty is fine;
+ * the point is that you had to decide it should be.
+ *
+ * <h2>The lifecycle</h2>
+ *
+ * <table>
+ *   <caption>When each part runs</caption>
+ *   <tr><th>Method</th><th>Called</th><th>Put here</th></tr>
+ *   <tr><td>constructor</td><td>once, when {@code Robot} is built</td>
+ *       <td>{@code hardwareMap} lookups. Nothing else.</td></tr>
+ *   <tr><td>{@link #initialize()}</td><td>once, in OpMode init, after every subsystem is built</td>
+ *       <td>Getting ready: motor modes, starting a camera, a servo's start position.</td></tr>
+ *   <tr><td>{@link #update()}</td><td>every loop</td><td>One step of the work.</td></tr>
+ *   <tr><td>{@link #stop()}</td><td>once, when the OpMode ends</td>
+ *       <td>Teardown: cut power, stop devices, clear state.</td></tr>
+ * </table>
+ *
+ * <p>{@code Robot} calls {@code initialize()} and {@code stop()} on every subsystem in its list, so
+ * adding yours to the list is the whole of wiring it in.
  *
  * <h2>The two ways a subsystem runs</h2>
  *
@@ -33,23 +51,24 @@ import com.pedropathing.ivy.commands.Commands;
  * reason to pay it where it buys nothing. In Autonomous, arbitration is the whole point and the
  * scheduler earns it.
  *
- * <h2>What this interface deliberately leaves out</h2>
+ * <h2>{@code stop()} means teardown, and only teardown</h2>
  *
- * <p>There is no {@code initialize()} and no {@code stop()} here, though most subsystems have both.
- * They are left off because they genuinely mean different things across the subsystems we already
- * have, and a shared interface that forced one meaning would make working code bend to fit:
+ * <p>This is the one rule the interface cannot enforce for you. {@code stop()} runs once, when the
+ * OpMode is ending, and the subsystem is never used again afterwards. It is <em>not</em> "stop the
+ * mechanism for a moment" — a flywheel that spins down between shots and a camera that stops
+ * streaming at the end of a match are different things, and the first one needs its own name
+ * ({@code idle()}, {@code coast()}, {@code spinDown()}).
  *
- * <ul>
- *   <li>{@code FlywheelBank.stop()} cuts power but leaves the object live and still being stepped.
- *       {@code LimelightVisionSubsystem.stop()} is teardown — it stops the device, clears its
- *       sightings and resets its trackers.</li>
- *   <li>{@code LimelightVisionSubsystem} binds its hardware in its <em>constructor</em>;
- *       {@code FlywheelBank} binds in {@code initialize()}.</li>
- * </ul>
+ * <p>That clash is real, not hypothetical: {@code FlywheelBank.stop()} in the shooter rig means
+ * "cut power and keep running". The rig is not a {@code Subsystem} and does not need to be, but if
+ * it ever becomes one, that method gets renamed rather than this contract bent to fit it.
  *
- * <p>So write whichever of those your mechanism needs, with whatever meaning it needs, and let
- * {@link org.firstinspires.ftc.teamcode.Robot} call it. The interface stays honest about the one
- * thing that is actually true of every subsystem.
+ * <p><b>History:</b> the first version of this interface asked for {@code update()} alone and left
+ * {@code initialize()}/{@code stop()} to {@code Robot}, which named each subsystem by hand. Review
+ * of PR #63 found the cost of that immediately — the add-a-subsystem steps said "add it to the
+ * list", and a subsystem that was only in the list got stepped but never started or stopped. Putting
+ * the lifecycle on the interface makes the list the one place to register, and settles the
+ * {@code stop()} disagreement above by naming it instead of hiding it.
  *
  * <h2>If this interface gets in your way, change it</h2>
  *
@@ -60,6 +79,15 @@ import com.pedropathing.ivy.commands.Commands;
  * @see ExampleSubsystem
  */
 public interface Subsystem {
+
+    /**
+     * Get ready to run. Called once, during OpMode init, after every subsystem has been built.
+     *
+     * <p>Hardware lookups belong in the constructor, not here — by the time this runs, a missing
+     * device should already have been noticed and recorded. This is for putting the mechanism into
+     * its starting state. Empty is a fine answer.
+     */
+    void initialize();
 
     /**
      * One step of this mechanism's work. Called once per OpMode loop.
@@ -88,4 +116,13 @@ public interface Subsystem {
     default Command periodic() {
         return Commands.infinite(this::update).requiring(this);
     }
+
+    /**
+     * Shut down for good. Called once, when the OpMode ends; nothing calls this subsystem again.
+     *
+     * <p>Cut power, stop devices, clear anything that should not leak into the next OpMode. Must be
+     * safe to call even if {@link #initialize()} never ran or the hardware is missing, and must not
+     * throw — an exception here hides the one that explains why the OpMode ended.
+     */
+    void stop();
 }

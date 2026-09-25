@@ -419,7 +419,7 @@ and reached from an OpMode that extends `RobotOpMode`. Four files carry the whol
 
 | File | What it is |
 |---|---|
-| `subsystems/Subsystem.java` | The contract: one `update()`, plus a `default periodic()` you get free |
+| `subsystems/Subsystem.java` | The contract: `initialize()`, `update()`, `stop()`, plus a `default periodic()` you get free |
 | `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
 | `Robot.java` | The parts list — every subsystem, built once |
 | `opmodes/RobotOpMode.java` | The base OpMode. Builds `Robot`, runs the scheduler, shuts down |
@@ -442,17 +442,31 @@ them.
 To be clear about scale: this is **microseconds, not milliseconds**, and it will not be anyone's
 loop-time problem. It is a reason to prefer the simpler code, not a reason to fear the scheduler.
 
-### What the interface deliberately leaves out
+### The lifecycle is on the interface
 
-`initialize()` and `stop()` are **not** on `Subsystem`, though most subsystems have both. They mean
-genuinely different things here, and a shared interface forcing one meaning would make working code
-bend to fit:
+> **History note.** The first version of #63 put only `update()` on `Subsystem` and said, here,
+> that `initialize()` and `stop()` were deliberately left off because they meant different things
+> in different classes, so `Robot` named each subsystem by hand. That was stale before it merged:
+> review found the add-a-subsystem steps said "add it to the list", and a subsystem that was only in
+> the list got stepped but never started or stopped. The mentor's call was to put the whole
+> lifecycle on the interface. The old reasoning is kept below as a rejected option.
 
-- `FlywheelBank.stop()` cuts power but leaves the object live and still being stepped.
-  `LimelightVisionSubsystem.stop()` is teardown — it stops the device, clears sightings, resets trackers.
-- `LimelightVisionSubsystem` binds hardware in its *constructor*; `FlywheelBank` binds in `initialize()`.
+| Method | Called | Put here |
+|---|---|---|
+| constructor | once, when `Robot` is built | `hardwareMap` lookups, nothing else |
+| `initialize()` | once, in OpMode init, after every subsystem is built | starting state: motor modes, starting a camera |
+| `update()` | every loop | one step of the work |
+| `stop()` | once, when the OpMode ends | teardown: cut power, stop devices, clear state |
 
-So `Robot` names each one explicitly instead of pretending they are interchangeable.
+All three are abstract, so the compiler makes a beginner decide each one, even if the answer is an
+empty body. `Robot.initialize()` and `Robot.stop()` walk the `subsystems` list (stop in reverse), so
+the list is the single place a subsystem is registered.
+
+**`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
+real: `FlywheelBank.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
+ends it. The resolution is to name it, not paper over it — "stop the mechanism for a moment" gets its
+own name (`idle()`, `spinDown()`). `FlywheelBank` is not a `Subsystem` and the shooter rig stays
+standalone, so nothing had to change; if it ever becomes one, its `stop()` gets renamed.
 
 **If the interface makes your subsystem awkward, change the interface — do not work around it.** It
 was designed against one existing subsystem and will meet its second one soon.
@@ -489,8 +503,10 @@ Rejected along the way:
   inherited assumptions about last season's hardware.
 - **A throwaway experiment branch, deleted either way.** It wastes the work, and rebuilding from
   scratch afterwards is precisely what a green student cannot do.
-- **A full `initialize`/`update`/`periodic`/`stop` interface.** More compiler guidance, at the cost
-  of papering over the real `stop()` disagreement above.
+- **`update()` alone on the interface**, with `Robot` calling each subsystem's `initialize()`/`stop()`
+  by name. That was the first version. It avoided forcing one meaning of `stop()` on classes that
+  disagreed, but it gave a subsystem two places to register, and the docs got it wrong on the first
+  review. Superseded by the lifecycle above.
 - **No interface at all**, which is what both Ivy and DECODE do. Most honest to the library — but
   then the compiler tells a beginner nothing, which is the one thing this is for.
 

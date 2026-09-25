@@ -23,14 +23,12 @@ import java.util.List;
  *       {@code subsystems/} package and fill it in.</li>
  *   <li>Add a {@code public final} field for it here.</li>
  *   <li>Build it in the constructor below.</li>
- *   <li>Add it to {@link #subsystems} so it gets stepped every loop.</li>
- *   <li>If it has start-up or shut-down work, call it from {@link #initialize()} and
- *       {@link #stop()} below. Those name each subsystem explicitly and do <i>not</i> read the list
- *       — a subsystem that is only in the list gets stepped but never started or stopped.</li>
+ *   <li>Add it to {@link #subsystems}. That one list is how it gets initialized, stepped every
+ *       loop, and stopped at the end — there is nowhere else to register it.</li>
  * </ol>
  *
- * <p>That is the whole pattern, and no file outside {@code subsystems/} has to know anything about
- * how your mechanism works.
+ * <p>That is the whole pattern. Four steps, and no file outside {@code subsystems/} has to know
+ * anything about how your mechanism works.
  *
  * <h2>What is deliberately missing</h2>
  *
@@ -68,25 +66,24 @@ public class Robot {
     }
 
     /**
-     * Bring every subsystem up. Called once, from the OpMode's init.
-     *
-     * <p>Not part of {@link Subsystem} on purpose: subsystems disagree about what starting up means
-     * — this one binds its hardware in its constructor and uses {@code initialize()} only to start
-     * the camera streaming — so {@code Robot} names each one explicitly rather than pretending they
-     * are interchangeable.
+     * Bring every subsystem up, in the order they were built. Called once, from the OpMode's init.
      */
     public void initialize() {
-        vision.initialize();
+        for (Subsystem subsystem : subsystems) {
+            subsystem.initialize();
+        }
     }
 
     /**
-     * Shut every subsystem down. Called once, when the OpMode ends.
+     * Shut every subsystem down, in the reverse of the order they were built. Called once, when the
+     * OpMode ends.
      *
-     * <p>Same reasoning as {@link #initialize()}: {@code stop()} means teardown for the camera but
-     * means "cut power and keep running" for the flywheel rig, so it is spelled out here instead of
-     * being assumed.
+     * <p>Reverse order for the usual reason: something built later may depend on something built
+     * earlier, so it should let go first.
      */
     public void stop() {
-        vision.stop();
+        for (int i = subsystems.size() - 1; i >= 0; i--) {
+            subsystems.get(i).stop();
+        }
     }
 }

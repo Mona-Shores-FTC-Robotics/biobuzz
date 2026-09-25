@@ -19,12 +19,13 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  *       {@link org.firstinspires.ftc.teamcode.hardware.DeviceNames} and nowhere else — never type a
  *       device name as a string here, because a name written twice is a name that can disagree with
  *       itself, and a unit test enforces that rule.</li>
- *   <li><b>Write {@link #update()}</b>. That is the one method {@link Subsystem} requires.</li>
+ *   <li><b>Fill in {@link #initialize()}, {@link #update()} and {@link #stop()}</b> — the three
+ *       methods {@link Subsystem} requires. Its javadoc has a table of what goes in each. An empty
+ *       body is a fine answer for {@code initialize()}; it is rarely the right one for
+ *       {@code stop()} if you have a motor.</li>
  *   <li><b>Wire it into {@link org.firstinspires.ftc.teamcode.Robot}</b>: add a field, build it in
- *       the constructor, and add it to the {@code subsystems} list so it gets stepped. If it has
- *       start-up or shut-down work, also call that from {@code Robot.initialize()} and
- *       {@code Robot.stop()} — those name each subsystem by hand and do not read the list. The
- *       steps are spelled out in {@code Robot}'s own javadoc.</li>
+ *       that constructor, and add it to the {@code subsystems} list. The list is what gets it
+ *       initialized, stepped and stopped.</li>
  * </ol>
  *
  * <h2>Things worth knowing before you start</h2>
@@ -59,6 +60,16 @@ public class ExampleSubsystem implements Subsystem {
     }
 
     /**
+     * Get ready to run: motor modes, a servo's start position, starting a sensor. Called once, in
+     * OpMode init. Hardware lookups do not go here — they are already done, in the constructor.
+     */
+    @Override
+    public void initialize() {
+        // TODO: put the mechanism in its starting state. For example:
+        //   motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    /**
      * One step of this mechanism's work, called once per OpMode loop.
      *
      * <p>Empty is correct for now — this subsystem has no mechanism. Yours will read a sensor,
@@ -67,5 +78,17 @@ public class ExampleSubsystem implements Subsystem {
     @Override
     public void update() {
         // TODO: one step of the work. Read, decide, act. Then return.
+    }
+
+    /**
+     * Shut down for good, when the OpMode ends. Cut power and let go — this subsystem is never
+     * called again. Must not throw, even if the hardware was missing.
+     *
+     * <p>Not for "stop the mechanism for a moment" — give that its own name, like {@code idle()}.
+     */
+    @Override
+    public void stop() {
+        // TODO: cut power. For example:
+        //   motor.setPower(0);
     }
 }
