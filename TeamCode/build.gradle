@@ -36,13 +36,6 @@ apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
-    // No team-authored Java compiles until rung 8. Every file is still on disk
-    // and still tracked by git; only the compiler stops seeing them.
-    sourceSets {
-        main.java.srcDirs = ['src/spike/no-team-code']
-        test.java.srcDirs = []
-    }
-
     packagingOptions {
         jniLibs.useLegacyPackaging true
     }
