@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.revhub.drivetrains.Mecanum;
@@ -9,6 +10,7 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.util.AccelLimiter;
 
 import java.util.List;
 
@@ -30,15 +32,28 @@ import java.util.List;
  * <ul>
  *   <li>Left stick — translate</li>
  *   <li>Right stick X — turn</li>
- *   <li>Left bumper (hold) — slow mode</li>
+ *   <li>Left bumper (hold) — slow mode. Wins over turbo if both are held.</li>
+ *   <li>Right bumper (hold) — turbo: full power, no acceleration limit</li>
  *   <li>Y — reset field-centric forward to the way the robot is facing now</li>
  *   <li>B — toggle field-centric / robot-centric</li>
  * </ul>
  *
  * <p>These bindings are a starting point, not a decision. Which button does what is a driver
  * question, and the drivers should own it.
+ *
+ * <h2>Speed and acceleration</h2>
+ *
+ * <p>The test robot is light, and full stick straight to full power made it lurch — hard to coach
+ * a driver on. So normal driving is capped at {@link #normalSpeed}, power can only <em>rise</em>
+ * at {@link #accelPerSec} (slowing and stopping stay instant, see {@link AccelLimiter}), and turbo
+ * gives back everything. All of these are {@code @Configurable}: tune them in Panels while someone
+ * drives, then write the values the drivers like back here. Panels edits are lost on restart.
+ *
+ * <p>Turbo skips the acceleration limit on purpose — a driver pressing it wants speed now. If the
+ * robot tips or slips on turbo starts, apply the limiter to turbo too.
  */
 @TeleOp(name = "Basic Drive", group = "Drive")
+@Configurable
 public class BasicDriveTeleOp extends OpMode {
 
     /**
@@ -54,8 +69,26 @@ public class BasicDriveTeleOp extends OpMode {
     private static final double STRAFE_SIGN  = -1.0;  // Pedro's +strafe is left; stick +x is right
     private static final double TURN_SIGN    = -1.0;  // Pedro's +turn is counter-clockwise
 
-    /** Multiplier while the left bumper is held. */
-    private static final double SLOW_FACTOR = 0.35;
+    /** Stick multiplier for everyday driving. 1.0 would be full power. */
+    public static double normalSpeed = 0.6;
+
+    /** Stick multiplier while the right bumper (turbo) is held. */
+    public static double turboSpeed = 1.0;
+
+    /** Stick multiplier while the left bumper (slow) is held. */
+    public static double slowSpeed = 0.35;
+
+    /**
+     * How fast drive power may rise, in power per second. 2.0 takes a standing robot to the 0.6
+     * normal cap in 0.3s. Lower is gentler; very high is the same as no limit.
+     */
+    public static double accelPerSec = 2.0;
+
+    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. */
+    public static double turnAccelPerSec = 4.0;
+
+    /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
+    private static final double MAX_LOOP_DT_SEC = 0.1;
 
     /** Below this, a stick is treated as centred. Guards against drift on a worn gamepad. */
     private static final double STICK_DEADBAND = 0.05;
@@ -73,6 +106,11 @@ public class BasicDriveTeleOp extends OpMode {
     private boolean prevB;
 
     private List<LynxModule> hubs;
+
+    private final AccelLimiter forwardLimiter = new AccelLimiter();
+    private final AccelLimiter strafeLimiter = new AccelLimiter();
+    private final AccelLimiter turnLimiter = new AccelLimiter();
+    private long lastLoopNs;
 
     @Override
     public void init() {
@@ -97,11 +135,17 @@ public class BasicDriveTeleOp extends OpMode {
         }
 
         telemetry.addLine("Basic Drive ready.");
-        telemetry.addLine("Left stick drives, right stick turns, left bumper is slow mode.");
+        telemetry.addLine("Left stick drives, right stick turns.");
+        telemetry.addLine("Hold left bumper for slow, right bumper for turbo.");
         if (localizer == null) {
             telemetry.addLine();
             telemetry.addData("NO PINPOINT", "robot-centric only — %s", localizerFault);
         }
+    }
+
+    @Override
+    public void start() {
+        lastLoopNs = System.nanoTime();
     }
 
     @Override
@@ -115,10 +159,28 @@ public class BasicDriveTeleOp extends OpMode {
 
         handleButtons();
 
-        double scale = gamepad1.left_bumper ? SLOW_FACTOR : 1.0;
+        long now = System.nanoTime();
+        double dt = Math.min((now - lastLoopNs) / 1e9, MAX_LOOP_DT_SEC);
+        lastLoopNs = now;
+
+        boolean turbo = gamepad1.right_bumper && !gamepad1.left_bumper;
+        double scale = unitRange(gamepad1.left_bumper ? slowSpeed : turbo ? turboSpeed : normalSpeed);
         double forward = deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale;
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
+
+        if (turbo) {
+            // Bypass the limit, and keep the limiters in step with what the wheels really get:
+            // releasing turbo then drops straight to the normal cap, rather than the limiter
+            // starting from wherever it was before turbo was pressed.
+            forwardLimiter.reset(forward);
+            strafeLimiter.reset(strafe);
+            turnLimiter.reset(turn);
+        } else {
+            forward = forwardLimiter.step(forward, accelPerSec, dt);
+            strafe = strafeLimiter.step(strafe, accelPerSec, dt);
+            turn = turnLimiter.step(turn, turnAccelPerSec, dt);
+        }
 
         DrivePowers powers = usingFieldCentric()
                 ? ManualDrive.fieldCentric(forward, strafe, turn, heading() - headingOffset)
@@ -160,6 +222,14 @@ public class BasicDriveTeleOp extends OpMode {
         return localizer == null ? 0.0 : localizer.pose().heading();
     }
 
+    /**
+     * Clamps a Panels-editable speed to [0, 1], and treats NaN as 0. A typo in Panels should give
+     * a robot that is too slow, never one commanded past full power or sent NaN.
+     */
+    private static double unitRange(double value) {
+        return value > 0.0 ? Math.min(value, 1.0) : 0.0;
+    }
+
     private static double deadband(double value) {
         return Math.abs(value) < STICK_DEADBAND ? 0.0 : value;
     }
@@ -167,9 +237,8 @@ public class BasicDriveTeleOp extends OpMode {
     private void publishTelemetry(double forward, double strafe, double turn) {
         telemetry.addData("Mode", usingFieldCentric() ? "FIELD-CENTRIC (B to switch)"
                                                       : "ROBOT-CENTRIC (B to switch)");
-        if (gamepad1.left_bumper) {
-            telemetry.addLine("SLOW");
-        }
+        telemetry.addData("Speed", gamepad1.left_bumper ? "SLOW"
+                                   : gamepad1.right_bumper ? "TURBO" : "normal");
         telemetry.addData("Stick", "fwd %.2f  strafe %.2f  turn %.2f", forward, strafe, turn);
         if (localizer != null) {
             telemetry.addData("Heading", "%.1f deg  (Y zeroes it)",
