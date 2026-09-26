@@ -23,7 +23,21 @@ public class FlywheelTuningConfig {
 
     public FlywheelLaneConfig left = new FlywheelLaneConfig();
     public FlywheelLaneConfig center = new FlywheelLaneConfig();
-    public FlywheelLaneConfig right = new FlywheelLaneConfig();
+    public FlywheelLaneConfig right = rightLaneDefaults();
+
+    /**
+     * The right lane's encoder counts backwards relative to its own motor.
+     * Found 26 Sep 2026: all three wheels spun the correct way, but the right
+     * lane read negative RPM, and ticking {@code reversed} only made the wheel
+     * spin the wrong way while the reading stayed negative. Its motor direction
+     * is correct; only the reading needs flipping. If that motor or its encoder
+     * cable is ever swapped, re-check this with the Flywheel Speed Test.
+     */
+    private static FlywheelLaneConfig rightLaneDefaults() {
+        FlywheelLaneConfig lane = new FlywheelLaneConfig();
+        lane.encoderReversed = true;
+        return lane;
+    }
 
     /** How encoder ticks become RPM. Get this wrong and every number below lies. */
     public static class Measurement {
@@ -59,8 +73,22 @@ public class FlywheelTuningConfig {
 
     /** What counts as "at speed". */
     public static class Readiness {
-        /** Acceptable RPM error when considering a lane ready to fire. */
-        public double rpmToleranceRpm = 50;
+        /** How close to target a lane must get to <em>become</em> READY, RPM. */
+        public double rpmToleranceRpm = 60;
+
+        /**
+         * How far a lane that is already READY may wander before it drops back
+         * to spinning, RPM. Wider than {@link #rpmToleranceRpm} on purpose.
+         *
+         * <p>With a single band, one noisy reading just outside it knocked a
+         * steady lane out of READY and restarted the hold timer, so the state
+         * flickered between READY and spin with the wheel at speed — seen on
+         * the robot, 26 Sep 2026. Two bands (hysteresis) keep "ready" as strict
+         * to reach as before, but ignore jitter once there. A real speed loss,
+         * such as a ball going through, still drops it. Values below
+         * {@code rpmToleranceRpm} are treated as equal to it.
+         */
+        public double dropOutToleranceRpm = 100;
 
         /**
          * The error must stay inside tolerance this long before the lane reports

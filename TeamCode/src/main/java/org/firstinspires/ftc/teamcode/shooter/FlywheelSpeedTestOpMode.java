@@ -1,7 +1,6 @@
 package org.firstinspires.ftc.teamcode.shooter;
 
-import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -61,7 +60,6 @@ public class FlywheelSpeedTestOpMode extends OpMode {
 
     private FlywheelBank bank;
     private TelemetryManager panels;
-    private FtcDashboard dashboard;
 
     /** Wall-clock length of the previous loop, published so a spin-up curve can
      *  be read against a known sample interval instead of an assumed one. */
@@ -91,13 +89,6 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         bank.initialize();
 
         try {
-            dashboard = FtcDashboard.getInstance();
-        } catch (Exception ignored) {
-            // No dashboard on this device; the rig runs without it.
-            dashboard = null;
-        }
-
-        try {
             panels = PanelsTelemetry.INSTANCE.getTelemetry();
         } catch (Exception ignored) {
             // Panels not available on this device — the Driver Station readout
@@ -105,7 +96,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             panels = null;
         }
 
-        telemetry.addLine("Flywheel Speed Test ready.");
+        telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
         telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
         telemetry.addLine("Tune everything else in Panels under FlywheelBank.");
         reportMissingMotors();
@@ -117,7 +108,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         // Keep measuring during init so a missing motor is reported before
         // anyone presses play.
         bank.periodic();
-        telemetry.addLine("Flywheel Speed Test ready.");
+        telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
         telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
         reportMissingMotors();
         telemetry.update();
@@ -135,7 +126,6 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         bank.periodic();
         publishDriverStation();
         publishPanels();
-        publishDashboard();
     }
 
     @Override
@@ -186,6 +176,24 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             updated = ceiling;
         }
         target.targetRpm = updated;
+        refreshPanelsConfig();
+    }
+
+    /**
+     * Pushes a value this OpMode wrote back to the Panels configurables page.
+     *
+     * <p>Panels sends configurable values to the browser only when a tab
+     * connects, after an edit made <em>in</em> the browser, or when told to with
+     * {@code refreshClass}. Without this call a d-pad nudge moves the flywheel
+     * but the page keeps showing the old {@code targetRpm}, and typing a new
+     * number over that stale one looks like the edit did nothing.
+     */
+    private static void refreshPanelsConfig() {
+        try {
+            PanelsConfigurables.refreshClass(FlywheelBank.class);
+        } catch (RuntimeException ignored) {
+            // A dashboard problem must not stop the rig.
+        }
     }
 
     /** Names any lane that is enabled but whose motor is not in the robot config. */
@@ -199,7 +207,15 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         }
     }
 
+    /**
+     * Shown at the top of the Driver Station so there is no doubt which build is
+     * on the robot. Bump it when behaviour changes; if the robot shows an older
+     * one, it has not been redeployed.
+     */
+    private static final String BUILD = "ready-hysteresis v3 (26 Sep)";
+
     private void publishDriverStation() {
+        telemetry.addData("Build", BUILD);
         telemetry.addLine(bank.isSpinning() ? ">>> SPINNING  (B to stop)" : "--- STOPPED   (A to spin up)");
         telemetry.addData("Target RPM", "%.0f   dpad U/D %.0f, R/L %.0f",
                 FlywheelBank.config.target.targetRpm,
@@ -212,7 +228,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 : String.format(Locale.US, "%.2f V  (power x%.2f)", voltage, bank.getVoltageMultiplier()));
 
         telemetry.addLine();
-        telemetry.addLine("    state    rpm    err    pwr   spin-up");
+        telemetry.addLine("    state    rpm    err    pwr   spin-up  dir  enc");
         for (FlywheelLane lane : FlywheelLane.values()) {
             telemetry.addLine(laneLine(lane));
         }
@@ -231,7 +247,8 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         for (FlywheelLane lane : FlywheelLane.values()) {
             FlywheelBank.Flywheel flywheel = bank.lane(lane);
             if (flywheel.isRunningBackwards()) {
-                telemetry.addData("WRONG DIRECTION", "%s lane is spinning backwards — tick \"reversed\" for it in Panels",
+                telemetry.addData("NEGATIVE RPM", "%s lane. Wheel spinning the wrong way -> tick \"reversed\". "
+                        + "Wheel spinning the right way -> tick \"encoderReversed\" instead.",
                         lane.name());
             }
         }
@@ -256,72 +273,33 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             state = "[spin ]";
         }
         double spinUpMs = flywheel.getLastSpinUpMs();
-        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s",
+        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s  %s %s",
                 lane.tag,
                 state,
                 flywheel.getMeasuredRpm(),
                 flywheel.getErrorRpm(),
                 flywheel.getAppliedPower(),
-                Double.isNaN(spinUpMs) ? "  --" : String.format(Locale.US, "%.0f ms", spinUpMs));
-    }
-
-    /**
-     * Publishes the same data to the FTC Dashboard packet stream, which is what
-     * AdvantageScope reads.
-     *
-     * <p>Keys are slash-delimited on purpose: AdvantageScope renders them as a
-     * browsable tree, so {@code shooter/left/…} collapses into one node per lane
-     * instead of thirty flat series. Structure ported from DECODE's
-     * {@code LauncherSubsystem.publishFlywheelTelemetry}.
-     *
-     * <p>The two control terms are published separately from the applied power.
-     * Reading them against each other is the fastest way to tell a kV problem
-     * from a kP problem: feedforward should carry nearly all of the power, and a
-     * feedback term doing real work means kV is off.
-     */
-    private void publishDashboard() {
-        if (dashboard == null) {
-            return;
-        }
-        try {
-            TelemetryPacket packet = new TelemetryPacket();
-            for (FlywheelLane lane : FlywheelLane.values()) {
-                FlywheelBank.Flywheel flywheel = bank.lane(lane);
-                String prefix = "shooter/" + lane.name().toLowerCase(Locale.US) + "/";
-
-                packet.put(prefix + "velocity_rpm", flywheel.getMeasuredRpm());
-                packet.put(prefix + "target_rpm", flywheel.getCommandedRpm());
-                packet.put(prefix + "error_rpm", flywheel.getErrorRpm());
-                packet.put(prefix + "velocity_tps", flywheel.getMeasuredTicksPerSec());
-                packet.put(prefix + "power_applied", flywheel.getAppliedPower());
-                packet.put(prefix + "power_feedforward", flywheel.getFeedforwardPower());
-                packet.put(prefix + "power_feedback", flywheel.getFeedbackPower());
-                packet.put(prefix + "at_speed", flywheel.isAtSpeed());
-                packet.put(prefix + "spin_up_ms", flywheel.getLastSpinUpMs());
-
-                double amps = flywheel.getCurrentAmps();
-                packet.put(prefix + "current_amps", amps);
-                double volts = bank.getBatteryVoltage();
-                if (Double.isFinite(amps) && Double.isFinite(volts)) {
-                    packet.put(prefix + "power_watts", amps * volts);
-                }
-            }
-            packet.put("shooter/spinning", bank.isSpinning());
-            packet.put("shooter/battery_volts", bank.getBatteryVoltage());
-            // Voltage compensation scales applied power, so kV read off a graph
-            // without this number is wrong by exactly this factor.
-            packet.put("shooter/voltage_multiplier", bank.getVoltageMultiplier());
-            packet.put("shooter/loop_ms", loopMs);
-
-            dashboard.sendTelemetryPacket(packet);
-        } catch (Exception ignored) {
-            // Telemetry must never take the rig down mid-spin.
-        }
+                Double.isNaN(spinUpMs) ? "  --" : String.format(Locale.US, "%.0f ms", spinUpMs),
+                flywheel.isReversed() ? "REV" : "FWD",
+                flywheel.isEncoderReversed() ? "ENC-" : "enc+");
     }
 
     /**
      * Numeric series via addData so Panels can graph them — a measured-vs-target
      * trace is how you see overshoot and droop that the numbers alone hide.
+     *
+     * <p>This used to be half the rig's telemetry: the same values also went to
+     * an FTC Dashboard packet stream, keyed {@code shooter/<lane>/…} so desktop
+     * AdvantageScope would render them as a browsable tree. That dependency is
+     * gone — see {@code TeamCode/README.md} § "Why FTC Dashboard is not in the
+     * dependency set" — so the four series only Dashboard carried are published
+     * here instead, and nothing measured has been lost.
+     *
+     * <p>Two of those four are why the rig exists. {@code _ff} and {@code _fb}
+     * are the feedforward and feedback halves of the applied power, and reading
+     * them against each other is the fastest way to tell a kV problem from a kP
+     * problem: feedforward should carry nearly all of the power, and a feedback
+     * term doing real work means kV is off.
      */
     private void publishPanels() {
         if (panels == null) {
@@ -336,9 +314,29 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 panels.addData(prefix + "_error", flywheel.getErrorRpm());
                 panels.addData(prefix + "_power", flywheel.getAppliedPower());
                 panels.addData(prefix + "_at_speed", flywheel.isAtSpeed() ? 1.0 : 0.0);
-                panels.addData(prefix + "_amps", flywheel.getCurrentAmps());
+                // Readback of the direction actually applied. Compare it with the
+                // `reversed` tick box: if they disagree, Panels is editing a copy
+                // of the config the running OpMode does not read.
+                panels.addData(prefix + "_reversed", flywheel.isReversed() ? 1.0 : 0.0);
+
+                // Carried over from the Dashboard packet stream.
+                panels.addData(prefix + "_tps", flywheel.getMeasuredTicksPerSec());
+                panels.addData(prefix + "_raw_tps", flywheel.getRawTicksPerSec());
+                panels.addData(prefix + "_ff", flywheel.getFeedforwardPower());
+                panels.addData(prefix + "_fb", flywheel.getFeedbackPower());
+                panels.addData(prefix + "_spin_up_ms", flywheel.getLastSpinUpMs());
+
+                double amps = flywheel.getCurrentAmps();
+                panels.addData(prefix + "_amps", amps);
+                double volts = bank.getBatteryVoltage();
+                if (Double.isFinite(amps) && Double.isFinite(volts)) {
+                    panels.addData(prefix + "_watts", amps * volts);
+                }
             }
+            panels.addData("spinning", bank.isSpinning() ? 1.0 : 0.0);
             panels.addData("battery_volts", bank.getBatteryVoltage());
+            // Voltage compensation scales applied power, so kV read off a graph
+            // without this number is wrong by exactly this factor.
             panels.addData("voltage_multiplier", bank.getVoltageMultiplier());
             panels.addData("loop_ms", loopMs);
             panels.debug(bank.isSpinning() ? "SPINNING" : "STOPPED");

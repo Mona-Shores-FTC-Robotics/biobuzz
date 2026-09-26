@@ -22,7 +22,11 @@ and why — so the reasoning survives past whoever added it.
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
-| FTC Dashboard | `com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0` | Passive telemetry/field monitoring, run alongside Panels. Sloth-compatible build variant of `com.acmerobotics.dashboard:dashboard`. **Also the data path for AdvantageScope** — it reads this packet stream. |
+
+
+FTC Dashboard used to be the tenth row of that table. It is gone — not because it
+is unwanted, but because it and Panels cannot both be installed on this robot.
+See [Why FTC Dashboard is not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
 
 Limelight3A support (`com.qualcomm.hardware.limelightvision`) needs no separate
 dependency — it ships as part of the SDK's `Hardware` artifact in
@@ -617,7 +621,7 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 |---|---|
 | `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
-| `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
+| `readiness` | `rpmToleranceRpm` (to become READY), `dropOutToleranceRpm` (to stop being READY — wider, so jitter does not flicker the state), `atSpeedHoldMs` |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
 | `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
 
@@ -634,27 +638,34 @@ connected.
 
 ### What it publishes, and where
 
-Three places at once, and you can use any of them alone:
+> **History note.** This said *three* places, the third being an FTC Dashboard
+> packet stream keyed `shooter/<lane>/…` that desktop AdvantageScope read as a
+> browsable tree. Dashboard is no longer installed — see [Why FTC Dashboard is
+> not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
+> **No measurement was lost**: the four series only Dashboard carried are now
+> published to Panels alongside the rest. The keys are flat and prefixed
+> `left_` / `center_` / `right_` rather than slash-delimited, because Panels
+> does not render a tree.
+
+Two places at once, and you can use either alone:
 
 | Where | What you get |
 |---|---|
-| **AdvantageScope** | Full tree under `shooter/`, graphable and replayable. See [AdvantageScope](#advantagescope). |
-| **Panels** | The same numbers as graphable series, plus the lane table as text |
+| **Panels** | Every series below as a graphable trace, plus the lane table as text |
 | **Driver Station** | The lane table — works with no laptop at all |
 
-Per lane, under `shooter/left/`, `shooter/center/`, `shooter/right/`:
+Per lane, prefixed `left_`, `center_`, `right_`:
 
 | Key | Why you care |
 |---|---|
-| `velocity_rpm` / `target_rpm` / `error_rpm` | The basic picture. Plot measured against target. |
-| `velocity_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
-| `power_applied` | What actually reached the motor, after voltage compensation and clipping |
-| `power_feedforward` / `power_feedback` | **The tuning signal.** See below. |
-| `current_amps` / `power_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
-| `at_speed` / `spin_up_ms` | Readiness, and time-to-first-in-tolerance |
+| `_rpm` / `_target` / `_error` | The basic picture. Plot measured against target. |
+| `_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
+| `_power` | What actually reached the motor, after voltage compensation and clipping |
+| `_ff` / `_fb` | **The tuning signal.** See below. |
+| `_amps` / `_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
+| `_at_speed` / `_spin_up_ms` | Readiness, and time-to-first-in-tolerance |
 
-Plus `shooter/battery_volts`, `shooter/voltage_multiplier`, `shooter/loop_ms`
-and `shooter/spinning`.
+Plus `battery_volts`, `voltage_multiplier`, `loop_ms` and `spinning`.
 
 ### Reading the feedforward / feedback split
 
@@ -664,10 +675,10 @@ into reading a graph.
 The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
 those two halves separately:
 
-- **`power_feedforward` should be carrying nearly all the power** once the wheel
+- **`_ff` (feedforward) should be carrying nearly all the power** once the wheel
   is at speed. That is the whole point of feedforward — it predicts the power
   needed rather than reacting to being wrong.
-- **`power_feedback` should settle near zero.** If it is doing real work at
+- **`_fb` (feedback) should settle near zero.** If it is doing real work at
   steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
   rather than raising kP.
 
@@ -692,9 +703,30 @@ the robot somewhere the flywheels can spin free and walk through this once:
    readout still works and the gamepad still tunes the target speed.
 3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
    land on `[READY]`.
-4. **Is any lane showing a negative RPM?** That wheel is spinning backwards —
-   tick `reversed` for it in Panels and it should flip positive. (DECODE's
-   robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+4. **Is any lane showing a negative RPM?** Look at the wheel before touching
+   anything. Two different faults read the same:
+   - **The wheel spins the wrong way** → tick `reversed`. That flips the
+     motor and its encoder together, so the RPM goes positive. (DECODE's
+     robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+   - **The wheel spins the right way** → tick `encoderReversed`. The encoder
+     counts backwards relative to its own motor, so `reversed` cannot fix it:
+     the RPM stays negative whichever way that box is set. Seen on the right
+     lane, 26 Sep 2026, where it read about -4000.
+
+   Until the sign is right, the lane runs on feedforward only. Before that
+   guard existed, a negative reading made the feedback term demand ever more
+   power and the wheel ran away to full speed.
+   **If ticking it changes nothing,** check the lane's `dir` column (and the
+   `<lane>_reversed` graph key). That is the direction the running code
+   actually applied. If Panels says `reversed` is ticked but `dir` still says
+   `FWD`, the edit landed in a copy of the config that this OpMode does not
+   read. The suspected cause is Sloth Load: Panels can end up holding fields
+   from both the installed APK's classes and the hot-reloaded ones, and editing
+   the stale set. The cure is a full **TeamCode** install, a power-cycle, and a
+   reload of the Panels page. Seen 26 Sep 2026 on the right lane; the cause was
+   inferred from the Panels `configurables-0.3.2+1.0.5` bytecode (it keeps fields
+   per class loader and groups them by class name for the browser), not yet
+   confirmed on the robot.
 5. **Does the RPM look believable?** If it's off by a constant factor — double,
    half, ten times — the encoder maths is wrong, not the motor. Fix
    `measurement.ticksPerRev` first, then `gearRatio`.
@@ -992,6 +1024,19 @@ readable, which is the harder case and also the more useful one.
 
 ## AdvantageScope
 
+> **Superseded, 24 Sep 2026 — read this first.** This section describes running
+> AdvantageScope on your laptop against FTC Dashboard's packet stream. **FTC
+> Dashboard is no longer installed**, so that stream does not exist and none of
+> the instructions below currently work. See [Why FTC Dashboard is not in the
+> dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set). Getting
+> The section is kept because the reasoning in it is still correct about
+> everything except whether the data path exists.
+>
+> **Settled, 25 Sep 2026.** This banner previously said getting AdvantageScope
+> back "is wanted and is tracked separately". It is not being got back. The
+> stack is Sloth + Panels + Pedro + Ivy, and Panels' Graph and Capture views do
+> this job. See [The Panels stack](#the-panels-stack-seeing-data-and-changing-values-at-a-meeting).
+>
 > **History note.** From #38 until #56 this section told you to open AdvantageScope
 > **on the robot** at `http://192.168.43.1:8080/as/`, via the
 > `page.j5155.AdvantageScope:lite` dependency. That dependency wants port 8080,
@@ -1073,6 +1118,245 @@ tell you why.
 > The stack trace is a bare thread entry point and names nobody, so identify the
 > loser from what initialises immediately before the crash.
 
+## The Panels stack: seeing data and changing values at a meeting
+
+**The decision, 24 Sep 2026: Panels is the whole dashboard.** Sloth, Pedro, Ivy and Panels; no
+FTC Dashboard, no AdvantageScope Lite, no desktop AdvantageScope. Design for Panels rather than
+treating it as one of several outputs.
+
+Two things forced it and one thing makes it comfortable. Panels and Dashboard cannot both be
+installed (see the next section). AdvantageScope's FTC support is labelled *experimental* by its
+own documentation and is not officially supported until the Systemcore transition in 2027-28,
+which is not this season. And Panels already covers every job we were splitting across three
+tools.
+
+### Getting to it
+
+Join the robot's Wi-Fi, then **`http://192.168.43.1:8001`** on a Control Hub. (Phone RC would be
+`192.168.49.1:8001`.) Port 8001 is Panels' own; the `8080` you may remember is the SDK's web
+server, which is still there and still serves the RC's own pages.
+
+### Seeing data
+
+| Want | Use | Entry point |
+|---|---|---|
+| Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
+| Text lines | Telemetry | same manager → `debug(line)` |
+| Robot pose and paths | Field View | `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
+| Replay a run afterwards | Capture | browser-side, nothing to write |
+| Start/stop OpModes from the laptop | OpMode Control | browser-side |
+| Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
+
+Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
+`try`/`catch` that swallows. `FlywheelSpeedTestOpMode.publishPanels()` is the reference
+implementation: telemetry must never take a mechanism down mid-run.
+
+**`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
+SDK's `Telemetry` and mirrors the same lines to the Driver Station, so one set of `addData` calls
+feeds the graph on the laptop and the text on the phone. `LoopTimeBaseline.publish()` uses it.
+There is no reason to maintain two parallel sets of telemetry calls, and the older OpModes that do
+predate this being known.
+
+Keys are flat strings. Panels does not render a `a/b/c` key tree the way AdvantageScope did, so
+prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
+
+### Changing values live
+
+`@Configurable` on the class, and the fields it exposes must be **`public`, `static`, and
+non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
+
+The pattern this repo uses, and the one to copy, is a single static root holding plain nested
+objects — `FlywheelBank` declares:
+
+```java
+@Configurable
+public class FlywheelBank {
+    public static FlywheelTuningConfig config = new FlywheelTuningConfig();
+```
+
+and everything under `FlywheelTuningConfig` is ordinary instance fields. Panels reflects through
+the static root into the tree, so one annotation exposes the whole structure and the sub-configs
+stay readable as normal Java.
+
+Three things that will cost you a meeting if you forget them:
+
+- **A field with no annotation above it simply never appears.** No error, no warning — it is
+  just absent from the tree. `VisionSightingDiagnostics` carries a note about exactly this
+  happening once already.
+- **It is one-way unless code asks otherwise.** Edits in Panels reach the robot immediately.
+  Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
+  when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
+  that writes a configurable must call `refreshClass` right after, or the page shows a stale number
+  and an edit typed over it looks like it did nothing. `FlywheelSpeedTestOpMode.refreshPanelsConfig()`
+  is the example — its d-pad nudges write `targetRpm`.
+  > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
+  > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
+  > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
+  > `refreshClass`, and at no other time).
+- **Read from the source every time.** Do not copy a configurable into a local field at init and
+  use the local afterwards — you will be reading the value from before the edit, and it will
+  look like the edit did nothing.
+  The same goes for values sent to hardware once: `LimelightVisionSubsystem` used to call
+  `pipelineSwitch(Tuning.pipelineIndex)` at init only, so editing the pipeline in Panels did
+  nothing until a restart. It now re-applies the index whenever it changes.
+
+### The Field view, and why Pedro's drawing helper is not how we get there
+
+> **History note, 25 Sep 2026 — this section replaces a wrong one.** For a few hours this file said
+> "Pedro 3 ships a `Drawing` class that prepares Panels Field in Pedro units, and
+> `Follower.telemetryDebug()` uses it", and listed calling it as the work to do. That class is not
+> in anything we depend on. It was written from Pedro's documentation rather than from the jars.
+
+`Drawing` and `Follower.telemetryDebug()` live in **`com.pedropathing:telemetry`**, which is on the
+[deliberately excluded](#deliberately-excluded) list — still published at `1.0.0`, never updated for
+Pedro 3. Checked by listing every class in `core-3.0.1`, `revhub-3.0.1`, `tuning-1.0.1`,
+`ivy:core-1.1.1` and `ivy:pedro-1.1.1`: no `Drawing`, and no reference to Panels anywhere in the
+set. So the choice was re-adding an excluded, Pedro-2-era dependency, or drawing two shapes
+ourselves.
+
+Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
+`FieldPresets.PEDRO_PATHING` is one of its four built-in presets, next to the default FTC and Road
+Runner frames, so the conversion Pedro's helper would have done is done by a library we already
+have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
+
+**The throttle is the part that will bite you.** `FieldManager.update()` sends only when
+`canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
+done *nothing*, and that includes not clearing the canvas, so shapes added since the last send stay
+in the list. A 200 Hz loop that draws unconditionally ships twenty overlapping robots in one
+canvas. Gate on `shouldDraw()`:
+
+```java
+if (fieldView.shouldDraw()) {
+    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+    fieldView.send();
+}
+```
+
+Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
+circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
+the honest shape rather than a compromise.
+
+### Bringing the field view up on a robot
+
+In order. Most of a lost morning is steps 1 and 2.
+
+| # | Do | If it goes wrong |
+|---|---|---|
+| 1 | Deploy with the **TeamCode** run config, not Sloth Load | This branch changes `build.gradle`. Sloth Load hot-reloads classes only, so the robot keeps the old dependency set and every symptom below is a lie |
+| 2 | If the upload hangs or is refused, run **Remove Sloth Remote**, then deploy again | A stale payload in `/storage/emulated/0/FIRST/dairy/sloth` can make upload impossible. Sloth's own README calls this common this season |
+| 3 | Power-cycle. Wait for the RC to reach `Robot Status: running` and the DS to show a heartbeat | No heartbeat and empty OpMode lists means the `BindException` crash loop is back — check that nothing re-added FTC Dashboard, and that step 1 was a full install |
+| 4 | Laptop onto the robot's Wi-Fi → `http://192.168.43.1:8001` → Field plugin | Port **8001**, not 8080. 8080 is the SDK's own web server and will happily serve you an unrelated page |
+| 5 | Run **Loop Time Baseline**. Watch `field_frames_sent` | Climbing means the drawing path works. Stuck at 0 means it does not, and nothing further down is worth debugging |
+| 6 | Look for the white cross at field centre | Visible means canvas, background and coordinate frame are all fine. Absent with frames climbing means the browser, not the robot |
+| 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
+
+**Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
+offsets and directions in `Constants.localizerConfig` are still zeros and placeholders. A dot that
+moves but drifts, or strafes when you push forward, or spins the wrong way, is the *expected* state
+before the Pinpoint Tuner runs — it is the thing the field view exists to show you. The field view
+is working as soon as the dot responds to the robot moving at all.
+
+That is also the order to work in: field view up first, *then* tune, because watching the dot is how
+you tell whether the offsets you just pasted in were right.
+
+### Loop time: `LoopTimeBaseline`
+
+The reference TeleOp, under **Diagnostics**. It does the four things every real loop does — read
+gamepads, read odometry, write motor powers, publish telemetry — and times each separately, so a
+regression next month points at a culprit instead of at "the loop".
+
+| Key | What it is for |
+|---|---|
+| `loop_hz`, `loop_mean_ms` | The headline. Note it at the start of a build session and again at the end. |
+| `loop_max_ms` | Stalls. A 4 ms loop with one 180 ms hitch per match loses a path segment and moves the mean by almost nothing. |
+| `loop_sd_ms` | Separates "steady but slow" (usually a blocking read to cache) from "fast but spiky" (usually GC). |
+| `loop_slow_pct` | Fraction of loops over 10 ms. Over a whole match, 2% and 40% are different problems. |
+| `cost_odometry_ms`, `cost_drive_ms`, `cost_field_ms`, `cost_telemetry_ms` | Where the time went. |
+
+Graph these rather than reading them as text — a stall is obvious as a spike and nearly invisible
+as a number that flickers once.
+
+Two design decisions worth knowing before you change it:
+
+- **It does not use the follower.** `Constants.create()` needs Foresight, and
+  `Constants.createAlgorithm()` deliberately throws until the Foresight Tuner has run. A baseline
+  OpMode that cannot init on an untuned robot is useless in September. This one takes the
+  drivetrain and localizer directly and drives open-loop, which also makes it the right tool
+  *during* Pinpoint tuning — the field view shows whether the offsets you just pasted track when
+  you push the robot around.
+- **Missing hardware degrades it rather than stopping it.** No Pinpoint means no pose, but the
+  loop is still measurable. `ValidateHardware` is the OpMode whose job is to name what is missing.
+
+The statistics live in `util/LoopTimer.java`, which has no SDK dependency and is unit-tested
+against a fake clock. The rule that test exists to protect: the first `lap()` records nothing,
+because the interval spanning init is usually the largest of the run and would own `maxMs()`
+permanently.
+
+### What is still not wired up
+
+Recorded here so it is a choice rather than a surprise:
+
+| Gap | Cost |
+|---|---|
+| Only `FlywheelSpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
+| No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
+
+## Why FTC Dashboard is not in the dependency set
+
+> **History note.** Everything in this file that predates 24 Sep 2026 assumes FTC
+> Dashboard is installed: the `Included` table listed it, the `shooter` package
+> published to it, and the AdvantageScope section treated it as the data path.
+> Those passages have been corrected in place where they were load-bearing, but
+> if you find one that still assumes it, this section is what supersedes it.
+
+**Panels and FTC Dashboard each work perfectly alone. With both installed, the
+Robot Controller does not start.** It crash-loops:
+
+```
+CoreRobotWebServer      started port=8080
+TooTallWebSocketServer  Started WebSocket server on port 8081
+... ~3.5 s later ...
+FATAL EXCEPTION: Thread-13
+java.net.BindException: Address already in use
+    at fi.iki.elonen.NanoHTTPD$ServerRunnable.run(NanoHTTPD.java:1763)
+```
+
+The thread dies, the RC never reaches `Robot Status: running`, `FtcAccessPointService`
+relaunches it about ten seconds later, and it repeats until the battery comes out.
+The Driver Station shows **no heartbeat and empty OpMode lists**, which is a
+symptom that looks like a code problem and is not one.
+
+| Panels | FTC Dashboard | Result |
+|---|---|---|
+| yes | yes | crash loop |
+| yes | **no** | **boots** |
+| **no** | yes | **boots** |
+
+Established on a Control Hub v1.0 (SDK 12.0, Sloth 0.3.2, Panels
+`0.3.2+1.0.13`, Dashboard `0.3.2+0.6.0`) on 24 Sep 2026, with **no team-authored
+Java in the APK at all** — so nothing of ours is involved. It survives a cold
+boot, so it is not an install-time race. Full working in `SPIKE.md` and
+`LADDER.md` at the repo root, including the readings that were wrong on the way.
+
+**What is known about the mechanism:** port **8001** — Panels' documented port —
+is bound and then requested again *inside a single Robot Controller process*
+(`ps` shows one process, and 8001's lifetime tracks it). Neither artifact
+declares a dependency on the other; both pull
+`org.nanohttpd:nanohttpd-websocket:2.3.1` and both exclude the core `nanohttpd`,
+expecting the SDK's bundled `fi.iki.elonen` classes — which is the class in the
+crash stack. Beyond that it needs the maintainers, and it is worth reporting
+upstream to Dairy Foundation (who build both Sloth variants) and bylazar.
+
+**Why Dashboard rather than Panels was the one dropped:** seven files import
+`com.bylazar.*`; one imported `com.acmerobotics.*`. The cost was one OpMode's
+telemetry block against seven files of migration.
+
+**What this costs, and it is not nothing:** the desktop AdvantageScope stream.
+AdvantageScope reads Dashboard's packet stream, and with no Dashboard there is
+no stream to read. That is a real loss and is not meant to be permanent — see
+[AdvantageScope](#advantagescope).
+
 ## Deliberately excluded
 
 - **NextFTC** — the previous command framework. Migrated off it onto Ivy;
@@ -1082,6 +1366,13 @@ tell you why.
   forward; if a file needs it, port that file to the current telemetry API
   instead of re-adding the dependency. (It still exists on Maven Central at
   `1.0.0` and was never updated for Pedro 3.)
+
+  **Also, 25 Sep 2026:** this is where Pedro's `Drawing` class and
+  `Follower.telemetryDebug()` live, which is the reason someone will reach for
+  it. They are not worth the dependency: Panels ships a `PEDRO_PATHING` field
+  preset, so the coordinate conversion is already available, and
+  `util/FieldView.java` does the drawing in about forty lines. See [The Field
+  view](#the-field-view-and-why-pedros-drawing-helper-is-not-how-we-get-there).
 - **Road Runner / `maven.brott.dev`** — not in use; the maven repo isn't
   declared here to avoid an unused, unexplained entry.
 - **Marrow** (`io.github.skeleton-army.marrow`) — a newer reactive-behavior
@@ -1092,8 +1383,24 @@ tell you why.
   FTC Dashboard already binds; the loser throws `BindException`, the RC ANRs,
   and the robot never reaches ready. See
   [AdvantageScope](#advantagescope) for the full failure and what it looks like
-  on the Driver Station. Desktop AdvantageScope covers the same workflow with
-  no port to fight over.
+  on the Driver Station.
+
+  **History note, 25 Sep 2026.** This bullet used to end "Desktop AdvantageScope
+  covers the same workflow with no port to fight over." That is no longer true:
+  desktop AdvantageScope read FTC Dashboard's stream, and Dashboard is gone too.
+  Neither *mechanism* in this bullet changed — the port collision is still real —
+  but the consolation prize it offered does not exist. Panels' Graph and Capture
+  views are the replacement. See [The Panels stack](#the-panels-stack-seeing-data-and-changing-values-at-a-meeting).
+- **FTC Dashboard** (`com.acmerobotics.slothboard:dashboard`) — cannot coexist
+  with Panels; the RC crash-loops on `BindException` with both installed. Panels
+  won because seven files import `com.bylazar.*` and one imported
+  `com.acmerobotics.*`. See [Why FTC Dashboard is not in the dependency
+  set](#why-ftc-dashboard-is-not-in-the-dependency-set).
+- **Desktop AdvantageScope** — not a dependency, but worth recording as a
+  rejected *tool*: it consumed Dashboard's packet stream, so it fell with
+  Dashboard. Its own documentation calls FTC support experimental and dates
+  official support to the Systemcore transition in 2027–28, which is not this
+  season. Settled 25 Sep 2026 rather than left open.
   *History:* this entry originally said to add it back "only if that debugging
   workflow is actually resumed"; #38 did exactly that, and #56 took it back out
   on the port collision. #56 was initially written up as the fix for a dead
