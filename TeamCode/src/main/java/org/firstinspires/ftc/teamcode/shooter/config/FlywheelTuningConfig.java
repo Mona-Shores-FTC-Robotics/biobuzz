@@ -23,7 +23,21 @@ public class FlywheelTuningConfig {
 
     public FlywheelLaneConfig left = new FlywheelLaneConfig();
     public FlywheelLaneConfig center = new FlywheelLaneConfig();
-    public FlywheelLaneConfig right = new FlywheelLaneConfig();
+    public FlywheelLaneConfig right = rightLaneDefaults();
+
+    /**
+     * The right lane's encoder counts backwards relative to its own motor.
+     * Found 26 Sep 2026: all three wheels spun the correct way, but the right
+     * lane read negative RPM, and ticking {@code reversed} only made the wheel
+     * spin the wrong way while the reading stayed negative. Its motor direction
+     * is correct; only the reading needs flipping. If that motor or its encoder
+     * cable is ever swapped, re-check this with the Flywheel Speed Test.
+     */
+    private static FlywheelLaneConfig rightLaneDefaults() {
+        FlywheelLaneConfig lane = new FlywheelLaneConfig();
+        lane.encoderReversed = true;
+        return lane;
+    }
 
     /** How encoder ticks become RPM. Get this wrong and every number below lies. */
     public static class Measurement {
