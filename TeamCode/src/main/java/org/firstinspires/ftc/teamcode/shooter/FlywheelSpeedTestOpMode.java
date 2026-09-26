@@ -96,7 +96,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             panels = null;
         }
 
-        telemetry.addLine("Flywheel Speed Test ready.");
+        telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
         telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
         telemetry.addLine("Tune everything else in Panels under FlywheelBank.");
         reportMissingMotors();
@@ -108,7 +108,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         // Keep measuring during init so a missing motor is reported before
         // anyone presses play.
         bank.periodic();
-        telemetry.addLine("Flywheel Speed Test ready.");
+        telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
         telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
         reportMissingMotors();
         telemetry.update();
@@ -207,7 +207,15 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         }
     }
 
+    /**
+     * Shown at the top of the Driver Station so there is no doubt which build is
+     * on the robot. Bump it when behaviour changes; if the robot shows an older
+     * one, it has not been redeployed.
+     */
+    private static final String BUILD = "encoder-flip v2 (26 Sep)";
+
     private void publishDriverStation() {
+        telemetry.addData("Build", BUILD);
         telemetry.addLine(bank.isSpinning() ? ">>> SPINNING  (B to stop)" : "--- STOPPED   (A to spin up)");
         telemetry.addData("Target RPM", "%.0f   dpad U/D %.0f, R/L %.0f",
                 FlywheelBank.config.target.targetRpm,
@@ -220,7 +228,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 : String.format(Locale.US, "%.2f V  (power x%.2f)", voltage, bank.getVoltageMultiplier()));
 
         telemetry.addLine();
-        telemetry.addLine("    state    rpm    err    pwr   spin-up  dir");
+        telemetry.addLine("    state    rpm    err    pwr   spin-up  dir  enc");
         for (FlywheelLane lane : FlywheelLane.values()) {
             telemetry.addLine(laneLine(lane));
         }
@@ -265,14 +273,15 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             state = "[spin ]";
         }
         double spinUpMs = flywheel.getLastSpinUpMs();
-        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s  %s",
+        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s  %s %s",
                 lane.tag,
                 state,
                 flywheel.getMeasuredRpm(),
                 flywheel.getErrorRpm(),
                 flywheel.getAppliedPower(),
                 Double.isNaN(spinUpMs) ? "  --" : String.format(Locale.US, "%.0f ms", spinUpMs),
-                flywheel.isReversed() ? "REV" : "FWD");
+                flywheel.isReversed() ? "REV" : "FWD",
+                flywheel.isEncoderReversed() ? "ENC-" : "enc+");
     }
 
     /**
@@ -312,6 +321,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
 
                 // Carried over from the Dashboard packet stream.
                 panels.addData(prefix + "_tps", flywheel.getMeasuredTicksPerSec());
+                panels.addData(prefix + "_raw_tps", flywheel.getRawTicksPerSec());
                 panels.addData(prefix + "_ff", flywheel.getFeedforwardPower());
                 panels.addData(prefix + "_fb", flywheel.getFeedbackPower());
                 panels.addData(prefix + "_spin_up_ms", flywheel.getLastSpinUpMs());

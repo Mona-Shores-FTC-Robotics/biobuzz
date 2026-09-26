@@ -220,6 +220,8 @@ public class FlywheelBank {
         private double commandedRpm = 0.0;
         private double measuredRpm = 0.0;
         private double measuredTicksPerSec = 0.0;
+        /** Straight from the SDK, before encoderReversed is applied. */
+        private double rawTicksPerSec = 0.0;
         private double appliedPower = 0.0;
         private double feedforwardPower = 0.0;
         private double feedbackPower = 0.0;
@@ -250,6 +252,22 @@ public class FlywheelBank {
          */
         public boolean isReversed() {
             return Boolean.TRUE.equals(appliedReversed);
+        }
+
+        /** True when this lane's reading is being negated by {@code encoderReversed}. */
+        public boolean isEncoderReversed() {
+            return cfg().encoderReversed;
+        }
+
+        /**
+         * Encoder velocity exactly as the SDK reports it, before
+         * {@code encoderReversed}. Its sign follows the motor direction; if it
+         * is negative with the wheel spinning the right way and {@code reversed}
+         * unticked, the encoder counts backwards and {@code encoderReversed} is
+         * the fix.
+         */
+        public double getRawTicksPerSec() {
+            return rawTicksPerSec;
         }
 
         /** False when no motor by the configured name exists in the Robot Configuration. */
@@ -374,6 +392,7 @@ public class FlywheelBank {
 
         void update(double voltageMultiplier) {
             if (motor == null) {
+                rawTicksPerSec = 0.0;
                 measuredTicksPerSec = 0.0;
                 measuredRpm = 0.0;
                 appliedPower = 0.0;
@@ -387,8 +406,9 @@ public class FlywheelBank {
 
             applyDirection();
 
+            rawTicksPerSec = motor.getVelocity();
             double encoderSign = cfg().encoderReversed ? -1.0 : 1.0;
-            measuredTicksPerSec = encoderSign * motor.getVelocity();
+            measuredTicksPerSec = encoderSign * rawTicksPerSec;
             measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
 
             double target = desiredRpm();
