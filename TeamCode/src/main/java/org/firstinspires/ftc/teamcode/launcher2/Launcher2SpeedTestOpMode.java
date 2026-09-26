@@ -47,7 +47,7 @@ import java.util.Locale;
 public class Launcher2SpeedTestOpMode extends OpMode {
 
     /** Bump when behaviour changes; if the rig shows an older one, redeploy. */
-    private static final String BUILD = "launcher2 spike v1 (26 Sep)";
+    private static final String BUILD = "launcher2 spike v2 (graph in init)";
 
     private Launcher2 launcher;
     private TelemetryManager panels;
@@ -89,6 +89,10 @@ public class Launcher2SpeedTestOpMode extends OpMode {
     public void init_loop() {
         launcher.periodic();
         showInitScreen();
+        // Graph data goes out during INIT too. The Panels graph lists only
+        // variables it has already received, so publishing from loop() alone
+        // left its variable list empty until PLAY was pressed.
+        publishPanels();
     }
 
     @Override
@@ -233,16 +237,30 @@ public class Launcher2SpeedTestOpMode extends OpMode {
         return launcher.isAtSpeed() ? "[READY]" : "[spin ]";
     }
 
-    /** Numeric series via addData so Panels can graph them. */
+    /**
+     * Numeric series for the Panels graph.
+     *
+     * <p>The graph builds its variable list from telemetry lines of the form
+     * {@code name:number} (read from Panels' graph plugin, 0.3.2+1.0.4), which
+     * is what {@code addData} with a number produces. A line whose value is not
+     * a finite number — {@code spin_up_ms} before the first spin-up is
+     * {@code NaN} — is silently not graphed.
+     *
+     * <p>The three the team asked for come first. {@code power} is 0–1 while
+     * the RPM series are in the thousands, and the graph has one y-axis, so
+     * graph power on its own to see its shape.
+     */
     private void publishPanels() {
         if (panels == null) {
             return;
         }
         try {
+            // Commanded speed: 0 while stopped, so pressing A shows as a step.
+            panels.addData("target_rpm", launcher.getCommandedRpm());
             panels.addData("rpm", launcher.getMeasuredRpm());
-            panels.addData("target", launcher.getCommandedRpm());
-            panels.addData("error", launcher.getErrorRpm());
             panels.addData("power", launcher.getAppliedPower());
+
+            panels.addData("error", launcher.getErrorRpm());
             panels.addData("ff", launcher.getFeedforwardPower());
             panels.addData("fb", launcher.getFeedbackPower());
             panels.addData("at_speed", launcher.isAtSpeed() ? 1.0 : 0.0);
