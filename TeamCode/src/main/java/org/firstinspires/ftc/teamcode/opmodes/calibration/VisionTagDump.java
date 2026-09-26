@@ -1,17 +1,15 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
-import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.vision.BiobuzzTags;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
-import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 
 import java.util.List;
 
@@ -38,45 +36,20 @@ import java.util.List;
  * pipeline is not emitting full 3D pose, and no sighting can be built at all.
  */
 @TeleOp(name = "Vision: Raw Tag Dump", group = "Vision")
-public class VisionTagDump extends OpMode {
-
-    private LimelightVisionSubsystem vision;
+public class VisionTagDump extends RobotOpMode {
 
     @Override
-    public void init() {
-        vision = new LimelightVisionSubsystem(hardwareMap);
-        vision.initialize();
-
-        Scheduler.reset();
-        Scheduler.schedule(vision.periodic());
-
-        telemetry.addLine("=== Raw Tag Dump ===");
-        if (!vision.isAvailable()) {
-            telemetry.addLine("LIMELIGHT NOT FOUND");
-            telemetry.addData("Reason", vision.unavailableReason());
-        } else {
-            telemetry.addLine("Hold a HIVE CELL tag in front of the camera.");
-            telemetry.addLine("Expect: Z = distance, +X = right, -Y = up.");
-        }
-        telemetry.update();
+    protected void onInit() {
+        VisionTelemetry.addBanner(telemetry, robot.vision, "Raw Tag Dump",
+                "Hold a HIVE CELL tag in front of the camera.",
+                "Expect: Z = distance, +X = right, -Y = up.");
     }
 
     @Override
-    public void init_loop() {
-        Scheduler.execute();
-    }
+    protected void onLoop() {
+        VisionTelemetry.addStatusHeader(telemetry, robot.vision);
 
-    @Override
-    public void loop() {
-        Scheduler.execute();
-
-        telemetry.addData("Camera", vision.isAvailable() ? vision.state() : "UNAVAILABLE");
-        telemetry.addData("Fresh frames", vision.freshResultCount());
-        telemetry.addData("3D poses missing", vision.framesMissing3dPose());
-        telemetry.addData("Update", "%.2f ms", vision.lastPeriodicMs());
-        telemetry.addLine();
-
-        LLResult result = vision.lastResult();
+        LLResult result = robot.vision.lastResult();
         if (result == null || !result.isValid()) {
             telemetry.addLine("No valid Limelight result.");
             telemetry.update();
@@ -120,11 +93,5 @@ public class VisionTagDump extends OpMode {
         Position position = pose.getPosition();
         if (position == null || position.unit == null) return null;
         return position.toUnit(DistanceUnit.INCH);
-    }
-
-    @Override
-    public void stop() {
-        if (vision != null) vision.stop();
-        Scheduler.reset();
     }
 }

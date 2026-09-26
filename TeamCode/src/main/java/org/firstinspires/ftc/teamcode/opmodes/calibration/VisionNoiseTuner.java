@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.ivy.Scheduler;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
-import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 
 /**
  * Measures how noisy a stationary sighting is: running mean and standard
@@ -42,12 +40,10 @@ import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
  */
 @TeleOp(name = "Vision: Noise Tuner", group = "Vision")
 @Configurable
-public class VisionNoiseTuner extends OpMode {
+public class VisionNoiseTuner extends RobotOpMode {
 
     /** Which cell to sample, as an index into {@link HiveCell#values()}. -1 = first visible. */
     public static int cellOrdinal = -1;
-
-    private LimelightVisionSubsystem vision;
 
     private final WelfordVariance rangeIn = new WelfordVariance();
     private final WelfordVariance bearingDeg = new WelfordVariance();
@@ -59,33 +55,14 @@ public class VisionNoiseTuner extends OpMode {
     private boolean prevCross = false;
 
     @Override
-    public void init() {
-        vision = new LimelightVisionSubsystem(hardwareMap);
-        vision.initialize();
-
-        Scheduler.reset();
-        Scheduler.schedule(vision.periodic());
-
-        telemetry.addLine("=== Vision Noise Tuner ===");
-        if (!vision.isAvailable()) {
-            telemetry.addLine("LIMELIGHT NOT FOUND");
-            telemetry.addData("Reason", vision.unavailableReason());
-        } else {
-            telemetry.addLine("Park the robot with a HIVE CELL in view and hold still.");
-            telemetry.addLine("Gamepad1 cross resets the statistics.");
-        }
-        telemetry.update();
+    protected void onInit() {
+        VisionTelemetry.addBanner(telemetry, robot.vision, "Vision Noise Tuner",
+                "Park the robot with a HIVE CELL in view and hold still.",
+                "Gamepad1 cross resets the statistics.");
     }
 
     @Override
-    public void init_loop() {
-        Scheduler.execute();
-    }
-
-    @Override
-    public void loop() {
-        Scheduler.execute();
-
+    protected void onLoop() {
         if (gamepad1.cross && !prevCross) resetStats();
         prevCross = gamepad1.cross;
 
@@ -106,7 +83,7 @@ public class VisionNoiseTuner extends OpMode {
             if (!sighting.lateralCorrectionApplied()) singleTagSamples++;
         }
 
-        telemetry.addData("Camera", vision.isAvailable() ? vision.state() : "UNAVAILABLE");
+        telemetry.addData("Camera", robot.vision.isAvailable() ? robot.vision.state() : "UNAVAILABLE");
         telemetry.addData("Cell", sampledCell == null ? "none yet" : sampledCell.toString());
         telemetry.addData("Samples", rangeIn.n());
         if (rangeIn.n() > 0) {
@@ -140,14 +117,14 @@ public class VisionNoiseTuner extends OpMode {
     private CellSighting pickSighting() {
         HiveCell[] cells = HiveCell.values();
         if (cellOrdinal >= 0 && cellOrdinal < cells.length) {
-            return vision.sighting(cells[cellOrdinal]);
+            return robot.vision.sighting(cells[cellOrdinal]);
         }
         if (sampledCell != null) {
-            CellSighting current = vision.sighting(sampledCell);
+            CellSighting current = robot.vision.sighting(sampledCell);
             if (current != null) return current;
         }
         for (HiveCell cell : cells) {
-            CellSighting candidate = vision.sighting(cell);
+            CellSighting candidate = robot.vision.sighting(cell);
             if (candidate != null) return candidate;
         }
         return null;
@@ -160,11 +137,5 @@ public class VisionNoiseTuner extends OpMode {
         singleTagSamples = 0;
         sampledCell = null;
         lastSampledCaptureNs = Long.MIN_VALUE;
-    }
-
-    @Override
-    public void stop() {
-        if (vision != null) vision.stop();
-        Scheduler.reset();
     }
 }

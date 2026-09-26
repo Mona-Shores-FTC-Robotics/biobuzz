@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.ivy.Command;
-import com.pedropathing.ivy.commands.Commands;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -11,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.ArrayList;
@@ -50,7 +49,7 @@ import java.util.Map;
  *       say so out loud instead of just reporting "no target".</li>
  * </ul>
  */
-public class LimelightVisionSubsystem {
+public class LimelightVisionSubsystem implements Subsystem {
 
     /** Hardware map name this looks for. */
     public static final String DEFAULT_DEVICE_NAME = "limelight";
@@ -133,6 +132,7 @@ public class LimelightVisionSubsystem {
     public State state() { return state; }
 
     /** Selects the configured pipeline and starts streaming. Safe if unavailable. */
+    @Override
     public void initialize() {
         if (!available) {
             state = State.UNAVAILABLE;
@@ -144,20 +144,13 @@ public class LimelightVisionSubsystem {
     }
 
     /**
-     * The scheduler-driven update loop. Schedule once during OpMode init; it runs
-     * until the scheduler is reset.
+     * One update step. Called every loop, either directly by a LinearOpMode or through
+     * {@link Subsystem#periodic()} under the Ivy scheduler.
      *
-     * <p>This <em>returns</em> a command — it does not do the work itself. It has
-     * to be handed to {@code Scheduler.schedule(...)} or nothing polls the camera.
+     * <p>{@code periodic()} is inherited unchanged from {@link Subsystem} — the default there is
+     * exactly what this class used to declare for itself.
      */
-    public Command periodic() {
-        return Commands.infinite(this::update).requiring(this);
-    }
-
-    /**
-     * One update step. Public so a LinearOpMode that isn't running the Ivy
-     * scheduler can drive it directly; under the scheduler use {@link #periodic()}.
-     */
+    @Override
     public void update() {
         long startNs = System.nanoTime();
         try {
@@ -168,8 +161,17 @@ public class LimelightVisionSubsystem {
             lastPollMs = nowMs;
 
             applyPipelineIndex();
-            poll();
+
+            // Expire first. poll() overwrites a cell's sighting in place, so a
+            // stale entry polled in the same tick would look fresh by the time
+            // expireStaleSightings() saw it — and its tracker would never be
+            // reset. The pre-blackout candidate run would then be extended by
+            // the new observation instead of restarted, handing back a settled
+            // UP or DOWN with none of the three-sample dwell re-earned. Only
+            // reachable when a tick is missed across the expiry window (a loop
+            // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
+            poll();
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -268,9 +270,17 @@ public class LimelightVisionSubsystem {
 
     private void expireStaleSightings() {
         long cutoffNs = System.nanoTime() - Tuning.sightingExpiryMs * 1_000_000L;
-        Iterator<CellSighting> it = sightings.values().iterator();
+        Iterator<Map.Entry<HiveCell, CellSighting>> it = sightings.entrySet().iterator();
         while (it.hasNext()) {
-            if (it.next().captureTimeNs() < cutoffNs) it.remove();
+            Map.Entry<HiveCell, CellSighting> entry = it.next();
+            if (entry.getValue().captureTimeNs() < cutoffNs) {
+                // A cell that has not been observed recently must not retain its
+                // previous settled state. Otherwise state(cell) could report UP
+                // or DOWN indefinitely after the robot turns away from the cell.
+                CellStateTracker tracker = stateTrackers.get(entry.getKey());
+                if (tracker != null) tracker.reset();
+                it.remove();
+            }
         }
     }
 
@@ -297,6 +307,12 @@ public class LimelightVisionSubsystem {
      * <p>A field pose must not be derived from a cell reporting UNKNOWN.
      */
     public HiveCellState state(HiveCell cell) {
+        CellSighting sighting = sightings.get(cell);
+        if (sighting == null
+                || sighting.ageMs() > Tuning.sightingExpiryMs) {
+            return HiveCellState.UNKNOWN;
+        }
+
         CellStateTracker tracker = stateTrackers.get(cell);
         return tracker == null ? HiveCellState.UNKNOWN : tracker.settledState();
     }
@@ -358,6 +374,7 @@ public class LimelightVisionSubsystem {
     public LLResult lastResult() { return lastResult; }
 
     /** Stops streaming. Safe to call during OpMode teardown. */
+    @Override
     public void stop() {
         try {
             if (available) limelight.stop();
