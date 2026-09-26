@@ -164,7 +164,7 @@ public class BasicDriveTeleOp extends OpMode {
         lastLoopNs = now;
 
         boolean turbo = gamepad1.right_bumper && !gamepad1.left_bumper;
-        double scale = gamepad1.left_bumper ? slowSpeed : turbo ? turboSpeed : normalSpeed;
+        double scale = unitRange(gamepad1.left_bumper ? slowSpeed : turbo ? turboSpeed : normalSpeed);
         double forward = deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale;
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
@@ -220,6 +220,14 @@ public class BasicDriveTeleOp extends OpMode {
 
     private double heading() {
         return localizer == null ? 0.0 : localizer.pose().heading();
+    }
+
+    /**
+     * Clamps a Panels-editable speed to [0, 1], and treats NaN as 0. A typo in Panels should give
+     * a robot that is too slow, never one commanded past full power or sent NaN.
+     */
+    private static double unitRange(double value) {
+        return value > 0.0 ? Math.min(value, 1.0) : 0.0;
     }
 
     private static double deadband(double value) {

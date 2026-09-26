@@ -37,7 +37,11 @@ public final class AccelLimiter {
         if (Math.abs(target) <= Math.abs(current)) {
             current = target;
         } else {
-            double maxStep = Math.max(0.0, maxRisePerSec) * Math.max(0.0, dtSec);
+            // Written as "> 0" rather than Math.max(0, x) so a NaN rate or time step (a bad value
+            // typed into Panels) means "do not move" instead of poisoning the output with NaN.
+            double rate = maxRisePerSec > 0.0 ? maxRisePerSec : 0.0;
+            double dt = dtSec > 0.0 ? dtSec : 0.0;
+            double maxStep = rate * dt;
             current += Math.signum(target) * Math.min(maxStep, Math.abs(target) - Math.abs(current));
         }
         return current;

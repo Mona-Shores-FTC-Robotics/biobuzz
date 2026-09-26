@@ -53,6 +53,12 @@ public class AccelLimiterTest {
     }
 
     @Test
+    public void aNaNRateCannotMoveTheOutput() {
+        AccelLimiter limiter = new AccelLimiter();
+        assertEquals(0.0, limiter.step(1.0, Double.NaN, 0.05), EPS);
+    }
+
+    @Test
     public void aNegativeTimeStepCannotMoveTheOutput() {
         AccelLimiter limiter = new AccelLimiter();
         assertEquals(0.0, limiter.step(1.0, 2.0, -0.5), EPS);
