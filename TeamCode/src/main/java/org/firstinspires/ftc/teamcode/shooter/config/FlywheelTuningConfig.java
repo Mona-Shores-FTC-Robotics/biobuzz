@@ -74,7 +74,7 @@ public class FlywheelTuningConfig {
     /** What counts as "at speed". */
     public static class Readiness {
         /** How close to target a lane must get to <em>become</em> READY, RPM. */
-        public double rpmToleranceRpm = 50;
+        public double rpmToleranceRpm = 60;
 
         /**
          * How far a lane that is already READY may wander before it drops back
