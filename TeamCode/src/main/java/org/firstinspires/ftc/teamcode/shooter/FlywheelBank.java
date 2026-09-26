@@ -387,7 +387,8 @@ public class FlywheelBank {
 
             applyDirection();
 
-            measuredTicksPerSec = motor.getVelocity();
+            double encoderSign = cfg().encoderReversed ? -1.0 : 1.0;
+            measuredTicksPerSec = encoderSign * motor.getVelocity();
             measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
 
             double target = desiredRpm();
@@ -403,7 +404,14 @@ public class FlywheelBank {
 
             FlywheelLaneConfig laneConfig = cfg();
             double feedforward = laneConfig.kS + laneConfig.kV * target;
-            double feedback = laneConfig.kP * (target - measuredRpm);
+            // A negative reading against a positive target is a direction or
+            // encoder-sign fault, not a speed error. Feeding it to kP asks for
+            // more power, which spins the wheel faster the wrong way and reads
+            // more negative — a runaway to full power. Hold feedforward only
+            // until the sign is fixed; isRunningBackwards() reports it.
+            double feedback = measuredRpm < 0.0
+                    ? 0.0
+                    : laneConfig.kP * (target - measuredRpm);
             feedforwardPower = feedforward;
             feedbackPower = feedback;
             double power = Range.clip((feedforward + feedback) * voltageMultiplier, 0.0, 1.0);

@@ -605,9 +605,19 @@ the robot somewhere the flywheels can spin free and walk through this once:
    readout still works and the gamepad still tunes the target speed.
 3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
    land on `[READY]`.
-4. **Is any lane showing a negative RPM?** That wheel is spinning backwards —
-   tick `reversed` for it in Panels and it should flip positive. (DECODE's
-   robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+4. **Is any lane showing a negative RPM?** Look at the wheel before touching
+   anything. Two different faults read the same:
+   - **The wheel spins the wrong way** → tick `reversed`. That flips the
+     motor and its encoder together, so the RPM goes positive. (DECODE's
+     robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+   - **The wheel spins the right way** → tick `encoderReversed`. The encoder
+     counts backwards relative to its own motor, so `reversed` cannot fix it:
+     the RPM stays negative whichever way that box is set. Seen on the right
+     lane, 26 Sep 2026, where it read about -4000.
+
+   Until the sign is right, the lane runs on feedforward only. Before that
+   guard existed, a negative reading made the feedback term demand ever more
+   power and the wheel ran away to full speed.
    **If ticking it changes nothing,** check the lane's `dir` column (and the
    `<lane>_reversed` graph key). That is the direction the running code
    actually applied. If Panels says `reversed` is ticked but `dir` still says

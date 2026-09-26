@@ -239,7 +239,8 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         for (FlywheelLane lane : FlywheelLane.values()) {
             FlywheelBank.Flywheel flywheel = bank.lane(lane);
             if (flywheel.isRunningBackwards()) {
-                telemetry.addData("WRONG DIRECTION", "%s lane is spinning backwards — tick \"reversed\" for it in Panels",
+                telemetry.addData("NEGATIVE RPM", "%s lane. Wheel spinning the wrong way -> tick \"reversed\". "
+                        + "Wheel spinning the right way -> tick \"encoderReversed\" instead.",
                         lane.name());
             }
         }
