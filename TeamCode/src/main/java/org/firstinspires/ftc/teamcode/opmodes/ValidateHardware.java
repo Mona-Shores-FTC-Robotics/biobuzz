@@ -48,15 +48,18 @@ public class ValidateHardware extends LinearOpMode {
     public void runOpMode() {
         List<String> problems = new ArrayList<>();
 
-        reportActiveConfig(problems);
+        RobotIdentity identity = reportActiveConfig(problems);
+        // An unrecognised config is already a problem; checking it against every
+        // name the code knows still says which devices are there.
+        List<DeviceNames.Device> expected = identity == null ? DeviceNames.ALL : identity.devices;
         line("");
-        reportExpectedDevices(problems);
+        reportExpectedDevices(expected, problems);
         line("");
-        reportUnexpectedDevices();
+        reportUnexpectedDevices(expected);
         line("");
 
         if (problems.isEmpty()) {
-            line("RESULT: all " + DeviceNames.ALL.size() + " expected devices present.");
+            line("RESULT: all " + expected.size() + " expected devices present.");
         } else {
             line("RESULT: " + problems.size() + " problem(s):");
             for (String problem : problems) {
@@ -120,14 +123,15 @@ public class ValidateHardware extends LinearOpMode {
         report.add(key + ": " + value);
     }
 
-    private void reportActiveConfig(List<String> problems) {
+    /** Reports the active configuration and returns its robot, or null if it has none. */
+    private RobotIdentity reportActiveConfig(List<String> problems) {
         line("=== Active configuration ===");
 
         String activeName = ActiveConfig.name();
         if (activeName == null) {
             data("Config", "NONE SELECTED");
             problems.add("No configuration is active. Configure Robot -> select one -> Activate.");
-            return;
+            return null;
         }
 
         data("Config", activeName);
@@ -149,12 +153,13 @@ public class ValidateHardware extends LinearOpMode {
         } else {
             data("Robot", identity.name());
         }
+        return identity;
     }
 
-    private void reportExpectedDevices(List<String> problems) {
+    private void reportExpectedDevices(List<DeviceNames.Device> devices, List<String> problems) {
         line("=== Expected devices ===");
 
-        for (DeviceNames.Device expected : DeviceNames.ALL) {
+        for (DeviceNames.Device expected : devices) {
             HardwareDevice found = hardwareMap.tryGet(HardwareDevice.class, expected.name);
 
             if (found == null) {
@@ -182,11 +187,11 @@ public class ValidateHardware extends LinearOpMode {
      * harmless, but it is how you spot a device that was renamed on one side
      * only — the old name shows up here while the new one shows up as MISSING.
      */
-    private void reportUnexpectedDevices() {
+    private void reportUnexpectedDevices(List<DeviceNames.Device> devices) {
         line("=== Configured but unused ===");
 
         SortedSet<String> expectedNames = new TreeSet<>();
-        for (DeviceNames.Device expected : DeviceNames.ALL) {
+        for (DeviceNames.Device expected : devices) {
             expectedNames.add(expected.name);
         }
 

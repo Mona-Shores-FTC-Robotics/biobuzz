@@ -19,6 +19,7 @@ seven unit test classes.
 | `hardware/` | `DeviceNames` (the only place a hardware name may be written), robot identity, active-config resolution |
 | `pedro/` | Pathing. `Constants.java` and `Tuning.java` are **ours and filled in**; everything else is upstream |
 | `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
+| `launcher2/` | Two-wheel pinch launcher speed test, for the bench rig on hub FTC-EoM3 (config `robot_launcher_rig`). A standalone copy of `shooter/`, cut to one Y-cabled motor, same RPM steps |
 | `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
 | `opmodes/` | Ours, including `ValidateHardware` and the vision calibration OpModes |
 | `util/`, `src/test/` | Shared helpers — `LoopTimer`, `FieldView`, `WelfordVariance`, `Alliance`; seven test classes, run by CI |
@@ -169,7 +170,7 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 | `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning}.java` | **Yes** — ours, and filled in |
 | `TeamCode/src/main/java/.../teamcode/hardware/` | Yes — device names, robot identity |
 | `TeamCode/src/main/java/.../teamcode/opmodes/` | Yes |
-| `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs |
+| `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs, one per `RobotIdentity`; each is checked against its own device list |
 | `TeamCode/src/test/` | Yes — unit tests, run in CI |
 | `FtcRobotController/` | No — stock v12.0, never patch |
 | `.run/` | Yes — the shared Sloth Load run config |

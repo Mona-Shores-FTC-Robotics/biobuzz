@@ -264,7 +264,7 @@ and nothing is pushed over adb.
 
 | | |
 |---|---|
-| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot |
+| The configs | `TeamCode/src/main/res/xml/robot_19429.xml`, `robot_20245.xml` — one per robot — plus `robot_launcher_rig.xml` for the two-wheel launcher bench rig (hub FTC-EoM3) |
 | The names in Java | `hardware/DeviceNames.java` — the only place a device name may be written |
 | The build-time check | `RobotConfigXmlTest` — fails CI if the XML and `DeviceNames` disagree |
 | The run-time check | the **Validate Hardware** OpMode (Diagnostics group) |
@@ -287,19 +287,31 @@ wired differently, either rewire it to match the file or edit the file to match
 the robot. Either is fine. What is not fine is the two disagreeing silently,
 which is what the test prevents.
 
-Adding a device is three edits — a constant in `DeviceNames`, an entry in
-`DeviceNames.ALL`, and the element in **every** `robot_*.xml`. Miss the third
-and the test names the file.
+Adding a device is three edits — a constant in `DeviceNames`, an entry in the
+device list of each robot that has it (`DeviceNames.COMPETITION_ROBOT` for both
+competition robots), and the element in each of those robots' `robot_*.xml`.
+Miss the third and the test names the file.
 
 Adding a robot is two edits — a `res/xml/robot_<name>.xml` and a matching
-`RobotIdentity` constant. The test asserts those two sets match exactly. At that
+`RobotIdentity` constant, which names the `DeviceNames` list it carries. The test asserts those two sets match exactly. At that
 price there is no reason to cap the number of robots: a spare chassis, or last
 season's bot kept as a test mule, costs one file.
 
-One known limit: the test requires every robot to declare every device. A
-stripped prototype missing a subsystem would fail it. With only a drivetrain and
-odometry today, any rollable chassis has all five, so this hasn't bitten yet —
-but it is a real boundary, not an oversight.
+Each configuration is checked against **its own robot's** device list: it must
+declare every device on that list and nothing else. `DeviceNames.ALL` is now the
+union of the lists — every name the code knows — and is a requirement on no one
+file.
+
+> **History note (26 Sep 2026).** This paragraph used to say "the test requires
+> every robot to declare every device", and called that a known limit that
+> "hasn't bitten yet". It bit with the first bench rig: the two-wheel pinch
+> launcher on its own Control Hub (FTC-EoM3), which has one motor and nothing
+> else. Rejected alternatives: naming the rig's file something other than
+> `robot_*.xml` so the tests skip it (smallest change, but then a typo in its
+> motor name is found at a meeting, which is the thing this whole section
+> exists to prevent); and adding `launcher2` to both competition robots' XML
+> (would declare a device neither robot has). `Validate Hardware` likewise now
+> checks the live hardware against the active robot's list.
 
 ### Device names are never string literals
 
