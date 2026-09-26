@@ -47,10 +47,19 @@ import java.util.Locale;
 public class Launcher2SpeedTestOpMode extends OpMode {
 
     /** Bump when behaviour changes; if the rig shows an older one, redeploy. */
-    private static final String BUILD = "launcher2 spike v2 (graph in init)";
+    private static final String BUILD = "launcher2 spike v3 (panels status)";
 
     private Launcher2 launcher;
     private TelemetryManager panels;
+
+    /**
+     * Why graph data is or is not reaching Panels, shown on the Driver Station.
+     * Both failure paths used to be silent — a failed lookup left
+     * {@code panels} null, and a failed send was swallowed — so an empty graph
+     * on 26 Sep 2026 gave nobody anything to go on.
+     */
+    private String panelsProblem = null;
+    private long panelsSends = 0L;
 
     /** Null when the active config is the rig's; otherwise what to tell the operator. */
     private String configWarning;
@@ -79,8 +88,14 @@ public class Launcher2SpeedTestOpMode extends OpMode {
 
         try {
             panels = PanelsTelemetry.INSTANCE.getTelemetry();
-        } catch (Exception ignored) {
+            if (panels == null) {
+                panelsProblem = "PanelsTelemetry returned no telemetry manager";
+            }
+        } catch (RuntimeException | LinkageError e) {
+            // LinkageError too: a class mismatch after a Sloth Load is an
+            // Error, not an Exception, and would otherwise crash init.
             panels = null;
+            panelsProblem = "not available at init: " + describe(e);
         }
         showInitScreen();
     }
@@ -188,6 +203,11 @@ public class Launcher2SpeedTestOpMode extends OpMode {
     }
 
     private void reportProblems() {
+        if (panels == null || panelsProblem != null) {
+            telemetry.addData("PANELS", panelsProblem == null ? "not available" : panelsProblem);
+        } else {
+            telemetry.addData("Panels", "sending graph data (%d updates)", panelsSends);
+        }
         if (configWarning != null) {
             telemetry.addData("WRONG CONFIG", configWarning);
         }
@@ -281,8 +301,16 @@ public class Launcher2SpeedTestOpMode extends OpMode {
             panels.debug(launcher.isSpinning() ? "SPINNING" : "STOPPED");
             panels.debug(stateLabel());
             panels.update();
-        } catch (Exception ignored) {
-            // A Panels hiccup must never take the rig down mid-spin.
+            panelsSends++;
+            panelsProblem = null;
+        } catch (RuntimeException | LinkageError e) {
+            // A Panels hiccup must never take the rig down mid-spin — but it
+            // must be visible, or an empty graph has no explanation.
+            panelsProblem = "send failed: " + describe(e);
         }
+    }
+
+    private static String describe(Throwable e) {
+        return e.getClass().getSimpleName() + (e.getMessage() == null ? "" : ": " + e.getMessage());
     }
 }
