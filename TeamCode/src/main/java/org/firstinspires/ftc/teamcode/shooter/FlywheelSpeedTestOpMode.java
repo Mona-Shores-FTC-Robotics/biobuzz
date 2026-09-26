@@ -220,7 +220,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 : String.format(Locale.US, "%.2f V  (power x%.2f)", voltage, bank.getVoltageMultiplier()));
 
         telemetry.addLine();
-        telemetry.addLine("    state    rpm    err    pwr   spin-up");
+        telemetry.addLine("    state    rpm    err    pwr   spin-up  dir");
         for (FlywheelLane lane : FlywheelLane.values()) {
             telemetry.addLine(laneLine(lane));
         }
@@ -264,13 +264,14 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             state = "[spin ]";
         }
         double spinUpMs = flywheel.getLastSpinUpMs();
-        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s",
+        return String.format(Locale.US, "%s   %s %6.0f %6.0f  %5.2f   %s  %s",
                 lane.tag,
                 state,
                 flywheel.getMeasuredRpm(),
                 flywheel.getErrorRpm(),
                 flywheel.getAppliedPower(),
-                Double.isNaN(spinUpMs) ? "  --" : String.format(Locale.US, "%.0f ms", spinUpMs));
+                Double.isNaN(spinUpMs) ? "  --" : String.format(Locale.US, "%.0f ms", spinUpMs),
+                flywheel.isReversed() ? "REV" : "FWD");
     }
 
     /**
@@ -303,6 +304,10 @@ public class FlywheelSpeedTestOpMode extends OpMode {
                 panels.addData(prefix + "_error", flywheel.getErrorRpm());
                 panels.addData(prefix + "_power", flywheel.getAppliedPower());
                 panels.addData(prefix + "_at_speed", flywheel.isAtSpeed() ? 1.0 : 0.0);
+                // Readback of the direction actually applied. Compare it with the
+                // `reversed` tick box: if they disagree, Panels is editing a copy
+                // of the config the running OpMode does not read.
+                panels.addData(prefix + "_reversed", flywheel.isReversed() ? 1.0 : 0.0);
 
                 // Carried over from the Dashboard packet stream.
                 panels.addData(prefix + "_tps", flywheel.getMeasuredTicksPerSec());

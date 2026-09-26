@@ -608,6 +608,17 @@ the robot somewhere the flywheels can spin free and walk through this once:
 4. **Is any lane showing a negative RPM?** That wheel is spinning backwards —
    tick `reversed` for it in Panels and it should flip positive. (DECODE's
    robot 20245 ran its right lane reversed; 19429 ran all three forward.)
+   **If ticking it changes nothing,** check the lane's `dir` column (and the
+   `<lane>_reversed` graph key). That is the direction the running code
+   actually applied. If Panels says `reversed` is ticked but `dir` still says
+   `FWD`, the edit landed in a copy of the config that this OpMode does not
+   read. The suspected cause is Sloth Load: Panels can end up holding fields
+   from both the installed APK's classes and the hot-reloaded ones, and editing
+   the stale set. The cure is a full **TeamCode** install, a power-cycle, and a
+   reload of the Panels page. Seen 26 Sep 2026 on the right lane; the cause was
+   inferred from the Panels `configurables-0.3.2+1.0.5` bytecode (it keeps fields
+   per class loader and groups them by class name for the browser), not yet
+   confirmed on the robot.
 5. **Does the RPM look believable?** If it's off by a constant factor — double,
    half, ten times — the encoder maths is wrong, not the motor. Fix
    `measurement.ticksPerRev` first, then `gearRatio`.

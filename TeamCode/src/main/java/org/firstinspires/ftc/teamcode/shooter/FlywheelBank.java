@@ -242,6 +242,16 @@ public class FlywheelBank {
             return cfg().enabled;
         }
 
+        /**
+         * The direction the running code last applied to the motor — read from
+         * this OpMode's own copy of the config, not from what Panels displays.
+         * If the Panels tick box and this disagree, the edit went somewhere the
+         * running code cannot see.
+         */
+        public boolean isReversed() {
+            return Boolean.TRUE.equals(appliedReversed);
+        }
+
         /** False when no motor by the configured name exists in the Robot Configuration. */
         public boolean isConnected() {
             return motor != null;
