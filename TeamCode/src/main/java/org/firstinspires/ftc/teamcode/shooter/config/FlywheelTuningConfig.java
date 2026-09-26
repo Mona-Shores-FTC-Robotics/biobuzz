@@ -73,8 +73,22 @@ public class FlywheelTuningConfig {
 
     /** What counts as "at speed". */
     public static class Readiness {
-        /** Acceptable RPM error when considering a lane ready to fire. */
+        /** How close to target a lane must get to <em>become</em> READY, RPM. */
         public double rpmToleranceRpm = 50;
+
+        /**
+         * How far a lane that is already READY may wander before it drops back
+         * to spinning, RPM. Wider than {@link #rpmToleranceRpm} on purpose.
+         *
+         * <p>With a single band, one noisy reading just outside it knocked a
+         * steady lane out of READY and restarted the hold timer, so the state
+         * flickered between READY and spin with the wheel at speed — seen on
+         * the robot, 26 Sep 2026. Two bands (hysteresis) keep "ready" as strict
+         * to reach as before, but ignore jitter once there. A real speed loss,
+         * such as a ball going through, still drops it. Values below
+         * {@code rpmToleranceRpm} are treated as equal to it.
+         */
+        public double dropOutToleranceRpm = 100;
 
         /**
          * The error must stay inside tolerance this long before the lane reports

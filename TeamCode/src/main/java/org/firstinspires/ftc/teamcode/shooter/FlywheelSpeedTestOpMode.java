@@ -212,7 +212,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
      * on the robot. Bump it when behaviour changes; if the robot shows an older
      * one, it has not been redeployed.
      */
-    private static final String BUILD = "encoder-flip v2 (26 Sep)";
+    private static final String BUILD = "ready-hysteresis v3 (26 Sep)";
 
     private void publishDriverStation() {
         telemetry.addData("Build", BUILD);

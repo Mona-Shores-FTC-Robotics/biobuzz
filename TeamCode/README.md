@@ -523,7 +523,7 @@ Everything numeric is a live Panels field under `FlywheelBank → config`:
 |---|---|
 | `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
 | `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
-| `readiness` | `rpmToleranceRpm`, `atSpeedHoldMs` — what counts as "at speed" |
+| `readiness` | `rpmToleranceRpm` (to become READY), `dropOutToleranceRpm` (to stop being READY — wider, so jitter does not flicker the state), `atSpeedHoldMs` |
 | `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
 | `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
 

@@ -466,7 +466,20 @@ public class FlywheelBank {
         }
 
         private void updateReadiness(double target) {
-            boolean within = Math.abs(target - measuredRpm) <= config.readiness.rpmToleranceRpm;
+            double error = Math.abs(target - measuredRpm);
+            FlywheelTuningConfig.Readiness readiness = config.readiness;
+            if (atSpeed) {
+                // Already READY: only the wider drop-out band can take it away,
+                // so jitter around target does not flicker the state.
+                double dropOut = Math.max(readiness.dropOutToleranceRpm, readiness.rpmToleranceRpm);
+                if (error <= dropOut) {
+                    return;
+                }
+                inToleranceSinceNs = 0L;
+                atSpeed = false;
+                return;
+            }
+            boolean within = error <= readiness.rpmToleranceRpm;
             if (!within) {
                 inToleranceSinceNs = 0L;
                 atSpeed = false;
@@ -479,7 +492,7 @@ public class FlywheelBank {
                     lastSpinUpMs = (now - commandedAtNs) / 1e6;
                 }
             }
-            atSpeed = (now - inToleranceSinceNs) >= config.readiness.atSpeedHoldMs * 1e6;
+            atSpeed = (now - inToleranceSinceNs) >= readiness.atSpeedHoldMs * 1e6;
         }
 
         private void resetReadiness() {
