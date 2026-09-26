@@ -1064,12 +1064,22 @@ Three things that will cost you a meeting if you forget them:
 - **A field with no annotation above it simply never appears.** No error, no warning — it is
   just absent from the tree. `VisionSightingDiagnostics` carries a note about exactly this
   happening once already.
-- **It is one-way.** Edits in Panels reach the robot immediately. Values changed *in code* do
-  not push back to the browser until you refresh it, so a stale-looking number in the UI may not
-  be what the robot is using.
+- **It is one-way unless code asks otherwise.** Edits in Panels reach the robot immediately.
+  Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
+  when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
+  that writes a configurable must call `refreshClass` right after, or the page shows a stale number
+  and an edit typed over it looks like it did nothing. `FlywheelSpeedTestOpMode.refreshPanelsConfig()`
+  is the example — its d-pad nudges write `targetRpm`.
+  > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
+  > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
+  > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
+  > `refreshClass`, and at no other time).
 - **Read from the source every time.** Do not copy a configurable into a local field at init and
   use the local afterwards — you will be reading the value from before the edit, and it will
   look like the edit did nothing.
+  The same goes for values sent to hardware once: `LimelightVisionSubsystem` used to call
+  `pipelineSwitch(Tuning.pipelineIndex)` at init only, so editing the pipeline in Panels did
+  nothing until a restart. It now re-applies the index whenever it changes.
 
 ### The Field view, and why Pedro's drawing helper is not how we get there
 

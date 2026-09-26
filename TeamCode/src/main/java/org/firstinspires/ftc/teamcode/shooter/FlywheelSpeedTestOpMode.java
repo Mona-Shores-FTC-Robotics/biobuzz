@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.shooter;
 
+import com.bylazar.configurables.PanelsConfigurables;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -175,6 +176,24 @@ public class FlywheelSpeedTestOpMode extends OpMode {
             updated = ceiling;
         }
         target.targetRpm = updated;
+        refreshPanelsConfig();
+    }
+
+    /**
+     * Pushes a value this OpMode wrote back to the Panels configurables page.
+     *
+     * <p>Panels sends configurable values to the browser only when a tab
+     * connects, after an edit made <em>in</em> the browser, or when told to with
+     * {@code refreshClass}. Without this call a d-pad nudge moves the flywheel
+     * but the page keeps showing the old {@code targetRpm}, and typing a new
+     * number over that stale one looks like the edit did nothing.
+     */
+    private static void refreshPanelsConfig() {
+        try {
+            PanelsConfigurables.refreshClass(FlywheelBank.class);
+        } catch (RuntimeException ignored) {
+            // A dashboard problem must not stop the rig.
+        }
     }
 
     /** Names any lane that is enabled but whose motor is not in the robot config. */

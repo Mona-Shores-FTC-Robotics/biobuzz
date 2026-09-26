@@ -90,6 +90,14 @@ public class LimelightVisionSubsystem {
     private final Map<HiveCell, CellStateTracker> stateTrackers = new EnumMap<>(HiveCell.class);
 
     private long lastPollMs = 0L;
+
+    /**
+     * The pipeline the camera was last told to use, so a Panels edit to
+     * {@link Tuning#pipelineIndex} can be applied mid-run. -1 until
+     * {@link #initialize()} selects one.
+     */
+    private int appliedPipelineIndex = -1;
+
     private long lastResultTimestampNs = Long.MIN_VALUE;
     private long framesMissing3dPose = 0L;
     private long freshResultCount = 0L;
@@ -130,7 +138,7 @@ public class LimelightVisionSubsystem {
             state = State.UNAVAILABLE;
             return;
         }
-        limelight.pipelineSwitch(Tuning.pipelineIndex);
+        applyPipelineIndex();
         limelight.start();
         state = State.STREAMING;
     }
@@ -159,11 +167,25 @@ public class LimelightVisionSubsystem {
             if (nowMs - lastPollMs < Tuning.pollIntervalMs) return;
             lastPollMs = nowMs;
 
+            applyPipelineIndex();
             poll();
             expireStaleSightings();
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
+    }
+
+    /**
+     * Switches pipeline when {@link Tuning#pipelineIndex} differs from the one
+     * last applied. Called every poll, not only at init: the value is live in
+     * Panels, and reading it once at init made editing it there do nothing
+     * until the OpMode was restarted.
+     */
+    private void applyPipelineIndex() {
+        int wanted = Tuning.pipelineIndex;
+        if (wanted == appliedPipelineIndex) return;
+        limelight.pipelineSwitch(wanted);
+        appliedPipelineIndex = wanted;
     }
 
     private void poll() {
