@@ -1,6 +1,6 @@
 name: Idea — something the robot should do
 description: Propose something. You do not need to know how to build it.
-labels: ["proposal", "needs-triage"]
+labels: ["proposal"]
 body:
   - type: markdown
     attributes:
