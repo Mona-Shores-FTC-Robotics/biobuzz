@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -30,56 +32,110 @@ import java.util.TreeSet;
  * (a {@code try*} helper that swallowed {@code IllegalArgumentException}) meant
  * three missing sensors went unnoticed for weeks.
  *
- * <p>Reports during init, so you do not have to press play.
+ * <p>Reports during init, so you do not have to press play. The report goes
+ * to Panels ({@code http://192.168.43.1:8001}) and the Driver Station together.
  */
 @TeleOp(name = "Validate Hardware", group = "Diagnostics")
 public class ValidateHardware extends LinearOpMode {
 
+    /**
+     * The finished report, one line per entry. Built once — the hardware map
+     * does not change while the OpMode runs — and re-sent every loop.
+     */
+    private final List<String> report = new ArrayList<>();
+
     @Override
     public void runOpMode() {
-        telemetry.setAutoClear(false);
-
         List<String> problems = new ArrayList<>();
 
         reportActiveConfig(problems);
-        telemetry.addLine();
+        line("");
         reportExpectedDevices(problems);
-        telemetry.addLine();
+        line("");
         reportUnexpectedDevices();
-        telemetry.addLine();
+        line("");
 
         if (problems.isEmpty()) {
-            telemetry.addLine("RESULT: all " + DeviceNames.ALL.size() + " expected devices present.");
+            line("RESULT: all " + DeviceNames.ALL.size() + " expected devices present.");
         } else {
-            telemetry.addLine("RESULT: " + problems.size() + " problem(s):");
+            line("RESULT: " + problems.size() + " problem(s):");
             for (String problem : problems) {
-                telemetry.addLine("  - " + problem);
+                line("  - " + problem);
             }
         }
-        telemetry.update();
 
-        waitForStart();
+        TelemetryManager panels = tryGetPanels();
+
+        // Re-published every loop rather than once: Panels only shows what
+        // arrives while a browser is connected, so a single update at init is
+        // gone before anyone opens the page.
+        while (opModeInInit()) {
+            publish(panels);
+            sleep(100);
+        }
         while (opModeIsActive()) {
-            idle();
+            publish(panels);
+            sleep(100);
         }
     }
 
+    /**
+     * Sends the report to Panels and, through {@code update(telemetry)}, to the
+     * Driver Station as well. If Panels is unavailable or throws, falls back to
+     * the Driver Station alone: this is the OpMode you run when something is
+     * wrong, so it must not depend on the dashboard being healthy.
+     */
+    private void publish(TelemetryManager panels) {
+        if (panels != null) {
+            try {
+                for (String entry : report) {
+                    panels.debug(entry);
+                }
+                panels.update(telemetry);
+                return;
+            } catch (RuntimeException ignored) {
+                // Fall through to the Driver Station only.
+            }
+        }
+        telemetry.clearAll();
+        for (String entry : report) {
+            telemetry.addLine(entry);
+        }
+        telemetry.update();
+    }
+
+    private static TelemetryManager tryGetPanels() {
+        try {
+            return PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private void line(String text) {
+        report.add(text);
+    }
+
+    private void data(String key, Object value) {
+        report.add(key + ": " + value);
+    }
+
     private void reportActiveConfig(List<String> problems) {
-        telemetry.addLine("=== Active configuration ===");
+        line("=== Active configuration ===");
 
         String activeName = ActiveConfig.name();
         if (activeName == null) {
-            telemetry.addData("Config", "NONE SELECTED");
+            data("Config", "NONE SELECTED");
             problems.add("No configuration is active. Configure Robot -> select one -> Activate.");
             return;
         }
 
-        telemetry.addData("Config", activeName);
+        data("Config", activeName);
 
         if (ActiveConfig.isBundled()) {
-            telemetry.addData("Source", "bundled in APK (read-only, cannot drift)");
+            data("Source", "bundled in APK (read-only, cannot drift)");
         } else {
-            telemetry.addData("Source", "ROBOT STORAGE - editable, can drift from the repo");
+            data("Source", "ROBOT STORAGE - editable, can drift from the repo");
             problems.add("Active config \"" + activeName + "\" is not one of the bundled ones. "
                     + "Someone made it by hand on the Driver Station, so it is not under "
                     + "version control and may not match this code.");
@@ -87,22 +143,22 @@ public class ValidateHardware extends LinearOpMode {
 
         RobotIdentity identity = RobotIdentity.fromConfigName(activeName);
         if (identity == null) {
-            telemetry.addData("Robot", "UNRECOGNISED");
+            data("Robot", "UNRECOGNISED");
             problems.add("Config \"" + activeName + "\" maps to no RobotIdentity. Known: "
                     + knownConfigNames() + ".");
         } else {
-            telemetry.addData("Robot", identity.name());
+            data("Robot", identity.name());
         }
     }
 
     private void reportExpectedDevices(List<String> problems) {
-        telemetry.addLine("=== Expected devices ===");
+        line("=== Expected devices ===");
 
         for (DeviceNames.Device expected : DeviceNames.ALL) {
             HardwareDevice found = hardwareMap.tryGet(HardwareDevice.class, expected.name);
 
             if (found == null) {
-                telemetry.addData(expected.name, "MISSING (expected " + expected.kind + ")");
+                data(expected.name, "MISSING (expected " + expected.kind + ")");
                 problems.add(expected.name + " is missing from the active configuration.");
                 continue;
             }
@@ -111,12 +167,12 @@ public class ValidateHardware extends LinearOpMode {
             String actualType = found.getClass().getSimpleName();
 
             if (required != null && !required.isInstance(found)) {
-                telemetry.addData(expected.name,
+                data(expected.name,
                         "WRONG TYPE - is " + actualType + ", needs " + required.getSimpleName());
                 problems.add(expected.name + " is configured as " + actualType
                         + " but the code uses it as a " + required.getSimpleName() + ".");
             } else {
-                telemetry.addData(expected.name, "ok - " + actualType);
+                data(expected.name, "ok - " + actualType);
             }
         }
     }
@@ -127,7 +183,7 @@ public class ValidateHardware extends LinearOpMode {
      * only — the old name shows up here while the new one shows up as MISSING.
      */
     private void reportUnexpectedDevices() {
-        telemetry.addLine("=== Configured but unused ===");
+        line("=== Configured but unused ===");
 
         SortedSet<String> expectedNames = new TreeSet<>();
         for (DeviceNames.Device expected : DeviceNames.ALL) {
@@ -138,11 +194,11 @@ public class ValidateHardware extends LinearOpMode {
         unused.removeAll(expectedNames);
 
         if (unused.isEmpty()) {
-            telemetry.addLine("  (none)");
+            line("  (none)");
             return;
         }
         for (String name : unused) {
-            telemetry.addLine("  " + name);
+            line("  " + name);
         }
     }
 
