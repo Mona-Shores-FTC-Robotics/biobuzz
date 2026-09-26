@@ -38,9 +38,9 @@ public class Constants {
      *
      * <p>The names come from {@link DeviceNames}, which {@code RobotConfigXmlTest} checks against
      * the bundled {@code res/xml} configs — so a name here cannot silently drift from the Robot
-     * Controller's. The directions are the
-     * conventional result for mirror-mounted motors (left side reversed) and are a
-     * <b>placeholder</b> — the Mecanum Tuner spins each motor and tells you the real answer.
+     * Controller's. The directions started as
+     * the conventional guess for mirror-mounted motors (left side reversed); the Mecanum Tuner,
+     * run 26 Sep 2026 on the test robot (Control Hub {@code FTC-ZkaW}), confirmed them unchanged.
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set(DeviceNames.FRONT_LEFT);
@@ -57,19 +57,22 @@ public class Constants {
     /**
      * Localizer: goBILDA Pinpoint with 4-bar odometry pods.
      *
-     * <p>The offsets and pod directions are <b>placeholders</b>. The Pinpoint Tuner derives all
-     * four by having you push the robot forward, push it left, and spin it 180°; it then emits a
-     * finished {@code PinpointConfig} block to paste over this one. Zero offsets mean the pods are
-     * treated as if they sat on the tracking centre, which they don't — heading changes will
-     * corrupt the position estimate until the real values are in.
+     * <p>The offsets and pod directions come from the Pinpoint Tuner, run 26 Sep 2026 on the
+     * BIOBUZZ test robot (Control Hub {@code FTC-ZkaW}). The tuner has you push the robot forward,
+     * push it left, and spin it 180°, then emits a {@code PinpointConfig} block; only its numbers
+     * and directions were taken, and the name stays on {@link DeviceNames}.
+     *
+     * <p>History: until that run these were placeholders (zero offsets, both pods {@code FORWARD}).
+     * This file is shared by both robots, so the values are right for the robot they were measured
+     * on and only a starting point for the other — re-run the tuner there.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set(DeviceNames.PINPOINT);
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
 
-        c.xPodOffset.set(0.0);
-        c.yPodOffset.set(0.0);
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.xPodOffset.set(0.995685472263126);
+        c.yPodOffset.set(5.692285853108083);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
 
         c.globalDistanceUnit.set(DistanceUnit.INCH);
