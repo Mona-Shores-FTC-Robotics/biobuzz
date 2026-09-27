@@ -27,11 +27,11 @@ Produce four lists:
 
 A spike is usually **2–4 issues, not 1**. The typical shape:
 
-- a `type:decision` issue, if a choice remains open
-- a `desk-ok` issue — constants, structure, tests
+- a `decision` issue, if a choice remains open
+- a laptop-only issue — constants, structure, tests
 - a `needs:robot` issue — validate and tune on hardware
 
-**Split along the `desk-ok` / `needs:robot` seam.** That seam is what lets work run in parallel
+**Split along the laptop / `needs:robot` seam.** That seam is what lets work run in parallel
 across more people than there are robots.
 
 ## 4. Hold each issue to the student-ready bar
@@ -47,8 +47,9 @@ Every issue must have:
 
 ## 5. Label and scope
 
-Priority, area, type, access, ownership, milestone. Add `robot:19429` / `robot:20245` **only** if the
-two robots genuinely diverge here.
+One `team:` label, `needs:robot` if it needs hardware, and one ownership label. Attach each issue as
+a sub-issue of that team's `workstream` issue. If the two robots genuinely diverge, say which robot
+in the title — there are no per-robot labels.
 
 ## 6. Record the spike's fate
 

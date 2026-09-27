@@ -1,6 +1,6 @@
 name: Tuning / calibration run
 description: A value that has to be measured on a robot and committed.
-labels: ["type:tuning", "needs:robot"]
+labels: ["team:pedro-tuning", "needs:robot"]
 body:
   - type: dropdown
     id: robot

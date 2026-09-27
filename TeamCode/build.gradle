@@ -80,12 +80,15 @@ dependencies {
     // Panels — Sloth-compatible variant (replaces com.bylazar:fullpanels)
     implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
 
-    // FTC Dashboard — Sloth-compatible variant (replaces
-    // com.acmerobotics.dashboard:dashboard). Kept alongside Panels for passive
-    // monitoring, and it is what AdvantageScope reads: point desktop
-    // AdvantageScope at this stream. It owns port 8080 — see the README before
-    // adding anything else that binds a port.
-    implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+    // FTC Dashboard is deliberately absent. It and Panels each work alone; with
+    // both present the Robot Controller crash-loops on a BindException before
+    // it ever reaches "Robot Status: running", so the Driver Station shows no
+    // heartbeat and no OpModes. Removing either one fixes it. Measured on a
+    // Control Hub v1.0, SDK 12.0, Sloth 0.3.2, 24 Sep 2026.
+    //     implementation("com.acmerobotics.slothboard:dashboard:0.3.2+0.6.0")
+    // Do not re-add it without reading TeamCode/README.md § "Why FTC Dashboard
+    // is not in the dependency set" first. Losing it costs the desktop
+    // AdvantageScope stream, which is a real loss and is tracked separately.
 
     testImplementation 'junit:junit:4.13.2'
 }

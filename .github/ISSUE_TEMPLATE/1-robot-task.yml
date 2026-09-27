@@ -1,21 +1,19 @@
 name: Robot code task
 description: Something the robot should do that it does not do yet.
-labels: ["type:feature"]
 body:
   - type: dropdown
-    id: area
+    id: team
     attributes:
-      label: Area
+      label: Team
       options:
-        - area:drivetrain
-        - area:autonomous
-        - area:teleop
-        - area:vision
-        - area:mechanism
-        - area:hardware-config
-        - area:build-ci
-        - area:docs
-        - area:tooling
+        - team:robot-structure
+        - team:pedro-tuning
+        - team:auto
+        - team:launcher
+        - team:aiming
+        - team:localization
+        - team:vision
+        - team:setup
     validations:
       required: true
 
@@ -62,9 +60,8 @@ body:
     attributes:
       label: What's needed to do this
       options:
-        - "desk-ok — laptop only, can be done at home"
-        - "needs:robot — requires a physical robot"
-        - "needs:field — requires the field and game elements too"
+        - "Laptop only — can be done at home"
+        - "needs:robot — requires a physical robot (say in the issue if it needs the field too)"
     validations:
       required: true
 
@@ -74,8 +71,7 @@ body:
       label: Who can take this
       options:
         - "good-first-task — safe for someone who has never opened a PR"
-        - "student-ready — a student can own this end to end"
-        - "needs-pairing — student drives, mentor sits with them"
+        - "student-ready — a student can own this end to end (say in the issue if a mentor should pair)"
         - "mentor-only — locked versions, CI, or ahead of the team's knowledge"
     validations:
       required: true

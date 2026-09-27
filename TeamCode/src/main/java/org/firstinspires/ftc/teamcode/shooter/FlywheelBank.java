@@ -220,6 +220,8 @@ public class FlywheelBank {
         private double commandedRpm = 0.0;
         private double measuredRpm = 0.0;
         private double measuredTicksPerSec = 0.0;
+        /** Straight from the SDK, before encoderReversed is applied. */
+        private double rawTicksPerSec = 0.0;
         private double appliedPower = 0.0;
         private double feedforwardPower = 0.0;
         private double feedbackPower = 0.0;
@@ -240,6 +242,32 @@ public class FlywheelBank {
         /** False when the lane is switched off in Panels. */
         public boolean isEnabled() {
             return cfg().enabled;
+        }
+
+        /**
+         * The direction the running code last applied to the motor — read from
+         * this OpMode's own copy of the config, not from what Panels displays.
+         * If the Panels tick box and this disagree, the edit went somewhere the
+         * running code cannot see.
+         */
+        public boolean isReversed() {
+            return Boolean.TRUE.equals(appliedReversed);
+        }
+
+        /** True when this lane's reading is being negated by {@code encoderReversed}. */
+        public boolean isEncoderReversed() {
+            return cfg().encoderReversed;
+        }
+
+        /**
+         * Encoder velocity exactly as the SDK reports it, before
+         * {@code encoderReversed}. Its sign follows the motor direction; if it
+         * is negative with the wheel spinning the right way and {@code reversed}
+         * unticked, the encoder counts backwards and {@code encoderReversed} is
+         * the fix.
+         */
+        public double getRawTicksPerSec() {
+            return rawTicksPerSec;
         }
 
         /** False when no motor by the configured name exists in the Robot Configuration. */
@@ -364,6 +392,7 @@ public class FlywheelBank {
 
         void update(double voltageMultiplier) {
             if (motor == null) {
+                rawTicksPerSec = 0.0;
                 measuredTicksPerSec = 0.0;
                 measuredRpm = 0.0;
                 appliedPower = 0.0;
@@ -377,7 +406,9 @@ public class FlywheelBank {
 
             applyDirection();
 
-            measuredTicksPerSec = motor.getVelocity();
+            rawTicksPerSec = motor.getVelocity();
+            double encoderSign = cfg().encoderReversed ? -1.0 : 1.0;
+            measuredTicksPerSec = encoderSign * rawTicksPerSec;
             measuredRpm = ticksPerSecondToRpm(measuredTicksPerSec);
 
             double target = desiredRpm();
@@ -393,7 +424,14 @@ public class FlywheelBank {
 
             FlywheelLaneConfig laneConfig = cfg();
             double feedforward = laneConfig.kS + laneConfig.kV * target;
-            double feedback = laneConfig.kP * (target - measuredRpm);
+            // A negative reading against a positive target is a direction or
+            // encoder-sign fault, not a speed error. Feeding it to kP asks for
+            // more power, which spins the wheel faster the wrong way and reads
+            // more negative — a runaway to full power. Hold feedforward only
+            // until the sign is fixed; isRunningBackwards() reports it.
+            double feedback = measuredRpm < 0.0
+                    ? 0.0
+                    : laneConfig.kP * (target - measuredRpm);
             feedforwardPower = feedforward;
             feedbackPower = feedback;
             double power = Range.clip((feedforward + feedback) * voltageMultiplier, 0.0, 1.0);
@@ -428,7 +466,20 @@ public class FlywheelBank {
         }
 
         private void updateReadiness(double target) {
-            boolean within = Math.abs(target - measuredRpm) <= config.readiness.rpmToleranceRpm;
+            double error = Math.abs(target - measuredRpm);
+            FlywheelTuningConfig.Readiness readiness = config.readiness;
+            if (atSpeed) {
+                // Already READY: only the wider drop-out band can take it away,
+                // so jitter around target does not flicker the state.
+                double dropOut = Math.max(readiness.dropOutToleranceRpm, readiness.rpmToleranceRpm);
+                if (error <= dropOut) {
+                    return;
+                }
+                inToleranceSinceNs = 0L;
+                atSpeed = false;
+                return;
+            }
+            boolean within = error <= readiness.rpmToleranceRpm;
             if (!within) {
                 inToleranceSinceNs = 0L;
                 atSpeed = false;
@@ -441,7 +492,7 @@ public class FlywheelBank {
                     lastSpinUpMs = (now - commandedAtNs) / 1e6;
                 }
             }
-            atSpeed = (now - inToleranceSinceNs) >= config.readiness.atSpeedHoldMs * 1e6;
+            atSpeed = (now - inToleranceSinceNs) >= readiness.atSpeedHoldMs * 1e6;
         }
 
         private void resetReadiness() {

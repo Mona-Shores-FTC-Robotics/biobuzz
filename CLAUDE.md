@@ -11,17 +11,18 @@ one repo. This is a fork of the stock `FtcRobotController` SDK project.
 > for a few hours it told sessions not to look for code that existed. Treat anything you remember
 > along those lines as stale.
 
-**There is robot code now** — roughly 3,200 team-authored Java lines, six registered OpModes and
-six unit test classes.
+**There is robot code now** — roughly 3,600 team-authored Java lines, seven registered OpModes and
+seven unit test classes.
 
 | Package | What it is |
 |---|---|
 | `hardware/` | `DeviceNames` (the only place a hardware name may be written), robot identity, active-config resolution |
 | `pedro/` | Pathing. `Constants.java` and `Tuning.java` are **ours and filled in**; everything else is upstream |
 | `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
+| `launcher2/` | Two-wheel pinch launcher speed test, for the bench rig on hub FTC-EoM3 (config `robot_launcher_rig`). A standalone copy of `shooter/`, cut to one Y-cabled motor, same RPM steps |
 | `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
 | `opmodes/` | Ours, including `ValidateHardware` and the vision calibration OpModes |
-| `util/`, `src/test/` | Shared helpers; six test classes, run by CI |
+| `util/`, `src/test/` | Shared helpers — `LoopTimer`, `FieldView`, `WelfordVariance`, `Alliance`; seven test classes, run by CI |
 
 **Do not edit** `pedro/procedures/**` or `FtcRobotController/` — both are upstream and get re-copied
 wholesale. That rule has exactly one hole, named above: `Constants.java` and `Tuning.java`.
@@ -57,11 +58,36 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
   original entry said to re-add it "only if that debugging workflow is actually resumed", and it
   had been), then #56 put it back on the port-collision grounds above. **#56 was first written up
   as the fix for a Control Hub that would not start — it was not.** The RC kept dying in the same
-  `BindException` loop after the dependency was gone and the hub fully reinstalled. If you hit a
-  *no heartbeat* RC with empty OpMode lists, that trace names no library; work out which server
-  is losing the race from what initialises just before the crash, and do not assume this entry
-  already answered it.
+  `BindException` loop after the dependency was gone and the hub fully reinstalled.
+  **Answered, 24 Sep 2026:** the server losing that race was never AdvantageScope Lite — it was
+  Panels against FTC Dashboard, on port 8001, in a single RC process. See the Panels/Dashboard
+  entry above. Note also that **desktop AdvantageScope reads Dashboard's stream**, so with
+  Dashboard gone there is currently no AdvantageScope path at all; restoring one is open work,
+  not a settled exclusion.
   → `TeamCode/README.md` § "AdvantageScope"
+- **Panels and FTC Dashboard cannot both be installed.** Each works alone; with both present
+  the Robot Controller crash-loops on `java.net.BindException` at
+  `fi.iki.elonen.NanoHTTPD$ServerRunnable` about 3.5s into boot, never reaches
+  `Robot Status: running`, and the Driver Station shows **no heartbeat and empty OpMode
+  lists**. Removing either one fixes it. Established 24 Sep 2026 on a Control Hub v1.0 with
+  **no team-authored Java in the APK**, and it survives a cold boot, so it is neither our code
+  nor an install-time race. We dropped Dashboard, because seven files import `com.bylazar.*`
+  and one imported `com.acmerobotics.*`. → `TeamCode/README.md` § "Why FTC Dashboard is not in
+  the dependency set"; full working in `SPIKE.md` and `LADDER.md` on the git tag
+  `archive/panels-dashboard-ladder` (never merged to `master`).
+  **This is the actual explanation for the dead 19429 hub**, and it is not the one the
+  AdvantageScope entry below gives. That entry's *mechanism* — two NanoHTTPD servers, one
+  socket, the loser throwing on a bare thread — is right. Its culprit is wrong: AdvantageScope
+  Lite was not installed on any build that died.
+- **The dashboard stack is settled: Sloth + Panels + Pedro + Ivy, and nothing else.** Panels is
+  the only dashboard — telemetry, graphs, field view, capture, OpMode control, configurables and
+  the Limelight proxy all come from it, at `http://192.168.43.1:8001`. Decided 25 Sep 2026, by
+  the mentor, after the Panels/Dashboard collision above forced a choice. **This supersedes the
+  note in the AdvantageScope entry below calling a restored AdvantageScope path "open work, not
+  a settled exclusion"** — as of this decision it is settled, and an OpMode that wants a graph
+  publishes to Panels rather than waiting for one. Design new code for this stack: new
+  instrumentation goes to `PanelsTelemetry`, new tunables get `@Configurable`.
+  → `TeamCode/README.md` § "The Panels stack: seeing data and changing values at a meeting"
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
   Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
 - **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
@@ -78,9 +104,17 @@ rename.
 
 - **An issue exists before a branch does.** A PR without `Closes #N` is incomplete.
 - Planning discussion goes in the issue. Design rationale goes in the PR body and in repo docs.
-- Labels run on five axes — priority, `area:`, `type:`, access (`desk-ok` / `needs:robot` /
-  `needs:field`) and ownership (`good-first-task` / `student-ready` / `needs-pairing` /
-  `mentor-only`). See `.github/ISSUE_TEMPLATE/` for the values.
+- **The work is split into eight workstreams**, each a top-level issue labelled `workstream` whose
+  sub-issues are the work: robot structure, Pedro tuning, auto, launcher, turret aiming,
+  localization, vision, and setup. A new issue joins one as a sub-issue; a new workstream is a mentor decision.
+- Labels answer three questions: which team (`team:*`, exactly one), whether it needs a robot
+  (`needs:robot`, or nothing), and who may take it (`good-first-task` / `student-ready` /
+  `mentor-only`). `bug`, `decision`, `proposal`, `blocked` and `meeting-brief` only when they apply.
+  There are **no priority labels** — order on the board is the priority.
+  **History:** until 26 Sep 2026 this line described five axes (priority, `area:`, `type:`, access,
+  ownership) — 35 labels. They were cut because nobody read that many; the reasoning is in
+  `.github/CONTRIBUTING.md` § "Why so few labels". Treat any mention of `P1-now`, `area:*`,
+  `type:*`, `desk-ok` or `needs-pairing` as stale.
 
 ## Branch, commit and PR conventions
 
@@ -145,7 +179,7 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 | `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning}.java` | **Yes** — ours, and filled in |
 | `TeamCode/src/main/java/.../teamcode/hardware/` | Yes — device names, robot identity |
 | `TeamCode/src/main/java/.../teamcode/opmodes/` | Yes |
-| `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs |
+| `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs, one per `RobotIdentity`; each is checked against its own device list |
 | `TeamCode/src/test/` | Yes — unit tests, run in CI |
 | `FtcRobotController/` | No — stock v12.0, never patch |
 | `.run/` | Yes — the shared Sloth Load run config |

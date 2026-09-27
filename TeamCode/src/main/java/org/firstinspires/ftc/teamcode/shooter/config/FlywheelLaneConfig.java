@@ -33,6 +33,18 @@ public class FlywheelLaneConfig {
     public boolean reversed = false;
 
     /**
+     * Flip if the RPM reads negative while the wheel is visibly spinning the
+     * right way. {@link #reversed} flips the motor <em>and</em> its encoder
+     * together, because that is what {@code setDirection} does, so it can never
+     * fix an encoder that counts backwards relative to its own motor — the RPM
+     * stays negative whichever way it is set. This negates the reading alone.
+     *
+     * <p>Set {@code reversed} first, by watching the wheel, then this, by
+     * watching the RPM sign. Seen on the right lane, 26 Sep 2026.
+     */
+    public boolean encoderReversed = false;
+
+    /**
      * Per-lane offset added to the shared target RPM, so one wheel can be run
      * slightly slower or faster than the other two without splitting the target.
      * DECODE needed this on robot 20245, where the right lane ran ~100 RPM below

@@ -81,17 +81,23 @@ public class RobotConfigXmlTest {
         }
     }
 
+    /**
+     * Each file is held to its own robot's list, {@link RobotIdentity#devices}.
+     * Until 26 Sep 2026 every file was held to one shared list, which a bench rig
+     * with a single motor could never satisfy — see {@link DeviceNames}.
+     */
     @Test
-    public void everyConfigDeclaresEveryDeviceTheCodeUses() {
+    public void everyConfigDeclaresEveryDeviceItsRobotUses() {
         for (File file : configFiles()) {
+            RobotIdentity identity = identityOf(file);
             Map<String, Element> devices = devicesIn(file);
 
-            for (DeviceNames.Device expected : DeviceNames.ALL) {
+            for (DeviceNames.Device expected : identity.devices) {
                 Element element = devices.get(expected.name);
                 if (element == null) {
                     fail(file.getName() + " does not declare \"" + expected.name + "\", which"
-                            + " DeviceNames requires. Add it to this file, or remove it from"
-                            + " DeviceNames.ALL."
+                            + " RobotIdentity." + identity + " requires. Add it to this file, or"
+                            + " remove it from that robot's list in DeviceNames."
                             + "\n  Declared in this file: " + new TreeSet<>(devices.keySet()));
                 }
 
@@ -106,20 +112,23 @@ public class RobotConfigXmlTest {
     }
 
     @Test
-    public void noConfigDeclaresADeviceTheCodeDoesNotKnowAbout() {
-        Set<String> known = new HashSet<>();
-        for (DeviceNames.Device expected : DeviceNames.ALL) {
-            known.add(expected.name);
-        }
-
+    public void noConfigDeclaresADeviceItsRobotDoesNotUse() {
         for (File file : configFiles()) {
+            RobotIdentity identity = identityOf(file);
+            Set<String> known = new HashSet<>();
+            for (DeviceNames.Device expected : identity.devices) {
+                known.add(expected.name);
+            }
+
             Set<String> unknown = new TreeSet<>(devicesIn(file).keySet());
             unknown.removeAll(known);
             if (!unknown.isEmpty()) {
-                fail(file.getName() + " declares device(s) no code refers to: " + unknown
-                        + ".\n  Either add them to DeviceNames.ALL or delete them. Last season"
-                        + " shipped configs containing devices nothing used and code referring"
-                        + " to devices no config declared, in both directions at once.");
+                fail(file.getName() + " declares device(s) RobotIdentity." + identity
+                        + " does not list: " + unknown
+                        + ".\n  Either add them to that robot's list in DeviceNames or delete"
+                        + " them. Last season shipped configs containing devices nothing used"
+                        + " and code referring to devices no config declared, in both"
+                        + " directions at once.");
             }
         }
     }
@@ -240,6 +249,20 @@ public class RobotConfigXmlTest {
     }
 
     // ------------------------------------------------------------- plumbing
+
+    /**
+     * The robot a file belongs to. A file with none already fails
+     * {@link #everyRobotIdentityHasExactlyOneConfigFile}; this repeats the
+     * message so the per-device tests do not fail with a bare null.
+     */
+    private static RobotIdentity identityOf(File file) {
+        RobotIdentity identity = RobotIdentity.fromConfigName(stripXmlExtension(file.getName()));
+        if (identity == null) {
+            fail(file.getName() + " has no RobotIdentity constant, so there is no device list"
+                    + " to check it against.");
+        }
+        return identity;
+    }
 
     /**
      * Classifies a device element.

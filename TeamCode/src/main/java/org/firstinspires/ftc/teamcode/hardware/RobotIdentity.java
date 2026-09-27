@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.hardware;
 
+import java.util.List;
+
 /**
  * Which physical robot the code is running on.
  *
@@ -26,7 +28,8 @@ package org.firstinspires.ftc.teamcode.hardware;
  * <p>This enum deliberately has no Android dependencies so it stays unit
  * testable. Everything that touches the SDK lives in {@link ActiveConfig}.
  *
- * <p><b>Adding a robot is two edits:</b> a constant here, and a matching
+ * <p><b>Adding a robot is two edits:</b> a constant here, naming the
+ * {@link DeviceNames} list it carries, and a matching
  * {@code res/xml/robot_<name>.xml}. {@code RobotConfigXmlTest} asserts the two
  * sets match exactly, so a file with no constant (or a constant with no file)
  * fails the build. At that price there is no reason to cap the number of
@@ -35,8 +38,15 @@ package org.firstinspires.ftc.teamcode.hardware;
  */
 public enum RobotIdentity {
 
-    TEAM_19429("robot_19429"),
-    TEAM_20245("robot_20245");
+    TEAM_19429("robot_19429", DeviceNames.COMPETITION_ROBOT),
+    TEAM_20245("robot_20245", DeviceNames.COMPETITION_ROBOT),
+
+    /**
+     * Not a robot: the two-wheel pinch launcher bench rig, on its own Control
+     * Hub, FTC-EoM3. It has an identity so its configuration gets the same
+     * build-time checks as the robots' do.
+     */
+    LAUNCHER_RIG("robot_launcher_rig", DeviceNames.LAUNCHER_RIG);
 
     /**
      * The bundled configuration's name, which is also its resource entry name,
@@ -53,8 +63,16 @@ public enum RobotIdentity {
      */
     public final String configName;
 
-    RobotIdentity(String configName) {
+    /**
+     * Every device this configuration must declare, and may declare nothing
+     * beyond. {@code RobotConfigXmlTest} holds the XML to it; {@code
+     * ValidateHardware} holds the live hardware to it.
+     */
+    public final List<DeviceNames.Device> devices;
+
+    RobotIdentity(String configName, List<DeviceNames.Device> devices) {
         this.configName = configName;
+        this.devices = devices;
     }
 
     /**

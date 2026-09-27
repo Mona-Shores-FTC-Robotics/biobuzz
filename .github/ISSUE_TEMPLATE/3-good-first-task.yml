@@ -1,6 +1,6 @@
 name: Good first task (mentor-authored)
 description: A small, safe, desk-only task for someone who has never opened a PR.
-labels: ["good-first-task", "desk-ok"]
+labels: ["good-first-task"]
 body:
   - type: markdown
     attributes:

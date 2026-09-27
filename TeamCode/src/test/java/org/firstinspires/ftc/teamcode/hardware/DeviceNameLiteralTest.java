@@ -123,8 +123,8 @@ public class DeviceNameLiteralTest {
             fail("Device name(s) written outside DeviceNames:\n  - "
                     + String.join("\n  - ", violations)
                     + "\n\nA device name is not a tunable and not a local constant. Add a"
-                    + " constant to DeviceNames, an entry to DeviceNames.ALL, and the element"
-                    + " to every robot_*.xml — then refer to the constant here."
+                    + " constant to DeviceNames, an entry in each robot's device list there, and the element"
+                    + " to each of those robot_*.xml — then refer to the constant here."
                     + "\n\nIf the name genuinely cannot join DeviceNames yet, add it to"
                     + " KNOWN_MISSING_FROM_DEVICE_NAMES in this test with the reason, so the"
                     + " gap is reviewable instead of invisible."
