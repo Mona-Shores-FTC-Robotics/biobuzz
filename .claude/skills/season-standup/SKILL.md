@@ -84,8 +84,13 @@ three priorities is no priorities.
 **Issues are assigned to mentors, never to students.** The mentor is accountable for shepherding a
 student through the work and picks which student at the meeting. They know their students; the board
 does not have to, and **student names must never appear in a brief, an issue, or any repo file** —
-this repository is public and they are minors. The mentor pool is the handle list in
-`.github/CODEOWNERS`.
+this repository is public and they are minors. The mentor pool is the programming
+mentors for this season — six handles, five people (one runs two accounts):
+
+`@dustinhans` `@stewartl42` `@stew-larsen` `@GreeneRich` `@medendoc` `@DesignFlaw06`
+
+(Until 27 Sep 2026 this pool was read off `.github/CODEOWNERS`. That file now names only the
+plumbing owner, so it no longer lists everyone — do not read the pool from it.)
 
 Match on three things:
 
