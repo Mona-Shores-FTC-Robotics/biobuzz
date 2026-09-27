@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.commands.Commands;
 
+import org.firstinspires.ftc.teamcode.controls.Display;
+
 /**
  * One mechanism on the robot: a motor, a set of motors, a camera, an arm.
  *
@@ -113,4 +115,14 @@ public interface Subsystem {
      * throw — an exception here hides the one that explains why the OpMode ended.
      */
     void stop();
+
+    /**
+     * Draw this subsystem's block on the Driver Station's Robot page: what state it is in, and
+     * anything the drive team should know (a missing device, a fallback in use). A few lines;
+     * numbers worth graphing go to Panels instead.
+     *
+     * <p>Optional — a subsystem that says nothing gets just its heading.
+     */
+    default void describe(Display display) {
+    }
 }

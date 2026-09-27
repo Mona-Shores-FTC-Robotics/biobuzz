@@ -5,6 +5,8 @@ import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
+import org.firstinspires.ftc.teamcode.controls.Bindings;
+import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 
@@ -31,14 +33,20 @@ import java.util.List;
  * <ol>
  *   <li><b>Clear the bulk cache.</b> Every hub is in {@code MANUAL} bulk caching, so each sensor
  *       read after this is served from one hub read per loop instead of one per call.</li>
- *   <li><b>Your {@link #onLoop()}.</b> Read the gamepads, tell subsystems what you want.</li>
+ *   <li><b>Gamepad bindings.</b> {@link #driver} and {@link #operator} fire whatever you bound in
+ *       {@code onInit()}.</li>
+ *   <li><b>Your {@link #onLoop()}.</b> Read the sticks, tell subsystems what you want, write the
+ *       Match page.</li>
  *   <li><b>{@code Scheduler.execute()}.</b> Every subsystem's {@code update()} runs as an Ivy
- *       command, along with any commands you scheduled — so what you asked for in step 2 happens
- *       in this same loop, not the next one.</li>
+ *       command, along with any commands you scheduled — so what you asked for above happens in
+ *       this same loop, not the next one.</li>
+ *   <li><b>The Driver Station page.</b> See {@link Display}: Back/Share on gamepad 1 cycles Match,
+ *       Controls and Robot.</li>
  * </ol>
  *
- * <p>{@code init_loop()} does the same with {@link #onInitLoop()}. {@link #loopTimer} is lapped at
- * the top of every {@code loop()}.
+ * <p>{@code init_loop()} does the same with {@link #onInitLoop()}, except that bindings are not
+ * polled: the robot may not move before PLAY. {@link #loopTimer} is lapped at the top of every
+ * {@code loop()}.
  *
  * <p>Never set a bulk caching mode, clear the cache, or call {@code Scheduler.reset()} /
  * {@code execute()} / {@code robot.stop()} in a subclass. That is this class's job, and doing it
@@ -61,7 +69,17 @@ public abstract class RobotOpMode extends OpMode {
     /** Lapped once per {@code loop()}, reset at start. Publish it; see {@code LoopTimeBaseline}. */
     protected final LoopTimer loopTimer = new LoopTimer();
 
+    /** Gamepad 1 bindings. Bind in {@link #onInit()}; they fire after PLAY. */
+    protected final Bindings driver = new Bindings("DRIVER — gamepad 1");
+
+    /** Gamepad 2 bindings. Bind in {@link #onInit()}; they fire after PLAY. */
+    protected final Bindings operator = new Bindings("OPERATOR — gamepad 2");
+
+    /** The Driver Station screen. Use it to write the Match page in {@link #onLoop()}. */
+    protected Display display;
+
     private List<LynxModule> hubs;
+    private boolean prevPageButton;
 
     // ------------------------------------------------------------------ hooks
 
@@ -88,6 +106,8 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void init() {
+        display = new Display(telemetry);
+
         // Before the robot is built, so no read anywhere — constructors included — bypasses it.
         hubs = hardwareMap.getAll(LynxModule.class);
         for (int i = 0; i < hubs.size(); i++) {
@@ -111,8 +131,10 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
+        beginPage();
         onInitLoop();
         Scheduler.execute();
+        finishPage();
     }
 
     @Override
@@ -125,8 +147,12 @@ public abstract class RobotOpMode extends OpMode {
     public final void loop() {
         loopTimer.lap();
         clearBulkCache();
+        beginPage();
+        driver.update();
+        operator.update();
         onLoop();
         Scheduler.execute();
+        finishPage();
     }
 
     @Override
@@ -140,6 +166,50 @@ public abstract class RobotOpMode extends OpMode {
             robot.stop();
         }
         Scheduler.reset();
+    }
+
+    /** Page button edge, then the header — so the OpMode's Match lines land under it. */
+    private void beginPage() {
+        boolean pressed = gamepad1.back;
+        if (pressed && !prevPageButton) {
+            display.nextPage();
+        }
+        prevPageButton = pressed;
+        display.header();
+    }
+
+    /** Controls and Robot pages replace whatever the OpMode wrote this loop. */
+    private void finishPage() {
+        Display.Page page = display.page();
+        if (page == Display.Page.MATCH) {
+            return;
+        }
+        telemetry.clear();
+        display.header();
+        if (page == Display.Page.CONTROLS) {
+            describeBindings(driver);
+            describeBindings(operator);
+        } else {
+            display.section("Loop");
+            display.line(loopTimer.summary());
+            List<Subsystem> subsystems = robot.subsystems();
+            for (int i = 0; i < subsystems.size(); i++) {
+                Subsystem subsystem = subsystems.get(i);
+                display.section(subsystem.getClass().getSimpleName());
+                subsystem.describe(display);
+            }
+        }
+    }
+
+    private void describeBindings(Bindings bindings) {
+        display.section(bindings.title());
+        List<String> labels = bindings.labels();
+        if (labels.isEmpty()) {
+            display.line("(nothing bound)");
+        }
+        for (int i = 0; i < labels.size(); i++) {
+            display.line(labels.get(i));
+        }
     }
 
     /** Index loop, not for-each: this runs every loop and must not allocate an iterator. */

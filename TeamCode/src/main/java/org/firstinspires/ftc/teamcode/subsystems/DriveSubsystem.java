@@ -7,6 +7,7 @@ import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
 
@@ -167,5 +168,18 @@ public class DriveSubsystem implements Subsystem {
     @Override
     public void stop() {
         drivetrain.stop();
+    }
+
+    @Override
+    public void describe(Display display) {
+        if (localizer != null) {
+            display.status("Pinpoint", Display.Level.OK, "present");
+        } else {
+            display.status("Pinpoint", Display.Level.WARN, "MISSING — " + localizerFault);
+        }
+        display.status("Mode", Display.Level.OK, fieldCentric ? "field-centric" : "robot-centric");
+        if (localizer != null) {
+            display.line(String.format(java.util.Locale.US, "Heading %.1f°", Math.toDegrees(heading())));
+        }
     }
 }

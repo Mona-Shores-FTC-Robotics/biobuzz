@@ -22,6 +22,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
+| `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java` and `Tuning.java` are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
@@ -72,7 +73,11 @@ updates through `periodic()`, and behaviour beyond that is commands. Each loop r
 cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
 commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics.
 
-**Panels** — the only dashboard, `http://192.168.43.1:8001`.
+**Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
+Back/Share (see `controls/Display`). One-shot buttons use `onPress(robot.x::method)`, not a command
+that requires the subsystem — that would interrupt its `periodic()`.
+
+**Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
 - Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one**
   `update(telemetry)` per loop, which mirrors to the Driver Station. No parallel DS-only calls.
 - Wrap publishing in a `try`/`catch` that swallows: telemetry never takes a mechanism down.

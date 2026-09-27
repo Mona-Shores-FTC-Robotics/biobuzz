@@ -3,19 +3,16 @@ package org.firstinspires.ftc.teamcode.opmodes;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.controls.Display;
+
 /**
  * Drive the robot with a gamepad. The reference {@link RobotOpMode}: read the sticks, tell
  * {@code robot.drive} what you want, report.
  *
  * <h2>Controls</h2>
- * <ul>
- *   <li>Left stick — translate</li>
- *   <li>Right stick X — turn</li>
- *   <li>Left bumper (hold) — slow mode. Wins over turbo if both are held.</li>
- *   <li>Right bumper (hold) — turbo: full power, no acceleration limit</li>
- *   <li>Y — reset field-centric forward to the way the robot is facing now</li>
- *   <li>B — toggle field-centric / robot-centric</li>
- * </ul>
+ *
+ * <p>Bound in {@link #onInit()}, and listed on the Driver Station's Controls page (Back/Share) —
+ * the bindings are the documentation. Slow wins over turbo if both bumpers are held.
  *
  * <p>These bindings are a starting point, not a decision. Which button does what is a driver
  * question, and the drivers should own it.
@@ -53,24 +50,26 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** Below this, a stick is treated as centred. Guards against drift on a worn gamepad. */
     private static final double STICK_DEADBAND = 0.05;
 
-    private boolean prevY;
-    private boolean prevB;
-
     @Override
     protected void onInit() {
-        telemetry.addLine("Basic Drive ready.");
-        telemetry.addLine("Left stick drives, right stick turns.");
-        telemetry.addLine("Hold left bumper for slow, right bumper for turbo.");
-        if (!robot.drive.hasHeading()) {
-            telemetry.addLine();
-            telemetry.addData("NO PINPOINT", "robot-centric only — %s", robot.drive.localizerFault());
-        }
+        driver.note("Left stick", "Drive");
+        driver.note("Right stick X", "Turn");
+        driver.note("Left bumper (hold)", "Slow");
+        driver.note("Right bumper (hold)", "Turbo — full power, no acceleration limit");
+        driver.when("Y", "Reset field-centric forward", () -> gamepad1.y)
+                .onPress(robot.drive::resetHeading);
+        driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
+                .onPress(robot.drive::toggleFieldCentric);
+    }
+
+    @Override
+    protected void onInitLoop() {
+        display.status("Basic Drive", Display.Level.OK, "ready — Back/Share shows the controls");
+        showPinpoint();
     }
 
     @Override
     protected void onLoop() {
-        handleButtons();
-
         boolean slow = gamepad1.left_bumper;
         boolean turbo = gamepad1.right_bumper && !slow;
         double scale = unitRange(slow ? slowSpeed : turbo ? turboSpeed : normalSpeed);
@@ -82,20 +81,19 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.drive.setAccelLimited(!turbo);
         robot.drive.drive(forward, strafe, turn);
 
-        publishTelemetry(slow, turbo, forward, strafe, turn);
+        display.status("Mode", Display.Level.OK,
+                robot.drive.isFieldCentric() ? "field-centric" : "robot-centric");
+        display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
+                slow ? "slow" : turbo ? "TURBO" : "normal");
+        showPinpoint();
+        display.line(loopTimer.summary());
     }
 
-    /** Edge-detected, so holding a button does not retrigger it every loop. */
-    private void handleButtons() {
-        if (gamepad1.y && !prevY) {
-            robot.drive.resetHeading();
+    private void showPinpoint() {
+        if (!robot.drive.hasHeading()) {
+            display.status("Pinpoint", Display.Level.WARN,
+                    "MISSING — robot-centric only (" + robot.drive.localizerFault() + ")");
         }
-        prevY = gamepad1.y;
-
-        if (gamepad1.b && !prevB) {
-            robot.drive.toggleFieldCentric();
-        }
-        prevB = gamepad1.b;
     }
 
     /**
@@ -108,20 +106,5 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private static double deadband(double value) {
         return Math.abs(value) < STICK_DEADBAND ? 0.0 : value;
-    }
-
-    private void publishTelemetry(boolean slow, boolean turbo,
-                                  double forward, double strafe, double turn) {
-        telemetry.addData("Mode", robot.drive.isFieldCentric() ? "FIELD-CENTRIC (B to switch)"
-                                                               : "ROBOT-CENTRIC (B to switch)");
-        telemetry.addData("Speed", slow ? "SLOW" : turbo ? "TURBO" : "normal");
-        telemetry.addData("Stick", "fwd %.2f  strafe %.2f  turn %.2f", forward, strafe, turn);
-        if (robot.drive.hasHeading()) {
-            telemetry.addData("Heading", "%.1f deg  (Y zeroes it)",
-                    Math.toDegrees(robot.drive.heading()));
-        } else {
-            telemetry.addData("NO PINPOINT", robot.drive.localizerFault());
-        }
-        telemetry.addData("Loop", loopTimer.summary());
     }
 }

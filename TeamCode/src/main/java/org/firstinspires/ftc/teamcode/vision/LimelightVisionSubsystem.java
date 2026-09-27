@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
@@ -325,6 +326,19 @@ public class LimelightVisionSubsystem implements Subsystem {
     /** The most recent unexpired sighting of {@code cell}, or null. */
     public CellSighting sighting(HiveCell cell) {
         return cell == null ? null : sightings.get(cell);
+    }
+
+    @Override
+    public void describe(Display display) {
+        if (!available) {
+            display.status("Camera", Display.Level.FAULT, "UNAVAILABLE — " + unavailableReason);
+            return;
+        }
+        display.status("Camera", state == State.STREAMING ? Display.Level.OK : Display.Level.WARN,
+                state.toString());
+        for (HiveCell cell : HiveCell.values()) {
+            display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
+        }
     }
 
     /** True if {@code cell} has an unexpired sighting. */
