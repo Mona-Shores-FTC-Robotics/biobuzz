@@ -25,7 +25,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
-| `pedro/` | `Constants.java` and `Tuning.java` are ours. `pedro/procedures/**` is upstream: never edit it. |
+| `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
 
@@ -64,7 +64,8 @@ Three layers, each written in exactly one place:
 
 **Pedro** (`com.pedropathing` 3.x, tuning via AutoTune). All drivetrain and localizer
 construction goes through `Constants.createDrivetrain/createLocalizer/createAlgorithm/create`.
-Tuner output is pasted into `Constants`; values are measured, never guessed.
+Tuner output is pasted into **that robot's** file, `pedro/robots/Robot<team>.java` — the active
+config picks which runs. Values are measured, never guessed.
 `createAlgorithm()` throws until the Foresight Tuner has run, so an OpMode that must work on an
 untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is the pattern).
 → README § "The `pedro` package"

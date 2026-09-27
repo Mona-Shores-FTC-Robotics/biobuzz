@@ -99,7 +99,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 |---|---|
 | `BasicDriveTeleOp` on `RobotOpMode`, drive in `DriveSubsystem` | Done — behaviour unchanged, not yet run on a robot |
 | No OpMode sets caching or calls `Scheduler` itself | Done — enforced by `LoopContractTest` |
-| Pedro values per robot | Not started — running as a separate piece of work |
+| Pedro values per robot | Done in #89 (merged from master): `pedro/robots/Robot<team>.java`, picked by `RobotIdentity` |
 | CI green, `CLAUDE.md` matches the code | Green locally; `CLAUDE.md` updated with this branch |
 | Bindings and DS pages | Done — `BindingsTest` covers edges; rendering unverified until a DS shows it |
 | Alliance + Auto→TeleOp handoff | Done — `MatchSetupTest`, `HandoffTest`; vision proposal and driver-forward headings await measurement |
