@@ -1,202 +1,180 @@
 # BIOBUZZ — Mona Shores FTC (teams 19429 & 20245)
 
-FTC 2026–27 season: **BIOBUZZ**, the game within FIRST's **CANOPY** season umbrella. Two robots,
-one repo. This is a fork of the stock `FtcRobotController` SDK project.
+FTC 2026–27, game **BIOBUZZ**. Two competition robots with identical hardware, plus test rigs,
+from one codebase. A fork of the stock `FtcRobotController` v12.0 SDK project.
 
-## Read this first: what exists, and what is still a placeholder
+**The stack is Sloth + Pedro + Ivy + Panels, and nothing else.** Use them the way this file
+describes, so every OpMode looks like every other one. Longer reasoning for anything here is in
+`TeamCode/README.md`; follow the `→` pointers.
 
-> **History note.** Until 21 Sep 2026 this section said `TeamCode` was toolchain-only, that
-> `Constants.create()` returned `null`, and that filling those stubs was the critical path. PRs
-> #16–#19 made all of that false in one afternoon and this section was not updated with them — so
-> for a few hours it told sessions not to look for code that existed. Treat anything you remember
-> along those lines as stale.
+> **About this file.** Claude reads all of it at the start of every session and treats it as
+> current and binding. So it holds only rules a session would otherwise get wrong, stated in the
+> present tense. No history, no status, no counts: history lives in git and the README, status
+> lives in issues. Change a rule here in the same PR that changes it in the code.
 
-**There is robot code now** — roughly 3,600 team-authored Java lines, seven registered OpModes and
-seven unit test classes.
+## How the code is structured
 
-| Package | What it is |
+Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
+
+| Piece | Rule |
 |---|---|
-| `hardware/` | `DeviceNames` (the only place a hardware name may be written), robot identity, active-config resolution |
-| `pedro/` | Pathing. `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, **one file per robot**) are ours; everything else is upstream |
-| `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
-| `launcher2/` | Two-wheel pinch launcher speed test, for the bench rig on hub FTC-EoM3 (config `robot_launcher_rig`). A standalone copy of `shooter/`, cut to one Y-cabled motor, same RPM steps |
-| `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
-| `opmodes/` | Ours, including `ValidateHardware` and the vision calibration OpModes |
-| `util/`, `src/test/` | Shared helpers — `LoopTimer`, `FieldView`, `WelfordVariance`, `Alliance`; seven test classes, run by CI |
+| `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
+| `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
+| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
+| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
+| `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
+| `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
+| `hardware/` | Device names, robot identity, active config — see below. |
+| `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
+| `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
+| `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
 
-**Do not edit** `pedro/procedures/**` or `FtcRobotController/` — both are upstream and get re-copied
-wholesale. That rule has exactly one hole, named above: `Constants.java`, `Tuning.java`,
-`RobotConstants.java` and `robots/`.
+**Adding a mechanism:** copy `subsystems/ExampleSubsystem`, add a `public final` field on `Robot`,
+build it in the constructor, add it to the list. If `Subsystem` doesn't fit your mechanism, change
+the interface in your PR — don't work around it.
 
-**The critical path is now tuning, not code.** Merging #17 made AutoTune *runnable*; it did not make
-the numbers *right*. Every drivetrain offset, motor direction and `ForesightConfig` value on `master`
-is a placeholder, and `Constants.createAlgorithm()` deliberately throws at init with a message naming
-the fix, because twelve Foresight variables are `required` with no defaults — they are properties of
-this robot's mass, wheels and battery and cannot be guessed. So the next real work is a session on
-each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests**, pasting each tuner's
-output into **that robot's** file, `pedro/robots/Robot<team>.java` — the active DS config picks
-which file runs (#88).
+## Hardware names and robot configs
 
-## Hard constraints — breaking these costs a meeting
+Three layers, each written in exactly one place:
 
-- **The dependency versions are a locked set.** Sloth `0.3.2` ⟂ Pedro AutoTune ⟂ the `0.3.2+…`
-  Sloth-variant builds of Panels and FTC Dashboard ⟂ `androidx.appcompat {strictly 1.2.0}`. Never
-  bump one alone. → `TeamCode/README.md` § "Why the versions are locked together"
-- **Dependabot PRs raising `appcompat` get closed, not fixed.** Panels declares it `strictly`, and it
-  means it.
-- **`FtcRobotController/` is byte-identical to stock v12.0 and is refreshed wholesale.** Never patch
-  it. We carry no local changes there.
-- **`pedro/procedures/**` is upstream code** — re-copy on a Pedro upgrade, never edit in place.
-  **Exception:** `pedro/Constants.java`, `pedro/Tuning.java`, `pedro/RobotConstants.java` and
-  `pedro/robots/**` *are* ours. They are the one hole in this rule.
-- **Do not re-add the deliberately excluded set**: NextFTC, `com.pedropathing:telemetry`, Road
-  Runner, Marrow, or the `maven.pedropathing.com` repository.
-  → `TeamCode/README.md` § "Deliberately excluded"
-  **AdvantageScope Lite is on that list**, and the reason is worth knowing before you argue
-  with it: it binds **port 8080**, which FTC Dashboard already holds. Two NanoHTTPD servers
-  cannot share a socket, and the loser throws `BindException` on a bare thread. It compiles and
-  installs perfectly, so only a robot catches it. Desktop AdvantageScope reads the Dashboard
-  stream and does the same job.
-  **History:** this entry said the opposite for three days. It came off the list in #38 (the
-  original entry said to re-add it "only if that debugging workflow is actually resumed", and it
-  had been), then #56 put it back on the port-collision grounds above. **#56 was first written up
-  as the fix for a Control Hub that would not start — it was not.** The RC kept dying in the same
-  `BindException` loop after the dependency was gone and the hub fully reinstalled.
-  **Answered, 24 Sep 2026:** the server losing that race was never AdvantageScope Lite — it was
-  Panels against FTC Dashboard, on port 8001, in a single RC process. See the Panels/Dashboard
-  entry above. Note also that **desktop AdvantageScope reads Dashboard's stream**, so with
-  Dashboard gone there is currently no AdvantageScope path at all; restoring one is open work,
-  not a settled exclusion.
-  → `TeamCode/README.md` § "AdvantageScope"
-- **Panels and FTC Dashboard cannot both be installed.** Each works alone; with both present
-  the Robot Controller crash-loops on `java.net.BindException` at
-  `fi.iki.elonen.NanoHTTPD$ServerRunnable` about 3.5s into boot, never reaches
-  `Robot Status: running`, and the Driver Station shows **no heartbeat and empty OpMode
-  lists**. Removing either one fixes it. Established 24 Sep 2026 on a Control Hub v1.0 with
-  **no team-authored Java in the APK**, and it survives a cold boot, so it is neither our code
-  nor an install-time race. We dropped Dashboard, because seven files import `com.bylazar.*`
-  and one imported `com.acmerobotics.*`. → `TeamCode/README.md` § "Why FTC Dashboard is not in
-  the dependency set"; full working in `SPIKE.md` and `LADDER.md` on the git tag
-  `archive/panels-dashboard-ladder` (never merged to `master`).
-  **This is the actual explanation for the dead 19429 hub**, and it is not the one the
-  AdvantageScope entry below gives. That entry's *mechanism* — two NanoHTTPD servers, one
-  socket, the loser throwing on a bare thread — is right. Its culprit is wrong: AdvantageScope
-  Lite was not installed on any build that died.
-- **The dashboard stack is settled: Sloth + Panels + Pedro + Ivy, and nothing else.** Panels is
-  the only dashboard — telemetry, graphs, field view, capture, OpMode control, configurables and
-  the Limelight proxy all come from it, at `http://192.168.43.1:8001`. Decided 25 Sep 2026, by
-  the mentor, after the Panels/Dashboard collision above forced a choice. **This supersedes the
-  note in the AdvantageScope entry below calling a restored AdvantageScope path "open work, not
-  a settled exclusion"** — as of this decision it is settled, and an OpMode that wants a graph
-  publishes to Panels rather than waiting for one. Design new code for this stack: new
-  instrumentation goes to `PanelsTelemetry`, new tunables get `@Configurable`.
-  → `TeamCode/README.md` § "The Panels stack: seeing data and changing values at a meeting"
-- **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` / `AprilTagClusterDetection`.
-  Code that iterates detections and reads `.id`/`.metadata`/`.center` no longer compiles.
-- **BIOBUZZ AprilTags move** (they sit on the tipping HIVE), so they are **not valid for absolute
-  field localization**. They may still be useful for *relative* aim correction.
-- **A Sloth bump can break bundled-config discovery with no compile error.** Config discovery relies
-  on Sloth's `RobotConfigResScanner`, which replaces the SDK's `RobotConfigResFilter`. Symptom:
-  configs stop appearing in the Driver Station list. Validate on a robot after any Sloth change.
+| Layer | Question | Lives in | Differs per robot? |
+|---|---|---|---|
+| Name | What does the code call it? (`frontLeft`) | `hardware/DeviceNames` | No |
+| Port | Where is it plugged in? | `TeamCode/src/main/res/xml/robot_<name>.xml` | Yes — the only place wiring is written |
+| Identity | Which robot is this, and what should it have? | `hardware/RobotIdentity` (config name → device list) | One line per robot |
 
-## Where the work lives
+- **A device name appears only in `DeviceNames`.** Never a string literal, never a field on an
+  `@Configurable` object. A name is identity, not tuning.
+- **Java never knows a port.** Two robots wired differently differ only in their XML.
+- **Adding a device:** the `DeviceNames` constant, the device list of every robot that has it
+  (`COMPETITION_ROBOT` covers both), and the element in each of those robots' XML — same PR.
+- **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
+  different hardware also gets its own device list (`LAUNCHER_RIG` is the example).
+- **Per-robot numbers key off `ActiveConfig.requireIdentity()`** — never the Wi-Fi name, hub
+  serial, or a fallback default. An unknown config fails loudly.
+- **Look up hardware in the subsystem constructor, and never swallow a missing device.** No
+  catch-and-return-null helpers. An optional device is an explicit, named decision.
+- XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
+  the SDK reads; keep `port` equal to it.
+- `RobotConfigXmlTest` enforces all of this in CI. On a robot: Activate the config once per hub,
+  then run **Validate Hardware**.
+  → README § "Robot configuration"
 
-GitHub **Issues** are the source of truth; the Project board is a view. PR descriptions are for
-rationale, not planning — a PR is invisible until code exists, and it does not survive a branch
-rename.
+## The libraries
 
-- **An issue exists before a branch does.** A PR without `Closes #N` is incomplete.
-- Planning discussion goes in the issue. Design rationale goes in the PR body and in repo docs.
-- **The work is split into eight workstreams**, each a top-level issue labelled `workstream` whose
-  sub-issues are the work: robot structure, Pedro tuning, auto, launcher, turret aiming,
-  localization, vision, and setup. A new issue joins one as a sub-issue; a new workstream is a mentor decision.
-- Labels answer three questions: which team (`team:*`, exactly one), whether it needs a robot
-  (`needs:robot`, or nothing), and who may take it (`good-first-task` / `student-ready` /
-  `mentor-only`). `bug`, `decision`, `proposal`, `blocked` and `meeting-brief` only when they apply.
-  There are **no priority labels** — order on the board is the priority.
-  **History:** until 26 Sep 2026 this line described five axes (priority, `area:`, `type:`, access,
-  ownership) — 35 labels. They were cut because nobody read that many; the reasoning is in
-  `.github/CONTRIBUTING.md` § "Why so few labels". Treat any mention of `P1-now`, `area:*`,
-  `type:*`, `desk-ok` or `needs-pairing` as stale.
+**Pedro** (`com.pedropathing` 3.x, tuning via AutoTune). All drivetrain and localizer
+construction goes through `Constants.createDrivetrain/createLocalizer/createAlgorithm/create`.
+Tuner output is pasted into **that robot's** file, `pedro/robots/Robot<team>.java` — the active
+config picks which runs. Values are measured, never guessed.
+`createAlgorithm()` throws until the Foresight Tuner has run, so an OpMode that must work on an
+untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is the pattern).
+→ README § "The `pedro` package"
 
-## Branch, commit and PR conventions
+**Ivy** (commands). The `Scheduler` is always on, in TeleOp and Autonomous: every subsystem
+updates through `periodic()`, and behaviour beyond that is commands. Each loop runs clear bulk
+cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
+commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics —
+the single exception is `controls/Handoff`, which carries alliance and pose from Autonomous to
+TeleOp and is written and read only by `RobotOpMode`.
 
-- Branch prefixes: `feat/ fix/ tune/ chore/ docs/ spike/`. Web sessions auto-name
-  `claude/<adjective>-<name>-<hash>`; that is fine for agent work, but still carry `Closes #N`.
-- **Never commit to `master`.** Never force-push a branch someone else may have checked out.
-- **Rename a branch with GitHub's button, never by delete-and-repush.** Repo → Branches → the
-  pencil icon retargets any open PR to the new name. Deleting the old branch and pushing a new one
-  instead closes the PR, and the work goes unreferenced — that is what stranded #14 and #15.
-- The branch name is written into the merge commit permanently, so
-  `Merge pull request #13 from .../tooling/sloth-run-config` is still readable a season later and a
-  random name is not. Rename an auto-generated `claude/*` branch *before* opening the PR.
-- Commit style: imperative subject; the body explains *why*, not *what*.
-- CI runs compile + `:TeamCode:lintDebug` + `testDebugUnitTest` on **every push to every branch**,
-  not only on PRs. **A red CI is investigated, not re-run.**
-- Those three jobs are **required status checks** on `master` (since 21 Sep 2026), with `strict`
-  on and admins included. So a PR cannot merge red, and it cannot merge behind `master` — expect
-  to press *Update branch* when someone else merges first. Nobody can override this, which is the
-  point; the cost is that if CI itself breaks, fixing CI is the only way to merge anything.
+**Localization.** Pedro's `FusionLocalizer` fuses the Pinpoint with AprilTag fixes; we add only
+`CellFix` (sighting → position) and assume Pedro's filter works — no extra error-tracking layer
+until a real problem asks for one. Read the pose from `robot.drive`, never from the Pinpoint or
+the Limelight directly. Anything that drives or aims from field coordinates checks
+`robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
+`HiveFieldPoints`, `StartPositions`, `FieldFrame` and `LocalizationTuning` hold measured field
+facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
+overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
 
-## House documentation style
+**Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
+the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
+intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it
+starves the fusion of tag fixes.
 
-> Record what was included, what was deliberately left out, and why — so the reasoning survives past
-> whoever added it.
+**Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
+Degrees only on screens. Field facts that depend on the frame live in `util/FieldFrame`.
 
-- Document the options you **rejected**, not only the one you chose.
-- When superseding an earlier decision, add a history note saying the old doc was stale. Do not
-  silently overwrite. (`TeamCode/README.md` does this at the top — that is the model.)
-- Prefer a table of facts plus prose explaining *why* over a bullet list of facts.
+**Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
+Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
+proposes, X/B on either gamepad overrides, Auto's handoff is inherited — and never guesses one.
+Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
+that requires the subsystem — that would interrupt its `periodic()`.
 
-## Mentor / student split
+**Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
+- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one**
+  `update(telemetry)` per loop, which mirrors to the Driver Station. No parallel DS-only calls.
+- Wrap publishing in a `try`/`catch` that swallows: telemetry never takes a mechanism down.
+- Keys are flat, prefixed strings (`left_rpm`), not `a/b/c` paths.
+- Tunables: `@Configurable` static fields. Guard them against bad input (see `BasicDriveTeleOp`).
+- Field drawing: `util/FieldView`, not Pedro's `Drawing` helper.
+  → README § "The Panels stack"
 
-The mentor owns the loop; students own what runs inside it. Substrate work — locked versions, CI,
-hardware abstraction, test rigs, tuning harnesses — is `mentor-only`. Robot behaviour is not.
+**Sloth** (hot reload). Deploy with the **Sloth Load** run config; do a full **TeamCode** install
+after changing any `.gradle` file, a dependency, or `FtcRobotController/`, or the robot silently
+keeps the old code. Bundled-config discovery depends on Sloth, not the SDK: after a Sloth bump,
+configs can vanish from the DS list with no compile error.
+→ README § "Risk: bundled configs depend on Sloth"
 
-- **An agent asked to implement something currently assigned to a student must decline** and improve
-  the issue instead.
-- The orchestrator session never writes robot code. Its output is an issue, not a commit.
+## Loop time
 
-## Commands
+Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules:
+
+- **Nothing blocks.** No `sleep()`, no waiting loops, in `update()` or `onLoop()`. Slow work is
+  a state machine advanced one step per call.
+- **Read hardware once per loop.** `RobotOpMode` sets bulk caching to `MANUAL` and clears it at the
+  top of every loop; read each sensor once and pass the value around.
+- **Nothing is looked up or allocated per loop** that could be done once in init: hardware
+  lookups, lists, formatters, commands.
+- **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
+  `shooter/FlywheelBank`).
+- **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
+- **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
+  OpMode before and after adding a subsystem and put both numbers in the PR.
+
+## Hard constraints
+
+- **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.1 + AutoTune, the
+  `0.3.2+…` Sloth build of Panels, Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump
+  one alone; close Dependabot PRs that raise `appcompat`.
+  → README § "Why the versions are locked together"
+- **Never add:** FTC Dashboard or AdvantageScope Lite (their NanoHTTPD servers collide with
+  Panels and the RC crash-loops on `BindException` — it compiles fine, only a robot catches it),
+  NextFTC, Road Runner, Marrow, `com.pedropathing:telemetry`, `maven.pedropathing.com`.
+  → README § "Deliberately excluded"
+- **Never patch `FtcRobotController/`.** It is stock v12.0 and gets replaced wholesale.
+- **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` /
+  `AprilTagClusterDetection`; old `.id`/`.metadata`/`.center` code does not compile.
+- **BIOBUZZ AprilTags move** (they sit on the tipping HIVE). Never use Limelight MegaTag
+  (`getBotpose*`) or any fixed field map: one position per tag is wrong whenever its CELL has
+  tipped. Tag fixes enter the pose only through `localization/`, using the CELL's settled UP/DOWN
+  state and `HiveFieldPoints`.
+
+## Commands, and working without a robot
 
 ```
-./gradlew assembleDebug            # compile (what CI gates on)
-./gradlew :TeamCode:lintDebug      # lint, scoped to TeamCode deliberately
+./gradlew assembleDebug            # compile
+./gradlew :TeamCode:lintDebug      # lint (TeamCode only, deliberately)
 ./gradlew testDebugUnitTest        # unit tests
 ```
 
-The first build in a fresh container downloads the whole Android/Gradle cache and takes minutes.
-All three need an Android SDK — `sdk.dir` in `local.properties`, which is gitignored. Without it
-Gradle stops at `SDK location not found`, which is an environment problem, not a broken build.
+CI runs all three on every push; they are required checks on `master`. `SDK location not found`
+means `local.properties` lacks `sdk.dir` — an environment problem, not a broken build. Gradle needs
+network; if the sandbox blocks it, say so.
 
-Deploying is a run configuration in Android Studio, not a terminal command: **Sloth Load** (<1s hot
-reload) for everyday work, **TeamCode** (~40s full install) when you changed any `.gradle` file,
-dependencies, or anything in `FtcRobotController/`. Getting that wrong means the robot silently keeps
-running the old code. → `TeamCode/README.md` § "Deploying to the robot"
+**No robot is attached to a Claude session.** Anything needing hardware — tuning values, motor
+directions, port checks — stops and produces a checklist for the next meeting instead of a guess.
+Remote containers have no `gh`; use the GitHub MCP tools.
 
-## Repo map
+## Process
 
-| Path | Ours? |
-|---|---|
-| `TeamCode/src/main/java/.../teamcode/pedro/procedures/` | No — upstream Quickstart, re-copy on upgrade |
-| `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning,RobotConstants}.java` | **Yes** — ours, and filled in |
-| `TeamCode/src/main/java/.../teamcode/pedro/robots/` | **Yes** — tuned values, one file per robot |
-| `TeamCode/src/main/java/.../teamcode/hardware/` | Yes — device names, robot identity |
-| `TeamCode/src/main/java/.../teamcode/opmodes/` | Yes |
-| `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs, one per `RobotIdentity`; each is checked against its own device list |
-| `TeamCode/src/test/` | Yes — unit tests, run in CI |
-| `FtcRobotController/` | No — stock v12.0, never patch |
-| `.run/` | Yes — the shared Sloth Load run config |
+`.github/CONTRIBUTING.md` is the full version. What a session must not miss:
 
-## Notes for remote sessions
-
-- **`gh` is not installed *in these remote containers*.** Use the GitHub MCP tools for all
-  GitHub access from a Claude session. This says nothing about your laptop — `gh` on Windows,
-  macOS or Linux is the normal way for a person to drive this repo, and some things (running
-  the **Set up season board** workflow, for one) are easiest that way.
-- **Routine-fired sessions have neither `gh` nor the GitHub MCP tools**, so they can read the
-  repo and `git log` but not issues or PRs. A scheduled standup needs one of the two added to
-  the environment before it can do its job.
-- **No robot is attached.** Anything requiring hardware must stop and produce instructions for a
-  meeting rather than guessing at values.
-- Gradle needs network. If the sandbox blocks it, say so — do not report the build as broken.
+- An issue exists before a branch; every PR says `Closes #N`. Never commit to `master`.
+- Branch prefixes `feat/ fix/ tune/ chore/ docs/ spike/`; rename a `claude/*` branch with
+  GitHub's rename button before opening the PR, never by delete-and-repush.
+- Labels: exactly one `team:*`, `needs:robot` if it does, and one of `good-first-task` /
+  `student-ready` / `mentor-only`. No priority labels — board order is priority.
+- **Mentor/student split.** Substrate (versions, CI, hardware abstraction, rigs, tuning harnesses)
+  is mentor-only; robot behaviour belongs to students. Asked to implement something assigned to a
+  student, decline and improve the issue instead.
+- A red CI is investigated, not re-run.

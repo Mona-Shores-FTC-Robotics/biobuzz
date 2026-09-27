@@ -441,25 +441,37 @@ and reached from an OpMode that extends `RobotOpMode`. Four files carry the whol
 | `subsystems/Subsystem.java` | The contract: `initialize()`, `update()`, `stop()`, plus a `default periodic()` you get free |
 | `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
 | `Robot.java` | The parts list — every subsystem, built once |
-| `opmodes/RobotOpMode.java` | The base OpMode. Sets `MANUAL` bulk caching and clears it each loop, builds `Robot`, runs the scheduler, shuts down |
+| `opmodes/RobotOpMode.java` | The base OpMode. Owns the loop: bulk caching, loop timing, the scheduler, teardown |
+| `subsystems/DriveSubsystem.java` | The drivetrain — the worked example of a real subsystem |
 
 The point is not elegance, it is having an answer to *"where does my code go?"*. Adding a method
 to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.
 
 ### `update()` is the contract, `periodic()` is an adapter
 
+> **History note.** This section used to say "prefer calling `update()` directly in TeleOp", and
+> `RobotOpMode.useScheduler()` let an OpMode switch the scheduler off. Both are gone: the scheduler
+> is always on. The reasoning below replaces the old advice; the rejected option is kept.
+
 `update()` is one step of the mechanism's work, called once per loop. `periodic()` wraps that same
-method as an Ivy `Command` for OpModes running the `Scheduler`.
+method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` and runs the
+`Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
+subsystem what it wants (`robot.drive.drive(...)`) and the scheduler does the rest.
 
-**Prefer calling `update()` directly in TeleOp.** `Scheduler.execute()` allocates roughly three
-objects on every call even when nothing is scheduled — it copies its running-command deque and
-iterates the copy, then does an `O(n·m)` `removeAll`. Routing a drivetrain through it costs that and
-buys nothing, because no second command is competing for the drivetrain. In Autonomous, arbitration
-is the entire point and the scheduler earns its keep. `RobotOpMode.useScheduler()` picks between
-them.
+`RobotOpMode.loop()` runs in a fixed order: clear the bulk cache, `onLoop()`, then
+`Scheduler.execute()`. Inputs are read and intents set *before* subsystems update, so a stick
+movement reaches the motors in the same loop rather than the next.
 
-To be clear about scale: this is **microseconds, not milliseconds**, and it will not be anyone's
-loop-time problem. It is a reason to prefer the simpler code, not a reason to fear the scheduler.
+**Why always on.** BIOBUZZ TeleOp will have macros a driver can interrupt, which is arbitration —
+the scheduler's job. One execution model means a command written for Autonomous binds to a button
+unchanged, and students learn one way things run.
+
+**Rejected: an opt-out for TeleOp.** `Scheduler.execute()` allocates roughly three objects on every
+call even when nothing is scheduled — it copies its running-command deque and iterates the copy,
+then does an `O(n·m)` `removeAll`. That is **microseconds, not milliseconds**, and it is not a
+loop-time problem. The opt-out cost more than it saved: a second way for an OpMode to run, and a trap
+in it — an OpMode that turned the scheduler off had to update every subsystem itself, or look alive
+while updating nothing. If `LoopTimer` ever shows the scheduler mattering, revisit with the number.
 
 ### The lifecycle is on the interface
 
@@ -1080,6 +1092,13 @@ Ordered roughly by what unblocks what.
    settled, each with its own state. Gate every candidate against odometry so a
    misclassified state or a mid-tip reading is rejected before it reaches the
    estimator.
+   > **Update:** built. The estimator is Pedro 3's own `FusionLocalizer` (it ships in
+   > `core`); the `localization` package adds only `CellFix` — a settled CELL sighting
+   > plus the Pinpoint heading gives the robot position — and `HiveFieldPoints`, the
+   > eight row-centre points, NaN until item 2 fills them. No tag orientation convention
+   > is needed. Until item 2, the robot runs on the Pinpoint alone. The gate against
+   > odometry described above was deliberately left to Pedro's filter: add one only if a
+   > robot shows it is needed.
 4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
    tip it by hand between samples. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.

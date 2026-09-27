@@ -1,60 +1,29 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.pedropathing.drivetrain.DrivePowers;
-import com.pedropathing.follower.ManualDrive;
-import com.pedropathing.revhub.drivetrains.Mecanum;
-import com.pedropathing.revhub.localizers.PinpointLocalizer;
-import com.qualcomm.hardware.lynx.LynxModule;
-import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import org.firstinspires.ftc.teamcode.pedro.Constants;
-import org.firstinspires.ftc.teamcode.util.AccelLimiter;
-
-import java.util.List;
+import org.firstinspires.ftc.teamcode.controls.Display;
 
 /**
- * Drive the robot with a gamepad. The smallest thing that is actually useful.
- *
- * <p>This deliberately does <b>not</b> build a Pedro {@code Follower}. {@code Constants.create()}
- * throws until the Foresight tuner has run, because twelve of its variables are {@code required}
- * with no defaults — so a Follower-based TeleOp cannot run on an untuned robot, which is every
- * robot we currently have. {@code createDrivetrain()} and {@code createLocalizer()} are separately
- * available and do not throw, so this uses those directly. When tuning lands, moving to a Follower
- * is a small change.
- *
- * <p>It also does not port DECODE's TeleOp. That one is 333 lines resting on a 1,713-line
- * DriveSubsystem, a Robot container, five subsystems and an Ivy scheduler. None of that exists
- * here yet, and none of it is needed to drive.
+ * Drive the robot with a gamepad. The reference {@link RobotOpMode}: read the sticks, tell
+ * {@code robot.drive} what you want, report.
  *
  * <h2>Controls</h2>
- * <ul>
- *   <li>Left stick — translate</li>
- *   <li>Right stick X — turn</li>
- *   <li>Left bumper (hold) — slow mode. Wins over turbo if both are held.</li>
- *   <li>Right bumper (hold) — turbo: full power, no acceleration limit</li>
- *   <li>Y — reset field-centric forward to the way the robot is facing now</li>
- *   <li>B — toggle field-centric / robot-centric</li>
- * </ul>
+ *
+ * <p>Bound in {@link #onInit()}, and listed on the Driver Station's Controls page (Back/Share) —
+ * the bindings are the documentation. Slow wins over turbo if both bumpers are held.
  *
  * <p>These bindings are a starting point, not a decision. Which button does what is a driver
  * question, and the drivers should own it.
  *
- * <h2>Speed and acceleration</h2>
- *
- * <p>The test robot is light, and full stick straight to full power made it lurch — hard to coach
- * a driver on. So normal driving is capped at {@link #normalSpeed}, power can only <em>rise</em>
- * at {@link #accelPerSec} (slowing and stopping stay instant, see {@link AccelLimiter}), and turbo
- * gives back everything. All of these are {@code @Configurable}: tune them in Panels while someone
- * drives, then write the values the drivers like back here. Panels edits are lost on restart.
- *
- * <p>Turbo skips the acceleration limit on purpose — a driver pressing it wants speed now. If the
- * robot tips or slips on turbo starts, apply the limiter to turbo too.
+ * <p>Speeds are {@code @Configurable}: tune them in Panels while someone drives, then write the
+ * values the drivers like back here — Panels edits are lost on restart. The acceleration limit
+ * lives on {@code DriveSubsystem}, because it is about the robot, not the driver.
  */
 @TeleOp(name = "Basic Drive", group = "Drive")
 @Configurable
-public class BasicDriveTeleOp extends OpMode {
+public class BasicDriveTeleOp extends RobotOpMode {
 
     /**
      * Stick-to-robot sign conventions.
@@ -78,148 +47,53 @@ public class BasicDriveTeleOp extends OpMode {
     /** Stick multiplier while the left bumper (slow) is held. */
     public static double slowSpeed = 0.35;
 
-    /**
-     * How fast drive power may rise, in power per second. 2.0 takes a standing robot to the 0.6
-     * normal cap in 0.3s. Lower is gentler; very high is the same as no limit.
-     */
-    public static double accelPerSec = 2.0;
-
-    /** The same, for turning. Separate because a laggy turn makes aiming feel mushy. */
-    public static double turnAccelPerSec = 4.0;
-
-    /** A loop slower than this (a hiccup, a GC pause) is treated as this long, so power cannot jump. */
-    private static final double MAX_LOOP_DT_SEC = 0.1;
-
     /** Below this, a stick is treated as centred. Guards against drift on a worn gamepad. */
     private static final double STICK_DEADBAND = 0.05;
 
-    private Mecanum drivetrain;
-    private PinpointLocalizer localizer;
-
-    /** Non-null only when the Pinpoint was missing at init; holds the reason, to show the driver. */
-    private String localizerFault;
-
-    private boolean fieldCentric = true;
-    private double headingOffset;
-
-    private boolean prevY;
-    private boolean prevB;
-
-    private List<LynxModule> hubs;
-
-    private final AccelLimiter forwardLimiter = new AccelLimiter();
-    private final AccelLimiter strafeLimiter = new AccelLimiter();
-    private final AccelLimiter turnLimiter = new AccelLimiter();
-    private long lastLoopNs;
-
     @Override
-    public void init() {
-        // One hub read per loop instead of one per call. Costs nothing, and the loop time it saves
-        // is the difference between a robot that feels responsive and one that does not.
-        hubs = hardwareMap.getAll(LynxModule.class);
-        for (LynxModule hub : hubs) {
-            hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-        }
-
-        drivetrain = Constants.createDrivetrain(hardwareMap);
-
-        // A missing Pinpoint must not stop the robot — see #21. Field-centric needs a heading, so
-        // without it we fall back to robot-centric and say so, rather than failing to start. This
-        // is what lets the OpMode run on a partial machine.
-        try {
-            localizer = Constants.createLocalizer(hardwareMap);
-        } catch (RuntimeException e) {
-            localizer = null;
-            localizerFault = e.getMessage() == null ? e.toString() : e.getMessage();
-            fieldCentric = false;
-        }
-
-        telemetry.addLine("Basic Drive ready.");
-        telemetry.addLine("Left stick drives, right stick turns.");
-        telemetry.addLine("Hold left bumper for slow, right bumper for turbo.");
-        if (localizer == null) {
-            telemetry.addLine();
-            telemetry.addData("NO PINPOINT", "robot-centric only — %s", localizerFault);
-        }
+    protected void onInit() {
+        driver.note("Left stick", "Drive");
+        driver.note("Right stick X", "Turn");
+        driver.note("Left bumper (hold)", "Slow");
+        driver.note("Right bumper (hold)", "Turbo — full power, no acceleration limit");
+        driver.when("Y", "Reset field-centric forward", () -> gamepad1.y)
+                .onPress(robot.drive::resetHeading);
+        driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
+                .onPress(robot.drive::toggleFieldCentric);
     }
 
     @Override
-    public void start() {
-        lastLoopNs = System.nanoTime();
+    protected void onInitLoop() {
+        display.status("Basic Drive", Display.Level.OK, "ready — Back/Share shows the controls");
+        showPinpoint();
     }
 
     @Override
-    public void loop() {
-        for (LynxModule hub : hubs) {
-            hub.clearBulkCache();
-        }
-        if (localizer != null) {
-            localizer.update();
-        }
+    protected void onLoop() {
+        boolean slow = gamepad1.left_bumper;
+        boolean turbo = gamepad1.right_bumper && !slow;
+        double scale = unitRange(slow ? slowSpeed : turbo ? turboSpeed : normalSpeed);
 
-        handleButtons();
-
-        long now = System.nanoTime();
-        double dt = Math.min((now - lastLoopNs) / 1e9, MAX_LOOP_DT_SEC);
-        lastLoopNs = now;
-
-        boolean turbo = gamepad1.right_bumper && !gamepad1.left_bumper;
-        double scale = unitRange(gamepad1.left_bumper ? slowSpeed : turbo ? turboSpeed : normalSpeed);
         double forward = deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale;
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
 
-        if (turbo) {
-            // Bypass the limit, and keep the limiters in step with what the wheels really get:
-            // releasing turbo then drops straight to the normal cap, rather than the limiter
-            // starting from wherever it was before turbo was pressed.
-            forwardLimiter.reset(forward);
-            strafeLimiter.reset(strafe);
-            turnLimiter.reset(turn);
-        } else {
-            forward = forwardLimiter.step(forward, accelPerSec, dt);
-            strafe = strafeLimiter.step(strafe, accelPerSec, dt);
-            turn = turnLimiter.step(turn, turnAccelPerSec, dt);
-        }
+        robot.drive.setAccelLimited(!turbo);
+        robot.drive.drive(forward, strafe, turn);
 
-        DrivePowers powers = usingFieldCentric()
-                ? ManualDrive.fieldCentric(forward, strafe, turn, heading() - headingOffset)
-                : new DrivePowers(forward, strafe, turn);
-
-        // manual = true selects BRAKE over FLOAT when the sticks are centred, if the drivetrain
-        // config asks for it. It is what you want under a driver: the robot stops where it is
-        // put instead of coasting.
-        drivetrain.drive(powers, true);
-
-        publishTelemetry(forward, strafe, turn);
+        display.status("Mode", Display.Level.OK,
+                robot.drive.isFieldCentric() ? "field-centric" : "robot-centric");
+        display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
+                slow ? "slow" : turbo ? "TURBO" : "normal");
+        showPinpoint();
+        display.line(loopTimer.summary());
     }
 
-    @Override
-    public void stop() {
-        if (drivetrain != null) {
-            drivetrain.stop();
+    private void showPinpoint() {
+        if (!robot.drive.hasHeading()) {
+            display.status("Pinpoint", Display.Level.WARN,
+                    "MISSING — robot-centric only (" + robot.drive.localizerFault() + ")");
         }
-    }
-
-    /** Edge-detected, so holding a button does not retrigger it every 20ms. */
-    private void handleButtons() {
-        if (gamepad1.y && !prevY && localizer != null) {
-            headingOffset = heading();
-        }
-        prevY = gamepad1.y;
-
-        if (gamepad1.b && !prevB && localizer != null) {
-            fieldCentric = !fieldCentric;
-        }
-        prevB = gamepad1.b;
-    }
-
-    private boolean usingFieldCentric() {
-        return fieldCentric && localizer != null;
-    }
-
-    private double heading() {
-        return localizer == null ? 0.0 : localizer.pose().heading();
     }
 
     /**
@@ -232,19 +106,5 @@ public class BasicDriveTeleOp extends OpMode {
 
     private static double deadband(double value) {
         return Math.abs(value) < STICK_DEADBAND ? 0.0 : value;
-    }
-
-    private void publishTelemetry(double forward, double strafe, double turn) {
-        telemetry.addData("Mode", usingFieldCentric() ? "FIELD-CENTRIC (B to switch)"
-                                                      : "ROBOT-CENTRIC (B to switch)");
-        telemetry.addData("Speed", gamepad1.left_bumper ? "SLOW"
-                                   : gamepad1.right_bumper ? "TURBO" : "normal");
-        telemetry.addData("Stick", "fwd %.2f  strafe %.2f  turn %.2f", forward, strafe, turn);
-        if (localizer != null) {
-            telemetry.addData("Heading", "%.1f deg  (Y zeroes it)",
-                    Math.toDegrees(heading() - headingOffset));
-        } else {
-            telemetry.addData("NO PINPOINT", localizerFault);
-        }
     }
 }
