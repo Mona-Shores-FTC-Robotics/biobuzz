@@ -67,7 +67,7 @@ Order matters — later reads are interpreted in light of earlier ones.
 2. The pinned **Meeting Log** issue, last 2 comments — what was promised last time. This is the
    memory a cold session otherwise lacks.
 3. **Open PRs**: number, author, `mergeable_state`, check status, age, linked issue.
-4. **Open issues**, grouped by workstream (the seven issues labelled `workstream` and their
+4. **Open issues**, grouped by workstream (the eight issues labelled `workstream` and their
    sub-issues), then anything `blocked` or `decision`. There are no priority labels: rank by what
    each issue unblocks, and by board order where the board has one.
 5. `git log` since the last brief — on `master` **and on branches with no open PR**. Work that
