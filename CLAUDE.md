@@ -17,7 +17,7 @@ seven unit test classes.
 | Package | What it is |
 |---|---|
 | `hardware/` | `DeviceNames` (the only place a hardware name may be written), robot identity, active-config resolution |
-| `pedro/` | Pathing. `Constants.java` and `Tuning.java` are **ours and filled in**; everything else is upstream |
+| `pedro/` | Pathing. `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, **one file per robot**) are ours; everything else is upstream |
 | `shooter/` | Flywheel speed test rig. Targets last season's DECODE robot, so it is standalone by design |
 | `launcher2/` | Two-wheel pinch launcher speed test, for the bench rig on hub FTC-EoM3 (config `robot_launcher_rig`). A standalone copy of `shooter/`, cut to one Y-cabled motor, same RPM steps |
 | `vision/` | Limelight 3A — per-CELL HIVE sightings and UP/DOWN state |
@@ -25,14 +25,17 @@ seven unit test classes.
 | `util/`, `src/test/` | Shared helpers — `LoopTimer`, `FieldView`, `WelfordVariance`, `Alliance`; seven test classes, run by CI |
 
 **Do not edit** `pedro/procedures/**` or `FtcRobotController/` — both are upstream and get re-copied
-wholesale. That rule has exactly one hole, named above: `Constants.java` and `Tuning.java`.
+wholesale. That rule has exactly one hole, named above: `Constants.java`, `Tuning.java`,
+`RobotConstants.java` and `robots/`.
 
 **The critical path is now tuning, not code.** Merging #17 made AutoTune *runnable*; it did not make
 the numbers *right*. Every drivetrain offset, motor direction and `ForesightConfig` value on `master`
 is a placeholder, and `Constants.createAlgorithm()` deliberately throws at init with a message naming
 the fix, because twelve Foresight variables are `required` with no defaults — they are properties of
 this robot's mass, wheels and battery and cannot be guessed. So the next real work is a session on
-each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
+each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests**, pasting each tuner's
+output into **that robot's** file, `pedro/robots/Robot<team>.java` — the active DS config picks
+which file runs (#88).
 
 ## Hard constraints — breaking these costs a meeting
 
@@ -44,8 +47,8 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
 - **`FtcRobotController/` is byte-identical to stock v12.0 and is refreshed wholesale.** Never patch
   it. We carry no local changes there.
 - **`pedro/procedures/**` is upstream code** — re-copy on a Pedro upgrade, never edit in place.
-  **Exception:** `pedro/Constants.java` and `pedro/Tuning.java` *are* ours to fill in. They are the
-  one hole in this rule.
+  **Exception:** `pedro/Constants.java`, `pedro/Tuning.java`, `pedro/RobotConstants.java` and
+  `pedro/robots/**` *are* ours. They are the one hole in this rule.
 - **Do not re-add the deliberately excluded set**: NextFTC, `com.pedropathing:telemetry`, Road
   Runner, Marrow, or the `maven.pedropathing.com` repository.
   → `TeamCode/README.md` § "Deliberately excluded"
@@ -176,7 +179,8 @@ running the old code. → `TeamCode/README.md` § "Deploying to the robot"
 | Path | Ours? |
 |---|---|
 | `TeamCode/src/main/java/.../teamcode/pedro/procedures/` | No — upstream Quickstart, re-copy on upgrade |
-| `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning}.java` | **Yes** — ours, and filled in |
+| `TeamCode/src/main/java/.../teamcode/pedro/{Constants,Tuning,RobotConstants}.java` | **Yes** — ours, and filled in |
+| `TeamCode/src/main/java/.../teamcode/pedro/robots/` | **Yes** — tuned values, one file per robot |
 | `TeamCode/src/main/java/.../teamcode/hardware/` | Yes — device names, robot identity |
 | `TeamCode/src/main/java/.../teamcode/opmodes/` | Yes |
 | `TeamCode/src/main/res/xml/robot_*.xml` | Yes — bundled RC configs, one per `RobotIdentity`; each is checked against its own device list |

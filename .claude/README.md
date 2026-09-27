@@ -7,7 +7,9 @@ and make the never-edit paths structurally impossible to edit rather than merely
 
 ### Why the deny list stops where it does
 
-It covers `pedro/procedures/**` but **not** `pedro/Constants.java` or `pedro/Tuning.java`.
+It covers `pedro/procedures/**` but **not** `pedro/Constants.java` or `pedro/Tuning.java` — nor
+`pedro/RobotConstants.java` and `pedro/robots/**`, which hold the per-robot tuned values and have
+no upstream counterpart at all.
 
 That asymmetry is load-bearing. `procedures/` is a verbatim copy of the Pedro Pathing Quickstart and
 gets re-copied wholesale on upgrade, so a local edit there is silently destroyed later.
