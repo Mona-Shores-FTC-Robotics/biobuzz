@@ -24,7 +24,7 @@ public class HoldStillAuto extends RobotOpMode {
     protected void onLoop() {
         Pose pose = robot.drive.pose();
         if (pose != null) {
-            display.status("Pose", robot.drive.poseTrusted() ? Display.Level.OK : Display.Level.WARN,
+            display.status("Pose", robot.drive.poseReferenced() ? Display.Level.OK : Display.Level.WARN,
                     String.format(java.util.Locale.US, "(%.1f, %.1f, %.0f°)",
                             pose.x(), pose.y(), Math.toDegrees(pose.heading())));
         }

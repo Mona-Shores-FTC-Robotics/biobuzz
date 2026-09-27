@@ -33,7 +33,7 @@ sitting — and **always fallback-able**: the robot inits and drives no matter w
 | `controls/MatchSetup` | The alliance, settled in INIT from sensors first: manual X/B beats Auto's handoff beats vision; disagreement shown amber; UNKNOWN shown red, never guessed. Locked at PLAY. |
 | `controls/Handoff` | Auto → TeleOp: alliance + final pose, recorded when an `@Autonomous` OpMode stops, restored when TeleOp inits within 3 minutes. The one static in the codebase. |
 | `util/FieldFrame` | Pedro field frame everywhere (inches, radians; degrees on screens only) and the field facts that depend on it. |
-| `localization/` | Pinpoint + AprilTag fusion: `PoseFusion` (offset filter, latency-compensated, gated), `FusedLocalizer` (a Pedro `Localizer`), `HiveFieldPoints` (8 points, NaN until CAD), `StartPositions` + `StartCheck`. `robot.drive.poseTrusted()` gates pose-dependent features. |
+| `localization/` | Pedro's `FusionLocalizer` does the fusion. Ours: `CellFix` (a settled CELL sighting → robot position), `HiveFieldPoints` (8 points, NaN until CAD), `StartPositions` + `StartCheck`, `LocalizationTuning` (DECODE's filter values). `robot.drive.poseReferenced()` gates pose-dependent features. |
 | `vision/PieceVisionSubsystem` | Webcam colour blobs for POLLEN / NECTAR, enabled only while intaking; colours unmeasured → camera never opened. |
 | `DriveSubsystem` | Mecanum drive from the OpMode's `drive(...)` command; field-centric with the Pinpoint, robot-centric without. |
 | `hardware/` | Names (`DeviceNames`), ports (`robot_*.xml`), identity (`RobotIdentity`). |
@@ -71,9 +71,9 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | X = Blue, B = Red, INIT only, either gamepad | Xbox button colours match; free after PLAY | D-pad |
 | Handoff is the only static; stale after 3 min; not cleared on read | Survives a TeleOp re-init in the pits; a practice Auto cannot leak into a later TeleOp | Clear-on-read (loses it on re-init); no expiry |
 | Bindings primed at PLAY | B held from choosing Red must not toggle drive mode on the first loop | Fire on any press edge |
-| Fuse Pinpoint + tag fixes as an offset on the Pinpoint's pose | Keeps the Pinpoint's 1.5 kHz integration; latency needs no replay; allocation-free | DECODE's velocity re-integration with `TreeMap` replay |
+| Pedro's `FusionLocalizer`, nothing around it | It ships in core 3.0.1, is Follower-native, keeps the Pinpoint's integration (correction transform) and compensates latency; thin beats clever — assume it works until it doesn't | Our own offset filter with outlier/turn gates and a trust number (built, then removed the same day); DECODE's pre-library copy |
 | Fixes from row-centre position + Pinpoint heading | No tag-orientation convention (still unverified), no MegaTag; the rocker hypothesis is the existing height classifier | MegaTag with a map per alliance swapped by hand (Chief Delphi); continuous hive-angle solve (noisy) |
-| No fixes until the heading is field-referenced | Heading 0 at an unreferenced init is "wherever the robot faced", so a fix from it is garbage | Accept fixes whenever the gate is wide |
+| No fixes until the heading is field-referenced | Heading 0 at an unreferenced init is "wherever the robot faced", so a fix from it is garbage — a correctness rule, not error tracking | Offer every fix |
 | Alliance confirmed from a confirmed start placement | A position proves the side; "which tags are visible" may not | Tag-visibility heuristic |
 | Limelight = tags, webcam = pieces | They point different ways (up at the HIVE vs down at the floor); tags need the coprocessor | Limelight for both via pipeline switching |
 | Fallback by removing a list entry | Zero code, instant with Sloth | Health states, per-subsystem try/catch, Panels kill switches — revisit only after a real failure |
@@ -103,7 +103,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | CI green, `CLAUDE.md` matches the code | Green locally; `CLAUDE.md` updated with this branch |
 | Bindings and DS pages | Done — `BindingsTest` covers edges; rendering unverified until a DS shows it |
 | Alliance + Auto→TeleOp handoff | Done — `MatchSetupTest`, `HandoffTest`; vision proposal and driver-forward headings await measurement |
-| Localization, start check, first Auto, webcam | Structure done — `PoseFusionTest`, `StartCheckTest`; runs as Pinpoint-only until field points, start positions and tuning are measured |
+| Localization, start check, first Auto, webcam | Structure done — `CellFixTest`, `StartCheckTest`; runs as Pinpoint-only until field points, start positions and tuning are measured |
 | Meeting checklist | Below |
 
 ## Meeting checklist

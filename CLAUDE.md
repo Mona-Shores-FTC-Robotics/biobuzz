@@ -23,7 +23,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
 | `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
-| `localization/` | Pose fusion, the Pedro `FusedLocalizer`, field points, start positions and the start check. See "Localization" below. |
+| `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java` and `Tuning.java` are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
@@ -76,10 +76,11 @@ commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors,
 the single exception is `controls/Handoff`, which carries alliance and pose from Autonomous to
 TeleOp and is written and read only by `RobotOpMode`.
 
-**Localization.** The Pinpoint carries the pose; AprilTag fixes correct it when they pass the
-gates (`localization/PoseFusion`). Read the pose from `robot.drive`, never from the Pinpoint or
+**Localization.** Pedro's `FusionLocalizer` fuses the Pinpoint with AprilTag fixes; we add only
+`CellFix` (sighting → position) and assume Pedro's filter works — no extra error-tracking layer
+until a real problem asks for one. Read the pose from `robot.drive`, never from the Pinpoint or
 the Limelight directly. Anything that drives or aims from field coordinates checks
-`robot.drive.poseTrusted()` first and degrades without it; driving itself never needs it.
+`robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints`, `StartPositions`, `FieldFrame` and `LocalizationTuning` hold measured field
 facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.

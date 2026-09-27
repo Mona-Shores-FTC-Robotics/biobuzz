@@ -10,7 +10,6 @@ import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
-import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -113,7 +112,6 @@ public abstract class RobotOpMode extends OpMode {
     private String handoffNote;
 
     private StartPosition declaredStart;
-    private int fixesAtDeclaredStart;
 
     // ------------------------------------------------------------------ hooks
 
@@ -161,8 +159,7 @@ public abstract class RobotOpMode extends OpMode {
         receiveHandoff();
         declaredStart = startPosition();
         if (declaredStart != null) {
-            robot.drive.setPose(declaredStart.pose, LocalizationTuning.declaredStartSigmaIn);
-            fixesAtDeclaredStart = robot.drive.acceptedFixes();
+            robot.drive.setPose(declaredStart.pose);
         }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
@@ -179,8 +176,8 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
-        StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.pose(),
-                robot.drive.acceptedFixes() - fixesAtDeclaredStart);
+        StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
+                robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
         if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
         if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
@@ -266,7 +263,7 @@ public abstract class RobotOpMode extends OpMode {
         setup.inheritFromAuto(handoff.alliance);
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
-            robot.drive.setPose(handoff.pose, LocalizationTuning.handoffSigmaIn);
+            robot.drive.setPose(handoff.pose);
             poseFromAuto = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;

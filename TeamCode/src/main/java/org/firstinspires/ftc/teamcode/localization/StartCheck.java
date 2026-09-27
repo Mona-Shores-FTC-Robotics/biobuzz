@@ -1,21 +1,19 @@
 package org.firstinspires.ftc.teamcode.localization;
 
-import com.pedropathing.math.Pose;
-
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
  * During an Autonomous's INIT: is the robot where its declared start says, and on that alliance?
  *
- * <p>The OpMode puts the pose at the declared start with a loose uncertainty. Camera fixes then pull
- * the fused pose to where the robot really is. So the distance between the fused pose and the
- * declared one <em>is</em> the placement error — once enough fixes have been accepted to believe
- * it. No fixes means the check cannot confirm anything, and it says so rather than passing.
+ * <p>With the pose set to the declared start, every camera fix says where the robot really is. The
+ * distance from the declaration to the average of those fixes is the placement error — once there
+ * are enough fixes to believe it. No fixes means nothing is confirmed, and it says so rather than
+ * passing.
  *
  * <p>Heading is not checked: fixes are computed from the Pinpoint's heading, which is taken from the
- * declaration. A robot placed facing the wrong way produces fixes that disagree with each other and
- * are rejected, so it shows up as "can't confirm", not as a false pass.
+ * declaration. A robot placed facing the wrong way gives fixes scattered far from the start, so it
+ * reads as out of position, not as a false pass.
  */
 public final class StartCheck {
 
@@ -63,18 +61,19 @@ public final class StartCheck {
     }
 
     /**
-     * @param start          the declared start, or null if this OpMode declares none
-     * @param fused          the current fused pose
-     * @param acceptedFixes  fixes accepted since the pose was set to the declared start
+     * @param start     the declared start, or null if this OpMode declares none
+     * @param fixCount  camera fixes since the pose was set to the declared start
+     * @param meanFixX  their average x, inches (ignored when {@code fixCount} is 0)
+     * @param meanFixY  their average y, inches
      */
-    public static Result evaluate(StartPosition start, Pose fused, int acceptedFixes) {
+    public static Result evaluate(StartPosition start, int fixCount, double meanFixX, double meanFixY) {
         if (start == null) {
             return new Result(Status.NOT_DECLARED, null, Double.NaN);
         }
-        if (fused == null || acceptedFixes < FIXES_TO_CONFIRM) {
+        if (fixCount < FIXES_TO_CONFIRM) {
             return new Result(Status.UNCONFIRMED, start, Double.NaN);
         }
-        double error = Math.hypot(fused.x() - start.pose.x(), fused.y() - start.pose.y());
+        double error = Math.hypot(meanFixX - start.pose.x(), meanFixY - start.pose.y());
         Status status = error <= LocalizationTuning.startMarginIn
                 ? Status.IN_POSITION : Status.OUT_OF_POSITION;
         return new Result(status, start, error);
