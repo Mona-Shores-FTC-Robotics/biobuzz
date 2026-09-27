@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -225,7 +226,11 @@ public abstract class RobotOpMode extends OpMode {
         onStop();
 
         if (isAutonomous() && robot != null) {
-            Handoff.record(setup.alliance(), robot.drive.pose(), System.currentTimeMillis());
+            // Only a field pose is worth handing on. An Auto with no declared start knows where
+            // it is relative to init, not on the field; passing that on would make TeleOp treat
+            // it as field-referenced and feed camera fixes computed from a meaningless heading.
+            Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+            Handoff.record(setup.alliance(), pose, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -273,7 +278,8 @@ public abstract class RobotOpMode extends OpMode {
                     forwardKnown ? "" : "; forward = robot's facing at PLAY (not measured)");
         } else {
             handoffLevel = Display.Level.WARN;
-            handoffNote = "alliance from Auto " + age + ", but no pose — Pinpoint missing";
+            handoffNote = "alliance from Auto " + age + ", but no field pose (Auto declared no "
+                    + "start, or no Pinpoint); forward = robot's facing at PLAY";
         }
     }
 

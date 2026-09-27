@@ -69,6 +69,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | Sensors decide state, people confirm and override | Middle schoolers under match pressure press wrong buttons; a sensor-derived default plus a visible disagreement catches it | Manual entry only; or DECODE's vision + override + "prefer vision" mode on four d-pad buttons |
 | Never default an alliance | A wrong colour silently mirrors everything | DECODE's silent BLUE fallback |
 | X = Blue, B = Red, INIT only, either gamepad | Xbox button colours match; free after PLAY | D-pad |
+| Handoff carries a pose only if Auto's pose was field-referenced | An Auto with no declared start knows its pose relative to init only; handing that on would make TeleOp trust it and feed fixes from a meaningless heading (found by CodeRabbit on #91) | Always hand on the pose |
 | Handoff is the only static; stale after 3 min; not cleared on read | Survives a TeleOp re-init in the pits; a practice Auto cannot leak into a later TeleOp | Clear-on-read (loses it on re-init); no expiry |
 | Bindings primed at PLAY | B held from choosing Red must not toggle drive mode on the first loop | Fire on any press edge |
 | Pedro's `FusionLocalizer`, nothing around it | It ships in core 3.0.1, is Follower-native, keeps the Pinpoint's integration (correction transform) and compensates latency; thin beats clever — assume it works until it doesn't | Our own offset filter with outlier/turn gates and a trust number (built, then removed the same day); DECODE's pre-library copy |
