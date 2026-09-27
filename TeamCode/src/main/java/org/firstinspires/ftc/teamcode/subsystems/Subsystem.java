@@ -28,28 +28,16 @@ import com.pedropathing.ivy.commands.Commands;
  * <p>{@code Robot} calls {@code initialize()} and {@code stop()} on every subsystem in its list, so
  * adding yours to the list is the whole of wiring it in.
  *
- * <h2>The two ways a subsystem runs</h2>
+ * <h2>How a subsystem runs</h2>
  *
- * <p>{@link #update()} is the contract. It is one step of whatever this mechanism does, and it is
- * meant to be called once per OpMode loop:
+ * <p>{@link #update()} is the contract: one step of whatever this mechanism does, once per loop.
+ * You never call it yourself. {@code RobotOpMode} schedules every subsystem's {@link #periodic()} —
+ * {@code update()} wrapped as an Ivy {@link Command} — and runs the scheduler every loop, in
+ * TeleOp and Autonomous alike.
  *
- * <pre>{@code
- * public void loop() {
- *     robot.drive.update();   // straight from loop(), no scheduler involved
- * }
- * }</pre>
- *
- * <p>{@link #periodic()} is an optional adapter that wraps the same method as an Ivy
- * {@link Command}, for OpModes that run the {@code Scheduler} — Autonomous, mostly, where commands
- * have to be sequenced and arbitrated against each other. You get it for free; you never write it.
- *
- * <p><b>Prefer calling {@code update()} directly in TeleOp.</b> Ivy's {@code Scheduler.execute()}
- * allocates roughly three objects on every call even when nothing is queued — it copies its running
- * command deque and iterates the copy — so routing a drivetrain through it costs something and buys
- * nothing, because there is no second command competing for the drivetrain. That cost is
- * microseconds rather than milliseconds and will not be your loop-time problem, but there is no
- * reason to pay it where it buys nothing. In Autonomous, arbitration is the whole point and the
- * scheduler earns it.
+ * <p>So an OpMode talks to a subsystem through methods that say what it wants
+ * ({@code robot.drive.drive(...)}), and {@code update()} does it. {@code DriveSubsystem} is the
+ * worked example.
  *
  * <h2>{@code stop()} means teardown, and only teardown</h2>
  *

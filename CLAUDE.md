@@ -20,7 +20,8 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 |---|---|
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
 | `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
-| `opmodes/RobotOpMode` | OpModes that run the robot extend it and fill in `onInit`/`onLoop`. Never call `Scheduler.reset/execute` or `robot.stop()` yourself. Diagnostics that talk to hardware directly (`ValidateHardware`, `LoopTimeBaseline`) are the exception. |
+| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
+| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java` and `Tuning.java` are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
@@ -66,10 +67,10 @@ Tuner output is pasted into `Constants`; values are measured, never guessed.
 untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is the pattern).
 → README § "The `pedro` package"
 
-**Ivy** (commands). Use the `Scheduler` where commands need sequencing or arbitration —
-Autonomous. TeleOp overrides `useScheduler()` to return `false` and calls `update()` directly:
-`Scheduler.execute()` allocates every call and TeleOp has nothing to arbitrate. The scheduler is
-static; `RobotOpMode` resets it, nothing else should.
+**Ivy** (commands). The `Scheduler` is always on, in TeleOp and Autonomous: every subsystem
+updates through `periodic()`, and behaviour beyond that is commands. Each loop runs clear bulk
+cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
+commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`.
 - Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one**
@@ -92,14 +93,14 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 
 - **Nothing blocks.** No `sleep()`, no waiting loops, in `update()` or `onLoop()`. Slow work is
   a state machine advanced one step per call.
-- **Read hardware once per loop.** Lynx bulk caching in `MANUAL` mode, cleared once at the top of
-  the loop; read each sensor once and pass the value around.
+- **Read hardware once per loop.** `RobotOpMode` sets bulk caching to `MANUAL` and clears it at the
+  top of every loop; read each sensor once and pass the value around.
 - **Nothing is looked up or allocated per loop** that could be done once in init: hardware
   lookups, lists, formatters, commands.
 - **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
   `shooter/FlywheelBank`).
 - **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
-- **Measure, don't argue.** Time the loop with `util/LoopTimer`; run the `LoopTimeBaseline`
+- **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
   OpMode before and after adding a subsystem and put both numbers in the PR.
 
 ## Hard constraints
