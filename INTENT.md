@@ -33,6 +33,8 @@ sitting — and **always fallback-able**: the robot inits and drives no matter w
 | `controls/MatchSetup` | The alliance, settled in INIT from sensors first: manual X/B beats Auto's handoff beats vision; disagreement shown amber; UNKNOWN shown red, never guessed. Locked at PLAY. |
 | `controls/Handoff` | Auto → TeleOp: alliance + final pose, recorded when an `@Autonomous` OpMode stops, restored when TeleOp inits within 3 minutes. The one static in the codebase. |
 | `util/FieldFrame` | Pedro field frame everywhere (inches, radians; degrees on screens only) and the field facts that depend on it. |
+| `localization/` | Pinpoint + AprilTag fusion: `PoseFusion` (offset filter, latency-compensated, gated), `FusedLocalizer` (a Pedro `Localizer`), `HiveFieldPoints` (8 points, NaN until CAD), `StartPositions` + `StartCheck`. `robot.drive.poseTrusted()` gates pose-dependent features. |
+| `vision/PieceVisionSubsystem` | Webcam colour blobs for POLLEN / NECTAR, enabled only while intaking; colours unmeasured → camera never opened. |
 | `DriveSubsystem` | Mecanum drive from the OpMode's `drive(...)` command; field-centric with the Pinpoint, robot-centric without. |
 | `hardware/` | Names (`DeviceNames`), ports (`robot_*.xml`), identity (`RobotIdentity`). |
 | `pedro/Constants` | Pedro values per `RobotIdentity`; untuned values never stop the robot driving. |
@@ -69,6 +71,11 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | X = Blue, B = Red, INIT only, either gamepad | Xbox button colours match; free after PLAY | D-pad |
 | Handoff is the only static; stale after 3 min; not cleared on read | Survives a TeleOp re-init in the pits; a practice Auto cannot leak into a later TeleOp | Clear-on-read (loses it on re-init); no expiry |
 | Bindings primed at PLAY | B held from choosing Red must not toggle drive mode on the first loop | Fire on any press edge |
+| Fuse Pinpoint + tag fixes as an offset on the Pinpoint's pose | Keeps the Pinpoint's 1.5 kHz integration; latency needs no replay; allocation-free | DECODE's velocity re-integration with `TreeMap` replay |
+| Fixes from row-centre position + Pinpoint heading | No tag-orientation convention (still unverified), no MegaTag; the rocker hypothesis is the existing height classifier | MegaTag with a map per alliance swapped by hand (Chief Delphi); continuous hive-angle solve (noisy) |
+| No fixes until the heading is field-referenced | Heading 0 at an unreferenced init is "wherever the robot faced", so a fix from it is garbage | Accept fixes whenever the gate is wide |
+| Alliance confirmed from a confirmed start placement | A position proves the side; "which tags are visible" may not | Tag-visibility heuristic |
+| Limelight = tags, webcam = pieces | They point different ways (up at the HIVE vs down at the floor); tags need the coprocessor | Limelight for both via pipeline switching |
 | Fallback by removing a list entry | Zero code, instant with Sloth | Health states, per-subsystem try/catch, Panels kill switches — revisit only after a real failure |
 
 ## Out of scope for this branch
@@ -96,6 +103,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | CI green, `CLAUDE.md` matches the code | Green locally; `CLAUDE.md` updated with this branch |
 | Bindings and DS pages | Done — `BindingsTest` covers edges; rendering unverified until a DS shows it |
 | Alliance + Auto→TeleOp handoff | Done — `MatchSetupTest`, `HandoffTest`; vision proposal and driver-forward headings await measurement |
+| Localization, start check, first Auto, webcam | Structure done — `PoseFusionTest`, `StartCheckTest`; runs as Pinpoint-only until field points, start positions and tuning are measured |
 | Meeting checklist | Below |
 
 ## Meeting checklist
@@ -115,7 +123,17 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 9. **Handoff** (needs an Autonomous OpMode — even one that only waits): run it, then init TeleOp.
    The Match page says "pose from Auto Ns ago" with the alliance inherited; re-init TeleOp and it
    still does; restart the RC app and it says "no Auto handoff".
-10. Run each Vision calibration OpMode: camera state still updates in INIT and after PLAY. They now
+10. **Camera mount** (chassis): measure `CameraMount` forward/left/up from the Pinpoint's tracking
+    centre, and pitch/yaw; enter them. Check sightlines against the turret's full travel.
+11. **Field points from CAD**: the 8 row-centre points into `HiveFieldPoints`, with the CAD source.
+    Then put the robot at a taped spot and compare the fused pose with the tape.
+12. **Tuning**: Vision: Noise Tuner at 2–3 ranges → `fixSigmaIn` / `fixSigmaPerInch`; drive a
+    taped 100 in several times → `driftVariancePerInch`.
+13. **Start positions**: declare each legal start in `StartPositions`; point Hold Still at one;
+    INIT on the tile shows "in position", 3 in off shows "OFF BY", facing wrong shows "can't confirm".
+14. **Piece colours**: HSV ranges for POLLEN and NECTAR under field lighting; enable the webcam,
+    compare Robot page blobs with what is in front of the intake; `LoopTimeBaseline` on vs off.
+15. Run each Vision calibration OpMode: camera state still updates in INIT and after PLAY. They now
    build the drivetrain too, so they need the drive motors present.
 
 ## Open questions

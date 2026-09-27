@@ -5,12 +5,18 @@ import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.drivetrains.Mecanum;
-import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.FusedLocalizer;
+import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.PoseFusion;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
+import org.firstinspires.ftc.teamcode.vision.CellSighting;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 
 /**
  * The mecanum drivetrain. Always drives: field-centric when the Pinpoint is there, robot-centric
@@ -27,6 +33,13 @@ import org.firstinspires.ftc.teamcode.util.AccelLimiter;
  * init with the SDK's "could not find" message. The Pinpoint is not: if it is missing, this builds
  * anyway, drives robot-centric, and {@link #localizerFault()} says why. That is the one optional
  * device here, and it is optional on purpose (#21).
+ *
+ * <h2>Localization</h2>
+ *
+ * <p>The pose is the Pinpoint's, corrected by AprilTag fixes through a {@link FusedLocalizer}: each
+ * loop, every new CELL sighting from {@code vision} whose cell is settled UP or DOWN becomes a fix.
+ * {@link #poseTrusted()} says whether the pose is good enough for anything that drives or aims from
+ * field coordinates; driving itself never needs it.
  *
  * <p>This does not build a Pedro {@code Follower}. {@code Constants.createAlgorithm()} throws until
  * the Foresight Tuner has run, and this subsystem has to work on an untuned robot. When path
@@ -45,7 +58,13 @@ public class DriveSubsystem implements Subsystem {
     private static final double MAX_LOOP_DT_SEC = 0.1;
 
     private final Mecanum drivetrain;
-    private final PinpointLocalizer localizer;
+    private final FusedLocalizer localizer;
+    private final LimelightVisionSubsystem vision;
+
+    /** Capture time of the last sighting consumed, per cell — so each frame is used once. */
+    private final long[] consumedNs = new long[CELLS.length];
+    private static final HiveCell[] CELLS = HiveCell.values();
+    private int unknownStateSightings;
     private final String localizerFault;
 
     private final AccelLimiter forwardLimiter = new AccelLimiter();
@@ -60,13 +79,14 @@ public class DriveSubsystem implements Subsystem {
     private double headingOffset;
     private long lastUpdateNs;
 
-    public DriveSubsystem(HardwareMap hardwareMap) {
+    public DriveSubsystem(HardwareMap hardwareMap, LimelightVisionSubsystem vision) {
+        this.vision = vision;
         drivetrain = Constants.createDrivetrain(hardwareMap);
 
-        PinpointLocalizer found = null;
+        FusedLocalizer found = null;
         String fault = null;
         try {
-            found = Constants.createLocalizer(hardwareMap);
+            found = new FusedLocalizer(Constants.createLocalizer(hardwareMap));
         } catch (RuntimeException e) {
             fault = e.getMessage() == null ? e.toString() : e.getMessage();
         }
@@ -108,12 +128,13 @@ public class DriveSubsystem implements Subsystem {
     }
 
     /**
-     * Put the robot at {@code pose} in Pedro field coordinates — how TeleOp continues from where
-     * Autonomous left it. No-op without a Pinpoint.
+     * Put the robot at {@code pose} in Pedro field coordinates, known to within {@code sigmaIn} — how
+     * TeleOp continues from where Autonomous left it, and how an Autonomous declares its start.
+     * Headings become field headings from here on. No-op without a Pinpoint.
      */
-    public void setPose(Pose pose) {
+    public void setPose(Pose pose, double sigmaIn) {
         if (localizer != null && pose != null) {
-            localizer.setPose(pose);
+            localizer.setPose(pose, sigmaIn);
         }
     }
 
@@ -143,6 +164,20 @@ public class DriveSubsystem implements Subsystem {
         return localizer == null ? null : localizer.pose();
     }
 
+    /**
+     * Whether the field pose is good enough to drive or aim from — within
+     * {@code LocalizationTuning.trustedSigmaIn}, with field-referenced headings. False without a
+     * Pinpoint, after an init with no handoff, or after driving far without a camera fix.
+     */
+    public boolean poseTrusted() {
+        return localizer != null && localizer.fusion().isTrusted();
+    }
+
+    /** Camera fixes accepted so far this OpMode. */
+    public int acceptedFixes() {
+        return localizer == null ? 0 : localizer.fusion().count(PoseFusion.Verdict.ACCEPTED);
+    }
+
     /** Why the Pinpoint is missing, or null when it is there. */
     public String localizerFault() {
         return localizerFault;
@@ -159,6 +194,7 @@ public class DriveSubsystem implements Subsystem {
     public void update() {
         if (localizer != null) {
             localizer.update();
+            offerSightings();
         }
 
         long now = System.nanoTime();
@@ -189,6 +225,26 @@ public class DriveSubsystem implements Subsystem {
         drivetrain.drive(powers, true);
     }
 
+    /** Each new CELL sighting, once, as a fix — if its cell is settled in a known state. */
+    private void offerSightings() {
+        if (vision == null || !vision.isAvailable()) {
+            return;
+        }
+        for (int i = 0; i < CELLS.length; i++) {
+            CellSighting sighting = vision.sighting(CELLS[i]);
+            if (sighting == null || sighting.captureTimeNs() <= consumedNs[i]) {
+                continue;
+            }
+            consumedNs[i] = sighting.captureTimeNs();
+            HiveCellState state = vision.state(CELLS[i]);
+            if (state == HiveCellState.UNKNOWN) {
+                unknownStateSightings++;
+                continue;
+            }
+            localizer.offer(sighting, state);
+        }
+    }
+
     @Override
     public void stop() {
         drivetrain.stop();
@@ -203,7 +259,34 @@ public class DriveSubsystem implements Subsystem {
         }
         display.status("Mode", Display.Level.OK, fieldCentric ? "field-centric" : "robot-centric");
         if (localizer != null) {
+            describeLocalization(display);
+        }
+        if (localizer != null) {
             display.line(String.format(java.util.Locale.US, "Heading %.1f°", Math.toDegrees(heading())));
         }
+    }
+
+    private void describeLocalization(Display display) {
+        PoseFusion fusion = localizer.fusion();
+        Pose pose = localizer.pose();
+        String where = String.format(java.util.Locale.US, "(%.1f, %.1f, %.0f°) ±%.1f in",
+                pose.x(), pose.y(), Math.toDegrees(pose.heading()), fusion.sigmaIn());
+        if (fusion.isTrusted()) {
+            display.status("Pose", Display.Level.OK, "trusted " + where);
+        } else if (!fusion.isHeadingReferenced()) {
+            display.status("Pose", Display.Level.WARN, "not field-referenced — no start or handoff");
+        } else {
+            display.status("Pose", Display.Level.WARN, "untrusted " + where);
+        }
+        if (!HiveFieldPoints.anyMeasured()) {
+            display.line("<small>Tag fixes off: HIVE field points not measured</small>");
+            return;
+        }
+        display.line(String.format(java.util.Locale.US,
+                "<small>Fixes: %d used · rejected %d outlier, %d turning, %d old, %d unreferenced,"
+                        + " %d cell state unknown</small>",
+                fusion.count(PoseFusion.Verdict.ACCEPTED), fusion.count(PoseFusion.Verdict.OUTLIER),
+                fusion.count(PoseFusion.Verdict.TURNING), fusion.count(PoseFusion.Verdict.TOO_OLD),
+                fusion.count(PoseFusion.Verdict.HEADING_NOT_REFERENCED), unknownStateSightings));
     }
 }

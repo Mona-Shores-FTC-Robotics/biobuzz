@@ -329,19 +329,9 @@ public class LimelightVisionSubsystem implements Subsystem {
     }
 
     /**
-     * Which alliance the camera thinks this robot is on, for {@code MatchSetup}.
-     *
-     * <p><b>Always {@link Alliance#UNKNOWN} for now.</b> Tag ids say which alliance each CELL belongs
-     * to, but from a starting tile the camera may see both HIVEs, so "which tags are visible" is not
-     * yet known to separate red from blue. The rule gets written from a measurement: at every legal
-     * start tile, run Vision: Tag Dump and record the ids and bearings in view. Until then the
-     * manual choice carries it, and {@link #allianceEvidence()} shows what the camera sees.
+     * What the camera sees, in words, for the Driver Station during INIT. The alliance itself is
+     * confirmed from position, not from which tags are visible — see {@code StartCheck}.
      */
-    public Alliance proposeAlliance() {
-        return Alliance.UNKNOWN;
-    }
-
-    /** What the camera sees, in words, for the Driver Station during INIT. */
     public String allianceEvidence() {
         if (!available) {
             return "unavailable";

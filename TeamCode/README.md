@@ -1011,6 +1011,11 @@ Ordered roughly by what unblocks what.
    settled, each with its own state. Gate every candidate against odometry so a
    misclassified state or a mid-tip reading is rejected before it reaches the
    estimator.
+   > **Update:** built, as the `localization` package — `PoseFusion` (Pinpoint plus a
+   > correction offset, latency-compensated, gated), `FusedLocalizer` (a Pedro
+   > `Localizer`), and `HiveFieldPoints` (the eight row-centre points, NaN until item 2
+   > fills them). It uses row-centre positions and the Pinpoint heading only, so no tag
+   > orientation convention is needed. Until item 2, it runs as the Pinpoint alone.
 4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
    tip it by hand between samples. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.

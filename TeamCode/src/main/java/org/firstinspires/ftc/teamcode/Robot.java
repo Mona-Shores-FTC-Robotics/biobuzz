@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
+import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,6 +45,9 @@ public class Robot {
     /** Tracks the HIVE CELLs. Always present; reports itself unavailable if the camera is missing. */
     public final LimelightVisionSubsystem vision;
 
+    /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
+    public final PieceVisionSubsystem pieces;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -51,10 +55,13 @@ public class Robot {
     private final List<Subsystem> subsystems;
 
     public Robot(HardwareMap hardwareMap) {
-        drive = new DriveSubsystem(hardwareMap);
+        // Vision first: the drivetrain reads its sightings to correct the pose, and list order is
+        // update order, so this loop's sightings reach this loop's pose.
         vision = new LimelightVisionSubsystem(hardwareMap);
+        drive = new DriveSubsystem(hardwareMap, vision);
+        pieces = new PieceVisionSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(drive, vision));
+        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, pieces));
     }
 
     /** Every subsystem, in the order they were built. */

@@ -10,6 +10,9 @@ import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
+import org.firstinspires.ftc.teamcode.localization.StartCheck;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
@@ -68,6 +71,10 @@ import java.util.List;
  * the alliance, and the Match page says so — or says there was no handoff. Subclasses never touch
  * either.
  *
+ * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
+ * camera checks the placement ({@link StartCheck}): a confirmed placement is also what confirms the
+ * alliance from vision.
+ *
  * <h2>Why the scheduler is always on</h2>
  *
  * <p>There is one way to run: subsystems update through {@code periodic()} commands, and behaviour
@@ -105,7 +112,18 @@ public abstract class RobotOpMode extends OpMode {
     private Display.Level handoffLevel;
     private String handoffNote;
 
+    private StartPosition declaredStart;
+    private int fixesAtDeclaredStart;
+
     // ------------------------------------------------------------------ hooks
+
+    /**
+     * Where this OpMode expects the robot to start, from {@code StartPositions}. Autonomous
+     * overrides it; null (the default) means no declared start and no start check.
+     */
+    protected StartPosition startPosition() {
+        return null;
+    }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
     protected void onInit() {
@@ -141,6 +159,11 @@ public abstract class RobotOpMode extends OpMode {
         robot = new Robot(hardwareMap);
         robot.initialize();
         receiveHandoff();
+        declaredStart = startPosition();
+        if (declaredStart != null) {
+            robot.drive.setPose(declaredStart.pose, LocalizationTuning.declaredStartSigmaIn);
+            fixesAtDeclaredStart = robot.drive.acceptedFixes();
+        }
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
         // is called. Reset before scheduling, never after.
@@ -156,13 +179,16 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
-        setup.offerVision(robot.vision.proposeAlliance(), robot.vision.allianceEvidence());
+        StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.pose(),
+                robot.drive.acceptedFixes() - fixesAtDeclaredStart);
+        setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
         if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
         if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
         }
+        startCheck.describe(display);
         onInitLoop();
         Scheduler.execute();
         finishPage();
@@ -240,7 +266,7 @@ public abstract class RobotOpMode extends OpMode {
         setup.inheritFromAuto(handoff.alliance);
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
-            robot.drive.setPose(handoff.pose);
+            robot.drive.setPose(handoff.pose, LocalizationTuning.handoffSigmaIn);
             poseFromAuto = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
