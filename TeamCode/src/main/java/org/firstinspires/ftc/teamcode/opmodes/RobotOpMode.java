@@ -2,11 +2,16 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.controls.Handoff;
+import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 
@@ -52,6 +57,15 @@ import java.util.List;
  * {@code execute()} / {@code robot.stop()} in a subclass. That is this class's job, and doing it
  * twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism.
  *
+ * <h2>Before PLAY, and the Auto → TeleOp handoff</h2>
+ *
+ * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
+ * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
+ * stops, this records the alliance and the robot's final pose in {@link Handoff}. When any other
+ * OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose and inherits
+ * the alliance, and the Match page says so — or says there was no handoff. Subclasses never touch
+ * either.
+ *
  * <h2>Why the scheduler is always on</h2>
  *
  * <p>There is one way to run: subsystems update through {@code periodic()} commands, and behaviour
@@ -78,8 +92,16 @@ public abstract class RobotOpMode extends OpMode {
     /** The Driver Station screen. Use it to write the Match page in {@link #onLoop()}. */
     protected Display display;
 
+    /** The alliance, settled during INIT and locked at PLAY. Read {@code setup.alliance()}. */
+    protected final MatchSetup setup = new MatchSetup();
+
     private List<LynxModule> hubs;
     private boolean prevPageButton;
+
+    /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
+    private boolean poseFromAuto;
+    private Display.Level handoffLevel;
+    private String handoffNote;
 
     // ------------------------------------------------------------------ hooks
 
@@ -116,6 +138,7 @@ public abstract class RobotOpMode extends OpMode {
 
         robot = new Robot(hardwareMap);
         robot.initialize();
+        receiveHandoff();
 
         // The scheduler is static, so commands survive from one OpMode to the next unless this
         // is called. Reset before scheduling, never after.
@@ -131,7 +154,13 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
+        setup.offerVision(robot.vision.proposeAlliance(), robot.vision.allianceEvidence());
+        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
+        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         beginPage();
+        if (handoffNote != null) {
+            display.status("Start", handoffLevel, handoffNote);
+        }
         onInitLoop();
         Scheduler.execute();
         finishPage();
@@ -140,6 +169,17 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void start() {
         loopTimer.reset();
+        setup.lock();
+        driver.prime();
+        operator.prime();
+        if (!isAutonomous()) {
+            double forward = FieldFrame.driverForwardHeading(setup.alliance());
+            if (poseFromAuto && !Double.isNaN(forward)) {
+                robot.drive.setFieldForward(forward);
+            } else {
+                robot.drive.resetHeading();
+            }
+        }
         onStart();
     }
 
@@ -159,6 +199,10 @@ public abstract class RobotOpMode extends OpMode {
     public final void stop() {
         onStop();
 
+        if (isAutonomous() && robot != null) {
+            Handoff.record(setup.alliance(), robot.drive.pose(), System.currentTimeMillis());
+        }
+
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
         // bad configuration — and an exception in stop() replaces the one that actually explains
         // what went wrong.
@@ -176,6 +220,40 @@ public abstract class RobotOpMode extends OpMode {
         }
         prevPageButton = pressed;
         display.header();
+        setup.describe(display);
+    }
+
+    /** TeleOp side of the handoff: restore Auto's pose and alliance, and say which happened. */
+    private void receiveHandoff() {
+        if (isAutonomous()) {
+            return;
+        }
+        long now = System.currentTimeMillis();
+        Handoff.Snapshot handoff = Handoff.fresh(now);
+        if (handoff == null) {
+            handoffLevel = Display.Level.WARN;
+            handoffNote = "no Auto handoff — pose starts at 0,0; forward = robot's facing at PLAY";
+            return;
+        }
+        setup.inheritFromAuto(handoff.alliance);
+        String age = (handoff.ageMs(now) / 1000) + "s ago";
+        if (handoff.pose != null && robot.drive.hasHeading()) {
+            robot.drive.setPose(handoff.pose);
+            poseFromAuto = true;
+            boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
+            handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
+            handoffNote = String.format(java.util.Locale.US,
+                    "pose from Auto %s (%.0f, %.0f, %.0f°)%s", age,
+                    handoff.pose.x(), handoff.pose.y(), Math.toDegrees(handoff.pose.heading()),
+                    forwardKnown ? "" : "; forward = robot's facing at PLAY (not measured)");
+        } else {
+            handoffLevel = Display.Level.WARN;
+            handoffNote = "alliance from Auto " + age + ", but no pose — Pinpoint missing";
+        }
+    }
+
+    private boolean isAutonomous() {
+        return getClass().isAnnotationPresent(Autonomous.class);
     }
 
     /** Controls and Robot pages replace whatever the OpMode wrote this loop. */
@@ -187,6 +265,10 @@ public abstract class RobotOpMode extends OpMode {
         telemetry.clear();
         display.header();
         if (page == Display.Page.CONTROLS) {
+            display.section("BEFORE PLAY — either gamepad");
+            display.line("X — Blue alliance");
+            display.line("B — Red alliance");
+            display.line("Back/Share — next page (any time)");
             describeBindings(driver);
             describeBindings(operator);
         } else {

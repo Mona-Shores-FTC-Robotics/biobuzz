@@ -30,6 +30,9 @@ sitting — and **always fallback-able**: the robot inits and drives no matter w
 | Subsystem accessors | How the rest of the code learns a subsystem's state (`robot.drive.heading()`, `robot.vision.state(cell)`). Read-only; no global or static robot state. |
 | `controls/Bindings` | One gamepad's bindings, each with a label: `driver.when("Y", "Reset heading", () -> gamepad1.y).onPress(...)`. Polled after PLAY only. |
 | `controls/Display` | The Driver Station: Match (the OpMode's lines), Controls (generated from the labels), Robot (each subsystem's `describe()`). Back/Share on gamepad 1 cycles them. |
+| `controls/MatchSetup` | The alliance, settled in INIT from sensors first: manual X/B beats Auto's handoff beats vision; disagreement shown amber; UNKNOWN shown red, never guessed. Locked at PLAY. |
+| `controls/Handoff` | Auto → TeleOp: alliance + final pose, recorded when an `@Autonomous` OpMode stops, restored when TeleOp inits within 3 minutes. The one static in the codebase. |
+| `util/FieldFrame` | Pedro field frame everywhere (inches, radians; degrees on screens only) and the field facts that depend on it. |
 | `DriveSubsystem` | Mecanum drive from the OpMode's `drive(...)` command; field-centric with the Pinpoint, robot-centric without. |
 | `hardware/` | Names (`DeviceNames`), ports (`robot_*.xml`), identity (`RobotIdentity`). |
 | `pedro/Constants` | Pedro values per `RobotIdentity`; untuned values never stop the robot driving. |
@@ -61,6 +64,11 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | Three DS pages, HTML, one class | Glanceable match view, controls on demand, subsystem health | DECODE's telemetry service + 10 data classes + 3 formatters (~2,900 lines) |
 | Page button is gamepad 1 Back/Share | Leaves the d-pad free for game controls | D-pad (DECODE) |
 | One-shot button actions call a method, not a command | A command that requires a subsystem would interrupt that subsystem's own `periodic()` | Everything as a command |
+| Sensors decide state, people confirm and override | Middle schoolers under match pressure press wrong buttons; a sensor-derived default plus a visible disagreement catches it | Manual entry only; or DECODE's vision + override + "prefer vision" mode on four d-pad buttons |
+| Never default an alliance | A wrong colour silently mirrors everything | DECODE's silent BLUE fallback |
+| X = Blue, B = Red, INIT only, either gamepad | Xbox button colours match; free after PLAY | D-pad |
+| Handoff is the only static; stale after 3 min; not cleared on read | Survives a TeleOp re-init in the pits; a practice Auto cannot leak into a later TeleOp | Clear-on-read (loses it on re-init); no expiry |
+| Bindings primed at PLAY | B held from choosing Red must not toggle drive mode on the first loop | Fire on any press edge |
 | Fallback by removing a list entry | Zero code, instant with Sloth | Health states, per-subsystem try/catch, Panels kill switches — revisit only after a real failure |
 
 ## Out of scope for this branch
@@ -87,6 +95,7 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 | Pedro values per robot | Not started — running as a separate piece of work |
 | CI green, `CLAUDE.md` matches the code | Green locally; `CLAUDE.md` updated with this branch |
 | Bindings and DS pages | Done — `BindingsTest` covers edges; rendering unverified until a DS shows it |
+| Alliance + Auto→TeleOp handoff | Done — `MatchSetupTest`, `HandoffTest`; vision proposal and driver-forward headings await measurement |
 | Meeting checklist | Below |
 
 ## Meeting checklist
@@ -98,7 +107,15 @@ Every robot OpMode gets this from `RobotOpMode`, and never does it itself:
 5. Back/Share cycles Match → Controls → Robot in INIT and after PLAY. Controls lists every driver
    input. HTML renders: bold headers, coloured dots, one item per line. No button moves the robot
    during INIT.
-6. Run each Vision calibration OpMode: camera state still updates in INIT and after PLAY. They now
+6. **Alliance**: in INIT the Match page shows NONE in red; X → BLUE, B → RED; it locks at PLAY.
+7. **Measure for vision**: at every legal start tile, for each alliance, run Vision: Tag Dump and
+   record the tag ids and bearings in view. This is the input for `proposeAlliance()`.
+8. **Measure driver forward**: at each alliance station, face the robot directly away from the
+   drivers; record the heading. These go in `FieldFrame.driverForwardHeading`.
+9. **Handoff** (needs an Autonomous OpMode — even one that only waits): run it, then init TeleOp.
+   The Match page says "pose from Auto Ns ago" with the alliance inherited; re-init TeleOp and it
+   still does; restart the RC app and it says "no Auto handoff".
+10. Run each Vision calibration OpMode: camera state still updates in INIT and after PLAY. They now
    build the drivetrain too, so they need the drive motors present.
 
 ## Open questions

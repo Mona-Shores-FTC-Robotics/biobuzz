@@ -56,6 +56,20 @@ public class BindingsTest {
     }
 
     @Test
+    public void aButtonHeldThroughPlayIsNotAFreshPress() {
+        int[] count = {0};
+        bindings.when("B", "Count", () -> pressed).onPress(() -> count[0]++);
+
+        pressed = true;
+        bindings.prime();
+        poll(true, true);
+        assertEquals(0, count[0]);
+
+        poll(false, true);
+        assertEquals(1, count[0]);
+    }
+
+    @Test
     public void nothingFiresWithoutAPoll() {
         int[] count = {0};
         bindings.when("Y", "Count", () -> true).onPress(() -> count[0]++);

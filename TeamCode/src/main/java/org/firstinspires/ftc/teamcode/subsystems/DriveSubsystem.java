@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.follower.ManualDrive;
+import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -98,6 +99,24 @@ public class DriveSubsystem implements Subsystem {
         }
     }
 
+    /**
+     * Field-centric "forward" becomes this field heading, radians. Used at PLAY when the pose is
+     * field-absolute (handed over from Autonomous) and the driver's forward for the alliance is known.
+     */
+    public void setFieldForward(double fieldHeading) {
+        headingOffset = fieldHeading;
+    }
+
+    /**
+     * Put the robot at {@code pose} in Pedro field coordinates — how TeleOp continues from where
+     * Autonomous left it. No-op without a Pinpoint.
+     */
+    public void setPose(Pose pose) {
+        if (localizer != null && pose != null) {
+            localizer.setPose(pose);
+        }
+    }
+
     /** Switch between field- and robot-centric. Stays robot-centric without a Pinpoint. */
     public void toggleFieldCentric() {
         fieldCentric = !fieldCentric && localizer != null;
@@ -117,6 +136,11 @@ public class DriveSubsystem implements Subsystem {
     /** Heading relative to the last {@link #resetHeading()}, radians. 0 without a Pinpoint. */
     public double heading() {
         return localizer == null ? 0.0 : localizer.pose().heading() - headingOffset;
+    }
+
+    /** Field pose in Pedro coordinates, or null without a Pinpoint. */
+    public Pose pose() {
+        return localizer == null ? null : localizer.pose();
     }
 
     /** Why the Pinpoint is missing, or null when it is there. */

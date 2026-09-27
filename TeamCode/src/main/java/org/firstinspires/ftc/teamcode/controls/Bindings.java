@@ -56,6 +56,16 @@ public final class Bindings {
         }
     }
 
+    /**
+     * Treat every button as already in its current state, so one held through PLAY — say B, still
+     * down from choosing Red in INIT — does not count as a fresh press. Called at PLAY.
+     */
+    public void prime() {
+        for (int i = 0; i < triggers.size(); i++) {
+            triggers.get(i).prime();
+        }
+    }
+
     public String title() {
         return title;
     }
@@ -98,6 +108,10 @@ public final class Bindings {
             held.add(command);
             onFall.add(command::cancel);
             return this;
+        }
+
+        void prime() {
+            last = condition.getAsBoolean();
         }
 
         void poll() {

@@ -71,10 +71,17 @@ untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is 
 **Ivy** (commands). The `Scheduler` is always on, in TeleOp and Autonomous: every subsystem
 updates through `periodic()`, and behaviour beyond that is commands. Each loop runs clear bulk
 cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
-commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics.
+commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics —
+the single exception is `controls/Handoff`, which carries alliance and pose from Autonomous to
+TeleOp and is written and read only by `RobotOpMode`.
+
+**Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
+Degrees only on screens. Field facts that depend on the frame live in `util/FieldFrame`.
 
 **Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
-Back/Share (see `controls/Display`). One-shot buttons use `onPress(robot.x::method)`, not a command
+Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
+proposes, X/B on either gamepad overrides, Auto's handoff is inherited — and never guesses one.
+Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
