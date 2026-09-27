@@ -42,7 +42,7 @@ public final class KnownPointsLog {
 
     void write(WpiLog log) throws IOException {
         log.putMetadata("Generator", "KnownPointsLog (TeamCode test sources)");
-        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, unconfirmed)");
+        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, traced against Visualizer and AdvantageScope source)");
         log.putMetadata("HowToCheck",
                 "Compare each labelled pose, and the PedroXAxis/PedroYAxis rows, with the Pedro Visualizer");
 

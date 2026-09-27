@@ -11,27 +11,27 @@ package org.firstinspires.ftc.teamcode.logging;
  * {@code geometry.ts}) turns a center-rotated pose into its internal frame as
  * {@code (x, y, θ) → (y, −x, θ − π/2)}.
  *
- * <p><b>What is assumed.</b> The mapping below is PsiKit's
- * ({@code psilynx/PsiKit, PedroFollowerOdometryLogger}, BSD licence):
+ * <p><b>The mapping</b>, from PsiKit ({@code psilynx/PsiKit, PedroFollowerOdometryLogger}, BSD
+ * licence):
  * <pre>
  *     x_cr = −(y_pedro − 72) · 0.0254
  *     y_cr =  (x_pedro − 72) · 0.0254
  *     θ_cr =   θ_pedro + π/2
  * </pre>
- * Composed with AdvantageScope's own transform, that draws a Pedro pose with its centre moved to
- * the field centre and its axes unchanged, which is the right answer if and only if Pedro's axes
- * line up with AdvantageScope's internal ones on the BIOBUZZ field. PsiKit's comment says Pedro
- * +X points toward the red wall; AdvantageScope's source puts its internal +X away from the red
- * wall (Center/Red is its identity case). Those two statements disagree, so <b>this mapping is
- * unconfirmed</b>.
  *
- * <p>"Pedro's frame" here means the Pedro Visualizer's: inches on a 144 in field, drawn on the
- * season's field image. Pedro 3's {@code Pose} carries no frame of its own, so the Visualizer is
- * what defines it, and paths drawn there are what the robot drives. The check is therefore
- * {@code VisualizerPathLogTest}: it turns DECODE Autos the team really ran into logs, and opening
- * one in AdvantageScope on the 2025–26 field next to the same {@code .pp} in the Visualizer shows
- * at once whether this mapping is right, mirrored, or rotated. Once settled, this belongs in
- * {@code util/FieldFrame} as a measured fact.
+ * <p><b>Why it is right, traced through both programs' source.</b> "Pedro's frame" is the Pedro
+ * Visualizer's ({@code Pedro-Pathing/Visualizer}, {@code App.svelte}): x from 0 to 144 in runs left
+ * to right across the field image and y from 0 to 144 in runs bottom to top, so the origin is the
+ * image's bottom-left corner. AdvantageScope undoes Center/Rotated with {@code (x, y, θ) → (y, −x,
+ * θ − π/2)} ({@code geometry.ts}), which after this mapping gives {@code (x − 72, y − 72, θ)} in
+ * inches, and its 2D renderer ({@code Field2dRenderer.ts}) draws that centred with +x to the right
+ * and +y up the image. The two BIOBUZZ field images ({@code biobuzz.webp} and
+ * {@code Field2d_20262027FTCFieldV1/image.png}) are drawn the same way up. So a pose lands at the
+ * same place on the field in both. PsiKit's comment that "+X points toward the red alliance wall"
+ * describes this badly, but its arithmetic is correct.
+ *
+ * <p>Still worth one look with real data: {@code VisualizerPathLogTest} turns Visualizer files into
+ * logs, so the same Auto can be opened in both. Once seen, this belongs in {@code util/FieldFrame}.
  *
  * <p>Field centre is 72 in, Pedro's half-width. The asset is 143.182 in, so the drawing can be
  * off by up to ~0.4 in at the walls; that is below what the view can show.

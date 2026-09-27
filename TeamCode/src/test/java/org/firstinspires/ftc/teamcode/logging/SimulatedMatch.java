@@ -171,7 +171,7 @@ public final class SimulatedMatch {
         log.putMetadata("Generator", "SimulatedMatch (TeamCode test sources)");
         log.putMetadata("RobotIdentity", "simulated");
         log.putMetadata("GitSHA", "simulated");
-        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, unconfirmed)");
+        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, traced against Visualizer and AdvantageScope source)");
         log.putMetadata("Note", "Illustrative positions, not BIOBUZZ strategy");
 
         GamepadLog driverLog = new GamepadLog(0);

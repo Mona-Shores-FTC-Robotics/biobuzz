@@ -51,7 +51,7 @@ public final class VisualizerPathLog {
         log.putMetadata("VisualizerVersion", path.version);
         log.putMetadata("VisualizerField", path.fieldMap);
         log.putMetadata("OpenWithField", fieldHint(path.fieldMap));
-        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, unconfirmed)");
+        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, traced against Visualizer and AdvantageScope source)");
         log.putMetadata("Timing", String.format(java.util.Locale.US,
                 "trapezoid per line: %.0f in/s, %.0f in/s^2 accel, %.0f in/s^2 decel",
                 path.maxVelocity, path.maxAcceleration, path.maxDeceleration));
