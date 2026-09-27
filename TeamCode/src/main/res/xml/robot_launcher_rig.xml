@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!--
+  Robot configuration for the two-wheel pinch launcher test rig.
+
+  THIS IS NOT A ROBOT. It is a bench rig on its own Control Hub, whose WiFi
+  name is FTC-EoM3. It exists to characterize a launcher design with two
+  side-by-side wheels that pinch the game piece between them.
+
+  Like the robot configs, it ships inside the APK and appears in the Driver
+  Station list as "robot_launcher_rig" as soon as the app is installed. The one
+  manual step, once per hub: on the rig's Driver Station,
+  Configure Robot -> robot_launcher_rig -> Activate. The Launcher2 Speed Test
+  OpMode warns if some other configuration is active.
+
+  WIRING - read before changing anything here:
+  Both launcher motors (goBILDA Yellow Jacket 6000 RPM, 1:1, wheel on the
+  shaft) share motor port 0 through a Y-cable, so they always receive the same
+  power. Only one of the two encoders can be connected; it is on encoder
+  port 0. Software therefore sees ONE motor, "launcher2", and its RPM is the
+  speed of whichever motor's encoder is plugged in. The other wheel is assumed
+  to match.
+
+  The wheels turn opposite ways because of how the motors are mounted and
+  wired, not because of anything in code. If one wheel turns the same way as
+  the other, that is a wiring fix; no software setting can separate them.
+
+  Device names here must match org.firstinspires.ftc.teamcode.hardware.DeviceNames
+  (the LAUNCHER_RIG list). RobotConfigXmlTest fails the build if they disagree.
+-->
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+
+            <!-- Both launcher motors, Y-cabled to one port. -->
+            <goBILDA5202SeriesMotor name="launcher2" port="0" />
+
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>
