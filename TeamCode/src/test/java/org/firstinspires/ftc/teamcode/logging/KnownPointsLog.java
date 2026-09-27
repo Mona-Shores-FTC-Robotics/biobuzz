@@ -12,7 +12,7 @@ import java.io.IOException;
  * <p>The robot steps through labelled Pedro poses, 3 s each, and each step writes an event saying
  * which pose it is. Two fixed arrays mark Pedro's axes from the field centre: {@code /Field/PedroXAxis}
  * is a row of poses along +X, {@code /Field/PedroYAxis} along +Y, every 12 in, each pointing the
- * way its axis runs. Open it in AdvantageScope, then open the Pedro Visualizer on the same season's
+ * way its axis runs. Open it in AdvantageScope, then open the Pedro Visualizer (format 1.5.0) on the BIOBUZZ
  * field: the corners and axes should agree. If they do not, {@link AdvantageScopeFrame} is wrong,
  * and this log shows how.
  */
@@ -22,14 +22,14 @@ public final class KnownPointsLog {
 
     /** {x in, y in, heading deg} and what it is. */
     static final Object[][] POINTS = {
-            {72.0, 72.0, 0.0, "field centre, facing Pedro +X"},
-            {72.0, 72.0, 90.0, "field centre, facing Pedro +Y"},
-            {9.0, 9.0, 0.0, "Pedro origin corner (0, 0), facing +X"},
-            {135.0, 9.0, 0.0, "corner (144, 0), facing +X"},
-            {135.0, 135.0, 90.0, "corner (144, 144), facing +Y"},
-            {9.0, 135.0, 180.0, "corner (0, 144), facing -X"},
-            {72.0, 9.0, 90.0, "middle of the y = 0 wall, facing +Y (into the field)"},
-            {135.0, 72.0, 180.0, "middle of the x = 144 wall, facing -X (into the field)"},
+            {70.75, 70.75, 0.0, "field centre, facing Pedro +X"},
+            {70.75, 70.75, 90.0, "field centre, facing Pedro +Y"},
+            {9.0, 9.0, 0.0, "near the Pedro origin corner (0, 0), facing +X"},
+            {132.5, 9.0, 0.0, "near corner (141.5, 0), facing +X"},
+            {132.5, 132.5, 90.0, "near corner (141.5, 141.5), facing +Y"},
+            {9.0, 132.5, 180.0, "near corner (0, 141.5), facing -X"},
+            {70.75, 9.0, 90.0, "middle of the y = 0 wall, facing +Y (into the field)"},
+            {132.5, 70.75, 180.0, "middle of the x = 141.5 wall, facing -X (into the field)"},
     };
 
     public void write(File file) throws IOException {
@@ -42,7 +42,7 @@ public final class KnownPointsLog {
 
     void write(WpiLog log) throws IOException {
         log.putMetadata("Generator", "KnownPointsLog (TeamCode test sources)");
-        log.putMetadata("PoseFrame", "Pedro -> AdvantageScope Center/Rotated (PsiKit mapping, traced against Visualizer and AdvantageScope source)");
+        log.putMetadata("PoseFrame", AdvantageScopeFrame.DESCRIPTION);
         log.putMetadata("HowToCheck",
                 "Compare each labelled pose, and the PedroXAxis/PedroYAxis rows, with the Pedro Visualizer");
 
@@ -85,8 +85,8 @@ public final class KnownPointsLog {
         double[] out = new double[3 * n];
         double heading = Math.atan2(dy, dx);
         for (int i = 0; i < n; i++) {
-            double x = 72 + dx * 12 * (i + 1);
-            double y = 72 + dy * 12 * (i + 1);
+            double x = AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN + dx * 12 * (i + 1);
+            double y = AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN + dy * 12 * (i + 1);
             out[3 * i] = AdvantageScopeFrame.xMeters(x, y);
             out[3 * i + 1] = AdvantageScopeFrame.yMeters(x, y);
             out[3 * i + 2] = AdvantageScopeFrame.headingRad(heading);

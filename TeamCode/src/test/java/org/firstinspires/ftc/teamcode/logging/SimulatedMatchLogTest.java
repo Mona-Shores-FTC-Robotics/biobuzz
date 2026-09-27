@@ -62,7 +62,7 @@ public class SimulatedMatchLogTest {
         assertTrue(sawLoopDanger);
         assertTrue(sawLaunch);
 
-        // Every pose stays on the field (±72 in from centre, with a little bow allowance).
+        // Every pose stays on the field (±70.75 in from centre, with a little bow allowance).
         double limit = 76 * AdvantageScopeFrame.METERS_PER_INCH;
         for (WpiLogReader.Record p : r.entry("/Odometry/Robot").records) {
             double[] v = p.asDoubles();

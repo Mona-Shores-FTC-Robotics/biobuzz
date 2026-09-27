@@ -12,35 +12,42 @@ package org.firstinspires.ftc.teamcode.logging;
  * {@code (x, y, θ) → (y, −x, θ − π/2)}.
  *
  * <p><b>The mapping</b>, from PsiKit ({@code psilynx/PsiKit, PedroFollowerOdometryLogger}, BSD
- * licence):
+ * licence), with {@code c} the field centre:
  * <pre>
- *     x_cr = −(y_pedro − 72) · 0.0254
- *     y_cr =  (x_pedro − 72) · 0.0254
+ *     x_cr = −(y_pedro − c) · 0.0254
+ *     y_cr =  (x_pedro − c) · 0.0254
  *     θ_cr =   θ_pedro + π/2
  * </pre>
  *
  * <p><b>Why it is right, traced through both programs' source.</b> "Pedro's frame" is the Pedro
- * Visualizer's ({@code Pedro-Pathing/Visualizer}, {@code App.svelte}): x from 0 to 144 in runs left
- * to right across the field image and y from 0 to 144 in runs bottom to top, so the origin is the
+ * Visualizer's ({@code Pedro-Pathing/Visualizer}, {@code App.svelte}): x from 0 to 141.5 in runs left
+ * to right across the field image and y from 0 to 141.5 in runs bottom to top, so the origin is the
  * image's bottom-left corner. AdvantageScope undoes Center/Rotated with {@code (x, y, θ) → (y, −x,
- * θ − π/2)} ({@code geometry.ts}), which after this mapping gives {@code (x − 72, y − 72, θ)} in
+ * θ − π/2)} ({@code geometry.ts}), which after this mapping gives {@code (x − c, y − c, θ)} in
  * inches, and its 2D renderer ({@code Field2dRenderer.ts}) draws that centred with +x to the right
  * and +y up the image. The two BIOBUZZ field images ({@code biobuzz.webp} and
  * {@code Field2d_20262027FTCFieldV1/image.png}) are drawn the same way up. So a pose lands at the
  * same place on the field in both. PsiKit's comment that "+X points toward the red alliance wall"
  * describes this badly, but its arithmetic is correct.
  *
+ * <p><b>Field centre: 70.75 in.</b> The current Visualizer (format 1.5.0) draws a 141.5 in field
+ * ({@code FIELD_SIZE} in {@code src/config/defaults.ts}), and its Pedro 3 code export mirrors
+ * alliances about {@code FIELD_SIZE / 2} ({@code PoseFactory.degrees().mirrorX(70.75)}). So 70.75 is
+ * the centre Pedro 3 Autos are drawn around. AdvantageScope's BIOBUZZ asset is 143.182 in across;
+ * the ~0.8 in difference in scale shows only at the walls and is below what the view resolves.
+ *
  * <p>Still worth one look with real data: {@code VisualizerPathLogTest} turns Visualizer files into
  * logs, so the same Auto can be opened in both. Once seen, this belongs in {@code util/FieldFrame}.
- *
- * <p>Field centre is 72 in, Pedro's half-width. The asset is 143.182 in, so the drawing can be
- * off by up to ~0.4 in at the walls; that is below what the view can show.
  */
 public final class AdvantageScopeFrame {
 
     public static final double METERS_PER_INCH = 0.0254;
-    /** Pedro's field is 144 in; its centre is the origin AdvantageScope uses. */
-    public static final double PEDRO_FIELD_CENTER_IN = 72.0;
+    /** Half the Visualizer's 141.5 in field: the Pedro point AdvantageScope puts at its origin. */
+    public static final double PEDRO_FIELD_CENTER_IN = 70.75;
+
+    /** For log metadata: what frame the poses are in. */
+    public static final String DESCRIPTION =
+            "Pedro Visualizer inches (141.5 in field, centre 70.75) -> AdvantageScope Center/Rotated meters";
 
     private AdvantageScopeFrame() {
     }
