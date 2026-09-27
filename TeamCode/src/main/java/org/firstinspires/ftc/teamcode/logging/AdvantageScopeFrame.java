@@ -23,9 +23,15 @@ package org.firstinspires.ftc.teamcode.logging;
  * line up with AdvantageScope's internal ones on the BIOBUZZ field. PsiKit's comment says Pedro
  * +X points toward the red wall; AdvantageScope's source puts its internal +X away from the red
  * wall (Center/Red is its identity case). Those two statements disagree, so <b>this mapping is
- * unconfirmed</b>. The known-points log ({@code SimulatedMatchLogTest}) exists to settle it: open
- * it next to the Pedro Visualizer and check each labelled point lands where Pedro puts it. Once
- * checked on a real field, this belongs in {@code util/FieldFrame} as a measured fact.
+ * unconfirmed</b>.
+ *
+ * <p>"Pedro's frame" here means the Pedro Visualizer's: inches on a 144 in field, drawn on the
+ * season's field image. Pedro 3's {@code Pose} carries no frame of its own, so the Visualizer is
+ * what defines it, and paths drawn there are what the robot drives. The check is therefore
+ * {@code VisualizerPathLogTest}: it turns DECODE Autos the team really ran into logs, and opening
+ * one in AdvantageScope on the 2025–26 field next to the same {@code .pp} in the Visualizer shows
+ * at once whether this mapping is right, mirrored, or rotated. Once settled, this belongs in
+ * {@code util/FieldFrame} as a measured fact.
  *
  * <p>Field centre is 72 in, Pedro's half-width. The asset is 143.182 in, so the drawing can be
  * off by up to ~0.4 in at the walls; that is below what the view can show.

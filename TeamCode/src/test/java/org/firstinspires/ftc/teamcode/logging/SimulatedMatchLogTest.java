@@ -24,7 +24,7 @@ import java.nio.file.Files;
 public class SimulatedMatchLogTest {
 
     private static File dir() {
-        return new File(System.getProperty("simlog.dir", "build/sim-logs"));
+        return TeamCodeDir.simLogs();
     }
 
     @Test
