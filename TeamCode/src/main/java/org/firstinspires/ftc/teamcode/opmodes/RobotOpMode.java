@@ -55,7 +55,9 @@ import java.util.List;
  *
  * <p>Never set a bulk caching mode, clear the cache, or call {@code Scheduler.reset()} /
  * {@code execute()} / {@code robot.stop()} in a subclass. That is this class's job, and doing it
- * twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism.
+ * twice is how an OpMode ends up reading stale sensors or double-stepping a mechanism. {@code MANUAL}
+ * without a clear returns the same stale values forever and does not complain; having exactly one
+ * place that does both is what makes that mistake impossible.
  *
  * <h2>Before PLAY, and the Auto → TeleOp handoff</h2>
  *
