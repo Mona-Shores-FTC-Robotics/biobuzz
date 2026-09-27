@@ -72,7 +72,8 @@ each robot: **Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.**
   **no team-authored Java in the APK**, and it survives a cold boot, so it is neither our code
   nor an install-time race. We dropped Dashboard, because seven files import `com.bylazar.*`
   and one imported `com.acmerobotics.*`. → `TeamCode/README.md` § "Why FTC Dashboard is not in
-  the dependency set"; full working in `SPIKE.md` and `LADDER.md`.
+  the dependency set"; full working in `SPIKE.md` and `LADDER.md` on the git tag
+  `archive/panels-dashboard-ladder` (never merged to `master`).
   **This is the actual explanation for the dead 19429 hub**, and it is not the one the
   AdvantageScope entry below gives. That entry's *mechanism* — two NanoHTTPD servers, one
   socket, the loser throwing on a bare thread — is right. Its culprit is wrong: AdvantageScope
@@ -102,9 +103,17 @@ rename.
 
 - **An issue exists before a branch does.** A PR without `Closes #N` is incomplete.
 - Planning discussion goes in the issue. Design rationale goes in the PR body and in repo docs.
-- Labels run on five axes — priority, `area:`, `type:`, access (`desk-ok` / `needs:robot` /
-  `needs:field`) and ownership (`good-first-task` / `student-ready` / `needs-pairing` /
-  `mentor-only`). See `.github/ISSUE_TEMPLATE/` for the values.
+- **The work is split into eight workstreams**, each a top-level issue labelled `workstream` whose
+  sub-issues are the work: robot structure, Pedro tuning, auto, launcher, turret aiming,
+  localization, vision, and setup. A new issue joins one as a sub-issue; a new workstream is a mentor decision.
+- Labels answer three questions: which team (`team:*`, exactly one), whether it needs a robot
+  (`needs:robot`, or nothing), and who may take it (`good-first-task` / `student-ready` /
+  `mentor-only`). `bug`, `decision`, `proposal`, `blocked` and `meeting-brief` only when they apply.
+  There are **no priority labels** — order on the board is the priority.
+  **History:** until 26 Sep 2026 this line described five axes (priority, `area:`, `type:`, access,
+  ownership) — 35 labels. They were cut because nobody read that many; the reasoning is in
+  `.github/CONTRIBUTING.md` § "Why so few labels". Treat any mention of `P1-now`, `area:*`,
+  `type:*`, `desk-ok` or `needs-pairing` as stale.
 
 ## Branch, commit and PR conventions
 

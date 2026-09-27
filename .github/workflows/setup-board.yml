@@ -22,6 +22,10 @@ on:
         description: "Preview only — list what would change, without changing it"
         type: boolean
         default: true
+      retire_old_labels:
+        description: "Also delete the pre-26-Sep labels (P0-P3, area:, type:, desk-ok ...). Relabel open issues first."
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -71,46 +75,63 @@ jobs:
             printf '  %-8s %s\n' "${verb}d" "$name"
           }
 
-          echo "Priority — exactly one per issue"
-          label "P0-blocking" "b60205" "Something else cannot start until this lands. Cap: 3 open."
-          label "P1-now"      "d93f0b" "This milestone."
-          label "P2-next"     "fbca04" "Next milestone."
-          label "P3-later"    "c5def5" "Real, but not scheduled."
+          # Three questions, one label each: which team, does it need a robot,
+          # and who may take it. Kind and status labels are used only when they
+          # apply. See "Why so few labels" in .github/CONTRIBUTING.md.
 
-          echo "Area — one or more"
-          for a in drivetrain autonomous teleop vision mechanism hardware-config build-ci docs tooling; do
-            label "area:$a" "1d76db" "Subsystem or part of the project this touches."
-          done
+          echo "Team — exactly one: which workstream this belongs to"
+          label "team:robot-structure" "1d76db" "Subsystems, the Robot class, constants, commands, gamepad bindings."
+          label "team:pedro-tuning"    "0052cc" "Mecanum, Pinpoint and Foresight tuners, and bringing a robot up."
+          label "team:auto"            "5319e7" "Autonomous paths and routines."
+          label "team:launcher"        "d93f0b" "Launching game pieces: test rigs, speed tuning, the real mechanism."
+          label "team:aiming"          "fbca04" "From the robot's pose to where the turret points: aiming math and turret rotation."
+          label "team:localization"    "0e8a16" "Red or blue, the start pose, where the robot is, and seeing it on the Panels field."
+          label "team:vision"          "006b75" "Limelight: HIVE CELL state, and finding NECTAR and POLLEN."
+          label "team:setup"           "cfd3d7" "Laptops, docs, CI, and the repo and board themselves."
+          label "workstream"           "000000" "A team's top-level issue. Its sub-issues are the work."
 
-          echo "Type — exactly one"
-          label "type:feature"  "0e8a16" "New robot behaviour or capability."
-          label "type:bug"      "d73a4a" "Something does not work."
-          label "type:tuning"   "5319e7" "A value to be measured on a robot and committed."
-          label "type:chore"    "cfd3d7" "Maintenance, config, or cleanup."
-          label "type:decision" "e99695" "A choice to be made before work proceeds."
-          label "type:spike"    "bfd4f2" "Time-boxed investigation. Never merged - converted to issues."
-
-          echo "Access — exactly one: what is needed to do this"
-          label "desk-ok"     "c2e0c6" "Laptop only. Can be done at home."
-          label "needs:robot" "f9d0c4" "Requires a physical robot. Only two exist - scarce."
-          label "needs:field" "f7c6c7" "Requires the field and game elements too. Scarcer still."
+          echo "Access — only when it applies"
+          label "needs:robot" "f9d0c4" "Needs a physical robot. No label means a laptop is enough."
 
           echo "Ownership — exactly one: who may take this"
-          label "good-first-task" "7057ff" "Safe for someone who has never opened a PR. One file, obvious answer, CI proves it."
-          label "student-ready"   "0075ca" "A student can own this end to end; a mentor reviews."
-          label "needs-pairing"   "006b75" "Student drives, mentor sits with them."
+          label "good-first-task" "7057ff" "Never opened a PR? Start here. One file, obvious answer, CI proves it."
+          label "student-ready"   "0075ca" "A student can own this end to end, pairing with a mentor where it says so."
           label "mentor-only"     "b60205" "Locked versions, CI, or ahead of the team's knowledge. A growing count here is a warning sign."
 
+          echo "Kind — only when it applies"
+          label "bug"      "d73a4a" "Something does not work."
+          label "decision" "e99695" "A choice to be made before work proceeds. The output is an answer, not code."
+          label "proposal" "c2e0c6" "An idea for something the robot should do. Anyone can file one."
+
           echo "Status — as needed"
-          label "blocked"         "000000" "Waiting on something else. Say what in the issue."
-          label "needs-decision"  "e99695" "Blocked on a human choice."
-          label "awaiting-review" "fbca04" "PR open, waiting on a reviewer. 48h SLA for student PRs."
-          label "on-robot-now"    "ff8c00" "Someone is physically on this robot right now. Do not double-book."
-          label "meeting-brief"   "ededed" "Orchestrator output - the meeting log."
-          label "proposal"        "0e8a16" "An idea for something the robot should do. Anyone can file one - no technical knowledge needed."
-          label "needs-triage"    "fbca04" "Not yet read at triage. No priority or milestone until it has been."
-          label "robot:19429"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
-          label "robot:20245"     "d4c5f9" "Only where the two robots genuinely diverge. Default is both, unlabelled."
+          label "blocked"       "fbca04" "Waiting on something else. Say what in the issue."
+          label "meeting-brief" "ededed" "Orchestrator output - the meeting log."
+
+      - name: Retire the old labels
+        if: ${{ inputs.retire_old_labels }}
+        run: |
+          set -euo pipefail
+
+          # The five-axis set this replaced (26 Sep 2026). Deleting a label removes
+          # it from every issue that carries it, closed ones included, so relabel
+          # the open issues first. This step is opt-in for that reason.
+          existing="$(gh label list --repo "$REPO" --limit 200 --json name --jq '.[].name')"
+          for name in \
+              P0-blocking P1-now P2-next P3-later \
+              area:drivetrain area:autonomous area:teleop area:vision area:mechanism \
+              area:hardware-config area:build-ci area:docs area:tooling \
+              type:feature type:bug type:tuning type:chore type:decision type:spike \
+              desk-ok needs:field needs-pairing \
+              needs-decision awaiting-review on-robot-now needs-triage \
+              robot:19429 robot:20245; do
+            grep -qxF "$name" <<<"$existing" || continue
+            if [ "$DRY_RUN" = "true" ]; then
+              printf '  would delete %s\n' "$name"
+            else
+              gh label delete "$name" --repo "$REPO" --yes >/dev/null
+              printf '  deleted  %s\n' "$name"
+            fi
+          done
 
       - name: Create or update milestones
         run: |

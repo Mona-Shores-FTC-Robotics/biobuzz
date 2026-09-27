@@ -1,6 +1,6 @@
 name: Something on the robot doesn't work
 description: Report a bug.
-labels: ["type:bug"]
+labels: ["bug"]
 body:
   - type: dropdown
     id: robot
