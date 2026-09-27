@@ -67,7 +67,9 @@ Order matters — later reads are interpreted in light of earlier ones.
 2. The pinned **Meeting Log** issue, last 2 comments — what was promised last time. This is the
    memory a cold session otherwise lacks.
 3. **Open PRs**: number, author, `mergeable_state`, check status, age, linked issue.
-4. **Open issues**: current milestone by priority, then anything `blocked` or `needs-decision`.
+4. **Open issues**, grouped by workstream (the eight issues labelled `workstream` and their
+   sub-issues), then anything `blocked` or `decision`. There are no priority labels: rank by what
+   each issue unblocks, and by board order where the board has one.
 5. `git log` since the last brief — on `master` **and on branches with no open PR**. Work that
    bypassed the board is exactly how finished work gets stranded here; look for it every time.
 6. The collaborator list, to know who exists.
@@ -88,13 +90,13 @@ this repository is public and they are minors. The mentor pool is the handle lis
 Match on three things:
 
 - **Ownership label** — this is what says *what kind of person* the task suits
-  (`good-first-task` / `student-ready` / `needs-pairing` / `mentor-only`). Carry it into the brief
+  (`good-first-task` / `student-ready` / `mentor-only`). Carry it into the brief
   as the **Suits** column so the mentor knows what to hand out.
 - **Access label** — there are two robots, so at most ~4 people can be hands-on at once. Everyone
-  else needs `desk-ok` work.
+  else needs laptop work: anything without `needs:robot`.
 - Whether the robot is actually available.
 
-If a **tier** has no open work — nothing at `good-first-task`, say, or nothing `desk-ok` while the
+If a **tier** has no open work — nothing at `good-first-task`, say, or no laptop work while the
 robot is torn down — **say so loudly**. That is a backlog failure, not a scheduling detail, and it
 means restocking outranks whatever else was planned.
 
@@ -121,7 +123,7 @@ Use this format exactly — it gets read on a phone in a parking lot.
 **Assignments** (mentors only - never name a student)
 | Mentor | Task | Robot? | Suits |
 
-**Bench (desk-ok, grab one if you're free):** #NN, #NN, #NN
+**Bench (laptop only, grab one if you're free):** #NN, #NN, #NN
 
 **Needs a decision from a human:** #NN — overdue by N days
 ```

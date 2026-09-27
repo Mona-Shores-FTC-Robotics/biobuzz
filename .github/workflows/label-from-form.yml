@@ -1,0 +1,50 @@
+# Turns the answers on the "Robot code task" issue form into labels.
+#
+# An issue form's dropdown only writes the chosen answer into the issue body -
+# GitHub has no way to make a dropdown apply a label. The board is filtered by
+# label (a `team:` label, `needs:robot`, and an ownership label), so without
+# this a robot task filed from the form would be missing from every filter.
+#
+# Only exact label names are applied, so free text typed into the body cannot
+# add an arbitrary label.
+
+name: Label issues from the form
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v8
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+
+            // Issue forms render each question as "### <label>" followed by the answer.
+            const answer = (heading) => {
+              const m = body.match(new RegExp(`^### ${heading}\\s*\\n+([^\\n]+)`, 'm'));
+              return m ? m[1].trim() : '';
+            };
+            // Dropdown options read "label — explanation"; the label is the first word.
+            const firstWord = (s) => s.split(/\s/)[0];
+
+            const labels = [];
+            const team = firstWord(answer('Team'));
+            if (/^team:[a-z-]+$/.test(team)) labels.push(team);
+            if (firstWord(answer("What's needed to do this")) === 'needs:robot') labels.push('needs:robot');
+            const owner = firstWord(answer('Who can take this'));
+            if (['good-first-task', 'student-ready', 'mentor-only'].includes(owner)) labels.push(owner);
+
+            if (labels.length === 0) return;
+            await github.rest.issues.addLabels({
+              ...context.repo,
+              issue_number: context.payload.issue.number,
+              labels,
+            });
+            core.info(`Applied: ${labels.join(', ')}`);

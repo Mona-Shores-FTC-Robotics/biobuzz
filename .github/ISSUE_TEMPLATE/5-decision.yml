@@ -1,6 +1,6 @@
 name: Design decision to make
 description: A choice that needs making before work can proceed.
-labels: ["type:decision", "needs-decision"]
+labels: ["decision"]
 body:
   - type: textarea
     id: question

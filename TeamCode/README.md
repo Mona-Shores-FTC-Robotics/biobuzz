@@ -1349,7 +1349,9 @@ Established on a Control Hub v1.0 (SDK 12.0, Sloth 0.3.2, Panels
 `0.3.2+1.0.13`, Dashboard `0.3.2+0.6.0`) on 24 Sep 2026, with **no team-authored
 Java in the APK at all** — so nothing of ours is involved. It survives a cold
 boot, so it is not an install-time race. Full working in `SPIKE.md` and
-`LADDER.md` at the repo root, including the readings that were wrong on the way.
+`LADDER.md`, including the readings that were wrong on the way. They were
+never merged; they live on the git tag `archive/panels-dashboard-ladder`
+(`git show archive/panels-dashboard-ladder:SPIKE.md`).
 
 **What is known about the mechanism:** port **8001** — Panels' documented port —
 is bound and then requested again *inside a single Robot Controller process*
