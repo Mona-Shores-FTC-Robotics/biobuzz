@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
+import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,26 +29,24 @@ import java.util.List;
  *       loop, and stopped at the end — there is nowhere else to register it.</li>
  * </ol>
  *
- * <p>That is the whole pattern. Four steps, and no file outside {@code subsystems/} has to know
- * anything about how your mechanism works.
+ * <h2>Fallback</h2>
  *
- * <h2>What is deliberately missing</h2>
+ * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
+ * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p><b>There is no drivetrain here yet.</b> That is not an oversight — it is the first task on the
- * student ladder, and it is a move rather than an invention: the drive code already exists and works
- * inside {@code BasicDriveTeleOp}, and rung 1 is relocating it into a {@code DriveSubsystem} without
- * changing what it does. Leaving the slot empty is the point.
- *
- * <p>There is likewise no intake, launcher or lighting, because no such mechanism exists on a
- * BIOBUZZ robot yet. A subsystem for hardware nobody has designed would be a guess wearing a
- * class name.
+ * <p>There is no intake, launcher or turret here, because none is designed yet. A subsystem for
+ * hardware nobody has designed would be a guess wearing a class name.
  */
 public class Robot {
+
+    /** The drivetrain. Always present; drives robot-centric if the Pinpoint is missing. */
+    public final DriveSubsystem drive;
 
     /** Tracks the HIVE CELLs. Always present; reports itself unavailable if the camera is missing. */
     public final LimelightVisionSubsystem vision;
 
-    // TODO (rung 1): public final DriveSubsystem drive;
+    /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
+    public final PieceVisionSubsystem pieces;
 
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
@@ -55,9 +55,13 @@ public class Robot {
     private final List<Subsystem> subsystems;
 
     public Robot(HardwareMap hardwareMap) {
+        // Vision first: the drivetrain reads its sightings to correct the pose, and list order is
+        // update order, so this loop's sightings reach this loop's pose.
         vision = new LimelightVisionSubsystem(hardwareMap);
+        drive = new DriveSubsystem(hardwareMap, vision);
+        pieces = new PieceVisionSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision));
+        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, pieces));
     }
 
     /** Every subsystem, in the order they were built. */

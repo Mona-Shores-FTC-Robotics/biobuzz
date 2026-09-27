@@ -77,10 +77,13 @@ public class DeviceNameLiteralTest {
      *       Until that is sorted, neither {@code robot_*.xml} declares a Limelight
      *       and all three Vision OpModes report LIMELIGHT NOT FOUND on both
      *       robots.</li>
+     *   <li><b>webcam</b> — {@code PieceVisionSubsystem.DEVICE_NAME}. Same {@code Kind} gap,
+     *       and a webcam's config element also carries a per-robot serial number that no
+     *       bundled XML can know in advance.</li>
      * </ul>
      */
     private static final Set<String> KNOWN_MISSING_FROM_DEVICE_NAMES =
-            new HashSet<>(Arrays.asList("limelight"));
+            new HashSet<>(Arrays.asList("limelight", "webcam"));
 
     /** A string literal handed straight to a hardware map lookup. */
     private static final Pattern LOOKUP_LITERAL = Pattern.compile(

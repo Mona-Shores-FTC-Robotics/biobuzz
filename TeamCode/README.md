@@ -293,7 +293,10 @@ competition robots), and the element in each of those robots' `robot_*.xml`.
 Miss the third and the test names the file.
 
 Adding a robot is two edits — a `res/xml/robot_<name>.xml` and a matching
-`RobotIdentity` constant, which names the `DeviceNames` list it carries. The test asserts those two sets match exactly. At that
+`RobotIdentity` constant, which names the `DeviceNames` list it carries. The test asserts those two sets match exactly.
+A robot that carries the drivetrain also needs its Pedro values — one file and one
+line, see [One file of tuned values per robot](#one-file-of-tuned-values-per-robot) —
+and CI fails until it has them. At that
 price there is no reason to cap the number of robots: a spare chassis, or last
 season's bot kept as a test mule, costs one file.
 
@@ -438,25 +441,37 @@ and reached from an OpMode that extends `RobotOpMode`. Four files carry the whol
 | `subsystems/Subsystem.java` | The contract: `initialize()`, `update()`, `stop()`, plus a `default periodic()` you get free |
 | `subsystems/ExampleSubsystem.java` | An empty subsystem to copy. No hardware, on purpose |
 | `Robot.java` | The parts list — every subsystem, built once |
-| `opmodes/RobotOpMode.java` | The base OpMode. Sets `MANUAL` bulk caching and clears it each loop, builds `Robot`, runs the scheduler, shuts down |
+| `opmodes/RobotOpMode.java` | The base OpMode. Owns the loop: bulk caching, loop timing, the scheduler, teardown |
+| `subsystems/DriveSubsystem.java` | The drivetrain — the worked example of a real subsystem |
 
 The point is not elegance, it is having an answer to *"where does my code go?"*. Adding a method
 to `IntakeSubsystem` is a task a beginner can take; writing an intake is not.
 
 ### `update()` is the contract, `periodic()` is an adapter
 
+> **History note.** This section used to say "prefer calling `update()` directly in TeleOp", and
+> `RobotOpMode.useScheduler()` let an OpMode switch the scheduler off. Both are gone: the scheduler
+> is always on. The reasoning below replaces the old advice; the rejected option is kept.
+
 `update()` is one step of the mechanism's work, called once per loop. `periodic()` wraps that same
-method as an Ivy `Command` for OpModes running the `Scheduler`.
+method as an Ivy `Command`, and `RobotOpMode` schedules every subsystem's `periodic()` and runs the
+`Scheduler` every loop, TeleOp and Autonomous alike. An OpMode never calls `update()`; it tells a
+subsystem what it wants (`robot.drive.drive(...)`) and the scheduler does the rest.
 
-**Prefer calling `update()` directly in TeleOp.** `Scheduler.execute()` allocates roughly three
-objects on every call even when nothing is scheduled — it copies its running-command deque and
-iterates the copy, then does an `O(n·m)` `removeAll`. Routing a drivetrain through it costs that and
-buys nothing, because no second command is competing for the drivetrain. In Autonomous, arbitration
-is the entire point and the scheduler earns its keep. `RobotOpMode.useScheduler()` picks between
-them.
+`RobotOpMode.loop()` runs in a fixed order: clear the bulk cache, `onLoop()`, then
+`Scheduler.execute()`. Inputs are read and intents set *before* subsystems update, so a stick
+movement reaches the motors in the same loop rather than the next.
 
-To be clear about scale: this is **microseconds, not milliseconds**, and it will not be anyone's
-loop-time problem. It is a reason to prefer the simpler code, not a reason to fear the scheduler.
+**Why always on.** BIOBUZZ TeleOp will have macros a driver can interrupt, which is arbitration —
+the scheduler's job. One execution model means a command written for Autonomous binds to a button
+unchanged, and students learn one way things run.
+
+**Rejected: an opt-out for TeleOp.** `Scheduler.execute()` allocates roughly three objects on every
+call even when nothing is scheduled — it copies its running-command deque and iterates the copy,
+then does an `O(n·m)` `removeAll`. That is **microseconds, not milliseconds**, and it is not a
+loop-time problem. The opt-out cost more than it saved: a second way for an OpMode to run, and a trap
+in it — an OpMode that turned the scheduler off had to update every subsystem itself, or look alive
+while updating nothing. If `LoopTimer` ever shows the scheduler mattering, revisit with the number.
 
 ### The lifecycle is on the interface
 
@@ -534,11 +549,16 @@ not ours — when Pedro releases a new Quickstart, re-copy it rather than patchi
 it in place.
 
 Two of those files are deliberately stubs upstream, and are where our robot
-configuration goes. Both are now filled in; everything else in the package is
-still untouched upstream code.
+configuration goes. Both are now filled in. Beside them are two more pieces
+that are ours and have no upstream counterpart — `RobotConstants.java` and the
+`robots/` directory, which hold the per-robot tuned values. Everything else in
+the package is still untouched upstream code.
 
-- **`Constants.java`** — holds `drivetrainConfig` (mecanum), `localizerConfig`
-  (Pinpoint) and `foresightConfig`, plus the factory methods AutoTune needs.
+- **`Constants.java`** — picks the running robot's tuned values and holds the
+  factory methods AutoTune and our OpModes call (`createDrivetrain`,
+  `createLocalizer`, `createAlgorithm`, `create`). **The tuned values themselves
+  are no longer in it** — they are one file per robot, see
+  [One file of tuned values per robot](#one-file-of-tuned-values-per-robot).
 
   **The argument order in the old stub comment was wrong.** It suggested
   `new Follower(drivetrain, localizer, foresight)`; the real 3.0.1 signature is
@@ -569,14 +589,82 @@ The module's one annotated OpMode lives in `shooter/`, documented below.
 | Drivetrain | Mecanum — `frontLeft`, `frontRight`, `backLeft`, `backRight` |
 | Localizer | goBILDA Pinpoint (`pinpoint`), goBILDA 4-bar odometry pods |
 
-Three groups of values in `Constants.java` are **placeholders that AutoTune
-replaces**, and the robot will not drive correctly until it has:
+Three groups of values in **each robot's file** (`pedro/robots/Robot19429.java`,
+`pedro/robots/Robot20245.java`) are **placeholders that AutoTune replaces**, and
+that robot will not drive correctly until it has:
 
 1. Motor directions — currently the conventional left-reversed guess.
 2. Pinpoint pod directions and X/Y offsets — currently `FORWARD` and `0.0`.
    Zero offsets treat the pods as sitting on the tracking centre, so heading
    changes corrupt the position estimate.
 3. All of `foresightConfig` — currently empty, see below.
+
+Both robots' files start with the same placeholders. They are expected to diverge:
+the robots have identical hardware, but motor directions can differ with wiring,
+and pod offsets and every Foresight value are measurements of one physical robot.
+
+### One file of tuned values per robot
+
+> **History note (27 Sep 2026).** Until #88 this section, and `Constants.java`,
+> held **one** `drivetrainConfig` / `localizerConfig` / `foresightConfig` for
+> both robots, so tuning the second robot would have overwritten the first
+> robot's numbers. Anything saying "paste into `Constants.java`" or naming
+> `Constants.foresightConfig` is stale.
+
+| Piece | What it is |
+|---|---|
+| `pedro/robots/Robot19429.java`, `Robot20245.java` | That robot's three blocks, in exactly the shape the tuners emit. **The only place tuned numbers go.** |
+| `Constants.ROBOTS` | One line per robot: `RobotIdentity` → its file |
+| `Constants.forRobot(identity)` | Pure lookup, unit tested. Throws, naming the identity, for a robot with no drivetrain (`LAUNCHER_RIG`) or with no file |
+| `createDrivetrain` / `createLocalizer` / `createAlgorithm` / `create` | Unchanged signatures; call `forRobot(ActiveConfig.requireIdentity())` |
+| `RobotConstants` | Wraps one robot's three blocks, and sets the **device names** on them from `DeviceNames` |
+
+**Which file is used is decided by the active Driver Station configuration** —
+the same pick that selects the robot's wiring (see
+[Robot identity comes from the active config](#robot-identity-comes-from-the-active-config)).
+Activate `robot_19429` and 19429's numbers are used. There is no default: an
+unknown or drivetrain-less configuration stops the OpMode at init with a message
+naming it. Last season a silent 19429/20245 fallback ran one robot on the other's
+tuning, and that is the bug this layout exists to prevent.
+
+**Pasting a tuner's output.** Each tuner's generated block starts
+`public static <Type> <field> = ...`. Paste it over the field of the same name in
+**the file of the robot you ran the tuner on**, then delete any
+`c.…Name.set("…")` / `c.name.set("…")` lines it brought with it. Device names are
+the same on every robot and are set once, from `DeviceNames`, in
+`RobotConstants`; `PedroRobotsTest` fails the build if a name line is left in a
+robot file. The Foresight imports (`Controller`, `Matrix`, `Vector2D`) are already
+in each robot file, so that paste compiles as-is.
+
+**Adding a robot with a drivetrain** (a test mule, a spare chassis) is the two
+edits under [Changing ports, and adding a robot](#changing-ports-and-adding-a-robot),
+plus **one file and one line**: copy `Robot19429.java` to `Robot<name>.java` in
+`pedro/robots/` (Android Studio renames the class references for you), and add
+`ROBOTS.put(RobotIdentity.<NAME>, Robot<name>::constants);` to `Constants`.
+Skip either and CI fails: `ConstantsTest` requires values for every identity whose
+device list includes a drive motor or the Pinpoint, and `PedroRobotsTest` rejects
+a robot file no entry points at.
+
+**What the tests pin.** Both competition robots resolve to their own file and to
+*different* config objects (a copied file still pointing at the other robot's
+fields passes everything else); `LAUNCHER_RIG` is refused by name; every
+drivetrain robot has values; every robot carries the shared device names; and
+each untuned robot's `createAlgorithm` still fails with the robot and file in
+its message.
+
+**Rejected alternatives.**
+
+- *Both robots' blocks side by side in `Constants.java`* (`drivetrainConfig19429`
+  …). The tuners emit `drivetrainConfig`, so every paste would need a hand rename,
+  and pasting into the wrong-numbered block is a one-character mistake nobody sees.
+- *Only per-robot differences, as overrides on a shared base.* Smaller files, but a
+  tuner's block can no longer be pasted whole, and "what is this robot actually
+  running?" takes two files to answer.
+- *A method on `RobotIdentity` returning the configs.* Puts Pedro types into
+  `hardware/`, which is deliberately free of them so it stays unit testable.
+- *Name lines kept per robot, as the tuners emit them.* Two copies of the same
+  five names, free to drift from each other and from the `res/xml` configs —
+  the exact thing `DeviceNames` exists to stop.
 
 ### Reaching AutoTune
 
@@ -587,12 +675,16 @@ app is: connect to the robot's wifi and open **`http://192.168.43.1:10158`**
 registered in `Tuning.java` are listed there.
 
 Run the tuners in this order; each produces the values the next one needs.
-**Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests.** Each ends on a page
-of generated Java to paste over the matching block in `Constants.java`.
+**Mecanum Tuner → Pinpoint Tuner → Foresight Tuner → Tests**, on **each** robot.
+Each ends on a page of generated Java to paste over the field of the same name
+in *that robot's* file in `pedro/robots/` — see
+[One file of tuned values per robot](#one-file-of-tuned-values-per-robot). Check
+which configuration is active before you start: it decides both which robot
+the tuner drives with and which file's values it starts from.
 
 ### Foresight cannot be configured off the robot
 
-`foresightConfig` is intentionally an empty lambda. Twelve of `ForesightConfig`'s
+Each robot file's `foresightConfig` is intentionally an empty lambda. Twelve of `ForesightConfig`'s
 variables are declared `ConfigVar.required(…)` with **no default** —
 `headingFeedback`, `forwardTranslational`, `strafeTranslational`, `brake`,
 `coast`, the linear/quadratic/heading brake coefficients, both
@@ -601,8 +693,9 @@ throws `IllegalStateException("Config variable has not been set")`.
 
 Those twelve are exactly what the Foresight Tuner measures. There is no
 "defaults for now" option and nothing here should be guessed: they are
-properties of this robot's mass, wheels and battery. `Constants.createAlgorithm()`
-probes one of them and fails at init with a message naming the fix, because the
+properties of one robot's mass, wheels and battery. `Constants.createAlgorithm()`
+probes one of them and fails at init with a message naming the robot and the
+file to paste into, because the
 bare library error surfaces partway through following a path with no field name
 and no hint.
 
@@ -621,7 +714,7 @@ gains. It registers one OpMode, **Flywheel Speed Test** (TeleOp, group
 It exists to characterize shooting speeds on **last season's DECODE robot**
 before BIOBUZZ hardware is ready, so it is deliberately standalone — no
 drivetrain, no pathing, no intake, no feeder, and no dependency on
-`pedro/Constants.java` being filled in. Point it at a robot with the three
+Pedro's tuned values. Point it at a robot with the three
 launcher motors in its config and it runs.
 
 ### Zero recompiles
@@ -999,6 +1092,13 @@ Ordered roughly by what unblocks what.
    settled, each with its own state. Gate every candidate against odometry so a
    misclassified state or a mid-tip reading is rejected before it reaches the
    estimator.
+   > **Update:** built. The estimator is Pedro 3's own `FusionLocalizer` (it ships in
+   > `core`); the `localization` package adds only `CellFix` — a settled CELL sighting
+   > plus the Pinpoint heading gives the robot position — and `HiveFieldPoints`, the
+   > eight row-centre points, NaN until item 2 fills them. No tag orientation convention
+   > is needed. Until item 2, the robot runs on the Pinpoint alone. The gate against
+   > odometry described above was deliberately left to Pedro's filter: add one only if a
+   > robot shows it is needed.
 4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
    tip it by hand between samples. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.
@@ -1263,7 +1363,7 @@ In order. Most of a lost morning is steps 1 and 2.
 | 7 | Push the robot by hand. The blue circle should move | Does not move, cross is visible, telemetry says `pose: NO LOCALIZER` → the Pinpoint is not in the active config. Run `Validate Hardware` |
 
 **Expect the pose to be wrong, and do not treat that as a broken field view.** The Pinpoint pod
-offsets and directions in `Constants.localizerConfig` are still zeros and placeholders. A dot that
+offsets and directions in each robot's `localizerConfig` (`pedro/robots/`) are still zeros and placeholders. A dot that
 moves but drifts, or strafes when you push forward, or spins the wrong way, is the *expected* state
 before the Pinpoint Tuner runs — it is the thing the field view exists to show you. The field view
 is working as soon as the dot responds to the robot moving at all.
