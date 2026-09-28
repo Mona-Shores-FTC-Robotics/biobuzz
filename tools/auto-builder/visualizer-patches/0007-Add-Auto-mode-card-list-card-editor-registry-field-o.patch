@@ -1,0 +1,2447 @@
+From 1299a35d8f849b21770bfcdff9b17e7be9741b47 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 02:49:40 +0000
+Subject: [PATCH 07/11] Add Auto mode: card list, card editor, registry, field
+ overlay and preview
+
+An Auto toggle in the top bar swaps the Path List for the Auto's cards
+and the Controls panel for the Auto panel, in the Visualizer's own
+styles. Cards are added after the selection or into a selected branch,
+moved, duplicated and deleted; decisions show a branch per row with its
+condition, worst-case time and whether this preview took it.
+
+The panel edits the selected card (action, path with while-driving chips,
+a draggable events bar and the park flag, rows of waits and decisions),
+the registry, alliance, export name and named points, and lists every
+problem that blocks the export. Preview as sets when each condition
+turns true; the playback bar and robot follow the simulated Auto, the
+field draws each path in its branch colour with untaken ones dashed, and
+a log tracks the 30 s budget.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ docs/auto-format.md                           |  33 +-
+ src/App.svelte                                | 115 ++++-
+ src/lib/Navbar.svelte                         |  52 +-
+ src/lib/auto/components/AutoCardList.svelte   | 449 ++++++++++++++++++
+ .../auto/components/AutoControlPanel.svelte   | 142 ++++++
+ .../auto/components/AutoFieldOverlay.svelte   | 117 +++++
+ .../auto/components/AutoPreviewPanel.svelte   | 169 +++++++
+ src/lib/auto/components/CardEditor.svelte     | 448 +++++++++++++++++
+ src/lib/auto/components/EventsBar.svelte      | 131 +++++
+ src/lib/auto/components/RegistryPanel.svelte  | 177 +++++++
+ src/lib/auto/components/ui.ts                 |  46 ++
+ src/lib/auto/edit.ts                          | 192 ++++++++
+ src/lib/auto/normalize.ts                     |   3 +-
+ src/lib/auto/store.ts                         |  48 +-
+ src/lib/components/LeftRail.svelte            |   8 +
+ 15 files changed, 2117 insertions(+), 13 deletions(-)
+ create mode 100644 src/lib/auto/components/AutoCardList.svelte
+ create mode 100644 src/lib/auto/components/AutoControlPanel.svelte
+ create mode 100644 src/lib/auto/components/AutoFieldOverlay.svelte
+ create mode 100644 src/lib/auto/components/AutoPreviewPanel.svelte
+ create mode 100644 src/lib/auto/components/CardEditor.svelte
+ create mode 100644 src/lib/auto/components/EventsBar.svelte
+ create mode 100644 src/lib/auto/components/RegistryPanel.svelte
+ create mode 100644 src/lib/auto/components/ui.ts
+ create mode 100644 src/lib/auto/edit.ts
+
+diff --git a/docs/auto-format.md b/docs/auto-format.md
+index 6ea7eab..6c24de9 100644
+--- a/docs/auto-format.md
++++ b/docs/auto-format.md
+@@ -12,6 +12,23 @@ key, `auto`. Everything the Auto builder adds lives under it, so:
+ - the stock Visualizer opens our files (it ignores `auto`), and
+ - a project without an Auto is written exactly as before (no `auto` key).
+ 
++## Using Auto mode
++
++- **Auto** in the top bar swaps the Path List for the Auto's card list and the
++  Controls panel for the Auto panel (the first time, it adds an empty `auto`
++  section). Paths are still drawn and edited on the field as usual.
++- **+ Action / + Wait for / + Decision / + Path** add a card after the selected
++  card; select a decision's branch header to add at the end of that branch.
++  The selected card has ↑ ↓ ✕ in the list and Duplicate / Delete in the panel.
++- The panel edits the selected card: the action; a path card's path,
++  while-driving chips, events bar (click to add, drag to move, arrow keys to
++  nudge) and park checkbox; a wait's or decision's rows.
++- **Robot actions & conditions** is the registry, plus the alliance the Auto
++  is drawn for, the export name and the named points.
++- **Preview as** sets the scenario; the playback bar, robot and log follow it.
++  Untaken branches are dashed on the field and dimmed in the list.
++- **Export .java** (or Export → Export Auto (Java)) downloads the class.
++
+ ## Shape
+ 
+ ```json
+@@ -149,9 +166,11 @@ row and event with its time against the 30 s budget.
+ Each branch also shows its **worst case**: the Auto's end time if that branch
+ is taken and every later wait runs to its time row. Over 30 s it is flagged.
+ 
+-The endgame guard is previewed at card boundaries and during waits: once the
+-time left is no more than the park path's seconds, the rest of the branch is
+-skipped and the park path is driven.
++The endgame guard is previewed the way `kit.guarded` is meant to work: once
++the time left is no more than the park path's seconds, whatever is running
++(a wait, an action, a path part-way) stops, the rest of the branch is
++skipped and the park path is driven. The robot then jumps to the park path's
++start in the preview, because a path always starts where the Path List says.
+ 
+ ## Upstream files touched
+ 
+@@ -164,5 +183,11 @@ New code lives in `src/lib/auto/`, `src/lib/codegen/auto/`,
+ - `src/App.svelte` — load, save, undo/redo, session recovery.
+ - `src/lib/FileManager.svelte` — load, save, new file, mirror.
+ - `src/lib/codegen/identifiers.ts` — exports `isReservedWord`.
+-- `src/lib/Navbar.svelte` — "Export Auto (Java)" in the export menu; reset clears the Auto.
++- `src/lib/Navbar.svelte` — the Auto toggle; "Export Auto (Java)" in the export menu;
++  the time readout shows the preview's length in Auto mode; reset clears the Auto.
++- `src/lib/components/LeftRail.svelte` — optional `listOverride` snippet, shown in
++  place of the Path List (Auto mode's card list).
++- `src/App.svelte` also: in Auto mode the playback bar and robot follow the preview's
++  timeline, the stock path strokes are hidden (the overlay draws them by branch),
++  and the Controls panel shows the Auto panel instead of `ControlTab`.
+ - `package.json` — `test` script.
+diff --git a/src/App.svelte b/src/App.svelte
+index 4014b27..994b959 100644
+--- a/src/App.svelte
++++ b/src/App.svelte
+@@ -161,7 +161,20 @@
+   import { onDestroy, onMount, tick } from "svelte";
+   import { debounce } from "lodash";
+   import { createHistory, type AppState } from "./utils/history";
+-  import { autoSection, loadAutoFrom } from "./lib/auto/store";
++  import {
++    autoMode,
++    autoSection,
++    loadAutoFrom,
++    previewScenario,
++    setAutoRecorder,
++  } from "./lib/auto/store";
++  import { buildPathCatalog } from "./lib/auto/geometry";
++  import { validateAuto } from "./lib/auto/validate";
++  import { simulateAuto, worstCase } from "./lib/auto/simulate";
++  import { exportAutoJava } from "./lib/auto/exportAction";
++  import AutoCardList from "./lib/auto/components/AutoCardList.svelte";
++  import AutoControlPanel from "./lib/auto/components/AutoControlPanel.svelte";
++  import AutoFieldOverlay from "./lib/auto/components/AutoFieldOverlay.svelte";
+   // Browser-only build: file operations use the browser file store and
+   // localStorage. Electron-specific APIs have been removed.
+ 
+@@ -592,6 +605,7 @@
+   function recordChange() {
+     history.record(getAppState());
+   }
++  setAutoRecorder(recordChange);
+ 
+   function undoAction() {
+     const prev = history.undo();
+@@ -2293,8 +2307,37 @@
+   // Use the stores for reactivity
+   let canUndo = $derived($canUndoStore);
+   let canRedo = $derived($canRedoStore);
++  // Auto mode: the whole Auto is previewed, so the playback bar and the
++  // robot follow the preview's timeline instead of the Path List's.
++  let autoActive = $derived($autoMode && $autoSection !== null);
++  let showUntakenBranches = $state(true);
++  let autoCatalog = $derived(
++    autoActive ? buildPathCatalog(startPoint, lines, settings) : null,
++  );
++  let autoIssues = $derived(
++    autoActive && autoCatalog && $autoSection
++      ? validateAuto($autoSection, autoCatalog, startPoint)
++      : [],
++  );
++  let autoPreview = $derived(
++    autoActive && autoCatalog && $autoSection
++      ? simulateAuto($autoSection, autoCatalog, startPoint, $previewScenario)
++      : null,
++  );
++  let autoWorst = $derived(
++    autoActive && autoCatalog && $autoSection
++      ? worstCase($autoSection, autoCatalog)
++      : null,
++  );
+   let timePrediction = $derived(
+-    calculateVisualizationPathTime(startPoint, lines, settings, sequence),
++    autoPreview
++      ? {
++          totalTime: autoPreview.endTime,
++          segmentTimes: [],
++          totalDistance: 0,
++          timeline: autoPreview.timeline,
++        }
++      : calculateVisualizationPathTime(startPoint, lines, settings, sequence),
+   );
+   let animationDuration = $derived(
+     getAnimationDuration(timePrediction.totalTime / 1000),
+@@ -2405,7 +2448,8 @@
+   let scene = $derived.by(() => {
+     const registry = new PointRegistry();
+     // Hide main path when in multi-path mode (isolated visualization)
+-    const pathElements = isMultiPathMode
++    // Auto mode draws the paths itself, coloured by branch.
++    const pathElements = isMultiPathMode || autoActive
+       ? []
+       : buildPathElements(
+           { startPoint, lines, idPrefix: "line" },
+@@ -2924,6 +2968,7 @@
+     {rightPanelHidden}
+     onToggleLeftPanel={toggleLeftPanelVisibility}
+     onToggleRightPanel={toggleRightPanelVisibility}
++    autoPreviewSeconds={autoPreview ? autoPreview.endTime : null}
+   />
+ 
+   <SaveDialog
+@@ -2971,8 +3016,23 @@
+         onGroup={groupSelectedPaths}
+         onUngroup={ungroupSelectedPath}
+         onReorderPath={reorderPath}
++        listOverride={autoActive && $autoSection && autoCatalog
++          ? autoListSnippet
++          : undefined}
+       />
+ 
++      {#snippet autoListSnippet()}
++        {#if $autoSection && autoCatalog}
++          <AutoCardList
++            auto={$autoSection}
++            catalog={autoCatalog}
++            issues={autoIssues}
++            preview={autoPreview}
++            worst={autoWorst}
++          />
++        {/if}
++      {/snippet}
++
+       <PanelDivider
+         side="left"
+         hidden={leftPanelHidden}
+@@ -2983,7 +3043,14 @@
+       <main class="panel-box center-stage">
+         <div class="module-header-row mb-2">
+           <h3 class="module-title">Field</h3>
+-          <span class="module-caption">Click a line or point to select it</span>
++          {#if autoActive}
++            <label class="module-caption flex items-center gap-2">
++              <input type="checkbox" bind:checked={showUntakenBranches} />
++              Show untaken branches (dashed)
++            </label>
++          {:else}
++            <span class="module-caption">Click a line or point to select it</span>
++          {/if}
+         </div>
+         <FieldToolbar
+           {playing}
+@@ -3034,6 +3101,16 @@
+               class="absolute top-0 left-0 w-full h-full z-15 pointer-events-none"
+               aria-hidden="true"
+             ></canvas>
++            {#if autoActive && $autoSection && autoCatalog}
++              <AutoFieldOverlay
++                auto={$autoSection}
++                catalog={autoCatalog}
++                preview={autoPreview}
++                {x}
++                {y}
++                showUntaken={showUntakenBranches}
++              />
++            {/if}
+             <MathTools {x} {y} {twoElement} {robotXY} />
+             <!-- Main robot: only show in normal mode -->
+             {#if !isMultiPathMode}
+@@ -3128,6 +3205,35 @@
+             </button>
+           </div>
+         </div>
++        {#if autoActive && $autoSection && autoCatalog && autoPreview}
++          <AutoControlPanel
++            auto={$autoSection}
++            catalog={autoCatalog}
++            issues={autoIssues}
++            preview={autoPreview}
++            worst={autoWorst}
++            bind:startPoint
++            {robotXY}
++            {robotHeading}
++            {x}
++            {y}
++            {playing}
++            {play}
++            {pause}
++            bind:percent
++            {handleSeek}
++            bind:loopAnimation
++            defaultExportName={pathStem($currentFilePath) || "untitled"}
++            onExport={() =>
++              exportAutoJava({
++                startPoint,
++                lines,
++                shapes,
++                settings,
++                sourceFileName: basename($currentFilePath) || "untitled.pp",
++              })}
++          />
++        {:else}
+         <ControlTab
+           bind:playing
+           {play}
+@@ -3151,6 +3257,7 @@
+           bind:loopAnimation
+           {recordChange}
+         />
++        {/if}
+       </aside>
+     </div>
+   </div>
+diff --git a/src/lib/Navbar.svelte b/src/lib/Navbar.svelte
+index 6000f86..fc68b97 100644
+--- a/src/lib/Navbar.svelte
++++ b/src/lib/Navbar.svelte
+@@ -35,7 +35,16 @@
+   import { showToast } from "./toast";
+   import { exportElementAsPng } from "../utils/exportImage";
+   import { exportAutoJava } from "./auto/exportAction";
+-  import { loadAutoFrom } from "./auto/store";
++  import { autoMode, autoSection, loadAutoFrom } from "./auto/store";
++  import { createEmptyAuto } from "./auto/normalize";
++
++  function toggleAutoMode() {
++    if (!$autoMode && !$autoSection) {
++      autoSection.set(createEmptyAuto());
++      recordChange();
++    }
++    autoMode.set(!$autoMode);
++  }
+ 
+   interface Props {
+     loadFile: (evt: any) => any;
+@@ -66,6 +75,8 @@
+     rightPanelHidden?: boolean;
+     onToggleLeftPanel?: () => void;
+     onToggleRightPanel?: () => void;
++    /** Auto mode: the preview's length replaces the Path List's time. */
++    autoPreviewSeconds?: number | null;
+   }
+ 
+   let {
+@@ -97,6 +108,7 @@
+     rightPanelHidden = false,
+     onToggleLeftPanel = () => {},
+     onToggleRightPanel = () => {},
++    autoPreviewSeconds = null,
+   }: Props = $props();
+ 
+   let fileManagerOpen = $state(false);
+@@ -388,7 +400,11 @@
+       <!-- time estimate -->
+       <div class="flex items-center gap-2 text-sm">
+         <div class="text-neutral-600 dark:text-neutral-300">
+-          {#if timePrediction && timePrediction.totalTime > 0}
++          {#if autoPreviewSeconds !== null}
++            {formatTime((percent / 100) * autoPreviewSeconds)} / {formatTime(
++              autoPreviewSeconds,
++            )}
++          {:else if timePrediction && timePrediction.totalTime > 0}
+             {formatTime(elapsedSeconds)} / {formatTime(
+               timePrediction.totalTime,
+             )}
+@@ -397,7 +413,11 @@
+           {/if}
+         </div>
+         <div class="text-neutral-500 dark:text-neutral-400">
+-          ({(timePrediction?.totalDistance ?? 0).toFixed(0)} in)
++          {#if autoPreviewSeconds !== null}
++            (Auto preview)
++          {:else}
++            ({(timePrediction?.totalDistance ?? 0).toFixed(0)} in)
++          {/if}
+         </div>
+       </div>
+ 
+@@ -527,6 +547,32 @@
+     </div>
+     <NavDivider />
+ 
++    <!-- Auto mode: the Path List becomes the whole Autonomous -->
++    <button
++      title={$autoMode
++        ? "Back to the Path List"
++        : "Auto mode: build the whole Autonomous from cards"}
++      onclick={toggleAutoMode}
++      class="console-trigger relative text-sm"
++      class:console-trigger--active={$autoMode}
++      class:console-trigger--muted={!$autoMode}
++      aria-pressed={$autoMode}
++    >
++      <div class="flex items-center gap-1.5">
++        <svg
++          xmlns="http://www.w3.org/2000/svg"
++          fill="none"
++          viewBox="0 0 24 24"
++          stroke-width="2"
++          stroke="currentColor"
++          class="size-5"
++        >
++          <path stroke-linecap="round" stroke-linejoin="round" d="M4 5h7M4 12h4m-4 7h7M15 5l5 7-5 7M11 12h9" />
++        </svg>
++        <span>Auto</span>
++      </div>
++    </button>
++
+     <!-- Multiple Paths Toggle -->
+     <button
+       title="Manage Multiple Paths Visualization"
+diff --git a/src/lib/auto/components/AutoCardList.svelte b/src/lib/auto/components/AutoCardList.svelte
+new file mode 100644
+index 0000000..b250199
+--- /dev/null
++++ b/src/lib/auto/components/AutoCardList.svelte
+@@ -0,0 +1,449 @@
++<script lang="ts">
++  import type { PathCatalog } from "../geometry";
++  import type { AutoIssue } from "../validate";
++  import type { PreviewResult, WorstCase } from "../simulate";
++  import { AUTO_LENGTH_S } from "../simulate";
++  import type { AutoCard, AutoSection, FirstOfCard } from "../types";
++  import { describeRow, isPlainWait, rowLabel } from "../tree";
++  import { insertNewCard, moveCard, removeCard, canMove, type NewCardKind } from "../edit";
++  import {
++    parseSelection,
++    selectedCardId,
++    updateAuto,
++  } from "../store";
++  import { branchColor, cardColors, seconds, TRUNK_COLOR } from "./ui";
++
++  interface Props {
++    auto: AutoSection;
++    catalog: PathCatalog;
++    issues: AutoIssue[];
++    preview: PreviewResult | null;
++    worst: WorstCase | null;
++  }
++
++  let { auto, catalog, issues, preview, worst }: Props = $props();
++
++  let selection = $derived(parseSelection($selectedCardId));
++  let colors = $derived(cardColors(auto.cards));
++  let registeredActions = $derived(new Set(auto.registry.actions));
++  let cardCount = $derived.by(() => {
++    let count = 0;
++    const walk = (list: AutoCard[]) =>
++      list.forEach((card) => {
++        count += 1;
++        if (card.kind === "firstOf") card.rows.forEach((row) => walk(row.cards));
++      });
++    walk(auto.cards);
++    return count;
++  });
++  let parkBranches = $derived.by(() => {
++    const labels: string[] = [];
++    const walk = (list: AutoCard[], label: string) => {
++      if (list.some((card) => card.kind === "path" && card.park)) labels.push(label);
++      list.forEach((card) => {
++        if (card.kind === "firstOf") card.rows.forEach((row) => walk(row.cards, rowLabel(row)));
++      });
++    };
++    walk(auto.cards, "Auto");
++    return labels;
++  });
++
++  function levelOf(cardId: string): "error" | "warning" | null {
++    const own = issues.filter((issue) => issue.cardId === cardId);
++    if (own.some((issue) => issue.level === "error")) return "error";
++    return own.length ? "warning" : null;
++  }
++
++  function add(kind: NewCardKind) {
++    let created: string | null = null;
++    updateAuto((draft) => {
++      created = insertNewCard(draft, kind, catalog, selection);
++    });
++    if (created) selectedCardId.set(created);
++  }
++
++  function move(id: string, delta: -1 | 1) {
++    updateAuto((draft) => void moveCard(draft, id, delta));
++  }
++
++  function remove(id: string) {
++    let next: string | null = null;
++    updateAuto((draft) => {
++      next = removeCard(draft, id);
++    });
++    selectedCardId.set(next);
++  }
++
++  function select(id: string) {
++    selectedCardId.set($selectedCardId === id ? null : id);
++  }
++
++  function pathName(lineId: string): string {
++    return catalog.byId.get(lineId)?.name ?? catalog.names.get(lineId) ?? "(missing path)";
++  }
++
++  function isOff(cardId: string): boolean {
++    return preview !== null && !preview.ran.has(cardId);
++  }
++
++  function firstOfSummary(card: FirstOfCard): string {
++    return card.rows.map(describeRow).join(" · ") || "no rows";
++  }
++</script>
++
++{#snippet cardButton(card: AutoCard)}
++  {@const selected = selection.cardId === card.id && selection.rowIndex === null}
++  {@const level = levelOf(card.id)}
++  <div
++    class="list-item-box compact auto-card"
++    class:list-item-box--selected={selected}
++    class:auto-card--off={isOff(card.id)}
++    style={`border-left: 3px solid ${colors.get(card.id) ?? TRUNK_COLOR}`}
++  >
++    <button type="button" class="auto-card-main" onclick={() => select(card.id)}>
++      <div class="list-item-top">
++        {#if card.kind === "action"}
++          <span class="auto-icon auto-icon--action" aria-hidden="true">▶</span>
++          <span class="list-item-name">{card.name || "(choose an action)"}</span>
++        {:else if card.kind === "path"}
++          <span class="auto-icon auto-icon--path" aria-hidden="true">↝</span>
++          <span class="list-item-name">{pathName(card.lineId)}</span>
++          {#if card.park}<span class="auto-tag">park</span>{/if}
++        {:else}
++          <span
++            class="auto-icon"
++            class:auto-icon--wait={isPlainWait(card)}
++            class:auto-icon--decision={!isPlainWait(card)}
++            aria-hidden="true">{isPlainWait(card) ? "⏳" : "◆"}</span
++          >
++          <span class="list-item-name">{card.label || (isPlainWait(card) ? "Wait for" : "Decision")}</span>
++        {/if}
++        {#if level}
++          <span class="auto-flag auto-flag--{level}" title={level === "error" ? "Blocks the Java export" : "Warning"}
++            >{level === "error" ? "!" : "⚠"}</span
++          >
++        {/if}
++      </div>
++      <div class="list-item-sub">
++        {#if card.kind === "action"}
++          action{card.previewMs ? ` · ~${(card.previewMs / 1000).toFixed(1)} s` : " · instant"}
++          {#if card.name && !registeredActions.has(card.name)}<span class="auto-bad"> · not registered</span>{/if}
++        {:else if card.kind === "path"}
++          {@const info = catalog.byId.get(card.lineId)}
++          {#if info}
++            to {info.end.x.toFixed(1)}, {info.end.y.toFixed(1)} · {seconds(info.seconds)}
++          {:else}
++            <span class="auto-bad">path not found</span>
++          {/if}
++        {:else}
++          {isPlainWait(card) ? "wait for the first of" : "first of"}: {firstOfSummary(card)}
++        {/if}
++      </div>
++      {#if card.kind === "path" && (card.while.length || card.events.length)}
++        <div class="auto-minis">
++          {#each card.while as name (name)}
++            <span class="auto-mini" class:auto-mini--bad={!registeredActions.has(name)}>while {name}</span>
++          {/each}
++          {#each card.events as event, i (i)}
++            <span class="auto-mini auto-mini--event" class:auto-mini--bad={!registeredActions.has(event.action)}
++              >⚡ {event.action} {Math.round(event.at * 100)}%</span
++            >
++          {/each}
++        </div>
++      {/if}
++    </button>
++    {#if selected}
++      <div class="auto-card-tools">
++        <button type="button" class="path-list-action" title="Move up" aria-label="Move up"
++          disabled={!canMove(auto, card.id, -1)} onclick={() => move(card.id, -1)}>↑</button>
++        <button type="button" class="path-list-action" title="Move down" aria-label="Move down"
++          disabled={!canMove(auto, card.id, 1)} onclick={() => move(card.id, 1)}>↓</button>
++        <button type="button" class="path-list-action" title="Delete card" aria-label="Delete card"
++          onclick={() => remove(card.id)}>✕</button>
++      </div>
++    {/if}
++  </div>
++{/snippet}
++
++{#snippet cardList(list: AutoCard[])}
++  {#each list as card (card.id)}
++    {#if card.kind === "firstOf"}
++      <div class="path-group" class:path-group--selected={selection.cardId === card.id}>
++        {@render cardButton(card)}
++        {#each card.rows as row, rowIndex (rowIndex)}
++          {@const rowSelected = selection.cardId === card.id && selection.rowIndex === rowIndex}
++          {@const takenHere = preview?.taken.get(card.id) === rowIndex}
++          {@const worstEnd = worst?.rows.get(card.id)?.[rowIndex]}
++          <div
++            class="auto-branch"
++            class:auto-branch--off={preview !== null && preview.ran.has(card.id) && !takenHere}
++            style={`--c: ${branchColor(rowIndex)}`}
++          >
++            <button
++              type="button"
++              class="auto-branch-h"
++              class:auto-branch-h--selected={rowSelected}
++              onclick={() => selectedCardId.set(rowSelected ? card.id : `${card.id}#${rowIndex}`)}
++              title="Select this branch: new cards go at its end"
++            >
++              <span class="auto-branch-name">
++                {row.cards.length || rowSelected ? "▾" : "▸"}
++                {row.cards.length || row.label ? rowLabel(row) : describeRow(row)}
++              </span>
++              <span class="auto-branch-meta">
++                {#if takenHere}<span class="auto-run">this preview</span>{/if}
++                {#if row.cards.length}
++                  {#if worstEnd === null || worstEnd === undefined}
++                    <span class="auto-worst" title="Can never fire when every wait runs to its time row">—</span>
++                  {:else}
++                    <span
++                      class="auto-worst"
++                      class:auto-worst--over={worstEnd > AUTO_LENGTH_S}
++                      title="Worst case: the Auto ends by then if this branch is taken">≤ {seconds(worstEnd)}</span
++                    >
++                  {/if}
++                {/if}
++              </span>
++            </button>
++            {#if row.cards.length}
++              <div class="auto-branch-cards">
++                {@render cardList(row.cards)}
++              </div>
++            {:else if rowSelected}
++              <div class="list-empty">No cards: continues after the decision. Add cards with the buttons above.</div>
++            {/if}
++          </div>
++        {/each}
++      </div>
++    {:else}
++      {@render cardButton(card)}
++    {/if}
++  {/each}
++{/snippet}
++
++<section class="module-box module-fill auto-list-box">
++  <div class="module-header-row">
++    <h3 class="module-title">Auto</h3>
++    <span class="module-caption">{cardCount} card{cardCount === 1 ? "" : "s"} · drawn for {auto.drawnFor}</span>
++  </div>
++  <div class="auto-add-row">
++    <button type="button" class="path-list-action" onclick={() => add("action")} title="Add an action after the selected card">+ Action</button>
++    <button type="button" class="path-list-action" onclick={() => add("wait")} title="Add a wait: the first of a condition or a time">+ Wait for</button>
++    <button type="button" class="path-list-action" onclick={() => add("decision")} title="Add a decision with a branch per row">+ Decision</button>
++    <button type="button" class="path-list-action" onclick={() => add("path")} disabled={catalog.paths.length === 0} title="Drive one of the project's paths">+ Path</button>
++  </div>
++  <div class="module-caption auto-add-hint">
++    {#if selection.cardId && selection.rowIndex !== null}
++      New cards go at the end of the selected branch.
++    {:else if selection.cardId}
++      New cards go after the selected card.
++    {:else}
++      New cards go at the end. Select a card or a branch to add there.
++    {/if}
++  </div>
++  <div class="module-list" role="list">
++    {@render cardList(auto.cards)}
++    {#if auto.cards.length === 0}
++      <div class="list-empty">No cards yet. Start with + Action or + Path.</div>
++    {/if}
++    <div class="list-item-box compact auto-guard">
++      <div class="list-item-top">
++        <span class="auto-icon auto-icon--wait" aria-hidden="true">⏱</span>
++        <span class="list-item-name">Endgame: park when time is short</span>
++      </div>
++      <div class="list-item-sub">
++        {#if parkBranches.length}
++          Parks from: {parkBranches.join(", ")}
++          {#if preview?.guard}<span class="auto-bad"> · used in this preview at {preview.guard.t.toFixed(1)} s</span>{/if}
++        {:else}
++          No park path yet: tick "Park path" on a branch's last path card.
++        {/if}
++      </div>
++    </div>
++  </div>
++</section>
++
++<style>
++  .auto-list-box {
++    display: flex;
++    flex-direction: column;
++    min-height: 0;
++  }
++  .auto-add-row {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 4px;
++    margin-top: 8px;
++  }
++  .auto-add-hint {
++    margin-top: 4px;
++  }
++  .auto-card {
++    display: flex;
++    flex-direction: column;
++    gap: 4px;
++  }
++  .auto-card--off {
++    opacity: 0.5;
++  }
++  .auto-card-main {
++    display: block;
++    width: 100%;
++    text-align: left;
++    background: none;
++    border: none;
++    padding: 0;
++  }
++  .auto-card-tools {
++    display: flex;
++    gap: 4px;
++    justify-content: flex-end;
++  }
++  .auto-icon {
++    width: 16px;
++    height: 16px;
++    flex: none;
++    display: inline-grid;
++    place-items: center;
++    border-radius: 4px;
++    font-size: 10px;
++    font-weight: 700;
++  }
++  .auto-icon--action {
++    background: #2b2410;
++    color: #ffc516;
++  }
++  .auto-icon--path {
++    background: #2b2410;
++    color: #ffc516;
++    font-size: 12px;
++  }
++  .auto-icon--wait {
++    background: #202020;
++    color: #bbbbbb;
++  }
++  .auto-icon--decision {
++    background: #251f3d;
++    color: #a594ff;
++  }
++  .auto-tag {
++    font-size: 0.6rem;
++    font-weight: 700;
++    letter-spacing: 0.05em;
++    text-transform: uppercase;
++    color: #ff9a9a;
++    border: 1px solid #6b3a3a;
++    border-radius: 4px;
++    padding: 0 4px;
++  }
++  .auto-flag {
++    margin-left: auto;
++    font-size: 0.68rem;
++    font-weight: 800;
++    border-radius: 4px;
++    padding: 0 5px;
++  }
++  .auto-flag--error {
++    background: #5c1a1a;
++    color: #ff9a9a;
++  }
++  .auto-flag--warning {
++    background: #3d2e0a;
++    color: #f5c451;
++  }
++  .auto-bad {
++    color: #ff7a7a;
++  }
++  .auto-minis {
++    display: flex;
++    flex-wrap: wrap;
++    gap: 4px;
++    margin-top: 4px;
++  }
++  .auto-mini {
++    font-size: 0.64rem;
++    border: 1px solid #444444;
++    border-radius: 5px;
++    padding: 0 5px;
++    color: #cfcfcf;
++    background: #101010;
++    white-space: nowrap;
++  }
++  .auto-mini--event {
++    border-color: #5c4a10;
++    color: #ffc516;
++  }
++  .auto-mini--bad {
++    border-color: #e5484d;
++    color: #ff7a7a;
++  }
++  .auto-branch {
++    display: flex;
++    flex-direction: column;
++    gap: 5px;
++    padding-left: 8px;
++    margin-left: 4px;
++    border-left: 2px solid var(--c);
++  }
++  .auto-branch--off {
++    opacity: 0.55;
++    border-left-style: dashed;
++  }
++  .auto-branch-h {
++    display: flex;
++    justify-content: space-between;
++    align-items: center;
++    gap: 6px;
++    width: 100%;
++    background: none;
++    border: 1px solid transparent;
++    border-radius: 5px;
++    padding: 1px 4px;
++    text-align: left;
++    font-size: 0.7rem;
++    font-weight: 700;
++    color: var(--c);
++  }
++  .auto-branch-h:hover {
++    background: #1c1c1c;
++  }
++  .auto-branch-h--selected {
++    border-color: #8d68bd;
++    background: #1d1727;
++  }
++  .auto-branch-name {
++    min-width: 0;
++    overflow: hidden;
++    text-overflow: ellipsis;
++    white-space: nowrap;
++  }
++  .auto-branch-meta {
++    display: flex;
++    gap: 4px;
++    flex: none;
++  }
++  .auto-run {
++    font-size: 0.62rem;
++    background: color-mix(in srgb, var(--c) 18%, transparent);
++    padding: 0 5px;
++    border-radius: 4px;
++  }
++  .auto-worst {
++    font-size: 0.62rem;
++    font-weight: 600;
++    color: #999999;
++  }
++  .auto-worst--over {
++    color: #ff7a7a;
++  }
++  .auto-branch-cards {
++    display: flex;
++    flex-direction: column;
++    gap: 5px;
++  }
++  .auto-guard {
++    border-style: dashed;
++    border-color: #6b3a3a;
++    background: #161010;
++  }
++</style>
+diff --git a/src/lib/auto/components/AutoControlPanel.svelte b/src/lib/auto/components/AutoControlPanel.svelte
+new file mode 100644
+index 0000000..7315d66
+--- /dev/null
++++ b/src/lib/auto/components/AutoControlPanel.svelte
+@@ -0,0 +1,142 @@
++<script lang="ts">
++  import type * as d3 from "d3";
++  import type { BasePoint, StartPose } from "../../../types";
++  import type { PathCatalog } from "../geometry";
++  import type { AutoIssue } from "../validate";
++  import type { PreviewResult, WorstCase } from "../simulate";
++  import type { AutoSection } from "../types";
++  import StartingPointSection from "../../components/StartingPointSection.svelte";
++  import RobotPositionDisplay from "../../components/RobotPositionDisplay.svelte";
++  import PlaybackControls from "../../components/PlaybackControls.svelte";
++  import CardEditor from "./CardEditor.svelte";
++  import RegistryPanel from "./RegistryPanel.svelte";
++  import AutoPreviewPanel from "./AutoPreviewPanel.svelte";
++  import { ACTION_CLASS, SECTION_CLASS } from "./ui";
++  import { selectedCardId } from "../store";
++
++  interface Props {
++    auto: AutoSection;
++    catalog: PathCatalog;
++    issues: AutoIssue[];
++    preview: PreviewResult;
++    worst: WorstCase | null;
++    startPoint: StartPose;
++    robotXY: BasePoint;
++    robotHeading: number;
++    x: d3.ScaleLinear<number, number>;
++    y: d3.ScaleLinear<number, number>;
++    playing: boolean;
++    play: () => void;
++    pause: () => void;
++    percent: number;
++    handleSeek: (percent: number) => void;
++    loopAnimation: boolean;
++    defaultExportName: string;
++    onExport: () => void;
++  }
++
++  let {
++    auto,
++    catalog,
++    issues,
++    preview,
++    worst,
++    startPoint = $bindable(),
++    robotXY,
++    robotHeading,
++    x,
++    y,
++    playing,
++    play,
++    pause,
++    percent = $bindable(),
++    handleSeek,
++    loopAnimation = $bindable(),
++    defaultExportName,
++    onExport,
++  }: Props = $props();
++
++  let errors = $derived(issues.filter((issue) => issue.level === "error"));
++  let warnings = $derived(issues.filter((issue) => issue.level === "warning"));
++  let now = $derived((percent / 100) * preview.endTime);
++  let robotInches = $derived({ x: x.invert(robotXY.x), y: y.invert(robotXY.y), headingDeg: -robotHeading });
++  let markers = $derived(
++    preview.endTime > 0
++      ? preview.log
++          .filter((entry) => entry.kind === "row" || entry.kind === "event" || entry.kind === "guard")
++          .map((entry) => ({
++            percent: (entry.t / preview.endTime) * 100,
++            color: entry.kind === "event" ? "#ffc516" : entry.kind === "guard" ? "#e5484d" : "#ffffff",
++            name: `${entry.t.toFixed(1)} s · ${entry.text}`,
++          }))
++      : [],
++  );
++</script>
++
++<div class="min-h-0 flex-1 flex flex-col justify-start items-center gap-2 h-full">
++  <div
++    class="min-h-0 flex-1 flex flex-col justify-start items-start w-full bg-[#1a1a1a] border border-[#333333] p-3 overflow-y-auto overflow-x-hidden gap-3"
++  >
++    <div class="grid w-full grid-cols-1 gap-2 lg:grid-cols-2">
++      <div class="w-full border border-[#333333] bg-[#222222] p-3">
++        <StartingPointSection bind:startPoint />
++      </div>
++      <div class="w-full border border-[#333333] bg-[#222222] p-3">
++        <RobotPositionDisplay {robotXY} {robotHeading} {x} {y} />
++      </div>
++    </div>
++
++    <CardEditor {auto} {catalog} {issues} {preview} {worst} />
++
++    <AutoPreviewPanel {auto} {preview} {worst} {now} />
++
++    <RegistryPanel {auto} {defaultExportName} robotAt={robotInches} />
++
++    <div class={SECTION_CLASS}>
++      <div class="flex items-start justify-between gap-3">
++        <div>
++          <div class="font-semibold text-gray-100">Export Auto (Java)</div>
++          <div class="text-[11px] text-gray-500">
++            {errors.length
++              ? `${errors.length} problem${errors.length === 1 ? "" : "s"} to fix first`
++              : warnings.length
++                ? `Ready, with ${warnings.length} warning${warnings.length === 1 ? "" : "s"}`
++                : "Ready: builds the whole Auto for the robot's autokit"}
++          </div>
++        </div>
++        <button type="button" class="{ACTION_CLASS} text-[11px]" class:!border-[#1a3f82]={!errors.length} class:!bg-[#0b1b3a]={!errors.length}
++          onclick={onExport} title={errors.length ? "Fix the problems listed below first" : "Download the generated class"}>
++          Export .java
++        </button>
++      </div>
++      {#if issues.length}
++        <div class="max-h-40 space-y-1 overflow-auto">
++          {#each issues as issue, i (i)}
++            <button
++              type="button"
++              class="block w-full border px-2 py-1 text-left text-[11px]"
++              class:border-red-800={issue.level === "error"}
++              class:text-red-300={issue.level === "error"}
++              class:border-amber-800={issue.level === "warning"}
++              class:text-amber-300={issue.level === "warning"}
++              onclick={() => issue.cardId && selectedCardId.set(issue.cardId)}
++            >
++              {issue.level === "error" ? "✕" : "⚠"} {issue.message}
++            </button>
++          {/each}
++        </div>
++      {/if}
++    </div>
++  </div>
++
++  <PlaybackControls
++    {playing}
++    {play}
++    {pause}
++    bind:percent
++    {handleSeek}
++    bind:loopAnimation
++    {markers}
++    totalTime={preview.endTime}
++  />
++</div>
+diff --git a/src/lib/auto/components/AutoFieldOverlay.svelte b/src/lib/auto/components/AutoFieldOverlay.svelte
+new file mode 100644
+index 0000000..d6876e5
+--- /dev/null
++++ b/src/lib/auto/components/AutoFieldOverlay.svelte
+@@ -0,0 +1,117 @@
++<script lang="ts">
++  import type * as d3 from "d3";
++  import type { BasePoint } from "../../../types";
++  import { pointAlong, type PathCatalog } from "../geometry";
++  import type { PreviewResult } from "../simulate";
++  import { allCards } from "../tree";
++  import type { AutoCard, AutoSection, PathCard } from "../types";
++  import { parseSelection, selectedCardId } from "../store";
++  import { cardColors } from "./ui";
++
++  interface Props {
++    auto: AutoSection;
++    catalog: PathCatalog;
++    preview: PreviewResult | null;
++    x: d3.ScaleLinear<number, number>;
++    y: d3.ScaleLinear<number, number>;
++    showUntaken: boolean;
++  }
++
++  let { auto, catalog, preview, x, y, showUntaken }: Props = $props();
++
++  let size = $derived(x.range()[1]);
++  let colors = $derived(cardColors(auto.cards));
++  let selectedId = $derived(parseSelection($selectedCardId).cardId);
++  let pathCards = $derived(allCards(auto.cards).filter((card): card is PathCard => card.kind === "path"));
++  let usedLineIds = $derived(new Set(pathCards.map((card) => card.lineId)));
++  let unit = $derived(size / 141.5);
++
++  const polyline = (points: BasePoint[]) =>
++    points.map((p) => `${x(p.x).toFixed(1)},${y(p.y).toFixed(1)}`).join(" ");
++
++  /** Where each decision waits: the end of the last path driven before it. */
++  let decisionSpots = $derived.by(() => {
++    const spots: { id: string; at: BasePoint; taken: boolean }[] = [];
++    const walk = (list: AutoCard[], at: BasePoint | null): BasePoint | null => {
++      let here = at;
++      for (const card of list) {
++        if (card.kind === "path") here = catalog.byId.get(card.lineId)?.end ?? here;
++        if (card.kind === "firstOf" && card.rows.some((row) => row.cards.length)) {
++          if (here) spots.push({ id: card.id, at: here, taken: !preview || preview.ran.has(card.id) });
++          card.rows.forEach((row) => walk(row.cards, here));
++        }
++      }
++      return here;
++    };
++    walk(auto.cards, catalog.paths[0]?.start ?? null);
++    return spots;
++  });
++
++  function ran(card: PathCard): boolean {
++    return !preview || preview.ran.has(card.id);
++  }
++</script>
++
++<svg
++  class="pointer-events-none absolute top-0 left-0 h-full w-full"
++  style="z-index: 18"
++  viewBox={`0 0 ${size} ${size}`}
++  aria-hidden="true"
++>
++  <!-- Paths no card drives: faint, so the whole drawing stays visible. -->
++  {#each catalog.paths.filter((path) => !usedLineIds.has(path.id)) as path (path.id)}
++    <polyline points={polyline(path.samples)} fill="none" stroke="#9a9a9a" stroke-width={unit * 0.35} stroke-dasharray={`${unit} ${unit}`} opacity="0.45" />
++  {/each}
++
++  <!-- Untaken first, so the preview's route is drawn on top. -->
++  {#each [false, true] as layerTaken (layerTaken)}
++    {#each pathCards.filter((card) => ran(card) === layerTaken) as card (card.id)}
++      {@const info = catalog.byId.get(card.lineId)}
++      {#if info && (layerTaken || showUntaken)}
++        {@const color = colors.get(card.id) ?? "#ffc516"}
++        {@const selected = selectedId === card.id}
++        {#if selected}
++          <polyline points={polyline(info.samples)} fill="none" stroke="#ffffff" stroke-width={unit * 1.6} stroke-linecap="round" stroke-linejoin="round" opacity="0.35" />
++        {/if}
++        <polyline
++          points={polyline(info.samples)}
++          fill="none"
++          stroke={color}
++          stroke-width={unit * (selected ? 0.95 : 0.7)}
++          stroke-linecap="round"
++          stroke-linejoin="round"
++          stroke-dasharray={layerTaken ? undefined : `${unit * 2.4} ${unit * 1.8}`}
++          opacity={layerTaken ? 1 : 0.5}
++        />
++        {#if card.park}
++          <text x={x(info.end.x)} y={y(info.end.y) - unit * 2.2} font-size={unit * 2.6} font-weight="700" text-anchor="middle" fill={color} stroke="#000" stroke-width={unit * 0.35} paint-order="stroke" opacity={layerTaken ? 1 : 0.6}>P</text>
++        {/if}
++        {#each card.events as event, i (i)}
++          {@const at = pointAlong(info, event.at)}
++          <g opacity={layerTaken ? 1 : 0.55}>
++            <circle cx={x(at.x)} cy={y(at.y)} r={unit * 1.5} fill="#111111" stroke="#ffc516" stroke-width={unit * 0.4} />
++            <text x={x(at.x)} y={y(at.y) + unit * 0.65} font-size={unit * 1.9} text-anchor="middle" fill="#ffc516">⚡</text>
++          </g>
++        {/each}
++      {/if}
++    {/each}
++  {/each}
++
++  {#each decisionSpots as spot (spot.id)}
++    <rect
++      x={x(spot.at.x) - unit * 1.6}
++      y={y(spot.at.y) - unit * 1.6}
++      width={unit * 3.2}
++      height={unit * 3.2}
++      transform={`rotate(45 ${x(spot.at.x)} ${y(spot.at.y)})`}
++      fill={spot.taken ? "#ffffff" : "#777777"}
++      stroke="#111111"
++      stroke-width={unit * 0.4}
++    />
++  {/each}
++
++  {#each Object.entries(auto.points) as [name, point] (name)}
++    <circle cx={x(point[0])} cy={y(point[1])} r={unit * 0.8} fill="#ffc516" stroke="#111" stroke-width={unit * 0.25} />
++    <text x={x(point[0])} y={y(point[1]) + unit * 3.4} font-size={unit * 2.2} text-anchor="middle" fill="#ffffff" stroke="#000000" stroke-width={unit * 0.4} paint-order="stroke">{name}</text>
++  {/each}
++</svg>
+diff --git a/src/lib/auto/components/AutoPreviewPanel.svelte b/src/lib/auto/components/AutoPreviewPanel.svelte
+new file mode 100644
+index 0000000..e266a93
+--- /dev/null
++++ b/src/lib/auto/components/AutoPreviewPanel.svelte
+@@ -0,0 +1,169 @@
++<script lang="ts">
++  import type { AutoSection } from "../types";
++  import {
++    AUTO_LENGTH_S,
++    DEFAULT_CONDITION,
++    type ConditionScenario,
++    type PreviewResult,
++    type WorstCase,
++  } from "../simulate";
++  import { previewScenario, selectedCardId } from "../store";
++  import { usedNames } from "../tree";
++  import { CELL_CLASS, FIELD_CLASS, LABEL_CLASS, SECTION_CLASS, seconds } from "./ui";
++
++  interface Props {
++    auto: AutoSection;
++    preview: PreviewResult;
++    worst: WorstCase | null;
++    /** Seconds into the preview the playback is at. */
++    now: number;
++  }
++
++  let { auto, preview, worst, now }: Props = $props();
++
++  let used = $derived(usedNames(auto).conditions);
++  let current = $derived.by(() => {
++    let index = -1;
++    preview.log.forEach((entry, i) => {
++      if (entry.t <= now + 1e-6) index = i;
++    });
++    return index;
++  });
++  let logBox = $state<HTMLDivElement>();
++
++  $effect(() => {
++    // Keep the entry the playback has reached in view.
++    const row = logBox?.querySelector<HTMLElement>(`[data-log="${current}"]`);
++    if (row && logBox) {
++      const top = row.offsetTop - logBox.offsetTop;
++      if (top < logBox.scrollTop || top > logBox.scrollTop + logBox.clientHeight - row.offsetHeight) {
++        logBox.scrollTop = Math.max(0, top - logBox.clientHeight / 2);
++      }
++    }
++  });
++
++  function scenarioOf(name: string): ConditionScenario {
++    return $previewScenario[name] ?? DEFAULT_CONDITION;
++  }
++
++  function setScenario(name: string, change: Partial<ConditionScenario>) {
++    previewScenario.update((scenario) => ({
++      ...scenario,
++      [name]: { ...(scenario[name] ?? DEFAULT_CONDITION), ...change },
++    }));
++  }
++</script>
++
++<div class={SECTION_CLASS}>
++  <div class="flex items-start justify-between gap-3 border-b border-[#333333] pb-2">
++    <div>
++      <div class="font-semibold text-gray-100">Preview as</div>
++      <div class="text-[11px] text-gray-500">When each condition turns true in this run. Play below to watch it.</div>
++    </div>
++  </div>
++  {#if auto.registry.conditions.length === 0}
++    <div class="text-[11px] text-gray-500">No registered conditions: every wait runs to its time row.</div>
++  {:else}
++    <div class="space-y-1 text-[11px] text-gray-300">
++      {#each auto.registry.conditions as name (name)}
++        {@const sc = scenarioOf(name)}
++        <div class="flex flex-wrap items-center gap-x-2 gap-y-1 {CELL_CLASS}" class:opacity-60={!used.has(name)}>
++          <label class="flex min-w-32 flex-1 items-center gap-2 font-mono text-gray-100">
++            <input type="checkbox" checked={sc.enabled} onchange={(e) => setScenario(name, { enabled: e.currentTarget.checked })} />
++            {name}
++            {#if !used.has(name)}<span class="font-sans text-gray-500">(unused)</span>{/if}
++          </label>
++          {#if sc.enabled}
++            <span class="text-gray-500">true after</span>
++            <input class="{FIELD_CLASS} !w-16" type="number" min="0" step="0.1" value={sc.seconds} aria-label={`${name}: seconds`}
++              oninput={(e) => { const v = Number(e.currentTarget.value); if (Number.isFinite(v) && v >= 0) setScenario(name, { seconds: v }); }} />
++            <span class="text-gray-500">s from</span>
++            <select class="{FIELD_CLASS} !w-auto" value={sc.from} aria-label={`${name}: counted from`}
++              onchange={(e) => setScenario(name, { from: e.currentTarget.value === "start" ? "start" : "card" })}>
++              <option value="card">the wait's start</option>
++              <option value="start">the Auto's start</option>
++            </select>
++          {:else}
++            <span class="text-gray-500">never true</span>
++          {/if}
++        </div>
++      {/each}
++    </div>
++  {/if}
++
++  <div class="flex items-center gap-2 text-[11px]">
++    <span class="text-gray-500">Auto period</span>
++    <span class="h-1.5 flex-1 overflow-hidden rounded bg-[#262626]">
++      <span
++        class="block h-full"
++        style={`width:${Math.min(100, (preview.endTime / AUTO_LENGTH_S) * 100)}%; background:${preview.endTime > AUTO_LENGTH_S ? "#e5484d" : "#3fcf8e"}`}
++      ></span>
++    </span>
++    <span class="font-mono text-gray-100">{preview.endTime.toFixed(1)} / {AUTO_LENGTH_S} s</span>
++    {#if preview.endTime > AUTO_LENGTH_S}<span class="font-semibold text-red-400">over</span>{/if}
++  </div>
++  {#if worst}
++    <div class="text-[11px]" class:text-red-400={worst.total > AUTO_LENGTH_S} class:text-gray-500={worst.total <= AUTO_LENGTH_S}>
++      Worst case (every wait runs to its time row): {seconds(worst.total)}{worst.total > AUTO_LENGTH_S ? " — over 30 s; each branch's worst case is on its header" : ""}.
++    </div>
++  {/if}
++
++  <div>
++    <span class={LABEL_CLASS}>Log</span>
++    <div bind:this={logBox} class="auto-log max-h-48 overflow-auto rounded border border-[#262626] bg-[#0d0d0d]" aria-label="Preview log">
++      {#each preview.log as entry, index (index)}
++        <button
++          type="button"
++          data-log={index}
++          class="auto-log-row"
++          class:auto-log-row--now={index === current}
++          class:auto-log-row--warn={entry.kind === "warn" || entry.kind === "guard"}
++          class:auto-log-row--event={entry.kind === "event"}
++          class:auto-log-row--row={entry.kind === "row"}
++          class:auto-log-row--late={entry.t > AUTO_LENGTH_S}
++          onclick={() => entry.cardId && selectedCardId.set(entry.cardId)}
++        >
++          <span class="auto-log-t">{entry.t.toFixed(2)}</span>
++          <span>{entry.text}</span>
++        </button>
++      {/each}
++    </div>
++  </div>
++</div>
++
++<style>
++  .auto-log-row {
++    display: flex;
++    gap: 8px;
++    width: 100%;
++    padding: 3px 8px;
++    font-size: 11px;
++    text-align: left;
++    border-bottom: 1px solid #1c1c1c;
++    color: #d0d0d0;
++    background: none;
++  }
++  .auto-log-row:hover {
++    background: #161616;
++  }
++  .auto-log-t {
++    font-family: "Fira Code", "Consolas", monospace;
++    color: #888888;
++    min-width: 40px;
++  }
++  .auto-log-row--now {
++    background: #2b2410;
++  }
++  .auto-log-row--event {
++    color: #ffc516;
++  }
++  .auto-log-row--row {
++    color: #c9c2ff;
++  }
++  .auto-log-row--warn {
++    color: #ff9a9a;
++  }
++  .auto-log-row--late .auto-log-t {
++    color: #e5484d;
++  }
++</style>
+diff --git a/src/lib/auto/components/CardEditor.svelte b/src/lib/auto/components/CardEditor.svelte
+new file mode 100644
+index 0000000..cd34e0a
+--- /dev/null
++++ b/src/lib/auto/components/CardEditor.svelte
+@@ -0,0 +1,448 @@
++<script lang="ts">
++  import type { PathCatalog } from "../geometry";
++  import type { AutoIssue } from "../validate";
++  import type { PreviewResult, WorstCase } from "../simulate";
++  import { AUTO_LENGTH_S } from "../simulate";
++  import {
++    rowKind,
++    type AutoCard,
++    type AutoRow,
++    type AutoSection,
++    type PathEvent,
++    type RowKind,
++  } from "../types";
++  import { findCard, isPlainWait, locateCard, rowLabel } from "../tree";
++  import { canMove, duplicateCard, moveCard, removeCard, rowOfKind } from "../edit";
++  import { commitAuto, parseSelection, selectedCardId, updateAuto } from "../store";
++  import EventsBar from "./EventsBar.svelte";
++  import {
++    ACTION_CLASS,
++    CELL_CLASS,
++    DANGER_CLASS,
++    FIELD_CLASS,
++    LABEL_CLASS,
++    SECTION_CLASS,
++    branchColor,
++    seconds,
++  } from "./ui";
++
++  interface Props {
++    auto: AutoSection;
++    catalog: PathCatalog;
++    issues: AutoIssue[];
++    preview: PreviewResult | null;
++    worst: WorstCase | null;
++  }
++
++  let { auto, catalog, issues, preview, worst }: Props = $props();
++
++  let selection = $derived(parseSelection($selectedCardId));
++  let card: AutoCard | null = $derived(findCard(auto.cards, selection.cardId));
++  let cardIssues = $derived(card ? issues.filter((issue) => issue.cardId === card!.id) : []);
++  let where = $derived.by(() => {
++    if (!card) return "";
++    const location = locateCard(auto.cards, card.id);
++    if (!location?.parent) return "Main sequence";
++    const parent = location.parent;
++    return `${rowLabel(parent.card.rows[parent.rowIndex])} · in ${parent.card.label || "a decision"}`;
++  });
++  let actions = $derived(auto.registry.actions);
++  let conditions = $derived(auto.registry.conditions);
++  let pointNames = $derived(Object.keys(auto.points));
++
++  const ROW_KINDS: { value: RowKind; label: string }[] = [
++    { value: "when", label: "Condition is true" },
++    { value: "afterMs", label: "Time passed (ms)" },
++    { value: "timeLeftBelowS", label: "Time left below (s)" },
++    { value: "otherwise", label: "Otherwise (at once)" },
++    { value: "nearPoint", label: "Near a point" },
++    { value: "inArea", label: "Inside an area" },
++  ];
++
++  /** Edit the selected card in place (on the draft). */
++  function edit(mutate: (card: AutoCard) => void, record = true) {
++    if (!card) return;
++    const id = card.id;
++    updateAuto((draft) => {
++      const target = findCard(draft.cards, id);
++      if (target) mutate(target);
++    }, record);
++  }
++
++  function editRow(rowIndex: number, mutate: (row: AutoRow) => void, record = true) {
++    edit((target) => {
++      if (target.kind === "firstOf" && target.rows[rowIndex]) mutate(target.rows[rowIndex]);
++    }, record);
++  }
++
++  function replaceRow(rowIndex: number, kind: RowKind) {
++    edit((target) => {
++      if (target.kind !== "firstOf") return;
++      target.rows[rowIndex] = rowOfKind(kind, target.rows[rowIndex], auto);
++    });
++  }
++
++  function moveRow(rowIndex: number, delta: -1 | 1) {
++    edit((target) => {
++      if (target.kind !== "firstOf") return;
++      const to = rowIndex + delta;
++      if (to < 0 || to >= target.rows.length) return;
++      const [row] = target.rows.splice(rowIndex, 1);
++      target.rows.splice(to, 0, row);
++    });
++  }
++
++  function remove() {
++    if (!card) return;
++    const id = card.id;
++    let next: string | null = null;
++    updateAuto((draft) => {
++      next = removeCard(draft, id);
++    });
++    selectedCardId.set(next);
++  }
++
++  function duplicate() {
++    if (!card) return;
++    const id = card.id;
++    let copy: string | null = null;
++    updateAuto((draft) => {
++      copy = duplicateCard(draft, id);
++    });
++    if (copy) selectedCardId.set(copy);
++  }
++
++  function move(delta: -1 | 1) {
++    if (!card) return;
++    const id = card.id;
++    updateAuto((draft) => void moveCard(draft, id, delta));
++  }
++
++  const numberOr = (value: string, fallback: number) => {
++    const parsed = Number(value);
++    return Number.isFinite(parsed) && parsed >= 0 ? parsed : fallback;
++  };
++</script>
++
++{#snippet nameSelect(value: string, options: string[], kind: string, onPick: (name: string) => void)}
++  <select
++    class={FIELD_CLASS}
++    class:!border-red-600={!!value && !options.includes(value)}
++    {value}
++    onchange={(e) => onPick(e.currentTarget.value)}
++    aria-label={`Choose ${kind}`}
++  >
++    {#if !options.includes(value)}
++      <option value={value}>{value ? `${value} — not registered` : `(choose ${kind})`}</option>
++    {/if}
++    {#each options as name (name)}
++      <option value={name}>{name}</option>
++    {/each}
++  </select>
++{/snippet}
++
++{#snippet chips(names: string[], options: string[], kind: string, onRemove: (index: number) => void, onAdd: (name: string) => void)}
++  <div class="flex flex-wrap items-center gap-1.5">
++    {#each names as name, index (name)}
++      <span
++        class="inline-flex items-center gap-1 rounded border px-1.5 py-0.5 text-[11px]"
++        class:border-[#444444]={options.includes(name)}
++        class:bg-[#141414]={options.includes(name)}
++        class:border-red-600={!options.includes(name)}
++        class:text-red-400={!options.includes(name)}
++        title={options.includes(name) ? name : `${name} is not registered`}
++      >
++        {name}
++        <button type="button" class="text-gray-500 hover:text-gray-200" aria-label={`Remove ${name}`} onclick={() => onRemove(index)}>✕</button>
++      </span>
++    {/each}
++    <select
++      class="{FIELD_CLASS} !w-auto"
++      value=""
++      onchange={(e) => {
++        const name = e.currentTarget.value;
++        e.currentTarget.value = "";
++        if (name) onAdd(name);
++      }}
++      aria-label={`Add ${kind}`}
++    >
++      <option value="">+ add {kind}…</option>
++      {#each options.filter((name) => !names.includes(name)) as name (name)}
++        <option value={name}>{name}</option>
++      {/each}
++    </select>
++  </div>
++{/snippet}
++
++<div class={SECTION_CLASS}>
++  <div class="flex items-start justify-between gap-3 border-b border-[#333333] pb-2">
++    <div>
++      <div class="font-semibold text-gray-100">
++        {#if !card}
++          Selected Card
++        {:else if card.kind === "action"}
++          Selected Action
++        {:else if card.kind === "path"}
++          Selected Path Card
++        {:else if isPlainWait(card)}
++          Selected Wait
++        {:else}
++          Selected Decision
++        {/if}
++      </div>
++      <div class="text-[11px] text-gray-500">
++        {card ? where : "Pick a card in the Auto list to edit it."}
++      </div>
++    </div>
++    {#if card}
++      <div class="flex flex-wrap items-center justify-end gap-1.5 text-[10px]">
++        <button type="button" class={ACTION_CLASS} disabled={!canMove(auto, card.id, -1)} onclick={() => move(-1)} title="Move up">↑</button>
++        <button type="button" class={ACTION_CLASS} disabled={!canMove(auto, card.id, 1)} onclick={() => move(1)} title="Move down">↓</button>
++        <button type="button" class={ACTION_CLASS} onclick={duplicate}>Duplicate</button>
++        <button type="button" class={DANGER_CLASS} onclick={remove}>✕ Delete</button>
++      </div>
++    {/if}
++  </div>
++
++  {#each cardIssues as issue, i (i)}
++    <div
++      class="border px-2 py-1 text-[11px]"
++      class:border-red-700={issue.level === "error"}
++      class:bg-red-950={issue.level === "error"}
++      class:text-red-300={issue.level === "error"}
++      class:border-amber-700={issue.level === "warning"}
++      class:text-amber-300={issue.level === "warning"}
++      class:bg-amber-950={issue.level === "warning"}
++    >
++      {issue.level === "error" ? "✕" : "⚠"} {issue.message}
++    </div>
++  {/each}
++
++  {#if card?.kind === "action"}
++    <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-300">
++      <div class={CELL_CLASS}>
++        <span class={LABEL_CLASS}>Action</span>
++        {@render nameSelect(card.name, actions, "an action", (name) => edit((c) => { if (c.kind === "action") c.name = name; }))}
++      </div>
++      <div class={CELL_CLASS}>
++        <label class={LABEL_CLASS} for="auto-action-ms">Takes about (ms)</label>
++        <input
++          id="auto-action-ms"
++          class={FIELD_CLASS}
++          type="number"
++          min="0"
++          step="100"
++          value={card.previewMs ?? 0}
++          oninput={(e) => edit((c) => { if (c.kind === "action") { const ms = numberOr(e.currentTarget.value, 0); if (ms > 0) c.previewMs = ms; else delete c.previewMs; } }, false)}
++          onchange={commitAuto}
++        />
++      </div>
++    </div>
++    <div class="text-[11px] text-gray-500">
++      The time is for the preview only; on the robot the action takes as long as it takes.
++    </div>
++  {:else if card?.kind === "path"}
++    {@const info = catalog.byId.get(card.lineId)}
++    <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-300">
++      <div class="{CELL_CLASS} col-span-2">
++        <span class={LABEL_CLASS}>Path</span>
++        <select
++          class={FIELD_CLASS}
++          class:!border-red-600={!info}
++          value={card.lineId}
++          onchange={(e) => edit((c) => { if (c.kind === "path") c.lineId = e.currentTarget.value; })}
++          aria-label="Path to drive"
++        >
++          {#if !info}
++            <option value={card.lineId}>(missing path)</option>
++          {/if}
++          {#each catalog.paths as path (path.id)}
++            <option value={path.id}>{path.name} — to {path.end.x.toFixed(1)}, {path.end.y.toFixed(1)}</option>
++          {/each}
++        </select>
++      </div>
++      <div class={CELL_CLASS}>
++        <span class={LABEL_CLASS}>Length · time</span>
++        <span class="font-mono text-gray-100">{info ? `${info.length.toFixed(0)} in · ${seconds(info.seconds)}` : "—"}</span>
++      </div>
++      <label class="{CELL_CLASS} flex cursor-pointer items-center gap-2">
++        <input
++          type="checkbox"
++          checked={card.park}
++          onchange={(e) => edit((c) => { if (c.kind === "path") c.park = e.currentTarget.checked; })}
++        />
++        <span>
++          <span class="block font-semibold text-gray-100">Park path</span>
++          <span class="text-gray-500">The endgame guard drives this when time is short.</span>
++        </span>
++      </label>
++    </div>
++    <div class={CELL_CLASS}>
++      <span class={LABEL_CLASS}>While driving</span>
++      {@render chips(
++        card.while,
++        actions,
++        "action",
++        (index) => edit((c) => { if (c.kind === "path") c.while.splice(index, 1); }),
++        (name) => edit((c) => { if (c.kind === "path" && !c.while.includes(name)) c.while.push(name); }),
++      )}
++    </div>
++    <div class={CELL_CLASS}>
++      <span class={LABEL_CLASS}>Events along this path</span>
++      <EventsBar
++        events={card.events}
++        {actions}
++        onChange={(events: PathEvent[], done: boolean) =>
++          edit((c) => { if (c.kind === "path") c.events = events; }, done)}
++      />
++    </div>
++  {:else if card?.kind === "firstOf"}
++    <div class={CELL_CLASS}>
++      <label class={LABEL_CLASS} for="auto-firstof-label">{isPlainWait(card) ? "Wait name" : "Question"}</label>
++      <input
++        id="auto-firstof-label"
++        class={FIELD_CLASS}
++        value={card.label}
++        placeholder={isPlainWait(card) ? "Wait for LauncherReady" : "Did the HIVE tip?"}
++        oninput={(e) => edit((c) => { if (c.kind === "firstOf") c.label = e.currentTarget.value; }, false)}
++        onchange={commitAuto}
++      />
++    </div>
++    <div class="text-[11px] text-gray-500">
++      Waits for the <b class="text-gray-300">first</b> of these rows to become true, then runs that row's cards.
++      Every wait needs a time row so it cannot wait forever.
++    </div>
++    <div class="space-y-2">
++      {#each card.rows as row, rowIndex (rowIndex)}
++        {@const kind = rowKind(row)}
++        {@const rowSelected = selection.rowIndex === rowIndex}
++        {@const worstEnd = worst?.rows.get(card.id)?.[rowIndex]}
++        <div
++          class="space-y-2 border bg-[#1a1a1a] px-2 py-2 text-[11px] text-gray-300"
++          class:border-[#333333]={!rowSelected}
++          class:border-[#8d68bd]={rowSelected}
++          style={`border-left: 3px solid ${branchColor(rowIndex)}`}
++        >
++          <div class="flex items-center justify-between gap-2">
++            <div class="font-semibold" style={`color: ${branchColor(rowIndex)}`}>
++              Row {rowIndex + 1}
++              {#if preview?.taken.get(card.id) === rowIndex}<span class="ml-1 text-gray-400">· fired in this preview</span>{/if}
++            </div>
++            <div class="flex items-center gap-1 text-[10px]">
++              <button type="button" class={ACTION_CLASS} disabled={rowIndex === 0} onclick={() => moveRow(rowIndex, -1)} aria-label="Move row up">↑</button>
++              <button type="button" class={ACTION_CLASS} disabled={rowIndex === card.rows.length - 1} onclick={() => moveRow(rowIndex, 1)} aria-label="Move row down">↓</button>
++              <button
++                type="button"
++                class={ACTION_CLASS}
++                onclick={() => edit((c) => { if (c.kind === "firstOf") c.rows.splice(rowIndex, 1); })}
++                title={row.cards.length ? `Delete the row and its ${row.cards.length} card(s)` : "Delete the row"}
++              >✕</button>
++            </div>
++          </div>
++          <div class="grid grid-cols-2 gap-2">
++            <label class="space-y-1">
++              <span class="text-gray-500">Becomes true when</span>
++              <select class={FIELD_CLASS} value={kind} onchange={(e) => replaceRow(rowIndex, e.currentTarget.value as RowKind)}>
++                {#each ROW_KINDS as option (option.value)}
++                  <option value={option.value}>{option.label}</option>
++                {/each}
++              </select>
++            </label>
++            {#if kind === "afterMs"}
++              <label class="space-y-1">
++                <span class="text-gray-500">Milliseconds</span>
++                <input class={FIELD_CLASS} type="number" min="0" step="100" value={(row as { afterMs: number }).afterMs}
++                  oninput={(e) => editRow(rowIndex, (r) => { if ("afterMs" in r) r.afterMs = numberOr(e.currentTarget.value, r.afterMs); }, false)}
++                  onchange={commitAuto} />
++              </label>
++            {:else if kind === "timeLeftBelowS"}
++              <label class="space-y-1">
++                <span class="text-gray-500">Seconds left</span>
++                <input class={FIELD_CLASS} type="number" min="0" max={AUTO_LENGTH_S} step="0.5" value={(row as { timeLeftBelowS: number }).timeLeftBelowS}
++                  oninput={(e) => editRow(rowIndex, (r) => { if ("timeLeftBelowS" in r) r.timeLeftBelowS = numberOr(e.currentTarget.value, r.timeLeftBelowS); }, false)}
++                  onchange={commitAuto} />
++              </label>
++            {:else if kind === "nearPoint"}
++              {@const near = row as { nearPoint: string; radiusIn: number }}
++              <div class="grid grid-cols-2 gap-1">
++                <label class="space-y-1">
++                  <span class="text-gray-500">Point</span>
++                  <select class={FIELD_CLASS} value={near.nearPoint} onchange={(e) => editRow(rowIndex, (r) => { if ("nearPoint" in r) r.nearPoint = e.currentTarget.value; })}>
++                    {#if !pointNames.includes(near.nearPoint)}<option value={near.nearPoint}>{near.nearPoint || "(none)"}</option>{/if}
++                    {#each pointNames as name (name)}<option value={name}>{name}</option>{/each}
++                  </select>
++                </label>
++                <label class="space-y-1">
++                  <span class="text-gray-500">Within (in)</span>
++                  <input class={FIELD_CLASS} type="number" min="0" step="0.5" value={near.radiusIn}
++                    oninput={(e) => editRow(rowIndex, (r) => { if ("radiusIn" in r) r.radiusIn = numberOr(e.currentTarget.value, r.radiusIn); }, false)}
++                    onchange={commitAuto} />
++                </label>
++              </div>
++            {:else if kind === "inArea"}
++              {@const area = (row as { inArea: [string, string] }).inArea}
++              <div class="grid grid-cols-2 gap-1">
++                {#each [0, 1] as corner (corner)}
++                  <label class="space-y-1">
++                    <span class="text-gray-500">Corner {corner + 1}</span>
++                    <select class={FIELD_CLASS} value={area[corner]} onchange={(e) => editRow(rowIndex, (r) => { if ("inArea" in r) r.inArea[corner] = e.currentTarget.value; })}>
++                      {#if !pointNames.includes(area[corner])}<option value={area[corner]}>{area[corner] || "(none)"}</option>{/if}
++                      {#each pointNames as name (name)}<option value={name}>{name}</option>{/each}
++                    </select>
++                  </label>
++                {/each}
++              </div>
++            {:else if kind === "otherwise"}
++              <div class="self-end pb-1 text-gray-500">True at once: the "else" of an if.</div>
++            {/if}
++          </div>
++          {#if kind === "when"}
++            <div class="space-y-1">
++              <span class="text-gray-500">Any of these registered conditions</span>
++              {@render chips(
++                (row as { when: string[] }).when,
++                conditions,
++                "condition",
++                (index) => editRow(rowIndex, (r) => { if ("when" in r) r.when.splice(index, 1); }),
++                (name) => editRow(rowIndex, (r) => { if ("when" in r && !r.when.includes(name)) r.when.push(name); }),
++              )}
++            </div>
++          {/if}
++          <div class="grid grid-cols-[1fr_auto] items-end gap-2">
++            <label class="space-y-1">
++              <span class="text-gray-500">Branch name</span>
++              <input class={FIELD_CLASS} value={row.label ?? ""} placeholder={rowLabel({ ...row, label: undefined })}
++                oninput={(e) => editRow(rowIndex, (r) => { const v = e.currentTarget.value; if (v.trim()) r.label = v; else delete r.label; }, false)}
++                onchange={commitAuto} />
++            </label>
++            <button
++              type="button"
++              class={ACTION_CLASS}
++              onclick={() => selectedCardId.set(`${card!.id}#${rowIndex}`)}
++              title="New cards from the Auto list's buttons go at the end of this branch"
++            >
++              {row.cards.length} card{row.cards.length === 1 ? "" : "s"} · add here
++            </button>
++          </div>
++          {#if row.cards.length > 0 && worstEnd !== undefined}
++            <div class="text-[10px]" class:text-red-400={worstEnd !== null && worstEnd > AUTO_LENGTH_S} class:text-gray-500={worstEnd === null || worstEnd <= AUTO_LENGTH_S}>
++              {worstEnd === null
++                ? "Worst case: this row never wins when every wait runs to its time row."
++                : `Worst case with this branch: the Auto ends by ${seconds(worstEnd)}${worstEnd > AUTO_LENGTH_S ? " — over 30 s" : ""}.`}
++            </div>
++          {/if}
++        </div>
++      {/each}
++      <div class="flex flex-wrap gap-1.5 text-[10px]">
++        <button type="button" class={ACTION_CLASS} onclick={() => edit((c) => { if (c.kind === "firstOf") c.rows.push(rowOfKind(conditions.length ? "when" : "afterMs", null, auto)); })}>+ Condition row</button>
++        <button type="button" class={ACTION_CLASS} onclick={() => edit((c) => { if (c.kind === "firstOf") c.rows.push(rowOfKind("afterMs", null, auto)); })}>+ Time row</button>
++        <button type="button" class={ACTION_CLASS} onclick={() => edit((c) => { if (c.kind === "firstOf") c.rows.push(rowOfKind("otherwise", null, auto)); })}>+ Otherwise</button>
++      </div>
++    </div>
++  {:else}
++    <div class="text-[11px] text-gray-500">
++      Each card runs after the one above it. A decision waits for the first of its rows and runs that row's
++      branch; the cards after the decision continue from there.
++    </div>
++  {/if}
++</div>
+diff --git a/src/lib/auto/components/EventsBar.svelte b/src/lib/auto/components/EventsBar.svelte
+new file mode 100644
+index 0000000..7155ace
+--- /dev/null
++++ b/src/lib/auto/components/EventsBar.svelte
+@@ -0,0 +1,131 @@
++<script lang="ts">
++  import type { PathEvent } from "../types";
++  import { FIELD_CLASS, ACTION_CLASS } from "./ui";
++
++  interface Props {
++    events: PathEvent[];
++    actions: string[];
++    /** Called with the new list; `done` is false while a marker is being dragged. */
++    onChange: (events: PathEvent[], done: boolean) => void;
++  }
++
++  let { events, actions, onChange }: Props = $props();
++
++  let track = $state<HTMLDivElement>();
++  let dragging: number | null = $state(null);
++  let registered = $derived(new Set(actions));
++
++  const round = (value: number) => Math.round(value * 100) / 100;
++
++  function fractionAt(clientX: number): number {
++    if (!track) return 0;
++    const bounds = track.getBoundingClientRect();
++    return round(Math.min(1, Math.max(0, (clientX - bounds.left) / Math.max(1, bounds.width))));
++  }
++
++  function addAt(event: PointerEvent) {
++    if (event.target !== track) return;
++    const at = fractionAt(event.clientX);
++    onChange([...events, { at, action: actions[0] ?? "" }].sort((a, b) => a.at - b.at), true);
++  }
++
++  function beginDrag(index: number, event: PointerEvent) {
++    event.preventDefault();
++    event.stopPropagation();
++    dragging = index;
++    let current = events.map((e) => ({ ...e }));
++    const move = (moveEvent: PointerEvent) => {
++      current = current.map((e, i) => (i === index ? { ...e, at: fractionAt(moveEvent.clientX) } : e));
++      onChange(current, false);
++    };
++    const up = () => {
++      window.removeEventListener("pointermove", move);
++      window.removeEventListener("pointerup", up);
++      dragging = null;
++      onChange([...current].sort((a, b) => a.at - b.at), true);
++    };
++    window.addEventListener("pointermove", move);
++    window.addEventListener("pointerup", up);
++  }
++
++  function nudge(index: number, delta: number) {
++    const next = events.map((e, i) => (i === index ? { ...e, at: round(Math.min(1, Math.max(0, e.at + delta))) } : e));
++    onChange(next.sort((a, b) => a.at - b.at), true);
++  }
++</script>
++
++<div class="space-y-2">
++  <div
++    bind:this={track}
++    class="events-track relative h-4 rounded border border-[#5c4a10] bg-[#1d1808]"
++    role="button"
++    tabindex="0"
++    aria-label="Events along this path: click to add one"
++    onpointerdown={addAt}
++    title="Click to add an event here"
++  >
++    {#each events as event, index (index)}
++      <button
++        type="button"
++        class="events-marker absolute top-1/2 z-10 h-5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-sm border border-[#111111]"
++        class:events-marker--bad={!registered.has(event.action)}
++        class:events-marker--drag={dragging === index}
++        style={`left:${event.at * 100}%`}
++        onpointerdown={(e) => beginDrag(index, e)}
++        onkeydown={(e) => {
++          if (e.key === "ArrowLeft") nudge(index, -0.01);
++          if (e.key === "ArrowRight") nudge(index, 0.01);
++        }}
++        aria-label={`${event.action} at ${Math.round(event.at * 100)}%: drag or use arrow keys`}
++        title={`${event.action} at ${Math.round(event.at * 100)}%`}
++      ></button>
++    {/each}
++  </div>
++  <div class="flex justify-between text-[10px] text-gray-500"><span>start</span><span>50%</span><span>end</span></div>
++  {#if events.length === 0}
++    <div class="text-[11px] text-gray-500">No events. Click the bar to fire an action part-way along the path.</div>
++  {:else}
++    <div class="space-y-1">
++      {#each events as event, index (index)}
++        <div class="flex items-center gap-2">
++          <span class="w-10 shrink-0 font-mono text-[11px] text-[#ffc516]">{Math.round(event.at * 100)}%</span>
++          <select
++            class={FIELD_CLASS}
++            class:!border-red-600={!registered.has(event.action)}
++            value={event.action}
++            onchange={(e) =>
++              onChange(events.map((x, i) => (i === index ? { ...x, action: e.currentTarget.value } : x)), true)}
++            aria-label="Event action"
++          >
++            {#if !registered.has(event.action)}
++              <option value={event.action}>{event.action || "(choose)"} — not registered</option>
++            {/if}
++            {#each actions as name (name)}
++              <option value={name}>{name}</option>
++            {/each}
++          </select>
++          <button type="button" class="{ACTION_CLASS} text-[10px]" onclick={() => onChange(events.filter((_, i) => i !== index), true)}>
++            Delete
++          </button>
++        </div>
++      {/each}
++    </div>
++  {/if}
++</div>
++
++<style>
++  .events-track {
++    cursor: copy;
++    touch-action: none;
++  }
++  .events-marker {
++    background: #ffc516;
++    cursor: ew-resize;
++  }
++  .events-marker--bad {
++    background: #e5484d;
++  }
++  .events-marker--drag {
++    box-shadow: 0 0 0 2px rgba(255, 197, 22, 0.35);
++  }
++</style>
+diff --git a/src/lib/auto/components/RegistryPanel.svelte b/src/lib/auto/components/RegistryPanel.svelte
+new file mode 100644
+index 0000000..b7acdb8
+--- /dev/null
++++ b/src/lib/auto/components/RegistryPanel.svelte
+@@ -0,0 +1,177 @@
++<script lang="ts">
++  import type { AutoSection, NamedPoint } from "../types";
++  import { usedNames } from "../tree";
++  import { commitAuto, updateAuto } from "../store";
++  import { ACTION_CLASS, CELL_CLASS, FIELD_CLASS, LABEL_CLASS, SECTION_CLASS } from "./ui";
++
++  interface Props {
++    auto: AutoSection;
++    defaultExportName: string;
++    robotAt: { x: number; y: number; headingDeg: number };
++  }
++
++  let { auto, defaultExportName, robotAt }: Props = $props();
++
++  let open = $state(true);
++  let used = $derived(usedNames(auto));
++  let newAction = $state("");
++  let newCondition = $state("");
++  let newPoint = $state("");
++  let unregistered = $derived({
++    actions: [...used.actions.keys()].filter((name) => name && !auto.registry.actions.includes(name)),
++    conditions: [...used.conditions.keys()].filter((name) => name && !auto.registry.conditions.includes(name)),
++  });
++
++  function register(list: "actions" | "conditions", raw: string) {
++    const name = raw.trim();
++    if (!name) return;
++    updateAuto((draft) => {
++      if (!draft.registry[list].includes(name)) draft.registry[list].push(name);
++    });
++  }
++
++  function unregister(list: "actions" | "conditions", name: string) {
++    updateAuto((draft) => {
++      draft.registry[list] = draft.registry[list].filter((entry) => entry !== name);
++    });
++  }
++
++  function addPoint() {
++    const name = newPoint.trim();
++    if (!name || auto.points[name]) return;
++    updateAuto((draft) => {
++      draft.points[name] = [
++        Math.round(robotAt.x * 10) / 10,
++        Math.round(robotAt.y * 10) / 10,
++      ];
++    });
++    newPoint = "";
++  }
++
++  function setPoint(name: string, index: 0 | 1 | 2, raw: string) {
++    const value = Number(raw);
++    updateAuto((draft) => {
++      const point = [...(draft.points[name] ?? [0, 0])] as number[];
++      if (index === 2 && raw.trim() === "") {
++        draft.points[name] = [point[0], point[1]];
++        return;
++      }
++      if (!Number.isFinite(value)) return;
++      point[index] = value;
++      draft.points[name] = (point.length >= 3 ? point.slice(0, 3) : point) as NamedPoint;
++    }, false);
++  }
++</script>
++
++{#snippet nameList(list: "actions" | "conditions", title: string)}
++  {@const counts = list === "actions" ? used.actions : used.conditions}
++  <div class={CELL_CLASS}>
++    <span class={LABEL_CLASS}>{title}</span>
++    <div class="space-y-0.5">
++      {#each auto.registry[list] as name (name)}
++        <div class="flex items-center justify-between gap-2">
++          <span class="font-mono text-gray-100">{name}</span>
++          <span class="flex items-center gap-2">
++            <span class="text-gray-500">{counts.get(name) ? `used ${counts.get(name)}×` : "unused"}</span>
++            <button type="button" class="text-gray-500 hover:text-red-400" aria-label={`Remove ${name}`} title="Remove from the registry" onclick={() => unregister(list, name)}>✕</button>
++          </span>
++        </div>
++      {/each}
++      {#if auto.registry[list].length === 0}
++        <div class="text-gray-500">None yet.</div>
++      {/if}
++    </div>
++    <form
++      class="mt-1.5 flex gap-1.5"
++      onsubmit={(e) => {
++        e.preventDefault();
++        if (list === "actions") {
++          register("actions", newAction);
++          newAction = "";
++        } else {
++          register("conditions", newCondition);
++          newCondition = "";
++        }
++      }}
++    >
++      {#if list === "actions"}
++        <input class={FIELD_CLASS} placeholder="ShootAll" bind:value={newAction} aria-label="New action name" />
++      {:else}
++        <input class={FIELD_CLASS} placeholder="LauncherReady" bind:value={newCondition} aria-label="New condition name" />
++      {/if}
++      <button type="submit" class="{ACTION_CLASS} shrink-0 text-[10px]">Add</button>
++    </form>
++  </div>
++{/snippet}
++
++<div class={SECTION_CLASS}>
++  <button type="button" class="flex w-full items-center justify-between gap-2 text-left" onclick={() => (open = !open)} aria-expanded={open}>
++    <span>
++      <span class="block font-semibold text-gray-100">Robot actions &amp; conditions</span>
++      <span class="text-[11px] text-gray-500">
++        The names the robot code registers. The editor cannot read robot code: keep this list in step with it.
++      </span>
++    </span>
++    <span class="text-[11px] text-gray-400">{open ? "Hide" : "Show"}</span>
++  </button>
++
++  {#if open}
++    {#if unregistered.actions.length || unregistered.conditions.length}
++      <div class="border border-red-700 bg-red-950 px-2 py-1.5 text-[11px] text-red-300">
++        <div class="font-semibold">Used but not registered (blocks the Java export)</div>
++        <div class="mt-1 flex flex-wrap gap-1.5">
++          {#each unregistered.actions as name (name)}
++            <button type="button" class="{ACTION_CLASS} text-[10px]" onclick={() => register("actions", name)}>Register action {name}</button>
++          {/each}
++          {#each unregistered.conditions as name (name)}
++            <button type="button" class="{ACTION_CLASS} text-[10px]" onclick={() => register("conditions", name)}>Register condition {name}</button>
++          {/each}
++        </div>
++      </div>
++    {/if}
++    <div class="grid gap-2 text-[11px] text-gray-300 lg:grid-cols-2">
++      {@render nameList("actions", "Actions")}
++      {@render nameList("conditions", "Conditions")}
++    </div>
++
++    <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-300">
++      <div class={CELL_CLASS}>
++        <label class={LABEL_CLASS} for="auto-drawn-for">Drawn for</label>
++        <select id="auto-drawn-for" class={FIELD_CLASS} value={auto.drawnFor}
++          onchange={(e) => updateAuto((draft) => { draft.drawnFor = e.currentTarget.value === "RED" ? "RED" : "BLUE"; })}>
++          <option value="BLUE">BLUE (the robot mirrors it for RED)</option>
++          <option value="RED">RED (the robot mirrors it for BLUE)</option>
++        </select>
++      </div>
++      <div class={CELL_CLASS}>
++        <label class={LABEL_CLASS} for="auto-export-name">Export name</label>
++        <input id="auto-export-name" class={FIELD_CLASS} value={auto.exportName ?? ""} placeholder={defaultExportName}
++          oninput={(e) => updateAuto((draft) => { const v = e.currentTarget.value.trim(); if (v) draft.exportName = v; else delete draft.exportName; }, false)}
++          onchange={commitAuto} />
++      </div>
++    </div>
++
++    <div class="{CELL_CLASS} text-[11px] text-gray-300">
++      <span class={LABEL_CLASS}>Named points</span>
++      <div class="space-y-1">
++        {#each Object.entries(auto.points) as [name, point] (name)}
++          <div class="grid grid-cols-[minmax(0,1.3fr)_repeat(3,minmax(0,1fr))_auto] items-center gap-1">
++            <span class="truncate font-mono text-gray-100" title={name}>{name}</span>
++            <input class={FIELD_CLASS} type="number" step="0.5" value={point[0]} aria-label={`${name} x`} oninput={(e) => setPoint(name, 0, e.currentTarget.value)} onchange={commitAuto} />
++            <input class={FIELD_CLASS} type="number" step="0.5" value={point[1]} aria-label={`${name} y`} oninput={(e) => setPoint(name, 1, e.currentTarget.value)} onchange={commitAuto} />
++            <input class={FIELD_CLASS} type="number" step="5" value={point[2] ?? ""} placeholder="0°" aria-label={`${name} heading`} oninput={(e) => setPoint(name, 2, e.currentTarget.value)} onchange={commitAuto} />
++            <button type="button" class="text-gray-500 hover:text-red-400" aria-label={`Remove point ${name}`}
++              onclick={() => updateAuto((draft) => { delete draft.points[name]; })}>✕</button>
++          </div>
++        {/each}
++        {#if Object.keys(auto.points).length === 0}
++          <div class="text-gray-500">None yet. A path endpoint on a named point is exported under its name.</div>
++        {/if}
++      </div>
++      <form class="mt-1.5 flex gap-1.5" onsubmit={(e) => { e.preventDefault(); addPoint(); }}>
++        <input class={FIELD_CLASS} placeholder="ShootSpot" bind:value={newPoint} aria-label="New point name" />
++        <button type="submit" class="{ACTION_CLASS} shrink-0 text-[10px]" title="Adds the point where the robot is now">Add at robot</button>
++      </form>
++    </div>
++  {/if}
++</div>
+diff --git a/src/lib/auto/components/ui.ts b/src/lib/auto/components/ui.ts
+new file mode 100644
+index 0000000..e3e339e
+--- /dev/null
++++ b/src/lib/auto/components/ui.ts
+@@ -0,0 +1,46 @@
++/**
++ * Class strings shared by the Auto panels. They are the stock inspector's
++ * (SelectedPathInspector, PiecewiseHeadingEditor), so Auto mode looks like
++ * the rest of the Visualizer.
++ */
++export const FIELD_CLASS =
++  "w-full rounded border border-[#444444] bg-[#111111] px-2 py-1 text-gray-100 focus:outline-none focus:ring-1 focus:ring-green-500 disabled:cursor-not-allowed disabled:opacity-50";
++export const ACTION_CLASS =
++  "rounded border border-[#444444] px-2 py-1 font-semibold text-gray-100 hover:bg-[#2a2a2a] disabled:cursor-not-allowed disabled:opacity-50";
++export const DANGER_CLASS =
++  "rounded border border-red-700 bg-red-600 px-2 py-1 font-semibold text-white hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50";
++export const LABEL_CLASS = "mb-1 block font-semibold uppercase tracking-wide text-gray-500";
++export const CELL_CLASS = "border border-[#333333] bg-[#1f1f1f] px-2 py-1.5";
++export const SECTION_CLASS =
++  "w-full border border-[#333333] bg-[#222222] p-3 text-xs text-gray-400 space-y-3";
++
++/** The trunk is drawn in the Visualizer's path yellow. */
++export const TRUNK_COLOR = "#ffc516";
++
++const BRANCH_COLORS = ["#3fcf8e", "#ff8a3d", "#a594ff", "#4ea1ff", "#ff6fb5", "#5fd4e6"];
++
++/** A branch's colour: by its row, so row 1 of every decision matches. */
++export function branchColor(rowIndex: number): string {
++  return BRANCH_COLORS[rowIndex % BRANCH_COLORS.length];
++}
++
++export function seconds(value: number): string {
++  return Number.isFinite(value) ? `${value.toFixed(1)} s` : "∞";
++}
++
++import type { AutoCard } from "../types";
++
++/** Each card's colour: the trunk's, or that of the branch it sits in. */
++export function cardColors(cards: AutoCard[]): Map<string, string> {
++  const colors = new Map<string, string>();
++  const walk = (list: AutoCard[], color: string) => {
++    for (const card of list) {
++      colors.set(card.id, color);
++      if (card.kind === "firstOf") {
++        card.rows.forEach((row, index) => walk(row.cards, branchColor(index)));
++      }
++    }
++  };
++  walk(cards, TRUNK_COLOR);
++  return colors;
++}
+diff --git a/src/lib/auto/edit.ts b/src/lib/auto/edit.ts
+new file mode 100644
+index 0000000..692f64f
+--- /dev/null
++++ b/src/lib/auto/edit.ts
+@@ -0,0 +1,192 @@
++import type { BasePoint } from "../../types";
++import type { PathCatalog } from "./geometry";
++import { cloneCard, locateCard, makeCardId } from "./tree";
++import {
++  type AutoCard,
++  type AutoRow,
++  type AutoSection,
++  type FirstOfCard,
++  type RowKind,
++} from "./types";
++
++/**
++ * Structural edits on a draft Auto (see `updateAuto`). Each returns the id to
++ * select afterwards, or null to keep the selection.
++ */
++
++export type NewCardKind = "action" | "wait" | "decision" | "path";
++
++/** Where a new card goes: after the selected card, into a selected branch, or at the end. */
++function insertionPoint(
++  auto: AutoSection,
++  cardId: string | null,
++  rowIndex: number | null,
++): { list: AutoCard[]; index: number } {
++  if (cardId) {
++    const location = locateCard(auto.cards, cardId);
++    if (location) {
++      const card = location.list[location.index];
++      if (rowIndex !== null && card.kind === "firstOf" && card.rows[rowIndex]) {
++        const list = card.rows[rowIndex].cards;
++        return { list, index: list.length };
++      }
++      return { list: location.list, index: location.index + 1 };
++    }
++  }
++  return { list: auto.cards, index: auto.cards.length };
++}
++
++/** Where the robot is before `index` of `list`: the last path it drove there. */
++function robotBefore(
++  auto: AutoSection,
++  list: AutoCard[],
++  index: number,
++  catalog: PathCatalog,
++): BasePoint | null {
++  for (let i = index - 1; i >= 0; i--) {
++    const card = list[i];
++    if (card.kind === "path") return catalog.byId.get(card.lineId)?.end ?? null;
++  }
++  // Nothing earlier in this list: look before the decision that owns it.
++  const owner = findOwner(auto.cards, list);
++  return owner ? robotBefore(auto, owner.list, owner.index, catalog) : null;
++}
++
++function findOwner(
++  cards: AutoCard[],
++  list: AutoCard[],
++): { list: AutoCard[]; index: number } | null {
++  for (let i = 0; i < cards.length; i++) {
++    const card = cards[i];
++    if (card.kind !== "firstOf") continue;
++    for (const row of card.rows) {
++      if (row.cards === list) return { list: cards, index: i };
++      const deeper = findOwner(row.cards, list);
++      if (deeper) return deeper;
++    }
++  }
++  return null;
++}
++
++export function newCard(
++  kind: NewCardKind,
++  auto: AutoSection,
++  catalog: PathCatalog,
++  at: { list: AutoCard[]; index: number },
++): AutoCard {
++  const firstCondition = auto.registry.conditions[0];
++  switch (kind) {
++    case "action":
++      return { id: makeCardId(), kind: "action", name: auto.registry.actions[0] ?? "" };
++    case "wait":
++      return {
++        id: makeCardId(),
++        kind: "firstOf",
++        label: firstCondition ? `Wait for ${firstCondition}` : "Wait",
++        rows: [
++          ...(firstCondition ? [{ when: [firstCondition], cards: [] }] : []),
++          { afterMs: 1000, cards: [] },
++        ],
++      };
++    case "decision":
++      return {
++        id: makeCardId(),
++        kind: "firstOf",
++        label: firstCondition ? `${firstCondition}?` : "Decision",
++        rows: [
++          ...(firstCondition
++            ? [{ when: [firstCondition], label: `If ${firstCondition}`, cards: [] }]
++            : [{ afterMs: 500, cards: [] }]),
++          { otherwise: true, cards: [] },
++        ],
++      };
++    case "path": {
++      const from = robotBefore(auto, at.list, at.index, catalog);
++      const fits = from
++        ? catalog.paths.find((path) => Math.hypot(path.start.x - from.x, path.start.y - from.y) <= 2)
++        : catalog.paths[0];
++      return {
++        id: makeCardId(),
++        kind: "path",
++        lineId: (fits ?? catalog.paths[0])?.id ?? "",
++        while: [],
++        events: [],
++        park: false,
++      };
++    }
++  }
++}
++
++export function insertNewCard(
++  auto: AutoSection,
++  kind: NewCardKind,
++  catalog: PathCatalog,
++  selection: { cardId: string | null; rowIndex: number | null },
++): string {
++  const at = insertionPoint(auto, selection.cardId, selection.rowIndex);
++  const card = newCard(kind, auto, catalog, at);
++  at.list.splice(at.index, 0, card);
++  return card.id;
++}
++
++export function removeCard(auto: AutoSection, id: string): string | null {
++  const location = locateCard(auto.cards, id);
++  if (!location) return null;
++  location.list.splice(location.index, 1);
++  const next = location.list[location.index] ?? location.list[location.index - 1];
++  if (next) return next.id;
++  return location.parent ? `${location.parent.card.id}#${location.parent.rowIndex}` : null;
++}
++
++export function duplicateCard(auto: AutoSection, id: string): string | null {
++  const location = locateCard(auto.cards, id);
++  if (!location) return null;
++  const copy = cloneCard(location.list[location.index]);
++  location.list.splice(location.index + 1, 0, copy);
++  return copy.id;
++}
++
++/** Move a card one place up or down within its list. */
++export function moveCard(auto: AutoSection, id: string, delta: -1 | 1): boolean {
++  const location = locateCard(auto.cards, id);
++  if (!location) return false;
++  const target = location.index + delta;
++  if (target < 0 || target >= location.list.length) return false;
++  const [card] = location.list.splice(location.index, 1);
++  location.list.splice(target, 0, card);
++  return true;
++}
++
++export function canMove(auto: AutoSection, id: string, delta: -1 | 1): boolean {
++  const location = locateCard(auto.cards, id);
++  if (!location) return false;
++  const target = location.index + delta;
++  return target >= 0 && target < location.list.length;
++}
++
++export function findFirstOf(auto: AutoSection, id: string): FirstOfCard | null {
++  const location = locateCard(auto.cards, id);
++  const card = location ? location.list[location.index] : null;
++  return card?.kind === "firstOf" ? card : null;
++}
++
++/** A row of the given kind, keeping the old row's cards and label. */
++export function rowOfKind(kind: RowKind, old: AutoRow | null, auto: AutoSection): AutoRow {
++  const common: { cards: AutoCard[]; label?: string } = { cards: old?.cards ?? [] };
++  if (old?.label) common.label = old.label;
++  const points = Object.keys(auto.points);
++  switch (kind) {
++    case "when":
++      return { ...common, when: auto.registry.conditions.slice(0, 1) };
++    case "afterMs":
++      return { ...common, afterMs: 1000 };
++    case "timeLeftBelowS":
++      return { ...common, timeLeftBelowS: 5 };
++    case "otherwise":
++      return { ...common, otherwise: true };
++    case "nearPoint":
++      return { ...common, nearPoint: points[0] ?? "", radiusIn: 6 };
++    case "inArea":
++      return { ...common, inArea: [points[0] ?? "", points[1] ?? points[0] ?? ""] };
++  }
++}
+diff --git a/src/lib/auto/normalize.ts b/src/lib/auto/normalize.ts
+index e808191..489dee5 100644
+--- a/src/lib/auto/normalize.ts
++++ b/src/lib/auto/normalize.ts
+@@ -147,7 +147,8 @@ function normalizeCards(
+ function cardId(raw: Record<string, unknown>, seenIds: Set<string>): string {
+   let id = typeof raw.id === "string" && raw.id.trim() ? raw.id.trim() : "";
+   // Ids address cards in the editor, so a duplicate would make two cards one.
+-  if (!id || seenIds.has(id)) id = makeCardId();
++  // "#" separates a card from its row in the editor's selection.
++  if (!id || seenIds.has(id) || id.includes("#")) id = makeCardId();
+   seenIds.add(id);
+   return id;
+ }
+diff --git a/src/lib/auto/store.ts b/src/lib/auto/store.ts
+index b351147..5778e97 100644
+--- a/src/lib/auto/store.ts
++++ b/src/lib/auto/store.ts
+@@ -1,6 +1,8 @@
+ import { get, writable } from "svelte/store";
+ import { FIELD_SIZE } from "../../config";
++import { isUnsaved } from "../../stores";
+ import { normalizeAuto } from "./normalize";
++import type { Scenario } from "./simulate";
+ import type { AutoSection, NamedPoint } from "./types";
+ 
+ /**
+@@ -13,9 +15,53 @@ export const autoSection = writable<AutoSection | null>(null);
+ /** Whether the left and right panels show the Auto instead of the paths. */
+ export const autoMode = writable(false);
+ 
+-/** The card whose editor the Controls panel shows. */
++/**
++ * What is selected in the card list: a card id, or `<decision id>#<row>` for
++ * a branch (new cards then go at the end of that branch).
++ */
+ export const selectedCardId = writable<string | null>(null);
+ 
++/** The preview's scenario: when each registered condition becomes true. */
++export const previewScenario = writable<Scenario>({});
++
++let recorder: (() => void) | null = null;
++
++/** The app's undo recorder, called after each committed Auto edit. */
++export function setAutoRecorder(record: () => void): void {
++  recorder = record;
++}
++
++/**
++ * Edit the Auto: `mutate` works on a copy, which then replaces the store's
++ * value. Pass `record: false` while typing and call `commitAuto()` when the
++ * edit is done, so undo gets one step per edit rather than per keystroke.
++ */
++export function updateAuto(mutate: (auto: AutoSection) => void, record = true): void {
++  const current = get(autoSection);
++  if (!current) return;
++  const draft = JSON.parse(JSON.stringify(current)) as AutoSection;
++  mutate(draft);
++  autoSection.set(draft);
++  isUnsaved.set(true);
++  if (record) recorder?.();
++}
++
++export function commitAuto(): void {
++  recorder?.();
++}
++
++export function parseSelection(
++  selection: string | null,
++): { cardId: string | null; rowIndex: number | null } {
++  if (!selection) return { cardId: null, rowIndex: null };
++  const hash = selection.lastIndexOf("#");
++  if (hash < 0) return { cardId: selection, rowIndex: null };
++  return {
++    cardId: selection.slice(0, hash),
++    rowIndex: Number(selection.slice(hash + 1)),
++  };
++}
++
+ /**
+  * Replace the Auto with the one in a freshly read file. Returns what the
+  * loader had to repair, for the caller to show.
+diff --git a/src/lib/components/LeftRail.svelte b/src/lib/components/LeftRail.svelte
+index 1a66ed5..465afc4 100644
+--- a/src/lib/components/LeftRail.svelte
++++ b/src/lib/components/LeftRail.svelte
+@@ -1,4 +1,5 @@
+ <script lang="ts">
++  import type { Snippet } from "svelte";
+   import type { PathListItem } from "../../types";
+ 
+   interface Props {
+@@ -25,6 +26,8 @@
+       targetId: string,
+       position: "before" | "after",
+     ) => void;
++    /** Shown in place of the Path List (Auto mode's card list). */
++    listOverride?: Snippet;
+   }
+ 
+   let {
+@@ -42,6 +45,7 @@
+     onGroup,
+     onUngroup,
+     onReorderPath,
++    listOverride,
+   }: Props = $props();
+ 
+   /** Groups the user has folded away, keyed by id. */
+@@ -196,6 +200,9 @@
+     <div class="module-mono">{fileName}</div>
+   </section>
+ 
++  {#if listOverride}
++    {@render listOverride()}
++  {:else}
+   <section class="module-box module-fill">
+     <div class="module-header-row">
+       <h3 class="module-title">Path List</h3>
+@@ -235,4 +242,5 @@
+       {/if}
+     </div>
+   </section>
++  {/if}
+ </aside>
+-- 
+2.43.0
+

@@ -1,0 +1,576 @@
+From f2b32bc3662c526971fecae367501f35c5df1e0e Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 02:43:45 +0000
+Subject: [PATCH 06/11] Simulate the Auto for the preview
+
+simulateAuto runs the card tree against a scenario (when each registered
+condition turns true), picks decision rows, drives paths on the app's
+motion profile and returns the robot timeline in the app's own format,
+plus a log and the rows taken. The endgame guard stops whatever is
+running once the time left is down to the park path's drive time.
+worstCase gives each branch's latest end when every wait runs to its
+time row.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/lib/auto/simulate.test.ts |  99 ++++++++
+ src/lib/auto/simulate.ts      | 441 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 540 insertions(+)
+ create mode 100644 src/lib/auto/simulate.test.ts
+ create mode 100644 src/lib/auto/simulate.ts
+
+diff --git a/src/lib/auto/simulate.test.ts b/src/lib/auto/simulate.test.ts
+new file mode 100644
+index 0000000..00a6cd5
+--- /dev/null
++++ b/src/lib/auto/simulate.test.ts
+@@ -0,0 +1,99 @@
++import { assert, assertEqual, test } from "../testing/harness";
++import { loadSample } from "./fixtures/load";
++import { buildPathCatalog } from "./geometry";
++import { AUTO_LENGTH_S, simulateAuto, worstCase, type Scenario } from "./simulate";
++import { findCard } from "./tree";
++import type { AutoSection, FirstOfCard } from "./types";
++
++const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
++
++function run(auto: AutoSection, scenario: Scenario = {}) {
++  const sample = loadSample();
++  const catalog = buildPathCatalog(sample.startPoint, sample.lines, sample.settings);
++  return { result: simulateAuto(auto, catalog, sample.startPoint, scenario), catalog };
++}
++
++const never = { enabled: false, seconds: 0, from: "card" as const };
++
++test("a condition that turns true in time picks its row", () => {
++  const { result } = run(loadSample().auto, {
++    HiveTipped: { enabled: true, seconds: 0.9, from: "card" },
++  });
++  assertEqual(result.taken.get("did-tip"), 0);
++  assert(result.ran.has("tip-1") && !result.ran.has("near-1"));
++  const row = result.log.find((entry) => entry.cardId === "did-tip")!;
++  assert(row.text.includes("If tipped") && row.text.includes("0.90 s"), row.text);
++});
++
++test("with the conditions off, the time row fires", () => {
++  const { result } = run(loadSample().auto, { HiveTipped: never, CameraBlind: never });
++  assertEqual(result.taken.get("did-tip"), 1);
++  assert(result.ran.has("near-1") && !result.ran.has("tip-1"));
++  // The nested decision falls through to "otherwise".
++  assertEqual(result.taken.get("near-5"), 2);
++});
++
++test("path timing comes from the app's motion model and events land inside the drive", () => {
++  const { result, catalog } = run(loadSample().auto);
++  const drive = result.drives.find((d) => d.cardId === "tip-1")!;
++  const path = catalog.byId.get("far-to")!;
++  assert(Math.abs(drive.t1 - drive.t0 - path.seconds) < 1e-9);
++  const event = result.log.find((entry) => entry.kind === "event" && entry.cardId === "tip-1")!;
++  assert(event.t > drive.t0 && event.t < drive.t1, `${event.t} outside ${drive.t0}..${drive.t1}`);
++  // 60% of the distance is reached after more than 60% of a rest-to-rest profile's
++  // first half, and before its end.
++  assert(event.t - drive.t0 > 0.5 * path.seconds);
++});
++
++test("the preview timeline is contiguous and ends with the Auto", () => {
++  const { result } = run(loadSample().auto);
++  let previous = 0;
++  for (const event of result.timeline) {
++    assert(Math.abs(event.startTime - previous) < 1e-6, `gap at ${previous} → ${event.startTime}`);
++    assert(event.duration > 0);
++    previous = event.endTime;
++  }
++  assert(Math.abs(previous - result.endTime) < 1e-6);
++});
++
++test("the endgame guard parks when the time left is down to the park path", () => {
++  const auto = clone(loadSample().auto);
++  const branch = (findCard(auto.cards, "did-tip") as FirstOfCard).rows[0].cards;
++  // A slow shot before the far pickups leaves too little time for them.
++  branch.unshift({ id: "slow", kind: "action", name: "ShootAll", previewMs: 22000 });
++  const { result, catalog } = run(auto, { HiveTipped: { enabled: true, seconds: 0.5, from: "card" } });
++  assert(result.guard, "guard expected");
++  const park = catalog.byId.get("far-park")!;
++  assert(Math.abs(result.guard.t - (AUTO_LENGTH_S - park.seconds)) < 1e-6, `guard at ${result.guard.t}`);
++  // The path under way at the deadline is cut short there, and the cards
++  // after it are skipped.
++  const cut = result.log.find((entry) => entry.text.includes("stopped by the endgame guard"));
++  assert(cut && Math.abs(cut.t - result.guard.t) < 1e-6, JSON.stringify(result.log));
++  assert(!result.ran.has("tip-5"), "the rest of the branch is skipped");
++  assert(result.ran.has("tip-6"), "the park path is driven");
++  assert(Math.abs(result.endTime - AUTO_LENGTH_S) < 1e-6, `ends at ${result.endTime}`);
++  assert(result.log.some((entry) => entry.kind === "guard"));
++});
++
++test("a wait no row can end stalls the preview and says so", () => {
++  const auto = clone(loadSample().auto);
++  const wait = findCard(auto.cards, "wait-ready") as FirstOfCard;
++  wait.rows = [{ when: ["LauncherReady"], cards: [] }];
++  const { result } = run(auto, { LauncherReady: never });
++  assert(result.stalled);
++  assert(!result.ran.has("shoot-preload"));
++});
++
++test("worst case: every wait runs to its time row", () => {
++  const auto = loadSample().auto;
++  const { catalog } = run(auto);
++  const worst = worstCase(auto, catalog);
++  const rows = worst.rows.get("did-tip")!;
++  assert(rows[0]! < rows[1]!, "the near branch is the long one");
++  assertEqual(worst.total, rows[1]);
++  // "time left < 6 s" cannot win against "otherwise" this early.
++  assertEqual(worst.rows.get("near-5")![1], null);
++  // The worst case is at least as long as any preview.
++  const { result } = run(auto, { HiveTipped: never, CameraBlind: never, IntakeFull: never, LauncherReady: never });
++  assert(result.endTime <= worst.total + 1e-9, `${result.endTime} > ${worst.total}`);
++});
+diff --git a/src/lib/auto/simulate.ts b/src/lib/auto/simulate.ts
+new file mode 100644
+index 0000000..d6345a2
+--- /dev/null
++++ b/src/lib/auto/simulate.ts
+@@ -0,0 +1,441 @@
++import type { BasePoint, StartPose, TimelineEvent } from "../../types";
++import { pointAlong, timeAtFraction, type PathCatalog, type PathInfo } from "./geometry";
++import { describeRow, parkCardOf, rowLabel } from "./tree";
++import {
++  rowKind,
++  type AutoCard,
++  type AutoRow,
++  type AutoSection,
++  type FirstOfCard,
++  type PathCard,
++} from "./types";
++
++/** Length of the Autonomous period, as `AutoKit.AUTO_LENGTH_S`. */
++export const AUTO_LENGTH_S = 30;
++
++/**
++ * When a registered condition becomes true in the preview: `seconds` after
++ * the card waiting on it starts ("card"), or `seconds` into the Auto
++ * ("start"). A disabled condition never becomes true.
++ */
++export interface ConditionScenario {
++  enabled: boolean;
++  seconds: number;
++  from: "card" | "start";
++}
++
++export type Scenario = Record<string, ConditionScenario>;
++
++export const DEFAULT_CONDITION: ConditionScenario = {
++  enabled: true,
++  seconds: 1,
++  from: "card",
++};
++
++export type LogKind = "card" | "row" | "event" | "guard" | "warn" | "end";
++
++export interface LogEntry {
++  t: number;
++  text: string;
++  kind: LogKind;
++  cardId?: string;
++}
++
++export interface DriveRecord {
++  cardId: string;
++  pathId: string;
++  t0: number;
++  t1: number;
++}
++
++export interface PreviewResult {
++  /** Robot motion in the app's own timeline format, for the playback bar. */
++  timeline: TimelineEvent[];
++  log: LogEntry[];
++  endTime: number;
++  /** Cards that started in this preview. */
++  ran: Set<string>;
++  /** Decision id → index of the row that fired. */
++  taken: Map<string, number>;
++  drives: DriveRecord[];
++  /** Set when the endgame guard cut a branch short. */
++  guard: { t: number; label: string } | null;
++  /** True when a wait had no row that could ever fire. */
++  stalled: boolean;
++}
++
++interface Guard {
++  deadline: number;
++  park: PathCard;
++  path: PathInfo;
++  label: string;
++  parked: boolean;
++}
++
++type Signal = { abortTo: Guard } | null;
++
++/** Seconds the endgame guard reserves for a park path. */
++export function guardSeconds(path: PathInfo): number {
++  return path.seconds;
++}
++
++export function simulateAuto(
++  auto: AutoSection,
++  catalog: PathCatalog,
++  startPoint: StartPose,
++  scenario: Scenario,
++): PreviewResult {
++  const timeline: TimelineEvent[] = [];
++  const log: LogEntry[] = [];
++  const ran = new Set<string>();
++  const taken = new Map<string, number>();
++  const drives: DriveRecord[] = [];
++  let guardFired: PreviewResult["guard"] = null;
++  let stalled = false;
++
++  let t = 0;
++  let pos: BasePoint = { x: startPoint.x, y: startPoint.y };
++  let heading = startPoint.headingDeg;
++
++  const note = (text: string, kind: LogKind, cardId?: string, at = t) =>
++    log.push({ t: at, text, kind, cardId });
++
++  const stay = (seconds: number) => {
++    if (!(seconds > 1e-6)) return;
++    timeline.push({
++      type: "wait",
++      duration: seconds,
++      startTime: t,
++      endTime: t + seconds,
++      startHeading: heading,
++      targetHeading: heading,
++      atPoint: { ...pos },
++    });
++    t += seconds;
++  };
++
++  /** Drive the path, or only its first `until` seconds when cut short. */
++  const drive = (card: PathCard, path: PathInfo, until = Infinity) => {
++    const t0 = t;
++    const stop = Math.min(path.seconds, until);
++    for (const event of path.travel) {
++      if (event.startTime >= stop - 1e-9) break;
++      const end = Math.min(event.endTime, stop);
++      timeline.push({
++        ...event,
++        startTime: event.startTime + t0,
++        endTime: end + t0,
++        duration: end - event.startTime,
++      });
++    }
++    const extras = [
++      ...card.while.map((name) => `while ${name}`),
++      card.park ? "park" : "",
++    ].filter(Boolean);
++    note(`Drive ${path.name}${extras.length ? ` · ${extras.join(", ")}` : ""}`, "card", card.id);
++    for (const event of card.events) {
++      if (timeAtFraction(path, event.at) > stop + 1e-9) continue;
++      note(
++        `${event.action} (${Math.round(event.at * 100)}% of ${path.name})`,
++        "event",
++        card.id,
++        t0 + timeAtFraction(path, event.at),
++      );
++    }
++    t = t0 + stop;
++    drives.push({ cardId: card.id, pathId: path.id, t0, t1: t });
++    if (stop < path.seconds) {
++      // Where the robot was when the guard stopped it.
++      const along = path.distanceAt(stop);
++      pos = pointAlong(path, path.length > 0 ? along / path.length : 1);
++    } else {
++      pos = { ...path.end };
++      heading = path.endHeadingDeg;
++    }
++  };
++
++  const fireTime = (row: AutoRow, t0: number): number => {
++    switch (rowKind(row)) {
++      case "when": {
++        let best = Infinity;
++        for (const name of (row as { when: string[] }).when) {
++          const sc = scenario[name] ?? DEFAULT_CONDITION;
++          if (!sc.enabled) continue;
++          const at = sc.from === "card" ? t0 + sc.seconds : Math.max(t0, sc.seconds);
++          best = Math.min(best, at);
++        }
++        return best;
++      }
++      case "afterMs":
++        return t0 + (row as { afterMs: number }).afterMs / 1000;
++      case "timeLeftBelowS":
++        return Math.max(t0, AUTO_LENGTH_S - (row as { timeLeftBelowS: number }).timeLeftBelowS);
++      case "otherwise":
++        return t0;
++      case "nearPoint": {
++        const near = row as { nearPoint: string; radiusIn: number };
++        const point = auto.points[near.nearPoint];
++        if (!point) return Infinity;
++        return Math.hypot(pos.x - point[0], pos.y - point[1]) <= near.radiusIn ? t0 : Infinity;
++      }
++      case "inArea": {
++        const [a, b] = (row as { inArea: [string, string] }).inArea.map((name) => auto.points[name]);
++        if (!a || !b) return Infinity;
++        const inside =
++          pos.x >= Math.min(a[0], b[0]) &&
++          pos.x <= Math.max(a[0], b[0]) &&
++          pos.y >= Math.min(a[1], b[1]) &&
++          pos.y <= Math.max(a[1], b[1]);
++        return inside ? t0 : Infinity;
++      }
++    }
++  };
++
++  const whyRow = (row: AutoRow, waited: number): string => {
++    const kind = rowKind(row);
++    if (kind === "when") {
++      const first = (row as { when: string[] }).when.find((name) => {
++        const sc = scenario[name] ?? DEFAULT_CONDITION;
++        return sc.enabled;
++      });
++      return `${first ?? "condition"} after ${waited.toFixed(2)} s`;
++    }
++    return describeRow(row);
++  };
++
++  const pendingDeadline = (guards: Guard[]): Guard | null => {
++    let soonest: Guard | null = null;
++    for (const guard of guards) {
++      if (guard.parked) continue;
++      if (!soonest || guard.deadline < soonest.deadline) soonest = guard;
++    }
++    return soonest;
++  };
++
++  const passedGuard = (guards: Guard[]): Guard | null => {
++    // The innermost guard whose deadline has passed parks the robot.
++    for (let i = guards.length - 1; i >= 0; i--) {
++      const guard = guards[i];
++      if (!guard.parked && t >= guard.deadline - 1e-9) return guard;
++    }
++    return null;
++  };
++
++  const park = (guard: Guard) => {
++    guard.parked = true;
++    guardFired ??= { t, label: guard.label };
++    note(
++      `Endgame (${guard.label}): ${(AUTO_LENGTH_S - t).toFixed(1)} s left, ${guard.path.name} needs ${guard.path.seconds.toFixed(1)} s → park now`,
++      "guard",
++      guard.park.id,
++    );
++    ran.add(guard.park.id);
++    drive(guard.park, guard.path);
++  };
++
++  const runFirstOf = (card: FirstOfCard, guards: Guard[]): Signal => {
++    const t0 = t;
++    let winner = -1;
++    let at = Infinity;
++    card.rows.forEach((row, index) => {
++      const fire = fireTime(row, t0);
++      if (fire < at - 1e-9) {
++        at = fire;
++        winner = index;
++      }
++    });
++    const label = card.label || "Wait";
++    const deadline = pendingDeadline(guards);
++    if (deadline && deadline.deadline < at) {
++      stay(Math.max(0, deadline.deadline - t0));
++      note(`${label}: cut short by the endgame guard`, "warn", card.id);
++      return { abortTo: deadline };
++    }
++    if (winner < 0) {
++      note(`${label}: no row can ever fire; the robot would wait here forever`, "warn", card.id);
++      stalled = true;
++      return null;
++    }
++    stay(at - t0);
++    const row = card.rows[winner];
++    taken.set(card.id, winner);
++    const hasCards = card.rows.some((r) => r.cards.length > 0);
++    note(
++      hasCards
++        ? `${label} → ${rowLabel(row)} (${whyRow(row, at - t0)})`
++        : `${label}: ${whyRow(row, at - t0)}`,
++      "row",
++      card.id,
++    );
++    return runList(row.cards, guards, rowLabel(row));
++  };
++
++  const runCard = (card: AutoCard, guards: Guard[]): Signal => {
++    ran.add(card.id);
++    switch (card.kind) {
++      case "action": {
++        note(card.name || "(no action)", "card", card.id);
++        const deadline = pendingDeadline(guards);
++        const busy = (card.previewMs ?? 0) / 1000;
++        if (deadline && deadline.deadline < t + busy) {
++          stay(Math.max(0, deadline.deadline - t));
++          return { abortTo: deadline };
++        }
++        stay(busy);
++        return null;
++      }
++      case "path": {
++        const path = catalog.byId.get(card.lineId);
++        if (!path) {
++          note("Path card with no path: skipped", "warn", card.id);
++          return null;
++        }
++        // The guard does not wait for a path to finish.
++        const deadline = pendingDeadline(guards);
++        if (deadline && deadline.deadline < t + path.seconds - 1e-9) {
++          drive(card, path, Math.max(0, deadline.deadline - t));
++          note(`${path.name}: stopped by the endgame guard`, "warn", card.id);
++          return { abortTo: deadline };
++        }
++        drive(card, path);
++        return null;
++      }
++      case "firstOf":
++        return runFirstOf(card, guards);
++    }
++  };
++
++  const runList = (list: AutoCard[], outer: Guard[], label: string): Signal => {
++    const parkCard = parkCardOf(list);
++    const parkPath = parkCard ? catalog.byId.get(parkCard.lineId) : undefined;
++    const own: Guard | null =
++      parkCard && parkPath
++        ? {
++            deadline: AUTO_LENGTH_S - guardSeconds(parkPath),
++            park: parkCard,
++            path: parkPath,
++            label,
++            parked: false,
++          }
++        : null;
++    const guards = own ? [...outer, own] : outer;
++
++    for (const card of list) {
++      if (stalled) return null;
++      if (card === parkCard && own) {
++        own.parked = true;
++        const signal = runCard(card, outer);
++        if (signal) return signal;
++        continue;
++      }
++      const due = passedGuard(guards);
++      if (due) {
++        if (due === own) {
++          park(own);
++          return null;
++        }
++        return { abortTo: due };
++      }
++      const signal = runCard(card, guards);
++      if (signal) {
++        if (signal.abortTo === own && own) {
++          park(own);
++          return null;
++        }
++        return signal;
++      }
++    }
++    return null;
++  };
++
++  note("Auto start", "end");
++  runList(auto.cards, [], "Auto");
++  note(
++    stalled
++      ? "Stopped: a wait can never finish"
++      : t <= AUTO_LENGTH_S
++        ? `Done · ${(AUTO_LENGTH_S - t).toFixed(1)} s spare`
++        : `Over the 30 s Auto by ${(t - AUTO_LENGTH_S).toFixed(1)} s`,
++    t <= AUTO_LENGTH_S && !stalled ? "end" : "warn",
++  );
++  log.sort((a, b) => a.t - b.t);
++  return { timeline, log, endTime: t, ran, taken, drives, guard: guardFired, stalled };
++}
++
++// --- worst case -------------------------------------------------------------
++
++/**
++ * Worst-case timing: every wait runs until its time row fires (the robot's
++ * conditions never help), and each decision may take any row that can fire.
++ */
++export interface WorstCase {
++  /** The Auto's latest possible end time. */
++  total: number;
++  /** Decision id → per row: the latest end of the Auto when that row is taken (null: can never fire). */
++  rows: Map<string, (number | null)[]>;
++}
++
++function waitLimit(card: FirstOfCard, t0: number): number {
++  let limit = Infinity;
++  for (const row of card.rows) {
++    switch (rowKind(row)) {
++      case "afterMs":
++        limit = Math.min(limit, t0 + (row as { afterMs: number }).afterMs / 1000);
++        break;
++      case "timeLeftBelowS":
++        limit = Math.min(
++          limit,
++          Math.max(t0, AUTO_LENGTH_S - (row as { timeLeftBelowS: number }).timeLeftBelowS),
++        );
++        break;
++      case "otherwise":
++        limit = Math.min(limit, t0);
++        break;
++    }
++  }
++  return limit;
++}
++
++export function worstCase(auto: AutoSection, catalog: PathCatalog): WorstCase {
++  const rows = new Map<string, (number | null)[]>();
++  const record = (id: string, index: number, count: number, value: number | null) => {
++    const list = rows.get(id) ?? new Array<number | null>(count).fill(null);
++    const current = list[index];
++    if (value !== null && (current === null || value > current)) list[index] = value;
++    rows.set(id, list);
++  };
++
++  const endOf = (list: AutoCard[], start: number, index: number, rest: (t: number) => number): number => {
++    let t = start;
++    for (let i = index; i < list.length; i++) {
++      const card = list[i];
++      if (card.kind === "action") t += (card.previewMs ?? 0) / 1000;
++      else if (card.kind === "path") t += catalog.byId.get(card.lineId)?.seconds ?? 0;
++      else {
++        const limit = waitLimit(card, t);
++        if (!Number.isFinite(limit)) return Infinity;
++        const after = (end: number) => endOf(list, end, i + 1, rest);
++        let worst = -Infinity;
++        card.rows.forEach((row, rowIndex) => {
++          const kind = rowKind(row);
++          const time = kind === "afterMs" || kind === "timeLeftBelowS" || kind === "otherwise"
++            ? waitLimit({ ...card, rows: [row] }, t)
++            : limit;
++          // A time row later than the earliest one never wins.
++          if (time > limit + 1e-9) {
++            record(card.id, rowIndex, card.rows.length, null);
++            return;
++          }
++          const end = endOf(row.cards, time, 0, after);
++          record(card.id, rowIndex, card.rows.length, end);
++          worst = Math.max(worst, end);
++        });
++        return worst;
++      }
++    }
++    return rest(t);
++  };
++
++  const total = endOf(auto.cards, 0, 0, (t) => t);
++  return { total, rows };
++}
+-- 
+2.43.0
+

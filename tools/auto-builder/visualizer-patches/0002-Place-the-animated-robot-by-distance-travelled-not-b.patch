@@ -1,0 +1,78 @@
+From 42a6b789881dbc32945f7d3692ddd450f4aaae80 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sun, 27 Sep 2026 23:29:37 +0000
+Subject: [PATCH 02/11] Place the animated robot by distance travelled, not by
+ raw curve parameter
+
+calculateRobotState works out how far along a segment the robot has
+travelled. It then passed that fraction straight to getCurvePoint as the
+curve parameter. A Bezier's parameter is not spread evenly along its
+length, so on curves the preview robot sped up and slowed down in ways
+the motion profile does not describe. On a through-point path it exceeded
+maxVelocity by more than half.
+
+Convert with the existing curveParameterAt before placing the robot, and
+before taking the tangent. Headings keep using distance travelled, which
+is what evaluatePiecewiseHeading and effectiveHeadingAt expect and what
+Pedro interpolates heading over. The t shown by showCurrentTValue is now
+the curve parameter.
+---
+ src/utils/animation.ts | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
+
+diff --git a/src/utils/animation.ts b/src/utils/animation.ts
+index 018b58b..64ad905 100644
+--- a/src/utils/animation.ts
++++ b/src/utils/animation.ts
+@@ -11,6 +11,7 @@ import {
+   CURVE_SAMPLES,
+   approximateCurveLength,
+   curveCompletionAt,
++  curveParameterAt,
+   effectiveHeadingAt,
+   flattenToAtomicSegments,
+   type FlatSegment,
+@@ -181,8 +182,12 @@ export function calculateRobotState(
+       linePercent = easeInOutQuad(Math.max(0, Math.min(1, timeProgress)));
+     }
+ 
++    // linePercent is distance travelled; the curve's own parameter is not
++    // spread evenly along it, so convert before placing the robot.
++    const curveT = curveParameterAt(curvePoints as BasePoint[], linePercent);
++
+     // Calculate Position
+-    const robotInchesXY = getCurvePoint(linePercent, curvePoints);
++    const robotInchesXY = getCurvePoint(curveT, curvePoints);
+ 
+     const robotXY = { x: xScale(robotInchesXY.x), y: yScale(robotInchesXY.y) };
+     let robotHeading = 0;
+@@ -198,7 +203,7 @@ export function calculateRobotState(
+     const headingT = effective.t;
+     const lineTraversal = getPointAndTangentAtProgress(
+       curvePoints as BasePoint[],
+-      linePercent,
++      curveT,
+       lineHeading.type === "tangential" ? lineHeading.reverse : undefined,
+     );
+ 
+@@ -223,7 +228,7 @@ export function calculateRobotState(
+           break;
+         case "tangential": {
+           const nextPointInches = getCurvePoint(
+-            linePercent + (lineHeading.reverse ? -0.01 : 0.01),
++            curveT + (lineHeading.reverse ? -0.01 : 0.01),
+             curvePoints,
+           );
+           const nextPoint = {
+@@ -248,7 +253,7 @@ export function calculateRobotState(
+       x: robotXY.x,
+       y: robotXY.y,
+       heading: robotHeading,
+-      t: linePercent,
++      t: curveT,
+     };
+   }
+ }
+-- 
+2.43.0
+

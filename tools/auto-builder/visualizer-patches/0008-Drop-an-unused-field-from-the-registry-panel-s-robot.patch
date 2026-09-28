@@ -1,0 +1,42 @@
+From cc261568a34e2a74e5d7d3046cf6ded43c130c94 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 02:50:26 +0000
+Subject: [PATCH 08/11] Drop an unused field from the registry panel's robot
+ position
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ src/lib/auto/components/AutoControlPanel.svelte | 2 +-
+ src/lib/auto/components/RegistryPanel.svelte    | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/src/lib/auto/components/AutoControlPanel.svelte b/src/lib/auto/components/AutoControlPanel.svelte
+index 7315d66..33de45b 100644
+--- a/src/lib/auto/components/AutoControlPanel.svelte
++++ b/src/lib/auto/components/AutoControlPanel.svelte
+@@ -59,7 +59,7 @@
+   let errors = $derived(issues.filter((issue) => issue.level === "error"));
+   let warnings = $derived(issues.filter((issue) => issue.level === "warning"));
+   let now = $derived((percent / 100) * preview.endTime);
+-  let robotInches = $derived({ x: x.invert(robotXY.x), y: y.invert(robotXY.y), headingDeg: -robotHeading });
++  let robotInches = $derived({ x: x.invert(robotXY.x), y: y.invert(robotXY.y) });
+   let markers = $derived(
+     preview.endTime > 0
+       ? preview.log
+diff --git a/src/lib/auto/components/RegistryPanel.svelte b/src/lib/auto/components/RegistryPanel.svelte
+index b7acdb8..4c62de9 100644
+--- a/src/lib/auto/components/RegistryPanel.svelte
++++ b/src/lib/auto/components/RegistryPanel.svelte
+@@ -7,7 +7,8 @@
+   interface Props {
+     auto: AutoSection;
+     defaultExportName: string;
+-    robotAt: { x: number; y: number; headingDeg: number };
++    /** Where the robot is now; "Add at robot" puts a new point there. */
++    robotAt: { x: number; y: number };
+   }
+ 
+   let { auto, defaultExportName, robotAt }: Props = $props();
+-- 
+2.43.0
+

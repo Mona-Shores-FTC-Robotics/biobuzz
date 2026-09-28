@@ -1,0 +1,2485 @@
+From ffd86ed87494f31fb866da8b4d817c1cbf1a4b9d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Mon, 28 Sep 2026 02:30:27 +0000
+Subject: [PATCH 04/11] Add the auto section of .pp files: model, load/save and
+ validation
+
+A project gains one top-level key, auto, holding the whole Autonomous as
+cards (actions, firstOf waits and decisions, path cards). The loader
+normalizes it without throwing and reports what it repaired; save writes
+it in a fixed key order and omits it when a project has no Auto. Undo,
+session recovery, the file manager and mirroring carry it along.
+
+Validation flags unregistered names, waits without a time row, missing
+or nested paths, double park cards and path discontinuities. A small
+Vite-based test runner (npm test) covers round trip and validation.
+
+Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+---
+ docs/auto-format.md                | 156 ++++++++
+ package.json                       |   3 +-
+ scripts/run-tests.mjs              |  54 +++
+ src/App.svelte                     |  15 +-
+ src/lib/FileManager.svelte         |  18 +-
+ src/lib/auto/auto.test.ts          | 189 ++++++++++
+ src/lib/auto/fixtures/hive-rush.pp | 553 +++++++++++++++++++++++++++++
+ src/lib/auto/fixtures/load.ts      |  22 ++
+ src/lib/auto/geometry.ts           | 206 +++++++++++
+ src/lib/auto/normalize.ts          | 361 +++++++++++++++++++
+ src/lib/auto/store.ts              |  57 +++
+ src/lib/auto/tree.ts               | 156 ++++++++
+ src/lib/auto/types.ts              | 117 ++++++
+ src/lib/auto/validate.ts           | 181 ++++++++++
+ src/lib/session/sessionSnapshot.ts |   3 +
+ src/lib/testing/harness.ts         |  46 +++
+ src/utils/history.ts               |   3 +
+ src/utils/project.ts               |   8 +-
+ 18 files changed, 2143 insertions(+), 5 deletions(-)
+ create mode 100644 docs/auto-format.md
+ create mode 100644 scripts/run-tests.mjs
+ create mode 100644 src/lib/auto/auto.test.ts
+ create mode 100644 src/lib/auto/fixtures/hive-rush.pp
+ create mode 100644 src/lib/auto/fixtures/load.ts
+ create mode 100644 src/lib/auto/geometry.ts
+ create mode 100644 src/lib/auto/normalize.ts
+ create mode 100644 src/lib/auto/store.ts
+ create mode 100644 src/lib/auto/tree.ts
+ create mode 100644 src/lib/auto/types.ts
+ create mode 100644 src/lib/auto/validate.ts
+ create mode 100644 src/lib/testing/harness.ts
+
+diff --git a/docs/auto-format.md b/docs/auto-format.md
+new file mode 100644
+index 0000000..c8a15f0
+--- /dev/null
++++ b/docs/auto-format.md
+@@ -0,0 +1,156 @@
++# The `auto` section of a `.pp` file
++
++This fork of the Pedro Pathing Visualizer adds an **Auto mode**: the Path List
++becomes a whole 30-second Autonomous made of cards (actions, waits, decisions
++with branches, path cards with while-driving actions and events, an endgame
++guard), previewed on the field and exported as Java for the robot's `autokit`
++library.
++
++A `.pp` file stays a normal Visualizer 1.5.0 file plus **one** new top-level
++key, `auto`. Everything the Auto builder adds lives under it, so:
++
++- the stock Visualizer opens our files (it ignores `auto`), and
++- a project without an Auto is written exactly as before (no `auto` key).
++
++## Shape
++
++```json
++"auto": {
++  "version": 1,
++  "drawnFor": "BLUE",
++  "exportName": "hive-rush",
++  "registry": { "actions": ["ShootAll", "SpinUp"], "conditions": ["LauncherReady", "HiveTipped"] },
++  "points": { "ShootSpot": [38, 71], "UpCellShot": [108, 84, 45] },
++  "cards": [
++    { "id": "c1", "kind": "action", "name": "SpinUp" },
++    { "id": "c2", "kind": "firstOf", "label": "Wait for LauncherReady",
++      "rows": [ { "when": ["LauncherReady"], "cards": [] }, { "afterMs": 800, "cards": [] } ] },
++    { "id": "c3", "kind": "path", "lineId": "<top-level path id>", "while": ["SpinDown"],
++      "events": [ { "at": 0.6, "action": "IntakeOn" } ], "park": false },
++    { "id": "c4", "kind": "firstOf", "label": "Did the HIVE tip?",
++      "rows": [ { "when": ["HiveTipped", "CameraBlind"], "label": "If tipped", "cards": [ ... ] },
++                { "afterMs": 1500, "label": "If not tipped", "cards": [ ... ] } ] }
++  ]
++}
++```
++
++A complete example that uses every card and row kind is
++`src/lib/auto/fixtures/hive-rush.pp`; its exported Java is the golden file
++`src/lib/codegen/auto/fixtures/HiveRushAuto.java`.
++
++### Top level
++
++| Key | Type | Meaning |
++|---|---|---|
++| `version` | `1` | Format version. A newer version loads with a warning. |
++| `drawnFor` | `"RED"` \| `"BLUE"` | The alliance the Auto is drawn for. The robot mirrors it for the other alliance (`PoseFactory.mirrorX(70.75)`). |
++| `exportName` | string, optional | Name of the generated class before the `Auto` suffix. Defaults to the file name (`hive-rush.pp` → `HiveRushAuto`). |
++| `registry.actions` | string[] | Robot actions the robot code registers. The editor cannot read robot code, so the file carries the list; dropdowns offer only these. |
++| `registry.conditions` | string[] | Registered true/false conditions, likewise. |
++| `points` | `{ name: [x, y] \| [x, y, headingDeg] }` | Named points (inches, Pedro field frame). Exported as named `Pose` locals; a path endpoint that sits on a named point uses its name. |
++| `cards` | card[] | The Auto, top to bottom (the "trunk"). |
++
++### Cards
++
++Every card has a unique `id` (the editor addresses cards by it) and a `kind`.
++
++| `kind` | Fields | Meaning |
++|---|---|---|
++| `action` | `name`, `previewMs?` | Runs a registered action. `previewMs` is only used by the preview (how long the action keeps the robot busy); it is not exported. |
++| `path` | `lineId`, `while`, `events`, `park` | Drives an existing path. `lineId` is the id of a **top-level** entry in the Path List (a path, or a group, which Pedro follows as one path). `while`: actions started with the path. `events`: `{at, action}` with `at` in 0..1 of the path's length. `park`: this is the branch's park path for the endgame guard. |
++| `firstOf` | `label`, `rows` | Waits for the first true row, then runs that row's cards; the cards after it continue once they are done. With no cards on any row it is a **Wait for** card; otherwise it is a **decision**. |
++
++### Rows
++
++Each row has exactly one condition key, plus `cards` (possibly empty) and an
++optional `label` (the branch's name; defaults to one made from the condition).
++
++| Row | Becomes true |
++|---|---|
++| `{"when": ["A", "B"]}` | when any of the registered conditions is true (OR) |
++| `{"afterMs": 800}` | 800 ms after the card started |
++| `{"timeLeftBelowS": 5}` | when less than 5 s of the 30 s Auto remain |
++| `{"otherwise": true}` | at once (= `afterMs: 0`): the "else" of an if |
++| `{"nearPoint": "ShootSpot", "radiusIn": 6}` | when the robot is within 6 in of the named point |
++| `{"inArea": ["CornerA", "CornerB"]}` | when the robot is inside the axis-aligned box with those named corners |
++
++Rules the editor enforces (errors block the Java export):
++
++- every `firstOf` has at least one **time row** (`afterMs`, `timeLeftBelowS`
++  or `otherwise`), so nothing can wait forever;
++- every action and condition name used anywhere is in the registry;
++- a path card names a top-level path that exists;
++- a list of cards has at most one park card.
++
++Warnings (shown, not blocking): a path that starts more than 2 in from where
++the robot can be when it starts; a park card that is not last in its branch;
++rows that can never fire because an earlier `otherwise` always wins; a
++branch whose worst case runs past 30 s.
++
++### Loading
++
++`normalizeAuto` (`src/lib/auto/normalize.ts`) never throws. It keeps what it
++can, re-issues missing or duplicate ids, sorts events by `at`, and returns a
++list of plain-English problems for anything it dropped (unknown card kinds,
++rows with zero or two conditions, malformed points, …); the app shows them as
++a toast. `serializeAuto` writes keys in a fixed order, so saving twice gives
++the same bytes.
++
++### Geometry
++
++A path card uses exactly the geometry the stock Visualizer draws and exports:
++a path starts where the previous path **in the Path List** ends. So two
++branches that both leave the same spot need the Path List to reach that spot
++before each of them; the discontinuity warning says when a card would start
++somewhere the robot is not.
++
++## Generated Java
++
++"Export Auto (Java)" writes `<ExportName>Auto.java` in package
++`org.firstinspires.ftc.teamcode.opmodes.auto.generated`, following the
++contract with the robot's `autokit` library:
++
++- `SOURCE`, `ACTIONS`, `CONDITIONS` (every registered name used, sorted, no
++  duplicates), `DRAWN_FOR`, `startPose(boolean mirrored)`, a private
++  `poses(boolean mirrored)` factory and `build(AutoKit kit, boolean mirrored)`;
++- every pose is a `Pose` local built with `p.of(...)` so mirroring applies to
++  all of them; named points first, then the other poses the paths need;
++- shapes become `kit.keepOut(...)` with their corners in order;
++- paths are `Path` locals using the same expressions as the stock export
++  (`Paths.line/curve/through/path` plus a heading suffix); `Interpolator` is
++  imported only when a piecewise heading is used;
++- the cards become one `kit.sequence(...)`; a `firstOf` becomes
++  `kit.firstOf(label, rows...)`; a row with cards is `kit.when(...).then(...)`;
++- a list that directly contains a park card is wrapped
++  `kit.guarded(label, parkPath, seconds, cards...)`, where `seconds` is the
++  park path's drive time by the preview's motion model, rounded **up** to
++  0.1 s; the trunk's guard label is `"Auto"`, a branch's is its row label.
++
++## Preview
++
++The preview runs the card tree against a **scenario**: for each registered
++condition, whether it becomes true and when (N s after the waiting card
++starts, or N s into the Auto). Decisions pick the first row that fires; the
++robot drives the chosen paths with the app's own motion profile; the field
++highlights the branches taken and dashes the others; a log lists each card,
++row and event with its time against the 30 s budget.
++
++Each branch also shows its **worst case**: the Auto's end time if that branch
++is taken and every later wait runs to its time row. Over 30 s it is flagged.
++
++The endgame guard is previewed at card boundaries and during waits: once the
++time left is no more than the park path's seconds, the rest of the branch is
++skipped and the park path is driven.
++
++## Upstream files touched
++
++New code lives in `src/lib/auto/`, `src/lib/codegen/auto/`,
++`src/lib/testing/` and `scripts/run-tests.mjs`. Hook edits to upstream files:
++
++- `src/utils/project.ts` — `ProjectDoc.auto`; `buildProject` writes it only when present.
++- `src/utils/history.ts` — `AppState.auto`, so undo/redo cover the Auto.
++- `src/lib/session/sessionSnapshot.ts` — the recovery snapshot carries `auto`.
++- `src/App.svelte` — load, save, undo/redo, session recovery.
++- `src/lib/FileManager.svelte` — load, save, new file, mirror.
++- `src/lib/codegen/identifiers.ts` — exports `isReservedWord`.
++- `package.json` — `test` script.
+diff --git a/package.json b/package.json
+index 354f2f0..5366d77 100644
+--- a/package.json
++++ b/package.json
+@@ -12,7 +12,8 @@
+     "lint": "eslint .",
+     "lint:fix": "eslint . --fix",
+     "format": "prettier --write .",
+-    "format:check": "prettier --check ."
++    "format:check": "prettier --check .",
++    "test": "node scripts/run-tests.mjs"
+   },
+   "devDependencies": {
+     "@eslint/js": "^10.0.1",
+diff --git a/scripts/run-tests.mjs b/scripts/run-tests.mjs
+new file mode 100644
+index 0000000..53950a7
+--- /dev/null
++++ b/scripts/run-tests.mjs
+@@ -0,0 +1,54 @@
++// Minimal test runner: loads every src/**/*.test.ts through Vite (so the
++// TypeScript and module resolution match the app) and runs what they register
++// with src/lib/testing/harness.ts. Usage: node scripts/run-tests.mjs [filter]
++import { createServer } from "vite";
++import { readdirSync, statSync } from "node:fs";
++import { join, relative } from "node:path";
++
++const root = process.cwd();
++const filter = process.argv[2] ?? "";
++
++function findTests(dir) {
++  const out = [];
++  for (const name of readdirSync(dir)) {
++    const path = join(dir, name);
++    if (statSync(path).isDirectory()) out.push(...findTests(path));
++    else if (name.endsWith(".test.ts")) out.push(path);
++  }
++  return out;
++}
++
++const server = await createServer({
++  configFile: false,
++  root,
++  logLevel: "error",
++  appType: "custom",
++  server: { middlewareMode: true, hmr: false, ws: false },
++  optimizeDeps: { noDiscovery: true, include: [] },
++});
++
++let failed = 0;
++let passed = 0;
++try {
++  const harness = await server.ssrLoadModule("/src/lib/testing/harness.ts");
++  for (const file of findTests(join(root, "src"))) {
++    const id = "/" + relative(root, file).split("\\").join("/");
++    if (filter && !id.includes(filter)) continue;
++    harness.resetTests();
++    await server.ssrLoadModule(id);
++    for (const { name, fn } of harness.registeredTests()) {
++      try {
++        await fn();
++        passed++;
++        console.log(`  ok   ${id} › ${name}`);
++      } catch (error) {
++        failed++;
++        console.log(`  FAIL ${id} › ${name}\n       ${String(error?.stack ?? error).split("\n").join("\n       ")}`);
++      }
++    }
++  }
++} finally {
++  await server.close();
++}
++console.log(`\n${passed} passed, ${failed} failed`);
++process.exit(failed ? 1 : 0);
+diff --git a/src/App.svelte b/src/App.svelte
+index 4e7b674..4014b27 100644
+--- a/src/App.svelte
++++ b/src/App.svelte
+@@ -161,6 +161,7 @@
+   import { onDestroy, onMount, tick } from "svelte";
+   import { debounce } from "lodash";
+   import { createHistory, type AppState } from "./utils/history";
++  import { autoSection, loadAutoFrom } from "./lib/auto/store";
+   // Browser-only build: file operations use the browser file store and
+   // localStorage. Electron-specific APIs have been removed.
+ 
+@@ -570,6 +571,7 @@
+         fieldPoints,
+         activePaths: $activePaths,
+         settings,
++        auto: $autoSection,
+       },
+       overrides,
+     );
+@@ -583,6 +585,7 @@
+       sequence,
+       settings,
+       fieldPoints,
++      auto: $autoSection,
+     };
+   }
+ 
+@@ -599,6 +602,7 @@
+       sequence = prev.sequence;
+       settings = prev.settings;
+       fieldPoints = prev.fieldPoints;
++      autoSection.set(prev.auto ?? null);
+       isUnsaved.set(true);
+       two?.update();
+     }
+@@ -615,6 +619,7 @@
+       sequence = next.sequence;
+       settings = next.settings;
+       fieldPoints = next.fieldPoints;
++      autoSection.set(next.auto ?? null);
+       isUnsaved.set(true);
+       two?.update();
+     }
+@@ -685,6 +690,7 @@
+       secondSequence,
+       secondShapes,
+       activePaths: $activePaths,
++      auto: $autoSection,
+       timestamp: new Date().toISOString(),
+     };
+   }
+@@ -708,6 +714,8 @@
+     secondShapes = snapshot.secondShapes;
+ 
+     activePaths.set(snapshot.activePaths);
++    const autoProblems = loadAutoFrom(snapshot);
++    if (autoProblems.length) console.warn("Auto recovery:", autoProblems);
+     isUnsaved.set(true);
+ 
+     return true;
+@@ -1815,6 +1823,11 @@
+ 
+       activePaths.set(Array.isArray(data.activePaths) ? data.activePaths : []);
+ 
++      const autoProblems = loadAutoFrom(data);
++      if (autoProblems.length) {
++        showToast(`Auto: ${autoProblems.join(" ")}`, "warning");
++      }
++
+       isUnsaved.set(false);
+       recordChange();
+ 
+@@ -2675,7 +2688,7 @@
+   );
+   // Reactively trigger when any saveable data changes
+   $effect.pre(() => {
+-    if (isLoaded && (lines || shapes || startPoint || settings)) {
++    if (isLoaded && (lines || shapes || startPoint || settings || $autoSection)) {
+       isUnsaved.set(true);
+     }
+   });
+diff --git a/src/lib/FileManager.svelte b/src/lib/FileManager.svelte
+index 3a13bb4..7787a45 100644
+--- a/src/lib/FileManager.svelte
++++ b/src/lib/FileManager.svelte
+@@ -36,6 +36,7 @@
+   } from "../config";
+   import { showToast } from "./toast";
+   import NameDialog from "./components/NameDialog.svelte";
++  import { currentAuto, loadAutoFrom, mirrorAutoData } from "./auto/store";
+   import FileListItem from "./components/FileListItem.svelte";
+   import FileActionsPanel from "./components/FileActionsPanel.svelte";
+ 
+@@ -124,6 +125,7 @@
+       shapes,
+       sequence,
+       fieldPoints,
++      auto: currentAuto(),
+     });
+     await browserFileStore.writeFile($currentFilePath, content);
+     isUnsaved.set(false);
+@@ -232,6 +234,7 @@
+           shapes: renamingPrimary ? shapes : secondShapes,
+           sequence: renamingPrimary ? sequence : secondSequence,
+           fieldPoints,
++          auto: renamingPrimary ? currentAuto() : null,
+         });
+         await browserFileStore.writeFile(renamingFile.path, currentContent);
+       }
+@@ -312,6 +315,7 @@
+         shapes: data.shapes || [],
+         sequence: deriveSequence(data, normalizedLines),
+         fieldPoints: hydrateFieldPoints(data),
++        raw: data,
+       };
+     } catch (error) {
+       const errMsg = getErrorMessage(error);
+@@ -334,6 +338,10 @@
+     shapes = doc.shapes;
+     sequence = doc.sequence;
+     fieldPoints = doc.fieldPoints;
++    const autoProblems = loadAutoFrom(doc.raw);
++    if (autoProblems.length) {
++      showToast(`Auto: ${autoProblems.join(" ")}`, "warning");
++    }
+ 
+     currentFilePath.set(file.path);
+     isUnsaved.set(false);
+@@ -384,6 +392,7 @@
+         shapes,
+         sequence,
+         fieldPoints,
++        auto: currentAuto(),
+       });
+ 
+       await browserFileStore.writeFile(selectedFile.path, content);
+@@ -401,7 +410,7 @@
+   function downloadCurrentToDisk() {
+     try {
+       const content = serializeProject(
+-        { startPoint, lines, shapes, sequence, fieldPoints },
++        { startPoint, lines, shapes, sequence, fieldPoints, auto: currentAuto() },
+         { pretty: true },
+       );
+ 
+@@ -441,7 +450,7 @@
+       const writable = await handle.createWritable();
+ 
+       const content = serializeProject(
+-        { startPoint, lines, shapes, sequence, fieldPoints },
++        { startPoint, lines, shapes, sequence, fieldPoints, auto: currentAuto() },
+         { pretty: true },
+       );
+ 
+@@ -514,6 +523,7 @@
+       shapes = defaultShapes;
+       sequence = defaultSequence;
+       fieldPoints = defaultFieldPoints;
++      loadAutoFrom({});
+ 
+       selectedFile = files.find((f) => f.name === fileName) || null;
+       if (selectedFile) {
+@@ -822,6 +832,10 @@
+       mirrorPaths(mirrored.lines);
+     }
+ 
++    if (mirrored.auto !== undefined) {
++      mirrored.auto = mirrorAutoData(mirrored.auto);
++    }
++
+     // Don't mirror shapes/obstacles - they should remain in their original positions
+     // (removed mirroring logic for shapes)
+ 
+diff --git a/src/lib/auto/auto.test.ts b/src/lib/auto/auto.test.ts
+new file mode 100644
+index 0000000..dfa20b1
+--- /dev/null
++++ b/src/lib/auto/auto.test.ts
+@@ -0,0 +1,189 @@
++import { assert, assertEqual, test } from "../testing/harness";
++import { loadSample } from "./fixtures/load";
++import { createEmptyAuto, normalizeAuto, serializeAuto } from "./normalize";
++import { buildProject, serializeProject } from "../../utils/project";
++import { buildPathCatalog } from "./geometry";
++import { validateAuto, type AutoIssue } from "./validate";
++import { findCard, usedNames } from "./tree";
++import type { AutoSection, FirstOfCard, PathCard } from "./types";
++
++const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value));
++
++function issuesOf(auto: AutoSection): AutoIssue[] {
++  const sample = loadSample();
++  const catalog = buildPathCatalog(sample.startPoint, sample.lines, sample.settings);
++  return validateAuto(auto, catalog, sample.startPoint);
++}
++
++test("the sample's auto section loads without problems", () => {
++  const sample = loadSample();
++  assertEqual(sample.problems, []);
++  assertEqual(sample.auto.cards.length, 4);
++});
++
++test("serializing a normalized section gives back the file's section", () => {
++  const sample = loadSample();
++  assertEqual(serializeAuto(sample.auto), sample.data.auto);
++});
++
++test("save then load round-trips the auto section through a project file", () => {
++  const sample = loadSample();
++  const text = serializeProject(
++    {
++      startPoint: sample.startPoint,
++      lines: sample.lines,
++      shapes: sample.shapes,
++      sequence: [],
++      auto: sample.auto,
++    },
++    { pretty: true },
++  );
++  const reread = JSON.parse(text);
++  const { auto, problems } = normalizeAuto(reread.auto);
++  assertEqual(problems, []);
++  assertEqual(auto, sample.auto);
++  // And again: saving the reloaded section changes nothing.
++  assertEqual(serializeAuto(auto!), reread.auto);
++});
++
++test("a project without an Auto writes no auto key", () => {
++  const sample = loadSample();
++  const project = buildProject({
++    startPoint: sample.startPoint,
++    lines: sample.lines,
++    shapes: [],
++    sequence: [],
++    auto: null,
++  });
++  assert(!("auto" in project), "no auto key expected");
++  assertEqual(normalizeAuto(undefined), { auto: null, problems: [] });
++});
++
++test("the loader repairs what it can and says what it dropped", () => {
++  const { auto, problems } = normalizeAuto({
++    version: 2,
++    drawnFor: "GREEN",
++    registry: { actions: ["A", "A", 3, " B "], conditions: "nope" },
++    points: { Good: [1, 2], Bad: [1] },
++    cards: [
++      { id: "x", kind: "action", name: "A" },
++      { id: "x", kind: "action", name: "B" },
++      { kind: "teleport" },
++      {
++        id: "p",
++        kind: "path",
++        lineId: "l1",
++        events: [{ at: 1.5, action: "A" }, { at: 0.2, action: "B" }, { at: "no" }],
++      },
++      {
++        id: "f",
++        kind: "firstOf",
++        rows: [
++          { when: ["C"], afterMs: 5, cards: [] },
++          { afterMs: -1, cards: [] },
++          { otherwise: true },
++        ],
++      },
++    ],
++  });
++  assert(auto, "section expected");
++  assertEqual(auto.drawnFor, "BLUE");
++  assertEqual(auto.registry, { actions: ["A", "B"], conditions: [] });
++  assertEqual(Object.keys(auto.points), ["Good"]);
++  assertEqual(auto.cards.map((card) => card.kind), ["action", "action", "path", "firstOf"]);
++  assert(auto.cards[0].id !== auto.cards[1].id, "duplicate ids must be re-issued");
++  const path = auto.cards[2] as PathCard;
++  assertEqual(path.events, [
++    { at: 0.2, action: "B" },
++    { at: 1, action: "A" },
++  ]);
++  assertEqual(path.park, false);
++  assertEqual((auto.cards[3] as FirstOfCard).rows, [{ cards: [], otherwise: true }]);
++  const text = problems.join("\n");
++  for (const expected of ["newer Auto builder", "drawnFor", "registry.conditions", 'Point "Bad"', '"teleport"', "more than one condition", "afterMs must be"]) {
++    assert(text.includes(expected), `expected a problem mentioning ${expected}; got:\n${text}`);
++  }
++});
++
++test("a non-object auto section is reported, not loaded", () => {
++  const { auto, problems } = normalizeAuto("hello");
++  assertEqual(auto, null);
++  assertEqual(problems.length, 1);
++});
++
++test("an empty Auto is valid", () => {
++  assertEqual(issuesOf(createEmptyAuto()), []);
++});
++
++test("the sample validates clean", () => {
++  const sample = loadSample();
++  assertEqual(issuesOf(sample.auto), []);
++});
++
++test("used names are counted across cards, chips, events and rows", () => {
++  const sample = loadSample();
++  const used = usedNames(sample.auto);
++  assertEqual([...used.conditions.keys()].sort(), ["CameraBlind", "HiveTipped", "IntakeFull", "LauncherReady"]);
++  assertEqual(used.actions.get("IntakeOn"), 5);
++});
++
++test("unregistered names are errors", () => {
++  const auto = clone(loadSample().auto);
++  auto.registry.actions = auto.registry.actions.filter((name) => name !== "IntakeOn");
++  auto.registry.conditions = auto.registry.conditions.filter((name) => name !== "CameraBlind");
++  const errors = issuesOf(auto).filter((issue) => issue.level === "error");
++  assert(errors.some((e) => e.message.includes('"IntakeOn"') && e.message.includes("registered action")));
++  assert(errors.some((e) => e.cardId === "did-tip" && e.message.includes('"CameraBlind"')));
++});
++
++test("a wait with no time row is an error", () => {
++  const auto = clone(loadSample().auto);
++  const wait = findCard(auto.cards, "wait-ready") as FirstOfCard;
++  wait.rows = wait.rows.filter((row) => "when" in row);
++  const issues = issuesOf(auto);
++  assert(
++    issues.some((i) => i.level === "error" && i.cardId === "wait-ready" && i.message.includes("time row")),
++    JSON.stringify(issues),
++  );
++});
++
++test("a path that starts away from the robot is a discontinuity warning", () => {
++  const auto = clone(loadSample().auto);
++  // Drive CollectFar straight after the preload shot, from ShootSpot.
++  auto.cards.splice(3, 0, {
++    id: "jump",
++    kind: "path",
++    lineId: "far-collect",
++    while: [],
++    events: [],
++    park: false,
++  });
++  const issues = issuesOf(auto);
++  const jump = issues.find((i) => i.cardId === "jump");
++  assert(jump && jump.level === "warning" && jump.message.includes("starts"), JSON.stringify(issues));
++});
++
++test("paths inside a group, missing paths and double parks are errors", () => {
++  const auto = clone(loadSample().auto);
++  auto.cards.push(
++    { id: "nested", kind: "path", lineId: "far-collect-a", while: [], events: [], park: false },
++    { id: "gone", kind: "path", lineId: "no-such-line", while: [], events: [], park: false },
++    { id: "park1", kind: "path", lineId: "far-park", while: [], events: [], park: true },
++    { id: "park2", kind: "path", lineId: "far-park", while: [], events: [], park: true },
++  );
++  const issues = issuesOf(auto);
++  const errorFor = (id: string) => issues.find((i) => i.cardId === id && i.level === "error");
++  assert(errorFor("nested")?.message.includes("inside a group"), JSON.stringify(issues));
++  assert(errorFor("gone")?.message.includes("no longer exists"));
++  assert(errorFor("park2")?.message.includes("more than one park"));
++  assert(!errorFor("park1"));
++});
++
++test("rows after an otherwise row are flagged as unreachable", () => {
++  const auto = clone(loadSample().auto);
++  const wait = findCard(auto.cards, "wait-ready") as FirstOfCard;
++  wait.rows.unshift({ otherwise: true, cards: [] });
++  const issues = issuesOf(auto).filter((i) => i.cardId === "wait-ready");
++  assertEqual(issues.length, 2);
++  assert(issues.every((i) => i.level === "warning" && i.message.includes("never fire")));
++});
+diff --git a/src/lib/auto/fixtures/hive-rush.pp b/src/lib/auto/fixtures/hive-rush.pp
+new file mode 100644
+index 0000000..f0d26c1
+--- /dev/null
++++ b/src/lib/auto/fixtures/hive-rush.pp
+@@ -0,0 +1,553 @@
++{
++  "startPoint": {
++    "x": 38,
++    "y": 71,
++    "headingDeg": 0
++  },
++  "lines": [
++    {
++      "id": "near-collect",
++      "color": "#ff8a3d",
++      "name": "CollectNear",
++      "kind": "atomic",
++      "endPoint": {
++        "x": 26,
++        "y": 120
++      },
++      "controlPoints": [
++        {
++          "x": 18,
++          "y": 88
++        }
++      ],
++      "heading": {
++        "type": "tangential",
++        "reverse": false
++      },
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    },
++    {
++      "id": "near-back",
++      "color": "#ff8a3d",
++      "name": "BackToShoot",
++      "kind": "atomic",
++      "endPoint": {
++        "x": 38,
++        "y": 71
++      },
++      "controlPoints": [
++        {
++          "x": 34,
++          "y": 100
++        }
++      ],
++      "heading": {
++        "type": "constant",
++        "degrees": 0
++      },
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    },
++    {
++      "id": "far-to",
++      "color": "#3fcf8e",
++      "name": "ToFarPickups",
++      "kind": "atomic",
++      "endPoint": {
++        "x": 116,
++        "y": 120
++      },
++      "controlPoints": [
++        {
++          "x": 34,
++          "y": 128
++        },
++        {
++          "x": 98,
++          "y": 134
++        }
++      ],
++      "heading": {
++        "type": "tangential",
++        "reverse": false
++      },
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    },
++    {
++      "id": "far-collect",
++      "color": "#3fcf8e",
++      "name": "CollectFar",
++      "kind": "compound",
++      "segments": [
++        {
++          "id": "far-collect-a",
++          "color": "#3fcf8e",
++          "name": "",
++          "kind": "atomic",
++          "endPoint": {
++            "x": 128,
++            "y": 120
++          },
++          "controlPoints": [],
++          "heading": {
++            "type": "constant",
++            "degrees": 0
++          },
++          "waitBeforeMs": 0,
++          "waitAfterMs": 0,
++          "waitBeforeName": "",
++          "waitAfterName": ""
++        },
++        {
++          "id": "far-collect-b",
++          "color": "#3fcf8e",
++          "name": "",
++          "kind": "atomic",
++          "endPoint": {
++            "x": 128,
++            "y": 104
++          },
++          "controlPoints": [
++            {
++              "x": 134,
++              "y": 112
++            }
++          ],
++          "heading": {
++            "type": "constant",
++            "degrees": 0
++          },
++          "waitBeforeMs": 0,
++          "waitAfterMs": 0,
++          "waitBeforeName": "",
++          "waitAfterName": ""
++        }
++      ],
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    },
++    {
++      "id": "far-up",
++      "color": "#3fcf8e",
++      "name": "ToUpCellShot",
++      "kind": "atomic",
++      "endPoint": {
++        "x": 108,
++        "y": 84
++      },
++      "controlPoints": [],
++      "heading": {
++        "type": "piecewise",
++        "piecewiseHeading": {
++          "segments": [
++            {
++              "startProgress": 0,
++              "endProgress": 0.5,
++              "interpolationType": "constant",
++              "parameters": {
++                "degrees": 0
++              }
++            },
++            {
++              "startProgress": 0.5,
++              "endProgress": 1,
++              "interpolationType": "linear",
++              "parameters": {
++                "startDeg": 0,
++                "endDeg": 45
++              }
++            }
++          ]
++        }
++      },
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    },
++    {
++      "id": "far-park",
++      "color": "#3fcf8e",
++      "name": "ParkFarPath",
++      "kind": "atomic",
++      "endPoint": {
++        "x": 124,
++        "y": 28
++      },
++      "controlPoints": [
++        {
++          "x": 112,
++          "y": 56
++        }
++      ],
++      "heading": {
++        "type": "tangential",
++        "reverse": false
++      },
++      "waitBeforeMs": 0,
++      "waitAfterMs": 0,
++      "waitBeforeName": "",
++      "waitAfterName": ""
++    }
++  ],
++  "shapes": [
++    {
++      "id": "hive",
++      "name": "HIVE",
++      "vertices": [
++        {
++          "x": 46,
++          "y": 41
++        },
++        {
++          "x": 96,
++          "y": 41
++        },
++        {
++          "x": 96,
++          "y": 91
++        },
++        {
++          "x": 46,
++          "y": 91
++        }
++      ],
++      "color": "#dc2626",
++      "fillColor": "#ff6b6b"
++    }
++  ],
++  "sequence": [
++    {
++      "kind": "path",
++      "lineId": "near-collect"
++    },
++    {
++      "kind": "path",
++      "lineId": "near-back"
++    },
++    {
++      "kind": "path",
++      "lineId": "far-to"
++    },
++    {
++      "kind": "path",
++      "lineId": "far-collect-a"
++    },
++    {
++      "kind": "path",
++      "lineId": "far-collect-b"
++    },
++    {
++      "kind": "path",
++      "lineId": "far-up"
++    },
++    {
++      "kind": "path",
++      "lineId": "far-park"
++    }
++  ],
++  "fieldPoints": [],
++  "settings": {
++    "xVelocity": 75,
++    "yVelocity": 65,
++    "aVelocity": 3.141592653589793,
++    "kFriction": 0.1,
++    "rWidth": 16,
++    "rHeight": 16,
++    "safetyMargin": 1,
++    "maxVelocity": 60,
++    "maxAcceleration": 55,
++    "maxDeceleration": 55,
++    "fieldMap": "biobuzz.webp"
++  },
++  "auto": {
++    "version": 1,
++    "drawnFor": "BLUE",
++    "registry": {
++      "actions": [
++        "SpinUp",
++        "ShootAll",
++        "IntakeOn",
++        "IntakeOff",
++        "SpinDown"
++      ],
++      "conditions": [
++        "LauncherReady",
++        "HiveTipped",
++        "CameraBlind",
++        "IntakeFull"
++      ]
++    },
++    "points": {
++      "ShootSpot": [
++        38,
++        71
++      ],
++      "NearPickup": [
++        26,
++        120
++      ],
++      "FarPickup": [
++        116,
++        120
++      ],
++      "UpCellShot": [
++        108,
++        84,
++        45
++      ],
++      "ParkFar": [
++        124,
++        28
++      ]
++    },
++    "cards": [
++      {
++        "id": "spin-up",
++        "kind": "action",
++        "name": "SpinUp"
++      },
++      {
++        "id": "wait-ready",
++        "kind": "firstOf",
++        "label": "Wait for LauncherReady",
++        "rows": [
++          {
++            "when": [
++              "LauncherReady"
++            ],
++            "cards": []
++          },
++          {
++            "afterMs": 800,
++            "cards": []
++          }
++        ]
++      },
++      {
++        "id": "shoot-preload",
++        "kind": "action",
++        "name": "ShootAll",
++        "previewMs": 1600
++      },
++      {
++        "id": "did-tip",
++        "kind": "firstOf",
++        "label": "Did the HIVE tip?",
++        "rows": [
++          {
++            "when": [
++              "HiveTipped",
++              "CameraBlind"
++            ],
++            "label": "If tipped",
++            "cards": [
++              {
++                "id": "tip-1",
++                "kind": "path",
++                "lineId": "far-to",
++                "while": [
++                  "SpinDown"
++                ],
++                "events": [
++                  {
++                    "at": 0.6,
++                    "action": "IntakeOn"
++                  }
++                ],
++                "park": false
++              },
++              {
++                "id": "tip-2",
++                "kind": "path",
++                "lineId": "far-collect",
++                "while": [
++                  "IntakeOn"
++                ],
++                "events": [],
++                "park": false
++              },
++              {
++                "id": "tip-3",
++                "kind": "action",
++                "name": "IntakeOff"
++              },
++              {
++                "id": "tip-4",
++                "kind": "path",
++                "lineId": "far-up",
++                "while": [
++                  "SpinUp"
++                ],
++                "events": [],
++                "park": false
++              },
++              {
++                "id": "tip-5",
++                "kind": "action",
++                "name": "ShootAll",
++                "previewMs": 1600
++              },
++              {
++                "id": "tip-6",
++                "kind": "path",
++                "lineId": "far-park",
++                "while": [],
++                "events": [],
++                "park": true
++              }
++            ]
++          },
++          {
++            "afterMs": 1500,
++            "label": "If not tipped",
++            "cards": [
++              {
++                "id": "near-1",
++                "kind": "path",
++                "lineId": "near-collect",
++                "while": [],
++                "events": [
++                  {
++                    "at": 0.35,
++                    "action": "IntakeOn"
++                  }
++                ],
++                "park": false
++              },
++              {
++                "id": "near-2",
++                "kind": "firstOf",
++                "label": "Wait for IntakeFull",
++                "rows": [
++                  {
++                    "when": [
++                      "IntakeFull"
++                    ],
++                    "cards": []
++                  },
++                  {
++                    "afterMs": 1800,
++                    "cards": []
++                  }
++                ]
++              },
++              {
++                "id": "near-3",
++                "kind": "path",
++                "lineId": "near-back",
++                "while": [
++                  "IntakeOff",
++                  "SpinUp"
++                ],
++                "events": [],
++                "park": false
++              },
++              {
++                "id": "near-4",
++                "kind": "action",
++                "name": "ShootAll",
++                "previewMs": 1600
++              },
++              {
++                "id": "near-5",
++                "kind": "firstOf",
++                "label": "Did it tip this time?",
++                "rows": [
++                  {
++                    "when": [
++                      "HiveTipped"
++                    ],
++                    "label": "Tipped late",
++                    "cards": [
++                      {
++                        "id": "late-1",
++                        "kind": "path",
++                        "lineId": "far-to",
++                        "while": [
++                          "SpinDown"
++                        ],
++                        "events": [
++                          {
++                            "at": 0.6,
++                            "action": "IntakeOn"
++                          }
++                        ],
++                        "park": false
++                      },
++                      {
++                        "id": "late-2",
++                        "kind": "path",
++                        "lineId": "far-collect",
++                        "while": [
++                          "IntakeOn"
++                        ],
++                        "events": [],
++                        "park": false
++                      },
++                      {
++                        "id": "late-3",
++                        "kind": "action",
++                        "name": "IntakeOff"
++                      },
++                      {
++                        "id": "late-4",
++                        "kind": "path",
++                        "lineId": "far-up",
++                        "while": [
++                          "SpinUp"
++                        ],
++                        "events": [],
++                        "park": false
++                      },
++                      {
++                        "id": "late-5",
++                        "kind": "action",
++                        "name": "ShootAll",
++                        "previewMs": 1600
++                      },
++                      {
++                        "id": "late-6",
++                        "kind": "path",
++                        "lineId": "far-park",
++                        "while": [],
++                        "events": [],
++                        "park": true
++                      }
++                    ]
++                  },
++                  {
++                    "timeLeftBelowS": 6,
++                    "label": "Out of time",
++                    "cards": [
++                      {
++                        "id": "late-out",
++                        "kind": "action",
++                        "name": "SpinDown"
++                      }
++                    ]
++                  },
++                  {
++                    "otherwise": true,
++                    "cards": []
++                  }
++                ]
++              }
++            ]
++          }
++        ]
++      }
++    ]
++  },
++  "version": "1.5.0"
++}
+diff --git a/src/lib/auto/fixtures/load.ts b/src/lib/auto/fixtures/load.ts
+new file mode 100644
+index 0000000..81b5645
+--- /dev/null
++++ b/src/lib/auto/fixtures/load.ts
+@@ -0,0 +1,22 @@
++import sampleText from "./hive-rush.pp?raw";
++import { normalizePaths, normalizeStartPose } from "../../../utils/normalize";
++import { DEFAULT_SETTINGS } from "../../../config";
++import type { Settings, Shape } from "../../../types";
++import { normalizeAuto } from "../normalize";
++
++/** The hive-rush sample project, read the way the app reads a file. */
++export function loadSample() {
++  const data = JSON.parse(sampleText);
++  const { auto, problems } = normalizeAuto(data.auto);
++  if (!auto) throw new Error("sample has no auto section");
++  return {
++    data,
++    text: sampleText as string,
++    auto,
++    problems,
++    startPoint: normalizeStartPose(data.startPoint),
++    lines: normalizePaths(data.lines),
++    shapes: data.shapes as Shape[],
++    settings: { ...DEFAULT_SETTINGS, ...data.settings } as Settings,
++  };
++}
+diff --git a/src/lib/auto/geometry.ts b/src/lib/auto/geometry.ts
+new file mode 100644
+index 0000000..682ba67
+--- /dev/null
++++ b/src/lib/auto/geometry.ts
+@@ -0,0 +1,206 @@
++import type {
++  BasePoint,
++  Path,
++  Settings,
++  StartPose,
++  TimelineEvent,
++} from "../../types";
++import { calculatePathTime, runDistanceAt } from "../../utils/timeCalculator";
++import {
++  atomicSegments,
++  effectiveHeadingAt,
++  flattenToAtomicSegments,
++  type FlatSegment,
++} from "../../utils/pathTraversal";
++import { getLineEndHeading, getLineStartHeading } from "../../utils/headingInterpolation";
++import { easeInOutQuad, getCurvePoint } from "../../utils/math";
++
++/**
++ * What the Auto needs to know about one of the project's paths.
++ *
++ * A path card names a top-level entry of the Path List: a single path or a
++ * group, which Pedro follows as one path. Its geometry is exactly the stock
++ * Visualizer's: each path starts where the previous one in the list ends.
++ */
++export interface PathInfo {
++  id: string;
++  /** Position in the top-level list. */
++  index: number;
++  name: string;
++  segments: FlatSegment[];
++  start: BasePoint;
++  end: BasePoint;
++  startHeadingDeg: number;
++  endHeadingDeg: number;
++  length: number;
++  /** Seconds to drive it from rest to rest, by the app's motion model. */
++  seconds: number;
++  /** The app's travel events for it alone, starting at time 0. */
++  travel: TimelineEvent[];
++  /** Sampled points along the whole path, for drawing and event markers. */
++  samples: BasePoint[];
++  /** Cumulative arc length at each sample. */
++  sampleDistances: number[];
++  /** Inches covered `time` seconds after the path starts. */
++  distanceAt: (time: number) => number;
++}
++
++export interface PathCatalog {
++  /** Top-level paths, in list order. */
++  paths: PathInfo[];
++  byId: Map<string, PathInfo>;
++  /** Ids of segments nested inside a group (not valid path-card targets). */
++  nestedIds: Set<string>;
++  /** Display name of every path and group, nested ones included. */
++  names: Map<string, string>;
++}
++
++/** Names as the Path List shows them: "Path N" counts segments, "Group N" groups. */
++export function pathDisplayNames(lines: Path[]): Map<string, string> {
++  const names = new Map<string, string>();
++  let segmentNumber = 0;
++  let groupNumber = 0;
++  const walk = (nodes: Path[]) => {
++    for (const node of nodes) {
++      if (node.kind === "compound") {
++        groupNumber += 1;
++        names.set(node.id, node.name || `Group ${groupNumber}`);
++        walk(node.segments);
++      } else {
++        segmentNumber += 1;
++        names.set(node.id, node.name || `Path ${segmentNumber}`);
++      }
++    }
++  };
++  walk(lines);
++  return names;
++}
++
++const SAMPLES_PER_SEGMENT = 40;
++
++export function buildPathCatalog(
++  startPoint: StartPose,
++  lines: Path[],
++  settings: Settings,
++): PathCatalog {
++  const flat = flattenToAtomicSegments(startPoint, lines);
++  const names = pathDisplayNames(lines);
++  const bySegmentId = new Map(flat.map((segment) => [segment.line.id, segment]));
++  const nestedIds = new Set<string>();
++  const paths: PathInfo[] = [];
++
++  lines.forEach((node, index) => {
++    const segments = atomicSegments([node])
++      .map((line) => bySegmentId.get(line.id))
++      .filter((segment): segment is FlatSegment => Boolean(segment));
++    if (node.kind === "compound") {
++      atomicSegments(node.segments).forEach((line) => nestedIds.add(line.id));
++      const collectGroups = (children: Path[]) =>
++        children.forEach((child) => {
++          if (child.kind === "compound") {
++            nestedIds.add(child.id);
++            collectGroups(child.segments);
++          }
++        });
++      collectGroups(node.segments);
++    }
++    if (segments.length === 0) return;
++
++    const first = segments[0];
++    const last = segments[segments.length - 1];
++    const startHeading = effectiveHeadingAt(flat, first.index, 0);
++    const endHeading = effectiveHeadingAt(flat, last.index, 1);
++    const prediction = calculatePathTime(
++      startPoint,
++      lines,
++      settings,
++      segments.map((segment) => ({ kind: "path", lineId: segment.line.id })),
++    );
++
++    const samples: BasePoint[] = [];
++    const sampleDistances: number[] = [];
++    let travelled = 0;
++    segments.forEach((segment, segmentIndex) => {
++      for (let k = segmentIndex === 0 ? 0 : 1; k <= SAMPLES_PER_SEGMENT; k++) {
++        const point = getCurvePoint(k / SAMPLES_PER_SEGMENT, segment.points);
++        const previous = samples[samples.length - 1];
++        if (previous) travelled += Math.hypot(point.x - previous.x, point.y - previous.y);
++        samples.push(point);
++        sampleDistances.push(travelled);
++      }
++    });
++
++    paths.push({
++      id: node.id,
++      index,
++      name: names.get(node.id) ?? `Path ${index + 1}`,
++      segments,
++      start: first.start,
++      end: last.line.endPoint,
++      startHeadingDeg: getLineStartHeading(
++        first.line,
++        first.start,
++        startHeading.heading,
++        startHeading.t,
++      ),
++      endHeadingDeg: getLineEndHeading(
++        last.line,
++        last.start,
++        endHeading.heading,
++        endHeading.t,
++      ),
++      length: segments.reduce((sum, segment) => sum + segment.arcLength, 0),
++      seconds: prediction.totalTime,
++      travel: prediction.timeline.filter((event) => event.type === "travel"),
++      samples,
++      sampleDistances,
++      distanceAt: (time: number) => {
++        const run = prediction.timeline.find((event) => event.run)?.run;
++        if (!run) return 0;
++        return Math.min(
++          run.totalLength,
++          runDistanceAt(run, Math.min(time, run.totalTime), settings, easeInOutQuad),
++        );
++      },
++    });
++  });
++
++  return {
++    paths,
++    byId: new Map(paths.map((path) => [path.id, path])),
++    nestedIds,
++    names,
++  };
++}
++
++/** The point `fraction` (0..1) of the way along the path by distance. */
++export function pointAlong(path: PathInfo, fraction: number): BasePoint {
++  const { samples, sampleDistances } = path;
++  if (samples.length === 0) return path.start;
++  const target = Math.max(0, Math.min(1, fraction)) * path.length;
++  let index = 1;
++  while (index < samples.length - 1 && sampleDistances[index] < target) index++;
++  const a = samples[index - 1] ?? samples[0];
++  const b = samples[index] ?? a;
++  const span = sampleDistances[index] - (sampleDistances[index - 1] ?? 0);
++  const within = span > 1e-9 ? (target - sampleDistances[index - 1]) / span : 0;
++  return { x: a.x + (b.x - a.x) * within, y: a.y + (b.y - a.y) * within };
++}
++
++/**
++ * Seconds from the start of the path until the robot has covered `fraction`
++ * of it, on the same profile the app animates.
++ */
++export function timeAtFraction(path: PathInfo, fraction: number): number {
++  if (path.length <= 1e-9 || path.seconds <= 0) return 0;
++  const target = Math.max(0, Math.min(1, fraction)) * path.length;
++  // Distance only grows with time, so bisect.
++  let low = 0;
++  let high = path.seconds;
++  for (let i = 0; i < 50; i++) {
++    const mid = (low + high) / 2;
++    if (path.distanceAt(mid) < target) low = mid;
++    else high = mid;
++  }
++  return (low + high) / 2;
++}
+diff --git a/src/lib/auto/normalize.ts b/src/lib/auto/normalize.ts
+new file mode 100644
+index 0000000..e808191
+--- /dev/null
++++ b/src/lib/auto/normalize.ts
+@@ -0,0 +1,361 @@
++import {
++  AUTO_FORMAT_VERSION,
++  type Alliance,
++  type AutoCard,
++  type AutoRow,
++  type AutoSection,
++  type NamedPoint,
++  type PathEvent,
++} from "./types";
++import { makeCardId } from "./tree";
++
++/**
++ * Reading the `auto` section of a file.
++ *
++ * The loader is forgiving: it keeps everything it can make sense of and
++ * reports, in plain words, what it had to drop or repair. It never throws, so
++ * a damaged `auto` section cannot stop the paths themselves from loading.
++ */
++export interface NormalizeResult {
++  /** Null when the file has no `auto` section. */
++  auto: AutoSection | null;
++  problems: string[];
++}
++
++export function createEmptyAuto(drawnFor: Alliance = "BLUE"): AutoSection {
++  return {
++    version: AUTO_FORMAT_VERSION,
++    drawnFor,
++    registry: { actions: [], conditions: [] },
++    points: {},
++    cards: [],
++  };
++}
++
++const isObject = (value: unknown): value is Record<string, unknown> =>
++  typeof value === "object" && value !== null && !Array.isArray(value);
++
++const finite = (value: unknown): value is number =>
++  typeof value === "number" && Number.isFinite(value);
++
++function nameList(value: unknown, where: string, problems: string[]): string[] {
++  if (value === undefined) return [];
++  if (!Array.isArray(value)) {
++    problems.push(`${where} should be a list of names; ignored it.`);
++    return [];
++  }
++  const out: string[] = [];
++  for (const entry of value) {
++    if (typeof entry !== "string" || !entry.trim()) {
++      problems.push(`${where} has an entry that is not a name; dropped it.`);
++      continue;
++    }
++    const name = entry.trim();
++    if (!out.includes(name)) out.push(name);
++  }
++  return out;
++}
++
++export function normalizeAuto(raw: unknown): NormalizeResult {
++  const problems: string[] = [];
++  if (raw === undefined || raw === null) return { auto: null, problems };
++  if (!isObject(raw)) {
++    return {
++      auto: null,
++      problems: ["The file's `auto` section is not an object, so it was not loaded."],
++    };
++  }
++
++  if (raw.version !== undefined && raw.version !== AUTO_FORMAT_VERSION) {
++    const newer = finite(raw.version) && raw.version > AUTO_FORMAT_VERSION;
++    problems.push(
++      newer
++        ? `The Auto was saved by a newer Auto builder (format ${raw.version}, this one reads ${AUTO_FORMAT_VERSION}). Parts of it may be missing.`
++        : `Unknown Auto format version ${String(raw.version)}; read it as version ${AUTO_FORMAT_VERSION}.`,
++    );
++  }
++
++  let drawnFor: Alliance = "BLUE";
++  if (raw.drawnFor === "RED" || raw.drawnFor === "BLUE") {
++    drawnFor = raw.drawnFor;
++  } else if (raw.drawnFor !== undefined) {
++    problems.push(`drawnFor must be "RED" or "BLUE"; used BLUE.`);
++  }
++
++  const registryRaw = isObject(raw.registry) ? raw.registry : {};
++  if (raw.registry !== undefined && !isObject(raw.registry)) {
++    problems.push("The registry is not an object; started an empty one.");
++  }
++  const registry = {
++    actions: nameList(registryRaw.actions, "registry.actions", problems),
++    conditions: nameList(registryRaw.conditions, "registry.conditions", problems),
++  };
++
++  const points: Record<string, NamedPoint> = {};
++  if (raw.points !== undefined && !isObject(raw.points)) {
++    problems.push("points is not an object of name → [x, y]; ignored it.");
++  } else if (isObject(raw.points)) {
++    for (const [name, value] of Object.entries(raw.points)) {
++      if (
++        Array.isArray(value) &&
++        (value.length === 2 || value.length === 3) &&
++        value.every(finite) &&
++        name.trim()
++      ) {
++        points[name.trim()] = [...value] as NamedPoint;
++      } else {
++        problems.push(`Point "${name}" is not [x, y] or [x, y, heading]; dropped it.`);
++      }
++    }
++  }
++
++  const seenIds = new Set<string>();
++  const cards = normalizeCards(raw.cards, "cards", problems, seenIds);
++
++  const auto: AutoSection = {
++    version: AUTO_FORMAT_VERSION,
++    drawnFor,
++    registry,
++    points,
++    cards,
++  };
++  if (typeof raw.exportName === "string" && raw.exportName.trim()) {
++    auto.exportName = raw.exportName.trim();
++  }
++  return { auto, problems };
++}
++
++function normalizeCards(
++  value: unknown,
++  where: string,
++  problems: string[],
++  seenIds: Set<string>,
++): AutoCard[] {
++  if (value === undefined) return [];
++  if (!Array.isArray(value)) {
++    problems.push(`${where} is not a list; ignored it.`);
++    return [];
++  }
++  const out: AutoCard[] = [];
++  value.forEach((entry, index) => {
++    const card = normalizeCard(entry, `${where}[${index}]`, problems, seenIds);
++    if (card) out.push(card);
++  });
++  return out;
++}
++
++function cardId(raw: Record<string, unknown>, seenIds: Set<string>): string {
++  let id = typeof raw.id === "string" && raw.id.trim() ? raw.id.trim() : "";
++  // Ids address cards in the editor, so a duplicate would make two cards one.
++  if (!id || seenIds.has(id)) id = makeCardId();
++  seenIds.add(id);
++  return id;
++}
++
++function normalizeCard(
++  raw: unknown,
++  where: string,
++  problems: string[],
++  seenIds: Set<string>,
++): AutoCard | null {
++  if (!isObject(raw)) {
++    problems.push(`${where} is not a card; dropped it.`);
++    return null;
++  }
++  switch (raw.kind) {
++    case "action": {
++      const card: AutoCard = {
++        id: cardId(raw, seenIds),
++        kind: "action",
++        name: typeof raw.name === "string" ? raw.name.trim() : "",
++      };
++      if (!card.name) problems.push(`${where} is an action with no name.`);
++      if (finite(raw.previewMs) && raw.previewMs > 0) {
++        card.previewMs = raw.previewMs;
++      }
++      return card;
++    }
++    case "path": {
++      const events: PathEvent[] = [];
++      if (Array.isArray(raw.events)) {
++        raw.events.forEach((event, index) => {
++          if (
++            isObject(event) &&
++            finite(event.at) &&
++            typeof event.action === "string" &&
++            event.action.trim()
++          ) {
++            events.push({
++              at: Math.min(1, Math.max(0, event.at)),
++              action: event.action.trim(),
++            });
++          } else {
++            problems.push(`${where}.events[${index}] needs "at" (0..1) and "action"; dropped it.`);
++          }
++        });
++      }
++      events.sort((a, b) => a.at - b.at);
++      const lineId = typeof raw.lineId === "string" ? raw.lineId : "";
++      if (!lineId) problems.push(`${where} is a path card with no lineId.`);
++      return {
++        id: cardId(raw, seenIds),
++        kind: "path",
++        lineId,
++        while: nameList(raw.while, `${where}.while`, problems),
++        events,
++        park: raw.park === true,
++      };
++    }
++    case "firstOf": {
++      const rows: AutoRow[] = [];
++      if (Array.isArray(raw.rows)) {
++        raw.rows.forEach((row, index) => {
++          const normalized = normalizeRow(row, `${where}.rows[${index}]`, problems, seenIds);
++          if (normalized) rows.push(normalized);
++        });
++      } else {
++        problems.push(`${where} has no rows.`);
++      }
++      return {
++        id: cardId(raw, seenIds),
++        kind: "firstOf",
++        label: typeof raw.label === "string" ? raw.label : "",
++        rows,
++      };
++    }
++    default:
++      problems.push(
++        `${where} has unknown kind ${JSON.stringify(raw.kind)}; dropped it (this build knows action, path and firstOf).`,
++      );
++      return null;
++  }
++}
++
++const ROW_KEYS = [
++  "when",
++  "afterMs",
++  "timeLeftBelowS",
++  "otherwise",
++  "nearPoint",
++  "inArea",
++] as const;
++
++function normalizeRow(
++  raw: unknown,
++  where: string,
++  problems: string[],
++  seenIds: Set<string>,
++): AutoRow | null {
++  if (!isObject(raw)) {
++    problems.push(`${where} is not a row; dropped it.`);
++    return null;
++  }
++  const keys = ROW_KEYS.filter((key) => raw[key] !== undefined);
++  if (keys.length !== 1) {
++    problems.push(
++      keys.length === 0
++        ? `${where} has no condition (when, afterMs, timeLeftBelowS, otherwise, nearPoint or inArea); dropped it.`
++        : `${where} has more than one condition (${keys.join(", ")}); dropped it.`,
++    );
++    return null;
++  }
++  const cards = normalizeCards(raw.cards, `${where}.cards`, problems, seenIds);
++  const common: { cards: AutoCard[]; label?: string } = { cards };
++  if (typeof raw.label === "string" && raw.label.trim()) {
++    common.label = raw.label.trim();
++  }
++
++  const nonNegative = (value: unknown, what: string): number | null => {
++    if (finite(value) && value >= 0) return value;
++    problems.push(`${where}: ${what} must be a number ≥ 0; dropped the row.`);
++    return null;
++  };
++
++  switch (keys[0]) {
++    case "when":
++      return { ...common, when: nameList(raw.when, `${where}.when`, problems) };
++    case "afterMs": {
++      const ms = nonNegative(raw.afterMs, "afterMs");
++      return ms === null ? null : { ...common, afterMs: ms };
++    }
++    case "timeLeftBelowS": {
++      const s = nonNegative(raw.timeLeftBelowS, "timeLeftBelowS");
++      return s === null ? null : { ...common, timeLeftBelowS: s };
++    }
++    case "otherwise":
++      return { ...common, otherwise: true };
++    case "nearPoint": {
++      const radius = nonNegative(raw.radiusIn ?? 6, "radiusIn");
++      if (typeof raw.nearPoint !== "string" || radius === null) {
++        if (typeof raw.nearPoint !== "string")
++          problems.push(`${where}: nearPoint must name a point; dropped the row.`);
++        return null;
++      }
++      return { ...common, nearPoint: raw.nearPoint, radiusIn: radius };
++    }
++    case "inArea": {
++      const area = raw.inArea;
++      if (
++        !Array.isArray(area) ||
++        area.length !== 2 ||
++        !area.every((name) => typeof name === "string")
++      ) {
++        problems.push(`${where}: inArea must name two corner points; dropped the row.`);
++        return null;
++      }
++      return { ...common, inArea: [area[0], area[1]] as [string, string] };
++    }
++  }
++}
++
++/**
++ * The section as it is written to a file: the normalized object with keys in
++ * a fixed order, so saving twice gives the same bytes.
++ */
++export function serializeAuto(auto: AutoSection): AutoSection {
++  const card = (c: AutoCard): AutoCard => {
++    switch (c.kind) {
++      case "action":
++        return c.previewMs
++          ? { id: c.id, kind: "action", name: c.name, previewMs: c.previewMs }
++          : { id: c.id, kind: "action", name: c.name };
++      case "path":
++        return {
++          id: c.id,
++          kind: "path",
++          lineId: c.lineId,
++          while: [...c.while],
++          events: c.events.map((e) => ({ at: e.at, action: e.action })),
++          park: c.park,
++        };
++      case "firstOf":
++        return {
++          id: c.id,
++          kind: "firstOf",
++          label: c.label,
++          rows: c.rows.map(row),
++        };
++    }
++  };
++  const row = (r: AutoRow): AutoRow => {
++    const { cards, label, ...condition } = r;
++    const out = { ...condition } as AutoRow;
++    if (label) out.label = label;
++    out.cards = cards.map(card);
++    return out;
++  };
++  const out: AutoSection = {
++    version: AUTO_FORMAT_VERSION,
++    drawnFor: auto.drawnFor,
++    registry: {
++      actions: [...auto.registry.actions],
++      conditions: [...auto.registry.conditions],
++    },
++    points: Object.fromEntries(
++      Object.entries(auto.points).map(([name, point]) => [name, [...point]]),
++    ) as Record<string, NamedPoint>,
++    cards: auto.cards.map(card),
++  };
++  if (auto.exportName) out.exportName = auto.exportName;
++  return out;
++}
+diff --git a/src/lib/auto/store.ts b/src/lib/auto/store.ts
+new file mode 100644
+index 0000000..b351147
+--- /dev/null
++++ b/src/lib/auto/store.ts
+@@ -0,0 +1,57 @@
++import { get, writable } from "svelte/store";
++import { FIELD_SIZE } from "../../config";
++import { normalizeAuto } from "./normalize";
++import type { AutoSection, NamedPoint } from "./types";
++
++/**
++ * The open project's `auto` section. A store rather than a prop so the many
++ * places that load and save a project can carry it without threading it
++ * through every upstream component. Null when the project has no Auto.
++ */
++export const autoSection = writable<AutoSection | null>(null);
++
++/** Whether the left and right panels show the Auto instead of the paths. */
++export const autoMode = writable(false);
++
++/** The card whose editor the Controls panel shows. */
++export const selectedCardId = writable<string | null>(null);
++
++/**
++ * Replace the Auto with the one in a freshly read file. Returns what the
++ * loader had to repair, for the caller to show.
++ */
++export function loadAutoFrom(data: unknown): string[] {
++  const raw =
++    typeof data === "object" && data !== null
++      ? (data as { auto?: unknown }).auto
++      : undefined;
++  const { auto, problems } = normalizeAuto(raw);
++  autoSection.set(auto);
++  selectedCardId.set(null);
++  if (!auto) autoMode.set(false);
++  return problems;
++}
++
++/** The current Auto, for the save paths that build a project document. */
++export function currentAuto(): AutoSection | null {
++  return get(autoSection);
++}
++
++/**
++ * The Auto of a mirrored copy of the project: drawn for the other alliance,
++ * its named points mirrored with the paths. Cards refer to paths by id and so
++ * follow the mirrored paths on their own.
++ */
++export function mirrorAutoData(auto: unknown): unknown {
++  const { auto: normalized } = normalizeAuto(auto);
++  if (!normalized) return auto;
++  normalized.drawnFor = normalized.drawnFor === "RED" ? "BLUE" : "RED";
++  for (const [name, point] of Object.entries(normalized.points)) {
++    const mirrored: NamedPoint =
++      point.length === 3
++        ? [FIELD_SIZE - point[0], point[1], 180 - point[2]]
++        : [FIELD_SIZE - point[0], point[1]];
++    normalized.points[name] = mirrored;
++  }
++  return normalized;
++}
+diff --git a/src/lib/auto/tree.ts b/src/lib/auto/tree.ts
+new file mode 100644
+index 0000000..7f343cf
+--- /dev/null
++++ b/src/lib/auto/tree.ts
+@@ -0,0 +1,156 @@
++import type {
++  AutoCard,
++  AutoRow,
++  AutoSection,
++  FirstOfCard,
++  PathCard,
++} from "./types";
++import { rowKind } from "./types";
++
++/** Where a card sits: the list holding it and its index there. */
++export interface CardLocation {
++  list: AutoCard[];
++  index: number;
++  /** The decision and row that own the list; null for the top level. */
++  parent: { card: FirstOfCard; rowIndex: number } | null;
++}
++
++export function makeCardId(): string {
++  return `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
++}
++
++/** Every card in the tree, depth first, in the order the Auto would reach them. */
++export function allCards(cards: AutoCard[]): AutoCard[] {
++  const out: AutoCard[] = [];
++  const walk = (list: AutoCard[]) => {
++    for (const card of list) {
++      out.push(card);
++      if (card.kind === "firstOf") card.rows.forEach((row) => walk(row.cards));
++    }
++  };
++  walk(cards);
++  return out;
++}
++
++export function locateCard(
++  cards: AutoCard[],
++  id: string,
++  parent: CardLocation["parent"] = null,
++): CardLocation | null {
++  const index = cards.findIndex((card) => card.id === id);
++  if (index >= 0) return { list: cards, index, parent };
++  for (const card of cards) {
++    if (card.kind !== "firstOf") continue;
++    for (let rowIndex = 0; rowIndex < card.rows.length; rowIndex++) {
++      const found = locateCard(card.rows[rowIndex].cards, id, {
++        card,
++        rowIndex,
++      });
++      if (found) return found;
++    }
++  }
++  return null;
++}
++
++export function findCard(cards: AutoCard[], id: string | null): AutoCard | null {
++  if (!id) return null;
++  const location = locateCard(cards, id);
++  return location ? location.list[location.index] : null;
++}
++
++/** Deep copy with fresh ids, so a duplicated card is independent. */
++export function cloneCard(card: AutoCard): AutoCard {
++  const copy = JSON.parse(JSON.stringify(card)) as AutoCard;
++  const refresh = (c: AutoCard) => {
++    c.id = makeCardId();
++    if (c.kind === "firstOf") c.rows.forEach((row) => row.cards.forEach(refresh));
++  };
++  refresh(copy);
++  return copy;
++}
++
++/** Names of registered things the Auto uses, each with its use count. */
++export function usedNames(auto: AutoSection): {
++  actions: Map<string, number>;
++  conditions: Map<string, number>;
++} {
++  const actions = new Map<string, number>();
++  const conditions = new Map<string, number>();
++  const bump = (map: Map<string, number>, name: string) =>
++    map.set(name, (map.get(name) ?? 0) + 1);
++
++  for (const card of allCards(auto.cards)) {
++    if (card.kind === "action") bump(actions, card.name);
++    if (card.kind === "path") {
++      card.while.forEach((name) => bump(actions, name));
++      card.events.forEach((event) => bump(actions, event.action));
++    }
++    if (card.kind === "firstOf") {
++      for (const row of card.rows) {
++        if ("when" in row) row.when.forEach((name) => bump(conditions, name));
++      }
++    }
++  }
++  return { actions, conditions };
++}
++
++/** The park card directly in this list, if any. */
++export function parkCardOf(list: AutoCard[]): PathCard | null {
++  return (
++    (list.find((card) => card.kind === "path" && card.park) as
++      | PathCard
++      | undefined) ?? null
++  );
++}
++
++/** A short human description of a row's condition. */
++export function describeRow(row: AutoRow): string {
++  switch (rowKind(row)) {
++    case "when":
++      return (row as { when: string[] }).when.join(" or ") || "(no condition)";
++    case "afterMs":
++      return `${(row as { afterMs: number }).afterMs} ms passed`;
++    case "timeLeftBelowS":
++      return `time left < ${(row as { timeLeftBelowS: number }).timeLeftBelowS} s`;
++    case "nearPoint": {
++      const near = row as { nearPoint: string; radiusIn: number };
++      return `within ${near.radiusIn} in of ${near.nearPoint}`;
++    }
++    case "inArea": {
++      const area = row as { inArea: [string, string] };
++      return `inside ${area.inArea[0]}–${area.inArea[1]}`;
++    }
++    case "otherwise":
++      return "otherwise";
++  }
++}
++
++/** The branch's name: its own label, or one made from its condition. */
++export function rowLabel(row: AutoRow): string {
++  if (row.label && row.label.trim()) return row.label.trim();
++  switch (rowKind(row)) {
++    case "when":
++      return `If ${describeRow(row)}`;
++    case "otherwise":
++      return "Otherwise";
++    default:
++      return `After ${describeRow(row)}`;
++  }
++}
++
++/** A card's display name; path cards need the path's name from the caller. */
++export function cardTitle(card: AutoCard, pathName?: string): string {
++  switch (card.kind) {
++    case "action":
++      return card.name || "(no action)";
++    case "path":
++      return pathName ?? "(missing path)";
++    case "firstOf":
++      return card.label || "First of";
++  }
++}
++
++/** True when no row has cards: shown as a "Wait for" card, not a decision. */
++export function isPlainWait(card: FirstOfCard): boolean {
++  return card.rows.every((row) => row.cards.length === 0);
++}
+diff --git a/src/lib/auto/types.ts b/src/lib/auto/types.ts
+new file mode 100644
+index 0000000..938a50e
+--- /dev/null
++++ b/src/lib/auto/types.ts
+@@ -0,0 +1,117 @@
++/**
++ * The `auto` section of a .pp file: a whole Autonomous built from cards.
++ *
++ * Everything the Auto builder adds to a project lives under this one
++ * top-level key, so a stock Visualizer opens the file and ignores it, and
++ * upstream merges stay mechanical. The format is documented in
++ * docs/auto-format.md; keep the two in step.
++ */
++
++export const AUTO_FORMAT_VERSION = 1;
++
++export type Alliance = "RED" | "BLUE";
++
++/** Names the robot code registers. The editor cannot read robot code. */
++export interface AutoRegistry {
++  actions: string[];
++  conditions: string[];
++}
++
++/** `[x, y]` or `[x, y, headingDeg]`, inches in the Pedro field frame. */
++export type NamedPoint = [number, number] | [number, number, number];
++
++/** An action fired when the robot is `at` (0..1) of the way along a path. */
++export interface PathEvent {
++  at: number;
++  action: string;
++}
++
++export interface ActionCard {
++  id: string;
++  kind: "action";
++  name: string;
++  /** Preview only: how long the action keeps the robot busy. Not exported. */
++  previewMs?: number;
++}
++
++export interface PathCard {
++  id: string;
++  kind: "path";
++  /** A top-level path (a single path or a group) of the project's `lines`. */
++  lineId: string;
++  /** Actions started when the path starts and run while it is driven. */
++  while: string[];
++  events: PathEvent[];
++  /** The branch's park path, used by the endgame guard. */
++  park: boolean;
++}
++
++/**
++ * Waits for the first of its rows to become true and runs that row's cards.
++ * With no cards on any row it is a "Wait for" card; with cards it is a
++ * decision. Cards after it continue once the chosen row's cards are done.
++ */
++export interface FirstOfCard {
++  id: string;
++  kind: "firstOf";
++  label: string;
++  rows: AutoRow[];
++}
++
++export type AutoCard = ActionCard | PathCard | FirstOfCard;
++export type AutoCardKind = AutoCard["kind"];
++
++interface RowCommon {
++  cards: AutoCard[];
++  /** Branch name shown in the editor and used as the guard label. */
++  label?: string;
++}
++
++export type WhenRow = RowCommon & { when: string[] };
++export type AfterMsRow = RowCommon & { afterMs: number };
++export type TimeLeftRow = RowCommon & { timeLeftBelowS: number };
++export type OtherwiseRow = RowCommon & { otherwise: true };
++export type NearPointRow = RowCommon & { nearPoint: string; radiusIn: number };
++export type InAreaRow = RowCommon & { inArea: [string, string] };
++
++export type AutoRow =
++  | WhenRow
++  | AfterMsRow
++  | TimeLeftRow
++  | OtherwiseRow
++  | NearPointRow
++  | InAreaRow;
++
++export type RowKind =
++  | "when"
++  | "afterMs"
++  | "timeLeftBelowS"
++  | "otherwise"
++  | "nearPoint"
++  | "inArea";
++
++export interface AutoSection {
++  version: typeof AUTO_FORMAT_VERSION;
++  /** The alliance the Auto is drawn for; the robot mirrors it for the other. */
++  drawnFor: Alliance;
++  /** Name of the generated class, before the `Auto` suffix. Defaults to the file name. */
++  exportName?: string;
++  registry: AutoRegistry;
++  points: Record<string, NamedPoint>;
++  cards: AutoCard[];
++}
++
++export function rowKind(row: AutoRow): RowKind {
++  if ("when" in row) return "when";
++  if ("afterMs" in row) return "afterMs";
++  if ("timeLeftBelowS" in row) return "timeLeftBelowS";
++  if ("nearPoint" in row) return "nearPoint";
++  if ("inArea" in row) return "inArea";
++  return "otherwise";
++}
++
++/** A row that becomes true on the clock alone, so a wait with one cannot hang. */
++export function isTimeRow(row: AutoRow): boolean {
++  const kind = rowKind(row);
++  return kind === "afterMs" || kind === "timeLeftBelowS" || kind === "otherwise";
++}
+diff --git a/src/lib/auto/validate.ts b/src/lib/auto/validate.ts
+new file mode 100644
+index 0000000..b840d72
+--- /dev/null
++++ b/src/lib/auto/validate.ts
+@@ -0,0 +1,181 @@
++import type { BasePoint, StartPose } from "../../types";
++import type { PathCatalog } from "./geometry";
++import { isTimeRow, rowKind, type AutoCard, type AutoSection } from "./types";
++import { describeRow } from "./tree";
++
++export type IssueLevel = "error" | "warning";
++
++export interface AutoIssue {
++  level: IssueLevel;
++  /** The card the issue is about; null for the Auto as a whole. */
++  cardId: string | null;
++  /** Row index within a decision, when the issue is about one row. */
++  rowIndex?: number;
++  message: string;
++}
++
++/** How far apart two consecutive paths may end and start, in inches. */
++export const DISCONTINUITY_LIMIT_IN = 2;
++
++/**
++ * Everything wrong with the Auto. Errors block the Java export; warnings are
++ * shown next to the card but do not.
++ */
++export function validateAuto(
++  auto: AutoSection,
++  catalog: PathCatalog,
++  startPoint: StartPose,
++): AutoIssue[] {
++  const issues: AutoIssue[] = [];
++  const actions = new Set(auto.registry.actions);
++  const conditions = new Set(auto.registry.conditions);
++  const error = (cardId: string | null, message: string, rowIndex?: number) =>
++    issues.push({ level: "error", cardId, message, rowIndex });
++  const warn = (cardId: string | null, message: string, rowIndex?: number) =>
++    issues.push({ level: "warning", cardId, message, rowIndex });
++
++  const checkAction = (cardId: string, what: string, name: string) => {
++    if (!name) error(cardId, `${what} has no action chosen.`);
++    else if (!actions.has(name))
++      error(cardId, `${what} uses "${name}", which is not a registered action.`);
++  };
++
++  // The robot may reach a card from several places (one per branch of an
++  // earlier decision), so track every place it could be.
++  const walk = (
++    list: AutoCard[],
++    entry: BasePoint[],
++    branch: string,
++  ): BasePoint[] => {
++    let at = entry;
++    const parks = list.filter((card) => card.kind === "path" && card.park);
++    if (parks.length > 1) {
++      parks
++        .slice(1)
++        .forEach((card) =>
++          error(card.id, `${branch} has more than one park path; mark only one.`),
++        );
++    }
++    const park = parks[0];
++    if (park && list[list.length - 1] !== park) {
++      warn(park.id, `The park path is not the last card of ${branch.toLowerCase()}; cards after it still run.`);
++    }
++
++    for (const card of list) {
++      switch (card.kind) {
++        case "action":
++          checkAction(card.id, "This action card", card.name);
++          break;
++        case "path": {
++          const path = catalog.byId.get(card.lineId);
++          if (!path) {
++            error(
++              card.id,
++              catalog.nestedIds.has(card.lineId)
++                ? "This path is inside a group; pick the group instead (Pedro follows a group as one path)."
++                : "The path this card drives no longer exists.",
++            );
++            break;
++          }
++          const from = farthest(at, path.start);
++          const gap = Math.hypot(path.start.x - from.x, path.start.y - from.y);
++          if (gap > DISCONTINUITY_LIMIT_IN) {
++            warn(
++              card.id,
++              `${path.name} starts ${gap.toFixed(1)} in from where the robot can be (${from.x.toFixed(1)}, ${from.y.toFixed(1)}). Add a path that joins them.`,
++            );
++          }
++          card.while.forEach((name) => checkAction(card.id, "While driving", name));
++          card.events.forEach((event) => {
++            checkAction(card.id, `The event at ${Math.round(event.at * 100)}%`, event.action);
++            if (!(event.at >= 0 && event.at <= 1))
++              error(card.id, "An event must sit between 0% and 100% of the path.");
++          });
++          at = [path.end];
++          break;
++        }
++        case "firstOf": {
++          const name = card.label || "This card";
++          if (card.rows.length === 0) {
++            error(card.id, `${name} has no rows, so it would wait forever.`);
++            break;
++          }
++          if (!card.rows.some(isTimeRow)) {
++            error(
++              card.id,
++              `${name} needs a time row (ms passed, time left, or otherwise) so it cannot wait forever.`,
++            );
++          }
++          const ends: BasePoint[] = [];
++          let earlierOtherwise = false;
++          card.rows.forEach((row, rowIndex) => {
++            const kind = rowKind(row);
++            if (earlierOtherwise) {
++              warn(card.id, `Row ${rowIndex + 1} (${describeRow(row)}) can never fire: an earlier "otherwise" row always wins.`, rowIndex);
++            }
++            if (kind === "otherwise") earlierOtherwise = true;
++            if (kind === "when") {
++              const names = (row as { when: string[] }).when;
++              if (names.length === 0)
++                error(card.id, `Row ${rowIndex + 1} has no condition chosen.`, rowIndex);
++              names.forEach((condition) => {
++                if (!conditions.has(condition))
++                  error(card.id, `Row ${rowIndex + 1} uses "${condition}", which is not a registered condition.`, rowIndex);
++              });
++            }
++            if (kind === "nearPoint") {
++              const point = (row as { nearPoint: string }).nearPoint;
++              if (!auto.points[point])
++                error(card.id, `Row ${rowIndex + 1} names point "${point}", which is not defined.`, rowIndex);
++            }
++            if (kind === "inArea") {
++              for (const point of (row as { inArea: [string, string] }).inArea) {
++                if (!auto.points[point])
++                  error(card.id, `Row ${rowIndex + 1} names point "${point}", which is not defined.`, rowIndex);
++              }
++            }
++            ends.push(...walk(row.cards, at, `Row ${rowIndex + 1} of ${name}`));
++          });
++          at = distinct(ends);
++          break;
++        }
++      }
++    }
++    return at;
++  };
++
++  walk(auto.cards, [startPoint], "The main sequence");
++
++  for (const [name, point] of Object.entries(auto.points)) {
++    if (!/^[A-Za-z][A-Za-z0-9 _-]*$/.test(name)) {
++      error(null, `Point name "${name}" must start with a letter and use letters, digits, spaces, _ or -.`);
++    }
++    if (!point.every(Number.isFinite)) error(null, `Point "${name}" has a coordinate that is not a number.`);
++  }
++  return issues;
++}
++
++function farthest(points: BasePoint[], target: BasePoint): BasePoint {
++  return points.reduce((worst, point) =>
++    Math.hypot(point.x - target.x, point.y - target.y) >
++    Math.hypot(worst.x - target.x, worst.y - target.y)
++      ? point
++      : worst,
++  );
++}
++
++function distinct(points: BasePoint[]): BasePoint[] {
++  const out: BasePoint[] = [];
++  for (const point of points) {
++    if (!out.some((p) => Math.hypot(p.x - point.x, p.y - point.y) < 1e-6)) out.push(point);
++  }
++  return out;
++}
++
++export function hasErrors(issues: AutoIssue[]): boolean {
++  return issues.some((issue) => issue.level === "error");
++}
++
++export function issuesFor(issues: AutoIssue[], cardId: string): AutoIssue[] {
++  return issues.filter((issue) => issue.cardId === cardId);
++}
+diff --git a/src/lib/session/sessionSnapshot.ts b/src/lib/session/sessionSnapshot.ts
+index 346c129..2337490 100644
+--- a/src/lib/session/sessionSnapshot.ts
++++ b/src/lib/session/sessionSnapshot.ts
+@@ -28,6 +28,8 @@ export interface SessionSnapshot {
+   secondSequence: SequenceItem[];
+   secondShapes: Shape[];
+   activePaths: string[];
++  /** The Auto builder's section, kept raw; normalized when restored. */
++  auto?: unknown;
+   timestamp: string;
+ }
+ 
+@@ -77,6 +79,7 @@ export function loadSessionSnapshot(): SessionSnapshot | null {
+       ),
+       secondShapes: parsed.secondShapes || [],
+       activePaths: parsed.activePaths || [],
++      auto: parsed.auto ?? null,
+       timestamp: parsed.timestamp,
+     };
+   } catch (error) {
+diff --git a/src/lib/testing/harness.ts b/src/lib/testing/harness.ts
+new file mode 100644
+index 0000000..51c6942
+--- /dev/null
++++ b/src/lib/testing/harness.ts
+@@ -0,0 +1,46 @@
++/**
++ * The smallest test harness that does the job: `test()` registers, the runner
++ * in scripts/run-tests.mjs executes. No dependency beyond Vite, which the
++ * project already has.
++ */
++type TestFn = () => void | Promise<void>;
++
++let tests: { name: string; fn: TestFn }[] = [];
++
++export function test(name: string, fn: TestFn): void {
++  tests.push({ name, fn });
++}
++
++export function registeredTests(): { name: string; fn: TestFn }[] {
++  return tests;
++}
++
++export function resetTests(): void {
++  tests = [];
++}
++
++export function assert(condition: unknown, message = "assertion failed"): asserts condition {
++  if (!condition) throw new Error(message);
++}
++
++export function assertEqual<T>(actual: T, expected: T, message = ""): void {
++  const a = JSON.stringify(actual, null, 2);
++  const e = JSON.stringify(expected, null, 2);
++  if (a !== e) {
++    throw new Error(`${message ? message + ": " : ""}expected\n${e}\nbut got\n${a}`);
++  }
++}
++
++/** Compares two texts and reports the first differing line. */
++export function assertText(actual: string, expected: string, message = ""): void {
++  if (actual === expected) return;
++  const a = actual.split("\n");
++  const e = expected.split("\n");
++  for (let i = 0; i < Math.max(a.length, e.length); i++) {
++    if (a[i] !== e[i]) {
++      throw new Error(
++        `${message ? message + ": " : ""}line ${i + 1} differs\n  expected: ${JSON.stringify(e[i])}\n  actual:   ${JSON.stringify(a[i])}`,
++      );
++    }
++  }
++}
+diff --git a/src/utils/history.ts b/src/utils/history.ts
+index a0323db..3e9cc89 100644
+--- a/src/utils/history.ts
++++ b/src/utils/history.ts
+@@ -6,6 +6,7 @@ import type {
+   Settings,
+   StartPose,
+ } from "../types";
++import type { AutoSection } from "../lib/auto/types";
+ import { writable } from "svelte/store";
+ 
+ export type AppState = {
+@@ -15,6 +16,8 @@ export type AppState = {
+   sequence: SequenceItem[];
+   settings: Settings;
+   fieldPoints: FieldPoint[];
++  /** The Auto builder's section, when the project has one. */
++  auto?: AutoSection | null;
+ };
+ 
+ function deepClone<T>(obj: T): T {
+diff --git a/src/utils/project.ts b/src/utils/project.ts
+index 03c1753..02d9062 100644
+--- a/src/utils/project.ts
++++ b/src/utils/project.ts
+@@ -1,5 +1,7 @@
+ import type { Path, SequenceItem, Settings, Shape, StartPose } from "../types";
+ import type { FieldPoint } from "./fieldPoints";
++import type { AutoSection } from "../lib/auto/types";
++import { serializeAuto } from "../lib/auto/normalize";
+ 
+ export const PROJECT_VERSION = "1.5.0";
+ 
+@@ -39,14 +41,18 @@ export interface ProjectDoc {
+   fieldPoints?: FieldPoint[];
+   settings?: Settings;
+   activePaths?: string[];
++  /** The Auto builder's section; omitted from the file when there is none. */
++  auto?: AutoSection | null;
+ }
+ 
+ export function buildProject(
+   doc: ProjectDoc,
+   overrides: Record<string, unknown> = {},
+ ) {
++  const { auto, ...rest } = doc;
+   return {
+-    ...doc,
++    ...rest,
++    ...(auto ? { auto: serializeAuto(auto) } : {}),
+     version: PROJECT_VERSION,
+     timestamp: new Date().toISOString(),
+     ...overrides,
+-- 
+2.43.0
+
