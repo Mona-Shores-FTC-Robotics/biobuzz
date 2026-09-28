@@ -92,7 +92,13 @@ intaking because it costs Control Hub CPU. Never switch the Limelight to a colou
 starves the fusion of tag fixes.
 
 **Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
-Degrees only on screens. Field facts that depend on the frame live in `util/FieldFrame`.
+Degrees only on screens. It is the only frame a person reads or types — on the DS, in Panels, in
+the Visualizer, in docs, issues and conversation. A library that works in another frame (Panels'
+canvas, Limelight camera space) is converted inside the one class that talks to it, and nothing
+downstream sees the other frame; never add a frame or unit toggle anywhere. The field is
+`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and mirrors across
+`FIELD_CENTRE_INCHES`; `FieldFrameTest` fails any other file that states the size. Field facts
+that depend on the frame live in `util/FieldFrame`.
 
 **Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision

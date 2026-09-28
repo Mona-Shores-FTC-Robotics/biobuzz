@@ -1331,6 +1331,19 @@ Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
 Runner frames, so the conversion Pedro's helper would have done is done by a library we already
 have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
 
+> **Update, 28 Sep 2026 (#116).** `FieldView` now uses a copy of that preset, not the preset
+> itself. The built-in one centres on (72, 72), which assumes a 144 in field. Our field is 141.5 in
+> wall face to wall face, the same size the Visualizer uses, so the drawn robot sat 1.25 in off.
+> The copy keeps the rotation and flip and centres on `FieldFrame.FIELD_CENTRE_INCHES` (70.75).
+>
+> Rejected alternatives:
+> - Leaving the error in, because it is too small to see. A small disagreement between tools is
+>   exactly how last season's frame bugs started.
+> - Scaling the drawing so the whole field fits Panels' 144 in canvas. That changes what a
+>   position means; re-centring only moves the drawing.
+>
+> The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
+
 **The throttle is the part that will bite you.** `FieldManager.update()` sends only when
 `canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
 done *nothing*, and that includes not clearing the canvas, so shapes added since the last send stay

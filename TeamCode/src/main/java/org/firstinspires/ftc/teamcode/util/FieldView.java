@@ -1,7 +1,8 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.bylazar.field.CanvasRotation;
 import com.bylazar.field.FieldManager;
-import com.bylazar.field.FieldPresets;
+import com.bylazar.field.FieldPresetParams;
 import com.bylazar.field.PanelsField;
 
 /**
@@ -22,6 +23,11 @@ import com.bylazar.field.PanelsField;
  * {@code FieldPresets.PEDRO_PATHING} is one of its four built-in presets, alongside the default FTC
  * and Road Runner frames. So the conversion Pedro's helper would have done is done by the library
  * we already have, and we draw the two shapes ourselves.
+ *
+ * <p>We use a copy of that preset rather than the preset itself, because the built-in one centres
+ * on (72, 72) — a 144 in field — and ours is {@link FieldFrame#FIELD_SIZE_INCHES}. Same rotation
+ * and flip; only the centre differs, by 1.25 in. Without this the drawn robot sits that far off
+ * where the robot is, which is exactly the kind of small frame disagreement nobody spots.
  *
  * <h2>The throttle, which will bite you if you ignore it</h2>
  *
@@ -63,14 +69,21 @@ public final class FieldView {
     public static final double ROBOT_RADIUS_INCHES = 9.0;
 
     /**
-     * Field centre in Pedro's frame, in inches.
+     * Pedro's frame as Panels needs it: shift the field centre to Panels' origin, rotate 90° and
+     * flip Y.
      *
-     * <p>Pedro puts the origin at a corner and runs 0..144 on both axes. Panels' {@code
-     * PEDRO_PATHING} preset is what converts that to its own centre-origin frame — it offsets by
-     * (-72, -72), rotates 90° and flips Y. Poses go in as Pedro reports them; nothing here needs
-     * converting.
+     * <p>The rotation and flip are copied from Panels' built-in {@code PEDRO_PATHING} preset
+     * ({@code field} 1.0.7); the offset is ours, from {@link FieldFrame#FIELD_CENTRE_INCHES}, where
+     * the built-in uses 72. Poses go in as Pedro reports them; nothing outside this class converts.
      */
-    public static final double FIELD_CENTRE_INCHES = 72.0;
+    private static final FieldPresetParams PEDRO_FRAME = new FieldPresetParams(
+            "Pedro Pathing",
+            -FieldFrame.FIELD_CENTRE_INCHES,
+            -FieldFrame.FIELD_CENTRE_INCHES,
+            CanvasRotation.DEG_90,
+            false,
+            true,
+            false);
 
     private final FieldManager field;
     private final double robotRadius;
@@ -87,7 +100,7 @@ public final class FieldView {
 
     public static FieldView pedroCoordinates(double robotRadiusInches) {
         FieldManager field = PanelsField.INSTANCE.getField();
-        field.setOffsets(FieldPresets.INSTANCE.getPEDRO_PATHING());
+        field.setOffsets(PEDRO_FRAME);
         return new FieldView(field, robotRadiusInches);
     }
 
@@ -127,10 +140,10 @@ public final class FieldView {
      */
     public void drawCentreReference() {
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getWHITE(), 0.5);
-        field.moveCursor(FIELD_CENTRE_INCHES - 4.0, FIELD_CENTRE_INCHES);
-        field.line(FIELD_CENTRE_INCHES + 4.0, FIELD_CENTRE_INCHES);
-        field.moveCursor(FIELD_CENTRE_INCHES, FIELD_CENTRE_INCHES - 4.0);
-        field.line(FIELD_CENTRE_INCHES, FIELD_CENTRE_INCHES + 4.0);
+        field.moveCursor(FieldFrame.FIELD_CENTRE_INCHES - 4.0, FieldFrame.FIELD_CENTRE_INCHES);
+        field.line(FieldFrame.FIELD_CENTRE_INCHES + 4.0, FieldFrame.FIELD_CENTRE_INCHES);
+        field.moveCursor(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES - 4.0);
+        field.line(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES + 4.0);
     }
 
     /** Marks a point — a path target, a detected game element, wherever you were aiming. */
