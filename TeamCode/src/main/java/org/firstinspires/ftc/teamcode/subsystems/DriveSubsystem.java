@@ -2,11 +2,15 @@ package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.pedropathing.drivetrain.DrivePowers;
+import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.ManualDrive;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
+import org.firstinspires.ftc.teamcode.autokit.PathProgress;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import com.pedropathing.localization.FusionLocalizer;
 
@@ -43,12 +47,17 @@ import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
  * fix ({@link CellFix}). Fixes are only offered once {@link #poseReferenced()} — the pose was set
  * from a known place — because before that, heading 0 is just the way the robot faced at init.
  *
- * <p>This does not build a Pedro {@code Follower}. {@code Constants.createAlgorithm()} throws until
- * the Foresight Tuner has run, and this subsystem has to work on an untuned robot. When path
- * following is needed, the Follower joins here.
+ * <h2>Following paths</h2>
+ *
+ * <p>An Autonomous built in the Auto Builder drives through this class as its {@link AutoDrive}.
+ * The Pedro {@code Follower} is built only by {@link #preparePathFollowing()}, because
+ * {@code Constants.createAlgorithm()} throws until the Foresight Tuner has run and this subsystem
+ * has to work on an untuned robot. While a path or hold is in control, {@link #update()} hands the
+ * whole loop to the Follower — it updates the localizer itself — and still offers camera fixes.
+ * The next {@link #drive} call hands control back to the sticks.
  */
 @Configurable
-public class DriveSubsystem implements Subsystem {
+public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /** How fast drive power may rise, in power per second. Slowing and stopping are instant. */
     public static double accelPerSec = 2.0;
@@ -80,6 +89,13 @@ public class DriveSubsystem implements Subsystem {
     private double strafe;
     private double turn;
     private boolean accelLimited = true;
+
+    /** Built by {@link #preparePathFollowing()}; null until then. */
+    private Follower follower;
+    /** The path last given to {@link #follow}, for progress. */
+    private Path followedPath;
+    /** True while a path or hold, not the sticks, drives the robot. */
+    private boolean pathControl;
     private boolean fieldCentric;
     private double headingOffset;
     private long lastUpdateNs;
@@ -107,6 +123,7 @@ public class DriveSubsystem implements Subsystem {
      * counter-clockwise, each in [-1, 1]. Holds until the next call.
      */
     public void drive(double forward, double strafe, double turn) {
+        pathControl = false;
         this.forward = forward;
         this.strafe = strafe;
         this.turn = turn;
@@ -202,6 +219,52 @@ public class DriveSubsystem implements Subsystem {
         return localizerFault;
     }
 
+    // ------------------------------------------------------- path following
+
+    /**
+     * Builds the Pedro Follower. Call it in an Autonomous's init, so an untuned robot or a missing
+     * Pinpoint stops the OpMode there, with the reason, rather than when the first path starts.
+     */
+    public void preparePathFollowing() {
+        if (follower != null) {
+            return;
+        }
+        if (localizer == null) {
+            throw new IllegalStateException("Following a path needs the Pinpoint: " + localizerFault);
+        }
+        follower = new Follower(localizer, drivetrain, Constants.createAlgorithm());
+    }
+
+    @Override
+    public void follow(Path path) {
+        preparePathFollowing();
+        followedPath = path;
+        follower.follow(path);
+        pathControl = true;
+    }
+
+    @Override
+    public boolean pathDone() {
+        // The Follower leaves FOLLOW (for HOLD at the end point) once the path is finished.
+        return follower == null || followedPath == null || !follower.following();
+    }
+
+    @Override
+    public double pathProgress() {
+        if (pathDone()) {
+            return 1.0;
+        }
+        return PathProgress.along(followedPath, follower.pathIndex(), follower.pose());
+    }
+
+    @Override
+    public void hold(Pose pose) {
+        preparePathFollowing();
+        followedPath = null;
+        follower.hold(pose);
+        pathControl = true;
+    }
+
     // ------------------------------------------------------------ lifecycle
 
     @Override
@@ -211,14 +274,20 @@ public class DriveSubsystem implements Subsystem {
 
     @Override
     public void update() {
+        long now = System.nanoTime();
+        double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
+        lastUpdateNs = now;
+
+        if (pathControl && follower != null) {
+            follower.update(dt); // updates the localizer too, so it is not updated twice
+            offerSightings();
+            return;
+        }
+
         if (localizer != null) {
             localizer.update();
             offerSightings();
         }
-
-        long now = System.nanoTime();
-        double dt = Math.min((now - lastUpdateNs) / 1e9, MAX_LOOP_DT_SEC);
-        lastUpdateNs = now;
 
         double f = forward;
         double s = strafe;
@@ -271,6 +340,7 @@ public class DriveSubsystem implements Subsystem {
 
     @Override
     public void stop() {
+        pathControl = false;
         drivetrain.stop();
     }
 

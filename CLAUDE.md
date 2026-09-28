@@ -21,11 +21,13 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
 | `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
-| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
+| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
+| `autokit/` | The Auto Builder's runtime: the cards (`firstOf`, paths with events, routines, go-to, endgame guard) a generated Auto calls. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; `AutoRegistration` is the only list of action and condition names an Auto may use. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
 
