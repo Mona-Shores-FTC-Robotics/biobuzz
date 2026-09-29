@@ -98,7 +98,11 @@ and nine `area:` values were finer than the way the team actually splits up at a
 ## How we work
 
 - **An issue exists before a branch does.** Every PR says `Closes #N`.
-- Branch names: `feat/ fix/ tune/ chore/ docs/ spike/` + a short description.
+- Branch names: `feat/ fix/ tune/ chore/ docs/ spike/` + a short description. A Claude session's
+  `claude/*` branch is opened as a PR as it is: don't rename it. The PR title says what it is.
+  *History:* until 29 Sep 2026 `claude/*` branches had to be renamed first; that was dropped
+  because it added a manual step to every Claude PR and nothing (CI, review, the board) needs the
+  prefix.
 - **Never commit directly to `master`.**
 - **Rename a branch with GitHub's button, never by deleting it and pushing a new one.** Repo →
   Branches → the pencil icon renames it and moves any open PR along with it. Deleting and re-pushing
