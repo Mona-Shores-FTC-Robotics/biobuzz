@@ -6,7 +6,6 @@ import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
-import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 
 /**
  * The names this robot offers the Auto Builder: every action and condition an Auto drawn in the
@@ -23,33 +22,30 @@ public final class AutoRegistration {
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 
+    /** How many TIPs an Auto can ask about: HiveTip1 to HiveTip{MAX_TIPS}. */
+    public static final int MAX_TIPS = 4;
+
     private static final HiveCell[] CELLS = HiveCell.values();
 
     private AutoRegistration() {}
 
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
-        return new AutoRegistry()
-                .condition("HiveTipped", () -> hiveTipped(robot, setup.alliance()))
+        AutoRegistry registry = new AutoRegistry()
                 .condition("CameraBlind", () -> cameraBlind(robot));
+        for (int n = 1; n <= MAX_TIPS; n++) {
+            final int tip = n;
+            registry.condition("HiveTip" + n, () -> hiveTipped(robot, setup.alliance(), tip));
+        }
+        return registry;
     }
 
     /**
-     * Our HIVE has tipped: our LOADING CELL is settled UP. Every match starts with each alliance's
-     * GARDEN CELL up and its LOADING CELL down, so no starting state needs remembering.
+     * Our HIVE's {@code n}th TIP has happened, by us or our partner. Once true it stays true, so
+     * it does not matter when a card asks. Counted by the camera from the match-start position
+     * (see {@link org.firstinspires.ftc.teamcode.vision.HiveTipCounter}).
      */
-    static boolean hiveTipped(Robot robot, Alliance alliance) {
-        HiveCell loading = loadingCell(alliance);
-        return loading != null && robot.vision.state(loading) == HiveCellState.UP;
-    }
-
-    /**
-     * The alliance's LOADING CELL: the one that starts DOWN. The red one is at the rear (the SDK's
-     * "RED SCORING" cluster), the blue one at the audience end. #114 renames the enum to say so.
-     */
-    static HiveCell loadingCell(Alliance alliance) {
-        if (alliance == Alliance.RED) return HiveCell.RED_SCORING;
-        if (alliance == Alliance.BLUE) return HiveCell.BLUE_AUDIENCE;
-        return null;
+    static boolean hiveTipped(Robot robot, Alliance alliance, int n) {
+        return robot.vision.hiveTips(alliance) >= n;
     }
 
     /** No HIVE tag from any CELL for {@link #BLIND_AFTER_MS}, or no camera at all. */

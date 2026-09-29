@@ -103,6 +103,8 @@ public class LimelightVisionSubsystem implements Subsystem {
     private long freshResultCount = 0L;
     private double lastPeriodicMs = 0.0;
     private LLResult lastResult;
+    private final HiveTipCounter redTips = new HiveTipCounter(Alliance.RED);
+    private final HiveTipCounter blueTips = new HiveTipCounter(Alliance.BLUE);
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
         this(hardwareMap, DEFAULT_DEVICE_NAME);
@@ -139,6 +141,8 @@ public class LimelightVisionSubsystem implements Subsystem {
             state = State.UNAVAILABLE;
             return;
         }
+        redTips.reset();
+        blueTips.reset();
         applyPipelineIndex();
         limelight.start();
         state = State.STREAMING;
@@ -173,6 +177,8 @@ public class LimelightVisionSubsystem implements Subsystem {
             // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
             poll();
+            countTips(redTips);
+            countTips(blueTips);
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -291,6 +297,21 @@ public class LimelightVisionSubsystem implements Subsystem {
     // was about to act on.
     // ------------------------------------------------------------------
 
+    private void countTips(HiveTipCounter counter) {
+        HiveCell loading = counter.loadingCell();
+        counter.observe(state(loading), state(HiveCell.gardenCell(loading.alliance())));
+    }
+
+    /**
+     * TIPs of {@code alliance}'s HIVE since this OpMode started, assuming it started at the
+     * match-start position (see {@link HiveTipCounter}). 0 for UNKNOWN.
+     */
+    public int hiveTips(Alliance alliance) {
+        if (alliance == Alliance.RED) return redTips.tips();
+        if (alliance == Alliance.BLUE) return blueTips.tips();
+        return 0;
+    }
+
     private CellStateTracker trackerFor(HiveCell cell) {
         CellStateTracker tracker = stateTrackers.get(cell);
         if (tracker == null) {
@@ -357,6 +378,7 @@ public class LimelightVisionSubsystem implements Subsystem {
         for (HiveCell cell : HiveCell.values()) {
             display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
         }
+        display.line("HIVE TIPs: red " + redTips.tips() + " · blue " + blueTips.tips());
     }
 
     /** True if {@code cell} has an unexpired sighting. */
