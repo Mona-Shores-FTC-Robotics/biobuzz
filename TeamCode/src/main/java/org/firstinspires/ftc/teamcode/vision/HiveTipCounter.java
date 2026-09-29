@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * <p>The count starts from the match-start position, so it is right for an Autonomous run from
  * the start of the match. It cannot see a HIVE that tips twice while neither CELL is in view.
  *
- * <p>Auto conditions read it as "the Nth TIP has happened" ({@code HiveTip1}, {@code HiveTip2}):
+ * <p>Auto conditions read it as "the Nth TIP has happened" ({@code Tip1}, {@code Tip2}):
  * once true, true for the rest of the match, whoever tipped it.
  */
 public final class HiveTipCounter {

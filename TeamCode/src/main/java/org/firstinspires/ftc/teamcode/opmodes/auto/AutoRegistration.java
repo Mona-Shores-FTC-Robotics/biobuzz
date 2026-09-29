@@ -22,7 +22,7 @@ public final class AutoRegistration {
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 
-    /** How many TIPs an Auto can ask about: HiveTip1 to HiveTip{MAX_TIPS}. */
+    /** How many TIPs an Auto can ask about: Tip1 to Tip{MAX_TIPS}. */
     public static final int MAX_TIPS = 4;
 
     private static final HiveCell[] CELLS = HiveCell.values();
@@ -34,7 +34,7 @@ public final class AutoRegistration {
                 .condition("CameraBlind", () -> cameraBlind(robot));
         for (int n = 1; n <= MAX_TIPS; n++) {
             final int tip = n;
-            registry.condition("HiveTip" + n, () -> hiveTipped(robot, setup.alliance(), tip));
+            registry.condition("Tip" + n, () -> hiveTipped(robot, setup.alliance(), tip));
         }
         return registry;
     }
