@@ -46,12 +46,11 @@ public final class Robot20245 {
      * tracking centre, which they don't, so heading changes corrupt the position estimate until
      * the measured values are in.
      */
-    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
-        c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(0.0);
-        c.yPodOffset.set(0.0);
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+    public static PinpointConfig localizerConfig = new PinpointConfig(c -> {c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
+        c.xPodOffset.set(-4.412711736724133);
+        c.yPodOffset.set(0.01945832934905225);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });
