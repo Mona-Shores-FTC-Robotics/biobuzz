@@ -22,9 +22,11 @@ import com.pedropathing.math.Vector2D;
  * <p><b>Only paste output from tuners run on 19429 into this file.</b> Robot20245.java has the
  * same shape and different numbers; see {@code pedro/Constants.java} for the tuner order.
  *
- * <p>Paste each tuner's generated block over the field of the same name, <em>then delete its
- * {@code ...Name.set("...")} lines</em>. Device names are shared by every robot and set in
- * {@link RobotConstants} from {@code DeviceNames}; the build fails if a name line is left here.
+ * <p>Paste each tuner's generated block <b>exactly as the tuner shows it</b> over the field of the
+ * same name — name lines and all, nothing to delete. Device names are shared by every robot:
+ * {@link RobotConstants} sets them from {@code DeviceNames} whatever this file says, and the build
+ * fails only if a pasted name <em>differs</em> from {@code DeviceNames} (a typo in the tuner's name
+ * field).
  */
 public final class Robot19429 {
 
