@@ -708,6 +708,45 @@ Foresight tuners all run today, as do the Tests procedure's localization,
 odometry, pose and driving tests. Only its hold, line and curve tests need a
 tuned Foresight, since only those build a `Follower`.
 
+### When the robot strafes in an arc: Drive Motor Check
+
+The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
+left, robot-centric, with nothing correcting heading. So it shows the robot's own
+strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
+tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
+it is **field-centric** by default, so the Pinpoint heading quietly steers out
+the drift. To see what the tuner sees, open Basic Drive, press **B** for
+robot-centric, hold the **right bumper** (turbo) and push straight left.
+
+If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
+**the robot lifted**. It takes about 20 s:
+
+| Step | What it shows |
+|---|---|
+| Init: press A, then turn each wheel exactly one turn by hand | Encoder counts per turn. Their sizes should match (the sign can differ on reversed motors). One that differs has a **different gearbox**, the one fault the RPM steps cannot see: goBILDA's encoder sits before the gearbox |
+| Each wheel alone, full power | Its own top speed (motor-shaft RPM) and current |
+| All four: forward, strafe left, strafe right | The same Pedro `Mecanum` call the tuner makes, using this robot's motor directions |
+
+After each step it names any wheel that is off. Every wheel's RPM is also on
+Panels as `<wheel>_rpm`, so you can graph them.
+
+| It says | Measured | Likely cause |
+|---|---|---|
+| `SLOW_DRAG` | ≥5% slower **and** ≥1.25× the others' current | Something resists it: bearing, rubbing wheel, bent shaft |
+| `SLOW_WEAK` | ≥5% slower, normal current | Worn motor or gearbox. Swap it |
+| `WRONG_WAY` | Spins against its command | Direction in that robot's `pedro/robots` file, or motor wiring |
+| `NO_ENCODER` | ~0 RPM while commanded | Encoder cable unplugged. Driving is unaffected, but the wheel isn't measured |
+
+The thresholds, power and timings are `@Configurable` under `DriveMotorCheck` in
+Panels. **If every step comes back clean,** the cause is one a lifted robot can't
+show: mecanum rollers on the wrong corners (seen from above they should make an
+**X** pointing at the centre), weight balance front to back, or the floor.
+
+**Rejected: running it on the floor.** Loaded numbers would be closer to the real
+arc, but at full power the robot covers several feet per step. Lifted, a dragging
+wheel still draws more current and a weak motor still runs slower, and that is
+what separates the causes.
+
 ## The `shooter` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
@@ -1334,6 +1373,19 @@ Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
 `FieldPresets.PEDRO_PATHING` is one of its four built-in presets, next to the default FTC and Road
 Runner frames, so the conversion Pedro's helper would have done is done by a library we already
 have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
+
+> **Update, 28 Sep 2026 (#116).** `FieldView` now uses a copy of that preset, not the preset
+> itself. The built-in one centres on (72, 72), which assumes a 144 in field. Our field is 141.5 in
+> wall face to wall face, the same size the Visualizer uses, so the drawn robot sat 1.25 in off.
+> The copy keeps the rotation and flip and centres on `FieldFrame.FIELD_CENTRE_INCHES` (70.75).
+>
+> Rejected alternatives:
+> - Leaving the error in, because it is too small to see. A small disagreement between tools is
+>   exactly how last season's frame bugs started.
+> - Scaling the drawing so the whole field fits Panels' 144 in canvas. That changes what a
+>   position means; re-centring only moves the drawing.
+>
+> The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
 
 **The throttle is the part that will bite you.** `FieldManager.update()` sends only when
 `canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
