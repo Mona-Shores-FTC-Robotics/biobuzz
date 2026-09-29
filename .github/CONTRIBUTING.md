@@ -103,6 +103,9 @@ and nine `area:` values were finer than the way the team actually splits up at a
 - **Rename a branch with GitHub's button, never by deleting it and pushing a new one.** Repo →
   Branches → the pencil icon renames it and moves any open PR along with it. Deleting and re-pushing
   closes the PR instead, and that has already stranded finished work on this repo twice.
+- **An Auto's `.pp` file is committed with its Java.** Put it in `TeamCode/autos/`, named as the
+  generated class's `SOURCE` says, and change the Auto by editing the `.pp` in the Visualizer and
+  exporting again, never by editing the Java. See `TeamCode/autos/README.md`.
 - Commit messages: imperative subject ("Add flywheel velocity telemetry"), and the body explains
   *why*, not *what*. The diff already says what.
 - A red CI check is investigated, not re-run.
