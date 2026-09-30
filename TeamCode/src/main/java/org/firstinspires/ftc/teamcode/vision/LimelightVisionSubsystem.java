@@ -103,8 +103,6 @@ public class LimelightVisionSubsystem implements Subsystem {
     private long freshResultCount = 0L;
     private double lastPeriodicMs = 0.0;
     private LLResult lastResult;
-    private final HiveTracker redHive = new HiveTracker();
-    private final HiveTracker blueHive = new HiveTracker();
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
         this(hardwareMap, DEFAULT_DEVICE_NAME);
@@ -141,8 +139,6 @@ public class LimelightVisionSubsystem implements Subsystem {
             state = State.UNAVAILABLE;
             return;
         }
-        redHive.reset();
-        blueHive.reset();
         applyPipelineIndex();
         limelight.start();
         state = State.STREAMING;
@@ -177,9 +173,6 @@ public class LimelightVisionSubsystem implements Subsystem {
             // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
             poll();
-            long monotonicMs = System.nanoTime() / 1_000_000L;
-            redHive.observe(seenHive(Alliance.RED), monotonicMs);
-            blueHive.observe(seenHive(Alliance.BLUE), monotonicMs);
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -299,14 +292,16 @@ public class LimelightVisionSubsystem implements Subsystem {
     // ------------------------------------------------------------------
 
     /**
-     * What this frame says about {@code alliance}'s HIVE (see {@link HiveState#of}).
+     * What the camera says about {@code alliance}'s HIVE now (see {@link HiveState#of}); UNSEEN for
+     * UNKNOWN. {@link HiveSubsystem} follows it over the match.
      *
      * <p>Mid-tip counts only when a CELL of that HIVE is in view, the resting heights are
      * measured, and its latest reading sits between them: a CELL out of view never reads as tipping.
      */
-    private HiveState seenHive(Alliance alliance) {
+    public HiveState seenHive(Alliance alliance) {
         HiveCell left = HiveCell.leftCell(alliance);
         HiveCell right = HiveCell.rightCell(alliance);
+        if (left == null) return HiveState.UNSEEN;
         return HiveState.of(state(left), state(right), midTip(left) || midTip(right));
     }
 
@@ -318,19 +313,16 @@ public class LimelightVisionSubsystem implements Subsystem {
     }
 
     /**
-     * {@code alliance}'s HIVE over the match (see {@link HiveTracker}): its state, the four
-     * UP/DOWN questions an Auto asks, and its TIP count. Null for UNKNOWN.
+     * Milliseconds since a tag of either of {@code alliance}'s CELLs was last in a camera frame;
+     * infinite if none is remembered or the alliance is UNKNOWN.
      */
-    public HiveTracker hive(Alliance alliance) {
-        if (alliance == Alliance.RED) return redHive;
-        if (alliance == Alliance.BLUE) return blueHive;
-        return null;
+    public double msSinceHiveSeen(Alliance alliance) {
+        return Math.min(ageMs(HiveCell.leftCell(alliance)), ageMs(HiveCell.rightCell(alliance)));
     }
 
-    /** Which way {@code alliance}'s HIVE is now; UNSEEN for UNKNOWN. */
-    public HiveState hiveState(Alliance alliance) {
-        HiveTracker hive = hive(alliance);
-        return hive == null ? HiveState.UNSEEN : hive.state();
+    private double ageMs(HiveCell cell) {
+        CellSighting sighting = cell == null ? null : sightings.get(cell);
+        return sighting == null ? Double.POSITIVE_INFINITY : sighting.ageMs();
     }
 
     private CellStateTracker trackerFor(HiveCell cell) {
@@ -399,11 +391,6 @@ public class LimelightVisionSubsystem implements Subsystem {
         for (HiveCell cell : HiveCell.values()) {
             display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
         }
-        display.line("HIVE: red " + describe(redHive) + " · blue " + describe(blueHive));
-    }
-
-    private static String describe(HiveTracker hive) {
-        return hive.state() + (hive.assumed() ? " (assumed)" : "") + ", " + hive.tips() + " TIPs";
     }
 
     /** True if {@code cell} has an unexpired sighting. */

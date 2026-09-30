@@ -7,35 +7,42 @@ import com.bylazar.configurables.annotations.Configurable;
  * it has TIPped.
  *
  * <p>It starts from the match-start position, {@link HiveState#RIGHT_CELL_UP}, so it is right for
- * an Autonomous run from the start of the match. Each camera frame's {@link HiveState} is fed to
- * {@link #observe}:
+ * an Autonomous run from the start of the match. {@link HiveSubsystem} feeds it every loop:
  * <ul>
- *   <li>A settled state is taken as seen.</li>
- *   <li>A CELL seen mid-tip starts a TIP away from the last settled position. A TIP, once started,
- *       finishes (the HIVE is built that way), so after {@link Tuning#tipSeconds} the tracker
- *       reports the other CELL up without waiting to see it, and holds that until the camera next
- *       sees the HIVE settled. While the TIP runs it reports {@link HiveState#TRANSITION}, in view
- *       or not.</li>
- *   <li>Unseen otherwise is {@link HiveState#UNSEEN}: a position seen earlier is not remembered,
- *       because anyone can TIP the HIVE while the camera looks away.</li>
+ *   <li>A settled state the camera sees is taken as it is.</li>
+ *   <li>A TIP starts when a CELL is seen mid-tip, <em>or</em> when a CELL seen settled drops out of
+ *       view while the robot keeps looking where it was: a CELL's tags turn away from the camera
+ *       as soon as it starts to move. (A robot or POLLEN blocking the view for longer than
+ *       {@link Tuning#lostAfterMs} looks the same; if the CELL reappears where it was, the TIP is
+ *       cancelled, but a trigger may already have fired.)</li>
+ *   <li>A TIP, once started, finishes (the HIVE is built that way). It reads
+ *       {@link HiveState#TRANSITION} until the camera sees the HIVE settle, or until
+ *       {@link Tuning#tipSeconds} has passed, after which the other CELL is assumed up and held
+ *       until the camera next sees the HIVE.</li>
+ *   <li>Otherwise, out of view is {@link HiveState#UNSEEN}: a position seen earlier is not
+ *       remembered once the robot looks away, because anyone can TIP the HIVE meanwhile.</li>
  * </ul>
  *
- * <p>Only {@link LimelightVisionSubsystem} feeds it; everyone else reads it. An assumed position is
- * never used for a position fix: {@code CellFix} reads only what the camera settled on.
- *
- * <p>Until {@link Tuning#tipSeconds} is measured nothing is assumed: a TIP ends only when the
- * camera sees it settle, and an unseen TIP reads {@link HiveState#UNSEEN}.
+ * <p>Only {@link HiveSubsystem} feeds it; everyone else reads it. An assumed position is never used
+ * for a position fix: {@code CellFix} reads only what the camera settled on.
  */
 public final class HiveTracker {
 
-    /** Measured HIVE facts. */
+    /** HIVE timing. */
     @Configurable
     public static class Tuning {
         /**
-         * Seconds from a CELL first seen mid-tip to the HIVE settled the other way. NaN until
-         * measured (film a TIP); NaN, zero or negative assumes nothing.
+         * Seconds from the start of a TIP to the HIVE settled the other way. NaN until measured
+         * (film a TIP); NaN, zero or negative assumes nothing, and a TIP ends only when seen.
          */
         public static double tipSeconds = Double.NaN;
+
+        /**
+         * How long a settled CELL must be out of view, while the robot keeps looking, before that
+         * counts as the start of a TIP, ms. Long enough to ride out a dropped frame; short enough
+         * not to delay the Auto. Set on a field.
+         */
+        public static double lostAfterMs = 200;
     }
 
     private HiveState settled = HiveState.RIGHT_CELL_UP;
@@ -46,32 +53,44 @@ public final class HiveTracker {
     private int tips;
 
     /**
-     * Feeds one camera frame.
+     * Feeds one loop.
      *
-     * @param seen  what the frame says (see {@link HiveState#of})
-     * @param nowMs a monotonic clock, in milliseconds
-     * @return the state after this frame
+     * @param seen         what the camera says (see {@link HiveState#of})
+     * @param lostForMs    ms since a tag of this HIVE was last in a frame; infinite if never
+     * @param stillLooking the robot has not turned or moved since that frame, so the HIVE would
+     *                     still be in view if nothing about it had changed
+     * @param nowMs        a monotonic clock, in milliseconds
+     * @return the state after this loop
      */
-    HiveState observe(HiveState seen, long nowMs) {
+    HiveState observe(HiveState seen, double lostForMs, boolean stillLooking, long nowMs) {
+        // The camera's settled state outlives the tags a little; out of view is out of view.
+        boolean lost = Tuning.lostAfterMs > 0 ? !(lostForMs < Tuning.lostAfterMs) : Double.isInfinite(lostForMs);
+        if (lost) seen = HiveState.UNSEEN;
+
         if (seen.settled()) {
             settleAt(seen);
             assumed = false;
         } else if (seen == HiveState.TRANSITION) {
-            if (!tipping) {
-                tipping = true;
-                tipStartMs = nowMs;
-            }
-            state = HiveState.TRANSITION;
+            startTip(nowMs);
+        } else if (state.settled() && !assumed && stillLooking && !Double.isInfinite(lostForMs)) {
+            startTip(nowMs - (long) lostForMs); // it vanished where the robot is still looking
         } else if (!tipping && !assumed) {
             state = HiveState.UNSEEN;
         }
+
         if (tipping && tipDone(nowMs)) {
             settleAt(settled.flipped());
             assumed = true;
-        } else if (tipping && seen == HiveState.UNSEEN && !tipTimed()) {
-            state = HiveState.UNSEEN; // nothing to assume from until the TIP time is measured
         }
         return state;
+    }
+
+    private void startTip(long startMs) {
+        if (!tipping) {
+            tipping = true;
+            tipStartMs = startMs;
+        }
+        state = HiveState.TRANSITION;
     }
 
     private void settleAt(HiveState position) {
@@ -81,12 +100,8 @@ public final class HiveTracker {
         tipping = false;
     }
 
-    private static boolean tipTimed() {
-        return Tuning.tipSeconds > 0;
-    }
-
     private boolean tipDone(long nowMs) {
-        return tipTimed() && nowMs - tipStartMs >= Tuning.tipSeconds * 1000.0;
+        return Tuning.tipSeconds > 0 && nowMs - tipStartMs >= Tuning.tipSeconds * 1000.0;
     }
 
     public HiveState state() { return state; }

@@ -33,8 +33,9 @@ public final class AutoRegistration {
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
         return new AutoRegistry()
                 // Our HIVE, LEFT and RIGHT as our drivers see them. "Down" is true from the moment
-                // that CELL starts down, because a TIP that has started finishes; "Up" once it is
-                // seen settled, or once the measured TIP time has passed. Reads the HIVE now, so a
+                // that CELL starts down (seen mid-tip, or its tags vanish while the robot keeps
+                // looking), because a TIP that has started finishes; "Up" once it is seen
+                // settled, or once the measured TIP time has passed. Reads the HIVE now, so a
                 // TIP during a launch already counts when the wait starts.
                 .trigger("RightCellDown", () -> hive(robot, setup).rightCellDown())
                 .trigger("LeftCellUp", () -> hive(robot, setup).leftCellUp())
@@ -45,7 +46,7 @@ public final class AutoRegistration {
 
     /** Our alliance's HIVE; a tracker that never moves if the alliance is still UNKNOWN. */
     private static HiveTracker hive(Robot robot, MatchSetup setup) {
-        HiveTracker hive = robot.vision.hive(setup.alliance());
+        HiveTracker hive = robot.hive.of(setup.alliance());
         return hive == null ? NO_HIVE : hive;
     }
 

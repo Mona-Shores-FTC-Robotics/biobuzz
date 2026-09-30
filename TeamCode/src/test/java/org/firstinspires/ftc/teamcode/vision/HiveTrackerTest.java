@@ -13,17 +13,30 @@ import org.junit.Test;
 
 public class HiveTrackerTest {
 
+    private static final double NEVER = Double.POSITIVE_INFINITY;
+
     private final HiveTracker hive = new HiveTracker();
 
     @After
-    public void unmeasure() {
+    public void untune() {
         HiveTracker.Tuning.tipSeconds = Double.NaN;
+        HiveTracker.Tuning.lostAfterMs = 200;
+    }
+
+    /** A frame with the HIVE in view. */
+    private HiveState see(HiveState seen, long nowMs) {
+        return hive.observe(seen, 0, true, nowMs);
+    }
+
+    /** A loop with no tag for {@code lostForMs}. The camera's settled state lingers, as it does. */
+    private HiveState lose(HiveState lingering, double lostForMs, boolean stillLooking, long nowMs) {
+        return hive.observe(lingering, lostForMs, stillLooking, nowMs);
     }
 
     @Test
     public void startsUnseenAndTakesWhatItSees() {
-        assertEquals(UNSEEN, hive.state());
-        assertEquals(RIGHT_CELL_UP, hive.observe(RIGHT_CELL_UP, 0));
+        assertEquals(UNSEEN, hive.observe(UNSEEN, NEVER, false, 0));
+        assertEquals(RIGHT_CELL_UP, see(RIGHT_CELL_UP, 0));
         assertTrue(hive.rightCellUp());
         assertTrue(hive.leftCellDown());
         assertFalse(hive.rightCellDown());
@@ -31,92 +44,110 @@ public class HiveTrackerTest {
     }
 
     @Test
-    public void aSettledPositionIsNotRememberedOutOfView() {
-        hive.observe(LEFT_CELL_UP, 0);
-        assertEquals(UNSEEN, hive.observe(UNSEEN, 20));
-        assertFalse(hive.leftCellUp());
-    }
-
-    @Test
-    public void theRightCellIsDownFromTheMomentTheTipStarts() {
-        hive.observe(RIGHT_CELL_UP, 0);
-        assertEquals(TRANSITION, hive.observe(TRANSITION, 100));
+    public void tagsThatVanishWhileTheRobotKeepsLookingAreATip() {
+        see(RIGHT_CELL_UP, 1000);
+        assertEquals(RIGHT_CELL_UP, lose(RIGHT_CELL_UP, 100, true, 1100)); // a dropped frame
+        assertEquals(TRANSITION, lose(RIGHT_CELL_UP, 200, true, 1200));
         assertTrue(hive.rightCellDown());
         assertFalse(hive.leftCellUp());
-        assertFalse(hive.leftCellDown());
-        assertEquals(LEFT_CELL_UP, hive.observe(LEFT_CELL_UP, 900));
-        assertTrue(hive.leftCellUp());
+        assertEquals(TRANSITION, lose(UNSEEN, 5000, false, 6000)); // turning away now changes nothing
+        assertEquals(LEFT_CELL_UP, see(LEFT_CELL_UP, 7000));
         assertEquals(1, hive.tips());
     }
 
     @Test
+    public void tagsLostBecauseTheRobotTurnedAwayAreJustUnseen() {
+        see(RIGHT_CELL_UP, 1000);
+        assertEquals(UNSEEN, lose(RIGHT_CELL_UP, 300, false, 1300));
+        assertFalse(hive.rightCellDown());
+        assertEquals(UNSEEN, lose(UNSEEN, 900, true, 1900)); // looking back at nothing says nothing
+        assertFalse(hive.rightCellDown());
+    }
+
+    @Test
+    public void aCellThatReappearsWhereItWasCancelsTheTip() {
+        see(RIGHT_CELL_UP, 0);
+        lose(RIGHT_CELL_UP, 300, true, 300); // a robot drove through the view
+        assertEquals(RIGHT_CELL_UP, see(RIGHT_CELL_UP, 600));
+        assertFalse(hive.rightCellDown());
+        assertEquals(0, hive.tips());
+    }
+
+    @Test
+    public void aCellSeenMidTipIsATipToo() {
+        see(RIGHT_CELL_UP, 0);
+        assertEquals(TRANSITION, see(TRANSITION, 100));
+        assertTrue(hive.rightCellDown());
+        assertFalse(hive.leftCellDown());
+    }
+
+    @Test
     public void aTipIsAwayFromTheMatchStartEvenIfTheStartWasNotSeen() {
-        hive.observe(TRANSITION, 0);
+        see(TRANSITION, 0);
         assertTrue(hive.rightCellDown());
     }
 
     @Test
     public void theTipBackIsAwayFromTheLeft() {
-        hive.observe(LEFT_CELL_UP, 0);
-        hive.observe(TRANSITION, 100);
+        see(LEFT_CELL_UP, 0);
+        lose(LEFT_CELL_UP, 250, true, 250);
         assertTrue(hive.leftCellDown());
         assertFalse(hive.rightCellDown());
-        hive.observe(RIGHT_CELL_UP, 900);
+        see(RIGHT_CELL_UP, 2000);
         assertEquals(2, hive.tips());
     }
 
     @Test
-    public void withoutAMeasuredTipTimeNothingIsAssumed() {
-        hive.observe(TRANSITION, 0);
-        assertEquals(TRANSITION, hive.observe(TRANSITION, 60_000));
-        assertEquals(UNSEEN, hive.observe(UNSEEN, 60_020));
+    public void withoutAMeasuredTipTimeATipLastsUntilSeen() {
+        see(RIGHT_CELL_UP, 0);
+        lose(RIGHT_CELL_UP, 200, true, 200);
+        assertEquals(TRANSITION, lose(UNSEEN, 60_000, true, 60_000));
         assertFalse(hive.assumed());
         assertEquals(0, hive.tips());
     }
 
     @Test
-    public void aStartedTipFinishesAfterTheMeasuredTime() {
+    public void aStartedTipFinishesTheMeasuredTimeAfterTheTagsVanished() {
         HiveTracker.Tuning.tipSeconds = 1.5;
-        hive.observe(RIGHT_CELL_UP, 0);
-        hive.observe(TRANSITION, 1000);
-        assertEquals(TRANSITION, hive.observe(UNSEEN, 2000)); // out of view mid-tip: still tipping
-        assertEquals(LEFT_CELL_UP, hive.observe(UNSEEN, 2500));
+        see(RIGHT_CELL_UP, 1000);
+        lose(RIGHT_CELL_UP, 200, true, 1200); // vanished at 1000
+        assertEquals(TRANSITION, lose(UNSEEN, 1400, true, 2400));
+        assertEquals(LEFT_CELL_UP, lose(UNSEEN, 1500, true, 2500));
         assertTrue(hive.assumed());
         assertTrue(hive.leftCellUp());
-        assertEquals(LEFT_CELL_UP, hive.observe(UNSEEN, 9000)); // held until the camera says otherwise
+        assertEquals(LEFT_CELL_UP, lose(UNSEEN, 8000, false, 9000)); // held while out of view
         assertEquals(1, hive.tips());
-        assertEquals(LEFT_CELL_UP, hive.observe(LEFT_CELL_UP, 9020));
+        assertEquals(LEFT_CELL_UP, see(LEFT_CELL_UP, 9020));
         assertFalse(hive.assumed());
         assertEquals(1, hive.tips());
+    }
+
+    @Test
+    public void anAssumedPositionDoesNotVanish() {
+        HiveTracker.Tuning.tipSeconds = 1.0;
+        see(TRANSITION, 0);
+        lose(UNSEEN, 1000, true, 1000);
+        assertEquals(LEFT_CELL_UP, lose(UNSEEN, 2000, true, 2000));
+        assertFalse(hive.leftCellDown());
     }
 
     @Test
     public void whatTheCameraSeesOverridesAnAssumption() {
         HiveTracker.Tuning.tipSeconds = 1.0;
-        hive.observe(TRANSITION, 0);
-        hive.observe(UNSEEN, 1000);
-        assertEquals(RIGHT_CELL_UP, hive.observe(RIGHT_CELL_UP, 1100)); // tipped back meanwhile
+        see(TRANSITION, 0);
+        lose(UNSEEN, 1000, true, 1000);
+        assertEquals(RIGHT_CELL_UP, see(RIGHT_CELL_UP, 1100)); // tipped back meanwhile
         assertFalse(hive.assumed());
         assertEquals(2, hive.tips());
     }
 
     @Test
-    public void aTipThatSettlesBackWhereItStartedIsNotATip() {
-        HiveTracker.Tuning.tipSeconds = 1.0;
-        hive.observe(RIGHT_CELL_UP, 0);
-        hive.observe(TRANSITION, 100);
-        assertEquals(RIGHT_CELL_UP, hive.observe(RIGHT_CELL_UP, 400));
-        assertEquals(RIGHT_CELL_UP, hive.observe(RIGHT_CELL_UP, 5000));
-        assertEquals(0, hive.tips());
-    }
-
-    @Test
     public void resetGoesBackToTheMatchStart() {
-        hive.observe(LEFT_CELL_UP, 0);
+        see(LEFT_CELL_UP, 0);
         hive.reset();
         assertEquals(UNSEEN, hive.state());
         assertEquals(0, hive.tips());
-        hive.observe(TRANSITION, 10);
+        see(TRANSITION, 10);
         assertTrue(hive.rightCellDown());
     }
 }
