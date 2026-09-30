@@ -10,7 +10,6 @@ import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
-import org.firstinspires.ftc.teamcode.autokit.PathProgress;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import com.pedropathing.localization.FusionLocalizer;
 
@@ -247,14 +246,6 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     public boolean pathDone() {
         // The Follower leaves FOLLOW (for HOLD at the end point) once the path is finished.
         return follower == null || followedPath == null || !follower.following();
-    }
-
-    @Override
-    public double pathProgress() {
-        if (pathDone()) {
-            return 1.0;
-        }
-        return PathProgress.along(followedPath, follower.pathIndex(), follower.pose());
     }
 
     @Override

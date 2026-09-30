@@ -70,17 +70,9 @@ public class GeneratedAutoTest {
     public void aTipOnTheFirstVolleyTakesTheFastBranchAndParksFar() {
         tipAt = 1.0;
         runAuto(false);
-        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.startsWith("Did the HIVE tip?: HiveTipped or CameraBlind")));
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.startsWith("Did the HIVE tip?: HiveTipped")));
         assertTrue(trace.toString(), trace.contains("path ParkFarPath"));
         assertEquals("SpinUp", actions.get(0));
-        assertTrue(actions.toString(), actions.contains("IntakeOn"));
-    }
-
-    @Test
-    public void aBlindCameraBetsOnTheTip() {
-        blind = true;
-        runAuto(false);
-        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.startsWith("Did the HIVE tip?: HiveTipped or CameraBlind")));
     }
 
     @Test
@@ -119,7 +111,7 @@ public class GeneratedAutoTest {
 
         @Override public void follow(Path path) { current = path; progress = 0; followed.add(path); }
         @Override public boolean pathDone() { return current == null || progress >= 1; }
-        @Override public double pathProgress() { return current == null ? 1 : progress; }
+
         @Override public Pose pose() { return pose; }
         @Override public boolean poseReferenced() { return true; }
         @Override public void hold(Pose pose) { current = null; }

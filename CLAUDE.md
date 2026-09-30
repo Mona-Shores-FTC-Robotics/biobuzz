@@ -26,7 +26,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
-| `autokit/` | The Auto Builder's runtime: the cards (`firstOf`, paths with events, routines, go-to, endgame guard) a generated Auto calls. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; `AutoRegistration` is the only list of action and condition names an Auto may use. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |

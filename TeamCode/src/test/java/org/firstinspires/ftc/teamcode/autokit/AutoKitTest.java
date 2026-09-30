@@ -95,7 +95,6 @@ public class AutoKitTest {
         run(kit.sequence(
                 kit.firstOf("Launch and watch", kit.command("LaunchAll"),
                         kit.when("HiveTipped").then(kit.command("ShootAll")),
-                        kit.finished(),
                         kit.afterMs(4000))), 5);
         assertTrue(log.toString(), log.contains("LaunchAll start"));
         assertTrue(log.toString(), log.contains("LaunchAll INTERRUPTED"));
@@ -105,22 +104,15 @@ public class AutoKitTest {
     }
 
     @Test
-    public void aWaitWhileACommandRunsCanEndWhenTheCommandFinishes() {
+    public void aWaitGoesOnAfterItsCommandFinishes() {
         AutoKit kit = new AutoKit(drive, new AutoRegistry()
                 .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 1.0))
-                .trigger("HiveTipped", () -> false), () -> now).trace(trace::add);
+                .trigger("HiveTipped", () -> now >= 2.0), () -> now).trace(trace::add);
         run(kit.firstOf("Launch and watch", kit.command("LaunchAll"),
                 kit.when("HiveTipped"),
-                kit.finished(),
                 kit.afterMs(4000)), 5);
         assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
-        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("the command alongside finished")));
-        assertTrue("ended near 1 s, not at the 4 s limit: " + now, now < 1.5);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void aFinishedRowNeedsACommandAlongside() {
-        kit.firstOf("Nothing alongside", kit.finished(), kit.afterMs(1000));
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("HiveTipped after 2.0")));
     }
 
     @Test
@@ -147,12 +139,12 @@ public class AutoKitTest {
     @Test
     public void decisionTakesTheConditionRowWhenItComesTrueFirst() {
         Command auto = kit.firstOf("Did the HIVE tip?",
-                kit.when("HiveTipped", "CameraBlind").then(kit.command("ShootAll")),
+                kit.when("HiveTipped").then(kit.command("ShootAll")),
                 kit.afterMs(1500).then(kit.command("SpinUp")));
-        blind = true; // either condition in the OR is enough
+        tipped = true;
         run(auto, 5);
         assertEquals("[ShootAll]", log.toString());
-        assertTrue(trace.toString(), trace.contains("Did the HIVE tip?: HiveTipped or CameraBlind after 0.00 s"));
+        assertTrue(trace.toString(), trace.contains("Did the HIVE tip?: HiveTipped after 0.00 s"));
     }
 
     @Test
@@ -169,7 +161,7 @@ public class AutoKitTest {
     public void earlierRowWinsWhenTwoAreTrueInTheSameLoop() {
         tipped = true;
         run(kit.firstOf("both", kit.when("HiveTipped").then(kit.command("ShootAll")),
-                kit.otherwise().then(kit.command("SpinUp"))), 1);
+                kit.afterMs(0).then(kit.command("SpinUp"))), 1);
         assertEquals("[ShootAll]", log.toString());
     }
 
@@ -183,32 +175,7 @@ public class AutoKitTest {
         assertTrue(now >= 0.8);
     }
 
-    @Test
-    public void timeLeftRowBailsOutNearTheEndOfAuto() {
-        now = 23;
-        run(kit.firstOf("Second cycle?",
-                kit.timeLeftBelow(8).then(kit.command("SpinUp")),
-                kit.otherwise().then(kit.command("ShootAll"))), 1);
-        assertEquals("[SpinUp]", log.toString());
-    }
-
     // ----------------------------------------------------------- paths
-
-    @Test
-    public void pathEventsFireAtTheirFractionAndWhileActionsStartWithThePath() {
-        drive.stepPerLoop = 0.1;
-        run(kit.path("Collect", line(0, 40), new String[] {"SpinUp"}, AutoKit.at(0.6, "IntakeOn")), 3);
-        assertEquals("[SpinUp, IntakeOn]", log.toString());
-        assertEquals(0.6, drive.progressWhen.get("IntakeOn"), 0.11);
-    }
-
-    @Test
-    public void eventsBeyondTheEndOfAPathThatFinishesEarlyAreDropped() {
-        drive.stepPerLoop = 1.0;
-        drive.capProgress = 0.5;  // the path "ends" at half way, e.g. cut short
-        run(kit.path("Short", line(0, 40), new String[0], AutoKit.at(0.9, "IntakeOn")), 3);
-        assertEquals("[]", log.toString());
-    }
 
     // ----------------------------------------------------------- endgame guard
 
@@ -237,57 +204,7 @@ public class AutoKitTest {
 
     // ----------------------------------------------------------- go-to
 
-    @Test
-    public void goToRefusesWithoutAFieldReferencedPose() {
-        drive.referenced = false;
-        run(kit.goTo("Back", new Pose(10, 0, 0), 36, kit.command("SpinUp")), 1);
-        assertEquals("[SpinUp]", log.toString());
-        assertTrue(drive.followed.isEmpty());
-    }
-
-    @Test
-    public void goToRefusesALineThatCrossesAKeepOut() {
-        kit.keepOut(new Pose(10, -5, 0), new Pose(20, -5, 0), new Pose(20, 5, 0), new Pose(10, 5, 0));
-        run(kit.goTo("Across", new Pose(30, 0, 0), 36, null), 1);
-        assertTrue(drive.followed.isEmpty());
-        assertTrue(trace.toString(), trace.contains("go-to Across refused: the line crosses a keep-out"));
-    }
-
-    @Test
-    public void goToRefusesALineOverTheDistanceCap() {
-        run(kit.goTo("Far", new Pose(100, 0, 0), 36, null), 1);
-        assertTrue(drive.followed.isEmpty());
-    }
-
-    @Test
-    public void goToDrivesAStraightLineWhenAllowed() {
-        drive.stepPerLoop = 0.25;
-        run(kit.goTo("Back", new Pose(10, 10, 0), 36, null), 2);
-        assertEquals(1, drive.followed.size());
-        Pose end = drive.followed.get(0).endPose();
-        assertEquals(10, end.x(), 1e-9);
-        assertEquals(10, end.y(), 1e-9);
-    }
-
     // ----------------------------------------------------------- routine
-
-    @Test
-    public void routineStopsWhenItsConditionComesTrueThenExitsToItsPoint() {
-        drive.stepPerLoop = 0.05;
-        Command routine = kit.routine("CollectFar", line(0, 40), "IntakeFull", 10_000,
-                new String[] {"IntakeOn"}, new String[] {"IntakeOff"}, new Pose(0, 30, 0));
-        routine.schedule();
-        for (int i = 0; i < 6; i++) { Scheduler.execute(); drive.tick(); now += LOOP_S; }
-        full = true;
-        while (routine.isScheduled() && now < 10) { Scheduler.execute(); drive.tick(); now += LOOP_S; }
-        assertFalse(routine.isScheduled());
-        assertEquals("[IntakeOn, IntakeOff]", log.toString());
-        assertEquals(2, drive.followed.size());
-        Pose exitEnd = drive.followed.get(1).endPose();
-        assertEquals(0, exitEnd.x(), 1e-9);
-        assertEquals(30, exitEnd.y(), 1e-9);
-        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.startsWith("CollectFar: IntakeFull after")));
-    }
 
     // ----------------------------------------------------------- registry
 
@@ -346,21 +263,6 @@ public class AutoKitTest {
 
     // ----------------------------------------------------------- geometry
 
-    @Test
-    public void progressCountsTheSegmentsAlreadyDriven() {
-        Path compound = Paths.path(line(0, 10), line(10, 40));
-        assertEquals(0.25, Geometry.progress(compound, 1, new Pose(10, 0, 0)), 1e-6);
-        assertEquals(0.625, Geometry.progress(compound, 1, new Pose(25, 0, 0)), 1e-6);
-        assertEquals(1.0, Geometry.progress(compound, 2, new Pose(40, 0, 0)), 1e-6);
-    }
-
-    @Test
-    public void lineNearAPolygonCountsAsAHitWithinTheMargin() {
-        Pose[] box = {new Pose(0, 0, 0), new Pose(10, 0, 0), new Pose(10, 10, 0), new Pose(0, 10, 0)};
-        assertTrue(Geometry.lineHitsPolygon(new Pose(-5, 15, 0), new Pose(15, 15, 0), box, 9));
-        assertFalse(Geometry.lineHitsPolygon(new Pose(-5, 20, 0), new Pose(15, 20, 0), box, 9));
-    }
-
     // ----------------------------------------------------------- fake
 
     /** Moves {@link #stepPerLoop} of the current path each loop; the pose follows the path. */
@@ -389,10 +291,6 @@ public class AutoKitTest {
 
         @Override public boolean pathDone() {
             return current == null || progress >= capProgress;
-        }
-
-        @Override public double pathProgress() {
-            return current == null ? 1 : progress;
         }
 
         @Override public Pose pose() {

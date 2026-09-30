@@ -15,9 +15,6 @@ public interface AutoDrive {
     /** True once the path started by {@link #follow} has been driven to its end. */
     boolean pathDone();
 
-    /** How far along the current path the robot is, 0 to 1 by distance. 1 when not following. */
-    double pathProgress();
-
     /** The robot's pose in Pedro's field frame (inches, radians). */
     Pose pose();
 

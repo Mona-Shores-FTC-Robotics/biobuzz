@@ -18,8 +18,6 @@ public final class Row {
     final Test test;
     /** Run when the card starts waiting, before the first test. */
     Runnable start = () -> { };
-    /** True for the "the command alongside finished" row, which the card itself answers. */
-    boolean whenAlongsideDone;
     Command[] cards = new Command[0];
 
     Row(String description, Test test) {
