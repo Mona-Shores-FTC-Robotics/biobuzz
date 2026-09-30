@@ -103,8 +103,8 @@ public class LimelightVisionSubsystem implements Subsystem {
     private long freshResultCount = 0L;
     private double lastPeriodicMs = 0.0;
     private LLResult lastResult;
-    private final HiveTipCounter redTips = new HiveTipCounter(Alliance.RED);
-    private final HiveTipCounter blueTips = new HiveTipCounter(Alliance.BLUE);
+    private final HiveTracker redHive = new HiveTracker();
+    private final HiveTracker blueHive = new HiveTracker();
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
         this(hardwareMap, DEFAULT_DEVICE_NAME);
@@ -141,8 +141,8 @@ public class LimelightVisionSubsystem implements Subsystem {
             state = State.UNAVAILABLE;
             return;
         }
-        redTips.reset();
-        blueTips.reset();
+        redHive.reset();
+        blueHive.reset();
         applyPipelineIndex();
         limelight.start();
         state = State.STREAMING;
@@ -177,8 +177,9 @@ public class LimelightVisionSubsystem implements Subsystem {
             // stall, a GC pause), which is exactly when it must not happen.
             expireStaleSightings();
             poll();
-            countTips(redTips);
-            countTips(blueTips);
+            long monotonicMs = System.nanoTime() / 1_000_000L;
+            redHive.observe(seenHive(Alliance.RED), monotonicMs);
+            blueHive.observe(seenHive(Alliance.BLUE), monotonicMs);
         } finally {
             lastPeriodicMs = (System.nanoTime() - startNs) / 1_000_000.0;
         }
@@ -297,22 +298,16 @@ public class LimelightVisionSubsystem implements Subsystem {
     // was about to act on.
     // ------------------------------------------------------------------
 
-    private void countTips(HiveTipCounter counter) {
-        HiveCell loading = counter.loadingCell();
-        counter.observe(state(loading), state(HiveCell.gardenCell(loading.alliance())));
-    }
-
     /**
-     * Which way {@code alliance}'s HIVE is now (see {@link HiveState}); UNSEEN for UNKNOWN.
+     * What this frame says about {@code alliance}'s HIVE (see {@link HiveState#of}).
      *
      * <p>Mid-tip counts only when a CELL of that HIVE is in view, the resting heights are
      * measured, and its latest reading sits between them: a CELL out of view never reads as tipping.
      */
-    public HiveState hiveState(Alliance alliance) {
-        HiveCell loading = HiveCell.loadingCell(alliance);
-        HiveCell garden = HiveCell.gardenCell(alliance);
-        if (loading == null) return HiveState.UNSEEN;
-        return HiveState.of(state(loading), state(garden), midTip(loading) || midTip(garden));
+    private HiveState seenHive(Alliance alliance) {
+        HiveCell left = HiveCell.leftCell(alliance);
+        HiveCell right = HiveCell.rightCell(alliance);
+        return HiveState.of(state(left), state(right), midTip(left) || midTip(right));
     }
 
     private boolean midTip(HiveCell cell) {
@@ -323,13 +318,19 @@ public class LimelightVisionSubsystem implements Subsystem {
     }
 
     /**
-     * TIPs of {@code alliance}'s HIVE since this OpMode started, assuming it started at the
-     * match-start position (see {@link HiveTipCounter}). 0 for UNKNOWN.
+     * {@code alliance}'s HIVE over the match (see {@link HiveTracker}): its state, the four
+     * UP/DOWN questions an Auto asks, and its TIP count. Null for UNKNOWN.
      */
-    public int hiveTips(Alliance alliance) {
-        if (alliance == Alliance.RED) return redTips.tips();
-        if (alliance == Alliance.BLUE) return blueTips.tips();
-        return 0;
+    public HiveTracker hive(Alliance alliance) {
+        if (alliance == Alliance.RED) return redHive;
+        if (alliance == Alliance.BLUE) return blueHive;
+        return null;
+    }
+
+    /** Which way {@code alliance}'s HIVE is now; UNSEEN for UNKNOWN. */
+    public HiveState hiveState(Alliance alliance) {
+        HiveTracker hive = hive(alliance);
+        return hive == null ? HiveState.UNSEEN : hive.state();
     }
 
     private CellStateTracker trackerFor(HiveCell cell) {
@@ -398,8 +399,11 @@ public class LimelightVisionSubsystem implements Subsystem {
         for (HiveCell cell : HiveCell.values()) {
             display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
         }
-        display.line("HIVE: red " + hiveState(Alliance.RED) + " · blue " + hiveState(Alliance.BLUE)
-                + " · TIPs red " + redTips.tips() + " blue " + blueTips.tips());
+        display.line("HIVE: red " + describe(redHive) + " · blue " + describe(blueHive));
+    }
+
+    private static String describe(HiveTracker hive) {
+        return hive.state() + (hive.assumed() ? " (assumed)" : "") + ", " + hive.tips() + " TIPs";
     }
 
     /** True if {@code cell} has an unexpired sighting. */

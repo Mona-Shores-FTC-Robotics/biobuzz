@@ -1,43 +1,45 @@
 package org.firstinspires.ftc.teamcode.vision;
 
 /**
- * Which way one alliance's HIVE is, as the camera sees it now.
+ * Which way one alliance's HIVE is. LEFT and RIGHT are as that alliance's drivers see them from
+ * their alliance area; a HIVE's two CELLs share one axle, so one is up exactly when the other is
+ * down.
  *
- * <p>Every match starts {@link #GARDEN_UP}. A TIP swings it through {@link #TRANSITION} to
- * {@link #LOADING_UP}, and a TIP back returns it. {@link #UNSEEN} means the camera cannot say: no
+ * <p>Every match starts {@link #RIGHT_CELL_UP}. A TIP swings it through {@link #TRANSITION} to
+ * {@link #LEFT_CELL_UP}, and a TIP back returns it. {@link #UNSEEN} means nothing says which: no
  * CELL of this HIVE is in view, its geometry is not measured yet, or the CELLs disagree. It is
  * never taken as a TIP.
  */
 public enum HiveState {
-    GARDEN_UP,
+    RIGHT_CELL_UP,
     TRANSITION,
-    LOADING_UP,
+    LEFT_CELL_UP,
     UNSEEN;
 
     /**
-     * The HIVE's state from its two CELLs.
+     * What one camera frame says about the HIVE, from its two CELLs.
      *
-     * @param loading    the LOADING CELL's settled state (UNKNOWN when not settled)
-     * @param garden     the GARDEN CELL's settled state
+     * @param left       the LEFT CELL's settled state (UNKNOWN when not settled)
+     * @param right      the RIGHT CELL's settled state
      * @param midTipSeen a CELL of this HIVE is in view with its tags at a height between the two
      *                   resting positions, which is what a CELL mid-tip looks like
      */
-    public static HiveState of(HiveCellState loading, HiveCellState garden, boolean midTipSeen) {
-        boolean loadingUp = loading == HiveCellState.UP || garden == HiveCellState.DOWN;
-        boolean gardenUp = garden == HiveCellState.UP || loading == HiveCellState.DOWN;
-        if (loadingUp && !gardenUp) return LOADING_UP;
-        if (gardenUp && !loadingUp) return GARDEN_UP;
-        if (!loadingUp && midTipSeen) return TRANSITION;
+    public static HiveState of(HiveCellState left, HiveCellState right, boolean midTipSeen) {
+        boolean leftUp = left == HiveCellState.UP || right == HiveCellState.DOWN;
+        boolean rightUp = right == HiveCellState.UP || left == HiveCellState.DOWN;
+        if (leftUp && !rightUp) return LEFT_CELL_UP;
+        if (rightUp && !leftUp) return RIGHT_CELL_UP;
+        if (!leftUp && midTipSeen) return TRANSITION;
         return UNSEEN;
     }
 
-    /** The HIVE has left its match-start position: mid-tip or settled LOADING_UP. */
-    public boolean leftGarden() {
-        return this == TRANSITION || this == LOADING_UP;
+    /** True for the two resting positions. */
+    public boolean settled() {
+        return this == RIGHT_CELL_UP || this == LEFT_CELL_UP;
     }
 
-    /** The HIVE has left LOADING_UP: mid-tip or settled back GARDEN_UP. */
-    public boolean leftLoading() {
-        return this == TRANSITION || this == GARDEN_UP;
+    /** The other resting position; only meaningful for a settled state. */
+    HiveState flipped() {
+        return this == RIGHT_CELL_UP ? LEFT_CELL_UP : RIGHT_CELL_UP;
     }
 }

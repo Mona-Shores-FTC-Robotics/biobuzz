@@ -45,18 +45,18 @@ public enum HiveCell {
     }
 
     /**
-     * The alliance's LOADING CELL: the one that starts the match DOWN. The red one is at the rear
-     * (the SDK's "RED SCORING" cluster), the blue one at the audience end. #114 renames the
-     * constants to say so. Null for UNKNOWN.
+     * The alliance's LEFT CELL, as its drivers see it from their alliance area: the one that starts
+     * the match DOWN. The red one is at the rear (the SDK's "RED SCORING" cluster), the blue one at
+     * the audience end. Null for UNKNOWN.
      */
-    public static HiveCell loadingCell(Alliance alliance) {
+    public static HiveCell leftCell(Alliance alliance) {
         if (alliance == Alliance.RED) return RED_SCORING;
         if (alliance == Alliance.BLUE) return BLUE_AUDIENCE;
         return null;
     }
 
-    /** The alliance's GARDEN CELL: the one that starts the match UP. Null for UNKNOWN. */
-    public static HiveCell gardenCell(Alliance alliance) {
+    /** The alliance's RIGHT CELL: the one that starts the match UP. Null for UNKNOWN. */
+    public static HiveCell rightCell(Alliance alliance) {
         if (alliance == Alliance.RED) return RED_AUDIENCE;
         if (alliance == Alliance.BLUE) return BLUE_SCORING;
         return null;

@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 
 /**
  * The commands and triggers this robot offers the Auto Builder: every name an Auto drawn in the
@@ -25,17 +26,27 @@ public final class AutoRegistration {
     public static final double BLIND_AFTER_MS = 500;
 
     private static final HiveCell[] CELLS = HiveCell.values();
+    private static final HiveTracker NO_HIVE = new HiveTracker();
 
     private AutoRegistration() {}
 
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
         return new AutoRegistry()
-                // The HIVE has left GARDEN_UP (mid-tip or settled LOADING_UP): after launching at
-                // the GARDEN CELL. Reads the HIVE now, so a TIP during the launch already counts.
-                .trigger("HiveLeftGarden", () -> robot.vision.hiveState(setup.alliance()).leftGarden())
-                // The TIP back: the HIVE has left LOADING_UP.
-                .trigger("HiveLeftLoading", () -> robot.vision.hiveState(setup.alliance()).leftLoading())
+                // Our HIVE, LEFT and RIGHT as our drivers see them. "Down" is true from the moment
+                // that CELL starts down, because a TIP that has started finishes; "Up" once it is
+                // seen settled, or once the measured TIP time has passed. Reads the HIVE now, so a
+                // TIP during a launch already counts when the wait starts.
+                .trigger("RightCellDown", () -> hive(robot, setup).rightCellDown())
+                .trigger("LeftCellUp", () -> hive(robot, setup).leftCellUp())
+                .trigger("LeftCellDown", () -> hive(robot, setup).leftCellDown())
+                .trigger("RightCellUp", () -> hive(robot, setup).rightCellUp())
                 .trigger("CameraBlind", () -> cameraBlind(robot));
+    }
+
+    /** Our alliance's HIVE; a tracker that never moves if the alliance is still UNKNOWN. */
+    private static HiveTracker hive(Robot robot, MatchSetup setup) {
+        HiveTracker hive = robot.vision.hive(setup.alliance());
+        return hive == null ? NO_HIVE : hive;
     }
 
     /** No HIVE tag from any CELL for {@link #BLIND_AFTER_MS}, or no camera at all. */
