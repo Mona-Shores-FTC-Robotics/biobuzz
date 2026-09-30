@@ -21,8 +21,9 @@ import java.util.List;
 /**
  * Runs {@link RightStartTipAuto} — the Auto Builder's export of the design's sample
  * ({@code samples/right-start-tip.pp} in the Visualizer) — through autokit and Ivy's real
- * Scheduler: "LaunchAll · wait for Tip", a drive-through chain, and a retry that rejoins the main
- * plan at RIGHT_HIVE_ENTRANCE — driving on through the chain — then runs the shared steps.
+ * Scheduler: "LaunchAll · wait for Tip", a drive-through chain, and the GARDEN route, which always
+ * rejoins the main plan at RIGHT_HIVE_ENTRANCE — driving on through the chain — then runs the
+ * shared steps.
  */
 public class RightStartTipAutoTest {
 
@@ -78,23 +79,16 @@ public class RightStartTipAutoTest {
     }
 
     @Test
-    public void aRetryThatTipsRejoinsTheMainPlanAtTheRightHiveEntrance() {
-        tipFrom = 5.0; // after the first wait's 4 s limit, during the retry's launch
+    public void noTipSendsItToTheGardenThenRejoinsAtTheRightHiveEntrance() {
         run();
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.startsWith("Did the HIVE tip?: 4000 ms passed")));
+        int garden = at("path to GARDEN");
         int rejoin = at("path RIGHT_SHOT to RIGHT_HIVE_ENTRANCE → to LEFT_HIVE_ENTRANCE → to LEFT_FLOWER");
         int shared = at("path to LEFT_SHOT");
         int park = at("path LEFT_SHOT to LEFT_LOADING_ZONE");
-        assertTrue(trace.toString(), rejoin >= 0 && shared > rejoin && park > shared);
+        assertTrue(trace.toString(), garden >= 0 && rejoin > garden && shared > rejoin && park > shared);
         assertFalse("the main plan's own drive from the start is not driven: " + trace,
                 trace.contains("path to RIGHT_HIVE_ENTRANCE → to LEFT_HIVE_ENTRANCE → to LEFT_FLOWER"));
-    }
-
-    @Test
-    public void aRetryThatFailsParksInTheRightLoadingZone() {
-        run();
-        assertTrue(trace.toString(), trace.contains("path RIGHT_SHOT to RIGHT_LOADING_ZONE"));
-        assertFalse(trace.toString(), trace.stream().anyMatch(t -> t.contains("RIGHT_SHOT to RIGHT_HIVE_ENTRANCE")));
     }
 
     /** Moves 10% of the current path per loop. */
