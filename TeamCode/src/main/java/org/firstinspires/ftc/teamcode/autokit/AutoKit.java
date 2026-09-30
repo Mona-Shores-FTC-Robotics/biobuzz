@@ -24,7 +24,7 @@ import java.util.function.DoubleSupplier;
  * few true/false rows, then run that row's cards. A "Wait for" is a {@code firstOf} whose rows have
  * no cards; an "if" is one with an {@link #otherwise()} row.
  *
- * <p>Nothing here reads hardware or blocks. Conditions are read once per loop, only while a card
+ * <p>Nothing here reads hardware or blocks. Triggers are read once per loop, only while a card
  * that uses them waits; paths are built at init, except a {@link #goTo} or routine exit line, which
  * is built once when its card starts.
  *
@@ -82,9 +82,45 @@ public final class AutoKit {
         return cards.length == 0 ? nothing() : Groups.sequential(cards);
     }
 
-    /** The registered action {@code name}. */
-    public Command action(String name) {
-        return traced("action " + name, registry.action(name));
+    /** How long a command step may run when the Auto sets no timeout. */
+    public static final double DEFAULT_TIMEOUT_S = 5.0;
+
+    /** The registered command {@code name}, cut off after {@link #DEFAULT_TIMEOUT_S}. */
+    public Command command(String name) {
+        return command(name, DEFAULT_TIMEOUT_S);
+    }
+
+    /**
+     * The registered command {@code name}: runs until it finishes or {@code timeoutS} has passed,
+     * whichever is first, so a command that never finishes cannot stall the Auto. A timeout is
+     * traced, since it usually means a mechanism did not do its job.
+     */
+    public Command command(String name, double timeoutS) {
+        final Command inner = registry.command(name);
+        final double[] startedAt = new double[1];
+        final boolean[] timedOut = new boolean[1];
+        return new CommandBuilder()
+                .requiring(inner.requirements())
+                .setStart(() -> {
+                    trace.accept("command " + name);
+                    startedAt[0] = secondsSinceStart.getAsDouble();
+                    timedOut[0] = false;
+                    inner.start();
+                })
+                .setExecute(inner::execute)
+                .setDone(() -> {
+                    if (inner.done()) return true;
+                    timedOut[0] = secondsSinceStart.getAsDouble() - startedAt[0] >= timeoutS;
+                    return timedOut[0];
+                })
+                .setEnd(end -> {
+                    if (timedOut[0]) {
+                        trace.accept(String.format(Locale.US, "command %s timed out after %.1f s", name, timeoutS));
+                        inner.end(EndCondition.INTERRUPTED);
+                    } else {
+                        inner.end(end);
+                    }
+                });
     }
 
     /** Drives {@code path} to its end. */
@@ -99,11 +135,11 @@ public final class AutoKit {
      */
     public Command path(String label, Path path, String[] whileActions, Marker... events) {
         List<Command> alongside = new ArrayList<>();
-        for (String name : whileActions) alongside.add(registry.action(name));
+        for (String name : whileActions) alongside.add(registry.command(name));
         for (Marker event : events) {
             alongside.add(whenReached(event.fraction,
                     "event " + event.action + " at " + percent(event.fraction) + " of " + label,
-                    registry.action(event.action)));
+                    registry.command(event.action)));
         }
         Command follow = traced("path " + label, follow(path));
         return alongside.isEmpty()
@@ -191,7 +227,7 @@ public final class AutoKit {
      */
     public Command routine(String label, Path pattern, String endsWhen, double timeoutMs,
                            String[] whileActions, String[] exitActions, Pose exit) {
-        final BooleanSupplier ended = registry.condition(endsWhen);
+        final BooleanSupplier ended = registry.trigger(endsWhen);
         final double[] startedAt = new double[1];
         Command run = Groups.race(
                 path(label, pattern, whileActions),
@@ -203,7 +239,7 @@ public final class AutoKit {
                 secondsSinceStart.getAsDouble() - startedAt[0])));
         Command exitLine = Commands.lazy(() -> {
             List<Command> alongside = new ArrayList<>();
-            for (String name : exitActions) alongside.add(registry.action(name));
+            for (String name : exitActions) alongside.add(registry.command(name));
             Command follow = follow(line(drive.pose(), exit));
             return alongside.isEmpty() ? follow : Groups.deadline(follow, alongside.toArray(new Command[0]));
         });
@@ -268,11 +304,11 @@ public final class AutoKit {
 
     // ------------------------------------------------------------------- rows
 
-    /** True when any of the registered conditions is true. */
+    /** True when any of the registered triggers is true. */
     public Row when(String... anyOfConditions) {
-        if (anyOfConditions.length == 0) throw new IllegalArgumentException("A row needs a condition");
+        if (anyOfConditions.length == 0) throw new IllegalArgumentException("A row needs a trigger");
         final BooleanSupplier[] checks = new BooleanSupplier[anyOfConditions.length];
-        for (int i = 0; i < checks.length; i++) checks[i] = registry.condition(anyOfConditions[i]);
+        for (int i = 0; i < checks.length; i++) checks[i] = registry.trigger(anyOfConditions[i]);
         return new Row(String.join(" or ", anyOfConditions), waited -> {
             for (BooleanSupplier check : checks) if (check.getAsBoolean()) return true;
             return false;

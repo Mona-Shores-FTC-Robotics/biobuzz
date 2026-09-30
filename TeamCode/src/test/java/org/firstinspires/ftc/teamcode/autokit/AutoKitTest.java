@@ -41,13 +41,13 @@ public class AutoKitTest {
         drive = new FakeDrive();
         now = 0;
         AutoRegistry registry = new AutoRegistry()
-                .action("ShootAll", () -> record("ShootAll"))
-                .action("SpinUp", () -> record("SpinUp"))
-                .action("IntakeOn", () -> record("IntakeOn"))
-                .action("IntakeOff", () -> record("IntakeOff"))
-                .condition("HiveTipped", () -> tipped)
-                .condition("CameraBlind", () -> blind)
-                .condition("IntakeFull", () -> full);
+                .command("ShootAll", 1.0, () -> record("ShootAll"))
+                .command("SpinUp", 1.0, () -> record("SpinUp"))
+                .command("IntakeOn", 1.0, () -> record("IntakeOn"))
+                .command("IntakeOff", 1.0, () -> record("IntakeOff"))
+                .trigger("HiveTipped", () -> tipped)
+                .trigger("CameraBlind", () -> blind)
+                .trigger("IntakeFull", () -> full);
         kit = new AutoKit(drive, registry, () -> now).trace(trace::add);
     }
 
@@ -77,8 +77,8 @@ public class AutoKitTest {
     @Test
     public void decisionTakesTheConditionRowWhenItComesTrueFirst() {
         Command auto = kit.firstOf("Did the HIVE tip?",
-                kit.when("HiveTipped", "CameraBlind").then(kit.action("ShootAll")),
-                kit.afterMs(1500).then(kit.action("SpinUp")));
+                kit.when("HiveTipped", "CameraBlind").then(kit.command("ShootAll")),
+                kit.afterMs(1500).then(kit.command("SpinUp")));
         blind = true; // either condition in the OR is enough
         run(auto, 5);
         assertEquals("[ShootAll]", log.toString());
@@ -88,8 +88,8 @@ public class AutoKitTest {
     @Test
     public void decisionTakesTheTimeRowWhenNothingHappens() {
         Command auto = kit.firstOf("Did the HIVE tip?",
-                kit.when("HiveTipped").then(kit.action("ShootAll")),
-                kit.afterMs(1500).then(kit.action("SpinUp")));
+                kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.afterMs(1500).then(kit.command("SpinUp")));
         run(auto, 5);
         assertEquals("[SpinUp]", log.toString());
         assertTrue(now >= 1.5 && now < 1.6);
@@ -98,8 +98,8 @@ public class AutoKitTest {
     @Test
     public void earlierRowWinsWhenTwoAreTrueInTheSameLoop() {
         tipped = true;
-        run(kit.firstOf("both", kit.when("HiveTipped").then(kit.action("ShootAll")),
-                kit.otherwise().then(kit.action("SpinUp"))), 1);
+        run(kit.firstOf("both", kit.when("HiveTipped").then(kit.command("ShootAll")),
+                kit.otherwise().then(kit.command("SpinUp"))), 1);
         assertEquals("[ShootAll]", log.toString());
     }
 
@@ -107,7 +107,7 @@ public class AutoKitTest {
     public void aWaitWithoutCardsCarriesOnAfterItsRowFires() {
         Command auto = kit.sequence(
                 kit.firstOf("Wait for IntakeFull", kit.when("IntakeFull"), kit.afterMs(800)),
-                kit.action("ShootAll"));
+                kit.command("ShootAll"));
         run(auto, 3);
         assertEquals("[ShootAll]", log.toString());
         assertTrue(now >= 0.8);
@@ -117,8 +117,8 @@ public class AutoKitTest {
     public void timeLeftRowBailsOutNearTheEndOfAuto() {
         now = 23;
         run(kit.firstOf("Second cycle?",
-                kit.timeLeftBelow(8).then(kit.action("SpinUp")),
-                kit.otherwise().then(kit.action("ShootAll"))), 1);
+                kit.timeLeftBelow(8).then(kit.command("SpinUp")),
+                kit.otherwise().then(kit.command("ShootAll"))), 1);
         assertEquals("[SpinUp]", log.toString());
     }
 
@@ -148,7 +148,7 @@ public class AutoKitTest {
         now = 27; // 3 s left; park needs 2 + 0.5
         run(kit.guarded("If tipped", park, 2.0,
                 kit.firstOf("slow", kit.afterMs(2000)),
-                kit.action("ShootAll"),
+                kit.command("ShootAll"),
                 kit.path("Park", park)), 5);
         // 3 s left covers the first card; after its 2 s wait, 1 s does not cover the park.
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("park needs 2.5 s: parking now")));
@@ -159,7 +159,7 @@ public class AutoKitTest {
     @Test
     public void guardRunsEveryCardWhenThereIsTime() {
         Path park = line(0, 10);
-        run(kit.guarded("If tipped", park, 2.0, kit.action("ShootAll"), kit.action("SpinUp"),
+        run(kit.guarded("If tipped", park, 2.0, kit.command("ShootAll"), kit.command("SpinUp"),
                 kit.path("Park", park)), 5);
         assertEquals("[ShootAll, SpinUp]", log.toString());
         assertEquals(1, drive.followed.size());
@@ -170,7 +170,7 @@ public class AutoKitTest {
     @Test
     public void goToRefusesWithoutAFieldReferencedPose() {
         drive.referenced = false;
-        run(kit.goTo("Back", new Pose(10, 0, 0), 36, kit.action("SpinUp")), 1);
+        run(kit.goTo("Back", new Pose(10, 0, 0), 36, kit.command("SpinUp")), 1);
         assertEquals("[SpinUp]", log.toString());
         assertTrue(drive.followed.isEmpty());
     }
@@ -223,18 +223,55 @@ public class AutoKitTest {
 
     @Test
     public void registryNamesEveryMissingNameAtOnce() {
-        AutoRegistry registry = new AutoRegistry().action("ShootAll", () -> record("ShootAll"));
+        AutoRegistry registry = new AutoRegistry().command("ShootAll", 1.0, () -> record("ShootAll"));
         try {
             registry.requireAll(new String[] {"ShootAll", "SpinUp"}, new String[] {"HiveTipped"});
             fail();
         } catch (IllegalStateException e) {
-            assertTrue(e.getMessage(), e.getMessage().contains("action SpinUp, condition HiveTipped"));
+            assertTrue(e.getMessage(), e.getMessage().contains("command SpinUp, trigger HiveTipped"));
         }
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void registryRefusesADuplicateName() {
-        new AutoRegistry().action("A", () -> record("A")).action("A", () -> record("A"));
+        new AutoRegistry().command("A", 1.0, () -> record("A")).command("A", 1.0, () -> record("A"));
+    }
+
+    @Test
+    public void aCommandThatNeverFinishesIsCutOffAtItsTimeout() {
+        AutoRegistry registry = new AutoRegistry().command("Stuck", 3.0, () -> Commands.waitUntil(() -> false));
+        AutoKit stuck = new AutoKit(drive, registry, () -> now).trace(trace::add);
+        run(stuck.command("Stuck", 2.0), 10);
+        assertTrue(trace.toString(), trace.contains("command Stuck timed out after 2.0 s"));
+        assertEquals(2.0, now, 0.05);
+    }
+
+    @Test
+    public void aCommandWithoutATimeoutGetsFiveSeconds() {
+        AutoRegistry registry = new AutoRegistry().command("Stuck", 3.0, () -> Commands.waitUntil(() -> false));
+        AutoKit stuck = new AutoKit(drive, registry, () -> now).trace(trace::add);
+        run(stuck.command("Stuck"), 10);
+        assertEquals(AutoKit.DEFAULT_TIMEOUT_S, now, 0.05);
+    }
+
+    @Test
+    public void aCommandThatFinishesIsNotReportedAsTimedOut() {
+        run(kit.command("ShootAll", 2.0), 5);
+        assertEquals(java.util.Collections.singletonList("ShootAll"), log);
+        assertTrue(trace.toString(), trace.stream().noneMatch(line -> line.contains("timed out")));
+    }
+
+    @Test
+    public void theRegistryDescribesItselfForTheEditor() {
+        String json = new AutoRegistry()
+                .command("LaunchAll", 3.0, () -> record("LaunchAll"))
+                .command("IntakeOn", 0.2, () -> record("IntakeOn"))
+                .trigger("IntakeFull", () -> full)
+                .describe();
+        assertEquals("{\n  \"commands\": [\n"
+                + "    {\"name\": \"LaunchAll\", \"typicalS\": 3.0},\n"
+                + "    {\"name\": \"IntakeOn\", \"typicalS\": 0.2}\n  ],\n"
+                + "  \"triggers\": [\n    \"IntakeFull\"\n  ]\n}\n", json);
     }
 
     // ----------------------------------------------------------- geometry

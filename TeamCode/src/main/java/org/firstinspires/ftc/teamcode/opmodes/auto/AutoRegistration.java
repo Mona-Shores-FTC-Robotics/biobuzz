@@ -3,49 +3,39 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
-import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 
 /**
- * The names this robot offers the Auto Builder: every action and condition an Auto drawn in the
- * editor may use. The editor's registry panel must list the same names.
+ * The commands and triggers this robot offers the Auto Builder: every name an Auto drawn in the
+ * editor may use. The editor loads the same list from {@code TeamCode/auto-registry.json}, which
+ * {@code AutoRegistrationTest} keeps in step with this class.
  *
- * <p>Add a name here when the mechanism behind it exists. A generated Auto that uses a name missing
- * here stops at INIT and lists what is missing — it never runs half an Auto.
+ * <p>Add a command when the mechanism behind it exists, with its typical time (what the preview
+ * shows). A generated Auto that uses a name missing here stops at INIT and lists what is missing:
+ * it never runs half an Auto.
  *
- * <p>Conditions read state a subsystem already keeps current; they are called once per loop, only
- * while a card that uses them is waiting, so they must not read hardware or allocate.
+ * <p>Triggers read state a subsystem already keeps current; they are called once per loop, only
+ * while a step waits on them, so they must not read hardware or allocate. Registering reads
+ * nothing, so the list can be written without a robot.
  */
 public final class AutoRegistration {
 
     /** How long without a HIVE tag before the camera counts as blind. */
     public static final double BLIND_AFTER_MS = 500;
 
-    /** How many TIPs an Auto can ask about: Tip1 to Tip{MAX_TIPS}. */
-    public static final int MAX_TIPS = 4;
-
     private static final HiveCell[] CELLS = HiveCell.values();
 
     private AutoRegistration() {}
 
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
-        AutoRegistry registry = new AutoRegistry()
-                .condition("CameraBlind", () -> cameraBlind(robot));
-        for (int n = 1; n <= MAX_TIPS; n++) {
-            final int tip = n;
-            registry.condition("Tip" + n, () -> hiveTipped(robot, setup.alliance(), tip));
-        }
-        return registry;
-    }
-
-    /**
-     * Our HIVE's {@code n}th TIP has happened, by us or our partner. Once true it stays true, so
-     * it does not matter when a card asks. Counted by the camera from the match-start position
-     * (see {@link org.firstinspires.ftc.teamcode.vision.HiveTipCounter}).
-     */
-    static boolean hiveTipped(Robot robot, Alliance alliance, int n) {
-        return robot.vision.hiveTips(alliance) >= n;
+        return new AutoRegistry()
+                // The HIVE has left GARDEN_UP (mid-tip or settled LOADING_UP): after launching at
+                // the GARDEN CELL. Reads the HIVE now, so a TIP during the launch already counts.
+                .trigger("HiveLeftGarden", () -> robot.vision.hiveState(setup.alliance()).leftGarden())
+                // The TIP back: the HIVE has left LOADING_UP.
+                .trigger("HiveLeftLoading", () -> robot.vision.hiveState(setup.alliance()).leftLoading())
+                .trigger("CameraBlind", () -> cameraBlind(robot));
     }
 
     /** No HIVE tag from any CELL for {@link #BLIND_AFTER_MS}, or no camera at all. */

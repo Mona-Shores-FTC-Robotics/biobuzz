@@ -303,6 +303,26 @@ public class LimelightVisionSubsystem implements Subsystem {
     }
 
     /**
+     * Which way {@code alliance}'s HIVE is now (see {@link HiveState}); UNSEEN for UNKNOWN.
+     *
+     * <p>Mid-tip counts only when a CELL of that HIVE is in view, the resting heights are
+     * measured, and its latest reading sits between them: a CELL out of view never reads as tipping.
+     */
+    public HiveState hiveState(Alliance alliance) {
+        HiveCell loading = HiveCell.loadingCell(alliance);
+        HiveCell garden = HiveCell.gardenCell(alliance);
+        if (loading == null) return HiveState.UNSEEN;
+        return HiveState.of(state(loading), state(garden), midTip(loading) || midTip(garden));
+    }
+
+    private boolean midTip(HiveCell cell) {
+        if (!sees(cell)) return false;
+        if (Double.isNaN(CellStateTracker.Geometry.upRowHeightIn)
+                || Double.isNaN(CellStateTracker.Geometry.downRowHeightIn)) return false;
+        return trackerFor(cell).candidateState() == HiveCellState.UNKNOWN;
+    }
+
+    /**
      * TIPs of {@code alliance}'s HIVE since this OpMode started, assuming it started at the
      * match-start position (see {@link HiveTipCounter}). 0 for UNKNOWN.
      */
@@ -378,7 +398,8 @@ public class LimelightVisionSubsystem implements Subsystem {
         for (HiveCell cell : HiveCell.values()) {
             display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
         }
-        display.line("HIVE TIPs: red " + redTips.tips() + " · blue " + blueTips.tips());
+        display.line("HIVE: red " + hiveState(Alliance.RED) + " · blue " + hiveState(Alliance.BLUE)
+                + " · TIPs red " + redTips.tips() + " blue " + blueTips.tips());
     }
 
     /** True if {@code cell} has an unexpired sighting. */

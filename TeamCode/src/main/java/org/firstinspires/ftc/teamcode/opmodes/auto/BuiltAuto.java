@@ -19,7 +19,7 @@ import java.util.function.Function;
  * &#64;Autonomous(name = "Auto: Hive Rush", group = "Auto")
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
- *         super(HiveRushAuto.ACTIONS, HiveRushAuto.CONDITIONS, HiveRushAuto.DRAWN_FOR,
+ *         super(HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS, HiveRushAuto.DRAWN_FOR,
  *                 HiveRushAuto::startPose, HiveRushAuto::build);
  *     }
  * }
@@ -34,8 +34,8 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     private static final int TRACE_LINES = 4;
 
-    private final String[] actions;
-    private final String[] conditions;
+    private final String[] commands;
+    private final String[] triggers;
     private final String drawnFor;
     private final Function<Boolean, Pose> startPose;
     private final BiFunction<AutoKit, Boolean, Command> build;
@@ -46,10 +46,10 @@ public abstract class BuiltAuto extends RobotOpMode {
     private final String[] trace = new String[TRACE_LINES];
     private int traceCount;
 
-    protected BuiltAuto(String[] actions, String[] conditions, String drawnFor,
+    protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
-        this.actions = actions;
-        this.conditions = conditions;
+        this.commands = commands;
+        this.triggers = triggers;
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
@@ -58,7 +58,7 @@ public abstract class BuiltAuto extends RobotOpMode {
     @Override
     protected void onInit() {
         registry = AutoRegistration.forRobot(robot, setup);
-        registry.requireAll(actions, conditions);
+        registry.requireAll(commands, triggers);
         robot.drive.preparePathFollowing();
     }
 

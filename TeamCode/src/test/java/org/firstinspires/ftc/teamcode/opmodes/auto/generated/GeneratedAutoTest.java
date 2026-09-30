@@ -43,14 +43,14 @@ public class GeneratedAutoTest {
 
     private AutoKit kit() {
         AutoRegistry registry = new AutoRegistry();
-        for (String name : HiveRushAuto.ACTIONS) {
-            registry.action(name, () -> Commands.instant(() -> actions.add(name)));
+        for (String name : HiveRushAuto.COMMANDS) {
+            registry.command(name, 1.0, () -> Commands.instant(() -> actions.add(name)));
         }
-        registry.condition("LauncherReady", () -> now > 0.3)
-                .condition("IntakeFull", () -> true)
-                .condition("HiveTipped", () -> !Double.isNaN(tipAt) && now >= tipAt)
-                .condition("CameraBlind", () -> blind);
-        registry.requireAll(HiveRushAuto.ACTIONS, HiveRushAuto.CONDITIONS);
+        registry.trigger("LauncherReady", () -> now > 0.3)
+                .trigger("IntakeFull", () -> true)
+                .trigger("HiveTipped", () -> !Double.isNaN(tipAt) && now >= tipAt)
+                .trigger("CameraBlind", () -> blind);
+        registry.requireAll(HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS);
         return new AutoKit(drive, registry, () -> now).trace(trace::add);
     }
 

@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.autokit;
 
-/** An action to start once the robot is a given fraction of the way along a path. */
+/** A command to start once the robot is a given fraction of the way along a path. */
 public final class Marker {
 
     final double fraction;
