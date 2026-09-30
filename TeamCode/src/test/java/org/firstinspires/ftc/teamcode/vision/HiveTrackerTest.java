@@ -142,11 +142,34 @@ public class HiveTrackerTest {
     }
 
     @Test
+    public void aTipCountsAsStartedTheMomentItBegins() {
+        see(RIGHT_CELL_UP, 0);
+        assertEquals(0, hive.tipsStarted());
+        lose(RIGHT_CELL_UP, 200, true, 200);
+        assertEquals(1, hive.tipsStarted());
+        assertTrue(hive.tipping());
+        assertEquals(0, hive.tips()); // not finished yet
+        see(LEFT_CELL_UP, 2000);
+        assertEquals(1, hive.tipsStarted());
+        assertFalse(hive.tipping());
+        assertEquals(1, hive.tips());
+    }
+
+    @Test
+    public void aTipNobodySawStartStillCountsAsStarted() {
+        see(RIGHT_CELL_UP, 0);
+        lose(RIGHT_CELL_UP, 300, false, 300); // looked away
+        see(LEFT_CELL_UP, 5000); // it had tipped meanwhile
+        assertEquals(1, hive.tipsStarted());
+    }
+
+    @Test
     public void resetGoesBackToTheMatchStart() {
         see(LEFT_CELL_UP, 0);
         hive.reset();
         assertEquals(UNSEEN, hive.state());
         assertEquals(0, hive.tips());
+        assertEquals(0, hive.tipsStarted());
         see(TRANSITION, 10);
         assertTrue(hive.rightCellDown());
     }

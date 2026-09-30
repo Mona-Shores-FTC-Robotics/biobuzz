@@ -51,6 +51,7 @@ public final class HiveTracker {
     private boolean tipping;
     private boolean assumed;
     private int tips;
+    private int tipsStarted;
 
     /**
      * Feeds one loop.
@@ -89,12 +90,16 @@ public final class HiveTracker {
         if (!tipping) {
             tipping = true;
             tipStartMs = startMs;
+            tipsStarted++;
         }
         state = HiveState.TRANSITION;
     }
 
     private void settleAt(HiveState position) {
-        if (position != settled) tips++;
+        if (position != settled) {
+            tips++;
+            if (!tipping) tipsStarted++; // it TIPped where the camera could not see it start
+        }
         settled = position;
         state = position;
         tipping = false;
@@ -111,6 +116,16 @@ public final class HiveTracker {
 
     /** TIPs since the match started, seen or assumed. */
     public int tips() { return tips; }
+
+    /**
+     * TIPs <em>started</em> since the match started: counts up the moment a TIP begins, where
+     * {@link #tips()} waits for it to finish. A TIP that settles back where it started still
+     * counted here. The {@code Tip} trigger watches this.
+     */
+    public int tipsStarted() { return tipsStarted; }
+
+    /** A TIP has started and not yet settled. */
+    public boolean tipping() { return tipping; }
 
     public boolean rightCellUp() { return state == HiveState.RIGHT_CELL_UP; }
 
@@ -135,5 +150,6 @@ public final class HiveTracker {
         tipping = false;
         assumed = false;
         tips = 0;
+        tipsStarted = 0;
     }
 }

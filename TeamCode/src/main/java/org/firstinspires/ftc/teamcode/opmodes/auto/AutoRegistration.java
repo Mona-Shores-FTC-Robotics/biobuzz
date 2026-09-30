@@ -32,15 +32,15 @@ public final class AutoRegistration {
 
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
         return new AutoRegistry()
-                // Our HIVE, LEFT and RIGHT as our drivers see them. "Down" is true from the moment
-                // that CELL starts down (seen mid-tip, or its tags vanish while the robot keeps
-                // looking), because a TIP that has started finishes; "Up" once it is seen
-                // settled, or once the measured TIP time has passed. Reads the HIVE now, so a
-                // TIP during a launch already counts when the wait starts.
-                .trigger("RightCellDown", () -> hive(robot, setup).rightCellDown())
-                .trigger("LeftCellUp", () -> hive(robot, setup).leftCellUp())
-                .trigger("LeftCellDown", () -> hive(robot, setup).leftCellDown())
-                .trigger("RightCellUp", () -> hive(robot, setup).rightCellUp())
+                // Our HIVE has started to TIP since this wait began: the CELL we were looking at
+                // started to move (seen mid-tip, or its tags vanished while the robot held still).
+                // A TIP already under way when the wait starts counts too, so one that began during
+                // the launch is not missed. A camera that never saw the HIVE never says Tip.
+                .triggerSince("Tip", () -> {
+                    HiveTracker hive = hive(robot, setup);
+                    int before = hive.tipsStarted() - (hive.tipping() ? 1 : 0);
+                    return () -> hive.tipsStarted() > before;
+                })
                 .trigger("CameraBlind", () -> cameraBlind(robot));
     }
 

@@ -17,7 +17,9 @@ import java.util.function.Supplier;
  * times. It carries its <em>typical</em> time, which the editor's preview uses; on the robot it
  * runs until it finishes or its step's timeout. A trigger is a plain true/false that reads state a
  * subsystem already keeps current; it is only called while a step waits on it, so it must be
- * cheap and must not read hardware itself.
+ * cheap and must not read hardware itself. A trigger registered with {@link #triggerSince} is
+ * about something that <em>happens</em> ("a TIP started"): each wait starts watching it afresh,
+ * so it means "since this wait began".
  *
  * <pre>
  * registry.command("LaunchAll", 3.0, () -&gt; robot.launcher.launchAll())
@@ -30,7 +32,7 @@ public final class AutoRegistry {
 
     private final Map<String, Supplier<Command>> commands = new LinkedHashMap<>();
     private final Map<String, Double> typicalSeconds = new LinkedHashMap<>();
-    private final Map<String, BooleanSupplier> triggers = new LinkedHashMap<>();
+    private final Map<String, Supplier<BooleanSupplier>> triggers = new LinkedHashMap<>();
 
     /**
      * Registers a command.
@@ -47,9 +49,20 @@ public final class AutoRegistry {
         return this;
     }
 
+    /** Registers a trigger that is true while {@code check} is. */
     public AutoRegistry trigger(String name, BooleanSupplier check) {
         if (check == null) throw new IllegalArgumentException("Trigger " + name + " has no check");
-        if (triggers.put(name, check) != null) {
+        return triggerSince(name, () -> check);
+    }
+
+    /**
+     * Registers a trigger about something that happens. When a wait starts, {@code startWatching}
+     * is called once and returns the check that wait uses: it can note where things stand now and
+     * say "true" once they have moved on. Called when a wait starts, never per loop.
+     */
+    public AutoRegistry triggerSince(String name, Supplier<BooleanSupplier> startWatching) {
+        if (startWatching == null) throw new IllegalArgumentException("Trigger " + name + " has no check");
+        if (triggers.put(name, startWatching) != null) {
             throw new IllegalArgumentException("Trigger " + name + " is registered twice");
         }
         return this;
@@ -64,13 +77,25 @@ public final class AutoRegistry {
         return factory.get();
     }
 
-    /** The trigger; throws, naming what is registered, if it is unknown. */
-    public BooleanSupplier trigger(String name) {
-        BooleanSupplier check = triggers.get(name);
-        if (check == null) {
+    /**
+     * The trigger's check for a wait that starts now; throws, naming what is registered, if it is
+     * unknown. Call it when the wait starts, and {@link #requireTrigger} when the Auto is built.
+     */
+    public BooleanSupplier watch(String name) {
+        return startWatching(name).get();
+    }
+
+    /** Throws, naming what is registered, if there is no trigger {@code name}. */
+    public void requireTrigger(String name) {
+        startWatching(name);
+    }
+
+    private Supplier<BooleanSupplier> startWatching(String name) {
+        Supplier<BooleanSupplier> factory = triggers.get(name);
+        if (factory == null) {
             throw new IllegalArgumentException("No trigger named " + name + ". Registered: " + triggers.keySet());
         }
-        return check;
+        return factory;
     }
 
     /**

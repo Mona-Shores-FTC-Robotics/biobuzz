@@ -1,10 +1,7 @@
 {
   "commands": [],
   "triggers": [
-    "RightCellDown",
-    "LeftCellUp",
-    "LeftCellDown",
-    "RightCellUp",
+    "Tip",
     "CameraBlind"
   ]
 }

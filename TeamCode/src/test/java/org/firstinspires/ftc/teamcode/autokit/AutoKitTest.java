@@ -74,6 +74,76 @@ public class AutoKitTest {
 
     // ------------------------------------------------------------ first of
 
+    /** A command that runs for {@code seconds} of simulated time, logging how it ended. */
+    private Command lasting(String name, double seconds) {
+        final double[] startedAt = new double[1];
+        return new com.pedropathing.ivy.CommandBuilder()
+                .setStart(() -> {
+                    startedAt[0] = now;
+                    log.add(name + " start");
+                })
+                .setDone(() -> now - startedAt[0] >= seconds)
+                .setEnd(end -> log.add(name + " " + end));
+    }
+
+    @Test
+    public void aWaitWhileACommandRunsStopsTheCommandWhenTheTriggerFires() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 3.0, () -> lasting("LaunchAll", 3.0))
+                .command("ShootAll", 0.1, () -> record("ShootAll"))
+                .trigger("HiveTipped", () -> now >= 1.0), () -> now).trace(trace::add);
+        run(kit.sequence(
+                kit.firstOf("Launch and watch", kit.command("LaunchAll"),
+                        kit.when("HiveTipped").then(kit.command("ShootAll")),
+                        kit.finished(),
+                        kit.afterMs(4000))), 5);
+        assertTrue(log.toString(), log.contains("LaunchAll start"));
+        assertTrue(log.toString(), log.contains("LaunchAll INTERRUPTED"));
+        assertFalse(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertTrue(log.toString(), log.indexOf("LaunchAll INTERRUPTED") < log.indexOf("ShootAll"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("HiveTipped after 1.0")));
+    }
+
+    @Test
+    public void aWaitWhileACommandRunsCanEndWhenTheCommandFinishes() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 1.0, () -> lasting("LaunchAll", 1.0))
+                .trigger("HiveTipped", () -> false), () -> now).trace(trace::add);
+        run(kit.firstOf("Launch and watch", kit.command("LaunchAll"),
+                kit.when("HiveTipped"),
+                kit.finished(),
+                kit.afterMs(4000)), 5);
+        assertTrue(log.toString(), log.contains("LaunchAll NATURALLY"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.contains("the command alongside finished")));
+        assertTrue("ended near 1 s, not at the 4 s limit: " + now, now < 1.5);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void aFinishedRowNeedsACommandAlongside() {
+        kit.firstOf("Nothing alongside", kit.finished(), kit.afterMs(1000));
+    }
+
+    @Test
+    public void aSinceTriggerIsWatchedFromWhenTheWaitStarts() {
+        // Something happens at 0.2 s (before either wait) and again at 1.5 s.
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("ShootAll", 0.1, () -> record("ShootAll"))
+                .triggerSince("Tip", () -> {
+                    int before = happenings();
+                    return () -> happenings() > before;
+                }), () -> now).trace(trace::add);
+        now = 0.5;
+        run(kit.firstOf("First wait", kit.when("Tip").then(kit.command("ShootAll")), kit.afterMs(500)), 2);
+        assertFalse("what happened before the wait must not count: " + log, log.contains("ShootAll"));
+        run(kit.firstOf("Second wait", kit.when("Tip").then(kit.command("ShootAll")), kit.afterMs(2000)), 3);
+        assertTrue("what happened during the wait counts: " + log, log.contains("ShootAll"));
+        assertTrue(trace.toString(), trace.stream().anyMatch(line -> line.startsWith("Second wait: Tip")));
+    }
+
+    private int happenings() {
+        return (now >= 0.2 ? 1 : 0) + (now >= 1.5 ? 1 : 0);
+    }
+
     @Test
     public void decisionTakesTheConditionRowWhenItComesTrueFirst() {
         Command auto = kit.firstOf("Did the HIVE tip?",

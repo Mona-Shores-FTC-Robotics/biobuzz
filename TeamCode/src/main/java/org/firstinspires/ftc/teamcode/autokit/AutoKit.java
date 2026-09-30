@@ -157,23 +157,57 @@ public final class AutoKit {
      * in order each loop, so when two come true in the same loop the earlier one wins.
      */
     public Command firstOf(String label, Row... rows) {
+        return firstOf(label, null, rows);
+    }
+
+    /**
+     * {@link #firstOf(String, Row...)} while {@code alongside} runs: "wait for Tip while LaunchAll".
+     * The command starts with the wait. When a row fires it is stopped if still running (once the
+     * HIVE has tipped, the rest of the launch is wasted); if it finishes first, a {@link #finished()}
+     * row can fire. Null runs nothing alongside.
+     */
+    public Command firstOf(String label, Command alongside, Row... rows) {
         if (rows.length == 0) throw new IllegalArgumentException(label + " has no rows");
+        for (Row row : rows) {
+            if (row.whenAlongsideDone && alongside == null) {
+                throw new IllegalArgumentException(label + " waits for a command to finish but runs none");
+            }
+        }
         final Command[] branches = new Command[rows.length];
         for (int i = 0; i < rows.length; i++) branches[i] = sequence(rows[i].cards);
         final double[] startedAt = new double[1];
         final Command[] chosen = new Command[1];
+        // [0]: alongside still running; [1]: it finished by itself
+        final boolean[] alongsideState = new boolean[2];
         final CommandBuilder card = new CommandBuilder();
         card.setStart(() -> {
             startedAt[0] = secondsSinceStart.getAsDouble();
             chosen[0] = null;
             trace.accept("wait " + label);
+            for (Row row : rows) row.start.run();
+            alongsideState[0] = alongside != null;
+            alongsideState[1] = false;
+            if (alongside != null) alongside.start();
         });
         card.setExecute(() -> {
             if (chosen[0] == null) {
+                if (alongsideState[0]) {
+                    alongside.execute();
+                    if (alongside.done()) {
+                        alongside.end(EndCondition.NATURALLY);
+                        alongsideState[0] = false;
+                        alongsideState[1] = true;
+                    }
+                }
                 double waited = secondsSinceStart.getAsDouble() - startedAt[0];
                 for (int i = 0; i < rows.length; i++) {
-                    if (rows[i].test.passes(waited)) {
+                    boolean fired = rows[i].whenAlongsideDone ? alongsideState[1] : rows[i].test.passes(waited);
+                    if (fired) {
                         trace.accept(String.format(Locale.US, "%s: %s after %.2f s", label, rows[i].description, waited));
+                        if (alongsideState[0]) {
+                            alongside.end(EndCondition.INTERRUPTED);
+                            alongsideState[0] = false;
+                        }
                         chosen[0] = branches[i];
                         chosen[0].start();
                         break;
@@ -185,6 +219,10 @@ public final class AutoKit {
         });
         card.setDone(() -> chosen[0] != null && chosen[0].done());
         card.setEnd(end -> {
+            if (alongsideState[0]) {
+                alongside.end(end);
+                alongsideState[0] = false;
+            }
             if (chosen[0] != null) chosen[0].end(end);
         });
         return card;
@@ -227,15 +265,19 @@ public final class AutoKit {
      */
     public Command routine(String label, Path pattern, String endsWhen, double timeoutMs,
                            String[] whileActions, String[] exitActions, Pose exit) {
-        final BooleanSupplier ended = registry.trigger(endsWhen);
+        registry.requireTrigger(endsWhen);
+        final BooleanSupplier[] ended = new BooleanSupplier[1];
         final double[] startedAt = new double[1];
         Command run = Groups.race(
                 path(label, pattern, whileActions),
-                Commands.waitUntil(ended),
+                Commands.waitUntil(() -> ended[0].getAsBoolean()),
                 Commands.waitMs(timeoutMs));
-        Command start = Commands.instant(() -> startedAt[0] = secondsSinceStart.getAsDouble());
+        Command start = Commands.instant(() -> {
+            startedAt[0] = secondsSinceStart.getAsDouble();
+            ended[0] = registry.watch(endsWhen);
+        });
         Command report = Commands.instant(() -> trace.accept(String.format(Locale.US, "%s: %s after %.2f s",
-                label, ended.getAsBoolean() ? endsWhen : "stopped without " + endsWhen,
+                label, ended[0].getAsBoolean() ? endsWhen : "stopped without " + endsWhen,
                 secondsSinceStart.getAsDouble() - startedAt[0])));
         Command exitLine = Commands.lazy(() -> {
             List<Command> alongside = new ArrayList<>();
@@ -307,12 +349,24 @@ public final class AutoKit {
     /** True when any of the registered triggers is true. */
     public Row when(String... anyOfConditions) {
         if (anyOfConditions.length == 0) throw new IllegalArgumentException("A row needs a trigger");
+        for (String name : anyOfConditions) registry.requireTrigger(name);
         final BooleanSupplier[] checks = new BooleanSupplier[anyOfConditions.length];
-        for (int i = 0; i < checks.length; i++) checks[i] = registry.trigger(anyOfConditions[i]);
-        return new Row(String.join(" or ", anyOfConditions), waited -> {
+        Row row = new Row(String.join(" or ", anyOfConditions), waited -> {
             for (BooleanSupplier check : checks) if (check.getAsBoolean()) return true;
             return false;
         });
+        // Watched from the moment the card starts waiting, so a "since" trigger means this wait.
+        row.start = () -> {
+            for (int i = 0; i < checks.length; i++) checks[i] = registry.watch(anyOfConditions[i]);
+        };
+        return row;
+    }
+
+    /** True once the command running alongside the wait (see {@link #firstOf(String, Command, Row...)}) has finished. */
+    public Row finished() {
+        Row row = new Row("the command alongside finished", waited -> false);
+        row.whenAlongsideDone = true;
+        return row;
     }
 
     /** True once {@code ms} have passed since the card started. */
