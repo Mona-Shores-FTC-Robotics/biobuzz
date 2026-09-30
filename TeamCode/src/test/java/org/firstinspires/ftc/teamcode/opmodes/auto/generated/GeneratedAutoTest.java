@@ -54,9 +54,9 @@ public class GeneratedAutoTest {
         return new AutoKit(drive, registry, () -> now).trace(trace::add);
     }
 
-    private void runAuto(boolean mirrored) {
-        drive.pose = HiveRushAuto.startPose(mirrored);
-        Command auto = HiveRushAuto.build(kit(), mirrored);
+    private void runAuto(boolean rotated) {
+        drive.pose = HiveRushAuto.startPose(rotated);
+        Command auto = HiveRushAuto.build(kit(), rotated);
         auto.schedule();
         while (auto.isScheduled() && now < AutoKit.AUTO_LENGTH_S) {
             Scheduler.execute();
@@ -92,14 +92,16 @@ public class GeneratedAutoTest {
     }
 
     @Test
-    public void theOtherAllianceRunsTheSameAutoMirrored() {
+    public void theOtherAllianceRunsTheSameAutoRotatedHalfATurn() {
         tipAt = 1.0;
         runAuto(true);
         Pose start = HiveRushAuto.startPose(true);
         assertEquals(141.5 - 38, start.x(), 1e-9);
-        assertEquals(71, start.y(), 1e-9);
+        assertEquals(141.5 - 71, start.y(), 1e-9);
+        assertEquals(Math.PI, start.heading(), 1e-9);
         Pose farEnd = drive.followed.get(0).endPose();
         assertEquals(141.5 - 116, farEnd.x(), 1e-6);
+        assertEquals(141.5 - 120, farEnd.y(), 1e-6);
     }
 
     /** Moves 10% of the current path per loop; the pose follows the path. */

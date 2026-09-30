@@ -27,7 +27,8 @@ import java.util.function.Function;
  *
  * <p>At INIT it checks every name the Auto uses against {@link AutoRegistration} and builds the
  * path follower, so a missing mechanism or an untuned robot stops it there, with the reason. At
- * PLAY it mirrors the Auto if the alliance is not the one it was drawn for, sets the start pose and
+ * PLAY it turns the Auto half a turn about the field centre if the alliance is not the one it was
+ * drawn for (BIOBUZZ is rotationally symmetric, not mirrored), sets the start pose and
  * starts. It never guesses an alliance: with none chosen it does not move.
  */
 public abstract class BuiltAuto extends RobotOpMode {
@@ -64,7 +65,7 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     @Override
     protected void onInitLoop() {
-        display.line("Drawn for " + drawnFor + "; the other alliance runs it mirrored.");
+        display.line("Drawn for " + drawnFor + "; the other alliance runs it rotated.");
     }
 
     @Override
@@ -74,12 +75,12 @@ public abstract class BuiltAuto extends RobotOpMode {
             problem = "No alliance chosen before PLAY (X = blue, B = red during INIT). Not moving.";
             return;
         }
-        boolean mirrored = !alliance.name().equals(drawnFor);
-        robot.drive.setPose(startPose.apply(mirrored));
+        boolean rotated = !alliance.name().equals(drawnFor);
+        robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(this::remember);
-        build.apply(kit, mirrored).schedule();
+        build.apply(kit, rotated).schedule();
     }
 
     @Override
