@@ -16,6 +16,22 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
 - **The file carries the robot's size and motion settings.** They time the preview and the park
   guard's seconds in the Java, so the same `.pp` exports the same Java on any laptop.
 
+## Opening a committed Auto from a link
+
+Once a `.pp` is pushed, anyone with a laptop and a browser can open it, no login needed:
+
+| Link | Opens |
+|---|---|
+| `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=hive-rush.pp` | the latest `hive-rush.pp` on `master` |
+| `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=a1b2c3d/hive-rush.pp` | exactly that commit, forever |
+| `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/some-branch/hive-rush.pp` | the latest on a branch, e.g. a PR's |
+
+- **In a PR that changes an Auto,** link the branch form so reviewers see the path, not just the Java.
+- **For "this is the Auto we ran"** (a match, a meeting note), use the commit form: it never changes.
+- A branch can show the previous push for up to 5 minutes; a commit is always exact.
+- It opens as a copy with a "From biobuzz …" bar. The viewer's own work is set aside, not saved
+  over. To change the Auto, edit the `.pp` here and push, as above.
+
 The file format, including the `auto` section, is described in the Visualizer's
 [`docs/auto-format.md`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/auto-format.md).
 
@@ -31,7 +47,7 @@ The file format, including the `auto` section, is described in the Visualizer's
 - **`FieldFrameTest` skips `opmodes/auto/generated/`.** Generated Autos contain `mirrorX(70.75)`
   and wall coordinates such as 141.5; they come from the Visualizer's own 141.5 in field, not
   from someone typing a field size.
-- **Short links to these files** (a link that opens a committed `.pp` in the Visualizer) are
-  possible now that the files are in a public repo, but are not built yet.
+- **Short links need the repo public.** They read the file from GitHub without a login; if
+  biobuzz is made private, they stop working for everyone.
 
 Decided in #118.
