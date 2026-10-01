@@ -61,6 +61,11 @@ final class RobotDesign {
     double pollenSpeedFactor = 1.0;
     /** How much steeper than the flattest arc into the opening the launcher shoots, degrees. */
     double arcExtraPitchDeg = 6;
+    /**
+     * A launcher whose angle is built in (a fixed hood) shoots at this pitch, degrees, and sets only
+     * its speed for the distance. NaN: the angle follows {@link #arcExtraPitchDeg}.
+     */
+    double fixedPitchDeg = Double.NaN;
     /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
     double maxTurnRadPerS = Math.toRadians(300);
 
@@ -76,6 +81,22 @@ final class RobotDesign {
     static RobotDesign fixedLauncher() {
         RobotDesign d = new RobotDesign("fixed launcher");
         d.launcher = Launcher.FIXED;
+        return d;
+    }
+
+    /**
+     * The spring-hood launcher in {@code cad/spring-hood-launcher}: fixed to the frame, a 75° hood,
+     * NECTAR at 99% of POLLEN's speed with the setting tuned between them. Four 82 mm steel flywheels
+     * on one 6000 rpm motor take about 1.9 s to reach 2700 rpm from rest (J ≈ 7.3e-4 kg·m², stall
+     * torque 0.144 N·m: t = J·ω_free/T_stall · ln(1/(1 − 2700/6000))), so 2 s.
+     */
+    static RobotDesign springHood() {
+        RobotDesign d = new RobotDesign("spring hood");
+        d.launcher = Launcher.FIXED;
+        d.fixedPitchDeg = 75;
+        d.spinUpS = 2.0;
+        d.pollenSpeedFactor = 1.005;
+        d.nectarSpeedFactor = 0.995;
         return d;
     }
 
@@ -102,6 +123,7 @@ final class RobotDesign {
         d.nectarSpeedFactor = nectarSpeedFactor;
         d.pollenSpeedFactor = pollenSpeedFactor;
         d.arcExtraPitchDeg = arcExtraPitchDeg;
+        d.fixedPitchDeg = fixedPitchDeg;
         d.maxTurnRadPerS = maxTurnRadPerS;
         return d;
     }

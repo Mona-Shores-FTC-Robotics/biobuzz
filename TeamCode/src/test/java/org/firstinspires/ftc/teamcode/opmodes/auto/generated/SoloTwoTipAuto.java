@@ -49,12 +49,16 @@ public final class SoloTwoTipAuto {
         Pose southShot = p.of(36, 30, 49);
         Pose park = p.of(15, 99, 90);
 
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose northShotToGardenControl1 = p.of(34, 92, 0);
+        Pose northShotToGardenControl2 = p.of(14, 60, 0);
+
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
         Path wallFlowerToNorthShot = Paths.line(wallFlower, northShot).linear(wallFlower, northShot);
         Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
         Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
-        Path northShotToGarden = Paths.line(northShot, garden).linear(northShot, garden);
+        Path northShotToGarden = Paths.curve(northShot, northShotToGardenControl1, northShotToGardenControl2, garden).linear(northShot, garden);
         Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
         Path southShotToPark = Paths.line(southShot, park).linear(southShot, park);
 

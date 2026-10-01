@@ -105,8 +105,12 @@
       },
       "controlPoints": [
         {
-          "x": 22,
-          "y": 62
+          "x": 34,
+          "y": 92
+        },
+        {
+          "x": 14,
+          "y": 60
         }
       ],
       "heading": {
@@ -165,7 +169,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 62,
+        "x": 60,
         "y": 21
       },
       "controlPoints": [],
@@ -385,7 +389,7 @@
         0
       ],
       "SPILL_END": [
-        62,
+        60,
         21,
         0
       ],

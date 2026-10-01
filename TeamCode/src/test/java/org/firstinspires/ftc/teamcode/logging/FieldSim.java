@@ -636,6 +636,17 @@ final class FieldSim {
         return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
     }
 
+    /** The ballistic launch at a pitch fixed by the launcher, or null if that arc cannot reach. */
+    double[] launchVelocityAtPitch(double[] from, double[] target, double pitch) {
+        double dx = target[0] - from[0], dy = target[1] - from[1];
+        double d = Math.hypot(dx, dy), dz = target[2] - from[2];
+        if (d < 1e-6) return null;
+        double denominator = 2 * Math.cos(pitch) * Math.cos(pitch) * (d * Math.tan(pitch) - dz);
+        if (denominator <= 0) return null;
+        double speed = Math.sqrt(GRAVITY_IN_PER_S2 * d * d / denominator);
+        return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
+    }
+
     /** Where a launched piece leaves the robot. */
     double[] exitPoint() {
         return exitPoint(0);
@@ -669,7 +680,9 @@ final class FieldSim {
         List<Piece> stored = bot.stored;
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
-        double[] v = launchVelocity(from, target, bot.design.arcExtraPitchDeg);
+        double[] v = Double.isNaN(bot.design.fixedPitchDeg)
+                ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
+                : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
         double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();

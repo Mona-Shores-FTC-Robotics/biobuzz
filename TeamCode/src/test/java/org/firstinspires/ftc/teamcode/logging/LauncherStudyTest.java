@@ -15,6 +15,7 @@ import java.util.Locale;
  * <pre>
  * BIOBUZZ_LAUNCHER_STUDY=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*LauncherStudyTest*' -i
  * </pre>
+ * An arc of -75 stands for the spring-hood launcher, its pitch fixed at 75°.
  * No air drag is simulated, which would slow the light POLLEN more than NECTAR.
  */
 public class LauncherStudyTest {
@@ -31,8 +32,8 @@ public class LauncherStudyTest {
     @Test
     public void windows() throws Exception {
         if (System.getenv("BIOBUZZ_LAUNCHER_STUDY") == null) return;
-        for (double arc : new double[] {6, 15, 25}) {
-            System.out.printf(Locale.ROOT, "Arc %.0f deg steeper than the flattest:%n", arc);
+        for (double arc : new double[] {6, 15, 25, -75}) {
+            System.out.printf(Locale.ROOT, arc < 0 ? "Fixed %.0f deg pitch (the spring hood):%n" : "Arc %.0f deg steeper than the flattest:%n", Math.abs(arc));
             for (int i = 0; i < SPOTS.length; i++) {
                 double[] p = window(SPOTS[i], FieldSim.Kind.POLLEN, arc);
                 double[] n = window(SPOTS[i], FieldSim.Kind.RED_NECTAR, arc);
@@ -77,7 +78,8 @@ public class LauncherStudyTest {
         sim.setRobot(spot[0], spot[1], heading, 0, 0, 0, false);
         double[] aim = r.aimPoint();
         double[] from = sim.exitPoint();
-        double[] v = sim.launchVelocity(from, aim, arc);
+        // A negative arc means a launcher with its pitch built in, at -arc degrees.
+        double[] v = arc < 0 ? sim.launchVelocityAtPitch(from, aim, Math.toRadians(-arc)) : sim.launchVelocity(from, aim, arc);
         if (v == null) return false;
         FieldSim.Piece p = new FieldSim.Piece(kind, FieldSim.Where.FIELD, from[0], from[1], from[2]);
         p.vx = v[0] * factor;

@@ -51,19 +51,25 @@ public final class SoloThreeTipAuto {
         Pose garden = p.of(8.5, 11, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose northShotToSouthPlungeInControl1 = p.of(28, 70, 0);
-        Pose southPlungeToNorthShotControl1 = p.of(28, 70, 0);
-        Pose northShotToSouthPlungeIn_2Control1 = p.of(28, 70, 0);
+        Pose northShotToSouthPlungeInControl1 = p.of(32, 94, 0);
+        Pose northShotToSouthPlungeInControl2 = p.of(20, 58, 0);
+        Pose northShotToSouthPlungeInControl3 = p.of(26, 30, 0);
+        Pose southPlungeToNorthShotControl1 = p.of(26, 30, 0);
+        Pose southPlungeToNorthShotControl2 = p.of(20, 58, 0);
+        Pose southPlungeToNorthShotControl3 = p.of(32, 94, 0);
+        Pose northShotToSouthPlungeIn_2Control1 = p.of(32, 94, 0);
+        Pose northShotToSouthPlungeIn_2Control2 = p.of(20, 58, 0);
+        Pose northShotToSouthPlungeIn_2Control3 = p.of(26, 30, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
         Path wallFlowerToNorthShot = Paths.line(wallFlower, northShot).linear(wallFlower, northShot);
         Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
         Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
-        Path northShotToSouthPlungeIn = Paths.curve(northShot, northShotToSouthPlungeInControl1, southPlungeIn).linear(northShot, southPlungeIn);
+        Path northShotToSouthPlungeIn = Paths.curve(northShot, northShotToSouthPlungeInControl1, northShotToSouthPlungeInControl2, northShotToSouthPlungeInControl3, southPlungeIn).linear(northShot, southPlungeIn);
         Path southPlungeInToSouthPlunge = Paths.line(southPlungeIn, southPlunge).constant(southPlunge);
-        Path southPlungeToNorthShot = Paths.curve(southPlunge, southPlungeToNorthShotControl1, northShot).linear(southPlunge, northShot);
-        Path northShotToSouthPlungeInPath = Paths.curve(northShot, northShotToSouthPlungeIn_2Control1, southPlungeIn).linear(northShot, southPlungeIn);
+        Path southPlungeToNorthShot = Paths.curve(southPlunge, southPlungeToNorthShotControl1, southPlungeToNorthShotControl2, southPlungeToNorthShotControl3, northShot).linear(southPlunge, northShot);
+        Path northShotToSouthPlungeInPath = Paths.curve(northShot, northShotToSouthPlungeIn_2Control1, northShotToSouthPlungeIn_2Control2, northShotToSouthPlungeIn_2Control3, southPlungeIn).linear(northShot, southPlungeIn);
         Path southPlungeInToSouthPlungePath = Paths.line(southPlungeIn, southPlunge).constant(southPlunge);
         Path southPlungeToSouthShot = Paths.line(southPlunge, southShot).linear(southPlunge, southShot);
         Path southShotToGarden = Paths.line(southShot, garden).linear(southShot, garden);

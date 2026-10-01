@@ -99,7 +99,16 @@
         "x": 8.5,
         "y": 11
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 34,
+          "y": 92
+        },
+        {
+          "x": 14,
+          "y": 60
+        }
+      ],
       "heading": {
         "type": "linear",
         "startDeg": 301,

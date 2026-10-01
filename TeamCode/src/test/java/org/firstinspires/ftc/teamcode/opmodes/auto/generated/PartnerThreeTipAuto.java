@@ -44,7 +44,7 @@ public final class PartnerThreeTipAuto {
         Pose start = p.of(59, 9.5, 90);
         Pose northShot = p.of(40, 116, 301);
         Pose spillIn = p.of(29, 21, 0);
-        Pose spillEnd = p.of(62, 21, 0);
+        Pose spillEnd = p.of(60, 21, 0);
         Pose garden = p.of(8.5, 11, 270);
         Pose southShot = p.of(36, 30, 49);
         Pose exitWest = p.of(28, 10, 90);
@@ -53,7 +53,8 @@ public final class PartnerThreeTipAuto {
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose exitWestToNorthShotControl1 = p.of(18, 62, 0);
-        Pose northShotToGardenControl1 = p.of(22, 62, 0);
+        Pose northShotToGardenControl1 = p.of(34, 92, 0);
+        Pose northShotToGardenControl2 = p.of(14, 60, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToExitWest = Paths.line(start, exitWest).constant(exitWest);
@@ -61,7 +62,7 @@ public final class PartnerThreeTipAuto {
         Path northShotToPickIn = Paths.line(northShot, pickIn).linear(northShot, pickIn);
         Path pickInToPartnerPick = Paths.line(pickIn, partnerPick).constant(partnerPick);
         Path partnerPickToNorthShot = Paths.line(partnerPick, northShot).linear(partnerPick, northShot);
-        Path northShotToGarden = Paths.curve(northShot, northShotToGardenControl1, garden).linear(northShot, garden);
+        Path northShotToGarden = Paths.curve(northShot, northShotToGardenControl1, northShotToGardenControl2, garden).linear(northShot, garden);
         Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
         Path southShotToSpillIn = Paths.line(southShot, spillIn).linear(southShot, spillIn);
         Path spillInToSpillEnd = Paths.line(spillIn, spillEnd).constant(spillEnd);

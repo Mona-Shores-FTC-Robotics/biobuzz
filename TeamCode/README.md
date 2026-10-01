@@ -1355,7 +1355,9 @@ still does what its name says.
 Times are at 50 in/s with the standard design. A three-tip Auto needs a drivetrain that fast: at
 40 in/s its last volley comes after 30 s. solo-two-tip works at 40 in/s, ends parked in the
 LOADING ZONE, and is the one to try first. The three-tip Autos use the whole 30 s and do not park:
-a third TIP is worth 20, an AUTO PARK 5.
+a third TIP is worth 20, an AUTO PARK 5. On the robot we would actually build, and with real
+partners, see "Autos on the spring-hood robot" below: it adds **three-tip-adaptive**, which this
+table's routes now feed into.
 
 Things the routes rely on, found by watching the logs:
 
@@ -1476,6 +1478,87 @@ Things the runs turned up:
   opening and can meet the next one at the lip; the HIVE's bounce is a placeholder.
 - **The SWARM RP does not need AUTO PARK.** It takes LEAVE + PARK points ≥ 16: both robots leaving
   (6) and parking at the end of the match (10) reach it too. AUTO PARK adds 5 a robot.
+
+### Autos on the spring-hood robot
+
+The Autos above were drawn for a generic robot with a turret. `RobotDesign.springHood()` is the one
+in `cad/spring-hood-launcher/`: fixed to the frame, its pitch built in at 75°, NECTAR at 99% of
+POLLEN's speed, and 2 s to spin four steel flywheels up from rest (one 6000 rpm motor; measure it).
+`AutoStudyTest` runs any Autos on any designs, 10 runs each, and prints TIPs, AUTO points, how
+often each robot parks, and the head start it leaves TELEOP:
+
+```
+BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoLzSouthAuto,DuoLzNorthAuto@50" BIOBUZZ_AUTO_DESIGNS="spring hood" \
+  ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
+```
+
+The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
+with the Auto Builder's own exporter); their `.pp` files are the source as usual.
+
+**What AUTO can score.** Only TIPs (20), LEAVE (3) and AUTO PARK (5) score in AUTO (Table 10-2).
+Pieces in a CELL, a FLOWER or the GARDEN count only at the end of the match. So an Auto with time
+to spare can still do three things: get its last TIP to complete during the transition (a TIP
+that completes before TELEOP counts for AUTO, §10.5 B), load the raised CELL so TELEOP's first TIP
+comes sooner, and end parked holding pieces. Every run now reports that head start ("TELEOP
+starts with the raised CELL 45% loaded and 2 held").
+
+**Where it scores from.** `ShotMapTest` (opt in with `BIOBUZZ_SHOT_MAP=1`) fires POLLEN and
+NECTAR at each raised CELL from every spot on our half where an 18 in robot fits. Each CELL scores
+from a wedge in front of its opening: below about y = 37 (the south CELL) or above about y = 100
+(the north), and the spring hood's 75° arc stretches each wedge along the west wall, to about
+y = 53 and y = 85. So it can shoot the south CELL from the wall FLOWER, and the north CELL from inside the
+LOADING ZONE (x 0–11, y 94–118). Both launchers score from about 83 of 330 spots; nothing scores
+from beside the HIVE.
+
+**The spring hood needs its speeds close.** With its pitch fixed, the speed window from the wall
+spots is −5.5% to +4%, so one setting serves NECTAR/POLLEN ratios of 0.97 to 1.03 (angled spots:
+0.92 to 1.08; `LauncherStudyTest`, arc −75). The model predicts 0.99. At 0.95 every Auto that starts
+from the wall falls apart (duo-lz: 54 points instead of 80). The opening volleys are all preloaded
+POLLEN, so the launcher can use a POLLEN setting for them; check the ratio on the bench before
+trusting a mixed setting from the wall.
+
+**Results, 10 runs each, spring hood unless stated:**
+
+| Auto(s) | in/s | TIPs (runs) | AUTO points | Parked |
+|---|---|---|---|---|
+| solo-two-tip | 40 | 2 (10/10), TIP 2 at 18 s | 48 | 10/10; CELL 52% loaded |
+| solo-three-tip | 50 | 3 (10/10), TIP 3 at 30 s | 63 | no |
+| spill-three-tip | 50 | 3 (5/10) | 53 | no |
+| **three-tip-adaptive** | 50 | 3 (10/10) | 63 | no |
+| three-tip-adaptive + a partner that fires its preloads | 50 | 3 (10/10), TIP 3 at 26 s | 75 | 18/20 |
+| duo-south + duo-north (the old pair) | 60 | 3 (8/10) | 70.5 | 13/20 |
+| **duo-lz-south + duo-lz-north** | 50 | 3 (9/10), 4 (3/10) | 80 | 20/20 |
+| duo-lz, two spring hoods on each robot | 60 | 3 (9/10), 4 (9/10) | 92 | 20/20 |
+
+- **2 s of spin-up costs 1.2 s on TIP 1** (4.6 s instead of 3.4 s), and the three-tip routes have
+  no slack for it: spill-three-tip and partner-three-tip lose their third TIP. A 3 s spin-up costs
+  duo-lz 2 points. Spin up once and never down; whether the flywheel may spin before START is a
+  question for the Q&A.
+- **three-tip-adaptive** is solo-three-tip with one decision. After its far-FLOWER pickup it checks
+  which CELL is up. If a partner already made TIP 2, it takes its 4 pieces south for an early TIP 3
+  instead of throwing them at a CELL out of range, and parks. Alone it is solo-three-tip.
+- **duo-lz** is duo-south + duo-north with a new end. Both robots finish by parking in the LOADING
+  ZONE and firing from there at the north CELL: the LOADING ZONE is inside the north CELL's wedge,
+  so a robot can score its last volley already parked. Before its TIP 3 sweep the south robot
+  collects the GARDEN (only 3 of its 4 POLLEN: the corner one is out of a 14 in intake's reach). Two
+  launchers per robot is worth about 10 points.
+- **Real partners.** `src/test/resources/auto-builder/partners/` has a partner that only leaves and
+  parks, and one that fires its preloads first. Both park at the north end of the LOADING ZONE,
+  around (16, 122). Agree that with partners: the corridor between the west wall and the HIVE
+  frame's foot is only 18–33 in wide for a robot's centre, so a partner parked at the south end of
+  the LOADING ZONE blocks every route south. A partner that fires its 4 preloads at the north CELL
+  brings TIP 2 forward from 17 s to 13 s.
+- **Fixed paths.** The solo Autos drove a corner through the HIVE frame's foot (x ≈ 46, y 51–90)
+  or reached over the centre line; they go round now. At double friction solo-three-tip's third
+  TIP now falls just short (the CELL ends 96% loaded); it only made it before by driving through
+  the frame.
+
+**The endgame guard re-parks a robot that is already parked** (autokit, robot code). The guard's
+park is the park card's path from its start point. If an Auto parks and then keeps working (waits,
+fires), the guard can still decide time is short and drive the whole park path again, out of the
+LOADING ZONE and here into the HIVE frame. The duo-lz Autos work round it: they drive to the park
+spot with an ordinary path and end with a 2 in park card, so a late guard barely moves the robot.
+The guard should know the park card has already run.
 
 ### One launcher, the webcam, and driving under the HIVE
 

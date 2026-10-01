@@ -129,6 +129,13 @@ public final class AutoSim {
         final List<RobotResult> robots = new ArrayList<>();
         /** When two robots first overlapped, which real robots cannot; NaN if they never did. */
         double robotsCollidedAt = Double.NaN;
+        /**
+         * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
+         * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
+         * TIPs, LEAVE and PARK, so this is what an Auto's spare seconds can still buy.
+         */
+        double cellLoad;
+        int held;
         // The first robot's, kept here for runs with only one.
         boolean finished;
         double finishedAt = Double.NaN;
@@ -152,6 +159,11 @@ public final class AutoSim {
             return n;
         }
 
+        /** The head start TELEOP gets, in words. */
+        String headStart() {
+            return String.format(Locale.ROOT, "TELEOP starts with the raised CELL %.0f%% loaded and %d held", 100 * cellLoad, held);
+        }
+
         /** AUTO points from TIPs, LEAVE and PARK (Table 10-2); CELL and GARDEN points count later. */
         int autoPoints() {
             int points = 20 * autoTips();
@@ -167,13 +179,13 @@ public final class AutoSim {
                     alliance, launched, scored, tipsAt.isEmpty() ? " (never)" : tips.toString());
             if (robots.size() == 1) {
                 RobotResult r = robots.get(0);
-                return head + String.format(Locale.ROOT, "; %s; LEAVE %s, PARK %s",
+                return head + String.format(Locale.ROOT, "; %s; LEAVE %s, PARK %s; %s",
                         finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
-                        r.leave ? "yes" : "no", r.park ? "yes" : "no");
+                        r.leave ? "yes" : "no", r.park ? "yes" : "no", headStart());
             }
             StringBuilder out = new StringBuilder(head);
             for (RobotResult r : robots) out.append("; ").append(r);
-            out.append(String.format(Locale.ROOT, "; %d AUTO points", autoPoints()));
+            out.append(String.format(Locale.ROOT, "; %d AUTO points; %s", autoPoints(), headStart()));
             if (!Double.isNaN(robotsCollidedAt)) {
                 out.append(String.format(Locale.ROOT, "; ROBOTS COLLIDE at %.1f s", robotsCollidedAt));
             }
@@ -362,6 +374,9 @@ public final class AutoSim {
             if (observer != null) observer.accept(sim, now);
         }
         for (Bot b : bots) result.launched += result.robots.get(b.index).launched;
+        FieldSim.Rocker ours = sim.rocker(alliance);
+        result.cellLoad = Math.max(0, sim.tippingTorque(ours) / sim.physics.holdTorque);
+        for (Bot b : bots) result.held += b.body.stored.size();
         RobotResult first = result.robots.get(0);
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;

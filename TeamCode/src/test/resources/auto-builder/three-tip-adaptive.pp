@@ -101,15 +101,15 @@
       },
       "controlPoints": [
         {
-          "x": 32,
-          "y": 94
+          "x": 34,
+          "y": 92
         },
         {
-          "x": 20,
-          "y": 58
+          "x": 12,
+          "y": 60
         },
         {
-          "x": 26,
+          "x": 22,
           "y": 30
         }
       ],
@@ -134,97 +134,13 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-north-shot-7",
-      "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE to NORTH_SHOT",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 40,
-        "y": 116
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 30
-        },
-        {
-          "x": 20,
-          "y": 58
-        },
-        {
-          "x": 32,
-          "y": 94
-        }
-      ],
-      "heading": {
         "type": "linear",
         "startDeg": 270,
-        "endDeg": 301
-      }
-    },
-    {
-      "id": "to-south-plunge-in-8",
-      "color": "#3cc8e4",
-      "name": "NORTH_SHOT to SOUTH_PLUNGE_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 55,
-        "y": 24
-      },
-      "controlPoints": [
-        {
-          "x": 32,
-          "y": 94
-        },
-        {
-          "x": 20,
-          "y": 58
-        },
-        {
-          "x": 26,
-          "y": 30
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 301,
         "endDeg": 270
       }
     },
     {
-      "id": "to-south-plunge-9",
-      "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE_IN to SOUTH_PLUNGE",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 55,
-        "y": 10.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-south-shot-10",
+      "id": "to-south-shot-7",
       "color": "#3cc8e4",
       "name": "SOUTH_PLUNGE to SOUTH_SHOT",
       "waitBeforeMs": 0,
@@ -244,7 +160,7 @@
       }
     },
     {
-      "id": "to-garden-11",
+      "id": "to-garden-8",
       "color": "#3cc8e4",
       "name": "SOUTH_SHOT to GARDEN",
       "waitBeforeMs": 0,
@@ -264,7 +180,7 @@
       }
     },
     {
-      "id": "to-south-shot-12",
+      "id": "to-south-shot-9",
       "color": "#3cc8e4",
       "name": "GARDEN to SOUTH_SHOT",
       "waitBeforeMs": 0,
@@ -281,6 +197,168 @@
         "type": "linear",
         "startDeg": 270,
         "endDeg": 49
+      }
+    },
+    {
+      "id": "to-south-shot-10",
+      "color": "#3cc8e4",
+      "name": "NORTH_SHOT to SOUTH_SHOT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 36,
+        "y": 30
+      },
+      "controlPoints": [
+        {
+          "x": 34,
+          "y": 92
+        },
+        {
+          "x": 12,
+          "y": 60
+        },
+        {
+          "x": 22,
+          "y": 30
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 301,
+        "endDeg": 49
+      }
+    },
+    {
+      "id": "to-south-plunge-in-11",
+      "color": "#3cc8e4",
+      "name": "SOUTH_SHOT to SOUTH_PLUNGE_IN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55,
+        "y": 24
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 49,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-south-plunge-12",
+      "color": "#3cc8e4",
+      "name": "SOUTH_PLUNGE_IN to SOUTH_PLUNGE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55,
+        "y": 10.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-south-shot-13",
+      "color": "#3cc8e4",
+      "name": "SOUTH_PLUNGE to SOUTH_SHOT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 36,
+        "y": 30
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 49
+      }
+    },
+    {
+      "id": "to-garden-14",
+      "color": "#3cc8e4",
+      "name": "SOUTH_SHOT to GARDEN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 8.5,
+        "y": 11
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 49,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-south-shot-15",
+      "color": "#3cc8e4",
+      "name": "GARDEN to SOUTH_SHOT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 36,
+        "y": 30
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 49
+      }
+    },
+    {
+      "id": "to-park-16",
+      "color": "#3cc8e4",
+      "name": "SOUTH_SHOT to PARK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 15,
+        "y": 99
+      },
+      "controlPoints": [
+        {
+          "x": 14,
+          "y": 40
+        },
+        {
+          "x": 12,
+          "y": 80
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 49,
+        "endDeg": 90
       }
     }
   ],
@@ -385,15 +463,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-7"
+      "lineId": "to-south-shot-7"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-in-8"
+      "lineId": "to-garden-8"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-9"
+      "lineId": "to-south-shot-9"
     },
     {
       "kind": "path",
@@ -401,11 +479,27 @@
     },
     {
       "kind": "path",
-      "lineId": "to-garden-11"
+      "lineId": "to-south-plunge-in-11"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-12"
+      "lineId": "to-south-plunge-12"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-south-shot-13"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-garden-14"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-south-shot-15"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-16"
     }
   ],
   "settings": {
@@ -416,9 +510,9 @@
     "rWidth": 18,
     "rHeight": 18,
     "safetyMargin": 1,
-    "maxVelocity": 60,
-    "maxAcceleration": 55,
-    "maxDeceleration": 55,
+    "maxVelocity": 50,
+    "maxAcceleration": 45.0,
+    "maxDeceleration": 45.0,
     "fieldMap": "biobuzz.webp",
     "robotImage": "/robot.png",
     "showGhostPaths": false,
@@ -446,7 +540,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "solo-three-tip",
+    "exportName": "three-tip-adaptive",
     "registry": {
       "actions": [
         "LaunchOne",
@@ -454,7 +548,10 @@
       ],
       "conditions": [
         "Tip",
-        "IntakeFull"
+        "IntakeFull",
+        "RightCellUp",
+        "LeftCellUp",
+        "Empty"
       ],
       "typicalS": {
         "LaunchOne": 0.5,
@@ -504,6 +601,11 @@
         8.5,
         11,
         270
+      ],
+      "PARK": [
+        15,
+        99,
+        90
       ]
     },
     "pathEnds": {
@@ -513,32 +615,36 @@
       "to-north-shot-4": "NORTH_SHOT",
       "to-south-plunge-in-5": "SOUTH_PLUNGE_IN",
       "to-south-plunge-6": "SOUTH_PLUNGE",
-      "to-north-shot-7": "NORTH_SHOT",
-      "to-south-plunge-in-8": "SOUTH_PLUNGE_IN",
-      "to-south-plunge-9": "SOUTH_PLUNGE",
+      "to-south-shot-7": "SOUTH_SHOT",
+      "to-garden-8": "GARDEN",
+      "to-south-shot-9": "SOUTH_SHOT",
       "to-south-shot-10": "SOUTH_SHOT",
-      "to-garden-11": "GARDEN",
-      "to-south-shot-12": "SOUTH_SHOT"
+      "to-south-plunge-in-11": "SOUTH_PLUNGE_IN",
+      "to-south-plunge-12": "SOUTH_PLUNGE",
+      "to-south-shot-13": "SOUTH_SHOT",
+      "to-garden-14": "GARDEN",
+      "to-south-shot-15": "SOUTH_SHOT",
+      "to-park-16": "PARK"
     },
     "startAt": "START",
     "cards": [
       {
-        "id": "a-1",
+        "id": "a-4",
         "kind": "action",
         "name": "LaunchOne"
       },
       {
-        "id": "a-2",
+        "id": "a-5",
         "kind": "action",
         "name": "LaunchOne"
       },
       {
-        "id": "a-3",
+        "id": "a-6",
         "kind": "action",
         "name": "LaunchOne"
       },
       {
-        "id": "d-6",
+        "id": "w-3",
         "kind": "firstOf",
         "label": "Tip 1?",
         "rows": [
@@ -546,20 +652,19 @@
             "when": [
               "Tip"
             ],
-            "label": "Yes",
-            "cards": []
+            "cards": [],
+            "label": "Yes"
           },
           {
             "afterMs": 2000,
-            "label": "No",
             "cards": [
               {
-                "id": "a-4",
+                "id": "a-1",
                 "kind": "action",
                 "name": "LaunchOne"
               },
               {
-                "id": "w-5",
+                "id": "w-2",
                 "kind": "firstOf",
                 "label": "Tip 1 (4th POLLEN)",
                 "rows": [
@@ -575,7 +680,8 @@
                   }
                 ]
               }
-            ]
+            ],
+            "label": "No"
           }
         ]
       },
@@ -643,26 +749,170 @@
         "park": false
       },
       {
-        "id": "a-14",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "d-20",
+        "id": "w-36",
         "kind": "firstOf",
-        "label": "Tip 2?",
+        "label": "Did a partner make TIP 2?",
         "rows": [
           {
             "when": [
-              "Tip"
+              "RightCellUp"
             ],
-            "label": "Yes",
-            "cards": []
+            "cards": [
+              {
+                "id": "p-24",
+                "kind": "path",
+                "lineId": "to-south-shot-10",
+                "park": false
+              },
+              {
+                "id": "a-25",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "p-26",
+                "kind": "path",
+                "lineId": "to-south-plunge-in-11",
+                "park": false
+              },
+              {
+                "id": "p-27",
+                "kind": "path",
+                "lineId": "to-south-plunge-12",
+                "park": false
+              },
+              {
+                "id": "w-28",
+                "kind": "firstOf",
+                "label": "Spilled NECTAR (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 600,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-29",
+                "kind": "path",
+                "lineId": "to-south-shot-13",
+                "park": false
+              },
+              {
+                "id": "w-30",
+                "kind": "firstOf",
+                "label": "Fire (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2000,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              },
+              {
+                "id": "w-35",
+                "kind": "firstOf",
+                "label": "TIP 3 yet?",
+                "rows": [
+                  {
+                    "when": [
+                      "LeftCellUp"
+                    ],
+                    "cards": [],
+                    "label": "Yes: park"
+                  },
+                  {
+                    "afterMs": 1500,
+                    "cards": [
+                      {
+                        "id": "p-31",
+                        "kind": "path",
+                        "lineId": "to-garden-14",
+                        "park": false
+                      },
+                      {
+                        "id": "w-32",
+                        "kind": "firstOf",
+                        "label": "Collect in the GARDEN (B)",
+                        "rows": [
+                          {
+                            "when": [
+                              "IntakeFull"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 1000,
+                            "cards": []
+                          }
+                        ]
+                      },
+                      {
+                        "id": "p-33",
+                        "kind": "path",
+                        "lineId": "to-south-shot-15",
+                        "park": false
+                      },
+                      {
+                        "id": "w-34",
+                        "kind": "firstOf",
+                        "label": "Fire the TIP 3 volley, then park",
+                        "rows": [
+                          {
+                            "when": [
+                              "Empty"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ],
+                    "label": "No: the GARDEN"
+                  }
+                ]
+              }
+            ],
+            "label": "Yes: south CELL up"
           },
           {
-            "afterMs": 1200,
-            "label": "No",
+            "afterMs": 50,
             "cards": [
+              {
+                "id": "w-14",
+                "kind": "firstOf",
+                "label": "Fire until it tips (TIP 2)",
+                "rows": [
+                  {
+                    "when": [
+                      "RightCellUp"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              },
               {
                 "id": "p-15",
                 "kind": "path",
@@ -695,17 +945,51 @@
               {
                 "id": "p-18",
                 "kind": "path",
-                "lineId": "to-north-shot-7",
+                "lineId": "to-south-shot-7",
                 "park": false
               },
               {
-                "id": "w-19",
+                "id": "a-19",
+                "kind": "action",
+                "name": "LaunchAll"
+              },
+              {
+                "id": "p-20",
+                "kind": "path",
+                "lineId": "to-garden-8",
+                "park": false
+              },
+              {
+                "id": "w-21",
                 "kind": "firstOf",
-                "label": "Tip 2 (late)",
+                "label": "Collect in the GARDEN",
                 "rows": [
                   {
                     "when": [
-                      "Tip"
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 1000,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-22",
+                "kind": "path",
+                "lineId": "to-south-shot-9",
+                "park": false
+              },
+              {
+                "id": "w-23",
+                "kind": "firstOf",
+                "label": "Fire until it tips (TIP 3)",
+                "rows": [
+                  {
+                    "when": [
+                      "LeftCellUp"
                     ],
                     "cards": []
                   },
@@ -716,96 +1000,16 @@
                 ],
                 "alongside": "LaunchAll"
               }
-            ]
+            ],
+            "label": "No: TIP 2 is ours"
           }
         ]
       },
       {
-        "id": "p-21",
+        "id": "p-37",
         "kind": "path",
-        "lineId": "to-south-plunge-in-8",
-        "park": false
-      },
-      {
-        "id": "p-22",
-        "kind": "path",
-        "lineId": "to-south-plunge-9",
-        "park": false
-      },
-      {
-        "id": "w-23",
-        "kind": "firstOf",
-        "label": "Spilled NECTAR",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 400,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "p-24",
-        "kind": "path",
-        "lineId": "to-south-shot-10",
-        "park": false
-      },
-      {
-        "id": "a-25",
-        "kind": "action",
-        "name": "LaunchAll"
-      },
-      {
-        "id": "p-26",
-        "kind": "path",
-        "lineId": "to-garden-11",
-        "park": false
-      },
-      {
-        "id": "w-27",
-        "kind": "firstOf",
-        "label": "Collect in the GARDEN",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "p-28",
-        "kind": "path",
-        "lineId": "to-south-shot-12",
-        "park": false
-      },
-      {
-        "id": "w-29",
-        "kind": "firstOf",
-        "label": "Tip 3",
-        "rows": [
-          {
-            "when": [
-              "Tip"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
+        "lineId": "to-park-16",
+        "park": true
       }
     ]
   },

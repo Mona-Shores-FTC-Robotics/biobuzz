@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertTrue;
 
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzNorthAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzSouthAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoNorthAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoSouthAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -33,6 +35,26 @@ public class AllianceAutoTest {
             }
             assertTrue(r.toString(), Double.isNaN(r.robotsCollidedAt));
             for (AutoSim.RobotResult robot : r.robots) assertTrue(r.toString(), Double.isNaN(robot.hitHiveAt));
+        }
+    }
+
+    /**
+     * duo-lz-south + duo-lz-north on the spring-hood robot at 50 in/s: three TIPs, and both robots
+     * end their AUTO shooting from inside the LOADING ZONE, so both always park.
+     */
+    @Test
+    public void duoLzTipsThreeTimesAndAlwaysParks() throws Exception {
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            AutoSim.Result r = new AutoSim(DuoLzSouthAuto.class, alliance, 3572L).speed(50, 45).design(RobotDesign.springHood())
+                    .alsoRun(DuoLzNorthAuto.class).speed(50, 45).design(RobotDesign.springHood())
+                    .write(new File(TeamCodeDir.simLogs(), "alliance-duo-lz-" + alliance.name().toLowerCase() + ".wpilog"));
+            System.out.println(r);
+            assertTrue(r.toString(), r.autoTips() >= 3);
+            for (AutoSim.RobotResult robot : r.robots) {
+                assertTrue(r.toString(), robot.leave && robot.park);
+                assertTrue(r.toString(), Double.isNaN(robot.crossedAt) && Double.isNaN(robot.hitHiveAt));
+            }
+            assertTrue(r.toString(), Double.isNaN(r.robotsCollidedAt));
         }
     }
 
