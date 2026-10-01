@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -15,6 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -173,6 +175,86 @@ public class VisualizerPathLogTest {
                 double[] b = poses.get(k).asDoubles();
                 assertTrue(name + " jumps at record " + k, Math.hypot(b[0] - a[0], b[1] - a[1]) < maxStep);
             }
+        }
+    }
+
+    /**
+     * Two robots in one log: each under its own {@link FieldRobot} keys, both in
+     * {@link FieldRobot#ALL_3D}, and our robot's keys the same as in a one-robot log.
+     */
+    @Test
+    public void twoFilesAreTwoRobotsInOneLog() throws IOException {
+        VisualizerPath ours = VisualizerPath.read(SAMPLE.toPath());
+        VisualizerPath partner = VisualizerPath.read(SAMPLE.toPath());
+        File out = new File(TeamCodeDir.simLogs(), "pedro-paths/two-robots-test.wpilog");
+        new VisualizerPathLog(Arrays.asList(ours, partner)).write(out);
+        WpiLogReader r = new WpiLogReader(Files.readAllBytes(out.toPath()));
+
+        assertEquals("struct:Pose3d", r.entry("/Odometry/Robot3d").type);
+        assertEquals("struct:Pose3d", r.entry("/Odometry/Partner3d").type);
+        assertEquals("struct:Pose2d", r.entry("/Odometry/Partner").type);
+        assertEquals("struct:Pose2d[]", r.entry("/Path/Active").type);
+        assertEquals("struct:Pose2d[]", r.entry("/Path/Partner").type);
+        assertEquals("struct:Pose2d[]", r.entry("/Path/PartnerFull").type);
+        assertEquals("struct:Pose3d[]", r.entry(FieldRobot.ALL_3D).type);
+        assertEquals("struct:Pose2d[]", r.entry(FieldRobot.ALL_2D).type);
+        assertTrue(r.entry("/RealMetadata/Robots").records.get(0).asString().startsWith("2 on the field"));
+        assertTrue(r.entry("/RealMetadata/RobotsHowToView").records.get(0).asString().contains(FieldRobot.ALL_3D));
+
+        // Every loop, the array holds both robots, each where its own key says it is.
+        List<WpiLogReader.Record> all = r.entry(FieldRobot.ALL_2D).records;
+        List<WpiLogReader.Record> robot = r.entry("/Odometry/Robot").records;
+        List<WpiLogReader.Record> other = r.entry("/Odometry/Partner").records;
+        assertEquals(robot.size(), all.size());
+        assertEquals(other.size(), all.size());
+        for (int k = 0; k < all.size(); k += 50) {
+            double[] both = all.get(k).asDoubles();
+            assertEquals(6, both.length);
+            assertArrayEquals(robot.get(k).asDoubles(), Arrays.copyOfRange(both, 0, 3), 1e-12);
+            assertArrayEquals(other.get(k).asDoubles(), Arrays.copyOfRange(both, 3, 6), 1e-12);
+        }
+        double[] solid = r.entry(FieldRobot.ALL_3D).records.get(0).asDoubles();
+        assertEquals(14, solid.length); // x, y, z, qw, qx, qy, qz per robot
+    }
+
+    /** A one-robot log has no array of robots, so it reads exactly as it did. */
+    @Test
+    public void oneFileIsOneRobot() throws IOException {
+        File out = new File(TeamCodeDir.simLogs(), "pedro-paths/one-robot-test.wpilog");
+        new VisualizerPathLog(VisualizerPath.read(SAMPLE.toPath())).write(out);
+        WpiLogReader r = new WpiLogReader(Files.readAllBytes(out.toPath()));
+        assertTrue(r.entries.containsKey("/Odometry/Robot3d"));
+        assertTrue(r.entries.containsKey("/Odometry/PedroInches/X"));
+        assertFalse(r.entries.containsKey("/Odometry/Partner3d"));
+        assertFalse(r.entries.containsKey(FieldRobot.ALL_3D));
+    }
+
+    /**
+     * Every file in {@code pedro-paths/together/} names robots that run at the same time. Each
+     * becomes one log in {@code build/sim-logs/pedro-paths/together/} with all of them on the field.
+     */
+    @Test
+    public void everyTogetherFileBecomesOneLogWithEveryRobot() throws IOException {
+        File[] lists = new File(PATHS, "together").listFiles((d, n) -> n.endsWith(".txt"));
+        assertTrue("no together files", lists != null && lists.length > 0);
+        File outDir = new File(TeamCodeDir.simLogs(), "pedro-paths/together");
+        for (File list : lists) {
+            List<VisualizerPath> autos = VisualizerPathLog.readTogether(list, PATHS.getParentFile());
+            String name = list.getName().replace(".txt", "");
+            assertTrue(name + " names fewer than two robots", autos.size() >= 2);
+            File out = new File(outDir, name + ".wpilog");
+            new VisualizerPathLog(autos).write(out);
+
+            WpiLogReader r = new WpiLogReader(Files.readAllBytes(out.toPath()));
+            for (int i = 0; i < autos.size(); i++) {
+                VisualizerPath auto = autos.get(i);
+                double[] first = r.entry(FieldRobot.slot(i).pose).records.get(0).asDoubles();
+                assertEquals(name + " robot " + (i + 1),
+                        AdvantageScopeFrame.xMeters(auto.start.x(), auto.start.y()), first[0], 1e-9);
+                assertEquals(name + " robot " + (i + 1),
+                        AdvantageScopeFrame.yMeters(auto.start.x(), auto.start.y()), first[1], 1e-9);
+            }
+            assertEquals(3 * autos.size(), r.entry(FieldRobot.ALL_2D).records.get(0).asDoubles().length);
         }
     }
 

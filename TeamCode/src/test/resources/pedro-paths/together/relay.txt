@@ -1,0 +1,3 @@
+# The relay experiment: our robot through the tunnel, our partner along the lane.
+auto-builder/experiments/relay-tunnel.pp
+auto-builder/experiments/relay-lane.pp
