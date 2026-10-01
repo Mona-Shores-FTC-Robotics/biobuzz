@@ -42,6 +42,10 @@ Folders 1–3 are the best runs of their sets, not typical ones. Folders 4–8 a
 
 ## Viewing a log in AdvantageScope
 
+Quickest: after the one-time asset setup below, open a log and choose **File → Import Layout**
+with `sim-review/advantagescope-layout.json`. That sets up everything listed here; it was saved
+from AdvantageScope 27.0.0-alpha-6. The manual steps follow, for when the layout doesn't load.
+
 1. Open the `.wpilog`.
 2. Open a **3D Field** tab on the 2026-2027 field.
 3. Drag `/Odometry/AllRobots3d` onto the field as a **Robot** to see both robots at once.

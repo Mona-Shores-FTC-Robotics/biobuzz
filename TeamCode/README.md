@@ -1293,7 +1293,8 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
 Two things trip people up. Pick **2026-2027 Field (HIVE sim)** in the field dropdown; the stock
 field still has its own fixed HIVE, so you see two. And drop `/Sim/Hive/Components` *onto the
 `/Sim/Hive/Structure` row* (it indents under it); dropped anywhere else, AdvantageScope offers only
-game-piece types. Once it all shows, **File → Export Layout** saves it for the next log.
+game-piece types. Or skip the dragging: **File → Import Layout** with `sim-review/advantagescope-layout.json`
+(saved from AdvantageScope 27.0.0-alpha-6) sets up all of it.
 
 As soon as any game piece is shown, AdvantageScope hides the field's own staged pieces, so
 the logged ones replace them rather than doubling them. Without component poses the rockers are
