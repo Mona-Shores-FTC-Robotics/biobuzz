@@ -63,6 +63,14 @@ public final class AutoSim {
      * 30 s can still score its TIP.
      */
     static final double AFTER_S = 8.0;
+    /**
+     * Disabled time on each side of the run, robots standing where they are, so AdvantageScope's
+     * timeline has room to grab the start and the end. AUTO starts at {@code PRE_ROLL_S} in the log.
+     */
+    static final double PRE_ROLL_S = 10.0;
+    static final double POST_ROLL_S = 7.0;
+    /** How often the {@code /Match/} clock is logged. */
+    static final double CLOCK_STEP_S = 0.1;
 
     // Drivetrain profile: the Visualizer log's defaults. A robot that is not tuned yet; the Auto
     // Builder previews at 60 in/s and 55 in/s², which {@link #speed} can set.
@@ -294,6 +302,26 @@ public final class AutoSim {
         }
     }
 
+    /**
+     * The match clock at {@code t} seconds after AUTO starts (negative before it), for reading the
+     * time in AdvantageScope: {@code /Match/Time}, {@code /Match/AutoTimeLeft} and a {@code /Match/Clock}
+     * line such as "AUTO 21.5 s, 8.5 left".
+     */
+    private static void putClock(WpiLog log, double t) throws IOException {
+        long us = Math.round((PRE_ROLL_S + t) * 1e6);
+        double auto = AutoKit.AUTO_LENGTH_S;
+        double tenths = Math.round(t * 10) / 10.0;
+        double left = Math.round(Math.max(0, Math.min(auto, auto - t)) * 10) / 10.0;
+        String clock;
+        if (t < 0) clock = String.format(Locale.ROOT, "BEFORE AUTO %.1f s", tenths);
+        else if (t < auto) clock = String.format(Locale.ROOT, "AUTO %.1f s, %.1f left", tenths, left);
+        else if (t <= auto + AFTER_S) clock = String.format(Locale.ROOT, "AFTER AUTO %.1f s (TIPs finishing still count)", tenths);
+        else clock = String.format(Locale.ROOT, "DONE %.1f s", tenths);
+        log.put("/Match/Time", tenths, us);
+        log.put("/Match/AutoTimeLeft", left, us);
+        log.put("/Match/Clock", clock, us);
+    }
+
     private String runName() {
         StringBuilder sb = new StringBuilder();
         for (Bot b : bots) sb.append(sb.length() == 0 ? "" : " + ").append(name(b.autoClass));
@@ -348,14 +376,30 @@ public final class AutoSim {
         for (Bot b : bots) b.start(log, result.robots.get(b.index));
 
         FieldSimLog fieldLog = new FieldSimLog();
-        log.put(AdvantageScopeKeys.ENABLED, true, 0);
+        // Pre-roll: the field as it starts, disabled, before AUTO begins at PRE_ROLL_S.
+        log.put(AdvantageScopeKeys.ENABLED, false, 0);
         log.put(AdvantageScopeKeys.AUTONOMOUS, true, 0);
-        log.put(AdvantageScopeKeys.ROBOT_MODE, "autonomous", 0);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", 0);
+        for (Bot b : bots) b.putStill(log, 0);
+        if (robots > 1) {
+            for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
+            FieldRobot.putAll(log, allRobots, 0);
+        }
+        fieldLog.write(log, sim, 0);
+        putClock(log, -PRE_ROLL_S);
+        long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
+        log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "autonomous", autoStartUs);
+        log.putEvent("AUTO starts", autoStartUs);
         int tipsSeen = 0;
         boolean scored = false;
         for (long step = 0; step * LOOP_S <= AutoKit.AUTO_LENGTH_S + AFTER_S; step++) {
             now = step * LOOP_S;
-            long us = Math.round(now * 1e6);
+            long us = Math.round((PRE_ROLL_S + now) * 1e6);
+            if (step % Math.round(CLOCK_STEP_S / LOOP_S) == 0) putClock(log, now);
+            if (Math.abs(now - AutoKit.AUTO_LENGTH_S) < LOOP_S / 2) {
+                log.putEvent("AUTO ends (TIPs that finish in the next 8 s still count)", us);
+            }
             boolean running = now < AutoKit.AUTO_LENGTH_S;
             if (running) {
                 boolean any = false;
@@ -404,9 +448,16 @@ public final class AutoSim {
         RobotResult first = result.robots.get(0);
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
-        long end = Math.round((AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
+        long end = Math.round((PRE_ROLL_S + AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, false, end);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", end);
         log.putEvent(result.toString(), end);
+        // Post-roll: everything stays where it ended, so the end is easy to grab on the timeline.
+        double last = AutoKit.AUTO_LENGTH_S + AFTER_S + POST_ROLL_S;
+        long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
+        for (Bot b : bots) b.putStill(log, lastUs);
+        fieldLog.write(log, sim, lastUs);
+        putClock(log, last);
         Scheduler.reset();
         return result;
     }
@@ -635,6 +686,14 @@ public final class AutoSim {
             log.put(keyPrefix + "/Launcher/Spinning", spinning, us);
             log.put(keyPrefix + "/Intake/On", intaking, us);
             if (step % 10 == 0) result.poses.add(pose);
+        }
+
+        /** The robot standing where it is, for the disabled time before and after the run. */
+        void putStill(WpiLog log, long us) throws IOException {
+            double[] pose = pedro(drive.pose);
+            robot.putPose(log, pose[0], pose[1], pose[2], us);
+            log.put(keyPrefix + "/Launcher/Spinning", false, us);
+            log.put(keyPrefix + "/Intake/On", false, us);
         }
 
         /** LEAVE and AUTO PARK, from where the robot is as AUTO ends. */
