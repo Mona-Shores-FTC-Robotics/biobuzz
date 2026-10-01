@@ -180,17 +180,47 @@ public class AutoKitTest {
     // ----------------------------------------------------------- endgame guard
 
     @Test
-    public void guardParksWhenTheTimeLeftDoesNotCoverTheParkPath() {
+    public void guardParksBeforeACardWhenTheTimeLeftDoesNotCoverTheParkPath() {
         Path park = line(0, 10);
-        now = 27; // 3 s left; park needs 2 + 0.5
+        now = 27.6; // 2.4 s left; park needs 2 + 0.5
         run(kit.guarded("If tipped", park, 2.0,
-                kit.firstOf("slow", kit.afterMs(2000)),
                 kit.command("ShootAll"),
                 kit.path("Park", park)), 5);
-        // 3 s left covers the first card; after its 2 s wait, 1 s does not cover the park.
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("park needs 2.5 s: parking now")));
         assertFalse("ShootAll must be skipped", log.contains("ShootAll"));
-        assertEquals(park, drive.followed.get(drive.followed.size() - 1));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+    }
+
+    @Test
+    public void guardCutsARunningCardShortAtTheDeadlineAndParks() {
+        AutoKit kit = new AutoKit(drive, new AutoRegistry()
+                .command("LaunchAll", 10.0, () -> lasting("LaunchAll", 10.0))
+                .command("ShootAll", 0.1, () -> record("ShootAll"))
+                .trigger("HiveTipped", () -> false), () -> now).trace(trace::add);
+        Path park = line(0, 10);
+        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.5 s
+        now = deadline - 5; // the wait would run 5 s past the deadline
+        run(kit.guarded("If tipped", park, 2.0,
+                kit.firstOf("Wait for Tip", kit.command("LaunchAll", 10.0),
+                        kit.when("HiveTipped"),
+                        kit.afterMs(10000)),
+                kit.command("ShootAll"),
+                kit.path("Park", park)), 10);
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("cutting card short")));
+        assertTrue("the running card is interrupted: " + log, log.contains("LaunchAll INTERRUPTED"));
+        assertFalse("the card after it is skipped: " + log, log.contains("ShootAll"));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+        assertEquals("the park starts at the deadline", deadline, drive.followedAt.get(0), 0.03);
+    }
+
+    @Test
+    public void guardNeverCutsTheParkCardShort() {
+        Path park = line(0, 10);
+        drive.stepPerLoop = 0.001; // a park that would take 20 s
+        now = 27; // 3 s left; park needs 2.5 s
+        run(kit.guarded("If tipped", park, 2.0, kit.path("Park", park)), 25);
+        assertTrue(trace.toString(), trace.stream().noneMatch(t -> t.contains("park needs")));
+        assertEquals(1, drive.followed.size());
     }
 
     @Test
@@ -271,6 +301,7 @@ public class AutoKitTest {
         double capProgress = 1.0;
         boolean referenced = true;
         final List<Path> followed = new ArrayList<>();
+        final List<Double> followedAt = new ArrayList<>();
         final java.util.Map<String, Double> progressWhen = new java.util.HashMap<>();
         private Path current;
         private double progress = 1;
@@ -287,6 +318,7 @@ public class AutoKitTest {
             current = path;
             progress = 0;
             followed.add(path);
+            followedAt.add(now);
         }
 
         @Override public boolean pathDone() {

@@ -77,15 +77,20 @@ public class SoloAutosTest {
     }
 
     /**
-     * On the spring-hood robot, alone it tips three times; with a partner that fires its preloads
-     * at the north CELL, it notices TIP 2 came early, takes its pieces south, and still parks.
+     * On the spring-hood robot, alone it tips twice and the endgame guard parks it; with a partner
+     * that fires its preloads at the north CELL, it notices TIP 2 came early, takes its pieces
+     * south, tips a third time and still parks.
+     *
+     * <p>History: this asserted three TIPs alone until 1 Oct 2026. That third TIP landed at about
+     * 30.5 s, and only because the guard then checked between cards and let the TIP 3 volley run
+     * past its deadline; the robot never parked. The guard now cuts the volley at the deadline.
      */
     @Test
     public void threeTipAdaptiveUsesAPartnersEarlyTip() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result alone = new AutoSim(ThreeTipAdaptiveAuto.class, alliance, 3572L).speed(50, 45)
                     .design(RobotDesign.springHood()).write(log("adaptive", alliance, 1));
-            assertTrue(alone.toString(), alone.autoTips() >= 3);
+            assertTrue(alone.toString(), alone.autoTips() >= 2 && alone.robots.get(0).park);
             AutoSim.Result paired = new AutoSim(ThreeTipAdaptiveAuto.class, alliance, 3572L).speed(50, 45)
                     .design(RobotDesign.springHood()).alsoRun(PartnerPreloadsParkAuto.class).speed(40, 36)
                     .write(log("adaptive-with-partner", alliance, 1));
