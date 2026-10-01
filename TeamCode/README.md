@@ -1263,6 +1263,17 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
    BIOBUZZ_FIELD3D=/path/to/that/Field3d_folder ./gradlew :TeamCode:testDebugUnitTest --tests '*HiveAssetsTest*'
    ```
    It writes `TeamCode/build/advantagescope/Field3d_BIOBUZZHiveSim` and `Robot_BIOBUZZHive`.
+   On Windows (PowerShell), where AdvantageScope keeps `autoAssets` and `userAssets` under
+   `%APPDATA%\AdvantageScope`:
+   ```
+   Get-ChildItem "$env:APPDATA\AdvantageScope\autoAssets" -Recurse -Filter config.json |
+     Select-String '2026-2027 Field' | Select-Object -ExpandProperty Path
+   $env:BIOBUZZ_FIELD3D = "<the folder holding that config.json>"
+   .\gradlew.bat :TeamCode:testDebugUnitTest --tests "*HiveAssetsTest*" -i
+   Copy-Item -Recurse -Force TeamCode\build\advantagescope\Field3d_BIOBUZZHiveSim, TeamCode\build\advantagescope\Robot_BIOBUZZHive "$env:APPDATA\AdvantageScope\userAssets\"
+   ```
+   Without `BIOBUZZ_FIELD3D` the test skips itself and the build still says it succeeded; look for
+   the `Wrote …` line.
 3. Copy both folders into `userAssets` and restart AdvantageScope. A field called
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
