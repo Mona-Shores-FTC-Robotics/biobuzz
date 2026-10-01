@@ -49,9 +49,9 @@ public final class SoloTunnelAuto {
         Pose lExitBack = p.of(56.5, 103, 270);
         Pose rExitBack = p.of(57.5, 34, 270);
         Pose flowerL = p.of(47.36, 127.59, 90);
+        Pose flowerLIn = p.of(47.36, 121.79, 90);
         Pose flowerLTurn = p.of(47.36, 119.29, 90);
-        Pose lLook = p.of(38, 124, 180);
-        Pose lLookBack = p.of(57.5, 121, 270);
+        Pose rowIn = p.of(34.6, 112, 90);
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose rBack = p.of(59, 11, 90);
@@ -70,21 +70,18 @@ public final class SoloTunnelAuto {
         Pose gardenToRBackSegment1Start = p.of(59, 11, 270);
         Pose rHomeToPark_2Control1 = p.of(24, 24, 0);
         Pose rHomeToPark_2Control2 = p.of(24, 85, 0);
-        Pose lHomeToLLookControl1 = p.of(59, 121, 0);
-        Pose lHomeToLLookSegment1Heading = p.of(38, 124, 270);
-        Pose lHomeToLLookSegment2Start = p.of(38, 124, 270);
-        Pose lLookToLLookBackSegment1Heading = p.of(57.5, 121, 180);
-        Pose lLookToLLookBackSegment2Start = p.of(57.5, 121, 180);
-        Pose lLookBackToLHomeControl1 = p.of(59, 123, 0);
-        Pose lLookToFlowerLTurnControl1 = p.of(38, 119.29, 0);
-        Pose lLookToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 180);
-        Pose lLookToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 180);
+        Pose lHomeToRowInControl1 = p.of(57.5, 114, 0);
+        Pose lHomeToRowInSegment1Heading = p.of(34.6, 112, 270);
+        Pose lHomeToRowInSegment2Start = p.of(34.6, 112, 270);
+        Pose rowInToLHomeControl1 = p.of(57.5, 114, 0);
+        Pose rowInToLHomeSegment1Heading = p.of(59, 131.75, 90);
+        Pose rowInToLHomeSegment2Start = p.of(59, 131.75, 90);
         Pose flowerLToFlowerLBackLHomeSegment1Heading = p.of(57.5, 119.29, 90);
         Pose flowerLToFlowerLBackLHomeSegment2Start = p.of(57.5, 119.29, 90);
         Pose flowerLBackLHomeToLHomeControl1 = p.of(59, 121.29, 0);
-        Pose lLookToLLookBack_2Segment1Heading = p.of(57.5, 121, 180);
-        Pose lLookToLLookBack_2Segment2Start = p.of(57.5, 121, 180);
-        Pose lLookBackToLHome_2Control1 = p.of(59, 123, 0);
+        Pose rowInToLHome_2Control1 = p.of(57.5, 114, 0);
+        Pose rowInToLHome_2Segment1Heading = p.of(59, 131.75, 90);
+        Pose rowInToLHome_2Segment2Start = p.of(59, 131.75, 90);
         Pose lHomeToFlowerLTurnControl1 = p.of(59, 119.29, 0);
         Pose lHomeToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 270);
         Pose lHomeToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
@@ -109,17 +106,15 @@ public final class SoloTunnelAuto {
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToRBack = Paths.curve(garden, gardenToRBackControl1, rBack).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRBackSegment1Start, rBack)).until(1, Interpolator.constant(rBack)));
         Path rHomeToParkPath = Paths.curve(rBack, rHomeToPark_2Control1, rHomeToPark_2Control2, park).linear(rBack, park);
-        Path lHomeToLLook = Paths.curve(lHome, lHomeToLLookControl1, lLook).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lHomeToLLookSegment1Heading)).until(1, Interpolator.linear(lHomeToLLookSegment2Start, lLook)));
-        Path lLookToLLookBack = Paths.line(lLook, lLookBack).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(lLookToLLookBackSegment1Heading)).until(1, Interpolator.linear(lLookToLLookBackSegment2Start, lLookBack)));
-        Path lLookBackToLHome = Paths.curve(lLookBack, lLookBackToLHomeControl1, lHome).constant(lHome);
-        Path lLookToFlowerLTurn = Paths.curve(lLook, lLookToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lLookToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(lLookToFlowerLTurnSegment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
+        Path lHomeToRowIn = Paths.curve(lHome, lHomeToRowInControl1, rowIn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(lHomeToRowInSegment1Heading)).until(0.8, Interpolator.linear(lHomeToRowInSegment2Start, rowIn)).until(1, Interpolator.constant(rowIn)));
+        Path rowInToLHome = Paths.curve(rowIn, rowInToLHomeControl1, lHome).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowInToLHomeSegment1Heading)).until(0.8, Interpolator.linear(rowInToLHomeSegment2Start, lHome)).until(1, Interpolator.constant(lHome)));
+        Path rowInToFlowerLIn = Paths.line(rowIn, flowerLIn).constant(flowerLIn);
+        Path flowerLInToFlowerL = Paths.line(flowerLIn, flowerL).constant(flowerL);
         Path flowerLToFlowerLBackLHome = Paths.line(flowerL, flowerLBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackLHomeSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackLHomeSegment2Start, flowerLBackLHome)));
         Path flowerLBackLHomeToLHome = Paths.curve(flowerLBackLHome, flowerLBackLHomeToLHomeControl1, lHome).constant(lHome);
-        Path lLookToLLookBackPath = Paths.line(lLook, lLookBack).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(lLookToLLookBack_2Segment1Heading)).until(1, Interpolator.linear(lLookToLLookBack_2Segment2Start, lLookBack)));
-        Path lLookBackToLHomePath = Paths.curve(lLookBack, lLookBackToLHome_2Control1, lHome).constant(lHome);
+        Path rowInToLHomePath = Paths.curve(rowIn, rowInToLHome_2Control1, lHome).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowInToLHome_2Segment1Heading)).until(0.8, Interpolator.linear(rowInToLHome_2Segment2Start, lHome)).until(1, Interpolator.constant(lHome)));
         Path lHomeToFlowerLTurn = Paths.curve(lHome, lHomeToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lHomeToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(lHomeToFlowerLTurnSegment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerLPath = Paths.line(flowerLTurn, flowerL).constant(flowerL);
+        Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
         Path flowerLToFlowerLBackLHomePath = Paths.line(flowerL, flowerLBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackLHome_2Segment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackLHome_2Segment2Start, flowerLBackLHome)));
         Path flowerLBackLHomeToLHomePath = Paths.curve(flowerLBackLHome, flowerLBackLHomeToLHome_2Control1, lHome).constant(lHome);
         Path lHomeToParkL = Paths.curve(lHome, lHomeToParkLControl1, lHomeToParkLControl2, lHomeToParkLControl3, lHomeToParkLControl4, lHomeToParkLControl5, lHomeToParkLControl6, parkL).constant(parkL);
@@ -168,24 +163,22 @@ public final class SoloTunnelAuto {
                                                         kit.path("R_HOME to PARK", rHomeToParkPath))))),
                         kit.afterMs(2500).then(
                                 kit.guarded("No: top up here", lHomeToParkL, 2.6,
-                                        kit.path("L_HOME to L_LOOK", lHomeToLLook),
-                                        kit.firstOf("Loose pieces in view?", kit.command("CollectSeen"),
+                                        kit.path("L_HOME to ROW_IN", lHomeToRowIn),
+                                        kit.firstOf("Pick up the row", kit.command("CollectSeen"),
                                                 kit.when("IntakeFull").then(
-                                                        kit.path("L_LOOK to L_LOOK_BACK", lLookToLLookBack),
-                                                        kit.path("L_LOOK_BACK to L_HOME", lLookBackToLHome)),
+                                                        kit.path("ROW_IN to L_HOME", rowInToLHome)),
                                                 kit.afterMs(2500).then(
                                                         kit.firstOf("Got any?",
                                                                 kit.when("Empty").then(
-                                                                        kit.path("L_LOOK to FLOWER_L_TURN", lLookToFlowerLTurn),
-                                                                        kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerL),
+                                                                        kit.path("ROW_IN to FLOWER_L_IN", rowInToFlowerLIn),
+                                                                        kit.path("FLOWER_L_IN to FLOWER_L", flowerLInToFlowerL),
                                                                         kit.firstOf("Collect at the far FLOWER",
                                                                                 kit.when("IntakeFull"),
                                                                                 kit.afterMs(2300)),
                                                                         kit.path("FLOWER_L to FLOWER_L_BACK_L_HOME", flowerLToFlowerLBackLHome),
                                                                         kit.path("FLOWER_L_BACK_L_HOME to L_HOME", flowerLBackLHomeToLHome)),
                                                                 kit.afterMs(100).then(
-                                                                        kit.path("L_LOOK to L_LOOK_BACK", lLookToLLookBackPath),
-                                                                        kit.path("L_LOOK_BACK to L_HOME", lLookBackToLHomePath))))),
+                                                                        kit.path("ROW_IN to L_HOME", rowInToLHomePath))))),
                                         kit.firstOf("Fire again (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),
@@ -193,7 +186,7 @@ public final class SoloTunnelAuto {
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(100).then(
                                                         kit.path("L_HOME to FLOWER_L_TURN", lHomeToFlowerLTurn),
-                                                        kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerLPath),
+                                                        kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerL),
                                                         kit.firstOf("Collect at the far FLOWER (2)",
                                                                 kit.when("IntakeFull"),
                                                                 kit.afterMs(2300)),

@@ -42,19 +42,16 @@ public final class PartnerLeaveParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(24, 132.25, 270);
-        Pose slideP = p.of(10.5, 131, 270);
-        Pose parkP = p.of(10.5, 111, 270);
-        Pose parkP2 = p.of(10.5, 110, 270);
+        Pose parkP = p.of(10.5, 110, 270);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToParkPControl1 = p.of(24, 118, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToSlideP = Paths.line(start, slideP).constant(slideP);
-        Path slidePToParkP = Paths.line(slideP, parkP).constant(parkP);
-        Path parkPToParkP2 = Paths.line(parkP, parkP2).linear(parkP, parkP2);
+        Path startToParkP = Paths.curve(start, startToParkPControl1, parkP).constant(parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", parkPToParkP2, 0.4,
-                        kit.path("START to SLIDE_P", startToSlideP),
-                        kit.path("SLIDE_P to PARK_P", slidePToParkP),
-                        kit.path("PARK_P to PARK_P2", parkPToParkP2)));
+                kit.guarded("Auto", startToParkP, 1.8,
+                        kit.path("START to PARK_P", startToParkP)));
     }
 }

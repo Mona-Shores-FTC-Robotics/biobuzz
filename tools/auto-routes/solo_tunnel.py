@@ -27,7 +27,7 @@ def solo(name="solo-tunnel", speed=50, park=True):
     r.pt("R_HOME", *R_HOME).pt("L_HOME", *L_HOME).pt("L_EXIT", *L_EXIT)
     r.pt("L_EXIT_BACK", 56.5, 103, 270).pt("R_EXIT_BACK", 57.5, 34, 270)
     flower_points(r, "FLOWER_L", FAR_FLOWER_AT, 90)
-    r.pt("L_LOOK", 38, 124, 180).pt("L_LOOK_BACK", 57.5, 121, 270)
+    r.pt("ROW_IN", 34.6, 112, 90)  # below the partner's staged row (x 34.6, y 128.6-137), facing it
     r.pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
     r.pt("R_BACK", 59, 11, 90)  # home again after the GARDEN (a path needs two ends)
     r.pt("PARK", 15, 90, 90)  # the near end of the LOADING ZONE; the partner takes the far end
@@ -66,22 +66,22 @@ def solo(name="solo-tunnel", speed=50, park=True):
     early.append(r.wait("TIP 3 yet?", when=["LeftCellUp"], ms=1000, yes=park_right(), no=garden,
                         yes_label="Yes", no_label="No: the GARDEN"))
 
-    # Plan B, no TIP 2 yet: look west with the webcam for what the partner staged, fire whatever
-    # we got (a partner stages only 4 and the catcher misses some, so "full" is rare), then the
-    # far FLOWER once if the CELL still hasn't tipped.
-    def back():
-        r.at = "L_LOOK"
-        return [r.go("L_LOOK_BACK", turn_after=0.3, turn_by=1.0), r.go("L_HOME", ctrl=[(59, 123)], heading=270)]
-
+    # Plan B, no TIP 2 yet: the partner only left, and set its preloads in a row along its field
+    # side. Swing round to below the row and drive up it intake first (mentor review: face them
+    # before you reach them), come back the same way, and fire whatever we got; then the far
+    # FLOWER once if the CELL still hasn't tipped (straight up from below the row, no turn).
     r.at = "L_HOME"
-    late = [r.go("L_LOOK", ctrl=[(59, 121)], turn_after=0.5, turn_by=1.0)]  # south first: the FLOWER is beside home
-    full, some = back(), back()
-    r.at = "L_LOOK"
+    late = [r.go("ROW_IN", ctrl=[(57.5, 114)], turn_after=0.2, turn_by=0.8)]
+    def home():  # back the way we came
+        r.at = "ROW_IN"
+        return [r.go("L_HOME", ctrl=[(57.5, 114)], turn_after=0.2, turn_by=0.8)]
+    full, some = home(), home()
+    r.at = "ROW_IN"
     none = [*flower(r, "FLOWER_L", "Collect at the far FLOWER", ms=1800), *leave_flower(r, "FLOWER_L", "L_HOME")]
-    late.append(r.wait("Loose pieces in view?", when=["IntakeFull"], ms=2500, alongside="CollectSeen",
-                       yes=full, yes_label="Full: back", no_label="Time up",
+    late.append(r.wait("Pick up the row", when=["IntakeFull"], ms=2500, alongside="CollectSeen",
+                       yes=full, yes_label="Full: home", no_label="Time up",
                        no=[r.wait("Got any?", when=["Empty"], ms=100, yes=none, no=some,
-                                  yes_label="None: the far FLOWER", no_label="Some: back")]))
+                                  yes_label="None: the far FLOWER", no_label="Some: home")]))
     r.at = "L_HOME"
     late.append(fire(r, "Fire again (TIP 2)", "RightCellUp", ms=2500))
     r.at = "L_HOME"

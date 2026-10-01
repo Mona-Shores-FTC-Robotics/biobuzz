@@ -20,10 +20,10 @@ public final class ThreeTipAdaptiveAuto {
     public static final String SOURCE = "three-tip-adaptive.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "LaunchOne"};
+    public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp", "Tip"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -106,16 +106,9 @@ public final class ThreeTipAdaptiveAuto {
 
         return kit.sequence(
                 kit.guarded("Auto", rightShotToPark, 2.4,
-                        kit.command("LaunchOne"),
-                        kit.command("LaunchOne"),
-                        kit.command("LaunchOne"),
-                        kit.firstOf("Tip 1?",
-                                kit.when("Tip"),
-                                kit.afterMs(2000).then(
-                                        kit.command("LaunchOne"),
-                                        kit.firstOf("Tip 1 (4th POLLEN)",
-                                                kit.when("Tip"),
-                                                kit.afterMs(1500)))),
+                        kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
+                                kit.when("Empty"),
+                                kit.afterMs(4000)),
                         kit.path("START to WALL_FLOWER_TURN", startToWallFlowerTurn),
                         kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
                         kit.firstOf("Collect at WALL_FLOWER",

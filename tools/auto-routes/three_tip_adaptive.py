@@ -8,9 +8,9 @@ def adaptive(name="three-tip-adaptive", speed=50):
     r.pt("RIGHT_PLUNGE_IN", 55, 24, 270).pt("RIGHT_PLUNGE", 55, 10.5, 270).pt("RIGHT_SHOT", 36, 30, 49)
     r.pt("GARDEN", 8.5, 11, 270).pt("PARK", 15, 89.5, 90)  # near end of the LOADING ZONE; the partner takes the far end
     right_cps = [(34, 92), (12, 60), (22, 30)]
-    tip1 = r.wait("Tip 1?", when=["Tip"], ms=2000, yes_label="Yes", no_label="No",
-                  no=[r.action("LaunchOne"), r.wait("Tip 1 (4th POLLEN)", when=["Tip"], ms=1500)])
-    r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"), tip1,
+    # All 4 preloads, and away the moment the last is in the air: this Auto doesn't catch the TIP 1
+    # spill, so it has nothing to wait for (mentor review).
+    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000),
           *flower(r, "WALL_FLOWER", "Collect at WALL_FLOWER", ms=1500),
           r.go("LEFT_SHOT", turn_after=0.4, turn_by=1.0),
           r.action("LaunchAll"),
