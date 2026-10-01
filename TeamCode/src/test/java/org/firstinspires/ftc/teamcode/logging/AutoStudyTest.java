@@ -15,10 +15,10 @@ import java.util.Map;
  * alliance) with their drivetrain speed:
  *
  * <pre>
- * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoSouthAuto,DuoNorthAuto@60" \
+ * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoRightAuto,DuoLeftAuto@60" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
- * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10). PartnerThreeTipAuto gets its standing partner.
+ * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
  */
 public class AutoStudyTest {
 
@@ -36,21 +36,113 @@ public class AutoStudyTest {
         RobotDesign twin = RobotDesign.springHood().copy("two spring hoods");
         twin.launchers = 2;
         m.put(twin.name, twin);
+        m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
+        RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
+        catcher.intakeWidthIn = 24;
+        m.put(catcher.name, catcher);
+        RobotDesign twinCatcher = twin.copy("two spring hoods, 24 in catcher");
+        twinCatcher.intakeWidthIn = 24;
+        m.put(twinCatcher.name, twinCatcher);
+        RobotDesign twinFull = twin.copy("two spring hoods, full-width intake");
+        twinFull.intakeWidthIn = 18;
+        m.put(twinFull.name, twinFull);
+        RobotDesign dedicated = twinCatcher.copy("POLLEN + NECTAR launchers, 24 in catcher");
+        dedicated.dedicatedLaunchers = true;
+        m.put(dedicated.name, dedicated);
+        // A catapult throws everything it holds at once; laid out in a pattern across a wide arm its
+        // pieces spread less and collide less than a plain one's. Re-cocking stands in for spin-up.
+        RobotDesign cat = RobotDesign.springHood().copy("patterned catapult, 24 in catcher");
+        cat.launcher = RobotDesign.Launcher.CATAPULT;
+        cat.fixedPitchDeg = 60;
+        cat.spinUpS = 0.8;
+        cat.catapultSpread = 1.0;
+        cat.catapultSideIn = 4.5;
+        cat.intakeWidthIn = 24;
+        m.put(cat.name, cat);
+        RobotDesign plainCat = cat.copy("plain catapult, 24 in catcher");
+        plainCat.catapultSpread = 2.0;
+        plainCat.catapultSideIn = 2.5;
+        m.put(plainCat.name, plainCat);
+        // As a real arm throws: the clump shares one error and stays together (see catapultClump).
+        RobotDesign clumpCat = cat.copy("clump catapult, 24 in catcher");
+        clumpCat.catapultClump = true;
+        m.put(clumpCat.name, clumpCat);
+        // Steeper, so it drops into the opening from where the spring-hood Autos fire (31-44 in back).
+        RobotDesign steepCat = clumpCat.copy("clump catapult 72 deg, 24 in catcher");
+        steepCat.fixedPitchDeg = 72;
+        m.put(steepCat.name, steepCat);
+        RobotDesign triangle = steepCat.copy("clump catapult 72 deg, triangle cup");
+        triangle.catapultCup = RobotDesign.Cup.TRIANGLE;
+        m.put(triangle.name, triangle);
+        // What could flip the catapult's result: the clump not staying together, a slow re-cock, the angle off.
+        RobotDesign loose = steepCat.copy("clump catapult 72 deg, loose clump");
+        loose.catapultResidual = 1.0;
+        m.put(loose.name, loose);
+        RobotDesign slowCock = steepCat.copy("clump catapult 72 deg, 1.5 s re-cock");
+        slowCock.spinUpS = 1.5;
+        m.put(slowCock.name, slowCock);
+        for (double deg : new double[] {68, 76}) {
+            RobotDesign off = steepCat.copy("clump catapult " + (int) deg + " deg, 24 in catcher");
+            off.fixedPitchDeg = deg;
+            m.put(off.name, off);
+        }
+        // Mentor review: would a turret, an intake at the back, or no piece counter change the answer?
+        RobotDesign turret = twinCatcher.copy("two spring hoods, 24 in catcher, turret");
+        turret.launcher = RobotDesign.Launcher.TURRET;
+        m.put(turret.name, turret);
+        RobotDesign back = twinCatcher.copy("two spring hoods, 24 in catcher, intake at back");
+        back.intakeAtBack = true;
+        m.put(back.name, back);
+        RobotDesign blind = twinCatcher.copy("two spring hoods, 24 in catcher, no piece counter");
+        blind.countsPieces = false;
+        m.put(blind.name, blind);
+        // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
+        for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle}) {
+            RobotDesign c = base.copy(base.name + ", POLLEN only");
+            c.launchesNectar = false;
+            m.put(c.name, c);
+        }
+        for (RobotDesign base : new RobotDesign[] {catcher, twinCatcher}) {
+            RobotDesign c = base.copy(base.name + ", fires on the move");
+            c.compensatesMotion = true;
+            m.put(c.name, c);
+        }
         return m;
     }
+
+    /**
+     * Where partner-leave-park sets its 4 preloads: a row along the field side of a robot at
+     * (24, 132.25) facing the HIVE, so it can drive straight off to park without going round them
+     * (mentor review), and we can drive up the row intake first.
+     */
+    static final double[][] LEAVE_PARTNER_STAGED = {{34.6, 128.6}, {34.6, 131.4}, {34.6, 134.2}, {34.6, 137.0}};
 
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
+        // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
+        String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
+        return run(spec, design, pd == null ? null : designs().get(pd), ps == null ? Double.NaN : Double.parseDouble(ps), seed, file);
+    }
+
+    /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
+    static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
+            throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         String[] autos = at[0].split(",");
         Class<?> first = Class.forName(PKG + autos[0]);
         AutoSim sim = new AutoSim(first, Alliance.RED, seed).speed(speed, speed * 0.9).design(design);
         if (first == PartnerThreeTipAuto.class) {
-            sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
+            sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
-        if (autos.length > 1) sim.alsoRun(Class.forName(PKG + autos[1])).speed(speed, speed * 0.9).design(design);
+        if (autos.length > 1) {
+            double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
+            Class<?> second = Class.forName(PKG + autos[1]);
+            sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
+            if (second.getSimpleName().equals("PartnerLeaveParkAuto")) sim.stagesPreloads(LEAVE_PARTNER_STAGED);
+        }
         return sim.write(file);
     }
 
@@ -68,10 +160,19 @@ public class AutoStudyTest {
                 double[] sum = new double[8];
                 double points = 0, load = 0, held = 0;
                 int parked = 0, robots = 0, problems = 0;
-                for (long seed = 1; seed <= runs; seed++) {
+                // BIOBUZZ_AUTO_SEEDS="6,18": only these seeds (to write one run's log), instead of 1..runs.
+                String seedList = System.getenv("BIOBUZZ_AUTO_SEEDS");
+                long[] seeds = seedList != null
+                        ? java.util.Arrays.stream(seedList.split(",")).mapToLong(Long::parseLong).toArray()
+                        : java.util.stream.LongStream.rangeClosed(1, runs).toArray();
+                runs = seeds.length;
+                for (long seed : seeds) {
                     File file = new File(TeamCodeDir.simLogs(), "study-" + spec.replaceAll("[^A-Za-z0-9]+", "-")
                             + "-" + e.getKey().replaceAll("[^A-Za-z0-9]+", "-") + "-" + seed + ".wpilog");
                     AutoSim.Result r = run(spec, e.getValue(), seed, file);
+                    if (System.getenv("BIOBUZZ_AUTO_PER_SEED") != null) {
+                        System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
+                    }
                     String tl = System.getenv("BIOBUZZ_AUTO_TIMELINE");
                     if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : Long.parseLong(tl) == seed)) {
                         System.out.println("STUDY   seed " + seed + ": " + r);
@@ -89,7 +190,7 @@ public class AutoStudyTest {
                     for (AutoSim.RobotResult robot : r.robots) {
                         robots++;
                         if (robot.leave && robot.park) parked++;
-                        if (!Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)) {
+                        if (!Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt) || !Double.isNaN(robot.hitFlowerAt)) {
                             if (problems++ == 0) System.out.println("STUDY   first problem: " + robot);
                         }
                     }

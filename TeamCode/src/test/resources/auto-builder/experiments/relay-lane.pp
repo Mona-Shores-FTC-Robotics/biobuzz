@@ -2,14 +2,14 @@
   "startPoint": {
     "x": 59,
     "y": 132.25,
-    "name": "START_N",
+    "name": "START_L",
     "headingDeg": 270
   },
   "lines": [
     {
       "id": "to-flower-n-1",
       "color": "#3cc8e4",
-      "name": "START_N to FLOWER_N",
+      "name": "START_L to FLOWER_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -27,9 +27,9 @@
       }
     },
     {
-      "id": "to-north-shot-2",
+      "id": "to-left-shot-2",
       "color": "#3cc8e4",
-      "name": "FLOWER_N to NORTH_SHOT",
+      "name": "FLOWER_L to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -47,9 +47,9 @@
       }
     },
     {
-      "id": "to-north-back-3",
+      "id": "to-left-back-3",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to NORTH_BACK",
+      "name": "LEFT_SHOT to LEFT_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -67,9 +67,9 @@
       }
     },
     {
-      "id": "to-south-shot-4",
+      "id": "to-right-shot-4",
       "color": "#3cc8e4",
-      "name": "NORTH_BACK to SOUTH_SHOT",
+      "name": "LEFT_BACK to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -92,9 +92,9 @@
       }
     },
     {
-      "id": "to-south-back-5",
+      "id": "to-right-back-5",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to SOUTH_BACK",
+      "name": "RIGHT_SHOT to RIGHT_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -112,9 +112,9 @@
       }
     },
     {
-      "id": "to-north-shot-6",
+      "id": "to-left-shot-6",
       "color": "#3cc8e4",
-      "name": "SOUTH_BACK to NORTH_SHOT",
+      "name": "RIGHT_BACK to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -137,9 +137,9 @@
       }
     },
     {
-      "id": "to-north-back-7",
+      "id": "to-left-back-7",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to NORTH_BACK",
+      "name": "LEFT_SHOT to LEFT_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -157,9 +157,9 @@
       }
     },
     {
-      "id": "to-south-shot-8",
+      "id": "to-right-shot-8",
       "color": "#3cc8e4",
-      "name": "NORTH_BACK to SOUTH_SHOT",
+      "name": "LEFT_BACK to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -182,9 +182,9 @@
       }
     },
     {
-      "id": "to-south-back-9",
+      "id": "to-right-back-9",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to SOUTH_BACK",
+      "name": "RIGHT_SHOT to RIGHT_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -202,9 +202,9 @@
       }
     },
     {
-      "id": "to-north-shot-10",
+      "id": "to-left-shot-10",
       "color": "#3cc8e4",
-      "name": "SOUTH_BACK to NORTH_SHOT",
+      "name": "RIGHT_BACK to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -227,9 +227,9 @@
       }
     },
     {
-      "id": "to-north-back-11",
+      "id": "to-left-back-11",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to NORTH_BACK",
+      "name": "LEFT_SHOT to LEFT_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -249,7 +249,7 @@
     {
       "id": "to-park-b-12",
       "color": "#3cc8e4",
-      "name": "NORTH_BACK to PARK_B",
+      "name": "LEFT_BACK to PARK_B",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -348,43 +348,43 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-2"
+      "lineId": "to-left-shot-2"
     },
     {
       "kind": "path",
-      "lineId": "to-north-back-3"
+      "lineId": "to-left-back-3"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-4"
+      "lineId": "to-right-shot-4"
     },
     {
       "kind": "path",
-      "lineId": "to-south-back-5"
+      "lineId": "to-right-back-5"
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-6"
+      "lineId": "to-left-shot-6"
     },
     {
       "kind": "path",
-      "lineId": "to-north-back-7"
+      "lineId": "to-left-back-7"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-8"
+      "lineId": "to-right-shot-8"
     },
     {
       "kind": "path",
-      "lineId": "to-south-back-9"
+      "lineId": "to-right-back-9"
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-10"
+      "lineId": "to-left-shot-10"
     },
     {
       "kind": "path",
-      "lineId": "to-north-back-11"
+      "lineId": "to-left-back-11"
     },
     {
       "kind": "path",
@@ -455,32 +455,32 @@
       ]
     },
     "points": {
-      "START_N": [
+      "START_L": [
         59,
         132.25,
         270
       ],
-      "FLOWER_N": [
+      "FLOWER_L": [
         47.4,
         130.5,
         90
       ],
-      "NORTH_SHOT": [
+      "LEFT_SHOT": [
         32,
         120,
         300
       ],
-      "NORTH_BACK": [
+      "LEFT_BACK": [
         30,
         126,
         0
       ],
-      "SOUTH_SHOT": [
+      "RIGHT_SHOT": [
         32,
         24,
         60
       ],
-      "SOUTH_BACK": [
+      "RIGHT_BACK": [
         30,
         16,
         0
@@ -492,20 +492,20 @@
       ]
     },
     "pathEnds": {
-      "to-flower-n-1": "FLOWER_N",
-      "to-north-shot-2": "NORTH_SHOT",
-      "to-north-back-3": "NORTH_BACK",
-      "to-south-shot-4": "SOUTH_SHOT",
-      "to-south-back-5": "SOUTH_BACK",
-      "to-north-shot-6": "NORTH_SHOT",
-      "to-north-back-7": "NORTH_BACK",
-      "to-south-shot-8": "SOUTH_SHOT",
-      "to-south-back-9": "SOUTH_BACK",
-      "to-north-shot-10": "NORTH_SHOT",
-      "to-north-back-11": "NORTH_BACK",
+      "to-flower-n-1": "FLOWER_L",
+      "to-left-shot-2": "LEFT_SHOT",
+      "to-left-back-3": "LEFT_BACK",
+      "to-right-shot-4": "RIGHT_SHOT",
+      "to-right-back-5": "RIGHT_BACK",
+      "to-left-shot-6": "LEFT_SHOT",
+      "to-left-back-7": "LEFT_BACK",
+      "to-right-shot-8": "RIGHT_SHOT",
+      "to-right-back-9": "RIGHT_BACK",
+      "to-left-shot-10": "LEFT_SHOT",
+      "to-left-back-11": "LEFT_BACK",
       "to-park-b-12": "PARK_B"
     },
-    "startAt": "START_N",
+    "startAt": "START_L",
     "cards": [
       {
         "id": "a-1",
@@ -590,7 +590,7 @@
       {
         "id": "p-7",
         "kind": "path",
-        "lineId": "to-north-shot-2",
+        "lineId": "to-left-shot-2",
         "park": false
       },
       {
@@ -648,7 +648,7 @@
       {
         "id": "p-11",
         "kind": "path",
-        "lineId": "to-north-back-3",
+        "lineId": "to-left-back-3",
         "park": false
       },
       {
@@ -723,7 +723,7 @@
       {
         "id": "p-16",
         "kind": "path",
-        "lineId": "to-south-shot-4",
+        "lineId": "to-right-shot-4",
         "park": false
       },
       {
@@ -781,7 +781,7 @@
       {
         "id": "p-20",
         "kind": "path",
-        "lineId": "to-south-back-5",
+        "lineId": "to-right-back-5",
         "park": false
       },
       {
@@ -856,7 +856,7 @@
       {
         "id": "p-25",
         "kind": "path",
-        "lineId": "to-north-shot-6",
+        "lineId": "to-left-shot-6",
         "park": false
       },
       {
@@ -914,7 +914,7 @@
       {
         "id": "p-29",
         "kind": "path",
-        "lineId": "to-north-back-7",
+        "lineId": "to-left-back-7",
         "park": false
       },
       {
@@ -989,7 +989,7 @@
       {
         "id": "p-34",
         "kind": "path",
-        "lineId": "to-south-shot-8",
+        "lineId": "to-right-shot-8",
         "park": false
       },
       {
@@ -1047,7 +1047,7 @@
       {
         "id": "p-38",
         "kind": "path",
-        "lineId": "to-south-back-9",
+        "lineId": "to-right-back-9",
         "park": false
       },
       {
@@ -1122,7 +1122,7 @@
       {
         "id": "p-43",
         "kind": "path",
-        "lineId": "to-north-shot-10",
+        "lineId": "to-left-shot-10",
         "park": false
       },
       {
@@ -1180,7 +1180,7 @@
       {
         "id": "p-47",
         "kind": "path",
-        "lineId": "to-north-back-11",
+        "lineId": "to-left-back-11",
         "park": false
       },
       {

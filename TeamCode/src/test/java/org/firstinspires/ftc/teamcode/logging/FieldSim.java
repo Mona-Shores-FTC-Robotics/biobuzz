@@ -78,6 +78,14 @@ final class FieldSim {
     static final int PRELOAD_POLLEN = 4;
     /** How far a rocker must swing off its stop before its TIP counts as started. */
     static final double TIP_STARTED_RAD = Math.toRadians(5);
+    /**
+     * The dampers at each end of the rocker (mentor review: the TIP looked too fast at the end): in
+     * the last few degrees before a stop the swing slows to this fraction. The calibration still
+     * makes a whole TIP take its measured time, so the middle of the swing is quicker to match.
+     * Placeholders until the TIP is filmed (issue #147).
+     */
+    static final double PLACEHOLDER_DAMPER_ZONE_RAD = Math.toRadians(6);
+    static final double PLACEHOLDER_DAMPER_FACTOR = 0.3;
 
     // ---- Placeholders: not published, replace with measurements -------------------------------
 
@@ -106,7 +114,27 @@ final class FieldSim {
      * a conclusion survives the guesses being wrong. 1 is the placeholder itself.
      */
     static double frictionScale = 1;
+    /** Scales every bounce (tiles, walls, robots, the HIVE, other pieces), for testing what the guesses change. */
+    static double bounceScale = 1;
+    /** Scales how fast a loaded rocker swings over, for the same reason. */
+    static double swingScale = 1;
+
+    static double bounce(double e) {
+        return Math.min(0.95, e * bounceScale);
+    }
     static double spreadScale = 1;
+    /**
+     * How untidy spills are (mentor review: pieces ended up lined against the wall). 1 = the
+     * placeholders below, 0 = none. Each piece rolls with its own resistance, the tiles are slightly
+     * uneven, and a piece leaving a CELL gets a small random kick and spin. Drawn from its own
+     * random stream, so the shots of a seed are unchanged.
+     */
+    static double spillVariety = 1;
+    static final double PLACEHOLDER_ROLL_SPREAD = 0.35;
+    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 3.0;
+    static final double PLACEHOLDER_SPILL_KICK_IN_PER_S = 4.0;
+    /** Robots' restitution on its own, apart from bounceScale (mentor review). */
+    static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
 
     /** AndyMark's masses: POLLEN 0.055 lb, NECTAR 0.091 lb. */
@@ -194,6 +222,10 @@ final class FieldSim {
         int flower = -1;
         /** The CELL it is in, or null. */
         HiveCell cell;
+        /** This piece's rolling resistance relative to the placeholder (pieces differ; see spillVariety). */
+        double rollScale = 1;
+        /** An intake that just failed to grab it does not try again before this time. */
+        double rejectedUntil = -1;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -309,7 +341,11 @@ final class FieldSim {
     final Rocker red = new Rocker(Alliance.RED, RED_HIVE_X_IN);
     final Rocker blue = new Rocker(Alliance.BLUE, BLUE_HIVE_X_IN);
     private final Rocker[] rockers = {red, blue};
-    private final Random random;
+    final Random random;
+    /** Spill and catch variety, apart from {@link #random} so a seed's shots do not change. */
+    private final Random variety;
+    /** A gentle unevenness per 12 in square of tiles: the sideways pull, in/s². */
+    private final double[][][] tileSlope = new double[12][12][2];
     private final List<String> events = new ArrayList<>();
 
     /**
@@ -408,9 +444,18 @@ final class FieldSim {
     FieldSim(List<HiveAssets.StagedPiece> staged, long seed, Physics physics) {
         this.physics = physics;
         random = new Random(seed);
+        variety = new Random(seed * 7919L + 13);
+        for (int i = 0; i < tileSlope.length; i++) {
+            for (int j = 0; j < tileSlope[i].length; j++) {
+                double a = variety.nextDouble() * 2 * Math.PI, m = variety.nextDouble() * PLACEHOLDER_TILE_SLOPE_IN_PER_S2;
+                tileSlope[i][j][0] = m * Math.cos(a);
+                tileSlope[i][j][1] = m * Math.sin(a);
+            }
+        }
         for (HiveAssets.StagedPiece s : staged) {
             Piece p = new Piece(Kind.of(s.kind), s.holder.equals("outside") ? Where.OUTSIDE : Where.FIELD, s.x, s.y, s.z);
             if (s.holder.equals("flower")) p.flower = flowerIndex(s.x, s.y);
+            p.rollScale = Math.exp(PLACEHOLDER_ROLL_SPREAD * variety.nextGaussian());
             pieces.add(p);
         }
         for (Piece p : pieces) updateCell(p);
@@ -533,6 +578,11 @@ final class FieldSim {
      */
     void stagePartner(Alliance alliance, double[] pose, double[][] spots) {
         parkedRobots.add(pose);
+        stagePreloads(alliance, spots);
+    }
+
+    /** Puts the next of the alliance's preloaded POLLEN on the tiles at {@code spots}. */
+    void stagePreloads(Alliance alliance, double[][] spots) {
         double wallX = alliance == Alliance.BLUE ? FIELD_SIZE_IN : 0;
         int i = 0;
         for (Piece p : pieces) {
@@ -550,6 +600,24 @@ final class FieldSim {
     /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
     static boolean underHive(double x, double y) {
         return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
+    }
+
+    /**
+     * A FLOWER holder's footprint radius, in: a tube around a 2.8 in POLLEN. Not published; measure
+     * one. The bottom POLLEN comes out of its retrieval opening, so an intake takes it with the
+     * robot's front against the tube.
+     */
+    static final double PLACEHOLDER_FLOWER_RADIUS_IN = 2.0;
+
+    /** Whether an {@code size}-square robot at {@code (x, y, heading)} overlaps any FLOWER holder. */
+    boolean hitsFlower(double x, double y, double heading, double size) {
+        double c = Math.cos(heading), s = Math.sin(heading), half = size / 2;
+        for (double[] f : flowers) {
+            double lx = (f[0] - x) * c + (f[1] - y) * s, ly = -(f[0] - x) * s + (f[1] - y) * c;
+            double dx = Math.max(0, Math.abs(lx) - half), dy = Math.max(0, Math.abs(ly) - half);
+            if (dx * dx + dy * dy < PLACEHOLDER_FLOWER_RADIUS_IN * PLACEHOLDER_FLOWER_RADIUS_IN) return true;
+        }
+        return false;
     }
 
     /**
@@ -680,18 +748,22 @@ final class FieldSim {
         List<Piece> stored = bot.stored;
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
+        from[2] += volleyUpIn;
         double[] v = Double.isNaN(bot.design.fixedPitchDeg)
                 ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
                 : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
-        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
-        speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
-        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
+        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * noise(0);
+        if (!bot.design.dedicatedLaunchers) {
+            speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
+        }
+        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(1);
         double c = Math.cos(yaw), s = Math.sin(yaw);
-        double vx = (v[0] * c - v[1] * s) * speed + bot.vx;
-        double vy = (v[0] * s + v[1] * c) * speed + bot.vy;
-        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian());
+        double carried = bot.design.compensatesMotion ? 0 : 1;
+        double vx = (v[0] * c - v[1] * s) * speed + carried * bot.vx;
+        double vy = (v[0] * s + v[1] * c) * speed + carried * bot.vy;
+        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(2));
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
         p.x = from[0];
@@ -704,6 +776,19 @@ final class FieldSim {
         p.wy = -12;
         p.wz = 0;
         return new double[] {vx, vy, vz};
+    }
+
+    /**
+     * A catapult's throw: while set, every piece launched shares these three errors (speed, yaw,
+     * pitch, in standard deviations) plus {@link #volleyResidual} of its own, and leaves
+     * {@link #volleyUpIn} higher than a single shot (the clump's second layer).
+     */
+    double[] volleyNoise;
+    double volleyResidual = 1;
+    double volleyUpIn = 0;
+
+    private double noise(int k) {
+        return volleyNoise == null ? random.nextGaussian() : volleyNoise[k] + volleyResidual * random.nextGaussian();
     }
 
     /** The arc a piece launched with {@code v} from {@code from} follows until it comes down to {@code floorZ}. */
@@ -754,7 +839,7 @@ final class FieldSim {
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
                     if (bot.present && bot.intaking && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)
-                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) taker = bot;
+                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2]) && grabs(bot, p)) taker = bot;
                 }
                 if (taker != null) {
                     capture(taker, p);
@@ -769,7 +854,15 @@ final class FieldSim {
                 for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
                 contact |= collideField(p);
                 if (p.flower >= 0) holdInFlower(p);
-                if (contact) applyFriction(p, h);
+                if (contact) {
+                    applyFriction(p, h);
+                    // Uneven tiles move a rolling piece; one at rest stays put (static friction).
+                    if (p.z < p.kind.radius + 0.3 && p.cell == null && spillVariety > 0 && Math.hypot(p.vx, p.vy) > 1) {
+                        double[] g = tileSlope[(int) Math.max(0, Math.min(11, p.x / 12))][(int) Math.max(0, Math.min(11, p.y / 12))];
+                        p.vx += g[0] * spillVariety * h;
+                        p.vy += g[1] * spillVariety * h;
+                    }
+                }
                 updateCell(p);
             }
         }
@@ -790,7 +883,10 @@ final class FieldSim {
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
         } else {
-            r.rate = torque / hold * physics.swingRadPerS;
+            r.rate = torque / hold * physics.swingRadPerS * swingScale;
+            if (Math.signum(r.rate) == Math.signum(r.angle) && TILT_RAD - Math.abs(r.angle) < PLACEHOLDER_DAMPER_ZONE_RAD) {
+                r.rate *= PLACEHOLDER_DAMPER_FACTOR;
+            }
             r.angle = Math.max(-TILT_RAD, Math.min(TILT_RAD, r.angle + r.rate * h));
         }
         boolean settledNow = Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12;
@@ -841,7 +937,7 @@ final class FieldSim {
                 b.z += nz * push * ma;
                 double vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny + (b.vz - a.vz) * nz;
                 if (vn < 0) {
-                    double e = vn > -RESTING_IN_PER_S ? 0 : PLACEHOLDER_PIECE_RESTITUTION;
+                    double e = vn > -RESTING_IN_PER_S ? 0 : bounce(PLACEHOLDER_PIECE_RESTITUTION);
                     double j2 = -(1 + e) * vn / (1 / ma + 1 / mb);
                     a.vx -= j2 * nx / ma;
                     a.vy -= j2 * ny / ma;
@@ -914,7 +1010,7 @@ final class FieldSim {
         p.x = pos[0];
         p.y = pos[1];
         p.z = pos[2];
-        bounce(p, n, 0, pvy, pvz, PLACEHOLDER_HIVE_RESTITUTION);
+        bounce(p, n, 0, pvy, pvz, bounce(PLACEHOLDER_HIVE_RESTITUTION));
         return true;
     }
 
@@ -923,7 +1019,7 @@ final class FieldSim {
         for (int side = -1; side <= 1; side += 2) {
             double cx = CENTRE_IN + side * FOOT_BAR_HALF_SPAN_X_IN;
             hit |= box(p, cx, CENTRE_IN, 0, FOOT_BAR_HALF_WIDTH_IN, FOOT_BAR_HALF_LENGTH_IN, FOOT_BAR_HEIGHT_IN,
-                    0, 0, 0, PLACEHOLDER_HIVE_RESTITUTION);
+                    0, 0, 0, bounce(PLACEHOLDER_HIVE_RESTITUTION));
         }
         return hit;
     }
@@ -931,13 +1027,13 @@ final class FieldSim {
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         double half = bot.design.frameIn / 2;
         return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
-                PLACEHOLDER_ROBOT_RESTITUTION);
+                bounce(robotRestitution));
     }
 
     private boolean collideParked(Piece p, double[] at) {
         double half = ROBOT_SIZE_IN / 2;
         return box(p, at[0], at[1], at[2], half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, 0, 0, 0,
-                PLACEHOLDER_ROBOT_RESTITUTION);
+                bounce(robotRestitution));
     }
 
     /**
@@ -994,28 +1090,28 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
-            if (p.vz < 0) p.vz = -p.vz * physics.tileRestitution;
+            if (p.vz < 0) p.vz = -p.vz * bounce(physics.tileRestitution);
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
         }
         if (p.x < r) {
             p.x = r;
-            if (p.vx < 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vx < 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.x > FIELD_SIZE_IN - r) {
             p.x = FIELD_SIZE_IN - r;
-            if (p.vx > 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vx > 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.y < r) {
             p.y = r;
-            if (p.vy < 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vy < 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.y > FIELD_SIZE_IN - r) {
             p.y = FIELD_SIZE_IN - r;
-            if (p.vy > 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vy > 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         return hit;
@@ -1049,7 +1145,7 @@ final class FieldSim {
     private static void applyFriction(Piece p, double h) {
         double speed = Math.hypot(p.vx, p.vy);
         double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * frictionScale * h)
-                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * h);
+                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;
@@ -1091,6 +1187,23 @@ final class FieldSim {
         return time - lastCaptureAt >= design.intakeIntervalS;
     }
 
+    /**
+     * Whether the intake holds on to a piece that reached it (mentor review: catching was perfect).
+     * Too fast relative to the robot and it bounces off; otherwise it is kept with the design's grab
+     * chance, and one that got away is not tried again for 0.3 s. Pieces in a FLOWER are pulled out
+     * by the intake, so always held.
+     */
+    private boolean grabs(Bot bot, Piece p) {
+        if (p.flower >= 0) return true;
+        if (time < p.rejectedUntil) return false;
+        double rel = Math.hypot(p.vx - bot.vx, p.vy - bot.vy);
+        if (rel > bot.design.intakeMaxSpeedInPerS || variety.nextDouble() > bot.design.intakeGrabChance) {
+            p.rejectedUntil = time + 0.3;
+            return false;
+        }
+        return true;
+    }
+
     private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
@@ -1121,7 +1234,15 @@ final class FieldSim {
         }
         if (now != p.cell) {
             if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
-            if (now == null && p.cell != null) events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+            if (now == null && p.cell != null) {
+                events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+                if (spillVariety > 0 && variety != null) {
+                    double k = PLACEHOLDER_SPILL_KICK_IN_PER_S * spillVariety;
+                    p.vx += k * variety.nextGaussian();
+                    p.vy += k * variety.nextGaussian();
+                    p.wz += 6 * spillVariety * variety.nextGaussian();
+                }
+            }
             p.cell = now;
         }
     }

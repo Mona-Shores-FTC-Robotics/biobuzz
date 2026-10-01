@@ -1,0 +1,4 @@
+# adaptive-with-partner: our three-tip-adaptive with a partner that fires its preloads and parks.
+# One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner.
+auto-builder/three-tip-adaptive.pp
+auto-builder/partners/partner-preloads-park.pp

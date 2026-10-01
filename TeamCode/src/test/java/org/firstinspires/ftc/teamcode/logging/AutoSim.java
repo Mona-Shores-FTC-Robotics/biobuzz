@@ -42,7 +42,9 @@ import java.util.Locale;
  *       true once the alliance's HIVE has started to tip since the wait began, as the robot's
  *       {@code HiveTracker} reports it, but from the simulation's truth rather than a camera.</li>
  *   <li><b>The other robot</b> ({@link #alsoRun}): an alliance's second robot can run its own Auto on
- *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d}. Both are
+ *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d} and both
+ *       robots together as {@link FieldRobot#ALL_3D}. A partner that stands still
+ *       ({@link #partner}) is logged the same way. Both are
  *       judged for LEAVE and AUTO PARK when AUTO ends (§10.5.4), and the run notes it if they ever
  *       overlap or one reaches into the other alliance's half (G402).</li>
  * </ul>
@@ -61,6 +63,14 @@ public final class AutoSim {
      * 30 s can still score its TIP.
      */
     static final double AFTER_S = 8.0;
+    /**
+     * Disabled time on each side of the run, robots standing where they are, so AdvantageScope's
+     * timeline has room to grab the start and the end. AUTO starts at {@code PRE_ROLL_S} in the log.
+     */
+    static final double PRE_ROLL_S = 10.0;
+    static final double POST_ROLL_S = 7.0;
+    /** How often the {@code /Match/} clock is logged. */
+    static final double CLOCK_STEP_S = 0.1;
 
     // Drivetrain profile: the Visualizer log's defaults. A robot that is not tuned yet; the Auto
     // Builder previews at 60 in/s and 55 in/s², which {@link #speed} can set.
@@ -76,9 +86,16 @@ public final class AutoSim {
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
     static final double CAMERA_HALF_FOV_RAD = Math.toRadians(35);
+    /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
+    static final double MAX_SHOT_RANGE_IN = 60;
     static final double CAMERA_RANGE_IN = 60;
     /** CollectSeen keeps within this far of where it started, so it does not wander off. */
     static final double COLLECT_RADIUS_IN = 36;
+    /**
+     * With nothing in view, CollectSeen turns this far to look before giving up (mentor review: a
+     * full turn on the spot looked lost, and a webcam already sees 70 deg).
+     */
+    static final double LOOK_AROUND_RAD = Math.toRadians(90);
 
     /** What one robot did in a run. */
     static final class RobotResult {
@@ -101,6 +118,8 @@ public final class AutoSim {
         double crossedAt = Double.NaN;
         /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
         double hitHiveAt = Double.NaN;
+        /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
+        double hitFlowerAt = Double.NaN;
 
         RobotResult(String auto) {
             this.auto = auto;
@@ -113,7 +132,9 @@ public final class AutoSim {
                     leave ? "yes" : "no", park ? "yes" : "no", (Double.isNaN(crossedAt) ? ""
                             : String.format(Locale.ROOT, ", CROSSES THE CENTRE LINE at %.1f s", crossedAt))
                             + (Double.isNaN(hitHiveAt) ? ""
-                            : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt)));
+                            : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt))
+                            + (Double.isNaN(hitFlowerAt) ? ""
+                            : String.format(Locale.ROOT, ", DRIVES INTO A FLOWER at %.1f s", hitFlowerAt)));
         }
     }
 
@@ -234,6 +255,15 @@ public final class AutoSim {
         return this;
     }
 
+    /**
+     * This robot sets its 4 preloaded POLLEN on the tiles at {@code spots} (RED-drawn), touching its
+     * front, instead of carrying them (G304, §10.3.4): a partner leaving them for us to collect.
+     */
+    AutoSim stagesPreloads(double[][] spots) {
+        configuring.stagedPreloads = spots;
+        return this;
+    }
+
     /** Sets the drivetrain's top speed and acceleration, in/s and in/s². */
     AutoSim speed(double maxInPerS, double accelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;
@@ -288,6 +318,26 @@ public final class AutoSim {
         }
     }
 
+    /**
+     * The match clock at {@code t} seconds after AUTO starts (negative before it), for reading the
+     * time in AdvantageScope: {@code /Match/Time}, {@code /Match/AutoTimeLeft} and a {@code /Match/Clock}
+     * line such as "AUTO 21.5 s, 8.5 left".
+     */
+    private static void putClock(WpiLog log, double t) throws IOException {
+        long us = Math.round((PRE_ROLL_S + t) * 1e6);
+        double auto = AutoKit.AUTO_LENGTH_S;
+        double tenths = Math.round(t * 10) / 10.0;
+        double left = Math.round(Math.max(0, Math.min(auto, auto - t)) * 10) / 10.0;
+        String clock;
+        if (t < 0) clock = String.format(Locale.ROOT, "BEFORE AUTO %.1f s", tenths);
+        else if (t < auto) clock = String.format(Locale.ROOT, "AUTO %.1f s, %.1f left", tenths, left);
+        else if (t <= auto + AFTER_S) clock = String.format(Locale.ROOT, "AFTER AUTO %.1f s (TIPs finishing still count)", tenths);
+        else clock = String.format(Locale.ROOT, "DONE %.1f s", tenths);
+        log.put("/Match/Time", tenths, us);
+        log.put("/Match/AutoTimeLeft", left, us);
+        log.put("/Match/Clock", clock, us);
+    }
+
     private String runName() {
         StringBuilder sb = new StringBuilder();
         for (Bot b : bots) sb.append(sb.length() == 0 ? "" : " + ").append(name(b.autoClass));
@@ -310,10 +360,23 @@ public final class AutoSim {
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
+        // Every robot on the field, in FieldRobot slot order: the ones running Autos, then a
+        // partner that stands still. Logged together each loop so AdvantageScope can show them all.
+        if (partnerPose != null && bots.size() > 1) {
+            throw new IllegalStateException("an alliance has two robots: a standing partner and two Autos is three");
+        }
+        int robots = bots.size() + (partnerPose != null ? 1 : 0);
+        double[] allRobots = new double[3 * robots];
+        String[] what = new String[robots];
+        for (Bot b : bots) what[b.index] = name(b.autoClass);
         if (partnerPose != null) {
             double[][] spots = new double[partnerSpots.length][];
             for (int i = 0; i < spots.length; i++) spots[i] = forAlliance(partnerSpots[i], red);
-            sim.stagePartner(alliance, forAlliance(partnerPose, red), spots);
+            double[] standing = forAlliance(partnerPose, red);
+            sim.stagePartner(alliance, standing, spots);
+            System.arraycopy(standing, 0, allRobots, 3 * bots.size(), 3);
+            what[bots.size()] = "stands still";
+            FieldRobot.slot(bots.size()).putPose(log, standing[0], standing[1], standing[2], 0);
         }
 
         log.putMetadata("Generator", "AutoSim (TeamCode test sources)");
@@ -321,6 +384,7 @@ public final class AutoSim {
         log.putMetadata("Note", "Simulated robot: Pedro paths on a trapezoid profile, intake on whenever there"
                 + " is room, launches aimed at the raised CELL");
         FieldSimLog.putMetadata(log, calibration);
+        FieldRobot.putViewingHint(log, robots, what);
         log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(red, 1), 0);
         FieldSimLog.putHiveStructure(log);
 
@@ -328,14 +392,30 @@ public final class AutoSim {
         for (Bot b : bots) b.start(log, result.robots.get(b.index));
 
         FieldSimLog fieldLog = new FieldSimLog();
-        log.put(AdvantageScopeKeys.ENABLED, true, 0);
+        // Pre-roll: the field as it starts, disabled, before AUTO begins at PRE_ROLL_S.
+        log.put(AdvantageScopeKeys.ENABLED, false, 0);
         log.put(AdvantageScopeKeys.AUTONOMOUS, true, 0);
-        log.put(AdvantageScopeKeys.ROBOT_MODE, "autonomous", 0);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", 0);
+        for (Bot b : bots) b.putStill(log, 0);
+        if (robots > 1) {
+            for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
+            FieldRobot.putAll(log, allRobots, 0);
+        }
+        fieldLog.write(log, sim, 0);
+        putClock(log, -PRE_ROLL_S);
+        long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
+        log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "autonomous", autoStartUs);
+        log.putEvent("AUTO starts", autoStartUs);
         int tipsSeen = 0;
         boolean scored = false;
         for (long step = 0; step * LOOP_S <= AutoKit.AUTO_LENGTH_S + AFTER_S; step++) {
             now = step * LOOP_S;
-            long us = Math.round(now * 1e6);
+            long us = Math.round((PRE_ROLL_S + now) * 1e6);
+            if (step % Math.round(CLOCK_STEP_S / LOOP_S) == 0) putClock(log, now);
+            if (Math.abs(now - AutoKit.AUTO_LENGTH_S) < LOOP_S / 2) {
+                log.putEvent("AUTO ends (TIPs that finish in the next 8 s still count)", us);
+            }
             boolean running = now < AutoKit.AUTO_LENGTH_S;
             if (running) {
                 boolean any = false;
@@ -350,6 +430,10 @@ public final class AutoSim {
             for (Bot b : bots) b.afterScheduler(log, result.robots.get(b.index), running, us);
             for (Bot b : bots) b.launcher(log, result, us);
             for (Bot b : bots) b.move(log, result.robots.get(b.index), running, step, us);
+            if (robots > 1) {
+                for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
+                FieldRobot.putAll(log, allRobots, us);
+            }
             if (bots.size() > 1 && Double.isNaN(result.robotsCollidedAt) && overlap(bots.get(0), bots.get(1))) {
                 result.robotsCollidedAt = now;
                 log.putEvent("ROBOTS COLLIDE: the two paths cross at the same time", us);
@@ -380,9 +464,16 @@ public final class AutoSim {
         RobotResult first = result.robots.get(0);
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
-        long end = Math.round((AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
+        long end = Math.round((PRE_ROLL_S + AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, false, end);
+        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", end);
         log.putEvent(result.toString(), end);
+        // Post-roll: everything stays where it ended, so the end is easy to grab on the timeline.
+        double last = AutoKit.AUTO_LENGTH_S + AFTER_S + POST_ROLL_S;
+        long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
+        for (Bot b : bots) b.putStill(log, lastUs);
+        fieldLog.write(log, sim, lastUs);
+        putClock(log, last);
         Scheduler.reset();
         return result;
     }
@@ -424,9 +515,13 @@ public final class AutoSim {
         RobotDesign design = RobotDesign.standard();
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
         double[] zone;
+        /** Where this robot sets its preloads on the tiles, drawn for RED; null to carry them. */
+        double[][] stagedPreloads;
         FieldSim.Bot body;
         Command auto;
         final List<String> pending = new ArrayList<>();
+        /** Which robot this is in the log: its keys. */
+        final FieldRobot robot;
         String keyPrefix;
         double[] prev;
         Path lastPath;
@@ -434,6 +529,8 @@ public final class AutoSim {
         double spinStartedAt;
         boolean intakeEnabled = true;
         boolean firing;
+        /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
+        boolean streaming;
         int shotsFired;
         int shotTarget;
         double nextShotAt;
@@ -441,13 +538,23 @@ public final class AutoSim {
         Bot(Class<?> autoClass, int index) {
             this.autoClass = autoClass;
             this.index = index;
+            this.robot = FieldRobot.slot(index);
         }
 
         void start(WpiLog log, RobotResult result) throws IOException {
             body = index == 0 ? sim.main : sim.addBot();
             body.design = design;
-            sim.preload(body, alliance);
-            keyPrefix = index == 0 ? "" : "/Partner";
+            if (stagedPreloads == null) {
+                sim.preload(body, alliance);
+            } else {
+                double[][] spots = new double[stagedPreloads.length][];
+                for (int i = 0; i < spots.length; i++) spots[i] = forAlliance(stagedPreloads[i], alliance == Alliance.RED);
+                sim.stagePreloads(alliance, spots);
+                // A robot that sets its preloads down has no use for its intake, which would only
+                // pick them straight back up (mentor review).
+                intakeEnabled = false;
+            }
+            keyPrefix = robot.prefix;
             String drawnFor;
             String[] commands;
             String[] triggers;
@@ -499,6 +606,7 @@ public final class AutoSim {
             if (!running) {
                 spinning = false;
                 firing = false;
+                streaming = false;
             }
             for (String line : pending) {
                 result.decisions.add(line);
@@ -510,7 +618,7 @@ public final class AutoSim {
 
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
-            if (!firing || !launcherReady() || body.stored.isEmpty()) return;
+            if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             double[] aim = sim.rocker(alliance).aimPoint();
             double yawError = 0;
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
@@ -521,12 +629,49 @@ public final class AutoSim {
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
+            // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
+            // pieces at the far CELL from home). The real LaunchAll needs the same check.
+            double[] here = pedro(drive.pose);
+            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > MAX_SHOT_RANGE_IN) return;
+            // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
+            // once nearly stopped, unless it is streaming on purpose.
+            if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
-            for (int i = 0; i < volley && !body.stored.isEmpty() && shotsFired < shotTarget; i++) {
-                double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? 2.5 : 6.0);
+            boolean dedicated = design.dedicatedLaunchers && !catapult;
+            boolean clump = catapult && design.catapultClump;
+            if (clump) {
+                sim.volleyNoise = new double[] {sim.random.nextGaussian(), sim.random.nextGaussian(), sim.random.nextGaussian()};
+                sim.volleyResidual = design.catapultResidual;
+            }
+            // A catapult throws everything in its cup once a volley starts: LaunchOne on it is a whole
+            // volley too (mentor review), but no new volley starts once the command has its count.
+            for (int i = 0; i < volley && !body.stored.isEmpty() && (streaming || (catapult && i > 0) || shotsFired < shotTarget); i++) {
+                if (dedicated) {
+                    // Launcher 0 takes POLLEN, launcher 1 NECTAR: bring that kind to the front, or skip.
+                    boolean wantPollen = i == 0;
+                    int pick = -1;
+                    for (int k = 0; k < body.stored.size() && pick < 0; k++) {
+                        if ((body.stored.get(k).kind == FieldSim.Kind.POLLEN) == wantPollen) pick = k;
+                    }
+                    if (pick < 0) continue;
+                    body.stored.add(0, body.stored.remove(pick));
+                }
+                double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? design.catapultSideIn : 6.0);
+                if (clump) {
+                    // A NECTAR's width apart plus a little, so nothing starts overlapping: 2 by 2, or a
+                    // triangle (3 across the bottom of the cup, 1 nested on top).
+                    double pitch = 2 * FieldSim.NECTAR_RADIUS_IN + 0.2;
+                    if (design.catapultCup == RobotDesign.Cup.TRIANGLE) {
+                        side = i < 3 ? (i - 1) * pitch : 0;
+                        sim.volleyUpIn = i < 3 ? 0 : pitch * Math.sqrt(3) / 2;
+                    } else {
+                        side = ((i % 2) - 0.5) * pitch;
+                        sim.volleyUpIn = (i / 2) * pitch;
+                    }
+                }
                 double[] from = body.exitPoint(side);
-                double[] v = sim.launch(body, aim, yawError, side, catapult ? 2.0 : 1.0);
+                double[] v = sim.launch(body, aim, yawError, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);
                 if (v == null) break;
                 result.robots.get(index).launched++;
                 shotsFired++;
@@ -535,6 +680,8 @@ public final class AutoSim {
                         + new String[] {"left", "center", "right"}[lane], us);
                 lane = (lane + 1) % 3;
             }
+            sim.volleyNoise = null;
+            sim.volleyUpIn = 0;
             if (lastArc != null) log.putPose3dArray(FieldSimLog.KEY_SHOT, FieldSim.trajectory(lastArc), us);
             nextShotAt = now + (catapult ? design.spinUpS : design.shotIntervalS);
         }
@@ -556,6 +703,10 @@ public final class AutoSim {
                     }
                 }
             }
+            if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn)) {
+                result.hitFlowerAt = now;
+                log.putEvent(tag() + "drives into a FLOWER", us);
+            }
             if (running && Double.isNaN(result.crossedAt)) {
                 for (double[] c : corners(pose, design.frameIn)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
@@ -567,18 +718,24 @@ public final class AutoSim {
                 }
             }
 
-            String odometry = index == 0 ? "/Odometry/Robot" : "/Odometry/Partner";
-            SimulatedMatch.putPedroPose(log, odometry, pose, us);
-            log.putPose3dFlat(odometry + "3d", AdvantageScopeFrame.xMeters(pose[0], pose[1]),
-                    AdvantageScopeFrame.yMeters(pose[0], pose[1]), 0.0, AdvantageScopeFrame.headingRad(pose[2]), us);
-            if (drive.current != lastPath) {
+            robot.putPose(log, pose[0], pose[1], pose[2], us);
+            if (drive.current != lastPath || step == 0) {
+                // Logged on the first loop too, so a robot that never drives still has the key.
                 lastPath = drive.current;
-                log.putPose2dArray(index == 0 ? "/Path/Active" : "/Path/Partner",
+                log.putPose2dArray(robot.activePath,
                         lastPath == null ? new double[0] : packed(lastPath), us);
             }
             log.put(keyPrefix + "/Launcher/Spinning", spinning, us);
             log.put(keyPrefix + "/Intake/On", intaking, us);
             if (step % 10 == 0) result.poses.add(pose);
+        }
+
+        /** The robot standing where it is, for the disabled time before and after the run. */
+        void putStill(WpiLog log, long us) throws IOException {
+            double[] pose = pedro(drive.pose);
+            robot.putPose(log, pose[0], pose[1], pose[2], us);
+            log.put(keyPrefix + "/Launcher/Spinning", false, us);
+            log.put(keyPrefix + "/Intake/On", false, us);
         }
 
         /** LEAVE and AUTO PARK, from where the robot is as AUTO ends. */
@@ -607,9 +764,15 @@ public final class AutoSim {
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
+                    .command("StreamOn", 0.1, () -> Commands.instant(() -> {
+                        spinUp();
+                        streaming = true;
+                        nextShotAt = Math.max(nextShotAt, now);
+                    }))
+                    .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
-                    .trigger("IntakeFull", () -> body.stored.size() >= FieldSim.ROBOT_CAPACITY)
+                    .trigger("IntakeFull", () -> design.countsPieces && body.stored.size() >= FieldSim.ROBOT_CAPACITY)
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
                         FieldSim.Rocker hive = sim.rocker(alliance);
@@ -622,7 +785,7 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
-                    .trigger("Empty", () -> body.stored.isEmpty())
+                    .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
                     .trigger("CameraBlind", () -> false);
         }
 
@@ -666,15 +829,24 @@ public final class AutoSim {
                         target[0] = nearestSeen(origin);
                         if (target[0] != null) {
                             driveOnto(target[0]);
-                        } else if (drive.pathDone() && lookedAround[0] < 2 * Math.PI) {
+                        } else if (drive.pathDone() && lookedAround[0] < LOOK_AROUND_RAD && canTurnHere()) {
                             // Nothing in view: turn on the spot to look around.
                             drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
                     .setDone(() -> body.stored.size() >= FieldSim.ROBOT_CAPACITY
-                            || (target[0] == null && lookedAround[0] >= 2 * Math.PI))
+                            || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
                     .setEnd(end -> drive.hold(drive.pose));
+        }
+
+        /** Whether the robot can turn on the spot here: its corners sweep a circle about 0.71 frames wide. */
+        private boolean canTurnHere() {
+            double[] at = pedro(drive.pose);
+            double reach = design.frameIn / Math.sqrt(2);
+            if (at[0] < reach + 1 || at[1] < reach + 1 || at[0] > FieldSim.FIELD_SIZE_IN - reach - 1
+                    || at[1] > FieldSim.FIELD_SIZE_IN - reach - 1) return false;
+            return !sim.hitsFlower(at[0], at[1], 0, 2 * reach);
         }
 
         private FieldSim.Piece nearestSeen(double[] origin) {
@@ -704,7 +876,11 @@ public final class AutoSim {
             return best;
         }
 
-        /** Whether driving onto {@code p} would put the robot into the HIVE frame's feet. */
+        /**
+         * Whether driving onto {@code p} would put the robot into the HIVE frame's feet, a FLOWER, or
+         * against a wall (mentor review: it chased pieces into the far FLOWER and lost LEAVE on the
+         * wall). The real CollectSeen needs the same rule.
+         */
         private boolean approachHitsFrame(FieldSim.Piece p, double[] at) {
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double mouth = design.frameIn / 2 + design.intakeReachIn;
@@ -712,7 +888,11 @@ public final class AutoSim {
                     design.intakeAtBack ? bearing + Math.PI : bearing};
             for (double f = 0; f <= 1.0001; f += 0.25) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
-                for (double[] c : corners(mid, design.frameIn)) if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                if (sim.hitsFlower(mid[0], mid[1], mid[2], design.frameIn)) return true;
+                for (double[] c : corners(mid, design.frameIn)) {
+                    if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                    if (c[0] < 1 || c[1] < 1 || c[0] > FieldSim.FIELD_SIZE_IN - 1 || c[1] > FieldSim.FIELD_SIZE_IN - 1) return true;
+                }
             }
             return false;
         }
@@ -767,9 +947,27 @@ public final class AutoSim {
         private double leadIn;
         private double leadFromX, leadFromY;
         private boolean done = true;
+        /**
+         * Pedro's follower does not stop dead at the end of a path: it reports the path finished as it
+         * brakes into the end, and a path started straight after carries the robot's speed on. So a
+         * path is done within this far of its end (and facing its way), the robot keeps braking to the
+         * end point if nothing follows, and a following path starts at the speed it had, projected
+         * onto the new direction. (Mentor review, 1 Oct 2026: the old dead stop was pessimistic.)
+         */
+        static final double JOIN_IN = 4.0;
+        /** The launcher waits until the robot has nearly stopped, as it did when paths stopped dead. */
+        static final double FIRE_SPEED_IN_PER_S = 6.0;
+        private double entrySpeed;
+        private double speedNow;
+        private double dirX, dirY;
 
         @Override
         public void follow(Path path) {
+            // Carry the current speed into the new path, as far as it points the same way.
+            Pose a = path.get(0), b = path.get(0.02);
+            double tx = b.x() - a.x(), ty = b.y() - a.y(), tn = Math.hypot(tx, ty);
+            double along = tn < 1e-9 ? 0 : (dirX * tx + dirY * ty) / tn;
+            entrySpeed = Math.max(0, speedNow * along);
             current = path;
             startedAt = Double.NaN; // starts on the next tick
             length = path.curve.length();
@@ -780,7 +978,9 @@ public final class AutoSim {
             if (leadIn < 1) leadIn = 0;
             leadFromX = pose.x();
             leadFromY = pose.y();
+            if (leadIn > 0) entrySpeed = 0;
             done = false;
+            aimHeading = Double.NaN;
         }
 
         @Override
@@ -801,16 +1001,31 @@ public final class AutoSim {
         @Override
         public void hold(Pose target) {
             current = null;
+            speedNow = 0;
             done = true;
         }
 
         void tick(double now) {
-            if (current == null || done) return;
+            if (current == null) {
+                speedNow = 0;
+                return;
+            }
             if (Double.isNaN(startedAt)) startedAt = now;
             double total = leadIn + length;
-            double s = distanceAt(now - startedAt, total, maxSpeed, accel);
+            double s = distanceAt(now - startedAt, total, maxSpeed, accel, entrySpeed);
+            double px = pose.x(), py = pose.y();
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= total - 1e-6;
+            if (done && arrived) {
+                // Braked to the end with nothing following: stand still, square to the path's end.
+                speedNow = 0;
+                Pose end = current.get(1);
+                // Square to the path's end, unless the launcher has since turned it to aim (mentor
+                // review: squaring back undid every aiming turn, so a robot 2.4 deg off never fired).
+                double want = Double.isNaN(aimHeading) ? end.heading() : aimHeading;
+                pose = new Pose(end.x(), end.y(), turned(pose.heading(), want, maxTurn * LOOP_S));
+                return;
+            }
             Pose goal;
             if (s < leadIn) {
                 Pose start = current.get(0);
@@ -823,11 +1038,23 @@ public final class AutoSim {
             }
             double heading = turned(pose.heading(), goal.heading(), maxTurn * LOOP_S);
             pose = new Pose(goal.x(), goal.y(), heading);
-            if (arrived && Math.abs(AdvantageScopeFrame.wrap(goal.heading() - heading)) < Math.toRadians(1)) done = true;
+            double mx = pose.x() - px, my = pose.y() - py, moved = Math.hypot(mx, my);
+            speedNow = moved / LOOP_S;
+            if (moved > 1e-9) {
+                dirX = mx / moved;
+                dirY = my / moved;
+            }
+            Pose end = current.get(1);
+            boolean facing = Math.abs(AdvantageScopeFrame.wrap(end.heading() - heading)) < Math.toRadians(arrived ? 1 : 5);
+            if (!done && facing && (arrived || total - s <= JOIN_IN)) done = true;
         }
 
         /** Turns in place toward {@code target} for {@code dt} seconds (an aim); only while idle. */
+        /** The heading the launcher last turned toward since the last path started; NaN if none. */
+        double aimHeading = Double.NaN;
+
         void turnToward(double target, double dt) {
+            aimHeading = target;
             pose = new Pose(pose.x(), pose.y(), turned(pose.heading(), target, maxTurn * dt));
         }
 
@@ -837,6 +1064,20 @@ public final class AutoSim {
         }
 
         /** Distance along a rest-to-rest trapezoid {@code t} seconds in. */
+        /** As {@link #distanceAt(double, double, double, double)}, starting at speed {@code v0}. */
+        static double distanceAt(double t, double length, double v, double a, double v0) {
+            if (v0 <= 1e-9) return distanceAt(t, length, v, a);
+            v0 = Math.min(v0, Math.min(v, Math.sqrt(2 * a * length))); // can always stop by the end
+            double peak = Math.min(v, Math.sqrt(a * length + v0 * v0 / 2));
+            double tUp = (peak - v0) / a, sUp = (peak * peak - v0 * v0) / (2 * a);
+            double sDown = peak * peak / (2 * a), tDown = peak / a;
+            double tCruise = Math.max(0, (length - sUp - sDown) / peak);
+            if (t <= tUp) return v0 * t + 0.5 * a * t * t;
+            if (t <= tUp + tCruise) return sUp + peak * (t - tUp);
+            double td = Math.min(t - tUp - tCruise, tDown);
+            return Math.min(length, sUp + peak * tCruise + peak * td - 0.5 * a * td * td);
+        }
+
         static double distanceAt(double t, double length, double v, double a) {
             double peak = Math.min(v, Math.sqrt(length * a));
             double tRamp = peak / a, sRamp = peak * peak / (2 * a);

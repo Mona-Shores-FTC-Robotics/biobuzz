@@ -1263,6 +1263,17 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
    BIOBUZZ_FIELD3D=/path/to/that/Field3d_folder ./gradlew :TeamCode:testDebugUnitTest --tests '*HiveAssetsTest*'
    ```
    It writes `TeamCode/build/advantagescope/Field3d_BIOBUZZHiveSim` and `Robot_BIOBUZZHive`.
+   On Windows (PowerShell), where AdvantageScope keeps `autoAssets` and `userAssets` under
+   `%APPDATA%\AdvantageScope`:
+   ```
+   Get-ChildItem "$env:APPDATA\AdvantageScope\autoAssets" -Recurse -Filter config.json |
+     Select-String '2026-2027 Field' | Select-Object -ExpandProperty Path
+   $env:BIOBUZZ_FIELD3D = "<the folder holding that config.json>"
+   .\gradlew.bat :TeamCode:testDebugUnitTest --tests "*HiveAssetsTest*" -i
+   Copy-Item -Recurse -Force TeamCode\build\advantagescope\Field3d_BIOBUZZHiveSim, TeamCode\build\advantagescope\Robot_BIOBUZZHive "$env:APPDATA\AdvantageScope\userAssets\"
+   ```
+   Without `BIOBUZZ_FIELD3D` the test skips itself and the build still says it succeeded; look for
+   the `Wrote …` line.
 3. Copy both folders into `userAssets` and restart AdvantageScope. A field called
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
@@ -1278,6 +1289,12 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
 | `/Sim/GamePieces/RedNectar`, `…/Held/RedNectar` | Game Piece, **Nectar (Red)** |
 | `/Sim/GamePieces/BlueNectar`, `…/Held/BlueNectar` | Game Piece, **Nectar (Blue)** |
 | `/Sim/Shot/Trajectory` | Trajectory |
+
+Two things trip people up. Pick **2026-2027 Field (HIVE sim)** in the field dropdown; the stock
+field still has its own fixed HIVE, so you see two. And drop `/Sim/Hive/Components` *onto the
+`/Sim/Hive/Structure` row* (it indents under it); dropped anywhere else, AdvantageScope offers only
+game-piece types. Or skip the dragging: **File → Import Layout** with `sim-review/advantagescope-layout.json`
+(saved from AdvantageScope 27.0.0-alpha-6) sets up all of it.
 
 As soon as any game piece is shown, AdvantageScope hides the field's own staged pieces, so
 the logged ones replace them rather than doubling them. Without component poses the rockers are
@@ -1397,7 +1414,8 @@ What that says, as far as a simulation full of guesses can:
 - **Shooting faster is worth about 3 s**, by two launchers or a quicker one. Those 3 s would be the
   margin for a missed shot or a slower drivetrain. Rapid volleys sometimes knock pieces back out of the
   CELL, though (9/10, and 5–7/10 with less friction); a real HIVE would settle that.
-- **A catapult throws badly.** The whole load leaves at once with more spread, and pieces collide.
+- **A catapult throws badly** *(superseded: see "Which results hold" below; at 60° it was firing
+  from too close)*.
 - **Launch NECTAR, and launch it as well as POLLEN.** No solo three-tip works without it: tip 3 is
   built from spilled NECTAR. The launcher has to handle both sizes (2.8 in and 3.6 in) and NECTAR's 1.65×
   weight. One that throws NECTAR short ruins the spill routes.
@@ -1432,11 +1450,39 @@ Rules the routes and designs lean on, from the Competition Manual:
 
 `AutoSim.alsoRun` puts the alliance's second robot on the same field, running its own exported
 Auto at the same time. `AllianceAutoTest` runs the pair below and writes
-`TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog`. In AdvantageScope's 3D field, add
-`/Odometry/Robot3d` and `/Odometry/Partner3d` as two robots. The Console has both Autos' decisions
+`TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog`. The Console has both Autos' decisions
 (`auto:` and `auto2:`), and the run says if the robots ever overlap or one reaches into the other
 alliance's half (G402). Both are judged for LEAVE (off the wall) and AUTO PARK (partly in the
-LOADING ZONE) when AUTO ends (§10.5.4).
+LOADING ZONE) when AUTO ends (§10.5.4). A partner that stands still (`AutoSim.partner`) is logged as
+a robot too.
+
+**Seeing both robots in AdvantageScope.** Every log with more than one robot uses the same keys
+(`logging/FieldRobot`), and its Metadata tab says which robot is which:
+
+| Robot | Pose (3D field) | Path being driven | Mechanisms |
+|---|---|---|---|
+| Ours | `/Odometry/Robot3d` | `/Path/Active` | at the root (`/Intake/On`) |
+| Our partner | `/Odometry/Partner3d` | `/Path/Partner` | under `/Partner` |
+| The other alliance's | `/Odometry/OpponentA3d`, `/Odometry/OpponentB3d` | `/Path/OpponentA` | under `/OpponentA` |
+| All of them | `/Odometry/AllRobots3d` (one array) | | |
+
+On the 3D Field tab, drag `/Odometry/AllRobots3d` onto the field as a Robot: every robot appears at
+once. To tell them apart, drag `/Odometry/Robot3d` as a Robot and `/Odometry/Partner3d` as a Ghost
+(pick its colour). On the 2D Field tab, `/Odometry/AllRobots` does the same. Save that as a layout
+once and every duo log opens the same way.
+
+**Two `.pp` files as one log, without the simulation.** A text file in
+`src/test/resources/pedro-paths/together/` names `.pp` files (relative to `src/test/resources/`) that
+run at the same time: our robot first, then our partner, then up to two opponents. Each robot drives
+its own paths, as the Visualizer times them, from the moment AUTO starts.
+
+```
+./gradlew :TeamCode:testDebugUnitTest --tests '*VisualizerPathLogTest*'
+```
+
+writes `TeamCode/build/sim-logs/pedro-paths/together/<name>.wpilog`. This shows where two Autos'
+robots are at each moment (do they cross?), not what the HIVE does: a wait for a trigger is drawn as
+the Visualizer times it. `AutoSim` is the one that answers whether the plan works.
 
 **duo-south + duo-north** (`src/test/resources/auto-builder/duo-*.pp`) split the HIVE between them:
 
@@ -1569,6 +1615,283 @@ fires), the guard can still decide time is short and drive the whole park path a
 LOADING ZONE and here into the HIVE frame. The duo-lz Autos work round it: they drive to the park
 spot with an ordinary path and end with a 2 in park card, so a late guard barely moves the robot.
 The guard should know the park card has already run.
+
+### Two robots and five or more TIPs
+
+**Where a spill goes** (`SpillStudyTest`, opt in with `BIOBUZZ_SPILL_STUDY=1`). A TIP's pieces hit
+the tiles about 1.3 s after the TIP starts, in front of that CELL's opening (x 48–72), about a
+dozen of them. With nobody there they roll to the wall (south: y 0–8; north: y 136–140). A robot
+standing in front of the CELL, facing it (the start spots, (59, 9.5) and (59, 132.25)), fills to
+4 within about a second, and the rest stop in a line against its front, about 30 in wide, half of
+it across the centre line. Standing in the roll path catches better than driving through it on
+cue: a timed sweep caught about one piece a spill.
+
+**The pieces never need to cross the field.** The CELLs alternate, so a TIP's spill lands at the
+end whose CELL is up again two TIPs later. Each robot can stay home at its own CELL: catch its
+spill, and when its CELL rises, fire. The limit is how many of a spill a robot can take: 4 at a
+time (G407), and only what reaches its intake.
+
+**What the mechanisms are worth** (10 runs each at 50 in/s, `AutoStudyTest`):
+
+| Robot | duo-lz (both park) | lean (stays home, no AUTO PARK) |
+|---|---|---|
+| one spring hood, 14 in intake | 80 pts; 4 TIPs in 3/10 | 56 pts |
+| two spring hoods | 88; 4 TIPs in 7/10 | — |
+| one spring hood, 24 in catcher | 90; 4 TIPs in 8/10 | — |
+| **two spring hoods, 24 in catcher** | **90**; 4 TIPs in 8/10, TIP 3 at 14 s | **92**; 4 TIPs 8/10, 5 TIPs 3/10, 6 TIPs 2/10 |
+
+- **A 24 in catcher matters most.** R105 allows 24 in across once the match starts, so an intake
+  that folds out sideways can be 24 in wide; it takes the line of pieces stopped against the robot.
+  An 18 in intake with corners that steer pieces in (which reaches pieces against a wall) gained
+  little here, though it is what takes the GARDEN's corner piece.
+- **Two launchers** halve a volley's time; worth 8–10 points.
+- **Two launchers dedicated to POLLEN and NECTAR** lose: every opening volley is all POLLEN, so
+  one launcher sits idle. They would remove the shared-setting problem, though.
+- **A catapult** at 60° lost (56 points patterned, 42 plain), but not because its volley collides:
+  it was firing from spots tuned for the spring hood. At 72° it is a contender; see "Which results
+  hold" below.
+- **Firing while intaking** (`StreamOn`/`StreamOff`, `experiments/home-stream-*.pp`) did not help
+  as tried: shots fired on the move carry the robot's velocity unless the software allows for it,
+  and even allowing for it the gain was nothing.
+- **With a weaker partner** in the north robot's job (one spring hood, 40 in/s, following
+  duo-lz-north), duo-lz still makes 88 points.
+
+`SnapshotTest` writes the field at chosen moments as JSON and `tools/auto-routes/snapshots.py`
+draws it, for seeing where pieces are without AdvantageScope.
+
+**The best Autos so far** (`BestAutosTest` writes one log of each to `build/sim-logs/best/`):
+
+| | Auto(s) | Partner needed | Points |
+|---|---|---|---|
+| 1 | **duo-lz-south + duo-lz-north** | one that runs duo-lz-north (level 2 below) | 80; 90 with two launchers and a catcher |
+| 2 | **lean-opp-south + lean-opp-north** | the same, our robot design on both | 89 with two launchers and a catcher, no AUTO PARK; lean's 92 did not survive other physics (below) |
+| 3 | **three-tip-adaptive** alone | none | 63 |
+| 4 | **three-tip-adaptive** + a partner that fires its preloads | level 1 | 75 |
+| 5 | **solo-two-tip** at 40 in/s | none | 48, parked |
+
+The two-robot pairs are also in `pedro-paths/together/` (`duo-lz.txt`, `lean.txt`,
+`lean-opp.txt`, `adaptive-with-partner.txt`). To watch two robots: AdvantageScope 3D Field, drag
+`/Odometry/AllRobots3d` onto the field as a Robot to see both at once, or `/Odometry/Robot3d` as a
+Robot plus `/Odometry/Partner3d` as a Ghost in another colour to tell them apart.
+
+**An alliance rubric** to agree with a partner whose Auto we do not control. Pick the level the
+partner can really do; we run the matching Auto.
+
+- *Level 0, partner only drives:* it leaves and parks at the north end of the LOADING ZONE, around
+  (16, 122), early, and stays. We run three-tip-adaptive (71 points).
+- *Level 1, partner fires its preloads:* it starts against the north wall in front of the north
+  CELL, fires its 4 POLLEN when the north CELL rises (after our TIP 1, about 4.5 s), then parks
+  as level 0. We run three-tip-adaptive (75).
+- *Level 2, partner runs the north job:* as level 1, then refills at the far FLOWER, fires again
+  for TIP 2, stays in front of the north CELL to catch every spill and fires each time it rises,
+  and ends parked at the north end of the LOADING ZONE. We run duo-lz-south (80–92).
+- *Traffic rules at every level:* each robot owns one end: we take the south, the partner the
+  north. Neither enters the other's end; the pieces don't need to. The only way between the ends is
+  the west corridor (robot centre x 9–33 past the HIVE frame's foot), and only northbound, at the
+  end, by the south robot going to park; the HIVE's tunnel (centre x 55–62, square to the field)
+  is the southbound lane if a partner ever needs one, so travel goes clockwise and nobody meets
+  head-on. Turn only with the robot's centre 12.7 in or more from the centre line. Nobody parks at
+  the south end of the LOADING ZONE before the south robot arrives: it blocks the corridor.
+- An Auto that only works if the partner does its part (duo-lz-south with a level-1 partner gets
+  40–50 points) is the risk to avoid: confirm the level in the queue, not on the field.
+
+The other alliance's spill can roll onto our side; the simulation ignores it, and so does the plan.
+
+**Where a partner that only fires its preloads should start** (`tools/auto-routes/partner_start.py`;
+10 runs each at 50 in/s, partner one spring hood at 40 in/s). The south CELL (right, from our drive
+station) is the raised one at the start.
+
+| Partner | We run | Points | If the partner misses |
+|---|---|---|---|
+| **North (left), fires when the north CELL rises (camera)** | three-tip-adaptive from the south | 76 | 71–76 |
+| **North (left), fires on a 5 s timer**, from (30, 132) beside the CELL | three-tip-adaptive | 75–76 | 71–76 |
+| South (right), fires at once and makes TIP 1 | north-first, mirrored | 72–76 | 56 (we have to make TIP 1 from the wrong end) |
+
+Ask such a partner to start **north** and either watch for the north CELL or wait 5 s. Our Auto
+then does not depend on them: their 4 POLLEN only make TIP 2 sooner, and 3 TIPs is where our solo
+Autos stop either way. A partner who fires at the start from the north wastes its preloads but costs
+us nothing. A partner who can only fire at once and only from the south is the one case for
+north-first; it scores the same while they hit, and 20 points less when they miss. A 5.5 s timer
+partner in front of the north CELL collided with our robot; from (30, 132) it is out of the way.
+
+
+### FLOWERs are solid (1 Oct 2026), and what that cost
+
+Watching the logs showed robots driving partly through FLOWER holders. `FieldSim.hitsFlower` now
+flags it like the HIVE frame (`DRIVES INTO A FLOWER`), with a placeholder holder radius of 2 in
+(`PLACEHOLDER_FLOWER_RADIUS_IN`; measure one). The routes use `helpers.flower` / `leave_flower`:
+slide clear, turn where the robot's corners (12.7 in out) cannot reach the FLOWER, drive straight in
+with the front against the tube, back straight out. That honest pickup costs about 3 s, and the
+plans that refill at a FLOWER lost a TIP:
+
+| Auto, robot (10 runs) | Before | Solid FLOWERs |
+|---|---|---|
+| duo-lz, two spring hoods + catcher | 90 | 66 |
+| duo-lz, catapult + catcher | 86 | 86 |
+| lean-opp, two spring hoods + catcher | 86 | 74 |
+| three-tip-adaptive alone, one spring hood | 3 TIPs | 2 TIPs |
+| three-tip-adaptive, partner only leaves, two spring hoods + catcher | 71 | 55 |
+
+So every result above that leans on FLOWER refills is optimistic by about a TIP; the catapult,
+which needs fewer pieces per TIP, lost least. Re-tuning the Autos for this is open work, and so are
+the intake knobs: today's intake takes any piece that touches it at any speed.
+
+### Which results hold, and timing a robot to a TIP
+
+**Two rules every Auto here assumes** (our reading; confirm in the Game Manual Q&A): the launcher
+may not spin before the match starts, so every Auto pays the spin-up (2.0 s on the spring hood)
+before its first shot; and nobody adds NECTAR to the field during AUTO, so the simulated AUTO has
+no human player.
+
+**Which conclusions survive unmeasured physics.** `RobustnessTest` (opt in with
+`BIOBUZZ_ROBUSTNESS=1`; `BIOBUZZ_ROBUSTNESS_ONLY` picks candidates by name) reruns the candidate
+Autos, 4 seeds each, with the physics nobody has measured scaled up and down: tile friction
+×0.5/×2, bounce ×0.6/×1.5, shot scatter ×1.5/×2, TIP swing speed ×0.7/×1.4, and three mixtures.
+
+| Auto, robot | mean of 12 | worst |
+|---|---|---|
+| **duo-lz, two spring hoods + 24 in catcher** | **78** | 51 |
+| duo-lz, one spring hood + catcher | 76 | 51 |
+| duo-lz, two spring hoods | 75 | 51 |
+| duo-lz, one spring hood | 72 | 51 |
+| lean-opp, two spring hoods + catcher | 68 | 36 |
+| lean, two spring hoods + catcher | 61 | 36 |
+| three-tip-adaptive (alone), two spring hoods + catcher | 61 | 43 |
+| three-tip-adaptive (alone), one spring hood | 51 | 38 |
+| lean, one spring hood | 51 | 31 |
+
+- **duo-lz beats lean** in 11 or 12 of the 12 variants for every robot. Lean's 92 points was the
+  baseline physics only; it depends on the roll, which is the least trustworthy part.
+- **Shot scatter decides the most.** Every Auto falls to its worst when the scatter doubles (to
+  about 3% in speed and 1.6° in direction). So the first thing to measure on a real launcher is
+  how consistent it is, before how fast it is.
+- **The catcher helps everywhere** (lean 8–0; duo-lz 7–2 on one launcher, 4–1 on two). **A second
+  launcher pays off only with the catcher**: without one, two launchers lost to one in lean 0–8.
+
+**lean-opp** (`lean_opportunist.py`) adds one decision after each volley: if the CELL has not
+tipped within 1.5 s, fetch more pieces (south robot: the GARDEN; north robot: the far FLOWER),
+come back and fire again; if it has, stay in the roll path and catch. It beats plain lean on
+robots without a catcher (9–2), and averages 68 against 61 on the best robot, but the catcher
+already fills the robot, so there it is about even (6–5). It is the better Auto if both robots
+must stay home; duo-lz, which also parks, is still better.
+
+**A convoy loses** (`convoy.py`, `experiments/convoy-*.pp`): both robots fire into whichever CELL
+is up, ours through the tunnel and our partner up the west corridor. 26–30 points. Only the robot
+standing in the roll path catches (4 pieces); the one beside it catches almost none, so the CELL
+at the far end, emptied by its own TIP and needing about 8 POLLEN, rarely tips. (The relay
+experiment found the same.) Two robots each owning one end, with the spill feeding the same CELL
+two TIPs later, stays the plan.
+
+**When the pieces land.** The fall from the lip to the tiles is gravity plus the rocker's swing;
+the roll after it depends on friction and bounce. `SpillStudyTest` now prints percentiles, and
+`BIOBUZZ_SPILL_PHYSICS=friction,bounce,spread,swing` reruns it with the scales above. Measured from
+the moment the rocker is 5° off its stop (the robot's `Tip` trigger):
+
+| Physics | first touch, p10 / p50 / p90 | where (RED, south CELL) |
+|---|---|---|
+| baseline | 1.06 / 1.34 / 1.40 s | x 50–67, y 22–36 |
+| friction ×0.5, ×2 | 1.02–1.04 / 1.14–1.18 / 1.38–1.44 s | x 50–67, y 20–40 |
+| bounce ×0.6, ×1.5 | 1.04–1.06 / 1.12–1.48 / 1.28–1.72 s | x 46–67, y 18–36 |
+| TIP swing ×0.7 (slow) | 1.18 / 1.44 / 1.64 s | x 50–67, y 23–37 |
+| TIP swing ×1.4 (fast) | 0.88 / 1.16 / 1.22 s | x 50–67, y 20–35 |
+
+The place repeats under every variant: a box in front of the opening about 18 in wide and 15 in
+deep (north CELL: y 105–123). The time repeats within about ±0.2 s, except for the TIP's own
+speed, which moves it by 0.3 s either way. That is why filming a TIP (below) comes first: once the
+tip time is measured, a robot knows it has at least 0.8 s, minus the camera's latency, after the
+`Tip` trigger before the first piece lands. At 50 in/s that is about 25–30 in of travel, enough to
+react rather than predict.
+
+**Knowing a CELL has tipped, or is about to**, from earliest to latest:
+
+| Signal | When | How sure |
+|---|---|---|
+| **Counting**: the robot knows what it put in the raised CELL (3 NECTAR at the start, then 3 POLLEN tip it; an emptied CELL takes about 8) | as the deciding shot leaves, about 0.7 s before it arrives | as sure as its shots. It can't count a partner's or an opponent's |
+| **HIVE camera** (`HiveTracker`, the `Tip` trigger) | about 0.8–1.3 s before the first touch | sure: it sees every TIP, whoever caused it |
+| **Webcam, pieces falling** in front of the opening | a fraction of a second before the first touch | sure but late, and the webcam runs only while intaking |
+| **The other CELL up** (`LeftCellUp`/`RightCellUp`) | when the rocker settles | sure, and latest |
+
+So: **commit on counting, confirm with the camera.** Start toward the catch spot when the deciding
+shot leaves; if `Tip` has not fired by the time that shot should have landed plus a margin, do
+something useful instead (lean-opp's "Did it tip?"). A robot standing in the roll path before the
+pieces touch catches 4 in about a second; driving through on cue caught about one.
+
+**Filming a TIP** (240 fps, phone on a tripod square to the HIVE's side, a tape measure on the
+tiles in front of the opening and one upright at the CELL's lip):
+
+1. Load a raised CELL to one POLLEN short, then toss the tipping POLLEN in. 5 times per CELL.
+2. Count frames from the first movement to: the rocker 5° off its stop (mark the angle on the
+   screen); the rocker on its stop (the tip time → `HiveTracker.Tuning.tipSeconds`); the first and
+   last pieces leaving the lip; the first three touching the tiles, and where on the tape.
+3. A second phone above, or the 24 in tiles as a grid: where each piece is 2 s after it touches.
+4. Drop a POLLEN and a NECTAR from 40 in onto the tiles, 3 times each, and read the first rebound
+   (→ `HiveCalibration.MEASURED_DROP_IN`, `MEASURED_REBOUND_IN`).
+
+If the video's first-touch times match `SpillStudyTest`'s within about 0.1 s, Autos built on the
+fall can be trusted even while the roll is not.
+
+**The robot's own `.wpilog`.** A practice run of an exported Auto already writes one
+(`logging/MatchLog`): pose, path and loop time. Open it in AdvantageScope beside the simulated log of
+the same `.pp` (same keys) and the real path speed (→ AutoSim's `speed(...)`) and timing are on
+one timeline; `WpiLogReader` reads it in a test, so the comparison can be automated. Spin-up and
+shot timing need the launcher logging its RPM and each shot, and the HIVE tracker's state needs
+the open logging issue.
+
+**The loop at a meeting:** film and log → measured numbers into `HiveCalibration` and `RobotDesign`
+→ rerun `RobustnessTest` and the Auto studies → the ranking holds (build on it) or flips (whatever
+flipped it is the next thing to measure).
+
+**The catapult, revisited.** `CatapultVolleyTest` (opt in with `BIOBUZZ_VOLLEY_STUDY=1`) fires
+one volley of 4 POLLEN into a CELL held still and counts what stays in. The old 60° catapult kept
+3.4–4 of 4 from 50–65 in back but only 1.5–2 from 38 in, where these Autos fire. Collisions were
+not the problem: even the old plain catapult, whose pieces started overlapping, kept 3.6 from 50 in.
+The *clump catapult* (`RobotDesign.catapultClump`) throws as a real arm does: 2 by 2, one shared
+error for the throw plus 0.3 of a flywheel's scatter per piece. Its angle decides where it works:
+
+| Launch angle | 24 in | 31 in | 38 in | 44 in | 50 in | 65 in |
+|---|---|---|---|---|---|---|
+| 60° | 0 | 0.7 | 2.0 | 3.6 | 4.0 | 3.9 |
+| 70° | 1.2 | 3.5 | 4.0 | 4.0 | 4.0 | 0.8 |
+| 75° | 2.8 | 4.0 | 4.0 | 3.7 | 3.4 | 0.1 |
+
+At 72° in whole Autos (10 runs, 50 in/s, 24 in catcher on both robots):
+
+| Check | duo-lz | lean-opp |
+|---|---|---|
+| clump catapult, 72° | 88 (TIP 3 at 13.2 s in 10/10) | **105** (4 TIPs in 9/10) |
+| the clump comes apart (full scatter per piece) | 76 | 86 |
+| re-cock 1.5 s instead of 0.8 s | 88 | 92 |
+| angle 68° / 76° | 82 / 86 | 96 / 90 |
+| two spring hoods instead | 90 | 89 |
+| partner with one spring hood at 40 in/s: catapult | 78 | 72 |
+| partner with one spring hood at 40 in/s: two spring hoods | 88 | 71 |
+
+Across the 12 physics variants: duo-lz on the catapult mean 80, worst 51; lean-opp on the
+catapult mean 76, worst 46 (two spring hoods: 78/51 and 68/36). It is the least hurt by shot
+scatter, since the clump shares one error. It needs no spin-up, which matters because a flywheel
+may not spin before the match starts (whether a catapult may start cocked is for the Q&A).
+
+**What flips it:** a clump that comes apart in the air (−12 to −19 points), and a weaker
+partner, where two spring hoods do better (88 against 78). A slow re-cock or a few degrees of
+build error barely matter.
+
+**A direction to lock in.** These hold whichever launcher is chosen, so they can be built now:
+
+1. **A 24 in catcher** (folds out sideways after the start, R105). It helped in every comparison.
+2. **Fire from 31–44 in in front of the opening at about 72–75°.** Both launchers work there, and
+   it is where the robot stands to catch the spill, so it fires and catches without moving.
+3. **duo-lz as the Auto,** with lean-opp when the partner can run its half (rubric level 2).
+   duo-lz parks both robots, which also counts toward SWARM.
+4. **The camera's `Tip` trigger plus counting shots** (above) to time the catch.
+
+The launcher: **two spring hoods is the safe choice.** Robust (mean 78), best with the partners
+we will usually have, and the CAD exists (`cad/spring-hood-launcher`). The 72° catapult is the
+higher ceiling (105 with a level-2 partner) and the most scatter-tolerant, but only if its
+clump stays together. That can be settled in one meeting: a plywood arm at about 72°, a cup that
+holds 4 POLLEN 2 by 2, filmed at 240 fps from the side, 10 throws from 38 in. The model's tight
+clump has the 4 pieces within about an inch of each other as they pass the CELL's lip; a loose
+one spreads them 2–3 in. Tight in 9 of 10 throws: build the catapult. Otherwise, the spring hoods,
+and don't reopen it.
 
 ### One launcher, the webcam, and driving under the HIVE
 

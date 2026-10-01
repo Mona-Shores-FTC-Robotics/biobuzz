@@ -92,8 +92,11 @@ import java.util.Map;
  *
  * <h2>The match log</h2>
  *
- * <p>Every run writes {@code /sdcard/FIRST/logs/<OpMode>_<date>_<time>.wpilog}, which AdvantageScope
- * opens: match state, alliance, both gamepads, the pose, loop time, battery voltage and events
+ * <p>Every run writes a {@code .wpilog} to {@code /sdcard/FIRST/logs/}, which AdvantageScope
+ * opens. <b>One file per match</b>: an Autonomous pauses its log when it stops, and the TeleOp
+ * that follows (the one that receives its handoff) continues the same file, so Auto, the break and
+ * TeleOp share one timeline. A TeleOp on its own starts its own file; see {@link MatchLogFiles}. It
+ * records match state, alliance, both gamepads, the pose, loop time, battery voltage and events
  * (init, PLAY, alliance changes, slow loops, stop), with no code in the OpMode. Add anything else
  * with {@code log.put("/Shooter/LeftRPM", rpm)} or {@code log.event("...")}. The loop only copies
  * numbers; a background thread writes the file, and a logging failure never stops the robot. See
@@ -142,7 +145,8 @@ public abstract class RobotOpMode extends OpMode {
     /** How long stop() waits for the log's last writes before leaving the writer to finish alone. */
     private static final long LOG_CLOSE_WAIT_MS = 300;
 
-    private long logStartNs;
+    /** This run's match ID: when the match's first OpMode started, inherited through the handoff. */
+    private String matchId;
     private VoltageSensor battery;
     private long lastBatteryNs;
     private Alliance loggedAlliance;
@@ -282,12 +286,13 @@ public abstract class RobotOpMode extends OpMode {
     public final void stop() {
         onStop();
 
-        if (isAutonomous() && robot != null) {
+        boolean handedOff = isAutonomous() && robot != null;
+        if (handedOff) {
             // Only a field pose is worth handing on. An Auto with no declared start knows where
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, System.currentTimeMillis());
+            Handoff.record(setup.alliance(), pose, matchId, log, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -297,7 +302,12 @@ public abstract class RobotOpMode extends OpMode {
             robot.stop();
         }
         Scheduler.reset();
-        log.close("OpMode stopped", LOG_CLOSE_WAIT_MS);
+        if (handedOff) {
+            // The file stays open for the TeleOp that follows; unclaimed, it closes by itself.
+            log.pause("OpMode stopped: " + opModeName(), Handoff.MAX_AGE_MS);
+        } else {
+            log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
+        }
     }
 
     /** Page button edge, then the header — so the OpMode's Match lines land under it. */
@@ -392,18 +402,34 @@ public abstract class RobotOpMode extends OpMode {
 
     /** Opens this run's log file. Never throws: a log that cannot open is disabled and says why. */
     private void openLog() {
-        logStartNs = System.nanoTime();
         String name = opModeName();
+        long nowMs = System.currentTimeMillis();
+
+        // One file per match: a TeleOp that follows an Autonomous carries on writing the file
+        // that Autonomous paused (the same handoff receiveHandoff() reads later).
+        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.fresh(nowMs);
+        if (handoff != null && handoff.log != null && handoff.log.resume()) {
+            log = handoff.log;
+            matchId = handoff.matchId;
+            log.event("OpMode init: " + name + " · continues match " + matchId);
+            return;
+        }
+
+        // A new file: this OpMode starts the match (an Autonomous, or a TeleOp on its own).
+        matchId = handoff != null && handoff.matchId != null ? handoff.matchId : MatchLogFiles.matchId(nowMs);
         Map<String, String> metadata = new LinkedHashMap<>();
+        metadata.put("MatchId", matchId);
         metadata.put("OpMode", name);
         metadata.put("OpModeClass", getClass().getName());
         String config = ActiveConfig.name();
         metadata.put("RobotConfig", config == null ? "(none active)" : config);
         File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER);
-        File file = MatchLogFiles.next(folder, name, System.currentTimeMillis());
-        log = MatchLog.toFile(file, "BIOBUZZ " + name, metadata,
-                () -> (System.nanoTime() - logStartNs) / 1000L);
-        log.event("OpMode init: " + name);
+        File file = MatchLogFiles.next(folder, matchId, name);
+        // A local, not a field: the clock outlives this OpMode when TeleOp continues the file.
+        final long startNs = System.nanoTime();
+        log = MatchLog.toFile(file, "BIOBUZZ match " + matchId, metadata,
+                () -> (System.nanoTime() - startNs) / 1000L);
+        log.event("OpMode init: " + name + " · match " + matchId);
     }
 
     /** This loop's state into the log, then hand it to the writer. Copies numbers only. */

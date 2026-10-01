@@ -1,0 +1,5 @@
+# Both of our alliance's robots, on the field at the same time.
+# One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner
+# (a third and fourth line would be the other alliance's two robots).
+auto-builder/duo-right.pp
+auto-builder/duo-left.pp

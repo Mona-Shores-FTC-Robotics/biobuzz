@@ -1,0 +1,4 @@
+# lean: each robot stays at its own CELL and fires whatever it catches, every time its CELL comes up.
+# One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner.
+auto-builder/lean-right.pp
+auto-builder/lean-left.pp

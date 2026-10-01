@@ -1,0 +1,202 @@
+{
+  "hubs": [
+    {
+      "x": -8,
+      "y": -8,
+      "width": 3456,
+      "height": 1408,
+      "state": {
+        "sidebar": {
+          "width": 307,
+          "expanded": [
+            "/Field",
+            "/Odometry",
+            "/Odometry/PedroInches",
+            "/Odometry/Robot3d",
+            "/Odometry/Robot",
+            "/Sim",
+            "/Sim/GamePieces",
+            "/Sim/GamePieces/Held"
+          ]
+        },
+        "tabs": {
+          "selected": 3,
+          "tabs": [
+            {
+              "type": 0,
+              "title": "",
+              "controller": null,
+              "controllerUUID": "n6dab1yssbe1q5v4nvw7h3y0j7cy35ug",
+              "renderer": "",
+              "controlsHeight": 0
+            },
+            {
+              "type": 1,
+              "title": "",
+              "controller": {
+                "leftSources": [],
+                "rightSources": [],
+                "discreteSources": [],
+                "leftLockedRange": null,
+                "rightLockedRange": null,
+                "leftUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "rightUnitConversion": {
+                  "autoTarget": null,
+                  "preset": null
+                },
+                "leftFilter": 0,
+                "rightFilter": 0,
+                "showRobotMode": false
+              },
+              "controllerUUID": "ta53fgm6212f87sbyxitt4cbb4p3dk4m",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 2,
+              "title": "",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "/Odometry/Robot",
+                    "logType": "Pose2d",
+                    "visible": true,
+                    "options": {
+                      "bumpers": ""
+                    }
+                  }
+                ],
+                "field": "FTC:2026-2027 Field",
+                "orientation": 0,
+                "size": "medium"
+              },
+              "controllerUUID": "fpumeb05tqv30zfpge6t41vuwg17dh8x",
+              "renderer": null,
+              "controlsHeight": 200
+            },
+            {
+              "type": 3,
+              "title": "",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "/Sim/Hive/Structure",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ HIVE"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/Sim/Hive/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "/Odometry/Robot3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/Partner3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  }
+                ],
+                "game": "FTC:2026-2027 Field (HIVE sim)"
+              },
+              "controllerUUID": "ehhl7gb1oesdb57ajx473w8mhdhz1fej",
+              "renderer": {
+                "cameraIndex": -1,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  3.0684089209423733,
+                  3.7958670663410077,
+                  -0.7530365359940299
+                ],
+                "cameraTarget": [
+                  0.20481915122357902,
+                  -0.004076462792502546,
+                  -0.31961460668939945
+                ]
+              },
+              "controlsHeight": 539
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "satellites": [],
+  "version": "27.0.0-alpha-6"
+}

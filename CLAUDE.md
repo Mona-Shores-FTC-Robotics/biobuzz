@@ -76,8 +76,8 @@ untuned robot uses the drivetrain and localizer directly (`BasicDriveTeleOp` is 
 updates through `periodic()`, and behaviour beyond that is commands. Each loop runs clear bulk
 cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
 commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics —
-the single exception is `controls/Handoff`, which carries alliance and pose from Autonomous to
-TeleOp and is written and read only by `RobotOpMode`.
+the single exception is `controls/Handoff`, which carries alliance, pose and the open match log
+from Autonomous to TeleOp and is written and read only by `RobotOpMode`.
 
 **Localization.** Pedro's `FusionLocalizer` fuses the Pinpoint with AprilTag fixes; we add only
 `CellFix` (sighting → position) and assume Pedro's filter works — no extra error-tracking layer
@@ -130,8 +130,8 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 - **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
   `shooter/FlywheelBank`).
 - **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
-- **The match log is automatic.** `RobotOpMode` writes one `.wpilog` per run (`logging/MatchLog`)
-  from a background thread. Add data with `log.put(key, value)` / `log.event(text)`; never open a
+- **The match log is automatic.** `RobotOpMode` writes one `.wpilog` per match (`logging/MatchLog`;
+  TeleOp continues the file its Autonomous paused) from a background thread. Add data with `log.put(key, value)` / `log.event(text)`; never open a
   file or write to storage from the loop.
 - **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
   OpMode before and after adding a subsystem and put both numbers in the PR.

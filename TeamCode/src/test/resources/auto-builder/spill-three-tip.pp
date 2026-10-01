@@ -26,9 +26,9 @@
       }
     },
     {
-      "id": "to-north-shot-2",
+      "id": "to-left-shot-2",
       "color": "#3cc8e4",
-      "name": "EXIT_WEST to NORTH_SHOT",
+      "name": "EXIT_WEST to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -53,7 +53,7 @@
     {
       "id": "to-far-flower-3",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to FAR_FLOWER",
+      "name": "LEFT_SHOT to FAR_FLOWER",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -71,9 +71,9 @@
       }
     },
     {
-      "id": "to-north-shot-4",
+      "id": "to-left-shot-4",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER to NORTH_SHOT",
+      "name": "FAR_FLOWER to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -93,7 +93,7 @@
     {
       "id": "to-garden-5",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to GARDEN",
+      "name": "LEFT_SHOT to GARDEN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -120,9 +120,9 @@
       }
     },
     {
-      "id": "to-south-shot-6",
+      "id": "to-right-shot-6",
       "color": "#3cc8e4",
-      "name": "GARDEN to SOUTH_SHOT",
+      "name": "GARDEN to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -142,7 +142,7 @@
     {
       "id": "to-spill-in-7",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to SPILL_IN",
+      "name": "RIGHT_SHOT to SPILL_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -179,9 +179,9 @@
       }
     },
     {
-      "id": "to-south-shot-9",
+      "id": "to-right-shot-9",
       "color": "#3cc8e4",
-      "name": "SPILL_END to SOUTH_SHOT",
+      "name": "SPILL_END to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -280,7 +280,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-2"
+      "lineId": "to-left-shot-2"
     },
     {
       "kind": "path",
@@ -288,7 +288,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-4"
+      "lineId": "to-left-shot-4"
     },
     {
       "kind": "path",
@@ -296,7 +296,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-6"
+      "lineId": "to-right-shot-6"
     },
     {
       "kind": "path",
@@ -308,7 +308,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-9"
+      "lineId": "to-right-shot-9"
     }
   ],
   "settings": {
@@ -373,7 +373,7 @@
         9.5,
         90
       ],
-      "NORTH_SHOT": [
+      "LEFT_SHOT": [
         40,
         116,
         301
@@ -398,7 +398,7 @@
         11,
         270
       ],
-      "SOUTH_SHOT": [
+      "RIGHT_SHOT": [
         36,
         30,
         49
@@ -411,14 +411,14 @@
     },
     "pathEnds": {
       "to-exit-west-1": "EXIT_WEST",
-      "to-north-shot-2": "NORTH_SHOT",
+      "to-left-shot-2": "LEFT_SHOT",
       "to-far-flower-3": "FAR_FLOWER",
-      "to-north-shot-4": "NORTH_SHOT",
+      "to-left-shot-4": "LEFT_SHOT",
       "to-garden-5": "GARDEN",
-      "to-south-shot-6": "SOUTH_SHOT",
+      "to-right-shot-6": "RIGHT_SHOT",
       "to-spill-in-7": "SPILL_IN",
       "to-spill-end-8": "SPILL_END",
-      "to-south-shot-9": "SOUTH_SHOT"
+      "to-right-shot-9": "RIGHT_SHOT"
     },
     "startAt": "START",
     "cards": [
@@ -505,7 +505,7 @@
       {
         "id": "p-9",
         "kind": "path",
-        "lineId": "to-north-shot-2",
+        "lineId": "to-left-shot-2",
         "park": false
       },
       {
@@ -539,7 +539,7 @@
       {
         "id": "p-13",
         "kind": "path",
-        "lineId": "to-north-shot-4",
+        "lineId": "to-left-shot-4",
         "park": false
       },
       {
@@ -586,7 +586,7 @@
       {
         "id": "p-17",
         "kind": "path",
-        "lineId": "to-south-shot-6",
+        "lineId": "to-right-shot-6",
         "park": false
       },
       {
@@ -626,7 +626,7 @@
       {
         "id": "p-22",
         "kind": "path",
-        "lineId": "to-south-shot-9",
+        "lineId": "to-right-shot-9",
         "park": false
       },
       {

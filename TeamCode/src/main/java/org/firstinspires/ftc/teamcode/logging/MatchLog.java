@@ -26,6 +26,11 @@ import java.util.concurrent.TimeUnit;
  * <p><b>A brownout costs at most about half a second.</b> The writer flushes, and syncs a file to
  * storage, every {@link #FLUSH_EVERY_MS}.
  *
+ * <p><b>One file per match.</b> An Autonomous ends with {@link #pause} rather than {@link #close}:
+ * the file stays open, and the TeleOp that follows {@link #resume}s it, so Auto, the break and
+ * TeleOp are one timeline (AdvantageScope colors each part). A pause nobody resumes closes the file
+ * by itself after its timeout.
+ *
  * <p>What every loop records, so no OpMode or subsystem has to: match state, alliance, both
  * gamepads (written when they change), the robot's pose, loop time. Anything else goes in with
  * {@link #put(String, double)} or {@link #event(String)}.
@@ -99,13 +104,14 @@ public final class MatchLog {
     private final String name;
     private final Thread writerThread;
 
-    // Loop thread only.
+    // The loop thread of whichever OpMode holds the log. Passing it from one OpMode to the next
+    // goes through pause() and resume(), whose lock makes these visible to the new thread.
     private Frame frame;
     private final Map<String, Integer> channelIndex = new HashMap<>();
     private boolean channelsFullReported;
     private int droppedLoops;
     private int droppedEvents;
-    private boolean closed;
+    private volatile boolean closed;
 
     // Written by the loop thread before a frame naming them is handed over, so the queue's
     // happens-before makes them visible to the writer.
@@ -113,6 +119,13 @@ public final class MatchLog {
 
     private volatile String failure;
     private volatile long framesWritten;
+
+    // Pause and resume, shared by the OpMode that pauses, the one that resumes, and the writer that
+    // closes an unclaimed pause. Guarded by lifecycle.
+    private final Object lifecycle = new Object();
+    private boolean paused;
+    private long closeAtNs;
+    private boolean writerDone;
 
     /** A log that records nothing, for when the file cannot be opened. */
     public static MatchLog disabled(String reason) {
@@ -178,7 +191,9 @@ public final class MatchLog {
     }
 
     public boolean isLogging() {
-        return failure == null && !closed;
+        synchronized (lifecycle) {
+            return failure == null && !closed && !writerDone;
+        }
     }
 
     public long framesWritten() {
@@ -272,6 +287,34 @@ public final class MatchLog {
     }
 
     /**
+     * Ends this OpMode's part of the file but keeps it open for the next OpMode: writes
+     * {@code lastEvent} and a disabled loop, then waits. If nobody {@link #resume}s it within
+     * {@code closeAfterMs}, the writer closes the file itself.
+     */
+    public void pause(String lastEvent, long closeAfterMs) {
+        if (!isLogging()) return;
+        if (lastEvent != null) event(lastEvent);
+        frame.mode = Mode.DISABLED;
+        commit();
+        synchronized (lifecycle) {
+            paused = true;
+            closeAtNs = System.nanoTime() + closeAfterMs * 1_000_000L;
+        }
+    }
+
+    /**
+     * Continues a paused log in a new OpMode. False when it has already closed (its pause timed
+     * out, or it failed), in which case the caller opens a new file.
+     */
+    public boolean resume() {
+        synchronized (lifecycle) {
+            if (!paused || writerDone || closed || failure != null) return false;
+            paused = false;
+            return true;
+        }
+    }
+
+    /**
      * The last frame, then the writer closes the file. Waits at most {@code waitMs} for it (stop
      * runs once, at the end of the OpMode); a writer still busy after that finishes on its own.
      */
@@ -281,7 +324,12 @@ public final class MatchLog {
         if (droppedLoops > 0 || droppedEvents > 0) {
             event("log: dropped " + droppedLoops + " loops and " + droppedEvents + " events (writer behind)");
         }
-        if (failure == null && writerThread != null) {
+        boolean writerRunning;
+        synchronized (lifecycle) {
+            writerRunning = failure == null && writerThread != null && !writerDone;
+            paused = false;
+        }
+        if (writerRunning) {
             frame.timestampUs = clock.nowUs();
             frame.last = true;
             // Always room: the loop holds at most one frame outside the two queues.
@@ -355,12 +403,28 @@ public final class MatchLog {
                     if (System.nanoTime() - lastFlushNs >= FLUSH_EVERY_MS * 1_000_000L) {
                         flush();
                     }
+                    if (f == null && unclaimedPauseExpired()) break;
                 }
                 flush();
                 log.close();
             } catch (Throwable t) {
                 failure = "log write failed: " + t;
                 closeQuietly();
+            } finally {
+                synchronized (lifecycle) {
+                    writerDone = true;
+                }
+            }
+        }
+
+        /** True once, when a pause has gone unclaimed past its time: the writer then closes. */
+        private boolean unclaimedPauseExpired() {
+            synchronized (lifecycle) {
+                if (paused && full.isEmpty() && System.nanoTime() >= closeAtNs) {
+                    writerDone = true;
+                    return true;
+                }
+                return false;
             }
         }
 

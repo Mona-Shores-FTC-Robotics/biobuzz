@@ -42,36 +42,40 @@ public final class PartnerPreloadsParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
-        Pose parkP = p.of(16, 122, 270);
+        Pose parkP = p.of(10.5, 111, 270);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToParkPControl1 = p.of(59, 116, 0);
+        Pose startToParkPControl2 = p.of(30, 116, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToParkP = Paths.line(start, parkP).linear(start, parkP);
+        Path startToParkP = Paths.curve(start, startToParkPControl1, startToParkPControl2, parkP).linear(start, parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 2.3,
+                kit.guarded("Auto", startToParkP, 2.6,
                         kit.command("SpinUp"),
-                        kit.firstOf("North CELL up",
+                        kit.firstOf("Left CELL up",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (2)",
+                        kit.firstOf("Left CELL up (2)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (3)",
+                        kit.firstOf("Left CELL up (3)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (4)",
+                        kit.firstOf("Left CELL up (4)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (5)",
+                        kit.firstOf("Left CELL up (5)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (6)",
+                        kit.firstOf("Left CELL up (6)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (7)",
+                        kit.firstOf("Left CELL up (7)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
-                        kit.firstOf("North CELL up (8)",
+                        kit.firstOf("Left CELL up (8)",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(1000)),
                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),

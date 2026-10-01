@@ -6,22 +6,33 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Where match logs go and what they are called: one file per OpMode run, named after the OpMode and
- * the time it started ({@code Drive_TeleOp_2026-10-04_14-32-10.wpilog}), so a restart starts a new
- * file and never overwrites the last one.
+ * Where match logs go and what they are called: the match ID (when the match's first OpMode
+ * started), then that OpMode's name.
+ *
+ * <pre>
+ * 2026-10-04_14-32-10_Right_Start_Tip.wpilog    (a match: its Auto, the break and its TeleOp)
+ * 2026-10-04_14-40-55_Drive_TeleOp.wpilog       (a practice TeleOp with no Auto before it)
+ * </pre>
+ *
+ * <p>Each new file gets a name not yet taken: a clash gets {@code _2}, {@code _3}…, so nothing is
+ * overwritten.
  */
 public final class MatchLogFiles {
 
-    /** The folder inside the SDK's FIRST folder ({@code /sdcard/FIRST/logs} on a hub). */
+    /** The folder inside the SDK's FIRST folder: {@code /sdcard/FIRST/logs} on a hub. */
     public static final String LOGS_FOLDER = "logs";
 
     private MatchLogFiles() {
     }
 
-    /** A file in {@code dir} that does not exist yet, for an OpMode started at {@code epochMs}. */
-    public static File next(File dir, String opModeName, long epochMs) {
-        String stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(new Date(epochMs));
-        String base = safe(opModeName) + "_" + stamp;
+    /** A match ID for a match starting now: its local start time, to the second. */
+    public static String matchId(long epochMs) {
+        return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(new Date(epochMs));
+    }
+
+    /** A file in {@code dir} that does not exist yet. */
+    public static File next(File dir, String matchId, String opModeName) {
+        String base = safe(matchId) + "_" + safe(opModeName);
         File file = new File(dir, base + ".wpilog");
         for (int n = 2; file.exists(); n++) {
             file = new File(dir, base + "_" + n + ".wpilog");

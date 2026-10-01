@@ -36,10 +36,21 @@ final class RobotDesign {
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
     boolean intakeAtBack = false;
-    /** Time between two pieces through the intake, picking up off the tiles. */
-    double intakeIntervalS = 0.15;
+    /**
+     * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
+     * (mentor review: 0.15 s refilled a robot standing still unrealistically fast). A placeholder
+     * until an intake is timed.
+     */
+    double intakeIntervalS = 0.35;
     /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
     double flowerPullS = 0.5;
+    /**
+     * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
+     * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
+     * robot. Placeholders until an intake is tested: toss pieces in at a few speeds and count.
+     */
+    double intakeGrabChance = 0.85;
+    double intakeMaxSpeedInPerS = 60;
     Launcher launcher = Launcher.TURRET;
     /** Launchers side by side: each shot interval fires this many. */
     int launchers = 1;
@@ -47,6 +58,12 @@ final class RobotDesign {
     double spinUpS = 1.0;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
+    /**
+     * Whether the robot knows how many pieces it holds (a beam break or distance sensor per slot).
+     * Without one, an Auto can't tell full or empty: IntakeFull and Empty never fire, so every wait
+     * on them runs to its time limit.
+     */
+    boolean countsPieces = true;
     /**
      * NECTAR's launch speed as a fraction of what was aimed for: 1 for a launcher that knows which
      * piece it holds and compensates; below 1 for one tuned for POLLEN that throws the heavier
@@ -68,6 +85,29 @@ final class RobotDesign {
     double fixedPitchDeg = Double.NaN;
     /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
     double maxTurnRadPerS = Math.toRadians(300);
+    /**
+     * Two launchers, one set up for POLLEN and one for NECTAR: each interval fires at most one of
+     * each kind, each at its own ideal speed (no shared setting).
+     */
+    boolean dedicatedLaunchers = false;
+    /** A catapult volley's extra spread, and how far apart its pieces sit across the arm, in. */
+    double catapultSpread = 2.0;
+    double catapultSideIn = 2.5;
+    /**
+     * A catapult that throws its pieces as one clump: packed 2 by 2 (none overlapping), all with the
+     * arm's one error for the throw, plus {@link #catapultResidual} of a flywheel's scatter each.
+     */
+    boolean catapultClump = false;
+    /** How the clump sits in the cup: 2 by 2, or a triangle of 3 with 1 on top. */
+    enum Cup { SQUARE, TRIANGLE }
+    Cup catapultCup = Cup.SQUARE;
+    double catapultResidual = 0.3;
+    /**
+     * Whether the shooter software allows for the robot's own motion when it fires on the move
+     * (aiming off by the robot's velocity). Without it a piece fired while driving carries the
+     * robot's velocity.
+     */
+    boolean compensatesMotion = false;
 
     RobotDesign(String name) {
         this.name = name;
@@ -100,6 +140,16 @@ final class RobotDesign {
         return d;
     }
 
+    /**
+     * The spring hood with an intake as wide as the frame, its corners shaped to steer pieces off
+     * a wall into the middle: it takes a piece anywhere across its 18 in front.
+     */
+    static RobotDesign springHoodFullWidth() {
+        RobotDesign d = springHood().copy("spring hood, full-width intake");
+        d.intakeWidthIn = 18;
+        return d;
+    }
+
     static RobotDesign catapult() {
         RobotDesign d = new RobotDesign("catapult");
         d.launcher = Launcher.CATAPULT;
@@ -114,17 +164,27 @@ final class RobotDesign {
         d.intakeWidthIn = intakeWidthIn;
         d.intakeAtBack = intakeAtBack;
         d.intakeIntervalS = intakeIntervalS;
+        d.intakeGrabChance = intakeGrabChance;
+        d.intakeMaxSpeedInPerS = intakeMaxSpeedInPerS;
         d.flowerPullS = flowerPullS;
         d.launcher = launcher;
         d.launchers = launchers;
         d.shotIntervalS = shotIntervalS;
         d.spinUpS = spinUpS;
         d.launchesNectar = launchesNectar;
+        d.countsPieces = countsPieces;
         d.nectarSpeedFactor = nectarSpeedFactor;
         d.pollenSpeedFactor = pollenSpeedFactor;
         d.arcExtraPitchDeg = arcExtraPitchDeg;
         d.fixedPitchDeg = fixedPitchDeg;
         d.maxTurnRadPerS = maxTurnRadPerS;
+        d.dedicatedLaunchers = dedicatedLaunchers;
+        d.catapultSpread = catapultSpread;
+        d.catapultSideIn = catapultSideIn;
+        d.catapultClump = catapultClump;
+        d.catapultCup = catapultCup;
+        d.catapultResidual = catapultResidual;
+        d.compensatesMotion = compensatesMotion;
         return d;
     }
 
@@ -132,7 +192,11 @@ final class RobotDesign {
     RobotDesign checked() {
         if (frameIn > 18) throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
         if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
-        if (intakeWidthIn > frameIn) throw new IllegalArgumentException(name + ": intake wider than the frame");
+        // An intake can be wider than the frame only by folding out sideways, which uses R105's
+        // 24 in across instead of reaching forward.
+        if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameIn)) {
+            throw new IllegalArgumentException(name + ": intake wider than R105 allows");
+        }
         return this;
     }
 
