@@ -183,9 +183,10 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 `.github/CONTRIBUTING.md` is the full version. What a session must not miss:
 
 - An issue exists before a branch; every PR says `Closes #N`. Never commit to `master`.
-- Branch prefixes `feat/ fix/ tune/ chore/ docs/ spike/` for branches people make. A `claude/*`
-  branch is opened as a PR as it is, never renamed. If any branch is renamed, use GitHub's rename
-  button, never delete-and-repush.
+- Branch names are `<prefix>/<issue>-<slug>`, prefixes `feat/ fix/ tune/ chore/ docs/ spike/`.
+  A `claude/*` branch is renamed with `git branch -m` before its first push (a hook blocks the
+  push until then). One already on GitHub is renamed with GitHub's button, never by
+  delete-and-repush.
 - Labels: exactly one `team:*`, `needs:robot` if it does, and one of `good-first-task` /
   `student-ready` / `mentor-only`. No priority labels — board order is priority.
 - **Mentor/student split.** Substrate (versions, CI, hardware abstraction, rigs, tuning harnesses)
