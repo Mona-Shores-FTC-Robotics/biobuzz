@@ -86,6 +86,12 @@ public class AutoStudyTest {
             off.fixedPitchDeg = deg;
             m.put(off.name, off);
         }
+        // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
+        for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle}) {
+            RobotDesign c = base.copy(base.name + ", POLLEN only");
+            c.launchesNectar = false;
+            m.put(c.name, c);
+        }
         for (RobotDesign base : new RobotDesign[] {catcher, twinCatcher}) {
             RobotDesign c = base.copy(base.name + ", fires on the move");
             c.compensatesMotion = true;
@@ -95,10 +101,11 @@ public class AutoStudyTest {
     }
 
     /**
-     * Where partner-leave-park sets its 4 preloads: a row touching the front of a robot facing the HIVE
-     * at (24, 132.25), toward its east side so it can slide west and away without touching them.
+     * Where partner-leave-park sets its 4 preloads: a row along the field side of a robot at
+     * (24, 132.25) facing the HIVE, so it can drive straight off to park without going round them
+     * (mentor review), and we can drive up the row intake first.
      */
-    static final double[][] LEAVE_PARTNER_STAGED = {{21.2, 121.6}, {24.0, 121.6}, {26.8, 121.6}, {29.6, 121.6}};
+    static final double[][] LEAVE_PARTNER_STAGED = {{34.6, 128.6}, {34.6, 131.4}, {34.6, 134.2}, {34.6, 137.0}};
 
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 

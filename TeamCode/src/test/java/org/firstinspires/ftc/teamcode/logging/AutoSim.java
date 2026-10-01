@@ -91,6 +91,11 @@ public final class AutoSim {
     static final double CAMERA_RANGE_IN = 60;
     /** CollectSeen keeps within this far of where it started, so it does not wander off. */
     static final double COLLECT_RADIUS_IN = 36;
+    /**
+     * With nothing in view, CollectSeen turns this far to look before giving up (mentor review: a
+     * full turn on the spot looked lost, and a webcam already sees 70 deg).
+     */
+    static final double LOOK_AROUND_RAD = Math.toRadians(90);
 
     /** What one robot did in a run. */
     static final class RobotResult {
@@ -545,6 +550,9 @@ public final class AutoSim {
                 double[][] spots = new double[stagedPreloads.length][];
                 for (int i = 0; i < spots.length; i++) spots[i] = forAlliance(stagedPreloads[i], alliance == Alliance.RED);
                 sim.stagePreloads(alliance, spots);
+                // A robot that sets its preloads down has no use for its intake, which would only
+                // pick them straight back up (mentor review).
+                intakeEnabled = false;
             }
             keyPrefix = robot.prefix;
             String drawnFor;
@@ -821,14 +829,14 @@ public final class AutoSim {
                         target[0] = nearestSeen(origin);
                         if (target[0] != null) {
                             driveOnto(target[0]);
-                        } else if (drive.pathDone() && lookedAround[0] < 2 * Math.PI && canTurnHere()) {
+                        } else if (drive.pathDone() && lookedAround[0] < LOOK_AROUND_RAD && canTurnHere()) {
                             // Nothing in view: turn on the spot to look around.
                             drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
                     .setDone(() -> body.stored.size() >= FieldSim.ROBOT_CAPACITY
-                            || (target[0] == null && (lookedAround[0] >= 2 * Math.PI || !canTurnHere())))
+                            || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
                     .setEnd(end -> drive.hold(drive.pose));
         }
 
