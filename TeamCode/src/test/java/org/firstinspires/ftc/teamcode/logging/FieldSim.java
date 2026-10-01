@@ -70,6 +70,8 @@ final class FieldSim {
 
     /** An FTC robot's starting-size limit; the simulated robot is that box. */
     static final double ROBOT_SIZE_IN = 18.0;
+    /** The standard design's intake ({@link RobotDesign#intakeWidthIn}), for planners that aim at it. */
+    static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
     static final int ROBOT_CAPACITY = 4;
     /** Competition Manual §10.3.4: every robot starts the match holding exactly 4 POLLEN. */
@@ -89,7 +91,6 @@ final class FieldSim {
     static final double PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 = 12.0;
     /** Height of the simulated robot's body; pieces hit it below this. */
     static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
-    static final double PLACEHOLDER_INTAKE_HALF_WIDTH_IN = 7.0;
     /** Where a launched piece leaves the robot: forward of centre, and up. */
     static final double PLACEHOLDER_EXIT_FORWARD_IN = 4.0;
     /** Above the robot body ({@link #PLACEHOLDER_ROBOT_HEIGHT_IN}), so a launch clears its own robot. */
@@ -268,7 +269,12 @@ final class FieldSim {
     private double rx, ry, rh, rvx, rvy, rw;
     private double prevRx, prevRy, prevRh;
     private boolean intaking;
+    private double lastCaptureAt = Double.NEGATIVE_INFINITY;
     final List<Piece> stored = new ArrayList<>();
+    /** The simulated robot's mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
+    RobotDesign design = RobotDesign.standard();
+    /** Robots that stand still (a partner that does not move): {x, y, heading} each, 18 in square. */
+    final List<double[]> parkedRobots = new ArrayList<>();
 
     /** The physical constants {@link HiveCalibration#fit} chose. */
     static final class Physics {
@@ -413,6 +419,66 @@ final class FieldSim {
         }
     }
 
+    /**
+     * The partner robot: it stands still at {@code pose} ({x, y, heading}) for the whole run, and
+     * its 4 preloaded POLLEN start on the tiles at {@code spots}, which the manual allows as long as
+     * they touch it (§10.3.4, G304). Its POLLEN are the alliance's other preloads.
+     */
+    void stagePartner(Alliance alliance, double[] pose, double[][] spots) {
+        parkedRobots.add(pose);
+        double wallX = alliance == Alliance.BLUE ? FIELD_SIZE_IN : 0;
+        int i = 0;
+        for (Piece p : pieces) {
+            if (i >= spots.length) break;
+            if (p.where != Where.OUTSIDE || p.kind != Kind.POLLEN || Math.abs(p.x - wallX) >= 10) continue;
+            p.where = Where.FIELD;
+            p.x = spots[i][0];
+            p.y = spots[i][1];
+            p.z = POLLEN_RADIUS_IN;
+            i++;
+        }
+        if (i < spots.length) throw new IllegalStateException("no partner preloads left to stage");
+    }
+
+    /**
+     * The alliance's own LOADING ZONE (Event Field Setup Guide §8.3): red on tile A5 against the
+     * x = 0 wall, blue on F2 against the far wall. Returns {xMin, xMax, yMin, yMax}.
+     */
+    static double[] loadingZone(Alliance alliance) {
+        double tile = FIELD_SIZE_IN / 6, depth = 11;
+        if (alliance == Alliance.BLUE) return new double[] {FIELD_SIZE_IN - depth, FIELD_SIZE_IN, tile, 2 * tile};
+        return new double[] {0, depth, 4 * tile, 5 * tile};
+    }
+
+    /**
+     * A drive-team member enters one of the alliance's NECTAR from its ALLIANCE AREA: it lands on
+     * the tiles in the LOADING ZONE (G427), allowed once for each TIP of their HIVE (G426). Returns
+     * false once all 5 are in.
+     */
+    boolean enterNectar(Alliance alliance) {
+        Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
+        double[] zone = loadingZone(alliance);
+        for (Piece p : pieces) {
+            if (p.where != Where.OUTSIDE || p.kind != kind) continue;
+            double y = (zone[2] + zone[3]) / 2;
+            for (double dy = 0; dy < 10; dy += 4) {
+                double[] at = {(zone[0] + zone[1]) / 2, y + dy, NECTAR_RADIUS_IN + 0.05};
+                if (free(at, NECTAR_RADIUS_IN)) {
+                    y += dy;
+                    break;
+                }
+            }
+            p.where = Where.FIELD;
+            p.x = (zone[0] + zone[1]) / 2;
+            p.y = y;
+            p.z = NECTAR_RADIUS_IN + 4; // dropped in, not placed
+            p.vx = p.vy = p.vz = 0;
+            events.add("human: " + name(kind) + " into the LOADING ZONE");
+            return true;
+        }
+        return false;
+    }
+
     /** Messages since the last call: shots scored, tips, spills. */
     List<String> drainEvents() {
         List<String> out = new ArrayList<>(events);
@@ -462,8 +528,19 @@ final class FieldSim {
 
     /** Where a launched piece leaves the robot. */
     double[] exitPoint() {
-        return new double[] {rx + PLACEHOLDER_EXIT_FORWARD_IN * Math.cos(rh),
-                ry + PLACEHOLDER_EXIT_FORWARD_IN * Math.sin(rh), PLACEHOLDER_EXIT_HEIGHT_IN};
+        return exitPoint(0);
+    }
+
+    /** Where a launched piece leaves the robot, {@code sideIn} to its left of the centre line. */
+    double[] exitPoint(double sideIn) {
+        double c = Math.cos(rh), s = Math.sin(rh);
+        return new double[] {rx + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
+                ry + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
+    }
+
+    /** The kind of the piece the robot would launch next, or null if it is empty. */
+    Kind nextToLaunch() {
+        return stored.isEmpty() ? null : stored.get(0).kind;
     }
 
     /**
@@ -471,16 +548,28 @@ final class FieldSim {
      * Returns the launch velocity, or null if the robot is empty or the target is out of reach.
      */
     double[] launch(double[] target) {
+        return launch(target, 0, 0, 1);
+    }
+
+    /**
+     * Launches the next stored piece at {@code target} from {@code sideIn} left of the centre line.
+     * {@code yawErrorRad} turns the shot off its aim (a frame-fixed launcher not quite facing the
+     * CELL), and {@code spreadScaleShot} widens the spread for this shot (a catapult's volley).
+     * NECTAR leaves at the design's {@link RobotDesign#nectarSpeedFactor}.
+     */
+    double[] launch(double[] target, double yawErrorRad, double sideIn, double spreadScaleShot) {
         if (stored.isEmpty()) return null;
-        double[] from = exitPoint();
+        double[] from = exitPoint(sideIn);
         double[] v = launchVelocity(from, target);
         if (v == null) return null;
-        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spreadScale * random.nextGaussian();
-        double yaw = PLACEHOLDER_ANGLE_SPREAD_RAD * spreadScale * random.nextGaussian();
+        double spread = spreadScale * spreadScaleShot;
+        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
+        if (stored.get(0).kind != Kind.POLLEN) speed *= design.nectarSpeedFactor;
+        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
         double c = Math.cos(yaw), s = Math.sin(yaw);
         double vx = (v[0] * c - v[1] * s) * speed + rvx;
         double vy = (v[0] * s + v[1] * c) * speed + rvy;
-        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spreadScale * random.nextGaussian());
+        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian());
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
         p.x = from[0];
@@ -531,7 +620,8 @@ final class FieldSim {
             collidePieces();
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
-                if (robotPresent && intaking && stored.size() < ROBOT_CAPACITY && inIntake(p, bx, by, bh)) {
+                if (robotPresent && intaking && stored.size() < ROBOT_CAPACITY && canTake(p)
+                        && inIntake(p, bx, by, bh)) {
                     capture(p);
                     continue;
                 }
@@ -539,6 +629,7 @@ final class FieldSim {
                 for (Rocker r : rockers) contact |= collideRocker(p, r);
                 contact |= collideFootBars(p);
                 if (robotPresent) contact |= collideRobot(p, bx, by, bh);
+                for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
                 contact |= collideField(p);
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) applyFriction(p, h);
@@ -701,8 +792,14 @@ final class FieldSim {
     }
 
     private boolean collideRobot(Piece p, double bx, double by, double bh) {
-        double half = ROBOT_SIZE_IN / 2;
+        double half = design.frameIn / 2;
         return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, rvx, rvy, rw,
+                PLACEHOLDER_ROBOT_RESTITUTION);
+    }
+
+    private boolean collideParked(Piece p, double[] at) {
+        double half = ROBOT_SIZE_IN / 2;
+        return box(p, at[0], at[1], at[2], half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, 0, 0, 0,
                 PLACEHOLDER_ROBOT_RESTITUTION);
     }
 
@@ -841,15 +938,31 @@ final class FieldSim {
         p.qz = nz / norm;
     }
 
+    /**
+     * Whether the intake may take this piece now: one piece per {@link RobotDesign#intakeIntervalS},
+     * NECTAR only if the robot launches it, and out of a FLOWER only the bottom POLLEN, through the
+     * retrieval opening, one per {@link RobotDesign#flowerPullS} (Competition Manual §9.7, G418).
+     */
+    private boolean canTake(Piece p) {
+        if (p.kind != Kind.POLLEN && !design.launchesNectar) return false;
+        if (p.flower >= 0) {
+            return p.kind == Kind.POLLEN && p.z < RobotDesign.FLOWER_OPENING_HEIGHT_IN
+                    && time - lastCaptureAt >= design.flowerPullS;
+        }
+        return time - lastCaptureAt >= design.intakeIntervalS;
+    }
+
     private boolean inIntake(Piece p, double bx, double by, double bh) {
         double c = Math.cos(bh), s = Math.sin(bh);
         double lx = (p.x - bx) * c + (p.y - by) * s;
         double ly = -(p.x - bx) * s + (p.y - by) * c;
-        double front = ROBOT_SIZE_IN / 2;
-        return lx > front - 2 && lx < front + 3 && Math.abs(ly) < PLACEHOLDER_INTAKE_HALF_WIDTH_IN && p.z < 6;
+        if (design.intakeAtBack) lx = -lx;
+        double mouth = design.frameIn / 2 + design.intakeReachIn;
+        return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < 6;
     }
 
     private void capture(Piece p) {
+        lastCaptureAt = time;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

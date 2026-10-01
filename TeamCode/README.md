@@ -1310,14 +1310,25 @@ finished at 12.2 s`. Open the log exactly as above. The Auto's own decisions are
 the robot. The other alliance runs it rotated, as on the robot. Underneath, `AutoSim` simulates:
 
 - **Driving.** Each path is Pedro's own `Path`, driven along its length on a rest-to-rest
-  trapezoidal profile (40 in/s, 30 in/s²). The real follower carries speed through joins, so real
-  timing differs a little.
-- **The robot.** It starts holding its 4 preloaded POLLEN (Competition Manual §10.3.4) and never
-  holds more than 4 (G407). Its intake runs whenever there is room, unless the Auto calls
-  `IntakeOff`. `LaunchAll`/`ShootAll` spin up (1 s) and fire everything held at the alliance's raised
-  CELL from wherever the robot is, as if it aims; `LaunchOne` fires one. None of the three is in
-  `AutoRegistration` yet: they are the names the launcher's commands should take when it has them. Whether a shot goes in is the physics'
-  business: from beside the HIVE it hits a CELL's closed side.
+  trapezoidal profile (40 in/s, 30 in/s²; `AutoSim.speed` changes it). Turning is rate-limited too, so
+  a path ends when the robot is there and facing its way. The real follower carries speed through
+  joins, so real timing differs a little.
+- **The robot** is a `RobotDesign`: where its intake is and how wide, what kind of launcher, how fast
+  each mechanism works. The default is a front intake and a turret. It starts holding its 4
+  preloaded POLLEN (Competition Manual §10.3.4) and never holds more than 4 (G407). Its intake runs
+  whenever there is room, unless the Auto calls `IntakeOff`, and takes one piece at a time. Out of a
+  FLOWER it can take only the bottom POLLEN, through the 3.55 in retrieval opening (§9.7, G418), and
+  each one takes time to drag out. `LaunchAll`/`ShootAll` spin up (1 s) and fire everything held at the
+  alliance's raised CELL; `LaunchOne` fires one. A turret aims from wherever the robot is; a launcher
+  fixed to the frame waits for the drivetrain to turn the robot to face the CELL. None of the three
+  commands is in `AutoRegistration` yet: they are the names the launcher's commands should take when
+  it has them. Whether a shot goes in is the physics' business: from beside the HIVE it hits a
+  CELL's closed side.
+- **The rest of the field**, when a run asks for it: a partner that stands still with its 4 POLLEN
+  staged on the tiles beside it (`AutoSim.partner`), and the drive team entering one NECTAR into the
+  LOADING ZONE 2 s after each TIP (`AutoSim.humanNectar`, G426/G427).
+- **Time.** The log runs 8 s past AUTO, through the transition before TELEOP: a TIP that completes
+  then still counts for AUTO (§10.5 B), so a shot launched just before 30 s can still earn its TIP.
 - **Triggers.** `IntakeFull`, `LauncherReady`, `Tip` (the alliance's HIVE has started to tip since
   the wait began, like `HiveTracker.tipsStarted()`, but from the simulation's truth instead of a
   camera), `HiveTipped`, and `CameraBlind` (always false).
@@ -1327,40 +1338,91 @@ An Auto that uses a command or trigger the simulation does not know fails at onc
 
 ### Solo Autos
 
-Two Autos for a robot playing its HIVE alone, drawn in the Auto Builder and tried in the
-simulation. Their sources are `src/test/resources/auto-builder/solo-two-tip.pp` and
-`solo-three-tip.pp`; open them in the editor to see and change the routes. Both start at
-(59, 9.5) facing the HIVE. They open by launching 3 of the 4 preloads one at a time, which with
-the field's starting pieces is enough to tip the HIVE once. Then they collect FLOWER POLLEN by the wall
-and at the far FLOWER and shoot from north of the HIVE. `SoloAutosTest` checks that they still do what
-their names say.
+Four Autos for a robot working its HIVE alone, drawn in the Auto Builder and tried in the
+simulation. Their sources are in `src/test/resources/auto-builder/`; open them in the editor to
+see and change the routes. All start at (59, 9.5) facing the HIVE. They open by launching 3 of the 4
+preloads one at a time, which with the 3 NECTAR already in the CELL tips the HIVE (§12.3). The
+three-tip Autos ask whether each TIP happened and recover if not. `SoloAutosTest` checks that each
+still does what its name says.
 
-- **solo-two-tip** tips at about 3 s and 16 s on an untuned drivetrain (40 in/s), scores all 15 pieces
-  it launches, and is finished by 23 s. This is the one to try first.
-- **solo-three-tip** adds a third tip from the south side. It feeds the third tip with NECTAR the
-  first two tips spilled, plus GARDEN POLLEN. It asks twice whether the HIVE tipped and recovers if
-  not: it fires the 4th preload, or goes back for spilled NECTAR. Those checks cost about 2 s.
-
-How often solo-three-tip gets 3 tips inside the 30 s, at 50 in/s (20 runs each, varying the random
-shot errors):
-
-| Simulation guess | Friction ×0.5 | Friction ×1 | Friction ×2 |
+| Auto | Route | 2nd TIP | 3rd TIP |
 |---|---|---|---|
-| Shot spread ×1 | 18/20 | 20/20 | 20/20 |
-| Shot spread ×1.5 | 10/20 | 18/20 | 19/20 |
-| Shot spread ×2 | — | 0/5 | — |
+| **solo-two-tip** | wall FLOWER and far FLOWER, shoot from the north; then the GARDEN | 16 s | — |
+| **solo-three-tip** | as solo-two-tip; the 3rd TIP from NECTAR TIP 1 spilled plus the GARDEN | 16 s | 28 s |
+| **spill-three-tip** | waits for TIP 1's spill to roll into its intake, so it needs one FLOWER, not two | 17 s | 30 s |
+| **partner-three-tip** | as spill-three-tip, with a partner's staged POLLEN in place of the far FLOWER | 18 s | 31 s |
 
-What that says:
+Times are at 50 in/s with the standard design. A three-tip Auto needs a drivetrain that fast: at
+40 in/s its last volley comes after 30 s. solo-two-tip works at 40 in/s, and is the one to try first.
 
-- **A solo three-tip needs a drivetrain of 50 in/s or better.** At 40 in/s the third tip comes
-  just after the buzzer.
-- **It needs nearly every shot to score.** Tips 2 and 3 each need 8 pieces in the CELL (§12.3), and
-  each volley carries no spare. One miss on the last volley costs the third tip;
-  the checks can only save a miss early in the run.
-- **The spread and friction numbers are placeholders.** Measure the launcher's real spread
-  (`FieldSim`'s `PLACEHOLDER_*` constants) before trusting the table.
+Things the routes rely on, found by watching the logs:
 
-Two robots, or the solo-two-tip with a partner, are the more reliable way to three tips.
+- **Pieces get pushed.** A robot driving off its start pushes TIP 1's spill across the field, and a
+  robot turning near staged POLLEN swats them away. spill-three-tip leaves along the wall to keep the
+  spill in a row it can sweep later, and partner-three-tip comes at the partner's POLLEN straight on.
+- **Two robots cannot overlap**, so a partner's POLLEN must sit where our intake can reach them
+  head-on: in a row along the partner's front, not tucked against its side.
+
+### Robot design questions
+
+`DesignComparisonTest` runs these Autos on different robots: 10 runs each, at 50 in/s. It is slow,
+so it runs only when asked:
+
+```
+BIOBUZZ_DESIGN_STUDY=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*DesignComparisonTest*' -i
+```
+
+Third TIPs out of 10, with the simulation's placeholder friction and shot spread:
+
+| Design | solo-three-tip | spill-three-tip | partner-three-tip |
+|---|---|---|---|
+| Turret (the standard) | 10 at 28.4 s | 10 at 29.8 s | 10 at 31.1 s |
+| Launcher fixed to the frame | 10 at 28.5 s | 10 at 29.9 s | 9 at 31.1 s |
+| Two fixed launchers side by side | 10 at 25.3 s | 9 at 26.9 s | 9 at 28.2 s |
+| Turret firing every 0.25 s, not 0.45 s | 10 at 25.9 s | 9 at 27.5 s | 9 at 28.7 s |
+| Catapult (whole load at once) | 3 | 3 | 2 |
+| Launches POLLEN only | 0 | 0 | 0 |
+| Throws NECTAR 7% short | 9 | 1 | 1 |
+| 1 s to pull each FLOWER POLLEN (not 0.5 s) | 0 | 10 | 10 |
+| Intake 8 in wide (not 14 in) | 10 | 10 | 0 |
+
+What that says, as far as a simulation full of guesses can:
+
+- **Turret or fixed launcher: hardly matters for Autos.** Turning to face the CELL costs about 0.1 s
+  over a whole Auto, because these shot spots already face the HIVE. A turret's real advantage, shooting while driving, is not simulated.
+- **Shooting faster is worth about 3 s**, by two launchers or a quicker one. Those 3 s would be the
+  margin for a missed shot or a slower drivetrain. Rapid volleys sometimes knock pieces back out of the
+  CELL, though (9/10, and 5–7/10 with less friction); a real HIVE would settle that.
+- **A catapult throws badly.** The whole load leaves at once with more spread, and pieces collide.
+- **Launch NECTAR, and launch it as well as POLLEN.** No solo three-tip works without it: tip 3 is
+  built from spilled NECTAR. The launcher has to handle both sizes (2.8 in and 3.6 in) and NECTAR's 1.65×
+  weight. One that throws NECTAR short ruins the spill routes.
+- **FLOWER pickup speed decides which route works.** solo-three-tip pulls 7 POLLEN from two FLOWERs and
+  dies at 1 s each. spill-three-tip pulls 4 from one FLOWER and partner-three-tip none, and neither
+  cares.
+- **Intake width** matters only where pieces sit in a row, like a partner's staged POLLEN.
+- **Partner POLLEN don't beat a FLOWER for time.** They are about a second slower than the far FLOWER,
+  because of the careful approach. What they buy is independence from FLOWER pickup.
+- **Every placeholder is a guess.** Times, spread and friction are `PLACEHOLDER_` constants and
+  `RobotDesign` defaults, not measurements. With 1.5× the shot spread, or half the friction, the
+  third-TIP counts drop: by one to three in ten for most designs, by up to five for the fast shooters.
+  Treat the table as a comparison, not a prediction.
+
+Rules the routes and designs lean on, from the Competition Manual:
+
+- Size: 18 in cube at the start (R102); at most 18 × 24 × 29 in once moving (R105), so an intake
+  can reach 6 in past an 18 in frame.
+- A robot starts touching the wall, on its own side, out of the LOADING ZONE and clear of FLOWERs,
+  touching its 4 preloads, which may sit on the tiles beside it (G304, §10.3.4). A partner can stage
+  its preloads for us that way.
+- POLLEN comes out of a FLOWER only from the bottom; NECTAR never does (G418). NECTAR goes into a FLOWER
+  only in the last 60 s (G410), so not in AUTO.
+- Spilled pieces must hit the tiles before a robot takes them, and waiting under the HIVE to catch
+  them is a foul (G409).
+- Each TIP lets the drive team enter one NECTAR into the LOADING ZONE (G426, G427). Nothing restricts
+  that to TELEOP; check with the Q&A before an Auto counts on it. A run that picked it up for TIP 2
+  made no difference: the runs that miss a TIP miss the third.
+- A TIP that completes before TELEOP starts counts for AUTO (§10.5 B).
 
 ### Why the on-robot build is not here: it takes port 8080
 

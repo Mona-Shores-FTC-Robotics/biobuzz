@@ -1,0 +1,114 @@
+package org.firstinspires.ftc.teamcode.logging;
+
+import java.util.Locale;
+
+/**
+ * The robot the simulation pretends to be: where the intake is, what kind of launcher, how fast
+ * each mechanism works. It is how a design question ("turret or fixed launcher?", "do we need to
+ * launch NECTAR?") becomes something {@link AutoSim} can run, so ideas can be compared before
+ * anything is built.
+ *
+ * <p>The sizes come from the Competition Manual: an 18 in cube at the start (R102) and an 18 × 24 in
+ * footprint fully expanded (R105), so an intake can reach at most 6 in past an 18 in frame. Every
+ * time is a placeholder until a mechanism exists to time; change one, run the comparison again,
+ * and see whether the answer changes.
+ */
+final class RobotDesign {
+
+    enum Launcher {
+        /** Aims on its own: launches from any heading, no turning first. */
+        TURRET,
+        /** Fixed to the frame: the drivetrain turns the robot to face the CELL, then it launches. */
+        FIXED,
+        /** Fixed to the frame, and throws everything it holds at once, with more spread. */
+        CATAPULT
+    }
+
+    /** R105: the fully expanded footprint is 18 × 24 in, so an 18 in frame can reach 6 in further. */
+    static final double MAX_REACH_IN = 6.0;
+    /** A FLOWER's retrieval opening is 3.55 in tall (Competition Manual §9.7). */
+    static final double FLOWER_OPENING_HEIGHT_IN = 3.55;
+
+    final String name;
+    /** Frame length, front to back; the frame is square at the start (R102: 18 in cube). */
+    double frameIn = 18;
+    /** How far the intake reaches past the frame once the match starts. */
+    double intakeReachIn = 0;
+    double intakeWidthIn = 14;
+    boolean intakeAtBack = false;
+    /** Time between two pieces through the intake, picking up off the tiles. */
+    double intakeIntervalS = 0.15;
+    /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
+    double flowerPullS = 0.5;
+    Launcher launcher = Launcher.TURRET;
+    /** Launchers side by side: each shot interval fires this many. */
+    int launchers = 1;
+    double shotIntervalS = 0.45;
+    double spinUpS = 1.0;
+    /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
+    boolean launchesNectar = true;
+    /**
+     * NECTAR's launch speed as a fraction of what was aimed for: 1 for a launcher that knows which
+     * piece it holds and compensates; below 1 for one tuned for POLLEN that throws the heavier
+     * NECTAR short.
+     */
+    double nectarSpeedFactor = 1.0;
+    /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
+    double maxTurnRadPerS = Math.toRadians(300);
+
+    RobotDesign(String name) {
+        this.name = name;
+    }
+
+    /** What the simulation has always assumed: front intake, a turret that aims itself. */
+    static RobotDesign standard() {
+        return new RobotDesign("turret");
+    }
+
+    static RobotDesign fixedLauncher() {
+        RobotDesign d = new RobotDesign("fixed launcher");
+        d.launcher = Launcher.FIXED;
+        return d;
+    }
+
+    static RobotDesign catapult() {
+        RobotDesign d = new RobotDesign("catapult");
+        d.launcher = Launcher.CATAPULT;
+        d.spinUpS = 0.6; // re-cocking, not spinning up
+        return d;
+    }
+
+    RobotDesign copy(String newName) {
+        RobotDesign d = new RobotDesign(newName);
+        d.frameIn = frameIn;
+        d.intakeReachIn = intakeReachIn;
+        d.intakeWidthIn = intakeWidthIn;
+        d.intakeAtBack = intakeAtBack;
+        d.intakeIntervalS = intakeIntervalS;
+        d.flowerPullS = flowerPullS;
+        d.launcher = launcher;
+        d.launchers = launchers;
+        d.shotIntervalS = shotIntervalS;
+        d.spinUpS = spinUpS;
+        d.launchesNectar = launchesNectar;
+        d.nectarSpeedFactor = nectarSpeedFactor;
+        d.maxTurnRadPerS = maxTurnRadPerS;
+        return d;
+    }
+
+    /** Throws if the design breaks a construction rule the manual states. */
+    RobotDesign checked() {
+        if (frameIn > 18) throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
+        if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
+        if (intakeWidthIn > frameIn) throw new IllegalArgumentException(name + ": intake wider than the frame");
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return String.format(Locale.ROOT, "%s (%s x%d, %.2f s/shot, intake %s %.0f in wide +%.0f in, %s)",
+                name, launcher.name().toLowerCase(Locale.ROOT), launchers, shotIntervalS,
+                intakeAtBack ? "back" : "front", intakeWidthIn, intakeReachIn,
+                launchesNectar ? "POLLEN+NECTAR" : "POLLEN only");
+    }
+}

@@ -289,7 +289,7 @@ final class SimDriver {
         double ey = clamp(p.y - s * (HALF - 1), reach, size - reach);
         // Still inside the intake once clamped against the walls?
         double lx = (p.x - ex) * c + (p.y - ey) * s, ly = -(p.x - ex) * s + (p.y - ey) * c;
-        if (lx < HALF - 2 || lx > HALF + 3 || Math.abs(ly) > FieldSim.PLACEHOLDER_INTAKE_HALF_WIDTH_IN - 1) return null;
+        if (lx < HALF - 2 || lx > HALF + 3 || Math.abs(ly) > FieldSim.INTAKE_HALF_WIDTH_IN - 1) return null;
         if (insideKeepOut(ex, ey)) return null;
         double ax = clamp(ex - c * 10, reach, size - reach);
         double ay = clamp(ey - s * 10, reach, size - reach);

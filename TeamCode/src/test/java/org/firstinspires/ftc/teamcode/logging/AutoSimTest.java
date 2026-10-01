@@ -57,7 +57,12 @@ public class AutoSimTest {
             for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
                 File file = new File(TeamCodeDir.simLogs(),
                         "auto-" + AutoSim.name(auto) + "-" + alliance.name().toLowerCase() + ".wpilog");
-                AutoSim.Result result = new AutoSim(auto, alliance, 3572L).write(file);
+                AutoSim sim = new AutoSim(auto, alliance, 3572L);
+                // The one Auto drawn around a partner gets that partner, so its log shows the plan.
+                if (AutoSim.name(auto).equals("partner-three-tip")) {
+                    sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
+                }
+                AutoSim.Result result = sim.write(file);
                 System.out.println(result);
                 assertTrue(file.length() > 0);
                 for (double[] p : result.poses) {
