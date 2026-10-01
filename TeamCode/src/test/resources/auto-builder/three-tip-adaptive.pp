@@ -88,20 +88,20 @@
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
-              "endProgress": 0.65,
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
                 "endDeg": 301
-              }
-            },
-            {
-              "startProgress": 0.65,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 301
               }
             }
           ]
@@ -190,20 +190,20 @@
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
-              "endProgress": 0.65,
+              "startProgress": 0,
+              "endProgress": 0.4,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.4,
+              "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
                 "endDeg": 301
-              }
-            },
-            {
-              "startProgress": 0.65,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 301
               }
             }
           ]
@@ -638,15 +638,15 @@
       "kind": "atomic",
       "endPoint": {
         "x": 15,
-        "y": 99
+        "y": 89.5
       },
       "controlPoints": [
         {
-          "x": 14,
+          "x": 22,
           "y": 40
         },
         {
-          "x": 12,
+          "x": 22,
           "y": 80
         }
       ],
@@ -946,7 +946,7 @@
       ],
       "PARK": [
         15,
-        99,
+        89.5,
         90
       ]
     },

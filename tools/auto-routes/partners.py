@@ -2,14 +2,17 @@ from autogen import *
 from helpers import waits, fire
 
 def leave_park():
+    """Leaves and parks, nothing more, but first sets its 4 preloads in a row against its front for
+    us to collect (AutoStudyTest.LEAVE_PARTNER_STAGED). Slides west clear of them, then parks toward
+    the far-left end of the LOADING ZONE, off the wall."""
     r = Route("partner-leave-park", (24, 132.25, 270), speed=40, folder=PP_DIR + "/partners")
-    r.pt("PARK_P", 16, 122, 270)
-    r.add(r.go("PARK_P", park=True))
+    r.pt("SLIDE_P", 10.5, 131, 270).pt("PARK_P", 10.5, 111, 270).pt("PARK_P2", 10.5, 110, 270)
+    r.add(r.go("SLIDE_P", heading=270), r.go("PARK_P", heading=270), r.go("PARK_P2", park=True))
     return r
 
 def preloads_park():
     r = Route("partner-preloads-park", (59, 132.25, 270), speed=40, folder=PP_DIR + "/partners")
-    r.pt("PARK_P", 16, 122, 270)
+    r.pt("PARK_P", 10.5, 111, 270)  # the far-left end of the LOADING ZONE, off the wall
     r.add(r.action("SpinUp"),
           *waits(r, "Left CELL up", "LeftCellUp", 8.0),
           fire(r, "Fire the preloads", "Empty"),

@@ -52,17 +52,19 @@ public final class ThreeTipAdaptiveAuto {
         Pose rightPlunge = p.of(55, 10.5, 270);
         Pose rightShot = p.of(36, 30, 49);
         Pose garden = p.of(8.5, 11, 270);
-        Pose park = p.of(15, 99, 90);
+        Pose park = p.of(15, 89.5, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToWallFlowerTurnControl1 = p.of(22.21, 9.5, 0);
         Pose startToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 90);
         Pose startToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 90);
-        Pose wallFlowerToLeftShotSegment1Start = p.of(40, 116, 180);
+        Pose wallFlowerToLeftShotSegment1Heading = p.of(40, 116, 180);
+        Pose wallFlowerToLeftShotSegment2Start = p.of(40, 116, 180);
         Pose leftShotToFarFlowerTurnControl1 = p.of(40, 119.29, 0);
         Pose leftShotToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 301);
         Pose leftShotToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 301);
-        Pose farFlowerToLeftShotSegment1Start = p.of(40, 116, 90);
+        Pose farFlowerToLeftShotSegment1Heading = p.of(40, 116, 90);
+        Pose farFlowerToLeftShotSegment2Start = p.of(40, 116, 90);
         Pose leftShotToRightShotControl1 = p.of(34, 92, 0);
         Pose leftShotToRightShotControl2 = p.of(12, 60, 0);
         Pose leftShotToRightShotControl3 = p.of(22, 30, 0);
@@ -78,17 +80,17 @@ public final class ThreeTipAdaptiveAuto {
         Pose rightPlungeToRightShot_2Segment1Start = p.of(36, 30, 270);
         Pose rightShotToGarden_2Segment1Start = p.of(8.5, 11, 49);
         Pose gardenToRightShot_2Segment1Start = p.of(36, 30, 270);
-        Pose rightShotToParkControl1 = p.of(14, 40, 0);
-        Pose rightShotToParkControl2 = p.of(12, 80, 0);
-        Pose rightShotToParkSegment1Start = p.of(15, 99, 49);
+        Pose rightShotToParkControl1 = p.of(22, 40, 0);
+        Pose rightShotToParkControl2 = p.of(22, 80, 0);
+        Pose rightShotToParkSegment1Start = p.of(15, 89.5, 49);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlowerTurn = Paths.curve(start, startToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToWallFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToWallFlowerTurnSegment2Start, wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
-        Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(wallFlowerToLeftShotSegment1Start, leftShot)).until(1, Interpolator.constant(leftShot)));
+        Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(wallFlowerToLeftShotSegment1Heading)).until(1, Interpolator.linear(wallFlowerToLeftShotSegment2Start, leftShot)));
         Path leftShotToFarFlowerTurn = Paths.curve(leftShot, leftShotToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(leftShotToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(leftShotToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(farFlowerToLeftShotSegment1Start, leftShot)).until(1, Interpolator.constant(leftShot)));
+        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(farFlowerToLeftShotSegment1Heading)).until(1, Interpolator.linear(farFlowerToLeftShotSegment2Start, leftShot)));
         Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
         Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
         Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
@@ -103,7 +105,7 @@ public final class ThreeTipAdaptiveAuto {
         Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
 
         return kit.sequence(
-                kit.guarded("Auto", rightShotToPark, 2.7,
+                kit.guarded("Auto", rightShotToPark, 2.4,
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),

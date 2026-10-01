@@ -91,6 +91,12 @@ public class AutoStudyTest {
         return m;
     }
 
+    /**
+     * Where partner-leave-park sets its 4 preloads: a row touching the front of a robot facing the HIVE
+     * at (24, 132.25), toward its east side so it can slide west and away without touching them.
+     */
+    static final double[][] LEAVE_PARTNER_STAGED = {{21.2, 121.6}, {24.0, 121.6}, {26.8, 121.6}, {29.6, 121.6}};
+
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
@@ -112,7 +118,10 @@ public class AutoStudyTest {
         }
         if (autos.length > 1) {
             double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
-            sim.alsoRun(Class.forName(PKG + autos[1])).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            Class<?> second = Class.forName(PKG + autos[1]);
+            sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
+            if (second.getSimpleName().equals("PartnerLeaveParkAuto")) sim.stagesPreloads(LEAVE_PARTNER_STAGED);
         }
         return sim.write(file);
     }

@@ -541,6 +541,11 @@ final class FieldSim {
      */
     void stagePartner(Alliance alliance, double[] pose, double[][] spots) {
         parkedRobots.add(pose);
+        stagePreloads(alliance, spots);
+    }
+
+    /** Puts the next of the alliance's preloaded POLLEN on the tiles at {@code spots}. */
+    void stagePreloads(Alliance alliance, double[][] spots) {
         double wallX = alliance == Alliance.BLUE ? FIELD_SIZE_IN : 0;
         int i = 0;
         for (Piece p : pieces) {

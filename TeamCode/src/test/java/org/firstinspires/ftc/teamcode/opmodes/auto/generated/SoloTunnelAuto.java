@@ -46,52 +46,62 @@ public final class SoloTunnelAuto {
         Pose rHome = p.of(57.5, 10, 90);
         Pose lHome = p.of(59, 131.75, 270);
         Pose lExit = p.of(56.5, 103, 90);
-        Pose lExitS = p.of(56.5, 103, 270);
-        Pose rExitN = p.of(57.5, 34, 270);
+        Pose lExitBack = p.of(56.5, 103, 270);
+        Pose rExitBack = p.of(57.5, 34, 270);
         Pose flowerL = p.of(47.36, 127.59, 90);
         Pose flowerLTurn = p.of(47.36, 119.29, 90);
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose rBack = p.of(59, 11, 90);
-        Pose park = p.of(13, 101, 90);
-        Pose park2 = p.of(13, 103, 90);
+        Pose park = p.of(15, 89.5, 90);
+        Pose park2 = p.of(15, 90.5, 90);
+        Pose lLook = p.of(38, 124, 180);
+        Pose lLookBack = p.of(57.5, 121, 270);
         Pose flowerLBackLHome = p.of(57.5, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose lExitToLHomeSegment1Start = p.of(59, 131.75, 90);
-        Pose lHomeToFlowerLTurnControl1 = p.of(59, 119.29, 0);
-        Pose lHomeToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 270);
-        Pose lHomeToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
+        Pose lHomeToLLookControl1 = p.of(59, 121, 0);
+        Pose lHomeToLLookSegment1Heading = p.of(38, 124, 270);
+        Pose lHomeToLLookSegment2Start = p.of(38, 124, 270);
+        Pose lLookToLLookBackSegment1Heading = p.of(57.5, 121, 180);
+        Pose lLookToLLookBackSegment2Start = p.of(57.5, 121, 180);
+        Pose lLookBackToLHomeControl1 = p.of(59, 123, 0);
+        Pose lLookToFlowerLTurnControl1 = p.of(38, 119.29, 0);
+        Pose lLookToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 180);
+        Pose lLookToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 180);
         Pose flowerLToFlowerLBackLHomeSegment1Heading = p.of(57.5, 119.29, 90);
         Pose flowerLToFlowerLBackLHomeSegment2Start = p.of(57.5, 119.29, 90);
         Pose flowerLBackLHomeToLHomeControl1 = p.of(59, 121.29, 0);
-        Pose rExitNToRHomeSegment1Start = p.of(57.5, 10, 270);
+        Pose rExitBackToRHomeSegment1Start = p.of(57.5, 10, 270);
         Pose rHomeToGardenInControl1 = p.of(30, 22, 0);
         Pose rHomeToGardenInSegment1Start = p.of(8.5, 22, 90);
         Pose gardenToRBackControl1 = p.of(20, 18, 0);
         Pose gardenToRBackSegment1Start = p.of(59, 11, 270);
         Pose rHomeToParkControl1 = p.of(24, 24, 0);
-        Pose rHomeToParkControl2 = p.of(24, 95, 0);
+        Pose rHomeToParkControl2 = p.of(24, 85, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToLExit = Paths.line(start, lExit).constant(lExit);
         Path lExitToLHome = Paths.line(lExit, lHome).heading(Interpolator.piecewise().until(0.4, Interpolator.linear(lExitToLHomeSegment1Start, lHome)).until(1, Interpolator.constant(lHome)));
-        Path lHomeToFlowerLTurn = Paths.curve(lHome, lHomeToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lHomeToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(lHomeToFlowerLTurnSegment2Start, flowerLTurn)));
+        Path lHomeToLLook = Paths.curve(lHome, lHomeToLLookControl1, lLook).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lHomeToLLookSegment1Heading)).until(1, Interpolator.linear(lHomeToLLookSegment2Start, lLook)));
+        Path lLookToLLookBack = Paths.line(lLook, lLookBack).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(lLookToLLookBackSegment1Heading)).until(1, Interpolator.linear(lLookToLLookBackSegment2Start, lLookBack)));
+        Path lLookBackToLHome = Paths.curve(lLookBack, lLookBackToLHomeControl1, lHome).constant(lHome);
+        Path lLookToFlowerLTurn = Paths.curve(lLook, lLookToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lLookToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(lLookToFlowerLTurnSegment2Start, flowerLTurn)));
         Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
         Path flowerLToFlowerLBackLHome = Paths.line(flowerL, flowerLBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackLHomeSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackLHomeSegment2Start, flowerLBackLHome)));
         Path flowerLBackLHomeToLHome = Paths.curve(flowerLBackLHome, flowerLBackLHomeToLHomeControl1, lHome).constant(lHome);
-        Path lHomeToLExitS = Paths.line(lHome, lExitS).constant(lExitS);
-        Path lExitSToRExitN = Paths.line(lExitS, rExitN).constant(rExitN);
-        Path rExitNToRHome = Paths.line(rExitN, rHome).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(rExitNToRHomeSegment1Start, rHome)).until(1, Interpolator.constant(rHome)));
-        Path rHomeToRBack = Paths.line(rHome, rBack).linear(rHome, rBack);
-        Path rHomeToGardenIn = Paths.curve(rBack, rHomeToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rHomeToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
+        Path lHomeToLExitBack = Paths.line(lHome, lExitBack).constant(lExitBack);
+        Path lExitBackToRExitBack = Paths.line(lExitBack, rExitBack).constant(rExitBack);
+        Path rExitBackToRHome = Paths.line(rExitBack, rHome).heading(Interpolator.piecewise().until(0.5, Interpolator.linear(rExitBackToRHomeSegment1Start, rHome)).until(1, Interpolator.constant(rHome)));
+        Path rHomeToGardenIn = Paths.curve(rHome, rHomeToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rHomeToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToRBack = Paths.curve(garden, gardenToRBackControl1, rBack).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRBackSegment1Start, rBack)).until(1, Interpolator.constant(rBack)));
         Path rHomeToPark = Paths.curve(rBack, rHomeToParkControl1, rHomeToParkControl2, park).linear(rBack, park);
         Path parkToPark2 = Paths.line(park, park2).linear(park, park2);
 
         return kit.sequence(
-                kit.guarded("Auto", parkToPark2, 0.5,
+                kit.guarded("Auto", parkToPark2, 0.3,
                         kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(4000)),
@@ -109,50 +119,43 @@ public final class SoloTunnelAuto {
                         kit.firstOf("TIP 2 yet?",
                                 kit.when("RightCellUp"),
                                 kit.afterMs(1200).then(
-                                        kit.path("L_HOME to FLOWER_L_TURN", lHomeToFlowerLTurn),
-                                        kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerL),
-                                        kit.firstOf("Collect at the far FLOWER",
-                                                kit.when("IntakeFull"),
-                                                kit.afterMs(2300)),
-                                        kit.path("FLOWER_L to FLOWER_L_BACK_L_HOME", flowerLToFlowerLBackLHome),
-                                        kit.path("FLOWER_L_BACK_L_HOME to L_HOME", flowerLBackLHomeToLHome),
+                                        kit.path("L_HOME to L_LOOK", lHomeToLLook),
+                                        kit.firstOf("Loose pieces in view?", kit.command("CollectSeen"),
+                                                kit.when("IntakeFull").then(
+                                                        kit.path("L_LOOK to L_LOOK_BACK", lLookToLLookBack),
+                                                        kit.path("L_LOOK_BACK to L_HOME", lLookBackToLHome)),
+                                                kit.afterMs(2500).then(
+                                                        kit.path("L_LOOK to FLOWER_L_TURN", lLookToFlowerLTurn),
+                                                        kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerL),
+                                                        kit.firstOf("Collect at the far FLOWER",
+                                                                kit.when("IntakeFull"),
+                                                                kit.afterMs(2300)),
+                                                        kit.path("FLOWER_L to FLOWER_L_BACK_L_HOME", flowerLToFlowerLBackLHome),
+                                                        kit.path("FLOWER_L_BACK_L_HOME to L_HOME", flowerLBackLHomeToLHome))),
                                         kit.firstOf("Fire again (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)))),
-                        kit.firstOf("TIP 2: TIP?",
-                                kit.when("Tip"),
-                                kit.afterMs(2500)),
                         kit.firstOf("TIP 2: catch the spill",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1600)),
-                        kit.path("L_HOME to L_EXIT_S", lHomeToLExitS),
-                        kit.path("L_EXIT_S to R_EXIT_N", lExitSToRExitN),
-                        kit.path("R_EXIT_N to R_HOME", rExitNToRHome),
+                        kit.path("L_HOME to L_EXIT_BACK", lHomeToLExitBack),
+                        kit.path("L_EXIT_BACK to R_EXIT_BACK", lExitBackToRExitBack),
+                        kit.path("R_EXIT_BACK to R_HOME", rExitBackToRHome),
                         kit.firstOf("Fire at the right CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
                         kit.firstOf("TIP 3 yet?",
                                 kit.when("LeftCellUp"),
-                                kit.afterMs(1200).then(
-                                        kit.firstOf("Loose pieces in view", kit.command("CollectSeen"),
+                                kit.afterMs(1000).then(
+                                        kit.path("R_HOME to GARDEN_IN", rHomeToGardenIn),
+                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
+                                        kit.firstOf("Collect in the GARDEN",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("R_HOME to R_BACK", rHomeToRBack),
-                                        kit.firstOf("Fire what it found", kit.command("LaunchAll"),
-                                                kit.when("Empty"),
-                                                kit.afterMs(1500)),
-                                        kit.firstOf("TIP 3 now?",
+                                        kit.path("GARDEN to R_BACK", gardenToRBack),
+                                        kit.firstOf("Fire again (TIP 3)", kit.command("LaunchAll"),
                                                 kit.when("LeftCellUp"),
-                                                kit.afterMs(1200).then(
-                                                        kit.path("R_HOME to GARDEN_IN", rHomeToGardenIn),
-                                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
-                                                        kit.firstOf("Collect in the GARDEN",
-                                                                kit.when("IntakeFull"),
-                                                                kit.afterMs(1500)),
-                                                        kit.path("GARDEN to R_BACK", gardenToRBack),
-                                                        kit.firstOf("Fire again (TIP 3)", kit.command("LaunchAll"),
-                                                                kit.when("LeftCellUp"),
-                                                                kit.afterMs(2500)))))),
+                                                kit.afterMs(2500)))),
                         kit.path("R_HOME to PARK", rHomeToPark),
                         kit.path("PARK to PARK2", parkToPark2)));
     }

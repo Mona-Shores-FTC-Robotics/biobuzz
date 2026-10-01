@@ -3,7 +3,7 @@ from helpers import waits, fire, flower, flower_points, leave_flower, FAR_FLOWER
 
 def right(speed=50, name="duo-lz-right", garden=True):
     r = Route(name, (59, 9.5, 90), speed=speed)
-    r.pt("SLIDE_SL", 41, 9.5, 90).pt("SLIDE_SR", 60, 9.5, 90).pt("HOME_R", 59, 10, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270).pt("PARK_R", 14, 93, 330).pt("PARK_S2", 14, 95, 330)
+    r.pt("SLIDE_SL", 41, 9.5, 90).pt("SLIDE_SR", 60, 9.5, 90).pt("HOME_R", 59, 10, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270).pt("PARK_R", 14, 89, 330).pt("PARK_R2", 14, 90, 330)
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
           r.wait("Tip 1", when=["LeftCellUp"], ms=2500),
           r.wait("Spill rolls in", when=["IntakeFull"], ms=1800),
@@ -21,12 +21,12 @@ def right(speed=50, name="duo-lz-right", garden=True):
           r.go("PARK_R", ctrl=[(24, 14), (18, 50)]),
           *waits(r, "Left CELL up", "LeftCellUp", 10.0),
           fire(r, "Fire from the LOADING ZONE (TIP 4)", "Empty"),
-          r.go("PARK_S2", park=True))
+          r.go("PARK_R2", park=True))
     return r
 
 def left(speed=50, name="duo-lz-left"):
     r = Route(name, (59, 132.25, 270), speed=speed)
-    flower_points(r, "FLOWER_L", FAR_FLOWER_AT, 90).pt("HOME_L", 59, 131.75, 270).pt("PARK_L", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
+    flower_points(r, "FLOWER_L", FAR_FLOWER_AT, 90).pt("HOME_L", 59, 131.75, 270).pt("PARK_L", 15, 119, 300).pt("PARK_L2", 15, 118, 300)
     r.add(r.action("SpinUp"),
           *waits(r, "Right tips", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),
@@ -40,7 +40,7 @@ def left(speed=50, name="duo-lz-left"):
           r.go("PARK_L", ctrl=[(59, 118), (30, 118)]),
           *waits(r, "Left CELL up", "LeftCellUp", 5.0),
           fire(r, "Fire from the LOADING ZONE", "Empty"),
-          r.go("PARK_N2", park=True))
+          r.go("PARK_L2", park=True))
     return r
 
 if __name__ == "__main__":

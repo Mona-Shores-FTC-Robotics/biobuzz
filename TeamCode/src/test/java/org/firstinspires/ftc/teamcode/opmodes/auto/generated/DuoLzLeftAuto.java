@@ -46,8 +46,8 @@ public final class DuoLzLeftAuto {
         Pose flowerL = p.of(47.36, 127.59, 90);
         Pose flowerLTurn = p.of(47.36, 119.29, 90);
         Pose homeL = p.of(59, 131.75, 270);
-        Pose parkL = p.of(15, 126, 300);
-        Pose parkN2 = p.of(15, 124, 300);
+        Pose parkL = p.of(15, 119, 300);
+        Pose parkL2 = p.of(15, 118, 300);
         Pose flowerLBackHomeL = p.of(57.5, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -59,7 +59,7 @@ public final class DuoLzLeftAuto {
         Pose flowerLBackHomeLToHomeLControl1 = p.of(59, 121.29, 0);
         Pose homeLToParkLControl1 = p.of(59, 118, 0);
         Pose homeLToParkLControl2 = p.of(30, 118, 0);
-        Pose homeLToParkLSegment1Start = p.of(15, 126, 270);
+        Pose homeLToParkLSegment1Start = p.of(15, 119, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFlowerLTurn = Paths.curve(start, startToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(startToFlowerLTurnSegment2Start, flowerLTurn)));
@@ -67,10 +67,10 @@ public final class DuoLzLeftAuto {
         Path flowerLToFlowerLBackHomeL = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeLSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeLSegment2Start, flowerLBackHomeL)));
         Path flowerLBackHomeLToHomeL = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeLControl1, homeL).constant(homeL);
         Path homeLToParkL = Paths.curve(homeL, homeLToParkLControl1, homeLToParkLControl2, parkL).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeLToParkLSegment1Start, parkL)).until(1, Interpolator.constant(parkL)));
-        Path parkLToParkN2 = Paths.line(parkL, parkN2).linear(parkL, parkN2);
+        Path parkLToParkL2 = Paths.line(parkL, parkL2).linear(parkL, parkL2);
 
         return kit.sequence(
-                kit.guarded("Auto", parkLToParkN2, 0.5,
+                kit.guarded("Auto", parkLToParkL2, 0.3,
                         kit.command("SpinUp"),
                         kit.firstOf("Right tips",
                                 kit.when("LeftCellUp"),
@@ -161,6 +161,6 @@ public final class DuoLzLeftAuto {
                         kit.firstOf("Fire from the LOADING ZONE", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
-                        kit.path("PARK_L to PARK_N2", parkLToParkN2)));
+                        kit.path("PARK_L to PARK_L2", parkLToParkL2)));
     }
 }

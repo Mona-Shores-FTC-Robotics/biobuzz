@@ -7,7 +7,7 @@ from helpers import *
 
 def right(name="lean-right", cycles=5, park=False):
     r = Route(name, (59, 9.5, 90), speed=50)
-    r.pt("HOME_R", 59, 10, 90).pt("PARK_R", 14, 93, 330).pt("PARK_S2", 14, 95, 330)
+    r.pt("HOME_R", 59, 10, 90).pt("PARK_R", 14, 93, 330).pt("PARK_R2", 14, 95, 330)
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2500))
@@ -17,16 +17,16 @@ def right(name="lean-right", cycles=5, park=False):
               r.wait(f"Until it tips ({k + 1})", when=["LeftCellUp"], ms=2500),
               r.wait(f"Catch the spill ({k + 1})", when=["IntakeFull"], ms=2000))
     if park:
-        r.add(r.go("PARK_R", ctrl=[(24, 14), (10, 50)]),
+        r.add(r.go("PARK_R", ctrl=[(24, 14), (18, 50)]),
               *waits(r, "Left CELL up", "LeftCellUp", 3.0),
               fire(r, "Fire from the LOADING ZONE", "Empty"),
-              r.go("PARK_S2", park=True))
+              r.go("PARK_R2", park=True))
     return r
 
 
 def left(name="lean-left", cycles=5, park=False):
     r = Route(name, (59, 132.25, 270), speed=50)
-    flower_points(r, "FLOWER_L", FAR_FLOWER_AT, 90).pt("HOME_L", 59, 131.75, 270).pt("PARK_L", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
+    flower_points(r, "FLOWER_L", FAR_FLOWER_AT, 90).pt("HOME_L", 59, 131.75, 270).pt("PARK_L", 15, 126, 300).pt("PARK_L2", 15, 124, 300)
     r.add(r.action("SpinUp"),
           *waits(r, "TIP 1", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),
@@ -44,7 +44,7 @@ def left(name="lean-left", cycles=5, park=False):
         r.add(r.go("PARK_L"),
               *waits(r, "Left CELL up", "LeftCellUp", 3.0),
               fire(r, "Fire from the LOADING ZONE", "Empty"),
-              r.go("PARK_N2", park=True))
+              r.go("PARK_L2", park=True))
     return r
 
 

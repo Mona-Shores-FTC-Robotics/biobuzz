@@ -143,7 +143,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14,
-        "y": 93
+        "y": 89
       },
       "controlPoints": [
         {
@@ -181,9 +181,9 @@
       }
     },
     {
-      "id": "to-park-s2-7",
+      "id": "to-park-r2-7",
       "color": "#3cc8e4",
-      "name": "PARK_R to PARK_S2",
+      "name": "PARK_R to PARK_R2",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -191,7 +191,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14,
-        "y": 95
+        "y": 90
       },
       "controlPoints": [],
       "heading": {
@@ -302,7 +302,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-s2-7"
+      "lineId": "to-park-r2-7"
     }
   ],
   "settings": {
@@ -394,12 +394,12 @@
       ],
       "PARK_R": [
         14,
-        93,
+        89,
         330
       ],
-      "PARK_S2": [
+      "PARK_R2": [
         14,
-        95,
+        90,
         330
       ]
     },
@@ -410,7 +410,7 @@
       "to-slide-sr-4": "SLIDE_SR",
       "to-home-r-5": "HOME_R",
       "to-park-r-6": "PARK_R",
-      "to-park-s2-7": "PARK_S2"
+      "to-park-r2-7": "PARK_R2"
     },
     "startAt": "START",
     "cards": [
@@ -931,7 +931,7 @@
       {
         "id": "p-37",
         "kind": "path",
-        "lineId": "to-park-s2-7",
+        "lineId": "to-park-r2-7",
         "park": true
       }
     ]

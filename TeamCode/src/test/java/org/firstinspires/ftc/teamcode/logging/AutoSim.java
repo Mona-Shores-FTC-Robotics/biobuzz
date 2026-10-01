@@ -248,6 +248,15 @@ public final class AutoSim {
         return this;
     }
 
+    /**
+     * This robot sets its 4 preloaded POLLEN on the tiles at {@code spots} (RED-drawn), touching its
+     * front, instead of carrying them (G304, §10.3.4): a partner leaving them for us to collect.
+     */
+    AutoSim stagesPreloads(double[][] spots) {
+        configuring.stagedPreloads = spots;
+        return this;
+    }
+
     /** Sets the drivetrain's top speed and acceleration, in/s and in/s². */
     AutoSim speed(double maxInPerS, double accelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;
@@ -499,6 +508,8 @@ public final class AutoSim {
         RobotDesign design = RobotDesign.standard();
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
         double[] zone;
+        /** Where this robot sets its preloads on the tiles, drawn for RED; null to carry them. */
+        double[][] stagedPreloads;
         FieldSim.Bot body;
         Command auto;
         final List<String> pending = new ArrayList<>();
@@ -526,7 +537,13 @@ public final class AutoSim {
         void start(WpiLog log, RobotResult result) throws IOException {
             body = index == 0 ? sim.main : sim.addBot();
             body.design = design;
-            sim.preload(body, alliance);
+            if (stagedPreloads == null) {
+                sim.preload(body, alliance);
+            } else {
+                double[][] spots = new double[stagedPreloads.length][];
+                for (int i = 0; i < spots.length; i++) spots[i] = forAlliance(stagedPreloads[i], alliance == Alliance.RED);
+                sim.stagePreloads(alliance, spots);
+            }
             keyPrefix = robot.prefix;
             String drawnFor;
             String[] commands;

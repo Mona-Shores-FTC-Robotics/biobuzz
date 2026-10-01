@@ -42,7 +42,7 @@ public final class PartnerPreloadsParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
-        Pose parkP = p.of(16, 122, 270);
+        Pose parkP = p.of(10.5, 111, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToParkPControl1 = p.of(59, 116, 0);
@@ -52,7 +52,7 @@ public final class PartnerPreloadsParkAuto {
         Path startToParkP = Paths.curve(start, startToParkPControl1, startToParkPControl2, parkP).linear(start, parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 2.4,
+                kit.guarded("Auto", startToParkP, 2.6,
                         kit.command("SpinUp"),
                         kit.firstOf("Left CELL up",
                                 kit.when("LeftCellUp"),

@@ -143,7 +143,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 15,
-        "y": 126
+        "y": 119
       },
       "controlPoints": [
         {
@@ -181,9 +181,9 @@
       }
     },
     {
-      "id": "to-park-n2-6",
+      "id": "to-park-l2-6",
       "color": "#3cc8e4",
-      "name": "PARK_L to PARK_N2",
+      "name": "PARK_L to PARK_L2",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -191,7 +191,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 15,
-        "y": 124
+        "y": 118
       },
       "controlPoints": [],
       "heading": {
@@ -298,7 +298,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-n2-6"
+      "lineId": "to-park-l2-6"
     }
   ],
   "settings": {
@@ -385,12 +385,12 @@
       ],
       "PARK_L": [
         15,
-        126,
+        119,
         300
       ],
-      "PARK_N2": [
+      "PARK_L2": [
         15,
-        124,
+        118,
         300
       ],
       "FLOWER_L_BACK_HOME_L": [
@@ -405,7 +405,7 @@
       "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
       "to-home-l-4": "HOME_L",
       "to-park-l-5": "PARK_L",
-      "to-park-n2-6": "PARK_N2"
+      "to-park-l2-6": "PARK_L2"
     },
     "startAt": "START",
     "cards": [
@@ -928,7 +928,7 @@
       {
         "id": "p-35",
         "kind": "path",
-        "lineId": "to-park-n2-6",
+        "lineId": "to-park-l2-6",
         "park": true
       }
     ]

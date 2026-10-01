@@ -35,8 +35,8 @@ def right(name="home-right", cycles=3, nudge=10, stream=False, x=59, park=False)
     for k in range(cycles):
         r.add(*cycle(r, k, "RightCellUp", "LeftCellUp", "HOME_R", "NUDGE_R", 90, stream))
     if park:
-        r.pt("PARK_R", 14, 93, 330).pt("PARK_S2", 14, 95, 330)
-        r.add(r.go("PARK_R", ctrl=[(24, 14), (10, 50)]), r.go("PARK_S2", park=True))
+        r.pt("PARK_R", 14, 93, 330).pt("PARK_R2", 14, 95, 330)
+        r.add(r.go("PARK_R", ctrl=[(24, 14), (10, 50)]), r.go("PARK_R2", park=True))
     return r
 
 
@@ -54,8 +54,8 @@ def left(name="home-left", cycles=3, nudge=10, stream=False, x=59, park=False):
     for k in range(cycles):
         r.add(*cycle(r, k, "LeftCellUp", "RightCellUp", "HOME_L", "NUDGE_L", 270, stream))
     if park:
-        r.pt("PARK_L", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
-        r.add(r.go("PARK_L"), r.go("PARK_N2", park=True))
+        r.pt("PARK_L", 15, 126, 300).pt("PARK_L2", 15, 124, 300)
+        r.add(r.go("PARK_L"), r.go("PARK_L2", park=True))
     return r
 
 

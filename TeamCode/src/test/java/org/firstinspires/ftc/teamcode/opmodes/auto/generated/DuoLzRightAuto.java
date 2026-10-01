@@ -48,8 +48,8 @@ public final class DuoLzRightAuto {
         Pose homeR = p.of(59, 10, 90);
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
-        Pose parkR = p.of(14, 93, 330);
-        Pose parkS2 = p.of(14, 95, 330);
+        Pose parkR = p.of(14, 89, 330);
+        Pose parkR2 = p.of(14, 90, 330);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToGardenInControl1 = p.of(30, 22, 0);
@@ -57,7 +57,7 @@ public final class DuoLzRightAuto {
         Pose gardenToSlideSlControl1 = p.of(20, 18, 0);
         Pose homeRToParkRControl1 = p.of(24, 14, 0);
         Pose homeRToParkRControl2 = p.of(18, 50, 0);
-        Pose homeRToParkRSegment1Start = p.of(14, 93, 90);
+        Pose homeRToParkRSegment1Start = p.of(14, 89, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToGardenIn = Paths.curve(start, startToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(startToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
@@ -66,10 +66,10 @@ public final class DuoLzRightAuto {
         Path slideSlToSlideSr = Paths.line(slideSl, slideSr).constant(slideSr);
         Path slideSrToHomeR = Paths.line(slideSr, homeR).constant(homeR);
         Path homeRToParkR = Paths.curve(homeR, homeRToParkRControl1, homeRToParkRControl2, parkR).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToParkRSegment1Start, parkR)).until(1, Interpolator.constant(parkR)));
-        Path parkRToParkS2 = Paths.line(parkR, parkS2).linear(parkR, parkS2);
+        Path parkRToParkR2 = Paths.line(parkR, parkR2).linear(parkR, parkR2);
 
         return kit.sequence(
-                kit.guarded("Auto", parkRToParkS2, 0.5,
+                kit.guarded("Auto", parkRToParkR2, 0.3,
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
@@ -160,6 +160,6 @@ public final class DuoLzRightAuto {
                         kit.firstOf("Fire from the LOADING ZONE (TIP 4)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(2000)),
-                        kit.path("PARK_R to PARK_S2", parkRToParkS2)));
+                        kit.path("PARK_R to PARK_R2", parkRToParkR2)));
     }
 }
