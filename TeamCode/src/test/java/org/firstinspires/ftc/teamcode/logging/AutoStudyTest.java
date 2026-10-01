@@ -71,6 +71,18 @@ public class AutoStudyTest {
         RobotDesign steepCat = clumpCat.copy("clump catapult 72 deg, 24 in catcher");
         steepCat.fixedPitchDeg = 72;
         m.put(steepCat.name, steepCat);
+        // What could flip the catapult's result: the clump not staying together, a slow re-cock, the angle off.
+        RobotDesign loose = steepCat.copy("clump catapult 72 deg, loose clump");
+        loose.catapultResidual = 1.0;
+        m.put(loose.name, loose);
+        RobotDesign slow = steepCat.copy("clump catapult 72 deg, 1.5 s re-cock");
+        slow.spinUpS = 1.5;
+        m.put(slow.name, slow);
+        for (double deg : new double[] {68, 76}) {
+            RobotDesign off = steepCat.copy("clump catapult " + (int) deg + " deg, 24 in catcher");
+            off.fixedPitchDeg = deg;
+            m.put(off.name, off);
+        }
         for (RobotDesign base : new RobotDesign[] {catcher, twinCatcher}) {
             RobotDesign c = base.copy(base.name + ", fires on the move");
             c.compensatesMotion = true;
