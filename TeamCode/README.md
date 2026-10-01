@@ -1290,6 +1290,11 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
 | `/Sim/GamePieces/BlueNectar`, `…/Held/BlueNectar` | Game Piece, **Nectar (Blue)** |
 | `/Sim/Shot/Trajectory` | Trajectory |
 
+Two things trip people up. Pick **2026-2027 Field (HIVE sim)** in the field dropdown; the stock
+field still has its own fixed HIVE, so you see two. And drop `/Sim/Hive/Components` *onto the
+`/Sim/Hive/Structure` row* (it indents under it); dropped anywhere else, AdvantageScope offers only
+game-piece types. Once it all shows, **File → Export Layout** saves it for the next log.
+
 As soon as any game piece is shown, AdvantageScope hides the field's own staged pieces, so
 the logged ones replace them rather than doubling them. Without component poses the rockers are
 drawn as built, which is the match start. `/Sim/Hive/Red/State`, `…/Tips`, `…/AngleDeg` and

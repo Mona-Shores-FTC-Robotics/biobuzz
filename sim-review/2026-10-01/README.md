@@ -48,7 +48,10 @@ Folders 1–3 are the best runs of their sets, not typical ones. Folders 4–8 a
 4. To tell them apart, drag `/Odometry/Robot3d` as a Robot and `/Odometry/Partner3d` as a
    **Ghost** in another colour. The Metadata tab says which Auto each robot ran.
 
-The moving HIVE and the game pieces need a one-time asset setup: see `TeamCode/README.md`,
+For the moving HIVE: pick the field **2026-2027 Field (HIVE sim)**, drag `/Sim/Hive/Structure` as a
+Robot with model **BIOBUZZ HIVE**, and drop `/Sim/Hive/Components` onto that row as **Component**.
+For the pieces: drag `/Sim/GamePieces/Pollen`, `RedNectar`, `BlueNectar` and their `Held/` versions
+as Game Pieces. That needs a one-time asset setup: see `TeamCode/README.md`,
 "Game pieces and the HIVE in a simulated .wpilog".
 
 ## Regenerating or checking a run
