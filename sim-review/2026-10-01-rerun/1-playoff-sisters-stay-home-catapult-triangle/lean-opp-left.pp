@@ -131,6 +131,187 @@
         "type": "constant",
         "degrees": 270
       }
+    },
+    {
+      "id": "to-gather-l-5",
+      "color": "#3cc8e4",
+      "name": "HOME_L to GATHER_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57,
+        "y": 118
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-home-l-6",
+      "color": "#3cc8e4",
+      "name": "GATHER_L to HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-gather-l-7",
+      "color": "#3cc8e4",
+      "name": "HOME_L to GATHER_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57,
+        "y": 118
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-home-l-8",
+      "color": "#3cc8e4",
+      "name": "GATHER_L to HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-gather-l-9",
+      "color": "#3cc8e4",
+      "name": "HOME_L to GATHER_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57,
+        "y": 118
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-home-l-10",
+      "color": "#3cc8e4",
+      "name": "GATHER_L to HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-gather-l-11",
+      "color": "#3cc8e4",
+      "name": "HOME_L to GATHER_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57,
+        "y": 118
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-home-l-12",
+      "color": "#3cc8e4",
+      "name": "GATHER_L to HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-park-l-13",
+      "color": "#3cc8e4",
+      "name": "HOME_L to PARK_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 15,
+        "y": 118
+      },
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 116
+        },
+        {
+          "x": 30,
+          "y": 116
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
+      }
     }
   ],
   "shapes": [
@@ -223,6 +404,42 @@
     {
       "kind": "path",
       "lineId": "to-home-l-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-gather-l-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-home-l-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-gather-l-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-home-l-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-gather-l-9"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-home-l-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-gather-l-11"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-home-l-12"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-l-13"
     }
   ],
   "settings": {
@@ -267,7 +484,8 @@
     "registry": {
       "actions": [
         "SpinUp",
-        "LaunchAll"
+        "LaunchAll",
+        "CollectSeen"
       ],
       "conditions": [
         "LeftCellUp",
@@ -277,7 +495,8 @@
       ],
       "typicalS": {
         "SpinUp": 0.1,
-        "LaunchAll": 2.0
+        "LaunchAll": 2.0,
+        "CollectSeen": 2.0
       },
       "events": []
     },
@@ -307,6 +526,16 @@
         131.75,
         270
       ],
+      "GATHER_L": [
+        57,
+        118,
+        270
+      ],
+      "PARK_L": [
+        15,
+        118,
+        270
+      ],
       "FLOWER_L_BACK_HOME_L": [
         57.5,
         119.29,
@@ -317,7 +546,16 @@
       "to-flower-l-turn-1": "FLOWER_L_TURN",
       "to-flower-l-2": "FLOWER_L",
       "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-4": "HOME_L"
+      "to-home-l-4": "HOME_L",
+      "to-gather-l-5": "GATHER_L",
+      "to-home-l-6": "HOME_L",
+      "to-gather-l-7": "GATHER_L",
+      "to-home-l-8": "HOME_L",
+      "to-gather-l-9": "GATHER_L",
+      "to-home-l-10": "HOME_L",
+      "to-gather-l-11": "GATHER_L",
+      "to-home-l-12": "HOME_L",
+      "to-park-l-13": "PARK_L"
     },
     "startAt": "START",
     "cards": [
@@ -574,7 +812,7 @@
         ]
       },
       {
-        "id": "w-19",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Left CELL up (1)",
         "rows": [
@@ -591,7 +829,7 @@
         ]
       },
       {
-        "id": "w-20",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Left CELL up (1) (2)",
         "rows": [
@@ -608,7 +846,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Left CELL up (1) (3)",
         "rows": [
@@ -625,7 +863,7 @@
         ]
       },
       {
-        "id": "w-22",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Left CELL up (1) (4)",
         "rows": [
@@ -642,7 +880,7 @@
         ]
       },
       {
-        "id": "w-23",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Left CELL up (1) (5)",
         "rows": [
@@ -659,7 +897,7 @@
         ]
       },
       {
-        "id": "w-24",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Left CELL up (1) (6)",
         "rows": [
@@ -676,7 +914,7 @@
         ]
       },
       {
-        "id": "w-25",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Left CELL up (1) (7)",
         "rows": [
@@ -693,7 +931,7 @@
         ]
       },
       {
-        "id": "w-26",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (1) (8)",
         "rows": [
@@ -710,7 +948,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -728,7 +966,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-28",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Did it tip? (1)",
         "rows": [
@@ -736,16 +974,87 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": []
+            "cards": [],
+            "label": "Yes"
           },
           {
             "afterMs": 1500,
-            "cards": []
+            "cards": [
+              {
+                "id": "w-32",
+                "kind": "firstOf",
+                "label": "Caught any? (1)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": [
+                      {
+                        "id": "p-19",
+                        "kind": "path",
+                        "lineId": "to-gather-l-5",
+                        "park": false
+                      },
+                      {
+                        "id": "w-20",
+                        "kind": "firstOf",
+                        "label": "Loose pieces (1)",
+                        "rows": [
+                          {
+                            "when": [
+                              "IntakeFull"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 3000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "CollectSeen"
+                      },
+                      {
+                        "id": "p-21",
+                        "kind": "path",
+                        "lineId": "to-home-l-6",
+                        "park": false
+                      },
+                      {
+                        "id": "w-22",
+                        "kind": "firstOf",
+                        "label": "Fire what we found (1)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Empty"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ],
+                    "label": "No: gather"
+                  },
+                  {
+                    "afterMs": 100,
+                    "cards": [],
+                    "label": "Yes: fire them"
+                  }
+                ]
+              }
+            ],
+            "label": "No"
           }
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -762,7 +1071,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-39",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -779,7 +1088,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-40",
         "kind": "firstOf",
         "label": "Left CELL up (2) (2)",
         "rows": [
@@ -796,7 +1105,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-41",
         "kind": "firstOf",
         "label": "Left CELL up (2) (3)",
         "rows": [
@@ -813,7 +1122,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Left CELL up (2) (4)",
         "rows": [
@@ -830,7 +1139,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Left CELL up (2) (5)",
         "rows": [
@@ -847,7 +1156,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "Left CELL up (2) (6)",
         "rows": [
@@ -864,7 +1173,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "Left CELL up (2) (7)",
         "rows": [
@@ -881,7 +1190,7 @@
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "Left CELL up (2) (8)",
         "rows": [
@@ -898,7 +1207,7 @@
         ]
       },
       {
-        "id": "w-38",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -916,7 +1225,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-39",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "Did it tip? (2)",
         "rows": [
@@ -924,16 +1233,87 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": []
+            "cards": [],
+            "label": "Yes"
           },
           {
             "afterMs": 1500,
-            "cards": []
+            "cards": [
+              {
+                "id": "w-48",
+                "kind": "firstOf",
+                "label": "Caught any? (2)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": [
+                      {
+                        "id": "p-35",
+                        "kind": "path",
+                        "lineId": "to-gather-l-7",
+                        "park": false
+                      },
+                      {
+                        "id": "w-36",
+                        "kind": "firstOf",
+                        "label": "Loose pieces (2)",
+                        "rows": [
+                          {
+                            "when": [
+                              "IntakeFull"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 3000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "CollectSeen"
+                      },
+                      {
+                        "id": "p-37",
+                        "kind": "path",
+                        "lineId": "to-home-l-8",
+                        "park": false
+                      },
+                      {
+                        "id": "w-38",
+                        "kind": "firstOf",
+                        "label": "Fire what we found (2)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Empty"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ],
+                    "label": "No: gather"
+                  },
+                  {
+                    "afterMs": 100,
+                    "cards": [],
+                    "label": "Yes: fire them"
+                  }
+                ]
+              }
+            ],
+            "label": "No"
           }
         ]
       },
       {
-        "id": "w-40",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -950,7 +1330,7 @@
         ]
       },
       {
-        "id": "w-41",
+        "id": "w-55",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -967,7 +1347,7 @@
         ]
       },
       {
-        "id": "w-42",
+        "id": "w-56",
         "kind": "firstOf",
         "label": "Left CELL up (3) (2)",
         "rows": [
@@ -984,7 +1364,7 @@
         ]
       },
       {
-        "id": "w-43",
+        "id": "w-57",
         "kind": "firstOf",
         "label": "Left CELL up (3) (3)",
         "rows": [
@@ -1001,7 +1381,7 @@
         ]
       },
       {
-        "id": "w-44",
+        "id": "w-58",
         "kind": "firstOf",
         "label": "Left CELL up (3) (4)",
         "rows": [
@@ -1018,7 +1398,7 @@
         ]
       },
       {
-        "id": "w-45",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Left CELL up (3) (5)",
         "rows": [
@@ -1035,7 +1415,7 @@
         ]
       },
       {
-        "id": "w-46",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "Left CELL up (3) (6)",
         "rows": [
@@ -1052,7 +1432,7 @@
         ]
       },
       {
-        "id": "w-47",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Left CELL up (3) (7)",
         "rows": [
@@ -1069,7 +1449,7 @@
         ]
       },
       {
-        "id": "w-48",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Left CELL up (3) (8)",
         "rows": [
@@ -1086,7 +1466,7 @@
         ]
       },
       {
-        "id": "w-49",
+        "id": "w-63",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -1104,7 +1484,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-50",
+        "id": "w-65",
         "kind": "firstOf",
         "label": "Did it tip? (3)",
         "rows": [
@@ -1112,16 +1492,87 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": []
+            "cards": [],
+            "label": "Yes"
           },
           {
             "afterMs": 1500,
-            "cards": []
+            "cards": [
+              {
+                "id": "w-64",
+                "kind": "firstOf",
+                "label": "Caught any? (3)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": [
+                      {
+                        "id": "p-51",
+                        "kind": "path",
+                        "lineId": "to-gather-l-9",
+                        "park": false
+                      },
+                      {
+                        "id": "w-52",
+                        "kind": "firstOf",
+                        "label": "Loose pieces (3)",
+                        "rows": [
+                          {
+                            "when": [
+                              "IntakeFull"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 3000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "CollectSeen"
+                      },
+                      {
+                        "id": "p-53",
+                        "kind": "path",
+                        "lineId": "to-home-l-10",
+                        "park": false
+                      },
+                      {
+                        "id": "w-54",
+                        "kind": "firstOf",
+                        "label": "Fire what we found (3)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Empty"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ],
+                    "label": "No: gather"
+                  },
+                  {
+                    "afterMs": 100,
+                    "cards": [],
+                    "label": "Yes: fire them"
+                  }
+                ]
+              }
+            ],
+            "label": "No"
           }
         ]
       },
       {
-        "id": "w-51",
+        "id": "w-66",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -1138,7 +1589,7 @@
         ]
       },
       {
-        "id": "w-52",
+        "id": "w-71",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -1155,7 +1606,7 @@
         ]
       },
       {
-        "id": "w-53",
+        "id": "w-72",
         "kind": "firstOf",
         "label": "Left CELL up (4) (2)",
         "rows": [
@@ -1172,7 +1623,7 @@
         ]
       },
       {
-        "id": "w-54",
+        "id": "w-73",
         "kind": "firstOf",
         "label": "Left CELL up (4) (3)",
         "rows": [
@@ -1189,7 +1640,7 @@
         ]
       },
       {
-        "id": "w-55",
+        "id": "w-74",
         "kind": "firstOf",
         "label": "Left CELL up (4) (4)",
         "rows": [
@@ -1206,7 +1657,7 @@
         ]
       },
       {
-        "id": "w-56",
+        "id": "w-75",
         "kind": "firstOf",
         "label": "Left CELL up (4) (5)",
         "rows": [
@@ -1223,7 +1674,7 @@
         ]
       },
       {
-        "id": "w-57",
+        "id": "w-76",
         "kind": "firstOf",
         "label": "Left CELL up (4) (6)",
         "rows": [
@@ -1240,7 +1691,7 @@
         ]
       },
       {
-        "id": "w-58",
+        "id": "w-77",
         "kind": "firstOf",
         "label": "Left CELL up (4) (7)",
         "rows": [
@@ -1257,7 +1708,7 @@
         ]
       },
       {
-        "id": "w-59",
+        "id": "w-78",
         "kind": "firstOf",
         "label": "Left CELL up (4) (8)",
         "rows": [
@@ -1274,7 +1725,7 @@
         ]
       },
       {
-        "id": "w-60",
+        "id": "w-79",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -1292,7 +1743,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-61",
+        "id": "w-81",
         "kind": "firstOf",
         "label": "Did it tip? (4)",
         "rows": [
@@ -1300,16 +1751,87 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": []
+            "cards": [],
+            "label": "Yes"
           },
           {
             "afterMs": 1500,
-            "cards": []
+            "cards": [
+              {
+                "id": "w-80",
+                "kind": "firstOf",
+                "label": "Caught any? (4)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": [
+                      {
+                        "id": "p-67",
+                        "kind": "path",
+                        "lineId": "to-gather-l-11",
+                        "park": false
+                      },
+                      {
+                        "id": "w-68",
+                        "kind": "firstOf",
+                        "label": "Loose pieces (4)",
+                        "rows": [
+                          {
+                            "when": [
+                              "IntakeFull"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 3000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "CollectSeen"
+                      },
+                      {
+                        "id": "p-69",
+                        "kind": "path",
+                        "lineId": "to-home-l-12",
+                        "park": false
+                      },
+                      {
+                        "id": "w-70",
+                        "kind": "firstOf",
+                        "label": "Fire what we found (4)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Empty"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ],
+                    "label": "No: gather"
+                  },
+                  {
+                    "afterMs": 100,
+                    "cards": [],
+                    "label": "Yes: fire them"
+                  }
+                ]
+              }
+            ],
+            "label": "No"
           }
         ]
       },
       {
-        "id": "w-62",
+        "id": "w-82",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [
@@ -1324,6 +1846,12 @@
             "cards": []
           }
         ]
+      },
+      {
+        "id": "p-83",
+        "kind": "path",
+        "lineId": "to-park-l-13",
+        "park": true
       }
     ]
   },
