@@ -86,13 +86,26 @@ the Limelight directly. Anything that drives or aims from field coordinates chec
 facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
 
+**Autos from the Visualizer.** A generated Auto lives in `opmodes/auto/generated/`, and its `.pp`
+source is committed in `TeamCode/autos/` in the same PR, under the name its `SOURCE` constant
+gives. The `.pp` is the source: change the Auto in the Visualizer and export again, never edit the
+generated Java by hand. `AutoSourcesTest` fails a generated class whose `.pp` is missing.
+→ `TeamCode/autos/README.md`
+
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from
 the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
 intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it
 starves the fusion of tag fixes.
 
 **Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
-Degrees only on screens. Field facts that depend on the frame live in `util/FieldFrame`.
+Degrees only on screens. It is the only frame a person reads or types — on the DS, in Panels, in
+the Visualizer, in docs, issues and conversation. A library that works in another frame (Panels'
+canvas, Limelight camera space) is converted inside the one class that talks to it, and nothing
+downstream sees the other frame; never add a frame or unit toggle anywhere. The field is
+`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and mirrors across
+`FIELD_CENTRE_INCHES`; `FieldFrameTest` fails any other file that states the size (generated
+Autos, written by the Visualizer on the same field, are exempt). Field facts
+that depend on the frame live in `util/FieldFrame`.
 
 **Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
@@ -170,8 +183,10 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 `.github/CONTRIBUTING.md` is the full version. What a session must not miss:
 
 - An issue exists before a branch; every PR says `Closes #N`. Never commit to `master`.
-- Branch prefixes `feat/ fix/ tune/ chore/ docs/ spike/`; rename a `claude/*` branch with
-  GitHub's rename button before opening the PR, never by delete-and-repush.
+- Branch names are `<prefix>/<issue>-<slug>`, prefixes `feat/ fix/ tune/ chore/ docs/ spike/`.
+  A `claude/*` branch is renamed with `git branch -m` before its first push (a hook blocks the
+  push until then). One already on GitHub is renamed with GitHub's button, never by
+  delete-and-repush.
 - Labels: exactly one `team:*`, `needs:robot` if it does, and one of `good-first-task` /
   `student-ready` / `mentor-only`. No priority labels — board order is priority.
 - **Mentor/student split.** Substrate (versions, CI, hardware abstraction, rigs, tuning harnesses)

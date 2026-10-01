@@ -629,11 +629,12 @@ tuning, and that is the bug this layout exists to prevent.
 
 **Pasting a tuner's output.** Each tuner's generated block starts
 `public static <Type> <field> = ...`. Paste it over the field of the same name in
-**the file of the robot you ran the tuner on**, then delete any
-`c.…Name.set("…")` / `c.name.set("…")` lines it brought with it. Device names are
-the same on every robot and are set once, from `DeviceNames`, in
-`RobotConstants`; `PedroRobotsTest` fails the build if a name line is left in a
-robot file. The Foresight imports (`Controller`, `Matrix`, `Vector2D`) are already
+**the file of the robot you ran the tuner on**, **exactly as the tuner shows it**
+— name lines included, nothing to delete. Device names are the same on every
+robot and are set once, from `DeviceNames`, in `RobotConstants`, whatever the
+robot file says. `PedroRobotsTest` fails the build only if a pasted name
+*differs* from `DeviceNames`, which means the tuner was run with a mistyped name
+and its result should not be trusted. The Foresight imports (`Controller`, `Matrix`, `Vector2D`) are already
 in each robot file, so that paste compiles as-is.
 
 **Adding a robot with a drivetrain** (a test mule, a spare chassis) is the two
@@ -662,9 +663,12 @@ its message.
   running?" takes two files to answer.
 - *A method on `RobotIdentity` returning the configs.* Puts Pedro types into
   `hardware/`, which is deliberately free of them so it stays unit testable.
-- *Name lines kept per robot, as the tuners emit them.* Two copies of the same
-  five names, free to drift from each other and from the `res/xml` configs —
-  the exact thing `DeviceNames` exists to stop.
+- *Name lines banned from robot files* (what #89 first shipped). It made every
+  Mecanum and Pinpoint paste a two-step job — paste, then find and delete the
+  name lines — and a missed deletion turned CI red for no real reason. That is
+  the wrong trade on a robot at a meeting. Since #119 the lines may stay, and
+  the test checks them against `DeviceNames` instead of rejecting them, so the
+  drift the ban was meant to stop is still caught.
 
 ### Reaching AutoTune
 
@@ -1369,6 +1373,19 @@ Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
 `FieldPresets.PEDRO_PATHING` is one of its four built-in presets, next to the default FTC and Road
 Runner frames, so the conversion Pedro's helper would have done is done by a library we already
 have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
+
+> **Update, 28 Sep 2026 (#116).** `FieldView` now uses a copy of that preset, not the preset
+> itself. The built-in one centres on (72, 72), which assumes a 144 in field. Our field is 141.5 in
+> wall face to wall face, the same size the Visualizer uses, so the drawn robot sat 1.25 in off.
+> The copy keeps the rotation and flip and centres on `FieldFrame.FIELD_CENTRE_INCHES` (70.75).
+>
+> Rejected alternatives:
+> - Leaving the error in, because it is too small to see. A small disagreement between tools is
+>   exactly how last season's frame bugs started.
+> - Scaling the drawing so the whole field fits Panels' 144 in canvas. That changes what a
+>   position means; re-centring only moves the drawing.
+>
+> The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
 
 **The throttle is the part that will bite you.** `FieldManager.update()` sends only when
 `canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
