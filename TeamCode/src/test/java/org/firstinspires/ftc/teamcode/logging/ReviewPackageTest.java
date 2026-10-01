@@ -135,9 +135,16 @@ public class ReviewPackageTest {
             out.println("|---|---|---|---|---|---|---|---|");
             for (String row : rows) out.println(row);
             out.println();
-            out.println("Rebuild this set: `BIOBUZZ_REVIEW=" + name
-                    + " ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i`. The runs are listed in");
-            out.println("`ReviewPackageTest.RUNS`.");
+            out.println("Rebuild this set (the runs are listed in `ReviewPackageTest.RUNS`). Windows PowerShell:");
+            out.println();
+            out.println("```powershell");
+            out.println("$env:BIOBUZZ_REVIEW = \"" + name + "\"");
+            out.println(".\\gradlew.bat :TeamCode:testDebugUnitTest --tests \"*ReviewPackageTest*\" -i");
+            out.println("Remove-Item Env:BIOBUZZ_REVIEW");
+            out.println("```");
+            out.println();
+            out.println("macOS/Linux: `BIOBUZZ_REVIEW=" + name
+                    + " ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i`");
         }
     }
 

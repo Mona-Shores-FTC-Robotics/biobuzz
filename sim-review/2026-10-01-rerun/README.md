@@ -20,5 +20,12 @@ TIP times are match time; on AdvantageScope's timeline add 10 s.
 | `7-qual-three-tip-adaptive-at-its-cap` | three-tip-adaptive (the legacy reference, angled shots): 3 TIPs and park is 76, its ceiling whatever the partner does. | two spring hoods, 24 in catcher | spring hood at 40 in/s | 1 | **76** | 4.5, 12.2, 23.5 s | yes / yes |
 | `8-qual-three-tip-adaptive-partner-only-leaves` | three-tip-adaptive with a leave-only partner: TIP 3 at 28 s, too late to park. | two spring hoods, 24 in catcher | spring hood at 40 in/s | 1 | **71** | 4.5, 16.9, 28.1 s | no / yes |
 
-Rebuild this set: `BIOBUZZ_REVIEW=2026-10-01-rerun ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i`. The runs are listed in
-`ReviewPackageTest.RUNS`.
+Rebuild this set (the runs are listed in `ReviewPackageTest.RUNS`). Windows PowerShell:
+
+```powershell
+$env:BIOBUZZ_REVIEW = "2026-10-01-rerun"
+.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*ReviewPackageTest*" -i
+Remove-Item Env:BIOBUZZ_REVIEW
+```
+
+macOS/Linux: `BIOBUZZ_REVIEW=2026-10-01-rerun ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i`
