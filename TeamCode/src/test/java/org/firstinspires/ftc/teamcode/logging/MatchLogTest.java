@@ -208,26 +208,93 @@ public class MatchLogTest {
         loop(log);
     }
 
+    /**
+     * One file per match: Auto pauses, TeleOp resumes, and the file holds Auto, the break and
+     * TeleOp on one timeline, which AdvantageScope colors part by part.
+     */
     @Test
-    public void aMatchsAutoAndTeleOpFilesShareItsIdAndSortTogether() throws Exception {
+    public void autoThenTeleOpIsOneFileWithEveryModeOnOneTimeline() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MatchLog log = MatchLog.toStream("match", out, "", metadata(), clock);
+
+        log.event("OpMode init: Right Start Tip");
+        log.match(MatchLog.Mode.DISABLED, 1);
+        loop(log);
+        for (int i = 0; i < 10; i++) {
+            log.match(MatchLog.Mode.AUTONOMOUS, 1);
+            log.pose(i, 0, 0);
+            loop(log);
+        }
+        log.pause("OpMode stopped: Right Start Tip", 60_000);
+        nowUs += 8_000_000; // the break between Auto and TeleOp
+
+        assertTrue("a paused log resumes", log.resume());
+        log.event("OpMode init: Drive TeleOp · continues match");
+        log.match(MatchLog.Mode.DISABLED, 1);
+        loop(log);
+        for (int i = 0; i < 10; i++) {
+            log.match(MatchLog.Mode.TELEOP, 1);
+            log.pose(10 + i, 0, 0);
+            loop(log);
+        }
+        log.close("OpMode stopped: Drive TeleOp", 5000);
+        assertNull(log.failure());
+
+        WpiLogReader r = new WpiLogReader(out.toByteArray());
+        assertEquals(java.util.Arrays.asList("disabled", "autonomous", "disabled", "teleop"),
+                strings(r, AdvantageScopeKeys.ROBOT_MODE));
+        List<WpiLogReader.Record> modes = r.entry(AdvantageScopeKeys.ROBOT_MODE).records;
+        assertTrue("TeleOp comes after the break, on the same clock",
+                modes.get(3).timestampUs - modes.get(1).timestampUs > 8_000_000);
+        assertEquals(20, r.entry("/Odometry/Robot").records.size());
+        assertEquals(java.util.Arrays.asList("OpMode init: Right Start Tip", "OpMode stopped: Right Start Tip",
+                "OpMode init: Drive TeleOp · continues match", "OpMode stopped: Drive TeleOp"),
+                strings(r, AdvantageScopeKeys.EVENTS));
+    }
+
+    /** No TeleOp came: the pause runs out and the file closes by itself; a late resume says no. */
+    @Test
+    public void aPauseNobodyResumesClosesTheFileByItself() throws Exception {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MatchLog log = MatchLog.toStream("match", out, "", null, clock);
+        log.match(MatchLog.Mode.AUTONOMOUS, 1);
+        loop(log);
+        log.pause("OpMode stopped", 50);
+
+        long deadline = System.currentTimeMillis() + 5000;
+        while (log.isLogging() && System.currentTimeMillis() < deadline) Thread.sleep(10);
+        assertFalse("closed after the pause ran out", log.isLogging());
+        assertFalse("a closed log cannot be resumed", log.resume());
+        assertNull(log.failure());
+        assertEquals("autonomous", strings(new WpiLogReader(out.toByteArray()), AdvantageScopeKeys.ROBOT_MODE).get(0));
+    }
+
+    @Test
+    public void onlyAPausedLogResumes() {
+        MatchLog log = MatchLog.toStream("match", new ByteArrayOutputStream(), "", null, clock);
+        assertFalse("a running log is not up for grabs", log.resume());
+        log.pause(null, 60_000);
+        assertTrue(log.resume());
+        assertFalse("and only once", log.resume());
+        log.close(null, 5000);
+        assertFalse(MatchLog.disabled("no storage").resume());
+    }
+
+    @Test
+    public void filesAreNamedByMatchIdThenOpMode() throws Exception {
         File dir = tmp.newFolder("logs");
         String id = MatchLogFiles.matchId(1790000000000L);
         assertTrue(id, id.matches("\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}"));
-
-        File auto = MatchLogFiles.next(dir, id, true, "Right Start Tip");
-        File teleOp = MatchLogFiles.next(dir, id, false, "Drive TeleOp");
-        assertEquals(id + "_Auto_Right_Start_Tip.wpilog", auto.getName());
-        assertEquals(id + "_TeleOp_Drive_TeleOp.wpilog", teleOp.getName());
-        assertTrue(auto.getName().compareTo(teleOp.getName()) < 0);
+        assertEquals(id + "_Right_Start_Tip.wpilog", MatchLogFiles.next(dir, id, "Right Start Tip").getName());
     }
 
     @Test
     public void aNameAlreadyTakenGetsANumberAndNothingIsOverwritten() throws Exception {
         File dir = tmp.newFolder("logs");
-        File first = MatchLogFiles.next(dir, "2026-10-04_14-32-10", false, "Drive TeleOp");
+        File first = MatchLogFiles.next(dir, "2026-10-04_14-32-10", "Drive TeleOp");
         assertTrue(first.createNewFile());
-        File second = MatchLogFiles.next(dir, "2026-10-04_14-32-10", false, "Drive TeleOp");
-        assertEquals("2026-10-04_14-32-10_TeleOp_Drive_TeleOp_2.wpilog", second.getName());
+        File second = MatchLogFiles.next(dir, "2026-10-04_14-32-10", "Drive TeleOp");
+        assertEquals("2026-10-04_14-32-10_Drive_TeleOp_2.wpilog", second.getName());
     }
 
     private static WpiLogReader.Record last(WpiLogReader r, String key) {

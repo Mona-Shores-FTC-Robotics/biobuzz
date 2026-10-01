@@ -2,11 +2,12 @@ package org.firstinspires.ftc.teamcode.controls;
 
 import com.pedropathing.math.Pose;
 
+import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
- * What Autonomous leaves for TeleOp: the alliance, where the robot ended up, and the match ID that
- * links the two OpModes' match logs.
+ * What Autonomous leaves for TeleOp: the alliance, where the robot ended up, and the match log,
+ * still open, so TeleOp writes the rest of the match into the same file.
  *
  * <p><b>This is the one piece of static robot state in the codebase, on purpose.</b> The SDK builds
  * a fresh OpMode for TeleOp, and a static field is the only thing that survives the switch. Nothing
@@ -33,14 +34,17 @@ public final class Handoff {
         public final Alliance alliance;
         /** Field pose in Pedro coordinates, or null if the Pinpoint was missing. */
         public final Pose pose;
-        /** The Autonomous's match ID, which TeleOp's log carries on; null if it had none. */
+        /** The Autonomous's match ID (its start time); null if it had none. */
         public final String matchId;
+        /** The Autonomous's match log, paused for TeleOp to resume; null if it had none. */
+        public final MatchLog log;
         public final long recordedAtMs;
 
-        Snapshot(Alliance alliance, Pose pose, String matchId, long recordedAtMs) {
+        Snapshot(Alliance alliance, Pose pose, String matchId, MatchLog log, long recordedAtMs) {
             this.alliance = alliance;
             this.pose = pose;
             this.matchId = matchId;
+            this.log = log;
             this.recordedAtMs = recordedAtMs;
         }
 
@@ -55,8 +59,8 @@ public final class Handoff {
     }
 
     /** Called by {@code RobotOpMode} when an Autonomous OpMode stops. */
-    public static void record(Alliance alliance, Pose pose, String matchId, long nowMs) {
-        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose, matchId, nowMs);
+    public static void record(Alliance alliance, Pose pose, String matchId, MatchLog log, long nowMs) {
+        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose, matchId, log, nowMs);
     }
 
     /** The last Autonomous's handoff, or null if there is none or it is stale. */

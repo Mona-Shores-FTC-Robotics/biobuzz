@@ -6,20 +6,16 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Where match logs go and what they are called.
- *
- * <p>A file starts with its <b>match ID</b>: the time the match's Autonomous started. A TeleOp that
- * follows that Autonomous (it received its handoff) carries the same ID, so a match's two files sort
- * next to each other:
+ * Where match logs go and what they are called: the match ID (when the match's first OpMode
+ * started), then that OpMode's name.
  *
  * <pre>
- * 2026-10-04_14-32-10_Auto_Right_Start_Tip.wpilog
- * 2026-10-04_14-32-10_TeleOp_Drive_TeleOp.wpilog
- * 2026-10-04_14-40-55_TeleOp_Drive_TeleOp.wpilog     (practice TeleOp, no Auto: its own start)
+ * 2026-10-04_14-32-10_Right_Start_Tip.wpilog    (a match: its Auto, the break and its TeleOp)
+ * 2026-10-04_14-40-55_Drive_TeleOp.wpilog       (a practice TeleOp with no Auto before it)
  * </pre>
  *
- * <p>Each run gets a new file; a name already taken (a TeleOp re-initialized in the pits) gets a
- * {@code _2}, {@code _3}… so nothing is overwritten.
+ * <p>Each new file gets a name not yet taken: a clash gets {@code _2}, {@code _3}…, so nothing is
+ * overwritten.
  */
 public final class MatchLogFiles {
 
@@ -35,8 +31,8 @@ public final class MatchLogFiles {
     }
 
     /** A file in {@code dir} that does not exist yet. */
-    public static File next(File dir, String matchId, boolean autonomous, String opModeName) {
-        String base = safe(matchId) + (autonomous ? "_Auto_" : "_TeleOp_") + safe(opModeName);
+    public static File next(File dir, String matchId, String opModeName) {
+        String base = safe(matchId) + "_" + safe(opModeName);
         File file = new File(dir, base + ".wpilog");
         for (int n = 2; file.exists(); n++) {
             file = new File(dir, base + "_" + n + ".wpilog");
