@@ -115,6 +115,18 @@ final class FieldSim {
         return Math.min(0.95, e * bounceScale);
     }
     static double spreadScale = 1;
+    /**
+     * How untidy spills are (mentor review: pieces ended up lined against the wall). 1 = the
+     * placeholders below, 0 = none. Each piece rolls with its own resistance, the tiles are slightly
+     * uneven, and a piece leaving a CELL gets a small random kick and spin. Drawn from its own
+     * random stream, so the shots of a seed are unchanged.
+     */
+    static double spillVariety = 1;
+    static final double PLACEHOLDER_ROLL_SPREAD = 0.35;
+    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 3.0;
+    static final double PLACEHOLDER_SPILL_KICK_IN_PER_S = 4.0;
+    /** Robots' restitution on its own, apart from bounceScale (mentor review). */
+    static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
 
     /** AndyMark's masses: POLLEN 0.055 lb, NECTAR 0.091 lb. */
@@ -202,6 +214,10 @@ final class FieldSim {
         int flower = -1;
         /** The CELL it is in, or null. */
         HiveCell cell;
+        /** This piece's rolling resistance relative to the placeholder (pieces differ; see spillVariety). */
+        double rollScale = 1;
+        /** An intake that just failed to grab it does not try again before this time. */
+        double rejectedUntil = -1;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -318,6 +334,10 @@ final class FieldSim {
     final Rocker blue = new Rocker(Alliance.BLUE, BLUE_HIVE_X_IN);
     private final Rocker[] rockers = {red, blue};
     final Random random;
+    /** Spill and catch variety, apart from {@link #random} so a seed's shots do not change. */
+    private final Random variety;
+    /** A gentle unevenness per 12 in square of tiles: the sideways pull, in/s². */
+    private final double[][][] tileSlope = new double[12][12][2];
     private final List<String> events = new ArrayList<>();
 
     /**
@@ -416,9 +436,18 @@ final class FieldSim {
     FieldSim(List<HiveAssets.StagedPiece> staged, long seed, Physics physics) {
         this.physics = physics;
         random = new Random(seed);
+        variety = new Random(seed * 7919L + 13);
+        for (int i = 0; i < tileSlope.length; i++) {
+            for (int j = 0; j < tileSlope[i].length; j++) {
+                double a = variety.nextDouble() * 2 * Math.PI, m = variety.nextDouble() * PLACEHOLDER_TILE_SLOPE_IN_PER_S2;
+                tileSlope[i][j][0] = m * Math.cos(a);
+                tileSlope[i][j][1] = m * Math.sin(a);
+            }
+        }
         for (HiveAssets.StagedPiece s : staged) {
             Piece p = new Piece(Kind.of(s.kind), s.holder.equals("outside") ? Where.OUTSIDE : Where.FIELD, s.x, s.y, s.z);
             if (s.holder.equals("flower")) p.flower = flowerIndex(s.x, s.y);
+            p.rollScale = Math.exp(PLACEHOLDER_ROLL_SPREAD * variety.nextGaussian());
             pieces.add(p);
         }
         for (Piece p : pieces) updateCell(p);
@@ -802,7 +831,7 @@ final class FieldSim {
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
                     if (bot.present && bot.intaking && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)
-                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) taker = bot;
+                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2]) && grabs(bot, p)) taker = bot;
                 }
                 if (taker != null) {
                     capture(taker, p);
@@ -817,7 +846,15 @@ final class FieldSim {
                 for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
                 contact |= collideField(p);
                 if (p.flower >= 0) holdInFlower(p);
-                if (contact) applyFriction(p, h);
+                if (contact) {
+                    applyFriction(p, h);
+                    // Uneven tiles move a rolling piece; one at rest stays put (static friction).
+                    if (p.z < p.kind.radius + 0.3 && p.cell == null && spillVariety > 0 && Math.hypot(p.vx, p.vy) > 1) {
+                        double[] g = tileSlope[(int) Math.max(0, Math.min(11, p.x / 12))][(int) Math.max(0, Math.min(11, p.y / 12))];
+                        p.vx += g[0] * spillVariety * h;
+                        p.vy += g[1] * spillVariety * h;
+                    }
+                }
                 updateCell(p);
             }
         }
@@ -979,13 +1016,13 @@ final class FieldSim {
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         double half = bot.design.frameIn / 2;
         return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
-                bounce(PLACEHOLDER_ROBOT_RESTITUTION));
+                bounce(robotRestitution));
     }
 
     private boolean collideParked(Piece p, double[] at) {
         double half = ROBOT_SIZE_IN / 2;
         return box(p, at[0], at[1], at[2], half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, 0, 0, 0,
-                bounce(PLACEHOLDER_ROBOT_RESTITUTION));
+                bounce(robotRestitution));
     }
 
     /**
@@ -1097,7 +1134,7 @@ final class FieldSim {
     private static void applyFriction(Piece p, double h) {
         double speed = Math.hypot(p.vx, p.vy);
         double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * frictionScale * h)
-                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * h);
+                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;
@@ -1139,6 +1176,23 @@ final class FieldSim {
         return time - lastCaptureAt >= design.intakeIntervalS;
     }
 
+    /**
+     * Whether the intake holds on to a piece that reached it (mentor review: catching was perfect).
+     * Too fast relative to the robot and it bounces off; otherwise it is kept with the design's grab
+     * chance, and one that got away is not tried again for 0.3 s. Pieces in a FLOWER are pulled out
+     * by the intake, so always held.
+     */
+    private boolean grabs(Bot bot, Piece p) {
+        if (p.flower >= 0) return true;
+        if (time < p.rejectedUntil) return false;
+        double rel = Math.hypot(p.vx - bot.vx, p.vy - bot.vy);
+        if (rel > bot.design.intakeMaxSpeedInPerS || variety.nextDouble() > bot.design.intakeGrabChance) {
+            p.rejectedUntil = time + 0.3;
+            return false;
+        }
+        return true;
+    }
+
     private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
@@ -1169,7 +1223,15 @@ final class FieldSim {
         }
         if (now != p.cell) {
             if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
-            if (now == null && p.cell != null) events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+            if (now == null && p.cell != null) {
+                events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+                if (spillVariety > 0 && variety != null) {
+                    double k = PLACEHOLDER_SPILL_KICK_IN_PER_S * spillVariety;
+                    p.vx += k * variety.nextGaussian();
+                    p.vy += k * variety.nextGaussian();
+                    p.wz += 6 * spillVariety * variety.nextGaussian();
+                }
+            }
             p.cell = now;
         }
     }

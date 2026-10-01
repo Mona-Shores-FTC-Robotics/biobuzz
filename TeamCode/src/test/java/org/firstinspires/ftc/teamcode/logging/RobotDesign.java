@@ -40,6 +40,13 @@ final class RobotDesign {
     double intakeIntervalS = 0.15;
     /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
     double flowerPullS = 0.5;
+    /**
+     * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
+     * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
+     * robot. Placeholders until an intake is tested: toss pieces in at a few speeds and count.
+     */
+    double intakeGrabChance = 0.85;
+    double intakeMaxSpeedInPerS = 60;
     Launcher launcher = Launcher.TURRET;
     /** Launchers side by side: each shot interval fires this many. */
     int launchers = 1;
@@ -81,6 +88,9 @@ final class RobotDesign {
      * arm's one error for the throw, plus {@link #catapultResidual} of a flywheel's scatter each.
      */
     boolean catapultClump = false;
+    /** How the clump sits in the cup: 2 by 2, or a triangle of 3 with 1 on top. */
+    enum Cup { SQUARE, TRIANGLE }
+    Cup catapultCup = Cup.SQUARE;
     double catapultResidual = 0.3;
     /**
      * Whether the shooter software allows for the robot's own motion when it fires on the move
@@ -144,6 +154,8 @@ final class RobotDesign {
         d.intakeWidthIn = intakeWidthIn;
         d.intakeAtBack = intakeAtBack;
         d.intakeIntervalS = intakeIntervalS;
+        d.intakeGrabChance = intakeGrabChance;
+        d.intakeMaxSpeedInPerS = intakeMaxSpeedInPerS;
         d.flowerPullS = flowerPullS;
         d.launcher = launcher;
         d.launchers = launchers;
@@ -159,6 +171,7 @@ final class RobotDesign {
         d.catapultSpread = catapultSpread;
         d.catapultSideIn = catapultSideIn;
         d.catapultClump = catapultClump;
+        d.catapultCup = catapultCup;
         d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
         return d;

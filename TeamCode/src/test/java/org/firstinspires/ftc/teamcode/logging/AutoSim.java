@@ -630,7 +630,9 @@ public final class AutoSim {
                 sim.volleyNoise = new double[] {sim.random.nextGaussian(), sim.random.nextGaussian(), sim.random.nextGaussian()};
                 sim.volleyResidual = design.catapultResidual;
             }
-            for (int i = 0; i < volley && !body.stored.isEmpty() && (streaming || shotsFired < shotTarget); i++) {
+            // A catapult throws everything in its cup once a volley starts: LaunchOne on it is a whole
+            // volley too (mentor review), but no new volley starts once the command has its count.
+            for (int i = 0; i < volley && !body.stored.isEmpty() && (streaming || (catapult && i > 0) || shotsFired < shotTarget); i++) {
                 if (dedicated) {
                     // Launcher 0 takes POLLEN, launcher 1 NECTAR: bring that kind to the front, or skip.
                     boolean wantPollen = i == 0;
@@ -643,10 +645,16 @@ public final class AutoSim {
                 }
                 double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? design.catapultSideIn : 6.0);
                 if (clump) {
-                    // 2 by 2, a NECTAR's width apart plus a little, so nothing starts overlapping.
+                    // A NECTAR's width apart plus a little, so nothing starts overlapping: 2 by 2, or a
+                    // triangle (3 across the bottom of the cup, 1 nested on top).
                     double pitch = 2 * FieldSim.NECTAR_RADIUS_IN + 0.2;
-                    side = ((i % 2) - 0.5) * pitch;
-                    sim.volleyUpIn = (i / 2) * pitch;
+                    if (design.catapultCup == RobotDesign.Cup.TRIANGLE) {
+                        side = i < 3 ? (i - 1) * pitch : 0;
+                        sim.volleyUpIn = i < 3 ? 0 : pitch * Math.sqrt(3) / 2;
+                    } else {
+                        side = ((i % 2) - 0.5) * pitch;
+                        sim.volleyUpIn = (i / 2) * pitch;
+                    }
                 }
                 double[] from = body.exitPoint(side);
                 double[] v = sim.launch(body, aim, yawError, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);

@@ -71,6 +71,9 @@ public class AutoStudyTest {
         RobotDesign steepCat = clumpCat.copy("clump catapult 72 deg, 24 in catcher");
         steepCat.fixedPitchDeg = 72;
         m.put(steepCat.name, steepCat);
+        RobotDesign triangle = steepCat.copy("clump catapult 72 deg, triangle cup");
+        triangle.catapultCup = RobotDesign.Cup.TRIANGLE;
+        m.put(triangle.name, triangle);
         // What could flip the catapult's result: the clump not staying together, a slow re-cock, the angle off.
         RobotDesign loose = steepCat.copy("clump catapult 72 deg, loose clump");
         loose.catapultResidual = 1.0;
