@@ -209,14 +209,25 @@ public class MatchLogTest {
     }
 
     @Test
-    public void filesAreNamedByOpModeAndTimeAndNeverOverwritten() throws Exception {
+    public void aMatchsAutoAndTeleOpFilesShareItsIdAndSortTogether() throws Exception {
         File dir = tmp.newFolder("logs");
-        File first = MatchLogFiles.next(dir, "Drive TeleOp", 1790000000000L);
-        assertTrue(first.getName(), first.getName().startsWith("Drive_TeleOp_"));
-        assertTrue(first.getName(), first.getName().endsWith(".wpilog"));
+        String id = MatchLogFiles.matchId(1790000000000L);
+        assertTrue(id, id.matches("\\d{4}-\\d{2}-\\d{2}_\\d{2}-\\d{2}-\\d{2}"));
+
+        File auto = MatchLogFiles.next(dir, id, true, "Right Start Tip");
+        File teleOp = MatchLogFiles.next(dir, id, false, "Drive TeleOp");
+        assertEquals(id + "_Auto_Right_Start_Tip.wpilog", auto.getName());
+        assertEquals(id + "_TeleOp_Drive_TeleOp.wpilog", teleOp.getName());
+        assertTrue(auto.getName().compareTo(teleOp.getName()) < 0);
+    }
+
+    @Test
+    public void aNameAlreadyTakenGetsANumberAndNothingIsOverwritten() throws Exception {
+        File dir = tmp.newFolder("logs");
+        File first = MatchLogFiles.next(dir, "2026-10-04_14-32-10", false, "Drive TeleOp");
         assertTrue(first.createNewFile());
-        File second = MatchLogFiles.next(dir, "Drive TeleOp", 1790000000000L);
-        assertFalse(first.equals(second));
+        File second = MatchLogFiles.next(dir, "2026-10-04_14-32-10", false, "Drive TeleOp");
+        assertEquals("2026-10-04_14-32-10_TeleOp_Drive_TeleOp_2.wpilog", second.getName());
     }
 
     private static WpiLogReader.Record last(WpiLogReader r, String key) {

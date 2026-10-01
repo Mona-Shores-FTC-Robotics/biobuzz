@@ -92,8 +92,10 @@ import java.util.Map;
  *
  * <h2>The match log</h2>
  *
- * <p>Every run writes {@code /sdcard/FIRST/logs/<OpMode>_<date>_<time>.wpilog}, which AdvantageScope
- * opens: match state, alliance, both gamepads, the pose, loop time, battery voltage and events
+ * <p>Every run writes a {@code .wpilog} to {@code /sdcard/FIRST/logs/}, which AdvantageScope
+ * opens. Its name starts with the match ID (the Autonomous's start time), which TeleOp inherits
+ * through the handoff, so a match's Auto and TeleOp files sit side by side; see
+ * {@link MatchLogFiles}. It records match state, alliance, both gamepads, the pose, loop time, battery voltage and events
  * (init, PLAY, alliance changes, slow loops, stop), with no code in the OpMode. Add anything else
  * with {@code log.put("/Shooter/LeftRPM", rpm)} or {@code log.event("...")}. The loop only copies
  * numbers; a background thread writes the file, and a logging failure never stops the robot. See
@@ -143,6 +145,8 @@ public abstract class RobotOpMode extends OpMode {
     private static final long LOG_CLOSE_WAIT_MS = 300;
 
     private long logStartNs;
+    /** This run's match ID: the Autonomous's start time, inherited by the TeleOp that follows it. */
+    private String matchId;
     private VoltageSensor battery;
     private long lastBatteryNs;
     private Alliance loggedAlliance;
@@ -287,7 +291,7 @@ public abstract class RobotOpMode extends OpMode {
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, System.currentTimeMillis());
+            Handoff.record(setup.alliance(), pose, matchId, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -399,11 +403,22 @@ public abstract class RobotOpMode extends OpMode {
         metadata.put("OpModeClass", getClass().getName());
         String config = ActiveConfig.name();
         metadata.put("RobotConfig", config == null ? "(none active)" : config);
+
+        // The same handoff receiveHandoff() reads later; read here because it names the file.
+        long nowMs = System.currentTimeMillis();
+        boolean auto = isAutonomous();
+        Handoff.Snapshot handoff = auto ? null : Handoff.fresh(nowMs);
+        boolean followsAuto = handoff != null && handoff.matchId != null;
+        matchId = followsAuto ? handoff.matchId : MatchLogFiles.matchId(nowMs);
+        metadata.put("MatchId", matchId);
+        metadata.put("FollowsAuto", followsAuto ? "yes" : "no");
+
         File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER);
-        File file = MatchLogFiles.next(folder, name, System.currentTimeMillis());
-        log = MatchLog.toFile(file, "BIOBUZZ " + name, metadata,
+        File file = MatchLogFiles.next(folder, matchId, auto, name);
+        log = MatchLog.toFile(file, "BIOBUZZ " + name + " · match " + matchId, metadata,
                 () -> (System.nanoTime() - logStartNs) / 1000L);
-        log.event("OpMode init: " + name);
+        log.event("OpMode init: " + name + " · match " + matchId
+                + (followsAuto ? " (follows that Autonomous)" : ""));
     }
 
     /** This loop's state into the log, then hand it to the writer. Copies numbers only. */

@@ -6,22 +6,37 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * Where match logs go and what they are called: one file per OpMode run, named after the OpMode and
- * the time it started ({@code Drive_TeleOp_2026-10-04_14-32-10.wpilog}), so a restart starts a new
- * file and never overwrites the last one.
+ * Where match logs go and what they are called.
+ *
+ * <p>A file starts with its <b>match ID</b>: the time the match's Autonomous started. A TeleOp that
+ * follows that Autonomous (it received its handoff) carries the same ID, so a match's two files sort
+ * next to each other:
+ *
+ * <pre>
+ * 2026-10-04_14-32-10_Auto_Right_Start_Tip.wpilog
+ * 2026-10-04_14-32-10_TeleOp_Drive_TeleOp.wpilog
+ * 2026-10-04_14-40-55_TeleOp_Drive_TeleOp.wpilog     (practice TeleOp, no Auto: its own start)
+ * </pre>
+ *
+ * <p>Each run gets a new file; a name already taken (a TeleOp re-initialized in the pits) gets a
+ * {@code _2}, {@code _3}… so nothing is overwritten.
  */
 public final class MatchLogFiles {
 
-    /** The folder inside the SDK's FIRST folder ({@code /sdcard/FIRST/logs} on a hub). */
+    /** The folder inside the SDK's FIRST folder: {@code /sdcard/FIRST/logs} on a hub. */
     public static final String LOGS_FOLDER = "logs";
 
     private MatchLogFiles() {
     }
 
-    /** A file in {@code dir} that does not exist yet, for an OpMode started at {@code epochMs}. */
-    public static File next(File dir, String opModeName, long epochMs) {
-        String stamp = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(new Date(epochMs));
-        String base = safe(opModeName) + "_" + stamp;
+    /** A match ID for a match starting now: its local start time, to the second. */
+    public static String matchId(long epochMs) {
+        return new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US).format(new Date(epochMs));
+    }
+
+    /** A file in {@code dir} that does not exist yet. */
+    public static File next(File dir, String matchId, boolean autonomous, String opModeName) {
+        String base = safe(matchId) + (autonomous ? "_Auto_" : "_TeleOp_") + safe(opModeName);
         File file = new File(dir, base + ".wpilog");
         for (int n = 2; file.exists(); n++) {
             file = new File(dir, base + "_" + n + ".wpilog");
