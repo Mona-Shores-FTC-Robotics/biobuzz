@@ -130,6 +130,9 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 - **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
   `shooter/FlywheelBank`).
 - **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
+- **The match log is automatic.** `RobotOpMode` writes one `.wpilog` per run (`logging/MatchLog`)
+  from a background thread. Add data with `log.put(key, value)` / `log.event(text)`; never open a
+  file or write to storage from the loop.
 - **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
   OpMode before and after adding a subsystem and put both numbers in the PR.
 

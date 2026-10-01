@@ -17,7 +17,7 @@ import java.io.IOException;
  * of mapping an FTC gamepad onto this tab comes from.
  *
  * <p>Takes a plain {@link State} rather than the SDK's {@code Gamepad} so the simulated match can
- * build one; on the robot, {@link State#copyFrom} fills it once per loop.
+ * build one; on the robot, {@code RobotOpMode} fills one from each SDK gamepad once per loop.
  */
 public final class GamepadLog {
 
@@ -82,6 +82,28 @@ public final class GamepadLog {
             leftStickButton = rightStickButton = leftBumper = rightBumper = false;
             dpadUp = dpadDown = dpadLeft = dpadRight = touchpad = false;
             leftStickX = leftStickY = rightStickX = rightStickY = leftTrigger = rightTrigger = 0.0;
+        }
+
+        /** Copies every field of {@code other} into this one. */
+        public void set(State other) {
+            a = other.a; b = other.b; x = other.x; y = other.y;
+            back = other.back; guide = other.guide; start = other.start;
+            leftStickButton = other.leftStickButton; rightStickButton = other.rightStickButton;
+            leftBumper = other.leftBumper; rightBumper = other.rightBumper;
+            dpadUp = other.dpadUp; dpadDown = other.dpadDown;
+            dpadLeft = other.dpadLeft; dpadRight = other.dpadRight;
+            touchpad = other.touchpad;
+            leftStickX = other.leftStickX; leftStickY = other.leftStickY;
+            rightStickX = other.rightStickX; rightStickY = other.rightStickY;
+            leftTrigger = other.leftTrigger; rightTrigger = other.rightTrigger;
+        }
+
+        /** True when every button and axis equals {@code other}'s. */
+        public boolean sameAs(State other) {
+            return buttonBits() == other.buttonBits()
+                    && leftStickX == other.leftStickX && leftStickY == other.leftStickY
+                    && rightStickX == other.rightStickX && rightStickY == other.rightStickY
+                    && leftTrigger == other.leftTrigger && rightTrigger == other.rightTrigger;
         }
     }
 
