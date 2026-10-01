@@ -40,7 +40,7 @@ gone from `TeamCode/build.gradle`; don't re-add it.
 
 ### Why the versions are locked together
 
-Three constraints pin this stack. Bump any one of them and you have to move the
+Four constraints pin this stack. Bump any one of them and you have to move the
 others in the same commit:
 
 1. **AutoTune requires Sloth `0.3.2`.** `com.pedropathing:tuning` discovers
@@ -70,6 +70,11 @@ others in the same commit:
    because higher wins. Building `master` with appcompat forced to `1.2.0`
    succeeds. So there is no latent bug waiting to resurface: the downgrade
    restores the version two of our own dependencies were asking for.
+
+4. **`TeamCode/build.gradle` reaches into Load's `dexSloth` task and AGP's R
+   jar** to keep bundled configs alive across a Sloth Load. A Load or AGP bump
+   must re-check it — see
+   [Sloth Load and `R$xml`](#sloth-load-and-rxml-issue-71).
 
 One non-obvious consequence: `Load:0.3.2` pulls `com.android.tools.build:gradle`
 transitively, so the `buildscript` block in `TeamCode/build.gradle` needs
@@ -110,10 +115,33 @@ Sloth only reloads classes under `org.firstinspires.ftc.teamcode`. Use the full
 - any `.gradle` file
 - dependencies (added, removed, or version-bumped)
 - anything in `FtcRobotController/`
+- anything under `TeamCode/src/main/res/`: adding, removing or renaming a robot
+  config (see [What Sloth Load does to the robot configs](#what-sloth-load-does-to-the-robot-configs))
 
 Symptom of getting this wrong: the robot keeps running the *old* behaviour and
 nothing looks broken. If a change seems to have had no effect, do a full install
 before debugging anything else.
+
+### What Sloth Load does to the robot configs
+
+Nothing you should notice: after a Sloth Load the bundled configs stay in the
+Driver Station list, and the active one stays active. That holds only because
+`TeamCode/build.gradle` adds TeamCode's `R$xml` to the Sloth Load dex — Sloth
+alone leaves it out, and then every bundled config vanishes from the list after
+the first Sloth Load (issue #71; the mechanism is in
+[Risk: bundled configs depend on Sloth](#risk-bundled-configs-depend-on-sloth-not-just-the-sdk)).
+
+What a Sloth Load **cannot** do is change the configs themselves. The XML is a
+resource in the installed APK, and Sloth reloads classes, not resources. A new
+or edited `robot_<name>.xml` reaches the robot only through a full **TeamCode**
+install. A Sloth Load after you add or remove a config, without that install, is
+worse than nothing: its `R$xml` IDs come from the new build but point into the
+old APK's resources, so the list can show the wrong configs.
+
+If the configs are ever missing after a Sloth Load: do a full **TeamCode**
+install, then check the config is still active (**Configure Robot → select it →
+Activate**). **Restart Robot** alone does not help: Sloth reloads its saved dex
+at boot, and only a new APK makes it discard that dex.
 
 ### When a Wi-Fi deploy fails
 
@@ -430,6 +458,49 @@ So config discovery is a **Sloth 0.3.2** feature here, not an SDK one. A Sloth
 bump can break it with no compile error. **Symptom: the configs simply stop
 appearing in the Driver Station list.** If that happens after a dependency
 change, look here first, and add it to the version-lock constraints above.
+
+#### Sloth Load and `R$xml` (issue #71)
+
+`RobotConfigResScanner` keeps one list of config IDs per class loader. When a
+loader is scanned it clears that loader's list and refills it from every class
+whose name ends `R$xml`, keeping the IDs whose XML root is
+`<Robot type="FirstInspires-FTC">`. The Driver Station is offered the union.
+
+A Sloth Load replaces the TeamCode class loader with one over the uploaded dex,
+and unloads the old one, so after a Sloth Load the list holds exactly the
+`R$xml` that dex contains. Out of the box that is none: the Load plugin's
+`dexSloth` task packs `dexBuilderDebug`'s output with `exclude "*.jar"`, and AGP
+dexes the R classes into precisely those jars. Built and checked off the robot
+(Sloth 0.3.2, AGP 8.13.2): before the fix `to_load.jar` held no
+`org.firstinspires.ftc.teamcode.R*`, so every bundled config disappeared on
+every Sloth Load, on every robot, and stayed gone across a restart.
+
+The fix is in `TeamCode/build.gradle`: `extractSlothRClasses` copies TeamCode's
+`R.class` and `R$xml.class` out of AGP's `R.jar`, `dexSlothR` dexes them with
+D8 (the same D8 Sloth's `assembleSloth` uses), and `dexSloth` packs the result.
+Only those two classes, so the Sloth Load stays small. Their IDs are the
+installed APK's IDs as long as no resource was added or removed since the last
+full install — checked with `aapt2 dump resources` against the APK — and adding
+a config needs a full install anyway.
+
+**This depends on Sloth's and AGP's internals**, which is why it is part of the
+version lock: the `dexSloth` task name, its `Jar` type, and AGP's
+`intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar`.
+If a bump moves the R jar, `extractSlothRClasses` fails the build rather than
+shipping a Sloth Load with no configs. After any Sloth, Load or AGP bump, run
+`./gradlew :TeamCode:assembleSloth` and check that
+`TeamCode/build/libs/sloth_intermediate.jar` contains
+`org/firstinspires/ftc/teamcode/R.sloth.dex`.
+
+Options considered and rejected:
+
+| Option | Why not |
+|---|---|
+| A TeamCode class that references `R.xml`, so it gets packaged | Does nothing. Every R class is dexed into the excluded jars whatever references it, and `SlothClassLoader` will not fall back to the APK for a class under `org.firstinspires.ftc.teamcode` |
+| Register the IDs ourselves at startup with `RobotConfigFileManager.setXmlResourceIdSupplier` | Fights Sloth's `IdResFilter` for the same static hook, so it depends on initialisation order, and adds runtime substrate to maintain. The build fix leaves Sloth's own mechanism doing the work |
+| Go back to configs pushed to `/sdcard/FIRST/` | Reopens the drift path in [Why bundled](#why-bundled-and-not-decodes-adb-push) |
+| "Full install only" on robots with bundled configs | Gives up the under-a-second deploy that is the reason Sloth is here |
+| Wait for a Sloth release | Versions are locked to AutoTune, so a Sloth bump cannot be the fix on its own |
 
 ## The subsystem convention
 

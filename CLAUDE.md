@@ -123,9 +123,12 @@ that requires the subsystem — that would interrupt its `periodic()`.
   → README § "The Panels stack"
 
 **Sloth** (hot reload). Deploy with the **Sloth Load** run config; do a full **TeamCode** install
-after changing any `.gradle` file, a dependency, or `FtcRobotController/`, or the robot silently
-keeps the old code. Bundled-config discovery depends on Sloth, not the SDK: after a Sloth bump,
-configs can vanish from the DS list with no compile error.
+after changing any `.gradle` file, a dependency, `FtcRobotController/` or anything under `res/`
+(a config added or removed), or the robot silently keeps the old code. Bundled-config discovery
+depends on Sloth, not the SDK, and survives a Sloth Load only because `TeamCode/build.gradle` adds
+TeamCode's `R$xml` to the Sloth dex (`dexSlothR`) — never remove it. It reaches into Load's
+`dexSloth` task and AGP's R jar, so a Load or AGP bump re-checks it; after any such bump, configs
+can vanish from the DS list with no compile error.
 → README § "Risk: bundled configs depend on Sloth"
 
 ## Loop time
@@ -148,7 +151,8 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 
 - **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.1 + AutoTune, the
   `0.3.2+…` Sloth build of Panels, Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump
-  one alone; close Dependabot PRs that raise `appcompat`.
+  one alone; close Dependabot PRs that raise `appcompat`. A Load or AGP bump also re-checks
+  `dexSlothR` in `TeamCode/build.gradle` (see Sloth above).
   → README § "Why the versions are locked together"
 - **Never add:** FTC Dashboard or AdvantageScope Lite (their NanoHTTPD servers collide with
   Panels and the RC crash-loops on `BindException` — it compiles fine, only a robot catches it),
