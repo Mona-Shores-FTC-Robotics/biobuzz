@@ -18,7 +18,7 @@ def right(speed=50, name="duo-lz-right", garden=True):
           fire(r, "Fire until it tips (2)", "LeftCellUp", ms=1500),
           r.go("HOME_R", heading=90),
           r.wait("Spill rolls in (2)", when=["IntakeFull"], ms=1500),
-          r.go("PARK_R", ctrl=[(24, 14), (10, 50)]),
+          r.go("PARK_R", ctrl=[(24, 14), (18, 50)]),
           *waits(r, "Left CELL up", "LeftCellUp", 10.0),
           fire(r, "Fire from the LOADING ZONE (TIP 4)", "Empty"),
           r.go("PARK_S2", park=True))

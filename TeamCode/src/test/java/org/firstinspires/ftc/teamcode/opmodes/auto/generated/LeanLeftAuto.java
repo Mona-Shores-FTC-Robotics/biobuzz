@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -43,23 +44,23 @@ public final class LeanLeftAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
         Pose flowerL = p.of(47.36, 127.59, 90);
-        Pose flowerLIn = p.of(47.36, 121.79, 90);
         Pose flowerLTurn = p.of(47.36, 119.29, 90);
         Pose homeL = p.of(59, 131.75, 270);
-        Pose flowerLBackHomeL = p.of(59, 119.29, 270);
+        Pose flowerLBackHomeL = p.of(57.5, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToFlowerLIn = p.of(47.36, 121.79, 270);
-        Pose startToFlowerLInControl1 = p.of(59, 121.79, 0);
+        Pose startToFlowerLTurnControl1 = p.of(59, 119.29, 0);
+        Pose startToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 270);
+        Pose startToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
+        Pose flowerLToFlowerLBackHomeLSegment1Heading = p.of(57.5, 119.29, 90);
+        Pose flowerLToFlowerLBackHomeLSegment2Start = p.of(57.5, 119.29, 90);
+        Pose flowerLBackHomeLToHomeLControl1 = p.of(59, 121.29, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFlowerLInPath = Paths.curve(start, startToFlowerLInControl1, startToFlowerLIn).constant(startToFlowerLIn);
-        Path flowerLInToFlowerLTurn = Paths.line(startToFlowerLIn, flowerLTurn).linear(startToFlowerLIn, flowerLTurn);
+        Path startToFlowerLTurn = Paths.curve(start, startToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(startToFlowerLTurnSegment2Start, flowerLTurn)));
         Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
-        Path flowerLToFlowerLIn = Paths.line(flowerL, flowerLIn).constant(flowerLIn);
-        Path flowerLInToFlowerLTurnPath = Paths.line(flowerLIn, flowerLTurn).constant(flowerLTurn);
-        Path flowerLTurnToFlowerLBackHomeL = Paths.line(flowerLTurn, flowerLBackHomeL).linear(flowerLTurn, flowerLBackHomeL);
-        Path flowerLBackHomeLToHomeL = Paths.line(flowerLBackHomeL, homeL).constant(homeL);
+        Path flowerLToFlowerLBackHomeL = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeLSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeLSegment2Start, flowerLBackHomeL)));
+        Path flowerLBackHomeLToHomeL = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeLControl1, homeL).constant(homeL);
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -90,15 +91,12 @@ public final class LeanLeftAuto {
                 kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
-                kit.path("START to FLOWER_L_IN", startToFlowerLInPath),
-                kit.path("FLOWER_L_IN to FLOWER_L_TURN", flowerLInToFlowerLTurn),
+                kit.path("START to FLOWER_L_TURN", startToFlowerLTurn),
                 kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerL),
                 kit.firstOf("Collect at the FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(2500)),
-                kit.path("FLOWER_L to FLOWER_L_IN", flowerLToFlowerLIn),
-                kit.path("FLOWER_L_IN to FLOWER_L_TURN", flowerLInToFlowerLTurnPath),
-                kit.path("FLOWER_L_TURN to FLOWER_L_BACK_HOME_L", flowerLTurnToFlowerLBackHomeL),
+                kit.path("FLOWER_L to FLOWER_L_BACK_HOME_L", flowerLToFlowerLBackHomeL),
                 kit.path("FLOWER_L_BACK_HOME_L to HOME_L", flowerLBackHomeLToHomeL),
                 kit.firstOf("Fire (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Empty"),

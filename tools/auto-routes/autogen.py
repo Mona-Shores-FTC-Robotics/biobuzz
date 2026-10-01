@@ -54,12 +54,27 @@ class Route:
             if alongside not in self.actions: self.actions.append(alongside)
         return card
 
-    def go(self, to, ctrl=(), heading="linear", park=False, turn_from=None):
+    def go(self, to, ctrl=(), heading="linear", park=False, turn_from=None, turn_by=0.65, turn_after=0.0):
         """turn_from: turn linearly from this heading (the robot's real one) instead of the start point's."""
         a, b = self.points[self.at], self.points[to]
         lid = f"to-{to.lower().replace('_', '-')}-{len(self.lines) + 1}"
         if heading == "linear":
-            hd = {"type": "linear", "startDeg": a[2] if turn_from is None else turn_from, "endDeg": b[2]}
+            h0 = a[2] if turn_from is None else turn_from
+            if abs((h0 - b[2] + 180) % 360 - 180) < 1 or (turn_by >= 1 and turn_after <= 0):
+                hd = {"type": "linear", "startDeg": h0, "endDeg": b[2]}
+            else:
+                # Finish the turn by turn_by of the path, then drive in square (mentor review, 1 Oct).
+                # turn_after: hold the start heading until then (to clear something before turning).
+                segs = []
+                if turn_after > 0:
+                    segs.append({"startProgress": 0, "endProgress": turn_after, "interpolationType": "constant",
+                                 "parameters": {"degrees": h0}})
+                segs.append({"startProgress": turn_after, "endProgress": turn_by, "interpolationType": "linear",
+                             "parameters": {"startDeg": h0, "endDeg": b[2]}})
+                if turn_by < 1:
+                    segs.append({"startProgress": turn_by, "endProgress": 1, "interpolationType": "constant",
+                                 "parameters": {"degrees": b[2]}})
+                hd = {"type": "piecewise", "piecewiseHeading": {"segments": segs}}
         elif heading == "tangent":
             hd = {"type": "tangent"}
         else:

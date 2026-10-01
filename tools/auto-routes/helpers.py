@@ -31,26 +31,30 @@ def flower_points(r, name, at, heading):
 
 
 def flower(r, name, label, ms=1500):
-    """Slide clear without turning, turn where there is room, drive straight in, collect, back straight
-    out. A robot that turns beside a FLOWER sweeps its corners through it. Leaves it at `name`_IN."""
+    """Get clear of the FLOWER without turning, then one path that turns in its first half (still
+    clear of the FLOWER) and drives in square; collect. Leaves the robot at `name` (against it)."""
     h = r.points[name][2]
     cur = r.points[r.at][2]
     out = []
     if abs((cur - h + 180) % 360 - 180) > 20:
-        # Away from the FLOWER first (along the approach line), then across: a diagonal slide from a
-        # start beside it would cut the corner through it.
-        here, there = r.points[r.at], r.points[name + "_IN"]
+        here, there = r.points[r.at], r.points[name + "_TURN"]
         across = abs(r.points[name][2] % 180) < 45  # approach along x: move in x first
         bend = (there[0], here[1]) if across else (here[0], there[1])
-        out += [r.go(name + "_IN", ctrl=[bend], heading=cur), r.go(name + "_TURN", turn_from=cur)]
+        # Turn on the way to _TURN, once half way and clear of the start (a robot turns at most 300 deg/s, so a
+        # turn squeezed into the short last leg would still be going when it reached the FLOWER).
+        out += [r.go(name + "_TURN", ctrl=[bend], turn_from=cur, turn_after=0.5, turn_by=1.0), r.go(name, heading=h)]
     else:
-        out += [r.go(name + "_IN", heading=h)]
-    return out + [r.go(name, heading=h), r.wait(label, when=["IntakeFull"], ms=ms), r.go(name + "_IN", heading=h)]
+        out += [r.go(name + "_IN", heading=h), r.go(name, heading=h)]
+    # A FLOWER gives one POLLEN per 0.5 s (RobotDesign.flowerPullS): 4 take 2 s once there.
+    return out + [r.wait(label, when=["IntakeFull"], ms=max(ms, 2300))]
 
 
 def leave_flower(r, name, to):
-    """From `name`_IN back to `to` (a spot beside the FLOWER, like a robot's home): back off to
-    `name`_TURN, turn on the way across to the line of `to`, then drive straight in to it."""
+    """From against the FLOWER to `to` (a spot beside it, like a robot's home): back straight off to
+    the line of `to`, turning only once clear, then drive square into `to`."""
     h, t, dest = r.points[name][2], r.points[name + "_TURN"], r.points[to]
-    r.pt(name + "_BACK_" + to, dest[0], t[1], dest[2])
-    return [r.go(name + "_TURN", heading=h), r.go(name + "_BACK_" + to, turn_from=h), r.go(to, heading=dest[2])]
+    # Turn at x <= 57.5: a turning robot's corners reach 12.7 in, and the centre line is at 70.75.
+    r.pt(name + "_BACK_" + to, min(dest[0], 57.5), t[1], dest[2])
+    # The last leg reaches `to`'s x early: drifting across beside the FLOWER would brush it.
+    return [r.go(name + "_BACK_" + to, turn_from=h, turn_after=0.5, turn_by=1.0),
+            r.go(to, ctrl=[(dest[0], t[1] + 2)], heading=dest[2])]

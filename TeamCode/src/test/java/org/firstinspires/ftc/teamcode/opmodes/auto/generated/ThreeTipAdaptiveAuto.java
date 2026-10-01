@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -43,11 +44,9 @@ public final class ThreeTipAdaptiveAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
         Pose wallFlower = p.of(13.91, 47.36, 180);
-        Pose wallFlowerIn = p.of(19.71, 47.36, 180);
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
         Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.36, 127.59, 90);
-        Pose farFlowerIn = p.of(47.36, 121.79, 90);
         Pose farFlowerTurn = p.of(47.36, 119.29, 90);
         Pose rightPlungeIn = p.of(55, 24, 270);
         Pose rightPlunge = p.of(55, 10.5, 270);
@@ -56,42 +55,52 @@ public final class ThreeTipAdaptiveAuto {
         Pose park = p.of(15, 99, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToWallFlowerIn = p.of(19.71, 47.36, 90);
-        Pose startToWallFlowerInControl1 = p.of(19.71, 9.5, 0);
-        Pose leftShotToFarFlowerIn = p.of(47.36, 121.79, 301);
-        Pose leftShotToFarFlowerInControl1 = p.of(40, 121.79, 0);
+        Pose startToWallFlowerTurnControl1 = p.of(22.21, 9.5, 0);
+        Pose startToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 90);
+        Pose startToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 90);
+        Pose wallFlowerToLeftShotSegment1Start = p.of(40, 116, 180);
+        Pose leftShotToFarFlowerTurnControl1 = p.of(40, 119.29, 0);
+        Pose leftShotToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 301);
+        Pose leftShotToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 301);
+        Pose farFlowerToLeftShotSegment1Start = p.of(40, 116, 90);
         Pose leftShotToRightShotControl1 = p.of(34, 92, 0);
         Pose leftShotToRightShotControl2 = p.of(12, 60, 0);
         Pose leftShotToRightShotControl3 = p.of(22, 30, 0);
+        Pose leftShotToRightShotSegment1Start = p.of(36, 30, 301);
+        Pose rightShotToRightPlungeInSegment1Start = p.of(55, 24, 49);
+        Pose rightPlungeToRightShotSegment1Start = p.of(36, 30, 270);
+        Pose rightShotToGardenSegment1Start = p.of(8.5, 11, 49);
+        Pose gardenToRightShotSegment1Start = p.of(36, 30, 270);
         Pose leftShotToRightPlungeInControl1 = p.of(34, 92, 0);
         Pose leftShotToRightPlungeInControl2 = p.of(12, 60, 0);
         Pose leftShotToRightPlungeInControl3 = p.of(22, 30, 0);
+        Pose leftShotToRightPlungeInSegment1Start = p.of(55, 24, 301);
+        Pose rightPlungeToRightShot_2Segment1Start = p.of(36, 30, 270);
+        Pose rightShotToGarden_2Segment1Start = p.of(8.5, 11, 49);
+        Pose gardenToRightShot_2Segment1Start = p.of(36, 30, 270);
         Pose rightShotToParkControl1 = p.of(14, 40, 0);
         Pose rightShotToParkControl2 = p.of(12, 80, 0);
+        Pose rightShotToParkSegment1Start = p.of(15, 99, 49);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToWallFlowerInPath = Paths.curve(start, startToWallFlowerInControl1, startToWallFlowerIn).constant(startToWallFlowerIn);
-        Path wallFlowerInToWallFlowerTurn = Paths.line(startToWallFlowerIn, wallFlowerTurn).linear(startToWallFlowerIn, wallFlowerTurn);
+        Path startToWallFlowerTurn = Paths.curve(start, startToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToWallFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToWallFlowerTurnSegment2Start, wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
-        Path wallFlowerToWallFlowerIn = Paths.line(wallFlower, wallFlowerIn).constant(wallFlowerIn);
-        Path wallFlowerInToLeftShot = Paths.line(wallFlowerIn, leftShot).linear(wallFlowerIn, leftShot);
-        Path leftShotToFarFlowerInPath = Paths.curve(leftShot, leftShotToFarFlowerInControl1, leftShotToFarFlowerIn).constant(leftShotToFarFlowerIn);
-        Path farFlowerInToFarFlowerTurn = Paths.line(leftShotToFarFlowerIn, farFlowerTurn).linear(leftShotToFarFlowerIn, farFlowerTurn);
+        Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(wallFlowerToLeftShotSegment1Start, leftShot)).until(1, Interpolator.constant(leftShot)));
+        Path leftShotToFarFlowerTurn = Paths.curve(leftShot, leftShotToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(leftShotToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(leftShotToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToFarFlowerIn = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
-        Path farFlowerInToLeftShot = Paths.line(farFlowerIn, leftShot).linear(farFlowerIn, leftShot);
-        Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).linear(leftShot, rightShot);
-        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).linear(rightShot, rightPlungeIn);
+        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(farFlowerToLeftShotSegment1Start, leftShot)).until(1, Interpolator.constant(leftShot)));
+        Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
         Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
-        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
-        Path rightShotToGarden = Paths.line(rightShot, garden).linear(rightShot, garden);
-        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
-        Path leftShotToRightPlungeIn = Paths.curve(leftShot, leftShotToRightPlungeInControl1, leftShotToRightPlungeInControl2, leftShotToRightPlungeInControl3, rightPlungeIn).linear(leftShot, rightPlungeIn);
+        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightPlungeToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToGarden = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
+        Path gardenToRightShot = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path leftShotToRightPlungeIn = Paths.curve(leftShot, leftShotToRightPlungeInControl1, leftShotToRightPlungeInControl2, leftShotToRightPlungeInControl3, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
         Path rightPlungeInToRightPlungePath = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
-        Path rightPlungeToRightShotPath = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
-        Path rightShotToGardenPath = Paths.line(rightShot, garden).linear(rightShot, garden);
-        Path gardenToRightShotPath = Paths.line(garden, rightShot).linear(garden, rightShot);
-        Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).linear(rightShot, park);
+        Path rightPlungeToRightShotPath = Paths.line(rightPlunge, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightPlungeToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToGardenPath = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGarden_2Segment1Start, garden)).until(1, Interpolator.constant(garden)));
+        Path gardenToRightShotPath = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
 
         return kit.sequence(
                 kit.guarded("Auto", rightShotToPark, 2.7,
@@ -105,23 +114,19 @@ public final class ThreeTipAdaptiveAuto {
                                         kit.firstOf("Tip 1 (4th POLLEN)",
                                                 kit.when("Tip"),
                                                 kit.afterMs(1500)))),
-                        kit.path("START to WALL_FLOWER_IN", startToWallFlowerInPath),
-                        kit.path("WALL_FLOWER_IN to WALL_FLOWER_TURN", wallFlowerInToWallFlowerTurn),
+                        kit.path("START to WALL_FLOWER_TURN", startToWallFlowerTurn),
                         kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
                         kit.firstOf("Collect at WALL_FLOWER",
                                 kit.when("IntakeFull"),
-                                kit.afterMs(1500)),
-                        kit.path("WALL_FLOWER to WALL_FLOWER_IN", wallFlowerToWallFlowerIn),
-                        kit.path("WALL_FLOWER_IN to LEFT_SHOT", wallFlowerInToLeftShot),
+                                kit.afterMs(2300)),
+                        kit.path("WALL_FLOWER to LEFT_SHOT", wallFlowerToLeftShot),
                         kit.command("LaunchAll"),
-                        kit.path("LEFT_SHOT to FAR_FLOWER_IN", leftShotToFarFlowerInPath),
-                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurn),
+                        kit.path("LEFT_SHOT to FAR_FLOWER_TURN", leftShotToFarFlowerTurn),
                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                         kit.firstOf("Collect at FAR_FLOWER",
                                 kit.when("IntakeFull"),
-                                kit.afterMs(1500)),
-                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerIn),
-                        kit.path("FAR_FLOWER_IN to LEFT_SHOT", farFlowerInToLeftShot),
+                                kit.afterMs(2300)),
+                        kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
                         kit.firstOf("Did a partner make TIP 2?",
                                 kit.when("RightCellUp").then(
                                         kit.path("LEFT_SHOT to RIGHT_SHOT", leftShotToRightShot),

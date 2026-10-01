@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -44,7 +45,6 @@ public final class LeftFirstAuto {
         Pose start = p.of(59, 132.25, 270);
         Pose lHome = p.of(59, 131.75, 270);
         Pose farFlower = p.of(47.36, 127.59, 90);
-        Pose farFlowerIn = p.of(47.36, 121.79, 90);
         Pose farFlowerTurn = p.of(47.36, 119.29, 90);
         Pose lExit = p.of(57.5, 108, 270);
         Pose rExit = p.of(57.5, 34, 270);
@@ -55,49 +55,58 @@ public final class LeftFirstAuto {
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(16, 120, 90);
         Pose park2 = p.of(16, 122, 90);
-        Pose farFlowerBackLHome = p.of(59, 119.29, 270);
+        Pose farFlowerBackLHome = p.of(57.5, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToFarFlowerIn = p.of(47.36, 121.79, 270);
-        Pose startToFarFlowerInControl1 = p.of(59, 121.79, 0);
+        Pose startToFarFlowerTurnControl1 = p.of(59, 119.29, 0);
+        Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 270);
+        Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 270);
+        Pose farFlowerToFarFlowerBackLHomeSegment1Heading = p.of(57.5, 119.29, 90);
+        Pose farFlowerToFarFlowerBackLHomeSegment2Start = p.of(57.5, 119.29, 90);
+        Pose farFlowerBackLHomeToLHomeControl1 = p.of(59, 121.29, 0);
+        Pose rExitToRightShotSegment1Start = p.of(36, 30, 270);
+        Pose rightShotToRightPlungeInSegment1Start = p.of(55, 24, 49);
+        Pose rightPlungeToRightShotSegment1Start = p.of(36, 30, 270);
+        Pose rightShotToGardenSegment1Start = p.of(8.5, 11, 49);
+        Pose gardenToRightShotSegment1Start = p.of(36, 30, 270);
         Pose rightShotToParkControl1 = p.of(34, 60, 0);
         Pose rightShotToParkControl2 = p.of(34, 126, 0);
+        Pose rExitToRHomeSegment1Start = p.of(57.5, 10, 270);
         Pose rHomeToLExit = p.of(57.5, 108, 90);
-        Pose lHomeToFarFlowerIn = p.of(47.36, 121.79, 270);
-        Pose lHomeToFarFlowerInControl1 = p.of(59, 121.79, 0);
+        Pose lHomeToFarFlowerTurnControl1 = p.of(59, 119.29, 0);
+        Pose lHomeToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 270);
+        Pose lHomeToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 270);
+        Pose farFlowerToFarFlowerBackLHome_2Segment1Heading = p.of(57.5, 119.29, 90);
+        Pose farFlowerToFarFlowerBackLHome_2Segment2Start = p.of(57.5, 119.29, 90);
+        Pose farFlowerBackLHomeToLHome_2Control1 = p.of(59, 121.29, 0);
         Pose lHomeToParkControl1 = p.of(30, 120, 0);
+        Pose lHomeToParkSegment1Start = p.of(16, 120, 270);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFarFlowerInPath = Paths.curve(start, startToFarFlowerInControl1, startToFarFlowerIn).constant(startToFarFlowerIn);
-        Path farFlowerInToFarFlowerTurn = Paths.line(startToFarFlowerIn, farFlowerTurn).linear(startToFarFlowerIn, farFlowerTurn);
+        Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToFarFlowerIn = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
-        Path farFlowerInToFarFlowerTurnPath = Paths.line(farFlowerIn, farFlowerTurn).constant(farFlowerTurn);
-        Path farFlowerTurnToFarFlowerBackLHome = Paths.line(farFlowerTurn, farFlowerBackLHome).linear(farFlowerTurn, farFlowerBackLHome);
-        Path farFlowerBackLHomeToLHome = Paths.line(farFlowerBackLHome, lHome).constant(lHome);
+        Path farFlowerToFarFlowerBackLHome = Paths.line(farFlower, farFlowerBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(farFlowerToFarFlowerBackLHomeSegment1Heading)).until(1, Interpolator.linear(farFlowerToFarFlowerBackLHomeSegment2Start, farFlowerBackLHome)));
+        Path farFlowerBackLHomeToLHome = Paths.curve(farFlowerBackLHome, farFlowerBackLHomeToLHomeControl1, lHome).constant(lHome);
         Path lHomeToLExit = Paths.line(lHome, lExit).constant(lExit);
         Path lExitToRExit = Paths.line(lExit, rExit).constant(rExit);
-        Path rExitToRightShot = Paths.line(rExit, rightShot).linear(rExit, rightShot);
-        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).linear(rightShot, rightPlungeIn);
+        Path rExitToRightShot = Paths.line(rExit, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rExitToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
         Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
-        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
-        Path rightShotToGarden = Paths.line(rightShot, garden).linear(rightShot, garden);
-        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
+        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightPlungeToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToGarden = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
+        Path gardenToRightShot = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
         Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).constant(park);
         Path parkToPark2 = Paths.line(park, park2).linear(park, park2);
         Path startToLExit = Paths.line(start, lExit).constant(lExit);
         Path lExitToRExitPath = Paths.line(lExit, rExit).constant(rExit);
-        Path rExitToRHome = Paths.line(rExit, rHome).linear(rExit, rHome);
+        Path rExitToRHome = Paths.line(rExit, rHome).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rExitToRHomeSegment1Start, rHome)).until(1, Interpolator.constant(rHome)));
         Path rHomeToLExitPath = Paths.line(rHome, rHomeToLExit).constant(rHomeToLExit);
         Path lExitToLHome = Paths.line(lExit, lHome).linear(lExit, lHome);
-        Path lHomeToFarFlowerInPath = Paths.curve(lHome, lHomeToFarFlowerInControl1, lHomeToFarFlowerIn).constant(lHomeToFarFlowerIn);
-        Path farFlowerInToFarFlowerTurnPath2 = Paths.line(lHomeToFarFlowerIn, farFlowerTurn).linear(lHomeToFarFlowerIn, farFlowerTurn);
+        Path lHomeToFarFlowerTurn = Paths.curve(lHome, lHomeToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(lHomeToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(lHomeToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlowerPath = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToFarFlowerInPath = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
-        Path farFlowerInToFarFlowerTurnPath3 = Paths.line(farFlowerIn, farFlowerTurn).constant(farFlowerTurn);
-        Path farFlowerTurnToFarFlowerBackLHomePath = Paths.line(farFlowerTurn, farFlowerBackLHome).linear(farFlowerTurn, farFlowerBackLHome);
-        Path farFlowerBackLHomeToLHomePath = Paths.line(farFlowerBackLHome, lHome).constant(lHome);
-        Path lHomeToPark = Paths.curve(lHome, lHomeToParkControl1, park).linear(lHome, park);
+        Path farFlowerToFarFlowerBackLHomePath = Paths.line(farFlower, farFlowerBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(farFlowerToFarFlowerBackLHome_2Segment1Heading)).until(1, Interpolator.linear(farFlowerToFarFlowerBackLHome_2Segment2Start, farFlowerBackLHome)));
+        Path farFlowerBackLHomeToLHomePath = Paths.curve(farFlowerBackLHome, farFlowerBackLHomeToLHome_2Control1, lHome).constant(lHome);
+        Path lHomeToPark = Paths.curve(lHome, lHomeToParkControl1, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(lHomeToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
         Path parkToPark2Path = Paths.line(park, park2).linear(park, park2);
 
         return kit.sequence(
@@ -108,15 +117,12 @@ public final class LeftFirstAuto {
                                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("START to FAR_FLOWER_IN", startToFarFlowerInPath),
-                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurn),
+                                        kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
                                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                                         kit.firstOf("Collect at the FLOWER",
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(1800)),
-                                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerIn),
-                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath),
-                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER_BACK_L_HOME", farFlowerTurnToFarFlowerBackLHome),
+                                                kit.afterMs(2300)),
+                                        kit.path("FAR_FLOWER to FAR_FLOWER_BACK_L_HOME", farFlowerToFarFlowerBackLHome),
                                         kit.path("FAR_FLOWER_BACK_L_HOME to L_HOME", farFlowerBackLHomeToLHome),
                                         kit.firstOf("Fire until it tips (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
@@ -166,15 +172,12 @@ public final class LeftFirstAuto {
                                         kit.firstOf("Fire at the left CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("L_HOME to FAR_FLOWER_IN", lHomeToFarFlowerInPath),
-                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath2),
+                                        kit.path("L_HOME to FAR_FLOWER_TURN", lHomeToFarFlowerTurn),
                                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlowerPath),
                                         kit.firstOf("Collect at the FLOWER (fallback)",
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(1800)),
-                                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerInPath),
-                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath3),
-                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER_BACK_L_HOME", farFlowerTurnToFarFlowerBackLHomePath),
+                                                kit.afterMs(2300)),
+                                        kit.path("FAR_FLOWER to FAR_FLOWER_BACK_L_HOME", farFlowerToFarFlowerBackLHomePath),
                                         kit.path("FAR_FLOWER_BACK_L_HOME to L_HOME", farFlowerBackLHomeToLHomePath),
                                         kit.firstOf("Fire until it tips (TIP 2, fallback)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),

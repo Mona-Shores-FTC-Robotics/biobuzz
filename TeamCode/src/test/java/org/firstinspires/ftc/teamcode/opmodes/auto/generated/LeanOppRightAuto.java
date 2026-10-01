@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -48,25 +49,29 @@ public final class LeanOppRightAuto {
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose homeRToGardenInControl1 = p.of(30, 22, 0);
+        Pose homeRToGardenInSegment1Start = p.of(8.5, 22, 90);
         Pose gardenToHomeRControl1 = p.of(20, 18, 0);
         Pose homeRToGardenIn_2Control1 = p.of(30, 22, 0);
+        Pose homeRToGardenIn_2Segment1Start = p.of(8.5, 22, 90);
         Pose gardenToHomeR_2Control1 = p.of(20, 18, 0);
         Pose homeRToGardenIn_3Control1 = p.of(30, 22, 0);
+        Pose homeRToGardenIn_3Segment1Start = p.of(8.5, 22, 90);
         Pose gardenToHomeR_3Control1 = p.of(20, 18, 0);
         Pose homeRToGardenIn_4Control1 = p.of(30, 22, 0);
+        Pose homeRToGardenIn_4Segment1Start = p.of(8.5, 22, 90);
         Pose gardenToHomeR_4Control1 = p.of(20, 18, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path homeRToGardenIn = Paths.curve(start, homeRToGardenInControl1, gardenIn).linear(start, gardenIn);
+        Path homeRToGardenIn = Paths.curve(start, homeRToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToHomeR = Paths.curve(garden, gardenToHomeRControl1, homeR).constant(homeR);
-        Path homeRToGardenInPath = Paths.curve(homeR, homeRToGardenIn_2Control1, gardenIn).linear(homeR, gardenIn);
+        Path homeRToGardenInPath = Paths.curve(homeR, homeRToGardenIn_2Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToHomeRPath = Paths.curve(garden, gardenToHomeR_2Control1, homeR).constant(homeR);
-        Path homeRToGardenInPath2 = Paths.curve(homeR, homeRToGardenIn_3Control1, gardenIn).linear(homeR, gardenIn);
+        Path homeRToGardenInPath2 = Paths.curve(homeR, homeRToGardenIn_3Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_3Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath2 = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToHomeRPath2 = Paths.curve(garden, gardenToHomeR_3Control1, homeR).constant(homeR);
-        Path homeRToGardenInPath3 = Paths.curve(homeR, homeRToGardenIn_4Control1, gardenIn).linear(homeR, gardenIn);
+        Path homeRToGardenInPath3 = Paths.curve(homeR, homeRToGardenIn_4Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_4Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath3 = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToHomeRPath3 = Paths.curve(garden, gardenToHomeR_4Control1, homeR).constant(homeR);
 

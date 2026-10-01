@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -52,17 +53,19 @@ public final class DuoLzRightAuto {
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToGardenInControl1 = p.of(30, 22, 0);
+        Pose startToGardenInSegment1Start = p.of(8.5, 22, 90);
         Pose gardenToSlideSlControl1 = p.of(20, 18, 0);
         Pose homeRToParkRControl1 = p.of(24, 14, 0);
-        Pose homeRToParkRControl2 = p.of(10, 50, 0);
+        Pose homeRToParkRControl2 = p.of(18, 50, 0);
+        Pose homeRToParkRSegment1Start = p.of(14, 93, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToGardenIn = Paths.curve(start, startToGardenInControl1, gardenIn).linear(start, gardenIn);
+        Path startToGardenIn = Paths.curve(start, startToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(startToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToSlideSl = Paths.curve(garden, gardenToSlideSlControl1, slideSl).constant(slideSl);
         Path slideSlToSlideSr = Paths.line(slideSl, slideSr).constant(slideSr);
         Path slideSrToHomeR = Paths.line(slideSr, homeR).constant(homeR);
-        Path homeRToParkR = Paths.curve(homeR, homeRToParkRControl1, homeRToParkRControl2, parkR).linear(homeR, parkR);
+        Path homeRToParkR = Paths.curve(homeR, homeRToParkRControl1, homeRToParkRControl2, parkR).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToParkRSegment1Start, parkR)).until(1, Interpolator.constant(parkR)));
         Path parkRToParkS2 = Paths.line(parkR, parkS2).linear(parkR, parkS2);
 
         return kit.sequence(

@@ -602,6 +602,9 @@ public final class AutoSim {
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
+            // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
+            // once nearly stopped, unless it is streaming on purpose.
+            if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
             boolean dedicated = design.dedicatedLaunchers && !catapult;
@@ -888,9 +891,27 @@ public final class AutoSim {
         private double leadIn;
         private double leadFromX, leadFromY;
         private boolean done = true;
+        /**
+         * Pedro's follower does not stop dead at the end of a path: it reports the path finished as it
+         * brakes into the end, and a path started straight after carries the robot's speed on. So a
+         * path is done within this far of its end (and facing its way), the robot keeps braking to the
+         * end point if nothing follows, and a following path starts at the speed it had, projected
+         * onto the new direction. (Mentor review, 1 Oct 2026: the old dead stop was pessimistic.)
+         */
+        static final double JOIN_IN = 4.0;
+        /** The launcher waits until the robot has nearly stopped, as it did when paths stopped dead. */
+        static final double FIRE_SPEED_IN_PER_S = 6.0;
+        private double entrySpeed;
+        private double speedNow;
+        private double dirX, dirY;
 
         @Override
         public void follow(Path path) {
+            // Carry the current speed into the new path, as far as it points the same way.
+            Pose a = path.get(0), b = path.get(0.02);
+            double tx = b.x() - a.x(), ty = b.y() - a.y(), tn = Math.hypot(tx, ty);
+            double along = tn < 1e-9 ? 0 : (dirX * tx + dirY * ty) / tn;
+            entrySpeed = Math.max(0, speedNow * along);
             current = path;
             startedAt = Double.NaN; // starts on the next tick
             length = path.curve.length();
@@ -901,6 +922,7 @@ public final class AutoSim {
             if (leadIn < 1) leadIn = 0;
             leadFromX = pose.x();
             leadFromY = pose.y();
+            if (leadIn > 0) entrySpeed = 0;
             done = false;
         }
 
@@ -922,16 +944,28 @@ public final class AutoSim {
         @Override
         public void hold(Pose target) {
             current = null;
+            speedNow = 0;
             done = true;
         }
 
         void tick(double now) {
-            if (current == null || done) return;
+            if (current == null) {
+                speedNow = 0;
+                return;
+            }
             if (Double.isNaN(startedAt)) startedAt = now;
             double total = leadIn + length;
-            double s = distanceAt(now - startedAt, total, maxSpeed, accel);
+            double s = distanceAt(now - startedAt, total, maxSpeed, accel, entrySpeed);
+            double px = pose.x(), py = pose.y();
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= total - 1e-6;
+            if (done && arrived) {
+                // Braked to the end with nothing following: stand still, square to the path's end.
+                speedNow = 0;
+                Pose end = current.get(1);
+                pose = new Pose(end.x(), end.y(), turned(pose.heading(), end.heading(), maxTurn * LOOP_S));
+                return;
+            }
             Pose goal;
             if (s < leadIn) {
                 Pose start = current.get(0);
@@ -944,7 +978,15 @@ public final class AutoSim {
             }
             double heading = turned(pose.heading(), goal.heading(), maxTurn * LOOP_S);
             pose = new Pose(goal.x(), goal.y(), heading);
-            if (arrived && Math.abs(AdvantageScopeFrame.wrap(goal.heading() - heading)) < Math.toRadians(1)) done = true;
+            double mx = pose.x() - px, my = pose.y() - py, moved = Math.hypot(mx, my);
+            speedNow = moved / LOOP_S;
+            if (moved > 1e-9) {
+                dirX = mx / moved;
+                dirY = my / moved;
+            }
+            Pose end = current.get(1);
+            boolean facing = Math.abs(AdvantageScopeFrame.wrap(end.heading() - heading)) < Math.toRadians(arrived ? 1 : 5);
+            if (!done && facing && (arrived || total - s <= JOIN_IN)) done = true;
         }
 
         /** Turns in place toward {@code target} for {@code dt} seconds (an aim); only while idle. */
@@ -958,6 +1000,20 @@ public final class AutoSim {
         }
 
         /** Distance along a rest-to-rest trapezoid {@code t} seconds in. */
+        /** As {@link #distanceAt(double, double, double, double)}, starting at speed {@code v0}. */
+        static double distanceAt(double t, double length, double v, double a, double v0) {
+            if (v0 <= 1e-9) return distanceAt(t, length, v, a);
+            v0 = Math.min(v0, Math.min(v, Math.sqrt(2 * a * length))); // can always stop by the end
+            double peak = Math.min(v, Math.sqrt(a * length + v0 * v0 / 2));
+            double tUp = (peak - v0) / a, sUp = (peak * peak - v0 * v0) / (2 * a);
+            double sDown = peak * peak / (2 * a), tDown = peak / a;
+            double tCruise = Math.max(0, (length - sUp - sDown) / peak);
+            if (t <= tUp) return v0 * t + 0.5 * a * t * t;
+            if (t <= tUp + tCruise) return sUp + peak * (t - tUp);
+            double td = Math.min(t - tUp - tCruise, tDown);
+            return Math.min(length, sUp + peak * tCruise + peak * td - 0.5 * a * td * td);
+        }
+
         static double distanceAt(double t, double length, double v, double a) {
             double peak = Math.min(v, Math.sqrt(length * a));
             double tRamp = peak / a, sRamp = peak * peak / (2 * a);

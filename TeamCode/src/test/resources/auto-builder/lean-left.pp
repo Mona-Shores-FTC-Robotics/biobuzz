@@ -7,33 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-flower-l-in-1",
+      "id": "to-flower-l-turn-1",
       "color": "#3cc8e4",
-      "name": "START to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.79
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-2",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "START to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -43,15 +19,39 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-3",
+      "id": "to-flower-l-2",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -70,65 +70,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-4",
+      "id": "to-flower-l-back-home-l-3",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-5",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-6",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-7",
+      "id": "to-home-l-4",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -140,7 +121,12 @@
         "x": 59,
         "y": 131.75
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 121.29
+        }
+      ],
       "heading": {
         "type": "constant",
         "degrees": 270
@@ -224,31 +210,19 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-1"
+      "lineId": "to-flower-l-turn-1"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-2"
+      "lineId": "to-flower-l-2"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-3"
+      "lineId": "to-flower-l-back-home-l-3"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-7"
+      "lineId": "to-home-l-4"
     }
   ],
   "settings": {
@@ -344,19 +318,16 @@
         300
       ],
       "FLOWER_L_BACK_HOME_L": [
-        59,
+        57.5,
         119.29,
         270
       ]
     },
     "pathEnds": {
-      "to-flower-l-in-1": "FLOWER_L_IN",
-      "to-flower-l-turn-2": "FLOWER_L_TURN",
-      "to-flower-l-3": "FLOWER_L",
-      "to-flower-l-in-4": "FLOWER_L_IN",
-      "to-flower-l-turn-5": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-6": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-7": "HOME_L"
+      "to-flower-l-turn-1": "FLOWER_L_TURN",
+      "to-flower-l-2": "FLOWER_L",
+      "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-4": "HOME_L"
     },
     "startAt": "START",
     "cards": [
@@ -522,23 +493,17 @@
       {
         "id": "p-11",
         "kind": "path",
-        "lineId": "to-flower-l-in-1",
+        "lineId": "to-flower-l-turn-1",
         "park": false
       },
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-flower-l-turn-2",
+        "lineId": "to-flower-l-2",
         "park": false
       },
       {
-        "id": "p-13",
-        "kind": "path",
-        "lineId": "to-flower-l-3",
-        "park": false
-      },
-      {
-        "id": "w-14",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Collect at the FLOWER",
         "rows": [
@@ -555,31 +520,19 @@
         ]
       },
       {
+        "id": "p-14",
+        "kind": "path",
+        "lineId": "to-flower-l-back-home-l-3",
+        "park": false
+      },
+      {
         "id": "p-15",
         "kind": "path",
-        "lineId": "to-flower-l-in-4",
+        "lineId": "to-home-l-4",
         "park": false
       },
       {
-        "id": "p-16",
-        "kind": "path",
-        "lineId": "to-flower-l-turn-5",
-        "park": false
-      },
-      {
-        "id": "p-17",
-        "kind": "path",
-        "lineId": "to-flower-l-back-home-l-6",
-        "park": false
-      },
-      {
-        "id": "p-18",
-        "kind": "path",
-        "lineId": "to-home-l-7",
-        "park": false
-      },
-      {
-        "id": "w-19",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Fire (TIP 2)",
         "rows": [
@@ -597,7 +550,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-20",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Until it tips",
         "rows": [
@@ -614,7 +567,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Catch the spill",
         "rows": [
@@ -631,7 +584,7 @@
         ]
       },
       {
-        "id": "w-22",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Left CELL up (1)",
         "rows": [
@@ -648,7 +601,7 @@
         ]
       },
       {
-        "id": "w-23",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Left CELL up (1) (2)",
         "rows": [
@@ -665,7 +618,7 @@
         ]
       },
       {
-        "id": "w-24",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Left CELL up (1) (3)",
         "rows": [
@@ -682,7 +635,7 @@
         ]
       },
       {
-        "id": "w-25",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Left CELL up (1) (4)",
         "rows": [
@@ -699,7 +652,7 @@
         ]
       },
       {
-        "id": "w-26",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Left CELL up (1) (5)",
         "rows": [
@@ -716,7 +669,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Left CELL up (1) (6)",
         "rows": [
@@ -733,7 +686,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Left CELL up (1) (7)",
         "rows": [
@@ -750,7 +703,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Left CELL up (1) (8)",
         "rows": [
@@ -767,7 +720,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -785,7 +738,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-31",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Until it tips (1)",
         "rows": [
@@ -802,7 +755,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -819,7 +772,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -836,7 +789,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Left CELL up (2) (2)",
         "rows": [
@@ -853,7 +806,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Left CELL up (2) (3)",
         "rows": [
@@ -870,7 +823,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Left CELL up (2) (4)",
         "rows": [
@@ -887,7 +840,7 @@
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Left CELL up (2) (5)",
         "rows": [
@@ -904,7 +857,7 @@
         ]
       },
       {
-        "id": "w-38",
+        "id": "w-35",
         "kind": "firstOf",
         "label": "Left CELL up (2) (6)",
         "rows": [
@@ -921,7 +874,7 @@
         ]
       },
       {
-        "id": "w-39",
+        "id": "w-36",
         "kind": "firstOf",
         "label": "Left CELL up (2) (7)",
         "rows": [
@@ -938,7 +891,7 @@
         ]
       },
       {
-        "id": "w-40",
+        "id": "w-37",
         "kind": "firstOf",
         "label": "Left CELL up (2) (8)",
         "rows": [
@@ -955,7 +908,7 @@
         ]
       },
       {
-        "id": "w-41",
+        "id": "w-38",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -973,7 +926,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-42",
+        "id": "w-39",
         "kind": "firstOf",
         "label": "Until it tips (2)",
         "rows": [
@@ -990,7 +943,7 @@
         ]
       },
       {
-        "id": "w-43",
+        "id": "w-40",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -1007,7 +960,7 @@
         ]
       },
       {
-        "id": "w-44",
+        "id": "w-41",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -1024,7 +977,7 @@
         ]
       },
       {
-        "id": "w-45",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Left CELL up (3) (2)",
         "rows": [
@@ -1041,7 +994,7 @@
         ]
       },
       {
-        "id": "w-46",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Left CELL up (3) (3)",
         "rows": [
@@ -1058,7 +1011,7 @@
         ]
       },
       {
-        "id": "w-47",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "Left CELL up (3) (4)",
         "rows": [
@@ -1075,7 +1028,7 @@
         ]
       },
       {
-        "id": "w-48",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "Left CELL up (3) (5)",
         "rows": [
@@ -1092,7 +1045,7 @@
         ]
       },
       {
-        "id": "w-49",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "Left CELL up (3) (6)",
         "rows": [
@@ -1109,7 +1062,7 @@
         ]
       },
       {
-        "id": "w-50",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "Left CELL up (3) (7)",
         "rows": [
@@ -1126,7 +1079,7 @@
         ]
       },
       {
-        "id": "w-51",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "Left CELL up (3) (8)",
         "rows": [
@@ -1143,7 +1096,7 @@
         ]
       },
       {
-        "id": "w-52",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -1161,7 +1114,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-53",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "Until it tips (3)",
         "rows": [
@@ -1178,7 +1131,7 @@
         ]
       },
       {
-        "id": "w-54",
+        "id": "w-51",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -1195,7 +1148,7 @@
         ]
       },
       {
-        "id": "w-55",
+        "id": "w-52",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -1212,7 +1165,7 @@
         ]
       },
       {
-        "id": "w-56",
+        "id": "w-53",
         "kind": "firstOf",
         "label": "Left CELL up (4) (2)",
         "rows": [
@@ -1229,7 +1182,7 @@
         ]
       },
       {
-        "id": "w-57",
+        "id": "w-54",
         "kind": "firstOf",
         "label": "Left CELL up (4) (3)",
         "rows": [
@@ -1246,7 +1199,7 @@
         ]
       },
       {
-        "id": "w-58",
+        "id": "w-55",
         "kind": "firstOf",
         "label": "Left CELL up (4) (4)",
         "rows": [
@@ -1263,7 +1216,7 @@
         ]
       },
       {
-        "id": "w-59",
+        "id": "w-56",
         "kind": "firstOf",
         "label": "Left CELL up (4) (5)",
         "rows": [
@@ -1280,7 +1233,7 @@
         ]
       },
       {
-        "id": "w-60",
+        "id": "w-57",
         "kind": "firstOf",
         "label": "Left CELL up (4) (6)",
         "rows": [
@@ -1297,7 +1250,7 @@
         ]
       },
       {
-        "id": "w-61",
+        "id": "w-58",
         "kind": "firstOf",
         "label": "Left CELL up (4) (7)",
         "rows": [
@@ -1314,7 +1267,7 @@
         ]
       },
       {
-        "id": "w-62",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Left CELL up (4) (8)",
         "rows": [
@@ -1331,7 +1284,7 @@
         ]
       },
       {
-        "id": "w-63",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -1349,7 +1302,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-64",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Until it tips (4)",
         "rows": [
@@ -1366,7 +1319,7 @@
         ]
       },
       {
-        "id": "w-65",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [
@@ -1383,7 +1336,7 @@
         ]
       },
       {
-        "id": "w-66",
+        "id": "w-63",
         "kind": "firstOf",
         "label": "Left CELL up (5)",
         "rows": [
@@ -1400,7 +1353,7 @@
         ]
       },
       {
-        "id": "w-67",
+        "id": "w-64",
         "kind": "firstOf",
         "label": "Left CELL up (5) (2)",
         "rows": [
@@ -1417,7 +1370,7 @@
         ]
       },
       {
-        "id": "w-68",
+        "id": "w-65",
         "kind": "firstOf",
         "label": "Left CELL up (5) (3)",
         "rows": [
@@ -1434,7 +1387,7 @@
         ]
       },
       {
-        "id": "w-69",
+        "id": "w-66",
         "kind": "firstOf",
         "label": "Left CELL up (5) (4)",
         "rows": [
@@ -1451,7 +1404,7 @@
         ]
       },
       {
-        "id": "w-70",
+        "id": "w-67",
         "kind": "firstOf",
         "label": "Left CELL up (5) (5)",
         "rows": [
@@ -1468,7 +1421,7 @@
         ]
       },
       {
-        "id": "w-71",
+        "id": "w-68",
         "kind": "firstOf",
         "label": "Left CELL up (5) (6)",
         "rows": [
@@ -1485,7 +1438,7 @@
         ]
       },
       {
-        "id": "w-72",
+        "id": "w-69",
         "kind": "firstOf",
         "label": "Left CELL up (5) (7)",
         "rows": [
@@ -1502,7 +1455,7 @@
         ]
       },
       {
-        "id": "w-73",
+        "id": "w-70",
         "kind": "firstOf",
         "label": "Left CELL up (5) (8)",
         "rows": [
@@ -1519,7 +1472,7 @@
         ]
       },
       {
-        "id": "w-74",
+        "id": "w-71",
         "kind": "firstOf",
         "label": "Fire (5)",
         "rows": [
@@ -1537,7 +1490,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-75",
+        "id": "w-72",
         "kind": "firstOf",
         "label": "Until it tips (5)",
         "rows": [
@@ -1554,7 +1507,7 @@
         ]
       },
       {
-        "id": "w-76",
+        "id": "w-73",
         "kind": "firstOf",
         "label": "Catch the spill (5)",
         "rows": [

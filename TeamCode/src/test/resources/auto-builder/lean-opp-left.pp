@@ -7,33 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-flower-l-in-1",
+      "id": "to-flower-l-turn-1",
       "color": "#3cc8e4",
-      "name": "START to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.79
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-2",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "START to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -43,15 +19,39 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-3",
+      "id": "to-flower-l-2",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -70,65 +70,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-4",
+      "id": "to-flower-l-back-home-l-3",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-5",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-6",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-7",
+      "id": "to-home-l-4",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -140,16 +121,21 @@
         "x": 59,
         "y": 131.75
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 121.29
+        }
+      ],
       "heading": {
         "type": "constant",
         "degrees": 270
       }
     },
     {
-      "id": "to-flower-l-in-8",
+      "id": "to-flower-l-turn-5",
       "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_IN",
+      "name": "HOME_L to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -157,12 +143,114 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.36,
-        "y": 121.79
+        "y": 119.29
       },
       "controlPoints": [
         {
           "x": 59,
-          "y": 121.79
+          "y": 119.29
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-flower-l-6",
+      "color": "#3cc8e4",
+      "name": "FLOWER_L_TURN to FLOWER_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 127.59
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-flower-l-back-home-l-7",
+      "color": "#3cc8e4",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 119.29
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-home-l-8",
+      "color": "#3cc8e4",
+      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 131.75
+      },
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 121.29
         }
       ],
       "heading": {
@@ -173,7 +261,7 @@
     {
       "id": "to-flower-l-turn-9",
       "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "HOME_L to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -183,11 +271,35 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -210,65 +322,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-11",
+      "id": "to-flower-l-back-home-l-11",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-12",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-13",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-14",
+      "id": "to-home-l-12",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -280,29 +373,10 @@
         "x": 59,
         "y": 131.75
       },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-in-15",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
       "controlPoints": [
         {
           "x": 59,
-          "y": 121.79
+          "y": 121.29
         }
       ],
       "heading": {
@@ -311,9 +385,9 @@
       }
     },
     {
-      "id": "to-flower-l-turn-16",
+      "id": "to-flower-l-turn-13",
       "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "HOME_L to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -323,15 +397,39 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-17",
+      "id": "to-flower-l-14",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -350,65 +448,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-18",
+      "id": "to-flower-l-back-home-l-15",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-19",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-20",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-21",
+      "id": "to-home-l-16",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -420,29 +499,10 @@
         "x": 59,
         "y": 131.75
       },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-in-22",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
       "controlPoints": [
         {
           "x": 59,
-          "y": 121.79
+          "y": 121.29
         }
       ],
       "heading": {
@@ -451,9 +511,9 @@
       }
     },
     {
-      "id": "to-flower-l-turn-23",
+      "id": "to-flower-l-turn-17",
       "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "HOME_L to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -463,15 +523,39 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-24",
+      "id": "to-flower-l-18",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -490,65 +574,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-25",
+      "id": "to-flower-l-back-home-l-19",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-26",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-27",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-28",
+      "id": "to-home-l-20",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -559,148 +624,13 @@
       "endPoint": {
         "x": 59,
         "y": 131.75
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-in-29",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
       },
       "controlPoints": [
         {
           "x": 59,
-          "y": 121.79
+          "y": 121.29
         }
       ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-30",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
-      }
-    },
-    {
-      "id": "to-flower-l-31",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 127.59
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-in-32",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-33",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-back-home-l-34",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-35",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [],
       "heading": {
         "type": "constant",
         "degrees": 270
@@ -784,19 +714,19 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-1"
+      "lineId": "to-flower-l-turn-1"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-2"
+      "lineId": "to-flower-l-2"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-3"
+      "lineId": "to-flower-l-back-home-l-3"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-4"
+      "lineId": "to-home-l-4"
     },
     {
       "kind": "path",
@@ -804,15 +734,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-home-l-6"
+      "lineId": "to-flower-l-6"
     },
     {
       "kind": "path",
-      "lineId": "to-home-l-7"
+      "lineId": "to-flower-l-back-home-l-7"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-8"
+      "lineId": "to-home-l-8"
     },
     {
       "kind": "path",
@@ -824,103 +754,43 @@
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-11"
+      "lineId": "to-flower-l-back-home-l-11"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-12"
+      "lineId": "to-home-l-12"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-home-l-13"
+      "lineId": "to-flower-l-turn-13"
     },
     {
       "kind": "path",
-      "lineId": "to-home-l-14"
+      "lineId": "to-flower-l-14"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-15"
+      "lineId": "to-flower-l-back-home-l-15"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-16"
+      "lineId": "to-home-l-16"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-17"
+      "lineId": "to-flower-l-turn-17"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-18"
+      "lineId": "to-flower-l-18"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-19"
+      "lineId": "to-flower-l-back-home-l-19"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-home-l-20"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-21"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-in-22"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-23"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-24"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-in-25"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-26"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-27"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-28"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-in-29"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-30"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-31"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-in-32"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-33"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-34"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-35"
+      "lineId": "to-home-l-20"
     }
   ],
   "settings": {
@@ -1006,47 +876,32 @@
         270
       ],
       "FLOWER_L_BACK_HOME_L": [
-        59,
+        57.5,
         119.29,
         270
       ]
     },
     "pathEnds": {
-      "to-flower-l-in-1": "FLOWER_L_IN",
-      "to-flower-l-turn-2": "FLOWER_L_TURN",
-      "to-flower-l-3": "FLOWER_L",
-      "to-flower-l-in-4": "FLOWER_L_IN",
+      "to-flower-l-turn-1": "FLOWER_L_TURN",
+      "to-flower-l-2": "FLOWER_L",
+      "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-4": "HOME_L",
       "to-flower-l-turn-5": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-6": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-7": "HOME_L",
-      "to-flower-l-in-8": "FLOWER_L_IN",
+      "to-flower-l-6": "FLOWER_L",
+      "to-flower-l-back-home-l-7": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-8": "HOME_L",
       "to-flower-l-turn-9": "FLOWER_L_TURN",
       "to-flower-l-10": "FLOWER_L",
-      "to-flower-l-in-11": "FLOWER_L_IN",
-      "to-flower-l-turn-12": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-13": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-14": "HOME_L",
-      "to-flower-l-in-15": "FLOWER_L_IN",
-      "to-flower-l-turn-16": "FLOWER_L_TURN",
-      "to-flower-l-17": "FLOWER_L",
-      "to-flower-l-in-18": "FLOWER_L_IN",
-      "to-flower-l-turn-19": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-20": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-21": "HOME_L",
-      "to-flower-l-in-22": "FLOWER_L_IN",
-      "to-flower-l-turn-23": "FLOWER_L_TURN",
-      "to-flower-l-24": "FLOWER_L",
-      "to-flower-l-in-25": "FLOWER_L_IN",
-      "to-flower-l-turn-26": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-27": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-28": "HOME_L",
-      "to-flower-l-in-29": "FLOWER_L_IN",
-      "to-flower-l-turn-30": "FLOWER_L_TURN",
-      "to-flower-l-31": "FLOWER_L",
-      "to-flower-l-in-32": "FLOWER_L_IN",
-      "to-flower-l-turn-33": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-34": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-35": "HOME_L"
+      "to-flower-l-back-home-l-11": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-12": "HOME_L",
+      "to-flower-l-turn-13": "FLOWER_L_TURN",
+      "to-flower-l-14": "FLOWER_L",
+      "to-flower-l-back-home-l-15": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-16": "HOME_L",
+      "to-flower-l-turn-17": "FLOWER_L_TURN",
+      "to-flower-l-18": "FLOWER_L",
+      "to-flower-l-back-home-l-19": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-20": "HOME_L"
     },
     "startAt": "START",
     "cards": [
@@ -1212,23 +1067,17 @@
       {
         "id": "p-11",
         "kind": "path",
-        "lineId": "to-flower-l-in-1",
+        "lineId": "to-flower-l-turn-1",
         "park": false
       },
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-flower-l-turn-2",
+        "lineId": "to-flower-l-2",
         "park": false
       },
       {
-        "id": "p-13",
-        "kind": "path",
-        "lineId": "to-flower-l-3",
-        "park": false
-      },
-      {
-        "id": "w-14",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Collect at the FLOWER",
         "rows": [
@@ -1245,31 +1094,19 @@
         ]
       },
       {
+        "id": "p-14",
+        "kind": "path",
+        "lineId": "to-flower-l-back-home-l-3",
+        "park": false
+      },
+      {
         "id": "p-15",
         "kind": "path",
-        "lineId": "to-flower-l-in-4",
+        "lineId": "to-home-l-4",
         "park": false
       },
       {
-        "id": "p-16",
-        "kind": "path",
-        "lineId": "to-flower-l-turn-5",
-        "park": false
-      },
-      {
-        "id": "p-17",
-        "kind": "path",
-        "lineId": "to-flower-l-back-home-l-6",
-        "park": false
-      },
-      {
-        "id": "p-18",
-        "kind": "path",
-        "lineId": "to-home-l-7",
-        "park": false
-      },
-      {
-        "id": "w-19",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Fire (TIP 2)",
         "rows": [
@@ -1287,7 +1124,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-20",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Until it tips",
         "rows": [
@@ -1304,7 +1141,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Catch the spill",
         "rows": [
@@ -1321,7 +1158,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Left CELL up (1)",
         "rows": [
@@ -1338,7 +1175,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Left CELL up (1) (2)",
         "rows": [
@@ -1355,7 +1192,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Left CELL up (1) (3)",
         "rows": [
@@ -1372,7 +1209,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Left CELL up (1) (4)",
         "rows": [
@@ -1389,7 +1226,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Left CELL up (1) (5)",
         "rows": [
@@ -1406,7 +1243,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (1) (6)",
         "rows": [
@@ -1423,7 +1260,7 @@
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Left CELL up (1) (7)",
         "rows": [
@@ -1440,7 +1277,7 @@
         ]
       },
       {
-        "id": "w-38",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Left CELL up (1) (8)",
         "rows": [
@@ -1457,7 +1294,7 @@
         ]
       },
       {
-        "id": "w-39",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -1475,7 +1312,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-40",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Did it tip? (1)",
         "rows": [
@@ -1490,25 +1327,19 @@
             "afterMs": 1500,
             "cards": [
               {
-                "id": "p-22",
+                "id": "p-19",
                 "kind": "path",
-                "lineId": "to-flower-l-in-8",
+                "lineId": "to-flower-l-turn-5",
                 "park": false
               },
               {
-                "id": "p-23",
+                "id": "p-20",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-9",
+                "lineId": "to-flower-l-6",
                 "park": false
               },
               {
-                "id": "p-24",
-                "kind": "path",
-                "lineId": "to-flower-l-10",
-                "park": false
-              },
-              {
-                "id": "w-25",
+                "id": "w-21",
                 "kind": "firstOf",
                 "label": "Collect at the FLOWER (1)",
                 "rows": [
@@ -1519,37 +1350,25 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1500,
+                    "afterMs": 2300,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-26",
+                "id": "p-22",
                 "kind": "path",
-                "lineId": "to-flower-l-in-11",
+                "lineId": "to-flower-l-back-home-l-7",
                 "park": false
               },
               {
-                "id": "p-27",
+                "id": "p-23",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-12",
+                "lineId": "to-home-l-8",
                 "park": false
               },
               {
-                "id": "p-28",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-13",
-                "park": false
-              },
-              {
-                "id": "p-29",
-                "kind": "path",
-                "lineId": "to-home-l-14",
-                "park": false
-              },
-              {
-                "id": "w-30",
+                "id": "w-24",
                 "kind": "firstOf",
                 "label": "Fire again (1)",
                 "rows": [
@@ -1572,7 +1391,7 @@
         ]
       },
       {
-        "id": "w-41",
+        "id": "w-35",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -1589,7 +1408,7 @@
         ]
       },
       {
-        "id": "w-51",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -1606,7 +1425,7 @@
         ]
       },
       {
-        "id": "w-52",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Left CELL up (2) (2)",
         "rows": [
@@ -1623,7 +1442,7 @@
         ]
       },
       {
-        "id": "w-53",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "Left CELL up (2) (3)",
         "rows": [
@@ -1640,7 +1459,7 @@
         ]
       },
       {
-        "id": "w-54",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "Left CELL up (2) (4)",
         "rows": [
@@ -1657,7 +1476,7 @@
         ]
       },
       {
-        "id": "w-55",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "Left CELL up (2) (5)",
         "rows": [
@@ -1674,7 +1493,7 @@
         ]
       },
       {
-        "id": "w-56",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "Left CELL up (2) (6)",
         "rows": [
@@ -1691,7 +1510,7 @@
         ]
       },
       {
-        "id": "w-57",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "Left CELL up (2) (7)",
         "rows": [
@@ -1708,7 +1527,7 @@
         ]
       },
       {
-        "id": "w-58",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "Left CELL up (2) (8)",
         "rows": [
@@ -1725,7 +1544,7 @@
         ]
       },
       {
-        "id": "w-59",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -1743,7 +1562,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-60",
+        "id": "w-51",
         "kind": "firstOf",
         "label": "Did it tip? (2)",
         "rows": [
@@ -1758,25 +1577,19 @@
             "afterMs": 1500,
             "cards": [
               {
-                "id": "p-42",
+                "id": "p-36",
                 "kind": "path",
-                "lineId": "to-flower-l-in-15",
+                "lineId": "to-flower-l-turn-9",
                 "park": false
               },
               {
-                "id": "p-43",
+                "id": "p-37",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-16",
+                "lineId": "to-flower-l-10",
                 "park": false
               },
               {
-                "id": "p-44",
-                "kind": "path",
-                "lineId": "to-flower-l-17",
-                "park": false
-              },
-              {
-                "id": "w-45",
+                "id": "w-38",
                 "kind": "firstOf",
                 "label": "Collect at the FLOWER (2)",
                 "rows": [
@@ -1787,37 +1600,25 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1500,
+                    "afterMs": 2300,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-46",
+                "id": "p-39",
                 "kind": "path",
-                "lineId": "to-flower-l-in-18",
+                "lineId": "to-flower-l-back-home-l-11",
                 "park": false
               },
               {
-                "id": "p-47",
+                "id": "p-40",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-19",
+                "lineId": "to-home-l-12",
                 "park": false
               },
               {
-                "id": "p-48",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-20",
-                "park": false
-              },
-              {
-                "id": "p-49",
-                "kind": "path",
-                "lineId": "to-home-l-21",
-                "park": false
-              },
-              {
-                "id": "w-50",
+                "id": "w-41",
                 "kind": "firstOf",
                 "label": "Fire again (2)",
                 "rows": [
@@ -1840,7 +1641,7 @@
         ]
       },
       {
-        "id": "w-61",
+        "id": "w-52",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -1857,7 +1658,7 @@
         ]
       },
       {
-        "id": "w-71",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -1874,7 +1675,7 @@
         ]
       },
       {
-        "id": "w-72",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "Left CELL up (3) (2)",
         "rows": [
@@ -1891,7 +1692,7 @@
         ]
       },
       {
-        "id": "w-73",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Left CELL up (3) (3)",
         "rows": [
@@ -1908,7 +1709,7 @@
         ]
       },
       {
-        "id": "w-74",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Left CELL up (3) (4)",
         "rows": [
@@ -1925,7 +1726,7 @@
         ]
       },
       {
-        "id": "w-75",
+        "id": "w-63",
         "kind": "firstOf",
         "label": "Left CELL up (3) (5)",
         "rows": [
@@ -1942,7 +1743,7 @@
         ]
       },
       {
-        "id": "w-76",
+        "id": "w-64",
         "kind": "firstOf",
         "label": "Left CELL up (3) (6)",
         "rows": [
@@ -1959,7 +1760,7 @@
         ]
       },
       {
-        "id": "w-77",
+        "id": "w-65",
         "kind": "firstOf",
         "label": "Left CELL up (3) (7)",
         "rows": [
@@ -1976,7 +1777,7 @@
         ]
       },
       {
-        "id": "w-78",
+        "id": "w-66",
         "kind": "firstOf",
         "label": "Left CELL up (3) (8)",
         "rows": [
@@ -1993,7 +1794,7 @@
         ]
       },
       {
-        "id": "w-79",
+        "id": "w-67",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -2011,7 +1812,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-80",
+        "id": "w-68",
         "kind": "firstOf",
         "label": "Did it tip? (3)",
         "rows": [
@@ -2026,25 +1827,19 @@
             "afterMs": 1500,
             "cards": [
               {
-                "id": "p-62",
+                "id": "p-53",
                 "kind": "path",
-                "lineId": "to-flower-l-in-22",
+                "lineId": "to-flower-l-turn-13",
                 "park": false
               },
               {
-                "id": "p-63",
+                "id": "p-54",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-23",
+                "lineId": "to-flower-l-14",
                 "park": false
               },
               {
-                "id": "p-64",
-                "kind": "path",
-                "lineId": "to-flower-l-24",
-                "park": false
-              },
-              {
-                "id": "w-65",
+                "id": "w-55",
                 "kind": "firstOf",
                 "label": "Collect at the FLOWER (3)",
                 "rows": [
@@ -2055,37 +1850,25 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1500,
+                    "afterMs": 2300,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-66",
+                "id": "p-56",
                 "kind": "path",
-                "lineId": "to-flower-l-in-25",
+                "lineId": "to-flower-l-back-home-l-15",
                 "park": false
               },
               {
-                "id": "p-67",
+                "id": "p-57",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-26",
+                "lineId": "to-home-l-16",
                 "park": false
               },
               {
-                "id": "p-68",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-27",
-                "park": false
-              },
-              {
-                "id": "p-69",
-                "kind": "path",
-                "lineId": "to-home-l-28",
-                "park": false
-              },
-              {
-                "id": "w-70",
+                "id": "w-58",
                 "kind": "firstOf",
                 "label": "Fire again (3)",
                 "rows": [
@@ -2108,7 +1891,7 @@
         ]
       },
       {
-        "id": "w-81",
+        "id": "w-69",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -2125,7 +1908,7 @@
         ]
       },
       {
-        "id": "w-91",
+        "id": "w-76",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -2142,7 +1925,7 @@
         ]
       },
       {
-        "id": "w-92",
+        "id": "w-77",
         "kind": "firstOf",
         "label": "Left CELL up (4) (2)",
         "rows": [
@@ -2159,7 +1942,7 @@
         ]
       },
       {
-        "id": "w-93",
+        "id": "w-78",
         "kind": "firstOf",
         "label": "Left CELL up (4) (3)",
         "rows": [
@@ -2176,7 +1959,7 @@
         ]
       },
       {
-        "id": "w-94",
+        "id": "w-79",
         "kind": "firstOf",
         "label": "Left CELL up (4) (4)",
         "rows": [
@@ -2193,7 +1976,7 @@
         ]
       },
       {
-        "id": "w-95",
+        "id": "w-80",
         "kind": "firstOf",
         "label": "Left CELL up (4) (5)",
         "rows": [
@@ -2210,7 +1993,7 @@
         ]
       },
       {
-        "id": "w-96",
+        "id": "w-81",
         "kind": "firstOf",
         "label": "Left CELL up (4) (6)",
         "rows": [
@@ -2227,7 +2010,7 @@
         ]
       },
       {
-        "id": "w-97",
+        "id": "w-82",
         "kind": "firstOf",
         "label": "Left CELL up (4) (7)",
         "rows": [
@@ -2244,7 +2027,7 @@
         ]
       },
       {
-        "id": "w-98",
+        "id": "w-83",
         "kind": "firstOf",
         "label": "Left CELL up (4) (8)",
         "rows": [
@@ -2261,7 +2044,7 @@
         ]
       },
       {
-        "id": "w-99",
+        "id": "w-84",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -2279,7 +2062,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-100",
+        "id": "w-85",
         "kind": "firstOf",
         "label": "Did it tip? (4)",
         "rows": [
@@ -2294,25 +2077,19 @@
             "afterMs": 1500,
             "cards": [
               {
-                "id": "p-82",
+                "id": "p-70",
                 "kind": "path",
-                "lineId": "to-flower-l-in-29",
+                "lineId": "to-flower-l-turn-17",
                 "park": false
               },
               {
-                "id": "p-83",
+                "id": "p-71",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-30",
+                "lineId": "to-flower-l-18",
                 "park": false
               },
               {
-                "id": "p-84",
-                "kind": "path",
-                "lineId": "to-flower-l-31",
-                "park": false
-              },
-              {
-                "id": "w-85",
+                "id": "w-72",
                 "kind": "firstOf",
                 "label": "Collect at the FLOWER (4)",
                 "rows": [
@@ -2323,37 +2100,25 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1500,
+                    "afterMs": 2300,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-86",
+                "id": "p-73",
                 "kind": "path",
-                "lineId": "to-flower-l-in-32",
+                "lineId": "to-flower-l-back-home-l-19",
                 "park": false
               },
               {
-                "id": "p-87",
+                "id": "p-74",
                 "kind": "path",
-                "lineId": "to-flower-l-turn-33",
+                "lineId": "to-home-l-20",
                 "park": false
               },
               {
-                "id": "p-88",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-34",
-                "park": false
-              },
-              {
-                "id": "p-89",
-                "kind": "path",
-                "lineId": "to-home-l-35",
-                "park": false
-              },
-              {
-                "id": "w-90",
+                "id": "w-75",
                 "kind": "firstOf",
                 "label": "Fire again (4)",
                 "rows": [
@@ -2376,7 +2141,7 @@
         ]
       },
       {
-        "id": "w-101",
+        "id": "w-86",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [

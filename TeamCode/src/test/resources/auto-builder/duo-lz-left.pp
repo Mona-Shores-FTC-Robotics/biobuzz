@@ -7,33 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-flower-l-in-1",
+      "id": "to-flower-l-turn-1",
       "color": "#3cc8e4",
-      "name": "START to FLOWER_L_IN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.79
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-2",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
+      "name": "START to FLOWER_L_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -43,15 +19,39 @@
         "x": 47.36,
         "y": 119.29
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 119.29
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-3",
+      "id": "to-flower-l-2",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -70,65 +70,46 @@
       }
     },
     {
-      "id": "to-flower-l-in-4",
+      "id": "to-flower-l-back-home-l-3",
       "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_IN",
+      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 121.79
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-turn-5",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_IN to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
+        "x": 57.5,
         "y": 119.29
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.5,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.5,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-flower-l-back-home-l-6",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
-      }
-    },
-    {
-      "id": "to-home-l-7",
+      "id": "to-home-l-4",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_HOME_L to HOME_L",
       "waitBeforeMs": 0,
@@ -140,14 +121,19 @@
         "x": 59,
         "y": 131.75
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 121.29
+        }
+      ],
       "heading": {
         "type": "constant",
         "degrees": 270
       }
     },
     {
-      "id": "to-park-l-8",
+      "id": "to-park-l-5",
       "color": "#3cc8e4",
       "name": "HOME_L to PARK_L",
       "waitBeforeMs": 0,
@@ -170,13 +156,32 @@
         }
       ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 300
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0.0,
+              "endProgress": 0.65,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 300
+              }
+            },
+            {
+              "startProgress": 0.65,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 300
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-park-n2-9",
+      "id": "to-park-n2-6",
       "color": "#3cc8e4",
       "name": "PARK_L to PARK_N2",
       "waitBeforeMs": 0,
@@ -273,39 +278,27 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-1"
+      "lineId": "to-flower-l-turn-1"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-2"
+      "lineId": "to-flower-l-2"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-3"
+      "lineId": "to-flower-l-back-home-l-3"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-in-4"
+      "lineId": "to-home-l-4"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-5"
+      "lineId": "to-park-l-5"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-home-l-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-7"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-l-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-n2-9"
+      "lineId": "to-park-n2-6"
     }
   ],
   "settings": {
@@ -401,21 +394,18 @@
         300
       ],
       "FLOWER_L_BACK_HOME_L": [
-        59,
+        57.5,
         119.29,
         270
       ]
     },
     "pathEnds": {
-      "to-flower-l-in-1": "FLOWER_L_IN",
-      "to-flower-l-turn-2": "FLOWER_L_TURN",
-      "to-flower-l-3": "FLOWER_L",
-      "to-flower-l-in-4": "FLOWER_L_IN",
-      "to-flower-l-turn-5": "FLOWER_L_TURN",
-      "to-flower-l-back-home-l-6": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-7": "HOME_L",
-      "to-park-l-8": "PARK_L",
-      "to-park-n2-9": "PARK_N2"
+      "to-flower-l-turn-1": "FLOWER_L_TURN",
+      "to-flower-l-2": "FLOWER_L",
+      "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
+      "to-home-l-4": "HOME_L",
+      "to-park-l-5": "PARK_L",
+      "to-park-n2-6": "PARK_N2"
     },
     "startAt": "START",
     "cards": [
@@ -581,23 +571,17 @@
       {
         "id": "p-11",
         "kind": "path",
-        "lineId": "to-flower-l-in-1",
+        "lineId": "to-flower-l-turn-1",
         "park": false
       },
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-flower-l-turn-2",
+        "lineId": "to-flower-l-2",
         "park": false
       },
       {
-        "id": "p-13",
-        "kind": "path",
-        "lineId": "to-flower-l-3",
-        "park": false
-      },
-      {
-        "id": "w-14",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Collect at the FLOWER",
         "rows": [
@@ -614,31 +598,19 @@
         ]
       },
       {
+        "id": "p-14",
+        "kind": "path",
+        "lineId": "to-flower-l-back-home-l-3",
+        "park": false
+      },
+      {
         "id": "p-15",
         "kind": "path",
-        "lineId": "to-flower-l-in-4",
+        "lineId": "to-home-l-4",
         "park": false
       },
       {
-        "id": "p-16",
-        "kind": "path",
-        "lineId": "to-flower-l-turn-5",
-        "park": false
-      },
-      {
-        "id": "p-17",
-        "kind": "path",
-        "lineId": "to-flower-l-back-home-l-6",
-        "park": false
-      },
-      {
-        "id": "p-18",
-        "kind": "path",
-        "lineId": "to-home-l-7",
-        "park": false
-      },
-      {
-        "id": "w-19",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Fire until it tips (TIP 2)",
         "rows": [
@@ -656,7 +628,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-20",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Fire until it tips (2)",
         "rows": [
@@ -674,7 +646,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-21",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Spill rolls in",
         "rows": [
@@ -691,7 +663,7 @@
         ]
       },
       {
-        "id": "w-22",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Our CELL up again",
         "rows": [
@@ -708,7 +680,7 @@
         ]
       },
       {
-        "id": "w-23",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Our CELL up again (2)",
         "rows": [
@@ -725,7 +697,7 @@
         ]
       },
       {
-        "id": "w-24",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Our CELL up again (3)",
         "rows": [
@@ -742,7 +714,7 @@
         ]
       },
       {
-        "id": "w-25",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Our CELL up again (4)",
         "rows": [
@@ -759,7 +731,7 @@
         ]
       },
       {
-        "id": "w-26",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Our CELL up again (5)",
         "rows": [
@@ -776,7 +748,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Our CELL up again (6)",
         "rows": [
@@ -793,7 +765,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Our CELL up again (7)",
         "rows": [
@@ -810,7 +782,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Our CELL up again (8)",
         "rows": [
@@ -827,7 +799,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire (TIP 4)",
         "rows": [
@@ -845,13 +817,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-31",
+        "id": "p-28",
         "kind": "path",
-        "lineId": "to-park-l-8",
+        "lineId": "to-park-l-5",
         "park": false
       },
       {
-        "id": "w-32",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Left CELL up",
         "rows": [
@@ -868,7 +840,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -885,7 +857,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -902,7 +874,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -919,7 +891,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Left CELL up (5)",
         "rows": [
@@ -936,7 +908,7 @@
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Fire from the LOADING ZONE",
         "rows": [
@@ -954,9 +926,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-38",
+        "id": "p-35",
         "kind": "path",
-        "lineId": "to-park-n2-9",
+        "lineId": "to-park-n2-6",
         "park": true
       }
     ]
