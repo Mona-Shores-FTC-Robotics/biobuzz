@@ -18,7 +18,7 @@ import java.util.Map;
  * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoRightAuto,DuoLeftAuto@60" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
- * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10). PartnerThreeTipAuto gets its standing partner.
+ * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
  */
 public class AutoStudyTest {
 
@@ -153,6 +153,9 @@ public class AutoStudyTest {
                     File file = new File(TeamCodeDir.simLogs(), "study-" + spec.replaceAll("[^A-Za-z0-9]+", "-")
                             + "-" + e.getKey().replaceAll("[^A-Za-z0-9]+", "-") + "-" + seed + ".wpilog");
                     AutoSim.Result r = run(spec, e.getValue(), seed, file);
+                    if (System.getenv("BIOBUZZ_AUTO_PER_SEED") != null) {
+                        System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
+                    }
                     String tl = System.getenv("BIOBUZZ_AUTO_TIMELINE");
                     if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : Long.parseLong(tl) == seed)) {
                         System.out.println("STUDY   seed " + seed + ": " + r);
