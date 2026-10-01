@@ -73,5 +73,5 @@ if __name__ == "__main__":
     four_tip_x().write()
     study("FourTipXAuto,PartnerPreloadsRightLateAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 20,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, 24 in catcher, turret",
+          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, full-width intake, turret",
           extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})

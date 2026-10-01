@@ -42,13 +42,13 @@ public final class PartnerStage36SideForwardAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(36, 132.25, 270);
-        Pose fwd = p.of(36, 108.25, 270);
+        Pose fwd = p.of(36, 96.25, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFwd = Paths.line(start, fwd).constant(fwd);
 
         return kit.sequence(
-                kit.guarded("Auto", startToFwd, 1.7,
+                kit.guarded("Auto", startToFwd, 2,
                         kit.path("START to FWD", startToFwd)));
     }
 }

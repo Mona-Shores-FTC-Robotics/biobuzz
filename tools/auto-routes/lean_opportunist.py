@@ -74,4 +74,4 @@ if __name__ == "__main__":
     right().write()
     left().write()
     study("LeanOppRightAuto,LeanOppLeftAuto@50;LeanRightAuto,LeanLeftAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods, 24 in catcher")
+          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods, full-width intake")

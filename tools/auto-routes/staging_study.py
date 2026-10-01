@@ -2,12 +2,12 @@
 
 The partner starts at the left end at x = 19, 24 or 36 (y 132.25, facing the HIVE) and sets its 4
 preloads in a row touching it (G304): along its field side, or across its front. Then it either
-stays put (it can't move), drives one tile forward (all it can do: from x 19 that lands in the
-LOADING ZONE, so it parks), or drives to the far-left end of the LOADING ZONE and parks. A front
-row is only tried with a partner that stays, since any other would drive through it.
+stays put (it can't move), drives a tile and a half forward (all it can do: from x 19 that lands in
+the LOADING ZONE, so it parks), or drives to the far-left end of the LOADING ZONE and parks. A front
+row only for a partner that stays (any other would drive through it); a side row for one that moves.
 
 Ours is three-tip-adaptive with the partner's row in place of the wall FLOWER, taken in one straight
-drive with the 24 in catcher. AutoStudyTest.stagedFor reads the row's position from the partner's class name."""
+drive with an 18 in intake (the frame's width). AutoStudyTest.stagedFor reads the row's position from the partner's class name."""
 import sys
 from helpers import *
 from three_tip_adaptive import adaptive
@@ -23,7 +23,9 @@ def partner(x, side, does):
         # Nothing to do; it holds no pieces, so IntakeFull never comes.
         r.add(r.wait("Stay put", when=["IntakeFull"], ms=29500))
     elif does == "forward":
-        r.pt("FWD", x, Y0 - 24, 270)  # one tile
+        # A tile and a half: from x 19 that ends in the LOADING ZONE (y 94-118), and far enough down
+        # that it isn't beside the row when we come for it (one tile left it in our way).
+        r.pt("FWD", x, Y0 - 36, 270)
         r.add(r.go("FWD", heading=270, park=True))
     else:
         r.pt("PARK_P", 10.5, 108, 270)  # the far-left end of the LOADING ZONE, off the wall
@@ -31,22 +33,22 @@ def partner(x, side, does):
     return r
 
 
-def ours(x, side):
-    if side == "side":
-        # Our frame 1.5 in clear of the partner's side; the row (y 128-136.5) runs through the outer
-        # part of the 24 in intake. Two stops, two pieces each; the second leaves our front 1.8 in
-        # short of the far FLOWER's holder.
-        cx = x + 19.5
-        stops, back = ((cx, 119.5, 900), (cx, 125, 900)), (cx, 108)
-    else:
-        # Straight at the row (y 121.6); stop with our front 1 in short of the partner's. All 4 lie
-        # across the intake at once.
-        stops, back = ((x, Y0 - 9 - 1 - 9, 1600),), (x, 100)
-    return adaptive(f"staged-three-tip-{x}-{side}", staged=True, stops=stops, back=back)
+def ours(x, side, mover):
+    if mover:
+        # The partner has driven off by the time we get there (about 6 s): stand below its row and let
+        # the webcam (CollectSeen) pick it up. An 18 in robot can't take a row beside a partner that is
+        # still there: each piece's edge is 9.3 in out from our centre line, and our frame is 9 in, so
+        # the frame's corner nudges it aside.
+        return adaptive(f"staged-three-tip-{x}-{side}-moved", staged=True, row_in=(round(x + GAP, 1), 114))
+    # Straight at a row across the partner's front (y 121.6); stop with our front 1 in short of the
+    # partner's. All 4 lie across the intake at once.
+    # In straight from below: a diagonal approach sweeps the row aside with the front edge.
+    return adaptive(f"staged-three-tip-{x}-{side}", staged=True, stops=((x, 100, 0), (x, Y0 - 9 - 1 - 9, 1600)),
+                    back=(x, 102))
 
 
-CASES = [(x, side, does) for x in STARTS for side in ("side", "front") for does in ("stay", "forward", "park")
-         if side == "side" or does == "stay"]
+# A partner that stays puts its row across its front; one that moves, along its side.
+CASES = [(x, "front", "stay") for x in STARTS] + [(x, "side", does) for x in STARTS for does in ("forward", "park")]
 
 
 def cls(name):
@@ -55,11 +57,12 @@ def cls(name):
 
 if __name__ == "__main__":
     for x in STARTS:
-        for side in ("side", "front"):
-            ours(x, side).write()
+        ours(x, "front", False).write()
+        ours(x, "side", True).write()
     for c in CASES:
         partner(*c).write()
-    designs = sys.argv[1] if len(sys.argv) > 1 else "two spring hoods, 24 in catcher"
+    designs = sys.argv[1] if len(sys.argv) > 1 else "two spring hoods, full-width intake"
     runs = int(sys.argv[2]) if len(sys.argv) > 2 else 20
-    study(";".join(f"{cls(f'staged-three-tip-{x}-{side}')},{cls(f'partner-stage-{x}-{side}-{does}')}@50" for x, side, does in CASES),
+    study(";".join(f"{cls(f'staged-three-tip-{x}-{side}' + ('-moved' if does != 'stay' else ''))},{cls(f'partner-stage-{x}-{side}-{does}')}@50"
+                   for x, side, does in CASES),
           runs=runs, designs=designs, extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})

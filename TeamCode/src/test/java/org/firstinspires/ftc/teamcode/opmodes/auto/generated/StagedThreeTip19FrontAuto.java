@@ -52,8 +52,9 @@ public final class StagedThreeTip19FrontAuto {
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(15, 89.5, 90);
         Pose tunnel = p.of(57.5, 100, 90);
-        Pose rowBack = p.of(19, 100, 90);
-        Pose row1 = p.of(19, 113.25, 90);
+        Pose rowBack = p.of(19, 102, 90);
+        Pose row1 = p.of(19, 100, 90);
+        Pose row2 = p.of(19, 113.25, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose rowBackToLeftShotSegment1Heading = p.of(40, 116, 90);
@@ -85,7 +86,8 @@ public final class StagedThreeTip19FrontAuto {
         // Paths, written as the stock Visualizer export writes them.
         Path startToTunnel = Paths.line(start, tunnel).constant(tunnel);
         Path tunnelToRow1 = Paths.line(tunnel, row1).constant(row1);
-        Path row1ToRowBack = Paths.line(row1, rowBack).constant(rowBack);
+        Path row1ToRow2 = Paths.line(row1, row2).constant(row2);
+        Path row2ToRowBack = Paths.line(row2, rowBack).constant(rowBack);
         Path rowBackToLeftShot = Paths.line(rowBack, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(rowBackToLeftShotSegment1Heading)).until(1, Interpolator.linear(rowBackToLeftShotSegment2Start, leftShot)));
         Path leftShotToFarFlowerTurn = Paths.curve(leftShot, leftShotToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(leftShotToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(leftShotToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
@@ -110,10 +112,11 @@ public final class StagedThreeTip19FrontAuto {
                                 kit.afterMs(4000)),
                         kit.path("START to TUNNEL", startToTunnel),
                         kit.path("TUNNEL to ROW_1", tunnelToRow1),
-                        kit.firstOf("Take the partner's row (1)",
+                        kit.path("ROW_1 to ROW_2", row1ToRow2),
+                        kit.firstOf("Take the partner's row (2)",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1600)),
-                        kit.path("ROW_1 to ROW_BACK", row1ToRowBack),
+                        kit.path("ROW_2 to ROW_BACK", row2ToRowBack),
                         kit.path("ROW_BACK to LEFT_SHOT", rowBackToLeftShot),
                         kit.command("LaunchAll"),
                         kit.path("LEFT_SHOT to FAR_FLOWER_TURN", leftShotToFarFlowerTurn),

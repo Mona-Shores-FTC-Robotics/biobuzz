@@ -57,5 +57,5 @@ if __name__ == "__main__":
     adaptive().write()
     study("FourTipAdaptiveAuto,PartnerLeaveParkAuto@50;FourTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood, 24 in catcher|two spring hoods, 24 in catcher|clump catapult 72 deg, 24 in catcher",
+          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood, full-width intake|two spring hoods, full-width intake|clump catapult 72 deg, full-width intake",
           extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})

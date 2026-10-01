@@ -52,7 +52,7 @@ def shuttle(name="solo-shuttle", speed=50):
 if __name__ == "__main__":
     # An experiment that lost: 48-67 points: three crossings of the field cost too much; TIP 3 lands at 26-31 s. The Java is not committed.
     shuttle().write()
-    designs = sys.argv[2] if len(sys.argv) > 2 else "spring hood, 24 in catcher|two spring hoods, 24 in catcher|clump catapult 72 deg, 24 in catcher"
+    designs = sys.argv[2] if len(sys.argv) > 2 else "spring hood, full-width intake|two spring hoods, full-width intake|clump catapult 72 deg, full-width intake"
     study("SoloShuttleAuto,PartnerLeaveParkAuto@50;SoloShuttleAuto,PartnerPreloadsParkAuto@50;"
           "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50;ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10, designs=designs,

@@ -111,7 +111,7 @@ public class AutoStudyTest {
             m.put(blind.name, blind);
         }
         // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
-        for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle}) {
+        for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle, twinFull, m.get("clump catapult 72 deg, triangle cup, full-width intake")}) {
             RobotDesign c = base.copy(base.name + ", POLLEN only");
             c.launchesNectar = false;
             m.put(c.name, c);

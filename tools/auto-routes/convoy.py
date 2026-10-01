@@ -60,5 +60,5 @@ if __name__ == "__main__":
     tunnel().write()
     corridor().write()
     study("ConvoyTunnelAuto,ConvoyCorridorAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods, 24 in catcher",
+          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods, full-width intake",
           extra_env={"BIOBUZZ_AUTO_TIMELINE": sys.argv[3]} if len(sys.argv) > 3 else None)

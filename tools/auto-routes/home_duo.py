@@ -67,4 +67,4 @@ if __name__ == "__main__":
     left("home-stream-left", cycles=4, stream=True).write()
     study("HomeRightAuto,HomeLeftAuto@50;HomeStreamRightAuto,HomeStreamLeftAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, 24 in catcher")
+          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, full-width intake")

@@ -102,7 +102,7 @@ if __name__ == "__main__":
     study("LeftTunnelAuto,PartnerPreloadsRightAuto@50;LeftTunnelAuto,PartnerPreloadsRightSitAuto@50;"
           "LeftTunnelAuto,PartnerLeaveRightAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 20,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, 24 in catcher|clump catapult 72 deg, triangle cup",
+          designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, full-width intake|clump catapult 72 deg, triangle cup, full-width intake",
           extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})
 
 

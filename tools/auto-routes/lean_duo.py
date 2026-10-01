@@ -52,4 +52,4 @@ if __name__ == "__main__":
     right().write()
     left().write()
     study("LeanRightAuto,LeanLeftAuto@50;LeanRightAuto,LeanLeftAuto@60", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
-          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods|spring hood, 24 in catcher|two spring hoods, 24 in catcher")
+          designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood|two spring hoods|spring hood, full-width intake|two spring hoods, full-width intake")
