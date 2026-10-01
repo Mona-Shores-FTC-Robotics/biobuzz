@@ -33,6 +33,63 @@ apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 apply plugin: 'dev.frozenmilk.sinister.sloth.load'
 
+// Keep the bundled robot configs alive across a Sloth Load (issue #71).
+//
+// Sloth's `dexSloth` task packs dexBuilderDebug's output but excludes "*.jar",
+// and AGP dexes the R classes into exactly those jars. So the Sloth Load dex
+// has no org.firstinspires.ftc.teamcode.R$xml, and Sloth's
+// RobotConfigResScanner, which builds the Driver Station's config list from
+// the R$xml classes the TeamCode loader holds, rebuilds it empty. These two
+// tasks dex TeamCode's own R and R$xml (nothing else: Sloth Load stays small)
+// and add them to the Sloth dex. The IDs must match the installed APK, which
+// they do until a resource is added or removed — that already needs a full
+// TeamCode install. See TeamCode/README.md § "Risk: bundled configs depend on
+// Sloth, not just the SDK".
+def slothRClassDir = layout.buildDirectory.dir('intermediates/sloth_r_classes')
+def slothRDexDir = layout.buildDirectory.dir('intermediates/sloth_r_dex')
+def rClassJar = layout.buildDirectory.file(
+        'intermediates/compile_and_runtime_not_namespaced_r_class_jar/debug/processDebugResources/R.jar')
+
+def extractSlothRClasses = tasks.register('extractSlothRClasses', Sync) {
+    dependsOn 'processDebugResources'
+    from(zipTree(rClassJar)) {
+        include 'org/firstinspires/ftc/teamcode/R.class'
+        include 'org/firstinspires/ftc/teamcode/R$xml.class'
+    }
+    into slothRClassDir
+    doLast {
+        if (!slothRClassDir.get().file('org/firstinspires/ftc/teamcode/R$xml.class').asFile.exists()) {
+            throw new GradleException("TeamCode's R\$xml is not in ${rClassJar.get().asFile}: " +
+                    "AGP moved the R jar, and a Sloth Load would empty the Driver Station's config list.")
+        }
+    }
+}
+
+def dexSlothR = tasks.register('dexSlothR') {
+    dependsOn extractSlothRClasses
+    inputs.dir slothRClassDir
+    outputs.dir slothRDexDir
+    doLast {
+        def out = slothRDexDir.get().asFile
+        project.delete(out)
+        out.mkdirs()
+        def builder = com.android.tools.r8.D8Command.builder()
+        project.fileTree(slothRClassDir).each { builder.addProgramFiles(it.toPath()) }
+        com.android.tools.r8.D8.run(builder
+                .setMode(com.android.tools.r8.CompilationMode.DEBUG)
+                .setOutput(out.toPath(), com.android.tools.r8.OutputMode.DexIndexed)
+                .build())
+    }
+}
+
+tasks.named('dexSloth') {
+    dependsOn dexSlothR
+    from(slothRDexDir) {
+        into 'org/firstinspires/ftc/teamcode'
+        rename 'classes.dex', 'R.sloth.dex'
+    }
+}
+
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
