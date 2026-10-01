@@ -151,7 +151,7 @@ public class FieldSimTest {
         }
         assertEquals("tipped after " + shots + " shots", 1, sim.red.tips);
         assertEquals("launched POLLEN tip it on the calibrated count, like dropped ones",
-                HiveCalibration.current().pollenToTip, shots);
+                HiveCalibration.current().pollenToTipFromMatchStart(), shots);
         assertEquals(HiveState.LEFT_CELL_UP, sim.red.state());
         run(sim, 2);
         assertEquals("the lowered CELL emptied", 0, sim.count(HiveCell.RED_AUDIENCE));

@@ -317,14 +317,59 @@ final class FieldSim {
     }
 
     /**
-     * A POLLEN let go, still, just inside a rocker's raised CELL: how a calibration TIP count is
-     * taken on a real field.
+     * A piece gently placed in a rocker's raised CELL the way field staff calibrate a HIVE (Event
+     * Field Setup Guide §12.2): against the back skin, in the first free spot along it from the
+     * CELL wall nearest the field perimeter, and in the next row out once the back row is full.
+     * Returns null mid-tip.
      */
-    Piece dropIntoRaisedCell(Rocker r) {
-        double[] at = r.aimPoint();
-        Piece p = new Piece(Kind.POLLEN, Where.FIELD, at[0], at[1], at[2]);
+    Piece placeInRaisedCell(Rocker r, Kind kind) {
+        int end = r.raisedEnd();
+        if (end == 0) return null;
+        double rad = kind.radius;
+        double outward = r.alliance == Alliance.RED ? -1 : 1; // the perimeter side
+        for (int row = 0; row < 4; row++) {
+            for (double u = CELL_HALF_WIDTH_IN - rad; u >= -(CELL_HALF_WIDTH_IN - rad); u -= 0.1) {
+                double v = end * (CELL_BACK_IN + rad + 0.05 + row * 2 * POLLEN_RADIUS_IN);
+                double w = CELL_FLOOR_IN + rad + 0.05;
+                double[] at = r.toWorld(outward * u, v, w);
+                if (free(at, rad)) {
+                    Piece p = new Piece(kind, Where.FIELD, at[0], at[1], at[2]);
+                    pieces.add(p);
+                    updateCell(p);
+                    return p;
+                }
+            }
+        }
+        throw new IllegalStateException("the CELL is full");
+    }
+
+    /**
+     * A piece tossed into a rocker's raised CELL: in through the middle of the opening, moving
+     * toward the back at {@code speed} in/s. Returns null mid-tip.
+     */
+    Piece tossIntoRaisedCell(Rocker r, Kind kind, double speed) {
+        int end = r.raisedEnd();
+        if (end == 0) return null;
+        double[] at = r.toWorld(0, end * (CELL_OPENING_IN - kind.radius - 0.5),
+                (CELL_FLOOR_IN + CELL_ROOF_IN) / 2);
+        double[] v = r.dirToWorld(0, -end * speed, 0);
+        Piece p = new Piece(kind, Where.FIELD, at[0], at[1], at[2]);
+        p.vx = v[0];
+        p.vy = v[1];
+        p.vz = v[2];
         pieces.add(p);
+        updateCell(p);
         return p;
+    }
+
+    private boolean free(double[] at, double rad) {
+        for (Piece q : pieces) {
+            if (q.where != Where.FIELD) continue;
+            double d = Math.sqrt((q.x - at[0]) * (q.x - at[0]) + (q.y - at[1]) * (q.y - at[1])
+                    + (q.z - at[2]) * (q.z - at[2]));
+            if (d < q.kind.radius + rad + 0.05) return false;
+        }
+        return true;
     }
 
     Rocker rocker(Alliance alliance) {

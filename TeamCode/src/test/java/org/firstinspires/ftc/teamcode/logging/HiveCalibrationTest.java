@@ -1,39 +1,57 @@
 package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import org.junit.Test;
 
 /**
- * The simulated HIVE does what the calibration says the real one does: it tips on the measured
- * POLLEN and not one before, and the TIP takes the measured time.
+ * The simulated HIVE passes the calibration FIRST's field staff give every real HIVE (Event Field
+ * Setup Guide V1.0 §12.3), and tips at the measured speed.
  */
 public class HiveCalibrationTest {
 
-    @Test
-    public void theHiveTipsOnTheCalibratedPollenAndNotBefore() {
-        for (int count : new int[] {1, 3, 6}) {
-            FieldSim.Physics physics = HiveCalibration.of(count, 1.5, 1.0, 0.35).fit();
-            assertEquals("calibrated to tip on POLLEN " + count, count,
-                    HiveCalibration.pollenThatTip(physics, count + 3));
-        }
+    /** One row of §12.3: a CELL holding these pieces, then one more POLLEN placed or tossed in. */
+    private static void row(int nectar, int pollen, boolean tossed, boolean tips) {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        FieldSim sim = HiveCalibration.upwardCell(physics, nectar, pollen, false);
+        String what = nectar + " NECTAR + " + pollen + " POLLEN, then one more " + (tossed ? "tossed in" : "placed");
+        assertEquals(what + ": tipped before the test piece", 0, sim.red.tips);
+        FieldSim.Piece p = tossed
+                ? sim.tossIntoRaisedCell(sim.red, FieldSim.Kind.POLLEN, HiveCalibration.TOSS_IN_PER_S)
+                : sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+        assertNotNull(p);
+        HiveCalibration.settleRocker(sim);
+        assertEquals(what, tips ? 1 : 0, sim.red.tips);
     }
 
     @Test
-    public void heavierNectarMeansFewerPollen() {
-        // The same holding torque, with heavier NECTAR already in the CELL, needs less POLLEN.
-        FieldSim.Physics light = HiveCalibration.of(5, 1.0, 1.0, 0.35).fit();
-        FieldSim.Physics heavy = new FieldSim.Physics(3.0, light.holdTorque, light.swingRadPerS, 0.35);
-        assertTrue(HiveCalibration.pollenThatTip(heavy, 8) < 5);
-        assertEquals(1.0, light.nectarWeight, 0);
+    public void nectarRows() {
+        row(3, 1, true, false);  // 2nd POLLEN tossed in: no tip (necessary)
+        row(3, 2, false, true);  // 3rd POLLEN placed: tip (preferred)
+        row(3, 2, true, true);   // 3rd POLLEN tossed in: tip (necessary)
+    }
+
+    @Test
+    public void pollenRows() {
+        row(0, 6, true, false);  // 7th POLLEN tossed in: no tip (necessary)
+        row(0, 7, false, true);  // 8th POLLEN placed: tip (preferred)
+        row(0, 7, true, true);   // 8th POLLEN tossed in: tip (necessary)
+    }
+
+    @Test
+    public void fromTheStartOfAMatchTheThirdPollenTips() {
+        assertEquals(3, HiveCalibration.current().pollenToTipFromMatchStart());
+        assertEquals(0.091 / 0.055, HiveCalibration.current().fit().nectarWeight, 1e-12);
     }
 
     @Test
     public void aTipTakesTheCalibratedTime() {
         for (double seconds : new double[] {0.6, 1.0, 2.0}) {
-            HiveCalibration calibration = HiveCalibration.of(3, 1.5, seconds, 0.35);
+            HiveCalibration calibration = HiveCalibration.of(seconds, 0.35);
             double took = calibration.timedTip(calibration.fit());
             assertEquals("calibrated to " + seconds + " s", seconds, took, 0.05 * seconds);
         }
@@ -42,7 +60,7 @@ public class HiveCalibrationTest {
     @Test
     public void aDroppedPollenReboundsToTheCalibratedHeight() {
         double drop = 40, rebound = 10;
-        FieldSim.Physics physics = HiveCalibration.of(3, 1.5, 1.0, Math.sqrt(rebound / drop)).fit();
+        FieldSim.Physics physics = HiveCalibration.of(1.0, Math.sqrt(rebound / drop)).fit();
         FieldSim sim = new FieldSim(new java.util.ArrayList<>(), 1, physics);
         FieldSim.Piece p = new FieldSim.Piece(FieldSim.Kind.POLLEN, FieldSim.Where.FIELD, 30, 30,
                 drop + FieldSim.POLLEN_RADIUS_IN);
@@ -67,12 +85,13 @@ public class HiveCalibrationTest {
             HiveCalibration unmeasured = HiveCalibration.current();
             assertEquals(HiveCalibration.ASSUMED_TIP_SECONDS, unmeasured.tipSeconds, 0);
             assertTrue(unmeasured.assumed.contains("tip time"));
+            assertTrue(unmeasured.describe().contains("Event Field Setup Guide"));
             assertTrue(unmeasured.describe().contains("Assumed, not measured"));
 
             HiveTracker.Tuning.tipSeconds = 1.7;
             HiveCalibration measured = HiveCalibration.current();
             assertEquals(1.7, measured.tipSeconds, 0);
-            assertTrue(!measured.assumed.contains("tip time"));
+            assertFalse(measured.assumed.contains("tip time"));
         } finally {
             HiveTracker.Tuning.tipSeconds = before;
         }

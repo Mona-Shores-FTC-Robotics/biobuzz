@@ -6,98 +6,117 @@ import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * What a team measures about the HIVE and the pieces on a real field, and the fit that makes
- * {@link FieldSim} reproduce it: the HIVE in the simulation tips on the same POLLEN, and takes as
- * long, as the one on the field.
+ * How a real HIVE is calibrated, and the fit that makes {@link FieldSim}'s HIVE match it.
  *
- * <p><b>The measurements</b> (a field-session checklist is in {@code TeamCode/README.md}, "Calibrating
- * the HIVE"):
+ * <p><b>Published, so used as is.</b> FIRST has every HIVE at an event calibrated by field staff
+ * (2026-2027 <i>Event Field Setup Guide</i> V1.0, §12, "Hive Calibration"): ballast washers are
+ * added or removed until each CELL, with pieces gently placed against its back skin,
  * <ul>
- *   <li><b>POLLEN to tip.</b> Set a HIVE up for the start of a match (three NECTAR in the raised
- *       CELL). Drop POLLEN into the raised CELL one at a time, letting each settle. The count when
- *       it tips. {@link #MEASURED_POLLEN_TO_TIP}.</li>
- *   <li><b>Tip time.</b> Film a TIP in slow motion, first movement to resting. This is the robot's
- *       own {@link HiveTracker.Tuning#tipSeconds} (HIVE lesson 3), so the robot and the simulation
- *       share one number.</li>
- *   <li><b>Weights.</b> A POLLEN and a NECTAR on a kitchen scale. {@link #MEASURED_POLLEN_GRAMS},
- *       {@link #MEASURED_NECTAR_GRAMS}.</li>
- *   <li><b>Bounce.</b> Drop a POLLEN onto the tiles from a known height and film the first
- *       rebound against a tape measure. {@link #MEASURED_DROP_IN}, {@link #MEASURED_REBOUND_IN}.</li>
+ *   <li>tips on {@code [3] NECTAR + [3] POLLEN} and holds on {@code [3] NECTAR + [2] POLLEN};</li>
+ *   <li>tips on {@code [8] POLLEN} and holds on {@code [7] POLLEN};</li>
+ *   <li>and, "tossed in", still tips on the 3rd and 8th POLLEN and still holds on the 2nd and 7th
+ *       (§12.3).</li>
  * </ul>
- * Each is NaN until measured. Until then the simulation uses the {@code ASSUMED_} value and says so
- * in the log's metadata, so nobody mistakes a guess for a measurement.
+ * Those are {@link #TIP_CASES}. The weights are AndyMark's specification for the pieces
+ * (am-5851 POLLEN 0.055 lb, am-5852 NECTAR 0.091 lb). A match starts with three NECTAR in each raised
+ * CELL (§11.1), so from the start of a match the 3rd POLLEN tips it.
  *
- * <p><b>The fit</b> ({@link #fit}) turns those into {@link FieldSim.Physics}, by running the same
- * experiments in the simulation:
+ * <p><b>Not published, so measured by us</b> (checklist in {@code TeamCode/README.md}, under "Game
+ * pieces and the HIVE in a simulated .wpilog"):
  * <ul>
- *   <li>With the rocker held, it drops POLLEN into the raised CELL one at a time exactly as above
- *       and reads the resting torque after each. The holding torque goes halfway between the
- *       torque after one POLLEN short of the count and after the count, so the count tips it and one
- *       fewer does not.</li>
- *   <li>It then lets the rocker go, repeats the experiment, times the TIP, and scales the swing
- *       speed until the TIP takes the measured time.</li>
- *   <li>NECTAR's weight is the weight ratio; the tiles' restitution is √(rebound / drop).</li>
+ *   <li><b>Tip time.</b> Film a TIP, first movement to resting. This is the robot's own
+ *       {@link HiveTracker.Tuning#tipSeconds} (HIVE lesson 3), so the robot and the simulation share
+ *       one number.</li>
+ *   <li><b>Bounce.</b> A POLLEN dropped on the tiles from a known height, and its first rebound.
+ *       {@link #MEASURED_DROP_IN}, {@link #MEASURED_REBOUND_IN}.</li>
  * </ul>
+ * Each is NaN until measured; until then the simulation uses the {@code ASSUMED_} value and the
+ * log's metadata says so.
+ *
+ * <p><b>The fit</b> ({@link #fit}) runs FIRST's calibration in the simulation. With the rocker held,
+ * it places each case's pieces against the back skin and reads the resting torque: once with the
+ * case one POLLEN short (must hold) and once with it complete (must tip). The holding torque goes
+ * in the middle of the range every case allows. It then times a TIP and scales the swing speed
+ * until the TIP takes the measured time. {@code HiveCalibrationTest} runs all six rows of §12.3
+ * against the result.
  */
 final class HiveCalibration {
 
-    // ---- Measured on a field. NaN until measured. ----------------------------------------------
+    /** A combination of pieces that must tip an upward CELL, and hold with one POLLEN fewer. */
+    static final class TipCase {
+        final int nectar;
+        final int pollen;
 
-    static final double MEASURED_POLLEN_TO_TIP = Double.NaN;
-    static final double MEASURED_POLLEN_GRAMS = Double.NaN;
-    static final double MEASURED_NECTAR_GRAMS = Double.NaN;
+        TipCase(int nectar, int pollen) {
+            this.nectar = nectar;
+            this.pollen = pollen;
+        }
+
+        @Override
+        public String toString() {
+            return nectar + " NECTAR + " + pollen + " POLLEN";
+        }
+    }
+
+    // ---- Published --------------------------------------------------------------------------
+
+    /** Event Field Setup Guide V1.0 §12 and §12.3. */
+    static final List<TipCase> TIP_CASES = Arrays.asList(new TipCase(3, 3), new TipCase(0, 8));
+    /** AndyMark's specification for am-5851 and am-5852. */
+    static final double POLLEN_LB = 0.055;
+    static final double NECTAR_LB = 0.091;
+    /** Pieces in each upward CELL at the start of a match (Event Field Setup Guide §11.1). */
+    static final int NECTAR_AT_MATCH_START = 3;
+
+    // ---- Measured by us. NaN until measured. ----------------------------------------------------
+
     static final double MEASURED_DROP_IN = Double.NaN;
     static final double MEASURED_REBOUND_IN = Double.NaN;
+    // The tip time is HiveTracker.Tuning.tipSeconds.
 
     // ---- Assumed until then: not measurements. ------------------------------------------------
 
-    static final int ASSUMED_POLLEN_TO_TIP = 3;
-    static final double ASSUMED_NECTAR_PER_POLLEN = 1.5;
     static final double ASSUMED_TIP_SECONDS = 1.0;
     static final double ASSUMED_TILE_RESTITUTION = 0.35;
 
-    final int pollenToTip;
+    /** A gentle human toss into the CELL, in/s, for the "tossed in" rows of §12.3. */
+    static final double TOSS_IN_PER_S = 60;
+
+    final List<TipCase> tipCases;
     final double nectarPerPollen;
     final double tipSeconds;
     final double tileRestitution;
     /** The names of the values that are assumptions, not measurements. */
     final List<String> assumed;
 
-    HiveCalibration(int pollenToTip, double nectarPerPollen, double tipSeconds, double tileRestitution,
+    HiveCalibration(List<TipCase> tipCases, double nectarPerPollen, double tipSeconds, double tileRestitution,
                     List<String> assumed) {
-        if (pollenToTip < 1) throw new IllegalArgumentException("POLLEN to tip must be at least 1");
-        if (!(nectarPerPollen > 0) || !(tipSeconds > 0) || !(tileRestitution >= 0 && tileRestitution < 1)) {
+        if (tipCases.isEmpty() || !(nectarPerPollen > 0) || !(tipSeconds > 0)
+                || !(tileRestitution >= 0 && tileRestitution < 1)) {
             throw new IllegalArgumentException("calibration out of range");
         }
-        this.pollenToTip = pollenToTip;
+        this.tipCases = tipCases;
         this.nectarPerPollen = nectarPerPollen;
         this.tipSeconds = tipSeconds;
         this.tileRestitution = tileRestitution;
         this.assumed = assumed;
     }
 
-    /** A calibration from given numbers, all treated as measured: for tests and what-ifs. */
-    static HiveCalibration of(int pollenToTip, double nectarPerPollen, double tipSeconds, double tileRestitution) {
-        return new HiveCalibration(pollenToTip, nectarPerPollen, tipSeconds, tileRestitution, new ArrayList<>());
+    /** FIRST's calibration with a given tip time and bounce, all treated as measured: for tests. */
+    static HiveCalibration of(double tipSeconds, double tileRestitution) {
+        return new HiveCalibration(TIP_CASES, NECTAR_LB / POLLEN_LB, tipSeconds, tileRestitution, new ArrayList<>());
     }
 
-    /** What is measured, and the assumptions for the rest. */
+    /** FIRST's calibration, what we have measured, and the assumptions for the rest. */
     static HiveCalibration current() {
         List<String> assumed = new ArrayList<>();
-        int pollen = ASSUMED_POLLEN_TO_TIP;
-        if (MEASURED_POLLEN_TO_TIP >= 1) pollen = (int) Math.round(MEASURED_POLLEN_TO_TIP);
-        else assumed.add("POLLEN to tip");
-        double nectar = MEASURED_NECTAR_GRAMS / MEASURED_POLLEN_GRAMS;
-        if (!(nectar > 0)) {
-            nectar = ASSUMED_NECTAR_PER_POLLEN;
-            assumed.add("NECTAR weight");
-        }
         double tip = HiveTracker.Tuning.tipSeconds;
         if (!(tip > 0)) {
             tip = ASSUMED_TIP_SECONDS;
@@ -108,15 +127,24 @@ final class HiveCalibration {
             restitution = ASSUMED_TILE_RESTITUTION;
             assumed.add("bounce");
         }
-        return new HiveCalibration(pollen, nectar, tip, restitution, assumed);
+        return new HiveCalibration(TIP_CASES, NECTAR_LB / POLLEN_LB, tip, restitution, assumed);
+    }
+
+    /** The POLLEN that tips a HIVE from the start of a match: the 3rd. */
+    int pollenToTipFromMatchStart() {
+        for (TipCase c : tipCases) if (c.nectar == NECTAR_AT_MATCH_START) return c.pollen;
+        throw new IllegalStateException("no calibration case starts from the match-start NECTAR");
     }
 
     /** For the log's metadata. */
     String describe() {
+        List<String> cases = new ArrayList<>();
+        for (TipCase c : tipCases) cases.add(c.toString());
         return String.format(Locale.ROOT,
-                "HIVE tips on POLLEN %d from match start; tip %.2f s; NECTAR %.2f POLLEN weights; tile restitution %.2f. %s",
-                pollenToTip, tipSeconds, nectarPerPollen, tileRestitution,
-                assumed.isEmpty() ? "All measured." : "Assumed, not measured: " + String.join(", ", assumed) + ".");
+                "HIVE calibrated as FIRST's Event Field Setup Guide 12.3: tips on %s, holds on one POLLEN fewer;"
+                        + " NECTAR %.2f POLLEN weights (AndyMark); tip %.2f s; tile restitution %.2f. %s",
+                String.join(" and on ", cases), nectarPerPollen, tipSeconds, tileRestitution,
+                assumed.isEmpty() ? "Tip time and bounce measured." : "Assumed, not measured: " + String.join(", ", assumed) + ".");
     }
 
     // ---- The fit --------------------------------------------------------------------------------
@@ -125,7 +153,7 @@ final class HiveCalibration {
 
     /** The simulation constants that reproduce this calibration. Fitted once per calibration. */
     FieldSim.Physics fit() {
-        String key = pollenToTip + "/" + nectarPerPollen + "/" + tipSeconds + "/" + tileRestitution;
+        String key = tipCases + "/" + nectarPerPollen + "/" + tipSeconds + "/" + tileRestitution;
         synchronized (FITTED) {
             FieldSim.Physics physics = FITTED.get(key);
             if (physics == null) {
@@ -136,19 +164,29 @@ final class HiveCalibration {
         }
     }
 
-    /** Seconds each dropped POLLEN is given to settle, on a real field and here. */
+    /** Seconds each placed piece is given to settle. */
     static final double SETTLE_S = 1.5;
-    private static final double LOOP_S = 0.02;
+    static final double LOOP_S = 0.02;
 
     private FieldSim.Physics computeFit() {
-        // 1. The resting torque after each POLLEN, with the rocker held on its stop.
-        double[] torque = restingTorques(pollenToTip);
-        double hold = (torque[pollenToTip - 1] + torque[pollenToTip]) / 2;
-        if (!(torque[pollenToTip] > torque[pollenToTip - 1])) {
-            throw new IllegalStateException("the last POLLEN did not add torque; the CELL is full?");
+        // 1. The holding torque: above every "holds" case, below every "tips" case.
+        FieldSim.Physics probe = new FieldSim.Physics(nectarPerPollen, 1, 1, tileRestitution);
+        double highestHold = Double.NEGATIVE_INFINITY;
+        double lowestTip = Double.POSITIVE_INFINITY;
+        StringBuilder seen = new StringBuilder();
+        for (TipCase c : tipCases) {
+            double holds = restingTorque(probe, c.nectar, c.pollen - 1);
+            double tips = restingTorque(probe, c.nectar, c.pollen);
+            highestHold = Math.max(highestHold, holds);
+            lowestTip = Math.min(lowestTip, tips);
+            seen.append(String.format(Locale.ROOT, " %s: holds at %.1f, tips at %.1f;", c, holds, tips));
         }
+        if (!(highestHold < lowestTip)) {
+            throw new IllegalStateException("no holding torque satisfies every case:" + seen);
+        }
+        double hold = (highestHold + lowestTip) / 2;
 
-        // 2. The swing speed that makes that TIP take the measured time.
+        // 2. The swing speed that makes a TIP take the measured time.
         double swing = 1.5;
         for (int i = 0; i < 6; i++) {
             double took = timedTip(new FieldSim.Physics(nectarPerPollen, hold, swing, tileRestitution));
@@ -159,53 +197,43 @@ final class HiveCalibration {
         return new FieldSim.Physics(nectarPerPollen, hold, swing, tileRestitution);
     }
 
-    /** {@code torque[k]}: the red HIVE's tipping torque at rest with k POLLEN dropped in, rocker held. */
-    double[] restingTorques(int count) {
-        FieldSim sim = matchStart(new FieldSim.Physics(nectarPerPollen, 1, 1, tileRestitution));
-        sim.red.locked = true;
-        double[] torque = new double[count + 1];
-        torque[0] = settle(sim, sim.red);
-        for (int k = 1; k <= count; k++) {
-            sim.dropIntoRaisedCell(sim.red);
-            torque[k] = settle(sim, sim.red);
-        }
-        return torque;
+    /** The red HIVE's tipping torque at rest, rocker held, with these pieces placed in its upward CELL. */
+    static double restingTorque(FieldSim.Physics physics, int nectar, int pollen) {
+        FieldSim sim = upwardCell(physics, nectar, pollen, true);
+        return sim.tippingTorque(sim.red);
     }
 
-    /**
-     * The calibration experiment on a free rocker: drops POLLEN one at a time until it tips, and
-     * returns how long the TIP took, or NaN if it never did.
-     */
+    /** Times a TIP: match start, POLLEN placed one at a time until it tips. NaN if it never does. */
     double timedTip(FieldSim.Physics physics) {
-        FieldSim sim = matchStart(physics);
-        for (int k = 0; k < pollenToTip + 3 && sim.red.tips == 0; k++) {
-            sim.dropIntoRaisedCell(sim.red);
+        FieldSim sim = upwardCell(physics, NECTAR_AT_MATCH_START, 0, false);
+        for (int k = 0; k < pollenToTipFromMatchStart() + 3 && sim.red.tips == 0; k++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
             settleRocker(sim);
         }
         return sim.red.tips == 0 ? Double.NaN : sim.red.lastTipSeconds;
     }
 
-    /** How many POLLEN, dropped one at a time, it takes to tip a HIVE with these physics; 0 if none do. */
-    static int pollenThatTip(FieldSim.Physics physics, int max) {
-        FieldSim sim = matchStart(physics);
-        for (int k = 1; k <= max; k++) {
-            sim.dropIntoRaisedCell(sim.red);
-            settleRocker(sim);
-            if (sim.red.tips > 0) return k;
-        }
-        return 0;
-    }
-
     /**
-     * Lets a dropped POLLEN settle, and a rocker that has started to move finish: a piece rolling
-     * to the back of the CELL can lift it off its stop for a moment without tipping it.
+     * The red HIVE with {@code nectar} and {@code pollen} placed against the back skin of its
+     * upward CELL, one at a time, each settled; the rocker {@code held} on its stop or free.
      */
-    private static void settleRocker(FieldSim sim) {
-        for (int i = 0; i < Math.round(SETTLE_S / LOOP_S); i++) sim.step(LOOP_S);
-        for (int i = 0; i < 1000 && sim.red.state() == HiveState.TRANSITION; i++) sim.step(LOOP_S);
+    static FieldSim upwardCell(FieldSim.Physics physics, int nectar, int pollen, boolean held) {
+        FieldSim sim = new FieldSim(new ArrayList<>(), 1, physics);
+        sim.red.locked = true; // the starting NECTAR go in with the HIVE held, as field staff do
+        for (int i = 0; i < nectar; i++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
+            settle(sim);
+        }
+        sim.red.locked = held;
+        for (int i = 0; i < pollen; i++) {
+            if (sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN) == null) break;
+            if (held) settle(sim);
+            else settleRocker(sim);
+        }
+        return sim;
     }
 
-    /** Only what is in the CELLs at the start of a match: the three NECTAR in each raised CELL. */
+    /** The match-start pieces in the CELLs only, from the field CAD. */
     static FieldSim matchStart(FieldSim.Physics physics) {
         List<HiveAssets.StagedPiece> inCells = new ArrayList<>();
         try {
@@ -218,8 +246,18 @@ final class HiveCalibration {
         return new FieldSim(inCells, 1, physics);
     }
 
-    private static double settle(FieldSim sim, FieldSim.Rocker r) {
+    static void settle(FieldSim sim) {
         for (int i = 0; i < Math.round(SETTLE_S / LOOP_S); i++) sim.step(LOOP_S);
-        return sim.tippingTorque(r);
+    }
+
+    /**
+     * Lets a piece settle, and a rocker that has started to move finish: a piece rolling to the
+     * back of the CELL can lift it off its stop for a moment without tipping it.
+     */
+    static void settleRocker(FieldSim sim) {
+        settle(sim);
+        for (int i = 0; i < 1000 && (sim.red.state() == HiveState.TRANSITION || sim.blue.state() == HiveState.TRANSITION); i++) {
+            sim.step(LOOP_S);
+        }
     }
 }
