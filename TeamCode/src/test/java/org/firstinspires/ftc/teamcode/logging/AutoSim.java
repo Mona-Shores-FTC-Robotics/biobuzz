@@ -487,6 +487,26 @@ public final class AutoSim {
         return false;
     }
 
+    /**
+     * The robot's footprint as {@link #corners}, plus the intake's front edge where it is wider than
+     * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
+     * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
+     */
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now) {
+        List<double[]> out = corners(pose, design.frameIn);
+        // It starts folded inside the 18 in start size (R102) and is out within the first second.
+        if (design.intakeWidthIn <= design.frameIn || now < CATCHER_DEPLOY_S) return out;
+        double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+        double lx = (design.intakeAtBack ? -1 : 1) * design.frameIn / 2, half = design.intakeWidthIn / 2;
+        for (int j = -4; j <= 4; j++) {
+            double ly = half * j / 4;
+            out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+        }
+        return out;
+    }
+
+    static final double CATCHER_DEPLOY_S = 1.0;
+
     /** Points around and inside an {@code size}-square footprint at {@code pose}. */
     private static List<double[]> corners(double[] pose, double size) {
         List<double[]> out = new ArrayList<>();
@@ -695,7 +715,7 @@ public final class AutoSim {
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : corners(pose, design.frameIn)) {
+                for (double[] c : outline(pose, design, now)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -708,7 +728,7 @@ public final class AutoSim {
                 log.putEvent(tag() + "drives into a FLOWER", us);
             }
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : corners(pose, design.frameIn)) {
+                for (double[] c : outline(pose, design, now)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;

@@ -52,10 +52,11 @@ public class ReviewPackageTest {
         }
     }
 
-    static final String CATAPULT = "clump catapult 72 deg, 24 in catcher";
-    static final String TWIN = "two spring hoods, 24 in catcher";
+    // An intake the frame's width (mentor decision, 1 Oct 2026): a 24 in catcher can't use the tunnel.
+    static final String CATAPULT = "clump catapult 72 deg, full-width intake";
+    static final String TWIN = "two spring hoods, full-width intake";
 
-    static final String TRIANGLE = "clump catapult 72 deg, triangle cup";
+    static final String TRIANGLE = "clump catapult 72 deg, triangle cup, full-width intake";
 
     static final String TWIN_BACK = TWIN + ", intake at back", TWIN_TURRET = TWIN + ", turret";
 
@@ -65,7 +66,7 @@ public class ReviewPackageTest {
      */
     static final String[][] SECTIONS = {
             {"1-partner-stages-preloads", "The partner doesn't shoot: it stages its preloads for us",
-                    "A partner that can't fire sets its 4 preloads on the tiles touching it (G304) for us to collect, then drives to park. The orange outline in front of our robot is where its intake catches pieces (24 in wide with the catcher)."},
+                    "A partner that can't fire sets its 4 preloads on the tiles touching it (G304) for us to collect, then drives to park. The orange outline in front of our robot is where its intake catches pieces (18 in wide, the robot's own width)."},
             {"2-partner-fires-preloads", "The partner fires one volley of preloads, then parks",
                     "The most common partner in qualifications. `partner-starts-left` fires into the left CELL once our TIP 1 raises it; `partner-starts-right` fires at the start (TIP 1 is theirs), or holds its volley for later."},
             {"3-choreography", "Choreography: two robots that both run our Autos",
@@ -87,33 +88,33 @@ public class ReviewPackageTest {
                     "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
             // 2. The partner fires one volley.
             new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel",
-                    "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks.",
-                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
+                    "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks. 3 TIPs in 4 of 10 seeds with this robot (the rest stop at 2).",
+                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 3),
             new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel-catapult",
-                    "solo-tunnel with the triangle-cup catapult: the fastest 3 TIPs (2, 9, 22 s) and both park.",
+                    "solo-tunnel with the triangle-cup catapult: 3 TIPs and both park in 7 of 10 seeds.",
                     "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TRIANGLE, "spring hood", 40, 1),
             new Run("2-partner-fires-preloads/partner-starts-left/three-tip-adaptive",
-                    "three-tip-adaptive (the legacy reference: FLOWERs, round the outside, angled shots): fires all 4 and leaves at once; 3 TIPs and park is 76, its ceiling whatever the partner does.",
+                    "three-tip-adaptive (the legacy reference: FLOWERs, round the outside, angled shots): fires all 4 and leaves at once; 3 TIPs and park in 9 of 10 seeds, 76, its ceiling whatever the partner does.",
                     "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
             new Run("2-partner-fires-preloads/partner-starts-right/flower-feed",
-                    "Fire and feed: the partner makes TIP 1; we wait at the far FLOWER, lined up angled with the intake at the back, and fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held.",
+                    "Fire and feed: the partner makes TIP 1; we wait at the far FLOWER, lined up angled with the intake at the back, and fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held. 3 TIPs in 3 of 10 seeds with an 18 in intake.",
                     "FlowerFeedBackAuto,PartnerPreloadsRightAuto@50", TWIN_BACK, "spring hood", 40, 2),
             new Run("2-partner-fires-preloads/partner-starts-right/left-tunnel-catapult",
                     "The partner makes TIP 1; we start left, add our preloads and the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. 76 in 10 of 10 seeds.",
                     "LeftTunnelAuto,PartnerPreloadsRightAuto@50", TRIANGLE, "spring hood", 40, 1),
-            new Run("2-partner-fires-preloads/partner-holds-its-volley/four-tip-attempt-best-case",
-                    "Chasing 4 TIPs: the partner holds its preloads for TIP 3. Its best run of 10: TIPs at 4, 13 and 23 s, back with pieces for TIP 4 at 28 s, 2-3 s short. In the other 9 the TIP 1 catch comes up short and TIP 2 fails.",
-                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN_TURRET, "spring hood", 40, 1),
+            new Run("2-partner-fires-preloads/partner-holds-its-volley/four-tip-attempt",
+                    "Chasing 4 TIPs: the partner holds its preloads for TIP 3. With an 18 in intake it never gets past 2 TIPs: the TIP 1 catch comes up short and TIP 2 fails. Kept to show why.",
+                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN_TURRET, "spring hood", 40, 3),
             // 3. Choreography.
             new Run("3-choreography/stay-home/catapult-triangle",
-                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back; when a volley falls short the left robot gathers loose pieces with the webcam; both park.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 1),
+                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back; when a volley falls short the left robot gathers loose pieces with the webcam; both park. 3 TIPs in 5 of 10 seeds.",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 2),
             new Run("3-choreography/stay-home/two-spring-hoods-a-miss",
-                    "lean-opp with two spring hoods, in a run that goes wrong: TIP 2 comes late and there is no TIP 3 (about half the seeds).",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 3),
+                    "lean-opp with two spring hoods, in a run that goes wrong: no TIP 3 (6 of 10 seeds).",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 1),
             new Run("3-choreography/each-owns-an-end/duo-lz-4-tips",
-                    "duo-lz: each robot owns one end of the HIVE; 4 TIPs and both park (4 of 10 seeds; the rest stop at 2 TIPs).",
-                    "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 2),
+                    "duo-lz: each robot owns one end of the HIVE; 4 TIPs and both park (2 of 10 seeds with an 18 in intake; most stop at 2 TIPs).",
+                    "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 6),
     };
 
     @Test

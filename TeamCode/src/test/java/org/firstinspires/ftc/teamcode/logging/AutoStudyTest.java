@@ -86,16 +86,30 @@ public class AutoStudyTest {
             off.fixedPitchDeg = deg;
             m.put(off.name, off);
         }
+        // Mentor review: a 24 in catcher can't go through the tunnel (23.7 in between the foot bar and
+        // the centre line). How much does the width buy over one that fits?
+        RobotDesign narrow = twinCatcher.copy("two spring hoods, 20 in intake");
+        narrow.intakeWidthIn = 20;
+        m.put(narrow.name, narrow);
+        // So the designs the review set uses: the frame's own width (mentor decision, 1 Oct 2026: no
+        // 24 in catcher for now; it hits the foot bar or reaches over the centre line in the tunnel).
+        for (RobotDesign base : new RobotDesign[] {steepCat, triangle}) {
+            RobotDesign f = base.copy(base.name.replace(", 24 in catcher", "") + ", full-width intake");
+            f.intakeWidthIn = 18;
+            m.put(f.name, f);
+        }
         // Mentor review: would a turret, an intake at the back, or no piece counter change the answer?
-        RobotDesign turret = twinCatcher.copy("two spring hoods, 24 in catcher, turret");
-        turret.launcher = RobotDesign.Launcher.TURRET;
-        m.put(turret.name, turret);
-        RobotDesign back = twinCatcher.copy("two spring hoods, 24 in catcher, intake at back");
-        back.intakeAtBack = true;
-        m.put(back.name, back);
-        RobotDesign blind = twinCatcher.copy("two spring hoods, 24 in catcher, no piece counter");
-        blind.countsPieces = false;
-        m.put(blind.name, blind);
+        for (RobotDesign base : new RobotDesign[] {twinCatcher, twinFull}) {
+            RobotDesign turret = base.copy(base.name + ", turret");
+            turret.launcher = RobotDesign.Launcher.TURRET;
+            m.put(turret.name, turret);
+            RobotDesign back = base.copy(base.name + ", intake at back");
+            back.intakeAtBack = true;
+            m.put(back.name, back);
+            RobotDesign blind = base.copy(base.name + ", no piece counter");
+            blind.countsPieces = false;
+            m.put(blind.name, blind);
+        }
         // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
         for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle}) {
             RobotDesign c = base.copy(base.name + ", POLLEN only");
