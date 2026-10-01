@@ -104,3 +104,69 @@ if __name__ == "__main__":
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 20,
           designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, 24 in catcher|clump catapult 72 deg, triangle cup",
           extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})
+
+
+def flower_feed(name="flower-feed", back=False, speed=50):
+    """Fire and feed (mentor idea, 1 Oct 2026): wait for the partner's TIP 1 already standing at the far
+    FLOWER, then fire our 4 preloads while the intake pulls the FLOWER's 4 in behind them: one stop,
+    never more than 4 held, TIP 2 from the pickup spot. Needs a launcher that aims at the CELL while
+    the intake faces the FLOWER: a turret (back=False: intake at the front, on the FLOWER), or a
+    launcher at the front and the intake at the back (back=True: the robot faces the CELL).
+    Then as left-tunnel: catch the TIP 2 spill, tunnel right, the GARDEN for TIP 3, park."""
+    r = Route(name, (59, 132.25, 270), speed=speed)
+    r.pt("L_HOME", *L_HOME).pt("R_HOME", *R_HOME)
+    r.pt("L_EXIT", 56.5, 103, 90).pt("L_EXIT_BACK", 56.5, 103, 270).pt("R_EXIT_BACK", 57.5, 34, 270)
+    r.pt("R_EXIT", 57.5, 34, 90).pt("R_BACK", 59, 11, 90)
+    g = 90 if back else 270  # into the GARDEN intake first
+    r.pt("GARDEN_IN", 8.5, 22, g).pt("GARDEN", 8.5, 11, g)
+    r.pt("PARK", 15, 90, 90)
+    if back:
+        # Back to the FLOWER, front (launcher) toward the CELL: no turn from the start.
+        # Already aimed (mentor: "just line up a little angled to the FLOWER"): heading 281 points at the
+        # raised left CELL, and the back of the robot is square to the FLOWER 11.2 in behind its centre,
+        # so the launcher never has to turn it there (a turn on the spot would swing a corner into it).
+        r.pt("FEED", 49.6, 127.8, 281)
+        r.pt("FEED_IN", 59, 121, 281)  # turn here, clear of the FLOWER
+        to_feed = [r.go("FEED_IN", turn_by=1.0), r.go("FEED", heading=281)]  # down first, then west under the FLOWER
+        catch_at = "CATCH_B"
+        r.pt(catch_at, 59, 121, 90)  # intake (at the back) toward the CELL, for the spill
+    else:
+        flower_points(r, "FEED", FAR_FLOWER_AT, 90)
+        r.at = "START"
+        to_feed = flower(r, "FEED", "At the FLOWER (already full)", ms=0)[:-1]
+        catch_at = "CATCH"
+        r.pt(catch_at, 59, 121, 270)  # intake toward the CELL, for the spill
+    r.at = "START"
+    plan = [*to_feed,
+            r.wait("Left CELL up (the partner's TIP 1)?", when=["LeftCellUp"], ms=6000),
+            # Fire and feed: the intake keeps taking the FLOWER's POLLEN as shots free up room. Stream:
+            # LaunchAll would stop the moment the robot is empty, and it empties between pulls.
+            r.action("StreamOn"),
+            r.wait("Fire and feed (TIP 2)", when=["RightCellUp"], ms=6000),
+            r.action("StreamOff")]
+    r.at = "FEED"
+    # Straight away from the FLOWER first, then turn once clear of it.
+    plan += [r.go(catch_at, ctrl=[(47.36, 116)], turn_after=0.3, turn_by=0.8),
+             r.wait("TIP 2: catch the spill", when=["IntakeFull"], ms=1600)]
+    r.at = catch_at
+    plan += [r.go("L_EXIT_BACK", heading=90 if back else 270), r.go("R_EXIT_BACK", heading=90 if back else 270),
+             r.go("R_HOME", turn_by=0.5), fire(r, "Fire at the right CELL", "Empty", ms=2000)]
+    r.at = "R_HOME"
+    garden = [r.go("GARDEN_IN", ctrl=[(30, 22)]), r.go("GARDEN"),
+              r.wait("Collect in the GARDEN", when=["IntakeFull"], ms=1500),
+              r.go("R_BACK", ctrl=[(20, 18)]), fire(r, "Fire the GARDEN (TIP 3)", "LeftCellUp", ms=2500)]
+    # First what TIP 1 left at this end (the partner leaves it), then the GARDEN if still not tipped.
+    r.at = "R_HOME"
+    gather = [r.wait("What TIP 1 left", when=["IntakeFull"], ms=2000, alongside="CollectSeen"),
+              r.go("R_BACK", heading=90), fire(r, "Fire what we found (TIP 3)", "LeftCellUp", ms=2000)]
+    r.at = "R_BACK"
+    gather.append(r.wait("TIP 3 now?", when=["LeftCellUp"], ms=100, yes=[], no=garden,
+                         yes_label="Yes", no_label="No: the GARDEN"))
+    r.at = "R_HOME"
+    # The GARDEN first: picking up what TIP 1 left first made TIP 3 later (28 s, not 24-25 s).
+    plan.append(r.wait("TIP 3 yet?", when=["LeftCellUp"], ms=1000, yes=[], no=garden if GARDEN_FIRST else gather,
+                       yes_label="Yes", no_label="No: the GARDEN" if GARDEN_FIRST else "No: what TIP 1 left"))
+    r.at = "R_HOME"
+    plan.append(r.go("PARK", ctrl=[(24, 24), (24, 85)], park=True))
+    r.add(r.action("SpinUp"), *plan)
+    return r

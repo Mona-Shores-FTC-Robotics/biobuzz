@@ -15,7 +15,9 @@ def partner_right(name="partner-preloads-right"):
     ZONE like the other reference partners (mentor review), leaving the near end for us."""
     r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
     r.pt("PARK_P", 10.5, 110, 90)
-    r.add(r.action("SpinUp"), fire(r, "Fire the preloads", "Empty", ms=4500),
+    # Intake off: it only fires its preloads, so it has no reason to sweep up the TIP 1 spill on its
+    # way to park (it used to, and left us nothing at the right end).
+    r.add(r.action("SpinUp"), r.action("IntakeOff"), fire(r, "Fire the preloads", "Empty", ms=4500),
           r.go("PARK_P", ctrl=[(26, 20), (26, 100)], park=True))  # x 26: clear of the HIVE frame's foot bar
     return r
 

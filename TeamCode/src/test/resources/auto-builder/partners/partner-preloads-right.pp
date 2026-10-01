@@ -158,6 +158,7 @@
     "registry": {
       "actions": [
         "SpinUp",
+        "IntakeOff",
         "LaunchAll"
       ],
       "conditions": [
@@ -165,6 +166,7 @@
       ],
       "typicalS": {
         "SpinUp": 0.1,
+        "IntakeOff": 0.1,
         "LaunchAll": 2.0
       },
       "events": []
@@ -192,7 +194,12 @@
         "name": "SpinUp"
       },
       {
-        "id": "w-2",
+        "id": "a-2",
+        "kind": "action",
+        "name": "IntakeOff"
+      },
+      {
+        "id": "w-3",
         "kind": "firstOf",
         "label": "Fire the preloads",
         "rows": [
@@ -210,7 +217,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-3",
+        "id": "p-4",
         "kind": "path",
         "lineId": "to-park-p-1",
         "park": true

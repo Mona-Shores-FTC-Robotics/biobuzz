@@ -19,7 +19,7 @@ public final class PartnerPreloadsRightAuto {
     public static final String SOURCE = "partner-preloads-right.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
+    public static final String[] COMMANDS = {"IntakeOff", "LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty"};
@@ -54,6 +54,7 @@ public final class PartnerPreloadsRightAuto {
         return kit.sequence(
                 kit.guarded("Auto", startToParkP, 4,
                         kit.command("SpinUp"),
+                        kit.command("IntakeOff"),
                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(4500)),
