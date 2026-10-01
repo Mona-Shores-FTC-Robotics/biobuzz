@@ -7,17 +7,17 @@
   },
   "lines": [
     {
-      "id": "to-slide-sl-1",
+      "id": "to-home-s-1",
       "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
+      "name": "START_S to HOME_S",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 9.5
+        "x": 59,
+        "y": 10
       },
       "controlPoints": [],
       "heading": {
@@ -26,28 +26,9 @@
       }
     },
     {
-      "id": "to-slide-sr-2",
+      "id": "to-start-s-2",
       "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-start-s-3",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to START_S",
+      "name": "HOME_S to START_S",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -64,104 +45,9 @@
       }
     },
     {
-      "id": "to-slide-sl-4",
+      "id": "to-park-a-3",
       "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-slide-sr-5",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-start-s-6",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to START_S",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-slide-sl-7",
-      "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-slide-sr-8",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-park-a-9",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to PARK_A",
+      "name": "START_S to PARK_A",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -260,39 +146,15 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-slide-sl-1"
+      "lineId": "to-home-s-1"
     },
     {
       "kind": "path",
-      "lineId": "to-slide-sr-2"
+      "lineId": "to-start-s-2"
     },
     {
       "kind": "path",
-      "lineId": "to-start-s-3"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sl-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sr-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-start-s-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sl-7"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sr-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-a-9"
+      "lineId": "to-park-a-3"
     }
   ],
   "settings": {
@@ -333,7 +195,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "duo-south",
+    "exportName": "duo-vision-south",
     "registry": {
       "actions": [
         "LaunchOne",
@@ -386,15 +248,9 @@
       ]
     },
     "pathEnds": {
-      "to-slide-sl-1": "SLIDE_SL",
-      "to-slide-sr-2": "SLIDE_SR",
-      "to-start-s-3": "START_S",
-      "to-slide-sl-4": "SLIDE_SL",
-      "to-slide-sr-5": "SLIDE_SR",
-      "to-start-s-6": "START_S",
-      "to-slide-sl-7": "SLIDE_SL",
-      "to-slide-sr-8": "SLIDE_SR",
-      "to-park-a-9": "PARK_A"
+      "to-home-s-1": "HOME_S",
+      "to-start-s-2": "START_S",
+      "to-park-a-3": "PARK_A"
     },
     "startAt": "START_S",
     "cards": [
@@ -517,21 +373,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-10",
-        "kind": "path",
-        "lineId": "to-slide-sl-1",
-        "park": false
-      },
-      {
-        "id": "p-11",
-        "kind": "path",
-        "lineId": "to-slide-sr-2",
-        "park": false
-      },
-      {
-        "id": "w-12",
+        "id": "w-10",
         "kind": "firstOf",
-        "label": "Sweep (1)",
+        "label": "Collect what we see (1)",
         "rows": [
           {
             "when": [
@@ -540,13 +384,14 @@
             "cards": []
           },
           {
-            "afterMs": 300,
+            "afterMs": 2000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "w-13",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "Fire until it tips (1)",
         "rows": [
@@ -564,7 +409,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-14",
+        "id": "w-12",
         "kind": "firstOf",
         "label": "Fire until it tips (1) (2)",
         "rows": [
@@ -582,13 +427,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-15",
+        "id": "p-13",
         "kind": "path",
-        "lineId": "to-start-s-3",
+        "lineId": "to-home-s-1",
         "park": false
       },
       {
-        "id": "w-16",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Spill rolls in (1)",
         "rows": [
@@ -605,7 +450,7 @@
         ]
       },
       {
-        "id": "w-17",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Our CELL up (2)",
         "rows": [
@@ -622,7 +467,7 @@
         ]
       },
       {
-        "id": "w-18",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Our CELL up (2) (2)",
         "rows": [
@@ -639,7 +484,7 @@
         ]
       },
       {
-        "id": "w-19",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Our CELL up (2) (3)",
         "rows": [
@@ -656,7 +501,7 @@
         ]
       },
       {
-        "id": "w-20",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -674,21 +519,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-21",
-        "kind": "path",
-        "lineId": "to-slide-sl-4",
-        "park": false
-      },
-      {
-        "id": "p-22",
-        "kind": "path",
-        "lineId": "to-slide-sr-5",
-        "park": false
-      },
-      {
-        "id": "w-23",
+        "id": "w-19",
         "kind": "firstOf",
-        "label": "Sweep (2)",
+        "label": "Collect what we see (2)",
         "rows": [
           {
             "when": [
@@ -697,13 +530,14 @@
             "cards": []
           },
           {
-            "afterMs": 300,
+            "afterMs": 2000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "w-24",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Fire until it tips (2)",
         "rows": [
@@ -721,7 +555,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-25",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Fire until it tips (2) (2)",
         "rows": [
@@ -739,13 +573,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-26",
+        "id": "p-22",
         "kind": "path",
-        "lineId": "to-start-s-6",
+        "lineId": "to-start-s-2",
         "park": false
       },
       {
-        "id": "w-27",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Spill rolls in (2)",
         "rows": [
@@ -762,7 +596,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Our CELL up (3)",
         "rows": [
@@ -779,7 +613,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Our CELL up (3) (2)",
         "rows": [
@@ -796,7 +630,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Our CELL up (3) (3)",
         "rows": [
@@ -813,7 +647,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -831,21 +665,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-32",
-        "kind": "path",
-        "lineId": "to-slide-sl-7",
-        "park": false
-      },
-      {
-        "id": "p-33",
-        "kind": "path",
-        "lineId": "to-slide-sr-8",
-        "park": false
-      },
-      {
-        "id": "w-34",
+        "id": "w-28",
         "kind": "firstOf",
-        "label": "Sweep (3)",
+        "label": "Collect what we see (3)",
         "rows": [
           {
             "when": [
@@ -854,13 +676,14 @@
             "cards": []
           },
           {
-            "afterMs": 300,
+            "afterMs": 2000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "w-35",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Fire until it tips (3)",
         "rows": [
@@ -878,7 +701,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-36",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Fire until it tips (3) (2)",
         "rows": [
@@ -896,9 +719,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-37",
+        "id": "p-31",
         "kind": "path",
-        "lineId": "to-park-a-9",
+        "lineId": "to-park-a-3",
         "park": true
       }
     ]

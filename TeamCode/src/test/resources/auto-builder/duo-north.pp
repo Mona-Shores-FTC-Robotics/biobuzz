@@ -313,7 +313,8 @@
       "actions": [
         "LaunchOne",
         "LaunchAll",
-        "SpinUp"
+        "SpinUp",
+        "CollectSeen"
       ],
       "conditions": [
         "Tip",
@@ -325,7 +326,8 @@
       "typicalS": {
         "LaunchOne": 0.5,
         "LaunchAll": 2.0,
-        "SpinUp": 0.1
+        "SpinUp": 0.1,
+        "CollectSeen": 2.0
       },
       "events": [
         "Tip"
@@ -335,6 +337,11 @@
       "START_N": [
         59,
         132.25,
+        270
+      ],
+      "HOME_N": [
+        59,
+        131.75,
         270
       ],
       "SLIDE_NL": [

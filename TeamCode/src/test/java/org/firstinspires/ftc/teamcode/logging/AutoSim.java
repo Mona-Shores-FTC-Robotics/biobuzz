@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.logging;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.CommandBuilder;
 import com.pedropathing.ivy.Scheduler;
+import com.pedropathing.api.Paths;
 import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
@@ -72,6 +73,13 @@ public final class AutoSim {
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static final double AIM_TOLERANCE_RAD = Math.toRadians(2);
 
+    // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
+    // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
+    static final double CAMERA_HALF_FOV_RAD = Math.toRadians(35);
+    static final double CAMERA_RANGE_IN = 60;
+    /** CollectSeen keeps within this far of where it started, so it does not wander off. */
+    static final double COLLECT_RADIUS_IN = 36;
+
     /** What one robot did in a run. */
     static final class RobotResult {
         final String auto;
@@ -91,6 +99,8 @@ public final class AutoSim {
          * AUTO; NaN if it never did.
          */
         double crossedAt = Double.NaN;
+        /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
+        double hitHiveAt = Double.NaN;
 
         RobotResult(String auto) {
             this.auto = auto;
@@ -100,8 +110,10 @@ public final class AutoSim {
         public String toString() {
             return String.format(Locale.ROOT, "%s launched %d, %s, LEAVE %s, PARK %s%s", auto, launched,
                     finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
-                    leave ? "yes" : "no", park ? "yes" : "no", Double.isNaN(crossedAt) ? ""
-                            : String.format(Locale.ROOT, ", CROSSES THE CENTRE LINE at %.1f s", crossedAt));
+                    leave ? "yes" : "no", park ? "yes" : "no", (Double.isNaN(crossedAt) ? ""
+                            : String.format(Locale.ROOT, ", CROSSES THE CENTRE LINE at %.1f s", crossedAt))
+                            + (Double.isNaN(hitHiveAt) ? ""
+                            : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt)));
         }
     }
 
@@ -214,6 +226,16 @@ public final class AutoSim {
     AutoSim speed(double maxInPerS, double accelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;
         configuring.drive.accel = accelInPerS2;
+        return this;
+    }
+
+    /**
+     * Limits this robot's CollectSeen to pieces with x between the two (Pedro inches, drawn for RED
+     * like the Auto): how two robots that cannot talk to each other share a spill, by agreeing
+     * beforehand who takes which side.
+     */
+    AutoSim collectZone(double minX, double maxX) {
+        configuring.zone = new double[] {minX, maxX};
         return this;
     }
 
@@ -385,6 +407,8 @@ public final class AutoSim {
         final int index;
         final SimDrive drive = new SimDrive();
         RobotDesign design = RobotDesign.standard();
+        /** CollectSeen's x range, drawn for RED; null for anywhere. */
+        double[] zone;
         FieldSim.Bot body;
         Command auto;
         final List<String> pending = new ArrayList<>();
@@ -508,6 +532,15 @@ public final class AutoSim {
             prev = pose;
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
+            if (Double.isNaN(result.hitHiveAt)) {
+                for (double[] c : corners(pose, design.frameIn)) {
+                    if (FieldSim.inHiveFrame(c[0], c[1])) {
+                        result.hitHiveAt = now;
+                        log.putEvent(tag() + "drives into the HIVE frame", us);
+                        break;
+                    }
+                }
+            }
             if (running && Double.isNaN(result.crossedAt)) {
                 for (double[] c : corners(pose, design.frameIn)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
@@ -556,6 +589,7 @@ public final class AutoSim {
                     .command("LaunchAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
                     .command("LaunchOne", 0.5, () -> launch(1))
+                    .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
@@ -591,6 +625,103 @@ public final class AutoSim {
                     })
                     .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget)
                     .setEnd(end -> firing = false);
+        }
+
+        /**
+         * Picks up what the webcam sees: drives the intake onto the nearest loose piece in view, then
+         * the next, until full or nothing is left in view (it turns to look around once first).
+         * Takes only POLLEN and the alliance's own NECTAR (G408), stays on its own half (G402) and
+         * within {@link #COLLECT_RADIUS_IN} of where it started, and leaves pieces under the HIVE
+         * alone (G409).
+         */
+        private Command collectSeen() {
+            final double[] origin = new double[2];
+            final FieldSim.Piece[] target = new FieldSim.Piece[1];
+            final double[] lookedAround = new double[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        double[] at = pedro(drive.pose);
+                        origin[0] = at[0];
+                        origin[1] = at[1];
+                        target[0] = null;
+                        lookedAround[0] = 0;
+                    })
+                    .setExecute(() -> {
+                        if (target[0] != null && target[0].where == FieldSim.Where.FIELD && !drive.pathDone()) return;
+                        target[0] = nearestSeen(origin);
+                        if (target[0] != null) {
+                            driveOnto(target[0]);
+                        } else if (drive.pathDone() && lookedAround[0] < 2 * Math.PI) {
+                            // Nothing in view: turn on the spot to look around.
+                            drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
+                            lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
+                        }
+                    })
+                    .setDone(() -> body.stored.size() >= FieldSim.ROBOT_CAPACITY
+                            || (target[0] == null && lookedAround[0] >= 2 * Math.PI))
+                    .setEnd(end -> drive.hold(drive.pose));
+        }
+
+        private FieldSim.Piece nearestSeen(double[] origin) {
+            double[] at = pedro(drive.pose);
+            double facing = at[2] + (design.intakeAtBack ? Math.PI : 0);
+            FieldSim.Kind theirs = alliance == Alliance.BLUE ? FieldSim.Kind.RED_NECTAR : FieldSim.Kind.BLUE_NECTAR;
+            FieldSim.Piece best = null;
+            double bestD = Double.MAX_VALUE;
+            for (FieldSim.Piece p : sim.pieces) {
+                if (p.where != FieldSim.Where.FIELD || p.flower >= 0 || p.cell != null || p.z > 4) continue;
+                if (p.kind == theirs || (p.kind != FieldSim.Kind.POLLEN && !design.launchesNectar)) continue;
+                if (FieldSim.underHive(p.x, p.y)) continue;
+                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
+                if (d > CAMERA_RANGE_IN || Math.hypot(p.x - origin[0], p.y - origin[1]) > COLLECT_RADIUS_IN) continue;
+                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > CAMERA_HALF_FOV_RAD) continue;
+                if (alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN) continue;
+                if (zone != null) {
+                    double xRed = alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x;
+                    if (xRed < zone[0] || xRed > zone[1]) continue;
+                }
+                if (approachHitsFrame(p, at)) continue;
+                if (d < bestD) {
+                    bestD = d;
+                    best = p;
+                }
+            }
+            return best;
+        }
+
+        /** Whether driving onto {@code p} would put the robot into the HIVE frame's feet. */
+        private boolean approachHitsFrame(FieldSim.Piece p, double[] at) {
+            double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
+            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
+                    design.intakeAtBack ? bearing + Math.PI : bearing};
+            for (double f = 0; f <= 1.0001; f += 0.25) {
+                double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
+                for (double[] c : corners(mid, design.frameIn)) if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+            }
+            return false;
+        }
+
+        /** A straight drive that brings the intake's mouth onto {@code p}, facing it. */
+        private void driveOnto(FieldSim.Piece p) {
+            double[] at = pedro(drive.pose);
+            double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
+            double heading = design.intakeAtBack ? bearing + Math.PI : bearing;
+            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double tx = p.x - (mouth - 1) * Math.cos(bearing), ty = p.y - (mouth - 1) * Math.sin(bearing);
+            // Stay on our own half (with room for the corners of a robot turned any way), and inside
+            // the walls.
+            double half = design.frameIn / 2, corner = design.frameIn * Math.sqrt(0.5);
+            tx = alliance == Alliance.BLUE ? Math.max(FieldSim.CENTRE_IN + corner, tx) : Math.min(FieldSim.CENTRE_IN - corner, tx);
+            tx = Math.max(half + 0.5, Math.min(FieldSim.FIELD_SIZE_IN - half - 0.5, tx));
+            ty = Math.max(half + 0.5, Math.min(FieldSim.FIELD_SIZE_IN - half - 0.5, ty));
+            Pose from = new Pose(at[0], at[1], at[2]);
+            Pose to = new Pose(tx, ty, heading);
+            if (Math.hypot(tx - at[0], ty - at[1]) < 0.5) {
+                drive.turnToward(heading, LOOP_S);
+                return;
+            }
+            drive.follow(Paths.line(from, to).linear(from, to));
         }
 
         private void spinUp() {

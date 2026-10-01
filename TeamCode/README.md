@@ -1477,6 +1477,57 @@ Things the runs turned up:
 - **The SWARM RP does not need AUTO PARK.** It takes LEAVE + PARK points ≥ 16: both robots leaving
   (6) and parking at the end of the match (10) reach it too. AUTO PARK adds 5 a robot.
 
+### One launcher, the webcam, and driving under the HIVE
+
+**One launcher for POLLEN and NECTAR.** `LauncherStudyTest` (opt in with
+`BIOBUZZ_LAUNCHER_STUDY=1`) finds, for each shooting spot, the launch speeds that land each piece in
+the raised CELL. Then it works out how far apart NECTAR's and POLLEN's speeds can be at one launcher
+setting and still both score, leaving room for the shot-to-shot spread:
+
+| Spot | POLLEN scores at | NECTAR scores at | NECTAR/POLLEN one setting serves |
+|---|---|---|---|
+| Against the wall, straight on | −5% to +7% | −5% to +7.5% | 0.94 to 1.07 |
+| Angled, 30 in out | −7.5% to +7% | −7% to +7% | 0.92 to 1.09 |
+| Straight on, 20 in from the opening | −6.5% to +7.5% | −6.5% to +8% | 0.92 to 1.09 |
+| 12 in from the opening | nothing | nothing | — |
+
+So **one launcher works if, at one setting, NECTAR leaves within about 5% of POLLEN's speed**, and
+the setting is tuned between the two, not for POLLEN alone. Checked in whole Autos: NECTAR 7% slow
+with the setting tuned for POLLEN gives spill-three-tip its second TIP in 4 of 10 runs; tuned
+between, 10 of 10. At 4% apart, tuned between, every Auto does as well as with a perfect launcher.
+A steeper arc than the flattest one into the opening plus 6° only narrows the window from the wall,
+so it does not help. Sorting the pieces so each gets its own setting is not needed if the launcher
+meets this, and it is risky anyway: holding a 5th piece while sorting is a G407 foul. No air drag
+is simulated, and drag would slow the light POLLEN more than NECTAR; measure the real speeds.
+
+**Picking up with the webcam.** The sim command `CollectSeen` stands in for a pickup guided by
+`PieceVisionSubsystem`'s colour blobs. It sees loose pieces on the tiles within 60 in and 35° either
+side of where the intake faces, and drives the intake onto the nearest. It repeats until the robot
+is full. If it sees nothing, it turns on the spot to look around once. It takes only POLLEN and our
+own NECTAR (G408), stays on our half and out of the HIVE frame, and can be given a zone so two robots
+split a spill between them (`AutoSim.collectZone`). In duo-south + duo-north it replaced the fixed
+sweep along the wall (`experiments/duo-vision-*.pp`). The third TIP came in 10 of 10 runs instead of
+8, but at 23 s instead of 17 s: looking around and driving to each piece costs more than a
+well-placed sweep. Turning on the spot at x = 59 also swings a corner over the centre line, since
+an 18 in robot needs its centre at least 12.7 in from the line to turn freely. A smarter pickup
+(sweeps past several pieces, no spin) is where vision would pay.
+
+**Driving under the HIVE.** Its lowest point is 25.5 in above the tiles (§9.6), so a robot shorter
+than that fits underneath. The frame stands only on its two side feet, and G409 lists driving under
+the HIVE as fine; stopping there to catch a spill is not. On red's half there is one lane: robot
+centre between x = 55 and 61.75, square to the field. Turned, its corners reach the frame's feet or
+the centre line; the sim flags both. `experiments/relay-*.pp` tried your relay idea. After each TIP,
+both robots pick up its spill and go to the other end, one under the HIVE and one round the west
+side, and fire together. TIP 2 came at 9.2–10.1 s instead of 10.9 s. But the robots got in each
+other's way collecting, and much of each spill rolls in under the HIVE, so later TIPs did not hold
+together. It is a starting point, not a working Auto.
+
+**Corralling.** The manual counts herding as CONTROL (Glossary: "intentionally pushes a SCORING
+ELEMENT to a desired location"). So a corral that gathers loose pieces while the robot holds others
+risks G407. A spill that rolls into a robot waiting with its intake facing the HIVE is "deflecting",
+which is not CONTROL. Robots cannot talk to each other during a match, so splitting a spill means
+agreeing zones beforehand.
+
 ### Why the on-robot build is not here: it takes port 8080
 
 `page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is

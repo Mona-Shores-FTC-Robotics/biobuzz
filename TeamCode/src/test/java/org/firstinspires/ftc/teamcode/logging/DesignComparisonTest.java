@@ -54,6 +54,15 @@ public class DesignComparisonTest {
         RobotDesign shortNectar = RobotDesign.standard().copy("NECTAR 7% short");
         shortNectar.nectarSpeedFactor = 0.93;
         m.put(shortNectar.name, shortNectar);
+        // The same launcher with its one setting between the two pieces instead of tuned for POLLEN.
+        RobotDesign between = RobotDesign.standard().copy("NECTAR 7% slower, set between");
+        between.pollenSpeedFactor = 1.035;
+        between.nectarSpeedFactor = 0.965;
+        m.put(between.name, between);
+        RobotDesign close = RobotDesign.standard().copy("NECTAR 4% slower, set between");
+        close.pollenSpeedFactor = 1.02;
+        close.nectarSpeedFactor = 0.98;
+        m.put(close.name, close);
         RobotDesign slowFlower = RobotDesign.standard().copy("1 s per FLOWER POLLEN");
         slowFlower.flowerPullS = 1.0;
         m.put(slowFlower.name, slowFlower);
@@ -79,6 +88,7 @@ public class DesignComparisonTest {
     @Test
     public void compareDesigns() throws Exception {
         if (System.getenv("BIOBUZZ_DESIGN_STUDY") == null) return;
+        String only = System.getenv("BIOBUZZ_DESIGN_STUDY_ONLY");
         String spread = System.getenv("BIOBUZZ_DESIGN_STUDY_SPREAD");
         String friction = System.getenv("BIOBUZZ_DESIGN_STUDY_FRICTION");
         FieldSim.spreadScale = spread == null ? 1 : Double.parseDouble(spread);
@@ -93,6 +103,7 @@ public class DesignComparisonTest {
                     FieldSim.spreadScale, FieldSim.frictionScale, RUNS);
             for (Class<?> auto : autos) {
                 for (Map.Entry<String, RobotDesign> e : designs().entrySet()) {
+                    if (only != null && !e.getKey().contains(only)) continue;
                     int[] count = new int[8];
                     double[] sum = new double[8];
                     for (long seed = 1; seed <= RUNS; seed++) {

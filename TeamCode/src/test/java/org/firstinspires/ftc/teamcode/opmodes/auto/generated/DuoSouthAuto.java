@@ -47,7 +47,7 @@ public final class DuoSouthAuto {
         Pose parkA = p.of(15, 99, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose slideSrToParkAControl1 = p.of(18, 60, 0);
+        Pose slideSrToParkAControl1 = p.of(10, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startSToSlideSl = Paths.line(startS, slideSl).constant(slideSl);
@@ -61,7 +61,7 @@ public final class DuoSouthAuto {
         Path slideSrToParkA = Paths.curve(slideSr, slideSrToParkAControl1, parkA).constant(parkA);
 
         return kit.sequence(
-                kit.guarded("Auto", slideSrToParkA, 2.8,
+                kit.guarded("Auto", slideSrToParkA, 2.9,
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),

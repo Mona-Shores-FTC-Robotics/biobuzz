@@ -499,6 +499,20 @@ final class FieldSim {
         if (i < spots.length) throw new IllegalStateException("no partner preloads left to stage");
     }
 
+    /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
+    static boolean underHive(double x, double y) {
+        return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
+    }
+
+    /**
+     * Whether a robot footprint point at {@code (x, y)} is in the HIVE frame's feet: the bars along
+     * its two sides, the only part a robot under 25.5 in tall cannot drive through.
+     */
+    static boolean inHiveFrame(double x, double y) {
+        return Math.abs(Math.abs(x - CENTRE_IN) - FOOT_BAR_HALF_SPAN_X_IN) < FOOT_BAR_HALF_WIDTH_IN
+                && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
+    }
+
     /**
      * The alliance's own LOADING ZONE (Event Field Setup Guide §8.3): red on tile A5 against the
      * x = 0 wall, blue on F2 against the far wall. Returns {xMin, xMax, yMin, yMax}.
@@ -554,11 +568,19 @@ final class FieldSim {
 
     /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
     double[] launchVelocity(double[] from, double[] target) {
+        return launchVelocity(from, target, 6);
+    }
+
+    /**
+     * As {@link #launchVelocity(double[], double[])}, with the arc {@code extraPitchDeg} steeper than
+     * the flattest one that comes down into the opening.
+     */
+    double[] launchVelocity(double[] from, double[] target, double extraPitchDeg) {
         double dx = target[0] - from[0], dy = target[1] - from[1];
         double d = Math.hypot(dx, dy), dz = target[2] - from[2];
         if (d < 1e-6) return null;
         // Steep enough to come down into the opening, not up into its lip.
-        double pitch = Math.min(Math.toRadians(78), Math.atan(2 * dz / d) + Math.toRadians(6));
+        double pitch = Math.min(Math.toRadians(78), Math.atan(2 * dz / d) + Math.toRadians(extraPitchDeg));
         pitch = Math.max(pitch, Math.toRadians(35));
         double denominator = 2 * Math.cos(pitch) * Math.cos(pitch) * (d * Math.tan(pitch) - dz);
         if (denominator <= 0) return null;
@@ -599,11 +621,11 @@ final class FieldSim {
         List<Piece> stored = bot.stored;
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
-        double[] v = launchVelocity(from, target);
+        double[] v = launchVelocity(from, target, bot.design.arcExtraPitchDeg);
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
         double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
-        if (stored.get(0).kind != Kind.POLLEN) speed *= bot.design.nectarSpeedFactor;
+        speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
         double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
         double c = Math.cos(yaw), s = Math.sin(yaw);
         double vx = (v[0] * c - v[1] * s) * speed + bot.vx;

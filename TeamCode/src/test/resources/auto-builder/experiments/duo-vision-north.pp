@@ -1,53 +1,35 @@
 {
   "startPoint": {
     "x": 59,
-    "y": 9.5,
-    "name": "START_S",
-    "headingDeg": 90
+    "y": 132.25,
+    "name": "START_N",
+    "headingDeg": 270
   },
   "lines": [
     {
-      "id": "to-slide-sl-1",
+      "id": "to-flower-n-1",
       "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
+      "name": "START_N to FLOWER_N",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 41,
-        "y": 9.5
+        "x": 47.4,
+        "y": 130.5
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
       }
     },
     {
-      "id": "to-slide-sr-2",
+      "id": "to-start-n-2",
       "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-start-s-3",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to START_S",
+      "name": "FLOWER_N to START_N",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -55,56 +37,19 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59,
-        "y": 9.5
+        "y": 132.25
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
       }
     },
     {
-      "id": "to-slide-sl-4",
+      "id": "to-home-n-3",
       "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-slide-sr-5",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-start-s-6",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to START_S",
+      "name": "START_N to HOME_N",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -112,56 +57,18 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59,
-        "y": 9.5
+        "y": 131.75
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 90
+        "degrees": 270
       }
     },
     {
-      "id": "to-slide-sl-7",
+      "id": "to-park-b-4",
       "color": "#3cc8e4",
-      "name": "START_S to SLIDE_SL",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 41,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-slide-sr-8",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SL to SLIDE_SR",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 61,
-        "y": 9.5
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-park-a-9",
-      "color": "#3cc8e4",
-      "name": "SLIDE_SR to PARK_A",
+      "name": "HOME_N to PARK_B",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -169,17 +76,13 @@
       "kind": "atomic",
       "endPoint": {
         "x": 15,
-        "y": 99
+        "y": 118
       },
-      "controlPoints": [
-        {
-          "x": 10,
-          "y": 40
-        }
-      ],
+      "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 90
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
       }
     }
   ],
@@ -260,39 +163,19 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-slide-sl-1"
+      "lineId": "to-flower-n-1"
     },
     {
       "kind": "path",
-      "lineId": "to-slide-sr-2"
+      "lineId": "to-start-n-2"
     },
     {
       "kind": "path",
-      "lineId": "to-start-s-3"
+      "lineId": "to-home-n-3"
     },
     {
       "kind": "path",
-      "lineId": "to-slide-sl-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sr-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-start-s-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sl-7"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-slide-sr-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-a-9"
+      "lineId": "to-park-b-4"
     }
   ],
   "settings": {
@@ -333,7 +216,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "duo-south",
+    "exportName": "duo-vision-north",
     "registry": {
       "actions": [
         "LaunchOne",
@@ -359,64 +242,88 @@
       ]
     },
     "points": {
-      "START_S": [
+      "START_N": [
         59,
-        9.5,
-        90
+        132.25,
+        270
       ],
-      "HOME_S": [
+      "HOME_N": [
         59,
-        10,
-        90
+        131.75,
+        270
       ],
-      "SLIDE_SL": [
+      "SLIDE_NL": [
         41,
-        9.5,
-        90
+        132.25,
+        270
       ],
-      "SLIDE_SR": [
+      "SLIDE_NR": [
         61,
-        9.5,
+        132.25,
+        270
+      ],
+      "FLOWER_N": [
+        47.4,
+        130.5,
         90
       ],
-      "PARK_A": [
+      "PARK_B": [
         15,
-        99,
+        118,
         90
       ]
     },
     "pathEnds": {
-      "to-slide-sl-1": "SLIDE_SL",
-      "to-slide-sr-2": "SLIDE_SR",
-      "to-start-s-3": "START_S",
-      "to-slide-sl-4": "SLIDE_SL",
-      "to-slide-sr-5": "SLIDE_SR",
-      "to-start-s-6": "START_S",
-      "to-slide-sl-7": "SLIDE_SL",
-      "to-slide-sr-8": "SLIDE_SR",
-      "to-park-a-9": "PARK_A"
+      "to-flower-n-1": "FLOWER_N",
+      "to-start-n-2": "START_N",
+      "to-home-n-3": "HOME_N",
+      "to-park-b-4": "PARK_B"
     },
-    "startAt": "START_S",
+    "startAt": "START_N",
     "cards": [
       {
         "id": "a-1",
         "kind": "action",
-        "name": "LaunchOne"
+        "name": "SpinUp"
       },
       {
-        "id": "a-2",
-        "kind": "action",
-        "name": "LaunchOne"
+        "id": "w-2",
+        "kind": "firstOf",
+        "label": "South tips",
+        "rows": [
+          {
+            "when": [
+              "LeftCellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 2500,
+            "cards": []
+          }
+        ]
       },
       {
-        "id": "a-3",
-        "kind": "action",
-        "name": "LaunchOne"
+        "id": "w-3",
+        "kind": "firstOf",
+        "label": "South tips (2)",
+        "rows": [
+          {
+            "when": [
+              "LeftCellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 2500,
+            "cards": []
+          }
+        ]
       },
       {
         "id": "w-4",
         "kind": "firstOf",
-        "label": "Tip 1",
+        "label": "South tips (3)",
         "rows": [
           {
             "when": [
@@ -433,6 +340,89 @@
       {
         "id": "w-5",
         "kind": "firstOf",
+        "label": "Fire the preloads",
+        "rows": [
+          {
+            "when": [
+              "Empty"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 2500,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
+      },
+      {
+        "id": "p-6",
+        "kind": "path",
+        "lineId": "to-flower-n-1",
+        "park": false
+      },
+      {
+        "id": "w-7",
+        "kind": "firstOf",
+        "label": "Collect at the FLOWER",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 2500,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "p-8",
+        "kind": "path",
+        "lineId": "to-start-n-2",
+        "park": false
+      },
+      {
+        "id": "w-9",
+        "kind": "firstOf",
+        "label": "Fire until it tips",
+        "rows": [
+          {
+            "when": [
+              "RightCellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 2500,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
+      },
+      {
+        "id": "w-10",
+        "kind": "firstOf",
+        "label": "Fire until it tips (2)",
+        "rows": [
+          {
+            "when": [
+              "RightCellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 1500,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
+      },
+      {
+        "id": "w-11",
+        "kind": "firstOf",
         "label": "Spill rolls in",
         "rows": [
           {
@@ -442,19 +432,19 @@
             "cards": []
           },
           {
-            "afterMs": 1800,
+            "afterMs": 1500,
             "cards": []
           }
         ]
       },
       {
-        "id": "w-6",
+        "id": "w-12",
         "kind": "firstOf",
         "label": "Our CELL up (1)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -465,13 +455,13 @@
         ]
       },
       {
-        "id": "w-7",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Our CELL up (1) (2)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -482,13 +472,13 @@
         ]
       },
       {
-        "id": "w-8",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Our CELL up (1) (3)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -499,7 +489,7 @@
         ]
       },
       {
-        "id": "w-9",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -517,21 +507,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-10",
-        "kind": "path",
-        "lineId": "to-slide-sl-1",
-        "park": false
-      },
-      {
-        "id": "p-11",
-        "kind": "path",
-        "lineId": "to-slide-sr-2",
-        "park": false
-      },
-      {
-        "id": "w-12",
+        "id": "w-16",
         "kind": "firstOf",
-        "label": "Sweep (1)",
+        "label": "Collect what we see (1)",
         "rows": [
           {
             "when": [
@@ -540,19 +518,20 @@
             "cards": []
           },
           {
-            "afterMs": 300,
+            "afterMs": 2000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "w-13",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Fire until it tips (1)",
         "rows": [
           {
             "when": [
-              "LeftCellUp"
+              "RightCellUp"
             ],
             "cards": []
           },
@@ -564,13 +543,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-14",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Fire until it tips (1) (2)",
         "rows": [
           {
             "when": [
-              "LeftCellUp"
+              "RightCellUp"
             ],
             "cards": []
           },
@@ -582,13 +561,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-15",
+        "id": "p-19",
         "kind": "path",
-        "lineId": "to-start-s-3",
+        "lineId": "to-home-n-3",
         "park": false
       },
       {
-        "id": "w-16",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Spill rolls in (1)",
         "rows": [
@@ -605,13 +584,13 @@
         ]
       },
       {
-        "id": "w-17",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Our CELL up (2)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -622,13 +601,13 @@
         ]
       },
       {
-        "id": "w-18",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Our CELL up (2) (2)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -639,13 +618,13 @@
         ]
       },
       {
-        "id": "w-19",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Our CELL up (2) (3)",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "LeftCellUp"
             ],
             "cards": []
           },
@@ -656,7 +635,7 @@
         ]
       },
       {
-        "id": "w-20",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -674,21 +653,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-21",
-        "kind": "path",
-        "lineId": "to-slide-sl-4",
-        "park": false
-      },
-      {
-        "id": "p-22",
-        "kind": "path",
-        "lineId": "to-slide-sr-5",
-        "park": false
-      },
-      {
-        "id": "w-23",
+        "id": "w-25",
         "kind": "firstOf",
-        "label": "Sweep (2)",
+        "label": "Collect what we see (2)",
         "rows": [
           {
             "when": [
@@ -697,19 +664,20 @@
             "cards": []
           },
           {
-            "afterMs": 300,
+            "afterMs": 2000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "w-24",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Fire until it tips (2)",
         "rows": [
           {
             "when": [
-              "LeftCellUp"
+              "RightCellUp"
             ],
             "cards": []
           },
@@ -721,13 +689,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-25",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire until it tips (2) (2)",
         "rows": [
           {
             "when": [
-              "LeftCellUp"
+              "RightCellUp"
             ],
             "cards": []
           },
@@ -739,166 +707,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-26",
+        "id": "p-28",
         "kind": "path",
-        "lineId": "to-start-s-6",
-        "park": false
-      },
-      {
-        "id": "w-27",
-        "kind": "firstOf",
-        "label": "Spill rolls in (2)",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-28",
-        "kind": "firstOf",
-        "label": "Our CELL up (3)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-29",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (2)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-30",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (3)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-31",
-        "kind": "firstOf",
-        "label": "Fire (3)",
-        "rows": [
-          {
-            "when": [
-              "Empty"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "p-32",
-        "kind": "path",
-        "lineId": "to-slide-sl-7",
-        "park": false
-      },
-      {
-        "id": "p-33",
-        "kind": "path",
-        "lineId": "to-slide-sr-8",
-        "park": false
-      },
-      {
-        "id": "w-34",
-        "kind": "firstOf",
-        "label": "Sweep (3)",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 300,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-35",
-        "kind": "firstOf",
-        "label": "Fire until it tips (3)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "w-36",
-        "kind": "firstOf",
-        "label": "Fire until it tips (3) (2)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "p-37",
-        "kind": "path",
-        "lineId": "to-park-a-9",
+        "lineId": "to-park-b-4",
         "park": true
       }
     ]

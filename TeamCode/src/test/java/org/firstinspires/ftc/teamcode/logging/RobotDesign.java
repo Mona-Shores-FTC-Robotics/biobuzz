@@ -53,6 +53,14 @@ final class RobotDesign {
      * NECTAR short.
      */
     double nectarSpeedFactor = 1.0;
+    /**
+     * POLLEN's launch speed as a fraction of what was aimed for. With {@link #nectarSpeedFactor} it
+     * describes one launcher at one setting for both pieces: set between the two, each piece
+     * misses its ideal speed by half the difference.
+     */
+    double pollenSpeedFactor = 1.0;
+    /** How much steeper than the flattest arc into the opening the launcher shoots, degrees. */
+    double arcExtraPitchDeg = 6;
     /** How fast the drivetrain turns, rad/s, when a path or an aim asks it to. */
     double maxTurnRadPerS = Math.toRadians(300);
 
@@ -92,6 +100,8 @@ final class RobotDesign {
         d.spinUpS = spinUpS;
         d.launchesNectar = launchesNectar;
         d.nectarSpeedFactor = nectarSpeedFactor;
+        d.pollenSpeedFactor = pollenSpeedFactor;
+        d.arcExtraPitchDeg = arcExtraPitchDeg;
         d.maxTurnRadPerS = maxTurnRadPerS;
         return d;
     }
