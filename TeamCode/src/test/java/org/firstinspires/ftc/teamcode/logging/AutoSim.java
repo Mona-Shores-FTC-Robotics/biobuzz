@@ -772,7 +772,7 @@ public final class AutoSim {
                     .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
-                    .trigger("IntakeFull", () -> body.stored.size() >= FieldSim.ROBOT_CAPACITY)
+                    .trigger("IntakeFull", () -> design.countsPieces && body.stored.size() >= FieldSim.ROBOT_CAPACITY)
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
                         FieldSim.Rocker hive = sim.rocker(alliance);
@@ -785,7 +785,7 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
-                    .trigger("Empty", () -> body.stored.isEmpty())
+                    .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
                     .trigger("CameraBlind", () -> false);
         }
 

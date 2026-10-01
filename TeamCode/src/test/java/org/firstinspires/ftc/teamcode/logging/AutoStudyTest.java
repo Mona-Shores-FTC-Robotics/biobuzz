@@ -86,6 +86,16 @@ public class AutoStudyTest {
             off.fixedPitchDeg = deg;
             m.put(off.name, off);
         }
+        // Mentor review: would a turret, an intake at the back, or no piece counter change the answer?
+        RobotDesign turret = twinCatcher.copy("two spring hoods, 24 in catcher, turret");
+        turret.launcher = RobotDesign.Launcher.TURRET;
+        m.put(turret.name, turret);
+        RobotDesign back = twinCatcher.copy("two spring hoods, 24 in catcher, intake at back");
+        back.intakeAtBack = true;
+        m.put(back.name, back);
+        RobotDesign blind = twinCatcher.copy("two spring hoods, 24 in catcher, no piece counter");
+        blind.countsPieces = false;
+        m.put(blind.name, blind);
         // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
         for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle}) {
             RobotDesign c = base.copy(base.name + ", POLLEN only");

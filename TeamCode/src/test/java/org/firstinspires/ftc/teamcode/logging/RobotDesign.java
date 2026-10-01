@@ -59,6 +59,12 @@ final class RobotDesign {
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
     /**
+     * Whether the robot knows how many pieces it holds (a beam break or distance sensor per slot).
+     * Without one, an Auto can't tell full or empty: IntakeFull and Empty never fire, so every wait
+     * on them runs to its time limit.
+     */
+    boolean countsPieces = true;
+    /**
      * NECTAR's launch speed as a fraction of what was aimed for: 1 for a launcher that knows which
      * piece it holds and compensates; below 1 for one tuned for POLLEN that throws the heavier
      * NECTAR short.
@@ -166,6 +172,7 @@ final class RobotDesign {
         d.shotIntervalS = shotIntervalS;
         d.spinUpS = spinUpS;
         d.launchesNectar = launchesNectar;
+        d.countsPieces = countsPieces;
         d.nectarSpeedFactor = nectarSpeedFactor;
         d.pollenSpeedFactor = pollenSpeedFactor;
         d.arcExtraPitchDeg = arcExtraPitchDeg;
