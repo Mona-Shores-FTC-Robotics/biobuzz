@@ -1588,6 +1588,86 @@ LOADING ZONE and here into the HIVE frame. The duo-lz Autos work round it: they 
 spot with an ordinary path and end with a 2 in park card, so a late guard barely moves the robot.
 The guard should know the park card has already run.
 
+### Two robots and five or more TIPs
+
+**Where a spill goes** (`SpillStudyTest`, opt in with `BIOBUZZ_SPILL_STUDY=1`). A TIP's pieces hit
+the tiles about 1.3 s after the TIP starts, in front of that CELL's opening (x 48–72), about a
+dozen of them. With nobody there they roll to the wall (south: y 0–8; north: y 136–140). A robot
+standing in front of the CELL, facing it (the start spots, (59, 9.5) and (59, 132.25)), fills to
+4 within about a second, and the rest stop in a line against its front, about 30 in wide, half of
+it across the centre line. Standing in the roll path catches better than driving through it on
+cue: a timed sweep caught about one piece a spill.
+
+**The pieces never need to cross the field.** The CELLs alternate, so a TIP's spill lands at the
+end whose CELL is up again two TIPs later. Each robot can stay home at its own CELL: catch its
+spill, and when its CELL rises, fire. The limit is how many of a spill a robot can take: 4 at a
+time (G407), and only what reaches its intake.
+
+**What the mechanisms are worth** (10 runs each at 50 in/s, `AutoStudyTest`):
+
+| Robot | duo-lz (both park) | lean (stays home, no AUTO PARK) |
+|---|---|---|
+| one spring hood, 14 in intake | 80 pts; 4 TIPs in 3/10 | 56 pts |
+| two spring hoods | 88; 4 TIPs in 7/10 | — |
+| one spring hood, 24 in catcher | 90; 4 TIPs in 8/10 | — |
+| **two spring hoods, 24 in catcher** | **90**; 4 TIPs in 8/10, TIP 3 at 14 s | **92**; 4 TIPs 8/10, 5 TIPs 3/10, 6 TIPs 2/10 |
+
+- **A 24 in catcher matters most.** R105 allows 24 in across once the match starts, so an intake
+  that folds out sideways can be 24 in wide; it takes the line of pieces stopped against the robot.
+  An 18 in intake with corners that steer pieces in (which reaches pieces against a wall) gained
+  little here, though it is what takes the GARDEN's corner piece.
+- **Two launchers** halve a volley's time; worth 8–10 points.
+- **Two launchers dedicated to POLLEN and NECTAR** lose: every opening volley is all POLLEN, so
+  one launcher sits idle. They would remove the shared-setting problem, though.
+- **A catapult** gets the fastest TIP 1 (4.0 s), then loses ground: 56 points patterned (pieces
+  spread across a wide arm), 42 plain. A whole volley at once collides and spreads.
+- **Firing while intaking** (`StreamOn`/`StreamOff`, `experiments/home-stream-*.pp`) did not help
+  as tried: shots fired on the move carry the robot's velocity unless the software allows for it,
+  and even allowing for it the gain was nothing.
+- **With a weaker partner** in the north robot's job (one spring hood, 40 in/s, following
+  duo-lz-north), duo-lz still makes 88 points.
+
+`SnapshotTest` writes the field at chosen moments as JSON and `tools/auto-routes/snapshots.py`
+draws it, for seeing where pieces are without AdvantageScope.
+
+**The best Autos so far** (`BestAutosTest` writes one log of each to `build/sim-logs/best/`):
+
+| | Auto(s) | Partner needed | Points |
+|---|---|---|---|
+| 1 | **duo-lz-south + duo-lz-north** | one that runs duo-lz-north (level 2 below) | 80; 90 with two launchers and a catcher |
+| 2 | **lean-south + lean-north** | the same, our robot design on both | 92 with two launchers and a catcher, no AUTO PARK |
+| 3 | **three-tip-adaptive** alone | none | 63 |
+| 4 | **three-tip-adaptive** + a partner that fires its preloads | level 1 | 75 |
+| 5 | **solo-two-tip** at 40 in/s | none | 48, parked |
+
+The two-robot pairs are also in `pedro-paths/together/` (`duo-lz.txt`, `lean.txt`,
+`adaptive-with-partner.txt`). To watch two robots: AdvantageScope 3D Field, drag
+`/Odometry/AllRobots3d` onto the field as a Robot to see both at once, or `/Odometry/Robot3d` as a
+Robot plus `/Odometry/Partner3d` as a Ghost in another colour to tell them apart.
+
+**An alliance rubric** to agree with a partner whose Auto we do not control. Pick the level the
+partner can really do; we run the matching Auto.
+
+- *Level 0, partner only drives:* it leaves and parks at the north end of the LOADING ZONE, around
+  (16, 122), early, and stays. We run three-tip-adaptive (71 points).
+- *Level 1, partner fires its preloads:* it starts against the north wall in front of the north
+  CELL, fires its 4 POLLEN when the north CELL rises (after our TIP 1, about 4.5 s), then parks
+  as level 0. We run three-tip-adaptive (75).
+- *Level 2, partner runs the north job:* as level 1, then refills at the far FLOWER, fires again
+  for TIP 2, stays in front of the north CELL to catch every spill and fires each time it rises,
+  and ends parked at the north end of the LOADING ZONE. We run duo-lz-south (80–92).
+- *Traffic rules at every level:* each robot owns one end: we take the south, the partner the
+  north. Neither enters the other's end; the pieces don't need to. The only way between the ends is
+  the west corridor (robot centre x 9–33 past the HIVE frame's foot), and only northbound, at the
+  end, by the south robot going to park; the HIVE's tunnel (centre x 55–62, square to the field)
+  is the southbound lane if a partner ever needs one, so travel goes clockwise and nobody meets
+  head-on. Turn only with the robot's centre 12.7 in or more from the centre line. Nobody parks at
+  the south end of the LOADING ZONE before the south robot arrives: it blocks the corridor.
+- An Auto that only works if the partner does its part (duo-lz-south with a level-1 partner gets
+  40–50 points) is the risk to avoid: confirm the level in the queue, not on the field.
+
+The other alliance's spill can roll onto our side; the simulation ignores it, and so does the plan.
+
 ### One launcher, the webcam, and driving under the HIVE
 
 **One launcher for POLLEN and NECTAR.** `LauncherStudyTest` (opt in with

@@ -106,6 +106,8 @@ def study(specs, designs="spring hood", runs=10, extra_env=None):
     env = dict(os.environ, BIOBUZZ_AUTO_STUDY=specs, BIOBUZZ_AUTO_DESIGNS=designs,
                BIOBUZZ_AUTO_RUNS=str(runs))
     env.update(extra_env or {})
+    if "ANDROID_HOME" not in env and os.path.isdir("/tmp/claude-0/android/sdk"):
+        env["ANDROID_HOME"] = "/tmp/claude-0/android/sdk"  # this machine's SDK; set ANDROID_HOME elsewhere
     out = subprocess.run(["./gradlew", "-q", ":TeamCode:testDebugUnitTest", "--tests", "*AutoStudyTest*", "-i"], cwd=REPO, env=env,
                          capture_output=True, text=True)
     lines = [l.strip() for l in out.stdout.splitlines() if "STUDY" in l or "error:" in l or "FAILED" in l]

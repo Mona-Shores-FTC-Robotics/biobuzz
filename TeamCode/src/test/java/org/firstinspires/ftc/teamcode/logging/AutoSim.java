@@ -456,6 +456,8 @@ public final class AutoSim {
         double spinStartedAt;
         boolean intakeEnabled = true;
         boolean firing;
+        /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
+        boolean streaming;
         int shotsFired;
         int shotTarget;
         double nextShotAt;
@@ -522,6 +524,7 @@ public final class AutoSim {
             if (!running) {
                 spinning = false;
                 firing = false;
+                streaming = false;
             }
             for (String line : pending) {
                 result.decisions.add(line);
@@ -533,7 +536,7 @@ public final class AutoSim {
 
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
-            if (!firing || !launcherReady() || body.stored.isEmpty()) return;
+            if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             double[] aim = sim.rocker(alliance).aimPoint();
             double yawError = 0;
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
@@ -546,10 +549,21 @@ public final class AutoSim {
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
-            for (int i = 0; i < volley && !body.stored.isEmpty() && shotsFired < shotTarget; i++) {
-                double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? 2.5 : 6.0);
+            boolean dedicated = design.dedicatedLaunchers && !catapult;
+            for (int i = 0; i < volley && !body.stored.isEmpty() && (streaming || shotsFired < shotTarget); i++) {
+                if (dedicated) {
+                    // Launcher 0 takes POLLEN, launcher 1 NECTAR: bring that kind to the front, or skip.
+                    boolean wantPollen = i == 0;
+                    int pick = -1;
+                    for (int k = 0; k < body.stored.size() && pick < 0; k++) {
+                        if ((body.stored.get(k).kind == FieldSim.Kind.POLLEN) == wantPollen) pick = k;
+                    }
+                    if (pick < 0) continue;
+                    body.stored.add(0, body.stored.remove(pick));
+                }
+                double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? design.catapultSideIn : 6.0);
                 double[] from = body.exitPoint(side);
-                double[] v = sim.launch(body, aim, yawError, side, catapult ? 2.0 : 1.0);
+                double[] v = sim.launch(body, aim, yawError, side, catapult ? design.catapultSpread : 1.0);
                 if (v == null) break;
                 result.robots.get(index).launched++;
                 shotsFired++;
@@ -591,7 +605,8 @@ public final class AutoSim {
             }
 
             robot.putPose(log, pose[0], pose[1], pose[2], us);
-            if (drive.current != lastPath) {
+            if (drive.current != lastPath || step == 0) {
+                // Logged on the first loop too, so a robot that never drives still has the key.
                 lastPath = drive.current;
                 log.putPose2dArray(robot.activePath,
                         lastPath == null ? new double[0] : packed(lastPath), us);
@@ -627,6 +642,12 @@ public final class AutoSim {
                     .command("CollectSeen", 2.0, this::collectSeen)
                     .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
+                    .command("StreamOn", 0.1, () -> Commands.instant(() -> {
+                        spinUp();
+                        streaming = true;
+                        nextShotAt = Math.max(nextShotAt, now);
+                    }))
+                    .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
                     .trigger("IntakeFull", () -> body.stored.size() >= FieldSim.ROBOT_CAPACITY)

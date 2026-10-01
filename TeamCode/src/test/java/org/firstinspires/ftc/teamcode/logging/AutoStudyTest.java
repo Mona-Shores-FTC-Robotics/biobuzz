@@ -36,6 +36,38 @@ public class AutoStudyTest {
         RobotDesign twin = RobotDesign.springHood().copy("two spring hoods");
         twin.launchers = 2;
         m.put(twin.name, twin);
+        m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
+        RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
+        catcher.intakeWidthIn = 24;
+        m.put(catcher.name, catcher);
+        RobotDesign twinCatcher = twin.copy("two spring hoods, 24 in catcher");
+        twinCatcher.intakeWidthIn = 24;
+        m.put(twinCatcher.name, twinCatcher);
+        RobotDesign twinFull = twin.copy("two spring hoods, full-width intake");
+        twinFull.intakeWidthIn = 18;
+        m.put(twinFull.name, twinFull);
+        RobotDesign dedicated = twinCatcher.copy("POLLEN + NECTAR launchers, 24 in catcher");
+        dedicated.dedicatedLaunchers = true;
+        m.put(dedicated.name, dedicated);
+        // A catapult throws everything it holds at once; laid out in a pattern across a wide arm its
+        // pieces spread less and collide less than a plain one's. Re-cocking stands in for spin-up.
+        RobotDesign cat = RobotDesign.springHood().copy("patterned catapult, 24 in catcher");
+        cat.launcher = RobotDesign.Launcher.CATAPULT;
+        cat.fixedPitchDeg = 60;
+        cat.spinUpS = 0.8;
+        cat.catapultSpread = 1.0;
+        cat.catapultSideIn = 4.5;
+        cat.intakeWidthIn = 24;
+        m.put(cat.name, cat);
+        RobotDesign plainCat = cat.copy("plain catapult, 24 in catcher");
+        plainCat.catapultSpread = 2.0;
+        plainCat.catapultSideIn = 2.5;
+        m.put(plainCat.name, plainCat);
+        for (RobotDesign base : new RobotDesign[] {catcher, twinCatcher}) {
+            RobotDesign c = base.copy(base.name + ", fires on the move");
+            c.compensatesMotion = true;
+            m.put(c.name, c);
+        }
         return m;
     }
 
@@ -50,7 +82,13 @@ public class AutoStudyTest {
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
         }
-        if (autos.length > 1) sim.alsoRun(Class.forName(PKG + autos[1])).speed(speed, speed * 0.9).design(design);
+        if (autos.length > 1) {
+            // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
+            String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
+            double partnerSpeed = ps == null ? speed : Double.parseDouble(ps);
+            RobotDesign partnerDesign = pd == null ? design : designs().get(pd);
+            sim.alsoRun(Class.forName(PKG + autos[1])).speed(partnerSpeed, partnerSpeed * 0.9).design(partnerDesign);
+        }
         return sim.write(file);
     }
 

@@ -686,11 +686,14 @@ final class FieldSim {
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
         double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
-        speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
+        if (!bot.design.dedicatedLaunchers) {
+            speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
+        }
         double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
         double c = Math.cos(yaw), s = Math.sin(yaw);
-        double vx = (v[0] * c - v[1] * s) * speed + bot.vx;
-        double vy = (v[0] * s + v[1] * c) * speed + bot.vy;
+        double carried = bot.design.compensatesMotion ? 0 : 1;
+        double vx = (v[0] * c - v[1] * s) * speed + carried * bot.vx;
+        double vy = (v[0] * s + v[1] * c) * speed + carried * bot.vy;
         double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian());
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
