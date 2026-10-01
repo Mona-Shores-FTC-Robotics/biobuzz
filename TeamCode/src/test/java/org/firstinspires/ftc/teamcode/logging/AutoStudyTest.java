@@ -75,9 +75,9 @@ public class AutoStudyTest {
         RobotDesign loose = steepCat.copy("clump catapult 72 deg, loose clump");
         loose.catapultResidual = 1.0;
         m.put(loose.name, loose);
-        RobotDesign slow = steepCat.copy("clump catapult 72 deg, 1.5 s re-cock");
-        slow.spinUpS = 1.5;
-        m.put(slow.name, slow);
+        RobotDesign slowCock = steepCat.copy("clump catapult 72 deg, 1.5 s re-cock");
+        slowCock.spinUpS = 1.5;
+        m.put(slowCock.name, slowCock);
         for (double deg : new double[] {68, 76}) {
             RobotDesign off = steepCat.copy("clump catapult " + (int) deg + " deg, 24 in catcher");
             off.fixedPitchDeg = deg;
