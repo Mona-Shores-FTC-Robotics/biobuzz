@@ -1213,10 +1213,38 @@ zone. The HIVE is ours. Each rocker is two open-ended boxes on an axle, built fr
 and the CAD's axle bearings sit exactly at the manual's 43.95 in. The code is `FieldSim`
 (physics), `SimDriver` (the robot's choices) and `SimulatedMatch` (the log).
 
-**What is a guess.** Masses, bounciness, friction, how much it takes to tip a HIVE and how fast it
-swings are not published. They are the `PLACEHOLDER_` constants at the top of `FieldSim`, picked so
-it looks like the game. With them, the three NECTAR that start in each raised CELL do not tip it,
-and about three more POLLEN do. Replace them with measurements from a real field.
+**Calibrated to the real HIVE.** When the HIVE tips, how long a tip takes, how heavy NECTAR is and
+how high a piece bounces come from `HiveCalibration`: four things measured on a field (checklist
+below). The simulation fits itself to them by running the same experiment. With the rocker held,
+it drops POLLEN into the raised CELL one at a time and reads the resting torque after each. It sets
+the holding torque between the torque one POLLEN short and the torque at the measured count, so
+that count tips it and one fewer does not. Then it times a TIP and scales the swing speed until the
+TIP takes the measured time. `HiveCalibrationTest` checks the result for several counts and times.
+The tip time is the robot's own `HiveTracker.Tuning.tipSeconds` (HIVE lesson 3), so the robot and
+the simulation share one number.
+
+Until a value is measured it is NaN, and the simulation uses an `ASSUMED_` value instead: tips on
+the 3rd POLLEN, a 1.0 s tip, NECTAR 1.5× POLLEN, restitution 0.35. The log's **Calibration**
+metadata lists which values are assumed. Friction and the simulated robot stay `PLACEHOLDER_`
+constants in `FieldSim`.
+
+#### Calibrating the HIVE: field-session checklist
+
+Needs a HIVE, 10+ POLLEN, a NECTAR, a kitchen scale, a tape measure and a phone that films slow
+motion. About 30 minutes. Write each result into `HiveCalibration` (the tip time goes into
+`HiveTracker.Tuning.tipSeconds`) and commit.
+
+- [ ] **POLLEN to tip** → `MEASURED_POLLEN_TO_TIP`. Set the HIVE up for the start of a match, with
+      three NECTAR in the raised CELL as the manual places them. Drop POLLEN into the raised CELL one
+      at a time from just inside the opening, letting each settle for about 1.5 s. Write down the
+      count when it tips. Do it 3 times, from each end of the HIVE; use the most common count.
+- [ ] **Tip time** → `HiveTracker.Tuning.tipSeconds`. Film each of those tips in slow motion, from
+      first movement to resting. Average them. HIVE lesson 3 asks for this same number.
+- [ ] **Weights** → `MEASURED_POLLEN_GRAMS`, `MEASURED_NECTAR_GRAMS`. Weigh 5 of each together and
+      divide by 5.
+- [ ] **Bounce** → `MEASURED_DROP_IN`, `MEASURED_REBOUND_IN`. Drop a POLLEN onto the tiles from 40 in,
+      measured to the ball's bottom, beside a tape measure. Film it and read the top of the first
+      bounce, also to the ball's bottom. Do it 3 times and average.
 
 **One-time setup: the HIVE assets.** AdvantageScope fields have no moving parts, but robots can
 have articulated components (docs: *Custom Assets → Articulated Components*). So the HIVE is drawn

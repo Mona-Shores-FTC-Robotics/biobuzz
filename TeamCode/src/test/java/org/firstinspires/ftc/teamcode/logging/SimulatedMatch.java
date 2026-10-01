@@ -120,9 +120,10 @@ public final class SimulatedMatch {
         log.putMetadata("GamePieces", "Field '" + HiveAssets.FIELD_NAME + "': add " + KEY_POLLEN + " and the two"
                 + " NECTAR keys as Game Piece objects, and " + KEY_HIVE + " as a Robot ('" + HiveAssets.ROBOT_NAME
                 + "') with " + KEY_HIVE_COMPONENTS + " as its components. Build the assets with HiveAssetsTest.");
-        log.putMetadata("Physics", "FieldSim: placeholder masses, restitution and HIVE tip threshold");
+        HiveCalibration calibration = HiveCalibration.current();
+        log.putMetadata("Calibration", calibration.describe());
 
-        FieldSim sim = new FieldSim(HiveAssets.committedStagedPieces(), seed);
+        FieldSim sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         SimDriver driverBot = new SimDriver(sim, Alliance.RED, START);
 
         GamepadLog driverLog = new GamepadLog(0);

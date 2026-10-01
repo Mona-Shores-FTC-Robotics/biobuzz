@@ -24,11 +24,11 @@ import java.util.Random;
  * <p><b>Frame.</b> Pedro inches, seconds, z up from the tiles. Converted to AdvantageScope's frame
  * only when poses are packed for the log ({@link #pieces}, {@link #hiveComponents}).
  *
- * <p><b>What is measured and what is not.</b> Sizes and the HIVE come from the manual and the CAD.
- * Masses, restitution, friction, how much it takes to tip a HIVE and how fast it swings are not
- * published; they are the {@code PLACEHOLDER_} constants below, chosen so the behaviour looks like
- * the game, and they are the first thing to replace with numbers from a real field. Nothing here
- * runs on a robot.
+ * <p><b>Calibrated, measured and placeholder.</b> Sizes and the HIVE come from the manual and the CAD.
+ * What makes a HIVE tip, how long a tip takes, how heavy NECTAR is and how high a piece bounces come
+ * from {@link HiveCalibration}: things a team measures on a field, which the simulation is fitted
+ * to (see {@link HiveCalibration#fit}). The rest (friction, the robot) are the
+ * {@code PLACEHOLDER_} constants below. Nothing here runs on a robot.
  */
 final class FieldSim {
 
@@ -73,13 +73,6 @@ final class FieldSim {
 
     // ---- Placeholders: not published, replace with measurements -------------------------------
 
-    /** NECTAR's weight in POLLEN weights. */
-    static final double PLACEHOLDER_NECTAR_WEIGHT = 1.5;
-    /** What holds a settled HIVE: this many POLLEN at a raised CELL's centre just balance it. */
-    static final double PLACEHOLDER_HOLD_IN_POLLEN_AT_CELL_CENTRE = 5.0;
-    /** How fast the damped rocker swings when pushed by its whole holding torque, rad/s. */
-    static final double PLACEHOLDER_SWING_RAD_PER_S = 1.6;
-    static final double PLACEHOLDER_TILE_RESTITUTION = 0.35;
     static final double PLACEHOLDER_WALL_RESTITUTION = 0.45;
     static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
     static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
@@ -107,16 +100,14 @@ final class FieldSim {
     // ---- State --------------------------------------------------------------------------------
 
     enum Kind {
-        POLLEN(POLLEN_RADIUS_IN, 1.0),
-        RED_NECTAR(NECTAR_RADIUS_IN, PLACEHOLDER_NECTAR_WEIGHT),
-        BLUE_NECTAR(NECTAR_RADIUS_IN, PLACEHOLDER_NECTAR_WEIGHT);
+        POLLEN(POLLEN_RADIUS_IN),
+        RED_NECTAR(NECTAR_RADIUS_IN),
+        BLUE_NECTAR(NECTAR_RADIUS_IN);
 
         final double radius;
-        final double weight;
 
-        Kind(double radius, double weight) {
+        Kind(double radius) {
             this.radius = radius;
-            this.weight = weight;
         }
 
         static Kind of(String name) {
@@ -160,7 +151,12 @@ final class FieldSim {
         double angle;
         double rate;
         int tips;
+        /** Held on its stop whatever is in it: for fitting the calibration. */
+        boolean locked;
+        /** Seconds the last completed TIP took, from leaving one stop to reaching the other. */
+        double lastTipSeconds = Double.NaN;
         private double tipFrom;
+        private double leftStopAt;
 
         Rocker(Alliance alliance, double centreX) {
             this.alliance = alliance;
@@ -255,7 +251,35 @@ final class FieldSim {
     private boolean intaking;
     final List<Piece> stored = new ArrayList<>();
 
+    /** The physical constants {@link HiveCalibration#fit} chose. */
+    static final class Physics {
+        /** NECTAR's weight, in POLLEN weights. */
+        final double nectarWeight;
+        /** What holds a settled HIVE on its stop, in POLLEN-weight inches. */
+        final double holdTorque;
+        /** How fast the damped rocker swings when pushed by its whole holding torque, rad/s. */
+        final double swingRadPerS;
+        final double tileRestitution;
+
+        Physics(double nectarWeight, double holdTorque, double swingRadPerS, double tileRestitution) {
+            this.nectarWeight = nectarWeight;
+            this.holdTorque = holdTorque;
+            this.swingRadPerS = swingRadPerS;
+            this.tileRestitution = tileRestitution;
+        }
+    }
+
+    final Physics physics;
+    /** Simulated seconds since the start. */
+    double time;
+
+    /** The field as it starts, fitted to the current {@link HiveCalibration}. */
     FieldSim(List<HiveAssets.StagedPiece> staged, long seed) {
+        this(staged, seed, HiveCalibration.current().fit());
+    }
+
+    FieldSim(List<HiveAssets.StagedPiece> staged, long seed, Physics physics) {
+        this.physics = physics;
         random = new Random(seed);
         for (HiveAssets.StagedPiece s : staged) {
             Piece p = new Piece(Kind.of(s.kind), s.holder.equals("outside") ? Where.OUTSIDE : Where.FIELD, s.x, s.y, s.z);
@@ -272,6 +296,35 @@ final class FieldSim {
         }
         flowers.add(new double[] {x, y});
         return flowers.size() - 1;
+    }
+
+    double weight(Kind kind) {
+        return kind == Kind.POLLEN ? 1.0 : physics.nectarWeight;
+    }
+
+    /**
+     * The pieces in a rocker's CELLs pushing it toward its other stop, in POLLEN-weight inches:
+     * each piece's weight times how far it is past the axle, positive toward a TIP.
+     */
+    double tippingTorque(Rocker r) {
+        double torque = 0;
+        for (Piece p : pieces) {
+            if (p.where == Where.FIELD && p.cell != null && p.cell.alliance() == r.alliance) {
+                torque += weight(p.kind) * (p.y - CENTRE_IN);
+            }
+        }
+        return Math.signum(r.angle) * torque;
+    }
+
+    /**
+     * A POLLEN let go, still, just inside a rocker's raised CELL: how a calibration TIP count is
+     * taken on a real field.
+     */
+    Piece dropIntoRaisedCell(Rocker r) {
+        double[] at = r.aimPoint();
+        Piece p = new Piece(Kind.POLLEN, Where.FIELD, at[0], at[1], at[2]);
+        pieces.add(p);
+        return p;
     }
 
     Rocker rocker(Alliance alliance) {
@@ -378,6 +431,7 @@ final class FieldSim {
     void step(double dt) {
         double h = dt / SUBSTEPS;
         for (int k = 1; k <= SUBSTEPS; k++) {
+            time += h;
             double f = (double) k / SUBSTEPS;
             double bx = prevRx + (rx - prevRx) * f;
             double by = prevRy + (ry - prevRy) * f;
@@ -412,31 +466,36 @@ final class FieldSim {
     }
 
     private void stepRocker(Rocker r, double h) {
-        double hold = PLACEHOLDER_HOLD_IN_POLLEN_AT_CELL_CENTRE
-                * (CELL_BACK_IN + CELL_OPENING_IN) / 2 * Math.cos(TILT_RAD);
-        // The empty rocker is top-heavy, so it leans whichever way it already leans.
+        if (r.locked) return;
+        double hold = physics.holdTorque;
+        // The empty rocker is top-heavy, so it leans whichever way it already leans; at a stop that
+        // is the holding torque, which the pieces in the raised CELL must beat.
         double torque = hold * Math.sin(r.angle) / Math.sin(TILT_RAD);
         for (Piece p : pieces) {
             if (p.where == Where.FIELD && p.cell != null && p.cell.alliance() == r.alliance) {
-                torque -= p.kind.weight * (p.y - CENTRE_IN);
+                torque -= weight(p.kind) * (p.y - CENTRE_IN);
             }
         }
         double before = r.angle;
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
         } else {
-            r.rate = torque / hold * PLACEHOLDER_SWING_RAD_PER_S;
+            r.rate = torque / hold * physics.swingRadPerS;
             r.angle = Math.max(-TILT_RAD, Math.min(TILT_RAD, r.angle + r.rate * h));
         }
         boolean settledNow = Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12;
         boolean wasSettled = Math.abs(Math.abs(before) - TILT_RAD) < 1e-12;
-        if (wasSettled && !settledNow) r.tipFrom = before;
+        if (wasSettled && !settledNow) {
+            r.tipFrom = before;
+            r.leftStopAt = time - h;
+        }
         if (!wasSettled && settledNow) {
             r.rate = 0;
             // A rocker that lifts off its stop and settles back (a piece rolling to the back of the
             // CELL) has not tipped.
             if (Math.signum(r.angle) != Math.signum(r.tipFrom)) {
                 r.tips++;
+                r.lastTipSeconds = time - r.leftStopAt;
                 events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)");
             }
         }
@@ -457,7 +516,7 @@ final class FieldSim {
                 if (d2 >= reach * reach || d2 < 1e-12) continue;
                 double d = Math.sqrt(d2);
                 double nx = dx / d, ny = dy / d, nz = dz / d;
-                double ma = a.kind.weight, mb = b.kind.weight;
+                double ma = weight(a.kind), mb = weight(b.kind);
                 double push = (reach - d) / (ma + mb);
                 a.x -= nx * push * mb;
                 a.y -= ny * push * mb;
@@ -614,7 +673,7 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
-            if (p.vz < 0) p.vz = -p.vz * PLACEHOLDER_TILE_RESTITUTION;
+            if (p.vz < 0) p.vz = -p.vz * physics.tileRestitution;
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
         }
