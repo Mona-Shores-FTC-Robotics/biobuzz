@@ -131,7 +131,13 @@ public class AutoStudyTest {
                 double[] sum = new double[8];
                 double points = 0, load = 0, held = 0;
                 int parked = 0, robots = 0, problems = 0;
-                for (long seed = 1; seed <= runs; seed++) {
+                // BIOBUZZ_AUTO_SEEDS="6,18": only these seeds (to write one run's log), instead of 1..runs.
+                String seedList = System.getenv("BIOBUZZ_AUTO_SEEDS");
+                long[] seeds = seedList != null
+                        ? java.util.Arrays.stream(seedList.split(",")).mapToLong(Long::parseLong).toArray()
+                        : java.util.stream.LongStream.rangeClosed(1, runs).toArray();
+                runs = seeds.length;
+                for (long seed : seeds) {
                     File file = new File(TeamCodeDir.simLogs(), "study-" + spec.replaceAll("[^A-Za-z0-9]+", "-")
                             + "-" + e.getKey().replaceAll("[^A-Za-z0-9]+", "-") + "-" + seed + ".wpilog");
                     AutoSim.Result r = run(spec, e.getValue(), seed, file);
