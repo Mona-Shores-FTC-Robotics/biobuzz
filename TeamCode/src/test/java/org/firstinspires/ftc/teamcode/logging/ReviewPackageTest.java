@@ -87,6 +87,12 @@ public class ReviewPackageTest {
             new Run("8-qual-three-tip-adaptive-partner-only-leaves",
                     "three-tip-adaptive with a leave-only partner: the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds, where the tunnel route (folder 5) stops at 2.",
                     "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 2),
+            new Run("9-qual-flower-feed",
+                    "Fire and feed: we start left and wait at the far FLOWER, lined up angled with the intake at the back; when the partner's TIP 1 raises our CELL we fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held.",
+                    "FlowerFeedBackAuto,PartnerPreloadsRightAuto@50", TWIN + ", intake at back", "spring hood", 40, 2),
+            new Run("10-qual-four-tip-attempt-best-case",
+                    "Chasing 4 TIPs with a preloads-only partner that holds them for TIP 3. Its best run of 10: TIPs at 4, 13 and 23 s, back with pieces for TIP 4 at 28 s, 2-3 s short. In the other 9 the TIP 1 catch comes up short and TIP 2 fails.",
+                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN + ", turret", "spring hood", 40, 1),
     };
 
     @Test
