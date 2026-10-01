@@ -107,6 +107,54 @@ final class FieldSim {
      */
     static double frictionScale = 1;
     static double spreadScale = 1;
+    // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
+
+    /** AndyMark's masses: POLLEN 0.055 lb, NECTAR 0.091 lb. */
+    static final double POLLEN_MASS_KG = 0.0249;
+    static final double NECTAR_MASS_KG = 0.0413;
+    static final double AIR_DENSITY_KG_PER_M3 = 1.2;
+    /**
+     * Drag and backspin lift of a 26-hole (indoor) pickleball, which POLLEN and NECTAR are built like:
+     * free-flight measurements found C_D ≈ 0.45 and, with backspin, C_L ≈ 0.2 (Tennis Warehouse
+     * University, "Pickleball Aerodynamics"). Lift grows to that by a spin number r·ω/v of
+     * {@link #LIFT_FULL_SPIN}; topspin pushes down the same way. Not measured on BIOBUZZ pieces.
+     */
+    static final double PLACEHOLDER_DRAG_COEFFICIENT = 0.45;
+    static final double PLACEHOLDER_LIFT_COEFFICIENT = 0.20;
+    static final double LIFT_FULL_SPIN = 0.25;
+
+    /** Drag and spin lift on pieces in flight. */
+    boolean air;
+
+    static double massKg(Kind kind) {
+        return kind == Kind.POLLEN ? POLLEN_MASS_KG : NECTAR_MASS_KG;
+    }
+
+    /** Applies drag and spin lift for {@code h} seconds. */
+    private static void applyAir(Piece p, double h) {
+        double speedIn = Math.sqrt(p.vx * p.vx + p.vy * p.vy + p.vz * p.vz);
+        if (speedIn < 1e-6) return;
+        double radiusM = p.kind.radius * AdvantageScopeFrame.METERS_PER_INCH;
+        double area = Math.PI * radiusM * radiusM;
+        // a = (½ ρ C A / m) v², in m/s² for v in m/s; in inches that is k · 0.0254 · v_in².
+        double k = 0.5 * AIR_DENSITY_KG_PER_M3 * area / massKg(p.kind) * AdvantageScopeFrame.METERS_PER_INCH;
+        double drag = k * PLACEHOLDER_DRAG_COEFFICIENT * speedIn * h;
+        p.vx -= drag * p.vx;
+        p.vy -= drag * p.vy;
+        p.vz -= drag * p.vz;
+        // Lift along ω × v.
+        double lx = p.wy * p.vz - p.wz * p.vy, ly = p.wz * p.vx - p.wx * p.vz, lz = p.wx * p.vy - p.wy * p.vx;
+        double ln = Math.sqrt(lx * lx + ly * ly + lz * lz);
+        if (ln < 1e-9) return;
+        double w = Math.sqrt(p.wx * p.wx + p.wy * p.wy + p.wz * p.wz);
+        double spinNumber = w * p.kind.radius / speedIn;
+        double cl = PLACEHOLDER_LIFT_COEFFICIENT * Math.min(1, spinNumber / LIFT_FULL_SPIN);
+        double lift = k * cl * speedIn * speedIn * h / ln;
+        p.vx += lift * lx;
+        p.vy += lift * ly;
+        p.vz += lift * lz;
+    }
+
     /** Contacts slower than this do not bounce. */
     static final double RESTING_IN_PER_S = 6.0;
 
@@ -680,6 +728,7 @@ final class FieldSim {
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
                 p.vz -= GRAVITY_IN_PER_S2 * h;
+                if (air && p.z > p.kind.radius + 0.5) applyAir(p, h);
                 p.x += p.vx * h;
                 p.y += p.vy * h;
                 p.z += p.vz * h;
