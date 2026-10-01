@@ -42,8 +42,8 @@ public final class ConvoyCorridorAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(38, 9.5, 90);
-        Pose sSide = p.of(38, 12, 70);
-        Pose nSide = p.of(38, 129, 290);
+        Pose sSide = p.of(32, 14, 60);
+        Pose nSide = p.of(32, 128, 300);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sSideToNSideControl1 = p.of(22, 30, 0);

@@ -7,55 +7,96 @@
   },
   "lines": [
     {
-      "id": "to-n-home-1",
+      "id": "to-s-exit-1",
       "color": "#3cc8e4",
-      "name": "START to N_HOME",
+      "name": "START to S_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59,
-        "y": 131.75
+        "x": 57.5,
+        "y": 34
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-n-exit-2",
+      "color": "#3cc8e4",
+      "name": "S_EXIT to N_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 108
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
         "degrees": 90
-      }
-    },
-    {
-      "id": "to-s-home-2",
-      "color": "#3cc8e4",
-      "name": "N_HOME to S_HOME",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 10
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
       }
     },
     {
       "id": "to-n-home-3",
       "color": "#3cc8e4",
-      "name": "S_HOME to N_HOME",
+      "name": "N_EXIT to N_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59,
+        "x": 57.5,
         "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-n-exit-4",
+      "color": "#3cc8e4",
+      "name": "N_HOME to N_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 108
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-s-exit-5",
+      "color": "#3cc8e4",
+      "name": "N_EXIT to S_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 34
       },
       "controlPoints": [],
       "heading": {
@@ -64,22 +105,141 @@
       }
     },
     {
-      "id": "to-s-home-4",
+      "id": "to-s-home-6",
       "color": "#3cc8e4",
-      "name": "N_HOME to S_HOME",
+      "name": "S_EXIT to S_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59,
+        "x": 57.5,
         "y": 10
       },
       "controlPoints": [],
       "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-s-exit-7",
+      "color": "#3cc8e4",
+      "name": "S_HOME to S_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 34
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-n-exit-8",
+      "color": "#3cc8e4",
+      "name": "S_EXIT to N_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 108
+      },
+      "controlPoints": [],
+      "heading": {
         "type": "constant",
-        "degrees": 270
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-n-home-9",
+      "color": "#3cc8e4",
+      "name": "N_EXIT to N_HOME",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 131.75
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-n-exit-10",
+      "color": "#3cc8e4",
+      "name": "N_HOME to N_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 108
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-s-exit-11",
+      "color": "#3cc8e4",
+      "name": "N_EXIT to S_EXIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 34
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-s-home-12",
+      "color": "#3cc8e4",
+      "name": "S_EXIT to S_HOME",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 10
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
       }
     }
   ],
@@ -160,11 +320,11 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-n-home-1"
+      "lineId": "to-s-exit-1"
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-2"
+      "lineId": "to-n-exit-2"
     },
     {
       "kind": "path",
@@ -172,7 +332,39 @@
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-4"
+      "lineId": "to-n-exit-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-exit-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-home-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-exit-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-n-exit-8"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-n-home-9"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-n-exit-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-exit-11"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-home-12"
     }
   ],
   "settings": {
@@ -238,21 +430,39 @@
         90
       ],
       "S_HOME": [
-        59,
+        57.5,
         10,
         90
       ],
       "N_HOME": [
-        59,
+        57.5,
         131.75,
         270
+      ],
+      "S_EXIT": [
+        57.5,
+        34,
+        90
+      ],
+      "N_EXIT": [
+        57.5,
+        108,
+        90
       ]
     },
     "pathEnds": {
-      "to-n-home-1": "N_HOME",
-      "to-s-home-2": "S_HOME",
+      "to-s-exit-1": "S_EXIT",
+      "to-n-exit-2": "N_EXIT",
       "to-n-home-3": "N_HOME",
-      "to-s-home-4": "S_HOME"
+      "to-n-exit-4": "N_EXIT",
+      "to-s-exit-5": "S_EXIT",
+      "to-s-home-6": "S_HOME",
+      "to-s-exit-7": "S_EXIT",
+      "to-n-exit-8": "N_EXIT",
+      "to-n-home-9": "N_HOME",
+      "to-n-exit-10": "N_EXIT",
+      "to-s-exit-11": "S_EXIT",
+      "to-s-home-12": "S_HOME"
     },
     "startAt": "START",
     "cards": [
@@ -308,11 +518,23 @@
       {
         "id": "p-6",
         "kind": "path",
-        "lineId": "to-n-home-1",
+        "lineId": "to-s-exit-1",
         "park": false
       },
       {
-        "id": "w-7",
+        "id": "p-7",
+        "kind": "path",
+        "lineId": "to-n-exit-2",
+        "park": false
+      },
+      {
+        "id": "p-8",
+        "kind": "path",
+        "lineId": "to-n-home-3",
+        "park": false
+      },
+      {
+        "id": "w-9",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -330,7 +552,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-8",
+        "id": "w-10",
         "kind": "firstOf",
         "label": "Until it tips (1)",
         "rows": [
@@ -347,7 +569,7 @@
         ]
       },
       {
-        "id": "w-9",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -364,13 +586,25 @@
         ]
       },
       {
-        "id": "p-10",
+        "id": "p-12",
         "kind": "path",
-        "lineId": "to-s-home-2",
+        "lineId": "to-n-exit-4",
         "park": false
       },
       {
-        "id": "w-11",
+        "id": "p-13",
+        "kind": "path",
+        "lineId": "to-s-exit-5",
+        "park": false
+      },
+      {
+        "id": "p-14",
+        "kind": "path",
+        "lineId": "to-s-home-6",
+        "park": false
+      },
+      {
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -388,7 +622,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-12",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Until it tips (2)",
         "rows": [
@@ -405,7 +639,7 @@
         ]
       },
       {
-        "id": "w-13",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -422,13 +656,25 @@
         ]
       },
       {
-        "id": "p-14",
+        "id": "p-18",
         "kind": "path",
-        "lineId": "to-n-home-3",
+        "lineId": "to-s-exit-7",
         "park": false
       },
       {
-        "id": "w-15",
+        "id": "p-19",
+        "kind": "path",
+        "lineId": "to-n-exit-8",
+        "park": false
+      },
+      {
+        "id": "p-20",
+        "kind": "path",
+        "lineId": "to-n-home-9",
+        "park": false
+      },
+      {
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -446,7 +692,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-16",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Until it tips (3)",
         "rows": [
@@ -463,7 +709,7 @@
         ]
       },
       {
-        "id": "w-17",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -480,13 +726,25 @@
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-24",
         "kind": "path",
-        "lineId": "to-s-home-4",
+        "lineId": "to-n-exit-10",
         "park": false
       },
       {
-        "id": "w-19",
+        "id": "p-25",
+        "kind": "path",
+        "lineId": "to-s-exit-11",
+        "park": false
+      },
+      {
+        "id": "p-26",
+        "kind": "path",
+        "lineId": "to-s-home-12",
+        "park": false
+      },
+      {
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -504,7 +762,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-20",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Until it tips (4)",
         "rows": [
@@ -521,7 +779,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [

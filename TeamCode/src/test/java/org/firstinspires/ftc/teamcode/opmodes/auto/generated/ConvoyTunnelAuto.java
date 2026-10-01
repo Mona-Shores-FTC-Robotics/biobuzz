@@ -42,20 +42,24 @@ public final class ConvoyTunnelAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
-        Pose sHome = p.of(59, 10, 90);
-        Pose nHome = p.of(59, 131.75, 270);
-
-        // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToNHome = p.of(59, 131.75, 90);
-        Pose nHomeToSHome = p.of(59, 10, 270);
-        Pose sHomeToNHome = p.of(59, 131.75, 90);
-        Pose nHomeToSHome_2 = p.of(59, 10, 270);
+        Pose sHome = p.of(57.5, 10, 90);
+        Pose nHome = p.of(57.5, 131.75, 270);
+        Pose sExit = p.of(57.5, 34, 90);
+        Pose nExit = p.of(57.5, 108, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToNHomePath = Paths.line(start, startToNHome).constant(startToNHome);
-        Path nHomeToSHomePath = Paths.line(startToNHome, nHomeToSHome).constant(nHomeToSHome);
-        Path sHomeToNHomePath = Paths.line(nHomeToSHome, sHomeToNHome).constant(sHomeToNHome);
-        Path nHomeToSHomePath2 = Paths.line(sHomeToNHome, nHomeToSHome_2).constant(nHomeToSHome_2);
+        Path startToSExit = Paths.line(start, sExit).linear(start, sExit);
+        Path sExitToNExit = Paths.line(sExit, nExit).constant(nExit);
+        Path nExitToNHome = Paths.line(nExit, nHome).linear(nExit, nHome);
+        Path nHomeToNExit = Paths.line(nHome, nExit).linear(nHome, nExit);
+        Path nExitToSExit = Paths.line(nExit, sExit).constant(sExit);
+        Path sExitToSHome = Paths.line(sExit, sHome).linear(sExit, sHome);
+        Path sHomeToSExit = Paths.line(sHome, sExit).linear(sHome, sExit);
+        Path sExitToNExitPath = Paths.line(sExit, nExit).constant(nExit);
+        Path nExitToNHomePath = Paths.line(nExit, nHome).linear(nExit, nHome);
+        Path nHomeToNExitPath = Paths.line(nHome, nExit).linear(nHome, nExit);
+        Path nExitToSExitPath = Paths.line(nExit, sExit).constant(sExit);
+        Path sExitToSHomePath = Paths.line(sExit, sHome).linear(sExit, sHome);
 
         return kit.sequence(
                 kit.command("LaunchOne"),
@@ -67,7 +71,9 @@ public final class ConvoyTunnelAuto {
                 kit.firstOf("Catch the spill",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
-                kit.path("START to N_HOME", startToNHomePath),
+                kit.path("START to S_EXIT", startToSExit),
+                kit.path("S_EXIT to N_EXIT", sExitToNExit),
+                kit.path("N_EXIT to N_HOME", nExitToNHome),
                 kit.firstOf("Fire (1)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
@@ -77,7 +83,9 @@ public final class ConvoyTunnelAuto {
                 kit.firstOf("Catch the spill (1)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
-                kit.path("N_HOME to S_HOME", nHomeToSHomePath),
+                kit.path("N_HOME to N_EXIT", nHomeToNExit),
+                kit.path("N_EXIT to S_EXIT", nExitToSExit),
+                kit.path("S_EXIT to S_HOME", sExitToSHome),
                 kit.firstOf("Fire (2)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
@@ -87,7 +95,9 @@ public final class ConvoyTunnelAuto {
                 kit.firstOf("Catch the spill (2)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
-                kit.path("S_HOME to N_HOME", sHomeToNHomePath),
+                kit.path("S_HOME to S_EXIT", sHomeToSExit),
+                kit.path("S_EXIT to N_EXIT", sExitToNExitPath),
+                kit.path("N_EXIT to N_HOME", nExitToNHomePath),
                 kit.firstOf("Fire (3)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
@@ -97,7 +107,9 @@ public final class ConvoyTunnelAuto {
                 kit.firstOf("Catch the spill (3)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
-                kit.path("N_HOME to S_HOME", nHomeToSHomePath2),
+                kit.path("N_HOME to N_EXIT", nHomeToNExitPath),
+                kit.path("N_EXIT to S_EXIT", nExitToSExitPath),
+                kit.path("S_EXIT to S_HOME", sExitToSHomePath),
                 kit.firstOf("Fire (4)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),

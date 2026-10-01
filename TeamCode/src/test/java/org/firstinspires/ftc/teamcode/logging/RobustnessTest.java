@@ -39,6 +39,7 @@ public class RobustnessTest {
                 "two spring hoods, 24 in catcher"}) {
             m.put("duo-lz | " + design, new String[] {"DuoLzSouthAuto,DuoLzNorthAuto@50", design});
             m.put("lean | " + design, new String[] {"LeanSouthAuto,LeanNorthAuto@50", design});
+            m.put("lean-opp | " + design, new String[] {"LeanOppSouthAuto,LeanOppNorthAuto@50", design});
         }
         m.put("three-tip-adaptive | spring hood", new String[] {"ThreeTipAdaptiveAuto@50", "spring hood"});
         m.put("three-tip-adaptive | two spring hoods, 24 in catcher", new String[] {"ThreeTipAdaptiveAuto@50", "two spring hoods, 24 in catcher"});

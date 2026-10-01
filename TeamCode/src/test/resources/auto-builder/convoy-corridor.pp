@@ -16,14 +16,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 12
+        "x": 32,
+        "y": 14
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 70
+        "endDeg": 60
       }
     },
     {
@@ -36,8 +36,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 129
+        "x": 32,
+        "y": 128
       },
       "controlPoints": [
         {
@@ -51,8 +51,8 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 70,
-        "endDeg": 290
+        "startDeg": 60,
+        "endDeg": 300
       }
     },
     {
@@ -65,8 +65,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 12
+        "x": 32,
+        "y": 14
       },
       "controlPoints": [
         {
@@ -80,8 +80,8 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 290,
-        "endDeg": 70
+        "startDeg": 300,
+        "endDeg": 60
       }
     },
     {
@@ -94,8 +94,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 129
+        "x": 32,
+        "y": 128
       },
       "controlPoints": [
         {
@@ -109,8 +109,8 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 70,
-        "endDeg": 290
+        "startDeg": 60,
+        "endDeg": 300
       }
     },
     {
@@ -123,8 +123,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 12
+        "x": 32,
+        "y": 14
       },
       "controlPoints": [
         {
@@ -138,8 +138,8 @@
       ],
       "heading": {
         "type": "linear",
-        "startDeg": 290,
-        "endDeg": 70
+        "startDeg": 300,
+        "endDeg": 60
       }
     }
   ],
@@ -300,14 +300,14 @@
         90
       ],
       "S_SIDE": [
-        38,
-        12,
-        70
+        32,
+        14,
+        60
       ],
       "N_SIDE": [
-        38,
-        129,
-        290
+        32,
+        128,
+        300
       ]
     },
     "pathEnds": {

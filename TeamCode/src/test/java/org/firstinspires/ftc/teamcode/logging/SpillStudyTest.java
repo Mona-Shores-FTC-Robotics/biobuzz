@@ -36,6 +36,15 @@ public class SpillStudyTest {
     @Test
     public void spills() throws Exception {
         if (System.getenv("BIOBUZZ_SPILL_STUDY") == null) return;
+        // BIOBUZZ_SPILL_PHYSICS=friction,bounce,spread,swing scales the placeholders (RobustnessTest's knobs)
+        String phys = System.getenv("BIOBUZZ_SPILL_PHYSICS");
+        if (phys != null) {
+            String[] k = phys.split(",");
+            FieldSim.frictionScale = Double.parseDouble(k[0]);
+            FieldSim.bounceScale = Double.parseDouble(k[1]);
+            FieldSim.spreadScale = Double.parseDouble(k[2]);
+            FieldSim.swingScale = Double.parseDouble(k[3]);
+        }
         List<Track> all = new ArrayList<>();
         for (long seed = 1; seed <= 10; seed++) {
             Map<FieldSim.Piece, Track> live = new HashMap<>();
@@ -90,6 +99,15 @@ public class SpillStudyTest {
             }
             System.out.printf(Locale.ROOT, "SPILL %s CELL: %d pieces, %d landed, first touch %.2f s after the TIP starts%n",
                     north ? "north" : "south", n, landed, landed == 0 ? 0 : t / landed);
+            List<Double> times = new ArrayList<>(), xs = new ArrayList<>(), ys = new ArrayList<>();
+            for (Track k : all) {
+                if (k.north != north || Double.isNaN(k.landedAt)) continue;
+                times.add(k.landedAt);
+                xs.add(k.landX);
+                ys.add(k.landY);
+            }
+            System.out.printf(Locale.ROOT, "SPILL   first touch (s after 5 deg): %s; x %s; y %s%n",
+                    pct(times, "%.2f"), pct(xs, "%.0f"), pct(ys, "%.0f"));
             print("SPILL   where they land", land);
             print("SPILL   where they are 2 s later", rest);
             int[][] fine = new int[12][10];
@@ -106,6 +124,17 @@ public class SpillStudyTest {
                 System.out.println(line);
             }
         }
+        FieldSim.frictionScale = FieldSim.bounceScale = FieldSim.spreadScale = FieldSim.swingScale = 1;
+    }
+
+    /** 10th, 50th and 90th percentile, and the range. */
+    static String pct(List<Double> v, String f) {
+        if (v.isEmpty()) return "-";
+        List<Double> s = new ArrayList<>(v);
+        java.util.Collections.sort(s);
+        java.util.function.IntFunction<String> at = q -> String.format(Locale.ROOT, f, s.get(Math.min(s.size() - 1, q * s.size() / 100)));
+        return "p10 " + at.apply(10) + " p50 " + at.apply(50) + " p90 " + at.apply(90)
+                + " (" + String.format(Locale.ROOT, f, s.get(0)) + ".." + String.format(Locale.ROOT, f, s.get(s.size() - 1)) + ")";
     }
 
     /** 12 rows of 12 in (y 0..144) by 8 columns of 12 in (x 0..96). */
