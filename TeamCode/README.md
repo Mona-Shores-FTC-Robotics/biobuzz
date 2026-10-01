@@ -1432,11 +1432,39 @@ Rules the routes and designs lean on, from the Competition Manual:
 
 `AutoSim.alsoRun` puts the alliance's second robot on the same field, running its own exported
 Auto at the same time. `AllianceAutoTest` runs the pair below and writes
-`TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog`. In AdvantageScope's 3D field, add
-`/Odometry/Robot3d` and `/Odometry/Partner3d` as two robots. The Console has both Autos' decisions
+`TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog`. The Console has both Autos' decisions
 (`auto:` and `auto2:`), and the run says if the robots ever overlap or one reaches into the other
 alliance's half (G402). Both are judged for LEAVE (off the wall) and AUTO PARK (partly in the
-LOADING ZONE) when AUTO ends (§10.5.4).
+LOADING ZONE) when AUTO ends (§10.5.4). A partner that stands still (`AutoSim.partner`) is logged as
+a robot too.
+
+**Seeing both robots in AdvantageScope.** Every log with more than one robot uses the same keys
+(`logging/FieldRobot`), and its Metadata tab says which robot is which:
+
+| Robot | Pose (3D field) | Path being driven | Mechanisms |
+|---|---|---|---|
+| Ours | `/Odometry/Robot3d` | `/Path/Active` | at the root (`/Intake/On`) |
+| Our partner | `/Odometry/Partner3d` | `/Path/Partner` | under `/Partner` |
+| The other alliance's | `/Odometry/OpponentA3d`, `/Odometry/OpponentB3d` | `/Path/OpponentA` | under `/OpponentA` |
+| All of them | `/Odometry/AllRobots3d` (one array) | | |
+
+On the 3D Field tab, drag `/Odometry/AllRobots3d` onto the field as a Robot: every robot appears at
+once. To tell them apart, drag `/Odometry/Robot3d` as a Robot and `/Odometry/Partner3d` as a Ghost
+(pick its colour). On the 2D Field tab, `/Odometry/AllRobots` does the same. Save that as a layout
+once and every duo log opens the same way.
+
+**Two `.pp` files as one log, without the simulation.** A text file in
+`src/test/resources/pedro-paths/together/` names `.pp` files (relative to `src/test/resources/`) that
+run at the same time: our robot first, then our partner, then up to two opponents. Each robot drives
+its own paths, as the Visualizer times them, from the moment AUTO starts.
+
+```
+./gradlew :TeamCode:testDebugUnitTest --tests '*VisualizerPathLogTest*'
+```
+
+writes `TeamCode/build/sim-logs/pedro-paths/together/<name>.wpilog`. This shows where two Autos'
+robots are at each moment (do they cross?), not what the HIVE does: a wait for a trigger is drawn as
+the Visualizer times it. `AutoSim` is the one that answers whether the plan works.
 
 **duo-south + duo-north** (`src/test/resources/auto-builder/duo-*.pp`) split the HIVE between them:
 

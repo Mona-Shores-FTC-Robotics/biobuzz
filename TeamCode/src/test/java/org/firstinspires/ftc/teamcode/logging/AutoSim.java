@@ -42,7 +42,9 @@ import java.util.Locale;
  *       true once the alliance's HIVE has started to tip since the wait began, as the robot's
  *       {@code HiveTracker} reports it, but from the simulation's truth rather than a camera.</li>
  *   <li><b>The other robot</b> ({@link #alsoRun}): an alliance's second robot can run its own Auto on
- *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d}. Both are
+ *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d} and both
+ *       robots together as {@link FieldRobot#ALL_3D}. A partner that stands still
+ *       ({@link #partner}) is logged the same way. Both are
  *       judged for LEAVE and AUTO PARK when AUTO ends (§10.5.4), and the run notes it if they ever
  *       overlap or one reaches into the other alliance's half (G402).</li>
  * </ul>
@@ -310,10 +312,23 @@ public final class AutoSim {
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
+        // Every robot on the field, in FieldRobot slot order: the ones running Autos, then a
+        // partner that stands still. Logged together each loop so AdvantageScope can show them all.
+        if (partnerPose != null && bots.size() > 1) {
+            throw new IllegalStateException("an alliance has two robots: a standing partner and two Autos is three");
+        }
+        int robots = bots.size() + (partnerPose != null ? 1 : 0);
+        double[] allRobots = new double[3 * robots];
+        String[] what = new String[robots];
+        for (Bot b : bots) what[b.index] = name(b.autoClass);
         if (partnerPose != null) {
             double[][] spots = new double[partnerSpots.length][];
             for (int i = 0; i < spots.length; i++) spots[i] = forAlliance(partnerSpots[i], red);
-            sim.stagePartner(alliance, forAlliance(partnerPose, red), spots);
+            double[] standing = forAlliance(partnerPose, red);
+            sim.stagePartner(alliance, standing, spots);
+            System.arraycopy(standing, 0, allRobots, 3 * bots.size(), 3);
+            what[bots.size()] = "stands still";
+            FieldRobot.slot(bots.size()).putPose(log, standing[0], standing[1], standing[2], 0);
         }
 
         log.putMetadata("Generator", "AutoSim (TeamCode test sources)");
@@ -321,6 +336,7 @@ public final class AutoSim {
         log.putMetadata("Note", "Simulated robot: Pedro paths on a trapezoid profile, intake on whenever there"
                 + " is room, launches aimed at the raised CELL");
         FieldSimLog.putMetadata(log, calibration);
+        FieldRobot.putViewingHint(log, robots, what);
         log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(red, 1), 0);
         FieldSimLog.putHiveStructure(log);
 
@@ -350,6 +366,10 @@ public final class AutoSim {
             for (Bot b : bots) b.afterScheduler(log, result.robots.get(b.index), running, us);
             for (Bot b : bots) b.launcher(log, result, us);
             for (Bot b : bots) b.move(log, result.robots.get(b.index), running, step, us);
+            if (robots > 1) {
+                for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
+                FieldRobot.putAll(log, allRobots, us);
+            }
             if (bots.size() > 1 && Double.isNaN(result.robotsCollidedAt) && overlap(bots.get(0), bots.get(1))) {
                 result.robotsCollidedAt = now;
                 log.putEvent("ROBOTS COLLIDE: the two paths cross at the same time", us);
@@ -427,6 +447,8 @@ public final class AutoSim {
         FieldSim.Bot body;
         Command auto;
         final List<String> pending = new ArrayList<>();
+        /** Which robot this is in the log: its keys. */
+        final FieldRobot robot;
         String keyPrefix;
         double[] prev;
         Path lastPath;
@@ -441,13 +463,14 @@ public final class AutoSim {
         Bot(Class<?> autoClass, int index) {
             this.autoClass = autoClass;
             this.index = index;
+            this.robot = FieldRobot.slot(index);
         }
 
         void start(WpiLog log, RobotResult result) throws IOException {
             body = index == 0 ? sim.main : sim.addBot();
             body.design = design;
             sim.preload(body, alliance);
-            keyPrefix = index == 0 ? "" : "/Partner";
+            keyPrefix = robot.prefix;
             String drawnFor;
             String[] commands;
             String[] triggers;
@@ -567,13 +590,10 @@ public final class AutoSim {
                 }
             }
 
-            String odometry = index == 0 ? "/Odometry/Robot" : "/Odometry/Partner";
-            SimulatedMatch.putPedroPose(log, odometry, pose, us);
-            log.putPose3dFlat(odometry + "3d", AdvantageScopeFrame.xMeters(pose[0], pose[1]),
-                    AdvantageScopeFrame.yMeters(pose[0], pose[1]), 0.0, AdvantageScopeFrame.headingRad(pose[2]), us);
+            robot.putPose(log, pose[0], pose[1], pose[2], us);
             if (drive.current != lastPath) {
                 lastPath = drive.current;
-                log.putPose2dArray(index == 0 ? "/Path/Active" : "/Path/Partner",
+                log.putPose2dArray(robot.activePath,
                         lastPath == null ? new double[0] : packed(lastPath), us);
             }
             log.put(keyPrefix + "/Launcher/Spinning", spinning, us);
