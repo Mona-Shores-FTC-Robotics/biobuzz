@@ -357,6 +357,35 @@
         "type": "constant",
         "degrees": 90
       }
+    },
+    {
+      "id": "to-park-r-13",
+      "color": "#3cc8e4",
+      "name": "HOME_R to PARK_R",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 14,
+        "y": 90
+      },
+      "controlPoints": [
+        {
+          "x": 24,
+          "y": 14
+        },
+        {
+          "x": 18,
+          "y": 50
+        }
+      ],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 90
+      }
     }
   ],
   "shapes": [
@@ -481,6 +510,10 @@
     {
       "kind": "path",
       "lineId": "to-home-r-12"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-r-13"
     }
   ],
   "settings": {
@@ -557,6 +590,11 @@
         8.5,
         11,
         270
+      ],
+      "PARK_R": [
+        14,
+        90,
+        90
       ]
     },
     "pathEnds": {
@@ -571,7 +609,8 @@
       "to-home-r-9": "HOME_R",
       "to-garden-in-10": "GARDEN_IN",
       "to-garden-11": "GARDEN",
-      "to-home-r-12": "HOME_R"
+      "to-home-r-12": "HOME_R",
+      "to-park-r-13": "PARK_R"
     },
     "startAt": "START",
     "cards": [
@@ -1440,6 +1479,12 @@
             "cards": []
           }
         ]
+      },
+      {
+        "id": "p-68",
+        "kind": "path",
+        "lineId": "to-park-r-13",
+        "park": true
       }
     ]
   },
