@@ -107,6 +107,28 @@ public class WpiLogTest {
                 r.entry("/Odometry/Robot3d").records.get(0).asDoubles(), 1e-12);
     }
 
+    /** Game pieces and HIVE components: whole Pose3d values, any rotation, back to back. */
+    @Test
+    public void pose3dArrayCarriesFullRotations() throws IOException {
+        WpiLog log = newLog();
+        double h = Math.sqrt(0.5);
+        double[] poses = {1, 2, 3, h, 0, h, 0, -1, -2, 0.5, 1, 0, 0, 0};
+        log.putPose3dArray("/Sim/GamePieces/Pollen", poses, 0);
+        log.putPose3dArray("/Sim/GamePieces/Pollen", new double[0], 1);
+
+        WpiLogReader r = new WpiLogReader(out.toByteArray());
+        WpiLogReader.Entry e = r.entry("/Sim/GamePieces/Pollen");
+        assertEquals("struct:Pose3d[]", e.type);
+        assertArrayEquals(poses, e.records.get(0).asDoubles(), 0.0);
+        assertEquals(0, e.records.get(1).asDoubles().length);
+        try {
+            log.putPose3dArray("/Sim/Bad", new double[] {1, 2, 3}, 2);
+            fail("a pose array must be whole poses");
+        } catch (IllegalArgumentException expected) {
+            // good
+        }
+    }
+
     /**
      * AdvantageScope keeps one value per timestamp, so two events in one loop must not share a
      * timestamp or the first one disappears. Found by loading the simulated match with

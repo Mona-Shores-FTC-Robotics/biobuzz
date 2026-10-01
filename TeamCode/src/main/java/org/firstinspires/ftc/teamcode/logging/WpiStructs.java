@@ -87,6 +87,22 @@ public final class WpiStructs {
         return putDouble(dst, at, Math.sin(yawRad / 2.0));
     }
 
+    /**
+     * Packs a Pose3d with any orientation: a translation and a unit quaternion {@code (w, x, y, z)}.
+     * A game piece in flight or a HIVE rocker mid-tip needs this; a drivetrain needs only
+     * {@link #packPose3dFlat}.
+     */
+    public static int packPose3d(byte[] dst, int at, double xMeters, double yMeters, double zMeters,
+                                 double qw, double qx, double qy, double qz) {
+        at = putDouble(dst, at, xMeters);
+        at = putDouble(dst, at, yMeters);
+        at = putDouble(dst, at, zMeters);
+        at = putDouble(dst, at, qw);
+        at = putDouble(dst, at, qx);
+        at = putDouble(dst, at, qy);
+        return putDouble(dst, at, qz);
+    }
+
     static int putDouble(byte[] dst, int at, double value) {
         long bits = Double.doubleToLongBits(value);
         for (int i = 0; i < 8; i++) dst[at + i] = (byte) (bits >>> (8 * i));

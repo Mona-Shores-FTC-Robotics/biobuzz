@@ -9,6 +9,7 @@ import org.junit.Test;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 /**
  * Writes the two desk-check logs and checks they hold what AdvantageScope needs.
@@ -62,12 +63,57 @@ public class SimulatedMatchLogTest {
         assertTrue(sawLoopDanger);
         assertTrue(sawLaunch);
 
-        // Every pose stays on the field (±70.75 in from centre, with a little bow allowance).
+        // Every pose stays on the field (±70.75 in from centre, with a little drift allowance).
         double limit = 76 * AdvantageScopeFrame.METERS_PER_INCH;
         for (WpiLogReader.Record p : r.entry("/Odometry/Robot").records) {
             double[] v = p.asDoubles();
             assertTrue("x off field: " + v[0], Math.abs(v[0]) < limit);
             assertTrue("y off field: " + v[1], Math.abs(v[1]) < limit);
+        }
+    }
+
+    /** The game pieces and the HIVE are in the log, in the shapes the 3D field draws. */
+    @Test
+    public void simulatedMatchMovesTheGamePiecesAndTipsTheHive() throws IOException {
+        File file = new File(dir(), "sim-match.wpilog");
+        new SimulatedMatch(3572L).write(file);
+        WpiLogReader r = new WpiLogReader(Files.readAllBytes(file.toPath()));
+
+        WpiLogReader.Entry pollen = r.entry(SimulatedMatch.KEY_POLLEN);
+        WpiLogReader.Entry held = r.entry(SimulatedMatch.KEY_HELD_POLLEN);
+        assertEquals("struct:Pose3d[]", pollen.type);
+        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_RED_NECTAR).type);
+        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_BLUE_NECTAR).type);
+        assertEquals("every POLLEN is drawn at the start", 40 * 7, pollen.records.get(0).asDoubles().length);
+        assertTrue("pieces move", pollen.records.size() > 100);
+        assertTrue("the robot holds pieces", held.records.size() > 10);
+
+        // The HIVE: a fixed structure pose and two component poses, which move.
+        assertEquals("struct:Pose3d", r.entry(SimulatedMatch.KEY_HIVE).type);
+        WpiLogReader.Entry components = r.entry(SimulatedMatch.KEY_HIVE_COMPONENTS);
+        assertEquals(14, components.records.get(0).asDoubles().length);
+        assertTrue(components.records.size() > 10);
+        List<WpiLogReader.Record> tips = r.entry("/Sim/Hive/Red/Tips").records;
+        assertTrue("the red HIVE tips", tips.get(tips.size() - 1).asInt64() >= 2);
+        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_SHOT).type);
+
+        int scored = 0;
+        boolean tipped = false;
+        for (WpiLogReader.Record e : r.entry(AdvantageScopeKeys.EVENTS).records) {
+            scored += e.asString().startsWith("sim: score: ") ? 1 : 0;
+            tipped |= e.asString().startsWith("sim: RED HIVE tipped");
+        }
+        assertTrue("scored " + scored, scored >= 10);
+        assertTrue(tipped);
+
+        // Every piece stays on the field or where it started outside it, at or above the tiles.
+        double edge = (AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN + 8) * AdvantageScopeFrame.METERS_PER_INCH;
+        for (WpiLogReader.Record p : pollen.records) {
+            double[] v = p.asDoubles();
+            for (int i = 0; i < v.length; i += 7) {
+                assertTrue(Math.abs(v[i]) < edge && Math.abs(v[i + 1]) < edge);
+                assertTrue(v[i + 2] >= 0);
+            }
         }
     }
 

@@ -6,10 +6,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Just enough JSON to read a Pedro Visualizer {@code .pp} file in a JVM test. The SDK's
- * {@code org.json} is an Android stub that throws in unit tests, and adding a JSON library for one
- * test reader is not worth a dependency. Objects become {@link Map}, arrays {@link List}, numbers
- * {@link Double}.
+ * Just enough JSON to read a Pedro Visualizer {@code .pp} file, and to read and write the glTF and
+ * AdvantageScope configs {@link HiveAssets} edits, in a JVM test. The SDK's {@code org.json} is an
+ * Android stub that throws in unit tests, and adding a JSON library for test tooling is not worth
+ * a dependency. Objects become {@link Map}, arrays {@link List}, numbers {@link Double}.
  */
 final class MiniJson {
 
@@ -26,6 +26,78 @@ final class MiniJson {
         p.ws();
         if (p.i != p.s.length()) throw p.error("trailing characters");
         return v;
+    }
+
+    /**
+     * Writes what {@link #parse} reads (maps, lists, strings, numbers, booleans, null), compactly.
+     * Whole numbers are written without a decimal point, so glTF indices stay integers.
+     */
+    static String write(Object value) {
+        StringBuilder b = new StringBuilder();
+        write(value, b);
+        return b.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void write(Object v, StringBuilder b) {
+        if (v == null) {
+            b.append("null");
+        } else if (v instanceof Map) {
+            b.append('{');
+            boolean first = true;
+            for (Map.Entry<String, Object> e : ((Map<String, Object>) v).entrySet()) {
+                if (!first) b.append(',');
+                first = false;
+                writeString(e.getKey(), b);
+                b.append(':');
+                write(e.getValue(), b);
+            }
+            b.append('}');
+        } else if (v instanceof List) {
+            b.append('[');
+            boolean first = true;
+            for (Object o : (List<Object>) v) {
+                if (!first) b.append(',');
+                first = false;
+                write(o, b);
+            }
+            b.append(']');
+        } else if (v instanceof String) {
+            writeString((String) v, b);
+        } else if (v instanceof Boolean) {
+            b.append(v.toString());
+        } else if (v instanceof Number) {
+            double d = ((Number) v).doubleValue();
+            if (Double.isNaN(d) || Double.isInfinite(d)) throw new IllegalArgumentException("JSON has no " + d);
+            if (d == Math.rint(d) && Math.abs(d) < 1e15) {
+                b.append((long) d);
+            } else {
+                b.append(d);
+            }
+        } else {
+            throw new IllegalArgumentException("cannot write " + v.getClass());
+        }
+    }
+
+    private static void writeString(String s, StringBuilder b) {
+        b.append('"');
+        for (int k = 0; k < s.length(); k++) {
+            char c = s.charAt(k);
+            switch (c) {
+                case '"': b.append("\\\""); break;
+                case '\\': b.append("\\\\"); break;
+                case '\n': b.append("\\n"); break;
+                case '\r': b.append("\\r"); break;
+                case '\t': b.append("\\t"); break;
+                default:
+                    if (c < 0x20) {
+                        b.append(String.format("\\u%04x", (int) c));
+                    } else {
+                        b.append(c);
+                    }
+            }
+        }
+        b.append('"');
     }
 
     private Object value() {

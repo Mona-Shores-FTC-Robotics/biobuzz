@@ -1194,6 +1194,73 @@ including ones recorded before you installed it. Worth knowing for
 characterization — nobody reads a spin-up curve well while three wheels are
 spinning next to them.
 
+### Game pieces and the HIVE in a simulated `.wpilog`
+
+The desk-check log `SimulatedMatchLogTest` writes (`TeamCode/build/sim-logs/sim-match.wpilog`,
+from the #112 logging work) also simulates the game (#140). Every POLLEN and NECTAR moves under
+physics: launched in arcs, bouncing off tiles, walls, the robot and each other, and rolling to the
+back of a raised CELL. Both HIVE rockers tip when enough pieces land in their raised CELL, and the
+CELL that goes down spills what is in it. The simulated robot picks up real pieces, shoots into its
+raised CELL, and drives round to the other side when the HIVE tips. It runs in the test sources
+only and never on a robot, so it costs no loop time. Open it in desktop AdvantageScope **27.0.0-alpha-6
+or later**.
+
+**Where it comes from.** The approach is FuelSim's (FRC Team 5000, MIT licence), as Wavelength 3572
+used it in FRC 2026 (`wavelength3572/Robot-2026`, `util/FuelSim`): point-mass spheres, gravity,
+restitution and friction in fixed sub-steps, the robot as a moving box and the intake as a capture
+zone. The HIVE is ours. Each rocker is two open-ended boxes on an axle, built from `HiveGeometry`
+(the Competition Manual) and checked against AdvantageScope's field CAD; they agree to about 0.1 in,
+and the CAD's axle bearings sit exactly at the manual's 43.95 in. The code is `FieldSim`
+(physics), `SimDriver` (the robot's choices) and `SimulatedMatch` (the log).
+
+**What is a guess.** Masses, bounciness, friction, how much it takes to tip a HIVE and how fast it
+swings are not published. They are the `PLACEHOLDER_` constants at the top of `FieldSim`, picked so
+it looks like the game. With them, the three NECTAR that start in each raised CELL do not tip it,
+and about three more POLLEN do. Replace them with measurements from a real field.
+
+**One-time setup: the HIVE assets.** AdvantageScope fields have no moving parts, but robots can
+have articulated components (docs: *Custom Assets → Articulated Components*). So the HIVE is drawn
+as a "robot" whose base is the frame and whose two components are the red and blue rockers,
+standing on a copy of the field with those three parts removed. `HiveAssets` cuts both out of the
+stock field AdvantageScope already downloaded. No FIRST CAD is committed.
+
+1. Find the stock field: in AdvantageScope's settings folder, open `autoAssets` and find the
+   `Field3d_…` folder whose `config.json` says `"name": "2026-2027 Field"`. **Show Assets
+   Folder** in the app menu (**AdvantageScope** on a Mac, **App** elsewhere) opens the
+   `userAssets` folder next to it.
+2. Build:
+   ```
+   BIOBUZZ_FIELD3D=/path/to/that/Field3d_folder ./gradlew :TeamCode:testDebugUnitTest --tests '*HiveAssetsTest*'
+   ```
+   It writes `TeamCode/build/advantagescope/Field3d_BIOBUZZHiveSim` and `Robot_BIOBUZZHive`.
+3. Copy both folders into `userAssets` and restart AdvantageScope. A field called
+   **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
+
+**Opening the log** (a 3D Field tab):
+
+| Drag this key | As |
+|---|---|
+| *(field dropdown)* | **2026-2027 Field (HIVE sim)** |
+| `/Odometry/Robot3d` | Robot |
+| `/Sim/Hive/Structure` | Robot, model **BIOBUZZ HIVE** |
+| `/Sim/Hive/Components` | onto that robot, as **Component** |
+| `/Sim/GamePieces/Pollen`, `/Sim/GamePieces/Held/Pollen` | Game Piece, **Pollen** |
+| `/Sim/GamePieces/RedNectar`, `…/Held/RedNectar` | Game Piece, **Nectar (Red)** |
+| `/Sim/GamePieces/BlueNectar`, `…/Held/BlueNectar` | Game Piece, **Nectar (Blue)** |
+| `/Sim/Shot/Trajectory` | Trajectory |
+
+As soon as any game piece is shown, AdvantageScope hides the field's own staged pieces, so
+the logged ones replace them rather than doubling them. Without component poses the rockers are
+drawn as built, which is the match start. `/Sim/Hive/Red/State`, `…/Tips`, `…/AngleDeg` and
+`…/RaisedCellPieces` graph the same story, and every score, spill and tip is on the Console
+(`sim: …`).
+
+**Frames.** Everything is simulated in Pedro inches and converted only as it is logged, through
+`AdvantageScopeFrame`. A rocker's component pose is a turn about Center/Rotated's y axis (Pedro's
+x) through the axle point `(0, 0, 43.95 in)`. The field model's `(x, y, z)` lands at Center/Rotated
+`(z, x, y)`, and the asset builder bakes that into the robot models' root node so the robot config
+needs no rotations.
+
 ### Why the on-robot build is not here: it takes port 8080
 
 `page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is

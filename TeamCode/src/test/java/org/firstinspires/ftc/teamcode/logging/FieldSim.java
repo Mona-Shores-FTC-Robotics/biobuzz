@@ -1,0 +1,824 @@
+package org.firstinspires.ftc.teamcode.logging;
+
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveGeometry;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+/**
+ * POLLEN, NECTAR and the two HIVE rockers, simulated so a {@code .wpilog} shows them move the way
+ * they would: launched in arcs, bouncing off the tiles, walls, robot and each other, rolling to the
+ * back of a raised CELL, tipping the HIVE, and spilling out of the CELL that goes down.
+ *
+ * <p><b>Where it comes from.</b> The approach is FuelSim's (Team 5000 Hammerheads, MIT licence), as
+ * Wavelength 3572 used it in FRC 2026 ({@code wavelength3572/Robot-2026}, {@code util/FuelSim}):
+ * point-mass spheres, gravity, restitution and friction, fixed sub-steps, the robot as a moving box
+ * and the intake as a capture zone. What is BIOBUZZ's own is the HIVE: each rocker is two open-ended
+ * boxes on an axle, built from {@link HiveGeometry} (the Competition Manual) and checked against
+ * AdvantageScope's field CAD, and it tips because the pieces in it push it over.
+ *
+ * <p><b>Frame.</b> Pedro inches, seconds, z up from the tiles. Converted to AdvantageScope's frame
+ * only when poses are packed for the log ({@link #pieces}, {@link #hiveComponents}).
+ *
+ * <p><b>What is measured and what is not.</b> Sizes and the HIVE come from the manual and the CAD.
+ * Masses, restitution, friction, how much it takes to tip a HIVE and how fast it swings are not
+ * published; they are the {@code PLACEHOLDER_} constants below, chosen so the behaviour looks like
+ * the game, and they are the first thing to replace with numbers from a real field. Nothing here
+ * runs on a robot.
+ */
+final class FieldSim {
+
+    // ---- Measured -----------------------------------------------------------------------------
+
+    static final double GRAVITY_IN_PER_S2 = 386.09;
+    static final double FIELD_SIZE_IN = 2 * AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN;
+    static final double CENTRE_IN = AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN;
+
+    /** Half the width of AdvantageScope's POLLEN model ({@code model_0.glb}, ±0.0356 m). */
+    static final double POLLEN_RADIUS_IN = 1.40;
+    /** Half the width of AdvantageScope's NECTAR models ({@code model_1/2.glb}, ±0.046 m). */
+    static final double NECTAR_RADIUS_IN = 1.80;
+
+    /** A settled CELL's tilt, and so the rocker's end stops. */
+    static final double TILT_RAD = Math.toRadians(HiveGeometry.CELL_TILT_DEG);
+    static final double PIVOT_Z_IN = HiveGeometry.PIVOT_AXIS_HEIGHT_IN;
+    /** Along the rocker from the axle: a CELL's closed back and its open end. */
+    static final double CELL_BACK_IN = HiveGeometry.CELL_SPACING_IN / 2;
+    static final double CELL_OPENING_IN = CELL_BACK_IN + HiveGeometry.CELL_DEPTH_IN;
+    static final double CELL_HALF_WIDTH_IN = HiveGeometry.OPENING_WIDTH_IN / 2;
+    /**
+     * A CELL's floor, relative to the axle with the rocker level. Derived from the manual: the
+     * raised opening's bottom edge is {@link HiveGeometry#OPENING_BOTTOM_HEIGHT_IN} up. The CAD has
+     * it at −1.45 in; this gives −1.34.
+     */
+    static final double CELL_FLOOR_IN = (HiveGeometry.OPENING_BOTTOM_HEIGHT_IN - PIVOT_Z_IN
+            - CELL_OPENING_IN * Math.sin(TILT_RAD)) / Math.cos(TILT_RAD);
+    static final double CELL_ROOF_IN = CELL_FLOOR_IN + HiveGeometry.OPENING_HEIGHT_IN;
+    /** The red HIVE is on the low-x side (CAD); each is centred half the centre spacing out. */
+    static final double RED_HIVE_X_IN = CENTRE_IN - HiveGeometry.HIVE_CENTER_TO_CENTER_IN / 2;
+    static final double BLUE_HIVE_X_IN = CENTRE_IN + HiveGeometry.HIVE_CENTER_TO_CENTER_IN / 2;
+
+    /** The HIVE frame's two foot bars, which run along y at its sides (CAD: 2.2 in tall). */
+    static final double FOOT_BAR_HALF_SPAN_X_IN = HiveGeometry.FRAME_WIDTH_IN / 2;
+    static final double FOOT_BAR_HALF_LENGTH_IN = HiveGeometry.FRAME_DEPTH_IN / 2;
+    static final double FOOT_BAR_HALF_WIDTH_IN = 1.0;
+    static final double FOOT_BAR_HEIGHT_IN = 2.2;
+
+    /** An FTC robot's starting-size limit; the simulated robot is that box. */
+    static final double ROBOT_SIZE_IN = 18.0;
+
+    // ---- Placeholders: not published, replace with measurements -------------------------------
+
+    /** NECTAR's weight in POLLEN weights. */
+    static final double PLACEHOLDER_NECTAR_WEIGHT = 1.5;
+    /** What holds a settled HIVE: this many POLLEN at a raised CELL's centre just balance it. */
+    static final double PLACEHOLDER_HOLD_IN_POLLEN_AT_CELL_CENTRE = 5.0;
+    /** How fast the damped rocker swings when pushed by its whole holding torque, rad/s. */
+    static final double PLACEHOLDER_SWING_RAD_PER_S = 1.6;
+    static final double PLACEHOLDER_TILE_RESTITUTION = 0.35;
+    static final double PLACEHOLDER_WALL_RESTITUTION = 0.45;
+    static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
+    static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
+    static final double PLACEHOLDER_ROBOT_RESTITUTION = 0.1;
+    /** Fraction of sliding speed lost per second in contact with a surface. */
+    static final double PLACEHOLDER_CONTACT_FRICTION = 2.5;
+    /** Rolling resistance on foam tiles: a steady slowing, so a rolling piece stops, in/s². */
+    static final double PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 = 12.0;
+    /** Height of the simulated robot's body; pieces hit it below this. */
+    static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
+    static final int PLACEHOLDER_ROBOT_CAPACITY = 3;
+    static final double PLACEHOLDER_INTAKE_HALF_WIDTH_IN = 7.0;
+    /** Where a launched piece leaves the robot: forward of centre, and up. */
+    static final double PLACEHOLDER_EXIT_FORWARD_IN = 4.0;
+    /** Above the robot body ({@link #PLACEHOLDER_ROBOT_HEIGHT_IN}), so a launch clears its own robot. */
+    static final double PLACEHOLDER_EXIT_HEIGHT_IN = 17.0;
+    /** Shot-to-shot spread: speed as a fraction, and angle in radians, one sigma. */
+    static final double PLACEHOLDER_SPEED_SPREAD = 0.015;
+    static final double PLACEHOLDER_ANGLE_SPREAD_RAD = Math.toRadians(0.8);
+
+    static final int SUBSTEPS = 20;
+    /** Contacts slower than this do not bounce. */
+    static final double RESTING_IN_PER_S = 6.0;
+
+    // ---- State --------------------------------------------------------------------------------
+
+    enum Kind {
+        POLLEN(POLLEN_RADIUS_IN, 1.0),
+        RED_NECTAR(NECTAR_RADIUS_IN, PLACEHOLDER_NECTAR_WEIGHT),
+        BLUE_NECTAR(NECTAR_RADIUS_IN, PLACEHOLDER_NECTAR_WEIGHT);
+
+        final double radius;
+        final double weight;
+
+        Kind(double radius, double weight) {
+            this.radius = radius;
+            this.weight = weight;
+        }
+
+        static Kind of(String name) {
+            switch (name) {
+                case "Pollen": return POLLEN;
+                case "Red Nectar": return RED_NECTAR;
+                case "Blue Nectar": return BLUE_NECTAR;
+                default: throw new IllegalArgumentException("unknown piece " + name);
+            }
+        }
+    }
+
+    enum Where { FIELD, OUTSIDE, ROBOT }
+
+    static final class Piece {
+        final Kind kind;
+        Where where;
+        double x, y, z, vx, vy, vz;
+        /** Orientation (Pedro frame), so a rolling piece visibly rolls. */
+        double qw = 1, qx, qy, qz;
+        double wx, wy, wz;
+        /** Index into {@link #flowers} while it is still stacked in a Flower holder, else −1. */
+        int flower = -1;
+        /** The CELL it is in, or null. */
+        HiveCell cell;
+
+        Piece(Kind kind, Where where, double x, double y, double z) {
+            this.kind = kind;
+            this.where = where;
+            this.x = x;
+            this.y = y;
+            this.z = z;
+        }
+    }
+
+    /** One alliance's HIVE: a rocker on the shared axle, with a CELL at each end. */
+    static final class Rocker {
+        final Alliance alliance;
+        final double centreX;
+        /** About +x (Pedro); positive raises the high-y (SCORING) end. */
+        double angle;
+        double rate;
+        int tips;
+        private double tipFrom;
+
+        Rocker(Alliance alliance, double centreX) {
+            this.alliance = alliance;
+            this.centreX = centreX;
+            angle = builtAngle();
+            tipFrom = angle;
+        }
+
+        /** As the CAD has it, which is the match start: each alliance's RIGHT CELL up. */
+        double builtAngle() {
+            return angleFor(HiveState.RIGHT_CELL_UP);
+        }
+
+        /** The red RIGHT CELL is the AUDIENCE (low y) one, the blue one the SCORING one. */
+        double angleFor(HiveState state) {
+            boolean scoringUp = (alliance == Alliance.BLUE) == (state == HiveState.RIGHT_CELL_UP);
+            return scoringUp ? TILT_RAD : -TILT_RAD;
+        }
+
+        HiveState state() {
+            if (angle >= TILT_RAD - 1e-9) return alliance == Alliance.BLUE ? HiveState.RIGHT_CELL_UP : HiveState.LEFT_CELL_UP;
+            if (angle <= -TILT_RAD + 1e-9) return alliance == Alliance.BLUE ? HiveState.LEFT_CELL_UP : HiveState.RIGHT_CELL_UP;
+            return HiveState.TRANSITION;
+        }
+
+        /** The CELL at the high-y end ({@code end = +1}) or the low-y end ({@code −1}). */
+        HiveCell cell(int end) {
+            if (alliance == Alliance.RED) return end > 0 ? HiveCell.RED_SCORING : HiveCell.RED_AUDIENCE;
+            return end > 0 ? HiveCell.BLUE_SCORING : HiveCell.BLUE_AUDIENCE;
+        }
+
+        /** The end that is up now: +1, −1, or 0 mid-tip. */
+        int raisedEnd() {
+            HiveState s = state();
+            if (s == HiveState.TRANSITION) return 0;
+            return angle > 0 ? 1 : -1;
+        }
+
+        /** World (Pedro) → rocker frame {u across, v along, w up from the axle, rocker level}. */
+        double[] toLocal(double x, double y, double z) {
+            double dy = y - CENTRE_IN, dz = z - PIVOT_Z_IN;
+            double c = Math.cos(angle), s = Math.sin(angle);
+            return new double[] {x - centreX, dy * c + dz * s, -dy * s + dz * c};
+        }
+
+        double[] toWorld(double u, double v, double w) {
+            double c = Math.cos(angle), s = Math.sin(angle);
+            return new double[] {centreX + u, CENTRE_IN + v * c - w * s, PIVOT_Z_IN + v * s + w * c};
+        }
+
+        /** A rocker-frame direction in the world. */
+        double[] dirToWorld(double u, double v, double w) {
+            double c = Math.cos(angle), s = Math.sin(angle);
+            return new double[] {u, v * c - w * s, v * s + w * c};
+        }
+
+        /** Which end's CELL the local point is inside, or 0. */
+        static int cellAt(double[] local) {
+            double v = Math.abs(local[1]);
+            boolean inside = Math.abs(local[0]) < CELL_HALF_WIDTH_IN && v > CELL_BACK_IN && v < CELL_OPENING_IN
+                    && local[2] > CELL_FLOOR_IN && local[2] < CELL_ROOF_IN;
+            return inside ? (local[1] > 0 ? 1 : -1) : 0;
+        }
+
+        /** The middle of the raised CELL's opening, in the world, or null mid-tip. */
+        double[] openingCentre() {
+            int end = raisedEnd();
+            if (end == 0) return null;
+            return toWorld(0, end * CELL_OPENING_IN, (CELL_FLOOR_IN + CELL_ROOF_IN) / 2);
+        }
+
+        /** A point just inside the raised CELL, the best place to aim. */
+        double[] aimPoint() {
+            int end = raisedEnd();
+            if (end == 0) return null;
+            return toWorld(0, end * (CELL_OPENING_IN - 2.5), CELL_FLOOR_IN + 0.45 * HiveGeometry.OPENING_HEIGHT_IN);
+        }
+    }
+
+    final List<Piece> pieces = new ArrayList<>();
+    final List<double[]> flowers = new ArrayList<>();
+    final Rocker red = new Rocker(Alliance.RED, RED_HIVE_X_IN);
+    final Rocker blue = new Rocker(Alliance.BLUE, BLUE_HIVE_X_IN);
+    private final Rocker[] rockers = {red, blue};
+    private final Random random;
+    private final List<String> events = new ArrayList<>();
+
+    // The robot, as the caller last placed it.
+    private boolean robotPresent;
+    private double rx, ry, rh, rvx, rvy, rw;
+    private double prevRx, prevRy, prevRh;
+    private boolean intaking;
+    final List<Piece> stored = new ArrayList<>();
+
+    FieldSim(List<HiveAssets.StagedPiece> staged, long seed) {
+        random = new Random(seed);
+        for (HiveAssets.StagedPiece s : staged) {
+            Piece p = new Piece(Kind.of(s.kind), s.holder.equals("outside") ? Where.OUTSIDE : Where.FIELD, s.x, s.y, s.z);
+            if (s.holder.equals("flower")) p.flower = flowerIndex(s.x, s.y);
+            pieces.add(p);
+        }
+        for (Piece p : pieces) updateCell(p);
+        events.clear(); // the NECTAR that starts in each raised CELL was not scored
+    }
+
+    private int flowerIndex(double x, double y) {
+        for (int i = 0; i < flowers.size(); i++) {
+            if (Math.hypot(flowers.get(i)[0] - x, flowers.get(i)[1] - y) < 1.0) return i;
+        }
+        flowers.add(new double[] {x, y});
+        return flowers.size() - 1;
+    }
+
+    Rocker rocker(Alliance alliance) {
+        return alliance == Alliance.BLUE ? blue : red;
+    }
+
+    /** Messages since the last call: shots scored, tips, spills. */
+    List<String> drainEvents() {
+        List<String> out = new ArrayList<>(events);
+        events.clear();
+        return out;
+    }
+
+    /**
+     * Where the robot is this loop. The previous pose and this one are blended across the
+     * sub-steps, so a moving robot sweeps pieces instead of jumping over them.
+     */
+    void setRobot(double x, double y, double heading, double vx, double vy, double omega, boolean intake) {
+        if (!robotPresent) {
+            prevRx = x;
+            prevRy = y;
+            prevRh = heading;
+        } else {
+            prevRx = rx;
+            prevRy = ry;
+            prevRh = rh;
+        }
+        robotPresent = true;
+        rx = x;
+        ry = y;
+        rh = heading;
+        rvx = vx;
+        rvy = vy;
+        rw = omega;
+        intaking = intake;
+    }
+
+    // ---- Launching ----------------------------------------------------------------------------
+
+    /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
+    double[] launchVelocity(double[] from, double[] target) {
+        double dx = target[0] - from[0], dy = target[1] - from[1];
+        double d = Math.hypot(dx, dy), dz = target[2] - from[2];
+        if (d < 1e-6) return null;
+        // Steep enough to come down into the opening, not up into its lip.
+        double pitch = Math.min(Math.toRadians(78), Math.atan(2 * dz / d) + Math.toRadians(6));
+        pitch = Math.max(pitch, Math.toRadians(35));
+        double denominator = 2 * Math.cos(pitch) * Math.cos(pitch) * (d * Math.tan(pitch) - dz);
+        if (denominator <= 0) return null;
+        double speed = Math.sqrt(GRAVITY_IN_PER_S2 * d * d / denominator);
+        return new double[] {speed * Math.cos(pitch) * dx / d, speed * Math.cos(pitch) * dy / d, speed * Math.sin(pitch)};
+    }
+
+    /** Where a launched piece leaves the robot. */
+    double[] exitPoint() {
+        return new double[] {rx + PLACEHOLDER_EXIT_FORWARD_IN * Math.cos(rh),
+                ry + PLACEHOLDER_EXIT_FORWARD_IN * Math.sin(rh), PLACEHOLDER_EXIT_HEIGHT_IN};
+    }
+
+    /**
+     * Launches the robot's next stored piece at {@code target}, with a little shot-to-shot spread.
+     * Returns the launch velocity, or null if the robot is empty or the target is out of reach.
+     */
+    double[] launch(double[] target) {
+        if (stored.isEmpty()) return null;
+        double[] from = exitPoint();
+        double[] v = launchVelocity(from, target);
+        if (v == null) return null;
+        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * random.nextGaussian();
+        double yaw = PLACEHOLDER_ANGLE_SPREAD_RAD * random.nextGaussian();
+        double c = Math.cos(yaw), s = Math.sin(yaw);
+        double vx = (v[0] * c - v[1] * s) * speed + rvx;
+        double vy = (v[0] * s + v[1] * c) * speed + rvy;
+        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * random.nextGaussian());
+        Piece p = stored.remove(0);
+        p.where = Where.FIELD;
+        p.x = from[0];
+        p.y = from[1];
+        p.z = from[2];
+        p.vx = vx;
+        p.vy = vy;
+        p.vz = vz;
+        p.wx = 0;
+        p.wy = -12;
+        p.wz = 0;
+        return new double[] {vx, vy, vz};
+    }
+
+    /** The arc a piece launched with {@code v} from {@code from} follows until it comes down to {@code floorZ}. */
+    static List<double[]> arc(double[] from, double[] v, double floorZ, int points) {
+        double a = 0.5 * GRAVITY_IN_PER_S2;
+        double t = (v[2] + Math.sqrt(v[2] * v[2] + 4 * a * (from[2] - floorZ))) / (2 * a);
+        List<double[]> out = new ArrayList<>();
+        for (int i = 0; i <= points; i++) {
+            double s = t * i / points;
+            out.add(new double[] {from[0] + v[0] * s, from[1] + v[1] * s, from[2] + v[2] * s - a * s * s});
+        }
+        return out;
+    }
+
+    // ---- Stepping -----------------------------------------------------------------------------
+
+    /** Advances everything by {@code dt} seconds (one robot loop). */
+    void step(double dt) {
+        double h = dt / SUBSTEPS;
+        for (int k = 1; k <= SUBSTEPS; k++) {
+            double f = (double) k / SUBSTEPS;
+            double bx = prevRx + (rx - prevRx) * f;
+            double by = prevRy + (ry - prevRy) * f;
+            double bh = prevRh + AdvantageScopeFrame.wrap(rh - prevRh) * f;
+
+            for (Rocker r : rockers) stepRocker(r, h);
+            for (Piece p : pieces) {
+                if (p.where != Where.FIELD) continue;
+                p.vz -= GRAVITY_IN_PER_S2 * h;
+                p.x += p.vx * h;
+                p.y += p.vy * h;
+                p.z += p.vz * h;
+                integrateSpin(p, h);
+            }
+            collidePieces();
+            for (Piece p : pieces) {
+                if (p.where != Where.FIELD) continue;
+                if (robotPresent && intaking && stored.size() < PLACEHOLDER_ROBOT_CAPACITY && inIntake(p, bx, by, bh)) {
+                    capture(p);
+                    continue;
+                }
+                boolean contact = false;
+                for (Rocker r : rockers) contact |= collideRocker(p, r);
+                contact |= collideFootBars(p);
+                if (robotPresent) contact |= collideRobot(p, bx, by, bh);
+                contact |= collideField(p);
+                if (p.flower >= 0) holdInFlower(p);
+                if (contact) applyFriction(p, h);
+                updateCell(p);
+            }
+        }
+    }
+
+    private void stepRocker(Rocker r, double h) {
+        double hold = PLACEHOLDER_HOLD_IN_POLLEN_AT_CELL_CENTRE
+                * (CELL_BACK_IN + CELL_OPENING_IN) / 2 * Math.cos(TILT_RAD);
+        // The empty rocker is top-heavy, so it leans whichever way it already leans.
+        double torque = hold * Math.sin(r.angle) / Math.sin(TILT_RAD);
+        for (Piece p : pieces) {
+            if (p.where == Where.FIELD && p.cell != null && p.cell.alliance() == r.alliance) {
+                torque -= p.kind.weight * (p.y - CENTRE_IN);
+            }
+        }
+        double before = r.angle;
+        if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
+            r.rate = 0;
+        } else {
+            r.rate = torque / hold * PLACEHOLDER_SWING_RAD_PER_S;
+            r.angle = Math.max(-TILT_RAD, Math.min(TILT_RAD, r.angle + r.rate * h));
+        }
+        boolean settledNow = Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12;
+        boolean wasSettled = Math.abs(Math.abs(before) - TILT_RAD) < 1e-12;
+        if (wasSettled && !settledNow) r.tipFrom = before;
+        if (!wasSettled && settledNow) {
+            r.rate = 0;
+            // A rocker that lifts off its stop and settles back (a piece rolling to the back of the
+            // CELL) has not tipped.
+            if (Math.signum(r.angle) != Math.signum(r.tipFrom)) {
+                r.tips++;
+                events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)");
+            }
+        }
+    }
+
+    private void collidePieces() {
+        for (int i = 0; i < pieces.size(); i++) {
+            Piece a = pieces.get(i);
+            if (a.where != Where.FIELD) continue;
+            for (int j = i + 1; j < pieces.size(); j++) {
+                Piece b = pieces.get(j);
+                if (b.where != Where.FIELD) continue;
+                double reach = a.kind.radius + b.kind.radius;
+                double dx = b.x - a.x;
+                if (dx > reach || dx < -reach) continue;
+                double dy = b.y - a.y, dz = b.z - a.z;
+                double d2 = dx * dx + dy * dy + dz * dz;
+                if (d2 >= reach * reach || d2 < 1e-12) continue;
+                double d = Math.sqrt(d2);
+                double nx = dx / d, ny = dy / d, nz = dz / d;
+                double ma = a.kind.weight, mb = b.kind.weight;
+                double push = (reach - d) / (ma + mb);
+                a.x -= nx * push * mb;
+                a.y -= ny * push * mb;
+                a.z -= nz * push * mb;
+                b.x += nx * push * ma;
+                b.y += ny * push * ma;
+                b.z += nz * push * ma;
+                double vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny + (b.vz - a.vz) * nz;
+                if (vn < 0) {
+                    double e = vn > -RESTING_IN_PER_S ? 0 : PLACEHOLDER_PIECE_RESTITUTION;
+                    double j2 = -(1 + e) * vn / (1 / ma + 1 / mb);
+                    a.vx -= j2 * nx / ma;
+                    a.vy -= j2 * ny / ma;
+                    a.vz -= j2 * nz / ma;
+                    b.vx += j2 * nx / mb;
+                    b.vy += j2 * ny / mb;
+                    b.vz += j2 * nz / mb;
+                }
+            }
+        }
+    }
+
+    /** Both CELLs of a rocker, as thin double-sided plates: floor, roof, two sides and the back. */
+    private boolean collideRocker(Piece p, Rocker r) {
+        double[] local = r.toLocal(p.x, p.y, p.z);
+        double rad = p.kind.radius;
+        // Quick reject: nowhere near this rocker.
+        if (Math.abs(local[0]) > CELL_HALF_WIDTH_IN + rad || Math.abs(local[1]) > CELL_OPENING_IN + rad
+                || local[2] < CELL_FLOOR_IN - rad || local[2] > CELL_ROOF_IN + rad) {
+            return false;
+        }
+        boolean hit = false;
+        for (int end = -1; end <= 1; end += 2) {
+            double vNear = end * CELL_BACK_IN, vFar = end * CELL_OPENING_IN;
+            double vLo = Math.min(vNear, vFar), vHi = Math.max(vNear, vFar);
+            // floor and roof: w fixed
+            hit |= plate(p, r, 2, CELL_FLOOR_IN, 0, -CELL_HALF_WIDTH_IN, CELL_HALF_WIDTH_IN, 1, vLo, vHi);
+            hit |= plate(p, r, 2, CELL_ROOF_IN, 0, -CELL_HALF_WIDTH_IN, CELL_HALF_WIDTH_IN, 1, vLo, vHi);
+            // sides: u fixed
+            hit |= plate(p, r, 0, -CELL_HALF_WIDTH_IN, 1, vLo, vHi, 2, CELL_FLOOR_IN, CELL_ROOF_IN);
+            hit |= plate(p, r, 0, CELL_HALF_WIDTH_IN, 1, vLo, vHi, 2, CELL_FLOOR_IN, CELL_ROOF_IN);
+            // back: v fixed
+            hit |= plate(p, r, 1, vNear, 0, -CELL_HALF_WIDTH_IN, CELL_HALF_WIDTH_IN, 2, CELL_FLOOR_IN, CELL_ROOF_IN);
+        }
+        return hit;
+    }
+
+    /**
+     * A rectangle in the rocker frame: axis {@code fixed} at {@code at}, the other two axes over the
+     * given ranges. Pushes the piece out and bounces it off the plate's own motion.
+     */
+    private boolean plate(Piece p, Rocker r, int fixed, double at, int a1, double lo1, double hi1,
+                          int a2, double lo2, double hi2) {
+        double[] local = r.toLocal(p.x, p.y, p.z);
+        double[] q = local.clone();
+        q[fixed] = at;
+        q[a1] = Math.max(lo1, Math.min(hi1, local[a1]));
+        q[a2] = Math.max(lo2, Math.min(hi2, local[a2]));
+        double nx = local[0] - q[0], ny = local[1] - q[1], nz = local[2] - q[2];
+        double d = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        double rad = p.kind.radius;
+        if (d >= rad) return false;
+        if (d < 1e-9) {
+            nx = ny = nz = 0;
+            if (fixed == 0) nx = 1;
+            else if (fixed == 1) ny = 1;
+            else nz = 1;
+            d = 0;
+        } else {
+            nx /= d;
+            ny /= d;
+            nz /= d;
+        }
+        double[] pos = r.toWorld(q[0] + nx * rad, q[1] + ny * rad, q[2] + nz * rad);
+        double[] n = r.dirToWorld(nx, ny, nz);
+        double[] contact = r.toWorld(q[0], q[1], q[2]);
+        // The plate's own velocity at the contact: rotation about the x axis through the pivot.
+        double pvy = -r.rate * (contact[2] - PIVOT_Z_IN);
+        double pvz = r.rate * (contact[1] - CENTRE_IN);
+        p.x = pos[0];
+        p.y = pos[1];
+        p.z = pos[2];
+        bounce(p, n, 0, pvy, pvz, PLACEHOLDER_HIVE_RESTITUTION);
+        return true;
+    }
+
+    private boolean collideFootBars(Piece p) {
+        boolean hit = false;
+        for (int side = -1; side <= 1; side += 2) {
+            double cx = CENTRE_IN + side * FOOT_BAR_HALF_SPAN_X_IN;
+            hit |= box(p, cx, CENTRE_IN, 0, FOOT_BAR_HALF_WIDTH_IN, FOOT_BAR_HALF_LENGTH_IN, FOOT_BAR_HEIGHT_IN,
+                    0, 0, 0, PLACEHOLDER_HIVE_RESTITUTION);
+        }
+        return hit;
+    }
+
+    private boolean collideRobot(Piece p, double bx, double by, double bh) {
+        double half = ROBOT_SIZE_IN / 2;
+        return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, rvx, rvy, rw,
+                PLACEHOLDER_ROBOT_RESTITUTION);
+    }
+
+    /**
+     * A box standing on the tiles, centred at {@code (cx, cy)} and turned {@code heading}, moving at
+     * {@code (vx, vy)} and turning at {@code omega}.
+     */
+    private boolean box(Piece p, double cx, double cy, double heading, double halfX, double halfY, double height,
+                        double vx, double vy, double omega, double restitution) {
+        double c = Math.cos(heading), s = Math.sin(heading);
+        double lx = (p.x - cx) * c + (p.y - cy) * s;
+        double ly = -(p.x - cx) * s + (p.y - cy) * c;
+        double rad = p.kind.radius;
+        if (Math.abs(lx) > halfX + rad || Math.abs(ly) > halfY + rad || p.z > height + rad) return false;
+        double qx = Math.max(-halfX, Math.min(halfX, lx));
+        double qy = Math.max(-halfY, Math.min(halfY, ly));
+        double qz = Math.max(0, Math.min(height, p.z));
+        double nx = lx - qx, ny = ly - qy, nz = p.z - qz;
+        double d = Math.sqrt(nx * nx + ny * ny + nz * nz);
+        double depth;
+        if (d < 1e-9) {
+            // Centre inside the box: out through the nearest face.
+            double ex = halfX - Math.abs(lx), ey = halfY - Math.abs(ly), ez = height - p.z;
+            if (ex <= ey && ex <= ez) {
+                nx = Math.signum(lx) == 0 ? 1 : Math.signum(lx);
+                ny = nz = 0;
+                depth = ex + rad;
+            } else if (ey <= ez) {
+                ny = Math.signum(ly) == 0 ? 1 : Math.signum(ly);
+                nx = nz = 0;
+                depth = ey + rad;
+            } else {
+                nz = 1;
+                nx = ny = 0;
+                depth = ez + rad;
+            }
+        } else {
+            if (d >= rad) return false;
+            nx /= d;
+            ny /= d;
+            nz /= d;
+            depth = rad - d;
+        }
+        double wnx = nx * c - ny * s, wny = nx * s + ny * c;
+        p.x += wnx * depth;
+        p.y += wny * depth;
+        p.z += nz * depth;
+        double rx0 = p.x - cx, ry0 = p.y - cy;
+        bounce(p, new double[] {wnx, wny, nz}, vx - omega * ry0, vy + omega * rx0, 0, restitution);
+        return true;
+    }
+
+    private boolean collideField(Piece p) {
+        double r = p.kind.radius;
+        boolean hit = false;
+        if (p.z < r) {
+            p.z = r;
+            if (p.vz < 0) p.vz = -p.vz * PLACEHOLDER_TILE_RESTITUTION;
+            if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
+            hit = true;
+        }
+        if (p.x < r) {
+            p.x = r;
+            if (p.vx < 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            hit = true;
+        }
+        if (p.x > FIELD_SIZE_IN - r) {
+            p.x = FIELD_SIZE_IN - r;
+            if (p.vx > 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            hit = true;
+        }
+        if (p.y < r) {
+            p.y = r;
+            if (p.vy < 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            hit = true;
+        }
+        if (p.y > FIELD_SIZE_IN - r) {
+            p.y = FIELD_SIZE_IN - r;
+            if (p.vy > 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            hit = true;
+        }
+        return hit;
+    }
+
+    /** A Flower holder is a tube: what is stacked in it stays over its centre. */
+    private void holdInFlower(Piece p) {
+        double[] f = flowers.get(p.flower);
+        p.x = f[0];
+        p.y = f[1];
+        p.vx = 0;
+        p.vy = 0;
+    }
+
+    /** Reflects the piece's velocity relative to a surface moving at {@code (sx, sy, sz)}. */
+    private static void bounce(Piece p, double[] n, double sx, double sy, double sz, double restitution) {
+        double rx0 = p.vx - sx, ry0 = p.vy - sy, rz0 = p.vz - sz;
+        double vn = rx0 * n[0] + ry0 * n[1] + rz0 * n[2];
+        if (vn < 0) {
+            // A slow contact is a resting one: no bounce, or stacked pieces buzz.
+            double k = (1 + (vn > -RESTING_IN_PER_S ? 0 : restitution)) * vn;
+            rx0 -= k * n[0];
+            ry0 -= k * n[1];
+            rz0 -= k * n[2];
+        }
+        p.vx = rx0 + sx;
+        p.vy = ry0 + sy;
+        p.vz = rz0 + sz;
+    }
+
+    private static void applyFriction(Piece p, double h) {
+        double speed = Math.hypot(p.vx, p.vy);
+        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * h) - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * h);
+        double keep = speed < 1e-9 ? 0 : slower / speed;
+        p.vx *= keep;
+        p.vy *= keep;
+        // Rolling: spin to match the ground speed.
+        p.wx = p.vy / p.kind.radius;
+        p.wy = -p.vx / p.kind.radius;
+        p.wz = 0;
+    }
+
+    private static void integrateSpin(Piece p, double h) {
+        double w = Math.sqrt(p.wx * p.wx + p.wy * p.wy + p.wz * p.wz);
+        if (w < 1e-9) return;
+        double half = 0.5 * w * h, s = Math.sin(half) / w;
+        double dw = Math.cos(half), dx = p.wx * s, dy = p.wy * s, dz = p.wz * s;
+        double nw = dw * p.qw - dx * p.qx - dy * p.qy - dz * p.qz;
+        double nx = dw * p.qx + dx * p.qw + dy * p.qz - dz * p.qy;
+        double ny = dw * p.qy - dx * p.qz + dy * p.qw + dz * p.qx;
+        double nz = dw * p.qz + dx * p.qy - dy * p.qx + dz * p.qw;
+        double norm = Math.sqrt(nw * nw + nx * nx + ny * ny + nz * nz);
+        p.qw = nw / norm;
+        p.qx = nx / norm;
+        p.qy = ny / norm;
+        p.qz = nz / norm;
+    }
+
+    private boolean inIntake(Piece p, double bx, double by, double bh) {
+        double c = Math.cos(bh), s = Math.sin(bh);
+        double lx = (p.x - bx) * c + (p.y - by) * s;
+        double ly = -(p.x - bx) * s + (p.y - by) * c;
+        double front = ROBOT_SIZE_IN / 2;
+        return lx > front - 2 && lx < front + 3 && Math.abs(ly) < PLACEHOLDER_INTAKE_HALF_WIDTH_IN && p.z < 6;
+    }
+
+    private void capture(Piece p) {
+        p.where = Where.ROBOT;
+        p.flower = -1;
+        p.cell = null;
+        p.vx = p.vy = p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        stored.add(p);
+        events.add("intake: " + name(p.kind) + " (" + stored.size() + " held)");
+    }
+
+    private void updateCell(Piece p) {
+        HiveCell now = null;
+        for (Rocker r : rockers) {
+            int end = Rocker.cellAt(r.toLocal(p.x, p.y, p.z));
+            if (end != 0) now = r.cell(end);
+        }
+        if (now != p.cell) {
+            if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
+            if (now == null && p.cell != null) events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+            p.cell = now;
+        }
+    }
+
+    /** Pieces in a CELL. */
+    int count(HiveCell cell) {
+        int n = 0;
+        for (Piece p : pieces) if (p.where == Where.FIELD && p.cell == cell) n++;
+        return n;
+    }
+
+    static String name(Kind k) {
+        switch (k) {
+            case POLLEN: return "POLLEN";
+            case RED_NECTAR: return "red NECTAR";
+            default: return "blue NECTAR";
+        }
+    }
+
+    // ---- For the log --------------------------------------------------------------------------
+
+    /**
+     * Pieces of {@code kind} as AdvantageScope Pose3d values (meters, Center/Rotated), packed
+     * {@code x, y, z, qw, qx, qy, qz}: those the robot holds ({@code held}, drawn inside it), or all
+     * the others. Kept apart so a moving robot does not rewrite every piece on the field each loop.
+     */
+    double[] pieces(Kind kind, boolean held) {
+        int n = 0;
+        for (Piece p : pieces) if (p.kind == kind && (p.where == Where.ROBOT) == held) n++;
+        double[] out = new double[7 * n];
+        int i = 0;
+        for (Piece p : pieces) {
+            if (p.kind != kind || (p.where == Where.ROBOT) != held) continue;
+            double x = p.x, y = p.y, z = p.z;
+            if (p.where == Where.ROBOT) {
+                int slot = stored.indexOf(p);
+                x = rx - 2.5 * Math.cos(rh);
+                y = ry - 2.5 * Math.sin(rh);
+                z = 4 + slot * 2.2 * p.kind.radius;
+            }
+            // Pedro → Center/Rotated is a quarter turn about z, (x, y, z) → (−y, x, z); a rotation's
+            // axis turns with it.
+            double qw = p.qw, qx = -p.qy, qy = p.qx, qz = p.qz;
+            // Rounded to a millimetre (and the rotation to match), so a piece at rest writes the
+            // same value every loop and the log only grows while something moves.
+            out[i++] = mm(AdvantageScopeFrame.xMeters(x, y));
+            out[i++] = mm(AdvantageScopeFrame.yMeters(x, y));
+            out[i++] = mm(z * AdvantageScopeFrame.METERS_PER_INCH);
+            out[i++] = Math.round(qw * 1e3) / 1e3;
+            out[i++] = Math.round(qx * 1e3) / 1e3;
+            out[i++] = Math.round(qy * 1e3) / 1e3;
+            out[i++] = Math.round(qz * 1e3) / 1e3;
+        }
+        return out;
+    }
+
+    private static double mm(double meters) {
+        return Math.round(meters * 1e3) / 1e3;
+    }
+
+    /**
+     * The two rockers as component poses for the {@value HiveAssets#ROBOT_NAME} asset placed at the
+     * origin: each turned about the axle by how far it is from its as-built angle. Pedro's x axis
+     * is Center/Rotated's y axis, so that is a rotation about y through {@code (0, 0, pivot)}.
+     */
+    double[] hiveComponents() {
+        double[] out = new double[14];
+        Rocker[] order = new Rocker[2];
+        order[HiveAssets.RED_COMPONENT] = red;
+        order[HiveAssets.BLUE_COMPONENT] = blue;
+        double h = PIVOT_Z_IN * AdvantageScopeFrame.METERS_PER_INCH;
+        for (int i = 0; i < 2; i++) {
+            double d = order[i].angle - order[i].builtAngle();
+            int k = 7 * i;
+            out[k] = -h * Math.sin(d);
+            out[k + 1] = 0;
+            out[k + 2] = h * (1 - Math.cos(d));
+            out[k + 3] = Math.cos(d / 2);
+            out[k + 4] = 0;
+            out[k + 5] = Math.sin(d / 2);
+            out[k + 6] = 0;
+        }
+        return out;
+    }
+
+    /** Points in Pedro inches as Pose3d values with no rotation, for a trajectory. */
+    static double[] trajectory(List<double[]> points) {
+        double[] out = new double[7 * points.size()];
+        int i = 0;
+        for (double[] p : points) {
+            out[i++] = AdvantageScopeFrame.xMeters(p[0], p[1]);
+            out[i++] = AdvantageScopeFrame.yMeters(p[0], p[1]);
+            out[i++] = p[2] * AdvantageScopeFrame.METERS_PER_INCH;
+            out[i++] = 1;
+            out[i++] = 0;
+            out[i++] = 0;
+            out[i++] = 0;
+        }
+        return out;
+    }
+}

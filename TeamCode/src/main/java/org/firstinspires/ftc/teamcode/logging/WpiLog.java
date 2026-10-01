@@ -129,6 +129,27 @@ public final class WpiLog implements Closeable {
         writer.appendRaw(id, structBuffer, 0, WpiStructs.POSE3D.size, timestampUs);
     }
 
+    /**
+     * Several 3D poses as one value: game pieces, or a mechanism's components.
+     *
+     * @param xyzWxyz packed {@code x, y, z, qw, qx, qy, qz} per pose, meters and a unit quaternion
+     */
+    public void putPose3dArray(String key, double[] xyzWxyz, long timestampUs) throws IOException {
+        if (xyzWxyz.length % 7 != 0) {
+            throw new IllegalArgumentException("pose array length must be a multiple of 7");
+        }
+        int id = structEntry(key, WpiStructs.POSE3D, true, timestampUs);
+        int count = xyzWxyz.length / 7;
+        ensureStructBuffer(count * WpiStructs.POSE3D.size);
+        int at = 0;
+        for (int i = 0; i < count; i++) {
+            int k = 7 * i;
+            at = WpiStructs.packPose3d(structBuffer, at, xyzWxyz[k], xyzWxyz[k + 1], xyzWxyz[k + 2],
+                    xyzWxyz[k + 3], xyzWxyz[k + 4], xyzWxyz[k + 5], xyzWxyz[k + 6]);
+        }
+        writer.appendRaw(id, structBuffer, 0, at, timestampUs);
+    }
+
     public void flush() throws IOException {
         writer.flush();
     }
