@@ -1611,6 +1611,30 @@ pieces score:
   tangent at the end of the hood. A flat or off-centre hood launches NECTAR and POLLEN at different
   angles.
 
+**Built from goBILDA parts** (SKUs checked on goBILDA's site). This build scores 83% at the worst
+spot with one motor, 86% with two, NECTAR leaving at 98–99% of POLLEN's speed:
+
+| Part | SKU | Qty | Use |
+|---|---|---|---|
+| 5203 Yellow Jacket, 1:1, 6000 rpm | 5203-2402-0001 | 1–2 | Drives the wheel shaft (or a 5203-2402-0019 with the 1:1 Conversion Kit 5105-0208-0019) |
+| GripForce Gecko wheel, 72 mm, 30A | 3613-0014-0072 | 2 | Side by side under the hood |
+| Steel flywheel, 82 mm, 152 g, 1651 g·cm² | 3628-0032-0082 | 4 | About 7e-4 kg·m² with the wheels; 32 mm square pattern |
+| 1313 Hyper Hub, 8 mm REX | 1313-1632-4008 | up to 6 | 16 mm (Gecko) and 32 mm (flywheel) patterns |
+| 8 mm REX shaft, 240 mm; 8 mm REX bearings | 2106-4008-2400; 1611-0514-4008 | 1; 2+ | Wheel shaft and hood arm pivots |
+| Extension spring, 6.5 mm OD, 1.5 kg max | 2915-0001-0003 | 2 | Hood springs, about 5 mm pre-stretch at the stop |
+| Speed Servo + Compact ServoBlock | 2000-0025-0003; 3217-0001-2501 | 1–2 | Feeder, as on the StarterBot |
+
+Geometry, side view:
+
+- The hood is a 90° arc concentric with the wheel shaft, behind the wheel. It runs from 75° below
+  horizontal to 15° above.
+- At its stop it is 97 mm from the shaft centre: a 2.4 in gap to the wheel. It can swing at least
+  1.2 in back and down on two equal arms per side.
+- Pieces are fed from below. They ride up the back of the wheel, which moves upward, and leave at 75°
+  toward the HIVE with backspin.
+- The model predicts POLLEN at 5.04 m/s and NECTAR at 4.98 m/s at 2700 rpm. Check that with a
+  slow-motion video.
+
 **What is not modelled.** Air drag differences from hole patterns, real spring hysteresis, the
 pieces' out-of-roundness beyond size, feeding (a jammed feed is a jammed launcher), and wear. The
 stiffness, grip and squeeze loss are guesses, which is why the table above shows what happens when
