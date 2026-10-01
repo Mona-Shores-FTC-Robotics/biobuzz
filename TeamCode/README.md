@@ -1528,6 +1528,117 @@ risks G407. A spill that rolls into a robot waiting with its intake facing the H
 which is not CONTROL. Robots cannot talk to each other during a match, so splitting a spill means
 agreeing zones beforehand.
 
+### Choosing a launcher for POLLEN and NECTAR
+
+A launcher that throws POLLEN well but NECTAR nowhere near (or the reverse) is what the physics
+predicts for the launcher most teams build first, and the simulation reproduces it. This section is
+what `LauncherModel` and `LauncherDesignStudyTest` found, and how to check it on a prototype.
+
+**What the pieces are** (AndyMark): POLLEN 2.80 in, 24.9 g; NECTAR 3.62 in, 41.3 g. Both are
+26-hole pickleball-style plastic balls. A free-flight study of 26-hole pickleballs measured a drag
+coefficient of about 0.45 and, with backspin, a lift coefficient of about 0.2 (Tennis Warehouse
+University, "Pickleball Aerodynamics"). Pickleballs are stiff: they must take less than 43 lbf to
+squeeze by 0.25 in (USA Pickleball, ASTM F1888).
+
+**Why both can fly alike.** Drag and lift slow or lift a ball in proportion to its area over its mass:
+0.159 cm²/g for POLLEN, 0.161 for NECTAR. So two pieces that leave at the same speed, angle and spin
+follow the same path; with air on (`FieldSim.air`), their scoring speed windows match to within a
+few hundredths of a m/s. **Any difference comes from inside the launcher.**
+
+**Why the usual launcher fails.** One wheel, a fixed hood, the gap set for one piece:
+
+- gap set for POLLEN (2.5 in): NECTAR would have to be squeezed 24%, and these pieces cannot be, so
+  it jams or cracks;
+- gap set for NECTAR (3.3 in): POLLEN never touches the wheel.
+
+Even when both fit, the heavier NECTAR pulls a light flywheel down further during the shot (about
+twice the droop), so it leaves about 10% slower. Scoring speed windows are only about ±7% wide.
+
+**The model.** `LauncherModel` squeezes the piece between a driven wheel and a hood, or a second
+wheel. The squeeze is shared between the piece's stiffness, the tread's and, on a spring-loaded hood
+or wheel, the spring's. That force sets how hard friction can drive the piece. Speed and spin are
+integrated through the contact, the wheel loses what the piece gains, and the motor pulls it back up
+between shots. It reproduces the rules of thumb: one wheel against a hood throws at 0.40–0.45 of the
+wheel's surface speed, two wheels at 0.8–0.9.
+
+**The sweep.** 5832 designs, run by `BIOBUZZ_LAUNCHER_DESIGN=1 ... --tests '*LauncherDesignStudyTest*'`.
+They cover four kinds (fixed hood, spring hood, two wheels, two wheels with one sprung), 72 mm, 96 mm
+and 4 in wheels, firm to soft tread, gaps, spring preloads and rates, three flywheel sizes, one or two
+motors, and launch angles of 60–75°. Each design gets one wheel speed per shooting spot for both
+pieces. Each shot carries realistic sloppiness:
+
+- wheel speed ±1.5%;
+- piece size ±1.5% (the manual says pieces vary);
+- piece stiffness ±20%;
+- launch angle ±1°;
+- the robot's distance to the HIVE off by ±1.5 in;
+- the wheel slowing over a burst of 4 shots 0.45 s apart.
+
+The worst of three spots (against the wall, 20 in out and angled 30 in out), as the chance that both
+pieces score:
+
+| Launcher | Worst spot | When the guesses are wrong* |
+|---|---|---|
+| **One wheel, spring-loaded hood**, heavy flywheel | **86%** | **85% worst, 85% mean** |
+| Two wheels, one spring-loaded, heavy flywheel | 85% | 0% worst, 69% mean |
+| One wheel, fixed hood, soft compliant tread, heavy flywheel | 82% | 0% worst, 66% mean |
+| Two wheels, fixed gap, soft tread, heavy flywheel | 80% | 48% worst, 70% mean |
+| One wheel, fixed hood, firm tread, light flywheel (the usual first try) | 0% | — |
+
+\* 54 combinations of the things the model had to guess: the pieces' stiffness ×0.5 to ×2, NECTAR
+0.5–1.1× as stiff as POLLEN, wheel grip 0.6–0.9, and squeezing loss ×0.3 to ×2.
+
+**The launcher to prototype first**, and what each part is for:
+
+- **One wheel, 72 mm or 96 mm, firm or medium tread**, on one or two 6000 rpm (1:1) motors. It runs
+  around 2600–3000 rpm (72 mm) or about 2000–2200 rpm (96 mm), half the motor's free speed, which
+  leaves torque to recover between shots.
+- **A hood that follows the wheel's curve and is spring-loaded off a hard stop.**
+  - Hard stop: 2.2–2.6 in from the wheel surface, so POLLEN is lightly squeezed.
+  - Spring: about 1–9 lbf of preload, and soft, about 3 lbf per inch, so NECTAR pushes the hood out
+    about an inch with little more force. Surgical tubing, a constant-force spring or a long
+    extension spring all fit. A stiff spring squeezes NECTAR harder and costs about 5%.
+  - Give it at least 1.2 in of travel.
+  - Hood surface: polycarbonate. Grip tape made no difference in the model.
+- **A heavy flywheel on the wheel shaft: at least about 6e-4 kg·m², better 1e-3.** A 4 in steel disc
+  0.5 in thick is about 1e-3. With the wheel alone, NECTAR leaves about 5% slower than POLLEN and the
+  worst spot drops to 68%. Spin-up to speed takes about 1.5 s with two motors, 3 s with one.
+- **Launch at about 75°.** At 65° the wall shots still score 98–99%, but at 20 in from the opening
+  nothing does: steep lobs work from everywhere.
+- **Backspin comes free:** the wheel under the piece and the hood over it give a spin number of
+  about 1, which steadies the flight (lift about 0.2).
+- **A concentric hood keeps the launch angle the same for both sizes.** A piece leaves along the
+  tangent at the end of the hood. A flat or off-centre hood launches NECTAR and POLLEN at different
+  angles.
+
+**What is not modelled.** Air drag differences from hole patterns, real spring hysteresis, the
+pieces' out-of-roundness beyond size, feeding (a jammed feed is a jammed launcher), and wear. The
+stiffness, grip and squeeze loss are guesses, which is why the table above shows what happens when
+they are wrong.
+
+**Check a prototype against the model**, and feed what you measure back in:
+
+1. **Piece stiffness.** Press each piece on a kitchen scale with a flat block until it squeezes
+   0.25 in. The force in lbf × 700 is its stiffness in N/m.
+2. **Exit speed and angle.** Film the launch in slow motion (240 fps) beside a tape measure. Speed =
+   distance between two frames × 240. Do both pieces at the same wheel speed, read from the encoder
+   in Panels. The goal is NECTAR within about 5% of POLLEN.
+3. **Wheel droop.** Graph the flywheel's velocity in Panels during a 4-shot burst.
+4. **Run your launcher in the model:**
+   ```
+   BIOBUZZ_LAUNCHER_TRY="kind=HOOD_SPRING wheel=2.83 tread=20000 gap=2.6 preload=15 rate=500 \
+     inertia=1e-3 motors=2 angle=75 pollenStiffness=17500 nectarStiffness=14000" \
+     ./gradlew :TeamCode:testDebugUnitTest --tests '*LauncherDesignStudyTest.tryOne*' -i
+   ```
+   It prints each piece's exit speed, spin and squeeze across wheel speeds, the NECTAR/POLLEN ratio,
+   and the chance each scores from each spot. If its exit speeds disagree with your video, adjust
+   `friction` and `rolling` until they match. Then trust its comparisons between designs.
+
+**Robot speeds, for comparison.** goBILDA rates its Strafer chassis (312 rpm motors, 104 mm mecanum
+wheels) at 66.8 in/s; with 435 rpm motors that is about 93 in/s. Real robots reach roughly 70–90% of
+that. So the 50–60 in/s used for the Autos above is realistic for a 312 rpm build; measure yours with
+the Foresight tuner (`pedro/Tuning`) and pass it to `AutoSim.speed`.
+
 ### Why the on-robot build is not here: it takes port 8080
 
 `page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is

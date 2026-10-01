@@ -46,9 +46,17 @@ public class LauncherDesignStudyTest {
     static final double[] SPINS = {-0.6, -0.3, 0, 0.3, 0.6, 1.0};
     static final double EXIT_HEIGHT_IN = 17;
 
-    static final double RPM_JITTER = 0.01;
-    static final double SIZE_JITTER = 0.01;
-    static final double ANGLE_JITTER_DEG = 0.75;
+    /** One sigma, shot to shot. */
+    static final double RPM_JITTER = 0.015;
+    /** The pieces "are not perfectly spherical and may vary in size" (Competition Manual §9.8). */
+    static final double SIZE_JITTER = 0.015;
+    /** Piece to piece, a guess: how hard each one is to squeeze. */
+    static final double STIFFNESS_JITTER = 0.2;
+    static final double ANGLE_JITTER_DEG = 1.0;
+    /** How far the robot's idea of its distance to the CELL is off, inches. */
+    static final double DISTANCE_JITTER_IN = 1.5;
+    /** Horizontal distance from the launch point to the opening, inches, per spot (for the above). */
+    static final double[] SPOT_DISTANCE_IN = {35, 18, 30};
     static final double BURST_INTERVAL_S = 0.45;
 
     // ---- Step 1: windows -------------------------------------------------------------------------
@@ -205,12 +213,25 @@ public class LauncherDesignStudyTest {
                 LauncherModel.Shot shot = d.fire(ball, om, om * d.secondWheelSpeed);
                 said[i] = shot.toString();
                 if (!shot.ok()) continue;
-                double[][] small = burst(d, ball.scaled(1 - SIZE_JITTER), om);
-                double[][] big = burst(d, ball.scaled(1 + SIZE_JITTER), om);
-                if (small == null || big == null) continue;
+                double low = Double.MAX_VALUE, high = 0;
+                boolean all = true;
+                for (int sz = -1; sz <= 1 && all; sz += 2) {
+                    for (int st = -1; st <= 1 && all; st += 2) {
+                        LauncherModel.Ball b = ball.scaled(1 + sz * SIZE_JITTER);
+                        b.stiffness = ball.stiffness * (1 + st * STIFFNESS_JITTER);
+                        double[][] r = burst(d, b, om);
+                        if (r == null) {
+                            all = false;
+                        } else {
+                            low = Math.min(low, r[0][0]);
+                            high = Math.max(high, r[0][1]);
+                        }
+                    }
+                }
+                if (!all) continue;
                 ok[i] = true;
-                lo[i] = Math.min(small[0][0], big[0][0]);
-                hi[i] = Math.max(small[0][1], big[0][1]);
+                lo[i] = low;
+                hi[i] = high;
                 nominal[i] = shot.exitSpeed;
                 spin[i] = shot.spinNumber;
             }
@@ -245,7 +266,9 @@ public class LauncherDesignStudyTest {
         if (at == null) return 0;
         double lo = at[0], hi = at[1];
         double mean = (lo + hi) / 2;
-        double sd = Math.sqrt(Math.pow((hi - lo) / 4, 2) + Math.pow(at[2] * RPM_JITTER, 2)) + 1e-6;
+        // Range ∝ v², so a distance error d·x needs a speed error of v·x/2.
+        double distance = at[2] * DISTANCE_JITTER_IN / SPOT_DISTANCE_IN[spot] / 2;
+        double sd = Math.sqrt(Math.pow((hi - lo) / 4, 2) + Math.pow(at[2] * RPM_JITTER, 2) + distance * distance) + 1e-6;
         double[] win = null;
         for (double da = -ANGLE_JITTER_DEG; da <= ANGLE_JITTER_DEG + 1e-9; da += ANGLE_JITTER_DEG) {
             double[] here = window(w, ballIndex, spot, d.exitAngleDeg + da, at[3]);
@@ -430,6 +453,103 @@ public class LauncherDesignStudyTest {
             LauncherModel.Shot n = d.fire(nectar, om, om * d.secondWheelSpeed);
             System.out.printf(Locale.ROOT, "LD    %5.0f rpm: POLLEN %s | NECTAR %s%s%n", om * 60 / (2 * Math.PI), p, n,
                     p.ok() && n.ok() ? String.format(Locale.ROOT, " | NECTAR/POLLEN %.2f", n.exitSpeed / p.exitSpeed) : "");
+        }
+    }
+
+    /** The candidates the sweep favoured, and the usual first launcher, spelled out for building. */
+    static List<LauncherModel> candidates() {
+        List<LauncherModel> out = new ArrayList<>();
+        LauncherModel a = new LauncherModel();
+        a.kind = LauncherModel.Kind.HOOD_SPRING;
+        a.wheelDiameterIn = 2.83;
+        a.wheelStiffness = 20_000;
+        a.gapIn = 2.6;
+        a.springPreloadN = 15;
+        a.springRate = 500;
+        a.inertia = 1e-3;
+        a.motors = 2;
+        a.exitAngleDeg = 75;
+        out.add(a);
+        LauncherModel b = new LauncherModel();
+        b.kind = LauncherModel.Kind.DOUBLE_SPRING;
+        b.wheelDiameterIn = 2.83;
+        b.wheelStiffness = 50_000;
+        b.gapIn = 2.4;
+        b.springPreloadN = 30;
+        b.springRate = 2_000;
+        b.inertia = 1e-3;
+        b.exitAngleDeg = 75;
+        out.add(b);
+        LauncherModel c = new LauncherModel();
+        c.kind = LauncherModel.Kind.HOOD;
+        c.wheelDiameterIn = 2.83;
+        c.wheelStiffness = 8_000;
+        c.gapIn = 2.6;
+        c.inertia = 1e-3;
+        c.exitAngleDeg = 75;
+        out.add(c);
+        LauncherModel d = new LauncherModel();
+        d.kind = LauncherModel.Kind.DOUBLE;
+        d.wheelDiameterIn = 2.83;
+        d.wheelStiffness = 8_000;
+        d.gapIn = 2.5;
+        d.inertia = 1e-3;
+        d.exitAngleDeg = 75;
+        out.add(d);
+        for (LauncherModel m : out) m.contactIn = Math.PI / 2 * (m.wheelDiameterIn / 2 + 1.6);
+        return out;
+    }
+
+    /**
+     * How the candidates hold up when the model's guesses are wrong: the pieces' stiffness, the
+     * wheel's grip and the loss to squeezing. And what a lighter flywheel costs, and how long each
+     * takes to spin up.
+     */
+    @Test
+    public void robustness() throws Exception {
+        if (System.getenv("BIOBUZZ_LAUNCHER_DESIGN") == null) return;
+        double[][][][][] w = windows();
+        for (LauncherModel base : candidates()) {
+            System.out.printf(Locale.ROOT, "LR == %s%n", base.describe());
+            Verdict nominal = judge(w, base);
+            print(nominal);
+            double target = nominal.rpm[0] * 2 * Math.PI / 60;
+            double spinUp = 0;
+            for (double om = 0; om < target * 0.98 && spinUp < 30; spinUp += 0.01) om = base.recover(om, target, 0.01);
+            System.out.printf(Locale.ROOT, "LR   spin-up to %.0f rpm: %.1f s%n", nominal.rpm[0], spinUp);
+            StringBuilder sb = new StringBuilder();
+            for (double stiff : new double[] {0.5, 1, 2}) {
+                for (double nectarRatio : new double[] {0.6, 1.0, 1.4}) {
+                    for (double friction : new double[] {0.6, 0.9}) {
+                        for (double rolling : new double[] {0.5, 1.5, 3}) {
+                            LauncherModel d = base.copy();
+                            d.wheelFriction = friction;
+                            d.rollingLoss = rolling;
+                            LauncherModel.Ball p = LauncherModel.pollen(), n = LauncherModel.nectar();
+                            p.stiffness *= stiff;
+                            n.stiffness = p.stiffness * 0.8 * nectarRatio;
+                            double top = d.maxWheelRadPerS() * 0.9;
+                            Verdict v = judge(w, d, new Profile(d, p, top), new Profile(d, n, top));
+                            sb.append(String.format(Locale.ROOT, " %.0f", 100 * v.score));
+                        }
+                    }
+                }
+            }
+            String[] all = sb.toString().trim().split(" ");
+            int worst = 100, sum = 0;
+            for (String x : all) {
+                worst = Math.min(worst, Integer.parseInt(x));
+                sum += Integer.parseInt(x);
+            }
+            System.out.printf(Locale.ROOT, "LR   over %d guesses (stiffness x0.5-2, NECTAR/POLLEN stiffness 0.5-1.1, grip 0.6-0.9,"
+                    + " squeeze loss x0.3-2): worst %d%%, mean %d%%%n", all.length, worst, sum / all.length);
+            for (double inertia : new double[] {1.5e-4, 3e-4}) {
+                LauncherModel d = base.copy();
+                d.inertia = inertia;
+                Verdict v = judge(w, d);
+                System.out.printf(Locale.ROOT, "LR   with a %.1e kg·m² flywheel instead: worst %.0f%%; %s / %s%n",
+                        inertia, 100 * v.score, v.pollenShot, v.nectarShot);
+            }
         }
     }
 
