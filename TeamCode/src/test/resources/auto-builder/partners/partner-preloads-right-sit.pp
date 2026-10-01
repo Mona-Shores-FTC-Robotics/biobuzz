@@ -5,37 +5,7 @@
     "name": "START",
     "headingDeg": 90
   },
-  "lines": [
-    {
-      "id": "to-park-p-1",
-      "color": "#3cc8e4",
-      "name": "START to PARK_P",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 10.5,
-        "y": 110
-      },
-      "controlPoints": [
-        {
-          "x": 26,
-          "y": 20
-        },
-        {
-          "x": 26,
-          "y": 100
-        }
-      ],
-      "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 90
-      }
-    }
-  ],
+  "lines": [],
   "shapes": [
     {
       "id": "frame-leg-red",
@@ -110,12 +80,7 @@
       "fillColor": "#60a5fa"
     }
   ],
-  "sequence": [
-    {
-      "kind": "path",
-      "lineId": "to-park-p-1"
-    }
-  ],
+  "sequence": [],
   "settings": {
     "xVelocity": 75,
     "yVelocity": 65,
@@ -154,10 +119,11 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "partner-preloads-right",
+    "exportName": "partner-preloads-right-sit",
     "registry": {
       "actions": [
         "SpinUp",
+        "IntakeOff",
         "LaunchAll"
       ],
       "conditions": [
@@ -165,6 +131,7 @@
       ],
       "typicalS": {
         "SpinUp": 0.1,
+        "IntakeOff": 0.1,
         "LaunchAll": 2.0
       },
       "events": []
@@ -174,16 +141,9 @@
         59,
         9.5,
         90
-      ],
-      "PARK_P": [
-        10.5,
-        110,
-        90
       ]
     },
-    "pathEnds": {
-      "to-park-p-1": "PARK_P"
-    },
+    "pathEnds": {},
     "startAt": "START",
     "cards": [
       {
@@ -192,7 +152,12 @@
         "name": "SpinUp"
       },
       {
-        "id": "w-2",
+        "id": "a-2",
+        "kind": "action",
+        "name": "IntakeOff"
+      },
+      {
+        "id": "w-3",
         "kind": "firstOf",
         "label": "Fire the preloads",
         "rows": [
@@ -208,12 +173,6 @@
           }
         ],
         "alongside": "LaunchAll"
-      },
-      {
-        "id": "p-3",
-        "kind": "path",
-        "lineId": "to-park-p-1",
-        "park": true
       }
     ]
   },

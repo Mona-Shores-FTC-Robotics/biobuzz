@@ -11,19 +11,20 @@ from three_tip_adaptive import adaptive
 
 
 def partner_right(name="partner-preloads-right"):
-    """Starts in front of the right CELL, fires at once, parks at the right end of the LOADING ZONE."""
+    """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
+    ZONE like the other reference partners (mentor review), leaving the near end for us."""
     r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
-    r.pt("PARK_P", 10, 86, 90)
+    r.pt("PARK_P", 10.5, 110, 90)
     r.add(r.action("SpinUp"), fire(r, "Fire the preloads", "Empty", ms=4500),
-          r.go("PARK_P", ctrl=[(30, 20), (30, 75)], park=True))
+          r.go("PARK_P", ctrl=[(26, 20), (26, 100)], park=True))  # x 26: clear of the HIVE frame's foot bar
     return r
 
 
 def partner_right_misses(name="partner-leave-right"):
     """A right partner whose preloads never score: it leaves and parks, nothing more."""
     r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
-    r.pt("PARK_P", 10, 86, 90)
-    r.add(r.go("PARK_P", ctrl=[(30, 20), (30, 75)], park=True))
+    r.pt("PARK_P", 10.5, 110, 90)
+    r.add(r.go("PARK_P", ctrl=[(26, 20), (26, 100)], park=True))
     return r
 
 
@@ -46,7 +47,7 @@ def left_first(name="left-first", speed=50, tip4=False):
     flower_points(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.pt("L_EXIT", 57.5, 108, 270).pt("R_EXIT", 57.5, 34, 270).pt("R_HOME", 57.5, 10, 90)
     r.pt("RIGHT_SHOT", 36, 30, 49).pt("RIGHT_PLUNGE_IN", 55, 24, 270).pt("RIGHT_PLUNGE", 55, 10.5, 270)
-    r.pt("GARDEN", 8.5, 11, 270).pt("PARK", 16, 120, 90).pt("PARK2", 16, 122, 90)
+    r.pt("GARDEN", 8.5, 11, 270).pt("PARK", 15, 89, 90).pt("PARK2", 15, 90, 90)  # near end; the partner takes the far-left end
     # Fallback: the partner missed TIP 1. Ours, then TIP 2 at the left, then park.
     r.at = "START"
     fallback = [r.go("L_EXIT", heading=270), r.go("R_EXIT", heading=270), r.go("R_HOME"),
@@ -56,7 +57,8 @@ def left_first(name="left-first", speed=50, tip4=False):
                 fire(r, "Fire at the left CELL", "Empty", ms=2000),
                 *flower(r, "FAR_FLOWER", "Collect at the FLOWER (fallback)", ms=1800),
                 *leave_flower(r, "FAR_FLOWER", "L_HOME"), fire(r, "Fire until it tips (TIP 2, fallback)", "RightCellUp", ms=2500),
-                r.go("PARK", ctrl=[(30, 120)]), r.go("PARK2", park=True)]
+                r.go("PARK", ctrl=[(59, 104), (59, 104), (32, 110), (32, 110), (32, 86), (32, 86)], turn_after=0.45, turn_by=0.9),
+                r.go("PARK2", park=True)]
     r.at = "START"
     plan = []
     plan += [fire(r, "Fire the preloads", "Empty"),
@@ -84,7 +86,7 @@ def left_first(name="left-first", speed=50, tip4=False):
     else:
         plan += [r.wait("TIP 3 yet?", when=["LeftCellUp"], ms=1500, yes=[], no=more, yes_label="Yes", no_label="No: the GARDEN")]
         r.at = "RIGHT_SHOT"
-        plan += [r.go("PARK", ctrl=[(34, 60), (34, 126)], heading=90), r.go("PARK2", park=True)]  # square, between the HIVE frame and the partner
+        plan += [r.go("PARK", ctrl=[(24, 40), (24, 80)], heading=90), r.go("PARK2", park=True)]
     r.add(r.action("SpinUp"),
           r.wait("Left CELL up (partner's TIP 1)?", when=["LeftCellUp"], ms=6000, yes=plan, no=fallback,
                  yes_label="Yes", no_label="No: the partner missed"))

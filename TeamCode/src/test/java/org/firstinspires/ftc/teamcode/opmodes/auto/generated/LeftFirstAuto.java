@@ -53,8 +53,8 @@ public final class LeftFirstAuto {
         Pose rightPlungeIn = p.of(55, 24, 270);
         Pose rightPlunge = p.of(55, 10.5, 270);
         Pose garden = p.of(8.5, 11, 270);
-        Pose park = p.of(16, 120, 90);
-        Pose park2 = p.of(16, 122, 90);
+        Pose park = p.of(15, 89, 90);
+        Pose park2 = p.of(15, 90, 90);
         Pose farFlowerBackLHome = p.of(57.5, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -69,8 +69,8 @@ public final class LeftFirstAuto {
         Pose rightPlungeToRightShotSegment1Start = p.of(36, 30, 270);
         Pose rightShotToGardenSegment1Start = p.of(8.5, 11, 49);
         Pose gardenToRightShotSegment1Start = p.of(36, 30, 270);
-        Pose rightShotToParkControl1 = p.of(34, 60, 0);
-        Pose rightShotToParkControl2 = p.of(34, 126, 0);
+        Pose rightShotToParkControl1 = p.of(24, 40, 0);
+        Pose rightShotToParkControl2 = p.of(24, 80, 0);
         Pose rExitToRHomeSegment1Start = p.of(57.5, 10, 270);
         Pose rHomeToLExit = p.of(57.5, 108, 90);
         Pose lHomeToFarFlowerTurnControl1 = p.of(59, 119.29, 0);
@@ -79,8 +79,14 @@ public final class LeftFirstAuto {
         Pose farFlowerToFarFlowerBackLHome_2Segment1Heading = p.of(57.5, 119.29, 90);
         Pose farFlowerToFarFlowerBackLHome_2Segment2Start = p.of(57.5, 119.29, 90);
         Pose farFlowerBackLHomeToLHome_2Control1 = p.of(59, 121.29, 0);
-        Pose lHomeToParkControl1 = p.of(30, 120, 0);
-        Pose lHomeToParkSegment1Start = p.of(16, 120, 270);
+        Pose lHomeToParkControl1 = p.of(59, 104, 0);
+        Pose lHomeToParkControl2 = p.of(59, 104, 0);
+        Pose lHomeToParkControl3 = p.of(32, 110, 0);
+        Pose lHomeToParkControl4 = p.of(32, 110, 0);
+        Pose lHomeToParkControl5 = p.of(32, 86, 0);
+        Pose lHomeToParkControl6 = p.of(32, 86, 0);
+        Pose lHomeToParkSegment1Heading = p.of(15, 89, 270);
+        Pose lHomeToParkSegment2Start = p.of(15, 89, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)));
@@ -106,14 +112,14 @@ public final class LeftFirstAuto {
         Path farFlowerTurnToFarFlowerPath = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToFarFlowerBackLHomePath = Paths.line(farFlower, farFlowerBackLHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(farFlowerToFarFlowerBackLHome_2Segment1Heading)).until(1, Interpolator.linear(farFlowerToFarFlowerBackLHome_2Segment2Start, farFlowerBackLHome)));
         Path farFlowerBackLHomeToLHomePath = Paths.curve(farFlowerBackLHome, farFlowerBackLHomeToLHome_2Control1, lHome).constant(lHome);
-        Path lHomeToPark = Paths.curve(lHome, lHomeToParkControl1, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(lHomeToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
+        Path lHomeToPark = Paths.curve(lHome, lHomeToParkControl1, lHomeToParkControl2, lHomeToParkControl3, lHomeToParkControl4, lHomeToParkControl5, lHomeToParkControl6, park).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(lHomeToParkSegment1Heading)).until(0.9, Interpolator.linear(lHomeToParkSegment2Start, park)).until(1, Interpolator.constant(park)));
         Path parkToPark2Path = Paths.line(park, park2).linear(park, park2);
 
         return kit.sequence(
                 kit.command("SpinUp"),
                 kit.firstOf("Left CELL up (partner's TIP 1)?",
                         kit.when("LeftCellUp").then(
-                                kit.guarded("Yes", parkToPark2, 0.5,
+                                kit.guarded("Yes", parkToPark2, 0.3,
                                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
@@ -157,7 +163,7 @@ public final class LeftFirstAuto {
                                         kit.path("RIGHT_SHOT to PARK", rightShotToPark),
                                         kit.path("PARK to PARK2", parkToPark2))),
                         kit.afterMs(6000).then(
-                                kit.guarded("No: the partner missed", parkToPark2Path, 0.5,
+                                kit.guarded("No: the partner missed", parkToPark2Path, 0.3,
                                         kit.path("START to L_EXIT", startToLExit),
                                         kit.path("L_EXIT to R_EXIT", lExitToRExitPath),
                                         kit.path("R_EXIT to R_HOME", rExitToRHome),

@@ -42,17 +42,17 @@ public final class PartnerPreloadsRightAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
-        Pose parkP = p.of(10, 86, 90);
+        Pose parkP = p.of(10.5, 110, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToParkPControl1 = p.of(30, 20, 0);
-        Pose startToParkPControl2 = p.of(30, 75, 0);
+        Pose startToParkPControl1 = p.of(26, 20, 0);
+        Pose startToParkPControl2 = p.of(26, 100, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToParkP = Paths.curve(start, startToParkPControl1, startToParkPControl2, parkP).linear(start, parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 3.5,
+                kit.guarded("Auto", startToParkP, 4,
                         kit.command("SpinUp"),
                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                                 kit.when("Empty"),
