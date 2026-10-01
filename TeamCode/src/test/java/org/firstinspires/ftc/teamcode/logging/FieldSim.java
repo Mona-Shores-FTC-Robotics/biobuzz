@@ -106,6 +106,14 @@ final class FieldSim {
      * a conclusion survives the guesses being wrong. 1 is the placeholder itself.
      */
     static double frictionScale = 1;
+    /** Scales every bounce (tiles, walls, robots, the HIVE, other pieces), for testing what the guesses change. */
+    static double bounceScale = 1;
+    /** Scales how fast a loaded rocker swings over, for the same reason. */
+    static double swingScale = 1;
+
+    static double bounce(double e) {
+        return Math.min(0.95, e * bounceScale);
+    }
     static double spreadScale = 1;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
 
@@ -793,7 +801,7 @@ final class FieldSim {
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
         } else {
-            r.rate = torque / hold * physics.swingRadPerS;
+            r.rate = torque / hold * physics.swingRadPerS * swingScale;
             r.angle = Math.max(-TILT_RAD, Math.min(TILT_RAD, r.angle + r.rate * h));
         }
         boolean settledNow = Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12;
@@ -844,7 +852,7 @@ final class FieldSim {
                 b.z += nz * push * ma;
                 double vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny + (b.vz - a.vz) * nz;
                 if (vn < 0) {
-                    double e = vn > -RESTING_IN_PER_S ? 0 : PLACEHOLDER_PIECE_RESTITUTION;
+                    double e = vn > -RESTING_IN_PER_S ? 0 : bounce(PLACEHOLDER_PIECE_RESTITUTION);
                     double j2 = -(1 + e) * vn / (1 / ma + 1 / mb);
                     a.vx -= j2 * nx / ma;
                     a.vy -= j2 * ny / ma;
@@ -917,7 +925,7 @@ final class FieldSim {
         p.x = pos[0];
         p.y = pos[1];
         p.z = pos[2];
-        bounce(p, n, 0, pvy, pvz, PLACEHOLDER_HIVE_RESTITUTION);
+        bounce(p, n, 0, pvy, pvz, bounce(PLACEHOLDER_HIVE_RESTITUTION));
         return true;
     }
 
@@ -926,7 +934,7 @@ final class FieldSim {
         for (int side = -1; side <= 1; side += 2) {
             double cx = CENTRE_IN + side * FOOT_BAR_HALF_SPAN_X_IN;
             hit |= box(p, cx, CENTRE_IN, 0, FOOT_BAR_HALF_WIDTH_IN, FOOT_BAR_HALF_LENGTH_IN, FOOT_BAR_HEIGHT_IN,
-                    0, 0, 0, PLACEHOLDER_HIVE_RESTITUTION);
+                    0, 0, 0, bounce(PLACEHOLDER_HIVE_RESTITUTION));
         }
         return hit;
     }
@@ -934,13 +942,13 @@ final class FieldSim {
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         double half = bot.design.frameIn / 2;
         return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
-                PLACEHOLDER_ROBOT_RESTITUTION);
+                bounce(PLACEHOLDER_ROBOT_RESTITUTION));
     }
 
     private boolean collideParked(Piece p, double[] at) {
         double half = ROBOT_SIZE_IN / 2;
         return box(p, at[0], at[1], at[2], half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, 0, 0, 0,
-                PLACEHOLDER_ROBOT_RESTITUTION);
+                bounce(PLACEHOLDER_ROBOT_RESTITUTION));
     }
 
     /**
@@ -997,28 +1005,28 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
-            if (p.vz < 0) p.vz = -p.vz * physics.tileRestitution;
+            if (p.vz < 0) p.vz = -p.vz * bounce(physics.tileRestitution);
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
         }
         if (p.x < r) {
             p.x = r;
-            if (p.vx < 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vx < 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.x > FIELD_SIZE_IN - r) {
             p.x = FIELD_SIZE_IN - r;
-            if (p.vx > 0) p.vx = -p.vx * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vx > 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.y < r) {
             p.y = r;
-            if (p.vy < 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vy < 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         if (p.y > FIELD_SIZE_IN - r) {
             p.y = FIELD_SIZE_IN - r;
-            if (p.vy > 0) p.vy = -p.vy * PLACEHOLDER_WALL_RESTITUTION;
+            if (p.vy > 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
         }
         return hit;
