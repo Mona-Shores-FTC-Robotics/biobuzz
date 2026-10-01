@@ -86,6 +86,8 @@ public final class AutoSim {
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
     static final double CAMERA_HALF_FOV_RAD = Math.toRadians(35);
+    /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
+    static final double MAX_SHOT_RANGE_IN = 60;
     static final double CAMERA_RANGE_IN = 60;
     /** CollectSeen keeps within this far of where it started, so it does not wander off. */
     static final double COLLECT_RADIUS_IN = 36;
@@ -619,6 +621,10 @@ public final class AutoSim {
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
+            // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
+            // pieces at the far CELL from home). The real LaunchAll needs the same check.
+            double[] here = pedro(drive.pose);
+            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > MAX_SHOT_RANGE_IN) return;
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
             if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
@@ -815,15 +821,24 @@ public final class AutoSim {
                         target[0] = nearestSeen(origin);
                         if (target[0] != null) {
                             driveOnto(target[0]);
-                        } else if (drive.pathDone() && lookedAround[0] < 2 * Math.PI) {
+                        } else if (drive.pathDone() && lookedAround[0] < 2 * Math.PI && canTurnHere()) {
                             // Nothing in view: turn on the spot to look around.
                             drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
                     .setDone(() -> body.stored.size() >= FieldSim.ROBOT_CAPACITY
-                            || (target[0] == null && lookedAround[0] >= 2 * Math.PI))
+                            || (target[0] == null && (lookedAround[0] >= 2 * Math.PI || !canTurnHere())))
                     .setEnd(end -> drive.hold(drive.pose));
+        }
+
+        /** Whether the robot can turn on the spot here: its corners sweep a circle about 0.71 frames wide. */
+        private boolean canTurnHere() {
+            double[] at = pedro(drive.pose);
+            double reach = design.frameIn / Math.sqrt(2);
+            if (at[0] < reach + 1 || at[1] < reach + 1 || at[0] > FieldSim.FIELD_SIZE_IN - reach - 1
+                    || at[1] > FieldSim.FIELD_SIZE_IN - reach - 1) return false;
+            return !sim.hitsFlower(at[0], at[1], 0, 2 * reach);
         }
 
         private FieldSim.Piece nearestSeen(double[] origin) {
@@ -853,7 +868,11 @@ public final class AutoSim {
             return best;
         }
 
-        /** Whether driving onto {@code p} would put the robot into the HIVE frame's feet. */
+        /**
+         * Whether driving onto {@code p} would put the robot into the HIVE frame's feet, a FLOWER, or
+         * against a wall (mentor review: it chased pieces into the far FLOWER and lost LEAVE on the
+         * wall). The real CollectSeen needs the same rule.
+         */
         private boolean approachHitsFrame(FieldSim.Piece p, double[] at) {
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double mouth = design.frameIn / 2 + design.intakeReachIn;
@@ -861,7 +880,11 @@ public final class AutoSim {
                     design.intakeAtBack ? bearing + Math.PI : bearing};
             for (double f = 0; f <= 1.0001; f += 0.25) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
-                for (double[] c : corners(mid, design.frameIn)) if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                if (sim.hitsFlower(mid[0], mid[1], mid[2], design.frameIn)) return true;
+                for (double[] c : corners(mid, design.frameIn)) {
+                    if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                    if (c[0] < 1 || c[1] < 1 || c[0] > FieldSim.FIELD_SIZE_IN - 1 || c[1] > FieldSim.FIELD_SIZE_IN - 1) return true;
+                }
             }
             return false;
         }
@@ -949,6 +972,7 @@ public final class AutoSim {
             leadFromY = pose.y();
             if (leadIn > 0) entrySpeed = 0;
             done = false;
+            aimHeading = Double.NaN;
         }
 
         @Override
@@ -988,7 +1012,10 @@ public final class AutoSim {
                 // Braked to the end with nothing following: stand still, square to the path's end.
                 speedNow = 0;
                 Pose end = current.get(1);
-                pose = new Pose(end.x(), end.y(), turned(pose.heading(), end.heading(), maxTurn * LOOP_S));
+                // Square to the path's end, unless the launcher has since turned it to aim (mentor
+                // review: squaring back undid every aiming turn, so a robot 2.4 deg off never fired).
+                double want = Double.isNaN(aimHeading) ? end.heading() : aimHeading;
+                pose = new Pose(end.x(), end.y(), turned(pose.heading(), want, maxTurn * LOOP_S));
                 return;
             }
             Pose goal;
@@ -1015,7 +1042,11 @@ public final class AutoSim {
         }
 
         /** Turns in place toward {@code target} for {@code dt} seconds (an aim); only while idle. */
+        /** The heading the launcher last turned toward since the last path started; NaN if none. */
+        double aimHeading = Double.NaN;
+
         void turnToward(double target, double dt) {
+            aimHeading = target;
             pose = new Pose(pose.x(), pose.y(), turned(pose.heading(), target, maxTurn * dt));
         }
 

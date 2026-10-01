@@ -36,8 +36,12 @@ final class RobotDesign {
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
     boolean intakeAtBack = false;
-    /** Time between two pieces through the intake, picking up off the tiles. */
-    double intakeIntervalS = 0.15;
+    /**
+     * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
+     * (mentor review: 0.15 s refilled a robot standing still unrealistically fast). A placeholder
+     * until an intake is timed.
+     */
+    double intakeIntervalS = 0.35;
     /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
     double flowerPullS = 0.5;
     /**

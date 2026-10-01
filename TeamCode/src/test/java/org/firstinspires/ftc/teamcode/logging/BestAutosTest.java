@@ -69,7 +69,9 @@ public class BestAutosTest {
                 .alsoRun(LeanLeftAuto.class).speed(50, 45).design(twinCatcher()).write(f);
         System.out.println("BEST " + f.getName() + ": " + r);
         assertTwoRobots(f);
-        assertTrue(r.toString(), r.autoTips() >= 3); // was 4 before FLOWERs were solid
+        // Was 4 before FLOWERs were solid, 3 until 1 Oct 2026: its third TIP came from cross-field lobs
+        // when a robot's own CELL never rose, which the launcher's range check now refuses.
+        assertTrue(r.toString(), r.autoTips() >= 2);
     }
 
     @Test

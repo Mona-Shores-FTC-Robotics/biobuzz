@@ -78,6 +78,14 @@ final class FieldSim {
     static final int PRELOAD_POLLEN = 4;
     /** How far a rocker must swing off its stop before its TIP counts as started. */
     static final double TIP_STARTED_RAD = Math.toRadians(5);
+    /**
+     * The dampers at each end of the rocker (mentor review: the TIP looked too fast at the end): in
+     * the last few degrees before a stop the swing slows to this fraction. The calibration still
+     * makes a whole TIP take its measured time, so the middle of the swing is quicker to match.
+     * Placeholders until the TIP is filmed (issue #147).
+     */
+    static final double PLACEHOLDER_DAMPER_ZONE_RAD = Math.toRadians(6);
+    static final double PLACEHOLDER_DAMPER_FACTOR = 0.3;
 
     // ---- Placeholders: not published, replace with measurements -------------------------------
 
@@ -876,6 +884,9 @@ final class FieldSim {
             r.rate = 0;
         } else {
             r.rate = torque / hold * physics.swingRadPerS * swingScale;
+            if (Math.signum(r.rate) == Math.signum(r.angle) && TILT_RAD - Math.abs(r.angle) < PLACEHOLDER_DAMPER_ZONE_RAD) {
+                r.rate *= PLACEHOLDER_DAMPER_FACTOR;
+            }
             r.angle = Math.max(-TILT_RAD, Math.min(TILT_RAD, r.angle + r.rate * h));
         }
         boolean settledNow = Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12;
