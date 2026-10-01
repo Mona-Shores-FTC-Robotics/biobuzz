@@ -171,7 +171,7 @@ final class SimDriver {
             case CREEP:
                 pose = route.at(t);
                 out.intake = true;
-                if (sim.stored.size() >= FieldSim.PLACEHOLDER_ROBOT_CAPACITY || t >= route.end + 0.3) {
+                if (sim.stored.size() >= FieldSim.ROBOT_CAPACITY || t >= route.end + 0.3) {
                     task = Task.PLAN;
                 }
                 break;
@@ -225,9 +225,9 @@ final class SimDriver {
 
     private void plan(double t, boolean auto) {
         int held = sim.stored.size();
-        double[] pickup = held < FieldSim.PLACEHOLDER_ROBOT_CAPACITY ? choosePickup() : null;
+        double[] pickup = held < FieldSim.ROBOT_CAPACITY ? choosePickup() : null;
         FieldSim.Rocker hive = sim.rocker(alliance);
-        if (held > 0 && (pickup == null || held >= FieldSim.PLACEHOLDER_ROBOT_CAPACITY)) {
+        if (held > 0 && (pickup == null || held >= FieldSim.ROBOT_CAPACITY)) {
             if (hive.state() == HiveState.TRANSITION) return;
             shotEnd = hive.raisedEnd();
             double[] aim = hive.aimPoint();

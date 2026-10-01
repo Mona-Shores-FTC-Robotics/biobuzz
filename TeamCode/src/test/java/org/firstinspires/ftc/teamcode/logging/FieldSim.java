@@ -70,6 +70,12 @@ final class FieldSim {
 
     /** An FTC robot's starting-size limit; the simulated robot is that box. */
     static final double ROBOT_SIZE_IN = 18.0;
+    /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
+    static final int ROBOT_CAPACITY = 4;
+    /** Competition Manual §10.3.4: every robot starts the match holding exactly 4 POLLEN. */
+    static final int PRELOAD_POLLEN = 4;
+    /** How far a rocker must swing off its stop before its TIP counts as started. */
+    static final double TIP_STARTED_RAD = Math.toRadians(5);
 
     // ---- Placeholders: not published, replace with measurements -------------------------------
 
@@ -83,7 +89,6 @@ final class FieldSim {
     static final double PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 = 12.0;
     /** Height of the simulated robot's body; pieces hit it below this. */
     static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
-    static final int PLACEHOLDER_ROBOT_CAPACITY = 3;
     static final double PLACEHOLDER_INTAKE_HALF_WIDTH_IN = 7.0;
     /** Where a launched piece leaves the robot: forward of centre, and up. */
     static final double PLACEHOLDER_EXIT_FORWARD_IN = 4.0;
@@ -157,6 +162,13 @@ final class FieldSim {
         double lastTipSeconds = Double.NaN;
         private double tipFrom;
         private double leftStopAt;
+        /**
+         * TIPs started: counts up once a rocker has swung {@link #TIP_STARTED_RAD} off its stop,
+         * like the robot's {@code HiveTracker.tipsStarted()}; a piece rolling in that lifts it a
+         * little does not count.
+         */
+        int tipsStarted;
+        private boolean startCounted;
 
         Rocker(Alliance alliance, double centreX) {
             this.alliance = alliance;
@@ -376,6 +388,24 @@ final class FieldSim {
         return alliance == Alliance.BLUE ? blue : red;
     }
 
+    /**
+     * Puts {@link #PRELOAD_POLLEN} POLLEN in the robot: those staged outside the field nearest the
+     * given wall (x = 0 for red), which is where the field CAD keeps the alliances' preloads.
+     */
+    void preload(Alliance alliance) {
+        double wallX = alliance == Alliance.BLUE ? FIELD_SIZE_IN : 0;
+        List<Piece> outside = new ArrayList<>();
+        for (Piece p : pieces) {
+            if (p.where == Where.OUTSIDE && p.kind == Kind.POLLEN && Math.abs(p.x - wallX) < 10) outside.add(p);
+        }
+        outside.sort((a, b) -> Double.compare(a.y, b.y));
+        for (int i = 0; i < PRELOAD_POLLEN && i < outside.size(); i++) {
+            Piece p = outside.get(i);
+            p.where = Where.ROBOT;
+            stored.add(p);
+        }
+    }
+
     /** Messages since the last call: shots scored, tips, spills. */
     List<String> drainEvents() {
         List<String> out = new ArrayList<>(events);
@@ -494,7 +524,7 @@ final class FieldSim {
             collidePieces();
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
-                if (robotPresent && intaking && stored.size() < PLACEHOLDER_ROBOT_CAPACITY && inIntake(p, bx, by, bh)) {
+                if (robotPresent && intaking && stored.size() < ROBOT_CAPACITY && inIntake(p, bx, by, bh)) {
                     capture(p);
                     continue;
                 }
@@ -533,6 +563,11 @@ final class FieldSim {
         if (wasSettled && !settledNow) {
             r.tipFrom = before;
             r.leftStopAt = time - h;
+            r.startCounted = false;
+        }
+        if (!settledNow && !r.startCounted && Math.abs(r.angle - r.tipFrom) > TIP_STARTED_RAD) {
+            r.tipsStarted++;
+            r.startCounted = true;
         }
         if (!wasSettled && settledNow) {
             r.rate = 0;

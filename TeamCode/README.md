@@ -1291,6 +1291,39 @@ x) through the axle point `(0, 0, 43.95 in)`. The field model's `(x, y, z)` land
 `(z, x, y)`, and the asset builder bakes that into the robot models' root node so the robot config
 needs no rotations.
 
+### Simulating an Auto
+
+`AutoSimTest` runs every Auto the Auto Builder has exported (each class in
+`opmodes/auto/generated` with a `SOURCE`) against the same simulated field, for both alliances. It
+writes one log per run to `TeamCode/build/sim-logs/auto-<name>-<alliance>.wpilog`:
+
+```
+./gradlew :TeamCode:testDebugUnitTest --tests '*AutoSimTest*'
+```
+
+It prints one line per run, e.g. `right-start-tip RED: launched 8, scored 8, HIVE tipped at 3.3 s;
+finished at 12.2 s`. Open the log exactly as above. The Auto's own decisions are on the Console as
+`auto: …` (which branch of a "wait for" won, and when), next to every shot, score, spill and tip.
+
+**What is real and what is simulated.** The Auto is the generated class itself, built by its own
+`build(kit, rotated)` and run through autokit and Ivy's real `Scheduler`, as `BuiltAuto` runs it on
+the robot. The other alliance runs it rotated, as on the robot. Underneath, `AutoSim` simulates:
+
+- **Driving.** Each path is Pedro's own `Path`, driven along its length on a rest-to-rest
+  trapezoidal profile (40 in/s, 30 in/s²). The real follower carries speed through joins, so real
+  timing differs a little.
+- **The robot.** It starts holding its 4 preloaded POLLEN (Competition Manual §10.3.4) and never
+  holds more than 4 (G407). Its intake runs whenever there is room, unless the Auto calls
+  `IntakeOff`. `LaunchAll`/`ShootAll` spin up (1 s) and fire everything held at the alliance's raised
+  CELL from wherever the robot is, as if it aims. Whether a shot goes in is the physics'
+  business: from beside the HIVE it hits a CELL's closed side.
+- **Triggers.** `IntakeFull`, `LauncherReady`, `Tip` (the alliance's HIVE has started to tip since
+  the wait began, like `HiveTracker.tipsStarted()`, but from the simulation's truth instead of a
+  camera), `HiveTipped`, and `CameraBlind` (always false).
+
+An Auto that uses a command or trigger the simulation does not know fails at once and names it, as
+`BuiltAuto` does at INIT. Add the name to `AutoSim.registry()` with what it should do.
+
 ### Why the on-robot build is not here: it takes port 8080
 
 `page.j5155.AdvantageScope:lite` serves its UI from **port 8080**, which is

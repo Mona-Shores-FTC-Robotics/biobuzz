@@ -79,23 +79,25 @@ public class SimulatedMatchLogTest {
         new SimulatedMatch(3572L).write(file);
         WpiLogReader r = new WpiLogReader(Files.readAllBytes(file.toPath()));
 
-        WpiLogReader.Entry pollen = r.entry(SimulatedMatch.KEY_POLLEN);
-        WpiLogReader.Entry held = r.entry(SimulatedMatch.KEY_HELD_POLLEN);
+        WpiLogReader.Entry pollen = r.entry(FieldSimLog.KEY_POLLEN);
+        WpiLogReader.Entry held = r.entry(FieldSimLog.KEY_HELD_POLLEN);
         assertEquals("struct:Pose3d[]", pollen.type);
-        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_RED_NECTAR).type);
-        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_BLUE_NECTAR).type);
-        assertEquals("every POLLEN is drawn at the start", 40 * 7, pollen.records.get(0).asDoubles().length);
+        assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_RED_NECTAR).type);
+        assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_BLUE_NECTAR).type);
+        assertEquals("every POLLEN is drawn at the start, the 4 preloads inside the robot", 40 * 7,
+                pollen.records.get(0).asDoubles().length + held.records.get(0).asDoubles().length);
+        assertEquals(FieldSim.PRELOAD_POLLEN * 7, held.records.get(0).asDoubles().length);
         assertTrue("pieces move", pollen.records.size() > 100);
         assertTrue("the robot holds pieces", held.records.size() > 10);
 
         // The HIVE: a fixed structure pose and two component poses, which move.
-        assertEquals("struct:Pose3d", r.entry(SimulatedMatch.KEY_HIVE).type);
-        WpiLogReader.Entry components = r.entry(SimulatedMatch.KEY_HIVE_COMPONENTS);
+        assertEquals("struct:Pose3d", r.entry(FieldSimLog.KEY_HIVE).type);
+        WpiLogReader.Entry components = r.entry(FieldSimLog.KEY_HIVE_COMPONENTS);
         assertEquals(14, components.records.get(0).asDoubles().length);
         assertTrue(components.records.size() > 10);
         List<WpiLogReader.Record> tips = r.entry("/Sim/Hive/Red/Tips").records;
         assertTrue("the red HIVE tips", tips.get(tips.size() - 1).asInt64() >= 2);
-        assertEquals("struct:Pose3d[]", r.entry(SimulatedMatch.KEY_SHOT).type);
+        assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_SHOT).type);
 
         int scored = 0;
         boolean tipped = false;

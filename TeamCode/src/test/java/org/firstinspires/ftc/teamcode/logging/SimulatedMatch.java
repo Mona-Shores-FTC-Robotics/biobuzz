@@ -1,14 +1,12 @@
 package org.firstinspires.ftc.teamcode.logging;
 
 import org.firstinspires.ftc.teamcode.util.Alliance;
-import org.firstinspires.ftc.teamcode.vision.HiveState;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -56,18 +54,6 @@ public final class SimulatedMatch {
     static final double IDLE_RPM = 1500;
     static final double KV = 0.00028;
     static final double KP = 0.0006;
-
-    /** The keys the game-piece and HIVE views use; see {@code TeamCode/README.md}. */
-    static final String KEY_POLLEN = "/Sim/GamePieces/Pollen";
-    static final String KEY_RED_NECTAR = "/Sim/GamePieces/RedNectar";
-    static final String KEY_BLUE_NECTAR = "/Sim/GamePieces/BlueNectar";
-    /** The same, for pieces inside the robot. */
-    static final String KEY_HELD_POLLEN = "/Sim/GamePieces/Held/Pollen";
-    static final String KEY_HELD_RED_NECTAR = "/Sim/GamePieces/Held/RedNectar";
-    static final String KEY_HELD_BLUE_NECTAR = "/Sim/GamePieces/Held/BlueNectar";
-    static final String KEY_HIVE = "/Sim/Hive/Structure";
-    static final String KEY_HIVE_COMPONENTS = "/Sim/Hive/Components";
-    static final String KEY_SHOT = "/Sim/Shot/Trajectory";
 
     /** Something that happens at a time, not driven by the robot: a note, a fault. */
     static final class Action {
@@ -117,13 +103,11 @@ public final class SimulatedMatch {
         log.putMetadata("GitSHA", "simulated");
         log.putMetadata("PoseFrame", AdvantageScopeFrame.DESCRIPTION);
         log.putMetadata("Note", "Illustrative driving, not BIOBUZZ strategy");
-        log.putMetadata("GamePieces", "Field '" + HiveAssets.FIELD_NAME + "': add " + KEY_POLLEN + " and the two"
-                + " NECTAR keys as Game Piece objects, and " + KEY_HIVE + " as a Robot ('" + HiveAssets.ROBOT_NAME
-                + "') with " + KEY_HIVE_COMPONENTS + " as its components. Build the assets with HiveAssetsTest.");
         HiveCalibration calibration = HiveCalibration.current();
-        log.putMetadata("Calibration", calibration.describe());
+        FieldSimLog.putMetadata(log, calibration);
 
         FieldSim sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
+        sim.preload(Alliance.RED);
         SimDriver driverBot = new SimDriver(sim, Alliance.RED, START);
 
         GamepadLog driverLog = new GamepadLog(0);
@@ -146,14 +130,14 @@ public final class SimulatedMatch {
         SimDriver.Route lastPath = null;
         double[] prevPose = START.clone();
         double clearShotAt = -1;
-        Logged logged = new Logged();
+        FieldSimLog logged = new FieldSimLog();
 
         log.putEvent("OpMode init: Simulated match", 0);
         log.putEvent("Alliance RED (vision proposed, confirmed with X)", 1000);
         log.putEvent("Start check OK: 1.2 in, 2 deg from declared start", 2000);
         log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(true, 1), 0);
         log.put(AdvantageScopeKeys.MATCH_NUMBER, 7L, 0);
-        log.putPose3dFlat(KEY_HIVE, 0, 0, 0, 0, 0);
+        FieldSimLog.putHiveStructure(log);
 
         for (long step = 0; step * LOOP_S <= MATCH_END; step++) {
             double t = step * LOOP_S;
@@ -182,7 +166,7 @@ public final class SimulatedMatch {
             // The robot decides what to do; the mechanisms follow.
             SimDriver.Output want = driverBot.update(t, auto || teleop, auto, launcherState.equals("READY"));
             String intakeWant = want.intake
-                    ? (sim.stored.size() >= FieldSim.PLACEHOLDER_ROBOT_CAPACITY ? "FULL" : "INTAKING") : "OFF";
+                    ? (sim.stored.size() >= FieldSim.ROBOT_CAPACITY ? "FULL" : "INTAKING") : "OFF";
             if (!intakeWant.equals(intakeState)) {
                 if (teleop && intakeWant.equals("INTAKING") && intakeState.equals("OFF")) {
                     log.putEvent("driver LB: Intake (hold)", us);
@@ -203,10 +187,10 @@ public final class SimulatedMatch {
             if (want.shotLane >= 0) {
                 rpm[want.shotLane] -= 450;
                 log.putEvent("launcher: shot " + laneNames[want.shotLane], us);
-                log.putPose3dArray(KEY_SHOT, FieldSim.trajectory(want.shotArc), us);
+                log.putPose3dArray(FieldSimLog.KEY_SHOT, FieldSim.trajectory(want.shotArc), us);
                 clearShotAt = t + 1.5;
             } else if (clearShotAt >= 0 && t >= clearShotAt) {
-                log.putPose3dArray(KEY_SHOT, new double[0], us);
+                log.putPose3dArray(FieldSimLog.KEY_SHOT, new double[0], us);
                 clearShotAt = -1;
             }
 
@@ -323,65 +307,6 @@ public final class SimulatedMatch {
             operatorLog.write(log, operator, us);
         }
         log.putEvent("OpMode stopped", Math.round(MATCH_END * 1e6));
-    }
-
-    /**
-     * The sim's state, written only when it changes: pieces at rest and a settled HIVE cost
-     * nothing, so the file stays small.
-     */
-    private static final class Logged {
-        private final double[][] pieces = new double[6][];
-        private double[] components;
-        private final String[] hiveState = new String[2];
-        private final int[] tips = {-1, -1};
-        private final int[] raisedCount = {-1, -1};
-        private int held = -1;
-
-        void write(WpiLog log, FieldSim sim, long us) throws IOException {
-            String[] keys = {KEY_POLLEN, KEY_RED_NECTAR, KEY_BLUE_NECTAR,
-                    KEY_HELD_POLLEN, KEY_HELD_RED_NECTAR, KEY_HELD_BLUE_NECTAR};
-            FieldSim.Kind[] kinds = FieldSim.Kind.values();
-            for (int i = 0; i < 6; i++) {
-                double[] now = sim.pieces(kinds[i % 3], i >= 3);
-                if (!Arrays.equals(now, pieces[i])) {
-                    log.putPose3dArray(keys[i], now, us);
-                    pieces[i] = now;
-                }
-            }
-            double[] c = sim.hiveComponents();
-            if (!Arrays.equals(c, components)) {
-                log.putPose3dArray(KEY_HIVE_COMPONENTS, c, us);
-                components = c;
-            }
-            FieldSim.Rocker[] rockers = {sim.red, sim.blue};
-            String[] names = {"Red", "Blue"};
-            for (int i = 0; i < 2; i++) {
-                FieldSim.Rocker r = rockers[i];
-                String prefix = "/Sim/Hive/" + names[i] + "/";
-                String state = r.state().name();
-                if (!state.equals(hiveState[i])) {
-                    log.put(prefix + "State", state, us);
-                    hiveState[i] = state;
-                }
-                if (r.tips != tips[i]) {
-                    log.put(prefix + "Tips", (long) r.tips, us);
-                    tips[i] = r.tips;
-                }
-                int end = r.raisedEnd();
-                int count = end == 0 ? 0 : sim.count(r.cell(end));
-                if (count != raisedCount[i]) {
-                    log.put(prefix + "RaisedCellPieces", (long) count, us);
-                    raisedCount[i] = count;
-                }
-                if (r.state() == HiveState.TRANSITION || r.rate != 0) {
-                    log.put(prefix + "AngleDeg", Math.toDegrees(r.angle), us);
-                }
-            }
-            if (sim.stored.size() != held) {
-                log.put("/Sim/Robot/Held", (long) sim.stored.size(), us);
-                held = sim.stored.size();
-            }
-        }
     }
 
     /** Close to the HIVE and facing it: the Limelight can see a CELL's tags. */

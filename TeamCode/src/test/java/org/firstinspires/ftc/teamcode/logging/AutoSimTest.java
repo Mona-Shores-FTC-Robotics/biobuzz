@@ -1,0 +1,103 @@
+package org.firstinspires.ftc.teamcode.logging;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.junit.Test;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Simulates every Auto the Auto Builder has exported, for both alliances, and writes one
+ * {@code .wpilog} each to {@code TeamCode/build/sim-logs/auto-<name>-<alliance>.wpilog}. Open one in
+ * AdvantageScope as {@code TeamCode/README.md} describes ("Simulating an Auto") to watch the Auto
+ * drive, launch and tip the HIVE.
+ *
+ * <pre>
+ * ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoSimTest*'
+ * </pre>
+ * It prints one line per run: shots launched and scored, when the HIVE tipped, and when the Auto
+ * finished.
+ */
+public class AutoSimTest {
+
+    private static final String GENERATED = "org.firstinspires.ftc.teamcode.opmodes.auto.generated";
+
+    /** Every exported Auto: each class in the generated package that says where it came from. */
+    static List<Class<?>> exportedAutos() throws ClassNotFoundException {
+        File dir = new File(TeamCodeDir.get(), "src/test/java/" + GENERATED.replace('.', '/'));
+        File[] files = dir.listFiles((d, n) -> n.endsWith(".java") && !n.endsWith("Test.java"));
+        List<Class<?>> autos = new ArrayList<>();
+        if (files == null) return autos;
+        java.util.Arrays.sort(files);
+        for (File f : files) {
+            Class<?> c = Class.forName(GENERATED + "." + f.getName().replace(".java", ""));
+            try {
+                c.getField("SOURCE");
+                autos.add(c);
+            } catch (NoSuchFieldException notAnAuto) {
+                // a helper, not an export
+            }
+        }
+        return autos;
+    }
+
+    @Test
+    public void everyExportedAutoRunsInTheSimulationForBothAlliances() throws Exception {
+        List<Class<?>> autos = exportedAutos();
+        assertFalse("found no exported Autos", autos.isEmpty());
+        double edge = AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN * 2;
+        for (Class<?> auto : autos) {
+            for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+                File file = new File(TeamCodeDir.simLogs(),
+                        "auto-" + AutoSim.name(auto) + "-" + alliance.name().toLowerCase() + ".wpilog");
+                AutoSim.Result result = new AutoSim(auto, alliance, 3572L).write(file);
+                System.out.println(result);
+                assertTrue(file.length() > 0);
+                for (double[] p : result.poses) {
+                    assertTrue(result + ": robot left the field at " + p[0] + ", " + p[1],
+                            p[0] > -1 && p[0] < edge + 1 && p[1] > -1 && p[1] < edge + 1);
+                }
+                assertFalse(result + ": made no decisions", result.decisions.isEmpty());
+                checkLog(file);
+            }
+        }
+    }
+
+    /**
+     * RightStartTipAuto opens with "LaunchAll, and wait for Tip": its 4 preloads land in the raised
+     * CELL, which already holds 3 NECTAR, so the 3rd tips the HIVE (Event Field Setup Guide §12.3) and
+     * the Auto takes its "tipped" route.
+     */
+    @Test
+    public void rightStartTipAutoTipsTheHiveWithItsPreloads() throws Exception {
+        Class<?> auto = Class.forName(GENERATED + ".RightStartTipAuto");
+        for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
+            AutoSim.Result result = new AutoSim(auto, alliance, 3572L).write(
+                    new File(TeamCodeDir.simLogs(), "auto-check-" + alliance.name().toLowerCase() + ".wpilog"));
+            assertFalse(result.toString(), result.tipsAt.isEmpty());
+            assertTrue(result.toString(), result.tipsAt.get(0) < 6.0);
+            assertTrue(result.toString(), result.decisions.stream().anyMatch(d -> d.startsWith("Did the HIVE tip?: Tip")));
+            assertTrue(result.toString(), result.scored >= 3);
+        }
+    }
+
+    private static void checkLog(File file) throws IOException {
+        WpiLogReader r = new WpiLogReader(Files.readAllBytes(file.toPath()));
+        assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_POLLEN).type);
+        assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_HIVE_COMPONENTS).type);
+        assertEquals("struct:Pose3d", r.entry("/Odometry/Robot3d").type);
+        assertEquals("struct:Pose2d[]", r.entry("/Path/Active").type);
+        long last = -1;
+        for (WpiLogReader.Record e : r.entry(AdvantageScopeKeys.EVENTS).records) {
+            assertTrue("AdvantageScope drops events that share a timestamp", e.timestampUs > last);
+            last = e.timestampUs;
+        }
+    }
+}
