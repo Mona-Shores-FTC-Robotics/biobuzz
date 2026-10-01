@@ -317,7 +317,7 @@ final class FieldSim {
     final Rocker red = new Rocker(Alliance.RED, RED_HIVE_X_IN);
     final Rocker blue = new Rocker(Alliance.BLUE, BLUE_HIVE_X_IN);
     private final Rocker[] rockers = {red, blue};
-    private final Random random;
+    final Random random;
     private final List<String> events = new ArrayList<>();
 
     /**
@@ -688,21 +688,22 @@ final class FieldSim {
         List<Piece> stored = bot.stored;
         if (stored.isEmpty()) return null;
         double[] from = bot.exitPoint(sideIn);
+        from[2] += volleyUpIn;
         double[] v = Double.isNaN(bot.design.fixedPitchDeg)
                 ? launchVelocity(from, target, bot.design.arcExtraPitchDeg)
                 : launchVelocityAtPitch(from, target, Math.toRadians(bot.design.fixedPitchDeg));
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
-        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
+        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * noise(0);
         if (!bot.design.dedicatedLaunchers) {
             speed *= stored.get(0).kind == Kind.POLLEN ? bot.design.pollenSpeedFactor : bot.design.nectarSpeedFactor;
         }
-        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
+        double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(1);
         double c = Math.cos(yaw), s = Math.sin(yaw);
         double carried = bot.design.compensatesMotion ? 0 : 1;
         double vx = (v[0] * c - v[1] * s) * speed + carried * bot.vx;
         double vy = (v[0] * s + v[1] * c) * speed + carried * bot.vy;
-        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian());
+        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * noise(2));
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
         p.x = from[0];
@@ -715,6 +716,19 @@ final class FieldSim {
         p.wy = -12;
         p.wz = 0;
         return new double[] {vx, vy, vz};
+    }
+
+    /**
+     * A catapult's throw: while set, every piece launched shares these three errors (speed, yaw,
+     * pitch, in standard deviations) plus {@link #volleyResidual} of its own, and leaves
+     * {@link #volleyUpIn} higher than a single shot (the clump's second layer).
+     */
+    double[] volleyNoise;
+    double volleyResidual = 1;
+    double volleyUpIn = 0;
+
+    private double noise(int k) {
+        return volleyNoise == null ? random.nextGaussian() : volleyNoise[k] + volleyResidual * random.nextGaussian();
     }
 
     /** The arc a piece launched with {@code v} from {@code from} follows until it comes down to {@code floorZ}. */

@@ -63,6 +63,14 @@ public class AutoStudyTest {
         plainCat.catapultSpread = 2.0;
         plainCat.catapultSideIn = 2.5;
         m.put(plainCat.name, plainCat);
+        // As a real arm throws: the clump shares one error and stays together (see catapultClump).
+        RobotDesign clumpCat = cat.copy("clump catapult, 24 in catcher");
+        clumpCat.catapultClump = true;
+        m.put(clumpCat.name, clumpCat);
+        // Steeper, so it drops into the opening from where the spring-hood Autos fire (31-44 in back).
+        RobotDesign steepCat = clumpCat.copy("clump catapult 72 deg, 24 in catcher");
+        steepCat.fixedPitchDeg = 72;
+        m.put(steepCat.name, steepCat);
         for (RobotDesign base : new RobotDesign[] {catcher, twinCatcher}) {
             RobotDesign c = base.copy(base.name + ", fires on the move");
             c.compensatesMotion = true;

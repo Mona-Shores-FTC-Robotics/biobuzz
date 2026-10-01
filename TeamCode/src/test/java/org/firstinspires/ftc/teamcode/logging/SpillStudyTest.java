@@ -39,6 +39,7 @@ public class SpillStudyTest {
         // BIOBUZZ_SPILL_PHYSICS=friction,bounce,spread,swing scales the placeholders (RobustnessTest's knobs)
         String phys = System.getenv("BIOBUZZ_SPILL_PHYSICS");
         if (phys != null) {
+            HiveCalibration.current().fit(); // fit at the true scales first, or the fit undoes swingScale
             String[] k = phys.split(",");
             FieldSim.frictionScale = Double.parseDouble(k[0]);
             FieldSim.bounceScale = Double.parseDouble(k[1]);

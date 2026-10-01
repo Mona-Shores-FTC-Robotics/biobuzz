@@ -1,0 +1,4 @@
+# lean-opp: lean, plus a decision after each volley: if the CELL has not tipped within 1.5 s, the
+# robot fetches pieces (south: the GARDEN; north: the far FLOWER) instead of standing still.
+auto-builder/lean-opp-south.pp
+auto-builder/lean-opp-north.pp

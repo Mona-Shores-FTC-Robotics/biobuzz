@@ -77,6 +77,12 @@ final class RobotDesign {
     double catapultSpread = 2.0;
     double catapultSideIn = 2.5;
     /**
+     * A catapult that throws its pieces as one clump: packed 2 by 2 (none overlapping), all with the
+     * arm's one error for the throw, plus {@link #catapultResidual} of a flywheel's scatter each.
+     */
+    boolean catapultClump = false;
+    double catapultResidual = 0.3;
+    /**
      * Whether the shooter software allows for the robot's own motion when it fires on the move
      * (aiming off by the robot's velocity). Without it a piece fired while driving carries the
      * robot's velocity.
@@ -152,6 +158,8 @@ final class RobotDesign {
         d.dedicatedLaunchers = dedicatedLaunchers;
         d.catapultSpread = catapultSpread;
         d.catapultSideIn = catapultSideIn;
+        d.catapultClump = catapultClump;
+        d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
         return d;
     }

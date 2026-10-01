@@ -550,6 +550,11 @@ public final class AutoSim {
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
             boolean dedicated = design.dedicatedLaunchers && !catapult;
+            boolean clump = catapult && design.catapultClump;
+            if (clump) {
+                sim.volleyNoise = new double[] {sim.random.nextGaussian(), sim.random.nextGaussian(), sim.random.nextGaussian()};
+                sim.volleyResidual = design.catapultResidual;
+            }
             for (int i = 0; i < volley && !body.stored.isEmpty() && (streaming || shotsFired < shotTarget); i++) {
                 if (dedicated) {
                     // Launcher 0 takes POLLEN, launcher 1 NECTAR: bring that kind to the front, or skip.
@@ -562,8 +567,14 @@ public final class AutoSim {
                     body.stored.add(0, body.stored.remove(pick));
                 }
                 double side = volley == 1 ? 0 : (i - (volley - 1) / 2.0) * (catapult ? design.catapultSideIn : 6.0);
+                if (clump) {
+                    // 2 by 2, a NECTAR's width apart plus a little, so nothing starts overlapping.
+                    double pitch = 2 * FieldSim.NECTAR_RADIUS_IN + 0.2;
+                    side = ((i % 2) - 0.5) * pitch;
+                    sim.volleyUpIn = (i / 2) * pitch;
+                }
                 double[] from = body.exitPoint(side);
-                double[] v = sim.launch(body, aim, yawError, side, catapult ? design.catapultSpread : 1.0);
+                double[] v = sim.launch(body, aim, yawError, side, clump ? 1.0 : catapult ? design.catapultSpread : 1.0);
                 if (v == null) break;
                 result.robots.get(index).launched++;
                 shotsFired++;
@@ -572,6 +583,8 @@ public final class AutoSim {
                         + new String[] {"left", "center", "right"}[lane], us);
                 lane = (lane + 1) % 3;
             }
+            sim.volleyNoise = null;
+            sim.volleyUpIn = 0;
             if (lastArc != null) log.putPose3dArray(FieldSimLog.KEY_SHOT, FieldSim.trajectory(lastArc), us);
             nextShotAt = now + (catapult ? design.spinUpS : design.shotIntervalS);
         }

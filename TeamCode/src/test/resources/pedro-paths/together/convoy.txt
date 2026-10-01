@@ -1,0 +1,4 @@
+# The convoy experiment: both robots work whichever CELL is up, ours through the tunnel, our partner
+# up the west corridor. Starved: only the robot in the roll path catches, so the far CELL gets ~4.
+auto-builder/experiments/convoy-tunnel.pp
+auto-builder/experiments/convoy-corridor.pp

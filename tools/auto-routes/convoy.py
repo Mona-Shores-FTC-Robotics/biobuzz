@@ -13,7 +13,7 @@ S_SIDE, N_SIDE = (32, 14, 60), (32, 128, 300)
 
 def tunnel(cycles=4, name="convoy-tunnel"):
     """Our robot: in the spill's roll path at each end, through the tunnel between them."""
-    r = Route(name, (59, 9.5, 90), speed=50)
+    r = Route(name, (59, 9.5, 90), speed=50, folder=PP_DIR + "/experiments")
     r.pt("S_HOME", *S_HOME).pt("N_HOME", *N_HOME).pt("S_EXIT", *S_EXIT).pt("N_EXIT", *N_EXIT)
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
@@ -34,7 +34,7 @@ def tunnel(cycles=4, name="convoy-tunnel"):
 
 def corridor(cycles=4, name="convoy-corridor"):
     """The partner: beside the roll path at each end, up and down the west corridor."""
-    r = Route(name, (38, 9.5, 90), speed=50)
+    r = Route(name, (38, 9.5, 90), speed=50, folder=PP_DIR + "/experiments")
     r.pt("S_SIDE", *S_SIDE).pt("N_SIDE", *N_SIDE)
     r.add(fire(r, "Fire the preloads at the south CELL", "Empty", ms=4000),
           r.wait("TIP 1", when=["LeftCellUp"], ms=3000),
@@ -55,6 +55,8 @@ def corridor(cycles=4, name="convoy-corridor"):
 
 
 if __name__ == "__main__":
+    # An experiment, kept for the record: 26-30 points. Only the robot in the roll path catches, so
+    # the CELL at the far end gets about 4 pieces and rarely tips. The exported Java is not committed.
     tunnel().write()
     corridor().write()
     study("ConvoyTunnelAuto,ConvoyCorridorAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,

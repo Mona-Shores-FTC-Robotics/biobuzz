@@ -1635,13 +1635,13 @@ draws it, for seeing where pieces are without AdvantageScope.
 | | Auto(s) | Partner needed | Points |
 |---|---|---|---|
 | 1 | **duo-lz-south + duo-lz-north** | one that runs duo-lz-north (level 2 below) | 80; 90 with two launchers and a catcher |
-| 2 | **lean-south + lean-north** | the same, our robot design on both | 92 with two launchers and a catcher, no AUTO PARK |
+| 2 | **lean-opp-south + lean-opp-north** | the same, our robot design on both | 89 with two launchers and a catcher, no AUTO PARK; lean's 92 did not survive other physics (below) |
 | 3 | **three-tip-adaptive** alone | none | 63 |
 | 4 | **three-tip-adaptive** + a partner that fires its preloads | level 1 | 75 |
 | 5 | **solo-two-tip** at 40 in/s | none | 48, parked |
 
 The two-robot pairs are also in `pedro-paths/together/` (`duo-lz.txt`, `lean.txt`,
-`adaptive-with-partner.txt`). To watch two robots: AdvantageScope 3D Field, drag
+`lean-opp.txt`, `adaptive-with-partner.txt`). To watch two robots: AdvantageScope 3D Field, drag
 `/Odometry/AllRobots3d` onto the field as a Robot to see both at once, or `/Odometry/Robot3d` as a
 Robot plus `/Odometry/Partner3d` as a Ghost in another colour to tell them apart.
 
@@ -1667,6 +1667,111 @@ partner can really do; we run the matching Auto.
   40–50 points) is the risk to avoid: confirm the level in the queue, not on the field.
 
 The other alliance's spill can roll onto our side; the simulation ignores it, and so does the plan.
+
+### Which results hold, and timing a robot to a TIP
+
+**Two rules every Auto here assumes** (our reading; confirm in the Game Manual Q&A): the launcher
+may not spin before the match starts, so every Auto pays the spin-up (2.0 s on the spring hood)
+before its first shot; and nobody adds NECTAR to the field during AUTO, so the simulated AUTO has
+no human player.
+
+**Which conclusions survive unmeasured physics.** `RobustnessTest` (opt in with
+`BIOBUZZ_ROBUSTNESS=1`; `BIOBUZZ_ROBUSTNESS_ONLY` picks candidates by name) reruns the candidate
+Autos, 4 seeds each, with the physics nobody has measured scaled up and down: tile friction
+×0.5/×2, bounce ×0.6/×1.5, shot scatter ×1.5/×2, TIP swing speed ×0.7/×1.4, and three mixtures.
+
+| Auto, robot | mean of 12 | worst |
+|---|---|---|
+| **duo-lz, two spring hoods + 24 in catcher** | **78** | 51 |
+| duo-lz, one spring hood + catcher | 76 | 51 |
+| duo-lz, two spring hoods | 75 | 51 |
+| duo-lz, one spring hood | 72 | 51 |
+| lean-opp, two spring hoods + catcher | 68 | 36 |
+| lean, two spring hoods + catcher | 61 | 36 |
+| three-tip-adaptive (alone), two spring hoods + catcher | 61 | 43 |
+| three-tip-adaptive (alone), one spring hood | 51 | 38 |
+| lean, one spring hood | 51 | 31 |
+
+- **duo-lz beats lean** in 11 or 12 of the 12 variants for every robot. Lean's 92 points was the
+  baseline physics only; it depends on the roll, which is the least trustworthy part.
+- **Shot scatter decides the most.** Every Auto falls to its worst when the scatter doubles (to
+  about 3% in speed and 1.6° in direction). So the first thing to measure on a real launcher is
+  how consistent it is, before how fast it is.
+- **The catcher helps everywhere** (lean 8–0; duo-lz 7–2 on one launcher, 4–1 on two). **A second
+  launcher pays off only with the catcher**: without one, two launchers lost to one in lean 0–8.
+
+**lean-opp** (`lean_opportunist.py`) adds one decision after each volley: if the CELL has not
+tipped within 1.5 s, fetch more pieces (south robot: the GARDEN; north robot: the far FLOWER),
+come back and fire again; if it has, stay in the roll path and catch. It beats plain lean on
+robots without a catcher (9–2), and averages 68 against 61 on the best robot, but the catcher
+already fills the robot, so there it is about even (6–5). It is the better Auto if both robots
+must stay home; duo-lz, which also parks, is still better.
+
+**A convoy loses** (`convoy.py`, `experiments/convoy-*.pp`): both robots fire into whichever CELL
+is up, ours through the tunnel and our partner up the west corridor. 26–30 points. Only the robot
+standing in the roll path catches (4 pieces); the one beside it catches almost none, so the CELL
+at the far end, emptied by its own TIP and needing about 8 POLLEN, rarely tips. (The relay
+experiment found the same.) Two robots each owning one end, with the spill feeding the same CELL
+two TIPs later, stays the plan.
+
+**When the pieces land.** The fall from the lip to the tiles is gravity plus the rocker's swing;
+the roll after it depends on friction and bounce. `SpillStudyTest` now prints percentiles, and
+`BIOBUZZ_SPILL_PHYSICS=friction,bounce,spread,swing` reruns it with the scales above. Measured from
+the moment the rocker is 5° off its stop (the robot's `Tip` trigger):
+
+| Physics | first touch, p10 / p50 / p90 | where (RED, south CELL) |
+|---|---|---|
+| baseline | 1.06 / 1.34 / 1.40 s | x 50–67, y 22–36 |
+| friction ×0.5, ×2 | 1.02–1.04 / 1.14–1.18 / 1.38–1.44 s | x 50–67, y 20–40 |
+| bounce ×0.6, ×1.5 | 1.04–1.06 / 1.12–1.48 / 1.28–1.72 s | x 46–67, y 18–36 |
+| TIP swing ×0.7 (slow) | 1.18 / 1.44 / 1.64 s | x 50–67, y 23–37 |
+| TIP swing ×1.4 (fast) | 0.88 / 1.16 / 1.22 s | x 50–67, y 20–35 |
+
+The place repeats under every variant: a box in front of the opening about 18 in wide and 15 in
+deep (north CELL: y 105–123). The time repeats within about ±0.2 s, except for the TIP's own
+speed, which moves it by 0.3 s either way. That is why filming a TIP (below) comes first: once the
+tip time is measured, a robot knows it has at least 0.8 s, minus the camera's latency, after the
+`Tip` trigger before the first piece lands. At 50 in/s that is about 25–30 in of travel, enough to
+react rather than predict.
+
+**Knowing a CELL has tipped, or is about to**, from earliest to latest:
+
+| Signal | When | How sure |
+|---|---|---|
+| **Counting**: the robot knows what it put in the raised CELL (3 NECTAR at the start, then 3 POLLEN tip it; an emptied CELL takes about 8) | as the deciding shot leaves, about 0.7 s before it arrives | as sure as its shots. It can't count a partner's or an opponent's |
+| **HIVE camera** (`HiveTracker`, the `Tip` trigger) | about 0.8–1.3 s before the first touch | sure: it sees every TIP, whoever caused it |
+| **Webcam, pieces falling** in front of the opening | a fraction of a second before the first touch | sure but late, and the webcam runs only while intaking |
+| **The other CELL up** (`LeftCellUp`/`RightCellUp`) | when the rocker settles | sure, and latest |
+
+So: **commit on counting, confirm with the camera.** Start toward the catch spot when the deciding
+shot leaves; if `Tip` has not fired by the time that shot should have landed plus a margin, do
+something useful instead (lean-opp's "Did it tip?"). A robot standing in the roll path before the
+pieces touch catches 4 in about a second; driving through on cue caught about one.
+
+**Filming a TIP** (240 fps, phone on a tripod square to the HIVE's side, a tape measure on the
+tiles in front of the opening and one upright at the CELL's lip):
+
+1. Load a raised CELL to one POLLEN short, then toss the tipping POLLEN in. 5 times per CELL.
+2. Count frames from the first movement to: the rocker 5° off its stop (mark the angle on the
+   screen); the rocker on its stop (the tip time → `HiveTracker.Tuning.tipSeconds`); the first and
+   last pieces leaving the lip; the first three touching the tiles, and where on the tape.
+3. A second phone above, or the 24 in tiles as a grid: where each piece is 2 s after it touches.
+4. Drop a POLLEN and a NECTAR from 40 in onto the tiles, 3 times each, and read the first rebound
+   (→ `HiveCalibration.MEASURED_DROP_IN`, `MEASURED_REBOUND_IN`).
+
+If the video's first-touch times match `SpillStudyTest`'s within about 0.1 s, Autos built on the
+fall can be trusted even while the roll is not.
+
+**The robot's own `.wpilog`.** A practice run of an exported Auto already writes one
+(`logging/MatchLog`): pose, path and loop time. Open it in AdvantageScope beside the simulated log of
+the same `.pp` (same keys) and the real path speed (→ AutoSim's `speed(...)`) and timing are on
+one timeline; `WpiLogReader` reads it in a test, so the comparison can be automated. Spin-up and
+shot timing need the launcher logging its RPM and each shot, and the HIVE tracker's state needs
+the open logging issue.
+
+**The loop at a meeting:** film and log → measured numbers into `HiveCalibration` and `RobotDesign`
+→ rerun `RobustnessTest` and the Auto studies → the ranking holds (build on it) or flips (whatever
+flipped it is the next thing to measure).
 
 ### One launcher, the webcam, and driving under the HIVE
 

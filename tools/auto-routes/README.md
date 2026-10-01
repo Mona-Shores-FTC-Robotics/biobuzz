@@ -9,6 +9,10 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 | `duo_lz.py` | `duo-lz-south.pp`, `duo-lz-north.pp` |
 | `three_tip_adaptive.py` | `three-tip-adaptive.pp` |
 | `partners.py` | `partners/partner-leave-park.pp`, `partners/partner-preloads-park.pp` |
+| `lean_duo.py` | `lean-south.pp`, `lean-north.pp` |
+| `lean_opportunist.py` | `lean-opp-south.pp`, `lean-opp-north.pp` |
+| `snapshots.py` | pictures of the field at chosen moments, from `SnapshotTest` |
+| `home_duo.py`, `convoy.py` | experiments that lost, in `experiments/` (their Java is not committed) |
 
 ```
 AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/duo_lz.py
