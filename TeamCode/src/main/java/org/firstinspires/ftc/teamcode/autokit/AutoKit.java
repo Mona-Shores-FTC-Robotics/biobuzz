@@ -178,10 +178,20 @@ public final class AutoKit {
     }
 
     /**
-     * The endgame guard. Runs {@code cards} in order, but before each one checks that the time left
-     * covers {@code parkSeconds} plus {@link #GUARD_MARGIN_S}; if not, it stops there and drives
-     * {@code parkPath} instead. Checks happen only between cards, when the robot is at a known point.
-     * The last card is assumed to be the park itself and is never skipped.
+     * The endgame guard. Runs {@code cards} in order, and drives {@code parkPath} instead as soon as
+     * the time left no longer covers {@code parkSeconds} plus {@link #GUARD_MARGIN_S}. It checks
+     * before each card starts and on every loop while one runs, so a card that would run past that
+     * deadline (a long wait, a slow command, a path) is ended {@link EndCondition#INTERRUPTED} at
+     * the deadline and the park starts in the same loop. That is what the Auto Builder's preview
+     * shows as "cut short by the endgame guard".
+     *
+     * <p>The last card is assumed to be the park itself and is never skipped or cut short.
+     *
+     * <p>History: until 1 Oct 2026 the guard checked only between cards, "when the robot is at a
+     * known point". A "wait for Tip, at most 7000 ms" started at 20 s then ran to 27 s before the
+     * guard looked, a 3.3 s park no longer fit, and the robot lost AUTO PARK. The preview has
+     * always cut at the deadline. A known point was never needed, because Pedro drives the park
+     * path from wherever the robot is.
      */
     public Command guarded(String label, Path parkPath, double parkSeconds, Command... cards) {
         final Command park = traced("path " + label + " park", follow(parkPath));
@@ -206,6 +216,13 @@ public final class AutoKit {
                 advance(label, parkSeconds, cards, index, current, park);
                 return;
             }
+            boolean last = index[0] == cards.length - 1;
+            if (current[0] != park && !last && tooLateToContinue(label, parkSeconds, "cutting card short")) {
+                current[0].end(EndCondition.INTERRUPTED);
+                current[0] = park;
+                park.start();
+                return;
+            }
             current[0].execute();
         });
         card.setDone(() -> current[0] == null);
@@ -222,15 +239,17 @@ public final class AutoKit {
             return;
         }
         boolean last = index[0] == cards.length - 1;
-        double left = timeLeft();
-        if (!last && left < parkSeconds + GUARD_MARGIN_S) {
-            trace.accept(String.format(Locale.US, "%s: %.1f s left, park needs %.1f s: parking now",
-                    label, left, parkSeconds + GUARD_MARGIN_S));
-            current[0] = park;
-        } else {
-            current[0] = cards[index[0]];
-        }
+        current[0] = !last && tooLateToContinue(label, parkSeconds, "parking now") ? park : cards[index[0]];
         current[0].start();
+    }
+
+    /** True, and traced, when the time left no longer covers the park plus {@link #GUARD_MARGIN_S}. */
+    private boolean tooLateToContinue(String label, double parkSeconds, String action) {
+        double left = timeLeft();
+        double needed = parkSeconds + GUARD_MARGIN_S;
+        if (left >= needed) return false;
+        trace.accept(String.format(Locale.US, "%s: %.1f s left, park needs %.1f s: %s", label, left, needed, action));
+        return true;
     }
 
     // ------------------------------------------------------------------- rows

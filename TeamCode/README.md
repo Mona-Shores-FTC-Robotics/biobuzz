@@ -1517,9 +1517,13 @@ Things the runs turned up:
 
 - **The park has to fit the real robot.** The export times the park path at the Auto Builder's
   60 in/s. A robot that only does 50 in/s parked in 4 of 20 runs.
-- **The endgame guard checks only between cards on the robot**, but cuts a card short in the
-  editor's preview. A long "wait for the other robot" can run past the park deadline, so these Autos
-  wait in pieces of at most 2.5 s.
+- **The endgame guard now cuts a running card short on the robot, as the preview does.** When
+  these runs were made it checked only between cards, so a long "wait for the other robot" could
+  run past the park deadline. In one run the guard fired at 27.2 s with 2.8 s left for a 3.3 s
+  park. These Autos wait in pieces of at most 2.5 s to work round that. *History, 1 Oct 2026:*
+  `AutoKit.guarded` now checks on every loop. It ends the running card (`INTERRUPTED`) once time
+  left drops below the park time plus `GUARD_MARGIN_S`, then drives the park path. The 2.5 s
+  pieces are no longer needed. They are left as they are so the numbers above still match.
 - **Rapid volleys knock pieces back out.** A piece that hits the back of the CELL rebounds toward the
   opening and can meet the next one at the lip; the HIVE's bounce is a placeholder.
 - **The SWARM RP does not need AUTO PARK.** It takes LEAVE + PARK points ≥ 16: both robots leaving
@@ -1575,6 +1579,12 @@ trusting a mixed setting from the wall.
 | duo-south + duo-north (the old pair) | 60 | 3 (8/10) | 70.5 | 13/20 |
 | **duo-lz-south + duo-lz-north** | 50 | 3 (9/10), 4 (3/10) | 80 | 20/20 |
 | duo-lz, two spring hoods on each robot | 60 | 3 (9/10), 4 (9/10) | 92 | 20/20 |
+
+*History, 1 Oct 2026:* this table was run before the endgame guard cut running cards short (see
+"Things the runs turned up" above). Solo **three-tip-adaptive** now gets 2 TIPs and parks. Its
+third TIP came at about 30.5 s, during the TIP 3 volley, which runs inside the guard. The old guard
+let that volley run past the park deadline. Rows that park by an ordinary path, outside a guard
+(for example solo-three-tip), are unaffected. The other rows have not been re-run.
 
 - **2 s of spin-up costs 1.2 s on TIP 1** (4.6 s instead of 3.4 s), and the three-tip routes have
   no slack for it: spill-three-tip and partner-three-tip lose their third TIP. A 3 s spin-up costs
