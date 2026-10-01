@@ -1,7 +1,15 @@
 from autogen import *
 from helpers import waits, fire, flower, flower_points, FAR_FLOWER_AT, WALL_FLOWER_AT
 
-def adaptive(name="three-tip-adaptive", speed=50):
+def adaptive(name="three-tip-adaptive", speed=50, staged=False, stops=None, back=None):
+    """staged: the partner doesn't shoot, so it sets its 4 preloads in a row at its side (x 34.6,
+    y 128.6-137, AutoStudyTest.LEAVE_PARTNER_STAGED) and parks; we take that row instead of the wall
+    FLOWER. It lies beside LEFT_SHOT, and we reach it through the tunnel under the HIVE.
+    stops: where to stand, intake first (heading 90), and for how long (ms), to take the row in. The
+    intake takes a piece every 0.35 s, so it stops rather than sweeps; the 24 in catcher is wide enough
+    to reach a row beside the partner while the frame stays clear of it. back: straight back to here
+    before turning, so the corners don't swing into the partner. stops None: the partner has driven
+    away, so stand below the row and let CollectSeen (the webcam) pick it up; that works better."""
     r = Route(name, (59, 9.5, 90), speed=speed)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180).pt("LEFT_SHOT", 40, 116, 301)
     flower_points(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -10,9 +18,28 @@ def adaptive(name="three-tip-adaptive", speed=50):
     right_cps = [(34, 92), (12, 60), (22, 30)]
     # All 4 preloads, and away the moment the last is in the air: this Auto doesn't catch the TIP 1
     # spill, so it has nothing to wait for (mentor review).
-    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000),
-          *flower(r, "WALL_FLOWER", "Collect at WALL_FLOWER", ms=1500),
-          r.go("LEFT_SHOT", turn_after=0.4, turn_by=1.0),
+    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000))
+    if staged:
+        r.pt("TUNNEL", 57.5, 100, 90)
+        # Through the tunnel square (x 57.5 clears both foot bars), across, then onto the row.
+        r.add(r.go("TUNNEL", heading=90))
+        if stops is None:
+            r.pt("ROW_IN", 34.6, 114, 90).pt("ROW_BACK", 34, 116, 90)  # ROW_BACK: about where CollectSeen leaves us
+            r.add(r.go("ROW_IN", heading=90),
+                  r.wait("Pick up the partner's row", when=["IntakeFull"], ms=2500, alongside="CollectSeen"))
+            r.at = "ROW_BACK"
+            stops = ()
+        else:
+            r.pt("ROW_BACK", *back, 90)
+        for i, (x, y, ms) in enumerate(stops):
+            r.pt(f"ROW_{i + 1}", x, y, 90)
+            r.add(r.go(f"ROW_{i + 1}", heading=90),
+                  r.wait(f"Take the partner's row ({i + 1})", when=["IntakeFull"], ms=ms))
+        if r.at != "ROW_BACK":
+            r.add(r.go("ROW_BACK", heading=90))
+    else:
+        r.add(*flower(r, "WALL_FLOWER", "Collect at WALL_FLOWER", ms=1500))
+    r.add(r.go("LEFT_SHOT", turn_after=0.4, turn_by=1.0),
           r.action("LaunchAll"),
           *flower(r, "FAR_FLOWER", "Collect at FAR_FLOWER", ms=1500),
           r.go("LEFT_SHOT", turn_after=0.4, turn_by=1.0))

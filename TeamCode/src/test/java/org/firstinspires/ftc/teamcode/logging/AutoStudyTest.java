@@ -117,6 +117,24 @@ public class AutoStudyTest {
      */
     static final double[][] LEAVE_PARTNER_STAGED = {{34.6, 128.6}, {34.6, 131.4}, {34.6, 134.2}, {34.6, 137.0}};
 
+    /**
+     * Where a staging partner sets its preloads, from its name: {@code PartnerStage<x><Side|Front>...},
+     * a robot at (x, 132.25) facing the HIVE. Side: a row along its field side. Front: a row across its
+     * front. Each touches the robot, as G304 asks of preloads left on the tiles. Null for other partners.
+     */
+    static double[][] stagedFor(String partnerClass) {
+        if (partnerClass.equals("PartnerLeaveParkAuto")) return LEAVE_PARTNER_STAGED;
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("PartnerStage(\\d+)(Side|Front)").matcher(partnerClass);
+        if (!m.lookingAt()) return null;
+        double x = Double.parseDouble(m.group(1)), y = 132.25, gap = 9 + FieldSim.POLLEN_RADIUS_IN + 0.2;
+        double[][] spots = new double[4][];
+        for (int i = 0; i < 4; i++) {
+            double along = (i - 1.5) * (2 * FieldSim.POLLEN_RADIUS_IN);
+            spots[i] = m.group(2).equals("Side") ? new double[] {x + gap, y + along} : new double[] {x + along, y - gap};
+        }
+        return spots;
+    }
+
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
@@ -141,7 +159,8 @@ public class AutoStudyTest {
             Class<?> second = Class.forName(PKG + autos[1]);
             sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
-            if (second.getSimpleName().equals("PartnerLeaveParkAuto")) sim.stagesPreloads(LEAVE_PARTNER_STAGED);
+            double[][] staged = stagedFor(second.getSimpleName());
+            if (staged != null) sim.stagesPreloads(staged);
         }
         return sim.write(file);
     }

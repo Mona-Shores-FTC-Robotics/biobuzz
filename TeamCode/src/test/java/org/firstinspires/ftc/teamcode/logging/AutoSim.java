@@ -727,7 +727,26 @@ public final class AutoSim {
             }
             log.put(keyPrefix + "/Launcher/Spinning", spinning, us);
             log.put(keyPrefix + "/Intake/On", intaking, us);
+            if (step % 5 == 0) log.putPose3dArray(keyPrefix + "/Intake/Zone", intakeZone(pose, intaking), us);
             if (step % 10 == 0) result.poses.add(pose);
+        }
+
+        /**
+         * Where the intake takes a piece (FieldSim.inIntake), as a closed outline on the tiles, for
+         * AdvantageScope to draw as a trajectory: its width (24 in for a catcher) and its reach in front
+         * of the frame. Empty while the intake is off or full.
+         */
+        double[] intakeZone(double[] pose, boolean on) {
+            if (!on) return new double[0];
+            double mouth = design.frameIn / 2 + design.intakeReachIn, w = design.intakeWidthIn / 2;
+            double near = mouth - 2, far = mouth + 3, sign = design.intakeAtBack ? -1 : 1;
+            double c = Math.cos(pose[2]), sn = Math.sin(pose[2]);
+            List<double[]> pts = new ArrayList<>();
+            for (double[] k : new double[][] {{near, -w}, {far, -w}, {far, w}, {near, w}, {near, -w}}) {
+                double lx = sign * k[0], ly = k[1];
+                pts.add(new double[] {pose[0] + lx * c - ly * sn, pose[1] + lx * sn + ly * c, 0.5});
+            }
+            return FieldSim.trajectory(pts);
         }
 
         /** The robot standing where it is, for the disabled time before and after the run. */
@@ -736,6 +755,7 @@ public final class AutoSim {
             robot.putPose(log, pose[0], pose[1], pose[2], us);
             log.put(keyPrefix + "/Launcher/Spinning", false, us);
             log.put(keyPrefix + "/Intake/On", false, us);
+            log.putPose3dArray(keyPrefix + "/Intake/Zone", new double[0], us);
         }
 
         /** LEAVE and AUTO PARK, from where the robot is as AUTO ends. */

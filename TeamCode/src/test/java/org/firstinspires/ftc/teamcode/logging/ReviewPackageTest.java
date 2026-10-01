@@ -64,8 +64,8 @@ public class ReviewPackageTest {
      * partner does decides the section (mentor review: keep the three kinds of match apart).
      */
     static final String[][] SECTIONS = {
-            {"1-solo", "Solo: the partner does nothing, or only leaves and parks",
-                    "What our robot can do on its own. In `partner-leaves` the partner sets its 4 preloads on the tiles for us before it drives off; that is all it does."},
+            {"1-partner-stages-preloads", "The partner doesn't shoot: it stages its preloads for us",
+                    "A partner that can't fire sets its 4 preloads on the tiles touching it (G304) for us to collect, then drives to park. The orange outline in front of our robot is where its intake catches pieces (24 in wide with the catcher)."},
             {"2-partner-fires-preloads", "The partner fires one volley of preloads, then parks",
                     "The most common partner in qualifications. `partner-starts-left` fires into the left CELL once our TIP 1 raises it; `partner-starts-right` fires at the start (TIP 1 is theirs), or holds its volley for later."},
             {"3-choreography", "Choreography: two robots that both run our Autos",
@@ -78,19 +78,13 @@ public class ReviewPackageTest {
      * the line says otherwise.
      */
     static final Run[] RUNS = {
-            // 1. Solo.
-            new Run("1-solo/alone/three-tip-adaptive",
-                    "Our robot alone: both FLOWERs and the GARDEN, angled shots. 3 TIPs in 8 of 10 seeds; parks.",
-                    "ThreeTipAdaptiveAuto@50", TWIN, null, Double.NaN, 2),
-            new Run("1-solo/alone/solo-tunnel",
-                    "solo-tunnel alone: it counts on a partner for the second TIP's pieces, so on its own it makes 2 TIPs, late.",
-                    "SoloTunnelAuto@50", TWIN, null, Double.NaN, 2),
-            new Run("1-solo/partner-leaves/solo-tunnel",
-                    "The partner sets its preloads in a row at its side and drives straight to park; we drive up the row intake first, fire, TIP 2 at about 17 s, and park from the left through a tight gap.",
+            // 1. The partner doesn't shoot: it stages its preloads for us and parks.
+            new Run("1-partner-stages-preloads/staged-three-tip",
+                    "The partner sets its 4 preloads in a row at its side and drives straight to park. We fire ours (TIP 1), go through the tunnel, pick up the row with the webcam, fire, then the far FLOWER for TIP 2; the GARDEN for TIP 3; park. 3 TIPs in 17 of 20 seeds.",
+                    "StagedThreeTipAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 3),
+            new Run("1-partner-stages-preloads/solo-tunnel",
+                    "The same partner with solo-tunnel: catches the TIP 1 spill, drives up the row intake first, fires, TIP 2 at about 17 s, and parks from the left through a tight gap. No time for TIP 3.",
                     "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
-            new Run("1-solo/partner-leaves/three-tip-adaptive",
-                    "The same partner; three-tip-adaptive ignores its preloads but the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds.",
-                    "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 2),
             // 2. The partner fires one volley.
             new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel",
                     "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks.",

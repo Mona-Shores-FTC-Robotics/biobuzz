@@ -9,16 +9,14 @@ reads like "AUTO 21.5 s, 8.5 left"; drag it onto a line graph's discrete fields 
 
 TIP times are match time; on AdvantageScope's timeline add 10 s.
 
-## Solo: the partner does nothing, or only leaves and parks
+## The partner doesn't shoot: it stages its preloads for us
 
-`1-solo/`. What our robot can do on its own. In `partner-leaves` the partner sets its 4 preloads on the tiles for us before it drives off; that is all it does.
+`1-partner-stages-preloads/`. A partner that can't fire sets its 4 preloads on the tiles touching it (G304) for us to collect, then drives to park. The orange outline in front of our robot is where its intake catches pieces (24 in wide with the catcher).
 
 | Folder | What to watch | Our robot | Partner | Seed | AUTO points | TIPs at | Parked (us / partner) |
 |---|---|---|---|---|---|---|---|
-| `alone/three-tip-adaptive` | Our robot alone: both FLOWERs and the GARDEN, angled shots. 3 TIPs in 8 of 10 seeds; parks. | two spring hoods, 24 in catcher | same as ours | 2 | **68** | 3.8, 16.0, 27.8 s | yes |
-| `alone/solo-tunnel` | solo-tunnel alone: it counts on a partner for the second TIP's pieces, so on its own it makes 2 TIPs, late. | two spring hoods, 24 in catcher | same as ours | 2 | **48** | 3.8, 22.9 s | yes |
-| `partner-leaves/solo-tunnel` | The partner sets its preloads in a row at its side and drives straight to park; we drive up the row intake first, fire, TIP 2 at about 17 s, and park from the left through a tight gap. | clump catapult 72 deg, 24 in catcher | spring hood at 40 in/s | 2 | **56** | 2.1, 16.7 s | yes / yes |
-| `partner-leaves/three-tip-adaptive` | The same partner; three-tip-adaptive ignores its preloads but the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds. | two spring hoods, 24 in catcher | spring hood at 40 in/s | 2 | **76** | 3.8, 16.0, 27.8 s | yes / yes |
+| `staged-three-tip` | The partner sets its 4 preloads in a row at its side and drives straight to park. We fire ours (TIP 1), go through the tunnel, pick up the row with the webcam, fire, then the far FLOWER for TIP 2; the GARDEN for TIP 3; park. 3 TIPs in 17 of 20 seeds. | two spring hoods, 24 in catcher | spring hood at 40 in/s | 3 | **76** | 3.9, 15.7, 27.4 s | yes / yes |
+| `solo-tunnel` | The same partner with solo-tunnel: catches the TIP 1 spill, drives up the row intake first, fires, TIP 2 at about 17 s, and parks from the left through a tight gap. No time for TIP 3. | clump catapult 72 deg, 24 in catcher | spring hood at 40 in/s | 2 | **56** | 2.1, 16.7 s | yes / yes |
 
 ## The partner fires one volley of preloads, then parks
 

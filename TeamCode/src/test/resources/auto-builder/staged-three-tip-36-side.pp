@@ -7,72 +7,85 @@
   },
   "lines": [
     {
-      "id": "to-wall-flower-turn-1",
+      "id": "to-tunnel-1",
       "color": "#3cc8e4",
-      "name": "START to WALL_FLOWER_TURN",
+      "name": "START to TUNNEL",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 22.21,
-        "y": 47.36
-      },
-      "controlPoints": [
-        {
-          "x": 22.21,
-          "y": 9.5
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 180
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-wall-flower-2",
-      "color": "#3cc8e4",
-      "name": "WALL_FLOWER_TURN to WALL_FLOWER",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 13.91,
-        "y": 47.36
+        "x": 57.5,
+        "y": 100
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 180
+        "degrees": 90
       }
     },
     {
-      "id": "to-left-shot-3",
+      "id": "to-row-1-2",
       "color": "#3cc8e4",
-      "name": "WALL_FLOWER to LEFT_SHOT",
+      "name": "TUNNEL to ROW_1",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55.5,
+        "y": 119.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-row-2-3",
+      "color": "#3cc8e4",
+      "name": "ROW_1 to ROW_2",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55.5,
+        "y": 125
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-row-back-4",
+      "color": "#3cc8e4",
+      "name": "ROW_2 to ROW_BACK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 55.5,
+        "y": 108
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-left-shot-5",
+      "color": "#3cc8e4",
+      "name": "ROW_BACK to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -92,7 +105,7 @@
               "endProgress": 0.4,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 180
+                "degrees": 90
               }
             },
             {
@@ -100,7 +113,7 @@
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 90,
                 "endDeg": 301
               }
             }
@@ -109,7 +122,7 @@
       }
     },
     {
-      "id": "to-far-flower-turn-4",
+      "id": "to-far-flower-turn-6",
       "color": "#3cc8e4",
       "name": "LEFT_SHOT to FAR_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -153,7 +166,7 @@
       }
     },
     {
-      "id": "to-far-flower-5",
+      "id": "to-far-flower-7",
       "color": "#3cc8e4",
       "name": "FAR_FLOWER_TURN to FAR_FLOWER",
       "waitBeforeMs": 0,
@@ -172,7 +185,7 @@
       }
     },
     {
-      "id": "to-left-shot-6",
+      "id": "to-left-shot-8",
       "color": "#3cc8e4",
       "name": "FAR_FLOWER to LEFT_SHOT",
       "waitBeforeMs": 0,
@@ -211,7 +224,7 @@
       }
     },
     {
-      "id": "to-right-plunge-in-7",
+      "id": "to-right-plunge-in-9",
       "color": "#3cc8e4",
       "name": "LEFT_SHOT to RIGHT_PLUNGE_IN",
       "waitBeforeMs": 0,
@@ -263,7 +276,7 @@
       }
     },
     {
-      "id": "to-right-plunge-8",
+      "id": "to-right-plunge-10",
       "color": "#3cc8e4",
       "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
       "waitBeforeMs": 0,
@@ -283,7 +296,7 @@
       }
     },
     {
-      "id": "to-right-shot-9",
+      "id": "to-right-shot-11",
       "color": "#3cc8e4",
       "name": "RIGHT_PLUNGE to RIGHT_SHOT",
       "waitBeforeMs": 0,
@@ -322,7 +335,7 @@
       }
     },
     {
-      "id": "to-garden-10",
+      "id": "to-garden-12",
       "color": "#3cc8e4",
       "name": "RIGHT_SHOT to GARDEN",
       "waitBeforeMs": 0,
@@ -361,7 +374,7 @@
       }
     },
     {
-      "id": "to-right-shot-11",
+      "id": "to-right-shot-13",
       "color": "#3cc8e4",
       "name": "GARDEN to RIGHT_SHOT",
       "waitBeforeMs": 0,
@@ -400,7 +413,7 @@
       }
     },
     {
-      "id": "to-right-shot-12",
+      "id": "to-right-shot-14",
       "color": "#3cc8e4",
       "name": "LEFT_SHOT to RIGHT_SHOT",
       "waitBeforeMs": 0,
@@ -452,7 +465,7 @@
       }
     },
     {
-      "id": "to-right-plunge-in-13",
+      "id": "to-right-plunge-in-15",
       "color": "#3cc8e4",
       "name": "RIGHT_SHOT to RIGHT_PLUNGE_IN",
       "waitBeforeMs": 0,
@@ -491,7 +504,7 @@
       }
     },
     {
-      "id": "to-right-plunge-14",
+      "id": "to-right-plunge-16",
       "color": "#3cc8e4",
       "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
       "waitBeforeMs": 0,
@@ -511,7 +524,7 @@
       }
     },
     {
-      "id": "to-right-shot-15",
+      "id": "to-right-shot-17",
       "color": "#3cc8e4",
       "name": "RIGHT_PLUNGE to RIGHT_SHOT",
       "waitBeforeMs": 0,
@@ -550,7 +563,7 @@
       }
     },
     {
-      "id": "to-garden-16",
+      "id": "to-garden-18",
       "color": "#3cc8e4",
       "name": "RIGHT_SHOT to GARDEN",
       "waitBeforeMs": 0,
@@ -589,7 +602,7 @@
       }
     },
     {
-      "id": "to-right-shot-17",
+      "id": "to-right-shot-19",
       "color": "#3cc8e4",
       "name": "GARDEN to RIGHT_SHOT",
       "waitBeforeMs": 0,
@@ -628,7 +641,7 @@
       }
     },
     {
-      "id": "to-park-18",
+      "id": "to-park-20",
       "color": "#3cc8e4",
       "name": "RIGHT_SHOT to PARK",
       "waitBeforeMs": 0,
@@ -753,43 +766,43 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-1"
+      "lineId": "to-tunnel-1"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-2"
+      "lineId": "to-row-1-2"
     },
     {
       "kind": "path",
-      "lineId": "to-left-shot-3"
+      "lineId": "to-row-2-3"
     },
     {
       "kind": "path",
-      "lineId": "to-far-flower-turn-4"
+      "lineId": "to-row-back-4"
     },
     {
       "kind": "path",
-      "lineId": "to-far-flower-5"
+      "lineId": "to-left-shot-5"
     },
     {
       "kind": "path",
-      "lineId": "to-left-shot-6"
+      "lineId": "to-far-flower-turn-6"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-in-7"
+      "lineId": "to-far-flower-7"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-8"
+      "lineId": "to-left-shot-8"
     },
     {
       "kind": "path",
-      "lineId": "to-right-shot-9"
+      "lineId": "to-right-plunge-in-9"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-10"
+      "lineId": "to-right-plunge-10"
     },
     {
       "kind": "path",
@@ -797,23 +810,23 @@
     },
     {
       "kind": "path",
-      "lineId": "to-right-shot-12"
+      "lineId": "to-garden-12"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-in-13"
+      "lineId": "to-right-shot-13"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-14"
+      "lineId": "to-right-shot-14"
     },
     {
       "kind": "path",
-      "lineId": "to-right-shot-15"
+      "lineId": "to-right-plunge-in-15"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-16"
+      "lineId": "to-right-plunge-16"
     },
     {
       "kind": "path",
@@ -821,7 +834,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-18"
+      "lineId": "to-garden-18"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-right-shot-19"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-20"
     }
   ],
   "settings": {
@@ -862,7 +883,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "three-tip-adaptive",
+    "exportName": "staged-three-tip-36-side",
     "registry": {
       "actions": [
         "LaunchAll"
@@ -943,27 +964,49 @@
         15,
         89.5,
         90
+      ],
+      "TUNNEL": [
+        57.5,
+        100,
+        90
+      ],
+      "ROW_BACK": [
+        55.5,
+        108,
+        90
+      ],
+      "ROW_1": [
+        55.5,
+        119.5,
+        90
+      ],
+      "ROW_2": [
+        55.5,
+        125,
+        90
       ]
     },
     "pathEnds": {
-      "to-wall-flower-turn-1": "WALL_FLOWER_TURN",
-      "to-wall-flower-2": "WALL_FLOWER",
-      "to-left-shot-3": "LEFT_SHOT",
-      "to-far-flower-turn-4": "FAR_FLOWER_TURN",
-      "to-far-flower-5": "FAR_FLOWER",
-      "to-left-shot-6": "LEFT_SHOT",
-      "to-right-plunge-in-7": "RIGHT_PLUNGE_IN",
-      "to-right-plunge-8": "RIGHT_PLUNGE",
-      "to-right-shot-9": "RIGHT_SHOT",
-      "to-garden-10": "GARDEN",
+      "to-tunnel-1": "TUNNEL",
+      "to-row-1-2": "ROW_1",
+      "to-row-2-3": "ROW_2",
+      "to-row-back-4": "ROW_BACK",
+      "to-left-shot-5": "LEFT_SHOT",
+      "to-far-flower-turn-6": "FAR_FLOWER_TURN",
+      "to-far-flower-7": "FAR_FLOWER",
+      "to-left-shot-8": "LEFT_SHOT",
+      "to-right-plunge-in-9": "RIGHT_PLUNGE_IN",
+      "to-right-plunge-10": "RIGHT_PLUNGE",
       "to-right-shot-11": "RIGHT_SHOT",
-      "to-right-shot-12": "RIGHT_SHOT",
-      "to-right-plunge-in-13": "RIGHT_PLUNGE_IN",
-      "to-right-plunge-14": "RIGHT_PLUNGE",
-      "to-right-shot-15": "RIGHT_SHOT",
-      "to-garden-16": "GARDEN",
+      "to-garden-12": "GARDEN",
+      "to-right-shot-13": "RIGHT_SHOT",
+      "to-right-shot-14": "RIGHT_SHOT",
+      "to-right-plunge-in-15": "RIGHT_PLUNGE_IN",
+      "to-right-plunge-16": "RIGHT_PLUNGE",
       "to-right-shot-17": "RIGHT_SHOT",
-      "to-park-18": "PARK"
+      "to-garden-18": "GARDEN",
+      "to-right-shot-19": "RIGHT_SHOT",
+      "to-park-20": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -988,19 +1031,19 @@
       {
         "id": "p-2",
         "kind": "path",
-        "lineId": "to-wall-flower-turn-1",
+        "lineId": "to-tunnel-1",
         "park": false
       },
       {
         "id": "p-3",
         "kind": "path",
-        "lineId": "to-wall-flower-2",
+        "lineId": "to-row-1-2",
         "park": false
       },
       {
         "id": "w-4",
         "kind": "firstOf",
-        "label": "Collect at WALL_FLOWER",
+        "label": "Take the partner's row (1)",
         "rows": [
           {
             "when": [
@@ -1009,7 +1052,7 @@
             "cards": []
           },
           {
-            "afterMs": 2300,
+            "afterMs": 900,
             "cards": []
           }
         ]
@@ -1017,28 +1060,57 @@
       {
         "id": "p-5",
         "kind": "path",
-        "lineId": "to-left-shot-3",
+        "lineId": "to-row-2-3",
         "park": false
       },
       {
-        "id": "a-6",
-        "kind": "action",
-        "name": "LaunchAll"
+        "id": "w-6",
+        "kind": "firstOf",
+        "label": "Take the partner's row (2)",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 900,
+            "cards": []
+          }
+        ]
       },
       {
         "id": "p-7",
         "kind": "path",
-        "lineId": "to-far-flower-turn-4",
+        "lineId": "to-row-back-4",
         "park": false
       },
       {
         "id": "p-8",
         "kind": "path",
-        "lineId": "to-far-flower-5",
+        "lineId": "to-left-shot-5",
         "park": false
       },
       {
-        "id": "w-9",
+        "id": "a-9",
+        "kind": "action",
+        "name": "LaunchAll"
+      },
+      {
+        "id": "p-10",
+        "kind": "path",
+        "lineId": "to-far-flower-turn-6",
+        "park": false
+      },
+      {
+        "id": "p-11",
+        "kind": "path",
+        "lineId": "to-far-flower-7",
+        "park": false
+      },
+      {
+        "id": "w-12",
         "kind": "firstOf",
         "label": "Collect at FAR_FLOWER",
         "rows": [
@@ -1055,13 +1127,13 @@
         ]
       },
       {
-        "id": "p-10",
+        "id": "p-13",
         "kind": "path",
-        "lineId": "to-left-shot-6",
+        "lineId": "to-left-shot-8",
         "park": false
       },
       {
-        "id": "w-33",
+        "id": "w-36",
         "kind": "firstOf",
         "label": "Did a partner make TIP 2?",
         "rows": [
@@ -1071,30 +1143,30 @@
             ],
             "cards": [
               {
-                "id": "p-21",
+                "id": "p-24",
                 "kind": "path",
-                "lineId": "to-right-shot-12",
+                "lineId": "to-right-shot-14",
                 "park": false
               },
               {
-                "id": "a-22",
+                "id": "a-25",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "p-23",
+                "id": "p-26",
                 "kind": "path",
-                "lineId": "to-right-plunge-in-13",
+                "lineId": "to-right-plunge-in-15",
                 "park": false
               },
               {
-                "id": "p-24",
+                "id": "p-27",
                 "kind": "path",
-                "lineId": "to-right-plunge-14",
+                "lineId": "to-right-plunge-16",
                 "park": false
               },
               {
-                "id": "w-25",
+                "id": "w-28",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR (B)",
                 "rows": [
@@ -1111,13 +1183,13 @@
                 ]
               },
               {
-                "id": "p-26",
+                "id": "p-29",
                 "kind": "path",
-                "lineId": "to-right-shot-15",
+                "lineId": "to-right-shot-17",
                 "park": false
               },
               {
-                "id": "w-27",
+                "id": "w-30",
                 "kind": "firstOf",
                 "label": "Fire (B)",
                 "rows": [
@@ -1135,7 +1207,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-32",
+                "id": "w-35",
                 "kind": "firstOf",
                 "label": "TIP 3 yet?",
                 "rows": [
@@ -1150,13 +1222,13 @@
                     "afterMs": 1500,
                     "cards": [
                       {
-                        "id": "p-28",
+                        "id": "p-31",
                         "kind": "path",
-                        "lineId": "to-garden-16",
+                        "lineId": "to-garden-18",
                         "park": false
                       },
                       {
-                        "id": "w-29",
+                        "id": "w-32",
                         "kind": "firstOf",
                         "label": "Collect in the GARDEN (B)",
                         "rows": [
@@ -1173,13 +1245,13 @@
                         ]
                       },
                       {
-                        "id": "p-30",
+                        "id": "p-33",
                         "kind": "path",
-                        "lineId": "to-right-shot-17",
+                        "lineId": "to-right-shot-19",
                         "park": false
                       },
                       {
-                        "id": "w-31",
+                        "id": "w-34",
                         "kind": "firstOf",
                         "label": "Fire the TIP 3 volley, then park",
                         "rows": [
@@ -1208,7 +1280,7 @@
             "afterMs": 50,
             "cards": [
               {
-                "id": "w-11",
+                "id": "w-14",
                 "kind": "firstOf",
                 "label": "Fire until it tips (TIP 2)",
                 "rows": [
@@ -1226,19 +1298,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-12",
+                "id": "p-15",
                 "kind": "path",
-                "lineId": "to-right-plunge-in-7",
+                "lineId": "to-right-plunge-in-9",
                 "park": false
               },
               {
-                "id": "p-13",
+                "id": "p-16",
                 "kind": "path",
-                "lineId": "to-right-plunge-8",
+                "lineId": "to-right-plunge-10",
                 "park": false
               },
               {
-                "id": "w-14",
+                "id": "w-17",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR",
                 "rows": [
@@ -1255,24 +1327,24 @@
                 ]
               },
               {
-                "id": "p-15",
+                "id": "p-18",
                 "kind": "path",
-                "lineId": "to-right-shot-9",
+                "lineId": "to-right-shot-11",
                 "park": false
               },
               {
-                "id": "a-16",
+                "id": "a-19",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "p-17",
+                "id": "p-20",
                 "kind": "path",
-                "lineId": "to-garden-10",
+                "lineId": "to-garden-12",
                 "park": false
               },
               {
-                "id": "w-18",
+                "id": "w-21",
                 "kind": "firstOf",
                 "label": "Collect in the GARDEN",
                 "rows": [
@@ -1289,13 +1361,13 @@
                 ]
               },
               {
-                "id": "p-19",
+                "id": "p-22",
                 "kind": "path",
-                "lineId": "to-right-shot-11",
+                "lineId": "to-right-shot-13",
                 "park": false
               },
               {
-                "id": "w-20",
+                "id": "w-23",
                 "kind": "firstOf",
                 "label": "Fire until it tips (TIP 3)",
                 "rows": [
@@ -1318,9 +1390,9 @@
         ]
       },
       {
-        "id": "p-34",
+        "id": "p-37",
         "kind": "path",
-        "lineId": "to-park-18",
+        "lineId": "to-park-20",
         "park": true
       }
     ]

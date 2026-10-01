@@ -171,6 +171,26 @@
                     "options": {
                       "variant": "Nectar (Red)"
                     }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "/Intake/Zone",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#ff8c00",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "trajectory",
+                    "logKey": "/Partner/Intake/Zone",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "color": "#00ff00",
+                      "size": "normal"
+                    }
                   }
                 ],
                 "game": "FTC:2026-2027 Field (HIVE sim)"
