@@ -169,6 +169,18 @@ public class AutoStudyTest {
     public void study() throws Exception {
         String specs = System.getenv("BIOBUZZ_AUTO_STUDY");
         if (specs == null) return;
+        // BIOBUZZ_AUTO_FRICTION scales rolling and contact friction (FieldSim.frictionScale), for asking
+        // what changes if real pieces stop sooner than the sim's do.
+        String friction = System.getenv("BIOBUZZ_AUTO_FRICTION");
+        FieldSim.frictionScale = friction == null ? 1 : Double.parseDouble(friction);
+        try {
+            studyAll(specs);
+        } finally {
+            FieldSim.frictionScale = 1;
+        }
+    }
+
+    private void studyAll(String specs) throws Exception {
         String only = System.getenv("BIOBUZZ_AUTO_DESIGNS");
         String runsEnv = System.getenv("BIOBUZZ_AUTO_RUNS");
         int runs = runsEnv == null ? 10 : Integer.parseInt(runsEnv);
