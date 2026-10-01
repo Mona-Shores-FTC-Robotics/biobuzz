@@ -57,42 +57,69 @@ public class ReviewPackageTest {
 
     static final String TRIANGLE = "clump catapult 72 deg, triangle cup";
 
+    static final String TWIN_BACK = TWIN + ", intake at back", TWIN_TURRET = TWIN + ", turret";
+
     /**
-     * The set. Folder names say left/right as the drivers see the field. Each seed is a typical run
-     * for its Auto and design (the median of 10, from {@code BIOBUZZ_AUTO_PER_SEED}), unless the
-     * line says otherwise.
+     * The sections of the set: the top folder of each run, and its heading in the README. What the
+     * partner does decides the section (mentor review: keep the three kinds of match apart).
+     */
+    static final String[][] SECTIONS = {
+            {"1-solo", "Solo: the partner does nothing, or only leaves and parks",
+                    "What our robot can do on its own. In `partner-leaves` the partner sets its 4 preloads on the tiles for us before it drives off; that is all it does."},
+            {"2-partner-fires-preloads", "The partner fires one volley of preloads, then parks",
+                    "The most common partner in qualifications. `partner-starts-left` fires into the left CELL once our TIP 1 raises it; `partner-starts-right` fires at the start (TIP 1 is theirs), or holds its volley for later."},
+            {"3-choreography", "Choreography: two robots that both run our Autos",
+                    "Playoffs with a capable partner, or our two sister robots."},
+    };
+
+    /**
+     * The set, by section. Folder names say left/right as the drivers see the field. Each seed is a
+     * typical run for its Auto and design (the median of 10, from {@code BIOBUZZ_AUTO_PER_SEED}), unless
+     * the line says otherwise.
      */
     static final Run[] RUNS = {
-            new Run("1-playoff-sisters-stay-home-catapult-triangle",
-                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back; when a volley falls short the left robot gathers loose pieces with the webcam; both park.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 1),
-            new Run("2-playoff-sisters-two-spring-hoods-a-miss",
-                    "lean-opp with two spring hoods, in a run that goes wrong: TIP 2 comes late and there is no TIP 3 (about half the seeds). Neither robot lobs at the far CELL any more.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 3),
-            new Run("3-playoff-sisters-both-park",
-                    "duo-lz: each robot owns one end of the HIVE; 4 TIPs and both park (4 of 10 seeds; the rest stop at 2 TIPs).",
-                    "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 2),
-            new Run("4-qual-tunnel-partner-fires-preloads",
+            // 1. Solo.
+            new Run("1-solo/alone/three-tip-adaptive",
+                    "Our robot alone: both FLOWERs and the GARDEN, angled shots. 3 TIPs in 8 of 10 seeds; parks.",
+                    "ThreeTipAdaptiveAuto@50", TWIN, null, Double.NaN, 2),
+            new Run("1-solo/alone/solo-tunnel",
+                    "solo-tunnel alone: it counts on a partner for the second TIP's pieces, so on its own it makes 2 TIPs, late.",
+                    "SoloTunnelAuto@50", TWIN, null, Double.NaN, 2),
+            new Run("1-solo/partner-leaves/solo-tunnel",
+                    "The partner sets its preloads in a row at its side and drives straight to park; we drive up the row intake first, fire, TIP 2 at about 17 s, and park from the left through a tight gap.",
+                    "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
+            new Run("1-solo/partner-leaves/three-tip-adaptive",
+                    "The same partner; three-tip-adaptive ignores its preloads but the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds.",
+                    "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 2),
+            // 2. The partner fires one volley.
+            new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel",
                     "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks.",
                     "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
-            new Run("5-qual-tunnel-partner-only-leaves",
-                    "solo-tunnel when the partner only leaves: the partner sets its preloads in a row at its side and drives straight to park; we drive up the row intake first, fire, TIP 2 at about 17 s, and park from the left through a tight gap.",
-                    "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
-            new Run("6-qual-tunnel-catapult-triangle",
+            new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel-catapult",
                     "solo-tunnel with the triangle-cup catapult: the fastest 3 TIPs (2, 9, 22 s) and both park.",
                     "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TRIANGLE, "spring hood", 40, 1),
-            new Run("7-qual-three-tip-adaptive-at-its-cap",
+            new Run("2-partner-fires-preloads/partner-starts-left/three-tip-adaptive",
                     "three-tip-adaptive (the legacy reference: FLOWERs, round the outside, angled shots): fires all 4 and leaves at once; 3 TIPs and park is 76, its ceiling whatever the partner does.",
                     "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
-            new Run("8-qual-three-tip-adaptive-partner-only-leaves",
-                    "three-tip-adaptive with a leave-only partner: the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds, where the tunnel route (folder 5) stops at 2.",
-                    "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 2),
-            new Run("9-qual-flower-feed",
-                    "Fire and feed: we start left and wait at the far FLOWER, lined up angled with the intake at the back; when the partner's TIP 1 raises our CELL we fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held.",
-                    "FlowerFeedBackAuto,PartnerPreloadsRightAuto@50", TWIN + ", intake at back", "spring hood", 40, 2),
-            new Run("10-qual-four-tip-attempt-best-case",
-                    "Chasing 4 TIPs with a preloads-only partner that holds them for TIP 3. Its best run of 10: TIPs at 4, 13 and 23 s, back with pieces for TIP 4 at 28 s, 2-3 s short. In the other 9 the TIP 1 catch comes up short and TIP 2 fails.",
-                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN + ", turret", "spring hood", 40, 1),
+            new Run("2-partner-fires-preloads/partner-starts-right/flower-feed",
+                    "Fire and feed: the partner makes TIP 1; we wait at the far FLOWER, lined up angled with the intake at the back, and fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held.",
+                    "FlowerFeedBackAuto,PartnerPreloadsRightAuto@50", TWIN_BACK, "spring hood", 40, 2),
+            new Run("2-partner-fires-preloads/partner-starts-right/left-tunnel-catapult",
+                    "The partner makes TIP 1; we start left, add our preloads and the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. 76 in 10 of 10 seeds.",
+                    "LeftTunnelAuto,PartnerPreloadsRightAuto@50", TRIANGLE, "spring hood", 40, 1),
+            new Run("2-partner-fires-preloads/partner-holds-its-volley/four-tip-attempt-best-case",
+                    "Chasing 4 TIPs: the partner holds its preloads for TIP 3. Its best run of 10: TIPs at 4, 13 and 23 s, back with pieces for TIP 4 at 28 s, 2-3 s short. In the other 9 the TIP 1 catch comes up short and TIP 2 fails.",
+                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN_TURRET, "spring hood", 40, 1),
+            // 3. Choreography.
+            new Run("3-choreography/stay-home/catapult-triangle",
+                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back; when a volley falls short the left robot gathers loose pieces with the webcam; both park.",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 1),
+            new Run("3-choreography/stay-home/two-spring-hoods-a-miss",
+                    "lean-opp with two spring hoods, in a run that goes wrong: TIP 2 comes late and there is no TIP 3 (about half the seeds).",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 3),
+            new Run("3-choreography/each-owns-an-end/duo-lz-4-tips",
+                    "duo-lz: each robot owns one end of the HIVE; 4 TIPs and both park (4 of 10 seeds; the rest stop at 2 TIPs).",
+                    "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 2),
     };
 
     @Test
@@ -108,11 +135,11 @@ public class ReviewPackageTest {
                 for (java.nio.file.Path p : (Iterable<java.nio.file.Path>) old::iterator) Files.delete(p);
             }
             dir.mkdirs();
-            File log = new File(dir, run.folder + ".wpilog");
+            File log = new File(dir, dir.getName() + ".wpilog");
             AutoSim.Result r = AutoStudyTest.run(run.spec, AutoStudyTest.designs().get(run.design),
                     run.partnerDesign == null ? null : AutoStudyTest.designs().get(run.partnerDesign),
                     run.partnerSpeed, run.seed, log);
-            checkLayout(log);
+            checkLayout(log, run.spec.contains(","));
             for (String auto : run.spec.split("@")[0].split(",")) copySource(auto, dir);
             System.out.println("REVIEW " + run.folder + ": " + r);
             String partner = run.partnerDesign == null ? "same as ours"
@@ -121,8 +148,8 @@ public class ReviewPackageTest {
             for (double t : r.tipsAt) tips.append(tips.length() == 0 ? "" : ", ").append(String.format(Locale.ROOT, "%.1f", t));
             StringBuilder parks = new StringBuilder();
             for (AutoSim.RobotResult robot : r.robots) parks.append(parks.length() == 0 ? "" : " / ").append(robot.park ? "yes" : "no");
-            rows.add(String.format(Locale.ROOT, "| `%s` | %s | %s | %s | %d | **%d** | %s | %s |",
-                    run.folder, run.watch, run.design, partner, run.seed, r.autoPoints(),
+            rows.add(run.folder.split("/")[0] + "\t" + String.format(Locale.ROOT, "| `%s` | %s | %s | %s | %d | **%d** | %s | %s |",
+                    run.folder.substring(run.folder.indexOf('/') + 1), run.watch, run.design, partner, run.seed, r.autoPoints(),
                     tips.length() == 0 ? "none" : tips + " s", parks));
         }
         try (PrintWriter out = new PrintWriter(new File(root, "README.md"), "UTF-8")) {
@@ -137,9 +164,19 @@ public class ReviewPackageTest {
             out.println();
             out.println("TIP times are match time; on AdvantageScope's timeline add 10 s.");
             out.println();
-            out.println("| Folder | What to watch | Our robot | Partner | Seed | AUTO points | TIPs at | Parked (us / partner) |");
-            out.println("|---|---|---|---|---|---|---|---|");
-            for (String row : rows) out.println(row);
+            for (String[] section : SECTIONS) {
+                out.println("## " + section[1]);
+                out.println();
+                out.println("`" + section[0] + "/`. " + section[2]);
+                out.println();
+                out.println("| Folder | What to watch | Our robot | Partner | Seed | AUTO points | TIPs at | Parked (us / partner) |");
+                out.println("|---|---|---|---|---|---|---|---|");
+                for (String row : rows) {
+                    String[] parts = row.split("\t", 2);
+                    if (parts[0].equals(section[0])) out.println(parts[1]);
+                }
+                out.println();
+            }
             out.println();
             out.println("Rebuild this set (the runs are listed in `ReviewPackageTest.RUNS`). Windows PowerShell:");
             out.println();
@@ -167,7 +204,13 @@ public class ReviewPackageTest {
 
     /** Fails if the log lacks any key that the committed AdvantageScope layout draws. */
     static void checkLayout(File log) throws IOException {
+        checkLayout(log, true);
+    }
+
+    /** As above; a run with one robot has no partner, so the layout's partner keys are not expected. */
+    static void checkLayout(File log, boolean twoRobots) throws IOException {
         Set<String> missing = new LinkedHashSet<>(layoutKeys());
+        if (!twoRobots) missing.removeIf(k -> k.contains("Partner"));
         missing.removeAll(new WpiLogReader(Files.readAllBytes(log.toPath())).entries.keySet());
         if (!missing.isEmpty()) {
             fail(log.getName() + " lacks keys the AdvantageScope layout uses: " + missing);
