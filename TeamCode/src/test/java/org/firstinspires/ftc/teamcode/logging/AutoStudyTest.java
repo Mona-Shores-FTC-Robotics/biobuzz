@@ -94,6 +94,14 @@ public class AutoStudyTest {
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
+        // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
+        String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
+        return run(spec, design, pd == null ? null : designs().get(pd), ps == null ? Double.NaN : Double.parseDouble(ps), seed, file);
+    }
+
+    /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
+    static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
+            throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         String[] autos = at[0].split(",");
@@ -103,11 +111,8 @@ public class AutoStudyTest {
             sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
         }
         if (autos.length > 1) {
-            // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
-            String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
-            double partnerSpeed = ps == null ? speed : Double.parseDouble(ps);
-            RobotDesign partnerDesign = pd == null ? design : designs().get(pd);
-            sim.alsoRun(Class.forName(PKG + autos[1])).speed(partnerSpeed, partnerSpeed * 0.9).design(partnerDesign);
+            double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
+            sim.alsoRun(Class.forName(PKG + autos[1])).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
         }
         return sim.write(file);
     }
