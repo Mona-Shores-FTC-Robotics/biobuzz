@@ -76,17 +76,17 @@ public class ReviewPackageTest {
                     "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks.",
                     "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
             new Run("5-qual-tunnel-partner-only-leaves",
-                    "solo-tunnel when the partner only leaves: picks up its staged preloads, the far FLOWER once, TIP 2 at 25 s, parks from the left through a tight gap.",
+                    "solo-tunnel when the partner only leaves: the partner sets its preloads in a row at its side and drives straight to park; we drive up the row intake first, fire, TIP 2 at about 17 s, and park from the left through a tight gap.",
                     "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
             new Run("6-qual-tunnel-catapult-triangle",
                     "solo-tunnel with the triangle-cup catapult: the fastest 3 TIPs (2, 9, 22 s) and both park.",
                     "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TRIANGLE, "spring hood", 40, 1),
             new Run("7-qual-three-tip-adaptive-at-its-cap",
-                    "three-tip-adaptive (the legacy reference, angled shots): 3 TIPs and park is 76, its ceiling whatever the partner does.",
-                    "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 1),
+                    "three-tip-adaptive (the legacy reference: FLOWERs, round the outside, angled shots): fires all 4 and leaves at once; 3 TIPs and park is 76, its ceiling whatever the partner does.",
+                    "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
             new Run("8-qual-three-tip-adaptive-partner-only-leaves",
-                    "three-tip-adaptive with a leave-only partner: TIP 3 at 29 s, too late to park.",
-                    "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 1),
+                    "three-tip-adaptive with a leave-only partner: the two FLOWERs are reliable, so it makes 3 TIPs and parks in 7 of 10 seeds, where the tunnel route (folder 5) stops at 2.",
+                    "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 2),
     };
 
     @Test

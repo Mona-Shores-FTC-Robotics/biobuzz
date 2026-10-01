@@ -865,23 +865,18 @@
     "exportName": "three-tip-adaptive",
     "registry": {
       "actions": [
-        "LaunchOne",
         "LaunchAll"
       ],
       "conditions": [
-        "Tip",
+        "Empty",
         "IntakeFull",
         "RightCellUp",
-        "LeftCellUp",
-        "Empty"
+        "LeftCellUp"
       ],
       "typicalS": {
-        "LaunchOne": 0.5,
         "LaunchAll": 2.0
       },
-      "events": [
-        "Tip"
-      ]
+      "events": []
     },
     "points": {
       "START": [
@@ -973,76 +968,37 @@
     "startAt": "START",
     "cards": [
       {
-        "id": "a-4",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-5",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-6",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "w-3",
+        "id": "w-1",
         "kind": "firstOf",
-        "label": "Tip 1?",
+        "label": "Fire all 4 preloads (TIP 1)",
         "rows": [
           {
             "when": [
-              "Tip"
+              "Empty"
             ],
-            "cards": [],
-            "label": "Yes"
+            "cards": []
           },
           {
-            "afterMs": 2000,
-            "cards": [
-              {
-                "id": "a-1",
-                "kind": "action",
-                "name": "LaunchOne"
-              },
-              {
-                "id": "w-2",
-                "kind": "firstOf",
-                "label": "Tip 1 (4th POLLEN)",
-                "rows": [
-                  {
-                    "when": [
-                      "Tip"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 1500,
-                    "cards": []
-                  }
-                ]
-              }
-            ],
-            "label": "No"
+            "afterMs": 4000,
+            "cards": []
           }
-        ]
+        ],
+        "alongside": "LaunchAll"
       },
       {
-        "id": "p-7",
+        "id": "p-2",
         "kind": "path",
         "lineId": "to-wall-flower-turn-1",
         "park": false
       },
       {
-        "id": "p-8",
+        "id": "p-3",
         "kind": "path",
         "lineId": "to-wall-flower-2",
         "park": false
       },
       {
-        "id": "w-9",
+        "id": "w-4",
         "kind": "firstOf",
         "label": "Collect at WALL_FLOWER",
         "rows": [
@@ -1059,30 +1015,30 @@
         ]
       },
       {
-        "id": "p-10",
+        "id": "p-5",
         "kind": "path",
         "lineId": "to-left-shot-3",
         "park": false
       },
       {
-        "id": "a-11",
+        "id": "a-6",
         "kind": "action",
         "name": "LaunchAll"
       },
       {
-        "id": "p-12",
+        "id": "p-7",
         "kind": "path",
         "lineId": "to-far-flower-turn-4",
         "park": false
       },
       {
-        "id": "p-13",
+        "id": "p-8",
         "kind": "path",
         "lineId": "to-far-flower-5",
         "park": false
       },
       {
-        "id": "w-14",
+        "id": "w-9",
         "kind": "firstOf",
         "label": "Collect at FAR_FLOWER",
         "rows": [
@@ -1099,13 +1055,13 @@
         ]
       },
       {
-        "id": "p-15",
+        "id": "p-10",
         "kind": "path",
         "lineId": "to-left-shot-6",
         "park": false
       },
       {
-        "id": "w-38",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Did a partner make TIP 2?",
         "rows": [
@@ -1115,30 +1071,30 @@
             ],
             "cards": [
               {
-                "id": "p-26",
+                "id": "p-21",
                 "kind": "path",
                 "lineId": "to-right-shot-12",
                 "park": false
               },
               {
-                "id": "a-27",
+                "id": "a-22",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "p-28",
+                "id": "p-23",
                 "kind": "path",
                 "lineId": "to-right-plunge-in-13",
                 "park": false
               },
               {
-                "id": "p-29",
+                "id": "p-24",
                 "kind": "path",
                 "lineId": "to-right-plunge-14",
                 "park": false
               },
               {
-                "id": "w-30",
+                "id": "w-25",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR (B)",
                 "rows": [
@@ -1155,13 +1111,13 @@
                 ]
               },
               {
-                "id": "p-31",
+                "id": "p-26",
                 "kind": "path",
                 "lineId": "to-right-shot-15",
                 "park": false
               },
               {
-                "id": "w-32",
+                "id": "w-27",
                 "kind": "firstOf",
                 "label": "Fire (B)",
                 "rows": [
@@ -1179,7 +1135,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-37",
+                "id": "w-32",
                 "kind": "firstOf",
                 "label": "TIP 3 yet?",
                 "rows": [
@@ -1194,13 +1150,13 @@
                     "afterMs": 1500,
                     "cards": [
                       {
-                        "id": "p-33",
+                        "id": "p-28",
                         "kind": "path",
                         "lineId": "to-garden-16",
                         "park": false
                       },
                       {
-                        "id": "w-34",
+                        "id": "w-29",
                         "kind": "firstOf",
                         "label": "Collect in the GARDEN (B)",
                         "rows": [
@@ -1217,13 +1173,13 @@
                         ]
                       },
                       {
-                        "id": "p-35",
+                        "id": "p-30",
                         "kind": "path",
                         "lineId": "to-right-shot-17",
                         "park": false
                       },
                       {
-                        "id": "w-36",
+                        "id": "w-31",
                         "kind": "firstOf",
                         "label": "Fire the TIP 3 volley, then park",
                         "rows": [
@@ -1252,7 +1208,7 @@
             "afterMs": 50,
             "cards": [
               {
-                "id": "w-16",
+                "id": "w-11",
                 "kind": "firstOf",
                 "label": "Fire until it tips (TIP 2)",
                 "rows": [
@@ -1270,19 +1226,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-17",
+                "id": "p-12",
                 "kind": "path",
                 "lineId": "to-right-plunge-in-7",
                 "park": false
               },
               {
-                "id": "p-18",
+                "id": "p-13",
                 "kind": "path",
                 "lineId": "to-right-plunge-8",
                 "park": false
               },
               {
-                "id": "w-19",
+                "id": "w-14",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR",
                 "rows": [
@@ -1299,24 +1255,24 @@
                 ]
               },
               {
-                "id": "p-20",
+                "id": "p-15",
                 "kind": "path",
                 "lineId": "to-right-shot-9",
                 "park": false
               },
               {
-                "id": "a-21",
+                "id": "a-16",
                 "kind": "action",
                 "name": "LaunchAll"
               },
               {
-                "id": "p-22",
+                "id": "p-17",
                 "kind": "path",
                 "lineId": "to-garden-10",
                 "park": false
               },
               {
-                "id": "w-23",
+                "id": "w-18",
                 "kind": "firstOf",
                 "label": "Collect in the GARDEN",
                 "rows": [
@@ -1333,13 +1289,13 @@
                 ]
               },
               {
-                "id": "p-24",
+                "id": "p-19",
                 "kind": "path",
                 "lineId": "to-right-shot-11",
                 "park": false
               },
               {
-                "id": "w-25",
+                "id": "w-20",
                 "kind": "firstOf",
                 "label": "Fire until it tips (TIP 3)",
                 "rows": [
@@ -1362,7 +1318,7 @@
         ]
       },
       {
-        "id": "p-39",
+        "id": "p-34",
         "kind": "path",
         "lineId": "to-park-18",
         "park": true

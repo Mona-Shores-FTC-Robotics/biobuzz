@@ -308,22 +308,22 @@
       }
     },
     {
-      "id": "to-l-look-11",
+      "id": "to-row-in-11",
       "color": "#3cc8e4",
-      "name": "L_HOME to L_LOOK",
+      "name": "L_HOME to ROW_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 38,
-        "y": 124
+        "x": 34.6,
+        "y": 112
       },
       "controlPoints": [
         {
-          "x": 59,
-          "y": 121
+          "x": 57.5,
+          "y": 114
         }
       ],
       "heading": {
@@ -332,19 +332,27 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.5,
+              "endProgress": 0.2,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
+              "startProgress": 0.2,
+              "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 180
+                "endDeg": 90
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
               }
             }
           ]
@@ -352,38 +360,51 @@
       }
     },
     {
-      "id": "to-l-look-back-12",
+      "id": "to-l-home-12",
       "color": "#3cc8e4",
-      "name": "L_LOOK to L_LOOK_BACK",
+      "name": "ROW_IN to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
-        "y": 121
+        "x": 59,
+        "y": 131.75
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 57.5,
+          "y": 114
+        }
+      ],
       "heading": {
         "type": "piecewise",
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.3,
+              "endProgress": 0.2,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 180
+                "degrees": 90
               }
             },
             {
-              "startProgress": 0.3,
-              "endProgress": 1.0,
+              "startProgress": 0.2,
+              "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 90,
                 "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
               }
             }
           ]
@@ -393,7 +414,7 @@
     {
       "id": "to-l-home-13",
       "color": "#3cc8e4",
-      "name": "L_LOOK_BACK to L_HOME",
+      "name": "ROW_IN to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -405,48 +426,37 @@
       },
       "controlPoints": [
         {
-          "x": 59,
-          "y": 123
+          "x": 57.5,
+          "y": 114
         }
       ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-l-look-back-14",
-      "color": "#3cc8e4",
-      "name": "L_LOOK to L_LOOK_BACK",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 121
-      },
-      "controlPoints": [],
       "heading": {
         "type": "piecewise",
         "piecewiseHeading": {
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.3,
+              "endProgress": 0.2,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 180
+                "degrees": 90
               }
             },
             {
-              "startProgress": 0.3,
-              "endProgress": 1.0,
+              "startProgress": 0.2,
+              "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 90,
                 "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
               }
             }
           ]
@@ -454,33 +464,9 @@
       }
     },
     {
-      "id": "to-l-home-15",
+      "id": "to-flower-l-in-14",
       "color": "#3cc8e4",
-      "name": "L_LOOK_BACK to L_HOME",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 123
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-16",
-      "color": "#3cc8e4",
-      "name": "L_LOOK to FLOWER_L_TURN",
+      "name": "ROW_IN to FLOWER_L_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -488,43 +474,18 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.36,
-        "y": 119.29
+        "y": 121.79
       },
-      "controlPoints": [
-        {
-          "x": 38,
-          "y": 119.29
-        }
-      ],
+      "controlPoints": [],
       "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 180
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 180,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
+        "type": "constant",
+        "degrees": 90
       }
     },
     {
-      "id": "to-flower-l-17",
+      "id": "to-flower-l-15",
       "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
+      "name": "FLOWER_L_IN to FLOWER_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -541,7 +502,7 @@
       }
     },
     {
-      "id": "to-flower-l-back-l-home-18",
+      "id": "to-flower-l-back-l-home-16",
       "color": "#3cc8e4",
       "name": "FLOWER_L to FLOWER_L_BACK_L_HOME",
       "waitBeforeMs": 0,
@@ -580,7 +541,7 @@
       }
     },
     {
-      "id": "to-l-home-19",
+      "id": "to-l-home-17",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_L_HOME to L_HOME",
       "waitBeforeMs": 0,
@@ -604,7 +565,7 @@
       }
     },
     {
-      "id": "to-flower-l-turn-20",
+      "id": "to-flower-l-turn-18",
       "color": "#3cc8e4",
       "name": "L_HOME to FLOWER_L_TURN",
       "waitBeforeMs": 0,
@@ -648,7 +609,7 @@
       }
     },
     {
-      "id": "to-flower-l-21",
+      "id": "to-flower-l-19",
       "color": "#3cc8e4",
       "name": "FLOWER_L_TURN to FLOWER_L",
       "waitBeforeMs": 0,
@@ -667,7 +628,7 @@
       }
     },
     {
-      "id": "to-flower-l-back-l-home-22",
+      "id": "to-flower-l-back-l-home-20",
       "color": "#3cc8e4",
       "name": "FLOWER_L to FLOWER_L_BACK_L_HOME",
       "waitBeforeMs": 0,
@@ -706,7 +667,7 @@
       }
     },
     {
-      "id": "to-l-home-23",
+      "id": "to-l-home-21",
       "color": "#3cc8e4",
       "name": "FLOWER_L_BACK_L_HOME to L_HOME",
       "waitBeforeMs": 0,
@@ -730,7 +691,7 @@
       }
     },
     {
-      "id": "to-park-l-24",
+      "id": "to-park-l-22",
       "color": "#3cc8e4",
       "name": "L_HOME to PARK_L",
       "waitBeforeMs": 0,
@@ -891,11 +852,11 @@
     },
     {
       "kind": "path",
-      "lineId": "to-l-look-11"
+      "lineId": "to-row-in-11"
     },
     {
       "kind": "path",
-      "lineId": "to-l-look-back-12"
+      "lineId": "to-l-home-12"
     },
     {
       "kind": "path",
@@ -903,47 +864,39 @@
     },
     {
       "kind": "path",
-      "lineId": "to-l-look-back-14"
+      "lineId": "to-flower-l-in-14"
     },
     {
       "kind": "path",
-      "lineId": "to-l-home-15"
+      "lineId": "to-flower-l-15"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-16"
+      "lineId": "to-flower-l-back-l-home-16"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-17"
+      "lineId": "to-l-home-17"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-l-home-18"
+      "lineId": "to-flower-l-turn-18"
     },
     {
       "kind": "path",
-      "lineId": "to-l-home-19"
+      "lineId": "to-flower-l-19"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-turn-20"
+      "lineId": "to-flower-l-back-l-home-20"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-21"
+      "lineId": "to-l-home-21"
     },
     {
       "kind": "path",
-      "lineId": "to-flower-l-back-l-home-22"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-l-home-23"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-l-24"
+      "lineId": "to-park-l-22"
     }
   ],
   "settings": {
@@ -1051,15 +1004,10 @@
         119.29,
         90
       ],
-      "L_LOOK": [
-        38,
-        124,
-        180
-      ],
-      "L_LOOK_BACK": [
-        57.5,
-        121,
-        270
+      "ROW_IN": [
+        34.6,
+        112,
+        90
       ],
       "GARDEN_IN": [
         8.5,
@@ -1103,20 +1051,18 @@
       "to-r-back-8": "R_BACK",
       "to-park-9": "PARK",
       "to-park-10": "PARK",
-      "to-l-look-11": "L_LOOK",
-      "to-l-look-back-12": "L_LOOK_BACK",
+      "to-row-in-11": "ROW_IN",
+      "to-l-home-12": "L_HOME",
       "to-l-home-13": "L_HOME",
-      "to-l-look-back-14": "L_LOOK_BACK",
-      "to-l-home-15": "L_HOME",
-      "to-flower-l-turn-16": "FLOWER_L_TURN",
-      "to-flower-l-17": "FLOWER_L",
-      "to-flower-l-back-l-home-18": "FLOWER_L_BACK_L_HOME",
-      "to-l-home-19": "L_HOME",
-      "to-flower-l-turn-20": "FLOWER_L_TURN",
-      "to-flower-l-21": "FLOWER_L",
-      "to-flower-l-back-l-home-22": "FLOWER_L_BACK_L_HOME",
-      "to-l-home-23": "L_HOME",
-      "to-park-l-24": "PARK_L"
+      "to-flower-l-in-14": "FLOWER_L_IN",
+      "to-flower-l-15": "FLOWER_L",
+      "to-flower-l-back-l-home-16": "FLOWER_L_BACK_L_HOME",
+      "to-l-home-17": "L_HOME",
+      "to-flower-l-turn-18": "FLOWER_L_TURN",
+      "to-flower-l-19": "FLOWER_L",
+      "to-flower-l-back-l-home-20": "FLOWER_L_BACK_L_HOME",
+      "to-l-home-21": "L_HOME",
+      "to-park-l-22": "PARK_L"
     },
     "startAt": "START",
     "cards": [
@@ -1203,7 +1149,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-42",
+        "id": "w-40",
         "kind": "firstOf",
         "label": "TIP 2 yet?",
         "rows": [
@@ -1360,13 +1306,13 @@
               {
                 "id": "p-20",
                 "kind": "path",
-                "lineId": "to-l-look-11",
+                "lineId": "to-row-in-11",
                 "park": false
               },
               {
-                "id": "w-31",
+                "id": "w-29",
                 "kind": "firstOf",
-                "label": "Loose pieces in view?",
+                "label": "Pick up the row",
                 "rows": [
                   {
                     "when": [
@@ -1376,23 +1322,17 @@
                       {
                         "id": "p-21",
                         "kind": "path",
-                        "lineId": "to-l-look-back-12",
-                        "park": false
-                      },
-                      {
-                        "id": "p-22",
-                        "kind": "path",
-                        "lineId": "to-l-home-13",
+                        "lineId": "to-l-home-12",
                         "park": false
                       }
                     ],
-                    "label": "Full: back"
+                    "label": "Full: home"
                   },
                   {
                     "afterMs": 2500,
                     "cards": [
                       {
-                        "id": "w-30",
+                        "id": "w-28",
                         "kind": "firstOf",
                         "label": "Got any?",
                         "rows": [
@@ -1402,19 +1342,19 @@
                             ],
                             "cards": [
                               {
-                                "id": "p-25",
+                                "id": "p-23",
                                 "kind": "path",
-                                "lineId": "to-flower-l-turn-16",
+                                "lineId": "to-flower-l-in-14",
                                 "park": false
                               },
                               {
-                                "id": "p-26",
+                                "id": "p-24",
                                 "kind": "path",
-                                "lineId": "to-flower-l-17",
+                                "lineId": "to-flower-l-15",
                                 "park": false
                               },
                               {
-                                "id": "w-27",
+                                "id": "w-25",
                                 "kind": "firstOf",
                                 "label": "Collect at the far FLOWER",
                                 "rows": [
@@ -1431,15 +1371,15 @@
                                 ]
                               },
                               {
-                                "id": "p-28",
+                                "id": "p-26",
                                 "kind": "path",
-                                "lineId": "to-flower-l-back-l-home-18",
+                                "lineId": "to-flower-l-back-l-home-16",
                                 "park": false
                               },
                               {
-                                "id": "p-29",
+                                "id": "p-27",
                                 "kind": "path",
-                                "lineId": "to-l-home-19",
+                                "lineId": "to-l-home-17",
                                 "park": false
                               }
                             ],
@@ -1449,19 +1389,13 @@
                             "afterMs": 100,
                             "cards": [
                               {
-                                "id": "p-23",
+                                "id": "p-22",
                                 "kind": "path",
-                                "lineId": "to-l-look-back-14",
-                                "park": false
-                              },
-                              {
-                                "id": "p-24",
-                                "kind": "path",
-                                "lineId": "to-l-home-15",
+                                "lineId": "to-l-home-13",
                                 "park": false
                               }
                             ],
-                            "label": "Some: back"
+                            "label": "Some: home"
                           }
                         ]
                       }
@@ -1472,7 +1406,7 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "w-32",
+                "id": "w-30",
                 "kind": "firstOf",
                 "label": "Fire again (TIP 2)",
                 "rows": [
@@ -1490,7 +1424,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-39",
+                "id": "w-37",
                 "kind": "firstOf",
                 "label": "TIP 2 now?",
                 "rows": [
@@ -1505,19 +1439,19 @@
                     "afterMs": 100,
                     "cards": [
                       {
-                        "id": "p-33",
+                        "id": "p-31",
                         "kind": "path",
-                        "lineId": "to-flower-l-turn-20",
+                        "lineId": "to-flower-l-turn-18",
                         "park": false
                       },
                       {
-                        "id": "p-34",
+                        "id": "p-32",
                         "kind": "path",
-                        "lineId": "to-flower-l-21",
+                        "lineId": "to-flower-l-19",
                         "park": false
                       },
                       {
-                        "id": "w-35",
+                        "id": "w-33",
                         "kind": "firstOf",
                         "label": "Collect at the far FLOWER (2)",
                         "rows": [
@@ -1534,19 +1468,19 @@
                         ]
                       },
                       {
-                        "id": "p-36",
+                        "id": "p-34",
                         "kind": "path",
-                        "lineId": "to-flower-l-back-l-home-22",
+                        "lineId": "to-flower-l-back-l-home-20",
                         "park": false
                       },
                       {
-                        "id": "p-37",
+                        "id": "p-35",
                         "kind": "path",
-                        "lineId": "to-l-home-23",
+                        "lineId": "to-l-home-21",
                         "park": false
                       },
                       {
-                        "id": "w-38",
+                        "id": "w-36",
                         "kind": "firstOf",
                         "label": "Fire once more (TIP 2)",
                         "rows": [
@@ -1569,7 +1503,7 @@
                 ]
               },
               {
-                "id": "w-40",
+                "id": "w-38",
                 "kind": "firstOf",
                 "label": "TIP 2: catch the spill",
                 "rows": [
@@ -1586,9 +1520,9 @@
                 ]
               },
               {
-                "id": "p-41",
+                "id": "p-39",
                 "kind": "path",
-                "lineId": "to-park-l-24",
+                "lineId": "to-park-l-22",
                 "park": true
               }
             ],

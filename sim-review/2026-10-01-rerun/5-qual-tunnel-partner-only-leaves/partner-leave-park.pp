@@ -7,47 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-slide-p-1",
+      "id": "to-park-p-1",
       "color": "#3cc8e4",
-      "name": "START to SLIDE_P",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 10.5,
-        "y": 131
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-park-p-2",
-      "color": "#3cc8e4",
-      "name": "SLIDE_P to PARK_P",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 10.5,
-        "y": 111
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-park-p2-3",
-      "color": "#3cc8e4",
-      "name": "PARK_P to PARK_P2",
+      "name": "START to PARK_P",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -57,11 +19,15 @@
         "x": 10.5,
         "y": 110
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 24,
+          "y": 118
+        }
+      ],
       "heading": {
-        "type": "linear",
-        "startDeg": 270,
-        "endDeg": 270
+        "type": "constant",
+        "degrees": 270
       }
     }
   ],
@@ -142,15 +108,7 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-slide-p-1"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-p-2"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-p2-3"
+      "lineId": "to-park-p-1"
     }
   ],
   "settings": {
@@ -204,45 +162,21 @@
         132.25,
         270
       ],
-      "SLIDE_P": [
-        10.5,
-        131,
-        270
-      ],
       "PARK_P": [
-        10.5,
-        111,
-        270
-      ],
-      "PARK_P2": [
         10.5,
         110,
         270
       ]
     },
     "pathEnds": {
-      "to-slide-p-1": "SLIDE_P",
-      "to-park-p-2": "PARK_P",
-      "to-park-p2-3": "PARK_P2"
+      "to-park-p-1": "PARK_P"
     },
     "startAt": "START",
     "cards": [
       {
         "id": "p-1",
         "kind": "path",
-        "lineId": "to-slide-p-1",
-        "park": false
-      },
-      {
-        "id": "p-2",
-        "kind": "path",
-        "lineId": "to-park-p-2",
-        "park": false
-      },
-      {
-        "id": "p-3",
-        "kind": "path",
-        "lineId": "to-park-p2-3",
+        "lineId": "to-park-p-1",
         "park": true
       }
     ]
