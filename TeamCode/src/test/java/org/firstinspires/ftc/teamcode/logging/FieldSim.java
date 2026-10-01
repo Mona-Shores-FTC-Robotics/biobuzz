@@ -99,6 +99,13 @@ final class FieldSim {
     static final double PLACEHOLDER_ANGLE_SPREAD_RAD = Math.toRadians(0.8);
 
     static final int SUBSTEPS = 20;
+
+    /**
+     * For sensitivity checks only: scale the placeholder friction and shot spread, to see whether
+     * a conclusion survives the guesses being wrong. 1 is the placeholder itself.
+     */
+    static double frictionScale = 1;
+    static double spreadScale = 1;
     /** Contacts slower than this do not bounce. */
     static final double RESTING_IN_PER_S = 6.0;
 
@@ -468,12 +475,12 @@ final class FieldSim {
         double[] from = exitPoint();
         double[] v = launchVelocity(from, target);
         if (v == null) return null;
-        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * random.nextGaussian();
-        double yaw = PLACEHOLDER_ANGLE_SPREAD_RAD * random.nextGaussian();
+        double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spreadScale * random.nextGaussian();
+        double yaw = PLACEHOLDER_ANGLE_SPREAD_RAD * spreadScale * random.nextGaussian();
         double c = Math.cos(yaw), s = Math.sin(yaw);
         double vx = (v[0] * c - v[1] * s) * speed + rvx;
         double vy = (v[0] * s + v[1] * c) * speed + rvy;
-        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * random.nextGaussian());
+        double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spreadScale * random.nextGaussian());
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
         p.x = from[0];
@@ -807,7 +814,8 @@ final class FieldSim {
 
     private static void applyFriction(Piece p, double h) {
         double speed = Math.hypot(p.vx, p.vy);
-        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * h) - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * h);
+        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * frictionScale * h)
+                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;

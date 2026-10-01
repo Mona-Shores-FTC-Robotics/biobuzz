@@ -1315,7 +1315,8 @@ the robot. The other alliance runs it rotated, as on the robot. Underneath, `Aut
 - **The robot.** It starts holding its 4 preloaded POLLEN (Competition Manual §10.3.4) and never
   holds more than 4 (G407). Its intake runs whenever there is room, unless the Auto calls
   `IntakeOff`. `LaunchAll`/`ShootAll` spin up (1 s) and fire everything held at the alliance's raised
-  CELL from wherever the robot is, as if it aims. Whether a shot goes in is the physics'
+  CELL from wherever the robot is, as if it aims; `LaunchOne` fires one. None of the three is in
+  `AutoRegistration` yet: they are the names the launcher's commands should take when it has them. Whether a shot goes in is the physics'
   business: from beside the HIVE it hits a CELL's closed side.
 - **Triggers.** `IntakeFull`, `LauncherReady`, `Tip` (the alliance's HIVE has started to tip since
   the wait began, like `HiveTracker.tipsStarted()`, but from the simulation's truth instead of a
@@ -1323,6 +1324,43 @@ the robot. The other alliance runs it rotated, as on the robot. Underneath, `Aut
 
 An Auto that uses a command or trigger the simulation does not know fails at once and names it, as
 `BuiltAuto` does at INIT. Add the name to `AutoSim.registry()` with what it should do.
+
+### Solo Autos
+
+Two Autos for a robot playing its HIVE alone, drawn in the Auto Builder and tried in the
+simulation. Their sources are `src/test/resources/auto-builder/solo-two-tip.pp` and
+`solo-three-tip.pp`; open them in the editor to see and change the routes. Both start at
+(59, 9.5) facing the HIVE. They open by launching 3 of the 4 preloads one at a time, which with
+the field's starting pieces is enough to tip the HIVE once. Then they collect FLOWER POLLEN by the wall
+and at the far FLOWER and shoot from north of the HIVE. `SoloAutosTest` checks that they still do what
+their names say.
+
+- **solo-two-tip** tips at about 3 s and 16 s on an untuned drivetrain (40 in/s), scores all 15 pieces
+  it launches, and is finished by 23 s. This is the one to try first.
+- **solo-three-tip** adds a third tip from the south side. It feeds the third tip with NECTAR the
+  first two tips spilled, plus GARDEN POLLEN. It asks twice whether the HIVE tipped and recovers if
+  not: it fires the 4th preload, or goes back for spilled NECTAR. Those checks cost about 2 s.
+
+How often solo-three-tip gets 3 tips inside the 30 s, at 50 in/s (20 runs each, varying the random
+shot errors):
+
+| Simulation guess | Friction ×0.5 | Friction ×1 | Friction ×2 |
+|---|---|---|---|
+| Shot spread ×1 | 18/20 | 20/20 | 20/20 |
+| Shot spread ×1.5 | 10/20 | 18/20 | 19/20 |
+| Shot spread ×2 | — | 0/5 | — |
+
+What that says:
+
+- **A solo three-tip needs a drivetrain of 50 in/s or better.** At 40 in/s the third tip comes
+  just after the buzzer.
+- **It needs nearly every shot to score.** Tips 2 and 3 each need 8 pieces in the CELL (§12.3), and
+  each volley carries no spare. One miss on the last volley costs the third tip;
+  the checks can only save a miss early in the run.
+- **The spread and friction numbers are placeholders.** Measure the launcher's real spread
+  (`FieldSim`'s `PLACEHOLDER_*` constants) before trusting the table.
+
+Two robots, or the solo-two-tip with a partner, are the more reliable way to three tips.
 
 ### Why the on-robot build is not here: it takes port 8080
 

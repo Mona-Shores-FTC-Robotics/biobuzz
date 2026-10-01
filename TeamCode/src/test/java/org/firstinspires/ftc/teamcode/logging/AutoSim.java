@@ -53,7 +53,8 @@ public final class AutoSim {
     /** Logged past the end of the Auto, so the last shots land and the HIVE settles. */
     static final double AFTER_S = 3.0;
 
-    // Drivetrain profile: the Visualizer log's defaults.
+    // Drivetrain profile: the Visualizer log's defaults. A robot that is not tuned yet; the Auto
+    // Builder previews at 60 in/s and 55 in/s², which {@link #speed} can set.
     static final double MAX_SPEED_IN_PER_S = 40;
     static final double ACCEL_IN_PER_S2 = 30;
 
@@ -95,11 +96,19 @@ public final class AutoSim {
     // The simulated robot underneath the Auto.
     private FieldSim sim;
     private final SimDrive drive = new SimDrive();
+
+    /** Sets the drivetrain's top speed and acceleration, in/s and in/s². */
+    AutoSim speed(double maxInPerS, double accelInPerS2) {
+        drive.maxSpeed = maxInPerS;
+        drive.accel = accelInPerS2;
+        return this;
+    }
     private double now;
     private boolean spinning;
     private double spinStartedAt;
     private boolean intakeEnabled = true;
     private boolean firing;
+    private int shotsFired;
     private double nextShotAt;
     private List<double[]> lastArc;
     private int lane;
@@ -215,6 +224,7 @@ public final class AutoSim {
                 double[] v = aim == null ? null : sim.launch(aim);
                 if (v != null) {
                     result.launched++;
+                    shotsFired++;
                     lastArc = FieldSim.arc(from, v, aim[2] - 4, 30);
                     log.putEvent("launcher: shot " + new String[] {"left", "center", "right"}[lane], us);
                     lane = (lane + 1) % 3;
@@ -265,8 +275,9 @@ public final class AutoSim {
     /** Every command and trigger name the Auto Builder's Autos use, backed by the simulation. */
     private AutoRegistry registry() {
         return new AutoRegistry()
-                .command("LaunchAll", 3.0, this::launchAll)
-                .command("ShootAll", 3.0, this::launchAll)
+                .command("LaunchAll", 3.0, () -> launch(Integer.MAX_VALUE))
+                .command("ShootAll", 3.0, () -> launch(Integer.MAX_VALUE))
+                .command("LaunchOne", 0.5, () -> launch(1))
                 .command("SpinUp", 0.1, () -> Commands.instant(this::spinUp))
                 .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
                 .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
@@ -283,15 +294,20 @@ public final class AutoSim {
                 .trigger("CameraBlind", () -> false);
     }
 
-    /** Spins up if needed, fires everything held at the raised CELL, and is done when empty. */
-    private Command launchAll() {
+    /**
+     * Spins up if needed and fires up to {@code count} pieces at the raised CELL, one per
+     * {@link #SHOT_INTERVAL_S}; done when that many have gone or the robot is empty.
+     */
+    private Command launch(int count) {
+        final int[] target = new int[1];
         return new CommandBuilder()
                 .setStart(() -> {
                     spinUp();
                     firing = true;
-                    nextShotAt = now;
+                    nextShotAt = Math.max(nextShotAt, now);
+                    target[0] = count == Integer.MAX_VALUE ? Integer.MAX_VALUE : shotsFired + count;
                 })
-                .setDone(() -> sim.stored.isEmpty())
+                .setDone(() -> sim.stored.isEmpty() || shotsFired >= target[0])
                 .setEnd(end -> firing = false);
     }
 
@@ -312,6 +328,8 @@ public final class AutoSim {
     static final class SimDrive implements AutoDrive {
         Pose pose = new Pose(0, 0, 0);
         Path current;
+        double maxSpeed = MAX_SPEED_IN_PER_S;
+        double accel = ACCEL_IN_PER_S2;
         private double startedAt = Double.NaN;
         private double length;
         private boolean done = true;
@@ -348,7 +366,7 @@ public final class AutoSim {
         void tick(double now) {
             if (current == null || done) return;
             if (Double.isNaN(startedAt)) startedAt = now;
-            double s = distanceAt(now - startedAt, length);
+            double s = distanceAt(now - startedAt, length, maxSpeed, accel);
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= length - 1e-6;
             double completion = length == 0 || arrived ? 1 : s / length;
@@ -357,8 +375,7 @@ public final class AutoSim {
         }
 
         /** Distance along a rest-to-rest trapezoid {@code t} seconds in. */
-        static double distanceAt(double t, double length) {
-            double v = MAX_SPEED_IN_PER_S, a = ACCEL_IN_PER_S2;
+        static double distanceAt(double t, double length, double v, double a) {
             double peak = Math.min(v, Math.sqrt(length * a));
             double tRamp = peak / a, sRamp = peak * peak / (2 * a);
             double tCruise = (length - 2 * sRamp) / peak;
