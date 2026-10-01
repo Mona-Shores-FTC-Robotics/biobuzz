@@ -21,7 +21,7 @@ public class CatapultVolleyTest {
         if (System.getenv("BIOBUZZ_VOLLEY_STUDY") == null) return;
         java.util.Map<String, RobotDesign> designs = AutoStudyTest.designs();
         for (String name : new String[] {"two spring hoods, 24 in catcher", "patterned catapult, 24 in catcher",
-                "plain catapult, 24 in catcher", "clump catapult, 24 in catcher"}) {
+                "plain catapult, 24 in catcher", "clump catapult, 24 in catcher", "clump catapult 72 deg, 24 in catcher", "clump catapult 72 deg, loose clump"}) {
             RobotDesign d = designs.get(name);
             StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "VOLLEY %-36s", name));
             for (double distance : new double[] {24, 38, 50, 65}) {

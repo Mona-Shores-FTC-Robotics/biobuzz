@@ -1397,7 +1397,8 @@ What that says, as far as a simulation full of guesses can:
 - **Shooting faster is worth about 3 s**, by two launchers or a quicker one. Those 3 s would be the
   margin for a missed shot or a slower drivetrain. Rapid volleys sometimes knock pieces back out of the
   CELL, though (9/10, and 5–7/10 with less friction); a real HIVE would settle that.
-- **A catapult throws badly.** The whole load leaves at once with more spread, and pieces collide.
+- **A catapult throws badly** *(superseded: see "Which results hold" below; at 60° it was firing
+  from too close)*.
 - **Launch NECTAR, and launch it as well as POLLEN.** No solo three-tip works without it: tip 3 is
   built from spilled NECTAR. The launcher has to handle both sizes (2.8 in and 3.6 in) and NECTAR's 1.65×
   weight. One that throws NECTAR short ruins the spill routes.
@@ -1619,8 +1620,9 @@ time (G407), and only what reaches its intake.
 - **Two launchers** halve a volley's time; worth 8–10 points.
 - **Two launchers dedicated to POLLEN and NECTAR** lose: every opening volley is all POLLEN, so
   one launcher sits idle. They would remove the shared-setting problem, though.
-- **A catapult** gets the fastest TIP 1 (4.0 s), then loses ground: 56 points patterned (pieces
-  spread across a wide arm), 42 plain. A whole volley at once collides and spreads.
+- **A catapult** at 60° lost (56 points patterned, 42 plain), but not because its volley collides:
+  it was firing from spots tuned for the spring hood. At 72° it is a contender; see "Which results
+  hold" below.
 - **Firing while intaking** (`StreamOn`/`StreamOff`, `experiments/home-stream-*.pp`) did not help
   as tried: shots fired on the move carry the robot's velocity unless the software allows for it,
   and even allowing for it the gain was nothing.
@@ -1772,6 +1774,58 @@ the open logging issue.
 **The loop at a meeting:** film and log → measured numbers into `HiveCalibration` and `RobotDesign`
 → rerun `RobustnessTest` and the Auto studies → the ranking holds (build on it) or flips (whatever
 flipped it is the next thing to measure).
+
+**The catapult, revisited.** `CatapultVolleyTest` (opt in with `BIOBUZZ_VOLLEY_STUDY=1`) fires
+one volley of 4 POLLEN into a CELL held still and counts what stays in. The old 60° catapult kept
+3.4–4 of 4 from 50–65 in back but only 1.5–2 from 38 in, where these Autos fire. Collisions were
+not the problem: even the old plain catapult, whose pieces started overlapping, kept 3.6 from 50 in.
+The *clump catapult* (`RobotDesign.catapultClump`) throws as a real arm does: 2 by 2, one shared
+error for the throw plus 0.3 of a flywheel's scatter per piece. Its angle decides where it works:
+
+| Launch angle | 24 in | 31 in | 38 in | 44 in | 50 in | 65 in |
+|---|---|---|---|---|---|---|
+| 60° | 0 | 0.7 | 2.0 | 3.6 | 4.0 | 3.9 |
+| 70° | 1.2 | 3.5 | 4.0 | 4.0 | 4.0 | 0.8 |
+| 75° | 2.8 | 4.0 | 4.0 | 3.7 | 3.4 | 0.1 |
+
+At 72° in whole Autos (10 runs, 50 in/s, 24 in catcher on both robots):
+
+| Check | duo-lz | lean-opp |
+|---|---|---|
+| clump catapult, 72° | 88 (TIP 3 at 13.2 s in 10/10) | **105** (4 TIPs in 9/10) |
+| the clump comes apart (full scatter per piece) | 76 | 86 |
+| re-cock 1.5 s instead of 0.8 s | 88 | 92 |
+| angle 68° / 76° | 82 / 86 | 96 / 90 |
+| two spring hoods instead | 90 | 89 |
+| partner with one spring hood at 40 in/s: catapult | 78 | 72 |
+| partner with one spring hood at 40 in/s: two spring hoods | 88 | 71 |
+
+Across the 12 physics variants: duo-lz on the catapult mean 80, worst 51; lean-opp on the
+catapult mean 76, worst 46 (two spring hoods: 78/51 and 68/36). It is the least hurt by shot
+scatter, since the clump shares one error. It needs no spin-up, which matters because a flywheel
+may not spin before the match starts (whether a catapult may start cocked is for the Q&A).
+
+**What flips it:** a clump that comes apart in the air (−12 to −19 points), and a weaker
+partner, where two spring hoods do better (88 against 78). A slow re-cock or a few degrees of
+build error barely matter.
+
+**A direction to lock in.** These hold whichever launcher is chosen, so they can be built now:
+
+1. **A 24 in catcher** (folds out sideways after the start, R105). It helped in every comparison.
+2. **Fire from 31–44 in in front of the opening at about 72–75°.** Both launchers work there, and
+   it is where the robot stands to catch the spill, so it fires and catches without moving.
+3. **duo-lz as the Auto,** with lean-opp when the partner can run its half (rubric level 2).
+   duo-lz parks both robots, which also counts toward SWARM.
+4. **The camera's `Tip` trigger plus counting shots** (above) to time the catch.
+
+The launcher: **two spring hoods is the safe choice.** Robust (mean 78), best with the partners
+we will usually have, and the CAD exists (`cad/spring-hood-launcher`). The 72° catapult is the
+higher ceiling (105 with a level-2 partner) and the most scatter-tolerant, but only if its
+clump stays together. That can be settled in one meeting: a plywood arm at about 72°, a cup that
+holds 4 POLLEN 2 by 2, filmed at 240 fps from the side, 10 throws from 38 in. The model's tight
+clump has the 4 pieces within about an inch of each other as they pass the CELL's lip; a loose
+one spreads them 2–3 in. Tight in 9 of 10 throws: build the catapult. Otherwise, the spring hoods,
+and don't reopen it.
 
 ### One launcher, the webcam, and driving under the HIVE
 
