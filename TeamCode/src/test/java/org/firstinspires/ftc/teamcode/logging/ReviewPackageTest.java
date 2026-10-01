@@ -55,35 +55,38 @@ public class ReviewPackageTest {
     static final String CATAPULT = "clump catapult 72 deg, 24 in catcher";
     static final String TWIN = "two spring hoods, 24 in catcher";
 
+    static final String TRIANGLE = "clump catapult 72 deg, triangle cup";
+
     /**
-     * The set. Folder names say left/right as the drivers see the field (red: the old "north" is
-     * left, "south" is right). Seed 1 for all: a typical run, not the best one.
+     * The set. Folder names say left/right as the drivers see the field. Each seed is a typical run
+     * for its Auto and design (the median of 10, from {@code BIOBUZZ_AUTO_PER_SEED}), unless the
+     * line says it shows a miss.
      */
     static final Run[] RUNS = {
-            new Run("1-playoff-sisters-stay-home-catapult",
-                    "Both sister robots stay at their own end, catch their spill and fire it back (lean-opp).",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", CATAPULT, null, Double.NaN, 1),
-            new Run("2-playoff-sisters-stay-home-two-spring-hoods",
-                    "The same plan with two spring-hood launchers each.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 1),
-            new Run("3-playoff-sisters-stay-home-loose-catapult",
-                    "The catapult again, with a volley that comes apart in the air.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", "clump catapult 72 deg, loose clump", null, Double.NaN, 1),
-            new Run("4-playoff-sisters-both-park",
-                    "duo-lz: each robot owns one end of the HIVE, and both park.",
+            new Run("1-playoff-sisters-stay-home-catapult-triangle",
+                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back. TIPs at 2, 9 and 18 s.",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 1),
+            new Run("2-playoff-sisters-two-spring-hoods-a-miss",
+                    "lean-opp with two spring hoods, in a run that goes wrong: TIP 2 comes late and there is no TIP 3 (2 of 10 seeds).",
+                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 3),
+            new Run("3-playoff-sisters-both-park",
+                    "duo-lz: each robot owns one end of the HIVE, 3 TIPs, and both park.",
                     "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 1),
-            new Run("5-qual-solo-partner-fires-preloads-left",
-                    "Our solo Auto (three-tip-adaptive); the partner fires its 4 preloads when the left CELL rises, then parks.",
+            new Run("4-qual-tunnel-partner-fires-preloads",
+                    "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks.",
+                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
+            new Run("5-qual-tunnel-partner-only-leaves",
+                    "solo-tunnel when the partner only leaves: picks up its staged preloads, the far FLOWER once, TIP 2 at 25 s, parks from the left through a tight gap.",
+                    "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
+            new Run("6-qual-tunnel-catapult-triangle",
+                    "solo-tunnel with the triangle-cup catapult: the fastest 3 TIPs (2, 9, 22 s) and both park.",
+                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TRIANGLE, "spring hood", 40, 1),
+            new Run("7-qual-three-tip-adaptive-at-its-cap",
+                    "three-tip-adaptive (the legacy reference, angled shots): 3 TIPs and park is 76, its ceiling whatever the partner does.",
                     "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 1),
-            new Run("6-qual-solo-partner-only-leaves",
-                    "Our solo Auto; the partner only leaves and parks.",
+            new Run("8-qual-three-tip-adaptive-partner-only-leaves",
+                    "three-tip-adaptive with a leave-only partner: TIP 3 at 28 s, too late to park.",
                     "ThreeTipAdaptiveAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 1),
-            new Run("7-qual-solo-partner-fires-left-after-5s",
-                    "Our solo Auto; the partner starts left, waits 5 s, fires its preloads and parks.",
-                    "ThreeTipAdaptiveAuto,PartnerPreloadsLeftTimerAuto@50", TWIN, "spring hood", 40, 1),
-            new Run("8-qual-partner-tips-right-we-go-left",
-                    "The partner starts right and makes TIP 1; we start left and take the left CELL.",
-                    "LeftFirstAuto,PartnerPreloadsRightAuto@50", CATAPULT, "spring hood", 40, 1),
     };
 
     @Test
@@ -112,15 +115,15 @@ public class ReviewPackageTest {
             for (double t : r.tipsAt) tips.append(tips.length() == 0 ? "" : ", ").append(String.format(Locale.ROOT, "%.1f", t));
             StringBuilder parks = new StringBuilder();
             for (AutoSim.RobotResult robot : r.robots) parks.append(parks.length() == 0 ? "" : " / ").append(robot.park ? "yes" : "no");
-            rows.add(String.format(Locale.ROOT, "| `%s` | %s | %s | %s | **%d** | %s | %s |",
-                    run.folder, run.watch, run.design, partner, r.autoPoints(),
+            rows.add(String.format(Locale.ROOT, "| `%s` | %s | %s | %s | %d | **%d** | %s | %s |",
+                    run.folder, run.watch, run.design, partner, run.seed, r.autoPoints(),
                     tips.length() == 0 ? "none" : tips + " s", parks));
         }
         try (PrintWriter out = new PrintWriter(new File(root, "README.md"), "UTF-8")) {
             out.println("# Simulated Autos for review: " + name);
             out.println();
             out.println("One folder per run: the `.wpilog` and the Auto Builder `.pp` files that made it. Red alliance,");
-            out.println("seed 1 (a typical run, not the best one). Points are AUTO only.");
+            out.println("each seed a typical run, not the best one, unless the row says it shows a miss. Points are AUTO only.");
             out.println();
             out.println("In AdvantageScope: open a log, then **File → Import Layout** with `sim-review/advantagescope-layout.json`.");
             out.println("AUTO starts 10 s into each log and the robots stand still before and after it. `/Match/Clock`");
@@ -128,8 +131,8 @@ public class ReviewPackageTest {
             out.println();
             out.println("TIP times are match time; on AdvantageScope's timeline add 10 s.");
             out.println();
-            out.println("| Folder | What to watch | Our robot | Partner | AUTO points | TIPs at | Parked (us / partner) |");
-            out.println("|---|---|---|---|---|---|---|");
+            out.println("| Folder | What to watch | Our robot | Partner | Seed | AUTO points | TIPs at | Parked (us / partner) |");
+            out.println("|---|---|---|---|---|---|---|---|");
             for (String row : rows) out.println(row);
             out.println();
             out.println("Rebuild this set: `BIOBUZZ_REVIEW=" + name
