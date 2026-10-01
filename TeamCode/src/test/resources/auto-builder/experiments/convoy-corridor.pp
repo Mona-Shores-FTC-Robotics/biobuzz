@@ -7,9 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-s-side-1",
+      "id": "to-r-side-1",
       "color": "#3cc8e4",
-      "name": "START to S_SIDE",
+      "name": "START to R_SIDE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -27,9 +27,9 @@
       }
     },
     {
-      "id": "to-n-side-2",
+      "id": "to-l-side-2",
       "color": "#3cc8e4",
-      "name": "S_SIDE to N_SIDE",
+      "name": "R_SIDE to L_SIDE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -56,9 +56,9 @@
       }
     },
     {
-      "id": "to-s-side-3",
+      "id": "to-r-side-3",
       "color": "#3cc8e4",
-      "name": "N_SIDE to S_SIDE",
+      "name": "L_SIDE to R_SIDE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -85,9 +85,9 @@
       }
     },
     {
-      "id": "to-n-side-4",
+      "id": "to-l-side-4",
       "color": "#3cc8e4",
-      "name": "S_SIDE to N_SIDE",
+      "name": "R_SIDE to L_SIDE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -114,9 +114,9 @@
       }
     },
     {
-      "id": "to-s-side-5",
+      "id": "to-r-side-5",
       "color": "#3cc8e4",
-      "name": "N_SIDE to S_SIDE",
+      "name": "L_SIDE to R_SIDE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -220,23 +220,23 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-s-side-1"
+      "lineId": "to-r-side-1"
     },
     {
       "kind": "path",
-      "lineId": "to-n-side-2"
+      "lineId": "to-l-side-2"
     },
     {
       "kind": "path",
-      "lineId": "to-s-side-3"
+      "lineId": "to-r-side-3"
     },
     {
       "kind": "path",
-      "lineId": "to-n-side-4"
+      "lineId": "to-l-side-4"
     },
     {
       "kind": "path",
-      "lineId": "to-s-side-5"
+      "lineId": "to-r-side-5"
     }
   ],
   "settings": {
@@ -299,30 +299,30 @@
         9.5,
         90
       ],
-      "S_SIDE": [
+      "R_SIDE": [
         32,
         14,
         60
       ],
-      "N_SIDE": [
+      "L_SIDE": [
         32,
         128,
         300
       ]
     },
     "pathEnds": {
-      "to-s-side-1": "S_SIDE",
-      "to-n-side-2": "N_SIDE",
-      "to-s-side-3": "S_SIDE",
-      "to-n-side-4": "N_SIDE",
-      "to-s-side-5": "S_SIDE"
+      "to-r-side-1": "R_SIDE",
+      "to-l-side-2": "L_SIDE",
+      "to-r-side-3": "R_SIDE",
+      "to-l-side-4": "L_SIDE",
+      "to-r-side-5": "R_SIDE"
     },
     "startAt": "START",
     "cards": [
       {
         "id": "w-1",
         "kind": "firstOf",
-        "label": "Fire the preloads at the south CELL",
+        "label": "Fire the preloads at the right CELL",
         "rows": [
           {
             "when": [
@@ -357,7 +357,7 @@
       {
         "id": "p-3",
         "kind": "path",
-        "lineId": "to-s-side-1",
+        "lineId": "to-r-side-1",
         "park": false
       },
       {
@@ -380,7 +380,7 @@
       {
         "id": "p-5",
         "kind": "path",
-        "lineId": "to-n-side-2",
+        "lineId": "to-l-side-2",
         "park": false
       },
       {
@@ -438,7 +438,7 @@
       {
         "id": "p-9",
         "kind": "path",
-        "lineId": "to-s-side-3",
+        "lineId": "to-r-side-3",
         "park": false
       },
       {
@@ -496,7 +496,7 @@
       {
         "id": "p-13",
         "kind": "path",
-        "lineId": "to-n-side-4",
+        "lineId": "to-l-side-4",
         "park": false
       },
       {
@@ -554,7 +554,7 @@
       {
         "id": "p-17",
         "kind": "path",
-        "lineId": "to-s-side-5",
+        "lineId": "to-r-side-5",
         "park": false
       },
       {

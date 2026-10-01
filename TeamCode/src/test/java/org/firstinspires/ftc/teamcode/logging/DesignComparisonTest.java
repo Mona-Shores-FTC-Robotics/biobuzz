@@ -29,11 +29,11 @@ import java.util.Map;
 public class DesignComparisonTest {
 
     /**
-     * A partner that does not move, against the north wall west of the far FLOWER, its 4 POLLEN on
+     * A partner that does not move, against the left wall west of the far FLOWER, its 4 POLLEN on
      * the tiles touching its front (Competition Manual §10.3.4, G304), drawn for RED.
      */
-    static final double[] NORTH_PARTNER = {12, 132.5, Math.toRadians(270)};
-    static final double[][] NORTH_PARTNER_POLLEN = {{7.8, 121.6}, {10.6, 121.6}, {13.4, 121.6}, {16.2, 121.6}};
+    static final double[] LEFT_PARTNER = {12, 132.5, Math.toRadians(270)};
+    static final double[][] LEFT_PARTNER_POLLEN = {{7.8, 121.6}, {10.6, 121.6}, {13.4, 121.6}, {16.2, 121.6}};
 
     static final int RUNS = 10;
 
@@ -74,7 +74,7 @@ public class DesignComparisonTest {
 
     static AutoSim.Result run(Class<?> auto, RobotDesign design, long seed, String file) throws Exception {
         AutoSim sim = new AutoSim(auto, Alliance.RED, seed).speed(50, 45).design(design);
-        if (auto == PartnerThreeTipAuto.class) sim.partner(NORTH_PARTNER, NORTH_PARTNER_POLLEN);
+        if (auto == PartnerThreeTipAuto.class) sim.partner(LEFT_PARTNER, LEFT_PARTNER_POLLEN);
         return sim.write(new File(TeamCodeDir.simLogs(), file));
     }
 

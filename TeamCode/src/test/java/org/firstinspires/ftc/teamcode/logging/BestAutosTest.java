@@ -3,10 +3,10 @@ package org.firstinspires.ftc.teamcode.logging;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzNorthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzSouthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LeanNorthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LeanSouthAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzLeftAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzRightAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LeanLeftAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.LeanRightAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.PartnerPreloadsParkAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SoloTwoTipAuto;
 import org.firstinspires.ftc.teamcode.opmodes.auto.generated.ThreeTipAdaptiveAuto;
@@ -49,8 +49,8 @@ public class BestAutosTest {
         for (boolean better : new boolean[] {false, true}) {
             RobotDesign d = better ? twinCatcher() : RobotDesign.springHood();
             File f = file("1-duo-lz_" + (better ? "two-spring-hoods-24in-catcher" : "spring-hood"));
-            AutoSim.Result r = new AutoSim(DuoLzSouthAuto.class, Alliance.RED, SEED).speed(50, 45).design(d)
-                    .alsoRun(DuoLzNorthAuto.class).speed(50, 45).design(d).write(f);
+            AutoSim.Result r = new AutoSim(DuoLzRightAuto.class, Alliance.RED, SEED).speed(50, 45).design(d)
+                    .alsoRun(DuoLzLeftAuto.class).speed(50, 45).design(d).write(f);
             System.out.println("BEST " + f.getName() + ": " + r);
             assertTwoRobots(f);
             // FLOWERs became solid on 1 Oct 2026 (FieldSim.hitsFlower): picking one up honestly costs ~3 s, which
@@ -64,8 +64,8 @@ public class BestAutosTest {
     @Test
     public void lean() throws Exception {
         File f = file("2-lean_two-spring-hoods-24in-catcher");
-        AutoSim.Result r = new AutoSim(LeanSouthAuto.class, Alliance.RED, SEED).speed(50, 45).design(twinCatcher())
-                .alsoRun(LeanNorthAuto.class).speed(50, 45).design(twinCatcher()).write(f);
+        AutoSim.Result r = new AutoSim(LeanRightAuto.class, Alliance.RED, SEED).speed(50, 45).design(twinCatcher())
+                .alsoRun(LeanLeftAuto.class).speed(50, 45).design(twinCatcher()).write(f);
         System.out.println("BEST " + f.getName() + ": " + r);
         assertTwoRobots(f);
         assertTrue(r.toString(), r.autoTips() >= 3); // was 4 before FLOWERs were solid

@@ -89,9 +89,9 @@
       }
     },
     {
-      "id": "to-north-shot-5",
+      "id": "to-left-shot-5",
       "color": "#3cc8e4",
-      "name": "WALL_FLOWER_IN to NORTH_SHOT",
+      "name": "WALL_FLOWER_IN to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -111,7 +111,7 @@
     {
       "id": "to-far-flower-in-6",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to FAR_FLOWER_IN",
+      "name": "LEFT_SHOT to FAR_FLOWER_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -191,9 +191,9 @@
       }
     },
     {
-      "id": "to-north-shot-10",
+      "id": "to-left-shot-10",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER_IN to NORTH_SHOT",
+      "name": "FAR_FLOWER_IN to LEFT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -211,9 +211,9 @@
       }
     },
     {
-      "id": "to-south-plunge-in-11",
+      "id": "to-right-plunge-in-11",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to SOUTH_PLUNGE_IN",
+      "name": "LEFT_SHOT to RIGHT_PLUNGE_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -244,9 +244,9 @@
       }
     },
     {
-      "id": "to-south-plunge-12",
+      "id": "to-right-plunge-12",
       "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE_IN to SOUTH_PLUNGE",
+      "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -264,9 +264,9 @@
       }
     },
     {
-      "id": "to-south-shot-13",
+      "id": "to-right-shot-13",
       "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE to SOUTH_SHOT",
+      "name": "RIGHT_PLUNGE to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -286,7 +286,7 @@
     {
       "id": "to-garden-14",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to GARDEN",
+      "name": "RIGHT_SHOT to GARDEN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -304,9 +304,9 @@
       }
     },
     {
-      "id": "to-south-shot-15",
+      "id": "to-right-shot-15",
       "color": "#3cc8e4",
-      "name": "GARDEN to SOUTH_SHOT",
+      "name": "GARDEN to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -324,9 +324,9 @@
       }
     },
     {
-      "id": "to-south-shot-16",
+      "id": "to-right-shot-16",
       "color": "#3cc8e4",
-      "name": "NORTH_SHOT to SOUTH_SHOT",
+      "name": "LEFT_SHOT to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -357,9 +357,9 @@
       }
     },
     {
-      "id": "to-south-plunge-in-17",
+      "id": "to-right-plunge-in-17",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to SOUTH_PLUNGE_IN",
+      "name": "RIGHT_SHOT to RIGHT_PLUNGE_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -377,9 +377,9 @@
       }
     },
     {
-      "id": "to-south-plunge-18",
+      "id": "to-right-plunge-18",
       "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE_IN to SOUTH_PLUNGE",
+      "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -397,9 +397,9 @@
       }
     },
     {
-      "id": "to-south-shot-19",
+      "id": "to-right-shot-19",
       "color": "#3cc8e4",
-      "name": "SOUTH_PLUNGE to SOUTH_SHOT",
+      "name": "RIGHT_PLUNGE to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -419,7 +419,7 @@
     {
       "id": "to-garden-20",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to GARDEN",
+      "name": "RIGHT_SHOT to GARDEN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -437,9 +437,9 @@
       }
     },
     {
-      "id": "to-south-shot-21",
+      "id": "to-right-shot-21",
       "color": "#3cc8e4",
-      "name": "GARDEN to SOUTH_SHOT",
+      "name": "GARDEN to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -459,7 +459,7 @@
     {
       "id": "to-park-22",
       "color": "#3cc8e4",
-      "name": "SOUTH_SHOT to PARK",
+      "name": "RIGHT_SHOT to PARK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -579,7 +579,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-5"
+      "lineId": "to-left-shot-5"
     },
     {
       "kind": "path",
@@ -599,19 +599,19 @@
     },
     {
       "kind": "path",
-      "lineId": "to-north-shot-10"
+      "lineId": "to-left-shot-10"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-in-11"
+      "lineId": "to-right-plunge-in-11"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-12"
+      "lineId": "to-right-plunge-12"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-13"
+      "lineId": "to-right-shot-13"
     },
     {
       "kind": "path",
@@ -619,23 +619,23 @@
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-15"
+      "lineId": "to-right-shot-15"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-16"
+      "lineId": "to-right-shot-16"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-in-17"
+      "lineId": "to-right-plunge-in-17"
     },
     {
       "kind": "path",
-      "lineId": "to-south-plunge-18"
+      "lineId": "to-right-plunge-18"
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-19"
+      "lineId": "to-right-shot-19"
     },
     {
       "kind": "path",
@@ -643,7 +643,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-south-shot-21"
+      "lineId": "to-right-shot-21"
     },
     {
       "kind": "path",
@@ -730,7 +730,7 @@
         47.36,
         180
       ],
-      "NORTH_SHOT": [
+      "LEFT_SHOT": [
         40,
         116,
         301
@@ -750,17 +750,17 @@
         119.29,
         90
       ],
-      "SOUTH_PLUNGE_IN": [
+      "RIGHT_PLUNGE_IN": [
         55,
         24,
         270
       ],
-      "SOUTH_PLUNGE": [
+      "RIGHT_PLUNGE": [
         55,
         10.5,
         270
       ],
-      "SOUTH_SHOT": [
+      "RIGHT_SHOT": [
         36,
         30,
         49
@@ -781,23 +781,23 @@
       "to-wall-flower-turn-2": "WALL_FLOWER_TURN",
       "to-wall-flower-3": "WALL_FLOWER",
       "to-wall-flower-in-4": "WALL_FLOWER_IN",
-      "to-north-shot-5": "NORTH_SHOT",
+      "to-left-shot-5": "LEFT_SHOT",
       "to-far-flower-in-6": "FAR_FLOWER_IN",
       "to-far-flower-turn-7": "FAR_FLOWER_TURN",
       "to-far-flower-8": "FAR_FLOWER",
       "to-far-flower-in-9": "FAR_FLOWER_IN",
-      "to-north-shot-10": "NORTH_SHOT",
-      "to-south-plunge-in-11": "SOUTH_PLUNGE_IN",
-      "to-south-plunge-12": "SOUTH_PLUNGE",
-      "to-south-shot-13": "SOUTH_SHOT",
+      "to-left-shot-10": "LEFT_SHOT",
+      "to-right-plunge-in-11": "RIGHT_PLUNGE_IN",
+      "to-right-plunge-12": "RIGHT_PLUNGE",
+      "to-right-shot-13": "RIGHT_SHOT",
       "to-garden-14": "GARDEN",
-      "to-south-shot-15": "SOUTH_SHOT",
-      "to-south-shot-16": "SOUTH_SHOT",
-      "to-south-plunge-in-17": "SOUTH_PLUNGE_IN",
-      "to-south-plunge-18": "SOUTH_PLUNGE",
-      "to-south-shot-19": "SOUTH_SHOT",
+      "to-right-shot-15": "RIGHT_SHOT",
+      "to-right-shot-16": "RIGHT_SHOT",
+      "to-right-plunge-in-17": "RIGHT_PLUNGE_IN",
+      "to-right-plunge-18": "RIGHT_PLUNGE",
+      "to-right-shot-19": "RIGHT_SHOT",
       "to-garden-20": "GARDEN",
-      "to-south-shot-21": "SOUTH_SHOT",
+      "to-right-shot-21": "RIGHT_SHOT",
       "to-park-22": "PARK"
     },
     "startAt": "START",
@@ -903,7 +903,7 @@
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-north-shot-5",
+        "lineId": "to-left-shot-5",
         "park": false
       },
       {
@@ -955,7 +955,7 @@
       {
         "id": "p-19",
         "kind": "path",
-        "lineId": "to-north-shot-10",
+        "lineId": "to-left-shot-10",
         "park": false
       },
       {
@@ -971,7 +971,7 @@
               {
                 "id": "p-30",
                 "kind": "path",
-                "lineId": "to-south-shot-16",
+                "lineId": "to-right-shot-16",
                 "park": false
               },
               {
@@ -982,13 +982,13 @@
               {
                 "id": "p-32",
                 "kind": "path",
-                "lineId": "to-south-plunge-in-17",
+                "lineId": "to-right-plunge-in-17",
                 "park": false
               },
               {
                 "id": "p-33",
                 "kind": "path",
-                "lineId": "to-south-plunge-18",
+                "lineId": "to-right-plunge-18",
                 "park": false
               },
               {
@@ -1011,7 +1011,7 @@
               {
                 "id": "p-35",
                 "kind": "path",
-                "lineId": "to-south-shot-19",
+                "lineId": "to-right-shot-19",
                 "park": false
               },
               {
@@ -1073,7 +1073,7 @@
                       {
                         "id": "p-39",
                         "kind": "path",
-                        "lineId": "to-south-shot-21",
+                        "lineId": "to-right-shot-21",
                         "park": false
                       },
                       {
@@ -1100,7 +1100,7 @@
                 ]
               }
             ],
-            "label": "Yes: south CELL up"
+            "label": "Yes: right CELL up"
           },
           {
             "afterMs": 50,
@@ -1126,13 +1126,13 @@
               {
                 "id": "p-21",
                 "kind": "path",
-                "lineId": "to-south-plunge-in-11",
+                "lineId": "to-right-plunge-in-11",
                 "park": false
               },
               {
                 "id": "p-22",
                 "kind": "path",
-                "lineId": "to-south-plunge-12",
+                "lineId": "to-right-plunge-12",
                 "park": false
               },
               {
@@ -1155,7 +1155,7 @@
               {
                 "id": "p-24",
                 "kind": "path",
-                "lineId": "to-south-shot-13",
+                "lineId": "to-right-shot-13",
                 "park": false
               },
               {
@@ -1189,7 +1189,7 @@
               {
                 "id": "p-28",
                 "kind": "path",
-                "lineId": "to-south-shot-15",
+                "lineId": "to-right-shot-15",
                 "park": false
               },
               {

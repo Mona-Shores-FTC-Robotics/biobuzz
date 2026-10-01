@@ -20,12 +20,12 @@ import java.util.Locale;
  */
 public class LauncherStudyTest {
 
-    /** Spots drawn for RED; a y above the HIVE's centre shoots at the north CELL. */
+    /** Spots drawn for RED; a y above the HIVE's centre shoots at the left CELL. */
     static final double[][] SPOTS = {
             {59, 9.5}, {36, 30}, {58, 30}, {58, 40}, {40, 116}, {59, 132.25}, {58, 101}};
     static final String[] NAMES = {
-            "south wall, straight on", "south, angled", "south, close", "south, closer",
-            "north, angled", "north wall, straight on", "north, close (out of the tunnel)"};
+            "right wall, straight on", "right, angled", "right, close", "right, closer",
+            "left, angled", "left wall, straight on", "left, close (out of the tunnel)"};
     /** Two sigmas of the placeholder speed spread, kept clear of each window's edges. */
     static final double MARGIN = 2 * FieldSim.PLACEHOLDER_SPEED_SPREAD;
 
@@ -73,7 +73,7 @@ public class LauncherStudyTest {
         FieldSim sim = new FieldSim(HiveAssets.committedStagedPieces(), 1);
         FieldSim.Rocker r = sim.red;
         r.locked = true;
-        if (spot[1] > FieldSim.CENTRE_IN) r.angle = FieldSim.TILT_RAD; // north CELL up
+        if (spot[1] > FieldSim.CENTRE_IN) r.angle = FieldSim.TILT_RAD; // left CELL up
         double heading = Math.atan2(FieldSim.CENTRE_IN - spot[1], r.centreX - spot[0]);
         sim.setRobot(spot[0], spot[1], heading, 0, 0, 0, false);
         double[] aim = r.aimPoint();

@@ -15,7 +15,7 @@ import java.util.Locale;
  * ({@code tools/auto-routes/snapshots.py} turns it into a PNG). Opt in:
  *
  * <pre>
- * BIOBUZZ_SNAPSHOT=HomeSouthAuto,HomeNorthAuto BIOBUZZ_SNAPSHOT_DESIGN="spring hood" \
+ * BIOBUZZ_SNAPSHOT=HomeRightAuto,HomeLeftAuto BIOBUZZ_SNAPSHOT_DESIGN="spring hood" \
  *   BIOBUZZ_SNAPSHOT_TIMES=12,13,14 ./gradlew :TeamCode:testDebugUnitTest --tests '*SnapshotTest*'
  * </pre>
  * Optional: BIOBUZZ_SNAPSHOT_SPEED (50), BIOBUZZ_SNAPSHOT_SEED (1). Writes

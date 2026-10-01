@@ -43,37 +43,37 @@ public final class SoloThreeTipAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
         Pose wallFlower = p.of(11, 47.4, 180);
-        Pose northShot = p.of(40, 116, 301);
+        Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.4, 130.5, 90);
-        Pose southPlungeIn = p.of(55, 24, 270);
-        Pose southPlunge = p.of(55, 10.5, 270);
-        Pose southShot = p.of(36, 30, 49);
+        Pose rightPlungeIn = p.of(55, 24, 270);
+        Pose rightPlunge = p.of(55, 10.5, 270);
+        Pose rightShot = p.of(36, 30, 49);
         Pose garden = p.of(8.5, 11, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose northShotToSouthPlungeInControl1 = p.of(32, 94, 0);
-        Pose northShotToSouthPlungeInControl2 = p.of(20, 58, 0);
-        Pose northShotToSouthPlungeInControl3 = p.of(26, 30, 0);
-        Pose southPlungeToNorthShotControl1 = p.of(26, 30, 0);
-        Pose southPlungeToNorthShotControl2 = p.of(20, 58, 0);
-        Pose southPlungeToNorthShotControl3 = p.of(32, 94, 0);
-        Pose northShotToSouthPlungeIn_2Control1 = p.of(32, 94, 0);
-        Pose northShotToSouthPlungeIn_2Control2 = p.of(20, 58, 0);
-        Pose northShotToSouthPlungeIn_2Control3 = p.of(26, 30, 0);
+        Pose leftShotToRightPlungeInControl1 = p.of(32, 94, 0);
+        Pose leftShotToRightPlungeInControl2 = p.of(20, 58, 0);
+        Pose leftShotToRightPlungeInControl3 = p.of(26, 30, 0);
+        Pose rightPlungeToLeftShotControl1 = p.of(26, 30, 0);
+        Pose rightPlungeToLeftShotControl2 = p.of(20, 58, 0);
+        Pose rightPlungeToLeftShotControl3 = p.of(32, 94, 0);
+        Pose leftShotToRightPlungeIn_2Control1 = p.of(32, 94, 0);
+        Pose leftShotToRightPlungeIn_2Control2 = p.of(20, 58, 0);
+        Pose leftShotToRightPlungeIn_2Control3 = p.of(26, 30, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
-        Path wallFlowerToNorthShot = Paths.line(wallFlower, northShot).linear(wallFlower, northShot);
-        Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
-        Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
-        Path northShotToSouthPlungeIn = Paths.curve(northShot, northShotToSouthPlungeInControl1, northShotToSouthPlungeInControl2, northShotToSouthPlungeInControl3, southPlungeIn).linear(northShot, southPlungeIn);
-        Path southPlungeInToSouthPlunge = Paths.line(southPlungeIn, southPlunge).constant(southPlunge);
-        Path southPlungeToNorthShot = Paths.curve(southPlunge, southPlungeToNorthShotControl1, southPlungeToNorthShotControl2, southPlungeToNorthShotControl3, northShot).linear(southPlunge, northShot);
-        Path northShotToSouthPlungeInPath = Paths.curve(northShot, northShotToSouthPlungeIn_2Control1, northShotToSouthPlungeIn_2Control2, northShotToSouthPlungeIn_2Control3, southPlungeIn).linear(northShot, southPlungeIn);
-        Path southPlungeInToSouthPlungePath = Paths.line(southPlungeIn, southPlunge).constant(southPlunge);
-        Path southPlungeToSouthShot = Paths.line(southPlunge, southShot).linear(southPlunge, southShot);
-        Path southShotToGarden = Paths.line(southShot, garden).linear(southShot, garden);
-        Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
+        Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).linear(wallFlower, leftShot);
+        Path leftShotToFarFlower = Paths.line(leftShot, farFlower).linear(leftShot, farFlower);
+        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).linear(farFlower, leftShot);
+        Path leftShotToRightPlungeIn = Paths.curve(leftShot, leftShotToRightPlungeInControl1, leftShotToRightPlungeInControl2, leftShotToRightPlungeInControl3, rightPlungeIn).linear(leftShot, rightPlungeIn);
+        Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).constant(rightPlunge);
+        Path rightPlungeToLeftShot = Paths.curve(rightPlunge, rightPlungeToLeftShotControl1, rightPlungeToLeftShotControl2, rightPlungeToLeftShotControl3, leftShot).linear(rightPlunge, leftShot);
+        Path leftShotToRightPlungeInPath = Paths.curve(leftShot, leftShotToRightPlungeIn_2Control1, leftShotToRightPlungeIn_2Control2, leftShotToRightPlungeIn_2Control3, rightPlungeIn).linear(leftShot, rightPlungeIn);
+        Path rightPlungeInToRightPlungePath = Paths.line(rightPlungeIn, rightPlunge).constant(rightPlunge);
+        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
+        Path rightShotToGarden = Paths.line(rightShot, garden).linear(rightShot, garden);
+        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
 
         return kit.sequence(
                 kit.command("LaunchOne"),
@@ -90,38 +90,38 @@ public final class SoloThreeTipAuto {
                 kit.firstOf("Collect at WALL_FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(1500)),
-                kit.path("WALL_FLOWER to NORTH_SHOT", wallFlowerToNorthShot),
+                kit.path("WALL_FLOWER to LEFT_SHOT", wallFlowerToLeftShot),
                 kit.command("LaunchAll"),
-                kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
+                kit.path("LEFT_SHOT to FAR_FLOWER", leftShotToFarFlower),
                 kit.firstOf("Collect at FAR_FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(1500)),
-                kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
+                kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
                 kit.command("LaunchAll"),
                 kit.firstOf("Tip 2?",
                         kit.when("Tip"),
                         kit.afterMs(1200).then(
-                                kit.path("NORTH_SHOT to SOUTH_PLUNGE_IN", northShotToSouthPlungeIn),
-                                kit.path("SOUTH_PLUNGE_IN to SOUTH_PLUNGE", southPlungeInToSouthPlunge),
+                                kit.path("LEFT_SHOT to RIGHT_PLUNGE_IN", leftShotToRightPlungeIn),
+                                kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlunge),
                                 kit.firstOf("Spilled NECTAR",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(400)),
-                                kit.path("SOUTH_PLUNGE to NORTH_SHOT", southPlungeToNorthShot),
+                                kit.path("RIGHT_PLUNGE to LEFT_SHOT", rightPlungeToLeftShot),
                                 kit.firstOf("Tip 2 (late)", kit.command("LaunchAll"),
                                         kit.when("Tip"),
                                         kit.afterMs(2500)))),
-                kit.path("NORTH_SHOT to SOUTH_PLUNGE_IN", northShotToSouthPlungeInPath),
-                kit.path("SOUTH_PLUNGE_IN to SOUTH_PLUNGE", southPlungeInToSouthPlungePath),
+                kit.path("LEFT_SHOT to RIGHT_PLUNGE_IN", leftShotToRightPlungeInPath),
+                kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlungePath),
                 kit.firstOf("Spilled NECTAR",
                         kit.when("IntakeFull"),
                         kit.afterMs(400)),
-                kit.path("SOUTH_PLUNGE to SOUTH_SHOT", southPlungeToSouthShot),
+                kit.path("RIGHT_PLUNGE to RIGHT_SHOT", rightPlungeToRightShot),
                 kit.command("LaunchAll"),
-                kit.path("SOUTH_SHOT to GARDEN", southShotToGarden),
+                kit.path("RIGHT_SHOT to GARDEN", rightShotToGarden),
                 kit.firstOf("Collect in the GARDEN",
                         kit.when("IntakeFull"),
                         kit.afterMs(1000)),
-                kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
+                kit.path("GARDEN to RIGHT_SHOT", gardenToRightShot),
                 kit.firstOf("Tip 3", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)));

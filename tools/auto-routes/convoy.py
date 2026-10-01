@@ -5,26 +5,26 @@ carry it to the other end and fire it there, so every TIP gets about 8 pieces at
 import sys
 from helpers import *
 
-S_HOME, N_HOME = (57.5, 10, 90), (57.5, 131.75, 270)
+R_HOME, L_HOME = (57.5, 10, 90), (57.5, 131.75, 270)
 # Through the tunnel square to the field; turn only clear of the HIVE, 13 in from the centre line.
-S_EXIT, N_EXIT = (57.5, 34, 90), (57.5, 108, 90)
-S_SIDE, N_SIDE = (32, 14, 60), (32, 128, 300)
+R_EXIT, L_EXIT = (57.5, 34, 90), (57.5, 108, 90)
+R_SIDE, L_SIDE = (32, 14, 60), (32, 128, 300)
 
 
 def tunnel(cycles=4, name="convoy-tunnel"):
     """Our robot: in the spill's roll path at each end, through the tunnel between them."""
     r = Route(name, (59, 9.5, 90), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("S_HOME", *S_HOME).pt("N_HOME", *N_HOME).pt("S_EXIT", *S_EXIT).pt("N_EXIT", *N_EXIT)
+    r.pt("R_HOME", *R_HOME).pt("L_HOME", *L_HOME).pt("R_EXIT", *R_EXIT).pt("L_EXIT", *L_EXIT)
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))
     up, other = "LeftCellUp", "RightCellUp"
     for k in range(cycles):
-        north = k % 2 == 0
-        if north:
-            r.add(r.go("S_EXIT"), r.go("N_EXIT", heading=90), r.go("N_HOME"))
+        left = k % 2 == 0
+        if left:
+            r.add(r.go("R_EXIT"), r.go("L_EXIT", heading=90), r.go("L_HOME"))
         else:
-            r.add(r.go("N_EXIT"), r.go("S_EXIT", heading=90), r.go("S_HOME"))
+            r.add(r.go("L_EXIT"), r.go("R_EXIT", heading=90), r.go("R_HOME"))
         r.add(fire(r, f"Fire ({k + 1})", "Empty", ms=2000),
               r.wait(f"Until it tips ({k + 1})", when=[other], ms=2500),
               r.wait(f"Catch the spill ({k + 1})", when=["IntakeFull"], ms=2000))
@@ -35,18 +35,18 @@ def tunnel(cycles=4, name="convoy-tunnel"):
 def corridor(cycles=4, name="convoy-corridor"):
     """The partner: beside the roll path at each end, up and down the west corridor."""
     r = Route(name, (38, 9.5, 90), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("S_SIDE", *S_SIDE).pt("N_SIDE", *N_SIDE)
-    r.add(fire(r, "Fire the preloads at the south CELL", "Empty", ms=4000),
+    r.pt("R_SIDE", *R_SIDE).pt("L_SIDE", *L_SIDE)
+    r.add(fire(r, "Fire the preloads at the right CELL", "Empty", ms=4000),
           r.wait("TIP 1", when=["LeftCellUp"], ms=3000),
-          r.go("S_SIDE"),
+          r.go("R_SIDE"),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))
     up, other = "LeftCellUp", "RightCellUp"
     for k in range(cycles):
-        north = k % 2 == 0
-        if north:
-            r.add(r.go("N_SIDE", ctrl=[(22, 30), (20, 100)]))
+        left = k % 2 == 0
+        if left:
+            r.add(r.go("L_SIDE", ctrl=[(22, 30), (20, 100)]))
         else:
-            r.add(r.go("S_SIDE", ctrl=[(20, 100), (22, 30)]))
+            r.add(r.go("R_SIDE", ctrl=[(20, 100), (22, 30)]))
         r.add(fire(r, f"Fire ({k + 1})", "Empty", ms=2000),
               r.wait(f"Until it tips ({k + 1})", when=[other], ms=2500),
               r.wait(f"Catch the spill ({k + 1})", when=["IntakeFull"], ms=2000))

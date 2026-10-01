@@ -6,12 +6,12 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 | Script | Writes |
 |---|---|
-| `duo_lz.py` | `duo-lz-south.pp`, `duo-lz-north.pp` |
+| `duo_lz.py` | `duo-lz-right.pp`, `duo-lz-left.pp` |
 | `three_tip_adaptive.py` | `three-tip-adaptive.pp` |
 | `partners.py` | `partners/partner-leave-park.pp`, `partners/partner-preloads-park.pp` |
-| `lean_duo.py` | `lean-south.pp`, `lean-north.pp` |
-| `partner_start.py` | `north-first.pp`; partners `partner-preloads-south`, `partner-leave-south`, `partner-preloads-north-timer` |
-| `lean_opportunist.py` | `lean-opp-south.pp`, `lean-opp-north.pp` |
+| `lean_duo.py` | `lean-right.pp`, `lean-left.pp` |
+| `partner_start.py` | `left-first.pp`; partners `partner-preloads-right`, `partner-leave-right`, `partner-preloads-left-timer` |
+| `lean_opportunist.py` | `lean-opp-right.pp`, `lean-opp-left.pp` |
 | `snapshots.py` | pictures of the field at chosen moments, from `SnapshotTest` |
 | `home_duo.py`, `convoy.py`, `rally.py`, `solo_shuttle.py`, `four_tip_adaptive.py` | experiments that lost, in `experiments/` (their Java is not committed) |
 

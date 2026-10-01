@@ -43,27 +43,27 @@ public final class SoloTwoTipAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
         Pose wallFlower = p.of(11, 47.4, 180);
-        Pose northShot = p.of(40, 116, 301);
+        Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.4, 130.5, 90);
         Pose garden = p.of(8.5, 11, 270);
-        Pose southShot = p.of(36, 30, 49);
+        Pose rightShot = p.of(36, 30, 49);
         Pose park = p.of(15, 99, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose northShotToGardenControl1 = p.of(34, 92, 0);
-        Pose northShotToGardenControl2 = p.of(14, 60, 0);
+        Pose leftShotToGardenControl1 = p.of(34, 92, 0);
+        Pose leftShotToGardenControl2 = p.of(14, 60, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
-        Path wallFlowerToNorthShot = Paths.line(wallFlower, northShot).linear(wallFlower, northShot);
-        Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
-        Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
-        Path northShotToGarden = Paths.curve(northShot, northShotToGardenControl1, northShotToGardenControl2, garden).linear(northShot, garden);
-        Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
-        Path southShotToPark = Paths.line(southShot, park).linear(southShot, park);
+        Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).linear(wallFlower, leftShot);
+        Path leftShotToFarFlower = Paths.line(leftShot, farFlower).linear(leftShot, farFlower);
+        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).linear(farFlower, leftShot);
+        Path leftShotToGarden = Paths.curve(leftShot, leftShotToGardenControl1, leftShotToGardenControl2, garden).linear(leftShot, garden);
+        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
+        Path rightShotToPark = Paths.line(rightShot, park).linear(rightShot, park);
 
         return kit.sequence(
-                kit.guarded("Auto", southShotToPark, 2.3,
+                kit.guarded("Auto", rightShotToPark, 2.3,
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
@@ -74,22 +74,22 @@ public final class SoloTwoTipAuto {
                         kit.firstOf("Collect at WALL_FLOWER",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(2500)),
-                        kit.path("WALL_FLOWER to NORTH_SHOT", wallFlowerToNorthShot),
+                        kit.path("WALL_FLOWER to LEFT_SHOT", wallFlowerToLeftShot),
                         kit.command("LaunchAll"),
-                        kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
+                        kit.path("LEFT_SHOT to FAR_FLOWER", leftShotToFarFlower),
                         kit.firstOf("Collect at FAR_FLOWER",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(2500)),
-                        kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
+                        kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
                         kit.firstOf("Tip 2", kit.command("LaunchAll"),
                                 kit.when("Tip"),
                                 kit.afterMs(3000)),
-                        kit.path("NORTH_SHOT to GARDEN", northShotToGarden),
+                        kit.path("LEFT_SHOT to GARDEN", leftShotToGarden),
                         kit.firstOf("Collect in GARDEN",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(2500)),
-                        kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
+                        kit.path("GARDEN to RIGHT_SHOT", gardenToRightShot),
                         kit.command("LaunchAll"),
-                        kit.path("SOUTH_SHOT to PARK", southShotToPark)));
+                        kit.path("RIGHT_SHOT to PARK", rightShotToPark)));
     }
 }

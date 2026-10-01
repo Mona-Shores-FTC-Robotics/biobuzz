@@ -38,7 +38,7 @@ import java.util.Locale;
  */
 public class LauncherDesignStudyTest {
 
-    /** Shooting spots on the south side, drawn for RED: {x, y}, the robot facing the HIVE. */
+    /** Shooting spots on the right side, drawn for RED: {x, y}, the robot facing the HIVE. */
     static final double[][] SPOTS = {{59, 9.5}, {58, 30}, {36, 30}};
     static final String[] SPOT_NAMES = {"wall, straight on", "20 in out, straight on", "angled, 30 in out"};
     static final double[] ANGLES = {40, 45, 50, 55, 60, 65, 70, 75};
@@ -104,7 +104,7 @@ public class LauncherDesignStudyTest {
 
     private static final java.util.List<HiveAssets.StagedPiece> EMPTY = new ArrayList<>();
 
-    /** One shot, with air, at the raised south CELL, from {@code spot} at a fixed angle and speed. */
+    /** One shot, with air, at the raised right CELL, from {@code spot} at a fixed angle and speed. */
     static boolean scores(FieldSim.Kind kind, double[] spot, double angleDeg, double spinNumber, double speedMps) {
         FieldSim sim = new FieldSim(EMPTY, 1, HiveCalibration.current().fit());
         sim.air = true;

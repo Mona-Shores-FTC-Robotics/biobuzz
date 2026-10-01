@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzNorthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzSouthAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzLeftAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzRightAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -24,11 +24,11 @@ import java.util.Map;
 public class SpillStudyTest {
 
     static final class Track {
-        final boolean north;
+        final boolean left;
         final double startedAt;
         double landedAt = Double.NaN, landX, landY, restX = Double.NaN, restY;
-        Track(boolean north, double startedAt) {
-            this.north = north;
+        Track(boolean left, double startedAt) {
+            this.left = left;
             this.startedAt = startedAt;
         }
     }
@@ -52,8 +52,8 @@ public class SpillStudyTest {
             int[] started = {0};
             String pair = System.getenv("BIOBUZZ_SPILL_PAIR");
             String pkg = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
-            Class<?> a = pair == null ? DuoLzSouthAuto.class : Class.forName(pkg + pair.split(",")[0]);
-            Class<?> b = pair == null ? DuoLzNorthAuto.class : Class.forName(pkg + pair.split(",")[1]);
+            Class<?> a = pair == null ? DuoLzRightAuto.class : Class.forName(pkg + pair.split(",")[0]);
+            Class<?> b = pair == null ? DuoLzLeftAuto.class : Class.forName(pkg + pair.split(",")[1]);
             AutoSim sim = new AutoSim(a, Alliance.RED, seed).speed(50, 45).design(RobotDesign.springHood())
                     .alsoRun(b).speed(50, 45).design(RobotDesign.springHood());
             sim.observer = (field, now) -> {
@@ -85,12 +85,12 @@ public class SpillStudyTest {
             };
             sim.write(new File(TeamCodeDir.simLogs(), "spill-study.wpilog"));
         }
-        for (boolean north : new boolean[] {false, true}) {
+        for (boolean left : new boolean[] {false, true}) {
             int n = 0, landed = 0;
             double t = 0;
             int[][] land = new int[12][8], rest = new int[12][8];
             for (Track k : all) {
-                if (k.north != north) continue;
+                if (k.left != left) continue;
                 n++;
                 if (Double.isNaN(k.landedAt)) continue;
                 landed++;
@@ -99,10 +99,10 @@ public class SpillStudyTest {
                 if (!Double.isNaN(k.restX)) bin(rest, k.restX, k.restY);
             }
             System.out.printf(Locale.ROOT, "SPILL %s CELL: %d pieces, %d landed, first touch %.2f s after the TIP starts%n",
-                    north ? "north" : "south", n, landed, landed == 0 ? 0 : t / landed);
+                    left ? "left" : "right", n, landed, landed == 0 ? 0 : t / landed);
             List<Double> times = new ArrayList<>(), xs = new ArrayList<>(), ys = new ArrayList<>();
             for (Track k : all) {
-                if (k.north != north || Double.isNaN(k.landedAt)) continue;
+                if (k.left != left || Double.isNaN(k.landedAt)) continue;
                 times.add(k.landedAt);
                 xs.add(k.landX);
                 ys.add(k.landY);
@@ -113,14 +113,14 @@ public class SpillStudyTest {
             print("SPILL   where they are 2 s later", rest);
             int[][] fine = new int[12][10];
             for (Track k : all) {
-                if (k.north != north || Double.isNaN(k.restX)) continue;
-                double y0 = north ? 96 : 0;
+                if (k.left != left || Double.isNaN(k.restX)) continue;
+                double y0 = left ? 96 : 0;
                 int row = (int) ((k.restY - y0) / 4), col = (int) ((k.restX - 36) / 4);
                 if (row >= 0 && row < 12 && col >= 0 && col < 10) fine[row][col]++;
             }
-            System.out.println("SPILL   2 s later, 4 in cells, x 36..76 across, y " + (north ? "96..144" : "0..48") + " up");
+            System.out.println("SPILL   2 s later, 4 in cells, x 36..76 across, y " + (left ? "96..144" : "0..48") + " up");
             for (int row = 11; row >= 0; row--) {
-                StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "SPILL   y%4.0f ", (north ? 96 : 0) + row * 4.0));
+                StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "SPILL   y%4.0f ", (left ? 96 : 0) + row * 4.0));
                 for (int col = 0; col < 10; col++) line.append(fine[row][col] == 0 ? "   ." : String.format(Locale.ROOT, "%4d", fine[row][col]));
                 System.out.println(line);
             }
@@ -145,7 +145,7 @@ public class SpillStudyTest {
     }
 
     static void print(String title, int[][] g) {
-        System.out.println(title + " (rows y, 12 in each, north at top; columns x 0..96 in 12 in steps)");
+        System.out.println(title + " (rows y, 12 in each, left at top; columns x 0..96 in 12 in steps)");
         for (int row = 11; row >= 0; row--) {
             StringBuilder s = new StringBuilder(String.format(Locale.ROOT, "SPILL   y%3d-%3d ", row * 12, row * 12 + 12));
             for (int col = 0; col < 8; col++) s.append(g[row][col] == 0 ? "   ." : String.format(Locale.ROOT, "%4d", g[row][col]));

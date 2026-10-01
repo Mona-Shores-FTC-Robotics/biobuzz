@@ -60,7 +60,7 @@ public class AutoSimTest {
                 AutoSim sim = new AutoSim(auto, alliance, 3572L);
                 // The one Auto drawn around a partner gets that partner, so its log shows the plan.
                 if (AutoSim.name(auto).equals("partner-three-tip")) {
-                    sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
+                    sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
                 }
                 AutoSim.Result result = sim.write(file);
                 System.out.println(result);

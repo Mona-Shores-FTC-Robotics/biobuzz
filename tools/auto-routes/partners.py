@@ -11,9 +11,9 @@ def preloads_park():
     r = Route("partner-preloads-park", (59, 132.25, 270), speed=40, folder=PP_DIR + "/partners")
     r.pt("PARK_P", 16, 122, 270)
     r.add(r.action("SpinUp"),
-          *waits(r, "North CELL up", "LeftCellUp", 8.0),
+          *waits(r, "Left CELL up", "LeftCellUp", 8.0),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # south first, clear of the far FLOWER
+          r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # right first, clear of the far FLOWER
     return r
 
 if __name__ == "__main__":

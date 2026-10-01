@@ -15,7 +15,7 @@ import java.util.Map;
  * alliance) with their drivetrain speed:
  *
  * <pre>
- * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoSouthAuto,DuoNorthAuto@60" \
+ * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoRightAuto,DuoLeftAuto@60" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10). PartnerThreeTipAuto gets its standing partner.
@@ -108,7 +108,7 @@ public class AutoStudyTest {
         Class<?> first = Class.forName(PKG + autos[0]);
         AutoSim sim = new AutoSim(first, Alliance.RED, seed).speed(speed, speed * 0.9).design(design);
         if (first == PartnerThreeTipAuto.class) {
-            sim.partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN);
+            sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
         if (autos.length > 1) {
             double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;

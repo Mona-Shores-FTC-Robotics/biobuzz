@@ -18,41 +18,41 @@ def cycle(r, k, home, sweep, ours, other, heading):
             r.wait(f"Catch the spill ({k})", when=["IntakeFull"], ms=2000)]
 
 
-def south(name="rally-south", cycles=4):
+def right(name="rally-right", cycles=4):
     r = Route(name, (59, 9.5, 90), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("HOME_S", 59, 10, 90).pt("SWEEP_S", 45, 10, 90)
+    r.pt("HOME_R", 59, 10, 90).pt("SWEEP_R", 45, 10, 90)
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2500))
     for k in range(1, cycles + 1):
-        r.at = "START" if k == 1 else "HOME_S"
+        r.at = "START" if k == 1 else "HOME_R"
         if k == 1:
-            r.add(r.go("HOME_S", heading=90))
-        r.add(*cycle(r, k, "HOME_S", "SWEEP_S", "RightCellUp", "LeftCellUp", 90))
+            r.add(r.go("HOME_R", heading=90))
+        r.add(*cycle(r, k, "HOME_R", "SWEEP_R", "RightCellUp", "LeftCellUp", 90))
     return r
 
 
-def north(name="rally-north", cycles=4):
+def left(name="rally-left", cycles=4):
     r = Route(name, (59, 132.25, 270), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("FLOWER_N", 47.4, 127.8, 90).pt("HOME_N", 59, 131.75, 270).pt("SWEEP_N", 45, 131.75, 270)
+    r.pt("FLOWER_L", 47.4, 127.8, 90).pt("HOME_L", 59, 131.75, 270).pt("SWEEP_L", 45, 131.75, 270)
     r.add(r.action("SpinUp"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=7500),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("FLOWER_N"),
+          r.go("FLOWER_L"),
           r.wait("Collect at the FLOWER", when=["IntakeFull"], ms=2500),
-          r.go("HOME_N"),
+          r.go("HOME_L"),
           fire(r, "Fire (TIP 2)", "RightCellUp", ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))
     for k in range(1, cycles + 1):
-        r.at = "HOME_N"
-        r.add(*cycle(r, k, "HOME_N", "SWEEP_N", "LeftCellUp", "RightCellUp", 270))
+        r.at = "HOME_L"
+        r.add(*cycle(r, k, "HOME_L", "SWEEP_L", "LeftCellUp", "RightCellUp", 270))
     return r
 
 
 if __name__ == "__main__":
     # An experiment that lost (72-82 points against lean-opp's 64-105): with a 24 in catcher there is little
     # left in the line on our side of the centre line, so the refill comes back empty. The Java is not committed.
-    south().write()
-    north().write()
-    study("RallySouthAuto,RallyNorthAuto@50;LeanOppSouthAuto,LeanOppNorthAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
+    right().write()
+    left().write()
+    study("RallyRightAuto,RallyLeftAuto@50;LeanOppRightAuto,LeanOppLeftAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10,
           designs=sys.argv[2] if len(sys.argv) > 2 else "spring hood, 24 in catcher|two spring hoods, 24 in catcher|clump catapult 72 deg, 24 in catcher")

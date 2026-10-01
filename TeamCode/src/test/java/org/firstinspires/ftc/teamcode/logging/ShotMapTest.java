@@ -37,11 +37,11 @@ public class ShotMapTest {
         try (PrintWriter out = new PrintWriter(csv)) {
             out.println("design,raised,x,y,pollen,nectar");
             for (RobotDesign design : designs) {
-                for (boolean north : new boolean[] {false, true}) {
+                for (boolean left : new boolean[] {false, true}) {
                     double[][] rate = new double[spots.size()][];
-                    IntStream.range(0, spots.size()).parallel().forEach(i -> rate[i] = rates(design, north, spots.get(i)));
+                    IntStream.range(0, spots.size()).parallel().forEach(i -> rate[i] = rates(design, left, spots.get(i)));
                     System.out.printf(Locale.ROOT, "MAP %s, %s CELL raised (P = both score 5/6+, p = POLLEN only, n = NECTAR only, . = neither, blank = robot can't stand there)%n",
-                            design.name, north ? "north" : "south");
+                            design.name, left ? "left" : "right");
                     int good = 0, all = 0;
                     for (int row = 0; ; row++) {
                         double y = 135 - (135 - 9) % STEP - row * STEP;
@@ -61,7 +61,7 @@ public class ShotMapTest {
                     System.out.printf(Locale.ROOT, "MAP   x: 9 to 61 every %.0f in; both score from %d of %d spots%n", STEP, good, all);
                     for (int i = 0; i < spots.size(); i++) {
                         if (rate[i] == null) continue;
-                        out.printf(Locale.ROOT, "%s,%s,%.0f,%.0f,%.2f,%.2f%n", design.name, north ? "north" : "south",
+                        out.printf(Locale.ROOT, "%s,%s,%.0f,%.0f,%.2f,%.2f%n", design.name, left ? "left" : "right",
                                 spots.get(i)[0], spots.get(i)[1], rate[i][0], rate[i][1]);
                     }
                 }
@@ -70,15 +70,15 @@ public class ShotMapTest {
     }
 
     /** Fraction of POLLEN and of NECTAR that score from {@code spot}, or null if a robot can't stand there. */
-    static double[] rates(RobotDesign design, boolean north, double[] spot) {
+    static double[] rates(RobotDesign design, boolean left, double[] spot) {
         try {
-            double heading = Math.atan2(FieldSim.CENTRE_IN + (north ? 20 : -20) - spot[1], FieldSim.RED_HIVE_X_IN - spot[0]);
+            double heading = Math.atan2(FieldSim.CENTRE_IN + (left ? 20 : -20) - spot[1], FieldSim.RED_HIVE_X_IN - spot[0]);
             if (!standable(spot, heading)) return null;
             double[] out = new double[2];
             for (int k = 0; k < 2; k++) {
                 int in = 0;
                 for (int s = 0; s < SHOTS; s++) {
-                    if (shot(design, north, spot, k == 0 ? FieldSim.Kind.POLLEN : FieldSim.Kind.RED_NECTAR, 1000L * s + k)) in++;
+                    if (shot(design, left, spot, k == 0 ? FieldSim.Kind.POLLEN : FieldSim.Kind.RED_NECTAR, 1000L * s + k)) in++;
                 }
                 out[k] = in / (double) SHOTS;
             }
@@ -98,11 +98,11 @@ public class ShotMapTest {
         return !FieldSim.inHiveFrame(c[0], c[1]);
     }
 
-    static boolean shot(RobotDesign design, boolean north, double[] spot, FieldSim.Kind kind, long seed) throws Exception {
+    static boolean shot(RobotDesign design, boolean left, double[] spot, FieldSim.Kind kind, long seed) throws Exception {
         FieldSim sim = new FieldSim(HiveAssets.committedStagedPieces(), seed);
         FieldSim.Rocker r = sim.red;
         r.locked = true;
-        if (north) r.angle = FieldSim.TILT_RAD;
+        if (left) r.angle = FieldSim.TILT_RAD;
         double[] aim = r.aimPoint();
         double heading = Math.atan2(aim[1] - spot[1], aim[0] - spot[0]);
         sim.main.design = design;

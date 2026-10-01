@@ -42,29 +42,29 @@ public final class SpillThreeTipAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
-        Pose northShot = p.of(40, 116, 301);
+        Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.4, 130.5, 90);
         Pose spillIn = p.of(29, 21, 0);
         Pose spillEnd = p.of(60, 21, 0);
         Pose garden = p.of(8.5, 11, 270);
-        Pose southShot = p.of(36, 30, 49);
+        Pose rightShot = p.of(36, 30, 49);
         Pose exitWest = p.of(28, 10, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose exitWestToNorthShotControl1 = p.of(18, 62, 0);
-        Pose northShotToGardenControl1 = p.of(34, 92, 0);
-        Pose northShotToGardenControl2 = p.of(14, 60, 0);
+        Pose exitWestToLeftShotControl1 = p.of(18, 62, 0);
+        Pose leftShotToGardenControl1 = p.of(34, 92, 0);
+        Pose leftShotToGardenControl2 = p.of(14, 60, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToExitWest = Paths.line(start, exitWest).constant(exitWest);
-        Path exitWestToNorthShot = Paths.curve(exitWest, exitWestToNorthShotControl1, northShot).linear(exitWest, northShot);
-        Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
-        Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
-        Path northShotToGarden = Paths.curve(northShot, northShotToGardenControl1, northShotToGardenControl2, garden).linear(northShot, garden);
-        Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
-        Path southShotToSpillIn = Paths.line(southShot, spillIn).linear(southShot, spillIn);
+        Path exitWestToLeftShot = Paths.curve(exitWest, exitWestToLeftShotControl1, leftShot).linear(exitWest, leftShot);
+        Path leftShotToFarFlower = Paths.line(leftShot, farFlower).linear(leftShot, farFlower);
+        Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).linear(farFlower, leftShot);
+        Path leftShotToGarden = Paths.curve(leftShot, leftShotToGardenControl1, leftShotToGardenControl2, garden).linear(leftShot, garden);
+        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
+        Path rightShotToSpillIn = Paths.line(rightShot, spillIn).linear(rightShot, spillIn);
         Path spillInToSpillEnd = Paths.line(spillIn, spillEnd).constant(spillEnd);
-        Path spillEndToSouthShot = Paths.line(spillEnd, southShot).linear(spillEnd, southShot);
+        Path spillEndToRightShot = Paths.line(spillEnd, rightShot).linear(spillEnd, rightShot);
 
         return kit.sequence(
                 kit.command("LaunchOne"),
@@ -81,28 +81,28 @@ public final class SpillThreeTipAuto {
                         kit.when("IntakeFull"),
                         kit.afterMs(1800)),
                 kit.path("START to EXIT_WEST", startToExitWest),
-                kit.path("EXIT_WEST to NORTH_SHOT", exitWestToNorthShot),
+                kit.path("EXIT_WEST to LEFT_SHOT", exitWestToLeftShot),
                 kit.command("LaunchAll"),
-                kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
+                kit.path("LEFT_SHOT to FAR_FLOWER", leftShotToFarFlower),
                 kit.firstOf("Collect at FAR_FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(1500)),
-                kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
+                kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
                 kit.firstOf("Tip 2", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.path("NORTH_SHOT to GARDEN", northShotToGarden),
+                kit.path("LEFT_SHOT to GARDEN", leftShotToGarden),
                 kit.firstOf("Collect in the GARDEN",
                         kit.when("IntakeFull"),
                         kit.afterMs(800)),
-                kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
+                kit.path("GARDEN to RIGHT_SHOT", gardenToRightShot),
                 kit.command("LaunchAll"),
-                kit.path("SOUTH_SHOT to SPILL_IN", southShotToSpillIn),
+                kit.path("RIGHT_SHOT to SPILL_IN", rightShotToSpillIn),
                 kit.path("SPILL_IN to SPILL_END", spillInToSpillEnd),
                 kit.firstOf("Rest of the spill",
                         kit.when("IntakeFull"),
                         kit.afterMs(300)),
-                kit.path("SPILL_END to SOUTH_SHOT", spillEndToSouthShot),
+                kit.path("SPILL_END to RIGHT_SHOT", spillEndToRightShot),
                 kit.firstOf("Tip 3", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)));

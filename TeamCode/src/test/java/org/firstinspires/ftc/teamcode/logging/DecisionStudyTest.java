@@ -40,8 +40,8 @@ public class DecisionStudyTest {
 
     /** Auto name, spec, and whether it has a partner. */
     static final String[][] AUTOS = {
-            {"duo-lz", "DuoLzSouthAuto,DuoLzNorthAuto@50"},
-            {"lean-opp", "LeanOppSouthAuto,LeanOppNorthAuto@50"},
+            {"duo-lz", "DuoLzRightAuto,DuoLzLeftAuto@50"},
+            {"lean-opp", "LeanOppRightAuto,LeanOppLeftAuto@50"},
             {"three-tip-adaptive (alone)", "ThreeTipAdaptiveAuto@50"},
     };
 

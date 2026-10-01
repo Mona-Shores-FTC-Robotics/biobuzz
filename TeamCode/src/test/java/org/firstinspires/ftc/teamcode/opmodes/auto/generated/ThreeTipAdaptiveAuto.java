@@ -45,56 +45,56 @@ public final class ThreeTipAdaptiveAuto {
         Pose wallFlower = p.of(13.91, 47.36, 180);
         Pose wallFlowerIn = p.of(19.71, 47.36, 180);
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
-        Pose northShot = p.of(40, 116, 301);
+        Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.36, 127.59, 90);
         Pose farFlowerIn = p.of(47.36, 121.79, 90);
         Pose farFlowerTurn = p.of(47.36, 119.29, 90);
-        Pose southPlungeIn = p.of(55, 24, 270);
-        Pose southPlunge = p.of(55, 10.5, 270);
-        Pose southShot = p.of(36, 30, 49);
+        Pose rightPlungeIn = p.of(55, 24, 270);
+        Pose rightPlunge = p.of(55, 10.5, 270);
+        Pose rightShot = p.of(36, 30, 49);
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(15, 99, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToWallFlowerIn = p.of(19.71, 47.36, 90);
         Pose startToWallFlowerInControl1 = p.of(19.71, 9.5, 0);
-        Pose northShotToFarFlowerIn = p.of(47.36, 121.79, 301);
-        Pose northShotToFarFlowerInControl1 = p.of(40, 121.79, 0);
-        Pose northShotToSouthShotControl1 = p.of(34, 92, 0);
-        Pose northShotToSouthShotControl2 = p.of(12, 60, 0);
-        Pose northShotToSouthShotControl3 = p.of(22, 30, 0);
-        Pose northShotToSouthPlungeInControl1 = p.of(34, 92, 0);
-        Pose northShotToSouthPlungeInControl2 = p.of(12, 60, 0);
-        Pose northShotToSouthPlungeInControl3 = p.of(22, 30, 0);
-        Pose southShotToParkControl1 = p.of(14, 40, 0);
-        Pose southShotToParkControl2 = p.of(12, 80, 0);
+        Pose leftShotToFarFlowerIn = p.of(47.36, 121.79, 301);
+        Pose leftShotToFarFlowerInControl1 = p.of(40, 121.79, 0);
+        Pose leftShotToRightShotControl1 = p.of(34, 92, 0);
+        Pose leftShotToRightShotControl2 = p.of(12, 60, 0);
+        Pose leftShotToRightShotControl3 = p.of(22, 30, 0);
+        Pose leftShotToRightPlungeInControl1 = p.of(34, 92, 0);
+        Pose leftShotToRightPlungeInControl2 = p.of(12, 60, 0);
+        Pose leftShotToRightPlungeInControl3 = p.of(22, 30, 0);
+        Pose rightShotToParkControl1 = p.of(14, 40, 0);
+        Pose rightShotToParkControl2 = p.of(12, 80, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlowerInPath = Paths.curve(start, startToWallFlowerInControl1, startToWallFlowerIn).constant(startToWallFlowerIn);
         Path wallFlowerInToWallFlowerTurn = Paths.line(startToWallFlowerIn, wallFlowerTurn).linear(startToWallFlowerIn, wallFlowerTurn);
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
         Path wallFlowerToWallFlowerIn = Paths.line(wallFlower, wallFlowerIn).constant(wallFlowerIn);
-        Path wallFlowerInToNorthShot = Paths.line(wallFlowerIn, northShot).linear(wallFlowerIn, northShot);
-        Path northShotToFarFlowerInPath = Paths.curve(northShot, northShotToFarFlowerInControl1, northShotToFarFlowerIn).constant(northShotToFarFlowerIn);
-        Path farFlowerInToFarFlowerTurn = Paths.line(northShotToFarFlowerIn, farFlowerTurn).linear(northShotToFarFlowerIn, farFlowerTurn);
+        Path wallFlowerInToLeftShot = Paths.line(wallFlowerIn, leftShot).linear(wallFlowerIn, leftShot);
+        Path leftShotToFarFlowerInPath = Paths.curve(leftShot, leftShotToFarFlowerInControl1, leftShotToFarFlowerIn).constant(leftShotToFarFlowerIn);
+        Path farFlowerInToFarFlowerTurn = Paths.line(leftShotToFarFlowerIn, farFlowerTurn).linear(leftShotToFarFlowerIn, farFlowerTurn);
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToFarFlowerIn = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
-        Path farFlowerInToNorthShot = Paths.line(farFlowerIn, northShot).linear(farFlowerIn, northShot);
-        Path northShotToSouthShot = Paths.curve(northShot, northShotToSouthShotControl1, northShotToSouthShotControl2, northShotToSouthShotControl3, southShot).linear(northShot, southShot);
-        Path southShotToSouthPlungeIn = Paths.line(southShot, southPlungeIn).linear(southShot, southPlungeIn);
-        Path southPlungeInToSouthPlunge = Paths.line(southPlungeIn, southPlunge).linear(southPlungeIn, southPlunge);
-        Path southPlungeToSouthShot = Paths.line(southPlunge, southShot).linear(southPlunge, southShot);
-        Path southShotToGarden = Paths.line(southShot, garden).linear(southShot, garden);
-        Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
-        Path northShotToSouthPlungeIn = Paths.curve(northShot, northShotToSouthPlungeInControl1, northShotToSouthPlungeInControl2, northShotToSouthPlungeInControl3, southPlungeIn).linear(northShot, southPlungeIn);
-        Path southPlungeInToSouthPlungePath = Paths.line(southPlungeIn, southPlunge).linear(southPlungeIn, southPlunge);
-        Path southPlungeToSouthShotPath = Paths.line(southPlunge, southShot).linear(southPlunge, southShot);
-        Path southShotToGardenPath = Paths.line(southShot, garden).linear(southShot, garden);
-        Path gardenToSouthShotPath = Paths.line(garden, southShot).linear(garden, southShot);
-        Path southShotToPark = Paths.curve(southShot, southShotToParkControl1, southShotToParkControl2, park).linear(southShot, park);
+        Path farFlowerInToLeftShot = Paths.line(farFlowerIn, leftShot).linear(farFlowerIn, leftShot);
+        Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).linear(leftShot, rightShot);
+        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).linear(rightShot, rightPlungeIn);
+        Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
+        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
+        Path rightShotToGarden = Paths.line(rightShot, garden).linear(rightShot, garden);
+        Path gardenToRightShot = Paths.line(garden, rightShot).linear(garden, rightShot);
+        Path leftShotToRightPlungeIn = Paths.curve(leftShot, leftShotToRightPlungeInControl1, leftShotToRightPlungeInControl2, leftShotToRightPlungeInControl3, rightPlungeIn).linear(leftShot, rightPlungeIn);
+        Path rightPlungeInToRightPlungePath = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
+        Path rightPlungeToRightShotPath = Paths.line(rightPlunge, rightShot).linear(rightPlunge, rightShot);
+        Path rightShotToGardenPath = Paths.line(rightShot, garden).linear(rightShot, garden);
+        Path gardenToRightShotPath = Paths.line(garden, rightShot).linear(garden, rightShot);
+        Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).linear(rightShot, park);
 
         return kit.sequence(
-                kit.guarded("Auto", southShotToPark, 2.7,
+                kit.guarded("Auto", rightShotToPark, 2.7,
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
@@ -112,37 +112,37 @@ public final class ThreeTipAdaptiveAuto {
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1500)),
                         kit.path("WALL_FLOWER to WALL_FLOWER_IN", wallFlowerToWallFlowerIn),
-                        kit.path("WALL_FLOWER_IN to NORTH_SHOT", wallFlowerInToNorthShot),
+                        kit.path("WALL_FLOWER_IN to LEFT_SHOT", wallFlowerInToLeftShot),
                         kit.command("LaunchAll"),
-                        kit.path("NORTH_SHOT to FAR_FLOWER_IN", northShotToFarFlowerInPath),
+                        kit.path("LEFT_SHOT to FAR_FLOWER_IN", leftShotToFarFlowerInPath),
                         kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurn),
                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                         kit.firstOf("Collect at FAR_FLOWER",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1500)),
                         kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerIn),
-                        kit.path("FAR_FLOWER_IN to NORTH_SHOT", farFlowerInToNorthShot),
+                        kit.path("FAR_FLOWER_IN to LEFT_SHOT", farFlowerInToLeftShot),
                         kit.firstOf("Did a partner make TIP 2?",
                                 kit.when("RightCellUp").then(
-                                        kit.path("NORTH_SHOT to SOUTH_SHOT", northShotToSouthShot),
+                                        kit.path("LEFT_SHOT to RIGHT_SHOT", leftShotToRightShot),
                                         kit.command("LaunchAll"),
-                                        kit.path("SOUTH_SHOT to SOUTH_PLUNGE_IN", southShotToSouthPlungeIn),
-                                        kit.path("SOUTH_PLUNGE_IN to SOUTH_PLUNGE", southPlungeInToSouthPlunge),
+                                        kit.path("RIGHT_SHOT to RIGHT_PLUNGE_IN", rightShotToRightPlungeIn),
+                                        kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlunge),
                                         kit.firstOf("Spilled NECTAR (B)",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(600)),
-                                        kit.path("SOUTH_PLUNGE to SOUTH_SHOT", southPlungeToSouthShot),
+                                        kit.path("RIGHT_PLUNGE to RIGHT_SHOT", rightPlungeToRightShot),
                                         kit.firstOf("Fire (B)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
                                         kit.firstOf("TIP 3 yet?",
                                                 kit.when("LeftCellUp"),
                                                 kit.afterMs(1500).then(
-                                                        kit.path("SOUTH_SHOT to GARDEN", southShotToGarden),
+                                                        kit.path("RIGHT_SHOT to GARDEN", rightShotToGarden),
                                                         kit.firstOf("Collect in the GARDEN (B)",
                                                                 kit.when("IntakeFull"),
                                                                 kit.afterMs(1000)),
-                                                        kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
+                                                        kit.path("GARDEN to RIGHT_SHOT", gardenToRightShot),
                                                         kit.firstOf("Fire the TIP 3 volley, then park", kit.command("LaunchAll"),
                                                                 kit.when("Empty"),
                                                                 kit.afterMs(2000))))),
@@ -150,21 +150,21 @@ public final class ThreeTipAdaptiveAuto {
                                         kit.firstOf("Fire until it tips (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),
-                                        kit.path("NORTH_SHOT to SOUTH_PLUNGE_IN", northShotToSouthPlungeIn),
-                                        kit.path("SOUTH_PLUNGE_IN to SOUTH_PLUNGE", southPlungeInToSouthPlungePath),
+                                        kit.path("LEFT_SHOT to RIGHT_PLUNGE_IN", leftShotToRightPlungeIn),
+                                        kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlungePath),
                                         kit.firstOf("Spilled NECTAR",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(400)),
-                                        kit.path("SOUTH_PLUNGE to SOUTH_SHOT", southPlungeToSouthShotPath),
+                                        kit.path("RIGHT_PLUNGE to RIGHT_SHOT", rightPlungeToRightShotPath),
                                         kit.command("LaunchAll"),
-                                        kit.path("SOUTH_SHOT to GARDEN", southShotToGardenPath),
+                                        kit.path("RIGHT_SHOT to GARDEN", rightShotToGardenPath),
                                         kit.firstOf("Collect in the GARDEN",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1000)),
-                                        kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShotPath),
+                                        kit.path("GARDEN to RIGHT_SHOT", gardenToRightShotPath),
                                         kit.firstOf("Fire until it tips (TIP 3)", kit.command("LaunchAll"),
                                                 kit.when("LeftCellUp"),
                                                 kit.afterMs(2500)))),
-                        kit.path("SOUTH_SHOT to PARK", southShotToPark)));
+                        kit.path("RIGHT_SHOT to PARK", rightShotToPark)));
     }
 }

@@ -7,9 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-s-exit-1",
+      "id": "to-r-exit-1",
       "color": "#3cc8e4",
-      "name": "START to S_EXIT",
+      "name": "START to R_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -27,9 +27,9 @@
       }
     },
     {
-      "id": "to-n-exit-2",
+      "id": "to-l-exit-2",
       "color": "#3cc8e4",
-      "name": "S_EXIT to N_EXIT",
+      "name": "R_EXIT to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -46,9 +46,9 @@
       }
     },
     {
-      "id": "to-n-home-3",
+      "id": "to-l-home-3",
       "color": "#3cc8e4",
-      "name": "N_EXIT to N_HOME",
+      "name": "L_EXIT to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -66,9 +66,9 @@
       }
     },
     {
-      "id": "to-n-exit-4",
+      "id": "to-l-exit-4",
       "color": "#3cc8e4",
-      "name": "N_HOME to N_EXIT",
+      "name": "L_HOME to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -86,9 +86,9 @@
       }
     },
     {
-      "id": "to-s-exit-5",
+      "id": "to-r-exit-5",
       "color": "#3cc8e4",
-      "name": "N_EXIT to S_EXIT",
+      "name": "L_EXIT to R_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -105,9 +105,9 @@
       }
     },
     {
-      "id": "to-s-home-6",
+      "id": "to-r-home-6",
       "color": "#3cc8e4",
-      "name": "S_EXIT to S_HOME",
+      "name": "R_EXIT to R_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -125,9 +125,9 @@
       }
     },
     {
-      "id": "to-s-exit-7",
+      "id": "to-r-exit-7",
       "color": "#3cc8e4",
-      "name": "S_HOME to S_EXIT",
+      "name": "R_HOME to R_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -145,9 +145,9 @@
       }
     },
     {
-      "id": "to-n-exit-8",
+      "id": "to-l-exit-8",
       "color": "#3cc8e4",
-      "name": "S_EXIT to N_EXIT",
+      "name": "R_EXIT to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -164,9 +164,9 @@
       }
     },
     {
-      "id": "to-n-home-9",
+      "id": "to-l-home-9",
       "color": "#3cc8e4",
-      "name": "N_EXIT to N_HOME",
+      "name": "L_EXIT to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -184,9 +184,9 @@
       }
     },
     {
-      "id": "to-n-exit-10",
+      "id": "to-l-exit-10",
       "color": "#3cc8e4",
-      "name": "N_HOME to N_EXIT",
+      "name": "L_HOME to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -204,9 +204,9 @@
       }
     },
     {
-      "id": "to-s-exit-11",
+      "id": "to-r-exit-11",
       "color": "#3cc8e4",
-      "name": "N_EXIT to S_EXIT",
+      "name": "L_EXIT to R_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -223,9 +223,9 @@
       }
     },
     {
-      "id": "to-s-home-12",
+      "id": "to-r-home-12",
       "color": "#3cc8e4",
-      "name": "S_EXIT to S_HOME",
+      "name": "R_EXIT to R_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -320,51 +320,51 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-s-exit-1"
+      "lineId": "to-r-exit-1"
     },
     {
       "kind": "path",
-      "lineId": "to-n-exit-2"
+      "lineId": "to-l-exit-2"
     },
     {
       "kind": "path",
-      "lineId": "to-n-home-3"
+      "lineId": "to-l-home-3"
     },
     {
       "kind": "path",
-      "lineId": "to-n-exit-4"
+      "lineId": "to-l-exit-4"
     },
     {
       "kind": "path",
-      "lineId": "to-s-exit-5"
+      "lineId": "to-r-exit-5"
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-6"
+      "lineId": "to-r-home-6"
     },
     {
       "kind": "path",
-      "lineId": "to-s-exit-7"
+      "lineId": "to-r-exit-7"
     },
     {
       "kind": "path",
-      "lineId": "to-n-exit-8"
+      "lineId": "to-l-exit-8"
     },
     {
       "kind": "path",
-      "lineId": "to-n-home-9"
+      "lineId": "to-l-home-9"
     },
     {
       "kind": "path",
-      "lineId": "to-n-exit-10"
+      "lineId": "to-l-exit-10"
     },
     {
       "kind": "path",
-      "lineId": "to-s-exit-11"
+      "lineId": "to-r-exit-11"
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-12"
+      "lineId": "to-r-home-12"
     }
   ],
   "settings": {
@@ -429,40 +429,40 @@
         9.5,
         90
       ],
-      "S_HOME": [
+      "R_HOME": [
         57.5,
         10,
         90
       ],
-      "N_HOME": [
+      "L_HOME": [
         57.5,
         131.75,
         270
       ],
-      "S_EXIT": [
+      "R_EXIT": [
         57.5,
         34,
         90
       ],
-      "N_EXIT": [
+      "L_EXIT": [
         57.5,
         108,
         90
       ]
     },
     "pathEnds": {
-      "to-s-exit-1": "S_EXIT",
-      "to-n-exit-2": "N_EXIT",
-      "to-n-home-3": "N_HOME",
-      "to-n-exit-4": "N_EXIT",
-      "to-s-exit-5": "S_EXIT",
-      "to-s-home-6": "S_HOME",
-      "to-s-exit-7": "S_EXIT",
-      "to-n-exit-8": "N_EXIT",
-      "to-n-home-9": "N_HOME",
-      "to-n-exit-10": "N_EXIT",
-      "to-s-exit-11": "S_EXIT",
-      "to-s-home-12": "S_HOME"
+      "to-r-exit-1": "R_EXIT",
+      "to-l-exit-2": "L_EXIT",
+      "to-l-home-3": "L_HOME",
+      "to-l-exit-4": "L_EXIT",
+      "to-r-exit-5": "R_EXIT",
+      "to-r-home-6": "R_HOME",
+      "to-r-exit-7": "R_EXIT",
+      "to-l-exit-8": "L_EXIT",
+      "to-l-home-9": "L_HOME",
+      "to-l-exit-10": "L_EXIT",
+      "to-r-exit-11": "R_EXIT",
+      "to-r-home-12": "R_HOME"
     },
     "startAt": "START",
     "cards": [
@@ -518,19 +518,19 @@
       {
         "id": "p-6",
         "kind": "path",
-        "lineId": "to-s-exit-1",
+        "lineId": "to-r-exit-1",
         "park": false
       },
       {
         "id": "p-7",
         "kind": "path",
-        "lineId": "to-n-exit-2",
+        "lineId": "to-l-exit-2",
         "park": false
       },
       {
         "id": "p-8",
         "kind": "path",
-        "lineId": "to-n-home-3",
+        "lineId": "to-l-home-3",
         "park": false
       },
       {
@@ -588,19 +588,19 @@
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-n-exit-4",
+        "lineId": "to-l-exit-4",
         "park": false
       },
       {
         "id": "p-13",
         "kind": "path",
-        "lineId": "to-s-exit-5",
+        "lineId": "to-r-exit-5",
         "park": false
       },
       {
         "id": "p-14",
         "kind": "path",
-        "lineId": "to-s-home-6",
+        "lineId": "to-r-home-6",
         "park": false
       },
       {
@@ -658,19 +658,19 @@
       {
         "id": "p-18",
         "kind": "path",
-        "lineId": "to-s-exit-7",
+        "lineId": "to-r-exit-7",
         "park": false
       },
       {
         "id": "p-19",
         "kind": "path",
-        "lineId": "to-n-exit-8",
+        "lineId": "to-l-exit-8",
         "park": false
       },
       {
         "id": "p-20",
         "kind": "path",
-        "lineId": "to-n-home-9",
+        "lineId": "to-l-home-9",
         "park": false
       },
       {
@@ -728,19 +728,19 @@
       {
         "id": "p-24",
         "kind": "path",
-        "lineId": "to-n-exit-10",
+        "lineId": "to-l-exit-10",
         "park": false
       },
       {
         "id": "p-25",
         "kind": "path",
-        "lineId": "to-s-exit-11",
+        "lineId": "to-r-exit-11",
         "park": false
       },
       {
         "id": "p-26",
         "kind": "path",
-        "lineId": "to-s-home-12",
+        "lineId": "to-r-home-12",
         "park": false
       },
       {

@@ -195,7 +195,7 @@
       {
         "id": "w-2",
         "kind": "firstOf",
-        "label": "North CELL up",
+        "label": "Left CELL up",
         "rows": [
           {
             "when": [
@@ -212,7 +212,7 @@
       {
         "id": "w-3",
         "kind": "firstOf",
-        "label": "North CELL up (2)",
+        "label": "Left CELL up (2)",
         "rows": [
           {
             "when": [
@@ -229,7 +229,7 @@
       {
         "id": "w-4",
         "kind": "firstOf",
-        "label": "North CELL up (3)",
+        "label": "Left CELL up (3)",
         "rows": [
           {
             "when": [
@@ -246,7 +246,7 @@
       {
         "id": "w-5",
         "kind": "firstOf",
-        "label": "North CELL up (4)",
+        "label": "Left CELL up (4)",
         "rows": [
           {
             "when": [
@@ -263,7 +263,7 @@
       {
         "id": "w-6",
         "kind": "firstOf",
-        "label": "North CELL up (5)",
+        "label": "Left CELL up (5)",
         "rows": [
           {
             "when": [
@@ -280,7 +280,7 @@
       {
         "id": "w-7",
         "kind": "firstOf",
-        "label": "North CELL up (6)",
+        "label": "Left CELL up (6)",
         "rows": [
           {
             "when": [
@@ -297,7 +297,7 @@
       {
         "id": "w-8",
         "kind": "firstOf",
-        "label": "North CELL up (7)",
+        "label": "Left CELL up (7)",
         "rows": [
           {
             "when": [
@@ -314,7 +314,7 @@
       {
         "id": "w-9",
         "kind": "firstOf",
-        "label": "North CELL up (8)",
+        "label": "Left CELL up (8)",
         "rows": [
           {
             "when": [

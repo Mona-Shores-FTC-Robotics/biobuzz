@@ -2,10 +2,10 @@ package org.firstinspires.ftc.teamcode.logging;
 
 import static org.junit.Assert.assertTrue;
 
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzNorthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzSouthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoNorthAuto;
-import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoSouthAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzLeftAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLzRightAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoLeftAuto;
+import org.firstinspires.ftc.teamcode.opmodes.auto.generated.DuoRightAuto;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
@@ -13,8 +13,8 @@ import java.io.File;
 import java.util.Locale;
 
 /**
- * Both of an alliance's robots, each running its own Auto on one field: duo-south loads the HIVE's
- * south CELL and duo-north the north one, each firing when the other's TIP brings its CELL up, and
+ * Both of an alliance's robots, each running its own Auto on one field: duo-right loads the HIVE's
+ * right CELL and duo-left the left one, each firing when the other's TIP brings its CELL up, and
  * both end parked in the LOADING ZONE. Writes
  * {@code TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog}; TeamCode/README.md, "Two robots",
  * says how to watch both.
@@ -24,8 +24,8 @@ public class AllianceAutoTest {
     @Test
     public void duoTipsThreeTimesAndBothRobotsLeaveAndPark() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
-            AutoSim.Result r = new AutoSim(DuoSouthAuto.class, alliance, 3572L).speed(60, 55)
-                    .alsoRun(DuoNorthAuto.class).speed(60, 55)
+            AutoSim.Result r = new AutoSim(DuoRightAuto.class, alliance, 3572L).speed(60, 55)
+                    .alsoRun(DuoLeftAuto.class).speed(60, 55)
                     .write(new File(TeamCodeDir.simLogs(), "alliance-duo-" + alliance.name().toLowerCase() + ".wpilog"));
             System.out.println(r);
             assertTrue(r.toString(), r.autoTips() >= 3);
@@ -39,19 +39,19 @@ public class AllianceAutoTest {
     }
 
     /**
-     * duo-lz-south + duo-lz-north on the spring-hood robot at 50 in/s: at least two TIPs, and neither
+     * duo-lz-right + duo-lz-left on the spring-hood robot at 50 in/s: at least two TIPs, and neither
      * robot crosses the centre line or drives into the HIVE frame or a FLOWER. (Three TIPs and two PARKs
      * until FLOWERs became solid; the honest pickup costs about 3 s.)
      */
     @Test
     public void duoLzTipsThreeTimesAndAlwaysParks() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
-            AutoSim.Result r = new AutoSim(DuoLzSouthAuto.class, alliance, 3572L).speed(50, 45).design(RobotDesign.springHood())
-                    .alsoRun(DuoLzNorthAuto.class).speed(50, 45).design(RobotDesign.springHood())
+            AutoSim.Result r = new AutoSim(DuoLzRightAuto.class, alliance, 3572L).speed(50, 45).design(RobotDesign.springHood())
+                    .alsoRun(DuoLzLeftAuto.class).speed(50, 45).design(RobotDesign.springHood())
                     .write(new File(TeamCodeDir.simLogs(), "alliance-duo-lz-" + alliance.name().toLowerCase() + ".wpilog"));
             System.out.println(r);
             // FLOWERs became solid on 1 Oct 2026 (FieldSim.hitsFlower): picking one up honestly costs ~3 s, which
-            // cost this pair its third TIP and the south robot its PARK; re-tuning the route is open work.
+            // cost this pair its third TIP and the right robot its PARK; re-tuning the route is open work.
             assertTrue(r.toString(), r.autoTips() >= 2);
             for (AutoSim.RobotResult robot : r.robots) {
                 assertTrue(r.toString(), robot.leave);
@@ -66,7 +66,7 @@ public class AllianceAutoTest {
      * generated classes:
      *
      * <pre>
-     * BIOBUZZ_ALLIANCE_STUDY=DuoSouthAuto,DuoNorthAuto ./gradlew :TeamCode:testDebugUnitTest \
+     * BIOBUZZ_ALLIANCE_STUDY=DuoRightAuto,DuoLeftAuto ./gradlew :TeamCode:testDebugUnitTest \
      *     --tests '*AllianceAutoTest*' -i
      * </pre>
      * Optional: {@code BIOBUZZ_ALLIANCE_SPEED} (in/s, default 60), {@code BIOBUZZ_ALLIANCE_ZONES}

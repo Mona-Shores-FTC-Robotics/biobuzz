@@ -3,7 +3,7 @@
     python3 tools/auto-routes/snapshots.py [snapshot.json] [out.png]
 
 Our half of the field, red alliance, Pedro inches: x across (0 = our wall, 70.75 = centre line),
-y up the page (south at the bottom). Grey bar: the HIVE frame's foot; red box: LOADING ZONE.
+y up the page (right at the bottom). Grey bar: the HIVE frame's foot; red box: LOADING ZONE.
 Robots are squares with a thick line across the intake; the number is how many pieces it holds.
 Pieces: POLLEN yellow, red NECTAR red, blue NECTAR blue; ringed = in a CELL; pale = in the air.
 """
@@ -37,7 +37,7 @@ for i, f in enumerate(frames):
     g.rectangle([px(46.0), py(90.2), px(70.75), py(51.3)], fill=(0, 0, 0, 25))
     g.rectangle([px(45.0), py(90.2), px(47.0), py(51.3)], fill=(80, 80, 80))
     a = f["angle"]
-    g.text((px(3), py(73)), "north CELL up" if a > 0.01 else "south CELL up" if a < -0.01 else "tipping", fill="black", font=font)
+    g.text((px(3), py(73)), "left CELL up" if a > 0.01 else "right CELL up" if a < -0.01 else "tipping", fill="black", font=font)
     for kind, x, y, z, incell in f["pieces"]:
         if x > X1 + 2 or y > Y1 + 2: continue
         r = (1.4 if kind == "POLLEN" else 1.8) * PX

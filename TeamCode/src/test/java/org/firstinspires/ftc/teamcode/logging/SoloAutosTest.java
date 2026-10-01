@@ -22,13 +22,13 @@ import java.io.File;
 public class SoloAutosTest {
 
     /** A TIP counts for AUTO if it completes before TELEOP starts (Competition Manual §10.5 B). */
-    private static final double AUTO_S = AutoKit.AUTO_LENGTH_S + 8;
+    private static final double AUTO_R = AutoKit.AUTO_LENGTH_S + 8;
 
     @Test
     public void soloTwoTipTipsTwiceOnAnUntunedDrivetrain() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result r = new AutoSim(SoloTwoTipAuto.class, alliance, 3572L).write(log("two", alliance, 1));
-            assertTrue(r.toString(), r.tipsAt.size() >= 2 && r.tipsAt.get(1) < AUTO_S);
+            assertTrue(r.toString(), r.tipsAt.size() >= 2 && r.tipsAt.get(1) < AUTO_R);
         }
     }
 
@@ -42,7 +42,7 @@ public class SoloAutosTest {
                 for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
                     AutoSim.Result r = new AutoSim(SoloThreeTipAuto.class, alliance, 3572L)
                             .speed(50, 45).write(log("three", alliance, friction));
-                    assertTrue("friction x" + friction + ": " + r, r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_S);
+                    assertTrue("friction x" + friction + ": " + r, r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_R);
                 }
             }
         } finally {
@@ -61,7 +61,7 @@ public class SoloAutosTest {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result r = new AutoSim(SpillThreeTipAuto.class, alliance, 3572L).speed(50, 45)
                     .write(log("spill", alliance, 1));
-            assertTrue(r.toString(), r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_S);
+            assertTrue(r.toString(), r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_R);
         }
     }
 
@@ -70,15 +70,15 @@ public class SoloAutosTest {
     public void partnerThreeTipTipsThreeTimesAt50InPerS() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result r = new AutoSim(PartnerThreeTipAuto.class, alliance, 3572L).speed(50, 45)
-                    .partner(DesignComparisonTest.NORTH_PARTNER, DesignComparisonTest.NORTH_PARTNER_POLLEN)
+                    .partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN)
                     .write(log("partner", alliance, 1));
-            assertTrue(r.toString(), r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_S);
+            assertTrue(r.toString(), r.tipsAt.size() >= 3 && r.tipsAt.get(2) < AUTO_R);
         }
     }
 
     /**
      * On the spring-hood robot, alone it tips three times; with a partner that fires its preloads
-     * at the north CELL, it notices TIP 2 came early and takes its pieces south. (Since FLOWERs became
+     * at the left CELL, it notices TIP 2 came early and takes its pieces right. (Since FLOWERs became
      * solid it tips twice alone, and three times with the partner but without time to park.)
      */
     @Test

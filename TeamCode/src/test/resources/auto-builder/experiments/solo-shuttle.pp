@@ -7,9 +7,9 @@
   },
   "lines": [
     {
-      "id": "to-n-exit-1",
+      "id": "to-l-exit-1",
       "color": "#3cc8e4",
-      "name": "START to N_EXIT",
+      "name": "START to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -26,9 +26,9 @@
       }
     },
     {
-      "id": "to-n-home-2",
+      "id": "to-l-home-2",
       "color": "#3cc8e4",
-      "name": "N_EXIT to N_HOME",
+      "name": "L_EXIT to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -48,7 +48,7 @@
     {
       "id": "to-far-flower-3",
       "color": "#3cc8e4",
-      "name": "N_HOME to FAR_FLOWER",
+      "name": "L_HOME to FAR_FLOWER",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -66,9 +66,9 @@
       }
     },
     {
-      "id": "to-n-home-4",
+      "id": "to-l-home-4",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER to N_HOME",
+      "name": "FAR_FLOWER to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -86,9 +86,9 @@
       }
     },
     {
-      "id": "to-s-exit-5",
+      "id": "to-r-exit-5",
       "color": "#3cc8e4",
-      "name": "N_HOME to S_EXIT",
+      "name": "L_HOME to R_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -105,9 +105,9 @@
       }
     },
     {
-      "id": "to-s-home-6",
+      "id": "to-r-home-6",
       "color": "#3cc8e4",
-      "name": "S_EXIT to S_HOME",
+      "name": "R_EXIT to R_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -127,7 +127,7 @@
     {
       "id": "to-garden-in-7",
       "color": "#3cc8e4",
-      "name": "S_HOME to GARDEN_IN",
+      "name": "R_HOME to GARDEN_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -170,9 +170,9 @@
       }
     },
     {
-      "id": "to-s-home-9",
+      "id": "to-r-home-9",
       "color": "#3cc8e4",
-      "name": "GARDEN to S_HOME",
+      "name": "GARDEN to R_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -194,9 +194,9 @@
       }
     },
     {
-      "id": "to-n-exit-10",
+      "id": "to-l-exit-10",
       "color": "#3cc8e4",
-      "name": "S_HOME to N_EXIT",
+      "name": "R_HOME to L_EXIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -213,9 +213,9 @@
       }
     },
     {
-      "id": "to-n-home-11",
+      "id": "to-l-home-11",
       "color": "#3cc8e4",
-      "name": "N_EXIT to N_HOME",
+      "name": "L_EXIT to L_HOME",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -310,11 +310,11 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-n-exit-1"
+      "lineId": "to-l-exit-1"
     },
     {
       "kind": "path",
-      "lineId": "to-n-home-2"
+      "lineId": "to-l-home-2"
     },
     {
       "kind": "path",
@@ -322,15 +322,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-n-home-4"
+      "lineId": "to-l-home-4"
     },
     {
       "kind": "path",
-      "lineId": "to-s-exit-5"
+      "lineId": "to-r-exit-5"
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-6"
+      "lineId": "to-r-home-6"
     },
     {
       "kind": "path",
@@ -342,15 +342,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-s-home-9"
+      "lineId": "to-r-home-9"
     },
     {
       "kind": "path",
-      "lineId": "to-n-exit-10"
+      "lineId": "to-l-exit-10"
     },
     {
       "kind": "path",
-      "lineId": "to-n-home-11"
+      "lineId": "to-l-home-11"
     }
   ],
   "settings": {
@@ -418,22 +418,22 @@
         9.5,
         90
       ],
-      "S_HOME": [
+      "R_HOME": [
         57.5,
         10,
         90
       ],
-      "N_HOME": [
+      "L_HOME": [
         57.5,
         131.75,
         270
       ],
-      "S_EXIT": [
+      "R_EXIT": [
         57.5,
         34,
         90
       ],
-      "N_EXIT": [
+      "L_EXIT": [
         57.5,
         108,
         90
@@ -455,17 +455,17 @@
       ]
     },
     "pathEnds": {
-      "to-n-exit-1": "N_EXIT",
-      "to-n-home-2": "N_HOME",
+      "to-l-exit-1": "L_EXIT",
+      "to-l-home-2": "L_HOME",
       "to-far-flower-3": "FAR_FLOWER",
-      "to-n-home-4": "N_HOME",
-      "to-s-exit-5": "S_EXIT",
-      "to-s-home-6": "S_HOME",
+      "to-l-home-4": "L_HOME",
+      "to-r-exit-5": "R_EXIT",
+      "to-r-home-6": "R_HOME",
       "to-garden-in-7": "GARDEN_IN",
       "to-garden-8": "GARDEN",
-      "to-s-home-9": "S_HOME",
-      "to-n-exit-10": "N_EXIT",
-      "to-n-home-11": "N_HOME"
+      "to-r-home-9": "R_HOME",
+      "to-l-exit-10": "L_EXIT",
+      "to-l-home-11": "L_HOME"
     },
     "startAt": "START",
     "cards": [
@@ -546,19 +546,19 @@
       {
         "id": "p-8",
         "kind": "path",
-        "lineId": "to-n-exit-1",
+        "lineId": "to-l-exit-1",
         "park": false
       },
       {
         "id": "p-9",
         "kind": "path",
-        "lineId": "to-n-home-2",
+        "lineId": "to-l-home-2",
         "park": false
       },
       {
         "id": "w-14",
         "kind": "firstOf",
-        "label": "Fire at the north CELL",
+        "label": "Fire at the left CELL",
         "rows": [
           {
             "when": [
@@ -614,7 +614,7 @@
               {
                 "id": "p-12",
                 "kind": "path",
-                "lineId": "to-n-home-4",
+                "lineId": "to-l-home-4",
                 "park": false
               },
               {
@@ -660,19 +660,19 @@
       {
         "id": "p-17",
         "kind": "path",
-        "lineId": "to-s-exit-5",
+        "lineId": "to-r-exit-5",
         "park": false
       },
       {
         "id": "p-18",
         "kind": "path",
-        "lineId": "to-s-home-6",
+        "lineId": "to-r-home-6",
         "park": false
       },
       {
         "id": "w-24",
         "kind": "firstOf",
-        "label": "Fire at the south CELL",
+        "label": "Fire at the right CELL",
         "rows": [
           {
             "when": [
@@ -734,7 +734,7 @@
               {
                 "id": "p-22",
                 "kind": "path",
-                "lineId": "to-s-home-9",
+                "lineId": "to-r-home-9",
                 "park": false
               },
               {
@@ -780,19 +780,19 @@
       {
         "id": "p-27",
         "kind": "path",
-        "lineId": "to-n-exit-10",
+        "lineId": "to-l-exit-10",
         "park": false
       },
       {
         "id": "p-28",
         "kind": "path",
-        "lineId": "to-n-home-11",
+        "lineId": "to-l-home-11",
         "park": false
       },
       {
         "id": "w-29",
         "kind": "firstOf",
-        "label": "Fire at the north CELL (TIP 4)",
+        "label": "Fire at the left CELL (TIP 4)",
         "rows": [
           {
             "when": [
