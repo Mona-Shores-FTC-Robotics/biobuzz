@@ -48,6 +48,9 @@ public final class DeviceNames {
     // Odometry.
     public static final String PINPOINT = "pinpoint";
 
+    // AprilTag camera: a Limelight 3A on the Control Hub's USB-Ethernet link.
+    public static final String LIMELIGHT = "limelight";
+
     // Launcher flywheels, left to right as seen from behind the robot. Carried
     // over from the DECODE robots, which wired all three on the Expansion Hub.
     public static final String LAUNCHER_LEFT = "launcher_left";
@@ -67,7 +70,23 @@ public final class DeviceNames {
     public enum Kind {
         MOTOR,
         SERVO,
-        I2C
+        I2C,
+
+        /**
+         * A device on the Control Hub's USB-Ethernet link — in SDK 12, a
+         * Limelight 3A. It occupies no hub port at all: the SDK declares it as
+         * an {@code <EthernetDevice>} directly under {@code <Robot>}, beside
+         * the {@code <LynxUsbDevice>}, addressed by {@code ipAddress}. Its
+         * equivalent of a port range check is that address.
+         *
+         * <p>Named after the SDK's own element rather than something broader
+         * like {@code USB} or {@code PORTLESS}, because the webcam is also
+         * portless and is a different element ({@code <Webcam>}) with
+         * different attributes (a per-unit serial number). Lumping the two
+         * would make the kind mean "not a hub port" rather than "checked
+         * like this".
+         */
+        ETHERNET
     }
 
     /** One required device: the name the code asks for, and what kind it is. */
@@ -99,7 +118,8 @@ public final class DeviceNames {
             new Device(LAUNCHER_LEFT, Kind.MOTOR),
             new Device(LAUNCHER_CENTER, Kind.MOTOR),
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
-            new Device(PINPOINT, Kind.I2C)));
+            new Device(PINPOINT, Kind.I2C),
+            new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /** The two-wheel launcher bench rig: one Y-cabled motor pair, nothing else. */
     public static final List<Device> LAUNCHER_RIG = Collections.unmodifiableList(Arrays.asList(

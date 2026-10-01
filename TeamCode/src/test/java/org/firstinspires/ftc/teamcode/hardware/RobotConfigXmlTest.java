@@ -53,6 +53,20 @@ public class RobotConfigXmlTest {
     private static final Set<String> CONTAINER_TAGS = new HashSet<>(Arrays.asList(
             "Robot", "LynxUsbDevice", "LynxModule"));
 
+    /**
+     * The SDK's element for a USB-Ethernet device ({@code BuiltInConfigurationType
+     * .ETHERNET_OVER_USB_DEVICE}). {@code ReadXMLFileHandler.parseRobot} only looks
+     * for it as a direct child of {@code <Robot>}.
+     */
+    private static final String ETHERNET_TAG = "EthernetDevice";
+
+    /**
+     * What {@code SerialNumber.fromString} needs to see to build an
+     * {@code EthernetOverUsbSerialNumber}. {@code Limelight3A} stores its serial
+     * as that subclass, so any other prefix is a crash at hardware-map build.
+     */
+    private static final String ETHERNET_SERIAL_PREFIX = "EthernetOverUsb:";
+
     // ---------------------------------------------------------------- tests
 
     @Test
@@ -232,6 +246,12 @@ public class RobotConfigXmlTest {
                 String name = device.getAttribute("name");
                 DeviceNames.Kind kind = kindOf(device);
 
+                if (kind == DeviceNames.Kind.ETHERNET) {
+                    // No hub port to range-check; everyEthernetDeviceIsAddressable
+                    // checks its address instead.
+                    continue;
+                }
+
                 if (kind == DeviceNames.Kind.I2C) {
                     int bus = intAttribute(file, name, device, "bus");
                     assertTrue(file.getName() + ": \"" + name + "\" is on I2C bus " + bus
@@ -248,7 +268,82 @@ public class RobotConfigXmlTest {
         }
     }
 
+    /**
+     * Hub devices belong inside a {@code <LynxModule>}; an Ethernet device belongs
+     * directly under {@code <Robot>}. The SDK parser looks in exactly those places,
+     * so an element anywhere else is skipped without a word and its device is
+     * simply missing on the robot.
+     */
+    @Test
+    public void everyDeviceSitsWhereTheSdkLooksForIt() {
+        for (File file : configFiles()) {
+            for (Element device : allDeviceElements(parse(file).getDocumentElement())) {
+                String name = device.getAttribute("name");
+                String parent = ((Element) device.getParentNode()).getTagName();
+                if (kindOf(device) == DeviceNames.Kind.ETHERNET) {
+                    assertTrue(file.getName() + ": <" + ETHERNET_TAG + "> \"" + name + "\" is inside <"
+                                    + parent + ">. It must be a direct child of <" + ROBOT_ROOT_TAG
+                                    + ">, beside <LynxUsbDevice>: it is not on a hub.",
+                            ROBOT_ROOT_TAG.equals(parent));
+                } else {
+                    assertTrue(file.getName() + ": \"" + name + "\" is inside <" + parent + ">. A"
+                                    + " hub device must be inside a <LynxModule>.",
+                            "LynxModule".equals(parent));
+                }
+            }
+        }
+    }
+
+    /**
+     * An Ethernet device's equivalent of a port range check. The SDK builds a
+     * {@code Limelight3A} from {@code name} and {@code ipAddress} alone
+     * ({@code HardwareFactory.mapEthernetOverUsb}), so a bad address is a camera that
+     * is in the hardware map and never answers.
+     */
+    @Test
+    public void everyEthernetDeviceIsAddressable() {
+        for (File file : configFiles()) {
+            Set<String> addresses = new HashSet<>();
+            for (Element device : allDeviceElements(parse(file).getDocumentElement())) {
+                if (kindOf(device) != DeviceNames.Kind.ETHERNET) {
+                    continue;
+                }
+                String name = device.getAttribute("name");
+
+                String ip = device.getAttribute("ipAddress");
+                assertTrue(file.getName() + ": \"" + name + "\" has ipAddress=\"" + ip + "\", which"
+                                + " is not a dotted IPv4 address. The RC sends the camera's HTTP"
+                                + " requests there.",
+                        isIpv4(ip));
+                assertTrue(file.getName() + ": \"" + name + "\" and another Ethernet device both"
+                        + " claim " + ip + ".", addresses.add(ip));
+
+                String serial = device.getAttribute("serialNumber");
+                String rest = serial.startsWith(ETHERNET_SERIAL_PREFIX)
+                        ? serial.substring(ETHERNET_SERIAL_PREFIX.length()) : "";
+                int colon = rest.lastIndexOf(':');
+                assertTrue(file.getName() + ": \"" + name + "\" has serialNumber=\"" + serial
+                                + "\". It must read " + ETHERNET_SERIAL_PREFIX + "<interface>:<IPv4>,"
+                                + " or the SDK cannot build the device.",
+                        colon > 0 && isIpv4(rest.substring(colon + 1)));
+            }
+        }
+    }
+
     // ------------------------------------------------------------- plumbing
+
+    private static boolean isIpv4(String text) {
+        String[] octets = text.split("\\.", -1);
+        if (octets.length != 4) {
+            return false;
+        }
+        for (String octet : octets) {
+            if (!octet.matches("\\d{1,3}") || Integer.parseInt(octet) > 255) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     /**
      * The robot a file belongs to. A file with none already fails
@@ -273,6 +368,9 @@ public class RobotConfigXmlTest {
      * fails {@link #noConfigDeclaresADeviceTheCodeDoesNotKnowAbout}.
      */
     private static DeviceNames.Kind kindOf(Element device) {
+        if (ETHERNET_TAG.equals(device.getTagName())) {
+            return DeviceNames.Kind.ETHERNET;
+        }
         if (device.hasAttribute("bus")) {
             return DeviceNames.Kind.I2C;
         }

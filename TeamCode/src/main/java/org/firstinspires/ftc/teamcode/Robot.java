@@ -42,7 +42,10 @@ public class Robot {
     /** The drivetrain. Always present; drives robot-centric if the Pinpoint is missing. */
     public final DriveSubsystem drive;
 
-    /** Tracks the HIVE CELLs. Always present; reports itself unavailable if the camera is missing. */
+    /**
+     * Tracks the HIVE CELLs. Always present: unavailable if the active config has no Limelight, and
+     * not {@code isConnected()} if the config has one but it is not answering.
+     */
     public final LimelightVisionSubsystem vision;
 
     /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
