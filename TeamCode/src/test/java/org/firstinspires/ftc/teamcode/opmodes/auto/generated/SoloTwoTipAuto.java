@@ -47,6 +47,7 @@ public final class SoloTwoTipAuto {
         Pose farFlower = p.of(47.4, 130.5, 90);
         Pose garden = p.of(8.5, 11, 270);
         Pose southShot = p.of(36, 30, 49);
+        Pose park = p.of(15, 99, 90);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
@@ -55,33 +56,36 @@ public final class SoloTwoTipAuto {
         Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
         Path northShotToGarden = Paths.line(northShot, garden).linear(northShot, garden);
         Path gardenToSouthShot = Paths.line(garden, southShot).linear(garden, southShot);
+        Path southShotToPark = Paths.line(southShot, park).linear(southShot, park);
 
         return kit.sequence(
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
-                kit.firstOf("Tip 1",
-                        kit.when("Tip"),
-                        kit.afterMs(1500)),
-                kit.path("START to WALL_FLOWER", startToWallFlower),
-                kit.firstOf("Collect at WALL_FLOWER",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(2500)),
-                kit.path("WALL_FLOWER to NORTH_SHOT", wallFlowerToNorthShot),
-                kit.command("LaunchAll"),
-                kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
-                kit.firstOf("Collect at FAR_FLOWER",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(2500)),
-                kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
-                kit.firstOf("Tip 2", kit.command("LaunchAll"),
-                        kit.when("Tip"),
-                        kit.afterMs(3000)),
-                kit.path("NORTH_SHOT to GARDEN", northShotToGarden),
-                kit.firstOf("Collect in GARDEN",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(2500)),
-                kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
-                kit.command("LaunchAll"));
+                kit.guarded("Auto", southShotToPark, 2.3,
+                        kit.command("LaunchOne"),
+                        kit.command("LaunchOne"),
+                        kit.command("LaunchOne"),
+                        kit.firstOf("Tip 1",
+                                kit.when("Tip"),
+                                kit.afterMs(1500)),
+                        kit.path("START to WALL_FLOWER", startToWallFlower),
+                        kit.firstOf("Collect at WALL_FLOWER",
+                                kit.when("IntakeFull"),
+                                kit.afterMs(2500)),
+                        kit.path("WALL_FLOWER to NORTH_SHOT", wallFlowerToNorthShot),
+                        kit.command("LaunchAll"),
+                        kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
+                        kit.firstOf("Collect at FAR_FLOWER",
+                                kit.when("IntakeFull"),
+                                kit.afterMs(2500)),
+                        kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
+                        kit.firstOf("Tip 2", kit.command("LaunchAll"),
+                                kit.when("Tip"),
+                                kit.afterMs(3000)),
+                        kit.path("NORTH_SHOT to GARDEN", northShotToGarden),
+                        kit.firstOf("Collect in GARDEN",
+                                kit.when("IntakeFull"),
+                                kit.afterMs(2500)),
+                        kit.path("GARDEN to SOUTH_SHOT", gardenToSouthShot),
+                        kit.command("LaunchAll"),
+                        kit.path("SOUTH_SHOT to PARK", southShotToPark)));
     }
 }

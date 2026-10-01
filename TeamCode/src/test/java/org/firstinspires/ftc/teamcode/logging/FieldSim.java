@@ -264,17 +264,71 @@ final class FieldSim {
     private final Random random;
     private final List<String> events = new ArrayList<>();
 
-    // The robot, as the caller last placed it.
-    private boolean robotPresent;
-    private double rx, ry, rh, rvx, rvy, rw;
-    private double prevRx, prevRy, prevRh;
-    private boolean intaking;
-    private double lastCaptureAt = Double.NEGATIVE_INFINITY;
-    final List<Piece> stored = new ArrayList<>();
-    /** The simulated robot's mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
-    RobotDesign design = RobotDesign.standard();
+    /**
+     * A robot on the field, as its caller last placed it: an 18 in box that pushes pieces, an intake
+     * that takes them, and the pieces it holds. Several can share a field, each driven by its own
+     * caller.
+     */
+    static final class Bot {
+        private boolean present;
+        private double x, y, h, vx, vy, w;
+        private double prevX, prevY, prevH;
+        private boolean intaking;
+        private double lastCaptureAt = Double.NEGATIVE_INFINITY;
+        final List<Piece> stored = new ArrayList<>();
+        /** Its mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
+        RobotDesign design = RobotDesign.standard();
+
+        /**
+         * Where the robot is this loop. The previous pose and this one are blended across the
+         * sub-steps, so a moving robot sweeps pieces instead of jumping over them.
+         */
+        void set(double x, double y, double heading, double vx, double vy, double omega, boolean intake) {
+            if (!present) {
+                prevX = x;
+                prevY = y;
+                prevH = heading;
+            } else {
+                prevX = this.x;
+                prevY = this.y;
+                prevH = h;
+            }
+            present = true;
+            this.x = x;
+            this.y = y;
+            h = heading;
+            this.vx = vx;
+            this.vy = vy;
+            w = omega;
+            intaking = intake;
+        }
+
+        double[] pose() {
+            return new double[] {x, y, h};
+        }
+
+        /** Where a launched piece leaves it, {@code sideIn} to its left of the centre line. */
+        double[] exitPoint(double sideIn) {
+            double c = Math.cos(h), s = Math.sin(h);
+            return new double[] {x + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
+                    y + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
+        }
+    }
+
+    /** Every robot on the field; the first is the one the single-robot methods below act on. */
+    final List<Bot> bots = new ArrayList<>();
+    final Bot main = addBot();
+    /** What {@link #main} holds. */
+    final List<Piece> stored = main.stored;
     /** Robots that stand still (a partner that does not move): {x, y, heading} each, 18 in square. */
     final List<double[]> parkedRobots = new ArrayList<>();
+
+    /** Another robot on the field, which its caller places each loop with {@link Bot#set}. */
+    Bot addBot() {
+        Bot b = new Bot();
+        bots.add(b);
+        return b;
+    }
 
     /** The physical constants {@link HiveCalibration#fit} chose. */
     static final class Physics {
@@ -406,6 +460,11 @@ final class FieldSim {
      * given wall (x = 0 for red), which is where the field CAD keeps the alliances' preloads.
      */
     void preload(Alliance alliance) {
+        preload(main, alliance);
+    }
+
+    /** As {@link #preload(Alliance)}, into {@code bot}: the next 4 of the alliance's preloads. */
+    void preload(Bot bot, Alliance alliance) {
         double wallX = alliance == Alliance.BLUE ? FIELD_SIZE_IN : 0;
         List<Piece> outside = new ArrayList<>();
         for (Piece p : pieces) {
@@ -415,7 +474,7 @@ final class FieldSim {
         for (int i = 0; i < PRELOAD_POLLEN && i < outside.size(); i++) {
             Piece p = outside.get(i);
             p.where = Where.ROBOT;
-            stored.add(p);
+            bot.stored.add(p);
         }
     }
 
@@ -486,28 +545,9 @@ final class FieldSim {
         return out;
     }
 
-    /**
-     * Where the robot is this loop. The previous pose and this one are blended across the
-     * sub-steps, so a moving robot sweeps pieces instead of jumping over them.
-     */
+    /** Places {@link #main}; see {@link Bot#set}. */
     void setRobot(double x, double y, double heading, double vx, double vy, double omega, boolean intake) {
-        if (!robotPresent) {
-            prevRx = x;
-            prevRy = y;
-            prevRh = heading;
-        } else {
-            prevRx = rx;
-            prevRy = ry;
-            prevRh = rh;
-        }
-        robotPresent = true;
-        rx = x;
-        ry = y;
-        rh = heading;
-        rvx = vx;
-        rvy = vy;
-        rw = omega;
-        intaking = intake;
+        main.set(x, y, heading, vx, vy, omega, intake);
     }
 
     // ---- Launching ----------------------------------------------------------------------------
@@ -533,14 +573,7 @@ final class FieldSim {
 
     /** Where a launched piece leaves the robot, {@code sideIn} to its left of the centre line. */
     double[] exitPoint(double sideIn) {
-        double c = Math.cos(rh), s = Math.sin(rh);
-        return new double[] {rx + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
-                ry + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
-    }
-
-    /** The kind of the piece the robot would launch next, or null if it is empty. */
-    Kind nextToLaunch() {
-        return stored.isEmpty() ? null : stored.get(0).kind;
+        return main.exitPoint(sideIn);
     }
 
     /**
@@ -558,17 +591,23 @@ final class FieldSim {
      * NECTAR leaves at the design's {@link RobotDesign#nectarSpeedFactor}.
      */
     double[] launch(double[] target, double yawErrorRad, double sideIn, double spreadScaleShot) {
+        return launch(main, target, yawErrorRad, sideIn, spreadScaleShot);
+    }
+
+    /** As {@link #launch(double[], double, double, double)}, from {@code bot}. */
+    double[] launch(Bot bot, double[] target, double yawErrorRad, double sideIn, double spreadScaleShot) {
+        List<Piece> stored = bot.stored;
         if (stored.isEmpty()) return null;
-        double[] from = exitPoint(sideIn);
+        double[] from = bot.exitPoint(sideIn);
         double[] v = launchVelocity(from, target);
         if (v == null) return null;
         double spread = spreadScale * spreadScaleShot;
         double speed = 1 + PLACEHOLDER_SPEED_SPREAD * spread * random.nextGaussian();
-        if (stored.get(0).kind != Kind.POLLEN) speed *= design.nectarSpeedFactor;
+        if (stored.get(0).kind != Kind.POLLEN) speed *= bot.design.nectarSpeedFactor;
         double yaw = yawErrorRad + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian();
         double c = Math.cos(yaw), s = Math.sin(yaw);
-        double vx = (v[0] * c - v[1] * s) * speed + rvx;
-        double vy = (v[0] * s + v[1] * c) * speed + rvy;
+        double vx = (v[0] * c - v[1] * s) * speed + bot.vx;
+        double vy = (v[0] * s + v[1] * c) * speed + bot.vy;
         double vz = v[2] * speed * (1 + PLACEHOLDER_ANGLE_SPREAD_RAD * spread * random.nextGaussian());
         Piece p = stored.remove(0);
         p.where = Where.FIELD;
@@ -598,15 +637,22 @@ final class FieldSim {
 
     // ---- Stepping -----------------------------------------------------------------------------
 
+    private double[][] sub = new double[0][];
+
     /** Advances everything by {@code dt} seconds (one robot loop). */
     void step(double dt) {
+        if (sub.length != bots.size()) sub = new double[bots.size()][3];
         double h = dt / SUBSTEPS;
         for (int k = 1; k <= SUBSTEPS; k++) {
             time += h;
             double f = (double) k / SUBSTEPS;
-            double bx = prevRx + (rx - prevRx) * f;
-            double by = prevRy + (ry - prevRy) * f;
-            double bh = prevRh + AdvantageScopeFrame.wrap(rh - prevRh) * f;
+            int nb = bots.size();
+            for (int b = 0; b < nb; b++) {
+                Bot bot = bots.get(b);
+                sub[b][0] = bot.prevX + (bot.x - bot.prevX) * f;
+                sub[b][1] = bot.prevY + (bot.y - bot.prevY) * f;
+                sub[b][2] = bot.prevH + AdvantageScopeFrame.wrap(bot.h - bot.prevH) * f;
+            }
 
             for (Rocker r : rockers) stepRocker(r, h);
             for (Piece p : pieces) {
@@ -620,15 +666,22 @@ final class FieldSim {
             collidePieces();
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
-                if (robotPresent && intaking && stored.size() < ROBOT_CAPACITY && canTake(p)
-                        && inIntake(p, bx, by, bh)) {
-                    capture(p);
+                Bot taker = null;
+                for (int b = 0; b < nb && taker == null; b++) {
+                    Bot bot = bots.get(b);
+                    if (bot.present && bot.intaking && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)
+                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) taker = bot;
+                }
+                if (taker != null) {
+                    capture(taker, p);
                     continue;
                 }
                 boolean contact = false;
                 for (Rocker r : rockers) contact |= collideRocker(p, r);
                 contact |= collideFootBars(p);
-                if (robotPresent) contact |= collideRobot(p, bx, by, bh);
+                for (int b = 0; b < nb; b++) {
+                    if (bots.get(b).present) contact |= collideRobot(bots.get(b), p, sub[b][0], sub[b][1], sub[b][2]);
+                }
                 for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
                 contact |= collideField(p);
                 if (p.flower >= 0) holdInFlower(p);
@@ -791,9 +844,9 @@ final class FieldSim {
         return hit;
     }
 
-    private boolean collideRobot(Piece p, double bx, double by, double bh) {
-        double half = design.frameIn / 2;
-        return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, rvx, rvy, rw,
+    private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
+        double half = bot.design.frameIn / 2;
+        return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 PLACEHOLDER_ROBOT_RESTITUTION);
     }
 
@@ -943,7 +996,9 @@ final class FieldSim {
      * NECTAR only if the robot launches it, and out of a FLOWER only the bottom POLLEN, through the
      * retrieval opening, one per {@link RobotDesign#flowerPullS} (Competition Manual §9.7, G418).
      */
-    private boolean canTake(Piece p) {
+    private boolean canTake(Bot bot, Piece p) {
+        RobotDesign design = bot.design;
+        double lastCaptureAt = bot.lastCaptureAt;
         if (p.kind != Kind.POLLEN && !design.launchesNectar) return false;
         if (p.flower >= 0) {
             return p.kind == Kind.POLLEN && p.z < RobotDesign.FLOWER_OPENING_HEIGHT_IN
@@ -952,7 +1007,8 @@ final class FieldSim {
         return time - lastCaptureAt >= design.intakeIntervalS;
     }
 
-    private boolean inIntake(Piece p, double bx, double by, double bh) {
+    private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
+        RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
         double lx = (p.x - bx) * c + (p.y - by) * s;
         double ly = -(p.x - bx) * s + (p.y - by) * c;
@@ -961,8 +1017,9 @@ final class FieldSim {
         return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < 6;
     }
 
-    private void capture(Piece p) {
-        lastCaptureAt = time;
+    private void capture(Bot bot, Piece p) {
+        List<Piece> stored = bot.stored;
+        bot.lastCaptureAt = time;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;
@@ -1016,10 +1073,13 @@ final class FieldSim {
             if (p.kind != kind || (p.where == Where.ROBOT) != held) continue;
             double x = p.x, y = p.y, z = p.z;
             if (p.where == Where.ROBOT) {
-                int slot = stored.indexOf(p);
-                x = rx - 2.5 * Math.cos(rh);
-                y = ry - 2.5 * Math.sin(rh);
-                z = 4 + slot * 2.2 * p.kind.radius;
+                for (Bot bot : bots) {
+                    int slot = bot.stored.indexOf(p);
+                    if (slot < 0) continue;
+                    x = bot.x - 2.5 * Math.cos(bot.h);
+                    y = bot.y - 2.5 * Math.sin(bot.h);
+                    z = 4 + slot * 2.2 * p.kind.radius;
+                }
             }
             // Pedro → Center/Rotated is a quarter turn about z, (x, y, z) → (−y, x, z); a rotation's
             // axis turns with it.

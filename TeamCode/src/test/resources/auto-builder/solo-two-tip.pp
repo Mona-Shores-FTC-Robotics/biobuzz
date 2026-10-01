@@ -125,6 +125,26 @@
         "startDeg": 270,
         "endDeg": 49
       }
+    },
+    {
+      "id": "to-park-7",
+      "color": "#3cc8e4",
+      "name": "SOUTH_SHOT to PARK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 15,
+        "y": 99
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 49,
+        "endDeg": 90
+      }
     }
   ],
   "shapes": [
@@ -225,6 +245,10 @@
     {
       "kind": "path",
       "lineId": "to-south-shot-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-7"
     }
   ],
   "settings": {
@@ -278,7 +302,10 @@
       "typicalS": {
         "LaunchOne": 0.5,
         "LaunchAll": 2.0
-      }
+      },
+      "events": [
+        "Tip"
+      ]
     },
     "points": {
       "START": [
@@ -310,6 +337,11 @@
         36,
         30,
         49
+      ],
+      "PARK": [
+        15,
+        99,
+        90
       ]
     },
     "pathEnds": {
@@ -318,7 +350,8 @@
       "to-far-flower-3": "FAR_FLOWER",
       "to-north-shot-4": "NORTH_SHOT",
       "to-garden-5": "GARDEN",
-      "to-south-shot-6": "SOUTH_SHOT"
+      "to-south-shot-6": "SOUTH_SHOT",
+      "to-park-7": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -468,6 +501,12 @@
         "id": "a-16",
         "kind": "action",
         "name": "LaunchAll"
+      },
+      {
+        "id": "p-17",
+        "kind": "path",
+        "lineId": "to-park-7",
+        "park": true
       }
     ]
   },

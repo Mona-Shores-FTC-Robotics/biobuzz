@@ -1347,13 +1347,15 @@ still does what its name says.
 
 | Auto | Route | 2nd TIP | 3rd TIP |
 |---|---|---|---|
-| **solo-two-tip** | wall FLOWER and far FLOWER, shoot from the north; then the GARDEN | 16 s | — |
+| **solo-two-tip** | wall FLOWER and far FLOWER, shoot from the north; then the GARDEN, and park | 16 s | — |
 | **solo-three-tip** | as solo-two-tip; the 3rd TIP from NECTAR TIP 1 spilled plus the GARDEN | 16 s | 28 s |
 | **spill-three-tip** | waits for TIP 1's spill to roll into its intake, so it needs one FLOWER, not two | 17 s | 30 s |
 | **partner-three-tip** | as spill-three-tip, with a partner's staged POLLEN in place of the far FLOWER | 18 s | 31 s |
 
 Times are at 50 in/s with the standard design. A three-tip Auto needs a drivetrain that fast: at
-40 in/s its last volley comes after 30 s. solo-two-tip works at 40 in/s, and is the one to try first.
+40 in/s its last volley comes after 30 s. solo-two-tip works at 40 in/s, ends parked in the
+LOADING ZONE, and is the one to try first. The three-tip Autos use the whole 30 s and do not park:
+a third TIP is worth 20, an AUTO PARK 5.
 
 Things the routes rely on, found by watching the logs:
 
@@ -1423,6 +1425,57 @@ Rules the routes and designs lean on, from the Competition Manual:
   that to TELEOP; check with the Q&A before an Auto counts on it. A run that picked it up for TIP 2
   made no difference: the runs that miss a TIP miss the third.
 - A TIP that completes before TELEOP starts counts for AUTO (§10.5 B).
+
+### Two robots
+
+`AutoSim.alsoRun` puts the alliance's second robot on the same field, running its own exported
+Auto at the same time. `AllianceAutoTest` runs the pair below and writes
+`TeamCode/build/sim-logs/alliance-duo-<alliance>.wpilog`. In AdvantageScope's 3D field, add
+`/Odometry/Robot3d` and `/Odometry/Partner3d` as two robots. The Console has both Autos' decisions
+(`auto:` and `auto2:`), and the run says if the robots ever overlap or one reaches into the other
+alliance's half (G402). Both are judged for LEAVE (off the wall) and AUTO PARK (partly in the
+LOADING ZONE) when AUTO ends (§10.5.4).
+
+**duo-south + duo-north** (`src/test/resources/auto-builder/duo-*.pp`) split the HIVE between them:
+
+1. duo-south starts where the solo Autos do and fires 3 preloads for TIP 1. duo-north starts mirrored
+   against the north wall.
+2. When the south CELL goes down, the north one is up. duo-north fires its 4 preloads, pulls 4 from
+   the far FLOWER and fires again: TIP 2.
+3. A robot waiting in front of its CELL gets about half of what that CELL spills rolled into its
+   intake. So each robot, when its CELL comes up again, fires those, sweeps along the wall for the
+   rest of the spill and fires again.
+4. Both end parked side by side in the LOADING ZONE, off the wall, through the Auto Builder's park
+   card.
+
+They wait on `LeftCellUp` / `RightCellUp` (which CELL is up, as `HiveTracker` reports it) rather than
+`Tip`, because a state can be waited for in short pieces (see the park below).
+
+At 60 in/s, 10 runs: TIP 1 at 3.4 s, TIP 2 at 10.9 s, TIP 3 at 17.0 s in 8–9 of 10, and both robots
+LEAVE and PARK in 18 of 20. That is about 70 AUTO points. A fourth TIP did not happen; with two fixed
+launchers firing together it happened in 3 of 10, at 24.5 s.
+
+Why not 5–7 TIPs in AUTO, as far as this simulation can say:
+
+- **Supply, not shooting, is the limit.** A TIP takes about 8 POLLEN-weights, and a robot carries 4,
+  so every TIP is two loads. Only about half of a spill rolls back into a waiting robot; the rest
+  scatters, and the robot can sweep up only some of it in time. Faster launchers barely helped.
+- **A CELL can only be loaded from its own side**, so one robot works each end and they take turns.
+  That makes a TIP about every 6 s after the first: 3 TIPs reliably, a 4th if everything goes
+  right, and then the robots have to leave time to park.
+- **7 TIPs is the POLLINATOR 2 RP threshold for the whole match**, AUTO and TELEOP together.
+
+Things the runs turned up:
+
+- **The park has to fit the real robot.** The export times the park path at the Auto Builder's
+  60 in/s. A robot that only does 50 in/s parked in 4 of 20 runs.
+- **The endgame guard checks only between cards on the robot**, but cuts a card short in the
+  editor's preview. A long "wait for the other robot" can run past the park deadline, so these Autos
+  wait in pieces of at most 2.5 s.
+- **Rapid volleys knock pieces back out.** A piece that hits the back of the CELL rebounds toward the
+  opening and can meet the next one at the lip; the HIVE's bounce is a placeholder.
+- **The SWARM RP does not need AUTO PARK.** It takes LEAVE + PARK points ≥ 16: both robots leaving
+  (6) and parking at the end of the match (10) reach it too. AUTO PARK adds 5 a robot.
 
 ### Why the on-robot build is not here: it takes port 8080
 
