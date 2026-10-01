@@ -12,8 +12,8 @@ import java.util.Locale;
  */
 public final class MatchLogFiles {
 
-    /** The folder's name inside the SDK's FIRST folder ({@code /sdcard/FIRST/logs} on a hub). */
-    public static final String FOLDER_NAME = "logs";
+    /** The folder inside the SDK's FIRST folder ({@code /sdcard/FIRST/logs} on a hub). */
+    public static final String LOGS_FOLDER = "logs";
 
     private MatchLogFiles() {
     }

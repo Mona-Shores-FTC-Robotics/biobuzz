@@ -399,7 +399,7 @@ public abstract class RobotOpMode extends OpMode {
         metadata.put("OpModeClass", getClass().getName());
         String config = ActiveConfig.name();
         metadata.put("RobotConfig", config == null ? "(none active)" : config);
-        File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.FOLDER_NAME);
+        File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER);
         File file = MatchLogFiles.next(folder, name, System.currentTimeMillis());
         log = MatchLog.toFile(file, "BIOBUZZ " + name, metadata,
                 () -> (System.nanoTime() - logStartNs) / 1000L);
