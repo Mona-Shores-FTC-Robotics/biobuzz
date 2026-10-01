@@ -12,7 +12,7 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 | `lean_duo.py` | `lean-south.pp`, `lean-north.pp` |
 | `lean_opportunist.py` | `lean-opp-south.pp`, `lean-opp-north.pp` |
 | `snapshots.py` | pictures of the field at chosen moments, from `SnapshotTest` |
-| `home_duo.py`, `convoy.py` | experiments that lost, in `experiments/` (their Java is not committed) |
+| `home_duo.py`, `convoy.py`, `rally.py` | experiments that lost, in `experiments/` (their Java is not committed) |
 
 ```
 AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/duo_lz.py
