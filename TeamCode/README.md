@@ -1670,6 +1670,24 @@ partner can really do; we run the matching Auto.
 
 The other alliance's spill can roll onto our side; the simulation ignores it, and so does the plan.
 
+**Where a partner that only fires its preloads should start** (`tools/auto-routes/partner_start.py`;
+10 runs each at 50 in/s, partner one spring hood at 40 in/s). The south CELL (right, from our drive
+station) is the raised one at the start.
+
+| Partner | We run | Points | If the partner misses |
+|---|---|---|---|
+| **North (left), fires when the north CELL rises (camera)** | three-tip-adaptive from the south | 76 | 71–76 |
+| **North (left), fires on a 5 s timer**, from (30, 132) beside the CELL | three-tip-adaptive | 75–76 | 71–76 |
+| South (right), fires at once and makes TIP 1 | north-first, mirrored | 72–76 | 56 (we have to make TIP 1 from the wrong end) |
+
+Ask such a partner to start **north** and either watch for the north CELL or wait 5 s. Our Auto
+then does not depend on them: their 4 POLLEN only make TIP 2 sooner, and 3 TIPs is where our solo
+Autos stop either way. A partner who fires at the start from the north wastes its preloads but costs
+us nothing. A partner who can only fire at once and only from the south is the one case for
+north-first; it scores the same while they hit, and 20 points less when they miss. A 5.5 s timer
+partner in front of the north CELL collided with our robot; from (30, 132) it is out of the way.
+
+
 ### Which results hold, and timing a robot to a TIP
 
 **Two rules every Auto here assumes** (our reading; confirm in the Game Manual Q&A): the launcher

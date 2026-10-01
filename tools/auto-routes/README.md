@@ -10,6 +10,7 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 | `three_tip_adaptive.py` | `three-tip-adaptive.pp` |
 | `partners.py` | `partners/partner-leave-park.pp`, `partners/partner-preloads-park.pp` |
 | `lean_duo.py` | `lean-south.pp`, `lean-north.pp` |
+| `partner_start.py` | `north-first.pp`; partners `partner-preloads-south`, `partner-leave-south`, `partner-preloads-north-timer` |
 | `lean_opportunist.py` | `lean-opp-south.pp`, `lean-opp-north.pp` |
 | `snapshots.py` | pictures of the field at chosen moments, from `SnapshotTest` |
 | `home_duo.py`, `convoy.py`, `rally.py`, `solo_shuttle.py`, `four_tip_adaptive.py` | experiments that lost, in `experiments/` (their Java is not committed) |
