@@ -42,7 +42,7 @@ def south(name="home-south", cycles=3, nudge=10, stream=False, x=59, park=False)
 
 def north(name="home-north", cycles=3, nudge=10, stream=False, x=59, park=False):
     r = Route(name, (59, 132.25, 270), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("FLOWER_N", 47.4, 130.5, 90).pt("HOME_N", x, 131.75, 270).pt("NUDGE_N", x, 131.75 - nudge, 270)
+    r.pt("FLOWER_N", 47.4, 127.8, 90).pt("HOME_N", x, 131.75, 270).pt("NUDGE_N", x, 131.75 - nudge, 270)
     r.add(r.action("SpinUp"),
           *waits(r, "TIP 1", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),

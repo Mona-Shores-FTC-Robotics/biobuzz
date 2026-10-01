@@ -3,6 +3,12 @@
 Eight simulated AUTO periods, red alliance, two robots each. Every folder holds the `.wpilog`
 of one run and the Auto Builder `.pp` files that produced it.
 
+> **Superseded in one respect (later on 1 Oct).** In these runs a robot could drive partly through a
+> FLOWER holder, which made FLOWER pickups about 3 s too quick. FLOWERs are now solid in the
+> simulator, and the routes back off, turn and drive straight in. Plans that refill at a FLOWER
+> score less now (duo-lz on two spring hoods: about 90 → 68). The logs are kept as they were; new
+> ones replace them once the Autos are re-tuned.
+
 ## Where these come from
 
 Nothing here is drawn by hand, and AdvantageScope did not produce it. AdvantageScope only *views*

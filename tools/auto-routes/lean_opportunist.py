@@ -28,20 +28,19 @@ def south(name="lean-opp-south", cycles=4):
 
 def north(name="lean-opp-north", cycles=4):
     r = Route(name, (59, 132.25, 270), speed=50)
-    r.pt("FLOWER_N", 47.4, 130.5, 90).pt("HOME_N", 59, 131.75, 270)
+    flower_points(r, "FLOWER_N", FAR_FLOWER_AT, 90).pt("HOME_N", 59, 131.75, 270)
     r.add(r.action("SpinUp"),
           *waits(r, "TIP 1", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("FLOWER_N"),
-          r.wait("Collect at the FLOWER", when=["IntakeFull"], ms=2500),
-          r.go("HOME_N"),
+          *flower(r, "FLOWER_N", "Collect at the FLOWER", ms=2500),
+          *leave_flower(r, "FLOWER_N", "HOME_N"),
           fire(r, "Fire (TIP 2)", "Empty", ms=2000),
           r.wait("Until it tips", when=["RightCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))
     for k in range(cycles):
         r.at = "HOME_N"
-        fetch = [r.go("FLOWER_N"), r.wait(f"Collect at the FLOWER ({k + 1})", when=["IntakeFull"], ms=1500),
-                 r.go("HOME_N"), fire(r, f"Fire again ({k + 1})", "RightCellUp", ms=2500)]
+        fetch = [*flower(r, "FLOWER_N", f"Collect at the FLOWER ({k + 1})", ms=1500),
+                 *leave_flower(r, "FLOWER_N", "HOME_N"), fire(r, f"Fire again ({k + 1})", "RightCellUp", ms=2500)]
         r.at = "HOME_N"
         r.add(*waits(r, f"North CELL up ({k + 1})", "LeftCellUp", 8.0),
               fire(r, f"Fire ({k + 1})", "Empty", ms=2000),

@@ -561,6 +561,24 @@ final class FieldSim {
     }
 
     /**
+     * A FLOWER holder's footprint radius, in: a tube around a 2.8 in POLLEN. Not published; measure
+     * one. The bottom POLLEN comes out of its retrieval opening, so an intake takes it with the
+     * robot's front against the tube.
+     */
+    static final double PLACEHOLDER_FLOWER_RADIUS_IN = 2.0;
+
+    /** Whether an {@code size}-square robot at {@code (x, y, heading)} overlaps any FLOWER holder. */
+    boolean hitsFlower(double x, double y, double heading, double size) {
+        double c = Math.cos(heading), s = Math.sin(heading), half = size / 2;
+        for (double[] f : flowers) {
+            double lx = (f[0] - x) * c + (f[1] - y) * s, ly = -(f[0] - x) * s + (f[1] - y) * c;
+            double dx = Math.max(0, Math.abs(lx) - half), dy = Math.max(0, Math.abs(ly) - half);
+            if (dx * dx + dy * dy < PLACEHOLDER_FLOWER_RADIUS_IN * PLACEHOLDER_FLOWER_RADIUS_IN) return true;
+        }
+        return false;
+    }
+
+    /**
      * Whether a robot footprint point at {@code (x, y)} is in the HIVE frame's feet: the bars along
      * its two sides, the only part a robot under 25.5 in tall cannot drive through.
      */

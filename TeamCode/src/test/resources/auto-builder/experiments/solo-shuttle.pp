@@ -56,7 +56,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.4,
-        "y": 130.5
+        "y": 127.8
       },
       "controlPoints": [],
       "heading": {
@@ -440,7 +440,7 @@
       ],
       "FAR_FLOWER": [
         47.4,
-        130.5,
+        127.8,
         90
       ],
       "GARDEN_IN": [

@@ -1,5 +1,5 @@
 from autogen import *
-from helpers import waits, fire
+from helpers import waits, fire, flower, flower_points, leave_flower, FAR_FLOWER_AT, WALL_FLOWER_AT
 
 def south(speed=50, name="duo-lz-south", garden=True):
     r = Route(name, (59, 9.5, 90), speed=speed)
@@ -26,19 +26,18 @@ def south(speed=50, name="duo-lz-south", garden=True):
 
 def north(speed=50, name="duo-lz-north"):
     r = Route(name, (59, 132.25, 270), speed=speed)
-    r.pt("FLOWER_N", 47.4, 130.5, 90).pt("HOME_N", 59, 131.75, 270).pt("PARK_N", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
+    flower_points(r, "FLOWER_N", FAR_FLOWER_AT, 90).pt("HOME_N", 59, 131.75, 270).pt("PARK_N", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
     r.add(r.action("SpinUp"),
           *waits(r, "South tips", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("FLOWER_N"),
-          r.wait("Collect at the FLOWER", when=["IntakeFull"], ms=2500),
-          r.go("HOME_N"),
+          *flower(r, "FLOWER_N", "Collect at the FLOWER", ms=2500),
+          *leave_flower(r, "FLOWER_N", "HOME_N"),
           fire(r, "Fire until it tips (TIP 2)", "RightCellUp"),
           fire(r, "Fire until it tips (2)", "RightCellUp", ms=1500),
           r.wait("Spill rolls in", when=["IntakeFull"], ms=1500),
           *waits(r, "Our CELL up again", "LeftCellUp", 7.5),
           fire(r, "Fire (TIP 4)", "Empty"),
-          r.go("PARK_N"),
+          r.go("PARK_N", ctrl=[(59, 118), (30, 118)]),
           *waits(r, "North CELL up", "LeftCellUp", 5.0),
           fire(r, "Fire from the LOADING ZONE", "Empty"),
           r.go("PARK_N2", park=True))

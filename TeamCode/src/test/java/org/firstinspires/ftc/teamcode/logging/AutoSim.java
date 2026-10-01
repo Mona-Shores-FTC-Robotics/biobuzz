@@ -103,6 +103,8 @@ public final class AutoSim {
         double crossedAt = Double.NaN;
         /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
         double hitHiveAt = Double.NaN;
+        /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
+        double hitFlowerAt = Double.NaN;
 
         RobotResult(String auto) {
             this.auto = auto;
@@ -115,7 +117,9 @@ public final class AutoSim {
                     leave ? "yes" : "no", park ? "yes" : "no", (Double.isNaN(crossedAt) ? ""
                             : String.format(Locale.ROOT, ", CROSSES THE CENTRE LINE at %.1f s", crossedAt))
                             + (Double.isNaN(hitHiveAt) ? ""
-                            : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt)));
+                            : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt))
+                            + (Double.isNaN(hitFlowerAt) ? ""
+                            : String.format(Locale.ROOT, ", DRIVES INTO A FLOWER at %.1f s", hitFlowerAt)));
         }
     }
 
@@ -605,6 +609,10 @@ public final class AutoSim {
                         break;
                     }
                 }
+            }
+            if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn)) {
+                result.hitFlowerAt = now;
+                log.putEvent(tag() + "drives into a FLOWER", us);
             }
             if (running && Double.isNaN(result.crossedAt)) {
                 for (double[] c : corners(pose, design.frameIn)) {

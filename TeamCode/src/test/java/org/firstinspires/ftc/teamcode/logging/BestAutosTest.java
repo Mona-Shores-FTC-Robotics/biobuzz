@@ -53,8 +53,10 @@ public class BestAutosTest {
                     .alsoRun(DuoLzNorthAuto.class).speed(50, 45).design(d).write(f);
             System.out.println("BEST " + f.getName() + ": " + r);
             assertTwoRobots(f);
-            assertTrue(r.toString(), r.autoTips() >= 3);
-            for (AutoSim.RobotResult robot : r.robots) assertTrue(r.toString(), robot.park);
+            // FLOWERs became solid on 1 Oct 2026 (FieldSim.hitsFlower): picking one up honestly costs ~3 s, which
+            // cost both robots a TIP on this seed (2, from 3-4); the better one still parks both.
+            assertTrue(r.toString(), r.autoTips() >= 2);
+            if (better) for (AutoSim.RobotResult robot : r.robots) assertTrue(r.toString(), robot.park);
         }
     }
 
@@ -66,7 +68,7 @@ public class BestAutosTest {
                 .alsoRun(LeanNorthAuto.class).speed(50, 45).design(twinCatcher()).write(f);
         System.out.println("BEST " + f.getName() + ": " + r);
         assertTwoRobots(f);
-        assertTrue(r.toString(), r.autoTips() >= 4);
+        assertTrue(r.toString(), r.autoTips() >= 3); // was 4 before FLOWERs were solid
     }
 
     @Test
@@ -75,7 +77,7 @@ public class BestAutosTest {
         AutoSim.Result a = new AutoSim(ThreeTipAdaptiveAuto.class, Alliance.RED, SEED).speed(50, 45)
                 .design(RobotDesign.springHood()).write(alone);
         System.out.println("BEST " + alone.getName() + ": " + a);
-        assertTrue(a.toString(), a.autoTips() >= 3);
+        assertTrue(a.toString(), a.autoTips() >= 2); // was 3 before FLOWERs were solid
         File paired = file("4-three-tip-adaptive_with-preloads-partner");
         AutoSim.Result p = new AutoSim(ThreeTipAdaptiveAuto.class, Alliance.RED, SEED).speed(50, 45)
                 .design(RobotDesign.springHood()).alsoRun(PartnerPreloadsParkAuto.class).speed(40, 36).write(paired);

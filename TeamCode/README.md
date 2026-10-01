@@ -1705,6 +1705,27 @@ north-first; it scores the same while they hit, and 20 points less when they mis
 partner in front of the north CELL collided with our robot; from (30, 132) it is out of the way.
 
 
+### FLOWERs are solid (1 Oct 2026), and what that cost
+
+Watching the logs showed robots driving partly through FLOWER holders. `FieldSim.hitsFlower` now
+flags it like the HIVE frame (`DRIVES INTO A FLOWER`), with a placeholder holder radius of 2 in
+(`PLACEHOLDER_FLOWER_RADIUS_IN`; measure one). The routes use `helpers.flower` / `leave_flower`:
+slide clear, turn where the robot's corners (12.7 in out) cannot reach the FLOWER, drive straight in
+with the front against the tube, back straight out. That honest pickup costs about 3 s, and the
+plans that refill at a FLOWER lost a TIP:
+
+| Auto, robot (10 runs) | Before | Solid FLOWERs |
+|---|---|---|
+| duo-lz, two spring hoods + catcher | 90 | 66 |
+| duo-lz, catapult + catcher | 86 | 86 |
+| lean-opp, two spring hoods + catcher | 86 | 74 |
+| three-tip-adaptive alone, one spring hood | 3 TIPs | 2 TIPs |
+| three-tip-adaptive, partner only leaves, two spring hoods + catcher | 71 | 55 |
+
+So every result above that leans on FLOWER refills is optimistic by about a TIP; the catapult,
+which needs fewer pieces per TIP, lost least. Re-tuning the Autos for this is open work, and so are
+the intake knobs: today's intake takes any piece that touches it at any speed.
+
 ### Which results hold, and timing a robot to a TIP
 
 **Two rules every Auto here assumes** (our reading; confirm in the Game Manual Q&A): the launcher

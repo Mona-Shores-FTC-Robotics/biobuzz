@@ -42,7 +42,8 @@ def north_first(name="north-first", speed=50, tip4=False):
     If the north CELL hasn't risen by 6 s, the partner missed: drive south and make TIP 1 ourselves.
     tip4: after TIP 3, catch its spill, carry it north and top up from what TIP 2 left there."""
     r = Route(name, (59, 132.25, 270), speed=speed)
-    r.pt("N_HOME", 59, 131.75, 270).pt("FAR_FLOWER", 47.4, 130.5, 90)
+    r.pt("N_HOME", 59, 131.75, 270)
+    flower_points(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.pt("N_EXIT", 57.5, 108, 270).pt("S_EXIT", 57.5, 34, 270).pt("S_HOME", 57.5, 10, 90)
     r.pt("SOUTH_SHOT", 36, 30, 49).pt("SOUTH_PLUNGE_IN", 55, 24, 270).pt("SOUTH_PLUNGE", 55, 10.5, 270)
     r.pt("GARDEN", 8.5, 11, 270).pt("PARK", 16, 120, 90).pt("PARK2", 16, 122, 90)
@@ -53,14 +54,14 @@ def north_first(name="north-first", speed=50, tip4=False):
                 r.wait("Catch the TIP 1 spill", when=["IntakeFull"], ms=2200),
                 r.go("N_EXIT", heading=90), r.go("N_HOME"),
                 fire(r, "Fire at the north CELL", "Empty", ms=2000),
-                r.go("FAR_FLOWER"), r.wait("Collect at the FLOWER (fallback)", when=["IntakeFull"], ms=1800),
-                r.go("N_HOME"), fire(r, "Fire until it tips (TIP 2, fallback)", "RightCellUp", ms=2500),
+                *flower(r, "FAR_FLOWER", "Collect at the FLOWER (fallback)", ms=1800),
+                *leave_flower(r, "FAR_FLOWER", "N_HOME"), fire(r, "Fire until it tips (TIP 2, fallback)", "RightCellUp", ms=2500),
                 r.go("PARK", ctrl=[(30, 120)]), r.go("PARK2", park=True)]
     r.at = "START"
     plan = []
     plan += [fire(r, "Fire the preloads", "Empty"),
-             r.go("FAR_FLOWER"), r.wait("Collect at the FLOWER", when=["IntakeFull"], ms=1800),
-             r.go("N_HOME"), fire(r, "Fire until it tips (TIP 2)", "RightCellUp", ms=2500),
+             *flower(r, "FAR_FLOWER", "Collect at the FLOWER", ms=1800),
+             *leave_flower(r, "FAR_FLOWER", "N_HOME"), fire(r, "Fire until it tips (TIP 2)", "RightCellUp", ms=2500),
              r.wait("Catch the TIP 2 spill", when=["IntakeFull"], ms=2200),
              r.go("N_EXIT", heading=270), r.go("S_EXIT", heading=270), r.go("SOUTH_SHOT"),
              r.action("LaunchAll"),

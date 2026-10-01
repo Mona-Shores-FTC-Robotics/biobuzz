@@ -54,11 +54,12 @@ class Route:
             if alongside not in self.actions: self.actions.append(alongside)
         return card
 
-    def go(self, to, ctrl=(), heading="linear", park=False):
+    def go(self, to, ctrl=(), heading="linear", park=False, turn_from=None):
+        """turn_from: turn linearly from this heading (the robot's real one) instead of the start point's."""
         a, b = self.points[self.at], self.points[to]
         lid = f"to-{to.lower().replace('_', '-')}-{len(self.lines) + 1}"
         if heading == "linear":
-            hd = {"type": "linear", "startDeg": a[2], "endDeg": b[2]}
+            hd = {"type": "linear", "startDeg": a[2] if turn_from is None else turn_from, "endDeg": b[2]}
         elif heading == "tangent":
             hd = {"type": "tangent"}
         else:

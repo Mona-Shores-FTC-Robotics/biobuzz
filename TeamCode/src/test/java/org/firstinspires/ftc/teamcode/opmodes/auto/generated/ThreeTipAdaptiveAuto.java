@@ -42,9 +42,13 @@ public final class ThreeTipAdaptiveAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 9.5, 90);
-        Pose wallFlower = p.of(11, 47.4, 180);
+        Pose wallFlower = p.of(13.91, 47.36, 180);
+        Pose wallFlowerIn = p.of(19.71, 47.36, 180);
+        Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
         Pose northShot = p.of(40, 116, 301);
-        Pose farFlower = p.of(47.4, 130.5, 90);
+        Pose farFlower = p.of(47.36, 127.59, 90);
+        Pose farFlowerIn = p.of(47.36, 121.79, 90);
+        Pose farFlowerTurn = p.of(47.36, 119.29, 90);
         Pose southPlungeIn = p.of(55, 24, 270);
         Pose southPlunge = p.of(55, 10.5, 270);
         Pose southShot = p.of(36, 30, 49);
@@ -52,6 +56,10 @@ public final class ThreeTipAdaptiveAuto {
         Pose park = p.of(15, 99, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToWallFlowerIn = p.of(19.71, 47.36, 90);
+        Pose startToWallFlowerInControl1 = p.of(19.71, 9.5, 0);
+        Pose northShotToFarFlowerIn = p.of(47.36, 121.79, 301);
+        Pose northShotToFarFlowerInControl1 = p.of(40, 121.79, 0);
         Pose northShotToSouthShotControl1 = p.of(34, 92, 0);
         Pose northShotToSouthShotControl2 = p.of(12, 60, 0);
         Pose northShotToSouthShotControl3 = p.of(22, 30, 0);
@@ -62,10 +70,16 @@ public final class ThreeTipAdaptiveAuto {
         Pose southShotToParkControl2 = p.of(12, 80, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToWallFlower = Paths.line(start, wallFlower).linear(start, wallFlower);
-        Path wallFlowerToNorthShot = Paths.line(wallFlower, northShot).linear(wallFlower, northShot);
-        Path northShotToFarFlower = Paths.line(northShot, farFlower).linear(northShot, farFlower);
-        Path farFlowerToNorthShot = Paths.line(farFlower, northShot).linear(farFlower, northShot);
+        Path startToWallFlowerInPath = Paths.curve(start, startToWallFlowerInControl1, startToWallFlowerIn).constant(startToWallFlowerIn);
+        Path wallFlowerInToWallFlowerTurn = Paths.line(startToWallFlowerIn, wallFlowerTurn).linear(startToWallFlowerIn, wallFlowerTurn);
+        Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
+        Path wallFlowerToWallFlowerIn = Paths.line(wallFlower, wallFlowerIn).constant(wallFlowerIn);
+        Path wallFlowerInToNorthShot = Paths.line(wallFlowerIn, northShot).linear(wallFlowerIn, northShot);
+        Path northShotToFarFlowerInPath = Paths.curve(northShot, northShotToFarFlowerInControl1, northShotToFarFlowerIn).constant(northShotToFarFlowerIn);
+        Path farFlowerInToFarFlowerTurn = Paths.line(northShotToFarFlowerIn, farFlowerTurn).linear(northShotToFarFlowerIn, farFlowerTurn);
+        Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToFarFlowerIn = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
+        Path farFlowerInToNorthShot = Paths.line(farFlowerIn, northShot).linear(farFlowerIn, northShot);
         Path northShotToSouthShot = Paths.curve(northShot, northShotToSouthShotControl1, northShotToSouthShotControl2, northShotToSouthShotControl3, southShot).linear(northShot, southShot);
         Path southShotToSouthPlungeIn = Paths.line(southShot, southPlungeIn).linear(southShot, southPlungeIn);
         Path southPlungeInToSouthPlunge = Paths.line(southPlungeIn, southPlunge).linear(southPlungeIn, southPlunge);
@@ -91,17 +105,23 @@ public final class ThreeTipAdaptiveAuto {
                                         kit.firstOf("Tip 1 (4th POLLEN)",
                                                 kit.when("Tip"),
                                                 kit.afterMs(1500)))),
-                        kit.path("START to WALL_FLOWER", startToWallFlower),
+                        kit.path("START to WALL_FLOWER_IN", startToWallFlowerInPath),
+                        kit.path("WALL_FLOWER_IN to WALL_FLOWER_TURN", wallFlowerInToWallFlowerTurn),
+                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
                         kit.firstOf("Collect at WALL_FLOWER",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1500)),
-                        kit.path("WALL_FLOWER to NORTH_SHOT", wallFlowerToNorthShot),
+                        kit.path("WALL_FLOWER to WALL_FLOWER_IN", wallFlowerToWallFlowerIn),
+                        kit.path("WALL_FLOWER_IN to NORTH_SHOT", wallFlowerInToNorthShot),
                         kit.command("LaunchAll"),
-                        kit.path("NORTH_SHOT to FAR_FLOWER", northShotToFarFlower),
+                        kit.path("NORTH_SHOT to FAR_FLOWER_IN", northShotToFarFlowerInPath),
+                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurn),
+                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                         kit.firstOf("Collect at FAR_FLOWER",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(1500)),
-                        kit.path("FAR_FLOWER to NORTH_SHOT", farFlowerToNorthShot),
+                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerIn),
+                        kit.path("FAR_FLOWER_IN to NORTH_SHOT", farFlowerInToNorthShot),
                         kit.firstOf("Did a partner make TIP 2?",
                                 kit.when("RightCellUp").then(
                                         kit.path("NORTH_SHOT to SOUTH_SHOT", northShotToSouthShot),

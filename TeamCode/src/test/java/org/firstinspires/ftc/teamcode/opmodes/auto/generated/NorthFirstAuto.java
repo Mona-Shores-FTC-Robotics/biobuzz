@@ -43,7 +43,9 @@ public final class NorthFirstAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
         Pose nHome = p.of(59, 131.75, 270);
-        Pose farFlower = p.of(47.4, 130.5, 90);
+        Pose farFlower = p.of(47.36, 127.59, 90);
+        Pose farFlowerIn = p.of(47.36, 121.79, 90);
+        Pose farFlowerTurn = p.of(47.36, 119.29, 90);
         Pose nExit = p.of(57.5, 108, 270);
         Pose sExit = p.of(57.5, 34, 270);
         Pose sHome = p.of(57.5, 10, 90);
@@ -53,16 +55,26 @@ public final class NorthFirstAuto {
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(16, 120, 90);
         Pose park2 = p.of(16, 122, 90);
+        Pose farFlowerBackNHome = p.of(59, 119.29, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToFarFlowerIn = p.of(47.36, 121.79, 270);
+        Pose startToFarFlowerInControl1 = p.of(59, 121.79, 0);
         Pose southShotToParkControl1 = p.of(34, 60, 0);
         Pose southShotToParkControl2 = p.of(34, 126, 0);
         Pose sHomeToNExit = p.of(57.5, 108, 90);
+        Pose nHomeToFarFlowerIn = p.of(47.36, 121.79, 270);
+        Pose nHomeToFarFlowerInControl1 = p.of(59, 121.79, 0);
         Pose nHomeToParkControl1 = p.of(30, 120, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFarFlower = Paths.line(start, farFlower).linear(start, farFlower);
-        Path farFlowerToNHome = Paths.line(farFlower, nHome).linear(farFlower, nHome);
+        Path startToFarFlowerInPath = Paths.curve(start, startToFarFlowerInControl1, startToFarFlowerIn).constant(startToFarFlowerIn);
+        Path farFlowerInToFarFlowerTurn = Paths.line(startToFarFlowerIn, farFlowerTurn).linear(startToFarFlowerIn, farFlowerTurn);
+        Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToFarFlowerIn = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
+        Path farFlowerInToFarFlowerTurnPath = Paths.line(farFlowerIn, farFlowerTurn).constant(farFlowerTurn);
+        Path farFlowerTurnToFarFlowerBackNHome = Paths.line(farFlowerTurn, farFlowerBackNHome).linear(farFlowerTurn, farFlowerBackNHome);
+        Path farFlowerBackNHomeToNHome = Paths.line(farFlowerBackNHome, nHome).constant(nHome);
         Path nHomeToNExit = Paths.line(nHome, nExit).constant(nExit);
         Path nExitToSExit = Paths.line(nExit, sExit).constant(sExit);
         Path sExitToSouthShot = Paths.line(sExit, southShot).linear(sExit, southShot);
@@ -78,8 +90,13 @@ public final class NorthFirstAuto {
         Path sExitToSHome = Paths.line(sExit, sHome).linear(sExit, sHome);
         Path sHomeToNExitPath = Paths.line(sHome, sHomeToNExit).constant(sHomeToNExit);
         Path nExitToNHome = Paths.line(nExit, nHome).linear(nExit, nHome);
-        Path nHomeToFarFlower = Paths.line(nHome, farFlower).linear(nHome, farFlower);
-        Path farFlowerToNHomePath = Paths.line(farFlower, nHome).linear(farFlower, nHome);
+        Path nHomeToFarFlowerInPath = Paths.curve(nHome, nHomeToFarFlowerInControl1, nHomeToFarFlowerIn).constant(nHomeToFarFlowerIn);
+        Path farFlowerInToFarFlowerTurnPath2 = Paths.line(nHomeToFarFlowerIn, farFlowerTurn).linear(nHomeToFarFlowerIn, farFlowerTurn);
+        Path farFlowerTurnToFarFlowerPath = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToFarFlowerInPath = Paths.line(farFlower, farFlowerIn).constant(farFlowerIn);
+        Path farFlowerInToFarFlowerTurnPath3 = Paths.line(farFlowerIn, farFlowerTurn).constant(farFlowerTurn);
+        Path farFlowerTurnToFarFlowerBackNHomePath = Paths.line(farFlowerTurn, farFlowerBackNHome).linear(farFlowerTurn, farFlowerBackNHome);
+        Path farFlowerBackNHomeToNHomePath = Paths.line(farFlowerBackNHome, nHome).constant(nHome);
         Path nHomeToPark = Paths.curve(nHome, nHomeToParkControl1, park).linear(nHome, park);
         Path parkToPark2Path = Paths.line(park, park2).linear(park, park2);
 
@@ -91,11 +108,16 @@ public final class NorthFirstAuto {
                                         kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("START to FAR_FLOWER", startToFarFlower),
+                                        kit.path("START to FAR_FLOWER_IN", startToFarFlowerInPath),
+                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurn),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                                         kit.firstOf("Collect at the FLOWER",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1800)),
-                                        kit.path("FAR_FLOWER to N_HOME", farFlowerToNHome),
+                                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerIn),
+                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER_BACK_N_HOME", farFlowerTurnToFarFlowerBackNHome),
+                                        kit.path("FAR_FLOWER_BACK_N_HOME to N_HOME", farFlowerBackNHomeToNHome),
                                         kit.firstOf("Fire until it tips (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),
@@ -144,11 +166,16 @@ public final class NorthFirstAuto {
                                         kit.firstOf("Fire at the north CELL", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("N_HOME to FAR_FLOWER", nHomeToFarFlower),
+                                        kit.path("N_HOME to FAR_FLOWER_IN", nHomeToFarFlowerInPath),
+                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath2),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlowerPath),
                                         kit.firstOf("Collect at the FLOWER (fallback)",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1800)),
-                                        kit.path("FAR_FLOWER to N_HOME", farFlowerToNHomePath),
+                                        kit.path("FAR_FLOWER to FAR_FLOWER_IN", farFlowerToFarFlowerInPath),
+                                        kit.path("FAR_FLOWER_IN to FAR_FLOWER_TURN", farFlowerInToFarFlowerTurnPath3),
+                                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER_BACK_N_HOME", farFlowerTurnToFarFlowerBackNHomePath),
+                                        kit.path("FAR_FLOWER_BACK_N_HOME to N_HOME", farFlowerBackNHomeToNHomePath),
                                         kit.firstOf("Fire until it tips (TIP 2, fallback)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),

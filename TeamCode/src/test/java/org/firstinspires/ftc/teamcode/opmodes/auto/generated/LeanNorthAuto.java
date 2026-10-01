@@ -42,12 +42,24 @@ public final class LeanNorthAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
-        Pose flowerN = p.of(47.4, 130.5, 90);
+        Pose flowerN = p.of(47.36, 127.59, 90);
+        Pose flowerNIn = p.of(47.36, 121.79, 90);
+        Pose flowerNTurn = p.of(47.36, 119.29, 90);
         Pose homeN = p.of(59, 131.75, 270);
+        Pose flowerNBackHomeN = p.of(59, 119.29, 270);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToFlowerNIn = p.of(47.36, 121.79, 270);
+        Pose startToFlowerNInControl1 = p.of(59, 121.79, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFlowerN = Paths.line(start, flowerN).linear(start, flowerN);
-        Path flowerNToHomeN = Paths.line(flowerN, homeN).linear(flowerN, homeN);
+        Path startToFlowerNInPath = Paths.curve(start, startToFlowerNInControl1, startToFlowerNIn).constant(startToFlowerNIn);
+        Path flowerNInToFlowerNTurn = Paths.line(startToFlowerNIn, flowerNTurn).linear(startToFlowerNIn, flowerNTurn);
+        Path flowerNTurnToFlowerN = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNIn = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeN = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeN = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -78,11 +90,16 @@ public final class LeanNorthAuto {
                 kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
-                kit.path("START to FLOWER_N", startToFlowerN),
+                kit.path("START to FLOWER_N_IN", startToFlowerNInPath),
+                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurn),
+                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerN),
                 kit.firstOf("Collect at the FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(2500)),
-                kit.path("FLOWER_N to HOME_N", flowerNToHomeN),
+                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNIn),
+                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath),
+                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeN),
+                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeN),
                 kit.firstOf("Fire (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),

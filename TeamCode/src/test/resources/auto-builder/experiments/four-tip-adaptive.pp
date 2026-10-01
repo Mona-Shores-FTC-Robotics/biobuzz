@@ -16,7 +16,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 11,
+        "x": 13.7,
         "y": 47.4
       },
       "controlPoints": [],
@@ -57,7 +57,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.4,
-        "y": 130.5
+        "y": 127.8
       },
       "controlPoints": [],
       "heading": {
@@ -401,7 +401,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.4,
-        "y": 130.5
+        "y": 127.8
       },
       "controlPoints": [],
       "heading": {
@@ -653,7 +653,7 @@
         90
       ],
       "WALL_FLOWER": [
-        11,
+        13.7,
         47.4,
         180
       ],
@@ -664,7 +664,7 @@
       ],
       "FAR_FLOWER": [
         47.4,
-        130.5,
+        127.8,
         90
       ],
       "SOUTH_PLUNGE_IN": [

@@ -13,7 +13,7 @@ def preloads_park():
     r.add(r.action("SpinUp"),
           *waits(r, "North CELL up", "LeftCellUp", 8.0),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("PARK_P", park=True))
+          r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # south first, clear of the far FLOWER
     return r
 
 if __name__ == "__main__":

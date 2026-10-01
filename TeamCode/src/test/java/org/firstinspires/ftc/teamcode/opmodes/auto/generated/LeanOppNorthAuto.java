@@ -42,20 +42,60 @@ public final class LeanOppNorthAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
-        Pose flowerN = p.of(47.4, 130.5, 90);
+        Pose flowerN = p.of(47.36, 127.59, 90);
+        Pose flowerNIn = p.of(47.36, 121.79, 90);
+        Pose flowerNTurn = p.of(47.36, 119.29, 90);
         Pose homeN = p.of(59, 131.75, 270);
+        Pose flowerNBackHomeN = p.of(59, 119.29, 270);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToFlowerNIn = p.of(47.36, 121.79, 270);
+        Pose startToFlowerNInControl1 = p.of(59, 121.79, 0);
+        Pose homeNToFlowerNIn = p.of(47.36, 121.79, 270);
+        Pose homeNToFlowerNInControl1 = p.of(59, 121.79, 0);
+        Pose homeNToFlowerNIn_2 = p.of(47.36, 121.79, 270);
+        Pose homeNToFlowerNIn_2Control1 = p.of(59, 121.79, 0);
+        Pose homeNToFlowerNIn_3 = p.of(47.36, 121.79, 270);
+        Pose homeNToFlowerNIn_3Control1 = p.of(59, 121.79, 0);
+        Pose homeNToFlowerNIn_4 = p.of(47.36, 121.79, 270);
+        Pose homeNToFlowerNIn_4Control1 = p.of(59, 121.79, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFlowerN = Paths.line(start, flowerN).linear(start, flowerN);
-        Path flowerNToHomeN = Paths.line(flowerN, homeN).linear(flowerN, homeN);
-        Path homeNToFlowerN = Paths.line(homeN, flowerN).linear(homeN, flowerN);
-        Path flowerNToHomeNPath = Paths.line(flowerN, homeN).linear(flowerN, homeN);
-        Path homeNToFlowerNPath = Paths.line(homeN, flowerN).linear(homeN, flowerN);
-        Path flowerNToHomeNPath2 = Paths.line(flowerN, homeN).linear(flowerN, homeN);
-        Path homeNToFlowerNPath2 = Paths.line(homeN, flowerN).linear(homeN, flowerN);
-        Path flowerNToHomeNPath3 = Paths.line(flowerN, homeN).linear(flowerN, homeN);
-        Path homeNToFlowerNPath3 = Paths.line(homeN, flowerN).linear(homeN, flowerN);
-        Path flowerNToHomeNPath4 = Paths.line(flowerN, homeN).linear(flowerN, homeN);
+        Path startToFlowerNInPath = Paths.curve(start, startToFlowerNInControl1, startToFlowerNIn).constant(startToFlowerNIn);
+        Path flowerNInToFlowerNTurn = Paths.line(startToFlowerNIn, flowerNTurn).linear(startToFlowerNIn, flowerNTurn);
+        Path flowerNTurnToFlowerN = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNIn = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeN = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeN = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
+        Path homeNToFlowerNInPath = Paths.curve(homeN, homeNToFlowerNInControl1, homeNToFlowerNIn).constant(homeNToFlowerNIn);
+        Path flowerNInToFlowerNTurnPath2 = Paths.line(homeNToFlowerNIn, flowerNTurn).linear(homeNToFlowerNIn, flowerNTurn);
+        Path flowerNTurnToFlowerNPath = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNInPath = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath3 = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeNPath = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeNPath = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
+        Path homeNToFlowerNInPath2 = Paths.curve(homeN, homeNToFlowerNIn_2Control1, homeNToFlowerNIn_2).constant(homeNToFlowerNIn_2);
+        Path flowerNInToFlowerNTurnPath4 = Paths.line(homeNToFlowerNIn_2, flowerNTurn).linear(homeNToFlowerNIn_2, flowerNTurn);
+        Path flowerNTurnToFlowerNPath2 = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNInPath2 = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath5 = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeNPath2 = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeNPath2 = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
+        Path homeNToFlowerNInPath3 = Paths.curve(homeN, homeNToFlowerNIn_3Control1, homeNToFlowerNIn_3).constant(homeNToFlowerNIn_3);
+        Path flowerNInToFlowerNTurnPath6 = Paths.line(homeNToFlowerNIn_3, flowerNTurn).linear(homeNToFlowerNIn_3, flowerNTurn);
+        Path flowerNTurnToFlowerNPath3 = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNInPath3 = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath7 = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeNPath3 = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeNPath3 = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
+        Path homeNToFlowerNInPath4 = Paths.curve(homeN, homeNToFlowerNIn_4Control1, homeNToFlowerNIn_4).constant(homeNToFlowerNIn_4);
+        Path flowerNInToFlowerNTurnPath8 = Paths.line(homeNToFlowerNIn_4, flowerNTurn).linear(homeNToFlowerNIn_4, flowerNTurn);
+        Path flowerNTurnToFlowerNPath4 = Paths.line(flowerNTurn, flowerN).constant(flowerN);
+        Path flowerNToFlowerNInPath4 = Paths.line(flowerN, flowerNIn).constant(flowerNIn);
+        Path flowerNInToFlowerNTurnPath9 = Paths.line(flowerNIn, flowerNTurn).constant(flowerNTurn);
+        Path flowerNTurnToFlowerNBackHomeNPath4 = Paths.line(flowerNTurn, flowerNBackHomeN).linear(flowerNTurn, flowerNBackHomeN);
+        Path flowerNBackHomeNToHomeNPath4 = Paths.line(flowerNBackHomeN, homeN).constant(homeN);
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -86,11 +126,16 @@ public final class LeanOppNorthAuto {
                 kit.firstOf("Fire the preloads", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
-                kit.path("START to FLOWER_N", startToFlowerN),
+                kit.path("START to FLOWER_N_IN", startToFlowerNInPath),
+                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurn),
+                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerN),
                 kit.firstOf("Collect at the FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(2500)),
-                kit.path("FLOWER_N to HOME_N", flowerNToHomeN),
+                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNIn),
+                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath),
+                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeN),
+                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeN),
                 kit.firstOf("Fire (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
@@ -130,11 +175,16 @@ public final class LeanOppNorthAuto {
                 kit.firstOf("Did it tip? (1)",
                         kit.when("RightCellUp"),
                         kit.afterMs(1500).then(
-                                kit.path("HOME_N to FLOWER_N", homeNToFlowerN),
+                                kit.path("HOME_N to FLOWER_N_IN", homeNToFlowerNInPath),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath2),
+                                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerNPath),
                                 kit.firstOf("Collect at the FLOWER (1)",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(1500)),
-                                kit.path("FLOWER_N to HOME_N", flowerNToHomeNPath),
+                                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNInPath),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath3),
+                                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeNPath),
+                                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeNPath),
                                 kit.firstOf("Fire again (1)", kit.command("LaunchAll"),
                                         kit.when("RightCellUp"),
                                         kit.afterMs(2500)))),
@@ -171,11 +221,16 @@ public final class LeanOppNorthAuto {
                 kit.firstOf("Did it tip? (2)",
                         kit.when("RightCellUp"),
                         kit.afterMs(1500).then(
-                                kit.path("HOME_N to FLOWER_N", homeNToFlowerNPath),
+                                kit.path("HOME_N to FLOWER_N_IN", homeNToFlowerNInPath2),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath4),
+                                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerNPath2),
                                 kit.firstOf("Collect at the FLOWER (2)",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(1500)),
-                                kit.path("FLOWER_N to HOME_N", flowerNToHomeNPath2),
+                                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNInPath2),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath5),
+                                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeNPath2),
+                                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeNPath2),
                                 kit.firstOf("Fire again (2)", kit.command("LaunchAll"),
                                         kit.when("RightCellUp"),
                                         kit.afterMs(2500)))),
@@ -212,11 +267,16 @@ public final class LeanOppNorthAuto {
                 kit.firstOf("Did it tip? (3)",
                         kit.when("RightCellUp"),
                         kit.afterMs(1500).then(
-                                kit.path("HOME_N to FLOWER_N", homeNToFlowerNPath2),
+                                kit.path("HOME_N to FLOWER_N_IN", homeNToFlowerNInPath3),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath6),
+                                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerNPath3),
                                 kit.firstOf("Collect at the FLOWER (3)",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(1500)),
-                                kit.path("FLOWER_N to HOME_N", flowerNToHomeNPath3),
+                                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNInPath3),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath7),
+                                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeNPath3),
+                                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeNPath3),
                                 kit.firstOf("Fire again (3)", kit.command("LaunchAll"),
                                         kit.when("RightCellUp"),
                                         kit.afterMs(2500)))),
@@ -253,11 +313,16 @@ public final class LeanOppNorthAuto {
                 kit.firstOf("Did it tip? (4)",
                         kit.when("RightCellUp"),
                         kit.afterMs(1500).then(
-                                kit.path("HOME_N to FLOWER_N", homeNToFlowerNPath3),
+                                kit.path("HOME_N to FLOWER_N_IN", homeNToFlowerNInPath4),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath8),
+                                kit.path("FLOWER_N_TURN to FLOWER_N", flowerNTurnToFlowerNPath4),
                                 kit.firstOf("Collect at the FLOWER (4)",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(1500)),
-                                kit.path("FLOWER_N to HOME_N", flowerNToHomeNPath4),
+                                kit.path("FLOWER_N to FLOWER_N_IN", flowerNToFlowerNInPath4),
+                                kit.path("FLOWER_N_IN to FLOWER_N_TURN", flowerNInToFlowerNTurnPath9),
+                                kit.path("FLOWER_N_TURN to FLOWER_N_BACK_HOME_N", flowerNTurnToFlowerNBackHomeNPath4),
+                                kit.path("FLOWER_N_BACK_HOME_N to HOME_N", flowerNBackHomeNToHomeNPath4),
                                 kit.firstOf("Fire again (4)", kit.command("LaunchAll"),
                                         kit.when("RightCellUp"),
                                         kit.afterMs(2500)))),

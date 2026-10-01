@@ -7,17 +7,41 @@
   },
   "lines": [
     {
-      "id": "to-flower-n-1",
+      "id": "to-flower-n-in-1",
       "color": "#3cc8e4",
-      "name": "START to FLOWER_N",
+      "name": "START to FLOWER_N_IN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.4,
-        "y": 130.5
+        "x": 47.36,
+        "y": 121.79
+      },
+      "controlPoints": [
+        {
+          "x": 59,
+          "y": 121.79
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-flower-n-turn-2",
+      "color": "#3cc8e4",
+      "name": "FLOWER_N_IN to FLOWER_N_TURN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 119.29
       },
       "controlPoints": [],
       "heading": {
@@ -27,9 +51,86 @@
       }
     },
     {
-      "id": "to-home-n-2",
+      "id": "to-flower-n-3",
       "color": "#3cc8e4",
-      "name": "FLOWER_N to HOME_N",
+      "name": "FLOWER_N_TURN to FLOWER_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 127.59
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-flower-n-in-4",
+      "color": "#3cc8e4",
+      "name": "FLOWER_N to FLOWER_N_IN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 121.79
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-flower-n-turn-5",
+      "color": "#3cc8e4",
+      "name": "FLOWER_N_IN to FLOWER_N_TURN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 119.29
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-flower-n-back-home-n-6",
+      "color": "#3cc8e4",
+      "name": "FLOWER_N_TURN to FLOWER_N_BACK_HOME_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 59,
+        "y": 119.29
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 90,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-home-n-7",
+      "color": "#3cc8e4",
+      "name": "FLOWER_N_BACK_HOME_N to HOME_N",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -41,9 +142,8 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "linear",
-        "startDeg": 90,
-        "endDeg": 270
+        "type": "constant",
+        "degrees": 270
       }
     }
   ],
@@ -124,11 +224,31 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-flower-n-1"
+      "lineId": "to-flower-n-in-1"
     },
     {
       "kind": "path",
-      "lineId": "to-home-n-2"
+      "lineId": "to-flower-n-turn-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-flower-n-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-flower-n-in-4"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-flower-n-turn-5"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-flower-n-back-home-n-6"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-home-n-7"
     }
   ],
   "settings": {
@@ -194,8 +314,18 @@
         270
       ],
       "FLOWER_N": [
-        47.4,
-        130.5,
+        47.36,
+        127.59,
+        90
+      ],
+      "FLOWER_N_IN": [
+        47.36,
+        121.79,
+        90
+      ],
+      "FLOWER_N_TURN": [
+        47.36,
+        119.29,
         90
       ],
       "HOME_N": [
@@ -212,11 +342,21 @@
         15,
         124,
         300
+      ],
+      "FLOWER_N_BACK_HOME_N": [
+        59,
+        119.29,
+        270
       ]
     },
     "pathEnds": {
-      "to-flower-n-1": "FLOWER_N",
-      "to-home-n-2": "HOME_N"
+      "to-flower-n-in-1": "FLOWER_N_IN",
+      "to-flower-n-turn-2": "FLOWER_N_TURN",
+      "to-flower-n-3": "FLOWER_N",
+      "to-flower-n-in-4": "FLOWER_N_IN",
+      "to-flower-n-turn-5": "FLOWER_N_TURN",
+      "to-flower-n-back-home-n-6": "FLOWER_N_BACK_HOME_N",
+      "to-home-n-7": "HOME_N"
     },
     "startAt": "START",
     "cards": [
@@ -382,11 +522,23 @@
       {
         "id": "p-11",
         "kind": "path",
-        "lineId": "to-flower-n-1",
+        "lineId": "to-flower-n-in-1",
         "park": false
       },
       {
-        "id": "w-12",
+        "id": "p-12",
+        "kind": "path",
+        "lineId": "to-flower-n-turn-2",
+        "park": false
+      },
+      {
+        "id": "p-13",
+        "kind": "path",
+        "lineId": "to-flower-n-3",
+        "park": false
+      },
+      {
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Collect at the FLOWER",
         "rows": [
@@ -403,13 +555,31 @@
         ]
       },
       {
-        "id": "p-13",
+        "id": "p-15",
         "kind": "path",
-        "lineId": "to-home-n-2",
+        "lineId": "to-flower-n-in-4",
         "park": false
       },
       {
-        "id": "w-14",
+        "id": "p-16",
+        "kind": "path",
+        "lineId": "to-flower-n-turn-5",
+        "park": false
+      },
+      {
+        "id": "p-17",
+        "kind": "path",
+        "lineId": "to-flower-n-back-home-n-6",
+        "park": false
+      },
+      {
+        "id": "p-18",
+        "kind": "path",
+        "lineId": "to-home-n-7",
+        "park": false
+      },
+      {
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Fire (TIP 2)",
         "rows": [
@@ -427,7 +597,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-15",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Until it tips",
         "rows": [
@@ -444,7 +614,7 @@
         ]
       },
       {
-        "id": "w-16",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Catch the spill",
         "rows": [
@@ -461,7 +631,7 @@
         ]
       },
       {
-        "id": "w-17",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "North CELL up (1)",
         "rows": [
@@ -478,7 +648,7 @@
         ]
       },
       {
-        "id": "w-18",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "North CELL up (1) (2)",
         "rows": [
@@ -495,7 +665,7 @@
         ]
       },
       {
-        "id": "w-19",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "North CELL up (1) (3)",
         "rows": [
@@ -512,7 +682,7 @@
         ]
       },
       {
-        "id": "w-20",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "North CELL up (1) (4)",
         "rows": [
@@ -529,7 +699,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "North CELL up (1) (5)",
         "rows": [
@@ -546,7 +716,7 @@
         ]
       },
       {
-        "id": "w-22",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "North CELL up (1) (6)",
         "rows": [
@@ -563,7 +733,7 @@
         ]
       },
       {
-        "id": "w-23",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "North CELL up (1) (7)",
         "rows": [
@@ -580,7 +750,7 @@
         ]
       },
       {
-        "id": "w-24",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "North CELL up (1) (8)",
         "rows": [
@@ -597,7 +767,7 @@
         ]
       },
       {
-        "id": "w-25",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -615,7 +785,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-26",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Until it tips (1)",
         "rows": [
@@ -632,7 +802,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -649,7 +819,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "North CELL up (2)",
         "rows": [
@@ -666,7 +836,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "North CELL up (2) (2)",
         "rows": [
@@ -683,7 +853,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-35",
         "kind": "firstOf",
         "label": "North CELL up (2) (3)",
         "rows": [
@@ -700,7 +870,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-36",
         "kind": "firstOf",
         "label": "North CELL up (2) (4)",
         "rows": [
@@ -717,7 +887,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-37",
         "kind": "firstOf",
         "label": "North CELL up (2) (5)",
         "rows": [
@@ -734,7 +904,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-38",
         "kind": "firstOf",
         "label": "North CELL up (2) (6)",
         "rows": [
@@ -751,7 +921,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-39",
         "kind": "firstOf",
         "label": "North CELL up (2) (7)",
         "rows": [
@@ -768,7 +938,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-40",
         "kind": "firstOf",
         "label": "North CELL up (2) (8)",
         "rows": [
@@ -785,7 +955,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-41",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -803,7 +973,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-37",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Until it tips (2)",
         "rows": [
@@ -820,7 +990,7 @@
         ]
       },
       {
-        "id": "w-38",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -837,7 +1007,7 @@
         ]
       },
       {
-        "id": "w-39",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "North CELL up (3)",
         "rows": [
@@ -854,7 +1024,7 @@
         ]
       },
       {
-        "id": "w-40",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "North CELL up (3) (2)",
         "rows": [
@@ -871,7 +1041,7 @@
         ]
       },
       {
-        "id": "w-41",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "North CELL up (3) (3)",
         "rows": [
@@ -888,7 +1058,7 @@
         ]
       },
       {
-        "id": "w-42",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "North CELL up (3) (4)",
         "rows": [
@@ -905,7 +1075,7 @@
         ]
       },
       {
-        "id": "w-43",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "North CELL up (3) (5)",
         "rows": [
@@ -922,7 +1092,7 @@
         ]
       },
       {
-        "id": "w-44",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "North CELL up (3) (6)",
         "rows": [
@@ -939,7 +1109,7 @@
         ]
       },
       {
-        "id": "w-45",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "North CELL up (3) (7)",
         "rows": [
@@ -956,7 +1126,7 @@
         ]
       },
       {
-        "id": "w-46",
+        "id": "w-51",
         "kind": "firstOf",
         "label": "North CELL up (3) (8)",
         "rows": [
@@ -973,7 +1143,7 @@
         ]
       },
       {
-        "id": "w-47",
+        "id": "w-52",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -991,7 +1161,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-48",
+        "id": "w-53",
         "kind": "firstOf",
         "label": "Until it tips (3)",
         "rows": [
@@ -1008,7 +1178,7 @@
         ]
       },
       {
-        "id": "w-49",
+        "id": "w-54",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -1025,7 +1195,7 @@
         ]
       },
       {
-        "id": "w-50",
+        "id": "w-55",
         "kind": "firstOf",
         "label": "North CELL up (4)",
         "rows": [
@@ -1042,7 +1212,7 @@
         ]
       },
       {
-        "id": "w-51",
+        "id": "w-56",
         "kind": "firstOf",
         "label": "North CELL up (4) (2)",
         "rows": [
@@ -1059,7 +1229,7 @@
         ]
       },
       {
-        "id": "w-52",
+        "id": "w-57",
         "kind": "firstOf",
         "label": "North CELL up (4) (3)",
         "rows": [
@@ -1076,7 +1246,7 @@
         ]
       },
       {
-        "id": "w-53",
+        "id": "w-58",
         "kind": "firstOf",
         "label": "North CELL up (4) (4)",
         "rows": [
@@ -1093,7 +1263,7 @@
         ]
       },
       {
-        "id": "w-54",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "North CELL up (4) (5)",
         "rows": [
@@ -1110,7 +1280,7 @@
         ]
       },
       {
-        "id": "w-55",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "North CELL up (4) (6)",
         "rows": [
@@ -1127,7 +1297,7 @@
         ]
       },
       {
-        "id": "w-56",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "North CELL up (4) (7)",
         "rows": [
@@ -1144,7 +1314,7 @@
         ]
       },
       {
-        "id": "w-57",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "North CELL up (4) (8)",
         "rows": [
@@ -1161,7 +1331,7 @@
         ]
       },
       {
-        "id": "w-58",
+        "id": "w-63",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -1179,7 +1349,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-59",
+        "id": "w-64",
         "kind": "firstOf",
         "label": "Until it tips (4)",
         "rows": [
@@ -1196,7 +1366,7 @@
         ]
       },
       {
-        "id": "w-60",
+        "id": "w-65",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [
@@ -1213,7 +1383,7 @@
         ]
       },
       {
-        "id": "w-61",
+        "id": "w-66",
         "kind": "firstOf",
         "label": "North CELL up (5)",
         "rows": [
@@ -1230,7 +1400,7 @@
         ]
       },
       {
-        "id": "w-62",
+        "id": "w-67",
         "kind": "firstOf",
         "label": "North CELL up (5) (2)",
         "rows": [
@@ -1247,7 +1417,7 @@
         ]
       },
       {
-        "id": "w-63",
+        "id": "w-68",
         "kind": "firstOf",
         "label": "North CELL up (5) (3)",
         "rows": [
@@ -1264,7 +1434,7 @@
         ]
       },
       {
-        "id": "w-64",
+        "id": "w-69",
         "kind": "firstOf",
         "label": "North CELL up (5) (4)",
         "rows": [
@@ -1281,7 +1451,7 @@
         ]
       },
       {
-        "id": "w-65",
+        "id": "w-70",
         "kind": "firstOf",
         "label": "North CELL up (5) (5)",
         "rows": [
@@ -1298,7 +1468,7 @@
         ]
       },
       {
-        "id": "w-66",
+        "id": "w-71",
         "kind": "firstOf",
         "label": "North CELL up (5) (6)",
         "rows": [
@@ -1315,7 +1485,7 @@
         ]
       },
       {
-        "id": "w-67",
+        "id": "w-72",
         "kind": "firstOf",
         "label": "North CELL up (5) (7)",
         "rows": [
@@ -1332,7 +1502,7 @@
         ]
       },
       {
-        "id": "w-68",
+        "id": "w-73",
         "kind": "firstOf",
         "label": "North CELL up (5) (8)",
         "rows": [
@@ -1349,7 +1519,7 @@
         ]
       },
       {
-        "id": "w-69",
+        "id": "w-74",
         "kind": "firstOf",
         "label": "Fire (5)",
         "rows": [
@@ -1367,7 +1537,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-70",
+        "id": "w-75",
         "kind": "firstOf",
         "label": "Until it tips (5)",
         "rows": [
@@ -1384,7 +1554,7 @@
         ]
       },
       {
-        "id": "w-71",
+        "id": "w-76",
         "kind": "firstOf",
         "label": "Catch the spill (5)",
         "rows": [

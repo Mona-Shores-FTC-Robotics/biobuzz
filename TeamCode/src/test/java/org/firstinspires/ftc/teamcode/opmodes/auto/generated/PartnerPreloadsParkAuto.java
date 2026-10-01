@@ -44,11 +44,15 @@ public final class PartnerPreloadsParkAuto {
         Pose start = p.of(59, 132.25, 270);
         Pose parkP = p.of(16, 122, 270);
 
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToParkPControl1 = p.of(59, 116, 0);
+        Pose startToParkPControl2 = p.of(30, 116, 0);
+
         // Paths, written as the stock Visualizer export writes them.
-        Path startToParkP = Paths.line(start, parkP).linear(start, parkP);
+        Path startToParkP = Paths.curve(start, startToParkPControl1, startToParkPControl2, parkP).linear(start, parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 2.3,
+                kit.guarded("Auto", startToParkP, 2.4,
                         kit.command("SpinUp"),
                         kit.firstOf("North CELL up",
                                 kit.when("LeftCellUp"),

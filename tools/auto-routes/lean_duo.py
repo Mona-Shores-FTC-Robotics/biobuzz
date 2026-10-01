@@ -26,13 +26,12 @@ def south(name="lean-south", cycles=5, park=False):
 
 def north(name="lean-north", cycles=5, park=False):
     r = Route(name, (59, 132.25, 270), speed=50)
-    r.pt("FLOWER_N", 47.4, 130.5, 90).pt("HOME_N", 59, 131.75, 270).pt("PARK_N", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
+    flower_points(r, "FLOWER_N", FAR_FLOWER_AT, 90).pt("HOME_N", 59, 131.75, 270).pt("PARK_N", 15, 126, 300).pt("PARK_N2", 15, 124, 300)
     r.add(r.action("SpinUp"),
           *waits(r, "TIP 1", "LeftCellUp", 7.5),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("FLOWER_N"),
-          r.wait("Collect at the FLOWER", when=["IntakeFull"], ms=2500),
-          r.go("HOME_N"),
+          *flower(r, "FLOWER_N", "Collect at the FLOWER", ms=2500),
+          *leave_flower(r, "FLOWER_N", "HOME_N"),
           fire(r, "Fire (TIP 2)", "Empty", ms=2000),
           r.wait("Until it tips", when=["RightCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))

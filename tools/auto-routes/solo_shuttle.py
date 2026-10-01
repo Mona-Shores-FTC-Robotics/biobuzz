@@ -13,7 +13,7 @@ S_EXIT, N_EXIT = (57.5, 34, 90), (57.5, 108, 90)
 def shuttle(name="solo-shuttle", speed=50):
     r = Route(name, (59, 9.5, 90), speed=speed, folder=PP_DIR + "/experiments")
     r.pt("S_HOME", *S_HOME).pt("N_HOME", *N_HOME).pt("S_EXIT", *S_EXIT).pt("N_EXIT", *N_EXIT)
-    r.pt("FAR_FLOWER", 47.4, 130.5, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
+    r.pt("FAR_FLOWER", 47.4, 127.8, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
     tip1 = r.wait("TIP 1?", when=["Tip"], ms=2000, yes_label="Yes", no_label="No",
                   no=[r.action("LaunchOne"), r.wait("TIP 1 (4th POLLEN)", when=["Tip"], ms=1500)])
     r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"), tip1,

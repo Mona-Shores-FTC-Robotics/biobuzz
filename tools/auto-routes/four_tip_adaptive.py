@@ -4,7 +4,7 @@ from helpers import waits, fire
 
 def adaptive(name="four-tip-adaptive", speed=50):
     r = Route(name, (59, 9.5, 90), speed=speed, folder=PP_DIR + "/experiments")
-    r.pt("WALL_FLOWER", 11, 47.4, 180).pt("NORTH_SHOT", 40, 116, 301).pt("FAR_FLOWER", 47.4, 130.5, 90)
+    r.pt("WALL_FLOWER", 13.7, 47.4, 180).pt("NORTH_SHOT", 40, 116, 301).pt("FAR_FLOWER", 47.4, 127.8, 90)
     r.pt("SOUTH_PLUNGE_IN", 55, 24, 270).pt("SOUTH_PLUNGE", 55, 10.5, 270).pt("SOUTH_SHOT", 36, 30, 49)
     r.pt("GARDEN", 8.5, 11, 270)
     south_cps = [(34, 92), (12, 60), (22, 30)]

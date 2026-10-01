@@ -78,18 +78,20 @@ public class SoloAutosTest {
 
     /**
      * On the spring-hood robot, alone it tips three times; with a partner that fires its preloads
-     * at the north CELL, it notices TIP 2 came early, takes its pieces south, and still parks.
+     * at the north CELL, it notices TIP 2 came early and takes its pieces south. (Since FLOWERs became
+     * solid it tips twice alone, and three times with the partner but without time to park.)
      */
     @Test
     public void threeTipAdaptiveUsesAPartnersEarlyTip() throws Exception {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result alone = new AutoSim(ThreeTipAdaptiveAuto.class, alliance, 3572L).speed(50, 45)
                     .design(RobotDesign.springHood()).write(log("adaptive", alliance, 1));
-            assertTrue(alone.toString(), alone.autoTips() >= 3);
+            assertTrue(alone.toString(), alone.autoTips() >= 2); // was 3 before FLOWERs were solid
             AutoSim.Result paired = new AutoSim(ThreeTipAdaptiveAuto.class, alliance, 3572L).speed(50, 45)
                     .design(RobotDesign.springHood()).alsoRun(PartnerPreloadsParkAuto.class).speed(40, 36)
                     .write(log("adaptive-with-partner", alliance, 1));
-            assertTrue(paired.toString(), paired.autoTips() >= 3 && paired.robots.get(0).park);
+            // Still 3 TIPs with the partner, but since FLOWERs became solid the extra ~3 s per pickup costs the PARK.
+            assertTrue(paired.toString(), paired.autoTips() >= 3);
             assertTrue(paired.toString(), Double.isNaN(paired.robotsCollidedAt));
             for (AutoSim.RobotResult r : paired.robots) {
                 assertTrue(paired.toString(), Double.isNaN(r.crossedAt) && Double.isNaN(r.hitHiveAt));

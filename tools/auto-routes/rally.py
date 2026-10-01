@@ -34,7 +34,7 @@ def south(name="rally-south", cycles=4):
 
 def north(name="rally-north", cycles=4):
     r = Route(name, (59, 132.25, 270), speed=50, folder=PP_DIR + "/experiments")
-    r.pt("FLOWER_N", 47.4, 130.5, 90).pt("HOME_N", 59, 131.75, 270).pt("SWEEP_N", 45, 131.75, 270)
+    r.pt("FLOWER_N", 47.4, 127.8, 90).pt("HOME_N", 59, 131.75, 270).pt("SWEEP_N", 45, 131.75, 270)
     r.add(r.action("SpinUp"),
           r.wait("TIP 1", when=["LeftCellUp"], ms=7500),
           fire(r, "Fire the preloads", "Empty"),
