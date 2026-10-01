@@ -1,6 +1,6 @@
 """lean_duo.py with one decision per cycle: after firing, if the CELL has not tipped within 1.5 s,
-the robot fetches fresh pieces from the source nearest its end (right: the GARDEN; left: the far
-FLOWER), comes back and fires again; if it has tipped, it stays in the roll path to catch."""
+the right robot fetches from the GARDEN, once, and fires again; if it has tipped, it stays in the
+roll path to catch. The left robot empties the far FLOWER for TIP 2 and never goes back."""
 import sys
 from helpers import *
 
@@ -8,7 +8,7 @@ from helpers import *
 def right(name="lean-opp-right", cycles=4):
     r = Route(name, (59, 9.5, 90), speed=50)
     r.pt("HOME_R", 59, 10, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
-    r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
+    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2500))
     for k in range(cycles):
@@ -20,8 +20,9 @@ def right(name="lean-opp-right", cycles=4):
         r.at = "HOME_R"
         r.add(*waits(r, f"Right CELL up ({k + 1})", "RightCellUp", 8.0),
               fire(r, f"Fire ({k + 1})", "Empty", ms=2000),
-              r.wait(f"Did it tip? ({k + 1})", when=["LeftCellUp"], ms=1500, yes=[], no=fetch,
-                     yes_label="Yes: stay and catch", no_label="No: fetch from the GARDEN"),
+              # The GARDEN once only: it holds 4 and is empty after (mentor review).
+              r.wait(f"Did it tip? ({k + 1})", when=["LeftCellUp"], ms=1500, yes=[], no=fetch if k == 0 else [],
+                     yes_label="Yes: stay and catch", no_label="No: fetch from the GARDEN" if k == 0 else "No: stay"),
               r.wait(f"Catch the spill ({k + 1})", when=["IntakeFull"], ms=2000))
     return r
 
@@ -39,13 +40,11 @@ def left(name="lean-opp-left", cycles=4):
           r.wait("Catch the spill", when=["IntakeFull"], ms=2000))
     for k in range(cycles):
         r.at = "HOME_L"
-        fetch = [*flower(r, "FLOWER_L", f"Collect at the FLOWER ({k + 1})", ms=1500),
-                 *leave_flower(r, "FLOWER_L", "HOME_L"), fire(r, f"Fire again ({k + 1})", "RightCellUp", ms=2500)]
-        r.at = "HOME_L"
+        # The far FLOWER was emptied for TIP 2: never back to it (mentor review). If a volley doesn't
+        # tip the CELL, stand and catch; the next spill comes to this end anyway.
         r.add(*waits(r, f"Left CELL up ({k + 1})", "LeftCellUp", 8.0),
               fire(r, f"Fire ({k + 1})", "Empty", ms=2000),
-              r.wait(f"Did it tip? ({k + 1})", when=["RightCellUp"], ms=1500, yes=[], no=fetch,
-                     yes_label="Yes: stay and catch", no_label="No: fetch from the FLOWER"),
+              r.wait(f"Did it tip? ({k + 1})", when=["RightCellUp"], ms=1500),
               r.wait(f"Catch the spill ({k + 1})", when=["IntakeFull"], ms=2000))
     return r
 

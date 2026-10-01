@@ -19,7 +19,7 @@ public final class LeanRightAuto {
     public static final String SOURCE = "lean-right.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "LaunchOne"};
+    public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp"};
@@ -44,9 +44,9 @@ public final class LeanRightAuto {
         Pose start = p.of(59, 9.5, 90);
 
         return kit.sequence(
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
+                kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(4000)),
                 kit.firstOf("TIP 1",
                         kit.when("LeftCellUp"),
                         kit.afterMs(2500)),

@@ -55,52 +55,12 @@ public final class LeanOppLeftAuto {
         Pose flowerLToFlowerLBackHomeLSegment1Heading = p.of(57.5, 119.29, 90);
         Pose flowerLToFlowerLBackHomeLSegment2Start = p.of(57.5, 119.29, 90);
         Pose flowerLBackHomeLToHomeLControl1 = p.of(59, 121.29, 0);
-        Pose homeLToFlowerLTurnControl1 = p.of(59, 119.29, 0);
-        Pose homeLToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 270);
-        Pose homeLToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
-        Pose flowerLToFlowerLBackHomeL_2Segment1Heading = p.of(57.5, 119.29, 90);
-        Pose flowerLToFlowerLBackHomeL_2Segment2Start = p.of(57.5, 119.29, 90);
-        Pose flowerLBackHomeLToHomeL_2Control1 = p.of(59, 121.29, 0);
-        Pose homeLToFlowerLTurn_2Control1 = p.of(59, 119.29, 0);
-        Pose homeLToFlowerLTurn_2Segment1Heading = p.of(47.36, 119.29, 270);
-        Pose homeLToFlowerLTurn_2Segment2Start = p.of(47.36, 119.29, 270);
-        Pose flowerLToFlowerLBackHomeL_3Segment1Heading = p.of(57.5, 119.29, 90);
-        Pose flowerLToFlowerLBackHomeL_3Segment2Start = p.of(57.5, 119.29, 90);
-        Pose flowerLBackHomeLToHomeL_3Control1 = p.of(59, 121.29, 0);
-        Pose homeLToFlowerLTurn_3Control1 = p.of(59, 119.29, 0);
-        Pose homeLToFlowerLTurn_3Segment1Heading = p.of(47.36, 119.29, 270);
-        Pose homeLToFlowerLTurn_3Segment2Start = p.of(47.36, 119.29, 270);
-        Pose flowerLToFlowerLBackHomeL_4Segment1Heading = p.of(57.5, 119.29, 90);
-        Pose flowerLToFlowerLBackHomeL_4Segment2Start = p.of(57.5, 119.29, 90);
-        Pose flowerLBackHomeLToHomeL_4Control1 = p.of(59, 121.29, 0);
-        Pose homeLToFlowerLTurn_4Control1 = p.of(59, 119.29, 0);
-        Pose homeLToFlowerLTurn_4Segment1Heading = p.of(47.36, 119.29, 270);
-        Pose homeLToFlowerLTurn_4Segment2Start = p.of(47.36, 119.29, 270);
-        Pose flowerLToFlowerLBackHomeL_5Segment1Heading = p.of(57.5, 119.29, 90);
-        Pose flowerLToFlowerLBackHomeL_5Segment2Start = p.of(57.5, 119.29, 90);
-        Pose flowerLBackHomeLToHomeL_5Control1 = p.of(59, 121.29, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFlowerLTurn = Paths.curve(start, startToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(startToFlowerLTurnSegment2Start, flowerLTurn)));
         Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
         Path flowerLToFlowerLBackHomeL = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeLSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeLSegment2Start, flowerLBackHomeL)));
         Path flowerLBackHomeLToHomeL = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeLControl1, homeL).constant(homeL);
-        Path homeLToFlowerLTurn = Paths.curve(homeL, homeLToFlowerLTurnControl1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(homeLToFlowerLTurnSegment1Heading)).until(1, Interpolator.linear(homeLToFlowerLTurnSegment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerLPath = Paths.line(flowerLTurn, flowerL).constant(flowerL);
-        Path flowerLToFlowerLBackHomeLPath = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeL_2Segment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeL_2Segment2Start, flowerLBackHomeL)));
-        Path flowerLBackHomeLToHomeLPath = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeL_2Control1, homeL).constant(homeL);
-        Path homeLToFlowerLTurnPath = Paths.curve(homeL, homeLToFlowerLTurn_2Control1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(homeLToFlowerLTurn_2Segment1Heading)).until(1, Interpolator.linear(homeLToFlowerLTurn_2Segment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerLPath2 = Paths.line(flowerLTurn, flowerL).constant(flowerL);
-        Path flowerLToFlowerLBackHomeLPath2 = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeL_3Segment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeL_3Segment2Start, flowerLBackHomeL)));
-        Path flowerLBackHomeLToHomeLPath2 = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeL_3Control1, homeL).constant(homeL);
-        Path homeLToFlowerLTurnPath2 = Paths.curve(homeL, homeLToFlowerLTurn_3Control1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(homeLToFlowerLTurn_3Segment1Heading)).until(1, Interpolator.linear(homeLToFlowerLTurn_3Segment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerLPath3 = Paths.line(flowerLTurn, flowerL).constant(flowerL);
-        Path flowerLToFlowerLBackHomeLPath3 = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeL_4Segment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeL_4Segment2Start, flowerLBackHomeL)));
-        Path flowerLBackHomeLToHomeLPath3 = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeL_4Control1, homeL).constant(homeL);
-        Path homeLToFlowerLTurnPath3 = Paths.curve(homeL, homeLToFlowerLTurn_4Control1, flowerLTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(homeLToFlowerLTurn_4Segment1Heading)).until(1, Interpolator.linear(homeLToFlowerLTurn_4Segment2Start, flowerLTurn)));
-        Path flowerLTurnToFlowerLPath4 = Paths.line(flowerLTurn, flowerL).constant(flowerL);
-        Path flowerLToFlowerLBackHomeLPath4 = Paths.line(flowerL, flowerLBackHomeL).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeL_5Segment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeL_5Segment2Start, flowerLBackHomeL)));
-        Path flowerLBackHomeLToHomeLPath4 = Paths.curve(flowerLBackHomeL, flowerLBackHomeLToHomeL_5Control1, homeL).constant(homeL);
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -176,17 +136,7 @@ public final class LeanOppLeftAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (1)",
                         kit.when("RightCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_L to FLOWER_L_TURN", homeLToFlowerLTurn),
-                                kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerLPath),
-                                kit.firstOf("Collect at the FLOWER (1)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(2300)),
-                                kit.path("FLOWER_L to FLOWER_L_BACK_HOME_L", flowerLToFlowerLBackHomeLPath),
-                                kit.path("FLOWER_L_BACK_HOME_L to HOME_L", flowerLBackHomeLToHomeLPath),
-                                kit.firstOf("Fire again (1)", kit.command("LaunchAll"),
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (1)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
@@ -219,17 +169,7 @@ public final class LeanOppLeftAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (2)",
                         kit.when("RightCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_L to FLOWER_L_TURN", homeLToFlowerLTurnPath),
-                                kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerLPath2),
-                                kit.firstOf("Collect at the FLOWER (2)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(2300)),
-                                kit.path("FLOWER_L to FLOWER_L_BACK_HOME_L", flowerLToFlowerLBackHomeLPath2),
-                                kit.path("FLOWER_L_BACK_HOME_L to HOME_L", flowerLBackHomeLToHomeLPath2),
-                                kit.firstOf("Fire again (2)", kit.command("LaunchAll"),
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (2)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
@@ -262,17 +202,7 @@ public final class LeanOppLeftAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (3)",
                         kit.when("RightCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_L to FLOWER_L_TURN", homeLToFlowerLTurnPath2),
-                                kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerLPath3),
-                                kit.firstOf("Collect at the FLOWER (3)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(2300)),
-                                kit.path("FLOWER_L to FLOWER_L_BACK_HOME_L", flowerLToFlowerLBackHomeLPath3),
-                                kit.path("FLOWER_L_BACK_HOME_L to HOME_L", flowerLBackHomeLToHomeLPath3),
-                                kit.firstOf("Fire again (3)", kit.command("LaunchAll"),
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (3)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
@@ -305,17 +235,7 @@ public final class LeanOppLeftAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (4)",
                         kit.when("RightCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_L to FLOWER_L_TURN", homeLToFlowerLTurnPath3),
-                                kit.path("FLOWER_L_TURN to FLOWER_L", flowerLTurnToFlowerLPath4),
-                                kit.firstOf("Collect at the FLOWER (4)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(2300)),
-                                kit.path("FLOWER_L to FLOWER_L_BACK_HOME_L", flowerLToFlowerLBackHomeLPath4),
-                                kit.path("FLOWER_L_BACK_HOME_L to HOME_L", flowerLBackHomeLToHomeLPath4),
-                                kit.firstOf("Fire again (4)", kit.command("LaunchAll"),
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (4)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)));

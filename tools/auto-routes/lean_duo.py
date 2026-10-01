@@ -8,7 +8,7 @@ from helpers import *
 def right(name="lean-right", cycles=5, park=False):
     r = Route(name, (59, 9.5, 90), speed=50)
     r.pt("HOME_R", 59, 10, 90).pt("PARK_R", 14, 93, 330).pt("PARK_R2", 14, 95, 330)
-    r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
+    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000),
           r.wait("TIP 1", when=["LeftCellUp"], ms=2500),
           r.wait("Catch the spill", when=["IntakeFull"], ms=2500))
     for k in range(cycles):

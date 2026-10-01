@@ -524,17 +524,15 @@
     "exportName": "lean-opp-right",
     "registry": {
       "actions": [
-        "LaunchOne",
         "LaunchAll"
       ],
       "conditions": [
+        "Empty",
         "LeftCellUp",
         "IntakeFull",
-        "RightCellUp",
-        "Empty"
+        "RightCellUp"
       ],
       "typicalS": {
-        "LaunchOne": 0.5,
         "LaunchAll": 2.0
       },
       "events": []
@@ -578,22 +576,25 @@
     "startAt": "START",
     "cards": [
       {
-        "id": "a-1",
-        "kind": "action",
-        "name": "LaunchOne"
+        "id": "w-1",
+        "kind": "firstOf",
+        "label": "Fire all 4 preloads (TIP 1)",
+        "rows": [
+          {
+            "when": [
+              "Empty"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 4000,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
       },
       {
-        "id": "a-2",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-3",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "w-4",
+        "id": "w-2",
         "kind": "firstOf",
         "label": "TIP 1",
         "rows": [
@@ -610,7 +611,7 @@
         ]
       },
       {
-        "id": "w-5",
+        "id": "w-3",
         "kind": "firstOf",
         "label": "Catch the spill",
         "rows": [
@@ -627,7 +628,7 @@
         ]
       },
       {
-        "id": "w-11",
+        "id": "w-9",
         "kind": "firstOf",
         "label": "Right CELL up (1)",
         "rows": [
@@ -644,7 +645,7 @@
         ]
       },
       {
-        "id": "w-12",
+        "id": "w-10",
         "kind": "firstOf",
         "label": "Right CELL up (1) (2)",
         "rows": [
@@ -661,7 +662,7 @@
         ]
       },
       {
-        "id": "w-13",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "Right CELL up (1) (3)",
         "rows": [
@@ -678,7 +679,7 @@
         ]
       },
       {
-        "id": "w-14",
+        "id": "w-12",
         "kind": "firstOf",
         "label": "Right CELL up (1) (4)",
         "rows": [
@@ -695,7 +696,7 @@
         ]
       },
       {
-        "id": "w-15",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Right CELL up (1) (5)",
         "rows": [
@@ -712,7 +713,7 @@
         ]
       },
       {
-        "id": "w-16",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Right CELL up (1) (6)",
         "rows": [
@@ -729,7 +730,7 @@
         ]
       },
       {
-        "id": "w-17",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Right CELL up (1) (7)",
         "rows": [
@@ -746,7 +747,7 @@
         ]
       },
       {
-        "id": "w-18",
+        "id": "w-16",
         "kind": "firstOf",
         "label": "Right CELL up (1) (8)",
         "rows": [
@@ -763,7 +764,7 @@
         ]
       },
       {
-        "id": "w-19",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -781,7 +782,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-20",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Did it tip? (1)",
         "rows": [
@@ -796,19 +797,19 @@
             "afterMs": 1500,
             "cards": [
               {
-                "id": "p-6",
+                "id": "p-4",
                 "kind": "path",
                 "lineId": "to-garden-in-1",
                 "park": false
               },
               {
-                "id": "p-7",
+                "id": "p-5",
                 "kind": "path",
                 "lineId": "to-garden-2",
                 "park": false
               },
               {
-                "id": "w-8",
+                "id": "w-6",
                 "kind": "firstOf",
                 "label": "Collect in the GARDEN (1)",
                 "rows": [
@@ -825,13 +826,13 @@
                 ]
               },
               {
-                "id": "p-9",
+                "id": "p-7",
                 "kind": "path",
                 "lineId": "to-home-r-3",
                 "park": false
               },
               {
-                "id": "w-10",
+                "id": "w-8",
                 "kind": "firstOf",
                 "label": "Fire again (1)",
                 "rows": [
@@ -854,7 +855,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -871,7 +872,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Right CELL up (2)",
         "rows": [
@@ -888,7 +889,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Right CELL up (2) (2)",
         "rows": [
@@ -905,7 +906,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Right CELL up (2) (3)",
         "rows": [
@@ -922,7 +923,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Right CELL up (2) (4)",
         "rows": [
@@ -939,7 +940,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Right CELL up (2) (5)",
         "rows": [
@@ -956,7 +957,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Right CELL up (2) (6)",
         "rows": [
@@ -973,7 +974,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Right CELL up (2) (7)",
         "rows": [
@@ -990,7 +991,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Right CELL up (2) (8)",
         "rows": [
@@ -1007,7 +1008,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -1025,7 +1026,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-36",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Did it tip? (2)",
         "rows": [
@@ -1038,67 +1039,13 @@
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-22",
-                "kind": "path",
-                "lineId": "to-garden-in-4",
-                "park": false
-              },
-              {
-                "id": "p-23",
-                "kind": "path",
-                "lineId": "to-garden-5",
-                "park": false
-              },
-              {
-                "id": "w-24",
-                "kind": "firstOf",
-                "label": "Collect in the GARDEN (2)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 1200,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-25",
-                "kind": "path",
-                "lineId": "to-home-r-6",
-                "park": false
-              },
-              {
-                "id": "w-26",
-                "kind": "firstOf",
-                "label": "Fire again (2)",
-                "rows": [
-                  {
-                    "when": [
-                      "LeftCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the GARDEN"
+            "cards": [],
+            "label": "No: stay"
           }
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-35",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -1115,7 +1062,7 @@
         ]
       },
       {
-        "id": "w-43",
+        "id": "w-41",
         "kind": "firstOf",
         "label": "Right CELL up (3)",
         "rows": [
@@ -1132,7 +1079,7 @@
         ]
       },
       {
-        "id": "w-44",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Right CELL up (3) (2)",
         "rows": [
@@ -1149,7 +1096,7 @@
         ]
       },
       {
-        "id": "w-45",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Right CELL up (3) (3)",
         "rows": [
@@ -1166,7 +1113,7 @@
         ]
       },
       {
-        "id": "w-46",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "Right CELL up (3) (4)",
         "rows": [
@@ -1183,7 +1130,7 @@
         ]
       },
       {
-        "id": "w-47",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "Right CELL up (3) (5)",
         "rows": [
@@ -1200,7 +1147,7 @@
         ]
       },
       {
-        "id": "w-48",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "Right CELL up (3) (6)",
         "rows": [
@@ -1217,7 +1164,7 @@
         ]
       },
       {
-        "id": "w-49",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "Right CELL up (3) (7)",
         "rows": [
@@ -1234,7 +1181,7 @@
         ]
       },
       {
-        "id": "w-50",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "Right CELL up (3) (8)",
         "rows": [
@@ -1251,7 +1198,7 @@
         ]
       },
       {
-        "id": "w-51",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -1269,7 +1216,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-52",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "Did it tip? (3)",
         "rows": [
@@ -1282,67 +1229,13 @@
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-38",
-                "kind": "path",
-                "lineId": "to-garden-in-7",
-                "park": false
-              },
-              {
-                "id": "p-39",
-                "kind": "path",
-                "lineId": "to-garden-8",
-                "park": false
-              },
-              {
-                "id": "w-40",
-                "kind": "firstOf",
-                "label": "Collect in the GARDEN (3)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 1200,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-41",
-                "kind": "path",
-                "lineId": "to-home-r-9",
-                "park": false
-              },
-              {
-                "id": "w-42",
-                "kind": "firstOf",
-                "label": "Fire again (3)",
-                "rows": [
-                  {
-                    "when": [
-                      "LeftCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the GARDEN"
+            "cards": [],
+            "label": "No: stay"
           }
         ]
       },
       {
-        "id": "w-53",
+        "id": "w-51",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -1359,7 +1252,7 @@
         ]
       },
       {
-        "id": "w-59",
+        "id": "w-57",
         "kind": "firstOf",
         "label": "Right CELL up (4)",
         "rows": [
@@ -1376,7 +1269,7 @@
         ]
       },
       {
-        "id": "w-60",
+        "id": "w-58",
         "kind": "firstOf",
         "label": "Right CELL up (4) (2)",
         "rows": [
@@ -1393,7 +1286,7 @@
         ]
       },
       {
-        "id": "w-61",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Right CELL up (4) (3)",
         "rows": [
@@ -1410,7 +1303,7 @@
         ]
       },
       {
-        "id": "w-62",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "Right CELL up (4) (4)",
         "rows": [
@@ -1427,7 +1320,7 @@
         ]
       },
       {
-        "id": "w-63",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Right CELL up (4) (5)",
         "rows": [
@@ -1444,7 +1337,7 @@
         ]
       },
       {
-        "id": "w-64",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Right CELL up (4) (6)",
         "rows": [
@@ -1461,7 +1354,7 @@
         ]
       },
       {
-        "id": "w-65",
+        "id": "w-63",
         "kind": "firstOf",
         "label": "Right CELL up (4) (7)",
         "rows": [
@@ -1478,7 +1371,7 @@
         ]
       },
       {
-        "id": "w-66",
+        "id": "w-64",
         "kind": "firstOf",
         "label": "Right CELL up (4) (8)",
         "rows": [
@@ -1495,7 +1388,7 @@
         ]
       },
       {
-        "id": "w-67",
+        "id": "w-65",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -1513,7 +1406,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-68",
+        "id": "w-66",
         "kind": "firstOf",
         "label": "Did it tip? (4)",
         "rows": [
@@ -1526,67 +1419,13 @@
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-54",
-                "kind": "path",
-                "lineId": "to-garden-in-10",
-                "park": false
-              },
-              {
-                "id": "p-55",
-                "kind": "path",
-                "lineId": "to-garden-11",
-                "park": false
-              },
-              {
-                "id": "w-56",
-                "kind": "firstOf",
-                "label": "Collect in the GARDEN (4)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 1200,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-57",
-                "kind": "path",
-                "lineId": "to-home-r-12",
-                "park": false
-              },
-              {
-                "id": "w-58",
-                "kind": "firstOf",
-                "label": "Fire again (4)",
-                "rows": [
-                  {
-                    "when": [
-                      "LeftCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the GARDEN"
+            "cards": [],
+            "label": "No: stay"
           }
         ]
       },
       {
-        "id": "w-69",
+        "id": "w-67",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [

@@ -4,7 +4,7 @@ from helpers import waits, fire, flower, flower_points, leave_flower, FAR_FLOWER
 def right(speed=50, name="duo-lz-right", garden=True):
     r = Route(name, (59, 9.5, 90), speed=speed)
     r.pt("SLIDE_SL", 41, 9.5, 90).pt("SLIDE_SR", 60, 9.5, 90).pt("HOME_R", 59, 10, 90).pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270).pt("PARK_R", 14, 89, 330).pt("PARK_R2", 14, 90, 330)
-    r.add(r.action("LaunchOne"), r.action("LaunchOne"), r.action("LaunchOne"),
+    r.add(fire(r, "Fire all 4 preloads (TIP 1)", "Empty", ms=4000),
           r.wait("Tip 1", when=["LeftCellUp"], ms=2500),
           r.wait("Spill rolls in", when=["IntakeFull"], ms=1800),
           *waits(r, "Our CELL up", "RightCellUp", 7.5),

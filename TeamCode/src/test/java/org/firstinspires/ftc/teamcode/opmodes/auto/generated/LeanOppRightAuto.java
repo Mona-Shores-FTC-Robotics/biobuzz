@@ -20,7 +20,7 @@ public final class LeanOppRightAuto {
     public static final String SOURCE = "lean-opp-right.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "LaunchOne"};
+    public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp"};
@@ -51,34 +51,16 @@ public final class LeanOppRightAuto {
         Pose homeRToGardenInControl1 = p.of(30, 22, 0);
         Pose homeRToGardenInSegment1Start = p.of(8.5, 22, 90);
         Pose gardenToHomeRControl1 = p.of(20, 18, 0);
-        Pose homeRToGardenIn_2Control1 = p.of(30, 22, 0);
-        Pose homeRToGardenIn_2Segment1Start = p.of(8.5, 22, 90);
-        Pose gardenToHomeR_2Control1 = p.of(20, 18, 0);
-        Pose homeRToGardenIn_3Control1 = p.of(30, 22, 0);
-        Pose homeRToGardenIn_3Segment1Start = p.of(8.5, 22, 90);
-        Pose gardenToHomeR_3Control1 = p.of(20, 18, 0);
-        Pose homeRToGardenIn_4Control1 = p.of(30, 22, 0);
-        Pose homeRToGardenIn_4Segment1Start = p.of(8.5, 22, 90);
-        Pose gardenToHomeR_4Control1 = p.of(20, 18, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path homeRToGardenIn = Paths.curve(start, homeRToGardenInControl1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToHomeR = Paths.curve(garden, gardenToHomeRControl1, homeR).constant(homeR);
-        Path homeRToGardenInPath = Paths.curve(homeR, homeRToGardenIn_2Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGardenPath = Paths.line(gardenIn, garden).linear(gardenIn, garden);
-        Path gardenToHomeRPath = Paths.curve(garden, gardenToHomeR_2Control1, homeR).constant(homeR);
-        Path homeRToGardenInPath2 = Paths.curve(homeR, homeRToGardenIn_3Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_3Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGardenPath2 = Paths.line(gardenIn, garden).linear(gardenIn, garden);
-        Path gardenToHomeRPath2 = Paths.curve(garden, gardenToHomeR_3Control1, homeR).constant(homeR);
-        Path homeRToGardenInPath3 = Paths.curve(homeR, homeRToGardenIn_4Control1, gardenIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(homeRToGardenIn_4Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGardenPath3 = Paths.line(gardenIn, garden).linear(gardenIn, garden);
-        Path gardenToHomeRPath3 = Paths.curve(garden, gardenToHomeR_4Control1, homeR).constant(homeR);
 
         return kit.sequence(
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
-                kit.command("LaunchOne"),
+                kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(4000)),
                 kit.firstOf("TIP 1",
                         kit.when("LeftCellUp"),
                         kit.afterMs(2500)),
@@ -156,16 +138,7 @@ public final class LeanOppRightAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (2)",
                         kit.when("LeftCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_R to GARDEN_IN", homeRToGardenInPath),
-                                kit.path("GARDEN_IN to GARDEN", gardenInToGardenPath),
-                                kit.firstOf("Collect in the GARDEN (2)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(1200)),
-                                kit.path("GARDEN to HOME_R", gardenToHomeRPath),
-                                kit.firstOf("Fire again (2)", kit.command("LaunchAll"),
-                                        kit.when("LeftCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (2)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
@@ -198,16 +171,7 @@ public final class LeanOppRightAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (3)",
                         kit.when("LeftCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_R to GARDEN_IN", homeRToGardenInPath2),
-                                kit.path("GARDEN_IN to GARDEN", gardenInToGardenPath2),
-                                kit.firstOf("Collect in the GARDEN (3)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(1200)),
-                                kit.path("GARDEN to HOME_R", gardenToHomeRPath2),
-                                kit.firstOf("Fire again (3)", kit.command("LaunchAll"),
-                                        kit.when("LeftCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (3)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)),
@@ -240,16 +204,7 @@ public final class LeanOppRightAuto {
                         kit.afterMs(2000)),
                 kit.firstOf("Did it tip? (4)",
                         kit.when("LeftCellUp"),
-                        kit.afterMs(1500).then(
-                                kit.path("HOME_R to GARDEN_IN", homeRToGardenInPath3),
-                                kit.path("GARDEN_IN to GARDEN", gardenInToGardenPath3),
-                                kit.firstOf("Collect in the GARDEN (4)",
-                                        kit.when("IntakeFull"),
-                                        kit.afterMs(1200)),
-                                kit.path("GARDEN to HOME_R", gardenToHomeRPath3),
-                                kit.firstOf("Fire again (4)", kit.command("LaunchAll"),
-                                        kit.when("LeftCellUp"),
-                                        kit.afterMs(2500)))),
+                        kit.afterMs(1500)),
                 kit.firstOf("Catch the spill (4)",
                         kit.when("IntakeFull"),
                         kit.afterMs(2000)));

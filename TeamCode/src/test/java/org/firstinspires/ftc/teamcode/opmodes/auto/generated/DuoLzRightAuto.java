@@ -20,7 +20,7 @@ public final class DuoLzRightAuto {
     public static final String SOURCE = "duo-lz-right.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "LaunchOne"};
+    public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp"};
@@ -70,9 +70,9 @@ public final class DuoLzRightAuto {
 
         return kit.sequence(
                 kit.guarded("Auto", parkRToParkR2, 0.3,
-                        kit.command("LaunchOne"),
-                        kit.command("LaunchOne"),
-                        kit.command("LaunchOne"),
+                        kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
+                                kit.when("Empty"),
+                                kit.afterMs(4000)),
                         kit.firstOf("Tip 1",
                                 kit.when("LeftCellUp"),
                                 kit.afterMs(2500)),

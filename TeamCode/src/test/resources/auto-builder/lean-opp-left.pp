@@ -131,510 +131,6 @@
         "type": "constant",
         "degrees": 270
       }
-    },
-    {
-      "id": "to-flower-l-turn-5",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 119.29
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-flower-l-6",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 127.59
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-back-home-l-7",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-home-l-8",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.29
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-9",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 119.29
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-flower-l-10",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 127.59
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-back-home-l-11",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-home-l-12",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.29
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-13",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 119.29
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-flower-l-14",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 127.59
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-back-home-l-15",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-home-l-16",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.29
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-flower-l-turn-17",
-      "color": "#3cc8e4",
-      "name": "HOME_L to FLOWER_L_TURN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 119.29
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 119.29
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-flower-l-18",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_TURN to FLOWER_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 47.36,
-        "y": 127.59
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-flower-l-back-home-l-19",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L to FLOWER_L_BACK_HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 119.29
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.5,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.5,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-home-l-20",
-      "color": "#3cc8e4",
-      "name": "FLOWER_L_BACK_HOME_L to HOME_L",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 59,
-        "y": 131.75
-      },
-      "controlPoints": [
-        {
-          "x": 59,
-          "y": 121.29
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
     }
   ],
   "shapes": [
@@ -727,70 +223,6 @@
     {
       "kind": "path",
       "lineId": "to-home-l-4"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-5"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-6"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-7"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-8"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-9"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-10"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-11"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-12"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-13"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-14"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-15"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-16"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-turn-17"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-18"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-flower-l-back-home-l-19"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-home-l-20"
     }
   ],
   "settings": {
@@ -885,23 +317,7 @@
       "to-flower-l-turn-1": "FLOWER_L_TURN",
       "to-flower-l-2": "FLOWER_L",
       "to-flower-l-back-home-l-3": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-4": "HOME_L",
-      "to-flower-l-turn-5": "FLOWER_L_TURN",
-      "to-flower-l-6": "FLOWER_L",
-      "to-flower-l-back-home-l-7": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-8": "HOME_L",
-      "to-flower-l-turn-9": "FLOWER_L_TURN",
-      "to-flower-l-10": "FLOWER_L",
-      "to-flower-l-back-home-l-11": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-12": "HOME_L",
-      "to-flower-l-turn-13": "FLOWER_L_TURN",
-      "to-flower-l-14": "FLOWER_L",
-      "to-flower-l-back-home-l-15": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-16": "HOME_L",
-      "to-flower-l-turn-17": "FLOWER_L_TURN",
-      "to-flower-l-18": "FLOWER_L",
-      "to-flower-l-back-home-l-19": "FLOWER_L_BACK_HOME_L",
-      "to-home-l-20": "HOME_L"
+      "to-home-l-4": "HOME_L"
     },
     "startAt": "START",
     "cards": [
@@ -1158,7 +574,7 @@
         ]
       },
       {
-        "id": "w-25",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Left CELL up (1)",
         "rows": [
@@ -1175,7 +591,7 @@
         ]
       },
       {
-        "id": "w-26",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Left CELL up (1) (2)",
         "rows": [
@@ -1192,7 +608,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "Left CELL up (1) (3)",
         "rows": [
@@ -1209,7 +625,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Left CELL up (1) (4)",
         "rows": [
@@ -1226,7 +642,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Left CELL up (1) (5)",
         "rows": [
@@ -1243,7 +659,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Left CELL up (1) (6)",
         "rows": [
@@ -1260,7 +676,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Left CELL up (1) (7)",
         "rows": [
@@ -1277,7 +693,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Left CELL up (1) (8)",
         "rows": [
@@ -1294,7 +710,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Fire (1)",
         "rows": [
@@ -1312,7 +728,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-34",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Did it tip? (1)",
         "rows": [
@@ -1320,78 +736,16 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": [],
-            "label": "Yes: stay and catch"
+            "cards": []
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-19",
-                "kind": "path",
-                "lineId": "to-flower-l-turn-5",
-                "park": false
-              },
-              {
-                "id": "p-20",
-                "kind": "path",
-                "lineId": "to-flower-l-6",
-                "park": false
-              },
-              {
-                "id": "w-21",
-                "kind": "firstOf",
-                "label": "Collect at the FLOWER (1)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2300,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-22",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-7",
-                "park": false
-              },
-              {
-                "id": "p-23",
-                "kind": "path",
-                "lineId": "to-home-l-8",
-                "park": false
-              },
-              {
-                "id": "w-24",
-                "kind": "firstOf",
-                "label": "Fire again (1)",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the FLOWER"
+            "cards": []
           }
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Catch the spill (1)",
         "rows": [
@@ -1408,7 +762,7 @@
         ]
       },
       {
-        "id": "w-42",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -1425,7 +779,7 @@
         ]
       },
       {
-        "id": "w-43",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Left CELL up (2) (2)",
         "rows": [
@@ -1442,7 +796,7 @@
         ]
       },
       {
-        "id": "w-44",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Left CELL up (2) (3)",
         "rows": [
@@ -1459,7 +813,7 @@
         ]
       },
       {
-        "id": "w-45",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Left CELL up (2) (4)",
         "rows": [
@@ -1476,7 +830,7 @@
         ]
       },
       {
-        "id": "w-46",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Left CELL up (2) (5)",
         "rows": [
@@ -1493,7 +847,7 @@
         ]
       },
       {
-        "id": "w-47",
+        "id": "w-35",
         "kind": "firstOf",
         "label": "Left CELL up (2) (6)",
         "rows": [
@@ -1510,7 +864,7 @@
         ]
       },
       {
-        "id": "w-48",
+        "id": "w-36",
         "kind": "firstOf",
         "label": "Left CELL up (2) (7)",
         "rows": [
@@ -1527,7 +881,7 @@
         ]
       },
       {
-        "id": "w-49",
+        "id": "w-37",
         "kind": "firstOf",
         "label": "Left CELL up (2) (8)",
         "rows": [
@@ -1544,7 +898,7 @@
         ]
       },
       {
-        "id": "w-50",
+        "id": "w-38",
         "kind": "firstOf",
         "label": "Fire (2)",
         "rows": [
@@ -1562,7 +916,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-51",
+        "id": "w-39",
         "kind": "firstOf",
         "label": "Did it tip? (2)",
         "rows": [
@@ -1570,78 +924,16 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": [],
-            "label": "Yes: stay and catch"
+            "cards": []
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-36",
-                "kind": "path",
-                "lineId": "to-flower-l-turn-9",
-                "park": false
-              },
-              {
-                "id": "p-37",
-                "kind": "path",
-                "lineId": "to-flower-l-10",
-                "park": false
-              },
-              {
-                "id": "w-38",
-                "kind": "firstOf",
-                "label": "Collect at the FLOWER (2)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2300,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-39",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-11",
-                "park": false
-              },
-              {
-                "id": "p-40",
-                "kind": "path",
-                "lineId": "to-home-l-12",
-                "park": false
-              },
-              {
-                "id": "w-41",
-                "kind": "firstOf",
-                "label": "Fire again (2)",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the FLOWER"
+            "cards": []
           }
         ]
       },
       {
-        "id": "w-52",
+        "id": "w-40",
         "kind": "firstOf",
         "label": "Catch the spill (2)",
         "rows": [
@@ -1658,7 +950,7 @@
         ]
       },
       {
-        "id": "w-59",
+        "id": "w-41",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -1675,7 +967,7 @@
         ]
       },
       {
-        "id": "w-60",
+        "id": "w-42",
         "kind": "firstOf",
         "label": "Left CELL up (3) (2)",
         "rows": [
@@ -1692,7 +984,7 @@
         ]
       },
       {
-        "id": "w-61",
+        "id": "w-43",
         "kind": "firstOf",
         "label": "Left CELL up (3) (3)",
         "rows": [
@@ -1709,7 +1001,7 @@
         ]
       },
       {
-        "id": "w-62",
+        "id": "w-44",
         "kind": "firstOf",
         "label": "Left CELL up (3) (4)",
         "rows": [
@@ -1726,7 +1018,7 @@
         ]
       },
       {
-        "id": "w-63",
+        "id": "w-45",
         "kind": "firstOf",
         "label": "Left CELL up (3) (5)",
         "rows": [
@@ -1743,7 +1035,7 @@
         ]
       },
       {
-        "id": "w-64",
+        "id": "w-46",
         "kind": "firstOf",
         "label": "Left CELL up (3) (6)",
         "rows": [
@@ -1760,7 +1052,7 @@
         ]
       },
       {
-        "id": "w-65",
+        "id": "w-47",
         "kind": "firstOf",
         "label": "Left CELL up (3) (7)",
         "rows": [
@@ -1777,7 +1069,7 @@
         ]
       },
       {
-        "id": "w-66",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "Left CELL up (3) (8)",
         "rows": [
@@ -1794,7 +1086,7 @@
         ]
       },
       {
-        "id": "w-67",
+        "id": "w-49",
         "kind": "firstOf",
         "label": "Fire (3)",
         "rows": [
@@ -1812,7 +1104,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-68",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "Did it tip? (3)",
         "rows": [
@@ -1820,78 +1112,16 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": [],
-            "label": "Yes: stay and catch"
+            "cards": []
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-53",
-                "kind": "path",
-                "lineId": "to-flower-l-turn-13",
-                "park": false
-              },
-              {
-                "id": "p-54",
-                "kind": "path",
-                "lineId": "to-flower-l-14",
-                "park": false
-              },
-              {
-                "id": "w-55",
-                "kind": "firstOf",
-                "label": "Collect at the FLOWER (3)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2300,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-56",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-15",
-                "park": false
-              },
-              {
-                "id": "p-57",
-                "kind": "path",
-                "lineId": "to-home-l-16",
-                "park": false
-              },
-              {
-                "id": "w-58",
-                "kind": "firstOf",
-                "label": "Fire again (3)",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the FLOWER"
+            "cards": []
           }
         ]
       },
       {
-        "id": "w-69",
+        "id": "w-51",
         "kind": "firstOf",
         "label": "Catch the spill (3)",
         "rows": [
@@ -1908,7 +1138,7 @@
         ]
       },
       {
-        "id": "w-76",
+        "id": "w-52",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -1925,7 +1155,7 @@
         ]
       },
       {
-        "id": "w-77",
+        "id": "w-53",
         "kind": "firstOf",
         "label": "Left CELL up (4) (2)",
         "rows": [
@@ -1942,7 +1172,7 @@
         ]
       },
       {
-        "id": "w-78",
+        "id": "w-54",
         "kind": "firstOf",
         "label": "Left CELL up (4) (3)",
         "rows": [
@@ -1959,7 +1189,7 @@
         ]
       },
       {
-        "id": "w-79",
+        "id": "w-55",
         "kind": "firstOf",
         "label": "Left CELL up (4) (4)",
         "rows": [
@@ -1976,7 +1206,7 @@
         ]
       },
       {
-        "id": "w-80",
+        "id": "w-56",
         "kind": "firstOf",
         "label": "Left CELL up (4) (5)",
         "rows": [
@@ -1993,7 +1223,7 @@
         ]
       },
       {
-        "id": "w-81",
+        "id": "w-57",
         "kind": "firstOf",
         "label": "Left CELL up (4) (6)",
         "rows": [
@@ -2010,7 +1240,7 @@
         ]
       },
       {
-        "id": "w-82",
+        "id": "w-58",
         "kind": "firstOf",
         "label": "Left CELL up (4) (7)",
         "rows": [
@@ -2027,7 +1257,7 @@
         ]
       },
       {
-        "id": "w-83",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Left CELL up (4) (8)",
         "rows": [
@@ -2044,7 +1274,7 @@
         ]
       },
       {
-        "id": "w-84",
+        "id": "w-60",
         "kind": "firstOf",
         "label": "Fire (4)",
         "rows": [
@@ -2062,7 +1292,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-85",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Did it tip? (4)",
         "rows": [
@@ -2070,78 +1300,16 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": [],
-            "label": "Yes: stay and catch"
+            "cards": []
           },
           {
             "afterMs": 1500,
-            "cards": [
-              {
-                "id": "p-70",
-                "kind": "path",
-                "lineId": "to-flower-l-turn-17",
-                "park": false
-              },
-              {
-                "id": "p-71",
-                "kind": "path",
-                "lineId": "to-flower-l-18",
-                "park": false
-              },
-              {
-                "id": "w-72",
-                "kind": "firstOf",
-                "label": "Collect at the FLOWER (4)",
-                "rows": [
-                  {
-                    "when": [
-                      "IntakeFull"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2300,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "p-73",
-                "kind": "path",
-                "lineId": "to-flower-l-back-home-l-19",
-                "park": false
-              },
-              {
-                "id": "p-74",
-                "kind": "path",
-                "lineId": "to-home-l-20",
-                "park": false
-              },
-              {
-                "id": "w-75",
-                "kind": "firstOf",
-                "label": "Fire again (4)",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ],
-                "alongside": "LaunchAll"
-              }
-            ],
-            "label": "No: fetch from the FLOWER"
+            "cards": []
           }
         ]
       },
       {
-        "id": "w-86",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Catch the spill (4)",
         "rows": [

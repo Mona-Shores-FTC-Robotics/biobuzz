@@ -346,17 +346,15 @@
     "exportName": "duo-lz-right",
     "registry": {
       "actions": [
-        "LaunchOne",
         "LaunchAll"
       ],
       "conditions": [
+        "Empty",
         "LeftCellUp",
         "IntakeFull",
-        "RightCellUp",
-        "Empty"
+        "RightCellUp"
       ],
       "typicalS": {
-        "LaunchOne": 0.5,
         "LaunchAll": 2.0
       },
       "events": []
@@ -415,22 +413,25 @@
     "startAt": "START",
     "cards": [
       {
-        "id": "a-1",
-        "kind": "action",
-        "name": "LaunchOne"
+        "id": "w-1",
+        "kind": "firstOf",
+        "label": "Fire all 4 preloads (TIP 1)",
+        "rows": [
+          {
+            "when": [
+              "Empty"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 4000,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
       },
       {
-        "id": "a-2",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-3",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "w-4",
+        "id": "w-2",
         "kind": "firstOf",
         "label": "Tip 1",
         "rows": [
@@ -447,7 +448,7 @@
         ]
       },
       {
-        "id": "w-5",
+        "id": "w-3",
         "kind": "firstOf",
         "label": "Spill rolls in",
         "rows": [
@@ -464,7 +465,7 @@
         ]
       },
       {
-        "id": "w-6",
+        "id": "w-4",
         "kind": "firstOf",
         "label": "Our CELL up",
         "rows": [
@@ -481,7 +482,7 @@
         ]
       },
       {
-        "id": "w-7",
+        "id": "w-5",
         "kind": "firstOf",
         "label": "Our CELL up (2)",
         "rows": [
@@ -498,7 +499,7 @@
         ]
       },
       {
-        "id": "w-8",
+        "id": "w-6",
         "kind": "firstOf",
         "label": "Our CELL up (3)",
         "rows": [
@@ -515,7 +516,7 @@
         ]
       },
       {
-        "id": "w-9",
+        "id": "w-7",
         "kind": "firstOf",
         "label": "Our CELL up (4)",
         "rows": [
@@ -532,7 +533,7 @@
         ]
       },
       {
-        "id": "w-10",
+        "id": "w-8",
         "kind": "firstOf",
         "label": "Our CELL up (5)",
         "rows": [
@@ -549,7 +550,7 @@
         ]
       },
       {
-        "id": "w-11",
+        "id": "w-9",
         "kind": "firstOf",
         "label": "Our CELL up (6)",
         "rows": [
@@ -566,7 +567,7 @@
         ]
       },
       {
-        "id": "w-12",
+        "id": "w-10",
         "kind": "firstOf",
         "label": "Our CELL up (7)",
         "rows": [
@@ -583,7 +584,7 @@
         ]
       },
       {
-        "id": "w-13",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "Our CELL up (8)",
         "rows": [
@@ -600,7 +601,7 @@
         ]
       },
       {
-        "id": "w-14",
+        "id": "w-12",
         "kind": "firstOf",
         "label": "Fire",
         "rows": [
@@ -618,19 +619,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-15",
+        "id": "p-13",
         "kind": "path",
         "lineId": "to-garden-in-1",
         "park": false
       },
       {
-        "id": "p-16",
+        "id": "p-14",
         "kind": "path",
         "lineId": "to-garden-2",
         "park": false
       },
       {
-        "id": "w-17",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Collect in the GARDEN",
         "rows": [
@@ -647,19 +648,19 @@
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-16",
         "kind": "path",
         "lineId": "to-slide-sl-3",
         "park": false
       },
       {
-        "id": "p-19",
+        "id": "p-17",
         "kind": "path",
         "lineId": "to-slide-sr-4",
         "park": false
       },
       {
-        "id": "w-20",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Sweep",
         "rows": [
@@ -676,7 +677,7 @@
         ]
       },
       {
-        "id": "w-21",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Fire until it tips (TIP 3)",
         "rows": [
@@ -694,7 +695,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-22",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Fire until it tips (2)",
         "rows": [
@@ -712,13 +713,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-23",
+        "id": "p-21",
         "kind": "path",
         "lineId": "to-home-r-5",
         "park": false
       },
       {
-        "id": "w-24",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Spill rolls in (2)",
         "rows": [
@@ -735,13 +736,13 @@
         ]
       },
       {
-        "id": "p-25",
+        "id": "p-23",
         "kind": "path",
         "lineId": "to-park-r-6",
         "park": false
       },
       {
-        "id": "w-26",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Left CELL up",
         "rows": [
@@ -758,7 +759,7 @@
         ]
       },
       {
-        "id": "w-27",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Left CELL up (2)",
         "rows": [
@@ -775,7 +776,7 @@
         ]
       },
       {
-        "id": "w-28",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "Left CELL up (3)",
         "rows": [
@@ -792,7 +793,7 @@
         ]
       },
       {
-        "id": "w-29",
+        "id": "w-27",
         "kind": "firstOf",
         "label": "Left CELL up (4)",
         "rows": [
@@ -809,7 +810,7 @@
         ]
       },
       {
-        "id": "w-30",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "Left CELL up (5)",
         "rows": [
@@ -826,7 +827,7 @@
         ]
       },
       {
-        "id": "w-31",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "Left CELL up (6)",
         "rows": [
@@ -843,7 +844,7 @@
         ]
       },
       {
-        "id": "w-32",
+        "id": "w-30",
         "kind": "firstOf",
         "label": "Left CELL up (7)",
         "rows": [
@@ -860,7 +861,7 @@
         ]
       },
       {
-        "id": "w-33",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "Left CELL up (8)",
         "rows": [
@@ -877,7 +878,7 @@
         ]
       },
       {
-        "id": "w-34",
+        "id": "w-32",
         "kind": "firstOf",
         "label": "Left CELL up (9)",
         "rows": [
@@ -894,7 +895,7 @@
         ]
       },
       {
-        "id": "w-35",
+        "id": "w-33",
         "kind": "firstOf",
         "label": "Left CELL up (10)",
         "rows": [
@@ -911,7 +912,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "Fire from the LOADING ZONE (TIP 4)",
         "rows": [
@@ -929,7 +930,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-37",
+        "id": "p-35",
         "kind": "path",
         "lineId": "to-park-r2-7",
         "park": true
