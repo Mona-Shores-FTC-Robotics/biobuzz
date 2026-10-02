@@ -89,6 +89,9 @@ public final class AutoSim {
     /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
     static final double MAX_SHOT_RANGE_IN = 60;
     static final double CAMERA_RANGE_IN = 60;
+    /** How long a reversed intake takes to set down each piece it holds (a guess; time one). */
+    static final double SET_DOWN_INTERVAL_S = 0.25;
+
     /** CollectSeen keeps within this far of where it started, so it does not wander off. */
     static final double COLLECT_RADIUS_IN = 36;
     /**
@@ -812,6 +815,7 @@ public final class AutoSim {
                     .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
+                    .command("SetDown", 1.5, this::setDown)
                     .trigger("IntakeFull", () -> design.countsPieces && body.stored.size() >= FieldSim.ROBOT_CAPACITY)
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
@@ -843,6 +847,29 @@ public final class AutoSim {
                     })
                     .setDone(() -> body.stored.isEmpty() || shotsFired >= shotTarget)
                     .setEnd(end -> firing = false);
+        }
+
+        /**
+         * Stages what the robot holds: the intake runs backwards and sets the pieces down in a row
+         * across its front, one per {@link #SET_DOWN_INTERVAL_S}, and stays off afterwards (the route
+         * turns it back on once clear, or it would take them straight back).
+         */
+        private Command setDown() {
+            final double[] next = new double[1];
+            final int[] slot = new int[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        intakeEnabled = false;
+                        next[0] = now;
+                        slot[0] = 0;
+                    })
+                    .setExecute(() -> {
+                        if (now + 1e-9 >= next[0] && sim.setDown(body, slot[0])) {
+                            slot[0]++;
+                            next[0] = now + SET_DOWN_INTERVAL_S;
+                        }
+                    })
+                    .setDone(() -> body.stored.isEmpty() && now + 1e-9 >= next[0]);
         }
 
         /**

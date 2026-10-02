@@ -597,6 +597,32 @@ final class FieldSim {
         if (i < spots.length) throw new IllegalStateException("no partner preloads left to stage");
     }
 
+    /**
+     * The robot runs its intake backwards and sets one held piece on the tiles, at rest,
+     * {@link #PLACEHOLDER_SET_DOWN_ROLL_IN} past its front edge: piece {@code slot} of a row of 4 across the front (slot 0 at the robot's left).
+     * Staging pieces for later frees the robot to collect 4 more (G407 counts only what it controls).
+     * Returns false if it holds none.
+     */
+    boolean setDown(Bot bot, int slot) {
+        if (bot.stored.isEmpty()) return false;
+        Piece p = bot.stored.remove(bot.stored.size() - 1);
+        double c = Math.cos(bot.h), s = Math.sin(bot.h);
+        double ahead = bot.design.frameIn / 2 + p.kind.radius + PLACEHOLDER_SET_DOWN_ROLL_IN;
+        double left = (1.5 - slot) * (2 * POLLEN_RADIUS_IN + 0.2);
+        p.where = Where.FIELD;
+        p.cell = null;
+        p.x = bot.x + ahead * c - left * s;
+        p.y = bot.y + ahead * s + left * c;
+        p.z = p.kind.radius;
+        p.vx = p.vy = p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        events.add("set down: " + name(p.kind) + " (" + bot.stored.size() + " held)");
+        return true;
+    }
+
+    /** How far a piece the intake sets down rolls clear of the robot's front, in (a guess; film one). */
+    static final double PLACEHOLDER_SET_DOWN_ROLL_IN = 1.5;
+
     /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
     static boolean underHive(double x, double y) {
         return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
