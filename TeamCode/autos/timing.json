@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "facts": {
+    "spinUpS": { "value": 0.1, "source": "sim", "note": "SpinUp only starts the launcher; the catapult's 0.8 s re-cock is in volleyS" },
+    "volleyS": { "value": 0.8, "source": "sim", "note": "catapult: 0.8 s re-cock, then all 4 at once (spring hood: about 2.0 + 1.35 s)" },
+    "tipStartS": { "value": 0.6, "source": "sim", "note": "flight about 0.5-0.7 s at 31-44 in, then the rocker starts to move" },
+    "tipSwingS": { "value": 0.7, "source": "sim", "note": "sim fitted to a 1.0 s TIP on the 3rd POLLEN; 4 POLLEN swing faster. Film one" },
+    "intakeFullS": { "value": 1.5, "source": "estimate", "note": "FLOWER about 1.5-2.0 s (0.5 s a piece); a spill trickles in, full by 2-5 s or not at all" },
+    "collectSeenS": { "value": 2.0, "source": "sim", "note": "the robot list's typical time" },
+    "setDownS": { "value": 1.0, "source": "sim", "note": "0.25 s a piece, a guess: time one" },
+    "tipLoad": { "value": 8, "source": "measured", "note": "FIRST Event Field Setup Guide 12.3: tips on 8 POLLEN" },
+    "startLoad": { "value": 5, "source": "measured", "note": "3 NECTAR in the raised CELL at the start: the 3rd POLLEN tips it" },
+    "volleyLoad": { "value": 4, "source": "estimate", "note": "4 POLLEN if every shot lands; lower it for misses" },
+    "driveSpeed": { "value": 1, "source": "estimate", "note": "1 = the paths' planned speed; 0.8 = the real robot is 20% slower" },
+    "launcherReadyS": { "value": 0.8, "source": "sim", "note": "catapult re-cock" }
+  }
+}
