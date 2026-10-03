@@ -26,9 +26,10 @@ import java.util.stream.Stream;
  * what goes back to a mentor or a student, however many runs it took to choose these. Opt in:
  *
  * <pre>
- * BIOBUZZ_REVIEW=2026-10-01b ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i
+ * BIOBUZZ_REVIEW=2026-10-03 ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i
  * </pre>
- * Writes {@code sim-review/<name>/} at the repository root. Every log is checked against
+ * Writes {@code sim-review/<name>/} at the repository root (git ignores it: build it on your own
+ * laptop, or share it as a zip, rather than committing logs). Every log is checked against
  * {@code sim-review/advantagescope-layout.json}, so Import Layout always finds its keys.
  * To change what is in the set, edit {@link #RUNS}.
  */
@@ -53,12 +54,10 @@ public class ReviewPackageTest {
     }
 
     // An intake the frame's width (mentor decision, 1 Oct 2026): a 24 in catcher can't use the tunnel.
-    static final String CATAPULT = "clump catapult 72 deg, full-width intake";
     static final String TWIN = "two spring hoods, full-width intake";
 
     static final String TRIANGLE = "clump catapult 72 deg, triangle cup, full-width intake";
 
-    static final String TWIN_BACK = TWIN + ", intake at back", TWIN_TURRET = TWIN + ", turret";
 
     /**
      * The sections of the set: the top folder of each run, and its heading in the README. What the
@@ -70,7 +69,7 @@ public class ReviewPackageTest {
             {"2-partner-fires-preloads", "The partner fires one volley of preloads, then parks",
                     "The most common partner in qualifications. `partner-starts-left` fires into the left CELL once our TIP 1 raises it; `partner-starts-right` fires at the start (TIP 1 is theirs), or holds its volley for later."},
             {"3-choreography", "Choreography: two robots that both run our Autos",
-                    "Playoffs with a capable partner, or our two sister robots."},
+                    "Our two sister robots (or a playoff partner running our Autos), each at its own end of the HIVE."},
     };
 
     /**
@@ -81,40 +80,28 @@ public class ReviewPackageTest {
     static final Run[] RUNS = {
             // 1. The partner doesn't shoot: it stages its preloads for us and parks.
             new Run("1-partner-stages-preloads/staged-three-tip",
-                    "The partner sets its 4 preloads in a row at its side and drives straight to park. We fire ours (TIP 1), go through the tunnel, pick up the row with the webcam, fire, then the far FLOWER for TIP 2; the GARDEN for TIP 3; park. 3 TIPs in 17 of 20 seeds.",
+                    "The partner sets its 4 preloads in a row at its side and parks. We fire ours (TIP 1), go through the tunnel, pick up the row with the webcam, fire, the far FLOWER for TIP 2, the GARDEN for TIP 3, park. 71 points on average, 3 TIPs in 15 of 20 runs (3 of 20 on slow tiles).",
                     "StagedThreeTipAuto,PartnerLeaveParkAuto@50", TWIN, "spring hood", 40, 3),
-            new Run("1-partner-stages-preloads/solo-tunnel",
-                    "The same partner with solo-tunnel: catches the TIP 1 spill, drives up the row intake first, fires, TIP 2 at about 17 s, and parks from the left through a tight gap. No time for TIP 3.",
-                    "SoloTunnelAuto,PartnerLeaveParkAuto@50", CATAPULT, "spring hood", 40, 2),
             // 2. The partner fires one volley.
-            new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel",
-                    "solo-tunnel: fires all 4, catches each spill, drives under the HIVE both ways, the GARDEN for TIP 3, parks. 3 TIPs in 4 of 10 seeds with this robot (the rest stop at 2).",
-                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 3),
-            new Run("2-partner-fires-preloads/partner-starts-left/solo-tunnel-catapult",
-                    "solo-tunnel with the triangle-cup catapult: 3 TIPs and both park in 7 of 10 seeds.",
-                    "SoloTunnelAuto,PartnerPreloadsParkAuto@50", TRIANGLE, "spring hood", 40, 1),
             new Run("2-partner-fires-preloads/partner-starts-left/three-tip-adaptive",
-                    "three-tip-adaptive (the legacy reference: FLOWERs, round the outside, angled shots): fires all 4 and leaves at once; 3 TIPs and park in 9 of 10 seeds, 76, its ceiling whatever the partner does.",
+                    "three-tip-adaptive: fires all 4, both FLOWERs and the GARDEN with angled shots, parks. The most robust Auto: 75 points, 3 TIPs in 19 of 20 runs on normal and slow tiles alike.",
                     "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50", TWIN, "spring hood", 40, 2),
-            new Run("2-partner-fires-preloads/partner-starts-right/flower-feed",
-                    "Fire and feed: the partner makes TIP 1; we wait at the far FLOWER, lined up angled with the intake at the back, and fire our 4 while the FLOWER's 4 feed in behind them. TIP 2 at 8 s, never more than 4 held. 3 TIPs in 3 of 10 seeds with an 18 in intake.",
-                    "FlowerFeedBackAuto,PartnerPreloadsRightAuto@50", TWIN_BACK, "spring hood", 40, 2),
-            new Run("2-partner-fires-preloads/partner-starts-right/left-tunnel-catapult",
-                    "The partner makes TIP 1; we start left, add our preloads and the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. 76 in 10 of 10 seeds.",
+            new Run("2-partner-fires-preloads/partner-starts-right/left-tunnel",
+                    "The partner makes TIP 1 from the right start; we start left, add our preloads and the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. 73 points (76 on slow tiles), 3 TIPs in 18 of 20.",
                     "LeftTunnelAuto,PartnerPreloadsRightAuto@50", TRIANGLE, "spring hood", 40, 1),
-            new Run("2-partner-fires-preloads/partner-holds-its-volley/four-tip-attempt",
-                    "Chasing 4 TIPs: the partner holds its preloads for TIP 3. With an 18 in intake it never gets past 2 TIPs: the TIP 1 catch comes up short and TIP 2 fails. Kept to show why.",
-                    "FourTipXAuto,PartnerPreloadsRightLateAuto@50", TWIN_TURRET, "spring hood", 40, 3),
-            // 3. Choreography.
-            new Run("3-choreography/stay-home/catapult-triangle",
-                    "lean-opp, catapult volleys only (triangle cup): each robot catches its own spill and fires it back; when a volley falls short the left robot gathers loose pieces with the webcam; both park. 3 TIPs in 5 of 10 seeds.",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TRIANGLE, null, Double.NaN, 2),
-            new Run("3-choreography/stay-home/two-spring-hoods-a-miss",
-                    "lean-opp with two spring hoods, in a run that goes wrong: no TIP 3 (6 of 10 seeds).",
-                    "LeanOppRightAuto,LeanOppLeftAuto@50", TWIN, null, Double.NaN, 1),
-            new Run("3-choreography/each-owns-an-end/duo-lz-4-tips",
-                    "duo-lz: each robot owns one end of the HIVE; 4 TIPs and both park (2 of 10 seeds with an 18 in intake; most stop at 2 TIPs).",
-                    "DuoLzRightAuto,DuoLzLeftAuto@50", TWIN, null, Double.NaN, 6),
+            // 3. Our two sister robots, each at its own end, recycling its CELL's spills (Family A).
+            new Run("3-choreography/sisters/recycle3",
+                    "recycle3: each robot catches its own CELL's spill and holds it for the CELL's next rise; the right uses the GARDEN, the left both FLOWERs. No park: a TIP (20) beats PARK (5). A typical run, 4 TIPs. 84 points on average (78 on slow tiles).",
+                    "Recycle3RightAuto,Recycle3LeftAuto@50", TRIANGLE, null, Double.NaN, 3),
+            new Run("3-choreography/sisters/recycle3-five-tips",
+                    "recycle3 in one of its 5-TIP runs (4 of 20): the fifth at 29.8 s.",
+                    "Recycle3RightAuto,Recycle3LeftAuto@50", TRIANGLE, null, Double.NaN, 4),
+            new Run("3-choreography/sisters/recycle4-staging",
+                    "recycle4: the right robot sets its catch down (reversed intake) and fetches the GARDEN while it waits, then fires twice when its CELL rises. 87 points on normal tiles, the best there, but 67 on slow ones.",
+                    "Recycle4RightAuto,Recycle4LeftAuto@50", TRIANGLE, null, Double.NaN, 3),
+            new Run("3-choreography/sisters/recycle5-shoots-both-ways",
+                    "recycle5: recycle4 with a launcher whose slats also throw straight back; the left robot throws the far FLOWER back from beside it, TIP 2 at 8.1 s. 82 points (75 on slow tiles).",
+                    "Recycle5RightAuto,Recycle5LeftAuto@50", TRIANGLE + ", shoots both ways", null, Double.NaN, 2),
     };
 
     @Test
@@ -230,7 +217,7 @@ public class ReviewPackageTest {
     @Test
     public void layoutKeysAreInTwoRobotLogs() throws Exception {
         File log = new File(TeamCodeDir.simLogs(), "layout-check.wpilog");
-        AutoStudyTest.run("DuoLzRightAuto,DuoLzLeftAuto@50", AutoStudyTest.designs().get(TWIN), null, Double.NaN, 1, log);
+        AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get(TRIANGLE), null, Double.NaN, 1, log);
         checkLayout(log);
     }
 }

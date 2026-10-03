@@ -1,0 +1,4 @@
+# recycle3: our two sister robots, each at its own end, recycling its CELL's spills (tools/auto-routes/recycle3.py).
+# One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner.
+auto-builder/recycle3-right.pp
+auto-builder/recycle3-left.pp

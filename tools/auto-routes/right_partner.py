@@ -11,7 +11,7 @@ Result (1 Oct 2026): no TIP 4. TIP 2 needs the far FLOWER (12-13 s), so TIP 3 la
 If the left CELL hasn't risen by 6 s, the partner missed: tunnel right and make TIP 1 ourselves."""
 import sys
 from helpers import *
-from partner_start import partner_right
+from partners import partner_right
 
 L_HOME, R_HOME = (59, 131.75, 270), (57.5, 10, 90)
 # The GARDEN rather than CollectSeen for TIP 3: the partner drove its park path through the TIP 1
@@ -21,7 +21,7 @@ GARDEN_FIRST = True
 
 def partner_right_sit(name="partner-preloads-right-sit"):
     """Fires its preloads from the right start and stays there, intake off."""
-    r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
+    r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/experiments")  # archived
     r.add(r.action("SpinUp"), r.action("IntakeOff"), fire(r, "Fire the preloads", "Empty", ms=4500))
     return r
 
@@ -97,10 +97,8 @@ def left_tunnel(name="left-tunnel", speed=50):
 
 if __name__ == "__main__":
     partner_right().write()
-    partner_right_sit().write()
     left_tunnel().write()
-    study("LeftTunnelAuto,PartnerPreloadsRightAuto@50;LeftTunnelAuto,PartnerPreloadsRightSitAuto@50;"
-          "LeftTunnelAuto,PartnerLeaveRightAuto@50",
+    study("LeftTunnelAuto,PartnerPreloadsRightAuto@50",
           runs=int(sys.argv[1]) if len(sys.argv) > 1 else 20,
           designs=sys.argv[2] if len(sys.argv) > 2 else "two spring hoods, full-width intake|clump catapult 72 deg, triangle cup, full-width intake",
           extra_env={"BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood"})

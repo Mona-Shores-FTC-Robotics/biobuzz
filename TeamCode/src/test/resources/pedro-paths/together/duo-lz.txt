@@ -1,4 +1,4 @@
 # duo-lz: split the HIVE; both finish parked in the LOADING ZONE, firing at the left CELL from there.
 # One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner.
-auto-builder/duo-lz-right.pp
-auto-builder/duo-lz-left.pp
+auto-builder/experiments/duo-lz-right.pp
+auto-builder/experiments/duo-lz-left.pp

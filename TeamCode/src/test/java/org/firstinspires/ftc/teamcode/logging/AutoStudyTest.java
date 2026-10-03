@@ -15,7 +15,7 @@ import java.util.Map;
  * alliance) with their drivetrain speed:
  *
  * <pre>
- * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoRightAuto,DuoLeftAuto@60" \
+ * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;Recycle3RightAuto,Recycle3LeftAuto@50" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.

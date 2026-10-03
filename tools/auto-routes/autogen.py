@@ -8,6 +8,9 @@ import json, math, os, subprocess, copy
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PP_DIR = f"{REPO}/TeamCode/src/test/resources/auto-builder"
+# Where a Route writes its .pp unless told otherwise; experiments/*.py set it to EXPERIMENTS.
+DEFAULT_FOLDER = PP_DIR
+EXPERIMENTS = PP_DIR + "/experiments"
 GEN_DIR = f"{REPO}/TeamCode/src/test/java/org/firstinspires/ftc/teamcode/opmodes/auto/generated"
 VIS = os.environ.get("AUTO_BUILDER_DIR", os.path.join(REPO, "..", "visualizer"))
 TEMPLATE = json.load(open(f"{PP_DIR}/spill-three-tip.pp"))
@@ -15,8 +18,8 @@ TYPICAL = {"LaunchOne": 0.5, "LaunchAll": 2.0, "ShootAll": 2.0, "CollectSeen": 2
            "IntakeOn": 0.1, "IntakeOff": 0.1}
 
 class Route:
-    def __init__(self, name, start, speed=50, folder=PP_DIR):
-        self.name, self.speed, self.folder = name, speed, folder
+    def __init__(self, name, start, speed=50, folder=None):
+        self.name, self.speed, self.folder = name, speed, folder or DEFAULT_FOLDER
         self.points = {"START": list(start)}
         self.at = "START"
         self.lines, self.cards, self.path_ends = [], [], {}

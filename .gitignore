@@ -79,3 +79,6 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+# Simulation review packages: built locally by ReviewPackageTest and shared as a zip, not committed
+# (the layout next to them is). The 1 Oct 2026 packages are in git history.
+/sim-review/*/

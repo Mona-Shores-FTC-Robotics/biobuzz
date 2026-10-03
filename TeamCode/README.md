@@ -1310,6 +1310,13 @@ needs no rotations.
 
 ### Simulating an Auto
 
+> **Where things stand (3 Oct 2026).** The Autos still worth running, what each needs and what it
+> scores are in `tools/auto-routes/README.md`; `ReviewPackageTest` builds them into a review package
+> to watch in AdvantageScope. Ideas that lost, and the study tests that ran them
+> (`AllianceAutoTest`, `BestAutosTest`, `DecisionStudyTest`, `RobustnessTest`, `SpillStudyTest`),
+> are archived: see `tools/auto-routes/experiments/README.md`. The sections below keep the history
+> of how we got here, so some of what they name is now only in git history.
+
 `AutoSimTest` runs every Auto the Auto Builder has exported (each class in
 `opmodes/auto/generated` with a `SOURCE`) against the same simulated field, for both alliances. It
 writes one log per run to `TeamCode/build/sim-logs/auto-<name>-<alliance>.wpilog`:

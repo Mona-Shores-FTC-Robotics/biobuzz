@@ -19,6 +19,18 @@ def preloads_park():
           r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # right first, clear of the far FLOWER
     return r
 
+def partner_right(name="partner-preloads-right"):
+    """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
+    ZONE like the other reference partners (mentor review), leaving the near end for us."""
+    r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
+    r.pt("PARK_P", 10.5, 110, 90)
+    # Intake off: it only fires its preloads, so it has no reason to sweep up the TIP 1 spill on its
+    # way to park (it used to, and left us nothing at the right end).
+    r.add(r.action("SpinUp"), r.action("IntakeOff"), fire(r, "Fire the preloads", "Empty", ms=4500),
+          r.go("PARK_P", ctrl=[(26, 20), (26, 100)], park=True))  # x 26: clear of the HIVE frame's foot bar
+    return r
+
+
 if __name__ == "__main__":
     leave_park().write(); preloads_park().write()
     specs = []
