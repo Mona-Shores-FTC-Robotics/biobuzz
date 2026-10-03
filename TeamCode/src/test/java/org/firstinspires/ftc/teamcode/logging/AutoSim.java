@@ -242,6 +242,15 @@ public final class AutoSim {
         return sim;
     }
 
+    /** Extra Metadata-tab entries for the log, such as the commit and .pp the Auto came from. */
+    private final java.util.Map<String, String> metadata = new java.util.LinkedHashMap<>();
+
+    /** Adds {@code name}: {@code value} to the log's Metadata tab, to say what this run simulated. */
+    AutoSim metadata(String name, String value) {
+        metadata.put(name, value);
+        return this;
+    }
+
     /** Called once a loop with the field and the time: for working out where pieces go. */
     java.util.function.BiConsumer<FieldSim, Double> observer;
     private double[] partnerPose;
@@ -399,6 +408,7 @@ public final class AutoSim {
         log.putMetadata("Note", "Simulated robot: Pedro paths on a trapezoid profile, intake on whenever there"
                 + " is room, launches aimed at the raised CELL");
         FieldSimLog.putMetadata(log, calibration);
+        for (java.util.Map.Entry<String, String> e : metadata.entrySet()) log.putMetadata(e.getKey(), e.getValue());
         FieldRobot.putViewingHint(log, robots, what);
         log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(red, 1), 0);
         FieldSimLog.putHiveStructure(log);
