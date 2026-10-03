@@ -5,10 +5,13 @@
 | What | Where |
 |---|---|
 | **Visualizer** (our Auto Builder fork of the Pedro Pathing Visualizer) | <https://mona-shores-ftc-robotics.github.io/Visualizer/> |
-| Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=<branch>/<file>.pp` (leave out `<branch>/` for `master`) |
+| Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/<file>.pp` |
 | Open a pair of Autos together | `https://mona-shores-ftc-robotics.github.io/Visualizer/#team=<branch>/<pair>`, e.g. [recycle3 on this branch](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle3) |
 | Links for every candidate Auto | [`tools/auto-routes/README.md`](tools/auto-routes/README.md#open-them-in-the-visualizer) |
 | The Visualizer's code and docs | [Mona-Shores-FTC-Robotics/Visualizer](https://github.com/Mona-Shores-FTC-Robotics/Visualizer), with the `.pp` Auto format and link formats in [`docs/auto-format.md`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/auto-format.md) |
+| Simulate Auto runs (GitHub Actions) | [Simulate Auto workflow](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml) |
+| Simulated results and `.wpilog` files | [`sim-results` branch](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/sim-results) |
+| Token for **Save to GitHub** | [New fine-grained token](https://github.com/settings/personal-access-tokens/new) (biobuzz only; Contents: read and write, Actions: read) |
 | AdvantageScope (desktop, **27.0.0-alpha-6 or later**) | <https://github.com/Mechanical-Advantage/AdvantageScope/releases> |
 | AdvantageScope layout for our sim logs | [`sim-review/advantagescope-layout.json`](sim-review/advantagescope-layout.json) |
 | Panels (the robot's dashboard, on the robot's Wi-Fi) | <http://192.168.43.1:8001> |
@@ -20,16 +23,19 @@
    the whole Autonomous: paths, actions, waits and decisions. **Preview as** plays it against the
    30 s budget. Save it as a `.pp` file.
 2. **Commit the `.pp` to `TeamCode/autos/`.** That file is the source of truth for the Auto.
+   The team's Autos and the simulator live on `claude/simulator`, not `master`: `master` holds
+   robot code only.
 3. **Export Auto (Java)** writes the class the robot runs (`opmodes/auto/generated/`). Never edit
-   that Java by hand: change the `.pp` and export again.
+   that Java by hand: change the `.pp` and export again. **Save to GitHub** (below) exports and
+   commits both for you.
 4. **Share it.** A `#gh=` link opens the `.pp` committed in this repo as a copy (the team's file
    never changes from the browser), with no login or download. A push shows up within about
    5 minutes. Click **Save as new file** in the banner to keep your own copy.
 
    | Link | Opens |
    |---|---|
-   | `…/Visualizer/#gh=recycle3-right.pp` | `master`'s latest |
-   | `…/Visualizer/#gh=claude/simulator/recycle3-right.pp` | a branch's latest (this branch, here) |
+   | `…/Visualizer/#gh=claude/simulator/recycle3-right.pp` | a branch's latest, from `TeamCode/autos/` |
+   | `…/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/x.pp` | any `.pp` in the repo, by its whole path |
    | `…/Visualizer/#gh=a1b2c3d/recycle3-right.pp` | exactly that commit, forever |
 
    **Export → Share Link** makes a link with the whole project inside it instead (a snapshot, for
@@ -37,21 +43,43 @@
 5. **Watch robots together.** A `#team=` link opens up to 4 Autos at once in multi-path mode:
    `#team=<branch>/<pair>` for a pair named in `TeamCode/autos/pairs.json`, or
    `#team=<branch>/<a>.pp,<b>.pp` for any files. Or click **Team Autos** in the top bar, type a
-   branch, and pick a pair. **Reload latest** there fetches again after a push, and **Copy link**
+   branch (it starts on `claude/simulator`), and pick a pair. Each robot plays its own Auto's
+   preview, and the clock shows the longest. **Reload latest** there fetches again after a push, and **Copy link**
    shares the view.
 
 The address is case-sensitive: `/Visualizer/` with a capital V. `/visualizer/` is a 404.
 
-The Visualizer site is built by a GitHub Action in the fork
+The Visualizer site itself is built by a GitHub Action in the fork
 ([`pages.yml`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/.github/workflows/pages.yml)):
-every push to its `main` runs the tests and publishes to GitHub Pages. That Action only publishes
-the website. It does not run Autos or make logs.
+every push to its `main` runs the tests and publishes to GitHub Pages.
 
-## Watching a simulated Auto in AdvantageScope
+## Simulating an Auto and watching it in AdvantageScope
 
 The Visualizer shows where an Auto's robot drives. To see whether the plan scores (pieces flying,
 the HIVE tipping, both alliances), run the Auto through the simulator, which writes a `.wpilog`.
-Today you do that on your laptop with Gradle; no GitHub Action builds the logs.
+
+### From the Visualizer, with GitHub Actions (no laptop setup)
+
+1. Open the Auto from a `#gh=claude/simulator/…` link (so the Visualizer knows where it came
+   from), and change it.
+2. Press **Save to GitHub** (the cloud button) and pick the partner Auto, robot designs and seeds.
+   The first time, it asks for a fine-grained token (link above); the token stays in your browser.
+3. One commit on the branch carries the `.pp`, its exported Java and `TeamCode/sim-request.json`.
+   That push starts the [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
+   workflow, which runs `SimRunTest`.
+4. The dialog follows the run and shows every seed: points, TIP times, LEAVE/PARK and problems.
+   **Download WPILOG** gets the median seed's log. The run's page on GitHub has the same table.
+5. Results land on the [`sim-results`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/sim-results)
+   branch as `<auto>/<commit>/result.json` and `<auto>-<commit7>-seed-<n>.wpilog`, with
+   `<auto>/latest.json` for the newest. That branch is rewritten each run and keeps the newest 40,
+   so download a log you want to keep.
+
+Without a token you can still see an Auto's last result and download its log. Every simulated log
+says what made it on AdvantageScope's Metadata tab (`SourceCommit`, `SourcePath`, `SimSpec`,
+`SimDesign`, `SimSeed`, `SimRun`). More detail is in
+[`TeamCode/README.md` § "Simulating from the Visualizer"](TeamCode/README.md#simulating-from-the-visualizer-save-to-github).
+
+### On your laptop, with Gradle
 
 | Want | Run | Log lands in |
 |---|---|---|
@@ -62,7 +90,9 @@ Today you do that on your laptop with Gradle; no GitHub Action builds the logs.
 On Windows PowerShell use `.\gradlew.bat`, and set the variable first:
 `$env:BIOBUZZ_REVIEW = "2026-10-03"`. The date is just the folder name; use today's.
 
-Then, in desktop AdvantageScope:
+### Opening a log in AdvantageScope
+
+In desktop AdvantageScope:
 
 1. **File → Open Log** and pick the `.wpilog`.
 2. **File → Import Layout** with `sim-review/advantagescope-layout.json`. It sets up the 3D field,
