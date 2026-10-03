@@ -165,11 +165,17 @@ public class AutoStudyTest {
     /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
             throws Exception {
+        return run(spec, design, partnerDesign, partnerSpeed, seed, Alliance.RED, file);
+    }
+
+    /** As above, for {@code alliance} (the Autos are rotated when they were drawn for the other one). */
+    static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
+                              Alliance alliance, File file) throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         String[] autos = at[0].split(",");
         Class<?> first = Class.forName(PKG + autos[0]);
-        AutoSim sim = new AutoSim(first, Alliance.RED, seed).speed(speed, speed * 0.9).design(design);
+        AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
