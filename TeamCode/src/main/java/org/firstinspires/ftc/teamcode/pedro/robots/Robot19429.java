@@ -44,11 +44,10 @@ public final class Robot19429 {
     });
 
     /**
-     * Pinpoint Tuner output. <b>Placeholder:</b> zero offsets treat the pods as sitting on the
-     * tracking centre, which they don't, so heading changes corrupt the position estimate until
-     * the measured values are in.
+     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
+     * team it would be, and copied to both robot files so testing can start. Re-measure on this
+     * robot once the chassis are assigned to teams.
      */
-
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
         c.xPodOffset.set(-4.412711736724133);
