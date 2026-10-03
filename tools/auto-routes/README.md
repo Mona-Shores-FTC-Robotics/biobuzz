@@ -17,6 +17,12 @@ Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles wit
 | Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 73 / 76 | catapult, front intake |
 | Partner can't shoot, stages its preloads | (`.pp` only) | staged-three-tip | 71 / 59 | two spring hoods, webcam pickup |
 
+The simulated robots always know the HIVE's state: `LeftCellUp`, `RightCellUp` and `Tip` read the
+simulated HIVE directly, whichever way the robot faces. A real robot gets the same answers from the
+CELLs' AprilTags (`vision/HiveTracker`). Of the names these Autos use, the robot's `AutoRegistration`
+has only `Tip` so far: `LeftCellUp`, `RightCellUp`, `IntakeFull`, `Empty`, `SpinUp`, `LaunchAll`,
+`CollectSeen` and `SetDown` exist only in the simulator until they are built on the robot.
+
 ## Open them in the Visualizer
 
 Each link opens the latest pushed `.pp` from this branch in the Visualizer: no login, nothing to
