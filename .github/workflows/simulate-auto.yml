@@ -8,6 +8,7 @@ name: Simulate Auto
 #   <auto>/<commit>/result.json        every seed's points, TIPs, LEAVE/PARK, problems
 #   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
 #   <auto>/latest.json                 the newest result for that Auto
+#   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -112,6 +113,11 @@ jobs:
                   name = f"{auto}-{sha[:7]}-seed-{int(run['seed'])}.wpilog"
                   shutil.copy(os.path.join(sim, run["log"]), os.path.join(out, name))
                   result["logs"][str(int(run["seed"]))] = name
+          # Fixed names for the newest result, so a README can link a download that outlives the
+          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders).
+          for label, run in (("best", best), ("typical", typical)):
+              if run:
+                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(os.path.dirname(out), f"latest-{label}.wpilog"))
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
           open(os.path.join(os.path.dirname(out), "latest.json"), "w").write(text)
