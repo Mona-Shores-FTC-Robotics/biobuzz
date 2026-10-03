@@ -1,3 +1,75 @@
+# BIOBUZZ: Mona Shores FTC (teams 19429 & 20245)
+
+## Quick links
+
+| What | Where |
+|---|---|
+| **Visualizer** (our Auto Builder fork of the Pedro Pathing Visualizer) | <https://mona-shores-ftc-robotics.github.io/Visualizer/> |
+| Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=<file>.pp`, with links for each candidate in [`tools/auto-routes/README.md`](tools/auto-routes/README.md#open-them-in-the-visualizer) |
+| The Visualizer's code and docs | [Mona-Shores-FTC-Robotics/Visualizer](https://github.com/Mona-Shores-FTC-Robotics/Visualizer), with the `.pp` Auto format and link formats in [`docs/auto-format.md`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/auto-format.md) |
+| AdvantageScope (desktop, **27.0.0-alpha-6 or later**) | <https://github.com/Mechanical-Advantage/AdvantageScope/releases> |
+| AdvantageScope layout for our sim logs | [`sim-review/advantagescope-layout.json`](sim-review/advantagescope-layout.json) |
+| Panels (the robot's dashboard, on the robot's Wi-Fi) | <http://192.168.43.1:8001> |
+| CI runs and APKs | [Actions](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions) |
+
+## How the Visualizer fits in
+
+1. **Draw an Auto in the Visualizer.** The **Auto** button in the top bar turns the Path List into
+   the whole Autonomous: paths, actions, waits and decisions. **Preview as** plays it against the
+   30 s budget. Save it as a `.pp` file.
+2. **Commit the `.pp` to `TeamCode/autos/`.** That file is the source of truth for the Auto.
+3. **Export Auto (Java)** writes the class the robot runs (`opmodes/auto/generated/`). Never edit
+   that Java by hand: change the `.pp` and export again.
+4. **Share it.** A `#gh=` link opens the `.pp` committed in this repo as a copy (the team's file never changes from the browser), with no login or
+   download. A push shows up within about 5 minutes. Click **Save as new file** in the banner to
+   keep your own copy.
+
+   | Link | Opens |
+   |---|---|
+   | `…/Visualizer/#gh=recycle3-right.pp` | `master`'s latest |
+   | `…/Visualizer/#gh=claude/simulator/recycle3-right.pp` | a branch's latest (this branch, here) |
+   | `…/Visualizer/#gh=a1b2c3d/recycle3-right.pp` | exactly that commit, forever |
+
+   **Export → Share Link** makes a link with the whole project inside it instead (a snapshot, for
+   issues and PRs).
+5. **Watch two robots together:** open each link, click **Save as new file**, then **Manage
+   Multiple Paths Visualization** in the top bar, tick both and Apply (up to 4 files).
+
+The Visualizer site is built by a GitHub Action in the fork
+([`pages.yml`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/.github/workflows/pages.yml)):
+every push to its `main` runs the tests and publishes to GitHub Pages. That Action only publishes
+the website. It does not run Autos or make logs.
+
+## Watching a simulated Auto in AdvantageScope
+
+The Visualizer shows where an Auto's robot drives. To see whether the plan scores (pieces flying,
+the HIVE tipping, both alliances), run the Auto through the simulator, which writes a `.wpilog`.
+Today you do that on your laptop with Gradle; no GitHub Action builds the logs.
+
+| Want | Run | Log lands in |
+|---|---|---|
+| A review set: the candidate Autos, one folder each, `.wpilog` + `.pp` + a README of what to watch | `BIOBUZZ_REVIEW=2026-10-03 ./gradlew :TeamCode:testDebugUnitTest --tests '*ReviewPackageTest*' -i` | `sim-review/2026-10-03/` |
+| Every exported Auto, both alliances | `./gradlew :TeamCode:testDebugUnitTest --tests '*AutoSimTest*'` | `TeamCode/build/sim-logs/auto-<name>-<alliance>.wpilog` |
+| Just the paths of two Autos, timed as the Visualizer times them | `./gradlew :TeamCode:testDebugUnitTest --tests '*VisualizerPathLogTest*'` | `TeamCode/build/sim-logs/pedro-paths/together/<name>.wpilog` |
+
+On Windows PowerShell use `.\gradlew.bat`, and set the variable first:
+`$env:BIOBUZZ_REVIEW = "2026-10-03"`. The date is just the folder name; use today's.
+
+Then, in desktop AdvantageScope:
+
+1. **File → Open Log** and pick the `.wpilog`.
+2. **File → Import Layout** with `sim-review/advantagescope-layout.json`. It sets up the 3D field,
+   the robots and the game pieces.
+3. AUTO starts 10 s into each log. `/Match/Clock` shows match time.
+
+For the moving HIVE, do the one-time HIVE asset setup in
+[`TeamCode/README.md` § "Game pieces and the HIVE in a simulated `.wpilog`"](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).
+The same section and "Simulating an Auto" explain what is real and what is simulated.
+
+A robot's own match log (one `.wpilog` per match, written by `RobotOpMode`) opens the same way.
+
+---
+
 ## NOTICE
 
 This repository contains the public FTC SDK for the DECODE (2025-2026) competition season.
