@@ -1,9 +1,9 @@
 {
-  "pp": "TeamCode/autos/recycle5-right.pp",
-  "spec": "Recycle5RightAuto,Recycle5LeftAuto@50",
-  "design": "clump catapult 72 deg, triangle cup, full-width intake, shoots both ways",
-  "partnerDesign": null,
-  "partnerSpeed": null,
+  "pp": "TeamCode/autos/three-tip-adaptive.pp",
+  "spec": "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
+  "design": "two spring hoods, full-width intake",
+  "partnerDesign": "spring hood",
+  "partnerSpeed": 40.0,
   "seeds": [
     1,
     2,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "recycle5-right.pp",
+    "AutoSource": "three-tip-adaptive.pp",
     "SavedBy": "README showcase"
   }
 }
