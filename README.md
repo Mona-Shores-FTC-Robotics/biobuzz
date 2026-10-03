@@ -7,7 +7,7 @@
 | **Visualizer** (our Auto Builder fork of the Pedro Pathing Visualizer) | <https://mona-shores-ftc-robotics.github.io/Visualizer/> |
 | Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/<file>.pp` |
 | Open a pair of Autos together | `https://mona-shores-ftc-robotics.github.io/Visualizer/#team=<branch>/<pair>`, e.g. [recycle3 on this branch](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle3) |
-| Links for every candidate Auto | [`tools/auto-routes/README.md`](tools/auto-routes/README.md#open-them-in-the-visualizer) |
+| Our best Autos, with Visualizer links and WPILOG downloads | [Our best Autos](#our-best-autos) below |
 | The Visualizer's code and docs | [Mona-Shores-FTC-Robotics/Visualizer](https://github.com/Mona-Shores-FTC-Robotics/Visualizer), with the `.pp` Auto format and link formats in [`docs/auto-format.md`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/auto-format.md) |
 | Simulate Auto runs (GitHub Actions) | [Simulate Auto workflow](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml) |
 | Simulated results and `.wpilog` files | [`sim-results` branch](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/sim-results) |
@@ -16,6 +16,32 @@
 | AdvantageScope layout for our sim logs | [`sim-review/advantagescope-layout.json`](sim-review/advantagescope-layout.json) |
 | Panels (the robot's dashboard, on the robot's Wi-Fi) | <http://192.168.43.1:8001> |
 | CI runs and APKs | [Actions](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions) |
+
+## Our best Autos
+
+The candidates, best first, as of 3 Oct 2026. Points are the alliance's average AUTO points over 20
+simulated runs, on normal tiles / tiles with 3× the friction. Each one is the pair of Autos that
+run together: our robot and the other robot on our alliance.
+
+- **Together** opens both robots at once in the Visualizer and plays them. **Ours** / **Other** open
+  one robot's Auto on its own. Nothing to log in to or install.
+- **Best** and **Typical** download the simulated match as a `.wpilog` for AdvantageScope: the
+  highest-scoring of the 20 runs, and the median one. See [Opening a log in AdvantageScope](#opening-a-log-in-advantagescope).
+  They are the newest simulation of that Auto, so they change when someone re-simulates it.
+
+| Auto | Match | What it does | Points | Visualizer | WPILOG | Robot needs |
+|---|---|---|---|---|---|---|
+| **recycle5** | Our two sister robots | Each robot catches its own CELL's spill and refires it when the CELL rises; the left robot also throws straight back. | 85 / 75 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle5) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-right.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-left.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle5-right/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle5-right/latest-typical.wpilog) | catapult (triangle cup), 18 in intake, set-down, slats that throw both ways |
+| **recycle3** | Our two sister robots | Each robot catches its own CELL's spill and holds it for the CELL's next rise. Often 4 TIPs, sometimes 5. | 83 / 76 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle3) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle3-right/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle3-right/latest-typical.wpilog) | catapult (triangle cup), 18 in intake, piece counter, webcam pickup |
+| **recycle4** | Our two sister robots | recycle3, and the right robot sets its catch down and fetches the GARDEN while it waits. | 82 / 64 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle4) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-right.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-left.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle4-right/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle4-right/latest-typical.wpilog) | recycle3, and an intake that runs backwards |
+| **three-tip-adaptive** | Partner fires its preloads | Fires all 4, both FLOWERs and the GARDEN with angled shots, parks. The most robust: 3 TIPs in 19 of 20. | 75 / 75 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/three-tip-adaptive) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/three-tip-adaptive.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/three-tip-adaptive/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/three-tip-adaptive/latest-typical.wpilog) | two spring hoods, front intake |
+| **left-tunnel** | Partner fires from the right start | Partner makes TIP 1; we add the far FLOWER for TIP 2, tunnel right, the GARDEN for TIP 3, park. | 73 / 76 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/left-tunnel) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/left-tunnel.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/left-tunnel/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/left-tunnel/latest-typical.wpilog) | catapult, front intake |
+| **staged-three-tip** | Partner can't shoot | Partner lines its preloads up for us; we fire, tunnel, pick up the row with the webcam, 3 TIPs, park. | 71 / 59 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/staged-three-tip) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/staged-three-tip.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/staged-three-tip/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/staged-three-tip/latest-typical.wpilog) | two spring hoods, webcam pickup |
+| **solo-tunnel** | Partner fires its preloads | Our robot working the HIVE alone, written for qualification matches. | 69 / 74 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/solo-tunnel) · [Ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/solo-tunnel.pp) · [Other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) | [Best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/solo-tunnel/latest-best.wpilog) · [Typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/solo-tunnel/latest-typical.wpilog) | two spring hoods, front intake |
+
+Every score is from the simulator, not a robot: the simulated robots always know the HIVE's state,
+and most of the commands these Autos use exist only in the simulator so far. Scripts, scores and
+the ideas that lost are in [`tools/auto-routes/README.md`](tools/auto-routes/README.md).
 
 ## How the Visualizer fits in
 
@@ -68,11 +94,12 @@ the HIVE tipping, both alliances), run the Auto through the simulator, which wri
    That push starts the [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
    workflow, which runs `SimRunTest`.
 4. The dialog follows the run and shows every seed: points, TIP times, LEAVE/PARK and problems.
-   **Download WPILOG** gets the median seed's log. The run's page on GitHub has the same table.
+   **Download WPILOG** gets the best or the median seed's log. The run's page on GitHub has the same table.
 5. Results land on the [`sim-results`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/tree/sim-results)
    branch as `<auto>/<commit>/result.json` and `<auto>-<commit7>-seed-<n>.wpilog`, with
-   `<auto>/latest.json` for the newest. That branch is rewritten each run and keeps the newest 40,
-   so download a log you want to keep.
+   `<auto>/latest.json` for the newest. `<auto>/latest-best.wpilog` and `latest-typical.wpilog`
+   are the newest run's logs at names that never change (the table above links them). Older runs:
+   the branch is rewritten each time and keeps the newest 40, so download a log you want to keep.
 
 Without a token you can still see an Auto's last result and download its log. Every simulated log
 says what made it on AdvantageScope's Metadata tab (`SourceCommit`, `SourcePath`, `SimSpec`,

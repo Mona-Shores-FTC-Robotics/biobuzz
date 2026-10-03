@@ -6,8 +6,9 @@ name: Simulate Auto
 # the Visualizer reads it back:
 #
 #   <auto>/<commit>/result.json        every seed's points, TIPs, LEAVE/PARK, problems
-#   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the median seed, for AdvantageScope
+#   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
 #   <auto>/latest.json                 the newest result for that Auto
+#   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -92,18 +93,31 @@ jobs:
           # The median run by points, the earlier seed on a tie: the Visualizer's "typical" seed.
           ordered = sorted(runs, key=lambda r: (r["points"], r["seed"]))
           typical = ordered[(len(ordered) - 1) // 2] if ordered else None
+          # The best run: most points, then the earliest last TIP, then the lower seed.
+          def last_tip(r):
+              counted = r["tipsAt"][: int(r["autoTips"])]
+              return counted[-1] if counted else float("inf")
+          best = min(runs, key=lambda r: (-r["points"], last_tip(r), r["seed"])) if runs else None
           request = json.load(open(os.path.join(sim, "request.json")))
           result.update({
               "auto": auto, "commit": sha, "branch": os.environ["GITHUB_REF_NAME"], "pp": request.get("pp"),
               "runUrl": run_url, "finishedAt": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              "request": request, "typicalSeed": typical["seed"] if typical else None, "logs": {},
+              "request": request, "typicalSeed": typical["seed"] if typical else None,
+              "bestSeed": best["seed"] if best else None, "logs": {},
           })
           out = os.path.join(os.environ["RUNNER_TEMP"], "publish", auto, sha)
           os.makedirs(out, exist_ok=True)
-          if typical:
-              name = f"{auto}-{sha[:7]}-seed-{int(typical['seed'])}.wpilog"
-              shutil.copy(os.path.join(sim, typical["log"]), os.path.join(out, name))
-              result["logs"][str(int(typical["seed"]))] = name
+          # The logs to watch: the best run and the typical one (one file when they are the same seed).
+          for run in (best, typical):
+              if run and str(int(run["seed"])) not in result["logs"]:
+                  name = f"{auto}-{sha[:7]}-seed-{int(run['seed'])}.wpilog"
+                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(out, name))
+                  result["logs"][str(int(run["seed"]))] = name
+          # Fixed names for the newest result, so a README can link a download that outlives the
+          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders).
+          for label, run in (("best", best), ("typical", typical)):
+              if run:
+                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(os.path.dirname(out), f"latest-{label}.wpilog"))
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
           open(os.path.join(os.path.dirname(out), "latest.json"), "w").write(text)
@@ -115,7 +129,7 @@ jobs:
               summary += ["| Seed | Points | TIPs at (s) | LEAVE / PARK |", "|---|---|---|---|"]
               for r in runs:
                   lp = " · ".join(f'{"yes" if x["leave"] else "no"} / {"yes" if x["park"] else "no"}' for x in r["robots"])
-                  star = " ★" if typical and r["seed"] == typical["seed"] else ""
+                  star = (" ▲ best" if best and r["seed"] == best["seed"] else "") + (" ★" if typical and r["seed"] == typical["seed"] else "")
                   summary.append(f'| {int(r["seed"])}{star} | {int(r["points"])} | {", ".join(f"{t:.1f}" for t in r["tipsAt"]) or "none"} | {lp} |')
           open(os.environ["GITHUB_STEP_SUMMARY"], "a").write("\n".join(summary) + "\n")
           EOF

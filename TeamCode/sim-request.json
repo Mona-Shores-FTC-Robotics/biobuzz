@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/untitled.pp",
-  "spec": "UntitledAuto@50",
-  "design": "two spring hoods, full-width intake",
+  "pp": "TeamCode/autos/recycle4-right.pp",
+  "spec": "Recycle4RightAuto,Recycle4LeftAuto@50",
+  "design": "clump catapult 72 deg, triangle cup, full-width intake",
   "partnerDesign": null,
   "partnerSpeed": null,
   "seeds": [
@@ -14,12 +14,21 @@
     7,
     8,
     9,
-    10
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "untitled.pp",
-    "SavedBy": "dustinhans",
-    "SavedAt": "2026-10-03T11:44:57.137Z"
+    "AutoSource": "recycle4-right.pp",
+    "SavedBy": "README showcase"
   }
 }

@@ -58,7 +58,9 @@ AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/recycle3.py
 Each script writes its `.pp` into `TeamCode/autos/`, exports the Java next to the other generated
 Autos (the simulator's, in `TeamCode/src/test/.../generated/`), and runs `AutoStudyTest`. The
 `.pp` files left in `src/test/resources/auto-builder/` are test fixtures. To watch the candidates, build the
-review package (`ReviewPackageTest`, see TeamCode/README.md) and open it in AdvantageScope.
+review package (`ReviewPackageTest`, see TeamCode/README.md) and open it in AdvantageScope. Or download each pair's
+simulated log from [the root README's table](../../README.md#our-best-autos), made by the Simulate Auto
+workflow.
 
 ## Experiments
 
