@@ -176,12 +176,18 @@ public class ReviewPackageTest {
     /** Copies the {@code .pp} an exported Auto was made from into {@code dir}. */
     static void copySource(String autoClass, File dir) throws Exception {
         String source = (String) Class.forName(AutoStudyTest.PKG + autoClass).getField("SOURCE").get(null);
+        // The team's Autos are in TeamCode/autos; test-only ones under the test resources.
+        File autos = new File(TeamCodeDir.get(), "autos");
         File builder = new File(TeamCodeDir.get(), "src/test/resources/auto-builder");
-        try (Stream<java.nio.file.Path> all = Files.walk(builder.toPath())) {
-            java.nio.file.Path pp = all.filter(p -> p.getFileName().toString().equals(source)).findFirst()
-                    .orElseThrow(() -> new AssertionError(autoClass + ": no " + source + " under " + builder));
-            Files.copy(pp, new File(dir, source).toPath(), StandardCopyOption.REPLACE_EXISTING);
+        File pp = new File(autos, source);
+        if (!pp.isFile()) {
+            try (Stream<java.nio.file.Path> all = Files.walk(builder.toPath())) {
+                pp = all.filter(p -> p.getFileName().toString().equals(source)).findFirst()
+                        .orElseThrow(() -> new AssertionError(autoClass + ": no " + source + " in " + autos + " or under " + builder))
+                        .toFile();
+            }
         }
+        Files.copy(pp.toPath(), new File(dir, source).toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
 
     /** Fails if the log lacks any key that the committed AdvantageScope layout draws. */

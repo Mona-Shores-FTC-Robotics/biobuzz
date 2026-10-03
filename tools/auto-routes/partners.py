@@ -5,13 +5,13 @@ def leave_park():
     """Leaves and parks, nothing more, but first sets its 4 preloads in a row along its field side
     for us to collect (AutoStudyTest.LEAVE_PARTNER_STAGED), so it drives straight off to park
     toward the far-left end of the LOADING ZONE, off the wall (mentor review)."""
-    r = Route("partner-leave-park", (24, 132.25, 270), speed=40, folder=PP_DIR + "/partners")
+    r = Route("partner-leave-park", (24, 132.25, 270), speed=40)
     r.pt("PARK_P", 10.5, 110, 270)
     r.add(r.go("PARK_P", ctrl=[(24, 118)], heading=270, park=True))
     return r
 
 def preloads_park():
-    r = Route("partner-preloads-park", (59, 132.25, 270), speed=40, folder=PP_DIR + "/partners")
+    r = Route("partner-preloads-park", (59, 132.25, 270), speed=40)
     r.pt("PARK_P", 10.5, 111, 270)  # the far-left end of the LOADING ZONE, off the wall
     r.add(r.action("SpinUp"),
           *waits(r, "Left CELL up", "LeftCellUp", 8.0),
@@ -22,7 +22,7 @@ def preloads_park():
 def partner_right(name="partner-preloads-right"):
     """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
     ZONE like the other reference partners (mentor review), leaving the near end for us."""
-    r = Route(name, (59, 9.5, 90), speed=40, folder=PP_DIR + "/partners")
+    r = Route(name, (59, 9.5, 90), speed=40)
     r.pt("PARK_P", 10.5, 110, 90)
     # Intake off: it only fires its preloads, so it has no reason to sweep up the TIP 1 spill on its
     # way to park (it used to, and left us nothing at the right end).

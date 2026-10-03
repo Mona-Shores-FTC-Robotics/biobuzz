@@ -1311,7 +1311,8 @@ needs no rotations.
 ### Simulating an Auto
 
 > **Where things stand (3 Oct 2026).** The Autos still worth running, what each needs and what it
-> scores are in `tools/auto-routes/README.md`; `ReviewPackageTest` builds them into a review package
+> scores are in `tools/auto-routes/README.md`, with a link that opens each one in the Visualizer;
+> their `.pp` files are in `TeamCode/autos/`. `ReviewPackageTest` builds them into a review package
 > to watch in AdvantageScope. Ideas that lost, and the study tests that ran them
 > (`AllianceAutoTest`, `BestAutosTest`, `DecisionStudyTest`, `RobustnessTest`, `SpillStudyTest`),
 > are archived: see `tools/auto-routes/experiments/README.md`. The sections below keep the history
@@ -1605,7 +1606,7 @@ let that volley run past the park deadline. Rows that park by an ordinary path, 
   so a robot can score its last volley already parked. Before its TIP 3 sweep the south robot
   collects the GARDEN (only 3 of its 4 POLLEN: the corner one is out of a 14 in intake's reach). Two
   launchers per robot is worth about 10 points.
-- **Real partners.** `src/test/resources/auto-builder/partners/` has a partner that only leaves and
+- **Real partners.** `TeamCode/autos/partner-*.pp` has a partner that only leaves and
   parks, and one that fires its preloads first. Both park at the north end of the LOADING ZONE,
   around (16, 122). Agree that with partners: the corridor between the west wall and the HIVE
   frame's foot is only 18–33 in wide for a robot's centre, so a partner parked at the south end of

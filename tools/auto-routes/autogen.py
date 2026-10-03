@@ -8,8 +8,10 @@ import json, math, os, subprocess, copy
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 PP_DIR = f"{REPO}/TeamCode/src/test/resources/auto-builder"
+# The team's Autos: one folder, the one the Visualizer opens from a link (#gh=<branch>/<file>.pp).
+AUTOS_DIR = f"{REPO}/TeamCode/autos"
 # Where a Route writes its .pp unless told otherwise; experiments/*.py set it to EXPERIMENTS.
-DEFAULT_FOLDER = PP_DIR
+DEFAULT_FOLDER = AUTOS_DIR
 EXPERIMENTS = PP_DIR + "/experiments"
 GEN_DIR = f"{REPO}/TeamCode/src/test/java/org/firstinspires/ftc/teamcode/opmodes/auto/generated"
 VIS = os.environ.get("AUTO_BUILDER_DIR", os.path.join(REPO, "..", "visualizer"))

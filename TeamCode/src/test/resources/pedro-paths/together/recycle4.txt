@@ -1,4 +1,4 @@
 # recycle4: our two sister robots, each at its own end, recycling its CELL's spills (tools/auto-routes/recycle4.py).
 # One .pp per line, relative to TeamCode/src/test/resources/: our robot first, then our partner.
-auto-builder/recycle4-right.pp
-auto-builder/recycle4-left.pp
+../../../autos/recycle4-right.pp
+../../../autos/recycle4-left.pp

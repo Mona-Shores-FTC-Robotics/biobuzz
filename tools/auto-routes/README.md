@@ -17,6 +17,26 @@ Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles wit
 | Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 73 / 76 | catapult, front intake |
 | Partner can't shoot, stages its preloads | (`.pp` only) | staged-three-tip | 71 / 59 | two spring hoods, webcam pickup |
 
+## Open them in the Visualizer
+
+Each link opens the latest pushed `.pp` from this branch in the Visualizer: no login, nothing to
+download. It opens as a copy (the team's file is never changed from the browser); to change an
+Auto, edit the `.pp` and push, or rerun its script. A push shows up within about 5 minutes. One
+link per robot: the sister Autos have one for each end.
+
+| Auto | Our robot | The other robot |
+|---|---|---|
+| recycle3 | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) |
+| recycle4 | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-left.pp) |
+| recycle5 | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-left.pp) |
+| three-tip-adaptive | [three-tip-adaptive](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/three-tip-adaptive.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
+| left-tunnel | [left-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/left-tunnel.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
+| staged-three-tip | [staged-three-tip](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/staged-three-tip.pp) | partner: [partner-leave-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) |
+| solo-tunnel | [solo-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/solo-tunnel.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
+
+The links read `TeamCode/autos/`, where the team's Autos live (as on `master`, #118). Once this
+branch is merged, drop `claude/simulator/` from them to open `master`'s.
+
 Also kept: `solo_tunnel.py` (solo-tunnel), `partners.py` (the reference partners every study runs
 against), `snapshots.py` (pictures of the field, from `SnapshotTest`), and `helpers.py`.
 
@@ -24,8 +44,9 @@ against), `snapshots.py` (pictures of the field, from `SnapshotTest`), and `help
 AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/recycle3.py
 ```
 
-Each script writes its `.pp` into `TeamCode/src/test/resources/auto-builder/`, exports the Java
-next to the other generated Autos, and runs `AutoStudyTest`. To watch the candidates, build the
+Each script writes its `.pp` into `TeamCode/autos/`, exports the Java next to the other generated
+Autos (the simulator's, in `TeamCode/src/test/.../generated/`), and runs `AutoStudyTest`. The
+`.pp` files left in `src/test/resources/auto-builder/` are test fixtures. To watch the candidates, build the
 review package (`ReviewPackageTest`, see TeamCode/README.md) and open it in AdvantageScope.
 
 ## Experiments
