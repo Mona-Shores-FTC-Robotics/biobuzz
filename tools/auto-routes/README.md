@@ -10,9 +10,9 @@ Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles wit
 
 | Match | Script | Auto | Points | Needs |
 |---|---|---|---|---|
-| Our two sister robots | `recycle3.py` | recycle3 | 84 / 78 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
-| Our two sister robots | `recycle4.py` | recycle4 | 87 / 67 | recycle3, and an intake that runs backwards to set pieces down |
-| Our two sister robots | `recycle5.py` | recycle5 | 82 / 75 | recycle4, and slats that let the launcher throw straight back |
+| Our two sister robots | `recycle3.py` | recycle3 | 83 / 76 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
+| Our two sister robots | `recycle4.py` | recycle4 | 82 / 64 | recycle3, and an intake that runs backwards to set pieces down |
+| Our two sister robots | `recycle5.py` | recycle5 | 85 / 75 | recycle4, and slats that let the launcher throw straight back |
 | Partner fires its preloads | `three_tip_adaptive.py` | three-tip-adaptive | 75 / 75 | two spring hoods, front intake |
 | Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 73 / 76 | catapult, front intake |
 | Partner can't shoot, stages its preloads | (`.pp` only) | staged-three-tip | 71 / 59 | two spring hoods, webcam pickup |
