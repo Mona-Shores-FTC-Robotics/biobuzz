@@ -6,6 +6,6 @@
     { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 75 / 75" },
     { "name": "left-tunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 73 / 76" },
     { "name": "staged-three-tip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 71 / 59" },
-    { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 69 / 74" }
+    { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 67" }
   ]
 }
