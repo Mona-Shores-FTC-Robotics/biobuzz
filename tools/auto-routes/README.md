@@ -41,8 +41,8 @@ then **Manage Multiple Paths Visualization**, tick both, Apply.)
 | staged-three-tip | [together](https://mona-shores-ftc-robotics.github.io/visualizer/#team=claude/simulator/staged-three-tip) | [staged-three-tip](https://mona-shores-ftc-robotics.github.io/visualizer/#gh=claude/simulator/staged-three-tip.pp) | partner: [partner-leave-park](https://mona-shores-ftc-robotics.github.io/visualizer/#gh=claude/simulator/partner-leave-park.pp) |
 | solo-tunnel | [together](https://mona-shores-ftc-robotics.github.io/visualizer/#team=claude/simulator/solo-tunnel) | [solo-tunnel](https://mona-shores-ftc-robotics.github.io/visualizer/#gh=claude/simulator/solo-tunnel.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
 
-The links read `TeamCode/autos/`, where the team's Autos live (as on `master`, #118). Once this
-branch is merged, replace `claude/simulator` with `master` in them.
+The links read `TeamCode/autos/` on `claude/simulator`. The simulator and these Autos stay on this
+branch, never `master`, so the links always name it.
 
 Also kept: `solo_tunnel.py` (solo-tunnel), `partners.py` (the reference partners every study runs
 against), `snapshots.py` (pictures of the field, from `SnapshotTest`), and `helpers.py`.
