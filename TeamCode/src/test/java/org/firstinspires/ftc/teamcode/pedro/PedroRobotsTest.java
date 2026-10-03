@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.pedro;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.junit.Test;
 
@@ -11,9 +12,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -22,12 +26,13 @@ import java.util.regex.Pattern;
  * <p>Two mistakes the compiler and {@link ConstantsTest} cannot see:
  *
  * <ol>
- *   <li><b>A pasted device-name line.</b> The Mecanum and Pinpoint Tuners emit
+ *   <li><b>A pasted device name that is not ours.</b> The Mecanum and Pinpoint Tuners emit
  *       {@code c.frontLeftName.set("frontLeft")} and {@code c.name.set("pinpoint")} with string
- *       literals. {@link RobotConstants} overwrites every name from {@code DeviceNames}, so such a
- *       line does nothing — but it reads as if that robot's names can differ, and the next person
- *       to "fix" a name will edit it there and wonder why nothing changed. Delete it after
- *       pasting.</li>
+ *       literals, and those lines may stay so a block can be pasted exactly as the tuner shows it.
+ *       {@link RobotConstants} overwrites every name from {@code DeviceNames} anyway. But a name
+ *       that <em>differs</em> from {@code DeviceNames} means the tuner was run with a mistyped
+ *       name field, so the file would claim a name the robot isn't using — and the numbers next
+ *       to it came from a run worth double-checking.</li>
  *   <li><b>A robot file nobody registered.</b> A file in {@code pedro/robots/} that no
  *       {@code Constants.ROBOTS} entry points at is tuning that is never used — most likely a
  *       copied file whose line was forgotten, or a line pointing at the file it was copied
@@ -37,29 +42,55 @@ import java.util.regex.Pattern;
 public class PedroRobotsTest {
 
     /**
-     * {@code .frontLeftName.set(}, {@code .name.set(} and the like. Comment lines are skipped, so
-     * the robot files' own javadoc can describe the lines it tells you to delete.
+     * {@code .frontLeftName.set("…")}, {@code .name.set("…")} and the like: a name field set to a
+     * string literal. Group 1 is the field, group 2 the literal. A name set from a
+     * {@code DeviceNames} constant is not a literal and is not matched.
      */
-    private static final Pattern NAME_LINE = Pattern.compile("\\.\\w*[Nn]ame\\s*\\.\\s*set\\s*\\(");
+    private static final Pattern NAME_LINE =
+            Pattern.compile("\\.(\\w*[Nn]ame)\\s*\\.\\s*set\\s*\\(\\s*\"([^\"]*)\"");
+
+    /** Each Pedro name field the tuners emit, and the {@code DeviceNames} value it must match. */
+    private static final Map<String, String> EXPECTED_NAMES = new HashMap<>();
+
+    static {
+        EXPECTED_NAMES.put("frontLeftName", DeviceNames.FRONT_LEFT);
+        EXPECTED_NAMES.put("frontRightName", DeviceNames.FRONT_RIGHT);
+        EXPECTED_NAMES.put("backLeftName", DeviceNames.BACK_LEFT);
+        EXPECTED_NAMES.put("backRightName", DeviceNames.BACK_RIGHT);
+        EXPECTED_NAMES.put("name", DeviceNames.PINPOINT);
+    }
 
     @Test
-    public void robotFilesDoNotSetDeviceNames() throws IOException {
+    public void pastedDeviceNamesMatchDeviceNames() throws IOException {
         List<String> offenders = new ArrayList<>();
         for (File file : robotFiles()) {
             List<String> lines = Files.readAllLines(file.toPath(), StandardCharsets.UTF_8);
             for (int i = 0; i < lines.size(); i++) {
                 String code = lines.get(i).trim();
-                boolean comment = code.startsWith("*") || code.startsWith("/*")
-                        || code.startsWith("//");
-                if (!comment && NAME_LINE.matcher(code).find()) {
-                    offenders.add(file.getName() + ":" + (i + 1) + "  " + lines.get(i).trim());
+                if (code.startsWith("*") || code.startsWith("/*") || code.startsWith("//")) {
+                    continue;
+                }
+                Matcher line = NAME_LINE.matcher(code);
+                while (line.find()) {
+                    String field = line.group(1);
+                    String expected = EXPECTED_NAMES.get(field);
+                    String where = file.getName() + ":" + (i + 1) + "  " + code;
+                    if (expected == null) {
+                        offenders.add(where + "\n      " + field + " is not a name this test"
+                                + " knows. Add it to EXPECTED_NAMES with its DeviceNames value.");
+                    } else if (!expected.equals(line.group(2))) {
+                        offenders.add(where + "\n      expected \"" + expected + "\", the name in"
+                                + " DeviceNames and on the robot.");
+                    }
                 }
             }
         }
         if (!offenders.isEmpty()) {
-            fail("Device names are shared by every robot and set in RobotConstants from"
-                    + " DeviceNames. Delete these lines — they came in with a tuner paste and are"
-                    + " overwritten anyway:\n  " + String.join("\n  ", offenders));
+            fail("A robot file names a device differently from DeviceNames. The robot uses the"
+                    + " DeviceNames name regardless (RobotConstants sets it), so a different name"
+                    + " here means the tuner was run with a mistyped name field. Fix the name to"
+                    + " match, and consider re-running that tuner:\n  "
+                    + String.join("\n  ", offenders));
         }
     }
 

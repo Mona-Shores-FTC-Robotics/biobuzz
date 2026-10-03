@@ -10,6 +10,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 import org.firstinspires.ftc.robotcore.external.navigation.Position;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
@@ -41,7 +42,8 @@ import java.util.Map;
  * <h2>Setup this depends on</h2>
  *
  * <ul>
- *   <li>Limelight configured in the hardware map under {@link #DEFAULT_DEVICE_NAME}.</li>
+ *   <li>Limelight configured in the hardware map under {@link DeviceNames#LIMELIGHT} — both
+ *       competition robots' {@code robot_*.xml} declare it.</li>
  *   <li>An AprilTag pipeline at {@link Tuning#pipelineIndex} with tag size set to
  *       {@link BiobuzzTags#TAG_SIZE_INCHES} — a wrong tag size scales every range
  *       by a constant and looks perfectly plausible.</li>
@@ -51,9 +53,6 @@ import java.util.Map;
  * </ul>
  */
 public class LimelightVisionSubsystem implements Subsystem {
-
-    /** Hardware map name this looks for. */
-    public static final String DEFAULT_DEVICE_NAME = "limelight";
 
     /** Live-tunable timing and pipeline settings. */
     @Configurable
@@ -105,7 +104,7 @@ public class LimelightVisionSubsystem implements Subsystem {
     private LLResult lastResult;
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap) {
-        this(hardwareMap, DEFAULT_DEVICE_NAME);
+        this(hardwareMap, DeviceNames.LIMELIGHT);
     }
 
     public LimelightVisionSubsystem(HardwareMap hardwareMap, String deviceName) {
@@ -129,6 +128,20 @@ public class LimelightVisionSubsystem implements Subsystem {
 
     /** Why the camera is unavailable, or null if it is available. */
     public String unavailableReason() { return unavailableReason; }
+
+    /**
+     * True if the camera has answered in the last 250 ms (the SDK's own threshold).
+     *
+     * <p>Not the same as {@link #isAvailable()}. The SDK builds a {@code Limelight3A}
+     * from the config file whether or not anything is plugged in, so with the
+     * bundled configs "available" only means "configured". An unplugged camera, or
+     * one at a different IP address than {@code robot_*.xml} says, is available and
+     * never connected. Only meaningful once {@link #initialize()} has started it.
+     */
+    public boolean isConnected() { return available && limelight.isConnected(); }
+
+    /** Where the SDK is talking to the camera, for diagnostics; null if unavailable. */
+    public String connectionInfo() { return available ? limelight.getConnectionInfo() : null; }
 
     public State state() { return state; }
 
@@ -386,8 +399,12 @@ public class LimelightVisionSubsystem implements Subsystem {
             display.status("Camera", Display.Level.FAULT, "UNAVAILABLE — " + unavailableReason);
             return;
         }
-        display.status("Camera", state == State.STREAMING ? Display.Level.OK : Display.Level.WARN,
-                state.toString());
+        if (state == State.STREAMING && !isConnected()) {
+            display.status("Camera", Display.Level.FAULT, "NO RESPONSE — plugged in? powered?");
+        } else {
+            display.status("Camera", state == State.STREAMING ? Display.Level.OK : Display.Level.WARN,
+                    state.toString());
+        }
         for (HiveCell cell : HiveCell.values()) {
             display.line(cell + ": " + state(cell) + (sees(cell) ? " · seen" : ""));
         }

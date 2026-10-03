@@ -411,6 +411,36 @@ devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
 `port="0" bus="1"` and behaved identically, which is why — the `port` difference
 was cosmetic. These files keep the two equal so the file cannot be misread.
 
+### The Limelight: an Ethernet device, not a hub device
+
+A Limelight 3A has no hub port. SDK 12 models it as an `<EthernetDevice>`
+(`BuiltInConfigurationType.ETHERNET_OVER_USB_DEVICE`), which
+`ReadXMLFileHandler.parseRobot` reads only as a **direct child of `<Robot>`**,
+beside `<LynxUsbDevice>`. `HardwareFactory.mapEthernetOverUsb` then builds the
+`Limelight3A` from two attributes: `name`, and `ipAddress`, where the RC sends
+its HTTP requests. `172.29.0.1` is the 3A's factory address on a Linux/Android
+USB-Ethernet link. `serialNumber` is only a hardware-map key: it has to start
+`EthernetOverUsb:` (the `Limelight3A` constructor stores it as an
+`EthernetOverUsbSerialNumber`), and nothing compares it with what is plugged in.
+
+So `DeviceNames.Kind` has a fourth value, `ETHERNET`, and `RobotConfigXmlTest`
+checks it in its own way: the element sits under `<Robot>`, `ipAddress` is a
+dotted IPv4 address no other Ethernet device uses, and `serialNumber` parses.
+No port range check (#64).
+
+**Consequence: a configured Limelight is always "found".** The SDK builds it from
+the file, so an unplugged camera, or one moved to a static IP that the file does
+not name, is in the hardware map and never answers. `LIMELIGHT NOT FOUND` now
+means the active config is wrong. A dead cable shows as **Link: NO RESPONSE** in
+every Vision OpMode, and as a FAULT on the Robot page.
+`LimelightVisionSubsystem.isConnected()` is the accessor (the SDK's own
+250 ms test).
+
+Rejected: `USB` or `PORTLESS` as the kind. The webcam is also portless, but it
+is a different element (`<Webcam>`) with a per-unit serial number, so one kind
+for both would mean "not on a hub", not "checked like this". The webcam is still
+on `DeviceNameLiteralTest`'s allowlist, waiting on its own decision.
+
 ### Risk: bundled configs depend on Sloth, not just the SDK
 
 **This is load-bearing and completely non-obvious.** Sloth reflectively
@@ -629,11 +659,12 @@ tuning, and that is the bug this layout exists to prevent.
 
 **Pasting a tuner's output.** Each tuner's generated block starts
 `public static <Type> <field> = ...`. Paste it over the field of the same name in
-**the file of the robot you ran the tuner on**, then delete any
-`c.…Name.set("…")` / `c.name.set("…")` lines it brought with it. Device names are
-the same on every robot and are set once, from `DeviceNames`, in
-`RobotConstants`; `PedroRobotsTest` fails the build if a name line is left in a
-robot file. The Foresight imports (`Controller`, `Matrix`, `Vector2D`) are already
+**the file of the robot you ran the tuner on**, **exactly as the tuner shows it**
+— name lines included, nothing to delete. Device names are the same on every
+robot and are set once, from `DeviceNames`, in `RobotConstants`, whatever the
+robot file says. `PedroRobotsTest` fails the build only if a pasted name
+*differs* from `DeviceNames`, which means the tuner was run with a mistyped name
+and its result should not be trusted. The Foresight imports (`Controller`, `Matrix`, `Vector2D`) are already
 in each robot file, so that paste compiles as-is.
 
 **Adding a robot with a drivetrain** (a test mule, a spare chassis) is the two
@@ -662,9 +693,12 @@ its message.
   running?" takes two files to answer.
 - *A method on `RobotIdentity` returning the configs.* Puts Pedro types into
   `hardware/`, which is deliberately free of them so it stays unit testable.
-- *Name lines kept per robot, as the tuners emit them.* Two copies of the same
-  five names, free to drift from each other and from the `res/xml` configs —
-  the exact thing `DeviceNames` exists to stop.
+- *Name lines banned from robot files* (what #89 first shipped). It made every
+  Mecanum and Pinpoint paste a two-step job — paste, then find and delete the
+  name lines — and a missed deletion turned CI red for no real reason. That is
+  the wrong trade on a robot at a meeting. Since #119 the lines may stay, and
+  the test checks them against `DeviceNames` instead of rejecting them, so the
+  drift the ban was meant to stop is still caught.
 
 ### Reaching AutoTune
 
@@ -703,6 +737,45 @@ The drivetrain and localizer configs are complete, so the Mecanum, Pinpoint and
 Foresight tuners all run today, as do the Tests procedure's localization,
 odometry, pose and driving tests. Only its hold, line and curve tests need a
 tuned Foresight, since only those build a `Follower`.
+
+### When the robot strafes in an arc: Drive Motor Check
+
+The Foresight Tuner's **Max Strafe Velocity** step sends full power straight
+left, robot-centric, with nothing correcting heading. So it shows the robot's own
+strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
+tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
+it is **field-centric** by default, so the Pinpoint heading quietly steers out
+the drift. To see what the tuner sees, open Basic Drive, press **B** for
+robot-centric, hold the **right bumper** (turbo) and push straight left.
+
+If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
+**the robot lifted**. It takes about 20 s:
+
+| Step | What it shows |
+|---|---|
+| Init: press A, then turn each wheel exactly one turn by hand | Encoder counts per turn. Their sizes should match (the sign can differ on reversed motors). One that differs has a **different gearbox**, the one fault the RPM steps cannot see: goBILDA's encoder sits before the gearbox |
+| Each wheel alone, full power | Its own top speed (motor-shaft RPM) and current |
+| All four: forward, strafe left, strafe right | The same Pedro `Mecanum` call the tuner makes, using this robot's motor directions |
+
+After each step it names any wheel that is off. Every wheel's RPM is also on
+Panels as `<wheel>_rpm`, so you can graph them.
+
+| It says | Measured | Likely cause |
+|---|---|---|
+| `SLOW_DRAG` | ≥5% slower **and** ≥1.25× the others' current | Something resists it: bearing, rubbing wheel, bent shaft |
+| `SLOW_WEAK` | ≥5% slower, normal current | Worn motor or gearbox. Swap it |
+| `WRONG_WAY` | Spins against its command | Direction in that robot's `pedro/robots` file, or motor wiring |
+| `NO_ENCODER` | ~0 RPM while commanded | Encoder cable unplugged. Driving is unaffected, but the wheel isn't measured |
+
+The thresholds, power and timings are `@Configurable` under `DriveMotorCheck` in
+Panels. **If every step comes back clean,** the cause is one a lifted robot can't
+show: mecanum rollers on the wrong corners (seen from above they should make an
+**X** pointing at the centre), weight balance front to back, or the floor.
+
+**Rejected: running it on the floor.** Loaded numbers would be closer to the real
+arc, but at full power the robot covers several feet per step. Lifted, a dragging
+wheel still draws more current and a weak motor still runs slower, and that is
+what separates the causes.
 
 ## The `shooter` package
 
@@ -985,7 +1058,10 @@ cannot be settled without hardware, and both are isolated to one place each:
 
 ### Setup this depends on
 
-- Limelight in the hardware map as `limelight`.
+- Limelight in the hardware map as `DeviceNames.LIMELIGHT` (`limelight`), which
+  both competition robots' `robot_*.xml` declare. See
+  [The Limelight: an Ethernet device](#the-limelight-an-ethernet-device-not-a-hub-device).
+  Check **Link: ok** before reading anything else.
 - An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
   range is off by a constant factor, with nothing about the output looking broken.
 - That pipeline emitting **full 3D pose**. Without it no sighting can be built at
@@ -2272,6 +2348,19 @@ Neither, as it turns out. **Panels already knows Pedro's coordinate frame.**
 `FieldPresets.PEDRO_PATHING` is one of its four built-in presets, next to the default FTC and Road
 Runner frames, so the conversion Pedro's helper would have done is done by a library we already
 have. `util/FieldView.java` sets that preset and draws the robot; it is about forty lines.
+
+> **Update, 28 Sep 2026 (#116).** `FieldView` now uses a copy of that preset, not the preset
+> itself. The built-in one centres on (72, 72), which assumes a 144 in field. Our field is 141.5 in
+> wall face to wall face, the same size the Visualizer uses, so the drawn robot sat 1.25 in off.
+> The copy keeps the rotation and flip and centres on `FieldFrame.FIELD_CENTRE_INCHES` (70.75).
+>
+> Rejected alternatives:
+> - Leaving the error in, because it is too small to see. A small disagreement between tools is
+>   exactly how last season's frame bugs started.
+> - Scaling the drawing so the whole field fits Panels' 144 in canvas. That changes what a
+>   position means; re-centring only moves the drawing.
+>
+> The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
 
 **The throttle is the part that will bite you.** `FieldManager.update()` sends only when
 `canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having

@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -176,6 +177,11 @@ public class ValidateHardware extends LinearOpMode {
                         "WRONG TYPE - is " + actualType + ", needs " + required.getSimpleName());
                 problems.add(expected.name + " is configured as " + actualType
                         + " but the code uses it as a " + required.getSimpleName() + ".");
+            } else if (expected.kind == DeviceNames.Kind.ETHERNET) {
+                // The SDK builds an Ethernet device from the config alone, so being here
+                // proves the config, not the cable.
+                data(expected.name, "configured - " + actualType + " (whether it answers: the"
+                        + " Link line in any Vision OpMode)");
             } else {
                 data(expected.name, "ok - " + actualType);
             }
@@ -213,6 +219,9 @@ public class ValidateHardware extends LinearOpMode {
                 return DcMotorEx.class;
             case SERVO:
                 return Servo.class;
+            case ETHERNET:
+                // The only Ethernet device SDK 12 builds (HardwareFactory.mapEthernetOverUsb).
+                return Limelight3A.class;
             default:
                 // I2C covers many unrelated driver classes; presence plus the
                 // reported concrete type is the useful signal, not an

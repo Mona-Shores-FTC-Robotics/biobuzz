@@ -40,12 +40,23 @@ final class VisionTelemetry {
     /**
      * The per-loop camera status header.
      *
+     * <p>"Link" is the first line to read: with the bundled configs the camera is always in the
+     * hardware map, so a dead USB cable shows up here and nowhere else.
+     *
      * <p>"3D poses missing" climbing while tags are plainly visible is the tell that the Limelight
      * pipeline is not emitting full 3D pose — no sighting can be built from a frame like that, so
      * every downstream reading stays empty and nothing else says why.
      */
     static void addStatusHeader(Telemetry telemetry, LimelightVisionSubsystem vision) {
         telemetry.addData("Camera", vision.isAvailable() ? vision.state() : "UNAVAILABLE");
+        if (vision.isAvailable()) {
+            // The config creates the camera whether or not one is plugged in, so "Camera" alone
+            // cannot tell an unplugged Limelight from a working one. This can.
+            telemetry.addData("Link", vision.isConnected()
+                    ? "ok"
+                    : "NO RESPONSE (" + vision.connectionInfo() + ") — plugged in? powered?"
+                            + " IP matches robot_*.xml?");
+        }
         telemetry.addData("Fresh frames", vision.freshResultCount());
         telemetry.addData("3D poses missing", vision.framesMissing3dPose());
         telemetry.addData("Update", "%.2f ms", vision.lastPeriodicMs());
