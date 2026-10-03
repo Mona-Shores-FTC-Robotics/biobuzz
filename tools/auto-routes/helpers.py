@@ -1,15 +1,11 @@
 from autogen import *
 
 
-def waits(r, label, cond, total_s, piece=1.0):
-    """Waits for cond in pieces of at most `piece` seconds, so the endgame guard can step in between."""
-    out, left, k = [], total_s, 1
-    while left > 0:
-        ms = min(piece, left) * 1000
-        out.append(r.wait(label if k == 1 else f"{label} ({k})", when=[cond], ms=ms))
-        left -= piece
-        k += 1
-    return out
+def waits(r, label, cond, total_s):
+    """One wait for cond, at most total_s. (Until 1 Oct 2026 this chained 1 s waits so the endgame guard
+    could step in between them; the guard now cuts a wait mid-way, so one card does.) Returns a list, so
+    callers can splat it."""
+    return [r.wait(label, when=[cond], ms=round(total_s * 1000))]
 
 def fire(r, label, until, ms=2000):
     return r.wait(label, when=[until], ms=ms, alongside="LaunchAll")

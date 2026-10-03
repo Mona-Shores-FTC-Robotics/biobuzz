@@ -204,132 +204,13 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 8000,
             "cards": []
           }
         ]
       },
       {
         "id": "w-3",
-        "kind": "firstOf",
-        "label": "Left CELL up (2)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-4",
-        "kind": "firstOf",
-        "label": "Left CELL up (3)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-5",
-        "kind": "firstOf",
-        "label": "Left CELL up (4)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-6",
-        "kind": "firstOf",
-        "label": "Left CELL up (5)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-7",
-        "kind": "firstOf",
-        "label": "Left CELL up (6)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-8",
-        "kind": "firstOf",
-        "label": "Left CELL up (7)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-9",
-        "kind": "firstOf",
-        "label": "Left CELL up (8)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-10",
         "kind": "firstOf",
         "label": "Fire the preloads",
         "rows": [
@@ -347,7 +228,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-11",
+        "id": "p-4",
         "kind": "path",
         "lineId": "to-park-p-1",
         "park": true

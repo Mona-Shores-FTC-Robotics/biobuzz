@@ -2056,234 +2056,13 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 14000,
             "cards": []
           }
         ]
       },
       {
         "id": "w-17",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (2)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-18",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (3)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-19",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (4)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-20",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (5)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-21",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (6)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-22",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (7)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-23",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (8)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-24",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (9)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-25",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (10)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-26",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (11)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-27",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (12)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-28",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (13)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-29",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (14)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-30",
         "kind": "firstOf",
         "label": "Fire what we carry (TIP 3)",
         "rows": [
@@ -2301,18 +2080,18 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "a-31",
+        "id": "a-18",
         "kind": "action",
         "name": "IntakeOn"
       },
       {
-        "id": "p-32",
+        "id": "p-19",
         "kind": "path",
         "lineId": "to-onto-8",
         "park": false
       },
       {
-        "id": "w-33",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Onto the row (TIP 3)",
         "rows": [
@@ -2329,13 +2108,13 @@
         ]
       },
       {
-        "id": "p-34",
+        "id": "p-21",
         "kind": "path",
         "lineId": "to-collect-9",
         "park": false
       },
       {
-        "id": "w-35",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "Pick up the row (TIP 3)",
         "rows": [
@@ -2352,7 +2131,7 @@
         ]
       },
       {
-        "id": "w-36",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Fire the row (TIP 3)",
         "rows": [
@@ -2370,13 +2149,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-37",
+        "id": "p-24",
         "kind": "path",
         "lineId": "to-catch-10",
         "park": false
       },
       {
-        "id": "w-66",
+        "id": "w-53",
         "kind": "firstOf",
         "label": "Tipped? (3)",
         "rows": [
@@ -2391,7 +2170,7 @@
             "afterMs": 800,
             "cards": [
               {
-                "id": "w-63",
+                "id": "w-50",
                 "kind": "firstOf",
                 "label": "Pick up what we see (3)",
                 "rows": [
@@ -2409,7 +2188,7 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "w-64",
+                "id": "w-51",
                 "kind": "firstOf",
                 "label": "Fire what we found (TIP 3)",
                 "rows": [
@@ -2427,7 +2206,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-65",
+                "id": "w-52",
                 "kind": "firstOf",
                 "label": "Tipped now? (3)",
                 "rows": [
@@ -2442,19 +2221,19 @@
                     "afterMs": 800,
                     "cards": [
                       {
-                        "id": "p-38",
+                        "id": "p-25",
                         "kind": "path",
                         "lineId": "to-sweep-0-11",
                         "park": false
                       },
                       {
-                        "id": "p-39",
+                        "id": "p-26",
                         "kind": "path",
                         "lineId": "to-sweep-1-12",
                         "park": false
                       },
                       {
-                        "id": "w-62",
+                        "id": "w-49",
                         "kind": "firstOf",
                         "label": "Sweep for more (3) (1)",
                         "rows": [
@@ -2464,13 +2243,13 @@
                             ],
                             "cards": [
                               {
-                                "id": "p-40",
+                                "id": "p-27",
                                 "kind": "path",
                                 "lineId": "to-catch-13",
                                 "park": false
                               },
                               {
-                                "id": "w-41",
+                                "id": "w-28",
                                 "kind": "firstOf",
                                 "label": "Fire again (TIP 3)",
                                 "rows": [
@@ -2494,13 +2273,13 @@
                             "afterMs": 350,
                             "cards": [
                               {
-                                "id": "p-42",
+                                "id": "p-29",
                                 "kind": "path",
                                 "lineId": "to-sweep-2-14",
                                 "park": false
                               },
                               {
-                                "id": "w-61",
+                                "id": "w-48",
                                 "kind": "firstOf",
                                 "label": "Sweep for more (3) (2)",
                                 "rows": [
@@ -2510,13 +2289,13 @@
                                     ],
                                     "cards": [
                                       {
-                                        "id": "p-43",
+                                        "id": "p-30",
                                         "kind": "path",
                                         "lineId": "to-catch-15",
                                         "park": false
                                       },
                                       {
-                                        "id": "w-44",
+                                        "id": "w-31",
                                         "kind": "firstOf",
                                         "label": "Fire again (TIP 3)",
                                         "rows": [
@@ -2540,13 +2319,13 @@
                                     "afterMs": 350,
                                     "cards": [
                                       {
-                                        "id": "p-45",
+                                        "id": "p-32",
                                         "kind": "path",
                                         "lineId": "to-sweep-3-16",
                                         "park": false
                                       },
                                       {
-                                        "id": "w-60",
+                                        "id": "w-47",
                                         "kind": "firstOf",
                                         "label": "Sweep for more (3) (3)",
                                         "rows": [
@@ -2556,13 +2335,13 @@
                                             ],
                                             "cards": [
                                               {
-                                                "id": "p-46",
+                                                "id": "p-33",
                                                 "kind": "path",
                                                 "lineId": "to-catch-17",
                                                 "park": false
                                               },
                                               {
-                                                "id": "w-47",
+                                                "id": "w-34",
                                                 "kind": "firstOf",
                                                 "label": "Fire again (TIP 3)",
                                                 "rows": [
@@ -2586,13 +2365,13 @@
                                             "afterMs": 350,
                                             "cards": [
                                               {
-                                                "id": "p-48",
+                                                "id": "p-35",
                                                 "kind": "path",
                                                 "lineId": "to-sweep-4-18",
                                                 "park": false
                                               },
                                               {
-                                                "id": "w-59",
+                                                "id": "w-46",
                                                 "kind": "firstOf",
                                                 "label": "Sweep for more (3) (4)",
                                                 "rows": [
@@ -2602,13 +2381,13 @@
                                                     ],
                                                     "cards": [
                                                       {
-                                                        "id": "p-49",
+                                                        "id": "p-36",
                                                         "kind": "path",
                                                         "lineId": "to-catch-19",
                                                         "park": false
                                                       },
                                                       {
-                                                        "id": "w-50",
+                                                        "id": "w-37",
                                                         "kind": "firstOf",
                                                         "label": "Fire again (TIP 3)",
                                                         "rows": [
@@ -2632,13 +2411,13 @@
                                                     "afterMs": 350,
                                                     "cards": [
                                                       {
-                                                        "id": "p-51",
+                                                        "id": "p-38",
                                                         "kind": "path",
                                                         "lineId": "to-sweep-5-20",
                                                         "park": false
                                                       },
                                                       {
-                                                        "id": "w-58",
+                                                        "id": "w-45",
                                                         "kind": "firstOf",
                                                         "label": "Sweep for more (3) (5)",
                                                         "rows": [
@@ -2648,13 +2427,13 @@
                                                             ],
                                                             "cards": [
                                                               {
-                                                                "id": "p-52",
+                                                                "id": "p-39",
                                                                 "kind": "path",
                                                                 "lineId": "to-catch-21",
                                                                 "park": false
                                                               },
                                                               {
-                                                                "id": "w-53",
+                                                                "id": "w-40",
                                                                 "kind": "firstOf",
                                                                 "label": "Fire again (TIP 3)",
                                                                 "rows": [
@@ -2678,13 +2457,13 @@
                                                             "afterMs": 350,
                                                             "cards": [
                                                               {
-                                                                "id": "p-54",
+                                                                "id": "p-41",
                                                                 "kind": "path",
                                                                 "lineId": "to-sweep-6-22",
                                                                 "park": false
                                                               },
                                                               {
-                                                                "id": "w-55",
+                                                                "id": "w-42",
                                                                 "kind": "firstOf",
                                                                 "label": "Sweep for more (3) (6)",
                                                                 "rows": [
@@ -2701,13 +2480,13 @@
                                                                 ]
                                                               },
                                                               {
-                                                                "id": "p-56",
+                                                                "id": "p-43",
                                                                 "kind": "path",
                                                                 "lineId": "to-catch-23",
                                                                 "park": false
                                                               },
                                                               {
-                                                                "id": "w-57",
+                                                                "id": "w-44",
                                                                 "kind": "firstOf",
                                                                 "label": "Fire again (TIP 3)",
                                                                 "rows": [
@@ -2760,7 +2539,7 @@
         ]
       },
       {
-        "id": "w-67",
+        "id": "w-54",
         "kind": "firstOf",
         "label": "TIP 3: catch the spill",
         "rows": [
@@ -2777,13 +2556,13 @@
         ]
       },
       {
-        "id": "p-68",
+        "id": "p-55",
         "kind": "path",
         "lineId": "to-wall-stage-24",
         "park": false
       },
       {
-        "id": "w-69",
+        "id": "w-56",
         "kind": "firstOf",
         "label": "Stage the catch (5)",
         "rows": [
@@ -2801,18 +2580,18 @@
         "alongside": "SetDown"
       },
       {
-        "id": "p-70",
+        "id": "p-57",
         "kind": "path",
         "lineId": "to-look5-25",
         "park": false
       },
       {
-        "id": "a-71",
+        "id": "a-58",
         "kind": "action",
         "name": "IntakeOn"
       },
       {
-        "id": "w-72",
+        "id": "w-59",
         "kind": "firstOf",
         "label": "Pick up the leftovers (5)",
         "rows": [
@@ -2830,13 +2609,13 @@
         "alongside": "CollectSeen"
       },
       {
-        "id": "p-73",
+        "id": "p-60",
         "kind": "path",
         "lineId": "to-hold5-26",
         "park": false
       },
       {
-        "id": "w-74",
+        "id": "w-61",
         "kind": "firstOf",
         "label": "Our CELL up (5)",
         "rows": [
@@ -2847,234 +2626,13 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 14000,
             "cards": []
           }
         ]
       },
       {
-        "id": "w-75",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (2)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-76",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (3)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-77",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (4)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-78",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (5)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-79",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (6)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-80",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (7)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-81",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (8)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-82",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (9)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-83",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (10)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-84",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (11)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-85",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (12)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-86",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (13)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-87",
-        "kind": "firstOf",
-        "label": "Our CELL up (5) (14)",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-88",
+        "id": "w-62",
         "kind": "firstOf",
         "label": "Fire what we carry (TIP 5)",
         "rows": [
@@ -3092,19 +2650,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-89",
+        "id": "p-63",
         "kind": "path",
         "lineId": "to-sweep-0-27",
         "park": false
       },
       {
-        "id": "p-90",
+        "id": "p-64",
         "kind": "path",
         "lineId": "to-sweep-1-28",
         "park": false
       },
       {
-        "id": "w-149",
+        "id": "w-123",
         "kind": "firstOf",
         "label": "Sweep the wall (5) (1)",
         "rows": [
@@ -3114,13 +2672,13 @@
             ],
             "cards": [
               {
-                "id": "p-91",
+                "id": "p-65",
                 "kind": "path",
                 "lineId": "to-shoot5-29",
                 "park": false
               },
               {
-                "id": "w-92",
+                "id": "w-66",
                 "kind": "firstOf",
                 "label": "Fire again (TIP 5)",
                 "rows": [
@@ -3138,7 +2696,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-95",
+                "id": "w-69",
                 "kind": "firstOf",
                 "label": "Tipped? (5)",
                 "rows": [
@@ -3153,7 +2711,7 @@
                     "afterMs": 50,
                     "cards": [
                       {
-                        "id": "w-93",
+                        "id": "w-67",
                         "kind": "firstOf",
                         "label": "Pick up more (5.1)",
                         "rows": [
@@ -3171,7 +2729,7 @@
                         "alongside": "CollectSeen"
                       },
                       {
-                        "id": "w-94",
+                        "id": "w-68",
                         "kind": "firstOf",
                         "label": "Fire once more (5.1)",
                         "rows": [
@@ -3194,7 +2752,7 @@
                 ]
               },
               {
-                "id": "w-98",
+                "id": "w-72",
                 "kind": "firstOf",
                 "label": "Tipped? (5)",
                 "rows": [
@@ -3209,7 +2767,7 @@
                     "afterMs": 50,
                     "cards": [
                       {
-                        "id": "w-96",
+                        "id": "w-70",
                         "kind": "firstOf",
                         "label": "Pick up more (5.2)",
                         "rows": [
@@ -3227,7 +2785,7 @@
                         "alongside": "CollectSeen"
                       },
                       {
-                        "id": "w-97",
+                        "id": "w-71",
                         "kind": "firstOf",
                         "label": "Fire once more (5.2)",
                         "rows": [
@@ -3256,13 +2814,13 @@
             "afterMs": 350,
             "cards": [
               {
-                "id": "p-99",
+                "id": "p-73",
                 "kind": "path",
                 "lineId": "to-sweep-2-30",
                 "park": false
               },
               {
-                "id": "w-148",
+                "id": "w-122",
                 "kind": "firstOf",
                 "label": "Sweep the wall (5) (2)",
                 "rows": [
@@ -3272,13 +2830,13 @@
                     ],
                     "cards": [
                       {
-                        "id": "p-100",
+                        "id": "p-74",
                         "kind": "path",
                         "lineId": "to-shoot5-31",
                         "park": false
                       },
                       {
-                        "id": "w-101",
+                        "id": "w-75",
                         "kind": "firstOf",
                         "label": "Fire again (TIP 5)",
                         "rows": [
@@ -3296,7 +2854,7 @@
                         "alongside": "LaunchAll"
                       },
                       {
-                        "id": "w-104",
+                        "id": "w-78",
                         "kind": "firstOf",
                         "label": "Tipped? (5)",
                         "rows": [
@@ -3311,7 +2869,7 @@
                             "afterMs": 50,
                             "cards": [
                               {
-                                "id": "w-102",
+                                "id": "w-76",
                                 "kind": "firstOf",
                                 "label": "Pick up more (5.1)",
                                 "rows": [
@@ -3329,7 +2887,7 @@
                                 "alongside": "CollectSeen"
                               },
                               {
-                                "id": "w-103",
+                                "id": "w-77",
                                 "kind": "firstOf",
                                 "label": "Fire once more (5.1)",
                                 "rows": [
@@ -3352,7 +2910,7 @@
                         ]
                       },
                       {
-                        "id": "w-107",
+                        "id": "w-81",
                         "kind": "firstOf",
                         "label": "Tipped? (5)",
                         "rows": [
@@ -3367,7 +2925,7 @@
                             "afterMs": 50,
                             "cards": [
                               {
-                                "id": "w-105",
+                                "id": "w-79",
                                 "kind": "firstOf",
                                 "label": "Pick up more (5.2)",
                                 "rows": [
@@ -3385,7 +2943,7 @@
                                 "alongside": "CollectSeen"
                               },
                               {
-                                "id": "w-106",
+                                "id": "w-80",
                                 "kind": "firstOf",
                                 "label": "Fire once more (5.2)",
                                 "rows": [
@@ -3414,13 +2972,13 @@
                     "afterMs": 350,
                     "cards": [
                       {
-                        "id": "p-108",
+                        "id": "p-82",
                         "kind": "path",
                         "lineId": "to-sweep-3-32",
                         "park": false
                       },
                       {
-                        "id": "w-147",
+                        "id": "w-121",
                         "kind": "firstOf",
                         "label": "Sweep the wall (5) (3)",
                         "rows": [
@@ -3430,13 +2988,13 @@
                             ],
                             "cards": [
                               {
-                                "id": "p-109",
+                                "id": "p-83",
                                 "kind": "path",
                                 "lineId": "to-shoot5-33",
                                 "park": false
                               },
                               {
-                                "id": "w-110",
+                                "id": "w-84",
                                 "kind": "firstOf",
                                 "label": "Fire again (TIP 5)",
                                 "rows": [
@@ -3454,7 +3012,7 @@
                                 "alongside": "LaunchAll"
                               },
                               {
-                                "id": "w-113",
+                                "id": "w-87",
                                 "kind": "firstOf",
                                 "label": "Tipped? (5)",
                                 "rows": [
@@ -3469,7 +3027,7 @@
                                     "afterMs": 50,
                                     "cards": [
                                       {
-                                        "id": "w-111",
+                                        "id": "w-85",
                                         "kind": "firstOf",
                                         "label": "Pick up more (5.1)",
                                         "rows": [
@@ -3487,7 +3045,7 @@
                                         "alongside": "CollectSeen"
                                       },
                                       {
-                                        "id": "w-112",
+                                        "id": "w-86",
                                         "kind": "firstOf",
                                         "label": "Fire once more (5.1)",
                                         "rows": [
@@ -3510,7 +3068,7 @@
                                 ]
                               },
                               {
-                                "id": "w-116",
+                                "id": "w-90",
                                 "kind": "firstOf",
                                 "label": "Tipped? (5)",
                                 "rows": [
@@ -3525,7 +3083,7 @@
                                     "afterMs": 50,
                                     "cards": [
                                       {
-                                        "id": "w-114",
+                                        "id": "w-88",
                                         "kind": "firstOf",
                                         "label": "Pick up more (5.2)",
                                         "rows": [
@@ -3543,7 +3101,7 @@
                                         "alongside": "CollectSeen"
                                       },
                                       {
-                                        "id": "w-115",
+                                        "id": "w-89",
                                         "kind": "firstOf",
                                         "label": "Fire once more (5.2)",
                                         "rows": [
@@ -3572,13 +3130,13 @@
                             "afterMs": 350,
                             "cards": [
                               {
-                                "id": "p-117",
+                                "id": "p-91",
                                 "kind": "path",
                                 "lineId": "to-sweep-4-34",
                                 "park": false
                               },
                               {
-                                "id": "w-146",
+                                "id": "w-120",
                                 "kind": "firstOf",
                                 "label": "Sweep the wall (5) (4)",
                                 "rows": [
@@ -3588,13 +3146,13 @@
                                     ],
                                     "cards": [
                                       {
-                                        "id": "p-118",
+                                        "id": "p-92",
                                         "kind": "path",
                                         "lineId": "to-shoot5-35",
                                         "park": false
                                       },
                                       {
-                                        "id": "w-119",
+                                        "id": "w-93",
                                         "kind": "firstOf",
                                         "label": "Fire again (TIP 5)",
                                         "rows": [
@@ -3612,7 +3170,7 @@
                                         "alongside": "LaunchAll"
                                       },
                                       {
-                                        "id": "w-122",
+                                        "id": "w-96",
                                         "kind": "firstOf",
                                         "label": "Tipped? (5)",
                                         "rows": [
@@ -3627,7 +3185,7 @@
                                             "afterMs": 50,
                                             "cards": [
                                               {
-                                                "id": "w-120",
+                                                "id": "w-94",
                                                 "kind": "firstOf",
                                                 "label": "Pick up more (5.1)",
                                                 "rows": [
@@ -3645,7 +3203,7 @@
                                                 "alongside": "CollectSeen"
                                               },
                                               {
-                                                "id": "w-121",
+                                                "id": "w-95",
                                                 "kind": "firstOf",
                                                 "label": "Fire once more (5.1)",
                                                 "rows": [
@@ -3668,7 +3226,7 @@
                                         ]
                                       },
                                       {
-                                        "id": "w-125",
+                                        "id": "w-99",
                                         "kind": "firstOf",
                                         "label": "Tipped? (5)",
                                         "rows": [
@@ -3683,7 +3241,7 @@
                                             "afterMs": 50,
                                             "cards": [
                                               {
-                                                "id": "w-123",
+                                                "id": "w-97",
                                                 "kind": "firstOf",
                                                 "label": "Pick up more (5.2)",
                                                 "rows": [
@@ -3701,7 +3259,7 @@
                                                 "alongside": "CollectSeen"
                                               },
                                               {
-                                                "id": "w-124",
+                                                "id": "w-98",
                                                 "kind": "firstOf",
                                                 "label": "Fire once more (5.2)",
                                                 "rows": [
@@ -3730,13 +3288,13 @@
                                     "afterMs": 350,
                                     "cards": [
                                       {
-                                        "id": "p-126",
+                                        "id": "p-100",
                                         "kind": "path",
                                         "lineId": "to-sweep-5-36",
                                         "park": false
                                       },
                                       {
-                                        "id": "w-145",
+                                        "id": "w-119",
                                         "kind": "firstOf",
                                         "label": "Sweep the wall (5) (5)",
                                         "rows": [
@@ -3746,13 +3304,13 @@
                                             ],
                                             "cards": [
                                               {
-                                                "id": "p-127",
+                                                "id": "p-101",
                                                 "kind": "path",
                                                 "lineId": "to-shoot5-37",
                                                 "park": false
                                               },
                                               {
-                                                "id": "w-128",
+                                                "id": "w-102",
                                                 "kind": "firstOf",
                                                 "label": "Fire again (TIP 5)",
                                                 "rows": [
@@ -3770,7 +3328,7 @@
                                                 "alongside": "LaunchAll"
                                               },
                                               {
-                                                "id": "w-131",
+                                                "id": "w-105",
                                                 "kind": "firstOf",
                                                 "label": "Tipped? (5)",
                                                 "rows": [
@@ -3785,7 +3343,7 @@
                                                     "afterMs": 50,
                                                     "cards": [
                                                       {
-                                                        "id": "w-129",
+                                                        "id": "w-103",
                                                         "kind": "firstOf",
                                                         "label": "Pick up more (5.1)",
                                                         "rows": [
@@ -3803,7 +3361,7 @@
                                                         "alongside": "CollectSeen"
                                                       },
                                                       {
-                                                        "id": "w-130",
+                                                        "id": "w-104",
                                                         "kind": "firstOf",
                                                         "label": "Fire once more (5.1)",
                                                         "rows": [
@@ -3826,7 +3384,7 @@
                                                 ]
                                               },
                                               {
-                                                "id": "w-134",
+                                                "id": "w-108",
                                                 "kind": "firstOf",
                                                 "label": "Tipped? (5)",
                                                 "rows": [
@@ -3841,7 +3399,7 @@
                                                     "afterMs": 50,
                                                     "cards": [
                                                       {
-                                                        "id": "w-132",
+                                                        "id": "w-106",
                                                         "kind": "firstOf",
                                                         "label": "Pick up more (5.2)",
                                                         "rows": [
@@ -3859,7 +3417,7 @@
                                                         "alongside": "CollectSeen"
                                                       },
                                                       {
-                                                        "id": "w-133",
+                                                        "id": "w-107",
                                                         "kind": "firstOf",
                                                         "label": "Fire once more (5.2)",
                                                         "rows": [
@@ -3888,13 +3446,13 @@
                                             "afterMs": 350,
                                             "cards": [
                                               {
-                                                "id": "p-135",
+                                                "id": "p-109",
                                                 "kind": "path",
                                                 "lineId": "to-sweep-6-38",
                                                 "park": false
                                               },
                                               {
-                                                "id": "w-136",
+                                                "id": "w-110",
                                                 "kind": "firstOf",
                                                 "label": "Sweep the wall (5) (6)",
                                                 "rows": [
@@ -3911,13 +3469,13 @@
                                                 ]
                                               },
                                               {
-                                                "id": "p-137",
+                                                "id": "p-111",
                                                 "kind": "path",
                                                 "lineId": "to-shoot5-39",
                                                 "park": false
                                               },
                                               {
-                                                "id": "w-138",
+                                                "id": "w-112",
                                                 "kind": "firstOf",
                                                 "label": "Fire again (TIP 5)",
                                                 "rows": [
@@ -3935,7 +3493,7 @@
                                                 "alongside": "LaunchAll"
                                               },
                                               {
-                                                "id": "w-141",
+                                                "id": "w-115",
                                                 "kind": "firstOf",
                                                 "label": "Tipped? (5)",
                                                 "rows": [
@@ -3950,7 +3508,7 @@
                                                     "afterMs": 50,
                                                     "cards": [
                                                       {
-                                                        "id": "w-139",
+                                                        "id": "w-113",
                                                         "kind": "firstOf",
                                                         "label": "Pick up more (5.1)",
                                                         "rows": [
@@ -3968,7 +3526,7 @@
                                                         "alongside": "CollectSeen"
                                                       },
                                                       {
-                                                        "id": "w-140",
+                                                        "id": "w-114",
                                                         "kind": "firstOf",
                                                         "label": "Fire once more (5.1)",
                                                         "rows": [
@@ -3991,7 +3549,7 @@
                                                 ]
                                               },
                                               {
-                                                "id": "w-144",
+                                                "id": "w-118",
                                                 "kind": "firstOf",
                                                 "label": "Tipped? (5)",
                                                 "rows": [
@@ -4006,7 +3564,7 @@
                                                     "afterMs": 50,
                                                     "cards": [
                                                       {
-                                                        "id": "w-142",
+                                                        "id": "w-116",
                                                         "kind": "firstOf",
                                                         "label": "Pick up more (5.2)",
                                                         "rows": [
@@ -4024,7 +3582,7 @@
                                                         "alongside": "CollectSeen"
                                                       },
                                                       {
-                                                        "id": "w-143",
+                                                        "id": "w-117",
                                                         "kind": "firstOf",
                                                         "label": "Fire once more (5.2)",
                                                         "rows": [

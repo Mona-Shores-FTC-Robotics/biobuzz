@@ -635,132 +635,13 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 8000,
             "cards": []
           }
         ]
       },
       {
         "id": "w-3",
-        "kind": "firstOf",
-        "label": "TIP 1 (2)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-4",
-        "kind": "firstOf",
-        "label": "TIP 1 (3)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-5",
-        "kind": "firstOf",
-        "label": "TIP 1 (4)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-6",
-        "kind": "firstOf",
-        "label": "TIP 1 (5)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-7",
-        "kind": "firstOf",
-        "label": "TIP 1 (6)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-8",
-        "kind": "firstOf",
-        "label": "TIP 1 (7)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-9",
-        "kind": "firstOf",
-        "label": "TIP 1 (8)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-10",
         "kind": "firstOf",
         "label": "Fire the preloads",
         "rows": [
@@ -778,19 +659,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-11",
+        "id": "p-4",
         "kind": "path",
         "lineId": "to-flower-l-turn-1",
         "park": false
       },
       {
-        "id": "p-12",
+        "id": "p-5",
         "kind": "path",
         "lineId": "to-flower-l-2",
         "park": false
       },
       {
-        "id": "w-13",
+        "id": "w-6",
         "kind": "firstOf",
         "label": "The far FLOWER",
         "rows": [
@@ -807,13 +688,13 @@
         ]
       },
       {
-        "id": "p-14",
+        "id": "p-7",
         "kind": "path",
         "lineId": "to-flower-l-in-3",
         "park": false
       },
       {
-        "id": "w-15",
+        "id": "w-8",
         "kind": "firstOf",
         "label": "Throw the FLOWER back (TIP 2)",
         "rows": [
@@ -831,19 +712,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-16",
+        "id": "p-9",
         "kind": "path",
         "lineId": "to-mid-4",
         "park": false
       },
       {
-        "id": "p-17",
+        "id": "p-10",
         "kind": "path",
         "lineId": "to-catch-l-5",
         "park": false
       },
       {
-        "id": "w-18",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "TIP 2: catch the spill",
         "rows": [
@@ -860,13 +741,13 @@
         ]
       },
       {
-        "id": "p-19",
+        "id": "p-12",
         "kind": "path",
         "lineId": "to-back-w-6",
         "park": false
       },
       {
-        "id": "w-20",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Our CELL up (3)",
         "rows": [
@@ -877,166 +758,13 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 10000,
             "cards": []
           }
         ]
       },
       {
-        "id": "w-21",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (2)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-22",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (3)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-23",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (4)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-24",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (5)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-25",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (6)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-26",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (7)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-27",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (8)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-28",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (9)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-29",
-        "kind": "firstOf",
-        "label": "Our CELL up (3) (10)",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 1000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-30",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Throw the catch back (3)",
         "rows": [
@@ -1054,19 +782,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-31",
+        "id": "p-15",
         "kind": "path",
         "lineId": "to-wall-flower-turn-7",
         "park": false
       },
       {
-        "id": "p-32",
+        "id": "p-16",
         "kind": "path",
         "lineId": "to-wall-flower-8",
         "park": false
       },
       {
-        "id": "w-33",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "The wall FLOWER",
         "rows": [
@@ -1083,13 +811,13 @@
         ]
       },
       {
-        "id": "p-34",
+        "id": "p-18",
         "kind": "path",
         "lineId": "to-back-w-9",
         "park": false
       },
       {
-        "id": "w-35",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Throw the wall FLOWER back (TIP 4)",
         "rows": [
@@ -1107,7 +835,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-39",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Tipped? (4)",
         "rows": [
@@ -1122,13 +850,13 @@
             "afterMs": 300,
             "cards": [
               {
-                "id": "p-36",
+                "id": "p-20",
                 "kind": "path",
                 "lineId": "to-look-l-10",
                 "park": false
               },
               {
-                "id": "w-37",
+                "id": "w-21",
                 "kind": "firstOf",
                 "label": "Collect TIP 2's spill",
                 "rows": [
@@ -1146,7 +874,7 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "w-38",
+                "id": "w-22",
                 "kind": "firstOf",
                 "label": "Fire the spill (TIP 4)",
                 "rows": [
