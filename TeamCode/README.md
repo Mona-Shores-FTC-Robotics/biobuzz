@@ -1361,6 +1361,22 @@ the robot. The other alliance runs it rotated, as on the robot. Underneath, `Aut
 An Auto that uses a command or trigger the simulation does not know fails at once and names it, as
 `BuiltAuto` does at INIT. Add the name to `AutoSim.registry()` with what it should do.
 
+### Simulating from the Visualizer ("Save to GitHub")
+
+No setup on a laptop: open an Auto in the Visualizer from a link that names its whole path, e.g.
+`…/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/recycle5-left.pp`,
+change it, and press **Save to GitHub** (the cloud button). One commit on that branch carries the
+`.pp`, its generated Java and `TeamCode/sim-request.json` (partner Auto, robot designs, seeds,
+alliance). The **Simulate Auto** workflow runs the request through `SimRunTest` and publishes on the
+`sim-results` branch `<auto>/<commit>/result.json` and the median seed's `.wpilog`; the dialog shows
+every seed and has **Download WPILOG**. Without a token the dialog still shows the last result and
+downloads its log; saving needs a fine-grained token (Contents: read and write, Actions: read on
+biobuzz), which the dialog explains. `sim-results` is rewritten each run and keeps the newest 40.
+
+Every simulated log names what it simulated on its Metadata tab (`SourceCommit`, `SourcePath`,
+`SimSpec`, `SimDesign`, `SimSeed`, `SimRun`), so it can be matched with the real match log of the
+same Auto. Locally, `SimRunTest` runs one request from a folder: see its Javadoc.
+
 ### Solo Autos
 
 Four Autos for a robot working its HIVE alone, drawn in the Auto Builder and tried in the

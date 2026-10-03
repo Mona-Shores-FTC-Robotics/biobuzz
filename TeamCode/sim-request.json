@@ -1,0 +1,25 @@
+{
+  "pp": "TeamCode/src/test/resources/auto-builder/untitled.pp",
+  "spec": "UntitledAuto@50",
+  "design": "two spring hoods, full-width intake",
+  "partnerDesign": null,
+  "partnerSpeed": null,
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "alliance": "RED",
+  "metadata": {
+    "AutoSource": "untitled.pp",
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-10-03T11:44:57.137Z"
+  }
+}
