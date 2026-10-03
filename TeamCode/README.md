@@ -411,6 +411,36 @@ devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
 `port="0" bus="1"` and behaved identically, which is why — the `port` difference
 was cosmetic. These files keep the two equal so the file cannot be misread.
 
+### The Limelight: an Ethernet device, not a hub device
+
+A Limelight 3A has no hub port. SDK 12 models it as an `<EthernetDevice>`
+(`BuiltInConfigurationType.ETHERNET_OVER_USB_DEVICE`), which
+`ReadXMLFileHandler.parseRobot` reads only as a **direct child of `<Robot>`**,
+beside `<LynxUsbDevice>`. `HardwareFactory.mapEthernetOverUsb` then builds the
+`Limelight3A` from two attributes: `name`, and `ipAddress`, where the RC sends
+its HTTP requests. `172.29.0.1` is the 3A's factory address on a Linux/Android
+USB-Ethernet link. `serialNumber` is only a hardware-map key: it has to start
+`EthernetOverUsb:` (the `Limelight3A` constructor stores it as an
+`EthernetOverUsbSerialNumber`), and nothing compares it with what is plugged in.
+
+So `DeviceNames.Kind` has a fourth value, `ETHERNET`, and `RobotConfigXmlTest`
+checks it in its own way: the element sits under `<Robot>`, `ipAddress` is a
+dotted IPv4 address no other Ethernet device uses, and `serialNumber` parses.
+No port range check (#64).
+
+**Consequence: a configured Limelight is always "found".** The SDK builds it from
+the file, so an unplugged camera, or one moved to a static IP that the file does
+not name, is in the hardware map and never answers. `LIMELIGHT NOT FOUND` now
+means the active config is wrong. A dead cable shows as **Link: NO RESPONSE** in
+every Vision OpMode, and as a FAULT on the Robot page.
+`LimelightVisionSubsystem.isConnected()` is the accessor (the SDK's own
+250 ms test).
+
+Rejected: `USB` or `PORTLESS` as the kind. The webcam is also portless, but it
+is a different element (`<Webcam>`) with a per-unit serial number, so one kind
+for both would mean "not on a hub", not "checked like this". The webcam is still
+on `DeviceNameLiteralTest`'s allowlist, waiting on its own decision.
+
 ### Risk: bundled configs depend on Sloth, not just the SDK
 
 **This is load-bearing and completely non-obvious.** Sloth reflectively
@@ -1028,7 +1058,10 @@ cannot be settled without hardware, and both are isolated to one place each:
 
 ### Setup this depends on
 
-- Limelight in the hardware map as `limelight`.
+- Limelight in the hardware map as `DeviceNames.LIMELIGHT` (`limelight`), which
+  both competition robots' `robot_*.xml` declare. See
+  [The Limelight: an Ethernet device](#the-limelight-an-ethernet-device-not-a-hub-device).
+  Check **Link: ok** before reading anything else.
 - An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
   range is off by a constant factor, with nothing about the output looking broken.
 - That pipeline emitting **full 3D pose**. Without it no sighting can be built at

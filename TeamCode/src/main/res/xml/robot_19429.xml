@@ -25,6 +25,20 @@
   falls back to `port` when `bus` is absent (LynxI2cDeviceConfiguration
   .deserializeAttributes). They are kept equal here so the file cannot be
   misread.
+
+  Note on the Limelight: it is not on a hub. The SDK models it as an
+  <EthernetDevice>, a direct child of <Robot> beside the <LynxUsbDevice>, and
+  builds the Limelight3A from exactly two attributes (HardwareFactory
+  .mapEthernetOverUsb): `name`, and `ipAddress`, which is where the RC sends its
+  HTTP requests. 172.29.0.1 is the Limelight 3A's factory address on a
+  Linux/Android USB-Ethernet link. If someone gives the camera a static IP in
+  its web UI, this attribute must change to match.
+  `serialNumber` is only a hardware-map key here; the SDK needs it to start
+  with "EthernetOverUsb:" and does not compare it with anything plugged in. It
+  repeats the camera's address so the file names one IP, not two.
+  Because the device is built from this file, a Limelight that is unplugged
+  still appears in the hardware map. The Vision OpModes' "Link" line is what
+  says whether it is answering.
 -->
 <Robot type="FirstInspires-FTC">
     <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
@@ -51,4 +65,7 @@
             <goBILDA5202SeriesMotor name="launcher_left"   port="2" />
         </LynxModule>
     </LynxUsbDevice>
+
+    <!-- AprilTag camera: Limelight 3A on USB-Ethernet. No hub port. -->
+    <EthernetDevice name="limelight" serialNumber="EthernetOverUsb:eth0:172.29.0.1" ipAddress="172.29.0.1" />
 </Robot>

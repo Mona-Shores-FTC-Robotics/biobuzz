@@ -56,6 +56,9 @@ Three layers, each written in exactly one place:
   catch-and-return-null helpers. An optional device is an explicit, named decision.
 - XML: no `name` attribute on `<Robot>` (the filename is the identity). For I2C, `bus` is what
   the SDK reads; keep `port` equal to it.
+- The Limelight is an `<EthernetDevice>` directly under `<Robot>` (`Kind.ETHERNET`, checked by
+  `ipAddress`, no port). The SDK builds it from the XML whether or not a camera is plugged in, so
+  "in the hardware map" never means "connected": check `robot.vision.isConnected()`.
 - `RobotConfigXmlTest` enforces all of this in CI. On a robot: Activate the config once per hub,
   then run **Validate Hardware**.
   → README § "Robot configuration"
