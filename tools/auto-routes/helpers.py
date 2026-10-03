@@ -54,3 +54,26 @@ def leave_flower(r, name, to):
     # The last leg reaches `to`'s x early: drifting across beside the FLOWER would brush it.
     return [r.go(name + "_BACK_" + to, turn_from=h, turn_after=0.5, turn_by=1.0),
             r.go(to, ctrl=[(dest[0], t[1] + 2)], heading=dest[2])]
+
+
+# Where a spill lands (3 Oct 2026 films, SpillLandingTest): pieces pour off the lowered CELL's lip and
+# first touch the tiles about 4 ft out from the alliance wall (simulated: 44-48 in), then scatter 28-52 in
+# out. A robot catches them standing just short of that, facing the HIVE: centre 33 in out (its front,
+# 9 in ahead, at 42), on the CELL's line, at x 57.5 so it can turn (a turning robot's corners reach
+# 12.7 in; the centre line is at 70.75). Drawn for RED: the right (south) CELL at y 33, the left (north)
+# at 141.5 - 33.
+CATCH_R, CATCH_L = (57.5, 33, 90), (57.5, 108.5, 270)
+
+
+def catch_spill(r, label, spot, ms=2500):
+    """Drive to `spot` (a catch point already added with r.pt) and take what lands or lies near,
+    webcam-guided, until full or `ms` pass; then to `spot`_BACK, just behind it. Leaves r.at there."""
+    # Back to the spot afterwards: the webcam pickup may have taken the robot up beside the HIVE
+    # frame's feet, and the next path would start from there.
+    x, y, h = r.points[spot]
+    back = spot + "_BACK"
+    if back not in r.points:
+        r.pt(back, x, y - 3 if y < 70.75 else y + 3, h)  # 3 in back toward our wall
+    out = [r.go(spot, turn_by=0.8), r.wait(label, when=["IntakeFull"], ms=ms, alongside="CollectSeen")]
+    r.at = spot
+    return out + [r.go(back, turn_after=0.4, turn_by=1.0)]  # back out first, then turn

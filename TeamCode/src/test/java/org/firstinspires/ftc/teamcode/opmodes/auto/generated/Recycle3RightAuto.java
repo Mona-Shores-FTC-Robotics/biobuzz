@@ -46,46 +46,13 @@ public final class Recycle3RightAuto {
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose wait = p.of(40, 16, 66);
-        Pose sweep0 = p.of(30, 10, 0);
-        Pose sweep1 = p.of(37, 10, 0);
-        Pose hold1 = p.of(35, 14, 61.8);
-        Pose sweep2 = p.of(41.5, 10, 0);
-        Pose hold2 = p.of(39.5, 14, 66.6);
-        Pose sweep3 = p.of(46, 10, 0);
-        Pose hold3 = p.of(44, 14, 71.9);
-        Pose sweep4 = p.of(50.5, 10, 0);
-        Pose hold4 = p.of(48.5, 14, 77.5);
-        Pose sweep5 = p.of(55, 10, 0);
-        Pose hold5 = p.of(53, 14, 83.3);
-        Pose sweep6 = p.of(59.5, 10, 0);
-        Pose hold6 = p.of(55, 14, 86);
+        Pose catchValue = p.of(57.5, 33, 90);
+        Pose catchBack = p.of(57.5, 30, 90);
         Pose shootR = p.of(50, 18, 82);
-        Pose sweepW = p.of(18, 10, 0);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToShootRSegment1Start = p.of(50, 18, 90);
-        Pose startToSweepWControl1 = p.of(55, 26, 0);
-        Pose startToSweepWControl2 = p.of(24, 26, 0);
-        Pose startToSweepWSegment1Heading = p.of(18, 10, 90);
-        Pose startToSweepWSegment2Start = p.of(18, 10, 90);
-        Pose sweep1ToShootRControl1 = p.of(37, 20, 0);
-        Pose sweep1ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep1ToShootRSegment2Start = p.of(50, 18, 0);
-        Pose sweep2ToShootRControl1 = p.of(41.5, 20, 0);
-        Pose sweep2ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep2ToShootRSegment2Start = p.of(50, 18, 0);
-        Pose sweep3ToShootRControl1 = p.of(46, 20, 0);
-        Pose sweep3ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep3ToShootRSegment2Start = p.of(50, 18, 0);
-        Pose sweep4ToShootRControl1 = p.of(50.5, 20, 0);
-        Pose sweep4ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep4ToShootRSegment2Start = p.of(50, 18, 0);
-        Pose sweep5ToShootRControl1 = p.of(55, 20, 0);
-        Pose sweep5ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep5ToShootRSegment2Start = p.of(50, 18, 0);
-        Pose sweep6ToShootRControl1 = p.of(55, 20, 0);
-        Pose sweep6ToShootRSegment1Heading = p.of(50, 18, 0);
-        Pose sweep6ToShootRSegment2Start = p.of(50, 18, 0);
+        Pose catchToShootRSegment1Start = p.of(50, 18, 90);
+        Pose catchBackToShootRSegment1Start = p.of(50, 18, 90);
         Pose shootRToGardenInControl1 = p.of(52, 26, 0);
         Pose shootRToGardenInControl2 = p.of(30, 24, 0);
         Pose shootRToGardenInSegment1Heading = p.of(8.5, 22, 82);
@@ -93,137 +60,46 @@ public final class Recycle3RightAuto {
         Pose gardenToWaitControl1 = p.of(24, 14, 0);
         Pose gardenToWaitSegment1Heading = p.of(40, 16, 270);
         Pose gardenToWaitSegment2Start = p.of(40, 16, 270);
-        Pose waitToSweep0Segment1Start = p.of(30, 10, 66);
-        Pose hold1ToSweep1Segment1Start = p.of(37, 10, 61.8);
-        Pose sweep6ToHold6Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6Segment2Start = p.of(55, 14, 0);
-        Pose hold2ToSweep2Segment1Start = p.of(41.5, 10, 66.6);
-        Pose sweep6ToHold6_2Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6_2Segment2Start = p.of(55, 14, 0);
-        Pose hold3ToSweep3Segment1Start = p.of(46, 10, 71.9);
-        Pose sweep6ToHold6_3Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6_3Segment2Start = p.of(55, 14, 0);
-        Pose hold4ToSweep4Segment1Start = p.of(50.5, 10, 77.5);
-        Pose sweep6ToHold6_4Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6_4Segment2Start = p.of(55, 14, 0);
-        Pose hold5ToSweep5Segment1Start = p.of(55, 10, 83.3);
-        Pose sweep6ToHold6_5Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6_5Segment2Start = p.of(55, 14, 0);
-        Pose sweep6ToHold6_6Segment1Heading = p.of(55, 14, 0);
-        Pose sweep6ToHold6_6Segment2Start = p.of(55, 14, 0);
+        Pose waitToCatchSegment1Start = p.of(57.5, 33, 66);
+        Pose catchBackToShootR_2Segment1Start = p.of(50, 18, 90);
+        Pose shootRToCatchSegment1Start = p.of(57.5, 33, 82);
+        Pose catchBackToShootR_3Segment1Start = p.of(50, 18, 90);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToShootR = Paths.line(start, shootR).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(startToShootRSegment1Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path startToSweepW = Paths.curve(start, startToSweepWControl1, startToSweepWControl2, sweepW).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(startToSweepWSegment1Heading)).until(0.9, Interpolator.linear(startToSweepWSegment2Start, sweepW)).until(1, Interpolator.constant(sweepW)));
-        Path sweepWToSweep1 = Paths.line(sweepW, sweep1).constant(sweep1);
-        Path sweep1ToShootR = Paths.curve(sweep1, sweep1ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep1ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep1ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path sweep1ToSweep2 = Paths.line(sweep1, sweep2).constant(sweep2);
-        Path sweep2ToShootR = Paths.curve(sweep2, sweep2ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep2ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep2ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path sweep2ToSweep3 = Paths.line(sweep2, sweep3).constant(sweep3);
-        Path sweep3ToShootR = Paths.curve(sweep3, sweep3ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep3ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep3ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path sweep3ToSweep4 = Paths.line(sweep3, sweep4).constant(sweep4);
-        Path sweep4ToShootR = Paths.curve(sweep4, sweep4ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep4ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep4ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path sweep4ToSweep5 = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToShootR = Paths.curve(sweep5, sweep5ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep5ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep5ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
-        Path sweep5ToSweep6 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToShootR = Paths.curve(sweep6, sweep6ToShootRControl1, shootR).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(sweep6ToShootRSegment1Heading)).until(0.9, Interpolator.linear(sweep6ToShootRSegment2Start, shootR)).until(1, Interpolator.constant(shootR)));
+        Path startToCatch = Paths.line(start, catchValue).linear(start, catchValue);
+        Path catchToShootR = Paths.line(catchValue, shootR).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(catchToShootRSegment1Start, shootR)).until(1, Interpolator.constant(shootR)));
+        Path catchToCatchBack = Paths.line(catchValue, catchBack).linear(catchValue, catchBack);
+        Path catchBackToShootR = Paths.line(catchBack, shootR).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(catchBackToShootRSegment1Start, shootR)).until(1, Interpolator.constant(shootR)));
         Path shootRToGardenIn = Paths.curve(shootR, shootRToGardenInControl1, shootRToGardenInControl2, gardenIn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(shootRToGardenInSegment1Heading)).until(0.8, Interpolator.linear(shootRToGardenInSegment2Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
         Path gardenToWait = Paths.curve(garden, gardenToWaitControl1, wait).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToWaitSegment1Heading)).until(0.9, Interpolator.linear(gardenToWaitSegment2Start, wait)).until(1, Interpolator.constant(wait)));
-        Path waitToSweep0 = Paths.line(wait, sweep0).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(waitToSweep0Segment1Start, sweep0)).until(1, Interpolator.constant(sweep0)));
-        Path sweep0ToSweep1 = Paths.line(sweep0, sweep1).constant(sweep1);
-        Path sweep1ToHold1 = Paths.line(sweep1, hold1).linear(sweep1, hold1);
-        Path hold1ToSweep1 = Paths.line(hold1, sweep1).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(hold1ToSweep1Segment1Start, sweep1)).until(1, Interpolator.constant(sweep1)));
-        Path sweep1ToSweep2Path = Paths.line(sweep1, sweep2).constant(sweep2);
-        Path sweep2ToHold2 = Paths.line(sweep2, hold2).linear(sweep2, hold2);
-        Path sweep2ToSweep3Path = Paths.line(sweep2, sweep3).constant(sweep3);
-        Path sweep3ToHold3 = Paths.line(sweep3, hold3).linear(sweep3, hold3);
-        Path sweep3ToSweep4Path = Paths.line(sweep3, sweep4).constant(sweep4);
-        Path sweep4ToHold4 = Paths.line(sweep4, hold4).linear(sweep4, hold4);
-        Path sweep4ToSweep5Path = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToHold5 = Paths.line(sweep5, hold5).linear(sweep5, hold5);
-        Path sweep5ToSweep6Path = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6 = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6Segment2Start, hold6)));
-        Path sweep1ToSweep2Path2 = Paths.line(sweep1, sweep2).constant(sweep2);
-        Path sweep2ToHold2Path = Paths.line(sweep2, hold2).linear(sweep2, hold2);
-        Path hold2ToSweep2 = Paths.line(hold2, sweep2).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(hold2ToSweep2Segment1Start, sweep2)).until(1, Interpolator.constant(sweep2)));
-        Path sweep2ToSweep3Path2 = Paths.line(sweep2, sweep3).constant(sweep3);
-        Path sweep3ToHold3Path = Paths.line(sweep3, hold3).linear(sweep3, hold3);
-        Path sweep3ToSweep4Path2 = Paths.line(sweep3, sweep4).constant(sweep4);
-        Path sweep4ToHold4Path = Paths.line(sweep4, hold4).linear(sweep4, hold4);
-        Path sweep4ToSweep5Path2 = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToHold5Path = Paths.line(sweep5, hold5).linear(sweep5, hold5);
-        Path sweep5ToSweep6Path2 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6Path = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6_2Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6_2Segment2Start, hold6)));
-        Path sweep2ToSweep3Path3 = Paths.line(sweep2, sweep3).constant(sweep3);
-        Path sweep3ToHold3Path2 = Paths.line(sweep3, hold3).linear(sweep3, hold3);
-        Path hold3ToSweep3 = Paths.line(hold3, sweep3).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(hold3ToSweep3Segment1Start, sweep3)).until(1, Interpolator.constant(sweep3)));
-        Path sweep3ToSweep4Path3 = Paths.line(sweep3, sweep4).constant(sweep4);
-        Path sweep4ToHold4Path2 = Paths.line(sweep4, hold4).linear(sweep4, hold4);
-        Path sweep4ToSweep5Path3 = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToHold5Path2 = Paths.line(sweep5, hold5).linear(sweep5, hold5);
-        Path sweep5ToSweep6Path3 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6Path2 = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6_3Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6_3Segment2Start, hold6)));
-        Path sweep3ToSweep4Path4 = Paths.line(sweep3, sweep4).constant(sweep4);
-        Path sweep4ToHold4Path3 = Paths.line(sweep4, hold4).linear(sweep4, hold4);
-        Path hold4ToSweep4 = Paths.line(hold4, sweep4).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(hold4ToSweep4Segment1Start, sweep4)).until(1, Interpolator.constant(sweep4)));
-        Path sweep4ToSweep5Path4 = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToHold5Path3 = Paths.line(sweep5, hold5).linear(sweep5, hold5);
-        Path sweep5ToSweep6Path4 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6Path3 = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6_4Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6_4Segment2Start, hold6)));
-        Path sweep4ToSweep5Path5 = Paths.line(sweep4, sweep5).constant(sweep5);
-        Path sweep5ToHold5Path4 = Paths.line(sweep5, hold5).linear(sweep5, hold5);
-        Path hold5ToSweep5 = Paths.line(hold5, sweep5).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(hold5ToSweep5Segment1Start, sweep5)).until(1, Interpolator.constant(sweep5)));
-        Path sweep5ToSweep6Path5 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6Path4 = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6_5Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6_5Segment2Start, hold6)));
-        Path sweep5ToSweep6Path6 = Paths.line(sweep5, sweep6).constant(sweep6);
-        Path sweep6ToHold6Path5 = Paths.line(sweep6, hold6).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sweep6ToHold6_6Segment1Heading)).until(1, Interpolator.linear(sweep6ToHold6_6Segment2Start, hold6)));
+        Path waitToCatch = Paths.line(wait, catchValue).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(waitToCatchSegment1Start, catchValue)).until(1, Interpolator.constant(catchValue)));
+        Path catchToCatchBackPath = Paths.line(catchValue, catchBack).linear(catchValue, catchBack);
+        Path catchBackToShootRPath = Paths.line(catchBack, shootR).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(catchBackToShootR_2Segment1Start, shootR)).until(1, Interpolator.constant(shootR)));
+        Path shootRToCatch = Paths.line(shootR, catchValue).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(shootRToCatchSegment1Start, catchValue)).until(1, Interpolator.constant(catchValue)));
+        Path catchToCatchBackPath2 = Paths.line(catchValue, catchBack).linear(catchValue, catchBack);
+        Path catchBackToShootRPath2 = Paths.line(catchBack, shootR).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(catchBackToShootR_3Segment1Start, shootR)).until(1, Interpolator.constant(shootR)));
 
         return kit.sequence(
                 kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(4000)),
+                kit.path("START to CATCH", startToCatch),
                 kit.firstOf("TIP 1?",
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.firstOf("TIP 1: catch the spill",
+                kit.firstOf("TIP 1: catch the spill", kit.command("CollectSeen"),
                         kit.when("IntakeFull"),
-                        kit.afterMs(2000)),
+                        kit.afterMs(2500)),
                 kit.firstOf("Caught 4?",
                         kit.when("IntakeFull").then(
-                                kit.path("START to SHOOT_R", startToShootR)),
-                        kit.afterMs(400).then(
-                                kit.path("START to SWEEP_W", startToSweepW),
-                                kit.path("SWEEP_W to SWEEP_1", sweepWToSweep1),
-                                kit.firstOf("Top up along the wall (3) (1)",
-                                        kit.when("IntakeFull").then(
-                                                kit.path("SWEEP_1 to SHOOT_R", sweep1ToShootR)),
-                                        kit.afterMs(350).then(
-                                                kit.path("SWEEP_1 to SWEEP_2", sweep1ToSweep2),
-                                                kit.firstOf("Top up along the wall (3) (2)",
-                                                        kit.when("IntakeFull").then(
-                                                                kit.path("SWEEP_2 to SHOOT_R", sweep2ToShootR)),
-                                                        kit.afterMs(350).then(
-                                                                kit.path("SWEEP_2 to SWEEP_3", sweep2ToSweep3),
-                                                                kit.firstOf("Top up along the wall (3) (3)",
-                                                                        kit.when("IntakeFull").then(
-                                                                                kit.path("SWEEP_3 to SHOOT_R", sweep3ToShootR)),
-                                                                        kit.afterMs(350).then(
-                                                                                kit.path("SWEEP_3 to SWEEP_4", sweep3ToSweep4),
-                                                                                kit.firstOf("Top up along the wall (3) (4)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_4 to SHOOT_R", sweep4ToShootR)),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5),
-                                                                                                kit.firstOf("Top up along the wall (3) (5)",
-                                                                                                        kit.when("IntakeFull").then(
-                                                                                                                kit.path("SWEEP_5 to SHOOT_R", sweep5ToShootR)),
-                                                                                                        kit.afterMs(350).then(
-                                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6),
-                                                                                                                kit.firstOf("Top up along the wall (3) (6)",
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(500)),
-                                                                                                                kit.path("SWEEP_6 to SHOOT_R", sweep6ToShootR))))))))))))),
+                                kit.path("CATCH to SHOOT_R", catchToShootR)),
+                        kit.afterMs(200).then(
+                                kit.firstOf("Top up (3)", kit.command("CollectSeen"),
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(2000)),
+                                kit.path("CATCH to CATCH_BACK", catchToCatchBack),
+                                kit.path("CATCH_BACK to SHOOT_R", catchBackToShootR))),
                 kit.firstOf("Our CELL up (3)",
                         kit.when("RightCellUp"),
                         kit.afterMs(14000)),
@@ -239,494 +115,44 @@ public final class Recycle3RightAuto {
                 kit.firstOf("Fire the GARDEN (TIP 3)", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.firstOf("TIP 3's spill lands",
+                kit.path("WAIT to CATCH", waitToCatch),
+                kit.firstOf("Catch TIP 3's spill", kit.command("CollectSeen"),
                         kit.when("IntakeFull"),
-                        kit.afterMs(1000)),
-                kit.path("WAIT to SWEEP_0", waitToSweep0),
-                kit.path("SWEEP_0 to SWEEP_1", sweep0ToSweep1),
-                kit.firstOf("Sweep the spills (5) (1)",
-                        kit.when("IntakeFull").then(
-                                kit.path("SWEEP_1 to HOLD_1", sweep1ToHold1),
-                                kit.firstOf("Our CELL up (5)",
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(14000)),
-                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                        kit.when("Empty"),
-                                        kit.afterMs(400)),
-                                kit.path("HOLD_1 to SWEEP_1", hold1ToSweep1),
-                                kit.path("SWEEP_1 to SWEEP_2", sweep1ToSweep2Path),
-                                kit.firstOf("Sweep the rest (5) (2)",
-                                        kit.when("IntakeFull").then(
-                                                kit.path("SWEEP_2 to HOLD_2", sweep2ToHold2),
-                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                        kit.when("LeftCellUp"),
-                                                        kit.afterMs(1500)),
-                                                kit.firstOf("Tipped? (5)",
-                                                        kit.when("LeftCellUp"),
-                                                        kit.afterMs(50).then(
-                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                        kit.when("IntakeFull"),
-                                                                        kit.afterMs(1500)),
-                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(1200)))),
-                                                kit.firstOf("Tipped? (5)",
-                                                        kit.when("LeftCellUp"),
-                                                        kit.afterMs(50).then(
-                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                        kit.when("IntakeFull"),
-                                                                        kit.afterMs(1500)),
-                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(1200))))),
-                                        kit.afterMs(350).then(
-                                                kit.path("SWEEP_2 to SWEEP_3", sweep2ToSweep3Path),
-                                                kit.firstOf("Sweep the rest (5) (3)",
-                                                        kit.when("IntakeFull").then(
-                                                                kit.path("SWEEP_3 to HOLD_3", sweep3ToHold3),
-                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(1500)),
-                                                                kit.firstOf("Tipped? (5)",
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(50).then(
-                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                        kit.when("IntakeFull"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1200)))),
-                                                                kit.firstOf("Tipped? (5)",
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(50).then(
-                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                        kit.when("IntakeFull"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1200))))),
-                                                        kit.afterMs(350).then(
-                                                                kit.path("SWEEP_3 to SWEEP_4", sweep3ToSweep4Path),
-                                                                kit.firstOf("Sweep the rest (5) (4)",
-                                                                        kit.when("IntakeFull").then(
-                                                                                kit.path("SWEEP_4 to HOLD_4", sweep4ToHold4),
-                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200)))),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200))))),
-                                                                        kit.afterMs(350).then(
-                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5Path),
-                                                                                kit.firstOf("Sweep the rest (5) (5)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_5 to HOLD_5", sweep5ToHold5),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path),
-                                                                                                kit.firstOf("Sweep the rest (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))))))))))),
-                        kit.afterMs(350).then(
-                                kit.path("SWEEP_1 to SWEEP_2", sweep1ToSweep2Path2),
-                                kit.firstOf("Sweep the spills (5) (2)",
-                                        kit.when("IntakeFull").then(
-                                                kit.path("SWEEP_2 to HOLD_2", sweep2ToHold2Path),
-                                                kit.firstOf("Our CELL up (5)",
-                                                        kit.when("RightCellUp"),
-                                                        kit.afterMs(14000)),
-                                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                                        kit.when("Empty"),
-                                                        kit.afterMs(400)),
-                                                kit.path("HOLD_2 to SWEEP_2", hold2ToSweep2),
-                                                kit.path("SWEEP_2 to SWEEP_3", sweep2ToSweep3Path2),
-                                                kit.firstOf("Sweep the rest (5) (3)",
-                                                        kit.when("IntakeFull").then(
-                                                                kit.path("SWEEP_3 to HOLD_3", sweep3ToHold3Path),
-                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(1500)),
-                                                                kit.firstOf("Tipped? (5)",
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(50).then(
-                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                        kit.when("IntakeFull"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1200)))),
-                                                                kit.firstOf("Tipped? (5)",
-                                                                        kit.when("LeftCellUp"),
-                                                                        kit.afterMs(50).then(
-                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                        kit.when("IntakeFull"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1200))))),
-                                                        kit.afterMs(350).then(
-                                                                kit.path("SWEEP_3 to SWEEP_4", sweep3ToSweep4Path2),
-                                                                kit.firstOf("Sweep the rest (5) (4)",
-                                                                        kit.when("IntakeFull").then(
-                                                                                kit.path("SWEEP_4 to HOLD_4", sweep4ToHold4Path),
-                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200)))),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200))))),
-                                                                        kit.afterMs(350).then(
-                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5Path2),
-                                                                                kit.firstOf("Sweep the rest (5) (5)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_5 to HOLD_5", sweep5ToHold5Path),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path2),
-                                                                                                kit.firstOf("Sweep the rest (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6Path),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))))))))),
-                                        kit.afterMs(350).then(
-                                                kit.path("SWEEP_2 to SWEEP_3", sweep2ToSweep3Path3),
-                                                kit.firstOf("Sweep the spills (5) (3)",
-                                                        kit.when("IntakeFull").then(
-                                                                kit.path("SWEEP_3 to HOLD_3", sweep3ToHold3Path2),
-                                                                kit.firstOf("Our CELL up (5)",
-                                                                        kit.when("RightCellUp"),
-                                                                        kit.afterMs(14000)),
-                                                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                                                        kit.when("Empty"),
-                                                                        kit.afterMs(400)),
-                                                                kit.path("HOLD_3 to SWEEP_3", hold3ToSweep3),
-                                                                kit.path("SWEEP_3 to SWEEP_4", sweep3ToSweep4Path3),
-                                                                kit.firstOf("Sweep the rest (5) (4)",
-                                                                        kit.when("IntakeFull").then(
-                                                                                kit.path("SWEEP_4 to HOLD_4", sweep4ToHold4Path2),
-                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(1500)),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200)))),
-                                                                                kit.firstOf("Tipped? (5)",
-                                                                                        kit.when("LeftCellUp"),
-                                                                                        kit.afterMs(50).then(
-                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200))))),
-                                                                        kit.afterMs(350).then(
-                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5Path3),
-                                                                                kit.firstOf("Sweep the rest (5) (5)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_5 to HOLD_5", sweep5ToHold5Path2),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path3),
-                                                                                                kit.firstOf("Sweep the rest (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6Path2),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))))))),
-                                                        kit.afterMs(350).then(
-                                                                kit.path("SWEEP_3 to SWEEP_4", sweep3ToSweep4Path4),
-                                                                kit.firstOf("Sweep the spills (5) (4)",
-                                                                        kit.when("IntakeFull").then(
-                                                                                kit.path("SWEEP_4 to HOLD_4", sweep4ToHold4Path3),
-                                                                                kit.firstOf("Our CELL up (5)",
-                                                                                        kit.when("RightCellUp"),
-                                                                                        kit.afterMs(14000)),
-                                                                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                                                                        kit.when("Empty"),
-                                                                                        kit.afterMs(400)),
-                                                                                kit.path("HOLD_4 to SWEEP_4", hold4ToSweep4),
-                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5Path4),
-                                                                                kit.firstOf("Sweep the rest (5) (5)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_5 to HOLD_5", sweep5ToHold5Path3),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path4),
-                                                                                                kit.firstOf("Sweep the rest (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6Path3),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))))),
-                                                                        kit.afterMs(350).then(
-                                                                                kit.path("SWEEP_4 to SWEEP_5", sweep4ToSweep5Path5),
-                                                                                kit.firstOf("Sweep the spills (5) (5)",
-                                                                                        kit.when("IntakeFull").then(
-                                                                                                kit.path("SWEEP_5 to HOLD_5", sweep5ToHold5Path4),
-                                                                                                kit.firstOf("Our CELL up (5)",
-                                                                                                        kit.when("RightCellUp"),
-                                                                                                        kit.afterMs(14000)),
-                                                                                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("Empty"),
-                                                                                                        kit.afterMs(400)),
-                                                                                                kit.path("HOLD_5 to SWEEP_5", hold5ToSweep5),
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path5),
-                                                                                                kit.firstOf("Sweep the rest (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6Path4),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1500)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200))))),
-                                                                                        kit.afterMs(350).then(
-                                                                                                kit.path("SWEEP_5 to SWEEP_6", sweep5ToSweep6Path6),
-                                                                                                kit.firstOf("Sweep the spills (5) (6)",
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(500)),
-                                                                                                kit.path("SWEEP_6 to HOLD_6", sweep6ToHold6Path5),
-                                                                                                kit.firstOf("Our CELL up (5)",
-                                                                                                        kit.when("RightCellUp"),
-                                                                                                        kit.afterMs(14000)),
-                                                                                                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("Empty"),
-                                                                                                        kit.afterMs(400)),
-                                                                                                kit.firstOf("Pick up the rest (5)", kit.command("CollectSeen"),
-                                                                                                        kit.when("IntakeFull"),
-                                                                                                        kit.afterMs(1800)),
-                                                                                                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(1200)),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))),
-                                                                                                kit.firstOf("Tipped? (5)",
-                                                                                                        kit.when("LeftCellUp"),
-                                                                                                        kit.afterMs(50).then(
-                                                                                                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
-                                                                                                                        kit.when("IntakeFull"),
-                                                                                                                        kit.afterMs(1500)),
-                                                                                                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
-                                                                                                                        kit.when("LeftCellUp"),
-                                                                                                                        kit.afterMs(1200)))))))))))))));
+                        kit.afterMs(3000)),
+                kit.path("CATCH to CATCH_BACK", catchToCatchBackPath),
+                kit.path("CATCH_BACK to SHOOT_R", catchBackToShootRPath),
+                kit.firstOf("Our CELL up (5)",
+                        kit.when("RightCellUp"),
+                        kit.afterMs(14000)),
+                kit.firstOf("Fire (5)", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(400)),
+                kit.path("SHOOT_R to CATCH", shootRToCatch),
+                kit.firstOf("Pick up the rest (5)", kit.command("CollectSeen"),
+                        kit.when("IntakeFull"),
+                        kit.afterMs(2500)),
+                kit.path("CATCH to CATCH_BACK", catchToCatchBackPath2),
+                kit.path("CATCH_BACK to SHOOT_R", catchBackToShootRPath2),
+                kit.firstOf("Fire again (TIP 5)", kit.command("LaunchAll"),
+                        kit.when("LeftCellUp"),
+                        kit.afterMs(1500)),
+                kit.firstOf("Tipped? (5)",
+                        kit.when("LeftCellUp"),
+                        kit.afterMs(50).then(
+                                kit.firstOf("Pick up more (5.1)", kit.command("CollectSeen"),
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(1500)),
+                                kit.firstOf("Fire once more (5.1)", kit.command("LaunchAll"),
+                                        kit.when("LeftCellUp"),
+                                        kit.afterMs(1200)))),
+                kit.firstOf("Tipped? (5)",
+                        kit.when("LeftCellUp"),
+                        kit.afterMs(50).then(
+                                kit.firstOf("Pick up more (5.2)", kit.command("CollectSeen"),
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(1500)),
+                                kit.firstOf("Fire once more (5.2)", kit.command("LaunchAll"),
+                                        kit.when("LeftCellUp"),
+                                        kit.afterMs(1200)))));
     }
 }

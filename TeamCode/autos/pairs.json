@@ -1,11 +1,11 @@
 {
   "pairs": [
-    { "name": "recycle3", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 83 / 76" },
-    { "name": "recycle4", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down: 82 / 64" },
-    { "name": "recycle5", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle4 + throws both ways: 85 / 75" },
-    { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 75 / 75" },
-    { "name": "left-tunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 73 / 76" },
-    { "name": "staged-three-tip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 71 / 59" },
-    { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 67" }
+    { "name": "recycle3", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 72 / 82" },
+    { "name": "recycle4", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 48 / 46" },
+    { "name": "recycle5", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 78 / 77" },
+    { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 72 / 73" },
+    { "name": "left-tunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 74 / 76" },
+    { "name": "staged-three-tip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 65 / 67" },
+    { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 68 / 72" }
   ]
 }

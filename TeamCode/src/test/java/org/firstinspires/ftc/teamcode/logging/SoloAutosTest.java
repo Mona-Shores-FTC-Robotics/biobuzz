@@ -62,8 +62,10 @@ public class SoloAutosTest {
         for (Alliance alliance : new Alliance[] {Alliance.RED, Alliance.BLUE}) {
             AutoSim.Result r = new AutoSim(SpillThreeTipAuto.class, alliance, 3572L).speed(50, 45)
                     .write(log("spill", alliance, 1));
-            // Two since catching became imperfect (FieldSim.grabs; was three): an older hand-drawn Auto, not re-tuned.
-            assertTrue(r.toString(), r.tipsAt.size() >= 2 && r.tipsAt.get(1) < AUTO_S);
+            // One since the spill was fitted to the 3 Oct 2026 films (FieldSim.FILMED_SPILL_EXIT_SCALE: it lands
+            // about 4 ft out, not against the wall where this Auto picks it up; two before that, three before
+            // FieldSim.grabs): an older hand-drawn Auto, not re-tuned.
+            assertTrue(r.toString(), r.tipsAt.size() >= 1 && r.tipsAt.get(0) < AUTO_S);
         }
     }
 
@@ -74,16 +76,18 @@ public class SoloAutosTest {
             AutoSim.Result r = new AutoSim(PartnerThreeTipAuto.class, alliance, 3572L).speed(50, 45)
                     .partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN)
                     .write(log("partner", alliance, 1));
-            // Two since catching became imperfect (FieldSim.grabs; was three): an older hand-drawn Auto, not re-tuned.
-            assertTrue(r.toString(), r.tipsAt.size() >= 2 && r.tipsAt.get(1) < AUTO_S);
+            // One since the spill was fitted to the 3 Oct 2026 films (FieldSim.FILMED_SPILL_EXIT_SCALE: it lands
+            // about 4 ft out, not against the wall where this Auto picks it up; two before that, three before
+            // FieldSim.grabs): an older hand-drawn Auto, not re-tuned.
+            assertTrue(r.toString(), r.tipsAt.size() >= 1 && r.tipsAt.get(0) < AUTO_S);
         }
     }
 
     /**
      * On the spring-hood robot, alone it tips twice and the endgame guard parks it; with a partner
      * that fires its preloads at the left CELL, it notices TIP 2 came early and takes its pieces
-     * right. (Since FLOWERs became solid it tips three times with the partner but without time to
-     * park.)
+     * right. (Since FLOWERs became solid it has no time to park with the partner; since the spill
+     * was fitted to the 3 Oct 2026 films it tips twice with the partner on this seed, not three times.)
      *
      * <p>History: this asserted three TIPs alone until 1 Oct 2026. That third TIP landed at about
      * 30.5 s, and only because the guard then checked between cards and let the TIP 3 volley run
@@ -98,8 +102,10 @@ public class SoloAutosTest {
             AutoSim.Result paired = new AutoSim(ThreeTipAdaptiveAuto.class, alliance, 3572L).speed(50, 45)
                     .design(RobotDesign.springHood()).alsoRun(PartnerPreloadsParkAuto.class).speed(40, 36)
                     .write(log("adaptive-with-partner", alliance, 1));
-            // Still 3 TIPs with the partner, but since FLOWERs became solid the extra ~3 s per pickup costs the PARK.
-            assertTrue(paired.toString(), paired.autoTips() >= 3);
+            // 2 TIPs on this seed since the spill was fitted to the 3 Oct 2026 films: the spilled NECTAR it
+            // fetches for TIP 3 lies 30-50 in out now, not at the wall (3 before that; the 20-seed study has
+            // TIP 3 in 16 of 20 with two spring hoods). Since FLOWERs became solid it has no time to park.
+            assertTrue(paired.toString(), paired.autoTips() >= 2);
             assertTrue(paired.toString(), Double.isNaN(paired.robotsCollidedAt));
             for (AutoSim.RobotResult r : paired.robots) {
                 assertTrue(paired.toString(), Double.isNaN(r.crossedAt) && Double.isNaN(r.hitHiveAt));

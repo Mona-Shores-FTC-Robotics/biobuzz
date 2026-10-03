@@ -10,7 +10,7 @@ The robot turns whichever end is nearer the CELL; flipping the slats costs a gue
 """
 import sys
 from helpers import *
-from recycle4 import right as right4
+from recycle3 import right as right3
 
 BOTH = "clump catapult 72 deg, triangle cup, full-width intake, shoots both ways"
 # Both start 2 in further east than recycle3's (x 61: the side 0.5 in short of the centre line), the
@@ -19,7 +19,9 @@ R0, L0 = (61, 9.5, 90), (61, 132.25, 270)
 
 
 def right(name="recycle5-right"):
-    return right4(name, R0)
+    # recycle3's right robot (3 Oct 2026 films): recycle4's, which staged its catch against the wall,
+    # catches nothing there now that the spill lands about 4 ft out.
+    return right3(name, R0)
 
 
 def left(name="recycle5-left"):
@@ -31,15 +33,16 @@ def left(name="recycle5-left"):
           fire(r, "Fire the preloads", "Empty", ms=2000), *flower(r, "FLOWER_L", "The far FLOWER", ms=1800))
     r.at = "FLOWER_L"
     r.add(r.go("FLOWER_L_IN", heading=90), fire(r, "Throw the FLOWER back (TIP 2)", "Empty", ms=1500))
-    # Home at once, turning to face the HIVE, and catch TIP 2's spill there (it lands about 1.5 s after
-    # the volley leaves); hold it for TIP 3 at BACK_W.
+    # Turning to face the HIVE, to where TIP 2's spill lands (about 4 ft out from our wall: 3 Oct 2026
+    # films), and catch it (it lands about 1.5 s after the volley leaves); hold it for TIP 3 at BACK_W.
     # (Turn at MID, clear of the FLOWER and of the centre line; catch at x 57.5.)
-    r.pt("MID", 50, 114, 270).pt("CATCH_L", 57.5, 128, 270)
+    r.pt("MID", 50, 114, 270).pt("CATCH_L", *CATCH_L).pt("CATCH_L_BACK", CATCH_L[0], CATCH_L[1] + 3, CATCH_L[2])
     r.at = "FLOWER_L_IN"
     r.add(r.go("MID", turn_after=0.2, turn_by=0.9), r.go("CATCH_L", heading=270),
-          r.wait("TIP 2: catch the spill", when=["IntakeFull"], ms=3000))
+          r.wait("TIP 2: catch the spill", when=["IntakeFull"], ms=3000, alongside="CollectSeen"),
+          r.go("CATCH_L_BACK", turn_after=0.4, turn_by=1.0))
     r.pt("BACK_W", 30, 108, 140)
-    r.at = "CATCH_L"
+    r.at = "CATCH_L_BACK"
     r.add(r.go("BACK_W", ctrl=[(57.5, 114), (42, 110)], turn_after=0.2, turn_by=0.8),
           *waits(r, "Our CELL up (3)", "LeftCellUp", 10.0), fire(r, "Throw the catch back (3)", "Empty", ms=600))
     # TIP 4: the wall FLOWER and back to BACK_W, throwing it back.

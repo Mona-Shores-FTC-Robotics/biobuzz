@@ -20,7 +20,7 @@ public final class ThreeTipAdaptiveAuto {
     public static final String SOURCE = "three-tip-adaptive.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll"};
+    public static final String[] COMMANDS = {"CollectSeen", "LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp"};
@@ -48,8 +48,8 @@ public final class ThreeTipAdaptiveAuto {
         Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.36, 127.59, 90);
         Pose farFlowerTurn = p.of(47.36, 119.29, 90);
-        Pose rightPlungeIn = p.of(55, 24, 270);
-        Pose rightPlunge = p.of(55, 10.5, 270);
+        Pose rightLook = p.of(50, 27, 72);
+        Pose rightLookBack = p.of(49, 24, 72);
         Pose rightShot = p.of(36, 30, 49);
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(15, 89.5, 90);
@@ -69,15 +69,15 @@ public final class ThreeTipAdaptiveAuto {
         Pose leftShotToRightShotControl2 = p.of(12, 60, 0);
         Pose leftShotToRightShotControl3 = p.of(22, 30, 0);
         Pose leftShotToRightShotSegment1Start = p.of(36, 30, 301);
-        Pose rightShotToRightPlungeInSegment1Start = p.of(55, 24, 49);
-        Pose rightPlungeToRightShotSegment1Start = p.of(36, 30, 270);
+        Pose rightShotToRightLookSegment1Start = p.of(50, 27, 49);
+        Pose rightLookBackToRightShotSegment1Start = p.of(36, 30, 72);
         Pose rightShotToGardenSegment1Start = p.of(8.5, 11, 49);
         Pose gardenToRightShotSegment1Start = p.of(36, 30, 270);
-        Pose leftShotToRightPlungeInControl1 = p.of(34, 92, 0);
-        Pose leftShotToRightPlungeInControl2 = p.of(12, 60, 0);
-        Pose leftShotToRightPlungeInControl3 = p.of(22, 30, 0);
-        Pose leftShotToRightPlungeInSegment1Start = p.of(55, 24, 301);
-        Pose rightPlungeToRightShot_2Segment1Start = p.of(36, 30, 270);
+        Pose leftShotToRightLookControl1 = p.of(34, 92, 0);
+        Pose leftShotToRightLookControl2 = p.of(12, 60, 0);
+        Pose leftShotToRightLookControl3 = p.of(22, 30, 0);
+        Pose leftShotToRightLookSegment1Start = p.of(50, 27, 301);
+        Pose rightLookBackToRightShot_2Segment1Start = p.of(36, 30, 72);
         Pose rightShotToGarden_2Segment1Start = p.of(8.5, 11, 49);
         Pose gardenToRightShot_2Segment1Start = p.of(36, 30, 270);
         Pose rightShotToParkControl1 = p.of(22, 40, 0);
@@ -92,14 +92,14 @@ public final class ThreeTipAdaptiveAuto {
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(farFlowerToLeftShotSegment1Heading)).until(1, Interpolator.linear(farFlowerToLeftShotSegment2Start, leftShot)));
         Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path rightShotToRightPlungeIn = Paths.line(rightShot, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
-        Path rightPlungeInToRightPlunge = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
-        Path rightPlungeToRightShot = Paths.line(rightPlunge, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightPlungeToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path rightShotToRightLook = Paths.line(rightShot, rightLook).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightLookSegment1Start, rightLook)).until(1, Interpolator.constant(rightLook)));
+        Path rightLookToRightLookBack = Paths.line(rightLook, rightLookBack).linear(rightLook, rightLookBack);
+        Path rightLookBackToRightShot = Paths.line(rightLookBack, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightLookBackToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
         Path rightShotToGarden = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToRightShot = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path leftShotToRightPlungeIn = Paths.curve(leftShot, leftShotToRightPlungeInControl1, leftShotToRightPlungeInControl2, leftShotToRightPlungeInControl3, rightPlungeIn).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightPlungeInSegment1Start, rightPlungeIn)).until(1, Interpolator.constant(rightPlungeIn)));
-        Path rightPlungeInToRightPlungePath = Paths.line(rightPlungeIn, rightPlunge).linear(rightPlungeIn, rightPlunge);
-        Path rightPlungeToRightShotPath = Paths.line(rightPlunge, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightPlungeToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
+        Path leftShotToRightLook = Paths.curve(leftShot, leftShotToRightLookControl1, leftShotToRightLookControl2, leftShotToRightLookControl3, rightLook).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightLookSegment1Start, rightLook)).until(1, Interpolator.constant(rightLook)));
+        Path rightLookToRightLookBackPath = Paths.line(rightLook, rightLookBack).linear(rightLook, rightLookBack);
+        Path rightLookBackToRightShotPath = Paths.line(rightLookBack, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightLookBackToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
         Path rightShotToGardenPath = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGarden_2Segment1Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToRightShotPath = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
         Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
@@ -126,12 +126,12 @@ public final class ThreeTipAdaptiveAuto {
                                 kit.when("RightCellUp").then(
                                         kit.path("LEFT_SHOT to RIGHT_SHOT", leftShotToRightShot),
                                         kit.command("LaunchAll"),
-                                        kit.path("RIGHT_SHOT to RIGHT_PLUNGE_IN", rightShotToRightPlungeIn),
-                                        kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlunge),
-                                        kit.firstOf("Spilled NECTAR (B)",
+                                        kit.path("RIGHT_SHOT to RIGHT_LOOK", rightShotToRightLook),
+                                        kit.firstOf("Spilled NECTAR (B)", kit.command("CollectSeen"),
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(600)),
-                                        kit.path("RIGHT_PLUNGE to RIGHT_SHOT", rightPlungeToRightShot),
+                                                kit.afterMs(1500)),
+                                        kit.path("RIGHT_LOOK to RIGHT_LOOK_BACK", rightLookToRightLookBack),
+                                        kit.path("RIGHT_LOOK_BACK to RIGHT_SHOT", rightLookBackToRightShot),
                                         kit.firstOf("Fire (B)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
@@ -150,12 +150,12 @@ public final class ThreeTipAdaptiveAuto {
                                         kit.firstOf("Fire until it tips (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),
-                                        kit.path("LEFT_SHOT to RIGHT_PLUNGE_IN", leftShotToRightPlungeIn),
-                                        kit.path("RIGHT_PLUNGE_IN to RIGHT_PLUNGE", rightPlungeInToRightPlungePath),
-                                        kit.firstOf("Spilled NECTAR",
+                                        kit.path("LEFT_SHOT to RIGHT_LOOK", leftShotToRightLook),
+                                        kit.firstOf("Spilled NECTAR", kit.command("CollectSeen"),
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(400)),
-                                        kit.path("RIGHT_PLUNGE to RIGHT_SHOT", rightPlungeToRightShotPath),
+                                                kit.afterMs(1500)),
+                                        kit.path("RIGHT_LOOK to RIGHT_LOOK_BACK", rightLookToRightLookBackPath),
+                                        kit.path("RIGHT_LOOK_BACK to RIGHT_SHOT", rightLookBackToRightShotPath),
                                         kit.command("LaunchAll"),
                                         kit.path("RIGHT_SHOT to GARDEN", rightShotToGardenPath),
                                         kit.firstOf("Collect in the GARDEN",

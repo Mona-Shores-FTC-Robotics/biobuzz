@@ -133,6 +133,18 @@ final class FieldSim {
     static final double PLACEHOLDER_ROLL_SPREAD = 0.35;
     static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 3.0;
     static final double PLACEHOLDER_SPILL_KICK_IN_PER_S = 4.0;
+    /**
+     * A spilled piece's speed as it leaves the lowered CELL, as a fraction of what it gathered rolling
+     * down the CELL's floor (only out of a CELL that is tipping or down: a shot rebounding out of the
+     * raised CELL keeps its speed). Fitted to the 3 Oct 2026 films (IMG_1957–1960, 120 fps): real
+     * pieces pour off the lip and drop nearly straight down, first touching the tiles close under it,
+     * about 4 ft out from the alliance wall (from a photo of the box that caught them, ±6 in), about
+     * 1.15 s after the rocker starts to move. Rolling freely they flew another foot toward the wall.
+     * At 0.25 the simulated first touch is 44–48 in out, 1.15 s after the TIP starts.
+     * {@link SpillLandingTest} checks the fit.
+     */
+    static final double FILMED_SPILL_EXIT_SCALE = 0.25;
+    static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
@@ -1266,6 +1278,11 @@ final class FieldSim {
             if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
             if (now == null && p.cell != null) {
                 events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
+                if (fromLoweredCell(p.cell)) {
+                    p.vx *= spillExitScale;
+                    p.vy *= spillExitScale;
+                    p.vz *= spillExitScale;
+                }
                 if (spillVariety > 0 && variety != null) {
                     double k = PLACEHOLDER_SPILL_KICK_IN_PER_S * spillVariety;
                     p.vx += k * variety.nextGaussian();
@@ -1275,6 +1292,19 @@ final class FieldSim {
             }
             p.cell = now;
         }
+    }
+
+    /**
+     * Whether {@code cell} is not its rocker's raised one: tipping or down, so a piece leaving it is a
+     * spill. A shot that rebounds out of the raised CELL keeps its speed.
+     */
+    private boolean fromLoweredCell(HiveCell cell) {
+        for (Rocker r : rockers) {
+            if (r.alliance != cell.alliance()) continue;
+            int raised = r.raisedEnd();
+            return raised == 0 || r.cell(raised) != cell;
+        }
+        return false;
     }
 
     /** Pieces in a CELL. */

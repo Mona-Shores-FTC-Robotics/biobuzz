@@ -13,7 +13,9 @@ def adaptive(name="three-tip-adaptive", speed=50, staged=False, stops=None, back
     r = Route(name, (59, 9.5, 90), speed=speed)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180).pt("LEFT_SHOT", 40, 116, 301)
     flower_points(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
-    r.pt("RIGHT_PLUNGE_IN", 55, 24, 270).pt("RIGHT_PLUNGE", 55, 10.5, 270).pt("RIGHT_SHOT", 36, 30, 49)
+    # TIP 1's spilled NECTAR lies where the spill lands, 30-50 in out from our wall (3 Oct 2026 films),
+    # not against it: look for it from RIGHT_LOOK, facing the HIVE, and take it with the webcam.
+    r.pt("RIGHT_LOOK", 50, 27, 72).pt("RIGHT_LOOK_BACK", 49, 24, 72).pt("RIGHT_SHOT", 36, 30, 49)
     r.pt("GARDEN", 8.5, 11, 270).pt("PARK", 15, 89.5, 90)  # near end of the LOADING ZONE; the partner takes the far end
     right_cps = [(34, 92), (12, 60), (22, 30)]
     # All 4 preloads, and away the moment the last is in the air: this Auto doesn't catch the TIP 1
@@ -47,16 +49,18 @@ def adaptive(name="three-tip-adaptive", speed=50, staged=False, stops=None, back
     # Branch A: left CELL still up (we make TIP 2). Branch B: a partner already made TIP 2.
     r.at = "LEFT_SHOT"
     a = [fire(r, "Fire until it tips (TIP 2)", "RightCellUp", ms=2500),
-         r.go("RIGHT_PLUNGE_IN", ctrl=right_cps), r.go("RIGHT_PLUNGE"),
-         r.wait("Spilled NECTAR", when=["IntakeFull"], ms=400),
-         r.go("RIGHT_SHOT"), r.action("LaunchAll"),
+         r.go("RIGHT_LOOK", ctrl=right_cps), r.wait("Spilled NECTAR", when=["IntakeFull"], ms=1500, alongside="CollectSeen"),
+         r.go("RIGHT_LOOK_BACK", turn_after=0.4, turn_by=1.0)]
+    r.at = "RIGHT_LOOK_BACK"
+    a += [r.go("RIGHT_SHOT"), r.action("LaunchAll"),
          r.go("GARDEN"), r.wait("Collect in the GARDEN", when=["IntakeFull"], ms=1000),
          r.go("RIGHT_SHOT"), fire(r, "Fire until it tips (TIP 3)", "LeftCellUp", ms=2500)]
     r.at = "LEFT_SHOT"
     b = [r.go("RIGHT_SHOT", ctrl=right_cps), r.action("LaunchAll"),
-         r.go("RIGHT_PLUNGE_IN"), r.go("RIGHT_PLUNGE"),
-         r.wait("Spilled NECTAR (B)", when=["IntakeFull"], ms=600),
-         r.go("RIGHT_SHOT"), fire(r, "Fire (B)", "Empty", ms=2000)]
+         r.go("RIGHT_LOOK"), r.wait("Spilled NECTAR (B)", when=["IntakeFull"], ms=1500, alongside="CollectSeen"),
+         r.go("RIGHT_LOOK_BACK", turn_after=0.4, turn_by=1.0)]
+    r.at = "RIGHT_LOOK_BACK"
+    b += [r.go("RIGHT_SHOT"), fire(r, "Fire (B)", "Empty", ms=2000)]
     r.at = "RIGHT_SHOT"
     more = [r.go("GARDEN"), r.wait("Collect in the GARDEN (B)", when=["IntakeFull"], ms=1000),
             r.go("RIGHT_SHOT"), fire(r, "Fire the TIP 3 volley, then park", "Empty", ms=2000)]

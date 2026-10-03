@@ -186,17 +186,17 @@
       }
     },
     {
-      "id": "to-right-plunge-in-7",
+      "id": "to-right-look-7",
       "color": "#3cc8e4",
-      "name": "LEFT_SHOT to RIGHT_PLUNGE_IN",
+      "name": "LEFT_SHOT to RIGHT_LOOK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 55,
-        "y": 24
+        "x": 50,
+        "y": 27
       },
       "controlPoints": [
         {
@@ -222,7 +222,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 301,
-                "endDeg": 270
+                "endDeg": 72
               }
             },
             {
@@ -230,7 +230,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 270
+                "degrees": 72
               }
             }
           ]
@@ -238,29 +238,29 @@
       }
     },
     {
-      "id": "to-right-plunge-8",
+      "id": "to-right-look-back-8",
       "color": "#3cc8e4",
-      "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
+      "name": "RIGHT_LOOK to RIGHT_LOOK_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 55,
-        "y": 10.5
+        "x": 49,
+        "y": 24
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
-        "endDeg": 270
+        "startDeg": 72,
+        "endDeg": 72
       }
     },
     {
       "id": "to-right-shot-9",
       "color": "#3cc8e4",
-      "name": "RIGHT_PLUNGE to RIGHT_SHOT",
+      "name": "RIGHT_LOOK_BACK to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -280,7 +280,7 @@
               "endProgress": 0.65,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 270,
+                "startDeg": 72,
                 "endDeg": 49
               }
             },
@@ -427,17 +427,17 @@
       }
     },
     {
-      "id": "to-right-plunge-in-13",
+      "id": "to-right-look-13",
       "color": "#3cc8e4",
-      "name": "RIGHT_SHOT to RIGHT_PLUNGE_IN",
+      "name": "RIGHT_SHOT to RIGHT_LOOK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 55,
-        "y": 24
+        "x": 50,
+        "y": 27
       },
       "controlPoints": [],
       "heading": {
@@ -450,7 +450,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 49,
-                "endDeg": 270
+                "endDeg": 72
               }
             },
             {
@@ -458,7 +458,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 270
+                "degrees": 72
               }
             }
           ]
@@ -466,29 +466,29 @@
       }
     },
     {
-      "id": "to-right-plunge-14",
+      "id": "to-right-look-back-14",
       "color": "#3cc8e4",
-      "name": "RIGHT_PLUNGE_IN to RIGHT_PLUNGE",
+      "name": "RIGHT_LOOK to RIGHT_LOOK_BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 55,
-        "y": 10.5
+        "x": 49,
+        "y": 24
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 270,
-        "endDeg": 270
+        "startDeg": 72,
+        "endDeg": 72
       }
     },
     {
       "id": "to-right-shot-15",
       "color": "#3cc8e4",
-      "name": "RIGHT_PLUNGE to RIGHT_SHOT",
+      "name": "RIGHT_LOOK_BACK to RIGHT_SHOT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -508,7 +508,7 @@
               "endProgress": 0.65,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 270,
+                "startDeg": 72,
                 "endDeg": 49
               }
             },
@@ -752,11 +752,11 @@
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-in-7"
+      "lineId": "to-right-look-7"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-8"
+      "lineId": "to-right-look-back-8"
     },
     {
       "kind": "path",
@@ -776,11 +776,11 @@
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-in-13"
+      "lineId": "to-right-look-13"
     },
     {
       "kind": "path",
-      "lineId": "to-right-plunge-14"
+      "lineId": "to-right-look-back-14"
     },
     {
       "kind": "path",
@@ -896,15 +896,15 @@
         119.29,
         90
       ],
-      "RIGHT_PLUNGE_IN": [
-        55,
-        24,
-        270
+      "RIGHT_LOOK": [
+        50,
+        27,
+        72
       ],
-      "RIGHT_PLUNGE": [
-        55,
-        10.5,
-        270
+      "RIGHT_LOOK_BACK": [
+        49,
+        24,
+        72
       ],
       "RIGHT_SHOT": [
         36,
@@ -932,7 +932,7 @@
         90
       ],
       "ROW_BACK": [
-        34,
+        34.6,
         116,
         90
       ]
@@ -944,14 +944,14 @@
       "to-far-flower-turn-4": "FAR_FLOWER_TURN",
       "to-far-flower-5": "FAR_FLOWER",
       "to-left-shot-6": "LEFT_SHOT",
-      "to-right-plunge-in-7": "RIGHT_PLUNGE_IN",
-      "to-right-plunge-8": "RIGHT_PLUNGE",
+      "to-right-look-7": "RIGHT_LOOK",
+      "to-right-look-back-8": "RIGHT_LOOK_BACK",
       "to-right-shot-9": "RIGHT_SHOT",
       "to-garden-10": "GARDEN",
       "to-right-shot-11": "RIGHT_SHOT",
       "to-right-shot-12": "RIGHT_SHOT",
-      "to-right-plunge-in-13": "RIGHT_PLUNGE_IN",
-      "to-right-plunge-14": "RIGHT_PLUNGE",
+      "to-right-look-13": "RIGHT_LOOK",
+      "to-right-look-back-14": "RIGHT_LOOK_BACK",
       "to-right-shot-15": "RIGHT_SHOT",
       "to-garden-16": "GARDEN",
       "to-right-shot-17": "RIGHT_SHOT",
@@ -1077,17 +1077,11 @@
               {
                 "id": "p-23",
                 "kind": "path",
-                "lineId": "to-right-plunge-in-13",
+                "lineId": "to-right-look-13",
                 "park": false
               },
               {
-                "id": "p-24",
-                "kind": "path",
-                "lineId": "to-right-plunge-14",
-                "park": false
-              },
-              {
-                "id": "w-25",
+                "id": "w-24",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR (B)",
                 "rows": [
@@ -1098,10 +1092,17 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 600,
+                    "afterMs": 1500,
                     "cards": []
                   }
-                ]
+                ],
+                "alongside": "CollectSeen"
+              },
+              {
+                "id": "p-25",
+                "kind": "path",
+                "lineId": "to-right-look-back-14",
+                "park": false
               },
               {
                 "id": "p-26",
@@ -1221,17 +1222,11 @@
               {
                 "id": "p-12",
                 "kind": "path",
-                "lineId": "to-right-plunge-in-7",
+                "lineId": "to-right-look-7",
                 "park": false
               },
               {
-                "id": "p-13",
-                "kind": "path",
-                "lineId": "to-right-plunge-8",
-                "park": false
-              },
-              {
-                "id": "w-14",
+                "id": "w-13",
                 "kind": "firstOf",
                 "label": "Spilled NECTAR",
                 "rows": [
@@ -1242,10 +1237,17 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 400,
+                    "afterMs": 1500,
                     "cards": []
                   }
-                ]
+                ],
+                "alongside": "CollectSeen"
+              },
+              {
+                "id": "p-14",
+                "kind": "path",
+                "lineId": "to-right-look-back-8",
+                "park": false
               },
               {
                 "id": "p-15",

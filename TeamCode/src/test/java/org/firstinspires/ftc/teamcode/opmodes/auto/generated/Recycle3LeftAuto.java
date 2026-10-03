@@ -50,6 +50,8 @@ public final class Recycle3LeftAuto {
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
         Pose flowerLBackHome = p.of(57.5, 119.29, 270);
         Pose shootW = p.of(26, 112, 320);
+        Pose catchValue = p.of(57.5, 108.5, 270);
+        Pose catchBack = p.of(57.5, 111.5, 270);
         Pose lookL = p.of(44, 112, 330);
         Pose shootL = p.of(42, 118, 296);
 
@@ -60,10 +62,10 @@ public final class Recycle3LeftAuto {
         Pose flowerLToFlowerLBackHomeSegment1Heading = p.of(57.5, 119.29, 90);
         Pose flowerLToFlowerLBackHomeSegment2Start = p.of(57.5, 119.29, 90);
         Pose flowerLBackHomeToHomeControl1 = p.of(59, 121.29, 0);
-        Pose homeToShootWControl1 = p.of(57.5, 114, 0);
-        Pose homeToShootWControl2 = p.of(40, 110, 0);
-        Pose homeToShootWSegment1Heading = p.of(26, 112, 270);
-        Pose homeToShootWSegment2Start = p.of(26, 112, 270);
+        Pose catchBackToShootWControl1 = p.of(57.5, 114, 0);
+        Pose catchBackToShootWControl2 = p.of(40, 110, 0);
+        Pose catchBackToShootWSegment1Heading = p.of(26, 112, 270);
+        Pose catchBackToShootWSegment2Start = p.of(26, 112, 270);
         Pose shootWToWallFlowerTurnControl1 = p.of(22, 90, 0);
         Pose shootWToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 320);
         Pose shootWToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 320);
@@ -78,7 +80,9 @@ public final class Recycle3LeftAuto {
         Path flowerLTurnToFlowerL = Paths.line(flowerLTurn, flowerL).constant(flowerL);
         Path flowerLToFlowerLBackHome = Paths.line(flowerL, flowerLBackHome).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(flowerLToFlowerLBackHomeSegment1Heading)).until(1, Interpolator.linear(flowerLToFlowerLBackHomeSegment2Start, flowerLBackHome)));
         Path flowerLBackHomeToHome = Paths.curve(flowerLBackHome, flowerLBackHomeToHomeControl1, home).constant(home);
-        Path homeToShootW = Paths.curve(home, homeToShootWControl1, homeToShootWControl2, shootW).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(homeToShootWSegment1Heading)).until(0.8, Interpolator.linear(homeToShootWSegment2Start, shootW)).until(1, Interpolator.constant(shootW)));
+        Path homeToCatch = Paths.line(home, catchValue).linear(home, catchValue);
+        Path catchToCatchBack = Paths.line(catchValue, catchBack).linear(catchValue, catchBack);
+        Path catchBackToShootW = Paths.curve(catchBack, catchBackToShootWControl1, catchBackToShootWControl2, shootW).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(catchBackToShootWSegment1Heading)).until(0.8, Interpolator.linear(catchBackToShootWSegment2Start, shootW)).until(1, Interpolator.constant(shootW)));
         Path shootWToWallFlowerTurn = Paths.curve(shootW, shootWToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(shootWToWallFlowerTurnSegment1Heading)).until(0.7, Interpolator.linear(shootWToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
         Path wallFlowerToShootW = Paths.curve(wallFlower, wallFlowerToShootWControl1, shootW).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToShootWSegment1Heading)).until(0.8, Interpolator.linear(wallFlowerToShootWSegment2Start, shootW)).until(1, Interpolator.constant(shootW)));
@@ -103,10 +107,12 @@ public final class Recycle3LeftAuto {
                 kit.firstOf("Fire the FLOWER (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.firstOf("TIP 2: catch the spill",
+                kit.path("HOME to CATCH", homeToCatch),
+                kit.firstOf("TIP 2: catch the spill", kit.command("CollectSeen"),
                         kit.when("IntakeFull"),
-                        kit.afterMs(2500)),
-                kit.path("HOME to SHOOT_W", homeToShootW),
+                        kit.afterMs(3000)),
+                kit.path("CATCH to CATCH_BACK", catchToCatchBack),
+                kit.path("CATCH_BACK to SHOOT_W", catchBackToShootW),
                 kit.firstOf("Our CELL up (3)",
                         kit.when("LeftCellUp"),
                         kit.afterMs(10000)),

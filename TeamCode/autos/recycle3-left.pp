@@ -133,9 +133,49 @@
       }
     },
     {
-      "id": "to-shoot-w-5",
+      "id": "to-catch-5",
       "color": "#3cc8e4",
-      "name": "HOME to SHOOT_W",
+      "name": "HOME to CATCH",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 108.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-catch-back-6",
+      "color": "#3cc8e4",
+      "name": "CATCH to CATCH_BACK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 111.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-shoot-w-7",
+      "color": "#3cc8e4",
+      "name": "CATCH_BACK to SHOOT_W",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -189,7 +229,7 @@
       }
     },
     {
-      "id": "to-wall-flower-turn-6",
+      "id": "to-wall-flower-turn-8",
       "color": "#3cc8e4",
       "name": "SHOOT_W to WALL_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -241,7 +281,7 @@
       }
     },
     {
-      "id": "to-wall-flower-7",
+      "id": "to-wall-flower-9",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER_TURN to WALL_FLOWER",
       "waitBeforeMs": 0,
@@ -260,7 +300,7 @@
       }
     },
     {
-      "id": "to-shoot-w-8",
+      "id": "to-shoot-w-10",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER to SHOOT_W",
       "waitBeforeMs": 0,
@@ -312,7 +352,7 @@
       }
     },
     {
-      "id": "to-look-l-9",
+      "id": "to-look-l-11",
       "color": "#3cc8e4",
       "name": "SHOOT_W to LOOK_L",
       "waitBeforeMs": 0,
@@ -351,7 +391,7 @@
       }
     },
     {
-      "id": "to-shoot-l-10",
+      "id": "to-shoot-l-12",
       "color": "#3cc8e4",
       "name": "LOOK_L to SHOOT_L",
       "waitBeforeMs": 0,
@@ -483,27 +523,35 @@
     },
     {
       "kind": "path",
-      "lineId": "to-shoot-w-5"
+      "lineId": "to-catch-5"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-6"
+      "lineId": "to-catch-back-6"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-7"
+      "lineId": "to-shoot-w-7"
     },
     {
       "kind": "path",
-      "lineId": "to-shoot-w-8"
+      "lineId": "to-wall-flower-turn-8"
     },
     {
       "kind": "path",
-      "lineId": "to-look-l-9"
+      "lineId": "to-wall-flower-9"
     },
     {
       "kind": "path",
-      "lineId": "to-shoot-l-10"
+      "lineId": "to-shoot-w-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-look-l-11"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-shoot-l-12"
     }
   ],
   "settings": {
@@ -618,6 +666,16 @@
         112,
         320
       ],
+      "CATCH": [
+        57.5,
+        108.5,
+        270
+      ],
+      "CATCH_BACK": [
+        57.5,
+        111.5,
+        270
+      ],
       "LOOK_L": [
         44,
         112,
@@ -634,12 +692,14 @@
       "to-flower-l-2": "FLOWER_L",
       "to-flower-l-back-home-3": "FLOWER_L_BACK_HOME",
       "to-home-4": "HOME",
-      "to-shoot-w-5": "SHOOT_W",
-      "to-wall-flower-turn-6": "WALL_FLOWER_TURN",
-      "to-wall-flower-7": "WALL_FLOWER",
-      "to-shoot-w-8": "SHOOT_W",
-      "to-look-l-9": "LOOK_L",
-      "to-shoot-l-10": "SHOOT_L"
+      "to-catch-5": "CATCH",
+      "to-catch-back-6": "CATCH_BACK",
+      "to-shoot-w-7": "SHOOT_W",
+      "to-wall-flower-turn-8": "WALL_FLOWER_TURN",
+      "to-wall-flower-9": "WALL_FLOWER",
+      "to-shoot-w-10": "SHOOT_W",
+      "to-look-l-11": "LOOK_L",
+      "to-shoot-l-12": "SHOOT_L"
     },
     "startAt": "START",
     "cards": [
@@ -743,7 +803,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-10",
+        "id": "p-10",
+        "kind": "path",
+        "lineId": "to-catch-5",
+        "park": false
+      },
+      {
+        "id": "w-11",
         "kind": "firstOf",
         "label": "TIP 2: catch the spill",
         "rows": [
@@ -754,19 +820,26 @@
             "cards": []
           },
           {
-            "afterMs": 2500,
+            "afterMs": 3000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
-        "id": "p-11",
+        "id": "p-12",
         "kind": "path",
-        "lineId": "to-shoot-w-5",
+        "lineId": "to-catch-back-6",
         "park": false
       },
       {
-        "id": "w-12",
+        "id": "p-13",
+        "kind": "path",
+        "lineId": "to-shoot-w-7",
+        "park": false
+      },
+      {
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Our CELL up (3)",
         "rows": [
@@ -783,7 +856,7 @@
         ]
       },
       {
-        "id": "w-13",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Fire the spill (3)",
         "rows": [
@@ -801,19 +874,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-14",
+        "id": "p-16",
         "kind": "path",
-        "lineId": "to-wall-flower-turn-6",
+        "lineId": "to-wall-flower-turn-8",
         "park": false
       },
       {
-        "id": "p-15",
+        "id": "p-17",
         "kind": "path",
-        "lineId": "to-wall-flower-7",
+        "lineId": "to-wall-flower-9",
         "park": false
       },
       {
-        "id": "w-16",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "The wall FLOWER",
         "rows": [
@@ -830,13 +903,13 @@
         ]
       },
       {
-        "id": "p-17",
+        "id": "p-19",
         "kind": "path",
-        "lineId": "to-shoot-w-8",
+        "lineId": "to-shoot-w-10",
         "park": false
       },
       {
-        "id": "w-18",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Fire the wall FLOWER (TIP 4)",
         "rows": [
@@ -854,7 +927,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-23",
+        "id": "w-25",
         "kind": "firstOf",
         "label": "Tipped? (4)",
         "rows": [
@@ -869,13 +942,13 @@
             "afterMs": 300,
             "cards": [
               {
-                "id": "p-19",
+                "id": "p-21",
                 "kind": "path",
-                "lineId": "to-look-l-9",
+                "lineId": "to-look-l-11",
                 "park": false
               },
               {
-                "id": "w-20",
+                "id": "w-22",
                 "kind": "firstOf",
                 "label": "Collect TIP 2's spill",
                 "rows": [
@@ -893,13 +966,13 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "p-21",
+                "id": "p-23",
                 "kind": "path",
-                "lineId": "to-shoot-l-10",
+                "lineId": "to-shoot-l-12",
                 "park": false
               },
               {
-                "id": "w-22",
+                "id": "w-24",
                 "kind": "firstOf",
                 "label": "Fire the spill (TIP 4)",
                 "rows": [

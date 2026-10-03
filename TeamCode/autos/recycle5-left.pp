@@ -146,7 +146,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 128
+        "y": 108.5
       },
       "controlPoints": [],
       "heading": {
@@ -155,9 +155,29 @@
       }
     },
     {
-      "id": "to-back-w-6",
+      "id": "to-catch-l-back-6",
       "color": "#3cc8e4",
-      "name": "CATCH_L to BACK_W",
+      "name": "CATCH_L to CATCH_L_BACK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 111.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "linear",
+        "startDeg": 270,
+        "endDeg": 270
+      }
+    },
+    {
+      "id": "to-back-w-7",
+      "color": "#3cc8e4",
+      "name": "CATCH_L_BACK to BACK_W",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -211,7 +231,7 @@
       }
     },
     {
-      "id": "to-wall-flower-turn-7",
+      "id": "to-wall-flower-turn-8",
       "color": "#3cc8e4",
       "name": "BACK_W to WALL_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -263,7 +283,7 @@
       }
     },
     {
-      "id": "to-wall-flower-8",
+      "id": "to-wall-flower-9",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER_TURN to WALL_FLOWER",
       "waitBeforeMs": 0,
@@ -282,7 +302,7 @@
       }
     },
     {
-      "id": "to-back-w-9",
+      "id": "to-back-w-10",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER to BACK_W",
       "waitBeforeMs": 0,
@@ -334,7 +354,7 @@
       }
     },
     {
-      "id": "to-look-l-10",
+      "id": "to-look-l-11",
       "color": "#3cc8e4",
       "name": "BACK_W to LOOK_L",
       "waitBeforeMs": 0,
@@ -470,23 +490,27 @@
     },
     {
       "kind": "path",
-      "lineId": "to-back-w-6"
+      "lineId": "to-catch-l-back-6"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-7"
+      "lineId": "to-back-w-7"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-8"
+      "lineId": "to-wall-flower-turn-8"
     },
     {
       "kind": "path",
-      "lineId": "to-back-w-9"
+      "lineId": "to-wall-flower-9"
     },
     {
       "kind": "path",
-      "lineId": "to-look-l-10"
+      "lineId": "to-back-w-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-look-l-11"
     }
   ],
   "settings": {
@@ -590,7 +614,12 @@
       ],
       "CATCH_L": [
         57.5,
-        128,
+        108.5,
+        270
+      ],
+      "CATCH_L_BACK": [
+        57.5,
+        111.5,
         270
       ],
       "BACK_W": [
@@ -610,11 +639,12 @@
       "to-flower-l-in-3": "FLOWER_L_IN",
       "to-mid-4": "MID",
       "to-catch-l-5": "CATCH_L",
-      "to-back-w-6": "BACK_W",
-      "to-wall-flower-turn-7": "WALL_FLOWER_TURN",
-      "to-wall-flower-8": "WALL_FLOWER",
-      "to-back-w-9": "BACK_W",
-      "to-look-l-10": "LOOK_L"
+      "to-catch-l-back-6": "CATCH_L_BACK",
+      "to-back-w-7": "BACK_W",
+      "to-wall-flower-turn-8": "WALL_FLOWER_TURN",
+      "to-wall-flower-9": "WALL_FLOWER",
+      "to-back-w-10": "BACK_W",
+      "to-look-l-11": "LOOK_L"
     },
     "startAt": "START",
     "cards": [
@@ -738,16 +768,23 @@
             "afterMs": 3000,
             "cards": []
           }
-        ]
+        ],
+        "alongside": "CollectSeen"
       },
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-back-w-6",
+        "lineId": "to-catch-l-back-6",
         "park": false
       },
       {
-        "id": "w-13",
+        "id": "p-13",
+        "kind": "path",
+        "lineId": "to-back-w-7",
+        "park": false
+      },
+      {
+        "id": "w-14",
         "kind": "firstOf",
         "label": "Our CELL up (3)",
         "rows": [
@@ -764,7 +801,7 @@
         ]
       },
       {
-        "id": "w-14",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "Throw the catch back (3)",
         "rows": [
@@ -782,19 +819,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-15",
-        "kind": "path",
-        "lineId": "to-wall-flower-turn-7",
-        "park": false
-      },
-      {
         "id": "p-16",
         "kind": "path",
-        "lineId": "to-wall-flower-8",
+        "lineId": "to-wall-flower-turn-8",
         "park": false
       },
       {
-        "id": "w-17",
+        "id": "p-17",
+        "kind": "path",
+        "lineId": "to-wall-flower-9",
+        "park": false
+      },
+      {
+        "id": "w-18",
         "kind": "firstOf",
         "label": "The wall FLOWER",
         "rows": [
@@ -811,13 +848,13 @@
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-19",
         "kind": "path",
-        "lineId": "to-back-w-9",
+        "lineId": "to-back-w-10",
         "park": false
       },
       {
-        "id": "w-19",
+        "id": "w-20",
         "kind": "firstOf",
         "label": "Throw the wall FLOWER back (TIP 4)",
         "rows": [
@@ -835,7 +872,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-23",
+        "id": "w-24",
         "kind": "firstOf",
         "label": "Tipped? (4)",
         "rows": [
@@ -850,13 +887,13 @@
             "afterMs": 300,
             "cards": [
               {
-                "id": "p-20",
+                "id": "p-21",
                 "kind": "path",
-                "lineId": "to-look-l-10",
+                "lineId": "to-look-l-11",
                 "park": false
               },
               {
-                "id": "w-21",
+                "id": "w-22",
                 "kind": "firstOf",
                 "label": "Collect TIP 2's spill",
                 "rows": [
@@ -874,7 +911,7 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "w-22",
+                "id": "w-23",
                 "kind": "firstOf",
                 "label": "Fire the spill (TIP 4)",
                 "rows": [

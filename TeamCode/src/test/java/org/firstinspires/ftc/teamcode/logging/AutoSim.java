@@ -532,6 +532,20 @@ public final class AutoSim {
 
     static final double CATCHER_DEPLOY_S = 1.0;
 
+    /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
+    private static List<double[]> edges(double[] pose, double size) {
+        List<double[]> out = new ArrayList<>();
+        double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = size / 2;
+        int n = (int) Math.ceil(size);
+        for (int k = 0; k <= n; k++) {
+            double t = -half + size * k / n;
+            for (double[] l : new double[][] {{t, -half}, {t, half}, {-half, t}, {half, t}}) {
+                out.add(new double[] {pose[0] + l[0] * c - l[1] * s, pose[1] + l[0] * s + l[1] * c});
+            }
+        }
+        return out;
+    }
+
     /** Points around and inside an {@code size}-square footprint at {@code pose}. */
     private static List<double[]> corners(double[] pose, double size) {
         List<double[]> out = new ArrayList<>();
@@ -916,7 +930,7 @@ public final class AutoSim {
          * alone (G409).
          */
         private Command collectSeen() {
-            final double[] origin = new double[2];
+            final double[] origin = new double[3];
             final FieldSim.Piece[] target = new FieldSim.Piece[1];
             final double[] lookedAround = new double[1];
             return new CommandBuilder()
@@ -924,6 +938,7 @@ public final class AutoSim {
                         double[] at = pedro(drive.pose);
                         origin[0] = at[0];
                         origin[1] = at[1];
+                        origin[2] = at[2];
                         target[0] = null;
                         lookedAround[0] = 0;
                     })
@@ -943,13 +958,25 @@ public final class AutoSim {
                     .setEnd(end -> drive.hold(drive.pose));
         }
 
-        /** Whether the robot can turn on the spot here: its corners sweep a circle about 0.71 frames wide. */
+        /**
+         * Whether the robot can turn on the spot here: its corners sweep a circle about 0.71 frames wide,
+         * which must stay off the walls, FLOWERs and the HIVE's feet, and on our side of the centre line.
+         */
         private boolean canTurnHere() {
             double[] at = pedro(drive.pose);
             double reach = design.frameIn / Math.sqrt(2);
             if (at[0] < reach + 1 || at[1] < reach + 1 || at[0] > FieldSim.FIELD_SIZE_IN - reach - 1
                     || at[1] > FieldSim.FIELD_SIZE_IN - reach - 1) return false;
-            return !sim.hitsFlower(at[0], at[1], 0, 2 * reach);
+            if (sim.hitsFlower(at[0], at[1], 0, 2 * reach)) return false;
+            // Nor sweep a corner into the HIVE's feet or over the centre line (G402).
+            if (alliance == Alliance.BLUE ? at[0] - reach < FieldSim.CENTRE_IN : at[0] + reach > FieldSim.CENTRE_IN) return false;
+            for (int k = 0; k < 36; k++) {
+                double a = 2 * Math.PI * k / 36;
+                for (double rr = reach / 2; rr <= reach + 1.5; rr += reach / 4) {
+                    if (FieldSim.inHiveFrame(at[0] + rr * Math.cos(a), at[1] + rr * Math.sin(a))) return false;
+                }
+            }
+            return true;
         }
 
         private FieldSim.Piece nearestSeen(double[] origin) {
@@ -970,7 +997,7 @@ public final class AutoSim {
                     double xRed = alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x;
                     if (xRed < zone[0] || xRed > zone[1]) continue;
                 }
-                if (approachHitsFrame(p, at)) continue;
+                if (approachHitsFrame(p, at, origin[2])) continue;
                 if (d < bestD) {
                     bestD = d;
                     best = p;
@@ -980,11 +1007,11 @@ public final class AutoSim {
         }
 
         /**
-         * Whether driving onto {@code p} would put the robot into the HIVE frame's feet, a FLOWER, or
-         * through a wall, or against one near the end of AUTO (mentor review: it chased pieces into the
+         * Whether driving onto {@code p} would put the robot into the HIVE frame's feet, a FLOWER, over
+         * the centre line or through a wall, or against one near the end of AUTO (mentor review: it chased pieces into the
          * far FLOWER and lost LEAVE on the wall). The real CollectSeen needs the same rule.
          */
-        private boolean approachHitsFrame(FieldSim.Piece p, double[] at) {
+        private boolean approachHitsFrame(FieldSim.Piece p, double[] at, double originHeading) {
             // Touching the wall costs LEAVE only if the robot still touches it when AUTO ends (§10.5.4):
             // it may drive up to the wall for a piece until the last WALL_CLEAR_S, then stays 1 in off.
             double wall = now < AutoKit.AUTO_LENGTH_S - WALL_CLEAR_S ? 0 : 1;
@@ -995,8 +1022,27 @@ public final class AutoSim {
             for (double f = 0; f <= 1.0001; f += 0.25) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
                 if (sim.hitsFlower(mid[0], mid[1], mid[2], design.frameIn)) return true;
+                // 2.5 in clear of the HIVE's feet, along every edge: a spill lands right in front of the foot
+                // bars' ends (2 in wide, narrower than corners' spacing), and the robot drifts as it arrives.
+                // It turns on the way: try every heading between the one it starts with and the one it ends with.
+                double turn = AdvantageScopeFrame.wrap(end[2] - at[2]);
+                for (double g = 0; g <= 1.0001; g += 0.25) {
+                    double h = at[2] + turn * g;
+                    for (double[] c : edges(new double[] {mid[0], mid[1], h}, design.frameIn + 5)) {
+                        if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                    }
+                }
+                // And from anywhere on the way (the wait can end mid-drive), turn back to the heading it
+                // started collecting with: the Auto's next path starts from that heading.
+                double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
+                for (double g = 0; g <= 1.0001; g += 0.25) {
+                    for (double[] c : edges(new double[] {mid[0], mid[1], end[2] + back * g}, design.frameIn + 5)) {
+                        if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                    }
+                }
                 for (double[] c : corners(mid, design.frameIn)) {
-                    if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                    // G402: no part of the robot past the centre line (a spill scatters right up to it).
+                    if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                     if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
                 }
             }

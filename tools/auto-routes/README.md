@@ -4,18 +4,23 @@
 Auto Builder's own exporter, so many route ideas can be tried in the simulation quickly. The `.pp`
 it writes is still the source of truth: open it in the Auto Builder to see or change the route.
 
-## The candidates (3 Oct 2026)
+## The candidates (3 Oct 2026, on the filmed spill)
 
-Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles with 3× the friction.
+Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles with 3× the friction, with
+the spill fitted to the 3 Oct films: it pours off the lowered CELL's lip and lands about 4 ft out from the
+wall, not against it (`TeamCode/README.md`, "The spill, filmed"). The robots catch it standing just short
+of there (`helpers.catch_spill`). Before the films, the recycle Autos scored 82–85 by catching and
+sweeping a spill at the wall that the real HIVE doesn't put there.
 
 | Match | Script | Auto | Points | Needs |
 |---|---|---|---|---|
-| Our two sister robots | `recycle3.py` | recycle3 | 83 / 76 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
-| Our two sister robots | `recycle4.py` | recycle4 | 82 / 64 | recycle3, and an intake that runs backwards to set pieces down |
-| Our two sister robots | `recycle5.py` | recycle5 | 85 / 75 | recycle4, and slats that let the launcher throw straight back |
-| Partner fires its preloads | `three_tip_adaptive.py` | three-tip-adaptive | 75 / 75 | two spring hoods, front intake |
-| Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 73 / 76 | catapult, front intake |
-| Partner can't shoot, stages its preloads | (`.pp` only) | staged-three-tip | 71 / 59 | two spring hoods, webcam pickup |
+| Our two sister robots | `recycle5.py` | recycle5 | 78 / 77 | recycle3, and slats that let the left robot's launcher throw straight back |
+| Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 74 / 76 | catapult, front intake |
+| Our two sister robots | `recycle3.py` | recycle3 | 72 / 82 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
+| Partner fires its preloads | `three_tip_adaptive.py` | three-tip-adaptive | 72 / 73 | two spring hoods, front intake, webcam pickup |
+| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | solo-tunnel | 68 / 72 | two spring hoods, front intake |
+| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | staged-three-tip | 65 / 67 | two spring hoods, webcam pickup |
+| Our two sister robots | `recycle4.py` | recycle4 | 48 / 46 | not redesigned for the filmed spill: its right robot stages its catch against the wall |
 
 The simulated robots always know the HIVE's state: `LeftCellUp`, `RightCellUp` and `Tip` read the
 simulated HIVE directly, whichever way the robot faces. A real robot gets the same answers from the
@@ -48,7 +53,7 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 The links read `TeamCode/autos/` on `claude/simulator`. The simulator and these Autos stay on this
 branch, never `master`, so the links always name it.
 
-Also kept: `solo_tunnel.py` (solo-tunnel), `partners.py` (the reference partners every study runs
+Also kept: `partners.py` (the reference partners every study runs
 against), `snapshots.py` (pictures of the field, from `SnapshotTest`), and `helpers.py`.
 
 ```

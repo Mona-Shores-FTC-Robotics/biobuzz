@@ -49,7 +49,8 @@ public final class Recycle5LeftAuto {
         Pose wallFlower = p.of(13.91, 47.36, 180);
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
         Pose mid = p.of(50, 114, 270);
-        Pose catchL = p.of(57.5, 128, 270);
+        Pose catchL = p.of(57.5, 108.5, 270);
+        Pose catchLBack = p.of(57.5, 111.5, 270);
         Pose backW = p.of(30, 108, 140);
         Pose lookL = p.of(44, 112, 330);
 
@@ -59,10 +60,10 @@ public final class Recycle5LeftAuto {
         Pose startToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
         Pose flowerLInToMidSegment1Heading = p.of(50, 114, 90);
         Pose flowerLInToMidSegment2Start = p.of(50, 114, 90);
-        Pose catchLToBackWControl1 = p.of(57.5, 114, 0);
-        Pose catchLToBackWControl2 = p.of(42, 110, 0);
-        Pose catchLToBackWSegment1Heading = p.of(30, 108, 270);
-        Pose catchLToBackWSegment2Start = p.of(30, 108, 270);
+        Pose catchLBackToBackWControl1 = p.of(57.5, 114, 0);
+        Pose catchLBackToBackWControl2 = p.of(42, 110, 0);
+        Pose catchLBackToBackWSegment1Heading = p.of(30, 108, 270);
+        Pose catchLBackToBackWSegment2Start = p.of(30, 108, 270);
         Pose backWToWallFlowerTurnControl1 = p.of(24, 90, 0);
         Pose backWToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 140);
         Pose backWToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 140);
@@ -77,7 +78,8 @@ public final class Recycle5LeftAuto {
         Path flowerLToFlowerLIn = Paths.line(flowerL, flowerLIn).constant(flowerLIn);
         Path flowerLInToMid = Paths.line(flowerLIn, mid).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(flowerLInToMidSegment1Heading)).until(0.9, Interpolator.linear(flowerLInToMidSegment2Start, mid)).until(1, Interpolator.constant(mid)));
         Path midToCatchL = Paths.line(mid, catchL).constant(catchL);
-        Path catchLToBackW = Paths.curve(catchL, catchLToBackWControl1, catchLToBackWControl2, backW).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(catchLToBackWSegment1Heading)).until(0.8, Interpolator.linear(catchLToBackWSegment2Start, backW)).until(1, Interpolator.constant(backW)));
+        Path catchLToCatchLBack = Paths.line(catchL, catchLBack).linear(catchL, catchLBack);
+        Path catchLBackToBackW = Paths.curve(catchLBack, catchLBackToBackWControl1, catchLBackToBackWControl2, backW).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(catchLBackToBackWSegment1Heading)).until(0.8, Interpolator.linear(catchLBackToBackWSegment2Start, backW)).until(1, Interpolator.constant(backW)));
         Path backWToWallFlowerTurn = Paths.curve(backW, backWToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(backWToWallFlowerTurnSegment1Heading)).until(0.7, Interpolator.linear(backWToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
         Path wallFlowerToBackW = Paths.curve(wallFlower, wallFlowerToBackWControl1, backW).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToBackWSegment1Heading)).until(0.8, Interpolator.linear(wallFlowerToBackWSegment2Start, backW)).until(1, Interpolator.constant(backW)));
@@ -102,10 +104,11 @@ public final class Recycle5LeftAuto {
                         kit.afterMs(1500)),
                 kit.path("FLOWER_L_IN to MID", flowerLInToMid),
                 kit.path("MID to CATCH_L", midToCatchL),
-                kit.firstOf("TIP 2: catch the spill",
+                kit.firstOf("TIP 2: catch the spill", kit.command("CollectSeen"),
                         kit.when("IntakeFull"),
                         kit.afterMs(3000)),
-                kit.path("CATCH_L to BACK_W", catchLToBackW),
+                kit.path("CATCH_L to CATCH_L_BACK", catchLToCatchLBack),
+                kit.path("CATCH_L_BACK to BACK_W", catchLBackToBackW),
                 kit.firstOf("Our CELL up (3)",
                         kit.when("LeftCellUp"),
                         kit.afterMs(10000)),
