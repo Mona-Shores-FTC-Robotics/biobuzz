@@ -5,7 +5,9 @@
 | What | Where |
 |---|---|
 | **Visualizer** (our Auto Builder fork of the Pedro Pathing Visualizer) | <https://mona-shores-ftc-robotics.github.io/Visualizer/> |
-| Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=<file>.pp`, with links for each candidate in [`tools/auto-routes/README.md`](tools/auto-routes/README.md#open-them-in-the-visualizer) |
+| Open one of our Autos in it | `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=<branch>/<file>.pp` (leave out `<branch>/` for `master`) |
+| Open a pair of Autos together | `https://mona-shores-ftc-robotics.github.io/Visualizer/#team=<branch>/<pair>`, e.g. [recycle3 on this branch](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/recycle3) |
+| Links for every candidate Auto | [`tools/auto-routes/README.md`](tools/auto-routes/README.md#open-them-in-the-visualizer) |
 | The Visualizer's code and docs | [Mona-Shores-FTC-Robotics/Visualizer](https://github.com/Mona-Shores-FTC-Robotics/Visualizer), with the `.pp` Auto format and link formats in [`docs/auto-format.md`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/docs/auto-format.md) |
 | AdvantageScope (desktop, **27.0.0-alpha-6 or later**) | <https://github.com/Mechanical-Advantage/AdvantageScope/releases> |
 | AdvantageScope layout for our sim logs | [`sim-review/advantagescope-layout.json`](sim-review/advantagescope-layout.json) |
@@ -20,9 +22,9 @@
 2. **Commit the `.pp` to `TeamCode/autos/`.** That file is the source of truth for the Auto.
 3. **Export Auto (Java)** writes the class the robot runs (`opmodes/auto/generated/`). Never edit
    that Java by hand: change the `.pp` and export again.
-4. **Share it.** A `#gh=` link opens the `.pp` committed in this repo as a copy (the team's file never changes from the browser), with no login or
-   download. A push shows up within about 5 minutes. Click **Save as new file** in the banner to
-   keep your own copy.
+4. **Share it.** A `#gh=` link opens the `.pp` committed in this repo as a copy (the team's file
+   never changes from the browser), with no login or download. A push shows up within about
+   5 minutes. Click **Save as new file** in the banner to keep your own copy.
 
    | Link | Opens |
    |---|---|
@@ -32,8 +34,13 @@
 
    **Export → Share Link** makes a link with the whole project inside it instead (a snapshot, for
    issues and PRs).
-5. **Watch two robots together:** open each link, click **Save as new file**, then **Manage
-   Multiple Paths Visualization** in the top bar, tick both and Apply (up to 4 files).
+5. **Watch robots together.** A `#team=` link opens up to 4 Autos at once in multi-path mode:
+   `#team=<branch>/<pair>` for a pair named in `TeamCode/autos/pairs.json`, or
+   `#team=<branch>/<a>.pp,<b>.pp` for any files. Or click **Team Autos** in the top bar, type a
+   branch, and pick a pair. **Reload latest** there fetches again after a push, and **Copy link**
+   shares the view.
+
+The address is case-sensitive: `/Visualizer/` with a capital V. `/visualizer/` is a 404.
 
 The Visualizer site is built by a GitHub Action in the fork
 ([`pages.yml`](https://github.com/Mona-Shores-FTC-Robotics/Visualizer/blob/main/.github/workflows/pages.yml)):
