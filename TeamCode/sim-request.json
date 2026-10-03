@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/recycle3-right.pp",
-  "spec": "Recycle3RightAuto,Recycle3LeftAuto@50",
+  "pp": "TeamCode/autos/recycle4-right.pp",
+  "spec": "Recycle4RightAuto,Recycle4LeftAuto@50",
   "design": "clump catapult 72 deg, triangle cup, full-width intake",
   "partnerDesign": null,
   "partnerSpeed": null,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "recycle3-right.pp",
+    "AutoSource": "recycle4-right.pp",
     "SavedBy": "README showcase"
   }
 }
