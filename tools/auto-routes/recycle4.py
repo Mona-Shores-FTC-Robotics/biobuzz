@@ -112,7 +112,7 @@ def right(name="recycle4-right"):
     r.at = "LOOK"
     more += [r.go("CATCH_A", turn_after=0.2, turn_by=0.8), to_catch()]
     r.at = "CATCH"
-    r.add(r.wait("Caught 4?", when=["IntakeFull"], ms=50, yes=[], no=more, yes_label="Yes", no_label="No: look"))
+    r.add(r.wait("Caught 4?", when=["IntakeFull"], ms=400, yes=[], no=more, yes_label="Yes", no_label="No: look"))
     # Stage it in front, back off west square to the wall, and fetch the GARDEN while TIP 2 comes.
     r.at = "CATCH"
     r.add(set_down("Stage the catch (3)"),

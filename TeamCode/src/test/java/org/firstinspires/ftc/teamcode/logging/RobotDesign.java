@@ -108,6 +108,13 @@ final class RobotDesign {
      * robot's velocity.
      */
     boolean compensatesMotion = false;
+    /**
+     * A frame-fixed launcher whose slats flip to throw straight back as well as forward (mentor,
+     * 3 Oct 2026, instead of a turret): the robot turns whichever end is nearer to facing the CELL.
+     */
+    boolean launchesBothWays = false;
+    /** Time for the slats to flip between forward and back (a guess until one is built). */
+    double flipS = 0.3;
 
     RobotDesign(String name) {
         this.name = name;
@@ -185,6 +192,8 @@ final class RobotDesign {
         d.catapultCup = catapultCup;
         d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
+        d.launchesBothWays = launchesBothWays;
+        d.flipS = flipS;
         return d;
     }
 

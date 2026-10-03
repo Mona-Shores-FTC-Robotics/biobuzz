@@ -391,9 +391,13 @@ final class FieldSim {
             return new double[] {x, y, h};
         }
 
+        /** Whether its launcher is set to throw over the back (RobotDesign#launchesBothWays). */
+        boolean launchingBack;
+
         /** Where a launched piece leaves it, {@code sideIn} to its left of the centre line. */
         double[] exitPoint(double sideIn) {
-            double c = Math.cos(h), s = Math.sin(h);
+            double toward = launchingBack ? h + Math.PI : h;
+            double c = Math.cos(toward), s = Math.sin(toward);
             return new double[] {x + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
                     y + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
         }

@@ -645,10 +645,23 @@ public final class AutoSim {
             double[] aim = sim.rocker(alliance).aimPoint();
             double yawError = 0;
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
-                // A frame-fixed launcher: the drivetrain turns the robot to face the CELL first.
+                // A frame-fixed launcher: the drivetrain turns the robot to face the CELL first (or,
+                // with slats that flip, to put its back to it, if that is the smaller turn).
                 double[] at = pedro(drive.pose);
                 double bearing = Math.atan2(aim[1] - at[1], aim[0] - at[0]);
                 yawError = AdvantageScopeFrame.wrap(bearing - at[2]);
+                if (design.launchesBothWays) {
+                    double backError = AdvantageScopeFrame.wrap(bearing + Math.PI - at[2]);
+                    boolean back = Math.abs(backError) < Math.abs(yawError);
+                    if (back != body.launchingBack) {
+                        body.launchingBack = back;
+                        nextShotAt = Math.max(nextShotAt, now + design.flipS);
+                    }
+                    if (back) {
+                        yawError = backError;
+                        bearing += Math.PI;
+                    }
+                }
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;

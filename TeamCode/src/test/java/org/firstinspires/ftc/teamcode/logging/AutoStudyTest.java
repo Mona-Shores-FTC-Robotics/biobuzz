@@ -110,6 +110,11 @@ public class AutoStudyTest {
             blind.countsPieces = false;
             m.put(blind.name, blind);
         }
+        // Mentor, 3 Oct 2026: slats that flip the launcher to throw straight back, instead of a turret.
+        RobotDesign both = m.get("clump catapult 72 deg, triangle cup, full-width intake").copy(
+                "clump catapult 72 deg, triangle cup, full-width intake, shoots both ways");
+        both.launchesBothWays = true;
+        m.put(both.name, both);
         // Mentor review: do we need to take and fire NECTAR as well as POLLEN? The same robots, POLLEN only.
         for (RobotDesign base : new RobotDesign[] {twinCatcher, triangle, twinFull, m.get("clump catapult 72 deg, triangle cup, full-width intake")}) {
             RobotDesign c = base.copy(base.name + ", POLLEN only");

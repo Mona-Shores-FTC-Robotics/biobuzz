@@ -1707,7 +1707,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "recycle4-right",
+    "exportName": "recycle5-right",
     "registry": {
       "actions": [
         "LaunchAll",
