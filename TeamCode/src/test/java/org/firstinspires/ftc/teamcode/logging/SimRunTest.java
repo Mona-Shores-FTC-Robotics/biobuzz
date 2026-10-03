@@ -22,8 +22,13 @@ import java.util.Map;
  * </pre>
  * {@code request.json}: {@code {"spec": "Recycle5LeftAuto,PartnerPreloadsParkAuto@50", "design":
  * "two spring hoods, full-width intake", "partnerDesign": null, "partnerSpeed": null, "seeds": [1, 2],
- * "alliance": "RED"}}. Only {@code spec} is required. {@code result.json} lists every run, the
+ * "alliance": "RED", "metadata": {"SourceCommit": "…"}}}. Only {@code spec} is required. The
+ * {@code metadata} entries go on every log's Metadata tab, with the run's spec, designs and seed, so a
+ * simulated log says which Auto and commit it simulated. {@code result.json} lists every run, the
  * design names this simulation knows, and {@code error} when the run could not start.
+ *
+ * <p>The "Simulate Auto" workflow runs this for each {@code TeamCode/sim-request.json} the
+ * Visualizer's "Save to GitHub" commits, and publishes the result on the {@code sim-results} branch.
  */
 public class SimRunTest {
 
@@ -70,10 +75,24 @@ public class SimRunTest {
 
         List<Object> runs = new ArrayList<>();
         out.put("runs", runs);
+        // What this run simulated, on each log's Metadata tab, so a log can be matched to the Auto
+        // (and the commit) a real match ran: the request's own entries, then the run's settings.
+        Map<String, String> metadata = new LinkedHashMap<>();
+        Object given = request.get("metadata");
+        if (given instanceof Map) {
+            for (Map.Entry<String, Object> e : ((Map<String, Object>) given).entrySet()) {
+                if (e.getValue() != null) metadata.put(e.getKey(), String.valueOf(e.getValue()));
+            }
+        }
+        metadata.put("SimSpec", spec);
+        metadata.put("SimDesign", designName);
+        metadata.put("SimPartnerDesign", partnerName == null ? "same as ours" : partnerName);
         for (Object s : seeds) {
             long seed = ((Double) s).longValue();
             String log = "seed-" + seed + ".wpilog";
-            AutoSim.Result r = AutoStudyTest.run(spec, design, partner, partnerSpeed, seed, alliance, new File(dir, log));
+            metadata.put("SimSeed", String.valueOf(seed));
+            AutoSim.Result r = AutoStudyTest.run(spec, design, partner, partnerSpeed, seed, alliance, metadata,
+                    new File(dir, log));
             System.out.println("SIMRUN seed " + seed + ": " + r);
             runs.add(describe(r, seed, log));
         }

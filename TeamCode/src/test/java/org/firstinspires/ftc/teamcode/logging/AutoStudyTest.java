@@ -5,6 +5,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.junit.Test;
 
 import java.io.File;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -165,12 +166,15 @@ public class AutoStudyTest {
     /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
             throws Exception {
-        return run(spec, design, partnerDesign, partnerSpeed, seed, Alliance.RED, file);
+        return run(spec, design, partnerDesign, partnerSpeed, seed, Alliance.RED, Collections.emptyMap(), file);
     }
 
-    /** As above, for {@code alliance} (the Autos are rotated when they were drawn for the other one). */
+    /**
+     * As above, for {@code alliance} (the Autos are rotated when they were drawn for the other one),
+     * with {@code metadata} added to the log's Metadata tab.
+     */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
-                              Alliance alliance, File file) throws Exception {
+                              Alliance alliance, Map<String, String> metadata, File file) throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         String[] autos = at[0].split(",");
@@ -187,6 +191,7 @@ public class AutoStudyTest {
             double[][] staged = stagedFor(second.getSimpleName());
             if (staged != null) sim.stagesPreloads(staged);
         }
+        for (Map.Entry<String, String> m : metadata.entrySet()) sim.metadata(m.getKey(), m.getValue());
         return sim.write(file);
     }
 
