@@ -1,7 +1,9 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/recycle5-left.pp",
-  "spec": "Recycle5LeftAuto,Recycle5RightAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/untitled.pp",
+  "spec": "UntitledAuto@50",
   "design": "two spring hoods, full-width intake",
+  "partnerDesign": null,
+  "partnerSpeed": null,
   "seeds": [
     1,
     2,
@@ -16,6 +18,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "SavedBy": "workflow test"
+    "AutoSource": "untitled.pp",
+    "SavedBy": "dustinhans",
+    "SavedAt": "2026-10-03T11:44:57.137Z"
   }
 }
