@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/three-tip-adaptive.pp",
-  "spec": "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
-  "design": "two spring hoods, full-width intake",
+  "pp": "TeamCode/autos/left-tunnel.pp",
+  "spec": "LeftTunnelAuto,PartnerPreloadsRightAuto@50",
+  "design": "clump catapult 72 deg, triangle cup, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "three-tip-adaptive.pp",
+    "AutoSource": "left-tunnel.pp",
     "SavedBy": "README showcase"
   }
 }
