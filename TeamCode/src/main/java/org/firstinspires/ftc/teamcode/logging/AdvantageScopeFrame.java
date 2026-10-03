@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
+
 /**
  * Converts a Pedro pose (field corner origin, inches, radians CCW) into the frame AdvantageScope
  * draws the BIOBUZZ field in: <b>Center/Rotated</b>, meters and radians.
@@ -43,11 +45,12 @@ public final class AdvantageScopeFrame {
 
     public static final double METERS_PER_INCH = 0.0254;
     /** Half the Visualizer's 141.5 in field: the Pedro point AdvantageScope puts at its origin. */
-    public static final double PEDRO_FIELD_CENTER_IN = 70.75;
+    public static final double PEDRO_FIELD_CENTER_IN = FieldFrame.FIELD_CENTRE_INCHES;
 
     /** For log metadata: what frame the poses are in. */
     public static final String DESCRIPTION =
-            "Pedro Visualizer inches (141.5 in field, centre 70.75) -> AdvantageScope Center/Rotated meters";
+            "Pedro Visualizer inches (" + FieldFrame.FIELD_SIZE_INCHES + " in field, centre "
+                    + FieldFrame.FIELD_CENTRE_INCHES + ") -> AdvantageScope Center/Rotated meters";
 
     private AdvantageScopeFrame() {
     }
