@@ -30,7 +30,7 @@ public final class Recycle5RightAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 9.5, 90);
+        return poses(rotated).of(61, 9.5, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +42,7 @@ public final class Recycle5RightAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 9.5, 90);
+        Pose start = p.of(61, 9.5, 90);
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose catchValue = p.of(61, 10.5, 93.7);

@@ -240,7 +240,8 @@ public class AutoStudyTest {
                     for (AutoSim.RobotResult robot : r.robots) {
                         robots++;
                         if (robot.leave && robot.park) parked++;
-                        if (!Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt) || !Double.isNaN(robot.hitFlowerAt)) {
+                        if (robot.illegalStart != null || !Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)
+                                || !Double.isNaN(robot.hitFlowerAt)) {
                             if (problems++ == 0) System.out.println("STUDY   first problem: " + robot);
                         }
                     }

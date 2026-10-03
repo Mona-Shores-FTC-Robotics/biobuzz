@@ -10,14 +10,16 @@ The robot turns whichever end is nearer the CELL; flipping the slats costs a gue
 """
 import sys
 from helpers import *
-from recycle3 import L0
 from recycle4 import right as right4
 
 BOTH = "clump catapult 72 deg, triangle cup, full-width intake, shoots both ways"
+# Both start 2 in further east than recycle3's (x 61: the side 0.5 in short of the centre line), the
+# left robot 2 in further from the far FLOWER, the right one already where it catches.
+R0, L0 = (61, 9.5, 90), (61, 132.25, 270)
 
 
 def right(name="recycle5-right"):
-    return right4(name)
+    return right4(name, R0)
 
 
 def left(name="recycle5-left"):

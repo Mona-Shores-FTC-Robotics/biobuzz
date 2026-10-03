@@ -27,8 +27,8 @@ def ahead(x, y, d):  # d in further along the line to the aim point
     return round(x + d * math.cos(h), 1), round(y + d * math.sin(h), 1)
 
 
-def right(name="recycle4-right"):
-    r = Route(name, R0, speed=50)
+def right(name="recycle4-right", start=R0):
+    r = Route(name, start, speed=50)
     r.pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
     # One spot does everything: CATCH, home slid east until the robot's side (x 70.6, aimed 4 deg off
     # square) stops pieces rolling over the centre line. From it the robot catches a spill, sets the

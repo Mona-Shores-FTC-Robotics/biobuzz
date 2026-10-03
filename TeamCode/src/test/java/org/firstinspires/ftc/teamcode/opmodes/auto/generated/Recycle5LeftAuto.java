@@ -30,7 +30,7 @@ public final class Recycle5LeftAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 132.25, 270);
+        return poses(rotated).of(61, 132.25, 270);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +42,7 @@ public final class Recycle5LeftAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 132.25, 270);
+        Pose start = p.of(61, 132.25, 270);
         Pose flowerL = p.of(47.36, 127.59, 90);
         Pose flowerLIn = p.of(47.36, 121.79, 90);
         Pose flowerLTurn = p.of(47.36, 119.29, 90);
@@ -54,7 +54,7 @@ public final class Recycle5LeftAuto {
         Pose lookL = p.of(44, 112, 330);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToFlowerLTurnControl1 = p.of(59, 119.29, 0);
+        Pose startToFlowerLTurnControl1 = p.of(61, 119.29, 0);
         Pose startToFlowerLTurnSegment1Heading = p.of(47.36, 119.29, 270);
         Pose startToFlowerLTurnSegment2Start = p.of(47.36, 119.29, 270);
         Pose flowerLInToMidSegment1Heading = p.of(50, 114, 90);

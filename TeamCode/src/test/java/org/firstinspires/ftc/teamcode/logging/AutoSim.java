@@ -89,6 +89,12 @@ public final class AutoSim {
     /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
     static final double MAX_SHOT_RANGE_IN = 60;
     static final double CAMERA_RANGE_IN = 60;
+    /** A start pose's frame corner this near the perimeter counts as touching the wall. */
+    static final double START_WALL_IN = 1.0;
+
+    /** CollectSeen stays off the walls this long before AUTO ends, so it never costs LEAVE. */
+    static final double WALL_CLEAR_S = 1.5;
+
     /** How long a reversed intake takes to set down each piece it holds (a guess; time one). */
     static final double SET_DOWN_INTERVAL_S = 0.25;
 
@@ -119,6 +125,11 @@ public final class AutoSim {
          * AUTO; NaN if it never did.
          */
         double crossedAt = Double.NaN;
+        /**
+         * Why its start is not legal, or null: a robot starts touching the perimeter wall, on its own
+         * alliance's half (mentor, 3 Oct 2026).
+         */
+        String illegalStart;
         /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
         double hitHiveAt = Double.NaN;
         /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
@@ -132,7 +143,8 @@ public final class AutoSim {
         public String toString() {
             return String.format(Locale.ROOT, "%s launched %d, %s, LEAVE %s, PARK %s%s", auto, launched,
                     finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
-                    leave ? "yes" : "no", park ? "yes" : "no", (Double.isNaN(crossedAt) ? ""
+                    leave ? "yes" : "no", park ? "yes" : "no", (illegalStart == null ? "" : ", ILLEGAL START: " + illegalStart)
+                            + (Double.isNaN(crossedAt) ? ""
                             : String.format(Locale.ROOT, ", CROSSES THE CENTRE LINE at %.1f s", crossedAt))
                             + (Double.isNaN(hitHiveAt) ? ""
                             : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt))
@@ -743,6 +755,7 @@ public final class AutoSim {
                 result.hitFlowerAt = now;
                 log.putEvent(tag() + "drives into a FLOWER", us);
             }
+            if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
                 for (double[] c : outline(pose, design, now)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
@@ -958,10 +971,13 @@ public final class AutoSim {
 
         /**
          * Whether driving onto {@code p} would put the robot into the HIVE frame's feet, a FLOWER, or
-         * against a wall (mentor review: it chased pieces into the far FLOWER and lost LEAVE on the
-         * wall). The real CollectSeen needs the same rule.
+         * through a wall, or against one near the end of AUTO (mentor review: it chased pieces into the
+         * far FLOWER and lost LEAVE on the wall). The real CollectSeen needs the same rule.
          */
         private boolean approachHitsFrame(FieldSim.Piece p, double[] at) {
+            // Touching the wall costs LEAVE only if the robot still touches it when AUTO ends (§10.5.4):
+            // it may drive up to the wall for a piece until the last WALL_CLEAR_S, then stays 1 in off.
+            double wall = now < AutoKit.AUTO_LENGTH_S - WALL_CLEAR_S ? 0 : 1;
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double mouth = design.frameIn / 2 + design.intakeReachIn;
             double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
@@ -971,10 +987,23 @@ public final class AutoSim {
                 if (sim.hitsFlower(mid[0], mid[1], mid[2], design.frameIn)) return true;
                 for (double[] c : corners(mid, design.frameIn)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) return true;
-                    if (c[0] < 1 || c[1] < 1 || c[0] > FieldSim.FIELD_SIZE_IN - 1 || c[1] > FieldSim.FIELD_SIZE_IN - 1) return true;
+                    if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
                 }
             }
             return false;
+        }
+
+        /** Why a robot at {@code pose} may not start there, or null: it must touch the wall, on its own half. */
+        private String startProblem(double[] pose) {
+            boolean touching = false;
+            for (double[] c : corners(pose, design.frameIn)) {
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) {
+                    return "reaches into the other alliance's half";
+                }
+                double gap = Math.min(Math.min(c[0], c[1]), Math.min(FieldSim.FIELD_SIZE_IN - c[0], FieldSim.FIELD_SIZE_IN - c[1]));
+                if (gap < START_WALL_IN) touching = true;
+            }
+            return touching ? null : "not touching the wall";
         }
 
         /** A straight drive that brings the intake's mouth onto {@code p}, facing it. */

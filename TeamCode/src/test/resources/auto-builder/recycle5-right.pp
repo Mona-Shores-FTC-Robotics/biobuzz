@@ -1,6 +1,6 @@
 {
   "startPoint": {
-    "x": 59,
+    "x": 61,
     "y": 9.5,
     "name": "START",
     "headingDeg": 90
@@ -1734,7 +1734,7 @@
     },
     "points": {
       "START": [
-        59,
+        61,
         9.5,
         90
       ],
