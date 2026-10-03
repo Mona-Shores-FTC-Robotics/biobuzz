@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/three-tip-adaptive.pp",
-  "spec": "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
+  "pp": "TeamCode/autos/solo-tunnel.pp",
+  "spec": "SoloTunnelAuto,PartnerPreloadsParkAuto@50",
   "design": "two spring hoods, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "three-tip-adaptive.pp",
+    "AutoSource": "solo-tunnel.pp",
     "SavedBy": "README showcase, filmed spill"
   }
 }
