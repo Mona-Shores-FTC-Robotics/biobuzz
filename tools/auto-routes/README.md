@@ -24,6 +24,10 @@ download. It opens as a copy (the team's file is never changed from the browser)
 Auto, edit the `.pp` and push, or rerun its script. A push shows up within about 5 minutes. One
 link per robot: the sister Autos have one for each end.
 
+To watch a pair together: open each link and click **Save as new file** in its banner, then
+**Manage Multiple Paths Visualization** in the top bar, tick both, and Apply (up to 4 files play
+at once). The saved copies are a snapshot: after an Auto changes, open its link and save again.
+
 | Auto | Our robot | The other robot |
 |---|---|---|
 | recycle3 | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) |
