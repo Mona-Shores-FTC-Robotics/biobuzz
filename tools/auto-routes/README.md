@@ -6,9 +6,10 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The candidates (4 Oct 2026, on the filmed spill)
 
-Each Auto's name starts with what our alliance partner does: **Sister** (our other robot, full
-choreography between the two), **PreloadPark** (fires its 4 preloads, then parks) or **JustPark** (can't
-shoot: parks, its preloads left lined up for us). The files keep their older names, in brackets.
+Each Auto's name is who our alliance partner is and what it does, then our plan: **Sister** (our other
+robot, full choreography between the two), **PartnerShoots** (fires its 4 preloads, then parks;
+PartnerShootsRight: from the right start) or **PartnerStages** (can't shoot: lines its preloads up for
+us, then parks). The files keep their older names, in brackets.
 
 Average alliance AUTO points over 20 simulated runs, on the spill fitted to the 3 Oct films: it pours
 off the lowered CELL's lip, first touches the tiles about 42 in out from the wall and bounces back
@@ -22,11 +23,11 @@ pieces and an 18 in intake (the simulator's "spring hood, full-width intake"), n
 | Match | Script | Auto (files) | Designed for | One launcher | Needs (as designed) |
 |---|---|---|---|---|---|
 | Our two sister robots | `recycle3.py` | Sister-Recycle (`recycle3`) | 79 / 83 | 58 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
-| Partner fires its preloads | `three_tip_adaptive.py` | PreloadPark-ThreeTip (`three-tip-adaptive`) | 76 / 75 | **74** | two spring hoods, front intake, webcam pickup |
+| Partner fires its preloads | `three_tip_adaptive.py` | PartnerShoots-ThreeTip (`three-tip-adaptive`) | 76 / 75 | **74** | two spring hoods, front intake, webcam pickup |
 | Our two sister robots | `recycle5.py` | Sister-ThrowBack (`recycle5`) | 76 / 82 | 46 | recycle3, and slats that let the left robot's launcher throw straight back |
-| Partner fires its preloads from the right start | `right_partner.py` | PreloadPark-RightStart (`left-tunnel`) | 74 / 76 | 51 | catapult, front intake |
-| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | JustPark-Staged (`staged-three-tip`) | 74 / 67 | 56 | two spring hoods, webcam pickup |
-| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | PreloadPark-Solo (`solo-tunnel`) | 70 / 72 | 56 | two spring hoods, front intake |
+| Partner fires its preloads from the right start | `right_partner.py` | PartnerShootsRight-LeftTunnel (`left-tunnel`) | 74 / 76 | 51 | catapult, front intake |
+| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | PartnerStages-ThreeTip (`staged-three-tip`) | 74 / 67 | 56 | two spring hoods, webcam pickup |
+| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | PartnerShoots-Tunnel (`solo-tunnel`) | 70 / 72 | 56 | two spring hoods, front intake |
 | Our two sister robots | `recycle4.py` | Sister-SetDown (`recycle4`) | 72 / 46 | — | not redesigned for the filmed spill: its right robot stages its catch against the wall |
 
 On one launcher only three-tip-adaptive still makes 3 TIPs (18 of 20 runs): a flywheel can't spin up
@@ -57,10 +58,10 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 | Sister-Recycle (`recycle3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-Recycle) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) |
 | Sister-SetDown (`recycle4`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-SetDown) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-left.pp) |
 | Sister-ThrowBack (`recycle5`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-ThrowBack) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-left.pp) |
-| PreloadPark-ThreeTip (`three-tip-adaptive`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PreloadPark-ThreeTip) | [three-tip-adaptive](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/three-tip-adaptive.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
-| PreloadPark-RightStart (`left-tunnel`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PreloadPark-RightStart) | [left-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/left-tunnel.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
-| JustPark-Staged (`staged-three-tip`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/JustPark-Staged) | [staged-three-tip](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/staged-three-tip.pp) | partner: [partner-leave-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) |
-| PreloadPark-Solo (`solo-tunnel`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PreloadPark-Solo) | [solo-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/solo-tunnel.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
+| PartnerShoots-ThreeTip (`three-tip-adaptive`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShoots-ThreeTip) | [three-tip-adaptive](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/three-tip-adaptive.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
+| PartnerShootsRight-LeftTunnel (`left-tunnel`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShootsRight-LeftTunnel) | [left-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/left-tunnel.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
+| PartnerStages-ThreeTip (`staged-three-tip`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerStages-ThreeTip) | [staged-three-tip](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/staged-three-tip.pp) | partner: [partner-leave-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) |
+| PartnerShoots-Tunnel (`solo-tunnel`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShoots-Tunnel) | [solo-tunnel](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/solo-tunnel.pp) | partner: [partner-preloads-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) |
 
 The links read `TeamCode/autos/` on `claude/simulator`. The simulator and these Autos stay on this
 branch, never `master`, so the links always name it.
