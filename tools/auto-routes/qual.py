@@ -85,7 +85,7 @@ S_FIRE = (57.5, 24, 90)
 N_FIRE = N_LOW
 
 
-def south_tail(r, tag=""):
+def south_tail(r, tag="", wall=True):
     """From where we fired at the left CELL (facing the HIVE, camera on it) while TIP 2 goes over: south
     through its spill as it lands and the tunnel, firing what we caught; then the GARDEN's 4 and, if TIP
     3 hasn't come, the wall FLOWER's 4, each carried back to S_FIRE and fired straight on; then PARK."""
@@ -95,6 +95,12 @@ def south_tail(r, tag=""):
     out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270),
             r.wait(f"The GARDEN{tag}", when=["IntakeFull"], ms=1500),
             r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the GARDEN{tag}", "Empty", ms=2500)]
+    # wall=False (qual-partner-shoots-right): TIP 3 finishes on its own once the GARDEN's shots are away,
+    # and the wall FLOWER trip never got back in time to add one there, so go straight to PARK (+5).
+    # The left routes keep it: there it makes TIP 3 in 3 to 10 more runs of 20.
+    if not wall:
+        r.at = "S_FIRE"
+        return out + [r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90, park=True)]
     r.at = "S_FIRE"
     wall = [*flower(r, "WALL_FLOWER", f"The wall FLOWER{tag}", ms=2300)]
     r.at = "WALL_FLOWER"
@@ -108,7 +114,7 @@ def south_tail(r, tag=""):
     return out
 
 
-def shoots_left(name="qual-partner-shoots-left"):
+def shoots_left(name="qual-partner-shoots-left", wall=True):
     """Partner at the standard left start, in front of the left CELL: either fires its 4 when the left
     CELL rises and parks (partners.preloads_left), or only parks (partners.park_left). Both park west,
     under the far FLOWER, so they never come into the tunnel's exit or where we fire from.
@@ -125,23 +131,24 @@ def shoots_left(name="qual-partner-shoots-left"):
           r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
           tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch at the left CELL", "Empty", ms=2200))
     r.at = "N_LOW"
-    tipped = south_tail(r)
+    tipped = south_tail(r, wall=wall)
     r.at = "N_LOW"
     more = [*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)]
     r.at = "FAR_FLOWER"
     more += [r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500)]
     r.at = "N_FIRE"
-    more += south_tail(r, " (B)")
+    more += south_tail(r, " (B)", wall=wall)
     r.at = "N_LOW"
     r.add(r.wait("TIP 2?", when=["Tip"], ms=1000, yes=tipped, no=more, yes_label="Yes", no_label="No: the far FLOWER"))
     return r
 
 
-def shoots_right(name="qual-partner-shoots-right"):
+def shoots_right(name="qual-partner-shoots-right", wall=False):
     """Partner starts right, in front of the right CELL, and fires its 4 at once: TIP 1 (with the 3
     NECTAR). We start left and wait straight on in front of the left CELL, facing the HIVE (its camera
     on it), spun up. TIP 2: our 4 preloads when the left CELL rises, then the far FLOWER's 4 carried
-    back to the same spot; TIP 3: as qual-partner-shoots-left."""
+    back to the same spot; TIP 3: TIP 2's spill caught going south and the GARDEN's 4, then straight to
+    PARK (the wall FLOWER trip never got back in time to help)."""
     r = Route(name, N_START, speed=50)
     ends(r)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
@@ -154,7 +161,7 @@ def shoots_right(name="qual-partner-shoots-right"):
     r.at = "FAR_FLOWER"
     r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
     r.at = "N_FIRE"
-    r.add(*south_tail(r))
+    r.add(*south_tail(r, wall=wall))
     return r
 
 

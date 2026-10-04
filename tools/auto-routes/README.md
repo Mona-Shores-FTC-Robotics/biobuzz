@@ -15,7 +15,7 @@ friction, and how many of the 20 made 3 TIPs:
 |---|---|---|---|---|
 | At the standard left start: fires its 4 when the left CELL rises, parks | Qual-PartnerShootsLeft (`qual-partner-shoots-left`) | `partner-preloads-left` | 70 / 72 | 18 / 19 |
 | At the standard left start: only drives and parks | Qual-PartnerParksLeft (`qual-partner-parks-left`, the same route) | `partner-park-left` | 57 / 56 | 10 / 12 |
-| At the right start: fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | 68 / 70 | 16 / 18 |
+| At the right start: fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | **72 / 74** | 16 / 18 |
 
 All three use one plan:
 
@@ -35,6 +35,12 @@ All three use one plan:
   spill caught going south, the GARDEN and the wall FLOWER. With a partner that only drives, TIP 2 is our
   catch plus the far FLOWER: enough in 16 of 20 runs, and TIP 3 comes in about half. A route that carries
   the wall FLOWER north as well makes TIP 2 every time, but at 21.5 s, too late for TIP 3 (50 points).
+- **Qual-PartnerShootsRight is the one to build first.** A partner that can shoot but do little else
+  can fire its preloads from the right start at once; firing from the left start means watching for the
+  left CELL to rise, which such a partner probably can't. It also parks every time: after the GARDEN's
+  shots it drives straight to PARK, because TIP 3 finishes on its own and the wall FLOWER trip never got
+  back in time to add one. (The left routes still go for the wall FLOWER: there it makes TIP 3 in 3–10
+  more runs of 20.)
 - **PARK when there is time, never instead of a TIP.** Each ends in the LOADING ZONE (below the partner) if
   it gets there by 30 s. A park path at the end would make the endgame guard cut the last fire short
   to leave time to drive there, and TIP 3 (20) is worth more than PARK (5).

@@ -2,7 +2,7 @@
   "pairs": [
     {"name": "Qual-PartnerShootsLeft", "files": ["qual-partner-shoots-left.pp", "partner-preloads-left.pp"], "note": "qualifier, partner fires from the standard left start: one launcher 70"},
     {"name": "Qual-PartnerParksLeft", "files": ["qual-partner-parks-left.pp", "partner-park-left.pp"], "note": "qualifier, partner only drives and parks from the left start: one launcher 57"},
-    {"name": "Qual-PartnerShootsRight", "files": ["qual-partner-shoots-right.pp", "partner-preloads-right.pp"], "note": "qualifier, partner fires from the right start: one launcher 68"},
+    {"name": "Qual-PartnerShootsRight", "files": ["qual-partner-shoots-right.pp", "partner-preloads-right.pp"], "note": "qualifier, partner fires from the right start: one launcher 72"},
     {"name": "Sister-Recycle", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 58 / 55; one launcher 49"},
     {"name": "Sister-ThrowBack", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 60 / 49; one launcher 46"},
     {"name": "Sister-SetDown", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 52 / 52"},
