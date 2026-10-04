@@ -44,70 +44,74 @@ public final class QualPartnerShootsRightAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
         Pose sCatch = p.of(57.5, 28, 90);
-        Pose nCatch = p.of(57.5, 113.5, 270);
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(13, 86, 90);
         Pose farFlower = p.of(47.36, 127.59, 90);
+        Pose farFlowerTurn = p.of(47.36, 119.29, 90);
         Pose wallFlower = p.of(13.91, 47.36, 180);
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
-        Pose fireGarden = p.of(14, 24, 270);
-        Pose fireWall = p.of(22.2, 47.4, 180);
-        Pose fireFar = p.of(47.4, 119.3, 90);
-        Pose farStart = p.of(57.5, 119.3, 270);
+        Pose sFire = p.of(57.5, 24, 90);
+        Pose nFire = p.of(57.5, 114, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose farStartToFireFarSegment1Start = p.of(47.4, 119.3, 270);
-        Pose fireFarToNCatchSegment1Start = p.of(57.5, 113.5, 90);
-        Pose nCatchToSCatchSegment1Heading = p.of(57.5, 28, 270);
-        Pose nCatchToSCatchSegment2Start = p.of(57.5, 28, 270);
+        Pose nFireToFarFlowerTurnControl1 = p.of(57.5, 119.29, 0);
+        Pose nFireToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 270);
+        Pose nFireToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 270);
+        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
+        Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
+        Pose nFireToSCatchSegment1Heading = p.of(57.5, 28, 270);
+        Pose nFireToSCatchSegment2Start = p.of(57.5, 28, 270);
         Pose sCatchToGardenInSegment1Start = p.of(8.5, 22, 90);
-        Pose fireGardenToParkControl1 = p.of(34, 36, 0);
-        Pose fireGardenToParkControl2 = p.of(30, 76, 0);
-        Pose fireGardenToWallFlowerTurnControl1 = p.of(22.21, 24, 0);
-        Pose fireGardenToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 270);
-        Pose fireGardenToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 270);
-        Pose fireWallToParkControl1 = p.of(26, 64, 0);
+        Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
+        Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose sFireToParkControl1 = p.of(28, 24, 0);
+        Pose sFireToParkControl2 = p.of(24, 70, 0);
+        Pose sFireToWallFlowerTurnControl1 = p.of(22.21, 24, 0);
+        Pose sFireToWallFlowerTurnSegment1Heading = p.of(22.21, 47.36, 90);
+        Pose sFireToWallFlowerTurnSegment2Start = p.of(22.21, 47.36, 90);
+        Pose wallFlowerToSFireSegment1Heading = p.of(57.5, 24, 180);
+        Pose wallFlowerToSFireSegment2Start = p.of(57.5, 24, 180);
+        Pose sFireToPark_2Control1 = p.of(28, 24, 0);
+        Pose sFireToPark_2Control2 = p.of(24, 70, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToFarStart = Paths.line(start, farStart).constant(farStart);
-        Path farStartToFireFar = Paths.line(farStart, fireFar).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(farStartToFireFarSegment1Start, fireFar)).until(1, Interpolator.constant(fireFar)));
-        Path fireFarToFarFlower = Paths.line(fireFar, farFlower).constant(farFlower);
-        Path farFlowerToFireFar = Paths.line(farFlower, fireFar).constant(fireFar);
-        Path fireFarToNCatch = Paths.line(fireFar, nCatch).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(fireFarToNCatchSegment1Start, nCatch)).until(1, Interpolator.constant(nCatch)));
-        Path nCatchToSCatch = Paths.line(nCatch, sCatch).heading(Interpolator.piecewise().until(0.9, Interpolator.constant(nCatchToSCatchSegment1Heading)).until(1, Interpolator.linear(nCatchToSCatchSegment2Start, sCatch)));
+        Path startToNFire = Paths.line(start, nFire).constant(nFire);
+        Path nFireToFarFlowerTurn = Paths.curve(nFire, nFireToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nFireToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nFireToFarFlowerTurnSegment2Start, farFlowerTurn)));
+        Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToNFire = Paths.line(farFlower, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path nFireToSCatch = Paths.line(nFire, sCatch).heading(Interpolator.piecewise().until(0.9, Interpolator.constant(nFireToSCatchSegment1Heading)).until(1, Interpolator.linear(nFireToSCatchSegment2Start, sCatch)));
         Path sCatchToGardenIn = Paths.line(sCatch, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sCatchToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
-        Path gardenToFireGarden = Paths.line(garden, fireGarden).constant(fireGarden);
-        Path fireGardenToPark = Paths.curve(fireGarden, fireGardenToParkControl1, fireGardenToParkControl2, park).constant(park);
-        Path fireGardenToWallFlowerTurn = Paths.curve(fireGarden, fireGardenToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(fireGardenToWallFlowerTurnSegment1Heading)).until(1, Interpolator.linear(fireGardenToWallFlowerTurnSegment2Start, wallFlowerTurn)));
+        Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
+        Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
+        Path sFireToWallFlowerTurn = Paths.curve(sFire, sFireToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(sFireToWallFlowerTurnSegment1Heading)).until(1, Interpolator.linear(sFireToWallFlowerTurnSegment2Start, wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
-        Path wallFlowerToFireWall = Paths.line(wallFlower, fireWall).constant(fireWall);
-        Path fireWallToPark = Paths.curve(fireWall, fireWallToParkControl1, park).constant(park);
+        Path wallFlowerToSFire = Paths.line(wallFlower, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToSFireSegment1Heading)).until(1, Interpolator.linear(wallFlowerToSFireSegment2Start, sFire)));
+        Path sFireToParkPath = Paths.curve(sFire, sFireToPark_2Control1, sFireToPark_2Control2, park).constant(park);
 
         return kit.sequence(
                 kit.command("SpinUp"),
-                kit.path("START to FAR_START", startToFarStart),
-                kit.path("FAR_START to FIRE_FAR", farStartToFireFar),
+                kit.path("START to N_FIRE", startToNFire),
                 kit.firstOf("TIP 1 (the partner)",
                         kit.when("LeftCellUp"),
                         kit.afterMs(9000)),
                 kit.firstOf("Fire the preloads at the left CELL", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2500)),
-                kit.path("FIRE_FAR to FAR_FLOWER", fireFarToFarFlower),
+                kit.path("N_FIRE to FAR_FLOWER_TURN", nFireToFarFlowerTurn),
+                kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                 kit.firstOf("The far FLOWER",
                         kit.when("IntakeFull"),
                         kit.afterMs(2300)),
-                kit.path("FAR_FLOWER to FIRE_FAR", farFlowerToFireFar),
+                kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
                 kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.path("FIRE_FAR to N_CATCH", fireFarToNCatch),
                 kit.firstOf("TIP 2 settles",
                         kit.when("RightCellUp"),
                         kit.afterMs(2500)),
-                kit.path("N_CATCH to S_CATCH", nCatchToSCatch),
+                kit.path("N_FIRE to S_CATCH", nFireToSCatch),
                 kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2000)),
@@ -116,24 +120,24 @@ public final class QualPartnerShootsRightAuto {
                 kit.firstOf("The GARDEN",
                         kit.when("IntakeFull"),
                         kit.afterMs(1500)),
-                kit.path("GARDEN to FIRE_GARDEN", gardenToFireGarden),
+                kit.path("GARDEN to S_FIRE", gardenToSFire),
                 kit.firstOf("Fire the GARDEN", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2500)),
                 kit.firstOf("TIP 3?",
                         kit.when("Tip").then(
-                                kit.guarded("Yes: PARK", fireGardenToPark, 2.6,
-                                        kit.path("FIRE_GARDEN to PARK", fireGardenToPark))),
+                                kit.guarded("Yes: PARK", sFireToPark, 2.8,
+                                        kit.path("S_FIRE to PARK", sFireToPark))),
                         kit.afterMs(600).then(
-                                kit.path("FIRE_GARDEN to WALL_FLOWER_TURN", fireGardenToWallFlowerTurn),
+                                kit.path("S_FIRE to WALL_FLOWER_TURN", sFireToWallFlowerTurn),
                                 kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
                                 kit.firstOf("The wall FLOWER",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(2300)),
-                                kit.path("WALL_FLOWER to FIRE_WALL", wallFlowerToFireWall),
+                                kit.path("WALL_FLOWER to S_FIRE", wallFlowerToSFire),
                                 kit.firstOf("Fire the wall FLOWER (TIP 3)", kit.command("LaunchAll"),
                                         kit.when("LeftCellUp"),
                                         kit.afterMs(2500)),
-                                kit.path("FIRE_WALL to PARK", fireWallToPark))));
+                                kit.path("S_FIRE to PARK", sFireToParkPath))));
     }
 }

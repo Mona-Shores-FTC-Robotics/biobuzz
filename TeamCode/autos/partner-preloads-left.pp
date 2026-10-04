@@ -1,15 +1,34 @@
 {
   "startPoint": {
-    "x": 30,
+    "x": 59,
     "y": 132.25,
     "name": "START",
     "headingDeg": 270
   },
   "lines": [
     {
-      "id": "to-park-p-1",
+      "id": "to-lane-1",
       "color": "#3cc8e4",
-      "name": "START to PARK_P",
+      "name": "START to LANE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 58,
+        "y": 127.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-park-p-2",
+      "color": "#3cc8e4",
+      "name": "LANE to PARK_P",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -19,7 +38,12 @@
         "x": 10.5,
         "y": 111
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 12,
+          "y": 127.5
+        }
+      ],
       "heading": {
         "type": "constant",
         "degrees": 270
@@ -103,7 +127,11 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-park-p-1"
+      "lineId": "to-lane-1"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-p-2"
     }
   ],
   "settings": {
@@ -144,7 +172,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "partner-preloads-side",
+    "exportName": "partner-preloads-left",
     "registry": {
       "actions": [
         "SpinUp",
@@ -162,8 +190,13 @@
     },
     "points": {
       "START": [
-        30,
+        59,
         132.25,
+        270
+      ],
+      "LANE": [
+        58,
+        127.5,
         270
       ],
       "PARK_P": [
@@ -173,7 +206,8 @@
       ]
     },
     "pathEnds": {
-      "to-park-p-1": "PARK_P"
+      "to-lane-1": "LANE",
+      "to-park-p-2": "PARK_P"
     },
     "startAt": "START",
     "cards": [
@@ -220,7 +254,13 @@
       {
         "id": "p-4",
         "kind": "path",
-        "lineId": "to-park-p-1",
+        "lineId": "to-lane-1",
+        "park": false
+      },
+      {
+        "id": "p-5",
+        "kind": "path",
+        "lineId": "to-park-p-2",
         "park": true
       }
     ]

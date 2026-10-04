@@ -19,18 +19,37 @@ def preloads_park():
           r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # right first, clear of the far FLOWER
     return r
 
-def preloads_side(name="partner-preloads-side"):
-    """What our qualifier Autos ask a partner that fires its preloads from the left (4 Oct 2026): start
-    against the wall beside the left CELL (x 30, out of the tunnel's north exit and the spot we shoot
-    from), fire its 4 when the left CELL rises (turning to aim, 52 in, 59 deg off axis), then park at
-    the far-left end of the LOADING ZONE. tools/auto-routes/experiments/partner_start.py found this
-    start as good as in front of the CELL, and out of our way."""
-    r = Route(name, (30, 132.25, 270), speed=40)
-    r.pt("PARK_P", 10.5, 111, 270)
+# The way a partner at the standard left start parks: 4.75 in straight back off the wall, west under
+# the far FLOWER (its edge clears the FLOWER below y 127.8), then down the wall into the far end of the
+# LOADING ZONE. Its edge never comes south of y 118.5, out of the spot we fire from (our edge at 119)
+# once it is west of x 40.
+LEFT_LANE = (58, 127.5, 270)
+LEFT_PARK_CTRL = [(12, 127.5)]
+
+
+def _park_left(r):
+    r.pt("LANE", *LEFT_LANE).pt("PARK_P", 10.5, 111, 270)
+    return [r.go("LANE", heading=270), r.go("PARK_P", ctrl=LEFT_PARK_CTRL, heading=270, park=True)]
+
+
+def preloads_left(name="partner-preloads-left"):
+    """A partner that can shoot, at the standard left start in front of the left CELL: fires its 4 when
+    the left CELL rises, then parks west under the far FLOWER (LEFT_PARK_CTRL)."""
+    r = Route(name, (59, 132.25, 270), speed=40)
     r.add(r.action("SpinUp"),
           *waits(r, "Left CELL up", "LeftCellUp", 8.0),
           fire(r, "Fire the preloads", "Empty"),
-          r.go("PARK_P", heading=270, park=True))
+          *_park_left(r))
+    return r
+
+
+def park_left(name="partner-park-left", wait_s=0.0):
+    """A partner that only drives, at the standard left start: waits `wait_s`, then parks west under the
+    far FLOWER (LEFT_PARK_CTRL). It keeps its 4 preloads."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    if wait_s:  # a pure timer: it holds its 4 preloads and never fires, so Empty never comes
+        r.add(r.wait(f"Wait {wait_s:g} s", when=["Empty"], ms=int(wait_s * 1000)))
+    r.add(*_park_left(r))
     return r
 
 

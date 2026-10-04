@@ -13,51 +13,54 @@ friction, and how many of the 20 made 3 TIPs:
 
 | Partner | Auto (file) | Partner's Auto | Points | 3 TIPs |
 |---|---|---|---|---|
-| Starts beside the left CELL, fires its 4 when that CELL rises, parks | Qual-PartnerShootsLeft (`qual-partner-shoots-left`) | `partner-preloads-side` | 72 / 71 | 18 / 17 |
-| Starts in front of the right CELL, fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | 74 / 75 | 20 / 20 |
-| Can't shoot: leaves its 4 preloads lined up at its side, parks | Qual-PartnerStages (`qual-partner-parks`) | `partner-leave-park` | 58 / 55 | 7 / 4 |
+| At the standard left start: fires its 4 when the left CELL rises, parks | Qual-PartnerShootsLeft (`qual-partner-shoots-left`) | `partner-preloads-left` | 70 / 72 | 18 / 19 |
+| At the standard left start: only drives and parks | Qual-PartnerParksLeft (`qual-partner-parks-left`, the same route) | `partner-park-left` | 57 / 56 | 10 / 12 |
+| At the right start: fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | 68 / 70 | 16 / 18 |
 
 All three use one plan:
 
-- **The tunnel is the road.** The robot drives square through the tunnel under the HIVE (x 57.5) between
-  the two CELLs, turning only once clear of the HIVE's feet. It is the shortest way from one CELL to the
-  other, and every TIP's spill lands right at a mouth of it.
+- **Every shot is straight on.** On the CELL's axis (x 57.5), from the start spot out to where the
+  hood still scores (ShotMapTest): y 13–29 for the right CELL, y 113–129 for the left (109 is too close).
+  Pieces picked up at the GARDEN or a FLOWER are carried there; the half second that costs buys the
+  high-percentage shot. Waiting for a TIP, the robot faces the HIVE, its camera on it.
+- **The tunnel is the road.** The robot drives square through the tunnel under the HIVE (x 57.5)
+  between the two CELLs. Coming out north it turns round at y 104, where its corners (12.7 in when
+  turning) clear both the HIVE frame and a partner still at the left start, then backs into y 114.
 - **Drive through the spill as it lands, don't wait for it.** A spill first touches the tiles about 42 in
-  out from its wall, about 1.1 s after the TIP, and has scattered out of reach about 1 s later. Waiting
-  at the catch spot and then looking with the webcam caught 0–2 pieces; starting the drive through the
-  tunnel as the next CELL rises, with the intake running, catches about 3 on average (0–4).
-- **Fire where you pick up.** The fixed launcher scores into the right CELL from anywhere at y 13–33
-  (x 9–61), and from beside the wall FLOWER and the GARDEN (x 9–25, up to y 53); into the left CELL
-  from y 109–129, and from x 9–25 down to y 85–97. So the GARDEN and both FLOWERs are fired from a
-  spot a robot length away, not carried across the field.
+  out from its wall, about 1.1 s after the TIP, and has scattered out of reach about 1 s later. Driving
+  through the tunnel with the intake running as the next CELL rises catches 0–4. Pausing first to let
+  it land was worse (tried at 0.3, 0.6 and 0.9 s).
 - **The static sources decide TIP 3.** The far FLOWER, wall FLOWER and GARDEN hold 4 POLLEN each. With a
   partner that shoots, TIP 2 is its 4 plus our catch (plus the far FLOWER if short), and TIP 3 is TIP 2's
-  spill caught going south, the GARDEN and the wall FLOWER. With a partner that can't shoot, TIP 2 needs
-  its row *and* usually the far FLOWER, which leaves too little time for TIP 3: 2 TIPs every time, 3 only
-  when the catches go well.
+  spill caught going south, the GARDEN and the wall FLOWER. With a partner that only drives, TIP 2 is our
+  catch plus the far FLOWER: enough in 16 of 20 runs, and TIP 3 comes in about half. A route that carries
+  the wall FLOWER north as well makes TIP 2 every time, but at 21.5 s, too late for TIP 3 (50 points).
 - **PARK when there is time, never instead of a TIP.** Each ends in the LOADING ZONE (below the partner) if
   it gets there by 30 s. A park path at the end would make the endgame guard cut the last fire short
   to leave time to drive there, and TIP 3 (20) is worth more than PARK (5).
 
-**What we ask of the partner.** `partner-preloads-side` is the request for a partner that can shoot:
-start beside the left CELL (x 30), fire when it rises, park at the far end of the LOADING ZONE. A
-partner starting in front of the left CELL (`partner-preloads-park`) is in our tunnel exit at 6–7 s and
-the robots collide. For a partner that can't shoot: leave the preloads in a row at (34.6, 128.6–137),
-then park.
+**What we ask of the partner.** Start at the standard left start (or right, for Qual-PartnerShootsRight).
+From the left start: if it can shoot, fire when the left CELL rises; then, straight away, back 4.75 in
+off the wall and drive west under the far FLOWER (y 127.5), then down the wall to the far end of the
+LOADING ZONE (`partners.preloads_left` / `park_left`). That lane keeps it out of the tunnel's exit and
+where we fire from. A partner that waits at its start blocks the far FLOWER: one waiting until 10 s
+collided with us in every run.
 
-**What the intake needs (for build).** Re-running the three with different intakes:
+**What the intake needs (for build).** Re-running the three with different intakes (normal tiles):
 
-| Intake | ShootsLeft | ShootsRight | Stages |
+| Intake | ShootsLeft | ParksLeft | ShootsRight |
 |---|---|---|---|
-| As simulated: 0.35 s a piece, grabs 85%, takes pieces moving up to 60 in/s | 72 | 74 | 58 |
-| 0.12 s a piece | 73 | 75 | 62 (3 TIPs 11 of 20) |
-| Grabs 95%, up to 100 in/s | 73 | 75 | 56 |
-| 0.12 s a piece, but only pieces moving under 30 in/s | 67 | 74 | 59 |
+| As simulated: 0.35 s a piece, grabs 85%, takes pieces moving up to 60 in/s | 70 | 57 | 68 |
+| 0.12 s a piece | 73 | 60 | 72 |
+| Grabs 95%, up to 100 in/s | 72 | 56 | 70 |
+| 0.12 s a piece, but only pieces moving under 30 in/s | 73 | 55 | 70 |
 
-The intake has to take a piece that is still rolling: the catch is made driving at about 50 in/s into
-pieces bouncing off the tiles, and an intake that only takes slow pieces loses 5 points with a shooting
-partner. After that, speed (time per piece) is what helps, most with a partner that can't shoot. Grab
-chance alone hardly matters. The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`,
+Time per piece is what helps most: about 3 points everywhere, most of it TIP 3 coming more often. An
+intake that takes a piece while it is still rolling matters most with a partner that only drives,
+where the spill we catch going north is all TIP 2 has besides the far FLOWER: requiring slow pieces
+there costs 5 points. Grab chance alone hardly matters.
+
+The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`,
 `LeftCellUp`, ...) exist only in the simulator so far, and its launcher numbers (2 s spin-up, 0.45 s a
 shot) are unmeasured.
 
