@@ -19,6 +19,21 @@ def preloads_park():
           r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # right first, clear of the far FLOWER
     return r
 
+def preloads_side(name="partner-preloads-side"):
+    """What our qualifier Autos ask a partner that fires its preloads from the left (4 Oct 2026): start
+    against the wall beside the left CELL (x 30, out of the tunnel's north exit and the spot we shoot
+    from), fire its 4 when the left CELL rises (turning to aim, 52 in, 59 deg off axis), then park at
+    the far-left end of the LOADING ZONE. tools/auto-routes/experiments/partner_start.py found this
+    start as good as in front of the CELL, and out of our way."""
+    r = Route(name, (30, 132.25, 270), speed=40)
+    r.pt("PARK_P", 10.5, 111, 270)
+    r.add(r.action("SpinUp"),
+          *waits(r, "Left CELL up", "LeftCellUp", 8.0),
+          fire(r, "Fire the preloads", "Empty"),
+          r.go("PARK_P", heading=270, park=True))
+    return r
+
+
 def partner_right(name="partner-preloads-right"):
     """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
     ZONE like the other reference partners (mentor review), leaving the near end for us."""

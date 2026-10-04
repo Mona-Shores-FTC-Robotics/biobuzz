@@ -672,7 +672,7 @@ public final class AutoSim {
             }
             for (String line : pending) {
                 result.decisions.add(line);
-                result.timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, line));
+                result.timeline.add(String.format(Locale.ROOT, "%5.2f %s (holds %d)", now, line, body.stored.size()));
                 log.putEvent(tag() + line, us);
             }
             pending.clear();
