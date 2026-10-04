@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/solo-tunnel.pp",
-  "spec": "SoloTunnelAuto,PartnerPreloadsParkAuto@50",
+  "pp": "TeamCode/autos/left-tunnel.pp",
+  "spec": "LeftTunnelAuto,PartnerPreloadsRightAuto@50",
   "design": "spring hood, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "solo-tunnel.pp",
+    "AutoSource": "left-tunnel.pp",
     "SavedBy": "README, two-wheel launcher"
   }
 }
