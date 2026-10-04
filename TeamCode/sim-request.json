@@ -1,9 +1,9 @@
 {
-  "pp": "TeamCode/autos/recycle3-right.pp",
-  "spec": "Recycle3RightAuto,Recycle3LeftAuto@50",
+  "pp": "TeamCode/autos/staged-three-tip.pp",
+  "spec": "StagedThreeTipAuto,PartnerLeaveParkAuto@50",
   "design": "spring hood, full-width intake",
-  "partnerDesign": null,
-  "partnerSpeed": null,
+  "partnerDesign": "spring hood",
+  "partnerSpeed": 40.0,
   "seeds": [
     1,
     2,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "recycle3-right.pp",
+    "AutoSource": "staged-three-tip.pp",
     "SavedBy": "README, two-wheel launcher"
   }
 }
