@@ -1,9 +1,9 @@
 {
-  "pp": "TeamCode/autos/left-tunnel.pp",
-  "spec": "LeftTunnelAuto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/autos/recycle5-right.pp",
+  "spec": "Recycle5RightAuto,Recycle5LeftAuto@50",
   "design": "spring hood, full-width intake",
-  "partnerDesign": "spring hood",
-  "partnerSpeed": 40.0,
+  "partnerDesign": null,
+  "partnerSpeed": null,
   "seeds": [
     1,
     2,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "left-tunnel.pp",
+    "AutoSource": "recycle5-right.pp",
     "SavedBy": "README, two-wheel launcher"
   }
 }
