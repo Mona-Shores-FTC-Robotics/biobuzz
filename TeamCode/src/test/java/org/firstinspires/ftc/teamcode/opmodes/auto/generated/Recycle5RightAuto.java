@@ -46,8 +46,8 @@ public final class Recycle5RightAuto {
         Pose gardenIn = p.of(8.5, 22, 270);
         Pose garden = p.of(8.5, 11, 270);
         Pose wait = p.of(40, 16, 66);
-        Pose catchValue = p.of(57.5, 33, 90);
-        Pose catchBack = p.of(57.5, 30, 90);
+        Pose catchValue = p.of(57.5, 28, 90);
+        Pose catchBack = p.of(57.5, 25, 90);
         Pose shootR = p.of(50, 18, 82);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -60,9 +60,9 @@ public final class Recycle5RightAuto {
         Pose gardenToWaitControl1 = p.of(24, 14, 0);
         Pose gardenToWaitSegment1Heading = p.of(40, 16, 270);
         Pose gardenToWaitSegment2Start = p.of(40, 16, 270);
-        Pose waitToCatchSegment1Start = p.of(57.5, 33, 66);
+        Pose waitToCatchSegment1Start = p.of(57.5, 28, 66);
         Pose catchBackToShootR_2Segment1Start = p.of(50, 18, 90);
-        Pose shootRToCatchSegment1Start = p.of(57.5, 33, 82);
+        Pose shootRToCatchSegment1Start = p.of(57.5, 28, 82);
         Pose catchBackToShootR_3Segment1Start = p.of(50, 18, 90);
 
         // Paths, written as the stock Visualizer export writes them.

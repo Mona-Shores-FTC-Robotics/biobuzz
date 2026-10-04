@@ -20,7 +20,7 @@ R0, L0 = (61, 9.5, 90), (61, 132.25, 270)
 
 def right(name="recycle5-right"):
     # recycle3's right robot (3 Oct 2026 films): recycle4's, which staged its catch against the wall,
-    # catches nothing there now that the spill lands about 4 ft out.
+    # catches nothing there now that the spill lands about 42 in out.
     return right3(name, R0)
 
 
@@ -33,7 +33,7 @@ def left(name="recycle5-left"):
           fire(r, "Fire the preloads", "Empty", ms=2000), *flower(r, "FLOWER_L", "The far FLOWER", ms=1800))
     r.at = "FLOWER_L"
     r.add(r.go("FLOWER_L_IN", heading=90), fire(r, "Throw the FLOWER back (TIP 2)", "Empty", ms=1500))
-    # Turning to face the HIVE, to where TIP 2's spill lands (about 4 ft out from our wall: 3 Oct 2026
+    # Turning to face the HIVE, to where TIP 2's spill lands (about 42 in out from our wall: 3 Oct 2026
     # films), and catch it (it lands about 1.5 s after the volley leaves); hold it for TIP 3 at BACK_W.
     # (Turn at MID, clear of the FLOWER and of the centre line; catch at x 57.5.)
     r.pt("MID", 50, 114, 270).pt("CATCH_L", *CATCH_L).pt("CATCH_L_BACK", CATCH_L[0], CATCH_L[1] + 3, CATCH_L[2])

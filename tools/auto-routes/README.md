@@ -4,23 +4,31 @@
 Auto Builder's own exporter, so many route ideas can be tried in the simulation quickly. The `.pp`
 it writes is still the source of truth: open it in the Auto Builder to see or change the route.
 
-## The candidates (3 Oct 2026, on the filmed spill)
+## The candidates (4 Oct 2026, on the filmed spill)
 
-Average alliance AUTO points over 20 simulated runs, on normal tiles / tiles with 3× the friction, with
-the spill fitted to the 3 Oct films: it pours off the lowered CELL's lip and lands about 4 ft out from the
-wall, not against it (`TeamCode/README.md`, "The spill, filmed"). The robots catch it standing just short
-of there (`helpers.catch_spill`). Before the films, the recycle Autos scored 82–85 by catching and
-sweeping a spill at the wall that the real HIVE doesn't put there.
+Average alliance AUTO points over 20 simulated runs, on the spill fitted to the 3 Oct films: it pours
+off the lowered CELL's lip, first touches the tiles about 42 in out from the wall and bounces back
+toward it (`TeamCode/README.md`, "The spill, filmed"). The robots catch it where it comes back to them
+(`helpers.catch_spill`).
 
-| Match | Script | Auto | Points | Needs |
-|---|---|---|---|---|
-| Our two sister robots | `recycle5.py` | recycle5 | 78 / 77 | recycle3, and slats that let the left robot's launcher throw straight back |
-| Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 74 / 76 | catapult, front intake |
-| Our two sister robots | `recycle3.py` | recycle3 | 72 / 82 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
-| Partner fires its preloads | `three_tip_adaptive.py` | three-tip-adaptive | 72 / 73 | two spring hoods, front intake, webcam pickup |
-| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | solo-tunnel | 68 / 72 | two spring hoods, front intake |
-| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | staged-three-tip | 65 / 67 | two spring hoods, webcam pickup |
-| Our two sister robots | `recycle4.py` | recycle4 | 48 / 46 | not redesigned for the filmed spill: its right robot stages its catch against the wall |
+"Designed for" is the robot each Auto was written for, on normal tiles / tiles with 3× the friction.
+"One launcher" is the robot the build team is building now (4 Oct): one two-wheel launcher for both
+pieces and an 18 in intake (the simulator's "spring hood, full-width intake"), normal tiles.
+
+| Match | Script | Auto | Designed for | One launcher | Needs (as designed) |
+|---|---|---|---|---|---|
+| Our two sister robots | `recycle3.py` | recycle3 | 79 / 83 | 58 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
+| Partner fires its preloads | `three_tip_adaptive.py` | three-tip-adaptive | 76 / 75 | **74** | two spring hoods, front intake, webcam pickup |
+| Our two sister robots | `recycle5.py` | recycle5 | 76 / 82 | 46 | recycle3, and slats that let the left robot's launcher throw straight back |
+| Partner fires its preloads from the right start | `right_partner.py` | left-tunnel | 74 / 76 | 51 | catapult, front intake |
+| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | staged-three-tip | 74 / 67 | 56 | two spring hoods, webcam pickup |
+| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | solo-tunnel | 70 / 72 | 56 | two spring hoods, front intake |
+| Our two sister robots | `recycle4.py` | recycle4 | 72 / 46 | — | not redesigned for the filmed spill: its right robot stages its catch against the wall |
+
+On one launcher only three-tip-adaptive still makes 3 TIPs (18 of 20 runs): a flywheel can't spin up
+before the match and fires one piece at a time, too slow for Autos that fire a whole load the moment a
+CELL rises. Two runs in 20 flag a problem: recycle5 on slow tiles (the robots touch at 27.1 s) and
+solo-tunnel on one launcher (it brushes a FLOWER at 26.9 s).
 
 The simulated robots always know the HIVE's state: `LeftCellUp`, `RightCellUp` and `Tip` read the
 simulated HIVE directly, whichever way the robot faces. A real robot gets the same answers from the

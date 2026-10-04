@@ -146,7 +146,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 108.5
+        "y": 113.5
       },
       "controlPoints": [],
       "heading": {
@@ -165,7 +165,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 111.5
+        "y": 116.5
       },
       "controlPoints": [],
       "heading": {
@@ -614,12 +614,12 @@
       ],
       "CATCH_L": [
         57.5,
-        108.5,
+        113.5,
         270
       ],
       "CATCH_L_BACK": [
         57.5,
-        111.5,
+        116.5,
         270
       ],
       "BACK_W": [

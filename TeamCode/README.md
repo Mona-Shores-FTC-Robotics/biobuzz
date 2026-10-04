@@ -1652,24 +1652,25 @@ slow-motion exports, fine for where pieces go but not for timing). What they sho
 | | Filmed | Simulated before |
 |---|---|---|
 | The rocker's swing, first movement to its stop | about 0.5–0.75 s | 1.0 s (assumed) |
-| Pieces leave the lowered CELL | as the rocker reaches its stop, pouring off the lip | rolled down the CELL floor and flew off it at about 60 in/s |
-| First touch on the tiles | **almost straight under the lip, about 4 ft out from the alliance wall** (a box set there caught them every time; ±6 in, read from a photo of it) | 34–38 in out, about a foot nearer the wall |
-| First touch, after the rocker starts moving | about 1.15 s | about 1.09 s |
+| Pieces leave the lowered CELL | as the rocker reaches its stop, pouring off the lip and arcing out a little | rolled down the CELL floor and flew off it at about 60 in/s |
+| First touch on the tiles | **just under 2 tiles, about 42 in, out from the alliance wall** (a mentor's estimate from the films, 4 Oct) | about 36 in out |
+| First touch, after the rocker starts moving | about 1.15–1.2 s | about 1.09 s |
+| After that | they bounce back toward the wall and spread | |
 
-The simulated pieces now leave the CELL at a quarter of the speed they gather rolling down its floor
-(`FieldSim.FILMED_SPILL_EXIT_SCALE`, 0.25), fitted so the first touch lands where and when the
-films show. `SpillLandingTest` checks it (`BIOBUZZ_SPILL_EXIT=1,0.5,0.25` reprints the fit). After
-landing they scatter: 3 s after the TIP starts they lie 28–52 in out, x 36–77. The roll and bounce
-after landing are still placeholders.
+The simulated pieces now leave a tipping or lowered CELL at 0.6 of the speed they gather rolling down
+its floor (`FieldSim.FILMED_SPILL_EXIT_SCALE`), so the first touch lands 36–43 in out, median 42, at
+1.11 s. `SpillLandingTest` checks it (`BIOBUZZ_SPILL_EXIT=1,0.6,0.25` reprints the fit). 3 s after the
+TIP starts the pieces lie 17–33 in out, x 49–74. The roll and bounce after landing are still
+placeholders. *History:* on 3 Oct the fit was 0.25, from a photo of a box that caught the pieces
+(first touch 44–48 in); on 4 Oct a mentor judged that about 5 in too near the CELL.
 
-**What it cost.** Every Auto that caught a spill standing against the wall, or swept the wall for it,
-caught nothing there. On the filmed spill the recycle Autos fell from 82–85 points to 46–48. The ones
-that stand clear of it held: left-tunnel 74, solo-tunnel 68. The fix is where the robot waits: just
-short of where the spill lands, facing the HIVE (`helpers.CATCH_R` / `CATCH_L`: centre 33 in out, front
-at 42 in, x 57.5 so it can turn), catching what lands and topping up with the webcam
-(`helpers.catch_spill`), then backing off to its usual shooting spot. The scores now are in
-`tools/auto-routes/README.md`. recycle4's right robot, which staged its catch against the wall, has
-not been redesigned for the filmed spill; recycle5's right robot is now recycle3's.
+**What it changed.** The Autos that caught a spill standing against the wall, or swept the wall for
+it, had been written for the old physics. They now wait where the bounce comes back to them, facing
+the HIVE (`helpers.CATCH_R` / `CATCH_L`: centre 28 in out, front at 37, x 57.5 so it can turn; swept
+22–33 in), catch what comes, top up with the webcam (`helpers.catch_spill`), then back off to their
+usual shooting spot. three-tip-adaptive and staged-three-tip look for TIP 1's spilled NECTAR along the
+wall, facing east (facing the HIVE they saw none). recycle5's right robot is now recycle3's. The
+scores are in `tools/auto-routes/README.md`.
 
 **The webcam pickup near the HIVE's feet.** The spill lands right in front of the ends of the HIVE's
 foot bars (x 46, y 51.3 on red's side), so `CollectSeen` now refuses a piece unless the robot can get to
@@ -1677,8 +1678,9 @@ it, and turn back to the heading it started with from anywhere on the way, with 
 round; its look-around turn checks the HIVE's feet and the centre line too, and so does driving onto a
 piece near the centre line. A real `CollectSeen` needs the same rules.
 
-**Still to measure:** where pieces come to rest (film from above), and the swing time per CELL
-(`HiveTracker.Tuning.tipSeconds`, still the assumed 1.0 s, so the simulated swing is slower than filmed).
+**Still to measure:** the first touch with a tape in the shot, where pieces come to rest (film from
+above), and the swing time per CELL (`HiveTracker.Tuning.tipSeconds`, still the assumed 1.0 s, so the
+simulated swing is slower than filmed).
 
 ### Two robots and five or more TIPs
 

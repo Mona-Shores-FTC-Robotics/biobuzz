@@ -18,14 +18,14 @@ import java.util.Map;
  * touches, and how long after the TIP started.
  *
  * <p>The films (IMG_1957–1960, 120 fps) show the pieces pouring out of the lowered CELL's lip and
- * dropping nearly straight down, first touching the tiles close under the lip, about 4 ft out from
- * the wall (from a photo of the box that caught them, ±6 in), about 1.15 s after the rocker starts
- * to move. The test checks the simulation lands them there.
+ * arcing out a little, first touching the tiles just under 2 tiles, about 42 in, out from the wall
+ * (a mentor's estimate from the films), about 1.15–1.2 s after the rocker starts to move. The test
+ * checks the simulation lands them there.
  */
 public class SpillLandingTest {
 
-    /** First touch, from the films: about 4 ft out from the wall, ±6 in, and a little more allowance. */
-    static final double FILMED_NEAR_IN = 42, FILMED_FAR_IN = 62;
+    /** First touch, from the films: about 42 in out from the wall (a mentor's estimate), give or take. */
+    static final double FILMED_NEAR_IN = 38, FILMED_FAR_IN = 48;
     /** First touch after the rocker starts to move, from the films. */
     static final double FILMED_FIRST_TOUCH_S = 1.15;
 

@@ -17,7 +17,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 33
+        "y": 28
       },
       "controlPoints": [],
       "heading": {
@@ -76,7 +76,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 30
+        "y": 25
       },
       "controlPoints": [],
       "heading": {
@@ -263,7 +263,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 33
+        "y": 28
       },
       "controlPoints": [],
       "heading": {
@@ -302,7 +302,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 30
+        "y": 25
       },
       "controlPoints": [],
       "heading": {
@@ -361,7 +361,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 33
+        "y": 28
       },
       "controlPoints": [],
       "heading": {
@@ -400,7 +400,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 30
+        "y": 25
       },
       "controlPoints": [],
       "heading": {
@@ -659,12 +659,12 @@
       ],
       "CATCH": [
         57.5,
-        33,
+        28,
         90
       ],
       "CATCH_BACK": [
         57.5,
-        30,
+        25,
         90
       ],
       "SHOOT_R": [

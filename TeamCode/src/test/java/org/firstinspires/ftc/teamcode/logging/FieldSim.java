@@ -136,14 +136,14 @@ final class FieldSim {
     /**
      * A spilled piece's speed as it leaves the lowered CELL, as a fraction of what it gathered rolling
      * down the CELL's floor (only out of a CELL that is tipping or down: a shot rebounding out of the
-     * raised CELL keeps its speed). Fitted to the 3 Oct 2026 films (IMG_1957–1960, 120 fps): real
-     * pieces pour off the lip and drop nearly straight down, first touching the tiles close under it,
-     * about 4 ft out from the alliance wall (from a photo of the box that caught them, ±6 in), about
-     * 1.15 s after the rocker starts to move. Rolling freely they flew another foot toward the wall.
-     * At 0.25 the simulated first touch is 44–48 in out, 1.15 s after the TIP starts.
-     * {@link SpillLandingTest} checks the fit.
+     * raised CELL keeps its speed). From the 3 Oct 2026 films (IMG_1957–1960, 120 fps): real pieces
+     * pour off the lip and arc out a little, first touching the tiles just under 2 tiles, about 42 in,
+     * from the alliance wall (mentor's estimate from the films, 4 Oct; 0.25 before that, from a photo,
+     * landed them about 5 in nearer the CELL), about 1.15–1.2 s after the rocker starts to move.
+     * Rolling freely (1.0) they land at about 36 in. At 0.6 the simulated first touch is 36–43 in out,
+     * median 42, 1.11 s after the TIP starts. {@link SpillLandingTest} checks the fit.
      */
-    static final double FILMED_SPILL_EXIT_SCALE = 0.25;
+    static final double FILMED_SPILL_EXIT_SCALE = 0.6;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
