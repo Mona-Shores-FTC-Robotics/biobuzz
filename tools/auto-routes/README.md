@@ -4,7 +4,7 @@
 Auto Builder's own exporter, so many route ideas can be tried in the simulation quickly. The `.pp`
 it writes is still the source of truth: open it in the Auto Builder to see or change the route.
 
-## The candidates (4 Oct 2026, on the filmed spill)
+## The candidates (4 Oct 2026, on the filmed spill and its scatter)
 
 Each Auto's name is who our alliance partner is and what it does, then our plan: **Sister** (our other
 robot, full choreography between the two), **PartnerShoots** (fires its 4 preloads, then parks;
@@ -12,9 +12,9 @@ PartnerShootsRight: from the right start) or **PartnerStages** (can't shoot: lin
 us, then parks). The files keep their older names, in brackets.
 
 Average alliance AUTO points over 20 simulated runs, on the spill fitted to the 3 Oct films: it pours
-off the lowered CELL's lip, first touches the tiles about 42 in out from the wall and bounces back
-toward it (`TeamCode/README.md`, "The spill, filmed"). The robots catch it where it comes back to them
-(`helpers.catch_spill`).
+off the lowered CELL's lip, first touches the tiles about 42 in out from the wall, and scatters across
+the field (`TeamCode/README.md`, "The spill, filmed"). The robots wait to catch it short of the
+landing (`helpers.catch_spill`); the routes were tuned before the scatter.
 
 "Designed for" is the robot each Auto was written for, on normal tiles / tiles with 3× the friction.
 "One launcher" is the robot the build team is building now (4 Oct): one two-wheel launcher for both
@@ -22,18 +22,19 @@ pieces and an 18 in intake (the simulator's "spring hood, full-width intake"), n
 
 | Match | Script | Auto (files) | Designed for | One launcher | Needs (as designed) |
 |---|---|---|---|---|---|
-| Our two sister robots | `recycle3.py` | Sister-Recycle (`recycle3`) | 79 / 83 | 58 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
-| Partner fires its preloads | `three_tip_adaptive.py` | PartnerShoots-ThreeTip (`three-tip-adaptive`) | 76 / 75 | **74** | two spring hoods, front intake, webcam pickup |
-| Our two sister robots | `recycle5.py` | Sister-ThrowBack (`recycle5`) | 76 / 82 | 46 | recycle3, and slats that let the left robot's launcher throw straight back |
-| Partner fires its preloads from the right start | `right_partner.py` | PartnerShootsRight-LeftTunnel (`left-tunnel`) | 74 / 76 | 51 | catapult, front intake |
-| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | PartnerStages-ThreeTip (`staged-three-tip`) | 74 / 67 | 56 | two spring hoods, webcam pickup |
-| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | PartnerShoots-Tunnel (`solo-tunnel`) | 70 / 72 | 56 | two spring hoods, front intake |
-| Our two sister robots | `recycle4.py` | Sister-SetDown (`recycle4`) | 72 / 46 | — | not redesigned for the filmed spill: its right robot stages its catch against the wall |
+| Partner fires its preloads | `three_tip_adaptive.py` | PartnerShoots-ThreeTip (`three-tip-adaptive`) | 76 / 76 | **59** | two spring hoods, front intake, webcam pickup |
+| Partner fires its preloads from the right start | `right_partner.py` | PartnerShootsRight-LeftTunnel (`left-tunnel`) | 63 / 73 | 52 | catapult, front intake |
+| Our two sister robots | `recycle5.py` | Sister-ThrowBack (`recycle5`) | 60 / 49 | 46 | recycle3, and slats that let the left robot's launcher throw straight back |
+| Partner can't shoot, stages its preloads | `three_tip_adaptive.py` (`staged=True`) | PartnerStages-ThreeTip (`staged-three-tip`) | 59 / 59 | 56 | two spring hoods, webcam pickup |
+| Our two sister robots | `recycle3.py` | Sister-Recycle (`recycle3`) | 58 / 55 | 49 | catapult (triangle cup), 18 in front intake, piece counter, webcam pickup |
+| Qualification: we work the HIVE alone, the partner fires its preloads | `solo_tunnel.py` | PartnerShoots-Tunnel (`solo-tunnel`) | 55 / 57 | 56 | two spring hoods, front intake |
+| Our two sister robots | `recycle4.py` | Sister-SetDown (`recycle4`) | 52 / 52 | — | not redesigned for the filmed spill: its right robot stages its catch against the wall |
 
-On one launcher only three-tip-adaptive still makes 3 TIPs (18 of 20 runs): a flywheel can't spin up
-before the match and fires one piece at a time, too slow for Autos that fire a whole load the moment a
-CELL rises. Two runs in 20 flag a problem: recycle5 on slow tiles (the robots touch at 27.1 s) and
-solo-tunnel on one launcher (it brushes a FLOWER at 26.9 s).
+Since the scatter every Auto lost points, the catapult Sister Autos most (76–79 before it): pieces spread
+across the field are harder to collect than a tidy pile, and the routes were tuned for one. Only
+PartnerShoots-ThreeTip on two launchers held (76). Problems flagged: Sister-ThrowBack's robots touch once
+in 20 (27.2 s), and PartnerShoots-Tunnel brushes the far FLOWER in 1 of 20 (6 of 20 on one launcher):
+when time runs short against the FLOWER, the endgame guard parks it from there.
 
 The simulated robots always know the HIVE's state: `LeftCellUp`, `RightCellUp` and `Tip` read the
 simulated HIVE directly, whichever way the robot faces. A real robot gets the same answers from the
