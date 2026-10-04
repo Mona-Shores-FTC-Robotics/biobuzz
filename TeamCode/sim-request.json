@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-partner-parks.pp",
-  "spec": "QualPartnerParksAuto,PartnerLeaveParkAuto@50",
+  "pp": "TeamCode/autos/qual-partner-shoots-left.pp",
+  "spec": "QualPartnerShootsLeftAuto,PartnerPreloadsLeftAuto@50",
   "design": "spring hood, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-partner-parks.pp",
+    "AutoSource": "qual-partner-shoots-left.pp",
     "SavedBy": "README, qualifier Autos"
   }
 }
