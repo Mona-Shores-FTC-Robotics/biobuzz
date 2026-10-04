@@ -66,9 +66,10 @@ public final class AutoSim {
     /**
      * Disabled time on each side of the run, robots standing where they are, so AdvantageScope's
      * timeline has room to grab the start and the end. AUTO starts at {@code PRE_ROLL_S} in the log.
+     * 1 s each (mentor, 4 Oct 2026; was 10 s and 7 s): enough to grab, without scrolling past idle robots.
      */
-    static final double PRE_ROLL_S = 10.0;
-    static final double POST_ROLL_S = 7.0;
+    static final double PRE_ROLL_S = 1.0;
+    static final double POST_ROLL_S = 1.0;
     /** How often the {@code /Match/} clock is logged. */
     static final double CLOCK_STEP_S = 0.1;
 

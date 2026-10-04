@@ -128,7 +128,7 @@ In desktop AdvantageScope:
 1. **File → Open Log** and pick the `.wpilog`.
 2. **File → Import Layout** with `sim-review/advantagescope-layout.json`. It sets up the 3D field,
    the robots and the game pieces.
-3. AUTO starts 10 s into each log. `/Match/Clock` shows match time.
+3. AUTO starts 1 s into each log (logs from before 4 Oct 2026: 10 s). `/Match/Clock` shows match time.
 
 For the moving HIVE, do the one-time HIVE asset setup in
 [`TeamCode/README.md` § "Game pieces and the HIVE in a simulated `.wpilog`"](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).

@@ -141,10 +141,10 @@ public class ReviewPackageTest {
             out.println("each seed a typical run, not the best one, unless the row says otherwise. Points are AUTO only.");
             out.println();
             out.println("In AdvantageScope: open a log, then **File → Import Layout** with `sim-review/advantagescope-layout.json`.");
-            out.println("AUTO starts 10 s into each log and the robots stand still before and after it. `/Match/Clock`");
+            out.println("AUTO starts 1 s into each log and the robots stand still before and after it. `/Match/Clock`");
             out.println("reads like \"AUTO 21.5 s, 8.5 left\"; drag it onto a line graph's discrete fields to see it on the timeline.");
             out.println();
-            out.println("TIP times are match time; on AdvantageScope's timeline add 10 s.");
+            out.println("TIP times are match time; on AdvantageScope's timeline add 1 s.");
             out.println();
             for (String[] section : SECTIONS) {
                 out.println("## " + section[1]);
