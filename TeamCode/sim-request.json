@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/staged-three-tip.pp",
-  "spec": "StagedThreeTipAuto,PartnerLeaveParkAuto@50",
-  "design": "two spring hoods, full-width intake",
+  "pp": "TeamCode/autos/three-tip-adaptive.pp",
+  "spec": "ThreeTipAdaptiveAuto,PartnerPreloadsParkAuto@50",
+  "design": "spring hood, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "staged-three-tip.pp",
-    "SavedBy": "README showcase, spill at 42 in"
+    "AutoSource": "three-tip-adaptive.pp",
+    "SavedBy": "README, two-wheel launcher"
   }
 }
