@@ -48,11 +48,14 @@ public final class ThreeTipAdaptiveAuto {
         Pose leftShot = p.of(40, 116, 301);
         Pose farFlower = p.of(47.36, 127.59, 90);
         Pose farFlowerTurn = p.of(47.36, 119.29, 90);
-        Pose rightLook = p.of(50, 27, 72);
-        Pose rightLookBack = p.of(49, 24, 72);
-        Pose rightShot = p.of(36, 30, 49);
         Pose garden = p.of(8.5, 11, 270);
         Pose park = p.of(15, 89.5, 90);
+        Pose shot = p.of(57.5, 20, 90);
+        Pose sweep1 = p.of(57.5, 30, 90);
+        Pose sweep2 = p.of(57.5, 38, 90);
+        Pose shotG = p.of(22, 22, 50);
+        Pose gardenIn = p.of(8.5, 22, 270);
+        Pose west = p.of(32, 96, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToWallFlowerTurnControl1 = p.of(22.21, 9.5, 0);
@@ -63,26 +66,25 @@ public final class ThreeTipAdaptiveAuto {
         Pose leftShotToFarFlowerTurnControl1 = p.of(40, 119.29, 0);
         Pose leftShotToFarFlowerTurnSegment1Heading = p.of(47.36, 119.29, 301);
         Pose leftShotToFarFlowerTurnSegment2Start = p.of(47.36, 119.29, 301);
+        Pose farFlowerTurnToWestControl1 = p.of(40, 110, 0);
+        Pose westToShotControl1 = p.of(30, 50, 0);
+        Pose westToShotControl2 = p.of(34, 22, 0);
+        Pose shotToShotGSegment1Start = p.of(22, 22, 90);
+        Pose shotToGardenInSegment1Heading = p.of(8.5, 22, 90);
+        Pose shotToGardenInSegment2Start = p.of(8.5, 22, 90);
+        Pose gardenToShotGSegment1Heading = p.of(22, 22, 270);
+        Pose gardenToShotGSegment2Start = p.of(22, 22, 270);
+        Pose shotGToParkControl1 = p.of(30, 30, 0);
+        Pose shotGToParkControl2 = p.of(22, 80, 0);
+        Pose shotGToParkSegment1Start = p.of(15, 89.5, 50);
         Pose farFlowerToLeftShotSegment1Heading = p.of(40, 116, 90);
         Pose farFlowerToLeftShotSegment2Start = p.of(40, 116, 90);
-        Pose leftShotToRightShotControl1 = p.of(34, 92, 0);
-        Pose leftShotToRightShotControl2 = p.of(12, 60, 0);
-        Pose leftShotToRightShotControl3 = p.of(22, 30, 0);
-        Pose leftShotToRightShotSegment1Start = p.of(36, 30, 301);
-        Pose rightShotToRightLookSegment1Start = p.of(50, 27, 49);
-        Pose rightLookBackToRightShotSegment1Start = p.of(36, 30, 72);
-        Pose rightShotToGardenSegment1Start = p.of(8.5, 11, 49);
-        Pose gardenToRightShotSegment1Start = p.of(36, 30, 270);
-        Pose leftShotToRightLookControl1 = p.of(34, 92, 0);
-        Pose leftShotToRightLookControl2 = p.of(12, 60, 0);
-        Pose leftShotToRightLookControl3 = p.of(22, 30, 0);
-        Pose leftShotToRightLookSegment1Start = p.of(50, 27, 301);
-        Pose rightLookBackToRightShot_2Segment1Start = p.of(36, 30, 72);
-        Pose rightShotToGarden_2Segment1Start = p.of(8.5, 11, 49);
-        Pose gardenToRightShot_2Segment1Start = p.of(36, 30, 270);
-        Pose rightShotToParkControl1 = p.of(22, 40, 0);
-        Pose rightShotToParkControl2 = p.of(22, 80, 0);
-        Pose rightShotToParkSegment1Start = p.of(15, 89.5, 49);
+        Pose leftShotToShotControl1 = p.of(34, 92, 0);
+        Pose leftShotToShotControl2 = p.of(12, 60, 0);
+        Pose leftShotToShotControl3 = p.of(22, 18, 0);
+        Pose leftShotToShotSegment1Start = p.of(57.5, 20, 301);
+        Pose shotToParkControl1 = p.of(30, 30, 0);
+        Pose shotToParkControl2 = p.of(22, 80, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToWallFlowerTurn = Paths.curve(start, startToWallFlowerTurnControl1, wallFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToWallFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToWallFlowerTurnSegment2Start, wallFlowerTurn)));
@@ -90,81 +92,102 @@ public final class ThreeTipAdaptiveAuto {
         Path wallFlowerToLeftShot = Paths.line(wallFlower, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(wallFlowerToLeftShotSegment1Heading)).until(1, Interpolator.linear(wallFlowerToLeftShotSegment2Start, leftShot)));
         Path leftShotToFarFlowerTurn = Paths.curve(leftShot, leftShotToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(leftShotToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(leftShotToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToFarFlowerTurn = Paths.line(farFlower, farFlowerTurn).constant(farFlowerTurn);
+        Path farFlowerTurnToWest = Paths.curve(farFlowerTurn, farFlowerTurnToWestControl1, west).constant(west);
+        Path westToShot = Paths.curve(west, westToShotControl1, westToShotControl2, shot).constant(shot);
+        Path shotToSweep1 = Paths.line(shot, sweep1).constant(sweep1);
+        Path sweep1ToSweep2 = Paths.line(sweep1, sweep2).constant(sweep2);
+        Path sweep2ToShot = Paths.line(sweep2, shot).constant(shot);
+        Path shotToShotG = Paths.line(shot, shotG).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(shotToShotGSegment1Start, shotG)).until(1, Interpolator.constant(shotG)));
+        Path shotToGardenIn = Paths.line(shot, gardenIn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(shotToGardenInSegment1Heading)).until(0.7, Interpolator.linear(shotToGardenInSegment2Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
+        Path gardenInToGarden = Paths.line(gardenIn, garden).linear(gardenIn, garden);
+        Path gardenToShotG = Paths.line(garden, shotG).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToShotGSegment1Heading)).until(0.9, Interpolator.linear(gardenToShotGSegment2Start, shotG)).until(1, Interpolator.constant(shotG)));
+        Path shotGToPark = Paths.curve(shotG, shotGToParkControl1, shotGToParkControl2, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(shotGToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
         Path farFlowerToLeftShot = Paths.line(farFlower, leftShot).heading(Interpolator.piecewise().until(0.4, Interpolator.constant(farFlowerToLeftShotSegment1Heading)).until(1, Interpolator.linear(farFlowerToLeftShotSegment2Start, leftShot)));
-        Path leftShotToRightShot = Paths.curve(leftShot, leftShotToRightShotControl1, leftShotToRightShotControl2, leftShotToRightShotControl3, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path rightShotToRightLook = Paths.line(rightShot, rightLook).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToRightLookSegment1Start, rightLook)).until(1, Interpolator.constant(rightLook)));
-        Path rightLookToRightLookBack = Paths.line(rightLook, rightLookBack).linear(rightLook, rightLookBack);
-        Path rightLookBackToRightShot = Paths.line(rightLookBack, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightLookBackToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path rightShotToGarden = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
-        Path gardenToRightShot = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShotSegment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path leftShotToRightLook = Paths.curve(leftShot, leftShotToRightLookControl1, leftShotToRightLookControl2, leftShotToRightLookControl3, rightLook).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(leftShotToRightLookSegment1Start, rightLook)).until(1, Interpolator.constant(rightLook)));
-        Path rightLookToRightLookBackPath = Paths.line(rightLook, rightLookBack).linear(rightLook, rightLookBack);
-        Path rightLookBackToRightShotPath = Paths.line(rightLookBack, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightLookBackToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path rightShotToGardenPath = Paths.line(rightShot, garden).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToGarden_2Segment1Start, garden)).until(1, Interpolator.constant(garden)));
-        Path gardenToRightShotPath = Paths.line(garden, rightShot).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(gardenToRightShot_2Segment1Start, rightShot)).until(1, Interpolator.constant(rightShot)));
-        Path rightShotToPark = Paths.curve(rightShot, rightShotToParkControl1, rightShotToParkControl2, park).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(rightShotToParkSegment1Start, park)).until(1, Interpolator.constant(park)));
+        Path leftShotToShot = Paths.curve(leftShot, leftShotToShotControl1, leftShotToShotControl2, leftShotToShotControl3, shot).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(leftShotToShotSegment1Start, shot)).until(1, Interpolator.constant(shot)));
+        Path shotToSweep1Path = Paths.line(shot, sweep1).constant(sweep1);
+        Path sweep1ToSweep2Path = Paths.line(sweep1, sweep2).constant(sweep2);
+        Path sweep2ToShotPath = Paths.line(sweep2, shot).constant(shot);
+        Path shotToPark = Paths.curve(shot, shotToParkControl1, shotToParkControl2, park).linear(shot, park);
 
         return kit.sequence(
-                kit.guarded("Auto", rightShotToPark, 2.4,
-                        kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(4000)),
-                        kit.path("START to WALL_FLOWER_TURN", startToWallFlowerTurn),
-                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
-                        kit.firstOf("Collect at WALL_FLOWER",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(2300)),
-                        kit.path("WALL_FLOWER to LEFT_SHOT", wallFlowerToLeftShot),
-                        kit.command("LaunchAll"),
-                        kit.path("LEFT_SHOT to FAR_FLOWER_TURN", leftShotToFarFlowerTurn),
-                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
-                        kit.firstOf("Collect at FAR_FLOWER",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(2300)),
-                        kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
-                        kit.firstOf("Did a partner make TIP 2?",
-                                kit.when("RightCellUp").then(
-                                        kit.path("LEFT_SHOT to RIGHT_SHOT", leftShotToRightShot),
-                                        kit.command("LaunchAll"),
-                                        kit.path("RIGHT_SHOT to RIGHT_LOOK", rightShotToRightLook),
-                                        kit.firstOf("Spilled NECTAR (B)", kit.command("CollectSeen"),
+                kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(5500)),
+                kit.path("START to WALL_FLOWER_TURN", startToWallFlowerTurn),
+                kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
+                kit.firstOf("Collect at WALL_FLOWER",
+                        kit.when("IntakeFull"),
+                        kit.afterMs(2300)),
+                kit.path("WALL_FLOWER to LEFT_SHOT", wallFlowerToLeftShot),
+                kit.firstOf("Fire at the left CELL (TIP 2)", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(1800)),
+                kit.path("LEFT_SHOT to FAR_FLOWER_TURN", leftShotToFarFlowerTurn),
+                kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                kit.firstOf("Collect at FAR_FLOWER",
+                        kit.when("IntakeFull"),
+                        kit.afterMs(2300)),
+                kit.firstOf("Has TIP 2 happened?",
+                        kit.when("RightCellUp").then(
+                                kit.guarded("Yes: right CELL up", shotGToPark, 2.6,
+                                        kit.path("FAR_FLOWER to FAR_FLOWER_TURN", farFlowerToFarFlowerTurn),
+                                        kit.path("FAR_FLOWER_TURN to WEST", farFlowerTurnToWest),
+                                        kit.path("WEST to SHOT", westToShot),
+                                        kit.firstOf("Fire the far FLOWER (TIP 3)", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(1800)),
+                                        kit.path("SHOT to SWEEP_1", shotToSweep1),
+                                        kit.firstOf("Sweep the TIP 1 spill (1)",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(500)),
+                                        kit.path("SWEEP_1 to SWEEP_2", sweep1ToSweep2),
+                                        kit.firstOf("Sweep the TIP 1 spill (2)",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(700)),
+                                        kit.firstOf("Sweep the TIP 1 spill (webcam)", kit.command("CollectSeen"),
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("RIGHT_LOOK to RIGHT_LOOK_BACK", rightLookToRightLookBack),
-                                        kit.path("RIGHT_LOOK_BACK to RIGHT_SHOT", rightLookBackToRightShot),
-                                        kit.firstOf("Fire (B)", kit.command("LaunchAll"),
+                                        kit.path("SWEEP_2 to SHOT", sweep2ToShot),
+                                        kit.firstOf("Fire the TIP 1 spill", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
-                                                kit.afterMs(2000)),
+                                                kit.afterMs(1800)),
                                         kit.firstOf("TIP 3 yet?",
-                                                kit.when("LeftCellUp"),
+                                                kit.when("LeftCellUp").then(
+                                                        kit.path("SHOT to SHOT_G", shotToShotG)),
                                                 kit.afterMs(1500).then(
-                                                        kit.path("RIGHT_SHOT to GARDEN", rightShotToGarden),
-                                                        kit.firstOf("Collect in the GARDEN (B)",
+                                                        kit.path("SHOT to GARDEN_IN", shotToGardenIn),
+                                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
+                                                        kit.firstOf("Collect in the GARDEN",
                                                                 kit.when("IntakeFull"),
                                                                 kit.afterMs(1000)),
-                                                        kit.path("GARDEN to RIGHT_SHOT", gardenToRightShot),
-                                                        kit.firstOf("Fire the TIP 3 volley, then park", kit.command("LaunchAll"),
-                                                                kit.when("Empty"),
-                                                                kit.afterMs(2000))))),
-                                kit.afterMs(50).then(
+                                                        kit.path("GARDEN to SHOT_G", gardenToShotG),
+                                                        kit.firstOf("Fire the GARDEN (TIP 3)", kit.command("LaunchAll"),
+                                                                kit.when("LeftCellUp"),
+                                                                kit.afterMs(1800)))),
+                                        kit.path("SHOT_G to PARK", shotGToPark))),
+                        kit.afterMs(50).then(
+                                kit.guarded("No: back to the left CELL", shotToPark, 2.8,
+                                        kit.path("FAR_FLOWER to LEFT_SHOT", farFlowerToLeftShot),
                                         kit.firstOf("Fire until it tips (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("RightCellUp"),
                                                 kit.afterMs(2500)),
-                                        kit.path("LEFT_SHOT to RIGHT_LOOK", leftShotToRightLook),
-                                        kit.firstOf("Spilled NECTAR", kit.command("CollectSeen"),
+                                        kit.path("LEFT_SHOT to SHOT", leftShotToShot),
+                                        kit.path("SHOT to SWEEP_1", shotToSweep1Path),
+                                        kit.firstOf("Sweep the TIP 1 spill (A) (1)",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(500)),
+                                        kit.path("SWEEP_1 to SWEEP_2", sweep1ToSweep2Path),
+                                        kit.firstOf("Sweep the TIP 1 spill (A) (2)",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(700)),
+                                        kit.firstOf("Sweep the TIP 1 spill (A) (webcam)", kit.command("CollectSeen"),
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1500)),
-                                        kit.path("RIGHT_LOOK to RIGHT_LOOK_BACK", rightLookToRightLookBackPath),
-                                        kit.path("RIGHT_LOOK_BACK to RIGHT_SHOT", rightLookBackToRightShotPath),
-                                        kit.command("LaunchAll"),
-                                        kit.path("RIGHT_SHOT to GARDEN", rightShotToGardenPath),
-                                        kit.firstOf("Collect in the GARDEN",
-                                                kit.when("IntakeFull"),
-                                                kit.afterMs(1000)),
-                                        kit.path("GARDEN to RIGHT_SHOT", gardenToRightShotPath),
-                                        kit.firstOf("Fire until it tips (TIP 3)", kit.command("LaunchAll"),
-                                                kit.when("LeftCellUp"),
-                                                kit.afterMs(2500)))),
-                        kit.path("RIGHT_SHOT to PARK", rightShotToPark)));
+                                        kit.path("SWEEP_2 to SHOT", sweep2ToShotPath),
+                                        kit.firstOf("Fire the TIP 1 spill (A)", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(1800)),
+                                        kit.path("SHOT to PARK", shotToPark)))));
     }
 }

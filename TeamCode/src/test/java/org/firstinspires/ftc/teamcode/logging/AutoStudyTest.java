@@ -127,6 +127,28 @@ public class AutoStudyTest {
             c.compensatesMotion = true;
             m.put(c.name, c);
         }
+        // The robot being built (4 Oct 2026): one two-wheel flywheel launcher fixed to the frame,
+        // POLLEN and NECTAR, and an 18 in front intake. Nothing on it is measured yet. It starts as the
+        // spring hood with a full-width intake, at 0.25 s between shots (the build team's estimate,
+        // 4 Oct 2026: "probably lower, but 0.25 is a safe value"); the variants sweep the two unknowns
+        // that could reorder the Autos: spin-up from rest and the time between shots.
+        RobotDesign twoWheel = RobotDesign.springHoodFullWidth().copy("two-wheel launcher");
+        twoWheel.shotIntervalS = 0.25;
+        m.put(twoWheel.name, twoWheel);
+        for (double s : new double[] {1.0, 1.5, 2.5, 3.0}) {
+            RobotDesign d = twoWheel.copy(String.format(Locale.ROOT, "two-wheel launcher, %.1f s spin-up", s));
+            d.spinUpS = s;
+            m.put(d.name, d);
+        }
+        for (double s : new double[] {0.15, 0.35, 0.45, 0.6}) {
+            RobotDesign d = twoWheel.copy(String.format(Locale.ROOT, "two-wheel launcher, %.2f s/shot", s));
+            d.shotIntervalS = s;
+            m.put(d.name, d);
+        }
+        RobotDesign slowest = twoWheel.copy("two-wheel launcher, worst case (3 s, 0.6 s/shot)");
+        slowest.spinUpS = 3.0;
+        slowest.shotIntervalS = 0.6;
+        m.put(slowest.name, slowest);
         return m;
     }
 

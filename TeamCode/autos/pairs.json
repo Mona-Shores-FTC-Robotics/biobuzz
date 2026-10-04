@@ -3,7 +3,8 @@
     { "name": "recycle3", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 72 / 82" },
     { "name": "recycle4", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 48 / 46" },
     { "name": "recycle5", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 78 / 77" },
-    { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 72 / 73" },
+    { "name": "solo-west", "files": ["solo-west.pp", "partner-preloads-park.pp"], "note": "one two-wheel launcher, partner fires its preloads: 73 / 73.5" },
+    { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "one two-wheel launcher, partner fires its preloads: 69.5 / 75" },
     { "name": "left-tunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 74 / 76" },
     { "name": "staged-three-tip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 65 / 67" },
     { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 68 / 72" }

@@ -105,7 +105,7 @@ public final class StagedThreeTipAuto {
                 kit.guarded("Auto", rightShotToPark, 2.4,
                         kit.firstOf("Fire all 4 preloads (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
-                                kit.afterMs(4000)),
+                                kit.afterMs(5500)),
                         kit.path("START to TUNNEL", startToTunnel),
                         kit.path("TUNNEL to ROW_IN", tunnelToRowIn),
                         kit.firstOf("Pick up the partner's row", kit.command("CollectSeen"),

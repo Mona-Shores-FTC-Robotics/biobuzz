@@ -10,6 +10,7 @@ its generated Java is not committed, so export it again to run it.
 | `lean_duo.py`, `lean_opportunist.py` | each robot catches its own spill and fires it straight back, then parks | 69 / 57 points; the recycle Autos replaced them |
 | `home_duo.py`, `rally.py`, `convoy.py` | stay home and stream; never park; both robots on whichever CELL is up | lost to lean-opp, then to recycle |
 | `solo_shuttle.py`, `four_tip_adaptive.py`, `four_tip_solo.py` | 4 TIPs with one of our robots | never got past 2-3 TIPs |
+| `../one_launcher.py` (`experiments`) | one launcher: solo-catch (catch TIP 2's spill, back through the tunnel), garden-first (GARDEN for TIP 2, TIP 1's spill left on the tiles for TIP 3), garden-wall (garden-first plus the wall FLOWER) | 70.5 and 67.5 points (solo-catch, garden-wall; 40 runs at 0.25 s/shot), 56 (garden-first, 20 runs), against solo-west's 73. Uncaught, the TIP 1 spill scatters: about 130 g of it is reachable, short of a TIP |
 | `partner_start.py` | where a preloads-only partner should start | answered: the right start (left-tunnel) |
 | `staging_study.py` | where a non-shooting partner should stage its preloads | answered: in a row at its side (staged-three-tip) |
 
