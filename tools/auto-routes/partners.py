@@ -53,6 +53,21 @@ def park_left(name="partner-park-left", wait_s=0.0):
     return r
 
 
+def stage_exit(name="partner-stage-exit", fwd_y=120.0):
+    """A partner that can't shoot (4 Oct 2026 request): starts at the left start square in front of the
+    left CELL (x 59, the standard left start: at 57.5 its corner touches the far FLOWER), drives straight
+    forward, sets its 4 POLLEN down in a row across the tunnel's north exit (y about 108, x 50-68), backs
+    straight off and parks west under the far FLOWER. Done and out of
+    the way by about 5 s, before we come north through the tunnel into the row."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    r.pt("STAGE", 59, fwd_y, 270)
+    r.add(r.go("STAGE", heading=270),
+          r.wait("Set the preloads down", when=["Empty"], ms=1500, alongside="SetDown"))
+    r.at = "STAGE"
+    r.add(*_park_left(r))
+    return r
+
+
 def partner_right(name="partner-preloads-right"):
     """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
     ZONE like the other reference partners (mentor review), leaving the near end for us."""
