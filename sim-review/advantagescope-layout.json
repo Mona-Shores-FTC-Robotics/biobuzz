@@ -85,6 +85,15 @@
                 "sources": [
                   {
                     "type": "robot",
+                    "logKey": "/Odometry/Robot3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ Robot"
+                    }
+                  },
+                  {
+                    "type": "robot",
                     "logKey": "/Sim/Hive/Structure",
                     "logType": "Pose3d",
                     "visible": true,
@@ -98,15 +107,6 @@
                     "logType": "Pose3d[]",
                     "visible": true,
                     "options": {}
-                  },
-                  {
-                    "type": "robot",
-                    "logKey": "/Odometry/Robot3d",
-                    "logType": "Pose3d",
-                    "visible": true,
-                    "options": {
-                      "model": "Drive Base"
-                    }
                   },
                   {
                     "type": "ghost",

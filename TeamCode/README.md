@@ -1371,7 +1371,10 @@ never reaches it.
   (the robot row's model dropdown).
 - **Look through it:** right-click the 3D view and choose **Limelight**. The view sits at the lens,
   aimed as mounted, at the Limelight 3A's 54.5° field of view and 4:3 shape, and follows the logged
-  pose. Right-click → **Orbit Field** to get back. With the HIVE assets loaded, a CELL's tags should
+  pose. Right-click → **Orbit Field** to get back. The menu lists the cameras of the **first Robot
+  row** only. The HIVE (`/Sim/Hive/Structure`) is also a Robot row, with no cameras, so if it sits
+  above `/Odometry/Robot3d` the menu has no **Limelight**. Keep `Robot3d` at the top; the layout
+  file below already does. With the HIVE assets loaded, a CELL's tags should
   be in frame wherever the robot really saw them; if they are not, suspect the mount numbers or the
   pose before the tag code.
 
