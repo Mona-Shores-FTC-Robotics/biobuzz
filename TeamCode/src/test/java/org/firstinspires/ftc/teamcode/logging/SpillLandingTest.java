@@ -30,12 +30,15 @@ public class SpillLandingTest {
     static final double FILMED_FIRST_TOUCH_S = 1.15;
 
     static final class Landing {
-        final double fromWallIn, x, seconds;
+        final double fromWallIn, x, y, seconds;
         /** Where it is 3 s after the TIP started: how far from the wall, and x. */
         double restFromWallIn = Double.NaN, restX = Double.NaN;
-        Landing(double fromWallIn, double x, double seconds) {
+        /** How far it has gone from where it first touched, 0.5 s and 1 s later. */
+        double travel05 = Double.NaN, travel1 = Double.NaN;
+        Landing(double fromWallIn, double x, double y, double seconds) {
             this.fromWallIn = fromWallIn;
             this.x = x;
+            this.y = y;
             this.seconds = seconds;
         }
     }
@@ -73,10 +76,16 @@ public class SpillLandingTest {
                 sim.step(0.01);
                 for (Map.Entry<FieldSim.Piece, Boolean> e : tracked.entrySet()) {
                     FieldSim.Piece p = e.getKey();
+                    Landing seen = landed.get(p);
+                    if (seen != null && p.where == FieldSim.Where.FIELD) {
+                        double after = sim.time - started - seen.seconds, d = Math.hypot(p.x - seen.x, p.y - seen.y);
+                        if (Double.isNaN(seen.travel05) && after >= 0.5) seen.travel05 = d;
+                        if (Double.isNaN(seen.travel1) && after >= 1.0) seen.travel1 = d;
+                    }
                     if (e.getValue() || p.where != FieldSim.Where.FIELD || p.cell != null) continue;
                     if (p.z < p.kind.radius + 0.3) {
                         e.setValue(true);
-                        Landing l = new Landing(Math.abs(p.y - wallY), p.x, sim.time - started);
+                        Landing l = new Landing(Math.abs(p.y - wallY), p.x, p.y, sim.time - started);
                         out.add(l);
                         landed.put(p, l);
                     }
@@ -90,6 +99,23 @@ public class SpillLandingTest {
         return out;
     }
 
+    /** How far the pieces go after they land, in words. */
+    static String spread(List<Landing> ls) {
+        List<Double> t05 = new ArrayList<>(), t1 = new ArrayList<>(), rd = new ArrayList<>(), rx = new ArrayList<>();
+        int nearWall = 0;
+        for (Landing l : ls) {
+            if (!Double.isNaN(l.travel05)) t05.add(l.travel05);
+            if (!Double.isNaN(l.travel1)) t1.add(l.travel1);
+            rd.add(l.restFromWallIn);
+            rx.add(l.restX);
+            if (l.restFromWallIn < 12) nearWall++;
+        }
+        return String.format(Locale.ROOT, "travel 0.5 s after first touch p50/p90 %.0f / %.0f in, 1 s %.0f / %.0f in;"
+                        + " 3 s after the TIP: from the wall %.0f / %.0f / %.0f in, x %.0f-%.0f, %d of %d within 12 in of the wall",
+                pct(t05, 0.5), pct(t05, 0.9), pct(t1, 0.5), pct(t1, 0.9), pct(rd, 0.1), pct(rd, 0.5), pct(rd, 0.9),
+                pct(rx, 0.1), pct(rx, 0.9), nearWall, ls.size());
+    }
+
     static double pct(List<Double> v, double q) {
         List<Double> s = new ArrayList<>(v);
         Collections.sort(s);
@@ -98,6 +124,17 @@ public class SpillLandingTest {
 
     @Test
     public void theSpillLandsWhereTheFilmsShow() {
+        // BIOBUZZ_BOUNCE_SCATTER=0,0.2,0.4 prints how the spill spreads for each bounce scatter instead.
+        String scatter = System.getenv("BIOBUZZ_BOUNCE_SCATTER");
+        if (scatter != null) {
+            for (String v : scatter.split(",")) {
+                FieldSim.bounceScatter = Double.parseDouble(v);
+                List<Landing> ls = landings(10);
+                FieldSim.bounceScatter = FieldSim.FILMED_BOUNCE_SCATTER;
+                System.out.println("SCATTER " + v + ": " + spread(ls));
+            }
+            return;
+        }
         // BIOBUZZ_SPILL_EXIT=1,0.5,0.25 prints the landing for each exit scale instead (how it was fitted).
         String sweep = System.getenv("BIOBUZZ_SPILL_EXIT");
         if (sweep != null) {
@@ -130,6 +167,7 @@ public class SpillLandingTest {
                         + " x %.0f / %.0f / %.0f; time after the TIP starts %.2f / %.2f / %.2f s%n",
                 d.size(), pct(d, 0.1), pct(d, 0.5), pct(d, 0.9), pct(x, 0.1), pct(x, 0.5), pct(x, 0.9),
                 pct(t, 0.1), pct(t, 0.5), pct(t, 0.9));
+        System.out.println("SPILL " + spread(all));
         System.out.printf(Locale.ROOT, "SPILL 3 s after the TIP starts, from the wall p10/p50/p90: %.0f / %.0f / %.0f in; x %.0f / %.0f / %.0f%n",
                 pct(rd, 0.1), pct(rd, 0.5), pct(rd, 0.9), pct(rx, 0.1), pct(rx, 0.5), pct(rx, 0.9));
         double median = pct(d, 0.5);

@@ -440,6 +440,10 @@ public final class AutoSim {
             long us = Math.round((PRE_ROLL_S + now) * 1e6);
             if (step % Math.round(CLOCK_STEP_S / LOOP_S) == 0) putClock(log, now);
             if (Math.abs(now - AutoKit.AUTO_LENGTH_S) < LOOP_S / 2) {
+                // The robots stop at 30 s, so the log says so (mentor, 4 Oct 2026: AdvantageScope showed
+                // AUTO running to 38 s). The field runs on for AFTER_S: a TIP finishing then still counts.
+                log.put(AdvantageScopeKeys.ENABLED, false, us);
+                log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", us);
                 log.putEvent("AUTO ends (TIPs that finish in the next 8 s still count)", us);
             }
             boolean running = now < AutoKit.AUTO_LENGTH_S;
@@ -491,8 +495,6 @@ public final class AutoSim {
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
         long end = Math.round((PRE_ROLL_S + AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
-        log.put(AdvantageScopeKeys.ENABLED, false, end);
-        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", end);
         log.putEvent(result.toString(), end);
         // Post-roll: everything stays where it ended, so the end is easy to grab on the timeline.
         double last = AutoKit.AUTO_LENGTH_S + AFTER_S + POST_ROLL_S;

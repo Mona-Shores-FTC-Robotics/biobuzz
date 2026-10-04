@@ -1664,6 +1664,15 @@ TIP starts the pieces lie 17–33 in out, x 49–74. The roll and bounce after l
 placeholders. *History:* on 3 Oct the fit was 0.25, from a photo of a box that caught the pieces
 (first touch 44–48 in); on 4 Oct a mentor judged that about 5 in too near the CELL.
 
+**How it scatters (4 Oct 2026).** In the films the spill fans out fast in every direction from where it
+lands, 2–3 ft in under half a second, and is spread across the field within 3 s. A holey ball on foam
+bounces off at an angle, so a hard landing now adds sideways speed in a random direction
+(`FieldSim.FILMED_BOUNCE_SCATTER`, 0.45 of the landing speed, times 0.5–1.5): 0.5 s after the first touch
+the pieces are a median 24 in from where they landed, and 3 s after the TIP they lie from the wall to 85
+in out, x 19–92. Fitted by eye; `BIOBUZZ_BOUNCE_SCATTER=0,0.3,0.45` reprints it. Scattered pieces are much
+harder to collect: on one launcher PartnerShoots-ThreeTip fell from 74 to 59 points. The catch spots
+below were tuned before the scatter.
+
 **What it changed.** The Autos that caught a spill standing against the wall, or swept the wall for
 it, had been written for the old physics. They now wait where the bounce comes back to them, facing
 the HIVE (`helpers.CATCH_R` / `CATCH_L`: centre 28 in out, front at 37, x 57.5 so it can turn; swept

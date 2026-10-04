@@ -144,6 +144,18 @@ final class FieldSim {
      * median 42, 1.11 s after the TIP starts. {@link SpillLandingTest} checks the fit.
      */
     static final double FILMED_SPILL_EXIT_SCALE = 0.6;
+    /**
+     * Sideways speed a hard landing on the tiles adds, in a random direction, as a fraction of the
+     * landing speed (times 0.5–1.5 at random). Wiffle balls bounce off foam at an angle: in the 3 Oct
+     * 2026 films a spill fans out in every direction within half a second of landing and is spread
+     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.45 the simulated
+     * pieces are 24 in from where they landed after 0.5 s (p90 44), and 3 s after the TIP lie anywhere
+     * from the wall to 85 in out, x 19–92. Fitted by eye to those films; {@link SpillLandingTest} prints
+     * the spread (BIOBUZZ_BOUNCE_SCATTER reprints the fit). Only landings faster than {@link #BOUNCE_SCATTER_MIN_IN_PER_S}: a rolling piece stays put.
+     */
+    static final double FILMED_BOUNCE_SCATTER = 0.45;
+    static double bounceScatter = FILMED_BOUNCE_SCATTER;
+    static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
@@ -1132,7 +1144,18 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
-            if (p.vz < 0) p.vz = -p.vz * bounce(physics.tileRestitution);
+            if (p.vz < 0) {
+                double impact = -p.vz;
+                p.vz = impact * bounce(physics.tileRestitution);
+                // A holey ball on foam bounces off at an angle (3 Oct 2026 films: a spill fans out fast
+                // in every direction from where it lands): part of a hard landing's speed goes sideways.
+                if (bounceScatter > 0 && impact > BOUNCE_SCATTER_MIN_IN_PER_S && variety != null) {
+                    double a = 2 * Math.PI * variety.nextDouble();
+                    double k = bounceScatter * impact * (0.5 + variety.nextDouble());
+                    p.vx += k * Math.cos(a);
+                    p.vy += k * Math.sin(a);
+                }
+            }
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
         }
