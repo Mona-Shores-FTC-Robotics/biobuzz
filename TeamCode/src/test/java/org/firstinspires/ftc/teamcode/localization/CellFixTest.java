@@ -49,10 +49,30 @@ public class CellFixTest {
     }
 
     @Test
-    public void anUnknownStateOrUnmeasuredPointGivesNoFix() {
+    public void anUnknownStateGivesNoFix() {
         assertNull(CellFix.position(HiveCell.RED_SCORING, HiveCellState.UNKNOWN, new Vec3(40, 0, 50), 0));
-        // Every point is unmeasured until the CAD numbers go in.
-        assertNull(CellFix.position(HiveCell.RED_SCORING, HiveCellState.UP, new Vec3(40, 0, 50), 0));
+    }
+
+    @Test
+    public void anUnmeasuredPointGivesNoPoint() {
+        double nan = Double.NaN;
+        double[][][] unmeasured = new double[HiveCell.values().length][2][];
+        for (double[][] cell : unmeasured) {
+            cell[0] = new double[] {nan, nan, nan};
+            cell[1] = new double[] {nan, nan, nan};
+        }
+        assertNull(HiveFieldPoints.rowCentre(unmeasured, HiveCell.RED_SCORING, HiveCellState.UP));
+    }
+
+    @Test
+    public void todaysSightingPutsTheRobotWhereItWasTaped() {
+        // 19429, 3 Oct 2026 (#156): centre 5 in from the audience wall, facing the HIVE (+y),
+        // RED_AUDIENCE UP seen 53.8 in ahead and 0.57 in left.
+        Pose fix = CellFix.position(HiveCell.RED_AUDIENCE, HiveCellState.UP,
+                new Vec3(53.8, 0.57, 50.2), Math.PI / 2);
+
+        assertEquals(5, fix.y(), 0.5);
+        assertEquals(58.6, fix.x(), 0.1);
     }
 
     @Test
