@@ -3,7 +3,21 @@
 This is the `claude/simulator` branch: the Autos, the simulator that scores them, and their logs.
 `master` holds robot code only.
 
-## Two-wheel launcher Autos
+## Qualifier Autos (two-wheel launcher)
+
+One Auto for each kind of qualification partner, for the robot the build team is building (4 Oct
+2026): one two-wheel launcher for POLLEN and NECTAR, and an 18 in front intake. Points are average
+alliance AUTO points over 20 simulated runs (3 TIPs, LEAVE and PARK); a perfect run is about 76.
+
+| Auto | Partner | What we do | Points | 3 TIPs | Watch in the Visualizer | Simulated `.wpilog` |
+|---|---|---|---|---|---|---|
+| **Qual-PartnerShootsLeft** | Starts beside the left CELL, fires its 4 when that CELL rises, parks | We start right: TIP 1 with our preloads, then shuttle through the tunnel catching each spill, the GARDEN and the wall FLOWER. | **72** | 18 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsLeft) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-shoots-left.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-side.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-typical.wpilog) |
+| **Qual-PartnerShootsRight** | Starts in front of the right CELL, fires its 4 at once (TIP 1), parks | We start left: our preloads and the far FLOWER for TIP 2, then through the tunnel to the GARDEN and the wall FLOWER. | **74** | 20 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-shoots-right.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-right/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-right/latest-typical.wpilog) |
+| **Qual-PartnerStages** | Can't shoot: leaves its 4 preloads lined up for us, parks | We start right: TIP 1 with our preloads, its row and the far FLOWER for TIP 2, then the south sources. | **58** | 7 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-parks.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-parks/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-parks/latest-typical.wpilog) |
+
+How they work, and what they need from build and from the partner: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+
+## Other two-wheel launcher Autos
 
 For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
 and an 18 in front intake. Each Auto's name is who our alliance partner is and what it does, then our

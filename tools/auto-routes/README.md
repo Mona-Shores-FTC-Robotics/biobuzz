@@ -4,6 +4,63 @@
 Auto Builder's own exporter, so many route ideas can be tried in the simulation quickly. The `.pp`
 it writes is still the source of truth: open it in the Auto Builder to see or change the route.
 
+## The qualifier Autos
+
+`qual.py` writes one Auto for each kind of qualification partner, for the two-wheel launcher robot
+(the simulator's "spring hood, full-width intake"); `python3 qual.py 20` exports them and simulates
+each with its partner. Average alliance AUTO points over 20 runs, normal tiles / tiles with 3× the
+friction, and how many of the 20 made 3 TIPs:
+
+| Partner | Auto (file) | Partner's Auto | Points | 3 TIPs |
+|---|---|---|---|---|
+| Starts beside the left CELL, fires its 4 when that CELL rises, parks | Qual-PartnerShootsLeft (`qual-partner-shoots-left`) | `partner-preloads-side` | 72 / 71 | 18 / 17 |
+| Starts in front of the right CELL, fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | 74 / 75 | 20 / 20 |
+| Can't shoot: leaves its 4 preloads lined up at its side, parks | Qual-PartnerStages (`qual-partner-parks`) | `partner-leave-park` | 58 / 55 | 7 / 4 |
+
+All three use one plan:
+
+- **The tunnel is the road.** The robot drives square through the tunnel under the HIVE (x 57.5) between
+  the two CELLs, turning only once clear of the HIVE's feet. It is the shortest way from one CELL to the
+  other, and every TIP's spill lands right at a mouth of it.
+- **Drive through the spill as it lands, don't wait for it.** A spill first touches the tiles about 42 in
+  out from its wall, about 1.1 s after the TIP, and has scattered out of reach about 1 s later. Waiting
+  at the catch spot and then looking with the webcam caught 0–2 pieces; starting the drive through the
+  tunnel as the next CELL rises, with the intake running, catches about 3 on average (0–4).
+- **Fire where you pick up.** The fixed launcher scores into the right CELL from anywhere at y 13–33
+  (x 9–61), and from beside the wall FLOWER and the GARDEN (x 9–25, up to y 53); into the left CELL
+  from y 109–129, and from x 9–25 down to y 85–97. So the GARDEN and both FLOWERs are fired from a
+  spot a robot length away, not carried across the field.
+- **The static sources decide TIP 3.** The far FLOWER, wall FLOWER and GARDEN hold 4 POLLEN each. With a
+  partner that shoots, TIP 2 is its 4 plus our catch (plus the far FLOWER if short), and TIP 3 is TIP 2's
+  spill caught going south, the GARDEN and the wall FLOWER. With a partner that can't shoot, TIP 2 needs
+  its row *and* usually the far FLOWER, which leaves too little time for TIP 3: 2 TIPs every time, 3 only
+  when the catches go well.
+- **PARK when there is time, never instead of a TIP.** Each ends in the LOADING ZONE (below the partner) if
+  it gets there by 30 s. A park path at the end would make the endgame guard cut the last fire short
+  to leave time to drive there, and TIP 3 (20) is worth more than PARK (5).
+
+**What we ask of the partner.** `partner-preloads-side` is the request for a partner that can shoot:
+start beside the left CELL (x 30), fire when it rises, park at the far end of the LOADING ZONE. A
+partner starting in front of the left CELL (`partner-preloads-park`) is in our tunnel exit at 6–7 s and
+the robots collide. For a partner that can't shoot: leave the preloads in a row at (34.6, 128.6–137),
+then park.
+
+**What the intake needs (for build).** Re-running the three with different intakes:
+
+| Intake | ShootsLeft | ShootsRight | Stages |
+|---|---|---|---|
+| As simulated: 0.35 s a piece, grabs 85%, takes pieces moving up to 60 in/s | 72 | 74 | 58 |
+| 0.12 s a piece | 73 | 75 | 62 (3 TIPs 11 of 20) |
+| Grabs 95%, up to 100 in/s | 73 | 75 | 56 |
+| 0.12 s a piece, but only pieces moving under 30 in/s | 67 | 74 | 59 |
+
+The intake has to take a piece that is still rolling: the catch is made driving at about 50 in/s into
+pieces bouncing off the tiles, and an intake that only takes slow pieces loses 5 points with a shooting
+partner. After that, speed (time per piece) is what helps, most with a partner that can't shoot. Grab
+chance alone hardly matters. The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`,
+`LeftCellUp`, ...) exist only in the simulator so far, and its launcher numbers (2 s spin-up, 0.45 s a
+shot) are unmeasured.
+
 ## The candidates (4 Oct 2026, on the filmed spill and its scatter)
 
 Each Auto's name is who our alliance partner is and what it does, then our plan: **Sister** (our other
