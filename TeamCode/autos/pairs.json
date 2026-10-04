@@ -1,11 +1,11 @@
 {
   "pairs": [
-    { "name": "recycle3", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 79 / 83; one launcher 58" },
-    { "name": "recycle4", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 72 / 46" },
-    { "name": "recycle5", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 76 / 82; one launcher 46" },
-    { "name": "three-tip-adaptive", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 76 / 75; one launcher 74" },
-    { "name": "left-tunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 74 / 76; one launcher 51" },
-    { "name": "staged-three-tip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 74 / 67; one launcher 56" },
-    { "name": "solo-tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 70 / 72; one launcher 56" }
+    {"name": "Sister-Recycle", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 79 / 83; one launcher 58"},
+    {"name": "Sister-ThrowBack", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 76 / 82; one launcher 46"},
+    {"name": "Sister-SetDown", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 72 / 46"},
+    {"name": "PreloadPark-ThreeTip", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 76 / 75; one launcher 74"},
+    {"name": "PreloadPark-Solo", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 70 / 72; one launcher 56"},
+    {"name": "PreloadPark-RightStart", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 74 / 76; one launcher 51"},
+    {"name": "JustPark-Staged", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 74 / 67; one launcher 56"}
   ]
 }
