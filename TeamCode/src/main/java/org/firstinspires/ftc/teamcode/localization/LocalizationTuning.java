@@ -66,6 +66,14 @@ public final class LocalizationTuning {
     /** And further than this in heading, degrees (DECODE's 20). */
     public static double maxRelocalizeJumpDeg = 20.0;
 
+    /**
+     * "Still" for the stationary relocalize check: slower than this, inches per second, and turning
+     * slower than {@link #stillTurnDegPerSec}, for at least {@link #stillForMs}.
+     */
+    public static double stillSpeedInPerSec = 1.0;
+    public static double stillTurnDegPerSec = 2.0;
+    public static double stillForMs = 250;
+
     /** Start check: a robot further than this from its declared start should be nudged, inches. */
     public static double startMarginIn = 2.0;
 

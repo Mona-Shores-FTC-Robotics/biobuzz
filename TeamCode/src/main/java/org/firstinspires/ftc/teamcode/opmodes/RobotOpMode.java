@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
+import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -432,6 +433,9 @@ public abstract class RobotOpMode extends OpMode {
         log.event("OpMode init: " + name + " · match " + matchId);
     }
 
+    private int loggedWouldCount;
+    private boolean bigWouldLogged;
+
     /** This loop's state into the log, then hand it to the writer. Copies numbers only. */
     private void recordLoop(MatchLog.Mode mode, double loopMs) {
         Alliance alliance = setup.alliance();
@@ -451,6 +455,7 @@ public abstract class RobotOpMode extends OpMode {
             log.pose(pose.x(), pose.y(), pose.heading());
             log.put("/Odometry/Referenced", robot.drive.poseReferenced() ? 1 : 0);
         }
+        recordWouldRelocalize();
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {
@@ -463,6 +468,31 @@ public abstract class RobotOpMode extends OpMode {
             lastBatteryNs = now;
         }
         log.commit();
+    }
+
+    /**
+     * A new stationary would-relocalize sample (see {@code DriveSubsystem}) into the log: how far the
+     * camera says the pose is off. Logged, never acted on; an event marks the big ones.
+     */
+    private void recordWouldRelocalize() {
+        int count = robot.drive.wouldRelocalizeCount();
+        if (count == loggedWouldCount) return;
+        loggedWouldCount = count;
+        double error = robot.drive.wouldRelocalizeErrorIn();
+        log.put("/Localization/WouldRelocalize/ErrorIn", error);
+        log.put("/Localization/WouldRelocalize/DxIn", robot.drive.wouldRelocalizeDx());
+        log.put("/Localization/WouldRelocalize/DyIn", robot.drive.wouldRelocalizeDy());
+        log.put("/Localization/WouldRelocalize/HeadingErrDeg", robot.drive.wouldRelocalizeHeadingErrDeg());
+        Pose camera = robot.drive.wouldRelocalizePose();
+        log.put("/Localization/WouldRelocalize/CameraX", camera.x());
+        log.put("/Localization/WouldRelocalize/CameraY", camera.y());
+        log.put("/Localization/WouldRelocalize/CameraHeadingDeg", Math.toDegrees(camera.heading()));
+        if (error > LocalizationTuning.maxRelocalizeJumpIn / 3 && !bigWouldLogged) {
+            log.event(String.format(Locale.US, "camera disagrees with the pose by %.1f in", error));
+            bigWouldLogged = true;
+        } else if (error <= LocalizationTuning.maxRelocalizeJumpIn / 6) {
+            bigWouldLogged = false;
+        }
     }
 
     /** The SDK's gamepad into the log's plain copy of it. */
