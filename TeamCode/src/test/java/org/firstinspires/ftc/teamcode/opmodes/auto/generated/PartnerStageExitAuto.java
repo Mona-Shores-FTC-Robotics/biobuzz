@@ -29,7 +29,7 @@ public final class PartnerStageExitAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 132.25, 270);
+        return poses(rotated).of(35, 132.25, 270);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -41,26 +41,26 @@ public final class PartnerStageExitAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 132.25, 270);
-        Pose stage = p.of(59, 120, 270);
-        Pose lane = p.of(58, 127.5, 270);
+        Pose start = p.of(35, 132.25, 270);
+        Pose stage = p.of(35, 120, 270);
+        Pose back = p.of(35, 127.5, 270);
         Pose parkP = p.of(10.5, 111, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose laneToParkPControl1 = p.of(12, 127.5, 0);
+        Pose backToParkPControl1 = p.of(12, 127.5, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToStage = Paths.line(start, stage).constant(stage);
-        Path stageToLane = Paths.line(stage, lane).constant(lane);
-        Path laneToParkP = Paths.curve(lane, laneToParkPControl1, parkP).constant(parkP);
+        Path stageToBack = Paths.line(stage, back).constant(back);
+        Path backToParkP = Paths.curve(back, backToParkPControl1, parkP).constant(parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", laneToParkP, 2.5,
+                kit.guarded("Auto", backToParkP, 2,
                         kit.path("START to STAGE", startToStage),
                         kit.firstOf("Set the preloads down", kit.command("SetDown"),
                                 kit.when("Empty"),
                                 kit.afterMs(1500)),
-                        kit.path("STAGE to LANE", stageToLane),
-                        kit.path("LANE to PARK_P", laneToParkP)));
+                        kit.path("STAGE to BACK", stageToBack),
+                        kit.path("BACK to PARK_P", backToParkP)));
     }
 }

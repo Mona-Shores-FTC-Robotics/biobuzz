@@ -92,8 +92,8 @@ def south_tail(r, tag="", wall=True, leftovers=None):
     out = [r.wait(f"TIP 2 settles{tag}", when=["RightCellUp"], ms=2500), tunnel(r, "S_CATCH"),
            fire(r, f"Fire TIP 2's spill{tag}", "Empty", ms=2000)]
     r.at = "S_CATCH"
-    if leftovers == "before":  # what lies about our end (TIP 1's spill), with the webcam, fired straight on from S_BACK
-        out += [*catch(r, f"Leftovers{tag}", "S", ms=1500), fire(r, f"Fire the leftovers{tag}", "Empty", ms=2000)]
+    if leftovers == "before":  # what lies about our end (TIP 1's spill, with its NECTAR), with the webcam
+        out += catch(r, f"Leftovers{tag}", "S", ms=1500)
         r.at = "S_BACK"
     out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270),
             r.wait(f"The GARDEN{tag}", when=["IntakeFull"], ms=1500),
@@ -179,33 +179,30 @@ def shoots_right(name="qual-partner-shoots-right", wall=False, leftovers=None):
 
 
 def stages(name="qual-partner-stages"):
-    """Partner can't shoot: from the left start it drives forward, sets its 4 POLLEN down across the
-    tunnel's north exit and parks (partners.stage_exit). TIP 1: our 4 preloads. TIP 2: north through the
-    tunnel through TIP 1's spill (with its NECTAR) and on into the staged row, fired straight on from
-    N_LOW; then the rest of the row with the webcam, fired from N_BACK; the far FLOWER if still short.
-    TIP 3: as qual-partner-shoots-left."""
+    """Partner can't shoot: from (35, 132.25) it drives forward, sets its 4 POLLEN down in a row at about
+    x 30-40, y 108 (west of our tunnel lane) and parks (partners.stage_exit). TIP 1: our 4 preloads.
+    TIP 2: north through the tunnel through TIP 1's spill (with its NECTAR), turned round and fired
+    straight on from N_LOW; then west along the row intake first, back to N_LOW and fired; the far
+    FLOWER if still short. TIP 3: as qual-partner-shoots-left."""
     r = Route(name, S_START, speed=50)
     ends(r)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
     r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE)
-    r.pt("N_PICK", 57.5, 108, 90)  # facing north, the intake through the row (y about 108); the partner has gone
+    r.pt("ROW_E", 50, 108, 180).pt("ROW_W", 29, 108, 180)  # east of the row, then through it facing west (x 29: clear of the parked partner)
     r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000), r.go("S_CATCH"),
           r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
-          r.go("N_PICK", heading=90), r.go("N_LOW", turn_by=1.0),
-          fire(r, "Fire the catch and the row", "Empty", ms=2200))
+          tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch", "Empty", ms=2200),
+          r.go("ROW_E", turn_by=0.8), r.go("ROW_W", heading=180),
+          r.wait("The row", when=["IntakeFull"], ms=600),
+          r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the row", "Tip", ms=2500))
     r.at = "N_LOW"
-    rest = [*catch(r, "The rest of the row", "N", ms=1500), fire(r, "Fire the rest of the row", "Empty", ms=2000)]
-    r.at = "N_BACK"
     flower_more = [*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)]
     r.at = "FAR_FLOWER"
     flower_more += [r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500)]
     r.at = "N_FIRE"
-    flower_more += south_tail(r, " (C)")
-    r.at = "N_BACK"
-    rest.append(r.wait("TIP 2? (B)", when=["Tip"], ms=800, yes=south_tail(r, " (B)"), no=flower_more,
-                       yes_label="Yes", no_label="No: the far FLOWER"))
+    flower_more += south_tail(r, " (B)")
     r.at = "N_LOW"
-    r.add(r.wait("TIP 2?", when=["Tip"], ms=800, yes=south_tail(r), no=rest, yes_label="Yes", no_label="No: the rest of the row"))
+    r.add(r.wait("TIP 2?", when=["Tip"], ms=600, yes=south_tail(r), no=flower_more, yes_label="Yes", no_label="No: the far FLOWER"))
     return r
 
 

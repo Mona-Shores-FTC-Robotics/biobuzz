@@ -1,6 +1,6 @@
 {
   "startPoint": {
-    "x": 59,
+    "x": 35.0,
     "y": 132.25,
     "name": "START",
     "headingDeg": 270
@@ -16,7 +16,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 59,
+        "x": 35.0,
         "y": 120.0
       },
       "controlPoints": [],
@@ -26,16 +26,16 @@
       }
     },
     {
-      "id": "to-lane-2",
+      "id": "to-back-2",
       "color": "#3cc8e4",
-      "name": "STAGE to LANE",
+      "name": "STAGE to BACK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 58,
+        "x": 35.0,
         "y": 127.5
       },
       "controlPoints": [],
@@ -47,7 +47,7 @@
     {
       "id": "to-park-p-3",
       "color": "#3cc8e4",
-      "name": "LANE to PARK_P",
+      "name": "BACK to PARK_P",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -150,7 +150,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-lane-2"
+      "lineId": "to-back-2"
     },
     {
       "kind": "path",
@@ -210,17 +210,17 @@
     },
     "points": {
       "START": [
-        59,
+        35.0,
         132.25,
         270
       ],
       "STAGE": [
-        59,
+        35.0,
         120.0,
         270
       ],
-      "LANE": [
-        58,
+      "BACK": [
+        35.0,
         127.5,
         270
       ],
@@ -232,7 +232,7 @@
     },
     "pathEnds": {
       "to-stage-1": "STAGE",
-      "to-lane-2": "LANE",
+      "to-back-2": "BACK",
       "to-park-p-3": "PARK_P"
     },
     "startAt": "START",
@@ -264,7 +264,7 @@
       {
         "id": "p-3",
         "kind": "path",
-        "lineId": "to-lane-2",
+        "lineId": "to-back-2",
         "park": false
       },
       {
