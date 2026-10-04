@@ -46,6 +46,26 @@ public final class HiveFieldPoints {
             /* BLUE_SCORING  */ {{83.5, 86.2, 50.2}, {83.5, 84.7, 35.0}},
     };
 
+    /**
+     * Which way each CELL's tag row runs along field x: +1 if its cluster +x (tag 0 toward tag 3)
+     * points along field +x, -1 if along -x, NaN until seen. Index: HiveCell ordinal.
+     *
+     * <p>RED_AUDIENCE measured (#156): from the red audience start facing +y, tag 37 (cluster +6.5)
+     * was on the robot's right, which is field +x. The others: run Vision: Raw Tag Dump facing the
+     * CELL and see whether its highest id sits to the robot's right (+1 facing +y) or left.
+     */
+    private static final double[] CLUSTER_X_ALONG_FIELD_X = {
+            /* RED_SCORING   */ Double.NaN,
+            /* RED_AUDIENCE  */ +1,
+            /* BLUE_AUDIENCE */ Double.NaN,
+            /* BLUE_SCORING  */ Double.NaN,
+    };
+
+    /** +1 or -1: which way {@code cell}'s row runs along field x; NaN until seen on the robot. */
+    public static double clusterXAlongFieldX(HiveCell cell) {
+        return CLUSTER_X_ALONG_FIELD_X[cell.ordinal()];
+    }
+
     /** The row centre of {@code cell} in {@code state}, or null if unmeasured or the state is unknown. */
     public static Vec3 rowCentre(HiveCell cell, HiveCellState state) {
         return rowCentre(ROW_CENTRE, cell, state);

@@ -41,10 +41,20 @@ import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
  *
  * <h2>Localization</h2>
  *
- * <p>The pose comes from Pedro's {@link FusionLocalizer}: the Pinpoint, corrected by AprilTag fixes.
- * Each loop, every new CELL sighting from {@code vision} whose cell is settled UP or DOWN becomes a
- * fix ({@link CellFix}). Fixes are only offered once {@link #poseReferenced()} — the pose was set
- * from a known place — because before that, heading 0 is just the way the robot faced at init.
+ * <p>The pose comes from Pedro's {@link FusionLocalizer} over the Pinpoint. The camera sets it and
+ * may correct it, the way DECODE used MegaTag1 then MegaTag2:
+ * <ul>
+ *   <li><b>Seed.</b> While the pose is not {@link #poseReferenced()} (no declared start, no Auto
+ *       handoff), a settled CELL seen with two or more tags gives the whole pose, heading included
+ *       ({@link CellFix#pose}); once {@link LocalizationTuning#seedFrames} frames in a row agree,
+ *       the pose is set from it. The driver's field-centric forward does not move.</li>
+ *   <li><b>Relocalize.</b> {@link #relocalizeFromCamera()} does the same on demand, refusing a
+ *       jump bigger than DECODE's guards.</li>
+ *   <li><b>Fixes.</b> Once referenced, each new settled sighting gives a position fix
+ *       ({@link CellFix#position}) with the Pinpoint's heading. They feed the filter only with
+ *       {@link LocalizationTuning#continuousFixes} on, which is off until shown to help; they are
+ *       always counted, for the start check.</li>
+ * </ul>
  *
  * <h2>Following paths</h2>
  *
@@ -78,6 +88,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private int fixCount;
     private double fixSumX;
     private double fixSumY;
+    /** Camera poses in a row that agreed, toward a seed; and the last of them. */
+    private int seedAgreeing;
+    private Pose seedCandidate;
+    /** What the camera last did to the pose, for the Robot page. */
+    private String cameraPoseNote = "not yet";
     private final String localizerFault;
 
     private final AccelLimiter forwardLimiter = new AccelLimiter();
@@ -161,6 +176,65 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             fixSumX = 0.0;
             fixSumY = 0.0;
         }
+    }
+
+    /**
+     * Sets the pose from the camera now: the best settled CELL in view with two or more tags gives
+     * x, y and heading ({@link CellFix#pose}). Refused if the pose is already field-referenced and
+     * this would move it more than {@link LocalizationTuning#maxRelocalizeJumpIn} or turn it more
+     * than {@link LocalizationTuning#maxRelocalizeJumpDeg}. The driver's field-centric forward stays
+     * where it was. For a button; best done holding still.
+     *
+     * @return what happened, for the driver
+     */
+    public String relocalizeFromCamera() {
+        if (localizer == null) {
+            return cameraPoseNote = "relocalize: no Pinpoint";
+        }
+        Pose best = null;
+        int bestTags = 0;
+        if (vision != null && vision.isAvailable()) {
+            for (HiveCell cell : CELLS) {
+                CellSighting sighting = vision.sighting(cell);
+                if (sighting == null || sighting.tagCount() <= bestTags) continue;
+                Pose pose = CellFix.pose(cell, vision.state(cell), sighting.rowCentreRobot(),
+                        sighting.lateralAxisRobot());
+                if (pose != null) {
+                    best = pose;
+                    bestTags = sighting.tagCount();
+                }
+            }
+        }
+        if (best == null) {
+            return cameraPoseNote = "relocalize: no settled CELL with 2+ tags (and a known row direction)";
+        }
+        if (poseReferenced) {
+            Pose now = localizer.pose();
+            double jumpIn = Math.hypot(best.x() - now.x(), best.y() - now.y());
+            double turnDeg = Math.toDegrees(
+                    Math.abs(Math.IEEEremainder(best.heading() - now.heading(), 2 * Math.PI)));
+            if (jumpIn > LocalizationTuning.maxRelocalizeJumpIn
+                    || turnDeg > LocalizationTuning.maxRelocalizeJumpDeg) {
+                return cameraPoseNote = String.format(java.util.Locale.US,
+                        "relocalize refused: %.1f in / %.0f° from the current pose", jumpIn, turnDeg);
+            }
+        }
+        setPoseKeepingDriverForward(best);
+        return cameraPoseNote = "relocalized " + describePose(best);
+    }
+
+    /** {@link #setPose}, shifting the field-centric reference so the driver's forward stays put. */
+    private void setPoseKeepingDriverForward(Pose pose) {
+        double before = localizer.pose().heading();
+        setPose(pose);
+        headingOffset += pose.heading() - before;
+        seedAgreeing = 0;
+        seedCandidate = null;
+    }
+
+    private static String describePose(Pose pose) {
+        return String.format(java.util.Locale.US, "(%.1f, %.1f, %.0f°)",
+                pose.x(), pose.y(), Math.toDegrees(pose.heading()));
     }
 
     /** Switch between field- and robot-centric. Stays robot-centric without a Pinpoint. */
@@ -304,9 +378,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         drivetrain.drive(powers, true);
     }
 
-    /** Each new CELL sighting, once, as a fix — if its cell is settled in a known state. */
+    /**
+     * Each new CELL sighting, once: toward a seed while the pose is unreferenced, a fix after.
+     */
     private void offerSightings() {
-        if (!poseReferenced || vision == null || !vision.isAvailable()) {
+        if (vision == null || !vision.isAvailable()) {
             return;
         }
         for (int i = 0; i < CELLS.length; i++) {
@@ -316,16 +392,44 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             }
             consumedNs[i] = sighting.captureTimeNs();
             HiveCellState state = vision.state(CELLS[i]);
+            if (!poseReferenced) {
+                if (LocalizationTuning.seedFromCamera) {
+                    considerSeed(CellFix.pose(CELLS[i], state, sighting.rowCentreRobot(),
+                            sighting.lateralAxisRobot()));
+                }
+                continue;
+            }
             Pose fix = CellFix.position(CELLS[i], state, sighting.rowCentreRobot(),
                     localizer.pose().heading());
             if (fix == null) {
                 continue; // cell mid-tip or unseen long enough, or its field point is unmeasured
             }
-            localizer.addMeasurement(fix, sighting.captureTimeNs(),
-                    CellFix.variance(sighting.groundRangeIn(), sighting.tagCount()));
+            if (LocalizationTuning.continuousFixes) {
+                localizer.addMeasurement(fix, sighting.captureTimeNs(),
+                        CellFix.variance(sighting.groundRangeIn(), sighting.tagCount()));
+            }
             fixCount++;
             fixSumX += fix.x();
             fixSumY += fix.y();
+        }
+    }
+
+    /** Seeds once {@link LocalizationTuning#seedFrames} camera poses in a row agree. */
+    private void considerSeed(Pose candidate) {
+        if (candidate == null) {
+            return;
+        }
+        boolean agrees = seedCandidate != null
+                && Math.hypot(candidate.x() - seedCandidate.x(), candidate.y() - seedCandidate.y())
+                        <= LocalizationTuning.seedAgreementIn
+                && Math.toDegrees(Math.abs(Math.IEEEremainder(
+                        candidate.heading() - seedCandidate.heading(), 2 * Math.PI)))
+                        <= LocalizationTuning.seedAgreementDeg;
+        seedAgreeing = agrees ? seedAgreeing + 1 : 1;
+        seedCandidate = candidate;
+        if (seedAgreeing >= Math.max(1, LocalizationTuning.seedFrames)) {
+            setPoseKeepingDriverForward(candidate);
+            cameraPoseNote = "seeded " + describePose(candidate);
         }
     }
 
@@ -358,10 +462,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         if (poseReferenced) {
             display.status("Pose", Display.Level.OK, where);
         } else {
-            display.status("Pose", Display.Level.WARN, "not field-referenced — no start or handoff");
+            display.status("Pose", Display.Level.WARN,
+                    "not field-referenced — no start, handoff or camera seed yet");
         }
-        display.line(HiveFieldPoints.anyMeasured()
-                ? "<small>Camera fixes: " + fixCount + "</small>"
-                : "<small>Camera fixes off: HIVE field points not measured</small>");
+        if (!HiveFieldPoints.anyMeasured()) {
+            display.line("<small>Camera off: HIVE field points not measured</small>");
+            return;
+        }
+        display.line("<small>Camera pose: " + cameraPoseNote + "</small>");
+        display.line("<small>Camera fixes: " + fixCount
+                + (LocalizationTuning.continuousFixes ? " (correcting)" : " (counted only)") + "</small>");
     }
 }
