@@ -1353,12 +1353,34 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
 3. Copy both folders into `userAssets` and restart AdvantageScope. A field called
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
+**One-time setup: our robot, with its Limelight.** `RobotAssets` draws a simple robot (chassis, an
+orange bar on the front, the Limelight on a post with a green rod along where it looks) and declares
+the Limelight as an AdvantageScope *fixed camera*, both from `CameraMount`'s measured numbers. No
+download needed:
+
+```
+./gradlew :TeamCode:testDebugUnitTest --tests '*RobotAssetsTest*'
+```
+
+Copy `TeamCode/build/advantagescope/Robot_BIOBUZZ` into `userAssets` and restart AdvantageScope. A
+robot called **BIOBUZZ Robot** appears. **Rebuild and recopy it whenever `CameraMount` changes**:
+the folder holds the numbers it was built with, not live ones, and a value changed only in Panels
+never reaches it.
+
+- **See where the camera is:** pick **BIOBUZZ Robot** as the model for `/Odometry/Robot3d`
+  (the robot row's model dropdown).
+- **Look through it:** right-click the 3D view and choose **Limelight**. The view sits at the lens,
+  aimed as mounted, at the Limelight 3A's 54.5° field of view and 4:3 shape, and follows the logged
+  pose. Right-click → **Orbit Field** to get back. With the HIVE assets loaded, a CELL's tags should
+  be in frame wherever the robot really saw them; if they are not, suspect the mount numbers or the
+  pose before the tag code.
+
 **Opening the log** (a 3D Field tab):
 
 | Drag this key | As |
 |---|---|
 | *(field dropdown)* | **2026-2027 Field (HIVE sim)** |
-| `/Odometry/Robot3d` | Robot |
+| `/Odometry/Robot3d` | Robot, model **BIOBUZZ Robot** |
 | `/Sim/Hive/Structure` | Robot, model **BIOBUZZ HIVE** |
 | `/Sim/Hive/Components` | onto that robot, as **Component** |
 | `/Sim/GamePieces/Pollen`, `/Sim/GamePieces/Held/Pollen` | Game Piece, **Pollen** |
