@@ -85,6 +85,15 @@ final class RobotAssets {
     static final double DOOR_TOP_IN = 3.2;
     static final double DOOR_BOTTOM_IN = 0.4;
 
+    /*
+     * The spill-study shapes (BodyShape#SHOWN): one model whose components are the shapes, each drawn
+     * whole at the robot's origin. A log puts the shape it ran at zero and the rest out of sight
+     * {@value #HIDDEN_Z_M} m under the field ({@link #shapeComponents}), so one layout shows them all.
+     */
+    static final String SHAPES_FOLDER = "Robot_BIOBUZZShapes";
+    static final String SHAPES_NAME = "BIOBUZZ Robot (shapes)";
+    static final double HIDDEN_Z_M = -20;
+
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
     private RobotAssets() {
@@ -110,7 +119,67 @@ final class RobotAssets {
         Files.write(new File(walls, "config.json").toPath(), config(WALLS_NAME, 2,
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
+        File shapes = new File(out, SHAPES_FOLDER);
+        shapes.mkdirs();
+        MeshBuilder base = new MeshBuilder();
+        addLimelight(base, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg, CHASSIS_TOP_IN);
+        Files.write(new File(shapes, "model.glb").toPath(), base.glb(SHAPES_NAME).write());
+        for (int i = 0; i < BodyShape.SHOWN.length; i++) {
+            Files.write(new File(shapes, "model_" + i + ".glb").toPath(), shapesRobot(BodyShape.SHOWN[i]).write());
+        }
+        Files.write(new File(shapes, "config.json").toPath(), config(SHAPES_NAME, BodyShape.SHOWN.length,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
         return dir;
+    }
+
+    /**
+     * One spill-study shape, everything out: its frame, wheels and intake bar, its flaps or walls,
+     * and, see-through, the {@link FieldSim#PLACEHOLDER_ROBOT_HEIGHT_IN} box the simulator bounces
+     * pieces off.
+     */
+    static Glb shapesRobot(BodyShape shape) {
+        MeshBuilder b = new MeshBuilder();
+        double l = shape.length, w = shape.width, top = FieldSim.PLACEHOLDER_ROBOT_HEIGHT_IN;
+        b.box("Simulated body", new double[] {0.75, 0.78, 0.85, 0.15}, new double[] {0, 0, top / 2},
+                new double[] {l, w, top}, IDENTITY_3);
+        b.box("Chassis", new double[] {0.55, 0.55, 0.6, 1},
+                new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
+                new double[] {l, w, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN}, IDENTITY_3);
+        for (int fx = -1; fx <= 1; fx += 2) {
+            for (int fy = -1; fy <= 1; fy += 2) {
+                b.box("Wheel", new double[] {0.12, 0.12, 0.14, 1},
+                        new double[] {fx * (l / 2 - 3), fy * (w / 2 - 1.25), 2}, new double[] {4, 1.5, 4}, IDENTITY_3);
+            }
+        }
+        b.box("Intake", new double[] {1.0, 0.55, 0.0, 1}, new double[] {l / 2 - 1, 0, CHASSIS_TOP_IN + 0.75},
+                new double[] {1.5, Math.min(w - 3, RobotDesign.standard().intakeWidthIn), 1.5}, IDENTITY_3);
+        if (shape.slide > 0) {
+            addWall(b, 1, shape.slide);
+            addWall(b, -1, shape.slide);
+        }
+        RobotDesign d = shape.design();
+        if (d.hasFlaps()) {
+            for (int side = -1; side <= 1; side += 2) {
+                double a = Math.atan2(side * shape.out, shape.ahead), c = Math.cos(a), sn = Math.sin(a);
+                b.box(side > 0 ? "Left flap" : "Right flap", new double[] {0.2, 0.45, 0.85, 1},
+                        new double[] {l / 2 + shape.ahead / 2, side * (w / 2 + shape.out / 2), d.flapHeightIn / 2},
+                        new double[] {d.flapLengthIn(), RobotDesign.FLAP_THICKNESS_IN, d.flapHeightIn},
+                        new double[] {c, -sn, 0, sn, c, 0, 0, 0, 1});
+            }
+        }
+        return b.glb(shape.name);
+    }
+
+    /** The {@value #SHAPES_NAME} component poses that show {@code shown} and hide the rest. */
+    static double[] shapeComponents(int shown) {
+        double[] poses = new double[7 * BodyShape.SHOWN.length];
+        for (int i = 0; i < BodyShape.SHOWN.length; i++) {
+            poses[7 * i + 2] = i == shown ? 0 : HIDDEN_Z_M;
+            poses[7 * i + 3] = 1;
+        }
+        return poses;
     }
 
     static String config(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
@@ -333,6 +402,7 @@ final class RobotAssets {
             pbr.put("roughnessFactor", 0.8);
             Map<String, Object> material = new LinkedHashMap<>();
             material.put("name", name);
+            if (rgba[3] < 1) material.put("alphaMode", "BLEND");
             material.put("pbrMetallicRoughness", pbr);
             materials.add(material);
 

@@ -45,7 +45,9 @@ public class RobotAssetsTest {
         for (String name : new String[] {"model.glb", "model_0.glb", "model_1.glb", "config.json"}) {
             assertTrue(name, new File(walls, name).isFile());
         }
-        System.out.println("Wrote " + dir.getAbsolutePath() + " and " + RobotAssets.WALLS_FOLDER
+        File shapes = new File(dir.getParentFile(), RobotAssets.SHAPES_FOLDER);
+        for (int i = 0; i < BodyShape.SHOWN.length; i++) assertTrue(new File(shapes, "model_" + i + ".glb").isFile());
+        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.WALLS_FOLDER + ", " + RobotAssets.SHAPES_FOLDER
                 + ": copy them into AdvantageScope's userAssets folder.");
     }
 

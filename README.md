@@ -136,10 +136,20 @@ from pieces falling onto the guides, and every shape keeps less. (a) drops from 
 long U from 37% to 33%, and the 18 in robot with low 6 in ramps keeps 33% against the long U's 41%.
 Pieces bounce over a low guide. A guide's job here is to stop the scatter, and that needs height.
 
-![Each shape at its closest clean spot, over where the spill first lands (8 POLLEN); white dots: the kept patch](sim-review/body-shapes.png)
+![Each shape from above and at its closest clean spot over where the spill lands, with what it keeps](sim-review/body-shapes.png)
 
-Drawn with `python3 tools/spill-window/draw.py --face F --body W L --flaps OUT FWD --patch` (`--arms 6`
-for the long U). The flaps' 4 in height, thickness and bounce are placeholders, like the walls. Nothing
+![The shapes in 3D, as AdvantageScope draws them (the see-through box is what the simulator bounces pieces off)](sim-review/body-shapes-3d.png)
+
+**To watch them in AdvantageScope** (no build needed): download
+[`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/body-shapes-advantagescope.zip),
+copy its `Robot_BIOBUZZShapes` folder into `%APPDATA%\AdvantageScope\userAssets` (next to the HIVE assets from the
+setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open a log from its
+`logs` folder. Each log is the same TIP with one shape parked at its clean spot; `*-too-close` puts two flap shapes
+3 in nearer, on a TIP where a piece lands on a flap. Rebuild them with
+`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest.writesShapeLogs" --tests "*RobotAssetsTest*"`.
+
+The cards come from `python3 tools/spill-window/shapes.py` (it calls `draw.py --face F --body W L --flaps OUT FWD
+--patch` for each field view). The flaps' 4 in height, thickness and bounce are placeholders, like the walls; nothing
 here is measured on a robot.
 
 So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
