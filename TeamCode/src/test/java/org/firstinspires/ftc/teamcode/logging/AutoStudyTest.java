@@ -152,6 +152,7 @@ public class AutoStudyTest {
      */
     static double[][] stagedFor(String partnerClass) {
         if (partnerClass.equals("PartnerLeaveParkAuto")) return LEAVE_PARTNER_STAGED;
+        if (partnerClass.equals("PartnerAngledParkAuto")) return alongLeftSide(ANGLED_PARTNER);
         java.util.regex.Matcher m = java.util.regex.Pattern.compile("PartnerStage(\\d+)(Side|Front)").matcher(partnerClass);
         if (!m.lookingAt()) return null;
         double x = Double.parseDouble(m.group(1)), y = 132.25, gap = 9 + FieldSim.POLLEN_RADIUS_IN + 0.2;
@@ -159,6 +160,26 @@ public class AutoStudyTest {
         for (int i = 0; i < 4; i++) {
             double along = (i - 1.5) * (2 * FieldSim.POLLEN_RADIUS_IN);
             spots[i] = m.group(2).equals("Side") ? new double[] {x + gap, y + along} : new double[] {x + along, y - gap};
+        }
+        return spots;
+    }
+
+    /**
+     * partner-angled-park (tools/auto-routes/qual_right.py, mentor, 5 Oct 2026: a partner that can't
+     * shoot or set pieces down): an 18 in robot angled with its back-right corner against the wall
+     * behind the left CELL, aimed so that driving straight forward parks it in the far end of the
+     * LOADING ZONE, its 4 POLLEN on the tiles along its left side. x, y, heading (deg), drawn for RED.
+     */
+    static final double[] ANGLED_PARTNER = {30.0, 128.53, 223.5};
+
+    /** 4 POLLEN in a row along the left side of an 18 in robot at {x, y, heading}, each touching it. */
+    static double[][] alongLeftSide(double[] pose) {
+        double h = Math.toRadians(pose[2]), gap = 9 + FieldSim.POLLEN_RADIUS_IN + 0.2;
+        double[] f = {Math.cos(h), Math.sin(h)}, l = {-Math.sin(h), Math.cos(h)};
+        double[][] spots = new double[4][];
+        for (int i = 0; i < 4; i++) {
+            double along = (i - 1.5) * (2 * FieldSim.POLLEN_RADIUS_IN);
+            spots[i] = new double[] {pose[0] + gap * l[0] + along * f[0], pose[1] + gap * l[1] + along * f[1]};
         }
         return spots;
     }

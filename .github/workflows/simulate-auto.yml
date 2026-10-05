@@ -9,6 +9,8 @@ name: Simulate Auto
 #   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
 #   <auto>/latest.json                 the newest result for that Auto
 #   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
+#   <auto>/<title>_<YYYY-MM-DD>_best.wpilog (and _typical)   the same, named for the Auto (the request's
+#                                      "title") and the day it last changed; kept, for README links
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -80,6 +82,7 @@ jobs:
           AUTO: ${{ steps.request.outputs.auto }}
           SIM_OK: ${{ steps.sim.outcome }}
         run: |
+          export SOURCE_DAY="$(git log -1 --format=%cs)"
           python3 - <<'EOF'
           import json, os, shutil, datetime
           sim = os.path.join(os.environ["RUNNER_TEMP"], "sim")
@@ -114,10 +117,17 @@ jobs:
                   shutil.copy(os.path.join(sim, run["log"]), os.path.join(out, name))
                   result["logs"][str(int(run["seed"]))] = name
           # Fixed names for the newest result, so a README can link a download that outlives the
-          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders).
+          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders). And the same logs named
+          # for what they are and when: <title>_<date of the commit that changed the Auto>_<best|typical>,
+          # so a downloaded file says which Auto it is and how new (the request's "title", else the
+          # Auto's file name). One per Auto, day and label; kept, so a README's link to it stays good.
+          title = "".join(c if c.isalnum() or c in "-_." else "-" for c in (request.get("title") or auto))
+          day = os.environ["SOURCE_DAY"]
           for label, run in (("best", best), ("typical", typical)):
               if run:
                   shutil.copy(os.path.join(sim, run["log"]), os.path.join(os.path.dirname(out), f"latest-{label}.wpilog"))
+                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(os.path.dirname(out), f"{title}_{day}_{label}.wpilog"))
+                  result.setdefault("namedLogs", {})[label] = f"{title}_{day}_{label}.wpilog"
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
           open(os.path.join(os.path.dirname(out), "latest.json"), "w").write(text)
