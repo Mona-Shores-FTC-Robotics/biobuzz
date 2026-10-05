@@ -20,13 +20,17 @@ $scope = Join-Path $env:APPDATA "AdvantageScope"
 $auto = Join-Path $scope "autoAssets"
 $config = $null
 if (Test-Path $auto) {
-    $config = Get-ChildItem $auto -Recurse -Filter config.json |
+    # Only a Field3d_ folder: AdvantageScope also keeps a 2D field (Field2d_...) with the same name.
+    $config = Get-ChildItem $auto -Directory -Filter "Field3d_*" |
+        ForEach-Object { Get-ChildItem $_.FullName -Recurse -Filter config.json } |
         Where-Object { (Get-Content $_.FullName -Raw) -match '"name"\s*:\s*"2026-2027 Field"' } |
+        Where-Object { Test-Path (Join-Path $_.DirectoryName "model.glb") } |
         Select-Object -First 1
 }
 if (-not $config) {
-    throw "AdvantageScope hasn't downloaded the 2026-2027 field yet. Open AdvantageScope, add a 3D Field tab, pick 2026-2027 Field, wait for it to appear, close AdvantageScope, then run this again."
+    throw "AdvantageScope hasn't downloaded the 3D 2026-2027 field yet. Open AdvantageScope, click + at the top, choose 3D Field, pick 2026-2027 Field in its field menu, wait until the field appears, close AdvantageScope, then run this again."
 }
+Write-Host "Stock 3D field: $($config.DirectoryName)"
 $env:BIOBUZZ_FIELD3D = $config.DirectoryName
 
 # 2. Java and the Android SDK, from Android Studio unless already set.
