@@ -32,7 +32,9 @@ public class AutoStudyTest {
         d.flapCrossbeam = true;
         d.flapsDeploy = true;
         d.flapTowardCentre = true;
-        d.sideWallsDeployS = 0.4;
+        // It swings down (90 degrees in 0.3 s) as soon as our CELL starts to TIP, before the spill lands (mentor,
+        // 5 Oct 2026: at 0.4 s, waiting for the robot to stop, it was still swinging as the pieces fell).
+        d.sideWallsDeployS = 0;
         d.sideWallsTravelS = 0.3;
         return d;
     }

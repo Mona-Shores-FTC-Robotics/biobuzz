@@ -9,8 +9,8 @@ Each shape keeps qual-right-v3's route, with two changes:
   PARK that much further into the LOADING ZONE, so the front corner is still in it;
 - a hook, once TIP 2 has started (its last shot from N_FIRE), slides to the hook spot before the spill lands:
   its chassis face halfway between the spill's 100% and 90% lines, its arm on the side toward the centre line
-  (the simulator lowers the arm 0.4 s after the TIP starts, once the robot has stopped, and lifts it as soon as
-  the robot drives), and holds it there 1 s after TIP 2 settles, not 0.5, so the spill lands inside it.
+  (the simulator swings the hook down as the TIP starts, while the robot slides there, and back up as soon as the
+  robot drives off), and holds it there 1 s after TIP 2 settles, not 0.5, so the spill lands inside it.
 The start spot is qual-right-v3's; the simulator backs a shorter robot against the wall there.
 """
 import sys

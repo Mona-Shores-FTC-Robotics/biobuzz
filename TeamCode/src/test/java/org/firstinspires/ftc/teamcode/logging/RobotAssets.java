@@ -154,19 +154,21 @@ final class RobotAssets {
     static Glb shapesRobot(BodyShape shape) {
         MeshBuilder b = new MeshBuilder();
         double l = shape.length, w = shape.width, top = FieldSim.PLACEHOLDER_ROBOT_HEIGHT_IN;
-        b.box("Simulated body", new double[] {0.75, 0.78, 0.85, 0.15}, new double[] {0, 0, top / 2},
-                new double[] {l, w, top}, IDENTITY_3);
-        b.box("Chassis", new double[] {0.55, 0.55, 0.6, 1},
-                new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
-                new double[] {l, w, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN}, IDENTITY_3);
-        for (int fx = -1; fx <= 1; fx += 2) {
-            for (int fy = -1; fy <= 1; fy += 2) {
-                b.box("Wheel", new double[] {0.12, 0.12, 0.14, 1},
-                        new double[] {fx * (l / 2 - 3), fy * (w / 2 - 1.25), 2}, new double[] {4, 1.5, 4}, IDENTITY_3);
+        if (!shape.hookOnly) {
+            b.box("Simulated body", new double[] {0.75, 0.78, 0.85, 0.15}, new double[] {0, 0, top / 2},
+                    new double[] {l, w, top}, IDENTITY_3);
+            b.box("Chassis", new double[] {0.55, 0.55, 0.6, 1},
+                    new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
+                    new double[] {l, w, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN}, IDENTITY_3);
+            for (int fx = -1; fx <= 1; fx += 2) {
+                for (int fy = -1; fy <= 1; fy += 2) {
+                    b.box("Wheel", new double[] {0.12, 0.12, 0.14, 1},
+                            new double[] {fx * (l / 2 - 3), fy * (w / 2 - 1.25), 2}, new double[] {4, 1.5, 4}, IDENTITY_3);
+                }
             }
+            b.box("Intake", new double[] {1.0, 0.55, 0.0, 1}, new double[] {l / 2 - 1, 0, CHASSIS_TOP_IN + 0.75},
+                    new double[] {1.5, Math.min(w - 3, RobotDesign.standard().intakeWidthIn), 1.5}, IDENTITY_3);
         }
-        b.box("Intake", new double[] {1.0, 0.55, 0.0, 1}, new double[] {l / 2 - 1, 0, CHASSIS_TOP_IN + 0.75},
-                new double[] {1.5, Math.min(w - 3, RobotDesign.standard().intakeWidthIn), 1.5}, IDENTITY_3);
         if (shape.slide > 0) {
             addWall(b, 1, shape.slide);
             addWall(b, -1, shape.slide);
@@ -188,6 +190,23 @@ final class RobotAssets {
             }
         }
         return b.glb(shape.name);
+    }
+
+    /**
+     * {@value #MATCH_NAME} component poses: the chassis {@code shown}, and the hook {@code hook} (or none, -1)
+     * swung {@code up} of the way from down (0) to stowed (1), 90 degrees up about its hinge at the bottom of
+     * the chassis' front face, {@code length} in long. Stowed, it stands inside the front 4 in of the frame,
+     * the arm up and the crossbeam across the top.
+     */
+    static double[] hookComponent(int shown, int hook, double up, double length) {
+        double[] poses = shapeComponents(shown, BodyShape.MATCH.length);
+        if (hook < 0) return poses;
+        double phi = -up * Math.PI / 2, hinge = length / 2 * M;  // about the robot's y axis; +x swings up
+        poses[7 * hook] = hinge * (1 - Math.cos(phi));
+        poses[7 * hook + 2] = hinge * Math.sin(phi);
+        poses[7 * hook + 3] = Math.cos(phi / 2);
+        poses[7 * hook + 5] = Math.sin(phi / 2);
+        return poses;
     }
 
     /** The {@value #SHAPES_NAME} component poses that show {@code shown} and hide the rest. */

@@ -155,9 +155,11 @@ right (23–25%), left (20%) and back under the HIVE (18–19%).
 **In the Qualifier Auto** (`ShapeMatchTest`, 5 Oct 2026): four of them through the whole of qual-right-v3 with its
 partner, 20 runs each, normal tiles / tiles with 3x the friction. Each shape keeps qual-right-v3's route
 (`tools/auto-routes/qual_shapes.py`), with the spots where the robot's front must reach something (the far FLOWER,
-the GARDEN, PARK) moved for its shorter chassis. A hook also slides about 4 in toward the centre line as TIP 2 starts,
-lowers its arm and crossbeam once stopped (0.4 s or more after the TIP starts), lifts them the moment it drives,
-and waits 1 s after TIP 2 settles, not 0.5, before driving into the spill. "Blue half": TIP 2's spill on the other
+the GARDEN, PARK) moved for its shorter chassis. A hook (its arm and crossbeam, hinged at the bottom of the chassis'
+front face) rides stowed, swung up 90 degrees inside the front of the frame. As TIP 2 starts it swings down (0.3 s)
+while the robot slides about 4 in toward the centre line, and it swings back up as the robot drives off, 1 s after TIP 2
+settles, not 0.5. Its arm is built on one side, the one facing the centre line at the end of the field it starts at:
+the robot's left for qual-right-v3, on either alliance (blue runs it rotated half a turn). "Blue half": TIP 2's spill on the other
 alliance's half 3 s after it starts.
 
 | Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half | Held at TELEOP |

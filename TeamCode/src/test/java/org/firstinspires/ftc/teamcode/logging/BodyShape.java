@@ -16,6 +16,8 @@ final class BodyShape {
     double flapHeight = Double.NaN;
     /** Which arms it has, and a crossbeam across their free ends ({@link RobotDesign#flapCrossbeam}). */
     boolean leftArm = true, rightArm = true, crossbeam = false;
+    /** Drawn without its chassis: a hook on its own, swung about its hinge ({@link #hookOnly}). */
+    boolean hookOnly = false;
 
     BodyShape(String name, double length, double width, double slide, double out, double ahead) {
         this.name = name;
@@ -118,24 +120,40 @@ final class BodyShape {
 
     /**
      * The robots in {@code BIOBUZZ Robot (match shapes)}, for {@link AutoSim}'s match logs: the plain
-     * chassis, the rigid V, and each right hook folded, with its arm down on the right, and down on the
-     * left (a hook's arm goes on whichever side faces the centre line). {@link #matchComponent} picks one.
+     * chassis, the rigid V, and for each hook its chassis and, as their own components, its hook (the arm
+     * and the crossbeam) with the arm on the left and on the right. A hook is drawn down; the log
+     * swings it up about its hinge ({@link RobotAssets#hookComponent}). {@link #matchComponent} and
+     * {@link #matchHook} pick them.
      */
     static final BodyShape[] MATCH = {
             PLAIN, RIGID_A,
-            new BodyShape("large right hook, folded", 14, 18, 0, 0, 0), RIGHT_HOOK,
-            new BodyShape("right hook 18x14, arm 10", 14, 18, 0, 0, 10).fenced("large hook, arm on the left", true, false),
-            new BodyShape("small right hook, folded", 16, 18, 0, 0, 0), RIGHT_HOOK_SMALL,
-            new BodyShape("small right hook 18x16, arm 8", 16, 18, 0, 0, 8).fenced("small hook, arm on the left", true, false)};
+            new BodyShape("large right hook, chassis", 14, 18, 0, 0, 0), RIGHT_HOOK.hookOnly("large hook, arm on the left", true),
+            RIGHT_HOOK.hookOnly("large hook, arm on the right", false),
+            new BodyShape("small right hook, chassis", 16, 18, 0, 0, 0), RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the left", true),
+            RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the right", false)};
 
-    /**
-     * Which {@link #MATCH} component draws the robot design named {@code design}: down, its hook's
-     * arm on the left ({@code side} +1) or right (-1); a design with no shape here, the plain chassis.
-     */
-    static int matchComponent(String design, boolean down, int side) {
-        int hook = design.contains("large right hook") ? 2 : design.contains("small right hook") ? 5 : -1;
-        if (hook >= 0) return !down ? hook : side > 0 ? hook + 2 : hook + 1;
+    /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
+    static int matchComponent(String design) {
+        int hook = hookChassis(design);
+        if (hook >= 0) return hook;
         return design.contains("rigid V") ? 1 : 0;
+    }
+
+    /** Which {@link #MATCH} component is its hook, with the arm on its left ({@code side} +1) or right; -1 for none. */
+    static int matchHook(String design, int side) {
+        int hook = hookChassis(design);
+        return hook < 0 ? -1 : side > 0 ? hook + 1 : hook + 2;
+    }
+
+    private static int hookChassis(String design) {
+        return design.contains("large right hook") ? 2 : design.contains("small right hook") ? 5 : -1;
+    }
+
+    /** Only the hook of this shape (its crossbeam, and its arm on the left or right), without the chassis. */
+    BodyShape hookOnly(String newName, boolean left) {
+        BodyShape b = fenced(newName, left, !left);
+        b.hookOnly = true;
+        return b;
     }
 
     /** The shapes {@link BodyShapeSpillTest#atTheLandingLine} parks at the spill's edge. */

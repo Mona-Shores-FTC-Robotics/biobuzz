@@ -605,12 +605,17 @@ public final class AutoSim {
     /** ... or this long after going out, when the spill has been gathered or has scattered. */
     static final double WALLS_HOLD_S = 3.0;
     /**
-     * A hook (RobotDesign#flapsDeploy) comes down only once the robot is this slow, and lifts as soon as
-     * it drives faster: its arm reaches 8-10 in ahead, into where the spill lands.
+     * A hook (RobotDesign#flapsDeploy) swings down only while the robot is this slow (it may still be
+     * sliding to its spot, as the Autos do once the TIP starts) ...
+     */
+    static final double HOOK_LOWER_IN_PER_S = 25;
+    /** ... and not at all if the robot is still faster this long after the TIP starts (the spill is landing). */
+    static final double HOOK_LATEST_S = 0.9;
+    /**
+     * Once the robot has stopped with the hook down, it swings up as soon as the robot drives faster than
+     * this: its arm reaches 8-10 in ahead, into where the spill lands.
      */
     static final double HOOK_STILL_IN_PER_S = 3;
-    /** ... and not at all if the robot is still moving this long after the TIP starts (the spill is landing). */
-    static final double HOOK_LATEST_S = 0.9;
 
     /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
     private static List<double[]> edges(double[] pose, double size) {
@@ -745,8 +750,21 @@ public final class AutoSim {
                 throw new IllegalStateException("could not build " + result.auto, e);
             }
             prev = pedro(drive.pose);
+            if (design.flapsDeploy && design.flapTowardCentre) {
+                // A one-armed hook is built with its arm on one side (mentor, 5 Oct 2026): the side that faces
+                // the centre line when the robot faces the HIVE from the end of the field it starts at (the same side
+                // for both alliances: one runs the Auto rotated half a turn).
+                double heading = prev[1] > FieldSim.CENTRE_IN ? 1.5 * Math.PI : 0.5 * Math.PI;
+                body.flapsOnly = towardCentre(prev[0], heading);
+                log.putEvent(tag() + "hook built with its arm on the " + (body.flapsOnly > 0 ? "left" : "right"), index);
+            }
             log.putEvent("Auto: " + result.auto + robot + " for " + alliance + (rotated ? " (rotated)" : ""), index);
             auto.schedule();
+        }
+
+        /** Which side of a robot at {@code x} facing {@code heading} faces the centre line: +1 its left, -1 its right. */
+        int towardCentre(double x, double heading) {
+            return -Math.sin(heading) * (FieldSim.CENTRE_IN - x) > 0 ? 1 : -1;
         }
 
         String tag() {
@@ -935,6 +953,8 @@ public final class AutoSim {
         boolean wallSpillHighY;
         /** Whether the walls are going out (true) or in, and when they were last sent out. */
         boolean wallsWanted;
+        /** Whether the robot has stopped with its hook down since it last swung down (it lifts on the next move). */
+        boolean hookStopped;
         double wallsSentAt = Double.NaN;
 
         /**
@@ -961,30 +981,34 @@ public final class AutoSim {
             }
             boolean near = Math.hypot(pose[0] - FieldSim.CENTRE_IN, pose[1] - FieldSim.CENTRE_IN) < WALLS_NEAR_HIVE_IN;
             String guides = design.flapsDeploy ? "hook" : "side walls";
-            boolean hookWaits = design.flapsDeploy && speed > HOOK_STILL_IN_PER_S && now - wallTipAt < HOOK_LATEST_S;
+            boolean hookWaits = design.flapsDeploy && speed > HOOK_LOWER_IN_PER_S && now - wallTipAt < HOOK_LATEST_S;
             if (!Double.isNaN(wallTipAt) && now - wallTipAt >= design.sideWallsDeployS && !hookWaits) {
-                boolean tooLate = design.flapsDeploy && speed > HOOK_STILL_IN_PER_S;
+                boolean tooLate = design.flapsDeploy && speed > HOOK_LOWER_IN_PER_S;
                 wallTipAt = Double.NaN;
-                // A hook comes down only where the spill lands: not for a TIP whose spill falls at the other end.
+                // A hook comes down only where the spill lands: not for a TIP whose spill falls at the other end,
+                // nor where its arm would be on the outside, away from the centre line.
                 boolean spillHere = !design.flapsDeploy || (pose[1] > FieldSim.CENTRE_IN) == wallSpillHighY;
+                boolean armInside = !design.flapTowardCentre || towardCentre(pose[0], pose[2]) == body.flapsOnly;
                 if (running && !wallsWanted && near && spillHere && !tooLate && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
-                    wallsWanted = true;
-                    wallsSentAt = now;
-                    if (design.flapTowardCentre) {  // the arm on the side facing the centre line
-                        double leftX = -Math.sin(pose[2]);  // the robot's left, along x
-                        body.flapsOnly = leftX * (FieldSim.CENTRE_IN - pose[0]) > 0 ? 1 : -1;
+                    if (!armInside) {
+                        log.putEvent(tag() + "hook stays up: its arm would be on the side away from the centre line", us);
+                    } else {
+                        wallsWanted = true;
+                        hookStopped = false;
+                        wallsSentAt = now;
+                        log.putEvent(tag() + guides + (design.flapsDeploy ? " down" : " out") + ": our CELL started to TIP "
+                                + String.format(java.util.Locale.ROOT, "%.1f", now - tipStartedAt) + " s ago", us);
                     }
-                    log.putEvent(tag() + guides + (design.flapsDeploy ? " down" : " out") + ": our CELL started to TIP "
-                            + String.format(java.util.Locale.ROOT, "%.1f", now - tipStartedAt) + " s ago"
-                            + (design.flapTowardCentre ? (body.flapsOnly > 0 ? ", arm on the left" : ", arm on the right") : ""), us);
                 }
             }
             if (wallsWanted) {
+                hookStopped |= body.wallsOut >= 1 && speed < HOOK_STILL_IN_PER_S;
                 String why = !running ? "AUTO ended"
                         : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
                         : !near ? "left the HIVE"
-                        : speed > (design.flapsDeploy ? HOOK_STILL_IN_PER_S : WALLS_DRIVE_OFF_IN_PER_S) ? "driving off"
-                        : Math.abs(turnRate) > WALLS_TURN_RAD_PER_S ? "turning"
+                        : speed > (design.flapsDeploy && hookStopped ? HOOK_STILL_IN_PER_S : WALLS_DRIVE_OFF_IN_PER_S) ? "driving off"
+                        // A hook still sliding to its spot may turn a little on the way.
+                        : Math.abs(turnRate) > WALLS_TURN_RAD_PER_S && (!design.flapsDeploy || hookStopped) ? "turning"
                         : now - wallsSentAt > WALLS_HOLD_S ? "spill gathered" : null;
                 if (why != null) {
                     wallsWanted = false;
@@ -1010,18 +1034,20 @@ public final class AutoSim {
         }
 
         /**
-         * Which of {@code BIOBUZZ Robot (match shapes)}'s components to show ({@link BodyShape#MATCH}):
-         * a hook folded, or down with its arm on the left or right; any design without a shape there,
-         * the plain 18 in chassis.
+         * Which of {@code BIOBUZZ Robot (match shapes)}'s components to show ({@link BodyShape#MATCH}),
+         * and how: the chassis (for any design without a shape there, the plain 18 in one) and a hook,
+         * swung up as far as it is ({@code SideWalls/Out}: 0 stowed, 1 down).
          */
         void putShape(WpiLog log, long us) throws IOException {
-            int shown = BodyShape.matchComponent(design.name, body != null && body.wallsOut >= 1, body == null ? 0 : body.flapsOnly);
-            if (shown == shapeLogged) return;
-            shapeLogged = shown;
-            log.putPose3dArray(keyPrefix + "/BodyShape/Components", RobotAssets.shapeComponents(shown, BodyShape.MATCH.length), us);
+            double out = body == null ? 0 : body.wallsOut;
+            if (out == shapeLogged) return;
+            shapeLogged = out;
+            int hook = design.flapsDeploy ? BodyShape.matchHook(design.name, body == null ? 0 : body.flapsOnly) : -1;
+            log.putPose3dArray(keyPrefix + "/BodyShape/Components",
+                    RobotAssets.hookComponent(BodyShape.matchComponent(design.name), hook, 1 - out, design.frameIn), us);
         }
 
-        int shapeLogged = -1;
+        double shapeLogged = -1;
 
         /** The robot standing where it is, for the disabled time before and after the run. */
         void putStill(WpiLog log, long us) throws IOException {
