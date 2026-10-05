@@ -8,7 +8,7 @@
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*' --tests '*BodyShapeSpillTest.atTheLandingLine'
     python3 tools/spill-window/shapes.py
-    chromium --headless --hide-scrollbars --window-size=1880,1272 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
+    chromium --headless --hide-scrollbars --window-size=2500,1000 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
     chromium --headless --hide-scrollbars --window-size=1500,1250 --screenshot=sim-review/body-shapes-loads.png TeamCode/build/sim-logs/body-shapes-loads.html
 
 The HTML (about 2 MB each, every spilled piece drawn) stays in the build folder. The top views are the Visualizer's
@@ -28,17 +28,17 @@ CSV = os.path.join(LOGS, "spill-first-touch-8-pollen.csv")
 CSV_START = os.path.join(LOGS, "spill-first-touch.csv")
 RESULTS = os.path.join(LOGS, "body-shapes-landing.csv")
 
-# Card title, BodyShape name (the results' key), width, length, wall slide, flap out, flap forward, low guide,
-# smaller chassis to outline.
+# Number and name, the spec line, BodyShape name (the results' key), width, length, wall slide, flap out, flap forward,
+# low guide, smaller chassis to outline.
 SHAPES = [
-    ("Plain chassis: 18 × 18", "plain 18", 18, 18, 0, 0, 0, False, ()),
-    ("Long U: walls slide 6″ forward", "long U", 18, 18, 6, 0, 0, False, ()),
-    ("(a) 16 + flaps 3″ out, 2″ forward", "16 + flaps 3 out 2 fwd", 16, 16, 0, 3, 2, False, ()),
-    ("(b) 16 + flaps 4″ out, 2″ forward", "16 + flaps 4 out 2 fwd", 16, 16, 0, 4, 2, False, ()),
-    ("(b) 15 + flaps 4.5″ out, 3″ forward", "15 + flaps 4.5 out 3 fwd", 15, 15, 0, 4.5, 3, False, ()),
-    ("(c) 18 wide × 15 long + flaps 3″ out, 3″ forward", "18 wide x 15 long + flaps 3 out 3 fwd", 18, 15, 0, 3, 3, False, ()),
-    ("16 + long flaps 1″ out, 8″ forward", "16 + flaps 1 out 8 fwd", 16, 16, 0, 1, 8, False, ()),
-    ("18 + low ramps 6″ forward (2.5″ tall)", "18 + ramps 0 out 6 fwd, 2.5 in tall", 18, 18, 0, 0, 6, True, ()),
+    ("1 · Plain", "18 × 18 chassis", "plain 18", 18, 18, 0, 0, 0, False, ()),
+    ("2 · Long U", "18 × 18 chassis · walls slide 6″ forward", "long U", 18, 18, 6, 0, 0, False, ()),
+    ("3 · Funnel", "16 × 16 chassis · flaps 3″ out, 2″ forward", "16 + flaps 3 out 2 fwd", 16, 16, 0, 3, 2, False, ()),
+    ("4 · Wide funnel", "16 × 16 chassis · flaps 4″ out, 2″ forward", "16 + flaps 4 out 2 fwd", 16, 16, 0, 4, 2, False, ()),
+    ("5 · Wide, deep funnel", "15 × 15 chassis · flaps 4.5″ out, 3″ forward", "15 + flaps 4.5 out 3 fwd", 15, 15, 0, 4.5, 3, False, ()),
+    ("6 · Short-chassis funnel", "18 wide × 15 long chassis · flaps 3″ out, 3″ forward", "18 wide x 15 long + flaps 3 out 3 fwd",
+     18, 15, 0, 3, 3, False, ()),
+    ("7 · Long funnel", "16 × 16 chassis · flaps 1″ out, 8″ forward", "16 + flaps 1 out 8 fwd", 16, 16, 0, 1, 8, False, ()),
 ]
 FACES = [(35.0, "on the 100% line"), (36.5, "halfway"), (38.0, "on the 90% line")]
 TIPS = 200
@@ -190,13 +190,13 @@ PARK_FACE = (LINE_100 + LINE_90) / 2
 
 STYLE = f"""<style>
 body{{margin:0;padding:22px;background:{BG};font-family:Helvetica,Arial,sans-serif;color:{TEXT}}}
-h1{{font-size:22px;margin:0 0 16px}} p.sub{{margin:0 0 10px;color:{MUTED};font-size:13px;max-width:1560px;line-height:1.5}}
+h1{{font-size:24px;margin:0 0 8px}} p.sub{{margin:0 0 10px;color:{MUTED};font-size:13px;max-width:1560px;line-height:1.5}}
 p.sub b{{color:{TEXT}}}
-.legend{{display:flex;flex-wrap:wrap;gap:18px;font-size:12.5px;color:{MUTED};margin:0 0 16px}}
-.legend i{{display:inline-block;width:22px;height:0;vertical-align:middle;margin-right:6px}}
-.grid{{display:grid;grid-template-columns:repeat(3,auto);gap:14px;justify-content:start}}
+.legend{{display:flex;flex-wrap:wrap;gap:22px;font-size:13.5px;color:{MUTED};margin:0 0 16px}}
+.legend i{{display:inline-block;width:30px;height:0;vertical-align:middle;margin-right:6px}}
+.grid{{display:grid;grid-template-columns:repeat(3,auto);gap:14px;justify-content:start}} .grid.four{{grid-template-columns:repeat(4,auto)}}
 .card{{background:{CARD};border:1px solid {LINE};border-radius:12px;padding:12px 14px}}
-.card h2{{font-size:15px;margin:0 0 8px}}
+.card h2{{font-size:16px;margin:0}} .head{{display:flex;align-items:baseline;gap:12px;margin-bottom:9px}} .spec{{font-size:13px;color:{MUTED}}}
 .pics{{display:flex;gap:8px;align-items:center}} .pics svg{{border-radius:8px}}
 table{{border-collapse:collapse;width:100%;margin-top:9px;font-size:12px}}
 th{{color:{MUTED};font-weight:500;text-align:right;padding:2px 6px;border-bottom:1px solid {LINE}}}
@@ -210,15 +210,18 @@ td.bad{{color:{RED};font-weight:700}} td.warn{{color:{AMBER};font-weight:700}} t
 </style>"""
 
 cards = []
-for title, key, w, l, slide, out, fwd, low, outlines in SHAPES:
+for title, spec, key, w, l, slide, out, fwd, low, outlines in SHAPES:
     svg, _ = top_view(w, l, slide, out, fwd, low, outlines)
     field = field_view(w, l, slide, out, fwd, round(PARK_FACE, 1), extra=["--x", f"{BOX_X:.1f}"])
-    cards.append(f'<div class="card"><h2>{title}</h2><div class="pics">{svg}{field}</div></div>')
+    cards.append(f'<div class="card"><div class="head"><h2>{title}</h2><span class="spec">{spec}</span></div>'
+                 f'<div class="pics">{svg}{field}</div></div>')
 
 page = f"""<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="dark"><title>Robot shapes at the spill</title>{STYLE}</head><body>
-<h1>Robot shapes at the spill</h1>
+<h1>Robot Shapes at the Spill</h1>
+<div class="legend"><span><i style="border-top:2px dashed {RED}"></i>every spilled piece lands inside</span>
+<span><i style="border-top:2px solid {RED}"></i>90% land inside</span></div>
 <svg width="0" height="0" style="position:absolute"><defs>{{FIELD}}</defs></svg>
-<div class="grid">{"".join(cards)}</div></body></html>"""
+<div class="grid four">{"".join(cards)}</div></body></html>"""
 open(os.path.join(LOGS, "body-shapes.html"), "w").write(page.replace("{FIELD}", FIELD_IMAGE))
 
 
@@ -240,13 +243,13 @@ for name, path, nectar in (("8 POLLEN", CSV, 0), ("Match start: 3 NECTAR, then P
                   f'<h3>Where each piece first lands (200 TIPs)</h3>{view([])}'
                   f'<h3>Where it lies 3 s later, no robot</h3>{view(["--rest"])}</div>')
 rows = []
-for title, key, *_ in SHAPES:
+for title, spec, key, *_ in SHAPES:
     cells = []
     for nectar in (0, 3):
         kept_pct, kept, pieces, g409, chassis, guides, most, over = results[(key, 35.0, nectar)]
         cells.append(f'<td><b>{kept:.1f}</b> of {pieces:.0f}</td><td class="{"bad" if chassis else "ok"}">{chassis:.0f}</td>'
                      f'<td class="{"warn" if guides else "ok"}">{guides:.0f}</td>')
-    rows.append(f'<tr><td class="where">{title}</td>{"".join(cells)}</tr>')
+    rows.append(f'<tr><td class="where">{title}: {spec}</td>{"".join(cells)}</tr>')
 compare = ('<div class="panel"><h2>Each shape, chassis face on the 100% line (35″)</h2><table>'
            '<tr><th></th><th colspan="3" style="text-align:center">8 POLLEN</th><th colspan="3" style="text-align:center">match start</th></tr>'
            '<tr><th>shape</th><th>kept a TIP</th><th>G409 chassis</th><th>G409 guides only</th><th>kept a TIP</th><th>G409 chassis</th><th>G409 guides only</th></tr>'
