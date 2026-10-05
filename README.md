@@ -94,8 +94,8 @@ robot 3 s after the TIP (15 in behind its front-most point to 8 in past it, 24 i
 | long U | 34 / 40 | 49%, 58 of 200 | 43%, 89 of 200 |
 | long U | 36 / 42 | 52%, 178 of 200 | 48%, 190 of 200 |
 
-The arm tips' safe line (36 in) is about 1 in short of the plain robot's front face (35 in plus the
-robot's top edge): every touch past it is on the arms. Pictures of each step are in
+Thin arm tips can wait about 1 in nearer than a robot's front face (36 in against 35); with the front
+face at 30–34 in, every touch is on the arms. Pictures of each step are in
 `sim-review/portfolio/spill-window/`.
 
 So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
