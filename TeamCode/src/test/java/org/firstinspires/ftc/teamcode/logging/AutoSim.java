@@ -66,9 +66,10 @@ public final class AutoSim {
     /**
      * Disabled time on each side of the run, robots standing where they are, so AdvantageScope's
      * timeline has room to grab the start and the end. AUTO starts at {@code PRE_ROLL_S} in the log.
+     * 1 s each (mentor, 4 Oct 2026; was 10 s and 7 s): enough to grab, without scrolling past idle robots.
      */
-    static final double PRE_ROLL_S = 10.0;
-    static final double POST_ROLL_S = 7.0;
+    static final double PRE_ROLL_S = 1.0;
+    static final double POST_ROLL_S = 1.0;
     /** How often the {@code /Match/} clock is logged. */
     static final double CLOCK_STEP_S = 0.1;
 
@@ -439,6 +440,10 @@ public final class AutoSim {
             long us = Math.round((PRE_ROLL_S + now) * 1e6);
             if (step % Math.round(CLOCK_STEP_S / LOOP_S) == 0) putClock(log, now);
             if (Math.abs(now - AutoKit.AUTO_LENGTH_S) < LOOP_S / 2) {
+                // The robots stop at 30 s, so the log says so (mentor, 4 Oct 2026: AdvantageScope showed
+                // AUTO running to 38 s). The field runs on for AFTER_S: a TIP finishing then still counts.
+                log.put(AdvantageScopeKeys.ENABLED, false, us);
+                log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", us);
                 log.putEvent("AUTO ends (TIPs that finish in the next 8 s still count)", us);
             }
             boolean running = now < AutoKit.AUTO_LENGTH_S;
@@ -490,8 +495,6 @@ public final class AutoSim {
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
         long end = Math.round((PRE_ROLL_S + AutoKit.AUTO_LENGTH_S + AFTER_S) * 1e6);
-        log.put(AdvantageScopeKeys.ENABLED, false, end);
-        log.put(AdvantageScopeKeys.ROBOT_MODE, "disabled", end);
         log.putEvent(result.toString(), end);
         // Post-roll: everything stays where it ended, so the end is easy to grab on the timeline.
         double last = AutoKit.AUTO_LENGTH_S + AFTER_S + POST_ROLL_S;
@@ -520,8 +523,13 @@ public final class AutoSim {
     private static List<double[]> outline(double[] pose, RobotDesign design, double now) {
         List<double[]> out = corners(pose, design.frameIn);
         // It starts folded inside the 18 in start size (R102) and is out within the first second.
-        if (design.intakeWidthIn <= design.frameIn || now < CATCHER_DEPLOY_S) return out;
+        if (now < CATCHER_DEPLOY_S) return out;
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+        if (design.shieldReachIn > 0) {  // the side shield's far end (RobotDesign#shieldReachIn)
+            double lx = design.frameIn / 2 + design.shieldReachIn, ly = design.shieldSide * design.frameIn / 2;
+            out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+        }
+        if (design.intakeWidthIn <= design.frameIn) return out;
         double lx = (design.intakeAtBack ? -1 : 1) * design.frameIn / 2, half = design.intakeWidthIn / 2;
         for (int j = -4; j <= 4; j++) {
             double ly = half * j / 4;
@@ -669,7 +677,7 @@ public final class AutoSim {
             }
             for (String line : pending) {
                 result.decisions.add(line);
-                result.timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, line));
+                result.timeline.add(String.format(Locale.ROOT, "%5.2f %s (holds %d)", now, line, body.stored.size()));
                 log.putEvent(tag() + line, us);
             }
             pending.clear();

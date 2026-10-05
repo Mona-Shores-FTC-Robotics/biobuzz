@@ -57,12 +57,13 @@ def leave_flower(r, name, to):
 
 
 # Where a spill lands (3 Oct 2026 films, SpillLandingTest): pieces pour off the lowered CELL's lip and
-# first touch the tiles about 4 ft out from the alliance wall (simulated: 44-48 in), then scatter 28-52 in
-# out. A robot catches them standing just short of that, facing the HIVE: centre 33 in out (its front,
-# 9 in ahead, at 42), on the CELL's line, at x 57.5 so it can turn (a turning robot's corners reach
-# 12.7 in; the centre line is at 70.75). Drawn for RED: the right (south) CELL at y 33, the left (north)
-# at 141.5 - 33.
-CATCH_R, CATCH_L = (57.5, 33, 90), (57.5, 108.5, 270)
+# first touch the tiles about 42 in out from the alliance wall, then bounce back toward it: 3 s after the
+# TIP they lie 17-33 in out. A robot catches them standing short of the landing, in the way of the
+# bounce, facing the HIVE: centre 28 in out (its front, 9 in ahead, at 37; swept 22-33, 28 scored best
+# with no problems), on the CELL's line, at x 57.5 so it can turn (a turning robot's corners reach
+# 12.7 in; the centre line is at 70.75). Drawn for RED: the right (south) CELL at y 28, the left
+# (north) at 141.5 - 28.
+CATCH_R, CATCH_L = (57.5, 28, 90), (57.5, 113.5, 270)
 
 
 def catch_spill(r, label, spot, ms=2500):

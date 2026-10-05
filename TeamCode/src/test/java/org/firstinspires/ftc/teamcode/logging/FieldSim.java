@@ -136,14 +136,26 @@ final class FieldSim {
     /**
      * A spilled piece's speed as it leaves the lowered CELL, as a fraction of what it gathered rolling
      * down the CELL's floor (only out of a CELL that is tipping or down: a shot rebounding out of the
-     * raised CELL keeps its speed). Fitted to the 3 Oct 2026 films (IMG_1957–1960, 120 fps): real
-     * pieces pour off the lip and drop nearly straight down, first touching the tiles close under it,
-     * about 4 ft out from the alliance wall (from a photo of the box that caught them, ±6 in), about
-     * 1.15 s after the rocker starts to move. Rolling freely they flew another foot toward the wall.
-     * At 0.25 the simulated first touch is 44–48 in out, 1.15 s after the TIP starts.
-     * {@link SpillLandingTest} checks the fit.
+     * raised CELL keeps its speed). From the 3 Oct 2026 films (IMG_1957–1960, 120 fps): real pieces
+     * pour off the lip and arc out a little, first touching the tiles just under 2 tiles, about 42 in,
+     * from the alliance wall (mentor's estimate from the films, 4 Oct; 0.25 before that, from a photo,
+     * landed them about 5 in nearer the CELL), about 1.15–1.2 s after the rocker starts to move.
+     * Rolling freely (1.0) they land at about 36 in. At 0.6 the simulated first touch is 36–43 in out,
+     * median 42, 1.11 s after the TIP starts. {@link SpillLandingTest} checks the fit.
      */
-    static final double FILMED_SPILL_EXIT_SCALE = 0.25;
+    static final double FILMED_SPILL_EXIT_SCALE = 0.6;
+    /**
+     * Sideways speed a hard landing on the tiles adds, in a random direction, as a fraction of the
+     * landing speed (times 0.5–1.5 at random). Wiffle balls bounce off foam at an angle: in the 3 Oct
+     * 2026 films a spill fans out in every direction within half a second of landing and is spread
+     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.45 the simulated
+     * pieces are 24 in from where they landed after 0.5 s (p90 44), and 3 s after the TIP lie anywhere
+     * from the wall to 85 in out, x 19–92. Fitted by eye to those films; {@link SpillLandingTest} prints
+     * the spread (BIOBUZZ_BOUNCE_SCATTER reprints the fit). Only landings faster than {@link #BOUNCE_SCATTER_MIN_IN_PER_S}: a rolling piece stays put.
+     */
+    static final double FILMED_BOUNCE_SCATTER = 0.45;
+    static double bounceScatter = FILMED_BOUNCE_SCATTER;
+    static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
@@ -1085,17 +1097,27 @@ final class FieldSim {
     }
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
-        double half = bot.design.frameIn / 2;
+        RobotDesign d = bot.design;
+        double half = d.frameIn / 2;
         boolean hit = box(p, bx, by, bh, half, half, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         double c = Math.cos(bh), s = Math.sin(bh);
+        if (d.shieldReachIn > 0) {
+            // RobotDesign#shieldReachIn: a thin wall along one side, from the frame's front edge forward.
+            double t = RobotDesign.SHIELD_THICKNESS_IN / 2;
+            double lx = half + d.shieldReachIn / 2, ly = d.shieldSide * (half - t);
+            double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+            hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
+                    bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
+        }
         for (double[] g : bot.guards) {
             if (g[6] != 0) {
                 double ly = -(p.x - bx) * s + (p.y - by) * c;
                 if (Math.abs(ly) > Math.abs(g[1])) continue; // outside: the flap swings in for it
             }
             double gx = bx + g[0] * c - g[1] * s, gy = by + g[0] * s + g[1] * c;
-            hit |= box(p, gx, gy, bh, g[2], g[3], g[4], g[5], bot.vx, bot.vy, bot.w, bounce(robotRestitution));
+            hit |= box(p, gx, gy, bh, g[2], g[3], g[4], g[5],
+                    bot.vx - bot.w * (gy - by), bot.vy + bot.w * (gx - bx), bot.w, bounce(robotRestitution));
         }
         if (hit && !p.touchedTile) p.robotBeforeTile = true;
         return hit;
@@ -1169,7 +1191,18 @@ final class FieldSim {
         if (p.z < r) {
             p.z = r;
             p.touchedTile = true;
-            if (p.vz < 0) p.vz = -p.vz * bounce(physics.tileRestitution);
+            if (p.vz < 0) {
+                double impact = -p.vz;
+                p.vz = impact * bounce(physics.tileRestitution);
+                // A holey ball on foam bounces off at an angle (3 Oct 2026 films: a spill fans out fast
+                // in every direction from where it lands): part of a hard landing's speed goes sideways.
+                if (bounceScatter > 0 && impact > BOUNCE_SCATTER_MIN_IN_PER_S && variety != null) {
+                    double a = 2 * Math.PI * variety.nextDouble();
+                    double k = bounceScatter * impact * (0.5 + variety.nextDouble());
+                    p.vx += k * Math.cos(a);
+                    p.vy += k * Math.sin(a);
+                }
+            }
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
         }

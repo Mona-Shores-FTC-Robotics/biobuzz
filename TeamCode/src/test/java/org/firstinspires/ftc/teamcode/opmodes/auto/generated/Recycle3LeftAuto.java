@@ -50,8 +50,8 @@ public final class Recycle3LeftAuto {
         Pose wallFlowerTurn = p.of(22.21, 47.36, 180);
         Pose flowerLBackHome = p.of(57.5, 119.29, 270);
         Pose shootW = p.of(26, 112, 320);
-        Pose catchValue = p.of(57.5, 108.5, 270);
-        Pose catchBack = p.of(57.5, 111.5, 270);
+        Pose catchValue = p.of(57.5, 113.5, 270);
+        Pose catchBack = p.of(57.5, 116.5, 270);
         Pose lookL = p.of(44, 112, 330);
         Pose shootL = p.of(42, 118, 296);
 

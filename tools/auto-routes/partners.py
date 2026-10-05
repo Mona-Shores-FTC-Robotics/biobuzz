@@ -19,6 +19,54 @@ def preloads_park():
           r.go("PARK_P", ctrl=[(59, 116), (30, 116)], park=True))  # right first, clear of the far FLOWER
     return r
 
+# The way a partner at the standard left start parks: 4.75 in straight back off the wall, west under
+# the far FLOWER (its edge clears the FLOWER below y 127.8), then down the wall into the far end of the
+# LOADING ZONE. Its edge never comes south of y 118.5, out of the spot we fire from (our edge at 119)
+# once it is west of x 40.
+LEFT_LANE = (58, 127.5, 270)
+LEFT_PARK_CTRL = [(12, 127.5)]
+
+
+def _park_left(r):
+    r.pt("LANE", *LEFT_LANE).pt("PARK_P", 10.5, 111, 270)
+    return [r.go("LANE", heading=270), r.go("PARK_P", ctrl=LEFT_PARK_CTRL, heading=270, park=True)]
+
+
+def preloads_left(name="partner-preloads-left"):
+    """A partner that can shoot, at the standard left start in front of the left CELL: fires its 4 when
+    the left CELL rises, then parks west under the far FLOWER (LEFT_PARK_CTRL)."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    r.add(r.action("SpinUp"),
+          *waits(r, "Left CELL up", "LeftCellUp", 8.0),
+          fire(r, "Fire the preloads", "Empty"),
+          *_park_left(r))
+    return r
+
+
+def park_left(name="partner-park-left", wait_s=0.0):
+    """A partner that only drives, at the standard left start: waits `wait_s`, then parks west under the
+    far FLOWER (LEFT_PARK_CTRL). It keeps its 4 preloads."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    if wait_s:  # a pure timer: it holds its 4 preloads and never fires, so Empty never comes
+        r.add(r.wait(f"Wait {wait_s:g} s", when=["Empty"], ms=int(wait_s * 1000)))
+    r.add(*_park_left(r))
+    return r
+
+
+def stage_exit(name="partner-stage-exit", x=35.0, fwd_y=120.0):
+    """A partner that can't shoot (4 Oct 2026 request): starts against the wall at (x, 132.25) facing the
+    HIVE, drives straight forward, sets its 4 POLLEN down in a row across its front (y about 108, about
+    x-5 to x+5: west of our tunnel lane for x 35), backs straight off and parks west under the far FLOWER
+    into the far end of the LOADING ZONE. Done by about 4 s, before we come north."""
+    r = Route(name, (x, 132.25, 270), speed=40)
+    r.pt("STAGE", x, fwd_y, 270).pt("BACK", x, 127.5, 270).pt("PARK_P", 10.5, 111, 270)
+    r.add(r.go("STAGE", heading=270),
+          r.wait("Set the preloads down", when=["Empty"], ms=1500, alongside="SetDown"))
+    r.at = "STAGE"
+    r.add(r.go("BACK", heading=270), r.go("PARK_P", ctrl=[(12, 127.5)], heading=270, park=True))
+    return r
+
+
 def partner_right(name="partner-preloads-right"):
     """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
     ZONE like the other reference partners (mentor review), leaving the near end for us."""

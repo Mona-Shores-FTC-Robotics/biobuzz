@@ -220,8 +220,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 50,
-        "y": 27
+        "x": 40,
+        "y": 24
       },
       "controlPoints": [
         {
@@ -247,7 +247,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 301,
-                "endDeg": 72
+                "endDeg": -5
               }
             },
             {
@@ -255,7 +255,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 72
+                "degrees": -5
               }
             }
           ]
@@ -272,14 +272,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 49,
+        "x": 37,
         "y": 24
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 72,
-        "endDeg": 72
+        "startDeg": -5,
+        "endDeg": -5
       }
     },
     {
@@ -305,7 +305,7 @@
               "endProgress": 0.65,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 72,
+                "startDeg": -5,
                 "endDeg": 49
               }
             },
@@ -461,8 +461,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 50,
-        "y": 27
+        "x": 40,
+        "y": 24
       },
       "controlPoints": [],
       "heading": {
@@ -475,7 +475,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 49,
-                "endDeg": 72
+                "endDeg": -5
               }
             },
             {
@@ -483,7 +483,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 72
+                "degrees": -5
               }
             }
           ]
@@ -500,14 +500,14 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 49,
+        "x": 37,
         "y": 24
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
-        "startDeg": 72,
-        "endDeg": 72
+        "startDeg": -5,
+        "endDeg": -5
       }
     },
     {
@@ -533,7 +533,7 @@
               "endProgress": 0.65,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 72,
+                "startDeg": -5,
                 "endDeg": 49
               }
             },
@@ -922,14 +922,14 @@
         90
       ],
       "RIGHT_LOOK": [
-        50,
-        27,
-        72
+        40,
+        24,
+        -5
       ],
       "RIGHT_LOOK_BACK": [
-        49,
+        37,
         24,
-        72
+        -5
       ],
       "RIGHT_SHOT": [
         36,

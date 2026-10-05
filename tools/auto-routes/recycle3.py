@@ -5,10 +5,11 @@ Pieces and time decide it. A TIP needs about 8 POLLEN-weights; a NECTAR weighs 1
 which keeps the 3 NECTAR, needs about 6 pieces a TIP and the left end needs 8 POLLEN. The robot holds 4
 (G407), so after TIP 1 each TIP is two volleys: one held ready for the moment our CELL rises, and one
 fetched while it is up. TIPs alternate ends, so for 5 by 30 s each fetch must take about 5 s.
-  - Catch a spill where it lands, and hold it for your CELL's next rise. It pours off the lowered CELL's
-    lip and first touches the tiles about 4 ft out from the wall (3 Oct 2026 films), so a robot waits at
-    CATCH, 33 in out facing the HIVE, and tops up with the webcam (helpers.catch_spill). Until 3 Oct the
-    simulated spill rolled to the wall and these robots caught and swept it there; the real one doesn't.
+  - Catch a spill where it comes back to you, and hold it for your CELL's next rise. It pours off the
+    lowered CELL's lip, first touches the tiles about 42 in out from the wall and bounces back toward it
+    (3 Oct 2026 films), so a robot waits at CATCH, 28 in out facing the HIVE, and tops up with the
+    webcam (helpers.catch_spill). Until 3 Oct the simulated spill rolled to the wall and these robots
+    caught and swept it there.
   - right: preloads (TIP 1), catching its spill at CATCH | fire it; the GARDEN, fire (TIP 3) | catch
     TIP 3's spill at CATCH, wait aimed; fire, pick up the rest, fire (TIP 5)
   - left: preloads + the far FLOWER (TIP 2), catching its spill at CATCH | wait west of the HIVE (2.5 s nearer
@@ -49,8 +50,8 @@ def right(name="recycle3-right", start=R0):
                 fire(r, f"Fire once more (5.{k})", "LeftCellUp", ms=1200)], yes_label="Yes", no_label="No: more"))
         return out
 
-    # TIP 1: the preloads onto the 3 NECTAR; then forward to where the spill lands (it pours off the lip,
-    # about 4 ft out, not against the wall: 3 Oct 2026 films), catch it, and hold it for TIP 2.
+    # TIP 1: the preloads onto the 3 NECTAR; then forward to where the spill comes back to (it lands about
+    # 42 in out and bounces back toward the wall: 3 Oct 2026 films), catch it, and hold it for TIP 2.
     r.pt("CATCH", *CATCH_R).pt("CATCH_BACK", CATCH_R[0], CATCH_R[1] - 3, CATCH_R[2])
     r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000), r.go("CATCH"),
           r.wait("TIP 1?", when=["Tip"], ms=2500), r.wait("TIP 1: catch the spill", when=["IntakeFull"], ms=2500, alongside="CollectSeen"))
