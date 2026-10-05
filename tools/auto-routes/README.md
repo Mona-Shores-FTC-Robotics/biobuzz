@@ -51,6 +51,15 @@ dropped: leaving N_FIRE for the spill sooner or later than when the right CELL i
 after TIP 2 starts): at 0, 0.2 or 0.4 s, 0–15 / 20; 0.15 or 0.3 s later, 16–18, firing from y 16–21, a tunnel lane at x 55 or 60, a webcam
 pickup facing north after the GARDEN (the leftovers lie behind the robot, toward the wall).
 
+**Standing where our TIP's spill lands.** Every qualifier Auto fires the shot that tips a CELL from that
+CELL's catch spot (y 114 for the left CELL, 28 in out from the wall), so the robot is there when the
+spill lands, and drives off through the tunnel as it lands. Waiting there 1–2.5 s instead catches no
+more (2.3–2.9 of TIP 2's 8 in 3 s, against 3.0 driving through) and costs TIP 3 (14–17 / 20); the
+pieces land 2–12 in in front of the intake and within half a second scatter sideways or back under
+the HIVE. Staying for TIP 3's spill instead of PARK catches 1.1 by 30 s. Trials in `qual_right.py`
+(`TRIALS`). This rests on the simulated scatter (fitted to the 3 Oct films): if real pieces settle
+in front of a waiting robot, waiting wins, so film a TIP with a robot standing at the catch spot.
+
 **Why TIP 3 was short.** TIP 2's 8 POLLEN land 94–100 in up the field about 1 s after the TIP and
 scatter; driving through, we catch 2–4. The rest roll east across the centre line (2.5 of the 8 on
 average, up to 6) or south ahead of us.
