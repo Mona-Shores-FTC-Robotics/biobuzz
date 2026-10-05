@@ -553,14 +553,11 @@ public final class AutoSim {
 
     static final double CATCHER_DEPLOY_S = 1.0;
 
-    /** Side walls go out only for a robot waiting: slower than this. */
-    static final double WALLS_WAITING_IN_PER_S = 6;
-    /** ... and this close to the HIVE's centre, where a spill lands beside it. */
+    /** Side walls go out only this close to the HIVE's centre, where a spill lands beside it, and
+     * come in once the robot is further. */
     static final double WALLS_NEAR_HIVE_IN = 60;
-    /** They come in when the robot drives off faster than this ... */
-    static final double WALLS_DRIVE_OFF_IN_PER_S = 30;
-    /** ... or this long after going out, when the spill has settled. */
-    static final double WALLS_HOLD_S = 4.0;
+    /** ... or this long after going out, when the spill has been gathered or has scattered. */
+    static final double WALLS_HOLD_S = 3.0;
 
     /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
     private static List<double[]> edges(double[] pose, double size) {
@@ -795,7 +792,7 @@ public final class AutoSim {
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
             prev = pose;
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
-            if (design.sideWallsSlideIn > 0) sideWalls(log, pose, Math.hypot(vx, vy), running, us);
+            if (design.sideWallsSlideIn > 0) sideWalls(log, pose, running, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
                 for (double[] c : outline(pose, design, now, body.wallsOut)) {
@@ -855,35 +852,41 @@ public final class AutoSim {
 
         /** Our CELL's TIPs started so far, as the robot's {@code HiveTracker.tipsStarted()} counts them. */
         int wallTipsSeen;
+        /** When the last one started; NaN once the walls have answered it. */
+        double wallTipAt = Double.NaN;
         /** Whether the walls are going out (true) or in, and when they were last sent out. */
         boolean wallsWanted;
         double wallsSentAt = Double.NaN;
 
         /**
          * The side walls (RobotDesign#sideWallsSlideIn), run by the robot rather than the Auto
-         * (mentor, 5 Oct 2026): out when our CELL starts to TIP while the robot is waiting near the
-         * HIVE, so they are out by the time the spill lands about 1.15 s later; in once it holds 4
-         * (G407), when it drives off, or {@link #WALLS_HOLD_S} after going out. They slide at
-         * RobotDesign#sideWallsTravelS. Logged as {@code SideWalls/Out} (0 in to 1 out) and as
-         * component poses that slide the walls of the {@code BIOBUZZ Robot (side walls)} model.
+         * (mentor, 5 Oct 2026). Out RobotDesign#sideWallsDeployS after our CELL starts to TIP, once the
+         * spill is on the tiles (G409), if the robot is near the HIVE and has room; they stay out while
+         * it drives into the spill, and come in once it holds 4 (G407), leaves the HIVE, or
+         * {@link #WALLS_HOLD_S} later. They slide at RobotDesign#sideWallsTravelS. Logged as
+         * {@code SideWalls/Out} (0 in to 1 out) and as component poses that slide the walls of the
+         * {@code BIOBUZZ Robot (side walls)} model.
          */
-        void sideWalls(WpiLog log, double[] pose, double speed, boolean running, long us) throws IOException {
+        void sideWalls(WpiLog log, double[] pose, boolean running, long us) throws IOException {
             int started = sim.rocker(alliance).tipsStarted;
-            boolean near = Math.hypot(pose[0] - FieldSim.CENTRE_IN, pose[1] - FieldSim.CENTRE_IN) < WALLS_NEAR_HIVE_IN;
             if (started > wallTipsSeen) {
                 wallTipsSeen = started;
-                if (running && !wallsWanted && speed < WALLS_WAITING_IN_PER_S && near
-                        && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
+                wallTipAt = now;
+            }
+            boolean near = Math.hypot(pose[0] - FieldSim.CENTRE_IN, pose[1] - FieldSim.CENTRE_IN) < WALLS_NEAR_HIVE_IN;
+            if (!Double.isNaN(wallTipAt) && now - wallTipAt >= design.sideWallsDeployS) {
+                wallTipAt = Double.NaN;
+                if (running && !wallsWanted && near && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
                     wallsWanted = true;
                     wallsSentAt = now;
-                    log.putEvent(tag() + "side walls out: our CELL started to TIP", us);
+                    log.putEvent(tag() + "side walls out: our CELL's spill has landed", us);
                 }
             }
             if (wallsWanted) {
                 String why = !running ? "AUTO ended"
                         : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
-                        : speed > WALLS_DRIVE_OFF_IN_PER_S ? "driving off"
-                        : now - wallsSentAt > WALLS_HOLD_S ? "spill settled" : null;
+                        : !near ? "left the HIVE"
+                        : now - wallsSentAt > WALLS_HOLD_S ? "spill gathered" : null;
                 if (why != null) {
                     wallsWanted = false;
                     log.putEvent(tag() + "side walls in: " + why, us);

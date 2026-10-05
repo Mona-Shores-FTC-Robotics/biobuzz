@@ -138,6 +138,13 @@ final class RobotDesign {
     double sideWallsSlideIn = 0;
     /** Seconds the walls take to slide all the way out or in. A guess until they are built. */
     double sideWallsTravelS = 0.3;
+    /**
+     * When the walls start out, in seconds after our CELL starts to TIP. The spill lands 1.13 to 1.43 s
+     * after (SpillLandingTest, from the 3 Oct films), so from 1.5 s they never meet a piece still in
+     * the air: walls opening as pieces fall would look like G409's example B, "a MECHANISM ... that
+     * opens wide to accept SCORING ELEMENTS".
+     */
+    double sideWallsDeployS = 1.5;
 
     RobotDesign(String name) {
         this.name = name;
@@ -222,6 +229,7 @@ final class RobotDesign {
         d.shieldHeightIn = shieldHeightIn;
         d.sideWallsSlideIn = sideWallsSlideIn;
         d.sideWallsTravelS = sideWallsTravelS;
+        d.sideWallsDeployS = sideWallsDeployS;
         return d;
     }
 
