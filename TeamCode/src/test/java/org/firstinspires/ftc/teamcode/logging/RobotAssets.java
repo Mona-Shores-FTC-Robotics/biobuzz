@@ -22,8 +22,8 @@ import java.util.Map;
  *
  * <p>In a 3D Field tab:
  * <ul>
- *   <li><b>The robot.</b> A mecanum chassis, the intake roller on the front, two flywheels where
- *       pieces leave, the Limelight on its post with a green rod along where it looks, and a faint
+ *   <li><b>The robot.</b> A mecanum chassis, the intake roller on the front, two flywheels that
+ *       fling pieces up into a curved deflector, the Limelight on its post with a green rod along where it looks, and a faint
  *       see-through box: the body pieces bounce off.</li>
  *   <li><b>The intake.</b> A see-through orange box in front: once a ball's centre is inside it
  *       (and it isn't moving too fast), the intake takes it.</li>
@@ -73,6 +73,7 @@ final class RobotAssets {
     static final double INTAKE_ROLLER_RADIUS_IN = 0.75;
     static final double FLYWHEEL_RADIUS_IN = 2.0;
     static final double FLYWHEEL_HEIGHT_IN = 3.0;
+    static final double DEFLECTOR_LENGTH_IN = 3.0; // from the flywheels up to the lip the piece leaves from
     static final double PINWHEEL_RADIUS_IN = 1.95;
     static final double PINWHEEL_AHEAD_IN = 0.9; // its centre, ahead of the frame's front ...
     static final double PINWHEEL_INSET_IN = 0.5; // ... and in from its right side
@@ -138,7 +139,8 @@ final class RobotAssets {
      * The robot as the simulator models {@code d}: its body (the see-through box pieces bounce off),
      * a mecanum chassis, the intake roller and, see-through orange, the volume a piece's centre must
      * be in for the intake to take it (FieldSim#inIntake: so a ball "is ours" once its centre enters
-     * it), the two flywheels where pieces leave (RobotDesign#exitForwardIn, #exitHeightIn), the
+     * it), the two flywheels flinging pieces up into a deflector whose lip is where they leave
+     * (RobotDesign#exitForwardIn, #exitHeightIn), the
      * Limelight from CameraMount and, for the prototype, the pinwheel that takes POLLEN out of a
      * FLOWER (drawn only: the simulator doesn't use it yet). Robot frame, inches: +X forward, +Y left.
      */
@@ -177,16 +179,33 @@ final class RobotAssets {
         b.box("Pickup volume", new double[] {1.0, 0.55, 0.0, 0.3},
                 new double[] {mouth + (reach - 2) / 2, 0, top / 2}, new double[] {reach + 2, d.intakeWidthIn, top}, IDENTITY_3);
 
-        // The launcher: two flywheels on upright axles either side of where pieces leave, on side plates.
+        // The launcher: two flywheels side by side on axles pointing forward, flinging a piece up between
+        // them, below a curved deflector that bends it forward to leave at the design's angle from its lip
+        // (RobotDesign#exitForwardIn, #exitHeightIn, #fixedPitchDeg; the simulator starts the piece there).
         double flyR = FLYWHEEL_RADIUS_IN, gap = FieldSim.NECTAR_RADIUS_IN + flyR - 0.4;
+        double flyZ = d.exitHeightIn - DEFLECTOR_LENGTH_IN;
         for (int side = -1; side <= 1; side += 2) {
             String where = side > 0 ? "left" : "right";
             b.cylinder("Flywheel " + where, new double[] {0.55, 0.57, 0.6, 1},
-                    new double[] {d.exitForwardIn, side * gap, d.exitHeightIn}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_Z);
-            double plateTop = d.exitHeightIn + FLYWHEEL_HEIGHT_IN / 2 + 0.3;
+                    new double[] {d.exitForwardIn, side * gap, flyZ}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_X);
+            double plateTop = flyZ + flyR + 0.3;
             b.box("Launcher plate " + where, new double[] {0.6, 0.62, 0.66, 1},
-                    new double[] {d.exitForwardIn, side * (gap + flyR + 0.3), (DECK_Z_IN + plateTop) / 2},
+                    new double[] {d.exitForwardIn, side * (gap + FLYWHEEL_HEIGHT_IN / 2 + 0.3), (DECK_Z_IN + plateTop) / 2},
                     new double[] {2 * flyR + 1, 0.25, plateTop - DECK_Z_IN}, IDENTITY_3);
+        }
+        // The deflector: behind the piece's path, curving from upright to the launch angle by the lip.
+        double turn = Double.isNaN(d.fixedPitchDeg) ? 15 : 90 - d.fixedPitchDeg;
+        int segments = 4;
+        double seg = DEFLECTOR_LENGTH_IN / segments;
+        double[] at = {d.exitForwardIn - FieldSim.NECTAR_RADIUS_IN - 0.3, 0, flyZ};
+        for (int k = 0; k < segments; k++) {
+            double lean = Math.toRadians(turn * (k + 0.5) / segments);
+            double[] dir = {Math.sin(lean), 0, Math.cos(lean)};
+            double[] centre = {at[0] + dir[0] * seg / 2, 0, at[2] + dir[2] * seg / 2};
+            double c = Math.cos(lean), sn = Math.sin(lean);
+            b.box("Deflector " + (k + 1), new double[] {0.95, 0.76, 0.0, 1}, centre,
+                    new double[] {0.25, 2 * gap, seg + 0.05}, new double[] {c, 0, sn, 0, 1, 0, -sn, 0, c});
+            at = new double[] {at[0] + dir[0] * seg, 0, at[2] + dir[2] * seg};
         }
 
         if (pinwheel) {
