@@ -169,6 +169,11 @@ O3 = {
     "qual-right-o3-sw85": {**VARIANTS["qual-right-v3"], "robot": "option3", "sweep_y": 8.5},
     "qual-right-o3-sfire": {**VARIANTS["qual-right-v3"], "robot": "option3", "fire_y": 22},
     "qual-right-o3-g1": {**VARIANTS["qual-right-v3"], "robot": "option3", "garden_ms": 2300},
+    "qual-right-o3-x0": {**VARIANTS["qual-right-v3"], "robot": "option3", "extra": 0},
+    "qual-right-o3-x150": {**VARIANTS["qual-right-v3"], "robot": "option3", "extra": 150},
+    "qual-right-o3-two": {**VARIANTS["qual-right-v3"], "robot": "option3", "garden": "two"},
+    "qual-right-o3-one": {**VARIANTS["qual-right-v3"], "robot": "option3", "garden": "one"},
+    "qual-right-o3-x0-one": {**VARIANTS["qual-right-v3"], "robot": "option3", "extra": 0, "garden": "one"},
 }
 
 
