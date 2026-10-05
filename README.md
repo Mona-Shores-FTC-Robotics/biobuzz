@@ -5,44 +5,52 @@ This is the `claude/simulator` branch: the Autos, the simulator that scores them
 
 ## Qualifier Autos: the baseline (no walls)
 
-For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-a front intake, no side walls. The simulated intake is conservative until the real one is built: on
-the front edge of the 18 in frame, 90% of its width (16.2 in, centred), a 5 in tall opening (POLLEN is
-2.8 in across, NECTAR 3.6 in), taking a loose piece only when it touches, one every 0.35 s, 85% of the
-time, if it moves under 60 in/s relative to the robot. The robot is a 14 in tall box that pieces
-bounce off. (A FLOWER's bottom POLLEN is still taken from 3 in, since the robot stops just short of the
-FLOWER's tube.) Points are average alliance AUTO points over 20 simulated runs,
-normal tiles / tiles with 3× the friction (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts
-spilled pieces our robot touches before they reach the tiles (the rule: don't catch or deflect a
-TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 15:49 UTC.
+**The robot: the build team's option 3** (their 5 Oct 2026 CAD, read off it with the pieces as a scale, so
+±15%), chosen as the baseline because it is closest to what they are heading toward. We will change it as
+the frame and shape work settles. In the simulator:
+
+- a **14.5 in square** chassis, a low body (6 in) that pieces bounce off;
+- an **intake across the front, 14 in wide and 5 in tall**, taking a loose piece only when it touches
+  (POLLEN is 2.8 in across, NECTAR 3.6 in), one every 0.35 s;
+- one two-wheel launcher near the back, throwing pieces up into a deflector that sends them off forward at 75°.
+
+Points are average alliance AUTO points over 20 simulated runs, normal tiles / tiles with 3× the friction
+(3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts spilled pieces our robot touches before they
+reach the tiles (the rule: don't catch or deflect a TIP's spill); a baseline must be 0. Numbers run
+**5 Oct 2026 17:11 UTC**.
 
 | Auto | Partner | Points | 3 TIPs | G409 | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight v3** (`qual-right-v3`) | At the right start: fires its 4 at once (TIP 1), then parks | **69.8 / 68.0** | 17 / 16 of 20 | **0.1 / 0.1** (one run each: after AUTO ends, see below) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-typical.wpilog) |
-| Qual-PartnerStages (`qual-partner-stages`): **work in progress**, another session | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | 54.6 / 59.0 | 6 / 8 of 20 | 9.0 / 4.3 a run: not safe yet | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-stages.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-partner-stages.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-partner-stages.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-typical.wpilog) |
+| **Qual-PartnerShootsRight** (`qual-right-o3`) | At the right start: fires its 4 at once (TIP 1), then parks | **64.5 / 60.8** | 12 / 9 of 20 | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-o3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/latest-typical.wpilog) |
+| **Qual-PartnerStages** (`qual-stages-o3`) | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | **54.0 / 56.0** | 0 (TIP 2 in 18 / 20; parks every run) | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-stages-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-o3.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-o3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-o3/latest-typical.wpilog) |
 
-What Qual-PartnerShootsRight v3 does: we start at the left start facing the HIVE, spun up. The partner's
-4 make TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). Then we let TIP 2's spill
-land, drive south through it and the tunnel, fire what we caught, sweep west along the wall through TIP
-1's leftovers into the GARDEN, fire that load, and PARK. If TIP 3 still hasn't started, one more load from
-the GARDEN first. How it was tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+**Qual-PartnerShootsRight:** we start at the left start facing the HIVE, spun up. The partner's 4 make
+TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.5 s). We let TIP 2's spill land, drive
+south through it and the tunnel, fire what we caught, sweep west along the wall through TIP 1's leftovers
+into the GARDEN, fire that load and PARK; if TIP 3 still hasn't started, one more GARDEN load first.
 
-The one G409 touch (normal tiles, seed 16): the extra GARDEN load is fired just before 30 s, TIP 3 comes
-at 30.6 s (a TIP that completes in the 8 s after AUTO still counts), and its spill falls on our robot,
-which is disabled where it fired. Firing that load from further back would avoid it.
+**Qual-PartnerStages:** we fire our preloads (TIP 1), let its spill land, drive north through it and the
+tunnel, fire what we caught, then pick up the partner's row and fire it (TIP 2, about 21 s). Then TIP 2's
+spill and the GARDEN, fired at the right CELL, and PARK. TIP 2 comes too late for a TIP 3 with this
+intake; the pieces we still hold (about 2) start TELEOP.
+
+**What a wider intake would buy** (the full-width 18 in robot, 16.2 in intake, same routes): ShootsRight
+69.8 / 68.0 points, 3 TIPs in 17 / 16 of 20. The intake's width is the biggest single lever the simulator
+has found. How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
 
 - **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of 20 runs on normal tiles, from the newest
   [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
   run of that Auto. They change when someone re-simulates it.
-- Side walls are being worked on separately, on `claude/dazzling-maxwell-je04gu`; nothing here uses them.
-- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75° hood) and intake (0.35 s a
-  piece) are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
+- Robot shapes and side walls are being worked on separately (`claude/biobuzz-robot-body-designs-hi386c`,
+  `claude/dazzling-maxwell-je04gu`); nothing here uses them.
+- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75°) and intake (0.35 s a piece)
+  are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
 
 ## Other two-wheel launcher Autos
 
-For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-and an 18 in front intake. Each Auto's name is who our alliance partner is and what it does, then our
+For an earlier robot (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR and an 18 in front
+intake; not re-run on option 3. Each Auto's name is who our alliance partner is and what it does, then our
 plan: **Sister** (our other robot, full choreography between the two), **PartnerShoots** (fires its 4
 preloads, then parks) or **PartnerStages** (can't shoot: lines its preloads up for us, then parks).
 Compare Autos with the same partner. Points are average alliance AUTO points over 20 simulated runs,
@@ -93,10 +101,11 @@ laptop. Set it up once, then watch any log.
 2. Drag the file into AdvantageScope.
 3. Press **Space** to play. AUTO starts 1 s in.
 
-What you see: our robot (wheels, the orange intake roller, the flywheels, the Limelight on its post)
-and, see-through orange in front of it, where a ball's centre has to be for the intake to take it. The
-partner is the green ghost. For a log of the build team's prototype, pick **BIOBUZZ Prototype** as the
-robot's model (the robot row's model menu).
+What you see: our robot, **BIOBUZZ Robot** (option 3: the wheels between side plates, the orange intake
+roller and funnel wheels, the flywheels, the Limelight on its post) and, see-through orange in front of
+it, where a ball's centre has to be for the intake to take it. The partner is the green ghost. The
+model only changes the picture, never the log: pick **BIOBUZZ Prototype** or **BIOBUZZ Full width** in the
+robot row's model menu only for a log simulated with that robot.
 
 **Another branch** (the side walls, say): set `$branch` to it in step 3, run it again, then do step 4
 again. It swaps in that branch's robot and field, removing the old ones.
@@ -109,7 +118,7 @@ once, let it finish syncing, and run step 3 again. What the script does:
 
 Open the Auto with its **ours** link, change it, and press **Save to GitHub** (it asks once for a
 [fine-grained token](https://github.com/settings/personal-access-tokens/new): biobuzz only, Contents read
-and write, Actions read). Pick the robot **spring hood, full-width intake**. The
+and write, Actions read). Pick the robot **builders' option 3 (5 Oct CAD)**. The
 [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
 workflow runs it and the dialog shows every run, with **Download WPILOG**.
 

@@ -6,22 +6,22 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The qualifier Autos
 
-Two Autos, for the two partners we expect most in qualification, for the two-wheel launcher robot (the
-simulator's "spring hood, full-width intake", speed 50; no side walls; since 5 Oct 14:13 UTC its intake
-is conservative: the frame's front edge, 16.2 in wide, 5 in tall, taking a piece only on contact; since
-5 Oct 15:49 UTC its launcher is the build team's: flywheels near the back throwing up into a deflector,
-the piece leaving 4 in behind the centre, 12 in up, at 75°). Alliance AUTO points over 20
-runs, normal tiles / tiles with 3× the friction; how many of the 20 made 3 TIPs; and G409, spilled
-pieces our robot touched before they reached the tiles (per run; must be 0). Links to watch them and
-their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
+Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
+UTC: the build team's option 3** (`RobotDesign.buildersOption3`, "builders' option 3 (5 Oct CAD)",
+speed 50, no side walls): about 14.5 in square, a 14 in intake across the front (5 in tall, takes a piece
+only on contact), the launcher near the back (the piece leaves 4 in behind the centre, 12 in up, at
+75°). Alliance AUTO points over 20 runs, normal tiles / tiles with 3× the friction; how many of the 20
+made 3 TIPs; and G409, spilled pieces our robot touched before they reached the tiles (per run; must be
+0). Links to watch them and their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v3 (`qual-right-v3`, `qual_right.py`) | `partner-preloads-right` | **69.8 / 68.0** | **17 / 16** | **0.1 / 0.1** | 5 Oct 2026 15:49 |
-| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`, another session) | `partner-stage-exit` | 54.6 / 59.0 (work in progress) | 6 / 8 | 9.0 / 4.3 | 5 Oct 2026 15:49 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.5 / 60.8** | **12 / 9** | **0 / 0** | 5 Oct 2026 17:11 |
+| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-stages-o3`, `qual_right.py`) | `partner-stage-exit` | **54.0 / 56.0** | 0 / 0 (TIP 2 18 / 20, PARK 20 / 20) | **0 / 0** | 5 Oct 2026 17:11 |
 
-`python3 qual_right.py 20 qual-right-v3` and `python3 qual.py 20 stages` export and simulate them.
-qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer worked on.
+`DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-o3` exports
+and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 68.0, 17 / 16, run 15:49) stays as
+the "what a wider intake buys"; qual.py's own Autos (`qual-partner-*`) are another session's.
 
 **Rules for both** (mentor review):
 
@@ -38,7 +38,40 @@ qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer 
   after a fire that may still be going (the endgame guard would cut the fire short).
 - **The partner only fires from its start, then parks.** It can't tell whether the HIVE has tipped.
 
-### Qual-PartnerShootsRight v3
+### On option 3 (the baseline)
+
+Moving to option 3 is a smaller body (every spot where its front meets something moves 1.75 in:
+`qual_right.fit`) and a 14 in intake instead of 16.2. Run 5 Oct 2026 16:20–17:11 UTC, 20 runs,
+normal / slow tiles (`O3` and `STAGES` in `qual_right.py`).
+
+**Qual-PartnerShootsRight** (`qual-right-o3`): v3 moved for the body, 64.5 / 60.8, 3 TIPs in 12 / 9,
+no G409. Nothing tried beat it:
+
+| Change from qual-right-o3 | 3 TIPs | G409 runs |
+|---|---|---|
+| No sweep: straight into the GARDEN (one path or two) | 6 / 4 | 0 |
+| Sweep lane y 8.5 / 12 / 14–18 (v3's is y 10) | 10 / 9, 8 / 9, 7 / 7–9 | 0 |
+| Wait 0 / 150 / 300 ms instead of 500 before driving into TIP 2's spill | 12 / 10, 12 / 9, 11 / 10 | 14 / 1, 1 / 0, 0 |
+| Fire TIP 2's spill from y 22; a longer GARDEN fire | 12 / 10, 12 / 9 | 0 |
+
+TIP 3 comes at about 27.5 s when it comes: the narrower intake catches less of each spill, so the
+sweep through TIP 1's leftovers is what makes it, and there is no time left to add another source.
+
+**Qual-PartnerStages** (`qual-stages-o3`): qual.py's Stages up to TIP 2, with 500 ms more for TIP 1's
+spill to land before driving north into it, then TIP 2's spill and the GARDEN fired at the right CELL,
+and PARK:
+
+| Variant | TIP 2 | 3 TIPs | Our PARK | Points | G409 runs |
+|---|---|---|---|---|---|
+| qual.py's Stages, moved for the body | 20 / 17 | 2 / 1 | 0 / 0 | 53.0 / 49.0 | 18 / 10 |
+| + 500 ms for TIP 1's spill, qual-right-v3's tail (a third load) | 18 / 20 | 0 / 0 | 0 / 0 | 48.9 / 51.0 | 0 |
+| ... no third load: sweep, GARDEN, PARK | 18 / 20 | 0 / 0 | 17 / 20 | 53.3 / 56.0 | 0 |
+| **... straight into the GARDEN, PARK** (`qual-stages-o3`) | 18 / 20 | 0 / 0 | **20 / 20** | **54.0 / 56.0** | **0** |
+
+TIP 2 comes at about 21 s, too late for TIP 3 with this intake; PARK (+5) and the 2 pieces held for
+TELEOP are what is left to earn.
+
+### Qual-PartnerShootsRight v3 (the full-width robot, before option 3)
 
 TIP 1 (4.6 s) is the partner's 4 on the 3 NECTAR. TIP 2 (13.3 s): our preloads when the left CELL
 rises, then the far FLOWER's 4. TIP 3 (about 26.5 s): TIP 2's spill, caught driving south through the

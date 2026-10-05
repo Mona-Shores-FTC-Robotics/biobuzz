@@ -1278,9 +1278,11 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
 **One-time setup: our robot.** `RobotAssets` draws the robot from the simulator's designs, so what you
-see is what the simulator does: **BIOBUZZ Robot** (`RobotDesign.springHoodFullWidth`, the design the
-published logs use) and **BIOBUZZ Prototype** (`RobotDesign.buildersPrototype`, the build team's CAD of
-5 Oct 2026, with its pinwheel at the right-front corner). Each has a mecanum chassis, the intake roller,
+see is what the simulator does: **BIOBUZZ Robot** (`RobotDesign.buildersOption3`, the build team's
+option 3 and the design the published logs use, with its funnel wheels), **BIOBUZZ Prototype**
+(`RobotDesign.buildersPrototype`, their other 5 Oct 2026 CAD, with its pinwheel at the right-front corner)
+and **BIOBUZZ Full width** (`RobotDesign.springHoodFullWidth`, the 18 in robot with a 16.2 in intake: what
+a wider intake would buy). Each has a mecanum chassis, its wheels between a side plate and a channel, the intake roller,
 the two flywheels where pieces leave, the Limelight on its post from `CameraMount`'s measured numbers
 (declared as an AdvantageScope *fixed camera*), a faint see-through box (the body pieces bounce off) and,
 see-through orange in front, **the volume a ball's centre must be in for the intake to take it**. No
@@ -1290,12 +1292,13 @@ download needed:
 ./gradlew :TeamCode:testDebugUnitTest --tests '*RobotAssetsTest*'
 ```
 
-Copy `TeamCode/build/advantagescope/Robot_BIOBUZZ` and `Robot_BIOBUZZPrototype` into `userAssets` and
+Copy `TeamCode/build/advantagescope/Robot_BIOBUZZ`, `Robot_BIOBUZZPrototype` and `Robot_BIOBUZZFullWidth` into `userAssets` and
 restart AdvantageScope. **Rebuild and recopy whenever a design or `CameraMount` changes**: the folders
 hold the numbers they were built with, not live ones.
 
 - **Which model:** the layout uses **BIOBUZZ Robot** for `/Odometry/Robot3d`. For a log simulated with
-  the prototype, pick **BIOBUZZ Prototype** in that row's model menu.
+  another design, pick **BIOBUZZ Prototype** or **BIOBUZZ Full width** in that row's model menu (the model
+  is only the picture: the log is the same either way).
 - **Look through the camera:** right-click the 3D view and choose **Limelight**. The view sits at the
   lens, aimed as mounted, at the Limelight 3A's 54.5° field of view and 4:3 shape, and follows the logged
   pose. Right-click → **Orbit Field** to get back.
