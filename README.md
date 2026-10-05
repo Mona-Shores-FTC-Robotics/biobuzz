@@ -98,22 +98,26 @@ Thin arm tips can wait about 1 in nearer than a robot's front face (36 in agains
 face at 30–34 in, every touch is on the arms. Pictures of each step are in
 `sim-review/portfolio/spill-window/`.
 
-**The shortlist** (5 Oct 2026, `sim-review/body-shapes-shortlist.png`; numbers from
+**The best of them** (5 Oct 2026, `sim-review/body-shapes-shortlist.png`; numbers from
 `BodyShapeSpillTest.rightHookAtTheSpill`, each robot where its card shows it, 200 TIPs a load):
 
 | Design | Kept a TIP: 8 POLLEN / match start | TIPs a falling piece touches it: 8 POLLEN / match start |
 |---|---|---|
 | 1 · Plain, 18 × 18 | 1.4 of 8 / 0.9 of 6 | 4 / 13 |
+| 3 · Funnel, 16 × 16, flaps 3 in out, 2 in forward | 1.9 / 1.2 | 5 / 20 |
+| 6 · Short-chassis funnel, 18 wide × 15 long, flaps 3 in out, 3 in forward | 2.1 / 1.5 | 5 / 30 |
+| **13 · Right hook**, 18 × 14 chassis, one 10 in arm on the right + crossbeam | **2.8 / 2.5** | **7 / 25** |
 | 2 · Long U, walls 6 in forward | 3.6 / 2.4 | 177 / 171 |
 | 8 · Front C, 18 × 12 chassis, 12 in arms + crossbeam | 4.7 / 2.8 | 180 / 180 |
-| **13 · Right hook**, 18 × 14 chassis, one 10 in arm on the right + crossbeam | **2.8 / 2.5** | **7 / 25** |
 
-The right hook's face and crossbeam sit halfway between the spill's 100% and 90% lines, and its right arm halfway
-between the match-start spill's right edges (centre x 61.6; that spill lands 2 in right of the 8 POLLEN one). It keeps
-about what the Long U keeps at match start, and is touched about a seventh as often. The other designs are kept in
-`body-shapes.png` and `body-shapes-ideas.png`.
+The first four are touched in few TIPs; of them the right hook keeps the most, about what the Long U keeps at match
+start. The Long U and Front C reach into the spill and keep more, but a falling piece lands on them in most TIPs. The
+right hook's face and crossbeam sit halfway between the spill's 100% and 90% lines, and its right arm halfway between
+the match-start spill's right edges (centre x 61.6; that spill lands 2 in right of the 8 POLLEN one). Left out: the
+wide funnels (4, 5; no better than 3 and 6) and the long funnel (7; kept and touched like the Long U); they and the
+other ideas are in `body-shapes.png` and `body-shapes-ideas.png`.
 
-![The shortlist, each design with its numbers](sim-review/body-shapes-shortlist.png)
+![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
 
 **Robot shapes at the spill** (`BodyShapeSpillTest.atTheLandingLine`, mentor, 5 Oct 2026): each shape parks with
 its **chassis's front face on the spill's 100% line** (35 in from the wall; every 8 POLLEN piece lands beyond it, 90%

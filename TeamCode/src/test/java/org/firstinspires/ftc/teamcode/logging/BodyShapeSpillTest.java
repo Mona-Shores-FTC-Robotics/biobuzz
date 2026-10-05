@@ -252,7 +252,7 @@ public class BodyShapeSpillTest {
 
     /**
      * The right hook (ideas sheet 13, mentor, 5 Oct 2026) against the shapes it grew from, each where the
-     * pictures put it: the plain robot and the Long U centred on the 90% box with the face halfway between
+     * pictures put it: the plain robot, the Long U and the angled-flap funnels centred on the 90% box with the face halfway between
      * the 100% and 90% lines; the front C with its face on the 100% line; the hook with its face and
      * crossbeam on the near and far "95%" lines (halfway between the two boxes) and its right side on the
      * right one (for the 8 POLLEN spill, and for the match-start spill, which lands 2 in further right). The
@@ -263,7 +263,11 @@ public class BodyShapeSpillTest {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         double boxX = 56.8, face95 = 36.6, right95 = 67.85;  // tools/spill-window/shapes.py: BOX_X, PARK_FACE, RIGHT_95
         Object[][] cases = {
-                {BodyShape.PLAIN, boxX, face95}, {BodyShape.LONG_U, boxX, face95}, {BodyShape.FRONT_C, boxX, LINE_100_IN},
+                {BodyShape.PLAIN, boxX, face95}, {BodyShape.LONG_U, boxX, face95},
+                // The angled-flap funnels (shape sheet 3-7), where their cards put them.
+                {BodyShape.FLAPS_16, boxX, face95}, {BodyShape.FLAPS_16_WIDE, boxX, face95}, {BodyShape.FLAPS_15, boxX, face95},
+                {BodyShape.SHORT_18, boxX, face95}, {BodyShape.FLARED_16, boxX, face95},
+                {BodyShape.FRONT_C, boxX, LINE_100_IN},
                 {BodyShape.C_14, boxX, face95}, {BodyShape.RIGHT_HOOK, right95 - 9, face95},
                 // On the match-start spill's right 95% line: its right edges are 72.0 (100%) and 69.2 (90%).
                 {BodyShape.RIGHT_HOOK, (72.0 + 69.2) / 2 - 9, face95}};
