@@ -684,6 +684,40 @@ final class FieldSim {
     /** How far a piece the intake sets down rolls clear of the robot's front, in (a guess; film one). */
     static final double PLACEHOLDER_SET_DOWN_ROLL_IN = 1.5;
 
+    /** Every piece an {@link #outtake} pushed out, in order: for following staged pieces through a match. */
+    final List<Piece> outtaken = new ArrayList<>();
+
+    /**
+     * The robot runs its intake backwards and pushes one held piece out of its mouth, on the tiles just
+     * clear of its front edge, rolling forward at about {@code speedInPerS} relative to the robot (each
+     * piece ±15%, and ±0.5 in sideways); from there the physics rolls it, so the tiles' friction and
+     * anything in front of the robot (a lowered hook) decide where it stops. Pieces leave alternately
+     * left and right of centre ({@code slot} even / odd), as two lanes through the intake. Unlike
+     * {@link #setDown}, nothing here is placed at rest. Returns false if the robot holds none.
+     */
+    boolean outtake(Bot bot, int slot, double speedInPerS) {
+        if (bot.stored.isEmpty()) return false;
+        Piece p = bot.stored.remove(bot.stored.size() - 1);
+        double c = Math.cos(bot.h), s = Math.sin(bot.h), sign = bot.design.intakeAtBack ? -1 : 1;
+        double ahead = sign * (bot.design.frameIn / 2 + p.kind.radius + 0.1);
+        double left = (slot % 2 == 0 ? 1 : -1) * (p.kind.radius + 0.1) + 0.5 * variety.nextGaussian();
+        double v = sign * speedInPerS * (1 + 0.15 * variety.nextGaussian());
+        p.where = Where.FIELD;
+        p.cell = null;
+        p.flower = -1;
+        p.x = bot.x + ahead * c - left * s;
+        p.y = bot.y + ahead * s + left * c;
+        p.z = p.kind.radius;
+        p.vx = bot.vx + v * c;
+        p.vy = bot.vy + v * s;
+        p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        p.touchedTile = true;
+        outtaken.add(p);
+        events.add("outtake: " + name(p.kind) + " (" + bot.stored.size() + " held)");
+        return true;
+    }
+
     /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
     static boolean underHive(double x, double y) {
         return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
