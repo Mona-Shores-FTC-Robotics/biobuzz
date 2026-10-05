@@ -76,7 +76,7 @@ def dim(x1, y1, x2, y2, label, colour=DIM):
     return o
 
 
-def top_view(w, l, slide, out, fwd, low, outlines=(), crossbeam=False):
+def top_view(w, l, slide, out, fwd, low, outlines=(), crossbeam=False, sides=(-1, 1)):
     """The robot from above, front up, on a 34 x 34 in panel, with its dimensions along the edges."""
     size = CANVAS * S
     cx = size / 2
@@ -124,7 +124,7 @@ def top_view(w, l, slide, out, fwd, low, outlines=(), crossbeam=False):
         hx = cx + side * w / 2 * S
         if slide:
             o.append(f'<line x1="{hx - side * 1.5:.1f}" y1="{back:.1f}" x2="{hx - side * 1.5:.1f}" y2="{nose:.1f}" stroke="{BLUE}" stroke-width="5"/>')
-        if out or fwd:
+        if (out or fwd) and side in sides:
             o.append(f'<line x1="{hx:.1f}" y1="{front:.1f}" x2="{hx + side * out * S:.1f}" y2="{nose:.1f}" stroke="{BLUE}" '
                      f'stroke-width="{4 if low else 5.5}" stroke-linecap="round"{dash}/>')
     if crossbeam:  # a beam joining the front ends of the walls or flaps
@@ -139,13 +139,17 @@ def top_view(w, l, slide, out, fwd, low, outlines=(), crossbeam=False):
     if out:
         o += dim(left - out * S, nose - 1.6 * S, left, nose - 1.6 * S, fmt(out), BLUE)
     if reach:
-        x = left - out * S - 1.6 * S if out else left - 2.0 * S
+        if -1 in sides or slide:
+            x = left - out * S - 1.6 * S if out else left - 2.0 * S
+        else:  # only a right arm: its length beside it
+            x = cx + (w / 2 + out) * S + 2.0 * S
         o += dim(x, front, x, nose, fmt(reach), BLUE)
     # Everything out: overall width above, overall length on the right.
     if across != w:
         o += dim(cx - half, nose - 3.6 * S, cx + half, nose - 3.6 * S, fmt(across), AMBER)
     if ahead != l:
-        o += dim(cx + half + 2.0 * S, back, cx + half + 2.0 * S, nose, fmt(ahead), AMBER)
+        x = cx + half + (4.2 if -1 not in sides else 2.0) * S   # outside a right arm's own length
+        o += dim(x, back, x, nose, fmt(ahead), AMBER)
     o.append('</svg>')
     return "".join(o), (across, ahead)
 
@@ -237,6 +241,8 @@ LEFT_100 = min(r[6] - r[7] for r in rows8)                       # the spill's l
 q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))]
 rad = max(r[7] for r in rows8)
 BOX_Y = (q([r[5] for r in rows8], .05) + q([r[5] for r in rows8], .95)) / 2  # the 90% box's centre, out from the wall
+# The right "95%" line: halfway between the right edges of the 100% and 90% boxes.
+RIGHT_95 = (max(r[6] + r[7] for r in rows8) + q([r[6] for r in rows8], .95) + rad) / 2
 # Number and name, spec line, width, length, wall slide, flap out, flap forward, crossbeam, (x, y, heading) on the field.
 IDEAS = [
     ("8 · Front C", "18 wide × 12 long chassis · arms 12″ forward + crossbeam, pivoted down before the TIP",
@@ -249,11 +255,15 @@ IDEAS = [
      18, 18, 6, 0, 0, False, (LEFT_100 - 9, BOX_Y, -90)),
     ("12 · Long U turned 20°", "18 × 18 chassis · walls 6″ forward · turned 20° counterclockwise",
      18, 18, 6, 0, 0, False, (BOX_X, PARK_FACE - 9, 20)),
+    ("13 · Right hook", "18 wide × 14 long chassis · one 10″ arm on the right + crossbeam, pivoted down before the TIP",
+     18, 14, 0, 0, 10, "right", (RIGHT_95 - 9, PARK_FACE - 7, 0)),
 ]
 cards3 = []
 for title, spec, w, l, slide, out, fwd, beam, (x, y, heading) in IDEAS:
-    svg, _ = top_view(w, l, slide, out, fwd, False, (), beam)
-    extra = ["--x", f"{x:.1f}", "--y", f"{y:.1f}", "--heading", f"{heading:g}"] + (["--crossbeam"] if beam else [])
+    sides = (1,) if beam == "right" else (-1, 1)
+    svg, _ = top_view(w, l, slide, out, fwd, False, (), bool(beam), sides)
+    extra = ["--x", f"{x:.1f}", "--y", f"{y:.1f}", "--heading", f"{heading:g}"] + (["--crossbeam"] if beam else []) \
+        + (["--right-only"] if beam == "right" else [])
     field = field_view(w, l, slide, out, fwd, 0, extra=extra, crop=(22, 77, 10, 54))
     cards3.append(f'<div class="card"><div class="head"><h2>{title}</h2><span class="spec">{spec}</span></div>'
                   f'<div class="pics">{svg}{field}</div></div>')

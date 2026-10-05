@@ -5,7 +5,7 @@
     python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--body 16 16] [--flaps 3 2] [--patch] [csv] [out.html]
 
 --x X centres the robot at x = X (default 58, the red CELL's axis), --y Y at y = Y (instead of from --face); --heading D turns
-it D degrees counterclockwise; --crossbeam joins the front ends of its walls or flaps; --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
+it D degrees counterclockwise; --crossbeam joins the front ends of its walls or flaps (across the whole width); --right-only leaves only the right flap; --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
 corner to a free end OUT in sideways and FWD in forward (BodyShapeSpillTest); --patch outlines the floor
 counted as "kept" (15 in behind the chassis's front face to 8 in past it, 24 in wide). --kinds draws NECTAR red
 and POLLEN amber; --rest draws where each piece lies 3 s after the TIP instead of where it first landed (the
@@ -64,12 +64,15 @@ if "--heading" in ARGS:
     i = ARGS.index("--heading")
     HEADING = float(ARGS[i + 1])
     del ARGS[i:i + 2]
-FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot", "--crossbeam")}
+SIDES = (-1, 1)  # which front corners have a flap: --right-only for just the right one
+FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot", "--crossbeam", "--right-only")}
 for f, on in FLAGS.items():
     if on:
         ARGS.remove(f)
 PATCH, KINDS, REST, ROBOT = FLAGS["--patch"], FLAGS["--kinds"], FLAGS["--rest"], not FLAGS["--no-robot"]
 CROSSBEAM = FLAGS["--crossbeam"]
+if FLAGS["--right-only"]:
+    SIDES = (1,)
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
 OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
 VIS = [os.environ.get("AUTO_BUILDER_DIR", ""), os.path.join(REPO, "..", "visualizer"),
@@ -150,7 +153,7 @@ if ROBOT:
         for wx in (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
             o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(3.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
     if FLAP_OUT or FLAP_FWD:  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
-        for side in (-1, 1):
+        for side in SIDES:
             hx, hy = ROBOT_X + side * HALF_W, FACE
             o.append(f'<line x1="{px(hx):.1f}" y1="{py(hy):.1f}" x2="{px(hx + side * FLAP_OUT):.1f}" y2="{py(hy + FLAP_FWD):.1f}" '
                      f'stroke="#5aa0ff" stroke-width="{max(2.5, 0.25 * K):.1f}" stroke-linecap="round"/>')

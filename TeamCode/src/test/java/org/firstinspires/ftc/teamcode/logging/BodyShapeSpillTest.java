@@ -82,6 +82,10 @@ public class BodyShapeSpillTest {
         }
         assertTrue("a 16 in body's flaps can't reach 3 in out and 3 in forward", threw);
         assertEquals(22, BodyShape.FLAPS_16.footprint()[1], 1e-9);
+        for (BodyShape b : new BodyShape[] {BodyShape.FRONT_C, BodyShape.C_14, BodyShape.RIGHT_HOOK}) {
+            assertEquals(b.name, 24, b.footprint()[0], 1e-9);
+            assertEquals(b.name, 18, b.footprint()[1], 1e-9);
+        }
         assertEquals(18, BodyShape.FLAPS_16.footprint()[0], 1e-9);
     }
 
@@ -103,6 +107,32 @@ public class BodyShapeSpillTest {
         assertTrue("touched before the tiles", p.robotBeforeTile);
         assertTrue("on the flap", p.flapBeforeTile);
         assertFalse("not the frame", p.frameBeforeTile);
+    }
+
+    /**
+     * The right hook has its crossbeam and its right arm and nothing on the left: a robot facing +x at
+     * (70, 25), so its crossbeam runs across x 87 and its right arm along y 16 (its left would be y 34).
+     */
+    @Test
+    public void rightHookHasACrossbeamAndOnlyItsRightArm() {
+        assertTrue("crossbeam", dropOnRobot(BodyShape.RIGHT_HOOK, 87, 25).flapBeforeTile);
+        assertTrue("right arm", dropOnRobot(BodyShape.RIGHT_HOOK, 82, 16).flapBeforeTile);
+        assertFalse("no left arm", dropOnRobot(BodyShape.RIGHT_HOOK, 82, 34).robotBeforeTile);
+        assertTrue("the front C has one", dropOnRobot(BodyShape.FRONT_C, 82, 34).flapBeforeTile);
+    }
+
+    /** A POLLEN dropped from 12 in onto (x, y) beside the robot shaped as {@code b}, facing +x at (70, 25). */
+    private static FieldSim.Piece dropOnRobot(BodyShape b, double x, double y) {
+        List<HiveAssets.StagedPiece> one = new ArrayList<>();
+        one.add(new HiveAssets.StagedPiece("Pollen", "floor", x, y, FieldSim.POLLEN_RADIUS_IN));
+        FieldSim sim = new FieldSim(one, 1);
+        sim.main.design = b.design();
+        sim.setRobot(70, 25, 0, 0, 0, 0, false);
+        FieldSim.Piece p = sim.pieces.get(sim.pieces.size() - 1);
+        p.z = 12;
+        p.touchedTile = false;
+        for (int i = 0; i < 100; i++) sim.step(0.01);
+        return p;
     }
 
     /**
@@ -220,6 +250,48 @@ public class BodyShapeSpillTest {
         java.nio.file.Files.write(file.toPath(), csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
+    /**
+     * The right hook (ideas sheet 13, mentor, 5 Oct 2026) against the shapes it grew from, each where the
+     * pictures put it: the plain robot and the Long U centred on the 90% box with the face halfway between
+     * the 100% and 90% lines; the front C with its face on the 100% line; the hook with its face and
+     * crossbeam on the near and far "95%" lines (halfway between the two boxes) and its right side on the
+     * right one (for the 8 POLLEN spill, and for the match-start spill, which lands 2 in further right). The
+     * same counts as {@link #atTheLandingLine}, the kept patch centred on each robot.
+     */
+    @Test
+    public void rightHookAtTheSpill() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        double boxX = 56.8, face95 = 36.6, right95 = 67.85;  // tools/spill-window/shapes.py: BOX_X, PARK_FACE, RIGHT_95
+        Object[][] cases = {
+                {BodyShape.PLAIN, boxX, face95}, {BodyShape.LONG_U, boxX, face95}, {BodyShape.FRONT_C, boxX, LINE_100_IN},
+                {BodyShape.C_14, boxX, face95}, {BodyShape.RIGHT_HOOK, right95 - 9, face95},
+                // On the match-start spill's right 95% line: its right edges are 72.0 (100%) and 69.2 (90%).
+                {BodyShape.RIGHT_HOOK, (72.0 + 69.2) / 2 - 9, face95}};
+        int[] loads = {0, HiveCalibration.NECTAR_AT_MATCH_START};
+        List<Sweep[]> results = java.util.Arrays.stream(cases).parallel().map(c -> {
+            BodyShape b = (BodyShape) c[0];
+            Sweep[] s = {new Sweep(), new Sweep()};
+            for (int k = 0; k < 2; k++) {
+                for (long seed = 1; seed <= TIPS; seed++) {
+                    Run r = run(physics, seed, b, (Double) c[2] + b.reach(), loads[k], (Double) c[1]);
+                    r.kept = r.keptFace;
+                    s[k].add(r);
+                }
+            }
+            return s;
+        }).collect(Collectors.toList());
+        for (int i = 0; i < cases.length; i++) {
+            BodyShape b = (BodyShape) cases[i][0];
+            Sweep[] s = results.get(i);
+            System.out.println(String.format(Locale.ROOT,
+                    "HOOK %-26s x %5.2f face %4.1f: 8 POLLEN kept %.2f of %.1f a TIP, G409 TIPs %3d (chassis %3d, guides only %3d), over 4 inside %3d"
+                            + " | match start kept %.2f of %.1f, G409 TIPs %3d (chassis %3d, guides only %3d), over 4 inside %3d",
+                    b.name, (Double) cases[i][1], (Double) cases[i][2],
+                    (double) s[0].kept / TIPS, (double) s[0].pieces / TIPS, s[0].tipsTouched, s[0].tipsFrame, s[0].tipsFlapOnly, s[0].overFour,
+                    (double) s[1].kept / TIPS, (double) s[1].pieces / TIPS, s[1].tipsTouched, s[1].tipsFrame, s[1].tipsFlapOnly, s[1].overFour));
+        }
+    }
+
     /** One TIP with the robot shaped as {@code b}, its front-most point {@code nose} in from the wall. */
     static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar) {
         try {
@@ -238,9 +310,24 @@ public class BodyShapeSpillTest {
         return run(physics, seed, b, nose, nectar, log, shown, 0, 0);
     }
 
+    /** As the first, the robot centred at {@code robotX} instead of on the red CELL's axis. */
+    static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar, double robotX) {
+        try {
+            return run(physics, seed, b, nose, nectar, null, -1, 0, 0, robotX);
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
     /** As above, logging only from sim time {@code logFrom} on, at {@code offsetUs} plus the sim time. */
     static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar, WpiLog log, int shown,
                    double logFrom, long offsetUs) throws IOException {
+        return run(physics, seed, b, nose, nectar, log, shown, logFrom, offsetUs, FieldSim.RED_HIVE_X_IN);
+    }
+
+    /** As above, the robot centred at {@code robotX}. */
+    static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar, WpiLog log, int shown,
+                   double logFrom, long offsetUs, double robotX) throws IOException {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
         for (int i = 0; i < nectar; i++) {
@@ -252,9 +339,14 @@ public class BodyShapeSpillTest {
         double wallY = towardHighY ? 2 * FieldSim.CENTRE_IN : 0;
         double out = towardHighY ? -1 : 1;
         double half = b.length / 2, halfWidth = b.width / 2;
-        double rx = FieldSim.RED_HIVE_X_IN, ry = wallY + out * (nose - b.reach() - half), heading = out * Math.PI / 2;
+        double rx = robotX, ry = wallY + out * (nose - b.reach() - half), heading = out * Math.PI / 2;
         FieldSim.Bot bot = sim.main;
         bot.design = b.design();
+        if (out < 0) {  // facing the far wall the robot's right is the field's -x: keep a one-sided arm on the same field side
+            boolean left = bot.design.flapLeft;
+            bot.design.flapLeft = bot.design.flapRight;
+            bot.design.flapRight = left;
+        }
         bot.wallsOut = 0;  // the walls go out as the TIP starts, as in SideWallSpillTest; the flaps are out all match
         sim.setRobot(rx, ry, heading, 0, 0, 0, false);
         Shown view = new Shown(sim, log, shown, rx, ry, heading, logFrom, offsetUs);

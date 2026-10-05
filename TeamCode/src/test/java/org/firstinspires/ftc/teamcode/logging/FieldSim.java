@@ -1151,11 +1151,18 @@ final class FieldSim {
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
             for (int side = -1; side <= 1; side += 2) {
+                if (side > 0 ? !d.flapLeft : !d.flapRight) continue;  // +y in the robot's frame is its left
                 double lx = half + d.flapForwardIn / 2, ly = side * (halfWidth + d.flapOutIn / 2);
                 double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
                 flap |= box(p, cx, cy, bh + Math.atan2(side * d.flapOutIn, d.flapForwardIn), hl, t, 0, d.flapHeightIn,
                         fvx, fvy, bot.w, bounce(robotRestitution));
+            }
+            if (d.flapCrossbeam) {
+                double lx = half + d.flapForwardIn;
+                double cx = bx + lx * c, cy = by + lx * s;
+                double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
+                flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
             }
         }
         if ((hit || flap) && !p.touchedTile) {

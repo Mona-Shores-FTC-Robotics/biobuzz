@@ -14,6 +14,8 @@ final class BodyShape {
     final double length, width, slide, out, ahead;
     /** Flap height: {@link RobotDesign#flapHeightIn} unless set. */
     double flapHeight = Double.NaN;
+    /** Which arms it has, and a crossbeam across their free ends ({@link RobotDesign#flapCrossbeam}). */
+    boolean leftArm = true, rightArm = true, crossbeam = false;
 
     BodyShape(String name, double length, double width, double slide, double out, double ahead) {
         this.name = name;
@@ -31,6 +33,16 @@ final class BodyShape {
         return b;
     }
 
+    /** The same shape with a crossbeam, and only the arms named. */
+    BodyShape fenced(String newName, boolean left, boolean right) {
+        BodyShape b = new BodyShape(newName, length, width, slide, out, ahead);
+        b.flapHeight = flapHeight;
+        b.leftArm = left;
+        b.rightArm = right;
+        b.crossbeam = true;
+        return b;
+    }
+
     RobotDesign design() {
         RobotDesign d = RobotDesign.standard().copy("turret, " + name);
         d.frameIn = length;
@@ -40,6 +52,9 @@ final class BodyShape {
         d.flapOutIn = out;
         d.flapForwardIn = ahead;
         if (!Double.isNaN(flapHeight)) d.flapHeightIn = flapHeight;
+        d.flapLeft = leftArm;
+        d.flapRight = rightArm;
+        d.flapCrossbeam = crossbeam;
         return d.checked();
     }
 
@@ -79,6 +94,13 @@ final class BodyShape {
     static final BodyShape RAMPS_18 = new BodyShape("18 + ramps 0 out 6 fwd", 18, 18, 0, 0, 6).low(LOW_GUIDE_IN);
     static final BodyShape[] LOW_BODIES = {FLAPS_16.low(LOW_GUIDE_IN), FLAPS_16_WIDE.low(LOW_GUIDE_IN),
             FLAPS_15.low(LOW_GUIDE_IN), SHORT_18.low(LOW_GUIDE_IN), FLARED_16.low(LOW_GUIDE_IN), RAMPS_18};
+
+    /** Ideas sheet 8: an 18 wide x 12 long chassis, 12 in arms pivoted down in front, joined by a crossbeam. */
+    static final BodyShape FRONT_C = new BodyShape("front C 18x12, arms 12", 12, 18, 0, 0, 12).fenced("front C 18x12, arms 12", true, true);
+    /** The same box on a 14 in chassis with 10 in arms, both arms (to see what dropping one changes). */
+    static final BodyShape C_14 = new BodyShape("C 18x14, arms 10", 14, 18, 0, 0, 10).fenced("C 18x14, arms 10", true, true);
+    /** Ideas sheet 13: the 14 in chassis with only its right arm and the crossbeam; the left side open. */
+    static final BodyShape RIGHT_HOOK = new BodyShape("right hook 18x14, arm 10", 14, 18, 0, 0, 10).fenced("right hook 18x14, arm 10", false, true);
 
     /** The shapes {@link BodyShapeSpillTest#atTheLandingLine} parks at the spill's edge. */
     static final BodyShape[] LANDING = {PLAIN, LONG_U, FLAPS_16, FLAPS_16_WIDE, FLAPS_15, SHORT_18, FLARED_16, RAMPS_18};

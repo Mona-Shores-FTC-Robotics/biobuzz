@@ -157,6 +157,13 @@ final class RobotDesign {
     /** How tall a flap is; a placeholder until one is drawn (it must stop a rolling 2.8 in POLLEN). */
     double flapHeightIn = 4;
     static final double FLAP_THICKNESS_IN = 0.25;
+    /** Which front corners have a flap (mentor, 5 Oct 2026: a "right hook" has only the right one). */
+    boolean flapLeft = true, flapRight = true;
+    /**
+     * A beam joining the flaps' free ends across the robot's whole width (a "C" in front of the robot,
+     * its front face the fourth side), as tall as the flaps. With one flap it hangs off that one.
+     */
+    boolean flapCrossbeam = false;
 
     boolean hasFlaps() {
         return flapOutIn > 0 || flapForwardIn > 0;
@@ -254,6 +261,9 @@ final class RobotDesign {
         d.flapOutIn = flapOutIn;
         d.flapForwardIn = flapForwardIn;
         d.flapHeightIn = flapHeightIn;
+        d.flapLeft = flapLeft;
+        d.flapRight = flapRight;
+        d.flapCrossbeam = flapCrossbeam;
         return d;
     }
 
