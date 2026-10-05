@@ -259,7 +259,7 @@ public class BodyShapeSpillTest {
      * same counts as {@link #atTheLandingLine}, the kept patch centred on each robot.
      */
     @Test
-    public void rightHookAtTheSpill() {
+    public void rightHookAtTheSpill() throws IOException {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         double boxX = 56.8, face95 = 36.6, right95 = 67.85;  // tools/spill-window/shapes.py: BOX_X, PARK_FACE, RIGHT_95
         Object[][] cases = {
@@ -280,9 +280,16 @@ public class BodyShapeSpillTest {
             }
             return s;
         }).collect(Collectors.toList());
+        // For tools/spill-window/shapes.py's shortlist: one row per shape, spot and load.
+        StringBuilder csv = new StringBuilder("# shape,xIn,faceIn,nectar,keptPerTip,piecesPerTip,g409Tips,chassisTips,guideOnlyTips;"
+                + " BodyShapeSpillTest.rightHookAtTheSpill, " + TIPS + " TIPs each\n");
         for (int i = 0; i < cases.length; i++) {
             BodyShape b = (BodyShape) cases[i][0];
             Sweep[] s = results.get(i);
+            for (int k = 0; k < 2; k++) {
+                csv.append(String.format(Locale.ROOT, "\"%s\",%.2f,%.1f,%d,%.2f,%.2f,%d,%d,%d%n", b.name, (Double) cases[i][1], (Double) cases[i][2],
+                        loads[k], (double) s[k].kept / TIPS, (double) s[k].pieces / TIPS, s[k].tipsTouched, s[k].tipsFrame, s[k].tipsFlapOnly));
+            }
             System.out.println(String.format(Locale.ROOT,
                     "HOOK %-26s x %5.2f face %4.1f: 8 POLLEN kept %.2f of %.1f a TIP, G409 TIPs %3d (chassis %3d, guides only %3d), over 4 inside %3d"
                             + " | match start kept %.2f of %.1f, G409 TIPs %3d (chassis %3d, guides only %3d), over 4 inside %3d",
@@ -290,6 +297,9 @@ public class BodyShapeSpillTest {
                     (double) s[0].kept / TIPS, (double) s[0].pieces / TIPS, s[0].tipsTouched, s[0].tipsFrame, s[0].tipsFlapOnly, s[0].overFour,
                     (double) s[1].kept / TIPS, (double) s[1].pieces / TIPS, s[1].tipsTouched, s[1].tipsFrame, s[1].tipsFlapOnly, s[1].overFour));
         }
+        File file = new File(TeamCodeDir.simLogs(), "body-shapes-shortlist.csv");
+        file.getParentFile().mkdirs();
+        java.nio.file.Files.write(file.toPath(), csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
     }
 
     /** One TIP with the robot shaped as {@code b}, its front-most point {@code nose} in from the wall. */
