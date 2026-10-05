@@ -37,6 +37,33 @@ falling spill (e.g. Stages, TIP 1 at 5.9 s, waiting at the right CELL). Whether 
 it depends on the manual's wording and on how high real pieces fall from the lip; check that before
 these routes are built, because the fix is to wait further back while a CELL tips.
 
+**G409-safe versions (`g409.py`, run 5 Oct 2026 03:50 UTC on `claude/dazzling-maxwell-je04gu`).**
+The same routes, built by qual.py's and qual_right.py's own functions, with three changes made to the
+built Auto: an "It lands" wait after each "TIP n settles" before the tunnel path; the catch spots moved
+back from the landing (S_CATCH 8 in toward the right wall, N_LOW 4 in toward the left: at 4 in a
+bouncing piece still reached a robot waiting at S_CATCH, and 8 in at N_LOW clips the far FLOWER); and
+"TIP 3?: Yes: PARK" waits 700 ms before driving under TIP 3's landing. The design "... side walls out
+at the TIP" is the walls, out as soon as our CELL starts to TIP and in when the robot drives off
+(over 25 in/s) or turns. Walls that wait until the spill has landed keep no more pieces than no
+walls (`SideWallSpillTest`). 20 runs, normal / slow tiles; zero G409 touches is the bar:
+
+| Auto (experiments file) | Robot | 3 TIPs | Points | G409 touches a run |
+|---|---|---|---|---|
+| v2 + 500 ms (`qual-right-v2-g409-500`) | plain | 18 / 17 | 72.5 / 71.8 | **0 / 0** |
+| v2 + 500 ms | walls out at the TIP | 20 / 19 | 75.8 / 74.3 | 1.8 / 0: falling pieces hit the walls at N_FIRE |
+| ShootsLeft + 300 ms (`qual-partner-shoots-left-g409-300-s8n4-t700`) | **walls out at the TIP** | **19 / 18** | **71.5 / 69.8** | **0 / 0** |
+| ShootsLeft + 300 ms | plain | 17 / 17 | 68.3 / 68.8 | 0 / 0 |
+| Stages + 300 ms (`qual-partner-stages-g409-300-s8n4-t700`) | walls out at the TIP | 10 / 12 | 59.0 / 62.1 | 0.2 / 0.1 |
+| Stages + 300 ms | plain | 1 / 4 | 50.0 / 52.7 | 0 / 0 |
+
+So waiting costs v2 about 3 points (2 TIP 3s), and the walls win it back for ShootsLeft, where the
+robot waits at S_CATCH with the walls out over open tiles: as G409-safe, it matches today's ShootsLeft
+(18 / 19, 70.3 / 72.3, with 10.6 touches a run). Qual-PartnerStages loses most from waiting; with walls
+it keeps today's numbers but not yet at zero touches. Not chased further here: qual.py and partners.py
+are another session's. The sweep's other waits (0–1000 ms, 0 / 4 / 8 in back) are in the commit log of
+this branch; `python3 g409.py 20 shoots-left stages --extra 300 --back 8 --north 4 --tip 700 --designs plain,early`
+and `python3 g409.py 20 v2 --extra 500` rebuild and rerun the winners.
+
 `python3 qual_right.py 20` and `python3 qual.py 20 stages` export and simulate them. On 40 more runs
 (seeds 21–60) Qual-PartnerShootsRight v2 makes 3 TIPs in 38 / 40 on both tiles (v1: 32 / 38): in
 one run the partner's preloads miss TIP 1; in the other the sweep finds nothing and the third load

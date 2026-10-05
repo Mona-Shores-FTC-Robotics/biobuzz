@@ -11,7 +11,14 @@ extra wait, "It lands", before the tunnel path.
 The routes themselves come from qual.py and qual_right.py unchanged (another session works on qual.py):
 this builds them with those functions and inserts the wait into the built card list.
 
-    python3 g409.py [runs] [auto ...] [--extra 0,300,500] [--back 0,4] [--designs plain,walls,early]
+    python3 g409.py [runs] [auto ...] [--extra 0,300,500] [--back 0,4] [--north 4] [--tip 700]
+                    [--designs plain,walls,early]
+
+--back moves both catch spots back (or only S_CATCH with --north); --tip waits before a path a TIP
+sets off. The winners (README, "G409-safe versions"):
+
+    python3 g409.py 20 v2 --extra 500
+    python3 g409.py 20 shoots-left stages --extra 300 --back 8 --north 4 --tip 700 --designs plain,early
 
 exports each Auto and extra into auto-builder/experiments as <auto>-g409-<ms> and simulates it with its
 partner on normal and slow tiles. Autos: v2 (qual-right-v2), shoots-left, stages, shoots-right (v1).
@@ -109,7 +116,7 @@ def build(auto, extra, back=0, north=None, tip_ms=0):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    opts = {"--extra": "0,300,500", "--back": "0", "--designs": "plain,walls"}
+    opts = {"--extra": "0,300,500", "--back": "0", "--north": "", "--tip": "0", "--designs": "plain,walls"}
     for k in list(opts):
         if k in args:
             i = args.index(k)
@@ -117,6 +124,8 @@ if __name__ == "__main__":
             del args[i:i + 2]
     extras = [int(x) for x in opts["--extra"].split(",")]
     backs = [int(x) for x in opts["--back"].split(",")]
+    north = int(opts["--north"]) if opts["--north"] else None
+    tip_ms = int(opts["--tip"])
     designs = opts["--designs"].split(",")
     runs = int(args[0]) if args else 20
     autos = args[1:] or ["v2", "shoots-left", "stages"]
@@ -124,8 +133,8 @@ if __name__ == "__main__":
     for a in autos:
         for e in extras:
             for b in backs:
-                build(a, e, b)
-                specs.append(f"{qual_right.cls(name(a, e, b))},{AUTOS[a][1]}@50")
+                build(a, e, b, north, tip_ms)
+                specs.append(f"{qual_right.cls(name(a, e, b, north, tip_ms))},{AUTOS[a][1]}@50")
     for f in ("1", "3"):
         print(f"--- tiles friction x{f}")
         autogen.study(";".join(specs), runs=runs, designs="|".join(DESIGNS[d] for d in designs),
