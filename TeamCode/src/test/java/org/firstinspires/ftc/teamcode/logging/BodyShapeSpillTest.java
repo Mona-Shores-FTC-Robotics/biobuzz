@@ -38,6 +38,8 @@ public class BodyShapeSpillTest {
     /** One TIP's numbers. */
     static final class Run {
         int pieces, kept, touched, frame, flapOnly, mostInside;
+        /** Sim seconds when the TIP started and when the run ended (0 if no TIP). */
+        double tipAt, endAt;
     }
 
     /** All the TIPs at one position. */
@@ -175,6 +177,12 @@ public class BodyShapeSpillTest {
      */
     static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar, WpiLog log, int shown)
             throws IOException {
+        return run(physics, seed, b, nose, nectar, log, shown, 0, 0);
+    }
+
+    /** As above, logging only from sim time {@code logFrom} on, at {@code offsetUs} plus the sim time. */
+    static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar, WpiLog log, int shown,
+                   double logFrom, long offsetUs) throws IOException {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
         for (int i = 0; i < nectar; i++) {
@@ -191,13 +199,14 @@ public class BodyShapeSpillTest {
         bot.design = b.design();
         bot.wallsOut = 0;  // the walls go out as the TIP starts, as in SideWallSpillTest; the flaps are out all match
         sim.setRobot(rx, ry, heading, 0, 0, 0, false);
-        Shown view = new Shown(sim, log, shown, rx, ry, heading);
+        Shown view = new Shown(sim, log, shown, rx, ry, heading, logFrom, offsetUs);
         for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
             sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
             for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) view.step(HiveCalibration.LOOP_S);
         }
         Run r = new Run();
         if (sim.red.tipsStarted == 0) return r;
+        r.tipAt = view.t;
         view.event("our CELL starts to TIP");
         List<FieldSim.Piece> spill = new ArrayList<>();
         for (FieldSim.Piece p : sim.pieces) {
@@ -233,6 +242,7 @@ public class BodyShapeSpillTest {
         view.event(String.format(Locale.ROOT, "3 s after the TIP: %d of %d spilled pieces kept (in the dotted patch),"
                         + " G409: %d touched before the tiles (%d on the frame, %d on a flap only), most inside at once %d",
                 r.kept, r.pieces, r.touched, r.frame, r.flapOnly, r.mostInside));
+        r.endAt = view.t;
         return r;
     }
 
@@ -241,12 +251,15 @@ public class BodyShapeSpillTest {
         final FieldSim sim;
         final WpiLog log;
         final double[] components;
-        final double x, y, heading;
+        final double x, y, heading, logFrom;
+        final long offsetUs;
         final FieldSimLog field = new FieldSimLog();
         double t, lastLogged = -1;
 
-        Shown(FieldSim sim, WpiLog log, int shown, double x, double y, double heading) {
+        Shown(FieldSim sim, WpiLog log, int shown, double x, double y, double heading, double logFrom, long offsetUs) {
             this.sim = sim;
+            this.logFrom = logFrom;
+            this.offsetUs = offsetUs;
             this.log = log;
             this.components = log == null ? null : RobotAssets.shapeComponents(shown);
             this.x = x;
@@ -257,9 +270,12 @@ public class BodyShapeSpillTest {
         void step(double dt) throws IOException {
             sim.step(dt);
             t += dt;
-            if (log == null || t - lastLogged < 0.019) return;
+            if (log == null || t < logFrom || t - lastLogged < 0.019) {
+                if (log != null && t < logFrom) sim.drainEvents();
+                return;
+            }
             lastLogged = t;
-            long us = Math.round(t * 1e6);
+            long us = offsetUs + Math.round(t * 1e6);
             FieldRobot.slot(0).putPose(log, x, y, heading, us);
             log.putPose3dArray(COMPONENTS_KEY, components, us);
             field.write(log, sim, us);
@@ -267,7 +283,7 @@ public class BodyShapeSpillTest {
         }
 
         void event(String text) throws IOException {
-            if (log != null) log.putEvent(text, Math.round(t * 1e6));
+            if (log != null) log.putEvent(text, offsetUs + Math.round(t * 1e6));
         }
     }
 
@@ -298,6 +314,72 @@ public class BodyShapeSpillTest {
             write(physics, touched, i, nose,
                     new File(dir, "body-" + BodyShape.SHOWN_FILE[i] + "-too-close.wpilog"));
         }
+    }
+
+    /** Seconds of each segment in {@link #writesAllShapesInOneLog} before its TIP starts, and the pause after it. */
+    static final double SEGMENT_LEAD_S = 1.0, SEGMENT_GAP_S = 0.5;
+
+    /**
+     * Every shape in one log, {@code build/sim-logs/body-all-shapes.wpilog}: the same TIP as
+     * {@link #writesShapeLogs}, one shape after another (each from 1 s before the TIP to 3 s after),
+     * then the two too-close runs. The robot model switches by itself; the Console names each shape as
+     * it starts and ends it with what it kept, and {@code /BodyShape/Name} holds the shape on screen.
+     */
+    @Test
+    public void writesAllShapesInOneLog() throws IOException {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        long seed = typicalSeed(physics);
+        List<Object[]> segments = new ArrayList<>();  // {shown index, nose, seed, label}
+        for (int i = 0; i < BodyShape.SHOWN.length; i++) {
+            segments.add(new Object[] {i, BodyShape.SHOWN_CLEAN_NOSE_IN[i], seed, ""});
+        }
+        for (BodyShape b : new BodyShape[] {BodyShape.FLAPS_16, BodyShape.FLARED_16}) {
+            int i = java.util.Arrays.asList(BodyShape.SHOWN).indexOf(b);
+            double nose = BodyShape.SHOWN_CLEAN_NOSE_IN[i] + 3;
+            long touched = 1;
+            while (touched < TIPS && run(physics, touched, b, nose, 0).flapOnly == 0) touched++;
+            segments.add(new Object[] {i, nose, touched, " (too close: a different TIP, one where a piece lands on a flap)"});
+        }
+        File file = new File(TeamCodeDir.simLogs(), "body-all-shapes.wpilog");
+        WpiLog log = new WpiLog(new WpiLogWriter(new java.io.BufferedOutputStream(new java.io.FileOutputStream(file), 1 << 16),
+                "BIOBUZZ body shapes"));
+        log.putMetadata("Generator", "BodyShapeSpillTest.writesAllShapesInOneLog (TeamCode test sources)");
+        log.putMetadata("PoseFrame", AdvantageScopeFrame.DESCRIPTION);
+        FieldSimLog.putMetadata(log, HiveCalibration.current());
+        FieldSimLog.putHiveStructure(log);
+        log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(true, 1), 0);
+        StringBuilder timeline = new StringBuilder();
+        long cursor = 0;
+        for (int k = 0; k < segments.size(); k++) {
+            int i = (Integer) segments.get(k)[0];
+            double nose = (Double) segments.get(k)[1];
+            long s = (Long) segments.get(k)[2];
+            BodyShape b = BodyShape.SHOWN[i];
+            double tipAt = run(physics, s, b, nose, 0).tipAt;
+            double from = Math.max(0, tipAt - SEGMENT_LEAD_S);
+            long offset = cursor - Math.round(from * 1e6);
+            String label = String.format(Locale.ROOT, "%d of %d: %s, front-most point %.0f in from the wall%s",
+                    k + 1, segments.size(), b.name, nose, segments.get(k)[3]);
+            log.put("/BodyShape/Name", label, cursor);
+            log.putEvent("SHAPE " + label, cursor);
+            Run r = run(physics, s, b, nose, 0, log, i, from, offset);
+            timeline.append(String.format(Locale.ROOT, "%5.1f s  %s%n", cursor / 1e6, label));
+            System.out.printf(Locale.ROOT, "ALLSHAPES %5.1f s %s: kept %d of %d, G409 %d (flap only %d)%n",
+                    cursor / 1e6, label, r.kept, r.pieces, r.touched, r.flapOnly);
+            cursor = offset + Math.round(r.endAt * 1e6) + Math.round(SEGMENT_GAP_S * 1e6);
+        }
+        log.putMetadata("Timeline", timeline.toString());
+        log.close();
+        // AdvantageScope reads each key's records in time order: the segments must not overlap.
+        WpiLogReader read = new WpiLogReader(java.nio.file.Files.readAllBytes(file.toPath()));
+        for (WpiLogReader.Entry e : read.entries.values()) {
+            for (int j = 1; j < e.records.size(); j++) {
+                assertTrue(e.name, e.records.get(j).timestampUs >= e.records.get(j - 1).timestampUs);
+            }
+        }
+        assertEquals(segments.size(), read.entries.get("/BodyShape/Name").records.size());
+        assertTrue(read.entries.get(COMPONENTS_KEY).records.size() > 100);
+        assertTrue(read.entries.containsKey("/Odometry/Robot3d"));
     }
 
     private static void write(FieldSim.Physics physics, long seed, int shown, double nose, File file) throws IOException {

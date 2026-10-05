@@ -143,10 +143,12 @@ Pieces bounce over a low guide. A guide's job here is to stop the scatter, and t
 **To watch them in AdvantageScope** (no build needed): download
 [`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/body-shapes-advantagescope.zip),
 copy its `Robot_BIOBUZZShapes` folder into `%APPDATA%\AdvantageScope\userAssets` (next to the HIVE assets from the
-setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open a log from its
-`logs` folder. Each log is the same TIP with one shape parked at its clean spot; `*-too-close` puts two flap shapes
-3 in nearer, on a TIP where a piece lands on a flap. Rebuild them with
-`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest.writesShapeLogs" --tests "*RobotAssetsTest*"`.
+setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open
+`body-all-shapes.wpilog`: every shape one after another on the same TIP, about 4.5 s each, the robot switching
+shape by itself and the Console naming each one. The simulator ran each shape (pieces bounce off its flaps and
+walls); it isn't one run redrawn. Last come two flap shapes 3 in too close, on a TIP where a piece lands on a flap.
+Its `logs` folder has the same runs one file each. Rebuild them with
+`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest.writes*" --tests "*RobotAssetsTest*"`.
 
 The cards come from `python3 tools/spill-window/shapes.py` (it calls `draw.py --face F --body W L --flaps OUT FWD
 --patch` for each field view). The flaps' 4 in height, thickness and bounce are placeholders, like the walls; nothing
