@@ -197,7 +197,15 @@ public class ReviewPackageTest {
 
     /** As above; a run with one robot has no partner, so the layout's partner keys are not expected. */
     static void checkLayout(File log, boolean twoRobots) throws IOException {
-        Set<String> missing = new LinkedHashSet<>(layoutKeys());
+        checkLayout(log, twoRobots, LAYOUT);
+    }
+
+    static final String LAYOUT = "sim-review/advantagescope-layout.json";
+    /** The same layout for a robot with side walls: its model, and the walls' slide as components. */
+    static final String WALLS_LAYOUT = "sim-review/advantagescope-layout-walls.json";
+
+    static void checkLayout(File log, boolean twoRobots, String layout) throws IOException {
+        Set<String> missing = new LinkedHashSet<>(layoutKeys(layout));
         if (!twoRobots) missing.removeIf(k -> k.contains("Partner"));
         missing.removeAll(new WpiLogReader(Files.readAllBytes(log.toPath())).entries.keySet());
         if (!missing.isEmpty()) {
@@ -206,8 +214,11 @@ public class ReviewPackageTest {
     }
 
     static Set<String> layoutKeys() throws IOException {
-        String json = new String(Files.readAllBytes(new File(repoRoot(), "sim-review/advantagescope-layout.json")
-                .toPath()), StandardCharsets.UTF_8);
+        return layoutKeys(LAYOUT);
+    }
+
+    static Set<String> layoutKeys(String layout) throws IOException {
+        String json = new String(Files.readAllBytes(new File(repoRoot(), layout).toPath()), StandardCharsets.UTF_8);
         Set<String> keys = new LinkedHashSet<>();
         Matcher m = Pattern.compile("\"logKey\"\\s*:\\s*\"([^\"]+)\"").matcher(json);
         while (m.find()) keys.add(m.group(1));
@@ -225,5 +236,14 @@ public class ReviewPackageTest {
         File log = new File(TeamCodeDir.simLogs(), "layout-check.wpilog");
         AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get(TRIANGLE), null, Double.NaN, 1, log);
         checkLayout(log);
+    }
+
+    /** A side-walls Auto log has what the walls layout draws, the walls' slide included. */
+    @Test
+    public void wallsLayoutKeysAreInSideWallLogs() throws Exception {
+        File log = new File(TeamCodeDir.simLogs(), "layout-check-walls.wpilog");
+        AutoStudyTest.run("QualPartnerShootsLeftAuto,PartnerPreloadsLeftAuto@50",
+                AutoStudyTest.designs().get("spring hood, full-width intake, side walls"), null, Double.NaN, 1, log);
+        checkLayout(log, true, WALLS_LAYOUT);
     }
 }

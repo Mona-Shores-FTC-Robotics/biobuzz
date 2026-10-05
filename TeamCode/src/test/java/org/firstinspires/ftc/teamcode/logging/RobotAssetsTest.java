@@ -41,12 +41,12 @@ public class RobotAssetsTest {
         for (String part : new String[] {"Chassis", "Front", "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }
-        for (String folder : new String[] {RobotAssets.PENS_IN_FOLDER, RobotAssets.PENS_OUT_FOLDER}) {
-            assertTrue(folder, new File(dir.getParentFile(), folder + "/model.glb").isFile());
-            assertTrue(folder, new File(dir.getParentFile(), folder + "/config.json").isFile());
+        File walls = new File(dir.getParentFile(), RobotAssets.WALLS_FOLDER);
+        for (String name : new String[] {"model.glb", "model_0.glb", "model_1.glb", "config.json"}) {
+            assertTrue(name, new File(walls, name).isFile());
         }
-        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.PENS_IN_FOLDER + " and "
-                + RobotAssets.PENS_OUT_FOLDER + ": copy them into AdvantageScope's userAssets folder.");
+        System.out.println("Wrote " + dir.getAbsolutePath() + " and " + RobotAssets.WALLS_FOLDER
+                + ": copy them into AdvantageScope's userAssets folder.");
     }
 
     /**
@@ -99,8 +99,8 @@ public class RobotAssetsTest {
     /** The side-wall sketch is the size it was asked to be, and its door sorts the pieces. */
     @Test
     public void sideWallsAre18StowedAnd24OutWithADoorOnlyPollenFits() {
-        double[] stowed = size(RobotAssets.penModel("x", 0, 4, 0, 14, 45, 0));
-        double[] out = size(RobotAssets.penModel("x", RobotAssets.PEN_SLIDE_IN, 4, 0, 14, 45, 0));
+        double[] stowed = size(RobotAssets.wallsRobot(0, 4, 0, 14, 45, 0));
+        double[] out = size(RobotAssets.wallsRobot(RobotAssets.WALL_SLIDE_IN, 4, 0, 14, 45, 0));
         assertArrayEquals(new double[] {18, 18}, new double[] {stowed[0], stowed[1]}, 1e-4);
         assertArrayEquals(new double[] {24, 18}, new double[] {out[0], out[1]}, 1e-4);
         assertTrue("R102 height", stowed[2] <= 18);

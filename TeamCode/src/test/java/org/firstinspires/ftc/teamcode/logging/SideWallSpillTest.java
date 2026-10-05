@@ -141,19 +141,11 @@ public class SideWallSpillTest {
         }
     }
 
-    /**
-     * The walls of {@code RobotAssets}' side-wall sketch, slid out: on each side a solid strip from
-     * the top of the door to the top of the wall, and below it the one-way flap.
-     */
+    /** The robot's walls, slid all the way out ({@link RobotDesign#sideWallsSlideIn}). */
     static void addSideWalls(FieldSim.Bot bot) {
-        double half = RobotAssets.CHASSIS_SIZE_IN / 2, t = RobotAssets.WALL_THICKNESS_IN;
-        for (int side = -1; side <= 1; side += 2) {
-            double y = side * (half - t / 2);
-            bot.guards.add(new double[] {RobotAssets.PEN_SLIDE_IN, y, half, t / 2,
-                    RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN, 0});
-            bot.guards.add(new double[] {RobotAssets.PEN_SLIDE_IN, y, half, t / 2,
-                    RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN, 1});
-        }
+        bot.design = bot.design.copy(bot.design.name + ", side walls");
+        bot.design.sideWallsSlideIn = RobotAssets.WALL_SLIDE_IN;
+        bot.wallsOut = 1;
     }
 
     /** {x, y} of a piece in the robot's frame. */
@@ -166,7 +158,7 @@ public class SideWallSpillTest {
     static boolean betweenWalls(FieldSim.Piece p, double rx, double ry, double heading) {
         double[] l = local(p, rx, ry, heading);
         double half = RobotAssets.CHASSIS_SIZE_IN / 2;
-        return l[0] > half && l[0] < half + RobotAssets.PEN_SLIDE_IN
+        return l[0] > half && l[0] < half + RobotAssets.WALL_SLIDE_IN
                 && Math.abs(l[1]) < half - RobotAssets.WALL_THICKNESS_IN;
     }
 
@@ -174,7 +166,7 @@ public class SideWallSpillTest {
     static boolean withinReach(FieldSim.Piece p, double rx, double ry, double heading) {
         double[] l = local(p, rx, ry, heading);
         double half = RobotAssets.CHASSIS_SIZE_IN / 2;
-        return l[0] > -half - REACH_IN && l[0] < half + RobotAssets.PEN_SLIDE_IN + REACH_IN
+        return l[0] > -half - REACH_IN && l[0] < half + RobotAssets.WALL_SLIDE_IN + REACH_IN
                 && Math.abs(l[1]) < half + REACH_IN;
     }
 }

@@ -166,6 +166,8 @@ public final class AutoSim {
         final List<RobotResult> robots = new ArrayList<>();
         /** When two robots first overlapped, which real robots cannot; NaN if they never did. */
         double robotsCollidedAt = Double.NaN;
+        /** Spilled pieces a robot touched before they reached the tiles: G409 fouls. */
+        int g409;
         /**
          * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
          * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
@@ -218,7 +220,8 @@ public final class AutoSim {
                 RobotResult r = robots.get(0);
                 return head + String.format(Locale.ROOT, "; %s; LEAVE %s, PARK %s; %s",
                         finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
-                        r.leave ? "yes" : "no", r.park ? "yes" : "no", headStart());
+                        r.leave ? "yes" : "no", r.park ? "yes" : "no", headStart())
+                        + (g409 > 0 ? "; G409: " + g409 + " spilled pieces touched before the tiles" : "");
             }
             StringBuilder out = new StringBuilder(head);
             for (RobotResult r : robots) out.append("; ").append(r);
@@ -226,6 +229,7 @@ public final class AutoSim {
             if (!Double.isNaN(robotsCollidedAt)) {
                 out.append(String.format(Locale.ROOT, "; ROBOTS COLLIDE at %.1f s", robotsCollidedAt));
             }
+            if (g409 > 0) out.append("; G409: ").append(g409).append(" spilled pieces touched before the tiles");
             return out.toString();
         }
     }
@@ -472,6 +476,7 @@ public final class AutoSim {
             sim.step(LOOP_S);
             for (String e : sim.drainEvents()) {
                 if (e.startsWith("score: ") && e.contains(alliance.name())) result.scored++;
+                if (e.startsWith("G409: ")) result.g409++;
                 log.putEvent("sim: " + e, us);
             }
             FieldSim.Rocker ours = sim.rocker(alliance);
@@ -520,8 +525,16 @@ public final class AutoSim {
      * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
      * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
      */
-    private static List<double[]> outline(double[] pose, RobotDesign design, double now) {
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut) {
         List<double[]> out = corners(pose, design.frameIn);
+        if (design.sideWallsSlideIn > 0 && wallsOut > 0) {  // the side walls' front ends
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = design.frameIn / 2 + wallsOut * design.sideWallsSlideIn;
+            for (int side = -1; side <= 1; side += 2) {
+                double ly = side * design.frameIn / 2;
+                out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+            }
+        }
         // It starts folded inside the 18 in start size (R102) and is out within the first second.
         if (now < CATCHER_DEPLOY_S) return out;
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
@@ -539,6 +552,15 @@ public final class AutoSim {
     }
 
     static final double CATCHER_DEPLOY_S = 1.0;
+
+    /** Side walls go out only for a robot waiting: slower than this. */
+    static final double WALLS_WAITING_IN_PER_S = 6;
+    /** ... and this close to the HIVE's centre, where a spill lands beside it. */
+    static final double WALLS_NEAR_HIVE_IN = 60;
+    /** They come in when the robot drives off faster than this ... */
+    static final double WALLS_DRIVE_OFF_IN_PER_S = 30;
+    /** ... or this long after going out, when the spill has settled. */
+    static final double WALLS_HOLD_S = 4.0;
 
     /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
     private static List<double[]> edges(double[] pose, double size) {
@@ -773,9 +795,10 @@ public final class AutoSim {
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
             prev = pose;
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
+            if (design.sideWallsSlideIn > 0) sideWalls(log, pose, Math.hypot(vx, vy), running, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : outline(pose, design, now)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -789,7 +812,7 @@ public final class AutoSim {
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : outline(pose, design, now)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;
@@ -830,8 +853,61 @@ public final class AutoSim {
             return FieldSim.trajectory(pts);
         }
 
+        /** Our CELL's TIPs started so far, as the robot's {@code HiveTracker.tipsStarted()} counts them. */
+        int wallTipsSeen;
+        /** Whether the walls are going out (true) or in, and when they were last sent out. */
+        boolean wallsWanted;
+        double wallsSentAt = Double.NaN;
+
+        /**
+         * The side walls (RobotDesign#sideWallsSlideIn), run by the robot rather than the Auto
+         * (mentor, 5 Oct 2026): out when our CELL starts to TIP while the robot is waiting near the
+         * HIVE, so they are out by the time the spill lands about 1.15 s later; in once it holds 4
+         * (G407), when it drives off, or {@link #WALLS_HOLD_S} after going out. They slide at
+         * RobotDesign#sideWallsTravelS. Logged as {@code SideWalls/Out} (0 in to 1 out) and as
+         * component poses that slide the walls of the {@code BIOBUZZ Robot (side walls)} model.
+         */
+        void sideWalls(WpiLog log, double[] pose, double speed, boolean running, long us) throws IOException {
+            int started = sim.rocker(alliance).tipsStarted;
+            boolean near = Math.hypot(pose[0] - FieldSim.CENTRE_IN, pose[1] - FieldSim.CENTRE_IN) < WALLS_NEAR_HIVE_IN;
+            if (started > wallTipsSeen) {
+                wallTipsSeen = started;
+                if (running && !wallsWanted && speed < WALLS_WAITING_IN_PER_S && near
+                        && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
+                    wallsWanted = true;
+                    wallsSentAt = now;
+                    log.putEvent(tag() + "side walls out: our CELL started to TIP", us);
+                }
+            }
+            if (wallsWanted) {
+                String why = !running ? "AUTO ended"
+                        : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
+                        : speed > WALLS_DRIVE_OFF_IN_PER_S ? "driving off"
+                        : now - wallsSentAt > WALLS_HOLD_S ? "spill settled" : null;
+                if (why != null) {
+                    wallsWanted = false;
+                    log.putEvent(tag() + "side walls in: " + why, us);
+                }
+            }
+            double step = LOOP_S / design.sideWallsTravelS;
+            double before = body.wallsOut;
+            body.wallsOut = wallsWanted ? Math.min(1, before + step) : Math.max(0, before - step);
+            if (body.wallsOut != before || !wallsLogged) putWalls(log, us);
+        }
+
+        boolean wallsLogged;
+
+        /** The walls' slide as AdvantageScope component poses: left wall, right wall, robot frame, metres. */
+        void putWalls(WpiLog log, long us) throws IOException {
+            wallsLogged = true;
+            double x = body.wallsOut * design.sideWallsSlideIn * AdvantageScopeFrame.METERS_PER_INCH;
+            log.put(keyPrefix + "/SideWalls/Out", body.wallsOut, us);
+            log.putPose3dArray(keyPrefix + "/SideWalls/Components", new double[] {x, 0, 0, 1, 0, 0, 0, x, 0, 0, 1, 0, 0, 0}, us);
+        }
+
         /** The robot standing where it is, for the disabled time before and after the run. */
         void putStill(WpiLog log, long us) throws IOException {
+            if (design.sideWallsSlideIn > 0 && body != null) putWalls(log, us);
             double[] pose = pedro(drive.pose);
             robot.putPose(log, pose[0], pose[1], pose[2], us);
             log.put(keyPrefix + "/Launcher/Spinning", false, us);

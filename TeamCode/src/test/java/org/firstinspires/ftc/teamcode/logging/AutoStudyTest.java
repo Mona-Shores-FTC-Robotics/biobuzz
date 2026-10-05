@@ -49,6 +49,11 @@ public class AutoStudyTest {
         shieldRight.shieldReachIn = 6;
         shieldRight.shieldSide = -1;
         m.put(shieldRight.name, shieldRight);
+        // Mentor, 5 Oct 2026: walls down both sides that slide 6 in forward when our CELL starts to
+        // TIP, so the spill doesn't scatter, with one-way flaps that let POLLEN in and keep NECTAR out.
+        RobotDesign walls = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, side walls");
+        walls.sideWallsSlideIn = RobotAssets.WALL_SLIDE_IN;
+        m.put(walls.name, walls);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

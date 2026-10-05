@@ -250,12 +250,16 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
-        /** Whether it has touched the tiles since it last left a CELL. */
+        /**
+         * Whether, since it last left a CELL, it has touched something other than a robot: the
+         * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
+         * lets a robot touch a spilled piece only after that.
+         */
         boolean touchedTile = true;
         /**
          * Whether a robot touched it after it left a CELL and before it reached the tiles: what G409
          * forbids for a TIP's spill ("may not catch or deflect ... unless and until that SCORING
-         * ELEMENT contacts anything else besides that ROBOT"). Counts tiles only, so it is strict.
+         * ELEMENT contacts anything else besides that ROBOT"). See {@link #touchedTile}.
          */
         boolean robotBeforeTile;
 
@@ -395,11 +399,10 @@ final class FieldSim {
         /** Its mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
         RobotDesign design = RobotDesign.standard();
         /**
-         * Thin walls fixed to the robot, in its own frame (+x forward, +y left, inches):
-         * {@code {centreX, centreY, halfX, halfY, bottomZ, topZ, oneWay}}. A one-way wall (a flap
-         * that swings inward only) stops a piece only while the piece is on the robot's side of it.
+         * How far out its side walls are ({@link RobotDesign#sideWallsSlideIn}), 0 (in) to 1 (out).
+         * Its caller moves it; the walls stop pieces only while it is above 0.
          */
-        final List<double[]> guards = new ArrayList<>();
+        double wallsOut;
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -915,12 +918,23 @@ final class FieldSim {
                 }
                 boolean contact = false;
                 for (Rocker r : rockers) contact |= collideRocker(p, r);
-                contact |= collideFootBars(p);
+                if (collideFootBars(p)) {
+                    contact = true;
+                    p.touchedTile = true;
+                }
                 for (int b = 0; b < nb; b++) {
                     if (bots.get(b).present) contact |= collideRobot(bots.get(b), p, sub[b][0], sub[b][1], sub[b][2]);
                 }
-                for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
-                contact |= collideField(p);
+                for (double[] parked : parkedRobots) {
+                    if (collideParked(p, parked)) {
+                        contact = true;
+                        p.touchedTile = true;
+                    }
+                }
+                if (collideField(p)) {  // the tiles or a field wall
+                    contact = true;
+                    p.touchedTile = true;
+                }
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) {
                     applyFriction(p, h);
@@ -1007,6 +1021,9 @@ final class FieldSim {
                 b.x += nx * push * ma;
                 b.y += ny * push * ma;
                 b.z += nz * push * ma;
+                // A piece that has touched the tiles passes that on: G409's "anything else".
+                if (a.touchedTile && b.cell == null) b.touchedTile = true;
+                if (b.touchedTile && a.cell == null) a.touchedTile = true;
                 double vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny + (b.vz - a.vz) * nz;
                 if (vn < 0) {
                     double e = vn > -RESTING_IN_PER_S ? 0 : bounce(PLACEHOLDER_PIECE_RESTITUTION);
@@ -1110,16 +1127,29 @@ final class FieldSim {
             hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
                     bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
         }
-        for (double[] g : bot.guards) {
-            if (g[6] != 0) {
-                double ly = -(p.x - bx) * s + (p.y - by) * c;
-                if (Math.abs(ly) > Math.abs(g[1])) continue; // outside: the flap swings in for it
+        if (d.sideWallsSlideIn > 0 && bot.wallsOut > 0) {
+            // RobotDesign#sideWallsSlideIn: on each side a solid strip from the top of the door to
+            // the top of the wall, and below it the flap, which stops a piece only from inside.
+            double t = RobotAssets.WALL_THICKNESS_IN / 2;
+            double lx = bot.wallsOut * d.sideWallsSlideIn;
+            double ly = -(p.x - bx) * s + (p.y - by) * c;
+            for (int side = -1; side <= 1; side += 2) {
+                double wy = side * (half - t);
+                double cx = bx + lx * c - wy * s, cy = by + lx * s + wy * c;
+                double wvx = bot.vx - bot.w * (cy - by), wvy = bot.vy + bot.w * (cx - bx);
+                hit |= box(p, cx, cy, bh, half, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
+                        wvx, wvy, bot.w, bounce(robotRestitution));
+                if (Math.abs(ly) < Math.abs(wy)) {
+                    hit |= box(p, cx, cy, bh, half, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
+                            wvx, wvy, bot.w, bounce(robotRestitution));
+                }
             }
-            double gx = bx + g[0] * c - g[1] * s, gy = by + g[0] * s + g[1] * c;
-            hit |= box(p, gx, gy, bh, g[2], g[3], g[4], g[5],
-                    bot.vx - bot.w * (gy - by), bot.vy + bot.w * (gx - bx), bot.w, bounce(robotRestitution));
         }
-        if (hit && !p.touchedTile) p.robotBeforeTile = true;
+        if (hit && !p.touchedTile && !p.robotBeforeTile) {
+            p.robotBeforeTile = true;
+            events.add("G409: robot " + (bots.indexOf(bot) + 1) + " touched a spilled " + name(p.kind)
+                    + " before it reached the tiles");
+        }
         return hit;
     }
 

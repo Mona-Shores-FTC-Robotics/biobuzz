@@ -1378,14 +1378,27 @@ never reaches it.
   be in frame wherever the robot really saw them; if they are not, suspect the mount numbers or the
   pose before the tag code.
 
-**Design sketch: side walls.** The same build also writes `Robot_BIOBUZZPensIn` and
-`Robot_BIOBUZZPensOut` (**BIOBUZZ Side Walls (stowed)** / **(out)**): an 18 in square robot whose
-side walls slide forward 6 in, making it 24 in long (R105 allows 18 × 24 in, 29 in tall). Each wall
-has a one-way flap at the bottom; the opening is 3.2 in high, so POLLEN (2.8 in) rolls in under it
-and NECTAR (3.6 in) is stopped. Copy them to `userAssets` with the robot and pick either as the
-model. It is a picture to argue about, not a design. Anything trapped by the walls is CONTROLLED
-(the manual's definition: "stuck in, on, or under the ROBOT", and herding counts too), so G407's
-limit of 4 counts it together with whatever the robot already holds.
+**Side walls.** The same build also writes `Robot_BIOBUZZWalls` (**BIOBUZZ Robot (side walls)**):
+an 18 in square robot whose side walls slide forward 6 in, making it 24 in long (R105 allows
+18 × 24 in, 29 in tall). Each wall has a one-way flap at the bottom; the opening is 3.2 in high, so
+POLLEN (2.8 in) rolls in under it and NECTAR (3.6 in) is stopped. The two walls are the model's
+articulated components, so a simulated log slides them out and in. Copy it to `userAssets` with
+the robot. Anything trapped by the walls is CONTROLLED (the manual's definition: "stuck in, on, or
+under the ROBOT", and herding counts too), so G407's limit of 4 counts it together with whatever
+the robot already holds.
+
+In the simulator the walls are a robot design, **spring hood, full-width intake, side walls**
+(`RobotDesign.sideWallsSlideIn`), and the robot runs them itself, not the Auto (`AutoSim`
+`sideWalls`): out when our CELL starts to TIP (`HiveTracker.tipsStarted()` on the real robot)
+while the robot is waiting near the HIVE, so they are out before the spill lands about 1.15 s
+later; in once it holds 4, when it drives off, or 4 s later. They take 0.3 s to slide, a guess. The
+log has `/SideWalls/Out` (0 in, 1 out) and `/SideWalls/Components`. To watch: **File → Import
+Layout** with `sim-review/advantagescope-layout-walls.json`, which is the usual layout with our robot
+drawn as **BIOBUZZ Robot (side walls)** and its walls moving.
+
+Every simulated run now also counts **G409**: a spilled piece a robot touched before it touched
+anything else (the tiles, a wall, the HIVE's feet, another robot, or a piece that already had).
+Each is a `sim: G409: ...` event on the Console and `g409` in `result.json`.
 
 `SideWallSpillTest` tries the walls in the simulation: the same TIP as `SpillLandingTest`, with a
 robot parked short of the landing, facing the HIVE, walls out, over 20 TIPs at three parking spots.

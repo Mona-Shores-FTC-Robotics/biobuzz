@@ -67,24 +67,23 @@ final class RobotAssets {
     static final double VIEW_ROD_THICKNESS_IN = 0.3;
 
     /*
-     * The side-wall idea (a sketch to look at, not a design): an 18 in square robot whose side
-     * walls slide forward 6 in, making it 24 in long. Each wall has a one-way flap at the bottom:
-     * it swings inward only, so POLLEN (2.8 in) pushed against it rolls under and in and cannot
-     * roll back out, and the opening is too low for NECTAR (3.6 in).
+     * The side walls (RobotDesign#sideWallsSlideIn): an 18 in square robot whose side walls slide
+     * forward 6 in, making it 24 in long. Each wall has a one-way flap at the bottom: it swings
+     * inward only, so POLLEN (2.8 in) pushed against it rolls under and in and cannot roll back out,
+     * and the opening is too low for NECTAR (3.6 in). The walls are the model's two articulated
+     * components, so a log's {@code SideWalls/Components} poses slide them.
      */
-    static final String PENS_IN_FOLDER = "Robot_BIOBUZZPensIn";
-    static final String PENS_IN_NAME = "BIOBUZZ Side Walls (stowed)";
-    static final String PENS_OUT_FOLDER = "Robot_BIOBUZZPensOut";
-    static final String PENS_OUT_NAME = "BIOBUZZ Side Walls (out)";
+    static final String WALLS_FOLDER = "Robot_BIOBUZZWalls";
+    static final String WALLS_NAME = "BIOBUZZ Robot (side walls)";
+    /** Component order in {@value #WALLS_FOLDER} and in a log's {@code SideWalls/Components}. */
+    static final int LEFT_WALL = 0, RIGHT_WALL = 1;
     /** The walls slide this far forward: 18 in long stowed, 24 in out (R105: 18 x 24 in). */
-    static final double PEN_SLIDE_IN = 6.0;
+    static final double WALL_SLIDE_IN = 6.0;
     static final double WALL_HEIGHT_IN = 6.0;
     static final double WALL_THICKNESS_IN = 0.25;
     /** Top of the door opening: between POLLEN's 2.8 in and NECTAR's 3.6 in. */
     static final double DOOR_TOP_IN = 3.2;
     static final double DOOR_BOTTOM_IN = 0.4;
-    /** How far the drawn flap is swung in, as if a POLLEN were passing. */
-    static final double FLAP_OPEN_DEG = 30.0;
 
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
@@ -101,28 +100,29 @@ final class RobotAssets {
         Files.write(new File(dir, "config.json").toPath(), config(
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
-        buildPens(out, PENS_IN_FOLDER, PENS_IN_NAME, 0);
-        buildPens(out, PENS_OUT_FOLDER, PENS_OUT_NAME, PEN_SLIDE_IN);
+        File walls = new File(out, WALLS_FOLDER);
+        walls.mkdirs();
+        Files.write(new File(walls, "model.glb").toPath(), wallsBase(
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).write());
+        Files.write(new File(walls, "model_" + LEFT_WALL + ".glb").toPath(), wall(1, 0).write());
+        Files.write(new File(walls, "model_" + RIGHT_WALL + ".glb").toPath(), wall(-1, 0).write());
+        Files.write(new File(walls, "config.json").toPath(), config(WALLS_NAME, 2,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
         return dir;
     }
 
-    private static void buildPens(File out, String folder, String name, double slideIn) throws IOException {
-        File dir = new File(out, folder);
-        dir.mkdirs();
-        Files.write(new File(dir, "model.glb").toPath(), penModel(name, slideIn,
-                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
-                CameraMount.pitchDeg, CameraMount.yawDeg).write());
-        Files.write(new File(dir, "config.json").toPath(), config(name,
-                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
-                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
-    }
-
     static String config(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
-        return config(ROBOT_NAME, forwardIn, leftIn, upIn, pitchDeg, yawDeg);
+        return config(ROBOT_NAME, 0, forwardIn, leftIn, upIn, pitchDeg, yawDeg);
     }
 
-    static String config(String name, double forwardIn, double leftIn, double upIn, double pitchDeg,
-            double yawDeg) {
+    /**
+     * A robot config with the Limelight camera and {@code components} articulated components, each
+     * zeroed where it was drawn: a component pose moves it from there, in the robot frame.
+     */
+    static String config(String name, int components, double forwardIn, double leftIn, double upIn,
+            double pitchDeg, double yawDeg) {
         Map<String, Object> camera = new LinkedHashMap<>();
         camera.put("name", CAMERA_NAME);
         camera.put("rotations", Arrays.asList(rotation("y", -pitchDeg), rotation("z", yawDeg)));
@@ -136,7 +136,14 @@ final class RobotAssets {
         config.put("rotations", new ArrayList<>());
         config.put("position", Glb.toList(new double[] {0, 0, 0}));
         config.put("cameras", Arrays.asList((Object) camera));
-        config.put("components", new ArrayList<>());
+        List<Object> parts = new ArrayList<>();
+        for (int i = 0; i < components; i++) {
+            Map<String, Object> c = new LinkedHashMap<>();
+            c.put("zeroedRotations", new ArrayList<>());
+            c.put("zeroedPosition", Glb.toList(new double[] {0, 0, 0}));
+            parts.add(c);
+        }
+        config.put("components", parts);
         return MiniJson.write(config);
     }
 
@@ -165,44 +172,57 @@ final class RobotAssets {
     }
 
     /**
-     * The side-wall sketch: the chassis plate, and down each side a wall with its one-way flap,
-     * slid {@code slideIn} forward. {@code slideIn = 0} is the stowed robot. No upper frame: only
-     * the footprint and the walls matter here.
+     * The side-walls robot without its walls: the chassis plate, stopping inside where the walls
+     * run so they have room beside it, the front marker and the Limelight.
      */
-    static Glb penModel(String name, double slideIn, double forwardIn, double leftIn, double upIn,
-            double pitchDeg, double yawDeg) {
+    static Glb wallsBase(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
         MeshBuilder b = new MeshBuilder();
+        addWallsBase(b);
+        addLimelight(b, forwardIn, leftIn, upIn, pitchDeg, yawDeg, CHASSIS_TOP_IN);
+        return b.glb(WALLS_NAME);
+    }
+
+    /** One wall and its flap ({@code side} +1 left, −1 right), slid {@code slideIn} forward. */
+    static Glb wall(int side, double slideIn) {
+        MeshBuilder b = new MeshBuilder();
+        addWall(b, side, slideIn);
+        return b.glb(side > 0 ? "Left wall" : "Right wall");
+    }
+
+    /** The whole side-walls robot with its walls slid {@code slideIn} forward, as one model. */
+    static Glb wallsRobot(double slideIn, double forwardIn, double leftIn, double upIn, double pitchDeg,
+            double yawDeg) {
+        MeshBuilder b = new MeshBuilder();
+        addWallsBase(b);
+        addWall(b, 1, slideIn);
+        addWall(b, -1, slideIn);
+        addLimelight(b, forwardIn, leftIn, upIn, pitchDeg, yawDeg, CHASSIS_TOP_IN);
+        return b.glb(WALLS_NAME);
+    }
+
+    private static void addWallsBase(MeshBuilder b) {
         double h = CHASSIS_SIZE_IN / 2;
-        double t = WALL_THICKNESS_IN;
-        double[] wall = {0.2, 0.45, 0.85, 1};
-        double[] flap = {0.95, 0.85, 0.2, 1};
-        // The plate stops inside the walls, so the walls and flaps have room beside it.
         b.box("Chassis", new double[] {0.55, 0.55, 0.6, 1},
                 new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
-                new double[] {CHASSIS_SIZE_IN, CHASSIS_SIZE_IN - 4 * t, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN},
+                new double[] {CHASSIS_SIZE_IN, CHASSIS_SIZE_IN - 4 * WALL_THICKNESS_IN, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN},
                 IDENTITY_3);
         b.box("Front", new double[] {1.0, 0.45, 0.0, 1},
                 new double[] {h - 1.0, 0, CHASSIS_TOP_IN + 0.25},
                 new double[] {2.0, CHASSIS_SIZE_IN - 4.0, 0.5},
                 IDENTITY_3);
+    }
 
-        for (int side = -1; side <= 1; side += 2) { // −1 right, +1 left
-            String label = side > 0 ? "Left" : "Right";
-            double wallY = side * (h - t / 2);
-            b.box(label + " wall", wall, new double[] {slideIn, wallY, (DOOR_TOP_IN + WALL_HEIGHT_IN) / 2},
-                    new double[] {CHASSIS_SIZE_IN, t, WALL_HEIGHT_IN - DOOR_TOP_IN}, IDENTITY_3);
-            // The flap hangs from the top of the opening and swings inward only.
-            double a = Math.toRadians(slideIn > 0 ? FLAP_OPEN_DEG : 0) * -side;
-            double[] rx = {1, 0, 0, 0, Math.cos(a), -Math.sin(a), 0, Math.sin(a), Math.cos(a)};
-            double flapLength = DOOR_TOP_IN - DOOR_BOTTOM_IN;
-            double[] hinge = {slideIn, wallY, DOOR_TOP_IN};
-            double[] centre = add(hinge, mul(rx, new double[] {0, 0, -flapLength / 2}));
-            b.box(label + " flap", flap, centre,
-                    new double[] {CHASSIS_SIZE_IN - 0.5, t, flapLength}, rx);
-        }
-
-        addLimelight(b, forwardIn, leftIn, upIn, pitchDeg, yawDeg, CHASSIS_TOP_IN);
-        return b.glb(name);
+    /** A wall from the top of the door to the top, and the flap that hangs below it, drawn shut. */
+    private static void addWall(MeshBuilder b, int side, double slideIn) {
+        double h = CHASSIS_SIZE_IN / 2, t = WALL_THICKNESS_IN;
+        String label = side > 0 ? "Left" : "Right";
+        double wallY = side * (h - t / 2);
+        b.box(label + " wall", new double[] {0.2, 0.45, 0.85, 1},
+                new double[] {slideIn, wallY, (DOOR_TOP_IN + WALL_HEIGHT_IN) / 2},
+                new double[] {CHASSIS_SIZE_IN, t, WALL_HEIGHT_IN - DOOR_TOP_IN}, IDENTITY_3);
+        b.box(label + " flap", new double[] {0.95, 0.85, 0.2, 1},
+                new double[] {slideIn, wallY, (DOOR_BOTTOM_IN + DOOR_TOP_IN) / 2},
+                new double[] {CHASSIS_SIZE_IN - 0.5, t, DOOR_TOP_IN - DOOR_BOTTOM_IN}, IDENTITY_3);
     }
 
     /**

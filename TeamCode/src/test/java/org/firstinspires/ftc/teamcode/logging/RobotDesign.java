@@ -128,6 +128,16 @@ final class RobotDesign {
     double shieldHeightIn = 6;
     /** The shield's thickness, inside the frame's width. */
     static final double SHIELD_THICKNESS_IN = 0.5;
+    /**
+     * Side walls (mentor, 5 Oct 2026; {@code RobotAssets}' side-wall sketch): a wall down each side,
+     * flush with the frame, that slides this far forward when out, so it stops a spill scattering
+     * from beside the robot. Each has a one-way flap at the bottom: POLLEN rolls in under it and
+     * cannot roll back out, and the opening is too low for NECTAR. 0: none. With the frame it makes
+     * the footprint 18 × (18 + slide), so R105 allows at most 6 in.
+     */
+    double sideWallsSlideIn = 0;
+    /** Seconds the walls take to slide all the way out or in. A guess until they are built. */
+    double sideWallsTravelS = 0.3;
 
     RobotDesign(String name) {
         this.name = name;
@@ -210,6 +220,8 @@ final class RobotDesign {
         d.shieldReachIn = shieldReachIn;
         d.shieldSide = shieldSide;
         d.shieldHeightIn = shieldHeightIn;
+        d.sideWallsSlideIn = sideWallsSlideIn;
+        d.sideWallsTravelS = sideWallsTravelS;
         return d;
     }
 
@@ -218,6 +230,7 @@ final class RobotDesign {
         if (frameIn > 18) throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
         if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
         if (frameIn + shieldReachIn > 24) throw new IllegalArgumentException(name + ": shield over 24 in (R105)");
+        if (frameIn + sideWallsSlideIn > 24) throw new IllegalArgumentException(name + ": side walls over 24 in (R105)");
         // An intake can be wider than the frame only by folding out sideways, which uses R105's
         // 24 in across instead of reaching forward.
         if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameIn)) {

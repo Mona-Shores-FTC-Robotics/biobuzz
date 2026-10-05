@@ -7,8 +7,14 @@ name: Simulate Auto
 #
 #   <auto>/<commit>/result.json        every seed's points, TIPs, LEAVE/PARK, problems
 #   <auto>/<commit>/<auto>-<commit7>-seed-<n>.wpilog   the best and the median seed, for AdvantageScope
-#   <auto>/latest.json                 the newest result for that Auto
+#   <auto>/latest.json                 the newest result for that Auto, on its usual robot design
 #   <auto>/latest-best.wpilog, latest-typical.wpilog   its logs, at names that never change
+#   <auto>/designs/<design>/latest.json, latest-best.wpilog, latest-typical.wpilog
+#                                      the same, for each robot design it has been simulated with
+#
+# An Auto's usual design is the one its <auto>/latest.json already has (the first one it was
+# simulated with). A run on another design, side walls say, goes only to designs/<design>/, so
+# the README's best/typical links keep showing the usual robot and both stay downloadable.
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -80,6 +86,7 @@ jobs:
           AUTO: ${{ steps.request.outputs.auto }}
           SIM_OK: ${{ steps.sim.outcome }}
         run: |
+          git fetch -q --depth=1 origin sim-results:refs/remotes/origin/sim-results || true
           python3 - <<'EOF'
           import json, os, shutil, datetime
           sim = os.path.join(os.environ["RUNNER_TEMP"], "sim")
@@ -114,13 +121,30 @@ jobs:
                   shutil.copy(os.path.join(sim, run["log"]), os.path.join(out, name))
                   result["logs"][str(int(run["seed"]))] = name
           # Fixed names for the newest result, so a README can link a download that outlives the
-          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders).
-          for label, run in (("best", best), ("typical", typical)):
-              if run:
-                  shutil.copy(os.path.join(sim, run["log"]), os.path.join(os.path.dirname(out), f"latest-{label}.wpilog"))
+          # KEEP_RUNS cleanup (which removes only <auto>/<commit>/ folders): one set per robot design,
+          # and <auto>/latest* for the Auto's usual design (see the top of this file).
+          import re, subprocess
+          design = result.get("design") or request.get("design") or "default"
+          slug = re.sub(r"[^a-z0-9]+", "-", design.lower()).strip("-")
+          result["designFolder"] = f"designs/{slug}"
+          usual = None
+          shown = subprocess.run(["git", "show", f"origin/sim-results:{auto}/latest.json"], capture_output=True, text=True)
+          if shown.returncode == 0:
+              try:
+                  usual = json.loads(shown.stdout).get("design")
+              except ValueError:
+                  pass
+          targets = [os.path.join(os.path.dirname(out), "designs", slug)]
+          if usual is None or usual == design:
+              targets.append(os.path.dirname(out))
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
-          open(os.path.join(os.path.dirname(out), "latest.json"), "w").write(text)
+          for target in targets:
+              os.makedirs(target, exist_ok=True)
+              for label, run in (("best", best), ("typical", typical)):
+                  if run:
+                      shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"latest-{label}.wpilog"))
+              open(os.path.join(target, "latest.json"), "w").write(text)
 
           summary = [f"### {auto} at `{sha[:7]}`", ""]
           if result.get("error"):
