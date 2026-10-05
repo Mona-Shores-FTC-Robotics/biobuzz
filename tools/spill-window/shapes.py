@@ -12,7 +12,7 @@
     python3 tools/spill-window/shapes.py
     chromium --headless --hide-scrollbars --window-size=2500,1000 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
     chromium --headless --hide-scrollbars --window-size=2400,1000 --screenshot=sim-review/body-shapes-ideas.png TeamCode/build/sim-logs/body-shapes-ideas.html
-    chromium --headless --hide-scrollbars --window-size=2900,1300 --screenshot=sim-review/body-shapes-shortlist.png TeamCode/build/sim-logs/body-shapes-shortlist.html
+    chromium --headless --hide-scrollbars --window-size=2900,1700 --screenshot=sim-review/body-shapes-shortlist.png TeamCode/build/sim-logs/body-shapes-shortlist.html
     chromium --headless --hide-scrollbars --window-size=1500,1250 --screenshot=sim-review/body-shapes-loads.png TeamCode/build/sim-logs/body-shapes-loads.html
 
 The HTML (about 2 MB each, every spilled piece drawn) stays in the build folder. The top views are the Visualizer's
@@ -285,18 +285,24 @@ short = {}
 for row in csvlib.reader(l for l in open(os.path.join(LOGS, "body-shapes-shortlist.csv")) if not l.startswith("#")):
     short[(row[0], round(float(row[1]), 1), int(row[3]))] = [float(v) for v in row[4:]]
 HOOK_X = 61.6  # the right hook on the match-start spill's right 95% line (it lands 2 in right of the 8 POLLEN one)
-# Rows: the baseline and the designs nothing lands on, then the ones that reach into the spill.
+# Rows: no moving parts; folding out with little landing on them; reaching into the spill.
 SHORTLIST = [
-    ("Nothing lands on these", [
+    ("No moving parts: 18 × 18 all match", [
         ("1 · Plain", "18 × 18 chassis", "plain 18", 18, 18, 0, 0, 0, False, (BOX_X, PARK_FACE - 9)),
+        ("15 · Rigid V", "14 wide × 16 long chassis · fixed flaps 2″ out, 2″ forward", "rigid V 14x16, 2 out 2 fwd",
+         14, 16, 0, 2, 2, False, (BOX_X, PARK_FACE - 8)),
+    ]),
+    ("Fold out before the TIP: little lands on them", [
         ("3 · Funnel", "16 × 16 chassis · flaps 3″ out, 2″ forward", "16 + flaps 3 out 2 fwd", 16, 16, 0, 3, 2, False,
          (BOX_X, PARK_FACE - 8)),
         ("6 · Short-chassis funnel", "18 wide × 15 long chassis · flaps 3″ out, 3″ forward", "18 wide x 15 long + flaps 3 out 3 fwd",
          18, 15, 0, 3, 3, False, (BOX_X, PARK_FACE - 7.5)),
-        ("13 · Right hook", "18 wide × 14 long chassis · one 10″ arm on the right + crossbeam", "right hook 18x14, arm 10",
+        ("13 · Large right hook", "18 wide × 14 long chassis · one 10″ arm on the right + crossbeam", "right hook 18x14, arm 10",
          18, 14, 0, 0, 10, "right", (HOOK_X, PARK_FACE - 7)),
     ]),
-    ("These reach into the spill: they keep more, but pieces land on them most TIPs", [
+    ("Reach into the spill: they keep more, but pieces land on them in many TIPs", [
+        ("14 · Small right hook", "18 wide × 16 long chassis · one 8″ arm on the right + crossbeam, around the 90% box",
+         "small right hook 18x16, arm 8", 18, 16, 0, 0, 8, "right", (60.2, 37.5 - 8)),
         ("2 · Long U", "18 × 18 chassis · walls slide 6″ forward", "long U", 18, 18, 6, 0, 0, False, (BOX_X, PARK_FACE - 9)),
         ("8 · Front C", "18 wide × 12 long chassis · arms 12″ forward + crossbeam", "front C 18x12, arms 12",
          18, 12, 0, 0, 12, True, (BOX_X, 35.0 - 6)),
@@ -320,7 +326,8 @@ for heading, designs in SHORTLIST:
         nums = (f'<table class="nums"><tr><th></th><th>8 POLLEN</th><th>match start</th></tr>'
                 f'<tr><td class="where">kept a TIP</td><td><b>{p8[0]:.1f}</b> of {p8[1]:.0f}</td><td><b>{ps[0]:.1f}</b> of {ps[1]:.0f}</td></tr>'
                 f'<tr><td class="where">TIPs it is touched</td><td class="{touch_class(p8[2])}">{p8[2]:.0f} of {TIPS}</td>'
-                f'<td class="{touch_class(ps[2])}">{ps[2]:.0f} of {TIPS}</td></tr></table>')
+                f'<td class="{touch_class(ps[2])}">{ps[2]:.0f} of {TIPS}</td></tr>'
+                f'<tr><td class="where">on the blue half 3 s later</td><td>{p8[5]:.0f}%</td><td>{ps[5]:.0f}%</td></tr></table>')
         cards4.append(f'<div class="card"><div class="head"><h2>{title}</h2><span class="spec">{spec}</span></div>'
                       f'<div class="pics">{svg}{field}</div>{nums}</div>')
     rows4.append(f'<h3 class="row-head">{heading}</h3><div class="grid four">{"".join(cards4)}</div>')
@@ -329,7 +336,8 @@ shortlist = f"""<!doctype html><html><head><meta charset="utf-8"><meta name="col
 <div class="legend"><span><i style="border-top:2px dashed {RED}"></i>every spilled piece lands inside</span>
 <span><i style="border-top:2px solid {RED}"></i>90% land inside</span>
 <span><b style="color:{TEXT}">kept</b>: pieces lying in front of the robot 3 s after the TIP</span>
-<span><b style="color:{TEXT}">touched</b>: a falling piece hits the robot before the floor (G409)</span></div>
+<span><b style="color:{TEXT}">touched</b>: a falling piece hits the robot before the floor (G409)</span>
+<span><b style="color:{TEXT}">blue half</b>: past the centre line (no robot: 34% / 41%)</span></div>
 <svg width="0" height="0" style="position:absolute"><defs>{{FIELD}}</defs></svg>
 {"".join(rows4)}</body></html>"""
 open(os.path.join(LOGS, "body-shapes-shortlist.html"), "w").write(shortlist.replace("{FIELD}", FIELD_IMAGE))

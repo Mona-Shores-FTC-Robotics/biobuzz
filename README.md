@@ -122,23 +122,33 @@ almost nothing falls. With no robot, a landed piece's main way out is toward the
 right (23–25%), left (20%) and back under the HIVE (18–19%).
 
 **The best of them** (5 Oct 2026, `sim-review/body-shapes-shortlist.png`; numbers from
-`BodyShapeSpillTest.rightHookAtTheSpill`, each robot where its card shows it, 200 TIPs a load):
+`BodyShapeSpillTest.rightHookAtTheSpill`, each robot where its card shows it, 200 TIPs a load; each cell is
+8 POLLEN / match start). "Blue half": the share of the spill past the centre line 3 s after the TIP (no robot: 34% / 41%).
 
-| Design | Kept a TIP: 8 POLLEN / match start | TIPs a falling piece touches it: 8 POLLEN / match start |
-|---|---|---|
-| 1 · Plain, 18 × 18 | 1.4 of 8 / 0.9 of 6 | 4 / 13 |
-| 3 · Funnel, 16 × 16, flaps 3 in out, 2 in forward | 1.9 / 1.2 | 5 / 20 |
-| 6 · Short-chassis funnel, 18 wide × 15 long, flaps 3 in out, 3 in forward | 2.1 / 1.5 | 5 / 30 |
-| **13 · Right hook**, 18 × 14 chassis, one 10 in arm on the right + crossbeam | **2.8 / 2.5** | **7 / 25** |
-| 2 · Long U, walls 6 in forward | 3.6 / 2.4 | 177 / 171 |
-| 8 · Front C, 18 × 12 chassis, 12 in arms + crossbeam | 4.7 / 2.8 | 180 / 180 |
+| Design | Kept a TIP | TIPs a falling piece touches it | Blue half |
+|---|---|---|---|
+| *No moving parts, 18 × 18 all match* | | | |
+| 1 · Plain, 18 × 18 | 1.4 of 8 / 0.9 of 6 | 4 / 13 | 33% / 41% |
+| 15 · Rigid V, 14 × 16 chassis, fixed flaps 2 in out, 2 in forward | 2.0 / 1.3 | 21 / 25 | 27% / 36% |
+| *Fold out before the TIP, little lands on them* | | | |
+| 3 · Funnel, 16 × 16, flaps 3 in out, 2 in forward | 1.9 / 1.2 | 5 / 20 | 28% / 35% |
+| 6 · Short-chassis funnel, 18 wide × 15 long, flaps 3 in out, 3 in forward | 2.1 / 1.5 | 5 / 30 | 25% / 32% |
+| **13 · Large right hook**, 18 × 14 chassis, one 10 in right arm + crossbeam | **2.8 / 2.5** | **7 / 25** | **10% / 11%** |
+| *Reach into the spill: keep more, touched in many TIPs* | | | |
+| 14 · Small right hook, 18 × 16 chassis, one 8 in right arm + crossbeam | 4.3 / 3.5 | 82 / 128 | 8% / 8% |
+| 2 · Long U, walls 6 in forward | 3.6 / 2.4 | 177 / 171 | 13% / 24% |
+| 8 · Front C, 18 × 12 chassis, 12 in arms + crossbeam | 4.7 / 2.8 | 180 / 180 | 9% / 20% |
 
-The first four are touched in few TIPs; of them the right hook keeps the most, about what the Long U keeps at match
-start. The Long U and Front C reach into the spill and keep more, but a falling piece lands on them in most TIPs. The
-right hook's face and crossbeam sit halfway between the spill's 100% and 90% lines, and its right arm halfway between
-the match-start spill's right edges (centre x 61.6; that spill lands 2 in right of the 8 POLLEN one). Left out: the
-wide funnels (4, 5; no better than 3 and 6) and the long funnel (7; kept and touched like the Long U); they and the
-other ideas are in `body-shapes.png` and `body-shapes-ideas.png`.
+- The right hooks keep the most of the spill on our half. The large one does it with almost no touches: its face and
+  crossbeam sit halfway between the spill's 100% and 90% lines and its arm halfway between the match-start spill's
+  right edges (centre x 61.6). The small one wraps the 90% boxes of both spills (face 37.5 in out, arm on x 69.2, an
+  8 in arm, so a 16 in chassis): it keeps more than the Long U but the outer tenth of the spill lands on it.
+- A rigid V inside 18 × 18 (nothing moves) keeps what the fold-out funnel keeps. Deeper or longer rigid Vs keep a
+  little more but are touched in 49–97 TIPs (`body-shapes-shortlist.csv` has them all).
+- Left out: the wide funnels (4, 5; no better than 3 and 6) and the long funnel (7; kept and touched like the Long U);
+  they and the other ideas are in `body-shapes.png` and `body-shapes-ideas.png`.
+- The simulator lands the spill about 6 in short of the 3 Oct films (median 42 in against about 48), and the roll
+  after landing is a placeholder: every parking line here moves once `doc/spill-test.md` is run.
 
 ![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
 

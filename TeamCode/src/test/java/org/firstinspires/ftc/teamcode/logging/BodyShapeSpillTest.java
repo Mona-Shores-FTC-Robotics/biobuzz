@@ -40,16 +40,19 @@ public class BodyShapeSpillTest {
         int pieces, kept, touched, frame, flapOnly, mostInside;
         /** As {@code kept}, the patch measured from the chassis's front face instead of its front-most point. */
         int keptFace;
+        /** Spilled pieces on the blue half (x past the centre line) 3 s after the TIP: what a right arm is for. */
+        int pastCentre;
         /** Sim seconds when the TIP started and when the run ended (0 if no TIP). */
         double tipAt, endAt;
     }
 
     /** All the TIPs at one position. */
     static final class Sweep {
-        int pieces, kept, tipsTouched, tipsFrame, tipsFlapOnly, flapOnlyPieces, mostInside, overFour;
+        int pieces, kept, tipsTouched, tipsFrame, tipsFlapOnly, flapOnlyPieces, mostInside, overFour, pastCentre;
 
         void add(Run r) {
             pieces += r.pieces;
+            pastCentre += r.pastCentre;
             kept += r.kept;
             if (r.touched > 0) tipsTouched++;
             if (r.frame > 0) tipsFrame++;
@@ -82,7 +85,11 @@ public class BodyShapeSpillTest {
         }
         assertTrue("a 16 in body's flaps can't reach 3 in out and 3 in forward", threw);
         assertEquals(22, BodyShape.FLAPS_16.footprint()[1], 1e-9);
-        for (BodyShape b : new BodyShape[] {BodyShape.FRONT_C, BodyShape.C_14, BodyShape.RIGHT_HOOK}) {
+        for (BodyShape b : new BodyShape[] {BodyShape.RIGID_A, BodyShape.RIGID_B, BodyShape.RIGID_C}) {
+            assertEquals(b.name, 18, b.footprint()[0], 1e-9);
+            assertEquals(b.name, 18, b.footprint()[1], 1e-9);
+        }
+        for (BodyShape b : new BodyShape[] {BodyShape.FRONT_C, BodyShape.C_14, BodyShape.RIGHT_HOOK, BodyShape.RIGHT_HOOK_SMALL}) {
             assertEquals(b.name, 24, b.footprint()[0], 1e-9);
             assertEquals(b.name, 18, b.footprint()[1], 1e-9);
         }
@@ -267,10 +274,14 @@ public class BodyShapeSpillTest {
                 // The angled-flap funnels (shape sheet 3-7), where their cards put them.
                 {BodyShape.FLAPS_16, boxX, face95}, {BodyShape.FLAPS_16_WIDE, boxX, face95}, {BodyShape.FLAPS_15, boxX, face95},
                 {BodyShape.SHORT_18, boxX, face95}, {BodyShape.FLARED_16, boxX, face95},
+                // Rigid V guides inside 18 x 18.
+                {BodyShape.RIGID_A, boxX, face95}, {BodyShape.RIGID_B, boxX, face95}, {BodyShape.RIGID_C, boxX, face95},
                 {BodyShape.FRONT_C, boxX, LINE_100_IN},
                 {BodyShape.C_14, boxX, face95}, {BodyShape.RIGHT_HOOK, right95 - 9, face95},
                 // On the match-start spill's right 95% line: its right edges are 72.0 (100%) and 69.2 (90%).
-                {BodyShape.RIGHT_HOOK, (72.0 + 69.2) / 2 - 9, face95}};
+                {BodyShape.RIGHT_HOOK, (72.0 + 69.2) / 2 - 9, face95},
+                // Around both spills' 90% boxes: near line 37.5 (match start), right edge 69.2 (match start).
+                {BodyShape.RIGHT_HOOK_SMALL, 69.2 - 9, 37.5}};
         int[] loads = {0, HiveCalibration.NECTAR_AT_MATCH_START};
         List<Sweep[]> results = java.util.Arrays.stream(cases).parallel().map(c -> {
             BodyShape b = (BodyShape) c[0];
@@ -285,14 +296,15 @@ public class BodyShapeSpillTest {
             return s;
         }).collect(Collectors.toList());
         // For tools/spill-window/shapes.py's shortlist: one row per shape, spot and load.
-        StringBuilder csv = new StringBuilder("# shape,xIn,faceIn,nectar,keptPerTip,piecesPerTip,g409Tips,chassisTips,guideOnlyTips;"
+        StringBuilder csv = new StringBuilder("# shape,xIn,faceIn,nectar,keptPerTip,piecesPerTip,g409Tips,chassisTips,guideOnlyTips,pastCentrePercent;"
                 + " BodyShapeSpillTest.rightHookAtTheSpill, " + TIPS + " TIPs each\n");
         for (int i = 0; i < cases.length; i++) {
             BodyShape b = (BodyShape) cases[i][0];
             Sweep[] s = results.get(i);
             for (int k = 0; k < 2; k++) {
-                csv.append(String.format(Locale.ROOT, "\"%s\",%.2f,%.1f,%d,%.2f,%.2f,%d,%d,%d%n", b.name, (Double) cases[i][1], (Double) cases[i][2],
-                        loads[k], (double) s[k].kept / TIPS, (double) s[k].pieces / TIPS, s[k].tipsTouched, s[k].tipsFrame, s[k].tipsFlapOnly));
+                csv.append(String.format(Locale.ROOT, "\"%s\",%.2f,%.1f,%d,%.2f,%.2f,%d,%d,%d,%.0f%n", b.name, (Double) cases[i][1], (Double) cases[i][2],
+                        loads[k], (double) s[k].kept / TIPS, (double) s[k].pieces / TIPS, s[k].tipsTouched, s[k].tipsFrame, s[k].tipsFlapOnly,
+                        100.0 * s[k].pastCentre / s[k].pieces));
             }
             System.out.println(String.format(Locale.ROOT,
                     "HOOK %-26s x %5.2f face %4.1f: 8 POLLEN kept %.2f of %.1f a TIP, G409 TIPs %3d (chassis %3d, guides only %3d), over 4 inside %3d"
@@ -399,6 +411,7 @@ public class BodyShapeSpillTest {
             double fromNose = lx - (half + b.reach());
             if (fromNose > -SideWallSpillTest.GATHER_BEHIND_NOSE_IN && fromNose < SideWallSpillTest.GATHER_AHEAD_IN
                     && Math.abs(ly) < SideWallSpillTest.GATHER_HALF_WIDTH_IN) r.kept++;
+            if (p.x > FieldSim.CENTRE_IN) r.pastCentre++;
             double fromFace = lx - half;
             if (fromFace > -SideWallSpillTest.GATHER_BEHIND_NOSE_IN && fromFace < SideWallSpillTest.GATHER_AHEAD_IN
                     && Math.abs(ly) < SideWallSpillTest.GATHER_HALF_WIDTH_IN) r.keptFace++;

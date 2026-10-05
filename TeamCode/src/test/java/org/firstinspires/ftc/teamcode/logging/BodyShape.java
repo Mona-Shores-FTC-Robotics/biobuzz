@@ -101,6 +101,20 @@ final class BodyShape {
     static final BodyShape C_14 = new BodyShape("C 18x14, arms 10", 14, 18, 0, 0, 10).fenced("C 18x14, arms 10", true, true);
     /** Ideas sheet 13: the 14 in chassis with only its right arm and the crossbeam; the left side open. */
     static final BodyShape RIGHT_HOOK = new BodyShape("right hook 18x14, arm 10", 14, 18, 0, 0, 10).fenced("right hook 18x14, arm 10", false, true);
+    /**
+     * The small right hook (mentor, 5 Oct 2026): as small as fits around the 90% box of both spills, an 8 in arm
+     * from the near 90% line to the far one, so the chassis can be 16 in long.
+     */
+    static final BodyShape RIGHT_HOOK_SMALL = new BodyShape("small right hook 18x16, arm 8", 16, 18, 0, 0, 8)
+            .fenced("small right hook 18x16, arm 8", false, true);
+
+    /*
+     * Rigid V guides inside 18 x 18 (mentor, 5 Oct 2026): a narrower chassis with fixed flaps from its front
+     * corners to the 18 in box's edges, so nothing deploys and the robot is 18 x 18 all match.
+     */
+    static final BodyShape RIGID_A = new BodyShape("rigid V 14x16, 2 out 2 fwd", 16, 14, 0, 2, 2);
+    static final BodyShape RIGID_B = new BodyShape("rigid V 12x15, 3 out 3 fwd", 15, 12, 0, 3, 3);
+    static final BodyShape RIGID_C = new BodyShape("rigid V 14x14, 2 out 4 fwd", 14, 14, 0, 2, 4);
 
     /** The shapes {@link BodyShapeSpillTest#atTheLandingLine} parks at the spill's edge. */
     static final BodyShape[] LANDING = {PLAIN, LONG_U, FLAPS_16, FLAPS_16_WIDE, FLAPS_15, SHORT_18, FLARED_16, RAMPS_18};
