@@ -1,15 +1,111 @@
 {
   "startPoint": {
-    "x": 59,
-    "y": 134.0,
+    "x": 59.0,
+    "y": 7.75,
     "name": "START",
-    "headingDeg": 270
+    "headingDeg": 90
   },
   "lines": [
     {
-      "id": "to-n-fire-1",
+      "id": "to-lane-s-1",
       "color": "#3cc8e4",
-      "name": "START to N_FIRE",
+      "name": "START to LANE_S",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 36,
+        "y": 22
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-lane-n-2",
+      "color": "#3cc8e4",
+      "name": "LANE_S to LANE_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 36,
+        "y": 100
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-row-s-3",
+      "color": "#3cc8e4",
+      "name": "LANE_N to ROW_S",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 50.47,
+        "y": 113.91
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0.0,
+              "endProgress": 0.9,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 141.5
+              }
+            },
+            {
+              "startProgress": 0.9,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 141.5
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-row-n-4",
+      "color": "#3cc8e4",
+      "name": "ROW_S to ROW_N",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.26,
+        "y": 116.46
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 141.5
+      }
+    },
+    {
+      "id": "to-n-low-5",
+      "color": "#3cc8e4",
+      "name": "ROW_N to N_LOW",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -21,14 +117,42 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 270
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 141.5
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 0.9,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 141.5,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.9,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     },
     {
-      "id": "to-far-flower-turn-2",
+      "id": "to-far-flower-turn-6",
       "color": "#3cc8e4",
-      "name": "N_FIRE to FAR_FLOWER_TURN",
+      "name": "N_LOW to FAR_FLOWER_TURN",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -70,7 +194,7 @@
       }
     },
     {
-      "id": "to-far-flower-3",
+      "id": "to-far-flower-7",
       "color": "#3cc8e4",
       "name": "FAR_FLOWER_TURN to FAR_FLOWER",
       "waitBeforeMs": 0,
@@ -89,7 +213,7 @@
       }
     },
     {
-      "id": "to-n-fire-4",
+      "id": "to-n-fire-8",
       "color": "#3cc8e4",
       "name": "FAR_FLOWER to N_FIRE",
       "waitBeforeMs": 0,
@@ -128,7 +252,7 @@
       }
     },
     {
-      "id": "to-s-fire-5",
+      "id": "to-s-fire-9",
       "color": "#3cc8e4",
       "name": "N_FIRE to S_FIRE",
       "waitBeforeMs": 0,
@@ -167,7 +291,7 @@
       }
     },
     {
-      "id": "to-sweep-e-6",
+      "id": "to-sweep-e-10",
       "color": "#3cc8e4",
       "name": "S_FIRE to SWEEP_E",
       "waitBeforeMs": 0,
@@ -187,7 +311,7 @@
       }
     },
     {
-      "id": "to-sweep-w-7",
+      "id": "to-sweep-w-11",
       "color": "#3cc8e4",
       "name": "SWEEP_E to SWEEP_W",
       "waitBeforeMs": 0,
@@ -206,7 +330,7 @@
       }
     },
     {
-      "id": "to-garden-8",
+      "id": "to-garden-12",
       "color": "#3cc8e4",
       "name": "SWEEP_W to GARDEN",
       "waitBeforeMs": 0,
@@ -247,145 +371,6 @@
             }
           ]
         }
-      }
-    },
-    {
-      "id": "to-s-fire-9",
-      "color": "#3cc8e4",
-      "name": "GARDEN to S_FIRE",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 57.5,
-        "y": 24
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1.0,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 270,
-                "endDeg": 90
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-park-10",
-      "color": "#3cc8e4",
-      "name": "S_FIRE to PARK",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 13,
-        "y": 87.75
-      },
-      "controlPoints": [
-        {
-          "x": 28,
-          "y": 24
-        },
-        {
-          "x": 24,
-          "y": 70
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-garden-11",
-      "color": "#3cc8e4",
-      "name": "S_FIRE to GARDEN",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 8.5,
-        "y": 9.25
-      },
-      "controlPoints": [
-        {
-          "x": 8.5,
-          "y": 30
-        }
-      ],
-      "heading": {
-        "type": "piecewise",
-        "piecewiseHeading": {
-          "segments": [
-            {
-              "startProgress": 0.0,
-              "endProgress": 0.7,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 270
-              }
-            },
-            {
-              "startProgress": 0.7,
-              "endProgress": 1,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 270
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "id": "to-park-12",
-      "color": "#3cc8e4",
-      "name": "GARDEN to PARK",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 13,
-        "y": 87.75
-      },
-      "controlPoints": [
-        {
-          "x": 30,
-          "y": 22
-        },
-        {
-          "x": 26,
-          "y": 70
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
       }
     },
     {
@@ -437,7 +422,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 13,
+        "x": 13.0,
         "y": 87.75
       },
       "controlPoints": [
@@ -456,7 +441,118 @@
       }
     },
     {
-      "id": "to-park-15",
+      "id": "to-garden-15",
+      "color": "#3cc8e4",
+      "name": "S_FIRE to GARDEN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 8.5,
+        "y": 9.25
+      },
+      "controlPoints": [
+        {
+          "x": 8.5,
+          "y": 30
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0.0,
+              "endProgress": 0.7,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.7,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-park-16",
+      "color": "#3cc8e4",
+      "name": "GARDEN to PARK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 13.0,
+        "y": 87.75
+      },
+      "controlPoints": [
+        {
+          "x": 30,
+          "y": 22
+        },
+        {
+          "x": 26,
+          "y": 70
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-s-fire-17",
+      "color": "#3cc8e4",
+      "name": "GARDEN to S_FIRE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 24
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-park-18",
       "color": "#3cc8e4",
       "name": "S_FIRE to PARK",
       "waitBeforeMs": 0,
@@ -465,7 +561,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 13,
+        "x": 13.0,
         "y": 87.75
       },
       "controlPoints": [
@@ -561,35 +657,35 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-n-fire-1"
+      "lineId": "to-lane-s-1"
     },
     {
       "kind": "path",
-      "lineId": "to-far-flower-turn-2"
+      "lineId": "to-lane-n-2"
     },
     {
       "kind": "path",
-      "lineId": "to-far-flower-3"
+      "lineId": "to-row-s-3"
     },
     {
       "kind": "path",
-      "lineId": "to-n-fire-4"
+      "lineId": "to-row-n-4"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-5"
+      "lineId": "to-n-low-5"
     },
     {
       "kind": "path",
-      "lineId": "to-sweep-e-6"
+      "lineId": "to-far-flower-turn-6"
     },
     {
       "kind": "path",
-      "lineId": "to-sweep-w-7"
+      "lineId": "to-far-flower-7"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-8"
+      "lineId": "to-n-fire-8"
     },
     {
       "kind": "path",
@@ -597,15 +693,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-10"
+      "lineId": "to-sweep-e-10"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-11"
+      "lineId": "to-sweep-w-11"
     },
     {
       "kind": "path",
-      "lineId": "to-park-12"
+      "lineId": "to-garden-12"
     },
     {
       "kind": "path",
@@ -617,7 +713,19 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-15"
+      "lineId": "to-garden-15"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-fire-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-18"
     }
   ],
   "settings": {
@@ -658,21 +766,19 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-o3",
+    "exportName": "qual-stages-b-west-third",
     "registry": {
       "actions": [
-        "SpinUp",
         "LaunchAll"
       ],
       "conditions": [
-        "LeftCellUp",
         "Empty",
         "IntakeFull",
         "Tip",
-        "RightCellUp"
+        "RightCellUp",
+        "LeftCellUp"
       ],
       "typicalS": {
-        "SpinUp": 0.1,
         "LaunchAll": 2.0
       },
       "events": [
@@ -681,9 +787,9 @@
     },
     "points": {
       "START": [
-        59,
-        134.0,
-        270
+        59.0,
+        7.75,
+        90
       ],
       "S_SHOOT": [
         57.5,
@@ -736,7 +842,7 @@
         270
       ],
       "PARK": [
-        13,
+        13.0,
         87.75,
         90
       ],
@@ -755,6 +861,21 @@
         121.04,
         90
       ],
+      "WALL_FLOWER": [
+        12.16,
+        47.36,
+        180
+      ],
+      "WALL_FLOWER_IN": [
+        17.96,
+        47.36,
+        180
+      ],
+      "WALL_FLOWER_TURN": [
+        20.46,
+        47.36,
+        180
+      ],
       "S_FIRE": [
         57.5,
         24,
@@ -764,6 +885,26 @@
         57.5,
         114,
         270
+      ],
+      "ROW_S": [
+        50.47,
+        113.91,
+        141.5
+      ],
+      "ROW_N": [
+        47.26,
+        116.46,
+        141.5
+      ],
+      "LANE_N": [
+        36,
+        100,
+        90
+      ],
+      "LANE_S": [
+        36,
+        22,
+        90
       ],
       "SWEEP_E": [
         57.5,
@@ -777,56 +918,96 @@
       ]
     },
     "pathEnds": {
-      "to-n-fire-1": "N_FIRE",
-      "to-far-flower-turn-2": "FAR_FLOWER_TURN",
-      "to-far-flower-3": "FAR_FLOWER",
-      "to-n-fire-4": "N_FIRE",
-      "to-s-fire-5": "S_FIRE",
-      "to-sweep-e-6": "SWEEP_E",
-      "to-sweep-w-7": "SWEEP_W",
-      "to-garden-8": "GARDEN",
+      "to-lane-s-1": "LANE_S",
+      "to-lane-n-2": "LANE_N",
+      "to-row-s-3": "ROW_S",
+      "to-row-n-4": "ROW_N",
+      "to-n-low-5": "N_LOW",
+      "to-far-flower-turn-6": "FAR_FLOWER_TURN",
+      "to-far-flower-7": "FAR_FLOWER",
+      "to-n-fire-8": "N_FIRE",
       "to-s-fire-9": "S_FIRE",
-      "to-park-10": "PARK",
-      "to-garden-11": "GARDEN",
-      "to-park-12": "PARK",
+      "to-sweep-e-10": "SWEEP_E",
+      "to-sweep-w-11": "SWEEP_W",
+      "to-garden-12": "GARDEN",
       "to-s-fire-13": "S_FIRE",
       "to-park-14": "PARK",
-      "to-park-15": "PARK"
+      "to-garden-15": "GARDEN",
+      "to-park-16": "PARK",
+      "to-s-fire-17": "S_FIRE",
+      "to-park-18": "PARK"
     },
     "startAt": "START",
     "cards": [
       {
-        "id": "a-1",
-        "kind": "action",
-        "name": "SpinUp"
-      },
-      {
-        "id": "p-2",
-        "kind": "path",
-        "lineId": "to-n-fire-1",
-        "park": false
-      },
-      {
-        "id": "w-3",
+        "id": "w-1",
         "kind": "firstOf",
-        "label": "TIP 1 (the partner)",
+        "label": "Fire the preloads (TIP 1)",
         "rows": [
           {
             "when": [
-              "LeftCellUp"
+              "Empty"
             ],
             "cards": []
           },
           {
-            "afterMs": 9000,
+            "afterMs": 4000,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
+      },
+      {
+        "id": "p-2",
+        "kind": "path",
+        "lineId": "to-lane-s-1",
+        "park": false
+      },
+      {
+        "id": "p-3",
+        "kind": "path",
+        "lineId": "to-lane-n-2",
+        "park": false
+      },
+      {
+        "id": "p-4",
+        "kind": "path",
+        "lineId": "to-row-s-3",
+        "park": false
+      },
+      {
+        "id": "p-5",
+        "kind": "path",
+        "lineId": "to-row-n-4",
+        "park": false
+      },
+      {
+        "id": "w-6",
+        "kind": "firstOf",
+        "label": "The staged row",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 1600,
             "cards": []
           }
         ]
       },
       {
-        "id": "w-4",
+        "id": "p-7",
+        "kind": "path",
+        "lineId": "to-n-low-5",
+        "park": false
+      },
+      {
+        "id": "w-8",
         "kind": "firstOf",
-        "label": "Fire the preloads at the left CELL",
+        "label": "Fire the row",
         "rows": [
           {
             "when": [
@@ -842,19 +1023,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-5",
+        "id": "p-9",
         "kind": "path",
-        "lineId": "to-far-flower-turn-2",
+        "lineId": "to-far-flower-turn-6",
         "park": false
       },
       {
-        "id": "p-6",
+        "id": "p-10",
         "kind": "path",
-        "lineId": "to-far-flower-3",
+        "lineId": "to-far-flower-7",
         "park": false
       },
       {
-        "id": "w-7",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "The far FLOWER",
         "rows": [
@@ -871,13 +1052,13 @@
         ]
       },
       {
-        "id": "p-8",
+        "id": "p-12",
         "kind": "path",
-        "lineId": "to-n-fire-4",
+        "lineId": "to-n-fire-8",
         "park": false
       },
       {
-        "id": "w-9",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Fire the far FLOWER (TIP 2)",
         "rows": [
@@ -895,7 +1076,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-10",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "TIP 2 settles",
         "rows": [
@@ -912,7 +1093,7 @@
         ]
       },
       {
-        "id": "w-11",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "It lands",
         "rows": [
@@ -929,13 +1110,13 @@
         ]
       },
       {
-        "id": "p-12",
+        "id": "p-16",
         "kind": "path",
-        "lineId": "to-s-fire-5",
+        "lineId": "to-s-fire-9",
         "park": false
       },
       {
-        "id": "w-13",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Fire TIP 2's spill",
         "rows": [
@@ -953,25 +1134,25 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-14",
+        "id": "p-18",
         "kind": "path",
-        "lineId": "to-sweep-e-6",
+        "lineId": "to-sweep-e-10",
         "park": false
       },
       {
-        "id": "p-15",
+        "id": "p-19",
         "kind": "path",
-        "lineId": "to-sweep-w-7",
+        "lineId": "to-sweep-w-11",
         "park": false
       },
       {
-        "id": "p-16",
+        "id": "p-20",
         "kind": "path",
-        "lineId": "to-garden-8",
+        "lineId": "to-garden-12",
         "park": false
       },
       {
-        "id": "w-17",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "The GARDEN",
         "rows": [
@@ -988,13 +1169,13 @@
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-22",
         "kind": "path",
-        "lineId": "to-s-fire-9",
+        "lineId": "to-s-fire-13",
         "park": false
       },
       {
-        "id": "w-19",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Fire the GARDEN",
         "rows": [
@@ -1012,31 +1193,25 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-30",
+        "id": "w-32",
         "kind": "firstOf",
-        "label": "TIP 3 coming?",
+        "label": "No TIP 3 yet?",
         "rows": [
           {
             "when": [
-              "Tip"
+              "RightCellUp"
             ],
             "cards": [
               {
-                "id": "p-29",
+                "id": "p-25",
                 "kind": "path",
-                "lineId": "to-park-15",
-                "park": true
-              }
-            ],
-            "label": "TIP 3: PARK"
-          },
-          {
-            "afterMs": 800,
-            "cards": [
+                "lineId": "to-garden-15",
+                "park": false
+              },
               {
-                "id": "w-28",
+                "id": "w-31",
                 "kind": "firstOf",
-                "label": "No TIP 3 yet?",
+                "label": "Still no TIP 3?",
                 "rows": [
                   {
                     "when": [
@@ -1044,95 +1219,62 @@
                     ],
                     "cards": [
                       {
-                        "id": "p-21",
-                        "kind": "path",
-                        "lineId": "to-garden-11",
-                        "park": false
-                      },
-                      {
                         "id": "w-27",
                         "kind": "firstOf",
-                        "label": "Still no TIP 3?",
+                        "label": "The GARDEN again",
                         "rows": [
                           {
                             "when": [
-                              "RightCellUp"
+                              "IntakeFull"
                             ],
-                            "cards": [
-                              {
-                                "id": "w-23",
-                                "kind": "firstOf",
-                                "label": "The GARDEN again",
-                                "rows": [
-                                  {
-                                    "when": [
-                                      "IntakeFull"
-                                    ],
-                                    "cards": []
-                                  },
-                                  {
-                                    "afterMs": 1100,
-                                    "cards": []
-                                  }
-                                ]
-                              },
-                              {
-                                "id": "p-24",
-                                "kind": "path",
-                                "lineId": "to-s-fire-13",
-                                "park": false
-                              },
-                              {
-                                "id": "w-25",
-                                "kind": "firstOf",
-                                "label": "Fire the GARDEN again",
-                                "rows": [
-                                  {
-                                    "when": [
-                                      "LeftCellUp"
-                                    ],
-                                    "cards": []
-                                  },
-                                  {
-                                    "afterMs": 2500,
-                                    "cards": []
-                                  }
-                                ],
-                                "alongside": "LaunchAll"
-                              },
-                              {
-                                "id": "p-26",
-                                "kind": "path",
-                                "lineId": "to-park-14",
-                                "park": false
-                              }
-                            ],
-                            "label": "No TIP: fire the GARDEN"
+                            "cards": []
                           },
                           {
-                            "afterMs": 20,
-                            "cards": [
-                              {
-                                "id": "p-22",
-                                "kind": "path",
-                                "lineId": "to-park-12",
-                                "park": true
-                              }
-                            ],
-                            "label": "TIP 3: PARK"
+                            "afterMs": 1100,
+                            "cards": []
                           }
                         ]
+                      },
+                      {
+                        "id": "p-28",
+                        "kind": "path",
+                        "lineId": "to-s-fire-17",
+                        "park": false
+                      },
+                      {
+                        "id": "w-29",
+                        "kind": "firstOf",
+                        "label": "Fire the GARDEN again",
+                        "rows": [
+                          {
+                            "when": [
+                              "LeftCellUp"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 2500,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      },
+                      {
+                        "id": "p-30",
+                        "kind": "path",
+                        "lineId": "to-park-18",
+                        "park": false
                       }
                     ],
-                    "label": "No TIP: the GARDEN"
+                    "label": "No TIP: fire the GARDEN"
                   },
                   {
                     "afterMs": 20,
                     "cards": [
                       {
-                        "id": "p-20",
+                        "id": "p-26",
                         "kind": "path",
-                        "lineId": "to-park-10",
+                        "lineId": "to-park-16",
                         "park": true
                       }
                     ],
@@ -1141,7 +1283,19 @@
                 ]
               }
             ],
-            "label": "Not yet: look again"
+            "label": "No TIP: the GARDEN"
+          },
+          {
+            "afterMs": 20,
+            "cards": [
+              {
+                "id": "p-24",
+                "kind": "path",
+                "lineId": "to-park-14",
+                "park": true
+              }
+            ],
+            "label": "TIP 3: PARK"
           }
         ]
       }

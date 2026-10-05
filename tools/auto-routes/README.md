@@ -16,10 +16,11 @@ made 3 TIPs; and G409, spilled pieces our robot touched before they reached the 
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.5 / 60.8** | **12 / 9** | **0 / 0** | 5 Oct 2026 17:11 |
-| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-stages-o3`, `qual_right.py`) | `partner-stage-exit` | **54.0 / 56.0** | 0 / 0 (TIP 2 18 / 20, PARK 20 / 20) | **0 / 0** | 5 Oct 2026 17:11 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.8 / 61.3** | **11 / 8** (PARK 11 / 9) | **0 / 0** | 5 Oct 2026 21:49 |
+| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **56.0 / 54.8** | 0 / 0 (TIP 2 20 / 19, PARK 20 / 19) | 1 run / 0 | 5 Oct 2026 21:49 |
+| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **51.0 / 51.0** | 0 / 0 (TIP 2 20 / 20, no PARK) | 0 / 0 | 5 Oct 2026 21:49 |
 
-`DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-o3` exports
+`DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
 and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 68.0, 17 / 16, run 15:49) stays as
 the "what a wider intake buys"; qual.py's own Autos (`qual-partner-*`) are another session's.
 `python3 qual_shapes.py` writes qual-right-v3 (the spring-hood robot) for the spill shapes (a rigid V, a large and a
@@ -87,19 +88,29 @@ no G409. Nothing tried beat it:
 TIP 3 comes at about 27.5 s when it comes: the narrower intake catches less of each spill, so the
 sweep through TIP 1's leftovers is what makes it, and there is no time left to add another source.
 
-**Qual-PartnerStages** (`qual-stages-o3`): qual.py's Stages up to TIP 2, with 500 ms more for TIP 1's
-spill to land before driving north into it, then TIP 2's spill and the GARDEN fired at the right CELL,
-and PARK:
+**Qual-PartnerShootsRight, after TIP 3** (mentor, 5 Oct): it went back to the GARDEN after TIP 3 had
+been fired, because the right CELL is still up for a moment after the last shot. `qual-right-o3` now waits
+up to 0.8 s for the TIP to start (`tip_ms`): PARK 11 / 9 (was 6 / 3), TIP 3 11 / 8 (was 12 / 9; 0.8–2.2 s
+all alike), 64.8 / 61.3 points.
 
-| Variant | TIP 2 | 3 TIPs | Our PARK | Points | G409 runs |
-|---|---|---|---|---|---|
-| qual.py's Stages, moved for the body | 20 / 17 | 2 / 1 | 0 / 0 | 53.0 / 49.0 | 18 / 10 |
-| + 500 ms for TIP 1's spill, qual-right-v3's tail (a third load) | 18 / 20 | 0 / 0 | 0 / 0 | 48.9 / 51.0 | 0 |
-| ... no third load: sweep, GARDEN, PARK | 18 / 20 | 0 / 0 | 17 / 20 | 53.3 / 56.0 | 0 |
-| **... straight into the GARDEN, PARK** (`qual-stages-o3`) | 18 / 20 | 0 / 0 | **20 / 20** | **54.0 / 56.0** | **0** |
+**Qual-PartnerStages, with a realistic partner** (mentor, 5 Oct: it can't set pieces down; its 4 POLLEN
+start on the tiles touching it, G304, and it only drives forward). Two ways to stand it, both tried, each
+with two first halves ("chase": TIP 1's spill north through the tunnel, then the row; "west": a lane west
+of the HIVE to the row, then the far FLOWER):
 
-TIP 2 comes at about 21 s, too late for TIP 3 with this intake; PARK (+5) and the 2 pieces held for
-TELEOP are what is left to earn.
+| Partner | Our plan | TIP 2 | 3 TIPs | Our PARK | Points | G409 runs |
+|---|---|---|---|---|---|---|
+| **Angled** (B: back-right corner on the wall at x 32, aimed at the LOADING ZONE) | **chase, PARK** (`qual-stages-angled`) | 20 / 19 | 0 / 0 | 20 / 19 | **56.0 / 54.8** | 1 / 0 |
+| Angled (parked at 14, 106, before it moved to 14, 109) | west, PARK | 19 / 18 | 0 / 0 | 1 / 1 | 50.3 / 49.3 | 0 |
+| Angled | chase, a third load instead of PARK | 20 / 19 | 1 / 0 | 0 | 51.9 / 50.0 | 1 / 0 |
+| **Against the wall** (A: at x 19, parks at y 100, on our PARK spot) | **west, no PARK** (`qual-stages-wall`) | 20 / 20 | 0 / 0 | — | **51.0 / 51.0** | 0 |
+| Against the wall | chase, no PARK | 18 / 18 | 0 / 0 | — | 49.0 / 49.0 | 0 (robots touch at 11 s) |
+
+What it took to get all 4 of the row: come at it side-on, all 4 against the intake at once. Driven into
+end-on, the intake takes one while the body shoves the rest ahead (2–3 of 4). With A, the parked partner,
+its row and our 14.5 in robot only just fit: we turn at the lane's top and slide west at y 118. Parking
+round it took too long and the endgame guard's cut-short park drove into the HIVE frame, so with A we stay.
+TIP 2 comes at about 21 s either way, too late for TIP 3 (8 more pieces by 30 s).
 
 ### Qual-PartnerShootsRight v3 (the full-width robot, before option 3)
 
@@ -193,7 +204,8 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 | Auto (files) | Together | Our robot | The other robot |
 |---|---|---|---|
 | Qual-PartnerShootsRight (`qual-right-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) | [qual-right-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
-| Qual-PartnerStages (`qual-stages-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Option3) | [qual-stages-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-o3.pp) | partner: [partner-stage-exit](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) |
+| Qual-PartnerStages, angled partner (`qual-stages-angled`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) | [qual-stages-angled](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) | partner: [partner-angled-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) |
+| Qual-PartnerStages, partner against the wall (`qual-stages-wall`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) | [qual-stages-wall](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) | partner: [partner-stage19-side-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) |
 | What a wider intake buys: Qual-PartnerShootsRight v3 on the full-width robot (`qual-right-v3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) | [qual-right-v3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
 
 Older Autos, for earlier robots and not re-run: [DEPRECATED.md](DEPRECATED.md).

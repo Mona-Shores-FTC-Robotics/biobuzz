@@ -658,7 +658,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-o3",
+    "exportName": "qual-right-o3-tip800",
     "registry": {
       "actions": [
         "SpinUp",

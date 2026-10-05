@@ -15,7 +15,16 @@ import autogen
 from qual import *
 
 
-def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False):
+def go_park(r, park=True, ctrl=((28, 24), (24, 70)), turn_by=0.65):
+    """Cards from where r is to PARK: one path up the west side, or, when the route sets r.park_via (a list
+    of point names), through those first (round a parked partner)."""
+    via = getattr(r, "park_via", None)
+    if not via:
+        return [r.go("PARK", ctrl=list(ctrl), heading=90, turn_by=turn_by, park=park)]
+    return [r.go(p, heading=90) for p in via] + [r.go("PARK", heading=90, park=park)]
+
+
+def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False, tip_ms=0, park=True):
     """From N_FIRE (facing the HIVE) once TIP 2 has started: south through its spill and the tunnel,
     fire it straight on from `spill_at`; the GARDEN's 4, fired from S_FIRE; then, if TIP 3 hasn't come,
     what lies near our end (webcam) fired straight on; PARK."""
@@ -50,25 +59,27 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
             r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the GARDEN{tag}", "Empty", ms=garden_ms)]
     r.at = "S_FIRE"
     if third:
-        return out + third_load(r, tag, catch3=catch3)
+        return out + third_load(r, tag, catch3=catch3, tip_ms=tip_ms)
     if catch3:  # no third load and no PARK: stand at the catch spot for TIP 3's spill, for TELEOP
         return out + [r.go("S_CATCH", heading=90), r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=8000)]
-    park = r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90, park=True)
+    if not park:  # stay where we fired (a partner is parked on our PARK spot)
+        return out
+    park = go_park(r)
     if not leftovers:
-        return out + [park]
+        return out + park
     # Not TIP 3 yet: what lies in front of the right CELL (missed shots, TIP 2's spill), with the
     # webcam, then back to S_FIRE and fired straight on; PARK only once that fire is over.
     more = [*catch(r, f"Leftovers{tag}", "S", ms=leftovers), r.go("S_FIRE", heading=90),
             fire(r, f"Fire the leftovers{tag}", "LeftCellUp", ms=2000)]
     r.at = "S_FIRE"
-    more.append(r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90))
+    more += go_park(r, park=False)
     r.at = "S_FIRE"
-    out.append(r.wait(f"TIP 3?{tag}", when=["Tip"], ms=700, yes=[park], no=more,
+    out.append(r.wait(f"TIP 3?{tag}", when=["Tip"], ms=700, yes=park, no=more,
                       yes_label="Yes: PARK", no_label="No: leftovers"))
     return out
 
 
-def third_load(r, tag="", wait_full=1100, catch3=False):
+def third_load(r, tag="", wait_full=1100, catch3=False, tip_ms=0):
     """From S_FIRE once the GARDEN's shots are away. A TIP under way or done (the right CELL no longer
     up): PARK. If not: back to the GARDEN (what the sweep left in it) and look again there; still no
     TIP, so carry what it holds back to S_FIRE and fire it. A TIP that completes in the 8 s after AUTO
@@ -76,24 +87,32 @@ def third_load(r, tag="", wait_full=1100, catch3=False):
     path after that fire (the endgame guard would cut it short), only a path there, parked if it
     arrives by 30 s."""
     r.at = "S_FIRE"
-    park_here = [r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90, park=True)]
+    park_here = go_park(r)
     if catch3:  # instead of PARK: stand at the catch spot for TIP 3's spill, for TELEOP
         park_here = [r.go("S_CATCH", heading=90), r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=6000)]
     r.at = "S_FIRE"
     go = r.go("GARDEN", ctrl=[(8.5, 30)], turn_by=0.7)
     r.at = "GARDEN"
-    done = [r.go("PARK", ctrl=[(30, 22), (26, 70)], heading=90, turn_by=0.5, park=True)]
+    done = go_park(r, ctrl=[(30, 22), (26, 70)], turn_by=0.5)
     if catch3:
         done = [r.go("S_CATCH", turn_after=0.3, turn_by=1.0), r.wait(f"Catch TIP 3's spill (B){tag}", when=["IntakeFull"], ms=6000)]
     r.at = "GARDEN"
     more = [r.wait(f"The GARDEN again{tag}", when=["IntakeFull"], ms=wait_full), r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
             r.wait(f"Fire the GARDEN again{tag}", when=["LeftCellUp"], ms=2500, alongside="LaunchAll")]
     r.at = "S_FIRE"
-    more.append(r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90))
+    more += go_park(r, park=False)
     there = r.wait(f"Still no TIP 3?{tag}", when=["RightCellUp"], ms=20, yes=more, no=done,
                    yes_label="No TIP: fire the GARDEN", no_label="TIP 3: PARK")
-    return [r.wait(f"No TIP 3 yet?{tag}", when=["RightCellUp"], ms=20, yes=[go, there], no=park_here,
-                   yes_label="No TIP: the GARDEN", no_label="TIP 3: PARK")]
+    check = r.wait(f"No TIP 3 yet?{tag}", when=["RightCellUp"], ms=20, yes=[go, there], no=park_here,
+                   yes_label="No TIP: the GARDEN", no_label="TIP 3: PARK")
+    if not tip_ms:
+        return [check]
+    # The TIP starts a moment after the last shot lands, so the right CELL is still up just after the
+    # fire: wait up to tip_ms for the TIP itself (mentor, 5 Oct: after TIP 3, PARK, don't go for more).
+    r.at = "S_FIRE"
+    park_now = go_park(r)
+    return [r.wait(f"TIP 3 coming?{tag}", when=["Tip"], ms=tip_ms, yes=park_now, no=[check],
+                   yes_label="TIP 3: PARK", no_label="Not yet: look again")]
 
 
 # How far each robot's front face is from its centre: points where the front meets something (the
@@ -179,8 +198,9 @@ TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal 
 # body, then tuned on it. 20 runs, normal / slow tiles: TIP 3 in how many, AUTO points; G409 runs.
 O3V3 = {**VARIANTS["qual-right-v3"], "robot": "option3"}
 O3 = {
-    # v3 moved for the body: 12 / 9, 64.5 / 60.8, no G409. The baseline; nothing below beats it.
-    "qual-right-o3": O3V3,
+    # v3 moved for the body: 12 / 9, 64.5 / 60.8, no G409; parks 6 / 3 (after TIP 3 it went back to the
+    # GARDEN: the right CELL is still up just after the last shot). Nothing below beats its TIP 3.
+    "qual-right-o3-v3": O3V3,
     # 300 ms instead of 500 before driving into TIP 2's spill: 11 / 10; none (extra 0): 12 / 10 but
     # G409 in 14 / 1 runs; 150 ms: 12 / 9 with one G409 run.
     "qual-right-o3-x300": {**O3V3, "extra": 300},
@@ -196,6 +216,12 @@ O3 = {
     # Firing the spill from y 22, a longer GARDEN fire (2.3 s): 12 / 10, 12 / 9.
     "qual-right-o3-sfire": {**O3V3, "fire_y": 22},
     "qual-right-o3-g1": {**O3V3, "garden_ms": 2300},
+    # Mentor, 5 Oct: after TIP 3 it went back to the GARDEN (the right CELL is still up for a moment
+    # after the last shot). Wait for the TIP first, up to tip_ms.
+    # 800-2200 ms all alike: TIP 3 11 / 8, parks 11 / 9, 64.5-64.8 / 60.8-61.3.
+    **{f"qual-right-o3-tip{ms}": {**O3V3, "tip_ms": ms} for ms in (800, 1200, 1600, 2200)},
+    # The baseline (mentor, 5 Oct: after TIP 3, PARK): wait up to 800 ms for TIP 3 before another load.
+    "qual-right-o3": {**O3V3, "tip_ms": 800},
 }
 
 def fit(robot):
@@ -259,6 +285,128 @@ def stages_v3(name, robot="option3", land=500, **kw):
     return r
 
 
+# The staging partner (mentor, 5 Oct 2026): it can't shoot or set pieces down; its 4 POLLEN start on the
+# tiles touching it (G304), and its only move is to drive forward and park. Two ways to stand it:
+#   A  back against the wall behind the left CELL at x 19, its POLLEN in a row along its left side (x 29.6,
+#      y 128.6-137; AutoStudyTest.stagedFor "PartnerStage19Side"), driving straight forward to park at y 100
+#      (wall_partner): parked lower than partners.leave_park, so we fit between it and its row;
+#   B  angled, its back-right corner on that wall, aimed straight at the far end of the LOADING ZONE, its
+#      POLLEN along its left side (angled_partner, PartnerAngledParkAuto; AutoStudyTest.ANGLED_PARTNER).
+# B's back-right corner on the wall (y 141.25), aimed at PARK_B; parked, no corner touches a wall (LEAVE)
+# and one is in the LOADING ZONE; its corners clear the far FLOWER at the start, and parked reach x 26.7 and y 96.3 (our PARK is below).
+ANGLED = (32.0, 128.53, 227.3)  # = AutoStudyTest.ANGLED_PARTNER
+PARK_B = (14, 109)
+
+
+def wall_partner(name="partner-stage19-side-park"):
+    r = Route(name, (19, 132.25, 270), speed=40)
+    r.pt("PARK_P", 19, 100, 270)  # a corner (x 10, y 109) in the LOADING ZONE; its top edge y 109
+    r.add(r.go("PARK_P", heading=270, park=True))
+    return r
+
+
+def angled_partner(name="partner-angled-park"):
+    r = Route(name, ANGLED, speed=40)
+    r.pt("PARK_P", *PARK_B, ANGLED[2])
+    r.add(r.go("PARK_P", heading=ANGLED[2], park=True))
+    return r
+
+
+def left_side_row(pose):
+    """Where AutoStudyTest.alongLeftSide puts the 4 POLLEN: the row's middle and the robot's forward unit vector."""
+    import math
+    h = math.radians(pose[2])
+    f, l = (math.cos(h), math.sin(h)), (-math.sin(h), math.cos(h))
+    gap = 9 + 1.4 + 0.2
+    return (pose[0] + gap * l[0], pose[1] + gap * l[1]), f
+
+
+# North from our start, west of the HIVE frame's foot bar (x 45) and east of the parked partner: A's edge
+# x 28, B's corners x 26.7.
+LANE_X = {"A": 37, "B": 36}
+
+
+def staged_row(r, partner, row_ms, west):
+    """Cards: from where we are to the staged row and up to it side-on, all 4 against the intake at once
+    (end-on, the body shoves the rest ahead: 2-3 of 4), leaving the robot at ROW_N, full."""
+    import math
+    if partner == "A":
+        # The row runs along y (x 29.6, y 128.6-137). From the west, facing east, where the partner stood:
+        # up the lane, turning to face east at its top (x 37, y 118: the corners, 10.25 in out, clear the
+        # parked partner and the row), west at y 118 (between the partner's top edge, y 109, and the row,
+        # y 127.2), north alongside, then east until the front touches the row.
+        r.pt("LANE_N", LANE_X["A"], 118, 90).pt("LANE_R", LANE_X["A"] - 0.1, 118, 0).pt("TURN_A", 20.9, 118, 0)
+        r.pt("ROW_S", 19.5, 132.8, 0).pt("ROW_N", 20.9, 132.8, 0)
+        legs = lambda: [r.go("LANE_N", heading=90), r.go("LANE_R", turn_by=1.0), r.go("TURN_A", heading=0),
+                        r.go("ROW_S", heading=0)]
+        end_h = 0
+    else:
+        # The row runs along the angled partner's left side. From the field side, facing where the partner
+        # stood: next to N_LOW, where we fire.
+        (mx, my), f = left_side_row(ANGLED)
+        h = math.radians(ANGLED[2])
+        l = (-math.sin(h), math.cos(h))
+        end_h = round((ANGLED[2] + 270) % 360, 1)  # facing -l
+        r.pt("ROW_S", round(mx + 13 * l[0], 2), round(my + 13 * l[1], 2), end_h)
+        r.pt("ROW_N", round(mx + 8.9 * l[0], 2), round(my + 8.9 * l[1], 2), end_h)
+        r.pt("LANE_N", LANE_X["B"], 100, 90)
+        legs = lambda: [r.go("LANE_N", heading=90), r.go("ROW_S", turn_by=0.9)]
+    out = []
+    if west:  # from the start: across to the lane, up it (straight legs: a curve cuts the corners)
+        r.pt("LANE_S", LANE_X[partner], 22, 90)
+        out += [r.go("LANE_S", heading=90), *legs()]
+    elif partner == "A":  # from N_LOW, facing the left CELL: west at y 118 as above
+        out += [r.go("TURN_A", turn_after=0.8, turn_by=1.0), r.go("ROW_S", heading=0)]
+    else:  # from N_LOW, facing the left CELL
+        out.append(r.go("ROW_S", turn_by=0.8))
+    out += [r.go("ROW_N", heading=end_h), r.wait("The staged row", when=["IntakeFull"], ms=row_ms)]
+    r.at = "ROW_N"
+    return out
+
+
+def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot="option3", **kw):
+    """Qual-PartnerStages with a realistic staging partner (A or B). plan "chase": TIP 1, its spill caught
+    driving north through the tunnel and fired, then the staged row (as qual.stages). plan "west": TIP 1,
+    then north along the west lane (clear of TIP 1's spill) to the staged row, fired, then the far FLOWER,
+    fired (TIP 2 from 8 sure pieces). Then tail(**kw) after TIP 2; if TIP 2 hasn't come, the far FLOWER
+    ("chase") or TIP 1's leftovers are not reachable in time, so tail anyway."""
+    r = fit(robot)(name, S_START, speed=50)
+    ends(r)
+    flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
+    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE)
+    # A parks at (19, 100), on our PARK spot. Parking round it instead (up a lane east of it to the LOADING
+    # ZONE's free top corner, 13, 116.5) took too long to finish by 30 s, and the endgame guard's cut-short
+    # park then drove into the HIVE frame: with A, no PARK (tail(park=False)).
+    r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000))
+    if plan == "chase":
+        lands = [r.wait("It lands", when=["IntakeFull"], ms=land)] if land else []
+        r.add(r.go("S_CATCH"), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500), *lands,
+              tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch", "Empty", ms=2200))
+        r.at = "N_LOW"
+        r.add(*staged_row(r, partner, row_ms, west=False))
+        r.add(r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the row", "Tip", ms=2500))
+        r.at = "N_LOW"
+        more = [*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)]
+        r.at = "FAR_FLOWER"
+        more += [r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500)]
+        r.at = "N_FIRE"
+        more += tail(r, tag=" (B)", **kw)
+        r.at = "N_LOW"
+        tipped = tail(r, **kw)
+        r.add(r.wait("TIP 2?", when=["Tip"], ms=600, yes=tipped, no=more, yes_label="Yes", no_label="No: the far FLOWER"))
+        return r
+    # "west"
+    r.add(*staged_row(r, partner, row_ms, west=True))
+    r.add(r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the row", "Empty", ms=2500))
+    r.at = "N_LOW"
+    r.add(*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300))
+    r.at = "FAR_FLOWER"
+    r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
+    r.at = "N_FIRE"
+    r.add(*tail(r, **kw))
+    return r
+
+
 # Qual-PartnerStages for Option 3, with partners.stage_exit. 20 runs, normal / slow tiles: TIP 2, TIP 3,
 # PARK (ours), AUTO points; G409 runs. TIP 2 comes at about 21 s, too late for a TIP 3 on Option 3.
 V3 = VARIANTS["qual-right-v3"]
@@ -275,8 +423,28 @@ STAGES = {
     "qual-stages-o3-park-left": lambda name: stages_v3(name, **{**V3, "third": False, "leftovers": 1500}),
     # Straight into the GARDEN and PARK: TIP 2 18 / 20, parks 20 / 20, 54.0 / 56.0, no G409. The baseline.
     "qual-stages-o3": lambda name: stages_v3(name, **{**V3, "third": False, "garden": "two"}),
+    # A realistic staging partner (A, B), our first half "chase" or "west", the tail with a third load (no PARK)
+    # or straight into the GARDEN and PARK.
+    **{f"qual-stages-{p.lower()}-{plan}-{t}": (lambda name, p=p, plan=plan, t=t: stages_staged(
+        name, partner=p, plan=plan, **({**V3} if t == "third" else {**V3, "third": False, "garden": "two"})))
+       for p in "AB" for plan in ("chase", "west") for t in ("third", "park")},
+    # The baselines, named for the partner: B (angled) "chase" and PARK; A (against the wall) "west" with no PARK.
+    "qual-stages-angled": lambda name: stages_staged(name, partner="B", plan="chase", **{**V3, "third": False, "garden": "two"}),
+    # The one G409 run (normal tiles) isn't TIP 1's spill: 700 / 900 ms before driving into it, still one.
+    **{f"qual-stages-angled-l{ms}": (lambda name, ms=ms: stages_staged(name, partner="B", plan="chase", land=ms,
+        **{**V3, "third": False, "garden": "two"})) for ms in (700, 900)},
+    "qual-stages-wall": lambda name: stages_staged(name, partner="A", plan="west",
+                                                   **{**V3, "third": False, "garden": "two", "park": False}),
+    **{f"qual-stages-a-{plan}-stay": (lambda name, plan=plan: stages_staged(
+        name, partner="A", plan=plan, **{**V3, "third": False, "garden": "two", "park": False})) for plan in ("chase", "west")},
 }
-WINNERS = ("qual-right-v3", "qual-right-o3", "qual-stages-o3")  # exported into TeamCode/autos
+def PARTNER_OF(w):
+    kind = w.split("-")[2]
+    return {"a": "PartnerStage19SideParkAuto", "wall": "PartnerStage19SideParkAuto", "b": "PartnerAngledParkAuto",
+            "angled": "PartnerAngledParkAuto"}.get(kind, "PartnerStageExitAuto")
+
+
+WINNERS = ("qual-right-v3", "qual-right-o3", "qual-stages-angled", "qual-stages-wall")  # exported into TeamCode/autos
 
 
 def cls(name):
@@ -288,12 +456,14 @@ if __name__ == "__main__":
     which = sys.argv[2:] or list(VARIANTS)
     stages = [w for w in which if w in STAGES]
     which = [w for w in which if w not in STAGES]
+    angled_partner().write()
+    wall_partner().write()
     for w in stages:
         r = STAGES[w](w)
         r.folder = autogen.AUTOS_DIR if w in WINNERS else autogen.EXPERIMENTS
         r.write()
     for f in ("1", "3") if stages else ():
-        study(";".join(f"{cls(w)},PartnerStageExitAuto@50" for w in stages), runs=runs, designs=os.environ.get("DESIGN", D),
+        study(";".join(f"{cls(w)},{PARTNER_OF(w)}@50" for w in stages), runs=runs, designs=os.environ.get("DESIGN", D),
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})
     for w in which:

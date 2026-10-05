@@ -658,7 +658,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-o3",
+    "exportName": "qual-right-o3-tip1600",
     "registry": {
       "actions": [
         "SpinUp",
@@ -1031,7 +1031,7 @@
             "label": "TIP 3: PARK"
           },
           {
-            "afterMs": 800,
+            "afterMs": 1600,
             "cards": [
               {
                 "id": "w-28",
