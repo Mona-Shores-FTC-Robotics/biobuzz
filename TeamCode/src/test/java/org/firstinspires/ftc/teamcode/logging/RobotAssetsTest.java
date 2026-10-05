@@ -38,16 +38,17 @@ public class RobotAssetsTest {
         // The model reads back as glTF with every part present.
         Glb model = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
         int root = model.sceneRoots().get(0);
-        for (String part : new String[] {"Body", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left",
+        for (String part : new String[] {"Body", "Side plate left", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left",
                 "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }
         File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
         Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
         prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
-        File third = new File(dir.getParentFile(), RobotAssets.OPTION3_FOLDER);
-        Glb option3 = Glb.read(Files.readAllBytes(new File(third, "model.glb").toPath()));
-        option3.childNamed(option3.sceneRoots().get(0), "Funnel wheel left");
+        model.childNamed(root, "Funnel wheel left"); // the default robot is the build team's option 3
+        File wide = new File(dir.getParentFile(), RobotAssets.FULL_WIDTH_FOLDER);
+        Glb fullWidth = Glb.read(Files.readAllBytes(new File(wide, "model.glb").toPath()));
+        fullWidth.childNamed(fullWidth.sceneRoots().get(0), "Intake roller");
         model.childNamed(root, "Deflector");
         System.out.println("Wrote " + dir.getAbsolutePath() + ": copy it into AdvantageScope's userAssets folder.");
     }

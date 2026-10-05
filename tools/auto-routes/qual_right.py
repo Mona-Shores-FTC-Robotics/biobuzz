@@ -6,6 +6,7 @@ tried to make TIP 3 come in every run without fouling G409, and the baseline, qu
 exports each variant (into auto-builder/experiments, except the winner) and simulates it with
 partners.preloads_right on normal and slow tiles (AUTO_BUILDER_DIR as for autogen.py).
 """
+import os
 import sys
 import autogen
 from qual import *
@@ -159,6 +160,48 @@ TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal 
     "qual-right-catch3": {**V2, "catch3": True},
     "qual-right-stay3": {**V2, "third": False, "catch3": True},
 }
+# Option 3 as the baseline robot (mentor, 5 Oct 2026: the build team's 14.5 in low chassis with a 14 in
+# intake is closer to what they are building than the full-width robot): v3's route moved for its smaller
+# body, then tuned on it. 20 runs, normal / slow tiles, TIP 3 in how many, AUTO points.
+O3 = {
+    "qual-right-o3": {**VARIANTS["qual-right-v3"], "robot": "option3"},
+    "qual-right-o3-x300": {**VARIANTS["qual-right-v3"], "robot": "option3", "extra": 300},
+    "qual-right-o3-sw85": {**VARIANTS["qual-right-v3"], "robot": "option3", "sweep_y": 8.5},
+    "qual-right-o3-sfire": {**VARIANTS["qual-right-v3"], "robot": "option3", "fire_y": 22},
+    "qual-right-o3-g1": {**VARIANTS["qual-right-v3"], "robot": "option3", "garden_ms": 2300},
+}
+
+
+def fitted(robot, build, name):
+    """A qual.py route, `build(name)`, for `robot` without editing qual.py: as right() does by hand, the
+    start (backed against a wall) moves back by the difference in front face from the 18 in robot, and
+    the points its front meets (a FLOWER, the GARDEN) and PARK move forward by as much."""
+    import math
+    import qual
+    d = 9.0 - FRONT_IN[robot]
+
+    def move(p, sign):
+        x, y, h = p
+        return (round(x + sign * d * math.cos(math.radians(h)), 2), round(y + sign * d * math.sin(math.radians(h)), 2), h)
+
+    class Fit(Route):
+        def __init__(self, name, start, **kw):
+            super().__init__(name, move(start, -1), **kw)
+
+        def pt(self, name, x, y, h):
+            if name.startswith(("FAR_FLOWER", "WALL_FLOWER", "GARDEN", "PARK")):
+                x, y, h = move((x, y, h), 1)
+            return super().pt(name, x, y, h)
+
+    qual.Route = Fit
+    try:
+        return build(name)
+    finally:
+        qual.Route = Route
+
+
+# Qual-PartnerStages for Option 3 (qual.stages, moved for its body). 20 runs, normal / slow tiles.
+STAGES = {"qual-stages-o3": lambda name: fitted("option3", __import__("qual").stages, name)}
 WINNER = "qual-right-v3"
 
 
@@ -169,11 +212,21 @@ def cls(name):
 if __name__ == "__main__":
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     which = sys.argv[2:] or list(VARIANTS)
+    stages = [w for w in which if w in STAGES]
+    which = [w for w in which if w not in STAGES]
+    for w in stages:
+        r = STAGES[w](w)
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+    for f in ("1", "3") if stages else ():
+        study(";".join(f"{cls(w)},PartnerStageExitAuto@50" for w in stages), runs=runs, designs=os.environ.get("DESIGN", D),
+              extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
+                         "BIOBUZZ_AUTO_FRICTION": f})
     for w in which:
-        r = right(w, **{**VARIANTS, **TRIALS, **PROTO, **G409}[w])
+        r = right(w, **{**VARIANTS, **TRIALS, **PROTO, **G409, **O3}[w])
         r.folder = autogen.AUTOS_DIR if w == WINNER else autogen.EXPERIMENTS
         r.write()
-    for f in ("1", "3"):
-        study(";".join(f"{cls(w)},PartnerPreloadsRightAuto@50" for w in which), runs=runs, designs=D,
+    for f in ("1", "3") if which else ():
+        study(";".join(f"{cls(w)},PartnerPreloadsRightAuto@50" for w in which), runs=runs, designs=os.environ.get("DESIGN", D),
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})

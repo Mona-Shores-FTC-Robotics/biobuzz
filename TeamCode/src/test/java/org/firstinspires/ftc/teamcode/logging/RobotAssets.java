@@ -16,9 +16,10 @@ import java.util.Map;
 
 /**
  * Builds AdvantageScope robot models from the simulator's designs: {@value #ROBOT_NAME}
- * ({@link RobotDesign#springHoodFullWidth}, the design the published logs use) and
- * {@value #PROTOTYPE_NAME} ({@link RobotDesign#buildersPrototype}), so what you see is what the
- * simulator does.
+ * ({@link RobotDesign#buildersOption3}, the design the published logs use), {@value #PROTOTYPE_NAME}
+ * ({@link RobotDesign#buildersPrototype}) and {@value #FULL_WIDTH_NAME}
+ * ({@link RobotDesign#springHoodFullWidth}, what a wider intake would gain), so what you see is what
+ * the simulator does.
  *
  * <p>In a 3D Field tab:
  * <ul>
@@ -57,9 +58,9 @@ final class RobotAssets {
     /** The build team's prototype (RobotDesign#buildersPrototype), for logs simulated with it. */
     static final String PROTOTYPE_FOLDER = "Robot_BIOBUZZPrototype";
     static final String PROTOTYPE_NAME = "BIOBUZZ Prototype";
-    /** The build team's third option (RobotDesign#buildersOption3). */
-    static final String OPTION3_FOLDER = "Robot_BIOBUZZOption3";
-    static final String OPTION3_NAME = "BIOBUZZ Option 3";
+    /** The 18 in robot with an intake 90% of its width (RobotDesign#springHoodFullWidth): the "what if". */
+    static final String FULL_WIDTH_FOLDER = "Robot_BIOBUZZFullWidth";
+    static final String FULL_WIDTH_NAME = "BIOBUZZ Full width";
 
     /** What a model has beyond the design's numbers: the prototype's pinwheel, option 3's funnel wheels. */
     enum Look { PLAIN, PROTOTYPE, OPTION3 }
@@ -77,6 +78,8 @@ final class RobotAssets {
     static final double FRONT_WHEEL_SETBACK_IN = 3.0;
     static final int ROLLERS = 10;
     static final double CHANNEL_IN = 1.5;
+    static final double SIDE_PLATE_IN = 0.25; // the frame's outer side plates, outside the wheels
+    static final double SIDE_PLATE_HEIGHT_IN = 4.5;
     static final double[] BATTERY_SIZE_IN = {5.6, 2.2, 1.4};
     static final double[] HUB_SIZE_IN = {4.1, 5.6, 1.0}; // REV Control Hub, about 103 x 143 mm
     static final double DECK_Z_IN = 2.5;
@@ -105,11 +108,11 @@ final class RobotAssets {
     private RobotAssets() {
     }
 
-    /** Writes {@value #FOLDER} and {@value #PROTOTYPE_FOLDER} into {@code out}; returns the first. */
+    /** Writes {@value #FOLDER}, {@value #PROTOTYPE_FOLDER} and {@value #FULL_WIDTH_FOLDER} into {@code out}; returns the first. */
     static File build(File out) throws IOException {
-        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.springHoodFullWidth(), Look.PLAIN));
+        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.buildersOption3(), Look.OPTION3));
         write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), Look.PROTOTYPE));
-        write(out, OPTION3_FOLDER, OPTION3_NAME, model(RobotDesign.buildersOption3(), Look.OPTION3));
+        write(out, FULL_WIDTH_FOLDER, FULL_WIDTH_NAME, model(RobotDesign.springHoodFullWidth(), Look.PLAIN));
         return dir;
     }
 
@@ -172,8 +175,8 @@ final class RobotAssets {
         // seen from above. An intake wider than the gap between the front wheels runs in front of them:
         // the front wheels sit back, their front edge FRONT_WHEEL_SETBACK_IN behind the frame's front (as
         // in option 3's CAD).
-        double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - WHEEL_WIDTH_IN / 2;
-        boolean wide = d.intakeWidthIn / 2 > half - WHEEL_WIDTH_IN;
+        double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - SIDE_PLATE_IN - 0.2 - WHEEL_WIDTH_IN / 2;
+        boolean wide = d.intakeWidthIn / 2 > wheelY - WHEEL_WIDTH_IN / 2;
         double frontWheelX = wide ? half - FRONT_WHEEL_SETBACK_IN - WHEEL_RADIUS_IN : wheelX;
         for (int fx = -1; fx <= 1; fx += 2) {
             for (int fy = -1; fy <= 1; fy += 2) {
@@ -183,19 +186,26 @@ final class RobotAssets {
             }
         }
 
-        // The frame: goBILDA-style channels round the inside of the wheels, at axle height, and two
-        // cross members; open in the middle, as the CAD's are.
-        double railY = half - WHEEL_WIDTH_IN - 0.2 - CHANNEL_IN / 2;
-        double railZ = WHEEL_RADIUS_IN;
+        // The frame: a side plate outside each side's wheels and a channel inside them, so each wheel is
+        // held from both sides (a real build is never cantilevered); a channel across the back at axle
+        // height, one across the front above the intake's opening, and two cross members; open in the middle.
         double[] blue = {0.16, 0.32, 0.72, 1};
+        double plateY = half - SIDE_PLATE_IN / 2;
+        double railY = wheelY - WHEEL_WIDTH_IN / 2 - 0.2 - CHANNEL_IN / 2;
+        double railZ = WHEEL_RADIUS_IN;
         for (int side = -1; side <= 1; side += 2) {
-            b.box("Chassis " + (side > 0 ? "left" : "right"), blue, new double[] {0, side * railY, railZ},
-                    new double[] {d.frameIn - 0.4, CHANNEL_IN, CHANNEL_IN}, IDENTITY_3);
+            String where = side > 0 ? "left" : "right";
+            b.box("Side plate " + where, blue, new double[] {0, side * plateY, 0.5 + SIDE_PLATE_HEIGHT_IN / 2},
+                    new double[] {d.frameIn, SIDE_PLATE_IN, SIDE_PLATE_HEIGHT_IN}, IDENTITY_3);
+            b.box("Chassis " + where, blue, new double[] {-0.75, side * railY, railZ},
+                    new double[] {d.frameIn - 1.5 - CHANNEL_IN, CHANNEL_IN, CHANNEL_IN}, IDENTITY_3);
         }
+        double frontZ = d.intakeHeightIn + INTAKE_ROLLER_RADIUS_IN + CHANNEL_IN / 2 + 0.2;
+        b.box("Chassis front", blue, new double[] {half - 0.2 - CHANNEL_IN / 2, 0, frontZ},
+                new double[] {CHANNEL_IN, d.frameIn - 2 * SIDE_PLATE_IN, CHANNEL_IN}, IDENTITY_3);
+        b.box("Chassis back", blue, new double[] {-(half - 0.2 - CHANNEL_IN / 2), 0, railZ},
+                new double[] {CHANNEL_IN, d.frameIn - 2 * SIDE_PLATE_IN, CHANNEL_IN}, IDENTITY_3);
         for (int end = -1; end <= 1; end += 2) {
-            b.box("Chassis " + (end > 0 ? "front" : "back"), blue,
-                    new double[] {end * (half - 0.2 - CHANNEL_IN / 2), 0, railZ},
-                    new double[] {CHANNEL_IN, 2 * railY - CHANNEL_IN, CHANNEL_IN}, IDENTITY_3);
             b.box("Cross member " + (end > 0 ? "front" : "back"), new double[] {0.55, 0.57, 0.6, 1},
                     new double[] {end * 2.2, 0, railZ}, new double[] {1.0, 2 * railY - CHANNEL_IN, 1.0}, IDENTITY_3);
         }
@@ -275,7 +285,7 @@ final class RobotAssets {
 
         addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
-        return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.OPTION3 ? OPTION3_NAME : ROBOT_NAME);
+        return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.OPTION3 ? ROBOT_NAME : FULL_WIDTH_NAME);
     }
 
     /**
