@@ -262,6 +262,12 @@ final class FieldSim {
          * ELEMENT contacts anything else besides that ROBOT"). See {@link #touchedTile}.
          */
         boolean robotBeforeTile;
+        /**
+         * Which part of a robot that was, counted apart because a referee may not call a piece that
+         * lands on a thin passive flap (mentor, 5 Oct 2026): a flap ({@link RobotDesign#flapOutIn}),
+         * or the frame and its side walls. Both can be set.
+         */
+        boolean flapBeforeTile, frameBeforeTile;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -949,6 +955,8 @@ final class FieldSim {
                 if (p.cell != null) {
                     p.touchedTile = false;
                     p.robotBeforeTile = false;
+                    p.flapBeforeTile = false;
+                    p.frameBeforeTile = false;
                 }
             }
         }
@@ -1115,8 +1123,8 @@ final class FieldSim {
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign d = bot.design;
-        double half = d.frameIn / 2;
-        boolean hit = box(p, bx, by, bh, half, half, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
+        double half = d.frameIn / 2, halfWidth = d.frameWidthIn / 2;
+        boolean hit = box(p, bx, by, bh, half, halfWidth, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         double c = Math.cos(bh), s = Math.sin(bh);
         if ((d.sideWallsSlideIn > 0 || d.sideWallsOutIn > 0) && bot.wallsOut > 0) {
@@ -1126,7 +1134,7 @@ final class FieldSim {
             double lx = half - d.sideWallsLengthIn / 2 + bot.wallsOut * d.sideWallsSlideIn;
             double ly = -(p.x - bx) * s + (p.y - by) * c;
             for (int side = -1; side <= 1; side += 2) {
-                double wy = side * (half - t + bot.wallsOut * d.sideWallsOutIn);
+                double wy = side * (halfWidth - t + bot.wallsOut * d.sideWallsOutIn);
                 double cx = bx + lx * c - wy * s, cy = by + lx * s + wy * c;
                 double wvx = bot.vx - bot.w * (cy - by), wvy = bot.vy + bot.w * (cx - bx);
                 double hl = d.sideWallsLengthIn / 2;
@@ -1138,12 +1146,28 @@ final class FieldSim {
                 }
             }
         }
-        if (hit && !p.touchedTile && !p.robotBeforeTile) {
-            p.robotBeforeTile = true;
-            events.add("G409: robot " + (bots.indexOf(bot) + 1) + " touched a spilled " + name(p.kind)
-                    + " before it reached the tiles");
+        boolean flap = false;
+        if (d.hasFlaps()) {
+            // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
+            double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
+            for (int side = -1; side <= 1; side += 2) {
+                double lx = half + d.flapForwardIn / 2, ly = side * (halfWidth + d.flapOutIn / 2);
+                double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+                double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
+                flap |= box(p, cx, cy, bh + Math.atan2(side * d.flapOutIn, d.flapForwardIn), hl, t, 0, d.flapHeightIn,
+                        fvx, fvy, bot.w, bounce(robotRestitution));
+            }
         }
-        return hit;
+        if ((hit || flap) && !p.touchedTile) {
+            p.frameBeforeTile |= hit;
+            p.flapBeforeTile |= flap;
+            if (!p.robotBeforeTile) {
+                p.robotBeforeTile = true;
+                events.add("G409: robot " + (bots.indexOf(bot) + 1) + (hit ? "" : "'s flap") + " touched a spilled "
+                        + name(p.kind) + " before it reached the tiles");
+            }
+        }
+        return hit || flap;
     }
 
     private boolean collideParked(Piece p, double[] at) {

@@ -30,8 +30,13 @@ final class RobotDesign {
     static final double FLOWER_OPENING_HEIGHT_IN = 3.55;
 
     final String name;
-    /** Frame length, front to back; the frame is square at the start (R102: 18 in cube). */
+    /** Frame length, front to back (R102: at most 18 in at the start). */
     double frameIn = 18;
+    /**
+     * Frame width, side to side (R102: at most 18 in). Only {@link FieldSim}'s collisions and
+     * {@link #checked} use it; {@link AutoSim}'s outlines still draw a square {@link #frameIn}.
+     */
+    double frameWidthIn = 18;
     /** How far the intake reaches past the frame once the match starts. */
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
@@ -141,6 +146,27 @@ final class RobotDesign {
      */
     double sideWallsDeployS = 1.5;
 
+    /**
+     * Passive flaps (mentor, 5 Oct 2026): a thin plate hinged at each front corner of the frame,
+     * folded against the side at the start (inside R102's 18 in) and flipped out once the match
+     * starts, its free end this far out sideways and forward of the hinge: a funnel in front of the
+     * intake. 0 and 0: none. Out the whole match; nothing drives them.
+     */
+    double flapOutIn = 0;
+    double flapForwardIn = 0;
+    /** How tall a flap is; a placeholder until one is drawn (it must stop a rolling 2.8 in POLLEN). */
+    double flapHeightIn = 4;
+    static final double FLAP_THICKNESS_IN = 0.25;
+
+    boolean hasFlaps() {
+        return flapOutIn > 0 || flapForwardIn > 0;
+    }
+
+    /** Length of each flap, hinge to free end. */
+    double flapLengthIn() {
+        return Math.hypot(flapOutIn, flapForwardIn);
+    }
+
     RobotDesign(String name) {
         this.name = name;
     }
@@ -192,6 +218,7 @@ final class RobotDesign {
     RobotDesign copy(String newName) {
         RobotDesign d = new RobotDesign(newName);
         d.frameIn = frameIn;
+        d.frameWidthIn = frameWidthIn;
         d.intakeReachIn = intakeReachIn;
         d.intakeWidthIn = intakeWidthIn;
         d.intakeAtBack = intakeAtBack;
@@ -224,24 +251,44 @@ final class RobotDesign {
         d.sideWallsLengthIn = sideWallsLengthIn;
         d.sideWallsTravelS = sideWallsTravelS;
         d.sideWallsDeployS = sideWallsDeployS;
+        d.flapOutIn = flapOutIn;
+        d.flapForwardIn = flapForwardIn;
+        d.flapHeightIn = flapHeightIn;
         return d;
     }
 
     /** Throws if the design breaks a construction rule the manual states. */
     RobotDesign checked() {
-        if (frameIn > 18) throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
-        if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
-        if (frameIn + sideWallsSlideIn > 24) throw new IllegalArgumentException(name + ": side walls over 24 in (R105)");
-        if (frameIn + 2 * sideWallsOutIn > 24) throw new IllegalArgumentException(name + ": side walls over 24 in across (R105)");
+        if (frameIn > 18 || frameWidthIn > 18) {
+            throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
+        }
         if (sideWallsSlideIn > 0 && sideWallsOutIn > 0) {
             throw new IllegalArgumentException(name + ": side walls both forward and out don't fit 18 x 24 in (R105)");
         }
+        // A flap folds back against the side to start inside the 18 in cube.
+        if (hasFlaps() && flapLengthIn() > frameIn) {
+            throw new IllegalArgumentException(name + ": flaps longer than the frame can't fold inside 18 in (R102)");
+        }
         // An intake can be wider than the frame only by folding out sideways, which uses R105's
         // 24 in across instead of reaching forward.
-        if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameIn)) {
+        if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameWidthIn)) {
             throw new IllegalArgumentException(name + ": intake wider than R105 allows");
         }
+        // R105: everything out, the robot fits an 18 x 24 in box, either way round.
+        double[] f = footprintIn();
+        if (!(f[0] <= 24 && f[1] <= 18) && !(f[0] <= 18 && f[1] <= 24)) {
+            throw new IllegalArgumentException(String.format(Locale.ROOT,
+                    "%s: %.1f in long x %.1f in across doesn't fit 18 x 24 in (R105)", name, f[0], f[1]));
+        }
         return this;
+    }
+
+    /** {front to back, side to side} with everything out: what R105 limits. */
+    double[] footprintIn() {
+        double ahead = Math.max(Math.max(intakeReachIn, sideWallsSlideIn), flapForwardIn);
+        double across = frameWidthIn + 2 * Math.max(sideWallsOutIn, flapOutIn);
+        if (intakeReachIn == 0) across = Math.max(across, intakeWidthIn);
+        return new double[] {frameIn + ahead, across};
     }
 
     @Override
