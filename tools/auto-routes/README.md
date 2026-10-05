@@ -6,69 +6,77 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The qualifier Autos
 
-`qual.py` writes one Auto for each kind of qualification partner, for the two-wheel launcher robot
-(the simulator's "spring hood, full-width intake"); `python3 qual.py 20` exports them and simulates
-each with its partner. Average alliance AUTO points over 20 runs, normal tiles / tiles with 3× the
-friction, and how many of the 20 made 3 TIPs:
+Two Autos, for the two partners we expect most in qualification, both for the two-wheel launcher robot
+(the simulator's "spring hood, full-width intake", speed 50). Alliance AUTO points over 20 runs, normal
+tiles / tiles with 3× the friction, and how many of the 20 made 3 TIPs:
 
-| Partner | Auto (file) | Partner's Auto | Points | 3 TIPs |
+| Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs |
 |---|---|---|---|---|
-| At the standard left start: fires its 4 when the left CELL rises, parks | Qual-PartnerShootsLeft (`qual-partner-shoots-left`) | `partner-preloads-left` | 70 / 72 | 18 / 19 |
-| At the standard left start: only drives and parks | Qual-PartnerParksLeft (`qual-partner-parks-left`, the same route) | `partner-park-left` | 57 / 56 | 10 / 12 |
-| At the right start: fires its 4 at once, parks | Qual-PartnerShootsRight (`qual-partner-shoots-right`) | `partner-preloads-right` | **72 / 74** | 16 / 18 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v2 (`qual-right-v2`, `qual_right.py`) | `partner-preloads-right` | **75.8 / 76** | **20 / 20** |
+| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`) | `partner-stage-exit` | 58.5 / 62 (work in progress) | 7 / 11 |
 
-All three use one plan:
+`python3 qual_right.py 20` and `python3 qual.py 20 stages` export and simulate them. On 40 more runs
+(seeds 21–60) Qual-PartnerShootsRight v2 makes 3 TIPs in 38 / 40 on both tiles (v1: 32 / 38): in
+one run the partner's preloads miss TIP 1; in the other the sweep finds nothing and the third load
+finds the GARDEN empty. qual.py's left-start Autos
+(`shoots-left`, `parks-left`) are kept but no longer worked on.
 
-- **Every shot is straight on.** On the CELL's axis (x 57.5), from the start spot out to where the
-  hood still scores (ShotMapTest): y 13–29 for the right CELL, y 113–129 for the left (109 is too close).
-  Pieces picked up at the GARDEN or a FLOWER are carried there; the half second that costs buys the
-  high-percentage shot. Waiting for a TIP, the robot faces the HIVE, its camera on it.
-- **The tunnel is the road.** The robot drives square through the tunnel under the HIVE (x 57.5)
-  between the two CELLs. Coming out north it turns round at y 104, where its corners (12.7 in when
-  turning) clear both the HIVE frame and a partner still at the left start, then backs into y 114.
-- **Drive through the spill as it lands, don't wait for it.** A spill first touches the tiles about 42 in
-  out from its wall, about 1.1 s after the TIP, and has scattered out of reach about 1 s later. Driving
-  through the tunnel with the intake running as the next CELL rises catches 0–4. Pausing first to let
-  it land was worse (tried at 0.3, 0.6 and 0.9 s).
-- **The static sources decide TIP 3.** The far FLOWER, wall FLOWER and GARDEN hold 4 POLLEN each. With a
-  partner that shoots, TIP 2 is its 4 plus our catch (plus the far FLOWER if short), and TIP 3 is TIP 2's
-  spill caught going south, the GARDEN and the wall FLOWER. With a partner that only drives, TIP 2 is our
-  catch plus the far FLOWER: enough in 16 of 20 runs, and TIP 3 comes in about half. A route that carries
-  the wall FLOWER north as well makes TIP 2 every time, but at 21.5 s, too late for TIP 3 (50 points).
-- **Qual-PartnerShootsRight is the one to build first.** A partner that can shoot but do little else
-  can fire its preloads from the right start at once; firing from the left start means watching for the
-  left CELL to rise, which such a partner probably can't. It also parks every time: after the GARDEN's
-  shots it drives straight to PARK, because TIP 3 finishes on its own and the wall FLOWER trip never got
-  back in time to add one. (The left routes still go for the wall FLOWER: there it makes TIP 3 in 3–10
-  more runs of 20.)
-- **PARK when there is time, never instead of a TIP.** Each ends in the LOADING ZONE (below the partner) if
-  it gets there by 30 s. A park path at the end would make the endgame guard cut the last fire short
-  to leave time to drive there, and TIP 3 (20) is worth more than PARK (5).
+**Rules for both** (mentor review):
 
-**What we ask of the partner.** Start at the standard left start (or right, for Qual-PartnerShootsRight).
-From the left start: if it can shoot, fire when the left CELL rises; then, straight away, back 4.75 in
-off the wall and drive west under the far FLOWER (y 127.5), then down the wall to the far end of the
-LOADING ZONE (`partners.preloads_left` / `park_left`). That lane keeps it out of the tunnel's exit and
-where we fire from. A partner that waits at its start blocks the far FLOWER: one waiting until 10 s
-collided with us in every run.
+- **Every shot is straight on**: on the CELL's axis (x 57.5), y 13–29 for the right CELL, y 113–129 for
+  the left (109 is too close). Pieces picked up anywhere are carried there.
+- **Waiting for a TIP, face the HIVE** (its camera on it).
+- **The tunnel is the road**: square through it under the HIVE (x 57.5), turning only clear of the frame.
+- **After the last TIP, PARK** (LOADING ZONE, x 0–11, y 94–118), never instead of a TIP: no park path
+  after a fire that may still be going (the endgame guard would cut the fire short).
+- **The partner only fires from its start, then parks.** It can't tell whether the HIVE has tipped.
 
-**What the intake needs (for build).** Re-running the three with different intakes (normal tiles):
+### Qual-PartnerShootsRight v2
 
-| Intake | ShootsLeft | ParksLeft | ShootsRight |
+TIP 1 (4.6 s) is the partner's 4 on the 3 NECTAR. TIP 2 (13.3 s): our preloads when the left CELL
+rises, then the far FLOWER's 4. TIP 3 (26 s): TIP 2's spill caught driving south through the tunnel,
+then TIP 1's leftovers and the GARDEN. What changed from v1 (`qual-partner-shoots-right`: 72 / 74,
+16 / 18), each step on 20 runs, normal / slow tiles:
+
+| Change | Points | 3 TIPs |
+|---|---|---|
+| v1 | 72 / 74 | 16 / 18 |
+| Fire TIP 2's spill from y 24, not y 28 (28 is at the edge of the shot map: 1–2 of 4 missed) | 74 / 76 | 18 / 20 |
+| Go to the GARDEN by a sweep west along y 10, intake first: TIP 1's NECTAR and POLLEN lie there (2–8 pieces at 17 s, NECTAR is 1.65 POLLEN) | 75 / 76 | 19 / 20 |
+| No TIP 3 yet (the right CELL still up) once the GARDEN's shots are away: back to the GARDEN, look again, and fire what it holds | **75.8 / 76** | **20 / 20** |
+
+The last step relies on §10.5: a TIP that completes in the 8 s after AUTO still counts, so the third
+load, fired from 28.6 s, still makes TIP 3 (seed 16: at 30.0 s). That run doesn't PARK. Tried and
+dropped: leaving N_FIRE for the spill sooner or later than when the right CELL is up (about 0.6 s
+after TIP 2 starts): at 0, 0.2 or 0.4 s, 0–15 / 20; 0.15 or 0.3 s later, 16–18, firing from y 16–21, a tunnel lane at x 55 or 60, a webcam
+pickup facing north after the GARDEN (the leftovers lie behind the robot, toward the wall).
+
+**Why TIP 3 was short.** TIP 2's 8 POLLEN land 94–100 in up the field about 1 s after the TIP and
+scatter; driving through, we catch 2–4. The rest roll east across the centre line (2.5 of the 8 on
+average, up to 6) or south ahead of us.
+
+**A side shield (mentor's idea).** A wall on the robot's side toward the centre line, flush with the
+frame's side and reaching 3 or 6 in past its front (R105 allows 6: 18 × 24 in). Driving south through
+the tunnel, intake first, that is the robot's *left*. In the simulator it is `RobotDesign.shieldReachIn`
+(designs "spring hood, full-width intake, 3 in shield" / "6 in shield"; "6 in shield right" puts it
+on the other side, toward our wall, and doesn't help). TIP 2's spill pieces that cross the centre line,
+of 8, normal / slow tiles: none 2.5 / 2.1, 3 in 1.2 / 1.0, 6 in 0.9 / 0.7. TIP 3, 20 runs:
+
+| Route | No shield | 3 in shield | 6 in shield |
 |---|---|---|---|
-| As simulated: 0.35 s a piece, grabs 85%, takes pieces moving up to 60 in/s | 70 | 57 | 68 |
-| 0.12 s a piece | 73 | 60 | 72 |
-| Grabs 95%, up to 100 in/s | 72 | 56 | 70 |
-| 0.12 s a piece, but only pieces moving under 30 in/s | 73 | 55 | 70 |
+| v1 | 16 / 18 | 19 / 19 | 19 / 20 |
+| v1, spill fired from y 24 (`qual-right-sfire`) | 18 / 20 | 20 / 20 | 20 / 20 |
+| v2 | **20 / 20** | 19 / 20 | 20 / 19 |
 
-Time per piece is what helps most: about 3 points everywhere, most of it TIP 3 coming more often. An
-intake that takes a piece while it is still rolling matters most with a partner that only drives,
-where the spill we catch going north is all TIP 2 has besides the far FLOWER: requiring slow pieces
-there costs 5 points. Grab chance alone hardly matters.
+So the shield buys what the route changes buy, but not on top of them: with v2 the misses move to
+other seeds. It also costs a constraint: turning round at the far FLOWER its corner reaches 17.5 in
+(6 in shield) and crosses the centre line, unless the robot turns through west
+(`qual-right-v2-shield` does). Build it only if the route's third load turns out too slow on a real
+robot.
 
-The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`,
-`LeftCellUp`, ...) exist only in the simulator so far, and its launcher numbers (2 s spin-up, 0.45 s a
-shot) are unmeasured.
+The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`, `LeftCellUp`, ...) exist only
+in the simulator so far, and its launcher (2 s spin-up, 0.45 s a shot) and intake (0.35 s a piece)
+numbers are unmeasured. A faster intake or launcher gives the third load more margin.
 
 ## The candidates (4 Oct 2026, on the filmed spill and its scatter)
 
@@ -122,6 +130,7 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 
 | Auto (files) | Together | Our robot | The other robot |
 |---|---|---|---|
+| Qual-PartnerShootsRight v2 (`qual-right-v2`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v2) | [qual-right-v2](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v2.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
 | Sister-Recycle (`recycle3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-Recycle) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) |
 | Sister-SetDown (`recycle4`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-SetDown) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle4-left.pp) |
 | Sister-ThrowBack (`recycle5`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-ThrowBack) | [right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-right.pp) | [left](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-left.pp) |

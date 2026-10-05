@@ -1079,9 +1079,20 @@ final class FieldSim {
     }
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
-        double half = bot.design.frameIn / 2;
-        return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
+        RobotDesign d = bot.design;
+        double half = d.frameIn / 2;
+        boolean hit = box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
+        if (d.shieldReachIn > 0) {
+            // RobotDesign#shieldReachIn: a thin wall along one side, from the frame's front edge forward.
+            double t = RobotDesign.SHIELD_THICKNESS_IN / 2;
+            double lx = half + d.shieldReachIn / 2, ly = d.shieldSide * (half - t);
+            double c = Math.cos(bh), s = Math.sin(bh);
+            double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+            hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
+                    bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
+        }
+        return hit;
     }
 
     private boolean collideParked(Piece p, double[] at) {
