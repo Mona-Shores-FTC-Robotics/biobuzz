@@ -1387,6 +1387,14 @@ model. It is a picture to argue about, not a design. Anything trapped by the wal
 (the manual's definition: "stuck in, on, or under the ROBOT", and herding counts too), so G407's
 limit of 4 counts it together with whatever the robot already holds.
 
+`SideWallSpillTest` tries the walls in the simulation: the same TIP as `SpillLandingTest`, with a
+robot parked short of the landing, facing the HIVE, walls out. Its first answer (20 TIPs, three
+parking spots): the walls add at most 3 points over a plain robot parked in the same place, because
+the spill rolls straight back toward the alliance wall, along the walls rather than into them. The
+robot's front does the stopping. No spilled piece touched the robot before the tiles (G409). How
+pieces roll after landing is the least measured part of the simulation (friction and bounce are
+still placeholders), so treat this as a reason to try cardboard walls at a meeting, not a verdict.
+
 **Opening the log** (a 3D Field tab):
 
 | Drag this key | As |

@@ -238,6 +238,14 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /** Whether it has touched the tiles since it last left a CELL. */
+        boolean touchedTile = true;
+        /**
+         * Whether a robot touched it after it left a CELL and before it reached the tiles: what G409
+         * forbids for a TIP's spill ("may not catch or deflect ... unless and until that SCORING
+         * ELEMENT contacts anything else besides that ROBOT"). Counts tiles only, so it is strict.
+         */
+        boolean robotBeforeTile;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -374,6 +382,12 @@ final class FieldSim {
         final List<Piece> stored = new ArrayList<>();
         /** Its mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
         RobotDesign design = RobotDesign.standard();
+        /**
+         * Thin walls fixed to the robot, in its own frame (+x forward, +y left, inches):
+         * {@code {centreX, centreY, halfX, halfY, bottomZ, topZ, oneWay}}. A one-way wall (a flap
+         * that swings inward only) stops a piece only while the piece is on the robot's side of it.
+         */
+        final List<double[]> guards = new ArrayList<>();
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -906,6 +920,10 @@ final class FieldSim {
                     }
                 }
                 updateCell(p);
+                if (p.cell != null) {
+                    p.touchedTile = false;
+                    p.robotBeforeTile = false;
+                }
             }
         }
     }
@@ -1068,8 +1086,19 @@ final class FieldSim {
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         double half = bot.design.frameIn / 2;
-        return box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
+        boolean hit = box(p, bx, by, bh, half, half, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
+        double c = Math.cos(bh), s = Math.sin(bh);
+        for (double[] g : bot.guards) {
+            if (g[6] != 0) {
+                double ly = -(p.x - bx) * s + (p.y - by) * c;
+                if (Math.abs(ly) > Math.abs(g[1])) continue; // outside: the flap swings in for it
+            }
+            double gx = bx + g[0] * c - g[1] * s, gy = by + g[0] * s + g[1] * c;
+            hit |= box(p, gx, gy, bh, g[2], g[3], g[4], g[5], bot.vx, bot.vy, bot.w, bounce(robotRestitution));
+        }
+        if (hit && !p.touchedTile) p.robotBeforeTile = true;
+        return hit;
     }
 
     private boolean collideParked(Piece p, double[] at) {
@@ -1084,14 +1113,21 @@ final class FieldSim {
      */
     private boolean box(Piece p, double cx, double cy, double heading, double halfX, double halfY, double height,
                         double vx, double vy, double omega, double restitution) {
+        return box(p, cx, cy, heading, halfX, halfY, 0, height, vx, vy, omega, restitution);
+    }
+
+    /** As above, for a box from {@code bottom} up to {@code height} above the tiles. */
+    private boolean box(Piece p, double cx, double cy, double heading, double halfX, double halfY, double bottom,
+                        double height, double vx, double vy, double omega, double restitution) {
         double c = Math.cos(heading), s = Math.sin(heading);
         double lx = (p.x - cx) * c + (p.y - cy) * s;
         double ly = -(p.x - cx) * s + (p.y - cy) * c;
         double rad = p.kind.radius;
-        if (Math.abs(lx) > halfX + rad || Math.abs(ly) > halfY + rad || p.z > height + rad) return false;
+        if (Math.abs(lx) > halfX + rad || Math.abs(ly) > halfY + rad || p.z > height + rad
+                || p.z < bottom - rad) return false;
         double qx = Math.max(-halfX, Math.min(halfX, lx));
         double qy = Math.max(-halfY, Math.min(halfY, ly));
-        double qz = Math.max(0, Math.min(height, p.z));
+        double qz = Math.max(bottom, Math.min(height, p.z));
         double nx = lx - qx, ny = ly - qy, nz = p.z - qz;
         double d = Math.sqrt(nx * nx + ny * ny + nz * nz);
         double depth;
@@ -1132,6 +1168,7 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
+            p.touchedTile = true;
             if (p.vz < 0) p.vz = -p.vz * bounce(physics.tileRestitution);
             if (Math.abs(p.vz) < 8) p.vz = 0; // settle instead of buzzing
             hit = true;
