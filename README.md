@@ -59,70 +59,40 @@ with the spill landing and scattering as filmed on 3 Oct; the routes were tuned 
 
 ## How to watch them
 
-### The route, in the Visualizer (nothing to install)
+**The route:** click **Together** in the table above. It opens in your browser; press **Space** to play.
+Nothing to install.
 
-Click **Together** in the table above: our robot and the partner open on the field in your browser,
-no login. Press **Space** (or the play button under the field) to play; drag the timeline to scrub.
-**ours** / **partner** open one robot's Auto on its own, with its cards (each step) down the side; the
-running card lights up as it plays, and **Preview as** plays it as a given scenario (for example
-"TIP 3 doesn't come") against the 30 s budget. What you change there is a copy: the team's `.pp` file
-changes only when someone saves it back (see *Trying a change*). The `.pp` links in the table are
-the files themselves, on GitHub.
+**A simulated match** (both robots, every piece, the HIVE tipping): AdvantageScope on a Windows
+laptop. Set it up once, then watch any log.
 
-### The simulated match, in AdvantageScope
+### Set up (once per laptop)
 
-A `.wpilog` is one simulated match: both robots, every POLLEN and NECTAR, the HIVE tipping, every
-command and TIP on a timeline.
-
-1. **Install AdvantageScope 27.0.0-alpha-6 or newer** (desktop app, free): open
-   [AdvantageScope's releases](https://github.com/Mechanical-Advantage/AdvantageScope/releases), find
-   **v27.0.0-alpha-6** (or a newer 27.x), and under *Assets* download the Windows installer
-   (`…win-x64….exe`). Older versions (26.x and before) don't have the FTC 2026-2027 field.
-2. **Download a log**: a **best** or **typical** link in the table.
-3. **Open it**: drag the `.wpilog` onto AdvantageScope, or **File → Open Log(s)…**.
-4. **Load our layout** (once; AdvantageScope remembers it):
-   1. Open [the layout file on GitHub](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/sim-review/advantagescope-layout.json) and click the **Download raw file** button (the ↓ icon
-      at the top right, above the file's text). It lands in your **Downloads** folder as
-      `advantagescope-layout.json`.
-   2. In AdvantageScope: **File → Import Layout…**, go to **Downloads**, pick `advantagescope-layout.json`.
-
-   It opens a 3D field with the robots, the pieces and the HIVE, and graphs of the match. (Don't use
-   right-click → *Save link as* on a GitHub link: browsers save it as `….json.txt`, which AdvantageScope
-   won't list. If that happened, delete the file and use the button. Or in PowerShell:
-   `Invoke-WebRequest https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json -OutFile $HOME\Downloads\advantagescope-layout.json`.)
-5. **Play**: the play button at the bottom left, or Space. AUTO starts 1 s into the log;
-   `/Match/Clock` shows match time, and the **Console** tab lists every command, shot, TIP and any
-   `sim: G409` touch.
-
-Until you do the one-time setup below, the field shows the stock, fixed HIVE: robots and pieces play,
-but the CELLs don't tip.
-
-### One-time setup on a new laptop: the tipping HIVE (Windows)
-
-AdvantageScope draws a moving HIVE only from two custom assets, the field **2026-2027 Field (HIVE
-sim)** and the robot **BIOBUZZ HIVE**. They are cut from the field AdvantageScope downloads, on your
-own laptop (no FIRST CAD is committed), by
-[`tools/advantagescope/setup-hive-assets.ps1`](tools/advantagescope/setup-hive-assets.ps1).
-
-You need: [Git for Windows](https://git-scm.com/download/win), [Android Studio](https://developer.android.com/studio)
-(already there if you build robot code; it brings the Java and Android SDK the build uses), and
-AdvantageScope (step 1 above).
-
-1. In AdvantageScope, open a **3D Field** tab (the + at the top), pick **2026-2027 Field** in its field
-   menu, and wait for it to load: that downloads the stock field. Close AdvantageScope.
-2. Open **PowerShell** (Start menu → type *PowerShell*) and paste:
+1. Install [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope/releases) **v27.0.0-alpha-6
+   or newer** (the Windows `.exe` under *Assets*), [Git](https://git-scm.com/download/win) and
+   [Android Studio](https://developer.android.com/studio).
+2. Open AdvantageScope, click **+** at the top → **3D Field**, pick **2026-2027 Field** in the field
+   menu and wait until the field appears. Close AdvantageScope.
+3. Open **PowerShell** (Start → type *PowerShell*), paste this, press Enter, and wait for **Done**
+   (a few minutes the first time):
    ```powershell
-   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin claude/simulator; git -C $HOME\biobuzz checkout claude/simulator; git -C $HOME\biobuzz pull origin claude/simulator } else { git clone -b claude/simulator https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }
-   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-hive-assets.ps1
+   $branch = "claude/simulator"
+   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin $branch; git -C $HOME\biobuzz checkout $branch; git -C $HOME\biobuzz pull origin $branch } else { git clone -b $branch https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }
+   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-advantagescope.ps1
    ```
-   It gets the code into `biobuzz` in your user folder (or updates it), finds the downloaded field,
-   builds the two assets (the first run downloads build tools: a few minutes) and copies them into
-   `%APPDATA%\AdvantageScope\userAssets`. It ends with `Done: copied into …`. If it stops on an
-   Android SDK or licence error, open `biobuzz` in Android Studio once, let it sync, and run it again.
-3. Start AdvantageScope and import the layout again (step 4 above): the HIVE now tips.
+4. Open AdvantageScope → **File → Import Layout…** → **Downloads** → `advantagescope-layout.json`.
 
-Do it again after AdvantageScope updates its field. More on the simulator and the assets:
-[`TeamCode/README.md`](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).
+### Watch a match
+
+1. In the table above, click **best** or **typical** to download a log.
+2. Drag the file into AdvantageScope.
+3. Press **Space** to play. AUTO starts 1 s in.
+
+**Another branch** (the side walls, say): set `$branch` to it in step 3, run it again, then do step 4
+again. It swaps in that branch's robot and field, removing the old ones.
+
+**If step 3 stops** with an Android SDK or licence error: open the `biobuzz` folder in Android Studio
+once, let it finish syncing, and run step 3 again. What the script does:
+[`tools/advantagescope/setup-advantagescope.ps1`](tools/advantagescope/setup-advantagescope.ps1).
 
 ## Trying a change
 
