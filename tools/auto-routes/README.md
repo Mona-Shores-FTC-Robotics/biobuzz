@@ -62,6 +62,50 @@ the GARDEN (the leftovers lie behind the robot), and standing at the catch spot 
 3's (catches no more than driving through: the pieces land 2–12 in in front of the intake and scatter
 within half a second). Trials in `qual_right.py` (`TRIALS`).
 
+**G409: waiting further back** (run 5 Oct 2026 15:13 UTC). The side-walls session measured where a
+spill first lands (`SideWallSpillTest` on `claude/dazzling-maxwell-je04gu`): a plain robot on the CELL's
+axis, facing the HIVE, is clear of it with its front face 35 in or less from that wall (36: 2 TIPs in
+200 touch it; 38: a third). v3 waits for TIP 2 at N_FIRE, front face 36.5 in. Moved to 35 in (58.0,
+115.5), with the extra wait before driving into the spill swept (`qual_right.py`, `G409`):
+
+| v3 variant | Points | 3 TIPs | G409 per run |
+|---|---|---|---|
+| v3: N_FIRE y 114, wait 500 ms | 70.3 / 67.5 | 17 / 15 | 0.1 / 0 |
+| N_FIRE at 35 in, wait 0 ms | 73.8 / 71.3 | 19 / 17 | 1.8 / 0 |
+| ... 150 ms | 72.8 / 66.3 | 19 / 13 | 0.1 / 0 |
+| ... 300 ms (`qual-right-v3-n35-300`) | 72.3 / 65.5 | 19 / 13 | **0 / 0** |
+| ... 500 ms | 71.5 / 65.3 | 19 / 13 | 0 / 0 |
+
+Waiting at 35 in lets 200 ms of the wait come out and keeps zero touches, but it trades TIP 3 on slow
+tiles (13 against 15) for normal ones (19 against 17). With no wait the robot still drives into falling
+pieces on its way south: standing back fixes the waiting, not the drive through.
+
+### The builders' prototype (5 Oct 2026 CAD)
+
+`RobotDesign.buildersPrototype()`, "builders' prototype (5 Oct CAD)": the build team's CAD read with the
+pieces in it as a scale, so every number is ±15% and will move as they build. What it changes from the
+design above: about 15 × 15 in including the wheels, an intake about 8 in wide (a roller between the
+front wheels), and the two flywheels at the back (about 3 in behind the centre, 8 in up), still firing
+forward over the robot. Not modelled yet: the pinwheel at its left-front corner that takes POLLEN out
+of a FLOWER (it still takes them with its intake), and the launch angle (the spring hood's 75°).
+
+Where it scores straight on (ShotMapTest, both pieces 5 in 6): the right CELL from y 17–29 (was
+13–25), the left from y 113–125 (was 113–129). So v3's firing spots still work. Its smaller body moves
+every spot where the front meets something: the start against the wall, the FLOWER, the GARDEN, and
+PARK, 1.5 in each (`qual_right.right(robot="proto")`, `qual-right-v3-proto`). Run 5 Oct 2026 15:00 UTC,
+20 runs, normal / slow tiles:
+
+| Robot | Points | 3 TIPs |
+|---|---|---|
+| The design above (18 in, intake 16.2 in) | 70.3 / 67.5 | 17 / 15 |
+| The prototype, if its intake were 13.5 in (90% of its frame) | 62.8 / 62.5 | 11 / 10 |
+| **The prototype (intake 8 in)** | **57.3 / 54.8** | **6 / 3** |
+
+Why: a narrower intake catches less of each spill and of TIP 1's leftovers, so TIP 3 comes later
+(about 29 s) or not at all, and the robot is often still busy at 30 s and misses PARK. Without the
+route changes for its size it starts off the wall and its front never reaches the FLOWER. The intake's
+width is worth asking the build team about before it is fixed.
+
 The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`, `LeftCellUp`, ...) exist only in
 the simulator so far, and its launcher (2 s spin-up, 0.45 s a shot) and intake (0.35 s a piece) numbers
 are unmeasured. How pieces bounce and roll after a spill lands is the least-measured part of the

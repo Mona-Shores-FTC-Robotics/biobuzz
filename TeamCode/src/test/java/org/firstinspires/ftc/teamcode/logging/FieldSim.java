@@ -250,6 +250,8 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /** The robot that just launched it, until it has left that robot's outline; else null. */
+        Bot launchedBy;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -434,8 +436,8 @@ final class FieldSim {
         double[] exitPoint(double sideIn) {
             double toward = launchingBack ? h + Math.PI : h;
             double c = Math.cos(toward), s = Math.sin(toward);
-            return new double[] {x + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
-                    y + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
+            double ahead = design.exitForwardIn;
+            return new double[] {x + ahead * c - sideIn * s, y + ahead * s + sideIn * c, design.exitHeightIn};
         }
     }
 
@@ -841,6 +843,7 @@ final class FieldSim {
         p.wx = 0;
         p.wy = -12;
         p.wz = 0;
+        p.launchedBy = bot;
         return new double[] {vx, vy, vz};
     }
 
@@ -1110,7 +1113,15 @@ final class FieldSim {
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         double half = bot.design.frameIn / 2;
-        boolean hit = box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
+        if (p.launchedBy == bot) {
+            // Its own shot: no contact until the piece has left the robot's outline (seen from above).
+            double c = Math.cos(bh), s = Math.sin(bh);
+            double lx = (p.x - bx) * c + (p.y - by) * s, ly = -(p.x - bx) * s + (p.y - by) * c;
+            double r = p.kind.radius;
+            if (Math.abs(lx) < half + r && Math.abs(ly) < half + r) return false;
+            p.launchedBy = null;
+        }
+        boolean hit = box(p, bx, by, bh, half, half, bot.design.bodyHeightIn, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         if (hit && !p.touchedTile && !p.robotBeforeTile) {
             p.robotBeforeTile = true;

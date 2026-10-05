@@ -38,6 +38,12 @@ public class AutoStudyTest {
         twin.launchers = 2;
         m.put(twin.name, twin);
         m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
+        RobotDesign proto = RobotDesign.buildersPrototype();
+        m.put(proto.name, proto);
+        // What the prototype's narrow intake costs: the same robot with an intake 90% of its frame.
+        RobotDesign protoWide = proto.copy(proto.name + ", 13.5 in intake");
+        protoWide.intakeWidthIn = 0.9 * protoWide.frameIn;
+        m.put(protoWide.name, protoWide);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

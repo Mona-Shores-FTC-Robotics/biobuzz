@@ -47,6 +47,15 @@ final class RobotDesign {
      * the 3 in either way (the robot stops just short of the FLOWER's tube).
      */
     boolean intakeOnContact = false;
+    /**
+     * Where a launched piece leaves the robot: this far forward of the robot's centre (negative:
+     * behind it) and this high. A piece doesn't collide with the robot that launched it until it
+     * has left that robot's outline, so the exit may be inside the body.
+     */
+    double exitForwardIn = FieldSim.PLACEHOLDER_EXIT_FORWARD_IN;
+    double exitHeightIn = FieldSim.PLACEHOLDER_EXIT_HEIGHT_IN;
+    /** How tall the robot's body is: pieces above it pass over, pieces below bounce off. */
+    double bodyHeightIn = FieldSim.PLACEHOLDER_ROBOT_HEIGHT_IN;
     boolean intakeAtBack = false;
     /**
      * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
@@ -173,6 +182,24 @@ final class RobotDesign {
         return d;
     }
 
+    /**
+     * The build team's prototype, read off their CAD (front, side and top views, 5 Oct 2026) using
+     * the pieces in it as a scale (POLLEN 2.8 in, NECTAR 3.6 in), so each number is +-15% and will
+     * move as they build. It tells the story of what changes from {@link #springHoodFullWidth}:
+     * a smaller robot, a narrower intake, and the launcher at the back (still firing forward, over
+     * the robot). Not modelled yet: the pinwheel at its left-front corner that takes POLLEN out of a
+     * FLOWER (the robot still takes them with its intake, as the other designs do).
+     */
+    static RobotDesign buildersPrototype() {
+        RobotDesign d = springHoodFullWidth().copy("builders' prototype (5 Oct CAD)");
+        d.frameIn = 15; // about 15 x 15 in including the wheels (frame rails about 11 in apart)
+        d.intakeWidthIn = 8; // a front roller between the front wheels, about 2 NECTAR wide
+        d.exitForwardIn = -3; // two flywheels about 3 in behind the centre ...
+        d.exitHeightIn = 8; // ... about 8 in up; the angle stays the spring hood's 75 deg (unmeasured)
+        d.bodyHeightIn = 9; // frame and flywheel housings; the camera masts are thin and not modelled
+        return d;
+    }
+
     static RobotDesign catapult() {
         RobotDesign d = new RobotDesign("catapult");
         d.launcher = Launcher.CATAPULT;
@@ -187,6 +214,9 @@ final class RobotDesign {
         d.intakeWidthIn = intakeWidthIn;
         d.intakeHeightIn = intakeHeightIn;
         d.intakeOnContact = intakeOnContact;
+        d.exitForwardIn = exitForwardIn;
+        d.exitHeightIn = exitHeightIn;
+        d.bodyHeightIn = bodyHeightIn;
         d.intakeAtBack = intakeAtBack;
         d.intakeIntervalS = intakeIntervalS;
         d.intakeGrabChance = intakeGrabChance;

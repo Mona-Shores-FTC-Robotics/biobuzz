@@ -92,11 +92,27 @@ def third_load(r, tag="", wait_full=1100, catch3=False):
                    yes_label="No TIP: the GARDEN", no_label="TIP 3: PARK")]
 
 
-def right(name, **kw):
-    """As qual.shoots_right, with tail(**kw) after TIP 2."""
-    r = Route(name, N_START, speed=50)
+# How far each robot's front face is from its centre: points where the front meets something (the
+# start wall behind, a FLOWER, the GARDEN) move by the difference from the 18 in robot the route was
+# drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
+FRONT_IN = {"baseline": 9.0, "proto": 7.5}  # proto: RobotDesign.buildersPrototype, 15 in
+
+
+def right(name, robot="baseline", n_fire=None, **kw):
+    """As qual.shoots_right, with tail(**kw) after TIP 2, for `robot` (FRONT_IN)."""
+    d = 9.0 - FRONT_IN[robot]
+    r = Route(name, (N_START[0], N_START[1] + d, N_START[2]), speed=50)
     ends(r)
-    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE)
+    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *(n_fire or N_FIRE))
+    if d:
+        for k in ("FAR_FLOWER", "FAR_FLOWER_IN", "FAR_FLOWER_TURN"):
+            x, y, h = r.points[k]
+            r.pt(k, x, y + d, h)  # the FLOWER is north of us, facing 90
+        for k in ("GARDEN", "GARDEN_IN"):
+            x, y, h = r.points[k]
+            r.pt(k, x, y - d, h)  # the GARDEN is at the south wall, facing 270
+        x, y, h = r.points["PARK"]
+        r.pt("PARK", x, y + d, h)  # a corner must reach into the LOADING ZONE (y 94.3-117.9)
     r.add(r.action("SpinUp"), r.go("N_FIRE", heading=270),
           r.wait("TIP 1 (the partner)", when=["LeftCellUp"], ms=9000),
           fire(r, "Fire the preloads at the left CELL", "Empty", ms=2500))
@@ -123,6 +139,13 @@ VARIANTS = {  # name: tail options. 20 runs each, normal / slow tiles: TIP 3 in 
                       "extra": 500},
 }
 V2 = VARIANTS["qual-right-v2"]
+PROTO = {"qual-right-v3-proto": {**VARIANTS["qual-right-v3"], "robot": "proto"}}
+# G409, 5 Oct (from the side-walls session's SideWallSpillTest: a plain robot facing the HIVE on its
+# axis, x 58.0, is clear of the spill with its front face 35 in or less from that wall): N_FIRE, where we
+# fire at the left CELL and wait for TIP 2, moved from front face 36.5 in (y 114) to 35 in (y 115.5),
+# and the extra wait before driving into TIP 2's spill swept.
+G409 = {f"qual-right-v3-n35-{ms}": {**VARIANTS["qual-right-v3"], "n_fire": (58.0, 115.5, 270), "extra": ms}
+        for ms in (0, 150, 300, 500)}
 TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal / slow tiles, TIP 3 and points
     # At TIP 2 we already fire from the catch spot (y 114). Waiting there, intake running, before the
     # tunnel: 1 s 17 / 16 (71.5 / 70.5), 1.5 s 17 / 17, 2.5 s 14 / 17; it catches 2.3-2.9 of the 8, no
@@ -146,7 +169,7 @@ if __name__ == "__main__":
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     which = sys.argv[2:] or list(VARIANTS)
     for w in which:
-        r = right(w, **{**VARIANTS, **TRIALS}[w])
+        r = right(w, **{**VARIANTS, **TRIALS, **PROTO, **G409}[w])
         r.folder = autogen.AUTOS_DIR if w == WINNER else autogen.EXPERIMENTS
         r.write()
     for f in ("1", "3"):
