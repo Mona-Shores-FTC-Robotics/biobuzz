@@ -19,7 +19,11 @@ public enum HiveCell {
     BLUE_AUDIENCE("BLUE AUDIENCE", Alliance.BLUE, Side.AUDIENCE),
     BLUE_SCORING("BLUE SCORING", Alliance.BLUE, Side.SCORING);
 
-    /** Which end of the field a cell sits at. */
+    /**
+     * Which end of the field a cell sits at. AUDIENCE: the audience side. SCORING: the opposite side,
+     * where the scoring table is (the manual: "on the side of the FIELD opposite of the audience").
+     * The names are FIRST's, from the SDK's cluster names.
+     */
     public enum Side { SCORING, AUDIENCE }
 
     private final String clusterName;
