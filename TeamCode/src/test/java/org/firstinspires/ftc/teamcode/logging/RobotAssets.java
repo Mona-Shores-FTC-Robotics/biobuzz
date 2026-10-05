@@ -66,6 +66,27 @@ final class RobotAssets {
     static final double VIEW_ROD_LENGTH_IN = 8.0;
     static final double VIEW_ROD_THICKNESS_IN = 0.3;
 
+    /*
+     * The side-pen idea (a sketch to look at, not a design): an 18 in cube whose side walls slide
+     * out to make it 24 in wide. Each side becomes a pen between the frame and the wall. The wall
+     * has a one-way flap at the bottom: it swings inward only, so POLLEN (2.8 in) pushed against it
+     * rolls under and in and cannot roll back out, and the opening is too low for NECTAR (3.6 in).
+     */
+    static final String PENS_IN_FOLDER = "Robot_BIOBUZZPensIn";
+    static final String PENS_IN_NAME = "BIOBUZZ Side Pens (stowed)";
+    static final String PENS_OUT_FOLDER = "Robot_BIOBUZZPensOut";
+    static final String PENS_OUT_NAME = "BIOBUZZ Side Pens (out)";
+    static final double BODY_HEIGHT_IN = 18.0;
+    /** Each wall slides this far out: 18 in wide stowed, 24 in out. */
+    static final double PEN_SLIDE_IN = 3.0;
+    static final double WALL_HEIGHT_IN = 6.0;
+    static final double WALL_THICKNESS_IN = 0.25;
+    /** Top of the door opening: between POLLEN's 2.8 in and NECTAR's 3.6 in. */
+    static final double DOOR_TOP_IN = 3.2;
+    static final double DOOR_BOTTOM_IN = 0.4;
+    /** How far the drawn flap is swung in, as if a POLLEN were passing. */
+    static final double FLAP_OPEN_DEG = 30.0;
+
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
     private RobotAssets() {
@@ -81,10 +102,28 @@ final class RobotAssets {
         Files.write(new File(dir, "config.json").toPath(), config(
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
+        buildPens(out, PENS_IN_FOLDER, PENS_IN_NAME, 0);
+        buildPens(out, PENS_OUT_FOLDER, PENS_OUT_NAME, PEN_SLIDE_IN);
         return dir;
     }
 
+    private static void buildPens(File out, String folder, String name, double slideIn) throws IOException {
+        File dir = new File(out, folder);
+        dir.mkdirs();
+        Files.write(new File(dir, "model.glb").toPath(), penModel(name, slideIn,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).write());
+        Files.write(new File(dir, "config.json").toPath(), config(name,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
+    }
+
     static String config(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
+        return config(ROBOT_NAME, forwardIn, leftIn, upIn, pitchDeg, yawDeg);
+    }
+
+    static String config(String name, double forwardIn, double leftIn, double upIn, double pitchDeg,
+            double yawDeg) {
         Map<String, Object> camera = new LinkedHashMap<>();
         camera.put("name", CAMERA_NAME);
         camera.put("rotations", Arrays.asList(rotation("y", -pitchDeg), rotation("z", yawDeg)));
@@ -93,7 +132,7 @@ final class RobotAssets {
         camera.put("fov", LIMELIGHT_HFOV_DEG);
 
         Map<String, Object> config = new LinkedHashMap<>();
-        config.put("name", ROBOT_NAME);
+        config.put("name", name);
         config.put("isFTC", true);
         config.put("rotations", new ArrayList<>());
         config.put("position", Glb.toList(new double[] {0, 0, 0}));
@@ -122,23 +161,97 @@ final class RobotAssets {
                 new double[] {2.0, CHASSIS_SIZE_IN - 2.0, 0.5},
                 IDENTITY_3);
 
-        // The lens is at the mount point; the housing sits behind it along the optical axis.
+        addLimelight(b, forwardIn, leftIn, upIn, pitchDeg, yawDeg, CHASSIS_TOP_IN);
+        return b.glb(ROBOT_NAME);
+    }
+
+    /**
+     * The side-pen sketch: an open 18 in cube frame (so the Limelight inside stays visible), a
+     * panel down each side that is the pen's inner wall, and a sliding outer wall {@code slideIn}
+     * out from it with end caps and the one-way flap. {@code slideIn = 0} is the stowed robot.
+     */
+    static Glb penModel(String name, double slideIn, double forwardIn, double leftIn, double upIn,
+            double pitchDeg, double yawDeg) {
+        MeshBuilder b = new MeshBuilder();
+        double h = CHASSIS_SIZE_IN / 2;
+        double[] frameGrey = {0.55, 0.55, 0.6, 1};
+        double[] panel = {0.75, 0.78, 0.85, 1};
+        double[] wall = {0.2, 0.45, 0.85, 1};
+        double[] flap = {0.95, 0.85, 0.2, 1};
+        // The base stops inside the stowed walls, so the walls and flaps have room beside it.
+        b.box("Chassis", frameGrey,
+                new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
+                new double[] {CHASSIS_SIZE_IN, CHASSIS_SIZE_IN - 4 * WALL_THICKNESS_IN, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN},
+                IDENTITY_3);
+        b.box("Front", new double[] {1.0, 0.45, 0.0, 1},
+                new double[] {h - 1.0, 0, CHASSIS_TOP_IN + 0.25},
+                new double[] {2.0, CHASSIS_SIZE_IN - 4.0, 0.5},
+                IDENTITY_3);
+        double post = 1.0;
+        for (int fx = -1; fx <= 1; fx += 2) {
+            for (int fy = -1; fy <= 1; fy += 2) {
+                b.box("Post", frameGrey,
+                        new double[] {fx * (h - post / 2), fy * (h - post / 2), (CHASSIS_TOP_IN + BODY_HEIGHT_IN) / 2},
+                        new double[] {post, post, BODY_HEIGHT_IN - CHASSIS_TOP_IN}, IDENTITY_3);
+            }
+            b.box("Top rail", frameGrey, new double[] {fx * (h - post / 2), 0, BODY_HEIGHT_IN - post / 2},
+                    new double[] {post, CHASSIS_SIZE_IN, post}, IDENTITY_3);
+        }
+
+        double t = WALL_THICKNESS_IN;
+        for (int side = -1; side <= 1; side += 2) { // −1 right, +1 left
+            String label = side > 0 ? "Left" : "Right";
+            // Pen's inner wall: a panel on the frame's side, inside the 18 in.
+            double innerY = side * (h - 1.5 * t);
+            b.box(label + " pen inner wall", panel, new double[] {0, innerY, (CHASSIS_BOTTOM_IN + WALL_HEIGHT_IN) / 2},
+                    new double[] {CHASSIS_SIZE_IN - 2 * post, t, WALL_HEIGHT_IN - CHASSIS_BOTTOM_IN}, IDENTITY_3);
+            // Sliding outer wall: flush with the 18 in when stowed.
+            double outerY = side * (h + slideIn - t / 2);
+            b.box(label + " wall", wall, new double[] {0, outerY, (DOOR_TOP_IN + WALL_HEIGHT_IN) / 2},
+                    new double[] {CHASSIS_SIZE_IN, t, WALL_HEIGHT_IN - DOOR_TOP_IN}, IDENTITY_3);
+            if (slideIn > 0) {
+                double capWidth = slideIn + 0.5 * t;
+                for (int fx = -1; fx <= 1; fx += 2) {
+                    b.box(label + " end cap", wall,
+                            new double[] {fx * (h - t / 2), side * (h - t + capWidth / 2), (CHASSIS_BOTTOM_IN + WALL_HEIGHT_IN) / 2},
+                            new double[] {t, capWidth, WALL_HEIGHT_IN - CHASSIS_BOTTOM_IN}, IDENTITY_3);
+                }
+            }
+            // The flap hangs from the top of the opening and swings inward only.
+            double a = Math.toRadians(slideIn > 0 ? FLAP_OPEN_DEG : 0) * -side;
+            double[] rx = {1, 0, 0, 0, Math.cos(a), -Math.sin(a), 0, Math.sin(a), Math.cos(a)};
+            double flapLength = DOOR_TOP_IN - DOOR_BOTTOM_IN;
+            double[] hinge = {0, outerY, DOOR_TOP_IN};
+            double[] centre = add(hinge, mul(rx, new double[] {0, 0, -flapLength / 2}));
+            b.box(label + " flap", flap, centre,
+                    new double[] {CHASSIS_SIZE_IN - 2 * t - 0.5, t, flapLength}, rx);
+        }
+
+        addLimelight(b, forwardIn, leftIn, upIn, pitchDeg, yawDeg, CHASSIS_TOP_IN);
+        return b.glb(name);
+    }
+
+    /**
+     * The Limelight on a post rising from {@code baseIn}: the lens at the mount point, the housing
+     * behind it along the optical axis, and a rod along where it looks.
+     */
+    private static void addLimelight(MeshBuilder b, double forwardIn, double leftIn, double upIn,
+            double pitchDeg, double yawDeg, double baseIn) {
         double[] r = mountRotation(pitchDeg, yawDeg);
         double[] lens = {forwardIn, leftIn, upIn};
         double[] housingCentre = add(lens, mul(r, new double[] {-LIMELIGHT_BOX_IN[0] / 2, 0, 0}));
         // A post up to the housing, so it reads as mounted rather than floating. Drawing only.
         double mastTop = housingCentre[2] - LIMELIGHT_BOX_IN[2] / 2;
-        if (mastTop > CHASSIS_TOP_IN) {
+        if (mastTop > baseIn) {
             b.box("Mast", new double[] {0.35, 0.35, 0.4, 1},
-                    new double[] {housingCentre[0], housingCentre[1], (CHASSIS_TOP_IN + mastTop) / 2},
-                    new double[] {MAST_SIZE_IN, MAST_SIZE_IN, mastTop - CHASSIS_TOP_IN},
+                    new double[] {housingCentre[0], housingCentre[1], (baseIn + mastTop) / 2},
+                    new double[] {MAST_SIZE_IN, MAST_SIZE_IN, mastTop - baseIn},
                     IDENTITY_3);
         }
         b.box("Limelight", new double[] {0.12, 0.12, 0.14, 1}, housingCentre, LIMELIGHT_BOX_IN, r);
         double[] rodCentre = add(lens, mul(r, new double[] {VIEW_ROD_LENGTH_IN / 2, 0, 0}));
         b.box("View ray", new double[] {0.1, 0.85, 0.2, 1}, rodCentre,
                 new double[] {VIEW_ROD_LENGTH_IN, VIEW_ROD_THICKNESS_IN, VIEW_ROD_THICKNESS_IN}, r);
-        return b.glb(ROBOT_NAME);
     }
 
     /**

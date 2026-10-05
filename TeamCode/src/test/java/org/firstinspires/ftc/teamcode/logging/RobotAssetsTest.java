@@ -41,7 +41,12 @@ public class RobotAssetsTest {
         for (String part : new String[] {"Chassis", "Front", "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }
-        System.out.println("Wrote " + dir.getAbsolutePath() + ": copy it into AdvantageScope's userAssets folder.");
+        for (String folder : new String[] {RobotAssets.PENS_IN_FOLDER, RobotAssets.PENS_OUT_FOLDER}) {
+            assertTrue(folder, new File(dir.getParentFile(), folder + "/model.glb").isFile());
+            assertTrue(folder, new File(dir.getParentFile(), folder + "/config.json").isFile());
+        }
+        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.PENS_IN_FOLDER + " and "
+                + RobotAssets.PENS_OUT_FOLDER + ": copy them into AdvantageScope's userAssets folder.");
     }
 
     /**
@@ -89,6 +94,39 @@ public class RobotAssetsTest {
         Map<String, Object> pitch = (Map<String, Object>) ((List<Object>) camera.get("rotations")).get(0);
         assertEquals("y", pitch.get("axis"));
         assertEquals(-45.0, (Double) pitch.get("degrees"), EPS);
+    }
+
+    /** The side-pen sketch is the size it was asked to be, and its door sorts the pieces. */
+    @Test
+    public void sidePensAre18StowedAnd24OutWithADoorOnlyPollenFits() {
+        assertArrayEquals(new double[] {18, 18, 18}, size(RobotAssets.penModel("x", 0, 4, 0, 14, 45, 0)), 1e-4);
+        assertArrayEquals(new double[] {18, 24, 18},
+                size(RobotAssets.penModel("x", RobotAssets.PEN_SLIDE_IN, 4, 0, 14, 45, 0)), 1e-4);
+
+        double pollen = 2 * FieldSim.POLLEN_RADIUS_IN, nectar = 2 * FieldSim.NECTAR_RADIUS_IN;
+        assertTrue("POLLEN fits under the door", RobotAssets.DOOR_TOP_IN > pollen);
+        assertTrue("NECTAR does not", RobotAssets.DOOR_TOP_IN < nectar);
+        // Between the frame's panel and the slid-out wall.
+        double penWidth = RobotAssets.PEN_SLIDE_IN;
+        assertTrue("POLLEN fits in the pen", penWidth > pollen);
+    }
+
+    /**
+     * Overall size in inches: length (x), width (y), height above the floor (z). The view rod is left out: it
+     * shows where the camera looks and is not part of the robot.
+     */
+    private static double[] size(Glb model) {
+        double[] b = {Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE,
+                -Double.MAX_VALUE, -Double.MAX_VALUE, -Double.MAX_VALUE};
+        for (int part : model.children(model.sceneRoots().get(0))) {
+            if (model.name(part).equals("View ray")) continue;
+            double[] p = model.bounds(part, Glb.IDENTITY);
+            for (int k = 0; k < 3; k++) {
+                b[k] = Math.min(b[k], p[k]);
+                b[k + 3] = Math.max(b[k + 3], p[k + 3]);
+            }
+        }
+        return new double[] {(b[3] - b[0]) / 0.0254, (b[4] - b[1]) / 0.0254, b[5] / 0.0254};
     }
 
     private static double[] axisAngle(String axis, double degrees) {
