@@ -152,6 +152,35 @@ right (23–25%), left (20%) and back under the HIVE (18–19%).
 
 ![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
 
+**In the Qualifier Auto** (`ShapeMatchTest`, 5 Oct 2026): four of them through the whole of qual-right-v3 with its
+partner, 20 runs each, normal tiles / tiles with 3x the friction. Each shape keeps qual-right-v3's route
+(`tools/auto-routes/qual_shapes.py`), with the spots where the robot's front must reach something (the far FLOWER,
+the GARDEN, PARK) moved for its shorter chassis. A hook also slides about 4 in toward the centre line as TIP 2 starts,
+lowers its arm and crossbeam once stopped (0.4 s or more after the TIP starts), lifts them the moment it drives,
+and waits 1 s after TIP 2 settles, not 0.5, before driving into the spill. "Blue half": TIP 2's spill on the other
+alliance's half 3 s after it starts.
+
+| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half | Held at TELEOP |
+|---|---|---|---|---|---|---|
+| 1 · Plain (qual-right-v3) | 72.5 / 70.3 | 18 / 16 of 20 | 14 / 13 | 0 / 0 | 28% / 26% | 1.1 / 1.7 |
+| 15 · Rigid V | 72.5 / 69.5 | 19 / 17 | 10 / 6 | 1 / 0 | 27% / 26% | 0.7 / 1.5 |
+| **13 · Large right hook** | **71.0** / 67.8 | 19 / 16 | 4 / 3 | **1** / 20 | **8%** / 16% | 1.6 / 1.3 |
+| 14 · Small right hook | 70.0 / 72.0 | 18 / 20 | 4 / 4 | 12 / 19 | 11% / 17% | 1.3 / 2.0 |
+
+- On normal tiles the large hook does in a match what it does parked: it keeps TIP 2's spill on our half (8% crosses
+  against 28%) and is touched in 1 run of 20. The rigid V changes nothing measurable.
+- The hook costs PARK: holding the spill half a second longer leaves too little time to PARK in most runs (with the
+  0.5 s wait it PARKs in 9 runs but 18% of the spill crosses). A route built around the hook would win that back.
+- **On slow tiles the spill lands about 4 in further out** (8 POLLEN median 46 in from the wall against 42), right
+  on the large hook's crossbeam (46.6 in), so it is touched in every run. The 3 Oct films put the real landing at
+  about 48 in, nearer the slow tiles than the normal ones: the hook's spot moves out with the landing, and
+  `doc/spill-test.md` measures where that is before anyone builds one.
+- The small hook, wrapped round the 90% box, is touched in most runs either way.
+- To watch them: [`shape-matches-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/shape-matches-advantagescope.zip)
+  (model `BIOBUZZ Robot (match shapes)`, layout, best and typical log of each design; its README.txt says how).
+  Rerun: `python3 tools/auto-routes/qual_shapes.py` writes the routes; `BIOBUZZ_SHAPE_MATCHES=1 ./gradlew
+  :TeamCode:testDebugUnitTest --tests '*ShapeMatchTest*'` runs them (`build/sim-logs/shape-matches.csv`).
+
 **Robot shapes at the spill** (`BodyShapeSpillTest.atTheLandingLine`, mentor, 5 Oct 2026): each shape parks with
 its **chassis's front face on the spill's 100% line** (35 in from the wall; every 8 POLLEN piece lands beyond it, 90%
 beyond 38 in), so its walls, flaps or ramps reach into where pieces land. 200 TIPs a spot. "Kept" is the pieces lying

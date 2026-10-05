@@ -93,6 +93,9 @@ final class RobotAssets {
     static final String SHAPES_FOLDER = "Robot_BIOBUZZShapes";
     static final String SHAPES_NAME = "BIOBUZZ Robot (shapes)";
     static final double HIDDEN_Z_M = -20;
+    /** The same for {@link AutoSim}'s match logs: {@link BodyShape#MATCH}, hooks folded and down. */
+    static final String MATCH_FOLDER = "Robot_BIOBUZZMatchShapes";
+    static final String MATCH_NAME = "BIOBUZZ Robot (match shapes)";
 
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
@@ -131,6 +134,15 @@ final class RobotAssets {
         Files.write(new File(shapes, "config.json").toPath(), config(SHAPES_NAME, BodyShape.SHOWN.length,
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
+        File match = new File(out, MATCH_FOLDER);
+        match.mkdirs();
+        Files.write(new File(match, "model.glb").toPath(), base.glb(MATCH_NAME).write());
+        for (int i = 0; i < BodyShape.MATCH.length; i++) {
+            Files.write(new File(match, "model_" + i + ".glb").toPath(), shapesRobot(BodyShape.MATCH[i]).write());
+        }
+        Files.write(new File(match, "config.json").toPath(), config(MATCH_NAME, BodyShape.MATCH.length,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
         return dir;
     }
 
@@ -162,11 +174,17 @@ final class RobotAssets {
         RobotDesign d = shape.design();
         if (d.hasFlaps()) {
             for (int side = -1; side <= 1; side += 2) {
+                if (side > 0 ? !shape.leftArm : !shape.rightArm) continue;  // +y is the robot's left
                 double a = Math.atan2(side * shape.out, shape.ahead), c = Math.cos(a), sn = Math.sin(a);
                 b.box(side > 0 ? "Left flap" : "Right flap", new double[] {0.2, 0.45, 0.85, 1},
                         new double[] {l / 2 + shape.ahead / 2, side * (w / 2 + shape.out / 2), d.flapHeightIn / 2},
                         new double[] {d.flapLengthIn(), RobotDesign.FLAP_THICKNESS_IN, d.flapHeightIn},
                         new double[] {c, -sn, 0, sn, c, 0, 0, 0, 1});
+            }
+            if (shape.crossbeam) {
+                b.box("Crossbeam", new double[] {0.2, 0.45, 0.85, 1},
+                        new double[] {l / 2 + shape.ahead, 0, d.flapHeightIn / 2},
+                        new double[] {RobotDesign.FLAP_THICKNESS_IN, w + 2 * shape.out, d.flapHeightIn}, IDENTITY_3);
             }
         }
         return b.glb(shape.name);
@@ -174,8 +192,13 @@ final class RobotAssets {
 
     /** The {@value #SHAPES_NAME} component poses that show {@code shown} and hide the rest. */
     static double[] shapeComponents(int shown) {
-        double[] poses = new double[7 * BodyShape.SHOWN.length];
-        for (int i = 0; i < BodyShape.SHOWN.length; i++) {
+        return shapeComponents(shown, BodyShape.SHOWN.length);
+    }
+
+    /** As above, for a model of {@code count} components ({@value #MATCH_NAME} has {@link BodyShape#MATCH}'s). */
+    static double[] shapeComponents(int shown, int count) {
+        double[] poses = new double[7 * count];
+        for (int i = 0; i < count; i++) {
             poses[7 * i + 2] = i == shown ? 0 : HIDDEN_Z_M;
             poses[7 * i + 3] = 1;
         }

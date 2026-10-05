@@ -116,6 +116,28 @@ final class BodyShape {
     static final BodyShape RIGID_B = new BodyShape("rigid V 12x15, 3 out 3 fwd", 15, 12, 0, 3, 3);
     static final BodyShape RIGID_C = new BodyShape("rigid V 14x14, 2 out 4 fwd", 14, 14, 0, 2, 4);
 
+    /**
+     * The robots in {@code BIOBUZZ Robot (match shapes)}, for {@link AutoSim}'s match logs: the plain
+     * chassis, the rigid V, and each right hook folded, with its arm down on the right, and down on the
+     * left (a hook's arm goes on whichever side faces the centre line). {@link #matchComponent} picks one.
+     */
+    static final BodyShape[] MATCH = {
+            PLAIN, RIGID_A,
+            new BodyShape("large right hook, folded", 14, 18, 0, 0, 0), RIGHT_HOOK,
+            new BodyShape("right hook 18x14, arm 10", 14, 18, 0, 0, 10).fenced("large hook, arm on the left", true, false),
+            new BodyShape("small right hook, folded", 16, 18, 0, 0, 0), RIGHT_HOOK_SMALL,
+            new BodyShape("small right hook 18x16, arm 8", 16, 18, 0, 0, 8).fenced("small hook, arm on the left", true, false)};
+
+    /**
+     * Which {@link #MATCH} component draws the robot design named {@code design}: down, its hook's
+     * arm on the left ({@code side} +1) or right (-1); a design with no shape here, the plain chassis.
+     */
+    static int matchComponent(String design, boolean down, int side) {
+        int hook = design.contains("large right hook") ? 2 : design.contains("small right hook") ? 5 : -1;
+        if (hook >= 0) return !down ? hook : side > 0 ? hook + 2 : hook + 1;
+        return design.contains("rigid V") ? 1 : 0;
+    }
+
     /** The shapes {@link BodyShapeSpillTest#atTheLandingLine} parks at the spill's edge. */
     static final BodyShape[] LANDING = {PLAIN, LONG_U, FLAPS_16, FLAPS_16_WIDE, FLAPS_15, SHORT_18, FLARED_16, RAMPS_18};
 

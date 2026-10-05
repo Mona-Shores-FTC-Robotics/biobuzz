@@ -23,6 +23,20 @@ import java.util.Map;
  */
 public class AutoStudyTest {
 
+    /** An 18 in wide right hook: a {@code length} in chassis and a {@code arm} in arm with its crossbeam. */
+    static RobotDesign hook(String name, double length, double arm) {
+        RobotDesign d = RobotDesign.springHoodFullWidth().copy(name);
+        d.frameIn = length;
+        d.flapForwardIn = arm;
+        d.flapLeft = false;
+        d.flapCrossbeam = true;
+        d.flapsDeploy = true;
+        d.flapTowardCentre = true;
+        d.sideWallsDeployS = 0.4;
+        d.sideWallsTravelS = 0.3;
+        return d;
+    }
+
     static Map<String, RobotDesign> designs() {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
@@ -48,6 +62,21 @@ public class AutoStudyTest {
         RobotDesign early = walls.copy("spring hood, full-width intake, side walls out at the TIP");
         early.sideWallsDeployS = 0;
         m.put(early.name, early);
+        // The spill shapes (sim-review/body-shapes-shortlist.png, mentor 5 Oct 2026), on the same robot.
+        // A rigid V: a 14 in wide, 16 in long chassis with fixed flaps out to an 18 x 18 in outline.
+        RobotDesign rigid = RobotDesign.springHoodFullWidth().copy("spring hood, rigid V");
+        rigid.frameIn = 16;
+        rigid.frameWidthIn = 14;
+        rigid.intakeWidthIn = 14;
+        rigid.flapOutIn = 2;
+        rigid.flapForwardIn = 2;
+        m.put(rigid.name, rigid);
+        // Right hooks: one arm and a crossbeam that pivot down 0.4 s after our CELL starts to TIP (the
+        // spill lands 1.1-1.4 s after), on the side facing the centre line; folded while driving.
+        RobotDesign largeHook = hook("spring hood, large right hook", 14, 10);
+        m.put(largeHook.name, largeHook);
+        RobotDesign smallHook = hook("spring hood, small right hook", 16, 8);
+        m.put(smallHook.name, smallHook);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

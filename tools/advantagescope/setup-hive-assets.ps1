@@ -49,7 +49,7 @@ try {
     Pop-Location
 }
 $built = Join-Path $repo "TeamCode\build\advantagescope"
-$folders = "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive", "Robot_BIOBUZZ", "Robot_BIOBUZZWalls", "Robot_BIOBUZZShapes"
+$folders = "Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive", "Robot_BIOBUZZ", "Robot_BIOBUZZWalls", "Robot_BIOBUZZShapes", "Robot_BIOBUZZMatchShapes"
 foreach ($f in $folders) {
     if (-not (Test-Path (Join-Path $built $f))) { throw "The build didn't write $built\$f." }
 }
@@ -58,4 +58,4 @@ foreach ($f in $folders) {
 $user = Join-Path $scope "userAssets"
 New-Item -ItemType Directory -Force $user | Out-Null
 Copy-Item -Recurse -Force ($folders | ForEach-Object { Join-Path $built $_ }) $user
-Write-Host "Done: copied into $user. Restart AdvantageScope; the field '2026-2027 Field (HIVE sim)' and the robots 'BIOBUZZ HIVE', 'BIOBUZZ Robot', 'BIOBUZZ Robot (side walls)' and 'BIOBUZZ Robot (shapes)' now appear."
+Write-Host "Done: copied into $user. Restart AdvantageScope; the field '2026-2027 Field (HIVE sim)' and the robots 'BIOBUZZ HIVE', 'BIOBUZZ Robot', 'BIOBUZZ Robot (side walls)', 'BIOBUZZ Robot (shapes)' and 'BIOBUZZ Robot (match shapes)' now appear."

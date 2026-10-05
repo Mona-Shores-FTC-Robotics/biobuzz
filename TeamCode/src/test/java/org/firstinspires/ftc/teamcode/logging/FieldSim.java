@@ -331,6 +331,11 @@ final class FieldSim {
         }
 
         /** The end that is up now: +1, −1, or 0 mid-tip. */
+        /** The end that was raised when the current (or last) swing started: its CELL comes down, and spills that way. */
+        int fallingEnd() {
+            return tipFrom > 0 ? 1 : -1;
+        }
+
         int raisedEnd() {
             HiveState s = state();
             if (s == HiveState.TRANSITION) return 0;
@@ -409,6 +414,11 @@ final class FieldSim {
          * Its caller moves it; the walls stop pieces only while it is above 0.
          */
         double wallsOut;
+        /**
+         * Which flap a one-armed design has down now: +1 its left, -1 its right, 0 as its design says.
+         * Its caller sets it ({@link RobotDesign#flapTowardCentre}).
+         */
+        int flapsOnly;
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -688,10 +698,15 @@ final class FieldSim {
 
     /** Whether an {@code size}-square robot at {@code (x, y, heading)} overlaps any FLOWER holder. */
     boolean hitsFlower(double x, double y, double heading, double size) {
-        double c = Math.cos(heading), s = Math.sin(heading), half = size / 2;
+        return hitsFlower(x, y, heading, size, size);
+    }
+
+    /** As above, for a {@code length} (along {@code heading}) by {@code width} footprint. */
+    boolean hitsFlower(double x, double y, double heading, double length, double width) {
+        double c = Math.cos(heading), s = Math.sin(heading), halfL = length / 2, halfW = width / 2;
         for (double[] f : flowers) {
             double lx = (f[0] - x) * c + (f[1] - y) * s, ly = -(f[0] - x) * s + (f[1] - y) * c;
-            double dx = Math.max(0, Math.abs(lx) - half), dy = Math.max(0, Math.abs(ly) - half);
+            double dx = Math.max(0, Math.abs(lx) - halfL), dy = Math.max(0, Math.abs(ly) - halfW);
             if (dx * dx + dy * dy < PLACEHOLDER_FLOWER_RADIUS_IN * PLACEHOLDER_FLOWER_RADIUS_IN) return true;
         }
         return false;
@@ -1148,11 +1163,11 @@ final class FieldSim {
                 }
             }
         }
-        if (d.hasFlaps()) {
+        if (d.hasFlaps() && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
             for (int side = -1; side <= 1; side += 2) {
-                if (side > 0 ? !d.flapLeft : !d.flapRight) continue;  // +y in the robot's frame is its left
+                if (bot.flapsOnly != 0 ? side != bot.flapsOnly : side > 0 ? !d.flapLeft : !d.flapRight) continue;  // +y: its left
                 double lx = half + d.flapForwardIn / 2, ly = side * (halfWidth + d.flapOutIn / 2);
                 double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);

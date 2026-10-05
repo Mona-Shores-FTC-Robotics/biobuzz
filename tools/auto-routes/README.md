@@ -45,6 +45,9 @@ this branch; `python3 g409.py 20 shoots-left stages --extra 300 --back 8 --north
 and `python3 g409.py 20 v2 --extra 500` rebuild and rerun the winners.
 
 `python3 qual_right.py 20 qual-right-v3` and `python3 qual.py 20 stages` export and simulate them.
+`python3 qual_shapes.py` writes qual-right-v3 for the spill shapes (a rigid V, a large and a small right hook:
+`qual-right-v3-rigid-v`, `-large-hook`, `-small-hook`), each on its own robot design; `ShapeMatchTest` simulates
+them against qual-right-v3 (the repository README, "In the Qualifier Auto").
 qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer worked on.
 
 **Rules for both** (mentor review):

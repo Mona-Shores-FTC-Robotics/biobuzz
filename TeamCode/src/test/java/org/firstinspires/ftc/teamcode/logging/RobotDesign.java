@@ -169,6 +169,17 @@ final class RobotDesign {
      * its front face the fourth side), as tall as the flaps. With one flap it hangs off that one.
      */
     boolean flapCrossbeam = false;
+    /**
+     * Whether the flaps (and crossbeam) fold up while driving and pivot down like the side walls do
+     * in a match ({@link AutoSim}: out {@link #sideWallsDeployS} after our CELL starts to TIP, taking
+     * {@link #sideWallsTravelS}); false: out the whole match, as a rigid guide is.
+     */
+    boolean flapsDeploy = false;
+    /**
+     * A one-armed design's arm goes on whichever side faces the centre line when it comes down (a
+     * "right hook" facing our wall, a left one facing the far wall), so it keeps the spill on our half.
+     */
+    boolean flapTowardCentre = false;
 
     boolean hasFlaps() {
         return flapOutIn > 0 || flapForwardIn > 0;
@@ -270,6 +281,8 @@ final class RobotDesign {
         d.flapLeft = flapLeft;
         d.flapRight = flapRight;
         d.flapCrossbeam = flapCrossbeam;
+        d.flapsDeploy = flapsDeploy;
+        d.flapTowardCentre = flapTowardCentre;
         return d;
     }
 

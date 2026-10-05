@@ -47,7 +47,9 @@ public class RobotAssetsTest {
         }
         File shapes = new File(dir.getParentFile(), RobotAssets.SHAPES_FOLDER);
         for (int i = 0; i < BodyShape.SHOWN.length; i++) assertTrue(new File(shapes, "model_" + i + ".glb").isFile());
-        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.WALLS_FOLDER + ", " + RobotAssets.SHAPES_FOLDER
+        File match = new File(dir.getParentFile(), RobotAssets.MATCH_FOLDER);
+        for (int i = 0; i < BodyShape.MATCH.length; i++) assertTrue(new File(match, "model_" + i + ".glb").isFile());
+        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.WALLS_FOLDER + ", " + RobotAssets.SHAPES_FOLDER + ", " + RobotAssets.MATCH_FOLDER
                 + ": copy them into AdvantageScope's userAssets folder.");
     }
 

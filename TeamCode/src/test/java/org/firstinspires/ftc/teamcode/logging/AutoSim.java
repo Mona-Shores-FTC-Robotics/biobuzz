@@ -63,6 +63,8 @@ public final class AutoSim {
      * 30 s can still score its TIP.
      */
     static final double AFTER_S = 8.0;
+    /** When after a TIP starts its spill is counted ({@link Result#tipSpills}): landed and scattered, not yet driven into. */
+    static final double SPILL_LOOK_S = 3.0;
     /**
      * Disabled time on each side of the run, robots standing where they are, so AdvantageScope's
      * timeline has room to grab the start and the end. AUTO starts at {@code PRE_ROLL_S} in the log.
@@ -168,6 +170,12 @@ public final class AutoSim {
         double robotsCollidedAt = Double.NaN;
         /** Spilled pieces a robot touched before they reached the tiles: G409 fouls. */
         int g409;
+        /**
+         * Each of our CELL's TIPs, in order: {pieces it spilled, those lying on the other alliance's half
+         * {@link #SPILL_LOOK_S} after it started} (for the spill shapes: a right hook's arm is there to keep
+         * them on ours). A TIP whose 3 s ran past the end of the log is not listed.
+         */
+        final List<int[]> tipSpills = new ArrayList<>();
         /**
          * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
          * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
@@ -437,7 +445,9 @@ public final class AutoSim {
         log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
         log.put(AdvantageScopeKeys.ROBOT_MODE, "autonomous", autoStartUs);
         log.putEvent("AUTO starts", autoStartUs);
-        int tipsSeen = 0;
+        int tipsSeen = 0, startsSeen = 0;
+        // Our TIPs' spills to count: {when, the pieces that were in our CELLs as the TIP started}.
+        List<Object[]> spills = new ArrayList<>();
         boolean scored = false;
         for (long step = 0; step * LOOP_S <= AutoKit.AUTO_LENGTH_S + AFTER_S; step++) {
             now = step * LOOP_S;
@@ -480,6 +490,26 @@ public final class AutoSim {
                 log.putEvent("sim: " + e, us);
             }
             FieldSim.Rocker ours = sim.rocker(alliance);
+            if (ours.tipsStarted > startsSeen) {
+                startsSeen = ours.tipsStarted;
+                List<FieldSim.Piece> inCell = new ArrayList<>();
+                for (FieldSim.Piece p : sim.pieces) {
+                    if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == alliance) inCell.add(p);
+                }
+                spills.add(new Object[] {now + SPILL_LOOK_S, inCell});
+            }
+            while (!spills.isEmpty() && now >= (Double) spills.get(0)[0]) {
+                @SuppressWarnings("unchecked")
+                List<FieldSim.Piece> spilled = (List<FieldSim.Piece>) spills.remove(0)[1];
+                int out = 0, other = 0;
+                for (FieldSim.Piece p : spilled) {
+                    if (p.where == FieldSim.Where.FIELD && p.cell != null) continue;  // stayed in the CELL
+                    out++;
+                    boolean over = alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN;
+                    if (p.where == FieldSim.Where.FIELD && over) other++;
+                }
+                result.tipSpills.add(new int[] {out, other});
+            }
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
@@ -515,8 +545,8 @@ public final class AutoSim {
     private static boolean overlap(Bot a, Bot b) {
         double[] pa = pedro(a.drive.pose), pb = pedro(b.drive.pose);
         if (Math.hypot(pa[0] - pb[0], pa[1] - pb[1]) > 2 * 0.7072 * 18 + 1) return false;
-        for (double[] c : corners(pa, a.design.frameIn)) if (inside(c, pb, b.design.frameIn)) return true;
-        for (double[] c : corners(pb, b.design.frameIn)) if (inside(c, pa, a.design.frameIn)) return true;
+        for (double[] c : corners(pa, a.design)) if (inside(c, pb, b.design)) return true;
+        for (double[] c : corners(pb, b.design)) if (inside(c, pa, a.design)) return true;
         return false;
     }
 
@@ -525,18 +555,35 @@ public final class AutoSim {
      * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
      * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
      */
-    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut) {
-        List<double[]> out = corners(pose, design.frameIn);
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly) {
+        List<double[]> out = corners(pose, design);
+        if (design.hasFlaps() && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
+            for (int side = -1; side <= 1; side += 2) {
+                if (flapsOnly != 0 ? side != flapsOnly : side > 0 ? !design.flapLeft : !design.flapRight) continue;
+                for (double f = 0.25; f <= 1.0001; f += 0.25) {
+                    double lx = half + f * design.flapForwardIn, ly = side * (halfW + f * design.flapOutIn);
+                    out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+                }
+            }
+            if (design.flapCrossbeam) {
+                double lx = half + design.flapForwardIn, span = halfW + design.flapOutIn;
+                for (double f = -1; f <= 1.0001; f += 0.25) {
+                    double ly = f * span;
+                    out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+                }
+            }
+        }
         if ((design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) && wallsOut > 0) {  // the side walls' front ends
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
             double lx = design.frameIn / 2 + wallsOut * design.sideWallsSlideIn;
             for (int side = -1; side <= 1; side += 2) {
-                double ly = side * (design.frameIn / 2 + wallsOut * design.sideWallsOutIn);
+                double ly = side * (design.frameWidthIn / 2 + wallsOut * design.sideWallsOutIn);
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
         // It starts folded inside the 18 in start size (R102) and is out within the first second.
-        if (design.intakeWidthIn <= design.frameIn || now < CATCHER_DEPLOY_S) return out;
+        if (design.intakeWidthIn <= design.frameWidthIn || now < CATCHER_DEPLOY_S) return out;
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
         double lx = (design.intakeAtBack ? -1 : 1) * design.frameIn / 2, half = design.intakeWidthIn / 2;
         for (int j = -4; j <= 4; j++) {
@@ -557,6 +604,13 @@ public final class AutoSim {
     static final double WALLS_TURN_RAD_PER_S = 0.3;
     /** ... or this long after going out, when the spill has been gathered or has scattered. */
     static final double WALLS_HOLD_S = 3.0;
+    /**
+     * A hook (RobotDesign#flapsDeploy) comes down only once the robot is this slow, and lifts as soon as
+     * it drives faster: its arm reaches 8-10 in ahead, into where the spill lands.
+     */
+    static final double HOOK_STILL_IN_PER_S = 3;
+    /** ... and not at all if the robot is still moving this long after the TIP starts (the spill is landing). */
+    static final double HOOK_LATEST_S = 0.9;
 
     /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
     private static List<double[]> edges(double[] pose, double size) {
@@ -574,22 +628,36 @@ public final class AutoSim {
 
     /** Points around and inside an {@code size}-square footprint at {@code pose}. */
     private static List<double[]> corners(double[] pose, double size) {
+        return corners(pose, size, size);
+    }
+
+    /** Points around and inside the design's frame ({@link RobotDesign#frameIn} long, {@link RobotDesign#frameWidthIn} wide). */
+    private static List<double[]> corners(double[] pose, RobotDesign design) {
+        return corners(pose, design.frameIn, design.frameWidthIn);
+    }
+
+    private static List<double[]> corners(double[] pose, double length, double width) {
         List<double[]> out = new ArrayList<>();
-        double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = size / 2;
+        double c = Math.cos(pose[2]), s = Math.sin(pose[2]), halfL = length / 2, halfW = width / 2;
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
-                double lx = half * i / 2, ly = half * j / 2;
+                double lx = halfL * i / 2, ly = halfW * j / 2;
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
         return out;
     }
 
-    private static boolean inside(double[] point, double[] pose, double size) {
+    private static boolean inside(double[] point, double[] pose, RobotDesign design) {
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
         double dx = point[0] - pose[0], dy = point[1] - pose[1];
         double lx = dx * c + dy * s, ly = -dx * s + dy * c;
-        return Math.abs(lx) < size / 2 && Math.abs(ly) < size / 2;
+        return Math.abs(lx) < design.frameIn / 2 && Math.abs(ly) < design.frameWidthIn / 2;
+    }
+
+    /** The frame's longer side: the square the planners keep clear of the HIVE and FLOWERs. */
+    private static double span(RobotDesign design) {
+        return Math.max(design.frameIn, design.frameWidthIn);
     }
 
     /** One robot: its exported Auto, drivetrain, launcher and intake. */
@@ -665,6 +733,13 @@ public final class AutoSim {
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add);
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
+                // The Autos are drawn for an 18 in robot backed against the wall: a shorter chassis starts
+                // backed against it too (its start pose set that much further back on the robot).
+                if (design.frameIn < 18) {
+                    Pose p = drive.pose;
+                    double back = (18 - design.frameIn) / 2;
+                    drive.pose = new Pose(p.x() - back * Math.cos(p.heading()), p.y() - back * Math.sin(p.heading()), p.heading());
+                }
                 auto = (Command) build.invoke(null, kit, rotated);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("could not build " + result.auto, e);
@@ -791,10 +866,12 @@ public final class AutoSim {
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
             prev = pose;
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
-            if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
+            if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0 || design.flapsDeploy) {
+                sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
+            }
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -802,13 +879,13 @@ public final class AutoSim {
                     }
                 }
             }
-            if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn)) {
+            if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn, design.frameWidthIn)) {
                 result.hitFlowerAt = now;
                 log.putEvent(tag() + "drives into a FLOWER", us);
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;
@@ -853,6 +930,9 @@ public final class AutoSim {
         int wallTipsSeen;
         /** When the last one started; NaN once the walls have answered it. */
         double wallTipAt = Double.NaN;
+        double tipStartedAt = Double.NaN;
+        /** Which wall the last TIP's spill falls toward: true for the far one (high y). */
+        boolean wallSpillHighY;
         /** Whether the walls are going out (true) or in, and when they were last sent out. */
         boolean wallsWanted;
         double wallsSentAt = Double.NaN;
@@ -869,30 +949,46 @@ public final class AutoSim {
          * {@code BIOBUZZ Robot (side walls)} model.
          */
         void sideWalls(WpiLog log, double[] pose, double speed, double turnRate, boolean running, long us) throws IOException {
-            int started = sim.rocker(alliance).tipsStarted;
+            FieldSim.Rocker rocker = sim.rocker(alliance);
+            int started = rocker.tipsStarted;
             if (started > wallTipsSeen) {
                 wallTipsSeen = started;
                 wallTipAt = now;
+                tipStartedAt = now;
+                // The CELL that was up comes down: its spill falls toward the wall at that end (mid-swing
+                // raisedEnd() says neither).
+                wallSpillHighY = rocker.fallingEnd() > 0;
             }
             boolean near = Math.hypot(pose[0] - FieldSim.CENTRE_IN, pose[1] - FieldSim.CENTRE_IN) < WALLS_NEAR_HIVE_IN;
-            if (!Double.isNaN(wallTipAt) && now - wallTipAt >= design.sideWallsDeployS) {
+            String guides = design.flapsDeploy ? "hook" : "side walls";
+            boolean hookWaits = design.flapsDeploy && speed > HOOK_STILL_IN_PER_S && now - wallTipAt < HOOK_LATEST_S;
+            if (!Double.isNaN(wallTipAt) && now - wallTipAt >= design.sideWallsDeployS && !hookWaits) {
+                boolean tooLate = design.flapsDeploy && speed > HOOK_STILL_IN_PER_S;
                 wallTipAt = Double.NaN;
-                if (running && !wallsWanted && near && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
+                // A hook comes down only where the spill lands: not for a TIP whose spill falls at the other end.
+                boolean spillHere = !design.flapsDeploy || (pose[1] > FieldSim.CENTRE_IN) == wallSpillHighY;
+                if (running && !wallsWanted && near && spillHere && !tooLate && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
                     wallsWanted = true;
                     wallsSentAt = now;
-                    log.putEvent(tag() + "side walls out: our CELL's spill has landed", us);
+                    if (design.flapTowardCentre) {  // the arm on the side facing the centre line
+                        double leftX = -Math.sin(pose[2]);  // the robot's left, along x
+                        body.flapsOnly = leftX * (FieldSim.CENTRE_IN - pose[0]) > 0 ? 1 : -1;
+                    }
+                    log.putEvent(tag() + guides + (design.flapsDeploy ? " down" : " out") + ": our CELL started to TIP "
+                            + String.format(java.util.Locale.ROOT, "%.1f", now - tipStartedAt) + " s ago"
+                            + (design.flapTowardCentre ? (body.flapsOnly > 0 ? ", arm on the left" : ", arm on the right") : ""), us);
                 }
             }
             if (wallsWanted) {
                 String why = !running ? "AUTO ended"
                         : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
                         : !near ? "left the HIVE"
-                        : speed > WALLS_DRIVE_OFF_IN_PER_S ? "driving off"
+                        : speed > (design.flapsDeploy ? HOOK_STILL_IN_PER_S : WALLS_DRIVE_OFF_IN_PER_S) ? "driving off"
                         : Math.abs(turnRate) > WALLS_TURN_RAD_PER_S ? "turning"
                         : now - wallsSentAt > WALLS_HOLD_S ? "spill gathered" : null;
                 if (why != null) {
                     wallsWanted = false;
-                    log.putEvent(tag() + "side walls in: " + why, us);
+                    log.putEvent(tag() + guides + (design.flapsDeploy ? " up: " : " in: ") + why, us);
                 }
             }
             double step = LOOP_S / design.sideWallsTravelS;
@@ -906,14 +1002,30 @@ public final class AutoSim {
         /** The walls' slide as AdvantageScope component poses: left wall, right wall, robot frame, metres. */
         void putWalls(WpiLog log, long us) throws IOException {
             wallsLogged = true;
+            putShape(log, us);
             double x = body.wallsOut * design.sideWallsSlideIn * AdvantageScopeFrame.METERS_PER_INCH;
             double y = body.wallsOut * design.sideWallsOutIn * AdvantageScopeFrame.METERS_PER_INCH;
             log.put(keyPrefix + "/SideWalls/Out", body.wallsOut, us);
             log.putPose3dArray(keyPrefix + "/SideWalls/Components", new double[] {x, y, 0, 1, 0, 0, 0, x, -y, 0, 1, 0, 0, 0}, us);
         }
 
+        /**
+         * Which of {@code BIOBUZZ Robot (match shapes)}'s components to show ({@link BodyShape#MATCH}):
+         * a hook folded, or down with its arm on the left or right; any design without a shape there,
+         * the plain 18 in chassis.
+         */
+        void putShape(WpiLog log, long us) throws IOException {
+            int shown = BodyShape.matchComponent(design.name, body != null && body.wallsOut >= 1, body == null ? 0 : body.flapsOnly);
+            if (shown == shapeLogged) return;
+            shapeLogged = shown;
+            log.putPose3dArray(keyPrefix + "/BodyShape/Components", RobotAssets.shapeComponents(shown, BodyShape.MATCH.length), us);
+        }
+
+        int shapeLogged = -1;
+
         /** The robot standing where it is, for the disabled time before and after the run. */
         void putStill(WpiLog log, long us) throws IOException {
+            putShape(log, us);
             if ((design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) && body != null) putWalls(log, us);
             double[] pose = pedro(drive.pose);
             robot.putPose(log, pose[0], pose[1], pose[2], us);
@@ -928,7 +1040,7 @@ public final class AutoSim {
             double[] zone = FieldSim.loadingZone(alliance);
             boolean touchesWall = false;
             boolean inZone = false;
-            for (double[] c : corners(pose, design.frameIn)) {
+            for (double[] c : corners(pose, design)) {
                 touchesWall |= c[0] < 0.25 || c[1] < 0.25 || c[0] > FieldSim.FIELD_SIZE_IN - 0.25
                         || c[1] > FieldSim.FIELD_SIZE_IN - 0.25;
                 inZone |= c[0] > zone[0] && c[0] < zone[1] && c[1] > zone[2] && c[1] < zone[3];
@@ -1055,7 +1167,7 @@ public final class AutoSim {
          */
         private boolean canTurnHere() {
             double[] at = pedro(drive.pose);
-            double reach = design.frameIn / Math.sqrt(2);
+            double reach = span(design) / Math.sqrt(2);
             if (at[0] < reach + 1 || at[1] < reach + 1 || at[0] > FieldSim.FIELD_SIZE_IN - reach - 1
                     || at[1] > FieldSim.FIELD_SIZE_IN - reach - 1) return false;
             if (sim.hitsFlower(at[0], at[1], 0, 2 * reach)) return false;
@@ -1112,14 +1224,14 @@ public final class AutoSim {
                     design.intakeAtBack ? bearing + Math.PI : bearing};
             for (double f = 0; f <= 1.0001; f += 0.25) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
-                if (sim.hitsFlower(mid[0], mid[1], mid[2], design.frameIn)) return true;
+                if (sim.hitsFlower(mid[0], mid[1], mid[2], span(design))) return true;
                 // 2.5 in clear of the HIVE's feet, along every edge: a spill lands right in front of the foot
                 // bars' ends (2 in wide, narrower than corners' spacing), and the robot drifts as it arrives.
                 // It turns on the way: try every heading between the one it starts with and the one it ends with.
                 double turn = AdvantageScopeFrame.wrap(end[2] - at[2]);
                 for (double g = 0; g <= 1.0001; g += 0.25) {
                     double h = at[2] + turn * g;
-                    for (double[] c : edges(new double[] {mid[0], mid[1], h}, design.frameIn + 5)) {
+                    for (double[] c : edges(new double[] {mid[0], mid[1], h}, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
                     }
                 }
@@ -1127,11 +1239,11 @@ public final class AutoSim {
                 // started collecting with: the Auto's next path starts from that heading.
                 double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
                 for (double g = 0; g <= 1.0001; g += 0.25) {
-                    for (double[] c : edges(new double[] {mid[0], mid[1], end[2] + back * g}, design.frameIn + 5)) {
+                    for (double[] c : edges(new double[] {mid[0], mid[1], end[2] + back * g}, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
                     }
                 }
-                for (double[] c : corners(mid, design.frameIn)) {
+                for (double[] c : corners(mid, design)) {
                     // G402: no part of the robot past the centre line (a spill scatters right up to it).
                     if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                     if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
@@ -1143,7 +1255,7 @@ public final class AutoSim {
         /** Why a robot at {@code pose} may not start there, or null: it must touch the wall, on its own half. */
         private String startProblem(double[] pose) {
             boolean touching = false;
-            for (double[] c : corners(pose, design.frameIn)) {
+            for (double[] c : corners(pose, design)) {
                 if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) {
                     return "reaches into the other alliance's half";
                 }
@@ -1162,7 +1274,7 @@ public final class AutoSim {
             double tx = p.x - (mouth - 1) * Math.cos(bearing), ty = p.y - (mouth - 1) * Math.sin(bearing);
             // Stay on our own half (with room for the corners of a robot turned any way), and inside
             // the walls.
-            double half = design.frameIn / 2, corner = design.frameIn * Math.sqrt(0.5);
+            double half = span(design) / 2, corner = span(design) * Math.sqrt(0.5);
             tx = alliance == Alliance.BLUE ? Math.max(FieldSim.CENTRE_IN + corner, tx) : Math.min(FieldSim.CENTRE_IN - corner, tx);
             tx = Math.max(half + 0.5, Math.min(FieldSim.FIELD_SIZE_IN - half - 0.5, tx));
             ty = Math.max(half + 0.5, Math.min(FieldSim.FIELD_SIZE_IN - half - 0.5, ty));
