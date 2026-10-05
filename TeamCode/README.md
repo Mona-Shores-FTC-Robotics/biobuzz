@@ -1862,7 +1862,8 @@ piece near the centre line. A real `CollectSeen` needs the same rules.
 
 **Still to measure:** the first touch with a tape in the shot, where pieces come to rest (film from
 above), and the swing time per CELL (`HiveTracker.Tuning.tipSeconds`, still the assumed 1.0 s, so the
-simulated swing is slower than filmed).
+simulated swing is slower than filmed). The test that measures all three, with a printable notes sheet, is
+[`doc/spill-test.md`](../doc/spill-test.md).
 
 ### Two robots and five or more TIPs
 

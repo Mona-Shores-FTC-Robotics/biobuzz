@@ -147,7 +147,8 @@ on one where a piece lands on the long U's walls. The robot switches shape by it
 The simulator ran each shape (pieces bounce off its walls and flaps); it isn't one run redrawn. Rebuild with
 `.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest*" --tests "*RobotAssetsTest*" --tests "*SpillLandingTest*"`,
 then `python3 tools/spill-window/shapes.py` for the sheets. The guides' height, thickness and bounce are placeholders,
-like the walls; nothing here is measured on a robot.
+like the walls; nothing here is measured on a robot. How far pieces roll after landing is a guess too:
+[`doc/spill-test.md`](doc/spill-test.md) is the field test that measures it.
 
 `BodyShapeSpillTest.howCloseCanEachShapePark` asks the other question, how near each shape can park with no touch at
 all (front-most point 35–37 in for every shape); kept there, measured from the front-most point, is 17% plain, 41% long
