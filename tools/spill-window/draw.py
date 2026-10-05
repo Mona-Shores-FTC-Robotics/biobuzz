@@ -2,7 +2,7 @@
 (sim-review/spill-window.html; open it in a browser, or screenshot it).
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
-    python3 tools/spill-window/draw.py [--face 35] [--arms 6] [csv] [out.html]
+    python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--right-arm-only] [--x 58] [csv] [out.html]
 
 The background is the Visualizer's field image (public/fields/biobuzz.webp, in the Visualizer checkout that
 autogen.py uses: AUTO_BUILDER_DIR, or ../visualizer). The Visualizer stretches it over the whole field,
@@ -32,6 +32,14 @@ if "--arms" in ARGS:
     i = ARGS.index("--arms")
     ARMS = float(ARGS[i + 1])
     del ARGS[i:i + 2]
+RIGHT_ONLY = "--right-arm-only" in ARGS  # one shield, on the robot's right (RobotDesign.sideWallsOnly -1)
+if RIGHT_ONLY:
+    ARGS.remove("--right-arm-only")
+X = None  # the robot's centre x; the red CELL's axis unless given
+if "--x" in ARGS:
+    i = ARGS.index("--x")
+    X = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
 OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
 VIS = [os.environ.get("AUTO_BUILDER_DIR", ""), os.path.join(REPO, "..", "visualizer"),
@@ -45,7 +53,7 @@ CENTRE = FIELD / 2     # FieldFrame.FIELD_CENTRE_INCHES
 TILE = FIELD / 6
 # Our robot: the plain 18 in square, side walls in, on the red CELL's axis (FieldSim.RED_HIVE_X_IN),
 # facing the HIVE with its front face FACE in from the audience wall.
-ROBOT_X, HALF = CENTRE - 12.75, 9.0
+ROBOT_X, HALF = (CENTRE - 12.75) if X is None else X, 9.0
 ROBOT_Y = FACE - HALF
 
 rows = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]
@@ -100,7 +108,7 @@ o += [f'<rect x="{px(ROBOT_X - HALF)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF
       f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
       f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
 if ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
-    for wx in (ROBOT_X - HALF, ROBOT_X + HALF - 0.25):
+    for wx in ((ROBOT_X + HALF - 0.25,) if RIGHT_ONLY else (ROBOT_X - HALF, ROBOT_X + HALF - 0.25)):
         o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(2.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
 o.append('</svg>')
 
