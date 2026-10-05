@@ -35,13 +35,19 @@ def via(r, card, mid, after=0.0, by=1.0):
     return card
 
 
-def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500):
+def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False):
     """From N_FIRE (facing the HIVE) once TIP 2 has started: south through its spill and the tunnel,
     fire it straight on from `spill_at`; the GARDEN's 4, fired from S_FIRE; then, if TIP 3 hasn't come,
     what lies near our end (webcam) fired straight on; PARK."""
     if fire_y is not None:
         r.pt("S_FIRE", S_FIRE[0], fire_y, 90)
     out = []
+    if stand:  # stand still where we fired (the catch spot), intake running, while the spill lands
+        out.append(r.wait(f"Catch TIP 2's spill{tag}", when=["IntakeFull"], ms=stand))
+    if seen:  # then the webcam pickup of what lies near, and back to N_BACK
+        r.at = "N_CATCH"
+        out += catch(r, f"Pick up TIP 2's spill{tag}", "N", ms=seen)
+        settle = False
     if settle is not False and settle != 0:  # True: until the right CELL is up; a number: at most that many ms
         out.append(r.wait(f"TIP 2 settles{tag}", when=["RightCellUp"], ms=2500 if settle is True else settle))
     if extra:
@@ -64,7 +70,9 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
             r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the GARDEN{tag}", "Empty", ms=garden_ms)]
     r.at = "S_FIRE"
     if third:
-        return out + third_load(r, tag)
+        return out + third_load(r, tag, catch3=catch3)
+    if catch3:  # no third load and no PARK: stand at the catch spot for TIP 3's spill, for TELEOP
+        return out + [r.go("S_CATCH", heading=90), r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=8000)]
     park = r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90, park=True)
     if not leftovers:
         return out + [park]
@@ -80,7 +88,7 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
     return out
 
 
-def third_load(r, tag="", wait_full=1100):
+def third_load(r, tag="", wait_full=1100, catch3=False):
     """From S_FIRE once the GARDEN's shots are away. A TIP under way or done (the right CELL no longer
     up): PARK. If not: back to the GARDEN (what the sweep left in it) and look again there; still no
     TIP, so carry what it holds back to S_FIRE and fire it. A TIP that completes in the 8 s after AUTO
@@ -89,10 +97,14 @@ def third_load(r, tag="", wait_full=1100):
     arrives by 30 s."""
     r.at = "S_FIRE"
     park_here = [r.go("PARK", ctrl=[(28, 24), (24, 70)], heading=90, park=True)]
+    if catch3:  # instead of PARK: stand at the catch spot for TIP 3's spill, for TELEOP
+        park_here = [r.go("S_CATCH", heading=90), r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=6000)]
     r.at = "S_FIRE"
     go = r.go("GARDEN", ctrl=[(8.5, 30)], turn_by=0.7)
     r.at = "GARDEN"
     done = [r.go("PARK", ctrl=[(30, 22), (26, 70)], heading=90, turn_by=0.5, park=True)]
+    if catch3:
+        done = [r.go("S_CATCH", turn_after=0.3, turn_by=1.0), r.wait(f"Catch TIP 3's spill (B){tag}", when=["IntakeFull"], ms=6000)]
     r.at = "GARDEN"
     more = [r.wait(f"The GARDEN again{tag}", when=["IntakeFull"], ms=wait_full), r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
             r.wait(f"Fire the GARDEN again{tag}", when=["LeftCellUp"], ms=2500, alongside="LaunchAll")]
@@ -137,6 +149,19 @@ VARIANTS = {  # name: tail options. 20 runs each, normal / slow tiles: TIP 3 in 
     "qual-right-v2-shield": {"spill_at": "S_FIRE", "garden": "sweep", "sweep_y": 10, "third": True, "garden_ms": 1800,
                              "shield_turns": True},
 }
+V2 = VARIANTS["qual-right-v2"]
+TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal / slow tiles, TIP 3 and points
+    # At TIP 2 we already fire from the catch spot (y 114). Waiting there, intake running, before the
+    # tunnel: 1 s 17 / 16 (71.5 / 70.5), 1.5 s 17 / 17, 2.5 s 14 / 17; it catches 2.3-2.9 of the 8, no
+    # more than driving through (3.0), and the wait costs TIP 3 and PARK.
+    **{f"qual-right-stand{ms}": {**V2, "stand": ms} for ms in (1000, 1500, 2500)},
+    # The webcam pickup there instead (1.5 / 2.5 s): 11-15 / 20.
+    **{f"qual-right-seen{ms}": {**V2, "seen": ms} for ms in (1500, 2500)},
+    # TIP 3's spill instead of PARK, for TELEOP: standing at S_CATCH it catches 1.1 by 30 s (holds 1.4
+    # at TELEOP, v2 1.8 / 2.4 parked); 70 / 71 points. With the third load as well it isn't there.
+    "qual-right-catch3": {**V2, "catch3": True},
+    "qual-right-stay3": {**V2, "third": False, "catch3": True},
+}
 WINNER = "qual-right-v2"
 
 
@@ -148,7 +173,7 @@ if __name__ == "__main__":
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     which = sys.argv[2:] or list(VARIANTS)
     for w in which:
-        r = right(w, **VARIANTS[w])
+        r = right(w, **{**VARIANTS, **TRIALS}[w])
         r.folder = autogen.AUTOS_DIR if w == WINNER else autogen.EXPERIMENTS
         r.write()
     for f in ("1", "3"):
