@@ -237,50 +237,58 @@ public class SideWallSpillTest {
 
     /**
      * Surround the landing rather than stand short of it (mentor, 5 Oct 2026: "the whole point is to
-     * surround the pollen/nectar as it falls ... so it spreads less"; and "one arm on the right
-     * side": the robot just right of the drop box, its arm along the box's right edge, no left arm).
-     * Where the spill lies 3 s after the TIP: the median distance from the landing's centre, and the
-     * share within 12 in and 24 in of it; and the TIPs with any G409 touch.
+     * surround the pollen/nectar as it falls ... so it spreads less"): the long U centred on the 90%
+     * box at its near edge; and one arm on the right only, the robot still across the landing with
+     * its right side on the drop box's right edge, to keep the spill on our half. Where the spill lies
+     * 3 s after the TIP: the median distance from the landing's centre, the share within 12 in and
+     * 24 in of it, the share past the centre line (x > 70.75); and the TIPs with any G409 touch.
      */
     @Test
     public void surroundTheLanding() {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         double half = RobotAssets.CHASSIS_SIZE_IN / 2, slide = RobotAssets.WALL_SLIDE_IN;
+        double ninetyX = 56.8;  // the 90% box's centre, x 47.4-66.2 (near edge 38.1 in from the wall)
+        double rightArmX = DROP_RIGHT_X_IN - half;  // the robot's right side on the 100% box's right edge
         Placement[] placements = {
             new Placement("no robot", false, 0, 0, 0, 0),
-            new Placement("plain, face 35, centred", true, FieldSim.RED_HIVE_X_IN, 35, 0, 0),
-            new Placement("long U, face 35 (tips 41), centred", true, FieldSim.RED_HIVE_X_IN, 35, slide, 0),
-            new Placement("long U, face 41.5 (tips 47.5), centred", true, FieldSim.RED_HIVE_X_IN, DROP_FAR_IN - slide, slide, 0),
-            new Placement("one arm at the box's right edge, face 35 (tip 41)", true, DROP_RIGHT_X_IN + half, 35, slide, +1),
-            new Placement("one arm at the box's right edge, face 41.5 (tip 47.5)", true, DROP_RIGHT_X_IN + half, DROP_FAR_IN - slide, slide, +1),
-            new Placement("one arm at the box's left edge, face 41.5 (tip 47.5)", true, DROP_LEFT_X_IN - half, DROP_FAR_IN - slide, slide, -1),
-            new Placement("plain at the box's right edge, face 47.5", true, DROP_RIGHT_X_IN + half, DROP_FAR_IN, 0, 0),
+            new Placement("plain, face 35, x 58", true, FieldSim.RED_HIVE_X_IN, 35, 0, 0),
+            new Placement("long U, face 35 (tips 41), x 58", true, FieldSim.RED_HIVE_X_IN, 35, slide, 0),
+            new Placement("long U, face 36 (tips 42), x 56.8", true, ninetyX, 36, slide, 0),
+            new Placement("long U, face 37 (tips 43), x 56.8", true, ninetyX, 37, slide, 0),
+            new Placement("long U, face 38 (tips 44), x 56.8", true, ninetyX, 38, slide, 0),
+            new Placement("plain, face 35, x 60.5", true, rightArmX, 35, 0, 0),
+            new Placement("right arm only, face 35 (tip 41), x 60.5", true, rightArmX, 35, slide, -1),
+            new Placement("right arm only, face 37 (tip 43), x 60.5", true, rightArmX, 37, slide, -1),
         };
         for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
             for (Placement at : placements) {
-                List<Double> dist = new ArrayList<>();
+                List<Double> dist = new ArrayList<>(), xs = new ArrayList<>();
                 int g409 = 0, runsTouched = 0;
                 for (long seed = 1; seed <= PLAIN_PARK_TIPS; seed++) {
-                    int touched = surroundRun(physics, seed, nectar, at, dist);
+                    int touched = surroundRun(physics, seed, nectar, at, dist, xs);
                     g409 += touched;
                     if (touched > 0) runsTouched++;
                 }
                 java.util.Collections.sort(dist);
-                int in12 = 0, in24 = 0;
+                int in12 = 0, in24 = 0, across = 0;
+                for (double x : xs) if (x > FieldSim.CENTRE_IN) across++;
                 for (double d : dist) {
                     if (d <= 12) in12++;
                     if (d <= 24) in24++;
                 }
                 System.out.printf(Locale.ROOT,
-                        "SURROUND %-11s %-54s: median %4.1f in from the landing; within 12 in %3.0f%%, 24 in %3.0f%%; G409 %d touches, in %d of %d TIPs%n",
+                        "SURROUND %-11s %-44s: median %4.1f in from the landing; within 12 in %3.0f%%, 24 in %3.0f%%; past the centre line %3.0f%%; G409 %d touches, in %d of %d TIPs%n",
                         nectar == 0 ? "8 POLLEN" : "match start", at.name, dist.get(dist.size() / 2),
-                        100.0 * in12 / dist.size(), 100.0 * in24 / dist.size(), g409, runsTouched, PLAIN_PARK_TIPS);
+                        100.0 * in12 / dist.size(), 100.0 * in24 / dist.size(), 100.0 * across / xs.size(), g409, runsTouched, PLAIN_PARK_TIPS);
             }
         }
     }
 
-    /** One TIP with the robot placed as {@code at}: adds each spilled piece's distance from the landing 3 s later; returns G409 touches. */
-    static int surroundRun(FieldSim.Physics physics, long seed, int nectar, Placement at, List<Double> dist) {
+    /**
+     * One TIP with the robot placed as {@code at}: adds each spilled piece's distance from the landing
+     * and its x, 3 s later; returns G409 touches.
+     */
+    static int surroundRun(FieldSim.Physics physics, long seed, int nectar, Placement at, List<Double> dist, List<Double> xs) {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
         for (int i = 0; i < nectar; i++) {
@@ -326,6 +334,7 @@ public class SideWallSpillTest {
         for (FieldSim.Piece p : spill) {
             if (p.cell != null) continue;
             dist.add(Math.hypot(p.x - LANDING_X_IN, Math.abs(p.y - wallY) - LANDING_FROM_WALL_IN));
+            xs.add(p.x);
             if (p.robotBeforeTile) g409++;
         }
         return g409;
