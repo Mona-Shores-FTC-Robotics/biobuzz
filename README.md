@@ -80,10 +80,19 @@ command and TIP on a timeline.
    (`…win-x64….exe`). Older versions (26.x and before) don't have the FTC 2026-2027 field.
 2. **Download a log**: a **best** or **typical** link in the table.
 3. **Open it**: drag the `.wpilog` onto AdvantageScope, or **File → Open Log(s)…**.
-4. **Load our layout** (once; AdvantageScope remembers it): download
-   [`advantagescope-layout.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json) (right-click → *Save
-   link as*), then **File → Import Layout…** and pick it. It opens a 3D field with the robots, the
-   pieces and the HIVE, and graphs of the match.
+4. **Load our layout** (once; AdvantageScope remembers it). Get
+   [`advantagescope-layout.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json) one of these ways:
+   - In PowerShell (keeps the right name):
+     ```powershell
+     Invoke-WebRequest https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json -OutFile $HOME\Downloads\advantagescope-layout.json
+     ```
+   - Or right-click the link → *Save link as*. Browsers often save it as `advantagescope-layout.json.txt`:
+     rename it to end in `.json` (in File Explorer, turn on **View → Show → File name extensions** first
+     to see the `.txt`).
+   - If you did the one-time setup below, it is already at `$HOME\biobuzz\sim-review\advantagescope-layout.json`.
+
+   Then **File → Import Layout…** in AdvantageScope and pick it. It opens a 3D field with the robots,
+   the pieces and the HIVE, and graphs of the match.
 5. **Play**: the play button at the bottom left, or Space. AUTO starts 1 s into the log;
    `/Match/Clock` shows match time, and the **Console** tab lists every command, shot, TIP and any
    `sim: G409` touch.
