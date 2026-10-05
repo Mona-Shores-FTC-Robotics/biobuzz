@@ -1,7 +1,7 @@
 """qual-right-v3 for the spill shapes (sim-review/body-shapes-shortlist.png, mentor 5 Oct 2026): the same Auto
 for a robot with a rigid V, or a large or small right hook, simulated against the plain baseline.
 
-    python3 qual_shapes.py [runs]
+    python3 qual_shapes.py [runs]     (0: write the routes only; ShapeMatchTest simulates them)
 
 Each shape keeps qual-right-v3's route, with two changes:
 - the spots where the robot's front must reach something follow the chassis, which is 2 or 1 in shorter at each
@@ -61,11 +61,39 @@ def shaped(name, length, hook_at, **kw):
     return r
 
 
+# On option 3, the baseline robot (5 Oct 2026): qual-right-o3 as qual_right.py draws it for that robot, and a hook
+# slide placed as above: the chassis face (14.5 in long) and the arm's side (14.5 in wide) on the same 95% lines.
+O3_SHAPES = {
+    "qual-right-o3-rigid-v": ("option 3, rigid V", None),
+    "qual-right-o3-large-hook": ("option 3, large right hook", (70.6 - 7.25, round(FIELD_IN - (36.6 - 7.25), 2), 270)),
+    "qual-right-o3-small-hook": ("option 3, small right hook", (70.6 - 7.25, round(FIELD_IN - (37.5 - 7.25), 2), 270)),
+}
+
+
+def o3_shaped(name, hook_at):
+    """qual-right-o3 (qual_right.right with its O3 options), sliding to `hook_at` as TIP 2 starts, before the tail."""
+    kw = dict(qual_right.O3["qual-right-o3"])
+    if hook_at:
+        kw["extra"] = 1000
+    tail = qual_right.tail
+
+    def hooked(r, **t):
+        r.pt("N_HOOK", *hook_at)
+        go = r.go("N_HOOK", heading=270)
+        r.at = "N_HOOK"
+        return [go, *tail(r, **t)]
+    qual_right.tail = hooked if hook_at else tail
+    try:
+        return qual_right.right(name, **kw)
+    finally:
+        qual_right.tail = tail
+
+
 def options(hook_at):
     """qual-right-v3's tail; a hook holds TIP 2's spill 0.5 s longer before driving into it (1 s after TIP 2 settles,
     not 0.5): it lifts as soon as the robot drives, and held only 0.5 s it kept 18% of the spill off the blue half
     against 8% held 1 s (5 Oct 2026, normal tiles), at the price of PARK in more runs."""
-    base = dict(qual_right.VARIANTS[qual_right.WINNER])
+    base = dict(qual_right.VARIANTS["qual-right-v3"])
     if hook_at:
         base["extra"] = 1000
     return base
@@ -79,8 +107,12 @@ if __name__ == "__main__":
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 20
     for name, (design, length, hook_at) in SHAPES.items():
         shaped(name, length, hook_at, **options(hook_at)).write()
+    for name, (design, hook_at) in O3_SHAPES.items():
+        o3_shaped(name, hook_at).write()
+    if runs == 0:
+        sys.exit()
     for f in ("1", "3"):
-        study(f"{cls(qual_right.WINNER)},PartnerPreloadsRightAuto@50", runs=runs, designs="spring hood, full-width intake",
+        study(f"{cls('qual-right-v3')},PartnerPreloadsRightAuto@50", runs=runs, designs="spring hood, full-width intake",
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})
         for name, (design, _, _) in SHAPES.items():

@@ -40,6 +40,29 @@ public class AutoStudyTest {
         return d;
     }
 
+    /**
+     * The spill shapes on option 3, the baseline robot (mentor, 5 Oct 2026): its 14.5 in square chassis and
+     * 14 in intake with a one-armed hook ({@code arm} in, plus a crossbeam across its width) as {@link #hook}
+     * has, or ({@code arm} 0) fixed flaps from its front corners out to 18 in wide, a rigid V. The Autos are
+     * drawn for it (qual_right.py), so it starts where they say.
+     */
+    static RobotDesign option3Shape(String name, double arm) {
+        RobotDesign d = RobotDesign.buildersOption3().copy(name);
+        if (arm == 0) {
+            d.flapOutIn = (18 - d.frameWidthIn) / 2;
+            d.flapForwardIn = d.flapOutIn;
+            return d.checked();
+        }
+        d.flapForwardIn = arm;
+        d.flapLeft = false;
+        d.flapCrossbeam = true;
+        d.flapsDeploy = true;
+        d.flapTowardCentre = true;
+        d.sideWallsDeployS = 0;
+        d.sideWallsTravelS = 0.3;
+        return d.checked();
+    }
+
     static Map<String, RobotDesign> designs() {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
@@ -89,6 +112,11 @@ public class AutoStudyTest {
         m.put(largeHook.name, largeHook);
         RobotDesign smallHook = hook("spring hood, small right hook", 16, 8);
         m.put(smallHook.name, smallHook);
+        // The same on option 3: a 9.5 in arm is the longest R105 allows down (14.5 + 9.5 = 24 in).
+        for (RobotDesign d : new RobotDesign[] {option3Shape("option 3, rigid V", 0),
+                option3Shape("option 3, large right hook", 9.5), option3Shape("option 3, small right hook", 8)}) {
+            m.put(d.name, d);
+        }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

@@ -183,7 +183,29 @@ right (23–25%), left (20%) and back under the HIVE (18–19%).
 
 ![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
 
-**In the Qualifier Auto** (`ShapeMatchTest`, 5 Oct 2026): four of them through the whole of qual-right-v3 with its
+**On option 3, the baseline robot** (`ShapeMatchTest`, 5 Oct 2026, after merging `claude/simulator`): the same
+shapes on the build team's option 3 (14.5 in square, 14 in intake), through its own Auto, qual-right-o3, with the
+same partner; 20 runs, normal / slow tiles. The rigid V's flaps run from the front corners out to 18 in wide (1.75 in
+out and forward); the hooks have a 9.5 in arm (the longest R105 allows down: 14.5 + 9.5 = 24 in) or an 8 in one, and
+a crossbeam across the 14.5 in chassis, placed on the same 95% lines.
+
+| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half |
+|---|---|---|---|---|---|
+| 1 · Plain option 3 (qual-right-o3) | 64.8 / 57.3 | 11 / 5 of 20 | 11 / 5 | 0 / 0 | 31% / 32% |
+| **15 · Rigid V** | **71.0 / 69.8** | **16 / 15** | **16 / 15** | **0 / 0** | 28% / 28% |
+| 13 · Large right hook (9.5 in arm) | 64.3 / 60.5 | 11 / 8 | 9 / 6 | 7 / 19 | **10%** / 14% |
+| 14 · Small right hook (8 in arm) | 63.3 / 59.8 | 10 / 7 | 9 / 7 | 13 / 19 | 8% / 16% |
+
+- **The rigid V is the one to look at on option 3.** Its flaps turn the 14 in intake's mouth into an 18 in one, and
+  the simulator's biggest lever is intake width: TIP 3 and PARK in 16 of 20 instead of 11, no G409 touches. It adds
+  no moving parts. Worth a cardboard test before trusting: the flaps' angle and the pieces' bounce are guesses.
+- The hooks still keep TIP 2's spill on our half, but on option 3 they cost points and are touched by falling
+  pieces in a third of the runs or more.
+- The plain robot's slow-tile number here (57.3) is below `claude/simulator`'s README (61.3); same code and seeds
+  for every row of this table, so the comparison between rows holds.
+
+**In the Qualifier Auto, on the 18 in robot** (`ShapeMatchTest`, 5 Oct 2026, before option 3 became the baseline;
+these numbers were run before merging `claude/simulator`, whose changes move them a little): four of them through the whole of qual-right-v3 with its
 partner, 20 runs each, normal tiles / tiles with 3x the friction. Each shape keeps qual-right-v3's route
 (`tools/auto-routes/qual_shapes.py`), with the spots where the robot's front must reach something (the far FLOWER,
 the GARDEN, PARK) moved for its shorter chassis. A hook (its arm and crossbeam, hinged at the bottom of the chassis'

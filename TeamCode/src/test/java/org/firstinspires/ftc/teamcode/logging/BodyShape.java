@@ -130,10 +130,20 @@ final class BodyShape {
             new BodyShape("large right hook, chassis", 14, 18, 0, 0, 0), RIGHT_HOOK.hookOnly("large hook, arm on the left", true),
             RIGHT_HOOK.hookOnly("large hook, arm on the right", false),
             new BodyShape("small right hook, chassis", 16, 18, 0, 0, 0), RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the left", true),
-            RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the right", false)};
+            RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the right", false),
+            // Option 3 (14.5 in square): plain, rigid V, the hooks' chassis, then each hook's arm left and right.
+            new BodyShape("option 3", 14.5, 14.5, 0, 0, 0), new BodyShape("option 3, rigid V", 14.5, 14.5, 0, 1.75, 1.75),
+            new BodyShape("option 3, hook chassis", 14.5, 14.5, 0, 0, 0),
+            new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the left", true),
+            new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the right", false),
+            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the left", true),
+            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the right", false)};
 
     /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
     static int matchComponent(String design) {
+        if (design.startsWith("option 3") || design.startsWith("builders' option 3")) {
+            return design.contains("rigid V") ? 9 : design.contains("hook") ? 10 : 8;
+        }
         int hook = hookChassis(design);
         if (hook >= 0) return hook;
         return design.contains("rigid V") ? 1 : 0;
@@ -141,6 +151,10 @@ final class BodyShape {
 
     /** Which {@link #MATCH} component is its hook, with the arm on its left ({@code side} +1) or right; -1 for none. */
     static int matchHook(String design, int side) {
+        if (design.startsWith("option 3")) {
+            int arm = design.contains("large right hook") ? 11 : design.contains("small right hook") ? 13 : -1;
+            return arm < 0 ? -1 : side > 0 ? arm : arm + 1;
+        }
         int hook = hookChassis(design);
         return hook < 0 ? -1 : side > 0 ? hook + 1 : hook + 2;
     }
