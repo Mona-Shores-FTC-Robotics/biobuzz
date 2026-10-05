@@ -41,12 +41,13 @@ public class StagedPreloadsTest {
     static final String[][] CASES = {
             {"qual-right-v3 (plain)", "QualRightV3Auto", "spring hood, full-width intake", "v3-plain", "20"},
             {"qual-right-v3-large-hook", "QualRightV3LargeHookAuto", "spring hood, large right hook", "v3-large-hook", "20"},
-            {"Staged in the hook", "QualStageLargeHookAuto", "spring hood, large right hook", "stage-large-hook", "20"},
-            {"Staged in the hook, quick", "QualStageLargeHookQuickAuto", "spring hood, large right hook", "stage-large-hook-quick", "20"},
-            {"Staged, plain robot (no hook)", "QualStagePlainAuto", "spring hood, full-width intake", "stage-plain", "20"},
+            {"Staged in the hook at N_FIRE (first drawn)", "QualStageLargeHookAuto", "spring hood, large right hook", "stage-at-n-fire", "20"},
+            {"Staged in the hook, from y 120", "QualStageBackLargeHookAuto", "spring hood, large right hook", "stage-back-large-hook", "20"},
+            {"Staged in the hook, from y 120, quick", "QualStageBackLargeHookQuickAuto", "spring hood, large right hook", "stage-back-large-hook-quick", "20"},
+            {"Staged from y 120, plain robot (no hook)", "QualStageBackPlainAuto", "spring hood, full-width intake", "stage-back-plain", "20"},
             // How much the answer hangs on the outtake's speed, which nobody has measured.
-            {"Staged in the hook, outtake 10 in/s", "QualStageLargeHookAuto", "spring hood, large right hook", "stage-large-hook-10", "10"},
-            {"Staged in the hook, outtake 40 in/s", "QualStageLargeHookAuto", "spring hood, large right hook", "stage-large-hook-40", "40"},
+            {"Staged in the hook, from y 120, outtake 10 in/s", "QualStageBackLargeHookAuto", "spring hood, large right hook", "stage-back-large-hook-10", "10"},
+            {"Staged in the hook, from y 120, outtake 40 in/s", "QualStageBackLargeHookAuto", "spring hood, large right hook", "stage-back-large-hook-40", "40"},
     };
     static final int RUNS = 20;
     /** The pocket in front of the chassis' face: as deep as the large hook's arm, as wide as the chassis. */
@@ -263,7 +264,7 @@ public class StagedPreloadsTest {
     @Test
     public void outtakeLandsInsideTheHook() throws Exception {
         Watcher w = new Watcher();
-        AutoSim sim = new AutoSim(Class.forName(AutoStudyTest.PKG + "QualStageLargeHookAuto"), Alliance.RED, 1)
+        AutoSim sim = new AutoSim(Class.forName(AutoStudyTest.PKG + "QualStageBackLargeHookAuto"), Alliance.RED, 1)
                 .speed(50, 45).design(AutoStudyTest.designs().get("spring hood, large right hook"));
         sim.alsoRun(Class.forName(AutoStudyTest.PKG + PARTNER)).speed(40, 36).design(AutoStudyTest.designs().get("spring hood"));
         sim.observer = w::accept;
