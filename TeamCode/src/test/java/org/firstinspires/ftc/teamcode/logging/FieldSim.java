@@ -1126,13 +1126,14 @@ final class FieldSim {
             double lx = half - d.sideWallsLengthIn / 2 + bot.wallsOut * d.sideWallsSlideIn;
             double ly = -(p.x - bx) * s + (p.y - by) * c;
             for (int side = -1; side <= 1; side += 2) {
+                if (d.sideWallsOnly != 0 && side != d.sideWallsOnly) continue;
                 double wy = side * (half - t + bot.wallsOut * d.sideWallsOutIn);
                 double cx = bx + lx * c - wy * s, cy = by + lx * s + wy * c;
                 double wvx = bot.vx - bot.w * (cy - by), wvy = bot.vy + bot.w * (cx - bx);
                 double hl = d.sideWallsLengthIn / 2;
                 hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
                         wvx, wvy, bot.w, bounce(robotRestitution));
-                if (Math.abs(ly) < Math.abs(wy)) {
+                if (d.sideWallsOnly != 0 || Math.abs(ly) < Math.abs(wy)) {
                     hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
                             wvx, wvy, bot.w, bounce(robotRestitution));
                 }

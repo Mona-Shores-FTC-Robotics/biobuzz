@@ -131,6 +131,11 @@ final class RobotDesign {
     double sideWallsOutIn = 0;
     /** How long each wall is, front to back, ending at the frame's front (plus any forward slide). */
     double sideWallsLengthIn = 18;
+    /**
+     * Which side has a wall: 0 both, +1 the left only, −1 the right only (facing forward). A single
+     * wall is a shield with no flap: solid down to {@link RobotAssets#DOOR_BOTTOM_IN}.
+     */
+    int sideWallsOnly = 0;
     /** Seconds the walls take to slide all the way out or in. A guess until they are built. */
     double sideWallsTravelS = 0.3;
     /**
@@ -222,6 +227,7 @@ final class RobotDesign {
         d.sideWallsSlideIn = sideWallsSlideIn;
         d.sideWallsOutIn = sideWallsOutIn;
         d.sideWallsLengthIn = sideWallsLengthIn;
+        d.sideWallsOnly = sideWallsOnly;
         d.sideWallsTravelS = sideWallsTravelS;
         d.sideWallsDeployS = sideWallsDeployS;
         return d;

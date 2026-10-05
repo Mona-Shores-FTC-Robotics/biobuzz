@@ -214,6 +214,123 @@ public class SideWallSpillTest {
         }
     }
 
+    /** Where the spill lands, from the wall and across (SpillLandingTest, first contact, 200 TIPs). */
+    static final double LANDING_X_IN = 58.0, LANDING_FROM_WALL_IN = 41.0;
+    /** Every first contact's footprint, from the wall: the box a robot must stand outside of to stay clean. */
+    static final double DROP_NEAR_IN = 35.1, DROP_FAR_IN = 47.5, DROP_LEFT_X_IN = 45.6, DROP_RIGHT_X_IN = 69.5;
+
+    /** A robot placed beside a spill: centre x, front face from the wall, walls slid forward, which walls. */
+    static final class Placement {
+        final String name;
+        final double x, face, slide;
+        final int only;
+        final boolean robot;
+        Placement(String name, boolean robot, double x, double face, double slide, int only) {
+            this.name = name;
+            this.robot = robot;
+            this.x = x;
+            this.face = face;
+            this.slide = slide;
+            this.only = only;
+        }
+    }
+
+    /**
+     * Surround the landing rather than stand short of it (mentor, 5 Oct 2026: "the whole point is to
+     * surround the pollen/nectar as it falls ... so it spreads less"; and "one arm on the right
+     * side": the robot just right of the drop box, its arm along the box's right edge, no left arm).
+     * Where the spill lies 3 s after the TIP: the median distance from the landing's centre, and the
+     * share within 12 in and 24 in of it; and the TIPs with any G409 touch.
+     */
+    @Test
+    public void surroundTheLanding() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        double half = RobotAssets.CHASSIS_SIZE_IN / 2, slide = RobotAssets.WALL_SLIDE_IN;
+        Placement[] placements = {
+            new Placement("no robot", false, 0, 0, 0, 0),
+            new Placement("plain, face 35, centred", true, FieldSim.RED_HIVE_X_IN, 35, 0, 0),
+            new Placement("long U, face 35 (tips 41), centred", true, FieldSim.RED_HIVE_X_IN, 35, slide, 0),
+            new Placement("long U, face 41.5 (tips 47.5), centred", true, FieldSim.RED_HIVE_X_IN, DROP_FAR_IN - slide, slide, 0),
+            new Placement("one arm at the box's right edge, face 35 (tip 41)", true, DROP_RIGHT_X_IN + half, 35, slide, +1),
+            new Placement("one arm at the box's right edge, face 41.5 (tip 47.5)", true, DROP_RIGHT_X_IN + half, DROP_FAR_IN - slide, slide, +1),
+            new Placement("one arm at the box's left edge, face 41.5 (tip 47.5)", true, DROP_LEFT_X_IN - half, DROP_FAR_IN - slide, slide, -1),
+            new Placement("plain at the box's right edge, face 47.5", true, DROP_RIGHT_X_IN + half, DROP_FAR_IN, 0, 0),
+        };
+        for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
+            for (Placement at : placements) {
+                List<Double> dist = new ArrayList<>();
+                int g409 = 0, runsTouched = 0;
+                for (long seed = 1; seed <= PLAIN_PARK_TIPS; seed++) {
+                    int touched = surroundRun(physics, seed, nectar, at, dist);
+                    g409 += touched;
+                    if (touched > 0) runsTouched++;
+                }
+                java.util.Collections.sort(dist);
+                int in12 = 0, in24 = 0;
+                for (double d : dist) {
+                    if (d <= 12) in12++;
+                    if (d <= 24) in24++;
+                }
+                System.out.printf(Locale.ROOT,
+                        "SURROUND %-11s %-54s: median %4.1f in from the landing; within 12 in %3.0f%%, 24 in %3.0f%%; G409 %d touches, in %d of %d TIPs%n",
+                        nectar == 0 ? "8 POLLEN" : "match start", at.name, dist.get(dist.size() / 2),
+                        100.0 * in12 / dist.size(), 100.0 * in24 / dist.size(), g409, runsTouched, PLAIN_PARK_TIPS);
+            }
+        }
+    }
+
+    /** One TIP with the robot placed as {@code at}: adds each spilled piece's distance from the landing 3 s later; returns G409 touches. */
+    static int surroundRun(FieldSim.Physics physics, long seed, int nectar, Placement at, List<Double> dist) {
+        FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
+        sim.red.locked = true;
+        for (int i = 0; i < nectar; i++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
+            HiveCalibration.settle(sim);
+        }
+        sim.red.locked = false;
+        boolean towardHighY = sim.red.raisedEnd() > 0;
+        double wallY = towardHighY ? 2 * FieldSim.CENTRE_IN : 0, out = towardHighY ? -1 : 1;
+        double half = RobotAssets.CHASSIS_SIZE_IN / 2;
+        double rx = at.x, ry = wallY + out * (at.face - half), heading = out * Math.PI / 2;
+        FieldSim.Bot bot = sim.main;
+        if (at.robot) {
+            if (at.slide > 0) {
+                bot.design = bot.design.copy(bot.design.name + ", " + at.name);
+                bot.design.sideWallsSlideIn = at.slide;
+                bot.design.sideWallsLengthIn = RobotAssets.CHASSIS_SIZE_IN;
+                bot.design.sideWallsOnly = at.only * (int) out;  // facing the other way, its left is the other side
+                bot.design.checked();
+                bot.wallsOut = 0;
+            }
+        } else {
+            rx = 2 * FieldSim.CENTRE_IN - 20;  // parked in the far corner, out of the way
+            ry = towardHighY ? 20 : 2 * FieldSim.CENTRE_IN - 20;
+        }
+        sim.setRobot(rx, ry, heading, 0, 0, 0, false);
+        for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+            for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) sim.step(HiveCalibration.LOOP_S);
+        }
+        if (sim.red.tipsStarted == 0) return 0;
+        List<FieldSim.Piece> spill = new ArrayList<>();
+        for (FieldSim.Piece p : sim.pieces) {
+            if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == sim.red.alliance) spill.add(p);
+        }
+        double dt = 0.01;
+        for (int i = 0; i < 300; i++) {
+            if (at.slide > 0) bot.wallsOut = Math.min(1, bot.wallsOut + dt / bot.design.sideWallsTravelS);
+            sim.setRobot(rx, ry, heading, 0, 0, 0, false);
+            sim.step(dt);
+        }
+        int g409 = 0;
+        for (FieldSim.Piece p : spill) {
+            if (p.cell != null) continue;
+            dist.add(Math.hypot(p.x - LANDING_X_IN, Math.abs(p.y - wallY) - LANDING_FROM_WALL_IN));
+            if (p.robotBeforeTile) g409++;
+        }
+        return g409;
+    }
+
     /**
      * One TIP for a shape: {spilled pieces, gathered, G409 touches, most pieces between the arms at
      * once}.

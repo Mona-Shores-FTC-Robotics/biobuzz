@@ -98,6 +98,28 @@ Thin arm tips can wait about 1 in nearer than a robot's front face (36 in agains
 face at 30–34 in, every touch is on the arms. Pictures of each step are in
 `sim-review/portfolio/spill-window/`.
 
+**Surround the landing instead** (`SideWallSpillTest.surroundTheLanding`, mentor, 5 Oct 2026): where the
+spill lies 3 s after the TIP, measured from the centre of where it lands (58, 41 in from the wall),
+200 TIPs each. "One arm" is a solid shield on one side only (`RobotDesign.sideWallsOnly`), the body just
+outside the 100% drop box with its arm along the box's edge. Touches are G409 touches:
+
+| Robot | 8 POLLEN: within 12 in, median distance, TIPs touched | Match start: same |
+|---|---|---|
+| no robot | 6%, 37 in, 0 | 6%, 39 in, 0 |
+| plain, centred, face 35 | 23%, 27 in, 0 | 19%, 30 in, 0 |
+| **long U, centred, face 35 (arm tips 41)** | **52%, 11 in**, 121 of 200 | **48%, 14 in**, 145 of 200 |
+| long U, centred, face 41.5 (tips 47.5) | 44%, 15 in, 200 of 200 | 42%, 15 in, 200 of 200 |
+| one arm along the box's right edge, face 35 | 9%, 35 in, 0 | 10%, 35 in, 15 of 200 |
+| one arm along the box's right edge, face 41.5 | 11%, 35 in, 0 | 12%, 33 in, 29 of 200 |
+| one arm along the box's left edge, face 41.5 | 11%, 33 in, 0 | 10%, 35 in, 0 |
+| plain beside the box (right), face 47.5 | 11%, 35 in, 0 | 12%, 34 in, 29 of 200 |
+
+Why one arm does little: with no robot, a landed piece's main way out is toward the wall (36–39%),
+then right (23–25%), left (20%) and back under the HIVE (18–19%). A robot's front face across the
+landing stops the biggest share; one side arm stops about a fifth. The long U at face 35 holds half the
+spill within 12 in, but its arms are under the landing: about 0.75 G409 touches a TIP, all on the arms
+(the plain robot there has none).
+
 So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
 either load, and the dashed box's near edge. Redraw it after the simulator changes:
 `./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then
