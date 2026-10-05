@@ -55,15 +55,32 @@ def retime(r, extra_ms):
     return r
 
 
-def back_off(r, inches):
-    """Wait for a TIP further from its landing: the catch spots (S_CATCH, N_LOW) move `inches` toward
-    their own walls, with every path that ends on them. A robot waiting there is otherwise
+def after_tip(r, ms):
+    """Where a TIP is the cue to drive straight off (TIP 3? Yes: PARK), first wait ms for its spill to
+    reach the tiles: the PARK path from S_FIRE runs under where TIP 3's spill lands."""
+    def walk(cards):
+        for c in cards:
+            if c.get("kind") != "firstOf":
+                continue
+            for row in c["rows"]:
+                if "Tip" in row.get("when", []) and row["cards"] and row["cards"][0].get("kind") == "path":
+                    row["cards"].insert(0, r.wait("Its spill lands", when=["IntakeFull"], ms=ms))
+                walk(row["cards"])
+    if ms:
+        walk(r.cards)
+    return r
+
+
+def back_off(r, south, north=None):
+    """Wait for a TIP further from its landing: the catch spots S_CATCH and N_LOW move `south` and
+    `north` in toward their own walls, with every path that ends on them. A robot waiting there is otherwise
     occasionally hit by a bouncing piece before it reaches the tiles. N_LOW stays inside the left
     CELL's shot map (y 113-129)."""
-    if not inches:
-        return r
-    moves = {"S_CATCH": -inches, "N_LOW": inches}
+    north = south if north is None else north
+    moves = {"S_CATCH": -south, "N_LOW": north}
     for p, dy in moves.items():
+        if not dy:
+            continue
         x, y, h = r.points[p]
         for line in r.lines:
             e = line["endPoint"]
@@ -75,13 +92,16 @@ def back_off(r, inches):
     return r
 
 
-def name(auto, extra, back=0):
-    return f"{BASE[auto]}-g409-{extra}" + (f"-back{back}" if back else "")
+def name(auto, extra, back=0, north=None, tip_ms=0):
+    out = f"{BASE[auto]}-g409-{extra}"
+    if back or north:
+        out += f"-back{back}" if north is None or north == back else f"-s{back}n{north}"
+    return out + (f"-t{tip_ms}" if tip_ms else "")
 
 
-def build(auto, extra, back=0):
+def build(auto, extra, back=0, north=None, tip_ms=0):
     make, _ = AUTOS[auto]
-    r = back_off(retime(make(name(auto, extra, back)), extra), back)
+    r = after_tip(back_off(retime(make(name(auto, extra, back, north, tip_ms)), extra), back, north), tip_ms)
     r.folder = autogen.EXPERIMENTS
     r.write()
     return r
