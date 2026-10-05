@@ -4,7 +4,7 @@
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
     python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--body 16 16] [--flaps 3 2] [--patch] [csv] [out.html]
 
---body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
+--x X centres the robot at x = X (default 58, the red CELL's axis); --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
 corner to a free end OUT in sideways and FWD in forward (BodyShapeSpillTest); --patch outlines the floor
 counted as "kept" (15 in behind the chassis's front face to 8 in past it, 24 in wide). --kinds draws NECTAR red
 and POLLEN amber; --rest draws where each piece lies 3 s after the TIP instead of where it first landed (the
@@ -48,6 +48,11 @@ if "--flaps" in ARGS:
     i = ARGS.index("--flaps")
     FLAP_OUT, FLAP_FWD = float(ARGS[i + 1]), float(ARGS[i + 2])
     del ARGS[i:i + 3]
+ROBOT_X = 58.0  # the robot's centre across the field: FieldSim.RED_HIVE_X_IN, the red CELL's axis, unless --x
+if "--x" in ARGS:
+    i = ARGS.index("--x")
+    ROBOT_X = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
 FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot")}
 for f, on in FLAGS.items():
     if on:
@@ -64,9 +69,9 @@ if FIELD_IMAGE is None:
 FIELD = 141.5          # FieldFrame.FIELD_SIZE_INCHES, wall face to wall face
 CENTRE = FIELD / 2     # FieldFrame.FIELD_CENTRE_INCHES
 TILE = FIELD / 6
-# Our robot: its frame (18 in square unless --body), on the red CELL's axis (FieldSim.RED_HIVE_X_IN),
+# Our robot: its frame (18 in square unless --body), at x = ROBOT_X,
 # facing the HIVE with its front face FACE in from the audience wall.
-ROBOT_X, HALF, HALF_W = CENTRE - 12.75, BODY_L / 2, BODY_W / 2
+HALF, HALF_W = BODY_L / 2, BODY_W / 2
 ROBOT_Y = FACE - HALF
 
 rows = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]

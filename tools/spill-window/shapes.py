@@ -1,19 +1,19 @@
 """Two dark sheets for the spill-study shapes, from the simulator's numbers:
 
-  sim-review/body-shapes.png        each shape from above with its sizes, parked with its chassis's front face on
-                                    the 8 POLLEN spill's 100% line, and a table of what happens at three spots
+  sim-review/body-shapes.png        each shape from above with its sizes, and on the field over where an 8 POLLEN
+                                    spill lands: centred on the 90% box, chassis face halfway between its 100% and
+                                    90% lines
   sim-review/body-shapes-loads.png  8 POLLEN against the match-start load: where the spill lands, where it lies
                                     3 s later, and what each shape keeps from each
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*' --tests '*BodyShapeSpillTest.atTheLandingLine'
     python3 tools/spill-window/shapes.py
-    chromium --headless --hide-scrollbars --window-size=1880,1560 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
+    chromium --headless --hide-scrollbars --window-size=1880,1272 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
     chromium --headless --hide-scrollbars --window-size=1500,1250 --screenshot=sim-review/body-shapes-loads.png TeamCode/build/sim-logs/body-shapes-loads.html
 
 The HTML (about 2 MB each, every spilled piece drawn) stays in the build folder. The top views are the Visualizer's
 2D style, front up, with the chassis (white), how far flaps or walls stick out (blue) and the whole robot with
-everything out (amber) along the edges; the dashed boxes are the 18 x 18 in start size (R102) and the 18 x 24 in
-limit after the start (R105). The field views are draw.py's.
+everything out (amber) along the edges; the amber dashed box is the 18 x 24 in limit after the start (R105). The field views are draw.py's.
 """
 import csv as csvlib
 import os
@@ -31,7 +31,7 @@ RESULTS = os.path.join(LOGS, "body-shapes-landing.csv")
 # Card title, BodyShape name (the results' key), width, length, wall slide, flap out, flap forward, low guide,
 # smaller chassis to outline.
 SHAPES = [
-    ("Plain chassis: 18 × 18 (16 and 15 outlined)", "plain 18", 18, 18, 0, 0, 0, False, (16, 15)),
+    ("Plain chassis: 18 × 18", "plain 18", 18, 18, 0, 0, 0, False, ()),
     ("Long U: walls slide 6″ forward", "long U", 18, 18, 6, 0, 0, False, ()),
     ("(a) 16 + flaps 3″ out, 2″ forward", "16 + flaps 3 out 2 fwd", 16, 16, 0, 3, 2, False, ()),
     ("(b) 16 + flaps 4″ out, 2″ forward", "16 + flaps 4 out 2 fwd", 16, 16, 0, 4, 2, False, ()),
@@ -85,12 +85,10 @@ def top_view(w, l, slide, out, fwd, low, outlines=()):
     half = max(w / 2, w / 2 + out) * S          # widest half, px
     o = [f'<svg width="{size:.0f}" height="{size:.0f}" viewBox="0 0 {size:.0f} {size:.0f}" xmlns="http://www.w3.org/2000/svg" font-family="Helvetica,Arial,sans-serif">',
          f'<rect width="100%" height="100%" fill="{PANEL}"/>']
-    # R105, everything out: the 18 x 24 box around the footprint, the way round it fits; R102: the 18 in start box.
+    # R105, everything out: the 18 x 24 box around the footprint, the way round it fits.
     bw, bl = (24, 18) if across > 18 else (18, 24)
     o.append(f'<rect x="{cx - bw / 2 * S:.1f}" y="{back - bl * S:.1f}" width="{bw * S:.1f}" height="{bl * S:.1f}" fill="{AMBER}" fill-opacity="0.06" '
              f'stroke="{AMBER}" stroke-width="1.6" stroke-dasharray="8 6"/>')
-    o.append(f'<rect x="{cx - 9 * S:.1f}" y="{back - 18 * S:.1f}" width="{18 * S:.1f}" height="{18 * S:.1f}" fill="none" '
-             f'stroke="{GREY}" stroke-width="1.6" stroke-dasharray="4 5"/>')
     # The frame and its four mecanum wheels.
     x0 = cx - w / 2 * S
     o.append(f'<rect x="{x0:.1f}" y="{front:.1f}" width="{w * S:.1f}" height="{l * S:.1f}" rx="3" fill="{CHASSIS}" stroke="{CHASSIS_EDGE}" stroke-width="2.5"/>')
@@ -173,22 +171,26 @@ FIELD_IMAGE = None
 
 
 
-def table(key, nectar):
-    """What happens with the chassis's face at each spot: kept a TIP, G409 TIPs (chassis / guides only), over 4 inside."""
-    rows = []
-    for face, where in FACES:
-        kept_pct, kept, pieces, g409, chassis, guides, most, over = results[(key, face, nectar)]
-        c_cls = "bad" if chassis else "ok"
-        g_cls = "warn" if guides else "ok"
-        rows.append(f'<tr><td class="where"><b>{face:g}″</b> {where}</td><td><b>{kept:.1f}</b> of {pieces:.0f}</td>'
-                    f'<td class="{c_cls}">{chassis:.0f}</td><td class="{g_cls}">{guides:.0f}</td><td>{over:.0f}</td></tr>')
-    return ('<table><tr><th>chassis face from the wall</th><th>kept a TIP</th><th>G409 chassis</th><th>G409 guides only</th>'
-            f'<th>over 4 inside</th></tr>{"".join(rows)}</table>')
+def landing_lines(path):
+    """The spill's near edges (all footprints, 90% of them) and the 90% box's centre across, as draw.py draws them."""
+    rows = [list(map(float, l.split(","))) for l in open(path) if l.strip() and not l.startswith("#")]
+    q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))]
+    rad = max(r[7] for r in rows)
+    ys, xs = [r[5] for r in rows], [r[6] for r in rows]
+    line_100 = min(r[5] - r[7] for r in rows)
+    line_90 = q(ys, .05) - rad
+    return line_100, line_90, (q(xs, .05) + q(xs, .95)) / 2
+
+
+# Every robot parks the same way (mentor, 5 Oct 2026): centred across on the 90% box, chassis face halfway between
+# the 100% and 90% lines, its walls or flaps reaching into the spill.
+LINE_100, LINE_90, BOX_X = landing_lines(CSV)
+PARK_FACE = (LINE_100 + LINE_90) / 2
 
 
 STYLE = f"""<style>
 body{{margin:0;padding:22px;background:{BG};font-family:Helvetica,Arial,sans-serif;color:{TEXT}}}
-h1{{font-size:21px;margin:0 0 6px}} p.sub{{margin:0 0 10px;color:{MUTED};font-size:13px;max-width:1560px;line-height:1.5}}
+h1{{font-size:22px;margin:0 0 16px}} p.sub{{margin:0 0 10px;color:{MUTED};font-size:13px;max-width:1560px;line-height:1.5}}
 p.sub b{{color:{TEXT}}}
 .legend{{display:flex;flex-wrap:wrap;gap:18px;font-size:12.5px;color:{MUTED};margin:0 0 16px}}
 .legend i{{display:inline-block;width:22px;height:0;vertical-align:middle;margin-right:6px}}
@@ -210,23 +212,11 @@ td.bad{{color:{RED};font-weight:700}} td.warn{{color:{AMBER};font-weight:700}} t
 cards = []
 for title, key, w, l, slide, out, fwd, low, outlines in SHAPES:
     svg, _ = top_view(w, l, slide, out, fwd, low, outlines)
-    extra = ["--patch"]
-    cards.append(f'<div class="card"><h2>{title}</h2><div class="pics">{svg}{field_view(w, l, slide, out, fwd, FACES[0][0], extra=extra)}</div>'
-                 f'{table(key, 0)}</div>')
+    field = field_view(w, l, slide, out, fwd, round(PARK_FACE, 1), extra=["--x", f"{BOX_X:.1f}"])
+    cards.append(f'<div class="card"><h2>{title}</h2><div class="pics">{svg}{field}</div></div>')
 
 page = f"""<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="dark"><title>Robot shapes at the spill</title>{STYLE}</head><body>
-<h1>Robot shapes at the spill: chassis face on the landing line, guides reaching in</h1>
-<p class="sub">An 8 POLLEN TIP of our CELL, 200 times per spot. Left: the robot from above, front up, inches. Right: on the field with its
-<b>chassis's front face on the spill's 100% line</b> (the dashed red box: every piece lands beyond it; the solid box holds 90%), so its walls or
-flaps reach into where pieces land. Table: the same robot with its face at 35″, 36.5″ and 38″ from the wall. <b>Kept</b>: pieces lying in the
-white dotted patch 3 s later (15″ behind the face to 8″ ahead, 24″ wide: the same floor for every shape), of the pieces spilled.
-<b>G409</b>: TIPs of 200 where a falling piece touched the robot before the tiles, split into <b style="color:{RED}">the chassis</b> (a foul)
-and <b style="color:{AMBER}">the walls, flaps or ramps only</b> (maybe not called on a thin passive guide). <b>Over 4 inside</b>: TIPs with
-more than 4 pieces between the guides at once (G407).</p>
-<div class="legend"><span><i style="border-top:2px dashed {GREY}"></i>18 × 18 start box (R102)</span>
-<span><i style="border-top:2px dashed {AMBER}"></i>18 × 24 limit after the start (R105), and the size fully out</span>
-<span><i style="border-top:2px solid {DIM}"></i>chassis</span><span><i style="border-top:3px solid {BLUE}"></i>flaps / walls, and how far they stick out</span>
-<span><i style="border-top:3px dashed {BLUE}"></i>low guide (2.5″)</span></div>
+<h1>Robot shapes at the spill</h1>
 <svg width="0" height="0" style="position:absolute"><defs>{{FIELD}}</defs></svg>
 <div class="grid">{"".join(cards)}</div></body></html>"""
 open(os.path.join(LOGS, "body-shapes.html"), "w").write(page.replace("{FIELD}", FIELD_IMAGE))
