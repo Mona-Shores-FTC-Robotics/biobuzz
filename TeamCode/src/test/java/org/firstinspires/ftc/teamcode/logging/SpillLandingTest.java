@@ -176,4 +176,26 @@ public class SpillLandingTest {
         assertTrue(String.format(Locale.ROOT, "median first touch %.0f in from the wall; filmed %.0f–%.0f",
                 median, FILMED_NEAR_IN, FILMED_FAR_IN), median >= FILMED_NEAR_IN && median <= FILMED_FAR_IN);
     }
+
+    /** TIPs behind tools/spill-window/draw.py's picture of where the spill lands. */
+    static final int FIRST_TOUCH_TIPS = 200;
+
+    /**
+     * Every spilled piece's first touch on the tiles over {@value #FIRST_TOUCH_TIPS} TIPs, for
+     * {@code tools/spill-window/draw.py}: {@code build/sim-logs/spill-first-touch.csv}, one row per
+     * piece: inches from the wall, x, seconds after the TIP started, and where it lies 3 s later.
+     */
+    @Test
+    public void writesWhereTheSpillFirstTouches() throws java.io.IOException {
+        StringBuilder out = new StringBuilder("# fromWallIn,xIn,seconds,restFromWallIn,restXIn; Pedro inches, "
+                + FIRST_TOUCH_TIPS + " TIPs, no robot (SpillLandingTest)\n");
+        List<Landing> all = landings(FIRST_TOUCH_TIPS);
+        for (Landing l : all) {
+            out.append(String.format(Locale.ROOT, "%.2f,%.2f,%.3f,%.2f,%.2f%n", l.fromWallIn, l.x, l.seconds, l.restFromWallIn, l.restX));
+        }
+        java.io.File file = new java.io.File(TeamCodeDir.simLogs(), "spill-first-touch.csv");
+        file.getParentFile().mkdirs();
+        java.nio.file.Files.write(file.toPath(), out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        assertTrue("no piece landed", !all.isEmpty());
+    }
 }

@@ -57,6 +57,15 @@ Park with the arm tips about 38 in from the wall, a few inches short of where pi
 tiles (44–48 in): further forward the spill lands on the robot (G409). Pieces lying between the arms
 of a parked robot aren't CONTROL; pushing them forward with the U is herding, and counts toward 4.
 
+![Where a TIP's spill first touches the floor, with the long U parked three ways](sim-review/spill-window.png)
+
+**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). In
+the simulator 90% of spilled pieces first touch the floor 34–46 in out from the wall, across the CELL's
+20 in opening (x 49–69); median 42 in, against about 48 in the 3 Oct films, so the simulator lands them
+a little short. What must stay short of that window is the robot's front face and top; the arms can
+reach into it, because pieces land between them, on the floor. Redraw it after the simulator changes:
+`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then `python3 tools/spill-window/draw.py`.
+
 **To watch these:**
 
 1. Do the one-time setup below with this branch instead of `claude/simulator`; on this branch it also
