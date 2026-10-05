@@ -57,17 +57,17 @@ Park with the arm tips about 38 in from the wall, a few inches short of where pi
 tiles (44–48 in): further forward the spill lands on the robot (G409). Pieces lying between the arms
 of a parked robot aren't CONTROL; pushing them forward with the U is herding, and counts toward 4.
 
-![Where a red TIP's spill first touches the floor, on a top view of the red/audience corner](sim-review/spill-window.png)
+![Where a red TIP's spill first touches the floor, on the Visualizer's field](sim-review/spill-window.png)
 
 **Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). In
 the simulator 90% of spilled pieces first touch the floor 34–46 in out from the audience wall, across
 the CELL's 20 in opening (x 49–69), just audience-side of the lowered CELL (y 46–63 from above); median 42 in, against about 48 in the 3 Oct films, so the simulator lands them
 a little short. What must stay short of that window is the robot's front face and top; the arms can
-reach into it, because pieces land between them, on the floor. The picture is in the Pedro frame (red
-alliance wall on the left at x = 0, audience wall at the bottom, tile seams every 141.5 / 6 = 23.58 in,
-centre 70.75), with the HIVE frame's foot bars, both red CELLs seen from above, and the robot, for now,
-backed against the audience wall. Redraw it after the simulator changes:
-`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then `python3 tools/spill-window/draw.py`.
+reach into it, because pieces land between them, on the floor. The picture is drawn on the Visualizer's
+BIOBUZZ field (the HIVE as it starts the match), in Pedro inches, with the robot, for now, backed against
+the audience wall at (58, 9), heading 90°. Redraw it after the simulator changes:
+`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then `python3 tools/spill-window/draw.py` (it needs the Visualizer checkout for the field image:
+`AUTO_BUILDER_DIR`, or `../visualizer`).
 
 **To watch these:**
 
