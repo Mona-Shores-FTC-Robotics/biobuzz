@@ -38,7 +38,7 @@ public class RobotAssetsTest {
         // The model reads back as glTF with every part present.
         Glb model = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
         int root = model.sceneRoots().get(0);
-        for (String part : new String[] {"Body", "Chassis", "Wheel front left", "Intake roller", "Pickup volume", "Flywheel left",
+        for (String part : new String[] {"Body", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left",
                 "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }

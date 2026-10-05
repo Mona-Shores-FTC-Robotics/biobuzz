@@ -75,6 +75,10 @@ final class RobotAssets {
     static final double WHEEL_RADIUS_IN = 2.05;
     static final double WHEEL_WIDTH_IN = 1.5;
     static final double FRONT_WHEEL_SETBACK_IN = 3.0;
+    static final int ROLLERS = 10;
+    static final double CHANNEL_IN = 1.5;
+    static final double[] BATTERY_SIZE_IN = {5.6, 2.2, 1.4};
+    static final double[] HUB_SIZE_IN = {4.1, 5.6, 1.0}; // REV Control Hub, about 103 x 143 mm
     static final double DECK_Z_IN = 2.5;
     static final double DECK_THICKNESS_IN = 0.25;
     static final double INTAKE_ROLLER_RADIUS_IN = 0.75;
@@ -160,31 +164,51 @@ final class RobotAssets {
     static Glb model(RobotDesign d, Look look) {
         MeshBuilder b = new MeshBuilder();
         double half = d.frameIn / 2;
-        b.box("Body", new double[] {0.75, 0.78, 0.82, 0.12},
+        // The body the simulator bounces pieces off (RobotDesign#bodyHeightIn), barely there.
+        b.box("Body", new double[] {0.75, 0.78, 0.82, 0.05},
                 new double[] {0, 0, d.bodyHeightIn / 2}, new double[] {d.frameIn, d.frameIn, d.bodyHeightIn}, IDENTITY_3);
 
-        // Mecanum wheels at the corners, inside the frame's outline, and the deck between them.
+        // Mecanum wheels at the corners: a yellow hub and rollers round the rim at 45 deg, in the usual X
+        // seen from above. An intake wider than the gap between the front wheels runs in front of them:
+        // the front wheels sit back, their front edge FRONT_WHEEL_SETBACK_IN behind the frame's front (as
+        // in option 3's CAD).
         double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - WHEEL_WIDTH_IN / 2;
-        // An intake wider than the gap between the front wheels runs in front of them: the front wheels
-        // sit back, their front edge FRONT_WHEEL_SETBACK_IN behind the frame's front (as in option 3's CAD).
         boolean wide = d.intakeWidthIn / 2 > half - WHEEL_WIDTH_IN;
         double frontWheelX = wide ? half - FRONT_WHEEL_SETBACK_IN - WHEEL_RADIUS_IN : wheelX;
         for (int fx = -1; fx <= 1; fx += 2) {
             for (int fy = -1; fy <= 1; fy += 2) {
                 double[] c = {fx > 0 ? frontWheelX : -wheelX, fy * wheelY, WHEEL_RADIUS_IN};
                 String where = (fx > 0 ? "front " : "back ") + (fy > 0 ? "left" : "right");
-                b.cylinder("Wheel " + where, new double[] {0.12, 0.12, 0.14, 1}, c, WHEEL_RADIUS_IN, WHEEL_WIDTH_IN, IDENTITY_3);
-                b.cylinder("Hub " + where, new double[] {0.95, 0.76, 0.0, 1}, c, WHEEL_RADIUS_IN * 0.5, WHEEL_WIDTH_IN + 0.1, IDENTITY_3);
+                mecanum(b, where, c, fx * fy);
             }
         }
-        double deckWidth = d.frameIn - 2 * WHEEL_WIDTH_IN - 0.4;
-        b.box("Chassis", new double[] {0.72, 0.74, 0.78, 1},
-                new double[] {0, 0, DECK_Z_IN}, new double[] {d.frameIn - 0.4, deckWidth, DECK_THICKNESS_IN}, IDENTITY_3);
+
+        // The frame: goBILDA-style channels round the inside of the wheels, at axle height, and two
+        // cross members; open in the middle, as the CAD's are.
+        double railY = half - WHEEL_WIDTH_IN - 0.2 - CHANNEL_IN / 2;
+        double railZ = WHEEL_RADIUS_IN;
+        double[] blue = {0.16, 0.32, 0.72, 1};
         for (int side = -1; side <= 1; side += 2) {
-            b.box("Rail " + (side > 0 ? "left" : "right"), new double[] {0.6, 0.62, 0.66, 1},
-                    new double[] {0, side * (deckWidth / 2 - 0.25), DECK_Z_IN + 1.25},
-                    new double[] {d.frameIn - 0.4, 0.5, 2.5}, IDENTITY_3);
+            b.box("Chassis " + (side > 0 ? "left" : "right"), blue, new double[] {0, side * railY, railZ},
+                    new double[] {d.frameIn - 0.4, CHANNEL_IN, CHANNEL_IN}, IDENTITY_3);
         }
+        for (int end = -1; end <= 1; end += 2) {
+            b.box("Chassis " + (end > 0 ? "front" : "back"), blue,
+                    new double[] {end * (half - 0.2 - CHANNEL_IN / 2), 0, railZ},
+                    new double[] {CHANNEL_IN, 2 * railY - CHANNEL_IN, CHANNEL_IN}, IDENTITY_3);
+            b.box("Cross member " + (end > 0 ? "front" : "back"), new double[] {0.55, 0.57, 0.6, 1},
+                    new double[] {end * 2.2, 0, railZ}, new double[] {1.0, 2 * railY - CHANNEL_IN, 1.0}, IDENTITY_3);
+        }
+        b.box("Floor plate", new double[] {0.55, 0.57, 0.6, 1}, new double[] {0, 0, railZ - 0.5},
+                new double[] {1.0, 2 * railY - CHANNEL_IN, 0.25}, IDENTITY_3);
+        // The electronics: the battery slung low in the middle, the Control Hub flat above it.
+        b.box("Battery", new double[] {0.22, 0.22, 0.24, 1}, new double[] {0.2, 0, BATTERY_SIZE_IN[2] / 2 + 0.7},
+                BATTERY_SIZE_IN, IDENTITY_3);
+        b.box("Control Hub", new double[] {0.08, 0.08, 0.09, 1},
+                new double[] {0.2, 0, railZ + CHANNEL_IN / 2 + HUB_SIZE_IN[2] / 2 + 0.2}, HUB_SIZE_IN, IDENTITY_3);
+        b.box("Hub label", new double[] {0.9, 0.45, 0.1, 1},
+                new double[] {0.2, 0, railZ + CHANNEL_IN / 2 + HUB_SIZE_IN[2] + 0.22},
+                new double[] {HUB_SIZE_IN[0] * 0.6, HUB_SIZE_IN[1] * 0.25, 0.04}, IDENTITY_3);
 
         // The intake: a roller across the front at the top of its opening, and the volume its takes from.
         double mouth = half + d.intakeReachIn;
@@ -209,7 +233,7 @@ final class RobotAssets {
         double flyX = d.exitForwardIn - LAUNCH_SETBACK_IN, flyZ = d.exitHeightIn - LAUNCH_RISE_IN;
         for (int side = -1; side <= 1; side += 2) {
             String where = side > 0 ? "left" : "right";
-            b.cylinder("Flywheel " + where, new double[] {0.55, 0.57, 0.6, 1},
+            b.cylinder("Flywheel " + where, new double[] {0.2, 0.2, 0.22, 1},
                     new double[] {flyX, side * gap, flyZ}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_X);
             double uprightTop = flyZ + flyR + 0.5;
             b.box("Launcher upright " + where, new double[] {0.95, 0.7, 0.1, 1},
@@ -220,7 +244,7 @@ final class RobotAssets {
         double c = Math.cos(lean), sn = Math.sin(lean);
         double[] tilt = {c, 0, sn, 0, 1, 0, -sn, 0, c}; // +Z leaned forward by `lean`
         double offset = FieldSim.NECTAR_RADIUS_IN + 0.15;
-        b.box("Deflector", new double[] {0.2, 0.55, 0.3, 1},
+        b.box("Deflector", new double[] {0.75, 0.88, 1.0, 0.5},
                 new double[] {exit[0] + dir[0] * 1.5 + back[0] * offset, 0, exit[2] + dir[2] * 1.5 + back[2] * offset},
                 new double[] {0.25, 2 * gap, DEFLECTOR_LENGTH_IN}, tilt);
         // The piece's path: up through the wheels to the plate, then off at the launch angle.
@@ -252,6 +276,26 @@ final class RobotAssets {
         addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
         return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.OPTION3 ? OPTION3_NAME : ROBOT_NAME);
+    }
+
+    /**
+     * A mecanum wheel at {@code c} on an axle along +Y: a yellow hub and {@value #ROLLERS} rollers round
+     * the rim, each turned 45 deg between the axle and the rim's direction ({@code lean} +1 or -1).
+     */
+    private static void mecanum(MeshBuilder b, String where, double[] c, int lean) {
+        b.cylinder("Wheel " + where, new double[] {0.95, 0.76, 0.0, 1}, c, WHEEL_RADIUS_IN - 0.85, WHEEL_WIDTH_IN - 0.3, IDENTITY_3);
+        double r = 0.42, s = Math.sqrt(0.5);
+        for (int k = 0; k < ROLLERS; k++) {
+            double a = 2 * Math.PI * k / ROLLERS;
+            double[] radial = {Math.cos(a), 0, Math.sin(a)};
+            double[] tangent = {-Math.sin(a), 0, Math.cos(a)};
+            double[] axis = {s * lean * tangent[0], s, s * lean * tangent[2]};
+            double[] third = {radial[1] * axis[2] - radial[2] * axis[1], radial[2] * axis[0] - radial[0] * axis[2],
+                    radial[0] * axis[1] - radial[1] * axis[0]};
+            double[] rot = {radial[0], axis[0], third[0], radial[1], axis[1], third[1], radial[2], axis[2], third[2]};
+            double[] at = {c[0] + (WHEEL_RADIUS_IN - r) * radial[0], c[1], c[2] + (WHEEL_RADIUS_IN - r) * radial[2]};
+            b.cylinder("Roller " + (k + 1) + " (" + where + ")", new double[] {0.13, 0.13, 0.15, 1}, at, r, WHEEL_WIDTH_IN * 1.15, rot);
+        }
     }
 
     /** The Limelight at its mount, on a post from {@code fromZ}, with a rod along where it looks. */
