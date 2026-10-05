@@ -2,10 +2,10 @@
 (sim-review/spill-window.html; open it in a browser, or screenshot it).
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
-    python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--body 16 16] [--flaps 3 2] [--patch] [csv] [out.html]
+    python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--right-arm-only] [--x 58] [--body 16 16] [--flaps 3 2] [--patch] [csv] [out.html]
 
 --x X centres the robot at x = X (default 58, the red CELL's axis), --y Y at y = Y (instead of from --face); --heading D turns
-it D degrees counterclockwise; --crossbeam joins the front ends of its walls or flaps (across the whole width); --right-only leaves only the right flap; --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
+it D degrees counterclockwise; --right-arm-only keeps only the right side wall (RobotDesign.sideWallsOnly -1); --crossbeam joins the front ends of its walls or flaps (across the whole width); --right-only leaves only the right flap; --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
 corner to a free end OUT in sideways and FWD in forward (BodyShapeSpillTest); --patch outlines the floor
 counted as "kept" (15 in behind the chassis's front face to 8 in past it, 24 in wide). --kinds draws NECTAR red
 and POLLEN amber; --rest draws where each piece lies 3 s after the TIP instead of where it first landed (the
@@ -65,12 +65,12 @@ if "--heading" in ARGS:
     HEADING = float(ARGS[i + 1])
     del ARGS[i:i + 2]
 SIDES = (-1, 1)  # which front corners have a flap: --right-only for just the right one
-FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot", "--crossbeam", "--right-only")}
+FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot", "--crossbeam", "--right-only", "--right-arm-only")}
 for f, on in FLAGS.items():
     if on:
         ARGS.remove(f)
 PATCH, KINDS, REST, ROBOT = FLAGS["--patch"], FLAGS["--kinds"], FLAGS["--rest"], not FLAGS["--no-robot"]
-CROSSBEAM = FLAGS["--crossbeam"]
+CROSSBEAM, RIGHT_ARM_ONLY = FLAGS["--crossbeam"], FLAGS["--right-arm-only"]
 if FLAGS["--right-only"]:
     SIDES = (1,)
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
@@ -150,7 +150,7 @@ if ROBOT:
           f'<rect x="{px(ROBOT_X - HALF_W + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF_W - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
           f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>']
     if ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
-        for wx in (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
+        for wx in (ROBOT_X + HALF_W - 0.25,) if RIGHT_ARM_ONLY else (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
             o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(3.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
     if FLAP_OUT or FLAP_FWD:  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
         for side in SIDES:

@@ -96,7 +96,30 @@ robot 3 s after the TIP (15 in behind its front-most point to 8 in past it, 24 i
 
 Thin arm tips can wait about 1 in nearer than a robot's front face (36 in against 35); with the front
 face at 30–34 in, every touch is on the arms. Pictures of each step are in
-`sim-review/portfolio/spill-window/`.
+`doc/portfolio/spill-window/`.
+
+**Surround the landing instead** (`SideWallSpillTest.surroundTheLanding`, mentor, 5 Oct 2026): where the
+spill lies 3 s after the TIP, measured from the centre of where it lands (58, 41 in from the wall), and
+how much ends past the field's centre line (x > 70.75, the blue half), 200 TIPs each. "Right arm only"
+is a solid shield on the robot's right side only (`RobotDesign.sideWallsOnly`), the robot across the
+landing with its right side on the 100% drop box's right edge (x 69.5). Touches are G409 touches:
+
+| Robot | 8 POLLEN: within 12 in, past centre, TIPs touched | Match start: same |
+|---|---|---|
+| no robot | 6%, 34%, 0 | 6%, 41%, 0 |
+| plain, face 35, x 58 | 23%, 33%, 0 | 19%, 41%, 0 |
+| long U, face 35 (arm tips 41), x 58 | 52%, 13%, 121 of 200 | 48%, 23%, 145 of 200 |
+| long U, face 36 (tips 42), x 56.8 (the 90% box's centre) | 56%, 14%, 160 of 200 | 49%, 25%, 157 of 200 |
+| long U, face 37 (tips 43), x 56.8 | 59%, 13%, 182 of 200 | 51%, 23%, 174 of 200 |
+| long U, face 38 (tips 44), x 56.8 | 61%, 12%, 188 of 200 | 50%, 23%, 189 of 200 |
+| plain, face 35, x 60.5 | 20%, 33%, 0 | 19%, 41%, 0 |
+| **right arm only, face 35 (tip 41), x 60.5** | **38%, 13%, 0** | **39%, 18%, 20 of 200** |
+| right arm only, face 37 (tip 43), x 60.5 | 39%, 12%, 7 of 200 | 40%, 14%, 52 of 200 |
+
+Where the touches come from: an arm inside the drop box is under falling pieces. The long U's arms are
+18 in apart, inside the 24 in wide box, so both are; the right arm alone sits on the box's edge, where
+almost nothing falls. With no robot, a landed piece's main way out is toward the wall (36–39%), then
+right (23–25%), left (20%) and back under the HIVE (18–19%).
 
 **The best of them** (5 Oct 2026, `sim-review/body-shapes-shortlist.png`; numbers from
 `BodyShapeSpillTest.rightHookAtTheSpill`, each robot where its card shows it, 200 TIPs a load):
