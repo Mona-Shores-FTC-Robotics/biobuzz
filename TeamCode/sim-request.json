@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/qual-partner-shoots-right.pp",
-  "spec": "QualPartnerShootsRightAuto,PartnerPreloadsRightAuto@50",
-  "design": "spring hood, full-width intake",
+  "pp": "TeamCode/autos/qual-partner-shoots-left.pp",
+  "spec": "QualPartnerShootsLeftAuto,PartnerPreloadsLeftAuto@50",
+  "design": "spring hood, full-width intake, side walls",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-partner-shoots-right.pp",
-    "SavedBy": "README, qualifier Autos"
+    "AutoSource": "qual-partner-shoots-left.pp",
+    "SavedBy": "README, side walls"
   }
 }
