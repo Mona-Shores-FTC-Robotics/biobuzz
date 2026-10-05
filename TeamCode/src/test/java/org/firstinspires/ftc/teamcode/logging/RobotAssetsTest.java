@@ -38,9 +38,13 @@ public class RobotAssetsTest {
         // The model reads back as glTF with every part present.
         Glb model = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
         int root = model.sceneRoots().get(0);
-        for (String part : new String[] {"Chassis", "Intake", "Limelight", "View ray"}) {
+        for (String part : new String[] {"Body", "Chassis", "Wheel front left", "Intake roller", "Pickup volume", "Flywheel left",
+                "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }
+        File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
+        Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
+        prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
         System.out.println("Wrote " + dir.getAbsolutePath() + ": copy it into AdvantageScope's userAssets folder.");
     }
 

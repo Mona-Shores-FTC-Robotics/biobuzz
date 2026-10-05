@@ -15,17 +15,21 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Builds an AdvantageScope robot model, {@value #FOLDER}, whose Limelight sits where
- * {@link CameraMount} says it does.
+ * Builds AdvantageScope robot models from the simulator's designs: {@value #ROBOT_NAME}
+ * ({@link RobotDesign#springHoodFullWidth}, the design the published logs use) and
+ * {@value #PROTOTYPE_NAME} ({@link RobotDesign#buildersPrototype}), so what you see is what the
+ * simulator does.
  *
- * <p>Two things come out of it in a 3D Field tab:
+ * <p>In a 3D Field tab:
  * <ul>
- *   <li><b>You can see the camera on the robot.</b> The model is a chassis slab, the intake (orange) on
- *       its front edge, as the simulator models it (so heading reads at a glance), a post, the Limelight as a dark box at the
- *       measured lens position and angle, and a green rod along the optical axis.</li>
- *   <li><b>You can look through it.</b> The {@code config.json} declares the Limelight as a fixed
- *       camera, so right-clicking the field view offers {@value #CAMERA_NAME}: the view from the
- *       lens, at the Limelight 3A's field of view, following the logged robot pose.</li>
+ *   <li><b>The robot.</b> A mecanum chassis, the intake roller on the front, two flywheels where
+ *       pieces leave, the Limelight on its post with a green rod along where it looks, and a faint
+ *       see-through box: the body pieces bounce off.</li>
+ *   <li><b>The intake.</b> A see-through orange box in front: once a ball's centre is inside it
+ *       (and it isn't moving too fast), the intake takes it.</li>
+ *   <li><b>You can look through the camera.</b> The {@code config.json} declares the Limelight as a
+ *       fixed camera, so right-clicking the field view offers {@value #CAMERA_NAME}: the view from
+ *       the lens, at the Limelight 3A's field of view, following the logged robot pose.</li>
  * </ul>
  *
  * <p><b>Frames.</b> The model is written straight in AdvantageScope's robot frame, which is the
@@ -43,25 +47,36 @@ import java.util.Map;
  * the numbers AdvantageScope's own FTC drive base uses). If the AprilTag pipeline runs at another
  * resolution, the aspect ratio here should follow it.
  *
- * <p>Nothing here is CAD: the boxes are drawn from a handful of numbers, so the folder can be
- * rebuilt anywhere with no download. Re-measure the mount, change {@link CameraMount}, rebuild.
+ * <p>Nothing here is CAD: the shapes are drawn from a handful of numbers, so the folders can be
+ * rebuilt anywhere with no download. Change a design or {@link CameraMount}, rebuild, recopy.
  */
 final class RobotAssets {
 
     static final String FOLDER = "Robot_BIOBUZZ";
     static final String ROBOT_NAME = "BIOBUZZ Robot";
+    /** The build team's prototype (RobotDesign#buildersPrototype), for logs simulated with it. */
+    static final String PROTOTYPE_FOLDER = "Robot_BIOBUZZPrototype";
+    static final String PROTOTYPE_NAME = "BIOBUZZ Prototype";
     static final String CAMERA_NAME = "Limelight";
 
     /** Limelight 3A, as AdvantageScope's FTC drive base declares it. */
     static final int[] LIMELIGHT_RESOLUTION = {640, 480};
     static final double LIMELIGHT_HFOV_DEG = 54.5;
 
-    /** The FTC size limit. Drawing only: the camera's position does not depend on it. */
-    static final double CHASSIS_SIZE_IN = 18.0;
-    static final double CHASSIS_BOTTOM_IN = 0.5;
-    static final double CHASSIS_TOP_IN = 3.0;
-    /** How deep the intake block is drawn, inside the frame's front edge. Drawing only. */
-    static final double INTAKE_DEPTH_IN = 1.5;
+    // Drawing only (the simulator uses RobotDesign's numbers): goBILDA 104 mm mecanum wheels, a deck,
+    // the intake roller, the flywheels and the prototype's pinwheel, sized from the build team's CAD
+    // (5 Oct 2026), +-15%.
+    static final double WHEEL_RADIUS_IN = 2.05;
+    static final double WHEEL_WIDTH_IN = 1.5;
+    static final double DECK_Z_IN = 2.5;
+    static final double DECK_THICKNESS_IN = 0.25;
+    static final double INTAKE_ROLLER_RADIUS_IN = 0.75;
+    static final double FLYWHEEL_RADIUS_IN = 2.0;
+    static final double FLYWHEEL_HEIGHT_IN = 3.0;
+    static final double PINWHEEL_RADIUS_IN = 1.95;
+    static final double PINWHEEL_AHEAD_IN = 0.9; // its centre, ahead of the frame's front ...
+    static final double PINWHEEL_INSET_IN = 0.5; // ... and in from its right side
+    static final double PINWHEEL_HEIGHT_IN = 4.2;
     /** Limelight 3A housing, roughly: depth along the lens axis, width, height. */
     static final double[] LIMELIGHT_BOX_IN = {1.0, 3.0, 2.0};
     static final double MAST_SIZE_IN = 1.0;
@@ -73,20 +88,28 @@ final class RobotAssets {
     private RobotAssets() {
     }
 
-    /** Writes {@value #FOLDER} into {@code out}, with the mount's current numbers. */
+    /** Writes {@value #FOLDER} and {@value #PROTOTYPE_FOLDER} into {@code out}; returns the first. */
     static File build(File out) throws IOException {
-        File dir = new File(out, FOLDER);
+        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.springHoodFullWidth(), false));
+        write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), true));
+        return dir;
+    }
+
+    private static File write(File out, String folder, String name, Glb model) throws IOException {
+        File dir = new File(out, folder);
         dir.mkdirs();
-        Files.write(new File(dir, "model.glb").toPath(), model(
-                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
-                CameraMount.pitchDeg, CameraMount.yawDeg).write());
-        Files.write(new File(dir, "config.json").toPath(), config(
+        Files.write(new File(dir, "model.glb").toPath(), model.write());
+        Files.write(new File(dir, "config.json").toPath(), config(name,
                 CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
         return dir;
     }
 
     static String config(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
+        return config(ROBOT_NAME, forwardIn, leftIn, upIn, pitchDeg, yawDeg);
+    }
+
+    static String config(String name, double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
         Map<String, Object> camera = new LinkedHashMap<>();
         camera.put("name", CAMERA_NAME);
         camera.put("rotations", Arrays.asList(rotation("y", -pitchDeg), rotation("z", yawDeg)));
@@ -95,7 +118,7 @@ final class RobotAssets {
         camera.put("fov", LIMELIGHT_HFOV_DEG);
 
         Map<String, Object> config = new LinkedHashMap<>();
-        config.put("name", ROBOT_NAME);
+        config.put("name", name);
         config.put("isFTC", true);
         config.put("rotations", new ArrayList<>());
         config.put("position", Glb.toList(new double[] {0, 0, 0}));
@@ -111,40 +134,96 @@ final class RobotAssets {
         return r;
     }
 
-    /** The model: chassis, intake, Limelight and its view rod, in the robot frame, metres. */
-    static Glb model(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
+    /**
+     * The robot as the simulator models {@code d}: its body (the see-through box pieces bounce off),
+     * a mecanum chassis, the intake roller and, see-through orange, the volume a piece's centre must
+     * be in for the intake to take it (FieldSim#inIntake: so a ball "is ours" once its centre enters
+     * it), the two flywheels where pieces leave (RobotDesign#exitForwardIn, #exitHeightIn), the
+     * Limelight from CameraMount and, for the prototype, the pinwheel that takes POLLEN out of a
+     * FLOWER (drawn only: the simulator doesn't use it yet). Robot frame, inches: +X forward, +Y left.
+     */
+    static Glb model(RobotDesign d, boolean pinwheel) {
         MeshBuilder b = new MeshBuilder();
-        double h = CHASSIS_SIZE_IN / 2;
-        b.box("Chassis", new double[] {0.55, 0.55, 0.6, 1},
-                new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
-                new double[] {CHASSIS_SIZE_IN, CHASSIS_SIZE_IN, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN},
-                IDENTITY_3);
-        // The intake, as the simulator takes pieces (RobotDesign#springHoodFullWidth): on the frame's
-        // front edge, its width and opening height. It also shows which way the robot faces.
-        RobotDesign intake = RobotDesign.springHoodFullWidth();
-        b.box("Intake", new double[] {1.0, 0.45, 0.0, 1},
-                new double[] {h - INTAKE_DEPTH_IN / 2, 0, (CHASSIS_BOTTOM_IN + intake.intakeHeightIn) / 2},
-                new double[] {INTAKE_DEPTH_IN, intake.intakeWidthIn, intake.intakeHeightIn - CHASSIS_BOTTOM_IN},
-                IDENTITY_3);
+        double half = d.frameIn / 2;
+        b.box("Body", new double[] {0.75, 0.78, 0.82, 0.12},
+                new double[] {0, 0, d.bodyHeightIn / 2}, new double[] {d.frameIn, d.frameIn, d.bodyHeightIn}, IDENTITY_3);
 
+        // Mecanum wheels at the corners, inside the frame's outline, and the deck between them.
+        double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - WHEEL_WIDTH_IN / 2;
+        for (int fx = -1; fx <= 1; fx += 2) {
+            for (int fy = -1; fy <= 1; fy += 2) {
+                double[] c = {fx * wheelX, fy * wheelY, WHEEL_RADIUS_IN};
+                String where = (fx > 0 ? "front " : "back ") + (fy > 0 ? "left" : "right");
+                b.cylinder("Wheel " + where, new double[] {0.12, 0.12, 0.14, 1}, c, WHEEL_RADIUS_IN, WHEEL_WIDTH_IN, IDENTITY_3);
+                b.cylinder("Hub " + where, new double[] {0.95, 0.76, 0.0, 1}, c, WHEEL_RADIUS_IN * 0.5, WHEEL_WIDTH_IN + 0.1, IDENTITY_3);
+            }
+        }
+        double deckWidth = d.frameIn - 2 * WHEEL_WIDTH_IN - 0.4;
+        b.box("Chassis", new double[] {0.72, 0.74, 0.78, 1},
+                new double[] {0, 0, DECK_Z_IN}, new double[] {d.frameIn - 0.4, deckWidth, DECK_THICKNESS_IN}, IDENTITY_3);
+        for (int side = -1; side <= 1; side += 2) {
+            b.box("Rail " + (side > 0 ? "left" : "right"), new double[] {0.6, 0.62, 0.66, 1},
+                    new double[] {0, side * (deckWidth / 2 - 0.25), DECK_Z_IN + 1.25},
+                    new double[] {d.frameIn - 0.4, 0.5, 2.5}, IDENTITY_3);
+        }
+
+        // The intake: a roller across the front at the top of its opening, and the volume its takes from.
+        double mouth = half + d.intakeReachIn;
+        b.cylinder("Intake roller", new double[] {1.0, 0.45, 0.0, 1},
+                new double[] {mouth - INTAKE_ROLLER_RADIUS_IN, 0, d.intakeHeightIn}, INTAKE_ROLLER_RADIUS_IN,
+                d.intakeWidthIn, IDENTITY_3);
+        double reach = d.intakeOnContact ? FieldSim.POLLEN_RADIUS_IN + FieldSim.INTAKE_CONTACT_SLACK_IN : 3;
+        double top = d.intakeOnContact ? d.intakeHeightIn - FieldSim.POLLEN_RADIUS_IN : d.intakeHeightIn;
+        b.box("Pickup volume", new double[] {1.0, 0.55, 0.0, 0.3},
+                new double[] {mouth + (reach - 2) / 2, 0, top / 2}, new double[] {reach + 2, d.intakeWidthIn, top}, IDENTITY_3);
+
+        // The launcher: two flywheels on upright axles either side of where pieces leave, on side plates.
+        double flyR = FLYWHEEL_RADIUS_IN, gap = FieldSim.NECTAR_RADIUS_IN + flyR - 0.4;
+        for (int side = -1; side <= 1; side += 2) {
+            String where = side > 0 ? "left" : "right";
+            b.cylinder("Flywheel " + where, new double[] {0.55, 0.57, 0.6, 1},
+                    new double[] {d.exitForwardIn, side * gap, d.exitHeightIn}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_Z);
+            double plateTop = d.exitHeightIn + FLYWHEEL_HEIGHT_IN / 2 + 0.3;
+            b.box("Launcher plate " + where, new double[] {0.6, 0.62, 0.66, 1},
+                    new double[] {d.exitForwardIn, side * (gap + flyR + 0.3), (DECK_Z_IN + plateTop) / 2},
+                    new double[] {2 * flyR + 1, 0.25, plateTop - DECK_Z_IN}, IDENTITY_3);
+        }
+
+        if (pinwheel) {
+            b.cylinder("Pinwheel", new double[] {0.85, 0.86, 0.88, 1},
+                    new double[] {half + PINWHEEL_AHEAD_IN, -(half - PINWHEEL_INSET_IN), PINWHEEL_HEIGHT_IN},
+                    PINWHEEL_RADIUS_IN, 0.4, AXIS_X);
+        }
+
+        addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
+        return b.glb(pinwheel ? PROTOTYPE_NAME : ROBOT_NAME);
+    }
+
+    /** The Limelight at its mount, on a post from {@code fromZ}, with a rod along where it looks. */
+    private static void addLimelight(MeshBuilder b, double forwardIn, double leftIn, double upIn, double pitchDeg,
+            double yawDeg, double fromZ) {
         // The lens is at the mount point; the housing sits behind it along the optical axis.
         double[] r = mountRotation(pitchDeg, yawDeg);
         double[] lens = {forwardIn, leftIn, upIn};
         double[] housingCentre = add(lens, mul(r, new double[] {-LIMELIGHT_BOX_IN[0] / 2, 0, 0}));
         // A post up to the housing, so it reads as mounted rather than floating. Drawing only.
         double mastTop = housingCentre[2] - LIMELIGHT_BOX_IN[2] / 2;
-        if (mastTop > CHASSIS_TOP_IN) {
+        if (mastTop > fromZ) {
             b.box("Mast", new double[] {0.35, 0.35, 0.4, 1},
-                    new double[] {housingCentre[0], housingCentre[1], (CHASSIS_TOP_IN + mastTop) / 2},
-                    new double[] {MAST_SIZE_IN, MAST_SIZE_IN, mastTop - CHASSIS_TOP_IN},
+                    new double[] {housingCentre[0], housingCentre[1], (fromZ + mastTop) / 2},
+                    new double[] {MAST_SIZE_IN, MAST_SIZE_IN, mastTop - fromZ},
                     IDENTITY_3);
         }
         b.box("Limelight", new double[] {0.12, 0.12, 0.14, 1}, housingCentre, LIMELIGHT_BOX_IN, r);
         double[] rodCentre = add(lens, mul(r, new double[] {VIEW_ROD_LENGTH_IN / 2, 0, 0}));
         b.box("View ray", new double[] {0.1, 0.85, 0.2, 1}, rodCentre,
                 new double[] {VIEW_ROD_LENGTH_IN, VIEW_ROD_THICKNESS_IN, VIEW_ROD_THICKNESS_IN}, r);
-        return b.glb(ROBOT_NAME);
     }
+
+    /** Turn a cylinder's own +Y axis to +Z (upright) or to +X (facing forward). */
+    private static final double[] AXIS_Z = {1, 0, 0, 0, 0, -1, 0, 1, 0};
+    private static final double[] AXIS_X = {0, 1, 0, -1, 0, 0, 0, 0, 1};
 
     /**
      * Camera axes to robot axes, row-major 3×3: pitch up about {@code +Y}, then yaw about
@@ -221,9 +300,65 @@ final class RobotAssets {
                 for (int t : tri) indices[i++] = (short) (first + t);
             }
 
-            int pos = accessor(floats(positions), 24, "VEC3", 5126, 34962, bounds(positions));
-            int nor = accessor(floats(normals), 24, "VEC3", 5126, 34962, null);
-            int idx = accessor(shorts(indices), 36, "SCALAR", 5123, 34963, null);
+            mesh(name, rgba, positions, normals, indices);
+        }
+
+        /**
+         * A cylinder of {@code radiusIn} and {@code lengthIn} along its local {@code +Y}, turned by
+         * {@code rotation} and centred at {@code centreIn}: a wheel, roller or flywheel.
+         */
+        void cylinder(String name, double[] rgba, double[] centreIn, double radiusIn, double lengthIn,
+                double[] rotation) {
+            int n = 24;
+            int vertices = n * 4 + 2 * (n + 1);
+            float[] positions = new float[vertices * 3];
+            float[] normals = new float[vertices * 3];
+            short[] indices = new short[n * 6 + 2 * n * 3];
+            int[] v = {0};
+            int i = 0;
+            java.util.function.BiConsumer<double[], double[]> put = (local, normal) -> {
+                double[] p = add(centreIn, mul(rotation, local));
+                double[] wn = mul(rotation, normal);
+                for (int k = 0; k < 3; k++) {
+                    positions[3 * v[0] + k] = (float) (p[k] * M);
+                    normals[3 * v[0] + k] = (float) wn[k];
+                }
+                v[0]++;
+            };
+            double h = lengthIn / 2;
+            for (int k = 0; k < n; k++) {
+                double a0 = 2 * Math.PI * k / n, a1 = 2 * Math.PI * (k + 1) / n, am = (a0 + a1) / 2;
+                double[] nn = {Math.cos(am), 0, Math.sin(am)};
+                int first = v[0];
+                put.accept(new double[] {radiusIn * Math.cos(a0), -h, radiusIn * Math.sin(a0)}, nn);
+                put.accept(new double[] {radiusIn * Math.cos(a1), -h, radiusIn * Math.sin(a1)}, nn);
+                put.accept(new double[] {radiusIn * Math.cos(a1), h, radiusIn * Math.sin(a1)}, nn);
+                put.accept(new double[] {radiusIn * Math.cos(a0), h, radiusIn * Math.sin(a0)}, nn);
+                for (int t : new int[] {0, 2, 1, 0, 3, 2}) indices[i++] = (short) (first + t);
+            }
+            for (int end = -1; end <= 1; end += 2) {
+                int centre = v[0];
+                put.accept(new double[] {0, end * h, 0}, new double[] {0, end, 0});
+                for (int k = 0; k < n; k++) {
+                    double a = 2 * Math.PI * k / n;
+                    put.accept(new double[] {radiusIn * Math.cos(a), end * h, radiusIn * Math.sin(a)}, new double[] {0, end, 0});
+                }
+                for (int k = 0; k < n; k++) {
+                    int a = centre + 1 + k, b = centre + 1 + (k + 1) % n;
+                    indices[i++] = (short) centre;
+                    indices[i++] = (short) (end > 0 ? b : a);
+                    indices[i++] = (short) (end > 0 ? a : b);
+                }
+            }
+            mesh(name, rgba, positions, normals, indices);
+        }
+
+        /** One mesh, its own node and material; a colour with alpha under 1 is drawn see-through. */
+        private void mesh(String name, double[] rgba, float[] positions, float[] normals, short[] indices) {
+            int count = positions.length / 3;
+            int pos = accessor(floats(positions), count, "VEC3", 5126, 34962, bounds(positions));
+            int nor = accessor(floats(normals), count, "VEC3", 5126, 34962, null);
+            int idx = accessor(shorts(indices), indices.length, "SCALAR", 5123, 34963, null);
 
             Map<String, Object> pbr = new LinkedHashMap<>();
             pbr.put("baseColorFactor", Glb.toList(rgba));
@@ -232,6 +367,10 @@ final class RobotAssets {
             Map<String, Object> material = new LinkedHashMap<>();
             material.put("name", name);
             material.put("pbrMetallicRoughness", pbr);
+            if (rgba[3] < 1) {
+                material.put("alphaMode", "BLEND");
+                material.put("doubleSided", true);
+            }
             materials.add(material);
 
             Map<String, Object> attributes = new LinkedHashMap<>();

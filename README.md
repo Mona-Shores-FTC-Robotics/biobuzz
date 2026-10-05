@@ -93,6 +93,11 @@ laptop. Set it up once, then watch any log.
 2. Drag the file into AdvantageScope.
 3. Press **Space** to play. AUTO starts 1 s in.
 
+What you see: our robot (wheels, the orange intake roller, the flywheels, the Limelight on its post)
+and, see-through orange in front of it, where a ball's centre has to be for the intake to take it. The
+partner is the green ghost. For a log of the build team's prototype, pick **BIOBUZZ Prototype** as the
+robot's model (the robot row's model menu).
+
 **Another branch** (the side walls, say): set `$branch` to it in step 3, run it again, then do step 4
 again. It swaps in that branch's robot and field, removing the old ones.
 

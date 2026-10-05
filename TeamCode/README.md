@@ -1277,27 +1277,31 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
 3. Copy both folders into `userAssets` and restart AdvantageScope. A field called
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
-**One-time setup: our robot, with its Limelight.** `RobotAssets` draws a simple robot (chassis, an
-the intake in orange on its front edge (90% of its width, 5 in tall, as the simulator takes pieces), the Limelight on a post with a green rod along where it looks) and declares
-the Limelight as an AdvantageScope *fixed camera*, both from `CameraMount`'s measured numbers. No
+**One-time setup: our robot.** `RobotAssets` draws the robot from the simulator's designs, so what you
+see is what the simulator does: **BIOBUZZ Robot** (`RobotDesign.springHoodFullWidth`, the design the
+published logs use) and **BIOBUZZ Prototype** (`RobotDesign.buildersPrototype`, the build team's CAD of
+5 Oct 2026, with its pinwheel at the right-front corner). Each has a mecanum chassis, the intake roller,
+the two flywheels where pieces leave, the Limelight on its post from `CameraMount`'s measured numbers
+(declared as an AdvantageScope *fixed camera*), a faint see-through box (the body pieces bounce off) and,
+see-through orange in front, **the volume a ball's centre must be in for the intake to take it**. No
 download needed:
 
 ```
 ./gradlew :TeamCode:testDebugUnitTest --tests '*RobotAssetsTest*'
 ```
 
-Copy `TeamCode/build/advantagescope/Robot_BIOBUZZ` into `userAssets` and restart AdvantageScope. A
-robot called **BIOBUZZ Robot** appears. **Rebuild and recopy it whenever `CameraMount` changes**:
-the folder holds the numbers it was built with, not live ones, and a value changed only in Panels
-never reaches it.
+Copy `TeamCode/build/advantagescope/Robot_BIOBUZZ` and `Robot_BIOBUZZPrototype` into `userAssets` and
+restart AdvantageScope. **Rebuild and recopy whenever a design or `CameraMount` changes**: the folders
+hold the numbers they were built with, not live ones.
 
-- **See where the camera is:** the layout already uses **BIOBUZZ Robot** for `/Odometry/Robot3d`.
-- **Look through it:** right-click the 3D view and choose **Limelight**. The view sits at the lens,
-  aimed as mounted, at the Limelight 3A's 54.5° field of view and 4:3 shape, and follows the logged
+- **Which model:** the layout uses **BIOBUZZ Robot** for `/Odometry/Robot3d`. For a log simulated with
+  the prototype, pick **BIOBUZZ Prototype** in that row's model menu.
+- **Look through the camera:** right-click the 3D view and choose **Limelight**. The view sits at the
+  lens, aimed as mounted, at the Limelight 3A's 54.5° field of view and 4:3 shape, and follows the logged
   pose. Right-click → **Orbit Field** to get back.
 
 **On Windows, all of the above in one go:** `tools/advantagescope/setup-advantagescope.ps1` builds the
-HIVE assets and the robot, replaces any older BIOBUZZ assets in `userAssets`, and puts the layout in
+HIVE assets and both robots, replaces any older BIOBUZZ assets in `userAssets`, and puts the layout in
 Downloads (the root README's *How to watch them* has the PowerShell to paste).
 
 **Opening the log** (a 3D Field tab):

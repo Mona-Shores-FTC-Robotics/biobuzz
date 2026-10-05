@@ -86,7 +86,7 @@ pieces on its way south: standing back fixes the waiting, not the drive through.
 pieces in it as a scale, so every number is ±15% and will move as they build. What it changes from the
 design above: about 15 × 15 in including the wheels, an intake about 8 in wide (a roller between the
 front wheels), and the two flywheels at the back (about 3 in behind the centre, 8 in up), still firing
-forward over the robot. Not modelled yet: the pinwheel at its left-front corner that takes POLLEN out
+forward over the robot. Not modelled yet: the pinwheel at its right-front corner that takes POLLEN out
 of a FLOWER (it still takes them with its intake), and the launch angle (the spring hood's 75°).
 
 Where it scores straight on (ShotMapTest, both pieces 5 in 6): the right CELL from y 17–29 (was

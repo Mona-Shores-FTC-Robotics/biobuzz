@@ -187,7 +187,7 @@ final class RobotDesign {
      * the pieces in it as a scale (POLLEN 2.8 in, NECTAR 3.6 in), so each number is +-15% and will
      * move as they build. It tells the story of what changes from {@link #springHoodFullWidth}:
      * a smaller robot, a narrower intake, and the launcher at the back (still firing forward, over
-     * the robot). Not modelled yet: the pinwheel at its left-front corner that takes POLLEN out of a
+     * the robot). Not modelled yet: the pinwheel at its right-front corner that takes POLLEN out of a
      * FLOWER (the robot still takes them with its intake, as the other designs do).
      */
     static RobotDesign buildersPrototype() {
