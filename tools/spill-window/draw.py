@@ -2,7 +2,7 @@
 (sim-review/spill-window.html; open it in a browser, or screenshot it).
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
-    python3 tools/spill-window/draw.py [--face 34] [csv] [out.html]
+    python3 tools/spill-window/draw.py [--face 35] [--arms 6] [csv] [out.html]
 
 The background is the Visualizer's field image (public/fields/biobuzz.webp, in the Visualizer checkout that
 autogen.py uses: AUTO_BUILDER_DIR, or ../visualizer). The Visualizer stretches it over the whole field,
@@ -26,6 +26,11 @@ FACE = 18.0  # the robot's front face, inches from the audience wall (18: backed
 if "--face" in ARGS:
     i = ARGS.index("--face")
     FACE = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
+ARMS = 0.0  # side walls slid this far past the front face (the long U: 6), 0 for none
+if "--arms" in ARGS:
+    i = ARGS.index("--arms")
+    ARMS = float(ARGS[i + 1])
     del ARGS[i:i + 2]
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
 OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
@@ -94,10 +99,13 @@ o += [f'<rect x="{px(ROBOT_X - HALF)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF
       f'<rect x="{px(ROBOT_X - HALF + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
       f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
       f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
+if ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
+    for wx in (ROBOT_X - HALF, ROBOT_X + HALF - 0.25):
+        o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(2.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
 o.append('</svg>')
 
 html = ('<!doctype html><html><head><meta charset="utf-8"><title>Spill landing window</title></head>'
         f'<body style="margin:0;background:{BG}">' + "".join(o) + '</body></html>')
 open(OUT, "w").write(html)
 print(f"wrote {OUT} on {FIELD_IMAGE}: {len(pts)} first contacts; footprints: all x {ALL[0]:.1f}-{ALL[2]:.1f} y {ALL[1]:.1f}-{ALL[3]:.1f}, "
-      f"90% x {NINETY[0]:.1f}-{NINETY[2]:.1f} y {NINETY[1]:.1f}-{NINETY[3]:.1f}; robot front face {FACE:g}")
+      f"90% x {NINETY[0]:.1f}-{NINETY[2]:.1f} y {NINETY[1]:.1f}-{NINETY[3]:.1f}; robot front face {FACE:g}, arms {ARMS:g}")

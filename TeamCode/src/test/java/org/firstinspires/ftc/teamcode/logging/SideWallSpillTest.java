@@ -160,7 +160,7 @@ public class SideWallSpillTest {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
             for (double face = 30; face <= 42; face += 1) {
-                int pieces = 0, g409 = 0, runsTouched = 0;
+                int pieces = 0, gathered = 0, g409 = 0, runsTouched = 0;
                 for (long seed = 1; seed <= PLAIN_PARK_TIPS; seed++) {
                     int[] r;
                     try {
@@ -169,11 +169,47 @@ public class SideWallSpillTest {
                         throw new java.io.UncheckedIOException(e);
                     }
                     pieces += r[0];
+                    gathered += r[1];
                     g409 += r[2];
                     if (r[2] > 0) runsTouched++;
                 }
-                System.out.printf(Locale.ROOT, "PLAINPARK %s front face %2.0f in: %d pieces; G409 %d touches, in %d of %d TIPs%n",
-                        nectar == 0 ? "8 POLLEN" : "match start", face, pieces, g409, runsTouched, PLAIN_PARK_TIPS);
+                System.out.printf(Locale.ROOT, "PLAINPARK %s front face %2.0f in: %d pieces, gathered %3.0f%% (%.2f a TIP); G409 %d touches, in %d of %d TIPs%n",
+                        nectar == 0 ? "8 POLLEN" : "match start", face, pieces, 100.0 * gathered / pieces,
+                        (double) gathered / PLAIN_PARK_TIPS, g409, runsTouched, PLAIN_PARK_TIPS);
+            }
+        }
+    }
+
+    /**
+     * The long U on the red CELL's axis, as {@link #howCloseCanThePlainRobotPark} (mentor, 5 Oct
+     * 2026: arms 6 in forward are worth trying even if a few pieces land on them): front face at
+     * each distance, arm tips 6 in further, out from the TIP's start. G409 touches here less the plain
+     * robot's at the same front face are the arms'.
+     */
+    @Test
+    public void howCloseCanTheLongUPark() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
+            for (double face = 26; face <= 38; face += 2) {
+                int pieces = 0, gathered = 0, g409 = 0, runsTouched = 0, overFour = 0;
+                for (long seed = 1; seed <= PLAIN_PARK_TIPS; seed++) {
+                    int[] r;
+                    try {
+                        r = shapeRun(physics, seed, Shape.LONG_U, false, face + Shape.LONG_U.slide, null, nectar,
+                                FieldSim.RED_HIVE_X_IN);
+                    } catch (IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                    pieces += r[0];
+                    gathered += r[1];
+                    g409 += r[2];
+                    if (r[2] > 0) runsTouched++;
+                    if (r[3] > 4) overFour++;
+                }
+                System.out.printf(Locale.ROOT,
+                        "LONGUPARK %s front face %2.0f in (arm tips %2.0f): gathered %3.0f%% (%.2f a TIP); G409 %d touches, in %d of %d TIPs; over 4 inside: %d%n",
+                        nectar == 0 ? "8 POLLEN" : "match start", face, face + Shape.LONG_U.slide, 100.0 * gathered / pieces,
+                        (double) gathered / PLAIN_PARK_TIPS, g409, runsTouched, PLAIN_PARK_TIPS, overFour);
             }
         }
     }

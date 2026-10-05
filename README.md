@@ -82,6 +82,22 @@ Touches are G409 touches; "TIPs" counts the TIPs with at least one:
 | 40 in | 409, 180 | 463, 193 |
 | 42 in | 1,223, 200 | 1,013, 200 |
 
+**The long U** (`howCloseCanTheLongUPark`): the same robot with the side walls slid 6 in forward, out
+from the TIP's start. "Kept" is the share of the spill lying in the same patch of floor in front of the
+robot 3 s after the TIP (15 in behind its front-most point to 8 in past it, 24 in wide):
+
+| Robot | Front face / arm tips | 8 POLLEN: kept, TIPs with a G409 touch | Match start: kept, TIPs |
+|---|---|---|---|
+| plain | 35 / – | 17%, 0 of 200 | 14%, 0 of 200 |
+| long U | 30 / 36 | **41%, 0 of 200** | **36%, 0 of 200** |
+| long U | 32 / 38 | 45%, 4 of 200 | 39%, 9 of 200 |
+| long U | 34 / 40 | 49%, 58 of 200 | 43%, 89 of 200 |
+| long U | 36 / 42 | 52%, 178 of 200 | 48%, 190 of 200 |
+
+The arm tips' safe line (36 in) is about 1 in short of the plain robot's front face (35 in plus the
+robot's top edge): every touch past it is on the arms. Pictures of each step are in
+`sim-review/portfolio/spill-window/`.
+
 So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
 either load, and the dashed box's near edge. Redraw it after the simulator changes:
 `./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then
