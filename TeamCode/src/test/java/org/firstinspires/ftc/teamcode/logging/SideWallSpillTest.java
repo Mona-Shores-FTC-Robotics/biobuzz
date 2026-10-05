@@ -4,6 +4,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import java.io.File;
+import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -63,6 +66,150 @@ public class SideWallSpillTest {
         }
         for (String r : rows) System.out.println(r);
         System.out.println("SIDEWALLS G409 touches with walls out, all positions: " + g409);
+    }
+
+    /** Where the demo robot parks: centred this far from the wall, where the walls help most. */
+    static final double DEMO_CENTRE_FROM_WALL_IN = 20;
+
+    /**
+     * Two logs of the same TIP to watch in AdvantageScope, one with side walls and one without, in
+     * {@code build/sim-logs}: {@code side-walls-demo-walls.wpilog} and {@code side-walls-demo-plain.wpilog}.
+     * The robot parks {@value #DEMO_CENTRE_FROM_WALL_IN} in from the wall facing the HIVE, short of
+     * where the spill lands; its walls slide out as the TIP starts. The TIP is the seed of 20 where the walls keep the most more
+     * pieces within reach than no walls do. Open with {@code sim-review/advantagescope-layout-walls.json}.
+     */
+    @Test
+    public void writesWallDemoLogs() throws IOException {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        long best = 1;
+        int bestGain = Integer.MIN_VALUE;
+        for (long seed = 1; seed <= 20; seed++) {
+            int gain = demo(physics, seed, Version.WALLS, null) - demo(physics, seed, Version.PLAIN, null);
+            if (gain > bestGain) {
+                bestGain = gain;
+                best = seed;
+            }
+        }
+        File dir = TeamCodeDir.simLogs();
+        int walls = demo(physics, best, Version.WALLS, new File(dir, "side-walls-demo-walls.wpilog"));
+        int plain = demo(physics, best, Version.PLAIN, new File(dir, "side-walls-demo-plain.wpilog"));
+        System.out.printf(Locale.ROOT, "SIDEWALLS demo seed %d: within %.0f in of the robot 3 s after the TIP, walls %d, plain %d%n",
+                best, REACH_IN, walls, plain);
+        assertTrue("the walls should keep more of the spill within reach", walls >= plain);
+    }
+
+    /**
+     * One TIP with the robot parked as {@code v}, its walls run as on the robot. Logged to
+     * {@code file} unless it is null. Returns the spilled pieces within reach 3 s after the TIP starts.
+     */
+    static int demo(FieldSim.Physics physics, long seed, Version v, File file) throws IOException {
+        FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
+        sim.red.locked = true;
+        for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
+            HiveCalibration.settle(sim);
+        }
+        sim.red.locked = false;
+        boolean towardHighY = sim.red.raisedEnd() > 0;
+        double wallY = towardHighY ? 2 * FieldSim.CENTRE_IN : 0;
+        double out = towardHighY ? -1 : 1;
+        double rx = ROBOT_X_IN, ry = wallY + out * DEMO_CENTRE_FROM_WALL_IN, heading = out * Math.PI / 2;
+        if (v == Version.WALLS) {
+            addSideWalls(sim.main);
+            sim.main.wallsOut = 0;
+            // Out as soon as the TIP starts: the spill scatters the moment it lands, so walls that wait
+            // for it to land (RobotDesign#sideWallsDeployS 1.5 s) catch no more than no walls. Parked
+            // short of the landing, they stop pieces that have hit the tiles and touch none in the air.
+            sim.main.design.sideWallsDeployS = 0;
+        }
+        sim.setRobot(rx, ry, heading, 0, 0, 0, false);
+
+        WpiLog log = file == null ? null : open(file, v);
+        Demo d = new Demo(sim, log, v, rx, ry, heading);
+        // The same steps as run(): POLLEN one at a time until the TIP, then 3 s at 0.01 s.
+        for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+            for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) d.step(HiveCalibration.LOOP_S);
+        }
+        List<FieldSim.Piece> spill = new ArrayList<>();
+        if (sim.red.tipsStarted == 0) return 0;
+        for (FieldSim.Piece p : sim.pieces) {
+            if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == sim.red.alliance) spill.add(p);
+        }
+        d.event("our CELL starts to TIP");
+        double tipAt = d.t;
+        for (int i = 0; i < 300; i++) {
+            if (v == Version.WALLS && d.t - tipAt >= sim.main.design.sideWallsDeployS) {
+                if (sim.main.wallsOut == 0) d.event("side walls out: our CELL started to TIP");
+                sim.main.wallsOut = Math.min(1, sim.main.wallsOut + 0.01 / sim.main.design.sideWallsTravelS);
+            }
+            d.step(0.01);
+        }
+        double t = d.t;
+        int near = 0;
+        for (FieldSim.Piece p : spill) if (p.cell == null && withinReach(p, rx, ry, heading)) near++;
+        if (log != null) {
+            log.putEvent(String.format(Locale.ROOT, "3 s after the TIP: %d of %d spilled pieces within %.0f in of the robot",
+                    near, spill.size(), REACH_IN), us(t));
+            log.close();
+        }
+        return near;
+    }
+
+    /** Steps a demo and logs what AdvantageScope draws, about 50 times a second. */
+    private static final class Demo {
+        final FieldSim sim;
+        final WpiLog log;
+        final Version v;
+        final double rx, ry, heading;
+        final FieldSimLog field = new FieldSimLog();
+        double t, lastLogged = -1;
+
+        Demo(FieldSim sim, WpiLog log, Version v, double rx, double ry, double heading) {
+            this.sim = sim;
+            this.log = log;
+            this.v = v;
+            this.rx = rx;
+            this.ry = ry;
+            this.heading = heading;
+        }
+
+        void step(double dt) throws IOException {
+            sim.step(dt);
+            t += dt;
+            if (log == null || t - lastLogged < 0.019) return;
+            lastLogged = t;
+            FieldRobot.slot(0).putPose(log, rx, ry, heading, us(t));
+            double out = v == Version.WALLS ? sim.main.wallsOut : 0;
+            double x = out * RobotAssets.WALL_SLIDE_IN * AdvantageScopeFrame.METERS_PER_INCH;
+            log.put("/SideWalls/Out", out, us(t));
+            log.putPose3dArray("/SideWalls/Components", new double[] {x, 0, 0, 1, 0, 0, 0, x, 0, 0, 1, 0, 0, 0}, us(t));
+            field.write(log, sim, us(t));
+            for (String e : sim.drainEvents()) log.putEvent("sim: " + e, us(t));
+        }
+
+        void event(String text) throws IOException {
+            if (log != null) log.putEvent(text, us(t));
+        }
+    }
+
+    private static long us(double t) {
+        return Math.round(t * 1e6);
+    }
+
+    private static WpiLog open(File file, Version v) throws IOException {
+        file.getParentFile().mkdirs();
+        WpiLog log = new WpiLog(new WpiLogWriter(new java.io.BufferedOutputStream(new java.io.FileOutputStream(file), 1 << 16),
+                "BIOBUZZ side walls demo"));
+        log.putMetadata("Generator", "SideWallSpillTest (TeamCode test sources)");
+        log.putMetadata("PoseFrame", AdvantageScopeFrame.DESCRIPTION);
+        log.putMetadata("Note", v == Version.WALLS
+                ? "Robot parked facing the HIVE, side walls out once the spill has landed"
+                : "Robot parked facing the HIVE, no side walls (compare side-walls-demo-walls)");
+        FieldSimLog.putMetadata(log, HiveCalibration.current());
+        FieldSimLog.putHiveStructure(log);
+        log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(true, 1), 0);
+        return log;
     }
 
     /**

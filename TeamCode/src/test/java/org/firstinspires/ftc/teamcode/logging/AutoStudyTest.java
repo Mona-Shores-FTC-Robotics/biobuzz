@@ -54,6 +54,11 @@ public class AutoStudyTest {
         RobotDesign walls = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, side walls");
         walls.sideWallsSlideIn = RobotAssets.WALL_SLIDE_IN;
         m.put(walls.name, walls);
+        // The same walls out as soon as our CELL starts to TIP (SideWallSpillTest: the spill scatters
+        // the moment it lands, so walls that wait for it to land catch no more than no walls).
+        RobotDesign early = walls.copy("spring hood, full-width intake, side walls out at the TIP");
+        early.sideWallsDeployS = 0;
+        m.put(early.name, early);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);
