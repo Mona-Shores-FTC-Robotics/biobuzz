@@ -250,6 +250,8 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /** The robot that just launched it, until it has left that robot's outline; else null. */
+        Bot launchedBy;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -455,8 +457,8 @@ final class FieldSim {
         double[] exitPoint(double sideIn) {
             double toward = launchingBack ? h + Math.PI : h;
             double c = Math.cos(toward), s = Math.sin(toward);
-            return new double[] {x + PLACEHOLDER_EXIT_FORWARD_IN * c - sideIn * s,
-                    y + PLACEHOLDER_EXIT_FORWARD_IN * s + sideIn * c, PLACEHOLDER_EXIT_HEIGHT_IN};
+            double ahead = design.exitForwardIn;
+            return new double[] {x + ahead * c - sideIn * s, y + ahead * s + sideIn * c, design.exitHeightIn};
         }
     }
 
@@ -867,6 +869,7 @@ final class FieldSim {
         p.wx = 0;
         p.wy = -12;
         p.wz = 0;
+        p.launchedBy = bot;
         return new double[] {vx, vy, vz};
     }
 
@@ -1139,7 +1142,15 @@ final class FieldSim {
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign d = bot.design;
         double half = d.frameIn / 2, halfWidth = d.frameWidthIn / 2;
-        boolean hit = box(p, bx, by, bh, half, halfWidth, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
+        if (p.launchedBy == bot) {
+            // Its own shot: no contact until the piece has left the robot's outline (seen from above).
+            double c = Math.cos(bh), s = Math.sin(bh);
+            double lx = (p.x - bx) * c + (p.y - by) * s, ly = -(p.x - bx) * s + (p.y - by) * c;
+            double r = p.kind.radius;
+            if (Math.abs(lx) < half + r && Math.abs(ly) < halfWidth + r) return false;
+            p.launchedBy = null;
+        }
+        boolean hit = box(p, bx, by, bh, half, halfWidth, 0, d.bodyHeightIn, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         double c = Math.cos(bh), s = Math.sin(bh);
         boolean flap = false;
@@ -1386,6 +1397,9 @@ final class FieldSim {
         return true;
     }
 
+    /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */
+    static final double INTAKE_CONTACT_SLACK_IN = 0.25;
+
     private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
@@ -1393,7 +1407,11 @@ final class FieldSim {
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
         double mouth = design.frameIn / 2 + design.intakeReachIn;
-        return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < 6;
+        if (design.intakeOnContact && p.flower < 0) {
+            return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
+                    && Math.abs(ly) < design.intakeWidthIn / 2 && p.z + p.kind.radius <= design.intakeHeightIn;
+        }
+        return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < design.intakeHeightIn;
     }
 
     private void capture(Bot bot, Piece p) {

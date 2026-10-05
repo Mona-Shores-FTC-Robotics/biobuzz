@@ -38,9 +38,18 @@ public class RobotAssetsTest {
         // The model reads back as glTF with every part present.
         Glb model = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
         int root = model.sceneRoots().get(0);
-        for (String part : new String[] {"Chassis", "Front", "Limelight", "View ray"}) {
+        for (String part : new String[] {"Body", "Side plate left", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left",
+                "Limelight", "View ray"}) {
             model.childNamed(root, part);
         }
+        File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
+        Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
+        prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
+        model.childNamed(root, "Funnel wheel left"); // the default robot is the build team's option 3
+        File wide = new File(dir.getParentFile(), RobotAssets.FULL_WIDTH_FOLDER);
+        Glb fullWidth = Glb.read(Files.readAllBytes(new File(wide, "model.glb").toPath()));
+        fullWidth.childNamed(fullWidth.sceneRoots().get(0), "Intake roller");
+        model.childNamed(root, "Deflector");
         File walls = new File(dir.getParentFile(), RobotAssets.WALLS_FOLDER);
         for (String name : new String[] {"model.glb", "model_0.glb", "model_1.glb", "config.json"}) {
             assertTrue(name, new File(walls, name).isFile());
@@ -49,8 +58,7 @@ public class RobotAssetsTest {
         for (int i = 0; i < BodyShape.SHOWN.length; i++) assertTrue(new File(shapes, "model_" + i + ".glb").isFile());
         File match = new File(dir.getParentFile(), RobotAssets.MATCH_FOLDER);
         for (int i = 0; i < BodyShape.MATCH.length; i++) assertTrue(new File(match, "model_" + i + ".glb").isFile());
-        System.out.println("Wrote " + dir.getAbsolutePath() + ", " + RobotAssets.WALLS_FOLDER + ", " + RobotAssets.SHAPES_FOLDER + ", " + RobotAssets.MATCH_FOLDER
-                + ": copy them into AdvantageScope's userAssets folder.");
+        System.out.println("Wrote " + dir.getAbsolutePath() + " and the spill-study sketches: copy them into AdvantageScope's userAssets folder.");
     }
 
     /**

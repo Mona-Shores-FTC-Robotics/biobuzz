@@ -5,30 +5,50 @@ This is the `claude/simulator` branch: the Autos, the simulator that scores them
 
 ## Qualifier Autos: the baseline (no walls)
 
-For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-an 18 in front intake, no side walls. Points are average alliance AUTO points over 20 simulated runs,
-normal tiles / tiles with 3× the friction (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts
-spilled pieces our robot touches before they reach the tiles (the rule: don't catch or deflect a
-TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 12:55 UTC.
+**The robot: the build team's option 3** (their 5 Oct 2026 CAD, read off it with the pieces as a scale, so
+±15%), chosen as the baseline because it is closest to what they are heading toward. We will change it as
+the frame and shape work settles. In the simulator:
+
+- a **14.5 in square** chassis, a low body (6 in) that pieces bounce off;
+- an **intake across the front, 14 in wide and 5 in tall**, taking a loose piece only when it touches
+  (POLLEN is 2.8 in across, NECTAR 3.6 in), one every 0.35 s;
+- one two-wheel launcher near the back, throwing pieces up into a deflector that sends them off forward at 75°.
+
+Points are average alliance AUTO points over 20 simulated runs, normal tiles / tiles with 3× the friction
+(3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts spilled pieces our robot touches before they
+reach the tiles (the rule: don't catch or deflect a TIP's spill); a baseline must be 0. Numbers run
+**5 Oct 2026 17:11 UTC**.
 
 | Auto | Partner | Points | 3 TIPs | G409 | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight v3** (`qual-right-v3`) | At the right start: fires its 4 at once (TIP 1), then parks | **72.5 / 71.8** | 18 / 17 of 20 | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-typical.wpilog) |
-| Qual-PartnerStages (`qual-partner-stages`): **work in progress**, another session | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | 58.5 / 62 | 7 / 11 of 20 | 10 / 5.5 a run: not safe yet | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-stages.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-partner-stages.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-partner-stages.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-typical.wpilog) |
+| **Qual-PartnerShootsRight** (`qual-right-o3`) | At the right start: fires its 4 at once (TIP 1), then parks | **64.5 / 60.8** | 12 / 9 of 20 | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-o3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/latest-typical.wpilog) |
+| **Qual-PartnerStages** (`qual-stages-o3`) | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | **54.0 / 56.0** | 0 (TIP 2 in 18 / 20; parks every run) | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-stages-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-o3.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-o3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-o3/latest-typical.wpilog) |
 
-What Qual-PartnerShootsRight v3 does: we start at the left start facing the HIVE, spun up. The partner's
-4 make TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). Then we let TIP 2's spill
-land, drive south through it and the tunnel, fire what we caught, sweep west along the wall through TIP
-1's leftovers into the GARDEN, fire that load, and PARK. If TIP 3 still hasn't started, one more load from
-the GARDEN first. How it was tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+**Qual-PartnerShootsRight:** we start at the left start facing the HIVE, spun up. The partner's 4 make
+TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.5 s). We let TIP 2's spill land, drive
+south through it and the tunnel, fire what we caught, sweep west along the wall through TIP 1's leftovers
+into the GARDEN, fire that load and PARK; if TIP 3 still hasn't started, one more GARDEN load first.
+
+**Qual-PartnerStages:** we fire our preloads (TIP 1), let its spill land, drive north through it and the
+tunnel, fire what we caught, then pick up the partner's row and fire it (TIP 2, about 21 s). Then TIP 2's
+spill and the GARDEN, fired at the right CELL, and PARK. TIP 2 comes too late for a TIP 3 with this
+intake; the pieces we still hold (about 2) start TELEOP.
+
+**What a wider intake would buy** (the full-width 18 in robot, 16.2 in intake, same routes): ShootsRight
+69.8 / 68.0 points, 3 TIPs in 17 / 16 of 20. The intake's width is the biggest single lever the simulator
+has found. How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
 
 - **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of 20 runs on normal tiles, from the newest
   [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
   run of that Auto. They change when someone re-simulates it.
-- Side walls are worked on in the next section; nothing in this table uses them.
-- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75° hood) and intake (0.35 s a
-  piece) are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
+- **These two are the only Autos kept up to date.** Older ones, for earlier robots and never re-run:
+  [tools/auto-routes/DEPRECATED.md](tools/auto-routes/DEPRECATED.md).
+- Robot shapes and side walls are below (this branch, `claude/biobuzz-robot-body-designs-hi386c`, and
+  `claude/dazzling-maxwell-je04gu`); the baseline above uses neither. They were run on the spring-hood robot
+  and qual-right-v3, before option 3 became the baseline.
+- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75°) and intake (0.35 s a piece)
+  are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
 
 ## Side walls (branch `claude/dazzling-maxwell-je04gu`)
 
@@ -261,96 +281,55 @@ either load, and the dashed box's near edge. Redraw it after the simulator chang
    writes them to `TeamCode\build\sim-logs`: `side-walls-demo-walls` / `-plain` (the same TIP with and
    without walls) and `long-u-short-of-landing` / `long-u-at-landing` (where to park).
 
-## Other two-wheel launcher Autos
-
-For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-and an 18 in front intake. Each Auto's name is who our alliance partner is and what it does, then our
-plan: **Sister** (our other robot, full choreography between the two), **PartnerShoots** (fires its 4
-preloads, then parks) or **PartnerStages** (can't shoot: lines its preloads up for us, then parks).
-Compare Autos with the same partner. Points are average alliance AUTO points over 20 simulated runs,
-with the spill landing and scattering as filmed on 3 Oct; the routes were tuned before the scatter.
-
-| Auto | Partner | What we do | Points | Watch in the Visualizer | `.pp` files | Simulated `.wpilog` |
-|---|---|---|---|---|---|---|
-| **Sister-Recycle** | Sister: our other robot | Each robot catches its own CELL's spill and refires it when the CELL rises. | **49** (3 TIPs in 3 of 20) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-Recycle) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-right.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle3-left.pp) | [recycle3-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/recycle3-right.pp) · [recycle3-left.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/recycle3-left.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle3-right/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle3-right/latest-typical.wpilog) |
-| **Sister-ThrowBack** | Sister: our other robot | Sister-Recycle, with a launcher that also throws straight back. | **46** (2 TIPs) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Sister-ThrowBack) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-right.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/recycle5-left.pp) | [recycle5-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/recycle5-right.pp) · [recycle5-left.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/recycle5-left.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle5-right/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/recycle5-right/latest-typical.wpilog) |
-| **PartnerShoots-ThreeTip** | Fires its 4 preloads, parks | Our preloads, both FLOWERs, the spilled NECTAR and the GARDEN, parks. | **59** (3 TIPs in 3 of 20) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShoots-ThreeTip) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/three-tip-adaptive.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) | [three-tip-adaptive.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/three-tip-adaptive.pp) · [partner-preloads-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/three-tip-adaptive/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/three-tip-adaptive/latest-typical.wpilog) |
-| **PartnerShoots-Tunnel** | Fires its 4 preloads, parks | We work the HIVE alone, written for qualification matches. | **56** (2 TIPs) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShoots-Tunnel) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/solo-tunnel.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-park.pp) | [solo-tunnel.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/solo-tunnel.pp) · [partner-preloads-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/solo-tunnel/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/solo-tunnel/latest-typical.wpilog) |
-| **PartnerShootsRight-LeftTunnel** | Fires its preloads from the right start, parks | Partner makes TIP 1; we take the far FLOWER, tunnel, the GARDEN. | **52** (2 TIPs) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerShootsRight-LeftTunnel) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/left-tunnel.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [left-tunnel.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/left-tunnel.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/left-tunnel/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/left-tunnel/latest-typical.wpilog) |
-| **PartnerStages-ThreeTip** | Can't shoot: lines its preloads up for us, parks | We fire ours, tunnel, pick its row up with the webcam. | **56** (2 TIPs) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/PartnerStages-ThreeTip) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/staged-three-tip.pp) · [other](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-leave-park.pp) | [staged-three-tip.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/staged-three-tip.pp) · [partner-leave-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-leave-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/staged-three-tip/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/staged-three-tip/latest-typical.wpilog) |
-
-- **Together** plays both robots at once; **ours** / **other** opens one robot's Auto. No login.
-- **best** / **typical**: the highest-scoring and the median of the 20 runs, the newest simulation of that
-  Auto. They change when someone re-simulates it.
-- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75° hood) are unmeasured, and
-  most of the commands these Autos use exist only in the simulator so far.
 
 ## How to watch them
 
-### The route, in the Visualizer (nothing to install)
+**The route:** click **Together** in the table above. It opens in your browser; press **Space** to play.
+Nothing to install.
 
-Click **Together** in the table above: our robot and the partner open on the field in your browser,
-no login. Press **Space** (or the play button under the field) to play; drag the timeline to scrub.
-**ours** / **partner** open one robot's Auto on its own, with its cards (each step) down the side; the
-running card lights up as it plays, and **Preview as** plays it as a given scenario (for example
-"TIP 3 doesn't come") against the 30 s budget. What you change there is a copy: the team's `.pp` file
-changes only when someone saves it back (see *Trying a change*). The `.pp` links in the table are
-the files themselves, on GitHub.
+**A simulated match** (both robots, every piece, the HIVE tipping): AdvantageScope on a Windows
+laptop. Set it up once, then watch any log.
 
-### The simulated match, in AdvantageScope
+### Set up (once per laptop)
 
-A `.wpilog` is one simulated match: both robots, every POLLEN and NECTAR, the HIVE tipping, every
-command and TIP on a timeline.
-
-1. **Install AdvantageScope 27.0.0-alpha-6 or newer** (desktop app, free): open
-   [AdvantageScope's releases](https://github.com/Mechanical-Advantage/AdvantageScope/releases), find
-   **v27.0.0-alpha-6** (or a newer 27.x), and under *Assets* download the Windows installer
-   (`…win-x64….exe`). Older versions (26.x and before) don't have the FTC 2026-2027 field.
-2. **Download a log**: a **best** or **typical** link in the table.
-3. **Open it**: drag the `.wpilog` onto AdvantageScope, or **File → Open Log(s)…**.
-4. **Load our layout** (once; AdvantageScope remembers it): download
-   [`advantagescope-layout.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json) (right-click → *Save
-   link as*), then **File → Import Layout…** and pick it. It opens a 3D field with the robots, the
-   pieces and the HIVE, and graphs of the match.
-5. **Play**: the play button at the bottom left, or Space. AUTO starts 1 s into the log;
-   `/Match/Clock` shows match time, and the **Console** tab lists every command, shot, TIP and any
-   `sim: G409` touch.
-
-Until you do the one-time setup below, the field shows the stock, fixed HIVE: robots and pieces play,
-but the CELLs don't tip.
-
-### One-time setup on a new laptop: the tipping HIVE (Windows)
-
-AdvantageScope draws a moving HIVE only from two custom assets, the field **2026-2027 Field (HIVE
-sim)** and the robot **BIOBUZZ HIVE**. They are cut from the field AdvantageScope downloads, on your
-own laptop (no FIRST CAD is committed), by
-[`tools/advantagescope/setup-hive-assets.ps1`](tools/advantagescope/setup-hive-assets.ps1).
-
-You need: [Git for Windows](https://git-scm.com/download/win), [Android Studio](https://developer.android.com/studio)
-(already there if you build robot code; it brings the Java and Android SDK the build uses), and
-AdvantageScope (step 1 above).
-
-1. In AdvantageScope, open a **3D Field** tab (the + at the top), pick **2026-2027 Field** in its field
-   menu, and wait for it to load: that downloads the stock field. Close AdvantageScope.
-2. Open **PowerShell** (Start menu → type *PowerShell*) and paste:
+1. Install [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope/releases) **v27.0.0-alpha-6
+   or newer** (the Windows `.exe` under *Assets*), [Git](https://git-scm.com/download/win) and
+   [Android Studio](https://developer.android.com/studio).
+2. Open AdvantageScope, click **+** at the top → **3D Field**, pick **2026-2027 Field** in the field
+   menu and wait until the field appears. Close AdvantageScope.
+3. Open **PowerShell** (Start → type *PowerShell*), paste this, press Enter, and wait for **Done**
+   (a few minutes the first time):
    ```powershell
-   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin claude/simulator; git -C $HOME\biobuzz checkout claude/simulator; git -C $HOME\biobuzz pull origin claude/simulator } else { git clone -b claude/simulator https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }
-   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-hive-assets.ps1
+   $branch = "claude/simulator"
+   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin $branch; git -C $HOME\biobuzz checkout $branch; git -C $HOME\biobuzz pull origin $branch } else { git clone -b $branch https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }
+   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-advantagescope.ps1
    ```
-   It gets the code into `biobuzz` in your user folder (or updates it), finds the downloaded field,
-   builds the two assets (the first run downloads build tools: a few minutes) and copies them into
-   `%APPDATA%\AdvantageScope\userAssets`. It ends with `Done: copied into …`. If it stops on an
-   Android SDK or licence error, open `biobuzz` in Android Studio once, let it sync, and run it again.
-3. Start AdvantageScope and import the layout again (step 4 above): the HIVE now tips.
+4. Open AdvantageScope → **File → Import Layout…** → **Downloads** → `advantagescope-layout.json`.
 
-Do it again after AdvantageScope updates its field. More on the simulator and the assets:
-[`TeamCode/README.md`](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).
+### Watch a match
+
+1. In the table above, click **best** or **typical** to download a log.
+2. Drag the file into AdvantageScope.
+3. Press **Space** to play. AUTO starts 1 s in.
+
+What you see: our robot, **BIOBUZZ Robot** (option 3: the wheels between side plates, the orange intake
+roller and funnel wheels, the flywheels, the Limelight on its post) and, see-through orange in front of
+it, where a ball's centre has to be for the intake to take it. The partner is the green ghost. The
+model only changes the picture, never the log: pick **BIOBUZZ Prototype** or **BIOBUZZ Full width** in the
+robot row's model menu only for a log simulated with that robot.
+
+**Another branch** (the side walls, say): set `$branch` to it in step 3, run it again, then do step 4
+again. It swaps in that branch's robot and field, removing the old ones.
+
+**If step 3 stops** with an Android SDK or licence error: open the `biobuzz` folder in Android Studio
+once, let it finish syncing, and run step 3 again. What the script does:
+[`tools/advantagescope/setup-advantagescope.ps1`](tools/advantagescope/setup-advantagescope.ps1).
 
 ## Trying a change
 
 Open the Auto with its **ours** link, change it, and press **Save to GitHub** (it asks once for a
 [fine-grained token](https://github.com/settings/personal-access-tokens/new): biobuzz only, Contents read
-and write, Actions read). Pick the robot **spring hood, full-width intake**. The
+and write, Actions read). Pick the robot **builders' option 3 (5 Oct CAD)**. The
 [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
 workflow runs it and the dialog shows every run, with **Download WPILOG**.
 

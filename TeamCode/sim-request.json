@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v2-g409-500.pp",
-  "spec": "QualRightV2G409500Auto,PartnerPreloadsRightAuto@50",
-  "design": "spring hood, full-width intake",
+  "pp": "TeamCode/autos/qual-stages-o3.pp",
+  "spec": "QualStagesO3Auto,PartnerStageExitAuto@50",
+  "design": "builders' option 3 (5 Oct CAD)",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v2-g409-500.pp",
-    "SavedBy": "G409-safe qualifier Autos"
+    "AutoSource": "qual-stages-o3.pp",
+    "SavedBy": "README, qualifier Autos baseline (option 3)"
   }
 }

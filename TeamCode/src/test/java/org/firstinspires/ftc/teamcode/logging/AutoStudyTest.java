@@ -32,6 +32,7 @@ public class AutoStudyTest {
         d.flapCrossbeam = true;
         d.flapsDeploy = true;
         d.flapTowardCentre = true;
+        d.startBackedToWall = true;
         // It swings down (90 degrees in 0.3 s) as soon as our CELL starts to TIP, before the spill lands (mentor,
         // 5 Oct 2026: at 0.4 s, waiting for the robot to stop, it was still swinging as the pieces fell).
         d.sideWallsDeployS = 0;
@@ -54,6 +55,14 @@ public class AutoStudyTest {
         twin.launchers = 2;
         m.put(twin.name, twin);
         m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
+        RobotDesign proto = RobotDesign.buildersPrototype();
+        m.put(proto.name, proto);
+        // What the prototype's narrow intake costs: the same robot with an intake 90% of its frame.
+        RobotDesign protoWide = proto.copy(proto.name + ", 13.5 in intake");
+        protoWide.intakeWidthIn = 0.9 * protoWide.frameIn;
+        m.put(protoWide.name, protoWide);
+        RobotDesign option3 = RobotDesign.buildersOption3();
+        m.put(option3.name, option3);
         // Mentor, 5 Oct 2026: walls down both sides that slide 6 in forward when our CELL starts to
         // TIP, so the spill doesn't scatter, with one-way flaps that let POLLEN in and keep NECTAR out.
         RobotDesign walls = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, side walls");
@@ -72,6 +81,7 @@ public class AutoStudyTest {
         rigid.intakeWidthIn = 14;
         rigid.flapOutIn = 2;
         rigid.flapForwardIn = 2;
+        rigid.startBackedToWall = true;
         m.put(rigid.name, rigid);
         // Right hooks: one arm and a crossbeam that pivot down 0.4 s after our CELL starts to TIP (the
         // spill lands 1.1-1.4 s after), on the side facing the centre line; folded while driving.

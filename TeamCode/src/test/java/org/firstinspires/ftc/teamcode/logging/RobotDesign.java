@@ -40,6 +40,27 @@ final class RobotDesign {
     /** How far the intake reaches past the frame once the match starts. */
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
+    /**
+     * How tall the intake's opening is: a loose piece is taken only below this (its centre, or with
+     * {@link #intakeOnContact} the whole piece). POLLEN is 2.8 in across, NECTAR 3.6 in.
+     */
+    double intakeHeightIn = 6;
+    /**
+     * Whether the intake takes a loose piece only once it touches the intake's face (a roller inside
+     * the frame): its centre no further out than its radius plus {@link FieldSim#INTAKE_CONTACT_SLACK_IN}.
+     * Otherwise a piece is taken with its centre up to 3 in out, before it touches. FLOWER pickups keep
+     * the 3 in either way (the robot stops just short of the FLOWER's tube).
+     */
+    boolean intakeOnContact = false;
+    /**
+     * Where a launched piece leaves the robot: this far forward of the robot's centre (negative:
+     * behind it) and this high. A piece doesn't collide with the robot that launched it until it
+     * has left that robot's outline, so the exit may be inside the body.
+     */
+    double exitForwardIn = FieldSim.PLACEHOLDER_EXIT_FORWARD_IN;
+    double exitHeightIn = FieldSim.PLACEHOLDER_EXIT_HEIGHT_IN;
+    /** How tall the robot's body is: pieces above it pass over, pieces below bounce off. */
+    double bodyHeightIn = FieldSim.PLACEHOLDER_ROBOT_HEIGHT_IN;
     boolean intakeAtBack = false;
     /**
      * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
@@ -180,6 +201,11 @@ final class RobotDesign {
      * "right hook" facing our wall, a left one facing the far wall), so it keeps the spill on our half.
      */
     boolean flapTowardCentre = false;
+    /**
+     * Runs Autos drawn for an 18 in robot backed against the wall, so {@link AutoSim} backs this shorter
+     * chassis against the wall too (the spill shapes on qual-right-v3); false: the start pose as drawn.
+     */
+    boolean startBackedToWall = false;
 
     boolean hasFlaps() {
         return flapOutIn > 0 || flapForwardIn > 0;
@@ -222,12 +248,54 @@ final class RobotDesign {
     }
 
     /**
-     * The spring hood with an intake as wide as the frame, its corners shaped to steer pieces off
-     * a wall into the middle: it takes a piece anywhere across its 18 in front.
+     * The robot the build team is building (4 Oct 2026): the spring hood with an intake across the
+     * front (the name is from when it took a piece anywhere across the 18 in front).
      */
     static RobotDesign springHoodFullWidth() {
         RobotDesign d = springHood().copy("spring hood, full-width intake");
-        d.intakeWidthIn = 18;
+        // Mentor, 5 Oct 2026, conservative until the intake is built: the intake is the frame's front
+        // edge, 90% of its width, centred, a 5 in tall opening, and takes a piece only when it touches.
+        d.intakeWidthIn = 0.9 * d.frameIn;
+        d.intakeHeightIn = 5;
+        d.intakeOnContact = true;
+        // The launcher as the build team's prototypes have it (5 Oct 2026): flywheels near the back that
+        // throw a piece up into a deflector, which sends it off forward at the hood's angle from its lip.
+        d.exitForwardIn = -4;
+        d.exitHeightIn = 12;
+        return d;
+    }
+
+    /**
+     * The build team's prototype, read off their CAD (front, side and top views, 5 Oct 2026) using
+     * the pieces in it as a scale (POLLEN 2.8 in, NECTAR 3.6 in), so each number is +-15% and will
+     * move as they build. It tells the story of what changes from {@link #springHoodFullWidth}:
+     * a smaller robot, a narrower intake, and the launcher at the back (still firing forward, over
+     * the robot). Not modelled yet: the pinwheel at its right-front corner that takes POLLEN out of a
+     * FLOWER (the robot still takes them with its intake, as the other designs do).
+     */
+    static RobotDesign buildersPrototype() {
+        RobotDesign d = springHoodFullWidth().copy("builders' prototype (5 Oct CAD)");
+        d.frameIn = 15; // about 15 x 15 in including the wheels (frame rails about 11 in apart)
+        d.frameWidthIn = 15;
+        d.intakeWidthIn = 8; // a front roller between the front wheels, about 2 NECTAR wide
+        d.exitForwardIn = -3; // two flywheels about 3 in behind the centre ...
+        d.exitHeightIn = 8; // ... about 8 in up; the angle stays the spring hood's 75 deg (unmeasured)
+        d.bodyHeightIn = 9; // frame and flywheel housings; the camera masts are thin and not modelled
+        return d;
+    }
+
+    /**
+     * The build team's third option (5 Oct 2026 CAD, read off it with the pieces as a scale, +-15%): a
+     * low chassis about 14.5 in square with an intake across the whole front, two funnel wheels at its
+     * front corners steering pieces in, so about 14 in wide. Its launcher isn't drawn yet: it has
+     * {@link #springHoodFullWidth}'s, near the back.
+     */
+    static RobotDesign buildersOption3() {
+        RobotDesign d = springHoodFullWidth().copy("builders' option 3 (5 Oct CAD)");
+        d.frameIn = 14.5;
+        d.frameWidthIn = 14.5;
+        d.intakeWidthIn = 14;
+        d.bodyHeightIn = 6;
         return d;
     }
 
@@ -244,6 +312,11 @@ final class RobotDesign {
         d.frameWidthIn = frameWidthIn;
         d.intakeReachIn = intakeReachIn;
         d.intakeWidthIn = intakeWidthIn;
+        d.intakeHeightIn = intakeHeightIn;
+        d.intakeOnContact = intakeOnContact;
+        d.exitForwardIn = exitForwardIn;
+        d.exitHeightIn = exitHeightIn;
+        d.bodyHeightIn = bodyHeightIn;
         d.intakeAtBack = intakeAtBack;
         d.intakeIntervalS = intakeIntervalS;
         d.intakeGrabChance = intakeGrabChance;
@@ -283,6 +356,7 @@ final class RobotDesign {
         d.flapCrossbeam = flapCrossbeam;
         d.flapsDeploy = flapsDeploy;
         d.flapTowardCentre = flapTowardCentre;
+        d.startBackedToWall = startBackedToWall;
         return d;
     }
 

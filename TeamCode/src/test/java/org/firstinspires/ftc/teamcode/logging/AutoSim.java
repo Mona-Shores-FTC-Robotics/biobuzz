@@ -738,9 +738,9 @@ public final class AutoSim {
             AutoKit kit = new AutoKit(drive, registry, () -> now).trace(pending::add);
             try {
                 drive.pose = (Pose) startPose.invoke(null, rotated);
-                // The Autos are drawn for an 18 in robot backed against the wall: a shorter chassis starts
-                // backed against it too (its start pose set that much further back on the robot).
-                if (design.frameIn < 18) {
+                // An Auto drawn for an 18 in robot backed against the wall: a shorter chassis that should
+                // start against it too has its start pose set that much further back on the robot.
+                if (design.startBackedToWall && design.frameIn < 18) {
                     Pose p = drive.pose;
                     double back = (18 - design.frameIn) / 2;
                     drive.pose = new Pose(p.x() - back * Math.cos(p.heading()), p.y() - back * Math.sin(p.heading()), p.heading());
@@ -934,7 +934,9 @@ public final class AutoSim {
         double[] intakeZone(double[] pose, boolean on) {
             if (!on) return new double[0];
             double mouth = design.frameIn / 2 + design.intakeReachIn, w = design.intakeWidthIn / 2;
-            double near = mouth - 2, far = mouth + 3, sign = design.intakeAtBack ? -1 : 1;
+            // Drawn for a POLLEN (FieldSim.inIntake): touching the face, or up to 3 in out.
+            double reach = design.intakeOnContact ? FieldSim.POLLEN_RADIUS_IN + FieldSim.INTAKE_CONTACT_SLACK_IN : 3;
+            double near = mouth - 2, far = mouth + reach, sign = design.intakeAtBack ? -1 : 1;
             double c = Math.cos(pose[2]), sn = Math.sin(pose[2]);
             List<double[]> pts = new ArrayList<>();
             for (double[] k : new double[][] {{near, -w}, {far, -w}, {far, w}, {near, w}, {near, -w}}) {

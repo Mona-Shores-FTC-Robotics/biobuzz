@@ -1,8 +1,10 @@
 {
   "pairs": [
+    {"name": "Qual-ShootsRight-Option3", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "baseline, build team's option 3: partner fires from the right start; 3 TIPs in 12 of 20, no G409 touches"},
+    {"name": "Qual-Stages-Option3", "files": ["qual-stages-o3.pp", "partner-stage-exit.pp"], "note": "baseline, build team's option 3: partner can't shoot, stages its preloads; 2 TIPs and PARK, no G409 touches"},
     {"name": "Qual-PartnerShootsLeft", "files": ["qual-partner-shoots-left.pp", "partner-preloads-left.pp"], "note": "qualifier, partner fires from the standard left start: one launcher 70"},
     {"name": "Qual-PartnerParksLeft", "files": ["qual-partner-parks-left.pp", "partner-park-left.pp"], "note": "qualifier, partner only drives and parks from the left start: one launcher 57"},
-    {"name": "Qual-PartnerShootsRight-v3", "files": ["qual-right-v3.pp", "partner-preloads-right.pp"], "note": "baseline: partner fires from the right start; 3 TIPs in 18 of 20, no G409 touches"},
+    {"name": "Qual-PartnerShootsRight-v3", "files": ["qual-right-v3.pp", "partner-preloads-right.pp"], "note": "full-width robot (the what-if): partner fires from the right start; 3 TIPs in 17 of 20"},
     {"name": "Qual-PartnerStages", "files": ["qual-partner-stages.pp", "partner-stage-exit.pp"], "note": "partner can't shoot, stages its preloads: work in progress"},
     {"name": "Qual-PartnerShootsRight", "files": ["qual-partner-shoots-right.pp", "partner-preloads-right.pp"], "note": "qualifier, partner fires from the right start: one launcher 72"},
     {"name": "Sister-Recycle", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 58 / 55; one launcher 49"},
