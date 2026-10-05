@@ -120,10 +120,42 @@ public class SideWallSpillTest {
     }
 
     /**
+     * How far forward to park (mentor, 5 Oct 2026: "the front face at the landing, the arms past
+     * it"): the long U and no walls, standing, at each nose distance from the wall. Where the spill
+     * lands, falling pieces hit the robot or its arms before the tiles (G409).
+     */
+    @Test
+    public void howFarForwardToPark() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        for (Shape shape : new Shape[] {Shape.NONE, Shape.LONG_U}) {
+            for (double nose : new double[] {35, 38, 41, 44, 47, 50, 53}) {
+                int pieces = 0, gathered = 0, g409 = 0, runsTouched = 0, overFour = 0;
+                for (long seed = 1; seed <= SHAPE_SEEDS; seed++) {
+                    int[] r = shapeRun(physics, seed, shape, false, nose);
+                    pieces += r[0];
+                    gathered += r[1];
+                    g409 += r[2];
+                    if (r[2] > 0) runsTouched++;
+                    if (r[3] > 4) overFour++;
+                }
+                System.out.printf(Locale.ROOT,
+                        "PARK %-6s nose %2.0f in (front face %2.0f): gathered %3.0f%% (%.2f a TIP); G409 %.2f a TIP, in %d of %d; over 4 inside: %d%n",
+                        shape, nose, nose - shape.slide, 100.0 * gathered / pieces, (double) gathered / SHAPE_SEEDS,
+                        (double) g409 / SHAPE_SEEDS, runsTouched, SHAPE_SEEDS, overFour);
+            }
+        }
+    }
+
+    /**
      * One TIP for a shape: {spilled pieces, gathered, G409 touches, most pieces between the arms at
      * once}.
      */
     static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep) {
+        return shapeRun(physics, seed, shape, creep, NOSE_FROM_WALL_IN);
+    }
+
+    /** As above, with the robot's front-most point {@code nose} in from the wall. */
+    static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep, double nose) {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
         for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
@@ -135,7 +167,7 @@ public class SideWallSpillTest {
         double wallY = towardHighY ? 2 * FieldSim.CENTRE_IN : 0;
         double out = towardHighY ? -1 : 1;
         double half = RobotAssets.CHASSIS_SIZE_IN / 2;
-        double d = NOSE_FROM_WALL_IN - half - shape.slide;
+        double d = nose - half - shape.slide;
         double rx = ROBOT_X_IN, ry = wallY + out * d, heading = out * Math.PI / 2;
         FieldSim.Bot bot = sim.main;
         if (shape != Shape.NONE) {

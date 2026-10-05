@@ -1409,6 +1409,21 @@ wall, short of the landing, walls out as the TIP starts; the spill gathered with
 | **Long U** | **33% (2.0)** | **39% (2.3)** |
 | Wide U | 14% (0.8) | 19% (1.2) |
 
+**How far forward to park** (`howFarForwardToPark`; the spill first touches the tiles 44–48 in from
+the wall). Long U, standing, front-most point (arm tips) at each distance from the wall, 40 TIPs:
+
+| Arm tips at | Front face at | Gathered | G409 touches a TIP (TIPs with any) | TIPs with over 4 inside |
+|---|---|---|---|---|
+| 35 in | 29 in | 33% | 0 (0 of 40) | 0 |
+| **38 in** | **32 in** | **39%** | **0.05 (2 of 40)** | **0** |
+| 41 in | 35 in | 41% | 0.75 (27 of 40) | 2 |
+| 44 in | 38 in | 50% | 2.0 (40 of 40) | 33 |
+| 50 in | 44 in (at the landing) | 24% | 5.7 (40 of 40) | 40 |
+
+With the front face at the landing and the arms past it, the spill falls onto the robot and its
+arms: nearly every piece touches it before the tiles (G409), and more than 4 end up inside the U
+(G407). The arm tips belong a few inches short of where pieces first hit the tiles.
+
 The arms that reach forward are what stop the spill scattering sideways from just ahead of the robot;
 a wider mouth at the frame's front adds almost nothing. With the creep the long U held 4 at most at
 once, G407's limit: count what the robot already holds before building it bigger.
