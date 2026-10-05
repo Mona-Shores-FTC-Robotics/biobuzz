@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-partner-shoots-left-g409-300-s8n4-t700.pp",
-  "spec": "QualPartnerShootsLeftG409300S8n4T700Auto,PartnerPreloadsLeftAuto@50",
-  "design": "spring hood, full-width intake, side walls out at the TIP",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v2-g409-500.pp",
+  "spec": "QualRightV2G409500Auto,PartnerPreloadsRightAuto@50",
+  "design": "spring hood, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-partner-shoots-left-g409-300-s8n4-t700.pp",
+    "AutoSource": "qual-right-v2-g409-500.pp",
     "SavedBy": "G409-safe qualifier Autos"
   }
 }
