@@ -146,6 +146,38 @@ public class SideWallSpillTest {
         }
     }
 
+    /** TIPs behind each front-face distance in {@link #howCloseCanThePlainRobotPark}. */
+    static final int PLAIN_PARK_TIPS = 200;
+
+    /**
+     * How close the plain 18 in robot, walls in, can stand to the spill (mentor, 5 Oct 2026: "a
+     * place you can position it where it should not get any balls"): centred on the red CELL's axis
+     * ({@link FieldSim#RED_HIVE_X_IN}), facing the HIVE, front face at each distance from the wall,
+     * from 8 POLLEN and from the match-start load. Counts the TIPs with any G409 touch.
+     */
+    @Test
+    public void howCloseCanThePlainRobotPark() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
+            for (double face = 30; face <= 42; face += 1) {
+                int pieces = 0, g409 = 0, runsTouched = 0;
+                for (long seed = 1; seed <= PLAIN_PARK_TIPS; seed++) {
+                    int[] r;
+                    try {
+                        r = shapeRun(physics, seed, Shape.NONE, false, face, null, nectar, FieldSim.RED_HIVE_X_IN);
+                    } catch (IOException e) {
+                        throw new java.io.UncheckedIOException(e);
+                    }
+                    pieces += r[0];
+                    g409 += r[2];
+                    if (r[2] > 0) runsTouched++;
+                }
+                System.out.printf(Locale.ROOT, "PLAINPARK %s front face %2.0f in: %d pieces; G409 %d touches, in %d of %d TIPs%n",
+                        nectar == 0 ? "8 POLLEN" : "match start", face, pieces, g409, runsTouched, PLAIN_PARK_TIPS);
+            }
+        }
+    }
+
     /**
      * One TIP for a shape: {spilled pieces, gathered, G409 touches, most pieces between the arms at
      * once}.
@@ -166,9 +198,15 @@ public class SideWallSpillTest {
     /** As above, logged to {@code file} for AdvantageScope unless it is null. */
     static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep, double nose, File file)
             throws IOException {
+        return shapeRun(physics, seed, shape, creep, nose, file, HiveCalibration.NECTAR_AT_MATCH_START, ROBOT_X_IN);
+    }
+
+    /** As above, from {@code nectar} NECTAR in the raised CELL (then POLLEN until it TIPs), the robot centred on {@code robotX}. */
+    static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep, double nose, File file,
+                          int nectar, double robotX) throws IOException {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
-        for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
+        for (int i = 0; i < nectar; i++) {
             sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
             HiveCalibration.settle(sim);
         }
@@ -178,7 +216,7 @@ public class SideWallSpillTest {
         double out = towardHighY ? -1 : 1;
         double half = RobotAssets.CHASSIS_SIZE_IN / 2;
         double d = nose - half - shape.slide;
-        double rx = ROBOT_X_IN, ry = wallY + out * d, heading = out * Math.PI / 2;
+        double rx = robotX, ry = wallY + out * d, heading = out * Math.PI / 2;
         FieldSim.Bot bot = sim.main;
         if (shape != Shape.NONE) {
             bot.design = bot.design.copy(bot.design.name + ", " + shape);

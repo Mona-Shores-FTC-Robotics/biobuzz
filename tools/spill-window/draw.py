@@ -2,7 +2,7 @@
 (sim-review/spill-window.html; open it in a browser, or screenshot it).
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
-    python3 tools/spill-window/draw.py [csv] [out.html]
+    python3 tools/spill-window/draw.py [--face 34] [csv] [out.html]
 
 The background is the Visualizer's field image (public/fields/biobuzz.webp, in the Visualizer checkout that
 autogen.py uses: AUTO_BUILDER_DIR, or ../visualizer). The Visualizer stretches it over the whole field,
@@ -13,15 +13,22 @@ starts the match.
 The CSV has one row per spilled piece from the red HIVE's audience CELL, with no robot in the way
 (SpillLandingTest.landings). Drawn is where each piece first hit anything after leaving the CELL: the tiles,
 the HIVE's feet, or a piece already down. (Its first touch of the tiles alone is later for a piece that lands
-on the pile and rolls off it, often a long way off.) The red box holds 90% of them on each axis.
+on the pile and rolls off it, often a long way off.) Each piece is drawn at its true size; the dashed box
+bounds every footprint, the solid one 90% of them on each axis.
 """
 import base64
 import os
 import sys
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-CSV = sys.argv[1] if len(sys.argv) > 1 else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch.csv")
-OUT = sys.argv[2] if len(sys.argv) > 2 else os.path.join(REPO, "sim-review/spill-window.html")
+ARGS = sys.argv[1:]
+FACE = 18.0  # the robot's front face, inches from the audience wall (18: backed against it)
+if "--face" in ARGS:
+    i = ARGS.index("--face")
+    FACE = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
+CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
+OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
 VIS = [os.environ.get("AUTO_BUILDER_DIR", ""), os.path.join(REPO, "..", "visualizer"),
        os.path.join(REPO, "..", "mona-shores-ftc-robotics", "visualizer")]
 FIELD_IMAGE = next((p for p in (os.path.join(v, "public/fields/biobuzz.webp") for v in VIS if v) if os.path.isfile(p)), None)
@@ -31,16 +38,20 @@ if FIELD_IMAGE is None:
 FIELD = 141.5          # FieldFrame.FIELD_SIZE_INCHES, wall face to wall face
 CENTRE = FIELD / 2     # FieldFrame.FIELD_CENTRE_INCHES
 TILE = FIELD / 6
-# Our robot: 18 in square on the red CELL's axis (FieldSim.RED_HIVE_X_IN), backed against the audience
-# wall, facing the HIVE, side walls slid 6 in forward (RobotAssets.WALL_SLIDE_IN).
-ROBOT_X, HALF, SLIDE = CENTRE - 12.75, 9.0, 6.0
-ROBOT_Y = HALF
+# Our robot: the plain 18 in square, side walls in, on the red CELL's axis (FieldSim.RED_HIVE_X_IN),
+# facing the HIVE with its front face FACE in from the audience wall.
+ROBOT_X, HALF = CENTRE - 12.75, 9.0
+ROBOT_Y = FACE - HALF
 
 rows = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]
-pts = [(r[6], r[5]) for r in rows]  # where each piece first hit anything after leaving the CELL: (x, y)
+pts = [(r[6], r[5], r[7]) for r in rows]  # where each piece first hit anything after leaving the CELL: (x, y, radius)
 q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))]
 ys, xs = [p[1] for p in pts], [p[0] for p in pts]
 y5, y95, x5, x95 = q(ys, .05), q(ys, .95), q(xs, .05), q(xs, .95)
+# Both boxes bound the pieces' footprints, not their centres: every piece, and 90% on each axis.
+rad = max(p[2] for p in pts)
+ALL = (min(x - r for x, y, r in pts), min(y - r for x, y, r in pts), max(x + r for x, y, r in pts), max(y + r for x, y, r in pts))
+NINETY = (x5 - rad, y5 - rad, x95 + rad, y95 + rad)
 
 Y1, K = 100.0, 7.0          # show y 0-100: our end, the HIVE and the field centre
 ML, MB, MT, MR = 70, 56, 14, 34
@@ -69,22 +80,24 @@ o += [f'<text x="{px(FIELD / 2)}" y="{py(0) + 44}" font-size="14" font-weight="b
       f'transform="rotate(-90 18 {py(Y1 / 2)})">y (in) →</text>',
       f'<line x1="{px(CENTRE)}" x2="{px(CENTRE)}" y1="{py(0)}" y2="{py(Y1)}" stroke="#7fd39b" stroke-opacity="0.7" stroke-dasharray="8 6"/>',
       f'<line x1="{px(0)}" x2="{px(FIELD)}" y1="{py(CENTRE)}" y2="{py(CENTRE)}" stroke="#7fd39b" stroke-opacity="0.7" stroke-dasharray="8 6"/>']
-# The spill: where each piece first hit anything, and the box 90% of them fall in on each axis.
-for x, y in pts:
-    if 0 < x < FIELD and 0 < y < Y1:
-        o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="1.8" fill="#ffb347" opacity="0.5"/>')
-o.append(f'<rect x="{px(x5):.1f}" y="{py(y95):.1f}" width="{(x95 - x5) * K:.1f}" height="{(y95 - y5) * K:.1f}" '
-         'fill="none" stroke="#ff3b3b" stroke-width="2.5"/>')
-# Our robot, backed against the audience wall, with its centre's Pedro coordinates.
+# The spill: each piece's footprint, true size, where it first hit anything; the box around every one
+# (dashed) and around 90% on each axis (solid).
+for x, y, r in pts:
+    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="{r * K:.1f}" fill="#ffb347" fill-opacity="0.03"/>')
+for x, y, r in pts:
+    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="1.1" fill="#ffd9a0" opacity="0.6"/>')
+for (bx0, by0, bx1, by1), dash in ((ALL, ' stroke-dasharray="7 5"'), (NINETY, "")):
+    o.append(f'<rect x="{px(bx0):.1f}" y="{py(by1):.1f}" width="{(bx1 - bx0) * K:.1f}" height="{(by1 - by0) * K:.1f}" '
+             f'fill="none" stroke="#ff3b3b" stroke-width="2.2"{dash}/>')
+# Our robot, with its centre's Pedro coordinates.
 o += [f'<rect x="{px(ROBOT_X - HALF)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF * K}" height="{2 * HALF * K}" fill="#c9ccd3" stroke="#888" stroke-width="1.2"/>',
       f'<rect x="{px(ROBOT_X - HALF + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
       f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
       f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
-for wx in (ROBOT_X - HALF, ROBOT_X + HALF - 0.5):
-    o.append(f'<rect x="{px(wx)}" y="{py(ROBOT_Y + HALF + SLIDE)}" width="{0.5 * K}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
 o.append('</svg>')
 
 html = ('<!doctype html><html><head><meta charset="utf-8"><title>Spill landing window</title></head>'
         f'<body style="margin:0;background:{BG}">' + "".join(o) + '</body></html>')
 open(OUT, "w").write(html)
-print(f"wrote {OUT} on {FIELD_IMAGE}: {len(pts)} first contacts, 90% y {y5:.1f}-{y95:.1f}, x {x5:.1f}-{x95:.1f}")
+print(f"wrote {OUT} on {FIELD_IMAGE}: {len(pts)} first contacts; footprints: all x {ALL[0]:.1f}-{ALL[2]:.1f} y {ALL[1]:.1f}-{ALL[3]:.1f}, "
+      f"90% x {NINETY[0]:.1f}-{NINETY[2]:.1f} y {NINETY[1]:.1f}-{NINETY[3]:.1f}; robot front face {FACE:g}")

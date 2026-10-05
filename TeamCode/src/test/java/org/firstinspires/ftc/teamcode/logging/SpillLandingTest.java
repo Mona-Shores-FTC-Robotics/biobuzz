@@ -42,6 +42,8 @@ public class SpillLandingTest {
          * the tiles, possibly after rolling off the pile.
          */
         double contactFromWallIn = Double.NaN, contactX = Double.NaN;
+        /** The piece's radius: POLLEN or NECTAR. */
+        double radius = Double.NaN;
         Landing(double fromWallIn, double x, double y, double seconds) {
             this.fromWallIn = fromWallIn;
             this.x = x;
@@ -50,14 +52,22 @@ public class SpillLandingTest {
         }
     }
 
-    /** Every spilled piece's first touch, over {@code seeds} TIPs. */
+    /** Every spilled piece's first touch, over {@code seeds} TIPs, from the match-start load. */
     static List<Landing> landings(int seeds) {
+        return landings(seeds, HiveCalibration.NECTAR_AT_MATCH_START);
+    }
+
+    /**
+     * As above, with {@code nectar} NECTAR in the raised CELL before POLLEN is added until it TIPs:
+     * 3 is the match start (3 POLLEN tip it), 0 the setup guide's other case (8 POLLEN).
+     */
+    static List<Landing> landings(int seeds, int nectar) {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         List<Landing> out = new ArrayList<>();
         for (long seed = 1; seed <= seeds; seed++) {
             FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
             sim.red.locked = true;
-            for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
+            for (int i = 0; i < nectar; i++) {
                 sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
                 HiveCalibration.settle(sim);
             }
@@ -98,6 +108,7 @@ public class SpillLandingTest {
                         double[] c = contact.getOrDefault(p, new double[] {l.fromWallIn, l.x});
                         l.contactFromWallIn = c[0];
                         l.contactX = c[1];
+                        l.radius = p.kind.radius;
                         out.add(l);
                         landed.put(p, l);
                     }
@@ -194,20 +205,26 @@ public class SpillLandingTest {
 
     /**
      * Every spilled piece's first touch on the tiles over {@value #FIRST_TOUCH_TIPS} TIPs, for
-     * {@code tools/spill-window/draw.py}: {@code build/sim-logs/spill-first-touch.csv}, one row per
-     * piece: inches from the wall, x, seconds after the TIP started, where it lies 3 s later, and
-     * where it first hit anything (the tiles, the HIVE's feet or a piece already down).
+     * {@code tools/spill-window/draw.py}, from the match-start load ({@code spill-first-touch.csv}) and
+     * from 8 POLLEN ({@code spill-first-touch-8-pollen.csv}) in {@code build/sim-logs}. One row per
+     * piece: inches from the wall, x, seconds after the TIP started, where it lies 3 s later, where it
+     * first hit anything (the tiles, the HIVE's feet or a piece already down), and its radius.
      */
     @Test
     public void writesWhereTheSpillFirstTouches() throws java.io.IOException {
-        StringBuilder out = new StringBuilder("# fromWallIn,xIn,seconds,restFromWallIn,restXIn,contactFromWallIn,contactXIn; Pedro inches, "
-                + FIRST_TOUCH_TIPS + " TIPs, no robot (SpillLandingTest)\n");
-        List<Landing> all = landings(FIRST_TOUCH_TIPS);
+        writeFirstTouches(HiveCalibration.NECTAR_AT_MATCH_START, "spill-first-touch.csv");
+        writeFirstTouches(0, "spill-first-touch-8-pollen.csv");
+    }
+
+    private static void writeFirstTouches(int nectar, String name) throws java.io.IOException {
+        StringBuilder out = new StringBuilder("# fromWallIn,xIn,seconds,restFromWallIn,restXIn,contactFromWallIn,contactXIn,radiusIn;"
+                + " Pedro inches, " + FIRST_TOUCH_TIPS + " TIPs from " + nectar + " NECTAR, no robot (SpillLandingTest)\n");
+        List<Landing> all = landings(FIRST_TOUCH_TIPS, nectar);
         for (Landing l : all) {
-            out.append(String.format(Locale.ROOT, "%.2f,%.2f,%.3f,%.2f,%.2f,%.2f,%.2f%n", l.fromWallIn, l.x, l.seconds,
-                    l.restFromWallIn, l.restX, l.contactFromWallIn, l.contactX));
+            out.append(String.format(Locale.ROOT, "%.2f,%.2f,%.3f,%.2f,%.2f,%.2f,%.2f,%.2f%n", l.fromWallIn, l.x, l.seconds,
+                    l.restFromWallIn, l.restX, l.contactFromWallIn, l.contactX, l.radius));
         }
-        java.io.File file = new java.io.File(TeamCodeDir.simLogs(), "spill-first-touch.csv");
+        java.io.File file = new java.io.File(TeamCodeDir.simLogs(), name);
         file.getParentFile().mkdirs();
         java.nio.file.Files.write(file.toPath(), out.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
         assertTrue("no piece landed", !all.isEmpty());

@@ -59,19 +59,33 @@ of a parked robot aren't CONTROL; pushing them forward with the U is herding, an
 
 ![Where a red TIP's spill first touches the floor, on the Visualizer's field](sim-review/spill-window.png)
 
-**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). Each
-dot is where one spilled piece first hits anything after leaving the CELL: the tiles, the HIVE's feet, or
-a piece already down (200 simulated TIPs, 1,200 pieces, no robot). The red box holds 90% of them on each
-axis: y 39.3–43.9 in from the audience wall, x 49.4–67.5, the CELL's 20 in opening less a piece's radius
-each side; every one lands within x 48.0–70.6 and y 36.8–45.6. Median 42 in, against about 48 in the
-3 Oct films, so the simulator lands them a little short. A piece's first touch of the tiles alone is
-later and more scattered: one that lands on the pile can roll off it a long way, which is what made the
-earlier picture's box 34–46 in deep. What must stay short of the window is the robot's front face and
-top; the arms can reach into it, because pieces land between them, on the floor. Drawn on the
-Visualizer's BIOBUZZ field (the HIVE as it starts the match), in Pedro inches, with the robot, for now,
-backed against the audience wall at (58, 9). Redraw it after the simulator changes:
+**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). A
+CELL loaded with 8 POLLEN (the setup guide's other calibration case), 200 simulated TIPs, no robot. Each
+piece is drawn at its true size where it first hits anything after leaving the CELL: the tiles, the
+HIVE's feet, or a piece already down. A piece that lands on the pile and rolls into a robot is legal
+under G409 (it has touched something else), so this is where G409 stops mattering. The dashed box bounds
+every piece's footprint: x 45.6–69.5, y 35.1–47.5 in from the audience wall. The solid box bounds 90% of
+them on each axis: x 47.4–66.2, y 38.1–45.4. The match-start load (3 NECTAR, then 3 POLLEN) lands the
+same: every piece in x 46.2–72.0, y 35.4–47.0. The simulator lands them a little short of the 3 Oct films
+(median 42 in against about 48).
+
+**How close the plain robot can park** (`SideWallSpillTest.howCloseCanThePlainRobotPark`): the 18 in
+robot, walls in, centred on the red CELL's axis (x 58), facing the HIVE, 200 TIPs at each distance.
+Touches are G409 touches; "TIPs" counts the TIPs with at least one:
+
+| Front face from the audience wall | 8 POLLEN: touches, TIPs | Match start: touches, TIPs |
+|---|---|---|
+| 30–35 in | 0, 0 | 0, 0 |
+| 36 in | 2, 2 | 2, 2 |
+| 37 in | 8, 8 | 19, 19 |
+| 38 in | 53, 50 | 93, 75 |
+| 40 in | 409, 180 | 463, 193 |
+| 42 in | 1,223, 200 | 1,013, 200 |
+
+So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
+either load, and the dashed box's near edge. Redraw it after the simulator changes:
 `./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then
-`python3 tools/spill-window/draw.py` (it needs the Visualizer checkout for the field image:
+`python3 tools/spill-window/draw.py --face 35` (it needs the Visualizer checkout for the field image:
 `AUTO_BUILDER_DIR`, or `../visualizer`).
 
 **To watch these:**
