@@ -3,12 +3,14 @@
   sim-review/body-shapes.png        each shape from above with its sizes, and on the field over where an 8 POLLEN
                                     spill lands: centred on the 90% box, chassis face halfway between its 100% and
                                     90% lines
+  sim-review/body-shapes-ideas.png  more shapes from the 5 Oct review (a front C, a turned robot ...), pictures only
   sim-review/body-shapes-loads.png  8 POLLEN against the match-start load: where the spill lands, where it lies
                                     3 s later, and what each shape keeps from each
 
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*' --tests '*BodyShapeSpillTest.atTheLandingLine'
     python3 tools/spill-window/shapes.py
     chromium --headless --hide-scrollbars --window-size=2500,1000 --screenshot=sim-review/body-shapes.png TeamCode/build/sim-logs/body-shapes.html
+    chromium --headless --hide-scrollbars --window-size=2400,1000 --screenshot=sim-review/body-shapes-ideas.png TeamCode/build/sim-logs/body-shapes-ideas.html
     chromium --headless --hide-scrollbars --window-size=1500,1250 --screenshot=sim-review/body-shapes-loads.png TeamCode/build/sim-logs/body-shapes-loads.html
 
 The HTML (about 2 MB each, every spilled piece drawn) stays in the build folder. The top views are the Visualizer's
@@ -74,7 +76,7 @@ def dim(x1, y1, x2, y2, label, colour=DIM):
     return o
 
 
-def top_view(w, l, slide, out, fwd, low, outlines=()):
+def top_view(w, l, slide, out, fwd, low, outlines=(), crossbeam=False):
     """The robot from above, front up, on a 34 x 34 in panel, with its dimensions along the edges."""
     size = CANVAS * S
     cx = size / 2
@@ -125,6 +127,10 @@ def top_view(w, l, slide, out, fwd, low, outlines=()):
         if out or fwd:
             o.append(f'<line x1="{hx:.1f}" y1="{front:.1f}" x2="{hx + side * out * S:.1f}" y2="{nose:.1f}" stroke="{BLUE}" '
                      f'stroke-width="{4 if low else 5.5}" stroke-linecap="round"{dash}/>')
+    if crossbeam:  # a beam joining the front ends of the walls or flaps
+        half_out = (w / 2 + out) * S
+        o.append(f'<line x1="{cx - half_out:.1f}" y1="{nose:.1f}" x2="{cx + half_out:.1f}" y2="{nose:.1f}" stroke="{BLUE}" '
+                 f'stroke-width="5.5" stroke-linecap="round"/>')
     # Dimensions. Chassis: width below, length on the left.
     left = cx - w / 2 * S
     o += dim(left, back + 2.2 * S, cx + w / 2 * S, back + 2.2 * S, fmt(w))
@@ -223,6 +229,41 @@ page = f"""<!doctype html><html><head><meta charset="utf-8"><meta name="color-sc
 <svg width="0" height="0" style="position:absolute"><defs>{{FIELD}}</defs></svg>
 <div class="grid four">{"".join(cards)}</div></body></html>"""
 open(os.path.join(LOGS, "body-shapes.html"), "w").write(page.replace("{FIELD}", FIELD_IMAGE))
+
+
+# Sheet 3: ideas from the 5 Oct review, drawn before any simulation, to discard by eye.
+rows8 = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]
+LEFT_100 = min(r[6] - r[7] for r in rows8)                       # the spill's left edge, every piece
+q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))]
+rad = max(r[7] for r in rows8)
+BOX_Y = (q([r[5] for r in rows8], .05) + q([r[5] for r in rows8], .95)) / 2  # the 90% box's centre, out from the wall
+# Number and name, spec line, width, length, wall slide, flap out, flap forward, crossbeam, (x, y, heading) on the field.
+IDEAS = [
+    ("8 · Front C", "18 wide × 12 long chassis · arms 12″ forward + crossbeam, pivoted down before the TIP",
+     18, 12, 0, 0, 12, True, (BOX_X, LINE_100 - 6, 0)),
+    ("9 · Front U", "18 wide × 12 long chassis · arms 12″ forward, no crossbeam",
+     18, 12, 0, 0, 12, False, (BOX_X, LINE_100 - 6, 0)),
+    ("10 · Long U + crossbeam", "18 × 18 chassis · walls slide 6″ forward, joined by a crossbeam",
+     18, 18, 6, 0, 0, True, (BOX_X, PARK_FACE - 9, 0)),
+    ("11 · Side-on Long U", "18 × 18 chassis · walls 6″ forward · facing along the spill, from its left end",
+     18, 18, 6, 0, 0, False, (LEFT_100 - 9, BOX_Y, -90)),
+    ("12 · Long U turned 20°", "18 × 18 chassis · walls 6″ forward · turned 20° counterclockwise",
+     18, 18, 6, 0, 0, False, (BOX_X, PARK_FACE - 9, 20)),
+]
+cards3 = []
+for title, spec, w, l, slide, out, fwd, beam, (x, y, heading) in IDEAS:
+    svg, _ = top_view(w, l, slide, out, fwd, False, (), beam)
+    extra = ["--x", f"{x:.1f}", "--y", f"{y:.1f}", "--heading", f"{heading:g}"] + (["--crossbeam"] if beam else [])
+    field = field_view(w, l, slide, out, fwd, 0, extra=extra, crop=(22, 77, 10, 54))
+    cards3.append(f'<div class="card"><div class="head"><h2>{title}</h2><span class="spec">{spec}</span></div>'
+                  f'<div class="pics">{svg}{field}</div></div>')
+ideas = f"""<!doctype html><html><head><meta charset="utf-8"><meta name="color-scheme" content="dark"><title>Robot shape ideas</title>{STYLE}</head><body>
+<h1>Robot Shapes at the Spill: New Ideas</h1>
+<div class="legend"><span><i style="border-top:2px dashed {RED}"></i>every spilled piece lands inside</span>
+<span><i style="border-top:2px solid {RED}"></i>90% land inside</span></div>
+<svg width="0" height="0" style="position:absolute"><defs>{{FIELD}}</defs></svg>
+<div class="grid">{"".join(cards3)}</div></body></html>"""
+open(os.path.join(LOGS, "body-shapes-ideas.html"), "w").write(ideas.replace("{FIELD}", FIELD_IMAGE))
 
 
 # Sheet 2: the two loads.

@@ -4,7 +4,8 @@
     ./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'   # writes build/sim-logs/spill-first-touch.csv
     python3 tools/spill-window/draw.py [--face 35] [--arms 6] [--body 16 16] [--flaps 3 2] [--patch] [csv] [out.html]
 
---x X centres the robot at x = X (default 58, the red CELL's axis); --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
+--x X centres the robot at x = X (default 58, the red CELL's axis), --y Y at y = Y (instead of from --face); --heading D turns
+it D degrees counterclockwise; --crossbeam joins the front ends of its walls or flaps; --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
 corner to a free end OUT in sideways and FWD in forward (BodyShapeSpillTest); --patch outlines the floor
 counted as "kept" (15 in behind the chassis's front face to 8 in past it, 24 in wide). --kinds draws NECTAR red
 and POLLEN amber; --rest draws where each piece lies 3 s after the TIP instead of where it first landed (the
@@ -53,11 +54,22 @@ if "--x" in ARGS:
     i = ARGS.index("--x")
     ROBOT_X = float(ARGS[i + 1])
     del ARGS[i:i + 2]
-FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot")}
+ROBOT_Y_ARG = None  # the robot's centre from the audience wall, if --y: then FACE is where its front would be facing the HIVE
+if "--y" in ARGS:
+    i = ARGS.index("--y")
+    ROBOT_Y_ARG = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
+HEADING = 0.0  # degrees counterclockwise from facing the HIVE (90: facing the red wall, -90: facing the centre)
+if "--heading" in ARGS:
+    i = ARGS.index("--heading")
+    HEADING = float(ARGS[i + 1])
+    del ARGS[i:i + 2]
+FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot", "--crossbeam")}
 for f, on in FLAGS.items():
     if on:
         ARGS.remove(f)
 PATCH, KINDS, REST, ROBOT = FLAGS["--patch"], FLAGS["--kinds"], FLAGS["--rest"], not FLAGS["--no-robot"]
+CROSSBEAM = FLAGS["--crossbeam"]
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
 OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
 VIS = [os.environ.get("AUTO_BUILDER_DIR", ""), os.path.join(REPO, "..", "visualizer"),
@@ -73,6 +85,8 @@ TILE = FIELD / 6
 # facing the HIVE with its front face FACE in from the audience wall.
 HALF, HALF_W = BODY_L / 2, BODY_W / 2
 ROBOT_Y = FACE - HALF
+if ROBOT_Y_ARG is not None:
+    ROBOT_Y, FACE = ROBOT_Y_ARG, ROBOT_Y_ARG + HALF
 
 rows = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]
 pts = [(r[6], r[5], r[7]) for r in rows]  # where each piece first hit anything after leaving the CELL: (x, y, radius)
@@ -126,20 +140,26 @@ for (bx0, by0, bx1, by1), dash in ((ALL, ' stroke-dasharray="7 5"'), (NINETY, ""
 if PATCH:
     o.append(f'<rect x="{px(ROBOT_X - 12):.1f}" y="{py(FACE + 8):.1f}" width="{24 * K:.1f}" height="{23 * K:.1f}" '
              f'fill="none" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="3 4"/>')
-# Our robot, with its centre's Pedro coordinates.
+# Our robot, drawn facing the HIVE and turned HEADING about its centre, with its centre's Pedro coordinates.
 if ROBOT:
+    o.append(f'<g transform="rotate({-HEADING:g} {px(ROBOT_X):.1f} {py(ROBOT_Y):.1f})">')
     o += [f'<rect x="{px(ROBOT_X - HALF_W)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF_W * K}" height="{2 * HALF * K}" fill="#c9ccd3" stroke="#888" stroke-width="1.2"/>',
           f'<rect x="{px(ROBOT_X - HALF_W + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF_W - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
-          f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
-          f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
-if ROBOT and ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
-    for wx in (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
-        o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(2.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
-if ROBOT and (FLAP_OUT or FLAP_FWD):  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
-    for side in (-1, 1):
-        hx, hy = ROBOT_X + side * HALF_W, FACE
-        o.append(f'<line x1="{px(hx):.1f}" y1="{py(hy):.1f}" x2="{px(hx + side * FLAP_OUT):.1f}" y2="{py(hy + FLAP_FWD):.1f}" '
+          f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>']
+    if ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
+        for wx in (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
+            o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(3.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
+    if FLAP_OUT or FLAP_FWD:  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
+        for side in (-1, 1):
+            hx, hy = ROBOT_X + side * HALF_W, FACE
+            o.append(f'<line x1="{px(hx):.1f}" y1="{py(hy):.1f}" x2="{px(hx + side * FLAP_OUT):.1f}" y2="{py(hy + FLAP_FWD):.1f}" '
+                     f'stroke="#5aa0ff" stroke-width="{max(2.5, 0.25 * K):.1f}" stroke-linecap="round"/>')
+    if CROSSBEAM:  # a beam joining the front ends of the walls or flaps
+        reach, half_out = max(ARMS, FLAP_FWD), HALF_W + FLAP_OUT
+        o.append(f'<line x1="{px(ROBOT_X - half_out):.1f}" y1="{py(FACE + reach):.1f}" x2="{px(ROBOT_X + half_out):.1f}" y2="{py(FACE + reach):.1f}" '
                  f'stroke="#5aa0ff" stroke-width="{max(2.5, 0.25 * K):.1f}" stroke-linecap="round"/>')
+    o.append('</g>')
+    o.append(f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>')
 o.append('</svg>')
 
 html = ('<!doctype html><html><head><meta charset="utf-8"><title>Spill landing window</title></head>'
