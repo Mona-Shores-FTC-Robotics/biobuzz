@@ -52,17 +52,19 @@ public final class QualStagesAChaseThirdAuto {
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose rowS = p.of(34.6, 112, 90);
-        Pose rowN = p.of(34.6, 129.5, 90);
+        Pose turnA = p.of(20.9, 118, 0);
+        Pose rowS = p.of(19.5, 132.8, 0);
+        Pose rowN = p.of(20.9, 132.8, 0);
         Pose sweepE = p.of(57.5, 10, 180);
         Pose sweepW = p.of(22, 10, 180);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(57.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(57.5, 104, 90);
-        Pose nLowToRowSSegment1Start = p.of(34.6, 112, 270);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 90);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 90);
+        Pose nLowToTurnASegment1Heading = p.of(20.9, 118, 270);
+        Pose nLowToTurnASegment2Start = p.of(20.9, 118, 270);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 0);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 0);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sweepWToGardenControl1 = p.of(8.5, 14, 0);
@@ -105,7 +107,8 @@ public final class QualStagesAChaseThirdAuto {
         Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
         Path sCatchToNTurn = Paths.line(sCatch, nTurn).heading(Interpolator.piecewise().until(0.95, Interpolator.constant(sCatchToNTurnSegment1Heading)).until(1, Interpolator.linear(sCatchToNTurnSegment2Start, nTurn)));
         Path nTurnToNLow = Paths.line(nTurn, nLow).constant(nLow);
-        Path nLowToRowS = Paths.line(nLow, rowS).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(nLowToRowSSegment1Start, rowS)).until(1, Interpolator.constant(rowS)));
+        Path nLowToTurnA = Paths.line(nLow, turnA).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(nLowToTurnASegment1Heading)).until(0.9, Interpolator.linear(nLowToTurnASegment2Start, turnA)).until(1, Interpolator.constant(turnA)));
+        Path turnAToRowS = Paths.line(turnA, rowS).constant(rowS);
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
         Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
@@ -148,11 +151,12 @@ public final class QualStagesAChaseThirdAuto {
                 kit.firstOf("Fire the catch", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(2200)),
-                kit.path("N_LOW to ROW_S", nLowToRowS),
+                kit.path("N_LOW to TURN_A", nLowToTurnA),
+                kit.path("TURN_A to ROW_S", turnAToRowS),
                 kit.path("ROW_S to ROW_N", rowSToRowN),
                 kit.firstOf("The staged row",
                         kit.when("IntakeFull"),
-                        kit.afterMs(1000)),
+                        kit.afterMs(1600)),
                 kit.path("ROW_N to N_LOW", rowNToNLow),
                 kit.firstOf("Fire the row", kit.command("LaunchAll"),
                         kit.when("Tip"),

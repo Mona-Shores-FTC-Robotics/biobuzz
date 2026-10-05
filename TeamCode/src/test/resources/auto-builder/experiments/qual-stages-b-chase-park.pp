@@ -94,8 +94,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 30.04,
-        "y": 113.96
+        "x": 49.34,
+        "y": 112.53
       },
       "controlPoints": [],
       "heading": {
@@ -108,7 +108,7 @@
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
-                "endDeg": 43.5
+                "endDeg": 137.3
               }
             },
             {
@@ -116,7 +116,7 @@
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 43.5
+                "degrees": 137.3
               }
             }
           ]
@@ -133,13 +133,13 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 39.47,
-        "y": 122.91
+        "x": 46.33,
+        "y": 115.31
       },
       "controlPoints": [],
       "heading": {
         "type": "constant",
-        "degrees": 43.5
+        "degrees": 137.3
       }
     },
     {
@@ -165,7 +165,7 @@
               "endProgress": 0.2,
               "interpolationType": "constant",
               "parameters": {
-                "degrees": 43.5
+                "degrees": 137.3
               }
             },
             {
@@ -173,7 +173,7 @@
               "endProgress": 0.9,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 43.5,
+                "startDeg": 137.3,
                 "endDeg": 270
               }
             },
@@ -931,14 +931,19 @@
         270
       ],
       "ROW_S": [
-        30.04,
-        113.96,
-        43.5
+        49.34,
+        112.53,
+        137.3
       ],
       "ROW_N": [
-        39.47,
-        122.91,
-        43.5
+        46.33,
+        115.31,
+        137.3
+      ],
+      "LANE_N": [
+        36,
+        100,
+        90
       ]
     },
     "pathEnds": {
@@ -1076,7 +1081,7 @@
             "cards": []
           },
           {
-            "afterMs": 1000,
+            "afterMs": 1600,
             "cards": []
           }
         ]

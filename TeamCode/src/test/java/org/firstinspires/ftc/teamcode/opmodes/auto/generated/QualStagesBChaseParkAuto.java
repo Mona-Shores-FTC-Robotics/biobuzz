@@ -53,15 +53,15 @@ public final class QualStagesBChaseParkAuto {
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose rowS = p.of(30.04, 113.96, 43.5);
-        Pose rowN = p.of(39.47, 122.91, 43.5);
+        Pose rowS = p.of(49.34, 112.53, 137.3);
+        Pose rowN = p.of(46.33, 115.31, 137.3);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(57.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(57.5, 104, 90);
-        Pose nLowToRowSSegment1Start = p.of(30.04, 113.96, 270);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 43.5);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 43.5);
+        Pose nLowToRowSSegment1Start = p.of(49.34, 112.53, 270);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 137.3);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 137.3);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenInSegment1Start = p.of(8.5, 20.25, 90);
@@ -123,7 +123,7 @@ public final class QualStagesBChaseParkAuto {
                 kit.path("ROW_S to ROW_N", rowSToRowN),
                 kit.firstOf("The staged row",
                         kit.when("IntakeFull"),
-                        kit.afterMs(1000)),
+                        kit.afterMs(1600)),
                 kit.path("ROW_N to N_LOW", rowNToNLow),
                 kit.firstOf("Fire the row", kit.command("LaunchAll"),
                         kit.when("Tip"),

@@ -454,6 +454,34 @@
         "type": "constant",
         "degrees": 90
       }
+    },
+    {
+      "id": "to-park-15",
+      "color": "#3cc8e4",
+      "name": "S_FIRE to PARK",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 13,
+        "y": 87.75
+      },
+      "controlPoints": [
+        {
+          "x": 28,
+          "y": 24
+        },
+        {
+          "x": 24,
+          "y": 70
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
     }
   ],
   "shapes": [
@@ -586,6 +614,10 @@
     {
       "kind": "path",
       "lineId": "to-park-14"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-15"
     }
   ],
   "settings": {
@@ -758,7 +790,8 @@
       "to-garden-11": "GARDEN",
       "to-park-12": "PARK",
       "to-s-fire-13": "S_FIRE",
-      "to-park-14": "PARK"
+      "to-park-14": "PARK",
+      "to-park-15": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -979,25 +1012,31 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-28",
+        "id": "w-30",
         "kind": "firstOf",
-        "label": "No TIP 3 yet?",
+        "label": "TIP 3 coming?",
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "Tip"
             ],
             "cards": [
               {
-                "id": "p-21",
+                "id": "p-29",
                 "kind": "path",
-                "lineId": "to-garden-11",
-                "park": false
-              },
+                "lineId": "to-park-15",
+                "park": true
+              }
+            ],
+            "label": "TIP 3: PARK"
+          },
+          {
+            "afterMs": 800,
+            "cards": [
               {
-                "id": "w-27",
+                "id": "w-28",
                 "kind": "firstOf",
-                "label": "Still no TIP 3?",
+                "label": "No TIP 3 yet?",
                 "rows": [
                   {
                     "when": [
@@ -1005,62 +1044,95 @@
                     ],
                     "cards": [
                       {
-                        "id": "w-23",
+                        "id": "p-21",
+                        "kind": "path",
+                        "lineId": "to-garden-11",
+                        "park": false
+                      },
+                      {
+                        "id": "w-27",
                         "kind": "firstOf",
-                        "label": "The GARDEN again",
+                        "label": "Still no TIP 3?",
                         "rows": [
                           {
                             "when": [
-                              "IntakeFull"
+                              "RightCellUp"
                             ],
-                            "cards": []
+                            "cards": [
+                              {
+                                "id": "w-23",
+                                "kind": "firstOf",
+                                "label": "The GARDEN again",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "IntakeFull"
+                                    ],
+                                    "cards": []
+                                  },
+                                  {
+                                    "afterMs": 1100,
+                                    "cards": []
+                                  }
+                                ]
+                              },
+                              {
+                                "id": "p-24",
+                                "kind": "path",
+                                "lineId": "to-s-fire-13",
+                                "park": false
+                              },
+                              {
+                                "id": "w-25",
+                                "kind": "firstOf",
+                                "label": "Fire the GARDEN again",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "LeftCellUp"
+                                    ],
+                                    "cards": []
+                                  },
+                                  {
+                                    "afterMs": 2500,
+                                    "cards": []
+                                  }
+                                ],
+                                "alongside": "LaunchAll"
+                              },
+                              {
+                                "id": "p-26",
+                                "kind": "path",
+                                "lineId": "to-park-14",
+                                "park": false
+                              }
+                            ],
+                            "label": "No TIP: fire the GARDEN"
                           },
                           {
-                            "afterMs": 1100,
-                            "cards": []
+                            "afterMs": 20,
+                            "cards": [
+                              {
+                                "id": "p-22",
+                                "kind": "path",
+                                "lineId": "to-park-12",
+                                "park": true
+                              }
+                            ],
+                            "label": "TIP 3: PARK"
                           }
                         ]
-                      },
-                      {
-                        "id": "p-24",
-                        "kind": "path",
-                        "lineId": "to-s-fire-13",
-                        "park": false
-                      },
-                      {
-                        "id": "w-25",
-                        "kind": "firstOf",
-                        "label": "Fire the GARDEN again",
-                        "rows": [
-                          {
-                            "when": [
-                              "LeftCellUp"
-                            ],
-                            "cards": []
-                          },
-                          {
-                            "afterMs": 2500,
-                            "cards": []
-                          }
-                        ],
-                        "alongside": "LaunchAll"
-                      },
-                      {
-                        "id": "p-26",
-                        "kind": "path",
-                        "lineId": "to-park-14",
-                        "park": false
                       }
                     ],
-                    "label": "No TIP: fire the GARDEN"
+                    "label": "No TIP: the GARDEN"
                   },
                   {
                     "afterMs": 20,
                     "cards": [
                       {
-                        "id": "p-22",
+                        "id": "p-20",
                         "kind": "path",
-                        "lineId": "to-park-12",
+                        "lineId": "to-park-10",
                         "park": true
                       }
                     ],
@@ -1069,19 +1141,7 @@
                 ]
               }
             ],
-            "label": "No TIP: the GARDEN"
-          },
-          {
-            "afterMs": 20,
-            "cards": [
-              {
-                "id": "p-20",
-                "kind": "path",
-                "lineId": "to-park-10",
-                "park": true
-              }
-            ],
-            "label": "TIP 3: PARK"
+            "label": "Not yet: look again"
           }
         ]
       }

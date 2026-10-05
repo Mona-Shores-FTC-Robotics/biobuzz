@@ -51,14 +51,15 @@ public final class QualStagesBWestParkAuto {
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose rowS = p.of(30.04, 113.96, 43.5);
-        Pose rowN = p.of(39.47, 122.91, 43.5);
+        Pose rowS = p.of(50.47, 113.91, 141.5);
+        Pose rowN = p.of(47.26, 116.46, 141.5);
+        Pose laneN = p.of(36, 100, 90);
+        Pose laneS = p.of(36, 22, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToRowSControl1 = p.of(28, 18, 0);
-        Pose startToRowSControl2 = p.of(28, 100, 0);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 43.5);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 43.5);
+        Pose laneNToRowSSegment1Start = p.of(50.47, 113.91, 90);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 141.5);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 141.5);
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 121.04, 0);
         Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 121.04, 270);
         Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 121.04, 270);
@@ -73,7 +74,9 @@ public final class QualStagesBWestParkAuto {
         Pose sFireToParkControl2 = p.of(24, 70, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToRowS = Paths.curve(start, startToRowSControl1, startToRowSControl2, rowS).constant(rowS);
+        Path startToLaneS = Paths.line(start, laneS).constant(laneS);
+        Path laneSToLaneN = Paths.line(laneS, laneN).constant(laneN);
+        Path laneNToRowS = Paths.line(laneN, rowS).heading(Interpolator.piecewise().until(0.9, Interpolator.linear(laneNToRowSSegment1Start, rowS)).until(1, Interpolator.constant(rowS)));
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
@@ -90,11 +93,13 @@ public final class QualStagesBWestParkAuto {
                         kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(4000)),
-                        kit.path("START to ROW_S", startToRowS),
+                        kit.path("START to LANE_S", startToLaneS),
+                        kit.path("LANE_S to LANE_N", laneSToLaneN),
+                        kit.path("LANE_N to ROW_S", laneNToRowS),
                         kit.path("ROW_S to ROW_N", rowSToRowN),
                         kit.firstOf("The staged row",
                                 kit.when("IntakeFull"),
-                                kit.afterMs(1000)),
+                                kit.afterMs(1600)),
                         kit.path("ROW_N to N_LOW", rowNToNLow),
                         kit.firstOf("Fire the row", kit.command("LaunchAll"),
                                 kit.when("Empty"),

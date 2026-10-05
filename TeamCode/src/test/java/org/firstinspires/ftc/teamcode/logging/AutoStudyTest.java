@@ -170,7 +170,7 @@ public class AutoStudyTest {
      * behind the left CELL, aimed so that driving straight forward parks it in the far end of the
      * LOADING ZONE, its 4 POLLEN on the tiles along its left side. x, y, heading (deg), drawn for RED.
      */
-    static final double[] ANGLED_PARTNER = {30.0, 128.53, 223.5};
+    static final double[] ANGLED_PARTNER = {32.0, 128.53, 227.3};
 
     /** 4 POLLEN in a row along the left side of an 18 in robot at {x, y, heading}, each touching it. */
     static double[][] alongLeftSide(double[] pose) {

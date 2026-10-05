@@ -64,16 +64,18 @@ public final class QualRightO3Auto {
         Pose sweepWToGardenSegment1Start = p.of(8.5, 9.25, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose sFireToParkControl1 = p.of(28, 24, 0);
+        Pose sFireToParkControl2 = p.of(24, 70, 0);
         Pose sFireToGardenControl1 = p.of(8.5, 30, 0);
         Pose sFireToGardenSegment1Start = p.of(8.5, 9.25, 90);
         Pose gardenToSFire_2Segment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFire_2Segment2Start = p.of(57.5, 24, 270);
-        Pose sFireToParkControl1 = p.of(28, 24, 0);
-        Pose sFireToParkControl2 = p.of(24, 70, 0);
-        Pose gardenToParkControl1 = p.of(30, 22, 0);
-        Pose gardenToParkControl2 = p.of(26, 70, 0);
         Pose sFireToPark_2Control1 = p.of(28, 24, 0);
         Pose sFireToPark_2Control2 = p.of(24, 70, 0);
+        Pose gardenToParkControl1 = p.of(30, 22, 0);
+        Pose gardenToParkControl2 = p.of(26, 70, 0);
+        Pose sFireToPark_3Control1 = p.of(28, 24, 0);
+        Pose sFireToPark_3Control2 = p.of(24, 70, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToNFire = Paths.line(start, nFire).constant(nFire);
@@ -85,11 +87,12 @@ public final class QualRightO3Auto {
         Path sweepEToSweepW = Paths.line(sweepE, sweepW).constant(sweepW);
         Path sweepWToGarden = Paths.curve(sweepW, sweepWToGardenControl1, garden).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(sweepWToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
+        Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path sFireToGarden = Paths.curve(sFire, sFireToGardenControl1, garden).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(sFireToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToSFirePath = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFire_2Segment1Heading)).until(1, Interpolator.linear(gardenToSFire_2Segment2Start, sFire)));
-        Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
-        Path gardenToPark = Paths.curve(garden, gardenToParkControl1, gardenToParkControl2, park).constant(park);
         Path sFireToParkPath = Paths.curve(sFire, sFireToPark_2Control1, sFireToPark_2Control2, park).constant(park);
+        Path gardenToPark = Paths.curve(garden, gardenToParkControl1, gardenToParkControl2, park).constant(park);
+        Path sFireToParkPath2 = Paths.curve(sFire, sFireToPark_3Control1, sFireToPark_3Control2, park).constant(park);
 
         return kit.sequence(
                 kit.command("SpinUp"),
@@ -129,24 +132,29 @@ public final class QualRightO3Auto {
                 kit.firstOf("Fire the GARDEN", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(1800)),
-                kit.firstOf("No TIP 3 yet?",
-                        kit.when("RightCellUp").then(
-                                kit.path("S_FIRE to GARDEN", sFireToGarden),
-                                kit.firstOf("Still no TIP 3?",
+                kit.firstOf("TIP 3 coming?",
+                        kit.when("Tip").then(
+                                kit.guarded("TIP 3: PARK", sFireToPark, 2.8,
+                                        kit.path("S_FIRE to PARK", sFireToPark))),
+                        kit.afterMs(800).then(
+                                kit.firstOf("No TIP 3 yet?",
                                         kit.when("RightCellUp").then(
-                                                kit.firstOf("The GARDEN again",
-                                                        kit.when("IntakeFull"),
-                                                        kit.afterMs(1100)),
-                                                kit.path("GARDEN to S_FIRE", gardenToSFirePath),
-                                                kit.firstOf("Fire the GARDEN again", kit.command("LaunchAll"),
-                                                        kit.when("LeftCellUp"),
-                                                        kit.afterMs(2500)),
-                                                kit.path("S_FIRE to PARK", sFireToPark)),
+                                                kit.path("S_FIRE to GARDEN", sFireToGarden),
+                                                kit.firstOf("Still no TIP 3?",
+                                                        kit.when("RightCellUp").then(
+                                                                kit.firstOf("The GARDEN again",
+                                                                        kit.when("IntakeFull"),
+                                                                        kit.afterMs(1100)),
+                                                                kit.path("GARDEN to S_FIRE", gardenToSFirePath),
+                                                                kit.firstOf("Fire the GARDEN again", kit.command("LaunchAll"),
+                                                                        kit.when("LeftCellUp"),
+                                                                        kit.afterMs(2500)),
+                                                                kit.path("S_FIRE to PARK", sFireToParkPath)),
+                                                        kit.afterMs(20).then(
+                                                                kit.guarded("TIP 3: PARK", gardenToPark, 2.9,
+                                                                        kit.path("GARDEN to PARK", gardenToPark))))),
                                         kit.afterMs(20).then(
-                                                kit.guarded("TIP 3: PARK", gardenToPark, 2.9,
-                                                        kit.path("GARDEN to PARK", gardenToPark))))),
-                        kit.afterMs(20).then(
-                                kit.guarded("TIP 3: PARK", sFireToParkPath, 2.8,
-                                        kit.path("S_FIRE to PARK", sFireToParkPath)))));
+                                                kit.guarded("TIP 3: PARK", sFireToParkPath2, 2.8,
+                                                        kit.path("S_FIRE to PARK", sFireToParkPath2)))))));
     }
 }
