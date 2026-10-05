@@ -1412,7 +1412,7 @@ wall, short of the landing, walls out as the TIP starts; the spill gathered with
 **How far forward to park** (`howFarForwardToPark`; the spill first touches the tiles 44–48 in from
 the wall). Long U, standing, front-most point (arm tips) at each distance from the wall, 40 TIPs:
 
-| Arm tips at | Front face at | Gathered | G409 touches a TIP (TIPs with any) | TIPs with over 4 inside |
+| Arm tips at | Front face at | Gathered | G409 touches a TIP (TIPs with any) | TIPs with over 4 lying between the arms |
 |---|---|---|---|---|
 | 35 in | 29 in | 33% | 0 (0 of 40) | 0 |
 | **38 in** | **32 in** | **39%** | **0.05 (2 of 40)** | **0** |
@@ -1421,12 +1421,20 @@ the wall). Long U, standing, front-most point (arm tips) at each distance from t
 | 50 in | 44 in (at the landing) | 24% | 5.7 (40 of 40) | 40 |
 
 With the front face at the landing and the arms past it, the spill falls onto the robot and its
-arms: nearly every piece touches it before the tiles (G409), and more than 4 end up inside the U
-(G407). The arm tips belong a few inches short of where pieces first hit the tiles.
+arms: nearly every piece touches it before the tiles (G409). The arm tips belong a few inches short of
+where pieces first hit the tiles.
+
+**Pieces between the arms are not CONTROL on their own.** The manual: CONTROL "requires contact with a
+ROBOT" and typically that the piece is fully supported by the robot or that the robot "is moving the
+SCORING ELEMENT in a preferred direction with a flat or concave face". Pieces lying between the arms of
+a robot standing still, its front open, are none of these, so the last column is not a G407 count.
+What does count: whatever the U pushes once the robot drives forward (herding with a concave face),
+and possibly pieces a one-way flap has shut in ("stuck in ... the ROBOT"). Ask FIRST before relying
+on either.
 
 The arms that reach forward are what stop the spill scattering sideways from just ahead of the robot;
-a wider mouth at the frame's front adds almost nothing. With the creep the long U held 4 at most at
-once, G407's limit: count what the robot already holds before building it bigger.
+a wider mouth at the frame's front adds almost nothing. With the creep the long U pushed up to 4 at
+once: that is herding, so it counts toward G407's limit with whatever the robot already holds.
 
 Every simulated run now also counts **G409**: a spilled piece a robot touched before it touched
 anything else (the tiles, a wall, the HIVE's feet, another robot, or a piece that already had).

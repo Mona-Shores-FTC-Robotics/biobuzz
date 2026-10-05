@@ -156,6 +156,16 @@ public class SideWallSpillTest {
 
     /** As above, with the robot's front-most point {@code nose} in from the wall. */
     static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep, double nose) {
+        try {
+            return shapeRun(physics, seed, shape, creep, nose, null);
+        } catch (IOException e) {
+            throw new java.io.UncheckedIOException(e);
+        }
+    }
+
+    /** As above, logged to {@code file} for AdvantageScope unless it is null. */
+    static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep, double nose, File file)
+            throws IOException {
         FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
         sim.red.locked = true;
         for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
@@ -179,11 +189,21 @@ public class SideWallSpillTest {
             bot.wallsOut = 0;
         }
         sim.setRobot(rx, ry, heading, 0, 0, 0, false);
+        WpiLog log = file == null ? null : open(file, shape == Shape.NONE ? Version.PLAIN : Version.WALLS);
+        ShapeLog shown = new ShapeLog(sim, log, shape);
+        if (log != null) {
+            log.putMetadata("Shape", shape + ", front-most point " + nose + " in from the wall"
+                    + (creep ? ", creeping 8 in once the spill has landed" : ", standing"));
+        }
         for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
             sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
-            for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) sim.step(HiveCalibration.LOOP_S);
+            for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) shown.step(HiveCalibration.LOOP_S, rx, ry, heading);
         }
-        if (sim.red.tipsStarted == 0) return new int[4];
+        if (sim.red.tipsStarted == 0) {
+            if (log != null) log.close();
+            return new int[4];
+        }
+        shown.event("our CELL starts to TIP" + (shape == Shape.NONE ? "" : ": side walls out"));
         List<FieldSim.Piece> spill = new ArrayList<>();
         for (FieldSim.Piece p : sim.pieces) {
             if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == sim.red.alliance) spill.add(p);
@@ -197,7 +217,7 @@ public class SideWallSpillTest {
             moved += v * dt;
             sim.setRobot(rx + Math.cos(heading) * moved, ry + Math.sin(heading) * moved, heading,
                     v * Math.cos(heading), v * Math.sin(heading), 0, false);
-            sim.step(dt);
+            shown.step(dt, rx + Math.cos(heading) * moved, ry + Math.sin(heading) * moved, heading);
             int inside = 0;
             for (FieldSim.Piece p : spill) {
                 if (p.cell != null || shape == Shape.NONE) continue;
@@ -219,7 +239,73 @@ public class SideWallSpillTest {
             if (fromNose > -GATHER_BEHIND_NOSE_IN && fromNose < GATHER_AHEAD_IN && Math.abs(l[1]) < GATHER_HALF_WIDTH_IN) gathered++;
             if (p.robotBeforeTile) g409++;
         }
+        if (log != null) {
+            shown.event(String.format(Locale.ROOT, "3 s after the TIP: %d of %d spilled pieces gathered, %d touched the robot before the tiles (G409), most inside the U at once %d",
+                    gathered, n, g409, most));
+            log.close();
+        }
         return new int[] {n, gathered, g409, most};
+    }
+
+    /** Logs a shape run for AdvantageScope, about 50 times a second. */
+    private static final class ShapeLog {
+        final FieldSim sim;
+        final WpiLog log;
+        final Shape shape;
+        final FieldSimLog field = new FieldSimLog();
+        double t, lastLogged = -1;
+
+        ShapeLog(FieldSim sim, WpiLog log, Shape shape) {
+            this.sim = sim;
+            this.log = log;
+            this.shape = shape;
+        }
+
+        void step(double dt, double x, double y, double heading) throws IOException {
+            sim.step(dt);
+            t += dt;
+            if (log == null || t - lastLogged < 0.019) return;
+            lastLogged = t;
+            FieldRobot.slot(0).putPose(log, x, y, heading, us(t));
+            double out = shape == Shape.NONE ? 0 : sim.main.wallsOut;
+            double cx = out * shape.slide * AdvantageScopeFrame.METERS_PER_INCH;
+            double cy = out * shape.out * AdvantageScopeFrame.METERS_PER_INCH;
+            log.put("/SideWalls/Out", out, us(t));
+            log.putPose3dArray("/SideWalls/Components", new double[] {cx, cy, 0, 1, 0, 0, 0, cx, -cy, 0, 1, 0, 0, 0}, us(t));
+            field.write(log, sim, us(t));
+            for (String e : sim.drainEvents()) log.putEvent("sim: " + e, us(t));
+        }
+
+        void event(String text) throws IOException {
+            if (log != null) log.putEvent(text, us(t));
+        }
+    }
+
+    /**
+     * The parking question as two logs of the same TIP: the long U with its arm tips at 38 in (just
+     * short of the landing) and with its front face at the landing, arms past it (arm tips at 50 in).
+     * Written to build/sim-logs as {@code long-u-short-of-landing.wpilog} and
+     * {@code long-u-at-landing.wpilog}; the TIP is the seed where the short one gathers most with no
+     * G409 touch.
+     */
+    @Test
+    public void writesParkingDemoLogs() throws IOException {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        long best = 1;
+        int most = -1;
+        for (long seed = 1; seed <= 20; seed++) {
+            int[] r = shapeRun(physics, seed, Shape.LONG_U, false, 38);
+            int g = r[2] == 0 ? r[1] : -1;  // one with no G409 touch
+            if (g > most) {
+                most = g;
+                best = seed;
+            }
+        }
+        File dir = TeamCodeDir.simLogs();
+        int[] shortOf = shapeRun(physics, best, Shape.LONG_U, false, 38, new File(dir, "long-u-short-of-landing.wpilog"));
+        int[] at = shapeRun(physics, best, Shape.LONG_U, false, 50, new File(dir, "long-u-at-landing.wpilog"));
+        System.out.printf(Locale.ROOT, "PARKDEMO seed %d: short of the landing gathered %d, G409 %d; at the landing gathered %d, G409 %d, most inside %d%n",
+                best, shortOf[1], shortOf[2], at[1], at[2], at[3]);
     }
 
     /** Where the demo robot parks: centred this far from the wall, where the walls help most. */
