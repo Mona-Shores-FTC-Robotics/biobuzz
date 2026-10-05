@@ -166,6 +166,8 @@ public final class AutoSim {
         final List<RobotResult> robots = new ArrayList<>();
         /** When two robots first overlapped, which real robots cannot; NaN if they never did. */
         double robotsCollidedAt = Double.NaN;
+        /** Spilled pieces a robot touched before they reached the tiles: G409 fouls. */
+        int g409;
         /**
          * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
          * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
@@ -218,7 +220,8 @@ public final class AutoSim {
                 RobotResult r = robots.get(0);
                 return head + String.format(Locale.ROOT, "; %s; LEAVE %s, PARK %s; %s",
                         finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
-                        r.leave ? "yes" : "no", r.park ? "yes" : "no", headStart());
+                        r.leave ? "yes" : "no", r.park ? "yes" : "no", headStart())
+                        + (g409 > 0 ? "; G409: " + g409 + " spilled pieces touched before the tiles" : "");
             }
             StringBuilder out = new StringBuilder(head);
             for (RobotResult r : robots) out.append("; ").append(r);
@@ -226,6 +229,7 @@ public final class AutoSim {
             if (!Double.isNaN(robotsCollidedAt)) {
                 out.append(String.format(Locale.ROOT, "; ROBOTS COLLIDE at %.1f s", robotsCollidedAt));
             }
+            if (g409 > 0) out.append("; G409: ").append(g409).append(" spilled pieces touched before the tiles");
             return out.toString();
         }
     }
@@ -472,6 +476,7 @@ public final class AutoSim {
             sim.step(LOOP_S);
             for (String e : sim.drainEvents()) {
                 if (e.startsWith("score: ") && e.contains(alliance.name())) result.scored++;
+                if (e.startsWith("G409: ")) result.g409++;
                 log.putEvent("sim: " + e, us);
             }
             FieldSim.Rocker ours = sim.rocker(alliance);
@@ -523,13 +528,8 @@ public final class AutoSim {
     private static List<double[]> outline(double[] pose, RobotDesign design, double now) {
         List<double[]> out = corners(pose, design.frameIn);
         // It starts folded inside the 18 in start size (R102) and is out within the first second.
-        if (now < CATCHER_DEPLOY_S) return out;
+        if (design.intakeWidthIn <= design.frameIn || now < CATCHER_DEPLOY_S) return out;
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
-        if (design.shieldReachIn > 0) {  // the side shield's far end (RobotDesign#shieldReachIn)
-            double lx = design.frameIn / 2 + design.shieldReachIn, ly = design.shieldSide * design.frameIn / 2;
-            out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
-        }
-        if (design.intakeWidthIn <= design.frameIn) return out;
         double lx = (design.intakeAtBack ? -1 : 1) * design.frameIn / 2, half = design.intakeWidthIn / 2;
         for (int j = -4; j <= 4; j++) {
             double ly = half * j / 4;

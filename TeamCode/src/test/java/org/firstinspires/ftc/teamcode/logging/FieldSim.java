@@ -250,6 +250,18 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /**
+         * Whether, since it last left a CELL, it has touched something other than a robot: the
+         * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
+         * lets a robot touch a spilled piece only after that.
+         */
+        boolean touchedTile = true;
+        /**
+         * Whether a robot touched it after it left a CELL and before it reached the tiles: what G409
+         * forbids for a TIP's spill ("may not catch or deflect ... unless and until that SCORING
+         * ELEMENT contacts anything else besides that ROBOT"). See {@link #touchedTile}.
+         */
+        boolean robotBeforeTile;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -901,12 +913,23 @@ final class FieldSim {
                 }
                 boolean contact = false;
                 for (Rocker r : rockers) contact |= collideRocker(p, r);
-                contact |= collideFootBars(p);
+                if (collideFootBars(p)) {
+                    contact = true;
+                    p.touchedTile = true;
+                }
                 for (int b = 0; b < nb; b++) {
                     if (bots.get(b).present) contact |= collideRobot(bots.get(b), p, sub[b][0], sub[b][1], sub[b][2]);
                 }
-                for (double[] parked : parkedRobots) contact |= collideParked(p, parked);
-                contact |= collideField(p);
+                for (double[] parked : parkedRobots) {
+                    if (collideParked(p, parked)) {
+                        contact = true;
+                        p.touchedTile = true;
+                    }
+                }
+                if (collideField(p)) {  // the tiles or a field wall
+                    contact = true;
+                    p.touchedTile = true;
+                }
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) {
                     applyFriction(p, h);
@@ -918,6 +941,10 @@ final class FieldSim {
                     }
                 }
                 updateCell(p);
+                if (p.cell != null) {
+                    p.touchedTile = false;
+                    p.robotBeforeTile = false;
+                }
             }
         }
     }
@@ -989,6 +1016,9 @@ final class FieldSim {
                 b.x += nx * push * ma;
                 b.y += ny * push * ma;
                 b.z += nz * push * ma;
+                // A piece that has touched the tiles passes that on: G409's "anything else".
+                if (a.touchedTile && b.cell == null) b.touchedTile = true;
+                if (b.touchedTile && a.cell == null) a.touchedTile = true;
                 double vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny + (b.vz - a.vz) * nz;
                 if (vn < 0) {
                     double e = vn > -RESTING_IN_PER_S ? 0 : bounce(PLACEHOLDER_PIECE_RESTITUTION);
@@ -1079,18 +1109,13 @@ final class FieldSim {
     }
 
     private boolean collideRobot(Bot bot, Piece p, double bx, double by, double bh) {
-        RobotDesign d = bot.design;
-        double half = d.frameIn / 2;
+        double half = bot.design.frameIn / 2;
         boolean hit = box(p, bx, by, bh, half, half, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
-        if (d.shieldReachIn > 0) {
-            // RobotDesign#shieldReachIn: a thin wall along one side, from the frame's front edge forward.
-            double t = RobotDesign.SHIELD_THICKNESS_IN / 2;
-            double lx = half + d.shieldReachIn / 2, ly = d.shieldSide * (half - t);
-            double c = Math.cos(bh), s = Math.sin(bh);
-            double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
-            hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
-                    bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
+        if (hit && !p.touchedTile && !p.robotBeforeTile) {
+            p.robotBeforeTile = true;
+            events.add("G409: robot " + (bots.indexOf(bot) + 1) + " touched a spilled " + name(p.kind)
+                    + " before it reached the tiles");
         }
         return hit;
     }
@@ -1155,6 +1180,7 @@ final class FieldSim {
         boolean hit = false;
         if (p.z < r) {
             p.z = r;
+            p.touchedTile = true;
             if (p.vz < 0) {
                 double impact = -p.vz;
                 p.vz = impact * bounce(physics.tileRestitution);

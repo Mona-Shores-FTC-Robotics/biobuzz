@@ -38,17 +38,6 @@ public class AutoStudyTest {
         twin.launchers = 2;
         m.put(twin.name, twin);
         m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
-        // Mentor, 4 Oct 2026: a shield on the side toward the centre line, so a spill landing beside us
-        // doesn't roll across it. Driving south through the tunnel, intake first, that is the robot's left.
-        for (int reach : new int[] {3, 6}) {
-            RobotDesign shield = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, " + reach + " in shield");
-            shield.shieldReachIn = reach;
-            m.put(shield.name, shield);
-        }
-        RobotDesign shieldRight = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, 6 in shield right");
-        shieldRight.shieldReachIn = 6;
-        shieldRight.shieldSide = -1;
-        m.put(shieldRight.name, shieldRight);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);
@@ -231,7 +220,7 @@ public class AutoStudyTest {
                 int[] count = new int[8];
                 double[] sum = new double[8];
                 double points = 0, load = 0, held = 0;
-                int parked = 0, robots = 0, problems = 0;
+                int parked = 0, robots = 0, problems = 0, g409 = 0, g409Runs = 0;
                 // BIOBUZZ_AUTO_SEEDS="6,18": only these seeds (to write one run's log), instead of 1..runs.
                 String seedList = System.getenv("BIOBUZZ_AUTO_SEEDS");
                 long[] seeds = seedList != null
@@ -257,6 +246,8 @@ public class AutoStudyTest {
                         sum[i] += r.tipsAt.get(i);
                     }
                     points += r.autoPoints();
+                    g409 += r.g409;
+                    if (r.g409 > 0) g409Runs++;
                     load += r.cellLoad;
                     held += r.held;
                     for (AutoSim.RobotResult robot : r.robots) {
@@ -275,8 +266,8 @@ public class AutoStudyTest {
                 for (int i = 0; i < 6 && count[i] > 0; i++) {
                     line.append(String.format(Locale.ROOT, " TIP%d %2d/%d@%4.1f", i + 1, count[i], runs, sum[i] / count[i]));
                 }
-                line.append(String.format(Locale.ROOT, " | %.1f pts, parked %d/%d, CELL %.0f%%, held %.1f%s",
-                        points / runs, parked, robots, 100 * load / runs, held / runs,
+                line.append(String.format(Locale.ROOT, " | %.1f pts, parked %d/%d, CELL %.0f%%, held %.1f, G409 %.1f (%d runs)%s",
+                        points / runs, parked, robots, 100 * load / runs, held / runs, (double) g409 / runs, g409Runs,
                         problems == 0 ? "" : ", PROBLEMS " + problems));
                 System.out.println("STUDY " + line);
             }

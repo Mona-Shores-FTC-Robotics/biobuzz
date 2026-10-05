@@ -1,5 +1,5 @@
 """Qual-PartnerShootsRight, worked on apart from qual.py (which another session edits): the variants
-tried to make TIP 3 come in every run, and the winner, qual-right-v2.
+tried to make TIP 3 come in every run without fouling G409, and the baseline, qual-right-v3.
 
     python3 qual_right.py [runs] [variant ...]
 
@@ -9,30 +9,6 @@ partners.preloads_right on normal and slow tiles (AUTO_BUILDER_DIR as for autoge
 import sys
 import autogen
 from qual import *
-
-
-def via(r, card, mid, after=0.0, by=1.0):
-    """Make the path `card` (just added by r.go) turn through heading `mid`: a half turn otherwise goes
-    whichever way the follower picks, and the wrong way swings a side shield over the centre line."""
-    line = r.lines[-1]
-    assert line["id"] == card["lineId"]
-    h = line["heading"]
-    if h["type"] == "piecewise":
-        segs = h["piecewiseHeading"]["segments"]
-        lin = [g for g in segs if g["interpolationType"] == "linear"][0]
-        h0, h1 = lin["parameters"]["startDeg"], lin["parameters"]["endDeg"]
-    else:
-        h0, h1 = h["startDeg"], h["endDeg"]
-    m = (after + by) / 2
-    segs = []
-    if after > 0:
-        segs.append({"startProgress": 0, "endProgress": after, "interpolationType": "constant", "parameters": {"degrees": h0}})
-    segs += [{"startProgress": after, "endProgress": m, "interpolationType": "linear", "parameters": {"startDeg": h0, "endDeg": mid}},
-             {"startProgress": m, "endProgress": by, "interpolationType": "linear", "parameters": {"startDeg": mid, "endDeg": h1}}]
-    if by < 1:
-        segs.append({"startProgress": by, "endProgress": 1, "interpolationType": "constant", "parameters": {"degrees": h1}})
-    line["heading"] = {"type": "piecewise", "piecewiseHeading": {"segments": segs}}
-    return card
 
 
 def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False):
@@ -116,7 +92,7 @@ def third_load(r, tag="", wait_full=1100, catch3=False):
                    yes_label="No TIP: the GARDEN", no_label="TIP 3: PARK")]
 
 
-def right(name, shield_turns=False, **kw):
+def right(name, **kw):
     """As qual.shoots_right, with tail(**kw) after TIP 2."""
     r = Route(name, N_START, speed=50)
     ends(r)
@@ -127,10 +103,7 @@ def right(name, shield_turns=False, **kw):
     r.at = "N_FIRE"
     r.add(*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300))
     r.at = "FAR_FLOWER"
-    back = r.go("N_FIRE", turn_after=0.3, turn_by=1.0)
-    if shield_turns:  # through west (180): a shield on the left stays on our side of the centre line
-        via(r, back, 180, after=0.3)
-    r.add(back, fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
+    r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
     r.at = "N_FIRE"
     r.add(*tail(r, **kw))
     return r
@@ -144,10 +117,10 @@ VARIANTS = {  # name: tail options. 20 runs each, normal / slow tiles: TIP 3 in 
     "qual-right-sweep10": {"spill_at": "S_FIRE", "garden": "sweep", "sweep_y": 10},
     # ... and a third load from the GARDEN while TIP 3 hasn't started: 20 / 20, 75.8 / 76.
     "qual-right-v2": {"spill_at": "S_FIRE", "garden": "sweep", "sweep_y": 10, "third": True, "garden_ms": 1800},
-    # qual-right-v2 turning round through west at the far FLOWER, for a robot with a side shield
-    # (AutoStudyTest's "... 3 in shield" / "6 in shield"): its corner stays off the centre line.
-    "qual-right-v2-shield": {"spill_at": "S_FIRE", "garden": "sweep", "sweep_y": 10, "third": True, "garden_ms": 1800,
-                             "shield_turns": True},
+    # ... and, for G409, 500 ms more after TIP 2 settles before driving into its spill, so the spill
+    # is on the tiles first (v2 touched 4-5 falling pieces a TIP). The baseline.
+    "qual-right-v3": {"spill_at": "S_FIRE", "garden": "sweep", "sweep_y": 10, "third": True, "garden_ms": 1800,
+                      "extra": 500},
 }
 V2 = VARIANTS["qual-right-v2"]
 TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal / slow tiles, TIP 3 and points
@@ -162,7 +135,7 @@ TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal 
     "qual-right-catch3": {**V2, "catch3": True},
     "qual-right-stay3": {**V2, "third": False, "catch3": True},
 }
-WINNER = "qual-right-v2"
+WINNER = "qual-right-v3"
 
 
 def cls(name):

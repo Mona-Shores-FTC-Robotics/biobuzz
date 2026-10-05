@@ -124,6 +124,7 @@ public class SimRunTest {
         run.put("cellLoad", r.cellLoad);
         run.put("held", (double) r.held);
         run.put("robotsCollidedAt", time(r.robotsCollidedAt));
+        run.put("g409", (double) r.g409);
         List<Object> robots = new ArrayList<>();
         for (AutoSim.RobotResult robot : r.robots) {
             Map<String, Object> m = new LinkedHashMap<>();

@@ -115,19 +115,6 @@ final class RobotDesign {
     boolean launchesBothWays = false;
     /** Time for the slats to flip between forward and back (a guess until one is built). */
     double flipS = 0.3;
-    /**
-     * A shield along one side of the robot, flush with the frame's side and reaching this far past
-     * its front, to stop pieces rolling across in front of the intake (mentor, 4 Oct 2026: toward
-     * the centre line, so a spill landing beside us stays on our side). 0: none. With the frame it
-     * makes the footprint 18 × (18 + reach), so R105 allows at most 6 in.
-     */
-    double shieldReachIn = 0;
-    /** Which side the shield is on: +1 the robot's left (looking along its front), −1 its right. */
-    int shieldSide = 1;
-    /** How tall the shield stands: pieces bouncing higher pass over it. */
-    double shieldHeightIn = 6;
-    /** The shield's thickness, inside the frame's width. */
-    static final double SHIELD_THICKNESS_IN = 0.5;
 
     RobotDesign(String name) {
         this.name = name;
@@ -207,9 +194,6 @@ final class RobotDesign {
         d.compensatesMotion = compensatesMotion;
         d.launchesBothWays = launchesBothWays;
         d.flipS = flipS;
-        d.shieldReachIn = shieldReachIn;
-        d.shieldSide = shieldSide;
-        d.shieldHeightIn = shieldHeightIn;
         return d;
     }
 
@@ -217,7 +201,6 @@ final class RobotDesign {
     RobotDesign checked() {
         if (frameIn > 18) throw new IllegalArgumentException(name + ": frame over the 18 in start cube (R102)");
         if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
-        if (frameIn + shieldReachIn > 24) throw new IllegalArgumentException(name + ": shield over 24 in (R105)");
         // An intake can be wider than the frame only by folding out sideways, which uses R105's
         // 24 in across instead of reaching forward.
         if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameIn)) {
