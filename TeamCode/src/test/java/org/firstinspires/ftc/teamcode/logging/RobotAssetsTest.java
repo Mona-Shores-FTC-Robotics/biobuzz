@@ -96,19 +96,18 @@ public class RobotAssetsTest {
         assertEquals(-45.0, (Double) pitch.get("degrees"), EPS);
     }
 
-    /** The side-pen sketch is the size it was asked to be, and its door sorts the pieces. */
+    /** The side-wall sketch is the size it was asked to be, and its door sorts the pieces. */
     @Test
-    public void sidePensAre18StowedAnd24OutWithADoorOnlyPollenFits() {
-        assertArrayEquals(new double[] {18, 18, 18}, size(RobotAssets.penModel("x", 0, 4, 0, 14, 45, 0)), 1e-4);
-        assertArrayEquals(new double[] {18, 24, 18},
-                size(RobotAssets.penModel("x", RobotAssets.PEN_SLIDE_IN, 4, 0, 14, 45, 0)), 1e-4);
+    public void sideWallsAre18StowedAnd24OutWithADoorOnlyPollenFits() {
+        double[] stowed = size(RobotAssets.penModel("x", 0, 4, 0, 14, 45, 0));
+        double[] out = size(RobotAssets.penModel("x", RobotAssets.PEN_SLIDE_IN, 4, 0, 14, 45, 0));
+        assertArrayEquals(new double[] {18, 18}, new double[] {stowed[0], stowed[1]}, 1e-4);
+        assertArrayEquals(new double[] {24, 18}, new double[] {out[0], out[1]}, 1e-4);
+        assertTrue("R102 height", stowed[2] <= 18);
 
         double pollen = 2 * FieldSim.POLLEN_RADIUS_IN, nectar = 2 * FieldSim.NECTAR_RADIUS_IN;
         assertTrue("POLLEN fits under the door", RobotAssets.DOOR_TOP_IN > pollen);
         assertTrue("NECTAR does not", RobotAssets.DOOR_TOP_IN < nectar);
-        // Between the frame's panel and the slid-out wall.
-        double penWidth = RobotAssets.PEN_SLIDE_IN;
-        assertTrue("POLLEN fits in the pen", penWidth > pollen);
     }
 
     /**

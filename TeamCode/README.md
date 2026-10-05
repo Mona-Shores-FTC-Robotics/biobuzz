@@ -1378,14 +1378,14 @@ never reaches it.
   be in frame wherever the robot really saw them; if they are not, suspect the mount numbers or the
   pose before the tag code.
 
-**Design sketch: side pens.** The same build also writes `Robot_BIOBUZZPensIn` and
-`Robot_BIOBUZZPensOut` (**BIOBUZZ Side Pens (stowed)** / **(out)**): an 18 in cube whose side walls
-slide out 3 in each to 24 in wide, R105's width limit. Each side becomes a 3 in pen with a one-way
-flap at the bottom of its wall; the opening is 3.2 in high, so POLLEN (2.8 in) rolls in under it and
-NECTAR (3.6 in) is stopped. Copy them to `userAssets` with the robot and pick either as the model.
-It is a picture to argue about, not a design. Anything in a pen is CONTROLLED (the manual's
-definition: "stuck in, on, or under the ROBOT", and herding counts too), so G407's limit of 4
-counts the pens' POLLEN together with whatever the robot already holds.
+**Design sketch: side walls.** The same build also writes `Robot_BIOBUZZPensIn` and
+`Robot_BIOBUZZPensOut` (**BIOBUZZ Side Walls (stowed)** / **(out)**): an 18 in square robot whose
+side walls slide forward 6 in, making it 24 in long (R105 allows 18 × 24 in, 29 in tall). Each wall
+has a one-way flap at the bottom; the opening is 3.2 in high, so POLLEN (2.8 in) rolls in under it
+and NECTAR (3.6 in) is stopped. Copy them to `userAssets` with the robot and pick either as the
+model. It is a picture to argue about, not a design. Anything trapped by the walls is CONTROLLED
+(the manual's definition: "stuck in, on, or under the ROBOT", and herding counts too), so G407's
+limit of 4 counts it together with whatever the robot already holds.
 
 **Opening the log** (a 3D Field tab):
 
