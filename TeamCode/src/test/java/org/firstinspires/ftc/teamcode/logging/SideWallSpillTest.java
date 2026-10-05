@@ -68,6 +68,128 @@ public class SideWallSpillTest {
         System.out.println("SIDEWALLS G409 touches with walls out, all positions: " + g409);
     }
 
+    /**
+     * Which shape inside R105's 18 × 24 in catches a TIP's spill best (mentor, 5 Oct 2026): the long U
+     * (walls slide 6 in forward, 18 in mouth), the wide U (6 in wings at the front corners swing 3 in
+     * out each side, 24 in mouth, nothing forward), or no walls; each standing still, or creeping 8 in
+     * forward once the spill is on the tiles (G409 lets the robot touch pieces then). Walls go out as
+     * the TIP starts.
+     */
+    enum Shape {
+        NONE(0, 0, 18), LONG_U(RobotAssets.WALL_SLIDE_IN, 0, 18), WIDE_U(0, 3, 6);
+        final double slide, out, length;
+        Shape(double slide, double out, double length) {
+            this.slide = slide;
+            this.out = out;
+            this.length = length;
+        }
+    }
+
+    /** Every shape parks with its front-most point this far from the wall, short of the landing. */
+    static final double NOSE_FROM_WALL_IN = 35;
+    static final double CREEP_IN = 8, CREEP_IN_PER_S = 12;
+    /**
+     * "Gathered", 3 s after the TIP starts: in a 24 in wide zone from 15 in behind the robot's
+     * front-most point to 8 in past it, the same patch of floor for every shape.
+     */
+    static final double GATHER_AHEAD_IN = 8, GATHER_BEHIND_NOSE_IN = 15, GATHER_HALF_WIDTH_IN = 12;
+    static final int SHAPE_SEEDS = 40;
+
+    @Test
+    public void whichShapeGathersTheSpill() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        List<String> rows = new ArrayList<>();
+        for (Shape shape : Shape.values()) {
+            for (boolean creep : new boolean[] {false, true}) {
+                int pieces = 0, gathered = 0, g409 = 0, overFour = 0, between = 0;
+                for (long seed = 1; seed <= SHAPE_SEEDS; seed++) {
+                    int[] r = shapeRun(physics, seed, shape, creep);
+                    pieces += r[0];
+                    gathered += r[1];
+                    g409 += r[2];
+                    between = Math.max(between, r[3]);
+                    if (r[3] > 4) overFour++;
+                }
+                rows.add(String.format(Locale.ROOT,
+                        "SHAPES %-6s %-11s: %3d pieces; gathered %3.0f%% (%.2f a TIP); G409 touches %d; most inside the U %d (TIPs over 4: %d)",
+                        shape, creep ? "creep 8 in" : "stand", pieces, 100.0 * gathered / pieces,
+                        (double) gathered / SHAPE_SEEDS, g409, between, overFour));
+            }
+        }
+        for (String r : rows) System.out.println(r);
+    }
+
+    /**
+     * One TIP for a shape: {spilled pieces, gathered, G409 touches, most pieces between the arms at
+     * once}.
+     */
+    static int[] shapeRun(FieldSim.Physics physics, long seed, Shape shape, boolean creep) {
+        FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
+        sim.red.locked = true;
+        for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
+            HiveCalibration.settle(sim);
+        }
+        sim.red.locked = false;
+        boolean towardHighY = sim.red.raisedEnd() > 0;
+        double wallY = towardHighY ? 2 * FieldSim.CENTRE_IN : 0;
+        double out = towardHighY ? -1 : 1;
+        double half = RobotAssets.CHASSIS_SIZE_IN / 2;
+        double d = NOSE_FROM_WALL_IN - half - shape.slide;
+        double rx = ROBOT_X_IN, ry = wallY + out * d, heading = out * Math.PI / 2;
+        FieldSim.Bot bot = sim.main;
+        if (shape != Shape.NONE) {
+            bot.design = bot.design.copy(bot.design.name + ", " + shape);
+            bot.design.sideWallsSlideIn = shape.slide;
+            bot.design.sideWallsOutIn = shape.out;
+            bot.design.sideWallsLengthIn = shape.length;
+            bot.design.checked();
+            bot.wallsOut = 0;
+        }
+        sim.setRobot(rx, ry, heading, 0, 0, 0, false);
+        for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
+            sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+            for (int i = 0; i < 75 && sim.red.tipsStarted == 0; i++) sim.step(HiveCalibration.LOOP_S);
+        }
+        if (sim.red.tipsStarted == 0) return new int[4];
+        List<FieldSim.Piece> spill = new ArrayList<>();
+        for (FieldSim.Piece p : sim.pieces) {
+            if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == sim.red.alliance) spill.add(p);
+        }
+        double dt = 0.01, moved = 0;
+        int most = 0;
+        for (int i = 0; i < 300; i++) {
+            double t = i * dt;
+            if (shape != Shape.NONE) bot.wallsOut = Math.min(1, bot.wallsOut + dt / bot.design.sideWallsTravelS);
+            double v = creep && t >= 1.5 && moved < CREEP_IN ? CREEP_IN_PER_S : 0;
+            moved += v * dt;
+            sim.setRobot(rx + Math.cos(heading) * moved, ry + Math.sin(heading) * moved, heading,
+                    v * Math.cos(heading), v * Math.sin(heading), 0, false);
+            sim.step(dt);
+            int inside = 0;
+            for (FieldSim.Piece p : spill) {
+                if (p.cell != null || shape == Shape.NONE) continue;
+                double[] l = local(p, rx + Math.cos(heading) * moved, ry + Math.sin(heading) * moved, heading);
+                double reach = half + shape.slide, across = half + shape.out;
+                if (l[0] > half - shape.length && l[0] < reach && Math.abs(l[1]) < across) {
+                    if (l[0] > half || Math.abs(l[1]) > half) inside++;
+                }
+            }
+            most = Math.max(most, inside);
+        }
+        double fx = rx + Math.cos(heading) * moved, fy = ry + Math.sin(heading) * moved;
+        int n = 0, gathered = 0, g409 = 0;
+        for (FieldSim.Piece p : spill) {
+            if (p.cell != null) continue;
+            n++;
+            double[] l = local(p, fx, fy, heading);
+            double fromNose = l[0] - (half + shape.slide);  // the same zone for every shape: from its nose
+            if (fromNose > -GATHER_BEHIND_NOSE_IN && fromNose < GATHER_AHEAD_IN && Math.abs(l[1]) < GATHER_HALF_WIDTH_IN) gathered++;
+            if (p.robotBeforeTile) g409++;
+        }
+        return new int[] {n, gathered, g409, most};
+    }
+
     /** Where the demo robot parks: centred this far from the wall, where the walls help most. */
     static final double DEMO_CENTRE_FROM_WALL_IN = 20;
 

@@ -1127,20 +1127,21 @@ final class FieldSim {
             hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
                     bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
         }
-        if (d.sideWallsSlideIn > 0 && bot.wallsOut > 0) {
-            // RobotDesign#sideWallsSlideIn: on each side a solid strip from the top of the door to
-            // the top of the wall, and below it the flap, which stops a piece only from inside.
+        if ((d.sideWallsSlideIn > 0 || d.sideWallsOutIn > 0) && bot.wallsOut > 0) {
+            // RobotDesign#sideWallsSlideIn / sideWallsOutIn: on each side a solid strip from the top of
+            // the door to the top of the wall, and below it the flap, which stops a piece only from inside.
             double t = RobotAssets.WALL_THICKNESS_IN / 2;
-            double lx = bot.wallsOut * d.sideWallsSlideIn;
+            double lx = half - d.sideWallsLengthIn / 2 + bot.wallsOut * d.sideWallsSlideIn;
             double ly = -(p.x - bx) * s + (p.y - by) * c;
             for (int side = -1; side <= 1; side += 2) {
-                double wy = side * (half - t);
+                double wy = side * (half - t + bot.wallsOut * d.sideWallsOutIn);
                 double cx = bx + lx * c - wy * s, cy = by + lx * s + wy * c;
                 double wvx = bot.vx - bot.w * (cy - by), wvy = bot.vy + bot.w * (cx - bx);
-                hit |= box(p, cx, cy, bh, half, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
+                double hl = d.sideWallsLengthIn / 2;
+                hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
                         wvx, wvy, bot.w, bounce(robotRestitution));
                 if (Math.abs(ly) < Math.abs(wy)) {
-                    hit |= box(p, cx, cy, bh, half, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
+                    hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
                             wvx, wvy, bot.w, bounce(robotRestitution));
                 }
             }

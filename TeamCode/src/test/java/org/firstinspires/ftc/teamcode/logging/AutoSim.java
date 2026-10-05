@@ -527,11 +527,11 @@ public final class AutoSim {
      */
     private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut) {
         List<double[]> out = corners(pose, design.frameIn);
-        if (design.sideWallsSlideIn > 0 && wallsOut > 0) {  // the side walls' front ends
+        if ((design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) && wallsOut > 0) {  // the side walls' front ends
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
             double lx = design.frameIn / 2 + wallsOut * design.sideWallsSlideIn;
             for (int side = -1; side <= 1; side += 2) {
-                double ly = side * design.frameIn / 2;
+                double ly = side * (design.frameIn / 2 + wallsOut * design.sideWallsOutIn);
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
@@ -796,7 +796,7 @@ public final class AutoSim {
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
             prev = pose;
             boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
-            if (design.sideWallsSlideIn > 0) sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
+            if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
                 for (double[] c : outline(pose, design, now, body.wallsOut)) {
@@ -912,13 +912,14 @@ public final class AutoSim {
         void putWalls(WpiLog log, long us) throws IOException {
             wallsLogged = true;
             double x = body.wallsOut * design.sideWallsSlideIn * AdvantageScopeFrame.METERS_PER_INCH;
+            double y = body.wallsOut * design.sideWallsOutIn * AdvantageScopeFrame.METERS_PER_INCH;
             log.put(keyPrefix + "/SideWalls/Out", body.wallsOut, us);
-            log.putPose3dArray(keyPrefix + "/SideWalls/Components", new double[] {x, 0, 0, 1, 0, 0, 0, x, 0, 0, 1, 0, 0, 0}, us);
+            log.putPose3dArray(keyPrefix + "/SideWalls/Components", new double[] {x, y, 0, 1, 0, 0, 0, x, -y, 0, 1, 0, 0, 0}, us);
         }
 
         /** The robot standing where it is, for the disabled time before and after the run. */
         void putStill(WpiLog log, long us) throws IOException {
-            if (design.sideWallsSlideIn > 0 && body != null) putWalls(log, us);
+            if ((design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0) && body != null) putWalls(log, us);
             double[] pose = pedro(drive.pose);
             robot.putPose(log, pose[0], pose[1], pose[2], us);
             log.put(keyPrefix + "/Launcher/Spinning", false, us);

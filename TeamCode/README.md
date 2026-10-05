@@ -1396,6 +1396,23 @@ log has `/SideWalls/Out` (0 in, 1 out) and `/SideWalls/Components`. To watch: **
 Layout** with `sim-review/advantagescope-layout-walls.json`, which is the usual layout with our robot
 drawn as **BIOBUZZ Robot (side walls)** and its walls moving.
 
+**Which shape (`SideWallSpillTest.whichShapeGathersTheSpill`, 5 Oct 2026).** R105 lets the robot grow to
+18 × 24 in after the start, so a U can be long (arms slide 6 in forward, 18 in mouth) or wide (wings
+at the front corners swing 3 in out each side, 24 in mouth, nothing forward), not both
+(`RobotDesign.checked` refuses a design that is). Each parked with its front-most point 35 in from the
+wall, short of the landing, walls out as the TIP starts; the spill gathered within 24 in across, from
+15 in behind that point to 8 in past it, 3 s later. 40 TIPs each, no G409 touches in any:
+
+| Shape | Standing | Creeping 8 in once the spill is on the tiles |
+|---|---|---|
+| No walls | 13% (0.8 a TIP) | 18% (1.1) |
+| **Long U** | **33% (2.0)** | **39% (2.3)** |
+| Wide U | 14% (0.8) | 19% (1.2) |
+
+The arms that reach forward are what stop the spill scattering sideways from just ahead of the robot;
+a wider mouth at the frame's front adds almost nothing. With the creep the long U held 4 at most at
+once, G407's limit: count what the robot already holds before building it bigger.
+
 Every simulated run now also counts **G409**: a spilled piece a robot touched before it touched
 anything else (the tiles, a wall, the HIVE's feet, another robot, or a piece that already had).
 Each is a `sim: G409: ...` event on the Console and `g409` in `result.json`.

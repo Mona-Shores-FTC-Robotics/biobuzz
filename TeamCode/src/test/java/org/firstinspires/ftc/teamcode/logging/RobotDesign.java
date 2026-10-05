@@ -136,6 +136,14 @@ final class RobotDesign {
      * the footprint 18 × (18 + slide), so R105 allows at most 6 in.
      */
     double sideWallsSlideIn = 0;
+    /**
+     * The other shape that fits R105's 18 × 24 in: the walls swing this far out sideways instead of
+     * forward (a "wide U", 24 in across at most, so its arms cannot also reach forward). 0: the
+     * long U, walls sliding forward by sideWallsSlideIn.
+     */
+    double sideWallsOutIn = 0;
+    /** How long each wall is, front to back, ending at the frame's front (plus any forward slide). */
+    double sideWallsLengthIn = 18;
     /** Seconds the walls take to slide all the way out or in. A guess until they are built. */
     double sideWallsTravelS = 0.3;
     /**
@@ -228,6 +236,8 @@ final class RobotDesign {
         d.shieldSide = shieldSide;
         d.shieldHeightIn = shieldHeightIn;
         d.sideWallsSlideIn = sideWallsSlideIn;
+        d.sideWallsOutIn = sideWallsOutIn;
+        d.sideWallsLengthIn = sideWallsLengthIn;
         d.sideWallsTravelS = sideWallsTravelS;
         d.sideWallsDeployS = sideWallsDeployS;
         return d;
@@ -239,6 +249,10 @@ final class RobotDesign {
         if (frameIn + intakeReachIn > 24) throw new IllegalArgumentException(name + ": reach over 24 in (R105)");
         if (frameIn + shieldReachIn > 24) throw new IllegalArgumentException(name + ": shield over 24 in (R105)");
         if (frameIn + sideWallsSlideIn > 24) throw new IllegalArgumentException(name + ": side walls over 24 in (R105)");
+        if (frameIn + 2 * sideWallsOutIn > 24) throw new IllegalArgumentException(name + ": side walls over 24 in across (R105)");
+        if (sideWallsSlideIn > 0 && sideWallsOutIn > 0) {
+            throw new IllegalArgumentException(name + ": side walls both forward and out don't fit 18 x 24 in (R105)");
+        }
         // An intake can be wider than the frame only by folding out sideways, which uses R105's
         // 24 in across instead of reaching forward.
         if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameIn)) {
