@@ -96,7 +96,7 @@ robot 3 s after the TIP (15 in behind its front-most point to 8 in past it, 24 i
 
 Thin arm tips can wait about 1 in nearer than a robot's front face (36 in against 35); with the front
 face at 30–34 in, every touch is on the arms. Pictures of each step are in
-`sim-review/portfolio/spill-window/`.
+`doc/portfolio/spill-window/`.
 
 **Surround the landing instead** (`SideWallSpillTest.surroundTheLanding`, mentor, 5 Oct 2026): where the
 spill lies 3 s after the TIP, measured from the centre of where it lands (58, 41 in from the wall),
