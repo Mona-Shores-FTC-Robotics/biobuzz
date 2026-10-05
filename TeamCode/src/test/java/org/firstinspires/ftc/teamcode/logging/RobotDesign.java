@@ -35,6 +35,18 @@ final class RobotDesign {
     /** How far the intake reaches past the frame once the match starts. */
     double intakeReachIn = 0;
     double intakeWidthIn = 14;
+    /**
+     * How tall the intake's opening is: a loose piece is taken only below this (its centre, or with
+     * {@link #intakeOnContact} the whole piece). POLLEN is 2.8 in across, NECTAR 3.6 in.
+     */
+    double intakeHeightIn = 6;
+    /**
+     * Whether the intake takes a loose piece only once it touches the intake's face (a roller inside
+     * the frame): its centre no further out than its radius plus {@link FieldSim#INTAKE_CONTACT_SLACK_IN}.
+     * Otherwise a piece is taken with its centre up to 3 in out, before it touches. FLOWER pickups keep
+     * the 3 in either way (the robot stops just short of the FLOWER's tube).
+     */
+    boolean intakeOnContact = false;
     boolean intakeAtBack = false;
     /**
      * Time between two pieces through the intake, picking up off the tiles: 4 take about 1 s
@@ -148,12 +160,16 @@ final class RobotDesign {
     }
 
     /**
-     * The spring hood with an intake as wide as the frame, its corners shaped to steer pieces off
-     * a wall into the middle: it takes a piece anywhere across its 18 in front.
+     * The robot the build team is building (4 Oct 2026): the spring hood with an intake across the
+     * front (the name is from when it took a piece anywhere across the 18 in front).
      */
     static RobotDesign springHoodFullWidth() {
         RobotDesign d = springHood().copy("spring hood, full-width intake");
-        d.intakeWidthIn = 18;
+        // Mentor, 5 Oct 2026, conservative until the intake is built: the intake is the frame's front
+        // edge, 90% of its width, centred, a 5 in tall opening, and takes a piece only when it touches.
+        d.intakeWidthIn = 0.9 * d.frameIn;
+        d.intakeHeightIn = 5;
+        d.intakeOnContact = true;
         return d;
     }
 
@@ -169,6 +185,8 @@ final class RobotDesign {
         d.frameIn = frameIn;
         d.intakeReachIn = intakeReachIn;
         d.intakeWidthIn = intakeWidthIn;
+        d.intakeHeightIn = intakeHeightIn;
+        d.intakeOnContact = intakeOnContact;
         d.intakeAtBack = intakeAtBack;
         d.intakeIntervalS = intakeIntervalS;
         d.intakeGrabChance = intakeGrabChance;

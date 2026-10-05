@@ -820,7 +820,9 @@ public final class AutoSim {
         double[] intakeZone(double[] pose, boolean on) {
             if (!on) return new double[0];
             double mouth = design.frameIn / 2 + design.intakeReachIn, w = design.intakeWidthIn / 2;
-            double near = mouth - 2, far = mouth + 3, sign = design.intakeAtBack ? -1 : 1;
+            // Drawn for a POLLEN (FieldSim.inIntake): touching the face, or up to 3 in out.
+            double reach = design.intakeOnContact ? FieldSim.POLLEN_RADIUS_IN + FieldSim.INTAKE_CONTACT_SLACK_IN : 3;
+            double near = mouth - 2, far = mouth + reach, sign = design.intakeAtBack ? -1 : 1;
             double c = Math.cos(pose[2]), sn = Math.sin(pose[2]);
             List<double[]> pts = new ArrayList<>();
             for (double[] k : new double[][] {{near, -w}, {far, -w}, {far, w}, {near, w}, {near, -w}}) {

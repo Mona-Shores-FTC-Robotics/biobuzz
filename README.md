@@ -6,24 +6,30 @@ This is the `claude/simulator` branch: the Autos, the simulator that scores them
 ## Qualifier Autos: the baseline (no walls)
 
 For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-an 18 in wide front intake, no side walls. The simulated intake takes a piece whose centre is under 6 in
-up and within 3 in of the front face, one every 0.35 s, 85% of the time, if it moves under 60 in/s
-relative to the robot; the robot is a 14 in tall box that pieces bounce off. Those are placeholders
-until the intake is built and timed. Points are average alliance AUTO points over 20 simulated runs,
+a front intake, no side walls. The simulated intake is conservative until the real one is built: on
+the front edge of the 18 in frame, 90% of its width (16.2 in, centred), a 5 in tall opening (POLLEN is
+2.8 in across, NECTAR 3.6 in), taking a loose piece only when it touches, one every 0.35 s, 85% of the
+time, if it moves under 60 in/s relative to the robot. The robot is a 14 in tall box that pieces
+bounce off. (A FLOWER's bottom POLLEN is still taken from 3 in, since the robot stops just short of the
+FLOWER's tube.) Points are average alliance AUTO points over 20 simulated runs,
 normal tiles / tiles with 3× the friction (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts
 spilled pieces our robot touches before they reach the tiles (the rule: don't catch or deflect a
-TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 12:55 UTC.
+TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 14:13 UTC.
 
 | Auto | Partner | Points | 3 TIPs | G409 | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight v3** (`qual-right-v3`) | At the right start: fires its 4 at once (TIP 1), then parks | **72.5 / 71.8** | 18 / 17 of 20 | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-typical.wpilog) |
-| Qual-PartnerStages (`qual-partner-stages`): **work in progress**, another session | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | 58.5 / 62 | 7 / 11 of 20 | 10 / 5.5 a run: not safe yet | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-stages.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-partner-stages.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-partner-stages.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-typical.wpilog) |
+| **Qual-PartnerShootsRight v3** (`qual-right-v3`) | At the right start: fires its 4 at once (TIP 1), then parks | **70.3 / 67.5** | 17 / 15 of 20 | **0.1 / 0** (one run: after AUTO ends, see below) | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-typical.wpilog) |
+| Qual-PartnerStages (`qual-partner-stages`): **work in progress**, another session | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | 59.8 / 58.0 | 8 / 9 of 20 | 10.4 / 5.5 a run: not safe yet | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-stages.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-partner-stages.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-partner-stages.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-typical.wpilog) |
 
 What Qual-PartnerShootsRight v3 does: we start at the left start facing the HIVE, spun up. The partner's
 4 make TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). Then we let TIP 2's spill
 land, drive south through it and the tunnel, fire what we caught, sweep west along the wall through TIP
 1's leftovers into the GARDEN, fire that load, and PARK. If TIP 3 still hasn't started, one more load from
 the GARDEN first. How it was tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+
+The one G409 touch (normal tiles, seed 16): the extra GARDEN load is fired just before 30 s, TIP 3 comes
+at 30.6 s (a TIP that completes in the 8 s after AUTO still counts), and its spill falls on our robot,
+which is disabled where it fired. Firing that load from further back would avoid it.
 
 - **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of 20 runs on normal tiles, from the newest

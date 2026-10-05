@@ -20,8 +20,8 @@ import java.util.Map;
  *
  * <p>Two things come out of it in a 3D Field tab:
  * <ul>
- *   <li><b>You can see the camera on the robot.</b> The model is a chassis slab, an orange bar on
- *       its front edge (so heading reads at a glance), a post, the Limelight as a dark box at the
+ *   <li><b>You can see the camera on the robot.</b> The model is a chassis slab, the intake (orange) on
+ *       its front edge, as the simulator models it (so heading reads at a glance), a post, the Limelight as a dark box at the
  *       measured lens position and angle, and a green rod along the optical axis.</li>
  *   <li><b>You can look through it.</b> The {@code config.json} declares the Limelight as a fixed
  *       camera, so right-clicking the field view offers {@value #CAMERA_NAME}: the view from the
@@ -60,6 +60,8 @@ final class RobotAssets {
     static final double CHASSIS_SIZE_IN = 18.0;
     static final double CHASSIS_BOTTOM_IN = 0.5;
     static final double CHASSIS_TOP_IN = 3.0;
+    /** How deep the intake block is drawn, inside the frame's front edge. Drawing only. */
+    static final double INTAKE_DEPTH_IN = 1.5;
     /** Limelight 3A housing, roughly: depth along the lens axis, width, height. */
     static final double[] LIMELIGHT_BOX_IN = {1.0, 3.0, 2.0};
     static final double MAST_SIZE_IN = 1.0;
@@ -109,7 +111,7 @@ final class RobotAssets {
         return r;
     }
 
-    /** The model: chassis, front marker, Limelight and its view rod, in the robot frame, metres. */
+    /** The model: chassis, intake, Limelight and its view rod, in the robot frame, metres. */
     static Glb model(double forwardIn, double leftIn, double upIn, double pitchDeg, double yawDeg) {
         MeshBuilder b = new MeshBuilder();
         double h = CHASSIS_SIZE_IN / 2;
@@ -117,9 +119,12 @@ final class RobotAssets {
                 new double[] {0, 0, (CHASSIS_BOTTOM_IN + CHASSIS_TOP_IN) / 2},
                 new double[] {CHASSIS_SIZE_IN, CHASSIS_SIZE_IN, CHASSIS_TOP_IN - CHASSIS_BOTTOM_IN},
                 IDENTITY_3);
-        b.box("Front", new double[] {1.0, 0.45, 0.0, 1},
-                new double[] {h - 1.0, 0, CHASSIS_TOP_IN + 0.25},
-                new double[] {2.0, CHASSIS_SIZE_IN - 2.0, 0.5},
+        // The intake, as the simulator takes pieces (RobotDesign#springHoodFullWidth): on the frame's
+        // front edge, its width and opening height. It also shows which way the robot faces.
+        RobotDesign intake = RobotDesign.springHoodFullWidth();
+        b.box("Intake", new double[] {1.0, 0.45, 0.0, 1},
+                new double[] {h - INTAKE_DEPTH_IN / 2, 0, (CHASSIS_BOTTOM_IN + intake.intakeHeightIn) / 2},
+                new double[] {INTAKE_DEPTH_IN, intake.intakeWidthIn, intake.intakeHeightIn - CHASSIS_BOTTOM_IN},
                 IDENTITY_3);
 
         // The lens is at the mount point; the housing sits behind it along the optical axis.

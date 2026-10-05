@@ -1278,7 +1278,7 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
 **One-time setup: our robot, with its Limelight.** `RobotAssets` draws a simple robot (chassis, an
-orange bar on the front, the Limelight on a post with a green rod along where it looks) and declares
+the intake in orange on its front edge (90% of its width, 5 in tall, as the simulator takes pieces), the Limelight on a post with a green rod along where it looks) and declares
 the Limelight as an AdvantageScope *fixed camera*, both from `CameraMount`'s measured numbers. No
 download needed:
 

@@ -7,15 +7,16 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 ## The qualifier Autos
 
 Two Autos, for the two partners we expect most in qualification, for the two-wheel launcher robot (the
-simulator's "spring hood, full-width intake", speed 50; no side walls). Alliance AUTO points over 20
+simulator's "spring hood, full-width intake", speed 50; no side walls; since 5 Oct 14:13 UTC its intake
+is conservative: the frame's front edge, 16.2 in wide, 5 in tall, taking a piece only on contact). Alliance AUTO points over 20
 runs, normal tiles / tiles with 3× the friction; how many of the 20 made 3 TIPs; and G409, spilled
 pieces our robot touched before they reached the tiles (per run; must be 0). Links to watch them and
 their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v3 (`qual-right-v3`, `qual_right.py`) | `partner-preloads-right` | **72.5 / 71.8** | **18 / 17** | **0 / 0** | 5 Oct 2026 12:55 |
-| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`, another session) | `partner-stage-exit` | 58.5 / 62 (work in progress) | 7 / 11 | 10 / 5.5 | 5 Oct 2026 12:56 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v3 (`qual-right-v3`, `qual_right.py`) | `partner-preloads-right` | **70.3 / 67.5** | **17 / 15** | **0.1 / 0** | 5 Oct 2026 14:13 |
+| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`, another session) | `partner-stage-exit` | 59.8 / 58.0 (work in progress) | 8 / 9 | 10.4 / 5.5 | 5 Oct 2026 14:13 |
 
 `python3 qual_right.py 20 qual-right-v3` and `python3 qual.py 20 stages` export and simulate them.
 qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer worked on.
@@ -48,6 +49,7 @@ tunnel once it has landed, then TIP 1's leftovers and the GARDEN. Each step from
 | Go to the GARDEN by a sweep west along y 10, intake first: TIP 1's NECTAR and POLLEN lie there (2–8 pieces at 17 s; NECTAR is 1.65 POLLEN) | 75 / 76 | 19 / 20 | |
 | v2: no TIP 3 yet (the right CELL still up) after the GARDEN's shots: back to the GARDEN, look again, fire what it holds | 75.8 / 76 | 20 / 20 | 5.4 / 1.6 |
 | **v3**: wait 500 ms more after TIP 2 settles, so its spill is on the tiles before we drive in | **72.5 / 71.8** | **18 / 17** | **0 / 0** |
+| v3 with the conservative intake (5 Oct 14:13: 16.2 in wide, 5 in tall, on contact; every row above had the old one, 18 in and grabbing up to 3 in out) | 70.3 / 67.5 | 17 / 15 | 0.1 / 0 |
 
 v2 reached TIP 2's landing 0.1–0.2 s before the last pieces did and drove into 4–5 of them each match
 (G409's example C: positioning so falling pieces hit the robot "with an advantageous vector"). Waiting

@@ -1306,6 +1306,9 @@ final class FieldSim {
         return true;
     }
 
+    /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */
+    static final double INTAKE_CONTACT_SLACK_IN = 0.25;
+
     private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
@@ -1313,7 +1316,11 @@ final class FieldSim {
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
         double mouth = design.frameIn / 2 + design.intakeReachIn;
-        return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < 6;
+        if (design.intakeOnContact && p.flower < 0) {
+            return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
+                    && Math.abs(ly) < design.intakeWidthIn / 2 && p.z + p.kind.radius <= design.intakeHeightIn;
+        }
+        return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < design.intakeHeightIn;
     }
 
     private void capture(Bot bot, Piece p) {
