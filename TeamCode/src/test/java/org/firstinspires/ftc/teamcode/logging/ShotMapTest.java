@@ -29,7 +29,7 @@ public class ShotMapTest {
     @Test
     public void map() throws Exception {
         if (System.getenv("BIOBUZZ_SHOT_MAP") == null) return;
-        RobotDesign[] designs = {RobotDesign.standard(), RobotDesign.springHood(), RobotDesign.buildersPrototype()};
+        RobotDesign[] designs = {RobotDesign.standard(), RobotDesign.springHoodFullWidth(), RobotDesign.buildersPrototype()};
         String scatter = System.getenv("BIOBUZZ_SHOT_SCATTER");
         FieldSim.spreadScale = scatter == null ? 1 : Double.parseDouble(scatter);
         try {

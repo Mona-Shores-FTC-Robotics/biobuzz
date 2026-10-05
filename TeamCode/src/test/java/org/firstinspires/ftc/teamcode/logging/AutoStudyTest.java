@@ -44,6 +44,8 @@ public class AutoStudyTest {
         RobotDesign protoWide = proto.copy(proto.name + ", 13.5 in intake");
         protoWide.intakeWidthIn = 0.9 * protoWide.frameIn;
         m.put(protoWide.name, protoWide);
+        RobotDesign option3 = RobotDesign.buildersOption3();
+        m.put(option3.name, option3);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

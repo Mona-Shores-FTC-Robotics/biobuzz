@@ -8,23 +8,26 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 Two Autos, for the two partners we expect most in qualification, for the two-wheel launcher robot (the
 simulator's "spring hood, full-width intake", speed 50; no side walls; since 5 Oct 14:13 UTC its intake
-is conservative: the frame's front edge, 16.2 in wide, 5 in tall, taking a piece only on contact). Alliance AUTO points over 20
+is conservative: the frame's front edge, 16.2 in wide, 5 in tall, taking a piece only on contact; since
+5 Oct 15:49 UTC its launcher is the build team's: flywheels near the back throwing up into a deflector,
+the piece leaving 4 in behind the centre, 12 in up, at 75°). Alliance AUTO points over 20
 runs, normal tiles / tiles with 3× the friction; how many of the 20 made 3 TIPs; and G409, spilled
 pieces our robot touched before they reached the tiles (per run; must be 0). Links to watch them and
 their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v3 (`qual-right-v3`, `qual_right.py`) | `partner-preloads-right` | **70.3 / 67.5** | **17 / 15** | **0.1 / 0** | 5 Oct 2026 14:13 |
-| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`, another session) | `partner-stage-exit` | 59.8 / 58.0 (work in progress) | 8 / 9 | 10.4 / 5.5 | 5 Oct 2026 14:13 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v3 (`qual-right-v3`, `qual_right.py`) | `partner-preloads-right` | **69.8 / 68.0** | **17 / 16** | **0.1 / 0.1** | 5 Oct 2026 15:49 |
+| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`, another session) | `partner-stage-exit` | 54.6 / 59.0 (work in progress) | 6 / 8 | 9.0 / 4.3 | 5 Oct 2026 15:49 |
 
 `python3 qual_right.py 20 qual-right-v3` and `python3 qual.py 20 stages` export and simulate them.
 qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer worked on.
 
 **Rules for both** (mentor review):
 
-- **Every shot is straight on**: on the CELL's axis (x 57.5), y 13–29 for the right CELL, y 113–129 for
-  the left (109 is too close). Pieces picked up anywhere are carried there.
+- **Every shot is straight on**: on the CELL's axis (x 57.5), within the launcher's band (ShotMapTest, both
+  pieces score 5 in 6). With the launcher near the back (since 5 Oct 15:49): y 17–33 for the right CELL,
+  109–125 for the left; before, 13–29 and 113–129. Pieces picked up anywhere are carried there.
 - **Waiting for a TIP, face the HIVE** (its camera on it).
 - **The tunnel is the road**: square through it under the HIVE (x 57.5), turning only clear of the frame.
 - **Let a spill land before driving into it** (G409: "A ROBOT may not catch or deflect a SCORING ELEMENT
@@ -50,6 +53,7 @@ tunnel once it has landed, then TIP 1's leftovers and the GARDEN. Each step from
 | v2: no TIP 3 yet (the right CELL still up) after the GARDEN's shots: back to the GARDEN, look again, fire what it holds | 75.8 / 76 | 20 / 20 | 5.4 / 1.6 |
 | **v3**: wait 500 ms more after TIP 2 settles, so its spill is on the tiles before we drive in | **72.5 / 71.8** | **18 / 17** | **0 / 0** |
 | v3 with the conservative intake (5 Oct 14:13: 16.2 in wide, 5 in tall, on contact; every row above had the old one, 18 in and grabbing up to 3 in out) | 70.3 / 67.5 | 17 / 15 | 0.1 / 0 |
+| ... and the build team's launcher (5 Oct 15:49: near the back, the piece leaving 4 in behind the centre and 12 in up instead of 4 in ahead and 17 in up) | 69.8 / 68.0 | 17 / 16 | 0.1 / 0.1 |
 
 v2 reached TIP 2's landing 0.1–0.2 s before the last pieces did and drove into 4–5 of them each match
 (G409's example C: positioning so falling pieces hit the robot "with an advantageous vector"). Waiting
@@ -97,9 +101,10 @@ PARK, 1.5 in each (`qual_right.right(robot="proto")`, `qual-right-v3-proto`). Ru
 
 | Robot | Points | 3 TIPs |
 |---|---|---|
-| The design above (18 in, intake 16.2 in) | 70.3 / 67.5 | 17 / 15 |
+| The design above (18 in, intake 16.2 in; with its launcher as on 15:49) | 69.8 / 68.0 | 17 / 16 |
 | The prototype, if its intake were 13.5 in (90% of its frame) | 62.8 / 62.5 | 11 / 10 |
 | **The prototype (intake 8 in)** | **57.3 / 54.8** | **6 / 3** |
+| **Option 3** (`RobotDesign.buildersOption3`, about 14.5 in, intake about 14 in with funnel wheels at the front corners; launcher as the design above; `qual-right-v3-option3`, run 15:49) | **64.5 / 60.8** | **12 / 9** |
 
 Why: a narrower intake catches less of each spill and of TIP 1's leftovers, so TIP 3 comes later
 (about 29 s) or not at all, and the robot is often still busy at 30 s and misses PARK. Without the

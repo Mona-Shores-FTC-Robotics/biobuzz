@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-partner-stages.pp",
-  "spec": "QualPartnerStagesAuto,PartnerStageExitAuto@50",
+  "pp": "TeamCode/autos/qual-right-v3.pp",
+  "spec": "QualRightV3Auto,PartnerPreloadsRightAuto@50",
   "design": "spring hood, full-width intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,7 +28,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-partner-stages.pp",
-    "SavedBy": "README, qualifier Autos baseline (conservative intake)"
+    "AutoSource": "qual-right-v3.pp",
+    "SavedBy": "README, qualifier Autos baseline (launcher near the back)"
   }
 }

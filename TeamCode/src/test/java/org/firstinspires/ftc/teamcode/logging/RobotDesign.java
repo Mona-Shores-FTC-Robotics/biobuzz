@@ -179,6 +179,10 @@ final class RobotDesign {
         d.intakeWidthIn = 0.9 * d.frameIn;
         d.intakeHeightIn = 5;
         d.intakeOnContact = true;
+        // The launcher as the build team's prototypes have it (5 Oct 2026): flywheels near the back that
+        // throw a piece up into a deflector, which sends it off forward at the hood's angle from its lip.
+        d.exitForwardIn = -4;
+        d.exitHeightIn = 12;
         return d;
     }
 
@@ -197,6 +201,20 @@ final class RobotDesign {
         d.exitForwardIn = -3; // two flywheels about 3 in behind the centre ...
         d.exitHeightIn = 8; // ... about 8 in up; the angle stays the spring hood's 75 deg (unmeasured)
         d.bodyHeightIn = 9; // frame and flywheel housings; the camera masts are thin and not modelled
+        return d;
+    }
+
+    /**
+     * The build team's third option (5 Oct 2026 CAD, read off it with the pieces as a scale, +-15%): a
+     * low chassis about 14.5 in square with an intake across the whole front, two funnel wheels at its
+     * front corners steering pieces in, so about 14 in wide. Its launcher isn't drawn yet: it has
+     * {@link #springHoodFullWidth}'s, near the back.
+     */
+    static RobotDesign buildersOption3() {
+        RobotDesign d = springHoodFullWidth().copy("builders' option 3 (5 Oct CAD)");
+        d.frameIn = 14.5;
+        d.intakeWidthIn = 14;
+        d.bodyHeightIn = 6;
         return d;
     }
 

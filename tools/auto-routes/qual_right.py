@@ -95,7 +95,7 @@ def third_load(r, tag="", wait_full=1100, catch3=False):
 # How far each robot's front face is from its centre: points where the front meets something (the
 # start wall behind, a FLOWER, the GARDEN) move by the difference from the 18 in robot the route was
 # drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
-FRONT_IN = {"baseline": 9.0, "proto": 7.5}  # proto: RobotDesign.buildersPrototype, 15 in
+FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in, buildersOption3 14.5 in
 
 
 def right(name, robot="baseline", n_fire=None, **kw):
@@ -139,7 +139,8 @@ VARIANTS = {  # name: tail options. 20 runs each, normal / slow tiles: TIP 3 in 
                       "extra": 500},
 }
 V2 = VARIANTS["qual-right-v2"]
-PROTO = {"qual-right-v3-proto": {**VARIANTS["qual-right-v3"], "robot": "proto"}}
+PROTO = {"qual-right-v3-proto": {**VARIANTS["qual-right-v3"], "robot": "proto"},
+         "qual-right-v3-option3": {**VARIANTS["qual-right-v3"], "robot": "option3"}}
 # G409, 5 Oct (from the side-walls session's SideWallSpillTest: a plain robot facing the HIVE on its
 # axis, x 58.0, is clear of the spill with its front face 35 in or less from that wall): N_FIRE, where we
 # fire at the left CELL and wait for TIP 2, moved from front face 36.5 in (y 114) to 35 in (y 115.5),

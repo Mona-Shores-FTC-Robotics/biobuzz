@@ -45,6 +45,10 @@ public class RobotAssetsTest {
         File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
         Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
         prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
+        File third = new File(dir.getParentFile(), RobotAssets.OPTION3_FOLDER);
+        Glb option3 = Glb.read(Files.readAllBytes(new File(third, "model.glb").toPath()));
+        option3.childNamed(option3.sceneRoots().get(0), "Funnel wheel left");
+        model.childNamed(root, "Deflector");
         System.out.println("Wrote " + dir.getAbsolutePath() + ": copy it into AdvantageScope's userAssets folder.");
     }
 

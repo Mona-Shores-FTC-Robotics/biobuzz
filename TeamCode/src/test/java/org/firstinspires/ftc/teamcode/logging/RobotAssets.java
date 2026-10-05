@@ -57,6 +57,12 @@ final class RobotAssets {
     /** The build team's prototype (RobotDesign#buildersPrototype), for logs simulated with it. */
     static final String PROTOTYPE_FOLDER = "Robot_BIOBUZZPrototype";
     static final String PROTOTYPE_NAME = "BIOBUZZ Prototype";
+    /** The build team's third option (RobotDesign#buildersOption3). */
+    static final String OPTION3_FOLDER = "Robot_BIOBUZZOption3";
+    static final String OPTION3_NAME = "BIOBUZZ Option 3";
+
+    /** What a model has beyond the design's numbers: the prototype's pinwheel, option 3's funnel wheels. */
+    enum Look { PLAIN, PROTOTYPE, OPTION3 }
     static final String CAMERA_NAME = "Limelight";
 
     /** Limelight 3A, as AdvantageScope's FTC drive base declares it. */
@@ -73,7 +79,12 @@ final class RobotAssets {
     static final double INTAKE_ROLLER_RADIUS_IN = 0.75;
     static final double FLYWHEEL_RADIUS_IN = 2.0;
     static final double FLYWHEEL_HEIGHT_IN = 3.0;
-    static final double DEFLECTOR_LENGTH_IN = 3.0; // from the flywheels up to the lip the piece leaves from
+    static final double DEFLECTOR_LENGTH_IN = 5.0;
+    static final double LAUNCH_RISE_IN = 4.0; // the flywheels' axles are this far below the launch point ...
+    static final double LAUNCH_SETBACK_IN = 0.8; // ... and this far behind it
+    static final double SHOT_PATH_THICKNESS_IN = 0.25;
+    static final double SHOT_PATH_LENGTH_IN = 10.0;
+    static final double FUNNEL_WHEEL_RADIUS_IN = 1.6;
     static final double PINWHEEL_RADIUS_IN = 1.95;
     static final double PINWHEEL_AHEAD_IN = 0.9; // its centre, ahead of the frame's front ...
     static final double PINWHEEL_INSET_IN = 0.5; // ... and in from its right side
@@ -91,8 +102,9 @@ final class RobotAssets {
 
     /** Writes {@value #FOLDER} and {@value #PROTOTYPE_FOLDER} into {@code out}; returns the first. */
     static File build(File out) throws IOException {
-        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.springHoodFullWidth(), false));
-        write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), true));
+        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.springHoodFullWidth(), Look.PLAIN));
+        write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), Look.PROTOTYPE));
+        write(out, OPTION3_FOLDER, OPTION3_NAME, model(RobotDesign.buildersOption3(), Look.OPTION3));
         return dir;
     }
 
@@ -144,7 +156,7 @@ final class RobotAssets {
      * Limelight from CameraMount and, for the prototype, the pinwheel that takes POLLEN out of a
      * FLOWER (drawn only: the simulator doesn't use it yet). Robot frame, inches: +X forward, +Y left.
      */
-    static Glb model(RobotDesign d, boolean pinwheel) {
+    static Glb model(RobotDesign d, Look look) {
         MeshBuilder b = new MeshBuilder();
         double half = d.frameIn / 2;
         b.box("Body", new double[] {0.75, 0.78, 0.82, 0.12},
@@ -179,36 +191,54 @@ final class RobotAssets {
         b.box("Pickup volume", new double[] {1.0, 0.55, 0.0, 0.3},
                 new double[] {mouth + (reach - 2) / 2, 0, top / 2}, new double[] {reach + 2, d.intakeWidthIn, top}, IDENTITY_3);
 
-        // The launcher: two flywheels side by side on axles pointing forward, flinging a piece up between
-        // them, below a curved deflector that bends it forward to leave at the design's angle from its lip
-        // (RobotDesign#exitForwardIn, #exitHeightIn, #fixedPitchDeg; the simulator starts the piece there).
+        // The launcher, as the build team's prototypes have it: two flywheels side by side on axles
+        // pointing forward, on uprights, throwing a piece straight up between them into a deflector plate
+        // (a dummy: none is designed yet) that sends it off forward at the launch angle from the launch
+        // point the simulator uses (RobotDesign#exitForwardIn, #exitHeightIn, #fixedPitchDeg). A thin
+        // line shows the piece's path.
+        double pitch = Double.isNaN(d.fixedPitchDeg) ? 75 : d.fixedPitchDeg;
+        double lean = Math.toRadians(90 - pitch);
+        double[] dir = {Math.sin(lean), 0, Math.cos(lean)};
+        double[] back = {-Math.cos(lean), 0, Math.sin(lean)}; // across the plate, toward the back
         double flyR = FLYWHEEL_RADIUS_IN, gap = FieldSim.NECTAR_RADIUS_IN + flyR - 0.4;
-        double flyZ = d.exitHeightIn - DEFLECTOR_LENGTH_IN;
+        double flyX = d.exitForwardIn - LAUNCH_SETBACK_IN, flyZ = d.exitHeightIn - LAUNCH_RISE_IN;
         for (int side = -1; side <= 1; side += 2) {
             String where = side > 0 ? "left" : "right";
             b.cylinder("Flywheel " + where, new double[] {0.55, 0.57, 0.6, 1},
-                    new double[] {d.exitForwardIn, side * gap, flyZ}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_X);
-            double plateTop = flyZ + flyR + 0.3;
-            b.box("Launcher plate " + where, new double[] {0.6, 0.62, 0.66, 1},
-                    new double[] {d.exitForwardIn, side * (gap + FLYWHEEL_HEIGHT_IN / 2 + 0.3), (DECK_Z_IN + plateTop) / 2},
-                    new double[] {2 * flyR + 1, 0.25, plateTop - DECK_Z_IN}, IDENTITY_3);
+                    new double[] {flyX, side * gap, flyZ}, flyR, FLYWHEEL_HEIGHT_IN, AXIS_X);
+            double uprightTop = flyZ + flyR + 0.5;
+            b.box("Launcher upright " + where, new double[] {0.95, 0.7, 0.1, 1},
+                    new double[] {flyX, side * (gap + 0.6), (DECK_Z_IN + uprightTop) / 2},
+                    new double[] {2 * flyR + 1.2, 0.25, uprightTop - DECK_Z_IN}, IDENTITY_3);
         }
-        // The deflector: behind the piece's path, curving from upright to the launch angle by the lip.
-        double turn = Double.isNaN(d.fixedPitchDeg) ? 15 : 90 - d.fixedPitchDeg;
-        int segments = 4;
-        double seg = DEFLECTOR_LENGTH_IN / segments;
-        double[] at = {d.exitForwardIn - FieldSim.NECTAR_RADIUS_IN - 0.3, 0, flyZ};
-        for (int k = 0; k < segments; k++) {
-            double lean = Math.toRadians(turn * (k + 0.5) / segments);
-            double[] dir = {Math.sin(lean), 0, Math.cos(lean)};
-            double[] centre = {at[0] + dir[0] * seg / 2, 0, at[2] + dir[2] * seg / 2};
-            double c = Math.cos(lean), sn = Math.sin(lean);
-            b.box("Deflector " + (k + 1), new double[] {0.95, 0.76, 0.0, 1}, centre,
-                    new double[] {0.25, 2 * gap, seg + 0.05}, new double[] {c, 0, sn, 0, 1, 0, -sn, 0, c});
-            at = new double[] {at[0] + dir[0] * seg, 0, at[2] + dir[2] * seg};
-        }
+        double[] exit = {d.exitForwardIn, 0, d.exitHeightIn};
+        double c = Math.cos(lean), sn = Math.sin(lean);
+        double[] tilt = {c, 0, sn, 0, 1, 0, -sn, 0, c}; // +Z leaned forward by `lean`
+        double offset = FieldSim.NECTAR_RADIUS_IN + 0.15;
+        b.box("Deflector", new double[] {0.2, 0.55, 0.3, 1},
+                new double[] {exit[0] + dir[0] * 1.5 + back[0] * offset, 0, exit[2] + dir[2] * 1.5 + back[2] * offset},
+                new double[] {0.25, 2 * gap, DEFLECTOR_LENGTH_IN}, tilt);
+        // The piece's path: up through the wheels to the plate, then off at the launch angle.
+        double up = d.exitHeightIn - flyZ;
+        double rise = Math.atan2(d.exitForwardIn - flyX, up);
+        double[] riseTilt = {Math.cos(rise), 0, Math.sin(rise), 0, 1, 0, -Math.sin(rise), 0, Math.cos(rise)};
+        double riseLength = Math.hypot(d.exitForwardIn - flyX, up);
+        b.box("Shot path up", new double[] {0.6, 1.0, 0.3, 0.6},
+                new double[] {(flyX + exit[0]) / 2, 0, (flyZ + exit[2]) / 2},
+                new double[] {SHOT_PATH_THICKNESS_IN, SHOT_PATH_THICKNESS_IN, riseLength}, riseTilt);
+        b.box("Shot path out", new double[] {0.6, 1.0, 0.3, 0.6},
+                new double[] {exit[0] + dir[0] * SHOT_PATH_LENGTH_IN / 2, 0, exit[2] + dir[2] * SHOT_PATH_LENGTH_IN / 2},
+                new double[] {SHOT_PATH_THICKNESS_IN, SHOT_PATH_THICKNESS_IN, SHOT_PATH_LENGTH_IN}, tilt);
 
-        if (pinwheel) {
+        if (look == Look.OPTION3) {
+            // Funnel wheels at the front corners, flat on upright axles, steering pieces into the intake.
+            for (int side = -1; side <= 1; side += 2) {
+                b.cylinder("Funnel wheel " + (side > 0 ? "left" : "right"), new double[] {0.25, 0.4, 0.8, 1},
+                        new double[] {half - FUNNEL_WHEEL_RADIUS_IN + 0.7, side * (half - FUNNEL_WHEEL_RADIUS_IN + 1.0),
+                                FieldSim.POLLEN_RADIUS_IN}, FUNNEL_WHEEL_RADIUS_IN, 0.8, AXIS_Z);
+            }
+        }
+        if (look == Look.PROTOTYPE) {
             b.cylinder("Pinwheel", new double[] {0.85, 0.86, 0.88, 1},
                     new double[] {half + PINWHEEL_AHEAD_IN, -(half - PINWHEEL_INSET_IN), PINWHEEL_HEIGHT_IN},
                     PINWHEEL_RADIUS_IN, 0.4, AXIS_X);
@@ -216,7 +246,7 @@ final class RobotAssets {
 
         addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
-        return b.glb(pinwheel ? PROTOTYPE_NAME : ROBOT_NAME);
+        return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.OPTION3 ? OPTION3_NAME : ROBOT_NAME);
     }
 
     /** The Limelight at its mount, on a post from {@code fromZ}, with a rod along where it looks. */
