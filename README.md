@@ -178,6 +178,9 @@ alliance's half 3 s after it starts.
   about 48 in, nearer the slow tiles than the normal ones: the hook's spot moves out with the landing, and
   `doc/spill-test.md` measures where that is before anyone builds one.
 - The small hook, wrapped round the 90% box, is touched in most runs either way.
+- Could the same hook, part-way up, also be a backboard that drops NECTAR into a FLOWER? No: it is 12 in too short,
+  and a FLOWER is worth points only in the last 60 s. [`doc/flower-backboard.md`](doc/flower-backboard.md) (#158) has
+  the rules, the geometry, what the simulator can't model, and a cardboard test.
 - To watch them: [`shape-matches-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/shape-matches-advantagescope.zip)
   (model `BIOBUZZ Robot (match shapes)`, layout, best and typical log of each design; its README.txt says how).
   Rerun: `python3 tools/auto-routes/qual_shapes.py` writes the routes; `BIOBUZZ_SHAPE_MATCHES=1 ./gradlew
