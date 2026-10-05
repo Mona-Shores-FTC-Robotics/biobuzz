@@ -80,10 +80,13 @@ commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors,
 the single exception is `controls/Handoff`, which carries alliance and pose from Autonomous to
 TeleOp and is written and read only by `RobotOpMode`.
 
-**Localization.** Pedro's `FusionLocalizer` fuses the Pinpoint with AprilTag fixes; we add only
-`CellFix` (sighting → position) and assume Pedro's filter works — no extra error-tracking layer
-until a real problem asks for one. Read the pose from `robot.drive`, never from the Pinpoint or
-the Limelight directly. Anything that drives or aims from field coordinates checks
+**Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
+sets it and may correct it, only through `localization/CellFix`: a settled CELL with two or more
+tags gives the whole pose (its tag row runs along the axle, so its field direction is fixed), which
+seeds an unreferenced pose and backs `relocalizeFromCamera()`; continuous fixes into the filter
+are off (`LocalizationTuning.continuousFixes`) until a measurement shows they help. Relocalizing
+never moves the driver's field-centric forward. Read the pose from `robot.drive`, never from the
+Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints`, `StartPositions`, `FieldFrame` and `LocalizationTuning` hold measured field
 facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
@@ -117,8 +120,10 @@ Read it as `setup.alliance()`; never add another way to choose it. One-shot butt
 that requires the subsystem — that would interrupt its `periodic()`.
 
 **Panels** — the only dashboard, `http://192.168.43.1:8001`. Numbers and graphs.
-- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one**
-  `update(telemetry)` per loop, which mirrors to the Driver Station. No parallel DS-only calls.
+- Telemetry: `PanelsTelemetry.INSTANCE.getTelemetry()`, `addData` per key, then **one** update
+  per loop. A standalone OpMode uses `update(telemetry)`, which mirrors to the Driver Station; one
+  on `RobotOpMode` writes the Driver Station through `Display` and calls `update()` with no
+  argument, so Panels' lines do not land on the Match page.
 - Wrap publishing in a `try`/`catch` that swallows: telemetry never takes a mechanism down.
 - Keys are flat, prefixed strings (`left_rpm`), not `a/b/c` paths.
 - Tunables: `@Configurable` static fields. Guard them against bad input (see `BasicDriveTeleOp`).

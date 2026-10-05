@@ -304,6 +304,40 @@ public class LimelightVisionSubsystem implements Subsystem {
     // was about to act on.
     // ------------------------------------------------------------------
 
+    /**
+     * What the camera says about {@code alliance}'s HIVE now (see {@link HiveState#of}); UNSEEN for
+     * UNKNOWN. {@link HiveSubsystem} follows it over the match.
+     *
+     * <p>Mid-tip counts only when a CELL of that HIVE is in view, the resting heights are
+     * measured, and its latest reading sits between them: a CELL out of view never reads as tipping.
+     */
+    public HiveState seenHive(Alliance alliance) {
+        HiveCell left = HiveCell.leftCell(alliance);
+        HiveCell right = HiveCell.rightCell(alliance);
+        if (left == null) return HiveState.UNSEEN;
+        return HiveState.of(state(left), state(right), midTip(left) || midTip(right));
+    }
+
+    private boolean midTip(HiveCell cell) {
+        if (!sees(cell)) return false;
+        if (Double.isNaN(CellStateTracker.Geometry.upRowHeightIn)
+                || Double.isNaN(CellStateTracker.Geometry.downRowHeightIn)) return false;
+        return trackerFor(cell).candidateState() == HiveCellState.UNKNOWN;
+    }
+
+    /**
+     * Milliseconds since a tag of either of {@code alliance}'s CELLs was last in a camera frame;
+     * infinite if none is remembered or the alliance is UNKNOWN.
+     */
+    public double msSinceHiveSeen(Alliance alliance) {
+        return Math.min(ageMs(HiveCell.leftCell(alliance)), ageMs(HiveCell.rightCell(alliance)));
+    }
+
+    private double ageMs(HiveCell cell) {
+        CellSighting sighting = cell == null ? null : sightings.get(cell);
+        return sighting == null ? Double.POSITIVE_INFINITY : sighting.ageMs();
+    }
+
     private CellStateTracker trackerFor(HiveCell cell) {
         CellStateTracker tracker = stateTrackers.get(cell);
         if (tracker == null) {

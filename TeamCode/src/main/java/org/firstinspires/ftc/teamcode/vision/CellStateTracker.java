@@ -52,11 +52,17 @@ public class CellStateTracker {
      */
     @Configurable
     public static class Geometry {
-        /** Height of the tag row above the floor with the cell raised, inches. */
-        public static double upRowHeightIn = Double.NaN;
+        /**
+         * Height of the tag row above the floor with the cell raised, inches. Measured on 19429
+         * by Sighting Diagnostics, RED_AUDIENCE and BLUE_AUDIENCE alike (#156).
+         */
+        public static double upRowHeightIn = 50.2;
 
-        /** Height of the tag row above the floor with the cell lowered, inches. */
-        public static double downRowHeightIn = Double.NaN;
+        /**
+         * Height of the tag row above the floor with the cell lowered, inches. Tape only (#156):
+         * from the start position a lowered CELL's tags face away from the camera.
+         */
+        public static double downRowHeightIn = 35.0;
 
         /**
          * How far from a nominal height still counts as that state, inches.

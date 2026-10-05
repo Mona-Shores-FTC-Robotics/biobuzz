@@ -44,6 +44,24 @@ public enum HiveCell {
         return alliance != null && alliance != Alliance.UNKNOWN && this.alliance == alliance;
     }
 
+    /**
+     * The alliance's LEFT CELL, as its drivers see it from their alliance area: the one that starts
+     * the match DOWN. The red one is at the rear (the SDK's "RED SCORING" cluster), the blue one at
+     * the audience end. Null for UNKNOWN.
+     */
+    public static HiveCell leftCell(Alliance alliance) {
+        if (alliance == Alliance.RED) return RED_SCORING;
+        if (alliance == Alliance.BLUE) return BLUE_AUDIENCE;
+        return null;
+    }
+
+    /** The alliance's RIGHT CELL: the one that starts the match UP. Null for UNKNOWN. */
+    public static HiveCell rightCell(Alliance alliance) {
+        if (alliance == Alliance.RED) return RED_AUDIENCE;
+        if (alliance == Alliance.BLUE) return BLUE_SCORING;
+        return null;
+    }
+
     /** Looks up a cell by its SDK cluster name, or null if no cell matches. */
     public static HiveCell forClusterName(String name) {
         if (name == null) return null;
