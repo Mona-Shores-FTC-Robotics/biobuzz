@@ -264,8 +264,8 @@ final class FieldSim {
         boolean robotBeforeTile;
         /**
          * Which part of a robot that was, counted apart because a referee may not call a piece that
-         * lands on a thin passive flap (mentor, 5 Oct 2026): a flap ({@link RobotDesign#flapOutIn}),
-         * or the frame and its side walls. Both can be set.
+         * lands on a thin guide (mentor, 5 Oct 2026): a guide (a flap, {@link RobotDesign#flapOutIn},
+         * or a side wall, {@link RobotDesign#sideWallsSlideIn}), or the frame. Both can be set.
          */
         boolean flapBeforeTile, frameBeforeTile;
 
@@ -1127,6 +1127,7 @@ final class FieldSim {
         boolean hit = box(p, bx, by, bh, half, halfWidth, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         double c = Math.cos(bh), s = Math.sin(bh);
+        boolean flap = false;
         if ((d.sideWallsSlideIn > 0 || d.sideWallsOutIn > 0) && bot.wallsOut > 0) {
             // RobotDesign#sideWallsSlideIn / sideWallsOutIn: on each side a solid strip from the top of
             // the door to the top of the wall, and below it the flap, which stops a piece only from inside.
@@ -1138,15 +1139,14 @@ final class FieldSim {
                 double cx = bx + lx * c - wy * s, cy = by + lx * s + wy * c;
                 double wvx = bot.vx - bot.w * (cy - by), wvy = bot.vy + bot.w * (cx - bx);
                 double hl = d.sideWallsLengthIn / 2;
-                hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
+                flap |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_TOP_IN, RobotAssets.WALL_HEIGHT_IN,
                         wvx, wvy, bot.w, bounce(robotRestitution));
                 if (Math.abs(ly) < Math.abs(wy)) {
-                    hit |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
+                    flap |= box(p, cx, cy, bh, hl, t, RobotAssets.DOOR_BOTTOM_IN, RobotAssets.DOOR_TOP_IN,
                             wvx, wvy, bot.w, bounce(robotRestitution));
                 }
             }
         }
-        boolean flap = false;
         if (d.hasFlaps()) {
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
@@ -1163,7 +1163,7 @@ final class FieldSim {
             p.flapBeforeTile |= flap;
             if (!p.robotBeforeTile) {
                 p.robotBeforeTile = true;
-                events.add("G409: robot " + (bots.indexOf(bot) + 1) + (hit ? "" : "'s flap") + " touched a spilled "
+                events.add("G409: robot " + (bots.indexOf(bot) + 1) + (hit ? "" : "'s flap or wall") + " touched a spilled "
                         + name(p.kind) + " before it reached the tiles");
             }
         }

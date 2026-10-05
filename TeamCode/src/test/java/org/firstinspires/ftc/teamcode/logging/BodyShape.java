@@ -80,14 +80,15 @@ final class BodyShape {
     static final BodyShape[] LOW_BODIES = {FLAPS_16.low(LOW_GUIDE_IN), FLAPS_16_WIDE.low(LOW_GUIDE_IN),
             FLAPS_15.low(LOW_GUIDE_IN), SHORT_18.low(LOW_GUIDE_IN), FLARED_16.low(LOW_GUIDE_IN), RAMPS_18};
 
+    /** The shapes {@link BodyShapeSpillTest#atTheLandingLine} parks at the spill's edge. */
+    static final BodyShape[] LANDING = {PLAIN, LONG_U, FLAPS_16, FLAPS_16_WIDE, FLAPS_15, SHORT_18, FLARED_16, RAMPS_18};
+
     /**
      * The shapes to look at, in AdvantageScope ({@code BIOBUZZ Robot (shapes)}, one component each, in
-     * this order) and in the pictures, each with a file name and its closest spot with no G409 touch
-     * in either load ({@link BodyShapeSpillTest#howCloseCanEachShapePark}, 5 Oct 2026): its front-most
-     * point that far from the wall.
+     * this order) and in the pictures, each with a file name. They park as {@link #LANDING}: chassis
+     * face on the spill's 100% line.
      */
-    static final BodyShape[] SHOWN = {PLAIN, LONG_U, PLAIN_16, FLAPS_16, FLAPS_16_WIDE, FLAPS_15, SHORT_18, FLARED_16, RAMPS_18};
-    static final String[] SHOWN_FILE = {"plain-18", "long-u", "plain-16", "a-16-flaps-3x2", "b-16-flaps-4x2",
-            "b-15-flaps-4.5x3", "c-18x15-flaps-3x3", "flared-16-flaps-1x8", "low-ramps-18"};
-    static final double[] SHOWN_CLEAN_NOSE_IN = {35, 36, 35, 36, 36, 37, 37, 35, 35};
+    static final BodyShape[] SHOWN = LANDING;
+    static final String[] SHOWN_FILE = {"plain-18", "long-u", "a-16-flaps-3x2", "b-16-flaps-4x2",
+            "b-15-flaps-4.5x3", "c-18x15-flaps-3x3", "16-long-flaps-1x8", "18-low-ramps"};
 }

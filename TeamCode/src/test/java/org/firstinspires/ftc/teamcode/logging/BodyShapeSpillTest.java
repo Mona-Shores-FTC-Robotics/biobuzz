@@ -38,6 +38,8 @@ public class BodyShapeSpillTest {
     /** One TIP's numbers. */
     static final class Run {
         int pieces, kept, touched, frame, flapOnly, mostInside;
+        /** As {@code kept}, the patch measured from the chassis's front face instead of its front-most point. */
+        int keptFace;
         /** Sim seconds when the TIP started and when the run ended (0 if no TIP). */
         double tipAt, endAt;
     }
@@ -162,6 +164,62 @@ public class BodyShapeSpillTest {
         for (String r : best) System.out.println(r);
     }
 
+    /**
+     * The 8 POLLEN spill's footprints start {@value #LINE_100_IN} in from the wall (all of them) and
+     * {@value #LINE_90_IN} (90%): {@code SpillLandingTest}, {@code tools/spill-window/draw.py}.
+     */
+    static final double LINE_100_IN = 35, LINE_90_IN = 38;
+    /** Where the chassis's front face parks in {@link #atTheLandingLine}: on the 100% line, halfway, on the 90% line. */
+    static final double[] FACES_IN = {LINE_100_IN, (LINE_100_IN + LINE_90_IN) / 2, LINE_90_IN};
+
+    /**
+     * Each shape with its chassis's front face on the spill's 100% line, halfway to the 90% line, and on
+     * it (mentor, 5 Oct 2026: the face goes to the landing, the arms or flaps reach into it). 200 TIPs
+     * each, both loads. "Kept" here is the same patch of floor for every shape: 15 in behind the face to
+     * 8 in ahead of it, 24 in wide. G409 TIPs split into those where the chassis touched a piece and
+     * those where only the arms, walls' tips or flaps did.
+     */
+    @Test
+    public void atTheLandingLine() throws IOException {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        int[] loads = {0, HiveCalibration.NECTAR_AT_MATCH_START};
+        List<double[]> jobs = new ArrayList<>();
+        for (int b = 0; b < BodyShape.LANDING.length; b++) for (double face : FACES_IN) jobs.add(new double[] {b, face});
+        List<Sweep[]> results = jobs.parallelStream().map(j -> {
+            Sweep[] s = {new Sweep(), new Sweep()};
+            BodyShape b = BodyShape.LANDING[(int) j[0]];
+            for (int k = 0; k < 2; k++) {
+                for (long seed = 1; seed <= TIPS; seed++) {
+                    Run r = run(physics, seed, b, j[1] + b.reach(), loads[k]);
+                    r.kept = r.keptFace;
+                    s[k].add(r);
+                }
+            }
+            return s;
+        }).collect(Collectors.toList());
+        // For tools/spill-window/shapes.py: one row per shape, face and load.
+        StringBuilder csv = new StringBuilder("# shape,faceIn,nectar,keptPercent,keptPerTip,piecesPerTip,g409Tips,chassisTips,guideOnlyTips,mostInside,tipsOverFour;"
+                + " BodyShapeSpillTest.atTheLandingLine, " + TIPS + " TIPs each\n");
+        for (int i = 0; i < jobs.size(); i++) {
+            BodyShape b = BodyShape.LANDING[(int) jobs.get(i)[0]];
+            Sweep[] s = results.get(i);
+            for (int k = 0; k < 2; k++) {
+                csv.append(String.format(Locale.ROOT, "\"%s\",%.1f,%d,%.1f,%.2f,%.2f,%d,%d,%d,%d,%d%n", b.name, jobs.get(i)[1], loads[k],
+                        s[k].keptPercent(), (double) s[k].kept / TIPS, (double) s[k].pieces / TIPS, s[k].tipsTouched, s[k].tipsFrame,
+                        s[k].tipsFlapOnly, s[k].mostInside, s[k].overFour));
+            }
+            System.out.println(String.format(Locale.ROOT,
+                    "LANDING %-38s face %4.1f: 8 POLLEN kept %3.0f%% (%.2f a TIP), G409 TIPs %3d (chassis %3d, arms/flaps only %3d), inside max %d (over 4: %3d)"
+                            + " | match start kept %3.0f%% (%.2f a TIP), G409 TIPs %3d (chassis %3d, arms/flaps only %3d), inside max %d (over 4: %3d)",
+                    b.name, jobs.get(i)[1],
+                    s[0].keptPercent(), (double) s[0].kept / TIPS, s[0].tipsTouched, s[0].tipsFrame, s[0].tipsFlapOnly, s[0].mostInside, s[0].overFour,
+                    s[1].keptPercent(), (double) s[1].kept / TIPS, s[1].tipsTouched, s[1].tipsFrame, s[1].tipsFlapOnly, s[1].mostInside, s[1].overFour));
+        }
+        File file = new File(TeamCodeDir.simLogs(), "body-shapes-landing.csv");
+        file.getParentFile().mkdirs();
+        java.nio.file.Files.write(file.toPath(), csv.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+    }
+
     /** One TIP with the robot shaped as {@code b}, its front-most point {@code nose} in from the wall. */
     static Run run(FieldSim.Physics physics, long seed, BodyShape b, double nose, int nectar) {
         try {
@@ -235,13 +293,16 @@ public class BodyShapeSpillTest {
             double fromNose = lx - (half + b.reach());
             if (fromNose > -SideWallSpillTest.GATHER_BEHIND_NOSE_IN && fromNose < SideWallSpillTest.GATHER_AHEAD_IN
                     && Math.abs(ly) < SideWallSpillTest.GATHER_HALF_WIDTH_IN) r.kept++;
+            double fromFace = lx - half;
+            if (fromFace > -SideWallSpillTest.GATHER_BEHIND_NOSE_IN && fromFace < SideWallSpillTest.GATHER_AHEAD_IN
+                    && Math.abs(ly) < SideWallSpillTest.GATHER_HALF_WIDTH_IN) r.keptFace++;
             if (p.robotBeforeTile) r.touched++;
             if (p.frameBeforeTile) r.frame++;
             if (p.flapBeforeTile && !p.frameBeforeTile) r.flapOnly++;
         }
         view.event(String.format(Locale.ROOT, "3 s after the TIP: %d of %d spilled pieces kept (in the dotted patch),"
-                        + " G409: %d touched before the tiles (%d on the frame, %d on a flap only), most inside at once %d",
-                r.kept, r.pieces, r.touched, r.frame, r.flapOnly, r.mostInside));
+                        + " G409: %d touched before the tiles (%d on the chassis, %d on a guide only), most inside at once %d",
+                r.keptFace, r.pieces, r.touched, r.frame, r.flapOnly, r.mostInside));
         r.endAt = view.t;
         return r;
     }
@@ -293,10 +354,9 @@ public class BodyShapeSpillTest {
     /**
      * One TIP per shape to watch in AdvantageScope ({@code BIOBUZZ Robot (shapes)}, layout
      * {@code sim-review/advantagescope-layout-shapes.json}), in {@code build/sim-logs}:
-     * {@code body-<shape>.wpilog}, each parked at its closest clean spot
-     * ({@link BodyShape#SHOWN_CLEAN_NOSE_IN}), the same TIP for all of them (8 POLLEN; of seeds 1–20,
-     * the one where the long U keeps nearest its average). And {@code body-...-too-close.wpilog}: two
-     * flap shapes 3 in nearer, on the first TIP where a piece lands on a flap.
+     * {@code body-<shape>.wpilog}, each with its chassis's front face on the spill's 100% line
+     * ({@link #LINE_100_IN}), the same TIP for all of them (8 POLLEN; of seeds 1–20, the one where the
+     * long U keeps nearest its average).
      */
     @Test
     public void writesShapeLogs() throws IOException {
@@ -304,15 +364,7 @@ public class BodyShapeSpillTest {
         long seed = typicalSeed(physics);
         File dir = TeamCodeDir.simLogs();
         for (int i = 0; i < BodyShape.SHOWN.length; i++) {
-            write(physics, seed, i, BodyShape.SHOWN_CLEAN_NOSE_IN[i], new File(dir, "body-" + BodyShape.SHOWN_FILE[i] + ".wpilog"));
-        }
-        for (BodyShape b : new BodyShape[] {BodyShape.FLAPS_16, BodyShape.FLARED_16}) {
-            int i = java.util.Arrays.asList(BodyShape.SHOWN).indexOf(b);
-            double nose = BodyShape.SHOWN_CLEAN_NOSE_IN[i] + 3;
-            long touched = 1;
-            while (touched < TIPS && run(physics, touched, b, nose, 0).flapOnly == 0) touched++;
-            write(physics, touched, i, nose,
-                    new File(dir, "body-" + BodyShape.SHOWN_FILE[i] + "-too-close.wpilog"));
+            write(physics, seed, i, LINE_100_IN + BodyShape.SHOWN[i].reach(), new File(dir, "body-" + BodyShape.SHOWN_FILE[i] + ".wpilog"));
         }
     }
 
@@ -322,23 +374,23 @@ public class BodyShapeSpillTest {
     /**
      * Every shape in one log, {@code build/sim-logs/body-all-shapes.wpilog}: the same TIP as
      * {@link #writesShapeLogs}, one shape after another (each from 1 s before the TIP to 3 s after),
-     * then the two too-close runs. The robot model switches by itself; the Console names each shape as
-     * it starts and ends it with what it kept, and {@code /BodyShape/Name} holds the shape on screen.
+     * then the same shapes again on a TIP where a falling piece lands on the long U's walls. The
+     * robot model switches by itself; the Console names each shape as it starts and ends it with what
+     * it kept, and {@code /BodyShape/Name} holds the shape on screen.
      */
     @Test
     public void writesAllShapesInOneLog() throws IOException {
         FieldSim.Physics physics = HiveCalibration.current().fit();
-        long seed = typicalSeed(physics);
-        List<Object[]> segments = new ArrayList<>();  // {shown index, nose, seed, label}
-        for (int i = 0; i < BodyShape.SHOWN.length; i++) {
-            segments.add(new Object[] {i, BodyShape.SHOWN_CLEAN_NOSE_IN[i], seed, ""});
+        long typical = typicalSeed(physics);
+        long touching = 1;
+        while (touching < TIPS && run(physics, touching, BodyShape.LONG_U, LINE_100_IN + BodyShape.LONG_U.reach(), 0).flapOnly == 0) {
+            touching++;
         }
-        for (BodyShape b : new BodyShape[] {BodyShape.FLAPS_16, BodyShape.FLARED_16}) {
-            int i = java.util.Arrays.asList(BodyShape.SHOWN).indexOf(b);
-            double nose = BodyShape.SHOWN_CLEAN_NOSE_IN[i] + 3;
-            long touched = 1;
-            while (touched < TIPS && run(physics, touched, b, nose, 0).flapOnly == 0) touched++;
-            segments.add(new Object[] {i, nose, touched, " (too close: a different TIP, one where a piece lands on a flap)"});
+        List<Object[]> segments = new ArrayList<>();  // {shown index, seed, label}
+        for (long seed : new long[] {typical, touching}) {
+            for (int i = 0; i < BodyShape.SHOWN.length; i++) {
+                segments.add(new Object[] {i, seed, seed == typical ? "" : " (a TIP where a piece lands on the long U's walls)"});
+            }
         }
         File file = new File(TeamCodeDir.simLogs(), "body-all-shapes.wpilog");
         WpiLog log = new WpiLog(new WpiLogWriter(new java.io.BufferedOutputStream(new java.io.FileOutputStream(file), 1 << 16),
@@ -352,20 +404,20 @@ public class BodyShapeSpillTest {
         long cursor = 0;
         for (int k = 0; k < segments.size(); k++) {
             int i = (Integer) segments.get(k)[0];
-            double nose = (Double) segments.get(k)[1];
-            long s = (Long) segments.get(k)[2];
+            long s = (Long) segments.get(k)[1];
             BodyShape b = BodyShape.SHOWN[i];
+            double nose = LINE_100_IN + b.reach();
             double tipAt = run(physics, s, b, nose, 0).tipAt;
             double from = Math.max(0, tipAt - SEGMENT_LEAD_S);
             long offset = cursor - Math.round(from * 1e6);
-            String label = String.format(Locale.ROOT, "%d of %d: %s, front-most point %.0f in from the wall%s",
-                    k + 1, segments.size(), b.name, nose, segments.get(k)[3]);
+            String label = String.format(Locale.ROOT, "%d of %d: %s, chassis face %.0f in from the wall%s",
+                    k + 1, segments.size(), b.name, LINE_100_IN, segments.get(k)[2]);
             log.put("/BodyShape/Name", label, cursor);
             log.putEvent("SHAPE " + label, cursor);
             Run r = run(physics, s, b, nose, 0, log, i, from, offset);
             timeline.append(String.format(Locale.ROOT, "%5.1f s  %s%n", cursor / 1e6, label));
-            System.out.printf(Locale.ROOT, "ALLSHAPES %5.1f s %s: kept %d of %d, G409 %d (flap only %d)%n",
-                    cursor / 1e6, label, r.kept, r.pieces, r.touched, r.flapOnly);
+            System.out.printf(Locale.ROOT, "ALLSHAPES %5.1f s %s: kept %d of %d, G409 %d (guides only %d)%n",
+                    cursor / 1e6, label, r.keptFace, r.pieces, r.touched, r.flapOnly);
             cursor = offset + Math.round(r.endAt * 1e6) + Math.round(SEGMENT_GAP_S * 1e6);
         }
         log.putMetadata("Timeline", timeline.toString());
@@ -389,25 +441,25 @@ public class BodyShapeSpillTest {
                 "BIOBUZZ body shapes"));
         log.putMetadata("Generator", "BodyShapeSpillTest (TeamCode test sources)");
         log.putMetadata("PoseFrame", AdvantageScopeFrame.DESCRIPTION);
-        log.putMetadata("Shape", String.format(Locale.ROOT, "%s, front-most point %.0f in from the wall (front face %.0f), TIP seed %d, 8 POLLEN",
-                b.name, nose, nose - b.reach(), seed));
+        log.putMetadata("Shape", String.format(Locale.ROOT, "%s, chassis face %.0f in from the wall (front-most point %.0f), TIP seed %d, 8 POLLEN",
+                b.name, nose - b.reach(), nose, seed));
         FieldSimLog.putMetadata(log, HiveCalibration.current());
         FieldSimLog.putHiveStructure(log);
         log.put(AdvantageScopeKeys.ALLIANCE_STATION, AdvantageScopeKeys.allianceStation(true, 1), 0);
-        log.putEvent("Shape: " + b.name + String.format(Locale.ROOT, ", front-most point %.0f in from the wall", nose), 0);
+        log.putEvent("Shape: " + b.name + String.format(Locale.ROOT, ", chassis face %.0f in from the wall", nose - b.reach()), 0);
         Run r = run(physics, seed, b, nose, 0, log, shown);
         log.close();
-        System.out.printf(Locale.ROOT, "SHAPELOG %-38s nose %2.0f: kept %d of %d, G409 %d (frame %d, flap only %d) -> %s%n",
-                b.name, nose, r.kept, r.pieces, r.touched, r.frame, r.flapOnly, file.getName());
+        System.out.printf(Locale.ROOT, "SHAPELOG %-38s face %2.0f: kept %d of %d, G409 %d (chassis %d, guides only %d) -> %s%n",
+                b.name, nose - b.reach(), r.keptFace, r.pieces, r.touched, r.frame, r.flapOnly, file.getName());
     }
 
-    /** Of seeds 1–20, the TIP where the long U at its clean spot keeps nearest its average share. */
+    /** Of seeds 1–20, the TIP where the long U, face on the 100% line, keeps nearest its average share. */
     static long typicalSeed(FieldSim.Physics physics) {
         double[] share = new double[21];
         double sum = 0;
         for (int seed = 1; seed <= 20; seed++) {
-            Run r = run(physics, seed, BodyShape.LONG_U, 36, 0);
-            share[seed] = r.pieces == 0 ? Double.NaN : (double) r.kept / r.pieces;
+            Run r = run(physics, seed, BodyShape.LONG_U, LINE_100_IN + BodyShape.LONG_U.reach(), 0);
+            share[seed] = r.pieces == 0 ? Double.NaN : (double) r.keptFace / r.pieces;
             sum += share[seed];
         }
         long best = 1;

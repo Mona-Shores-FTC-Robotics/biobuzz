@@ -6,7 +6,9 @@
 
 --body W L is the frame's width and length (default 18 18); --flaps OUT FWD draws a flap from each front
 corner to a free end OUT in sideways and FWD in forward (BodyShapeSpillTest); --patch outlines the floor
-counted as "kept" (15 in behind the robot's front-most point to 8 in past it, 24 in wide).
+counted as "kept" (15 in behind the chassis's front face to 8 in past it, 24 in wide). --kinds draws NECTAR red
+and POLLEN amber; --rest draws where each piece lies 3 s after the TIP instead of where it first landed (the
+boxes stay the landing's); --no-robot leaves the robot out.
 
 The background is the Visualizer's field image (public/fields/biobuzz.webp, in the Visualizer checkout that
 autogen.py uses: AUTO_BUILDER_DIR, or ../visualizer). The Visualizer stretches it over the whole field,
@@ -46,9 +48,11 @@ if "--flaps" in ARGS:
     i = ARGS.index("--flaps")
     FLAP_OUT, FLAP_FWD = float(ARGS[i + 1]), float(ARGS[i + 2])
     del ARGS[i:i + 3]
-PATCH = "--patch" in ARGS
-if PATCH:
-    ARGS.remove("--patch")
+FLAGS = {f: f in ARGS for f in ("--patch", "--kinds", "--rest", "--no-robot")}
+for f, on in FLAGS.items():
+    if on:
+        ARGS.remove(f)
+PATCH, KINDS, REST, ROBOT = FLAGS["--patch"], FLAGS["--kinds"], FLAGS["--rest"], not FLAGS["--no-robot"]
 CSV = ARGS[0] if ARGS else os.path.join(REPO, "TeamCode/build/sim-logs/spill-first-touch-8-pollen.csv")
 OUT = ARGS[1] if len(ARGS) > 1 else os.path.join(REPO, "sim-review/spill-window.html")
 VIS = [os.environ.get("AUTO_BUILDER_DIR", ""), os.path.join(REPO, "..", "visualizer"),
@@ -64,10 +68,10 @@ TILE = FIELD / 6
 # facing the HIVE with its front face FACE in from the audience wall.
 ROBOT_X, HALF, HALF_W = CENTRE - 12.75, BODY_L / 2, BODY_W / 2
 ROBOT_Y = FACE - HALF
-NOSE = FACE + max(ARMS, FLAP_FWD)
 
 rows = [list(map(float, l.split(","))) for l in open(CSV) if l.strip() and not l.startswith("#")]
 pts = [(r[6], r[5], r[7]) for r in rows]  # where each piece first hit anything after leaving the CELL: (x, y, radius)
+shown = [(r[4], r[3], r[7]) for r in rows] if REST else pts  # what the dots show
 q = lambda v, p: sorted(v)[min(len(v) - 1, int(p * len(v)))]
 ys, xs = [p[1] for p in pts], [p[0] for p in pts]
 y5, y95, x5, x95 = q(ys, .05), q(ys, .95), q(xs, .05), q(xs, .95)
@@ -105,26 +109,28 @@ o += [f'<text x="{px(FIELD / 2)}" y="{py(0) + 44}" font-size="14" font-weight="b
       f'<line x1="{px(0)}" x2="{px(FIELD)}" y1="{py(CENTRE)}" y2="{py(CENTRE)}" stroke="#7fd39b" stroke-opacity="0.7" stroke-dasharray="8 6"/>']
 # The spill: each piece's footprint, true size, where it first hit anything; the box around every one
 # (dashed) and around 90% on each axis (solid).
-for x, y, r in pts:
-    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="{r * K:.1f}" fill="#ffb347" fill-opacity="0.03"/>')
-for x, y, r in pts:
-    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="1.1" fill="#ffd9a0" opacity="0.6"/>')
+colour = lambda r: ("#ff5a5a" if r > 1.6 else "#ffc247") if KINDS else "#ffb347"
+for x, y, r in shown:
+    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="{r * K:.1f}" fill="{colour(r)}" fill-opacity="{0.06 if REST else 0.03}"/>')
+for x, y, r in shown:
+    o.append(f'<circle cx="{px(x):.1f}" cy="{py(y):.1f}" r="1.1" fill="{colour(r) if KINDS else "#ffd9a0"}" opacity="0.6"/>')
 for (bx0, by0, bx1, by1), dash in ((ALL, ' stroke-dasharray="7 5"'), (NINETY, "")):
     o.append(f'<rect x="{px(bx0):.1f}" y="{py(by1):.1f}" width="{(bx1 - bx0) * K:.1f}" height="{(by1 - by0) * K:.1f}" '
              f'fill="none" stroke="#ff3b3b" stroke-width="2.2"{dash}/>')
 # The floor counted as "kept" (BodyShapeSpillTest, SideWallSpillTest.GATHER_*), the same patch from the nose.
 if PATCH:
-    o.append(f'<rect x="{px(ROBOT_X - 12):.1f}" y="{py(NOSE + 8):.1f}" width="{24 * K:.1f}" height="{23 * K:.1f}" '
+    o.append(f'<rect x="{px(ROBOT_X - 12):.1f}" y="{py(FACE + 8):.1f}" width="{24 * K:.1f}" height="{23 * K:.1f}" '
              f'fill="none" stroke="#ffffff" stroke-width="1.4" stroke-dasharray="3 4"/>')
 # Our robot, with its centre's Pedro coordinates.
-o += [f'<rect x="{px(ROBOT_X - HALF_W)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF_W * K}" height="{2 * HALF * K}" fill="#c9ccd3" stroke="#888" stroke-width="1.2"/>',
-      f'<rect x="{px(ROBOT_X - HALF_W + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF_W - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
-      f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
-      f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
-if ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
+if ROBOT:
+    o += [f'<rect x="{px(ROBOT_X - HALF_W)}" y="{py(ROBOT_Y + HALF)}" width="{2 * HALF_W * K}" height="{2 * HALF * K}" fill="#c9ccd3" stroke="#888" stroke-width="1.2"/>',
+          f'<rect x="{px(ROBOT_X - HALF_W + 1)}" y="{py(ROBOT_Y + HALF)}" width="{(2 * HALF_W - 2) * K}" height="{1.5 * K}" fill="#f0a020"/>',
+          f'<circle cx="{px(ROBOT_X)}" cy="{py(ROBOT_Y)}" r="3" fill="#222"/>',
+          f'<text x="{px(ROBOT_X)}" y="{py(ROBOT_Y) + 18}" font-size="12" fill="#222" text-anchor="middle">({ROBOT_X:g}, {ROBOT_Y:g})</text>']
+if ROBOT and ARMS:  # side walls, 0.25 in thick (RobotAssets.WALL_THICKNESS_IN), slid forward along the sides
     for wx in (ROBOT_X - HALF_W, ROBOT_X + HALF_W - 0.25):
         o.append(f'<rect x="{px(wx):.1f}" y="{py(ROBOT_Y + HALF + ARMS):.1f}" width="{max(2.0, 0.25 * K):.1f}" height="{2 * HALF * K}" fill="#5aa0ff"/>')
-if FLAP_OUT or FLAP_FWD:  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
+if ROBOT and (FLAP_OUT or FLAP_FWD):  # flaps, 0.25 in thick (RobotDesign.FLAP_THICKNESS_IN), from the front corners
     for side in (-1, 1):
         hx, hy = ROBOT_X + side * HALF_W, FACE
         o.append(f'<line x1="{px(hx):.1f}" y1="{py(hy):.1f}" x2="{px(hx + side * FLAP_OUT):.1f}" y2="{py(hy + FLAP_FWD):.1f}" '

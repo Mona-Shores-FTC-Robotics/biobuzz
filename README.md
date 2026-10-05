@@ -98,45 +98,43 @@ Thin arm tips can wait about 1 in nearer than a robot's front face (36 in agains
 face at 30–34 in, every touch is on the arms. Pictures of each step are in
 `sim-review/portfolio/spill-window/`.
 
-**A smaller body with passive flaps** (`BodyShapeSpillTest.howCloseCanEachShapePark`, mentor, 5 Oct
-2026): each shape parks as the long U, at front-most points 31–39 in from the wall, 200 TIPs each, both
-loads. Each flap is a thin plate from a front corner, out for the whole match; a 16 in body leaves 2 in
-forward for 3 in out (22 × 18). True 45° flaps, 3 in out and 3 in forward, would make it 19 × 22, which
-breaks R105. Flap touches are counted apart from frame touches.
+**Robot shapes at the spill** (`BodyShapeSpillTest.atTheLandingLine`, mentor, 5 Oct 2026): each shape parks with
+its **chassis's front face on the spill's 100% line** (35 in from the wall; every 8 POLLEN piece lands beyond it, 90%
+beyond 38 in), so its walls, flaps or ramps reach into where pieces land. 200 TIPs a spot. "Kept" is the pieces lying
+3 s later in the same patch of floor for every shape (15 in behind the face to 8 in ahead, 24 in wide). G409 counts TIPs
+where a falling piece touched the robot before the tiles: on the chassis (a foul), or on a guide only (perhaps not
+called on a thin passive guide). "Over 4 inside" counts TIPs with more than 4 pieces between the guides at once
+(G407). Flaps hinge at the front corners; a 16 in chassis leaves 2 in forward for 3 in out (22 × 18), since true 45°
+flaps, 3 in out and 3 in forward, would be 19 × 22 and break R105.
 
-| Shape (after the start) | Closest clean spot (front-most point) | 8 POLLEN: kept, G409 TIPs | Match start: kept, G409 TIPs | Most inside the flaps/walls at once (TIPs over 4) |
+Chassis face on the 100% line, 8 POLLEN (`sim-review/body-shapes.png` has 36.5 and 38 in too):
+
+| Shape (after the start) | Kept a TIP (of 8) | G409 TIPs: chassis | G409 TIPs: guides only | Over 4 inside |
 |---|---|---|---|---|
-| plain 18 × 18 | 35 in | 17%, 0 of 200 | 14%, 0 of 200 | – |
-| plain 16 × 16 | 35 in | 16%, 0 | 14%, 0 | – |
-| **long U** (walls 6 in forward), 24 × 18 | 36 in | **41%, 0** | **36%, 0** | 7 (31) / 4 (0) |
-| (a) 16 + flaps 3 out, 2 fwd, 18 × 22 | 36 in | 24%, 0 | 21%, 0 | 5 (6) / 4 (0) |
-| (b) 16 + flaps 4 out, 2 fwd, 18 × 24 | 36 in | 22%, 0 | 21%, 0 | 5 (8) / 4 (0) |
-| (b) 15 + flaps 4.5 out, 3 fwd, 18 × 24 | 37 in | 27%, 0 | 24%, 0 | 6 (24) / 5 (2) |
-| (c) 18 wide × 15 long + flaps 3 out, 3 fwd, 18 × 24 | 37 in | 30%, 0 | 25%, 0 | 6 (29) / 5 (4) |
-| 16 + flaps 1 out, 8 fwd (a flared long U), 24 × 18 | 35 in | 37%, 0 | 31%, 0 | 7 (22) / 4 (0) |
+| plain 18 × 18 | 1.3 | 0 | 0 | – |
+| **long U** (walls 6 in forward), 24 × 18 | **3.1** | 7 | **114** | 80 |
+| (a) 16 + flaps 3 out, 2 fwd, 22 × 18 | 1.8 | 0 | 1 | 11 |
+| (b) 16 + flaps 4 out, 2 fwd, 24 × 18 | 1.7 | 0 | 1 | 9 |
+| (b) 15 + flaps 4.5 out, 3 fwd, 24 × 18 | 1.9 | 0 | 1 | 26 |
+| (c) 18 wide × 15 long + flaps 3 out, 3 fwd, 24 × 18 | 2.0 | 0 | 1 | 30 |
+| 16 + long flaps 1 out, 8 fwd, 18 × 24 | 2.8 | 10 | 185 | 172 |
+| 18 + low ramps 6 fwd, 2.5 in tall, 18 × 24 | 2.4 | 7 | 108 | 66 |
 
-One step past the clean spot, most first touches are on a flap. At 37 in, (a) has 1 TIP of 200 with a
-flap-only touch and none on the frame. The flared long U has 1, 2, 7 and 25 flap-only TIPs at 36–39 in,
-and never a frame touch. If a referee didn't call flap touches, the flared shape at 39 in would keep
-44% / 38%. For every shape, frame touches start only once the front face passes 35 in, the plain robot's line.
+- **Reaching forward keeps pieces; reaching sideways barely does.** The long U keeps 3.1 of 8 a TIP against the plain
+  robot's 1.3. The flap shapes (a), (b) and (c) keep 1.7–2.0 whatever their width, and almost never touch a falling
+  piece: their flaps reach only 2–3 in into the spill. A chassis cut shorter to allow 24 in of width isn't worth it.
+- **What it costs:** guides that reach 6–8 in forward are under the falling spill. The long U's walls touch a falling
+  piece in 114 of 200 TIPs (and its chassis in 7, pieces deflected off a wall), and more than 4 pieces sit between
+  the walls in 80. Moving the face nearer, to 36.5 or 38 in, adds little kept and many chassis touches.
+- **Low guides** (the short wedges beside a narrow "floating intake" roller in a photo): 2.5 in ramps 6 in forward
+  keep 2.4 against the long U's 3.1 and are touched about as often. Pieces bounce over a low guide.
+- **Match start** (3 NECTAR, then POLLEN until it tips: 6 pieces a TIP): long flaps 2.3 a TIP, long U 2.0, low ramps
+  1.6, the flap shapes 1.1–1.3, plain 0.9; the NECTAR lands in the left part of the box. `sim-review/body-shapes-loads.png`
+  shows where each load lands, where it lies 3 s later, and each shape's numbers for both.
 
-- **(a) and (b): the funnel helps a little.** 22–27% against the plain robot's 17%, but well short of
-  the long U's 41%. A smaller body alone changes nothing (plain 16: 16%). The flaps can't get nearer
-  than a front face does (36–37 in), so all they add is a little floor beside the body.
-- **(c): giving up body length for 24 in of width isn't worth it.** The best wide shape, a full-width
-  frame cut to 15 in so 45° flaps fit, keeps 30%. Spending R105's 24 in on reach instead keeps 37–41%
-  (the flared 16 and the long U). The spill is about 24 in wide, but it lands ahead of the robot, so
-  reaching toward it is what keeps pieces.
-- **G407:** the wide shapes hold fewer pieces at once than the long U. Over 4 between the flaps in
-  6–29 TIPs of 200 from 8 POLLEN, against the long U's 31.
+![Each shape from above with its sizes, parked with its chassis face on the spill's 100% line](sim-review/body-shapes.png)
 
-**Low guides** (`howCloseCanLowGuidesPark`; the short wedges beside a narrow "floating intake" roller in
-a photo): the same flaps 2.5 in tall instead of 4. The clean spot doesn't move, since the touches come
-from pieces falling onto the guides, and every shape keeps less. (a) drops from 24% to 22%, the flared
-long U from 37% to 33%, and the 18 in robot with low 6 in ramps keeps 33% against the long U's 41%.
-Pieces bounce over a low guide. A guide's job here is to stop the scatter, and that needs height.
-
-![Each shape from above and at its closest clean spot over where the spill lands, with what it keeps](sim-review/body-shapes.png)
+![The two loads: where the spill lands and where it lies 3 s later, and each shape's numbers for both](sim-review/body-shapes-loads.png)
 
 ![The shapes in 3D, as AdvantageScope draws them (the see-through box is what the simulator bounces pieces off)](sim-review/body-shapes-3d.png)
 
@@ -144,15 +142,16 @@ Pieces bounce over a low guide. A guide's job here is to stop the scatter, and t
 [`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/body-shapes-advantagescope.zip),
 copy its `Robot_BIOBUZZShapes` folder into `%APPDATA%\AdvantageScope\userAssets` (next to the HIVE assets from the
 setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open
-`body-all-shapes.wpilog`: every shape one after another on the same TIP, about 4.5 s each, the robot switching
-shape by itself and the Console naming each one. The simulator ran each shape (pieces bounce off its flaps and
-walls); it isn't one run redrawn. Last come two flap shapes 3 in too close, on a TIP where a piece lands on a flap.
-Its `logs` folder has the same runs one file each. Rebuild them with
-`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest.writes*" --tests "*RobotAssetsTest*"`.
+`body-all-shapes.wpilog`: every shape, face on the 100% line, one after another, 4.5 s each, on a typical TIP and then
+on one where a piece lands on the long U's walls. The robot switches shape by itself and the Console names each one.
+The simulator ran each shape (pieces bounce off its walls and flaps); it isn't one run redrawn. Rebuild with
+`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest*" --tests "*RobotAssetsTest*" --tests "*SpillLandingTest*"`,
+then `python3 tools/spill-window/shapes.py` for the sheets. The guides' height, thickness and bounce are placeholders,
+like the walls; nothing here is measured on a robot.
 
-The cards come from `python3 tools/spill-window/shapes.py` (it calls `draw.py --face F --body W L --flaps OUT FWD
---patch` for each field view). The flaps' 4 in height, thickness and bounce are placeholders, like the walls; nothing
-here is measured on a robot.
+`BodyShapeSpillTest.howCloseCanEachShapePark` asks the other question, how near each shape can park with no touch at
+all (front-most point 35–37 in for every shape); kept there, measured from the front-most point, is 17% plain, 41% long
+U, 22–30% flaps.
 
 So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
 either load, and the dashed box's near edge. Redraw it after the simulator changes:
