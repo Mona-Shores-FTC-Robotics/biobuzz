@@ -48,6 +48,10 @@ and `python3 g409.py 20 v2 --extra 500` rebuild and rerun the winners.
 `python3 qual_shapes.py` writes qual-right-v3 for the spill shapes (a rigid V, a large and a small right hook:
 `qual-right-v3-rigid-v`, `-large-hook`, `-small-hook`), each on its own robot design; `ShapeMatchTest` simulates
 them against qual-right-v3 (the repository README, "In the Qualifier Auto").
+`python3 qual_stage.py` writes qual-right-v3 with our preloads staged in the large hook while we wait for TIP 1
+(`qual-stage-large-hook` as first drawn, `qual-stage-back-large-hook`, `-quick`, and `qual-stage-back-plain`). They
+use the simulator-only `HookDown`, `HookUp` and `Outtake`. `StagedPreloadsTest` simulates them (the repository
+README, "Staging our preloads in the hook").
 qual.py's left-start Autos (`shoots-left`, `parks-left`) are kept but no longer worked on.
 
 **Rules for both** (mentor review):
