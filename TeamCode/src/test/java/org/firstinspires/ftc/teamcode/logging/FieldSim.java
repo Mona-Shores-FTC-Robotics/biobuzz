@@ -1119,14 +1119,6 @@ final class FieldSim {
         boolean hit = box(p, bx, by, bh, half, half, 0, PLACEHOLDER_ROBOT_HEIGHT_IN, bot.vx, bot.vy, bot.w,
                 bounce(robotRestitution));
         double c = Math.cos(bh), s = Math.sin(bh);
-        if (d.shieldReachIn > 0) {
-            // RobotDesign#shieldReachIn: a thin wall along one side, from the frame's front edge forward.
-            double t = RobotDesign.SHIELD_THICKNESS_IN / 2;
-            double lx = half + d.shieldReachIn / 2, ly = d.shieldSide * (half - t);
-            double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
-            hit |= box(p, cx, cy, bh, d.shieldReachIn / 2, t, d.shieldHeightIn,
-                    bot.vx - bot.w * (cy - by), bot.vy + bot.w * (cx - bx), bot.w, bounce(robotRestitution));
-        }
         if ((d.sideWallsSlideIn > 0 || d.sideWallsOutIn > 0) && bot.wallsOut > 0) {
             // RobotDesign#sideWallsSlideIn / sideWallsOutIn: on each side a solid strip from the top of
             // the door to the top of the wall, and below it the flap, which stops a piece only from inside.

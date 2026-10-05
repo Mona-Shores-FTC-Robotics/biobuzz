@@ -38,17 +38,6 @@ public class AutoStudyTest {
         twin.launchers = 2;
         m.put(twin.name, twin);
         m.put("spring hood, full-width intake", RobotDesign.springHoodFullWidth());
-        // Mentor, 4 Oct 2026: a shield on the side toward the centre line, so a spill landing beside us
-        // doesn't roll across it. Driving south through the tunnel, intake first, that is the robot's left.
-        for (int reach : new int[] {3, 6}) {
-            RobotDesign shield = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, " + reach + " in shield");
-            shield.shieldReachIn = reach;
-            m.put(shield.name, shield);
-        }
-        RobotDesign shieldRight = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, 6 in shield right");
-        shieldRight.shieldReachIn = 6;
-        shieldRight.shieldSide = -1;
-        m.put(shieldRight.name, shieldRight);
         // Mentor, 5 Oct 2026: walls down both sides that slide 6 in forward when our CELL starts to
         // TIP, so the spill doesn't scatter, with one-way flaps that let POLLEN in and keep NECTAR out.
         RobotDesign walls = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, side walls");

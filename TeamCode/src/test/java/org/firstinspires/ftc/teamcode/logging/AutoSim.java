@@ -536,13 +536,8 @@ public final class AutoSim {
             }
         }
         // It starts folded inside the 18 in start size (R102) and is out within the first second.
-        if (now < CATCHER_DEPLOY_S) return out;
+        if (design.intakeWidthIn <= design.frameIn || now < CATCHER_DEPLOY_S) return out;
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
-        if (design.shieldReachIn > 0) {  // the side shield's far end (RobotDesign#shieldReachIn)
-            double lx = design.frameIn / 2 + design.shieldReachIn, ly = design.shieldSide * design.frameIn / 2;
-            out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
-        }
-        if (design.intakeWidthIn <= design.frameIn) return out;
         double lx = (design.intakeAtBack ? -1 : 1) * design.frameIn / 2, half = design.intakeWidthIn / 2;
         for (int j = -4; j <= 4; j++) {
             double ly = half * j / 4;

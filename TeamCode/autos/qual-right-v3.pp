@@ -116,19 +116,10 @@
             },
             {
               "startProgress": 0.3,
-              "endProgress": 0.65,
-              "interpolationType": "linear",
-              "parameters": {
-                "startDeg": 90,
-                "endDeg": 180
-              }
-            },
-            {
-              "startProgress": 0.65,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
-                "startDeg": 180,
+                "startDeg": 90,
                 "endDeg": 270
               }
             }
@@ -635,7 +626,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-v2-shield",
+    "exportName": "qual-right-v3",
     "registry": {
       "actions": [
         "SpinUp",
@@ -888,13 +879,30 @@
         ]
       },
       {
-        "id": "p-11",
+        "id": "w-11",
+        "kind": "firstOf",
+        "label": "It lands",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 500,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "p-12",
         "kind": "path",
         "lineId": "to-s-fire-5",
         "park": false
       },
       {
-        "id": "w-12",
+        "id": "w-13",
         "kind": "firstOf",
         "label": "Fire TIP 2's spill",
         "rows": [
@@ -912,25 +920,25 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-13",
+        "id": "p-14",
         "kind": "path",
         "lineId": "to-sweep-e-6",
         "park": false
       },
       {
-        "id": "p-14",
+        "id": "p-15",
         "kind": "path",
         "lineId": "to-sweep-w-7",
         "park": false
       },
       {
-        "id": "p-15",
+        "id": "p-16",
         "kind": "path",
         "lineId": "to-garden-8",
         "park": false
       },
       {
-        "id": "w-16",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "The GARDEN",
         "rows": [
@@ -947,13 +955,13 @@
         ]
       },
       {
-        "id": "p-17",
+        "id": "p-18",
         "kind": "path",
         "lineId": "to-s-fire-9",
         "park": false
       },
       {
-        "id": "w-18",
+        "id": "w-19",
         "kind": "firstOf",
         "label": "Fire the GARDEN",
         "rows": [
@@ -971,7 +979,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-27",
+        "id": "w-28",
         "kind": "firstOf",
         "label": "No TIP 3 yet?",
         "rows": [
@@ -981,13 +989,13 @@
             ],
             "cards": [
               {
-                "id": "p-20",
+                "id": "p-21",
                 "kind": "path",
                 "lineId": "to-garden-11",
                 "park": false
               },
               {
-                "id": "w-26",
+                "id": "w-27",
                 "kind": "firstOf",
                 "label": "Still no TIP 3?",
                 "rows": [
@@ -997,7 +1005,7 @@
                     ],
                     "cards": [
                       {
-                        "id": "w-22",
+                        "id": "w-23",
                         "kind": "firstOf",
                         "label": "The GARDEN again",
                         "rows": [
@@ -1014,13 +1022,13 @@
                         ]
                       },
                       {
-                        "id": "p-23",
+                        "id": "p-24",
                         "kind": "path",
                         "lineId": "to-s-fire-13",
                         "park": false
                       },
                       {
-                        "id": "w-24",
+                        "id": "w-25",
                         "kind": "firstOf",
                         "label": "Fire the GARDEN again",
                         "rows": [
@@ -1038,7 +1046,7 @@
                         "alongside": "LaunchAll"
                       },
                       {
-                        "id": "p-25",
+                        "id": "p-26",
                         "kind": "path",
                         "lineId": "to-park-14",
                         "park": false
@@ -1050,7 +1058,7 @@
                     "afterMs": 20,
                     "cards": [
                       {
-                        "id": "p-21",
+                        "id": "p-22",
                         "kind": "path",
                         "lineId": "to-park-12",
                         "park": true
@@ -1067,7 +1075,7 @@
             "afterMs": 20,
             "cards": [
               {
-                "id": "p-19",
+                "id": "p-20",
                 "kind": "path",
                 "lineId": "to-park-10",
                 "park": true

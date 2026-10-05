@@ -3,20 +3,75 @@
 This is the `claude/simulator` branch: the Autos, the simulator that scores them, and their logs.
 `master` holds robot code only.
 
-## Qualifier Autos (two-wheel launcher)
+## Qualifier Autos: the baseline (no walls)
 
-One Auto for each kind of qualification partner, for the robot the build team is building (4 Oct
-2026): one two-wheel launcher for POLLEN and NECTAR, and an 18 in front intake. Points are average
-alliance AUTO points over 20 simulated runs (3 TIPs, LEAVE and PARK); a perfect run is 76. Every
-shot is straight on, from in front of the CELL.
+For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
+an 18 in front intake, no side walls. Points are average alliance AUTO points over 20 simulated runs,
+normal tiles / tiles with 3× the friction (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts
+spilled pieces our robot touches before they reach the tiles (the rule: don't catch or deflect a
+TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 12:55 UTC.
 
-| Auto | Partner | What we do | Points | 3 TIPs | Watch in the Visualizer | Simulated `.wpilog` |
-|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsLeft** | At the standard left start: fires its 4 when the left CELL rises, then parks | We start right: TIP 1 with our preloads, then shuttle through the tunnel catching each spill, the GARDEN and the wall FLOWER. | **70** | 18 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsLeft) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-shoots-left.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-left.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-typical.wpilog) · with side walls: [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/designs/spring-hood-full-width-intake-side-walls/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/designs/spring-hood-full-width-intake-side-walls/latest-typical.wpilog) |
-| **Qual-PartnerParksLeft** | At the standard left start: only drives and parks | The same route: TIP 2 from our catch and the far FLOWER, then the south sources. | **57** | 10 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerParksLeft) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-parks-left.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-park-left.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-parks-left/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-parks-left/latest-typical.wpilog) |
-| **Qual-PartnerShootsRight** | At the right start: fires its 4 at once (TIP 1), then parks | We start left, facing the HIVE: our preloads and the far FLOWER for TIP 2, then through the tunnel to the GARDEN and the wall FLOWER. | **68** | 16 of 20 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-shoots-right.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-right/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-right/latest-typical.wpilog) |
+| Auto | Partner | Points | 3 TIPs | G409 | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
+|---|---|---|---|---|---|---|---|
+| **Qual-PartnerShootsRight v3** (`qual-right-v3`) | At the right start: fires its 4 at once (TIP 1), then parks | **72.5 / 71.8** | 18 / 17 of 20 | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v3/latest-typical.wpilog) |
+| Qual-PartnerStages (`qual-partner-stages`): **work in progress**, another session | Can't shoot: sets its 4 down across the tunnel's north exit, then parks | 58.5 / 62 | 7 / 11 of 20 | 10 / 5.5 a run: not safe yet | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerStages) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-partner-stages.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage-exit.pp) | [qual-partner-stages.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-partner-stages.pp) · [partner-stage-exit.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage-exit.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-stages/latest-typical.wpilog) |
 
-How they work, and what they need from build and from the partner: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+What Qual-PartnerShootsRight v3 does: we start at the left start facing the HIVE, spun up. The partner's
+4 make TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). Then we let TIP 2's spill
+land, drive south through it and the tunnel, fire what we caught, sweep west along the wall through TIP
+1's leftovers into the GARDEN, fire that load, and PARK. If TIP 3 still hasn't started, one more load from
+the GARDEN first. How it was tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+
+- **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
+- **best** / **typical**: the highest-scoring and the median of 20 runs on normal tiles, from the newest
+  [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
+  run of that Auto. They change when someone re-simulates it.
+- Side walls are worked on in the next section; nothing in this table uses them.
+- The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75° hood) and intake (0.35 s a
+  piece) are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
+
+## Side walls (branch `claude/dazzling-maxwell-je04gu`)
+
+A mentor's idea (5 Oct 2026): walls down both sides of the robot that slide 6 in forward (a "long U",
+18 × 24 in, R105's limit) as our CELL starts to TIP, so the spill doesn't scatter while the robot waits
+just short of where it lands. Each wall has a one-way flap at the bottom that lets POLLEN in and keeps
+NECTAR out. G409 is the constraint throughout: the robot and its walls must not touch a spilled piece
+before it reaches the tiles. Numbers run 5 Oct 2026 03:50–13:20 UTC on this branch.
+
+**In a qualifier Auto** (20 runs, normal / slow tiles; `tools/auto-routes/README.md`, "G409-safe versions"):
+
+| Auto | Robot | Points | 3 TIPs | G409 | Simulated `.wpilog` |
+|---|---|---|---|---|---|
+| Qual-PartnerShootsLeft as it was | no walls | 70.3 / 72.3 | 18 / 19 | 9.6 / 5.6 a run | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-typical.wpilog) |
+| **Qual-PartnerShootsLeft, G409-safe** (`qual-partner-shoots-left-g409-300-s8n4-t700`) | **walls out at the TIP** | **71.5 / 69.8** | **19 / 18** | **0** | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left-g409-300-s8n4-t700/designs/spring-hood-full-width-intake-side-walls-out-at-the-tip/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left-g409-300-s8n4-t700/designs/spring-hood-full-width-intake-side-walls-out-at-the-tip/latest-typical.wpilog) |
+| Qual-PartnerShootsLeft, G409-safe | no walls | 68.3 / 68.8 | 17 / 17 | 0 | |
+| Qual-PartnerShootsRight v3 (above; v2 + 500 ms) | no walls | 72.5 / 71.8 | 18 / 17 | 0 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v2-g409-500/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v2-g409-500/latest-typical.wpilog) |
+
+So the walls are worth about 3 points where the robot waits for a spill over open tiles (ShootsLeft),
+and nothing to v3, whose waiting spot puts falling pieces onto the walls.
+
+**On a single TIP** (`SideWallSpillTest`; 40 TIPs, robot parked facing the HIVE, the spill measured 3 s
+later): the long U gathers 33% of the spill standing and 39% creeping 8 in forward once it has landed,
+against 13% / 18% with no walls; a wide U (24 in mouth, no forward reach) is no better than no walls.
+Park with the arm tips about 38 in from the wall, a few inches short of where pieces first hit the
+tiles (44–48 in): further forward the spill lands on the robot (G409). Pieces lying between the arms
+of a parked robot aren't CONTROL; pushing them forward with the U is herding, and counts toward 4.
+
+**To watch these:**
+
+1. Do the one-time setup below with this branch instead of `claude/simulator`; on this branch it also
+   builds **BIOBUZZ Robot** (the Limelight as a camera view: right-click the 3D view → *Limelight*) and
+   **BIOBUZZ Robot (side walls)**:
+   ```powershell
+   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin claude/dazzling-maxwell-je04gu; git -C $HOME\biobuzz checkout claude/dazzling-maxwell-je04gu; git -C $HOME\biobuzz pull origin claude/dazzling-maxwell-je04gu } else { git clone -b claude/dazzling-maxwell-je04gu https://github.com/Mona-Shores-FTC-Robotics/biobuzz $HOME\biobuzz }
+   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-hive-assets.ps1
+   ```
+2. Import [`advantagescope-layout-walls.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/dazzling-maxwell-je04gu/sim-review/advantagescope-layout-walls.json) (the usual
+   layout with our robot drawn with its walls, sliding) instead of `advantagescope-layout.json`.
+3. Open a walls log above. The Console says when the walls go out and in, and lists any `sim: G409`.
+4. The single-TIP logs aren't published: `.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*SideWallSpillTest*"`
+   writes them to `TeamCode\build\sim-logs`: `side-walls-demo-walls` / `-plain` (the same TIP with and
+   without walls) and `long-u-short-of-landing` / `long-u-at-landing` (where to park).
 
 ## Other two-wheel launcher Autos
 
@@ -39,26 +94,69 @@ with the spill landing and scattering as filmed on 3 Oct; the routes were tuned 
 - **Together** plays both robots at once; **ours** / **other** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of the 20 runs, the newest simulation of that
   Auto. They change when someone re-simulates it.
-- **with side walls**: the same Auto on a robot whose side walls slide 6 in forward when our CELL starts
-  to TIP ([side walls](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog)): 73 points and
-  3 TIPs in 19 of 20, against 70 and 18. Watch it with `sim-review/advantagescope-layout-walls.json`.
-  Each robot design's newest logs stay in `sim-results/<auto>/designs/<design>/`; `best` / `typical`
-  keep the robot the Auto was first simulated with.
-- **G409.** In this Auto our robot drives under the falling spill, and about 10 spilled pieces a run touch
-  it before anything else, with or without walls. G409 forbids catching or deflecting a spilled piece
-  before it touches something else, and its example of a foul the referees treat as intentional (a
-  yellow card) is a robot catching falling pieces "as the ROBOT drives under the HIVE". Each touch is a
-  `sim: G409` event in the log.
 - The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75° hood) are unmeasured, and
   most of the commands these Autos use exist only in the simulator so far.
 
-## Watching a log
+## How to watch them
 
-1. Download a `.wpilog` above, and open it in desktop
-   [AdvantageScope](https://github.com/Mechanical-Advantage/AdvantageScope/releases) (27.0.0-alpha-6 or later).
-2. **File → Import Layout** with [`sim-review/advantagescope-layout.json`](sim-review/advantagescope-layout.json).
-3. AUTO starts 1 s into the log; `/Match/Clock` shows match time. For the moving HIVE, do the one-time
-   [HIVE asset setup](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).
+### The route, in the Visualizer (nothing to install)
+
+Click **Together** in the table above: our robot and the partner open on the field in your browser,
+no login. Press **Space** (or the play button under the field) to play; drag the timeline to scrub.
+**ours** / **partner** open one robot's Auto on its own, with its cards (each step) down the side; the
+running card lights up as it plays, and **Preview as** plays it as a given scenario (for example
+"TIP 3 doesn't come") against the 30 s budget. What you change there is a copy: the team's `.pp` file
+changes only when someone saves it back (see *Trying a change*). The `.pp` links in the table are
+the files themselves, on GitHub.
+
+### The simulated match, in AdvantageScope
+
+A `.wpilog` is one simulated match: both robots, every POLLEN and NECTAR, the HIVE tipping, every
+command and TIP on a timeline.
+
+1. **Install AdvantageScope 27.0.0-alpha-6 or newer** (desktop app, free): open
+   [AdvantageScope's releases](https://github.com/Mechanical-Advantage/AdvantageScope/releases), find
+   **v27.0.0-alpha-6** (or a newer 27.x), and under *Assets* download the Windows installer
+   (`…win-x64….exe`). Older versions (26.x and before) don't have the FTC 2026-2027 field.
+2. **Download a log**: a **best** or **typical** link in the table.
+3. **Open it**: drag the `.wpilog` onto AdvantageScope, or **File → Open Log(s)…**.
+4. **Load our layout** (once; AdvantageScope remembers it): download
+   [`advantagescope-layout.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/advantagescope-layout.json) (right-click → *Save
+   link as*), then **File → Import Layout…** and pick it. It opens a 3D field with the robots, the
+   pieces and the HIVE, and graphs of the match.
+5. **Play**: the play button at the bottom left, or Space. AUTO starts 1 s into the log;
+   `/Match/Clock` shows match time, and the **Console** tab lists every command, shot, TIP and any
+   `sim: G409` touch.
+
+Until you do the one-time setup below, the field shows the stock, fixed HIVE: robots and pieces play,
+but the CELLs don't tip.
+
+### One-time setup on a new laptop: the tipping HIVE (Windows)
+
+AdvantageScope draws a moving HIVE only from two custom assets, the field **2026-2027 Field (HIVE
+sim)** and the robot **BIOBUZZ HIVE**. They are cut from the field AdvantageScope downloads, on your
+own laptop (no FIRST CAD is committed), by
+[`tools/advantagescope/setup-hive-assets.ps1`](tools/advantagescope/setup-hive-assets.ps1).
+
+You need: [Git for Windows](https://git-scm.com/download/win), [Android Studio](https://developer.android.com/studio)
+(already there if you build robot code; it brings the Java and Android SDK the build uses), and
+AdvantageScope (step 1 above).
+
+1. In AdvantageScope, open a **3D Field** tab (the + at the top), pick **2026-2027 Field** in its field
+   menu, and wait for it to load: that downloads the stock field. Close AdvantageScope.
+2. Open **PowerShell** (Start menu → type *PowerShell*) and paste:
+   ```powershell
+   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin claude/simulator; git -C $HOME\biobuzz checkout claude/simulator; git -C $HOME\biobuzz pull origin claude/simulator } else { git clone -b claude/simulator https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }
+   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-hive-assets.ps1
+   ```
+   It gets the code into `biobuzz` in your user folder (or updates it), finds the downloaded field,
+   builds the two assets (the first run downloads build tools: a few minutes) and copies them into
+   `%APPDATA%\AdvantageScope\userAssets`. It ends with `Done: copied into …`. If it stops on an
+   Android SDK or licence error, open `biobuzz` in Android Studio once, let it sync, and run it again.
+3. Start AdvantageScope and import the layout again (step 4 above): the HIVE now tips.
+
+Do it again after AdvantageScope updates its field. More on the simulator and the assets:
+[`TeamCode/README.md`](TeamCode/README.md#game-pieces-and-the-hive-in-a-simulated-wpilog).
 
 ## Trying a change
 
