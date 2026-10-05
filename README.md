@@ -6,7 +6,10 @@ This is the `claude/simulator` branch: the Autos, the simulator that scores them
 ## Qualifier Autos: the baseline (no walls)
 
 For the robot the build team is building (4 Oct 2026): one two-wheel launcher for POLLEN and NECTAR,
-an 18 in front intake, no side walls. Points are average alliance AUTO points over 20 simulated runs,
+an 18 in wide front intake, no side walls. The simulated intake takes a piece whose centre is under 6 in
+up and within 3 in of the front face, one every 0.35 s, 85% of the time, if it moves under 60 in/s
+relative to the robot; the robot is a 14 in tall box that pieces bounce off. Those are placeholders
+until the intake is built and timed. Points are average alliance AUTO points over 20 simulated runs,
 normal tiles / tiles with 3× the friction (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** counts
 spilled pieces our robot touches before they reach the tiles (the rule: don't catch or deflect a
 TIP's spill); the baseline must be 0. Numbers run 5 Oct 2026 12:55 UTC.
