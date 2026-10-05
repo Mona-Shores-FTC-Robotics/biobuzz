@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-right-o3.pp",
-  "spec": "QualRightO3Auto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/autos/qual-stages-wall.pp",
+  "spec": "QualStagesWallAuto,PartnerStage19SideParkAuto@50",
   "design": "builders' option 3 (5 Oct CAD)",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,8 +28,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-o3.pp",
+    "AutoSource": "qual-stages-wall.pp",
     "SavedBy": "README, qualifier Autos baseline (option 3)"
   },
-  "title": "Qual-PartnerShootsRight"
+  "title": "Qual-PartnerStages-Wall"
 }
