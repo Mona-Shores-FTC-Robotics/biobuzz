@@ -81,9 +81,9 @@ the single exception is `controls/Handoff`, which carries alliance and pose from
 TeleOp and is written and read only by `RobotOpMode`.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
-sets it and may correct it, only through `localization/CellFix`: a settled CELL with two or more
-tags gives the whole pose (its tag row runs along the axle, so its field direction is fixed), which
-seeds an unreferenced pose and backs `relocalizeFromCamera()`; continuous fixes into the filter
+sets it and may correct it, only through `localization/CellFix`: any two or more tags on settled
+CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
+own line), which seeds an unreferenced pose and backs `relocalizeFromCamera()`; continuous fixes into the filter
 are off (`LocalizationTuning.continuousFixes`) until a measurement shows they help. Relocalizing
 never moves the driver's field-centric forward. Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks

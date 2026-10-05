@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.localization;
 
+import org.firstinspires.ftc.teamcode.vision.BiobuzzTags;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.HiveGeometry;
@@ -48,22 +49,40 @@ public final class HiveFieldPoints {
 
     /**
      * Which way each CELL's tag row runs along field x: +1 if its cluster +x (tag 0 toward tag 3)
-     * points along field +x, -1 if along -x, NaN until seen. Index: HiveCell ordinal.
+     * points along field +x, -1 if along -x. Index: HiveCell ordinal.
      *
-     * <p>RED_AUDIENCE measured (#156): from the red audience start facing +y, tag 37 (cluster +6.5)
-     * was on the robot's right, which is field +x. The others: run Vision: Raw Tag Dump facing the
-     * CELL and see whether its highest id sits to the robot's right (+1 facing +y) or left.
+     * <p><b>Derived from the SDK's cluster layout, confirmed on RED_AUDIENCE.</b> The SDK puts each
+     * CELL's opening at +7.19 in cluster y and -5.62 in cluster z from its tag row. The opening faces
+     * away from the axle and the tags face down out of the CELL's underside, so for a right-handed
+     * cluster frame x = y × z: an AUDIENCE CELL (opening toward low field y) gives
+     * (0,-1,0) × (0,0,-1) = +x, a SCORING CELL (toward high y) gives -x. On 19429 (#156), from the
+     * red audience start facing +y, RED_AUDIENCE's tag 37 (cluster +6.5) sat on the robot's right,
+     * which is field +x, as predicted. To check another CELL: face it with Vision: Raw Tag Dump; its
+     * highest id should sit on the robot's right when facing +y for an AUDIENCE CELL, left for SCORING.
      */
     private static final double[] CLUSTER_X_ALONG_FIELD_X = {
-            /* RED_SCORING   */ Double.NaN,
+            /* RED_SCORING   */ -1,
             /* RED_AUDIENCE  */ +1,
-            /* BLUE_AUDIENCE */ Double.NaN,
-            /* BLUE_SCORING  */ Double.NaN,
+            /* BLUE_AUDIENCE */ +1,
+            /* BLUE_SCORING  */ -1,
     };
 
-    /** +1 or -1: which way {@code cell}'s row runs along field x; NaN until seen on the robot. */
+    /** +1 or -1: which way {@code cell}'s row runs along field x. */
     public static double clusterXAlongFieldX(HiveCell cell) {
         return CLUSTER_X_ALONG_FIELD_X[cell.ordinal()];
+    }
+
+    /**
+     * Where one HIVE tag is on the field, with its CELL in {@code state}: the row centre plus the
+     * tag's own offset along the row (the row runs along the axle, so a TIP leaves the offset along
+     * field x). Null for a non-HIVE tag, an unknown state, or an unmeasured point.
+     */
+    public static Vec3 tagPosition(int tagId, HiveCellState state) {
+        HiveCell cell = BiobuzzTags.cellForTag(tagId);
+        Vec3 row = cell == null ? null : rowCentre(cell, state);
+        if (row == null) return null;
+        double along = clusterXAlongFieldX(cell) * BiobuzzTags.memberOffset(tagId).x();
+        return new Vec3(row.x() + along, row.y(), row.z());
     }
 
     /** The row centre of {@code cell} in {@code state}, or null if unmeasured or the state is unknown. */

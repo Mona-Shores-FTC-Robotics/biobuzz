@@ -47,11 +47,17 @@ public final class LocalizationTuning {
 
     /**
      * Whether an unreferenced pose (no declared start, no Auto handoff) is set once from the
-     * camera: x, y and heading from a settled CELL with two or more tags ({@code CellFix.pose}),
+     * camera: x, y and heading from two or more tags on settled CELLs ({@code CellFix.fit}),
      * the same frames agreeing {@link #seedFrames} times running. The Pinpoint carries it from
      * there. DECODE did this with MegaTag1 ("HEADING_UNKNOWN").
      */
     public static boolean seedFromCamera = true;
+
+    /**
+     * Tags closer together than this (RMS distance from their middle, inches) give no heading:
+     * two neighbouring tags 3.75 in apart are 1.9 in from their middle and pass; one tag cannot.
+     */
+    public static double minTagSpreadIn = 1.5;
 
     /** Camera poses in a row that must agree before seeding, so one bad frame cannot. */
     public static int seedFrames = 3;

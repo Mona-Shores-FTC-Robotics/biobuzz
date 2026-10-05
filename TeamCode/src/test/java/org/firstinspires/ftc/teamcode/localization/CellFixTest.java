@@ -7,14 +7,10 @@ import static org.junit.Assert.assertTrue;
 import com.pedropathing.math.Pose;
 
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
-import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class CellFixTest {
 
@@ -82,18 +78,31 @@ public class CellFixTest {
 
     private static final double[] MEMBER_X = {-6.5, -2.75, 2.75, 6.5};
 
-    @Test
-    public void aRowOfTagsGivesTheWholePoseHeadingIncluded() {
-        Vec3 row = new Vec3(72, 100, 50);
-        for (double alongX : new double[]{+1, -1}) {
-            for (double h : new double[]{0, 0.4, Math.PI / 2, -2.5, Math.PI}) {
-                // Tag 0 and tag 3 of the row, as a robot at (30, 45, h) would see them.
-                Vec3 first = seenFrom(new Vec3(row.x() + alongX * MEMBER_X[0], row.y(), row.z()), 30, 45, h);
-                Vec3 last = seenFrom(new Vec3(row.x() + alongX * MEMBER_X[3], row.y(), row.z()), 30, 45, h);
-                Vec3 lateral = last.minus(first).times(1.0 / (MEMBER_X[3] - MEMBER_X[0]));
-                Pose pose = CellFix.pose(row, alongX, seenFrom(row, 30, 45, h), lateral);
+    /** Tags at {@code field} as a robot at (x, y, h) sees them, fitted back. */
+    private static Pose fitFrom(Vec3[] field, double x, double y, double h) {
+        int n = field.length;
+        double[] fx = new double[n], fy = new double[n], rx = new double[n], ry = new double[n];
+        for (int i = 0; i < n; i++) {
+            Vec3 seen = seenFrom(field[i], x, y, h);
+            fx[i] = field[i].x();
+            fy[i] = field[i].y();
+            rx[i] = seen.x();
+            ry[i] = seen.y();
+        }
+        return CellFix.fit(fx, fy, rx, ry, n, 1.5);
+    }
 
-                String what = "along " + alongX + ", heading " + h;
+    @Test
+    public void anyTwoOrMoreTagsGiveTheWholePose() {
+        Vec3[][] layouts = {
+                // A whole row, two neighbours, and one tag on each of two CELLs.
+                {new Vec3(65.5, 100, 50), new Vec3(69.25, 100, 50), new Vec3(74.75, 100, 50), new Vec3(78.5, 100, 50)},
+                {new Vec3(69.25, 100, 50), new Vec3(74.75, 100, 50)},
+                {new Vec3(58, 58.4, 50), new Vec3(83.5, 84.7, 35)}};
+        for (Vec3[] tags : layouts) {
+            for (double h : new double[]{0, 0.4, Math.PI / 2, -2.5, Math.PI}) {
+                Pose pose = fitFrom(tags, 30, 45, h);
+                String what = tags.length + " tags, heading " + h;
                 assertEquals(what, 30, pose.x(), 1e-9);
                 assertEquals(what, 45, pose.y(), 1e-9);
                 assertEquals(what, 0, Math.IEEEremainder(pose.heading() - h, 2 * Math.PI), 1e-9);
@@ -102,15 +111,36 @@ public class CellFixTest {
     }
 
     @Test
-    public void noRowDirectionNoPose() {
-        assertNull(CellFix.pose(HiveCell.RED_AUDIENCE, HiveCellState.UP, new Vec3(50, 0, 50), null));
-        // Not yet seen on the robot which way this row runs.
-        assertNull(CellFix.pose(HiveCell.BLUE_SCORING, HiveCellState.UP, new Vec3(50, 0, 50),
-                new Vec3(0, -1, 0)));
+    public void oneTagOrTagsOnTopOfEachOtherGiveNoHeading() {
+        assertNull(fitFrom(new Vec3[]{new Vec3(70, 100, 50)}, 30, 45, 0));
+        assertNull(fitFrom(new Vec3[]{new Vec3(70, 100, 50), new Vec3(70.5, 100, 50)}, 30, 45, 0));
     }
 
     @Test
-    public void todaysTagsSeedTheRobotWhereItWasTaped() {
+    public void oneTagWithTheHeadingGivesThePositionExactly() {
+        Vec3 tag = new Vec3(78.5, 100, 50);
+        Vec3 seen = seenFrom(tag, 30, 45, 0.7);
+        Pose pose = CellFix.position(new double[]{tag.x()}, new double[]{tag.y()},
+                new double[]{seen.x()}, new double[]{seen.y()}, 1, 0.7);
+
+        assertEquals(30, pose.x(), 1e-9);
+        assertEquals(45, pose.y(), 1e-9);
+        assertTrue(Double.isNaN(pose.heading()));
+    }
+
+    @Test
+    public void eachTagKnowsWhereItSitsAlongItsRow() {
+        // RED_AUDIENCE runs along +x (measured); its tag 37 is cluster +6.5 in.
+        assertEquals(58.0 + 6.5, HiveFieldPoints.tagPosition(37, HiveCellState.UP).x(), 1e-9);
+        assertEquals(58.0 - 6.5, HiveFieldPoints.tagPosition(34, HiveCellState.UP).x(), 1e-9);
+        // SCORING CELLs face the other way, so their tag 3 is at -6.5 along field x.
+        assertEquals(58.0 - 6.5, HiveFieldPoints.tagPosition(33, HiveCellState.UP).x(), 1e-9);
+        assertNull(HiveFieldPoints.tagPosition(37, HiveCellState.UNKNOWN));
+        assertNull(HiveFieldPoints.tagPosition(7, HiveCellState.UP));
+    }
+
+    @Test
+    public void todaysTagsPutTheRobotWhereItWasTaped() {
         // 19429, 3 Oct 2026 (#156), Vision: Raw Tag Dump at the red audience start: robot centre
         // 5 in from the audience wall, square to it, facing the HIVE (+y). Camera inches.
         double[][] seen = {
@@ -124,14 +154,16 @@ public class CellFixTest {
             CameraMount.mountUpIn = 14;
             CameraMount.pitchDeg = 45;
             CameraMount.yawDeg = 0;
-            List<CellSighting.Member> members = new ArrayList<>();
-            for (double[] tag : seen) {
-                members.add(new CellSighting.Member((int) tag[0],
-                        CameraMount.toRobotFrame(new Vec3(tag[1], tag[2], tag[3])), 0.003));
+            double[] fx = new double[4], fy = new double[4], rx = new double[4], ry = new double[4];
+            for (int i = 0; i < 4; i++) {
+                Vec3 field = HiveFieldPoints.tagPosition((int) seen[i][0], HiveCellState.UP);
+                Vec3 robot = CameraMount.toRobotFrame(new Vec3(seen[i][1], seen[i][2], seen[i][3]));
+                fx[i] = field.x();
+                fy[i] = field.y();
+                rx[i] = robot.x();
+                ry[i] = robot.y();
             }
-            CellSighting sighting = CellSighting.fromMembers(HiveCell.RED_AUDIENCE, members, 0L);
-            Pose pose = CellFix.pose(HiveCell.RED_AUDIENCE, HiveCellState.UP,
-                    sighting.rowCentreRobot(), sighting.lateralAxisRobot());
+            Pose pose = CellFix.fit(fx, fy, rx, ry, 4, 1.5);
 
             assertEquals(90, Math.toDegrees(pose.heading()), 3);
             assertEquals(5, pose.y(), 1.5);

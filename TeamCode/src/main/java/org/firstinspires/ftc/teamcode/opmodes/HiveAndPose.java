@@ -7,7 +7,6 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
-import org.firstinspires.ftc.teamcode.localization.CellFix;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldView;
@@ -33,7 +32,8 @@ import java.util.Locale;
  *   <li><b>HIVEs</b>: which CELL is up on each, TIPs so far, "tipping" or "assumed" when the camera
  *       did not see it happen ({@code robot.hive}).</li>
  *   <li><b>CELLs</b>: each one in view with its state, row height, rocker angle and tag count.</li>
- *   <li><b>Pose</b>: where odometry says the robot is, where the camera says it is, and how far
+ *   <li><b>Pose</b>: where odometry says the robot is, where the camera says it is (from every
+ *       tag of every settled CELL in view, {@code robot.drive.cameraPose()}), and how far
  *       apart; what the camera last did to the pose (seeded, relocalized, refused); the
  *       would-relocalize error while still.</li>
  * </ul>
@@ -126,7 +126,7 @@ public class HiveAndPose extends RobotOpMode {
 
     /** The Match page, the Panels graphs and the field view, from this loop's state. */
     private void showEverything() {
-        Pose camera = cameraPose();
+        Pose camera = robot.drive.cameraPose();
         showHives();
         showCells();
         showPose(camera);
@@ -199,7 +199,7 @@ public class HiveAndPose extends RobotOpMode {
                 describe(pose) + (robot.drive.poseReferenced() ? "" : " — not on the field yet"));
         if (camera == null) {
             display.status("Camera", Display.Level.WARN,
-                    "no settled CELL with 2+ tags and a known field point in view");
+                    "no tag on a settled CELL in view");
         } else {
             double gap = Math.hypot(camera.x() - pose.x(), camera.y() - pose.y());
             display.status("Camera", gap <= 3 ? Display.Level.OK : Display.Level.WARN,
@@ -287,32 +287,6 @@ public class HiveAndPose extends RobotOpMode {
     }
 
     // --------------------------------------------------------------- helpers
-
-    /**
-     * Where the camera puts the robot this loop: the whole pose from the settled CELL in view with
-     * the most tags, if its row direction is known; otherwise its position with odometry's heading.
-     * Display only: nothing here changes the pose.
-     */
-    private Pose cameraPose() {
-        Pose pose = robot.drive.pose();
-        Pose best = null;
-        int bestTags = 0;
-        for (HiveCell cell : CELLS) {
-            CellSighting sighting = robot.vision.sighting(cell);
-            if (sighting == null || sighting.tagCount() < 2 || sighting.tagCount() <= bestTags) continue;
-            HiveCellState state = robot.vision.state(cell);
-            Pose candidate = CellFix.pose(cell, state, sighting.rowCentreRobot(), sighting.lateralAxisRobot());
-            if (candidate == null && pose != null && robot.drive.poseReferenced()) {
-                Pose position = CellFix.position(cell, state, sighting.rowCentreRobot(), pose.heading());
-                candidate = position == null ? null : new Pose(position.x(), position.y(), pose.heading());
-            }
-            if (candidate != null) {
-                best = candidate;
-                bestTags = sighting.tagCount();
-            }
-        }
-        return best;
-    }
 
     private static double rockerAngle(double rowHeightIn) {
         return TagTilt.rockerAngleFromHeightDeg(rowHeightIn, CellStateTracker.Geometry.upRowHeightIn,

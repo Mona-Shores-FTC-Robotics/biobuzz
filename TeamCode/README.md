@@ -1208,10 +1208,13 @@ height). `HiveSubsystem` (`robot.hive`) feeds one `HiveTracker` per HIVE: a CELL
 or a settled CELL lost while the robot holds still, starts a TIP; after `tipSeconds` the other
 CELL is assumed up until the camera says otherwise.
 
-**Localization, DECODE's shape without MegaTag.** A CELL's four tags run along the HIVE's axle,
-which a TIP turns about, so the row's direction on the field never changes: two or more tags of a
-settled CELL give the robot's whole pose, heading included (`CellFix.pose`), the way MegaTag1 did.
-`DriveSubsystem` uses it three ways, and the Pinpoint carries the pose in between:
+**Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
+position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
+TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
+CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
+MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
+CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
+Pinpoint carries the pose in between:
 
 1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
    row agree. The driver's field-centric forward does not move.
@@ -1225,9 +1228,12 @@ Pinpoint holds a match on its own, the tags sit on flexing polycarbonate, and a 
 pose somewhere false (Chief Delphi thread 524104, #3, #4, #15). #82 session 5 is where that gets
 measured.
 
-Only RED_AUDIENCE's row direction on the field is measured
-(`HiveFieldPoints.clusterXAlongFieldX`); the other three CELLs give position fixes but no camera
-pose until someone faces each with Raw Tag Dump and notes which side its highest tag id is on.
+Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
+SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
+from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
+a SCORING one. That predicted RED_AUDIENCE, which was then measured. The other three are derived;
+facing each with Raw Tag Dump confirms it (highest id on the robot's right facing +y for AUDIENCE,
+left for SCORING).
 
 **Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
 the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
