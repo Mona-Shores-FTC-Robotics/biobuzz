@@ -59,14 +59,19 @@ of a parked robot aren't CONTROL; pushing them forward with the U is herding, an
 
 ![Where a red TIP's spill first touches the floor, on the Visualizer's field](sim-review/spill-window.png)
 
-**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). In
-the simulator 90% of spilled pieces first touch the floor 34–46 in out from the audience wall, across
-the CELL's 20 in opening (x 49–69), just audience-side of the lowered CELL (y 46–63 from above); median 42 in, against about 48 in the 3 Oct films, so the simulator lands them
-a little short. What must stay short of that window is the robot's front face and top; the arms can
-reach into it, because pieces land between them, on the floor. The picture is drawn on the Visualizer's
-BIOBUZZ field (the HIVE as it starts the match), in Pedro inches, with the robot, for now, backed against
-the audience wall at (58, 9), heading 90°. Redraw it after the simulator changes:
-`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then `python3 tools/spill-window/draw.py` (it needs the Visualizer checkout for the field image:
+**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). Each
+dot is where one spilled piece first hits anything after leaving the CELL: the tiles, the HIVE's feet, or
+a piece already down (200 simulated TIPs, 1,200 pieces, no robot). The red box holds 90% of them on each
+axis: y 39.3–43.9 in from the audience wall, x 49.4–67.5, the CELL's 20 in opening less a piece's radius
+each side; every one lands within x 48.0–70.6 and y 36.8–45.6. Median 42 in, against about 48 in the
+3 Oct films, so the simulator lands them a little short. A piece's first touch of the tiles alone is
+later and more scattered: one that lands on the pile can roll off it a long way, which is what made the
+earlier picture's box 34–46 in deep. What must stay short of the window is the robot's front face and
+top; the arms can reach into it, because pieces land between them, on the floor. Drawn on the
+Visualizer's BIOBUZZ field (the HIVE as it starts the match), in Pedro inches, with the robot, for now,
+backed against the audience wall at (58, 9). Redraw it after the simulator changes:
+`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then
+`python3 tools/spill-window/draw.py` (it needs the Visualizer checkout for the field image:
 `AUTO_BUILDER_DIR`, or `../visualizer`).
 
 **To watch these:**

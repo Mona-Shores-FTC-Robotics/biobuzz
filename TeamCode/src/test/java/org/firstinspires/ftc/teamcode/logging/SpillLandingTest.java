@@ -35,6 +35,13 @@ public class SpillLandingTest {
         double restFromWallIn = Double.NaN, restX = Double.NaN;
         /** How far it has gone from where it first touched, 0.5 s and 1 s later. */
         double travel05 = Double.NaN, travel1 = Double.NaN;
+        /**
+         * Where it first hit anything after leaving the CELL that G409 counts (FieldSim's
+         * {@code touchedTile}: the tiles, a wall, the HIVE's feet, or a piece already down): a piece
+         * that lands on the pile is caught here, where {@link #x}/{@link #y} wait until it reaches
+         * the tiles, possibly after rolling off the pile.
+         */
+        double contactFromWallIn = Double.NaN, contactX = Double.NaN;
         Landing(double fromWallIn, double x, double y, double seconds) {
             this.fromWallIn = fromWallIn;
             this.x = x;
@@ -58,6 +65,7 @@ public class SpillLandingTest {
             int down = sim.red.raisedEnd();
             Map<FieldSim.Piece, Boolean> tracked = new HashMap<>();
             Map<FieldSim.Piece, Landing> landed = new HashMap<>();
+            Map<FieldSim.Piece, double[]> contact = new HashMap<>();
             double started = Double.NaN;
             for (int k = 0; k < 12 && sim.red.tipsStarted == 0; k++) {
                 sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
@@ -83,9 +91,13 @@ public class SpillLandingTest {
                         if (Double.isNaN(seen.travel1) && after >= 1.0) seen.travel1 = d;
                     }
                     if (e.getValue() || p.where != FieldSim.Where.FIELD || p.cell != null) continue;
+                    if (p.touchedTile && !contact.containsKey(p)) contact.put(p, new double[] {Math.abs(p.y - wallY), p.x});
                     if (p.z < p.kind.radius + 0.3) {
                         e.setValue(true);
                         Landing l = new Landing(Math.abs(p.y - wallY), p.x, p.y, sim.time - started);
+                        double[] c = contact.getOrDefault(p, new double[] {l.fromWallIn, l.x});
+                        l.contactFromWallIn = c[0];
+                        l.contactX = c[1];
                         out.add(l);
                         landed.put(p, l);
                     }
@@ -183,15 +195,17 @@ public class SpillLandingTest {
     /**
      * Every spilled piece's first touch on the tiles over {@value #FIRST_TOUCH_TIPS} TIPs, for
      * {@code tools/spill-window/draw.py}: {@code build/sim-logs/spill-first-touch.csv}, one row per
-     * piece: inches from the wall, x, seconds after the TIP started, and where it lies 3 s later.
+     * piece: inches from the wall, x, seconds after the TIP started, where it lies 3 s later, and
+     * where it first hit anything (the tiles, the HIVE's feet or a piece already down).
      */
     @Test
     public void writesWhereTheSpillFirstTouches() throws java.io.IOException {
-        StringBuilder out = new StringBuilder("# fromWallIn,xIn,seconds,restFromWallIn,restXIn; Pedro inches, "
+        StringBuilder out = new StringBuilder("# fromWallIn,xIn,seconds,restFromWallIn,restXIn,contactFromWallIn,contactXIn; Pedro inches, "
                 + FIRST_TOUCH_TIPS + " TIPs, no robot (SpillLandingTest)\n");
         List<Landing> all = landings(FIRST_TOUCH_TIPS);
         for (Landing l : all) {
-            out.append(String.format(Locale.ROOT, "%.2f,%.2f,%.3f,%.2f,%.2f%n", l.fromWallIn, l.x, l.seconds, l.restFromWallIn, l.restX));
+            out.append(String.format(Locale.ROOT, "%.2f,%.2f,%.3f,%.2f,%.2f,%.2f,%.2f%n", l.fromWallIn, l.x, l.seconds,
+                    l.restFromWallIn, l.restX, l.contactFromWallIn, l.contactX));
         }
         java.io.File file = new java.io.File(TeamCodeDir.simLogs(), "spill-first-touch.csv");
         file.getParentFile().mkdirs();
