@@ -11,7 +11,7 @@ extra wait, "It lands", before the tunnel path.
 The routes themselves come from qual.py and qual_right.py unchanged (another session works on qual.py):
 this builds them with those functions and inserts the wait into the built card list.
 
-    python3 g409.py [runs] [auto ...] [--extra 0,300,500] [--designs plain,walls]
+    python3 g409.py [runs] [auto ...] [--extra 0,300,500] [--back 0,4] [--designs plain,walls,early]
 
 exports each Auto and extra into auto-builder/experiments as <auto>-g409-<ms> and simulates it with its
 partner on normal and slow tiles. Autos: v2 (qual-right-v2), shoots-left, stages, shoots-right (v1).
@@ -23,7 +23,7 @@ import qual_right
 from qual import QUALS, D
 
 WALLS = D + ", side walls"
-DESIGNS = {"plain": D, "walls": WALLS}
+DESIGNS = {"plain": D, "walls": WALLS, "early": WALLS + " out at the TIP"}
 
 # auto: (how to build it, its partner's class)
 AUTOS = {
@@ -55,13 +55,33 @@ def retime(r, extra_ms):
     return r
 
 
-def name(auto, extra):
-    return f"{BASE[auto]}-g409-{extra}"
+def back_off(r, inches):
+    """Wait for a TIP further from its landing: the catch spots (S_CATCH, N_LOW) move `inches` toward
+    their own walls, with every path that ends on them. A robot waiting there is otherwise
+    occasionally hit by a bouncing piece before it reaches the tiles. N_LOW stays inside the left
+    CELL's shot map (y 113-129)."""
+    if not inches:
+        return r
+    moves = {"S_CATCH": -inches, "N_LOW": inches}
+    for p, dy in moves.items():
+        x, y, h = r.points[p]
+        for line in r.lines:
+            e = line["endPoint"]
+            if abs(e["x"] - x) < 1e-6 and abs(e["y"] - y) < 1e-6:
+                e["y"] = y + dy
+        for q, (qx, qy, qh) in list(r.points.items()):  # N_FIRE is N_LOW under another name
+            if abs(qx - x) < 1e-6 and abs(qy - y) < 1e-6:
+                r.points[q] = [qx, y + dy, qh]
+    return r
 
 
-def build(auto, extra):
+def name(auto, extra, back=0):
+    return f"{BASE[auto]}-g409-{extra}" + (f"-back{back}" if back else "")
+
+
+def build(auto, extra, back=0):
     make, _ = AUTOS[auto]
-    r = retime(make(name(auto, extra)), extra)
+    r = back_off(retime(make(name(auto, extra, back)), extra), back)
     r.folder = autogen.EXPERIMENTS
     r.write()
     return r
@@ -69,22 +89,23 @@ def build(auto, extra):
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    extras, designs = [0, 300, 500], ["plain", "walls"]
-    if "--extra" in args:
-        i = args.index("--extra")
-        extras = [int(x) for x in args[i + 1].split(",")]
-        del args[i:i + 2]
-    if "--designs" in args:
-        i = args.index("--designs")
-        designs = args[i + 1].split(",")
-        del args[i:i + 2]
+    opts = {"--extra": "0,300,500", "--back": "0", "--designs": "plain,walls"}
+    for k in list(opts):
+        if k in args:
+            i = args.index(k)
+            opts[k] = args[i + 1]
+            del args[i:i + 2]
+    extras = [int(x) for x in opts["--extra"].split(",")]
+    backs = [int(x) for x in opts["--back"].split(",")]
+    designs = opts["--designs"].split(",")
     runs = int(args[0]) if args else 20
     autos = args[1:] or ["v2", "shoots-left", "stages"]
     specs = []
     for a in autos:
         for e in extras:
-            build(a, e)
-            specs.append(f"{qual_right.cls(name(a, e))},{AUTOS[a][1]}@50")
+            for b in backs:
+                build(a, e, b)
+                specs.append(f"{qual_right.cls(name(a, e, b))},{AUTOS[a][1]}@50")
     for f in ("1", "3"):
         print(f"--- tiles friction x{f}")
         autogen.study(";".join(specs), runs=runs, designs="|".join(DESIGNS[d] for d in designs),
