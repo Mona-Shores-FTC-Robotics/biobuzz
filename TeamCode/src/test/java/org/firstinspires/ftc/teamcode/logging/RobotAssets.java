@@ -74,6 +74,7 @@ final class RobotAssets {
     // (5 Oct 2026), +-15%.
     static final double WHEEL_RADIUS_IN = 2.05;
     static final double WHEEL_WIDTH_IN = 1.5;
+    static final double FRONT_WHEEL_SETBACK_IN = 3.0;
     static final double DECK_Z_IN = 2.5;
     static final double DECK_THICKNESS_IN = 0.25;
     static final double INTAKE_ROLLER_RADIUS_IN = 0.75;
@@ -164,9 +165,13 @@ final class RobotAssets {
 
         // Mecanum wheels at the corners, inside the frame's outline, and the deck between them.
         double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - WHEEL_WIDTH_IN / 2;
+        // An intake wider than the gap between the front wheels runs in front of them: the front wheels
+        // sit back, their front edge FRONT_WHEEL_SETBACK_IN behind the frame's front (as in option 3's CAD).
+        boolean wide = d.intakeWidthIn / 2 > half - WHEEL_WIDTH_IN;
+        double frontWheelX = wide ? half - FRONT_WHEEL_SETBACK_IN - WHEEL_RADIUS_IN : wheelX;
         for (int fx = -1; fx <= 1; fx += 2) {
             for (int fy = -1; fy <= 1; fy += 2) {
-                double[] c = {fx * wheelX, fy * wheelY, WHEEL_RADIUS_IN};
+                double[] c = {fx > 0 ? frontWheelX : -wheelX, fy * wheelY, WHEEL_RADIUS_IN};
                 String where = (fx > 0 ? "front " : "back ") + (fy > 0 ? "left" : "right");
                 b.cylinder("Wheel " + where, new double[] {0.12, 0.12, 0.14, 1}, c, WHEEL_RADIUS_IN, WHEEL_WIDTH_IN, IDENTITY_3);
                 b.cylinder("Hub " + where, new double[] {0.95, 0.76, 0.0, 1}, c, WHEEL_RADIUS_IN * 0.5, WHEEL_WIDTH_IN + 0.1, IDENTITY_3);
