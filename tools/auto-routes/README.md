@@ -8,12 +8,34 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 Two Autos, for the two partners we expect most in qualification, both for the two-wheel launcher robot
 (the simulator's "spring hood, full-width intake", speed 50). Alliance AUTO points over 20 runs, normal
-tiles / tiles with 3× the friction, and how many of the 20 made 3 TIPs:
+tiles / tiles with 3× the friction, and how many of the 20 made 3 TIPs. Each row says when its numbers
+were last run (UTC); a newer commit to the route or the simulator can change them.
 
-| Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs |
-|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v2 (`qual-right-v2`, `qual_right.py`) | `partner-preloads-right` | **75.8 / 76** | **20 / 20** |
-| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`) | `partner-stage-exit` | 58.5 / 62 (work in progress) | 7 / 11 |
+| Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | Updated |
+|---|---|---|---|---|---|
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight v2 (`qual-right-v2`, `qual_right.py`) | `partner-preloads-right` | **75.8 / 76** | **20 / 20** | 5 Oct 2026 01:40 |
+| Can't shoot: sets its 4 preloads down across the tunnel's north exit, parks | Qual-PartnerStages (`qual-partner-stages`, `qual.py`) | `partner-stage-exit` | 58.5 / 62 (work in progress) | 7 / 11 | 5 Oct 2026 01:40 |
+
+**With side walls** (`claude/dazzling-maxwell-je04gu`, its design "spring hood, full-width intake,
+side walls": walls down both sides that slide 6 in forward when our CELL starts to TIP, with one-way
+flaps). Same 20 runs, normal / slow tiles, run 5 Oct 2026 01:45 UTC on that branch's commit `1a91443`:
+
+| Auto | Plain: 3 TIPs, points | Walls: 3 TIPs, points |
+|---|---|---|
+| Qual-PartnerShootsRight v2 | 20 / 20, 75.8 / 76 | 20 / 20, 76 / 75.8 |
+| Qual-PartnerShootsRight v1 | 16 / 18, 72 / 74 | 18 / 19, 74 / 75 |
+| Qual-PartnerShootsLeft | 18 / 19, 70.3 / 72.3 | 19 / 19, 73 / 72.5 |
+| **Qual-PartnerStages** | 7 / 11, 58.5 / 62 | **16 / 12, 69.3 / 63.8** |
+
+The walls matter most where the route is short of pieces: Qual-PartnerStages on normal tiles gains 9
+TIP 3s (+11 points). They add nothing to v2, which already makes 20 / 20.
+
+**G409, in every Auto (5 Oct 2026).** That branch also flags a robot touching a spilled piece before it
+reaches the tiles (G409). Every qualifier Auto does it, walls or not: 5–11 touches a run on normal tiles
+(v2 5.4, ShootsLeft 10.6, Stages 11.0), 2–8 on slow ones, in nearly every run. The robot is under the
+falling spill (e.g. Stages, TIP 1 at 5.9 s, waiting at the right CELL). Whether the referees would call
+it depends on the manual's wording and on how high real pieces fall from the lip; check that before
+these routes are built, because the fix is to wait further back while a CELL tips.
 
 `python3 qual_right.py 20` and `python3 qual.py 20 stages` export and simulate them. On 40 more runs
 (seeds 21–60) Qual-PartnerShootsRight v2 makes 3 TIPs in 38 / 40 on both tiles (v1: 32 / 38): in
@@ -51,7 +73,7 @@ dropped: leaving N_FIRE for the spill sooner or later than when the right CELL i
 after TIP 2 starts): at 0, 0.2 or 0.4 s, 0–15 / 20; 0.15 or 0.3 s later, 16–18, firing from y 16–21, a tunnel lane at x 55 or 60, a webcam
 pickup facing north after the GARDEN (the leftovers lie behind the robot, toward the wall).
 
-**Standing where our TIP's spill lands.** Every qualifier Auto fires the shot that tips a CELL from that
+**Standing where our TIP's spill lands (run 5 Oct 2026 01:20 UTC).** Every qualifier Auto fires the shot that tips a CELL from that
 CELL's catch spot (y 114 for the left CELL, 28 in out from the wall), so the robot is there when the
 spill lands, and drives off through the tunnel as it lands. Waiting there 1–2.5 s instead catches no
 more (2.3–2.9 of TIP 2's 8 in 3 s, against 3.0 driving through) and costs TIP 3 (14–17 / 20); the
@@ -64,7 +86,7 @@ in front of a waiting robot, waiting wins, so film a TIP with a robot standing a
 scatter; driving through, we catch 2–4. The rest roll east across the centre line (2.5 of the 8 on
 average, up to 6) or south ahead of us.
 
-**A side shield (mentor's idea).** A wall on the robot's side toward the centre line, flush with the
+**A side shield (mentor's idea, run 4–5 Oct 2026; superseded by the side walls above).** A wall on the robot's side toward the centre line, flush with the
 frame's side and reaching 3 or 6 in past its front (R105 allows 6: 18 × 24 in). Driving south through
 the tunnel, intake first, that is the robot's *left*. In the simulator it is `RobotDesign.shieldReachIn`
 (designs "spring hood, full-width intake, 3 in shield" / "6 in shield"; "6 in shield right" puts it
