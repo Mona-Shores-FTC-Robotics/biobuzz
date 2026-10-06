@@ -838,7 +838,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-stages-wall-v-stream",
+    "exportName": "qual-stages-wall-v-stream-x700-leave",
     "registry": {
       "actions": [
         "LaunchAll",
@@ -1272,7 +1272,7 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1300,
+                    "afterMs": 700,
                     "cards": []
                   }
                 ]
@@ -1406,7 +1406,7 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 4500,
+                    "afterMs": 1300,
                     "cards": []
                   }
                 ]
@@ -1439,7 +1439,7 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1300,
+                    "afterMs": 700,
                     "cards": []
                   }
                 ]

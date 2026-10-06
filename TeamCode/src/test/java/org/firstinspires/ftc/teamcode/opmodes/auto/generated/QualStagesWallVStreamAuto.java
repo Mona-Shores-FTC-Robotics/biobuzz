@@ -166,6 +166,9 @@ public final class QualStagesWallVStreamAuto {
                         kit.afterMs(600).then(
                                 kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
                                 kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                                kit.firstOf("Seated at the FLOWER",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(400)),
                                 kit.command("StreamOn"),
                                 kit.firstOf("The far FLOWER, fired as it comes out (TIP 2)",
                                         kit.when("Tip"),

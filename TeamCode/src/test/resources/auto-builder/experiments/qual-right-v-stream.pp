@@ -714,12 +714,29 @@
         "park": false
       },
       {
-        "id": "a-8",
+        "id": "w-8",
+        "kind": "firstOf",
+        "label": "Seated at the FLOWER",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 400,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "a-9",
         "kind": "action",
         "name": "StreamOn"
       },
       {
-        "id": "w-9",
+        "id": "w-10",
         "kind": "firstOf",
         "label": "The far FLOWER, fired as it comes out (TIP 2)",
         "rows": [
@@ -736,23 +753,23 @@
         ]
       },
       {
-        "id": "a-10",
+        "id": "a-11",
         "kind": "action",
         "name": "StreamOff"
       },
       {
-        "id": "p-11",
+        "id": "p-12",
         "kind": "path",
         "lineId": "to-n-fire-4",
         "park": false
       },
       {
-        "id": "a-12",
+        "id": "a-13",
         "kind": "action",
         "name": "StreamOff"
       },
       {
-        "id": "w-13",
+        "id": "w-14",
         "kind": "firstOf",
         "label": "TIP 2 settles",
         "rows": [
@@ -769,7 +786,7 @@
         ]
       },
       {
-        "id": "w-14",
+        "id": "w-15",
         "kind": "firstOf",
         "label": "It lands",
         "rows": [
@@ -786,13 +803,13 @@
         ]
       },
       {
-        "id": "p-15",
+        "id": "p-16",
         "kind": "path",
         "lineId": "to-s-fire-5",
         "park": false
       },
       {
-        "id": "w-16",
+        "id": "w-17",
         "kind": "firstOf",
         "label": "Fire TIP 2's spill",
         "rows": [
@@ -810,25 +827,25 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-17",
+        "id": "p-18",
         "kind": "path",
         "lineId": "to-sweep-e-6",
         "park": false
       },
       {
-        "id": "p-18",
+        "id": "p-19",
         "kind": "path",
         "lineId": "to-sweep-w-7",
         "park": false
       },
       {
-        "id": "p-19",
+        "id": "p-20",
         "kind": "path",
         "lineId": "to-garden-8",
         "park": false
       },
       {
-        "id": "w-20",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "The GARDEN",
         "rows": [
@@ -845,13 +862,13 @@
         ]
       },
       {
-        "id": "p-21",
+        "id": "p-22",
         "kind": "path",
         "lineId": "to-s-fire-9",
         "park": false
       },
       {
-        "id": "w-22",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Fire the GARDEN",
         "rows": [
@@ -869,7 +886,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-25",
+        "id": "w-26",
         "kind": "firstOf",
         "label": "TIP 3 coming?",
         "rows": [
@@ -879,7 +896,7 @@
             ],
             "cards": [
               {
-                "id": "p-23",
+                "id": "p-24",
                 "kind": "path",
                 "lineId": "to-park-10",
                 "park": true
@@ -891,7 +908,7 @@
             "afterMs": 800,
             "cards": [
               {
-                "id": "p-24",
+                "id": "p-25",
                 "kind": "path",
                 "lineId": "to-park-11",
                 "park": true

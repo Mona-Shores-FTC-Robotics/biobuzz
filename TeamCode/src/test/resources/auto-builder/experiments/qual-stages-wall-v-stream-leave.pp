@@ -838,7 +838,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-stages-wall-v-stream",
+    "exportName": "qual-stages-wall-v-stream-leave",
     "registry": {
       "actions": [
         "LaunchAll",
@@ -1406,7 +1406,7 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 4500,
+                    "afterMs": 1300,
                     "cards": []
                   }
                 ]

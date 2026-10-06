@@ -503,7 +503,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-v-stream-x200",
+    "exportName": "qual-right-v-stream-leave",
     "registry": {
       "actions": [
         "SpinUp",
@@ -747,7 +747,7 @@
             "cards": []
           },
           {
-            "afterMs": 4500,
+            "afterMs": 1300,
             "cards": []
           }
         ]
@@ -797,7 +797,7 @@
             "cards": []
           },
           {
-            "afterMs": 200,
+            "afterMs": 500,
             "cards": []
           }
         ]

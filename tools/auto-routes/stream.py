@@ -16,7 +16,8 @@ import qual_right
 import retime
 
 _flower, _fire = qual_right.flower, qual_right.fire
-STREAM_MS = 4500  # at most this long at the FLOWER: 4 pulls (RobotDesign.flowerPullS) and the last shot
+SEAT_MS = 400  # the robot settles into the FLOWER after the path ends; the intake pulls meanwhile
+STREAM_MS = [4500]  # at most this long at the FLOWER, or until the TIP (set per route)
 
 
 def flower(r, name, label, ms=1500):
@@ -24,8 +25,10 @@ def flower(r, name, label, ms=1500):
     if name != "FAR_FLOWER":
         return cards
     # flower(): the paths in, then the wait for IntakeFull. Here: stream instead of filling up.
-    return cards[:-1] + [r.action("StreamOn"),
-                         r.wait("The far FLOWER, fired as it comes out (TIP 2)", when=["Tip"], ms=STREAM_MS),
+    # Seated first: StreamOn fires even while the robot moves (the shot carries its motion), and the robot is still
+    # settling into the FLOWER for about 0.4 s after the path ends, so the first shot went wide in every run.
+    return cards[:-1] + [r.wait("Seated at the FLOWER", when=["IntakeFull"], ms=SEAT_MS), r.action("StreamOn"),
+                         r.wait("The far FLOWER, fired as it comes out (TIP 2)", when=["Tip"], ms=STREAM_MS[0]),
                          r.action("StreamOff")]
 
 
@@ -35,7 +38,8 @@ def fire(r, label, until, ms=2000):
     return _fire(r, label, until, ms)
 
 
-def build(base, name, wait=None):
+def build(base, name, wait=None, stream_ms=4500):
+    STREAM_MS[0] = stream_ms
     qual_right.flower, qual_right.fire = flower, fire
     restore = retime.with_wait(base, wait) if wait is not None else (lambda: None)
     try:
@@ -50,10 +54,16 @@ def build(base, name, wait=None):
 ROUTES = {"qual-right-v-stream": ("qual-right-v", None), "qual-right-v-stream-x200": ("qual-right-v", 200),
           "qual-stages-angled-v-stream": ("qual-stages-angled-v", None),
           "qual-stages-wall-v-stream": ("qual-stages-wall-v", None), "qual-stages-wall-v-stream-x700": ("qual-stages-wall-v", 700)}
+# Leave the FLOWER once its 4 are away (4 pulls at RobotDesign.flowerPullS, 0.5 s, the last shot just after), not when
+# TIP 2 starts: waiting for the TIP put the robot back at N_FIRE about 2 s after it started, with the spill scattered
+# (2 of 4 picked up against 3.9). Gone 1.3 s after seated (the 4th shot away), it is back as the TIP starts.
+LEAVE = {f"{n}-leave": (b, w, 1300) for n, (b, w) in list(ROUTES.items())}
+ROUTES = {n: (b, w, 4500) for n, (b, w) in ROUTES.items()}
+ROUTES.update(LEAVE)
 
 if __name__ == "__main__":
-    for name, (base, wait) in ROUTES.items():
-        r = build(base, name, wait)
+    for name, (base, wait, ms) in ROUTES.items():
+        r = build(base, name, wait, ms)
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(name)
