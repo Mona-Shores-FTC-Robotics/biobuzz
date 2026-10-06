@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="588" height="532" viewBox="0 0 588 532"><rect width="100%" height="100%" fill="#fff"/><style>
+.t{font:600 15px sans-serif;fill:#222}.l{font:11px sans-serif;fill:#333;text-anchor:middle}
+.n{font:11px sans-serif;fill:#a33;text-anchor:start}
+.body{fill:#eee;stroke:#999}.rail{fill:none;stroke:#999;stroke-dasharray:2 2}.wheel{fill:#ccc;stroke:#777}.roll{fill:#9c9;stroke:#585}
+.taken{fill:#f6d7a7;stroke:#c90;opacity:.8}.new{fill:#cde3fb;stroke:#2a6fb5;stroke-width:1.5}
+.lane{fill:none;stroke:#2a6fb5;stroke-width:2.5}.belt{fill:none;stroke:#d33;stroke-width:2}
+.thin{fill:none;stroke:#555;stroke-dasharray:4 3}.fov{fill:none;stroke:#a3a;stroke-dasharray:6 3}
+.pol{fill:#ffe680;stroke:#b90}.nec{fill:#ffb3c6;stroke:#c36}.tur{fill:#ddd0f5;stroke:#649;opacity:.85}
+.path{fill:none;stroke:#2a6fb5;stroke-width:1.5;stroke-dasharray:3 3}.env{fill:none;stroke:#000;stroke-dasharray:8 4}
+</style><text x="8" y="18" class="t">B. Tower on the turret axis: top</text>
+<rect x="40.3" y="80.6" width="423.4" height="370.7" class="body"/>
+<rect x="357.8" y="53.2" width="105.8" height="42.0" class="wheel"/>
+<rect x="357.8" y="436.8" width="105.8" height="42.0" class="wheel"/>
+<rect x="40.3" y="53.2" width="105.8" height="42.0" class="wheel"/>
+<rect x="40.3" y="436.8" width="105.8" height="42.0" class="wheel"/>
+<rect x="465.2" y="72.8" width="52.9" height="386.4" class="roll"/>
+<polyline points="502.9,51.0 543.2,17.1" class="lane"/>
+<polyline points="502.9,481.0 543.2,514.9" class="lane"/>
+<rect x="460.6" y="213.9" width="48.7" height="104.2" class="taken"/>
+<rect x="463.7" y="319.2" width="44.8" height="58.8" class="taken"/>
+<rect x="435.7" y="78.4" width="44.8" height="131.6" class="taken"/>
+<text x="486.1" y="389.2" class="l">extractor drive</text>
+<text x="458.1" y="68.6" class="l">roller motor</text>
+<polyline points="39.2,518.0 39.2,14.0 543.2,14.0 543.2,518.0" class="env"/>
+<rect x="123.2" y="207.2" width="330.4" height="117.6" class="new"/>
+<circle cx="189.3" cy="266.0" r="57.9" class="tur"/>
+<circle cx="189.3" cy="266.0" r="50.7" class="nec"/>
+<circle cx="290.6" cy="266.0" r="50.7" class="nec"/>
+<circle cx="392.0" cy="266.0" r="50.7" class="nec"/>
+<circle cx="493.4" cy="266.0" r="50.7" class="nec"/>
+<text x="336.0" y="347.2" class="l">4 NECTAR fit, but so do 5 POLLEN</text></svg>
