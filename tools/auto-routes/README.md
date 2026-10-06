@@ -6,7 +6,8 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The qualifier Autos
 
-Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
+Slow-tile numbers before 6 Oct 2026 02:56 UTC (in the tables below this one too) used a HIVE calibrated under
+3× friction (`HiveCalibration.fit`, fixed then); they read high, by up to 4 points. Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
 UTC: the build team's option 3** (`RobotDesign.buildersOption3`, "builders' option 3 (5 Oct CAD)",
 speed 50, no side walls): about 14.5 in square, a 14 in intake across the front (5 in tall, takes a piece
 only on contact), the launcher near the back (the piece leaves 4 in behind the centre, 12 in up, at
@@ -16,12 +17,12 @@ made 3 TIPs; and G409, spilled pieces our robot touched before they reached the 
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.8 / 61.3** | **11 / 8** (PARK 11 / 9) | **0 / 0** | 5 Oct 2026 21:49 |
-| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **56.0 / 54.8** | 0 / 0 (TIP 2 20 / 19, PARK 20 / 19) | 1 run / 0 | 5 Oct 2026 21:49 |
-| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **51.0 / 51.0** | 0 / 0 (TIP 2 20 / 20, no PARK) | 0 / 0 | 5 Oct 2026 21:49 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.8 / 57.3** | **11 / 5** (PARK 11 / 5) | **0 / 0** | 6 Oct 2026 02:56 |
+| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **56.0 / 54.8** | 0 / 0 (TIP 2 20 / 19, PARK 20 / 19) | 1 run / 1 | 6 Oct 2026 02:56 |
+| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **51.0 / 50.0** | 0 / 0 (TIP 2 20 / 19, no PARK) | 0 / 0 | 6 Oct 2026 02:56 |
 
 `DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
-and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 68.0, 17 / 16, run 15:49) stays as
+and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 67.0, 17 / 15, rerun 6 Oct 2026 with the fixed calibration) stays as
 the "what a wider intake buys"; qual.py's own Autos (`qual-partner-*`) are another session's.
 The research routes (the side walls' G409-safe versions, `g409.py`; the shapes, `qual_shapes.py`; preloads
 staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-walls.md](../../doc/robot-shapes-and-walls.md),

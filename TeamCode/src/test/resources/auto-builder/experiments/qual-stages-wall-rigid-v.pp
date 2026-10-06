@@ -7,67 +7,87 @@
   },
   "lines": [
     {
-      "id": "to-lane-s-1",
+      "id": "to-s-catch-1",
       "color": "#3cc8e4",
-      "name": "START to LANE_S",
+      "name": "START to S_CATCH",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 37,
-        "y": 22
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-lane-n-2",
-      "color": "#3cc8e4",
-      "name": "LANE_S to LANE_N",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 37,
-        "y": 118
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-lane-r-3",
-      "color": "#3cc8e4",
-      "name": "LANE_N to LANE_R",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 36.9,
-        "y": 118
+        "x": 57.5,
+        "y": 28
       },
       "controlPoints": [],
       "heading": {
         "type": "linear",
         "startDeg": 90,
-        "endDeg": 0
+        "endDeg": 90
+      }
+    },
+    {
+      "id": "to-n-turn-2",
+      "color": "#3cc8e4",
+      "name": "S_CATCH to N_TURN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 104
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.95,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.95,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-n-low-3",
+      "color": "#3cc8e4",
+      "name": "N_TURN to N_LOW",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 114
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
       }
     },
     {
       "id": "to-turn-a-4",
       "color": "#3cc8e4",
-      "name": "LANE_R to TURN_A",
+      "name": "N_LOW to TURN_A",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -79,8 +99,28 @@
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 0
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.8,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 0
+              }
+            }
+          ]
+        }
       }
     },
     {
@@ -405,6 +445,142 @@
           ]
         }
       }
+    },
+    {
+      "id": "to-s-fire-15",
+      "color": "#3cc8e4",
+      "name": "N_LOW to S_FIRE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 24
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.86,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.86,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-garden-in-16",
+      "color": "#3cc8e4",
+      "name": "S_FIRE to GARDEN_IN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 8.5,
+        "y": 20.25
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0.0,
+              "endProgress": 0.6,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.6,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-garden-17",
+      "color": "#3cc8e4",
+      "name": "GARDEN_IN to GARDEN",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 8.5,
+        "y": 9.25
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-s-fire-18",
+      "color": "#3cc8e4",
+      "name": "GARDEN to S_FIRE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 24
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 270,
+                "endDeg": 90
+              }
+            }
+          ]
+        }
+      }
     }
   ],
   "shapes": [
@@ -484,15 +660,15 @@
   "sequence": [
     {
       "kind": "path",
-      "lineId": "to-lane-s-1"
+      "lineId": "to-s-catch-1"
     },
     {
       "kind": "path",
-      "lineId": "to-lane-n-2"
+      "lineId": "to-n-turn-2"
     },
     {
       "kind": "path",
-      "lineId": "to-lane-r-3"
+      "lineId": "to-n-low-3"
     },
     {
       "kind": "path",
@@ -537,6 +713,22 @@
     {
       "kind": "path",
       "lineId": "to-s-fire-14"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-fire-15"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-garden-in-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-garden-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-fire-18"
     }
   ],
   "settings": {
@@ -585,6 +777,7 @@
       "conditions": [
         "Empty",
         "IntakeFull",
+        "LeftCellUp",
         "Tip",
         "RightCellUp"
       ],
@@ -720,17 +913,12 @@
         20.9,
         132.8,
         0
-      ],
-      "LANE_S": [
-        37,
-        22,
-        90
       ]
     },
     "pathEnds": {
-      "to-lane-s-1": "LANE_S",
-      "to-lane-n-2": "LANE_N",
-      "to-lane-r-3": "LANE_R",
+      "to-s-catch-1": "S_CATCH",
+      "to-n-turn-2": "N_TURN",
+      "to-n-low-3": "N_LOW",
       "to-turn-a-4": "TURN_A",
       "to-row-s-5": "ROW_S",
       "to-row-n-6": "ROW_N",
@@ -741,7 +929,11 @@
       "to-s-fire-11": "S_FIRE",
       "to-garden-in-12": "GARDEN_IN",
       "to-garden-13": "GARDEN",
-      "to-s-fire-14": "S_FIRE"
+      "to-s-fire-14": "S_FIRE",
+      "to-s-fire-15": "S_FIRE",
+      "to-garden-in-16": "GARDEN_IN",
+      "to-garden-17": "GARDEN",
+      "to-s-fire-18": "S_FIRE"
     },
     "startAt": "START",
     "cards": [
@@ -764,154 +956,30 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-2",
-        "kind": "path",
-        "lineId": "to-lane-s-1",
-        "park": false
-      },
-      {
         "id": "p-3",
         "kind": "path",
-        "lineId": "to-lane-n-2",
+        "lineId": "to-s-catch-1",
         "park": false
       },
       {
-        "id": "p-4",
-        "kind": "path",
-        "lineId": "to-lane-r-3",
-        "park": false
-      },
-      {
-        "id": "p-5",
-        "kind": "path",
-        "lineId": "to-turn-a-4",
-        "park": false
-      },
-      {
-        "id": "p-6",
-        "kind": "path",
-        "lineId": "to-row-s-5",
-        "park": false
-      },
-      {
-        "id": "p-7",
-        "kind": "path",
-        "lineId": "to-row-n-6",
-        "park": false
-      },
-      {
-        "id": "w-8",
+        "id": "w-4",
         "kind": "firstOf",
-        "label": "The staged row",
+        "label": "TIP 1 settles",
         "rows": [
           {
             "when": [
-              "IntakeFull"
+              "LeftCellUp"
             ],
             "cards": []
           },
           {
-            "afterMs": 1600,
+            "afterMs": 3500,
             "cards": []
           }
         ]
       },
       {
-        "id": "p-9",
-        "kind": "path",
-        "lineId": "to-n-low-7",
-        "park": false
-      },
-      {
-        "id": "w-10",
-        "kind": "firstOf",
-        "label": "Fire the row",
-        "rows": [
-          {
-            "when": [
-              "Empty"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "p-11",
-        "kind": "path",
-        "lineId": "to-far-flower-turn-8",
-        "park": false
-      },
-      {
-        "id": "p-12",
-        "kind": "path",
-        "lineId": "to-far-flower-9",
-        "park": false
-      },
-      {
-        "id": "w-13",
-        "kind": "firstOf",
-        "label": "The far FLOWER",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2300,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "p-14",
-        "kind": "path",
-        "lineId": "to-n-fire-10",
-        "park": false
-      },
-      {
-        "id": "w-15",
-        "kind": "firstOf",
-        "label": "Fire the far FLOWER (TIP 2)",
-        "rows": [
-          {
-            "when": [
-              "Tip"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "w-16",
-        "kind": "firstOf",
-        "label": "TIP 2 settles",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-17",
+        "id": "w-2",
         "kind": "firstOf",
         "label": "It lands",
         "rows": [
@@ -928,15 +996,21 @@
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-5",
         "kind": "path",
-        "lineId": "to-s-fire-11",
+        "lineId": "to-n-turn-2",
         "park": false
       },
       {
-        "id": "w-19",
+        "id": "p-6",
+        "kind": "path",
+        "lineId": "to-n-low-3",
+        "park": false
+      },
+      {
+        "id": "w-7",
         "kind": "firstOf",
-        "label": "Fire TIP 2's spill",
+        "label": "Fire the catch",
         "rows": [
           {
             "when": [
@@ -945,28 +1019,34 @@
             "cards": []
           },
           {
-            "afterMs": 2000,
+            "afterMs": 2200,
             "cards": []
           }
         ],
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-20",
+        "id": "p-8",
         "kind": "path",
-        "lineId": "to-garden-in-12",
+        "lineId": "to-turn-a-4",
         "park": false
       },
       {
-        "id": "p-21",
+        "id": "p-9",
         "kind": "path",
-        "lineId": "to-garden-13",
+        "lineId": "to-row-s-5",
         "park": false
       },
       {
-        "id": "w-22",
+        "id": "p-10",
+        "kind": "path",
+        "lineId": "to-row-n-6",
+        "park": false
+      },
+      {
+        "id": "w-11",
         "kind": "firstOf",
-        "label": "The GARDEN",
+        "label": "The staged row",
         "rows": [
           {
             "when": [
@@ -975,34 +1055,330 @@
             "cards": []
           },
           {
-            "afterMs": 1500,
+            "afterMs": 1600,
             "cards": []
           }
         ]
       },
       {
-        "id": "p-23",
+        "id": "p-12",
         "kind": "path",
-        "lineId": "to-s-fire-14",
+        "lineId": "to-n-low-7",
         "park": false
       },
       {
-        "id": "w-24",
+        "id": "w-13",
         "kind": "firstOf",
-        "label": "Fire the GARDEN",
+        "label": "Fire the row",
         "rows": [
           {
             "when": [
-              "Empty"
+              "Tip"
             ],
             "cards": []
           },
           {
-            "afterMs": 1800,
+            "afterMs": 2500,
             "cards": []
           }
         ],
         "alongside": "LaunchAll"
+      },
+      {
+        "id": "w-37",
+        "kind": "firstOf",
+        "label": "TIP 2?",
+        "rows": [
+          {
+            "when": [
+              "Tip"
+            ],
+            "cards": [
+              {
+                "id": "w-28",
+                "kind": "firstOf",
+                "label": "TIP 2 settles",
+                "rows": [
+                  {
+                    "when": [
+                      "RightCellUp"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "w-29",
+                "kind": "firstOf",
+                "label": "It lands",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-30",
+                "kind": "path",
+                "lineId": "to-s-fire-15",
+                "park": false
+              },
+              {
+                "id": "w-31",
+                "kind": "firstOf",
+                "label": "Fire TIP 2's spill",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2000,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              },
+              {
+                "id": "p-32",
+                "kind": "path",
+                "lineId": "to-garden-in-16",
+                "park": false
+              },
+              {
+                "id": "p-33",
+                "kind": "path",
+                "lineId": "to-garden-17",
+                "park": false
+              },
+              {
+                "id": "w-34",
+                "kind": "firstOf",
+                "label": "The GARDEN",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 1500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-35",
+                "kind": "path",
+                "lineId": "to-s-fire-18",
+                "park": false
+              },
+              {
+                "id": "w-36",
+                "kind": "firstOf",
+                "label": "Fire the GARDEN",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 1800,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              }
+            ],
+            "label": "Yes"
+          },
+          {
+            "afterMs": 600,
+            "cards": [
+              {
+                "id": "p-14",
+                "kind": "path",
+                "lineId": "to-far-flower-turn-8",
+                "park": false
+              },
+              {
+                "id": "p-15",
+                "kind": "path",
+                "lineId": "to-far-flower-9",
+                "park": false
+              },
+              {
+                "id": "w-16",
+                "kind": "firstOf",
+                "label": "The far FLOWER",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2300,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-17",
+                "kind": "path",
+                "lineId": "to-n-fire-10",
+                "park": false
+              },
+              {
+                "id": "w-18",
+                "kind": "firstOf",
+                "label": "Fire the far FLOWER (TIP 2)",
+                "rows": [
+                  {
+                    "when": [
+                      "Tip"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              },
+              {
+                "id": "w-19",
+                "kind": "firstOf",
+                "label": "TIP 2 settles (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "RightCellUp"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "w-20",
+                "kind": "firstOf",
+                "label": "It lands (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-21",
+                "kind": "path",
+                "lineId": "to-s-fire-11",
+                "park": false
+              },
+              {
+                "id": "w-22",
+                "kind": "firstOf",
+                "label": "Fire TIP 2's spill (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2000,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              },
+              {
+                "id": "p-23",
+                "kind": "path",
+                "lineId": "to-garden-in-12",
+                "park": false
+              },
+              {
+                "id": "p-24",
+                "kind": "path",
+                "lineId": "to-garden-13",
+                "park": false
+              },
+              {
+                "id": "w-25",
+                "kind": "firstOf",
+                "label": "The GARDEN (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 1500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-26",
+                "kind": "path",
+                "lineId": "to-s-fire-14",
+                "park": false
+              },
+              {
+                "id": "w-27",
+                "kind": "firstOf",
+                "label": "Fire the GARDEN (B)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 1800,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              }
+            ],
+            "label": "No: the far FLOWER"
+          }
+        ]
       }
     ]
   },

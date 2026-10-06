@@ -23,7 +23,7 @@ public final class QualStagesWallRigidVAuto {
     public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "RightCellUp", "Tip"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp", "Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -44,22 +44,30 @@ public final class QualStagesWallRigidVAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 7.75, 90);
         Pose nLow = p.of(57.5, 114, 270);
+        Pose nTurn = p.of(57.5, 104, 270);
+        Pose sCatch = p.of(57.5, 28, 90);
         Pose gardenIn = p.of(8.5, 20.25, 270);
         Pose garden = p.of(8.5, 9.25, 270);
         Pose farFlower = p.of(47.36, 129.34, 90);
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose laneN = p.of(37, 118, 90);
-        Pose laneR = p.of(36.9, 118, 0);
         Pose turnA = p.of(20.9, 118, 0);
         Pose rowS = p.of(19.5, 132.8, 0);
         Pose rowN = p.of(20.9, 132.8, 0);
-        Pose laneS = p.of(37, 22, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
+        Pose sCatchToNTurnSegment1Heading = p.of(57.5, 104, 90);
+        Pose sCatchToNTurnSegment2Start = p.of(57.5, 104, 90);
+        Pose nLowToTurnASegment1Heading = p.of(20.9, 118, 270);
+        Pose nLowToTurnASegment2Start = p.of(20.9, 118, 270);
         Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 0);
         Pose rowNToNLowSegment2Start = p.of(57.5, 114, 0);
+        Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
+        Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose sFireToGardenInSegment1Start = p.of(8.5, 20.25, 90);
+        Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
+        Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 121.04, 0);
         Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 121.04, 270);
         Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 121.04, 270);
@@ -67,34 +75,47 @@ public final class QualStagesWallRigidVAuto {
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
-        Pose sFireToGardenInSegment1Start = p.of(8.5, 20.25, 90);
-        Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
-        Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose sFireToGardenIn_2Segment1Start = p.of(8.5, 20.25, 90);
+        Pose gardenToSFire_2Segment1Heading = p.of(57.5, 24, 270);
+        Pose gardenToSFire_2Segment2Start = p.of(57.5, 24, 270);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToLaneS = Paths.line(start, laneS).constant(laneS);
-        Path laneSToLaneN = Paths.line(laneS, laneN).constant(laneN);
-        Path laneNToLaneR = Paths.line(laneN, laneR).linear(laneN, laneR);
-        Path laneRToTurnA = Paths.line(laneR, turnA).constant(turnA);
+        Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
+        Path sCatchToNTurn = Paths.line(sCatch, nTurn).heading(Interpolator.piecewise().until(0.95, Interpolator.constant(sCatchToNTurnSegment1Heading)).until(1, Interpolator.linear(sCatchToNTurnSegment2Start, nTurn)));
+        Path nTurnToNLow = Paths.line(nTurn, nLow).constant(nLow);
+        Path nLowToTurnA = Paths.line(nLow, turnA).heading(Interpolator.piecewise().until(0.8, Interpolator.constant(nLowToTurnASegment1Heading)).until(1, Interpolator.linear(nLowToTurnASegment2Start, turnA)));
         Path turnAToRowS = Paths.line(turnA, rowS).constant(rowS);
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
+        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
+        Path sFireToGardenIn = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
+        Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
+        Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.line(farFlower, nLow).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nLow)));
         Path nFireToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
-        Path sFireToGardenIn = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
-        Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
+        Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
+        Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
+        Path gardenToSFirePath = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFire_2Segment1Heading)).until(1, Interpolator.linear(gardenToSFire_2Segment2Start, sFire)));
 
         return kit.sequence(
                 kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
                         kit.when("Empty"),
                         kit.afterMs(4000)),
-                kit.path("START to LANE_S", startToLaneS),
-                kit.path("LANE_S to LANE_N", laneSToLaneN),
-                kit.path("LANE_N to LANE_R", laneNToLaneR),
-                kit.path("LANE_R to TURN_A", laneRToTurnA),
+                kit.path("START to S_CATCH", startToSCatch),
+                kit.firstOf("TIP 1 settles",
+                        kit.when("LeftCellUp"),
+                        kit.afterMs(3500)),
+                kit.firstOf("It lands",
+                        kit.when("IntakeFull"),
+                        kit.afterMs(500)),
+                kit.path("S_CATCH to N_TURN", sCatchToNTurn),
+                kit.path("N_TURN to N_LOW", nTurnToNLow),
+                kit.firstOf("Fire the catch", kit.command("LaunchAll"),
+                        kit.when("Empty"),
+                        kit.afterMs(2200)),
+                kit.path("N_LOW to TURN_A", nLowToTurnA),
                 kit.path("TURN_A to ROW_S", turnAToRowS),
                 kit.path("ROW_S to ROW_N", rowSToRowN),
                 kit.firstOf("The staged row",
@@ -102,35 +123,57 @@ public final class QualStagesWallRigidVAuto {
                         kit.afterMs(1600)),
                 kit.path("ROW_N to N_LOW", rowNToNLow),
                 kit.firstOf("Fire the row", kit.command("LaunchAll"),
-                        kit.when("Empty"),
-                        kit.afterMs(2500)),
-                kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
-                kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
-                kit.firstOf("The far FLOWER",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(2300)),
-                kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
-                kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
                         kit.when("Tip"),
                         kit.afterMs(2500)),
-                kit.firstOf("TIP 2 settles",
-                        kit.when("RightCellUp"),
-                        kit.afterMs(2500)),
-                kit.firstOf("It lands",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(500)),
-                kit.path("N_FIRE to S_FIRE", nFireToSFire),
-                kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
-                        kit.when("Empty"),
-                        kit.afterMs(2000)),
-                kit.path("S_FIRE to GARDEN_IN", sFireToGardenIn),
-                kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
-                kit.firstOf("The GARDEN",
-                        kit.when("IntakeFull"),
-                        kit.afterMs(1500)),
-                kit.path("GARDEN to S_FIRE", gardenToSFire),
-                kit.firstOf("Fire the GARDEN", kit.command("LaunchAll"),
-                        kit.when("Empty"),
-                        kit.afterMs(1800)));
+                kit.firstOf("TIP 2?",
+                        kit.when("Tip").then(
+                                kit.firstOf("TIP 2 settles",
+                                        kit.when("RightCellUp"),
+                                        kit.afterMs(2500)),
+                                kit.firstOf("It lands",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(500)),
+                                kit.path("N_LOW to S_FIRE", nLowToSFire),
+                                kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
+                                        kit.when("Empty"),
+                                        kit.afterMs(2000)),
+                                kit.path("S_FIRE to GARDEN_IN", sFireToGardenIn),
+                                kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
+                                kit.firstOf("The GARDEN",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(1500)),
+                                kit.path("GARDEN to S_FIRE", gardenToSFire),
+                                kit.firstOf("Fire the GARDEN", kit.command("LaunchAll"),
+                                        kit.when("Empty"),
+                                        kit.afterMs(1800))),
+                        kit.afterMs(600).then(
+                                kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
+                                kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                                kit.firstOf("The far FLOWER",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(2300)),
+                                kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
+                                kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
+                                        kit.when("Tip"),
+                                        kit.afterMs(2500)),
+                                kit.firstOf("TIP 2 settles (B)",
+                                        kit.when("RightCellUp"),
+                                        kit.afterMs(2500)),
+                                kit.firstOf("It lands (B)",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(500)),
+                                kit.path("N_FIRE to S_FIRE", nFireToSFire),
+                                kit.firstOf("Fire TIP 2's spill (B)", kit.command("LaunchAll"),
+                                        kit.when("Empty"),
+                                        kit.afterMs(2000)),
+                                kit.path("S_FIRE to GARDEN_IN", sFireToGardenInPath),
+                                kit.path("GARDEN_IN to GARDEN", gardenInToGardenPath),
+                                kit.firstOf("The GARDEN (B)",
+                                        kit.when("IntakeFull"),
+                                        kit.afterMs(1500)),
+                                kit.path("GARDEN to S_FIRE", gardenToSFirePath),
+                                kit.firstOf("Fire the GARDEN (B)", kit.command("LaunchAll"),
+                                        kit.when("Empty"),
+                                        kit.afterMs(1800)))));
     }
 }

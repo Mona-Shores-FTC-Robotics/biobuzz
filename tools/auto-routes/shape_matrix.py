@@ -38,6 +38,10 @@ def autos(shape):
 
 def stages_for(shape, kind, name):
     partner, plan, kw = STAGES[kind]
+    if shape == "rigid-v" and kind == "wall":
+        # 18 in across its flaps, it doesn't fit the west lane between the HIVE frame's foot bar (x 45) and the
+        # parked partner (x 28): 17 in. North through the tunnel instead ("chase").
+        plan = "chase"
     hook_at = SHAPES[shape][1]
     kw = dict(kw)
     tail = qual_right.tail
