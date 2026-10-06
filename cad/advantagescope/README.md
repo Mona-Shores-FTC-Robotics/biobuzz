@@ -25,6 +25,8 @@ pivot, i.e. translation = pivot − R·pivot. `extractor_poses.json` has both en
 **Complete for now.** The rear FLOWER scorer is dropped (FLOWER scorer chat, 6 Oct 2026), so there is no component 1. A front
 NECTAR-capping assist is being looked at; it would be added as a component when its outline exists.
 
+**What AdvantageScope needs from the files** (both learnt the hard way on 6 Oct 2026, from its `OptimizeGeometries.ts`): every mesh must carry vertex normals, or it is dropped silently, and the config sets `disableSimplification`, or small parts are culled by rendering mode. `build_model.py` does both; check a rebuilt model with a glTF viewer before committing.
+
 **Rebuild:** `python3 cad/advantagescope/build_model.py keep.pkl intakeb_mesh.pkl [addons_mesh.pkl]`. The first
 comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the second from `cad/intake-b/build.py` with
 `MESH_OUT` set, the third (for the real odometry pods) from `cad/robot-addons/build.py` with `POD_DIR` and `MESH_OUT`.

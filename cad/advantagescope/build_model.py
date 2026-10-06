@@ -43,6 +43,8 @@ def mesh(v, f, rgb, alpha=1.0, decimate=None):
         alphaMode="BLEND" if alpha < 1 else "OPAQUE", doubleSided=True))
     return t
 
+# AdvantageScope's loader (OptimizeGeometries.ts) drops any mesh without a NORMAL attribute, so every export
+# below passes include_normals=True; without it the whole robot drew blank (6 Oct 2026).
 def merged(meshes):
     """One mesh per colour keeps the file small and quick to draw."""
     by = {}
@@ -70,8 +72,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     os.makedirs(OUT, exist_ok=True)
-    merged(base).export(os.path.join(OUT, "model.glb"))
-    merged(ext).export(os.path.join(OUT, "model_0.glb"))
+    merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
+    merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
     # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
