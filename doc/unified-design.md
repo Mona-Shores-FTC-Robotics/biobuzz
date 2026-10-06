@@ -24,13 +24,33 @@ late hooks, hook staging of preloads, and the hook's G409 work. Their routes sta
 `keep4.py`, `qual_stage.py`, `guide_routes.py`'s `stages_hook*`). [Ramp hook](ramp-hook.md)'s spill half is
 superseded; its FLOWER half carries on below.
 
+## The user's decisions, 6 Oct 2026 (evening)
+
+Passed on by the Flower Extracter / robot CAD chat.
+
+1. **The FLOWER extractor stays at the front.**
+   - It's on its own shaft, 2.4 in ahead of the face and 4.5 in up.
+   - The roller floats straight up 1.3 in, so a NECTAR passes under it.
+   - Drawn and swept in `cad/intake-b/` on `claude/robotics-meeting-notes-lq2y55`, commit 70b2561.
+   - A rear extractor was weighed and dropped: entering from the rear reverses the J, so the robot couldn't shoot
+     while extracting.
+2. **Shoot while extracting.** The turret fires from the seat while the extractor feeds roller → lane → J → turret.
+   The Autos are to be built around that, in simulation.
+3. **Simple, reliable hardware and ideas** over clever ones.
+4. **The Limelight is fixed, facing forward:** no pan servo, not on the turret.
+5. **The FLOWER scorer (the NECTAR-capping cage) is shelved,** to revisit later.
+6. **The transfer gets fully CADed next,** by the CAD chat, from the transfer chat's design.
+
+The V is unchanged: its roots moved 4 mm forward, its tabs are lower, and the tips are still 2.84 in ahead. The
+starting length is 17.96 in.
+
 ## Who does what
 
 | Part | Owner (chat) | What it decides |
 |---|---|---|
 | **Rigid V** | Intake Design | The V's angle, length, height and shape within the envelope, and the intake behind it. The CAD's drawn V (17.8 in tips, 2.8 in ahead, `cad/intake-b/`) is the starting point. |
 | **FLOWER extractor** | Flower Extracter | The old hook redesigned for FLOWERs only: no walls, two arms for rigidity, far lower than 8 in. It must stow inside the 18 in start cube with the V fitted. |
-| **FLOWER scorer** | Pivoting arm nectar scorer | **The rear scorer is dropped for now** (no wall rollers, bumper or servo panel: it takes no space). The chat is now looking at a **front NECTAR-capping assist**: a cage over the FLOWER's top while the extractor holds the robot on the FLOWER, so the turret can cap from that seat. |
+| **FLOWER scorer** | Pivoting arm nectar scorer | **Shelved** (the user, 6 Oct evening). Before that: **the rear scorer is dropped for now** (no wall rollers, bumper or servo panel: it takes no space). The chat is now looking at a **front NECTAR-capping assist**: a cage over the FLOWER's top while the extractor holds the robot on the FLOWER, so the turret can cap from that seat. |
 | **Transfer, intake to turret** | Intake-to-turret transfer (session_019KDmb4SvV5VjdaM2USg71K) | How pieces get from the roller to the turret at any turret angle, holding up to 4 (G407), NECTAR and POLLEN. The first idea to weigh: feed through the turret's rotation axis, with a single-file floor channel as the magazine. |
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
