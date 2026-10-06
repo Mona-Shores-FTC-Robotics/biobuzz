@@ -23,7 +23,8 @@ STRAND_Y, STRAND_X, STRAND_Z, STRAND_D = 0.5, (5.6, -1.0), 0.65, 0.5    # build 
 J_AXLE, ARM_L = (-1.32, 4.54), 60 / IN  # 60 mm: a 40T HTD5 belt on two 16T pulleys
 ARM_DEG = 30.0                          # arm above horizontal toward the rear: pivot (0.72, 3.36)
 PIVOT = (J_AXLE[0] + ARM_L * math.cos(math.radians(ARM_DEG)), J_AXLE[1] - ARM_L * math.sin(math.radians(ARM_DEG)))
-LIFT_DEG = math.degrees(1.2 / ARM_L)    # 1.2 in of travel at the axle, perpendicular to the arm
+FLOAT_UP = 0.99                         # the axle's vertical rise at full float: a NECTAR at the mouth needs 0.92 (transfer chat)
+LIFT_DEG = math.degrees(math.asin(math.sin(math.radians(ARM_DEG)) + FLOAT_UP / ARM_L)) - ARM_DEG   # arm rotation for it (36.8 deg)
 J_R, J_W = 24.0 / IN, 2.0               # 48 mm gecko wheels, two side by side
 J_OUT, J_BACK, CHUTE_TOP = 3.64, -4.96, 6.6
 RAMP = ((8.0, 0.05), (5.8, 0.9))
@@ -31,7 +32,7 @@ CSHAFT = (6.0, 4.0)                     # the lane drive's countershaft, Y +2.6,
 ROLLER = (8.56, 3.35)                   # the roller's axle at rest (it floats up 1.3 in)
 CHAN_Z = (4.75, 6.32)                   # the old intake's 11-hole channel, raised 8 mm
 TURRET = (-3.17, 0.0)
-TCHAN = ((-5.6, -5.1), (0.6, 1.1))      # the turret's two cross-channels (the launcher's), tops at z 6.6. The spec's front one
+TCHAN = ((-5.6, -5.1), (0.85, 1.35))      # the turret's two cross-channels (the launcher's), tops at z 6.6. The spec's front one
                                         # (X 0.0..0.5) is in the J-wheel's way at full float: the wheel moves forward as it lifts
 JM = (-2.4, 3.7)                        # J motor's axis (along Y), over the left rail, belted to the left pivot stub
 STRIPS_X = (3.78, 1.89, -2.835)         # mounting strips under the lane, on the rails' lower hole row (24 mm pitch)
@@ -123,7 +124,7 @@ cx, cz = J_AXLE
 arc = lambda r: [(cx + r * math.cos(q), cz + r * math.sin(q)) for q in [math.radians(-90 - 90 * i / 24) for i in range(25)]]
 shell = arc(J_OUT + 0.125) + [(J_BACK - 0.125, CHUTE_TOP), (J_BACK, CHUTE_TOP)] + arc(J_OUT)[::-1]
 part(fixed, "outer_J_and_chute (print, PETG, 1/8 in, two halves; bolts to the walls and the turret's rear channel)", xz(shell, -WALL_Y, WALL_Y), BLUE, "print")
-part(fixed, "queue_lid (1/16 in polycarbonate; ahead of the J-wheel's float)", bx(0.55, 2.3, -WALL_Y, WALL_Y, WALL_TOP - T16, WALL_TOP), POLY, "cut")
+part(fixed, "queue_lid (1/16 in polycarbonate; ahead of the J-wheel's float)", bx(0.7, 2.3, -WALL_Y, WALL_Y, WALL_TOP - T16, WALL_TOP), POLY, "cut")
 
 # ---- the J-wheel on its floating arms (drawn at rest, on the hard stops) ----
 part(arm, "J_wheels (48 mm gecko x2)", cyly(*J_AXLE, 2 * J_R, -J_W / 2, J_W / 2), GREEN, "buy")

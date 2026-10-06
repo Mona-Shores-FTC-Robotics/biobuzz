@@ -29,7 +29,7 @@ TOUCH = {("lane_wall", "strand_shaft"), ("lane_wall", "countershaft"), ("lane_fl
          ("lane_strip", "lane_wall"), ("lane_strip", "outer_J_and_chute"), ("pivot_stub", "lane_wall"), ("pivot_stub", "J_arm"), ("pivot_stub", "pivot_stub_pulleys"),
          ("pivot_stub_pulleys", "arm_drive"), ("pivot_stub_pulleys", "J_motor_belt"), ("arm_drive", "J_shaft"), ("J_motor_shaft_pulley", "J_motor"),
          ("J_motor_belt", "J_motor_shaft_pulley"), ("J_motor_cradle", "J_motor"), ("arm_stop", "J_arm"), ("J_arm", "arm_drive"), ("J_arm", "pivot_stub_pulleys"),
-         ("turret_channel_X-5.6_REFERENCE", "turret_bearing_REFERENCE"), ("turret_channel_X+0.6_REFERENCE", "turret_bearing_REFERENCE")}   # the upper loop re-aligns as the roller rises
+         ("turret_channel_X-5.6_REFERENCE", "turret_bearing_REFERENCE"), ("turret_channel_X+0.8_REFERENCE", "turret_bearing_REFERENCE")}   # the upper loop re-aligns as the roller rises
 key = lambda n: n.split(" ")[0].rstrip("0123456789").rstrip("_").removesuffix("_L").removesuffix("_R") if not n.startswith("lane_strip") else "lane_strip"
 def k2(n):
     b = n.split(" ")[0]
@@ -86,7 +86,7 @@ for rise in (0, 0.65 * IN, 1.3 * IN):
             if x[:2] not in seen: seen.add(x[:2]); print(f"   rise {rise / IN:.2f} ext {ext}:", x)
 print("   ", "clear" if not seen else "")
 # J arm lift: 1.2 in of travel at the axle, perpendicular to the arm
-a0 = math.degrees(math.atan2(4.54 - PV[1], -1.32 - PV[0])); a1 = a0 - math.degrees(1.2 / (60 / IN))   # 1.2 in along the arc
+a0 = math.degrees(math.atan2(4.54 - PV[1], -1.32 - PV[0])); a1 = 180 - math.degrees(math.asin(math.sin(math.radians(180 - a0)) + 0.99 / (60 / IN)))   # the axle 0.99 in up (cad/transfer FLOAT_UP)
 print(f"== the J arm lifting: {a0:.0f} -> {a1:.0f} deg about the pivot")
 for f in np.linspace(0, 1, 7):
     lift = (a1 - a0) * f               # negative: the axle is behind the pivot, so lifting it turns rear points up
