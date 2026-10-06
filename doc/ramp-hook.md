@@ -22,16 +22,22 @@ Present: Travis, Nathan, CJ and a mentor.
 
 ## The design (corrected 6 Oct 2026)
 
-**The ramp is the hook's front.** The C has one tall wall, the 8 in right arm (about 4 in, leaning in 30°). In place
-of a tall crossbeam, its front is a **low, thin ramp across the full 14.5 in width**. Its edge sits about 1 in up
-at a FLOWER, resting on the ring, and it slopes down 12° into the hook's floor plate. Driven into a FLOWER, the
-edge slides under the bottom POLLEN, and the column rolls down the ramp to the intake, 8 in back. That's
-`ramp.py`'s slice exactly, with "tongue" read as "the ramp front".
+**The ramp is the hook's front.** The C has one tall wall, the 8 in right arm: about 4 in tall and **vertical**. In
+place of a tall crossbeam, its front is a **thin ramp across the full 14.5 in width, held clear of the tiles**
+and carried by the arm. At a FLOWER its edge sits about 1 in up, resting on the ring. It slopes down 12° and
+stops **0.5 in above the tiles**, with no floor plate. Driven into a FLOWER, the edge slides under the bottom
+POLLEN. The column rolls down the ramp, drops the last 0.5 in onto the tiles and rolls to the intake, 8 in back.
+`ramp.py` models it with `float_z=0.5`: all 4 out in 1.0 to 1.2 s and the last at the intake in 1.15 to 1.4 s,
+across slopes of 10 to 15°, back edges 0.3 to 0.75 in up, and the bounce and friction guesses. That's no slower
+than a ramp running down to the floor.
 
 - **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
-- **Start:** the tight one now. Stowed, the 4 in arm wall sticks out about 3.5 in in front of the chassis
-  (14.5 + 3.5 ≈ 18.0 of 18). Hinge the hook a little inside the frame, or make the wall shorter.
+- **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
+  of 18). Hinge the hook at least 0.5 in inside the frame, or make the wall 3.5 in tall.
+- **Carrying the ramp:** only the right arm holds it, and the left end is free across 14.5 in. It has to be stiff
+  enough not to sag onto the tiles or flex when it hits the FLOWER's ring. Use a stiffened plate or a bent lip
+  along its back edge.
 - **Spill:** the arm still catches the spill. Along the front, pieces rolling outward have to climb the 1 in
   ramp to escape (faster than about 37 in/s), and anything landing on the ramp rolls in toward the intake.
 - **3D mock-up:** https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). Its balls move as

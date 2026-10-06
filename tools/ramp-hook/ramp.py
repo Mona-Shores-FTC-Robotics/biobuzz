@@ -58,9 +58,12 @@ def tip_height(ring, slope, tip_depth):
     return ring + PLATE_T + (tip_depth + RING_T) * math.tan(slope)
 
 
-def ramp_profile(ring, slope, tip_depth):
-    """The tongue and floor plate in the robot's frame, x from the tip toward the robot: a list of points."""
+def ramp_profile(ring, slope, tip_depth, float_z=None):
+    """The ramp in the robot's frame, x from the tip toward the robot: a list of points. With float_z the ramp
+    stops in the air that high above the tiles (no floor plate), and the POLLEN drop off it onto the tiles."""
     tip_z = tip_height(ring, slope, tip_depth)
+    if float_z is not None:
+        return [(0.0, tip_z - 0.05), (0.0, tip_z), ((tip_z - float_z) / math.tan(slope), float_z)]
     run = (tip_z - PLATE_T) / math.tan(slope)
     return [(0.0, tip_z - 0.05), (0.0, tip_z), (run, PLATE_T), (INTAKE_BEHIND_TIP + 2.0, PLATE_T)]
 
@@ -90,11 +93,11 @@ def contact(p, v, w, seg, seg_v, e, mu, spin=True):
     return p, v, w + jt / (K_SHELL * R)
 
 
-def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None):
+def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None, float_z=None):
     """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in)."""
     slope = math.radians(slope_deg)
     fixed = flower_segments(ring)
-    prof = ramp_profile(ring, slope, tip_depth)
+    prof = ramp_profile(ring, slope, tip_depth, float_z)
     tip_start = FRONT + RING_T + 1.0           # the tip starts an inch clear of the ring
     tip_stop = FRONT - tip_depth
     balls = [[(CX, z), (0.0, 0.0), 0.0] for z in STAGED]
