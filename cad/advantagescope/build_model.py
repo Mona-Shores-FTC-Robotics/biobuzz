@@ -55,12 +55,40 @@ def merged(meshes):
         s.add_geometry(trimesh.util.concatenate(ms), geom_name=f"part_{i}")
     return s
 
+def as_in_to_cad(p):
+    """AdvantageScope inches (X forward, Y left, Z up) -> robot CAD mm."""
+    p = np.asarray(p, float)
+    return np.c_[C + p[:, 1] * IN, F + p[:, 2] * IN, FACE - CENTRE_BACK_IN * IN + p[:, 0] * IN]
+
+def limelight():
+    """The Limelight 3A where config.json's camera is (lens 4.0 in ahead, 14.0 in up, pitched 45 deg up), on a stand-in
+    mount: a 16 mm beam between the two front towers' tops and a plate with a 45 deg printed wedge under the camera.
+    The body is about 3.5 x 2.4 x 0.95 in; the mount is drawn only to show where it goes, below the camera's view."""
+    lens, a = np.array([4.0, 0.0, 14.0]), math.radians(45)
+    n, u = np.array([math.cos(a), 0, math.sin(a)]), np.array([-math.sin(a), 0, math.cos(a)])   # view direction, camera up
+    W, H, D = 3.5 / 2, 2.4 / 2, 0.95 / 2
+    c = lens - n * D
+    body = np.array([c + sy * W * np.array([0, 1, 0]) + sh * H * u + sd * D * n for sy in (-1, 1) for sh in (-1, 1) for sd in (-1, 1)])
+    glass = np.array([lens + n * s1 * 0.04 + np.array([0, sy * 0.35, 0]) + u * sh * 0.35 for s1 in (0, 1) for sy in (-1, 1) for sh in (-1, 1)])
+    bot = c - H * u                                                  # the middle of the camera's bottom face
+    edge = [bot + sd * D * n for sd in (-1, 1)]
+    wedge = np.array([e + np.array([0, sy * 1.2, 0]) for e in edge for sy in (-1, 1)] +
+                     [np.array([x, sy * 1.2, 12.25]) for x in (min(e[0] for e in edge), 5.4) for sy in (-1, 1)])
+    def boxpts(lo, hi): return np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
+    out = []
+    for pts, rgb in ((body, (0.13, 0.14, 0.16)), (glass, (0.05, 0.05, 0.06)), (wedge, (0.18, 0.37, 0.62)),
+                     (boxpts([4.2, -1.2, 12.13], [6.9, 1.2, 12.25]), (0.18, 0.37, 0.62)), (boxpts([6.3, -4.85, 11.5], [6.9, 4.85, 12.13]), (0.67, 0.7, 0.74))):
+        h = trimesh.convex.convex_hull(pts)
+        out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
+    return out
+
 def main(robot_pkl, addon_pkl, pod_pkl=None):
     keep = pickle.load(open(robot_pkl, "rb"))
     add = pickle.load(open(addon_pkl, "rb"))
     base = []
     for path, v, f, col in keep:                      # the team's robot, in inches as slim.py keeps it
-        if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer)", path): continue   # the old roller and motor, replaced
+        if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
+        if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
         base.append(mesh(np.asarray(v) * IN, f, colour_of(path), decimate=0.08))
     for n, m in add.items():
         if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
@@ -71,6 +99,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     else:
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
+    base += limelight()
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
     os.makedirs(OUT, exist_ok=True)

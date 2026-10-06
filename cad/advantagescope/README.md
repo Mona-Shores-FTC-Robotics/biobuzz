@@ -6,7 +6,7 @@ roller with its motor. Copy the folder into AdvantageScope's custom assets folde
 
 | File | What |
 |---|---|
-| `model.glb` | The robot and everything fixed. The old intake roller and motor are left out: the new ones replace them |
+| `model.glb` | The robot and everything fixed, with the Limelight on a stand-in mount (a beam between the front towers' tops and a 45° wedge) at the camera's position. Left out: the old intake roller and motor (the new ones replace them) and the NECTARs staged in the CAD (the simulator draws the pieces the robot holds) |
 | `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
 | `model_1.glb` | Component 1, the roller, its motor and carriage, drawn down |
 | `config.json` | FTC robot, no rotations, two components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
