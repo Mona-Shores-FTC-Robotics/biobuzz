@@ -263,6 +263,32 @@ concepts, sketches and a cardboard checklist: `doc/transfer.md` on `spike/164-tr
 **Flag for the intake.** The pieces are stiff plastic balls. A NECTAR (3.62 in) is taller than the roller's axle
 (3.35 in), with the roller's bottom at 2.4. So a fixed roller there can't take a NECTAR. It needs to float.
 
+## The transfer in the simulator (6 Oct 2026, 60 runs)
+
+The three baselines on the drawn V, with the transfer's two effects separately and together (`doc/transfer.md` on
+`spike/164-transfer`).
+- **Shots:** every 0.25 s, against the baseline launcher's 0.45 s.
+- **Lane capacity** (`RobotDesign.laneCapacity`): 4 POLLEN, 3 NECTAR, 3–4 mixed.
+
+The routes are the baselines unchanged, so they're still timed for 0.45 s shots.
+
+| Design | Partner shoots | Stages, angled partner | Stages, wall partner |
+|---|---|---|---|
+| Baseline | 71.2 · 3 TIPs in 48 · G409 8 | 51.6 · TIP 3 in 0 · 4 problem runs | 55.3 · 3 TIPs in 26 · G409 16 |
+| 0.25 s shots | 69.2 · 42 · G409 12 | **56.6 · 3 TIPs in 14** · 2 problem runs | **58.0** · 26 · G409 26 |
+| Lane capacity | 70.5 · 46 · G409 6 | 51.3 · 0 | 54.3 · 23 |
+| Both (the transfer) | 68.5 · 40 · G409 13 | 54.3 · 7 | 58.0 · 26 · G409 25 |
+
+**What it says:**
+- **Faster shots win with a staging partner.** TIP 2 comes 1.6–1.9 s sooner (19.1 s → 17.2–17.5 s). For the first
+  time the angled partner's Auto makes 3 TIPs (14 of 60), and the wall partner's gains 2.7 points.
+- **Faster shots lose 2 points with the partner that shoots.** That route waits a fixed time after each volley for the
+  spill. Firing sooner moves the TIP and its spill earlier against those waits, so it keeps less, and G409 rises. The
+  route needs retiming for the faster launcher before this number means anything.
+- **The lane's 3-NECTAR limit costs little:** 0.3–1.0 points.
+- **G409 rises with the faster shots** (Stages wall 16 → 25–26). Spills come down while the robot is still close in.
+  Retimed waits should bring it back down.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
