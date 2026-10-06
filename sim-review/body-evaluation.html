@@ -30,7 +30,7 @@ tbody th { font-weight: 600; white-space: nowrap; }
 th small, td small { display: block; font: 400 .74rem/1.3 var(--body); color: var(--muted); white-space: nowrap; }
 td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
 td.strong { font-weight: 600; }
-tr.top { background: var(--accent-soft); }
+tr.top { background: var(--accent-soft); } tr.old { opacity: .55; }
 .pill { display: inline-block; padding: 1px 8px; border-radius: 999px; }
 .pill.ok { background: var(--ok-bg); color: var(--ok); } .pill.warn { background: var(--warn-bg); color: var(--warn); } .pill.bad { background: var(--bad-bg); color: var(--bad); }
 .legend { font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; } .legend b { color: var(--fg); font-weight: 600; }
@@ -44,101 +44,105 @@ a { color: var(--accent); }
 <header>
   <span class="eyebrow">BIOBUZZ · Mona Shores FTC · simulated 6 Oct 2026, current physics</span>
   <h1>Ramp Hook vs Rigid V</h1>
-  <p>Which guide gets a qualifier Auto to 3 TIPs with both robots LEAVE and PARK? The Flat Intake (no guide) against three Rigid Vs and the Ramp Hook, through the three current qualifier Autos: 60 runs each, filmed TIP timing and rolling, one tile surface. Side Rails are left for later.</p>
+  <p>Which guide gets a qualifier Auto to 3 TIPs with both robots LEAVE and PARK? The Flat Intake (no guide) against three Rigid Vs and the Ramp Hook, each on a route drawn for it, through the three current qualifier Autos: 60 runs each, filmed TIP timing and rolling, one tile surface. Side Rails are left for later.</p>
 </header>
 
 <section class="verdict" aria-labelledby="v">
   <h2 id="v">What the simulator says</h2>
-  <ul><li><strong>The Rigid V is the guide to build.</strong> With the partner that shoots, the 45° Rigid V on a route that PARKs gets 3 TIPs in 33 of 60, both robots PARK in 58, and is touched by a falling piece (G409) in only 3 runs. A longer V (18 in across, 30°) gets 3 TIPs in 41 of 60 and PARK in 57, with G409 in 6. But its flaps cross the centre line on both Stages routes, so those routes would need redrawing for it.</li>
-<li><strong>The Ramp Hook scores about the same and gets touched in half the matches.</strong> 66.3 points, 3 TIPs in 35 of 60, PARK in 51, and G409 in 30 of 60 (41 on the angled Stages route). The spill is still in the air when the hook is down: it lands on the hook <em>and</em> on the robot’s own front face. Moving the waiting spot only trades one for the other. A ramp shape could fix the hook’s share, but not the face’s.</li>
-<li><strong>Neither guide gets 3 TIPs when the partner stages.</strong> Every guide scores about 51 (angled partner) or 47 (wall partner), with TIP 2 at 20–21 s and no time for TIP 3. The Rigid V picks up more of TIP 1’s spill (2.5 of 4 against 1.9) but doesn’t score more. Against the wall partner it scores less (39–42), because it doesn’t fit the west lane and goes through the tunnel. That needs a new plan, not a guide.</li>
-<li><strong>PARK was a route problem.</strong> On the partner-shoots Auto, the Rigid V’s route went back for a third GARDEN load whenever TIP 3 was late, and lost PARK in 25 of 60 runs; that load never made TIP 3. Parking instead (<code>qual-right-o3-rigid-v-park</code>) keeps every TIP and PARKs in 58 of 60. The Flat Intake’s current route has the same kind of gap: PARK in 13 of 60.</li>
+  <ul><li><strong>Each guide now runs a route drawn for it.</strong> The first run put each guide on the Flat Intake’s routes, and the logs showed it. The Ramp Hook never came down on the Stages Autos, and the Rigid V backed into the wall partner’s row. The routes are redrawn below; the grey rows are the first run.</li>
+<li><strong>With the partner that shoots, the long Rigid V (18 in, 30°) does best.</strong> 68.8 points, 3 TIPs in 41 of 60, both PARK in 57, G409 in 6. The 45° V gets 66.2 and 33. The Ramp Hook gets 66.3 and 35, but PARKs in only 51 and is touched in 30.</li>
+<li><strong>With a staging partner, the Ramp Hook does best: its arm finally does its job.</strong> Waiting at the south spot with the hook down for TIP 1, it keeps 3.1 of 4 (Flat Intake: 1.9). Catch plus the staged row is then 8, so TIP 2 comes off the row. With the angled partner it comes by 17.5 s in 28 of 59 runs (Flat Intake: 10). With the wall partner it comes in all 60 runs, at 18.7 s (median) instead of 21.5. 55.7 points with the angled partner and 51.0 with the wall partner, against the Flat Intake’s 51.6 and 47.3. It is touched by the falling spill in 28 of 60.</li>
+<li><strong>Nothing reaches TIP 3 with a staging partner yet,</strong> but the Ramp Hook against the wall partner is close. It is loading the GARDEN for TIP 3 as AUTO ends.</li>
+<li><strong>G409 is the Ramp Hook’s price everywhere</strong> (28–30 runs of 60), against 0–9 for the Vs. Half the touches land on the robot’s own front face, so a better ramp alone won’t fix it. Over the three Autos the totals are level: the long V 57.4 average points, the Ramp Hook 57.7, the 45° V 55.7, the Flat Intake 51.2. The simulator doesn’t charge for G409.</li>
+<li><strong>The wide V (20 in) is out.</strong> Turning on the CELL’s line (x 57.5), its flap tips swing over the centre line, and it would have to fold for the start.</li>
 </ul>
 </section>
 
 <section aria-labelledby="p">
   <span class="eyebrow">The three qualifier Autos</span>
   <h2 id="p">Each partner, each guide</h2>
-  <p class="legend"><span><b>Pts</b>: alliance AUTO points, average (76 is everything)</span><span><b>3 TIPs</b>, <b>76</b>, <b>Both PARK</b> (and LEAVE): runs of 60</span><span><b>G409</b>: runs where we touched a falling piece</span><span><b>Picked up</b>: of that TIP’s spill, average, and runs with all 4</span><span><b>Misses</b>: pieces a run that reached the intake too high · while it was busy · beside it</span></p>
+  <p class="legend"><span><b>Pts</b>: alliance AUTO points, average (76 is everything)</span><span><b>3 TIPs</b>, <b>76</b>, <b>Both PARK</b> (and LEAVE): runs of 60</span><span><b>G409</b>: runs where we touched a falling piece</span><span><b>Picked up</b>: of that TIP’s spill, average, and runs with all 4</span><span><b>Amber</b>: best of the guides on their own routes</span><span><b>Grey</b>: the first run, the Flat Intake’s route with the guide added</span></p>
   <div class="partner"><h3>Partner shoots (Qual-PartnerShootsRight)</h3><p>The partner fires its 4 from the right start (TIP 1). We make TIP 2 at the left CELL and TIP 3 at the right, then PARK.</p><div class="scroll"><table>
-    <thead><tr><th>Guide</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th><th>Misses</th></tr></thead>
-    <tbody><tr><th scope="row">Flat Intake<small>no guide: the baseline</small></th>
+    <thead><tr><th>Guide and route</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Flat Intake<small>the baseline route</small></th>
 <td class="num strong">54.8</td><td class="num">10</td><td class="num">9</td>
 <td class="num">13</td><td class="num"><span class="pill ok">0</span></td>
-<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">1.6 <small>all 4 in 4</small></td>
-<td class="num">15 · 20 · 1.8</td></tr><tr><th scope="row">Rigid V<small>18 in across, 45°</small></th>
-<td class="num strong">64.1</td><td class="num">33</td><td class="num">33</td>
-<td class="num">33</td><td class="num"><span class="pill ok">3</span></td>
-<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">3.3 <small>all 4 in 27</small></td>
-<td class="num">17 · 21 · 0.5</td></tr><tr><th scope="row">Rigid V, long<small>18 in across, 30°</small></th>
-<td class="num strong">67.3</td><td class="num">41</td><td class="num">40</td>
-<td class="num">40</td><td class="num"><span class="pill warn">6</span></td>
-<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">3.7 <small>all 4 in 34</small></td>
-<td class="num">18 · 21 · 0.4</td></tr><tr><th scope="row">Rigid V, wide<small>20 in across, 45°: folds for the start</small></th>
-<td class="num strong">66.8</td><td class="num">40</td><td class="num">38</td>
-<td class="num">38</td><td class="num"><span class="pill warn">10</span></td>
-<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">3.6 <small>all 4 in 34</small></td>
-<td class="num">18 · 22 · 0.5</td></tr><tr><th scope="row">Ramp Hook<small>modelled as the 8 in hook</small></th>
-<td class="num strong">66.3</td><td class="num">35</td><td class="num">34</td>
-<td class="num">51</td><td class="num"><span class="pill bad">30</span></td>
-<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">3.3 <small>all 4 in 28</small></td>
-<td class="num">17 · 22 · 1.5</td></tr><tr><th scope="row">Rigid V, PARK first<small>18 in, 45°: PARKs if TIP 3 is late</small></th>
+<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">1.6 <small>all 4 in 4</small></td></tr><tr><th scope="row">Rigid V<small>18 in, 45°: PARKs when TIP 3 is late</small></th>
 <td class="num strong">66.2</td><td class="num">33</td><td class="num">33</td>
 <td class="num">58</td><td class="num"><span class="pill ok">3</span></td>
-<td class="num">0.9 <small>all 4 in 0</small></td><td class="num">3.4 <small>all 4 in 27</small></td>
-<td class="num">–</td></tr><tr class="top"><th scope="row">Rigid V long, PARK first<small>18 in, 30°</small></th>
+<td class="num">0.9 <small>all 4 in 0</small></td><td class="num">3.4 <small>all 4 in 27</small></td></tr><tr class="top"><th scope="row">Rigid V, long<small>18 in, 30°</small></th>
 <td class="num strong">68.8</td><td class="num">41</td><td class="num">40</td>
 <td class="num">57</td><td class="num"><span class="pill warn">6</span></td>
-<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">3.8 <small>all 4 in 36</small></td>
-<td class="num">–</td></tr><tr><th scope="row">Rigid V wide, PARK first<small>20 in, 45°</small></th>
+<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">3.8 <small>all 4 in 36</small></td></tr><tr><th scope="row">Rigid V, wide<small>20 in, 45°: folds for the start</small></th>
 <td class="num strong">68.4</td><td class="num">40</td><td class="num">39</td>
 <td class="num">57</td><td class="num"><span class="pill warn">9</span></td>
-<td class="num">0.9 <small>all 4 in 0</small></td><td class="num">3.7 <small>all 4 in 35</small></td>
-<td class="num">–</td></tr></tbody></table></div></div><div class="partner"><h3>Partner stages, angled (B)</h3><p>The partner can’t shoot. Its 4 POLLEN start on the tiles beside it; it drives straight to PARK.</p><div class="scroll"><table>
-    <thead><tr><th>Guide</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th><th>Misses</th></tr></thead>
-    <tbody><tr><th scope="row">Flat Intake<small>no guide: the baseline</small></th>
-<td class="num strong">51.6</td><td class="num">0</td><td class="num">0</td>
+<td class="num">0.9 <small>all 4 in 0</small></td><td class="num">3.7 <small>all 4 in 35</small></td></tr><tr><th scope="row">Ramp Hook<small>hook down at the north spot for TIP 2</small></th>
+<td class="num strong">66.3</td><td class="num">35</td><td class="num">34</td>
+<td class="num">51</td><td class="num"><span class="pill bad">30</span></td>
+<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">3.3 <small>all 4 in 28</small></td></tr><tr class="old"><th scope="row">Rigid V, first run<small>a third GARDEN load instead of PARK</small></th>
+<td class="num strong">64.1</td><td class="num">33</td><td class="num">33</td>
+<td class="num">33</td><td class="num"><span class="pill ok">3</span></td>
+<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">3.3 <small>all 4 in 27</small></td></tr><tr class="old"><th scope="row">Rigid V long, first run<small>same</small></th>
+<td class="num strong">67.3</td><td class="num">41</td><td class="num">40</td>
+<td class="num">40</td><td class="num"><span class="pill warn">6</span></td>
+<td class="num">0.7 <small>all 4 in 0</small></td><td class="num">3.7 <small>all 4 in 34</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner stages, angled (B)</h3><p>The partner can’t shoot. Its 4 POLLEN start on the tiles beside it; it drives straight to PARK.</p><div class="scroll"><table>
+    <thead><tr><th>Guide and route</th><th>Pts</th><th>TIP 2</th><th>TIP 2 at (s)</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Flat Intake<small>the baseline route</small></th>
+<td class="num strong">51.6</td><td class="num">53</td><td class="num">20.6</td>
 <td class="num">55</td><td class="num"><span class="pill ok">0</span></td>
-<td class="num">1.9 <small>all 4 in 3</small></td><td class="num">2.0 <small>all 4 in 4</small></td>
-<td class="num">17 · 18 · 3.3</td></tr><tr class="top"><th scope="row">Rigid V<small>18 in across, 45°</small></th>
-<td class="num strong">51.9</td><td class="num">0</td><td class="num">0</td>
+<td class="num">1.9 <small>all 4 in 3</small></td><td class="num">2.0 <small>all 4 in 4</small></td></tr><tr><th scope="row">Rigid V<small>the baseline route: fits as is</small></th>
+<td class="num strong">51.9</td><td class="num">54</td><td class="num">19.5</td>
 <td class="num">55</td><td class="num"><span class="pill ok">2</span></td>
-<td class="num">2.5 <small>all 4 in 13</small></td><td class="num">2.1 <small>all 4 in 6</small></td>
-<td class="num">17 · 20 · 0.5</td></tr><tr><th scope="row">Rigid V, long<small>18 in across, 30°</small></th>
-<td class="num strong">50.9</td><td class="num">0</td><td class="num">0</td>
+<td class="num">2.5 <small>all 4 in 13</small></td><td class="num">2.1 <small>all 4 in 6</small></td></tr><tr><th scope="row">Rigid V, long<small>turns 2 in further west out of the tunnel</small></th>
+<td class="num strong">51.3</td><td class="num">52</td><td class="num">19.9</td>
 <td class="num">55</td><td class="num"><span class="pill warn">8</span></td>
-<td class="num">2.8 <small>all 4 in 14</small></td><td class="num">2.6 <small>all 4 in 10</small></td>
-<td class="num">17 · 17 · 0.8</td></tr><tr><th scope="row">Rigid V, wide<small>20 in across, 45°: folds for the start</small></th>
-<td class="num strong">51.6</td><td class="num">0</td><td class="num">0</td>
+<td class="num">2.8 <small>all 4 in 15</small></td><td class="num">2.5 <small>all 4 in 7</small></td></tr><tr><th scope="row">Rigid V, wide<small>still over the centre line at 21 s</small></th>
+<td class="num strong">51.6</td><td class="num">53</td><td class="num">20.4</td>
 <td class="num">55</td><td class="num"><span class="pill warn">7</span></td>
-<td class="num">3.0 <small>all 4 in 19</small></td><td class="num">2.4 <small>all 4 in 11</small></td>
-<td class="num">17 · 15 · 0.5</td></tr><tr><th scope="row">Ramp Hook<small>modelled as the 8 in hook</small></th>
-<td class="num strong">50.9</td><td class="num">0</td><td class="num">0</td>
+<td class="num">2.9 <small>all 4 in 14</small></td><td class="num">2.3 <small>all 4 in 8</small></td></tr><tr class="top"><th scope="row">Ramp Hook<small>hook down at the south spot for TIP 1, then the baseline</small></th>
+<td class="num strong">55.7</td><td class="num">59</td><td class="num">19.0</td>
+<td class="num">60</td><td class="num"><span class="pill bad">28</span></td>
+<td class="num">3.1 <small>all 4 in 22</small></td><td class="num">1.7 <small>all 4 in 2</small></td></tr><tr class="old"><th scope="row">Ramp Hook, first run<small>hook never down (the arm faces the wall at the north end)</small></th>
+<td class="num strong">50.9</td><td class="num">52</td><td class="num">20.2</td>
 <td class="num">51</td><td class="num"><span class="pill bad">41</span></td>
-<td class="num">2.4 <small>all 4 in 6</small></td><td class="num">1.3 <small>all 4 in 0</small></td>
-<td class="num">15 · 18 · 3.7</td></tr></tbody></table></div></div><div class="partner"><h3>Partner stages, against the wall (A)</h3><p>The partner can’t shoot and parks on our PARK spot, so we never PARK. Rigid Vs take the tunnel (they don’t fit the west lane).</p><div class="scroll"><table>
-    <thead><tr><th>Guide</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th><th>Misses</th></tr></thead>
-    <tbody><tr class="top"><th scope="row">Flat Intake<small>no guide: the baseline</small></th>
-<td class="num strong">47.3</td><td class="num">0</td><td class="num">0</td>
-<td class="num">0</td><td class="num"><span class="pill ok">0</span></td>
-<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">1.9 <small>all 4 in 7</small></td>
-<td class="num">16 · 22 · 5.6</td></tr><tr><th scope="row">Rigid V<small>18 in across, 45°</small></th>
-<td class="num strong">39.3</td><td class="num">0</td><td class="num">0</td>
-<td class="num">0</td><td class="num"><span class="pill ok">0</span></td>
-<td class="num">2.4 <small>all 4 in 13</small></td><td class="num">1.9 <small>all 4 in 1</small></td>
-<td class="num">14 · 12 · 1.9</td></tr><tr><th scope="row">Rigid V, long<small>18 in across, 30°</small></th>
-<td class="num strong">41.0</td><td class="num">0</td><td class="num">0</td>
-<td class="num">0</td><td class="num"><span class="pill warn">6</span></td>
-<td class="num">2.8 <small>all 4 in 17</small></td><td class="num">2.1 <small>all 4 in 3</small></td>
-<td class="num">15 · 12 · 2.9</td></tr><tr><th scope="row">Rigid V, wide<small>20 in across, 45°: folds for the start</small></th>
-<td class="num strong">41.7</td><td class="num">0</td><td class="num">0</td>
-<td class="num">0</td><td class="num"><span class="pill warn">6</span></td>
-<td class="num">2.8 <small>all 4 in 17</small></td><td class="num">2.2 <small>all 4 in 3</small></td>
-<td class="num">15 · 12 · 2.8</td></tr><tr class="top"><th scope="row">Ramp Hook<small>modelled as the 8 in hook</small></th>
-<td class="num strong">47.3</td><td class="num">0</td><td class="num">0</td>
-<td class="num">0</td><td class="num"><span class="pill bad">19</span></td>
-<td class="num">0.7 <small>all 4 in 1</small></td><td class="num">1.8 <small>all 4 in 1</small></td>
-<td class="num">15 · 20 · 4.1</td></tr></tbody></table></div></div>
+<td class="num">2.4 <small>all 4 in 6</small></td><td class="num">1.3 <small>all 4 in 0</small></td></tr><tr class="old"><th scope="row">Rigid V long, first run<small>over the centre line at 9 s</small></th>
+<td class="num strong">50.9</td><td class="num">51</td><td class="num">19.6</td>
+<td class="num">55</td><td class="num"><span class="pill warn">8</span></td>
+<td class="num">2.8 <small>all 4 in 14</small></td><td class="num">2.6 <small>all 4 in 10</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner stages, against the wall (A)</h3><p>The partner can’t shoot and parks on our PARK spot, so we never PARK. Its 4 POLLEN stand in a row beside where it started, near the north wall.</p><div class="scroll"><table>
+    <thead><tr><th>Guide and route</th><th>Pts</th><th>TIP 2</th><th>TIP 2 at (s)</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Flat Intake<small>the baseline route</small></th>
+<td class="num strong">47.3</td><td class="num">49</td><td class="num">21.4</td>
+<td class="num">–</td><td class="num"><span class="pill ok">0</span></td>
+<td class="num">0.8 <small>all 4 in 0</small></td><td class="num">1.9 <small>all 4 in 7</small></td></tr><tr><th scope="row">Rigid V<small>sweeps up the row, square to it</small></th>
+<td class="num strong">49.0</td><td class="num">54</td><td class="num">20.8</td>
+<td class="num">–</td><td class="num"><span class="pill ok">0</span></td>
+<td class="num">2.3 <small>all 4 in 9</small></td><td class="num">2.2 <small>all 4 in 7</small></td></tr><tr class="top"><th scope="row">Rigid V, long<small>sweeps up the row; turns further west</small></th>
+<td class="num strong">52.0</td><td class="num">53</td><td class="num">20.2</td>
+<td class="num">–</td><td class="num"><span class="pill warn">9</span></td>
+<td class="num">2.8 <small>all 4 in 19</small></td><td class="num">2.5 <small>all 4 in 12</small></td></tr><tr><th scope="row">Rigid V, wide<small>still over the centre line</small></th>
+<td class="num strong">51.0</td><td class="num">52</td><td class="num">19.8</td>
+<td class="num">–</td><td class="num"><span class="pill warn">9</span></td>
+<td class="num">2.7 <small>all 4 in 15</small></td><td class="num">2.5 <small>all 4 in 9</small></td></tr><tr><th scope="row">Ramp Hook<small>hook down at the south spot for TIP 1, then the baseline</small></th>
+<td class="num strong">51.0</td><td class="num">60</td><td class="num">21.1</td>
+<td class="num">–</td><td class="num"><span class="pill bad">28</span></td>
+<td class="num">2.9 <small>all 4 in 19</small></td><td class="num">1.8 <small>all 4 in 5</small></td></tr><tr class="old"><th scope="row">Ramp Hook, first run<small>hook never down</small></th>
+<td class="num strong">47.3</td><td class="num">49</td><td class="num">21.4</td>
+<td class="num">–</td><td class="num"><span class="pill bad">19</span></td>
+<td class="num">0.7 <small>all 4 in 1</small></td><td class="num">1.8 <small>all 4 in 1</small></td></tr><tr class="old"><th scope="row">Rigid V long, first run<small>tunnel route, backs into the row: 0–1 of 4</small></th>
+<td class="num strong">41.0</td><td class="num">35</td><td class="num">25.5</td>
+<td class="num">–</td><td class="num"><span class="pill warn">6</span></td>
+<td class="num">2.8 <small>all 4 in 17</small></td><td class="num">2.1 <small>all 4 in 3</small></td></tr></tbody></table></div></div>
+</section>
+
+<section aria-labelledby="r">
+  <span class="eyebrow">The log review</span>
+  <h2 id="r">What each guide’s route changed</h2>
+  <div class="grid2">
+    <div class="card"><h3>Ramp Hook, Stages</h3><p>The hook is one right arm (<code>doc/ramp-hook.md</code>), which faces the centre line only at the south end. It can serve TIP 1, never TIP 2. Its route now fires from S_FIRE, near the HIVE, and stops at the south hook spot (face 37.5 in from the wall) as TIP 1 starts. It holds 1 s after the CELL settles, then runs the baseline. Before, it drove off after TIP 1 and waited at the north spot for TIP 2 with the hook up.</p></div>
+    <div class="card"><h3>Rigid V, wall partner’s row</h3><p>The baseline backs west along y 118 and slides north beside the row. The V’s flap tips shove it, so it picked up 0–1 of 4. Face first at an angle stops at the row’s south end and pushes the rest off (1 of 4). Sweeping up the row, square to it, stopping at each piece, takes 4 of 4: the pieces chain into the north wall and the V keeps them in its mouth.</p></div>
+    <div class="card"><h3>Rigid V, PARK</h3><p>When TIP 3 was late, its partner-shoots route went back for a third GARDEN load. That is its last card, which the endgame guard never cuts, so it lost PARK in 25 of 60 runs and the load never made TIP 3. It PARKs instead now. Cutting the sweep through TIP 1’s leftovers (0–1 picked up) changed nothing (68.8 either way).</p></div>
+    <div class="card"><h3>Long and wide Vs, centre line</h3><p>Their flap tips swing 13.7–14.1 in out as the robot turns. From x 57.5 that reaches over the centre line (x 70.6). The long V turns 2 in further west out of the tunnel now, and runs clean. The wide V still crosses on a later turn.</p></div>
+  </div>
 </section>
 
 <section aria-labelledby="h">
@@ -155,7 +159,7 @@ a { color: var(--accent); }
   <h2 id="w">Width and angle (partner shoots)</h2>
   <p class="prose">The flap tips this far apart, each flap this many degrees from straight ahead. R105: wider than 18 in, the robot must stay within 18 in long, and R102’s start cube means it would fold for the start (the simulator doesn’t model the fold). The Stages routes were drawn for the 45° V, so a longer or wider V needs its own routes.</p>
   <div class="scroll"><table><thead><tr><th>Rigid V</th><th>Pts</th><th>3 TIPs</th><th>G409</th><th>On the Stages routes</th></tr></thead><tbody>
-  <tr><th scope="row">18 in, 30°</th><td class="num">67.3</td><td class="num">41</td><td class="num"><span class="pill warn">6</span></td><td>crosses the centre line on both Stages routes</td></tr><tr><th scope="row">18 in, 45° (the Rigid V)</th><td class="num">64.1</td><td class="num">33</td><td class="num"><span class="pill ok">3</span></td><td>legal everywhere</td></tr><tr><th scope="row">18 in, 60°</th><td class="num">63.2</td><td class="num">31</td><td class="num"><span class="pill warn">4</span></td><td>legal everywhere</td></tr><tr><th scope="row">20 in, 45°</th><td class="num">66.8</td><td class="num">40</td><td class="num"><span class="pill warn">10</span></td><td>crosses the centre line on both Stages routes</td></tr><tr><th scope="row">20 in, 60°</th><td class="num">65.3</td><td class="num">36</td><td class="num"><span class="pill warn">7</span></td><td>crosses the centre line on both Stages routes</td></tr><tr><th scope="row">22 in, 60°</th><td class="num">67.0</td><td class="num">40</td><td class="num"><span class="pill warn">13</span></td><td>crosses the centre line and drives into the HIVE frame, every route</td></tr>
+  <tr><th scope="row">18 in, 30°</th><td class="num">67.3</td><td class="num">41</td><td class="num"><span class="pill warn">6</span></td><td>crossed the centre line on both Stages routes; clean turning 2 in further west</td></tr><tr><th scope="row">18 in, 45° (the Rigid V)</th><td class="num">64.1</td><td class="num">33</td><td class="num"><span class="pill ok">3</span></td><td>legal everywhere</td></tr><tr><th scope="row">18 in, 60°</th><td class="num">63.2</td><td class="num">31</td><td class="num"><span class="pill warn">4</span></td><td>legal everywhere</td></tr><tr><th scope="row">20 in, 45°</th><td class="num">66.8</td><td class="num">40</td><td class="num"><span class="pill warn">10</span></td><td>crosses the centre line on both Stages routes</td></tr><tr><th scope="row">20 in, 60°</th><td class="num">65.3</td><td class="num">36</td><td class="num"><span class="pill warn">7</span></td><td>crosses the centre line on both Stages routes</td></tr><tr><th scope="row">22 in, 60°</th><td class="num">67.0</td><td class="num">40</td><td class="num"><span class="pill warn">13</span></td><td>crosses the centre line and drives into the HIVE frame, every route</td></tr>
   </tbody></table></div>
 </section>
 
@@ -163,9 +167,9 @@ a { color: var(--accent); }
   <span class="eyebrow">Watch them</span>
   <h2 id="n">Logs, and what the numbers rest on</h2>
   <div class="grid2">
-    <div class="card"><h3>The logs</h3><p><code>sim-review/body-evaluation-advantagescope.zip</code> on the branch <code>claude/biobuzz-robot-body-designs-hi386c</code>: for each guide and Auto, a typical (median) run, and the best on the partner-shoots Auto, with the BIOBUZZ Robot model and the layout. Its README.txt says how to open them. Numbers: <code>sim-review/body-evaluation/*.csv</code>.</p></div>
+    <div class="card"><h3>The logs</h3><p><code>sim-review/body-evaluation-advantagescope.zip</code> on the branch <code>claude/biobuzz-robot-body-designs-hi386c</code>: for each guide on its own route, a typical (median) run and the best, with the BIOBUZZ Robot model and the layout. Its README.txt says how to open them. Numbers: <code>sim-review/body-evaluation/*.csv</code>.</p></div>
     <div class="card"><h3>Guesses</h3><p>The intake (it takes a piece only when touching it and slow, 0.35 s each), the launcher, the bounce scatter, the partner (a spring-hood robot at 40 in/s), and the Ramp Hook drawn as a plain 8 in hook until its ramp is designed. TIP timing (0.58–1.12 s) and rolling (4 in/s²) are measured from the films.</p></div>
-    <div class="card"><h3>Superseded</h3><p>The Keep Four Deep Dive ran on the old physics (instant TIPs, pieces that stopped dead). Where they disagree, this page wins.</p></div>
+    <div class="card"><h3>Superseded</h3><p>The Keep Four Deep Dive ran on the old physics (instant TIPs, pieces that stopped dead). Where they disagree, this page wins. Routes: <code>tools/auto-routes/guide_routes.py</code> and <code>park_first.py</code>.</p></div>
   </div>
 </section>
 </main></body></html>
