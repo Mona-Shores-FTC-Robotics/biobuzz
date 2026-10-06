@@ -132,6 +132,12 @@ all of them). The guides being explored, each on the Flat Intake:
   fires at once (we only wait 3.6 s). [Staged preloads](doc/staged-preloads-test.md).
 - **A FLOWER backboard on the hook** (#158): the hook can't reach high enough (12 in short), and a NECTAR in
   a FLOWER only counts in the last 60 s of TELEOP. Not worth it yet. [FLOWER backboard](doc/flower-backboard.md).
+- **Ramp Hook vs Rigid V** (6 Oct, current physics, 60 runs; replaces the deep dive below): with the partner that
+  shoots, the Rigid V on a route that PARKs gets 3 TIPs in 33 of 60 (41 for an 18 in, 30° V), PARK in 57-58, G409 in
+  3-6; the Ramp Hook scores the same (3 TIPs in 35) but falling pieces touch it or the robot's face in 30 of 60,
+  wherever it waits. No guide gets 3 TIPs with a staging partner. [The report](sim-review/body-evaluation.html) (also
+  [online](https://claude.ai/artifact/Q1AFHpfZZ9L16yzNccWvQv)); matches to watch:
+  `sim-review/body-evaluation-advantagescope.zip`; numbers: `sim-review/body-evaluation/*.csv`.
 - **Keeping 4 of each spill, every qualifier partner, every body** (the deep dive, 6 Oct, on the physics before the
   filmed rolling and TIP times, 20 runs: superseded, to be rerun): picking up all 4 of
   TIP 2's spill leads to 3 TIPs in 87-96% of matches with a shooting partner (36-49% otherwise). The dual hook

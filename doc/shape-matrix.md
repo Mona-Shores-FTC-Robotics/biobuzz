@@ -79,6 +79,22 @@ from the north wall (37.5 in is its route above; the 90% Drop Zone is 32.0–46.
   when it comes down might.
 - 37.5 and 38.5 in are about level; the route stays at 37.5 (fewest touches).
 
+## PARK first on ShootsRight
+
+Run **6 Oct 2026 17:45 UTC**, 60 runs. On the Rigid V's route (`qual-right-o3-sweep`), when TIP 3 hasn't come 0.8 s
+after the GARDEN's shots, the robot goes back to the GARDEN for a third load. That card is the route's last, so the
+endgame guard never cuts it: the robot missed PARK in 25 of 60 runs, and the third load never made TIP 3.
+`tools/auto-routes/park_first.py` PARKs instead (shots already away can still TIP within 8 s of AUTO's end):
+
+| Rigid V, PARK first | Points | 3 TIPs | Both LEAVE + PARK | G409 runs |
+|---|---|---|---|---|
+| 18 in, 45° | 66.2 (was 64.1) | 33 | **58** (was 33) | 3 |
+| 18 in, 30° | **68.8** (was 67.3) | **41** | 57 (was 40) | 6 |
+| 20 in, 45° | 68.4 (was 66.8) | 40 | 57 (was 38) | 9 |
+
+The Flat Intake's route (`qual-right-o3`, "first") has its own gap: PARK in 13 of 60.
+Full comparison: [the report](../sim-review/body-evaluation.html).
+
 **What it says**
 
 - **The Rigid V is the only guide that clearly helps, and only where TIP 3 is within reach.** With the partner
