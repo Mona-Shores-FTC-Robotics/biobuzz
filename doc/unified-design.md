@@ -345,6 +345,36 @@ wait for TIP 2's spill to land changes:
 goes from 16 to 32 touched runs, and partner shoots from 8 to 16. If G409 gets called on a real field, the longer
 waits are the fallback.
 
+## Shoot while extracting, first runs (6 Oct 2026, 60 runs)
+
+**Setup.**
+- **Design** "rigid V, turret transfer": the transfer (0.25 s shots, lane capacity) feeding a **turret**, so the
+  robot can face a FLOWER while the turret aims at the CELL.
+- **Routes** (`tools/auto-routes/stream.py`): the retimed baselines, with every far-FLOWER visit turned into a stream.
+  The robot drives in, turns StreamOn, fires each POLLEN as it comes out, and stays until TIP 2. The GARDEN and the
+  wall FLOWER are too far from the CELL that needs them then (the simulator's range is 60 in), so they stay as they
+  were.
+- **Spread:** the same runs again at zero shot spread, the launcher's accuracy target.
+
+| Auto | Turret, no streaming | Turret, streaming at the far FLOWER |
+|---|---|---|
+| Partner shoots | 71.8 · 3 TIPs in 50 · PARK 58 (zero spread: **75.3 · 58 · 60**) | **35.4 · TIP 2 in 4 of 60** (zero spread: 33.6 · 1) |
+| Angled partner | 52.3 · TIP 3 in 5 · PARK 40 (zero spread: 55.8 · 3 · 49) | 49.4 · PARK 9 (zero spread: 51.9 · 11) |
+| Wall partner | 58.7 · 3 TIPs in 30 (zero spread: **64.3 · 40**) | 58.3 · 30 (zero spread: 64.3 · 40); the far FLOWER is only its fallback |
+
+**What it says:**
+- **The turret helps on its own.** Partner shoots goes from 70.5 to 71.8 (75.3 at zero spread, with 3 TIPs in 58 of
+  60), and the wall partner reaches 64.3 with 3 TIPs in 40 at zero spread.
+- **Streaming from the far FLOWER doesn't work in the simulator yet.** The seat is off the CELL's axis (x 47 against
+  58, about 14°) and about 45 in from it. From there about 1 shot in 4 is lost (61 of 80 scored with today's
+  spread), and still about 1 in 4 at zero spread. So the loss is the seat's geometry, the angle or the path past the
+  HIVE, not random scatter. TIP 2 needs all 8, so it rarely comes.
+- **Before building Autos around it, test that seat on a field.** Shoot 20 POLLEN from the far FLOWER's extractor
+  seat with the turret aimed. If they go in, the simulator's off-axis shot model needs fixing. If they don't,
+  shooting while extracting needs a FLOWER on the CELL's axis, or a different seat.
+- **The angled partner's Auto loses PARK with the turret** (40 of 60). That's a squeeze in its fallback branch: when
+  TIP 2 doesn't come off the row, the far FLOWER puts TIP 2 at about 21 s and the park is cut at 27.7 s. A route fix.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
