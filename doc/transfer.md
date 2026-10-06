@@ -297,8 +297,8 @@ back of the robot. **Yes, through the chute, with the J-wheel run in reverse.** 
 - **Timing:** about 0.3 s a piece (0.2 s down the curve, 0.1 s under the wheel), the same as the front intake.
 
 **Capacity, and the one thing it costs.** The pocket under the wheel is a spot the front intake can never fill, so
-from the rear the robot holds the lane plus the pocket: **4 NECTAR, or 5 POLLEN.** That breaks the geometric G407
-guarantee for POLLEN, which is what FLOWERs hold. So rear loading needs a count: the extractor stops after 4, or
+from the rear the robot holds the lane plus the pocket: **5 POLLEN** (only POLLEN ever comes from a FLOWER). That
+breaks the geometric G407 guarantee. So rear loading needs a count: the extractor stops after 4, or
 one break-beam at the window. That's the cheapest sensor on the list, and only the rear path needs it.
 
 **What the window needs** (checked by the CAD chat against the chassis, 6 Oct 2026):
@@ -309,8 +309,8 @@ one break-beam at the window. That's the cheapest sensor on the list, and only t
   designer to agree to. The rear drive motors' encoder caps also pinch the tunnel to ±1.85 at X −7.4..−5.8; a POLLEN
   (±1.4) still passes.
 - The lip at z 3.0 is set by the J curve (at X −4.5 the curve is at z 2.8). The top, 6.6, is the turret bearing's
-  bottom. A POLLEN (2.8) clears both with 0.8 in; **a NECTAR (3.62) does not fit through 3.6 in.** If NECTAR must
-  come in from the back, the turret bearing rises to 7.0 or higher (the launcher's decision).
+  bottom. A POLLEN (2.8) clears both with 0.8 in. NECTAR is never extracted from a FLOWER (the user, 6 Oct), so the
+  rear path only carries POLLEN and the window's 3.6 in is enough.
 - The extractor has to deliver the piece **moving forward at about z 4.5 (centre)**, so it lifts the piece about
   3 in from the tiles behind the robot. The CAD chat finds no passive rear extractor that does this inside the 18 in
   start: the one that fits delivers pieces rolling on the tiles, so a lift needs its own motor or servo and more
@@ -318,7 +318,7 @@ one break-beam at the window. That's the cheapest sensor on the list, and only t
 - Under the turret deck nothing conflicts: the CAD has nothing in X −5.3..−0.9 below 9 in, and the J motor is at
   Y +2.6..4.6, outside the tunnel.
 
-**Showstoppers:** none in the transfer itself for POLLEN. But the whole rear path costs a frame change (two
+**Showstoppers:** none in the transfer itself. But the whole rear path costs a frame change (two
 cross-members), a powered lift on the extractor, a count at the window, and (per the CAD chat) the V's reach. The
 front extractor costs none of those. **The transfer's view: stay with the front.** If the rear is adopted anyway,
 the window above is what to build, and the first thing to prototype is the lift.
