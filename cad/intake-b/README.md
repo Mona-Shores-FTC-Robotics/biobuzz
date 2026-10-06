@@ -67,6 +67,5 @@ hole 9.8 mm higher, or leave the motor's short shaft without the outer bearing.
 ## Before anything is cut or printed
 
 The robot's designer has to agree, because the old roller behind the face goes. The servo, motor, pod and V-plate
-mounting holes are placeholders, so drill them to match the real parts. Check the REX-shaped hole in the corner
-block (`REX_AF` in `cad/robot-addons/build.py`) on a test print. The STLs are where the parts sit on the robot, so
+mounting holes are placeholders, so drill them to match the real parts. The STLs are where the parts sit on the robot, so
 lay each one flat before printing.
