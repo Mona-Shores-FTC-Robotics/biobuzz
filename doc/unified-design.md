@@ -54,6 +54,7 @@ starting length is 17.96 in.
 | **Transfer, intake to turret** | Intake-to-turret transfer (session_019KDmb4SvV5VjdaM2USg71K) | How pieces get from the roller to the turret at any turret angle, holding up to 4 (G407), NECTAR and POLLEN. The first idea to weigh: feed through the turret's rotation axis, with a single-file floor channel as the magazine. |
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
+| **AdvantageScope** | AdvantageScope internals (session_01Ade3tLhGCfjXzSL7XmxAFn), issue #166 | What a simulated log shows inside the robot: each held piece on the transfer's path, and the model's moving parts (extractor, roller float, turret, J arm) as `/Internals/Components`. Draws what the simulator decided, never changes it. The layout `sim-review/advantagescope-layout-internals.json`; [doc/advantagescope-internals.md](advantagescope-internals.md). |
 
 ## The baselines (claude/simulator, 6 Oct 2026)
 

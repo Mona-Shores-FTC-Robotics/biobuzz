@@ -81,6 +81,9 @@ foreach ($a in $assets) {
 # 5. This branch's layout, where AdvantageScope's Import Layout can find it.
 $layout = Join-Path $HOME "Downloads\advantagescope-layout.json"
 Copy-Item -Force (Join-Path $repo "sim-review\advantagescope-layout.json") $layout
+# ... and the one that looks inside the robot (doc/advantagescope-internals.md), when this branch has it.
+$internals = Join-Path $repo "sim-review\advantagescope-layout-internals.json"
+if (Test-Path $internals) { Copy-Item -Force $internals (Join-Path $HOME "Downloads\advantagescope-layout-internals.json") }
 
 $branch = git -C $repo rev-parse --abbrev-ref HEAD
 Write-Host ""

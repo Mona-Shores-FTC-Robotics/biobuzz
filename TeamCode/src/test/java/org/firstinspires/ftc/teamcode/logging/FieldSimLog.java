@@ -32,6 +32,8 @@ final class FieldSimLog {
     private final int[] tips = {-1, -1};
     private final int[] raisedCount = {-1, -1};
     private int held = -1;
+    /** Whether this writes the held pieces too; false when {@link RobotInternalsLog} draws them. */
+    boolean drawsHeld = true;
 
     /** How to open the log, and how the HIVE was calibrated. */
     static void putMetadata(WpiLog log, HiveCalibration calibration) throws IOException {
@@ -51,6 +53,7 @@ final class FieldSimLog {
                 KEY_HELD_POLLEN, KEY_HELD_RED_NECTAR, KEY_HELD_BLUE_NECTAR};
         FieldSim.Kind[] kinds = FieldSim.Kind.values();
         for (int i = 0; i < 6; i++) {
+            if (i >= 3 && !drawsHeld) continue;
             double[] now = sim.pieces(kinds[i % 3], i >= 3);
             if (!Arrays.equals(now, pieces[i])) {
                 log.putPose3dArray(keys[i], now, us);
