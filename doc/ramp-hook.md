@@ -250,6 +250,29 @@ What the model can't tell us, and the video or cardboard can:
 - POLLEN that aren't round (§9.8);
 - whether the robot shoves the FLOWER (it's bolted to the wall).
 
+## A photo of an empty FLOWER (6 Oct 2026)
+
+What it shows, by eye (no scale in the photo, so the sizes are rough):
+
+- **Four green posts**, not three, in a square, with an orange top ring and a handle. A black bracket holds the
+  posts' bottoms, carried on **two short silver legs** set back under the column. The open gap between the base
+  and the bracket is the retrieval opening.
+- **The base is a flat black plate,** roughly octagonal and wider than the column, flat on the tiles. It has a
+  **round hole under the column.** The bottom POLLEN sits in that hole, so the "bottom ring" is the edge of a
+  pocket, all the way round, not a lip on one side. Its height is the plate's thickness, or how far a 2.8 in
+  POLLEN drops into the hole, whichever is less. Neither can be read off the photo.
+
+What that means:
+
+- **For the rod, it's bad news, at least in the model.** With a 0.43 in pocket edge, a rod fails at every height
+  (0.6 to 1.3 in) and every reach (2.1 to 2.9 in): the POLLEN rolls off the rod and back into the pocket. With a
+  0.25 in edge it works only sometimes: at a 2.9 in reach, and not at 2.5. A ramp works either way, because it
+  bridges the edge. That's what 19705's plate and 25620's wedge both do.
+- **The legs are set back,** so a rod or ramp reaching 2.5 in into the opening should clear them. Check that on
+  Thursday.
+- **On Thursday, measure:** the plate's thickness, the hole's diameter, and how far a POLLEN sits down in it.
+  Then run the rod test anyway. The model's pocket is a 2-D guess, and the rod is cheap to try.
+
 ## What the other team's video shows
 
 Team 19705's reel, "This is what the ramp is for" (two stills shared 6 Oct 2026; the video itself not yet seen):
