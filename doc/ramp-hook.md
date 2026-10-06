@@ -49,6 +49,11 @@ Redraw it with `python3 tools/ramp-hook/views.py`.
   - **1.0 in deep fails** with a 0.43 in pocket at a 2.6 in reach: the whole bar is inside the pocket, so the
     POLLEN drop back in off its back edge. At 1.0 in, keep the reach near 2.1 in, or don't go that short.
   - The earlier long bar (2.75 deep, 0.6 tall, 12°) works too: 1.06 to 1.36 s.
+  - **Taller fails.** A tall, steep triangle (6 Oct sketch): a vertical front face rising to 1.6, 2.0 or 2.4 in, and
+    a steep back 1.4 in deep. It empties in 0 of 8 cases: the front meets the bottom POLLEN at its middle (1.4 in)
+    and shoves it straight back into the pocket. The same shape with its front stopped at 1.3 in empties in
+    8 of 8 (1.1 to 1.2 s). Flipped point-first, it fails at every height. **Keep the front face's top under about
+    1.3 in; the back can be as steep as you like.**
 - **Size:** 14.5 + 8 + 1.5 = 24.0 in, so **option 3's chassis fits as it is.** Stowed, the 4 in side wall sticks
   out in front, which makes 18.5 in: hinge the hook 0.5 in inside the frame, or make the wall 3.5 in tall.
 - **For the spill:** the front is a 4 in wall except the 6 in gap, and the bar runs under the gap too.
