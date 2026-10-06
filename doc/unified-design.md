@@ -63,6 +63,33 @@ the FLOWER scorer, the FLOWER extractor, and the Limelight at a mount angle that
 **The Flat Intake baseline is dropped** (mentor, 6 Oct 2026). Simulations now run only the Rigid V candidates, then
 only the chosen V.
 
+## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
+
+Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
+
+**Concept.** The extractor pivots on the roller's own shaft:
+- **Arms:** two 1/8 in aluminium arms, 1.8 in each side of centre, each on a flanged bearing (goBILDA
+  1611-0514-0008) on the roller's 8 mm shaft. The roller has two short gaps there, about 10 mm each.
+- **The FLOWER block:** carried on a cross shaft between the arms. Its back edge is 2.5 in ahead of the roller's
+  front, so POLLEN come off it straight into the roller.
+- **No walls.** A POLLEN passes between the arms, which have 3.5 in clear.
+- **It stays within the roller's width,** so the front corners are left to the V.
+
+**Outlines.** Robot frame, inches: x right of centre, up from the tiles, forward from the front face.
+
+| | x | Up | Forward |
+|---|---|---|---|
+| Pivot (the roller axle) | 0 | 3.35 | 1.0 |
+| Deployed (0°) | −1.86..+1.86 | 0.70..3.78 | 0.55..5.80. 20.9 in long overall, within R105's 24. |
+| The block, deployed | ±1.36 | 0.70..1.35 | 4.44..5.84 |
+| Stowed (125°, folded over the roller) | −1.86..+1.86 | 2.73..8.80 | −0.11..1.63. Within the roller's reach; the start stays 17.96 in long. |
+
+**Travel:** 0 to 125°. Checked every 5°: clear of the robot, the V and side plates, the roller motor and belt, and
+the drive pods. Past about 140° the block hits the intake's upper cross-channel.
+
+**Still to design:** the drive, a servo above the roller on the right driving the right arm through a short link,
+with hard stops at 0° and 125°.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
