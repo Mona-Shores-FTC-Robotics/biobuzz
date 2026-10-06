@@ -47,8 +47,10 @@ than a ramp running down to the floor.
   - **With the 0.43 in lip, it fails every time.** The bottom POLLEN rolls off the rod and drops behind the lip.
   - Both teams' photos show the bottom POLLEN on a flat base with no obvious lip, but the backboard study's
     drawing has one. **Measure it on Thursday: lip or no lip decides rod or ramp.**
-  - The rod hangs off the right arm across 14 in: 1/4 in steel sags about 0.02 in under its own weight, so it's
-    stiff enough. The start is 18.5 in stowed (the 4 in wall), so hinge the hook 0.5 in inside the frame.
+  - The rod hangs off the right arm across 14 in. Under its own weight 1/4 in steel sags about 0.01 in. But it's
+    springy sideways: about 50 lb/in where it meets a FLOWER, 7 in out, so a 5 lb bump moves it 0.1 in. A brace
+    to the chassis' left corner, or a second short arm on the left, fixes that. The start is 18.5 in stowed (the
+    4 in wall), so hinge the hook 0.5 in inside the frame.
 - **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
 - **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
