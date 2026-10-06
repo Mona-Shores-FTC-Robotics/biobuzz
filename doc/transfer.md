@@ -318,30 +318,32 @@ one break-beam at the window. That's the cheapest sensor on the list, and only t
 - Under the turret deck nothing conflicts: the CAD has nothing in X −5.3..−0.9 below 9 in, and the J motor is at
   Y +2.6..4.6, outside the tunnel.
 
-**A floor-level slot instead of the high window** (asked by the CAD chat: its FLOWER-emptying simulation has POLLEN
-leaving the FLOWER at 25–27 in/s, which climbs only about 0.5 in, so a passive extractor can't reach a 3.0 in lip).
-Possible, and it avoids the frame change, but it isn't free:
-- **The ball comes in on the tiles.** Its top is at 2.8, under the back channel (bottom 3.84), the second channel
-  (5.26) and the encoder caps (4.0). **No cross-member is cut.** That removes the rear option's biggest cost.
-- **The pocket floor drops to z 0.4** (0.3 in ground clearance) so the climb from the tiles is about 0.5 in, what
-  the ball has. The lane floor stays at 0.9 (its strand pulleys need the room), so the pocket is a 0.5 in dip at
-  the lane's back; the reversed wheel drives each ball up that step, and a fired ball drops into it. The wheel's
-  rest position drops 0.5 with the pocket floor (axle 4.04), so at the lane's mouth a POLLEN lifts the arm 0.6 and a
-  NECTAR 1.4: the float grows to 1.5 in and the arm's angle gets re-done for the stopped-wheel lock, probably
-  nearer 20° than 30°.
-- **The slot is the J shell's lower-rear quarter**, z 0.4 to about 3.3, X −4.96 to about −2.9. That quarter is a
-  pinch surface when firing, so it can't just be missing: it becomes a **one-way flap, hinged at its bottom**, that
-  the entering ball folds flat onto the pocket floor and rolls over, and that springs back up behind it. A stop
-  keeps a fired ball from pushing it open. A top-hinged flap doesn't work: swung open, it hits the wheel.
-- The ball then rolls flat along the pocket floor to the wheel and is pulled into the lane as above.
-- **Risks:** a ball's holes catching the flap's edge; the flap's spring and stop; 0.3 in of ground clearance over
-  tile seams. All cardboard questions. The count at the window is still needed.
+**A floor-level door instead of the high window** (the CAD chat's passive rear extractor, 6 Oct 2026: a low plate
+and a 2 in ramp bring a FLOWER's 4 POLLEN out at **lane-floor height, 0.9**, on their own speed; all 4 are past the
+block in about 1.0 s). This is the rear version to build, if any:
+- **The ball arrives on a 0.9 in floor** that runs from the back face to the J (X −7.57 to −4.96). Its top is at
+  3.7: under the back channel (bottom 3.84, 0.14 in to spare), the encoder caps (4.0) and the second channel (5.26).
+  **No cross-member is cut**, and the pocket floor stays at 0.9, so the J, the wheel and the arm are unchanged.
+- **The J shell's lower-rear quarter becomes a one-way door.** That surface is the firing pinch, so it can't be
+  missing; it has to open for a ball from behind and hold against a ball from inside. The door that fits is
+  **side-hinged**: a vertical hinge on one lane wall at X −4.9, the door 4.2 in wide and about 3 in tall, curved to
+  the J's profile, sprung shut, with a stop on the frame so it can't open rearward. An entering ball swings it
+  forward flat against the wall (where it clears the pocket ball by 0.6 in and the wheel by more); it springs
+  back once the ball is past. A bottom-hinged flap would lie under the balls, and a top-hinged one swings into the
+  wheel; neither works.
+- **The J runs in reverse throughout extraction**, pulling each ball through the pocket into the lane as it arrives
+  (about 0.1 s each, against 0.25 s between arrivals).
+- **The count.** With an empty lane, a FLOWER's 4 POLLEN fill the lane exactly and the pocket ends empty: G407 holds
+  with no count. Extracting with pieces already aboard can leave a 5th in the pocket, so either the robot only
+  extracts when empty, or a break-beam at the door counts.
+- **Risks** (cardboard): a ball's holes catching the door's edge; the door's spring and stop; the 0.14 in under the
+  back channel; the ball keeping enough speed through the door to reach the wheel (the floor from the back face
+  to the pocket is flat, 2.6 in).
 
-**Showstoppers:** none in the transfer itself. But the whole rear path costs either a frame change (two
-cross-members) plus a powered lift on the extractor, or the floor-level slot with its flap and dropped pocket; plus a
-count at the window and (per the CAD chat) the V's reach. The
-front extractor costs none of those. **The transfer's view: stay with the front.** If the rear is adopted anyway,
-the window above is what to build, and the first thing to prototype is the lift.
+**Showstoppers:** none. With the floor-level door the rear path costs the transfer one sprung door and a J motor
+that reverses, plus (per the CAD chat) the V's reach and the extractor's own length. The high window and its powered
+lift are superseded. **The transfer's view:** the front extractor is still simpler, but the rear is now a fair
+option, and the door is the first thing to prototype if it's chosen.
 
 ## Checklist for the next meeting (cardboard first)
 
