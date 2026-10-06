@@ -239,6 +239,48 @@ alliance's half 3 s after it starts.
   Rerun: `python3 tools/auto-routes/qual_shapes.py` writes the routes; `BIOBUZZ_SHAPE_MATCHES=1 ./gradlew
   :TeamCode:testDebugUnitTest --tests '*ShapeMatchTest*'` runs them (`build/sim-logs/shape-matches.csv`).
 
+**Staging our preloads in the hook** (`StagedPreloadsTest`, issue #159, 5 Oct 2026, mentor idea; simulator only).
+qual-right-v3 waits at N_FIRE for the partner's TIP 1 before firing our preloads. The idea uses that wait. Lower the
+hook, push the preloads out into it (`Outtake`), lift it, fetch the far FLOWER, fire the FLOWER at TIP 1, then pick
+the preloads up again and fire them for TIP 2. The FLOWER alone can't TIP: it is 4 pieces and a TIP needs about 8. The
+routes are `tools/auto-routes/qual_stage.py`. 20 runs each, normal tiles / 3x friction, partner as above:
+
+| Route | AUTO points | TIP 2 at | TIP 3 in | Our robot PARKs | Runs with a G409 touch | Loose on our half at 30 s | Staged taken back (of 4) |
+|---|---|---|---|---|---|---|---|
+| 1 · qual-right-v3 (plain), no staging | **72.5** / 70.3 | 13.3 s / 13.3 | 18 / 16 of 20 | 14 / 13 | 0 / 0 | 8.6 / 9.6 | – |
+| 13 · qual-right-v3-large-hook, no staging | 71.0 / 67.8 | 13.5 / 13.5 | 19 / 16 | 4 / 3 | 1 / 20 | 10.2 / 10.9 | – |
+| Staged in the hook at N_FIRE, as first drawn | 43.3 / 71.3 | 14.4 (6 runs) / 14.0 | 6 / 19 | 1 / 5 | 0 / 20 | 6.5 / 11.8 | 3.4 / 3.95 |
+| **Staged in the hook from y 120** | 67.3 / 66.3 | 15.9 (19 runs) / 16.0 | 18 / 16 | 0 / 0 | 7 / 20 | 10.7 / 10.9 | **4.0 / 4.0** |
+| … quick (hook down on the drive out, 0.2 s settle) | 66.7 / 68.6 | 15.5 / 15.9 | 17 / 18 | 0 / 0 | 8 / 20 | 10.9 / 11.7 | 4.0 / 4.0 |
+| Staged from y 120, plain robot (no hook) | 56.0 / 68.0 | 14.6 (14 runs) / 14.6 | 10 / 17 | 4 / 0 | 1 / 0 | 7.2 / 9.9 | 3.95 / 4.0 |
+| Hook from y 120, outtake 10 in/s (not 20) | 68.6 / 67.4 | 16.1 / 16.0 | 18 / 17 | 0 / 0 | 3 / 20 | 9.9 / 10.7 | 4.0 / 4.0 |
+| Hook from y 120, outtake 40 in/s | 64.8 / 69.4 | 15.7 (18 runs) / 16.0 | 17 / 19 | 0 / 0 | 8 / 20 | 11.3 / 11.3 | 3.95 / 4.0 |
+
+- **With this partner it costs points.** TIP 1 comes at 4.6 s, so we wait only 3.6 s at N_FIRE. Staging takes 1.8 s.
+  The FLOWER trip gets back about 3 s after TIP 1, and the staged 4 still have to be taken back before TIP 2. TIP 2
+  comes about 2.5 s later than qual-right-v3-large-hook's, and there is no time left to PARK. The idea only pays
+  with a partner whose TIP 1 comes several seconds later.
+- **The hook holds them.** Pushed out at 20 in/s, all 4 stopped inside the hook's pocket in every run: 5 in past
+  the chassis' face on normal tiles, under 2 in on slow ones. Without the hook, 3.6 of 4 stayed within the same
+  10 in deep, chassis-wide patch. Lifting the hook never moved them, but the simulator cannot really answer that:
+  it removes the hook the moment it starts to lift.
+- **Where they lie matters more than the hook.** Staged from N_FIRE, they stop at y 96–101, where the left CELL
+  swings up at TIP 1 and throws them (3 of 4 in a typical normal-tile run). On slow tiles they stop short of the
+  swing, which is why that row is fine at 3x. Staged from y 120 they stop at y 104–110 and survive. Two more things
+  had to change too. The robot turns round only at y 127, because a turn near them sweeps them with its corners.
+  And it takes them back one at a time with the webcam, because driving through the cluster pushed it faster than
+  the intake took it.
+- No staged piece was still on the tiles when TIP 2 started, so TIP 2's spill never landed near them. Holding them
+  for a later TIP would need a spot clear of both CELLs' swing and of TIP 2's landing.
+- Every staging number is a placeholder: the outtake's speed and spread, the hook's 0.3 s swing, and the CELL's
+  swing near the tiles. `doc/staged-preloads-test.md` lists what to measure, and the rules questions (is a piece
+  lying in a lowered hook CONTROLLED, G407?).
+- To watch them: [`staged-preloads-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/spike/159-staged-preloads-hook/sim-review/staged-preloads-advantagescope.zip)
+  (the match-shapes model, `advantagescope-layout-staged.json` with a magenta ring round each staged piece, the best
+  and typical log of four cases; its README.txt says how). Rerun: `python3 tools/auto-routes/qual_stage.py` writes
+  the routes; `BIOBUZZ_STAGED_MATCHES=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*StagedPreloadsTest*'` runs
+  them (`build/sim-logs/staged-preloads.csv`).
+
 **Robot shapes at the spill** (`BodyShapeSpillTest.atTheLandingLine`, mentor, 5 Oct 2026): each shape parks with
 its **chassis's front face on the spill's 100% line** (35 in from the wall; every 8 POLLEN piece lands beyond it, 90%
 beyond 38 in), so its walls, flaps or ramps reach into where pieces land. 200 TIPs a spot. "Kept" is the pieces lying

@@ -54,6 +54,14 @@ are another session's. The sweep's other waits (0–1000 ms, 0 / 4 / 8 in back) 
 this branch; `python3 g409.py 20 shoots-left stages --extra 300 --back 8 --north 4 --tip 700 --designs plain,early`
 and `python3 g409.py 20 v2 --extra 500` rebuild and rerun the winners.
 
+`python3 qual_shapes.py` writes qual-right-v3 for the spill shapes (a rigid V, a large and a small right hook:
+`qual-right-v3-rigid-v`, `-large-hook`, `-small-hook`), each on its own robot design; `ShapeMatchTest` simulates
+them against qual-right-v3 (the repository README, "In the Qualifier Auto").
+`python3 qual_stage.py` writes qual-right-v3 with our preloads staged in the large hook while we wait for TIP 1
+(`qual-stage-large-hook` as first drawn, `qual-stage-back-large-hook`, `-quick`, and `qual-stage-back-plain`). They
+use the simulator-only `HookDown`, `HookUp` and `Outtake`. `StagedPreloadsTest` simulates them (the repository
+README, "Staging our preloads in the hook").
+
 **Rules for both** (mentor review):
 
 - **Every shot is straight on**: on the CELL's axis (x 57.5), within the launcher's band (ShotMapTest, both
