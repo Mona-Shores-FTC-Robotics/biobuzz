@@ -214,6 +214,55 @@ frame).
 - **The Limelight.** A cage over the FLOWER's top, at about 21.9 in, would sit inside the camera's keep-clear zone,
   whose ceiling at the FLOWER is 18.7 in. That matters only while the cage is engaged.
 
+## Transfer (from the intake-to-turret transfer chat, 6 Oct 2026)
+
+**Owner:** the Intake-to-turret transfer chat (session_019KDmb4SvV5VjdaM2USg71K), issue #164. Full write-up, three
+concepts, sketches and a cardboard checklist: `doc/transfer.md` on `spike/164-transfer`. Not yet on a robot.
+
+**Concept: a floor lane that is the magazine, and a J-kicker up the turret axis.**
+- The roller throws each piece up a 25° ramp into a 4.2 in wide lane along the centreline. The floor is 0.9 in up,
+  with two polycord strands on it, driven off the roller's shaft.
+- At the back, a 48 mm gecko wheel floats on a banded arm over a fixed J-curve.
+  - Stopped, it is what the queue rests against.
+  - Running, it kicks each piece straight up the turret axis, through a hollow bearing (goBILDA 105 mm ID turret),
+    into the launcher's throat.
+- So it works at every turret angle, with **one new motor** (Yellow Jacket 1620 rpm) and no sensor.
+
+**Outline** (model frame: +x forward, +y left, +z up, inches, origin on the floor under the chassis centre):
+
+| Part | x | y | z |
+|---|---|---|---|
+| Ramp | 5.8 .. 7.2 | −2.1 .. 2.1 | 0.25 .. 0.9 |
+| Lane, keep-out inside the walls | −1.3 .. 7.2 | −2.35 .. 2.35 | 0.25 .. 5.0 |
+| Lane drive belt, outside the left wall, from a pulley on the roller shaft at y +2.6 | 5.2 .. 9.0 | 2.35 .. 2.9 | 0.2 .. 3.9 |
+| J-wheel, arms, pivot (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
+| Outer J and chute, keep-out | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
+| J motor (anywhere in this box) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
+| Turret bearing | centred on (−3.17, 0) | | bottom at 6.6 or higher |
+
+**Key numbers**
+
+| | |
+|---|---|
+| Hand-off to the launcher | On the turret axis (−3.17, 0) for NECTAR, and 0.4 in behind it for POLLEN. Crossing z 6.6 going up at about 70 in/s |
+| Intake to ready to fire | 0.35 s |
+| Fire command to the piece leaving the transfer | 0.15 s |
+| Shot interval | **0.25 s**, set by the roller's power while firing (0.15–0.4 s possible). The launcher's recovery is the limit |
+| Volley of 4 | about 0.9 s |
+| Holds | 4 POLLEN, 3 NECTAR, 3–4 mixed, **never 5**: G407 by geometry. At the start, 4 preloads of any mix |
+
+**What it needs from the others**
+- **From the robot:** the centreline strip, 4.7 in wide from x −5.1 to 7.2, kept free below z 5.0. So the battery,
+  the hubs and any cross-channels go to the sides or above 5.2 in.
+- **From the launcher:**
+  - its turret on the axis at x −3.17, with its bearing 6.6 in up or higher;
+  - a throat with a mouth about 4 in across, centred on the axis.
+- **Motor ports:** the transfer brings the count to 8 (4 drive, roller, J, flywheel, turret). A second flywheel motor
+  means a servo-driven turret.
+
+**Flag for the intake.** The pieces are stiff plastic balls. A NECTAR (3.62 in) is taller than the roller's axle
+(3.35 in), with the roller's bottom at 2.4. So a fixed roller there can't take a NECTAR. It needs to float.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
