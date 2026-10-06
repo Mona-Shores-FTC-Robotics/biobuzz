@@ -34,6 +34,25 @@ superseded; its FLOWER half carries on below.
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
 
+## The Rigid V: decided
+
+**The V as drawn:** tips 17.8 in apart, 2.84 in ahead of the face, 4 in tall, both flaps fixed. The fallback is 45°,
+if G409 touches get called on a real field. Decided by the Intake Design chat, 6 Oct 2026, from its angle sweep
+(`doc/intake-design.md` on `spike/160-intake-design`).
+
+60 runs on ShootsRight. The angle is measured from straight ahead, so a steeper V is shorter:
+
+| V | Points | 3 TIPs (of 60) | G409 runs |
+|---|---|---|---|
+| **31° (as drawn)** | **69.9** | **47** | 11 |
+| 35° | 68.3 | 43 | 6 |
+| 45° | 66.9 | 40 | 4 |
+| 60° | 64.3 | 34 | 4 |
+| 16 in tips | 67.0 | 40 | 6 |
+
+The angle makes no real difference with the angled partner (49.6–51.8). Going to 45° costs about 3 points for about a
+third of the touches.
+
 ## The Rigid V so far
 
 Measured on the V as drawn: tips 17.8 in apart, 2.8 in ahead, 31° from straight ahead. 60 runs on each guide's own
