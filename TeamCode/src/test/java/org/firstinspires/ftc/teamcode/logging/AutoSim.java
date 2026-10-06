@@ -187,6 +187,18 @@ public final class AutoSim {
          */
         final List<int[]> tipSpills = new ArrayList<>();
         /**
+         * When TELEOP starts: loose pieces on the tiles on the alliance's own half (what a hook keeps there for
+         * TELEOP), not counting pieces in a CELL or held.
+         */
+        int ourHalfLoose;
+        /**
+         * Each of our CELL's TIPs, in order (whoever caused it): {when it started (s, AUTO time), the pieces in the
+         * CELL then, how many of those our robot (the first Auto) picked up after it started, how many the other
+         * robot did, seconds from the start to our robot's 4th (NaN if it never had 4)}. "Keep 4": the plan is to
+         * pick up 4 of each spill and fire them at the other CELL.
+         */
+        final List<double[]> tipKeeps = new ArrayList<>();
+        /**
          * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
          * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
          * TIPs, LEAVE and PARK, so this is what an Auto's spare seconds can still buy.
@@ -488,6 +500,8 @@ public final class AutoSim {
         int tipsSeen = 0, startsSeen = 0;
         // Our TIPs' spills to count: {when, the pieces that were in our CELLs as the TIP started}.
         List<Object[]> spills = new ArrayList<>();
+        // ... and every TIP's pieces, to count who picks them up: {FieldSim time, pieces, counted, Result#tipKeeps row}.
+        List<Object[]> keeps = new ArrayList<>();
         boolean scored = false;
         for (long step = 0; step * LOOP_S <= AutoKit.AUTO_LENGTH_S + AFTER_S; step++) {
             now = step * LOOP_S;
@@ -553,6 +567,26 @@ public final class AutoSim {
                     if (p.where == FieldSim.Where.FIELD && p.cell != null && p.cell.alliance() == alliance) inCell.add(p);
                 }
                 spills.add(new Object[] {now + SPILL_LOOK_S, inCell});
+                keeps.add(new Object[] {sim.time, inCell, new java.util.HashSet<FieldSim.Piece>(), new double[] {
+                        now, inCell.size(), 0, 0, Double.NaN}});
+                result.tipKeeps.add((double[]) keeps.get(keeps.size() - 1)[3]);
+            }
+            for (Object[] k : keeps) {
+                double started = (Double) k[0];
+                @SuppressWarnings("unchecked")
+                List<FieldSim.Piece> spilledPieces = (List<FieldSim.Piece>) k[1];
+                @SuppressWarnings("unchecked")
+                java.util.Set<FieldSim.Piece> counted = (java.util.Set<FieldSim.Piece>) k[2];
+                double[] row = (double[]) k[3];
+                for (FieldSim.Piece p : spilledPieces) {
+                    if (p.capturedBy == null || !(p.capturedAt >= started) || !counted.add(p)) continue;
+                    if (p.capturedBy == bots.get(0).body) {
+                        row[2]++;
+                        if (row[2] == 4) row[4] = p.capturedAt - started;
+                    } else {
+                        row[3]++;
+                    }
+                }
             }
             while (!spills.isEmpty() && now >= (Double) spills.get(0)[0]) {
                 @SuppressWarnings("unchecked")
@@ -583,6 +617,10 @@ public final class AutoSim {
         FieldSim.Rocker ours = sim.rocker(alliance);
         result.cellLoad = Math.max(0, sim.tippingTorque(ours) / sim.physics.holdTorque);
         for (Bot b : bots) result.held += b.body.stored.size();
+        for (FieldSim.Piece p : sim.pieces) {
+            boolean ourHalf = alliance == Alliance.BLUE ? p.x > FieldSim.CENTRE_IN : p.x < FieldSim.CENTRE_IN;
+            if (p.where == FieldSim.Where.FIELD && p.cell == null && p.flower < 0 && ourHalf) result.ourHalfLoose++;
+        }
         RobotResult first = result.robots.get(0);
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
@@ -614,6 +652,14 @@ public final class AutoSim {
      */
     private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly) {
         List<double[]> out = corners(pose, design);
+        if (design.hasGuides()) {  // the rigid V's free ends
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = design.frameIn / 2 + design.guideForwardIn;
+            for (int side = -1; side <= 1; side += 2) {
+                double ly = side * (design.frameWidthIn / 2 + design.guideOutIn);
+                out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+            }
+        }
         if (design.hasFlaps() && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
             for (int side = -1; side <= 1; side += 2) {
@@ -807,7 +853,9 @@ public final class AutoSim {
                 throw new IllegalStateException("could not build " + result.auto, e);
             }
             prev = pedro(drive.pose);
-            if (design.flapsDeploy && design.flapTowardCentre) {
+            if (design.flapsDeploy && design.flapTowardCentre && design.flapEitherSide) {
+                log.putEvent(tag() + "dual hook: an arm each side; the one facing the centre line comes down", index);
+            } else if (design.flapsDeploy && design.flapTowardCentre) {
                 // A one-armed hook is built with its arm on one side (mentor, 5 Oct 2026): the side that faces
                 // the centre line when the robot faces the HIVE from the end of the field it starts at (the same side
                 // for both alliances: one runs the Auto rotated half a turn).
@@ -1050,6 +1098,7 @@ public final class AutoSim {
                 // A hook comes down only where the spill lands: not for a TIP whose spill falls at the other end,
                 // nor where its arm would be on the outside, away from the centre line.
                 boolean spillHere = !design.flapsDeploy || (pose[1] > FieldSim.CENTRE_IN) == wallSpillHighY;
+                if (design.flapEitherSide && body.wallsOut == 0) body.flapsOnly = towardCentre(pose[0], pose[2]);
                 boolean armInside = !design.flapTowardCentre || towardCentre(pose[0], pose[2]) == body.flapsOnly;
                 if (running && !wallsWanted && near && spillHere && !tooLate && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
                     if (!armInside) {
@@ -1106,9 +1155,12 @@ public final class AutoSim {
             double out = body == null ? 0 : body.wallsOut;
             if (out == shapeLogged) return;
             shapeLogged = out;
-            int hook = design.flapsDeploy ? BodyShape.matchHook(design.name, body == null ? 0 : body.flapsOnly) : -1;
-            log.putPose3dArray(keyPrefix + "/BodyShape/Components",
-                    RobotAssets.hookComponent(BodyShape.matchComponent(design.name), hook, 1 - out, design.frameIn), us);
+            int side = body == null || body.flapsOnly == 0 ? 1 : body.flapsOnly;
+            int hook = design.flapsDeploy ? BodyShape.matchHook(design.name, side) : -1;
+            double[] poses = RobotAssets.hookComponent(BodyShape.matchComponent(design.name), hook, 1 - out, design.frameIn);
+            // A dual hook: the other one stays stowed.
+            if (design.flapsDeploy && design.flapEitherSide) RobotAssets.swing(poses, BodyShape.matchHook(design.name, -side), 1, design.frameIn);
+            log.putPose3dArray(keyPrefix + "/BodyShape/Components", poses, us);
         }
 
         double shapeLogged = -1;

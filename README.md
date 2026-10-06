@@ -133,6 +133,24 @@ all of them). The guides being explored, each on the Flat Intake:
   fires at once (we only wait 3.6 s). [Staged preloads](doc/staged-preloads-test.md).
 - **A FLOWER backboard on the hook** (#158): the hook can't reach high enough (12 in short), and a NECTAR in
   a FLOWER only counts in the last 60 s of TELEOP. Not worth it yet. [FLOWER backboard](doc/flower-backboard.md).
+- **Decision (6 Oct): one robot, Rigid V + FLOWER extractor + FLOWER scorer.** The hook is no longer a spill
+  catcher (archived). Owners and the envelope: [One robot](doc/unified-design.md).
+- **Ramp Hook vs Rigid V** (6 Oct, current physics, 60 runs, each guide on a route drawn for it; replaces the deep
+  dive below): with the partner that shoots, the long Rigid V (18 in, 30°) does best (68.8, 3 TIPs in 41 of 60, PARK
+  in 57, G409 in 6). With a staging partner the Ramp Hook does best, holding TIP 1's spill at the south end so TIP 2
+  comes off the staged row (55.7 and 51.0 against the Flat Intake's 51.6 and 47.3), but falling pieces touch it in
+  28-30 of 60 on every Auto. No guide gets 3 TIPs with a staging partner yet. [The report](sim-review/body-evaluation.html)
+  (also [online](https://claude.ai/artifact/Q1AFHpfZZ9L16yzNccWvQv)); matches to watch:
+  `sim-review/body-evaluation-advantagescope.zip`; numbers: `sim-review/body-evaluation/*.csv`; routes:
+  `tools/auto-routes/guide_routes.py`, `park_first.py`.
+- **Keeping 4 of each spill, every qualifier partner, every body** (the deep dive, 6 Oct, on the physics before the
+  filmed rolling and TIP times, 20 runs: superseded, to be rerun): picking up all 4 of
+  TIP 2's spill leads to 3 TIPs in 87-96% of matches with a shooting partner (36-49% otherwise). The dual hook
+  keeps 4 best where it can wait for the spill (left-start partner: 54 to 69 points) but falling pieces touch it in
+  about 7 runs of 20; funnel flaps or a rigid V keep about 3.4 with few touches, best with the right-start partner.
+  No body gets 3 TIPs with a staging or idle partner. [The report](sim-review/deep-dive.html) (also
+  [online](https://claude.ai/artifact/BojDToxGirRu37fVngdtjK)); matches to watch:
+  `sim-review/deep-dive-advantagescope.zip`; how: `tools/auto-routes/keep4.py`, `DeepDiveTest`.
 - **The Ramp Hook** (meeting, 6 Oct): the 8 in hook with a ramp on its front, driven into a FLOWER to empty
   it into the intake, and held out to deaden a spill. Cardboard prototypes Thursday. [Ramp hook](doc/ramp-hook.md).
 

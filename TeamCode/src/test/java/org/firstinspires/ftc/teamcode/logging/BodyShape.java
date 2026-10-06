@@ -139,11 +139,18 @@ final class BodyShape {
             new BodyShape("flat intake, 9.5 in hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("flat intake, 9.5 in hook, arm on the left", true),
             new BodyShape("flat intake, 9.5 in hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("flat intake, 9.5 in hook, arm on the right", false),
             new BodyShape("flat intake, ramp hook", 14.5, 14.5, 0, 0, 8).hookOnly("flat intake, ramp hook, arm on the left", true),
-            new BodyShape("flat intake, ramp hook", 14.5, 14.5, 0, 0, 8).hookOnly("flat intake, ramp hook, arm on the right", false)};
+            new BodyShape("flat intake, ramp hook", 14.5, 14.5, 0, 0, 8).hookOnly("flat intake, ramp hook, arm on the right", false),
+            // The Rigid V's width and angle variants (AutoStudyTest.RIGID_V_VARIANTS).
+            new BodyShape("flat intake, rigid V 18 in, 30 deg", 14.5, 14.5, 0, 1.75, 3.0311),
+            new BodyShape("flat intake, rigid V 18 in, 60 deg", 14.5, 14.5, 0, 1.75, 1.0104),
+            new BodyShape("flat intake, rigid V 20 in, 45 deg", 14.5, 14.5, 0, 2.75, 2.75),
+            new BodyShape("flat intake, rigid V 20 in, 60 deg", 14.5, 14.5, 0, 2.75, 1.5877),
+            new BodyShape("flat intake, rigid V 22 in, 60 deg", 14.5, 14.5, 0, 3.75, 2.1651)};
 
     /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
     static int matchComponent(String design) {
         if (design.startsWith("flat intake")) {
+            for (int i = 15; i < MATCH.length; i++) if (MATCH[i].name.equals(design)) return i;
             return design.contains("rigid V") ? 9 : design.contains("hook") ? 10 : 8;
         }
         int hook = hookChassis(design);

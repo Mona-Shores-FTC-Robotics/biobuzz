@@ -1,5 +1,8 @@
 # Every spill guide on every current Auto
 
+> **Archived, 6 Oct 2026: the hook as a spill catcher.** The robot catches spills with a Rigid V. The hook is being
+> redesigned as a FLOWER extractor only. See [One robot](unified-design.md).
+
 Run **6 Oct 2026 13:40 UTC** on `claude/simulator`, on the simulator as it now stands: each TIP takes 0.58–1.12 s
 ([tip timing](tip-timing.md)) and spilled pieces roll as far as videos show ([rolling](rolling.md)). One runner
 for every cell (`AutoStudyTest`, the same as the README's baselines): 60 matches each, seeds 1–60, the same
@@ -29,6 +32,71 @@ comparison: 62.8 · TIP 3 35 · G409 11. TIP 1 with a partner that can't shoot i
 
 G409 is the number of runs (of 60) with at least one touch of a falling spilled piece: anything above 0 is a
 foul risk in a real match.
+
+## The Rigid V's width and angle
+
+Run **6 Oct 2026 15:44 UTC** on `claude/biobuzz-robot-body-designs-hi386c` (claude/simulator merged in, the baselines above
+reproduced exactly), the same runner, 60 runs. Flap tips this far apart, each flap this many degrees from
+straight ahead (45° is the Rigid V above). R105: wider than 18 in, the robot must stay within 18 in long, so wide
+flaps can't reach far forward: 22 in fits only at 60°, 20 in at 45° or more. Wider than 18 in they can't be rigid
+(R102's start cube): they would fold in for the start and swing out, which the simulator doesn't model.
+
+| Rigid V | Qual-PartnerShootsRight | Stages, angled partner | Stages, wall partner (tunnel route) |
+|---|---|---|---|
+| 18 in, 30° | **67.3** · TIP 3 **41** · PARK 40 · G409 6 | 50.9 · TIP 2 51 · G409 8; **crosses the centre line at 7.6 s in all 60** | 41.0 · TIP 2 35 · G409 6; crosses in all 60 |
+| 18 in, 45° (the Rigid V) | 64.1 · TIP 3 33 · PARK 33 · G409 3 | 51.9 · TIP 2 54 · G409 2; into the HIVE frame in 5 | 39.3 · TIP 2 30 · G409 0 |
+| 18 in, 60° | 63.2 · TIP 3 31 · PARK 30 · G409 4 | 51.3 · TIP 2 52 · G409 0; into the HIVE frame in 5 | 40.7 · TIP 2 34 · G409 0 |
+| 20 in, 45° | 66.8 · TIP 3 40 · PARK 38 · G409 10 | 51.6 · TIP 2 53 · G409 7; crosses in all 60 | 41.7 · TIP 2 37 · G409 6; crosses in all 60 |
+| 20 in, 60° | 65.3 · TIP 3 36 · PARK 35 · G409 7 | 51.3 · TIP 2 52 · G409 1; crosses in all 60 | 39.0 · TIP 2 29 · G409 0; crosses in all 60 |
+| 22 in, 60° | 67.0 · TIP 3 40 · PARK 40 · G409 13; **crosses the centre line and drives into the HIVE frame in all 60** | 51.3 · TIP 2 52 · G409 4; crosses and into the frame in all 60 | 42.0 · TIP 2 38 · G409 3; same |
+
+Intake misses per run (the study line's, Rigid V cells): about 17 too high and 12–22 while the intake is busy, as
+for the Flat Intake; "beside" (pieces off the intake's sides) drops from 1.8 on the Flat Intake to 0.4–2.4.
+
+- **On ShootsRight a longer V helps a little more**: 18 in at 30° (flaps 3 in further forward) 67.3, TIP 3 in 41,
+  against 64.1 and 33 at 45°, at the cost of 6 G409 runs against 3. Wider (20, 22 in) does about as well with more
+  touches (7–13).
+- **Every variant but 18 in at 45° and 60° breaks a rule on the Stages routes**: the flaps reach over the centre
+  line at 7.6 s (the turn out of the tunnel), and at 22 in into the HIVE frame. Those routes were drawn for the
+  45° V; a longer or wider V needs its own.
+- **No V gets TIP 3 with a partner that can't shoot**, as above.
+
+## Where the Ramp Hook waits
+
+Run **6 Oct 2026 17:10 UTC**, the same runner, 60 runs. The Ramp Hook waits for TIP 2's spill with its face this far
+from the north wall (37.5 in is its route above; the 90% Drop Zone is 32.0–46.6 in from the wall). Experiments:
+`qual-right-o3-ramp-f*` and `qual-stages-angled-ramp-f*`.
+
+| Face from the wall | ShootsRight | 3 TIPs | Both LEAVE + PARK | G409 runs | Kept 4 of TIP 2's spill | Stages, angled partner |
+|---|---|---|---|---|---|---|
+| 34.5 in | 63.3 | 28 | 44 | 58 | 24 | 51.0 · G409 36 |
+| 35.5 in | 64.5 | 31 | 46 | 56 | 25 | 50.9 · G409 37 |
+| 36.5 in | 66.2 | 35 | 50 | 44 | 27 | 50.9 · G409 37 |
+| **37.5 in** (its route) | 66.3 | 35 | 51 | **30** | 28 | 50.9 · G409 41 |
+| 38.5 in | **66.7** | **36** | **52** | 34 | **33** | 50.9 · G409 46 |
+| 39.5 in | 64.9 | 31 | 51 | 48 | 24 | 51.0 · G409 51 |
+
+- **No spot gets G409 down.** Every touch is TIP 2's spill still in the air (14.4–15.1 s, 1–7 in up, falling up to
+  160 in/s): it lands on the robot's front face (8.7 in ahead of its centre) or on the hook (14 in ahead). Closer
+  in, more falls on the robot; further out, more on the hook. Moving the robot can't fix it; the hook's shape or
+  when it comes down might.
+- 37.5 and 38.5 in are about level; the route stays at 37.5 (fewest touches).
+
+## PARK first on ShootsRight
+
+Run **6 Oct 2026 17:45 UTC**, 60 runs. On the Rigid V's route (`qual-right-o3-sweep`), when TIP 3 hasn't come 0.8 s
+after the GARDEN's shots, the robot goes back to the GARDEN for a third load. That card is the route's last, so the
+endgame guard never cuts it: the robot missed PARK in 25 of 60 runs, and the third load never made TIP 3.
+`tools/auto-routes/park_first.py` PARKs instead (shots already away can still TIP within 8 s of AUTO's end):
+
+| Rigid V, PARK first | Points | 3 TIPs | Both LEAVE + PARK | G409 runs |
+|---|---|---|---|---|
+| 18 in, 45° | 66.2 (was 64.1) | 33 | **58** (was 33) | 3 |
+| 18 in, 30° | **68.8** (was 67.3) | **41** | 57 (was 40) | 6 |
+| 20 in, 45° | 68.4 (was 66.8) | 40 | 57 (was 38) | 9 |
+
+The Flat Intake's route (`qual-right-o3`, "first") has its own gap: PARK in 13 of 60.
+Full comparison: [the report](../sim-review/body-evaluation.html).
 
 **What it says**
 

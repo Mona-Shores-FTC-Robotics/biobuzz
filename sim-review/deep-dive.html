@@ -1,0 +1,486 @@
+<title>Keep Four Deep Dive</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column, tables scroll sideways on their own; amber like the HIVE's POLLEN, slate field tiles. */
+:root {
+  --bg: #f6f5f1; --panel: #ffffff; --fg: #1d2127; --muted: #5b6370; --line: #dcdcd4;
+  --accent: #b77a00; --accent-soft: #f3e3bd; --ok: #2f7d4a; --warn: #a86a00; --bad: #b3362b;
+  --ok-bg: #e2f1e6; --warn-bg: #f7ebcf; --bad-bg: #f7dfdc; --red: #c23b33; --blue: #2c5fa8;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif; --body: "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #15181c; --panel: #1d2127; --fg: #e9e7e1; --muted: #a2a9b4; --line: #333a43;
+  --accent: #f0b43a; --accent-soft: #3a2f17; --ok: #7fcb94; --warn: #f0b43a; --bad: #f08a80;
+  --ok-bg: #1d3325; --warn-bg: #3a2f17; --bad-bg: #3d2220; --red: #f08a80; --blue: #8cb2ec; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #15181c; --panel: #1d2127; --fg: #e9e7e1; --muted: #a2a9b4; --line: #333a43;
+  --accent: #f0b43a; --accent-soft: #3a2f17; --ok: #7fcb94; --warn: #f0b43a; --bad: #f08a80;
+  --ok-bg: #1d3325; --warn-bg: #3a2f17; --bad-bg: #3d2220; --red: #f08a80; --blue: #8cb2ec; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 16px/1.55 var(--body); padding-inline: 16px; padding-block: 28px 64px; }
+main { max-width: 980px; margin: 0 auto; display: grid; gap: 40px; }
+.prose { max-width: 68ch; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; line-height: 1.05; text-wrap: balance; margin: 0; letter-spacing: .01em; }
+h1 { font-size: clamp(2.4rem, 6vw, 3.6rem); }
+h2 { font-size: 1.9rem; }
+h3 { font-size: 1.35rem; font-weight: 600; }
+.eyebrow { font: 600 .78rem/1 var(--mono); text-transform: uppercase; letter-spacing: .12em; color: var(--accent); }
+header { display: grid; gap: 14px; }
+header p { margin: 0; color: var(--muted); max-width: 70ch; }
+section { display: grid; gap: 14px; }
+p { margin: 0; }
+ul { margin: 0; padding-left: 1.2em; display: grid; gap: 6px; }
+.verdict { background: var(--panel); border: 1px solid var(--line); border-left: 4px solid var(--accent); padding: 18px 20px; display: grid; gap: 10px; }
+.verdict li strong { color: var(--fg); }
+.scroll { overflow-x: auto; border: 1px solid var(--line); background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: .92rem; min-width: 720px; }
+th, td { padding: 8px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+thead th { font: 600 .72rem/1.25 var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--muted); background: var(--bg); position: sticky; top: 0; }
+tbody th { font-weight: 600; white-space: nowrap; }
+th small, td small { display: block; font: 400 .74rem/1.3 var(--body); color: var(--muted); white-space: nowrap; }
+td.num { font-family: var(--mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+td.strong { font-weight: 600; }
+.sep { color: var(--muted); padding: 0 .25em; }
+tr.top { background: var(--accent-soft); }
+.pill { display: inline-block; padding: 1px 8px; border-radius: 999px; }
+.pill.ok { background: var(--ok-bg); color: var(--ok); }
+.pill.warn { background: var(--warn-bg); color: var(--warn); }
+.pill.bad { background: var(--bad-bg); color: var(--bad); }
+.bars { height: 8px; background: var(--bg); margin: 3px 0; min-width: 140px; }
+.bars span { display: block; height: 100%; }
+.b4 { background: var(--accent); } .b0 { background: var(--muted); opacity: .55; }
+.legend { font-size: .85rem; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+.legend b { color: var(--fg); font-weight: 600; }
+.partner { display: grid; gap: 10px; }
+.partner p { color: var(--muted); max-width: 75ch; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); padding: 16px 18px; display: grid; gap: 8px; min-width: 0; }
+code { font: .88em var(--mono); background: var(--panel); border: 1px solid var(--line); padding: 0 4px; }
+details { background: var(--panel); border: 1px solid var(--line); padding: 10px 14px; }
+details > summary { cursor: pointer; font-weight: 600; }
+details[open] > summary { margin-bottom: 10px; }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+<main>
+<header>
+  <span class="eyebrow">BIOBUZZ · Mona Shores FTC · simulated 6 Oct 2026</span>
+  <h1>Keep Four Deep Dive</h1>
+  <p>Can our robot pick up 4 of every spill, carry them to the other CELL and fire them, so every qualifier ends with 3 TIPs and both robots LEAVE and PARK? 4,000+ simulated matches: every Auto in the repository, and the qualifier Autos with every body shape we have, 20 runs each on normal tiles and on tiles with 3× the friction.</p>
+</header>
+
+<section class="verdict" aria-labelledby="v">
+  <h2 id="v">What the simulator says</h2>
+  <ul>
+    <li><strong>Keeping 4 is the lever, when the partner shoots.</strong> With a partner that fires its 4, picking up all 4 of TIP 2’s spill leads to 3 TIPs in 87–96% of matches; picking up fewer, in 36–49%.</li>
+    <li><strong>The hook keeps 4 most reliably</strong>, where the robot can wait at its spot: TIP 1 of the left-start Auto, 3.9 of 4 picked up on average and all 4 in 12 runs of 20 (plain: 2.1, all 4 in 2). That Auto goes from 54 to 69 points and from 3 to 16 runs with 3 TIPs. Its cost: falling pieces touch it (G409) in about 7 runs of 20.</li>
+    <li><strong>Funnel flaps or a rigid V do it without moving parts</strong>, by widening the 14 in intake’s mouth: about 3.4 of 4 kept, few G409 touches (0–4 runs of 20). Best of all bodies with the right-start partner (funnel flaps 72.5 / 73.5 points, 3 TIPs in 17–18 of 20); with the left-start partner about 64, behind the hook.</li>
+    <li><strong>No body gets 3 TIPs when the partner stages or does nothing.</strong> TIP 2 comes at 17–23 s in every version; TIP 3 would need about 8 more pieces in 9 s. That takes a different route or a faster robot, not a different body.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="k">
+  <span class="eyebrow">The theory</span>
+  <h2 id="k">Does picking up 4 make TIP 3?</h2>
+  <p class="prose">Every match, every body: after this TIP, did our robot pick up all 4 of its spill, and did the match reach 3 TIPs?</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Partner</th><th>After</th><th>Picked up 4 → 3 TIPs</th><th>Fewer → 3 TIPs</th><th></th></tr></thead>
+    <tbody><tr><th scope="row">fires from the right</th><td class="num">TIP 1</td><td class="num strong">100%<small>22 runs</small></td><td class="num">62%<small>418 runs</small></td><td><div class="bars"><span class="b4" style="width:100%"></span></div><div class="bars"><span class="b0" style="width:62%"></span></div></td></tr><tr><th scope="row">fires from the right</th><td class="num">TIP 2</td><td class="num strong">96%<small>140 runs</small></td><td class="num">49%<small>300 runs</small></td><td><div class="bars"><span class="b4" style="width:96%"></span></div><div class="bars"><span class="b0" style="width:49%"></span></div></td></tr><tr><th scope="row">fires from the left</th><td class="num">TIP 1</td><td class="num strong">67%<small>121 runs</small></td><td class="num">36%<small>319 runs</small></td><td><div class="bars"><span class="b4" style="width:67%"></span></div><div class="bars"><span class="b0" style="width:36%"></span></div></td></tr><tr><th scope="row">fires from the left</th><td class="num">TIP 2</td><td class="num strong">87%<small>78 runs</small></td><td class="num">36%<small>358 runs</small></td><td><div class="bars"><span class="b4" style="width:87%"></span></div><div class="bars"><span class="b0" style="width:36%"></span></div></td></tr><tr><th scope="row">does nothing</th><td class="num">TIP 1</td><td class="num strong">3%<small>120 runs</small></td><td class="num">0%<small>320 runs</small></td><td><div class="bars"><span class="b4" style="width:3%"></span></div><div class="bars"><span class="b0" style="width:0%"></span></div></td></tr><tr><th scope="row">does nothing</th><td class="num">TIP 2</td><td class="num strong">8%<small>51 runs</small></td><td class="num">0%<small>138 runs</small></td><td><div class="bars"><span class="b4" style="width:8%"></span></div><div class="bars"><span class="b0" style="width:0%"></span></div></td></tr><tr><th scope="row">stages (angled)</th><td class="num">TIP 1</td><td class="num strong">1%<small>110 runs</small></td><td class="num">0%<small>326 runs</small></td><td><div class="bars"><span class="b4" style="width:1%"></span></div><div class="bars"><span class="b0" style="width:0%"></span></div></td></tr><tr><th scope="row">stages (angled)</th><td class="num">TIP 2</td><td class="num strong">1%<small>70 runs</small></td><td class="num">0%<small>262 runs</small></td><td><div class="bars"><span class="b4" style="width:1%"></span></div><div class="bars"><span class="b0" style="width:0%"></span></div></td></tr><tr><th scope="row">stages (wall)</th><td class="num">TIP 2</td><td class="num strong">0%<small>49 runs</small></td><td class="num">0%<small>158 runs</small></td><td><div class="bars"><span class="b4" style="width:0%"></span></div><div class="bars"><span class="b0" style="width:0%"></span></div></td></tr></tbody>
+  </table></div>
+  <p class="legend"><span><b>Amber</b>: picked up all 4</span><span><b>Grey</b>: picked up fewer</span><span>Stages and does-nothing matches almost never reach 3 TIPs either way.</span></p>
+</section>
+
+<section aria-labelledby="p">
+  <span class="eyebrow">The qualifier Autos</span>
+  <h2 id="p">Each partner, each body</h2>
+  <p class="prose">Option 3 (14.5 in square, 14 in intake) unless named. Each cell: normal tiles <span class="sep">/</span> slow tiles, out of 20 runs. Amber row: most points on normal tiles. Picked up: how many of that TIP’s pieces our robot took, on average, and in how many runs all 4.</p>
+  <p class="legend"><span><b>Pts</b>: alliance AUTO points (76 is everything)</span><span><b>3 TIPs</b>, <b>76</b>, <b>Both PARK</b>: runs</span><span><b>G409</b>: runs where a falling piece touched us</span></p>
+  <div class="partner"><h3>Partner fires its 4 from the right start</h3><p>TIP 1 is the partner’s. We make TIP 2 at the left CELL and TIP 3 at the right, then PARK. Routes: qual-right-o3 and its hook version.</p><div class="scroll"><table>
+    <thead><tr><th>Body</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Plain<small>option 3 as drawn</small></th>
+<td class="num">64.8<span class="sep">/</span>66.0</td><td class="num">11<span class="sep">/</span>12</td>
+<td class="num">11<span class="sep">/</span>12</td><td class="num">11<span class="sep">/</span>12</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.8<span class="sep">/</span>2.0<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">2.2<span class="sep">/</span>2.5<small>all 4: 1<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">Rigid V<small>fixed flaps out to 18 in wide</small></th>
+<td class="num">71.0<span class="sep">/</span>73.3</td><td class="num">16<span class="sep">/</span>18</td>
+<td class="num">16<span class="sep">/</span>17</td><td class="num">16<span class="sep">/</span>17</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.9<span class="sep">/</span>1.6<small>all 4: 1<span class="sep">/</span>1</small></td>
+<td class="num">3.5<span class="sep">/</span>3.8<small>all 4: 10<span class="sep">/</span>12</small></td></tr>
+<tr class="top"><th scope="row">Funnel flaps<small>folding flaps, 3 in out, 2 in ahead</small></th>
+<td class="num">72.5<span class="sep">/</span>73.5</td><td class="num">17<span class="sep">/</span>18</td>
+<td class="num">17<span class="sep">/</span>18</td><td class="num">18<span class="sep">/</span>18</td>
+<td class="num"><span class="pill warn">1<span class="sep">/</span>2</span></td>
+<td class="num">2.1<span class="sep">/</span>1.6<small>all 4: 1<span class="sep">/</span>1</small></td>
+<td class="num">3.4<span class="sep">/</span>3.6<small>all 4: 8<span class="sep">/</span>11</small></td></tr>
+<tr><th scope="row">Side walls<small>slide 6 in forward at the TIP</small></th>
+<td class="num">71.8<span class="sep">/</span>72.3</td><td class="num">17<span class="sep">/</span>17</td>
+<td class="num">15<span class="sep">/</span>17</td><td class="num">15<span class="sep">/</span>17</td>
+<td class="num"><span class="pill bad">9<span class="sep">/</span>9</span></td>
+<td class="num">1.8<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">3.6<span class="sep">/</span>3.5<small>all 4: 11<span class="sep">/</span>10</small></td></tr>
+<tr><th scope="row">Dual hook<small>9.5 in arm, either side</small></th>
+<td class="num">63.5<span class="sep">/</span>66.5</td><td class="num">10<span class="sep">/</span>13</td>
+<td class="num">9<span class="sep">/</span>10</td><td class="num">10<span class="sep">/</span>10</td>
+<td class="num"><span class="pill warn">2<span class="sep">/</span>2</span></td>
+<td class="num">1.6<span class="sep">/</span>1.9<small>all 4: 1<span class="sep">/</span>1</small></td>
+<td class="num">2.8<span class="sep">/</span>2.8<small>all 4: 9<span class="sep">/</span>9</small></td></tr>
+<tr><th scope="row">Plain, hook route<small>control: the hook route, no hook</small></th>
+<td class="num">58.8<span class="sep">/</span>63.3</td><td class="num">6<span class="sep">/</span>10</td>
+<td class="num">5<span class="sep">/</span>9</td><td class="num">7<span class="sep">/</span>9</td>
+<td class="num"><span class="pill warn">2<span class="sep">/</span>2</span></td>
+<td class="num">1.8<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>2</small></td>
+<td class="num">1.8<span class="sep">/</span>2.0<small>all 4: 0<span class="sep">/</span>2</small></td></tr>
+<tr><th scope="row">12.5 in plain<small>option 3 shortened</small></th>
+<td class="num">59.8<span class="sep">/</span>63.8</td><td class="num">7<span class="sep">/</span>10</td>
+<td class="num">7<span class="sep">/</span>10</td><td class="num">7<span class="sep">/</span>11</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.8<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">1.9<span class="sep">/</span>2.0<small>all 4: 2<span class="sep">/</span>3</small></td></tr>
+<tr><th scope="row">12.5 in rigid V<small></small></th>
+<td class="num">69.5<span class="sep">/</span>72.0</td><td class="num">15<span class="sep">/</span>17</td>
+<td class="num">14<span class="sep">/</span>16</td><td class="num">14<span class="sep">/</span>16</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">1.9<span class="sep">/</span>2.0<small>all 4: 1<span class="sep">/</span>2</small></td>
+<td class="num">3.0<span class="sep">/</span>3.2<small>all 4: 6<span class="sep">/</span>10</small></td></tr>
+<tr><th scope="row">12.5 in dual hook<small>11.5 in arm</small></th>
+<td class="num">66.8<span class="sep">/</span>68.8</td><td class="num">13<span class="sep">/</span>15</td>
+<td class="num">11<span class="sep">/</span>11</td><td class="num">11<span class="sep">/</span>11</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">1.8<span class="sep">/</span>2.0<small>all 4: 0<span class="sep">/</span>2</small></td>
+<td class="num">2.9<span class="sep">/</span>3.1<small>all 4: 6<span class="sep">/</span>10</small></td></tr>
+<tr><th scope="row">12.5 in, hook route<small>control</small></th>
+<td class="num">56.5<span class="sep">/</span>60.8</td><td class="num">4<span class="sep">/</span>8</td>
+<td class="num">2<span class="sep">/</span>7</td><td class="num">6<span class="sep">/</span>7</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.8<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">1.6<span class="sep">/</span>1.8<small>all 4: 1<span class="sep">/</span>2</small></td></tr>
+<tr><th scope="row">18 in, wide intake<small>the what-if: 16.2 in intake</small></th>
+<td class="num">67.3<span class="sep">/</span>69.8</td><td class="num">13<span class="sep">/</span>15</td>
+<td class="num">12<span class="sep">/</span>14</td><td class="num">13<span class="sep">/</span>15</td>
+<td class="num"><span class="pill warn">2<span class="sep">/</span>1</span></td>
+<td class="num">2.3<span class="sep">/</span>1.9<small>all 4: 3<span class="sep">/</span>2</small></td>
+<td class="num">2.5<span class="sep">/</span>3.0<small>all 4: 4<span class="sep">/</span>8</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner fires its 4 from the left start, once we’ve tipped</h3><p>TIP 1 is our preloads. We catch its spill going north, fire it with the partner’s 4 (TIP 2), then TIP 3 at the right CELL. New on option 3: qual-left-o3.</p><div class="scroll"><table>
+    <thead><tr><th>Body</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Plain<small>option 3 as drawn</small></th>
+<td class="num">54.0<span class="sep">/</span>52.0</td><td class="num">3<span class="sep">/</span>1</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.1<span class="sep">/</span>2.4<small>all 4: 2<span class="sep">/</span>2</small></td>
+<td class="num">1.9<span class="sep">/</span>1.8<small>all 4: 1<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">Rigid V<small>fixed flaps out to 18 in wide</small></th>
+<td class="num">63.3<span class="sep">/</span>64.3</td><td class="num">11<span class="sep">/</span>11</td>
+<td class="num">5<span class="sep">/</span>9</td><td class="num">5<span class="sep">/</span>9</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>0</span></td>
+<td class="num">3.2<span class="sep">/</span>3.3<small>all 4: 9<span class="sep">/</span>10</small></td>
+<td class="num">3.0<span class="sep">/</span>3.0<small>all 4: 7<span class="sep">/</span>8</small></td></tr>
+<tr><th scope="row">Funnel flaps<small>folding flaps, 3 in out, 2 in ahead</small></th>
+<td class="num">63.5<span class="sep">/</span>65.3</td><td class="num">11<span class="sep">/</span>12</td>
+<td class="num">5<span class="sep">/</span>9</td><td class="num">6<span class="sep">/</span>9</td>
+<td class="num"><span class="pill warn">2<span class="sep">/</span>4</span></td>
+<td class="num">3.4<span class="sep">/</span>3.5<small>all 4: 9<span class="sep">/</span>11</small></td>
+<td class="num">3.0<span class="sep">/</span>3.2<small>all 4: 7<span class="sep">/</span>8</small></td></tr>
+<tr><th scope="row">Side walls<small>slide 6 in forward at the TIP</small></th>
+<td class="num">57.5<span class="sep">/</span>55.5</td><td class="num">6<span class="sep">/</span>4</td>
+<td class="num">2<span class="sep">/</span>1</td><td class="num">2<span class="sep">/</span>2</td>
+<td class="num"><span class="pill bad">12<span class="sep">/</span>12</span></td>
+<td class="num">2.4<span class="sep">/</span>2.5<small>all 4: 3<span class="sep">/</span>2</small></td>
+<td class="num">2.6<span class="sep">/</span>2.4<small>all 4: 2<span class="sep">/</span>2</small></td></tr>
+<tr class="top"><th scope="row">Dual hook<small>9.5 in arm, either side</small></th>
+<td class="num">69.0<span class="sep">/</span>66.8</td><td class="num">16<span class="sep">/</span>14</td>
+<td class="num">8<span class="sep">/</span>7</td><td class="num">8<span class="sep">/</span>7</td>
+<td class="num"><span class="pill bad">7<span class="sep">/</span>7</span></td>
+<td class="num">4.0<span class="sep">/</span>3.9<small>all 4: 12<span class="sep">/</span>10</small></td>
+<td class="num">2.6<span class="sep">/</span>2.6<small>all 4: 5<span class="sep">/</span>3</small></td></tr>
+<tr><th scope="row">Plain, hook route<small>control: the hook route, no hook</small></th>
+<td class="num">59.0<span class="sep">/</span>59.0</td><td class="num">8<span class="sep">/</span>8</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">7<span class="sep">/</span>6</span></td>
+<td class="num">2.4<span class="sep">/</span>2.4<small>all 4: 2<span class="sep">/</span>1</small></td>
+<td class="num">1.4<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">12.5 in plain<small>option 3 shortened</small></th>
+<td class="num">56.3<span class="sep">/</span>56.3</td><td class="num">6<span class="sep">/</span>6</td>
+<td class="num">1<span class="sep">/</span>1</td><td class="num">1<span class="sep">/</span>1</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.0<span class="sep">/</span>2.0<small>all 4: 1<span class="sep">/</span>3</small></td>
+<td class="num">1.5<span class="sep">/</span>1.9<small>all 4: 1<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">12.5 in rigid V<small></small></th>
+<td class="num">63.5<span class="sep">/</span>59.3</td><td class="num">12<span class="sep">/</span>8</td>
+<td class="num">6<span class="sep">/</span>4</td><td class="num">6<span class="sep">/</span>5</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>0</span></td>
+<td class="num">2.5<span class="sep">/</span>2.9<small>all 4: 3<span class="sep">/</span>7</small></td>
+<td class="num">2.6<span class="sep">/</span>2.5<small>all 4: 5<span class="sep">/</span>4</small></td></tr>
+<tr><th scope="row">12.5 in dual hook<small>11.5 in arm</small></th>
+<td class="num">65.0<span class="sep">/</span>66.3</td><td class="num">12<span class="sep">/</span>13</td>
+<td class="num">8<span class="sep">/</span>9</td><td class="num">8<span class="sep">/</span>9</td>
+<td class="num"><span class="pill warn">4<span class="sep">/</span>3</span></td>
+<td class="num">3.7<span class="sep">/</span>3.5<small>all 4: 13<span class="sep">/</span>10</small></td>
+<td class="num">2.8<span class="sep">/</span>2.8<small>all 4: 5<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">12.5 in, hook route<small>control</small></th>
+<td class="num">59.0<span class="sep">/</span>58.0</td><td class="num">8<span class="sep">/</span>7</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill warn">3<span class="sep">/</span>2</span></td>
+<td class="num">2.2<span class="sep">/</span>2.3<small>all 4: 3<span class="sep">/</span>4</small></td>
+<td class="num">1.6<span class="sep">/</span>2.1<small>all 4: 1<span class="sep">/</span>2</small></td></tr>
+<tr><th scope="row">18 in, wide intake<small>the what-if: 16.2 in intake</small></th>
+<td class="num">58.3<span class="sep">/</span>64.8</td><td class="num">7<span class="sep">/</span>13</td>
+<td class="num">1<span class="sep">/</span>3</td><td class="num">1<span class="sep">/</span>3</td>
+<td class="num"><span class="pill warn">3<span class="sep">/</span>3</span></td>
+<td class="num">1.9<span class="sep">/</span>2.1<small>all 4: 1<span class="sep">/</span>3</small></td>
+<td class="num">2.1<span class="sep">/</span>2.8<small>all 4: 3<span class="sep">/</span>6</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner only drives and parks</h3><p>The same route as “left”, with a partner that never shoots: every TIP is ours.</p><div class="scroll"><table>
+    <thead><tr><th>Body</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr><th scope="row">Plain<small>option 3 as drawn</small></th>
+<td class="num">36.0<span class="sep">/</span>41.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.1<span class="sep">/</span>2.4<small>all 4: 2<span class="sep">/</span>2</small></td>
+<td class="num">1.6<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr class="top"><th scope="row">Rigid V<small>fixed flaps out to 18 in wide</small></th>
+<td class="num">44.0<span class="sep">/</span>45.0</td><td class="num">1<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>0</span></td>
+<td class="num">3.0<span class="sep">/</span>3.2<small>all 4: 8<span class="sep">/</span>9</small></td>
+<td class="num">3.2<span class="sep">/</span>3.0<small>all 4: 5<span class="sep">/</span>6</small></td></tr>
+<tr><th scope="row">Funnel flaps<small>folding flaps, 3 in out, 2 in ahead</small></th>
+<td class="num">43.0<span class="sep">/</span>46.0</td><td class="num">0<span class="sep">/</span>1</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">3.0<span class="sep">/</span>3.2<small>all 4: 8<span class="sep">/</span>10</small></td>
+<td class="num">3.2<span class="sep">/</span>3.3<small>all 4: 7<span class="sep">/</span>6</small></td></tr>
+<tr><th scope="row">Side walls<small>slide 6 in forward at the TIP</small></th>
+<td class="num">39.0<span class="sep">/</span>43.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">5<span class="sep">/</span>9</span></td>
+<td class="num">2.4<span class="sep">/</span>2.5<small>all 4: 3<span class="sep">/</span>2</small></td>
+<td class="num">2.4<span class="sep">/</span>3.3<small>all 4: 2<span class="sep">/</span>6</small></td></tr>
+<tr><th scope="row">Dual hook<small>9.5 in arm, either side</small></th>
+<td class="num">42.0<span class="sep">/</span>42.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">7<span class="sep">/</span>8</span></td>
+<td class="num">3.9<span class="sep">/</span>3.9<small>all 4: 12<span class="sep">/</span>10</small></td>
+<td class="num">2.4<span class="sep">/</span>2.6<small>all 4: 1<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">Plain, hook route<small>control: the hook route, no hook</small></th>
+<td class="num">35.0<span class="sep">/</span>35.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">4<span class="sep">/</span>4</span></td>
+<td class="num">2.4<span class="sep">/</span>2.6<small>all 4: 2<span class="sep">/</span>3</small></td>
+<td class="num">1.2<span class="sep">/</span>1.5<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">12.5 in plain<small>option 3 shortened</small></th>
+<td class="num">35.0<span class="sep">/</span>38.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.9<span class="sep">/</span>2.0<small>all 4: 1<span class="sep">/</span>3</small></td>
+<td class="num">1.8<span class="sep">/</span>1.7<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">12.5 in rigid V<small></small></th>
+<td class="num">41.0<span class="sep">/</span>45.0</td><td class="num">1<span class="sep">/</span>1</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.5<span class="sep">/</span>2.9<small>all 4: 3<span class="sep">/</span>6</small></td>
+<td class="num">2.8<span class="sep">/</span>2.9<small>all 4: 3<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">12.5 in dual hook<small>11.5 in arm</small></th>
+<td class="num">42.0<span class="sep">/</span>43.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill warn">3<span class="sep">/</span>3</span></td>
+<td class="num">3.6<span class="sep">/</span>3.6<small>all 4: 13<span class="sep">/</span>10</small></td>
+<td class="num">2.6<span class="sep">/</span>2.8<small>all 4: 4<span class="sep">/</span>4</small></td></tr>
+<tr><th scope="row">12.5 in, hook route<small>control</small></th>
+<td class="num">33.0<span class="sep">/</span>35.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">2.3<span class="sep">/</span>2.5<small>all 4: 3<span class="sep">/</span>6</small></td>
+<td class="num">1.5<span class="sep">/</span>1.5<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">18 in, wide intake<small>the what-if: 16.2 in intake</small></th>
+<td class="num">36.0<span class="sep">/</span>36.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.9<span class="sep">/</span>2.0<small>all 4: 1<span class="sep">/</span>3</small></td>
+<td class="num">2.4<span class="sep">/</span>2.6<small>all 4: 1<span class="sep">/</span>0</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner can’t shoot, stages its 4 (angled, B)</h3><p>Its 4 POLLEN start on the tiles beside it; it drives straight to PARK. qual-stages-angled.</p><div class="scroll"><table>
+    <thead><tr><th>Body</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr class="top"><th scope="row">Plain<small>option 3 as drawn</small></th>
+<td class="num">56.0<span class="sep">/</span>56.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">2.5<span class="sep">/</span>2.7<small>all 4: 3<span class="sep">/</span>4</small></td>
+<td class="num">1.9<span class="sep">/</span>2.5<small>all 4: 1<span class="sep">/</span>3</small></td></tr>
+<tr class="top"><th scope="row">Rigid V<small>fixed flaps out to 18 in wide</small></th>
+<td class="num">56.0<span class="sep">/</span>57.0</td><td class="num">0<span class="sep">/</span>1</td>
+<td class="num">0<span class="sep">/</span>1</td><td class="num">20<span class="sep">/</span>20</td>
+<td class="num"><span class="pill ok">1<span class="sep">/</span>1</span></td>
+<td class="num">3.1<span class="sep">/</span>3.5<small>all 4: 7<span class="sep">/</span>12</small></td>
+<td class="num">2.9<span class="sep">/</span>2.8<small>all 4: 5<span class="sep">/</span>8</small></td></tr>
+<tr class="top"><th scope="row">Funnel flaps<small>folding flaps, 3 in out, 2 in ahead</small></th>
+<td class="num">56.0<span class="sep">/</span>56.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td>
+<td class="num"><span class="pill warn">1<span class="sep">/</span>2</span></td>
+<td class="num">3.4<span class="sep">/</span>3.4<small>all 4: 10<span class="sep">/</span>11</small></td>
+<td class="num">3.0<span class="sep">/</span>3.2<small>all 4: 6<span class="sep">/</span>9</small></td></tr>
+<tr class="top"><th scope="row">Side walls<small>slide 6 in forward at the TIP</small></th>
+<td class="num">56.0<span class="sep">/</span>56.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td>
+<td class="num"><span class="pill bad">17<span class="sep">/</span>14</span></td>
+<td class="num">2.7<span class="sep">/</span>2.8<small>all 4: 5<span class="sep">/</span>4</small></td>
+<td class="num">3.0<span class="sep">/</span>2.8<small>all 4: 4<span class="sep">/</span>4</small></td></tr>
+<tr class="top"><th scope="row">Dual hook<small>9.5 in arm, either side</small></th>
+<td class="num">56.0<span class="sep">/</span>56.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td>
+<td class="num"><span class="pill bad">9<span class="sep">/</span>10</span></td>
+<td class="num">3.0<span class="sep">/</span>3.4<small>all 4: 6<span class="sep">/</span>8</small></td>
+<td class="num">2.8<span class="sep">/</span>2.6<small>all 4: 3<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">Plain, hook route<small>control: the hook route, no hook</small></th>
+<td class="num">54.8<span class="sep">/</span>55.8</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">19<span class="sep">/</span>19</td>
+<td class="num"><span class="pill bad">7<span class="sep">/</span>7</span></td>
+<td class="num">1.8<span class="sep">/</span>2.5<small>all 4: 0<span class="sep">/</span>2</small></td>
+<td class="num">1.6<span class="sep">/</span>1.9<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">12.5 in plain<small>option 3 shortened</small></th>
+<td class="num">35.3<span class="sep">/</span>39.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">5<span class="sep">/</span>8</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.0<span class="sep">/</span>2.3<small>all 4: 3<span class="sep">/</span>2</small></td>
+<td class="num">2.2<span class="sep">/</span>2.3<small>all 4: 0<span class="sep">/</span>2</small></td></tr>
+<tr><th scope="row">12.5 in rigid V<small></small></th>
+<td class="num">41.0<span class="sep">/</span>46.3</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">8<span class="sep">/</span>13</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">2.5<span class="sep">/</span>3.0<small>all 4: 3<span class="sep">/</span>6</small></td>
+<td class="num">3.1<span class="sep">/</span>3.1<small>all 4: 4<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">12.5 in dual hook<small>11.5 in arm</small></th>
+<td class="num">44.5<span class="sep">/</span>46.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">10<span class="sep">/</span>12</td>
+<td class="num"><span class="pill warn">3<span class="sep">/</span>3</span></td>
+<td class="num">3.0<span class="sep">/</span>3.1<small>all 4: 6<span class="sep">/</span>8</small></td>
+<td class="num">2.5<span class="sep">/</span>3.0<small>all 4: 3<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">12.5 in, hook route<small>control</small></th>
+<td class="num">33.5<span class="sep">/</span>36.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">2<span class="sep">/</span>4</td>
+<td class="num"><span class="pill warn">1<span class="sep">/</span>2</span></td>
+<td class="num">1.6<span class="sep">/</span>2.2<small>all 4: 1<span class="sep">/</span>2</small></td>
+<td class="num">0.5<span class="sep">/</span>2.5<small>all 4: 0<span class="sep">/</span>1</small></td></tr>
+<tr><th scope="row">18 in, wide intake<small>the what-if: 16.2 in intake</small></th>
+<td class="num">46.3<span class="sep">/</span>55.8</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">17<span class="sep">/</span>19</td>
+<td class="num"><span class="pill warn">1<span class="sep">/</span>4</span></td>
+<td class="num">2.2<span class="sep">/</span>2.5<small>all 4: 3<span class="sep">/</span>4</small></td>
+<td class="num">2.8<span class="sep">/</span>2.7<small>all 4: 2<span class="sep">/</span>4</small></td></tr></tbody></table></div></div><div class="partner"><h3>Partner can’t shoot, stages its 4 (against the wall, A)</h3><p>It parks on our PARK spot, so we never PARK. qual-stages-wall.</p><div class="scroll"><table>
+    <thead><tr><th>Body</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>Both PARK</th><th>G409</th><th>TIP 1 picked up</th><th>TIP 2 picked up</th></tr></thead>
+    <tbody><tr class="top"><th scope="row">Plain<small>option 3 as drawn</small></th>
+<td class="num">51.0<span class="sep">/</span>51.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.0<span class="sep">/</span>1.1<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">2.0<span class="sep">/</span>2.5<small>all 4: 1<span class="sep">/</span>5</small></td></tr>
+<tr><th scope="row">Rigid V<small>fixed flaps out to 18 in wide</small></th>
+<td class="num">33.0<span class="sep">/</span>37.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.2<span class="sep">/</span>1.7<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">2.0<span class="sep">/</span>2.3<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">Funnel flaps<small>folding flaps, 3 in out, 2 in ahead</small></th>
+<td class="num">32.0<span class="sep">/</span>38.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.4<span class="sep">/</span>1.7<small>all 4: 1<span class="sep">/</span>0</small></td>
+<td class="num">0.0<span class="sep">/</span>3.0<small>all 4: 0<span class="sep">/</span>1</small></td></tr>
+<tr class="top"><th scope="row">Side walls<small>slide 6 in forward at the TIP</small></th>
+<td class="num">51.0<span class="sep">/</span>51.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">10<span class="sep">/</span>12</span></td>
+<td class="num">0.8<span class="sep">/</span>0.8<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">3.0<span class="sep">/</span>3.5<small>all 4: 8<span class="sep">/</span>12</small></td></tr>
+<tr class="top"><th scope="row">Dual hook<small>9.5 in arm, either side</small></th>
+<td class="num">51.0<span class="sep">/</span>51.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">7<span class="sep">/</span>6</span></td>
+<td class="num">0.8<span class="sep">/</span>0.8<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">3.0<span class="sep">/</span>3.0<small>all 4: 6<span class="sep">/</span>7</small></td></tr>
+<tr class="top"><th scope="row">Plain, hook route<small>control: the hook route, no hook</small></th>
+<td class="num">51.0<span class="sep">/</span>51.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill bad">4<span class="sep">/</span>5</span></td>
+<td class="num">1.1<span class="sep">/</span>1.1<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">1.7<span class="sep">/</span>2.4<small>all 4: 0<span class="sep">/</span>3</small></td></tr>
+<tr><th scope="row">12.5 in plain<small>option 3 shortened</small></th>
+<td class="num">32.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">0.7<span class="sep">/</span>1.1<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">1.0<span class="sep">/</span>1.0<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">12.5 in rigid V<small></small></th>
+<td class="num">33.0<span class="sep">/</span>39.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">1.0<span class="sep">/</span>1.4<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">3.5<span class="sep">/</span>3.0<small>all 4: 1<span class="sep">/</span>3</small></td></tr>
+<tr><th scope="row">12.5 in dual hook<small>11.5 in arm</small></th>
+<td class="num">32.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">0.8<span class="sep">/</span>1.2<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">1.0<span class="sep">/</span>0.0<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">12.5 in, hook route<small>control</small></th>
+<td class="num">32.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>0</span></td>
+<td class="num">0.8<span class="sep">/</span>1.2<small>all 4: 0<span class="sep">/</span>0</small></td>
+<td class="num">1.0<span class="sep">/</span>0.0<small>all 4: 0<span class="sep">/</span>0</small></td></tr>
+<tr><th scope="row">18 in, wide intake<small>the what-if: 16.2 in intake</small></th>
+<td class="num">30.7<span class="sep">/</span>39.2</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td>
+<td class="num"><span class="pill ok">0<span class="sep">/</span>1</span></td>
+<td class="num">1.2<span class="sep">/</span>1.4<small>all 4: 0<span class="sep">/</span>1</small></td>
+<td class="num">2.0<span class="sep">/</span>3.1<small>all 4: 0<span class="sep">/</span>2</small></td></tr></tbody></table></div></div>
+</section>
+
+<section aria-labelledby="h">
+  <span class="eyebrow">The hook</span>
+  <h2 id="h">What it does, and its touches</h2>
+  <div class="grid2">
+    <div class="card"><h3>Hook or route?</h3><p>The hook routes fire TIP 1 from closer in and hold 1 s for the spill. Without a hook, that route alone takes the left-start Auto from 54 to 59 points; the hook takes it to 69. Most of the gain is the hook.</p></div>
+    <div class="card"><h3>Why only a dual hook works both ends</h3><p>At the north end the arm facing the centre line is the robot’s left; at the south end, its right. The left-start and stages Autos catch at both ends, so they need an arm each side: two hooks on their own hinges, the one facing the centre line coming down.</p></div>
+    <div class="card"><h3>The touches</h3><p>About 7 runs of 20 on the left-start Auto. They hit the face and the crossbeam: these spills (our preloads with 3 NECTAR, or the partner’s 4 with our catch) land wider than the 9.5 in between them. The plain robot waiting at the same spot is touched as often. Moving the spot only moves them (table below).</p></div>
+    <div class="card"><h3>A late hook doesn’t help</h3><p>Waiting further back and lowering the hook 1.5 s after the TIP, once the spill has landed, avoids the touches, but by then the spill has scattered: it scores exactly what the plain robot does. The hook works only when it is down as the pieces land. How far they roll after landing is a guess the spill test would measure.</p></div>
+  </div>
+  <details><summary>Hook spot on the left-start Auto: face distance from the wall at the south / north end</summary>
+    <div class="scroll"><table><thead><tr><th>Spot</th><th>Pts</th><th>G409</th><th>TIP 1 picked up</th></tr></thead><tbody><tr><th scope="row">37.6 / 37.6 in<small>the spot used above</small></th><td class="num">69.0<span class="sep">/</span>66.8</td><td class="num">7<span class="sep">/</span>7</td><td class="num">4.0<span class="sep">/</span>3.9</td></tr>
+<tr><th scope="row">35.6 / 36.6 in</th><td class="num">63.8<span class="sep">/</span>64.3</td><td class="num">14<span class="sep">/</span>14</td><td class="num">3.9<span class="sep">/</span>4.3</td></tr>
+<tr><th scope="row">35.6 / 37.6 in</th><td class="num">62.8<span class="sep">/</span>65.5</td><td class="num">15<span class="sep">/</span>15</td><td class="num">4.0<span class="sep">/</span>4.5</td></tr>
+<tr><th scope="row">36.6 / 36.6 in</th><td class="num">66.5<span class="sep">/</span>60.0</td><td class="num">8<span class="sep">/</span>10</td><td class="num">3.9<span class="sep">/</span>3.5</td></tr>
+<tr><th scope="row">36.6 / 37.6 in</th><td class="num">66.5<span class="sep">/</span>65.0</td><td class="num">8<span class="sep">/</span>9</td><td class="num">3.8<span class="sep">/</span>3.6</td></tr>
+<tr><th scope="row">37.6 / 38.6 in</th><td class="num">65.3<span class="sep">/</span>65.5</td><td class="num">13<span class="sep">/</span>12</td><td class="num">4.0<span class="sep">/</span>3.9</td></tr>
+<tr><th scope="row">12.5 in, 34.1 / 35.1 in</th><td class="num">60.5<span class="sep">/</span>63.3</td><td class="num">11<span class="sep">/</span>12</td><td class="num">4.0<span class="sep">/</span>4.1</td></tr>
+<tr><th scope="row">12.5 in, 34.1 / 36.1 in</th><td class="num">60.3<span class="sep">/</span>62.0</td><td class="num">11<span class="sep">/</span>11</td><td class="num">3.8<span class="sep">/</span>4.0</td></tr>
+<tr><th scope="row">12.5 in, 35.1 / 35.1 in</th><td class="num">66.8<span class="sep">/</span>63.3</td><td class="num">10<span class="sep">/</span>9</td><td class="num">4.0<span class="sep">/</span>3.7</td></tr>
+<tr><th scope="row">12.5 in, 35.1 / 36.1 in</th><td class="num">67.0<span class="sep">/</span>62.0</td><td class="num">8<span class="sep">/</span>8</td><td class="num">4.0<span class="sep">/</span>3.8</td></tr></tbody></table></div>
+  </details>
+</section>
+
+<section aria-labelledby="s">
+  <span class="eyebrow">Every Auto in the repository</span>
+  <h2 id="s">The sweep</h2>
+  <p class="prose">Every pair in <code>TeamCode/autos/pairs.json</code>, on option 3 and on the 18 in robot with the 16.2 in intake. Most were drawn for earlier robots and are not current (<code>tools/auto-routes/DEPRECATED.md</code>); several touch falling pieces in most runs. One stands out: the older right-start route on the 18 in robot, 71.0 / 74.0 points, all 4 of TIP 2 kept in 12–14 of 20, 3 TIPs and both PARK in 15–18.</p>
+  <details><summary>All 15 pairs</summary>
+    <div class="scroll"><table><thead><tr><th>Pair</th><th>Robot</th><th>Pts</th><th>3 TIPs</th><th>76</th><th>G409</th><th>TIP 2 picked up</th></tr></thead><tbody><tr><th scope="row">Qual-ShootsRight-Option3</th><td>option 3</td><td class="num">64.8<span class="sep">/</span>66.0</td><td class="num">11<span class="sep">/</span>12</td><td class="num">11<span class="sep">/</span>12</td><td class="num">0<span class="sep">/</span>0</td><td class="num">2.2<span class="sep">/</span>2.5</td></tr><tr><th scope="row">Qual-ShootsRight-Option3</th><td>18 in</td><td class="num">67.5<span class="sep">/</span>71.0</td><td class="num">13<span class="sep">/</span>16</td><td class="num">13<span class="sep">/</span>16</td><td class="num">1<span class="sep">/</span>2</td><td class="num">2.6<span class="sep">/</span>3.1</td></tr><tr><th scope="row">Qual-PartnerParksLeft</th><td>option 3</td><td class="num">31.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">15<span class="sep">/</span>15</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Qual-PartnerParksLeft</th><td>18 in</td><td class="num">49.0<span class="sep">/</span>54.0</td><td class="num">8<span class="sep">/</span>11</td><td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td><td class="num">3.2<span class="sep">/</span>3.6</td></tr><tr><th scope="row">Sister-Recycle</th><td>option 3</td><td class="num">26.0<span class="sep">/</span>26.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">1<span class="sep">/</span>1</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Sister-Recycle</th><td>18 in</td><td class="num">46.0<span class="sep">/</span>47.0</td><td class="num">0<span class="sep">/</span>1</td><td class="num">0<span class="sep">/</span>0</td><td class="num">3<span class="sep">/</span>2</td><td class="num">0.0<span class="sep">/</span>0.0</td></tr><tr><th scope="row">PartnerShoots-Tunnel</th><td>option 3</td><td class="num">37.0<span class="sep">/</span>39.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0.0<span class="sep">/</span>2.0</td></tr><tr><th scope="row">PartnerShoots-Tunnel</th><td>18 in</td><td class="num">53.0<span class="sep">/</span>53.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">1.2<span class="sep">/</span>1.8</td></tr><tr><th scope="row">Qual-Stages-Angled</th><td>option 3</td><td class="num">56.0<span class="sep">/</span>56.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">1<span class="sep">/</span>1</td><td class="num">1.9<span class="sep">/</span>2.5</td></tr><tr><th scope="row">Qual-Stages-Angled</th><td>18 in</td><td class="num">50.3<span class="sep">/</span>55.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">2<span class="sep">/</span>2</td><td class="num">3.0<span class="sep">/</span>2.8</td></tr><tr><th scope="row">Qual-PartnerShootsRight-v3</th><td>option 3</td><td class="num">31.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Qual-PartnerShootsRight-v3</th><td>18 in</td><td class="num">69.8<span class="sep">/</span>69.3</td><td class="num">17<span class="sep">/</span>17</td><td class="num">7<span class="sep">/</span>5</td><td class="num">1<span class="sep">/</span>1</td><td class="num">2.5<span class="sep">/</span>2.9</td></tr><tr><th scope="row">Sister-ThrowBack</th><td>option 3</td><td class="num">26.0<span class="sep">/</span>26.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">1<span class="sep">/</span>1</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Sister-ThrowBack</th><td>18 in</td><td class="num">46.0<span class="sep">/</span>46.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">1<span class="sep">/</span>1</td><td class="num">0.0<span class="sep">/</span>0.0</td></tr><tr><th scope="row">PartnerShootsRight-LeftTunnel</th><td>option 3</td><td class="num">36.0<span class="sep">/</span>36.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">PartnerShootsRight-LeftTunnel</th><td>18 in</td><td class="num">44.3<span class="sep">/</span>43.8</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">2.0<span class="sep">/</span>2.8</td></tr><tr><th scope="row">Qual-Stages-Wall</th><td>option 3</td><td class="num">51.0<span class="sep">/</span>51.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">2.0<span class="sep">/</span>2.5</td></tr><tr><th scope="row">Qual-Stages-Wall</th><td>18 in</td><td class="num">32.8<span class="sep">/</span>39.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>1</td><td class="num">2.7<span class="sep">/</span>2.9</td></tr><tr><th scope="row">Qual-PartnerStages</th><td>option 3</td><td class="num">37.0<span class="sep">/</span>38.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">17<span class="sep">/</span>17</td><td class="num">2.3<span class="sep">/</span>2.3</td></tr><tr><th scope="row">Qual-PartnerStages</th><td>18 in</td><td class="num">54.6<span class="sep">/</span>60.4</td><td class="num">6<span class="sep">/</span>10</td><td class="num">0<span class="sep">/</span>0</td><td class="num">20<span class="sep">/</span>20</td><td class="num">3.3<span class="sep">/</span>3.2</td></tr><tr><th scope="row">Sister-SetDown</th><td>option 3</td><td class="num">26.0<span class="sep">/</span>26.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Sister-SetDown</th><td>18 in</td><td class="num">48.0<span class="sep">/</span>50.0</td><td class="num">2<span class="sep">/</span>4</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>1</td><td class="num">0.0<span class="sep">/</span>0.0</td></tr><tr><th scope="row">PartnerStages-ThreeTip</th><td>option 3</td><td class="num">36.0<span class="sep">/</span>36.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">3<span class="sep">/</span>3</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">PartnerStages-ThreeTip</th><td>18 in</td><td class="num">37.0<span class="sep">/</span>37.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">6<span class="sep">/</span>6</td><td class="num">1.0<span class="sep">/</span>0.0</td></tr><tr><th scope="row">Qual-PartnerShootsLeft</th><td>option 3</td><td class="num">37.0<span class="sep">/</span>38.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">16<span class="sep">/</span>16</td><td class="num">2.2<span class="sep">/</span>2.0</td></tr><tr><th scope="row">Qual-PartnerShootsLeft</th><td>18 in</td><td class="num">66.3<span class="sep">/</span>69.3</td><td class="num">15<span class="sep">/</span>18</td><td class="num">1<span class="sep">/</span>1</td><td class="num">20<span class="sep">/</span>20</td><td class="num">2.6<span class="sep">/</span>2.8</td></tr><tr><th scope="row">Qual-PartnerShootsRight</th><td>option 3</td><td class="num">31.0<span class="sep">/</span>31.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">Qual-PartnerShootsRight</th><td>18 in</td><td class="num">71.0<span class="sep">/</span>74.0</td><td class="num">15<span class="sep">/</span>18</td><td class="num">15<span class="sep">/</span>18</td><td class="num">20<span class="sep">/</span>20</td><td class="num">3.6<span class="sep">/</span>4.0</td></tr><tr><th scope="row">PartnerShoots-ThreeTip</th><td>option 3</td><td class="num">36.0<span class="sep">/</span>36.0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0<span class="sep">/</span>0</td><td class="num">–<span class="sep">/</span>–</td></tr><tr><th scope="row">PartnerShoots-ThreeTip</th><td>18 in</td><td class="num">56.0<span class="sep">/</span>58.0</td><td class="num">0<span class="sep">/</span>2</td><td class="num">0<span class="sep">/</span>2</td><td class="num">0<span class="sep">/</span>0</td><td class="num">0.4<span class="sep">/</span>0.5</td></tr></tbody></table></div>
+  </details>
+</section>
+
+<section aria-labelledby="n">
+  <span class="eyebrow">For the meeting</span>
+  <h2 id="n">What to decide and test</h2>
+  <div class="grid2">
+    <div class="card"><h3>Decide</h3><ul>
+      <li>Funnel flaps or rigid V: the safe body, good with both shooting partners, nothing that moves.</li>
+      <li>The dual hook: the best keeper and the best left-start Auto, but two hinged arms and G409 risk in about a third of matches.</li>
+      <li>Stages and does-nothing partners need a new plan (TIP 2 earlier), whatever the body.</li>
+    </ul></div>
+    <div class="card"><h3>Test on a field</h3><ul>
+      <li><code>doc/spill-test.md</code>: where the spill lands (the simulator lands it about 6 in short of the 3 Oct films) and how far it rolls. Every hook spot moves with it.</li>
+      <li>Cardboard funnel flaps on the build robot: do pieces really slide in?</li>
+      <li>A cardboard hook at the left-start Auto’s spot: does it catch 4, and is it touched?</li>
+    </ul></div>
+  </div>
+  <p class="prose">Guesses in every number here: the intake (it takes a piece only touching it and slow, 0.35 s each), the launcher, how pieces bounce and roll, the partner (a spring-hood robot at 40 in/s). Watch the matches: <code>sim-review/deep-dive-advantagescope.zip</code> on the branch <code>claude/biobuzz-robot-body-designs-hi386c</code> (its README.txt says how). The numbers: <code>sim-review/deep-dive/*.csv</code>. Rerun: <code>BIOBUZZ_DEEP_DIVE=tools/auto-routes/deep-dive-qualifiers.txt ./gradlew :TeamCode:testDebugUnitTest --tests '*DeepDiveTest*'</code>.</p>
+</section>
+</main>

@@ -1,5 +1,8 @@
 # The ramp hook: spill hook and FLOWER emptier in one arm
 
+> **Archived, 6 Oct 2026: the hook as a spill catcher.** The robot catches spills with a Rigid V. The hook is being
+> redesigned as a FLOWER extractor only. See [One robot](unified-design.md).
+
 > **A record, not current numbers.** Simulated before 6 Oct 2026 12:00 UTC, when each TIP took a fixed 1.0 s and
 > spilled pieces stopped rolling too soon; the numbers read high. Current numbers: the README and
 > [shape-matrix.md](shape-matrix.md). Names since 6 Oct 2026: "option 3" is the **Flat Intake**, the hooks are

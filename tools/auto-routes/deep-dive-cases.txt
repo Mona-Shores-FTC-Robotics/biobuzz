@@ -1,0 +1,34 @@
+# DeepDive cases (TeamCode/.../logging/DeepDive.java): label|our Auto|partner Auto|our design|partner design|partner speed
+# The pairs in TeamCode/autos/pairs.json, on option 3 (the baseline robot) and on the 18 in robot with the 16.2 in
+# intake (the wide-intake what-if). Qualifier partners are the spring hood at 40 in/s, as in qual_right.py; a sister
+# is our own second robot, the same design and speed.
+Qual-ShootsRight-Option3|QualRightO3Auto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-Stages-Angled|QualStagesAngledAuto|PartnerAngledParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-Stages-Wall|QualStagesWallAuto|PartnerStage19SideParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-PartnerShootsLeft|QualPartnerShootsLeftAuto|PartnerPreloadsLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-PartnerParksLeft|QualPartnerParksLeftAuto|PartnerParkLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-PartnerShootsRight-v3|QualRightV3Auto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-PartnerStages|QualPartnerStagesAuto|PartnerStageExitAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-PartnerShootsRight|QualPartnerShootsRightAuto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Sister-Recycle|Recycle3RightAuto|Recycle3LeftAuto|builders' option 3 (5 Oct CAD)|same|NaN
+Sister-ThrowBack|Recycle5RightAuto|Recycle5LeftAuto|builders' option 3 (5 Oct CAD)|same|NaN
+Sister-SetDown|Recycle4RightAuto|Recycle4LeftAuto|builders' option 3 (5 Oct CAD)|same|NaN
+PartnerShoots-ThreeTip|ThreeTipAdaptiveAuto|PartnerPreloadsParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+PartnerShoots-Tunnel|SoloTunnelAuto|PartnerPreloadsParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+PartnerShootsRight-LeftTunnel|LeftTunnelAuto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+PartnerStages-ThreeTip|StagedThreeTipAuto|PartnerLeaveParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+Qual-ShootsRight-Option3|QualRightO3Auto|PartnerPreloadsRightAuto|spring hood, full-width intake|spring hood|40
+Qual-Stages-Angled|QualStagesAngledAuto|PartnerAngledParkAuto|spring hood, full-width intake|spring hood|40
+Qual-Stages-Wall|QualStagesWallAuto|PartnerStage19SideParkAuto|spring hood, full-width intake|spring hood|40
+Qual-PartnerShootsLeft|QualPartnerShootsLeftAuto|PartnerPreloadsLeftAuto|spring hood, full-width intake|spring hood|40
+Qual-PartnerParksLeft|QualPartnerParksLeftAuto|PartnerParkLeftAuto|spring hood, full-width intake|spring hood|40
+Qual-PartnerShootsRight-v3|QualRightV3Auto|PartnerPreloadsRightAuto|spring hood, full-width intake|spring hood|40
+Qual-PartnerStages|QualPartnerStagesAuto|PartnerStageExitAuto|spring hood, full-width intake|spring hood|40
+Qual-PartnerShootsRight|QualPartnerShootsRightAuto|PartnerPreloadsRightAuto|spring hood, full-width intake|spring hood|40
+Sister-Recycle|Recycle3RightAuto|Recycle3LeftAuto|spring hood, full-width intake|same|NaN
+Sister-ThrowBack|Recycle5RightAuto|Recycle5LeftAuto|spring hood, full-width intake|same|NaN
+Sister-SetDown|Recycle4RightAuto|Recycle4LeftAuto|spring hood, full-width intake|same|NaN
+PartnerShoots-ThreeTip|ThreeTipAdaptiveAuto|PartnerPreloadsParkAuto|spring hood, full-width intake|spring hood|40
+PartnerShoots-Tunnel|SoloTunnelAuto|PartnerPreloadsParkAuto|spring hood, full-width intake|spring hood|40
+PartnerShootsRight-LeftTunnel|LeftTunnelAuto|PartnerPreloadsRightAuto|spring hood, full-width intake|spring hood|40
+PartnerStages-ThreeTip|StagedThreeTipAuto|PartnerLeaveParkAuto|spring hood, full-width intake|spring hood|40

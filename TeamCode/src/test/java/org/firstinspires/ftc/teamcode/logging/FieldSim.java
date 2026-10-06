@@ -122,7 +122,9 @@ final class FieldSim {
 
     /**
      * For sensitivity checks only: scale the placeholder friction and shot spread, to see whether
-     * a conclusion survives the guesses being wrong. 1 is the placeholder itself.
+     * a conclusion survives the guesses being wrong. 1 is the placeholder itself. frictionScale is slow
+     * tiles: it scales the tiles' and field walls' rolling and contact friction, nothing else's (not a
+     * CELL's, so it changes how far a spill rolls, not where it lands).
      */
     static double frictionScale = 1;
     /** Scales every bounce (tiles, walls, robots, the HIVE, other pieces), for testing what the guesses change. */
@@ -181,6 +183,11 @@ final class FieldSim {
     static double[] tipSecondsRange = FILMED_TIP_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
+
+    /** A flap's or guide's restitution: its own (RobotDesign#flapRestitution) or the robot's. */
+    static double flapRestitution(RobotDesign d) {
+        return Double.isNaN(d.flapRestitution) ? robotRestitution : d.flapRestitution;
+    }
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
 
     /** AndyMark's masses: POLLEN 0.055 lb, NECTAR 0.091 lb. */
@@ -283,6 +290,9 @@ final class FieldSim {
         double[] shotFrom, shotAim;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
+        /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
+        Bot capturedBy;
+        double capturedAt = Double.NaN;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -1282,6 +1292,16 @@ final class FieldSim {
                 }
             }
         }
+        if (d.hasGuides()) {  // RobotDesign#guideOutIn: a rigid plate from each front corner, out all match
+            double hl = Math.hypot(d.guideOutIn, d.guideForwardIn) / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
+            for (int side = -1; side <= 1; side += 2) {
+                double lx = half + d.guideForwardIn / 2, ly = side * (halfWidth + d.guideOutIn / 2);
+                double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+                double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
+                flap |= box(p, cx, cy, bh + Math.atan2(side * d.guideOutIn, d.guideForwardIn), hl, t, 0, d.flapHeightIn,
+                        fvx, fvy, bot.w, bounce(flapRestitution(d)));
+            }
+        }
         if (d.hasFlaps() && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
@@ -1291,13 +1311,13 @@ final class FieldSim {
                 double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
                 flap |= box(p, cx, cy, bh + Math.atan2(side * d.flapOutIn, d.flapForwardIn), hl, t, 0, d.flapHeightIn,
-                        fvx, fvy, bot.w, bounce(robotRestitution));
+                        fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
             if (d.flapCrossbeam) {
                 double lx = half + d.flapForwardIn;
                 double cx = bx + lx * c, cy = by + lx * s;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
-                flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
+                flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
         }
         if ((hit || flap) && !p.touchedTile) {
@@ -1305,8 +1325,14 @@ final class FieldSim {
             p.flapBeforeTile |= flap;
             if (!p.robotBeforeTile) {
                 p.robotBeforeTile = true;
-                events.add("G409: robot " + (bots.indexOf(bot) + 1) + (hit ? "" : "'s flap or wall") + " touched a spilled "
-                        + name(p.kind) + " before it reached the tiles");
+                // Where: the piece in the field and in the robot's frame (+x ahead of its centre, +y its left), so a
+                // log shows which part it hit.
+                double dx = p.x - bx, dy = p.y - by;
+                events.add(String.format(java.util.Locale.ROOT, "G409: robot %d%s touched a spilled %s before it reached the tiles"
+                                + " (piece at x %.1f, y %.1f, %.1f in up, falling %.0f in/s; %.1f in ahead of the robot's centre,"
+                                + " %.1f in to its left; robot at x %.1f, y %.1f, heading %.0f deg)",
+                        bots.indexOf(bot) + 1, hit ? "" : "'s flap or wall", name(p.kind), p.x, p.y, p.z, -p.vz,
+                        dx * Math.cos(bh) + dy * Math.sin(bh), -dx * Math.sin(bh) + dy * Math.cos(bh), bx, by, Math.toDegrees(bh)));
             }
         }
         return hit || flap;
@@ -1577,6 +1603,8 @@ final class FieldSim {
     private void capture(Bot bot, Piece p) {
         List<Piece> stored = bot.stored;
         bot.lastCaptureAt = time;
+        p.capturedBy = bot;
+        p.capturedAt = time;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

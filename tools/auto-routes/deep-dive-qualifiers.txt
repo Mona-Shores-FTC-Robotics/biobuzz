@@ -1,0 +1,57 @@
+# DeepDive cases: the qualifier partners x robots (tools/auto-routes/keep4.py writes the routes).
+# label|our Auto|partner Auto|our design|partner design|partner speed
+right: plain|QualRightO3Auto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+right: rigid V|QualRightO3Auto|PartnerPreloadsRightAuto|option 3, rigid V|spring hood|40
+right: funnel flaps|QualRightO3Auto|PartnerPreloadsRightAuto|option 3, funnel flaps|spring hood|40
+right: side walls|QualRightO3Auto|PartnerPreloadsRightAuto|option 3, side walls|spring hood|40
+right: dual hook|QualRightO3HookAuto|PartnerPreloadsRightAuto|option 3, large dual hook|spring hood|40
+right: plain on the hook route|QualRightO3HookAuto|PartnerPreloadsRightAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+right: 12.5 in plain|QualRightO3ShortAuto|PartnerPreloadsRightAuto|option 3 short|spring hood|40
+right: 12.5 in rigid V|QualRightO3ShortAuto|PartnerPreloadsRightAuto|option 3 short, rigid V|spring hood|40
+right: 12.5 in dual hook|QualRightO3ShortHookAuto|PartnerPreloadsRightAuto|option 3 short, dual hook|spring hood|40
+right: 12.5 in plain on the hook route|QualRightO3ShortHookAuto|PartnerPreloadsRightAuto|option 3 short|spring hood|40
+right: 18 in wide intake|QualRightWideAuto|PartnerPreloadsRightAuto|spring hood, full-width intake|spring hood|40
+left: plain|QualLeftO3Auto|PartnerPreloadsLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+left: rigid V|QualLeftO3Auto|PartnerPreloadsLeftAuto|option 3, rigid V|spring hood|40
+left: funnel flaps|QualLeftO3Auto|PartnerPreloadsLeftAuto|option 3, funnel flaps|spring hood|40
+left: side walls|QualLeftO3Auto|PartnerPreloadsLeftAuto|option 3, side walls|spring hood|40
+left: dual hook|QualLeftO3HookAuto|PartnerPreloadsLeftAuto|option 3, large dual hook|spring hood|40
+left: plain on the hook route|QualLeftO3HookAuto|PartnerPreloadsLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+left: 12.5 in plain|QualLeftO3ShortAuto|PartnerPreloadsLeftAuto|option 3 short|spring hood|40
+left: 12.5 in rigid V|QualLeftO3ShortAuto|PartnerPreloadsLeftAuto|option 3 short, rigid V|spring hood|40
+left: 12.5 in dual hook|QualLeftO3ShortHookAuto|PartnerPreloadsLeftAuto|option 3 short, dual hook|spring hood|40
+left: 12.5 in plain on the hook route|QualLeftO3ShortHookAuto|PartnerPreloadsLeftAuto|option 3 short|spring hood|40
+left: 18 in wide intake|QualLeftWideAuto|PartnerPreloadsLeftAuto|spring hood, full-width intake|spring hood|40
+nothing: plain|QualLeftO3Auto|PartnerParkLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+nothing: rigid V|QualLeftO3Auto|PartnerParkLeftAuto|option 3, rigid V|spring hood|40
+nothing: funnel flaps|QualLeftO3Auto|PartnerParkLeftAuto|option 3, funnel flaps|spring hood|40
+nothing: side walls|QualLeftO3Auto|PartnerParkLeftAuto|option 3, side walls|spring hood|40
+nothing: dual hook|QualLeftO3HookAuto|PartnerParkLeftAuto|option 3, large dual hook|spring hood|40
+nothing: plain on the hook route|QualLeftO3HookAuto|PartnerParkLeftAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+nothing: 12.5 in plain|QualLeftO3ShortAuto|PartnerParkLeftAuto|option 3 short|spring hood|40
+nothing: 12.5 in rigid V|QualLeftO3ShortAuto|PartnerParkLeftAuto|option 3 short, rigid V|spring hood|40
+nothing: 12.5 in dual hook|QualLeftO3ShortHookAuto|PartnerParkLeftAuto|option 3 short, dual hook|spring hood|40
+nothing: 12.5 in plain on the hook route|QualLeftO3ShortHookAuto|PartnerParkLeftAuto|option 3 short|spring hood|40
+nothing: 18 in wide intake|QualLeftWideAuto|PartnerParkLeftAuto|spring hood, full-width intake|spring hood|40
+stages-angled: plain|QualStagesAngledAuto|PartnerAngledParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+stages-angled: rigid V|QualStagesAngledAuto|PartnerAngledParkAuto|option 3, rigid V|spring hood|40
+stages-angled: funnel flaps|QualStagesAngledAuto|PartnerAngledParkAuto|option 3, funnel flaps|spring hood|40
+stages-angled: side walls|QualStagesAngledAuto|PartnerAngledParkAuto|option 3, side walls|spring hood|40
+stages-angled: dual hook|QualStagesAngledHookAuto|PartnerAngledParkAuto|option 3, large dual hook|spring hood|40
+stages-angled: plain on the hook route|QualStagesAngledHookAuto|PartnerAngledParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+stages-angled: 12.5 in plain|QualStagesAngledShortAuto|PartnerAngledParkAuto|option 3 short|spring hood|40
+stages-angled: 12.5 in rigid V|QualStagesAngledShortAuto|PartnerAngledParkAuto|option 3 short, rigid V|spring hood|40
+stages-angled: 12.5 in dual hook|QualStagesAngledShortHookAuto|PartnerAngledParkAuto|option 3 short, dual hook|spring hood|40
+stages-angled: 12.5 in plain on the hook route|QualStagesAngledShortHookAuto|PartnerAngledParkAuto|option 3 short|spring hood|40
+stages-angled: 18 in wide intake|QualStagesAngledWideAuto|PartnerAngledParkAuto|spring hood, full-width intake|spring hood|40
+stages-wall: plain|QualStagesWallAuto|PartnerStage19SideParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+stages-wall: rigid V|QualStagesWallAuto|PartnerStage19SideParkAuto|option 3, rigid V|spring hood|40
+stages-wall: funnel flaps|QualStagesWallAuto|PartnerStage19SideParkAuto|option 3, funnel flaps|spring hood|40
+stages-wall: side walls|QualStagesWallAuto|PartnerStage19SideParkAuto|option 3, side walls|spring hood|40
+stages-wall: dual hook|QualStagesWallHookAuto|PartnerStage19SideParkAuto|option 3, large dual hook|spring hood|40
+stages-wall: plain on the hook route|QualStagesWallHookAuto|PartnerStage19SideParkAuto|builders' option 3 (5 Oct CAD)|spring hood|40
+stages-wall: 12.5 in plain|QualStagesWallShortAuto|PartnerStage19SideParkAuto|option 3 short|spring hood|40
+stages-wall: 12.5 in rigid V|QualStagesWallShortAuto|PartnerStage19SideParkAuto|option 3 short, rigid V|spring hood|40
+stages-wall: 12.5 in dual hook|QualStagesWallShortHookAuto|PartnerStage19SideParkAuto|option 3 short, dual hook|spring hood|40
+stages-wall: 12.5 in plain on the hook route|QualStagesWallShortHookAuto|PartnerStage19SideParkAuto|option 3 short|spring hood|40
+stages-wall: 18 in wide intake|QualStagesWallWideAuto|PartnerStage19SideParkAuto|spring hood, full-width intake|spring hood|40

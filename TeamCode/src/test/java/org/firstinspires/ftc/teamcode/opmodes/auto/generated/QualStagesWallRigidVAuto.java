@@ -59,8 +59,7 @@ public final class QualStagesWallRigidVAuto {
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(57.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(57.5, 104, 90);
-        Pose nLowToTurnASegment1Heading = p.of(20.9, 118, 270);
-        Pose nLowToTurnASegment2Start = p.of(20.9, 118, 270);
+        Pose nLowToTurnASegment1Start = p.of(20.9, 118, 270);
         Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 0);
         Pose rowNToNLowSegment2Start = p.of(57.5, 114, 0);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
@@ -83,7 +82,7 @@ public final class QualStagesWallRigidVAuto {
         Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
         Path sCatchToNTurn = Paths.line(sCatch, nTurn).heading(Interpolator.piecewise().until(0.95, Interpolator.constant(sCatchToNTurnSegment1Heading)).until(1, Interpolator.linear(sCatchToNTurnSegment2Start, nTurn)));
         Path nTurnToNLow = Paths.line(nTurn, nLow).constant(nLow);
-        Path nLowToTurnA = Paths.line(nLow, turnA).heading(Interpolator.piecewise().until(0.8, Interpolator.constant(nLowToTurnASegment1Heading)).until(1, Interpolator.linear(nLowToTurnASegment2Start, turnA)));
+        Path nLowToTurnA = Paths.line(nLow, turnA).heading(Interpolator.piecewise().until(0.45, Interpolator.linear(nLowToTurnASegment1Start, turnA)).until(1, Interpolator.constant(turnA)));
         Path turnAToRowS = Paths.line(turnA, rowS).constant(rowS);
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));

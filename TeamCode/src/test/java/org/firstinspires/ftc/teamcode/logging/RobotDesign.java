@@ -183,6 +183,8 @@ final class RobotDesign {
     /** How tall a flap is; a placeholder until one is drawn (it must stop a rolling 2.8 in POLLEN). */
     double flapHeightIn = 4;
     static final double FLAP_THICKNESS_IN = 0.25;
+    /** How bouncy the flaps are (FieldSim's restitution), when not the robot's own (NaN). */
+    double flapRestitution = Double.NaN;
     /** Which front corners have a flap (mentor, 5 Oct 2026: a "right hook" has only the right one). */
     boolean flapLeft = true, flapRight = true;
     /**
@@ -202,10 +204,26 @@ final class RobotDesign {
      */
     boolean flapTowardCentre = false;
     /**
+     * A dual hook (mentor, 6 Oct 2026): two one-armed hooks, mirrored, each on its own hinge, so whichever end of the
+     * field the spill is at, the one whose arm faces the centre line comes down; with {@link #flapTowardCentre}.
+     * False: one hook, its arm on one side for the whole match.
+     */
+    boolean flapEitherSide = false;
+    /**
      * Runs Autos drawn for an 18 in robot backed against the wall, so {@link AutoSim} backs this shorter
      * chassis against the wall too (the spill shapes on qual-right-v3); false: the start pose as drawn.
      */
     boolean startBackedToWall = false;
+    /**
+     * Rigid guides (a rigid V, mentor, 5 Oct 2026): a fixed plate from each front corner, its free end this far
+     * out sideways and forward, {@link #flapHeightIn} tall, out the whole match and inside R102's 18 in from the
+     * start. Separate from the flaps so a robot can have both a V and a hook.
+     */
+    double guideOutIn = 0, guideForwardIn = 0;
+
+    boolean hasGuides() {
+        return guideOutIn > 0 || guideForwardIn > 0;
+    }
 
     boolean hasFlaps() {
         return flapOutIn > 0 || flapForwardIn > 0;
@@ -352,12 +370,16 @@ final class RobotDesign {
         d.flapOutIn = flapOutIn;
         d.flapForwardIn = flapForwardIn;
         d.flapHeightIn = flapHeightIn;
+        d.flapRestitution = flapRestitution;
         d.flapLeft = flapLeft;
         d.flapRight = flapRight;
         d.flapCrossbeam = flapCrossbeam;
         d.flapsDeploy = flapsDeploy;
         d.flapTowardCentre = flapTowardCentre;
+        d.flapEitherSide = flapEitherSide;
         d.startBackedToWall = startBackedToWall;
+        d.guideOutIn = guideOutIn;
+        d.guideForwardIn = guideForwardIn;
         return d;
     }
 
@@ -378,6 +400,9 @@ final class RobotDesign {
         if (intakeWidthIn > (intakeReachIn == 0 ? 24 : frameWidthIn)) {
             throw new IllegalArgumentException(name + ": intake wider than R105 allows");
         }
+        if (frameIn + guideForwardIn > 18 || frameWidthIn + 2 * guideOutIn > 18) {
+            throw new IllegalArgumentException(name + ": rigid guides outside the 18 in start cube (R102)");
+        }
         // R105: everything out, the robot fits an 18 x 24 in box, either way round.
         double[] f = footprintIn();
         if (!(f[0] <= 24 && f[1] <= 18) && !(f[0] <= 18 && f[1] <= 24)) {
@@ -389,8 +414,8 @@ final class RobotDesign {
 
     /** {front to back, side to side} with everything out: what R105 limits. */
     double[] footprintIn() {
-        double ahead = Math.max(Math.max(intakeReachIn, sideWallsSlideIn), flapForwardIn);
-        double across = frameWidthIn + 2 * Math.max(sideWallsOutIn, flapOutIn);
+        double ahead = Math.max(Math.max(intakeReachIn, sideWallsSlideIn), Math.max(flapForwardIn, guideForwardIn));
+        double across = frameWidthIn + 2 * Math.max(Math.max(sideWallsOutIn, flapOutIn), guideOutIn);
         if (intakeReachIn == 0) across = Math.max(across, intakeWidthIn);
         return new double[] {frameIn + ahead, across};
     }
