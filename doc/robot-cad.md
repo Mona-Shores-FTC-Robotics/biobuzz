@@ -140,5 +140,6 @@ It is now a FLOWER extractor, and replaces the high-hinged one-arm hook in `cad/
 roller motor and the pods. At 2.0 in out the left arm met the roller motor, so the arms are at 1.8 in, in 1/8 in
 aluminium. Past about 140° the block meets the intake's upper cross-channel.
 
-**Still to draw:** the drive (a servo over the roller on the right, through a short link to the right arm) and hard
-stops on the arms at 0° and 125°.
+**Drawn** in `cad/intake-b/`: the drive is a 1:1 printed gear pair from a servo over the roller on the right, and
+the hard stops act on a tab on the servo's gear. Clear every 5° from 0 to 125°, stowed 2.06 in ahead of the face,
+142 g, worst servo load about 1.3 kg·cm.

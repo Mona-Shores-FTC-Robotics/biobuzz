@@ -24,6 +24,8 @@ HY, HZ = F + HINGE_UP * IN, FACE + 1.0 * IN   # hook hinge: 6 in up, over the ro
 PITCH_D24 = 24 * 5 / math.pi           # 38.2 mm
 MOTOR_C = 77.5
 MOTOR_Y = ROLL_Y + MOTOR_C
+EX_X, EX_T, GEAR_W = 1.8 * IN, 3.175, 6.0
+ROLL_GAPS = ((-(EX_X + 5.0), -(EX_X - 5.0)), (EX_X - 5.0, EX_X + EX_T / 2 + 3.0 + GEAR_W + 5.0))   # roller gaps for the extractor (+ = right)
 ARM = 7.15 * IN                        # the hook's arm, from centre: its 14 mm hub clears the plate (7.56 in) and the servo
 ZB = FACE + 7.48 * IN                  # FLOWER block's back edge with the hook down (24 in overall)
 V_IN, V_OUT, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 4.0 * IN    # Rigid V plates: from the side plates' outer face...
@@ -42,13 +44,11 @@ def rod(p0, p1, d=8.0):
 def side_plate(right):
     f = xr if right else xl
     x0, x1 = f(PLATE_IN), f(PLATE_IN + PLATE_T)
-    top = F + 7.5 * IN if right else MOTOR_Y + 16                          # the right plate carries the down stop up to 7.5 in
+    top = MOTOR_Y + 16
     pts = [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, FACE - 40), (top, FACE - 18), (top, HZ + 16),
            (ROLL_Y + 30, ROLL_Z + 16), (ROLL_Y, ROLL_Z + 16), (-127.0, ROLL_Z + 16)]
-    if right:                                                               # an ear forward over the roller for the stowed stop
-        pts = pts[:5] + [(HY - 22, HZ + 16), (HY - 22, FACE + 2.75 * IN), (F + 4.4 * IN, FACE + 2.75 * IN), (F + 4.4 * IN, ROLL_Z + 16)] + pts[6:]
     p = cq.Workplane("YZ").polyline(pts).close().extrude(PLATE_T).translate((min(x0, x1), 0, 0))
-    holes = [(AX_Y, AX_ZF), (AX_Y, AX_ZR), (ROLL_Y, ROLL_Z), (HY, HZ) if right else (MOTOR_Y, HZ)]   # wheels, roller, hinge / motor
+    holes = [(AX_Y, AX_ZF), (AX_Y, AX_ZR), (ROLL_Y, ROLL_Z)] + ([] if right else [(MOTOR_Y, HZ)])   # wheels, roller, hinge / motor
     for y, z in holes: p = p.cut(cyl("x", (0, y, z), 14.0, min(x0, x1) - 1, max(x0, x1) + 1))
     for y in A.STANDOFF_Y:
         for z in A.STANDOFF_Z: p = p.cut(cyl("x", (0, y, z), M4, min(x0, x1) - 1, max(x0, x1) + 1))
@@ -62,7 +62,10 @@ for n, (wp, col, kind) in A.parts.items():            # keep the chassis add-ons
 
 # ---- the roller ----
 part(fixed, "roller_shaft (8mm REX, 400 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(PLATE_IN + PLATE_T + 4), xl(PLATE_IN + PLATE_T + 4)), STEEL, "buy")
-part(fixed, "roller_wheels (48 mm gecko, 13.8 in of them)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, xr(ROLL_HALF), xl(ROLL_HALF)), (0.35, 0.66, 0.31), "buy")
+_edges = [-ROLL_HALF, ROLL_GAPS[0][0], ROLL_GAPS[0][1], ROLL_GAPS[1][0], ROLL_GAPS[1][1], ROLL_HALF]   # + = right
+for i in range(0, 6, 2):
+    lo, hi = _edges[i], _edges[i + 1]
+    part(fixed, f"roller_wheels_{i // 2} (48 mm gecko)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, C - hi, C - lo), (0.35, 0.66, 0.31), "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(fixed, f"roller_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
 # Belt drive inside the left plate, between the roller's end (6.9 in) and the plate (7.56 in): outside the plate the
@@ -86,62 +89,60 @@ mb = mb.cut(box(xl(FACE_X - 7), xl(FACE_X + 1), MOTOR_Y - 7, MOTOR_Y + 9.8 + 7, 
 for y in (-7.2, 8.8): mb = mb.cut(cyl("z", (C + 128.0, y, 0), M4, FACE - 1, HZ))
 part(fixed, "motor_bracket_L (print)", mb, BLUE, "print")
 part(fixed, "motor_bearing_L (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, MOTOR_Y, HZ), 14.0, xl(PLATE_IN), xl(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
-# ---- the hook's servo, inboard of the right plate, spline out toward the hub ----
-SPL = ARM - 7.0 - 2.0                  # servo face 2 mm inboard of the hub
-servo = box(xr(SPL - 38.6), xr(SPL), HY - 10.2, HY + 30.6, HZ - 10, HZ + 10)
-servo = servo.union(box(xr(SPL - 8.5), xr(SPL - 6), HY - 17, HY + 37.4, HZ - 10, HZ + 10))
-part(fixed, "servo_R (goBILDA 2000-0025-0002, Torque)", servo, BLACK, "buy")
-sb = box(xr(124.0), xr(SPL - 6), HY - 17, HY + 37.4, FACE, HZ - 10)       # bolts to the right upright's front face
-for y in (-7.2, 8.8): sb = sb.cut(cyl("z", (C - 128.0, y, 0), M4, FACE - 1, HZ))
-part(fixed, "servo_bracket_R (print)", sb, BLUE, "print")
-part(fixed, "hinge_bearing_R (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
-part(fixed, "servo_shaft_R (goBILDA 8mm REX servo shaft, 25T, 36 mm)", cyl("x", (0, HY, HZ), 8.0, xr(SPL), xr(SPL + 36)), STEEL, "buy")
+# ---- the FLOWER extractor (unified design, 6 Oct 2026): it pivots on the roller's own shaft ----
+# Two 1/8 in aluminium arms, 1.8 in each side of centre, on round-bore bearings riding the roller's REX shaft in two
+# gaps in the roller. A short cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front.
+# It turns 0 (down) to 125 deg (folded up over the roller). A servo above the roller on the right drives the right arm
+# through a 1:1 printed gear pair (module 1.5, 34 teeth, 51 mm centres); the hard stops act on a tab on the servo's gear.
+EX_X = 1.8 * IN                        # arms, from centre
+EX_ZB = FACE + 1.94 * IN + 2.5 * IN    # the block's back edge, down
+EX_FS = (F + A.ROD_Z, EX_ZB + A.ROD_X) # cross shaft (y, z)
+EX_T = 3.175                           # arm plate
+GEAR_R, GEAR_W = 25.5, 6.0             # pitch radius; face width
+SV_Y, SV_Z = ROLL_Y + 2 * GEAR_R, ROLL_Z                       # the servo's spline: 51 mm over the roller's axle
+GEAR_X0, GEAR_X1 = EX_X + EX_T / 2 + 3.0, EX_X + EX_T / 2 + 3.0 + GEAR_W   # gear plane, 3 mm outboard of the right arm (on a spacer)
 
-# ---- the hook: hub on the hinge, one sloping arm, corner block, front shaft, FLOWER block, curtains ----
-CB = (xr(ARM), F + 2.9 * IN, ZB + 14.0)            # where the arm enters the corner block
-hub = box(xr(ARM - 7.0), xr(ARM + 7.0), HY - 14, HY + 14, HZ - 14, HZ + 14)
-d = cq.Vector(0, CB[1] - HY, CB[2] - HZ).normalized()
-boss = rod((xr(ARM), HY, HZ), (xr(ARM), HY + d.y * 30, HZ + d.z * 30), 14.0)
-hub = hub.union(boss).cut(cyl("x", (0, HY, HZ), BORE, xr(ARM - 8), xr(ARM + 8)))
-hub = hub.cut(rod((xr(ARM), HY + d.y * 10, HZ + d.z * 10), (xr(ARM), HY + d.y * 31, HZ + d.z * 31), BORE))
-# Hard stops. The arm (and its socket, to 37 mm) sweeps -31..133 deg about the hinge (0 = forward, up +) at 38-50 mm out,
-# so a tab on the hub, opposite, travels the free arc: 155 deg when down, 305 when stowed. Two blocks on the right plate
-# sit 1 deg past each end: the FLOWER's shove and the hook's weight push the tab onto the down stop; stowed, leaning back
-# past vertical, its weight holds the tab on the stowed stop. The servo is never asked to hold against either.
-STOP_R0, STOP_R1, TAB_HALF = 38.0, 50.0, 6.0
-def sector(a0, a1, r0, r1, x0, x1):
-    n = 12; ang = [math.radians(a0 + (a1 - a0) * i / n) for i in range(n + 1)]
-    pts = [(HY + r1 * math.sin(a), HZ + r1 * math.cos(a)) for a in ang] + [(HY + r0 * math.sin(a), HZ + r0 * math.cos(a)) for a in reversed(ang)]
-    return cq.Workplane("YZ").polyline(pts).close().extrude(abs(x1 - x0)).translate((min(x0, x1), 0, 0))
-TAB_DOWN = 154.9
-hub = hub.union(sector(TAB_DOWN - TAB_HALF, TAB_DOWN + TAB_HALF, 12.0, STOP_R1, xr(ARM - 3), xr(ARM + 6)))   # 3 mm clear of the roller's end
-part(hook, "hinge_hub_R (print, with the stop tab)", hub, BLUE, "print")
-for nm, a0, a1 in (("down", TAB_DOWN - TAB_HALF - 13, TAB_DOWN - TAB_HALF - 1), ("stowed", TAB_DOWN + 150 + TAB_HALF + 1, TAB_DOWN + 150 + TAB_HALF + 13)):
-    blk = sector(a0, a1, STOP_R0, STOP_R1, xr(ARM - 3), xr(PLATE_IN))
-    part(fixed, f"stop_{nm}_R (print, bolts to the right plate)", blk, BLUE, "print")
-arm0 = (xr(ARM), HY + d.y * 12, HZ + d.z * 12); arm1 = (xr(ARM), CB[1] + d.y * 12, CB[2] + d.z * 12)
-part(hook, "arm_shaft (8mm REX, cut to 200 mm)", rod(arm0, arm1), STEEL, "buy")
-cb = box(xr(ARM - 8), xr(ARM + 7), F + A.BOTTOM, F + 3.3 * IN, ZB + A.ROD_X - 14, ZB + A.DEPTH)
-cb = cb.cut(rod(CB, (CB[0], CB[1] + d.y * 14, CB[2] + d.z * 14), BORE))
-rex = (cq.Workplane("YZ").polygon(6, A.REX_AF / math.cos(math.pi / 6)).extrude(26).translate((xr(ARM - 3), FS_Y, FS_Z))
-       .intersect(cyl("x", (0, FS_Y, FS_Z), BORE, xr(ARM - 3), xr(ARM - 3) + 26)))
-part(hook, "corner_block_R (print)", cb.cut(rex), BLUE, "print")
-part(hook, "front_shaft (8mm REX, 312 mm)", cyl("x", (0, FS_Y, FS_Z), 8.0, xr(ARM - 3), xl(A.FRONT_LEFT)), STEEL, "buy")
-part(hook, "flower_block (print)", ramp_block().translate((0, 0, ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
-for dd in (70, 110):                   # clips inside the curtains' span (2.25-4.7 in)
-    for s, f in (("R", xr), ("L", xl)): part(hook, f"curtain_clip_{dd}_{s} (print)", clip("x").translate((f(dd), FS_Y - 7.5, FS_Z)), BLUE, "print")
+def link(p0, p1, w, x0, x1):
+    """A flat bar in a y-z plane between two points (y, z), rounded ends, from x0 to x1."""
+    (y0, z0), (y1, z1) = p0, p1
+    L = math.hypot(y1 - y0, z1 - z0); ang = math.degrees(math.atan2(y1 - y0, z1 - z0))
+    bar = cq.Workplane("YZ").center(0, L / 2).rect(w, L).extrude(abs(x1 - x0))
+    bar = bar.union(cq.Workplane("YZ").circle(w / 2).extrude(abs(x1 - x0))).union(cq.Workplane("YZ").center(0, L).circle(w / 2).extrude(abs(x1 - x0)))
+    return bar.rotate((0, 0, 0), (1, 0, 0), -ang).translate((min(x0, x1), y0, z0))
 for s, f in (("R", xr), ("L", xl)):
-    part(hook, f"collar_{s} (8mm REX clamping collar)", cyl("x", (0, FS_Y, FS_Z), 21.0, f(1.55 * IN - 4), f(1.55 * IN + 4)), STEEL, "buy")
-# As the hook folds (125-135 deg) the curtains sweep through the tops of the two tall front towers (4.8-5.3 in from
-# centre, 14.3 in tall), so both curtains end at 4.7 in. The right one leaves 2.45 in to the arm: no POLLEN gets out.
-CURT_END = 4.7 * IN
-CURT_IN = 2.25 * IN                    # 4.5 in clear between the curtains: a NECTAR (3.6 in) rolls through to the roller
-part(hook, "curtain_R (1/16 polycarbonate)", box(xr(CURT_IN), xr(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
-part(hook, "curtain_L (1/16 polycarbonate)", box(xl(CURT_IN), xl(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
-def at(z): return HY + (CB[1] - HY) * (z - HZ) / (CB[2] - HZ)            # the arm's height at z
-z0, z1 = FACE + 2.9 * IN, ZB + A.ROD_X - 16       # starts 2.9 in out: clear of the stowed stop
-side = cq.Workplane("YZ").polyline([(F + 1.3 * IN, z0), (at(z0) - 8, z0), (at(z1) - 8, z1), (F + 1.3 * IN, z1)]).close().extrude(1.6).translate((xr(ARM) - 0.8, 0, 0))
-part(hook, "side_panel_R (1/16 polycarbonate)", side, POLY, "cut")
+    xa, xb = f(EX_X - EX_T / 2), f(EX_X + EX_T / 2)
+    arm = link((ROLL_Y, ROLL_Z), EX_FS, 18.0, xa, xb)
+    arm = arm.cut(cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, xa - 1 if xa < xb else xb - 1, max(xa, xb) + 1))
+    arm = arm.cut(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE, min(xa, xb) - 1, max(xa, xb) + 1))
+    part(hook, f"extractor_arm_{s} (1/8 in aluminium)", arm, ALU, "cut")
+    part(hook, f"extractor_bearing_{s} (goBILDA 1611-0514-0008, round 8 mm bore, rides the roller shaft)",
+         cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(EX_X - 2.5), f(EX_X + 2.5)), BRASS, "buy")
+part(hook, "extractor_cross_shaft (8mm REX, 104 mm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(EX_X + 6), xl(EX_X + 6)), STEEL, "buy")
+part(hook, "flower_block (print)", ramp_block().translate((0, 0, EX_ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
+for s, f in (("R", xr), ("L", xl)):
+    part(hook, f"block_collar_{s} (8mm REX clamping collar)", cyl("x", (0, EX_FS[0], EX_FS[1]), 21.0, f(1.36 * IN + 0.5), f(1.36 * IN + 8.5)), STEEL, "buy")
+part(hook, "arm_gear_R (print: module 1.5, 34T, bolted to the right arm)",
+     cyl("x", (0, ROLL_Y, ROLL_Z), 2 * GEAR_R + 3, xr(GEAR_X0), xr(GEAR_X1)).union(cyl("x", (0, ROLL_Y, ROLL_Z), 22.0, xr(EX_X + EX_T / 2), xr(GEAR_X0))).cut(cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, xr(GEAR_X0) + 1, xr(GEAR_X1) - 1)), BLUE, "print")
+
+# The servo, its gear and the stops (fixed). The servo gear turns the opposite way; its tab (r 30-38 mm) swings from 200 deg
+# (down) to 75 deg (stowed) about the spline, clear of the mesh (238-302 deg), and meets a stop block 1 deg past each end.
+SPLX = GEAR_X1 + 0.5                   # servo's spline face
+sv = box(xr(SPLX + 2), xr(SPLX + 40.6), SV_Y - 10.2, SV_Y + 30.6, SV_Z - 10, SV_Z + 10)
+sv = sv.union(box(xr(SPLX + 8), xr(SPLX + 10.5), SV_Y - 17, SV_Y + 37.4, SV_Z - 10, SV_Z + 10))
+part(fixed, "extractor_servo (goBILDA 2000-0025-0002, Torque)", sv, BLACK, "buy")
+def sector_at(cy, cz, a0, a1, r0, r1, x0, x1):
+    n = 12; ang = [math.radians(a0 + (a1 - a0) * i / n) for i in range(n + 1)]
+    pts = [(cy + r1 * math.sin(q), cz + r1 * math.cos(q)) for q in ang] + [(cy + r0 * math.sin(q), cz + r0 * math.cos(q)) for q in reversed(ang)]
+    return cq.Workplane("YZ").polyline(pts).close().extrude(abs(x1 - x0)).translate((min(x0, x1), 0, 0))
+TAB_HALF = 7.0
+sgear = cyl("x", (0, SV_Y, SV_Z), 2 * GEAR_R + 3, xr(GEAR_X0), xr(GEAR_X1)).union(sector_at(SV_Y, SV_Z, 200 - TAB_HALF, 200 + TAB_HALF, 20, 38, xr(GEAR_X0), xr(GEAR_X1)))
+part(fixed, "servo_gear (print: module 1.5, 34T, on the servo's spline; with the stop tab)", sgear, BLUE, "print")
+for nm, a0, a1 in (("down", 200 + TAB_HALF + 1, 200 + TAB_HALF + 13), ("stowed", 75 - TAB_HALF - 13, 75 - TAB_HALF - 1)):
+    part(fixed, f"extractor_stop_{nm} (print, on the servo bracket)", sector_at(SV_Y, SV_Z, a0, a1, 30, 40, xr(GEAR_X0), xr(SPLX + 2)), BLUE, "print")
+sb = box(xr(SPLX + 2), xr(124.0), SV_Y + 12, SV_Y + 34, FACE, SV_Z - 10)          # bolts to the right upright's front face...
+sb = sb.union(box(xr(SPLX + 40.6), xr(124.0), SV_Y - 17, SV_Y + 37.4, FACE, SV_Z + 10))   # ...and holds the servo's outer end
+for y in (-7.2, 8.8): sb = sb.cut(cyl("z", (C - 128.0, y, 0), M4, FACE - 1, SV_Z + 11))
+part(fixed, "extractor_servo_bracket (print)", sb, BLUE, "print")
 
 # ---- the Rigid V's corner plates (optional) ----
 for s, f, sg in (("R", xr, -1), ("L", xl, 1)):
@@ -155,7 +156,7 @@ for s, f, sg in (("R", xr, -1), ("L", xl, 1)):
 if __name__ == "__main__":
     out = os.path.dirname(os.path.abspath(__file__)); os.makedirs(out + "/stl", exist_ok=True)
     assy = cq.Assembly(name="DHS intake option b")
-    for title, d_ in (("chassis and roller (fixed)", fixed), ("ramp hook (turns about the hinge, 0-150 deg)", hook), ("rigid V plates (optional)", vee)):
+    for title, d_ in (("chassis and roller (fixed)", fixed), ("FLOWER extractor (turns about the roller axle, 0-125 deg)", hook), ("rigid V plates (optional)", vee)):
         sub = cq.Assembly(name=title)
         for n, (wp, col, kind) in d_.items(): sub.add(wp, name=n, color=cq.Color(*col))
         assy.add(sub)
