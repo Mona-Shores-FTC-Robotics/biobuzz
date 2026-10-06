@@ -263,6 +263,22 @@ concepts, sketches and a cardboard checklist: `doc/transfer.md` on `spike/164-tr
 **Flag for the intake.** The pieces are stiff plastic balls. A NECTAR (3.62 in) is taller than the roller's axle
 (3.35 in), with the roller's bottom at 2.4. So a fixed roller there can't take a NECTAR. It needs to float.
 
+## The intake roller floats (Intake Design chat, 6 Oct 2026)
+
+Flagged by the transfer chat (#164): a NECTAR (3.62 in) is taller than the fixed roller's axle (3.35 in), so a
+fixed roller at 2.4 in can't take one. In the simulator that would cost 2 to 11 points across the Autos.
+
+**The decision** (`doc/intake-design.md` on `spike/160-intake-design`):
+- **The roller rises up to 1.3 in,** on arms pivoting about its motor shaft, 77.5 mm above the resting axle, so the
+  belt length stays constant. A spring returns it to a down stop at 2.4 in.
+- **The extractor gets a fixed pivot,** preferably on the motor shaft, with its arms outside the roller's ends.
+- **The transfer's pulley stays on the roller shaft,** belted about the float pivot.
+- **The CAD chat is redrawing.**
+
+**In the simulator:** a gap rule (`RobotDesign.rollerFloatIn`, miss reason "gap") refuses a piece bigger than the gap
+under the roller plus its float. The design to use is "DHS intake-b, floating roller". The scores already published for
+the drawn intake and V are the floating roller's: the earlier runs let NECTAR through anyway.
+
 ## The transfer in the simulator (6 Oct 2026, 60 runs)
 
 The three baselines on the drawn V, with the transfer's two effects separately and together (`doc/transfer.md` on
