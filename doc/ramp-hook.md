@@ -20,6 +20,39 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## The manual's FLOWER (Fig 9-12), and what it means (6 Oct 2026, late)
+
+From the Competition Manual's Fig 9-12, as the mentor shared it:
+
+- **Bottom ring:** 0.43 in thick, hole 2.79 in across. A 2.8 in POLLEN is only about 2.0 in wide at 0.43 in up,
+  so it sits on the tiles inside the hole, in a snug pocket with a 0.43 in wall all round.
+- **The grey uprights** (the backstop the bottom POLLEN rests against) stand at the back of the hole. The figure's
+  3.57 in runs from the ring's front edge to their face. Scaled off the figure, the ring has about 0.93 in of flat
+  top in front of the hole, which puts the uprights' face **about 2.65 in past the hole's front edge**. Measure
+  this one; it's scaled, not dimensioned.
+- **Retrieval opening:** 3.55 in tall, from the tiles to the lower bracket.
+
+`ramp.use_manual_flower()` switches the model to these numbers. Triangle parked against the uprights (and 0.15 in
+short of them), bottom 0.5 in up. POLLEN out of 4 in the three bounce guesses:
+
+| triangle, deep × tall | against the uprights | 0.15 in short |
+|---|---|---|
+| 0.5 to 1.0 × 0.6 or 0.8 | 0 to 1 (one lucky 4) | 0 (one lucky 4) |
+| 1.25 × 0.6 | 4,4,2 | 4,4,4 |
+| 1.25 × 0.8 | 3,4,4 | 4,4,4 |
+| **1.5 × 0.8** | **4,4,4** | 4,4,3 |
+| 1.75 × 0.6 | 4,4,4 | 4,4,4 |
+| 2.0 × 0.8 | 4,4,4 | 4,4,4 |
+
+- **With the real 0.43 in pocket, a ramp under 1.25 in doesn't empty the FLOWER in the model.** The last POLLEN
+  rolls back over the pocket's wall. From 1.5 in it empties every case, with the last at the intake in 1.1 to
+  1.3 s.
+- **Seated, a 1.5 in triangle is entirely inside the FLOWER.** Its back edge is about 1.15 in inside the hole's
+  front edge, so it doesn't stick out past the hook's front at all when you're against a FLOWER.
+- **Clearance is tight underneath.** The triangle's bottom (0.5 in) rides 0.07 in above the ring's top (0.43 in).
+  On foam tiles it could drag. Raise the bottom to about 0.55 to 0.6 in, keeping the front face's top under
+  1.3 in.
+
 ## Drive in to the backstop and stay (6 Oct 2026, late: the mentor's actual idea)
 
 Drive the triangle in until it hits the backstop and **stay there**. The triangle props up the bottom POLLEN, and

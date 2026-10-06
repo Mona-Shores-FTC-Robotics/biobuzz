@@ -58,6 +58,20 @@ def tip_height(ring, slope, tip_depth):
     return ring + PLATE_T + (tip_depth + RING_T) * math.tan(slope)
 
 
+def use_manual_flower():
+    """Switch to the FLOWER as the Competition Manual's Fig 9-12 draws it (6 Oct 2026). The bottom ring is 0.43 in
+    thick with a 2.79 in hole, so a POLLEN sits on the tiles inside it. The grey uprights stand at the back of the
+    hole, 3.57 in from the ring's front edge. Scaled off the figure, the ring has about 0.93 in of flat top in
+    front of the hole, and the uprights' face is about 1.25 in behind the hole's centre. The retrieval opening is
+    3.55 in tall from the tiles. The earlier tables in doc/ramp-hook.md used the guesses above."""
+    global FRONT, BACK, RING_T, WINDOW_TOP
+    FRONT = CX + 2.79 / 2
+    BACK = CX - 1.25
+    RING_T = 0.93
+    WINDOW_TOP = 3.55
+    return FRONT - BACK           # how far past the hole's front edge the uprights' face is
+
+
 ROD_R = 0.125                # a 1/4 in steel rod, for a hook whose front is a rod
 
 
@@ -123,7 +137,7 @@ def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_m
         prof = ramp_profile(ring, slope, tip_depth, float_z)
     tip_start = FRONT + RING_T + 1.0           # the tip starts an inch clear of the ring
     tip_stop = FRONT - tip_depth
-    balls = [[(CX, z), (0.0, 0.0), 0.0] for z in STAGED]
+    balls = [[(max(CX, BACK + R), z), (0.0, 0.0), 0.0] for z in STAGED]
     out_t = [None] * 4
     fed_t = [None] * 4
     tip = tip_start
