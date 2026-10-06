@@ -1,6 +1,7 @@
 {
   "name": "BIOBUZZ Robot",
   "isFTC": true,
+  "disableSimplification": true,
   "rotations": [],
   "position": [
     0,

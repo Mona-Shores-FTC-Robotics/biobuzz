@@ -76,7 +76,9 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
               "position": [round(4.0 * M, 5), 0.0, round(14.0 * M, 5)], "resolution": [640, 480], "fov": 54.5}
-    config = {"name": NAME, "isFTC": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
+    # disableSimplification: AdvantageScope otherwise decimates a model and drops meshes by rendering mode, and
+    # this one (plain part names, no NOSIMPLIFY) came out blank on the field (6 Oct 2026).
+    config = {"name": NAME, "isFTC": True, "disableSimplification": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
               "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
     json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
     # the extractor's poses: it turns about the roller's axle (+Y through PIVOT); front up = rotation about +Y by -angle

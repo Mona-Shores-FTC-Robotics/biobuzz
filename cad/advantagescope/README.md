@@ -11,7 +11,7 @@ design is **BIOBUZZ Robot (designs)**, from `RobotAssets`; pick it in that row's
 |---|---|
 | `model.glb` | The robot and everything fixed. The old intake roller is left out: the new one replaces it |
 | `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
-| `config.json` | FTC robot, no rotations, one component, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
+| `config.json` | FTC robot, `disableSimplification` (without it AdvantageScope decimates the model and drops its meshes: the robot came out blank), no rotations, one component, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
 | `extractor_poses.json` | The extractor's component pose, deployed and stowed |
 
 **Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the

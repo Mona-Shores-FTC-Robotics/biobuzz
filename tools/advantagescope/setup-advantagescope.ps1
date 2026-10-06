@@ -57,7 +57,9 @@ try {
 } finally {
     Pop-Location
 }
-$assets = @(Get-ChildItem $built -Directory | Where-Object { $_.Name -like "Field3d_*" -or $_.Name -like "Robot_*" })
+# Only what the layout uses: the field, the HIVE, and the designs model for logs of other designs. The build also
+# writes the study models (Prototype, FullWidth, Walls, Shapes, MatchShapes); copy one by hand if a study needs it.
+$assets = @(Get-ChildItem $built -Directory | Where-Object { $_.Name -in @("Field3d_BIOBUZZHiveSim", "Robot_BIOBUZZHive", "Robot_BIOBUZZDesigns") })
 if (-not ($assets | Where-Object Name -eq "Field3d_BIOBUZZHiveSim")) { throw "The build didn't write the HIVE assets into $built." }
 # Our robot from the CAD is committed, not built.
 $cad = Get-Item (Join-Path $repo "cad\advantagescope\Robot_BIOBUZZ")
