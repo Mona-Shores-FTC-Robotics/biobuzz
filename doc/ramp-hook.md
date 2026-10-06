@@ -49,6 +49,15 @@ short of them), bottom 0.5 in up. POLLEN out of 4 in the three bounce guesses:
   1.3 s.
 - **Seated, a 1.5 in triangle is entirely inside the FLOWER.** Its back edge is about 1.15 in inside the hole's
   front edge, so it doesn't stick out past the hook's front at all when you're against a FLOWER.
+- **The mentor's block (sketch on Fig 9-12):** a small block driven against the uprights, lifting the bottom
+  POLLEN. Modelled as a vertical face toward the uprights, a flat top, then a slope down toward the robot, 1.4 in
+  deep, bottom 0.5 in up. POLLEN out of 4 in the three bounce guesses:
+  - 1.9 in tall: 0,0,0 (its face meets the POLLEN above its middle and pushes it back);
+  - 1.6 in tall: 3,3,3 against the uprights, 0 when 0.15 in short;
+  - **1.3 in tall, 0.5 in flat top: 4,4,4 against the uprights and 4,4,4 when 0.15 in short**, the most forgiving
+    shape so far;
+  - 1.0 in deep, 1.3 tall: 0,0,0.
+  **So the sketch works at 1.4 in deep, with its top at 1.3 in.**
 - **Clearance is tight underneath.** The triangle's bottom (0.5 in) rides 0.07 in above the ring's top (0.43 in).
   On foam tiles it could drag. Raise the bottom to about 0.55 to 0.6 in, keeping the front face's top under
   1.3 in.
