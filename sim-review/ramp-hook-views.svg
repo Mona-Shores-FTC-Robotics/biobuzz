@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1160" font-family="Helvetica,Arial,sans-serif">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="30.0" y="40.0" font-size="22" fill="#1b222b" text-anchor="start" font-weight="700">Ramp hook v2: drive in until the stop seats on the FLOWER's bracket</text>
+<text x="30.0" y="64.0" font-size="14" fill="#6b7682" text-anchor="start" font-weight="400">Inches. Robot sizes are placeholders; FLOWER sizes are estimated from the 6 Oct photo, scaled off the green pipe.</text>
+<text x="30.0" y="100.0" font-size="17" fill="#1b222b" text-anchor="start" font-weight="700">1 · From above, seated against a FLOWER</text>
+<polygon points="37.5,173.8 400.0,173.8 400.0,536.2 37.5,536.2" fill="#c3cad2" fill-opacity="1" stroke="#1b222b" stroke-width="1.5"/>
+<text x="218.8" y="360.0" font-size="14" fill="#1b222b" text-anchor="middle" font-weight="400">chassis (option 3)</text>
+<polygon points="377.5,192.5 400.0,192.5 400.0,517.5 377.5,517.5" fill="#e8742a" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<text x="370.0" y="186.5" font-size="12" fill="#e8742a" text-anchor="end" font-weight="700">intake</text>
+<polygon points="680.0,386.6 635.3,431.2 572.2,431.2 527.5,386.6 527.5,323.4 572.2,278.8 635.3,278.8 680.0,323.4" fill="#33373d" fill-opacity="0.12" stroke="#33373d" stroke-width="1.5" stroke-dasharray="5 4"/>
+<circle cx="618.8" cy="355.0" r="40.0" fill="none" stroke="#33373d" stroke-width="1.5"/>
+<circle cx="618.8" cy="355.0" r="35.0" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
+<polygon points="560.0,296.2 677.5,296.2 677.5,413.8 560.0,413.8" fill="none" fill-opacity="1" stroke="#33373d" stroke-width="1.4" stroke-dasharray="4 3"/>
+<circle cx="580.0" cy="316.2" r="16.2" fill="#3fae4f" stroke="#2a7a37" stroke-width="1.2"/>
+<circle cx="580.0" cy="393.8" r="16.2" fill="#3fae4f" stroke="#2a7a37" stroke-width="1.2"/>
+<circle cx="657.5" cy="316.2" r="16.2" fill="#3fae4f" stroke="#2a7a37" stroke-width="1.2"/>
+<circle cx="657.5" cy="393.8" r="16.2" fill="#3fae4f" stroke="#2a7a37" stroke-width="1.2"/>
+<polygon points="686.5,130.0 701.5,130.0 701.5,580.0 686.5,580.0" fill="#9aa3ad" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<text x="708.5" y="147.5" font-size="12" fill="#6b7682" text-anchor="start" font-weight="400">field wall</text>
+<polygon points="400.0,527.5 631.2,527.5 631.2,536.2 400.0,536.2" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="612.5,173.8 631.2,173.8 631.2,281.2 612.5,281.2" fill="#aab3bd" fill-opacity="1" stroke="#7d8792" stroke-width="1.5"/>
+<polygon points="622.5,173.8 631.2,173.8 631.2,281.2 622.5,281.2" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="612.5,428.8 631.2,428.8 631.2,527.5 612.5,527.5" fill="#aab3bd" fill-opacity="1" stroke="#7d8792" stroke-width="1.5"/>
+<polygon points="622.5,428.8 631.2,428.8 631.2,527.5 622.5,527.5" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="550.0,290.0 631.2,290.0 631.2,281.2 550.0,281.2" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="550.0,420.0 631.2,420.0 631.2,428.8 550.0,428.8" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="600.0,290.0 631.2,290.0 631.2,420.0 600.0,420.0" fill="#b06ad8" fill-opacity="0.85" stroke="#7a3fa0" stroke-width="1.5"/>
+<polygon points="550.0,290.0 560.0,290.0 560.0,420.0 550.0,420.0" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<text x="470.0" y="400.0" font-size="14" fill="#6b7682" text-anchor="middle" font-weight="700">8 in clear</text>
+<text x="465.0" y="240.0" font-size="13" fill="#2f5f9e" text-anchor="end" font-weight="700">stop</text>
+<line x1="467.5" y1="236.2" x2="555.0" y2="297.5" stroke="#2f5f9e" stroke-width="1.2"/>
+<text x="465.0" y="270.0" font-size="13" fill="#7a3fa0" text-anchor="end" font-weight="700">printed insert</text>
+<line x1="467.5" y1="266.2" x2="610.0" y2="312.5" stroke="#7a3fa0" stroke-width="1.2"/>
+<text x="637.2" y="188.8" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="700">curtain + strip</text>
+<text x="637.2" y="511.2" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="700">curtain + strip</text>
+<text x="637.2" y="444.8" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="700">cheek</text>
+<text x="500.0" y="558.2" font-size="12" fill="#2f5f9e" text-anchor="middle" font-weight="700">side wall</text>
+<text x="618.8" y="262.5" font-size="12" fill="#33373d" text-anchor="middle" font-weight="400">FLOWER: bracket (dashed square) seats on the stop</text>
+<line x1="37.5" y1="139.8" x2="400.0" y2="139.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="37.5" y1="134.8" x2="37.5" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="400.0" y1="134.8" x2="400.0" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<text x="218.8" y="133.8" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">14.5</text>
+<line x1="400.0" y1="139.8" x2="600.0" y2="139.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="400.0" y1="134.8" x2="400.0" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="600.0" y1="134.8" x2="600.0" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<text x="500.0" y="133.8" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">8.00</text>
+<line x1="600.0" y1="139.8" x2="631.2" y2="139.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="600.0" y1="134.8" x2="600.0" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="631.2" y1="134.8" x2="631.2" y2="144.8" stroke="#b5452f" stroke-width="1.2"/>
+<text x="615.6" y="133.8" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">1.25</text>
+<line x1="37.5" y1="584.2" x2="631.2" y2="584.2" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="37.5" y1="579.2" x2="37.5" y2="589.2" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="631.2" y1="579.2" x2="631.2" y2="589.2" stroke="#b5452f" stroke-width="1.2"/>
+<text x="334.4" y="578.2" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">23.75 total (R105 limit 24)</text>
+<line x1="560.0" y1="552.2" x2="631.2" y2="552.2" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="560.0" y1="547.2" x2="560.0" y2="557.2" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="631.2" y1="547.2" x2="631.2" y2="557.2" stroke="#b5452f" stroke-width="1.2"/>
+<text x="595.6" y="546.2" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">2.85</text>
+<text x="980.0" y="100.0" font-size="17" fill="#1b222b" text-anchor="start" font-weight="700">2 · From the side, cut through the middle of the gap</text>
+<line x1="972.0" y1="620.0" x2="1417.8" y2="620.0" stroke="#1b222b" stroke-width="1.5"/>
+<polygon points="1393.8,260.0 1411.8,260.0 1411.8,620.0 1393.8,620.0" fill="#9aa3ad" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<polygon points="972.0,488.0 1050.0,488.0 1050.0,608.0 972.0,608.0" fill="#c3cad2" fill-opacity="1" stroke="#1b222b" stroke-width="1.5"/>
+<circle cx="1032.0" cy="575.0" r="39.0" fill="#e8742a" stroke="#b2561d" stroke-width="1.2"/>
+<text x="1032.0" y="517.0" font-size="12" fill="#e8742a" text-anchor="middle" font-weight="700">intake</text>
+<polygon points="1050.0,500.0 1327.5,500.0 1327.5,620.0 1050.0,620.0" fill="none" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.2" stroke-dasharray="6 4"/>
+<text x="1059.0" y="494.0" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="400">side wall, beyond</text>
+<polygon points="1230.0,480.5 1327.5,480.5 1327.5,605.0 1230.0,605.0" fill="none" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.4" stroke-dasharray="2 3"/>
+<text x="972.0" y="392.0" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="700">Cheeks either side of the gap (dotted),</text>
+<text x="972.0" y="408.0" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="400">0.5 to 4.65 in, carry the insert and the stop</text>
+<polygon points="1195.5,612.5 1264.5,612.5 1264.5,620.0 1195.5,620.0" fill="#33373d" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<polygon points="1360.5,612.5 1393.8,612.5 1393.8,620.0 1360.5,620.0" fill="#33373d" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<circle cx="1312.5" cy="578.0" r="42.0" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
+<circle cx="1312.5" cy="491.0" r="42.0" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
+<circle cx="1312.5" cy="404.0" r="42.0" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
+<circle cx="1312.5" cy="317.0" r="42.0" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
+<polygon points="1242.0,482.0 1383.0,482.0 1383.0,500.0 1242.0,500.0" fill="#33373d" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<polygon points="1246.5,260.0 1285.5,260.0 1285.5,482.0 1246.5,482.0" fill="#3fae4f" fill-opacity="0.85" stroke="none" stroke-width="1.5"/>
+<polygon points="1339.5,260.0 1378.5,260.0 1378.5,482.0 1339.5,482.0" fill="#3fae4f" fill-opacity="0.85" stroke="none" stroke-width="1.5"/>
+<polygon points="1358.4,500.0 1380.6,500.0 1380.6,612.5 1358.4,612.5" fill="#aab2bb" fill-opacity="1" stroke="none" stroke-width="1.5"/>
+<text x="1389.0" y="495.0" font-size="12" fill="#33373d" text-anchor="start" font-weight="400">bracket</text>
+<polygon points="1230.0,482.0 1242.0,482.0 1242.0,500.0 1230.0,500.0" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<text x="1236.0" y="461.0" font-size="12" fill="#2f5f9e" text-anchor="middle" font-weight="700">stop</text>
+<line x1="1236.0" y1="465.5" x2="1236.0" y2="480.5" stroke="#2f5f9e" stroke-width="1.2"/>
+<polygon points="1290.0,605.0 1327.5,605.0 1327.5,581.0" fill="#b06ad8" fill-opacity="1" stroke="#7a3fa0" stroke-width="1.8"/>
+<text x="972.0" y="666.0" font-size="13" fill="#7a3fa0" text-anchor="start" font-weight="700">Printed insert: 1.25 deep, 0.8 tall, bottom 0.5 up, front face tops out at 1.3.</text>
+<text x="972.0" y="684.0" font-size="13" fill="#7a3fa0" text-anchor="start" font-weight="700">Seated, its front is 2.1 in past the pocket's edge (1.9 to 2.3 still works).</text>
+<line x1="1343.5" y1="605.0" x2="1343.5" y2="581.0" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="1338.5" y1="605.0" x2="1348.5" y2="605.0" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="1338.5" y1="581.0" x2="1348.5" y2="581.0" stroke="#b5452f" stroke-width="1.2"/>
+<text x="1351.5" y="597.0" font-size="13" fill="#b5452f" text-anchor="start" font-weight="700">0.8</text>
+<line x1="1264.5" y1="710.0" x2="1327.5" y2="710.0" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="1264.5" y1="705.0" x2="1264.5" y2="715.0" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="1327.5" y1="705.0" x2="1327.5" y2="715.0" stroke="#b5452f" stroke-width="1.2"/>
+<text x="1296.0" y="704.0" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">2.1</text>
+<text x="1189.5" y="638.0" font-size="12" fill="#33373d" text-anchor="end" font-weight="400">base plate</text>
+<text x="30.0" y="800.0" font-size="17" fill="#1b222b" text-anchor="start" font-weight="700">3 · Looking at the front of the hook</text>
+<line x1="218.2" y1="1065.0" x2="663.7" y2="1065.0" stroke="#1b222b" stroke-width="1.5"/>
+<polygon points="245.2,1044.8 361.3,1044.8 361.3,1051.5 245.2,1051.5" fill="#aab3bd" fill-opacity="1" stroke="#7d8792" stroke-width="1.5"/>
+<polygon points="245.2,959.7 361.3,959.7 361.3,1044.8 245.2,1044.8" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="520.6,1044.8 627.2,1044.8 627.2,1051.5 520.6,1051.5" fill="#aab3bd" fill-opacity="1" stroke="#7d8792" stroke-width="1.5"/>
+<polygon points="520.6,959.7 627.2,959.7 627.2,1044.8 520.6,1044.8" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="627.2,957.0 636.7,957.0 636.7,1065.0 627.2,1065.0" fill="#4f8fe0" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="361.3,939.5 370.8,939.5 370.8,1051.5 361.3,1051.5" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="511.1,939.5 520.6,939.5 520.6,1051.5 511.1,1051.5" fill="#2f5f9e" fill-opacity="1" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="370.8,940.8 511.1,940.8 511.1,957.0 370.8,957.0" fill="#2f5f9e" fill-opacity="0.55" stroke="#2f5f9e" stroke-width="1.5"/>
+<polygon points="370.8,1029.9 511.1,1029.9 511.1,1051.5 370.8,1051.5" fill="#b06ad8" fill-opacity="1" stroke="#7a3fa0" stroke-width="1.5"/>
+<circle cx="440.9" cy="1027.2" r="37.8" fill="none" stroke="#9a8420" stroke-width="1.2" stroke-dasharray="4 3"/>
+<polygon points="351.9,1058.2 530.0,1058.2 530.0,1065.0 351.9,1065.0" fill="none" fill-opacity="1" stroke="#33373d" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="301.9" y="1000.2" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="700">curtain</text>
+<text x="574.6" y="1000.2" font-size="12" fill="#ffffff" text-anchor="middle" font-weight="700">curtain</text>
+<text x="440.9" y="932.8" font-size="12" fill="#2f5f9e" text-anchor="middle" font-weight="700">stop (set back 2.85 in)</text>
+<text x="440.9" y="1073.5" font-size="12" fill="#7a3fa0" text-anchor="middle" font-weight="700">printed insert</text>
+<text x="644.7" y="1011.0" font-size="12" fill="#2f5f9e" text-anchor="start" font-weight="700">side wall</text>
+<line x1="370.8" y1="913.5" x2="511.1" y2="913.5" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="370.8" y1="908.5" x2="370.8" y2="918.5" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="511.1" y1="908.5" x2="511.1" y2="918.5" stroke="#b5452f" stroke-width="1.2"/>
+<text x="440.9" y="907.5" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">5.2 between the cheeks</text>
+<line x1="245.2" y1="1102.8" x2="636.7" y2="1102.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="245.2" y1="1097.8" x2="245.2" y2="1107.8" stroke="#b5452f" stroke-width="1.2"/>
+<line x1="636.7" y1="1097.8" x2="636.7" y2="1107.8" stroke="#b5452f" stroke-width="1.2"/>
+<text x="441.0" y="1096.8" font-size="13" fill="#b5452f" text-anchor="middle" font-weight="700">14.5</text>
+<polygon points="780.0,800.0 1470.0,800.0 1470.0,1095.0 780.0,1095.0" fill="#fff7ec" fill-opacity="1" stroke="#e0a030" stroke-width="1.5"/>
+<text x="798.0" y="832.0" font-size="16" fill="#1b222b" text-anchor="start" font-weight="700">The spec</text>
+<text x="798.0" y="862.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">Stop: a crossbar between the cheeks at the bracket's height (4.0 to 4.6 in).</text>
+<text x="798.0" y="892.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">   Drive in until it seats: that sets the depth and centres the robot.</text>
+<text x="798.0" y="922.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">Insert: 3D printed, 5.2 wide, 1.25 deep × 0.8 tall, only in the gap.</text>
+<text x="798.0" y="952.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">   Model: seated at 2.1 in it empties a FLOWER, all 4 out in about 1.0 s;</text>
+<text x="798.0" y="982.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">   29 of 30 runs still empty anywhere from 1.9 to 2.3 in.</text>
+<text x="798.0" y="1012.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">Elsewhere: a flat strip at the curtains' feet; curtains 0.75 to 3.9 in.</text>
+<text x="798.0" y="1042.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="400">Size: 14.5 + 8 + 1.25 = 23.75 of 24. Stowed ≈ 19.2: hinge ~1.2 in inside.</text>
+<text x="798.0" y="1072.0" font-size="14" fill="#1b222b" text-anchor="start" font-weight="700">Measure: the bracket's front to the pocket's edge (sets the stop).</text>
+</svg>

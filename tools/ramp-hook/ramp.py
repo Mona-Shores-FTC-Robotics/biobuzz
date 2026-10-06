@@ -58,9 +58,40 @@ def tip_height(ring, slope, tip_depth):
     return ring + PLATE_T + (tip_depth + RING_T) * math.tan(slope)
 
 
-def ramp_profile(ring, slope, tip_depth):
-    """The tongue and floor plate in the robot's frame, x from the tip toward the robot: a list of points."""
+def use_manual_flower():
+    """Switch to the FLOWER as the Competition Manual's Fig 9-12 draws it (6 Oct 2026). The bottom ring is 0.43 in
+    thick with a 2.79 in hole, so a POLLEN sits on the tiles inside it. The grey uprights stand at the back of the
+    hole, 3.57 in from the ring's front edge. Scaled off the figure, the ring has about 0.93 in of flat top in
+    front of the hole, and the uprights' face is about 1.25 in behind the hole's centre. The retrieval opening is
+    3.55 in tall from the tiles. The earlier tables in doc/ramp-hook.md used the guesses above."""
+    global FRONT, BACK, RING_T, WINDOW_TOP
+    FRONT = CX + 2.79 / 2
+    BACK = CX - 1.25
+    RING_T = 0.93
+    WINDOW_TOP = 3.55
+    return FRONT - BACK           # how far past the hole's front edge the uprights' face is
+
+
+ROD_R = 0.125                # a 1/4 in steel rod, for a hook whose front is a rod
+
+
+def rod_profile(rod_z):
+    """A rod's outline (an octagon) in the robot's frame, x from its front point, its centre rod_z above the tiles."""
+    return [(ROD_R + ROD_R * math.cos(a), rod_z + ROD_R * math.sin(a)) for a in [math.pi * (1 + k / 4) for k in range(9)]]
+
+
+def wedge_profile(bottom, height, depth):
+    """A triangular steel bar's outline: a vertical front face from bottom to bottom + height, a top face sloping
+    down to a sharp back edge depth behind it, and a flat bottom, held bottom above the tiles."""
+    return [(0.0, bottom), (0.0, bottom + height), (depth, bottom), (0.0, bottom)]
+
+
+def ramp_profile(ring, slope, tip_depth, float_z=None):
+    """The ramp in the robot's frame, x from the tip toward the robot: a list of points. With float_z the ramp
+    stops in the air that high above the tiles (no floor plate), and the POLLEN drop off it onto the tiles."""
     tip_z = tip_height(ring, slope, tip_depth)
+    if float_z is not None:
+        return [(0.0, tip_z - 0.05), (0.0, tip_z), ((tip_z - float_z) / math.tan(slope), float_z)]
     run = (tip_z - PLATE_T) / math.tan(slope)
     return [(0.0, tip_z - 0.05), (0.0, tip_z), (run, PLATE_T), (INTAKE_BEHIND_TIP + 2.0, PLATE_T)]
 
@@ -90,24 +121,40 @@ def contact(p, v, w, seg, seg_v, e, mu, spin=True):
     return p, v, w + jt / (K_SHELL * R)
 
 
-def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None):
-    """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in)."""
+def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None, float_z=None,
+        rod_z=None, wedge=None, dwell=None, back_speed=12.0, back_dist=4.0):
+    """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in).
+
+    With dwell set, the robot drives in to tip_depth, waits dwell seconds, then backs out at back_speed for back_dist
+    inches and stops: drive in to the hard stop, then reverse."""
     slope = math.radians(slope_deg)
     fixed = flower_segments(ring)
-    prof = ramp_profile(ring, slope, tip_depth)
+    if wedge is not None:
+        prof = wedge_profile(*wedge)
+    elif rod_z is not None:
+        prof = rod_profile(rod_z)
+    else:
+        prof = ramp_profile(ring, slope, tip_depth, float_z)
     tip_start = FRONT + RING_T + 1.0           # the tip starts an inch clear of the ring
     tip_stop = FRONT - tip_depth
-    balls = [[(CX, z), (0.0, 0.0), 0.0] for z in STAGED]
+    balls = [[(max(CX, BACK + R), z), (0.0, 0.0), 0.0] for z in STAGED]
     out_t = [None] * 4
     fed_t = [None] * 4
     tip = tip_start
     t = 0.0
     step = 0
+    arrived = None
     while t < t_max:
-        moving = tip > tip_stop
-        rv = (-drive, 0.0) if moving else (0.0, 0.0)
-        if moving:
+        if tip > tip_stop and arrived is None:
+            rv = (-drive, 0.0)
             tip = max(tip_stop, tip - drive * DT)
+            if tip <= tip_stop:
+                arrived = t
+        elif dwell is not None and arrived is not None and t > arrived + dwell and tip < tip_stop + back_dist:
+            rv = (back_speed, 0.0)
+            tip = min(tip_stop + back_dist, tip + back_speed * DT)
+        else:
+            rv = (0.0, 0.0)
         pts = [(tip + x, z) for x, z in prof]
         ramp = list(zip(pts, pts[1:]))
         for b in balls:
