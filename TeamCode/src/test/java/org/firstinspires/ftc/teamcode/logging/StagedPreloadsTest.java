@@ -155,7 +155,7 @@ public class StagedPreloadsTest {
                 + "looseAtEnd,tip1At,tip2At,leftStagingAt,staged,inPocket,gapIn,movedAfterLeaveIn,looseAtTip2,movedBySpillIn,"
                 + "retaken,bestSeed,typicalSeed; StagedPreloadsTest, " + RUNS + " runs each\n");
         double outtake = AutoSim.placeholderOuttakeInPerS;
-        for (double friction : new double[] {1, 3}) {
+        for (double friction : new double[] {1}) {  // one tile surface (6 Oct 2026); 3: pieces stop 3x sooner, a what-if
             FieldSim.frictionScale = friction;
             try {
                 for (String[] c : CASES) {

@@ -77,7 +77,7 @@ if __name__ == "__main__":
     write_all()
     for shape, (design, _) in SHAPES.items():
         specs = ";".join(f"{cls},{PARTNERS[kind]}@50" for kind, (_, cls) in autos(shape).items())
-        for f in ("1", "3"):
+        for f in autogen.FRICTIONS:
             autogen.study(specs, runs=runs, designs=design,
                           extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                                      "BIOBUZZ_AUTO_FRICTION": f})

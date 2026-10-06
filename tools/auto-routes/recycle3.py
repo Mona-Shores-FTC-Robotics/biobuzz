@@ -17,6 +17,7 @@ fetched while it is up. TIPs alternate ends, so for 5 by 30 s each fetch must ta
     fire (TIP 4). TIP 2's spill alone comes 1-2 pieces short of TIP 4, so the 7 s trip is unavoidable.
 No park: a 5th TIP (20) is worth more than PARK (5), and there's no time for both.
 """
+import autogen
 import sys
 from helpers import *
 
@@ -123,6 +124,6 @@ def left(name="recycle3-left"):
 if __name__ == "__main__":
     right().write()
     left().write()
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         study("Recycle3RightAuto,Recycle3LeftAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10, designs=CAT,
               extra_env={"BIOBUZZ_AUTO_FRICTION": f})

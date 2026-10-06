@@ -6,6 +6,10 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The qualifier Autos
 
+**Tables below show two numbers, normal tiles / slow tiles** (pieces stopping 3× sooner, a what-if for the
+guessed rolling friction). Since 6 Oct 2026 studies run once, on the field's one surface (`autogen.FRICTIONS`):
+read the first number.
+
 Slow-tile numbers before 6 Oct 2026 02:56 UTC (in the tables below this one too) used a HIVE calibrated under
 3× friction (`HiveCalibration.fit`, fixed then); they read high, by up to 4 points. Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
 UTC: the Flat Intake** (`RobotDesign.flatIntake`, "flat intake"; the build team's option 3, "o3" in file names,

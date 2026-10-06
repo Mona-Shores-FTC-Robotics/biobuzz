@@ -462,7 +462,7 @@ if __name__ == "__main__":
         r = STAGES[w](w)
         r.folder = autogen.AUTOS_DIR if w in WINNERS else autogen.EXPERIMENTS
         r.write()
-    for f in ("1", "3") if stages else ():
+    for f in autogen.FRICTIONS if stages else ():
         study(";".join(f"{cls(w)},{PARTNER_OF(w)}@50" for w in stages), runs=runs, designs=os.environ.get("DESIGN", D),
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})
@@ -470,7 +470,7 @@ if __name__ == "__main__":
         r = right(w, **{**VARIANTS, **TRIALS, **PROTO, **G409, **O3}[w])
         r.folder = autogen.AUTOS_DIR if w in WINNERS else autogen.EXPERIMENTS
         r.write()
-    for f in ("1", "3") if which else ():
+    for f in autogen.FRICTIONS if which else ():
         study(";".join(f"{cls(w)},PartnerPreloadsRightAuto@50" for w in which), runs=runs, designs=os.environ.get("DESIGN", D),
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})

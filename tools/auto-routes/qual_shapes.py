@@ -111,7 +111,7 @@ if __name__ == "__main__":
         o3_shaped(name, hook_at).write()
     if runs == 0:
         sys.exit()
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         study(f"{cls('qual-right-v3')},PartnerPreloadsRightAuto@50", runs=runs, designs="spring hood, full-width intake",
               extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                          "BIOBUZZ_AUTO_FRICTION": f})

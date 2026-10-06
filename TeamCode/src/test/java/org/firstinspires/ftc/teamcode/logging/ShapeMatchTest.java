@@ -51,7 +51,7 @@ public class ShapeMatchTest {
         File scratch = new File(dir, "shape-match-runs");
         StringBuilder csv = new StringBuilder("# card,auto,design,friction,points,tip3Runs,parkedRuns,g409Runs,g409Pieces,"
                 + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
-        for (double friction : new double[] {1, 3}) {
+        for (double friction : new double[] {1}) {  // one tile surface (6 Oct 2026); 3: pieces stop 3x sooner, a what-if
             FieldSim.frictionScale = friction;
             try {
                 for (String[] c : CASES) {
