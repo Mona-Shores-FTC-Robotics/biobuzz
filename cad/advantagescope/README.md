@@ -19,7 +19,8 @@ change `CENTRE_BACK_IN` in `build_model.py` and rebuild.
 a rotation about +Y by −angle: 0° deployed, 125° stowed. For an angle θ the component pose is that rotation about the
 pivot, i.e. translation = pivot − R·pivot. `extractor_poses.json` has both ends.
 
-**To come:** component 1, the NECTAR/POLLEN FLOWER scorer (from the Pivoting arm nectar scorer chat).
+**Complete for now.** The rear FLOWER scorer is dropped (FLOWER scorer chat, 6 Oct 2026), so there is no component 1. A front
+NECTAR-capping assist is being looked at; it would be added as a component when its outline exists.
 
 **Rebuild:** `python3 cad/advantagescope/build_model.py keep.pkl intakeb_mesh.pkl [addons_mesh.pkl]`. The first
 comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the second from `cad/intake-b/build.py` with

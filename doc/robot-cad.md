@@ -164,3 +164,16 @@ because a NECTAR pokes out of the front and OCC's boxes for the mecanum rollers 
 With goBILDA's Pinpoint convention (the X pod's offset is how far left of the centre it sits; the Y pod's is how far
 forward), that's an X-pod offset of about +6.46 in and a Y-pod offset of about −0.94 in. Check the signs against
 `pedro/robots/Robot<team>.java` and the Pinpoint's docs before tuning, and measure the real pods: these are from CAD.
+
+## Seated on a FLOWER (for the scorer and the routes)
+
+With the extractor down, the block's curved tip nests between the FLOWER's grey uprights and stops on their inside
+corners, 1.25 in short of the FLOWER's centre. So:
+- **Depth:** the front face is **7.09 in** from the FLOWER's centre and **9.80 in** from the wall. In the model frame
+  (origin at the chassis centre), the FLOWER's centre is at X = 14.65 in.
+- **Sideways:** the robot sits on the FLOWER's centreline.
+- **Heading:** set by the drive, not by the extractor or the wall.
+
+From there the launcher's exit (turret axis 10.73 in behind the face, exit 2.5 in ahead of it) is about 15.3 in from the
+FLOWER's centre. Moving the block closer to the roller shortens that: a 1.0 in gap gives 13.8 in, and 0 gives 12.8 in.
+That costs extraction margin, untested.
