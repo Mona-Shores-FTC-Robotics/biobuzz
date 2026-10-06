@@ -47,8 +47,8 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 Built by `baselines_v.py`; design "rigid V" (= the drawn V).
 
 **Two fixes the simulator chat made, which put these above or below the numbers in the next sections:**
-- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.24 in body, every
-  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2.
+- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.12 in body (15.24 was its width), every
+  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2. The true half-length is 7.56 in (the CAD re-measure below), so these routes are 0.06 in conservative.
 - **Wall partner:** the row sweep's start point and its 180° turn put the V over the parked partner. The robots collided
   in most runs, so 55.7/56.3 was not legal. Starting 2 in short of the row, with a tighter turn, there are no collisions
   and it scores 53.3.
@@ -189,7 +189,7 @@ with hard stops at 0° and 125°.
 
 - **R102:** 18 × 18 × 18 in at the start.
 - **R105:** 18 × 24 in once started.
-- **The body as drawn:** 15.12 × 15.24 in, plus the roller 1.94 in ahead.
+- **The body as drawn:** 15.12 in long × 15.24 in wide (CAD re-measure, 6 Oct 2026), plus the roller 1.94 in ahead.
 - **The V takes the front corners.** The extractor and scorer must fit around it, or fold.
 - **Every part states its stowed and deployed outline,** so the simulator can draw and collide it.
 
