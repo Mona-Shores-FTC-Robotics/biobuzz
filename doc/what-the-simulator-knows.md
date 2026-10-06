@@ -19,7 +19,7 @@ guess, the real number can differ, and so can which idea wins. Written 6 Oct 202
 
 | What | The guess | Why it matters |
 |---|---|---|
-| How long a TIP takes | 1.0 s | When the spill lands, and how long we wait |
+| How long a TIP takes | 1.0 s; videos show 0.5–1.2 s, most often about 1 s ([tip timing](tip-timing.md)) | When the spill lands, and how long we wait |
 | How pieces bounce off tiles, walls, the HIVE, robots | restitution 0.45 / 0.5 / 0.2 / 0.1 | Where a spill ends up; how much a flap or hook keeps |
 | How fast pieces stop rolling | 12 in/s² (×3 on "slow tiles") | Whether a spill is still near us when we drive in. "Slow tiles" exists because this is a guess |
 | Our robot's size and shape | Read off the 5 Oct CAD screenshots, ±15% | Every route spot; what the robot can reach |
@@ -30,7 +30,7 @@ guess, the real number can differ, and so can which idea wins. Written 6 Oct 202
 
 Nothing about our robot has been measured on a robot yet. The quickest numbers to measure, in order of how much
 they move the results: the intake's width and time per piece, the TIP time (film one), and how far a POLLEN
-rolls on our tiles.
+rolls on our tiles. (The TIP time is now roughly checked against video: [tip timing](tip-timing.md).)
 
 ## How AdvantageScope shows the right robot
 

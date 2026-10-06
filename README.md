@@ -75,6 +75,9 @@ the simulator, nothing measured on a robot: [what the simulator knows, and what 
 - **Side walls and hooks keep more of a spill, but falling pieces hit them** (G409). The long U's walls
   are touched in most TIPs; the right hooks keep TIP 2's spill on our half but are touched in a third of
   runs or more on option 3. [Side walls and shapes](doc/robot-shapes-and-walls.md).
+- **A TIP takes about 0.5–1.2 s, most often about 1 s** (from video, 6 Oct): the simulator's 1.0 s holds, and
+  the rigid V's lead holds at 0.6 and 1.2 s too. A fast TIP brings back G409 touches with our fixed 500 ms wait.
+  [Tip timing](doc/tip-timing.md).
 - **Where a spill lands:** first touch 35–47 in from the CELL's wall, 1.1–1.4 s after the TIP starts. A
   plain robot facing the HIVE is clear with its front face 35 in or less from that wall.
   [Spill window](sim-review/spill-window.png); to check it on a real TIP: [filming a spill](doc/spill-test.md).
