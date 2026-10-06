@@ -93,6 +93,13 @@
                     }
                   },
                   {
+                    "type": "component",
+                    "logKey": "/BodyShape/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
                     "type": "robot",
                     "logKey": "/Sim/Hive/Structure",
                     "logType": "Pose3d",

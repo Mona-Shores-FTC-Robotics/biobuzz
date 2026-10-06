@@ -16,7 +16,7 @@ guide. We will change it as the frame and shape work settles. In the simulator:
 
 Points are average alliance AUTO points over 20 simulated runs (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** is how many runs our robot touched a spilled piece
 before it reached the tiles (the rule: don't catch or deflect a TIP's spill). Numbers run
-**6 Oct 2026 02:56 UTC** (slow-tile numbers corrected that day: they had used a differently calibrated HIVE). Each log downloads as `<Auto>_<date it last changed>_best` or `_typical`.
+**6 Oct 2026 02:56 UTC** (slow-tile numbers corrected that day: they had used a differently calibrated HIVE). Each log downloads as `<Auto>_<robot>_<date it last changed>_best` or `_typical` (logs from before 6 Oct 2026 lack the robot: they are all the Flat Intake).
 
 | Auto | Partner | Points | TIPs | Our PARK | G409 runs | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|---|
@@ -85,9 +85,8 @@ all of them). The guides being explored, each on the Flat Intake:
   runs. Worth a cardboard test: the flaps' angle and the bounce are guesses.
   [Every shape on every Auto](doc/shape-matrix.md); the earlier study: [robot shapes](doc/robot-shapes-and-walls.md).
   **To watch the guides:** [shape-matches-advantagescope.zip](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/shape-matches-advantagescope.zip)
-  (5 Oct): import its `advantagescope-layout-match-shapes.json`, then drag in a log from `logs/`. On the Flat Intake:
-  `shape-match-o3-plain`, `-o3-rigid-v`, `-o3-small-hook` (the Ramp Hook), each `-best` and `-typical`; re-import
-  the normal layout afterwards.
+  (5 Oct): drag a log from its `logs/` into AdvantageScope with the usual layout. On the Flat Intake:
+  `shape-match-o3-plain`, `-o3-rigid-v`, `-o3-small-hook` (the Ramp Hook), each `-best` and `-typical`.
 - **Side Rails and hooks keep more of a spill, but falling pieces hit them** (G409) where they reach into the
   Drop Zone. Both rails out (the "long U") were touched in most TIPs; the hooks keep TIP 2's spill on our half
   but were touched in a third of runs or more on the Flat Intake. [Side walls and shapes](doc/robot-shapes-and-walls.md).
@@ -144,11 +143,13 @@ laptop. Set it up once, then watch any log.
 2. Drag the file into AdvantageScope.
 3. Press **Space** to play. AUTO starts 1 s in.
 
-What you see: our robot, **BIOBUZZ Robot** (the Flat Intake: the wheels between side plates, the orange intake
-roller, the flywheels, the Limelight on its post) and, see-through orange in front of
-it, where a ball's centre has to be for the intake to take it. The partner is the green ghost. The
-model only changes the picture, never the log: pick **BIOBUZZ Prototype** or **BIOBUZZ Full width** in the
-robot row's model menu only for a log simulated with that robot.
+What you see: our robot, **BIOBUZZ Robot**, drawn as the design the log was simulated with: the log says
+which (its `BodyShape/Components`, under the robot row), so any log shows its own robot with this one layout.
+The Flat Intake has the wheels between side plates, the orange intake roller, the flywheels, the Limelight on
+its post and, see-through orange in front of it, where a ball's centre has to be for the intake to take it; the
+Rigid V adds its flaps; the Ramp Hook's arm swings down at the TIP. The partner is the green ghost. A log made
+before 6 Oct 2026 may not say: then every design is drawn at once, so get a newer log. The picture never changes
+what happened: a log is one simulated match with one robot.
 
 **Another branch:** set `$branch` to it in step 3, run it again, then do step 4
 again. It swaps in that branch's robot and field, removing the old ones.

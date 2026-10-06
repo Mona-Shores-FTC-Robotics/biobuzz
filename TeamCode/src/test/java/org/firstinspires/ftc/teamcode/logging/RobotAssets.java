@@ -145,11 +145,42 @@ final class RobotAssets {
     }
 
     /**
+     * {@value #ROBOT_NAME}, the one robot model (mentor, 6 Oct 2026): the Limelight in its base, and every
+     * design a log can show as a component, in {@link BodyShape#MATCH}'s order. A log puts the design it ran at
+     * the robot and the others out of sight ({@code BodyShape/Components}, {@link AutoSim}), so the one layout
+     * shows any log's robot with nothing to pick. The Flat Intake and its guides are drawn in full (wheels,
+     * frame, intake, launcher, the Rigid V's flaps); the others as the shape study's sketches. Append designs,
+     * never reorder: older logs name components by their place.
+     */
+    static File robot(File out) throws IOException {
+        File dir = new File(out, FOLDER);
+        dir.mkdirs();
+        MeshBuilder base = new MeshBuilder();
+        addLimelight(base, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
+        Files.write(new File(dir, "model.glb").toPath(), base.glb(ROBOT_NAME).write());
+        RobotDesign flat = RobotDesign.flatIntake();
+        for (int i = 0; i < BodyShape.MATCH.length; i++) {
+            String name = BodyShape.MATCH[i].name;
+            Glb part = name.equals("flat intake") || name.equals("flat intake, hook chassis")
+                    ? model(flat, Look.FLAT_INTAKE, false)
+                    : name.equals("flat intake, rigid V")
+                    ? model(AutoStudyTest.flatIntakeWith("flat intake, rigid V", 0), Look.FLAT_INTAKE, false)
+                    : shapesRobot(BodyShape.MATCH[i]);
+            Files.write(new File(dir, "model_" + i + ".glb").toPath(), part.write());
+        }
+        Files.write(new File(dir, "config.json").toPath(), config(ROBOT_NAME, BodyShape.MATCH.length,
+                CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                CameraMount.pitchDeg, CameraMount.yawDeg).getBytes(StandardCharsets.UTF_8));
+        return dir;
+    }
+
+    /**
      * Writes {@value #FOLDER}, {@value #PROTOTYPE_FOLDER} and {@value #FULL_WIDTH_FOLDER} into {@code out}, and the
      * spill-study sketches {@value #WALLS_FOLDER}, {@value #SHAPES_FOLDER} and {@value #MATCH_FOLDER}; returns the first.
      */
     static File build(File out) throws IOException {
-        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.flatIntake(), Look.FLAT_INTAKE));
+        File dir = robot(out);
         write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), Look.PROTOTYPE));
         write(out, FULL_WIDTH_FOLDER, FULL_WIDTH_NAME, model(RobotDesign.springHoodFullWidth(), Look.PLAIN));
         File walls = new File(out, WALLS_FOLDER);
@@ -251,6 +282,11 @@ final class RobotAssets {
      * FLOWER (drawn only: the simulator doesn't use it yet). Robot frame, inches: +X forward, +Y left.
      */
     static Glb model(RobotDesign d, Look look) {
+        return model(d, look, true);
+    }
+
+    /** As {@link #model(RobotDesign, Look)}; {@code limelight} false leaves the Limelight to the model's base. */
+    static Glb model(RobotDesign d, Look look, boolean limelight) {
         MeshBuilder b = new MeshBuilder();
         double half = d.frameIn / 2;
         // The body the simulator bounces pieces off (RobotDesign#bodyHeightIn), barely there.
@@ -361,8 +397,21 @@ final class RobotAssets {
                     PINWHEEL_RADIUS_IN, 0.4, AXIS_X);
         }
 
-        addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
-                CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
+        if (d.hasFlaps() && !d.flapsDeploy) {
+            // Fixed flaps (the Rigid V): a thin plate from each front corner out to its free end, the tiles up.
+            double halfWidth = d.frameWidthIn / 2;
+            for (int side = -1; side <= 1; side += 2) {
+                double fa = Math.atan2(side * d.flapOutIn, d.flapForwardIn), fc = Math.cos(fa), fs = Math.sin(fa);
+                b.box(side > 0 ? "Left flap" : "Right flap", new double[] {0.2, 0.45, 0.85, 1},
+                        new double[] {half + d.flapForwardIn / 2, side * (halfWidth + d.flapOutIn / 2), d.flapHeightIn / 2},
+                        new double[] {d.flapLengthIn(), RobotDesign.FLAP_THICKNESS_IN, d.flapHeightIn},
+                        new double[] {fc, -fs, 0, fs, fc, 0, 0, 0, 1});
+            }
+        }
+        if (limelight) {
+            addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
+                    CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
+        }
         return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.FLAT_INTAKE ? ROBOT_NAME : FULL_WIDTH_NAME);
     }
 
