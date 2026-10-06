@@ -8,20 +8,24 @@ holes it already has. `dhs-addons.step` is built in the robot CAD's own coordina
   existing holes, between the wheels where no belt runs. The 72 mm wheel shafts become 80 mm so they reach the bearing.
 - **Odometry pods.** Two goBILDA 4-bar pods (3110-0001-0002), as in the example chassis: a strafe pod bolted to the
   right rail between the wheels, a forward pod on a printed adapter on the left rail. Both wheels touch the floor.
-- **The ramp hook** (`doc/ramp-hook.md`), now on two hinges, one in front of each front wheel. A printed bracket on
-  each front upright holds the axle's inner end; the outer plate holds its outer end. A stepped arm on each side lets
-  the tall part clear the wheel as the hook folds. The servo (goBILDA Torque) sits outside the right plate.
+- **The ramp hook** (`doc/ramp-hook.md`), with **one arm, on the right**: an L, not a box. Testing showed a second
+  arm would corral spilled POLLEN and NECTAR, which brings rules trouble. The hinge axle runs from a printed bracket
+  on the right front upright to the right outer plate, in front of the right front wheel. The arm steps up 2.6 in out
+  from the hinge so its tall part clears the wheel as it folds. The servo (goBILDA Torque) sits outside the right plate.
+  The front shaft's left end is free; the corner block holds it in a REX-shaped hole so it can't turn.
 
-This replaces the single right-hand hinge in `cad/ramp-hook/`. The FLOWER block's shape is unchanged.
+This replaces the hinge in `cad/ramp-hook/`. The FLOWER block's shape is unchanged.
 
 ## Checked against the robot CAD
 
 | | |
 |---|---|
-| Collisions, every 3° from down to stowed (90°) | none: robot, plates, brackets, servo and pods |
+| Collisions, every 3° from down to stowed (90°) | none: robot, plates, bracket, servo and pods |
 | Hook down, front to back | 23.9 / 24 in |
 | Stowed, front to back | 17.5 / 18 in |
-| Across, with the servo | 17.4 / 18 in |
+| Across, with the servo | 17.3 / 18 in |
+| Hook weight (from the CAD's volumes) | about 430 g, balance point 5.6 in out |
+| Servo torque: hold level / peak folding 90° in 0.4 s | 6.1 / 10.3 kg·cm, against about 25 for the Torque servo |
 | Lowest point of the hook | 0.7 in (the two shaft collars 0.61 in: check the real collars) |
 | Pod wheels | on the floor |
 
@@ -31,22 +35,21 @@ The robot CAD is 143 MB and stays in Drive, not git. The checks ran on a 0.1 in 
 
 | Part | Qty | Make |
 |---|---|---|
-| `outer_plate_R` / `_L`, 1/8 in aluminium, 48 mm tall, with a raised ear at the front for the servo | 1 + 1 | Cut |
+| `outer_plate_R` (hinge bearing, raised ear for the servo) / `_L` (plain), 1/8 in aluminium, 48 mm tall | 1 + 1 | Cut |
 | M4 standoffs, 56 mm (a stock length, or e.g. 48 + 8) | 8 | Buy |
 | 8 mm REX shaft, 80 mm (replaces each 72 mm wheel shaft) | 4 | Buy |
-| 8 mm REX flanged bearing, 14 mm OD: 4 in the plates at the wheels, 2 in the plates at the hinge, 2 in the brackets | 8 | Buy |
-| `hinge_bracket_R` / `_L` (bolts to the front upright's front face, two M4) | 1 + 1 | Print |
-| `hinge_hub_R` / `_L` | 1 + 1 | Print |
-| `riser_R` / `_L`, `corner_block_R` / `_L` | 2 + 2 | Print |
+| 8 mm REX flanged bearing, 14 mm OD: 4 in the plates at the wheels, 1 in the right plate at the hinge, 1 in the bracket | 6 | Buy |
+| `hinge_bracket_R` (bolts to the right front upright's front face, two M4) | 1 | Print |
+| `hinge_hub_R`, `riser_R`, `corner_block_R` | 1 each | Print |
 | `flower_block` | 1 | Print |
-| Curtain clips (front shaft) and side clips (arm shafts) | 4 + 8 | Print |
+| Curtain clips (front shaft) and side clips (arm shafts) | 4 + 4 | Print |
 | `pod_adapter_L` | 1 | Print |
-| 8 mm REX shafts: front 312 mm; arm bottom 192 mm ×2; arm top 144 mm ×2; left hinge axle 88 mm; right hinge stub 48 mm | 7 | Buy |
+| 8 mm REX shafts: front 288 mm; arm bottom 192 mm; arm top 144 mm; hinge stub 48 mm | 4 | Buy |
 | goBILDA 8 mm REX servo shaft, 25-tooth, 36 mm | 1 | Buy |
 | goBILDA 2000 Series servo, Torque | 1 | Buy |
 | 8 mm REX clamping collars | 2 | Buy |
 | goBILDA 4-bar odometry pod 3110-0001-0002 | 2 | Buy |
-| 1/16 in polycarbonate: curtains and side panels | 4 | Cut |
+| 1/16 in polycarbonate: two curtains and the side panel | 3 | Cut |
 
 ## Before anything is cut or printed
 
@@ -54,6 +57,7 @@ The robot CAD is 143 MB and stays in Drive, not git. The checks ran on a 0.1 in 
 2. Drill the servo's mounting holes in the right plate's ear to match the mount you use (not drawn).
 3. Check the pods' mounting holes against the rail (right) and the adapter (left), and goBILDA's mounting height.
 4. The STLs are where the parts sit on the robot, not turned for printing. Lay each one flat in the slicer.
+5. The corner block's REX-shaped hole uses 7.0 mm across the flats (`REX_AF`). Check it on a test print first.
 
 ## Bringing it into Onshape
 
