@@ -102,6 +102,15 @@ ring's thickness (0.25 in, a guess). Two places it can go:
 | R105 on design 14 (18 wide × 16) | 16 + 8 + 2.65 = 26.65: the arm ≤ 5.35 in | Already 18 wide: doesn't fit |
 | As the spill hook | Unchanged, but a shorter arm moves its line | The ramp over the arm is a way out for pieces rolling outward |
 
+**Or shorten the chassis (A2).** Version A only breaks R105 by 1.15 in, so a chassis 13.35 in long (14.5 wide)
+keeps the full 8 in arm and the tongue on the crossbeam: 13.35 + 8 + 2.65 = 24.0 in. There's precedent: design 13
+is 14 in long, the front C 12 in. The hook's spacing for the spill doesn't change, because the chassis gets
+shorter at the back, not the hook. It costs the build team 1.15 in of length for the drivetrain, intake and
+launcher, and it leaves zero margin. The 2.65 in comes from a tip 2.4 in in plus a 0.25 in ring thickness that
+is a guess. With the minimum 2.1 in tip and the ring measured, the chassis may only need to be 13.6 to 13.7 in.
+**Measure the ring on Thursday before anyone cuts metal.** If the build team can give up the length, A2 is
+simpler to drive than B: straight in, no strafing, and the POLLEN roll straight to the intake.
+
 **B is the one that does both jobs.** The 8 in spacing is what catches the spill in AUTO: the arm runs from the
 spill's near 90% line to its far one. Cutting it to 6.85 in for A would put the near edge of the spill on the
 chassis, and a spill piece touching the chassis is the G409 foul. So **build B**, and keep A only as a fallback if
