@@ -26,7 +26,8 @@ MOTOR_C = 77.5
 MOTOR_Y = ROLL_Y + MOTOR_C
 ARM = 7.15 * IN                        # the hook's arm, from centre: its 14 mm hub clears the plate (7.56 in) and the servo
 ZB = FACE + 7.48 * IN                  # FLOWER block's back edge with the hook down (24 in overall)
-V_IN, V_OUT, V_FWD, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 1.75 * IN, 4.0 * IN   # Rigid V plates
+V_IN, V_OUT, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 4.0 * IN    # Rigid V plates: from the side plates' outer face...
+V_ROOT, V_TIP = ROLL_Z + 16 - 6, FACE + 2.8 * IN                        # ...at their front edge, forward to 2.8 in (18 in start)
 FS_Y, FS_Z = F + A.ROD_Z, ZB + A.ROD_X # front shaft
 
 fixed, hook, vee = {}, {}, {}
@@ -41,14 +42,17 @@ def rod(p0, p1, d=8.0):
 def side_plate(right):
     f = xr if right else xl
     x0, x1 = f(PLATE_IN), f(PLATE_IN + PLATE_T)
-    pts = [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, FACE - 40), (max(HY, MOTOR_Y) + 16, FACE - 18), (max(HY, MOTOR_Y) + 16, HZ + 16),
-           (ROLL_Y, ROLL_Z + 16), (-127.0, ROLL_Z + 6)]
+    top = F + 7.5 * IN if right else MOTOR_Y + 16                          # the right plate carries the down stop up to 7.5 in
+    pts = [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, FACE - 40), (top, FACE - 18), (top, HZ + 16),
+           (ROLL_Y + 30, ROLL_Z + 16), (ROLL_Y, ROLL_Z + 16), (-127.0, ROLL_Z + 16)]
+    if right:                                                               # an ear forward over the roller for the stowed stop
+        pts = pts[:5] + [(HY - 22, HZ + 16), (HY - 22, FACE + 2.75 * IN), (F + 4.4 * IN, FACE + 2.75 * IN), (F + 4.4 * IN, ROLL_Z + 16)] + pts[6:]
     p = cq.Workplane("YZ").polyline(pts).close().extrude(PLATE_T).translate((min(x0, x1), 0, 0))
     holes = [(AX_Y, AX_ZF), (AX_Y, AX_ZR), (ROLL_Y, ROLL_Z), (HY, HZ) if right else (MOTOR_Y, HZ)]   # wheels, roller, hinge / motor
     for y, z in holes: p = p.cut(cyl("x", (0, y, z), 14.0, min(x0, x1) - 1, max(x0, x1) + 1))
     for y in A.STANDOFF_Y:
         for z in A.STANDOFF_Z: p = p.cut(cyl("x", (0, y, z), M4, min(x0, x1) - 1, max(x0, x1) + 1))
-    for y, z in ((-110.0, FACE - 8), (-60.0, FACE - 8)): p = p.cut(cyl("x", (0, y, z), M4, min(x0, x1) - 1, max(x0, x1) + 1))  # V plate tab
+    for y, z in ((-110.0, ROLL_Z - 2), (-60.0, ROLL_Z - 2)): p = p.cut(cyl("x", (0, y, z), M4, min(x0, x1) - 1, max(x0, x1) + 1))  # V plate tab
     return p
 part(fixed, "side_plate_R (1/8 in aluminium)", side_plate(True), ALU, "cut")
 part(fixed, "side_plate_L (1/8 in aluminium)", side_plate(False), ALU, "cut")
@@ -100,7 +104,21 @@ d = cq.Vector(0, CB[1] - HY, CB[2] - HZ).normalized()
 boss = rod((xr(ARM), HY, HZ), (xr(ARM), HY + d.y * 30, HZ + d.z * 30), 14.0)
 hub = hub.union(boss).cut(cyl("x", (0, HY, HZ), BORE, xr(ARM - 8), xr(ARM + 8)))
 hub = hub.cut(rod((xr(ARM), HY + d.y * 10, HZ + d.z * 10), (xr(ARM), HY + d.y * 31, HZ + d.z * 31), BORE))
-part(hook, "hinge_hub_R (print)", hub, BLUE, "print")
+# Hard stops. The arm (and its socket, to 37 mm) sweeps -31..133 deg about the hinge (0 = forward, up +) at 38-50 mm out,
+# so a tab on the hub, opposite, travels the free arc: 155 deg when down, 305 when stowed. Two blocks on the right plate
+# sit 1 deg past each end: the FLOWER's shove and the hook's weight push the tab onto the down stop; stowed, leaning back
+# past vertical, its weight holds the tab on the stowed stop. The servo is never asked to hold against either.
+STOP_R0, STOP_R1, TAB_HALF = 38.0, 50.0, 6.0
+def sector(a0, a1, r0, r1, x0, x1):
+    n = 12; ang = [math.radians(a0 + (a1 - a0) * i / n) for i in range(n + 1)]
+    pts = [(HY + r1 * math.sin(a), HZ + r1 * math.cos(a)) for a in ang] + [(HY + r0 * math.sin(a), HZ + r0 * math.cos(a)) for a in reversed(ang)]
+    return cq.Workplane("YZ").polyline(pts).close().extrude(abs(x1 - x0)).translate((min(x0, x1), 0, 0))
+TAB_DOWN = 154.9
+hub = hub.union(sector(TAB_DOWN - TAB_HALF, TAB_DOWN + TAB_HALF, 12.0, STOP_R1, xr(ARM - 3), xr(ARM + 6)))   # 3 mm clear of the roller's end
+part(hook, "hinge_hub_R (print, with the stop tab)", hub, BLUE, "print")
+for nm, a0, a1 in (("down", TAB_DOWN - TAB_HALF - 13, TAB_DOWN - TAB_HALF - 1), ("stowed", TAB_DOWN + 150 + TAB_HALF + 1, TAB_DOWN + 150 + TAB_HALF + 13)):
+    blk = sector(a0, a1, STOP_R0, STOP_R1, xr(ARM - 3), xr(PLATE_IN))
+    part(fixed, f"stop_{nm}_R (print, bolts to the right plate)", blk, BLUE, "print")
 arm0 = (xr(ARM), HY + d.y * 12, HZ + d.z * 12); arm1 = (xr(ARM), CB[1] + d.y * 12, CB[2] + d.z * 12)
 part(hook, "arm_shaft (8mm REX, cut to 200 mm)", rod(arm0, arm1), STEEL, "buy")
 cb = box(xr(ARM - 8), xr(ARM + 7), F + A.BOTTOM, F + 3.3 * IN, ZB + A.ROD_X - 14, ZB + A.DEPTH)
@@ -121,17 +139,17 @@ CURT_IN = 2.25 * IN                    # 4.5 in clear between the curtains: a NE
 part(hook, "curtain_R (1/16 polycarbonate)", box(xr(CURT_IN), xr(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
 part(hook, "curtain_L (1/16 polycarbonate)", box(xl(CURT_IN), xl(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
 def at(z): return HY + (CB[1] - HY) * (z - HZ) / (CB[2] - HZ)            # the arm's height at z
-z0, z1 = FACE + 2.3 * IN, ZB + A.ROD_X - 16
+z0, z1 = FACE + 2.9 * IN, ZB + A.ROD_X - 16       # starts 2.9 in out: clear of the stowed stop
 side = cq.Workplane("YZ").polyline([(F + 1.3 * IN, z0), (at(z0) - 8, z0), (at(z1) - 8, z1), (F + 1.3 * IN, z1)]).close().extrude(1.6).translate((xr(ARM) - 0.8, 0, 0))
 part(hook, "side_panel_R (1/16 polycarbonate)", side, POLY, "cut")
 
 # ---- the Rigid V's corner plates (optional) ----
 for s, f, sg in (("R", xr, -1), ("L", xl, 1)):
-    a, b = (f(V_IN), FACE + 2.0), (f(V_OUT), FACE + V_FWD)
+    a, b = (f(V_IN), V_ROOT), (f(V_OUT), V_TIP)
     dx, dz = b[0] - a[0], b[1] - a[1]; L = math.hypot(dx, dz)
     pl = cq.Workplane("XY").box(L, V_TOP - 0.25 * IN, 3.175, centered=(False, False, True))      # length along x, height along y
     pl = pl.rotate((0, 0, 0), (0, 1, 0), math.degrees(math.atan2(-dz, dx))).translate((a[0], F + 0.25 * IN, a[1]))
-    tab = box(f(V_IN), f(V_IN + 3.175), -118.0, -52.0, FACE - 20, FACE + 4)
+    tab = box(f(V_IN), f(V_IN + 3.175), -118.0, -52.0, V_ROOT - 24, V_ROOT + 2)
     part(vee, f"rigid_v_plate_{s} (1/8 in aluminium, optional)", pl.union(tab), ALU, "cut")
 
 if __name__ == "__main__":

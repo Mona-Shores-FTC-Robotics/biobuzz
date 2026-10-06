@@ -16,8 +16,17 @@ for importing). Three sub-assemblies:
 2. **The ramp hook** (turns about the hinge, 0 to 150°). A hub on the hinge, 6.0 in up and 1.0 in in front of the
    face. One sloping arm runs to the corner block, then the front shaft, FLOWER block, collars, clips, two curtains
    and a side panel under the arm.
-3. **The Rigid V's two plates** (optional): 1/8 in aluminium, from each side plate's outer face out and forward
-   to 1.75 in, 0.25 to 4 in off the tiles, bolted to the side plates.
+3. **The Rigid V's two plates** (optional): 1/8 in aluminium, 0.25 to 4 in off the tiles. Each starts at its side
+   plate's front corner (7.68 in from centre, 1.4 in in front of the face) and runs out and forward to 8.89 in out and
+   2.8 in in front of the face. That's the most forward reach the 18 in starting size allows.
+
+**Hard stops.** A tab on the hook's hub, opposite the arm, hits two printed blocks bolted to the right plate, 38 to 50 mm
+from the hinge, 1° past each commanded position.
+- Down: the FLOWER's shove and the hook's weight push the tab onto the down stop, behind the hub.
+- Stowed at 150°: the hook leans back past vertical, so its weight holds the tab on the stowed stop. That stop sits on
+  an ear of the right plate, over the roller.
+- The servo only moves the hook between the stops; it never holds against them. The arm and its socket sweep a
+  different arc from the tab, so they never reach a block.
 
 ## Checked against the robot CAD
 
@@ -25,7 +34,7 @@ for importing). Three sub-assemblies:
 |---|---|
 | Hook, every 5° from down to 150° | clear of the robot, the roller, the plates, motor, servo and V plates |
 | Hook down, front to back | 24.0 / 24 in (the FLOWER block's back edge 7.48 in out; lane from the roller 5.5 in) |
-| Stowed at 150°, front to back | 17.3 / 18 in (the hook 2.22 in out, the roller 1.94) |
+| Starting, front to back | 17.96 / 18 in (the V plates' tips 2.84 in out; the stowed hook 2.29, the roller 1.94) |
 | Stowed, height | 14.5 / 18 in |
 | Across, with the V plates | 17.8 / 18 in |
 | V plates | clear of the front wheels, the belt drive and the stowed hook |
