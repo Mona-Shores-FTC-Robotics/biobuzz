@@ -7,18 +7,25 @@ T = pickle.load(open("transfer_mesh.pkl", "rb")); Fm = pickle.load(open("front_m
 C, F, FACE, IN = -59.62, -151.75, 207.73, 25.4
 Z0 = FACE - 7.56 * IN
 def cad(X, Z): return (F + Z * IN, Z0 + X * IN)            # robot-frame (X, Z) inches -> CAD (y, z) mm
-PIVOT, EXS = cad(0.85, 3.29), (F + 4.5 * IN, FACE + 2.4 * IN)
+import importlib.util, os
+_s = importlib.util.spec_from_file_location("tb", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "cad", "transfer", "build.py"))
+PV = (0.9, 3.732)                                       # the arm's pivot (cad/transfer/build.py: 60 mm at 20 deg from the axle)
+PIVOT, EXS = cad(*PV), (F + 4.5 * IN, FACE + 2.4 * IN)
 SKIP = ("Launcher Concept", "Intake <1> / 48mm", "Intake <1> / 240mm", "Intake <1> / 5000", "Intake <1> / 5103", "Intake <1> / 5203",
         "Intake <1> / 1201-0043", "Pattern Spacer", "Nectar", "Pollen", "Intake <1> / 11 Hole")   # replaced, removed, pieces; the 11-hole channel is raised 8 mm (checked below)
-TOUCH = {("lane_wall", "strand_shaft"), ("lane_wall", "pivot_stub"), ("lane_wall", "countershaft"), ("lane_wall", "lane_strip"),
-         ("lane_floor", "lane_wall"), ("lane_floor", "ramp"), ("ramp", "lane_wall"), ("strand_shaft", "strand_pulley"), ("floor_strand", "strand_pulley"),
-         ("lane_floor", "floor_strand"), ("J_shaft", "J_wheels"), ("J_shaft", "J_arm"), ("J_arm", "pivot_stub"), ("arm_drive", "J_shaft"),
-         ("arm_drive", "pivot_stub"), ("J_motor_belt", "pivot_stub"), ("J_motor_shaft_pulley", "J_motor"), ("J_motor_belt", "J_motor_shaft_pulley"),
-         ("J_motor_cradle", "J_motor"), ("countershaft", "countershaft_pulleys"), ("lane_shaft_pulley", "strand_shaft"),
+TOUCH = {("lane_wall", "strand_shaft"), ("lane_wall", "countershaft"), ("lane_floor", "lane_wall"), ("lane_floor", "ramp"), ("ramp", "lane_wall"),
+         ("strand_shaft", "strand_pulley"), ("floor_strand", "strand_pulley"), ("lane_floor", "floor_strand"), ("lane_floor", "strand_pulley"),
+         ("J_shaft", "J_wheels"), ("J_shaft", "J_arm"), ("J_shaft", "J_pulley"), ("J_belt", "J_pulley"), ("J_belt", "J_motor_shaft"), ("J_arm", "J_motor_shaft"),
+         ("J_arm", "right_pivot_block"), ("right_pivot_block", "lane_wall"), ("J_motor_shaft", "J_motor"), ("J_motor_bracket", "J_motor"),
+         ("J_motor_bracket", "lane_wall"), ("J_motor_shaft", "lane_wall"), ("countershaft", "countershaft_pulleys"), ("lane_shaft_pulley", "strand_shaft"),
          ("lane_drive_lower_loop", "countershaft_pulleys"), ("lane_drive_lower_loop", "lane_shaft_pulley"), ("lane_drive_upper_loop", "countershaft_pulleys"),
          ("lane_drive_upper_loop", "lane_drive_pulley_roller"), ("lane_drive_pulley_roller", "roller_shaft"), ("outer_J_and_chute", "lane_wall"),
-         ("outer_J_and_chute", "lane_floor"), ("arm_stop", "lane_wall"), ("arm_stop", "J_arm"), ("J_arm", "arm_drive"), ("J_motor_belt", "arm_drive"),
-         ("lane_strip", "outer_J_and_chute"), ("lane_drive_upper_loop", "roller_wheels"), ("lane_drive_upper_loop", "countershaft")}   # the upper loop re-aligns as the roller rises
+         ("outer_J_and_chute", "lane_floor"), ("arm_stop", "lane_wall"), ("arm_stop", "J_arm"), ("arm_stop", "J_motor_bracket"), ("band_post", "lane_wall"),
+         ("band_post", "J_motor_bracket"), ("lane_hanger", "lane_wall"), ("ramp_bracket", "ramp"), ("ramp_bracket", "side_plate"), ("queue_lid", "lane_wall"), 
+         ("queue_lid", "outer_J_and_chute"), ("lane_drive_upper_loop", "roller_wheels"), ("lane_drive_upper_loop", "countershaft"),
+         ("turret_bearing_REFERENCE", "turret_channel_X-5.6_REFERENCE"), ("turret_bearing_REFERENCE", "turret_channel_X+0.4_REFERENCE"),
+         ("turret_channel_X-5.6_REFERENCE", "outer_J_and_chute"), ("turret_channel_X-5.6_REFERENCE", "lane_wall"), ("turret_bearing_REFERENCE", "outer_J_and_chute"),
+         ("turret_bearing_REFERENCE", "lane_wall")}   # the upper loop re-aligns as the roller rises
 key = lambda n: n.split(" ")[0].rstrip("0123456789").rstrip("_").removesuffix("_L").removesuffix("_R") if not n.startswith("lane_strip") else "lane_strip"
 def k2(n):
     b = n.split(" ")[0]
@@ -64,8 +71,8 @@ tr = [n for n in T]; fr = [n for n in Fm]
 print("== transfer against the robot (at rest)")
 for n in tr:
     h = robot_hits(n, pose(n))
-    if h and not n.startswith(("lane_strip", "J_motor_cradle")): print("  ", n.split(" ")[0], h.most_common(3))
-    elif h: print("   (sits on the rails)", n.split(" ")[0], h.most_common(2))
+    if h and not n.startswith(("lane_hanger", "turret_channel")): print("  ", n.split(" ")[0], h.most_common(3))
+    elif h: print("   (bolts to it)", n.split(" ")[0], h.most_common(2))
 print("== transfer against itself and the front: roller rise 0 / 0.65 / 1.3 in, extractor 0 / 75 / 150 deg")
 seen = set()
 for rise in (0, 0.65 * IN, 1.3 * IN):
@@ -74,8 +81,8 @@ for rise in (0, 0.65 * IN, 1.3 * IN):
         for x in c:
             if x[:2] not in seen: seen.add(x[:2]); print(f"   rise {rise / IN:.2f} ext {ext}:", x)
 print("   ", "clear" if not seen else "")
-# J arm lift: rotate about the pivot until the axle is 1.2 in higher (from 150 deg to about 101 deg)
-a0 = math.degrees(math.atan2(4.54 - 3.29, -1.32 - 0.85)); a1 = 180 - math.degrees(math.asin((4.54 + 1.2 - 3.29) / 2.5))
+# J arm lift: 1.2 in of travel at the axle, perpendicular to the arm
+a0 = math.degrees(math.atan2(4.54 - PV[1], -1.32 - PV[0])); a1 = a0 - math.degrees(1.2 / (60 / IN))   # 1.2 in along the arc
 print(f"== the J arm lifting: {a0:.0f} -> {a1:.0f} deg about the pivot")
 for f in np.linspace(0, 1, 7):
     lift = (a1 - a0) * f               # negative: the axle is behind the pivot, so lifting it turns rear points up
