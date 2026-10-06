@@ -143,3 +143,24 @@ aluminium. Past about 140° the block meets the intake's upper cross-channel.
 **Drawn** in `cad/intake-b/`: the drive is a 1:1 printed gear pair from a servo over the roller on the right, and
 the hard stops act on a tab on the servo's gear. Clear every 5° from 0 to 125°, stowed 2.06 in ahead of the face,
 142 g, worst servo load about 1.3 kg·cm.
+
+## The robot's origin, and the odometry pods from it
+
+**The origin** for the simulator, the AdvantageScope model and Pedro is the chassis centre, on the floor:
+- midway between the side rails;
+- **7.56 in behind the front face**, which is half the rails' 384.06 mm (15.12 in) length and midway between the wheel
+  axles (1.89 and 13.23 in behind the face).
+
+The robot is 15.12 in long and 15.24 in wide (over the wheel shafts). The STEP's bounding box reads 15.7 in long only
+because a NECTAR pokes out of the front and OCC's boxes for the mecanum rollers are loose.
+
+**The odometry pods' wheels from that origin** (+X forward, +Y left, inches; `cad/robot-addons/`):
+
+| Pod | Measures | Wheel centre X | Wheel centre Y |
+|---|---|---|---|
+| Left rail, on its adapter | forward motion (Pinpoint's X pod) | +0.71 | +6.46 (left) |
+| Right rail, between the wheels | sideways motion (Pinpoint's Y pod) | −0.94 | −6.37 (right) |
+
+With goBILDA's Pinpoint convention (the X pod's offset is how far left of the centre it sits; the Y pod's is how far
+forward), that's an X-pod offset of about +6.46 in and a Y-pod offset of about −0.94 in. Check the signs against
+`pedro/robots/Robot<team>.java` and the Pinpoint's docs before tuning, and measure the real pods: these are from CAD.

@@ -13,7 +13,8 @@ import numpy as np, trimesh, fast_simplification
 
 IN, M = 25.4, 0.0254
 C, F, FACE = -59.62, -151.75, 207.73                 # robot CAD (mm): centre x, floor y, front face z
-CENTRE_BACK_IN = 7.56                                 # chassis centre, inches behind the front face (rails 384 mm)
+CENTRE_BACK_IN = 7.56                                 # chassis centre, inches behind the front face: half the rails'
+                                                      # 384 mm (15.12 in) length, midway between the wheel axles (1.89, 13.23)
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Robot_BIOBUZZ")
 NAME = "BIOBUZZ Robot"
 
@@ -71,7 +72,11 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(os.path.join(OUT, "model.glb"))
     merged(ext).export(os.path.join(OUT, "model_0.glb"))
-    config = {"name": NAME, "isFTC": True, "rotations": [], "position": [0, 0, 0], "cameras": [],
+    # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
+    # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
+    camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
+              "position": [round(4.0 * M, 5), 0.0, round(14.0 * M, 5)], "resolution": [640, 480], "fov": 54.5}
+    config = {"name": NAME, "isFTC": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
               "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
     json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
     # the extractor's poses: it turns about the roller's axle (+Y through PIVOT); front up = rotation about +Y by -angle

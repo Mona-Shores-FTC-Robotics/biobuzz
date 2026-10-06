@@ -8,7 +8,7 @@ articulated component. Copy the folder into AdvantageScope's custom assets folde
 |---|---|
 | `model.glb` | The robot and everything fixed. The old intake roller is left out: the new one replaces it |
 | `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
-| `config.json` | FTC robot, no rotations, one component. The Limelight camera goes in `cameras` when its mount is decided |
+| `config.json` | FTC robot, no rotations, one component, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
 | `extractor_poses.json` | The extractor's component pose, deployed and stowed |
 
 **Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the
@@ -19,8 +19,7 @@ change `CENTRE_BACK_IN` in `build_model.py` and rebuild.
 a rotation about +Y by −angle: 0° deployed, 125° stowed. For an angle θ the component pose is that rotation about the
 pivot, i.e. translation = pivot − R·pivot. `extractor_poses.json` has both ends.
 
-**To come:** component 1, the NECTAR/POLLEN FLOWER scorer (from the Pivoting arm nectar scorer chat), and the Limelight
-camera (from the Limelight Localization chat).
+**To come:** component 1, the NECTAR/POLLEN FLOWER scorer (from the Pivoting arm nectar scorer chat).
 
 **Rebuild:** `python3 cad/advantagescope/build_model.py keep.pkl intakeb_mesh.pkl [addons_mesh.pkl]`. The first
 comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the second from `cad/intake-b/build.py` with

@@ -7,7 +7,31 @@
     0,
     0
   ],
-  "cameras": [],
+  "cameras": [
+    {
+      "name": "Limelight",
+      "rotations": [
+        {
+          "axis": "y",
+          "degrees": -45.0
+        },
+        {
+          "axis": "z",
+          "degrees": 0.0
+        }
+      ],
+      "position": [
+        0.1016,
+        0.0,
+        0.3556
+      ],
+      "resolution": [
+        640,
+        480
+      ],
+      "fov": 54.5
+    }
+  ],
   "components": [
     {
       "zeroedRotations": [],
