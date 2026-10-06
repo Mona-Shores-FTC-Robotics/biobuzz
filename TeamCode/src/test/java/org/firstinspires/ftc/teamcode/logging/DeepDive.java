@@ -158,6 +158,9 @@ final class DeepDive {
 
     /** {@code args}: frictions ("1,3"), then case specs. */
     public static void main(String[] args) throws Exception {
+        // As AutoStudyTest: BIOBUZZ_AUTO_SPREAD scales the launcher's shot-to-shot spread (1 = the placeholder, 0 = none).
+        String spread = System.getenv("BIOBUZZ_AUTO_SPREAD");
+        FieldSim.spreadScale = spread == null ? 1 : Double.parseDouble(spread);
         List<Double> frictions = new ArrayList<>();
         for (String f : args[0].split(",")) frictions.add(Double.parseDouble(f));
         for (int i = 1; i < args.length; i++) {
