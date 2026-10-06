@@ -301,20 +301,27 @@ from the rear the robot holds the lane plus the pocket: **4 NECTAR, or 5 POLLEN.
 guarantee for POLLEN, which is what FLOWERs hold. So rear loading needs a count: the extractor stops after 4, or
 one break-beam at the window. That's the cheapest sensor on the list, and only the rear path needs it.
 
-**What the window needs** (for the CAD and extractor chats):
-- A clear tunnel from the back face to the chute: **X −7.57 to −4.96, Y ±2.15, z 3.0 to 6.6.** The back frame
-  channel (top at z 6.25) is in it and needs a 4.3 in wide cut-out, or the extractor delivers over the channel's top
-  and under the turret, which leaves only 0.35 in: not enough.
+**What the window needs** (checked by the CAD chat against the chassis, 6 Oct 2026):
+- A clear tunnel from the back face to the chute: **X −7.57 to −4.96, Y ±2.15, z 3.0 to 6.6.** Two frame
+  cross-members are in it: the back channel (1107-0013-0336, X −7.56..−7.09, z 3.84..5.73) and a second full-width
+  channel (1103-0041-0328, X −6.15..−5.67, z 5.26..5.73). Both would need a 4.3 in cut-out and a replacement tie
+  below z 3.0 or above 6.6. They're the only cross-members at the back, so that's a frame change for the robot's
+  designer to agree to. The rear drive motors' encoder caps also pinch the tunnel to ±1.85 at X −7.4..−5.8; a POLLEN
+  (±1.4) still passes.
 - The lip at z 3.0 is set by the J curve (at X −4.5 the curve is at z 2.8). The top, 6.6, is the turret bearing's
   bottom. A POLLEN (2.8) clears both with 0.8 in; **a NECTAR (3.62) does not fit through 3.6 in.** If NECTAR must
   come in from the back, the turret bearing rises to 7.0 or higher (the launcher's decision).
 - The extractor has to deliver the piece **moving forward at about z 4.5 (centre)**, so it lifts the piece about
-  3 in from the tiles behind the robot. That's the extractor's ramp, not the transfer's.
+  3 in from the tiles behind the robot. The CAD chat finds no passive rear extractor that does this inside the 18 in
+  start: the one that fits delivers pieces rolling on the tiles, so a lift needs its own motor or servo and more
+  depth, and its stowed outline sits in the tunnel's mouth.
 - Under the turret deck nothing conflicts: the CAD has nothing in X −5.3..−0.9 below 9 in, and the J motor is at
   Y +2.6..4.6, outside the tunnel.
 
-**Showstoppers:** none for POLLEN. Two conditions: the back channel gets the cut-out, and the count exists. For
-NECTAR from the back, the bearing must rise.
+**Showstoppers:** none in the transfer itself for POLLEN. But the whole rear path costs a frame change (two
+cross-members), a powered lift on the extractor, a count at the window, and (per the CAD chat) the V's reach. The
+front extractor costs none of those. **The transfer's view: stay with the front.** If the rear is adopted anyway,
+the window above is what to build, and the first thing to prototype is the lift.
 
 ## Checklist for the next meeting (cardboard first)
 
