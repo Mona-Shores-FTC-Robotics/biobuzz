@@ -44,10 +44,32 @@ public class FieldSimTest {
         p.vx = 30;
         run(sim, 0.3);
         assertTrue("still falling or bouncing", p.z > FieldSim.POLLEN_RADIUS_IN + 1 || p.vz != 0);
-        run(sim, 6);
+        run(sim, 30);  // pieces roll a long way on foam (doc/rolling.md), but they stop
         assertEquals(FieldSim.POLLEN_RADIUS_IN, p.z, 1e-9);
         assertEquals(0, Math.hypot(p.vx, p.vy), 1e-9);
         assertEquals(0, p.vz, 1e-9);
+    }
+
+    /**
+     * The World Record match video (doc/rolling.md): NECTAR rolling on open tiles at about 23 in/s kept
+     * its speed for 1.3 s, with no slowing the video can show. It still stops in the end.
+     */
+    @Test
+    public void aRollingPieceKeepsGoingAsFilmed() {
+        double variety = FieldSim.spillVariety;
+        FieldSim.spillVariety = 0;
+        try {
+            FieldSim sim = empty();
+            FieldSim.Piece p = new FieldSim.Piece(FieldSim.Kind.BLUE_NECTAR, FieldSim.Where.FIELD, 15, 20, FieldSim.NECTAR_RADIUS_IN);
+            sim.pieces.add(p);
+            p.vx = 23;
+            run(sim, 1.3);
+            assertTrue("speed after 1.3 s " + p.vx, p.vx > 0.7 * 23);
+            run(sim, 6);
+            assertEquals(0, Math.hypot(p.vx, p.vy), 1e-9);
+        } finally {
+            FieldSim.spillVariety = variety;
+        }
     }
 
     @Test

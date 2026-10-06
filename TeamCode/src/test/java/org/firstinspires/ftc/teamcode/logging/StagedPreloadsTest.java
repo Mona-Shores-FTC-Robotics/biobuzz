@@ -271,6 +271,7 @@ public class StagedPreloadsTest {
         sim.write(new File(TeamCodeDir.simLogs(), "staged-check.wpilog"));
         assertTrue("staged " + w.s.staged, w.s.staged == 4);
         assertTrue("in the pocket: " + w.s.inPocket, w.s.inPocket == 4);
-        assertTrue("taken back: " + w.s.retaken.size(), w.s.retaken.size() >= 3);
+        // 2 since pieces roll as filmed (6 Oct 2026, doc/rolling.md): one staged piece rolls clear before the robot is back.
+        assertTrue("taken back: " + w.s.retaken.size(), w.s.retaken.size() >= 2);
     }
 }

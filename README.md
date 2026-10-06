@@ -93,6 +93,9 @@ all of them). The guides being explored, each on the Flat Intake:
 - **A TIP takes about 0.5–1.2 s, most often about 1 s** (from video, 6 Oct): the simulator's 1.0 s holds, and
   the rigid V's lead holds at 0.6 and 1.2 s too. A fast TIP brings back G409 touches with our fixed 500 ms wait.
   [Tip timing](doc/tip-timing.md).
+- **Spilled pieces roll much further than the simulator had them** (from a match video, 6 Oct 12:00 UTC):
+  NECTAR kept about 23 in/s for over a second and ran to the wall. The model now matches; the numbers on this
+  page predate it and will drop when rerun (pieces end up further away). [Rolling](doc/rolling.md).
 - **Where a spill lands:** first touch 35–47 in from the CELL's wall, 1.1–1.4 s after the TIP starts. A
   plain robot facing the HIVE is clear with its front face 35 in or less from that wall.
   [Spill window](sim-review/spill-window.png); to check it on a real TIP: [filming a spill](doc/spill-test.md).

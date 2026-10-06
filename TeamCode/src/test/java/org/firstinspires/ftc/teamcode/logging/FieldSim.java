@@ -93,10 +93,20 @@ final class FieldSim {
     static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
     static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
     static final double PLACEHOLDER_ROBOT_RESTITUTION = 0.1;
-    /** Fraction of sliding speed lost per second in contact with a surface. */
+    /**
+     * Fraction of sliding speed lost per second in contact with a surface: a robot, the HIVE, a CELL, a
+     * wall. Not on the tiles alone: a piece rolling on the tiles slows only by {@link #FILMED_ROLLING_DECEL_IN_PER_S2}.
+     */
     static final double PLACEHOLDER_CONTACT_FRICTION = 2.5;
-    /** Rolling resistance on foam tiles: a steady slowing, so a rolling piece stops, in/s². */
-    static final double PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 = 12.0;
+    /**
+     * Rolling resistance on foam tiles: a steady slowing, so a rolling piece stops, in/s². From the
+     * World Record match video (6 Oct 2026, YouTube 495akYrSr2U, tripod, 30 fps; doc/rolling.md): two
+     * NECTAR from the blue TIP rolled at a steady ~23 in/s for 1.3 s with no slowing the video can
+     * show, and the red TIP's NECTAR rolled from where it landed (~42 in out) to the alliance wall
+     * within ~1.5 s. At 12 in/s², with contact friction on the tiles as well (before 6 Oct), a piece
+     * stopped within ~1 s and ~20 in. 4 is an upper bound from those clips, not a measurement.
+     */
+    static final double FILMED_ROLLING_DECEL_IN_PER_S2 = 4.0;
     /** Height of the simulated robot's body; pieces hit it below this. */
     static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
     /** Where a launched piece leaves the robot: forward of centre, and up. */
@@ -131,7 +141,8 @@ final class FieldSim {
      */
     static double spillVariety = 1;
     static final double PLACEHOLDER_ROLL_SPREAD = 0.35;
-    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 3.0;
+    /** Under the rolling resistance of nearly every piece, so a slope steers a rolling piece but never keeps it going. */
+    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 1.5;
     static final double PLACEHOLDER_SPILL_KICK_IN_PER_S = 4.0;
     /**
      * A spilled piece's speed as it leaves the lowered CELL, as a fraction of what it gathered rolling
@@ -148,12 +159,13 @@ final class FieldSim {
      * Sideways speed a hard landing on the tiles adds, in a random direction, as a fraction of the
      * landing speed (times 0.5–1.5 at random). Wiffle balls bounce off foam at an angle: in the 3 Oct
      * 2026 films a spill fans out in every direction within half a second of landing and is spread
-     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.45 the simulated
-     * pieces are 24 in from where they landed after 0.5 s (p90 44), and 3 s after the TIP lie anywhere
-     * from the wall to 85 in out, x 19–92. Fitted by eye to those films; {@link SpillLandingTest} prints
+     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.3 the simulated
+     * pieces are 21 in from where they landed after 0.5 s (p90 41), and 3 s after the TIP lie anywhere
+     * from the wall to 86 in out. Refitted 6 Oct 2026 to the same films once pieces stopped dragging on
+     * the tiles ({@link #FILMED_ROLLING_DECEL_IN_PER_S2}; 0.45 before, against the old drag); {@link SpillLandingTest} prints
      * the spread (BIOBUZZ_BOUNCE_SCATTER reprints the fit). Only landings faster than {@link #BOUNCE_SCATTER_MIN_IN_PER_S}: a rolling piece stays put.
      */
-    static final double FILMED_BOUNCE_SCATTER = 0.45;
+    static final double FILMED_BOUNCE_SCATTER = 0.3;
     static double bounceScatter = FILMED_BOUNCE_SCATTER;
     static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
@@ -1003,13 +1015,16 @@ final class FieldSim {
                         p.touchedTile = true;
                     }
                 }
+                // Rolling on the tiles alone slows a piece only by rolling resistance; anything else it touches drags too.
+                boolean sliding = contact;
                 if (collideField(p)) {  // the tiles or a field wall
                     contact = true;
                     p.touchedTile = true;
+                    sliding |= wallHit;
                 }
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) {
-                    applyFriction(p, h);
+                    applyFriction(p, h, sliding);
                     // Uneven tiles move a rolling piece; one at rest stays put (static friction).
                     if (p.z < p.kind.radius + 0.3 && p.cell == null && spillVariety > 0 && Math.hypot(p.vx, p.vy) > 1) {
                         double[] g = tileSlope[(int) Math.max(0, Math.min(11, p.x / 12))][(int) Math.max(0, Math.min(11, p.y / 12))];
@@ -1322,9 +1337,13 @@ final class FieldSim {
         return true;
     }
 
+    /** Whether the last {@link #collideField} touched a field wall, not just the tiles. */
+    private boolean wallHit;
+
     private boolean collideField(Piece p) {
         double r = p.kind.radius;
         boolean hit = false;
+        wallHit = false;
         if (p.z < r) {
             p.z = r;
             p.touchedTile = true;
@@ -1347,21 +1366,25 @@ final class FieldSim {
             p.x = r;
             if (p.vx < 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.x > FIELD_SIZE_IN - r) {
             p.x = FIELD_SIZE_IN - r;
             if (p.vx > 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.y < r) {
             p.y = r;
             if (p.vy < 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.y > FIELD_SIZE_IN - r) {
             p.y = FIELD_SIZE_IN - r;
             if (p.vy > 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         return hit;
     }
@@ -1391,10 +1414,10 @@ final class FieldSim {
         p.vz = rz0 + sz;
     }
 
-    private static void applyFriction(Piece p, double h) {
+    private static void applyFriction(Piece p, double h, boolean sliding) {
         double speed = Math.hypot(p.vx, p.vy);
-        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * frictionScale * h)
-                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
+        double slower = Math.max(0, speed * (1 - (sliding ? PLACEHOLDER_CONTACT_FRICTION * frictionScale * h : 0))
+                - FILMED_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;
