@@ -25,9 +25,12 @@ Present: Travis, Nathan, CJ and a mentor.
 The small right hook (design 14: an 8 in arm and a crossbeam, hinged at the bottom of the chassis' front face) gets
 two "inward ramps":
 
-1. **A tongue on the crossbeam.** A thin plate, about 2 in wide, sticking out of the crossbeam at floor level and
-   sloping down toward the robot. Driven into a FLOWER's retrieval opening, it slides under the bottom POLLEN. The
-   column rolls out down the tongue, across the hook's floor and into the intake.
+1. **A tongue on the arm's outer side** (version B, drawn). A thin plate, about 2 in wide, sticking out through a gap
+   in the arm's wall at floor level, about 2 in ahead of the chassis, and sloping down into the hook. The robot
+   runs along the wall and strafes into the FLOWER. The tongue slides under the bottom POLLEN, and the column rolls
+   down it, into the hook and along the intake's face. The arm keeps its full 8 in, so the hook's spacing for
+   catching the spill in AUTO doesn't change. (Version A, the tongue on the crossbeam, empties more directly but
+   costs that spacing: see "Where the tongue goes".)
 2. **The arm's inside wall leans in** over the hook's floor. A piece rolling into the wall is sent down into the
    tiles instead of back out across the hook. That's the "deadening".
 
@@ -43,7 +46,9 @@ Redraw it with `python3 tools/ramp-hook/draw.py` and rerun the tables with `pyth
   piece through the intake. Two numbers decide it:
   - the tongue's **slope: 10 to 15°**;
   - **how far in its tip goes: at least 2.1 in** past the opening's edge.
-- **Size:** on option 3 the tongue breaks R105 unless the arm gets shorter (14.5 + 8 + 2.65 = 25.1 in against 24).
+- **Size:** on the arm's outer side the tongue fits R105 with the full 8 in arm: 17.15 in across of 18, and 22.5 in
+  long of 24. On the crossbeam it would need the arm cut to 6.85 in, which loses the spacing that catches the
+  spill.
 - **Rules:** use it only before 1:00 left. After that a NECTAR can be at the bottom of a FLOWER, and pushing it
   out breaks G418.
 
@@ -89,7 +94,7 @@ Quotes and section numbers are from Competition Manual TU03, as `doc/flower-back
 The tongue has to reach 2.65 in in front of the crossbeam's face: the tip 2.4 in past the opening's edge, plus the
 ring's thickness (0.25 in, a guess). Two places it can go:
 
-| | **A. On the crossbeam** (drawn) | **B. On the arm's outer side** |
+| | **A. On the crossbeam** | **B. On the arm's outer side** (drawn) |
 |---|---|---|
 | How you use it | Drive straight at the FLOWER | Strafe sideways into it (mecanum) |
 | Where the POLLEN go | Down the tongue, straight back to the intake | Across the arm into the hook, then sideways along the intake toward the open left side |
@@ -97,9 +102,27 @@ ring's thickness (0.25 in, a guess). Two places it can go:
 | R105 on design 14 (18 wide × 16) | 16 + 8 + 2.65 = 26.65: the arm ≤ 5.35 in | Already 18 wide: doesn't fit |
 | As the spill hook | Unchanged, but a shorter arm moves its line | The ramp over the arm is a way out for pieces rolling outward |
 
-**A is the better FLOWER emptier, and B keeps the 8 in spill arm.** The 8 in was chosen to wrap the spill's
-90% box, so a 6.85 in arm needs `BodyShapeSpillTest.rightHookAtTheSpill` rerun before we commit.
-For Thursday, build A, and if there's time, a B mock-up as well.
+**B is the one that does both jobs.** The 8 in spacing is what catches the spill in AUTO: the arm runs from the
+spill's near 90% line to its far one. Cutting it to 6.85 in for A would put the near edge of the spill on the
+chassis, and a spill piece touching the chassis is the G409 foul. So **build B**, and keep A only as a fallback if
+B's sideways roll doesn't feed the intake.
+
+What B has to get right:
+
+- **The gap in the arm's wall** has to be wider than a POLLEN (2.8 in) for the FLOWER's POLLEN to come in: 3.2 in
+  is drawn. During a spill, a piece rolling outward meets the tongue there, rising 12° to about 1.05 in at its
+  tip. It escapes only if it's rolling faster than about 37 in/s (a hollow shell climbing 1.05 in); slower ones
+  roll back in. Put the gap near the chassis, where the spill runs thinnest (README: the arm's far end sits
+  under the spill's edge).
+- **The roll along the intake.** The POLLEN come off the tongue at about 15 to 20 in/s, heading across the hook
+  toward its open side, along the intake's face. A full-width intake has about 0.7 s of contact to grab each one,
+  and table E's lean on the walls slows any rebound. Whether the rollers catch POLLEN going sideways is the
+  cardboard test.
+- **Driving:** strafe into the FLOWER with the robot running along the wall. Mecanum can do that, but it's the
+  one move a driver hasn't practised. Route it in AUTO; in TELEOP the drivers will need practice.
+- **Which side:** the arm is on whichever side faces the centre line at the end we start (README, the hooks in
+  the Qualifier Auto). The tongue only works with the FLOWER on the arm's side. Check this for the far FLOWER on
+  both alliances before committing to an arm side.
 
 ## Physics
 
@@ -254,8 +277,10 @@ cardboard and tape, a phone at 240 fps and a tape measure.
    last POLLEN from first contact until it reaches the stop.
 5. **Wall:** stand a 4 in card wall at the side, vertical and then leaning in 30°. Roll POLLEN into it at a few
    speeds and film how far they come back.
-6. **Hook A against hook B:** mock up both on a cardboard 14.5 in chassis, and check them against an 18 × 24 rectangle
-   taped on the floor.
+6. **Hook B on a cardboard 14.5 in chassis** with the full 8 in arm and a 3.2 in gap near the chassis. Check it
+   against an 18 × 24 rectangle taped on the floor. Strafe it into the FLOWER by hand, with a stand-in intake
+   (spinning rollers or a drill), and count how many POLLEN it grabs as they roll along it. Then drop and roll
+   POLLEN at the gap from inside the hook, to see how many escape.
 7. **25620's scoop:** a wedge on the floor rising about 35° to where the intake would be. Push it in and see
    what carries the POLLEN up.
 8. **Version C, 19705's way:** tape the tongue to the front of the intake (or a box standing in for it), hook up.

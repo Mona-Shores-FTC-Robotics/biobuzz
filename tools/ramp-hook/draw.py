@@ -1,6 +1,6 @@
 """Draws the ramp hook (sim-review/ramp-hook.svg; doc/ramp-hook.md explains it):
 
-  1. from above: the small right hook on option 3 (14.5 in chassis), its tongue on the crossbeam, at a FLOWER;
+  1. from above: version B, the small right hook on option 3 (14.5 in chassis), its tongue on the arm, at a FLOWER;
   2. from the side: the slice ramp.py simulates, at its best guess (12 deg, tip 2.4 in in, ring 0.43 in);
   3. four moments of that run, as ramp.py simulates them.
 
@@ -79,7 +79,7 @@ def side_scene(ox, oy, k, tip_x, balls, x_max=14.0, labels=False):
         text(X(front) + 10, Z(6.0), "staged POLLEN, centres 1.4 / 4.3 / 7.2 / 10.1 in (CAD)", 12, DIM)
         text(X(front) + 10, Z(10.0), "tube 3.2 in inside (a guess)", 12, DIM)
         intake = tip_x + ramp.INTAKE_BEHIND_TIP
-        text(X(intake) + 0.5 * k, Z(3.2) - 8, f"intake, {ramp.INTAKE_BEHIND_TIP:g} in behind the tip", 12, ORANGE, "middle")
+        text(X(intake) + 0.5 * k, Z(3.2) - 8, f"{ramp.INTAKE_BEHIND_TIP:g} in on: in the hook", 12, ORANGE, "middle")
         tz = ramp.tip_height(RING, math.radians(SLOPE), DEPTH)
         text(X(front), Z(0) + 20, f"tongue {SLOPE:g}°, tip {DEPTH} in past the opening's edge and {tz:.2f} in up; "
              "it rests on the ring and runs down to the hook's floor plate", 12, GUIDE)
@@ -87,46 +87,59 @@ def side_scene(ox, oy, k, tip_x, balls, x_max=14.0, labels=False):
 
 
 def top_view(ox, oy, k):
-    """From above, front up: wall at the top, the FLOWER, the hook down."""
-    X = lambda x: ox + x * k
-    Y = lambda y: oy + y * k           # y from the wall, down the page
-    rect(X(-12), Y(-0.6), 24 * k, 0.6 * k, fill="#3a3f4a")
-    text(X(0), Y(-0.6) - 6, "wall", 12, DIM, "middle")
-    circle(X(0), Y(ramp.CX), ramp.TUBE_R * k + 0.15 * k, stroke=FLOWER_C, width=3)
-    circle(X(0), Y(ramp.CX), ramp.R * k, fill=POLLEN, stroke="#8a7a2a", width=1)
-    beam = ramp.FRONT + ramp.RING_T                       # the crossbeam's face against the ring
-    tip = ramp.FRONT - DEPTH
-    rect(X(-TONGUE_W / 2), Y(tip), TONGUE_W * k, (beam - tip) * k, fill=GUIDE, opacity=0.5, stroke=GUIDE)
-    # Crossbeam across the chassis, the right arm back to the chassis' front face, then the chassis.
-    half = CHASSIS / 2
-    line(X(-half), Y(beam), X(half), Y(beam), GUIDE, 5)
-    line(X(half), Y(beam), X(half), Y(beam + ARM), GUIDE, 5)
-    rect(X(-half), Y(beam + ARM), CHASSIS * k, CHASSIS * k, fill=ROBOT, stroke="#a3abb9", width=2)
-    rect(X(-6), Y(beam + ARM) + 3, 12 * k, 1.2 * k, fill=ORANGE)
-    text(X(0), Y(beam + ARM + CHASSIS / 2), "option 3, 14.5 in", 13, INK, "middle")
-    text(X(half) + 8, Y(beam + ARM / 2), f"arm {ARM:g} in, inside wall", 12, GUIDE)
-    text(X(half) + 8, Y(beam + ARM / 2) + 15, "leaning in 30° (E)", 12, GUIDE)
-    text(X(-half), Y(beam) - 8, "crossbeam", 12, GUIDE)
-    text(X(TONGUE_W / 2) + 6, Y(tip) + 4, f"tongue {TONGUE_W:g} in wide (a guess)", 12, GUIDE)
-    total = CHASSIS + ARM + (beam - tip)
-    colour = "#f2545b" if total > 24 else AMBER
-    x = X(-half) - 18
-    line(x, Y(tip), x, Y(beam + ARM + CHASSIS), colour, 1.4)
-    text(x - 6, Y((tip + beam + ARM + CHASSIS) / 2), f"{total:.1f} in", 13, colour, "end", True)
-    text(x - 6, Y((tip + beam + ARM + CHASSIS) / 2) + 16, "R105 allows 24", 12, colour, "end")
+    """From above, front up: version B. The robot runs along the wall and strafes right into the FLOWER; the
+    tongue sticks out of the arm's outer side, so the hook keeps its 8 in spacing."""
+    X = lambda u: ox + u * k            # u: inches right from the chassis' left side
+    Y = lambda v: oy + v * k            # v: inches down from the crossbeam
+    edge = ramp.FRONT + ramp.RING_T     # the ring's outer edge, from the wall
+    wall = CHASSIS + edge               # the arm's outer face against the ring
+    rect(X(wall), Y(-1.5), 0.6 * k, (ARM + CHASSIS + 3) * k, fill="#3a3f4a")
+    text(X(wall + 0.3), Y(-1.5) - 6, "wall", 12, DIM, "middle")
+    tv = ARM - 2.0                      # the tongue's centre, 2 in ahead of the chassis' face
+    fc = wall - ramp.CX
+    circle(X(fc), Y(tv), ramp.TUBE_R * k + 0.15 * k, stroke=FLOWER_C, width=3)
+    circle(X(fc), Y(tv), ramp.R * k, fill=POLLEN, stroke="#8a7a2a", width=1)
+    tip = wall - ramp.FRONT + DEPTH
+    rect(X(CHASSIS), Y(tv - TONGUE_W / 2), (tip - CHASSIS) * k, TONGUE_W * k, fill=GUIDE, opacity=0.5, stroke=GUIDE)
+    gap = 3.2                           # a gap in the arm's wall, wider than a POLLEN
+    line(X(0), Y(0), X(CHASSIS), Y(0), GUIDE, 5)
+    line(X(CHASSIS), Y(0), X(CHASSIS), Y(tv - gap / 2), GUIDE, 5)
+    line(X(CHASSIS), Y(tv + gap / 2), X(CHASSIS), Y(ARM), GUIDE, 5)
+    rect(X(0), Y(ARM), CHASSIS * k, CHASSIS * k, fill=ROBOT, stroke="#a3abb9", width=2)
+    rect(X(1.25), Y(ARM) + 3, 12 * k, 1.2 * k, fill=ORANGE)
+    text(X(CHASSIS / 2), Y(ARM + CHASSIS / 2), "option 3, 14.5 in", 13, INK, "middle")
+    # The POLLEN's way in: off the tongue, along the intake's face.
+    line(X(CHASSIS - 0.6), Y(tv), X(3.0), Y(tv), POLLEN, 2, "6 5")
+    o.append(f'<polyline points="{X(3.6):.1f},{Y(tv) - 6:.1f} {X(3.0):.1f},{Y(tv):.1f} {X(3.6):.1f},{Y(tv) + 6:.1f}" '
+             f'fill="none" stroke="{POLLEN}" stroke-width="2"/>')
+    text(X(CHASSIS / 2), Y(tv) - 10, "POLLEN roll along the intake", 12, POLLEN, "middle")
+    text(X(0), Y(0) - 10, "crossbeam, leaning in", 12, GUIDE)
+    text(X(CHASSIS) - 6, Y(1.6), f"arm {ARM:g} in, leaning in", 12, GUIDE, "end")
+    text(X(CHASSIS) - 6, Y(1.6) + 15, f"gap {gap:g} in for the tongue", 12, GUIDE, "end")
+    text(X(0) + 4, Y(tv) + 20, "open side", 12, DIM)
+    text(X(tip) + 4, Y(tv + TONGUE_W / 2) + 16, f"tongue {TONGUE_W:g} in (a guess)", 12, GUIDE)
+    # R105: across with the tongue, and front to back.
+    across, length = tip - 0.0, ARM + CHASSIS
+    y = Y(ARM + CHASSIS) + 22
+    line(X(0), y, X(tip), y, AMBER, 1.4)
+    text(X(tip / 2), y + 18, f"{across:.2f} in across with the tongue: R105 allows 18", 13, AMBER, "middle", True)
+    x = X(0) - 16
+    line(x, Y(0), x, Y(length), AMBER, 1.4)
+    text(x - 6, Y(length / 2), f"{length:g} in", 13, AMBER, "end", True)
+    text(x - 6, Y(length / 2) + 16, "of 24", 12, AMBER, "end")
 
 
 W, H = 1500, 850
 o.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" '
          f'font-family="Helvetica,Arial,sans-serif">')
 o.append(f'<rect width="100%" height="100%" fill="{BG}"/>')
-text(24, 34, "The ramp hook: the small right hook's crossbeam as a tongue into a FLOWER's retrieval opening", 18, INK, bold=True)
+text(24, 34, "The ramp hook (version B): a tongue on the small hook's arm, strafed into a FLOWER's retrieval opening", 18, INK, bold=True)
 text(24, 56, "Not measured: every robot number, the tube's inside, the ring's thickness, POLLEN bounce and friction. "
              "From the manual: the opening, the ring height, the staged POLLEN.", 13, DIM)
 
 rect(16, 72, 520, 762, fill=PANEL)
-text(32, 98, "1 · From above", 15, INK, bold=True)
-top_view(276, 140, 17)
+text(32, 98, "1 · From above: strafe right into the FLOWER", 15, INK, bold=True)
+top_view(70, 150, 17)
 
 rect(552, 72, 932, 430, fill=PANEL)
 text(568, 98, "2 · From the side, through the FLOWER's centre (tongue in, before the POLLEN move)", 15, INK, bold=True)
