@@ -57,6 +57,51 @@ def stages_hook(name, partner, hold=1000):
     return r
 
 
+def stages_hook2(name, partner, row=None, ending=None, hold=1000):
+    """stages_hook after the mentor's review of its logs (6 Oct 2026, the wall partner's best run):
+
+    - The staged row (A's): rotate clockwise from N_LOW and sweep up the row from the field side at a slant
+      (`row`: the heading, row_sweep), not round behind it. None: the baseline's approach.
+    - TIP 2: the hook down anyway (HookDown as the row's last shot lands, HookUp before driving): its arm is on
+      the side away from the centre line, so the opening faces the opponent, but it still deadens the spill.
+    - `ending`: what follows TIP 2's spill (qual_right.tail's wall_flower): None, fire it and the GARDEN (as
+      before); "first", fire it, the wall FLOWER, then the GARDEN; "direct", from the tunnel straight to the wall
+      FLOWER topping up, fire, then the GARDEN; "garden-first", top up at the GARDEN, fire, then the wall FLOWER."""
+    _, _, kw = shape_matrix.STAGES["angled" if partner == "B" else "wall"]
+    kw = dict(kw)
+    n_fire_y = kw.pop("n_fire_y")
+    extra = kw.pop("extra")
+    if ending:
+        kw["wall_flower"] = ending
+    r = qual_right.fit("option3")(name, S_START, speed=50)
+    ends(r)
+    flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
+    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", N_FIRE[0], n_fire_y, N_FIRE[2]).pt("S_HOOK", *S_HOOK)
+    r.add(r.action("SpinUp"), r.go("S_FIRE", heading=90), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000),
+          r.go("S_HOOK", heading=90), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
+          r.wait("The hook holds TIP 1's spill", when=["IntakeFull"], ms=hold),
+          tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch", "Empty", ms=2200))
+    r.at = "N_LOW"
+    if row is not None and partner == "A":
+        ANGLE[0] = row
+        r.add(*row_sweep(r, partner, 1600, west=False))
+    else:
+        r.add(*qual_right.staged_row(r, partner, 1600, west=False))
+    r.add(r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the row", "Tip", ms=2500))
+    r.at = "N_LOW"
+    more = [*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)]
+    r.at = "FAR_FLOWER"
+    more += [r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500),
+             r.action("HookDown"), r.wait("The hook holds TIP 2's spill (B)", when=["IntakeFull"], ms=extra), r.action("HookUp")]
+    r.at = "N_FIRE"
+    more += qual_right.tail(r, tag=" (B)", extra=0, **kw)
+    r.at = "N_LOW"
+    tipped = [r.action("HookDown"), r.wait("The hook holds TIP 2's spill", when=["IntakeFull"], ms=extra), r.action("HookUp"),
+              *qual_right.tail(r, extra=0, **kw)]
+    r.add(r.wait("TIP 2?", when=["Tip"], ms=600, yes=tipped, no=more, yes_label="Yes", no_label="No: the far FLOWER"))
+    return r
+
+
 _staged_row = qual_right.staged_row
 
 
@@ -156,6 +201,13 @@ def turning_west(build):
 
 
 ROUTES = {
+    # The mentor's review of the Ramp Hook's wall run: the hook down at TIP 2 too, the row swept at a slant, and
+    # what follows TIP 2's spill.
+    "qual-stages-wall-ramp-hook2": lambda n: stages_hook2(n, "A"),
+    **{f"qual-stages-wall-ramp-hook2-row{a}": (lambda n, a=a: stages_hook2(n, "A", row=a)) for a in (105, 120, 135)},
+    **{f"qual-stages-wall-ramp-hook2-row120-{e}": (lambda n, e=e: stages_hook2(n, "A", row=120, ending=e))
+       for e in ("first", "direct", "garden-first")},
+    "qual-stages-angled-ramp-hook2": lambda n: stages_hook2(n, "B"),
     **{f"qual-stages-angled-{s}-t555": turning_west(lambda n, s=s: shape_matrix.stages_for(s, "angled", n))
        for s in ("rigid-v-18-30", "rigid-v-20-45")},
     **{f"qual-stages-wall-{s}-sweep{a}-t555": turning_west(lambda n, s=s, a=a: rigid_v_wall(s, n, a, sweep=True))
