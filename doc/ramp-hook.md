@@ -20,6 +20,28 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## Current design, version 2: a stop on the bracket and a printed insert (6 Oct 2026, late)
+
+Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). The three views
+(`sim-review/ramp-hook-views.svg`, redrawn by `python3 tools/ramp-hook/views.py`) show version 2.
+
+- **Side wall and curtains:** the vertical 4 in side wall. At the front, curtains from 0.75 to 3.9 in (under the
+  FLOWER's bracket, about 4.0 in) on a flat 0.75 × 0.25 in strip, either side of a gap.
+- **Cheeks:** two vertical plates at the gap's edges, 5.2 in apart (the bracket is about 4.7 in wide), from 0.5 to
+  4.65 in up. They carry the insert and the stop, and guide the POLLEN back toward the intake.
+- **The stop:** a crossbar between the cheeks at the bracket's height (4.0 to 4.6 in), about 2.85 in behind the
+  hook's front. **Drive in until the bracket's front meets it.** That sets the depth, and the cheeks centre the
+  robot sideways. It adds no length, because the insert reaches under the bracket.
+- **The insert:** 3D printed, 5.2 in wide, in the gap only. It's a triangle in section, 1.25 in front to back and
+  0.8 in tall, bottom 0.5 in up, with its front face topping out at 1.3 in. Seated, its front is 2.1 in past the
+  pocket's edge. `ramp.py`, `run(wedge=(0.5, 0.8, 1.25), tip_depth=2.1)`: all 4 out in about 1.0 s, at the intake
+  in 1.2 s. **29 of 30 runs empty with the depth anywhere from 1.9 to 2.3 in**, so the stop has 0.2 in of slop
+  each way.
+- **Size:** 14.5 + 8 + 1.25 = 23.75 of 24, so option 3's chassis fits. **Stowed, the 4.65 in cheeks make the start
+  about 19.2 in.** Hinge the hook about 1.2 in inside the frame, or let the stop fold.
+- **Measure first:** how far the bracket's front face sits from the pocket's edge. The stop's 2.85 in comes from
+  the photo's scale, and the stop moves with that number.
+
 ## Current design: a full-width triangular bar, curtains straight up (6 Oct 2026, evening)
 
 Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). Three views with dimensions:
