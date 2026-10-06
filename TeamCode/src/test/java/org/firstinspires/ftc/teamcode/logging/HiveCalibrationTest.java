@@ -65,6 +65,35 @@ public class HiveCalibrationTest {
         }
     }
 
+    /**
+     * Each TIP's time is drawn from the filmed range (FieldSim.tipSecondsRange): the calibration load,
+     * tipped in 20 matches, takes from about the range's low end to its high end, never the same.
+     */
+    @Test
+    public void eachTipTakesATimeFromTheFilmedRange() {
+        FieldSim.Physics physics = HiveCalibration.current().fit();
+        double lo = Double.POSITIVE_INFINITY, hi = 0;
+        for (long seed = 1; seed <= 20; seed++) {
+            FieldSim sim = new FieldSim(new java.util.ArrayList<>(), seed, physics);
+            sim.red.locked = true;
+            for (int i = 0; i < HiveCalibration.NECTAR_AT_MATCH_START; i++) {
+                sim.placeInRaisedCell(sim.red, FieldSim.Kind.RED_NECTAR);
+                HiveCalibration.settle(sim);
+            }
+            sim.red.locked = false;
+            for (int k = 0; k < 6 && sim.red.tips == 0; k++) {
+                sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+                HiveCalibration.settleRocker(sim);
+            }
+            assertEquals("seed " + seed + " tipped", 1, sim.red.tips);
+            lo = Math.min(lo, sim.red.lastTipSeconds);
+            hi = Math.max(hi, sim.red.lastTipSeconds);
+        }
+        double[] range = FieldSim.FILMED_TIP_SECONDS;
+        assertTrue("fastest " + lo, lo > range[0] - 0.1 && lo < range[0] + 0.2);
+        assertTrue("slowest " + hi, hi < range[1] + 0.1 && hi > range[1] - 0.2);
+    }
+
     @Test
     public void aTipTakesTheCalibratedTime() {
         for (double seconds : new double[] {0.6, 1.0, 2.0}) {

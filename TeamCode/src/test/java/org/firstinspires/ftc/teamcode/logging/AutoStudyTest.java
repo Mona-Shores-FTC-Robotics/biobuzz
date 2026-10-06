@@ -303,16 +303,21 @@ public class AutoStudyTest {
         // what changes if real pieces stop sooner than the sim's do.
         String friction = System.getenv("BIOBUZZ_AUTO_FRICTION");
         FieldSim.frictionScale = friction == null ? 1 : Double.parseDouble(friction);
-        // BIOBUZZ_AUTO_TIP_SECONDS: how long a TIP takes, for asking whether a result holds if the
-        // measured TIP time (0.5-1.2 s in the 6 Oct 2026 videos, doc/tip-timing.md) is off.
+        // BIOBUZZ_AUTO_TIP_SECONDS: every TIP this long (by default each is drawn from
+        // FieldSim.tipSecondsRange, the 6 Oct 2026 videos' range, doc/tip-timing.md).
         String tip = System.getenv("BIOBUZZ_AUTO_TIP_SECONDS");
         double tipBefore = org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds;
-        if (tip != null) org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = Double.parseDouble(tip);
+        double[] tipRange = FieldSim.tipSecondsRange;
+        if (tip != null) {  // every TIP this long, instead of each drawn from FieldSim.tipSecondsRange
+            org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = Double.parseDouble(tip);
+            FieldSim.tipSecondsRange = null;
+        }
         try {
             studyAll(specs);
         } finally {
             FieldSim.frictionScale = 1;
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = tipBefore;
+            FieldSim.tipSecondsRange = tipRange;
         }
     }
 

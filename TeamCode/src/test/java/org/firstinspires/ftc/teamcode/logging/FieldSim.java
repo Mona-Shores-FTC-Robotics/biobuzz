@@ -157,6 +157,15 @@ final class FieldSim {
     static double bounceScatter = FILMED_BOUNCE_SCATTER;
     static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
+    /**
+     * How long a TIP takes, seconds, drawn afresh for each TIP from this range (mentor, 6 Oct 2026): the
+     * videos in doc/tip-timing.md show 0.55-1.15 s, depending on how far past its tipping weight a CELL
+     * is loaded, how hard the pieces arrive and where they settle; this is the middle 90% of that.
+     * The HIVE is calibrated to {@link HiveCalibration}'s tip time, and each TIP's swing is scaled so a
+     * calibration load would take the drawn time. Null: every TIP at the calibrated speed.
+     */
+    static final double[] FILMED_TIP_SECONDS = {0.58, 1.12};
+    static double[] tipSecondsRange = FILMED_TIP_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
@@ -294,6 +303,8 @@ final class FieldSim {
         double lastTipSeconds = Double.NaN;
         private double tipFrom;
         private double leftStopAt;
+        /** This TIP's swing speed against the calibrated one ({@link #tipSecondsRange}). */
+        private double swingFactor = 1;
         /**
          * TIPs started: counts up once a rocker has swung {@link #TIP_STARTED_RAD} off its stop,
          * like the robot's {@code HiveTracker.tipsStarted()}; a piece rolling in that lifts it a
@@ -393,6 +404,8 @@ final class FieldSim {
     final Random random;
     /** Spill and catch variety, apart from {@link #random} so a seed's shots do not change. */
     private final Random variety;
+    /** Each TIP's speed ({@link #tipSecondsRange}): its own stream, so the others draw as before. */
+    private final Random tipTiming;
     /** A gentle unevenness per 12 in square of tiles: the sideways pull, in/s². */
     private final double[][][] tileSlope = new double[12][12][2];
     private final List<String> events = new ArrayList<>();
@@ -508,6 +521,7 @@ final class FieldSim {
         this.physics = physics;
         random = new Random(seed);
         variety = new Random(seed * 7919L + 13);
+        tipTiming = new Random(seed * 104729L + 7);
         for (int i = 0; i < tileSlope.length; i++) {
             for (int j = 0; j < tileSlope[i].length; j++) {
                 double a = variety.nextDouble() * 2 * Math.PI, m = variety.nextDouble() * PLACEHOLDER_TILE_SLOPE_IN_PER_S2;
@@ -1014,6 +1028,13 @@ final class FieldSim {
         }
     }
 
+    /** A TIP's swing speed against the calibrated one: the calibrated time over one drawn from the range. */
+    private double tipSwingFactor() {
+        if (tipSecondsRange == null) return 1;
+        double t = tipSecondsRange[0] + (tipSecondsRange[1] - tipSecondsRange[0]) * tipTiming.nextDouble();
+        return HiveCalibration.calibratedTipSeconds() / t;
+    }
+
     private void stepRocker(Rocker r, double h) {
         if (r.locked) return;
         double hold = physics.holdTorque;
@@ -1029,7 +1050,8 @@ final class FieldSim {
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
         } else {
-            r.rate = torque / hold * physics.swingRadPerS * swingScale;
+            if (Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12) r.swingFactor = tipSwingFactor();  // leaving a stop
+            r.rate = torque / hold * physics.swingRadPerS * swingScale * r.swingFactor;
             if (Math.signum(r.rate) == Math.signum(r.angle) && TILT_RAD - Math.abs(r.angle) < PLACEHOLDER_DAMPER_ZONE_RAD) {
                 r.rate *= PLACEHOLDER_DAMPER_FACTOR;
             }
