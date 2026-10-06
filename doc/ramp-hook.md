@@ -69,6 +69,44 @@ Redraw it with `python3 tools/ramp-hook/views.py`.
   out in front, which makes 18.5 in: hinge the hook 0.5 in inside the frame, or make the wall 3.5 in tall.
 - **For the spill:** the front is a 4 in wall except the 6 in gap, and the bar runs under the gap too.
 
+### Next step: a hard stop, and a short printed insert (6 Oct 2026, late)
+
+**How forgiving is the depth?** The table counts emptied runs out of 6 (pocket edges of 0.25 and 0.43 in, three
+bounce and friction guesses). Bars are 0.8 in tall with their bottoms 0.5 in up. Columns are how far the bar's
+front goes past the pocket's edge:
+
+| bar, front to back | 1.7 | 1.9 | 2.1 | 2.3 | 2.5 | 2.7 | 2.9 | 3.1 |
+|---|---|---|---|---|---|---|---|---|
+| 0.75 in | 0 | 6 | 6 | 2 | 0 | 2 | 3 | 2 |
+| 1.0 in | 0 | 6 | 6 | 6 | 4 | 2 | 0 | 2 |
+| 1.25 in | 0 | 6 | 6 | 5 | 6 | 5 | 2 | 0 |
+| 1.5 in | 0 | 6 | 6 | 6 | 6 | 6 | 5 | 2 |
+
+- Every bar needs at least 1.9 in, to get under the POLLEN's centre.
+- Past that, **the bar's length is the depth tolerance.** Its back edge has to land just outside the pocket's
+  edge. A 1.5 in bar tolerates about 1.9 to 2.7 in (0.8 in of slop). A 1.0 in bar tolerates 1.9 to 2.3 in (0.4 in),
+  and a 0.75 in bar only 0.2 in.
+- **So the long bar is buying driving slop.** With a hard stop that sets the depth, the bar can be short.
+
+**Ideas, to try in cardboard:**
+
+1. **Stop and centre on the FLOWER's bracket.** The black bracket is about 4.0 to 4.6 in up, solid, and squarer
+   than the posts. Raise the curtains at the gap's edges to about 4.75 in and give the gap a V lead-in that seats
+   on the bracket's front corners. Driving in until it seats sets the depth and centres the robot sideways at the
+   same time. It adds no length, because the bar still reaches under the bracket, which sits higher. G415 allows
+   *"a concave shape that wraps partially around a FLOWER for purposes such as to aid in alignment"*. Measure
+   how far the bracket's front sits from the pocket's edge, so the bar's reach lands at about 2.1 in.
+2. **Or stop on the field wall.** It's the most rigid reference, and the FLOWER is fixed 2.71 in from it. But the
+   pads would stick out about 2.3 in past the bar's front, which costs that much of the 24 in.
+3. **Triangle only in the gap.** A 3D-printed triangular insert, about 4 in wide (the pocket is about 3.2 in),
+   bolted or friction-fit in the gap. Outside the gap, a flat strip at the curtains' feet. That's less sloped
+   surface under the spill, and printed inserts of several sizes can be swapped on Thursday. With a stop, 1.0 to
+   1.25 in front to back is enough; 1.25 keeps some slop.
+4. **G409, the spill.** A sloped insert in the spill's path could be ruled as helping to keep pieces. A 4 in insert
+   is far less area than the full-width bar, and the curtains above it are hit by falling pieces anyway.
+   **Question for the Q&A:** does a passive ramp on a robot count as catching or controlling a TIP's spill if a
+   falling piece lands on it?
+
 The sections below are earlier steps (the ramp front, the rod, sleeves). Their physics stands; their geometry is
 superseded.
 
