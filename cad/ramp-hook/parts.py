@@ -17,21 +17,22 @@ IN = 25.4
 HERE = os.path.dirname(os.path.abspath(__file__))
 
 # ---- the block (tile frame: z above the tiles; x back to front, toward the FLOWER's uprights) ----
-BOTTOM = 0.5 * IN            # 12.7: clears the bottom ring (0.43 in) by 0.07 in; raise to 0.55-0.6 in if it drags
-TOP = 1.3 * IN               # 33.0: under a POLLEN's centre (1.4 in), or the block shoves it back instead of lifting
+BOTTOM = 0.7 * IN            # 17.8: clears the bottom ring (0.43 in) by 0.27 in. ramp.py empties every case from 0.6 to 0.85 in
+TOP = 1.35 * IN              # 34.3: under a POLLEN's centre (1.4 in), or the block shoves it back instead of lifting
 DEPTH = 1.4 * IN             # 35.6: back edge to the tip of the curved front
 FLAT = 0.5 * IN              # flat top behind the front
 ARC_R = 1.36 * IN            # 34.5: the front's curve in plan, just inside the bottom ring's hole (2.79 in across)
 # ---- the rod ----
-ROD_D = 6.35                 # 1/4 in steel or aluminium rod; set to 6.0 for a 6 mm rod
+ROD_D = 8.0                  # goBILDA 8 mm REX shaft (its corners sit on an 8 mm circle) or any 8 mm round shaft
 FIT = 0.3                    # bore clearance; print fit_coupon.stl first and change this to suit your printer
-ROD_X = 18.0                 # rod centre, mm in front of the block's back edge
-ROD_Z = 21.5                 # rod centre above the tiles (0.85 in)
+ROD_X = DEPTH - 12.0         # rod centre, mm in front of the back edge: 12 mm behind the tip, under the flat top,
+                             # and about 4 mm clear of the uprights' faces where the bare shaft passes them
+ROD_Z = (BOTTOM + TOP) / 2   # rod centre above the tiles (1.02 in), halfway up the block
 SCREW_D = 2.6                # M3 self-tapping set screws from underneath, into the rod
 # ---- curtain clip and end block ----
 PANEL_T = 1.6                # 1/16 in polycarbonate curtain
 CLIP_W = 16.0                # along the rod
-END_HOLE_D, END_HOLE_PITCH = 4.2, 16.0   # M4 through the side wall, on an 8 mm grid; drill to suit
+END_HOLE_D, END_HOLE_PITCH = 4.2, 16.0   # M4, 16 mm apart: lines up with goBILDA's 8 mm grid of 4 mm holes
 
 
 def prism_xz(points, y0, y1):

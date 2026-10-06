@@ -43,8 +43,8 @@ def scene():
     for y in (-rod_len / 2 + 7, rod_len / 2 - 7):
         items.append((placed("end_block", dx=P.ROD_X, dy=y, dz=0, rz=0 if y > 0 else math.pi), (47, 95, 158)))
     for y0, y1 in ((-rod_len / 2 + 14, -P.ARC_R - 4), (P.ARC_R + 4, rod_len / 2 - 14)):
-        panel = trimesh.creation.box(extents=[P.PANEL_T, y1 - y0, 3.5 * IN - 1.15 * IN])
-        panel.apply_translation([P.ROD_X, (y0 + y1) / 2, 1.15 * IN + (3.5 * IN - 1.15 * IN) / 2])
+        panel = trimesh.creation.box(extents=[P.PANEL_T, y1 - y0, 3.5 * IN - 1.3 * IN])
+        panel.apply_translation([P.ROD_X, (y0 + y1) / 2, 1.3 * IN + (3.5 * IN - 1.3 * IN) / 2])
         items.append((panel, (160, 196, 240)))
     return items
 
@@ -87,7 +87,7 @@ def main():
          '<rect width="100%" height="100%" fill="#ffffff"/>']
     t = lambda x, y, s, size=15, fill="#1b222b", anchor="start", w=400: o.append(
         f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{w}">{s}</text>')
-    t(30, 40, "Ramp hook: printed parts on a 1/4 in stock rod", 22, w=700)
+    t(30, 40, "Ramp hook: printed parts on a goBILDA 8 mm shaft", 22, w=700)
     t(30, 64, "Purple: the FLOWER block (curved front nests between the grey uprights). Blue: curtain clips and end blocks. Light blue: 1/16 in polycarbonate curtains.", 14, "#6b7682")
     o += draw(scene(), 470, 470, 1.55)
     t(470, 850, "The hook's front, 3/4 view from the FLOWER side. The block sits in the middle, the curtains either side.", 14, "#6b7682", "middle")

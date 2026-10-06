@@ -39,7 +39,7 @@ BACK = TIP + DEPTH              # the block's back edge
 ROD_X, ROD_Z, ROD_R = TIP + (P.DEPTH - P.ROD_X) / IN, P.ROD_Z / IN, P.ROD_D / IN / 2
 FACE = BACK + GAP               # chassis front face (the intake)
 WALL_H = 3.5                    # side wall and curtains: under the FLOWER's bracket (3.55) and inside 18 in stowed
-CURT_B = 1.15                   # curtains' bottom, on the clips
+CURT_B = 1.3                    # curtains' bottom, on the clips
 HW = CH / 2
 
 INK, DIM, RED = "#1b222b", "#6b7682", "#b5452f"
@@ -179,7 +179,7 @@ text(X(FACE + CH / 2), Y(0) + 5, "chassis 14.5 × 14.5", 14, INK, "middle")
 text(X(BACK + GAP / 2), Y(-1.2), "8 in clear", 15, DIM, "middle", 700)
 text(X(BACK + GAP / 2), Y(HW) + 20, f"side wall, {WALL_H:g} in tall", 12, DBLUE, "middle", 700)
 text(X(ROD_X) + 14, Y(-HW + 2.2), "curtains on clips", 12, DBLUE, "start", 700)
-text(X(ROD_X) + 14, Y(-HW + 3.0), "1/4 in rod", 12, "#5d6670", "start", 700)
+text(X(ROD_X) + 14, Y(-HW + 3.0), "8 mm goBILDA shaft", 12, "#5d6670", "start", 700)
 text(X(FC), Y(-3.2), "FLOWER: bottom ring, uprights,", 11, BLK, "middle")
 text(X(FC), Y(-3.2) + 14, "posts (dashed), POLLEN (dashed)", 11, BLK, "middle")
 dim(X(FACE + CH), Y(HW) + 46, X(TIP), Y(HW) + 46, f"{CH + FACE - TIP:.1f} in total")
@@ -227,11 +227,11 @@ rows = [("FLOWER (manual, Fig 9-12)", None),
         ("Chassis (option 3)", "14.5 × 14.5 in"), ("Clear space, intake to the block", "8 in"),
         ("Block: front to back × tall, bottom up", f"{DEPTH:g} × {TOP - BOTTOM:.1f} in, {BOTTOM:g} in"),
         ("Block's top, front curve", f"{TOP:g} in, R {ARC_R:.2f} in"),
-        ("Rod, through the block", f"1/4 in, {ROD_Z:.2f} in up"),
+        ("Shaft, through the block", f"8 mm, {ROD_Z:.2f} in up"),
         ("Side wall and curtains", f"{WALL_H:g} in tall, vertical"),
         ("Hook down, front to back", f"{CH + FACE - TIP:.1f} in of 24"),
         ("Stowed (wall in front of the chassis)", f"{CH + WALL_H:g} in of 18"),
-        ("Model: 4 POLLEN out, driven to the uprights", "every case, ~1.2 s")]
+        ("Model: 4 POLLEN out, driven to the uprights", "every case, ~1.3 s")]
 y = by0 + 30
 for label, val in rows:
     if val is None:

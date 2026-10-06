@@ -12,10 +12,12 @@ Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to b
 
 - **Hook:** the small right hook on option 3's 14.5 in chassis. There's 8 in of clear space in front of the intake,
   and a vertical side wall down the right side.
-- **FLOWER block:** 3D printed, threaded on a 1/4 in rod across the hook's front. It's 1.4 in front to back, its top
-  1.3 in above the tiles (under a POLLEN's centre), its bottom 0.5 in up (over the bottom ring's 0.43 in), with a
-  0.5 in flat top. Its front is curved to the bottom ring's 2.79 in hole, so it nests between the two grey
-  uprights.
+- **FLOWER block:** 3D printed, threaded on a goBILDA 8 mm REX shaft (or any 8 mm shaft) across the hook's front.
+  It's 1.4 in front to back, its top 1.35 in above the tiles (under a POLLEN's centre), and its bottom 0.7 in up,
+  0.27 in over the bottom ring's 0.43 in so it can't catch the lip. It has a 0.5 in flat top. `ramp.py` empties
+  every case with the bottom anywhere from 0.6 to 0.85 in. Its front is curved to the bottom ring's 2.79 in hole,
+  so it nests between the two grey uprights. The shaft's ends sit in printed end blocks that bolt to goBILDA
+  channel (M4, on its 8 mm grid), with goBILDA clamping collars either side of the block.
 - **Driving:** push in until the block meets the uprights, and stay there. The FLOWER sets the depth and centres
   the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
   at the intake in about 1.2 s.
@@ -29,8 +31,8 @@ Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to b
     3.5 in does that with margin.
   - Going taller needs the hinge set back inside the frame (by the extra height), and a notch where the
     curtains pass the bracket.
-- **To measure on Thursday:** the uprights' inside corners (does the curve seat?), whether the block drags on the
-  ring (raise to 0.55 to 0.6 in), and a shorter block (1.0 in) side by side with the 1.4 in one.
+- **To measure on Thursday:** the uprights' inside corners (does the curve seat?), and a shorter block (1.0 in)
+  side by side with the 1.4 in one.
 
 ## Meeting notes, 6 Oct 2026
 
