@@ -322,6 +322,18 @@ come close.
 Needs a FLOWER (or a tube of the real inside diameter with a 3.55 in window above a 0.43 in ring), 4 POLLEN,
 cardboard and tape, a phone at 240 fps and a tape measure.
 
+**Start with the rod (decided 6 Oct 2026).** Bring a 1/4 in steel rod (or a dowel the same size) about 15 in long.
+
+0. **Rod test, before anything else:**
+   - Stage the 4 POLLEN. Hold the rod level across the FLOWER's bottom opening, its centre about 0.8 in off the
+     tiles, and push it straight in until it's 2.5 in past the opening's front edge.
+   - Film it, 5 times each at 0.6, 0.8 and 1.0 in up.
+   - Count the POLLEN that come out and time first contact to last POLLEN out. The model says about 1 s.
+   - If the bottom POLLEN drops back behind something at the front of the base, that's the lip. Measure its
+     height, and fall back to the short ramp (steps 2 to 4).
+   - Then tape the rod across a cardboard hook (9.25 in from a cardboard chassis face, with a 4 in vertical arm
+     wall) and repeat by pushing the whole mock-up.
+
 1. **Measure the FLOWER first:** its inside diameter, how thick the ring is, the window's width, and how far
    the bottom POLLEN sits from the window's edge. These replace the model's guesses.
 2. **Tongue:** cut one 2 in wide and about 4 in long, out of a stiff card or a 1/16 in polycarb offcut. Tape it to
