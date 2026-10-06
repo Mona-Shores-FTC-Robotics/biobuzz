@@ -106,8 +106,22 @@ measured: UP 50.2 in, DOWN 35.0 in.
 | Firing spot (57.5, 114–119) | 24–29 in, 51–56° up | 25–30 in, 35–40° up | Yes |
 | Start spot (y ≈ 4) | in view | 21° up, below the frame | No. Measured, and expected. |
 
-**Not checked yet: the tunnel.** Send the tunnel's poses (where the robot sits and which way it faces) and I'll run
-the same check.
+**The tunnel (the robot on x 57.5, from the qualifier routes).** Tag faces: an AUDIENCE CELL's tags face the
+audience (−y), and a SCORING CELL's face the scoring table (+y). So the camera sees a CELL only when the robot is
+facing that CELL's tags and they are 24–66° above the lens. Robot centre y:
+
+| Pass | Sees | Blind |
+|---|---|---|
+| North-bound, facing 90° | RED_AUDIENCE: the UP row up to y ≈ 38, the DOWN row up to y ≈ 47 | y ≈ 47 → the turn at 104. RED_SCORING's tags face away. |
+| After the turn, facing 270° | RED_SCORING: the DOWN row from N_TURN (54° up), the UP row from y ≈ 106 (69° up at 104, just above the frame) | — |
+| South-bound, facing 270° | RED_SCORING: the UP row down to y ≈ 106, the DOWN row down to y ≈ 98 | y ≈ 98 → the turn after 38. RED_AUDIENCE's tags face away. |
+
+So **each pass is about 55–60 in blind, about 1.2 s at 50 in/s, plus the turn**, and the Pinpoint carries it. That's
+expected and fine.
+
+These are calculated from the frame edges. Near the edges the tags are seen steeply from below, so detection may
+end a few inches sooner than the table says. The blue HIVE, 26 in to the side, is outside the 27° half-width
+throughout.
 
 **Clearance (assumed: the turret isn't drawn yet).**
 - **Field of view.** Ahead of the lens, nothing may rise above the camera's lowest ray, within 27° either side of
