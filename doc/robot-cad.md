@@ -183,3 +183,14 @@ roller about 0.77 s after the block meets the uprights.
 
 A cage over the FLOWER's top that blocks the Limelight only while seated at a FLOWER is acceptable (the user, 6 Oct
 2026). Stowed or driving, everything stays under the Limelight's keep-clear ceiling.
+
+## Room for the transfer (issue #164, `doc/transfer.md` on `spike/164-transfer`)
+
+The transfer's lane runs down the centreline (Y ±2.35, X −5.1..7.2, below Z 5.0). In the robot CAD, the things in its way:
+- **The old intake's 11-hole cross-channel** (X 5.03..5.51, Z 4.43..6.32): raise it 8 mm on the front uprights' back faces
+  and remove the two pattern spacers on top. That leaves a NECTAR 0.22 in of clearance. The extractor is unaffected: its
+  over-travel stop is the 9-hole channel on top of the uprights.
+- **The front drive motors' encoder caps** (X 2.36..3.93, |Y| 1.87..2.59, Z 3.48..5.05): the lane walls drop to 3.4 in there.
+- **The extractor's servo gear and down-stop** reach X 7.20 at Y −2.0..−2.3, Z 4.6..5.0: the lane walls end at X 7.0.
+- **The CAD's "Launcher Concept"** is replaced by the turret.
+- **The lane's drive pulley** on the roller shaft at Y +2.6 needs a third, 0.6 in gap in the roller.
