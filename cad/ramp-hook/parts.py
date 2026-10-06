@@ -22,6 +22,8 @@ TOP = 1.35 * IN              # 34.3: under a POLLEN's centre (1.4 in), or the bl
 DEPTH = 1.4 * IN             # 35.6: back edge to the tip of the curved front
 FLAT = 0.5 * IN              # flat top behind the front
 ARC_R = 1.36 * IN            # 34.5: the front's curve in plan, just inside the bottom ring's hole (2.79 in across)
+SLANT = 0.2 * IN             # the curved front leans back this much at the top (about 21°), so it slides under a POLLEN
+LAND = 0.12 * IN             # ...above a short vertical strip at the bottom, which is what bears on the uprights
 # ---- the rod ----
 ROD_D = 8.0                  # goBILDA 8 mm REX shaft (its corners sit on an 8 mm circle) or any 8 mm round shaft
 FIT = 0.3                    # bore clearance; print fit_coupon.stl first and change this to suit your printer
@@ -60,6 +62,12 @@ def ramp_block():
     plan = cylinder(radius=ARC_R, height=h * 3, sections=128)
     plan.apply_translation([DEPTH - ARC_R, 0, h])
     body = body.intersection(plan)
+    # the front's slant: a cone round the same axis, full radius up to LAND, SLANT less at the top
+    top = h + 2.0
+    lean = SLANT / (h - LAND)
+    cone = trimesh.creation.revolve([[0, -1.0], [ARC_R, -1.0], [ARC_R, LAND], [ARC_R - lean * (top - LAND), top], [0, top]], sections=128)
+    cone.apply_translation([DEPTH - ARC_R, 0, 0])
+    body = body.intersection(cone)
     holes = [rod_hole(ARC_R * 3, ROD_X, ROD_Z - BOTTOM, ROD_D + FIT)]
     for y in (-14.0, 14.0):
         s = cylinder(radius=SCREW_D / 2, height=ROD_Z - BOTTOM + 1, sections=24)

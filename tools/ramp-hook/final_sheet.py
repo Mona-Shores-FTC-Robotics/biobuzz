@@ -115,7 +115,8 @@ text(X(FC), Z(12.5) - 8, "posts continue to 21.5 in", 11, DIM, "middle")
 for zc, xc in ((R, UP_FACE + R), (4.3, FC), (7.2, FC), (10.1, FC)):
     circle(X(xc), Z(zc), R * K, fill=YEL, stroke="#9a8420")
 # the block (centreline section), the rod in it
-poly([(X(TIP), Z(BOTTOM)), (X(TIP), Z(TOP)), (X(TIP + P.FLAT / IN), Z(TOP)), (X(BACK), Z(BOTTOM))], fill=PRINT, stroke="#6d3a92", sw=1.6)
+SL, LA = P.SLANT / IN, P.LAND / IN
+poly([(X(TIP), Z(BOTTOM)), (X(TIP), Z(BOTTOM + LA)), (X(TIP + SL), Z(TOP)), (X(TIP + P.FLAT / IN), Z(TOP)), (X(BACK), Z(BOTTOM))], fill=PRINT, stroke="#6d3a92", sw=1.6)
 circle(X(ROD_X), Z(ROD_Z), ROD_R * K, fill=ALU, stroke="#5d6670")
 # curtains (beyond, either side of the block) and the side wall (beyond)
 poly([(X(ROD_X - 0.03), Z(WALL_H)), (X(ROD_X + 0.03), Z(WALL_H)), (X(ROD_X + 0.03), Z(CURT_B)), (X(ROD_X - 0.03), Z(CURT_B))], stroke=DBLUE, sw=2.2, dash="3 3")
@@ -192,7 +193,9 @@ BX0, BZ0 = 1560, 320
 bx = lambda x: BX0 - x * K4                # x from the block's tip
 bz = lambda z: BZ0 - (z - BOTTOM) * K4
 text(1080, 100, "3 · The block (ramp_block.stl), 3 × scale", 17, INK, w=700)
-poly([(bx(0), bz(BOTTOM)), (bx(0), bz(TOP)), (bx(P.FLAT / IN), bz(TOP)), (bx(DEPTH), bz(BOTTOM))], fill=PRINT, stroke="#6d3a92", sw=2, op=0.85)
+poly([(bx(0), bz(BOTTOM)), (bx(0), bz(BOTTOM + LA)), (bx(SL), bz(TOP)), (bx(P.FLAT / IN), bz(TOP)), (bx(DEPTH), bz(BOTTOM))], fill=PRINT, stroke="#6d3a92", sw=2, op=0.85)
+text(bx(SL / 2) + 10, bz((BOTTOM + TOP) / 2) - 2, f"slant {SL:g} in", 12, "#6d3a92", "start", 700)
+text(bx(SL / 2) + 10, bz((BOTTOM + TOP) / 2) + 13, f"(~{math.degrees(math.atan2(SL, TOP - BOTTOM - LA)):.0f}°), {LA:g} in strip", 11, "#6d3a92", "start")
 circle(bx((P.DEPTH - P.ROD_X) / IN), bz(ROD_Z), (P.ROD_D + P.FIT) / IN / 2 * K4, fill="#ffffff", stroke="#6d3a92", sw=1.5)
 line(bx(-0.3), bz(0), bx(DEPTH + 0.2), bz(0), INK, 1.4)
 text(bx(DEPTH + 0.2), bz(0) + 16, "tiles", 11, DIM)
@@ -226,7 +229,7 @@ rows = [("FLOWER (manual, Fig 9-12)", None),
         ("Robot", None),
         ("Chassis (option 3)", "14.5 × 14.5 in"), ("Clear space, intake to the block", "8 in"),
         ("Block: front to back × tall, bottom up", f"{DEPTH:g} × {TOP - BOTTOM:.1f} in, {BOTTOM:g} in"),
-        ("Block's top, front curve", f"{TOP:g} in, R {ARC_R:.2f} in"),
+        ("Block's top, front curve and slant", f"{TOP:g} in, R {ARC_R:.2f} in, {P.SLANT / IN:g} in back"),
         ("Shaft, through the block", f"8 mm, {ROD_Z:.2f} in up"),
         ("Side wall and curtains", f"{WALL_H:g} in tall, vertical"),
         ("Hook down, front to back", f"{CH + FACE - TIP:.1f} in of 24"),

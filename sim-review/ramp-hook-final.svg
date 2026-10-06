@@ -17,7 +17,7 @@
 <circle cx="837.0" cy="458.1" r="46.2" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
 <circle cx="837.0" cy="362.4" r="46.2" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
 <circle cx="837.0" cy="266.7" r="46.2" fill="#f1cf3a" stroke="#9a8420" stroke-width="1.2"/>
-<polygon points="881.9,576.9 881.9,555.5 865.4,555.5 835.7,576.9" fill="#b06ad8" fill-opacity="1.0" stroke="#6d3a92" stroke-width="1.6"/>
+<polygon points="881.9,576.9 881.9,572.9 875.3,555.5 865.4,555.5 835.7,576.9" fill="#b06ad8" fill-opacity="1.0" stroke="#6d3a92" stroke-width="1.6"/>
 <circle cx="866.3" cy="566.2" r="5.2" fill="#aab3bd" stroke="#5d6670" stroke-width="1.2"/>
 <polygon points="867.3,484.5 865.3,484.5 865.3,557.1 867.3,557.1" fill="none" fill-opacity="1.0" stroke="#2f5f9e" stroke-width="2.2" stroke-dasharray="3 3"/>
 <polygon points="881.9,484.5 571.7,484.5 571.7,600.0 881.9,600.0" fill="none" fill-opacity="1.0" stroke="#2f5f9e" stroke-width="1.2" stroke-dasharray="7 5"/>
@@ -106,7 +106,9 @@
 <text x="192.2" y="1419.2" font-size="11" fill="#6b7682" text-anchor="middle" font-weight="400">3 in</text>
 <text x="126.2" y="1419.2" font-size="11" fill="#6b7682" text-anchor="middle" font-weight="400">1 in</text>
 <text x="1080.0" y="100.0" font-size="17" fill="#1b222b" text-anchor="start" font-weight="700">3 · The block (ramp_block.stl), 3 × scale</text>
-<polygon points="1560.0,320.0 1560.0,255.6 1510.5,255.6 1421.4,320.0" fill="#b06ad8" fill-opacity="0.85" stroke="#6d3a92" stroke-width="2"/>
+<polygon points="1560.0,320.0 1560.0,308.1 1540.2,255.6 1510.5,255.6 1421.4,320.0" fill="#b06ad8" fill-opacity="0.85" stroke="#6d3a92" stroke-width="2"/>
+<text x="1560.1" y="285.8" font-size="12" fill="#6d3a92" text-anchor="start" font-weight="700">slant 0.2 in</text>
+<text x="1560.1" y="300.8" font-size="11" fill="#6d3a92" text-anchor="start" font-weight="400">(~21°), 0.12 in strip</text>
 <circle cx="1513.2" cy="287.8" r="16.2" fill="#ffffff" stroke="#6d3a92" stroke-width="1.5"/>
 <line x1="1589.7" y1="389.3" x2="1401.6" y2="389.3" stroke="#1b222b" stroke-width="1.4"/>
 <text x="1401.6" y="405.3" font-size="11" fill="#6b7682" text-anchor="start" font-weight="400">tiles</text>
@@ -160,8 +162,8 @@
 <text x="1724.0" y="1016.0" font-size="13" fill="#1b222b" text-anchor="end" font-weight="700">8 in</text>
 <text x="1084.0" y="1043.0" font-size="13" fill="#1b222b" text-anchor="start" font-weight="400">Block: front to back × tall, bottom up</text>
 <text x="1724.0" y="1043.0" font-size="13" fill="#1b222b" text-anchor="end" font-weight="700">1.4 × 0.7 in, 0.7 in</text>
-<text x="1084.0" y="1070.0" font-size="13" fill="#1b222b" text-anchor="start" font-weight="400">Block's top, front curve</text>
-<text x="1724.0" y="1070.0" font-size="13" fill="#1b222b" text-anchor="end" font-weight="700">1.35 in, R 1.36 in</text>
+<text x="1084.0" y="1070.0" font-size="13" fill="#1b222b" text-anchor="start" font-weight="400">Block's top, front curve and slant</text>
+<text x="1724.0" y="1070.0" font-size="13" fill="#1b222b" text-anchor="end" font-weight="700">1.35 in, R 1.36 in, 0.2 in back</text>
 <text x="1084.0" y="1097.0" font-size="13" fill="#1b222b" text-anchor="start" font-weight="400">Shaft, through the block</text>
 <text x="1724.0" y="1097.0" font-size="13" fill="#1b222b" text-anchor="end" font-weight="700">8 mm, 1.02 in up</text>
 <text x="1084.0" y="1124.0" font-size="13" fill="#1b222b" text-anchor="start" font-weight="400">Side wall and curtains</text>

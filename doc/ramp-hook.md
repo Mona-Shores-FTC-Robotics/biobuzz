@@ -7,6 +7,8 @@ placeholder for Thursday's cardboard to replace.
 
 ![The final design, to scale](../sim-review/ramp-hook-final.png)
 
+3D model of this design: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared).
+
 Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to buy and how to assemble:
 [`cad/ramp-hook/`](../cad/ramp-hook/README.md).
 
@@ -16,7 +18,9 @@ Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to b
   It's 1.4 in front to back, its top 1.35 in above the tiles (under a POLLEN's centre), and its bottom 0.7 in up,
   0.27 in over the bottom ring's 0.43 in so it can't catch the lip. It has a 0.5 in flat top. `ramp.py` empties
   every case with the bottom anywhere from 0.6 to 0.85 in. Its front is curved to the bottom ring's 2.79 in hole,
-  so it nests between the two grey uprights. The shaft's ends sit in printed end blocks that bolt to goBILDA
+  so it nests between the two grey uprights. The curved front leans back 0.2 in at the top (about 21°) above a
+  0.12 in vertical strip that bears on the uprights: in `ramp.py` the slant changes nothing (0 to 0.45 in all empty
+  every case), but it gives margin for POLLEN that aren't quite round or sit low. The shaft's ends sit in printed end blocks that bolt to goBILDA
   channel (M4, on its 8 mm grid), with goBILDA clamping collars either side of the block.
 - **Driving:** push in until the block meets the uprights, and stay there. The FLOWER sets the depth and centres
   the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
@@ -149,7 +153,7 @@ edge, estimated.
 
 ## Current design, version 2: a stop on the bracket and a printed insert (6 Oct 2026, late)
 
-Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). The three views
+Mock-up (version 2 at the time): https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR. The three views
 (`sim-review/ramp-hook-views.svg`, redrawn by `python3 tools/ramp-hook/views.py`) show version 2.
 
 - **Side wall and curtains:** the vertical 4 in side wall. At the front, curtains from 0.75 to 3.9 in (under the
