@@ -35,12 +35,6 @@ than a ramp running down to the floor.
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
 - **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
   of 18). Hinge the hook at least 0.5 in inside the frame, or make the wall 3.5 in tall.
-- **A quarter-width ramp (current mock-up):** the ramp is only 3.6 in wide, at the arm's front corner. The rest
-  of the front is open. The arm carries it directly, which removes the sag problem below. The robot lines the ramp
-  up on the FLOWER, so it parks offset sideways by about 5 in. `ramp.py`'s slice is the same, so its times hold.
-  For the spill, that corner is the point of the hook furthest out into the spill, where the small hook was
-  touched most (README "The best of them"). A small ramp there catches less of the falling spill than a
-  full-width one.
 - **Carrying the ramp:** only the right arm holds it, and the left end is free across 14.5 in. It has to be stiff
   enough not to sag onto the tiles or flex when it hits the FLOWER's ring. Use a stiffened plate or a bent lip
   along its back edge.
