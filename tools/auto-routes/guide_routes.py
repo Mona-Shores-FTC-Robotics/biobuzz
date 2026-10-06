@@ -79,22 +79,98 @@ def row_face_first(r, partner, row_ms, west):
     return out
 
 
-def rigid_v_wall(shape, name, angle=180):
+ROW_PIECES_Y = (128.0, 130.9, 133.7, 136.5)  # A's row (AutoStudyTest.stagedFor), x 29.6
+# Where the face stops, one step a piece. The pieces touch, so the face pushes the rest of the row along ahead
+# of it into the north wall (there at y 134.5, 137.3, 140.1): the steps follow them to the wall.
+SWEEP_FACE_Y = (127.0, 130.0, 133.4, 136.2, 139.0)
+
+
+def row_sweep(r, partner, row_ms, west):
+    """staged_row, but A's row from N_LOW swept: lined up south of it, then north up the row mouth first, the
+    face's middle on the row (x 29.6), stopping 0.45 s at each step (SWEEP_FACE_Y) so the intake takes the piece
+    touching it; the V keeps the rest in its mouth. ANGLE[0]: the heading (90 square to the row; 75 or 105 skewed)."""
+    import math
+    if partner != "A" or west:
+        return _staged_row(r, partner, row_ms, west)
+    h = ANGLE[0]
+    d = (math.cos(math.radians(h)), math.sin(math.radians(h)))
+    at = lambda fy: (round(29.6 - 7.25 * d[0], 2), round(fy - 7.25 * d[1], 2))
+    r.pt("ROW_S", *at(ROW_PIECES_Y[0] - 1.4 - 4), h)
+    out = [r.go("ROW_S", turn_by=0.8)]
+    for i, y in enumerate(SWEEP_FACE_Y):
+        name = "ROW_N" if i == len(SWEEP_FACE_Y) - 1 else f"ROW_{i + 1}"
+        r.pt(name, *at(y), h)
+        out += [r.go(name, heading=h), r.wait(f"Row piece {i + 1}", when=["IntakeFull"], ms=450)]
+    r.at = "ROW_N"
+    return out
+
+
+def rigid_v_wall(shape, name, angle=180, sweep=False):
     ANGLE[0] = angle
-    qual_right.staged_row = row_face_first
+    qual_right.staged_row = row_sweep if sweep else row_face_first
     try:
         return shape_matrix.stages_for(shape, "wall", name)
     finally:
         qual_right.staged_row = _staged_row
 
 
+def rigid_v_right(shaped, name):
+    """ShootsRight for a Rigid V: its route (qual-right-o3-sweep: TIP 2's spill driven through, 4 of 4 in the logs)
+    without the sweep through TIP 1's leftovers (0-1 picked up, about 2.5 s), straight into the GARDEN, and
+    PARK first (park_first.py)."""
+    import park_first
+    import qual_shapes
+    qual_right.O3["qual-right-o3-sweep-garden"] = {**qual_right.O3["qual-right-o3-sweep"], "garden": "two"}
+    qual_shapes.ROUTE_OF[name] = "qual-right-o3-sweep-garden"
+    third = qual_right.third_load
+    qual_right.third_load = park_first.park_first
+    try:
+        return qual_shapes.o3_shaped(name, None)
+    finally:
+        qual_right.third_load = third
+
+
+TURN_X = [None]  # N_TURN's x for this route (None: qual's 57.5)
+_ends = qual_right.ends
+
+
+def ends_turning_west(r):
+    """qual's ends, N_TURN moved west to TURN_X[0]: the 18 in, 30 deg and 20 in, 45 deg Vs' flap tips swing 13.7-14.1 in
+    out as the robot turns there, over the centre line (x 70.6) from x 57.5 (G402 at 8.4 s in the logs)."""
+    _ends(r)
+    if TURN_X[0] is not None:
+        p = r.points["N_TURN"]
+        r.pt("N_TURN", TURN_X[0], p[1], p[2])
+
+
+def turning_west(build):
+    def b(name):
+        TURN_X[0] = 55.5
+        qual_right.ends = ends_turning_west
+        try:
+            return build(name)
+        finally:
+            TURN_X[0] = None
+            qual_right.ends = _ends
+    return b
+
+
 ROUTES = {
+    **{f"qual-stages-angled-{s}-t555": turning_west(lambda n, s=s: shape_matrix.stages_for(s, "angled", n))
+       for s in ("rigid-v-18-30", "rigid-v-20-45")},
+    **{f"qual-stages-wall-{s}-sweep{a}-t555": turning_west(lambda n, s=s, a=a: rigid_v_wall(s, n, a, sweep=True))
+       for s in ("rigid-v-18-30", "rigid-v-20-45") for a in (90, 105)},
+    **{f"{n}-garden": (lambda name, n=n: rigid_v_right(n, name))
+       for n in ("qual-right-o3-rigid-v", "qual-right-o3-rigid-v-18-30", "qual-right-o3-rigid-v-20-45")},
     "qual-stages-angled-ramp-hook": lambda n: stages_hook(n, "B"),
     "qual-stages-wall-ramp-hook": lambda n: stages_hook(n, "A"),
     "qual-stages-angled-ramp-hook-h500": lambda n: stages_hook(n, "B", 500),
     "qual-stages-wall-ramp-hook-h500": lambda n: stages_hook(n, "A", 500),
     **{f"qual-stages-wall-{s}-face{'' if a == 180 else a}": (lambda n, s=s, a=a: rigid_v_wall(s, n, a))
        for s in ("rigid-v", "rigid-v-18-30", "rigid-v-20-45") for a in (180, 135, 150, 165)},
+    # Face first stops at the row's south end and pushes the rest off (1 of 4): sweep up it instead.
+    **{f"qual-stages-wall-{s}-sweep{a}": (lambda n, s=s, a=a: rigid_v_wall(s, n, a, sweep=True))
+       for s in ("rigid-v", "rigid-v-18-30", "rigid-v-20-45") for a in (75, 90, 105)},
 }
 
 if __name__ == "__main__":
