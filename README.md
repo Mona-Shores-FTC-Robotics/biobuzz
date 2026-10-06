@@ -222,7 +222,7 @@ once, let it finish syncing, and run step 3 again. What the script does:
 
 Open the Auto with its **ours** link, change it, and press **Save to GitHub** (it asks once for a
 [fine-grained token](https://github.com/settings/personal-access-tokens/new): biobuzz only, Contents read
-and write, Actions read). Pick the robot **flat intake**. The
+and write, Actions read). Pick the robot **rigid V** (the baseline; any other name draws with **BIOBUZZ Robot (designs)**). The
 [Simulate Auto](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/actions/workflows/simulate-auto.yml)
 workflow runs it and the dialog shows every run, with **Download WPILOG**.
 
