@@ -41,7 +41,7 @@ def dim(x0, y0, x1, y1, label, off=0, col="#b5452f"):
 W, H = 1500, 1160
 o.append(f'<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" font-family="Helvetica,Arial,sans-serif">')
 o.append(f'<rect width="100%" height="100%" fill="{BG}"/>')
-T_(30, 40, "Ramp hook: a short, tall triangular bar at the end of the side wall, curtains straight up off it", 22, INK, w=700)
+T_(30, 40, "Ramp hook: the current best design", 22, INK, w=700)
 T_(30, 64, "Inches. Robot sizes are placeholders; FLOWER sizes are estimated from the 6 Oct photo. Mark up anything that doesn't match what you're picturing.", 14, DIM)
 
 # ---------- 1. TOP VIEW ----------
@@ -139,13 +139,13 @@ T_(X3(-HW), H3(0) + 52, "The bar sits 0.5 off the floor, so it passes over the F
 # ---------- question box ----------
 qx, qy = 760, 820
 rect(qx, qy, 1470, 1075, fill="#fff7ec", stroke="#e0a030", sw=1.5)
-qs = ["What changed from the last sheet",
-      "The bar is half as long: 1.5 in front to back, 0.8 in tall (about 28°).",
-      "   Its top is still under the bottom POLLEN's centre (1.3 vs 1.4 in).",
-      "Model: works at both pocket depths and every reach from 2.1 to 2.6 in,",
-      "   all 4 out in 0.9 to 1.1 s. At 1.0 in deep it fails with a deep pocket.",
-      "Option 3's 14.5 in chassis fits: 14.5 + 8 + 1.5 = 24.0.",
-      "Stowed it's 18.5 in: hinge the hook 0.5 in inside the frame."]
+qs = ["The spec",
+      "Bar: steel triangle across the full width, 1.5 deep × 0.8 tall, bottom 0.5 up,",
+      "   flat front face topping out at 1.3 in, its top corner rounded ~1/8 in.",
+      "Curtains: straight up off the bar's front, 1.3 to 4 in, 6 in gap for the FLOWER.",
+      "Side wall: vertical, 4 in. 8 in clear between the intake and the bar.",
+      "Size: 14.5 + 8 + 1.5 = 24.0 (option 3 as is). Stowed 18.5: hinge 0.5 in inside.",
+      "Model: empties a FLOWER in every case tried, all 4 out in 0.8 to 1.1 s."]
 for k, q in enumerate(qs):
     T_(qx + 18, qy + 34 + k * 31, q, 16 if k == 0 else 14, INK, "start", 700 if k in (0, 6) else 400)
 o.append("</svg>")
