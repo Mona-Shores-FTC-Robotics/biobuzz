@@ -301,6 +301,13 @@ final class FieldSim {
          * or a side wall, {@link RobotDesign#sideWallsSlideIn}), or the frame. Both can be set.
          */
         boolean flapBeforeTile, frameBeforeTile;
+        /**
+         * The robot holding it against its mouth, waiting for the intake's throat ({@link RobotDesign#intakeHoldsAtMouth}),
+         * and where it sits in that robot's frame (forward, left). It moves with the robot and nothing else
+         * touches it until the intake takes it. Null when loose.
+         */
+        Bot heldBy;
+        double heldLx, heldLy;
 
         Piece(Kind kind, Where where, double x, double y, double z) {
             this.kind = kind;
@@ -447,6 +454,10 @@ final class FieldSim {
         private boolean intaking;
         private double lastCaptureAt = Double.NEGATIVE_INFINITY;
         final List<Piece> stored = new ArrayList<>();
+        /** Pieces held against the mouth, waiting for the throat ({@link RobotDesign#intakeHoldsAtMouth}), oldest first. */
+        final List<Piece> queued = new ArrayList<>();
+        /** Pieces the robot controls, for G407's 4: inside it, or held at its mouth. */
+        int controlled() { return stored.size() + queued.size(); }
         /** Its mechanisms; {@link RobotDesign#standard} unless the caller sets one. */
         RobotDesign design = RobotDesign.standard();
         /**
@@ -992,11 +1003,21 @@ final class FieldSim {
                 sub[b][0] = bot.prevX + (bot.x - bot.prevX) * f;
                 sub[b][1] = bot.prevY + (bot.y - bot.prevY) * f;
                 sub[b][2] = bot.prevH + AdvantageScopeFrame.wrap(bot.h - bot.prevH) * f;
+                // Pieces held at its mouth ride with it.
+                for (Piece q : bot.queued) {
+                    double c = Math.cos(sub[b][2]), s = Math.sin(sub[b][2]);
+                    q.x = sub[b][0] + q.heldLx * c - q.heldLy * s;
+                    q.y = sub[b][1] + q.heldLx * s + q.heldLy * c;
+                    q.z = q.kind.radius;
+                    q.vx = bot.vx;
+                    q.vy = bot.vy;
+                    q.vz = 0;
+                }
             }
 
             for (Rocker r : rockers) stepRocker(r, h);
             for (Piece p : pieces) {
-                if (p.where != Where.FIELD) continue;
+                if (p.where != Where.FIELD || p.heldBy != null) continue;
                 p.vz -= GRAVITY_IN_PER_S2 * h;
                 if (air && p.z > p.kind.radius + 0.5) applyAir(p, h);
                 p.x += p.vx * h;
@@ -1007,6 +1028,14 @@ final class FieldSim {
             collidePieces();
             for (Piece p : pieces) {
                 if (p.where != Where.FIELD) continue;
+                if (p.heldBy != null) {
+                    // Held against the mouth: the throat takes the oldest held piece once the interval is up.
+                    Bot bot = p.heldBy;
+                    if (bot.intaking && bot.queued.get(0) == p && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)) {
+                        capture(bot, p);
+                    }
+                    continue;
+                }
                 Bot taker = null;
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
@@ -1015,13 +1044,24 @@ final class FieldSim {
                     // not taken (events "miss: <why> <piece> robot <n>", for tuning the Autos and the intake).
                     if (!inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) {
                         String why = nearIntakeMiss(bot, p, sub[b][0], sub[b][1], sub[b][2]);
-                        if (why != null && bot.stored.size() < ROBOT_CAPACITY) miss(bot, p, why);
+                        if (why != null && bot.controlled() < ROBOT_CAPACITY) miss(bot, p, why);
                         continue;
                     }
-                    if (bot.stored.size() >= ROBOT_CAPACITY) {
+                    if (bot.controlled() >= ROBOT_CAPACITY) {
                         miss(bot, p, "full");
-                    } else if (!canTake(bot, p)) {
-                        miss(bot, p, p.kind != Kind.POLLEN && !bot.design.launchesNectar ? "nectar" : "interval");
+                    } else if (!canTake(bot, p) || !bot.queued.isEmpty()) {
+                        boolean nectar = p.kind != Kind.POLLEN && !bot.design.launchesNectar;
+                        if (!nectar && bot.design.intakeHoldsAtMouth && p.flower < 0) {
+                            // Vectored rollers: the piece is pulled against the mouth and waits for the throat
+                            // (behind any piece already waiting), instead of bouncing off the body.
+                            String why = grabMiss(bot, p);
+                            if (why == null) hold(bot, p, sub[b][0], sub[b][1], sub[b][2]);
+                            else miss(bot, p, why);
+                        } else {
+                            // "flower": waiting in a FLOWER while the one below it is pulled (one per flowerPullS), which
+                            // is not the intake being busy. Before 6 Oct 2026 (issue #160) it was counted as "interval".
+                            miss(bot, p, nectar ? "nectar" : p.flower >= 0 ? "flower" : "interval");
+                        }
                     } else {
                         String why = grabMiss(bot, p);
                         if (why == null) taker = bot;
@@ -1032,6 +1072,7 @@ final class FieldSim {
                     capture(taker, p);
                     continue;
                 }
+                if (p.heldBy != null) continue;
                 boolean contact = false;
                 for (Rocker r : rockers) {
                     if (collideRocker(p, r)) {
@@ -1135,10 +1176,10 @@ final class FieldSim {
     private void collidePieces() {
         for (int i = 0; i < pieces.size(); i++) {
             Piece a = pieces.get(i);
-            if (a.where != Where.FIELD) continue;
+            if (a.where != Where.FIELD || a.heldBy != null) continue;
             for (int j = i + 1; j < pieces.size(); j++) {
                 Piece b = pieces.get(j);
-                if (b.where != Where.FIELD) continue;
+                if (b.where != Where.FIELD || b.heldBy != null) continue;
                 double reach = a.kind.radius + b.kind.radius;
                 double dx = b.x - a.x;
                 if (dx > reach || dx < -reach) continue;
@@ -1532,8 +1573,42 @@ final class FieldSim {
         if (design.intakeAtBack) lx = -lx;
         double mouth = design.frameIn / 2 + design.intakeReachIn;
         if (!(lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN)) return null;
-        if (Math.abs(ly) < design.intakeWidthIn / 2) return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
+        if (Math.abs(ly) < design.intakeWidthIn / 2) {
+            if (!Double.isNaN(design.rollerBottomIn)) {
+                if (p.z + p.kind.radius <= design.rollerBottomIn) return "low";
+                return p.z > design.rollerBottomIn + design.rollerDiameterIn / 2 ? "height" : null;
+            }
+            return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
+        }
         return Math.abs(ly) < design.frameWidthIn / 2 + p.kind.radius ? "beside" : null;
+    }
+
+    /**
+     * Whether a roller ({@link RobotDesign#rollerBottomIn}) can bite the piece where it is: its top above the
+     * roller's bottom and its centre below the axle. Without roller geometry, the design's one height limit.
+     */
+    private static boolean underRoller(RobotDesign design, Piece p) {
+        if (Double.isNaN(design.rollerBottomIn)) return p.z + p.kind.radius <= design.intakeHeightIn;
+        return p.z + p.kind.radius > design.rollerBottomIn && p.z <= design.rollerBottomIn + design.rollerDiameterIn / 2;
+    }
+
+    /**
+     * Holds the piece against {@code bot}'s mouth ({@link RobotDesign#intakeHoldsAtMouth}): just outside the
+     * face, inside the mouth's width, on the tiles, until the throat takes it.
+     */
+    private void hold(Bot bot, Piece p, double bx, double by, double bh) {
+        RobotDesign design = bot.design;
+        double c = Math.cos(bh), s = Math.sin(bh);
+        double ly = -(p.x - bx) * s + (p.y - by) * c;
+        double half = Math.max(0, design.intakeWidthIn / 2 - p.kind.radius);
+        p.heldBy = bot;
+        p.heldLx = (design.intakeAtBack ? -1 : 1) * (design.frameIn / 2 + design.intakeReachIn + p.kind.radius);
+        p.heldLy = Math.max(-half, Math.min(half, ly));
+        p.flower = -1;
+        p.cell = null;
+        p.wx = p.wy = p.wz = 0;
+        bot.queued.add(p);
+        events.add("hold: " + name(p.kind) + " (" + bot.queued.size() + " at the mouth, " + bot.stored.size() + " held)");
     }
 
     /** A shot that came down on the tiles without scoring: why, as a "miss:" event, with where it fell against the aim. */
@@ -1569,7 +1644,7 @@ final class FieldSim {
         double mouth = design.frameIn / 2 + design.intakeReachIn;
         if (design.intakeOnContact && p.flower < 0) {
             return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
-                    && Math.abs(ly) < design.intakeWidthIn / 2 && p.z + p.kind.radius <= design.intakeHeightIn;
+                    && Math.abs(ly) < design.intakeWidthIn / 2 && underRoller(design, p);
         }
         return lx > mouth - 2 && lx < mouth + 3 && Math.abs(ly) < design.intakeWidthIn / 2 && p.z < design.intakeHeightIn;
     }
@@ -1577,6 +1652,10 @@ final class FieldSim {
     private void capture(Bot bot, Piece p) {
         List<Piece> stored = bot.stored;
         bot.lastCaptureAt = time;
+        if (p.heldBy != null) {
+            p.heldBy.queued.remove(p);
+            p.heldBy = null;
+        }
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

@@ -68,6 +68,51 @@ public class AutoStudyTest {
         return d.checked();
     }
 
+    /**
+     * The intake study (issue #160, 6 Oct 2026; doc/intake-design.md): the build team's 6 Oct CAD as drawn
+     * ({@link RobotDesign#dhsCad}), with its roller lowered to bite a POLLEN ({@link RobotDesign#dhsCadLowered}),
+     * then on that body the two ways to widen or queue: the mouth opened to 14 in (the side plates' gap on a
+     * 15.2 in body: a full-width roller) and vectored rollers that hold a piece at the mouth
+     * ({@link RobotDesign#intakeHoldsAtMouth}), each on its own and together; and the Rigid V (fixed flaps from
+     * the front corners out to 18 in, as the Flat Intake's) on each. Last, the time per piece swept on the
+     * full-width vectored one, since it is a guess. Every one runs on the Flat Intake's 14.5 in body, which the
+     * Autos are drawn for (the CAD's 15.7 in body drives into the far FLOWER on them: the spots its front meets
+     * move with the body, {@code qual_right.fit}); only the intake is the CAD's. "DHS CAD intake" says so.
+     */
+    static List<RobotDesign> intakeOptions() {
+        List<RobotDesign> out = new ArrayList<>();
+        RobotDesign cad = onFlatIntakeBody(RobotDesign.dhsCad(), "DHS CAD intake (6 Oct)");
+        RobotDesign low = onFlatIntakeBody(RobotDesign.dhsCadLowered(), "DHS CAD intake, roller at 2.4 in");
+        RobotDesign wide = low.copy("DHS CAD intake, 14 in roller");
+        wide.intakeWidthIn = 14;
+        RobotDesign vec = low.copy("DHS CAD intake, vectored 9.4 in");
+        vec.intakeHoldsAtMouth = true;
+        RobotDesign vecWide = wide.copy("DHS CAD intake, vectored 14 in");
+        vecWide.intakeHoldsAtMouth = true;
+        for (RobotDesign d : new RobotDesign[] {cad, low, wide, vec, vecWide}) {
+            out.add(d.checked());
+            RobotDesign v = d.copy(d.name + ", rigid V");
+            v.flapOutIn = (18 - v.frameWidthIn) / 2;
+            v.flapForwardIn = v.flapOutIn;
+            out.add(v.checked());
+        }
+        for (double s : new double[] {0.25, 0.5, 0.7}) {
+            RobotDesign d = vecWide.copy(String.format(Locale.ROOT, "DHS CAD intake, vectored 14 in, %.2f s", s));
+            d.intakeIntervalS = s;
+            out.add(d.checked());
+        }
+        return out;
+    }
+
+    /** {@code design}'s intake and launcher on the Flat Intake's body (the one the Autos are drawn for). */
+    private static RobotDesign onFlatIntakeBody(RobotDesign design, String name) {
+        RobotDesign flat = RobotDesign.flatIntake();
+        RobotDesign d = design.copy(name);
+        d.frameIn = flat.frameIn;
+        d.frameWidthIn = flat.frameWidthIn;
+        return d;
+    }
+
     static Map<String, RobotDesign> designs() {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
@@ -122,6 +167,7 @@ public class AutoStudyTest {
         for (RobotDesign d : new RobotDesign[] {flatIntakeWith("flat intake, rigid V", 0), flatIntakeWith("flat intake, ramp hook", 8)}) {
             m.put(d.name, d);
         }
+        for (RobotDesign d : intakeOptions()) m.put(d.name, d);
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
         catcher.intakeWidthIn = 24;
         m.put(catcher.name, catcher);

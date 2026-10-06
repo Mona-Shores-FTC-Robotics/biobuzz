@@ -53,6 +53,26 @@ final class RobotDesign {
      */
     boolean intakeOnContact = false;
     /**
+     * A horizontal roller across the mouth, as the build team's 6 Oct 2026 CAD has: how far its lowest point
+     * is above the tiles, and its diameter. With them set (not NaN) a piece is taken only if the roller can
+     * bite it: its top above the roller's bottom, and its centre below the roller's axle (a piece whose centre
+     * is above the axle is pushed away, not pulled under). Those replace {@link #intakeHeightIn}'s single
+     * limit, which stays for drawing the robot. NaN: no roller geometry, {@link #intakeHeightIn} alone.
+     * POLLEN is 2.8 in across and NECTAR 3.6 in, so a roller 2.8 in or more off the tiles never bites a POLLEN
+     * lying on them.
+     */
+    double rollerBottomIn = Double.NaN;
+    double rollerDiameterIn = Double.NaN;
+    /**
+     * Vectored (angled) rollers across the front that pull a piece sideways into one throat (the build team's
+     * mentor, 6 Oct 2026): a piece that touches the mouth while the intake is busy with another is held
+     * against the rollers and fed through one per {@link #intakeIntervalS}, instead of bouncing off the body.
+     * Held pieces count toward the 4 the robot may control (G407), so the mouth holds at most
+     * 4 minus the pieces already inside. The rollers' pull is as sure as the plain intake's
+     * ({@link #intakeGrabChance}, {@link #intakeMaxSpeedInPerS}): a guess until one is built.
+     */
+    boolean intakeHoldsAtMouth = false;
+    /**
      * Where a launched piece leaves the robot: this far forward of the robot's centre (negative:
      * behind it) and this high. A piece doesn't collide with the robot that launched it until it
      * has left that robot's outline, so the exit may be inside the body.
@@ -300,6 +320,44 @@ final class RobotDesign {
         return d;
     }
 
+    /**
+     * The build team's 6 Oct 2026 CAD ({@code DHS Robot Copy.step}, read with {@code tools/cad/stepread.py}:
+     * doc/cad-6-oct.md), as drawn. Measured off the STEP's bounding boxes (good to about 0.1 in): a 15.2 in wide,
+     * 15.7 in long footprint; one horizontal roller of seven 48 mm (1.89 in) gecko wheels across the front, its
+     * bottom 2.84 in above the tiles; a 9.4 in mouth between the side plates; the launcher's exit about 10 in up
+     * and 3 in behind the centre. Not measured: the time per piece and the launch pitch (the Flat Intake's
+     * placeholders, 0.35 s and 75 deg), and the body height pieces bounce off (the Flat Intake's 6 in: the CAD
+     * is 14.7 in tall at its column, but open at the front). A POLLEN lying on the tiles (2.8 in) is below this
+     * roller: the simulator takes only NECTAR with it, which is the CAD question the doc raises.
+     */
+    static RobotDesign dhsCad() {
+        RobotDesign d = flatIntake().copy("DHS CAD (6 Oct)");
+        d.frameIn = 15.7;
+        d.frameWidthIn = 15.2;
+        d.intakeWidthIn = 9.4;
+        d.rollerBottomIn = 2.84;
+        d.rollerDiameterIn = 1.89;
+        d.intakeHeightIn = d.rollerBottomIn + d.rollerDiameterIn / 2 + FieldSim.POLLEN_RADIUS_IN; // drawn: a POLLEN's top at the axle
+        d.exitForwardIn = -3;
+        d.exitHeightIn = 10;
+        return d;
+    }
+
+    /**
+     * How far above the tiles the roller's bottom is put in the "lowered" variants of {@link #dhsCad}: a guess
+     * at a working bite, 0.4 in into a POLLEN (2.8 in) and 1.2 in into a NECTAR (3.6 in). Nothing has been
+     * measured; the cardboard test in doc/intake-design.md finds the real number.
+     */
+    static final double GUESSED_ROLLER_BOTTOM_IN = 2.4;
+
+    /** {@link #dhsCad} with its roller lowered to {@link #GUESSED_ROLLER_BOTTOM_IN}, so it bites a POLLEN. */
+    static RobotDesign dhsCadLowered() {
+        RobotDesign d = dhsCad().copy("DHS CAD, roller at 2.4 in");
+        d.rollerBottomIn = GUESSED_ROLLER_BOTTOM_IN;
+        d.intakeHeightIn = d.rollerBottomIn + d.rollerDiameterIn / 2 + FieldSim.POLLEN_RADIUS_IN;
+        return d;
+    }
+
     static RobotDesign catapult() {
         RobotDesign d = new RobotDesign("catapult");
         d.launcher = Launcher.CATAPULT;
@@ -315,6 +373,9 @@ final class RobotDesign {
         d.intakeWidthIn = intakeWidthIn;
         d.intakeHeightIn = intakeHeightIn;
         d.intakeOnContact = intakeOnContact;
+        d.rollerBottomIn = rollerBottomIn;
+        d.rollerDiameterIn = rollerDiameterIn;
+        d.intakeHoldsAtMouth = intakeHoldsAtMouth;
         d.exitForwardIn = exitForwardIn;
         d.exitHeightIn = exitHeightIn;
         d.bodyHeightIn = bodyHeightIn;
@@ -397,9 +458,11 @@ final class RobotDesign {
 
     @Override
     public String toString() {
-        return String.format(Locale.ROOT, "%s (%s x%d, %.2f s/shot, intake %s %.0f in wide +%.0f in, %s)",
+        return String.format(Locale.ROOT, "%s (%s x%d, %.2f s/shot, intake %s %.1f in wide +%.0f in, %.2f s/piece%s%s, %s)",
                 name, launcher.name().toLowerCase(Locale.ROOT), launchers, shotIntervalS,
-                intakeAtBack ? "back" : "front", intakeWidthIn, intakeReachIn,
+                intakeAtBack ? "back" : "front", intakeWidthIn, intakeReachIn, intakeIntervalS,
+                Double.isNaN(rollerBottomIn) ? "" : String.format(Locale.ROOT, ", roller %.2f in up", rollerBottomIn),
+                intakeHoldsAtMouth ? ", holds at the mouth" : "",
                 launchesNectar ? "POLLEN+NECTAR" : "POLLEN only");
     }
 }
