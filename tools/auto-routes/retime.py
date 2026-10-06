@@ -13,7 +13,7 @@ import baselines_v
 import qual_right
 import shape_matrix
 
-WAITS = {"qual-right-v": (200, 800, 1100), "qual-stages-angled-v": (700, 1000, 1600), "qual-stages-wall-v": (700, 1000, 1600)}
+WAITS = {"qual-right-v": (0, 100, 200, 800, 1100), "qual-stages-angled-v": (700, 1000, 1600), "qual-stages-wall-v": (400, 550, 700, 1000, 1600)}
 
 
 def with_wait(base, ms):
