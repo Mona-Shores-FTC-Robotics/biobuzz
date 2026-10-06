@@ -391,6 +391,14 @@ length stays 17.96 in (the shaft and hubs end at x = +2.6, inside the V tips' 2.
 Still guesses, and the user has decided to build without the rig: the spring force (the POLLEN bite) and whether
 a NECTAR gives 0.4 in; the slot covers zero give either way.
 
+**Decisions that fix the front** (the user, 6 Oct 2026, via the CAD session): the FLOWER extractor stays at the
+front as drawn (a rear extractor was dropped: entering at the back reverses the J, so the robot could not shoot
+while extracting); the robot shoots while extracting, the pieces going roller, lane, J, turret, which is why the
+roller has no gap but the transfer's and the extractor's block sits in front of the roller's centre; simple,
+reliable hardware over clever, so the float is slots and a spring, not an arm; the Limelight is fixed facing
+forward, above the motor carriage's 8.5 in; the NECTAR-capping cage is shelved. The transfer is being drawn next
+(#164).
+
 **The V's angle** (this chat's decision under [unified-design.md](unified-design.md); 60 runs, the Rigid V's Autos,
 the drawn intake; the angle is the plate's from straight ahead, tips 17.8 in apart, so steeper is shorter):
 
