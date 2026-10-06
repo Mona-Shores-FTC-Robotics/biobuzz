@@ -207,6 +207,16 @@ def third_load(r, tag="", wait_full=1100, catch3=False, tip_ms=0):
 # start wall behind, a FLOWER, the GARDEN) move by the difference from the 18 in robot the route was
 # drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
 FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in; "option3": flatIntake, 14.5 in
+# How far from a FLOWER's centre the front face stops to take its POLLEN: 2.2 in with the intake mouth against the
+# ~2 in tube (helpers.FLOWER_PICKUP_IN for the 18 in robot: 9 + 2.2); 7.09 in with the CAD's FLOWER extractor seated on
+# it (doc/robot-cad.md "Seated on a FLOWER"; baselines_v.py sets it for the Rigid V). The FLOWER points move by the
+# difference from the 18 in robot's 11.2 in; the start, the GARDEN and PARK only by the front face's.
+FLOWER_FACE_IN = {"baseline": 2.2, "proto": 2.2, "option3": 2.2}
+
+
+def flower_shift(robot):
+    """How much further forward (toward the FLOWER) `robot` stops than the 18 in robot the routes were drawn for."""
+    return 9.0 + 2.2 - FRONT_IN[robot] - FLOWER_FACE_IN[robot]
 
 
 class Sized(Route):
@@ -222,24 +232,25 @@ class Sized(Route):
 def right(name, robot="baseline", n_fire=None, **kw):
     """As qual.shoots_right, with tail(**kw) after TIP 2, for `robot` (FRONT_IN)."""
     d = 9.0 - FRONT_IN[robot]
+    df = flower_shift(robot)
     r = Sized(name, (N_START[0], N_START[1] + d, N_START[2]), speed=50)
     ends(r)
     r.size = 2 * FRONT_IN[robot]
     r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *(n_fire or N_FIRE))
-    if d:
+    if df:
         for k in ("FAR_FLOWER", "FAR_FLOWER_IN", "FAR_FLOWER_TURN"):
             x, y, h = r.points[k]
-            r.pt(k, x, y + d, h)  # the FLOWER is north of us, facing 90
+            r.pt(k, x, y + df, h)  # the FLOWER is north of us, facing 90
         for k in ("GARDEN", "GARDEN_IN"):
             x, y, h = r.points[k]
             r.pt(k, x, y - d, h)  # the GARDEN is at the south wall, facing 270
         x, y, h = r.points["PARK"]
         r.pt("PARK", x, y + d, h)  # a corner must reach into the LOADING ZONE (y 94.3-117.9)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
-    if d:
+    if df:
         for k in ("WALL_FLOWER", "WALL_FLOWER_IN", "WALL_FLOWER_TURN"):
             x, y, h = r.points[k]
-            r.pt(k, x - d, y, h)  # the wall FLOWER is west of us, facing 180
+            r.pt(k, x - df, y, h)  # the wall FLOWER is west of us, facing 180
     r.add(r.action("SpinUp"), r.go("N_FIRE", heading=270),
           r.wait("TIP 1 (the partner)", when=["LeftCellUp"], ms=9000),
           fire(r, "Fire the preloads at the left CELL", "Empty", ms=2500))
@@ -387,10 +398,11 @@ def fit(robot):
     the GARDEN) and PARK move forward by as much."""
     import math
     d = 9.0 - FRONT_IN[robot]
+    df = flower_shift(robot)
 
-    def move(p, sign):
+    def move(p, sign, by=d):
         x, y, h = p
-        return (round(x + sign * d * math.cos(math.radians(h)), 2), round(y + sign * d * math.sin(math.radians(h)), 2), h)
+        return (round(x + sign * by * math.cos(math.radians(h)), 2), round(y + sign * by * math.sin(math.radians(h)), 2), h)
 
     class Fit(Sized):
         size = 2 * FRONT_IN[robot]
@@ -399,7 +411,9 @@ def fit(robot):
             super().__init__(name, move(start, -1), **kw)
 
         def pt(self, name, x, y, h):
-            if name.startswith(("FAR_FLOWER", "WALL_FLOWER", "GARDEN", "PARK")):
+            if name.startswith(("FAR_FLOWER", "WALL_FLOWER")):
+                x, y, h = move((x, y, h), 1, df)
+            elif name.startswith(("GARDEN", "PARK")):
                 x, y, h = move((x, y, h), 1)
             return super().pt(name, x, y, h)
     return Fit

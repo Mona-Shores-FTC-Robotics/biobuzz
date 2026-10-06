@@ -173,7 +173,9 @@ public class AutoStudyTest {
         }
         // The baseline robot since 6 Oct 2026 21:15 UTC (mentor: one robot, the Rigid V as drawn in the team's CAD; the
         // FLOWER extractor and scorer to come): the drawn V under the name the logs carry, "rigid V".
-        m.put("rigid V", drawnV("", 4, Double.NaN, true, true).copy("rigid V"));
+        RobotDesign rigidV = drawnV("", 4, Double.NaN, true, true).copy("rigid V");
+        rigidV.extractorSeatIn = 7.09;  // the CAD's extractor seated: doc/robot-cad.md "Seated on a FLOWER"
+        m.put("rigid V", rigidV);
         // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis. Its
         // shot interval (0.25 s against 0.45 s), its capacity (4 POLLEN, 3 NECTAR), and both.
         RobotDesign v = m.get("rigid V");

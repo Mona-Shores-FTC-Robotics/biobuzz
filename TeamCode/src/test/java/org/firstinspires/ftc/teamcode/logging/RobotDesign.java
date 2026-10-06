@@ -71,6 +71,18 @@ final class RobotDesign {
     /** Time to drag one POLLEN out of a FLOWER's retrieval opening (only the bottom one fits). */
     double flowerPullS = 0.5;
     /**
+     * A FLOWER extractor (the CAD's, doc/robot-cad.md "Seated on a FLOWER"): how far ahead of the front face a
+     * FLOWER's centre is when the deployed extractor is seated on it. NaN: no extractor, and a FLOWER's bottom
+     * POLLEN comes out through the intake mouth instead. The robot deploys it on the approach to a FLOWER and
+     * stows it when it leaves ({@link AutoSim}); a FLOWER gives up pieces only while it is down and seated.
+     */
+    double extractorSeatIn = Double.NaN;
+    /** How far the seat may be off, along and across, for the extractor to still take the stack. */
+    static final double EXTRACTOR_SEAT_TOLERANCE_IN = 1.5;
+    /** Time for the extractor to swing its 150 deg; a placeholder until the servo is driven. */
+    double extractorDeployS = PLACEHOLDER_EXTRACTOR_DEPLOY_S;
+    static final double PLACEHOLDER_EXTRACTOR_DEPLOY_S = 0.5;
+    /**
      * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
      * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
      * robot. Placeholders until an intake is tested: toss pieces in at a few speeds and count.
@@ -347,6 +359,8 @@ final class RobotDesign {
         d.intakeGrabChance = intakeGrabChance;
         d.intakeMaxSpeedInPerS = intakeMaxSpeedInPerS;
         d.flowerPullS = flowerPullS;
+        d.extractorSeatIn = extractorSeatIn;
+        d.extractorDeployS = extractorDeployS;
         d.launcher = launcher;
         d.launchers = launchers;
         d.shotIntervalS = shotIntervalS;

@@ -1,6 +1,7 @@
 {
   "name": "BIOBUZZ Robot",
   "isFTC": true,
+  "disableSimplification": true,
   "rotations": [],
   "position": [
     0,
@@ -33,6 +34,14 @@
     }
   ],
   "components": [
+    {
+      "zeroedRotations": [],
+      "zeroedPosition": [
+        0,
+        0,
+        0
+      ]
+    },
     {
       "zeroedRotations": [],
       "zeroedPosition": [
