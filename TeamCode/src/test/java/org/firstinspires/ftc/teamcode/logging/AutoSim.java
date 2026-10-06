@@ -100,6 +100,12 @@ public final class AutoSim {
 
     /** How long a reversed intake takes to set down each piece it holds (a guess; time one). */
     static final double SET_DOWN_INTERVAL_S = 0.25;
+    /**
+     * How fast {@code Outtake} pushes a piece out of the intake's mouth, in/s relative to the robot (a guess:
+     * film the reversed intake). With the placeholder rolling friction a POLLEN pushed out at 20 in/s rolls about
+     * 5 in on normal tiles and under 2 in on 3x tiles. Not final: StagedPreloadsTest sweeps it.
+     */
+    static double placeholderOuttakeInPerS = 20;
 
     /** CollectSeen keeps within this far of where it started, so it does not wander off. */
     static final double COLLECT_RADIUS_IN = 36;
@@ -357,6 +363,36 @@ public final class AutoSim {
         return this;
     }
 
+    /** The staged pieces' rings: {@code /Sim/Staged/Ring<i>}, one a piece Outtake pushed out. */
+    static final String KEY_STAGED_RING = "/Sim/Staged/Ring";
+    private final List<double[]> stagedRings = new ArrayList<>();
+
+    /**
+     * A ring on the tiles round each piece {@code Outtake} pushed out (FieldSim#outtaken), while it lies loose on
+     * the field (empty once a robot holds it or it is in a CELL), so the layout can pick the staged preloads out
+     * of the other POLLEN. Written only when one moves.
+     */
+    private void putStaged(WpiLog log, long us) throws IOException {
+        for (int i = 0; i < sim.outtaken.size(); i++) {
+            FieldSim.Piece p = sim.outtaken.get(i);
+            double[] ring = new double[0];
+            if (p.where == FieldSim.Where.FIELD && p.cell == null) {
+                List<double[]> pts = new ArrayList<>();
+                for (int k = 0; k <= 12; k++) {
+                    double a = 2 * Math.PI * k / 12, r = p.kind.radius + 0.6;
+                    pts.add(new double[] {Math.round((p.x + r * Math.cos(a)) * 10) / 10.0,
+                            Math.round((p.y + r * Math.sin(a)) * 10) / 10.0, 0.2});
+                }
+                ring = FieldSim.trajectory(pts);
+            }
+            if (i >= stagedRings.size()) stagedRings.add(null);
+            if (!java.util.Arrays.equals(ring, stagedRings.get(i))) {
+                log.putPose3dArray(KEY_STAGED_RING + i, ring, us);
+                stagedRings.set(i, ring);
+            }
+        }
+    }
+
     /** The exported Auto's {@code SOURCE}, without ".pp". */
     static String name(Class<?> autoClass) {
         try {
@@ -554,6 +590,7 @@ public final class AutoSim {
                 sim.enterNectar(alliance);
             }
             fieldLog.write(log, sim, us);
+            putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
         for (Bot b : bots) result.launched += result.robots.get(b.index).launched;
@@ -1005,6 +1042,8 @@ public final class AutoSim {
         boolean wallsWanted;
         /** Whether the robot has stopped with its hook down since it last swung down (it lifts on the next move). */
         boolean hookStopped;
+        /** Whether the Auto holds the hook down (HookDown, until HookUp): sideWalls' own reasons do not lift it. */
+        boolean hookHeld;
         double wallsSentAt = Double.NaN;
 
         /**
@@ -1055,6 +1094,7 @@ public final class AutoSim {
             if (wallsWanted) {
                 hookStopped |= body.wallsOut >= 1 && speed < HOOK_STILL_IN_PER_S;
                 String why = !running ? "AUTO ended"
+                        : hookHeld ? null
                         : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
                         : !near ? "left the HIVE"
                         : speed > (design.flapsDeploy && hookStopped ? HOOK_STILL_IN_PER_S : WALLS_DRIVE_OFF_IN_PER_S) ? "driving off"
@@ -1063,6 +1103,7 @@ public final class AutoSim {
                         : now - wallsSentAt > WALLS_HOLD_S ? "spill gathered" : null;
                 if (why != null) {
                     wallsWanted = false;
+                    hookHeld = false;
                     log.putEvent(tag() + guides + (design.flapsDeploy ? " up: " : " in: ") + why, us);
                 }
             }
@@ -1149,6 +1190,11 @@ public final class AutoSim {
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
                     .command("SetDown", 1.5, this::setDown)
+                    .command("Outtake", 1.0, this::outtake)
+                    // The hook from the Auto (mentor, 5 Oct 2026), next to the TIP-triggered swing in sideWalls:
+                    // down until HookUp, whatever the robot does meanwhile; done once it has finished swinging.
+                    .command("HookDown", RobotDesign.standard().sideWallsTravelS, () -> hook(true))
+                    .command("HookUp", RobotDesign.standard().sideWallsTravelS, () -> hook(false))
                     .trigger("IntakeFull", () -> design.countsPieces && body.stored.size() >= FieldSim.ROBOT_CAPACITY)
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
@@ -1203,6 +1249,53 @@ public final class AutoSim {
                         }
                     })
                     .setDone(() -> body.stored.isEmpty() && now + 1e-9 >= next[0]);
+        }
+
+        /**
+         * Stages what the robot holds by pushing it out: the intake runs backwards and pushes the pieces out of its
+         * mouth one per {@link #SET_DOWN_INTERVAL_S}, rolling at {@link #placeholderOuttakeInPerS}
+         * ({@link FieldSim#outtake}), and stays off afterwards, as SetDown does.
+         */
+        private Command outtake() {
+            final double[] next = new double[1];
+            final int[] slot = new int[1];
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        intakeEnabled = false;
+                        next[0] = now;
+                        slot[0] = 0;
+                    })
+                    .setExecute(() -> {
+                        if (now + 1e-9 >= next[0] && sim.outtake(body, slot[0], placeholderOuttakeInPerS)) {
+                            slot[0]++;
+                            next[0] = now + SET_DOWN_INTERVAL_S;
+                        }
+                    })
+                    .setDone(() -> body.stored.isEmpty() && now + 1e-9 >= next[0]);
+        }
+
+        /**
+         * HookDown / HookUp: swings the hook (RobotDesign#flapsDeploy) down and holds it there until HookUp, or
+         * lifts it. While the Auto holds it down, none of sideWalls' own reasons lift it (driving, turning, holding
+         * 4, 3 s): only HookUp or the end of AUTO. Done when it has finished swinging. On a robot without a hook,
+         * it does nothing.
+         */
+        private Command hook(boolean down) {
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        if (!design.flapsDeploy) {
+                            pending.add("no hook on this robot: Hook" + (down ? "Down" : "Up") + " does nothing");
+                            return;
+                        }
+                        hookHeld = down;
+                        if (down && !wallsWanted) {
+                            hookStopped = false;
+                            wallsSentAt = now;
+                        }
+                        if (wallsWanted != down) pending.add("hook " + (down ? "down" : "up") + ": the Auto asked");
+                        wallsWanted = down;
+                    })
+                    .setDone(() -> !design.flapsDeploy || (down ? body.wallsOut >= 1 : body.wallsOut <= 0));
         }
 
         /**

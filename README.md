@@ -17,13 +17,13 @@ the frame and shape work settles. In the simulator:
 Points are average alliance AUTO points over 20 simulated runs, normal tiles / tiles with 3× the friction
 (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** is how many runs our robot touched a spilled piece
 before it reached the tiles (the rule: don't catch or deflect a TIP's spill). Numbers run
-**5 Oct 2026 21:49 UTC**. Each log downloads as `<Auto>_<date it last changed>_best` or `_typical`.
+**6 Oct 2026 02:56 UTC** (slow-tile numbers corrected that day: they had used a differently calibrated HIVE). Each log downloads as `<Auto>_<date it last changed>_best` or `_typical`.
 
 | Auto | Partner | Points | TIPs | Our PARK | G409 runs | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight** (`qual-right-o3`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **64.8 / 61.3** | 3 TIPs in 11 / 8 of 20 | 11 / 9 | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-o3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_2026-10-05_typical.wpilog) |
-| **Qual-PartnerStages, angled partner** (`qual-stages-angled`) | Can't shoot: starts angled, back corner on the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward to PARK | **56.0 / 54.8** | 2 TIPs in 20 / 19 | 20 / 19 | 1 / 0 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) | [qual-stages-angled.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-angled.pp) · [partner-angled-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-angled-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_2026-10-05_typical.wpilog) |
-| **Qual-PartnerStages, partner against the wall** (`qual-stages-wall`) | Can't shoot: back against the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward, parked | **51.0 / 51.0** | 2 TIPs in 20 / 20 | none (it parks on our spot) | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) | [qual-stages-wall.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-wall.pp) · [partner-stage19-side-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage19-side-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_2026-10-05_typical.wpilog) |
+| **Qual-PartnerShootsRight** (`qual-right-o3`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **64.8 / 57.3** | 3 TIPs in 11 / 5 of 20 | 11 / 5 | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-o3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_2026-10-05_typical.wpilog) |
+| **Qual-PartnerStages, angled partner** (`qual-stages-angled`) | Can't shoot: starts angled, back corner on the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward to PARK | **56.0 / 54.8** | 2 TIPs in 20 / 19 | 20 / 19 | 1 / 1 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) | [qual-stages-angled.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-angled.pp) · [partner-angled-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-angled-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_2026-10-05_typical.wpilog) |
+| **Qual-PartnerStages, partner against the wall** (`qual-stages-wall`) | Can't shoot: back against the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward, parked | **51.0 / 50.0** | 2 TIPs in 20 / 19 | none (it parks on our spot) | **0 / 0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) | [qual-stages-wall.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-wall.pp) · [partner-stage19-side-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage19-side-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_2026-10-05_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_2026-10-05_typical.wpilog) |
 
 **Qual-PartnerShootsRight:** we start at the left start facing the HIVE, spun up. The partner's 4 make
 TIP 1 (4.6 s); our preloads and the far FLOWER's 4 make TIP 2 (13.5 s). We let TIP 2's spill land, drive
@@ -46,8 +46,8 @@ What would change that: a faster or wider intake (the full-width robot's ShootsR
 or a partner that fires even 1–2 pieces.
 
 **What a wider intake would buy** (the full-width 18 in robot, 16.2 in intake, same routes): ShootsRight
-69.8 / 68.0 points, 3 TIPs in 17 / 16 of 20. The intake's width is the biggest single lever the simulator
-has found. How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+69.8 / 67.0 points, 3 TIPs in 17 / 15 of 20 (6 Oct). The intake's width is the biggest single lever the simulator
+has found; a rigid V does the same with fixed flaps (below). How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
 
 - **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of 20 runs on normal tiles, from the newest
@@ -55,291 +55,52 @@ has found. How the routes were tuned: [the qualifier Autos](tools/auto-routes/RE
   run of that Auto on the day in its name (a re-simulation another day adds a file with that day's date).
 - **These three are the only Autos kept up to date.** Older ones, for earlier robots and never re-run:
   [tools/auto-routes/DEPRECATED.md](tools/auto-routes/DEPRECATED.md).
-- Robot shapes and side walls are below (this branch, `claude/biobuzz-robot-body-designs-hi386c`, and
-  `claude/dazzling-maxwell-je04gu`); the baseline above uses neither. They were run on the spring-hood robot
-  and qual-right-v3, before option 3 became the baseline.
+- Robot shapes and side walls: [What we've learned](#what-weve-learned-research-simulated), below. The
+  baselines above use neither.
 - The simulator's guesses for this launcher (2 s spin-up, 0.45 s a shot, 75°) and intake (0.35 s a piece)
   are unmeasured, and most of the commands these Autos use exist only in the simulator so far.
 
-## Side walls (branch `claude/dazzling-maxwell-je04gu`)
+## What we've learned (research, simulated)
 
-A mentor's idea (5 Oct 2026): walls down both sides of the robot that slide 6 in forward (a "long U",
-18 × 24 in, R105's limit) as our CELL starts to TIP, so the spill doesn't scatter while the robot waits
-just short of where it lands. Each wall has a one-way flap at the bottom that lets POLLEN in and keeps
-NECTAR out. G409 is the constraint throughout: the robot and its walls must not touch a spilled piece
-before it reaches the tiles. Numbers run 5 Oct 2026 03:50–13:20 UTC on this branch.
+Each study's full write-up is linked; these are the conclusions, with the date they were run. All of it is
+the simulator, nothing measured on a robot: [what the simulator knows, and what it guesses](doc/what-the-simulator-knows.md).
 
-**In a qualifier Auto** (20 runs, normal / slow tiles; `tools/auto-routes/README.md`, "G409-safe versions"):
+- **A rigid V widens option 3's intake, and that's the biggest win found** (checked on every Auto, 6 Oct).
+  Two fixed flaps from the front corners out to 18 in wide turn the 14 in mouth into an 18 in one. In
+  Qual-PartnerShootsRight: **71.0 / 69.8 points, TIP 3 and PARK in 16 / 15 of 20** (plain option 3: 64.8 /
+  57.3, 11 / 5), no G409 touches, no moving parts. With a partner that can't shoot it scores the same as plain
+  (TIP 3 is out of reach for every shape). The hooks score no better and are touched by falling pieces in most
+  runs. Worth a cardboard test: the flaps' angle and the bounce are guesses.
+  [Every shape on every Auto](doc/shape-matrix.md); the earlier study: [robot shapes](doc/robot-shapes-and-walls.md).
+- **Side walls and hooks keep more of a spill, but falling pieces hit them** (G409). The long U's walls
+  are touched in most TIPs; the right hooks keep TIP 2's spill on our half but are touched in a third of
+  runs or more on option 3. [Side walls and shapes](doc/robot-shapes-and-walls.md).
+- **Where a spill lands:** first touch 35–47 in from the CELL's wall, 1.1–1.4 s after the TIP starts. A
+  plain robot facing the HIVE is clear with its front face 35 in or less from that wall.
+  [Spill window](sim-review/spill-window.png); to check it on a real TIP: [filming a spill](doc/spill-test.md).
+- **Staging our preloads in a hook while we wait for TIP 1** (#159): costs points with a partner that
+  fires at once (we only wait 3.6 s). [Staged preloads](doc/staged-preloads-test.md).
+- **A FLOWER backboard on the hook** (#158): the hook can't reach high enough (12 in short), and a NECTAR in
+  a FLOWER only counts in the last 60 s of TELEOP. Not worth it yet. [FLOWER backboard](doc/flower-backboard.md).
+- **Keeping 4 of each spill, every qualifier partner, every body** (the deep dive, 6 Oct): picking up all 4 of
+  TIP 2's spill leads to 3 TIPs in 87-96% of matches with a shooting partner (36-49% otherwise). The dual hook
+  keeps 4 best where it can wait for the spill (left-start partner: 54 to 69 points) but falling pieces touch it in
+  about 7 runs of 20; funnel flaps or a rigid V keep about 3.4 with few touches, best with the right-start partner.
+  No body gets 3 TIPs with a staging or idle partner. [The report](sim-review/deep-dive.html) (also
+  [online](https://claude.ai/artifact/BojDToxGirRu37fVngdtjK)); matches to watch:
+  `sim-review/deep-dive-advantagescope.zip`; how: `tools/auto-routes/keep4.py`, `DeepDiveTest`.
+- **The ramp hook** (meeting, 6 Oct): the small hook with a ramp on its front, driven into a FLOWER to empty
+  it into the intake, and held out to deaden a spill. Cardboard prototypes Thursday. [Ramp hook](doc/ramp-hook.md).
 
-| Auto | Robot | Points | 3 TIPs | G409 | Simulated `.wpilog` |
-|---|---|---|---|---|---|
-| Qual-PartnerShootsLeft as it was | no walls | 70.3 / 72.3 | 18 / 19 | 9.6 / 5.6 a run | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left/latest-typical.wpilog) |
-| **Qual-PartnerShootsLeft, G409-safe** (`qual-partner-shoots-left-g409-300-s8n4-t700`) | **walls out at the TIP** | **71.5 / 69.8** | **19 / 18** | **0** | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left-g409-300-s8n4-t700/designs/spring-hood-full-width-intake-side-walls-out-at-the-tip/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-partner-shoots-left-g409-300-s8n4-t700/designs/spring-hood-full-width-intake-side-walls-out-at-the-tip/latest-typical.wpilog) |
-| Qual-PartnerShootsLeft, G409-safe | no walls | 68.3 / 68.8 | 17 / 17 | 0 | |
-| Qual-PartnerShootsRight v3 (above; v2 + 500 ms) | no walls | 72.5 / 71.8 | 18 / 17 | 0 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v2-g409-500/latest-best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v2-g409-500/latest-typical.wpilog) |
+## Branches
 
-So the walls are worth about 3 points where the robot waits for a spill over open tiles (ShootsLeft),
-and nothing to v3, whose waiting spot puts falling pieces onto the walls.
-
-**On a single TIP** (`SideWallSpillTest`; 40 TIPs, robot parked facing the HIVE, the spill measured 3 s
-later): the long U gathers 33% of the spill standing and 39% creeping 8 in forward once it has landed,
-against 13% / 18% with no walls; a wide U (24 in mouth, no forward reach) is no better than no walls.
-Park with the arm tips about 38 in from the wall, a few inches short of where pieces first hit the
-tiles (44–48 in): further forward the spill lands on the robot (G409). Pieces lying between the arms
-of a parked robot aren't CONTROL; pushing them forward with the U is herding, and counts toward 4.
-
-![Where a red TIP's spill first touches the floor, on the Visualizer's field](sim-review/spill-window.png)
-
-**Where the spill lands** (above; `sim-review/spill-window.html` is the same picture to zoom into). A
-CELL loaded with 8 POLLEN (the setup guide's other calibration case), 200 simulated TIPs, no robot. Each
-piece is drawn at its true size where it first hits anything after leaving the CELL: the tiles, the
-HIVE's feet, or a piece already down. A piece that lands on the pile and rolls into a robot is legal
-under G409 (it has touched something else), so this is where G409 stops mattering. The dashed box bounds
-every piece's footprint: x 45.6–69.5, y 35.1–47.5 in from the audience wall. The solid box bounds 90% of
-them on each axis: x 47.4–66.2, y 38.1–45.4. The match-start load (3 NECTAR, then 3 POLLEN) lands the
-same: every piece in x 46.2–72.0, y 35.4–47.0. The simulator lands them a little short of the 3 Oct films
-(median 42 in against about 48).
-
-**How close the plain robot can park** (`SideWallSpillTest.howCloseCanThePlainRobotPark`): the 18 in
-robot, walls in, centred on the red CELL's axis (x 58), facing the HIVE, 200 TIPs at each distance.
-Touches are G409 touches; "TIPs" counts the TIPs with at least one:
-
-| Front face from the audience wall | 8 POLLEN: touches, TIPs | Match start: touches, TIPs |
-|---|---|---|
-| 30–35 in | 0, 0 | 0, 0 |
-| 36 in | 2, 2 | 2, 2 |
-| 37 in | 8, 8 | 19, 19 |
-| 38 in | 53, 50 | 93, 75 |
-| 40 in | 409, 180 | 463, 193 |
-| 42 in | 1,223, 200 | 1,013, 200 |
-
-**The long U** (`howCloseCanTheLongUPark`): the same robot with the side walls slid 6 in forward, out
-from the TIP's start. "Kept" is the share of the spill lying in the same patch of floor in front of the
-robot 3 s after the TIP (15 in behind its front-most point to 8 in past it, 24 in wide):
-
-| Robot | Front face / arm tips | 8 POLLEN: kept, TIPs with a G409 touch | Match start: kept, TIPs |
-|---|---|---|---|
-| plain | 35 / – | 17%, 0 of 200 | 14%, 0 of 200 |
-| long U | 30 / 36 | **41%, 0 of 200** | **36%, 0 of 200** |
-| long U | 32 / 38 | 45%, 4 of 200 | 39%, 9 of 200 |
-| long U | 34 / 40 | 49%, 58 of 200 | 43%, 89 of 200 |
-| long U | 36 / 42 | 52%, 178 of 200 | 48%, 190 of 200 |
-
-Thin arm tips can wait about 1 in nearer than a robot's front face (36 in against 35); with the front
-face at 30–34 in, every touch is on the arms. Pictures of each step are in
-`doc/portfolio/spill-window/`.
-
-**Surround the landing instead** (`SideWallSpillTest.surroundTheLanding`, mentor, 5 Oct 2026): where the
-spill lies 3 s after the TIP, measured from the centre of where it lands (58, 41 in from the wall), and
-how much ends past the field's centre line (x > 70.75, the blue half), 200 TIPs each. "Right arm only"
-is a solid shield on the robot's right side only (`RobotDesign.sideWallsOnly`), the robot across the
-landing with its right side on the 100% drop box's right edge (x 69.5). Touches are G409 touches:
-
-| Robot | 8 POLLEN: within 12 in, past centre, TIPs touched | Match start: same |
-|---|---|---|
-| no robot | 6%, 34%, 0 | 6%, 41%, 0 |
-| plain, face 35, x 58 | 23%, 33%, 0 | 19%, 41%, 0 |
-| long U, face 35 (arm tips 41), x 58 | 52%, 13%, 121 of 200 | 48%, 23%, 145 of 200 |
-| long U, face 36 (tips 42), x 56.8 (the 90% box's centre) | 56%, 14%, 160 of 200 | 49%, 25%, 157 of 200 |
-| long U, face 37 (tips 43), x 56.8 | 59%, 13%, 182 of 200 | 51%, 23%, 174 of 200 |
-| long U, face 38 (tips 44), x 56.8 | 61%, 12%, 188 of 200 | 50%, 23%, 189 of 200 |
-| plain, face 35, x 60.5 | 20%, 33%, 0 | 19%, 41%, 0 |
-| **right arm only, face 35 (tip 41), x 60.5** | **38%, 13%, 0** | **39%, 18%, 20 of 200** |
-| right arm only, face 37 (tip 43), x 60.5 | 39%, 12%, 7 of 200 | 40%, 14%, 52 of 200 |
-
-Where the touches come from: an arm inside the drop box is under falling pieces. The long U's arms are
-18 in apart, inside the 24 in wide box, so both are; the right arm alone sits on the box's edge, where
-almost nothing falls. With no robot, a landed piece's main way out is toward the wall (36–39%), then
-right (23–25%), left (20%) and back under the HIVE (18–19%).
-
-**The best of them** (5 Oct 2026, `sim-review/body-shapes-shortlist.png`; numbers from
-`BodyShapeSpillTest.rightHookAtTheSpill`, each robot where its card shows it, 200 TIPs a load; each cell is
-8 POLLEN / match start). "Blue half": the share of the spill past the centre line 3 s after the TIP (no robot: 34% / 41%).
-
-| Design | Kept a TIP | TIPs a falling piece touches it | Blue half |
-|---|---|---|---|
-| *No moving parts, 18 × 18 all match* | | | |
-| 1 · Plain, 18 × 18 | 1.4 of 8 / 0.9 of 6 | 4 / 13 | 33% / 41% |
-| 15 · Rigid V, 14 × 16 chassis, fixed flaps 2 in out, 2 in forward | 2.0 / 1.3 | 21 / 25 | 27% / 36% |
-| *Fold out before the TIP, little lands on them* | | | |
-| 3 · Funnel, 16 × 16, flaps 3 in out, 2 in forward | 1.9 / 1.2 | 5 / 20 | 28% / 35% |
-| 6 · Short-chassis funnel, 18 wide × 15 long, flaps 3 in out, 3 in forward | 2.1 / 1.5 | 5 / 30 | 25% / 32% |
-| **13 · Large right hook**, 18 × 14 chassis, one 10 in right arm + crossbeam | **2.8 / 2.5** | **7 / 25** | **10% / 11%** |
-| *Reach into the spill: keep more, touched in many TIPs* | | | |
-| 14 · Small right hook, 18 × 16 chassis, one 8 in right arm + crossbeam | 4.3 / 3.5 | 82 / 128 | 8% / 8% |
-| 2 · Long U, walls 6 in forward | 3.6 / 2.4 | 177 / 171 | 13% / 24% |
-| 8 · Front C, 18 × 12 chassis, 12 in arms + crossbeam | 4.7 / 2.8 | 180 / 180 | 9% / 20% |
-
-- The right hooks keep the most of the spill on our half. The large one does it with almost no touches: its face and
-  crossbeam sit halfway between the spill's 100% and 90% lines and its arm halfway between the match-start spill's
-  right edges (centre x 61.6). The small one wraps the 90% boxes of both spills (face 37.5 in out, arm on x 69.2, an
-  8 in arm, so a 16 in chassis): it keeps more than the Long U but the outer tenth of the spill lands on it.
-- A rigid V inside 18 × 18 (nothing moves) keeps what the fold-out funnel keeps. Deeper or longer rigid Vs keep a
-  little more but are touched in 49–97 TIPs (`body-shapes-shortlist.csv` has them all).
-- Left out: the wide funnels (4, 5; no better than 3 and 6) and the long funnel (7; kept and touched like the Long U);
-  they and the other ideas are in `body-shapes.png` and `body-shapes-ideas.png`.
-- The simulator lands the spill about 6 in short of the 3 Oct films (median 42 in against about 48), and the roll
-  after landing is a placeholder: every parking line here moves once `doc/spill-test.md` is run.
-
-![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
-
-**The deep dive** (6 Oct 2026, [the report](https://claude.ai/artifact/BojDToxGirRu37fVngdtjK), also
-`sim-review/deep-dive.html`): every Auto pair, and the qualifier Autos with every partner (right-start shooter,
-left-start shooter, does nothing, stages angled or against the wall) on every body shape, 20 runs each, normal and
-slow tiles, counting how much of each spill our robot picks up. Picking up all 4 of TIP 2's spill leads to 3 TIPs in
-87-96% of matches with a shooting partner, against 36-49%. The dual hook keeps 4 best where it can wait at its spot
-(the left-start Auto: 54 to 69 points) but is touched by falling pieces in about 7 runs of 20; funnel flaps or a
-rigid V keep about 3.4 with almost no touches and are best with the right-start partner (about 73 points). No body
-gets 3 TIPs with a staging or idle partner: TIP 2 comes too late. Numbers: `sim-review/deep-dive/*.csv`; matches to
-watch: `sim-review/deep-dive-advantagescope.zip`; routes: `tools/auto-routes/keep4.py`; cases:
-`tools/auto-routes/deep-dive-*.txt` (`DeepDiveTest`).
-
-**On option 3, the baseline robot** (`ShapeMatchTest`, run 6 Oct 2026 after merging `claude/simulator`): the
-shapes on the build team's option 3 (14.5 in square, 14 in intake), through its own Auto, qual-right-o3
-(`tools/auto-routes/qual_shapes.py` draws each one's route), with the same partner; 20 runs each, normal tiles / tiles
-with 3x the friction. The rigid V's flaps run from the front corners out to 18 in wide (1.75 in out and forward). A hook
-is an arm along one side and a crossbeam across the front at its end, hinged at the bottom of the chassis' front face:
-it rides stowed, swung up 90 degrees inside the front of the frame, swings down (0.3 s) as our CELL starts TIP 2 while
-the robot slides about 4 in toward the centre line, and swings back up as the robot drives off, 1 s after TIP 2 settles
-(qual-right-o3 waits 0.5 s). Its arm is on the side facing the centre line (the robot's left here, on either alliance:
-blue runs the Auto rotated half a turn). The large hook's arm is 9.5 in, the longest R105 allows down (14.5 + 9.5 = 24
-in); the small one's 8 in. "Blue half": TIP 2's spill on the other alliance's half 3 s after it starts.
-
-| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half | Loose on our half at TELEOP |
-|---|---|---|---|---|---|---|
-| 1 · Plain option 3 (qual-right-o3) | 64.8 / 66.0 | 11 / 12 of 20 | 11 / 12 | 0 / 0 | 31% / 27% | 9.4 / 10.5 |
-| 15 · Rigid V | 71.0 / 73.3 | 16 / 18 | 16 / 17 | 0 / 0 | 28% / 23% | 9.1 / 11.1 |
-| 13 · Large right hook | 63.5 / 66.5 | 10 / 13 | 10 / 10 | 2 / 2 | 7% / 6% | 10.4 / 11.8 |
-| 14 · Small right hook | 63.3 / 70.3 | 10 / 16 | 9 / 13 | 13 / 13 | 8% / 4% | 10.0 / 12.6 |
-| 15 + 13 · Rigid V and large hook | 71.8 / 71.8 | 17 / 17 | 15 / 15 | 4 / 4 | 6% / 6% | 11.3 / 12.6 |
-| 15 · Rigid V, chassis shortened to 12.5 in | 69.5 / 72.0 | 15 / 17 | 14 / 16 | 1 / 1 | 28% / 22% | 9.6 / 11.3 |
-| **15 + 13 · Rigid V and 11.5 in hook, 12.5 in chassis** | **73.0 / 72.8** | **18 / 18** | **16 / 15** | **2 / 2** | **9% / 8%** | **11.4 / 12.5** |
-
-- **The rigid V and a hook together, on a chassis shortened to 12.5 in, is the best of them.** The V's flaps turn the
-  14 in intake's mouth into an 18 in one (intake width is the simulator's biggest lever); the hook keeps TIP 2's spill
-  on our half (9% crosses, against 28% for the V alone) and leaves about 2 more pieces on our half for TELEOP. On the
-  same 12.5 in chassis the hook adds 3.5 / 0.8 points and 3 / 1 more TIP 3s to the V alone. The shorter chassis
-  matters: it lets the arm be 11.5 in (12.5 + 11.5 = 24 in, R105's limit) and the robot sit 2 in further from the
-  spill, so the V's tips (1.75 in ahead of the face) clear it. On the 14.5 in chassis the V's right tip reached the
-  spill's near edge: touched in 4 runs. Its route: `qual-right-o3-short-v-hook` (face 36.1 in from the wall,
-  crossbeam 47.6 in).
-- **The hook alone scores what the plain robot does**, with the bare 14 in intake: most runs score 51 or 76, on
-  whether TIP 3 comes in time, so 20 runs can't tell 63.5 from 64.8. What it buys is the spill kept on our half,
-  which AUTO points don't count. Its 1 s wait (without it the falling spill lands on it) finishes AUTO about 0.5 s
-  later.
-- **The touches.** Placed on the 95% landing lines, as first drawn, the 9.5 in hook was touched in 7 runs: a piece is
-  2.8 in across and comes down at a slant, so pieces landing just inside the crossbeam clipped its top. 1 in further
-  out, 2. The last touches are pieces landing short onto the robot's face, or knocked by another piece in the air: a
-  longer arm (up to 13.5 in, run past R105 to see) still leaves 1 run in 20.
-- **Neither is built or tested:** the V's angle, the hook's swing (0.3 s) and how pieces bounce off them are guesses.
-  A cardboard V and hook on a 12.5 in box, parked where the route parks, is the test.
-- **The spill's landing is still the simulator's** (median 42 in from the wall); the 3 Oct films put it at about 48.
-  The hook's spot follows the real landing, which `doc/spill-test.md` measures, before anyone builds one.
-- Watch one match every way: `shape-match-o3-plain-seed19`, `-o3-rigid-v-seed19`, `-o3-large-hook-seed19`,
-  `-o3-v-hook-seed19`; on the 12.5 in chassis, `-o3-short-v-seed17` and `-o3-short-v-hook-seed17`. Each
-  touch is a `sim: G409` line on the Console saying where the piece was and which part of the robot it reached.
-- Two simulator fixes, 6 Oct 2026, behind these numbers. Slow tiles slowed every surface a piece touched, the CELL's
-  too, so the spill slid out slower and landed 4 in short, onto the hook: `FieldSim.frictionScale` is now the tiles'
-  and field walls' only, and the spill lands in the same place on both tiles. And the HIVE's fitted constants were
-  cached without the friction (`HiveCalibration.fit`), so a slow-tile run after a normal-tile one in the same test
-  used a HIVE fitted on normal tiles. Both change slow-tile numbers simulated before them, `claude/simulator`'s too.
-
-**In the Qualifier Auto, on the 18 in robot** (the spring-hood robot and qual-right-v3, before option 3 became the
-baseline; same runs as above): the same shapes, each on the 18 in wide robot with qual-right-v3's route, the spots
-where its front must reach something (the far FLOWER, the GARDEN, PARK) moved for its shorter chassis.
-
-| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half |
-|---|---|---|---|---|---|
-| 1 · Plain (qual-right-v3) | 69.8 / 69.3 | 17 / 17 of 20 | 7 / 5 | 1 / 1 | 34% / 28% |
-| 15 · Rigid V | 67.3 / 68.5 | 15 / 17 | 5 / 2 | 1 / 1 | 31% / 23% |
-| 13 · Large right hook | 68.0 / 67.8 | 16 / 16 | 4 / 3 | 6 / 6 | 12% / 11% |
-| 14 · Small right hook | 69.0 / 70.8 | 18 / 19 | 0 / 3 | 14 / 14 | 6% / 5% |
-
-- On the 18 in robot, whose intake is already 16.2 in wide, the rigid V adds nothing; the hooks keep the spill on our
-  half but are touched more often, sitting where they were first drawn.
-- To watch them: [`shape-matches-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/shape-matches-advantagescope.zip)
-  (model `BIOBUZZ Robot (match shapes)`, layout, best, typical and same-seed logs of each design; its README.txt says
-  how). Rerun: `python3 tools/auto-routes/qual_shapes.py 0` writes the routes; `BIOBUZZ_SHAPE_MATCHES=1 ./gradlew
-  :TeamCode:testDebugUnitTest --tests '*ShapeMatchTest*'` runs them (`build/sim-logs/shape-matches.csv`).
-
-**Robot shapes at the spill** (`BodyShapeSpillTest.atTheLandingLine`, mentor, 5 Oct 2026): each shape parks with
-its **chassis's front face on the spill's 100% line** (35 in from the wall; every 8 POLLEN piece lands beyond it, 90%
-beyond 38 in), so its walls, flaps or ramps reach into where pieces land. 200 TIPs a spot. "Kept" is the pieces lying
-3 s later in the same patch of floor for every shape (15 in behind the face to 8 in ahead, 24 in wide). G409 counts TIPs
-where a falling piece touched the robot before the tiles: on the chassis (a foul), or on a guide only (perhaps not
-called on a thin passive guide). "Over 4 inside" counts TIPs with more than 4 pieces between the guides at once
-(G407). Flaps hinge at the front corners; a 16 in chassis leaves 2 in forward for 3 in out (22 × 18), since true 45°
-flaps, 3 in out and 3 in forward, would be 19 × 22 and break R105.
-
-Chassis face on the 100% line, 8 POLLEN (`sim-review/body-shapes.png` has 36.5 and 38 in too):
-
-| Shape (after the start) | Kept a TIP (of 8) | G409 TIPs: chassis | G409 TIPs: guides only | Over 4 inside |
-|---|---|---|---|---|
-| plain 18 × 18 | 1.3 | 0 | 0 | – |
-| **long U** (walls 6 in forward), 24 × 18 | **3.1** | 7 | **114** | 80 |
-| (a) 16 + flaps 3 out, 2 fwd, 22 × 18 | 1.8 | 0 | 1 | 11 |
-| (b) 16 + flaps 4 out, 2 fwd, 24 × 18 | 1.7 | 0 | 1 | 9 |
-| (b) 15 + flaps 4.5 out, 3 fwd, 24 × 18 | 1.9 | 0 | 1 | 26 |
-| (c) 18 wide × 15 long + flaps 3 out, 3 fwd, 24 × 18 | 2.0 | 0 | 1 | 30 |
-| 16 + long flaps 1 out, 8 fwd, 18 × 24 | 2.8 | 10 | 185 | 172 |
-| 18 + low ramps 6 fwd, 2.5 in tall, 18 × 24 | 2.4 | 7 | 108 | 66 |
-
-- **Reaching forward keeps pieces; reaching sideways barely does.** The long U keeps 3.1 of 8 a TIP against the plain
-  robot's 1.3. The flap shapes (a), (b) and (c) keep 1.7–2.0 whatever their width, and almost never touch a falling
-  piece: their flaps reach only 2–3 in into the spill. A chassis cut shorter to allow 24 in of width isn't worth it.
-- **What it costs:** guides that reach 6–8 in forward are under the falling spill. The long U's walls touch a falling
-  piece in 114 of 200 TIPs (and its chassis in 7, pieces deflected off a wall), and more than 4 pieces sit between
-  the walls in 80. Moving the face nearer, to 36.5 or 38 in, adds little kept and many chassis touches.
-- **Low guides** (the short wedges beside a narrow "floating intake" roller in a photo): 2.5 in ramps 6 in forward
-  keep 2.4 against the long U's 3.1 and are touched about as often. Pieces bounce over a low guide.
-- **Match start** (3 NECTAR, then POLLEN until it tips: 6 pieces a TIP): long flaps 2.3 a TIP, long U 2.0, low ramps
-  1.6, the flap shapes 1.1–1.3, plain 0.9; the NECTAR lands in the left part of the box. `sim-review/body-shapes-loads.png`
-  shows where each load lands, where it lies 3 s later, and each shape's numbers for both.
-
-![Each shape from above with its sizes, parked with its chassis face on the spill's 100% line](sim-review/body-shapes.png)
-
-![The two loads: where the spill lands and where it lies 3 s later, and each shape's numbers for both](sim-review/body-shapes-loads.png)
-
-![The shapes in 3D, as AdvantageScope draws them (the see-through box is what the simulator bounces pieces off)](sim-review/body-shapes-3d.png)
-
-**To watch them in AdvantageScope** (no build needed): download
-[`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/body-shapes-advantagescope.zip),
-copy its `Robot_BIOBUZZShapes` folder into `%APPDATA%\AdvantageScope\userAssets` (next to the HIVE assets from the
-setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open
-`body-all-shapes.wpilog`: every shape, face on the 100% line, one after another, 4.5 s each, on a typical TIP and then
-on one where a piece lands on the long U's walls. The robot switches shape by itself and the Console names each one.
-The simulator ran each shape (pieces bounce off its walls and flaps); it isn't one run redrawn. Rebuild with
-`.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*BodyShapeSpillTest*" --tests "*RobotAssetsTest*" --tests "*SpillLandingTest*"`,
-then `python3 tools/spill-window/shapes.py` for the sheets. The guides' height, thickness and bounce are placeholders,
-like the walls; nothing here is measured on a robot. How far pieces roll after landing is a guess too:
-[`doc/spill-test.md`](doc/spill-test.md) is the field test that measures it.
-
-`BodyShapeSpillTest.howCloseCanEachShapePark` asks the other question, how near each shape can park with no touch at
-all (front-most point 35–37 in for every shape); kept there, measured from the front-most point, is 17% plain, 41% long
-U, 22–30% flaps.
-
-So the picture parks it at a front face of 35 in, centre (58, 26): the closest spot with no G409 touch in
-either load, and the dashed box's near edge. Redraw it after the simulator changes:
-`./gradlew :TeamCode:testDebugUnitTest --tests '*SpillLandingTest*'`, then
-`python3 tools/spill-window/draw.py --face 35` (it needs the Visualizer checkout for the field image:
-`AUTO_BUILDER_DIR`, or `../visualizer`).
-
-**To watch these:**
-
-1. Do the one-time setup below with this branch instead of `claude/simulator`; on this branch it also
-   builds **BIOBUZZ Robot** (the Limelight as a camera view: right-click the 3D view → *Limelight*) and
-   **BIOBUZZ Robot (side walls)**:
-   ```powershell
-   if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch origin claude/dazzling-maxwell-je04gu; git -C $HOME\biobuzz checkout claude/dazzling-maxwell-je04gu; git -C $HOME\biobuzz pull origin claude/dazzling-maxwell-je04gu } else { git clone -b claude/dazzling-maxwell-je04gu https://github.com/Mona-Shores-FTC-Robotics/biobuzz $HOME\biobuzz }
-   powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-hive-assets.ps1
-   ```
-2. Import [`advantagescope-layout-walls.json`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/dazzling-maxwell-je04gu/sim-review/advantagescope-layout-walls.json) (the usual
-   layout with our robot drawn with its walls, sliding) instead of `advantagescope-layout.json`.
-3. Open a walls log above. The Console says when the walls go out and in, and lists any `sim: G409`.
-4. The single-TIP logs aren't published: `.\gradlew.bat :TeamCode:testDebugUnitTest --tests "*SideWallSpillTest*"`
-   writes them to `TeamCode\build\sim-logs`: `side-walls-demo-walls` / `-plain` (the same TIP with and
-   without walls) and `long-u-short-of-landing` / `long-u-at-landing` (where to park).
-
+- **`claude/simulator`** (this one): the simulator, the current Autos, the research above. Students use
+  this branch for anything simulated.
+- **`master`**: the robot code. The simulator is never merged there.
+- **`sim-results`**: written by the Simulate Auto workflow; the logs this README links to. Don't edit it.
+- The research branches (`claude/dazzling-maxwell-je04gu`, `claude/biobuzz-robot-body-designs-hi386c`,
+  `spike/158-flower-backboard`, `spike/159-staged-preloads-hook`, `claude/robotics-meeting-notes-lq2y55`)
+  were merged here on 6 Oct 2026 and are finished; new research starts from this branch and comes back here.
 
 ## How to watch them
 
@@ -377,7 +138,7 @@ it, where a ball's centre has to be for the intake to take it. The partner is th
 model only changes the picture, never the log: pick **BIOBUZZ Prototype** or **BIOBUZZ Full width** in the
 robot row's model menu only for a log simulated with that robot.
 
-**Another branch** (the side walls, say): set `$branch` to it in step 3, run it again, then do step 4
+**Another branch:** set `$branch` to it in step 3, run it again, then do step 4
 again. It swaps in that branch's robot and field, removing the old ones.
 
 **If step 3 stops** with an Android SDK or licence error: open the `biobuzz` folder in Android Studio
