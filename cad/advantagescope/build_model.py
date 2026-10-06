@@ -3,11 +3,12 @@
 AdvantageScope's robot frame (as TeamCode's simulator RobotAssets uses it): +X forward, +Y left, +Z up, metres,
 origin on the floor under the point Pedro tracks (here: the chassis frame's centre, 7.56 in behind the front face).
 
-    python3 cad/advantagescope/build_model.py ROBOT_MESH_PKL ADDON_MESH_PKL [POD_MESH_PKL]
+    python3 cad/advantagescope/build_model.py ROBOT_MESH_PKL ADDON_MESH_PKL [POD_MESH_PKL [TRANSFER_MESH_PKL]]
 
 ROBOT_MESH_PKL is tools/robot-cad/slim.py's keep.pkl (the team's robot STEP, 143 MB, in Drive). ADDON_MESH_PKL is
-cad/intake-b/build.py's MESH_OUT. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the roller,
-its motor and carriage, drawn down (it floats straight up to 1.3 in).
+cad/intake-b/build.py's MESH_OUT; TRANSFER_MESH_PKL (optional, 4th) is cad/transfer/build.py's. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the roller,
+its motor and carriage, drawn down (it floats straight up to 1.3 in); model_2 is the turret, facing forward; model_3 is the
+transfer's J-wheel on its arms, at rest.
 """
 import json, math, os, pickle, re, sys
 import numpy as np, trimesh, fast_simplification
@@ -128,14 +129,16 @@ def transfer():
     ring = trimesh.creation.annulus(r_min=4.13 / 2, r_max=5.5 / 2, height=1.2, sections=48); ring.apply_translation([-3.17, 0, 7.2]); put(ring, GREY)
     return out
 
-def main(robot_pkl, addon_pkl, pod_pkl=None):
+def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     keep = pickle.load(open(robot_pkl, "rb"))
     add = pickle.load(open(addon_pkl, "rb"))
-    base = []
+    base, turret = [], []
     for path, v, f, col in keep:                      # the team's robot, in inches as slim.py keeps it
         if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
         if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
-        base.append(mesh(np.asarray(v) * IN, f, colour_of(path), decimate=0.08))
+        lift = [0, 8.0, 0] if "Intake <1> / 11 Hole Lowside" in path else [0, 0, 0]   # raised 8 mm for the transfer's lane (doc/transfer.md)
+        if path.startswith("Launcher Concept"): continue   # dropped (the mentor, 6 Oct): the turret's launcher replaces it
+        base.append(mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08))
     for n, m in add.items():
         if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
             base.append(mesh(m["v"], m["f"], m["col"], 0.6 if "polycarbonate" in n else 1.0))
@@ -146,13 +149,21 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
     base += limelight()
-    base += transfer()
+    tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
+    if tr is None: base += transfer()                 # placeholder solids until cad/transfer/ exists
+    else:
+        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "fixed" and not n.startswith("turret_bearing")]
+        turret += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if n.startswith("turret_bearing")]
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
+    if tr: flt += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "float"]
+    jarm = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "arm"] if tr else []
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
     merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
     merged(flt).export(include_normals=True, file_obj=os.path.join(OUT, "model_1.glb"))
+    merged(turret).export(include_normals=True, file_obj=os.path.join(OUT, "model_2.glb"))
+    if jarm: merged(jarm).export(include_normals=True, file_obj=os.path.join(OUT, "model_3.glb"))
     # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
@@ -160,7 +171,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     # disableSimplification: AdvantageScope otherwise decimates a model and drops meshes by rendering mode, and
     # this one (plain part names, no NOSIMPLIFY) came out blank on the field (6 Oct 2026).
     config = {"name": NAME, "isFTC": True, "disableSimplification": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
-              "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}, {"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
+              "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]} for _ in range(4 if jarm else 3)]}
     json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
     # the extractor's poses: it turns about its own shaft (+Y through PIVOT, 2.4 in ahead of the face and 4.5 in up);
     # front up = rotation about +Y by -angle
@@ -173,9 +184,11 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
                        "rotation_quaternion_wxyz": [round(math.cos(a / 2), 6), 0.0, round(math.sin(a / 2), 6), 0.0]}
     json.dump({"component": "model_0: FLOWER extractor", "pivot_m": [round(x, 5) for x in pivot], "axis": "+Y",
                "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 150 deg stowed",
-               "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)"},
+               "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
+               "model_2": "the turret (for now only its bearing; the launcher is to come): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
+               "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 29.1 deg is the full 1.2 in of float at the axle (a NECTAR lifts it 0.8-1.2 in, a POLLEN barely)"},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
-    for fn in ("model.glb", "model_0.glb", "model_1.glb"):
+    for fn in ("model.glb", "model_0.glb", "model_1.glb", "model_2.glb") + (("model_3.glb",) if jarm else ()):
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())
 
 if __name__ == "__main__":
