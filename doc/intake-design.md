@@ -290,11 +290,21 @@ deployed hook in a third to two-thirds of runs, and the hook's deploy timing or 
 is legal to use in a spill. With the V instead of the hook: 64.1, TIP 3 in 33, G409 in 3 runs.
 
 **Checked in the drawing:** the ramp and FLOWER block passing the roller as the hook folds (about 90°); the V
-plates against the stowed hook, the front wheels and the belt; the servo load. **Still open:** whether the 5.5 in
-lane empties a FLOWER in the 1.1–1.4 s `ramp.py` gives the 7.4 in one (cardboard test 2b); that the lane between
-the two curtains stays at least 4.5 in clear for a NECTAR rolling down the ramp; and, before anything is cut, the
-robot's designer agreeing that the roller behind the face goes. The servo, motor, pod and V-plate holes are
-placeholders to drill to the real parts.
+plates against the stowed hook, the front wheels and the belt; the servo load; the lane between the curtains,
+now 2.25 to 4.7 in out each side, 4.50 in clear for a NECTAR. **Still open:** whether the 5.5 in lane empties a
+FLOWER in the 1.1–1.4 s `ramp.py` gives the 7.4 in one (cardboard test 2b), and, before anything is cut, the
+robot's designer agreeing that the roller behind the face goes. The pod and V-plate holes are placeholders to
+drill to the real parts.
+
+**Parts** (`cad/intake-b/README.md`, "Parts to order", checked against goBILDA's listings by the CAD session):
+
+| Part | goBILDA | Notes |
+|---|---|---|
+| Roller motor | 5203-2402-0005 Yellow Jacket, 5.2:1, 1150 rpm | Driven **1:1** by HTD5 9 mm belt, 67 mm between centres (pulleys to be named for 1:1). A 48 mm wheel is 5.94 in round, so 1150 rpm is about 114 in/s at the surface, about twice the robot's 50 in/s: the usual range for an intake that pulls a piece in while driving at it. The fallback is 5203-2402-0014 (13.7:1, 435 rpm, 43 in/s) if the cardboard rig shows gecko wheels throwing pieces instead of feeding them: that is cardboard test 1's speed question |
+| Bearings | 1611-0514-4008, flanged, 8 mm REX bore, 14 mm OD, 5 mm, 2-packs | 8: roller 2, hinge 1, motor 1, wheels 4. Not 1611-0514-0008 (round bore) |
+| Hook servo | 2000-0025-0002 Dual Mode Servo (25-2, Torque) | 17.2 kg·cm at 4.8 V, 21.6 at 6 V (25.2 only at 7.4 V): on the hub's 5 V ports plan on about 17 against the hook's 5.9, a 3× margin |
+| Roller wheels | 48 mm gecko wheels, 7 or 8 on an 8 mm REX shaft (13.8 in of wheels) | The ones in the team's CAD |
+| Printed parts | motor bracket (M4 on a 16 mm square round a 14 mm boss), servo bracket, hinge hub, corner block, FLOWER block, clips | STLs in `cad/intake-b/stl/`, placed as on the robot: lay flat to print |
 
 **Stage 2, after cardboard test 3: vectored rollers.** Two short angled rollers at the mouth's outer thirds,
 toed in 30 to 45°, feeding a 4.5 in throat on the centre line, in the free corners below 4 in. The simulator
