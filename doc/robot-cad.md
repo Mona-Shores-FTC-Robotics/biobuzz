@@ -111,3 +111,8 @@ leaning back over the intake; 180° (flat back) hits the launcher. A servo has t
 gravity load is with the hook's balance point level, about 9.7 kg·cm for a 430 g hook 8.9 in out: the Torque
 servo still has 2.5×. Everything at the corner below 4 in (a vectoring wheel, the Rigid V's flap) stays free:
 the hinge, hub and servo are all above 5.5 in.
+
+**Option (b) drawn and checked: `cad/intake-b/`.** The STEP of the roller, the high-hinged hook and the V plates,
+checked every 5° from 0 to 150°: clear. 24.0 in down, 17.3 in stowed, 17.8 in across with the V plates. Where it
+had to differ from the request (the servo inboard, the arm at 7.15 in, the curtains ending at 4.7 in, the belt
+inside the left plate) is in its README.
