@@ -172,17 +172,39 @@ What the model can't tell us, and the video or cardboard can:
 - POLLEN that aren't round (§9.8);
 - whether the robot shoves the FLOWER (it's bolted to the wall).
 
-## When the video is posted
+## What the other team's video shows
 
-Things to read off it, frame by frame:
+Team 19705's reel, "This is what the ramp is for" (two stills shared 6 Oct 2026; the video itself not yet seen):
 
-- How high the ramp's edge is, and its angle.
-- How far in it goes.
-- Whether the robot stops or keeps pushing.
-- How long from first contact until the last POLLEN is out. Compare with tables A and B.
-- Where the POLLEN go once they're out.
+- **Their FLOWER isn't a closed tube.** The POLLEN (yellow wiffle balls) stack between green posts. A black
+  bracket holds the posts about one POLLEN above a black base plate. The bottom POLLEN sits on that plate, in the
+  open gap under the bracket: that gap is the retrieval opening. So `ramp.py`'s "tube" is really posts, and its
+  "ring" is probably the base plate's edge. Table C says the ring's height barely changes the answer.
+- **Their ramp is a thin red plate across the front of the robot, at floor level**, with a red arm on the side
+  that looks like its pivot. That fits "rotated down".
+- **Their intake sits right at the FLOWER.** The white star-wheel rollers press against the base, and the ramp
+  slides under the bottom POLLEN. In the second still the column is dropping, blurred, into the rollers. **The
+  intake pulls the POLLEN out, and the ramp only bridges from the base plate to the rollers.** Our model rolls
+  them out by gravity alone, 8 in back to an intake. Theirs is probably faster, about one drop per POLLEN
+  (about 0.12 s each, from 2.9 in).
 
-If their time is about 1 s, the model is in the right range.
+What that changes:
+
+- **There are two ways to copy it.** The doc's version A puts the tongue on the hook's crossbeam, 8 in in front
+  of the intake, and lets gravity do the work. Version C is theirs: a thin ramp on the intake's own mouth, with
+  the hook swung up. C is likely faster and needs no R105 trade, because nothing reaches past the hook. But it
+  is a second moving part, and the hook does only one job. A only works if gravity is enough, which the model
+  says it is, in 1.1 to 1.4 s.
+- **Wiffle balls bounce little and catch on edges through their holes.** That points to the low-e, high-mu
+  columns of the tables, where A still empties.
+
+Still to read off the video, frame by frame, when we have it:
+
+- the ramp's edge height and angle;
+- how far under the bottom POLLEN it goes;
+- whether the robot stops or keeps pushing;
+- the time from first contact to the last POLLEN in the robot. About 0.5 s means the intake does the work (C).
+  About 1 s means gravity could (A).
 
 ## Thursday: cardboard checklist
 
@@ -201,6 +223,8 @@ cardboard and tape, a phone at 240 fps and a tape measure.
    speeds and film how far they come back.
 6. **Hook A against hook B:** mock up both on a cardboard 14.5 in chassis, and check them against an 18 × 24 rectangle
    taped on the floor.
+7. **Version C, 19705's way:** tape the tongue to the front of the intake (or a box standing in for it), hook up.
+   Push it in, spin the rollers by hand or with a drill, and time it against A.
 
 Bring the numbers back here. They replace the guesses in `ramp.py` (`TUBE_R`, `RING_T`, the tongue's size) and in
 `RobotDesign.flowerPullS`.
