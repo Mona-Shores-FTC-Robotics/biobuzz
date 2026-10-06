@@ -27,7 +27,7 @@ JW_R = 0.945                             # 48 mm gecko
 J_X, J_Z = -1.32, FLOOR + 2.80 - 0.10 + JW_R   # J-wheel axle at its POLLEN hard stop
 J_OUT = JW_R + 2.80 - 0.10               # outer J radius about that axle
 J_REAR = J_X - J_OUT                     # vertical rear wall of the chute
-PIVOT = (J_X + 2.165, J_Z - 1.25)        # arm pivot, 2.5 in away at 30 deg: the queue's push closes the arm
+PIVOT = (J_X + 2.044, J_Z - 1.18)        # arm pivot, 60 mm away at 30 deg (16T HTD5 x2, 40T belt): the queue's push closes the arm
 BEARING_Z = (6.6, 7.8)                   # turret bearing, height to confirm from goBILDA's CAD
 LANE_W = 4.2                             # clear width between lane walls
 
@@ -141,9 +141,9 @@ def concept_a():
     # lane
     s.line([(RAMP[0], RAMP[1]), (RAMP[2], RAMP[3]), (J_X, FLOOR)], "lane")
     s.line([(5.6, FLOOR + 0.05), (-1.0, FLOOR + 0.05)], "belt")
-    s.circle(5.6, 0.55, 0.375, "new"); s.circle(-1.0, 0.55, 0.375, "new")
+    s.circle(5.6, 0.65, 0.25, "new"); s.circle(-1.0, 0.65, 0.25, "new")
     s.line([(ROLLER_X, ROLLER_Z), (6.0, 4.0)], "belt")        # roller shaft -> countershaft, span constant over the float
-    s.line([(6.0, 4.0), (5.6, 0.55)], "belt")                 # countershaft -> lane shaft, fixed
+    s.line([(6.0, 4.0), (5.6, 0.65)], "belt")                 # countershaft -> lane shaft, fixed
     s.circle(6.0, 4.0, 0.3, "new")
     s.text(2.6, 0.2, "lane floor 0.9 in up, 2 polycord strands, driven off the roller shaft")
     # J
@@ -166,7 +166,7 @@ def concept_a():
     robot_top(t)
     t.rect(J_X, -LANE_W / 2, 7.2, LANE_W / 2, "new", None)
     t.text(3.0, LANE_W / 2 + 0.2, "lane 4.2 in clear: the magazine")
-    for y in (0.75, -0.75):
+    for y in (0.5, -0.5):
         t.line([(5.6, y), (-1.0, y)], "belt")
     t.rect(J_REAR, -2.1, J_X + 0.8, 2.1, "new")
     t.rect(PIVOT[0] - 0.3, -2.6, PIVOT[0] + 0.3, 2.6, "new")

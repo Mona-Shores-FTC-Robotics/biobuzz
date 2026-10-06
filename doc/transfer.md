@@ -1,8 +1,10 @@
 # The transfer: intake roller to turret launcher
 
 Issue #164. Owner: the "Intake-to-turret transfer" chat (session_019KDmb4SvV5VjdaM2USg71K). Written 6 Oct 2026.
-Everything here is calculated from the CAD numbers in `doc/unified-design.md` and `doc/robot-cad.md`. None of it has
-been on a robot yet. The checklist at the end says what to build in cardboard first.
+Everything here is calculated from the CAD numbers in `doc/unified-design.md` and `doc/robot-cad.md`, and checked
+by the physics in this file and the simulator's 60-run Autos. **The decision (6 Oct 2026): it goes straight to CAD**
+(`cad/transfer/`, by the Flower Extracter chat) from the build spec below. The few things the physics can't settle,
+friction coefficients nobody has measured, are built in as adjustments, not tests.
 
 **Frame:** robot frame, +X forward, +Y left, +Z up, inches. The origin is on the floor under the chassis centre, 7.56 in
 behind the front face. The sketches are in `doc/transfer/` (`sketch.py` draws them from the numbers in this file).
@@ -67,9 +69,9 @@ transfer assumes the roller delivers pieces moving rearward at about 50 in/s, 7.
 | | Value |
 |---|---|
 | Lane floor | z 0.9, from X 5.8 back to the J. Walls 4.2 in apart (POLLEN can't sit side by side) |
-| Floor strands | 3/16 in polycord at Y ±0.75, on 0.75 in pulleys at X 5.6 and −1.0, z 0.55 |
+| Floor strands | 3/16 in polycord at **Y ±0.5** (at ±0.75 a POLLEN sags 0.22 in between them and rides the floor; at ±0.5 it sags 0.09 and rides the strands), on 0.5 in pulleys at X 5.6 and −1.0, z 0.65 |
 | J-wheel | 48 mm gecko ×2 (the roller's wheels). Axle at **(−1.32, 4.54)** when resting on its hard stop |
-| Floating arm | 2.5 in long, pivoting at (0.85, 3.29) on stub shafts in the lane walls, 30° above horizontal. The wheel lifts up to 1.2 in for a NECTAR. A soft band (surgical tubing, about 1 lbf preload) returns it to the stop |
+| Floating arm | 60 mm (2.36 in) pivot to axle, set by a 40T HTD5 belt on two 16T pulleys inside the left arm; pivot at **(0.72, 3.36)**, 30° above horizontal. The wheel lifts up to 1.2 in for a NECTAR. A soft band (surgical tubing, about 1 lbf preload) returns it to the stop |
 | Why 30° | The queue's push on the stopped wheel must turn the arm **onto** its stop. From the torque about the pivot, a POLLEN's push closes the arm at any angle up to about 50°, a NECTAR's only below about 42°. At 30° both close with margin; at the 45° first drawn, a NECTAR was neutral |
 | Outer J | Radius 3.64 in about the wheel's resting axle, from the lane floor round to a vertical rear wall at X **−4.96** |
 | Gap | POLLEN gripped by 0.1 in at the stop. NECTAR lifts the arm 0.8–1.2 in |
@@ -92,19 +94,22 @@ Mixed loads give 3 or 4. So **G407 holds by geometry: no load of 5 fits.** A 4th
 X −4.9. That's too far back, because the turret's base would cross the start line at X −7.60. At the start, a 4th
 preload can sit in the J itself (on the stopped wheel), so **4 preloads of any mix fit**.
 
-**Motors.** The J motor: a goBILDA Yellow Jacket at **1620 rpm** (5203-2402-0003), 1:1 to the J-wheel. That gives
-160 in/s at the wheel's surface. A piece leaves at about half that, which is enough to climb about 8 in. Use 1150 rpm
-(-0005) if the prototype shows the piece still reaches the throat. The lane runs off the roller shaft, 24T → 16T
-(1.5:1 up). At full roller speed the floor strands move at about 68 in/s, and pieces at about 27 in/s, since a hollow
-ball on a moving floor rolls at about 0.4 of the floor's speed.
+**Motors.** The J motor: a goBILDA Yellow Jacket at **1620 rpm** (5203-2402-0003), 1:1 to the J-wheel: 160 in/s at
+the tread. A ball driven round a fixed curve by one wheel leaves at 0.4–0.5 of the tread speed (the launcher
+study's hood figure to the pure-rolling limit): **64–80 in/s** at the wheel's rearmost point, z 4.54. From there it
+coasts up: it peaks at z 9.9–12.9 and passes z 8 at 38–61 in/s. **The 1150 rpm motor is not enough** (peak z
+7.2–8.7, barely past the bearing), so 1620 is the one. The lane runs off the roller shaft, 2:1 up: at the roller's
+1150 rpm the floor strands move at 60 in/s and pieces at about 24 in/s, since a hollow ball driven only by a belt
+under it settles at 0.4 of the belt's speed.
 
 **Time per piece.**
-- Intake to ready (at the J): about 0.35 s for the first piece (about 9 in at 27 in/s). Later pieces have less far to go.
+- Intake to ready (at the J): about 0.35 s for the first piece (it leaves the roller at about 50 in/s and slows to the
+  strands' 24 in/s over the 9 in). Later pieces have less far to go.
 - Command to the piece leaving the J: about 0.15 s. That's about 0.05 s for the J to spin up, plus about 0.08 s round
   the J and up the chute.
 - Shot interval: the J clears each piece in about 0.08 s, much faster than pieces arrive. So the interval is the piece's
-  diameter divided by the lane's speed. With the roller at 50% while firing, pieces move at about 13.5 in/s: **0.27 s
-  for NECTAR, 0.21 s for POLLEN**. Set the power to match the launcher's recovery. Software only: no sensor needed.
+  diameter divided by the lane's speed. With the roller at 60% while firing, pieces move at about 14.5 in/s: **0.25 s
+  for NECTAR, 0.19 s for POLLEN**. Set the power to match the launcher's recovery. Software only: no sensor needed.
 
 **Firing at any turret angle.** The J and the chute are fixed to the chassis. The turret turns around them. Each piece
 crosses the bearing on the axis (NECTAR) or 0.4 in behind it (POLLEN), so the throat needs a mouth about 4 in across,
@@ -112,10 +117,11 @@ centred on the axis. That holds at every angle. Only the launcher's wires have t
 turret's travel is however much its cable loop allows.
 
 **Jam risks, and the fix for each.**
-- *A NECTAR at the J's mouth.* It has to lift the arm, and while the wheel is stopped, the arm mustn't lift. The arm's
-  30° angle is chosen for that: the queue's push turns the arm onto its stop for both sizes, and only the turning
-  tread lifts it. Run the J motor in brake mode so the stopped wheel is a brake. Prove it in cardboard (checklist
-  item 4).
+- *A piece at the J's mouth with the wheel stopped.* It can't pass: the gap on the stop is 0.1 in less than a POLLEN,
+  the balls can't squeeze (about 10 lbf per 0.1 in), and the piece's push on the wheel turns the arm **onto** its stop
+  (torque about the pivot: −1.6 for POLLEN, −0.5 for NECTAR, in units of arm length × push; negative closes). The
+  push itself is tiny, about 0.03 lbf per ball from the strands, or 0.06 lbf for a 1 g bump. So the hold is geometric
+  and doesn't depend on the motor's brake. Brake mode anyway.
 - *A bump while driving.* The gap between the wheel's top (5.5) and the bearing (6.6) is too small for a ball, so a
   bounced piece can't get over the wheel. A lid over the last 3 in of the lane is cheap insurance.
 - *Two pieces in the J at once.* This can't happen while the lane delivers slower than the J clears. Keep the J at full
@@ -190,17 +196,18 @@ What it needs from the rest of the robot:
 
 | Part | goBILDA or source | Qty |
 |---|---|---|
-| J motor, Yellow Jacket 1620 rpm (3.7:1) | 5203-2402-0003 (or -0005, 1150 rpm) | 1 |
+| J motor, Yellow Jacket 1620 rpm (3.7:1) | 5203-2402-0003 (1150 rpm is not enough: the piece wouldn't clear the bearing) | 1 |
 | 48 mm gecko wheels (the roller's) | as for the roller | 2 |
-| 8 mm REX shaft, J-wheel, about 132 mm; lane pulley shafts, about 110 mm | REX shaft, cut | 3 |
+| 8 mm REX shaft: J-wheel about 130 mm, countershaft about 30 mm | REX shaft, cut | 2 |
+| 6 mm D-shafts for the strand pulleys, about 115 mm, with 6 mm-bore flanged bearings | goBILDA 2100 series + bearings, to confirm | 2 + 4 |
 | Flanged bearings, 8 mm REX bore, 14 mm OD: the J shaft, the pivot stubs, the lane shafts | 1611-0514-4008 (2-pack) | 8 bearings |
-| Arm drive, 1:1 inside the left arm, 2.5 in centres | 3417 HTD5 16T ×2 + a 3412 belt to fit (about 42T), or a printed pair | 1 set |
-| Lane drive: roller shaft → countershaft (6.0, 4.0) → lane shaft. V-groove pulleys 24 mm ×2 on the roller and countershaft, 24 mm and 16 mm on the lower loop (1.5:1 up), 8 mm REX bore; two 3/16 in polycord loops, about 7.5 and 9 in, welded at about 5% stretch | printed pulleys + polycord; countershaft 8 mm REX, about 30 mm, in one 1611-0514-4008 bearing on the wall | 1 set |
+| Arm drive, 1:1 inside the left arm, 60 mm centres | 3417-4008-0016 HTD5 16T ×2 (to confirm) + 3412 belt 40T | 1 set |
+| Lane drive: roller shaft → countershaft (6.0, 4.0) → lane shaft, 2:1 up. V-groove pulleys 32 mm (roller shaft), 16 mm ×2 (countershaft), 16 mm (lane shaft); two 3/16 in polycord loops, about 8.3 and 8.7 in at pitch, welded 5% short | printed pulleys + polycord; countershaft in one 1611-0514-4008 bearing on the wall | 1 set |
 | Polycord, 3/16 in urethane round belt, welded into loops | any FRC supplier | 4 loops: two floor strands about 14 in, the lane drive's two, about 7.5 and 9 in |
-| Polycord pulleys, 0.75 in, 8 mm REX bore | printed | 4 |
+| Strand pulleys, 0.5 in V-groove, 6 mm D bore | printed | 4 |
 | Arms (2), the hard stop, the outer J and chute (3 pieces), the ramp | printed PETG or nylon, 1/8 in walls | |
 | Lane floor and walls | 1/16 in polycarbonate | about 9 × 4.5 in floor, 2 walls |
-| Surgical tubing for the arm | | about 6 in |
+| 1/4 in surgical tubing for the arm bands | | about 12 in |
 | Turret with a 105 mm ID (the launcher's purchase; the transfer needs its bore) | 3208-0004-0001. If it's still out of stock, a ring-type lazy susan with at least 4.0 in clear through the middle, driven by a printed ring gear | 1 |
 
 ## Fit against the robot CAD (Flower Extracter chat, 6 Oct 2026)
@@ -249,6 +256,66 @@ of the front uprights.) Checked against the transfer:
 - **Ramp height under a lifted roller.** With a NECTAR under the roller, the roller's bottom is at about 3.5, and
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
+
+## Build spec for CAD (6 Oct 2026)
+
+Front entry only. Robot frame, inches unless mm is written. Where a goBILDA number is given, check it on gobilda.com
+before ordering; where it says "to confirm", the type is decided and the exact number isn't.
+
+### Lane
+
+| Item | Spec |
+|---|---|
+| Floor | 1/16 in polycarbonate, top face at z 0.90, X −1.3 to 7.2, Y ±2.1 inside the walls. Slots for the four strand pulleys |
+| Walls | 1/16 in polycarbonate, inner faces at Y ±2.1, from the floor to z 5.0; cut to 3.4 over X 2.3–4.0 (front drive encoder caps) and to 4.4 under the raised 11-hole channel (X 5.0–5.55) |
+| Ramp | 1/16 in polycarbonate or printed, from (8.0, 0.05) to (5.8, 0.90), 22°, Y ±2.1. The roller's rear edge (X 7.6) presses pieces onto it at any float height |
+| Strands | Two loops of 3/16 in (4.8 mm) 83A urethane round belt at **Y ±0.5**, top run on the floor from X 5.6 to −1.0, return under it. Loop about 14.8 in at pitch; weld 5% short |
+| Strand pulleys | Four printed V-groove pulleys, 0.5 in OD, on two 6 mm D-shafts (goBILDA 2100 series, to confirm) at (5.6, 0.65) and (−1.0, 0.65), in 6 mm-bore flanged bearings in the walls. Front shaft driven; rear idles |
+| Mounting | Two printed hangers from the raised 11-hole channel (X 5.03–5.51) to the walls; the rear end and the J shell to the turret's rear cross-channel; the ramp to the roller's side plates |
+
+### Lane drive (2:1 up, so strands run at 60 in/s and pieces at 24 in/s)
+
+| Item | Spec |
+|---|---|
+| Roller-shaft pulley | 32 mm V-groove, 8 mm REX bore, printed, in the roller's gap at Y +2.35..+2.9 |
+| Countershaft | 8 mm REX, about 30 mm, at (6.0, 4.0), Y +2.6, in one 1611-0514-4008 flanged bearing on the left wall's outer face. Two 16 mm V pulleys on it |
+| Upper loop | Roller shaft → countershaft, 2.64 in centres (2.56 at the roller's mid-travel: 2% of the loop, taken by stretch). 3/16 in polycord, about 8.3 in at pitch |
+| Lower loop | Countershaft → front strand shaft (5.6, 0.65), 16 mm → 16 mm, 3.37 in centres, fixed. About 8.7 in at pitch |
+
+### J-kicker
+
+| Item | Spec |
+|---|---|
+| Wheel | Two 48 mm gecko wheels side by side (the roller's wheels), about 2 in wide, on an 8 mm REX shaft about 130 mm long (Y −2.4 to +2.75). Axle at rest **(−1.32, 4.54)** |
+| Wheel drive | 16T HTD5 pulley (3417-4008-0016, 8 mm REX, to confirm) on the shaft at Y +2.2..+2.55, outboard of the left wall; 40T 3412-series belt (9 mm) to a matching 16T pulley on the motor shaft at the pivot. 60 mm centres |
+| Arms | Two, 1/8 in aluminium, 60 mm pivot-to-axle, at Y +2.6 (left, carrying the belt) and Y −2.4 (right). Pivot **(0.72, 3.36)**, the arm 30° above horizontal toward the rear. The shaft passes through arc slots in the walls, 1.2 in of travel, perpendicular to the arm (up-forward, 60° from horizontal) |
+| Pivot | Left: the J motor's output shaft is the pivot axis; the arm rides on it on a round-bore flanged bearing (1611-0514-0008). Right: a dead 8 mm stub in a printed block on the wall, same bearing |
+| Hard stop | A printed block on each wall's outer face under the arm, bolted through a ±0.1 in slot: the resting gap under the wheel is tuned from 2.6 to 2.8 in without reprinting. Design position: 2.7 (POLLEN squeezed 0.1) |
+| Band | 1/4 in surgical tubing from a post at each arm's tip to a post on the wall, forward and above; preload about 1 lbf; the wall post has three holes so the preload is tuned by moving it |
+| J motor | goBILDA 5203-2402-0003 Yellow Jacket, 1620 rpm, 3.7:1. Body along +Y from Y 2.75, about 1.5 in dia × 3.5 in, centred on z 3.36, X 0.72; mounted to the left wall by a printed face bracket at the pivot. Runs only to fire, forward only; brake mode when stopped. Torque needed: under 2 kg·cm (a 2 lbf pinch at 0.945 in) against 4.4 at stall |
+| Outer J and chute | Printed PETG, 1/8 in wall, inner radius 3.64 about the resting axle, from the lane floor round to a vertical rear wall at X −4.96, up to z 6.6; inner width Y ±2.1. Two halves, bolted to the walls and to the rear cross-channel. A 1/16 in lid over the pocket from the wheel's front to X 0.5 at z 5.0 (keeps a bounced piece in) |
+
+### Turret bearing and the launcher's end
+
+| Item | Spec |
+|---|---|
+| Bearing | goBILDA 3208-0004-0001 (105 mm ID, 2.75:1 geared turret), or any ring bearing with ≥ 4.0 in clear through the middle. Axis **(−3.17, 0)**; bottom face at **z 6.6** |
+| Mounting | Two 1120-series U-channels across the rails, at X −5.6..−5.1 and X 0.0..0.5, tops at z 6.6, carrying the ring. (The 1103 channel at X −6.15..−5.67 stays.) The wheel at full float reaches z 6.3 at X −2.27..−0.37 and the arm's top about 5.9: both clear the front channel |
+| Hand-off | The piece leaves the J at z 4.54 at 64–80 in/s, on the axis (NECTAR) or 0.4 in behind it (POLLEN), and coasts up through the bore. **The launcher must take it between z 6.6 and 10**, where it is still rising at 38 in/s or more. Its throat mouth: about 4 in across, centred on the axis, at any turret angle |
+
+### Mass and motor count
+
+About 0.9 kg: motor 0.35, wheels and shafts 0.2, polycarbonate 0.15, prints and pulleys 0.2. One motor port.
+
+### What the physics can't settle, and the adjustment that covers it
+
+| Unknown | Covered by |
+|---|---|
+| Gecko tread's grip on a holed ball (0.4 or 0.5 of tread speed) | Both ends clear the bearing; the launcher's intake wheel, not a fixed hood, takes the piece, so arrival speed needn't be exact |
+| The POLLEN gap that grips without stalling | The stop's ±0.1 in slot |
+| The band's preload | The three-hole post |
+| Polycord's drive on a ball (0.4 of belt speed assumed) | Pulley swap on the countershaft (16 → 12 or 20 mm) changes lane speed ±25%; firing interval is software anyway |
+| The 4th piece's arrival in the roller's pinch | The ramp's slotted mounting, ±0.5 in in X |
 
 ## Numbers for the simulator
 
@@ -351,34 +418,18 @@ block in about 1.0 s). This is the rear version to build, if any:
 **Showstoppers:** none mechanical. With the floor-level door the rear path would cost the transfer one sprung door
 and a J motor that reverses. What decided it was the reversed J: no shooting while extracting.
 
-## Checklist for the next meeting (cardboard first)
+## On the robot, once built (not a gate for CAD)
 
-Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
+The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NECTAR:
 
-1. **NECTAR under the roller.** Hold the roller at 2.4 in to its bottom and push a NECTAR at it. If it doesn't pass,
-   the intake needs a floating roller. Report it to the Intake Design chat before anything else.
-2. **Clear centreline.** On the robot, and in the CAD, check that a 4.7 in wide strip along the centreline, from X −5.1
-   (2.5 in in front of the rear face) to X 7.2 (just behind the roller), is free below 5 in. Look for cross-channels,
-   the battery, the hubs and the drive motors. Write down what's in the way.
-3. **The lane.** A cardboard lane 4.2 in wide, with the floor 0.9 in up and the 25° ramp. Throw pieces in by hand at
-   about 50 in/s.
-   - Do they climb the ramp?
-   - Do 4 POLLEN and 3 NECTAR queue in single file?
-   - Does a 5th POLLEN, or a 4th NECTAR, stay out?
-4. **The J.** A cardboard J, 3.64 in outer radius, and a gecko wheel on a drill, on a hinged arm with a rubber band.
-   - Find the hard stop where a POLLEN is just gripped.
-   - Find the band where a NECTAR lifts the arm without stalling the drill.
-   - Stopped: does the wheel hold a NECTAR at the mouth?
-   - Film at 240 fps: how high does each size go, and how fast does it leave?
-5. **Where the first piece stops.** With the wheel stopped, push the queue into it. Measure the first centre for each
-   size. The plan says 0.68 in in front of the J axle for POLLEN, 2.05 for NECTAR.
-6. **Polycord floor.** Two strands on a board, belt-driven. What fraction of the belt's speed does a lone piece reach
-   (planned 0.4)? Does the belt slip quietly under a stalled queue? Does it snag on the balls' holes?
-7. **Metering.** With the lane and the J together, time 4-piece volleys at roller power 40%, 50% and 60%.
-8. **The turret.** Get goBILDA's CAD for 3208-0004-0001: its outer diameter, its height, and whether the 105 mm is
-   clear all the way through, including the gear. Check its stock.
-9. **Motor ports.** Count them against the launcher's plan (flywheel motors, and a turret motor or a servo).
-10. ~~Rear entry~~ Not needed: the extractor stays at the front (6 Oct 2026).
+1. The stop: slide it until a POLLEN is just gripped by the stopped wheel and a NECTAR lifts the arm without stalling
+   the motor. Then: with the wheel stopped, push the queue at a NECTAR in the mouth; it must hold.
+2. The band post: the lowest preload at which the arm returns in under 0.1 s.
+3. Fire 4 at the launcher's throat; film at 240 fps if any fails to reach it (then the launcher's intake wheel comes
+   down toward z 7).
+4. The lane: 4 POLLEN and 3 NECTAR queue single file; a 5th POLLEN and a 4th NECTAR stay out.
+5. Volleys of 4 at roller power 40, 60 and 80%: pick the power for the launcher's recovery.
+6. The turret: confirm 3208-0004-0001's OD and mounting from goBILDA's CAD, and its stock.
 
 ## In the whole-robot model
 
