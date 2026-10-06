@@ -137,10 +137,15 @@ final class BodyShape {
             new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the left", true),
             new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the right", false),
             new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the left", true),
-            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the right", false)};
+            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the right", false),
+            // Option 3 shortened to 12.5 in, with the rigid V, and its 11.5 in hook.
+            new BodyShape("option 3 short, rigid V", 12.5, 14.5, 0, 1.75, 1.75),
+            new BodyShape("option 3 short, hook", 12.5, 14.5, 0, 0, 11.5).hookOnly("option 3 short, hook, arm on the left", true),
+            new BodyShape("option 3 short, hook", 12.5, 14.5, 0, 0, 11.5).hookOnly("option 3 short, hook, arm on the right", false)};
 
     /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
     static int matchComponent(String design) {
+        if (design.startsWith("option 3 short")) return 15;
         if (design.startsWith("option 3") || design.startsWith("builders' option 3")) {
             return design.contains("rigid V") ? 9 : design.contains("hook") ? 10 : 8;
         }
@@ -151,6 +156,7 @@ final class BodyShape {
 
     /** Which {@link #MATCH} component is its hook, with the arm on its left ({@code side} +1) or right; -1 for none. */
     static int matchHook(String design, int side) {
+        if (design.startsWith("option 3 short")) return !design.contains("hook") ? -1 : side > 0 ? 16 : 17;
         if (design.startsWith("option 3")) {
             int arm = design.contains("large right hook") ? 11 : design.contains("small right hook") ? 13 : -1;
             return arm < 0 ? -1 : side > 0 ? arm : arm + 1;

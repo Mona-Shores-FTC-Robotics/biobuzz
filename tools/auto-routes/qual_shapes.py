@@ -75,10 +75,23 @@ O3_SHAPES = {
 }
 
 
-def o3_shaped(name, hook_at, extra=None):
+# Option 3 shortened to 12.5 in (mentor, 6 Oct 2026), with the rigid V, alone and with an 11.5 in hook: the robot's face
+# 36.1 in from the wall, 1.5 in further than the 14.5 in hook's so the V's tips (1.75 in ahead) clear the spill, and the
+# crossbeam at 47.6 in. 20 runs, normal / slow tiles: the V alone 69.5 / 72.0 points, 28% / 22% of TIP 2's spill on the
+# blue half; with the hook 73.0 / 72.8, 9% / 8%, touched in 2 / 2 runs (face 35.6: 3 / 3).
+qual_right.FRONT_IN["option3-short"] = 12.5 / 2
+SHORT_SHAPES = {
+    "qual-right-o3-short-v": None,
+    "qual-right-o3-short-v-hook": (70.6 - 7.25, round(FIELD_IN - (36.1 - 12.5 / 2), 2), 270),
+}
+
+
+def o3_shaped(name, hook_at, extra=None, robot=None):
     """qual-right-o3 (qual_right.right with its O3 options), sliding to `hook_at` as TIP 2 starts, before the tail;
     `extra`: ms to wait for TIP 2's spill to land before driving into it, if not qual-right-o3's."""
     kw = dict(qual_right.O3["qual-right-o3"])
+    if robot:
+        kw["robot"] = robot
     if extra is not None:
         kw["extra"] = extra
     tail = qual_right.tail
@@ -118,6 +131,8 @@ if __name__ == "__main__":
         # large hook: 0 s 65.8 / 63.5 points but touched in 20 / 18 runs; 0.5 s 61.0 / 63.5, 21% / 20% of the spill
         # on the blue half; 1 s 64.3 / 64.0, 10% / 14%. Plain qual-right-o3: 64.8 / 61.3, 31% / 30%).
         o3_shaped(name, hook_at, extra=1000 if hook_at else None).write()
+    for name, hook_at in SHORT_SHAPES.items():
+        o3_shaped(name, hook_at, extra=1000 if hook_at else None, robot="option3-short").write()
     if runs == 0:
         sys.exit()
     for f in ("1", "3"):

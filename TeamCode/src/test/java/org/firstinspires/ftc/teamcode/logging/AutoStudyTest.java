@@ -47,12 +47,17 @@ public class AutoStudyTest {
      * drawn for it (qual_right.py), so it starts where they say.
      */
     static RobotDesign option3Shape(String name, double arm) {
+        return option3Shape(name, arm, arm == 0);
+    }
+
+    /** As above, with ({@code rigidV}) or without the rigid V's guides; a hook ({@code arm} over 0) can have both. */
+    static RobotDesign option3Shape(String name, double arm, boolean rigidV) {
         RobotDesign d = RobotDesign.buildersOption3().copy(name);
-        if (arm == 0) {
-            d.flapOutIn = (18 - d.frameWidthIn) / 2;
-            d.flapForwardIn = d.flapOutIn;
-            return d.checked();
+        if (rigidV) {
+            d.guideOutIn = (18 - d.frameWidthIn) / 2;
+            d.guideForwardIn = d.guideOutIn;
         }
+        if (arm == 0) return d.checked();
         d.flapForwardIn = arm;
         d.flapLeft = false;
         d.flapCrossbeam = true;
@@ -60,6 +65,29 @@ public class AutoStudyTest {
         d.flapTowardCentre = true;
         d.sideWallsDeployS = 0;
         d.sideWallsTravelS = 0.3;
+        return d.checked();
+    }
+
+    /**
+     * Option 3 shortened to 12.5 in (mentor, 6 Oct 2026: "we would just make the chassis shorter"), its width and
+     * intake as built, with the rigid V and, {@code arm} over 0, a hook that long: 12.5 + 11.5 = 24 in, R105's limit.
+     * The shorter chassis lets the robot sit 2 in further from the spill, so the V's tips clear it, with the hook's
+     * crossbeam where the 14.5 in robot's was.
+     */
+    static RobotDesign shortOption3(String name, double arm) {
+        RobotDesign d = RobotDesign.buildersOption3().copy(name);
+        d.frameIn = 12.5;
+        d.guideOutIn = (18 - d.frameWidthIn) / 2;
+        d.guideForwardIn = d.guideOutIn;
+        if (arm > 0) {
+            d.flapForwardIn = arm;
+            d.flapLeft = false;
+            d.flapCrossbeam = true;
+            d.flapsDeploy = true;
+            d.flapTowardCentre = true;
+            d.sideWallsDeployS = 0;
+            d.sideWallsTravelS = 0.3;
+        }
         return d.checked();
     }
 
@@ -114,7 +142,9 @@ public class AutoStudyTest {
         m.put(smallHook.name, smallHook);
         // The same on option 3: a 9.5 in arm is the longest R105 allows down (14.5 + 9.5 = 24 in).
         for (RobotDesign d : new RobotDesign[] {option3Shape("option 3, rigid V", 0),
-                option3Shape("option 3, large right hook", 9.5), option3Shape("option 3, small right hook", 8)}) {
+                option3Shape("option 3, large right hook", 9.5), option3Shape("option 3, small right hook", 8),
+                option3Shape("option 3, rigid V + large right hook", 9.5, true),
+                shortOption3("option 3 short, rigid V", 0), shortOption3("option 3 short, rigid V + large right hook", 11.5)}) {
             m.put(d.name, d);
         }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");

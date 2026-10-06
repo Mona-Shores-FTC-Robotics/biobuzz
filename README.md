@@ -194,27 +194,38 @@ the robot slides about 4 in toward the centre line, and swings back up as the ro
 blue runs the Auto rotated half a turn). The large hook's arm is 9.5 in, the longest R105 allows down (14.5 + 9.5 = 24
 in); the small one's 8 in. "Blue half": TIP 2's spill on the other alliance's half 3 s after it starts.
 
-| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half |
-|---|---|---|---|---|---|
-| 1 · Plain option 3 (qual-right-o3) | 64.8 / 66.0 | 11 / 12 of 20 | 11 / 12 | 0 / 0 | 31% / 27% |
-| **15 · Rigid V** | **71.0 / 73.3** | **16 / 18** | **16 / 17** | **0 / 0** | 28% / 23% |
-| **13 · Large right hook** | 63.5 / 66.5 | 10 / 13 | 10 / 10 | **2 / 2** | **7% / 6%** |
-| 14 · Small right hook | 63.3 / 70.3 | 10 / 16 | 9 / 13 | 13 / 13 | 8% / 4% |
+| Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half | Loose on our half at TELEOP |
+|---|---|---|---|---|---|---|
+| 1 · Plain option 3 (qual-right-o3) | 64.8 / 66.0 | 11 / 12 of 20 | 11 / 12 | 0 / 0 | 31% / 27% | 9.4 / 10.5 |
+| 15 · Rigid V | 71.0 / 73.3 | 16 / 18 | 16 / 17 | 0 / 0 | 28% / 23% | 9.1 / 11.1 |
+| 13 · Large right hook | 63.5 / 66.5 | 10 / 13 | 10 / 10 | 2 / 2 | 7% / 6% | 10.4 / 11.8 |
+| 14 · Small right hook | 63.3 / 70.3 | 10 / 16 | 9 / 13 | 13 / 13 | 8% / 4% | 10.0 / 12.6 |
+| 15 + 13 · Rigid V and large hook | 71.8 / 71.8 | 17 / 17 | 15 / 15 | 4 / 4 | 6% / 6% | 11.3 / 12.6 |
+| 15 · Rigid V, chassis shortened to 12.5 in | 69.5 / 72.0 | 15 / 17 | 14 / 16 | 1 / 1 | 28% / 22% | 9.6 / 11.3 |
+| **15 + 13 · Rigid V and 11.5 in hook, 12.5 in chassis** | **73.0 / 72.8** | **18 / 18** | **16 / 15** | **2 / 2** | **9% / 8%** | **11.4 / 12.5** |
 
-- **The rigid V scores the most.** Its flaps turn the 14 in intake's mouth into an 18 in one, and intake width is the
-  simulator's biggest lever: TIP 3 and PARK in 16-18 of 20 instead of 11-12, no G409 touches, no moving parts. Worth
-  a cardboard test before trusting: the flaps' angle and how pieces bounce off them are guesses.
-- **The large hook keeps 93% of TIP 2's spill on our half** (against 70% for the plain robot) and scores what the plain
-  robot does: most runs score 51 or 76, on whether TIP 3 comes in time, so 20 runs can't tell 63.5 from 64.8. AUTO
-  points don't count the spill it keeps: those are pieces for TELEOP. What it costs is the 1 s wait (without it the
-  falling spill lands on it), which finishes AUTO about 0.5 s later.
-- **It is touched by a falling piece in 2 runs of 20.** Placed on the 95% landing lines, as first drawn, it was 7: a
-  piece is 2.8 in across and comes down at a slant, so pieces landing just inside the crossbeam clipped its top. Its
-  face now sits 37.6 in from the wall and the crossbeam 47.1 in. The last touches are the spill's near tail landing on
-  the robot's face: a 9.5 in arm can't clear both ends. The small hook, 8 in, is touched in 13.
+- **The rigid V and a hook together, on a chassis shortened to 12.5 in, is the best of them.** The V's flaps turn the
+  14 in intake's mouth into an 18 in one (intake width is the simulator's biggest lever); the hook keeps TIP 2's spill
+  on our half (9% crosses, against 28% for the V alone) and leaves about 2 more pieces on our half for TELEOP. On the
+  same 12.5 in chassis the hook adds 3.5 / 0.8 points and 3 / 1 more TIP 3s to the V alone. The shorter chassis
+  matters: it lets the arm be 11.5 in (12.5 + 11.5 = 24 in, R105's limit) and the robot sit 2 in further from the
+  spill, so the V's tips (1.75 in ahead of the face) clear it. On the 14.5 in chassis the V's right tip reached the
+  spill's near edge: touched in 4 runs. Its route: `qual-right-o3-short-v-hook` (face 36.1 in from the wall,
+  crossbeam 47.6 in).
+- **The hook alone scores what the plain robot does**, with the bare 14 in intake: most runs score 51 or 76, on
+  whether TIP 3 comes in time, so 20 runs can't tell 63.5 from 64.8. What it buys is the spill kept on our half,
+  which AUTO points don't count. Its 1 s wait (without it the falling spill lands on it) finishes AUTO about 0.5 s
+  later.
+- **The touches.** Placed on the 95% landing lines, as first drawn, the 9.5 in hook was touched in 7 runs: a piece is
+  2.8 in across and comes down at a slant, so pieces landing just inside the crossbeam clipped its top. 1 in further
+  out, 2. The last touches are pieces landing short onto the robot's face, or knocked by another piece in the air: a
+  longer arm (up to 13.5 in, run past R105 to see) still leaves 1 run in 20.
+- **Neither is built or tested:** the V's angle, the hook's swing (0.3 s) and how pieces bounce off them are guesses.
+  A cardboard V and hook on a 12.5 in box, parked where the route parks, is the test.
 - **The spill's landing is still the simulator's** (median 42 in from the wall); the 3 Oct films put it at about 48.
   The hook's spot follows the real landing, which `doc/spill-test.md` measures, before anyone builds one.
-- Watch one match three ways: `shape-match-o3-plain-seed19`, `-o3-rigid-v-seed19`, `-o3-large-hook-seed19`. Each
+- Watch one match every way: `shape-match-o3-plain-seed19`, `-o3-rigid-v-seed19`, `-o3-large-hook-seed19`,
+  `-o3-v-hook-seed19`; on the 12.5 in chassis, `-o3-short-v-seed17` and `-o3-short-v-hook-seed17`. Each
   touch is a `sim: G409` line on the Console saying where the piece was and which part of the robot it reached.
 - Two simulator fixes, 6 Oct 2026, behind these numbers. Slow tiles slowed every surface a piece touched, the CELL's
   too, so the spill slid out slower and landed 4 in short, onto the hook: `FieldSim.frictionScale` is now the tiles'

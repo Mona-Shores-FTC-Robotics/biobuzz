@@ -1180,6 +1180,16 @@ final class FieldSim {
                 }
             }
         }
+        if (d.hasGuides()) {  // RobotDesign#guideOutIn: a rigid plate from each front corner, out all match
+            double hl = Math.hypot(d.guideOutIn, d.guideForwardIn) / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
+            for (int side = -1; side <= 1; side += 2) {
+                double lx = half + d.guideForwardIn / 2, ly = side * (halfWidth + d.guideOutIn / 2);
+                double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+                double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
+                flap |= box(p, cx, cy, bh + Math.atan2(side * d.guideOutIn, d.guideForwardIn), hl, t, 0, d.flapHeightIn,
+                        fvx, fvy, bot.w, bounce(robotRestitution));
+            }
+        }
         if (d.hasFlaps() && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;

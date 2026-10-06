@@ -42,6 +42,10 @@ public class ShapeMatchTest {
             {"15 · Rigid V, option 3", "QualRightO3RigidVAuto", "option 3, rigid V", "o3-rigid-v"},
             {"13 · Large right hook, option 3", "QualRightO3LargeHookAuto", "option 3, large right hook", "o3-large-hook"},
             {"14 · Small right hook, option 3", "QualRightO3SmallHookAuto", "option 3, small right hook", "o3-small-hook"},
+            {"15 + 13 · Rigid V and large hook, option 3", "QualRightO3LargeHookAuto", "option 3, rigid V + large right hook", "o3-v-hook"},
+            // Option 3 shortened to 12.5 in: the rigid V alone, then with an 11.5 in hook (its own route).
+            {"15 · Rigid V, option 3 at 12.5 in", "QualRightO3ShortVAuto", "option 3 short, rigid V", "o3-short-v"},
+            {"15 + 13 · Rigid V and 11.5 in hook, option 3 at 12.5 in", "QualRightO3ShortVHookAuto", "option 3 short, rigid V + large right hook", "o3-short-v-hook"},
     };
     static final int RUNS = 20;
 
@@ -51,7 +55,7 @@ public class ShapeMatchTest {
         File dir = TeamCodeDir.simLogs();
         File scratch = new File(dir, "shape-match-runs");
         StringBuilder csv = new StringBuilder("# card,auto,design,friction,points,tip3Runs,parkedRuns,g409Runs,g409Pieces,"
-                + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
+                + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,looseOnOurHalfAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
         for (double friction : new double[] {1, 3}) {
             FieldSim.frictionScale = friction;
             long[] typicalOf = new long[CASES.length];
@@ -60,7 +64,7 @@ public class ShapeMatchTest {
                     String[] c = CASES[ci];
                     RobotDesign design = AutoStudyTest.designs().get(c[2]);
                     RobotDesign partner = AutoStudyTest.designs().get("spring hood");
-                    double points = 0, held = 0;
+                    double points = 0, held = 0, loose = 0;
                     int tip3 = 0, parked = 0, g409Runs = 0, g409 = 0, spilled = 0, blue = 0;
                     double[][] bySeed = new double[RUNS][2];  // {points, seed}
                     for (int i = 0; i < RUNS; i++) {
@@ -74,6 +78,7 @@ public class ShapeMatchTest {
                         if (r.g409 > 0) g409Runs++;
                         g409 += r.g409;
                         held += r.held;
+                        loose += r.ourHalfLoose;
                         if (r.tipSpills.size() >= 2) {
                             spilled += r.tipSpills.get(1)[0];
                             blue += r.tipSpills.get(1)[1];
@@ -91,14 +96,14 @@ public class ShapeMatchTest {
                                     StandardCopyOption.REPLACE_EXISTING);
                         }
                     }
-                    String row = String.format(Locale.ROOT, "\"%s\",%s,\"%s\",%.0f,%.1f,%d,%d,%d,%d,%d,%.0f,%.2f,%d,%d",
+                    String row = String.format(Locale.ROOT, "\"%s\",%s,\"%s\",%.0f,%.1f,%d,%d,%d,%d,%d,%.0f,%.2f,%.2f,%d,%d",
                             c[0], c[1], c[2], friction, points / RUNS, tip3, parked, g409Runs, g409, spilled,
-                            spilled == 0 ? 0 : 100.0 * blue / spilled, held / RUNS, best, typical);
+                            spilled == 0 ? 0 : 100.0 * blue / spilled, held / RUNS, loose / RUNS, best, typical);
                     csv.append(row).append('\n');
                     System.out.printf(Locale.ROOT, "SHAPEMATCH %-22s tiles x%.0f: %.1f pts, TIP 3 %d/%d, PARK %d/%d, G409 in %d runs (%d pieces),"
-                                    + " TIP 2's spill on the blue half %.0f%% of %d, held %.2f; best seed %d, typical %d%n",
+                                    + " TIP 2's spill on the blue half %.0f%% of %d, held %.2f, loose on our half %.1f; best seed %d, typical %d%n",
                             c[0], friction, points / RUNS, tip3, RUNS, parked, RUNS, g409Runs, g409,
-                            spilled == 0 ? 0 : 100.0 * blue / spilled, spilled, held / RUNS, best, typical);
+                            spilled == 0 ? 0 : 100.0 * blue / spilled, spilled, held / RUNS, loose / RUNS, best, typical);
                     assertTrue(c[0] + ": no TIP 2 spill counted", spilled > 0);
                 }
                 if (friction == 1) {
@@ -123,7 +128,8 @@ public class ShapeMatchTest {
     /** The plain design's case for case {@code ci}: the first case with the same robot (the 18 in one, or option 3). */
     static int plainOf(int ci) {
         int plain = 0;
-        for (int i = 0; i <= ci; i++) if (CASES[i][1].equals("QualRightV3Auto") || CASES[i][1].equals("QualRightO3Auto")) plain = i;
+        for (int i = 0; i <= ci; i++) if (CASES[i][1].equals("QualRightV3Auto") || CASES[i][1].equals("QualRightO3Auto")
+                || CASES[i][1].equals("QualRightO3ShortVAuto")) plain = i;
         return plain;
     }
 

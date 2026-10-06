@@ -177,6 +177,11 @@ public final class AutoSim {
          */
         final List<int[]> tipSpills = new ArrayList<>();
         /**
+         * When TELEOP starts: loose pieces on the tiles on the alliance's own half (what a hook keeps there for
+         * TELEOP), not counting pieces in a CELL or held.
+         */
+        int ourHalfLoose;
+        /**
          * When TELEOP starts: how far the pieces already in the alliance's raised CELL go toward the
          * next TIP (1 = enough), and how many pieces the alliance's robots hold. AUTO scores only
          * TIPs, LEAVE and PARK, so this is what an Auto's spare seconds can still buy.
@@ -526,6 +531,10 @@ public final class AutoSim {
         FieldSim.Rocker ours = sim.rocker(alliance);
         result.cellLoad = Math.max(0, sim.tippingTorque(ours) / sim.physics.holdTorque);
         for (Bot b : bots) result.held += b.body.stored.size();
+        for (FieldSim.Piece p : sim.pieces) {
+            boolean ourHalf = alliance == Alliance.BLUE ? p.x > FieldSim.CENTRE_IN : p.x < FieldSim.CENTRE_IN;
+            if (p.where == FieldSim.Where.FIELD && p.cell == null && p.flower < 0 && ourHalf) result.ourHalfLoose++;
+        }
         RobotResult first = result.robots.get(0);
         result.finished = first.finished;
         result.finishedAt = first.finishedAt;
@@ -557,6 +566,14 @@ public final class AutoSim {
      */
     private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly) {
         List<double[]> out = corners(pose, design);
+        if (design.hasGuides()) {  // the rigid V's free ends
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = design.frameIn / 2 + design.guideForwardIn;
+            for (int side = -1; side <= 1; side += 2) {
+                double ly = side * (design.frameWidthIn / 2 + design.guideOutIn);
+                out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+            }
+        }
         if (design.hasFlaps() && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
             for (int side = -1; side <= 1; side += 2) {
