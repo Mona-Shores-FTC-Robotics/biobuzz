@@ -54,28 +54,33 @@ for n, (wp, col, kind) in A.parts.items():            # keep the chassis add-ons
 part(fixed, "roller_shaft (8mm REX, 400 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(PLATE_IN + PLATE_T + 4), xl(PLATE_IN + PLATE_T + 4)), STEEL, "buy")
 part(fixed, "roller_wheels (48 mm gecko, 13.8 in of them)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, xr(ROLL_HALF), xl(ROLL_HALF)), (0.35, 0.66, 0.31), "buy")
 for s, f in (("R", xr), ("L", xl)):
-    part(fixed, f"roller_bearing_{s} (8mm REX flanged)", cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
+    part(fixed, f"roller_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
 # Belt drive inside the left plate, between the roller's end (6.9 in) and the plate (7.56 in): outside the plate the
 # Rigid V's left plate would cut through the pulley and belt.
 PUL0, PUL1 = ROLL_HALF + 1.5, PLATE_IN - 2.0
 part(fixed, "roller_pulley_L (HTD5, inside the plate)", cyl("x", (0, ROLL_Y, ROLL_Z), 30.0, xl(PUL0), xl(PUL1)), BLACK, "buy")
 part(fixed, "motor_pulley_L (HTD5, inside the plate)", cyl("x", (0, HY, HZ), 30.0, xl(PUL0), xl(PUL1)), BLACK, "buy")
 part(fixed, "roller_belt_L (HTD5, 9 mm)", box(xl(PUL0 + 1.5), xl(PUL1 - 1.5), ROLL_Y - 15, HY + 15, HZ - 15, HZ + 15).cut(box(xl(PUL0), xl(PUL1), ROLL_Y - 12, HY + 12, HZ - 12, HZ + 12)), BLACK, "buy")
-part(fixed, "roller_motor_L (goBILDA 5203, inboard, over the roller)", cyl("x", (0, HY, HZ), 37.0, xl(PUL0 - 2), xl(PUL0 - 122)), BLACK, "buy")
-part(fixed, "motor_shaft_L (8mm REX, through the pulley into the plate's bearing)", cyl("x", (0, HY, HZ), 8.0, xl(PUL0 - 2), xl(PLATE_IN + PLATE_T + 3)), STEEL, "buy")
-mb = box(xl(124.0), xl(PUL0 - 8), HY - 24, HY + 24, FACE, HZ - 18.5)          # bolts to the left upright's front face
+FACE_X = PUL0 - 1.0                     # the motor's mounting face, just inboard of its pulley
+part(fixed, "roller_motor_L (goBILDA 5203-2402-0005, 1150 RPM)", cyl("x", (0, HY, HZ), 37.0, xl(FACE_X - 7), xl(FACE_X - 127)), BLACK, "buy")
+part(fixed, "motor_shaft_L (the motor's own 24 mm 8mm-REX output shaft)", cyl("x", (0, HY, HZ), 8.0, xl(FACE_X - 7), xl(FACE_X + 20)), STEEL, "buy")
+mb = box(xl(FACE_X - 6), xl(FACE_X), HY - 24, HY + 24, FACE, HZ + 24)          # face plate: the motor bolts to it
+mb = mb.union(box(xl(124.0), xl(FACE_X - 6), HY - 24, HY + 24, FACE, HZ - 18.5))  # ...and a cradle back to the upright
+mb = mb.cut(cyl("x", (0, HY, HZ), 14.0, xl(FACE_X - 7), xl(FACE_X + 1)))
+for dy in (-8, 8):
+    for dz in (-8, 8): mb = mb.cut(cyl("x", (0, HY + dy, HZ + dz), M4, xl(FACE_X - 7), xl(FACE_X + 1)))
 for y in (-7.2, 8.8): mb = mb.cut(cyl("z", (C + 128.0, y, 0), M4, FACE - 1, HZ))
 part(fixed, "motor_bracket_L (print)", mb, BLUE, "print")
-part(fixed, "motor_bearing_L (8mm REX flanged)", cyl("x", (0, HY, HZ), 14.0, xl(PLATE_IN), xl(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
+part(fixed, "motor_bearing_L (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xl(PLATE_IN), xl(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
 # ---- the hook's servo, inboard of the right plate, spline out toward the hub ----
 SPL = ARM - 7.0 - 2.0                  # servo face 2 mm inboard of the hub
 servo = box(xr(SPL - 38.6), xr(SPL), HY - 10.2, HY + 30.6, HZ - 10, HZ + 10)
 servo = servo.union(box(xr(SPL - 8.5), xr(SPL - 6), HY - 17, HY + 37.4, HZ - 10, HZ + 10))
-part(fixed, "servo_R (goBILDA 2000 Torque)", servo, BLACK, "buy")
+part(fixed, "servo_R (goBILDA 2000-0025-0002, Torque)", servo, BLACK, "buy")
 sb = box(xr(124.0), xr(SPL - 6), HY - 17, HY + 37.4, FACE, HZ - 10)       # bolts to the right upright's front face
 for y in (-7.2, 8.8): sb = sb.cut(cyl("z", (C - 128.0, y, 0), M4, FACE - 1, HZ))
 part(fixed, "servo_bracket_R (print)", sb, BLUE, "print")
-part(fixed, "hinge_bearing_R (8mm REX flanged)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
+part(fixed, "hinge_bearing_R (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
 part(fixed, "servo_shaft_R (goBILDA 8mm REX servo shaft, 25T, 36 mm)", cyl("x", (0, HY, HZ), 8.0, xr(SPL), xr(SPL + 36)), STEEL, "buy")
 
 # ---- the hook: hub on the hinge, one sloping arm, corner block, front shaft, FLOWER block, curtains ----
@@ -95,15 +100,16 @@ rex = (cq.Workplane("YZ").polygon(6, A.REX_AF / math.cos(math.pi / 6)).extrude(2
 part(hook, "corner_block_R (print)", cb.cut(rex), BLUE, "print")
 part(hook, "front_shaft (8mm REX, 312 mm)", cyl("x", (0, FS_Y, FS_Z), 8.0, xr(ARM - 3), xl(A.FRONT_LEFT)), STEEL, "buy")
 part(hook, "flower_block (print)", ramp_block().translate((0, 0, ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
-for dd in (60, 110):
+for dd in (70, 110):                   # clips inside the curtains' span (2.25-4.7 in)
     for s, f in (("R", xr), ("L", xl)): part(hook, f"curtain_clip_{dd}_{s} (print)", clip("x").translate((f(dd), FS_Y - 7.5, FS_Z)), BLUE, "print")
 for s, f in (("R", xr), ("L", xl)):
     part(hook, f"collar_{s} (8mm REX clamping collar)", cyl("x", (0, FS_Y, FS_Z), 21.0, f(1.55 * IN - 4), f(1.55 * IN + 4)), STEEL, "buy")
 # As the hook folds (125-135 deg) the curtains sweep through the tops of the two tall front towers (4.8-5.3 in from
 # centre, 14.3 in tall), so both curtains end at 4.7 in. The right one leaves 2.45 in to the arm: no POLLEN gets out.
 CURT_END = 4.7 * IN
-part(hook, "curtain_R (1/16 polycarbonate)", box(xr(38.6), xr(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
-part(hook, "curtain_L (1/16 polycarbonate)", box(xl(38.6), xl(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
+CURT_IN = 2.25 * IN                    # 4.5 in clear between the curtains: a NECTAR (3.6 in) rolls through to the roller
+part(hook, "curtain_R (1/16 polycarbonate)", box(xr(CURT_IN), xr(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
+part(hook, "curtain_L (1/16 polycarbonate)", box(xl(CURT_IN), xl(CURT_END), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), POLY, "cut")
 def at(z): return HY + (CB[1] - HY) * (z - HZ) / (CB[2] - HZ)            # the arm's height at z
 z0, z1 = FACE + 2.3 * IN, ZB + A.ROD_X - 16
 side = cq.Workplane("YZ").polyline([(F + 1.3 * IN, z0), (at(z0) - 8, z0), (at(z1) - 8, z1), (F + 1.3 * IN, z1)]).close().extrude(1.6).translate((xr(ARM) - 0.8, 0, 0))

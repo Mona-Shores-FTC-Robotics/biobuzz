@@ -30,7 +30,7 @@ for importing). Three sub-assemblies:
 | Across, with the V plates | 17.8 / 18 in |
 | V plates | clear of the front wheels, the belt drive and the stowed hook |
 | Hook weight, balance point | about 314 g, 7.3 in from the hinge |
-| Servo load, worst (at about 32° of fold) | about 5.9 kg·cm, against about 25 for the goBILDA Torque servo |
+| Servo load, worst (at about 32° of fold) | about 5.9 kg·cm, against 17.2 kg·cm at 4.8 V and 21.6 at 6 V for the Torque servo (its 25.2 is at 7.4 V); the hub's servo ports give about 5 V: about 3× |
 
 ## Where it differs from the request, and why
 
@@ -38,12 +38,31 @@ for importing). Three sub-assemblies:
   the V plates.
 - **The arm is 7.15 in out, not 7.25.** With 13.8 in of roller wheels that leaves room for a 14 mm hub between
   the servo and the plate.
+- **The curtains run from 2.25 to 4.7 in from centre** on each side, leaving 4.5 in clear between them for a NECTAR
+  (3.6 in) rolling off the ramp to the roller.
 - **Both curtains end 4.7 in from centre.** As the hook folds they would sweep through the tops of the two tall
   front towers (4.8 to 5.3 in out, 14.3 in tall). The right one leaves 2.45 in to the arm, too narrow for a
   POLLEN to get out.
 - **The roller's belt drive is inside the left plate.** Outside, the left V plate would cut through it.
 - **The V plates start at the side plates' outer face** (7.68 in from centre) and end 8.89 in out, not 9.0, so the
   robot stays under 18 in. They stop 0.25 in off the tiles.
+
+## Parts to order (goBILDA; check stock and pack sizes on gobilda.com)
+
+| Part | goBILDA | Qty |
+|---|---|---|
+| Roller motor | 5203-2402-0005 Yellow Jacket, 5.2:1, 1150 RPM (or -0014, 13.7:1, 435 RPM, if the cardboard test wants a slower roller) | 1 |
+| Hook servo | 2000-0025-0002 Dual Mode Servo (25-2, Torque) | 1 |
+| Flanged bearings, 8 mm REX bore, 14 mm OD: 2 for the roller, 1 for the hinge, 1 for the motor, 4 for the wheels | 1611-0514-4008 (2-pack) | 8 bearings |
+| Servo shaft | 8mm REX Servo Shaft, 25-tooth spline, 36 mm | 1 |
+| 8 mm REX shafts | roller 400 mm, front 312 mm, arm cut to 200 mm, wheels 80 mm ×4 | |
+| HTD5 pulleys, 9 mm belt, and the belt between them (centres 67 mm apart) | | 2 + 1 |
+| 48 mm gecko wheels for 13.8 in of roller | | about 20 |
+| M4 standoffs, 56 mm | | 8 |
+| 8 mm REX clamping collars | | 2 |
+| 1/8 in aluminium (side plates, V plates), 1/16 in polycarbonate (curtains, side panel) | | |
+
+The pulley and belt part numbers depend on the tooth counts you pick for the roller's speed.
 
 ## Before anything is cut or printed
 

@@ -67,8 +67,8 @@ for side, f in (("R", xr), ("L", xl)):
             add(f"standoff_{side}_{z:+.0f}_{y:.0f} (M4, 56 mm)", cyl("x", (0, y, z), 7.0, f(RAIL_OUT), f(PLATE_IN)), (0.55, 0.6, 0.66), "buy")
     for z in (AX_ZF, AX_ZR):
         add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (8mm REX, 80 mm, replaces 72 mm)", cyl("x", (0, AX_Y, z), 8.0, f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
-        add(f"bearing_{side}_{'front' if z > 0 else 'rear'} (8mm REX flanged, 14 mm OD)", cyl("x", (0, AX_Y, z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
-add("bearing_R_hinge (8mm REX flanged, 14 mm OD)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
+        add(f"bearing_{side}_{'front' if z > 0 else 'rear'} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, AX_Y, z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
+add("bearing_R_hinge (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 
 # ---------------- hinge brackets on the front uprights (printed) ----------------
 def bracket():
@@ -153,7 +153,7 @@ add("servo_shaft_R (goBILDA 8mm REX servo shaft, 25T, 36 mm)", cyl("x", (0, HY, 
 SPL = PLATE_IN + PLATE_T + 2.0
 servo = box(xr(SPL + 2), xr(SPL + 40.6), HY - 10.2, HY + 30.6, HZ - 10, HZ + 10)
 servo = servo.union(box(xr(SPL + 8), xr(SPL + 10.5), HY - 17, HY + 37.4, HZ - 10, HZ + 10)).union(cyl("x", (0, HY, HZ), 6.0, xr(SPL), xr(SPL + 2)))
-add("servo_R (goBILDA 2000 Torque)", servo, (0.13, 0.15, 0.17), "buy")
+add("servo_R (goBILDA 2000-0025-0002, Torque)", servo, (0.13, 0.15, 0.17), "buy")
 
 # ---------------- odometry pods (from the example STEP) ----------------
 # The pods are goBILDA's own CAD, cut from the team's example robot (pod1/pod2.brep, ~16 MB each, kept out of git).

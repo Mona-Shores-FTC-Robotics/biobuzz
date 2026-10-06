@@ -25,7 +25,7 @@ This replaces the hinge in `cad/ramp-hook/`. The FLOWER block's shape is unchang
 | Stowed, front to back | 17.5 / 18 in |
 | Across, with the servo | 17.3 / 18 in |
 | Hook weight (from the CAD's volumes) | about 430 g, balance point 5.6 in out |
-| Servo torque: hold level / peak folding 90° in 0.4 s | 6.1 / 10.3 kg·cm, against about 25 for the Torque servo |
+| Servo torque: hold level / peak folding 90° in 0.4 s | 6.1 / 10.3 kg·cm, against 17.2 kg·cm at 4.8 V and 21.6 at 6 V for the Torque servo (its 25.2 is at 7.4 V); the hub's servo ports give about 5 V |
 | Lowest point of the hook | 0.7 in (the two shaft collars 0.61 in: check the real collars) |
 | Pod wheels | on the floor |
 
@@ -38,7 +38,7 @@ The robot CAD is 143 MB and stays in Drive, not git. The checks ran on a 0.1 in 
 | `outer_plate_R` (hinge bearing, raised ear for the servo) / `_L` (plain), 1/8 in aluminium, 48 mm tall | 1 + 1 | Cut |
 | M4 standoffs, 56 mm (a stock length, or e.g. 48 + 8) | 8 | Buy |
 | 8 mm REX shaft, 80 mm (replaces each 72 mm wheel shaft) | 4 | Buy |
-| 8 mm REX flanged bearing, 14 mm OD: 4 in the plates at the wheels, 1 in the right plate at the hinge, 1 in the bracket | 6 | Buy |
+| goBILDA 1611-0514-4008 flanged bearing, 8 mm REX bore, 14 mm OD (2-pack): 4 in the plates at the wheels, 1 in the right plate at the hinge, 1 in the bracket | 6 | Buy |
 | `hinge_bracket_R` (bolts to the right front upright's front face, two M4) | 1 | Print |
 | `hinge_hub_R`, `riser_R`, `corner_block_R` | 1 each | Print |
 | `flower_block` | 1 | Print |
@@ -46,7 +46,7 @@ The robot CAD is 143 MB and stays in Drive, not git. The checks ran on a 0.1 in 
 | `pod_adapter_L` | 1 | Print |
 | 8 mm REX shafts: front 288 mm; arm bottom 192 mm; arm top 144 mm; hinge stub 48 mm | 4 | Buy |
 | goBILDA 8 mm REX servo shaft, 25-tooth, 36 mm | 1 | Buy |
-| goBILDA 2000 Series servo, Torque | 1 | Buy |
+| goBILDA 2000-0025-0002 Dual Mode Servo (25-2, Torque) | 1 | Buy |
 | 8 mm REX clamping collars | 2 | Buy |
 | goBILDA 4-bar odometry pod 3110-0001-0002 | 2 | Buy |
 | 1/16 in polycarbonate: two curtains and the side panel | 3 | Cut |
