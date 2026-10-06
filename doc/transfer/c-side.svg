@@ -22,7 +22,7 @@
 <polyline points="364.0,156.8 585.2,58.4" class="fov"/>
 <text x="372.4" y="142.8" class="n">Limelight, lowest ray</text>
 <polyline points="0.0,548.8 588.0,548.8" class="thin"/>
-<polyline points="453.6,541.8 414.4,523.6 238.0,523.6 162.4,394.8" class="lane"/>
+<polyline points="476.0,547.4 414.4,523.6 238.0,523.6 162.4,394.8" class="lane"/>
 <polyline points="408.8,522.2 238.0,522.2" class="belt"/>
 <polyline points="260.4,439.6 179.2,313.6" class="belt"/>
 <text x="238.0" y="341.6" class="n">sprung top belt</text>

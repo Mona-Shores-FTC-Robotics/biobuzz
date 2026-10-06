@@ -29,7 +29,7 @@
 <text x="163.2" y="218.4" class="l">(its throat takes the ball here)</text>
 <polyline points="163.2,543.2 163.2,114.8" class="thin"/>
 <text x="163.2" y="106.4" class="l">turret axis X -3.17</text>
-<polyline points="453.6,541.8 414.4,523.6 215.0,523.6" class="lane"/>
+<polyline points="476.0,547.4 414.4,523.6 215.0,523.6" class="lane"/>
 <polyline points="408.8,522.2 224.0,522.2" class="belt"/>
 <circle cx="408.8" cy="533.4" r="10.5" class="new"/>
 <circle cx="224.0" cy="533.4" r="10.5" class="new"/>

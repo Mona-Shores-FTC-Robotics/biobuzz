@@ -12,7 +12,7 @@ behind the front face. The sketches are in `doc/transfer/` (`sketch.py` draws th
 **A floor lane that is also the magazine, then one floating wheel that kicks each piece up through the hollow turret
 bearing.** One new motor and no sensor. Because the hand-off is on the turret's axis, it works at every turret angle.
 
-1. **The lane.** The roller throws each piece up a short ramp into a 4.2 in wide lane along the centreline. The lane
+1. **The lane.** The roller drives each piece up a short ramp into a 4.2 in wide lane along the centreline. The lane
    floor is 0.9 in off the tiles. Two polycord strands run along the floor, driven off the roller's shaft, and pull
    the pieces back. Pieces queue in single file. The lane holds 4 POLLEN or 3 NECTAR, never 5 pieces.
 2. **The J-kicker.** At the back of the lane, a 48 mm gecko wheel sits over a fixed J-shaped curve. When the J motor is
@@ -56,7 +56,8 @@ transfer assumes the roller delivers pieces moving rearward at about 50 in/s, 7.
 ### A. J-kicker up the turret axis (recommended)
 
 **Piece path.**
-- The roller throws the piece up a 25° ramp onto the lane floor (z 0.25 → 0.9 between X 7.2 and 5.8).
+- The roller drives the piece up a 22° ramp onto the lane floor (z 0.05 → 0.9 between X 8.0 and 5.8). The ramp
+  starts under the roller's rear half, so the roller presses the piece onto it and pushes it up, rather than throwing it.
 - Two polycord strands on the floor carry it back at about 27 in/s, and it joins the queue.
 - When the J runs, the front piece goes under the J-wheel and round a quarter circle. It leaves straight up along the
   turret axis, moving at about 70 in/s, and passes through the bearing into the throat.
@@ -165,9 +166,9 @@ turret was out of stock on 6 Oct.
 
 | Part | X | Y | Z |
 |---|---|---|---|
-| Ramp | 5.8 .. 7.2 | −2.1 .. 2.1 | 0.25 .. 0.9 |
+| Ramp | 5.8 .. 8.0 | −2.1 .. 2.1 | 0.05 .. 0.9 |
 | Lane: floor, strands, pulleys, walls (keep-out inside the walls) | −1.3 .. 7.2 | −2.35 .. 2.35 | 0.25 .. 5.0 |
-| Lane drive belt (outside the left wall) | 5.2 .. 9.0 | 2.35 .. 2.9 | 0.2 .. 3.9 |
+| Lane drive belt (outside the left wall): roller shaft → the float pivot (the roller motor's shaft, z 6.4) → the lane pulley | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 7.0 |
 | J-wheel, arms, pivot stubs (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
 | Outer J and chute (keep-out inside) | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
 | J motor (position open; any spot in this box, belted to the left pivot stub) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
@@ -217,6 +218,23 @@ Checked against the part boxes in the team's STEP and `cad/intake-b/`.
 Nothing else is in the strip: no battery, hub, chassis cross-member or pod.
 
 On the robot: raise the 11-hole channel 8 mm and remove the two spacers before the lane goes in.
+
+## The floating roller (Intake Design chat, 6 Oct 2026)
+
+The roller now floats: it rises up to 1.3 in on arms pivoting about its motor shaft (77.5 mm above the resting axle,
+so the belt length stays constant), and a spring returns it to a down stop at 2.4 in. The transfer's pulley on the
+roller shaft stays, belted about the float pivot. Checked against the transfer:
+
+- **The lane's entry meets the bite at both ends of the float.** The ramp now starts at X 8.0, under the roller's
+  rear half. The roller's rear edge is at X 7.6 whether its bottom is at 2.4 or 3.7, so the piece is always pressed
+  onto the ramp as it leaves the roller. The pinch is set by the float spring, not by the ramp's height, so the ramp
+  can't jam a NECTAR. Pieces reach the lane floor at X 5.8, 1.8 in behind the roller's rear edge.
+- **The lane's drive belt** now runs from the roller shaft up to a pulley on the float pivot (z 6.4, ahead of the
+  face), then down to the lane pulley at X 5.6. Its box is X 5.2..9.1, Y 2.35..2.9, z 0.2..7.0. The J-wheel is at
+  X −1.3, 6.5 in behind it: clear. The belt's speed ratio can be set at either pulley.
+- **Ramp height under a lifted roller.** With a NECTAR under the roller, the roller's bottom is at about 3.5, and
+  the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
+  touches the piece only once the roller has pushed it rearward.
 
 ## Numbers for the simulator
 

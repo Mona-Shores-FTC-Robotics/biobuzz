@@ -26,7 +26,7 @@
 <rect x="247.2" y="330.4" width="22.4" height="33.6" class="tur"/>
 <polyline points="189.3,543.2 189.3,114.8" class="thin"/>
 <text x="189.3" y="106.4" class="l">turret axis X -2.24</text>
-<polyline points="453.6,541.8 414.4,523.6 138.6,523.6" class="lane"/>
+<polyline points="476.0,547.4 414.4,523.6 138.6,523.6" class="lane"/>
 <polyline points="408.8,522.2 147.0,522.2" class="belt"/>
 <circle cx="124.6" cy="504.0" r="26.5" class="new"/>
 <circle cx="124.6" cy="375.2" r="14.0" class="new"/>

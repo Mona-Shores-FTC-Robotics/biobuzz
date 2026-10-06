@@ -22,7 +22,7 @@ POLLEN_R, NECTAR_R = 1.40, 1.81
 
 # ---- concept A: floor lane + J-kicker up the turret axis ----
 FLOOR = 0.90                             # lane floor top
-RAMP = (7.2, 0.25, 5.8, FLOOR)            # ramp from the tiles up to the lane floor
+RAMP = (8.0, 0.05, 5.8, FLOOR)            # ramp from under the roller's rear half up to the lane floor
 JW_R = 0.945                             # 48 mm gecko
 J_X, J_Z = -1.32, FLOOR + 2.80 - 0.10 + JW_R   # J-wheel axle at its POLLEN hard stop
 J_OUT = JW_R + 2.80 - 0.10               # outer J radius about that axle
