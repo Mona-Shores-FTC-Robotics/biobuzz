@@ -10,19 +10,19 @@ Two Autos, for the two partners we expect most in qualification. **The robot, si
 UTC: the Flat Intake** (`RobotDesign.flatIntake`, "flat intake"; the build team's option 3, "o3" in file names,
 speed 50, no side walls): about 14.5 in square, a 14 in intake across the front (5 in tall, takes a piece
 only on contact), the launcher near the back (the piece leaves 4 in behind the centre, 12 in up, at
-75°). Alliance AUTO points over 20 runs; how many of the 20 made 3 TIPs; and G409, the runs where our robot
+75°). Alliance AUTO points over 60 runs (seeds 1–60); how many of the 60 made 3 TIPs; and G409, the runs where our robot
 touched a spilled piece before it reached the tiles (must be 0). On the simulator as it stands since 6 Oct 2026
 12:00 UTC (each TIP 0.58–1.12 s; pieces roll as filmed: [rolling](../../doc/rolling.md)). Links to watch them and
 their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **53.5** | **2** (PARK 2) | **0** | 6 Oct 2026 12:15 |
-| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **54.8** | 0 (TIP 2 19, PARK 19) | 2 runs | 6 Oct 2026 12:15 |
-| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **49.0** | 0 (TIP 2 18, no PARK) | 1 run | 6 Oct 2026 12:15 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **55.0** | **7** (PARK 28) | **0** | 6 Oct 2026 12:55 |
+| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **51.6** | 0 (TIP 2 53, PARK 55) | **0** | 6 Oct 2026 12:55 |
+| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **47.3** | 0 (TIP 2 49, no PARK) | **0** | 6 Oct 2026 12:55 |
 
-`DESIGN="flat intake" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
-and simulates them. The full-width 18 in robot's `qual-right-v3` (64.0, TIP 3 in 12, G409 2 runs; 6 Oct 2026 12:15 UTC) stays as
+`DESIGN="flat intake" python3 qual_right.py 60 qual-right-o3 qual-stages-angled qual-stages-wall` exports
+and simulates them. The full-width 18 in robot's `qual-right-v3` (62.8, TIP 3 in 35 of 60, G409 11 runs; 6 Oct 2026 12:55 UTC) stays as
 the "what a wider intake buys"; qual.py's older Autos (`qual-partner-*`) are in [DEPRECATED.md](DEPRECATED.md).
 The research routes (the side walls' G409-safe versions, `g409.py`; the shapes, `qual_shapes.py`; preloads
 staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-walls.md](../../doc/robot-shapes-and-walls.md),
@@ -43,10 +43,19 @@ staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-wall
   after a fire that may still be going (the endgame guard would cut the fire short).
 - **The partner only fires from its start, then parks.** It can't tell whether the HIVE has tipped.
 
-**Everything below is how the routes were tuned, kept as a record.** Those numbers are from before 6 Oct 2026
-12:00 UTC: a fixed 1.0 s TIP and pieces that stopped rolling too soon, so they read high (ShootsRight 64.8 then,
-53.5 now). Where two are given, the second is "slow tiles", a what-if for the rolling friction, since dropped.
-The routes were not retuned for the new physics yet.
+**Retuned 6 Oct 2026 for pieces rolling as filmed** (`RETUNE` in `qual_right.py`, every variant and its numbers
+in the comments there). With the old route ShootsRight fell to 53.5, TIP 3 in 2 of 20: driving through a spill,
+the 14 in intake takes few pieces and the chassis bats the rest 30–50 in away, and the sweep finds nothing.
+Waiting longer, the webcam pickup, going round the west side and leaving the tunnel straight for the wall FLOWER
+did no better or touched falling pieces. What works: TIP 3 from pieces that sit still (the wall FLOWER, then the
+GARDEN), the wait before a spill timed from the TIP's start (it first lands 1.1–1.4 s after, whatever the TIP's
+length), and standing a little further back while it falls (y 119). The Rigid V keeps the old sweep: its flaps
+catch the spill (64.1 on it, 59.8 on the Flat Intake's route). Decisions on 60 runs: 20 couldn't tell 9 TIP 3s
+from 12.
+
+**Everything below is how the routes were tuned before that, kept as a record.** Those numbers are from before
+6 Oct 2026 12:00 UTC: a fixed 1.0 s TIP and pieces that stopped rolling too soon, so they read high. Where two
+are given, the second is "slow tiles", a what-if for the rolling friction, since dropped.
 
 ### On the Flat Intake (the baseline; was "option 3")
 

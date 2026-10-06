@@ -522,7 +522,14 @@ public final class AutoSim {
             sim.step(LOOP_S);
             for (String e : sim.drainEvents()) {
                 if (e.startsWith("score: ") && e.contains(alliance.name())) result.scored++;
-                if (e.startsWith("G409: ")) result.g409++;
+                if (e.startsWith("G409: ")) {
+                    result.g409++;
+                    // In the touching robot's timeline too, so a study's timeline shows during which step it happened.
+                    int robot = e.charAt(12) - '1';  // "G409: robot N..."
+                    if (robot >= 0 && robot < result.robots.size()) {
+                        result.robots.get(robot).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, e));
+                    }
+                }
                 log.putEvent("sim: " + e, us);
             }
             FieldSim.Rocker ours = sim.rocker(alliance);

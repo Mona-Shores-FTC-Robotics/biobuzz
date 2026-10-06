@@ -28,7 +28,8 @@ videos don't show how many pieces were in each.
 **Does it matter?** The simulator's definition (`FieldSim`: leaving the stop to reaching the other one) includes
 the creep, so it compares with the longer end of the range. Every TIP set to 0.6 or 1.2 s
 (`BIOBUZZ_AUTO_TIP_SECONDS`) against each drawn from the range, Qual-PartnerShootsRight, 20 runs, on the
-simulator as of 6 Oct 2026 12:15 UTC (pieces rolling as filmed, [rolling](rolling.md)):
+simulator as of 6 Oct 2026 12:15 UTC (pieces rolling as filmed, [rolling](rolling.md)), on the routes before
+that day's retune (ShootsRight now waits from the TIP's start, so a TIP's length matters less):
 
 | TIP time | Flat Intake | Rigid V |
 |---|---|---|
@@ -37,8 +38,9 @@ simulator as of 6 Oct 2026 12:15 UTC (pieces rolling as filmed, [rolling](rollin
 | 1.2 s | 51.0, TIP 3 in 0, G409 0 | 65.0, TIP 3 in 12, G409 in 1 run |
 
 - The rigid V's lead holds at every TIP time (+10 to +14 points).
-- A fast TIP brings G409 touches back: the Autos wait a fixed 500 ms after the TIP settles before driving into
-  the spill, tuned for 1.0 s. Waiting for the spill itself (the CELL settled plus a margin) would hold for any TIP.
+- A fast TIP brought G409 touches back: the Autos waited a fixed 500 ms after the TIP settled before driving into
+  the spill, tuned for 1.0 s. Since 6 Oct 2026 they wait from the TIP's start instead (the spill first lands
+  1.1–1.4 s after it starts, whatever its length) and stand a little further back while it falls.
 
 **Not changed:** `HiveTracker.Tuning.tipSeconds` stays NaN. It is robot code (the real HIVE tracker uses it to
 decide a TIP is over), so setting it from these videos is a mentor's call; 1.0 s would be a fair value.

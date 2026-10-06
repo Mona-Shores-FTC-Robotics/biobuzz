@@ -456,7 +456,7 @@ public class AutoStudyTest {
                 System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
             }
             String tl = System.getenv("BIOBUZZ_AUTO_TIMELINE");
-            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : Long.parseLong(tl) == seed)) {
+            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : !tl.equals("issues") && Long.parseLong(tl) == seed)) {
                 System.out.println("STUDY   seed " + seed + ": " + r);
                 for (AutoSim.RobotResult robot : r.robots) {
                     for (String t : robot.timeline) System.out.println("STUDY     " + robot.auto + " " + t);
@@ -479,6 +479,13 @@ public class AutoStudyTest {
             }
             if (!Double.isNaN(r.robotsCollidedAt) && row.problems++ == 0) {
                 row.firstProblem = String.format(Locale.ROOT, "robots collide at %.1f s", r.robotsCollidedAt);
+            }
+            // BIOBUZZ_AUTO_TIMELINE=issues: the timeline of every run with a G409 touch or a problem.
+            if ("issues".equals(tl) && (row.g409 > 0 || row.problems > 0)) {
+                System.out.println("STUDY   seed " + seed + ": " + r);
+                for (AutoSim.RobotResult robot : r.robots) {
+                    for (String t : robot.timeline) System.out.println("STUDY     " + robot.auto + " " + t);
+                }
             }
             rows.add(row);
         }

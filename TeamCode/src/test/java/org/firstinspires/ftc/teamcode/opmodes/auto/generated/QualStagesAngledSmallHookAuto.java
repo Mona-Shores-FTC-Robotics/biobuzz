@@ -23,7 +23,7 @@ public final class QualStagesAngledSmallHookAuto {
     public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp", "Tip"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -52,7 +52,7 @@ public final class QualStagesAngledSmallHookAuto {
         Pose farFlower = p.of(47.36, 129.34, 90);
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
-        Pose nFire = p.of(57.5, 114, 270);
+        Pose nFire = p.of(57.5, 119, 270);
         Pose rowS = p.of(49.34, 112.53, 137.3);
         Pose rowN = p.of(46.33, 115.31, 137.3);
         Pose nHook = p.of(63.35, 111.25, 270);
@@ -73,8 +73,8 @@ public final class QualStagesAngledSmallHookAuto {
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 121.04, 0);
         Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 121.04, 270);
         Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 121.04, 270);
-        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
-        Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
+        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
+        Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nHookToSFire_2Segment1Heading = p.of(57.5, 24, 270);
         Pose nHookToSFire_2Segment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenIn_2Segment1Start = p.of(8.5, 20.25, 90);
@@ -98,8 +98,8 @@ public final class QualStagesAngledSmallHookAuto {
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToNFire = Paths.line(farFlower, nLow).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nLow)));
-        Path nFireToNHook = Paths.line(nLow, nHook).constant(nHook);
+        Path farFlowerToNFire = Paths.line(farFlower, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path nFireToNHook = Paths.line(nFire, nHook).constant(nHook);
         Path nHookToSFirePath = Paths.line(nHook, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nHookToSFire_2Segment1Heading)).until(1, Interpolator.linear(nHookToSFire_2Segment2Start, sFire)));
         Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
@@ -135,12 +135,9 @@ public final class QualStagesAngledSmallHookAuto {
                         kit.when("Tip").then(
                                 kit.guarded("Yes", sFireToPark, 2.8,
                                         kit.path("N_LOW to N_HOOK", nLowToNHook),
-                                        kit.firstOf("TIP 2 settles",
-                                                kit.when("RightCellUp"),
-                                                kit.afterMs(2500)),
                                         kit.firstOf("It lands",
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(1000)),
+                                                kit.afterMs(1800)),
                                         kit.path("N_HOOK to S_FIRE", nHookToSFire),
                                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
@@ -167,12 +164,9 @@ public final class QualStagesAngledSmallHookAuto {
                                                 kit.when("Tip"),
                                                 kit.afterMs(2500)),
                                         kit.path("N_FIRE to N_HOOK", nFireToNHook),
-                                        kit.firstOf("TIP 2 settles (B)",
-                                                kit.when("RightCellUp"),
-                                                kit.afterMs(2500)),
                                         kit.firstOf("It lands (B)",
                                                 kit.when("IntakeFull"),
-                                                kit.afterMs(1000)),
+                                                kit.afterMs(1800)),
                                         kit.path("N_HOOK to S_FIRE", nHookToSFirePath),
                                         kit.firstOf("Fire TIP 2's spill (B)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),

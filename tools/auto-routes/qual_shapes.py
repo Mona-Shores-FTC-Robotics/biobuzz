@@ -70,11 +70,18 @@ O3_SHAPES = {
 }
 
 
+# Each guide's ShootsRight follows the route that suits it (6 Oct 2026, 60 runs): the Rigid V's flaps catch a rolling
+# spill, so it keeps the sweep through the spills (64.1 against 59.8 on the Flat Intake's route); the rest follow the
+# Flat Intake's baseline, qual-right-o3.
+ROUTE_OF = {"qual-right-o3-rigid-v": "qual-right-o3-sweep"}
+
+
 def o3_shaped(name, hook_at):
-    """qual-right-o3 (qual_right.right with its O3 options), sliding to `hook_at` as TIP 2 starts, before the tail."""
-    kw = dict(qual_right.O3["qual-right-o3"])
-    if hook_at:
-        kw["extra"] = 1000
+    """qual-right-o3 (qual_right.right with its O3 options, or ROUTE_OF's), sliding to `hook_at` as TIP 2 starts, before the tail."""
+    kw = dict(qual_right.O3[ROUTE_OF.get(name, "qual-right-o3")])
+    if hook_at:  # the hook holds the spill longer: 0.5 s more than the plain robot waits; it slides to its spot instead of backing off
+        kw["extra"] = kw["extra"] + 500 if kw.get("settle") is False else 1000
+        kw.pop("back_y", None)
     tail = qual_right.tail
 
     def hooked(r, **t):

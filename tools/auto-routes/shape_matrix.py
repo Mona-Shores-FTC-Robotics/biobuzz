@@ -1,7 +1,7 @@
 """Every spill guide on the Flat Intake (the baseline robot) on every current Auto (mentor, 6 Oct 2026): no guide,
 the Rigid V and the Ramp Hook (simulated as the 8 in hook; qual_shapes.O3_SHAPES), each through Qual-PartnerShootsRight (qual_shapes draws its
 route) and both Qual-PartnerStages (drawn here, as qual_right.stages_staged draws the baselines, with a hook's
-slide to the hook spot as TIP 2 starts, as qual_shapes does for ShootsRight). 20 runs, normal / slow tiles,
+slide to the hook spot as TIP 2 starts, as qual_shapes does for ShootsRight). 60 runs (the README's count),
 through AutoStudyTest, the same runner as the README's baselines.
 
     python3 shape_matrix.py [runs]
@@ -14,9 +14,9 @@ import qual_right
 import qual_shapes
 
 V3 = qual_right.VARIANTS["qual-right-v3"]
-STAGES = {  # suffix: (partner, plan, tail options), as qual_right.STAGES' baselines
-    "angled": ("B", "chase", {**V3, "third": False, "garden": "two"}),
-    "wall": ("A", "west", {**V3, "third": False, "garden": "two", "park": False}),
+STAGES = {  # suffix: (partner, plan, options), as qual_right.STAGES' baselines (6 Oct 2026: TIP-timed wait, TIP 2 from y 119)
+    "angled": ("B", "chase", {**V3, "third": False, "garden": "two", "settle": False, "extra": 1300, "n_fire_y": 119}),
+    "wall": ("A", "west", {**V3, "third": False, "garden": "two", "park": False, "settle": False, "extra": 1300, "n_fire_y": 119}),
 }
 SHAPES = {  # shape (its Autos' file suffix): (robot design, hook spot or None)
     "plain": ("flat intake", None),
@@ -45,7 +45,7 @@ def stages_for(shape, kind, name):
     kw = dict(kw)
     tail = qual_right.tail
     if hook_at:
-        kw["extra"] = 1000  # as qual_shapes: the hook holds the spill 1 s after TIP 2 settles
+        kw["extra"] = kw["extra"] + 500  # as qual_shapes: the hook holds the spill 0.5 s longer
 
         def hooked(r, **t):
             r.pt("N_HOOK", *hook_at)
