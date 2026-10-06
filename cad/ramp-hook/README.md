@@ -49,8 +49,11 @@ Check part numbers and lengths on gobilda.com; these are the kinds of parts, not
 
 | Item | Notes |
 |---|---|
-| goBILDA 8 mm REX shafts: front 330–356 mm (stock 336), side wall 2 × 200–217 mm (stock 216), hinge axle = bearing spacing + about 20 mm (stock 120 or 144) | The bores are blind, so each shaft works over a range, and goBILDA's stock lengths fall inside it: no cutting. Their rounded corners sit on an 8 mm circle, so they slide in the round bores, and the set screws bite on a flat. Any 8 mm round shaft works too: cut it into the range, file the end and chamfer it |
-| goBILDA bearings or pillow blocks for 8 mm, 2 | On the chassis, carrying the hinge axle |
+| goBILDA 8 mm REX shafts: front 330–356 mm (stock 336), side wall 2 × 200–217 mm (stock 216), hinge axle about 60–70 mm (stock 64) | The bores are blind, so each shaft works over a range, and goBILDA's stock lengths fall inside it: no cutting. Their rounded corners sit on an 8 mm circle, so they slide in the round bores, and the set screws bite on a flat. Any 8 mm round shaft works too: cut it into the range, file the end and chamfer it |
+| goBILDA 2000 Series servo, Torque version (about 25 kg·cm) | Turns the hinge axle 90° to stow. Holding the hook level takes about 7 kg·cm (about 0.5 kg, balance point 5.4 in out): 3.5× margin. The Speed version (about 9 kg·cm) is too close |
+| goBILDA 4001 Series clamping servo-to-shaft coupler (25-tooth spline to 8 mm REX) | Joins the servo's spline to the hinge axle's inner end |
+| goBILDA servo plate or bracket | Holds the servo against the chassis' front face with its spline on the hinge line. No printed mount unless no kit plate lands the spline there |
+| 8 mm flanged bearing and a small bracket, 1 | On the chassis' right side, carrying the axle's outer end so the servo takes no side load |
 | 2 to 4 goBILDA clamping collars for 8 mm REX | Either side of the block: they locate it sideways. Better than set screws alone |
 | M3 screws: 2 set screws for the block, 3 for the corner block, 3 for the hinge block, 1 per clip, 2 per clip to clamp the panels | Self-tapping into the printed holes |
 | 1/16 in polycarbonate: two curtain panels about 4.9 × 2.2 in, one side panel about 7 × 2.7 in | The curtains' tops are 3.5 in above the tiles, under the FLOWER's 3.55 in bracket. The side wall tops out at about 4 in |
@@ -77,8 +80,14 @@ Check part numbers and lengths on gobilda.com; these are the kinds of parts, not
 3. Line the FLOWER block up with the middle of the intake; tighten the collars and its set screws. Tighten the
    corner block's and hinge block's set screws.
 4. Slide the curtain panels into the front clips and screw them.
-5. Pass the hinge axle through the chassis bearings and the hinge block, and lock it with the hinge block's set
-   screw. The hook's swing (servo or spring) is the build team's to add.
+5. Mount the servo against the chassis' front face, about 3.8 to 5.3 in right of centre, spline pointing right.
+   Push the coupler onto the spline, then the hinge axle through the coupler, the hinge block and the bearing on
+   the chassis' right side. Lock the hinge block's set screw and clamp the coupler with the hook level. The axle
+   sits 10 mm in front of the chassis' face and 40 mm up (`PIVOT_Z`); if the servo plate puts the spline
+   somewhere else, change the hinge block to match, not the servo.
+   - Let the hinge block's back rest on the chassis' face when the hook is level, so the FLOWER's shove goes into
+     the chassis, not the servo's gears.
+   - The intake's mouth has to stop about 3.6 in right of centre to leave the servo room.
 6. Check with the hook down on a tile: the block's bottom 0.7 in above the tiles, its top 1.35 in, and the hook
    level from the hinge to the front.
 
