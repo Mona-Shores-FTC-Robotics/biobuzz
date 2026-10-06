@@ -164,7 +164,9 @@ throughout.
   lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
   position and I'll re-check.
 
-**The NECTAR-capping cage may block the camera while seated at a FLOWER** (the user's ruling, 6 Oct 2026). Stowed
+**Decided (the user, 6 Oct 2026): the Limelight is fixed, facing forward.** No pan servo, and not on the turret; the mount above stands.
+
+**Shelved with the FLOWER scorer: the NECTAR-capping cage.** Kept for when it comes back. It may block the camera while seated at a FLOWER (the user's ruling, 6 Oct 2026). Stowed
 or driving, it stays under the ceiling above. What it means for the code:
 - **Localization: nothing to do.** With no tags in view, there's no seed, no relocalize and no would-relocalize, and
   the Pinpoint carries the pose. A partly blocked view is fine too, because `CellFix.fit` uses whichever tags remain.
