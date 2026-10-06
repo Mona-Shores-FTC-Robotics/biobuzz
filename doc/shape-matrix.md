@@ -30,6 +30,34 @@ comparison: 62.8 · TIP 3 35 · G409 11. TIP 1 with a partner that can't shoot i
 G409 is the number of runs (of 60) with at least one touch of a falling spilled piece: anything above 0 is a
 foul risk in a real match.
 
+## The Rigid V's width and angle
+
+Run **6 Oct 2026 15:44 UTC** on `claude/biobuzz-robot-body-designs-hi386c` (claude/simulator merged in, the baselines above
+reproduced exactly), the same runner, 60 runs. Flap tips this far apart, each flap this many degrees from
+straight ahead (45° is the Rigid V above). R105: wider than 18 in, the robot must stay within 18 in long, so wide
+flaps can't reach far forward: 22 in fits only at 60°, 20 in at 45° or more. Wider than 18 in they can't be rigid
+(R102's start cube): they would fold in for the start and swing out, which the simulator doesn't model.
+
+| Rigid V | Qual-PartnerShootsRight | Stages, angled partner | Stages, wall partner (tunnel route) |
+|---|---|---|---|
+| 18 in, 30° | **67.3** · TIP 3 **41** · PARK 40 · G409 6 | 50.9 · TIP 2 51 · G409 8; **crosses the centre line at 7.6 s in all 60** | 41.0 · TIP 2 35 · G409 6; crosses in all 60 |
+| 18 in, 45° (the Rigid V) | 64.1 · TIP 3 33 · PARK 33 · G409 3 | 51.9 · TIP 2 54 · G409 2; into the HIVE frame in 5 | 39.3 · TIP 2 30 · G409 0 |
+| 18 in, 60° | 63.2 · TIP 3 31 · PARK 30 · G409 4 | 51.3 · TIP 2 52 · G409 0; into the HIVE frame in 5 | 40.7 · TIP 2 34 · G409 0 |
+| 20 in, 45° | 66.8 · TIP 3 40 · PARK 38 · G409 10 | 51.6 · TIP 2 53 · G409 7; crosses in all 60 | 41.7 · TIP 2 37 · G409 6; crosses in all 60 |
+| 20 in, 60° | 65.3 · TIP 3 36 · PARK 35 · G409 7 | 51.3 · TIP 2 52 · G409 1; crosses in all 60 | 39.0 · TIP 2 29 · G409 0; crosses in all 60 |
+| 22 in, 60° | 67.0 · TIP 3 40 · PARK 40 · G409 13; **crosses the centre line and drives into the HIVE frame in all 60** | 51.3 · TIP 2 52 · G409 4; crosses and into the frame in all 60 | 42.0 · TIP 2 38 · G409 3; same |
+
+Intake misses per run (the study line's, Rigid V cells): about 17 too high and 12–22 while the intake is busy, as
+for the Flat Intake; "beside" (pieces off the intake's sides) drops from 1.8 on the Flat Intake to 0.4–2.4.
+
+- **On ShootsRight a longer V helps a little more**: 18 in at 30° (flaps 3 in further forward) 67.3, TIP 3 in 41,
+  against 64.1 and 33 at 45°, at the cost of 6 G409 runs against 3. Wider (20, 22 in) does about as well with more
+  touches (7–13).
+- **Every variant but 18 in at 45° and 60° breaks a rule on the Stages routes**: the flaps reach over the centre
+  line at 7.6 s (the turn out of the tunnel), and at 22 in into the HIVE frame. Those routes were drawn for the
+  45° V; a longer or wider V needs its own.
+- **No V gets TIP 3 with a partner that can't shoot**, as above.
+
 **What it says**
 
 - **The Rigid V is the only guide that clearly helps, and only where TIP 3 is within reach.** With the partner

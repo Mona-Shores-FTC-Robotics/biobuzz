@@ -817,8 +817,8 @@
       ],
       "conditions": [
         "Empty",
-        "IntakeFull",
         "LeftCellUp",
+        "IntakeFull",
         "Tip"
       ],
       "typicalS": {
@@ -987,13 +987,13 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-3",
+        "id": "p-4",
         "kind": "path",
         "lineId": "to-s-catch-1",
         "park": false
       },
       {
-        "id": "w-4",
+        "id": "w-2",
         "kind": "firstOf",
         "label": "TIP 1 settles",
         "rows": [
@@ -1010,7 +1010,7 @@
         ]
       },
       {
-        "id": "w-2",
+        "id": "w-3",
         "kind": "firstOf",
         "label": "It lands",
         "rows": [

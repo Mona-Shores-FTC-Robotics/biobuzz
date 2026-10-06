@@ -22,6 +22,8 @@ SHAPES = {  # shape (its Autos' file suffix): (robot design, hook spot or None)
     "plain": ("flat intake", None),
     "rigid-v": qual_shapes.O3_SHAPES["qual-right-o3-rigid-v"],
     "small-hook": qual_shapes.O3_SHAPES["qual-right-o3-small-hook"],  # the Ramp Hook
+    # The Rigid V's width and angle (mentor, 6 Oct 2026).
+    **{f"rigid-v-{w}-{a}": qual_shapes.O3_SHAPES[f"qual-right-o3-rigid-v-{w}-{a}"] for w, a in qual_shapes.RIGID_V_VARIANTS},
 }
 PARTNERS = {"right": "PartnerPreloadsRightAuto", "angled": "PartnerAngledParkAuto", "wall": "PartnerStage19SideParkAuto"}
 
@@ -37,7 +39,7 @@ def autos(shape):
 
 def stages_for(shape, kind, name):
     partner, plan, kw = STAGES[kind]
-    if shape == "rigid-v" and kind == "wall":
+    if shape.startswith("rigid-v") and kind == "wall":
         # 18 in across its flaps, it doesn't fit the west lane between the HIVE frame's foot bar (x 45) and the
         # parked partner (x 28): 17 in. North through the tunnel instead ("chase").
         plan = "chase"

@@ -74,6 +74,12 @@ O3_SHAPES = {
 # spill, so it keeps the sweep through the spills (64.1 against 59.8 on the Flat Intake's route); the rest follow the
 # Flat Intake's baseline, qual-right-o3.
 ROUTE_OF = {"qual-right-o3-rigid-v": "qual-right-o3-sweep"}
+# The Rigid V's width and angle (mentor, 6 Oct 2026; AutoStudyTest.RIGID_V_VARIANTS): {tips (in), angle from straight
+# ahead (degrees)}, each on the Rigid V's route.
+RIGID_V_VARIANTS = [(18, 30), (18, 60), (20, 45), (20, 60), (22, 60)]
+for _w, _a in RIGID_V_VARIANTS:
+    O3_SHAPES[f"qual-right-o3-rigid-v-{_w}-{_a}"] = (f"flat intake, rigid V {_w} in, {_a} deg", None)
+    ROUTE_OF[f"qual-right-o3-rigid-v-{_w}-{_a}"] = "qual-right-o3-sweep"
 
 
 def o3_shaped(name, hook_at):

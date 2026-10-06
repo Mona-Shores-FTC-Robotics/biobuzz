@@ -68,6 +68,25 @@ public class AutoStudyTest {
         return d.checked();
     }
 
+    /**
+     * The Rigid V's variants, {tips across (in), angle from straight ahead (degrees)}. R105: wider than 18 in, the robot
+     * must stay within 18 in long, so wide flaps can't reach far forward (22 in only at 60 degrees); wider than the
+     * 18 in start cube (R102) they fold in for the start and swing out, which the simulator doesn't model.
+     */
+    static final double[][] RIGID_V_VARIANTS = {{18, 30}, {18, 60}, {20, 45}, {20, 60}, {22, 60}};
+
+    /** The Flat Intake with a Rigid V whose flap tips are {@code tipsIn} apart, each flap {@code angleDeg} from straight ahead. */
+    static RobotDesign rigidV(double tipsIn, double angleDeg) {
+        RobotDesign d = RobotDesign.flatIntake().copy(rigidVName(tipsIn, angleDeg));
+        d.flapOutIn = (tipsIn - d.frameWidthIn) / 2;
+        d.flapForwardIn = d.flapOutIn / Math.tan(Math.toRadians(angleDeg));
+        return d.checked();
+    }
+
+    static String rigidVName(double tipsIn, double angleDeg) {
+        return String.format(java.util.Locale.ROOT, "flat intake, rigid V %.0f in, %.0f deg", tipsIn, angleDeg);
+    }
+
     static Map<String, RobotDesign> designs() {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
@@ -120,6 +139,11 @@ public class AutoStudyTest {
         // (On the Flat Intake a 9.5 in arm is the longest R105 allows down: 14.5 + 9.5 = 24 in.)
         // The guides on the Flat Intake (6 Oct 2026: the hooks folded into the Ramp Hook, the 8 in arm).
         for (RobotDesign d : new RobotDesign[] {flatIntakeWith("flat intake, rigid V", 0), flatIntakeWith("flat intake, ramp hook", 8)}) {
+            m.put(d.name, d);
+        }
+        // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
+        for (double[] wa : RIGID_V_VARIANTS) {
+            RobotDesign d = rigidV(wa[0], wa[1]);
             m.put(d.name, d);
         }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
