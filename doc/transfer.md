@@ -280,6 +280,42 @@ shots. "Lane only" means the lane's capacity rule (`RobotDesign.laneCapacity`). 
   retiming. G409 touches rise for the same reason.
 - **Holding only 3 NECTAR costs 0.3–1.0 points.** That's worth paying for A's G407-by-geometry over B's counter.
 
+## Rear entry: loading from a FLOWER extractor at the back (asked 6 Oct 2026)
+
+The scorer chat asked whether the transfer can take pieces from its rear end, if the FLOWER extractor moves to the
+back of the robot. **Yes, through the chute, with the J-wheel run in reverse.** Nothing in the front path changes.
+
+**How it works.**
+- A piece enters the chute's rear wall through a **window at X −4.96, Y ±2.1, z 3.0 to 6.6**. It lands on the outer
+  J's curve and rolls down to the pocket under the wheel. The curve is the funnel: that's why the entry is high, not
+  at floor level, where the curve is a wall.
+- **J-wheel in reverse** pulls the piece under itself, forward, into the lane: the same pinch firing uses, backwards.
+  Each new piece pushes the queue forward against the floor strands, which slip. The roller runs slowly inward (or
+  sits stopped in brake mode) so the front of the lane stays shut.
+- **Firing is unchanged.** The J runs forward: a piece in the pocket fires first (the wheel's rear face moves up, so
+  it drags the pocket piece round the curve), then the lane's rearmost piece, and so on. Last in, first out.
+- **Timing:** about 0.3 s a piece (0.2 s down the curve, 0.1 s under the wheel), the same as the front intake.
+
+**Capacity, and the one thing it costs.** The pocket under the wheel is a spot the front intake can never fill, so
+from the rear the robot holds the lane plus the pocket: **4 NECTAR, or 5 POLLEN.** That breaks the geometric G407
+guarantee for POLLEN, which is what FLOWERs hold. So rear loading needs a count: the extractor stops after 4, or
+one break-beam at the window. That's the cheapest sensor on the list, and only the rear path needs it.
+
+**What the window needs** (for the CAD and extractor chats):
+- A clear tunnel from the back face to the chute: **X −7.57 to −4.96, Y ±2.15, z 3.0 to 6.6.** The back frame
+  channel (top at z 6.25) is in it and needs a 4.3 in wide cut-out, or the extractor delivers over the channel's top
+  and under the turret, which leaves only 0.35 in: not enough.
+- The lip at z 3.0 is set by the J curve (at X −4.5 the curve is at z 2.8). The top, 6.6, is the turret bearing's
+  bottom. A POLLEN (2.8) clears both with 0.8 in; **a NECTAR (3.62) does not fit through 3.6 in.** If NECTAR must
+  come in from the back, the turret bearing rises to 7.0 or higher (the launcher's decision).
+- The extractor has to deliver the piece **moving forward at about z 4.5 (centre)**, so it lifts the piece about
+  3 in from the tiles behind the robot. That's the extractor's ramp, not the transfer's.
+- Under the turret deck nothing conflicts: the CAD has nothing in X −5.3..−0.9 below 9 in, and the J motor is at
+  Y +2.6..4.6, outside the tunnel.
+
+**Showstoppers:** none for POLLEN. Two conditions: the back channel gets the cut-out, and the count exists. For
+NECTAR from the back, the bearing must rise.
+
 ## Checklist for the next meeting (cardboard first)
 
 Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
@@ -307,6 +343,8 @@ Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
 8. **The turret.** Get goBILDA's CAD for 3208-0004-0001: its outer diameter, its height, and whether the 105 mm is
    clear all the way through, including the gear. Check its stock.
 9. **Motor ports.** Count them against the launcher's plan (flywheel motors, and a turret motor or a servo).
+10. **Rear entry, if the extractor goes to the back.** Drop a POLLEN into the cardboard J from behind, through a
+    3.6 in tall window: does it roll to the pocket? Does the reversed drill-wheel pull it into the lane? Fire it.
 
 ## In the whole-robot model
 
