@@ -188,6 +188,12 @@ final class RobotDesign {
     /** Which front corners have a flap (mentor, 5 Oct 2026: a "right hook" has only the right one). */
     boolean flapLeft = true, flapRight = true;
     /**
+     * Capacity set by a single-file floor lane (the transfer, doc/transfer.md on spike/164-transfer): pieces queue
+     * nose to tail from the turret axis forward, and the intake refuses one whose centre would land ahead of the
+     * roller's axle. 4 POLLEN, 3 NECTAR, 3-4 mixed. False: any 4 ({@link FieldSim#ROBOT_CAPACITY}).
+     */
+    boolean laneCapacity = false;
+    /**
      * A beam joining the flaps' free ends across the robot's whole width (a "C" in front of the robot,
      * its front face the fourth side), as tall as the flaps. With one flap it hangs off that one.
      */
@@ -344,6 +350,7 @@ final class RobotDesign {
         d.launcher = launcher;
         d.launchers = launchers;
         d.shotIntervalS = shotIntervalS;
+        d.laneCapacity = laneCapacity;
         d.spinUpS = spinUpS;
         d.launchesNectar = launchesNectar;
         d.countsPieces = countsPieces;

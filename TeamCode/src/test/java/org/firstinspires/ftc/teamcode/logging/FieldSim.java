@@ -74,6 +74,29 @@ final class FieldSim {
     static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
     static final int ROBOT_CAPACITY = 4;
+    /** The transfer's lane (RobotDesign#laneCapacity): the first piece's centre, POLLEN and NECTAR, and the farthest forward a centre may be. */
+    static final double LANE_FIRST_POLLEN_X = -0.64, LANE_FIRST_NECTAR_X = 0.73, LANE_LAST_X = 8.56;
+
+    /** Whether {@code bot} has room for one more piece of {@code kind}. */
+    static boolean hasRoom(Bot bot, Kind kind) {
+        if (bot.stored.size() >= ROBOT_CAPACITY) return false;
+        if (!bot.design.laneCapacity) return true;
+        double x = Double.NaN, d = 0;
+        java.util.List<Kind> kinds = new java.util.ArrayList<>();
+        for (Piece q : bot.stored) kinds.add(q.kind);
+        kinds.add(kind);
+        for (Kind k : kinds) {
+            double dk = 2 * k.radius;
+            x = Double.isNaN(x) ? (k == Kind.POLLEN ? LANE_FIRST_POLLEN_X : LANE_FIRST_NECTAR_X) : x + (d + dk) / 2;
+            d = dk;
+        }
+        return x <= LANE_LAST_X;
+    }
+
+    /** Whether {@code bot} is full: no room even for a POLLEN, the smallest piece. */
+    static boolean full(Bot bot) {
+        return !hasRoom(bot, Kind.POLLEN);
+    }
     /** Competition Manual §10.3.4: every robot starts the match holding exactly 4 POLLEN. */
     static final int PRELOAD_POLLEN = 4;
     /** How far a rocker must swing off its stop before its TIP counts as started. */
@@ -1025,10 +1048,10 @@ final class FieldSim {
                     // not taken (events "miss: <why> <piece> robot <n>", for tuning the Autos and the intake).
                     if (!inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) {
                         String why = nearIntakeMiss(bot, p, sub[b][0], sub[b][1], sub[b][2]);
-                        if (why != null && bot.stored.size() < ROBOT_CAPACITY) miss(bot, p, why);
+                        if (why != null && !full(bot)) miss(bot, p, why);
                         continue;
                     }
-                    if (bot.stored.size() >= ROBOT_CAPACITY) {
+                    if (!hasRoom(bot, p.kind)) {
                         miss(bot, p, "full");
                     } else if (!canTake(bot, p)) {
                         miss(bot, p, p.kind != Kind.POLLEN && !bot.design.launchesNectar ? "nectar" : "interval");
