@@ -38,6 +38,17 @@ than a ramp running down to the floor.
   in, and at 30° every reach fails. The arm carries the ramp, so it runs 10.3 in. 13.7 + 10.3 = 24.0, so the
   chassis is trimmed 0.8 in from option 3 (14.5 would make 24.8). Stowed, the 4 in wall makes the start 17.7 in.
   The model gives 1.06 s for all 4 out and 1.38 s for the last at the intake.
+- **A steel rod for the front (mock-up v7).** Keep 24 in total, and make the front a 1/4 in steel rod across the
+  hook in place of a ramp: 14.5 + 9.25 in of clear space + 0.25 = 24.0, so option 3's chassis fits as it is.
+  `ramp.py`'s `run(rod_z=...)`, with the intake 9.5 in behind the rod:
+  - **With no lip in front of the bottom POLLEN, it works.** It's as fast as the ramp or a little faster: all 4
+    out in 0.95 to 1.1 s and the last at the intake in 1.2 to 1.5 s. That holds for any rod centre 0.6 to 1.2 in
+    up, 2.1 to 2.9 in into the opening.
+  - **With the 0.43 in lip, it fails every time.** The bottom POLLEN rolls off the rod and drops behind the lip.
+  - Both teams' photos show the bottom POLLEN on a flat base with no obvious lip, but the backboard study's
+    drawing has one. **Measure it on Thursday: lip or no lip decides rod or ramp.**
+  - The rod hangs off the right arm across 14 in: 1/4 in steel sags about 0.02 in under its own weight, so it's
+    stiff enough. The start is 18.5 in stowed (the 4 in wall), so hinge the hook 0.5 in inside the frame.
 - **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
 - **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
