@@ -22,6 +22,7 @@ take them back with the webcam one at a time. The plain 18 in robot runs the sam
 nothing) to show what the hook adds. The .pp files go in TeamCode/autos/ like qual_shapes.py's; StagedPreloadsTest
 runs them against plain qual-right-v3 and qual-right-v3-large-hook.
 """
+import autogen
 import sys
 import helpers
 import qual_right
@@ -136,7 +137,7 @@ if __name__ == "__main__":
     write_all()
     if len(sys.argv) > 1:
         runs = int(sys.argv[1])
-        for f in ("1", "3"):
+        for f in autogen.FRICTIONS:
             for name, (design, _, _, _) in STAGED.items():
                 study(f"{cls(name)},PartnerPreloadsRightAuto@50", runs=runs, designs=design,
                       extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",

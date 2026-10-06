@@ -242,7 +242,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 114
+        "y": 119
       },
       "controlPoints": [],
       "heading": {
@@ -290,14 +290,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.86,
+              "endProgress": 0.87,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.86,
+              "startProgress": 0.87,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -585,8 +585,7 @@
       "conditions": [
         "Empty",
         "IntakeFull",
-        "Tip",
-        "RightCellUp"
+        "Tip"
       ],
       "typicalS": {
         "LaunchAll": 2.0
@@ -693,7 +692,7 @@
       ],
       "N_FIRE": [
         57.5,
-        114,
+        119,
         270
       ],
       "LANE_N": [
@@ -896,23 +895,6 @@
       {
         "id": "w-16",
         "kind": "firstOf",
-        "label": "TIP 2 settles",
-        "rows": [
-          {
-            "when": [
-              "RightCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-17",
-        "kind": "firstOf",
         "label": "It lands",
         "rows": [
           {
@@ -922,19 +904,19 @@
             "cards": []
           },
           {
-            "afterMs": 500,
+            "afterMs": 1300,
             "cards": []
           }
         ]
       },
       {
-        "id": "p-18",
+        "id": "p-17",
         "kind": "path",
         "lineId": "to-s-fire-11",
         "park": false
       },
       {
-        "id": "w-19",
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Fire TIP 2's spill",
         "rows": [
@@ -952,19 +934,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-20",
+        "id": "p-19",
         "kind": "path",
         "lineId": "to-garden-in-12",
         "park": false
       },
       {
-        "id": "p-21",
+        "id": "p-20",
         "kind": "path",
         "lineId": "to-garden-13",
         "park": false
       },
       {
-        "id": "w-22",
+        "id": "w-21",
         "kind": "firstOf",
         "label": "The GARDEN",
         "rows": [
@@ -981,13 +963,13 @@
         ]
       },
       {
-        "id": "p-23",
+        "id": "p-22",
         "kind": "path",
         "lineId": "to-s-fire-14",
         "park": false
       },
       {
-        "id": "w-24",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Fire the GARDEN",
         "rows": [

@@ -23,7 +23,7 @@ public final class QualStagesWallRigidVAuto {
     public static final String[] COMMANDS = {"LaunchAll"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp", "Tip"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -51,7 +51,7 @@ public final class QualStagesWallRigidVAuto {
         Pose farFlower = p.of(47.36, 129.34, 90);
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
-        Pose nFire = p.of(57.5, 114, 270);
+        Pose nFire = p.of(57.5, 119, 270);
         Pose turnA = p.of(20.9, 118, 0);
         Pose rowS = p.of(19.5, 132.8, 0);
         Pose rowN = p.of(20.9, 132.8, 0);
@@ -71,8 +71,8 @@ public final class QualStagesWallRigidVAuto {
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 121.04, 0);
         Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 121.04, 270);
         Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 121.04, 270);
-        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
-        Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
+        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
+        Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenIn_2Segment1Start = p.of(8.5, 20.25, 90);
@@ -93,8 +93,8 @@ public final class QualStagesWallRigidVAuto {
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToNFire = Paths.line(farFlower, nLow).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nLow)));
-        Path nFireToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
+        Path farFlowerToNFire = Paths.line(farFlower, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.87, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
         Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
         Path gardenToSFirePath = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFire_2Segment1Heading)).until(1, Interpolator.linear(gardenToSFire_2Segment2Start, sFire)));
@@ -127,12 +127,9 @@ public final class QualStagesWallRigidVAuto {
                         kit.afterMs(2500)),
                 kit.firstOf("TIP 2?",
                         kit.when("Tip").then(
-                                kit.firstOf("TIP 2 settles",
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)),
                                 kit.firstOf("It lands",
                                         kit.when("IntakeFull"),
-                                        kit.afterMs(500)),
+                                        kit.afterMs(1300)),
                                 kit.path("N_LOW to S_FIRE", nLowToSFire),
                                 kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                         kit.when("Empty"),
@@ -156,12 +153,9 @@ public final class QualStagesWallRigidVAuto {
                                 kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
                                         kit.when("Tip"),
                                         kit.afterMs(2500)),
-                                kit.firstOf("TIP 2 settles (B)",
-                                        kit.when("RightCellUp"),
-                                        kit.afterMs(2500)),
                                 kit.firstOf("It lands (B)",
                                         kit.when("IntakeFull"),
-                                        kit.afterMs(500)),
+                                        kit.afterMs(1300)),
                                 kit.path("N_FIRE to S_FIRE", nFireToSFire),
                                 kit.firstOf("Fire TIP 2's spill (B)", kit.command("LaunchAll"),
                                         kit.when("Empty"),

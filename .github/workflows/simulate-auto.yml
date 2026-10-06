@@ -17,6 +17,8 @@ name: Simulate Auto
 # An Auto's usual design is the one its <auto>/latest.json already has (the first one it was
 # simulated with). A run on another design, side walls say, goes only to designs/<design>/, so
 # the README's best/typical links keep showing the usual robot and both stay downloadable.
+# A request with "usual": true makes its design the usual one from then on (after a design is renamed,
+# say "builders' option 3 (5 Oct CAD)" to "flat intake").
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -138,16 +140,19 @@ jobs:
               except ValueError:
                   pass
           targets = [os.path.join(os.path.dirname(out), "designs", slug)]
-          if usual is None or usual == design:
+          if usual is None or usual == design or request.get("usual") is True:
               targets.append(os.path.dirname(out))
-          # And the same logs named for what they are and when: <title>_<date of the commit that changed the
-          # Auto>_<best|typical>, so a downloaded file says which Auto it is and how new (the request's "title",
+          # And the same logs named for what they are and when: <title>_<Robot>_<date of the commit that changed
+          # the Auto>_<best|typical>, so a downloaded file says which Auto it is and how new (the request's "title",
           # else the Auto's file name). One per Auto, design folder, day and label; kept, so a README's link stays good.
+          # With the robot design too (6 Oct 2026: every log is one robot): "flat intake, rigid V" -> FlatIntakeRigidV.
           title = "".join(c if c.isalnum() or c in "-_." else "-" for c in (request.get("title") or auto))
+          robot = "".join(w[:1].upper() + w[1:] for w in re.split(r"[^A-Za-z0-9]+", design) if w and design != "default")
+          named = f"{title}_{robot}" if robot else title
           day = os.environ["SOURCE_DAY"]
           for label, run in (("best", best), ("typical", typical)):
               if run:
-                  result.setdefault("namedLogs", {})[label] = f"{title}_{day}_{label}.wpilog"
+                  result.setdefault("namedLogs", {})[label] = f"{named}_{day}_{label}.wpilog"
           text = json.dumps(result, indent=1)
           open(os.path.join(out, "result.json"), "w").write(text)
           for target in targets:
@@ -155,7 +160,7 @@ jobs:
               for label, run in (("best", best), ("typical", typical)):
                   if run:
                       shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"latest-{label}.wpilog"))
-                      shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"{title}_{day}_{label}.wpilog"))
+                      shutil.copy(os.path.join(sim, run["log"]), os.path.join(target, f"{named}_{day}_{label}.wpilog"))
               open(os.path.join(target, "latest.json"), "w").write(text)
 
           summary = [f"### {auto} at `{sha[:7]}`", ""]

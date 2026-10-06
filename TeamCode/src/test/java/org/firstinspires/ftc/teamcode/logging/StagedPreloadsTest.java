@@ -155,7 +155,7 @@ public class StagedPreloadsTest {
                 + "looseAtEnd,tip1At,tip2At,leftStagingAt,staged,inPocket,gapIn,movedAfterLeaveIn,looseAtTip2,movedBySpillIn,"
                 + "retaken,bestSeed,typicalSeed; StagedPreloadsTest, " + RUNS + " runs each\n");
         double outtake = AutoSim.placeholderOuttakeInPerS;
-        for (double friction : new double[] {1, 3}) {
+        for (double friction : new double[] {1}) {  // one tile surface (6 Oct 2026); 3: pieces stop 3x sooner, a what-if
             FieldSim.frictionScale = friction;
             try {
                 for (String[] c : CASES) {
@@ -271,6 +271,7 @@ public class StagedPreloadsTest {
         sim.write(new File(TeamCodeDir.simLogs(), "staged-check.wpilog"));
         assertTrue("staged " + w.s.staged, w.s.staged == 4);
         assertTrue("in the pocket: " + w.s.inPocket, w.s.inPocket == 4);
-        assertTrue("taken back: " + w.s.retaken.size(), w.s.retaken.size() >= 3);
+        // 2 since pieces roll as filmed (6 Oct 2026, doc/rolling.md): one staged piece rolls clear before the robot is back.
+        assertTrue("taken back: " + w.s.retaken.size(), w.s.retaken.size() >= 2);
     }
 }

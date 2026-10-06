@@ -157,6 +157,7 @@ public class SideWallSpillTest {
      */
     @Test
     public void howCloseCanThePlainRobotPark() {
+        BodyShapeSpillTest.assumeSpillStudies();
         FieldSim.Physics physics = HiveCalibration.current().fit();
         for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
             for (double face = 30; face <= 42; face += 1) {
@@ -188,6 +189,7 @@ public class SideWallSpillTest {
      */
     @Test
     public void howCloseCanTheLongUPark() {
+        BodyShapeSpillTest.assumeSpillStudies();
         FieldSim.Physics physics = HiveCalibration.current().fit();
         for (int nectar : new int[] {0, HiveCalibration.NECTAR_AT_MATCH_START}) {
             for (double face = 26; face <= 38; face += 2) {
@@ -245,6 +247,7 @@ public class SideWallSpillTest {
      */
     @Test
     public void surroundTheLanding() {
+        BodyShapeSpillTest.assumeSpillStudies();
         FieldSim.Physics physics = HiveCalibration.current().fit();
         double half = RobotAssets.CHASSIS_SIZE_IN / 2, slide = RobotAssets.WALL_SLIDE_IN;
         double ninetyX = 56.8;  // the 90% box's centre, x 47.4-66.2 (near edge 38.1 in from the wall)

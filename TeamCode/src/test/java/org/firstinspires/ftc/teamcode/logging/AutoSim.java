@@ -84,7 +84,9 @@ public final class AutoSim {
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
     static final double HUMAN_DELAY_S = 2.0;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
-    static final double AIM_TOLERANCE_RAD = Math.toRadians(2);
+    static double AIM_TOLERANCE_RAD = Math.toRadians(2);
+    /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
+    static boolean fireOnlyWhenStill = false;
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -125,6 +127,8 @@ public final class AutoSim {
         /** The decisions again, each with the time it happened, for reading where the time goes. */
         final List<String> timeline = new ArrayList<>();
         final List<double[]> poses = new ArrayList<>();
+        /** Pieces at this robot's intake that were not taken, by why (FieldSim "miss: ..." events, one per piece per 0.3 s). */
+        final java.util.Map<String, Integer> misses = new java.util.TreeMap<>();
         /** LEAVE (Competition Manual §10.5.4): not touching the perimeter wall when AUTO ends. */
         boolean leave;
         /** AUTO PARK (§10.5.4): at least partly in the alliance's LOADING ZONE when AUTO ends. */
@@ -536,7 +540,23 @@ public final class AutoSim {
             sim.step(LOOP_S);
             for (String e : sim.drainEvents()) {
                 if (e.startsWith("score: ") && e.contains(alliance.name())) result.scored++;
-                if (e.startsWith("G409: ")) result.g409++;
+                if (e.startsWith("miss: ")) {  // "miss: <why> <piece> robot <n>"
+                    String[] w = e.split(" ");
+                    int robot = Integer.parseInt(w[w.length - 1]) - 1;
+                    if (robot >= 0 && robot < result.robots.size()) {
+                        RobotResult rr = result.robots.get(robot);
+                        rr.misses.merge(w[1], 1, Integer::sum);
+                        rr.timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, e));
+                    }
+                }
+                if (e.startsWith("G409: ")) {
+                    result.g409++;
+                    // In the touching robot's timeline too, so a study's timeline shows during which step it happened.
+                    int robot = e.charAt(12) - '1';  // "G409: robot N..."
+                    if (robot >= 0 && robot < result.robots.size()) {
+                        result.robots.get(robot).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, e));
+                    }
+                }
                 log.putEvent("sim: " + e, us);
             }
             FieldSim.Rocker ours = sim.rocker(alliance);
@@ -905,6 +925,7 @@ public final class AutoSim {
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
+            if (fireOnlyWhenStill && (body.speed() > 1 || body.spin() > Math.toRadians(2))) return;
             // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
             // pieces at the far CELL from home). The real LaunchAll needs the same check.
             double[] here = pedro(drive.pose);

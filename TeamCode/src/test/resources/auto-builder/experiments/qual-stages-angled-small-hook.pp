@@ -263,7 +263,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 114
+        "y": 119
       },
       "controlPoints": [],
       "heading": {
@@ -865,8 +865,7 @@
         "Empty",
         "IntakeFull",
         "LeftCellUp",
-        "Tip",
-        "RightCellUp"
+        "Tip"
       ],
       "typicalS": {
         "LaunchAll": 2.0
@@ -973,7 +972,7 @@
       ],
       "N_FIRE": [
         57.5,
-        114,
+        119,
         270
       ],
       "ROW_S": [
@@ -1164,7 +1163,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-40",
+        "id": "w-38",
         "kind": "firstOf",
         "label": "TIP 2?",
         "rows": [
@@ -1174,30 +1173,13 @@
             ],
             "cards": [
               {
-                "id": "p-29",
+                "id": "p-28",
                 "kind": "path",
                 "lineId": "to-n-hook-16",
                 "park": false
               },
               {
-                "id": "w-30",
-                "kind": "firstOf",
-                "label": "TIP 2 settles",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "w-31",
+                "id": "w-29",
                 "kind": "firstOf",
                 "label": "It lands",
                 "rows": [
@@ -1208,19 +1190,19 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1000,
+                    "afterMs": 1800,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-32",
+                "id": "p-30",
                 "kind": "path",
                 "lineId": "to-s-fire-17",
                 "park": false
               },
               {
-                "id": "w-33",
+                "id": "w-31",
                 "kind": "firstOf",
                 "label": "Fire TIP 2's spill",
                 "rows": [
@@ -1238,19 +1220,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-34",
+                "id": "p-32",
                 "kind": "path",
                 "lineId": "to-garden-in-18",
                 "park": false
               },
               {
-                "id": "p-35",
+                "id": "p-33",
                 "kind": "path",
                 "lineId": "to-garden-19",
                 "park": false
               },
               {
-                "id": "w-36",
+                "id": "w-34",
                 "kind": "firstOf",
                 "label": "The GARDEN",
                 "rows": [
@@ -1267,13 +1249,13 @@
                 ]
               },
               {
-                "id": "p-37",
+                "id": "p-35",
                 "kind": "path",
                 "lineId": "to-s-fire-20",
                 "park": false
               },
               {
-                "id": "w-38",
+                "id": "w-36",
                 "kind": "firstOf",
                 "label": "Fire the GARDEN",
                 "rows": [
@@ -1291,7 +1273,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-39",
+                "id": "p-37",
                 "kind": "path",
                 "lineId": "to-park-21",
                 "park": true
@@ -1364,23 +1346,6 @@
               {
                 "id": "w-19",
                 "kind": "firstOf",
-                "label": "TIP 2 settles (B)",
-                "rows": [
-                  {
-                    "when": [
-                      "RightCellUp"
-                    ],
-                    "cards": []
-                  },
-                  {
-                    "afterMs": 2500,
-                    "cards": []
-                  }
-                ]
-              },
-              {
-                "id": "w-20",
-                "kind": "firstOf",
                 "label": "It lands (B)",
                 "rows": [
                   {
@@ -1390,19 +1355,19 @@
                     "cards": []
                   },
                   {
-                    "afterMs": 1000,
+                    "afterMs": 1800,
                     "cards": []
                   }
                 ]
               },
               {
-                "id": "p-21",
+                "id": "p-20",
                 "kind": "path",
                 "lineId": "to-s-fire-11",
                 "park": false
               },
               {
-                "id": "w-22",
+                "id": "w-21",
                 "kind": "firstOf",
                 "label": "Fire TIP 2's spill (B)",
                 "rows": [
@@ -1420,19 +1385,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-23",
+                "id": "p-22",
                 "kind": "path",
                 "lineId": "to-garden-in-12",
                 "park": false
               },
               {
-                "id": "p-24",
+                "id": "p-23",
                 "kind": "path",
                 "lineId": "to-garden-13",
                 "park": false
               },
               {
-                "id": "w-25",
+                "id": "w-24",
                 "kind": "firstOf",
                 "label": "The GARDEN (B)",
                 "rows": [
@@ -1449,13 +1414,13 @@
                 ]
               },
               {
-                "id": "p-26",
+                "id": "p-25",
                 "kind": "path",
                 "lineId": "to-s-fire-14",
                 "park": false
               },
               {
-                "id": "w-27",
+                "id": "w-26",
                 "kind": "firstOf",
                 "label": "Fire the GARDEN (B)",
                 "rows": [
@@ -1473,7 +1438,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-28",
+                "id": "p-27",
                 "kind": "path",
                 "lineId": "to-park-15",
                 "park": true

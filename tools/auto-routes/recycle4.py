@@ -10,6 +10,7 @@ Staging pays only when the wait is longer than the fetch:
   - left, TIP 2 -> TIP 3 (about 1.5 s once it is free; the wall FLOWER takes 7): hold, as recycle3.
 Setting down takes the reversed intake 0.25 s a piece, and the pieces roll 1.5 in (guesses: film one).
 """
+import autogen
 import math
 import sys
 from helpers import *
@@ -175,6 +176,6 @@ def left(name="recycle4-left"):
 if __name__ == "__main__":
     right().write()
     left().write()
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         study("Recycle4RightAuto,Recycle4LeftAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10, designs=CAT,
               extra_env={"BIOBUZZ_AUTO_FRICTION": f, "BIOBUZZ_AUTO_PER_SEED": "1"})

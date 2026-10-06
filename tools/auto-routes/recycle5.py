@@ -8,6 +8,7 @@ robot uses the back throw where it would otherwise turn half round:
     the wall FLOWER with a 40 deg turn instead of a 140 deg one, and throws that back from BACK_W.
 The robot turns whichever end is nearer the CELL; flipping the slats costs a guessed 0.3 s.
 """
+import autogen
 import sys
 from helpers import *
 from recycle3 import right as right3
@@ -65,6 +66,6 @@ def left(name="recycle5-left"):
 if __name__ == "__main__":
     right().write()
     left().write()
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         study("Recycle5RightAuto,Recycle5LeftAuto@50", runs=int(sys.argv[1]) if len(sys.argv) > 1 else 10, designs=BOTH,
               extra_env={"BIOBUZZ_AUTO_FRICTION": f, "BIOBUZZ_AUTO_PER_SEED": "1"})

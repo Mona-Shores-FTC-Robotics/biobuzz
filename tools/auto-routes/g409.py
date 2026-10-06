@@ -135,7 +135,7 @@ if __name__ == "__main__":
             for b in backs:
                 build(a, e, b, north, tip_ms)
                 specs.append(f"{qual_right.cls(name(a, e, b, north, tip_ms))},{AUTOS[a][1]}@50")
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         print(f"--- tiles friction x{f}")
         autogen.study(";".join(specs), runs=runs, designs="|".join(DESIGNS[d] for d in designs),
                       extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",

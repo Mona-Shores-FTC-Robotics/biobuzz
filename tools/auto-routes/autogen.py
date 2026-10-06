@@ -123,6 +123,12 @@ class Route:
             if "warning" in line or "load:" in line: print(line)
         return path
 
+# The tile friction studies run at (BIOBUZZ_AUTO_FRICTION, FieldSim.frictionScale). One surface, one value
+# (mentor, 6 Oct 2026): the field has one tile type. "3" (pieces stop 3x sooner) was a what-if for the guessed
+# rolling friction; add it here to ask that question again, not as a standard run.
+FRICTIONS = ("1",)
+
+
 def study(specs, designs="spring hood", runs=10, extra_env=None):
     env = dict(os.environ, BIOBUZZ_AUTO_STUDY=specs, BIOBUZZ_AUTO_DESIGNS=designs,
                BIOBUZZ_AUTO_RUNS=str(runs))

@@ -301,13 +301,14 @@ final class RobotDesign {
     }
 
     /**
-     * The build team's third option (5 Oct 2026 CAD, read off it with the pieces as a scale, +-15%): a
-     * low chassis about 14.5 in square with an intake across the whole front, two funnel wheels at its
-     * front corners steering pieces in, so about 14 in wide. Its launcher isn't drawn yet: it has
-     * {@link #springHoodFullWidth}'s, near the back.
+     * The Flat Intake, the baseline robot (named 6 Oct 2026; was "builders' option 3 (5 Oct CAD)"): the
+     * build team's third option, read off their 5 Oct CAD with the pieces as a scale (+-15%), a low chassis
+     * about 14.5 in square with a 14 in intake straight across a flat front and no spill guide. (The CAD's
+     * funnel wheels at the front corners are not simulated.) Its launcher isn't drawn yet: it has
+     * {@link #springHoodFullWidth}'s, near the back. The guides on it: AutoStudyTest#flatIntakeWith.
      */
-    static RobotDesign buildersOption3() {
-        RobotDesign d = springHoodFullWidth().copy("builders' option 3 (5 Oct CAD)");
+    static RobotDesign flatIntake() {
+        RobotDesign d = springHoodFullWidth().copy("flat intake");
         d.frameIn = 14.5;
         d.frameWidthIn = 14.5;
         d.intakeWidthIn = 14;

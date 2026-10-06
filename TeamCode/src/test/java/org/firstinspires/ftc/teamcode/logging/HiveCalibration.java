@@ -114,6 +114,12 @@ final class HiveCalibration {
         return new HiveCalibration(TIP_CASES, NECTAR_LB / POLLEN_LB, tipSeconds, tileRestitution, new ArrayList<>());
     }
 
+    /** The tip time the HIVE is fitted to: the measured one if set, else the assumed one. */
+    static double calibratedTipSeconds() {
+        double tip = HiveTracker.Tuning.tipSeconds;
+        return tip > 0 ? tip : ASSUMED_TIP_SECONDS;
+    }
+
     /** FIRST's calibration, what we have measured, and the assumptions for the rest. */
     static HiveCalibration current() {
         List<String> assumed = new ArrayList<>();
@@ -164,11 +170,14 @@ final class HiveCalibration {
             FieldSim.Physics physics = FITTED.get(key);
             if (physics == null) {
                 double friction = FieldSim.frictionScale;
+                double[] tipRange = FieldSim.tipSecondsRange;
                 FieldSim.frictionScale = 1;
+                FieldSim.tipSecondsRange = null;  // fitted at the calibrated speed; FieldSim varies each TIP from it
                 try {
                     physics = computeFit();
                 } finally {
                     FieldSim.frictionScale = friction;
+                    FieldSim.tipSecondsRange = tipRange;
                 }
                 FITTED.put(key, physics);
             }
@@ -224,12 +233,18 @@ final class HiveCalibration {
 
     /** Times a TIP: match start, POLLEN placed one at a time until it tips. NaN if it never does. */
     double timedTip(FieldSim.Physics physics) {
-        FieldSim sim = upwardCell(physics, NECTAR_AT_MATCH_START, 0, false);
-        for (int k = 0; k < pollenToTipFromMatchStart() + 3 && sim.red.tips == 0; k++) {
-            sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
-            settleRocker(sim);
+        double[] tipRange = FieldSim.tipSecondsRange;
+        FieldSim.tipSecondsRange = null;  // the calibrated speed, not one TIP's draw
+        try {
+            FieldSim sim = upwardCell(physics, NECTAR_AT_MATCH_START, 0, false);
+            for (int k = 0; k < pollenToTipFromMatchStart() + 3 && sim.red.tips == 0; k++) {
+                sim.placeInRaisedCell(sim.red, FieldSim.Kind.POLLEN);
+                settleRocker(sim);
+            }
+            return sim.red.tips == 0 ? Double.NaN : sim.red.lastTipSeconds;
+        } finally {
+            FieldSim.tipSecondsRange = tipRange;
         }
-        return sim.red.tips == 0 ? Double.NaN : sim.red.lastTipSeconds;
     }
 
     /**

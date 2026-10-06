@@ -25,6 +25,7 @@ shortest way between the CELLs), recycling each spill into the next TIP:
     one from the nearest source at that end.
 """
 import sys
+import autogen
 from helpers import *
 
 D = "spring hood, full-width intake"
@@ -230,7 +231,7 @@ def write_all():
 if __name__ == "__main__":
     write_all()
     which = sys.argv[2:] or list(QUALS)
-    for f in ("1", "3"):
+    for f in autogen.FRICTIONS:
         study(";".join(f"{QUALS[w][0]},{QUALS[w][1]}@50" for w in which), runs=int(sys.argv[1]) if len(sys.argv) > 1 else 20,
               designs=D, extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                                     "BIOBUZZ_AUTO_FRICTION": f})

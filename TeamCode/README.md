@@ -1354,8 +1354,8 @@ stock field AdvantageScope already downloaded. No FIRST CAD is committed.
    **2026-2027 Field (HIVE sim)** and a robot called **BIOBUZZ HIVE** appear.
 
 **One-time setup: our robot.** `RobotAssets` draws the robot from the simulator's designs, so what you
-see is what the simulator does: **BIOBUZZ Robot** (`RobotDesign.buildersOption3`, the build team's
-option 3 and the design the published logs use, with its funnel wheels), **BIOBUZZ Prototype**
+see is what the simulator does: **BIOBUZZ Robot** (`RobotDesign.flatIntake`, the Flat Intake: the build team's
+option 3 and the design the published logs use), **BIOBUZZ Prototype**
 (`RobotDesign.buildersPrototype`, their other 5 Oct 2026 CAD, with its pinwheel at the right-front corner)
 and **BIOBUZZ Full width** (`RobotDesign.springHoodFullWidth`, the 18 in robot with a 16.2 in intake: what
 a wider intake would buy). Each has a mecanum chassis, its wheels between a side plate and a channel, the intake roller,

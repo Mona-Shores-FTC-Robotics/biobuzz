@@ -31,6 +31,16 @@ import java.util.stream.Collectors;
  */
 public class BodyShapeSpillTest {
 
+    /**
+     * The spill-study sweeps simulate thousands of TIPs (25 of the suite's 28 minutes, 6 Oct 2026), so like the
+     * other studies they run only when asked: BIOBUZZ_SPILL_STUDIES=1 ./gradlew :TeamCode:testDebugUnitTest
+     * --tests '*SpillTest*' -i. Skipped otherwise; their results are in doc/robot-shapes-and-walls.md.
+     */
+    static void assumeSpillStudies() {
+        org.junit.Assume.assumeTrue("set BIOBUZZ_SPILL_STUDIES=1 to run the spill-study sweeps",
+                System.getenv("BIOBUZZ_SPILL_STUDIES") != null);
+    }
+
     static final int TIPS = SideWallSpillTest.PLAIN_PARK_TIPS;
     /** Front-most point from the wall, inches: around both baselines' last clean spot (35, 36). */
     static final double NOSE_FROM_IN = 31, NOSE_TO_IN = 39;
@@ -149,12 +159,14 @@ public class BodyShapeSpillTest {
      */
     @Test
     public void howCloseCanEachShapePark() {
+        assumeSpillStudies();
         sweep(BodyShape.BODIES);
     }
 
     /** As {@link #howCloseCanEachShapePark}, the flap shapes with low guides instead of 4 in flaps. */
     @Test
     public void howCloseCanLowGuidesPark() {
+        assumeSpillStudies();
         sweep(BodyShape.LOW_BODIES);
     }
 
@@ -218,6 +230,7 @@ public class BodyShapeSpillTest {
      */
     @Test
     public void atTheLandingLine() throws IOException {
+        assumeSpillStudies();
         FieldSim.Physics physics = HiveCalibration.current().fit();
         int[] loads = {0, HiveCalibration.NECTAR_AT_MATCH_START};
         List<double[]> jobs = new ArrayList<>();
@@ -267,6 +280,7 @@ public class BodyShapeSpillTest {
      */
     @Test
     public void rightHookAtTheSpill() throws IOException {
+        assumeSpillStudies();
         FieldSim.Physics physics = HiveCalibration.current().fit();
         double boxX = 56.8, face95 = 36.6, right95 = 67.85;  // tools/spill-window/shapes.py: BOX_X, PARK_FACE, RIGHT_95
         Object[][] cases = {

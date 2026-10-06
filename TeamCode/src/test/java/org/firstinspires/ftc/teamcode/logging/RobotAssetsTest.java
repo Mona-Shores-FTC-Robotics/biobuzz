@@ -35,17 +35,23 @@ public class RobotAssetsTest {
         assertTrue(new File(dir, "model.glb").isFile());
         assertTrue(new File(dir, "config.json").isFile());
 
-        // The model reads back as glTF with every part present.
-        Glb model = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
+        // The one robot model: the Limelight in its base, each design a component (BodyShape.MATCH's order).
+        Glb base = Glb.read(Files.readAllBytes(new File(dir, "model.glb").toPath()));
+        base.childNamed(base.sceneRoots().get(0), "Limelight");
+        base.childNamed(base.sceneRoots().get(0), "View ray");
+        for (int i = 0; i < BodyShape.MATCH.length; i++) assertTrue(new File(dir, "model_" + i + ".glb").isFile());
+        int flatAt = java.util.Arrays.asList(BodyShape.MATCH).indexOf(
+                java.util.Arrays.stream(BodyShape.MATCH).filter(b -> b.name.equals("flat intake")).findFirst().get());
+        Glb model = Glb.read(Files.readAllBytes(new File(dir, "model_" + flatAt + ".glb").toPath()));
         int root = model.sceneRoots().get(0);
-        for (String part : new String[] {"Body", "Side plate left", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left",
-                "Limelight", "View ray"}) {
+        for (String part : new String[] {"Body", "Side plate left", "Chassis left", "Wheel front left", "Roller 1 (front left)", "Control Hub", "Intake roller", "Pickup volume", "Flywheel left"}) {
             model.childNamed(root, part);
         }
+        Glb rigid = Glb.read(Files.readAllBytes(new File(dir, "model_" + (flatAt + 1) + ".glb").toPath()));
+        rigid.childNamed(rigid.sceneRoots().get(0), "Left flap");
         File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
         Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
         prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
-        model.childNamed(root, "Funnel wheel left"); // the default robot is the build team's option 3
         File wide = new File(dir.getParentFile(), RobotAssets.FULL_WIDTH_FOLDER);
         Glb fullWidth = Glb.read(Files.readAllBytes(new File(wide, "model.glb").toPath()));
         fullWidth.childNamed(fullWidth.sceneRoots().get(0), "Intake roller");

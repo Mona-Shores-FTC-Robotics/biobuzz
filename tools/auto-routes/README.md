@@ -6,24 +6,24 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 ## The qualifier Autos
 
-Slow-tile numbers before 6 Oct 2026 02:56 UTC (in the tables below this one too) used a HIVE calibrated under
-3× friction (`HiveCalibration.fit`, fixed then); they read high, by up to 4 points. Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
-UTC: the build team's option 3** (`RobotDesign.buildersOption3`, "builders' option 3 (5 Oct CAD)",
+Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
+UTC: the Flat Intake** (`RobotDesign.flatIntake`, "flat intake"; the build team's option 3, "o3" in file names,
 speed 50, no side walls): about 14.5 in square, a 14 in intake across the front (5 in tall, takes a piece
 only on contact), the launcher near the back (the piece leaves 4 in behind the centre, 12 in up, at
-75°). Alliance AUTO points over 20 runs, normal tiles / tiles with 3× the friction; how many of the 20
-made 3 TIPs; and G409, spilled pieces our robot touched before they reached the tiles (per run; must be
-0). Links to watch them and their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
+75°). Alliance AUTO points over 60 runs (seeds 1–60); how many of the 60 made 3 TIPs; and G409, the runs where our robot
+touched a spilled piece before it reached the tiles (must be 0). On the simulator as it stands since 6 Oct 2026
+12:00 UTC (each TIP 0.58–1.12 s; pieces roll as filmed: [rolling](../../doc/rolling.md)). Links to watch them and
+their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **64.8 / 57.3** | **11 / 5** (PARK 11 / 5) | **0 / 0** | 6 Oct 2026 02:56 |
-| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **56.0 / 54.8** | 0 / 0 (TIP 2 20 / 19, PARK 20 / 19) | 1 run / 1 | 6 Oct 2026 02:56 |
-| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **51.0 / 50.0** | 0 / 0 (TIP 2 20 / 19, no PARK) | 0 / 0 | 6 Oct 2026 02:56 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **54.8** | **10** (PARK 13) | **0** | 6 Oct 2026 13:40 |
+| Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **51.6** | 0 (TIP 2 53, PARK 55) | **0** | 6 Oct 2026 12:55 |
+| Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **47.3** | 0 (TIP 2 49, no PARK) | **0** | 6 Oct 2026 12:55 |
 
-`DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
-and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 67.0, 17 / 15, rerun 6 Oct 2026 with the fixed calibration) stays as
-the "what a wider intake buys"; qual.py's own Autos (`qual-partner-*`) are another session's.
+`DESIGN="flat intake" python3 qual_right.py 60 qual-right-o3 qual-stages-angled qual-stages-wall` exports
+and simulates them. The full-width 18 in robot's `qual-right-v3` (62.8, TIP 3 in 35 of 60, G409 11 runs; 6 Oct 2026 12:55 UTC) stays as
+the "what a wider intake buys"; qual.py's older Autos (`qual-partner-*`) are in [DEPRECATED.md](DEPRECATED.md).
 The research routes (the side walls' G409-safe versions, `g409.py`; the shapes, `qual_shapes.py`; preloads
 staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-walls.md](../../doc/robot-shapes-and-walls.md),
 "The research routes".
@@ -43,9 +43,43 @@ staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-wall
   after a fire that may still be going (the endgame guard would cut the fire short).
 - **The partner only fires from its start, then parks.** It can't tell whether the HIVE has tipped.
 
-### On option 3 (the baseline)
+**Retuned 6 Oct 2026 for pieces rolling as filmed** (`RETUNE` in `qual_right.py`, every variant and its numbers
+in the comments there). With the old route ShootsRight fell to 53.5, TIP 3 in 2 of 20: driving through a spill,
+the 14 in intake takes few pieces and the chassis bats the rest 30–50 in away, and the sweep finds nothing.
+Waiting longer, the webcam pickup, going round the west side and leaving the tunnel straight for the wall FLOWER
+did no better or touched falling pieces. What works: TIP 3 from pieces that sit still (the wall FLOWER, then the
+GARDEN), the wait before a spill timed from the TIP's start (it first lands 1.1–1.4 s after, whatever the TIP's
+length), and standing a little further back while it falls (y 119). The Rigid V keeps the old sweep: its flaps
+catch the spill (64.1 on it, 59.8 on the Flat Intake's route). Decisions on 60 runs: 20 couldn't tell 9 TIP 3s
+from 12.
 
-Moving to option 3 is a smaller body (every spot where its front meets something moves 1.75 in:
+**Mentor review of the logs** (6 Oct 2026 13:40 UTC, `RETUNE` and the `-catch` STAGES in `qual_right.py`): one
+smooth path into the wall FLOWER arrives 0.7 s sooner and is now the baseline (54.8, TIP 3 in 10, PARK 13; the
+FLOWER load fires sooner, so TIP 3 comes more often and PARK less). Keeping the catch for the GARDEN load (one
+load of 4, then the FLOWER's 4: 8 POLLEN, exactly the tipping weight) fell to 51.7, TIP 3 in 4: the catch fired as
+its own load is what gives margin. Letting the GARDEN fire run instead of cutting it for PARK: 53.7, TIP 3 in 10
+but no PARK. For the Stages Autos, catching TIP 1's spill at the drop zone first, standing or not, then filling
+up to 4 or firing three loads: all 16 variants below the current routes (angled 48.5–49.8 against 51.6; wall
+46.3–47.3 against 47.3, TIP 2 up to 54 of 60 but 3–5 s later). The study's new "intake misses per run" says why:
+15 pieces a run too high, 16–25 while the intake is busy.
+
+**Shot accuracy** (6 Oct 2026, 60 runs): `BIOBUZZ_AUTO_SPREAD` scales the launcher's shot-to-shot spread (1 = the
+placeholder, 0 = none), `BIOBUZZ_AUTO_AIM_DEG` is how closely the robot must face the CELL before firing (2 by
+default) and `BIOBUZZ_AUTO_FIRE_STILL=1` fires only once it is still. Today's launcher: ShootsRight 94% of 17.6
+shots, the Stages Autos 89% of 13.4. Spread 0: 96% / 92%. Aim 0.5°, still, spread 0: 96% / 92–93%. So the spread
+and the aim are not where the misses come from; the study line now says what is (hit the HIVE; short, long, wide;
+a shot still in the air when AUTO ends counts as not scored, which is all of ShootsRight's 4% with no spread; the
+Stages Autos' one miss a run is the 4th preload, fired into the CELL the 3rd just tipped, at every firing distance
+tried, y 113.5–122).
+Angled TIP 2: 53 of 60 today, 58 with no spread; wall 49 and 50 (its failures are the row pickup, not shots).
+
+**Everything below is how the routes were tuned before that, kept as a record.** Those numbers are from before
+6 Oct 2026 12:00 UTC: a fixed 1.0 s TIP and pieces that stopped rolling too soon, so they read high. Where two
+are given, the second is "slow tiles", a what-if for the rolling friction, since dropped.
+
+### On the Flat Intake (the baseline; was "option 3")
+
+Moving to the Flat Intake is a smaller body (every spot where its front meets something moves 1.75 in:
 `qual_right.fit`) and a 14 in intake instead of 16.2. Run 5 Oct 2026 16:20–17:11 UTC, 20 runs,
 normal / slow tiles (`O3` and `STAGES` in `qual_right.py`).
 
@@ -86,7 +120,7 @@ its row and our 14.5 in robot only just fit: we turn at the lane's top and slide
 round it took too long and the endgame guard's cut-short park drove into the HIVE frame, so with A we stay.
 TIP 2 comes at about 21 s either way, too late for TIP 3 (8 more pieces by 30 s).
 
-### Qual-PartnerShootsRight v3 (the full-width robot, before option 3)
+### Qual-PartnerShootsRight v3 (the full-width robot, before the Flat Intake)
 
 TIP 1 (4.6 s) is the partner's 4 on the 3 NECTAR. TIP 2 (13.3 s): our preloads when the left CELL
 rises, then the far FLOWER's 4. TIP 3 (about 26.5 s): TIP 2's spill, caught driving south through the
@@ -152,7 +186,7 @@ PARK, 1.5 in each (`qual_right.right(robot="proto")`, `qual-right-v3-proto`). Ru
 | The design above (18 in, intake 16.2 in; with its launcher as on 15:49) | 69.8 / 68.0 | 17 / 16 |
 | The prototype, if its intake were 13.5 in (90% of its frame) | 62.8 / 62.5 | 11 / 10 |
 | **The prototype (intake 8 in)** | **57.3 / 54.8** | **6 / 3** |
-| **Option 3** (`RobotDesign.buildersOption3`, about 14.5 in, intake about 14 in with funnel wheels at the front corners; launcher as the design above; `qual-right-v3-option3`, run 15:49) | **64.5 / 60.8** | **12 / 9** |
+| **Option 3, now the Flat Intake** (`RobotDesign.flatIntake`, about 14.5 in, intake about 14 in with funnel wheels at the front corners; launcher as the design above; `qual-right-v3-option3`, run 15:49) | **64.5 / 60.8** | **12 / 9** |
 
 Why: a narrower intake catches less of each spill and of TIP 1's leftovers, so TIP 3 comes later
 (about 29 s) or not at all, and the robot is often still busy at 30 s and misses PARK. Without the
@@ -177,7 +211,7 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 
 | Auto (files) | Together | Our robot | The other robot |
 |---|---|---|---|
-| Qual-PartnerShootsRight (`qual-right-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) | [qual-right-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
+| Qual-PartnerShootsRight (`qual-right-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) | [qual-right-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
 | Qual-PartnerStages, angled partner (`qual-stages-angled`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) | [qual-stages-angled](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) | partner: [partner-angled-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) |
 | Qual-PartnerStages, partner against the wall (`qual-stages-wall`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) | [qual-stages-wall](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) | partner: [partner-stage19-side-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) |
 | What a wider intake buys: Qual-PartnerShootsRight v3 on the full-width robot (`qual-right-v3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) | [qual-right-v3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |

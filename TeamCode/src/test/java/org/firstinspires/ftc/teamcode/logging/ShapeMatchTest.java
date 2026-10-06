@@ -37,15 +37,11 @@ public class ShapeMatchTest {
             {"15 · Rigid V", "QualRightV3RigidVAuto", "spring hood, rigid V", "rigid-v"},
             {"13 · Large right hook", "QualRightV3LargeHookAuto", "spring hood, large right hook", "large-hook"},
             {"14 · Small right hook", "QualRightV3SmallHookAuto", "spring hood, small right hook", "small-hook"},
-            // The same on option 3, the baseline robot since 5 Oct 2026, and its Auto, qual-right-o3.
-            {"1 · Plain, option 3", "QualRightO3Auto", "builders' option 3 (5 Oct CAD)", "o3-plain"},
-            {"15 · Rigid V, option 3", "QualRightO3RigidVAuto", "option 3, rigid V", "o3-rigid-v"},
-            {"13 · Large right hook, option 3", "QualRightO3LargeHookAuto", "option 3, large right hook", "o3-large-hook"},
-            {"14 · Small right hook, option 3", "QualRightO3SmallHookAuto", "option 3, small right hook", "o3-small-hook"},
-            {"15 + 13 · Rigid V and large hook, option 3", "QualRightO3LargeHookAuto", "option 3, rigid V + large right hook", "o3-v-hook"},
-            // Option 3 shortened to 12.5 in: the rigid V alone, then with an 11.5 in hook (its own route).
-            {"15 · Rigid V, option 3 at 12.5 in", "QualRightO3ShortVAuto", "option 3 short, rigid V", "o3-short-v"},
-            {"15 + 13 · Rigid V and 11.5 in hook, option 3 at 12.5 in", "QualRightO3ShortVHookAuto", "option 3 short, rigid V + large right hook", "o3-short-v-hook"},
+            // The same on the Flat Intake, the baseline robot since 5 Oct 2026 (was "option 3"), and its Auto,
+            // qual-right-o3. The hooks are folded into the Ramp Hook (6 Oct 2026), simulated as the 8 in hook.
+            {"1 · Flat Intake", "QualRightO3Auto", "flat intake", "o3-plain"},
+            {"15 · Rigid V, Flat Intake", "QualRightO3RigidVAuto", "flat intake, rigid V", "o3-rigid-v"},
+            {"14 · Ramp Hook, Flat Intake", "QualRightO3SmallHookAuto", "flat intake, ramp hook", "o3-small-hook"},
     };
     static final int RUNS = 20;
 
@@ -55,8 +51,8 @@ public class ShapeMatchTest {
         File dir = TeamCodeDir.simLogs();
         File scratch = new File(dir, "shape-match-runs");
         StringBuilder csv = new StringBuilder("# card,auto,design,friction,points,tip3Runs,parkedRuns,g409Runs,g409Pieces,"
-                + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,looseOnOurHalfAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
-        for (double friction : new double[] {1, 3}) {
+                + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
+        for (double friction : new double[] {1}) {  // one tile surface (6 Oct 2026); 3: pieces stop 3x sooner, a what-if
             FieldSim.frictionScale = friction;
             long[] typicalOf = new long[CASES.length];
             try {

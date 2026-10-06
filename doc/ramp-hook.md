@@ -1,5 +1,10 @@
 # The ramp hook: spill hook and FLOWER emptier in one arm
 
+> **A record, not current numbers.** Simulated before 6 Oct 2026 12:00 UTC, when each TIP took a fixed 1.0 s and
+> spilled pieces stopped rolling too soon; the numbers read high. Current numbers: the README and
+> [shape-matrix.md](shape-matrix.md). Names since 6 Oct 2026: "option 3" is the **Flat Intake**, the hooks are
+> folded into the **Ramp Hook**, the long U / side walls are **Side Rails**, the front C is the **Front Pen** (dropped).
+
 Exploring and simulating only. No robot was attached and nothing here was measured. Every robot number is a
 placeholder for Thursday's cardboard to replace.
 

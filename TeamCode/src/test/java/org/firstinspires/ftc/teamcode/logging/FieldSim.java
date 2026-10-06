@@ -93,10 +93,21 @@ final class FieldSim {
     static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
     static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
     static final double PLACEHOLDER_ROBOT_RESTITUTION = 0.1;
-    /** Fraction of sliding speed lost per second in contact with a surface. */
+    /**
+     * Fraction of sliding speed lost per second in contact with a surface: a robot, the HIVE, a CELL, a
+     * wall. Not on the tiles alone: a piece rolling on the tiles slows only by {@link #FILMED_ROLLING_DECEL_IN_PER_S2}.
+     */
     static final double PLACEHOLDER_CONTACT_FRICTION = 2.5;
-    /** Rolling resistance on foam tiles: a steady slowing, so a rolling piece stops, in/s². */
-    static final double PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 = 12.0;
+    /**
+     * Rolling resistance on foam tiles: a steady slowing, so a rolling piece stops, in/s². From the
+     * World Record match video (6 Oct 2026, YouTube 495akYrSr2U, tripod, 30 fps; doc/rolling.md): two
+     * NECTAR from the blue TIP rolled at a steady ~23 in/s for 1.3 s with no slowing the video can
+     * show, and the red TIP's NECTAR rolled from where it landed (~42 in out) to the alliance wall
+     * within ~1.5 s. At 12 in/s², with contact friction on the tiles as well (before 6 Oct), a piece
+     * stopped within ~1 s and ~20 in. 4 is an upper bound from those clips; a lone POLLEN in Team Orange
+     * 16409's test Auto video (YouTube CBCioC3x-vc) slowed at about 3 in/s², inside the per-piece spread.
+     */
+    static final double FILMED_ROLLING_DECEL_IN_PER_S2 = 4.0;
     /** Height of the simulated robot's body; pieces hit it below this. */
     static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
     /** Where a launched piece leaves the robot: forward of centre, and up. */
@@ -133,7 +144,8 @@ final class FieldSim {
      */
     static double spillVariety = 1;
     static final double PLACEHOLDER_ROLL_SPREAD = 0.35;
-    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 3.0;
+    /** Under the rolling resistance of nearly every piece, so a slope steers a rolling piece but never keeps it going. */
+    static final double PLACEHOLDER_TILE_SLOPE_IN_PER_S2 = 1.5;
     static final double PLACEHOLDER_SPILL_KICK_IN_PER_S = 4.0;
     /**
      * A spilled piece's speed as it leaves the lowered CELL, as a fraction of what it gathered rolling
@@ -150,15 +162,25 @@ final class FieldSim {
      * Sideways speed a hard landing on the tiles adds, in a random direction, as a fraction of the
      * landing speed (times 0.5–1.5 at random). Wiffle balls bounce off foam at an angle: in the 3 Oct
      * 2026 films a spill fans out in every direction within half a second of landing and is spread
-     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.45 the simulated
-     * pieces are 24 in from where they landed after 0.5 s (p90 44), and 3 s after the TIP lie anywhere
-     * from the wall to 85 in out, x 19–92. Fitted by eye to those films; {@link SpillLandingTest} prints
+     * across the field within 3 s, pieces 2–3 ft away 0.4 s after landing. At 0.3 the simulated
+     * pieces are 21 in from where they landed after 0.5 s (p90 41), and 3 s after the TIP lie anywhere
+     * from the wall to 86 in out. Refitted 6 Oct 2026 to the same films once pieces stopped dragging on
+     * the tiles ({@link #FILMED_ROLLING_DECEL_IN_PER_S2}; 0.45 before, against the old drag); {@link SpillLandingTest} prints
      * the spread (BIOBUZZ_BOUNCE_SCATTER reprints the fit). Only landings faster than {@link #BOUNCE_SCATTER_MIN_IN_PER_S}: a rolling piece stays put.
      */
-    static final double FILMED_BOUNCE_SCATTER = 0.45;
+    static final double FILMED_BOUNCE_SCATTER = 0.3;
     static double bounceScatter = FILMED_BOUNCE_SCATTER;
     static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
+    /**
+     * How long a TIP takes, seconds, drawn afresh for each TIP from this range (mentor, 6 Oct 2026): the
+     * videos in doc/tip-timing.md show 0.55-1.15 s, depending on how far past its tipping weight a CELL
+     * is loaded, how hard the pieces arrive and where they settle; this is the middle 90% of that.
+     * The HIVE is calibrated to {@link HiveCalibration}'s tip time, and each TIP's swing is scaled so a
+     * calibration load would take the drawn time. Null: every TIP at the calibrated speed.
+     */
+    static final double[] FILMED_TIP_SECONDS = {0.58, 1.12};
+    static double[] tipSecondsRange = FILMED_TIP_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
@@ -252,6 +274,15 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /** A miss at an intake is reported once per 0.3 s per piece (events "miss: ..."), not every step. */
+        double missLoggedUntil = -1;
+        /**
+         * The robot that launched it, until the shot is resolved: it scored (no event), or came down on the tiles
+         * (event "miss: shot-hive ..." if it hit the HIVE on the way, else "miss: shot-short/long/wide ...").
+         */
+        Bot shotBy;
+        boolean shotHitHive;
+        double[] shotFrom, shotAim;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
         /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
@@ -299,6 +330,8 @@ final class FieldSim {
         double lastTipSeconds = Double.NaN;
         private double tipFrom;
         private double leftStopAt;
+        /** This TIP's swing speed against the calibrated one ({@link #tipSecondsRange}). */
+        private double swingFactor = 1;
         /**
          * TIPs started: counts up once a rocker has swung {@link #TIP_STARTED_RAD} off its stop,
          * like the robot's {@code HiveTracker.tipsStarted()}; a piece rolling in that lifts it a
@@ -398,6 +431,8 @@ final class FieldSim {
     final Random random;
     /** Spill and catch variety, apart from {@link #random} so a seed's shots do not change. */
     private final Random variety;
+    /** Each TIP's speed ({@link #tipSecondsRange}): its own stream, so the others draw as before. */
+    private final Random tipTiming;
     /** A gentle unevenness per 12 in square of tiles: the sideways pull, in/s². */
     private final double[][][] tileSlope = new double[12][12][2];
     private final List<String> events = new ArrayList<>();
@@ -410,6 +445,9 @@ final class FieldSim {
     static final class Bot {
         private boolean present;
         private double x, y, h, vx, vy, w;
+        /** How fast the robot is moving, in/s, and turning, rad/s (for firing only when still). */
+        double speed() { return Math.hypot(vx, vy); }
+        double spin() { return Math.abs(w); }
         private double prevX, prevY, prevH;
         private boolean intaking;
         private double lastCaptureAt = Double.NEGATIVE_INFINITY;
@@ -513,6 +551,7 @@ final class FieldSim {
         this.physics = physics;
         random = new Random(seed);
         variety = new Random(seed * 7919L + 13);
+        tipTiming = new Random(seed * 104729L + 7);
         for (int i = 0; i < tileSlope.length; i++) {
             for (int j = 0; j < tileSlope[i].length; j++) {
                 double a = variety.nextDouble() * 2 * Math.PI, m = variety.nextDouble() * PLACEHOLDER_TILE_SLOPE_IN_PER_S2;
@@ -909,6 +948,10 @@ final class FieldSim {
         p.wy = -12;
         p.wz = 0;
         p.launchedBy = bot;
+        p.shotBy = bot;
+        p.shotHitHive = false;
+        p.shotFrom = new double[] {from[0], from[1]};
+        p.shotAim = new double[] {target[0], target[1]};
         return new double[] {vx, vy, vz};
     }
 
@@ -972,18 +1015,35 @@ final class FieldSim {
                 Bot taker = null;
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
-                    if (bot.present && bot.intaking && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)
-                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2]) && grabs(bot, p)) taker = bot;
+                    if (!bot.present || !bot.intaking) continue;
+                    // The same tests as before 6 Oct 2026, in an order that names why a piece at the intake was
+                    // not taken (events "miss: <why> <piece> robot <n>", for tuning the Autos and the intake).
+                    if (!inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) {
+                        String why = nearIntakeMiss(bot, p, sub[b][0], sub[b][1], sub[b][2]);
+                        if (why != null && bot.stored.size() < ROBOT_CAPACITY) miss(bot, p, why);
+                        continue;
+                    }
+                    if (bot.stored.size() >= ROBOT_CAPACITY) {
+                        miss(bot, p, "full");
+                    } else if (!canTake(bot, p)) {
+                        miss(bot, p, p.kind != Kind.POLLEN && !bot.design.launchesNectar ? "nectar" : "interval");
+                    } else {
+                        String why = grabMiss(bot, p);
+                        if (why == null) taker = bot;
+                        else miss(bot, p, why);
+                    }
                 }
                 if (taker != null) {
                     capture(taker, p);
                     continue;
                 }
                 boolean contact = false;
-                // Only the tiles take frictionScale (slow tiles): a piece sliding out of a CELL or along a robot
-                // slows as usual, so slow tiles change how far the spill rolls, not where it lands.
-                boolean onTiles = false;
-                for (Rocker r : rockers) contact |= collideRocker(p, r);
+                for (Rocker r : rockers) {
+                    if (collideRocker(p, r)) {
+                        contact = true;
+                        if (p.shotBy != null) p.shotHitHive = true;
+                    }
+                }
                 if (collideFootBars(p)) {
                     contact = true;
                     p.touchedTile = true;
@@ -997,14 +1057,16 @@ final class FieldSim {
                         p.touchedTile = true;
                     }
                 }
+                // Rolling on the tiles alone slows a piece only by rolling resistance; anything else it touches drags too.
+                boolean sliding = contact;
                 if (collideField(p)) {  // the tiles or a field wall
                     contact = true;
-                    onTiles = true;
                     p.touchedTile = true;
+                    sliding |= wallHit;
                 }
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) {
-                    applyFriction(p, h, onTiles ? frictionScale : 1);
+                    applyFriction(p, h, sliding);
                     // Uneven tiles move a rolling piece; one at rest stays put (static friction).
                     if (p.z < p.kind.radius + 0.3 && p.cell == null && spillVariety > 0 && Math.hypot(p.vx, p.vy) > 1) {
                         double[] g = tileSlope[(int) Math.max(0, Math.min(11, p.x / 12))][(int) Math.max(0, Math.min(11, p.y / 12))];
@@ -1023,6 +1085,13 @@ final class FieldSim {
         }
     }
 
+    /** A TIP's swing speed against the calibrated one: the calibrated time over one drawn from the range. */
+    private double tipSwingFactor() {
+        if (tipSecondsRange == null) return 1;
+        double t = tipSecondsRange[0] + (tipSecondsRange[1] - tipSecondsRange[0]) * tipTiming.nextDouble();
+        return HiveCalibration.calibratedTipSeconds() / t;
+    }
+
     private void stepRocker(Rocker r, double h) {
         if (r.locked) return;
         double hold = physics.holdTorque;
@@ -1038,7 +1107,8 @@ final class FieldSim {
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
         } else {
-            r.rate = torque / hold * physics.swingRadPerS * swingScale;
+            if (Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12) r.swingFactor = tipSwingFactor();  // leaving a stop
+            r.rate = torque / hold * physics.swingRadPerS * swingScale * r.swingFactor;
             if (Math.signum(r.rate) == Math.signum(r.angle) && TILT_RAD - Math.abs(r.angle) < PLACEHOLDER_DAMPER_ZONE_RAD) {
                 r.rate *= PLACEHOLDER_DAMPER_FACTOR;
             }
@@ -1325,12 +1395,17 @@ final class FieldSim {
         return true;
     }
 
+    /** Whether the last {@link #collideField} touched a field wall, not just the tiles. */
+    private boolean wallHit;
+
     private boolean collideField(Piece p) {
         double r = p.kind.radius;
         boolean hit = false;
+        wallHit = false;
         if (p.z < r) {
             p.z = r;
             p.touchedTile = true;
+            if (p.shotBy != null) shotLanded(p);
             if (p.vz < 0) {
                 double impact = -p.vz;
                 p.vz = impact * bounce(physics.tileRestitution);
@@ -1350,21 +1425,25 @@ final class FieldSim {
             p.x = r;
             if (p.vx < 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.x > FIELD_SIZE_IN - r) {
             p.x = FIELD_SIZE_IN - r;
             if (p.vx > 0) p.vx = -p.vx * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.y < r) {
             p.y = r;
             if (p.vy < 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         if (p.y > FIELD_SIZE_IN - r) {
             p.y = FIELD_SIZE_IN - r;
             if (p.vy > 0) p.vy = -p.vy * bounce(PLACEHOLDER_WALL_RESTITUTION);
             hit = true;
+            wallHit = true;
         }
         return hit;
     }
@@ -1394,10 +1473,10 @@ final class FieldSim {
         p.vz = rz0 + sz;
     }
 
-    private static void applyFriction(Piece p, double h, double scale) {
+    private static void applyFriction(Piece p, double h, boolean sliding) {
         double speed = Math.hypot(p.vx, p.vy);
-        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * scale * h)
-                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * scale * (1 + (p.rollScale - 1) * spillVariety) * h);
+        double slower = Math.max(0, speed * (1 - (sliding ? PLACEHOLDER_CONTACT_FRICTION * frictionScale * h : 0))
+                - FILMED_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;
@@ -1445,15 +1524,58 @@ final class FieldSim {
      * chance, and one that got away is not tried again for 0.3 s. Pieces in a FLOWER are pulled out
      * by the intake, so always held.
      */
-    private boolean grabs(Bot bot, Piece p) {
-        if (p.flower >= 0) return true;
-        if (time < p.rejectedUntil) return false;
+    /** Why {@link #grabs} says no ("rejected", "speed" or "chance"), or null when the intake holds the piece. */
+    private String grabMiss(Bot bot, Piece p) {
+        if (p.flower >= 0) return null;
+        if (time < p.rejectedUntil) return "rejected";
         double rel = Math.hypot(p.vx - bot.vx, p.vy - bot.vy);
-        if (rel > bot.design.intakeMaxSpeedInPerS || variety.nextDouble() > bot.design.intakeGrabChance) {
+        if (rel > bot.design.intakeMaxSpeedInPerS) {
             p.rejectedUntil = time + 0.3;
-            return false;
+            return "speed";
         }
-        return true;
+        if (variety.nextDouble() > bot.design.intakeGrabChance) {
+            p.rejectedUntil = time + 0.3;
+            return "chance";
+        }
+        return null;
+    }
+
+    /**
+     * A piece at the robot's front that {@link #inIntake} does not count: "height" (in front of the mouth
+     * but its top above the intake), "beside" (at the front face, outside the mouth's width), else null.
+     */
+    private String nearIntakeMiss(Bot bot, Piece p, double bx, double by, double bh) {
+        RobotDesign design = bot.design;
+        if (p.flower >= 0 || p.where != Where.FIELD) return null;
+        double c = Math.cos(bh), s = Math.sin(bh);
+        double lx = (p.x - bx) * c + (p.y - by) * s;
+        double ly = -(p.x - bx) * s + (p.y - by) * c;
+        if (design.intakeAtBack) lx = -lx;
+        double mouth = design.frameIn / 2 + design.intakeReachIn;
+        if (!(lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN)) return null;
+        if (Math.abs(ly) < design.intakeWidthIn / 2) return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
+        return Math.abs(ly) < design.frameWidthIn / 2 + p.kind.radius ? "beside" : null;
+    }
+
+    /** A shot that came down on the tiles without scoring: why, as a "miss:" event, with where it fell against the aim. */
+    private void shotLanded(Piece p) {
+        String why;
+        if (p.shotHitHive) {
+            why = "shot-hive";
+        } else {
+            double dx = p.shotAim[0] - p.shotFrom[0], dy = p.shotAim[1] - p.shotFrom[1], len = Math.hypot(dx, dy);
+            double along = ((p.x - p.shotAim[0]) * dx + (p.y - p.shotAim[1]) * dy) / len;
+            double across = Math.abs((p.x - p.shotAim[0]) * -dy + (p.y - p.shotAim[1]) * dx) / len;
+            why = across > Math.abs(along) ? "shot-wide" : along < 0 ? "shot-short" : "shot-long";
+        }
+        events.add("miss: " + why + " " + name(p.kind) + " robot " + (bots.indexOf(p.shotBy) + 1));
+        p.shotBy = null;
+    }
+
+    private void miss(Bot bot, Piece p, String why) {
+        if (time < p.missLoggedUntil) return;
+        p.missLoggedUntil = time + 0.3;
+        events.add("miss: " + why + " " + name(p.kind) + " robot " + (bots.indexOf(bot) + 1));
     }
 
     /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */
@@ -1494,7 +1616,10 @@ final class FieldSim {
             if (end != 0) now = r.cell(end);
         }
         if (now != p.cell) {
-            if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
+            if (now != null && p.cell == null) {
+                events.add("score: " + name(p.kind) + " into " + now.clusterName());
+                p.shotBy = null;
+            }
             if (now == null && p.cell != null) {
                 events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
                 if (fromLoweredCell(p.cell)) {
