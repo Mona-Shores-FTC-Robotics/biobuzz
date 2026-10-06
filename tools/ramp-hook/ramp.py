@@ -66,6 +66,12 @@ def rod_profile(rod_z):
     return [(ROD_R + ROD_R * math.cos(a), rod_z + ROD_R * math.sin(a)) for a in [math.pi * (1 + k / 4) for k in range(9)]]
 
 
+def wedge_profile(bottom, height, depth):
+    """A triangular steel bar's outline: a vertical front face from bottom to bottom + height, a top face sloping
+    down to a sharp back edge depth behind it, and a flat bottom, held bottom above the tiles."""
+    return [(0.0, bottom), (0.0, bottom + height), (depth, bottom), (0.0, bottom)]
+
+
 def ramp_profile(ring, slope, tip_depth, float_z=None):
     """The ramp in the robot's frame, x from the tip toward the robot: a list of points. With float_z the ramp
     stops in the air that high above the tiles (no floor plate), and the POLLEN drop off it onto the tiles."""
@@ -102,11 +108,16 @@ def contact(p, v, w, seg, seg_v, e, mu, spin=True):
 
 
 def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None, float_z=None,
-        rod_z=None):
+        rod_z=None, wedge=None):
     """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in)."""
     slope = math.radians(slope_deg)
     fixed = flower_segments(ring)
-    prof = rod_profile(rod_z) if rod_z is not None else ramp_profile(ring, slope, tip_depth, float_z)
+    if wedge is not None:
+        prof = wedge_profile(*wedge)
+    elif rod_z is not None:
+        prof = rod_profile(rod_z)
+    else:
+        prof = ramp_profile(ring, slope, tip_depth, float_z)
     tip_start = FRONT + RING_T + 1.0           # the tip starts an inch clear of the ring
     tip_stop = FRONT - tip_depth
     balls = [[(CX, z), (0.0, 0.0), 0.0] for z in STAGED]

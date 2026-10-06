@@ -20,6 +20,32 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## Current design: curtain walls and a triangular bar (6 Oct 2026, evening)
+
+Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared).
+
+- **Walls:** a vertical 4 in arm wall on the right, and a rigid **front curtain wall**, 8 in in front of the
+  chassis. The wall bottoms sit 0.5 in up, so they pass over the FLOWER's base plate.
+- **The cutout:** a gap in the front wall about 6 in wide, the FLOWER's column, bracket and legs plus clearance.
+  It's estimated from one photo, so measure it. Two **vertical sleeves** at the cutout's edges run forward and
+  carry the bar's ends. Sleeves let the bar's height be adjusted, and a bar held at both ends over 6 in is far
+  stiffer than one hanging off the arm.
+- **The bar:** a **triangular steel bar** across the cutout. It's a right triangle in section, 2.75 in deep and
+  0.6 in tall: a vertical front face, a top sloping about 12° down to a sharp back edge at the wall line, and a
+  flat bottom 0.5 in up. Its front reaches 2.6 in into the FLOWER's opening.
+- **Why a triangle, not a round rod:** the empty-FLOWER photo shows the bottom POLLEN sits in a pocket in the
+  base plate. In `ramp.py`, a round rod lets the POLLEN roll back into the pocket. The triangle's sloped top
+  bridges the pocket's edge, like a ramp. `run(wedge=(0.5, 0.6, 2.75))`, intake 10.75 in behind the bar's front:
+  it works in every case tried, at pocket edges of 0.25 and 0.43 in, reaches of 2.3 and 2.6 in, and the bounce
+  and friction guesses. All 4 are out in 1.06 to 1.36 s and the last at the intake in 1.3 to 1.6 s. A flatter
+  bar (0.4 in tall, 7 to 8°) still works, just a little slower.
+- **Size:** 13.25 + 8 + 2.75 = 24.0 in, so keeping 8 in of clear space trims the chassis 1.25 in from option 3.
+  With a 14.5 in chassis the clear space is 6.75 in. Stowed, the start is about 17.3 in.
+- **For the spill:** most of the front is now a full-height wall again. Only the cutout is open above the bar.
+
+The sections below are earlier steps (the ramp front, the rod). Their physics stands; their geometry is
+superseded.
+
 ## The design (corrected 6 Oct 2026)
 
 **The ramp is the hook's front.** The C has one tall wall, the 8 in right arm: about 4 in tall and **vertical**. In
