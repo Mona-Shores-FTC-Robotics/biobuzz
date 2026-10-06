@@ -27,7 +27,7 @@ JW_R = 0.945                             # 48 mm gecko
 J_X, J_Z = -1.32, FLOOR + 2.80 - 0.10 + JW_R   # J-wheel axle at its POLLEN hard stop
 J_OUT = JW_R + 2.80 - 0.10               # outer J radius about that axle
 J_REAR = J_X - J_OUT                     # vertical rear wall of the chute
-PIVOT = (J_X + 2.218, J_Z - 0.807)       # arm pivot, 60 mm away at 20 deg (16T HTD5 x2, 40T belt): the queue's push closes the arm; 30 deg put the motor into the rail
+PIVOT = (J_X + 2.044, J_Z - 1.18)        # arm pivot, 60 mm away at 30 deg (16T HTD5 x2, 40T belt): the queue's push closes the arm
 BEARING_Z = (6.6, 7.8)                   # turret bearing, height to confirm from goBILDA's CAD
 LANE_W = 4.2                             # clear width between lane walls
 
@@ -140,7 +140,7 @@ def concept_a():
     s.text(TURRET_X, 15.8, "turret axis X -3.17")
     # lane
     s.line([(RAMP[0], RAMP[1]), (RAMP[2], RAMP[3]), (J_X, FLOOR)], "lane")
-    s.line([(0.45, 5.0), (2.3, 5.0)], "lane")
+    s.line([(0.55, 5.0), (2.3, 5.0)], "lane")
     s.line([(5.6, FLOOR + 0.05), (-1.0, FLOOR + 0.05)], "belt")
     s.circle(5.6, 0.65, 0.25, "new"); s.circle(-1.0, 0.65, 0.25, "new")
     s.line([(ROLLER_X, ROLLER_Z), (6.0, 4.0)], "belt")        # roller shaft -> countershaft, span constant over the float
@@ -151,11 +151,11 @@ def concept_a():
     s.arc(J_X, J_Z, J_OUT, 180, 270, "lane")
     s.line([(J_REAR, J_Z), (J_REAR, BEARING_Z[0])], "lane")
     s.circle(J_X, J_Z, JW_R, "new")
-    s.circle(J_X + 0.36, J_Z + 0.99, JW_R, "thin")
+    s.circle(J_X + 0.55, J_Z + 0.95, JW_R, "thin")
     s.line([PIVOT, (J_X, J_Z)], "belt")
     s.circle(*PIVOT, 0.3, "new")
     s.text(PIVOT[0] + 1.6, PIVOT[1] - 0.35, "arm pivot + J motor", "l")
-    s.text(J_X + 1.4, J_Z + 2.15, "J-wheel floats up to 1.05 in for NECTAR", "l")
+    s.text(J_X + 1.4, J_Z + 2.15, "J-wheel floats up to 1.1 in for NECTAR", "l")
     # pieces: one being kicked, then the queue
     s.circle(TURRET_X - 0.2, 5.6, POLLEN_R, "pol")
     s.line([(TURRET_X - 0.2, 7.2), (TURRET_X - 0.2, 9.4)], "path")
