@@ -80,3 +80,34 @@ it is mounted:
    real add-on parts from `cad/robot-addons/build.py` (set `MESH_OUT` there, `MESH` here).
 
 `pip install cadquery cascadio trimesh fast_simplification scipy rtree`
+
+## Fit checks for the intake study (`doc/intake-design.md`, option b)
+
+Asked by the intake session, 6 Oct 2026. `tools/robot-cad/optb.py`, on the robot's 0.1 in grid.
+
+**A 14 in roller across the front fits only in front of the robot.** At today's roller line (axle 0.95 in
+behind the face) a 14 in roller runs into both front uprights, both front wheels and the intake's own plates.
+With its bottom at 2.4 in and 48 mm wheels, it is clear once its axle is **1.0 in in front of the face**, so the
+roller's front is **1.94 in out**. That costs:
+
+- **Starting size:** 15.12 + 1.94 = 17.06 in of the 18, before anything stows in front of it.
+- **The lane to the FLOWER block:** with the hook down at 24 in, the block's back edge is 7.48 in out, so the lane
+  from the roller's front is about 5.5 in (7.4 today).
+- **Its side plates:** they sit in front of the front wheels, where the outer wheel plates (`cad/robot-addons/`,
+  inner faces 7.56 in from the centre) already are. Extending those plates forward and up carries the roller
+  (15.1 in between them).
+
+**The hook's hinge high on the side plate works at 6 in up, not 5, and it stows over the top, not upright.**
+Hinge 1.0 in in front of the face, the arm between the roller's end and the plate (7.25 in out), the FLOWER block
+at 24 in. Swept 0 to 180° in 10° steps:
+
+| Hinge height | Clashes | Stowed |
+|---|---|---|
+| 5 in | front shaft and curtains hit the two tall front towers (`3700-0145-0288`) at 120-130°; the block hits the launcher at 180° | no clear stop |
+| **6 in** | **none from 0 to 150°** except the curtains' tops grazing a tower at 130° (lower them 0.3 in, or hinge at 6.5) | **150°: 1.55 in in front of the face (inside the roller's 1.94), 14.5 in tall** |
+
+Standing upright (90°) the hook sticks 5.3-6.3 in out the front, so it has to fold past vertical to about 150°,
+leaning back over the intake; 180° (flat back) hits the launcher. A servo has the travel (150° of 300°). The worst
+gravity load is with the hook's balance point level, about 9.7 kg·cm for a 430 g hook 8.9 in out: the Torque
+servo still has 2.5×. Everything at the corner below 4 in (a vectoring wheel, the Rigid V's flap) stays free:
+the hinge, hub and servo are all above 5.5 in.
