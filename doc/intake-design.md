@@ -29,7 +29,9 @@ from; the ones marked **guess** are the ones the cardboard tests below replace.
 4. **The design, drawn and fit-checked** (section below; `cad/intake-b/` on `claude/robotics-meeting-notes-lq2y55`):
    a 13.8 in roller of 48 mm gecko wheels 1.0 in ahead of the front face with its bottom at 2.4 in, carried by the
    outer wheel plates, the ramp hook hinged 6 in up on those plates and stowed folded over the top, and the Rigid V
-   as two fixed corner plates. 17.3 in long at the start, 24.0 with the hook down, 17.8 wide.
+   as two fixed corner plates. 17.3 in long at the start, 24.0 with the hook down, 17.8 wide. **Since 21:15 UTC the hook is
+   no longer a spill catcher** (the mentor; [unified-design.md](unified-design.md)): the roller, plates, drive and V
+   plates stand; the hook becomes the FLOWER extractor, designed in its own chat around the V.
 5. **Build in cardboard first:** the roller height test (which bottom height lifts a POLLEN and a NECTAR off the
    tiles, and how fast), the mouth-edge test (is a ball at the edge of a 14 in mouth pulled in or batted
    aside), and only then the vectored rollers (does a ball held against them wait, or squirt out sideways).
@@ -249,7 +251,16 @@ costs nothing measurable on the tiles.
   earns its 3 points. The V's G409 touches (2–5 runs of 60) are the flaps', the same as the published V.
 - **G409** stays at 0–2 runs of 60 on every plain option: the intake does not change where the robot waits.
 
-## The design to model: a full-width roller ahead of the face, the ramp hook hinged above it
+## The design to model: a full-width roller ahead of the face, with the Rigid V
+
+> **Decision (mentor, 6 Oct 2026, 21:15 UTC; [unified-design.md](unified-design.md) on
+> `claude/biobuzz-robot-body-designs-hi386c`): one robot, a fixed Rigid V, a FLOWER extractor and a FLOWER scorer.
+> The hook is no longer a spill catcher.** What stands from the drawing below: the roller, its side plates and drive,
+> and the V plates; **the V takes the front corners**, and the extractor and scorer fit around it or fold. The hook
+> rows below are the record of what was drawn and checked; the hook itself becomes the FLOWER extractor (the
+> Flower Extracter chat: two low arms, no walls, stowed inside the 18 in cube with the V fitted), so its hinge,
+> servo and hard stops are that chat's to keep or drop, and the FLOWER block goes with it. This chat owns the V's
+> angle, length, height and shape, and the intake behind it ("The V's angle" below).
 
 This is the intake design this study recommends. **It is drawn:** `cad/intake-b/` on
 `claude/robotics-meeting-notes-lq2y55` (`dhs-intake-b.step` in the robot's frame, `build.py` with every number at
@@ -316,6 +327,33 @@ G409 touches. **So no hinged V**: the fixed plates as drawn are the design. What
 11 runs of 60 (the Flat Intake's V: 3), the plates reaching the spill where the robot waits for TIP 3, and on
 these Autos every run crosses the centre line by the width of the tips at 7.5–9.7 s (the routes were drawn for an
 18 in outline; a 0.5 in route shift). Both belong with the hook's G409 work: the waiting spot and the timing.
+
+**The V's angle** (this chat's decision under [unified-design.md](unified-design.md); 60 runs, the Rigid V's Autos,
+the drawn intake; the angle is the plate's from straight ahead, tips 17.8 in apart, so steeper is shorter):
+
+| V | Tip ahead of the face | ShootsRight: points · TIP 3 · G409 runs | Angled: points · TIP 2 · G409 | Wall (broken route): points · TIP 2 · G409 |
+|---|---|---|---|---|
+| **31°, as drawn** | 2.84 in | **69.9 · 47 · 11** | 50.4 · 51 · 18 | 42.0 · 39 · 10 |
+| 35° | 2.36 | 68.3 · 43 · 6 | 49.6 · 48 · 10 | 42.3 · 40 · 6 |
+| 45° | 1.65 | 66.9 · 40 · 4 | 51.3 · 52 · 2 | 42.3 · 40 · 0 |
+| 60° | 0.95 | 64.3 · 34 · 4 | 51.8 · 53 · 1 | 43.0 · 42 · 1 |
+| 16 in tips, 2.84 ahead (41°) | 2.84 | 67.0 · 40 · 6 | 51.2 · 51 · 16 | 43.0 · 42 · 10 |
+
+**Decision: the V as drawn.** Tips 17.8 in apart, 2.84 in ahead of the face (31° from straight ahead in the
+simulator's flap, 41° off the side plate's own corner in the CAD), **4 in tall** (the body-designs chat's height
+sweep: 2.2 and 2.5 in plates cost 2.5–3.5 points, because pieces bounce and fall into the upper part), 1/8 in
+aluminium, flap bounce as modelled (restitution up to 0.3 scores the same; 0.5 costs the wall Auto 3 points).
+Every 5° steeper costs about 1.5 points and 4 TIP 3s on ShootsRight while halving the G409 touches, so **45° is
+the fallback** if the plates' touches on a falling spill turn out to be called on a real field: 3 points for a
+quarter of the touches. Narrower tips lose as much as a steeper plate without the G409 gain. The angled Stages
+Auto prefers the steeper plates by a point, within noise of the 60 runs.
+
+**What the routes must do for this V** (the body-designs chat, `tools/auto-routes/guide_routes.py`,
+`turning_west()`, TURN_X 55.5): turn out of the tunnel at x 55.5 instead of 57.5, or the tips reach over the
+centre line at about 8.6 s on both Stages routes; 17.8–18 in is the widest V these routes allow (20 in still
+crosses at about 21 s). With the wall partner the V sweeps up its row square to it (4 of 4), not face first
+(1 of 4), and not through the west lane (55.7 against 47.3). Holding TIP 1's spill at the drop zone adds about
+2 points and triples the touches: no.
 
 **Checked in the drawing:** the ramp and FLOWER block passing the roller as the hook folds (about 90°); the V
 plates against the stowed hook, the front wheels and the belt; the servo load; the lane between the curtains,

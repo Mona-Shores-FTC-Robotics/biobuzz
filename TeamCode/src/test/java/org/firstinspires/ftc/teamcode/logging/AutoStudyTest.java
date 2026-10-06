@@ -135,6 +135,20 @@ public class AutoStudyTest {
             d.flapForwardIn = v[1];
             out.add(d.checked());
         }
+        // The V's angle (doc/unified-design.md: the Intake Design chat owns the V's angle, length, height and shape).
+        // Tips 17.8 in apart as drawn; the angle is the flap's from straight ahead, so the tip is this far ahead of
+        // the face: 31 deg is the drawn plate (2.84 in, the 18 in start cube's limit on the 15.12 in body), steeper
+        // is shorter. 16 in tips at the same 2.84 in reach is a narrower, more forward-pointing plate.
+        for (double deg : new double[] {35, 45, 60}) {
+            RobotDesign d = drawn.copy(String.format(Locale.ROOT, "DHS intake-b, V 17.8 in at %.0f deg", deg));
+            d.flapOutIn = 17.8 / 2 - half;
+            d.flapForwardIn = d.flapOutIn / Math.tan(Math.toRadians(deg));
+            out.add(d.checked());
+        }
+        RobotDesign narrow = drawn.copy("DHS intake-b, V 16.0 in wide, 2.84 in ahead");
+        narrow.flapOutIn = 16.0 / 2 - half;
+        narrow.flapForwardIn = 2.84;
+        out.add(narrow.checked());
         // The same on the CAD's own body (15.12 x 15.24 in, doc/robot-cad.md), to see whether the Autos drawn for
         // the 14.5 in Flat Intake still fit it (the STEP's 15.7 in bounding box drove into the far FLOWER).
         RobotDesign body = vecWide.copy("DHS CAD, vectored 14 in, CAD body");
