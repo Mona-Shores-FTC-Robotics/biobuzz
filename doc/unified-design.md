@@ -41,7 +41,7 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 
 | Baseline | Route | Points | 3 TIPs (of 60) | Notes |
 |---|---|---|---|---|
-| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 8 runs, no problems |
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **72.2** | **51** | PARK 58, G409 14 runs, no problems. With the extractor seated (the face 7.09 in from the FLOWER), 23:05 UTC; 71.2 / 48 / G409 8 before |
 | `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
 | `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
 

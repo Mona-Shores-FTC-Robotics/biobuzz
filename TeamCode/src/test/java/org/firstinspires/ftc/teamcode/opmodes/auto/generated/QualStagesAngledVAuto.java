@@ -49,8 +49,8 @@ public final class QualStagesAngledVAuto {
         Pose gardenIn = p.of(8.5, 20.56, 270);
         Pose garden = p.of(8.5, 9.56, 270);
         Pose park = p.of(13, 87.44, 90);
-        Pose farFlower = p.of(47.36, 129.03, 90);
-        Pose farFlowerTurn = p.of(47.36, 120.73, 90);
+        Pose farFlower = p.of(47.36, 124.14, 90);
+        Pose farFlowerTurn = p.of(47.36, 115.84, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 119, 270);
         Pose rowS = p.of(49.34, 112.53, 137.3);
@@ -69,9 +69,9 @@ public final class QualStagesAngledVAuto {
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
         Pose sFireToParkControl2 = p.of(24, 70, 0);
-        Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 120.73, 0);
-        Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 120.73, 270);
-        Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 120.73, 270);
+        Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 115.84, 0);
+        Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 115.84, 270);
+        Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 115.84, 270);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);

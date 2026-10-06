@@ -464,6 +464,8 @@ final class FieldSim {
          * Its caller moves it; the walls stop pieces only while it is above 0.
          */
         double wallsOut;
+        /** How far down its FLOWER extractor is ({@link RobotDesign#extractorSeatIn}), 0 stowed to 1 down. Its caller moves it. */
+        double extractorDown;
         /**
          * Which flap a one-armed design has down now: +1 its left, -1 its right, 0 as its design says.
          * Its caller sets it ({@link RobotDesign#flapTowardCentre}).
@@ -1593,6 +1595,16 @@ final class FieldSim {
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
         double mouth = design.frameIn / 2 + design.intakeReachIn;
+        if (p.flower >= 0 && !Double.isNaN(design.extractorSeatIn)) {
+            // The extractor, down and seated on the FLOWER (its centre at the seat, within the tolerance), takes the stack.
+            if (bot.extractorDown < 0.95) return false;
+            double[] f = flowers.get(p.flower);
+            double fx = (f[0] - bx) * c + (f[1] - by) * s, fy = -(f[0] - bx) * s + (f[1] - by) * c;
+            if (design.intakeAtBack) fx = -fx;
+            double seat = design.frameIn / 2 + design.extractorSeatIn;
+            return Math.abs(fx - seat) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN
+                    && Math.abs(fy) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
+        }
         if (design.intakeOnContact && p.flower < 0) {
             return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
                     && Math.abs(ly) < design.intakeWidthIn / 2 && p.z + p.kind.radius <= design.intakeHeightIn;

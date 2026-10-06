@@ -74,6 +74,14 @@ wall partner's row sweep starts 2 in short of the first piece instead of 4, turn
 corners over the parked partner: collisions in 60, then 5, then 0 of 60; 56.0 → 55.7 → 53.3, **55.3** on the
 corrected body, 15.12 in long; turning at 45–60% cost 2–5 points more). Angled partner **51.6**.
 
+**The FLOWER extractor** (6 Oct 2026 23:05 UTC, mentor review of the logs on the CAD model: the body was driving into the
+FLOWER). The V takes a FLOWER with the CAD's extractor, so `FLOWER_FACE_IN` (`qual_right.py`) puts the face 7.09 in from
+the FLOWER's centre instead of 2.2 (`baselines_v.FLOWER_FACE_V`): both FLOWERs' points sit 4.89 in further out. The
+simulator swings the extractor down on the approach (`RobotDesign.extractorSeatIn`, 0.5 s placeholder) and the
+FLOWER gives up pieces only once it is down and seated. ShootsRight 71.2 → **72.2**, TIP 3 in 48 → 51 (G409 8 → 14
+runs: the wall FLOWER's load fires sooner and more spills get touched); the Stages Autos unchanged (51.6, 55.3: they
+reach the far FLOWER only when the row fails to TIP).
+
 **Shot accuracy** (6 Oct 2026, 60 runs): `BIOBUZZ_AUTO_SPREAD` scales the launcher's shot-to-shot spread (1 = the
 placeholder, 0 = none), `BIOBUZZ_AUTO_AIM_DEG` is how closely the robot must face the CELL before firing (2 by
 default) and `BIOBUZZ_AUTO_FIRE_STILL=1` fires only once it is still. Today's launcher: ShootsRight 94% of 17.6

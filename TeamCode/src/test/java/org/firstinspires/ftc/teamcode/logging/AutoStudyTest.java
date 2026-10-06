@@ -173,7 +173,9 @@ public class AutoStudyTest {
         }
         // The baseline robot since 6 Oct 2026 21:15 UTC (mentor: one robot, the Rigid V as drawn in the team's CAD; the
         // FLOWER extractor and scorer to come): the drawn V under the name the logs carry, "rigid V".
-        m.put("rigid V", drawnV("", 4, Double.NaN, true, true).copy("rigid V"));
+        RobotDesign rigidV = drawnV("", 4, Double.NaN, true, true).copy("rigid V");
+        rigidV.extractorSeatIn = 7.09;  // the CAD's extractor seated: doc/robot-cad.md "Seated on a FLOWER"
+        m.put("rigid V", rigidV);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);

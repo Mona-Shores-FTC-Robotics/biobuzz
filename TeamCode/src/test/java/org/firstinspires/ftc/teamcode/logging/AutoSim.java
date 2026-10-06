@@ -776,11 +776,22 @@ public final class AutoSim {
     static boolean cadModel(String design) {
         return design.equals("rigid V") || design.startsWith("flat intake, rigid V as drawn");
     }
+    /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
+    static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
+    static final double EXTRACTOR_STOWED_DEG = 150;
+
     /**
-     * The CAD model's two components through AUTO (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): the FLOWER
-     * extractor stowed, 150 deg about its shaft, then the floating roller down. Translation (m), quaternion (w, x, y, z).
+     * The CAD model's two component poses (translation m, quaternion w x y z): the FLOWER extractor turned about its
+     * shaft by -angle about +Y (0 deg down as drawn, 150 stowed), for {@code down} from 0 (stowed) to 1 (down), then
+     * the floating roller, down (its identity pose).
      */
-    static final double[] EXTRACTOR_STOWED = {0.52922, 0, 0.08679, 0.258819, 0, -0.965926, 0, 0, 0, 0, 1, 0, 0, 0};
+    static double[] cadComponents(double down) {
+        double a = Math.toRadians(EXTRACTOR_STOWED_DEG * (1 - down));
+        double px = EXTRACTOR_PIVOT_M[0], pz = EXTRACTOR_PIVOT_M[2];
+        // R (about +Y by -a) applied to the pivot; translation = pivot - R pivot.
+        double rx = px * Math.cos(a) - pz * Math.sin(a), rz = px * Math.sin(a) + pz * Math.cos(a);
+        return new double[] {px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0, 0, 0, 0, 1, 0, 0, 0};
+    }
 
     private final class Bot {
         final Class<?> autoClass;
@@ -1006,6 +1017,7 @@ public final class AutoSim {
             if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0 || design.flapsDeploy) {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
+            if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
                 for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
@@ -1149,6 +1161,46 @@ public final class AutoSim {
 
         boolean wallsLogged;
 
+        /** How far ahead of the face a FLOWER's centre may be for the extractor to come down on the approach. */
+        static final double EXTRACTOR_DEPLOY_AHEAD_IN = 18;
+        /** How far off the robot's centre line that FLOWER may be. */
+        static final double EXTRACTOR_DEPLOY_ASIDE_IN = 6;
+        boolean extractorWanted;
+
+        /**
+         * The FLOWER extractor (RobotDesign#extractorSeatIn), run by the robot rather than the Auto, like the side
+         * walls: down while a FLOWER is ahead of the face (within {@link #EXTRACTOR_DEPLOY_AHEAD_IN}, near the
+         * centre line) and the robot has room for its pieces, up otherwise, so it swings down on the drive in
+         * and up as the robot leaves. It swings in RobotDesign#extractorDeployS; a FLOWER gives up pieces only
+         * while it is down and seated (FieldSim.inIntake). Logged as {@code Extractor/Down} (0 up to 1 down)
+         * and as the CAD model's component pose ({@link #putShape}). A real robot needs the same behaviour, in
+         * the Auto or in the subsystem; the generated Autos do not carry an action for it yet.
+         */
+        void extractor(WpiLog log, double[] pose, boolean running, long us) throws IOException {
+            boolean flowerAhead = false;
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double face = design.frameIn / 2;
+            for (double[] f : sim.flowers) {
+                double lx = (f[0] - pose[0]) * c + (f[1] - pose[1]) * s;
+                double ly = -(f[0] - pose[0]) * s + (f[1] - pose[1]) * c;
+                if (design.intakeAtBack) lx = -lx;
+                if (lx > face && lx < face + EXTRACTOR_DEPLOY_AHEAD_IN && Math.abs(ly) < EXTRACTOR_DEPLOY_ASIDE_IN) flowerAhead = true;
+            }
+            boolean want = running && flowerAhead && body.stored.size() < FieldSim.ROBOT_CAPACITY;
+            if (want != extractorWanted) {
+                extractorWanted = want;
+                log.putEvent(tag() + "extractor " + (want ? "down: a FLOWER ahead" : body.stored.size() >= FieldSim.ROBOT_CAPACITY
+                        ? "up: holding 4" : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
+            }
+            double step = LOOP_S / design.extractorDeployS;
+            double before = body.extractorDown;
+            body.extractorDown = want ? Math.min(1, before + step) : Math.max(0, before - step);
+            if (body.extractorDown != before) {
+                log.put(keyPrefix + "/Extractor/Down", body.extractorDown, us);
+                putShape(log, us);
+            }
+        }
+
         /** The walls' slide as AdvantageScope component poses: left wall, right wall, robot frame, metres. */
         void putWalls(WpiLog log, long us) throws IOException {
             wallsLogged = true;
@@ -1165,15 +1217,18 @@ public final class AutoSim {
          * swung up as far as it is ({@code SideWalls/Out}: 0 stowed, 1 down).
          */
         void putShape(WpiLog log, long us) throws IOException {
+            if (cadModel(design.name)) {
+                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor,
+                // zeroed deployed, at its angle (150 deg stowed, 0 down), and the floating roller, down.
+                double down = body == null ? 0 : body.extractorDown;
+                if (down == shapeLogged) return;
+                shapeLogged = down;
+                log.putPose3dArray(keyPrefix + "/BodyShape/Components", cadComponents(down), us);
+                return;
+            }
             double out = body == null ? 0 : body.wallsOut;
             if (out == shapeLogged) return;
             shapeLogged = out;
-            if (cadModel(design.name)) {
-                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor,
-                // zeroed deployed and stowed through AUTO, and the floating roller, down.
-                log.putPose3dArray(keyPrefix + "/BodyShape/Components", EXTRACTOR_STOWED, us);
-                return;
-            }
             int side = body == null || body.flapsOnly == 0 ? 1 : body.flapsOnly;
             int hook = design.flapsDeploy ? BodyShape.matchHook(design.name, side) : -1;
             double[] poses = RobotAssets.hookComponent(BodyShape.matchComponent(design.name), hook, 1 - out, design.frameIn);

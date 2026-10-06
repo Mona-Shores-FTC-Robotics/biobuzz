@@ -14,18 +14,21 @@ Rigid V as drawn on it ([the decision](doc/unified-design.md); `AutoStudyTest.dr
   NECTAR 3.6 in), one every 0.35 s, 85% of the time;
 - **two fixed flaps from the front corners, tips 17.8 in apart and 2.8 in ahead, 4 in tall**: the V. Pieces
   bounce off them into the mouth (flap bounce: the body's, up to 0.3 measured fine);
-- one two-wheel launcher near the back, throwing pieces up into a deflector that sends them off forward at 75°.
+- one two-wheel launcher near the back, throwing pieces up into a deflector that sends them off forward at 75°;
+- **the FLOWER extractor** (the CAD's: on its own shaft 2.4 in ahead of the face, swinging 150° in 0.5 s, a
+  placeholder): it comes down on the approach to a FLOWER and takes the stack once seated, the face 7.09 in from
+  the FLOWER's centre; the routes stop there, so the mechanism meets the FLOWER, not the body.
 
-The FLOWER extractor and the FLOWER scorer join the model when their CAD exists ([threads](doc/threads.md)).
+The FLOWER scorer joins the model when its CAD exists ([threads](doc/threads.md)).
 
 Points are average alliance AUTO points over 60 simulated runs (seeds 1–60; 3 TIPs, LEAVE and PARK; a perfect run
 is 76). **G409** is how many runs our robot touched a spilled piece before it reached the tiles (the rule: don't
-catch or deflect a TIP's spill). Numbers run **6 Oct 2026 21:38 UTC** on the simulator as it stands (each TIP
+catch or deflect a TIP's spill). Numbers run **6 Oct 2026 23:05 UTC** on the simulator as it stands (each TIP
 0.58–1.12 s, pieces rolling as filmed). Each log downloads as `<Auto>_RigidV_<date simulated>_best` or `_typical`.
 
 | Auto | Partner | Points | TIPs | Our PARK | G409 runs | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight** (`qual-right-v`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **71.2** | 3 TIPs in 48 of 60 | 58 of 60 | 8 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_typical.wpilog) |
+| **Qual-PartnerShootsRight** (`qual-right-v`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **72.2** | 3 TIPs in 51 of 60 | 58 of 60 | 14 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_typical.wpilog) |
 | **Qual-PartnerStages, angled partner** (`qual-stages-angled-v`) | Can't shoot: starts angled, back corner on the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward to PARK | **51.6** | 2 TIPs in 53 of 60 | 55 of 60 | 14 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) | [qual-stages-angled-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-angled-v.pp) · [partner-angled-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-angled-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-06_typical.wpilog) |
 | **Qual-PartnerStages, partner against the wall** (`qual-stages-wall-v`) | Can't shoot: back against the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward, parked | **55.3** | 3 TIPs in 26 of 60 | none (it parks on our spot) | 16 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) | [qual-stages-wall-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-wall-v.pp) · [partner-stage19-side-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage19-side-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-06_typical.wpilog) |
 
@@ -200,9 +203,9 @@ laptop. Set it up once, then watch any log.
 3. Press **Space** to play. AUTO starts 1 s in.
 
 What you see: our robot, **BIOBUZZ Robot**, built from the team's CAD (`cad/advantagescope/`): the chassis
-with its outer wheel plates and odometry pods, the 14 in intake roller, the Rigid V plates, the FLOWER extractor
-(stowed, 125° up, through AUTO) and the Limelight, which you can look through (right-click the 3D view →
-**Limelight**). The partner is the green ghost. The baseline logs above are simulated with that robot
+with its outer wheel plates and odometry pods, the floating 14 in intake roller, the Rigid V plates, the FLOWER
+extractor (swinging down as the robot nears a FLOWER, up as it leaves) and the Limelight, which you can look
+through (right-click the 3D view → **Limelight**; its body isn't drawn yet). The partner is the green ghost. The baseline logs above are simulated with that robot
 ("rigid V"). A log of another design (the superseded Flat Intake ones, or a study) draws nothing right until
 you pick **BIOBUZZ Robot (designs)** in the robot row's model menu: that model holds every simulated design
 and the log says which to show. The picture never changes what happened: a log is one simulated match with
