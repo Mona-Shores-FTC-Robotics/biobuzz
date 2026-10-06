@@ -63,6 +63,17 @@ up to 4 or firing three loads: all 16 variants below the current routes (angled 
 46.3–47.3 against 47.3, TIP 2 up to 54 of 60 but 3–5 s later). The study's new "intake misses per run" says why:
 15 pieces a run too high, 16–25 while the intake is busy.
 
+### The Rigid V baselines (6 Oct 2026 21:15 UTC on)
+
+`baselines_v.py` exports `qual-right-v`, `qual-stages-angled-v` and `qual-stages-wall-v` from the body-designs
+branch's best routes for the V (`park_first.py`, `guide_routes.py`: PARK first on ShootsRight, the tunnel turn at
+x 55.5, the wall partner's row swept square) and runs them on the `rigid V` design. Two fixes on the way in, 60 runs
+each: the routes are fitted for the drawn V's 15.24 in body (`FRONT_IN_V`; fitted for 14.5 in, the body overlapped
+the far FLOWER's tube by 0.17 in at the pickup in every run; ShootsRight 69.5 → **71.2**, TIP 3 in 43 → 48); and the
+wall partner's row sweep starts 2 in short of the first piece instead of 4, turning 70% of the way there (the V's
+corners over the parked partner: collisions in 60, then 5, then 0 of 60; 56.0 → 55.7 → 53.3, **55.3** on the
+corrected body, 15.12 in long; turning at 45–60% cost 2–5 points more). Angled partner **51.6**.
+
 **Shot accuracy** (6 Oct 2026, 60 runs): `BIOBUZZ_AUTO_SPREAD` scales the launcher's shot-to-shot spread (1 = the
 placeholder, 0 = none), `BIOBUZZ_AUTO_AIM_DEG` is how closely the robot must face the CELL before firing (2 by
 default) and `BIOBUZZ_AUTO_FIRE_STILL=1` fires only once it is still. Today's launcher: ShootsRight 94% of 17.6

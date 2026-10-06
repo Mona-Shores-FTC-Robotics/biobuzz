@@ -1,8 +1,11 @@
 {
   "pairs": [
-    {"name": "Qual-ShootsRight", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "baseline, Flat Intake: partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"},
-    {"name": "Qual-Stages-Angled", "files": ["qual-stages-angled.pp", "partner-angled-park.pp"], "note": "baseline, Flat Intake: partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"},
-    {"name": "Qual-Stages-Wall", "files": ["qual-stages-wall.pp", "partner-stage19-side-park.pp"], "note": "baseline, Flat Intake: partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"},
+    {"name": "Qual-ShootsRight", "files": ["qual-right-v.pp", "partner-preloads-right.pp"], "note": "baseline, Rigid V: partner fires from the right start; PARK first when TIP 3 is late"},
+    {"name": "Qual-Stages-Angled", "files": ["qual-stages-angled-v.pp", "partner-angled-park.pp"], "note": "baseline, Rigid V: partner can't shoot, starts angled with its 4 POLLEN beside it, drives straight to PARK; turns out of the tunnel at x 55.5"},
+    {"name": "Qual-Stages-Wall", "files": ["qual-stages-wall-v.pp", "partner-stage19-side-park.pp"], "note": "baseline, Rigid V: partner can't shoot, starts against the wall with its 4 POLLEN beside it; the row swept square; the partner parks on our spot, so no PARK for us"},
+    {"name": "Qual-ShootsRight-FlatIntake", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"},
+    {"name": "Qual-Stages-Angled-FlatIntake", "files": ["qual-stages-angled.pp", "partner-angled-park.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"},
+    {"name": "Qual-Stages-Wall-FlatIntake", "files": ["qual-stages-wall.pp", "partner-stage19-side-park.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"},
     {"name": "Qual-PartnerShootsLeft", "files": ["qual-partner-shoots-left.pp", "partner-preloads-left.pp"], "note": "qualifier, partner fires from the standard left start: one launcher 70"},
     {"name": "Qual-PartnerParksLeft", "files": ["qual-partner-parks-left.pp", "partner-park-left.pp"], "note": "qualifier, partner only drives and parks from the left start: one launcher 57"},
     {"name": "Qual-PartnerShootsRight-v3", "files": ["qual-right-v3.pp", "partner-preloads-right.pp"], "note": "full-width robot (the what-if): partner fires from the right start; 3 TIPs in 17 of 20"},

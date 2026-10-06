@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/qual-right-o3.pp",
-  "spec": "QualRightO3Auto,PartnerPreloadsRightAuto@50",
-  "design": "flat intake",
+  "pp": "TeamCode/autos/qual-right-v.pp",
+  "spec": "QualRightVAuto,PartnerPreloadsRightAuto@50",
+  "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -68,8 +68,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-o3.pp",
-    "SavedBy": "README, qualifier Autos baseline (Flat Intake), 6 Oct 2026 review: smooth path into the wall FLOWER"
+    "AutoSource": "qual-right-v.pp",
+    "SavedBy": "README, qualifier Autos baseline (Rigid V as drawn, 6 Oct 2026)"
   },
   "title": "Qual-PartnerShootsRight",
   "usual": true

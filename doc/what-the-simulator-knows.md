@@ -22,7 +22,7 @@ guess, the real number can differ, and so can which idea wins. Updated 6 Oct 202
 | What | The guess | Why it matters |
 |---|---|---|
 | How pieces bounce off tiles, walls, the HIVE, robots | restitution 0.45 / 0.5 / 0.2 / 0.1 | Where a spill ends up; how much a flap or hook keeps |
-| Our robot's size and shape | Read off the 5 Oct CAD screenshots, ±15% | Every route spot; what the robot can reach |
+| Our robot's size and shape | The Rigid V as drawn in the 6 Oct CAD (`AutoStudyTest.drawnV`): body 15.12 × 15.24 in, 13.8 in roller, flap tips 17.8 in apart, 4 in tall | Every route spot; what the robot can reach. The extractor and scorer are not drawn yet |
 | The intake | Takes a piece only when it touches the front, top under 5 in, one every 0.35 s, 85% of the time; a piece that arrives while it is busy bounces off the body | **The biggest lever found.** Every study line now counts the misses by why ("height", "interval", "beside", "chance"); in the Autos 15 a run are too high and 16–25 arrive while it is busy. Vectored rollers that hold pieces against the front would queue them instead; the roller height sets the 5 in |
 | The launcher | 2 s spin-up, 0.45 s a shot, 75°, a little spread (about 5 shots in 6 score); fires once within 2° of the CELL | When TIPs happen; how many shots score. With the spread set to zero and firing only when still and within 0.5°, shots still score only 92–96% from the firing spots; every study line reports the shots scored and why the misses missed |
 | Flaps, hooks, side walls | Thin plates of the drawn size, bouncing pieces with the guesses above | The rigid V's gain is pieces bouncing off its flaps into the intake: plausible, untested |

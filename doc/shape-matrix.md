@@ -1,5 +1,9 @@
 # Every spill guide on every current Auto
 
+> **Superseded as a comparison, 6 Oct 2026 21:15 UTC:** the Rigid V is the one robot (`doc/unified-design.md`); the
+> README's baselines are its. The rows below are the Flat Intake's Autos with each guide added, kept as the record
+> of how the V was chosen. Its variants (width, angle, flap height, bounce) are in `sim-review/body-evaluation.html`.
+
 > **Archived, 6 Oct 2026: the hook as a spill catcher.** The robot catches spills with a Rigid V. The hook is being
 > redesigned as a FLOWER extractor only. See [One robot](unified-design.md).
 
