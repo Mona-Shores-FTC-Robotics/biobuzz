@@ -359,6 +359,38 @@ and seat (tip 5.84 in ahead of the face), the servo at the shaft's right end; th
 transfer's pulley at y +2.6, whose belt span changes 0.25 in over the float and gets a sprung idler. The start
 length stays 17.96 in (the shaft and hubs end at x = +2.6, inside the V tips' 2.84).
 
+**Drawn and swept clear** (the CAD session, 6 Oct 2026 23:30 UTC; `cad/intake-b/` commit 70b2561 on
+`claude/robotics-meeting-notes-lq2y55`, `tools/robot-cad/front_sweep.py`; AdvantageScope model in
+`cad/advantagescope/Robot_BIOBUZZ/`, model_0 the extractor 0–150°, model_1 the roller and motor rising 0–33 mm):
+
+- **Roller:** 13.8 in of wheels, bottom 2.4 at rest, axle 1.0 in ahead of the face and 3.35 up, rising 1.3 in in
+  vertical slots with its bearings in outboard float plates; the only gap in it the transfer's at y +2.35 to
+  +2.9; gravity and a spring (not drawn; the POLLEN bite, set on the rig) onto printed down stops.
+- **Motor:** on the carriage 77.5 mm above the roller (constant belt), the printed carriage sliding on the left
+  upright's front face on shoulder screws **in holes 7.6 and 7.9 in up** (the lower holes are behind the motor;
+  the README asks the team to check those holes exist), a bridge over the motor pulley tying it to the left
+  float plate.
+- **Extractor:** its own 8 mm REX shaft **2.4 in ahead of the face**, 4.5 up (1.5 mm more than 2.34, to clear the
+  raised roller's wheels from the arm collars); arms at ±1.8, the same block and seat; stowed folded up in front
+  of the roller at 150°; driven by the servo over the roller on the right through a 1:1 gear pair in the gap
+  between the roller's right end and the side plate, the shaft's gear a sector so nothing sticks out stowed;
+  worst servo load about 1.3 kg·cm.
+- **V:** as drawn, its roots 4 mm forward (1.55 in ahead) and its tabs lower, to clear the float plates.
+- **Checked clear:** the roller rising 0 to 1.3 in against the robot and every fixed part; the extractor every 5°
+  from 0 to 150° with the roller down, half up and fully up.
+- **Sizes:** starting **17.96 in** (V tips 2.84 out, stowed extractor 2.81, side plates 2.83); deployed 20.96
+  (22.6 while swinging); 17.8 in across.
+
+| Outline (x ahead of the chassis centre, y left, z up; the face at x 7.56) | x | y | z |
+|---|---|---|---|
+| Roller and motor, down | 7.56 to 9.50 | ±7.93 | 2.40 to 7.97 |
+| Roller and motor, floated 1.3 | 7.56 to 9.50 | ±7.93 | 3.70 to 9.27 |
+| Extractor, down | 9.26 to 13.40 | ±1.9 (shaft ±7.76) | 0.61 to 5.56 |
+| Extractor, stowed 150° | 8.71 to 10.37 | same | 3.44 to 9.51 |
+
+Still guesses, and the user has decided to build without the rig: the spring force (the POLLEN bite) and whether
+a NECTAR gives 0.4 in; the slot covers zero give either way.
+
 **The V's angle** (this chat's decision under [unified-design.md](unified-design.md); 60 runs, the Rigid V's Autos,
 the drawn intake; the angle is the plate's from straight ahead, tips 17.8 in apart, so steeper is shorter):
 
