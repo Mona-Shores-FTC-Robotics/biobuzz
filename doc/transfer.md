@@ -229,9 +229,12 @@ roller shaft stays, belted about the float pivot. Checked against the transfer:
   rear half. The roller's rear edge is at X 7.6 whether its bottom is at 2.4 or 3.7, so the piece is always pressed
   onto the ramp as it leaves the roller. The pinch is set by the float spring, not by the ramp's height, so the ramp
   can't jam a NECTAR. Pieces reach the lane floor at X 5.8, 1.8 in behind the roller's rear edge.
-- **The lane's drive belt** now runs from the roller shaft up to a pulley on the float pivot (z 6.4, ahead of the
-  face), then down to the lane pulley at X 5.6. Its box is X 5.2..9.1, Y 2.35..2.9, z 0.2..7.0. The J-wheel is at
-  X −1.3, 6.5 in behind it: clear. The belt's speed ratio can be set at either pulley.
+- **The lane's drive belt.** The float's form is still open (the CAD chat finds the motor shaft can't be the pivot,
+  and proposes a vertical float with the motor riding on the roller's carriage). Either way the lane's drive runs
+  from a shaft that may move (the roller's, 3.35 → about 4.2) to the fixed lane pulley at X 5.6. **Make it a
+  polycord loop, not a toothed belt:** the span changes about 0.25 in over the float, about 2% of the loop, and
+  urethane round belt is installed at 5–10% stretch anyway, so it needs no idler. V-groove pulleys, 1.5:1. Its box
+  is X 5.2..9.1, Y 2.35..2.9, z 0.2..7.0. The J-wheel is at X −1.3, 6.5 in behind it: clear.
 - **Ramp height under a lifted roller.** With a NECTAR under the roller, the roller's bottom is at about 3.5, and
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
