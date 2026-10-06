@@ -226,13 +226,18 @@ flower intake testing"). Only its thumbnail could be fetched; YouTube refused th
 So the cardboard test should try both slopes: down toward the robot (ours, gravity) and up to the intake (theirs,
 a scoop).
 
-Still to read off the video, frame by frame, when we have it:
+**Timing, read off 19705's reel by eye (6 Oct 2026): 4 POLLEN in from the FLOWER in about 1 s.** That's about
+0.25 s a POLLEN, half of `RobotDesign.flowerPullS` (0.5 s), and inside `ramp.py`'s range. In the model, the last
+POLLEN leaves the FLOWER 1.0 to 1.3 s after the tip starts an inch out, at 10 to 15° (tables A and B). The
+physical floor is the column dropping one POLLEN at a time: about 0.12 s each from 2.9 in, so about 0.5 s for 4.
+Their 1 s says the POLLEN don't come out as fast as they can fall, and that the gravity-fed version A should
+come close.
 
-- the ramp's edge height and angle;
-- how far under the bottom POLLEN it goes;
-- whether the robot stops or keeps pushing;
-- the time from first contact to the last POLLEN in the robot. About 0.5 s means the intake does the work (C).
-  About 1 s means gravity could (A).
+- **For the simulator:** `flowerPullS` 0.25 s, for a robot with a FLOWER ramp, is supported by one video read by
+  eye. Change it on the simulator branch, not here, and only for a design that has the ramp. The plain intake
+  stays at 0.5 s until someone times it.
+- **Still worth timing from a frame-by-frame recording:** first contact to the last POLLEN in, to the nearest
+  0.1 s, and whether the robot keeps pushing.
 
 ## Thursday: cardboard checklist
 
