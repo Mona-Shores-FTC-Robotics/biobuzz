@@ -1,4 +1,4 @@
-"""The whole robot as an AdvantageScope model: Robot_BIOBUZZ/{model.glb, model_0.glb, config.json}.
+"""The whole robot as an AdvantageScope model: Robot_BIOBUZZ/{model.glb, model_0.glb, model_1.glb, config.json}.
 
 AdvantageScope's robot frame (as TeamCode's simulator RobotAssets uses it): +X forward, +Y left, +Z up, metres,
 origin on the floor under the point Pedro tracks (here: the chassis frame's centre, 7.56 in behind the front face).
@@ -6,7 +6,8 @@ origin on the floor under the point Pedro tracks (here: the chassis frame's cent
     python3 cad/advantagescope/build_model.py ROBOT_MESH_PKL ADDON_MESH_PKL [POD_MESH_PKL]
 
 ROBOT_MESH_PKL is tools/robot-cad/slim.py's keep.pkl (the team's robot STEP, 143 MB, in Drive). ADDON_MESH_PKL is
-cad/intake-b/build.py's MESH_OUT. Components: model_0 is the FLOWER extractor, drawn deployed.
+cad/intake-b/build.py's MESH_OUT. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the roller,
+its motor and carriage, drawn down (it floats straight up to 1.3 in).
 """
 import json, math, os, pickle, re, sys
 import numpy as np, trimesh, fast_simplification
@@ -57,7 +58,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     add = pickle.load(open(addon_pkl, "rb"))
     base = []
     for path, v, f, col in keep:                      # the team's robot, in inches as slim.py keeps it
-        if re.search(r"Intake <1> / (48mm Gecko|240mm Steel)", path): continue   # the old roller, replaced
+        if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer)", path): continue   # the old roller and motor, replaced
         base.append(mesh(np.asarray(v) * IN, f, colour_of(path), decimate=0.08))
     for n, m in add.items():
         if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
@@ -69,28 +70,32 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
+    flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(os.path.join(OUT, "model.glb"))
     merged(ext).export(os.path.join(OUT, "model_0.glb"))
+    merged(flt).export(os.path.join(OUT, "model_1.glb"))
     # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
               "position": [round(4.0 * M, 5), 0.0, round(14.0 * M, 5)], "resolution": [640, 480], "fov": 54.5}
     config = {"name": NAME, "isFTC": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
-              "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
+              "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}, {"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
     json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
-    # the extractor's poses: it turns about the roller's axle (+Y through PIVOT); front up = rotation about +Y by -angle
-    pivot = np.array([(CENTRE_BACK_IN + 1.0) * M, 0.0, (2.4 + 24 / IN) * M])
+    # the extractor's poses: it turns about its own shaft (+Y through PIVOT, 2.4 in ahead of the face and 4.5 in up);
+    # front up = rotation about +Y by -angle
+    pivot = np.array([(CENTRE_BACK_IN + 2.4) * M, 0.0, 4.5 * M])
     poses = {}
-    for name, deg in (("deployed", 0.0), ("stowed", 125.0)):
+    for name, deg in (("deployed", 0.0), ("stowed", 150.0)):
         a = math.radians(-deg); R = np.array([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
         t = pivot - R @ pivot
         poses[name] = {"angle_deg": deg, "translation_m": [round(x, 5) for x in t],
                        "rotation_quaternion_wxyz": [round(math.cos(a / 2), 6), 0.0, round(math.sin(a / 2), 6), 0.0]}
     json.dump({"component": "model_0: FLOWER extractor", "pivot_m": [round(x, 5) for x in pivot], "axis": "+Y",
-               "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 125 deg stowed",
-               "poses": poses}, open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
-    for fn in ("model.glb", "model_0.glb"):
+               "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 150 deg stowed",
+               "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)"},
+              open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
+    for fn in ("model.glb", "model_0.glb", "model_1.glb"):
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())
 
 if __name__ == "__main__":

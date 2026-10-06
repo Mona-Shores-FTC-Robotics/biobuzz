@@ -117,32 +117,44 @@ checked every 5° from 0 to 150°: clear. 24.0 in down, 17.3 in stowed, 17.8 in 
 had to differ from the request (the servo inboard, the arm at 7.15 in, the curtains ending at 4.7 in, the belt
 inside the left plate) is in its README.
 
-## The FLOWER extractor (unified design, 6 Oct 2026)
+## The FLOWER extractor and the floating roller (unified design, 6 Oct 2026)
 
 The hook is no longer a spill catcher (the Rigid V is; `doc/unified-design.md` on `claude/biobuzz-robot-body-designs-hi386c`).
-It is now a FLOWER extractor, and replaces the high-hinged one-arm hook in `cad/intake-b/`.
+It is a FLOWER extractor. Drawn in `cad/intake-b/`, whose README has the parts.
 
-**Concept: it pivots on the roller's own shaft.**
-- Two 1/8 in aluminium arms, 1.8 in left and right of centre, on round-bore flanged bearings (goBILDA 1611-0514-0008)
-  riding the roller's REX shaft, in two short gaps in the roller.
-- A short cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front, so the
-  POLLEN come off it straight into the roller.
-- No walls, two arms, and it stays inside the roller's width: the corners are the V's.
+**The roller floats straight up 1.3 in** (Intake Design chat: a NECTAR is 3.62 in and stiff, so a fixed roller at 2.4 in
+refuses it).
+- **It can't swing on arms.** Its rear is 0.06 in from the front uprights, so it can't move back. A pivot on the motor
+  shaft (77.5 mm straight above the axle) would swing it 2.5 in sideways for a 1.3 in rise. A pivot behind it lands among
+  the wheels, drive belts and uprights.
+- **So it rides in vertical slots.** Its shaft rises in slots in the side plates, and its bearings sit in outboard
+  float plates.
+- **The motor rides on the same carriage,** so the belt keeps its length. The carriage slides on the left upright's
+  front face.
+- **0.85 in of rise** passes a NECTAR that gives 0.4 in; the slots allow 1.3 in, for one that doesn't give.
 
-**Outlines** (x right of centre, up, forward of the face; inches; pivot at the roller axle, 1.0 forward and 3.35 up):
+**The extractor turns on its own fixed shaft,** in bearings in the side plates, 2.4 in ahead of the face and 4.5 in up.
+- **Arms:** two 1/8 in aluminium arms, 1.8 in left and right of centre, clamped to the shaft.
+- **Block:** the cross shaft and FLOWER block are as before, the block's back edge 2.5 in ahead of the roller's front. So
+  the seat (below) is unchanged.
+- **The shaft spans the robot, but above any piece** (its bottom is 4.34 in up), and only the narrow block reaches the
+  floor, so it doesn't corral.
+- **Range:** 0 (down) to 150° (folded up in front of the roller).
+- **Drive:** a 1:1 printed gear pair in the gap between the roller's right end and the side plate. The shaft's gear is a
+  sector, so nothing sticks out ahead when stowed.
 
-| | Across | Up | Forward |
+**Checked** (`tools/robot-cad/front_sweep.py`):
+- The roller rising 0 to 1.3 in, and the extractor every 5° from 0 to 150° with the roller down, half up and fully up:
+  clear of the robot and of every new part.
+- Starting length 17.96 in, deployed 20.96, at most 22.6 while swinging. 17.8 in across.
+- The extractor is about 430 g as drawn, mostly the shaft on its own axis. Worst servo load about 1.3 kg·cm.
+
+| Outline (X fwd, Y left, Z up, in; chassis centre) | X | Y | Z |
 |---|---|---|---|
-| Deployed (0°) | ±1.86 | 0.70–3.78 | 0.55–5.80 (20.9 in overall) |
-| Stowed (125°, over the roller) | ±1.86 | 2.73–8.80 | −0.11–1.63 |
-
-**Checked** every 5° from 0 to 125° (`tools/robot-cad/extract_sweep.py`): clear of the robot, the V, the side plates, the
-roller motor and the pods. At 2.0 in out the left arm met the roller motor, so the arms are at 1.8 in, in 1/8 in
-aluminium. Past about 140° the block meets the intake's upper cross-channel.
-
-**Drawn** in `cad/intake-b/`: the drive is a 1:1 printed gear pair from a servo over the roller on the right, and
-the hard stops act on a tab on the servo's gear. Clear every 5° from 0 to 125°, stowed 2.06 in ahead of the face,
-142 g, worst servo load about 1.3 kg·cm.
+| Roller and motor, down | 7.56..9.50 | ±7.93 | 2.40..7.97 |
+| Roller and motor, up 1.3 | 7.56..9.50 | ±7.93 | 3.70..9.27 |
+| Extractor, down | 9.26..13.40 | ±1.9 (its shaft ±7.76) | 0.61..5.56 |
+| Extractor, stowed | 8.71..10.37 | same | 3.44..9.51 |
 
 ## The robot's origin, and the odometry pods from it
 
@@ -191,6 +203,7 @@ The transfer's lane runs down the centreline (Y ±2.35, X −5.1..7.2, below Z 5
   and remove the two pattern spacers on top. That leaves a NECTAR 0.22 in of clearance. The extractor is unaffected: its
   over-travel stop is the 9-hole channel on top of the uprights.
 - **The front drive motors' encoder caps** (X 2.36..3.93, |Y| 1.87..2.59, Z 3.48..5.05): the lane walls drop to 3.4 in there.
-- **The extractor's servo gear and down-stop** reach X 7.20 at Y −2.0..−2.3, Z 4.6..5.0: the lane walls end at X 7.0.
+- **The extractor's servo gear and stops** are now over the roller at the right end, clear of the strip. The lane walls end at X 7.0.
 - **The CAD's "Launcher Concept"** is replaced by the turret.
-- **The lane's drive pulley** on the roller shaft at Y +2.6 needs a third, 0.6 in gap in the roller.
+- **The lane's drive pulley** on the roller shaft at Y +2.35..+2.9 has the roller's only gap. The roller floats, so its
+  belt to the lane needs a sprung idler.
