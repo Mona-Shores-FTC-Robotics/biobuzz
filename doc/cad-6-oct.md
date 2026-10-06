@@ -9,7 +9,7 @@ is the front. Sizes are bounding boxes, good to about 0.1 in; angles and clearan
 | Footprint | **15.2 in wide × 15.7 in long** | 14.5 × 14.5 |
 | Height | 14.7 in (the intake's vertical column reaches the top) | body 6 in, which pieces bounce off |
 | Intake | one horizontal roller across the front: a 240 mm shaft with seven 48 mm gecko wheels spanning 7.5 in; the mouth between the side plates is **9.4 in** | contact anywhere across a **14 in** mouth |
-| Roller height | wheel bottom 2.8 in above the floor, top 4.7 in | takes a piece whose top is at or under 5 in |
+| Roller height | wheel bottom 2.8 in above the floor, top 4.7 in (bounding boxes; measured from the floor the wheel covers and resting NECTARs share it is **2.53 in**: [robot-cad.md](robot-cad.md) on `claude/robotics-meeting-notes-lq2y55`) | takes a piece whose top is at or under 5 in |
 | Piece path | along the floor down the centre line to the launcher at the back | the same idea |
 | Launcher | rear; two 96 mm gecko wheels pinch the ball and throw it up into a printed hood; exit about 10 in up, 3 in behind the centre | 12 in up, 4 in behind, 75° |
 | Drive | 96 mm mecanum, belt-driven | not modelled |
@@ -26,4 +26,5 @@ is the front. Sizes are bounding boxes, good to about 0.1 in; angles and clearan
 
 **In the simulator:** `RobotDesign.dhsCad()`, "DHS CAD (6 Oct)", with these numbers (CAD numbers count as
 measured), and the intake options on it through the three Autos and the Rigid V: [intake-design.md](intake-design.md).
-As drawn it takes NECTAR but no POLLEN off the tiles (question 2), which costs the two Stages Autos about 15 points.
+With the roller at the 2.84 in read it takes NECTAR but no POLLEN off the tiles (question 2), which costs the two
+Stages Autos about 15 points; at the 2.53 in read it bites a POLLEN by 0.27 in, marginal.

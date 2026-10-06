@@ -104,8 +104,8 @@ all of them). The guides being explored, each on the Flat Intake:
   front and feed one throat would turn the "busy" misses into a queue; the roller height decides the "too high"
   ones. Both are build-team numbers; [what the simulator knows](doc/what-the-simulator-knows.md).
 - **Intake options, simulated for the build team** (#160, 6 Oct 15:50 UTC; [intake design](doc/intake-design.md)):
-  the 6 Oct CAD as drawn takes no POLLEN off the tiles (roller bottom 2.84 in, POLLEN 2.8 in): the Stages Autos
-  drop to 31–34 points until it is lowered. Lowered, a 14 in mouth with vectored rollers that hold pieces at the
+  the 6 Oct CAD's roller bite on a POLLEN is marginal (bottom 2.53 in by the floor-referenced read, 2.84 by the
+  bounding-box one; POLLEN 2.8 in): a roller that does not bite drops the Stages Autos to 31–34 points, so lower it. Lowered, a 14 in mouth with vectored rollers that hold pieces at the
   mouth scores 55.1 on ShootsRight (the Flat Intake's 54.8) and **67.0, TIP 3 in 40 of 60, with the Rigid V**
   (the V on the Flat Intake: 64.1, 33). Two corrections to the bullet above: the "busy" count was mostly pieces
   waiting in a FLOWER (now logged as "flower"; the throat is busy 0–1 a run on ShootsRight, 9–12 on the Stages

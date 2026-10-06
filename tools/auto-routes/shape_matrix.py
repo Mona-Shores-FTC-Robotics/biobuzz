@@ -25,7 +25,7 @@ SHAPES = {  # shape (its Autos' file suffix): (robot design, hook spot or None)
 }
 PARTNERS = {"right": "PartnerPreloadsRightAuto", "angled": "PartnerAngledParkAuto", "wall": "PartnerStage19SideParkAuto"}
 # The intake options on the Flat Intake's body (AutoStudyTest.intakeOptions; each also exists with ", rigid V").
-INTAKES = ["DHS CAD intake (6 Oct)", "DHS CAD intake, roller at 2.4 in", "DHS CAD intake, 14 in roller",
+INTAKES = ["DHS CAD intake (6 Oct)", "DHS CAD intake, roller at 2.84 in", "DHS CAD intake, roller at 2.4 in", "DHS CAD intake, 14 in roller",
            "DHS CAD intake, vectored 9.4 in", "DHS CAD intake, vectored 14 in"]
 
 

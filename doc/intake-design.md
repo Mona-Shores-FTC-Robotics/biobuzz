@@ -6,10 +6,13 @@ from; the ones marked **guess** are the ones the cardboard tests below replace.
 
 **The short version**
 
-1. **The roller as drawn does not pick up a POLLEN.** Its bottom is 2.84 in off the tiles (read from the STEP)
-   and a POLLEN is 2.8 in tall. The simulator takes only NECTAR with it, and the two Autos that live on POLLEN
-   lose about 15 points. Lower the roller (or use bigger wheels) before anything else: a bite of
-   0.4 in into a POLLEN is the guess used below, so a roller bottom at **2.4 in**.
+1. **The roller's bite on a POLLEN is marginal, and it decides 15 points.** Two reads of the STEP put the
+   roller's bottom at 2.84 in (bounding boxes, [cad-6-oct.md](cad-6-oct.md)) and **2.53 in** (from the floor the
+   wheel covers and the CAD's resting NECTARs share, [robot-cad.md](robot-cad.md); the better reference). A
+   POLLEN is 2.8 in tall: at 2.84 the roller never touches it and the two Autos that live on POLLEN lose about 15
+   points; at 2.53 it bites 0.27 in, which the simulator takes and a real wheel may not. Lower the roller (or
+   use bigger wheels) before anything else: a bite of 0.4 in is the guess used below, a roller bottom at
+   **2.4 in**, and the cardboard rig finds the real number.
 2. **Once the roller bites, the mouth width and the vectored rollers are the only intake choices that score,
    and only on the Auto that sweeps spills.** On ShootsRight, 14 in against the CAD's 9.4 in is 53.0 against
    51.4 and TIP 3 in 5 runs of 60 against 2; vectored rollers on the 14 in mouth make it 55.1 and TIP 3 in 10,
@@ -34,7 +37,7 @@ with these, so a design question becomes a run:
 | Parameter | What it means in the simulation | The CAD as drawn | Source |
 |---|---|---|---|
 | Mouth width (`intakeWidthIn`) | A piece touching the front face is taken only within this width, centred; outside it, "beside" | **9.4 in** between the side plates | STEP, bounding boxes, about 0.1 in |
-| Roller bottom (`rollerBottomIn`) | A piece is bitten only if its top is above this; a piece on the tiles that is shorter is "low" | **2.84 in** above the tiles | STEP (the 48 mm wheels' lowest point against the drive wheels' lowest point) |
+| Roller bottom (`rollerBottomIn`) | A piece is bitten only if its top is above this; a piece on the tiles that is shorter is "low" | **2.53 in** above the tiles (the 2.84 in read in cad-6-oct.md used a higher floor reference) | STEP, measured from the floor the mecanum covers and resting NECTARs share ([robot-cad.md](robot-cad.md)) |
 | Roller diameter (`rollerDiameterIn`) | A piece whose centre is above the roller's axle (bottom + half the diameter) is pushed away, "height" | **1.89 in** (48 mm gecko wheels) | STEP |
 | Time per piece (`intakeIntervalS`) | One piece into the robot per this many seconds; the next one arriving sooner is "interval" | **0.35 s** | **Guess** (the Flat Intake's placeholder: 4 pieces in about 1 s) |
 | Holds at the mouth (`intakeHoldsAtMouth`) | Vectored rollers: a piece touching the mouth while the throat is busy is held against the rollers and fed through one per interval, instead of bouncing off; held pieces count toward G407's 4 | no | The mentor's 6 Oct idea; the hold is as sure as the plain intake's grab (85%, **guess**) |
@@ -54,7 +57,8 @@ the ball away instead of pulling it under). With the CAD's 48 mm wheels (0.945 i
 
 | Roller bottom | POLLEN on the tiles (top 2.8, centre 1.4) | NECTAR on the tiles (top 3.6, centre 1.8) | Highest POLLEN centre it still pulls in |
 |---|---|---|---|
-| 2.84 in (as drawn) | **not touched** | bitten 0.76 in | 3.8 in |
+| 2.84 in (the bounding-box read) | **not touched** | bitten 0.76 in | 3.8 in |
+| 2.53 in (as drawn, the floor-referenced read) | bitten 0.27 in, marginal | bitten 1.07 in | 3.5 in |
 | 2.4 in (**guess**, used below) | bitten 0.4 in | bitten 1.2 in | 3.35 in |
 | 2.0 in | bitten 0.8 in | bitten 1.6 in | 2.95 in |
 
@@ -81,6 +85,29 @@ piece per interval" through the throat.
 **Time per ball.** Unmeasured everywhere. Below it is swept from 0.25 to 0.7 s on the vectored 14 in design to
 see how much it matters; the honest number comes from the cardboard rig with a phone at 240 fps.
 
+**The front corners are shared with the ramp hook.** From the CAD session's measurements
+([robot-cad.md](robot-cad.md) on `claude/robotics-meeting-notes-lq2y55`): the add-on hook as drawn today puts
+its hinge, hub and servo in front of the **right front wheel**, 0.8 in out and 2.2 in up, and stows upright in
+front of that corner, 2.4 in deep and up to about 9 in high. That is exactly where a 14 in roller's right end, a
+right-side vectoring wheel, or the Rigid V's right flap goes. So the intake and the hook are one design, with
+three ways to share the corner:
+
+- **Hook outboard of a 9.4–12 in mouth.** Keeps today's hook; gives up the 14 in mouth's 2 points on ShootsRight
+  and the V's right flap. Cheapest.
+- **Hook hinge above the roller, on the side plate.** The roller runs full width underneath; the hook swings down
+  in front of the roller's right end and stows above it. Needs the hinge at about 5 in up instead of 2.2.
+- **Hook as the right flap.** The Rigid V's right flap and the hook are the same plate: rigid out at 45° for the
+  V, driven down as the ramp. The V's gain (flaps feeding the mouth) and the hook's are then one mechanism, which
+  is the combination the simulator scores best (67.0 with vectored 14 in). The most work.
+
+**The FLOWER block belongs on the intake.** What it needs, however it is mounted (same source): bottom 0.7 in
+off the tiles, top 1.35 in, about 1.4 in deep with a curved front, driven against the FLOWER's grey uprights,
+and a clear lane behind it for 4 POLLEN to roll to the roller. Team 19705 mounts the block on the intake's own
+mouth with almost no lane and lets the roller pull the POLLEN out. That fits a 14 in roller at 2.4 in better
+than a 9.4 in mouth: the block sits under the roller's centre and the POLLEN come out straight into the bite.
+The simulator doesn't model the block; it takes FLOWER POLLEN with the intake at one per 0.5 s (a guess), so a
+block that empties a FLOWER faster is worth measuring on the cardboard rig too: 19705's reel shows 4 in about 1 s.
+
 **Rules.** At most 4 pieces controlled (G407): a ball held against the rollers counts, so the mouth may hold
 only 4 minus what is inside. Never touch a falling spilled piece (G409); the counts below say in how many
 runs of 60 any part of the robot did.
@@ -89,10 +116,16 @@ runs of 60 any part of the robot did.
 
 The three qualifier Autos, 60 runs each (seeds 1–60), the same partners, runner and settings as
 [shape-matrix.md](shape-matrix.md) (`AutoStudyTest`, `BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood"`, speed 40,
-friction 1). Run 6 Oct 2026 15:38 UTC on this branch. **Every option runs on the Flat Intake's 14.5 in body**,
-which the Autos are drawn for (the CAD's 15.7 in body drives into the far FLOWER on them; refitting the routes
-to the body is `qual_right.fit`, on the body-designs branch); only the intake and launcher are the CAD's. The
-published baselines were not rerun; the Flat Intake's row is quoted from the README.
+friction 1). Run 6 Oct 2026 15:38 UTC on this branch, the as-drawn rows again at 16:50. **Every option runs on
+the Flat Intake's 14.5 in body**, which the Autos are drawn for; only the intake and launcher are the CAD's. The
+CAD's own body (15.12 × 15.24 in, [robot-cad.md](robot-cad.md); the STEP's 15.7 in box includes a NECTAR
+poking out the front) was checked with the vectored 14 in intake: 55.3 / 50.5 / 47.3 on the three Autos, the
+same as on the 14.5 in body, but every run logs "drives into a FLOWER" because the FLOWER and GARDEN spots are
+fitted to a 14.5 in front (`qual_right.fit` moves them 0.3 in for this body; a route job, not an intake one).
+The "as drawn" rows below use the roller as the 2.84 in read has it, because that is the reading that changes
+the answer; at the 2.53 in read the simulator's bite-or-not rule makes "as drawn" identical to the 2.4 in row
+(rerun: 51.4 / 49.5 / 46.7 plain, 60.2 / 49.8 / 38.3 with the V). The published baselines were not rerun; the
+Flat Intake's row is quoted from the README.
 
 Points are alliance AUTO points; TIP 3 / TIP 2 are runs of 60 that made that TIP; G409 is runs of 60 with a
 touch. Misses are per run, our robot: **low** a POLLEN under the roller; **height** a piece bouncing with its
@@ -104,8 +137,8 @@ centre above the axle; **beside** at the front face outside the mouth; **interva
 | Intake | Points | TIP 3 | PARK | G409 | low | height | beside | interval | flower |
 |---|---|---|---|---|---|---|---|---|---|
 | Flat Intake (README baseline: 14 in, 5 in tall, 0.35 s) | 54.8 | 10 | 13 | 0 | — | 15 | — | 16–25 incl. FLOWER | — |
-| **CAD as drawn** (9.4 in, roller 2.84 in) | 50.1 | 0 | 1 | 0 | 3.7 | 13.6 | 5.5 | 0.0 | 19.9 |
-| CAD, roller at 2.4 in | 51.4 | 2 | 5 | 0 | 0 | 14.5 | 4.6 | 0.6 | 16.1 |
+| **CAD if the roller does not bite** (9.4 in, roller at the 2.84 in read; design "roller at 2.84 in") | 50.1 | 0 | 1 | 0 | 3.7 | 13.6 | 5.5 | 0.0 | 19.9 |
+| CAD, roller at 2.4 in (= as drawn at the 2.53 in read) | 51.4 | 2 | 5 | 0 | 0 | 14.5 | 4.6 | 0.6 | 16.1 |
 | CAD, 14 in roller | 53.0 | 5 | 12 | 0 | 0 | 15.4 | 1.9 | 1.1 | 16.1 |
 | CAD, vectored 9.4 in | 52.1 | 3 | 9 | 0 | 0 | 14.6 | 4.6 | 0 (held) | 16.1 |
 | **CAD, vectored 14 in** | **55.1** | **10** | 17 | 0 | 0 | 15.7 | 1.7 | 0 (held) | 16.1 |
@@ -115,8 +148,8 @@ centre above the axle; **beside** at the front face outside the mouth; **interva
 | Intake | Points | TIP 2 | PARK | G409 | low | height | beside | interval | flower |
 |---|---|---|---|---|---|---|---|---|---|
 | Flat Intake (README baseline) | 51.6 | 53 | 55 | 0 | — | 15 | — | 16–25 incl. FLOWER | — |
-| **CAD as drawn** | **34.2** | 2 | 54 | 0 | 19.4 | 11.3 | 10.9 | 0.2 | 10.0 |
-| CAD, roller at 2.4 in | 49.5 | 48 | 54 | 1 | 0 | 15.5 | 7.0 | 9.1 | 7.1 |
+| **CAD if the roller does not bite** | **34.2** | 2 | 54 | 0 | 19.4 | 11.3 | 10.9 | 0.2 | 10.0 |
+| CAD, roller at 2.4 in (= 2.53 in read) | 49.5 | 48 | 54 | 1 | 0 | 15.5 | 7.0 | 9.1 | 7.1 |
 | CAD, 14 in roller | 50.2 | 50 | 54 | 2 | 0 | 16.8 | 3.2 | 10.0 | 6.9 |
 | CAD, vectored 9.4 in | 50.1 | 50 | 53 | 0 | 0 | 15.7 | 6.6 | 0 (held) | 6.9 |
 | CAD, vectored 14 in | 50.5 | 51 | 54 | 1 | 0 | 17.2 | 2.9 | 0 (held) | 6.4 |
@@ -126,8 +159,8 @@ centre above the axle; **beside** at the front face outside the mouth; **interva
 | Intake | Points | TIP 2 | G409 | low | height | beside | interval | flower |
 |---|---|---|---|---|---|---|---|---|
 | Flat Intake (README baseline) | 47.3 | 49 | 0 | — | 15 | — | 16–25 incl. FLOWER | — |
-| **CAD as drawn** | **31.0** | 0 | 0 | 38.3 | 9.4 | 17.4 | 0.0 | 10.0 |
-| CAD, roller at 2.4 in | 46.7 | 47 | 1 | 0 | 13.9 | 13.9 | 8.8 | 8.2 |
+| **CAD if the roller does not bite** | **31.0** | 0 | 0 | 38.3 | 9.4 | 17.4 | 0.0 | 10.0 |
+| CAD, roller at 2.4 in (= 2.53 in read) | 46.7 | 47 | 1 | 0 | 13.9 | 13.9 | 8.8 | 8.2 |
 | CAD, 14 in roller | 47.0 | 48 | 1 | 0 | 14.9 | 6.5 | 12.5 | 8.2 |
 | CAD, vectored 9.4 in | 47.0 | 48 | 1 | 0 | 14.1 | 12.7 | 0 (held) | 8.2 |
 | CAD, vectored 14 in | 47.3 | 49 | 1 | 0 | 15.1 | 6.0 | 0 (held) | 8.1 |
@@ -142,8 +175,8 @@ The Rigid V's own Autos (`qual-right-o3-rigid-v`, which keeps the sweep through 
 | Intake, with the Rigid V | ShootsRight: points · TIP 3 · G409 | Angled: points · TIP 2 · G409 | Wall (broken route): points · TIP 2 |
 |---|---|---|---|
 | Flat Intake, Rigid V (README baseline) | 64.1 · 33 · 3 | 51.9 · 54 · 2 | no clean route |
-| CAD as drawn | 50.0 · 0 · 1 | 36.2 · 8 · 3 | 31.7 · 8 |
-| CAD, roller at 2.4 in | 60.6 · 25 · 2 | 49.8 · 49 · 5 | 38.3 · 28 |
+| CAD if the roller does not bite (2.84 in) | 50.0 · 0 · 1 | 36.2 · 8 · 3 | 31.7 · 8 |
+| CAD, roller at 2.4 in (as drawn at 2.53: 60.2 · 24 · 2) | 60.6 · 25 · 2 | 49.8 · 49 · 5 | 38.3 · 28 |
 | CAD, 14 in roller | 64.1 · 33 · 3 | 50.5 · 51 · 6 | 41.7 · 38 |
 | CAD, vectored 9.4 in | 62.8 · 30 · 2 | 49.8 · 49 · 5 | 39.0 · 30 |
 | **CAD, vectored 14 in** | **67.0 · 40 · 5** | 50.8 · 52 · 5 | 42.7 · 41 |
@@ -192,9 +225,10 @@ costs nothing measurable on the tiles.
 
 **Reading it**
 
-- **The roller height is the whole story for the two Stages Autos.** As drawn, their row of 4 POLLEN and the
-  far FLOWER's POLLEN are all "low": TIP 2 in 0–2 runs of 60 instead of 47–51, 15 points gone. Lowered to 2.4 in
-  every option is within a point of the Flat Intake. Nothing else in this study moves those two Autos.
+- **The roller height is the whole story for the two Stages Autos.** With a roller that does not bite a POLLEN,
+  their row of 4 POLLEN and the far FLOWER's POLLEN are all "low": TIP 2 in 0–2 runs of 60 instead of 47–51,
+  15 points gone. With one that does, every option is within a point of the Flat Intake. Nothing else in this
+  study moves those two Autos, and the 0.27 in bite the CAD has at 2.53 in is the margin between the two.
 - **On ShootsRight the mouth width buys TIP 3** (TIP 1's NECTAR and POLLEN scattered along the wall, and the
   GARDEN): 9.4 to 14 in is 2 points and 3 more TIP 3s; vectored rollers add 2 more points and 5 more TIP 3s,
   because the queued pieces arrive during the one sweep where the throat is actually busy.
@@ -233,6 +267,11 @@ at 9.4 in and at 14 in apart. Roll a POLLEN and a NECTAR at the front with the b
 plate, on the plate's edge, and 1 in outside it. Measure where the edge is in practice: the last position that
 is pulled in, and whether a ball on the edge is deflected inward (good: the simulator's Rigid V gain is this
 bounce) or outward.
+
+**2b. The FLOWER block on the mouth** (with 2, same rig). Tape the block's profile (0.7 to 1.35 in up, 1.4 in
+deep, curved front) under the roller's centre and drive the rig at a FLOWER, or a tube of the same inside
+diameter with 4 POLLEN in it. Measure: whether the bottom POLLEN comes out under the block into the bite, the
+time for all 4, and whether the block needs a lane behind it or the roller alone does the pulling.
 
 **3. Vectored rollers** (only once 1 and 2 are known). Two short angled rollers, or a pair of gecko wheels on
 angled axles, each side of a 4.5 in throat on the 14 in mouth. Hold the rig still and feed two POLLEN at once,

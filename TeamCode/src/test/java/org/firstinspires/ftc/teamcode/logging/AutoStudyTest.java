@@ -83,13 +83,18 @@ public class AutoStudyTest {
         List<RobotDesign> out = new ArrayList<>();
         RobotDesign cad = onFlatIntakeBody(RobotDesign.dhsCad(), "DHS CAD intake (6 Oct)");
         RobotDesign low = onFlatIntakeBody(RobotDesign.dhsCadLowered(), "DHS CAD intake, roller at 2.4 in");
+        // The roller at the STEP's bounding-box read (doc/cad-6-oct.md), which does not touch a POLLEN on the tiles:
+        // the "does not bite" rows in doc/intake-design.md.
+        RobotDesign high = cad.copy("DHS CAD intake, roller at 2.84 in");
+        high.rollerBottomIn = 2.84;
+        high.intakeHeightIn = high.rollerBottomIn + high.rollerDiameterIn / 2 + FieldSim.POLLEN_RADIUS_IN;
         RobotDesign wide = low.copy("DHS CAD intake, 14 in roller");
         wide.intakeWidthIn = 14;
         RobotDesign vec = low.copy("DHS CAD intake, vectored 9.4 in");
         vec.intakeHoldsAtMouth = true;
         RobotDesign vecWide = wide.copy("DHS CAD intake, vectored 14 in");
         vecWide.intakeHoldsAtMouth = true;
-        for (RobotDesign d : new RobotDesign[] {cad, low, wide, vec, vecWide}) {
+        for (RobotDesign d : new RobotDesign[] {cad, high, low, wide, vec, vecWide}) {
             out.add(d.checked());
             RobotDesign v = d.copy(d.name + ", rigid V");
             v.flapOutIn = (18 - v.frameWidthIn) / 2;
@@ -101,6 +106,12 @@ public class AutoStudyTest {
             d.intakeIntervalS = s;
             out.add(d.checked());
         }
+        // The same on the CAD's own body (15.12 x 15.24 in, doc/robot-cad.md), to see whether the Autos drawn for
+        // the 14.5 in Flat Intake still fit it (the STEP's 15.7 in bounding box drove into the far FLOWER).
+        RobotDesign body = vecWide.copy("DHS CAD, vectored 14 in, CAD body");
+        body.frameIn = RobotDesign.dhsCad().frameIn;
+        body.frameWidthIn = RobotDesign.dhsCad().frameWidthIn;
+        out.add(body.checked());
         // What the "height" misses (a bouncing piece whose centre is above the roller's axle) are worth: a 4 in
         // roller at the same 2.4 in (its axle 4.4 in up, so a POLLEN is bitten with its top up to 5.8 in), and a
         // mouth that takes anything touching the front up to 8 in (an upper bound, not a design).

@@ -322,20 +322,23 @@ final class RobotDesign {
 
     /**
      * The build team's 6 Oct 2026 CAD ({@code DHS Robot Copy.step}, read with {@code tools/cad/stepread.py}:
-     * doc/cad-6-oct.md), as drawn. Measured off the STEP's bounding boxes (good to about 0.1 in): a 15.2 in wide,
-     * 15.7 in long footprint; one horizontal roller of seven 48 mm (1.89 in) gecko wheels across the front, its
-     * bottom 2.84 in above the tiles; a 9.4 in mouth between the side plates; the launcher's exit about 10 in up
-     * and 3 in behind the centre. Not measured: the time per piece and the launch pitch (the Flat Intake's
+     * doc/cad-6-oct.md, and doc/robot-cad.md on claude/robotics-meeting-notes-lq2y55, which measured it from the
+     * floor the mecanum roller covers and the CAD's resting NECTARs share), as drawn: 15.12 in long (384 mm
+     * rails, front face to the back of the wheels; the STEP's 15.7 in bounding box has a NECTAR poking out the
+     * front) and 15.24 in wide over the wheel shafts; one horizontal roller of seven 48 mm (1.89 in) gecko wheels
+     * across the front, its bottom 2.53 in above the tiles (the bounding-box read in cad-6-oct.md said 2.84, a
+     * different floor reference); a 9.4 in mouth between the side plates; the launcher's exit about 10 in up and
+     * 3 in behind the centre. Not measured: the time per piece and the launch pitch (the Flat Intake's
      * placeholders, 0.35 s and 75 deg), and the body height pieces bounce off (the Flat Intake's 6 in: the CAD
-     * is 14.7 in tall at its column, but open at the front). A POLLEN lying on the tiles (2.8 in) is below this
-     * roller: the simulator takes only NECTAR with it, which is the CAD question the doc raises.
+     * is 14.7 in tall at its column, but open at the front). At 2.53 in the roller bites a POLLEN lying on the
+     * tiles (2.8 in) by 0.27 in: taken in the simulator, marginal on a robot.
      */
     static RobotDesign dhsCad() {
         RobotDesign d = flatIntake().copy("DHS CAD (6 Oct)");
-        d.frameIn = 15.7;
-        d.frameWidthIn = 15.2;
+        d.frameIn = 15.12;
+        d.frameWidthIn = 15.24;
         d.intakeWidthIn = 9.4;
-        d.rollerBottomIn = 2.84;
+        d.rollerBottomIn = 2.53;
         d.rollerDiameterIn = 1.89;
         d.intakeHeightIn = d.rollerBottomIn + d.rollerDiameterIn / 2 + FieldSim.POLLEN_RADIUS_IN; // drawn: a POLLEN's top at the axle
         d.exitForwardIn = -3;
