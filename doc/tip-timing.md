@@ -1,6 +1,6 @@
 # How long a TIP takes, from video
 
-Measured 6 Oct 2026 from the videos in the team's Drive folder ("BIOBUZZ spill and roll"): a YouTube test run
+Measured 6 Oct 2026 from the videos in the team's Drive folder of spill videos (https://drive.google.com/drive/folders/1rOUkQG-33c22QKkhaK9vAbaH6GRpNq1T): a YouTube test run
 (https://youtu.be/Cw-tVeKDDIo, 1280×720, 60 fps, a cleared field and an on-screen TIP counter) and the team's
 3 Oct phone films (IMG_1957 and IMG_1960, 4K at 120 fps). Frames: `sim-review/tip-*.jpg`.
 
