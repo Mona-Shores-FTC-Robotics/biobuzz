@@ -204,13 +204,15 @@ Checked against the part boxes in the team's STEP and `cad/intake-b/`.
 
 | In the lane's strip (X −5.1..7.2, Y ±2.35, below z 5.0) | Where | What changes |
 |---|---|---|
-| The old intake's 11-hole cross-channel (stays: the extractor stows under it) | X 5.03..5.51, full width, z 4.43..6.32 | **A NECTAR's top is at 4.52 in the lane (floor 0.9 + 3.62), so it hits the channel by 0.09 in.** Either the channel moves up 0.3 in or more, or the lane floor drops to 0.7 in under it (0.5 in polycord pulleys instead of 0.75; 0.11 in clearance). Moving the channel is better, but it's the designer's part and the extractor stows under it. The walls stop below 4.4 there either way |
+| The old intake's 11-hole cross-channel (bracing the front uprights; part of the old intake) | X 5.03..5.51, full width, z 4.43..6.32 | **A NECTAR's top is at 4.52 in the lane (floor 0.9 + 3.62), so it would hit the channel by 0.09 in. Decided: raise the channel 8 mm (one hole step) to a bottom at 4.75, which leaves 0.22 in of clearance, and remove the two 8 mm pattern spacers on top of it** (X 5.03..6.29, Y −4.29..−3.03). The extractor doesn't depend on this channel. Check that the uprights' back faces have holes at that step |
 | The front drive motors' encoder caps | X 2.36..3.93, \|Y\| 1.87..2.59, z 3.48..5.05 | They're inside the walls by 0.23 in, but not in the pieces' way: a NECTAR is ±1.64 wide at z 3.48 and narrower above. Cut the walls down to 3.4 in for X 2.3..4.0 |
 | The extractor's servo gear and down-stop | X 7.11..7.20, Y −1.98..−2.32, z 4.57..4.99 | End the walls at X 7.0 |
 | The CAD's "Launcher Concept" (cross-channels, beams, flywheels, a 312 rpm motor) | X −5.52..0.95 | Replaced by the turret. It must go, or it fills the J and the chute |
 | A pulley on the roller shaft at Y +2.6 | in the roller's solid left segment | Costs a 0.6 in gap in the gecko wheels there. Clear of the roller motor and the extractor's arm |
 
 Nothing else is in the strip: no battery, hub, chassis cross-member or pod.
+
+On the robot: raise the 11-hole channel 8 mm and remove the two spacers before the lane goes in.
 
 ## Numbers for the simulator
 
