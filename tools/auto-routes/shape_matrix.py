@@ -24,6 +24,9 @@ SHAPES = {  # shape (its Autos' file suffix): (robot design, hook spot or None)
     "small-hook": qual_shapes.O3_SHAPES["qual-right-o3-small-hook"],  # the Ramp Hook
 }
 PARTNERS = {"right": "PartnerPreloadsRightAuto", "angled": "PartnerAngledParkAuto", "wall": "PartnerStage19SideParkAuto"}
+# The intake options on the Flat Intake's body (AutoStudyTest.intakeOptions; each also exists with ", rigid V").
+INTAKES = ["DHS CAD intake (6 Oct)", "DHS CAD intake, roller at 2.4 in", "DHS CAD intake, 14 in roller",
+           "DHS CAD intake, vectored 9.4 in", "DHS CAD intake, vectored 14 in"]
 
 
 def autos(shape):
@@ -74,10 +77,21 @@ def write_all():
 
 if __name__ == "__main__":
     runs = int(sys.argv[1]) if len(sys.argv) > 1 else 20
+    only_intakes = "intakes" in sys.argv
     write_all()
-    for shape, (design, _) in SHAPES.items():
+    for shape, (design, _) in ({} if only_intakes else SHAPES).items():
         specs = ";".join(f"{cls},{PARTNERS[kind]}@50" for kind, (_, cls) in autos(shape).items())
         for f in autogen.FRICTIONS:
             autogen.study(specs, runs=runs, designs=design,
                           extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
                                      "BIOBUZZ_AUTO_FRICTION": f})
+    # The intake study (issue #160, doc/intake-design.md): the 6 Oct CAD's intake and its options
+    # (AutoStudyTest.intakeOptions), through the plain Autos, and the Rigid V ones for the ", rigid V" designs.
+    # `python3 shape_matrix.py 60 intakes` runs only these.
+    if only_intakes:
+        for shape in ("plain", "rigid-v"):
+            specs = ";".join(f"{cls},{PARTNERS[kind]}@50" for kind, (_, cls) in autos(shape).items())
+            designs = "|".join(d + (", rigid V" if shape == "rigid-v" else "") for d in INTAKES)
+            autogen.study(specs, runs=runs, designs=designs,
+                          extra_env={"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40",
+                                     "BIOBUZZ_AUTO_FRICTION": "1"})

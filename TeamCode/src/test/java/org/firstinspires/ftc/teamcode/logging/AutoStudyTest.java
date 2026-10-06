@@ -101,6 +101,20 @@ public class AutoStudyTest {
             d.intakeIntervalS = s;
             out.add(d.checked());
         }
+        // What the "height" misses (a bouncing piece whose centre is above the roller's axle) are worth: a 4 in
+        // roller at the same 2.4 in (its axle 4.4 in up, so a POLLEN is bitten with its top up to 5.8 in), and a
+        // mouth that takes anything touching the front up to 8 in (an upper bound, not a design).
+        for (RobotDesign base : new RobotDesign[] {wide, vecWide}) {
+            RobotDesign big = base.copy(base.name + ", 4 in roller");
+            big.rollerDiameterIn = 4;
+            big.intakeHeightIn = big.rollerBottomIn + big.rollerDiameterIn / 2 + FieldSim.POLLEN_RADIUS_IN;
+            out.add(big.checked());
+            RobotDesign tall = base.copy(base.name + ", 8 in mouth");
+            tall.rollerBottomIn = Double.NaN;
+            tall.rollerDiameterIn = Double.NaN;
+            tall.intakeHeightIn = 8;
+            out.add(tall.checked());
+        }
         return out;
     }
 
