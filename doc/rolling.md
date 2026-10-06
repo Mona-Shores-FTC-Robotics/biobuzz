@@ -1,10 +1,10 @@
 # How far spilled pieces roll
 
-Measured 6 Oct 2026 from a match video, no new testing. The simulator's rolling model changed to match
+Measured 6 Oct 2026 from two videos, no new testing. The simulator's rolling model changed to match
 (`FieldSim.FILMED_ROLLING_DECEL_IN_PER_S2`, `FILMED_BOUNCE_SCATTER`, checked by `FieldSimTest` and
 `SpillLandingTest`). No sims have been rerun on it yet: the published numbers predate it.
 
-## The video
+## NECTAR, from a match video
 
 The 124-point World Record match, 19049 & 24909 against 25538 & 24964 ([YouTube](https://www.youtube.com/watch?v=495akYrSr2U);
 copy in the team's [Drive folder](https://drive.google.com/drive/folders/1rOUkQG-33c22QKkhaK9vAbaH6GRpNq1T)).
@@ -18,6 +18,22 @@ Tripod at the side of the field, 1080p, 30 fps. Two TIPs had spills on open floo
 - **Red TIP, 0:49** (spill toward the camera). The NECTAR landed past the HIVE's feet and rolled to the wall
   within about 1.5 s. Two seconds after the TIP, none was left on the open floor.
   ![Red TIP, 2 s later](../sim-review/roll-red-tip-51s.jpg)
+
+## A POLLEN, measured (second video)
+
+Team Orange 16409's test Autonomous ([YouTube](https://www.youtube.com/watch?v=CBCioC3x-vc), from 1:00; the clip is
+in the Drive folder), filmed from high behind one alliance wall: a much better view of the floor. Positions
+were turned into field inches using the HIVE's foot bars (49.5 in apart, ending 51.3 in from the wall) and the
+far corners, good to about ±15%.
+
+- **One POLLEN rolling alone on the far half**, nothing touching it: about 10 in/s at the start, then a steady
+  slowing to rest over about 3.4 s, 18 in in all. That is **about 3 in/s²**, inside the simulator's spread
+  around 4 (each piece's resistance varies by ±35%). The old drag would have stopped it in under 0.5 s, 3 in on.
+  ![POLLEN rolling to a stop](../sim-review/roll-pollen-orange.jpg)
+- **The spill** (the blue CELL at the start of the Auto, toward the camera): NECTAR and POLLEN reach the near
+  wall's zone about 0.6–0.8 s after landing, and one POLLEN bounced the other way to the far wall. Pieces in the
+  air make single positions unreliable from this angle, so this only says the spread is as fast as the
+  simulator's, or a little faster.
 
 ## What changed in the simulator
 
@@ -40,8 +56,8 @@ harder to pick up, and they cross the Drop Zone faster. Expect lower pickup coun
 
 ## Limits
 
-- One match, from a low side angle: good for where pieces end up and roughly how fast, not a precise number. 4 in/s²
-  is an upper bound (at 12, the blue pieces would have lost over half their speed in that 1.3 s).
-- Only NECTAR could be tracked; the POLLEN is lost among the other yellow on the field. A clip of a POLLEN spill
-  rolling across open floor would check it.
+- The match video is from a low side angle: good for where pieces end up and roughly how fast, not a precise
+  number. 4 in/s² is an upper bound (at 12, the blue pieces would have lost over half their speed in that 1.3 s).
+- NECTAR gives an upper bound (4 in/s²), one POLLEN a measurement (about 3 in/s²). Two videos, three pieces:
+  enough to rule out the old drag, not to tell 3 from 4.
 - A match field has robots in the way; the 3 Oct films had none. Both agree on the spread.

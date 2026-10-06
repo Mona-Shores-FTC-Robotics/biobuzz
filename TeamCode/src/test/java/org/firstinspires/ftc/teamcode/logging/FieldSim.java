@@ -104,7 +104,8 @@ final class FieldSim {
      * NECTAR from the blue TIP rolled at a steady ~23 in/s for 1.3 s with no slowing the video can
      * show, and the red TIP's NECTAR rolled from where it landed (~42 in out) to the alliance wall
      * within ~1.5 s. At 12 in/s², with contact friction on the tiles as well (before 6 Oct), a piece
-     * stopped within ~1 s and ~20 in. 4 is an upper bound from those clips, not a measurement.
+     * stopped within ~1 s and ~20 in. 4 is an upper bound from those clips; a lone POLLEN in Team Orange
+     * 16409's test Auto video (YouTube CBCioC3x-vc) slowed at about 3 in/s², inside the per-piece spread.
      */
     static final double FILMED_ROLLING_DECEL_IN_PER_S2 = 4.0;
     /** Height of the simulated robot's body; pieces hit it below this. */
