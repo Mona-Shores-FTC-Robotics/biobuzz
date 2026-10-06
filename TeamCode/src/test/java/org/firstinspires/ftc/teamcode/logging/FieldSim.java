@@ -1690,6 +1690,22 @@ final class FieldSim {
      * {@code x, y, z, qw, qx, qy, qz}: those the robot holds ({@code held}, drawn inside it), or all
      * the others. Kept apart so a moving robot does not rewrite every piece on the field each loop.
      */
+    /**
+     * Where held pieces are drawn: single file on the transfer's lane floor, on the centre line, queued against
+     * the J-wheel (the transfer chat, 6 Oct 2026; doc/unified-design.md "Transfer"). The rearmost piece's centre
+     * is {@link #HELD_LANE_REAR_POLLEN_IN} ahead of the robot's centre for POLLEN, {@link #HELD_LANE_REAR_NECTAR_IN}
+     * for NECTAR; each later one sits its radius plus the previous piece's radius further forward. A drawing only.
+     */
+    static final double HELD_LANE_FLOOR_IN = 0.9;
+    static final double HELD_LANE_REAR_POLLEN_IN = -0.64;
+    static final double HELD_LANE_REAR_NECTAR_IN = 0.73;
+
+    static double heldAlongIn(List<Piece> stored, int slot) {
+        double along = stored.get(0).kind == Kind.POLLEN ? HELD_LANE_REAR_POLLEN_IN : HELD_LANE_REAR_NECTAR_IN;
+        for (int i = 1; i <= slot; i++) along += stored.get(i - 1).kind.radius + stored.get(i).kind.radius;
+        return along;
+    }
+
     double[] pieces(Kind kind, boolean held) {
         int n = 0;
         for (Piece p : pieces) if (p.kind == kind && (p.where == Where.ROBOT) == held) n++;
@@ -1702,9 +1718,10 @@ final class FieldSim {
                 for (Bot bot : bots) {
                     int slot = bot.stored.indexOf(p);
                     if (slot < 0) continue;
-                    x = bot.x - 2.5 * Math.cos(bot.h);
-                    y = bot.y - 2.5 * Math.sin(bot.h);
-                    z = 4 + slot * 2.2 * p.kind.radius;
+                    double along = heldAlongIn(bot.stored, slot);
+                    x = bot.x + along * Math.cos(bot.h);
+                    y = bot.y + along * Math.sin(bot.h);
+                    z = HELD_LANE_FLOOR_IN + p.kind.radius;
                 }
             }
             // Pedro → Center/Rotated is a quarter turn about z, (x, y, z) → (−y, x, z); a rotation's
