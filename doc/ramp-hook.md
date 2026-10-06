@@ -20,6 +20,30 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## Drive in to the backstop and stay (6 Oct 2026, late: the mentor's actual idea)
+
+Drive the triangle in until it hits the backstop and **stay there**. The triangle props up the bottom POLLEN, and
+the stack rolls down a short ramp: each POLLEN is shoved along by the ones above it. `ramp.py` already carries
+the stack's weight. In a traced run (1.0 in triangle, 0.25 in pocket edge), POLLEN 1 to 3 come out fast. Only
+the **last one**, with nothing above it, rolls off slowly and can settle back into the pocket.
+
+Parked at the backstop, 0.8 in tall. POLLEN out of the FLOWER (of 4) in each of the three bounce guesses:
+
+| triangle, front to back | pocket edge 0 | 0.1 in | 0.18 in | 0.25 in | 0.43 in |
+|---|---|---|---|---|---|
+| 0.5 in | 4,4,4 | 4,4,4 | 4,4,4 | 0,0,0 | 0,0,0 |
+| 0.75 in | 4,4,4 | 4,4,4 | 4,4,4 | 4,4,4 | 0,0,0 |
+| 1.0 in | 4,4,4 | 4,4,4 | 4,4,4 | 4,3,4 | 0,0,0 |
+| 1.25 in | 4,4,4 | 4,4,4 | 4,4,4 | 0,2,0 | 0,0,0 |
+
+- **A very short ramp works if the pocket's edge is about 1/4 in or lower.** That's the mentor's point: the
+  stack does the work. A 0.75 in triangle empties every case up to 0.25 in, and a 0.5 in one up to 0.18 in.
+- **Every short triangle fails at 0.43 in.** That's the backboard study's number, and nobody has measured it.
+- The 0.25 in column isn't smooth (1.25 in does worse than 0.75), so the model is on a knife edge there. A
+  measurement beats more modelling.
+- **The deciding measurement is the pocket edge's height:** the base plate's thickness, or how far a POLLEN sinks
+  into the hole, whichever is less. The photo suggests a thin plate, perhaps 1/4 in.
+
 ## Drive to the backstop, then back off (6 Oct 2026, late; replaces version 2's stop)
 
 **The idea (mentor):** no curtain wrap and no stop to set. Drive the triangle straight in until its front hits
