@@ -31,8 +31,32 @@ superseded; its FLOWER half carries on below.
 | **Rigid V** | Intake Design | The V's angle, length, height and shape within the envelope, and the intake behind it. The CAD's drawn V (17.8 in tips, 2.8 in ahead, `cad/intake-b/`) is the starting point. |
 | **FLOWER extractor** | Flower Extracter | The old hook redesigned for FLOWERs only: no walls, two arms for rigidity, far lower than 8 in. It must stow inside the 18 in start cube with the V fitted. |
 | **FLOWER scorer** | Pivoting arm nectar scorer | The NECTAR/POLLEN FLOWER scorer, in the same envelope. |
+| **Transfer, intake to turret** | Intake-to-turret transfer (session_019KDmb4SvV5VjdaM2USg71K) | How pieces get from the roller to the turret at any turret angle, holding up to 4 (G407), NECTAR and POLLEN. The first idea to weigh: feed through the turret's rotation axis, with a single-file floor channel as the magazine. |
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
+
+## The baselines (claude/simulator, 6 Oct 2026)
+
+The three qualifier baselines are the drawn V on these routes, published from `claude/simulator` only:
+
+| Baseline | Route | Points | 3 TIPs (of 60) | Notes |
+|---|---|---|---|---|
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 10 |
+| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | still clips the HIVE frame in 4 runs, on the straight park at the end of AUTO |
+| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | 53.3 | 20 | no collisions |
+
+Built by `baselines_v.py`; design "rigid V" (= the drawn V).
+
+**Two fixes the simulator chat made, which put these above or below the numbers in the next sections:**
+- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.12 in body (15.24 was its width), every
+  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2. The true half-length is 7.56 in (the CAD re-measure below), so these routes are 0.06 in conservative.
+- **Wall partner:** the row sweep's start point and its 180° turn put the V over the parked partner. The robots collided
+  in most runs, so 55.7/56.3 was not legal. Starting 2 in short of the row, with a tighter turn, there are no collisions
+  and it scores 53.3.
+
+**From now on, a route with any problem is disqualified.** That means a collision, or a HIVE or FLOWER hit: the
+study line's PROBLEMS, and `problemRuns` in DeepDive's `cases.csv`. The numbers below were measured before this
+check.
 
 ## The Rigid V: decided
 
@@ -82,6 +106,59 @@ the FLOWER scorer, the FLOWER extractor, and the Limelight at a mount angle that
 **The Flat Intake baseline is dropped** (mentor, 6 Oct 2026). Simulations now run only the Rigid V candidates, then
 only the chosen V.
 
+## Limelight mount (from the Limelight Localization chat, 6 Oct 2026)
+
+**Keep 19429's measured mount.** It was measured on the robot and checked against taped field positions
+(README § "HIVE tracking and camera localization, end to end (#157)" on `feat/157-hive-and-pose`). It is also
+`CameraMount`'s default in code.
+
+**Mount.** Model frame: +x forward, +y left, +z up, inches, origin on the floor under the chassis centre.
+
+| | Value |
+|---|---|
+| Lens position | x **4.0**, y **0**, z **14.0**. On the centreline, 3.6 in behind the front face. |
+| Pitch | **45° up.** AdvantageScope rotations `[y: −45, z: 0]`. |
+| Yaw | **0** |
+| Camera | Limelight 3A, 640 × 480. Field of view 54.5° across, 42° tall. At 45° pitch it sees 24°–66° above horizontal. |
+
+**Where it sees both CELLs.** Ranges are from the lens to each tag row, with the robot facing the HIVE. Row heights are
+measured: UP 50.2 in, DOWN 35.0 in.
+
+| Robot at | UP row | DOWN row | Both rows in view? |
+|---|---|---|---|
+| Firing spot (57.5, 24) | 30 in, 50° up | 32 in, 33° up | Yes |
+| Firing spot (57.5, 114–119) | 24–29 in, 51–56° up | 25–30 in, 35–40° up | Yes |
+| Start spot (y ≈ 4) | in view | 21° up, below the frame | No. Measured, and expected. |
+
+**The tunnel (the robot on x 57.5, from the qualifier routes).** Tag faces: an AUDIENCE CELL's tags face the
+audience (−y), and a SCORING CELL's face the scoring table (+y). So the camera sees a CELL only when the robot is
+facing that CELL's tags and they are 24–66° above the lens. Robot centre y:
+
+| Pass | Sees | Blind |
+|---|---|---|
+| North-bound, facing 90° | RED_AUDIENCE: the UP row up to y ≈ 38, the DOWN row up to y ≈ 47 | y ≈ 47 → the turn at 104. RED_SCORING's tags face away. |
+| After the turn, facing 270° | RED_SCORING: the DOWN row from N_TURN (54° up), the UP row from y ≈ 106 (69° up at 104, just above the frame) | — |
+| South-bound, facing 270° | RED_SCORING: the UP row down to y ≈ 106, the DOWN row down to y ≈ 98 | y ≈ 98 → the turn after 38. RED_AUDIENCE's tags face away. |
+
+So **each pass is about 55–60 in blind, about 1.2 s at 50 in/s, plus the turn**, and the Pinpoint carries it. That's
+expected and fine.
+
+These are calculated from the frame edges. Near the edges the tags are seen steeply from below, so detection may
+end a few inches sooner than the table says. The blue HIVE, 26 in to the side, is outside the 27° half-width
+throughout.
+
+**Clearance (assumed: the turret isn't drawn yet).**
+- **Field of view.** Ahead of the lens, nothing may rise above the camera's lowest ray, within 27° either side of
+  straight ahead. That means the turret, a carried FLOWER, the scorer at any angle, and the extractor. The limit is
+  z ≤ 14.0 + 0.445 · (x − 4.0), giving 14.0 in at the lens, 15.6 in at the front face, and 16.1 in at the roller's
+  front.
+  - Below that line the view is clear. The stowed extractor tops out at 8.8 in, well under it.
+- **Behind the lens, anything goes.** Only the camera body and the USB-C cable need room, and the cable leaves toward
+  the back of the robot, away from the turret.
+- **If the turret must sweep through this space,** move the camera rather than tilt it down. Keep the 45° pitch:
+  lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
+  position and I'll re-check.
+
 ## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
 
 Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
@@ -113,7 +190,7 @@ with hard stops at 0° and 125°.
 
 - **R102:** 18 × 18 × 18 in at the start.
 - **R105:** 18 × 24 in once started.
-- **The body as drawn:** 15.12 × 15.24 in, plus the roller 1.94 in ahead.
+- **The body as drawn:** 15.12 in long × 15.24 in wide (CAD re-measure, 6 Oct 2026), plus the roller 1.94 in ahead.
 - **The V takes the front corners.** The extractor and scorer must fit around it, or fold.
 - **Every part states its stowed and deployed outline,** so the simulator can draw and collide it.
 

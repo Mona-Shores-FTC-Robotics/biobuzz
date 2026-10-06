@@ -84,15 +84,15 @@ public class AutoStudyTest {
     }
 
     /**
-     * The Rigid V as drawn on the robot (CAD session, 6 Oct 2026, cad/intake-b/, doc/robot-cad.md): body 15.12 in wide by
-     * 15.24 in long, a 13.8 in roller 1.94 in ahead of the face; 1/8 in aluminium flaps to tips 8.89 in from the centre,
+     * The Rigid V as drawn on the robot (CAD session, 6 Oct 2026, cad/intake-b/, doc/robot-cad.md): body 15.12 in long (the
+     * side rails, front to back) by 15.24 in wide (across the wheel shafts), a 13.8 in roller 1.94 in ahead of the face; 1/8 in aluminium flaps to tips 8.89 in from the centre,
      * 2.8 in ahead of the face (17.8 in apart). Here each flap runs from the front corner to that tip. Variants: the flap
      * height, its bounce, one flap or none.
      */
     static RobotDesign drawnV(String variant, double heightIn, double restitution, boolean left, boolean right) {
         RobotDesign d = RobotDesign.flatIntake().copy("flat intake, rigid V as drawn" + variant);
-        d.frameIn = 15.24;
-        d.frameWidthIn = 15.12;
+        d.frameIn = 15.12;
+        d.frameWidthIn = 15.24;
         d.intakeWidthIn = 13.8;
         d.intakeReachIn = 1.94;
         if (left || right) {
