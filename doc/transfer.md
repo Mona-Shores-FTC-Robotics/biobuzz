@@ -168,7 +168,7 @@ turret was out of stock on 6 Oct.
 |---|---|---|---|
 | Ramp | 5.8 .. 8.0 | −2.1 .. 2.1 | 0.05 .. 0.9 |
 | Lane: floor, strands, pulleys, walls (keep-out inside the walls) | −1.3 .. 7.2 | −2.35 .. 2.35 | 0.25 .. 5.0 |
-| Lane drive (outside the left wall): a polycord loop from the floating roller's shaft to the lane pulley | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 4.5 |
+| Lane drive (outside the left wall): roller shaft → countershaft at (6.0, 4.0) → lane shaft, two polycord loops | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 4.6 |
 | J-wheel, arms, pivot stubs (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
 | Outer J and chute (keep-out inside) | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
 | J motor (position open; any spot in this box, belted to the left pivot stub) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
@@ -195,8 +195,8 @@ What it needs from the rest of the robot:
 | 8 mm REX shaft, J-wheel, about 132 mm; lane pulley shafts, about 110 mm | REX shaft, cut | 3 |
 | Flanged bearings, 8 mm REX bore, 14 mm OD: the J shaft, the pivot stubs, the lane shafts | 1611-0514-4008 (2-pack) | 8 bearings |
 | Arm drive, 1:1 inside the left arm, 2.5 in centres | 3417 HTD5 16T ×2 + a 3412 belt to fit (about 42T), or a printed pair | 1 set |
-| Lane drive from the roller shaft, 1.5:1 up: V-groove pulleys 24 mm and 16 mm, 8 mm REX bore, and a 3/16 in polycord loop (about 13 in, welded at about 7% stretch; it takes the roller's 0.85 in float) | printed pulleys + polycord | 1 set |
-| Polycord, 3/16 in urethane round belt, welded into loops | any FRC supplier | 3 loops: two floor strands about 14 in, one lane drive about 13 in |
+| Lane drive: roller shaft → countershaft (6.0, 4.0) → lane shaft. V-groove pulleys 24 mm ×2 on the roller and countershaft, 24 mm and 16 mm on the lower loop (1.5:1 up), 8 mm REX bore; two 3/16 in polycord loops, about 7.5 and 9 in, welded at about 5% stretch | printed pulleys + polycord; countershaft 8 mm REX, about 30 mm, in one 1611-0514-4008 bearing on the wall | 1 set |
+| Polycord, 3/16 in urethane round belt, welded into loops | any FRC supplier | 4 loops: two floor strands about 14 in, the lane drive's two, about 7.5 and 9 in |
 | Polycord pulleys, 0.75 in, 8 mm REX bore | printed | 4 |
 | Arms (2), the hard stop, the outer J and chute (3 pieces), the ramp | printed PETG or nylon, 1/8 in walls | |
 | Lane floor and walls | 1/16 in polycarbonate | about 9 × 4.5 in floor, 2 walls |
@@ -211,7 +211,7 @@ Checked against the part boxes in the team's STEP and `cad/intake-b/`.
 |---|---|---|
 | The old intake's 11-hole cross-channel (bracing the front uprights; part of the old intake) | X 5.03..5.51, full width, z 4.43..6.32 | **A NECTAR's top is at 4.52 in the lane (floor 0.9 + 3.62), so it would hit the channel by 0.09 in. Decided: raise the channel 8 mm (one hole step) to a bottom at 4.75, which leaves 0.22 in of clearance, and remove the two 8 mm pattern spacers on top of it** (X 5.03..6.29, Y −4.29..−3.03). The extractor doesn't depend on this channel. Check that the uprights' back faces have holes at that step |
 | The front drive motors' encoder caps | X 2.36..3.93, \|Y\| 1.87..2.59, z 3.48..5.05 | They're inside the walls by 0.23 in, but not in the pieces' way: a NECTAR is ±1.64 wide at z 3.48 and narrower above. Cut the walls down to 3.4 in for X 2.3..4.0 |
-| The extractor's servo gear and down-stop | X 7.11..7.20, Y −1.98..−2.32, z 4.57..4.99 | End the walls at X 7.0 |
+| The extractor's servo gear and down-stop | moved to the right end over the roller (\|Y\| ≥ 5.4) with the vertical float | No longer in the strip. The walls run to X 7.2 |
 | The CAD's "Launcher Concept" (cross-channels, beams, flywheels, a 312 rpm motor) | X −5.52..0.95 | Replaced by the turret. It must go, or it fills the J and the chute |
 | A pulley on the roller shaft at Y +2.6 | in the roller's solid left segment | Costs a 0.6 in gap in the gecko wheels there. Clear of the roller motor and the extractor's arm |
 
@@ -224,6 +224,8 @@ On the robot: raise the 11-hole channel 8 mm and remove the two spacers before t
 The roller now floats, **vertically**: its bearings ride in slots in the side plates at X 8.56. It rises 0.85 in
 under the intake's rule (the slots are cut to 1.3 in for margin), and a spring returns it to a down stop at 2.4 in.
 The roller motor rides on the same carriage, 77.5 mm above the roller, so the roller's own belt stays the same length.
+Drawn in `cad/intake-b/` (commit 70b2561 on `claude/robotics-meeting-notes-lq2y55`). The extractor turns on its own
+shaft at (9.96, 4.5), always ahead of X 8.7, clear of the ramp.
 (A pivot arm on the motor shaft was ruled out: it swings the roller sideways, and the roller's rear is 0.06 in ahead
 of the front uprights.) Checked against the transfer:
 
@@ -231,12 +233,15 @@ of the front uprights.) Checked against the transfer:
   rear half. The roller's rear edge is at X 7.6 whether its bottom is at 2.4 or 3.7, so the piece is always pressed
   onto the ramp as it leaves the roller. The pinch is set by the float spring, not by the ramp's height, so the ramp
   can't jam a NECTAR. Pieces reach the lane floor at X 5.8, 1.8 in behind the roller's rear edge.
-- **The lane's drive runs from a shaft that moves** (the roller's, z 3.35 → 4.2) to the fixed lane pulley at
-  (5.6, 0.55). The span changes about 0.25 in over the rise, about 2% of the loop. **Make it a polycord loop, not a
-  toothed belt:** urethane round belt is installed at 5–10% stretch anyway, so it takes that with no idler. V-groove
-  pulleys, 1.5:1 (24 mm on the roller shaft, 16 mm on the lane shaft). Its box is X 5.2..9.1, Y 2.35..2.9,
-  z 0.2..4.5. The J-wheel is at X −1.3, 6.5 in behind it: clear. If a test shows the loop slipping under the stalled
-  queue when the roller is up, the CAD chat's sprung idler is the fallback.
+- **The lane's drive runs from a shaft that moves** (the roller's, (8.56, 3.35) rising to (8.56, 4.65) at the top
+  of the slot). A belt straight from it to the lane shaft at (5.6, 0.55) would change length by about 0.6 in over
+  the working rise (the span is √(2.96² + Δz²), and Δz goes from 2.8 to 3.65). So **the drive goes through a
+  countershaft at (6.0, 4.0)**, level with the roller shaft's mid-travel: that span is 2.64 in at the bottom of the
+  slot and 2.64 in at the top, so it needs no idler and no spring. A second, fixed-length belt runs from the
+  countershaft down to the lane shaft. Both are polycord loops on V-groove pulleys; the 1.5:1 step-up is on the
+  lower one. The countershaft sits outside the left lane wall at Y +2.6, on the wall itself. Its pulley
+  (X 5.5..6.5, z 3.5..4.5) clears the raised 11-hole channel (X 5.03..5.51, z 4.75 up). Belt box: X 5.2..9.1,
+  Y 2.35..2.9, z 0.2..4.6. The J-wheel is at X −1.3, 6.5 in behind: clear.
 - **Ramp height under a lifted roller.** With a NECTAR under the roller, the roller's bottom is at about 3.5, and
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.

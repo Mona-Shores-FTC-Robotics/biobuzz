@@ -142,7 +142,9 @@ def concept_a():
     s.line([(RAMP[0], RAMP[1]), (RAMP[2], RAMP[3]), (J_X, FLOOR)], "lane")
     s.line([(5.6, FLOOR + 0.05), (-1.0, FLOOR + 0.05)], "belt")
     s.circle(5.6, 0.55, 0.375, "new"); s.circle(-1.0, 0.55, 0.375, "new")
-    s.line([(ROLLER_X, ROLLER_Z), (5.6, 0.55)], "belt")
+    s.line([(ROLLER_X, ROLLER_Z), (6.0, 4.0)], "belt")        # roller shaft -> countershaft, span constant over the float
+    s.line([(6.0, 4.0), (5.6, 0.55)], "belt")                 # countershaft -> lane shaft, fixed
+    s.circle(6.0, 4.0, 0.3, "new")
     s.text(2.6, 0.2, "lane floor 0.9 in up, 2 polycord strands, driven off the roller shaft")
     # J
     s.arc(J_X, J_Z, J_OUT, 180, 270, "lane")
