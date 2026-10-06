@@ -215,7 +215,10 @@ Checked against the part boxes in the team's STEP and `cad/intake-b/`.
 | The CAD's "Launcher Concept" (cross-channels, beams, flywheels, a 312 rpm motor) | X −5.52..0.95 | Replaced by the turret. It must go, or it fills the J and the chute |
 | A pulley on the roller shaft at Y +2.6 | in the roller's solid left segment | Costs a 0.6 in gap in the gecko wheels there. Clear of the roller motor and the extractor's arm |
 
-Nothing else is in the strip: no battery, hub, chassis cross-member or pod.
+Nothing else is in the strip: no battery, hub, chassis cross-member or pod. Under the turret (X −5.3..−0.9,
+\|Y\| ≤ 2.7, z 0..9), with the "Launcher Concept" removed, the CAD has nothing at all, so the J, the chute and the
+bearing's bottom at 6.6 have that space to themselves. The old intake's motor mount (X 5.75..7.47, Y 2.79..3.28)
+sat next to the countershaft's belt; it goes with the old roller.
 
 On the robot: raise the 11-hole channel 8 mm and remove the two spacers before the lane goes in.
 
@@ -237,7 +240,8 @@ of the front uprights.) Checked against the transfer:
   of the slot). A belt straight from it to the lane shaft at (5.6, 0.55) would change length by about 0.6 in over
   the working rise (the span is √(2.96² + Δz²), and Δz goes from 2.8 to 3.65). So **the drive goes through a
   countershaft at (6.0, 4.0)**, level with the roller shaft's mid-travel: that span is 2.64 in at the bottom of the
-  slot and 2.64 in at the top, so it needs no idler and no spring. A second, fixed-length belt runs from the
+  slot and at the top, and 2.56 in as the roller passes level with it (the CAD chat's check). That 0.16 in is about
+  2% of the loop, which polycord's stretch takes, so it needs no idler and no spring. A second, fixed-length belt runs from the
   countershaft down to the lane shaft. Both are polycord loops on V-groove pulleys; the 1.5:1 step-up is on the
   lower one. The countershaft sits outside the left lane wall at Y +2.6, on the wall itself. Its pulley
   (X 5.5..6.5, z 3.5..4.5) clears the raised 11-hole channel (X 5.03..5.51, z 4.75 up). Belt box: X 5.2..9.1,
