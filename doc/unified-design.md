@@ -34,6 +34,29 @@ superseded; its FLOWER half carries on below.
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
 
+## The baselines (claude/simulator, 6 Oct 2026)
+
+The three qualifier baselines are the drawn V on these routes, published from `claude/simulator` only:
+
+| Baseline | Route | Points | 3 TIPs (of 60) | Notes |
+|---|---|---|---|---|
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 10 |
+| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | still clips the HIVE frame in 4 runs, on the straight park at the end of AUTO |
+| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | 53.3 | 20 | no collisions |
+
+Built by `baselines_v.py`; design "rigid V" (= the drawn V).
+
+**Two fixes the simulator chat made, which put these above or below the numbers in the next sections:**
+- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.24 in body, every
+  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2.
+- **Wall partner:** the row sweep's start point and its 180° turn put the V over the parked partner. The robots collided
+  in most runs, so 55.7/56.3 was not legal. Starting 2 in short of the row, with a tighter turn, there are no collisions
+  and it scores 53.3.
+
+**From now on, a route with any problem is disqualified.** That means a collision, or a HIVE or FLOWER hit: the
+study line's PROBLEMS, and `problemRuns` in DeepDive's `cases.csv`. The numbers below were measured before this
+check.
+
 ## The Rigid V: decided
 
 **The V as drawn:** tips 17.8 in apart, 2.84 in ahead of the face, 4 in tall, both flaps fixed. The fallback is 45°,
