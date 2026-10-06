@@ -164,6 +164,17 @@ throughout.
   lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
   position and I'll re-check.
 
+**The NECTAR-capping cage may block the camera while seated at a FLOWER** (the user's ruling, 6 Oct 2026). Stowed
+or driving, it stays under the ceiling above. What it means for the code:
+- **Localization: nothing to do.** With no tags in view, there's no seed, no relocalize and no would-relocalize, and
+  the Pinpoint carries the pose. A partly blocked view is fine too, because `CellFix.fit` uses whichever tags remain.
+- **TIP tracking: one change needed.** `HiveTracker` takes a settled CELL vanishing while the robot holds still as a
+  TIP starting. That's exactly what the cage looks like when it drops while seated, so it would count a false TIP
+  and assume the other CELL is up 2.5 s later. When the scorer subsystem is written, it must tell `robot.hive` that
+  the view is blocked while the cage is down, and `HiveSubsystem` must not count a loss during that time.
+  - The hook is a read-only accessor the scorer exposes (`viewBlocked()`), which `HiveSubsystem` reads. Add it in
+    the same PR as the cage.
+
 ## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
 
 Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
