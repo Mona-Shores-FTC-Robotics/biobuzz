@@ -1,6 +1,8 @@
 # Sets up AdvantageScope to watch this branch's simulated logs: builds the custom assets the logs use
-# (the field "2026-2027 Field (HIVE sim)", the robot "BIOBUZZ HIVE" whose CELLs tip, and our robot
-# "BIOBUZZ Robot" with its Limelight where it is measured), replaces any older BIOBUZZ assets in
+# (the field "2026-2027 Field (HIVE sim)", the robot "BIOBUZZ HIVE" whose CELLs tip, and the generated
+# "BIOBUZZ Robot (designs)" with every simulated design), installs our robot "BIOBUZZ Robot" from the
+# team's CAD (cad/advantagescope/Robot_BIOBUZZ, committed: the chassis, the Rigid V, the FLOWER
+# extractor as a moving part, the Limelight as a camera), replaces any older BIOBUZZ assets in
 # AdvantageScope's userAssets folder with them, and puts this branch's layout in Downloads.
 #
 # Run it once per laptop, again after switching to another branch (each branch may draw the robot
@@ -55,8 +57,12 @@ try {
 } finally {
     Pop-Location
 }
-$assets = Get-ChildItem $built -Directory | Where-Object { $_.Name -like "Field3d_*" -or $_.Name -like "Robot_*" }
+$assets = @(Get-ChildItem $built -Directory | Where-Object { $_.Name -like "Field3d_*" -or $_.Name -like "Robot_*" })
 if (-not ($assets | Where-Object Name -eq "Field3d_BIOBUZZHiveSim")) { throw "The build didn't write the HIVE assets into $built." }
+# Our robot from the CAD is committed, not built.
+$cad = Get-Item (Join-Path $repo "cad\advantagescope\Robot_BIOBUZZ")
+if (-not (Test-Path (Join-Path $cad.FullName "model.glb"))) { throw "cad\advantagescope\Robot_BIOBUZZ has no model.glb: is the checkout complete?" }
+$assets += $cad
 
 # 4. Replace every older BIOBUZZ asset in userAssets with this branch's.
 $user = Join-Path $scope "userAssets"

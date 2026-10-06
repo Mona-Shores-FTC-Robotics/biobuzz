@@ -21,7 +21,7 @@ import java.util.Map;
  * <pre>
  * ./gradlew :TeamCode:testDebugUnitTest --tests '*RobotAssetsTest*'
  * </pre>
- * It writes {@code TeamCode/build/advantagescope/Robot_BIOBUZZ}. Copy that folder into
+ * It writes {@code TeamCode/build/advantagescope/Robot_BIOBUZZDesigns}. Copy that folder into
  * AdvantageScope's {@code userAssets} folder (Show Assets Folder, in the app menu) and restart
  * AdvantageScope.
  */

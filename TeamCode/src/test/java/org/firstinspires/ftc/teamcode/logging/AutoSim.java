@@ -769,6 +769,16 @@ public final class AutoSim {
     }
 
     /** One robot: its exported Auto, drivetrain, launcher and intake. */
+    /**
+     * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}) rather than {@code BIOBUZZ Robot
+     * (designs)}: the baseline, "rigid V", and the name it had while the body-designs branch drew it.
+     */
+    static boolean cadModel(String design) {
+        return design.equals("rigid V") || design.startsWith("flat intake, rigid V as drawn");
+    }
+    /** The CAD model's extractor stowed: translation (m) then quaternion (w, x, y, z). */
+    static final double[] EXTRACTOR_STOWED = {0.41173, 0, -0.04441, 0.461749, 0, -0.887011, 0};
+
     private final class Bot {
         final Class<?> autoClass;
         final int index;
@@ -1155,10 +1165,10 @@ public final class AutoSim {
             double out = body == null ? 0 : body.wallsOut;
             if (out == shapeLogged) return;
             shapeLogged = out;
-            if (design.name.startsWith(CAD_MODEL_DESIGN)) {
-                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ on
-                // claude/robotics-meeting-notes-lq2y55): one component, the FLOWER extractor, zeroed deployed. It is
-                // stowed through AUTO: 125 deg about the roller axle (its extractor_poses.json).
+            if (cadModel(design.name)) {
+                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): one component, the
+                // FLOWER extractor, zeroed deployed. It is stowed through AUTO: 125 deg about the roller axle (its
+                // extractor_poses.json).
                 log.putPose3dArray(keyPrefix + "/BodyShape/Components", EXTRACTOR_STOWED, us);
                 return;
             }
@@ -1171,11 +1181,6 @@ public final class AutoSim {
         }
 
         double shapeLogged = -1;
-
-        /** Designs drawn with the CAD's whole-robot model rather than BodyShape's. */
-        static final String CAD_MODEL_DESIGN = "flat intake, rigid V as drawn";
-        /** The CAD model's extractor stowed: translation (m) then quaternion (w, x, y, z). */
-        static final double[] EXTRACTOR_STOWED = {0.41173, 0, -0.04441, 0.461749, 0, -0.887011, 0};
 
         /** The robot standing where it is, for the disabled time before and after the run. */
         void putStill(WpiLog log, long us) throws IOException {

@@ -35,12 +35,14 @@ roll are now checked against video ([tip timing](tip-timing.md), [rolling](rolli
 ## How AdvantageScope shows the right robot
 
 A `.wpilog` only stores numbers over time: where each robot is, where every piece is, the HIVE's angle, and
-the position of each part of the robot. There is one robot model, **BIOBUZZ Robot**, and one layout
-(`sim-review/advantagescope-layout.json`). The model holds every design as a separate part; each log says where
-each part goes: the design that was simulated at the robot, the others 20 m under the field. So any log shows
-its own robot, and its file name says which (`<Auto>_<robot>_<date>`). The setup script builds the model from
-the same numbers the simulator uses (`RobotAssets.java`), so the drawing and the simulation can't disagree. A
-hook swinging down is the same trick: the log moves that part as the simulator moved it.
+the position of each part of the robot. The layout (`sim-review/advantagescope-layout.json`) draws our robot as
+**BIOBUZZ Robot**, the team's CAD (`cad/advantagescope/Robot_BIOBUZZ`, committed) with the FLOWER extractor as
+a moving part; a baseline log ("rigid V") holds it stowed through AUTO. The simulator's body for that design is
+the CAD's measurements (`doc/cad-6-oct.md`: 15.12 × 15.24 in, the V's plates), so the drawing and the simulation
+agree to the extent the measurements do. Every other simulated design is a part of **BIOBUZZ Robot (designs)**,
+generated from the simulator's own numbers (`RobotAssets.java`): a log of one says which part to show at the
+robot (the others go 20 m under the field) and its file name says which (`<Auto>_<robot>_<date>`). A hook
+swinging down is the same trick: the log moves that part as the simulator moved it.
 
 So what you see in AdvantageScope is what the simulator did, frame by frame. What it can't tell you is whether
 the simulator's guesses are right; the table above is where to look for that.

@@ -2,7 +2,10 @@
 
 `Robot_BIOBUZZ/` is the team's robot from its Onshape CAD, with the decided front (`cad/intake-b/`): the outer wheel
 plates, the 14 in roller and its motor, the odometry pods, the Rigid V plates, and the FLOWER extractor as an
-articulated component. Copy the folder into AdvantageScope's custom assets folder and pick "BIOBUZZ Robot".
+articulated component. It is the robot the simulator's logs draw: `tools/advantagescope/setup-advantagescope.ps1` installs it
+(the root README's *How to watch*), the layout uses it for `/Odometry/Robot3d`, and a log of the baseline design
+("rigid V") poses its extractor (`AutoSim.putShape`: stowed through AUTO). The generated model of every other simulated
+design is **BIOBUZZ Robot (designs)**, from `RobotAssets`; pick it in that row's model menu for a log of another design.
 
 | File | What |
 |---|---|
