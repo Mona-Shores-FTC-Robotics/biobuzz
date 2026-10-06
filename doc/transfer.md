@@ -177,7 +177,7 @@ turret was out of stock on 6 Oct.
 | Lane drive (outside the left wall): roller shaft → countershaft at (6.0, 4.0) → lane shaft, two polycord loops | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 4.6 |
 | J-wheel, arms, pivot stubs (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
 | Outer J and chute (keep-out inside) | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
-| J motor (position open; any spot in this box, belted to the left pivot stub) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
+| J motor, over the left rail in a printed cradle, belted to the left pivot stub | −4.2 .. −0.6 | 3.25 .. 7.2 | 2.9 .. 4.5 |
 | Turret bearing (the launcher's) | centred on (−3.17, 0) | | bottom at 6.6 or higher |
 | Piece column through the bearing (keep-out) | −5.24 .. −1.10 (the bore) | | 6.6 .. the throat |
 
@@ -267,11 +267,11 @@ before ordering; where it says "to confirm", the type is decided and the exact n
 | Item | Spec |
 |---|---|
 | Floor | 1/16 in polycarbonate, top face at z 0.90, X −1.3 to 7.2, Y ±2.1 inside the walls. Slots for the four strand pulleys |
-| Walls | 1/16 in polycarbonate, inner faces at Y ±2.1, from the floor to z 5.0; cut to 3.4 over X 2.3–4.0 (front drive encoder caps) and to 4.4 under the raised 11-hole channel (X 5.0–5.55) |
+| Walls | **1/8 in** polycarbonate (they carry the pivot stubs, the countershaft bearing and the belt tension), one piece per side from X −5.1 to 7.2, inner faces at Y ±2.1, from the floor to z 5.0; cut to 3.4 over X 2.3–4.0 (front drive encoder caps) and to 4.4 under the raised 11-hole channel (X 5.0–5.55) |
 | Ramp | 1/16 in polycarbonate or printed, from (8.0, 0.05) to (5.8, 0.90), 22°, Y ±2.1. The roller's rear edge (X 7.6) presses pieces onto it at any float height |
 | Strands | Two loops of 3/16 in (4.8 mm) 83A urethane round belt at **Y ±0.5**, top run on the floor from X 5.6 to −1.0, return under it. Loop about 14.8 in at pitch; weld 5% short |
 | Strand pulleys | Four printed V-groove pulleys, 0.5 in OD, on two 6 mm D-shafts (goBILDA 2100 series, to confirm) at (5.6, 0.65) and (−1.0, 0.65), in 6 mm-bore flanged bearings in the walls. Front shaft driven; rear idles |
-| Mounting | Two printed hangers from the raised 11-hole channel (X 5.03–5.51) to the walls; the rear end and the J shell to the turret's rear cross-channel; the ramp to the roller's side plates |
+| Mounting | Three 1/8 in aluminium strips under the floor at X 3.78, 1.89 and −2.84, tabbed up to both rails' inner faces on their lower hole row (z 1.24); the two rear ones share the outer plates' standoff bolts. The walls sit on the strips. The J shell to the turret's rear cross-channel; the ramp to the roller's side plates. (The CAD chat's layout, 6 Oct) |
 
 ### Lane drive (2:1 up, so strands run at 60 in/s and pieces at 24 in/s)
 
@@ -288,11 +288,11 @@ before ordering; where it says "to confirm", the type is decided and the exact n
 |---|---|
 | Wheel | Two 48 mm gecko wheels side by side (the roller's wheels), about 2 in wide, on an 8 mm REX shaft about 130 mm long (Y −2.4 to +2.75). Axle at rest **(−1.32, 4.54)** |
 | Wheel drive | 16T HTD5 pulley (3417-4008-0016, 8 mm REX, to confirm) on the shaft at Y +2.2..+2.55, outboard of the left wall; 40T 3412-series belt (9 mm) to a matching 16T pulley on the motor shaft at the pivot. 60 mm centres |
-| Arms | Two, 1/8 in aluminium, 60 mm pivot-to-axle, at Y +2.6 (left, carrying the belt) and Y −2.4 (right). Pivot **(0.72, 3.36)**, the arm 30° above horizontal toward the rear. The shaft passes through arc slots in the walls, 1.2 in of travel, perpendicular to the arm (up-forward, 60° from horizontal) |
-| Pivot | Left: the J motor's output shaft is the pivot axis; the arm rides on it on a round-bore flanged bearing (1611-0514-0008). Right: a dead 8 mm stub in a printed block on the wall, same bearing |
+| Arms | Two, 1/8 in aluminium, 60 mm pivot-to-axle, outboard of the walls at \|Y\| 2.2..2.45; the 1:1 arm drive just outboard of the left arm (Y 2.47..2.85). Pivot **(0.72, 3.36)**, the arm 30° above horizontal toward the rear. The shaft passes through arc slots in the walls, 1.2 in of travel, perpendicular to the arm (up-forward, 60° from horizontal) |
+| Pivot | 8 mm stubs in printed blocks on each wall; the arms ride on round-bore flanged bearings (1611-0514-0008). The left stub carries the pulley the J motor drives |
 | Hard stop | A printed block on each wall's outer face under the arm, bolted through a ±0.1 in slot: the resting gap under the wheel is tuned from 2.6 to 2.8 in without reprinting. Design position: 2.7 (POLLEN squeezed 0.1) |
 | Band | 1/4 in surgical tubing from a post at each arm's tip to a post on the wall, forward and above; preload about 1 lbf; the wall post has three holes so the preload is tuned by moving it |
-| J motor | goBILDA 5203-2402-0003 Yellow Jacket, 1620 rpm, 3.7:1. Body along +Y from Y 2.75, about 1.5 in dia × 3.5 in, centred on z 3.36, X 0.72; mounted to the left wall by a printed face bracket at the pivot. Runs only to fire, forward only; brake mode when stopped. Torque needed: under 2 kg·cm (a 2 lbf pinch at 0.945 in) against 4.4 at stall |
+| J motor | goBILDA 5203-2402-0003 Yellow Jacket, 1620 rpm, 3.7:1. Lies along Y over the left rail, axis at (X −2.4, z 3.7), Y 3.25..7.2, in a printed cradle on the rail's top; a 16T–16T HTD5 belt (about 3.3 in centres) drives the left pivot stub's pulley, outboard at Y 2.9..3.2. (The CAD chat's placement: low, and off the wall.) Runs only to fire, forward only; brake mode when stopped. Torque needed: under 2 kg·cm (a 2 lbf pinch at 0.945 in) against 4.4 at stall |
 | Outer J and chute | Printed PETG, 1/8 in wall, inner radius 3.64 about the resting axle, from the lane floor round to a vertical rear wall at X −4.96, up to z 6.6; inner width Y ±2.1. Two halves, bolted to the walls and to the rear cross-channel. A 1/16 in lid over the pocket from the wheel's front to X 0.5 at z 5.0 (keeps a bounced piece in) |
 
 ### Turret bearing and the launcher's end
@@ -433,10 +433,12 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 
 ## In the whole-robot model
 
-The transfer is in `cad/advantagescope/Robot_BIOBUZZ/model.glb` as fixed placeholder solids (lane, notches, ramp,
-J-wheel and arms, outer J and chute, countershaft pulley, J motor, turret ring), commit 11d79b7 on
-`claude/robotics-meeting-notes-lq2y55`. The simulator draws held pieces at the positions above. Real parts or a STEP
-replace the placeholders; the J arm can become a moving component if the logs should show it.
+**The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
+`claude/robotics-meeting-notes-lq2y55`, first at commit fe27870, drawn by the Flower Extracter chat from this spec and
+swept clear of the robot, the roller at every float height, the extractor at 0/75/150° and the J-wheel's full lift
+(`tools/robot-cad/transfer_sweep.py`). In the AdvantageScope model the J-wheel and arms are a moving component
+(model_2, rotation about +Y through the pivot, 0 at rest to about 48.6° at full lift) and the roller-shaft pulley
+rides with the roller. The simulator draws held pieces at the positions above.
 
 ## Who this goes to
 
