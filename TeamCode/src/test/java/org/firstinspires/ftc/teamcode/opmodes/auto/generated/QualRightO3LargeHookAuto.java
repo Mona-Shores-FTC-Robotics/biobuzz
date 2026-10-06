@@ -49,7 +49,7 @@ public final class QualRightO3LargeHookAuto {
         Pose farFlowerTurn = p.of(47.36, 121.04, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose nHook = p.of(63.35, 112.15, 270);
+        Pose nHook = p.of(63.35, 111.15, 270);
         Pose sweepE = p.of(57.5, 10, 180);
         Pose sweepW = p.of(22, 10, 180);
 

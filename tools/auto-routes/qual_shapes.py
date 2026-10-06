@@ -63,9 +63,14 @@ def shaped(name, length, hook_at, **kw):
 
 # On option 3, the baseline robot (5 Oct 2026): qual-right-o3 as qual_right.py draws it for that robot, and a hook
 # slide placed as above: the chassis face (14.5 in long) and the arm's side (14.5 in wide) on the same 95% lines.
+# The large hook sits 1 in further from the wall (6 Oct 2026): a piece is 2.8 in across and comes down at a slant, so
+# pieces landing just inside the 9.5 in arm's crossbeam clipped its top. Its face 37.6 in from the wall and the
+# crossbeam at 47.1 touched falling pieces in 2 of 20 runs (normal tiles), against 7 on the 95% lines; 0.5 in from
+# them 3, 1.5 in 6, toward the wall 10-17. The rest is the spill's near tail landing on the face: 9.5 in (R105's
+# longest on option 3) can't clear both ends.
 O3_SHAPES = {
     "qual-right-o3-rigid-v": ("option 3, rigid V", None),
-    "qual-right-o3-large-hook": ("option 3, large right hook", (70.6 - 7.25, round(FIELD_IN - (36.6 - 7.25), 2), 270)),
+    "qual-right-o3-large-hook": ("option 3, large right hook", (70.6 - 7.25, round(FIELD_IN - (37.6 - 7.25), 2), 270)),
     "qual-right-o3-small-hook": ("option 3, small right hook", (70.6 - 7.25, round(FIELD_IN - (37.5 - 7.25), 2), 270)),
 }
 
@@ -109,7 +114,7 @@ if __name__ == "__main__":
     for name, (design, length, hook_at) in SHAPES.items():
         shaped(name, length, hook_at, **options(hook_at)).write()
     for name, (design, hook_at) in O3_SHAPES.items():
-        # A hook waits 1 s for TIP 2's spill, not qual-right-o3's 0.5 s (6 Oct 2026, 20 runs normal / slow tiles,
+        # A hook waits 1 s for TIP 2's spill, not qual-right-o3's 0.5 s (6 Oct 2026, before the slow-tile fix; 20 runs normal / slow tiles,
         # large hook: 0 s 65.8 / 63.5 points but touched in 20 / 18 runs; 0.5 s 61.0 / 63.5, 21% / 20% of the spill
         # on the blue half; 1 s 64.3 / 64.0, 10% / 14%. Plain qual-right-o3: 64.8 / 61.3, 31% / 30%).
         o3_shaped(name, hook_at, extra=1000 if hook_at else None).write()

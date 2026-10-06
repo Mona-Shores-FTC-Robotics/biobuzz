@@ -111,7 +111,9 @@ final class FieldSim {
 
     /**
      * For sensitivity checks only: scale the placeholder friction and shot spread, to see whether
-     * a conclusion survives the guesses being wrong. 1 is the placeholder itself.
+     * a conclusion survives the guesses being wrong. 1 is the placeholder itself. frictionScale is slow
+     * tiles: it scales the tiles' and field walls' rolling and contact friction, nothing else's (not a
+     * CELL's, so it changes how far a spill rolls, not where it lands).
      */
     static double frictionScale = 1;
     /** Scales every bounce (tiles, walls, robots, the HIVE, other pieces), for testing what the guesses change. */
@@ -941,6 +943,9 @@ final class FieldSim {
                     continue;
                 }
                 boolean contact = false;
+                // Only the tiles take frictionScale (slow tiles): a piece sliding out of a CELL or along a robot
+                // slows as usual, so slow tiles change how far the spill rolls, not where it lands.
+                boolean onTiles = false;
                 for (Rocker r : rockers) contact |= collideRocker(p, r);
                 if (collideFootBars(p)) {
                     contact = true;
@@ -957,11 +962,12 @@ final class FieldSim {
                 }
                 if (collideField(p)) {  // the tiles or a field wall
                     contact = true;
+                    onTiles = true;
                     p.touchedTile = true;
                 }
                 if (p.flower >= 0) holdInFlower(p);
                 if (contact) {
-                    applyFriction(p, h);
+                    applyFriction(p, h, onTiles ? frictionScale : 1);
                     // Uneven tiles move a rolling piece; one at rest stays put (static friction).
                     if (p.z < p.kind.radius + 0.3 && p.cell == null && spillVariety > 0 && Math.hypot(p.vx, p.vy) > 1) {
                         double[] g = tileSlope[(int) Math.max(0, Math.min(11, p.x / 12))][(int) Math.max(0, Math.min(11, p.y / 12))];
@@ -1197,8 +1203,14 @@ final class FieldSim {
             p.flapBeforeTile |= flap;
             if (!p.robotBeforeTile) {
                 p.robotBeforeTile = true;
-                events.add("G409: robot " + (bots.indexOf(bot) + 1) + (hit ? "" : "'s flap or wall") + " touched a spilled "
-                        + name(p.kind) + " before it reached the tiles");
+                // Where: the piece in the field and in the robot's frame (+x ahead of its centre, +y its left), so a
+                // log shows which part it hit.
+                double dx = p.x - bx, dy = p.y - by;
+                events.add(String.format(java.util.Locale.ROOT, "G409: robot %d%s touched a spilled %s before it reached the tiles"
+                                + " (piece at x %.1f, y %.1f, %.1f in up, falling %.0f in/s; %.1f in ahead of the robot's centre,"
+                                + " %.1f in to its left; robot at x %.1f, y %.1f, heading %.0f deg)",
+                        bots.indexOf(bot) + 1, hit ? "" : "'s flap or wall", name(p.kind), p.x, p.y, p.z, -p.vz,
+                        dx * Math.cos(bh) + dy * Math.sin(bh), -dx * Math.sin(bh) + dy * Math.cos(bh), bx, by, Math.toDegrees(bh)));
             }
         }
         return hit || flap;
@@ -1335,10 +1347,10 @@ final class FieldSim {
         p.vz = rz0 + sz;
     }
 
-    private static void applyFriction(Piece p, double h) {
+    private static void applyFriction(Piece p, double h, double scale) {
         double speed = Math.hypot(p.vx, p.vy);
-        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * frictionScale * h)
-                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
+        double slower = Math.max(0, speed * (1 - PLACEHOLDER_CONTACT_FRICTION * scale * h)
+                - PLACEHOLDER_ROLLING_DECEL_IN_PER_S2 * scale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;
