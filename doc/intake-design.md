@@ -281,7 +281,7 @@ hook stowed over the top the robot is 17.3 in long at the start (18 allowed).
 
 | Part | Where | Size and parts | Why |
 |---|---|---|---|
-| Roller shaft | x = +1.0, z = 3.35 at rest, along y; 8 mm REX, about 400 mm; **floats**: on two arms about the motor shaft, rising 1.3 in (bottom 2.4 to 3.7) against gravity and a light spring, down stop at 2.4 | centred on the centre line | 48 mm wheels' bottom at **2.40** (the guessed bite), front at x = 1.94. A fixed roller cannot pass a NECTAR ("The roller floats" below). Checked at rest; the float to be redrawn |
+| Roller shaft | x = +1.0, z = 3.35 at rest, along y; 8 mm REX, about 400 mm; **floats** in vertical slots, up to 1.3 in (bottom 2.4 to 3.7; 0.85 is what a NECTAR needs), the motor on the same carriage, gravity and a light spring onto a down stop at 2.4 | centred on the centre line | 48 mm wheels' bottom at **2.40** (the guessed bite), front at x = 1.94. A fixed roller cannot pass a NECTAR ("The roller floats" below). Checked at rest; the float to be redrawn |
 | Roller wheels | **13.8 in** of 48 mm gecko wheels, y = −6.9 to +6.9 (0.1 in less than 14 so the hook's hub clears the roller's end) | 48 mm (1.89 in); a bigger wheel's front would leave the 18 in start cube | The 14 in mouth; the bite the cardboard rig confirms |
 | Side plates | the outer wheel plates from `cad/robot-addons/`, inner faces at y = ±7.56 (15.1 in between), extended forward past the roller and up to carry the hinge at 6 in | 1/8 in aluminium | One plate per side does the wheels' outer bearing, the roller's bearing and the hook's hinge. Checked |
 | Roller drive | goBILDA 5203 motor **inboard over the roller on the left**, on a printed bracket on the left front upright; belt and pulleys **inside** the left plate, in the 16 mm between the roller's end and the plate | | Outside the plate the left V plate cut through the belt. The right end is the hook's |
@@ -343,15 +343,21 @@ POLLEN bite). What that is worth, the drawn intake fixed against floating, 60 ru
 Every roller row above this one was run before the gap rule and so took NECTAR, as the floating roller does;
 the simulator's "DHS intake-b" now floats, and "DHS intake-b, fixed roller" is the refusing one.
 
-So: the roller rises **1.3 in** (its bottom from 2.4 to 3.7; with the 0.4 in squeeze that passes a NECTAR), on
-**two arms pivoting about the roller motor's shaft**, 77.5 mm above the rest axle: the belt length never changes,
-and rising 1.3 in swings the roller back only 0.3 in. Gravity and a light spring return it to a down stop at 2.4.
-The hold-down force the spring adds is the bite on a POLLEN; the cardboard rig sets it. For the FLOWER extractor,
-which pivots on the roller's shaft in the drawing: **it needs a fixed pivot.** The cleanest is coaxial with the
-float arms' pivot, the motor shaft, with the extractor's arms passing outside the roller's ends rather than
-through gaps in it; a stub axle on the side plates at the rest axle line is the alternative only if the roller's
-float path (up and 0.3 in back) clears it. The transfer's pulley at y +2.6 on the roller shaft still works,
-driven by a belt about the float pivot. The CAD session redraws the front with this.
+So (geometry by the CAD session, 6 Oct 23:00 UTC, which found my first version wrong: an arm pivoting on the
+motor shaft, straight above the axle, swings the roller sideways, and the roller cannot move back at all, its
+rear being 0.06 in ahead of the front uprights): **a vertical float.** The roller's bearings ride in vertical
+slots in the side plates at x = +1.0; the rise the rule needs is **0.85 in** (a 3.62 in NECTAR less 0.4 in of
+give: the bottom from 2.4 to 3.22), and the slot is cut to **1.3 in** (bottom to 3.7) because the 0.4 in of give is
+a guess and the extra slot covers a NECTAR that gives nothing. The simulator scores any float of 0.82 in or more
+the same, and models 0.85. Gravity and a light spring hold the roller on a down stop at 2.4; the spring is the
+POLLEN bite force, set on the rig. **The motor rides on the same carriage**, 77.5 mm above the roller: an outboard
+link plate on the left holds both shafts' bearings, both pass through slots in the side plate, and the printed
+motor bracket slides on the left upright's M4 column on shoulder screws (motor top at 8.1 to 8.5 in, under the
+Limelight). **The FLOWER extractor gets its own fixed shaft**, 8 mm, full width in the side plates at x = +2.3,
+z = 4.5: 0.4 in ahead of the roller's front and above a NECTAR entering under it, arms at y ±1.8, the same block
+and seat (tip 5.84 in ahead of the face), the servo at the shaft's right end; the roller then has no gaps but the
+transfer's pulley at y +2.6, whose belt span changes 0.25 in over the float and gets a sprung idler. The start
+length stays 17.96 in (the shaft and hubs end at x = +2.6, inside the V tips' 2.84).
 
 **The V's angle** (this chat's decision under [unified-design.md](unified-design.md); 60 runs, the Rigid V's Autos,
 the drawn intake; the angle is the plate's from straight ahead, tips 17.8 in apart, so steeper is shorter):
