@@ -56,13 +56,17 @@ for importing). Three sub-assemblies:
 | Flanged bearings, 8 mm REX bore, 14 mm OD: 2 for the roller, 1 for the hinge, 1 for the motor, 4 for the wheels | 1611-0514-4008 (2-pack) | 8 bearings |
 | Servo shaft | 8mm REX Servo Shaft, 25-tooth spline, 36 mm | 1 |
 | 8 mm REX shafts | roller 400 mm, front 312 mm, arm cut to 200 mm, wheels 80 mm ×4 | |
-| HTD5 pulleys, 9 mm belt, and the belt between them (centres 67 mm apart) | | 2 + 1 |
+| Roller drive, 1:1 (1150 RPM at the roller, about 114 in/s at the wheels' surface) | 3417-4008-0024 pulley, 24T HTD5, 8mm REX bore, ×2; 3412 Series belt, 9 mm, 55T (275 mm pitch length) | 2 + 1 |
+| Step-down option, 2:3 (about 767 RPM, 76 in/s) | 3417-4008-0016 (16T) on the motor instead, same 24T on the roller and the same 55T belt | 1 |
 | 48 mm gecko wheels for 13.8 in of roller | | about 20 |
 | M4 standoffs, 56 mm | | 8 |
 | 8 mm REX clamping collars | | 2 |
 | 1/8 in aluminium (side plates, V plates), 1/16 in polycarbonate (curtains, side panel) | | |
 
-The pulley and belt part numbers depend on the tooth counts you pick for the roller's speed.
+**The motor sits 77.5 mm above the roller's axle (6.4 in off the tiles),** because goBILDA's shortest 9 mm belt
+(55T) needs that centre distance with two 24T pulleys. The 2:3 option on the same belt needs about 87.3 mm, so the
+motor bracket's four bolt holes are slotted 9.8 mm upward. In that position, drill the left plate's motor-bearing
+hole 9.8 mm higher, or leave the motor's short shaft without the outer bearing.
 
 ## Before anything is cut or printed
 

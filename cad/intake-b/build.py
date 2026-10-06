@@ -18,6 +18,12 @@ ROLL_Z = FACE + 1.0 * IN               # ...1.0 in in front of the face (its fro
 ROLL_HALF = 6.9 * IN                   # 13.8 in of wheels: 0.1 in less than 14 so the hook's hub clears the roller's end
 HINGE_UP = float(os.environ.get("HINGE_UP", "6.0"))
 HY, HZ = F + HINGE_UP * IN, FACE + 1.0 * IN   # hook hinge: 6 in up, over the roller's axle
+# Roller drive, 1:1: two goBILDA 3417-4008-0024 pulleys (24T HTD5, 8mm REX bore) on the shortest 9 mm belt, the
+# 3412 Series 55-tooth (275 mm). Its centres: (275 - 24 * 5) / 2 = 77.5 mm, so the motor sits 77.5 mm over the roller.
+# The 2:3 step down (3417-4008-0016 on the motor) on the same belt needs about 87.3 mm: the bracket's slots give both.
+PITCH_D24 = 24 * 5 / math.pi           # 38.2 mm
+MOTOR_C = 77.5
+MOTOR_Y = ROLL_Y + MOTOR_C
 ARM = 7.15 * IN                        # the hook's arm, from centre: its 14 mm hub clears the plate (7.56 in) and the servo
 ZB = FACE + 7.48 * IN                  # FLOWER block's back edge with the hook down (24 in overall)
 V_IN, V_OUT, V_FWD, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 1.75 * IN, 4.0 * IN   # Rigid V plates
@@ -35,10 +41,10 @@ def rod(p0, p1, d=8.0):
 def side_plate(right):
     f = xr if right else xl
     x0, x1 = f(PLATE_IN), f(PLATE_IN + PLATE_T)
-    pts = [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, FACE - 40), (HY + 16, FACE - 18), (HY + 16, HZ + 16),
+    pts = [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, FACE - 40), (max(HY, MOTOR_Y) + 16, FACE - 18), (max(HY, MOTOR_Y) + 16, HZ + 16),
            (ROLL_Y, ROLL_Z + 16), (-127.0, ROLL_Z + 6)]
     p = cq.Workplane("YZ").polyline(pts).close().extrude(PLATE_T).translate((min(x0, x1), 0, 0))
-    holes = [(AX_Y, AX_ZF), (AX_Y, AX_ZR), (ROLL_Y, ROLL_Z), (HY, HZ)]          # wheels, roller, hinge (right) / motor (left)
+    holes = [(AX_Y, AX_ZF), (AX_Y, AX_ZR), (ROLL_Y, ROLL_Z), (HY, HZ) if right else (MOTOR_Y, HZ)]   # wheels, roller, hinge / motor
     for y, z in holes: p = p.cut(cyl("x", (0, y, z), 14.0, min(x0, x1) - 1, max(x0, x1) + 1))
     for y in A.STANDOFF_Y:
         for z in A.STANDOFF_Z: p = p.cut(cyl("x", (0, y, z), M4, min(x0, x1) - 1, max(x0, x1) + 1))
@@ -58,20 +64,24 @@ for s, f in (("R", xr), ("L", xl)):
 # Belt drive inside the left plate, between the roller's end (6.9 in) and the plate (7.56 in): outside the plate the
 # Rigid V's left plate would cut through the pulley and belt.
 PUL0, PUL1 = ROLL_HALF + 1.5, PLATE_IN - 2.0
-part(fixed, "roller_pulley_L (HTD5, inside the plate)", cyl("x", (0, ROLL_Y, ROLL_Z), 30.0, xl(PUL0), xl(PUL1)), BLACK, "buy")
-part(fixed, "motor_pulley_L (HTD5, inside the plate)", cyl("x", (0, HY, HZ), 30.0, xl(PUL0), xl(PUL1)), BLACK, "buy")
-part(fixed, "roller_belt_L (HTD5, 9 mm)", box(xl(PUL0 + 1.5), xl(PUL1 - 1.5), ROLL_Y - 15, HY + 15, HZ - 15, HZ + 15).cut(box(xl(PUL0), xl(PUL1), ROLL_Y - 12, HY + 12, HZ - 12, HZ + 12)), BLACK, "buy")
+part(fixed, "roller_pulley_L (goBILDA 3417-4008-0024, 24T HTD5)", cyl("x", (0, ROLL_Y, ROLL_Z), PITCH_D24, xl(PUL0), xl(PUL1)), BLACK, "buy")
+part(fixed, "motor_pulley_L (goBILDA 3417-4008-0024, 24T HTD5)", cyl("x", (0, MOTOR_Y, HZ), PITCH_D24, xl(PUL0), xl(PUL1)), BLACK, "buy")
+R = PITCH_D24 / 2
+part(fixed, "roller_belt_L (goBILDA 3412 Series, 9 mm, 55T, 275 mm)", box(xl(PUL0 + 1.5), xl(PUL1 - 1.5), ROLL_Y - R - 3, MOTOR_Y + R + 3, HZ - R - 3, HZ + R + 3)
+     .cut(box(xl(PUL0), xl(PUL1), ROLL_Y - R, MOTOR_Y + R, HZ - R, HZ + R)), BLACK, "buy")
 FACE_X = PUL0 - 1.0                     # the motor's mounting face, just inboard of its pulley
-part(fixed, "roller_motor_L (goBILDA 5203-2402-0005, 1150 RPM)", cyl("x", (0, HY, HZ), 37.0, xl(FACE_X - 7), xl(FACE_X - 127)), BLACK, "buy")
-part(fixed, "motor_shaft_L (the motor's own 24 mm 8mm-REX output shaft)", cyl("x", (0, HY, HZ), 8.0, xl(FACE_X - 7), xl(FACE_X + 20)), STEEL, "buy")
-mb = box(xl(FACE_X - 6), xl(FACE_X), HY - 24, HY + 24, FACE, HZ + 24)          # face plate: the motor bolts to it
-mb = mb.union(box(xl(124.0), xl(FACE_X - 6), HY - 24, HY + 24, FACE, HZ - 18.5))  # ...and a cradle back to the upright
-mb = mb.cut(cyl("x", (0, HY, HZ), 14.0, xl(FACE_X - 7), xl(FACE_X + 1)))
-for dy in (-8, 8):
-    for dz in (-8, 8): mb = mb.cut(cyl("x", (0, HY + dy, HZ + dz), M4, xl(FACE_X - 7), xl(FACE_X + 1)))
+part(fixed, "roller_motor_L (goBILDA 5203-2402-0005, 1150 RPM)", cyl("x", (0, MOTOR_Y, HZ), 37.0, xl(FACE_X - 7), xl(FACE_X - 127)), BLACK, "buy")
+part(fixed, "motor_shaft_L (the motor's own 24 mm 8mm-REX output shaft)", cyl("x", (0, MOTOR_Y, HZ), 8.0, xl(FACE_X - 7), xl(FACE_X + 20)), STEEL, "buy")
+mb = box(xl(FACE_X - 6), xl(FACE_X), MOTOR_Y - 24, MOTOR_Y + 34, FACE, HZ + 24)          # face plate: the motor bolts to it
+mb = mb.union(box(xl(124.0), xl(FACE_X - 6), MOTOR_Y - 24, MOTOR_Y + 34, FACE, HZ - 18.5))  # ...and a cradle back to the upright
+mb = mb.cut(box(xl(FACE_X - 7), xl(FACE_X + 1), MOTOR_Y - 1, MOTOR_Y + 1, HZ - 1, HZ + 1))
+for dz in (-8, 8):                     # slots: the motor 77.5 mm over the roller (1:1) or 87.3 mm (2:3)
+    for dy in (-8, 8):
+        mb = mb.cut(box(xl(FACE_X - 7), xl(FACE_X + 1), MOTOR_Y + dy - 2.15, MOTOR_Y + dy + 9.8 + 2.15, HZ + dz - 2.15, HZ + dz + 2.15))
+mb = mb.cut(box(xl(FACE_X - 7), xl(FACE_X + 1), MOTOR_Y - 7, MOTOR_Y + 9.8 + 7, HZ - 7, HZ + 7))
 for y in (-7.2, 8.8): mb = mb.cut(cyl("z", (C + 128.0, y, 0), M4, FACE - 1, HZ))
 part(fixed, "motor_bracket_L (print)", mb, BLUE, "print")
-part(fixed, "motor_bearing_L (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xl(PLATE_IN), xl(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
+part(fixed, "motor_bearing_L (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, MOTOR_Y, HZ), 14.0, xl(PLATE_IN), xl(PLATE_IN + PLATE_T + 1.2)), BRASS, "buy")
 # ---- the hook's servo, inboard of the right plate, spline out toward the hub ----
 SPL = ARM - 7.0 - 2.0                  # servo face 2 mm inboard of the hub
 servo = box(xr(SPL - 38.6), xr(SPL), HY - 10.2, HY + 30.6, HZ - 10, HZ + 10)
