@@ -177,3 +177,9 @@ corners, 1.25 in short of the FLOWER's centre. So:
 From there the launcher's exit (turret axis 10.73 in behind the face, exit 2.5 in ahead of it) is about 15.3 in from the
 FLOWER's centre. Moving the block closer to the roller shortens that: a 1.0 in gap gives 13.8 in, and 0 gives 12.8 in.
 That costs extraction margin, untested.
+
+Emptying, in `tools/ramp-hook/extractor.py` (ramp.py's 2-D model with the real block and seat): all 4 POLLEN reach the
+roller about 0.77 s after the block meets the uprights.
+
+A cage over the FLOWER's top that blocks the Limelight only while seated at a FLOWER is acceptable (the user, 6 Oct
+2026). Stowed or driving, everything stays under the Limelight's keep-clear ceiling.
