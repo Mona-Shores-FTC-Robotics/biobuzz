@@ -71,8 +71,8 @@ transfer assumes the roller delivers pieces moving rearward at about 50 in/s, 7.
 | Lane floor | z 0.9, from X 5.8 back to the J. Walls 4.2 in apart (POLLEN can't sit side by side) |
 | Floor strands | 3/16 in polycord at **Y ±0.5** (at ±0.75 a POLLEN sags 0.22 in between them and rides the floor; at ±0.5 it sags 0.09 and rides the strands), on 0.5 in pulleys at X 5.6 and −1.0, z 0.65 |
 | J-wheel | 48 mm gecko ×2 (the roller's wheels). Axle at **(−1.32, 4.54)** when resting on its hard stop |
-| Floating arm | 60 mm (2.36 in) pivot to axle, set by a 40T HTD5 belt on two 16T pulleys inside the left arm; pivot at **(0.72, 3.36)**, 30° above horizontal. The wheel lifts up to 1.2 in for a NECTAR. A soft band (surgical tubing, about 1 lbf preload) returns it to the stop |
-| Why 30° | The queue's push on the stopped wheel must turn the arm **onto** its stop. From the torque about the pivot, a POLLEN's push closes the arm at any angle up to about 50°, a NECTAR's only below about 42°. At 30° both close with margin; at the 45° first drawn, a NECTAR was neutral |
+| Floating arm | 60 mm (2.36 in) pivot to axle, set by a 40T HTD5 belt on two 16T pulleys; pivot at **(0.90, 3.73)**, 20° above horizontal (30° put the J motor 0.22 in into the left rail). The wheel floats perpendicular to the arm, up and 0.34 forward per inch, **up to 1.05 in** (a NECTAR needs 0.98; at 1.2 the wheel's top would touch the bearing). A soft band (surgical tubing, about 1 lbf preload) returns it to the stop |
+| Why 20° | The queue's push on the stopped wheel must turn the arm **onto** its stop. From the torque about the pivot, a POLLEN's push closes the arm at any angle up to about 50°, a NECTAR's only below about 42°. At 20° the closing torques are −1.9 (POLLEN) and −0.9 (NECTAR), in units of arm length × push; at the 45° first drawn, a NECTAR was neutral |
 | Outer J | Radius 3.64 in about the wheel's resting axle, from the lane floor round to a vertical rear wall at X **−4.96** |
 | Gap | POLLEN gripped by 0.1 in at the stop. NECTAR lifts the arm 0.8–1.2 in |
 | Piece column | NECTAR centred at X −3.15, which is on the axis. POLLEN at −3.56. Both are inside the bore (X −5.24 to −1.10) |
@@ -119,7 +119,7 @@ turret's travel is however much its cable loop allows.
 **Jam risks, and the fix for each.**
 - *A piece at the J's mouth with the wheel stopped.* It can't pass: the gap on the stop is 0.1 in less than a POLLEN,
   the balls can't squeeze (about 10 lbf per 0.1 in), and the piece's push on the wheel turns the arm **onto** its stop
-  (torque about the pivot: −1.6 for POLLEN, −0.5 for NECTAR, in units of arm length × push; negative closes). The
+  (torque about the pivot: −1.9 for POLLEN, −0.9 for NECTAR, in units of arm length × push; negative closes). The
   push itself is tiny, about 0.03 lbf per ball from the strands, or 0.06 lbf for a 1 g bump. So the hold is geometric
   and doesn't depend on the motor's brake. Brake mode anyway.
 - *A bump while driving.* The gap between the wheel's top (5.5) and the bearing (6.6) is too small for a ball, so a
@@ -266,7 +266,7 @@ before ordering; where it says "to confirm", the type is decided and the exact n
 
 | Item | Spec |
 |---|---|
-| Floor | 1/16 in polycarbonate, top face at z 0.90, X −1.3 to 7.2, Y ±2.1 inside the walls. Slots for the four strand pulleys |
+| Floor | 1/16 in polycarbonate, top face at z 0.90, X −1.3 to 5.8 (the ramp's top), Y ±2.1 inside the walls. Slots for the four strand pulleys |
 | Walls | **1/8 in** polycarbonate (they carry the pivot stubs, the countershaft bearing and the belt tension), one piece per side from X −5.1 to 7.2, inner faces at Y ±2.1, from the floor to z 5.0; cut to 3.4 over X 2.3–4.0 (front drive encoder caps) and to 4.4 under the raised 11-hole channel (X 5.0–5.55) |
 | Ramp | 1/16 in polycarbonate or printed, from (8.0, 0.05) to (5.8, 0.90), 22°, Y ±2.1. The roller's rear edge (X 7.6) presses pieces onto it at any float height |
 | Strands | Two loops of 3/16 in (4.8 mm) 83A urethane round belt at **Y ±0.5**, top run on the floor from X 5.6 to −1.0, return under it. Loop about 14.8 in at pitch; weld 5% short |
@@ -288,19 +288,19 @@ before ordering; where it says "to confirm", the type is decided and the exact n
 |---|---|
 | Wheel | Two 48 mm gecko wheels side by side (the roller's wheels), about 2 in wide, on an 8 mm REX shaft about 130 mm long (Y −2.4 to +2.75). Axle at rest **(−1.32, 4.54)** |
 | Wheel drive | 16T HTD5 pulley (3417-4008-0016, 8 mm REX, to confirm) on the shaft at Y +2.2..+2.55, outboard of the left wall; 40T 3412-series belt (9 mm) to a matching 16T pulley on the motor shaft at the pivot. 60 mm centres |
-| Arms | Two, 1/8 in aluminium, 60 mm pivot-to-axle, outboard of the walls at \|Y\| 2.2..2.45; the 1:1 arm drive just outboard of the left arm (Y 2.47..2.85). Pivot **(0.72, 3.36)**, the arm 30° above horizontal toward the rear. The shaft passes through arc slots in the walls, 1.2 in of travel, perpendicular to the arm (up-forward, 60° from horizontal) |
+| Arms | Two, 1/8 in aluminium, 60 mm pivot-to-axle, outboard of the walls at \|Y\| 2.2..2.45; the 1:1 arm drive just outboard of the left arm (Y 2.47..2.85). Pivot **(0.90, 3.73)**, the arm 20° above horizontal toward the rear. The shaft passes through arc slots in the walls, **1.05 in** of travel (25.7° of arm rotation), perpendicular to the arm (up and 0.34 forward per inch) |
 | Pivot | 8 mm stubs in printed blocks on each wall; the arms ride on round-bore flanged bearings (1611-0514-0008). The left stub carries the pulley the J motor drives |
 | Hard stop | A printed block on each wall's outer face under the arm, bolted through a ±0.1 in slot: the resting gap under the wheel is tuned from 2.6 to 2.8 in without reprinting. Design position: 2.7 (POLLEN squeezed 0.1) |
-| Band | 1/4 in surgical tubing from a post at each arm's tip to a post on the wall, forward and above; preload about 1 lbf; the wall post has three holes so the preload is tuned by moving it |
+| Band | 1/4 in surgical tubing from a post at each arm's tip to a three-hole post on the wall at X 1.0..1.4, z 5.2..5.6 (out of the arms' sweep); preload about 1 lbf, tuned by the hole |
 | J motor | goBILDA 5203-2402-0003 Yellow Jacket, 1620 rpm, 3.7:1. Lies along Y over the left rail, axis at (X −2.4, z 3.7), Y 3.25..7.2, in a printed cradle on the rail's top; a 16T–16T HTD5 belt (about 3.3 in centres) drives the left pivot stub's pulley, outboard at Y 2.9..3.2. (The CAD chat's placement: low, and off the wall.) Runs only to fire, forward only; brake mode when stopped. Torque needed: under 2 kg·cm (a 2 lbf pinch at 0.945 in) against 4.4 at stall |
-| Outer J and chute | Printed PETG, 1/8 in wall, inner radius 3.64 about the resting axle, from the lane floor round to a vertical rear wall at X −4.96, up to z 6.6; inner width Y ±2.1. Two halves, bolted to the walls and to the rear cross-channel. A 1/16 in lid over the pocket from the wheel's front to X 0.5 at z 5.0 (keeps a bounced piece in) |
+| Outer J and chute | Printed PETG, 1/8 in wall, inner radius 3.64 about the resting axle, from the lane floor round to a vertical rear wall at X −4.96, up to z 6.6; inner width Y ±2.1. Two halves, bolted to the walls and to the rear cross-channel. A 1/16 in lid over the queue, X 0.45..2.3 at z 5.0 (keeps a bounced piece in; the floating wheel needs the space behind it) |
 
 ### Turret bearing and the launcher's end
 
 | Item | Spec |
 |---|---|
 | Bearing | goBILDA 3208-0004-0001 (105 mm ID, 2.75:1 geared turret), or any ring bearing with ≥ 4.0 in clear through the middle. Axis **(−3.17, 0)**; bottom face at **z 6.6** |
-| Mounting | Two 1120-series U-channels across the rails, at X −5.6..−5.1 and X 0.0..0.5, tops at z 6.6, carrying the ring. (The 1103 channel at X −6.15..−5.67 stays.) The wheel at full float reaches z 6.3 at X −2.27..−0.37 and the arm's top about 5.9: both clear the front channel |
+| Mounting | Two 1120-series U-channels across the rails, at X −5.6..−5.1 and **X 0.4..0.9**, tops at z 6.6, carrying the ring. (The 1103 channel at X −6.15..−5.67 stays.) At 1.05 in of float the wheel's front is at X −0.02 and its top at z 6.47: clear of the front channel by 0.4 and of the bearing by 0.13. **The channels' supports down to the rails are the launcher's; the left front one must keep out of the J motor (X 0.17..1.63, Y 2.75..6.25, z 3.0..4.46)** |
 | Hand-off | The piece leaves the J at z 4.54 at 64–80 in/s, on the axis (NECTAR) or 0.4 in behind it (POLLEN), and coasts up through the bore. **The launcher must take it between z 6.6 and 10**, where it is still rising at 38 in/s or more. Its throat mouth: about 4 in across, centred on the axis, at any turret angle |
 
 ### Mass and motor count
@@ -434,10 +434,10 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`, first at commit fe27870, drawn by the Flower Extracter chat from this spec and
+`claude/robotics-meeting-notes-lq2y55`, at commit 8c23b10 (redrawn to the build spec), drawn by the Flower Extracter chat and
 swept clear of the robot, the roller at every float height, the extractor at 0/75/150° and the J-wheel's full lift
 (`tools/robot-cad/transfer_sweep.py`). In the AdvantageScope model the J-wheel and arms are a moving component
-(model_2, rotation about +Y through the pivot, 0 at rest to about 48.6° at full lift) and the roller-shaft pulley
+(model_2, rotation about +Y through the pivot, 0 at rest to 25.7° at full float) and the roller-shaft pulley
 rides with the roller. The simulator draws held pieces at the positions above.
 
 ## Who this goes to

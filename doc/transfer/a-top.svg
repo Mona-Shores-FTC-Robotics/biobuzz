@@ -27,7 +27,7 @@
 <polyline points="408.8,252.0 224.0,252.0" class="belt"/>
 <polyline points="408.8,280.0 224.0,280.0" class="belt"/>
 <rect x="113.0" y="207.2" width="124.5" height="117.6" class="new"/>
-<rect x="263.9" y="193.2" width="16.8" height="145.6" class="new"/>
+<rect x="268.7" y="193.2" width="16.8" height="145.6" class="new"/>
 <rect x="140.0" y="137.2" width="168.0" height="56.0" class="new"/>
 <text x="224.0" y="133.0" class="l">J motor (box)</text>
 <circle cx="163.2" cy="266.0" r="57.9" class="tur"/>
