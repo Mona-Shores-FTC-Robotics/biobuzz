@@ -31,6 +31,13 @@ POLLEN. The column rolls down the ramp, drops the last 0.5 in onto the tiles and
 across slopes of 10 to 15°, back edges 0.3 to 0.75 in up, and the bounce and friction guesses. That's no slower
 than a ramp running down to the floor.
 
+- **Current layout (mock-up v6): 8 in of clear space, then a short ramp.** There's 8 in of open floor between the
+  robot's face and the ramp's back edge, then the ramp. The ramp is **2.3 in long**, the shortest that works:
+  its edge has to reach 2.1 in into the FLOWER's opening to get under the bottom POLLEN. A steeper ramp doesn't
+  get shorter, because its edge rises above the POLLEN's centre. In `ramp.py` at 20°, a 2.4 in reach leaves one
+  in, and at 30° every reach fails. The arm carries the ramp, so it runs 10.3 in. 13.7 + 10.3 = 24.0, so the
+  chassis is trimmed 0.8 in from option 3 (14.5 would make 24.8). Stowed, the 4 in wall makes the start 17.7 in.
+  The model gives 1.06 s for all 4 out and 1.38 s for the last at the intake.
 - **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
 - **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
