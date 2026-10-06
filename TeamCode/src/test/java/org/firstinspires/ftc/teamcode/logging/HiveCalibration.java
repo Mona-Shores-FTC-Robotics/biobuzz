@@ -151,16 +151,35 @@ final class HiveCalibration {
 
     private static final Map<String, FieldSim.Physics> FITTED = new HashMap<>();
 
-    /** The simulation constants that reproduce this calibration. Fitted once per calibration. */
+    /**
+     * The simulation constants that reproduce this calibration. Fitted once per calibration, always on
+     * normal tiles: the fit settles pieces and times a TIP, and {@link FieldSim#frictionScale} (a what-if
+     * for slow tiles) would otherwise fit a different HIVE for whichever friction ran first (6 Oct 2026:
+     * AutoStudyTest on slow tiles fitted under 3x friction, ShapeMatchTest under 1x, and the same Auto and
+     * seeds scored 61.3 and 57.3).
+     */
     FieldSim.Physics fit() {
         String key = tipCases + "/" + nectarPerPollen + "/" + tipSeconds + "/" + tileRestitution;
         synchronized (FITTED) {
             FieldSim.Physics physics = FITTED.get(key);
             if (physics == null) {
-                physics = computeFit();
+                double friction = FieldSim.frictionScale;
+                FieldSim.frictionScale = 1;
+                try {
+                    physics = computeFit();
+                } finally {
+                    FieldSim.frictionScale = friction;
+                }
                 FITTED.put(key, physics);
             }
             return physics;
+        }
+    }
+
+    /** Forgets every fit, so a test can fit again (HiveCalibrationTest). */
+    static void forgetFits() {
+        synchronized (FITTED) {
+            FITTED.clear();
         }
     }
 

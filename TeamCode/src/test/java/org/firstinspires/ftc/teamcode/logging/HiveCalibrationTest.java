@@ -48,6 +48,23 @@ public class HiveCalibrationTest {
         assertEquals(0.091 / 0.055, HiveCalibration.current().fit().nectarWeight, 1e-12);
     }
 
+    /** Slow tiles are a what-if for the pieces, not a different HIVE: the fit ignores frictionScale. */
+    @Test
+    public void theFitIsTheSameOnSlowTiles() {
+        HiveCalibration.forgetFits();
+        FieldSim.Physics normal = HiveCalibration.current().fit();
+        HiveCalibration.forgetFits();
+        FieldSim.frictionScale = 3;
+        try {
+            FieldSim.Physics slow = HiveCalibration.current().fit();
+            assertEquals(normal.holdTorque, slow.holdTorque, 1e-12);
+            assertEquals(normal.swingRadPerS, slow.swingRadPerS, 1e-12);
+            assertEquals(3, FieldSim.frictionScale, 0);
+        } finally {
+            FieldSim.frictionScale = 1;
+        }
+    }
+
     @Test
     public void aTipTakesTheCalibratedTime() {
         for (double seconds : new double[] {0.6, 1.0, 2.0}) {
