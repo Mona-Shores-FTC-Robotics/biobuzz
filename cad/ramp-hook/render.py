@@ -28,24 +28,43 @@ def placed(name, dx=0.0, dy=0.0, dz=0.0, rz=0.0):
 
 
 def scene():
-    """The hook's front in the tile frame, mm: x toward the FLOWER, y across the robot, z up from the tiles."""
+    """The hook in its frame, mm: x toward the FLOWER (from the block's back edge), y to the robot's right, z up."""
     items = []
-    block = placed("ramp_block", dz=P.BOTTOM)
-    items.append((block, (176, 106, 216)))
-    rod_len = 14.0 * IN
-    rod = trimesh.creation.cylinder(radius=P.ROD_D / 2, height=rod_len, sections=32)
+    steel, clipc, panelc, darkc = (170, 178, 188), (79, 143, 224), (160, 196, 240), (47, 95, 158)
+    items.append((placed("ramp_block", dz=P.BOTTOM), (176, 106, 216)))
+    # front shaft: from the left end to the corner block
+    y_left, y_right = -P.SIDE_Y, P.SIDE_Y + 4.0
+    rod = trimesh.creation.cylinder(radius=P.ROD_D / 2, height=y_right - y_left, sections=32)
     rod.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
-    rod.apply_translation([P.ROD_X, 0, P.ROD_Z])
-    items.append((rod, (170, 178, 188)))
-    clip_z = P.ROD_Z - 7.5
-    for y in (-60.0, -120.0, 60.0, 120.0):
-        items.append((placed("curtain_clip", dx=P.ROD_X, dy=y, dz=clip_z), (79, 143, 224)))
-    for y in (-rod_len / 2 + 7, rod_len / 2 - 7):
-        items.append((placed("end_block", dx=P.ROD_X, dy=y, dz=0, rz=0 if y > 0 else math.pi), (47, 95, 158)))
-    for y0, y1 in ((-rod_len / 2 + 14, -P.ARC_R - 4), (P.ARC_R + 4, rod_len / 2 - 14)):
+    rod.apply_translation([P.ROD_X, (y_left + y_right) / 2, P.ROD_Z])
+    items.append((rod, steel))
+    for y in (-P.ARC_R - 4, P.ARC_R + 4):               # clamping collars either side of the block
+        c = trimesh.creation.cylinder(radius=11, height=8, sections=32)
+        c.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
+        c.apply_translation([P.ROD_X, y + (6 if y > 0 else -6), P.ROD_Z]); items.append((c, steel))
+    for y in (-60.0, -130.0, 60.0, 130.0):
+        items.append((placed("curtain_clip", dx=P.ROD_X, dy=y, dz=P.ROD_Z - 7.5), clipc))
+    for y0, y1 in ((y_left + 6, -P.ARC_R - 16), (P.ARC_R + 16, P.SIDE_Y - 12)):
         panel = trimesh.creation.box(extents=[P.PANEL_T, y1 - y0, 3.5 * IN - 1.3 * IN])
         panel.apply_translation([P.ROD_X, (y0 + y1) / 2, 1.3 * IN + (3.5 * IN - 1.3 * IN) / 2])
-        items.append((panel, (160, 196, 240)))
+        items.append((panel, panelc))
+    # side wall: corner block, hinge block, two rods, clips (flipped on the top rod), a panel between
+    items.append((placed("corner_block", dz=2.0), darkc))
+    items.append((placed("hinge_block", dz=2.0), darkc))
+    x0, x1 = P.HINGE_X + 16.0, P.ROD_X + 6.0
+    for z in (P.SIDE_Z_LO, P.SIDE_Z_HI):
+        r = trimesh.creation.cylinder(radius=P.ROD_D / 2, height=x1 - x0, sections=32)
+        r.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 1, 0]))
+        r.apply_translation([(x0 + x1) / 2, P.SIDE_Y, z]); items.append((r, steel))
+    for x in (-140.0, -50.0):
+        items.append((placed("curtain_clip", dx=x, dy=P.SIDE_Y, dz=P.SIDE_Z_LO - 7.5, rz=math.pi / 2), clipc))
+        top = trimesh.load(os.path.join(HERE, "curtain_clip.stl"))
+        top.apply_transform(trimesh.transformations.rotation_matrix(math.pi, [1, 0, 0]))
+        top.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 0, 1]))
+        top.apply_translation([x, P.SIDE_Y, P.SIDE_Z_HI + 7.5]); items.append((top, clipc))
+    side = trimesh.creation.box(extents=[(P.ROD_X - 14) - (P.HINGE_X + 36), P.PANEL_T, P.SIDE_Z_HI - P.SIDE_Z_LO - 13])
+    side.apply_translation([((P.ROD_X - 14) + (P.HINGE_X + 36)) / 2, P.SIDE_Y, (P.SIDE_Z_LO + P.SIDE_Z_HI) / 2])
+    items.append((side, panelc))
     return items
 
 
@@ -87,10 +106,10 @@ def main():
          '<rect width="100%" height="100%" fill="#ffffff"/>']
     t = lambda x, y, s, size=15, fill="#1b222b", anchor="start", w=400: o.append(
         f'<text x="{x}" y="{y}" font-size="{size}" fill="{fill}" text-anchor="{anchor}" font-weight="{w}">{s}</text>')
-    t(30, 40, "Ramp hook: printed parts on a goBILDA 8 mm shaft", 22, w=700)
-    t(30, 64, "Purple: the FLOWER block (curved front nests between the grey uprights). Blue: curtain clips and end blocks. Light blue: 1/16 in polycarbonate curtains.", 14, "#6b7682")
-    o += draw(scene(), 470, 470, 1.55)
-    t(470, 850, "The hook's front, 3/4 view from the FLOWER side. The block sits in the middle, the curtains either side.", 14, "#6b7682", "middle")
+    t(30, 40, "Ramp hook: printed parts on goBILDA 8 mm shafts", 22, w=700)
+    t(30, 64, "Purple: the FLOWER block. Dark blue: corner block and hinge block. Blue: clips. Light blue: 1/16 in polycarbonate. The side wall is a ladder: two shafts, a panel between.", 14, "#6b7682")
+    o += draw(scene(), 560, 470, 1.25)
+    t(470, 850, "The whole hook, 3/4 view from the FLOWER side: the block in the middle of the front shaft, the side wall on the right, the hinge at the back.", 14, "#6b7682", "middle")
     # the block alone, larger
     block = trimesh.load(os.path.join(HERE, "ramp_block.stl"))
     o += draw([(block, (176, 106, 216))], 1170, 330, 5.0)

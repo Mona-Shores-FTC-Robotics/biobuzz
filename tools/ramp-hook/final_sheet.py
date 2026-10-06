@@ -38,7 +38,8 @@ TIP = FC - ARC_R                # the block's tip on the centreline (the curve i
 BACK = TIP + DEPTH              # the block's back edge
 ROD_X, ROD_Z, ROD_R = TIP + (P.DEPTH - P.ROD_X) / IN, P.ROD_Z / IN, P.ROD_D / IN / 2
 FACE = BACK + GAP               # chassis front face (the intake)
-WALL_H = 3.5                    # side wall and curtains: the curtains pass under the FLOWER's bracket (3.55)
+WALL_H = 3.5                    # curtains: they pass under the FLOWER's bracket (3.55)
+SIDE_H = 4.0                    # side wall: a ladder of two 8 mm shafts with a panel between, ~4 in to the top clips
 CURT_B = 1.3                    # curtains' bottom, on the clips
 HW = CH / 2
 
@@ -120,14 +121,16 @@ poly([(X(TIP), Z(BOTTOM)), (X(TIP), Z(BOTTOM + LA)), (X(TIP + SL), Z(TOP)), (X(T
 circle(X(ROD_X), Z(ROD_Z), ROD_R * K, fill=ALU, stroke="#5d6670")
 # curtains (beyond, either side of the block) and the side wall (beyond)
 poly([(X(ROD_X - 0.03), Z(WALL_H)), (X(ROD_X + 0.03), Z(WALL_H)), (X(ROD_X + 0.03), Z(CURT_B)), (X(ROD_X - 0.03), Z(CURT_B))], stroke=DBLUE, sw=2.2, dash="3 3")
-poly([(X(TIP), Z(WALL_H)), (X(FACE), Z(WALL_H)), (X(FACE), Z(0)), (X(TIP), Z(0))], stroke=DBLUE, sw=1.2, dash="7 5")
+poly([(X(TIP), Z(SIDE_H)), (X(FACE), Z(SIDE_H)), (X(FACE), Z(0)), (X(TIP), Z(0))], stroke=DBLUE, sw=1.2, dash="7 5")
+for zz in (P.SIDE_Z_LO / IN, P.SIDE_Z_HI / IN):
+    line(X(TIP), Z(zz), X(FACE), Z(zz), "#5d6670", 2.2)
 # robot
 poly([(X(FACE + CH), Z(4.5)), (X(FACE), Z(4.5)), (X(FACE), Z(0.5)), (X(FACE + CH), Z(0.5))], fill=GREY, stroke=INK)
 circle(X(FACE + 0.6), Z(1.4), 1.3 * K, fill=ORANGE, stroke="#b2561d")
 text(X(FACE + CH / 2), Z(2.6), "chassis (option 3)", 14, INK, "middle")
 text(X(FACE + 0.6), Z(3.2) - 4, "intake", 12, ORANGE, "middle", 700)
 # labels and dimensions
-text(X(GAP / 2 + BACK), Z(WALL_H) - 8, f"side wall {WALL_H:g} in, beyond (dashed)", 12, DBLUE, "middle", 700)
+text(X(GAP / 2 + BACK), Z(SIDE_H) - 8, f"side wall beyond: two shafts, panel between, ~{SIDE_H:g} in", 12, DBLUE, "middle", 700)
 text(X(ROD_X) - 10, Z(2.4), "curtains (dotted)", 12, DBLUE, "end")
 text(X(UP_FACE - UP_T / 2), Z(OPEN / 2) + 4, "", 11)
 dim(X(FACE), Z(-0.9), X(BACK), Z(-0.9), f"{GAP:g} in clear")
@@ -136,7 +139,7 @@ dim(X(FACE + CH), Z(-2.5), X(TIP), Z(-2.5), f"{CH + FACE - TIP:.1f} in, hook dow
 dim(X(RING_FRONT), Z(-1.6), X(UP_FACE), Z(-1.6), "3.57 (manual)")
 dim(X(-0.2), Z(0), X(-0.2), Z(RING_T), "0.43", 1)
 dim(X(-1.05), Z(0), X(-1.05), Z(OPEN), "3.55 opening", 1)
-dim(X(FACE + CH + 0.25), Z(0), X(FACE + CH + 0.25), Z(WALL_H), f"{WALL_H:g}", -1)
+dim(X(FACE + CH + 0.25), Z(0), X(FACE + CH + 0.25), Z(SIDE_H), f"{SIDE_H:g}", -1)
 text(X(UP_FACE - UP_T / 2), Z(OPEN) - BRACKET_T * K - 6, "lower bracket", 11, DIM, "middle")
 text(X(UP_FACE - UP_T / 2) - 2, Z(2.2), "uprights", 11, "#55606b", "middle")
 scale_bar(X(FACE + CH), Z(-3.1), K)
@@ -178,7 +181,7 @@ poly([(X(FACE + CH), Y(-HW)), (X(FACE), Y(-HW)), (X(FACE), Y(HW)), (X(FACE + CH)
 poly([(X(FACE + 0.9), Y(-6.5)), (X(FACE), Y(-6.5)), (X(FACE), Y(6.5)), (X(FACE + 0.9), Y(6.5))], fill=ORANGE, stroke="none")
 text(X(FACE + CH / 2), Y(0) + 5, "chassis 14.5 × 14.5", 14, INK, "middle")
 text(X(BACK + GAP / 2), Y(-1.2), "8 in clear", 15, DIM, "middle", 700)
-text(X(BACK + GAP / 2), Y(HW) + 20, f"side wall, {WALL_H:g} in tall", 12, DBLUE, "middle", 700)
+text(X(BACK + GAP / 2), Y(HW) + 20, "side wall: 2 shafts + panel; corner block at the front, hinge block at the chassis", 12, DBLUE, "middle", 700)
 text(X(ROD_X) + 14, Y(-HW + 2.2), "curtains on clips", 12, DBLUE, "start", 700)
 text(X(ROD_X) + 14, Y(-HW + 3.0), "8 mm goBILDA shaft", 12, "#5d6670", "start", 700)
 text(X(FC), Y(-3.2), "FLOWER: bottom ring, uprights,", 11, BLK, "middle")
@@ -231,7 +234,8 @@ rows = [("FLOWER (manual, Fig 9-12)", None),
         ("Block: front to back × tall, bottom up", f"{DEPTH:g} × {TOP - BOTTOM:.1f} in, {BOTTOM:g} in"),
         ("Block's top, front curve and slant", f"{TOP:g} in, R {ARC_R:.2f} in, {P.SLANT / IN:g} in back"),
         ("Shaft, through the block", f"8 mm, {ROD_Z:.2f} in up"),
-        ("Side wall and curtains", f"{WALL_H:g} in tall, vertical"),
+        ("Curtains, either side of the block", f"{WALL_H:g} in tall"),
+        ("Side wall: 2 shafts + panel", f"~{SIDE_H:g} in tall"),
         ("Hook down, front to back", f"{CH + FACE - TIP:.1f} in of 24"),
         ("Stowed: the hook stands up, walls fold back over the chassis", "under 18 in"),
         ("Model: 4 POLLEN out, driven to the uprights", "every case, ~1.3 s")]
@@ -243,7 +247,7 @@ for label, val in rows:
         text(bx0 + 24, y, label, 13, INK)
         text(1724, y, val, 13, INK, "end", 700)
     y += 27
-text(1060, 1285, f"Why the side wall and curtains are {WALL_H:g} in tall:", 13, INK, "start", 700)
+text(1060, 1285, f"Why the curtains are {WALL_H:g} in and the side wall ~{SIDE_H:g} in:", 13, INK, "start", 700)
 text(1060, 1305, "the curtains pass under the FLOWER's bracket (3.55 in). Stowed, walls fold back over the chassis, so the", 13, DIM)
 text(1060, 1323, "side wall could be taller if it clears the chassis and intake. A falling POLLEN's first bounce is", 13, DIM)
 text(1060, 1341, "about 13 in high, so no wall stops it. Walls catch the rolling", 13, DIM)

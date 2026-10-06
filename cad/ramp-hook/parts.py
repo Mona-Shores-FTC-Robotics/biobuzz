@@ -1,7 +1,7 @@
 """Printable parts for the ramp hook's FLOWER block, threaded on a stock rod (cad/ramp-hook/README.md).
 
     pip install trimesh manifold3d
-    python3 cad/ramp-hook/parts.py          # writes ramp_block.stl, curtain_clip.stl, end_block.stl, fit_coupon.stl
+    python3 cad/ramp-hook/parts.py          # writes ramp_block, curtain_clip, end_block, corner_block, hinge_block, fit_coupon .stl
 
 Millimetres, Z up, each part flat on the bed as it should print. Every size is a constant below, so a part can be
 re-run after Thursday's measurements. The block's shape is the one tools/ramp-hook/ramp.py likes best against the
@@ -35,6 +35,14 @@ SCREW_D = 2.6                # M3 self-tapping set screws from underneath, into 
 PANEL_T = 1.6                # 1/16 in polycarbonate curtain
 CLIP_W = 16.0                # along the rod
 END_HOLE_D, END_HOLE_PITCH = 4.2, 16.0   # M4, 16 mm apart: lines up with goBILDA's 8 mm grid of 4 mm holes
+# ---- the side wall: a ladder of two 8 mm shafts with a polycarbonate panel clipped between them ----
+GAP = 8.0 * IN               # clear space, chassis face to the block's back edge
+HINGE_X = -GAP               # the chassis' front face, in this frame (x from the block's back edge)
+SIDE_Y = 7.25 * IN - 8.0     # the side wall's rods, 8 mm in from the robot's right edge (14.5 in wide)
+SIDE_Z_LO = 12.0             # bottom rod centre above the tiles
+SIDE_Z_HI = 4.0 * IN - 7.5   # top rod centre: a clip flipped over it tops out at 4 in
+PIVOT_Z = 40.0               # hinge axle above the tiles, clear of the bottom rod's bore
+BORE = ROD_D + FIT
 
 
 def prism_xz(points, y0, y1):
@@ -104,6 +112,69 @@ def end_block():
     return body.difference(trimesh.util.concatenate(holes))
 
 
+def x_hole(x0, x1, y, z, d):
+    """A bore along x from x0 to x1."""
+    c = cylinder(radius=d / 2, height=x1 - x0, sections=48)
+    c.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 1, 0]))
+    c.apply_translation([(x0 + x1) / 2, y, z])
+    return c
+
+
+def y_hole(y0, y1, x, z, d):
+    """A bore along y from y0 to y1."""
+    c = cylinder(radius=d / 2, height=y1 - y0, sections=48)
+    c.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
+    c.apply_translation([x, (y0 + y1) / 2, z])
+    return c
+
+
+def z_hole(z0, z1, x, y, d):
+    c = cylinder(radius=d / 2, height=z1 - z0, sections=24)
+    c.apply_translation([x, y, (z0 + z1) / 2])
+    return c
+
+
+def slab(x0, x1, y0, y1, z0, z1):
+    b = box(extents=[x1 - x0, y1 - y0, z1 - z0])
+    b.apply_translation([(x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2])
+    return b
+
+
+def corner_block():
+    """The hook's front-right corner, in the hook's frame (x from the block's back edge, y to the robot's right, z up).
+    Holds the front shaft's right end (along y) and the side wall's two rods' front ends (along x), all blind, at
+    three different heights so the bores never meet. M3 set screws into each."""
+    x0, x1 = ROD_X - 14.0, DEPTH
+    y0, y1 = SIDE_Y - 10.0, SIDE_Y + 8.0
+    z0, z1 = 2.0, SIDE_Z_HI + 10.0
+    body = slab(x0, x1, y0, y1, z0, z1)
+    holes = [y_hole(y0 - 1, SIDE_Y + 4.0, ROD_X, ROD_Z, BORE),                  # front shaft, from the inside
+             x_hole(x0 - 1, ROD_X + 6.0, SIDE_Y, SIDE_Z_LO, BORE),               # side wall, bottom rod
+             x_hole(x0 - 1, ROD_X + 6.0, SIDE_Y, SIDE_Z_HI, BORE),               # side wall, top rod
+             y_hole(SIDE_Y + 3.0, y1 + 1, ROD_X, ROD_Z, SCREW_D),                # set screw into the front shaft
+             z_hole(z0 - 1, SIDE_Z_LO, ROD_X - 6.0, SIDE_Y, SCREW_D),            # ...into the bottom rod
+             z_hole(SIDE_Z_HI, z1 + 1, ROD_X - 6.0, SIDE_Y, SCREW_D)]            # ...into the top rod
+    return body.difference(trimesh.util.concatenate(holes))
+
+
+def hinge_block():
+    """The side wall's back end, at the chassis' front face. Holds the two rods' back ends (blind, along x) and turns
+    on an 8 mm goBILDA shaft (along y) carried in bearings or pillow blocks on the chassis. The hook swings up about
+    it to stow."""
+    x0, x1 = HINGE_X + 2.0, HINGE_X + 36.0
+    y0, y1 = SIDE_Y - 24.0, SIDE_Y + 8.0
+    z0, z1 = 2.0, SIDE_Z_HI + 10.0
+    body = slab(x0, x1, y0, y1, z0, z1)
+    pivot_x = HINGE_X + 10.0
+    holes = [x_hole(x1 - 20.0, x1 + 1, SIDE_Y, SIDE_Z_LO, BORE),
+             x_hole(x1 - 20.0, x1 + 1, SIDE_Y, SIDE_Z_HI, BORE),
+             y_hole(y0 - 1, y1 + 1, pivot_x, PIVOT_Z, BORE),                   # the hinge axle, right through
+             z_hole(z0 - 1, SIDE_Z_LO, x1 - 10.0, SIDE_Y, SCREW_D),
+             z_hole(SIDE_Z_HI, z1 + 1, x1 - 10.0, SIDE_Y, SCREW_D),
+             z_hole(PIVOT_Z, z1 + 1, pivot_x, SIDE_Y - 12.0, SCREW_D)]          # locks the block to the axle
+    return body.difference(trimesh.util.concatenate(holes))
+
+
 def fit_coupon():
     """Four short bores at 0.1 mm steps around ROD_D + FIT: slide the rod in, keep the snug one."""
     parts, holes = [], []
@@ -116,6 +187,7 @@ def fit_coupon():
 def main():
     out = {}
     for name, fn in (("ramp_block", ramp_block), ("curtain_clip", curtain_clip), ("end_block", end_block),
+                     ("corner_block", corner_block), ("hinge_block", hinge_block),
                      ("fit_coupon", fit_coupon)):
         m = fn()
         m.apply_translation([0, 0, -m.bounds[0][2]])

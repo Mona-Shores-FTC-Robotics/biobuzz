@@ -25,7 +25,11 @@ Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to b
 - **Driving:** push in until the block meets the uprights, and stay there. The FLOWER sets the depth and centres
   the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
   at the intake in about 1.2 s.
-- **Side wall and curtains: 3.5 in tall, vertical.**
+- **Side wall: a ladder of two 8 mm shafts with a polycarbonate panel between, about 4 in tall.** It's the hook's
+  backbone: the block's push goes front shaft → **corner block** → side wall → **hinge block** at the chassis' face,
+  which turns on an 8 mm axle in bearings on the chassis (`cad/ramp-hook/`). Two shafts with a panel between are
+  much stiffer than one. The front shaft's left end is free; brace it back to the chassis if it flexes.
+- **Curtains 3.5 in, side wall about 4 in:**
   - **The curtains** sit beside the block, and the FLOWER's lower bracket is 3.55 in up, so within about 2.4 in of
     the block's middle they have to stay under it. Further out they could be taller.
   - **The side wall isn't limited by the size rules.** Hook down, the robot is 23.9 in long and the R105 box

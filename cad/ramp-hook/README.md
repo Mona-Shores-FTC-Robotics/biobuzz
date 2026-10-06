@@ -1,7 +1,13 @@
 # Ramp hook: printed parts on a goBILDA 8 mm shaft
 
-The FLOWER block for the ramp hook (`doc/ramp-hook.md`), threaded with curtain clips onto one straight 8 mm shaft
-across the hook's front. The ends bolt onto goBILDA structure on its 8 mm grid. Nothing here has been fitted to a
+The whole ramp hook (`doc/ramp-hook.md`) from three goBILDA 8 mm shafts, 1/16 in polycarbonate and printed parts:
+
+- **The front:** one shaft across the hook. The FLOWER block and the curtain clips thread onto it.
+- **The side wall:** a ladder of two shafts, a bottom one and a top one, with a polycarbonate panel clipped
+  between them. It's the hook's backbone: the block's push goes front shaft → corner block → side wall → hinge.
+- **The corner block** joins the front shaft to the side wall's two shafts at the front-right corner.
+- **The hinge block** holds the side wall's back ends at the chassis' front face and turns on a fourth shaft
+  carried by the chassis, so the hook swings up to stow. Nothing here has been fitted to a
 robot or a real FLOWER yet: print, test on Thursday, adjust the numbers at the top of `parts.py`, and print again.
 
 ![The parts on the shaft, and the block](parts.png)
@@ -11,8 +17,10 @@ robot or a real FLOWER yet: print, test on Thursday, adjust the numbers at the t
 | File | What it is | Print |
 |---|---|---|
 | `ramp_block.stl` | The FLOWER block: 1.4 in front to back, 0.7 to 1.35 in above the tiles, curved front | 1 |
-| `curtain_clip.stl` | Slides on the shaft and holds a curtain panel upright in a slot | 4 |
-| `end_block.stl` | Bolts to goBILDA channel (M4, 16 mm apart) and holds the shaft's end | 2 |
+| `curtain_clip.stl` | Slides on a shaft and holds a panel in its slot: upright on the front shaft and the side wall's bottom shaft, flipped over on the top shaft | 8 |
+| `corner_block.stl` | The front-right corner: the front shaft's end and both side-wall shafts, blind bores at three heights | 1 |
+| `hinge_block.stl` | The side wall's back end; turns on an 8 mm hinge axle across the chassis' face | 1 |
+| `end_block.stl` | Spare: holds a shaft end against goBILDA channel (M4, 16 mm apart), if the front shaft's left end needs one | 0 to 1 |
 | `fit_coupon.stl` | Four short bores at 0.1 mm steps, to find your printer's fit on the shaft | 1, first |
 | `parts.py` | Makes the STLs. Every size is a constant at the top | `pip install trimesh manifold3d shapely` |
 | `render.py` | Draws the picture above | |
@@ -41,12 +49,12 @@ Check part numbers and lengths on gobilda.com; these are the kinds of parts, not
 
 | Item | Notes |
 |---|---|
-| goBILDA 8 mm REX shaft, about 14 in (350 mm or longer, cut) | Its rounded corners sit on an 8 mm circle, so it slides in the round bore, and the set screws bite on a flat. Any 8 mm round shaft works too |
+| goBILDA 8 mm REX shafts: one about 14 in (front), two about 8.5 in (side wall), one for the hinge axle | Their rounded corners sit on an 8 mm circle, so they slide in the round bores, and the set screws bite on a flat. Any 8 mm round shaft works too. Cut from longer stock |
+| goBILDA bearings or pillow blocks for 8 mm, 2 | On the chassis, carrying the hinge axle |
 | 2 to 4 goBILDA clamping collars for 8 mm REX | Either side of the block: they locate it sideways. Better than set screws alone |
-| goBILDA U-channel (or the robot's own side-wall channel) | The end blocks bolt to it. One end on the side wall; the other on a short channel stub at the hook's left front corner |
-| M4 socket screws and nylock nuts, 4 | Through the channel into the end blocks. The holes are 16 mm apart, which lines up with goBILDA's 8 mm grid |
-| M3 screws: 2 short set screws for the block, 1 per clip, plus 8 to clamp the panels | Self-tapping into the printed holes |
-| 1/16 in polycarbonate, two panels about 4.9 × 2.2 in | The curtains, either side of the block. Their tops are 3.5 in above the tiles, under the FLOWER's 3.55 in bracket |
+
+| M3 screws: 2 set screws for the block, 3 for the corner block, 3 for the hinge block, 1 per clip, 2 per clip to clamp the panels | Self-tapping into the printed holes |
+| 1/16 in polycarbonate: two curtain panels about 4.9 × 2.2 in, one side panel about 7 × 2.7 in | The curtains' tops are 3.5 in above the tiles, under the FLOWER's 3.55 in bracket. The side wall tops out at about 4 in |
 
 ## Print (send your friend this section and the STLs)
 
@@ -63,14 +71,20 @@ Check part numbers and lengths on gobilda.com; these are the kinds of parts, not
 
 ## Assemble
 
-1. Bolt one end block to the inside of the side wall and the other to a short channel stub at the hook's left front
-   corner, bores facing each other at the same height (1.02 in above the tiles with the hook down).
-2. Thread the shaft through one end block, two clips, a collar, the ramp block, a collar, two more clips, and into
-   the other end block.
-3. Line the block up with the middle of the intake. Tighten the collars against it and the set screws from
-   underneath.
-4. Slide the curtain panels into the clips' slots, square them up, and screw through the clip's two holes.
-5. Check with the hook down on a tile: the block's bottom should be 0.7 in above the tiles, and its top 1.35 in.
+1. Push the side wall's two shafts into the hinge block's two bores, thread two clips on each (flip the top two
+   over), and push the shafts' other ends into the corner block. Slide the side panel into the clips and screw it.
+2. Thread the front shaft through two clips, a collar, the FLOWER block, a collar and two more clips, then into the
+   corner block's sideways bore from the inside.
+3. Line the FLOWER block up with the middle of the intake; tighten the collars and its set screws. Tighten the
+   corner block's and hinge block's set screws.
+4. Slide the curtain panels into the front clips and screw them.
+5. Pass the hinge axle through the chassis bearings and the hinge block, and lock it with the hinge block's set
+   screw. The hook's swing (servo or spring) is the build team's to add.
+6. Check with the hook down on a tile: the block's bottom 0.7 in above the tiles, its top 1.35 in, and the hook
+   level from the hinge to the front.
+
+**The front shaft's left end is free.** The whole front hangs off the corner block. If the block flexes when it
+meets the FLOWER, add a diagonal brace from the left end back to the chassis, or an end block on a short channel.
 
 ## Test on Thursday
 
