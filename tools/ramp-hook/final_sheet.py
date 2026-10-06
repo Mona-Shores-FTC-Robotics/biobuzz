@@ -38,7 +38,7 @@ TIP = FC - ARC_R                # the block's tip on the centreline (the curve i
 BACK = TIP + DEPTH              # the block's back edge
 ROD_X, ROD_Z, ROD_R = TIP + (P.DEPTH - P.ROD_X) / IN, P.ROD_Z / IN, P.ROD_D / IN / 2
 FACE = BACK + GAP               # chassis front face (the intake)
-WALL_H = 3.5                    # side wall and curtains: under the FLOWER's bracket (3.55) and inside 18 in stowed
+WALL_H = 3.5                    # side wall and curtains: the curtains pass under the FLOWER's bracket (3.55)
 CURT_B = 1.3                    # curtains' bottom, on the clips
 HW = CH / 2
 
@@ -233,7 +233,7 @@ rows = [("FLOWER (manual, Fig 9-12)", None),
         ("Shaft, through the block", f"8 mm, {ROD_Z:.2f} in up"),
         ("Side wall and curtains", f"{WALL_H:g} in tall, vertical"),
         ("Hook down, front to back", f"{CH + FACE - TIP:.1f} in of 24"),
-        ("Stowed (wall in front of the chassis)", f"{CH + WALL_H:g} in of 18"),
+        ("Stowed: the hook stands up, walls fold back over the chassis", "under 18 in"),
         ("Model: 4 POLLEN out, driven to the uprights", "every case, ~1.3 s")]
 y = by0 + 30
 for label, val in rows:
@@ -244,9 +244,10 @@ for label, val in rows:
         text(1724, y, val, 13, INK, "end", 700)
     y += 27
 text(1060, 1285, f"Why the side wall and curtains are {WALL_H:g} in tall:", 13, INK, "start", 700)
-text(1060, 1305, "the curtains pass under the FLOWER's bracket (3.55 in), and stowed the hook fits the 18 in start.", 13, DIM)
-text(1060, 1330, "A falling POLLEN's first bounce is about 13 in high, so no wall stops it. Walls catch the rolling", 13, DIM)
-text(1060, 1350, "and low-hopping ones, which needs a wall taller than a POLLEN's middle (1.4 in).", 13, DIM)
+text(1060, 1305, "the curtains pass under the FLOWER's bracket (3.55 in). Stowed, walls fold back over the chassis, so the", 13, DIM)
+text(1060, 1323, "side wall could be taller if it clears the chassis and intake. A falling POLLEN's first bounce is", 13, DIM)
+text(1060, 1341, "about 13 in high, so no wall stops it. Walls catch the rolling", 13, DIM)
+text(1060, 1359, "and low-hopping ones, which needs a wall taller than a POLLEN's middle (1.4 in).", 13, DIM)
 o.append("</svg>")
 open(os.path.join(REPO, "sim-review", "ramp-hook-final.svg"), "w").write("\n".join(o))
 print("ok")

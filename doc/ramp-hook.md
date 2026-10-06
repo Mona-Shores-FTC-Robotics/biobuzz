@@ -26,17 +26,27 @@ Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to b
   the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
   at the intake in about 1.2 s.
 - **Side wall and curtains: 3.5 in tall, vertical.**
-  - The curtains sit beside the block, and the FLOWER's lower bracket is 3.55 in up, so they have to stay under it.
-  - Stowed, the wall stands in front of the chassis: 14.5 + 3.5 = 18 in, exactly the start limit.
-  - Taller buys little. A falling POLLEN lands at about 200 in/s and, at the simulator's 0.5 bounce, first
+  - **The curtains** sit beside the block, and the FLOWER's lower bracket is 3.55 in up, so within about 2.4 in of
+    the block's middle they have to stay under it. Further out they could be taller.
+  - **The side wall isn't limited by the size rules.** Hook down, the robot is 23.9 in long and the R105 box
+    allows 29 in of height. Stowed, the hook swings up about its hinge at the bottom of the chassis' front face,
+    so a wall's height ends up pointing **back over the chassis**, not out in front. (An earlier version of this
+    doc said the wall stuck out in front and capped it at 3.5 in for the 18 in start. That was wrong; the mentor
+    caught it in the 3D model.)
+  - **What does limit it is packaging.** Folded up, the wall lies along the robot's right edge, from the floor up
+    to about 9.4 in, reaching back as far as the wall is tall. Below the chassis' top it has to clear the chassis
+    and the intake. Above that it has to clear the launcher. So a taller wall is fine wherever the robot's front
+    corner has room for it to fold into.
+  - **Taller buys little.** A falling POLLEN lands at about 200 in/s and, at the simulator's 0.5 bounce, first
     bounces about 13 in high, over any wall we could fit. The second bounce peaks around 3 in, and after that
     it's rolling.
-  - A wall stops the rolling and low-hopping POLLEN, which needs it taller than a POLLEN's centre (1.4 in).
-    3.5 in does that with margin.
-  - Going taller needs the hinge set back inside the frame (by the extra height), and a notch where the
-    curtains pass the bracket.
+  - **A wall stops the rolling and low-hopping POLLEN,** which needs it taller than a POLLEN's centre (1.4 in).
+    3.5 in does that with margin. 4 to 5 in would catch more second bounces, if the robot's front corner has room.
 - **To measure on Thursday:** the uprights' inside corners (does the curve seat?), and a shorter block (1.0 in)
   side by side with the 1.4 in one.
+
+**Note on the sections below:** where they say a stowed wall or cheek "sticks out in front of the chassis" and
+adds to the 18 in start, that's wrong. A stowed hook's walls point back over the chassis (see "Final design").
 
 ## Meeting notes, 6 Oct 2026
 
