@@ -449,13 +449,21 @@ final class RobotAssets {
      */
     static double[] hookComponent(int shown, int hook, double up, double length) {
         double[] poses = shapeComponents(shown, BodyShape.MATCH.length);
-        if (hook < 0) return poses;
+        swing(poses, hook, up, length);
+        return poses;
+    }
+
+    /** Shows component {@code hook} (none if -1) in {@code poses}, swung {@code up} as {@link #hookComponent} says. */
+    static void swing(double[] poses, int hook, double up, double length) {
+        if (hook < 0) return;
         double phi = -up * Math.PI / 2, hinge = length / 2 * M;  // about the robot's y axis; +x swings up
         poses[7 * hook] = hinge * (1 - Math.cos(phi));
+        poses[7 * hook + 1] = 0;
         poses[7 * hook + 2] = hinge * Math.sin(phi);
         poses[7 * hook + 3] = Math.cos(phi / 2);
+        poses[7 * hook + 4] = 0;
         poses[7 * hook + 5] = Math.sin(phi / 2);
-        return poses;
+        poses[7 * hook + 6] = 0;
     }
 
     /** The {@value #SHAPES_NAME} component poses that show {@code shown} and hide the rest. */

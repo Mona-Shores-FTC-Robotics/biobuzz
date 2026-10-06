@@ -141,13 +141,15 @@ final class BodyShape {
             // Option 3 shortened to 12.5 in, with the rigid V, and its 11.5 in hook.
             new BodyShape("option 3 short, rigid V", 12.5, 14.5, 0, 1.75, 1.75),
             new BodyShape("option 3 short, hook", 12.5, 14.5, 0, 0, 11.5).hookOnly("option 3 short, hook, arm on the left", true),
-            new BodyShape("option 3 short, hook", 12.5, 14.5, 0, 0, 11.5).hookOnly("option 3 short, hook, arm on the right", false)};
+            new BodyShape("option 3 short, hook", 12.5, 14.5, 0, 0, 11.5).hookOnly("option 3 short, hook, arm on the right", false),
+            // 18: option 3 shortened, no V; 19: option 3 with funnel flaps (3 in out, 2 in forward).
+            new BodyShape("option 3 short", 12.5, 14.5, 0, 0, 0), new BodyShape("option 3, funnel flaps", 14.5, 14.5, 0, 3, 2)};
 
     /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
     static int matchComponent(String design) {
-        if (design.startsWith("option 3 short")) return 15;
+        if (design.startsWith("option 3 short")) return design.contains("rigid V") ? 15 : 18;
         if (design.startsWith("option 3") || design.startsWith("builders' option 3")) {
-            return design.contains("rigid V") ? 9 : design.contains("hook") ? 10 : 8;
+            return design.contains("rigid V") ? 9 : design.contains("funnel") ? 19 : design.contains("hook") ? 10 : 8;
         }
         int hook = hookChassis(design);
         if (hook >= 0) return hook;
@@ -158,7 +160,7 @@ final class BodyShape {
     static int matchHook(String design, int side) {
         if (design.startsWith("option 3 short")) return !design.contains("hook") ? -1 : side > 0 ? 16 : 17;
         if (design.startsWith("option 3")) {
-            int arm = design.contains("large right hook") ? 11 : design.contains("small right hook") ? 13 : -1;
+            int arm = design.contains("small") && design.contains("hook") ? 13 : design.contains("hook") ? 11 : -1;
             return arm < 0 ? -1 : side > 0 ? arm : arm + 1;
         }
         int hook = hookChassis(design);

@@ -75,10 +75,17 @@ public class AutoStudyTest {
      * crossbeam where the 14.5 in robot's was.
      */
     static RobotDesign shortOption3(String name, double arm) {
+        return shortOption3(name, arm, true);
+    }
+
+    /** As above, with or without the rigid V. */
+    static RobotDesign shortOption3(String name, double arm, boolean rigidV) {
         RobotDesign d = RobotDesign.buildersOption3().copy(name);
         d.frameIn = 12.5;
-        d.guideOutIn = (18 - d.frameWidthIn) / 2;
-        d.guideForwardIn = d.guideOutIn;
+        if (rigidV) {
+            d.guideOutIn = (18 - d.frameWidthIn) / 2;
+            d.guideForwardIn = d.guideOutIn;
+        }
         if (arm > 0) {
             d.flapForwardIn = arm;
             d.flapLeft = false;
@@ -88,6 +95,29 @@ public class AutoStudyTest {
             d.sideWallsDeployS = 0;
             d.sideWallsTravelS = 0.3;
         }
+        return d.checked();
+    }
+
+    /** {@code d} as a dual hook ({@link RobotDesign#flapEitherSide}): an arm each side, the one facing the centre line comes down. */
+    static RobotDesign eitherSide(RobotDesign d) {
+        d.flapEitherSide = true;
+        return d;
+    }
+
+    /** Option 3 with funnel flaps: folded at the start, out the whole match, 3 in out and 2 in forward of each front corner. */
+    static RobotDesign option3Funnel() {
+        RobotDesign d = RobotDesign.buildersOption3().copy("option 3, funnel flaps");
+        d.flapOutIn = 3;
+        d.flapForwardIn = 2;
+        return d.checked();
+    }
+
+    /** Option 3 with the side walls (the long U): out 6 in forward as our CELL starts to TIP, as the 18 in robot's. */
+    static RobotDesign option3Walls() {
+        RobotDesign d = RobotDesign.buildersOption3().copy("option 3, side walls");
+        d.sideWallsSlideIn = RobotAssets.WALL_SLIDE_IN;
+        d.sideWallsLengthIn = d.frameIn;
+        d.sideWallsDeployS = 0;
         return d.checked();
     }
 
@@ -144,7 +174,10 @@ public class AutoStudyTest {
         for (RobotDesign d : new RobotDesign[] {option3Shape("option 3, rigid V", 0),
                 option3Shape("option 3, large right hook", 9.5), option3Shape("option 3, small right hook", 8),
                 option3Shape("option 3, rigid V + large right hook", 9.5, true),
-                shortOption3("option 3 short, rigid V", 0), shortOption3("option 3 short, rigid V + large right hook", 11.5)}) {
+                shortOption3("option 3 short, rigid V", 0), shortOption3("option 3 short, rigid V + large right hook", 11.5),
+                // 6 Oct 2026, the deep dive (DeepDive): the shapes as alternatives on option 3, each alone.
+                eitherSide(option3Shape("option 3, large dual hook", 9.5)), shortOption3("option 3 short", 0, false),
+                eitherSide(shortOption3("option 3 short, dual hook", 11.5, false)), option3Funnel(), option3Walls()}) {
             m.put(d.name, d);
         }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");

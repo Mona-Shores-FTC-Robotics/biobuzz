@@ -202,6 +202,12 @@ final class RobotDesign {
      */
     boolean flapTowardCentre = false;
     /**
+     * A dual hook (mentor, 6 Oct 2026): two one-armed hooks, mirrored, each on its own hinge, so whichever end of the
+     * field the spill is at, the one whose arm faces the centre line comes down; with {@link #flapTowardCentre}.
+     * False: one hook, its arm on one side for the whole match.
+     */
+    boolean flapEitherSide = false;
+    /**
      * Runs Autos drawn for an 18 in robot backed against the wall, so {@link AutoSim} backs this shorter
      * chassis against the wall too (the spill shapes on qual-right-v3); false: the start pose as drawn.
      */
@@ -366,6 +372,7 @@ final class RobotDesign {
         d.flapCrossbeam = flapCrossbeam;
         d.flapsDeploy = flapsDeploy;
         d.flapTowardCentre = flapTowardCentre;
+        d.flapEitherSide = flapEitherSide;
         d.startBackedToWall = startBackedToWall;
         d.guideOutIn = guideOutIn;
         d.guideForwardIn = guideForwardIn;

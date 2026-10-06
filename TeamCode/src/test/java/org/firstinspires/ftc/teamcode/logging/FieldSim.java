@@ -254,6 +254,9 @@ final class FieldSim {
         double rejectedUntil = -1;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
+        /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
+        Bot capturedBy;
+        double capturedAt = Double.NaN;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -1439,6 +1442,8 @@ final class FieldSim {
     private void capture(Bot bot, Piece p) {
         List<Piece> stored = bot.stored;
         bot.lastCaptureAt = time;
+        p.capturedBy = bot;
+        p.capturedAt = time;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;
