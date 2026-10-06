@@ -34,6 +34,81 @@ superseded; its FLOWER half carries on below.
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
 
+## The Rigid V: decided
+
+**The V as drawn:** tips 17.8 in apart, 2.84 in ahead of the face, 4 in tall, both flaps fixed. The fallback is 45°,
+if G409 touches get called on a real field. Decided by the Intake Design chat, 6 Oct 2026, from its angle sweep
+(`doc/intake-design.md` on `spike/160-intake-design`).
+
+60 runs on ShootsRight. The angle is measured from straight ahead, so a steeper V is shorter:
+
+| V | Points | 3 TIPs (of 60) | G409 runs |
+|---|---|---|---|
+| **31° (as drawn)** | **69.9** | **47** | 11 |
+| 35° | 68.3 | 43 | 6 |
+| 45° | 66.9 | 40 | 4 |
+| 60° | 64.3 | 34 | 4 |
+| 16 in tips | 67.0 | 40 | 6 |
+
+The angle makes no real difference with the angled partner (49.6–51.8). Going to 45° costs about 3 points for about a
+third of the touches.
+
+## The Rigid V so far
+
+Measured on the V as drawn: tips 17.8 in apart, 2.8 in ahead, 31° from straight ahead. 60 runs on each guide's own
+routes, run 6 Oct 2026 22:00 UTC; Intake Design is running the angle.
+
+| Question | Answer |
+|---|---|
+| **Flap height** | **Keep 4 in.** At 2.5 or 2.2 in, ShootsRight drops from 69.5 to 66.8–67.2 points (3 TIPs in 43 → 35–36 runs of 60), and the wall partner's Auto drops from 55.7 to 52.0–52.3 (3 TIPs in 21 → 12–13). G409 halves on ShootsRight (8 → 3–4 runs) but not on the wall partner's Auto. Pieces bounce and fall, not only roll, so the taller flap earns its keep. |
+| **Flap bounce** | **Up to 0.3 is fine** (the same as 0.1). At 0.5 the wall partner's Auto drops to 52.3 (3 TIPs in 12 instead of 21), while ShootsRight holds. Measure the bare aluminium, or fit the foam as cheap insurance. |
+| **One flap or none, wall partner's west lane** | **Don't use the west lane.** There, the left flap blocks it (32.7–33.0 points), and right-only or no flaps get 47.3. The V's own route, sweeping up the row, gets **55.7, with 3 TIPs in 21 of 60**. Swappable plates aren't needed. |
+| **Holding TIP 1's spill at the drop zone** | **No.** On the wall partner's Auto it scores 58.0 against 55.7, with the same 21 TIP 3s, but G409 goes from 18 to 51 runs. |
+| **Centre line** | The drawn V, like the long V, reaches over it at about 8.6 s on both Stages routes, in the turn out of the tunnel. The fix is the route turning 2 in further west (N_TURN at x 55.5; `guide_routes.py`, `turning_west`). With it, no log crosses, and the score holds: angled partner 52.3, wall partner **56.3, with 3 TIPs in 23 of 60**. |
+
+## One model of the whole robot
+
+The user's ask (6 Oct 2026): **one CAD assembly, and one AdvantageScope model made from it**. It holds the decided Rigid V,
+the FLOWER scorer, the FLOWER extractor, and the Limelight at a mount angle that keeps clear of the turret.
+
+- **Assembly and model: the Flower Extracter chat.** It holds the CAD (`cad/intake-b/` on
+  `claude/robotics-meeting-notes-lq2y55`) and the STEP-to-`robot.glb` pipeline. It assembles each part from its
+  owner's outline, and exports the AdvantageScope model (the `Robot_BIOBUZZ` folder: the model file, its config, and
+  the stowed and deployed poses).
+- **Limelight mount: the Limelight Localization chat.** The pitch toward the HIVE's tags (CLAUDE.md: AprilTags only,
+  pitched up at the HIVE), the position, and the turret's swept volume it has to stay clear of.
+- **The simulator** switches to that model once it exists.
+
+**The Flat Intake baseline is dropped** (mentor, 6 Oct 2026). Simulations now run only the Rigid V candidates, then
+only the chosen V.
+
+## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
+
+Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
+
+**Concept.** The extractor pivots on the roller's own shaft:
+- **Arms:** two 1/8 in aluminium arms, 1.8 in each side of centre, each on a flanged bearing (goBILDA
+  1611-0514-0008) on the roller's 8 mm shaft. The roller has two short gaps there, about 10 mm each.
+- **The FLOWER block:** carried on a cross shaft between the arms. Its back edge is 2.5 in ahead of the roller's
+  front, so POLLEN come off it straight into the roller.
+- **No walls.** A POLLEN passes between the arms, which have 3.5 in clear.
+- **It stays within the roller's width,** so the front corners are left to the V.
+
+**Outlines.** Robot frame, inches: x right of centre, up from the tiles, forward from the front face.
+
+| | x | Up | Forward |
+|---|---|---|---|
+| Pivot (the roller axle) | 0 | 3.35 | 1.0 |
+| Deployed (0°) | −1.86..+1.86 | 0.70..3.78 | 0.55..5.80. 20.9 in long overall, within R105's 24. |
+| The block, deployed | ±1.36 | 0.70..1.35 | 4.44..5.84 |
+| Stowed (125°, folded over the roller) | −1.86..+1.86 | 2.73..8.80 | −0.11..1.63. Within the roller's reach; the start stays 17.96 in long. |
+
+**Travel:** 0 to 125°. Checked every 5°: clear of the robot, the V and side plates, the roller motor and belt, and
+the drive pods. Past about 140° the block hits the intake's upper cross-channel.
+
+**Still to design:** the drive, a servo above the roller on the right driving the right arm through a short link,
+with hard stops at 0° and 125°.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
