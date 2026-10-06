@@ -11,6 +11,55 @@
 Exploring and simulating only. No robot was attached and nothing here was measured. Every robot number is a
 placeholder for Thursday's cardboard to replace.
 
+## Final design (6 Oct 2026)
+
+![The final design, to scale](../sim-review/ramp-hook-final.png)
+
+3D model of this design: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared).
+
+Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to buy and how to assemble:
+[`cad/ramp-hook/`](../cad/ramp-hook/README.md).
+
+- **Hook:** the small right hook on option 3's 14.5 in chassis. There's 8 in of clear space in front of the intake,
+  and a vertical side wall down the right side.
+- **FLOWER block:** 3D printed, threaded on a goBILDA 8 mm REX shaft (or any 8 mm shaft) across the hook's front.
+  It's 1.4 in front to back, its top 1.35 in above the tiles (under a POLLEN's centre), and its bottom 0.7 in up,
+  0.27 in over the bottom ring's 0.43 in so it can't catch the lip. It has a 0.5 in flat top. `ramp.py` empties
+  every case with the bottom anywhere from 0.6 to 0.85 in. Its front is curved to the bottom ring's 2.79 in hole,
+  so it nests between the two grey uprights. The curved front leans back 0.2 in at the top (about 21°) above a
+  0.12 in vertical strip that bears on the uprights: in `ramp.py` the slant changes nothing (0 to 0.45 in all empty
+  every case), but it gives margin for POLLEN that aren't quite round or sit low. The shaft's ends sit in printed end blocks that bolt to goBILDA
+  channel (M4, on its 8 mm grid), with goBILDA clamping collars either side of the block.
+- **Driving:** push in until the block meets the uprights, and stay there. The FLOWER sets the depth and centres
+  the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
+  at the intake in about 1.2 s.
+- **Side wall: a ladder of two 8 mm shafts with a polycarbonate panel between, about 4 in tall.** It's the hook's
+  backbone: the block's push goes front shaft → **corner block** → side wall → **hinge block** at the chassis' face,
+  which turns on an 8 mm axle in bearings on the chassis (`cad/ramp-hook/`). Two shafts with a panel between are
+  much stiffer than one. The front shaft's left end is free; brace it back to the chassis if it flexes.
+- **Curtains 3.5 in, side wall about 4 in:**
+  - **The curtains** sit beside the block, and the FLOWER's lower bracket is 3.55 in up, so within about 2.4 in of
+    the block's middle they have to stay under it. Further out they could be taller.
+  - **The side wall isn't limited by the size rules.** Hook down, the robot is 23.9 in long and the R105 box
+    allows 29 in of height. Stowed, the hook swings up about its hinge at the bottom of the chassis' front face,
+    so a wall's height ends up pointing **back over the chassis**, not out in front. (An earlier version of this
+    doc said the wall stuck out in front and capped it at 3.5 in for the 18 in start. That was wrong; the mentor
+    caught it in the 3D model.)
+  - **What does limit it is packaging.** Folded up, the wall lies along the robot's right edge, from the floor up
+    to about 9.4 in, reaching back as far as the wall is tall. Below the chassis' top it has to clear the chassis
+    and the intake. Above that it has to clear the launcher. So a taller wall is fine wherever the robot's front
+    corner has room for it to fold into.
+  - **Taller buys little.** A falling POLLEN lands at about 200 in/s and, at the simulator's 0.5 bounce, first
+    bounces about 13 in high, over any wall we could fit. The second bounce peaks around 3 in, and after that
+    it's rolling.
+  - **A wall stops the rolling and low-hopping POLLEN,** which needs it taller than a POLLEN's centre (1.4 in).
+    3.5 in does that with margin. 4 to 5 in would catch more second bounces, if the robot's front corner has room.
+- **To measure on Thursday:** the uprights' inside corners (does the curve seat?), and a shorter block (1.0 in)
+  side by side with the 1.4 in one.
+
+**Note on the sections below:** where they say a stowed wall or cheek "sticks out in front of the chassis" and
+adds to the 18 in start, that's wrong. A stowed hook's walls point back over the chassis (see "Final design").
+
 ## Meeting notes, 6 Oct 2026
 
 Present: Travis, Nathan, CJ and a mentor.
@@ -28,18 +77,252 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## The manual's FLOWER (Fig 9-12), and what it means (6 Oct 2026, late)
+
+From the Competition Manual's Fig 9-12, as the mentor shared it:
+
+- **Bottom ring:** 0.43 in thick, hole 2.79 in across. A 2.8 in POLLEN is only about 2.0 in wide at 0.43 in up,
+  so it sits on the tiles inside the hole, in a snug pocket with a 0.43 in wall all round.
+- **The grey uprights** (the backstop the bottom POLLEN rests against) stand at the back of the hole. The figure's
+  3.57 in runs from the ring's front edge to their face. Scaled off the figure, the ring has about 0.93 in of flat
+  top in front of the hole, which puts the uprights' face **about 2.65 in past the hole's front edge**. Measure
+  this one; it's scaled, not dimensioned.
+- **Retrieval opening:** 3.55 in tall, from the tiles to the lower bracket.
+
+`ramp.use_manual_flower()` switches the model to these numbers. Triangle parked against the uprights (and 0.15 in
+short of them), bottom 0.5 in up. POLLEN out of 4 in the three bounce guesses:
+
+| triangle, deep × tall | against the uprights | 0.15 in short |
+|---|---|---|
+| 0.5 to 1.0 × 0.6 or 0.8 | 0 to 1 (one lucky 4) | 0 (one lucky 4) |
+| 1.25 × 0.6 | 4,4,2 | 4,4,4 |
+| 1.25 × 0.8 | 3,4,4 | 4,4,4 |
+| **1.5 × 0.8** | **4,4,4** | 4,4,3 |
+| 1.75 × 0.6 | 4,4,4 | 4,4,4 |
+| 2.0 × 0.8 | 4,4,4 | 4,4,4 |
+
+- **With the real 0.43 in pocket, a ramp under 1.25 in doesn't empty the FLOWER in the model.** The last POLLEN
+  rolls back over the pocket's wall. From 1.5 in it empties every case, with the last at the intake in 1.1 to
+  1.3 s.
+- **Seated, a 1.5 in triangle is entirely inside the FLOWER.** Its back edge is about 1.15 in inside the hole's
+  front edge, so it doesn't stick out past the hook's front at all when you're against a FLOWER.
+- **The mentor's block (sketch on Fig 9-12):** a small block driven against the uprights, lifting the bottom
+  POLLEN. Modelled as a vertical face toward the uprights, a flat top, then a slope down toward the robot, 1.4 in
+  deep, bottom 0.5 in up. POLLEN out of 4 in the three bounce guesses:
+  - 1.9 in tall: 0,0,0 (its face meets the POLLEN above its middle and pushes it back);
+  - 1.6 in tall: 3,3,3 against the uprights, 0 when 0.15 in short;
+  - **1.3 in tall, 0.5 in flat top: 4,4,4 against the uprights and 4,4,4 when 0.15 in short**, the most forgiving
+    shape so far;
+  - 1.0 in deep, 1.3 tall: 0,0,0.
+  **So the sketch works at 1.4 in deep, with its top at 1.3 in.**
+- **Clearance is tight underneath.** The triangle's bottom (0.5 in) rides 0.07 in above the ring's top (0.43 in).
+  On foam tiles it could drag. Raise the bottom to about 0.55 to 0.6 in, keeping the front face's top under
+  1.3 in.
+
+## Drive in to the backstop and stay (6 Oct 2026, late: the mentor's actual idea)
+
+Drive the triangle in until it hits the backstop and **stay there**. The triangle props up the bottom POLLEN, and
+the stack rolls down a short ramp: each POLLEN is shoved along by the ones above it. `ramp.py` already carries
+the stack's weight. In a traced run (1.0 in triangle, 0.25 in pocket edge), POLLEN 1 to 3 come out fast. Only
+the **last one**, with nothing above it, rolls off slowly and can settle back into the pocket.
+
+Parked at the backstop, 0.8 in tall. POLLEN out of the FLOWER (of 4) in each of the three bounce guesses:
+
+| triangle, front to back | pocket edge 0 | 0.1 in | 0.18 in | 0.25 in | 0.43 in |
+|---|---|---|---|---|---|
+| 0.5 in | 4,4,4 | 4,4,4 | 4,4,4 | 0,0,0 | 0,0,0 |
+| 0.75 in | 4,4,4 | 4,4,4 | 4,4,4 | 4,4,4 | 0,0,0 |
+| 1.0 in | 4,4,4 | 4,4,4 | 4,4,4 | 4,3,4 | 0,0,0 |
+| 1.25 in | 4,4,4 | 4,4,4 | 4,4,4 | 0,2,0 | 0,0,0 |
+
+- **A very short ramp works if the pocket's edge is about 1/4 in or lower.** That's the mentor's point: the
+  stack does the work. A 0.75 in triangle empties every case up to 0.25 in, and a 0.5 in one up to 0.18 in.
+- **Every short triangle fails at 0.43 in.** That's the backboard study's number, and nobody has measured it.
+- The 0.25 in column isn't smooth (1.25 in does worse than 0.75), so the model is on a knife edge there. A
+  measurement beats more modelling.
+- **The deciding measurement is the pocket edge's height:** the base plate's thickness, or how far a POLLEN sinks
+  into the hole, whichever is less. The photo suggests a thin plate, perhaps 1/4 in.
+
+## Drive to the backstop, then back off (6 Oct 2026, late; replaces version 2's stop)
+
+**The idea (mentor):** no curtain wrap and no stop to set. Drive the triangle straight in until its front hits
+the grey upright the bottom POLLEN rests against (the FLOWER's backstop), then back off. `ramp.py` has this as
+`run(..., dwell=, back_speed=, back_dist=)`: drive in to `tip_depth`, wait, reverse `back_dist` inches at
+`back_speed`, stop. The model's backstop is where the bottom POLLEN's back sits, 3.2 in past the pocket's front
+edge, estimated.
+
+- **Staying at the backstop** needs a long triangle: about 2.0 in front to back for 12 of 12. At 1.25 to 1.5 in
+  it empties only 0 to 7 of 12.
+- **Backing all the way out** (5 in) empties the first POLLEN fast, then the rest drop back into an empty pocket.
+- **Backing off about 1 in works with short triangles.** Drive in to the backstop, wait 0.1 s, back off, stop.
+  Emptied of 12 (back-off at 6 and 12 in/s, two pocket depths, three bounce guesses):
+
+| triangle, deep × tall | back 0.5 in | back 0.8 in | back 1.0 in | back 1.3 in |
+|---|---|---|---|---|
+| 0.75 × 0.6 | 4 | 4 | 8 | 12 |
+| 0.75 × 0.8 | 1 | 4 | **12** | **12** |
+| 1.0 × 0.6 | 6 | 9 | 12 | 12 |
+| **1.0 × 0.8** | 6 | **12** | **12** | **12** |
+| 1.25 × 0.6 | 8 | 12 | 12 | 12 |
+| 1.25 × 0.8 | 9 | 12 | 12 | 12 |
+
+  All 4 out in 1.3 to 1.6 s, a little slower than parking at the right depth. But the drive is "push until it
+  stops, back off an inch", with the FLOWER setting the depth.
+- **Pick:** a printed triangle **1.0 in front to back, 0.8 in tall**, bottom 0.5 in up, about 4 in wide. Back off
+  1.0 in: anything from 0.8 to 1.3 in still empties every time.
+- **Photos wanted:** the pocket from the side with a POLLEN in it, and the backstop from above. That checks the
+  3.2 in and how deep the pocket is.
+
+## Current design, version 2: a stop on the bracket and a printed insert (6 Oct 2026, late)
+
+Mock-up (version 2 at the time): https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR. The three views
+(`sim-review/ramp-hook-views.svg`, redrawn by `python3 tools/ramp-hook/views.py`) show version 2.
+
+- **Side wall and curtains:** the vertical 4 in side wall. At the front, curtains from 0.75 to 3.9 in (under the
+  FLOWER's bracket, about 4.0 in) on a flat 0.75 × 0.25 in strip, either side of a gap.
+- **Cheeks:** two vertical plates at the gap's edges, 5.2 in apart (the bracket is about 4.7 in wide), from 0.5 to
+  4.65 in up. They carry the insert and the stop, and guide the POLLEN back toward the intake.
+- **The stop:** a crossbar between the cheeks at the bracket's height (4.0 to 4.6 in), about 2.85 in behind the
+  hook's front. **Drive in until the bracket's front meets it.** That sets the depth, and the cheeks centre the
+  robot sideways. It adds no length, because the insert reaches under the bracket.
+- **The insert:** 3D printed, 5.2 in wide, in the gap only. It's a triangle in section, 1.25 in front to back and
+  0.8 in tall, bottom 0.5 in up, with its front face topping out at 1.3 in. Seated, its front is 2.1 in past the
+  pocket's edge. `ramp.py`, `run(wedge=(0.5, 0.8, 1.25), tip_depth=2.1)`: all 4 out in about 1.0 s, at the intake
+  in 1.2 s. **29 of 30 runs empty with the depth anywhere from 1.9 to 2.3 in**, so the stop has 0.2 in of slop
+  each way.
+- **Size:** 14.5 + 8 + 1.25 = 23.75 of 24, so option 3's chassis fits. **Stowed, the 4.65 in cheeks make the start
+  about 19.2 in.** Hinge the hook about 1.2 in inside the frame, or let the stop fold.
+- **Measure first:** how far the bracket's front face sits from the pocket's edge. The stop's 2.85 in comes from
+  the photo's scale, and the stop moves with that number.
+
+## Current design: a full-width triangular bar, curtains straight up (6 Oct 2026, evening)
+
+Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). Three views with dimensions:
+
+![Top, side and front](../sim-review/ramp-hook-views.svg)
+
+Redraw it with `python3 tools/ramp-hook/views.py`.
+
+- **Side wall:** the 8 in right arm, vertical, 4 in tall, running from the chassis to the hook's front.
+- **The bar:** at the very end of the side wall, a **triangular steel bar straight across the full width**
+  (about 14.1 in). It's a right triangle in section, **1.5 in front to back and 0.8 in tall** (about 28°): a
+  vertical front face whose top is 1.3 in up, just under the bottom POLLEN's centre (1.4 in), a top sloping
+  down toward the robot, and a flat bottom 0.5 in up, clear of the FLOWER's base plate. Its front reaches 2.4 in
+  into the FLOWER's opening.
+- **Curtains:** vertical panels **straight up off the bar's front**, from 1.3 to 4 in, either side of a **gap of
+  about 6 in** where the FLOWER's column, bracket and legs come in. The gap width is estimated from one photo,
+  so measure it. There are no sleeves, and the front is one line.
+- **Clear space:** 8 in from the intake to the bar's back edge.
+- **Why a triangle, not a round rod:** the empty-FLOWER photo shows the bottom POLLEN sits in a pocket in the
+  base plate. In `ramp.py` a round rod lets it roll back in, but the triangle's sloped top bridges the pocket's
+  edge.
+- **How short it can be:** `run(wedge=(0.5, h, depth))`, intake 8 in behind the bar's back edge. Results for
+  pocket edges of 0.25 and 0.43 in, reaches of 2.1 and 2.6 in, and the three bounce and friction guesses:
+  - **1.5 in deep, 0.8 tall** works in every case: all 4 out in 0.83 to 1.08 s, the last at the intake in 1.0 to
+    1.35 s. That's a little faster than the long bar.
+  - 1.5 in deep, 0.6 tall, and 2.0 in deep at either height, also work everywhere.
+  - **1.0 in deep fails** with a 0.43 in pocket at a 2.6 in reach: the whole bar is inside the pocket, so the
+    POLLEN drop back in off its back edge. At 1.0 in, keep the reach near 2.1 in, or don't go that short.
+  - The earlier long bar (2.75 deep, 0.6 tall, 12°) works too: 1.06 to 1.36 s.
+  - **Taller fails.** A tall, steep triangle (6 Oct sketch): a vertical front face rising to 1.6, 2.0 or 2.4 in, and
+    a steep back 1.4 in deep. It empties in 0 of 8 cases: the front meets the bottom POLLEN at its middle (1.4 in)
+    and shoves it straight back into the pocket. The same shape with its front stopped at 1.3 in empties in
+    8 of 8 (1.1 to 1.2 s). Flipped point-first, it fails at every height. **Keep the front face's top under about
+    1.3 in; the back can be as steep as you like.**
+  - **Half-round is worse than the triangle.** A half-round bar, flat side down, 1.0 to 2.0 in wide, bottom 0.3 or
+    0.5 in up: at best it empties in 6 of 12 cases (1.3 in wide), and only when pushed 2.6 in in. At a 2.1 in reach
+    it fails every time, and at 2.0 in wide (top 1.3 to 1.5 in) it always fails. The round front meets the
+    POLLEN too high and too square to lift it well, and the round back drops it close to the pocket's edge.
+  - **A slightly rounded nose is fine.** The 1.5 x 0.8 triangle with its top front corner rounded to 0.15 in
+    radius still empties in 12 of 12 (0.82 to 1.2 s). At 0.3 in radius it drops to 9 of 12.
+  - **Raising the bar doesn't add roll.** Bars with their tops at 1.2 or 1.3 in and their bottoms at 0.5, 0.7 or
+    0.9 in. The triangles empty in 12 of 12 at every height. They're fastest at 0.5 in (0.83 to 1.08 s) and a
+    little slower at 0.9 in (1.0 to 1.23 s). The half-rounds stay at 3 to 6 of 12. The POLLEN's speed comes from
+    how far it drops from the bar's top to the tiles, and the top is capped near 1.3 in either way. Raising the
+    bottom only makes the bar thinner and its slope gentler.
+- **Size:** 14.5 + 8 + 1.5 = 24.0 in, so **option 3's chassis fits as it is.** Stowed, the 4 in side wall sticks
+  out in front, which makes 18.5 in: hinge the hook 0.5 in inside the frame, or make the wall 3.5 in tall.
+- **For the spill:** the front is a 4 in wall except the 6 in gap, and the bar runs under the gap too.
+
+### Next step: a hard stop, and a short printed insert (6 Oct 2026, late)
+
+**How forgiving is the depth?** The table counts emptied runs out of 6 (pocket edges of 0.25 and 0.43 in, three
+bounce and friction guesses). Bars are 0.8 in tall with their bottoms 0.5 in up. Columns are how far the bar's
+front goes past the pocket's edge:
+
+| bar, front to back | 1.7 | 1.9 | 2.1 | 2.3 | 2.5 | 2.7 | 2.9 | 3.1 |
+|---|---|---|---|---|---|---|---|---|
+| 0.75 in | 0 | 6 | 6 | 2 | 0 | 2 | 3 | 2 |
+| 1.0 in | 0 | 6 | 6 | 6 | 4 | 2 | 0 | 2 |
+| 1.25 in | 0 | 6 | 6 | 5 | 6 | 5 | 2 | 0 |
+| 1.5 in | 0 | 6 | 6 | 6 | 6 | 6 | 5 | 2 |
+
+- Every bar needs at least 1.9 in, to get under the POLLEN's centre.
+- Past that, **the bar's length is the depth tolerance.** Its back edge has to land just outside the pocket's
+  edge. A 1.5 in bar tolerates about 1.9 to 2.7 in (0.8 in of slop). A 1.0 in bar tolerates 1.9 to 2.3 in (0.4 in),
+  and a 0.75 in bar only 0.2 in.
+- **So the long bar is buying driving slop.** With a hard stop that sets the depth, the bar can be short.
+
+**Ideas, to try in cardboard:**
+
+1. **Stop and centre on the FLOWER's bracket.** The black bracket is about 4.0 to 4.6 in up, solid, and squarer
+   than the posts. Raise the curtains at the gap's edges to about 4.75 in and give the gap a V lead-in that seats
+   on the bracket's front corners. Driving in until it seats sets the depth and centres the robot sideways at the
+   same time. It adds no length, because the bar still reaches under the bracket, which sits higher. G415 allows
+   *"a concave shape that wraps partially around a FLOWER for purposes such as to aid in alignment"*. Measure
+   how far the bracket's front sits from the pocket's edge, so the bar's reach lands at about 2.1 in.
+2. **Or stop on the field wall.** It's the most rigid reference, and the FLOWER is fixed 2.71 in from it. But the
+   pads would stick out about 2.3 in past the bar's front, which costs that much of the 24 in.
+3. **Triangle only in the gap.** A 3D-printed triangular insert, about 4 in wide (the pocket is about 3.2 in),
+   bolted or friction-fit in the gap. Outside the gap, a flat strip at the curtains' feet. That's less sloped
+   surface under the spill, and printed inserts of several sizes can be swapped on Thursday. With a stop, 1.0 to
+   1.25 in front to back is enough; 1.25 keeps some slop.
+4. **G409, the spill.** A sloped insert in the spill's path could be ruled as helping to keep pieces. A 4 in insert
+   is far less area than the full-width bar, and the curtains above it are hit by falling pieces anyway.
+   **Question for the Q&A:** does a passive ramp on a robot count as catching or controlling a TIP's spill if a
+   falling piece lands on it?
+
+The sections below are earlier steps (the ramp front, the rod, sleeves). Their physics stands; their geometry is
+superseded.
+
 ## The design (corrected 6 Oct 2026)
 
-**The ramp is the hook's front.** The C has one tall wall, the 8 in right arm (about 4 in, leaning in 30°). In place
-of a tall crossbeam, its front is a **low, thin ramp across the full 14.5 in width**. Its edge sits about 1 in up
-at a FLOWER, resting on the ring, and it slopes down 12° into the hook's floor plate. Driven into a FLOWER, the
-edge slides under the bottom POLLEN, and the column rolls down the ramp to the intake, 8 in back. That's
-`ramp.py`'s slice exactly, with "tongue" read as "the ramp front".
+**The ramp is the hook's front.** The C has one tall wall, the 8 in right arm: about 4 in tall and **vertical**. In
+place of a tall crossbeam, its front is a **thin ramp across the full 14.5 in width, held clear of the tiles**
+and carried by the arm. At a FLOWER its edge sits about 1 in up, resting on the ring. It slopes down 12° and
+stops **0.5 in above the tiles**, with no floor plate. Driven into a FLOWER, the edge slides under the bottom
+POLLEN. The column rolls down the ramp, drops the last 0.5 in onto the tiles and rolls to the intake, 8 in back.
+`ramp.py` models it with `float_z=0.5`: all 4 out in 1.0 to 1.2 s and the last at the intake in 1.15 to 1.4 s,
+across slopes of 10 to 15°, back edges 0.3 to 0.75 in up, and the bounce and friction guesses. That's no slower
+than a ramp running down to the floor.
 
+- **Current layout (mock-up v6): 8 in of clear space, then a short ramp.** There's 8 in of open floor between the
+  robot's face and the ramp's back edge, then the ramp. The ramp is **2.3 in long**, the shortest that works:
+  its edge has to reach 2.1 in into the FLOWER's opening to get under the bottom POLLEN. A steeper ramp doesn't
+  get shorter, because its edge rises above the POLLEN's centre. In `ramp.py` at 20°, a 2.4 in reach leaves one
+  in, and at 30° every reach fails. The arm carries the ramp, so it runs 10.3 in. 13.7 + 10.3 = 24.0, so the
+  chassis is trimmed 0.8 in from option 3 (14.5 would make 24.8). Stowed, the 4 in wall makes the start 17.7 in.
+  The model gives 1.06 s for all 4 out and 1.38 s for the last at the intake.
+- **A steel rod for the front (mock-up v7).** Keep 24 in total, and make the front a 1/4 in steel rod across the
+  hook in place of a ramp: 14.5 + 9.25 in of clear space + 0.25 = 24.0, so option 3's chassis fits as it is.
+  `ramp.py`'s `run(rod_z=...)`, with the intake 9.5 in behind the rod:
+  - **With no lip in front of the bottom POLLEN, it works.** It's as fast as the ramp or a little faster: all 4
+    out in 0.95 to 1.1 s and the last at the intake in 1.2 to 1.5 s. That holds for any rod centre 0.6 to 1.2 in
+    up, 2.1 to 2.9 in into the opening.
+  - **With the 0.43 in lip, it fails every time.** The bottom POLLEN rolls off the rod and drops behind the lip.
+  - Both teams' photos show the bottom POLLEN on a flat base with no obvious lip, but the backboard study's
+    drawing has one. **Measure it on Thursday: lip or no lip decides rod or ramp.**
+  - The rod hangs off the right arm across 14 in. Under its own weight 1/4 in steel sags about 0.01 in. But it's
+    springy sideways: about 50 lb/in where it meets a FLOWER, 7 in out, so a 5 lb bump moves it 0.1 in. A brace
+    to the chassis' left corner, or a second short arm on the left, fixes that. The start is 18.5 in stowed (the
+    4 in wall), so hinge the hook 0.5 in inside the frame.
 - **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
   24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
-- **Start:** the tight one now. Stowed, the 4 in arm wall sticks out about 3.5 in in front of the chassis
-  (14.5 + 3.5 ≈ 18.0 of 18). Hinge the hook a little inside the frame, or make the wall shorter.
+- **Start: 0.5 in over.** Stowed, the 4 in vertical wall sticks out 4 in in front of the chassis (14.5 + 4 = 18.5
+  of 18). Hinge the hook at least 0.5 in inside the frame, or make the wall 3.5 in tall.
+- **Carrying the ramp:** only the right arm holds it, and the left end is free across 14.5 in. It has to be stiff
+  enough not to sag onto the tiles or flex when it hits the FLOWER's ring. Use a stiffened plate or a bent lip
+  along its back edge.
 - **Spill:** the arm still catches the spill. Along the front, pieces rolling outward have to climb the 1 in
   ramp to escape (faster than about 37 in/s), and anything landing on the ramp rolls in toward the intake.
 - **3D mock-up:** https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). Its balls move as
@@ -232,6 +515,29 @@ What the model can't tell us, and the video or cardboard can:
 - POLLEN that aren't round (§9.8);
 - whether the robot shoves the FLOWER (it's bolted to the wall).
 
+## A photo of an empty FLOWER (6 Oct 2026)
+
+What it shows, by eye (no scale in the photo, so the sizes are rough):
+
+- **Four green posts**, not three, in a square, with an orange top ring and a handle. A black bracket holds the
+  posts' bottoms, carried on **two short silver legs** set back under the column. The open gap between the base
+  and the bracket is the retrieval opening.
+- **The base is a flat black plate,** roughly octagonal and wider than the column, flat on the tiles. It has a
+  **round hole under the column.** The bottom POLLEN sits in that hole, so the "bottom ring" is the edge of a
+  pocket, all the way round, not a lip on one side. Its height is the plate's thickness, or how far a 2.8 in
+  POLLEN drops into the hole, whichever is less. Neither can be read off the photo.
+
+What that means:
+
+- **For the rod, it's bad news, at least in the model.** With a 0.43 in pocket edge, a rod fails at every height
+  (0.6 to 1.3 in) and every reach (2.1 to 2.9 in): the POLLEN rolls off the rod and back into the pocket. With a
+  0.25 in edge it works only sometimes: at a 2.9 in reach, and not at 2.5. A ramp works either way, because it
+  bridges the edge. That's what 19705's plate and 25620's wedge both do.
+- **The legs are set back,** so a rod or ramp reaching 2.5 in into the opening should clear them. Check that on
+  Thursday.
+- **On Thursday, measure:** the plate's thickness, the hole's diameter, and how far a POLLEN sits down in it.
+  Then run the rod test anyway. The model's pocket is a 2-D guess, and the rod is cheap to try.
+
 ## What the other team's video shows
 
 Team 19705's reel, "This is what the ramp is for" (two stills shared 6 Oct 2026; the video itself not yet seen):
@@ -303,6 +609,18 @@ come close.
 
 Needs a FLOWER (or a tube of the real inside diameter with a 3.55 in window above a 0.43 in ring), 4 POLLEN,
 cardboard and tape, a phone at 240 fps and a tape measure.
+
+**Start with the rod (decided 6 Oct 2026).** Bring a 1/4 in steel rod (or a dowel the same size) about 15 in long.
+
+0. **Rod test, before anything else:**
+   - Stage the 4 POLLEN. Hold the rod level across the FLOWER's bottom opening, its centre about 0.8 in off the
+     tiles, and push it straight in until it's 2.5 in past the opening's front edge.
+   - Film it, 5 times each at 0.6, 0.8 and 1.0 in up.
+   - Count the POLLEN that come out and time first contact to last POLLEN out. The model says about 1 s.
+   - If the bottom POLLEN drops back behind something at the front of the base, that's the lip. Measure its
+     height, and fall back to the short ramp (steps 2 to 4).
+   - Then tape the rod across a cardboard hook (9.25 in from a cardboard chassis face, with a 4 in vertical arm
+     wall) and repeat by pushing the whole mock-up.
 
 1. **Measure the FLOWER first:** its inside diameter, how thick the ring is, the window's width, and how far
    the bottom POLLEN sits from the window's edge. These replace the model's guesses.

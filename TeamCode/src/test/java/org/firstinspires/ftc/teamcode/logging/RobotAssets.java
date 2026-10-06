@@ -53,8 +53,13 @@ import java.util.Map;
  */
 final class RobotAssets {
 
-    static final String FOLDER = "Robot_BIOBUZZ";
-    static final String ROBOT_NAME = "BIOBUZZ Robot";
+    static final String FOLDER = "Robot_BIOBUZZDesigns";
+    /**
+     * The generated model of every simulated design. {@code BIOBUZZ Robot} itself is the team's CAD
+     * ({@code cad/advantagescope/Robot_BIOBUZZ}, committed, not generated): the baseline's logs pose its
+     * FLOWER extractor ({@code AutoSim.Bot.cadModel}).
+     */
+    static final String ROBOT_NAME = "BIOBUZZ Robot (designs)";
     /** The build team's prototype (RobotDesign#buildersPrototype), for logs simulated with it. */
     static final String PROTOTYPE_FOLDER = "Robot_BIOBUZZPrototype";
     static final String PROTOTYPE_NAME = "BIOBUZZ Prototype";

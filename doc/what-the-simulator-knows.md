@@ -22,7 +22,7 @@ guess, the real number can differ, and so can which idea wins. Updated 6 Oct 202
 | What | The guess | Why it matters |
 |---|---|---|
 | How pieces bounce off tiles, walls, the HIVE, robots | restitution 0.45 / 0.5 / 0.2 / 0.1 | Where a spill ends up; how much a flap or hook keeps |
-| Our robot's size and shape | Read off the 5 Oct CAD screenshots, ±15% | Every route spot; what the robot can reach |
+| Our robot's size and shape | The Rigid V as drawn in the 6 Oct CAD (`AutoStudyTest.drawnV`): body 15.12 × 15.24 in, 13.8 in roller, flap tips 17.8 in apart, 4 in tall | Every route spot; what the robot can reach. The extractor and scorer are not drawn yet |
 | The intake | Takes a piece only when it touches the front, top under 5 in, one every 0.35 s, 85% of the time; a piece that arrives while it is busy bounces off the body | **The biggest lever found.** Every study line now counts the misses by why ("height", "interval", "beside", "chance"); in the Autos 15 a run are too high and 16–25 arrive while it is busy. Vectored rollers that hold pieces against the front would queue them instead; the roller height sets the 5 in |
 | The launcher | 2 s spin-up, 0.45 s a shot, 75°, a little spread (about 5 shots in 6 score); fires once within 2° of the CELL | When TIPs happen; how many shots score. With the spread set to zero and firing only when still and within 0.5°, shots still score only 92–96% from the firing spots; every study line reports the shots scored and why the misses missed |
 | Flaps, hooks, side walls | Thin plates of the drawn size, bouncing pieces with the guesses above | The rigid V's gain is pieces bouncing off its flaps into the intake: plausible, untested |
@@ -35,12 +35,14 @@ roll are now checked against video ([tip timing](tip-timing.md), [rolling](rolli
 ## How AdvantageScope shows the right robot
 
 A `.wpilog` only stores numbers over time: where each robot is, where every piece is, the HIVE's angle, and
-the position of each part of the robot. There is one robot model, **BIOBUZZ Robot**, and one layout
-(`sim-review/advantagescope-layout.json`). The model holds every design as a separate part; each log says where
-each part goes: the design that was simulated at the robot, the others 20 m under the field. So any log shows
-its own robot, and its file name says which (`<Auto>_<robot>_<date>`). The setup script builds the model from
-the same numbers the simulator uses (`RobotAssets.java`), so the drawing and the simulation can't disagree. A
-hook swinging down is the same trick: the log moves that part as the simulator moved it.
+the position of each part of the robot. The layout (`sim-review/advantagescope-layout.json`) draws our robot as
+**BIOBUZZ Robot**, the team's CAD (`cad/advantagescope/Robot_BIOBUZZ`, committed) with the FLOWER extractor as
+a moving part; a baseline log ("rigid V") holds it stowed through AUTO. The simulator's body for that design is
+the CAD's measurements (`doc/cad-6-oct.md`: 15.12 × 15.24 in, the V's plates), so the drawing and the simulation
+agree to the extent the measurements do. Every other simulated design is a part of **BIOBUZZ Robot (designs)**,
+generated from the simulator's own numbers (`RobotAssets.java`): a log of one says which part to show at the
+robot (the others go 20 m under the field) and its file name says which (`<Auto>_<robot>_<date>`). A hook
+swinging down is the same trick: the log moves that part as the simulator moved it.
 
 So what you see in AdvantageScope is what the simulator did, frame by frame. What it can't tell you is whether
 the simulator's guesses are right; the table above is where to look for that.

@@ -171,6 +171,9 @@ public class AutoStudyTest {
                 drawnV(", right flap only", 4, Double.NaN, false, true), drawnV(", no flaps", 4, Double.NaN, false, false)}) {
             m.put(d.name, d);
         }
+        // The baseline robot since 6 Oct 2026 21:15 UTC (mentor: one robot, the Rigid V as drawn in the team's CAD; the
+        // FLOWER extractor and scorer to come): the drawn V under the name the logs carry, "rigid V".
+        m.put("rigid V", drawnV("", 4, Double.NaN, true, true).copy("rigid V"));
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);
@@ -526,6 +529,9 @@ public class AutoStudyTest {
             File file = new File(TeamCodeDir.simLogs(), "study-" + spec.replaceAll("[^A-Za-z0-9]+", "-")
                     + "-" + designName.replaceAll("[^A-Za-z0-9]+", "-") + "-" + seed + ".wpilog");
             AutoSim.Result r = run(spec, design, seed, file);
+            // A study's per-seed logs (about 4 MB each; a day's studies filled 24 GB on 6 Oct 2026) are kept only when
+            // asked: BIOBUZZ_AUTO_LOGS=1. The published logs come from the Simulate Auto workflow, not from here.
+            if (!"1".equals(System.getenv("BIOBUZZ_AUTO_LOGS")) && !file.delete()) file.deleteOnExit();
             if (System.getenv("BIOBUZZ_AUTO_PER_SEED") != null) {
                 System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
             }

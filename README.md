@@ -3,58 +3,61 @@
 This is the `claude/simulator` branch: the Autos, the simulator that scores them, and their logs.
 `master` holds robot code only.
 
-## Qualifier Autos: the baseline (no walls)
+## Qualifier Autos: the baseline
 
-**The baseline robot: the Flat Intake** (the build team's option 3, from their 5 Oct 2026 CAD, read off it with
-the pieces as a scale, so ±15%), chosen because it is closest to what they are heading toward, with no spill
-guide. We will change it as the frame and shape work settles. In the simulator:
+**The baseline robot: the Rigid V** (mentor, 6 Oct 2026 21:15 UTC: one robot, iterated from here; the Flat Intake
+baseline is retired, [DEPRECATED](tools/auto-routes/DEPRECATED.md)). It is the build team's 6 Oct CAD with the
+Rigid V as drawn on it ([the decision](doc/unified-design.md); `AutoStudyTest.drawnV`, named `rigid V`):
 
-- a **14.5 in square** chassis, a low body (6 in) that pieces bounce off;
-- an **intake across the front, 14 in wide and 5 in tall**, taking a loose piece only when it touches
-  (POLLEN is 2.8 in across, NECTAR 3.6 in), one every 0.35 s;
+- a **15.12 in long × 15.24 in wide** body, the roller 1.94 in ahead of it;
+- a **13.8 in intake** across the front, taking a loose piece only when it touches (POLLEN is 2.8 in across,
+  NECTAR 3.6 in), one every 0.35 s, 85% of the time;
+- **two fixed flaps from the front corners, tips 17.8 in apart and 2.8 in ahead, 4 in tall**: the V. Pieces
+  bounce off them into the mouth (flap bounce: the body's, up to 0.3 measured fine);
 - one two-wheel launcher near the back, throwing pieces up into a deflector that sends them off forward at 75°.
 
-Points are average alliance AUTO points over 60 simulated runs (seeds 1–60; 20 proved too few to rank routes) (3 TIPs, LEAVE and PARK; a perfect run is 76). **G409** is how many runs our robot touched a spilled piece
-before it reached the tiles (the rule: don't catch or deflect a TIP's spill). Numbers run
-**6 Oct 2026 13:40 UTC**, on the simulator as it now stands: each TIP takes 0.58–1.12 s ([tip timing](doc/tip-timing.md))
-and spilled pieces roll as far as videos show ([rolling](doc/rolling.md)), with the routes retuned for that (below).
-Both made the Autos harder than the 02:56 numbers said (ShootsRight 64.8 then, 53.5 on its old route now). Each log downloads as `<Auto>_<robot>_<date simulated>_best` or `_typical`.
+The FLOWER extractor and the FLOWER scorer join the model when their CAD exists ([threads](doc/threads.md)).
+
+Points are average alliance AUTO points over 60 simulated runs (seeds 1–60; 3 TIPs, LEAVE and PARK; a perfect run
+is 76). **G409** is how many runs our robot touched a spilled piece before it reached the tiles (the rule: don't
+catch or deflect a TIP's spill). Numbers run **6 Oct 2026 21:38 UTC** on the simulator as it stands (each TIP
+0.58–1.12 s, pieces rolling as filmed). Each log downloads as `<Auto>_RigidV_<date simulated>_best` or `_typical`.
 
 | Auto | Partner | Points | TIPs | Our PARK | G409 runs | Watch the route (Visualizer) | `.pp` files | Simulated `.wpilog` |
 |---|---|---|---|---|---|---|---|---|
-| **Qual-PartnerShootsRight** (`qual-right-o3`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **54.8** | 3 TIPs in 10 of 60 | 13 of 60 | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-o3.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-o3.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_FlatIntake_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-o3/Qual-PartnerShootsRight_FlatIntake_2026-10-06_typical.wpilog) |
-| **Qual-PartnerStages, angled partner** (`qual-stages-angled`) | Can't shoot: starts angled, back corner on the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward to PARK | **51.6** | 2 TIPs in 53 of 60 | 55 of 60 | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) | [qual-stages-angled.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-angled.pp) · [partner-angled-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-angled-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_FlatIntake_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled/Qual-PartnerStages-Angled_FlatIntake_2026-10-06_typical.wpilog) |
-| **Qual-PartnerStages, partner against the wall** (`qual-stages-wall`) | Can't shoot: back against the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward, parked | **47.3** | 2 TIPs in 49 of 60 | none (it parks on our spot) | **0** | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) | [qual-stages-wall.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-wall.pp) · [partner-stage19-side-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage19-side-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_FlatIntake_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall/Qual-PartnerStages-Wall_FlatIntake_2026-10-06_typical.wpilog) |
+| **Qual-PartnerShootsRight** (`qual-right-v`) | Fires its 4 preloads from the right start at once (TIP 1), then parks | **71.2** | 3 TIPs in 48 of 60 | 58 of 60 | 8 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) | [qual-right-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-right-v.pp) · [partner-preloads-right.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-preloads-right.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-06_typical.wpilog) |
+| **Qual-PartnerStages, angled partner** (`qual-stages-angled-v`) | Can't shoot: starts angled, back corner on the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward to PARK | **51.6** | 2 TIPs in 53 of 60 | 55 of 60 | 14 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) | [qual-stages-angled-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-angled-v.pp) · [partner-angled-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-angled-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-06_typical.wpilog) |
+| **Qual-PartnerStages, partner against the wall** (`qual-stages-wall-v`) | Can't shoot: back against the wall behind the left CELL, its 4 POLLEN on the tiles along its side; drives straight forward, parked | **55.3** | 3 TIPs in 26 of 60 | none (it parks on our spot) | 16 | [**Together**](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall-v.pp) · [partner](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) | [qual-stages-wall-v.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/qual-stages-wall-v.pp) · [partner-stage19-side-park.pp](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/blob/claude/simulator/TeamCode/autos/partner-stage19-side-park.pp) | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-06_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-06_typical.wpilog) |
 
-**Qual-PartnerShootsRight:** we start at the left start facing the HIVE, spun up. The partner's 4 make
-TIP 1 (4.5 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). As TIP 2 starts we back off a little
-(clear of a fast TIP's spill), wait 1.5 s from its start for the spill to land, drive south through it and the
-tunnel and fire what we caught. Then TIP 3 from pieces that sit still: one smooth path into the wall FLOWER, its
-4 fired, then the GARDEN's 4, fired (about 27 s); then PARK. Firing the catch as its own load matters: with it
-in the GARDEN load instead (4 + the FLOWER's 4 = 8 POLLEN, exactly the tipping weight) TIP 3 fell to 4 of 60. **Retuned 6 Oct 2026 for pieces rolling as filmed:** the old route
-swept the spills for TIP 3, and they now roll away from a 14 in intake (53.5, TIP 3 in 2 of 20); driving
-through a spill bats aside the pieces the intake misses, 30–50 in. In 1 run of 60 the end-of-AUTO park clips
-the wall FLOWER.
+**Qual-PartnerShootsRight:** we start at the left start facing the HIVE, spun up. The partner's 4 make TIP 1
+(4.5 s); our preloads and the far FLOWER's 4 make TIP 2 (13.3 s). We back off as TIP 2 starts, wait 1.3 s from
+its start for the spill to land, then drive south through it: the V's flaps bounce the spill into the mouth,
+which is what a plain intake can't do. We fire what we caught, sweep west along the south wall through TIP 1's
+leftovers into the GARDEN, fire that load (TIP 3, about 27 s), and PARK, whether or not TIP 3 has started yet:
+shots already away still count if the TIP finishes within 8 s of AUTO ending (§10.5), and PARK is not traded away.
 
-**Qual-PartnerStages** (the partner can't shoot or set pieces down; its 4 POLLEN start on the tiles
-touching it, G304, and its only move is forward): we fire our preloads (TIP 1), then pick up its 4 side-on
-(all 4 against the intake at once) and the far FLOWER's 4 or TIP 1's spill, for TIP 2 (20–22 s), fired from a little further back than before
-(y 119: a fast TIP threw a piece onto us). Then, 1.3 s after TIP 2 starts, its spill and the GARDEN at the
-right CELL, and PARK when we can. TIP 1 is our 4 preloads alone; two misses and it doesn't come (5 of 60
-runs with the angled partner, from the launcher's guessed spread).
-- **Angled partner:** its POLLEN end up next to where we fire at the left CELL. We drive north through the
-  tunnel catching TIP 1's spill, fire it, take the row, fire it (TIP 2).
-- **Against the wall:** we go north along a lane west of the HIVE, take the row from where the partner
-  stood, fire it, then the far FLOWER (TIP 2). It parks where we would, so we don't.
+**Qual-PartnerStages** (the partner can't shoot or set pieces down; its 4 POLLEN start on the tiles touching it,
+G304, and its only move is forward): we fire our preloads (TIP 1), drive north through the tunnel catching
+TIP 1's spill, turning out of it at x 55.5 so the flaps stay off the centre line, fire the catch, take the row,
+fire it, then the far FLOWER's 4 (TIP 2, about 19–21 s), then TIP 2's spill and the GARDEN, and PARK when we can.
+- **Angled partner:** its POLLEN end up beside where we fire at the left CELL; the row is taken side-on.
+- **Against the wall:** the row is swept square, the face stopping on each piece (4 of 4); the V keeps the rest
+  in its mouth. It parks where we would, so we don't.
 
-**TIP 3 with a partner that can't shoot: not in the simulator, with this intake.** TIP 2 comes at about 21 s,
-and 8 more pieces can't be gathered, carried and fired by 30 s (1 run in 20 at best, in every variant tried).
-What would change that: a faster or wider intake (the Rigid V's ShootsRight makes TIP 3 in 33 of 60),
-or a partner that fires even 1–2 pieces.
+**TIP 3 with a partner that can't shoot** now comes with the wall partner in about a third of runs (the swept row
+and the V's catch make TIP 2 by 19 s), not yet with the angled one.
 
-**What a wider intake would buy** (the full-width 18 in robot, 16.2 in intake, same routes): ShootsRight
-62.8 points, 3 TIPs in 35 of 60, G409 in 11 runs (6 Oct 12:55 UTC). The width of the intake's mouth is the
-biggest single lever the simulator has found; the Rigid V gets the same with fixed flaps on the small chassis (below). How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos).
+**Known on these routes:** G409 touches in 8–16 runs of 60 (the V's flaps at the edge of a falling spill; the Flat
+Intake had 0), to be driven down as the V's angle is settled. The angled Auto clips the HIVE frame in 4 runs of
+60, all runs where TIP 1 failed (2 of our 4 preloads missed) and the route re-entered the tunnel at the end with
+the flaps 0.4 in from the foot bar; a launcher at the mentor's target accuracy removes the case, and the route
+will get a no-TIP-1 branch. The wall Auto's row approach turns 70% of the way to the row (80% put a corner over
+the parked partner in 5 runs; 45–60% cost 2–5 points).
+
+**Not adopted:** holding TIP 1's spill at the drop zone before the tunnel run (about +2 points, G409 from 18 to
+51 runs of 60); the 2.5 and 2.2 in flaps (ShootsRight 69.5 → 67, the wall Auto 55.7 → 52); flap bounce 0.5.
+How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the-qualifier-autos) and
+[body evaluation](sim-review/body-evaluation.html).
 
 - **Together** plays both robots at once; **ours** / **partner** opens one robot's Auto. No login.
 - **best** / **typical**: the highest-scoring and the median of the 60 runs, from the newest
@@ -196,16 +199,20 @@ laptop. Set it up once, then watch any log.
 2. Drag the file into AdvantageScope.
 3. Press **Space** to play. AUTO starts 1 s in.
 
-What you see: our robot, **BIOBUZZ Robot**, drawn as the design the log was simulated with: the log says
-which (its `BodyShape/Components`, under the robot row), so any log shows its own robot with this one layout.
-The Flat Intake has the wheels between side plates, the orange intake roller, the flywheels, the Limelight on
-its post and, see-through orange in front of it, where a ball's centre has to be for the intake to take it; the
-Rigid V adds its flaps; the Ramp Hook's arm swings down at the TIP. The partner is the green ghost. A log made
-before 6 Oct 2026 may not say: then every design is drawn at once, so get a newer log. The picture never changes
-what happened: a log is one simulated match with one robot.
+What you see: our robot, **BIOBUZZ Robot**, built from the team's CAD (`cad/advantagescope/`): the chassis
+with its outer wheel plates and odometry pods, the 14 in intake roller, the Rigid V plates, the FLOWER extractor
+(stowed, 125° up, through AUTO) and the Limelight, which you can look through (right-click the 3D view →
+**Limelight**). The partner is the green ghost. The baseline logs above are simulated with that robot
+("rigid V"). A log of another design (the superseded Flat Intake ones, or a study) draws nothing right until
+you pick **BIOBUZZ Robot (designs)** in the robot row's model menu: that model holds every simulated design
+and the log says which to show. The picture never changes what happened: a log is one simulated match with
+one robot.
 
 **Another branch:** set `$branch` to it in step 3, run it again, then do step 4
 again. It swaps in that branch's robot and field, removing the old ones.
+
+**When the CAD changes:** rebuild the model (`cad/advantagescope/README.md`), commit the folder, and run
+step 3 again. The model is committed so no laptop needs the CAD tools.
 
 **If step 3 stops** with an Android SDK or licence error: open the `biobuzz` folder in Android Studio
 once, let it finish syncing, and run step 3 again. What the script does:

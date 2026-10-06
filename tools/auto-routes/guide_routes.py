@@ -144,8 +144,13 @@ def row_sweep(r, partner, row_ms, west):
     h = ANGLE[0]
     d = (math.cos(math.radians(h)), math.sin(math.radians(h)))
     at = lambda fy: (round(29.6 - 7.25 * d[0], 2), round(fy - 7.25 * d[1], 2))
-    r.pt("ROW_S", *at(ROW_PIECES_Y[0] - 1.4 - 4), h)
-    out = [r.go("ROW_S", turn_by=0.8)]
+    # ROW_S's face 2 in short of the first piece (was 4): with the drawn V's 15.24 in body, 4 in put the robot's south
+    # edge over the parked partner A's north edge (y 109) by 0.7 in, "robots collide at 11.0 s" in every run.
+    r.pt("ROW_S", *at(ROW_PIECES_Y[0] - 1.4 - 2), h)
+    # Turned by 70% of the way (was 80%): turning beside the parked partner, the V's corners reached over it
+    # ("robots collide at 9.7 s", 5 runs of 60, 55.7 points). 60 runs on the drawn V: 0.45 50.3 and 0.6 51.3 (the
+    # early turn slows the path: TIP 2 at 21.6 s instead of 19.6), 0.7 53.3 with no collision.
+    out = [r.go("ROW_S", turn_by=0.7)]
     for i, y in enumerate(SWEEP_FACE_Y):
         name = "ROW_N" if i == len(SWEEP_FACE_Y) - 1 else f"ROW_{i + 1}"
         r.pt(name, *at(y), h)

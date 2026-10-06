@@ -87,3 +87,12 @@ simulated HIVE directly, whichever way the robot faces. A real robot gets the sa
 CELLs' AprilTags (`vision/HiveTracker`). Of the names these Autos use, the robot's `AutoRegistration`
 has only `Tip` so far: `LeftCellUp`, `RightCellUp`, `IntakeFull`, `Empty`, `SpinUp`, `LaunchAll`,
 `CollectSeen` and `SetDown` exist only in the simulator until they are built on the robot.
+
+## The Flat Intake baselines (superseded 6 Oct 2026 21:15 UTC)
+
+`qual-right-o3`, `qual-stages-angled`, `qual-stages-wall` (`qual_right.py`): the three qualifier Autos on the
+Flat Intake, the baseline robot with no spill guide, as of 6 Oct 2026 13:40 UTC (54.8 / 51.6 / 47.3 points, 60
+runs). The mentor then made the Rigid V the one robot (`doc/unified-design.md`); the baselines are the V's,
+`qual-right-v`, `qual-stages-angled-v`, `qual-stages-wall-v` (`baselines_v.py`). The Flat Intake Autos stay
+exported and runnable for comparison; their logs on `sim-results` are the last published for them.
+
