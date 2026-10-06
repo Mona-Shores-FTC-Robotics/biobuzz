@@ -127,7 +127,14 @@ public class AutoStudyTest {
         RobotDesign drawn = wide.copy("DHS intake-b");
         drawn.intakeWidthIn = 13.8;
         drawn.intakeReachIn = 1.0;
+        // Decided 6 Oct 2026 22:30 UTC (#164's flag): the roller floats 1.3 in, so it passes a NECTAR. Every design
+        // below inherits it; "fixed roller" is the refusing one. (Designs above with a roller and no float refuse
+        // NECTAR since the gap rule; the rows run before it took NECTAR, as a floating roller does.)
+        drawn.rollerFloatIn = 1.3;
         out.add(drawn.checked());
+        RobotDesign fixedRoller = drawn.copy("DHS intake-b, fixed roller");
+        fixedRoller.rollerFloatIn = 0;
+        out.add(fixedRoller.checked());
         double half = drawn.frameWidthIn / 2;
         for (double[] v : new double[][] {{17.8, 2.84}, {20, 2.84}, {22, 2.84}, {20, 3.5}, {18, 5}, {22, 3.5}}) {
             RobotDesign d = drawn.copy(String.format(Locale.ROOT, "DHS intake-b, V %.1f in wide, %.2f in ahead", v[0], v[1]));
@@ -145,6 +152,11 @@ public class AutoStudyTest {
             d.flapForwardIn = d.flapOutIn / Math.tan(Math.toRadians(deg));
             out.add(d.checked());
         }
+        // The fixed roller with the V, for the "what NECTAR is worth" row (the floating one is "V 17.8 in wide, 2.84 in ahead").
+        RobotDesign fixedV = fixedRoller.copy("DHS intake-b, fixed roller, V as drawn");
+        fixedV.flapOutIn = 17.8 / 2 - half;
+        fixedV.flapForwardIn = 2.84;
+        out.add(fixedV.checked());
         RobotDesign narrow = drawn.copy("DHS intake-b, V 16.0 in wide, 2.84 in ahead");
         narrow.flapOutIn = 16.0 / 2 - half;
         narrow.flapForwardIn = 2.84;

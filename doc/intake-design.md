@@ -281,7 +281,7 @@ hook stowed over the top the robot is 17.3 in long at the start (18 allowed).
 
 | Part | Where | Size and parts | Why |
 |---|---|---|---|
-| Roller shaft | x = +1.0, z = 3.35, along y; 8 mm REX, about 400 mm | centred on the centre line | 48 mm wheels' bottom at **2.40** (the guessed bite), front at x = 1.94. Checked |
+| Roller shaft | x = +1.0, z = 3.35 at rest, along y; 8 mm REX, about 400 mm; **floats**: on two arms about the motor shaft, rising 1.3 in (bottom 2.4 to 3.7) against gravity and a light spring, down stop at 2.4 | centred on the centre line | 48 mm wheels' bottom at **2.40** (the guessed bite), front at x = 1.94. A fixed roller cannot pass a NECTAR ("The roller floats" below). Checked at rest; the float to be redrawn |
 | Roller wheels | **13.8 in** of 48 mm gecko wheels, y = −6.9 to +6.9 (0.1 in less than 14 so the hook's hub clears the roller's end) | 48 mm (1.89 in); a bigger wheel's front would leave the 18 in start cube | The 14 in mouth; the bite the cardboard rig confirms |
 | Side plates | the outer wheel plates from `cad/robot-addons/`, inner faces at y = ±7.56 (15.1 in between), extended forward past the roller and up to carry the hinge at 6 in | 1/8 in aluminium | One plate per side does the wheels' outer bearing, the roller's bearing and the hook's hinge. Checked |
 | Roller drive | goBILDA 5203 motor **inboard over the roller on the left**, on a printed bracket on the left front upright; belt and pulleys **inside** the left plate, in the 16 mm between the roller's end and the plate | | Outside the plate the left V plate cut through the belt. The right end is the hook's |
@@ -327,6 +327,31 @@ G409 touches. **So no hinged V**: the fixed plates as drawn are the design. What
 11 runs of 60 (the Flat Intake's V: 3), the plates reaching the spill where the robot waits for TIP 3, and on
 these Autos every run crosses the centre line by the width of the tips at 7.5–9.7 s (the routes were drawn for an
 18 in outline; a 0.5 in route shift). Both belong with the hook's G409 work: the waiting spot and the timing.
+
+**The roller floats** (decided 6 Oct 2026, 22:30 UTC, after the transfer chat's flag, #164). A NECTAR is 3.62 in
+across and the pieces are stiff pickleball-type balls; a fixed roller whose bottom is 2.4 in up leaves a 2.4 in
+gap, and nothing gives the 1.2 in a NECTAR would need to pass. The roller would jam on it, not pull it in. The
+simulator's bite rule only checked the piece's centre against the axle, so it let NECTAR through; it now refuses a
+piece bigger than the gap plus 0.4 in of give (`rollerFloatIn`, miss "gap"; the 0.4 in is the same guess as the
+POLLEN bite). What that is worth, the drawn intake fixed against floating, 60 runs:
+
+| Roller | ShootsRight: points · TIP 3 | with the V: points · TIP 3 · G409 | Angled, with V: points · TIP 2 | Wall (broken route), with V: points · TIP 2 |
+|---|---|---|---|---|
+| Fixed at 2.4 in (NECTAR refused: "gap" 0.7–8 a run) | 52.2 · 4 | 67.8 · 42 · 7 | 46.8 · 40 | 30.7 · 5 |
+| **Floating, rises 1.3 in** (gap 3.7 + 0.4) | **54.6 · 11** | **69.9 · 47 · 11** | 50.4 · 51 | 42.0 · 39 |
+
+Every roller row above this one was run before the gap rule and so took NECTAR, as the floating roller does;
+the simulator's "DHS intake-b" now floats, and "DHS intake-b, fixed roller" is the refusing one.
+
+So: the roller rises **1.3 in** (its bottom from 2.4 to 3.7; with the 0.4 in squeeze that passes a NECTAR), on
+**two arms pivoting about the roller motor's shaft**, 77.5 mm above the rest axle: the belt length never changes,
+and rising 1.3 in swings the roller back only 0.3 in. Gravity and a light spring return it to a down stop at 2.4.
+The hold-down force the spring adds is the bite on a POLLEN; the cardboard rig sets it. For the FLOWER extractor,
+which pivots on the roller's shaft in the drawing: **it needs a fixed pivot.** The cleanest is coaxial with the
+float arms' pivot, the motor shaft, with the extractor's arms passing outside the roller's ends rather than
+through gaps in it; a stub axle on the side plates at the rest axle line is the alternative only if the roller's
+float path (up and 0.3 in back) clears it. The transfer's pulley at y +2.6 on the roller shaft still works,
+driven by a belt about the float pivot. The CAD session redraws the front with this.
 
 **The V's angle** (this chat's decision under [unified-design.md](unified-design.md); 60 runs, the Rigid V's Autos,
 the drawn intake; the angle is the plate's from straight ahead, tips 17.8 in apart, so steeper is shorter):

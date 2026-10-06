@@ -1576,6 +1576,7 @@ final class FieldSim {
         if (Math.abs(ly) < design.intakeWidthIn / 2) {
             if (!Double.isNaN(design.rollerBottomIn)) {
                 if (p.z + p.kind.radius <= design.rollerBottomIn) return "low";
+                if (!fitsUnderRoller(design, p)) return "gap";
                 return p.z > design.rollerBottomIn + design.rollerDiameterIn / 2 ? "height" : null;
             }
             return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
@@ -1589,7 +1590,13 @@ final class FieldSim {
      */
     private static boolean underRoller(RobotDesign design, Piece p) {
         if (Double.isNaN(design.rollerBottomIn)) return p.z + p.kind.radius <= design.intakeHeightIn;
-        return p.z + p.kind.radius > design.rollerBottomIn && p.z <= design.rollerBottomIn + design.rollerDiameterIn / 2;
+        return p.z + p.kind.radius > design.rollerBottomIn && p.z <= design.rollerBottomIn + design.rollerDiameterIn / 2
+                && fitsUnderRoller(design, p);
+    }
+
+    /** Whether the piece can pass under the roller at all: no bigger than the gap it can open plus the piece's give. */
+    private static boolean fitsUnderRoller(RobotDesign design, Piece p) {
+        return 2 * p.kind.radius <= design.rollerBottomIn + design.rollerFloatIn + RobotDesign.ROLLER_SQUEEZE_IN + 1e-9;
     }
 
     /**

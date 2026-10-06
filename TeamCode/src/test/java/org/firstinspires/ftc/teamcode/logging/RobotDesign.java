@@ -64,6 +64,18 @@ final class RobotDesign {
     double rollerBottomIn = Double.NaN;
     double rollerDiameterIn = Double.NaN;
     /**
+     * How far the roller can rise (a floating roller: spring-loaded, or an arm pivoting at the drive pulley). The
+     * gap under it opens to {@link #rollerBottomIn} plus this, and a piece passes only if it is no bigger than that
+     * gap plus {@link #ROLLER_SQUEEZE_IN}; a bigger piece jams against the roller ("gap"). 0: a fixed roller, which
+     * at 2.4 in passes a POLLEN (2.8) and refuses a NECTAR (3.6): the 6 Oct flag from the transfer chat (#164).
+     */
+    double rollerFloatIn = 0;
+    /**
+     * How much a piece gives as the roller pulls it under, in: a guess (the same 0.4 in as the POLLEN bite guess at
+     * {@link #GUESSED_ROLLER_BOTTOM_IN}), until the cardboard rig measures it for each piece.
+     */
+    static final double ROLLER_SQUEEZE_IN = 0.4;
+    /**
      * Vectored (angled) rollers across the front that pull a piece sideways into one throat (the build team's
      * mentor, 6 Oct 2026): a piece that touches the mouth while the intake is busy with another is held
      * against the rollers and fed through one per {@link #intakeIntervalS}, instead of bouncing off the body.
@@ -378,6 +390,7 @@ final class RobotDesign {
         d.intakeOnContact = intakeOnContact;
         d.rollerBottomIn = rollerBottomIn;
         d.rollerDiameterIn = rollerDiameterIn;
+        d.rollerFloatIn = rollerFloatIn;
         d.intakeHoldsAtMouth = intakeHoldsAtMouth;
         d.exitForwardIn = exitForwardIn;
         d.exitHeightIn = exitHeightIn;
