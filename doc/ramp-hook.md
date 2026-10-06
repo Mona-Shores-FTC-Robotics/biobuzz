@@ -198,6 +198,21 @@ What that changes:
 - **Wiffle balls bounce little and catch on edges through their holes.** That points to the low-e, high-mu
   columns of the tables, where A still empties.
 
+**A second team: 25620 Hexadecimal Nibble, "Passive Flower Intake"** (YouTube Short, 10 s, 4 Oct 2026, "Early
+flower intake testing"). Only its thumbnail could be fetched; YouTube refused the video. What the one frame shows:
+
+- **A metal strip and a yellow printed wedge, with no motor.** The wedge's thin foot sits flat on the tiles,
+  right at the FLOWER's leg under the bracket. The strip climbs from there to the robot's own intake wheels.
+  Measured off one frame, with the perspective, that's roughly 35° and about 5 in up. Treat both as rough.
+- **The ramp slopes up toward the robot,** the opposite of our tongue, which slopes down to let gravity roll the
+  POLLEN out. The bottom POLLEN is on the wedge's low end, blurred, moving toward the robot.
+- **The bottom POLLEN sits low, with no lip in front of it,** so a foot flat on the tiles can get under it.
+- **One frame can't show what drives the POLLEN up the ramp.** It could be the robot's push, the intake wheels
+  reaching down, or the falling column. The 10 s video would show it.
+
+So the cardboard test should try both slopes: down toward the robot (ours, gravity) and up to the intake (theirs,
+a scoop).
+
 Still to read off the video, frame by frame, when we have it:
 
 - the ramp's edge height and angle;
@@ -223,7 +238,9 @@ cardboard and tape, a phone at 240 fps and a tape measure.
    speeds and film how far they come back.
 6. **Hook A against hook B:** mock up both on a cardboard 14.5 in chassis, and check them against an 18 × 24 rectangle
    taped on the floor.
-7. **Version C, 19705's way:** tape the tongue to the front of the intake (or a box standing in for it), hook up.
+7. **25620's scoop:** a wedge on the floor rising about 35° to where the intake would be. Push it in and see
+   what carries the POLLEN up.
+8. **Version C, 19705's way:** tape the tongue to the front of the intake (or a box standing in for it), hook up.
    Push it in, spin the rollers by hand or with a drill, and time it against A.
 
 Bring the numbers back here. They replace the guesses in `ramp.py` (`TUBE_R`, `RING_T`, the tongue's size) and in
