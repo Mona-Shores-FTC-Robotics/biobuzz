@@ -308,6 +308,13 @@ Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
    clear all the way through, including the gear. Check its stock.
 9. **Motor ports.** Count them against the launcher's plan (flywheel motors, and a turret motor or a servo).
 
+## In the whole-robot model
+
+The transfer is in `cad/advantagescope/Robot_BIOBUZZ/model.glb` as fixed placeholder solids (lane, notches, ramp,
+J-wheel and arms, outer J and chute, countershaft pulley, J motor, turret ring), commit 11d79b7 on
+`claude/robotics-meeting-notes-lq2y55`. The simulator draws held pieces at the positions above. Real parts or a STEP
+replace the placeholders; the J arm can become a moving component if the logs should show it.
+
 ## Who this goes to
 
 - **Flower Extracter (CAD and whole-robot model):** the envelope boxes, and the roller-shaft pulley at Y +2.6.
