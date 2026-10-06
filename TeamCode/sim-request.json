@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-right-o3.pp",
-  "spec": "QualRightO3Auto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/autos/qual-stages-angled.pp",
+  "spec": "QualStagesAngledAuto,PartnerAngledParkAuto@50",
   "design": "flat intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -28,9 +28,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-o3.pp",
+    "AutoSource": "qual-stages-angled.pp",
     "SavedBy": "README, qualifier Autos baseline (Flat Intake), physics of 6 Oct 2026 (rolling)"
   },
-  "title": "Qual-PartnerShootsRight",
+  "title": "Qual-PartnerStages-Angled",
   "usual": true
 }
