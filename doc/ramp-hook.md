@@ -20,6 +20,36 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## Drive to the backstop, then back off (6 Oct 2026, late; replaces version 2's stop)
+
+**The idea (mentor):** no curtain wrap and no stop to set. Drive the triangle straight in until its front hits
+the grey upright the bottom POLLEN rests against (the FLOWER's backstop), then back off. `ramp.py` has this as
+`run(..., dwell=, back_speed=, back_dist=)`: drive in to `tip_depth`, wait, reverse `back_dist` inches at
+`back_speed`, stop. The model's backstop is where the bottom POLLEN's back sits, 3.2 in past the pocket's front
+edge, estimated.
+
+- **Staying at the backstop** needs a long triangle: about 2.0 in front to back for 12 of 12. At 1.25 to 1.5 in
+  it empties only 0 to 7 of 12.
+- **Backing all the way out** (5 in) empties the first POLLEN fast, then the rest drop back into an empty pocket.
+- **Backing off about 1 in works with short triangles.** Drive in to the backstop, wait 0.1 s, back off, stop.
+  Emptied of 12 (back-off at 6 and 12 in/s, two pocket depths, three bounce guesses):
+
+| triangle, deep × tall | back 0.5 in | back 0.8 in | back 1.0 in | back 1.3 in |
+|---|---|---|---|---|
+| 0.75 × 0.6 | 4 | 4 | 8 | 12 |
+| 0.75 × 0.8 | 1 | 4 | **12** | **12** |
+| 1.0 × 0.6 | 6 | 9 | 12 | 12 |
+| **1.0 × 0.8** | 6 | **12** | **12** | **12** |
+| 1.25 × 0.6 | 8 | 12 | 12 | 12 |
+| 1.25 × 0.8 | 9 | 12 | 12 | 12 |
+
+  All 4 out in 1.3 to 1.6 s, a little slower than parking at the right depth. But the drive is "push until it
+  stops, back off an inch", with the FLOWER setting the depth.
+- **Pick:** a printed triangle **1.0 in front to back, 0.8 in tall**, bottom 0.5 in up, about 4 in wide. Back off
+  1.0 in: anything from 0.8 to 1.3 in still empties every time.
+- **Photos wanted:** the pocket from the side with a POLLEN in it, and the backstop from above. That checks the
+  3.2 in and how deep the pocket is.
+
 ## Current design, version 2: a stop on the bracket and a printed insert (6 Oct 2026, late)
 
 Mock-up: https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). The three views

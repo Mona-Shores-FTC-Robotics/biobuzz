@@ -108,8 +108,11 @@ def contact(p, v, w, seg, seg_v, e, mu, spin=True):
 
 
 def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None, float_z=None,
-        rod_z=None, wedge=None):
-    """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in)."""
+        rod_z=None, wedge=None, dwell=None, back_speed=12.0, back_dist=4.0):
+    """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in).
+
+    With dwell set, the robot drives in to tip_depth, waits dwell seconds, then backs out at back_speed for back_dist
+    inches and stops: drive in to the hard stop, then reverse."""
     slope = math.radians(slope_deg)
     fixed = flower_segments(ring)
     if wedge is not None:
@@ -126,11 +129,18 @@ def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_m
     tip = tip_start
     t = 0.0
     step = 0
+    arrived = None
     while t < t_max:
-        moving = tip > tip_stop
-        rv = (-drive, 0.0) if moving else (0.0, 0.0)
-        if moving:
+        if tip > tip_stop and arrived is None:
+            rv = (-drive, 0.0)
             tip = max(tip_stop, tip - drive * DT)
+            if tip <= tip_stop:
+                arrived = t
+        elif dwell is not None and arrived is not None and t > arrived + dwell and tip < tip_stop + back_dist:
+            rv = (back_speed, 0.0)
+            tip = min(tip_stop + back_dist, tip + back_speed * DT)
+        else:
+            rv = (0.0, 0.0)
         pts = [(tip + x, z) for x, z in prof]
         ramp = list(zip(pts, pts[1:]))
         for b in balls:
