@@ -49,10 +49,9 @@ Check part numbers and lengths on gobilda.com; these are the kinds of parts, not
 
 | Item | Notes |
 |---|---|
-| goBILDA 8 mm REX shafts: one about 14 in (front), two about 8.5 in (side wall), one for the hinge axle | Their rounded corners sit on an 8 mm circle, so they slide in the round bores, and the set screws bite on a flat. Any 8 mm round shaft works too. Cut from longer stock |
+| goBILDA 8 mm REX shafts: front 330–356 mm (stock 336), side wall 2 × 200–217 mm (stock 216), hinge axle = bearing spacing + about 20 mm (stock 120 or 144) | The bores are blind, so each shaft works over a range, and goBILDA's stock lengths fall inside it: no cutting. Their rounded corners sit on an 8 mm circle, so they slide in the round bores, and the set screws bite on a flat. Any 8 mm round shaft works too: cut it into the range, file the end and chamfer it |
 | goBILDA bearings or pillow blocks for 8 mm, 2 | On the chassis, carrying the hinge axle |
 | 2 to 4 goBILDA clamping collars for 8 mm REX | Either side of the block: they locate it sideways. Better than set screws alone |
-
 | M3 screws: 2 set screws for the block, 3 for the corner block, 3 for the hinge block, 1 per clip, 2 per clip to clamp the panels | Self-tapping into the printed holes |
 | 1/16 in polycarbonate: two curtain panels about 4.9 × 2.2 in, one side panel about 7 × 2.7 in | The curtains' tops are 3.5 in above the tiles, under the FLOWER's 3.55 in bracket. The side wall tops out at about 4 in |
 
