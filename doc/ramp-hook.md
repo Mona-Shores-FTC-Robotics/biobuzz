@@ -198,6 +198,19 @@ What that changes:
 - **Wiffle balls bounce little and catch on edges through their holes.** That points to the low-e, high-mu
   columns of the tables, where A still empties.
 
+**19705's "Behind the Bot"** (FUN Robotics Network, 19 Sep 2026, 7.5 min). YouTube refused the video, so this
+comes from its thumbnail and preview frames, about one every 5 s. It's mostly interview and close-ups of the robot.
+No preview frame shows the FLOWER being emptied, so the timing question is still open. What the close-ups show:
+
+- **Their "ramp" is a pivoting front C.** Two red arms hinge low at the chassis' front corners, joined by a red
+  crossbar. Swung down, the C lies flat on the tiles in front of the intake, and the crossbar is the thin edge
+  that goes into the FLOWER. Swung up, it stands in front of the rollers. It's the same family as our front C
+  (design 8) and the hooks, which supports the meeting's idea of making the hook do both jobs.
+- **The crossbar is only a few inches in front of the intake** (white molded star-wheel rollers, the full
+  width), not our hook's 8 in. Their intake is right there to pull each POLLEN as it comes out. A shorter arm on
+  our hook would get the same effect and fix our R105 problem (version A needs the arm at 6.85 in or less on
+  option 3).
+
 **A second team: 25620 Hexadecimal Nibble, "Passive Flower Intake"** (YouTube Short, 10 s, 4 Oct 2026, "Early
 flower intake testing"). Only its thumbnail could be fetched; YouTube refused the video. What the one frame shows:
 
