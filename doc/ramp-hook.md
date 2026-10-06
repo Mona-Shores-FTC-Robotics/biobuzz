@@ -54,6 +54,12 @@ Redraw it with `python3 tools/ramp-hook/views.py`.
     and shoves it straight back into the pocket. The same shape with its front stopped at 1.3 in empties in
     8 of 8 (1.1 to 1.2 s). Flipped point-first, it fails at every height. **Keep the front face's top under about
     1.3 in; the back can be as steep as you like.**
+  - **Half-round is worse than the triangle.** A half-round bar, flat side down, 1.0 to 2.0 in wide, bottom 0.3 or
+    0.5 in up: at best it empties in 6 of 12 cases (1.3 in wide), and only when pushed 2.6 in in. At a 2.1 in reach
+    it fails every time, and at 2.0 in wide (top 1.3 to 1.5 in) it always fails. The round front meets the
+    POLLEN too high and too square to lift it well, and the round back drops it close to the pocket's edge.
+  - **A slightly rounded nose is fine.** The 1.5 x 0.8 triangle with its top front corner rounded to 0.15 in
+    radius still empties in 12 of 12 (0.82 to 1.2 s). At 0.3 in radius it drops to 9 of 12.
 - **Size:** 14.5 + 8 + 1.5 = 24.0 in, so **option 3's chassis fits as it is.** Stowed, the 4 in side wall sticks
   out in front, which makes 18.5 in: hinge the hook 0.5 in inside the frame, or make the wall 3.5 in tall.
 - **For the spill:** the front is a 4 in wall except the 6 in gap, and the bar runs under the gap too.
