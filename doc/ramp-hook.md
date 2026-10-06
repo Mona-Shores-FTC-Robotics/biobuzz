@@ -20,6 +20,26 @@ Present: Travis, Nathan, CJ and a mentor.
   expected, so **the plan is the hook**.
 - **Next:** cardboard prototypes on Thursday. The mentor will post the other team's video.
 
+## The design (corrected 6 Oct 2026)
+
+**The ramp is the hook's front.** The C has one tall wall, the 8 in right arm (about 4 in, leaning in 30°). In place
+of a tall crossbeam, its front is a **low, thin ramp across the full 14.5 in width**. Its edge sits about 1 in up
+at a FLOWER, resting on the ring, and it slopes down 12° into the hook's floor plate. Driven into a FLOWER, the
+edge slides under the bottom POLLEN, and the column rolls down the ramp to the intake, 8 in back. That's
+`ramp.py`'s slice exactly, with "tongue" read as "the ramp front".
+
+- **Size:** nothing sticks out past the ramp, so option 3's 14.5 in chassis fits as it is: 14.5 + 8 = **22.5 in of
+  24**. The shorter chassis (A2) and the side tongue (B) below are no longer needed.
+- **Start:** the tight one now. Stowed, the 4 in arm wall sticks out about 3.5 in in front of the chassis
+  (14.5 + 3.5 ≈ 18.0 of 18). Hinge the hook a little inside the frame, or make the wall shorter.
+- **Spill:** the arm still catches the spill. Along the front, pieces rolling outward have to climb the 1 in
+  ramp to escape (faster than about 37 in/s), and anything landing on the ramp rolls in toward the intake.
+- **3D mock-up:** https://claude.ai/artifact/HfHKiovcn5d3wgXp7PATXR (private until shared). Its balls move as
+  `ramp.py` simulates them.
+
+The sections below came before this correction. Their physics holds. Their geometry (a tongue on a tall
+crossbeam, or on the arm's side) is superseded.
+
 ## The idea
 
 The small right hook (design 14: an 8 in arm and a crossbeam, hinged at the bottom of the chassis' front face) gets
