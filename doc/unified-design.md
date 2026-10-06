@@ -305,6 +305,24 @@ The routes are the baselines unchanged, so they're still timed for 0.45 s shots.
 - **G409 rises with the faster shots** (Stages wall 16 → 25–26). Spills come down while the robot is still close in.
   Retimed waits should bring it back down.
 
+**Retimed for the 0.25 s shots** (`tools/auto-routes/retime.py`, 60 runs on "rigid V, transfer"). Only the
+wait for TIP 2's spill to land changes:
+
+| Auto | Wait | Points | 3 TIPs (of 60) | G409 runs | Tried |
+|---|---|---|---|---|---|
+| Partner shoots | **200 ms** after TIP 2 settles (was 500) | 70.5 (untuned 68.5; 0.45 s baseline 71.2) | 46 (40; 48) | 16 | 0: 68.5, G409 58 · 100: 70.2, G409 43 · 800: 65.5 · 1100: 64.5 |
+| Angled partner | **1300 ms** from TIP 2's start (unchanged) | 54.3 | 7 | 19 | 700: 51.7 and PARK 24 · 1000: 53.4 and PARK 41 · 1600: 53.3 |
+| Wall partner | **700 ms** from TIP 2's start (was 1300) | **60.7** (untuned 58.0; baseline 55.3) | **34** (26; 26) | 32 | 400: 53.3 · 550: 58.0 · 1000: 58.3 · 1600: 56.7 |
+
+**With the transfer and its retimed waits, each Auto against the 0.45 s baseline:**
+- **Partner shoots:** holds level, 70.5 against 71.2, within the 60-run noise.
+- **Angled partner:** gains 2.7 points.
+- **Wall partner:** gains 5.4 points, with 3 TIPs in 34 of 60 runs instead of 26.
+
+**What it costs: G409.** A shorter wait means driving into a spill that is still landing. The wall partner's Auto
+goes from 16 to 32 touched runs, and partner shoots from 8 to 16. If G409 gets called on a real field, the longer
+waits are the fallback.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
