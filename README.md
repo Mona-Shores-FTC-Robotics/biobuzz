@@ -191,18 +191,23 @@ a crossbeam across the 14.5 in chassis, placed on the same 95% lines.
 
 | Design | AUTO points | TIP 3 in | Our robot PARKs | Runs with a G409 touch | TIP 2's spill on the blue half |
 |---|---|---|---|---|---|
-| 1 · Plain option 3 (qual-right-o3) | 64.8 / 57.3 | 11 / 5 of 20 | 11 / 5 | 0 / 0 | 31% / 32% |
-| **15 · Rigid V** | **71.0 / 69.8** | **16 / 15** | **16 / 15** | **0 / 0** | 28% / 28% |
-| 13 · Large right hook (9.5 in arm) | 64.3 / 60.5 | 11 / 8 | 9 / 6 | 7 / 19 | **10%** / 14% |
-| 14 · Small right hook (8 in arm) | 63.3 / 59.8 | 10 / 7 | 9 / 7 | 13 / 19 | 8% / 16% |
+| 1 · Plain option 3 (qual-right-o3) | 64.8 / 61.3 | 11 / 8 of 20 | 11 / 9 | 0 / 0 | 31% / 30% |
+| **15 · Rigid V** | **71.0 / 72.3** | **16 / 17** | **16 / 17** | **0 / 0** | 28% / 25% |
+| 13 · Large right hook (9.5 in arm) | 64.3 / 64.0 | 11 / 11 | 9 / 8 | 7 / 20 | **10%** / 14% |
+| 14 · Small right hook (8 in arm) | 63.3 / 60.8 | 10 / 8 | 9 / 7 | 13 / 19 | 8% / 19% |
 
 - **The rigid V is the one to look at on option 3.** Its flaps turn the 14 in intake's mouth into an 18 in one, and
-  the simulator's biggest lever is intake width: TIP 3 and PARK in 16 of 20 instead of 11, no G409 touches. It adds
-  no moving parts. Worth a cardboard test before trusting: the flaps' angle and the pieces' bounce are guesses.
-- The hooks still keep TIP 2's spill on our half, but on option 3 they cost points and are touched by falling
-  pieces in a third of the runs or more.
-- The plain robot's slow-tile number here (57.3) is below `claude/simulator`'s README (61.3); same code and seeds
-  for every row of this table, so the comparison between rows holds.
+  the simulator's biggest lever is intake width: TIP 3 and PARK in 16-17 of 20 instead of 8-11, no G409 touches.
+  It adds no moving parts. Worth a cardboard test before trusting: the flaps' angle and the pieces' bounce are guesses.
+- **The large hook scores what the plain robot does** (within the runs' noise: most runs score 51 or 76, on whether
+  TIP 3 comes in time) **and keeps two thirds of TIP 2's spill off the blue half.** AUTO points don't count that:
+  it is pieces for TELEOP. The body helps (on the plain route it would add 2-3 points); what it costs is the route's
+  1 s wait for the spill (0.5 s more than qual-right-o3), which finishes AUTO about 0.5 s later. Without the wait it
+  scores 65.8 / 63.5 but touches falling pieces in 20 / 18 runs; the touches (G409) are its open problem: 7 of 20
+  runs even with the wait, every run on slow tiles, where the spill lands about 4 in further out, on its crossbeam.
+- Watch one match three ways: `shape-match-o3-plain-seed19`, `-o3-rigid-v-seed19`, `-o3-large-hook-seed19` (all 76).
+- 6 Oct 2026: slow-tile numbers rerun. The HIVE's fitted constants were cached without the friction, so a slow-tile
+  run after a normal-tile one in the same test used a HIVE fitted on normal tiles (`HiveCalibration.fit`, fixed).
 
 **In the Qualifier Auto, on the 18 in robot** (`ShapeMatchTest`, 5 Oct 2026, before option 3 became the baseline;
 these numbers were run before merging `claude/simulator`, whose changes move them a little): four of them through the whole of qual-right-v3 with its

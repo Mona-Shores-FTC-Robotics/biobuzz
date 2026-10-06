@@ -23,7 +23,8 @@ import java.util.Locale;
  * BIOBUZZ_SHAPE_MATCHES=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*ShapeMatchTest*' -i
  * </pre>
  * Prints a row a design and tiles, writes {@code build/sim-logs/shape-matches.csv}, and the best and the
- * median run on normal tiles of each design as {@code shape-match-<design>-best.wpilog} / {@code -typical}.
+ * median run on normal tiles of each design as {@code shape-match-<design>-best.wpilog} / {@code -typical}, and, to
+ * compare designs on one match, each design's run of its plain robot's typical seed, {@code -seed<n>}.
  * "TIP 2's spill on the blue half": of the pieces our CELL spills at TIP 2 (the one a hook waits for), those
  * on the other alliance's half 3 s after it starts ({@link AutoSim.Result#tipSpills}).
  */
@@ -53,8 +54,10 @@ public class ShapeMatchTest {
                 + "tip2Spilled,tip2BlueHalfPercent,heldAtTeleop,bestSeed,typicalSeed; ShapeMatchTest, " + RUNS + " runs each\n");
         for (double friction : new double[] {1, 3}) {
             FieldSim.frictionScale = friction;
+            long[] typicalOf = new long[CASES.length];
             try {
-                for (String[] c : CASES) {
+                for (int ci = 0; ci < CASES.length; ci++) {
+                    String[] c = CASES[ci];
                     RobotDesign design = AutoStudyTest.designs().get(c[2]);
                     RobotDesign partner = AutoStudyTest.designs().get("spring hood");
                     double points = 0, held = 0;
@@ -80,6 +83,7 @@ public class ShapeMatchTest {
                     double[][] sorted = bySeed.clone();
                     Arrays.sort(sorted, (a, b) -> a[0] != b[0] ? Double.compare(b[0], a[0]) : Double.compare(a[1], b[1]));
                     long best = (long) sorted[0][1], typical = (long) sorted[RUNS / 2][1];
+                    typicalOf[ci] = typical;
                     if (friction == 1) {
                         for (Object[] keep : new Object[][] {{best, "best"}, {typical, "typical"}}) {
                             Files.copy(new File(scratch, c[3] + "-" + keep[0] + ".wpilog").toPath(),
@@ -97,6 +101,16 @@ public class ShapeMatchTest {
                             spilled == 0 ? 0 : 100.0 * blue / spilled, spilled, held / RUNS, best, typical);
                     assertTrue(c[0] + ": no TIP 2 spill counted", spilled > 0);
                 }
+                if (friction == 1) {
+                    // The same match for every design of a robot: its plain design's typical seed, so plain and
+                    // shape can be watched side by side (shape-match-<design>-seed<n>.wpilog).
+                    for (int ci = 0; ci < CASES.length; ci++) {
+                        long seed = typicalOf[plainOf(ci)];
+                        Files.copy(new File(scratch, CASES[ci][3] + "-" + seed + ".wpilog").toPath(),
+                                new File(dir, "shape-match-" + CASES[ci][3] + "-seed" + seed + ".wpilog").toPath(),
+                                StandardCopyOption.REPLACE_EXISTING);
+                    }
+                }
             } finally {
                 FieldSim.frictionScale = 1;
             }
@@ -104,6 +118,13 @@ public class ShapeMatchTest {
         Files.write(new File(dir, "shape-matches.csv").toPath(), csv.toString().getBytes(StandardCharsets.UTF_8));
         for (File f : scratch.listFiles()) f.delete();
         scratch.delete();
+    }
+
+    /** The plain design's case for case {@code ci}: the first case with the same robot (the 18 in one, or option 3). */
+    static int plainOf(int ci) {
+        int plain = 0;
+        for (int i = 0; i <= ci; i++) if (CASES[i][1].equals("QualRightV3Auto") || CASES[i][1].equals("QualRightO3Auto")) plain = i;
+        return plain;
     }
 
     /** Every case names an Auto that exists and a design the simulator knows. */

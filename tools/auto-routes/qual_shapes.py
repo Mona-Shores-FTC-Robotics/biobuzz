@@ -70,11 +70,12 @@ O3_SHAPES = {
 }
 
 
-def o3_shaped(name, hook_at):
-    """qual-right-o3 (qual_right.right with its O3 options), sliding to `hook_at` as TIP 2 starts, before the tail."""
+def o3_shaped(name, hook_at, extra=None):
+    """qual-right-o3 (qual_right.right with its O3 options), sliding to `hook_at` as TIP 2 starts, before the tail;
+    `extra`: ms to wait for TIP 2's spill to land before driving into it, if not qual-right-o3's."""
     kw = dict(qual_right.O3["qual-right-o3"])
-    if hook_at:
-        kw["extra"] = 1000
+    if extra is not None:
+        kw["extra"] = extra
     tail = qual_right.tail
 
     def hooked(r, **t):
@@ -108,7 +109,10 @@ if __name__ == "__main__":
     for name, (design, length, hook_at) in SHAPES.items():
         shaped(name, length, hook_at, **options(hook_at)).write()
     for name, (design, hook_at) in O3_SHAPES.items():
-        o3_shaped(name, hook_at).write()
+        # A hook waits 1 s for TIP 2's spill, not qual-right-o3's 0.5 s (6 Oct 2026, 20 runs normal / slow tiles,
+        # large hook: 0 s 65.8 / 63.5 points but touched in 20 / 18 runs; 0.5 s 61.0 / 63.5, 21% / 20% of the spill
+        # on the blue half; 1 s 64.3 / 64.0, 10% / 14%. Plain qual-right-o3: 64.8 / 61.3, 31% / 30%).
+        o3_shaped(name, hook_at, extra=1000 if hook_at else None).write()
     if runs == 0:
         sys.exit()
     for f in ("1", "3"):
