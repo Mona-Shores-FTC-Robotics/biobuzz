@@ -68,7 +68,8 @@ transfer assumes the roller delivers pieces moving rearward at about 50 in/s, 7.
 | Lane floor | z 0.9, from X 5.8 back to the J. Walls 4.2 in apart (POLLEN can't sit side by side) |
 | Floor strands | 3/16 in polycord at Y ±0.75, on 0.75 in pulleys at X 5.6 and −1.0, z 0.55 |
 | J-wheel | 48 mm gecko ×2 (the roller's wheels). Axle at **(−1.32, 4.54)** when resting on its hard stop |
-| Floating arm | Pivots at (0.45, 2.77) on stub shafts in the lane walls. The wheel rises 45° up-forward, up to 1.2 in, for a NECTAR. A soft band (surgical tubing, about 1 lbf preload) holds it on the stop |
+| Floating arm | 2.5 in long, pivoting at (0.85, 3.29) on stub shafts in the lane walls, 30° above horizontal. The wheel lifts up to 1.2 in for a NECTAR. A soft band (surgical tubing, about 1 lbf preload) returns it to the stop |
+| Why 30° | The queue's push on the stopped wheel must turn the arm **onto** its stop. From the torque about the pivot, a POLLEN's push closes the arm at any angle up to about 50°, a NECTAR's only below about 42°. At 30° both close with margin; at the 45° first drawn, a NECTAR was neutral |
 | Outer J | Radius 3.64 in about the wheel's resting axle, from the lane floor round to a vertical rear wall at X **−4.96** |
 | Gap | POLLEN gripped by 0.1 in at the stop. NECTAR lifts the arm 0.8–1.2 in |
 | Piece column | NECTAR centred at X −3.15, which is on the axis. POLLEN at −3.56. Both are inside the bore (X −5.24 to −1.10) |
@@ -111,8 +112,11 @@ turret's travel is however much its cable loop allows.
 
 **Jam risks, and the fix for each.**
 - *A NECTAR at the J's mouth.* It has to lift the arm, and while the wheel is stopped, the arm mustn't lift. The arm's
-  angle (pivot forward and below the wheel) is chosen for that: a stopped wheel holds a NECTAR, and a turning one drags
-  it in. Prove it in cardboard (checklist item 4).
+  30° angle is chosen for that: the queue's push turns the arm onto its stop for both sizes, and only the turning
+  tread lifts it. Run the J motor in brake mode so the stopped wheel is a brake. Prove it in cardboard (checklist
+  item 4).
+- *A bump while driving.* The gap between the wheel's top (5.5) and the bearing (6.6) is too small for a ball, so a
+  bounced piece can't get over the wheel. A lid over the last 3 in of the lane is cheap insurance.
 - *Two pieces in the J at once.* This can't happen while the lane delivers slower than the J clears. Keep the J at full
   speed whenever it runs.
 - *A piece stuck on the ramp.* The roller has to throw it at 25 in/s or more. If it doesn't, lower the ramp's angle.

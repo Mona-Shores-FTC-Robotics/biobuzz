@@ -27,7 +27,7 @@ JW_R = 0.945                             # 48 mm gecko
 J_X, J_Z = -1.32, FLOOR + 2.80 - 0.10 + JW_R   # J-wheel axle at its POLLEN hard stop
 J_OUT = JW_R + 2.80 - 0.10               # outer J radius about that axle
 J_REAR = J_X - J_OUT                     # vertical rear wall of the chute
-PIVOT = (J_X + 1.77, J_Z - 1.77)         # arm pivot, so the wheel floats 45 deg up-forward
+PIVOT = (J_X + 2.165, J_Z - 1.25)        # arm pivot, 2.5 in away at 30 deg: the queue's push closes the arm
 BEARING_Z = (6.6, 7.8)                   # turret bearing, height to confirm from goBILDA's CAD
 LANE_W = 4.2                             # clear width between lane walls
 
@@ -148,7 +148,7 @@ def concept_a():
     s.arc(J_X, J_Z, J_OUT, 180, 270, "lane")
     s.line([(J_REAR, J_Z), (J_REAR, BEARING_Z[0])], "lane")
     s.circle(J_X, J_Z, JW_R, "new")
-    s.circle(J_X + 0.82, J_Z + 0.82, JW_R, "thin")
+    s.circle(J_X + 0.60, J_Z + 1.04, JW_R, "thin")
     s.line([PIVOT, (J_X, J_Z)], "belt")
     s.circle(*PIVOT, 0.3, "new")
     s.text(PIVOT[0] + 1.6, PIVOT[1] - 0.35, "arm pivot + J motor", "l")
