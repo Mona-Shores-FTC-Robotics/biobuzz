@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/qual-stages-wall.pp",
-  "spec": "QualStagesWallAuto,PartnerStage19SideParkAuto@50",
-  "design": "flat intake",
+  "pp": "TeamCode/autos/qual-right-o3-rigid-v.pp",
+  "spec": "QualRightO3RigidVAuto,PartnerPreloadsRightAuto@50",
+  "design": "flat intake, rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -28,9 +28,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-stages-wall.pp",
-    "SavedBy": "README, qualifier Autos baseline (Flat Intake), physics of 6 Oct 2026 (rolling)"
+    "AutoSource": "qual-right-o3-rigid-v.pp",
+    "SavedBy": "README, the Rigid V on Qual-PartnerShootsRight, physics of 6 Oct 2026 (rolling)"
   },
-  "title": "Qual-PartnerStages-Wall",
+  "title": "Qual-PartnerShootsRight",
   "usual": true
 }
