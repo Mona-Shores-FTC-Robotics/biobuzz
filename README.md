@@ -85,6 +85,10 @@ all of them). The guides being explored, each on the Flat Intake:
   (TIP 3 is out of reach for every guide). The hooks (now the Ramp Hook) score no better and are touched by falling pieces in most
   runs. Worth a cardboard test: the flaps' angle and the bounce are guesses.
   [Every shape on every Auto](doc/shape-matrix.md); the earlier study: [robot shapes](doc/robot-shapes-and-walls.md).
+  **To watch the guides:** [shape-matches-advantagescope.zip](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/shape-matches-advantagescope.zip)
+  (5 Oct): import its `advantagescope-layout-match-shapes.json`, then drag in a log from `logs/`. On the Flat Intake:
+  `shape-match-o3-plain`, `-o3-rigid-v`, `-o3-small-hook` (the Ramp Hook), each `-best` and `-typical`; re-import
+  the normal layout afterwards.
 - **Side Rails and hooks keep more of a spill, but falling pieces hit them** (G409) where they reach into the
   Drop Zone. Both rails out (the "long U") were touched in most TIPs; the hooks keep TIP 2's spill on our half
   but were touched in a third of runs or more on the Flat Intake. [Side walls and shapes](doc/robot-shapes-and-walls.md).

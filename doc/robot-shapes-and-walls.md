@@ -180,7 +180,7 @@ alliance's half 3 s after it starts.
 - Could the same hook, part-way up, also be a backboard that drops NECTAR into a FLOWER? No: it is 12 in too short,
   and a FLOWER is worth points only in the last 60 s. [`doc/flower-backboard.md`](doc/flower-backboard.md) (#158) has
   the rules, the geometry, what the simulator can't model, and a cardboard test.
-- To watch them: [`shape-matches-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/shape-matches-advantagescope.zip)
+- To watch them: [`shape-matches-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/shape-matches-advantagescope.zip)
   (model `BIOBUZZ Robot (match shapes)`, layout, best and typical log of each design; its README.txt says how).
   Rerun: `python3 tools/auto-routes/qual_shapes.py` writes the routes; `BIOBUZZ_SHAPE_MATCHES=1 ./gradlew
   :TeamCode:testDebugUnitTest --tests '*ShapeMatchTest*'` runs them (`build/sim-logs/shape-matches.csv`).
@@ -268,7 +268,7 @@ Chassis face on the 100% line, 8 POLLEN (`sim-review/body-shapes.png` has 36.5 a
 ![The shapes in 3D, as AdvantageScope draws them (the see-through box is what the simulator bounces pieces off)](sim-review/body-shapes-3d.png)
 
 **To watch them in AdvantageScope** (no build needed): download
-[`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/biobuzz-robot-body-designs-hi386c/sim-review/body-shapes-advantagescope.zip),
+[`body-shapes-advantagescope.zip`](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/claude/simulator/sim-review/body-shapes-advantagescope.zip),
 copy its `Robot_BIOBUZZShapes` folder into `%APPDATA%\AdvantageScope\userAssets` (next to the HIVE assets from the
 setup below), restart AdvantageScope, import its `advantagescope-layout-shapes.json`, and open
 `body-all-shapes.wpilog`: every shape, face on the 100% line, one after another, 4.5 s each, on a typical TIP and then
