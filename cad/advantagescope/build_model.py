@@ -82,6 +82,52 @@ def limelight():
         out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
     return out
 
+def transfer():
+    """The intake-to-turret transfer (transfer chat, issue #164, doc/transfer.md on spike/164-transfer) as placeholder
+    solids from its envelope boxes, until it has real parts. AdvantageScope inches, drawn fixed."""
+    from shapely.geometry import Polygon, Point
+    from shapely.ops import unary_union
+    PURPLE, GREEN, DARK, GREY = (0.55, 0.47, 0.75), (0.35, 0.66, 0.31), (0.19, 0.2, 0.23), (0.67, 0.7, 0.74)
+    out = []
+    def put(h, rgb): out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
+    def boxm(lo, hi): return trimesh.creation.box(bounds=[lo, hi])
+    def xz_solid(poly, y0, y1):
+        """A shape drawn in the X-Z plane, extruded across Y from y0 to y1."""
+        h = trimesh.creation.extrude_polygon(poly, y1 - y0)          # polygon in (X, Z), extruded along its +z
+        v = h.vertices.copy(); h.vertices = np.c_[v[:, 0], v[:, 2] + y0, v[:, 1]]
+        h.invert() if h.volume < 0 else None
+        return h
+    def ycyl(cx, cz, r, y0, y1):
+        h = trimesh.creation.cylinder(radius=r, height=y1 - y0, sections=32)
+        h.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0])); h.apply_translation([cx, (y0 + y1) / 2, cz]); return h
+    # lane: floor at 0.9 (0.1 thick) and walls 0.06 thick at Y +-2.1, X -1.3..7.2, up to 5.0; notched to 3.4 over the
+    # drive motors' encoder caps (X 2.3..4.0) and to 4.7 under the raised 11-hole channel (X 4.95..5.6)
+    put(boxm([-1.3, -2.16, 0.8], [7.2, 2.16, 0.9]), PURPLE)
+    for s in (-1, 1):
+        y0, y1 = sorted((s * 2.1, s * 2.16))
+        for x0, x1, top in ((-1.3, 2.3, 5.0), (2.3, 4.0, 3.4), (4.0, 4.95, 5.0), (4.95, 5.6, 4.7), (5.6, 7.2, 5.0)):
+            put(boxm([x0, y0, 0.9], [x1, y1, top]), PURPLE)
+    # ramp: from (8.0, 0.05) down to the lane floor at (5.8, 0.9)
+    a, b = np.array([8.0, 0.05]), np.array([5.8, 0.9]); d = (b - a) / np.linalg.norm(b - a); nrm = np.array([-d[1], d[0]]) * 0.06
+    put(xz_solid(Polygon([a, b, b + nrm, a + nrm]), -2.1, 2.1), PURPLE)
+    # J-wheel (48 mm, 2 in wide) on its axle at (-1.32, 4.54), arms to the pivot at (0.85, 3.29)
+    put(ycyl(-1.32, 4.54, 0.945, -1.0, 1.0), GREEN)
+    for s in (-1, 1):
+        ax, pv = np.array([-1.32, 4.54]), np.array([0.85, 3.29]); d = (pv - ax) / np.linalg.norm(pv - ax); nrm = np.array([-d[1], d[0]]) * 0.25
+        put(xz_solid(Polygon([ax - nrm, pv - nrm, pv + nrm, ax + nrm]), s * 1.06 - 0.06, s * 1.06 + 0.06), GREY)
+    # outer J and chute: a 3.64 in arc about the axle from the lane floor round to the back, then a wall at X -4.96 to 6.6
+    c, r0, r1 = np.array([-1.32, 4.54]), 3.64, 3.70
+    arc = lambda r: [c + r * np.array([math.cos(q), math.sin(q)]) for q in np.linspace(-math.pi / 2, -math.pi, 24)]
+    shell = Polygon(arc(r1) + [np.array([-4.96 - 0.06, 6.6]), np.array([-4.96, 6.6])] + arc(r0)[::-1])
+    put(xz_solid(shell.buffer(0), -2.2, 2.2), PURPLE)
+    # countershaft pulley (24 mm) at (6.0, 4.0), Y +2.6; the J motor (any spot in its box: drawn along X in it)
+    put(ycyl(6.0, 4.0, 0.47, 2.5, 2.7), DARK)
+    h = trimesh.creation.cylinder(radius=0.73, height=4.7, sections=24)
+    h.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 1, 0])); h.apply_translation([-1.6, 3.6, 2.4]); put(h, DARK)
+    # turret bearing: a ring, 105 mm (4.13 in) inside, 6.6..7.8 up, centred on (-3.17, 0)
+    ring = trimesh.creation.annulus(r_min=4.13 / 2, r_max=5.5 / 2, height=1.2, sections=48); ring.apply_translation([-3.17, 0, 7.2]); put(ring, GREY)
+    return out
+
 def main(robot_pkl, addon_pkl, pod_pkl=None):
     keep = pickle.load(open(robot_pkl, "rb"))
     add = pickle.load(open(addon_pkl, "rb"))
@@ -100,6 +146,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
     base += limelight()
+    base += transfer()
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
     os.makedirs(OUT, exist_ok=True)
