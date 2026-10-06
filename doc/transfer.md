@@ -280,7 +280,13 @@ shots. "Lane only" means the lane's capacity rule (`RobotDesign.laneCapacity`). 
   retiming. G409 touches rise for the same reason.
 - **Holding only 3 NECTAR costs 0.3–1.0 points.** That's worth paying for A's G407-by-geometry over B's counter.
 
-## Rear entry: loading from a FLOWER extractor at the back (asked 6 Oct 2026)
+## Rear entry: loading from a FLOWER extractor at the back (asked and decided 6 Oct 2026)
+
+**Decided: the extractor stays at the front, and none of this is built.** The reason is in the mechanism itself:
+rear entry needs the J-wheel running in reverse, so the robot can't shoot while it extracts, and shooting while
+extracting was the rear's main point. The front path runs one way (roller → lane → J → turret) and can do both at
+once. The study is kept for the record.
+
 
 The scorer chat asked whether the transfer can take pieces from its rear end, if the FLOWER extractor moves to the
 back of the robot. **Yes, through the chute, with the J-wheel run in reverse.** Nothing in the front path changes.
@@ -342,10 +348,8 @@ block in about 1.0 s). This is the rear version to build, if any:
 - **Risks** (cardboard): a ball's holes catching the door's edge; the door's stop; the 0.14 in under the back
   channel; the slow 4th ball stalling in the doorway (the floor from the back face to the pocket is flat, 2.6 in).
 
-**Showstoppers:** none. With the floor-level door the rear path costs the transfer one sprung door and a J motor
-that reverses, plus (per the CAD chat) the V's reach and the extractor's own length. The high window and its powered
-lift are superseded. **The transfer's view:** the front extractor is still simpler, but the rear is now a fair
-option, and the door is the first thing to prototype if it's chosen.
+**Showstoppers:** none mechanical. With the floor-level door the rear path would cost the transfer one sprung door
+and a J motor that reverses. What decided it was the reversed J: no shooting while extracting.
 
 ## Checklist for the next meeting (cardboard first)
 
@@ -374,10 +378,7 @@ Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
 8. **The turret.** Get goBILDA's CAD for 3208-0004-0001: its outer diameter, its height, and whether the 105 mm is
    clear all the way through, including the gear. Check its stock.
 9. **Motor ports.** Count them against the launcher's plan (flywheel motors, and a turret motor or a servo).
-10. **Rear entry, if the extractor goes to the back.** Fit a cardboard side-hinged door to the J's lower-rear
-    quarter with a rubber band. Roll a POLLEN at it along a 0.9 in floor at about 8 in/s (the slow 4th ball): does
-    the door open, and does the ball reach the pocket? Does the reversed drill-wheel pull it into the lane? Fire it:
-    does the door hold?
+10. ~~Rear entry~~ Not needed: the extractor stays at the front (6 Oct 2026).
 
 ## In the whole-robot model
 
