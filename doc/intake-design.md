@@ -25,7 +25,10 @@ from; the ones marked **guess** are the ones the cardboard tests below replace.
    (14–17 a run) are pieces passing the front with their top above 8 in: a spill still in the air where the
    robot waits for it, which no intake may catch (G409). Neither a taller bite window nor a faster throat
    (0.25 to 0.7 s a ball, no change) is worth building for.
-4. **Build in cardboard first:** the roller height test (which bottom height lifts a POLLEN and a NECTAR off the
+4. **The design to model** (section below): a 14 in roller of 48 mm wheels on a shaft 1.3 in ahead of the front
+   face with its bottom at 2.4 in, hung from the front uprights, and the ramp hook hinged on that same shaft so
+   the two never cross. Dimensioned for the CAD session to fit-check.
+5. **Build in cardboard first:** the roller height test (which bottom height lifts a POLLEN and a NECTAR off the
    tiles, and how fast), the mouth-edge test (is a ball at the edge of a 14 in mouth pulled in or batted
    aside), and only then the vectored rollers (does a ball held against them wait, or squirt out sideways).
 
@@ -243,6 +246,60 @@ costs nothing measurable on the tiles.
   options), because the flaps turn a sweep into a stream of pieces at the mouth, and that is where the queue
   earns its 3 points. The V's G409 touches (2–5 runs of 60) are the flaps', the same as the published V.
 - **G409** stays at 0–2 runs of 60 on every plain option: the intake does not change where the robot waits.
+
+## The design to model: a full-width roller ahead of the face, the ramp hook hinged above it
+
+This is the intake design this study recommends, dimensioned for the CAD session to model and turn into a STEP.
+The CAD session has already swept it against the robot CAD on a 0.1 in grid ([robot-cad.md](robot-cad.md),
+"Fit checks for the intake study", `tools/robot-cad/optb.py`); the numbers below are theirs where they checked
+and mine where they have not. The simulator numbers behind it: the 14 in roller with the Rigid V scores 64.1
+(the Flat Intake's V exactly), the Ramp Hook on the Flat Intake 66.3 ([shape-matrix.md](shape-matrix.md)), and
+vectored rollers add 3 points on top of the V. Positions are in the robot's frame, inches: **x ahead of the
+front face** (the front end of the side rails), **y to the robot's left** of the centre line (midway between the
+rails), **z up from the tiles**. In the STEP (mm; x across with the right at −x, y up, z forward):
+STEP x = −59.62 − 25.4·y, STEP y = −151.75 + 25.4·z, STEP z = 207.73 + 25.4·x.
+
+**Why the roller moves ahead of the face** (checked): at today's roller line a 14 in roller runs into both front
+uprights, both front wheels and the intake's plates. The front wheels are flush with the front face and outboard
+of the rails (9.76 in apart), which is why the CAD's mouth is 9.4 in. With 48 mm wheels and its bottom at 2.4 in
+the roller clears everything once its axle is **1.0 in ahead of the face**, so its front is 1.94 in out and the
+robot is 17.06 in long at the start before anything stows (18 allowed).
+
+| Part | Where | Size and parts | Why |
+|---|---|---|---|
+| Roller shaft | x = +1.0, z = 3.35, along y; 8 mm REX, about 400 mm | centred on the centre line | 48 mm wheels' bottom at **2.40** (the guessed bite), front at x = 1.94. Checked |
+| Roller wheels | 14.0 in of 48 mm gecko wheels, y = −7.0 to +7.0 | 48 mm (1.89 in); a bigger wheel's front would leave the 18 in start cube | The 14 in mouth; the bite the cardboard rig confirms |
+| Side plates | the outer wheel plates from `cad/robot-addons/`, inner faces at y = ±7.56 (15.1 in between), extended forward past the roller and up to carry the hinge at 6 in | 1/8 in aluminium | One plate per side does the wheels' outer bearing, the roller's bearing and the hook's hinge. Checked |
+| Roller drive | motor on the **left** upright, belt down to a pulley on the shaft's left end outboard of the plate | | The right end is the hook's |
+| Hook hinge | x = +1.0, **z = 6.0** (6.5 if the curtain tops still graze the tower), axis across | on the side plates, 14 mm OD flanged bearings on an 8 mm REX stub as the add-on hook has | Checked: clear from 0 to 150° at 6 in; at 5 in the front shaft hits the front towers at 120–130° and the block hits the launcher at 180° |
+| Hook arm (right) and ramp | arm at y = −7.25 (between the roller's end and the plate); deployed, the block's back edge at x = 7.48; the ramp across the front | as `cad/robot-addons/` draws them, re-hung from the 6 in hinge | Deployed: 15.12 + 8 = 23.1 of R105's 24. **Stowed: folded back over the top to about 150°**, 1.55 in ahead of the face (inside the roller's 1.94) and 14.5 in tall; upright at 90° it would stick 5.3–6.3 in out. Checked |
+| Servo | on the right side plate above 5.5 in, driving the hinge | goBILDA 2000 Torque as today; worst-case load about 9.7 kg·cm of its 25 | Checked |
+| The corner below 4 in | free on both sides | | Nothing of the hinge, hub or servo is below 5.5 in, so a vectoring wheel or a Rigid V flap still fits at each front corner. Checked |
+| FLOWER block | on the ramp's front edge, as today (version A in [ramp-hook.md](ramp-hook.md)) | bottom 0.7, top 1.35, 1.4 deep, curved front | The lane from the block to the roller is **5.5 in**, not 7.4: POLLEN roll down the ramp and under the roller, which bites them at 2.4 (a POLLEN on the 0.1 in plate has its top at 2.9). 19705's block on the mouth is the alternative if cardboard test 2b shows the roller alone empties a FLOWER faster; its back edge would then be about 2.5 in ahead of the roller's front (one POLLEN of lane) |
+| Rigid V flaps (option) | fixed plates at each front corner, from x = 0 to +1.75 and y = ±7.56 to ±9.0, 4 in tall, below the hinge | 1/8 in aluminium or polycarbonate, bolted to the side plates | The simulated V (18 in wide across the flap tips, 1.75 out, 1.75 forward). Rigid, no hinge: the flap-as-hook idea (option c) is dropped, because the checked hook leaves the corner free and a hinged flap would not reach a FLOWER anyway |
+| Lane to the launcher | under the roller, on the centre line, as the CAD has it | 4.5 in wide at least (NECTAR 3.6 plus clearance) | Unchanged |
+
+**What the simulator scores for this design** (60 runs, the hook's own Autos `qual-*-small-hook`, the hook as
+the 8 in hook, design "DHS CAD intake, 14 in roller, ramp hook"): ShootsRight **65.2, TIP 3 in 32 of 60**, PARK 50,
+G409 in 29 runs; angled 49.4, TIP 2 in 48, G409 in 40 runs; wall 47.0, TIP 2 in 48, G409 in 22 runs. That is the
+published Ramp Hook on the Flat Intake (66.3 / 35 / 30 runs) within noise: the 14 in roller gives this design the
+Flat Intake's mouth. The G409 touches are the hook's, the same problem as before: falling pieces land on the
+deployed hook in a third to two-thirds of runs, and the hook's deploy timing or shape has to fix that before it
+is legal to use in a spill. With the V instead of the hook: 64.1, TIP 3 in 33, G409 in 3 runs.
+
+**Still to check** (the CAD session, once the STEP exists): the ramp's front edge against the roller when the
+hook folds over the top (the ramp passes the roller's front at about 90°); the V flaps against the stowed hook and
+the wheels; the belt and pulley on the left end against the wheel plate; and whether the 5.5 in lane empties a
+FLOWER in the 1.1–1.4 s `ramp.py` gives the 7.4 in one.
+
+**Stage 2, after cardboard test 3: vectored rollers.** Two short angled rollers at the mouth's outer thirds,
+toed in 30 to 45°, feeding a 4.5 in throat on the centre line, in the free corners below 4 in. The simulator
+says 3 points with the V (67.0 against 64.1) and 2 on their own. Decide after the cardboard tests, not before.
+
+**What changes in the simulator for this design** (`RobotDesign`): mouth 14 in, roller bottom 2.4, the FLOWER lane
+5.5 in (a model for the block is not written yet; the intake takes FLOWER POLLEN at one per 0.5 s), the hook as
+`flatIntakeWith(name, 8)` and the V as `flatIntakeWith(name, 0)`; a body of 15.12 × 15.24 once the routes are
+refitted (`qual_right.fit`).
 
 ## Build these in cardboard first, and measure
 

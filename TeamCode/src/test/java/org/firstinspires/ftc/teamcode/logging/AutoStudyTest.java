@@ -106,6 +106,17 @@ public class AutoStudyTest {
             d.intakeIntervalS = s;
             out.add(d.checked());
         }
+        // The recommended design (doc/intake-design.md, "The design to model"): the 14 in roller with the Ramp Hook
+        // (simulated as the 8 in hook, as flatIntakeWith does), on the hook's own Autos (qual-*-small-hook).
+        RobotDesign hooked = wide.copy("DHS CAD intake, 14 in roller, ramp hook");
+        hooked.flapForwardIn = 8;
+        hooked.flapLeft = false;
+        hooked.flapCrossbeam = true;
+        hooked.flapsDeploy = true;
+        hooked.flapTowardCentre = true;
+        hooked.sideWallsDeployS = 0;
+        hooked.sideWallsTravelS = 0.3;
+        out.add(hooked.checked());
         // The same on the CAD's own body (15.12 x 15.24 in, doc/robot-cad.md), to see whether the Autos drawn for
         // the 14.5 in Flat Intake still fit it (the STEP's 15.7 in bounding box drove into the far FLOWER).
         RobotDesign body = vecWide.copy("DHS CAD, vectored 14 in, CAD body");
