@@ -776,8 +776,11 @@ public final class AutoSim {
     static boolean cadModel(String design) {
         return design.equals("rigid V") || design.startsWith("flat intake, rigid V as drawn");
     }
-    /** The CAD model's extractor stowed: translation (m) then quaternion (w, x, y, z). */
-    static final double[] EXTRACTOR_STOWED = {0.41173, 0, -0.04441, 0.461749, 0, -0.887011, 0};
+    /**
+     * The CAD model's two components through AUTO (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): the FLOWER
+     * extractor stowed, 150 deg about its shaft, then the floating roller down. Translation (m), quaternion (w, x, y, z).
+     */
+    static final double[] EXTRACTOR_STOWED = {0.52922, 0, 0.08679, 0.258819, 0, -0.965926, 0, 0, 0, 0, 1, 0, 0, 0};
 
     private final class Bot {
         final Class<?> autoClass;
@@ -1166,9 +1169,8 @@ public final class AutoSim {
             if (out == shapeLogged) return;
             shapeLogged = out;
             if (cadModel(design.name)) {
-                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): one component, the
-                // FLOWER extractor, zeroed deployed. It is stowed through AUTO: 125 deg about the roller axle (its
-                // extractor_poses.json).
+                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor,
+                // zeroed deployed and stowed through AUTO, and the floating roller, down.
                 log.putPose3dArray(keyPrefix + "/BodyShape/Components", EXTRACTOR_STOWED, us);
                 return;
             }
