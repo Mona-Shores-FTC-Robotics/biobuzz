@@ -116,3 +116,29 @@ the hinge, hub and servo are all above 5.5 in.
 checked every 5° from 0 to 150°: clear. 24.0 in down, 17.3 in stowed, 17.8 in across with the V plates. Where it
 had to differ from the request (the servo inboard, the arm at 7.15 in, the curtains ending at 4.7 in, the belt
 inside the left plate) is in its README.
+
+## The FLOWER extractor (unified design, 6 Oct 2026)
+
+The hook is no longer a spill catcher (the Rigid V is; `doc/unified-design.md` on `claude/biobuzz-robot-body-designs-hi386c`).
+It is now a FLOWER extractor, and replaces the high-hinged one-arm hook in `cad/intake-b/`.
+
+**Concept: it pivots on the roller's own shaft.**
+- Two 1/8 in aluminium arms, 1.8 in left and right of centre, on round-bore flanged bearings (goBILDA 1611-0514-0008)
+  riding the roller's REX shaft, in two short gaps in the roller.
+- A short cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front, so the
+  POLLEN come off it straight into the roller.
+- No walls, two arms, and it stays inside the roller's width: the corners are the V's.
+
+**Outlines** (x right of centre, up, forward of the face; inches; pivot at the roller axle, 1.0 forward and 3.35 up):
+
+| | Across | Up | Forward |
+|---|---|---|---|
+| Deployed (0°) | ±1.86 | 0.70–3.78 | 0.55–5.80 (20.9 in overall) |
+| Stowed (125°, over the roller) | ±1.86 | 2.73–8.80 | −0.11–1.63 |
+
+**Checked** every 5° from 0 to 125° (`tools/robot-cad/extract_sweep.py`): clear of the robot, the V, the side plates, the
+roller motor and the pods. At 2.0 in out the left arm met the roller motor, so the arms are at 1.8 in, in 1/8 in
+aluminium. Past about 140° the block meets the intake's upper cross-channel.
+
+**Still to draw:** the drive (a servo over the roller on the right, through a short link to the right arm) and hard
+stops on the arms at 0° and 125°.
