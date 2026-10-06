@@ -106,8 +106,9 @@ all of them). The guides being explored, each on the Flat Intake:
 - **Intake options, simulated for the build team** (#160, 6 Oct 15:50 UTC; [intake design](doc/intake-design.md)):
   the 6 Oct CAD's roller bite on a POLLEN is marginal (bottom 2.53 in by the floor-referenced read, 2.84 by the
   bounding-box one; POLLEN 2.8 in): a roller that does not bite drops the Stages Autos to 31–34 points, so lower it. Lowered, a 14 in mouth with vectored rollers that hold pieces at the
-  mouth scores 55.1 on ShootsRight (the Flat Intake's 54.8) and **67.0, TIP 3 in 40 of 60, with the Rigid V**
-  (the V on the Flat Intake: 64.1, 33). Two corrections to the bullet above: the "busy" count was mostly pieces
+  mouth scores 55.1 on ShootsRight (the Flat Intake's 54.8); the intake as drawn (`cad/intake-b`, roller 1 in ahead of
+  the face) with its Rigid V plates reaching past the roller scores **69.9, TIP 3 in 47 of 60** (the V on the Flat
+  Intake: 64.1, 33), G409 in 11 runs. Two corrections to the bullet above: the "busy" count was mostly pieces
   waiting in a FLOWER (now logged as "flower"; the throat is busy 0–1 a run on ShootsRight, 9–12 on the Stages
   Autos), and the "too high" pieces pass the front above 8 in, a spill still in the air, which no intake may take
   (G409). The time per ball (0.25–0.7 s) changes nothing in AUTO.

@@ -117,6 +117,24 @@ public class AutoStudyTest {
         hooked.sideWallsDeployS = 0;
         hooked.sideWallsTravelS = 0.3;
         out.add(hooked.checked());
+        // The intake as drawn (cad/intake-b on claude/robotics-meeting-notes-lq2y55; doc/intake-design.md "The design to
+        // model"): 13.8 in of wheels with the roller's axle 1.0 in ahead of the front face (intakeReachIn: the contact
+        // plane moves with it), and its Rigid V as drawn: plates from the side plates' front corners to tips 8.89 in
+        // from the centre and 2.84 in ahead of the face. The simulator hinges a flap at the frame's corner, so the sim
+        // flap runs from the face to the same tip (the side plate's own front edge fills the first 1.4 in anyway).
+        // Then wider and longer tips, to say whether a hinged V (out after the start, R105's 18 x 24) is worth drawing:
+        // fixed plates cannot reach past 2.84 (the 18 in start cube).
+        RobotDesign drawn = wide.copy("DHS intake-b");
+        drawn.intakeWidthIn = 13.8;
+        drawn.intakeReachIn = 1.0;
+        out.add(drawn.checked());
+        double half = drawn.frameWidthIn / 2;
+        for (double[] v : new double[][] {{17.8, 2.84}, {20, 2.84}, {22, 2.84}, {20, 3.5}, {18, 5}, {22, 3.5}}) {
+            RobotDesign d = drawn.copy(String.format(Locale.ROOT, "DHS intake-b, V %.1f in wide, %.2f in ahead", v[0], v[1]));
+            d.flapOutIn = v[0] / 2 - half;
+            d.flapForwardIn = v[1];
+            out.add(d.checked());
+        }
         // The same on the CAD's own body (15.12 x 15.24 in, doc/robot-cad.md), to see whether the Autos drawn for
         // the 14.5 in Flat Intake still fit it (the STEP's 15.7 in bounding box drove into the far FLOWER).
         RobotDesign body = vecWide.copy("DHS CAD, vectored 14 in, CAD body");

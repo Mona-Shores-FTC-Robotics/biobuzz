@@ -16,9 +16,10 @@ from; the ones marked **guess** are the ones the cardboard tests below replace.
 2. **Once the roller bites, the mouth width and the vectored rollers are the only intake choices that score,
    and only on the Auto that sweeps spills.** On ShootsRight, 14 in against the CAD's 9.4 in is 53.0 against
    51.4 and TIP 3 in 5 runs of 60 against 2; vectored rollers on the 14 in mouth make it 55.1 and TIP 3 in 10,
-   where the simulated Flat Intake already was. With the Rigid V's flaps feeding the mouth, the vectored 14 in
-   intake is the best robot this simulator has produced: **67.0 points, TIP 3 in 40 of 60** (the Rigid V on
-   the Flat Intake: 64.1 and 33). On the two Stages Autos every option is within a point of every other.
+   where the simulated Flat Intake already was. With the Rigid V's plates feeding the mouth it is worth more:
+   the drawn intake and V score **69.9 points, TIP 3 in 47 of 60** on ShootsRight (the Rigid V on the Flat
+   Intake: 64.1 and 33), because the plates' tips reach past the roller's front; vectored rollers on the old V
+   were 67.0. On the two Stages Autos every option is within a point of every other.
 3. **Two things the README blamed on the intake are not the intake.** The "busy" misses (16–25 a run) were
    mostly pieces waiting their turn in a FLOWER; the throat itself is busy 0–1 times a run on ShootsRight and
    9–12 on the Stages Autos, and queuing those changes the Stages Autos by 0.3 points. The "too high" misses
@@ -278,7 +279,8 @@ hook stowed over the top the robot is 17.3 in long at the start (18 allowed).
 | Servo | **inboard of the right plate, over the roller**, on a printed bracket on the right front upright's front-face holes | goBILDA 2000 Torque; worst-case load about 5.9 kg·cm at 32° of fold, of its 25 | Outside the plate the robot was 18.4 in wide with the V plates. Checked |
 | The corner below 4 in | free on both sides | | Nothing of the hinge, hub or servo is below 5.5 in, so a vectoring wheel or a Rigid V flap still fits at each front corner. Checked |
 | FLOWER block | on the ramp's front edge, as today (version A in [ramp-hook.md](ramp-hook.md)) | bottom 0.7, top 1.35, 1.4 deep, curved front | The lane from the block to the roller is **5.5 in**, not 7.4: POLLEN roll down the ramp and under the roller, which bites them at 2.4 (a POLLEN on the 0.1 in plate has its top at 2.9). 19705's block on the mouth is the alternative if cardboard test 2b shows the roller alone empties a FLOWER faster; its back edge would then be about 2.5 in ahead of the roller's front (one POLLEN of lane) |
-| Rigid V plates (optional group) | fixed plates from each side plate's outer face (y = ±7.68) out and forward to x = +1.75, ending **8.89 in** from the centre so the robot stays under 18 in (17.8 across); z = 0.25 to 4.0 | 1/8 in aluminium, bolted to the side plates | The simulated V (18 in wide across the flap tips, 1.75 out, 1.75 forward). Clear of the front wheels, the belt drive and the stowed hook. Rigid, no hinge: the flap-as-hook idea (option c) is dropped, because the checked hook leaves the corner free and a hinged flap would not reach a FLOWER anyway |
+| Rigid V plates (optional group) | fixed plates from each side plate's **front corner** (y = ±7.68, x = +1.4) out and forward to tips at **y = ±8.89, x = +2.84**, about 41° off straight ahead; z = 0.25 to 4.0 | 1/8 in aluminium, bolted to the side plates | Tips 17.8 in apart, 0.9 in ahead of the roller's front. Moved forward 6 Oct after the user's review: ending at x = 1.75 they were behind the roller's front (1.94) and steered almost nothing. **The tips at 2.84 put the robot at 17.96 in of the 18 in start cube: fixed plates can reach no further.** Clear of the front wheels, the belt drive and the stowed hook. Rigid, no hinge: the flap-as-hook idea (option c) is dropped, because the checked hook leaves the corner free and a hinged flap would not reach a FLOWER anyway. Wider or longer flaps would have to fold out after the start (R105: 18 × 24 once the match starts); what they are worth is in "Wider and longer V" below |
+| Hook hard stops | a tab on the hub opposite the arm meets two printed blocks on the right plate, 38–50 mm from the hinge axis, each 1° past its end of travel: the down stop behind the hub (the FLOWER's shove and the hook's weight hold the tab on it), the stowed stop at 150° on an ear of the plate over the roller (the hook leans past vertical, so its weight holds it) | printed, bolted to the right plate | The servo only moves the hook between the stops and never holds against them. The side panel under the arm starts 2.9 in out (was 2.3) to clear the stowed stop. The arm and its socket sweep a different arc from the tab and cannot reach either block |
 | Lane to the launcher | under the roller, on the centre line, as the CAD has it | 4.5 in wide at least (NECTAR 3.6 plus clearance) | Unchanged |
 
 **What the simulator scores for this design** (60 runs, the hook's own Autos `qual-*-small-hook`, the hook as
@@ -288,6 +290,32 @@ published Ramp Hook on the Flat Intake (66.3 / 35 / 30 runs) within noise: the 1
 Flat Intake's mouth. The G409 touches are the hook's, the same problem as before: falling pieces land on the
 deployed hook in a third to two-thirds of runs, and the hook's deploy timing or shape has to fix that before it
 is legal to use in a spill. With the V instead of the hook: 64.1, TIP 3 in 33, G409 in 3 runs.
+
+**The drawn intake in the simulator** (design "DHS intake-b": 13.8 in of wheels, the contact plane 1.0 in ahead of
+the face, roller at 2.4; 60 runs, 6 Oct 2026 18:40 UTC): ShootsRight 54.6, TIP 3 in 11; angled 50.9, TIP 2 in 52;
+wall 47.3, TIP 2 in 49. The same as the 14 in roller at the face within noise: the 1 in of reach alone changes
+nothing.
+
+**Wider and longer V** (the drawn V and five it cannot be without a hinge; the Rigid V's Autos; the flap in the
+simulator runs from the frame's front corner to the drawn tip, which the side plate's own front edge makes true):
+
+| V tips | ShootsRight: points · TIP 3 · G409 runs | Angled: points · TIP 2 · G409 | Wall (broken route): points · TIP 2 · G409 |
+|---|---|---|---|
+| Flat Intake's V, 18 in wide, 1.75 ahead (README baseline) | 64.1 · 33 · 3 | 51.9 · 54 · 2 | no clean route |
+| **As drawn: 17.8 in wide, 2.84 in ahead** | **69.9 · 47 · 11** | 50.4 · 51 · 18 | 42.0 · 39 · 10 |
+| 20 in wide, 2.84 ahead | 68.7 · 44 · 12 | 50.8 · 52 · 6 | 41.7 · 38 · 6 |
+| 22 in wide, 2.84 ahead | 70.3 · 48 · 14 | 50.9 · 52 · 5 | 42.0 · 39 · 5 |
+| 20 in wide, 3.5 ahead (hinged) | 69.1 · 45 · 16 | 50.9 · 51 · 14 | 42.0 · 39 · 12 |
+| 22 in wide, 3.5 ahead (hinged) | 70.7 · 49 · 16 | 49.6 · 48 · 8 | 43.0 · 42 · 8 |
+| 18 in wide, 5 in ahead (hinged) | 72.0 · 52 · **31** | 50.9 · 52 · **40** | 43.0 · 42 · **38** |
+
+The drawn V is the best robot the simulator has scored on ShootsRight without a hook: **69.9 points, TIP 3 in 47
+of 60**, 6 points over the Flat Intake's V, because its tips reach 0.9 in past the roller's front instead of
+stopping behind it. Wider buys nothing (within a point either way); longer buys 2 points for three times the
+G409 touches. **So no hinged V**: the fixed plates as drawn are the design. What the drawn V does cost is G409 in
+11 runs of 60 (the Flat Intake's V: 3), the plates reaching the spill where the robot waits for TIP 3, and on
+these Autos every run crosses the centre line by the width of the tips at 7.5–9.7 s (the routes were drawn for an
+18 in outline; a 0.5 in route shift). Both belong with the hook's G409 work: the waiting spot and the timing.
 
 **Checked in the drawing:** the ramp and FLOWER block passing the roller as the hook folds (about 90°); the V
 plates against the stowed hook, the front wheels and the belt; the servo load; the lane between the curtains,
