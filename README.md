@@ -92,6 +92,7 @@ all of them). The guides being explored, each on the Flat Intake:
   tipped the CELL, into a CELL already swinging (the firing distance makes no difference). So in the simulator a
   launcher with no spread scores every shot that matters. "Known positions, no disruption" (mentor) is the right requirement; the simulator says it is worth about
   2–4 points a match on its own, and the 8-POLLEN TIP 2 stays fragile until the shots are near 100%.
+- **What to measure on the robot, in order**: [next meeting checklist](doc/next-meeting-checklist.md).
 - **The build team's 6 Oct CAD has a 9.4 in mouth, not 14** (read from the STEP, 6 Oct): the simulated Flat Intake
   has been more generous than the design, and two things in the CAD look worth a question (the roller clears the
   floor by 2.84 in, a POLLEN is 2.8 in tall; the launcher belt gears the flywheel down). [CAD vs. the
@@ -144,6 +145,8 @@ all of them). The guides being explored, each on the Flat Intake:
 - The research branches (`claude/dazzling-maxwell-je04gu`, `claude/biobuzz-robot-body-designs-hi386c`,
   `spike/158-flower-backboard`, `spike/159-staged-preloads-hook`, `claude/robotics-meeting-notes-lq2y55`)
   were merged here on 6 Oct 2026 and are finished; new research starts from this branch and comes back here.
+
+- **The threads**: which session and branch is doing what, and where they meet: [doc/threads.md](doc/threads.md).
 
 ## How to watch them
 

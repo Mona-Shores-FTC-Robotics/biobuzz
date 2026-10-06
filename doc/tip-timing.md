@@ -27,7 +27,7 @@ videos don't show how many pieces were in each.
 
 **Does it matter?** The simulator's definition (`FieldSim`: leaving the stop to reaching the other one) includes
 the creep, so it compares with the longer end of the range. Every TIP set to 0.6 or 1.2 s
-(`BIOBUZZ_AUTO_TIP_SECONDS`) against each drawn from the range, Qual-PartnerShootsRight, 20 runs, on the
+(`BIOBUZZ_AUTO_TIP_SECONDS`) against each drawn from the range, Qual-PartnerShootsRight, 20 runs each (the 60-run baseline came later), on the
 simulator as of 6 Oct 2026 12:15 UTC (pieces rolling as filmed, [rolling](rolling.md)), on the routes before
 that day's retune (ShootsRight now waits from the TIP's start, so a TIP's length matters less):
 

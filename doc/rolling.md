@@ -2,7 +2,7 @@
 
 Measured 6 Oct 2026 from two videos, no new testing. The simulator's rolling model changed to match
 (`FieldSim.FILMED_ROLLING_DECEL_IN_PER_S2`, `FILMED_BOUNCE_SCATTER`, checked by `FieldSimTest` and
-`SpillLandingTest`). No sims have been rerun on it yet: the published numbers predate it.
+`SpillLandingTest`). Every published number was rerun on it the same day (README; the routes were retuned for it).
 
 ## NECTAR, from a match video
 
@@ -52,7 +52,8 @@ so it was refitted to the same targets: 0.5 s after landing, pieces 21 in from w
 24, p90 41 against 44); 3 s after the TIP, anywhere from the wall to 86 in out (films: to 85).
 
 **What it means for the Autos:** spilled pieces end up further away and more of them against walls, so they are
-harder to pick up, and they cross the Drop Zone faster. Expect lower pickup counts when the sims are rerun.
+harder to pick up, and they cross the Drop Zone faster. The reruns bore that out: the Flat Intake's ShootsRight fell
+from 64.8 to 53.5 on its old route, and was retuned to take TIP 3 from pieces that sit still.
 
 ## Limits
 
