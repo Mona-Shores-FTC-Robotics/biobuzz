@@ -37,5 +37,6 @@
       ]
     }
   },
-  "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)"
+  "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
+  "model_2": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.02159, 0, 0.08357) m (the arm's pivot, X 0.85 in, Z 3.29 in); 0 at rest on the stop, about 48.6 deg with a NECTAR (axle 1.2 in up)"
 }
