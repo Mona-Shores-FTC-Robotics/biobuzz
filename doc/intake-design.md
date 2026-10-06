@@ -318,6 +318,12 @@ refitted (`qual_right.fit`).
 
 ## Build these in cardboard first, and measure
 
+> **Decided 6 Oct 2026 (the user): there is no time for cardboard before the build.** The numbers marked guess
+> above (roller bottom 2.4 in, 1:1 roller speed, 0.35 s a piece, the 5.5 in lane) are what gets built, and the
+> designer is shown the drawn intake rather than asked first. The tests below stay as the checklist for the real
+> intake once it exists: the same measurements, taken on the robot, replace the guesses in `RobotDesign.dhsCad()`.
+> The hook's touches on falling spill pieces (G409) are to be worked in the simulator, not on the bench.
+
 Needs: 4 POLLEN and 2 NECTAR (or the foam balls the team has), a few feet of field tile, the roller (the 48 mm
 gecko wheels on their shaft, driven by any motor), a tape measure, scrap plywood or cardboard for the mouth and
 side plates, and a phone at 240 fps on a stand looking along the roller.
