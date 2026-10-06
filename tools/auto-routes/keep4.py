@@ -33,9 +33,11 @@ FACE = {"option3": 37.6, "option3-short": 36.1}  # the hook spot: the face this 
 HOOK_X = 70.6 - 7.25
 
 
-def hook_spots(robot):
+def hook_spots(robot, south=None, north=None):
+    """The hook spots at each end: the face `south` / `north` in from that end's wall (FACE unless given)."""
     half = LENGTH[robot] / 2
-    return {"N": (HOOK_X, round(FIELD_IN - (FACE[robot] - half), 2), 270), "S": (HOOK_X, round(FACE[robot] - half, 2), 90)}
+    n, s = north or FACE[robot], south or FACE[robot]
+    return {"N": (HOOK_X, round(FIELD_IN - (n - half), 2), 270), "S": (HOOK_X, round(s - half, 2), 90)}
 
 
 class hooked_tail:
@@ -60,16 +62,16 @@ class hooked_tail:
         qual_right.tail = self.tail
 
 
-def right(name, robot, hook):
+def right(name, robot, hook, north=None, extra=1000):
     kw = {**O3["qual-right-o3"], "robot": robot}
     if not hook:
         return qual_right.right(name, **kw)
-    kw["extra"] = 1000
-    with hooked_tail(hook_spots(robot)["N"]):
+    kw["extra"] = extra
+    with hooked_tail(hook_spots(robot, north=north)["N"]):
         return qual_right.right(name, **kw)
 
 
-def left(name, robot, hook, land=500):
+def left(name, robot, hook, land=500, south=None, north=None, extra=1000):
     """Partner at the left start fires its 4 when the left CELL rises (partners.preloads_left). TIP 1: our preloads;
     its spill caught driving north through it and the tunnel, fired at the left CELL with the partner's 4 (TIP 2);
     if TIP 2 hasn't come, the far FLOWER. Then qual_right's tail: TIP 2's spill caught going south, the sweep, the
@@ -81,16 +83,16 @@ def left(name, robot, hook, land=500):
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
     r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE)
     if hook:
-        kw["extra"] = 1000
-        r.pt("S_HOOK", *hook_spots(robot)["S"])
+        kw["extra"] = extra
+        r.pt("S_HOOK", *hook_spots(robot, south, north)["S"])
         r.add(r.action("SpinUp"), r.go("S_FIRE", heading=90), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000),
               r.go("S_HOOK", heading=90), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
-              r.wait("It lands", when=["IntakeFull"], ms=1000))
+              r.wait("It lands", when=["IntakeFull"], ms=extra))
     else:
         r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000), r.go("S_CATCH"),
               r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500), r.wait("It lands", when=["IntakeFull"], ms=land))
     r.add(tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch at the left CELL", "Empty", ms=2200))
-    with hooked_tail(hook_spots(robot)["N"]) if hook else _nothing():
+    with hooked_tail(hook_spots(robot, south, north)["N"]) if hook else _nothing():
         r.at = "N_LOW"
         tipped = qual_right.tail(r, **kw)
         r.at = "N_LOW"
@@ -112,7 +114,7 @@ class _nothing:
         pass
 
 
-def stages(name, robot, hook, partner):
+def stages(name, robot, hook, partner, south=None, north=None, extra=1000):
     """qual-stages-angled (partner B, plan "chase") or qual-stages-wall (A, "west", no PARK), for `robot`; a hook
     route waits at the hook spots instead (TIP 1's only in "chase": "west" leaves TIP 1's spill)."""
     v3 = VARIANTS["qual-right-v3"]
@@ -120,8 +122,8 @@ def stages(name, robot, hook, partner):
     plan = "chase" if partner == "B" else "west"
     if not hook:
         return stages_staged(name, partner=partner, plan=plan, robot=robot, **kw)
-    kw["extra"] = 1000
-    spots = hook_spots(robot)
+    kw["extra"] = extra
+    spots = hook_spots(robot, south, north)
     with hooked_tail(spots["N"]):
         if plan == "west":
             return stages_staged(name, partner=partner, plan=plan, robot=robot, **kw)
@@ -132,7 +134,7 @@ def stages(name, robot, hook, partner):
         r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("S_HOOK", *spots["S"])
         r.add(r.action("SpinUp"), r.go("S_FIRE", heading=90), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000),
               r.go("S_HOOK", heading=90), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
-              r.wait("It lands", when=["IntakeFull"], ms=1000),
+              r.wait("It lands", when=["IntakeFull"], ms=extra),
               tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch", "Empty", ms=2200))
         r.at = "N_LOW"
         r.add(*qual_right.staged_row(r, partner, 1600, west=False))

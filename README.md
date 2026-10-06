@@ -183,6 +183,17 @@ right (23–25%), left (20%) and back under the HIVE (18–19%).
 
 ![The best of them, each design with its numbers](sim-review/body-shapes-shortlist.png)
 
+**The deep dive** (6 Oct 2026, [the report](https://claude.ai/artifact/BojDToxGirRu37fVngdtjK), also
+`sim-review/deep-dive.html`): every Auto pair, and the qualifier Autos with every partner (right-start shooter,
+left-start shooter, does nothing, stages angled or against the wall) on every body shape, 20 runs each, normal and
+slow tiles, counting how much of each spill our robot picks up. Picking up all 4 of TIP 2's spill leads to 3 TIPs in
+87-96% of matches with a shooting partner, against 36-49%. The dual hook keeps 4 best where it can wait at its spot
+(the left-start Auto: 54 to 69 points) but is touched by falling pieces in about 7 runs of 20; funnel flaps or a
+rigid V keep about 3.4 with almost no touches and are best with the right-start partner (about 73 points). No body
+gets 3 TIPs with a staging or idle partner: TIP 2 comes too late. Numbers: `sim-review/deep-dive/*.csv`; matches to
+watch: `sim-review/deep-dive-advantagescope.zip`; routes: `tools/auto-routes/keep4.py`; cases:
+`tools/auto-routes/deep-dive-*.txt` (`DeepDiveTest`).
+
 **On option 3, the baseline robot** (`ShapeMatchTest`, run 6 Oct 2026 after merging `claude/simulator`): the
 shapes on the build team's option 3 (14.5 in square, 14 in intake), through its own Auto, qual-right-o3
 (`tools/auto-routes/qual_shapes.py` draws each one's route), with the same partner; 20 runs each, normal tiles / tiles

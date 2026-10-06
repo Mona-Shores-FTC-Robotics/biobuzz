@@ -104,6 +104,17 @@ public class AutoStudyTest {
         return d;
     }
 
+    /**
+     * The dual hook coming down only once the spill has landed (1.5 s after the TIP starts; it first touches the
+     * tiles about 1.15 s after): G409 forbids touching a piece only before it reaches the tiles, so the robot can
+     * wait where the plain robot does, further back, and the hook close round what has landed.
+     */
+    static RobotDesign lateHook() {
+        RobotDesign d = eitherSide(option3Shape("option 3, late dual hook", 9.5));
+        d.sideWallsDeployS = 1.5;
+        return d;
+    }
+
     /** Option 3 with funnel flaps: folded at the start, out the whole match, 3 in out and 2 in forward of each front corner. */
     static RobotDesign option3Funnel() {
         RobotDesign d = RobotDesign.buildersOption3().copy("option 3, funnel flaps");
@@ -177,7 +188,8 @@ public class AutoStudyTest {
                 shortOption3("option 3 short, rigid V", 0), shortOption3("option 3 short, rigid V + large right hook", 11.5),
                 // 6 Oct 2026, the deep dive (DeepDive): the shapes as alternatives on option 3, each alone.
                 eitherSide(option3Shape("option 3, large dual hook", 9.5)), shortOption3("option 3 short", 0, false),
-                eitherSide(shortOption3("option 3 short, dual hook", 11.5, false)), option3Funnel(), option3Walls()}) {
+                eitherSide(shortOption3("option 3 short, dual hook", 11.5, false)), option3Funnel(), option3Walls(),
+                lateHook()}) {
             m.put(d.name, d);
         }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");
