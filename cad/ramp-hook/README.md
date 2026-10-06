@@ -1,5 +1,9 @@
 # Ramp hook: printed parts on a goBILDA 8 mm shaft
 
+> **Superseded for mounting:** the hook now hangs on two hinges, on brackets on the robot's front uprights and new
+> outer wheel plates. See `cad/robot-addons/`. The FLOWER block's shape here is unchanged. Don't print the corner or
+> hinge blocks below.
+
 The whole ramp hook (`doc/ramp-hook.md`) from three goBILDA 8 mm shafts, 1/16 in polycarbonate and printed parts:
 
 - **The front:** one shaft across the hook. The FLOWER block and the curtain clips thread onto it.
