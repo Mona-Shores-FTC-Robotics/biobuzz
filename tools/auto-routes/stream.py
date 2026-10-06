@@ -1,0 +1,59 @@
+"""Shoot while extracting (the user, 6 Oct 2026 evening): the turret fires from the FLOWER while the extractor feeds
+roller -> lane -> J -> turret, so the robot no longer drives back to a firing spot with the FLOWER's 4.
+
+Each baseline (baselines_v) with every far-FLOWER visit turned into a stream: drive in as before, StreamOn, stay until
+TIP 2 starts (each POLLEN fired as it comes out, at the CELL the turret aims for), StreamOff, then on as before (to
+N_FIRE, where the route's tail starts). The robot faces the FLOWER, so this needs the turret ("rigid V, turret
+transfer"): the far FLOWER is about 45 in from the left CELL, inside the simulator's 60 in range.
+
+    qual-right-v-stream, qual-stages-angled-v-stream, qual-stages-wall-v-stream     (optionally -x<ms>: retime.py's waits)
+
+    python3 stream.py      writes them into experiments/
+"""
+import autogen
+import baselines_v
+import qual_right
+import retime
+
+_flower, _fire = qual_right.flower, qual_right.fire
+STREAM_MS = 4500  # at most this long at the FLOWER: 4 pulls (RobotDesign.flowerPullS) and the last shot
+
+
+def flower(r, name, label, ms=1500):
+    cards = _flower(r, name, label, ms)
+    if name != "FAR_FLOWER":
+        return cards
+    # flower(): the paths in, then the wait for IntakeFull. Here: stream instead of filling up.
+    return cards[:-1] + [r.action("StreamOn"),
+                         r.wait("The far FLOWER, fired as it comes out (TIP 2)", when=["Tip"], ms=STREAM_MS),
+                         r.action("StreamOff")]
+
+
+def fire(r, label, until, ms=2000):
+    if "far FLOWER" in label:  # already fired from the FLOWER: the drive back to N_FIRE is the next card
+        return r.action("StreamOff")
+    return _fire(r, label, until, ms)
+
+
+def build(base, name, wait=None):
+    qual_right.flower, qual_right.fire = flower, fire
+    restore = retime.with_wait(base, wait) if wait is not None else (lambda: None)
+    try:
+        return baselines_v.build_for_v(baselines_v.BASELINES[base], name)
+    finally:
+        restore()
+        qual_right.flower, qual_right.fire = _flower, _fire
+
+
+# The retimed waits for the 0.25 s shots (retime.py): ShootsRight 200 ms, the wall partner 700 ms, the angled
+# partner's unchanged.
+ROUTES = {"qual-right-v-stream": ("qual-right-v", None), "qual-right-v-stream-x200": ("qual-right-v", 200),
+          "qual-stages-angled-v-stream": ("qual-stages-angled-v", None),
+          "qual-stages-wall-v-stream": ("qual-stages-wall-v", None), "qual-stages-wall-v-stream-x700": ("qual-stages-wall-v", 700)}
+
+if __name__ == "__main__":
+    for name, (base, wait) in ROUTES.items():
+        r = build(base, name, wait)
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+        print(name)
