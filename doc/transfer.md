@@ -198,6 +198,20 @@ What it needs from the rest of the robot:
 | Surgical tubing for the arm | | about 6 in |
 | Turret with a 105 mm ID (the launcher's purchase; the transfer needs its bore) | 3208-0004-0001. If it's still out of stock, a ring-type lazy susan with at least 4.0 in clear through the middle, driven by a printed ring gear | 1 |
 
+## Fit against the robot CAD (Flower Extracter chat, 6 Oct 2026)
+
+Checked against the part boxes in the team's STEP and `cad/intake-b/`.
+
+| In the lane's strip (X −5.1..7.2, Y ±2.35, below z 5.0) | Where | What changes |
+|---|---|---|
+| The old intake's 11-hole cross-channel (stays: the extractor stows under it) | X 5.03..5.51, full width, z 4.43..6.32 | **A NECTAR's top is at 4.52 in the lane (floor 0.9 + 3.62), so it hits the channel by 0.09 in.** Either the channel moves up 0.3 in or more, or the lane floor drops to 0.7 in under it (0.5 in polycord pulleys instead of 0.75; 0.11 in clearance). Moving the channel is better, but it's the designer's part and the extractor stows under it. The walls stop below 4.4 there either way |
+| The front drive motors' encoder caps | X 2.36..3.93, \|Y\| 1.87..2.59, z 3.48..5.05 | They're inside the walls by 0.23 in, but not in the pieces' way: a NECTAR is ±1.64 wide at z 3.48 and narrower above. Cut the walls down to 3.4 in for X 2.3..4.0 |
+| The extractor's servo gear and down-stop | X 7.11..7.20, Y −1.98..−2.32, z 4.57..4.99 | End the walls at X 7.0 |
+| The CAD's "Launcher Concept" (cross-channels, beams, flywheels, a 312 rpm motor) | X −5.52..0.95 | Replaced by the turret. It must go, or it fills the J and the chute |
+| A pulley on the roller shaft at Y +2.6 | in the roller's solid left segment | Costs a 0.6 in gap in the gecko wheels there. Clear of the roller motor and the extractor's arm |
+
+Nothing else is in the strip: no battery, hub, chassis cross-member or pod.
+
 ## Numbers for the simulator
 
 | | Value |
