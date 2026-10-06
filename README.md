@@ -103,6 +103,14 @@ all of them). The guides being explored, each on the Flat Intake:
   16 variants tried: the wait costs more than this intake catches. Vectored rollers that hold pieces against the
   front and feed one throat would turn the "busy" misses into a queue; the roller height decides the "too high"
   ones. Both are build-team numbers; [what the simulator knows](doc/what-the-simulator-knows.md).
+- **Intake options, simulated for the build team** (#160, 6 Oct 15:50 UTC; [intake design](doc/intake-design.md)):
+  the 6 Oct CAD as drawn takes no POLLEN off the tiles (roller bottom 2.84 in, POLLEN 2.8 in): the Stages Autos
+  drop to 31–34 points until it is lowered. Lowered, a 14 in mouth with vectored rollers that hold pieces at the
+  mouth scores 55.1 on ShootsRight (the Flat Intake's 54.8) and **67.0, TIP 3 in 40 of 60, with the Rigid V**
+  (the V on the Flat Intake: 64.1, 33). Two corrections to the bullet above: the "busy" count was mostly pieces
+  waiting in a FLOWER (now logged as "flower"; the throat is busy 0–1 a run on ShootsRight, 9–12 on the Stages
+  Autos), and the "too high" pieces pass the front above 8 in, a spill still in the air, which no intake may take
+  (G409). The time per ball (0.25–0.7 s) changes nothing in AUTO.
 - **The Rigid V widens the Flat Intake's mouth, and that's the biggest win found** (every Auto, 60 runs,
   6 Oct 12:55 UTC). Two fixed flaps from the front corners out to 18 in wide turn the 14 in mouth into an 18 in
   one. In Qual-PartnerShootsRight: **64.1 points, TIP 3 in 33 of 60** (the Flat Intake: 55.0, 7; the full-width

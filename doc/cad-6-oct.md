@@ -24,6 +24,6 @@ is the front. Sizes are bounding boxes, good to about 0.1 in; angles and clearan
 3. The launcher belt as drawn gears the flywheel down: a 16-tooth pulley on the 312 rpm motor drives a 41-tooth
    on the wheel shaft, about 120 rpm at a 96 mm wheel. A placeholder motor, or the pulleys the other way round?
 
-**In the simulator:** not yet a design. Adding one, "DHS CAD (6 Oct)", with these numbers and running the three
-Autos and the shape matrix on it would show what the real mouth costs against the Flat Intake. CAD numbers count
-as measured.
+**In the simulator:** `RobotDesign.dhsCad()`, "DHS CAD (6 Oct)", with these numbers (CAD numbers count as
+measured), and the intake options on it through the three Autos and the Rigid V: [intake-design.md](intake-design.md).
+As drawn it takes NECTAR but no POLLEN off the tiles (question 2), which costs the two Stages Autos about 15 points.
