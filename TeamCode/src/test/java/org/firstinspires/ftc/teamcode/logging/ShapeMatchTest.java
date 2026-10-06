@@ -36,11 +36,11 @@ public class ShapeMatchTest {
             {"15 · Rigid V", "QualRightV3RigidVAuto", "spring hood, rigid V", "rigid-v"},
             {"13 · Large right hook", "QualRightV3LargeHookAuto", "spring hood, large right hook", "large-hook"},
             {"14 · Small right hook", "QualRightV3SmallHookAuto", "spring hood, small right hook", "small-hook"},
-            // The same on option 3, the baseline robot since 5 Oct 2026, and its Auto, qual-right-o3.
-            {"1 · Plain, option 3", "QualRightO3Auto", "builders' option 3 (5 Oct CAD)", "o3-plain"},
-            {"15 · Rigid V, option 3", "QualRightO3RigidVAuto", "option 3, rigid V", "o3-rigid-v"},
-            {"13 · Large right hook, option 3", "QualRightO3LargeHookAuto", "option 3, large right hook", "o3-large-hook"},
-            {"14 · Small right hook, option 3", "QualRightO3SmallHookAuto", "option 3, small right hook", "o3-small-hook"},
+            // The same on the Flat Intake, the baseline robot since 5 Oct 2026 (was "option 3"), and its Auto,
+            // qual-right-o3. The hooks are folded into the Ramp Hook (6 Oct 2026), simulated as the 8 in hook.
+            {"1 · Flat Intake", "QualRightO3Auto", "flat intake", "o3-plain"},
+            {"15 · Rigid V, Flat Intake", "QualRightO3RigidVAuto", "flat intake, rigid V", "o3-rigid-v"},
+            {"14 · Ramp Hook, Flat Intake", "QualRightO3SmallHookAuto", "flat intake, ramp hook", "o3-small-hook"},
     };
     static final int RUNS = 20;
 

@@ -1,5 +1,5 @@
-"""Every option 3 shape on every current Auto (mentor, 6 Oct 2026): the plain robot, the rigid V and the large
-and small right hooks (qual_shapes.O3_SHAPES), each through Qual-PartnerShootsRight (qual_shapes draws its
+"""Every spill guide on the Flat Intake (the baseline robot) on every current Auto (mentor, 6 Oct 2026): no guide,
+the Rigid V and the Ramp Hook (simulated as the 8 in hook; qual_shapes.O3_SHAPES), each through Qual-PartnerShootsRight (qual_shapes draws its
 route) and both Qual-PartnerStages (drawn here, as qual_right.stages_staged draws the baselines, with a hook's
 slide to the hook spot as TIP 2 starts, as qual_shapes does for ShootsRight). 20 runs, normal / slow tiles,
 through AutoStudyTest, the same runner as the README's baselines.
@@ -18,11 +18,10 @@ STAGES = {  # suffix: (partner, plan, tail options), as qual_right.STAGES' basel
     "angled": ("B", "chase", {**V3, "third": False, "garden": "two"}),
     "wall": ("A", "west", {**V3, "third": False, "garden": "two", "park": False}),
 }
-SHAPES = {  # shape: (robot design, hook spot or None)
-    "plain": ("builders' option 3 (5 Oct CAD)", None),
+SHAPES = {  # shape (its Autos' file suffix): (robot design, hook spot or None)
+    "plain": ("flat intake", None),
     "rigid-v": qual_shapes.O3_SHAPES["qual-right-o3-rigid-v"],
-    "large-hook": qual_shapes.O3_SHAPES["qual-right-o3-large-hook"],
-    "small-hook": qual_shapes.O3_SHAPES["qual-right-o3-small-hook"],
+    "small-hook": qual_shapes.O3_SHAPES["qual-right-o3-small-hook"],  # the Ramp Hook
 }
 PARTNERS = {"right": "PartnerPreloadsRightAuto", "angled": "PartnerAngledParkAuto", "wall": "PartnerStage19SideParkAuto"}
 

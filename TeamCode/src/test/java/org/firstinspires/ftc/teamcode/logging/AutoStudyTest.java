@@ -41,13 +41,14 @@ public class AutoStudyTest {
     }
 
     /**
-     * The spill shapes on option 3, the baseline robot (mentor, 5 Oct 2026): its 14.5 in square chassis and
-     * 14 in intake with a one-armed hook ({@code arm} in, plus a crossbeam across its width) as {@link #hook}
-     * has, or ({@code arm} 0) fixed flaps from its front corners out to 18 in wide, a rigid V. The Autos are
-     * drawn for it (qual_right.py), so it starts where they say.
+     * A spill guide on the Flat Intake, the baseline robot (mentor, 5-6 Oct 2026): its 14.5 in square chassis
+     * and 14 in intake with ({@code arm} 0) fixed flaps from its front corners out to 18 in wide, the Rigid V,
+     * or a one-armed hook ({@code arm} in, plus a crossbeam across its width) as {@link #hook} has: the Ramp
+     * Hook, simulated as the 8 in hook until its ramp is designed. The Autos are drawn for it (qual_right.py),
+     * so it starts where they say.
      */
-    static RobotDesign option3Shape(String name, double arm) {
-        RobotDesign d = RobotDesign.buildersOption3().copy(name);
+    static RobotDesign flatIntakeWith(String name, double arm) {
+        RobotDesign d = RobotDesign.flatIntake().copy(name);
         if (arm == 0) {
             d.flapOutIn = (18 - d.frameWidthIn) / 2;
             d.flapForwardIn = d.flapOutIn;
@@ -84,8 +85,8 @@ public class AutoStudyTest {
         RobotDesign protoWide = proto.copy(proto.name + ", 13.5 in intake");
         protoWide.intakeWidthIn = 0.9 * protoWide.frameIn;
         m.put(protoWide.name, protoWide);
-        RobotDesign option3 = RobotDesign.buildersOption3();
-        m.put(option3.name, option3);
+        RobotDesign flat = RobotDesign.flatIntake();
+        m.put(flat.name, flat);
         // Mentor, 5 Oct 2026: walls down both sides that slide 6 in forward when our CELL starts to
         // TIP, so the spill doesn't scatter, with one-way flaps that let POLLEN in and keep NECTAR out.
         RobotDesign walls = RobotDesign.springHoodFullWidth().copy("spring hood, full-width intake, side walls");
@@ -112,9 +113,9 @@ public class AutoStudyTest {
         m.put(largeHook.name, largeHook);
         RobotDesign smallHook = hook("spring hood, small right hook", 16, 8);
         m.put(smallHook.name, smallHook);
-        // The same on option 3: a 9.5 in arm is the longest R105 allows down (14.5 + 9.5 = 24 in).
-        for (RobotDesign d : new RobotDesign[] {option3Shape("option 3, rigid V", 0),
-                option3Shape("option 3, large right hook", 9.5), option3Shape("option 3, small right hook", 8)}) {
+        // (On the Flat Intake a 9.5 in arm is the longest R105 allows down: 14.5 + 9.5 = 24 in.)
+        // The guides on the Flat Intake (6 Oct 2026: the hooks folded into the Ramp Hook, the 8 in arm).
+        for (RobotDesign d : new RobotDesign[] {flatIntakeWith("flat intake, rigid V", 0), flatIntakeWith("flat intake, ramp hook", 8)}) {
             m.put(d.name, d);
         }
         RobotDesign catcher = RobotDesign.springHood().copy("spring hood, 24 in catcher");

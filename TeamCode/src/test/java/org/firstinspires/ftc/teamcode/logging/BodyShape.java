@@ -131,17 +131,19 @@ final class BodyShape {
             RIGHT_HOOK.hookOnly("large hook, arm on the right", false),
             new BodyShape("small right hook, chassis", 16, 18, 0, 0, 0), RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the left", true),
             RIGHT_HOOK_SMALL.hookOnly("small hook, arm on the right", false),
-            // Option 3 (14.5 in square): plain, rigid V, the hooks' chassis, then each hook's arm left and right.
-            new BodyShape("option 3", 14.5, 14.5, 0, 0, 0), new BodyShape("option 3, rigid V", 14.5, 14.5, 0, 1.75, 1.75),
-            new BodyShape("option 3, hook chassis", 14.5, 14.5, 0, 0, 0),
-            new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the left", true),
-            new BodyShape("option 3, large hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("option 3, large hook, arm on the right", false),
-            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the left", true),
-            new BodyShape("option 3, small hook", 14.5, 14.5, 0, 0, 8).hookOnly("option 3, small hook, arm on the right", false)};
+            // The Flat Intake (14.5 in square, was "option 3"): plain, Rigid V, the hooks' chassis, then each hook's arm
+            // left and right: the 9.5 in one (dropped 6 Oct 2026; kept so older logs still show it) and the 8 in one,
+            // the Ramp Hook's for now. The order is the model's component order: append, never reorder.
+            new BodyShape("flat intake", 14.5, 14.5, 0, 0, 0), new BodyShape("flat intake, rigid V", 14.5, 14.5, 0, 1.75, 1.75),
+            new BodyShape("flat intake, hook chassis", 14.5, 14.5, 0, 0, 0),
+            new BodyShape("flat intake, 9.5 in hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("flat intake, 9.5 in hook, arm on the left", true),
+            new BodyShape("flat intake, 9.5 in hook", 14.5, 14.5, 0, 0, 9.5).hookOnly("flat intake, 9.5 in hook, arm on the right", false),
+            new BodyShape("flat intake, ramp hook", 14.5, 14.5, 0, 0, 8).hookOnly("flat intake, ramp hook, arm on the left", true),
+            new BodyShape("flat intake, ramp hook", 14.5, 14.5, 0, 0, 8).hookOnly("flat intake, ramp hook, arm on the right", false)};
 
     /** Which {@link #MATCH} component is the chassis of the robot design named {@code design}. */
     static int matchComponent(String design) {
-        if (design.startsWith("option 3") || design.startsWith("builders' option 3")) {
+        if (design.startsWith("flat intake")) {
             return design.contains("rigid V") ? 9 : design.contains("hook") ? 10 : 8;
         }
         int hook = hookChassis(design);
@@ -151,8 +153,8 @@ final class BodyShape {
 
     /** Which {@link #MATCH} component is its hook, with the arm on its left ({@code side} +1) or right; -1 for none. */
     static int matchHook(String design, int side) {
-        if (design.startsWith("option 3")) {
-            int arm = design.contains("large right hook") ? 11 : design.contains("small right hook") ? 13 : -1;
+        if (design.startsWith("flat intake")) {
+            int arm = design.contains("ramp hook") ? 13 : -1;
             return arm < 0 ? -1 : side > 0 ? arm : arm + 1;
         }
         int hook = hookChassis(design);

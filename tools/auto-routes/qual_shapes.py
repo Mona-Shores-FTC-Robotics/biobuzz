@@ -61,12 +61,12 @@ def shaped(name, length, hook_at, **kw):
     return r
 
 
-# On option 3, the baseline robot (5 Oct 2026): qual-right-o3 as qual_right.py draws it for that robot, and a hook
+# On the Flat Intake, the baseline robot (5 Oct 2026; was "option 3"): qual-right-o3 as qual_right.py draws it for that robot, and a hook
 # slide placed as above: the chassis face (14.5 in long) and the arm's side (14.5 in wide) on the same 95% lines.
 O3_SHAPES = {
-    "qual-right-o3-rigid-v": ("option 3, rigid V", None),
-    "qual-right-o3-large-hook": ("option 3, large right hook", (70.6 - 7.25, round(FIELD_IN - (36.6 - 7.25), 2), 270)),
-    "qual-right-o3-small-hook": ("option 3, small right hook", (70.6 - 7.25, round(FIELD_IN - (37.5 - 7.25), 2), 270)),
+    "qual-right-o3-rigid-v": ("flat intake, rigid V", None),
+    # The Ramp Hook, simulated as the 8 in hook until its ramp is designed (the 9.5 in hook was dropped, 6 Oct 2026).
+    "qual-right-o3-small-hook": ("flat intake, ramp hook", (70.6 - 7.25, round(FIELD_IN - (37.5 - 7.25), 2), 270)),
 }
 
 

@@ -1,9 +1,9 @@
 """The qualifier baselines, worked on apart from qual.py (which another session edits): Qual-PartnerShootsRight
-(the variants tried to make TIP 3 come in every run without fouling G409) and, for the build team's option 3
-(the baseline robot since 5 Oct 2026), Qual-PartnerStages. The baselines: qual-right-o3 and qual-stages-o3
-on option 3; qual-right-v3 on the full-width robot.
+(the variants tried to make TIP 3 come in every run without fouling G409) and, for the Flat Intake (the baseline
+robot since 5 Oct 2026, the build team's option 3; "o3" in file names), Qual-PartnerStages. The baselines:
+qual-right-o3, qual-stages-angled and qual-stages-wall on the Flat Intake; qual-right-v3 on the full-width robot.
 
-    DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py [runs] [variant ...]
+    DESIGN="flat intake" python3 qual_right.py [runs] [variant ...]
 
 exports each variant (into auto-builder/experiments, except WINNERS: TeamCode/autos) and simulates it with its
 partner (partners.preloads_right, or partners.stage_exit for STAGES) on normal and slow tiles, on DESIGN
@@ -118,7 +118,7 @@ def third_load(r, tag="", wait_full=1100, catch3=False, tip_ms=0):
 # How far each robot's front face is from its centre: points where the front meets something (the
 # start wall behind, a FLOWER, the GARDEN) move by the difference from the 18 in robot the route was
 # drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
-FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in, buildersOption3 14.5 in
+FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in; "option3": flatIntake, 14.5 in
 
 
 class Sized(Route):
@@ -193,7 +193,7 @@ TRIALS = {  # catching our TIPs' spills standing still (5 Oct); 20 runs, normal 
     "qual-right-catch3": {**V2, "catch3": True},
     "qual-right-stay3": {**V2, "third": False, "catch3": True},
 }
-# Option 3 as the baseline robot (mentor, 5 Oct 2026: the build team's 14.5 in low chassis with a 14 in
+# The Flat Intake (was "option 3") as the baseline robot (mentor, 5 Oct 2026: the build team's 14.5 in low chassis with a 14 in
 # intake is closer to what they are building than the full-width robot): v3's route moved for its smaller
 # body, then tuned on it. 20 runs, normal / slow tiles: TIP 3 in how many, AUTO points; G409 runs.
 O3V3 = {**VARIANTS["qual-right-v3"], "robot": "option3"}
@@ -407,8 +407,8 @@ def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot=
     return r
 
 
-# Qual-PartnerStages for Option 3, with partners.stage_exit. 20 runs, normal / slow tiles: TIP 2, TIP 3,
-# PARK (ours), AUTO points; G409 runs. TIP 2 comes at about 21 s, too late for a TIP 3 on Option 3.
+# Qual-PartnerStages for the Flat Intake, with partners.stage_exit. 20 runs, normal / slow tiles: TIP 2, TIP 3,
+# PARK (ours), AUTO points; G409 runs. TIP 2 comes at about 21 s, too late for a TIP 3 on the Flat Intake.
 V3 = VARIANTS["qual-right-v3"]
 STAGES = {
     # qual.stages moved for the body: TIP 3 2 / 1, never parks, 53.0 / 49.0; G409 in 18 / 10 runs.

@@ -45,7 +45,6 @@ public class RobotAssetsTest {
         File proto = new File(dir.getParentFile(), RobotAssets.PROTOTYPE_FOLDER);
         Glb prototype = Glb.read(Files.readAllBytes(new File(proto, "model.glb").toPath()));
         prototype.childNamed(prototype.sceneRoots().get(0), "Pinwheel");
-        model.childNamed(root, "Funnel wheel left"); // the default robot is the build team's option 3
         File wide = new File(dir.getParentFile(), RobotAssets.FULL_WIDTH_FOLDER);
         Glb fullWidth = Glb.read(Files.readAllBytes(new File(wide, "model.glb").toPath()));
         fullWidth.childNamed(fullWidth.sceneRoots().get(0), "Intake roller");

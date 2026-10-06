@@ -16,7 +16,7 @@ import java.util.Map;
 
 /**
  * Builds AdvantageScope robot models from the simulator's designs: {@value #ROBOT_NAME}
- * ({@link RobotDesign#buildersOption3}, the design the published logs use), {@value #PROTOTYPE_NAME}
+ * ({@link RobotDesign#flatIntake}, the Flat Intake, the baseline robot the published logs use), {@value #PROTOTYPE_NAME}
  * ({@link RobotDesign#buildersPrototype}) and {@value #FULL_WIDTH_NAME}
  * ({@link RobotDesign#springHoodFullWidth}, what a wider intake would gain), so what you see is what
  * the simulator does.
@@ -62,8 +62,8 @@ final class RobotAssets {
     static final String FULL_WIDTH_FOLDER = "Robot_BIOBUZZFullWidth";
     static final String FULL_WIDTH_NAME = "BIOBUZZ Full width";
 
-    /** What a model has beyond the design's numbers: the prototype's pinwheel, option 3's funnel wheels. */
-    enum Look { PLAIN, PROTOTYPE, OPTION3 }
+    /** What a model has beyond the design's numbers: the prototype's pinwheel (drawn only, not simulated). */
+    enum Look { PLAIN, PROTOTYPE, FLAT_INTAKE }
     static final String CAMERA_NAME = "Limelight";
 
     /** Limelight 3A, as AdvantageScope's FTC drive base declares it. */
@@ -92,7 +92,6 @@ final class RobotAssets {
     static final double LAUNCH_SETBACK_IN = 0.8; // ... and this far behind it
     static final double SHOT_PATH_THICKNESS_IN = 0.25;
     static final double SHOT_PATH_LENGTH_IN = 10.0;
-    static final double FUNNEL_WHEEL_RADIUS_IN = 1.6;
     static final double PINWHEEL_RADIUS_IN = 1.95;
     static final double PINWHEEL_AHEAD_IN = 0.9; // its centre, ahead of the frame's front ...
     static final double PINWHEEL_INSET_IN = 0.5; // ... and in from its right side
@@ -150,7 +149,7 @@ final class RobotAssets {
      * spill-study sketches {@value #WALLS_FOLDER}, {@value #SHAPES_FOLDER} and {@value #MATCH_FOLDER}; returns the first.
      */
     static File build(File out) throws IOException {
-        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.buildersOption3(), Look.OPTION3));
+        File dir = write(out, FOLDER, ROBOT_NAME, model(RobotDesign.flatIntake(), Look.FLAT_INTAKE));
         write(out, PROTOTYPE_FOLDER, PROTOTYPE_NAME, model(RobotDesign.buildersPrototype(), Look.PROTOTYPE));
         write(out, FULL_WIDTH_FOLDER, FULL_WIDTH_NAME, model(RobotDesign.springHoodFullWidth(), Look.PLAIN));
         File walls = new File(out, WALLS_FOLDER);
@@ -261,7 +260,7 @@ final class RobotAssets {
         // Mecanum wheels at the corners: a yellow hub and rollers round the rim at 45 deg, in the usual X
         // seen from above. An intake wider than the gap between the front wheels runs in front of them:
         // the front wheels sit back, their front edge FRONT_WHEEL_SETBACK_IN behind the frame's front (as
-        // in option 3's CAD).
+        // in the Flat Intake's CAD).
         double wheelX = half - WHEEL_RADIUS_IN - 0.2, wheelY = half - SIDE_PLATE_IN - 0.2 - WHEEL_WIDTH_IN / 2;
         boolean wide = d.intakeWidthIn / 2 > wheelY - WHEEL_WIDTH_IN / 2;
         double frontWheelX = wide ? half - FRONT_WHEEL_SETBACK_IN - WHEEL_RADIUS_IN : wheelX;
@@ -356,14 +355,6 @@ final class RobotAssets {
                 new double[] {exit[0] + dir[0] * SHOT_PATH_LENGTH_IN / 2, 0, exit[2] + dir[2] * SHOT_PATH_LENGTH_IN / 2},
                 new double[] {SHOT_PATH_THICKNESS_IN, SHOT_PATH_THICKNESS_IN, SHOT_PATH_LENGTH_IN}, tilt);
 
-        if (look == Look.OPTION3) {
-            // Funnel wheels at the front corners, flat on upright axles, steering pieces into the intake.
-            for (int side = -1; side <= 1; side += 2) {
-                b.cylinder("Funnel wheel " + (side > 0 ? "left" : "right"), new double[] {0.25, 0.4, 0.8, 1},
-                        new double[] {half - FUNNEL_WHEEL_RADIUS_IN + 0.7, side * (half - FUNNEL_WHEEL_RADIUS_IN + 1.0),
-                                FieldSim.POLLEN_RADIUS_IN}, FUNNEL_WHEEL_RADIUS_IN, 0.8, AXIS_Z);
-            }
-        }
         if (look == Look.PROTOTYPE) {
             b.cylinder("Pinwheel", new double[] {0.85, 0.86, 0.88, 1},
                     new double[] {half + PINWHEEL_AHEAD_IN, -(half - PINWHEEL_INSET_IN), PINWHEEL_HEIGHT_IN},
@@ -372,7 +363,7 @@ final class RobotAssets {
 
         addLimelight(b, CameraMount.mountForwardIn, CameraMount.mountLeftIn, CameraMount.mountUpIn,
                 CameraMount.pitchDeg, CameraMount.yawDeg, DECK_Z_IN);
-        return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.OPTION3 ? ROBOT_NAME : FULL_WIDTH_NAME);
+        return b.glb(look == Look.PROTOTYPE ? PROTOTYPE_NAME : look == Look.FLAT_INTAKE ? ROBOT_NAME : FULL_WIDTH_NAME);
     }
 
     /**

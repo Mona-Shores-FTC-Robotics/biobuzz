@@ -1,7 +1,7 @@
 {
   "pp": "TeamCode/autos/qual-stages-wall.pp",
   "spec": "QualStagesWallAuto,PartnerStage19SideParkAuto@50",
-  "design": "builders' option 3 (5 Oct CAD)",
+  "design": "flat intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -29,7 +29,7 @@
   "alliance": "RED",
   "metadata": {
     "AutoSource": "qual-stages-wall.pp",
-    "SavedBy": "README, qualifier Autos baseline (option 3)"
+    "SavedBy": "README, qualifier Autos baseline (Flat Intake)"
   },
   "title": "Qual-PartnerStages-Wall"
 }

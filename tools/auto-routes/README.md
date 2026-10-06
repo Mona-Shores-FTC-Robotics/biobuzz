@@ -8,7 +8,7 @@ it writes is still the source of truth: open it in the Auto Builder to see or ch
 
 Slow-tile numbers before 6 Oct 2026 02:56 UTC (in the tables below this one too) used a HIVE calibrated under
 3× friction (`HiveCalibration.fit`, fixed then); they read high, by up to 4 points. Two Autos, for the two partners we expect most in qualification. **The robot, since 5 Oct 2026 17:11
-UTC: the build team's option 3** (`RobotDesign.buildersOption3`, "builders' option 3 (5 Oct CAD)",
+UTC: the Flat Intake** (`RobotDesign.flatIntake`, "flat intake"; the build team's option 3, "o3" in file names,
 speed 50, no side walls): about 14.5 in square, a 14 in intake across the front (5 in tall, takes a piece
 only on contact), the launcher near the back (the piece leaves 4 in behind the centre, 12 in up, at
 75°). Alliance AUTO points over 20 runs, normal tiles / tiles with 3× the friction; how many of the 20
@@ -21,7 +21,7 @@ made 3 TIPs; and G409, spilled pieces our robot touched before they reached the 
 | Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **56.0 / 54.8** | 0 / 0 (TIP 2 20 / 19, PARK 20 / 19) | 1 run / 1 | 6 Oct 2026 02:56 |
 | Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **51.0 / 50.0** | 0 / 0 (TIP 2 20 / 19, no PARK) | 0 / 0 | 6 Oct 2026 02:56 |
 
-`DESIGN="builders' option 3 (5 Oct CAD)" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
+`DESIGN="flat intake" python3 qual_right.py 20 qual-right-o3 qual-stages-angled qual-stages-wall` exports
 and simulates them. The full-width 18 in robot's `qual-right-v3` (69.8 / 67.0, 17 / 15, rerun 6 Oct 2026 with the fixed calibration) stays as
 the "what a wider intake buys"; qual.py's own Autos (`qual-partner-*`) are another session's.
 The research routes (the side walls' G409-safe versions, `g409.py`; the shapes, `qual_shapes.py`; preloads
@@ -43,9 +43,9 @@ staged in a hook, `qual_stage.py`) and their numbers: [doc/robot-shapes-and-wall
   after a fire that may still be going (the endgame guard would cut the fire short).
 - **The partner only fires from its start, then parks.** It can't tell whether the HIVE has tipped.
 
-### On option 3 (the baseline)
+### On the Flat Intake (the baseline; was "option 3")
 
-Moving to option 3 is a smaller body (every spot where its front meets something moves 1.75 in:
+Moving to the Flat Intake is a smaller body (every spot where its front meets something moves 1.75 in:
 `qual_right.fit`) and a 14 in intake instead of 16.2. Run 5 Oct 2026 16:20–17:11 UTC, 20 runs,
 normal / slow tiles (`O3` and `STAGES` in `qual_right.py`).
 
@@ -86,7 +86,7 @@ its row and our 14.5 in robot only just fit: we turn at the lane's top and slide
 round it took too long and the endgame guard's cut-short park drove into the HIVE frame, so with A we stay.
 TIP 2 comes at about 21 s either way, too late for TIP 3 (8 more pieces by 30 s).
 
-### Qual-PartnerShootsRight v3 (the full-width robot, before option 3)
+### Qual-PartnerShootsRight v3 (the full-width robot, before the Flat Intake)
 
 TIP 1 (4.6 s) is the partner's 4 on the 3 NECTAR. TIP 2 (13.3 s): our preloads when the left CELL
 rises, then the far FLOWER's 4. TIP 3 (about 26.5 s): TIP 2's spill, caught driving south through the
@@ -152,7 +152,7 @@ PARK, 1.5 in each (`qual_right.right(robot="proto")`, `qual-right-v3-proto`). Ru
 | The design above (18 in, intake 16.2 in; with its launcher as on 15:49) | 69.8 / 68.0 | 17 / 16 |
 | The prototype, if its intake were 13.5 in (90% of its frame) | 62.8 / 62.5 | 11 / 10 |
 | **The prototype (intake 8 in)** | **57.3 / 54.8** | **6 / 3** |
-| **Option 3** (`RobotDesign.buildersOption3`, about 14.5 in, intake about 14 in with funnel wheels at the front corners; launcher as the design above; `qual-right-v3-option3`, run 15:49) | **64.5 / 60.8** | **12 / 9** |
+| **Option 3, now the Flat Intake** (`RobotDesign.flatIntake`, about 14.5 in, intake about 14 in with funnel wheels at the front corners; launcher as the design above; `qual-right-v3-option3`, run 15:49) | **64.5 / 60.8** | **12 / 9** |
 
 Why: a narrower intake catches less of each spill and of TIP 1's leftovers, so TIP 3 comes later
 (about 29 s) or not at all, and the robot is often still busy at 30 s and misses PARK. Without the
@@ -177,7 +177,7 @@ in the Visualizer's top bar, type the branch (`claude/simulator`), and pick a pa
 
 | Auto (files) | Together | Our robot | The other robot |
 |---|---|---|---|
-| Qual-PartnerShootsRight (`qual-right-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight-Option3) | [qual-right-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
+| Qual-PartnerShootsRight (`qual-right-o3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) | [qual-right-o3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-o3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |
 | Qual-PartnerStages, angled partner (`qual-stages-angled`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) | [qual-stages-angled](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled.pp) | partner: [partner-angled-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-angled-park.pp) |
 | Qual-PartnerStages, partner against the wall (`qual-stages-wall`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) | [qual-stages-wall](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall.pp) | partner: [partner-stage19-side-park](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-stage19-side-park.pp) |
 | What a wider intake buys: Qual-PartnerShootsRight v3 on the full-width robot (`qual-right-v3`) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-PartnerShootsRight-v3) | [qual-right-v3](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v3.pp) | partner: [partner-preloads-right](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/partner-preloads-right.pp) |

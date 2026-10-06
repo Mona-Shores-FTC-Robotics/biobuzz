@@ -1,8 +1,8 @@
 {
   "pairs": [
-    {"name": "Qual-ShootsRight-Option3", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "baseline, build team's option 3: partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"},
-    {"name": "Qual-Stages-Angled", "files": ["qual-stages-angled.pp", "partner-angled-park.pp"], "note": "baseline, option 3: partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"},
-    {"name": "Qual-Stages-Wall", "files": ["qual-stages-wall.pp", "partner-stage19-side-park.pp"], "note": "baseline, option 3: partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"},
+    {"name": "Qual-ShootsRight", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "baseline, Flat Intake: partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"},
+    {"name": "Qual-Stages-Angled", "files": ["qual-stages-angled.pp", "partner-angled-park.pp"], "note": "baseline, Flat Intake: partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"},
+    {"name": "Qual-Stages-Wall", "files": ["qual-stages-wall.pp", "partner-stage19-side-park.pp"], "note": "baseline, Flat Intake: partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"},
     {"name": "Qual-PartnerShootsLeft", "files": ["qual-partner-shoots-left.pp", "partner-preloads-left.pp"], "note": "qualifier, partner fires from the standard left start: one launcher 70"},
     {"name": "Qual-PartnerParksLeft", "files": ["qual-partner-parks-left.pp", "partner-park-left.pp"], "note": "qualifier, partner only drives and parks from the left start: one launcher 57"},
     {"name": "Qual-PartnerShootsRight-v3", "files": ["qual-right-v3.pp", "partner-preloads-right.pp"], "note": "full-width robot (the what-if): partner fires from the right start; 3 TIPs in 17 of 20"},

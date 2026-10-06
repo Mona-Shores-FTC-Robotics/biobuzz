@@ -38,7 +38,7 @@ A `.wpilog` only stores numbers over time: where each robot is, where every piec
 for some studies the position of each part of the robot. AdvantageScope draws a robot model at the logged
 position, and the model is chosen in the layout (`sim-review/advantagescope-layout*.json`), not by the log.
 
-- **The baselines** use the model **BIOBUZZ Robot** (option 3). The setup script builds it from the same
+- **The baselines** use the model **BIOBUZZ Robot** (the Flat Intake). The setup script builds it from the same
   numbers the simulator uses (`RobotAssets.java`), so the drawing and the simulation can't disagree.
 - **The shape studies** use one model, **BIOBUZZ Robot (match shapes)**, that contains every shape as a
   separate part. Each log says where each part goes: the shape that was simulated at the robot, the others

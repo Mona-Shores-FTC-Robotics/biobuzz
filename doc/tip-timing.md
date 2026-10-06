@@ -28,7 +28,7 @@ videos don't show how many pieces were in each.
 the creep, so it compares with the longer end of the range. Rerun with the TIP time set to 0.6 and 1.2 s
 (`BIOBUZZ_AUTO_TIP_SECONDS`), Qual-PartnerShootsRight on normal tiles, 20 runs:
 
-| TIP time | Plain option 3 | Rigid V |
+| TIP time | Flat Intake | Rigid V |
 |---|---|---|
 | 0.6 s | 61.0 pts, TIP 3 in 8, G409 in 1 run | 68.5 pts, TIP 3 in 14, G409 in 3 runs |
 | 1.0 s (the setting) | 64.8, TIP 3 in 11, G409 0 | 71.0, TIP 3 in 16, G409 0 |

@@ -1,13 +1,13 @@
 """Draws the ramp hook (sim-review/ramp-hook.svg; doc/ramp-hook.md explains it):
 
-  1. from above: version B, the small right hook on option 3 (14.5 in chassis), its tongue on the arm, at a FLOWER;
+  1. from above: version B, the small right hook on the Flat Intake (14.5 in chassis; was "option 3"), its tongue on the arm, at a FLOWER;
   2. from the side: the slice ramp.py simulates, at its best guess (12 deg, tip 2.4 in in, ring 0.43 in);
   3. four moments of that run, as ramp.py simulates them.
 
     python3 tools/ramp-hook/draw.py [out.svg]
 
 Every FLOWER size is from the Competition Manual (§9.7, Fig 9-12). Grey dashed labels mark what isn't measured or
-published. The hook is design 14's 8 in arm on option 3 (README "On option 3, the baseline robot" on
+published. The hook is design 14's 8 in arm on the Flat Intake (README "On option 3, the baseline robot" on
 claude/biobuzz-robot-body-designs-hi386c).
 """
 import math
@@ -107,7 +107,7 @@ def top_view(ox, oy, k):
     line(X(CHASSIS), Y(tv + gap / 2), X(CHASSIS), Y(ARM), GUIDE, 5)
     rect(X(0), Y(ARM), CHASSIS * k, CHASSIS * k, fill=ROBOT, stroke="#a3abb9", width=2)
     rect(X(1.25), Y(ARM) + 3, 12 * k, 1.2 * k, fill=ORANGE)
-    text(X(CHASSIS / 2), Y(ARM + CHASSIS / 2), "option 3, 14.5 in", 13, INK, "middle")
+    text(X(CHASSIS / 2), Y(ARM + CHASSIS / 2), "Flat Intake, 14.5 in", 13, INK, "middle")
     # The POLLEN's way in: off the tongue, along the intake's face.
     line(X(CHASSIS - 0.6), Y(tv), X(3.0), Y(tv), POLLEN, 2, "6 5")
     o.append(f'<polyline points="{X(3.6):.1f},{Y(tv) - 6:.1f} {X(3.0):.1f},{Y(tv):.1f} {X(3.6):.1f},{Y(tv) + 6:.1f}" '
