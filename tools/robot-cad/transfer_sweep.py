@@ -9,7 +9,7 @@ Z0 = FACE - 7.56 * IN
 def cad(X, Z): return (F + Z * IN, Z0 + X * IN)            # robot-frame (X, Z) inches -> CAD (y, z) mm
 import importlib.util, os
 _s = importlib.util.spec_from_file_location("tb", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "cad", "transfer", "build.py"))
-PV = (0.9, 3.732)                                       # the arm's pivot (cad/transfer/build.py: 60 mm at 20 deg from the axle)
+PV = (0.72, 3.36)                                       # the arm's pivot (cad/transfer/build.py: 60 mm at 30 deg from the axle)
 PIVOT, EXS = cad(*PV), (F + 4.5 * IN, FACE + 2.4 * IN)
 SKIP = ("Launcher Concept", "Intake <1> / 48mm", "Intake <1> / 240mm", "Intake <1> / 5000", "Intake <1> / 5103", "Intake <1> / 5203",
         "Intake <1> / 1201-0043", "Pattern Spacer", "Nectar", "Pollen", "Intake <1> / 11 Hole")   # replaced, removed, pieces; the 11-hole channel is raised 8 mm (checked below)
@@ -25,7 +25,11 @@ TOUCH = {("lane_wall", "strand_shaft"), ("lane_wall", "countershaft"), ("lane_fl
          ("queue_lid", "outer_J_and_chute"), ("lane_drive_upper_loop", "roller_wheels"), ("lane_drive_upper_loop", "countershaft"),
          ("turret_bearing_REFERENCE", "turret_channel_X-5.6_REFERENCE"), ("turret_bearing_REFERENCE", "turret_channel_X+0.4_REFERENCE"),
          ("turret_channel_X-5.6_REFERENCE", "outer_J_and_chute"), ("turret_channel_X-5.6_REFERENCE", "lane_wall"), ("turret_bearing_REFERENCE", "outer_J_and_chute"),
-         ("turret_bearing_REFERENCE", "lane_wall")}   # the upper loop re-aligns as the roller rises
+         ("turret_bearing_REFERENCE", "lane_wall"),
+         ("lane_strip", "lane_wall"), ("lane_strip", "outer_J_and_chute"), ("pivot_stub", "lane_wall"), ("pivot_stub", "J_arm"), ("pivot_stub", "pivot_stub_pulleys"),
+         ("pivot_stub_pulleys", "arm_drive"), ("pivot_stub_pulleys", "J_motor_belt"), ("arm_drive", "J_shaft"), ("J_motor_shaft_pulley", "J_motor"),
+         ("J_motor_belt", "J_motor_shaft_pulley"), ("J_motor_cradle", "J_motor"), ("arm_stop", "J_arm"), ("J_arm", "arm_drive"), ("J_arm", "pivot_stub_pulleys"),
+         ("turret_channel_X-5.6_REFERENCE", "turret_bearing_REFERENCE"), ("turret_channel_X+0.6_REFERENCE", "turret_bearing_REFERENCE")}   # the upper loop re-aligns as the roller rises
 key = lambda n: n.split(" ")[0].rstrip("0123456789").rstrip("_").removesuffix("_L").removesuffix("_R") if not n.startswith("lane_strip") else "lane_strip"
 def k2(n):
     b = n.split(" ")[0]
@@ -71,7 +75,7 @@ tr = [n for n in T]; fr = [n for n in Fm]
 print("== transfer against the robot (at rest)")
 for n in tr:
     h = robot_hits(n, pose(n))
-    if h and not n.startswith(("lane_hanger", "turret_channel")): print("  ", n.split(" ")[0], h.most_common(3))
+    if h and not n.startswith(("lane_strip", "J_motor_cradle", "turret_channel")): print("  ", n.split(" ")[0], h.most_common(3))
     elif h: print("   (bolts to it)", n.split(" ")[0], h.most_common(2))
 print("== transfer against itself and the front: roller rise 0 / 0.65 / 1.3 in, extractor 0 / 75 / 150 deg")
 seen = set()

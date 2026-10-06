@@ -137,8 +137,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
         if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
         if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
         lift = [0, 8.0, 0] if "Intake <1> / 11 Hole Lowside" in path else [0, 0, 0]   # raised 8 mm for the transfer's lane (doc/transfer.md)
-        (turret if path.startswith("Launcher Concept") else base).append(mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08))
-        # the CAD's "Launcher Concept" stands in for the turret's launcher (component 2) until the turret has an outline
+        if path.startswith("Launcher Concept"): continue   # dropped (the mentor, 6 Oct): the turret's launcher replaces it
+        base.append(mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08))
     for n, m in add.items():
         if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
             base.append(mesh(m["v"], m["f"], m["col"], 0.6 if "polycarbonate" in n else 1.0))
@@ -185,8 +185,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     json.dump({"component": "model_0: FLOWER extractor", "pivot_m": [round(x, 5) for x in pivot], "axis": "+Y",
                "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 150 deg stowed",
                "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
-               "model_2": "the turret (for now the CAD's Launcher Concept and the turret bearing): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
-               "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.02286, 0, 0.09479) m (the arm's pivot, X 0.90 in, Z 3.732 in); 0 at rest on its stops (the arm 20 deg above horizontal toward the rear); 29.1 deg is the full 1.2 in of float at the axle (a NECTAR lifts it 0.8-1.2 in, a POLLEN barely)"},
+               "model_2": "the turret (for now only its bearing; the launcher is to come): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
+               "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 29.1 deg is the full 1.2 in of float at the axle (a NECTAR lifts it 0.8-1.2 in, a POLLEN barely)"},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
     for fn in ("model.glb", "model_0.glb", "model_1.glb", "model_2.glb") + (("model_3.glb",) if jarm else ()):
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())
