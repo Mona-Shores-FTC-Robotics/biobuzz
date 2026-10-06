@@ -60,6 +60,11 @@ Redraw it with `python3 tools/ramp-hook/views.py`.
     POLLEN too high and too square to lift it well, and the round back drops it close to the pocket's edge.
   - **A slightly rounded nose is fine.** The 1.5 x 0.8 triangle with its top front corner rounded to 0.15 in
     radius still empties in 12 of 12 (0.82 to 1.2 s). At 0.3 in radius it drops to 9 of 12.
+  - **Raising the bar doesn't add roll.** Bars with their tops at 1.2 or 1.3 in and their bottoms at 0.5, 0.7 or
+    0.9 in. The triangles empty in 12 of 12 at every height. They're fastest at 0.5 in (0.83 to 1.08 s) and a
+    little slower at 0.9 in (1.0 to 1.23 s). The half-rounds stay at 3 to 6 of 12. The POLLEN's speed comes from
+    how far it drops from the bar's top to the tiles, and the top is capped near 1.3 in either way. Raising the
+    bottom only makes the bar thinner and its slope gentler.
 - **Size:** 14.5 + 8 + 1.5 = 24.0 in, so **option 3's chassis fits as it is.** Stowed, the 4 in side wall sticks
   out in front, which makes 18.5 in: hinge the hook 0.5 in inside the frame, or make the wall 3.5 in tall.
 - **For the spill:** the front is a 4 in wall except the 6 in gap, and the bar runs under the gap too.
