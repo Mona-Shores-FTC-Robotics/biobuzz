@@ -168,7 +168,7 @@ turret was out of stock on 6 Oct.
 |---|---|---|---|
 | Ramp | 5.8 .. 8.0 | −2.1 .. 2.1 | 0.05 .. 0.9 |
 | Lane: floor, strands, pulleys, walls (keep-out inside the walls) | −1.3 .. 7.2 | −2.35 .. 2.35 | 0.25 .. 5.0 |
-| Lane drive belt (outside the left wall): roller shaft → the float pivot (the roller motor's shaft, z 6.4) → the lane pulley | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 7.0 |
+| Lane drive (outside the left wall): a polycord loop from the floating roller's shaft to the lane pulley | 5.2 .. 9.1 | 2.35 .. 2.9 | 0.2 .. 4.5 |
 | J-wheel, arms, pivot stubs (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
 | Outer J and chute (keep-out inside) | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
 | J motor (position open; any spot in this box, belted to the left pivot stub) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
@@ -195,8 +195,8 @@ What it needs from the rest of the robot:
 | 8 mm REX shaft, J-wheel, about 132 mm; lane pulley shafts, about 110 mm | REX shaft, cut | 3 |
 | Flanged bearings, 8 mm REX bore, 14 mm OD: the J shaft, the pivot stubs, the lane shafts | 1611-0514-4008 (2-pack) | 8 bearings |
 | Arm drive, 1:1 inside the left arm, 2.5 in centres | 3417 HTD5 16T ×2 + a 3412 belt to fit (about 42T), or a printed pair | 1 set |
-| Lane drive from the roller shaft, 1.5:1 up | 3417 24T + 16T + a 3412 belt to fit (about 4.1 in centres) | 1 set |
-| Polycord, 3/16 in urethane round belt, welded into loops | any FRC supplier | 2 loops, about 14 in each |
+| Lane drive from the roller shaft, 1.5:1 up: V-groove pulleys 24 mm and 16 mm, 8 mm REX bore, and a 3/16 in polycord loop (about 13 in, welded at about 7% stretch; it takes the roller's 0.85 in float) | printed pulleys + polycord | 1 set |
+| Polycord, 3/16 in urethane round belt, welded into loops | any FRC supplier | 3 loops: two floor strands about 14 in, one lane drive about 13 in |
 | Polycord pulleys, 0.75 in, 8 mm REX bore | printed | 4 |
 | Arms (2), the hard stop, the outer J and chute (3 pieces), the ramp | printed PETG or nylon, 1/8 in walls | |
 | Lane floor and walls | 1/16 in polycarbonate | about 9 × 4.5 in floor, 2 walls |
@@ -221,20 +221,22 @@ On the robot: raise the 11-hole channel 8 mm and remove the two spacers before t
 
 ## The floating roller (Intake Design chat, 6 Oct 2026)
 
-The roller now floats: it rises up to 1.3 in on arms pivoting about its motor shaft (77.5 mm above the resting axle,
-so the belt length stays constant), and a spring returns it to a down stop at 2.4 in. The transfer's pulley on the
-roller shaft stays, belted about the float pivot. Checked against the transfer:
+The roller now floats, **vertically**: its bearings ride in slots in the side plates at X 8.56. It rises 0.85 in
+under the intake's rule (the slots are cut to 1.3 in for margin), and a spring returns it to a down stop at 2.4 in.
+The roller motor rides on the same carriage, 77.5 mm above the roller, so the roller's own belt stays the same length.
+(A pivot arm on the motor shaft was ruled out: it swings the roller sideways, and the roller's rear is 0.06 in ahead
+of the front uprights.) Checked against the transfer:
 
 - **The lane's entry meets the bite at both ends of the float.** The ramp now starts at X 8.0, under the roller's
   rear half. The roller's rear edge is at X 7.6 whether its bottom is at 2.4 or 3.7, so the piece is always pressed
   onto the ramp as it leaves the roller. The pinch is set by the float spring, not by the ramp's height, so the ramp
   can't jam a NECTAR. Pieces reach the lane floor at X 5.8, 1.8 in behind the roller's rear edge.
-- **The lane's drive belt.** The float's form is still open (the CAD chat finds the motor shaft can't be the pivot,
-  and proposes a vertical float with the motor riding on the roller's carriage). Either way the lane's drive runs
-  from a shaft that may move (the roller's, 3.35 → about 4.2) to the fixed lane pulley at X 5.6. **Make it a
-  polycord loop, not a toothed belt:** the span changes about 0.25 in over the float, about 2% of the loop, and
-  urethane round belt is installed at 5–10% stretch anyway, so it needs no idler. V-groove pulleys, 1.5:1. Its box
-  is X 5.2..9.1, Y 2.35..2.9, z 0.2..7.0. The J-wheel is at X −1.3, 6.5 in behind it: clear.
+- **The lane's drive runs from a shaft that moves** (the roller's, z 3.35 → 4.2) to the fixed lane pulley at
+  (5.6, 0.55). The span changes about 0.25 in over the rise, about 2% of the loop. **Make it a polycord loop, not a
+  toothed belt:** urethane round belt is installed at 5–10% stretch anyway, so it takes that with no idler. V-groove
+  pulleys, 1.5:1 (24 mm on the roller shaft, 16 mm on the lane shaft). Its box is X 5.2..9.1, Y 2.35..2.9,
+  z 0.2..4.5. The J-wheel is at X −1.3, 6.5 in behind it: clear. If a test shows the loop slipping under the stalled
+  queue when the roller is up, the CAD chat's sprung idler is the fallback.
 - **Ramp height under a lifted roller.** With a NECTAR under the roller, the roller's bottom is at about 3.5, and
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
