@@ -44,6 +44,8 @@ def mesh(v, f, rgb, alpha=1.0, decimate=None):
         alphaMode="BLEND" if alpha < 1 else "OPAQUE", doubleSided=True))
     return t
 
+# AdvantageScope's loader (OptimizeGeometries.ts) drops any mesh without a NORMAL attribute, so every export
+# below passes include_normals=True; without it the whole robot drew blank (6 Oct 2026).
 def merged(meshes):
     """One mesh per colour keeps the file small and quick to draw."""
     by = {}
@@ -72,14 +74,16 @@ def main(robot_pkl, addon_pkl, pod_pkl=None):
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
     os.makedirs(OUT, exist_ok=True)
-    merged(base).export(os.path.join(OUT, "model.glb"))
-    merged(ext).export(os.path.join(OUT, "model_0.glb"))
-    merged(flt).export(os.path.join(OUT, "model_1.glb"))
+    merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
+    merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
+    merged(flt).export(include_normals=True, file_obj=os.path.join(OUT, "model_1.glb"))
     # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
               "position": [round(4.0 * M, 5), 0.0, round(14.0 * M, 5)], "resolution": [640, 480], "fov": 54.5}
-    config = {"name": NAME, "isFTC": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
+    # disableSimplification: AdvantageScope otherwise decimates a model and drops meshes by rendering mode, and
+    # this one (plain part names, no NOSIMPLIFY) came out blank on the field (6 Oct 2026).
+    config = {"name": NAME, "isFTC": True, "disableSimplification": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
               "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}, {"zeroedRotations": [], "zeroedPosition": [0, 0, 0]}]}
     json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
     # the extractor's poses: it turns about its own shaft (+Y through PIVOT, 2.4 in ahead of the face and 4.5 in up);
