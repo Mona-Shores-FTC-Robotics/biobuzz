@@ -1,11 +1,15 @@
 # Side walls and robot shapes at the spill
 
+> **A record, not current numbers.** Simulated before 6 Oct 2026 12:00 UTC, when each TIP took a fixed 1.0 s and
+> spilled pieces stopped rolling too soon; the numbers read high. Current numbers: the README and
+> [shape-matrix.md](shape-matrix.md). Names since 6 Oct 2026: "option 3" is the **Flat Intake**, the hooks are
+> folded into the **Ramp Hook**, the long U / side walls are **Side Rails**, the front C is the **Front Pen** (dropped).
+
 Moved here from the repository README on 6 Oct 2026, unchanged, when the research branches were merged into
 `claude/simulator` (`claude/dazzling-maxwell-je04gu`, then `claude/biobuzz-robot-body-designs-hi386c`). The
 numbers are as they were run, with the dates given; the summary is in the README, "What we've learned".
 Links to `README.md` sections below mean the repository README as it was then; the content is all here.
-Names since 6 Oct 2026: "option 3" is the **Flat Intake**; the long U / side walls are **Side Rails**; the front C is the
-**Front Pen** (dropped); the right hooks are folded into the **Ramp Hook**; the spill's landing boxes are the **Drop Zone**.
+The spill's landing boxes are now the **Drop Zone**.
 
 ## Side walls (from branch `claude/dazzling-maxwell-je04gu`)
 

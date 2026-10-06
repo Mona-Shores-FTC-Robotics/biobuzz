@@ -17,6 +17,8 @@ name: Simulate Auto
 # An Auto's usual design is the one its <auto>/latest.json already has (the first one it was
 # simulated with). A run on another design, side walls say, goes only to designs/<design>/, so
 # the README's best/typical links keep showing the usual robot and both stay downloadable.
+# A request with "usual": true makes its design the usual one from then on (after a design is renamed,
+# say "builders' option 3 (5 Oct CAD)" to "flat intake").
 #
 # `sim-results` is rewritten as a single commit each time and keeps the newest
 # KEEP_RUNS results, so logs never pile up in the repository's history.
@@ -138,7 +140,7 @@ jobs:
               except ValueError:
                   pass
           targets = [os.path.join(os.path.dirname(out), "designs", slug)]
-          if usual is None or usual == design:
+          if usual is None or usual == design or request.get("usual") is True:
               targets.append(os.path.dirname(out))
           # And the same logs named for what they are and when: <title>_<Robot>_<date of the commit that changed
           # the Auto>_<best|typical>, so a downloaded file says which Auto it is and how new (the request's "title",

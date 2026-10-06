@@ -5,7 +5,8 @@ Measured 6 Oct 2026 from the videos in the team's Drive folder of spill videos (
 3 Oct phone films (IMG_1957 and IMG_1960, 4K at 120 fps). Frames: `sim-review/tip-*.jpg`.
 
 **A TIP takes about 0.5–1.2 s, most often about 1 s**, from the CELL visibly starting to swing to it hitting the
-other stop. The simulator's assumed 1.0 s (`HiveCalibration.ASSUMED_TIP_SECONDS`) is inside that range.
+other stop. The simulator now draws each TIP's time from **0.58–1.12 s** (`FieldSim.FILMED_TIP_SECONDS`, the middle
+90% of what was filmed; the HIVE is still calibrated at 1.0 s, `HiveCalibration.ASSUMED_TIP_SECONDS`).
 
 | Video | Starts to swing | Hits the stop | Time | Frames |
 |---|---|---|---|---|
@@ -25,16 +26,17 @@ swing is visible. The YouTube video has three more TIPs (about 2, 56 and 125 s) 
 videos don't show how many pieces were in each.
 
 **Does it matter?** The simulator's definition (`FieldSim`: leaving the stop to reaching the other one) includes
-the creep, so it compares with the longer end of the range. Rerun with the TIP time set to 0.6 and 1.2 s
-(`BIOBUZZ_AUTO_TIP_SECONDS`), Qual-PartnerShootsRight on normal tiles, 20 runs:
+the creep, so it compares with the longer end of the range. Every TIP set to 0.6 or 1.2 s
+(`BIOBUZZ_AUTO_TIP_SECONDS`) against each drawn from the range, Qual-PartnerShootsRight, 20 runs, on the
+simulator as of 6 Oct 2026 12:15 UTC (pieces rolling as filmed, [rolling](rolling.md)):
 
 | TIP time | Flat Intake | Rigid V |
 |---|---|---|
-| 0.6 s | 61.0 pts, TIP 3 in 8, G409 in 1 run | 68.5 pts, TIP 3 in 14, G409 in 3 runs |
-| 1.0 s (the setting) | 64.8, TIP 3 in 11, G409 0 | 71.0, TIP 3 in 16, G409 0 |
-| 1.2 s | 57.3, TIP 3 in 5, G409 0 | 69.8, TIP 3 in 15, G409 0 |
+| 0.6 s | 52.3 pts, TIP 3 in 1, G409 in 1 run | 62.3 pts, TIP 3 in 9, G409 in 5 runs |
+| Each drawn from 0.58–1.12 s (the setting) | 53.5, TIP 3 in 2, G409 0 | 66.0, TIP 3 in 12, G409 in 1 run |
+| 1.2 s | 51.0, TIP 3 in 0, G409 0 | 65.0, TIP 3 in 12, G409 in 1 run |
 
-- The rigid V's lead holds at every TIP time (+6 to +12 points), and it is much less sensitive to it.
+- The rigid V's lead holds at every TIP time (+10 to +14 points).
 - A fast TIP brings G409 touches back: the Autos wait a fixed 500 ms after the TIP settles before driving into
   the spill, tuned for 1.0 s. Waiting for the spill itself (the CELL settled plus a margin) would hold for any TIP.
 

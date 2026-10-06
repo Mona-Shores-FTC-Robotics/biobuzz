@@ -31,5 +31,6 @@
     "AutoSource": "qual-right-o3.pp",
     "SavedBy": "README, qualifier Autos baseline (Flat Intake), physics of 6 Oct 2026 (rolling)"
   },
-  "title": "Qual-PartnerShootsRight"
+  "title": "Qual-PartnerShootsRight",
+  "usual": true
 }

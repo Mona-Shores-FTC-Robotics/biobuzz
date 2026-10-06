@@ -1,5 +1,10 @@
 # A two-job hook: spill hook and FLOWER backboard? (issue #158)
 
+> **A record, not current numbers.** Simulated before 6 Oct 2026 12:00 UTC, when each TIP took a fixed 1.0 s and
+> spilled pieces stopped rolling too soon; the numbers read high. Current numbers: the README and
+> [shape-matrix.md](shape-matrix.md). Names since 6 Oct 2026: "option 3" is the **Flat Intake**, the hooks are
+> folded into the **Ramp Hook**, the long U / side walls are **Side Rails**, the front C is the **Front Pen** (dropped).
+
 The idea (5 Oct 2026): another team shoots NECTAR into a pivoted blocker, and the blocker drops it into the
 top of a FLOWER. Our large right hook (design 13, README "In the Qualifier Auto") already pivots about one
 hinge, with two positions: flat (the spill hook) and stowed upright. Could a third position, part-way up,
