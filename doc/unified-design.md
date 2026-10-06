@@ -41,18 +41,23 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 
 | Baseline | Route | Points | 3 TIPs (of 60) | Notes |
 |---|---|---|---|---|
-| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 10 |
-| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | still clips the HIVE frame in 4 runs, on the straight park at the end of AUTO |
-| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | 53.3 | 20 | no collisions |
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 8 runs, no problems |
+| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
+| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
+
+Refitted for the 15.12 in body (front 7.56 in ahead of centre), 6 Oct 2026, 60 runs. **The angled Auto's 4 HIVE-frame
+clips** come only when TIP 1 fails (2 of our 4 preloads miss). The route then goes back through the tunnel holding 4,
+and with the turn at x 55.5 the flaps clip the west foot bar at 26.7 s. The simulator chat is giving the route a
+branch for when TIP 1 hasn't happened; the clips vanish at the launcher's target accuracy.
 
 Built by `baselines_v.py`; design "rigid V" (= the drawn V).
 
-**Two fixes the simulator chat made, which put these above or below the numbers in the next sections:**
-- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.12 in body (15.24 was its width), every
-  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2. The true half-length is 7.56 in (the CAD re-measure below), so these routes are 0.06 in conservative.
+**Two fixes the simulator chat made, which change these from the numbers in the next sections:**
+- **Partner shoots (ShootsRight):** the routes were fitted for the old 14.5 in body. With the drawn V's 15.12 in body,
+  every run touched the far FLOWER. Refitted for the real body, it scores 71.2.
 - **Wall partner:** the row sweep's start point and its 180° turn put the V over the parked partner. The robots collided
-  in most runs, so 55.7/56.3 was not legal. Starting 2 in short of the row, with a tighter turn, there are no collisions
-  and it scores 53.3.
+  in most runs, so 55.7 and 56.3 were not legal scores. Starting 2 in short of the row, with a tighter turn, there are
+  no collisions.
 
 **From now on, a route with any problem is disqualified.** That means a collision, or a HIVE or FLOWER hit: the
 study line's PROBLEMS, and `problemRuns` in DeepDive's `cases.csv`. The numbers below were measured before this
