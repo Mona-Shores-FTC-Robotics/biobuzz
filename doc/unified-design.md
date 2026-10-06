@@ -82,6 +82,45 @@ the FLOWER scorer, the FLOWER extractor, and the Limelight at a mount angle that
 **The Flat Intake baseline is dropped** (mentor, 6 Oct 2026). Simulations now run only the Rigid V candidates, then
 only the chosen V.
 
+## Limelight mount (from the Limelight Localization chat, 6 Oct 2026)
+
+**Keep 19429's measured mount.** It was measured on the robot and checked against taped field positions
+(README § "HIVE tracking and camera localization, end to end (#157)" on `feat/157-hive-and-pose`). It is also
+`CameraMount`'s default in code.
+
+**Mount.** Model frame: +x forward, +y left, +z up, inches, origin on the floor under the chassis centre.
+
+| | Value |
+|---|---|
+| Lens position | x **4.0**, y **0**, z **14.0**. On the centreline, 3.6 in behind the front face. |
+| Pitch | **45° up.** AdvantageScope rotations `[y: −45, z: 0]`. |
+| Yaw | **0** |
+| Camera | Limelight 3A, 640 × 480. Field of view 54.5° across, 42° tall. At 45° pitch it sees 24°–66° above horizontal. |
+
+**Where it sees both CELLs.** Ranges are from the lens to each tag row, with the robot facing the HIVE. Row heights are
+measured: UP 50.2 in, DOWN 35.0 in.
+
+| Robot at | UP row | DOWN row | Both rows in view? |
+|---|---|---|---|
+| Firing spot (57.5, 24) | 30 in, 50° up | 32 in, 33° up | Yes |
+| Firing spot (57.5, 114–119) | 24–29 in, 51–56° up | 25–30 in, 35–40° up | Yes |
+| Start spot (y ≈ 4) | in view | 21° up, below the frame | No. Measured, and expected. |
+
+**Not checked yet: the tunnel.** Send the tunnel's poses (where the robot sits and which way it faces) and I'll run
+the same check.
+
+**Clearance (assumed: the turret isn't drawn yet).**
+- **Field of view.** Ahead of the lens, nothing may rise above the camera's lowest ray, within 27° either side of
+  straight ahead. That means the turret, a carried FLOWER, the scorer at any angle, and the extractor. The limit is
+  z ≤ 14.0 + 0.445 · (x − 4.0), giving 14.0 in at the lens, 15.6 in at the front face, and 16.1 in at the roller's
+  front.
+  - Below that line the view is clear. The stowed extractor tops out at 8.8 in, well under it.
+- **Behind the lens, anything goes.** Only the camera body and the USB-C cable need room, and the cable leaves toward
+  the back of the robot, away from the turret.
+- **If the turret must sweep through this space,** move the camera rather than tilt it down. Keep the 45° pitch:
+  lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
+  position and I'll re-check.
+
 ## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
 
 Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
