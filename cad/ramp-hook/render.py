@@ -43,8 +43,8 @@ def scene():
     for y in (-rod_len / 2 + 7, rod_len / 2 - 7):
         items.append((placed("end_block", dx=P.ROD_X, dy=y, dz=0, rz=0 if y > 0 else math.pi), (47, 95, 158)))
     for y0, y1 in ((-rod_len / 2 + 14, -P.ARC_R - 4), (P.ARC_R + 4, rod_len / 2 - 14)):
-        panel = trimesh.creation.box(extents=[P.PANEL_T, y1 - y0, 3.9 * IN - 1.15 * IN])
-        panel.apply_translation([P.ROD_X, (y0 + y1) / 2, 1.15 * IN + (3.9 * IN - 1.15 * IN) / 2])
+        panel = trimesh.creation.box(extents=[P.PANEL_T, y1 - y0, 3.5 * IN - 1.15 * IN])
+        panel.apply_translation([P.ROD_X, (y0 + y1) / 2, 1.15 * IN + (3.5 * IN - 1.15 * IN) / 2])
         items.append((panel, (160, 196, 240)))
     return items
 

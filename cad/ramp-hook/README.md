@@ -38,7 +38,7 @@ the numbers at the top of `parts.py`, and print again.
 | Item | Notes |
 |---|---|
 | 1/4 in steel or aluminium rod, about 14 in | Any straight round rod. For a 6 mm rod or shaft, set `ROD_D = 6.0` and re-run `parts.py` |
-| 1/16 in polycarbonate, two panels about 4.9 × 2.75 in | The curtains, either side of the block. Cut to fit |
+| 1/16 in polycarbonate, two panels about 4.9 × 2.35 in (their tops 3.5 in above the tiles, under the FLOWER's 3.55 in bracket) | The curtains, either side of the block. Cut to fit |
 | M3 screws: 2 short set screws for the block, 1 per clip, plus 8 to clamp the panels | Self-tapping into the printed holes |
 | M4 screws, 4, through the side wall into the end blocks | Holes are on a 16 mm pitch (an 8 mm grid). Drill the wall to suit |
 | 2 shaft collars for the rod, optional | Locate the block and clips without relying on set screws |

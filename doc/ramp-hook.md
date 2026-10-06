@@ -3,6 +3,35 @@
 Exploring and simulating only. No robot was attached and nothing here was measured. Every robot number is a
 placeholder for Thursday's cardboard to replace.
 
+## Final design (6 Oct 2026)
+
+![The final design, to scale](../sim-review/ramp-hook-final.png)
+
+Redraw with `python3 tools/ramp-hook/final_sheet.py`. Printable parts, what to buy and how to assemble:
+[`cad/ramp-hook/`](../cad/ramp-hook/README.md).
+
+- **Hook:** the small right hook on option 3's 14.5 in chassis. There's 8 in of clear space in front of the intake,
+  and a vertical side wall down the right side.
+- **FLOWER block:** 3D printed, threaded on a 1/4 in rod across the hook's front. It's 1.4 in front to back, its top
+  1.3 in above the tiles (under a POLLEN's centre), its bottom 0.5 in up (over the bottom ring's 0.43 in), with a
+  0.5 in flat top. Its front is curved to the bottom ring's 2.79 in hole, so it nests between the two grey
+  uprights.
+- **Driving:** push in until the block meets the uprights, and stay there. The FLOWER sets the depth and centres
+  the robot. In `ramp.py` against the manual's FLOWER, all 4 POLLEN come out in every bounce guess, the last
+  at the intake in about 1.2 s.
+- **Side wall and curtains: 3.5 in tall, vertical.**
+  - The curtains sit beside the block, and the FLOWER's lower bracket is 3.55 in up, so they have to stay under it.
+  - Stowed, the wall stands in front of the chassis: 14.5 + 3.5 = 18 in, exactly the start limit.
+  - Taller buys little. A falling POLLEN lands at about 200 in/s and, at the simulator's 0.5 bounce, first
+    bounces about 13 in high, over any wall we could fit. The second bounce peaks around 3 in, and after that
+    it's rolling.
+  - A wall stops the rolling and low-hopping POLLEN, which needs it taller than a POLLEN's centre (1.4 in).
+    3.5 in does that with margin.
+  - Going taller needs the hinge set back inside the frame (by the extra height), and a notch where the
+    curtains pass the bracket.
+- **To measure on Thursday:** the uprights' inside corners (does the curve seat?), whether the block drags on the
+  ring (raise to 0.55 to 0.6 in), and a shorter block (1.0 in) side by side with the 1.4 in one.
+
 ## Meeting notes, 6 Oct 2026
 
 Present: Travis, Nathan, CJ and a mentor.
