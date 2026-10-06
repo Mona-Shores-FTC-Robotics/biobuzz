@@ -336,9 +336,11 @@ block in about 1.0 s). This is the rear version to build, if any:
 - **The count.** With an empty lane, a FLOWER's 4 POLLEN fill the lane exactly and the pocket ends empty: G407 holds
   with no count. Extracting with pieces already aboard can leave a 5th in the pocket, so either the robot only
   extracts when empty, or a break-beam at the door counts.
-- **Risks** (cardboard): a ball's holes catching the door's edge; the door's spring and stop; the 0.14 in under the
-  back channel; the ball keeping enough speed through the door to reach the wheel (the floor from the back face
-  to the pocket is flat, 2.6 in).
+- **The door's spring is light.** The CAD chat's `ramp.py` has balls 1–3 reaching the door at 21–38 in/s, but the
+  4th, last out of the FLOWER, at only 9–12 in/s. So the door must open for a POLLEN at about 8 in/s, or the
+  reversed wheel must reach a ball that has barely pushed it open. Test the 4th ball slowly.
+- **Risks** (cardboard): a ball's holes catching the door's edge; the door's stop; the 0.14 in under the back
+  channel; the slow 4th ball stalling in the doorway (the floor from the back face to the pocket is flat, 2.6 in).
 
 **Showstoppers:** none. With the floor-level door the rear path costs the transfer one sprung door and a J motor
 that reverses, plus (per the CAD chat) the V's reach and the extractor's own length. The high window and its powered
@@ -372,8 +374,10 @@ Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
 8. **The turret.** Get goBILDA's CAD for 3208-0004-0001: its outer diameter, its height, and whether the 105 mm is
    clear all the way through, including the gear. Check its stock.
 9. **Motor ports.** Count them against the launcher's plan (flywheel motors, and a turret motor or a servo).
-10. **Rear entry, if the extractor goes to the back.** Drop a POLLEN into the cardboard J from behind, through a
-    3.6 in tall window: does it roll to the pocket? Does the reversed drill-wheel pull it into the lane? Fire it.
+10. **Rear entry, if the extractor goes to the back.** Fit a cardboard side-hinged door to the J's lower-rear
+    quarter with a rubber band. Roll a POLLEN at it along a 0.9 in floor at about 8 in/s (the slow 4th ball): does
+    the door open, and does the ball reach the pocket? Does the reversed drill-wheel pull it into the lane? Fire it:
+    does the door hold?
 
 ## In the whole-robot model
 
