@@ -149,6 +149,36 @@ public class AutoStudyTest {
         return d;
     }
 
+    /**
+     * A hook's timing and shape set from the environment (issue #162, doc/hook-g409.md): a design's name, then
+     * {@code ;} and settings, as in {@code "DHS CAD intake, 14 in roller, ramp hook; deploy 0.9 s, travel 0.3 s,
+     * arm 6 in, no crossbeam"}. {@code deploy}: {@link RobotDesign#sideWallsDeployS}, seconds after our CELL
+     * starts to TIP; {@code travel}: {@link RobotDesign#sideWallsTravelS}; {@code arm}: {@link
+     * RobotDesign#flapForwardIn}; {@code crossbeam} / {@code no crossbeam}: {@link RobotDesign#flapCrossbeam};
+     * {@code from tip 2}: {@link RobotDesign#hookFromTip}.
+     * Null for a name without {@code ;}.
+     */
+    static RobotDesign variant(String name) {
+        int semi = name.indexOf(';');
+        if (semi < 0) return null;
+        RobotDesign base = designs().get(name.substring(0, semi).trim());
+        if (base == null) throw new IllegalArgumentException("no design named " + name.substring(0, semi).trim());
+        RobotDesign d = base.copy(name);
+        for (String setting : name.substring(semi + 1).split(",")) {
+            String[] w = setting.trim().split("\\s+");
+            switch (w[0]) {
+                case "deploy": d.sideWallsDeployS = Double.parseDouble(w[1]); break;
+                case "travel": d.sideWallsTravelS = Double.parseDouble(w[1]); break;
+                case "arm": d.flapForwardIn = Double.parseDouble(w[1]); break;
+                case "crossbeam": d.flapCrossbeam = true; break;
+                case "from": d.hookFromTip = Integer.parseInt(w[2]); break;  // "from tip 2": RobotDesign#hookFromTip
+                case "no": if (w.length > 1 && w[1].equals("crossbeam")) { d.flapCrossbeam = false; break; }
+                default: throw new IllegalArgumentException("unknown hook setting in " + name + ": " + setting);
+            }
+        }
+        return d.checked();
+    }
+
     static Map<String, RobotDesign> designs() {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
@@ -474,8 +504,17 @@ public class AutoStudyTest {
                 ? java.util.Arrays.stream(seedList.split(",")).mapToLong(Long::parseLong).toArray()
                 : java.util.stream.LongStream.rangeClosed(1, runs).toArray();
         List<Object[]> jobs = new ArrayList<>();  // {spec, design name, design}
+        Map<String, RobotDesign> all = designs();
+        if (only != null) {  // a name with ";" is a hook variant (issue #162); any other unknown name is a mistake
+            for (String n : only.split("\\|")) {
+                if (all.containsKey(n)) continue;
+                RobotDesign v = variant(n);
+                if (v == null) throw new IllegalArgumentException("no design named " + n);
+                all.put(n, v);
+            }
+        }
         for (String spec : specs.split(";")) {
-            for (Map.Entry<String, RobotDesign> e : designs().entrySet()) {
+            for (Map.Entry<String, RobotDesign> e : all.entrySet()) {
                 if (only != null && !java.util.Arrays.asList(only.split("\\|")).contains(e.getKey())) continue;
                 jobs.add(new Object[] {spec, e.getKey(), e.getValue()});
             }

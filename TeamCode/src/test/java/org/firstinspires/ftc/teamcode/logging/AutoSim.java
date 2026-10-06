@@ -647,7 +647,6 @@ public final class AutoSim {
             double ly = half * j / 4;
             out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
         }
-        return out;
     }
 
     static final double CATCHER_DEPLOY_S = 1.0;
@@ -674,6 +673,31 @@ public final class AutoSim {
      */
     static final double HOOK_STILL_IN_PER_S = 3;
 
+    /**
+     * A study's stand-in for moving one named point of an Auto without re-exporting it (issue #162, the
+     * hook spot): {@code BIOBUZZ_AUTO_SHIFT="x,y:dx,dy"} moves every straight path that starts or ends at
+     * (x, y) (within 0.05 in) by (dx, dy) at that end, keeping its heading. The exported Auto is untouched;
+     * the Visualizer's exporter is still the way to change a route for real.
+     */
+    static Path shifted(Path path) {
+        String spec = System.getenv("BIOBUZZ_AUTO_SHIFT");
+        if (spec == null) return path;
+        String[] parts = spec.split("[:,]");
+        double x = Double.parseDouble(parts[0]), y = Double.parseDouble(parts[1]);
+        double dx = Double.parseDouble(parts[2]), dy = Double.parseDouble(parts[3]);
+        Pose a = path.get(0), b = path.get(1);
+        boolean atStart = Math.hypot(a.x() - x, a.y() - y) < 0.05, atEnd = Math.hypot(b.x() - x, b.y() - y) < 0.05;
+        if (!atStart && !atEnd) return path;
+        Pose mid = path.get(0.5);
+        if (Math.abs((mid.x() - a.x()) * (b.y() - a.y()) - (mid.y() - a.y()) * (b.x() - a.x())) > 0.05) {
+            throw new IllegalStateException("BIOBUZZ_AUTO_SHIFT moves only straight paths; this one bends");
+        }
+        Pose a2 = atStart ? new Pose(a.x() + dx, a.y() + dy, a.heading()) : a;
+        Pose b2 = atEnd ? new Pose(b.x() + dx, b.y() + dy, b.heading()) : b;
+        Path original = path;
+        return Paths.line(a2, b2).heading((curve, t) -> original.heading(t));
+    }
+
     /** Points every inch or so around the edge of a {@code size}-square footprint at {@code pose}. */
     private static List<double[]> edges(double[] pose, double size) {
         List<double[]> out = new ArrayList<>();
@@ -685,7 +709,6 @@ public final class AutoSim {
                 out.add(new double[] {pose[0] + l[0] * c - l[1] * s, pose[1] + l[0] * s + l[1] * c});
             }
         }
-        return out;
     }
 
     /** Points around and inside an {@code size}-square footprint at {@code pose}. */
@@ -707,7 +730,6 @@ public final class AutoSim {
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
-        return out;
     }
 
     private static boolean inside(double[] point, double[] pose, RobotDesign design) {
@@ -1050,6 +1072,7 @@ public final class AutoSim {
                 // A hook comes down only where the spill lands: not for a TIP whose spill falls at the other end,
                 // nor where its arm would be on the outside, away from the centre line.
                 boolean spillHere = !design.flapsDeploy || (pose[1] > FieldSim.CENTRE_IN) == wallSpillHighY;
+                if (design.flapsDeploy && started < design.hookFromTip) spillHere = false;  // RobotDesign#hookFromTip
                 boolean armInside = !design.flapTowardCentre || towardCentre(pose[0], pose[2]) == body.flapsOnly;
                 if (running && !wallsWanted && near && spillHere && !tooLate && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
                     if (!armInside) {
@@ -1473,6 +1496,7 @@ public final class AutoSim {
 
         @Override
         public void follow(Path path) {
+            path = shifted(path);
             // Carry the current speed into the new path, as far as it points the same way.
             Pose a = path.get(0), b = path.get(0.02);
             double tx = b.x() - a.x(), ty = b.y() - a.y(), tn = Math.hypot(tx, ty);
@@ -1610,7 +1634,6 @@ public final class AutoSim {
         out[0] = FieldSim.FIELD_SIZE_IN - p[0];
         out[1] = FieldSim.FIELD_SIZE_IN - p[1];
         if (p.length > 2) out[2] = AdvantageScopeFrame.wrap(p[2] + Math.PI);
-        return out;
     }
 
     private static double[] pedro(Pose p) {
@@ -1625,6 +1648,5 @@ public final class AutoSim {
             out[3 * i + 1] = AdvantageScopeFrame.yMeters(samples[i].x(), samples[i].y());
             out[3 * i + 2] = AdvantageScopeFrame.headingRad(samples[i].heading());
         }
-        return out;
     }
 }

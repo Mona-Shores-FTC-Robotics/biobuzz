@@ -217,6 +217,12 @@ final class RobotDesign {
      */
     boolean flapsDeploy = false;
     /**
+     * A deploying hook comes down only for our CELL's n-th TIP and later (issue #162): 1, every TIP; 2,
+     * not TIP 1's spill, which the Stages Autos catch with the plain intake from a spot an 8 in arm
+     * would reach into. Stands in for the Auto choosing when to lower it.
+     */
+    int hookFromTip = 1;
+    /**
      * A one-armed design's arm goes on whichever side faces the centre line when it comes down (a
      * "right hook" facing our wall, a left one facing the far wall), so it keeps the spill on our half.
      */
@@ -420,6 +426,7 @@ final class RobotDesign {
         d.flapRight = flapRight;
         d.flapCrossbeam = flapCrossbeam;
         d.flapsDeploy = flapsDeploy;
+        d.hookFromTip = hookFromTip;
         d.flapTowardCentre = flapTowardCentre;
         d.startBackedToWall = startBackedToWall;
         return d;
