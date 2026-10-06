@@ -1,5 +1,8 @@
 # Every spill guide on every current Auto
 
+> **Archived, 6 Oct 2026: the hook as a spill catcher.** The robot catches spills with a Rigid V. The hook is being
+> redesigned as a FLOWER extractor only. See [One robot](unified-design.md).
+
 Run **6 Oct 2026 13:40 UTC** on `claude/simulator`, on the simulator as it now stands: each TIP takes 0.58–1.12 s
 ([tip timing](tip-timing.md)) and spilled pieces roll as far as videos show ([rolling](rolling.md)). One runner
 for every cell (`AutoStudyTest`, the same as the README's baselines): 60 matches each, seeds 1–60, the same

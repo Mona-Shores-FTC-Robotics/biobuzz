@@ -132,6 +132,8 @@ all of them). The guides being explored, each on the Flat Intake:
   fires at once (we only wait 3.6 s). [Staged preloads](doc/staged-preloads-test.md).
 - **A FLOWER backboard on the hook** (#158): the hook can't reach high enough (12 in short), and a NECTAR in
   a FLOWER only counts in the last 60 s of TELEOP. Not worth it yet. [FLOWER backboard](doc/flower-backboard.md).
+- **Decision (6 Oct): one robot, Rigid V + FLOWER extractor + FLOWER scorer.** The hook is no longer a spill
+  catcher (archived). Owners and the envelope: [One robot](doc/unified-design.md).
 - **Ramp Hook vs Rigid V** (6 Oct, current physics, 60 runs, each guide on a route drawn for it; replaces the deep
   dive below): with the partner that shoots, the long Rigid V (18 in, 30°) does best (68.8, 3 TIPs in 41 of 60, PARK
   in 57, G409 in 6). With a staging partner the Ramp Hook does best, holding TIP 1's spill at the south end so TIP 2
