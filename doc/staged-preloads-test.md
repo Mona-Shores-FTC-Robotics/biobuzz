@@ -18,6 +18,32 @@ the measurements that would make its answer real, roughly in the order they matt
 - [ ] The cheaper alternative §10.3.4 already allows: start with the preloads on the tiles, touching the robot. Is
       that worth a route of its own?
 
+### Already on the official Q&A?
+
+Checked 6 Oct 2026 at `https://game-qa.firstinspires.org/boards/2027/FTC/QA` (the BIOBUZZ Team Q&A). It has
+17 questions, all accepted for answering, and **none answered yet**: its answer feed (`answers.atom`) is empty.
+None of the 17 asks ours. These are close, and their answers may settle part of ours:
+
+| # | Title | Rule | What it asks that touches ours |
+|---|---|---|---|
+| 3 | Over possession | G407 | A 5th piece taken by accident and got rid of within 3 s: a penalty? And after 3 s? |
+| 13 | Rule G408 - control of opponent nectar | G408, CONTROL | Cases of CONTROL: a piece stuck on top of or under the chassis, POLLEN we hold pushing another piece, a piece moving with us as we drive out of a pile |
+| 17 | Deflect from a tipped hive | G409 | Is "deflect" any deflection, or only strategic? (Our hook holds TIP 2's spill) |
+| 2 | Legality of Shot Blockers | G407 | Whether a plate above another robot counts toward G407 |
+
+Watch those four. If they don't settle ours once answered, a team representative registered with *FIRST* can
+ask these (the board asks for one question per post, under 500 characters; search first, duplicates are deleted):
+
+1. **G407 / CONTROL.** "Our ROBOT sets its 4 POLLEN on the TILES inside a passive hook (an arm and crossbeam lowered
+   to the floor in front of it), lifts the hook and drives away. While the hook is down and the ROBOT is stationary,
+   are those POLLEN CONTROLLED? If the ROBOT then intakes 4 more while the first 4 lie loose, not touching it, is
+   that a G407 violation?" (340 characters)
+2. **Herding.** "With pieces lying inside a lowered passive hook, the ROBOT moves forward 2 in, so the hook's crossbeam stays
+   clear of them but the arm may touch one. Is that herding (CONTROL), and does it count toward G407 for as long
+   as the contact lasts?" (240 characters)
+3. **Placing pieces in AUTO.** "Is there any restriction on a ROBOT placing its own POLLEN on the TILES on its own side
+   during AUTO, to collect them again later in the MATCH?" (142 characters)
+
 ## On the robot or a bench
 
 - [ ] **Can the intake reverse cleanly?** Reverse it with 4 POLLEN in, 10 times. Count jams and pieces that stay
