@@ -226,6 +226,24 @@ On the robot: raise the 11-hole channel 8 mm and remove the two spacers before t
 | Capacity | The first piece's centre stops at X −0.64 (POLLEN) or +0.73 (NECTAR). Each later piece's centre is half of each neighbour's diameter further forward. The intake refuses a piece whose centre would land ahead of X 8.56 (the roller's axle). That gives 4 POLLEN, 3 NECTAR, 3–4 mixed, never 5. At the start: 4 preloads of any mix |
 | Turret angle | No limit from the transfer |
 
+## In the simulator (robot body designs chat, 6 Oct 2026)
+
+The three qualifier baselines, 60 runs each, on the drawn Rigid V. The routes are unchanged, still timed for 0.45 s
+shots. "Lane only" means the lane's capacity rule (`RobotDesign.laneCapacity`). Points · 3-TIP runs of 60:
+
+| Design | Partner shoots | Stages, angled | Stages, wall |
+|---|---|---|---|
+| Baseline | 71.2 · 48 | 51.6 · 0 | 55.3 · 26 |
+| 0.25 s shots | 69.2 · 42 | **56.6 · 14** | **58.0 · 26** |
+| Lane only | 70.5 · 46 | 51.3 · 0 | 54.3 · 23 |
+| Both | 68.5 · 40 | 54.3 · 7 | 58.0 · 26 |
+
+- **Faster shots pay with a staging partner.** TIP 2 comes 1.6–1.9 s sooner, and the angled Auto gets 3 TIPs for the
+  first time.
+- **Partner shoots loses 2 points** only because its spill waits are fixed times tuned for 0.45 s. The route needs
+  retiming. G409 touches rise for the same reason.
+- **Holding only 3 NECTAR costs 0.3–1.0 points.** That's worth paying for A's G407-by-geometry over B's counter.
+
 ## Checklist for the next meeting (cardboard first)
 
 Bring 6 POLLEN, 4 NECTAR, a drill and the 48 mm gecko wheels.
