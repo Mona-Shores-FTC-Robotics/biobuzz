@@ -24,7 +24,7 @@ def go_park(r, park=True, ctrl=((28, 24), (24, 70)), turn_by=0.65):
     return [r.go(p, heading=90) for p in via] + [r.go("PARK", heading=90, park=park)]
 
 
-def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False, tip_ms=0, park=True, wall_flower=None, west=None, back_y=None):
+def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag="", fire_y=None, extra=0, lane_x=None, sweep_y=12, third=False, garden_ms=2500, stand=0, seen=0, catch3=False, tip_ms=0, park=True, wall_flower=None, west=None, back_y=None, flower_in=None):
     """From N_FIRE (facing the HIVE) once TIP 2 has started: south through its spill and the tunnel,
     fire it straight on from `spill_at`; the GARDEN's 4, fired from S_FIRE; then, if TIP 3 hasn't come,
     what lies near our end (webcam) fired straight on; PARK."""
@@ -76,11 +76,28 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
         return out + go_park(r, park=False)
     out += [tunnel(r, spill_at), fire(r, f"Fire TIP 2's spill{tag}", "Empty", ms=2000)]
     r.at = spill_at
-    if wall_flower == "first":  # the wall FLOWER's 4 (they sit still), then the GARDEN's 4, for TIP 3
-        out += [*flower(r, "WALL_FLOWER", f"The wall FLOWER{tag}", ms=2300)]
+    park_guard = wall_flower == "first-park"  # the 6 Oct 12:55 baseline's ending: PARK guaranteed, the GARDEN fire cut for it
+    if park_guard:
+        wall_flower = "first"
+    if wall_flower in ("first", "garden-first"):
+        # TIP 3 from pieces that sit still. "first": the wall FLOWER's 4, fired, then the GARDEN's 4, fired; PARK
+        # not guaranteed (the GARDEN's fire comes at ~28 s: a park path made the endgame guard cut it, and TIP 3
+        # (20) is worth more than PARK (5)). "garden-first" (mentor, 6 Oct): keep what the tunnel run caught,
+        # fill up at the GARDEN (nearer), fire 4, then the wall FLOWER's 4, fired; no sensor needed.
+        if wall_flower == "garden-first":
+            out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270),
+                    r.wait(f"Fill up at the GARDEN{tag}", when=["IntakeFull"], ms=1500), r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
+                    fire(r, f"Fire the catch and the GARDEN{tag}", "Empty", ms=garden_ms)]
+            r.at = "S_FIRE"
+        out += wall_flower_in(r, tag, flower_in)
         r.at = "WALL_FLOWER"
-        out += [r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the wall FLOWER{tag}", "Empty", ms=garden_ms)]
+        last = wall_flower == "garden-first"
+        out += [r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
+                r.wait(f"Fire the wall FLOWER{tag}{' (TIP 3)' if last else ''}", when=["LeftCellUp" if last else "Empty"],
+                       ms=2500 if last else garden_ms, alongside="LaunchAll")]
         r.at = "S_FIRE"
+        if last:
+            return out + go_park(r, park=False)
     if garden == "two":
         out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270)]
     elif garden == "one":  # one path: round the corner into the GARDEN, turned by the time it is lined up
@@ -91,12 +108,16 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
         out += [r.go("SWEEP_E", turn_by=1.0), r.go("SWEEP_W", heading=180),
                 r.go("GARDEN", ctrl=[(8.5, sy + 4)], turn_by=0.8)]
     out += [r.wait(f"The GARDEN{tag}", when=["IntakeFull"], ms=1500),
-            r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the GARDEN{tag}", "Empty", ms=garden_ms)]
+            r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
+            fire(r, f"Fire the GARDEN{tag}", "Empty", ms=garden_ms) if wall_flower != "first" or park_guard
+            else r.wait(f"Fire the GARDEN (TIP 3){tag}", when=["LeftCellUp"], ms=2500, alongside="LaunchAll")]
     r.at = "S_FIRE"
+    if park_guard:
+        return out + go_park(r)
     if wall_flower == "after":  # TIP 3 not started: the wall FLOWER's 4 instead of another GARDEN pass
         return out + wall_flower_load(r, tag, tip_ms=tip_ms)
-    if wall_flower == "first":  # both static loads fired: PARK
-        return out + go_park(r)
+    if wall_flower == "first":  # both static loads fired: toward PARK (no park path: the guard would cut the fire)
+        return out + go_park(r, park=False)
     if third:
         return out + third_load(r, tag, catch3=catch3, tip_ms=tip_ms)
     if catch3:  # no third load and no PARK: stand at the catch spot for TIP 3's spill, for TELEOP
@@ -116,6 +137,17 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
     out.append(r.wait(f"TIP 3?{tag}", when=["Tip"], ms=700, yes=park, no=more,
                       yes_label="Yes: PARK", no_label="No: leftovers"))
     return out
+
+
+def wall_flower_in(r, tag, how):
+    """Cards from S_FIRE to against the wall FLOWER and its 4 POLLEN: the helper's two legs (turn on the way to
+    _TURN, then straight in), or "one": a single path that turns in its first part and arrives square, with no
+    stop at _TURN (mentor, 6 Oct: the stop-and-slide into the FLOWER looks slow)."""
+    if how != "one":
+        return [*flower(r, "WALL_FLOWER", f"The wall FLOWER{tag}", ms=2300)]
+    t, here = r.points["WALL_FLOWER_TURN"], r.points[r.at]
+    return [r.go("WALL_FLOWER", ctrl=[(t[0], here[1]), (t[0], t[1])], turn_from=here[2], turn_after=0.15, turn_by=0.6),
+            r.wait(f"The wall FLOWER{tag}", when=["IntakeFull"], ms=2300)]
 
 
 def wall_flower_load(r, tag="", tip_ms=800):
@@ -329,6 +361,23 @@ RETUNE.update({"qual-right-o3-wffirst-t1500-b119": {**RETUNE["qual-right-o3-wffi
 # 27.5 s); sweep-f20 62.8, 30, G409 2; sweep-f20-b119 62.0, 28, G409 1; wffirst-t1500 59.8, 20, no G409.
 # The Flat Intake's baseline: wffirst-t1500-b119. The Rigid V keeps the sweep (qual_shapes.ROUTE_OF).
 O3["qual-right-o3"] = RETUNE["qual-right-o3-wffirst-t1500-b119"]
+# Mentor review of the logs (6 Oct 2026): (1) the GARDEN load at ~28 s was being cut short for PARK: in "first" the
+# last fire now waits for the TIP and PARK is not guaranteed; (2) "garden-first": keep the catch, fill up at the
+# GARDEN, fire 4, then the wall FLOWER's 4 (no sensor needed); (3) one smooth path into the wall FLOWER.
+BASE = RETUNE["qual-right-o3-wffirst-t1500-b119"]
+RETUNE.update({"qual-right-o3-first-free": BASE,
+               "qual-right-o3-garden-first": {**BASE, "wall_flower": "garden-first"},
+               "qual-right-o3-garden-first-one": {**BASE, "wall_flower": "garden-first", "flower_in": "one"},
+               "qual-right-o3-first-free-one": {**BASE, "flower_in": "one"},
+               "qual-right-o3-first-one": {**BASE, "flower_in": "one", "wall_flower": "first-park"}})
+# 60 runs (6 Oct 2026, mentor review): the baseline 55.0, TIP 3 in 7, PARK 28 (its GARDEN load cut for PARK at ~27 s);
+# first-free (the GARDEN fire kept, PARK not guaranteed) 53.7, TIP 3 10, PARK 0: three TIP 3s (60 pts) for 28 PARKs
+# (140); garden-first 51.7, TIP 3 4: the catch and the GARDEN as one load of 4, then the FLOWER's 4, is 8 POLLEN,
+# exactly the tipping weight, so any miss costs TIP 3, while firing the catch as its own load adds margin; the one
+# smooth path into the wall FLOWER arrives 0.7 s sooner (first-free-one TIP 3 at 27.3 against 28.0). The baseline:
+# the review's ending plus the smooth path, first-one: 54.8, TIP 3 in 10, PARK 13 (the FLOWER load fires sooner, so
+# TIP 3 comes more often and PARK less; mentor, 5 Oct: TIP 3 before PARK).
+O3["qual-right-o3"] = RETUNE["qual-right-o3-first-one"]
 RETUNE.update({f"qual-right-o3-sweep-t{ms}": {**O3V3, "tip_ms": 800, "settle": False, "extra": ms} for ms in (1300, 1500)})
 O3.update(RETUNE)
 
@@ -463,8 +512,9 @@ def staged_row(r, partner, row_ms, west):
     if west:  # from the start: across to the lane, up it (straight legs: a curve cuts the corners)
         r.pt("LANE_S", LANE_X[partner], 22, 90)
         out += [r.go("LANE_S", heading=90), *legs()]
-    elif partner == "A":  # from N_LOW, facing the left CELL: west at y 118 as above
-        out += [r.go("TURN_A", turn_after=0.8, turn_by=1.0), r.go("ROW_S", heading=0)]
+    elif partner == "A":  # from N_LOW, facing the left CELL: west at y 118 as above, the turn done by x 39
+        # (a turning robot's corners reach 10.25 in; the parked partner's east edge is at x 28, the row at y 127)
+        out += [r.go("TURN_A", turn_after=0.0, turn_by=0.45), r.go("ROW_S", heading=0)]
     else:  # from N_LOW, facing the left CELL
         out.append(r.go("ROW_S", turn_by=0.8))
     out += [r.go("ROW_N", heading=end_h), r.wait("The staged row", when=["IntakeFull"], ms=row_ms)]
@@ -472,7 +522,8 @@ def staged_row(r, partner, row_ms, west):
     return out
 
 
-def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot="option3", n_fire_y=None, **kw):
+def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot="option3", n_fire_y=None,
+                  catch_ms=0, stand=0, topup=False, **kw):
     """Qual-PartnerStages with a realistic staging partner (A or B). plan "chase": TIP 1, its spill caught
     driving north through the tunnel and fired, then the staged row (as qual.stages). plan "west": TIP 1,
     then north along the west lane (clear of TIP 1's spill) to the staged row, fired, then the far FLOWER,
@@ -487,12 +538,22 @@ def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot=
     # park then drove into the HIVE frame: with A, no PARK (tail(park=False)).
     r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000))
     if plan == "chase":
-        lands = [r.wait("It lands", when=["IntakeFull"], ms=land)] if land else []
-        r.add(r.go("S_CATCH"), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500), *lands,
-              tunnel(r, "N_TURN"), r.go("N_LOW", heading=270), fire(r, "Fire the catch", "Empty", ms=2200))
+        # Mentor, 6 Oct 2026 (no sensors in the baseline): catch TIP 1's spill at the drop zone, the wait timed from
+        # the TIP's start (catch_ms; before: the CELL settled plus `land`), standing `stand` ms more as it rolls
+        # back, then north through it and the tunnel. Then either fire the catch, the row and the FLOWER as three
+        # loads, or (topup) fill up to 4 at the row first and fire once, then the FLOWER.
+        if catch_ms:
+            lands = [r.wait("TIP 1 starts", when=["Tip"], ms=3000), r.wait("It lands", when=["IntakeFull"], ms=catch_ms)]
+            if stand:
+                lands.append(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=stand))
+        else:
+            lands = [r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500)] + ([r.wait("It lands", when=["IntakeFull"], ms=land)] if land else [])
+        r.add(r.go("S_CATCH"), *lands, tunnel(r, "N_TURN"), r.go("N_LOW", heading=270))
+        if not topup:
+            r.add(fire(r, "Fire the catch", "Empty", ms=2200))
         r.at = "N_LOW"
         r.add(*staged_row(r, partner, row_ms, west=False))
-        r.add(r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the row", "Tip", ms=2500))
+        r.add(r.go("N_LOW", turn_after=0.2, turn_by=0.9), fire(r, "Fire the catch and the row" if topup else "Fire the row", "Tip", ms=2500))
         r.at = "N_LOW"
         more = [*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)]
         r.at = "FAR_FLOWER"
@@ -563,6 +624,15 @@ STAGES = {
 # before) and TIP 2 fired from y 119 (113.5 before: a fast TIP threw a POLLEN onto us). Angled 55.0, TIP 2 in 19,
 # PARK 20, no G409; wall 49.0, TIP 2 in 18, no G409 (t1300-n1190 above; y 117.5 still one G409 run each).
 STAGES["qual-stages-angled"] = STAGES["qual-stages-angled-t1300-n1190"]
+# Mentor review (6 Oct 2026): catch TIP 1's spill at the drop zone first, both partners, then fill up and fire.
+TAIL = {**V3, "third": False, "garden": "two", "settle": False, "extra": 1300}
+for p, kind, extra in (("B", "angled", {}), ("A", "wall", {"park": False})):
+    for c in (1300, 1500):
+        for st in (0, 1000):
+            for t in (False, True):
+                STAGES[f"qual-stages-{kind}-catch{c}{'-stand' + str(st) if st else ''}{'-topup' if t else '-three'}"] = (
+                    lambda name, p=p, c=c, st=st, t=t, extra=extra: stages_staged(
+                        name, partner=p, plan="chase", n_fire_y=119, catch_ms=c, stand=st, topup=t, **{**TAIL, **extra}))
 STAGES["qual-stages-wall"] = STAGES["qual-stages-wall-t1300-n1190"]
 
 

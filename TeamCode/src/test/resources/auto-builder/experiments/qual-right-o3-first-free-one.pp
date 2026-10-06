@@ -128,17 +128,17 @@
       }
     },
     {
-      "id": "to-n-hook-5",
+      "id": "to-n-wait-5",
       "color": "#3cc8e4",
-      "name": "N_FIRE to N_HOOK",
+      "name": "N_FIRE to N_WAIT",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 63.349999999999994,
-        "y": 111.25
+        "x": 57.5,
+        "y": 119
       },
       "controlPoints": [],
       "heading": {
@@ -149,7 +149,7 @@
     {
       "id": "to-s-fire-6",
       "color": "#3cc8e4",
-      "name": "N_HOOK to S_FIRE",
+      "name": "N_WAIT to S_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -166,14 +166,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.86,
+              "endProgress": 0.87,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.86,
+              "startProgress": 0.87,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -499,7 +499,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-n-hook-5"
+      "lineId": "to-n-wait-5"
     },
     {
       "kind": "path",
@@ -568,7 +568,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-right-o3-small-hook",
+    "exportName": "qual-right-o3-first-free-one",
     "registry": {
       "actions": [
         "SpinUp",
@@ -689,9 +689,9 @@
         47.36,
         180
       ],
-      "N_HOOK": [
-        63.349999999999994,
-        111.25,
+      "N_WAIT": [
+        57.5,
+        119,
         270
       ]
     },
@@ -700,7 +700,7 @@
       "to-far-flower-turn-2": "FAR_FLOWER_TURN",
       "to-far-flower-3": "FAR_FLOWER",
       "to-n-fire-4": "N_FIRE",
-      "to-n-hook-5": "N_HOOK",
+      "to-n-wait-5": "N_WAIT",
       "to-s-fire-6": "S_FIRE",
       "to-wall-flower-7": "WALL_FLOWER",
       "to-s-fire-8": "S_FIRE",
@@ -813,7 +813,7 @@
       {
         "id": "p-10",
         "kind": "path",
-        "lineId": "to-n-hook-5",
+        "lineId": "to-n-wait-5",
         "park": false
       },
       {
@@ -828,7 +828,7 @@
             "cards": []
           },
           {
-            "afterMs": 2000,
+            "afterMs": 1500,
             "cards": []
           }
         ]
@@ -942,16 +942,16 @@
       {
         "id": "w-22",
         "kind": "firstOf",
-        "label": "Fire the GARDEN",
+        "label": "Fire the GARDEN (TIP 3)",
         "rows": [
           {
             "when": [
-              "Empty"
+              "LeftCellUp"
             ],
             "cards": []
           },
           {
-            "afterMs": 1800,
+            "afterMs": 2500,
             "cards": []
           }
         ],
@@ -961,7 +961,7 @@
         "id": "p-23",
         "kind": "path",
         "lineId": "to-park-12",
-        "park": true
+        "park": false
       }
     ]
   },

@@ -1,7 +1,7 @@
 {
-  "pp": "TeamCode/autos/qual-right-o3-rigid-v.pp",
-  "spec": "QualRightO3RigidVAuto,PartnerPreloadsRightAuto@50",
-  "design": "flat intake, rigid V",
+  "pp": "TeamCode/autos/qual-right-o3.pp",
+  "spec": "QualRightO3Auto,PartnerPreloadsRightAuto@50",
+  "design": "flat intake",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
   "seeds": [
@@ -68,8 +68,8 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-o3-rigid-v.pp",
-    "SavedBy": "README, the Rigid V on Qual-PartnerShootsRight (its sweep route), 6 Oct 2026"
+    "AutoSource": "qual-right-o3.pp",
+    "SavedBy": "README, qualifier Autos baseline (Flat Intake), 6 Oct 2026 review: smooth path into the wall FLOWER"
   },
   "title": "Qual-PartnerShootsRight",
   "usual": true

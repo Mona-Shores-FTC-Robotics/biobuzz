@@ -272,6 +272,8 @@ final class FieldSim {
         double rollScale = 1;
         /** An intake that just failed to grab it does not try again before this time. */
         double rejectedUntil = -1;
+        /** A miss at an intake is reported once per 0.3 s per piece (events "miss: ..."), not every step. */
+        double missLoggedUntil = -1;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
         /**
@@ -994,8 +996,23 @@ final class FieldSim {
                 Bot taker = null;
                 for (int b = 0; b < nb && taker == null; b++) {
                     Bot bot = bots.get(b);
-                    if (bot.present && bot.intaking && bot.stored.size() < ROBOT_CAPACITY && canTake(bot, p)
-                            && inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2]) && grabs(bot, p)) taker = bot;
+                    if (!bot.present || !bot.intaking) continue;
+                    // The same tests as before 6 Oct 2026, in an order that names why a piece at the intake was
+                    // not taken (events "miss: <why> <piece> robot <n>", for tuning the Autos and the intake).
+                    if (!inIntake(bot, p, sub[b][0], sub[b][1], sub[b][2])) {
+                        String why = nearIntakeMiss(bot, p, sub[b][0], sub[b][1], sub[b][2]);
+                        if (why != null && bot.stored.size() < ROBOT_CAPACITY) miss(bot, p, why);
+                        continue;
+                    }
+                    if (bot.stored.size() >= ROBOT_CAPACITY) {
+                        miss(bot, p, "full");
+                    } else if (!canTake(bot, p)) {
+                        miss(bot, p, p.kind != Kind.POLLEN && !bot.design.launchesNectar ? "nectar" : "interval");
+                    } else {
+                        String why = grabMiss(bot, p);
+                        if (why == null) taker = bot;
+                        else miss(bot, p, why);
+                    }
                 }
                 if (taker != null) {
                     capture(taker, p);
@@ -1466,15 +1483,43 @@ final class FieldSim {
      * chance, and one that got away is not tried again for 0.3 s. Pieces in a FLOWER are pulled out
      * by the intake, so always held.
      */
-    private boolean grabs(Bot bot, Piece p) {
-        if (p.flower >= 0) return true;
-        if (time < p.rejectedUntil) return false;
+    /** Why {@link #grabs} says no ("rejected", "speed" or "chance"), or null when the intake holds the piece. */
+    private String grabMiss(Bot bot, Piece p) {
+        if (p.flower >= 0) return null;
+        if (time < p.rejectedUntil) return "rejected";
         double rel = Math.hypot(p.vx - bot.vx, p.vy - bot.vy);
-        if (rel > bot.design.intakeMaxSpeedInPerS || variety.nextDouble() > bot.design.intakeGrabChance) {
+        if (rel > bot.design.intakeMaxSpeedInPerS) {
             p.rejectedUntil = time + 0.3;
-            return false;
+            return "speed";
         }
-        return true;
+        if (variety.nextDouble() > bot.design.intakeGrabChance) {
+            p.rejectedUntil = time + 0.3;
+            return "chance";
+        }
+        return null;
+    }
+
+    /**
+     * A piece at the robot's front that {@link #inIntake} does not count: "height" (in front of the mouth
+     * but its top above the intake), "beside" (at the front face, outside the mouth's width), else null.
+     */
+    private String nearIntakeMiss(Bot bot, Piece p, double bx, double by, double bh) {
+        RobotDesign design = bot.design;
+        if (p.flower >= 0 || p.where != Where.FIELD) return null;
+        double c = Math.cos(bh), s = Math.sin(bh);
+        double lx = (p.x - bx) * c + (p.y - by) * s;
+        double ly = -(p.x - bx) * s + (p.y - by) * c;
+        if (design.intakeAtBack) lx = -lx;
+        double mouth = design.frameIn / 2 + design.intakeReachIn;
+        if (!(lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN)) return null;
+        if (Math.abs(ly) < design.intakeWidthIn / 2) return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
+        return Math.abs(ly) < design.frameWidthIn / 2 + p.kind.radius ? "beside" : null;
+    }
+
+    private void miss(Bot bot, Piece p, String why) {
+        if (time < p.missLoggedUntil) return;
+        p.missLoggedUntil = time + 0.3;
+        events.add("miss: " + why + " " + name(p.kind) + " robot " + (bots.indexOf(bot) + 1));
     }
 
     /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */

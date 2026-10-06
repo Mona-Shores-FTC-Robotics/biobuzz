@@ -23,7 +23,7 @@ guess, the real number can differ, and so can which idea wins. Updated 6 Oct 202
 |---|---|---|
 | How pieces bounce off tiles, walls, the HIVE, robots | restitution 0.45 / 0.5 / 0.2 / 0.1 | Where a spill ends up; how much a flap or hook keeps |
 | Our robot's size and shape | Read off the 5 Oct CAD screenshots, ±15% | Every route spot; what the robot can reach |
-| The intake | Takes a piece only when it touches the front, top under 5 in, one every 0.35 s | **The biggest lever found.** A faster or wider real intake changes most results |
+| The intake | Takes a piece only when it touches the front, top under 5 in, one every 0.35 s, 85% of the time; a piece that arrives while it is busy bounces off the body | **The biggest lever found.** Every study line now counts the misses by why ("height", "interval", "beside", "chance"); in the Autos 15 a run are too high and 16–25 arrive while it is busy. Vectored rollers that hold pieces against the front would queue them instead; the roller height sets the 5 in |
 | The launcher | 2 s spin-up, 0.45 s a shot, 75°, a little spread | When TIPs happen; how many shots score |
 | Flaps, hooks, side walls | Thin plates of the drawn size, bouncing pieces with the guesses above | The rigid V's gain is pieces bouncing off its flaps into the intake: plausible, untested |
 | Driving | Pedro following the route at speed 50 | How long each leg takes |

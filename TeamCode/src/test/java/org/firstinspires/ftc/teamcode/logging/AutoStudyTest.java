@@ -333,12 +333,14 @@ public class AutoStudyTest {
         int g409, parked, robots, problems;
         String firstProblem = "";
         final List<Double> tips = new ArrayList<>();
+        /** Our robot's intake misses by why, "interval=3,height=2" (AutoSim.RobotResult#misses). */
+        String misses = "";
 
         String line() {
             StringBuilder t = new StringBuilder();
             for (double x : tips) t.append(t.length() == 0 ? "" : ",").append(x);
             return seed + "\t" + points + "\t" + load + "\t" + held + "\t" + g409 + "\t" + parked + "\t" + robots + "\t"
-                    + problems + "\t" + t + "\t" + firstProblem.replace('\t', ' ').replace('\n', ' ');
+                    + problems + "\t" + t + "\t" + misses + "\t" + firstProblem.replace('\t', ' ').replace('\n', ' ');
         }
 
         static Row parse(String[] f, int at) {
@@ -352,7 +354,8 @@ public class AutoStudyTest {
             r.robots = Integer.parseInt(f[at + 6]);
             r.problems = Integer.parseInt(f[at + 7]);
             if (f.length > at + 8 && !f[at + 8].isEmpty()) for (String x : f[at + 8].split(",")) r.tips.add(Double.parseDouble(x));
-            r.firstProblem = f.length > at + 9 ? f[at + 9] : "";
+            r.misses = f.length > at + 9 ? f[at + 9] : "";
+            r.firstProblem = f.length > at + 10 ? f[at + 10] : "";
             return r;
         }
     }
@@ -469,6 +472,11 @@ public class AutoStudyTest {
             row.g409 = r.g409;
             row.load = r.cellLoad;
             row.held = r.held;
+            StringBuilder m = new StringBuilder();
+            for (Map.Entry<String, Integer> e : r.robots.get(0).misses.entrySet()) {
+                m.append(m.length() == 0 ? "" : ",").append(e.getKey()).append('=').append(e.getValue());
+            }
+            row.misses = m.toString();
             for (AutoSim.RobotResult robot : r.robots) {
                 row.robots++;
                 if (robot.leave && robot.park) row.parked++;
@@ -498,6 +506,7 @@ public class AutoStudyTest {
         double[] sum = new double[8];
         double points = 0, load = 0, held = 0;
         int parked = 0, robots = 0, problems = 0, g409 = 0, g409Runs = 0, runs = rows.size();
+        Map<String, Integer> misses = new java.util.TreeMap<>();
         String firstProblem = null;
         for (Row r : rows) {
             for (int i = 0; i < r.tips.size() && i < count.length; i++) {
@@ -513,6 +522,19 @@ public class AutoStudyTest {
             robots += r.robots;
             problems += r.problems;
             if (firstProblem == null && !r.firstProblem.isEmpty()) firstProblem = r.firstProblem;
+            if (!r.misses.isEmpty()) {
+                for (String kv : r.misses.split(",")) {
+                    String[] p = kv.split("=");
+                    misses.merge(p[0], Integer.parseInt(p[1]), Integer::sum);
+                }
+            }
+        }
+        if (!misses.isEmpty()) {
+            StringBuilder m = new StringBuilder("STUDY   intake misses per run:");
+            for (Map.Entry<String, Integer> e : misses.entrySet()) {
+                m.append(String.format(Locale.ROOT, " %s %.1f", e.getKey(), (double) e.getValue() / runs));
+            }
+            System.out.println(m);
         }
         if (firstProblem != null) System.out.println("STUDY   first problem: " + firstProblem);
         StringBuilder line = new StringBuilder(String.format(Locale.ROOT, "%-36s %-28s", spec, designName));

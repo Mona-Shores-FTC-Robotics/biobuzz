@@ -17,7 +17,7 @@ their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-wa
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
-| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **55.0** | **7** (PARK 28) | **0** | 6 Oct 2026 12:55 |
+| Can shoot: fires its 4 preloads from the right start at once, parks | Qual-PartnerShootsRight (`qual-right-o3`, `qual_right.py`) | `partner-preloads-right` | **54.8** | **10** (PARK 13) | **0** | 6 Oct 2026 13:40 |
 | Can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight forward to PARK | Qual-PartnerStages (`qual-stages-angled`, `qual_right.py`) | `partner-angled-park` | **51.6** | 0 (TIP 2 53, PARK 55) | **0** | 6 Oct 2026 12:55 |
 | Can't shoot, against the wall with its 4 POLLEN on the tiles beside it, drives straight forward | Qual-PartnerStages (`qual-stages-wall`, `qual_right.py`) | `partner-stage19-side-park` | **47.3** | 0 (TIP 2 49, no PARK) | **0** | 6 Oct 2026 12:55 |
 
@@ -52,6 +52,16 @@ GARDEN), the wait before a spill timed from the TIP's start (it first lands 1.1�
 length), and standing a little further back while it falls (y 119). The Rigid V keeps the old sweep: its flaps
 catch the spill (64.1 on it, 59.8 on the Flat Intake's route). Decisions on 60 runs: 20 couldn't tell 9 TIP 3s
 from 12.
+
+**Mentor review of the logs** (6 Oct 2026 13:40 UTC, `RETUNE` and the `-catch` STAGES in `qual_right.py`): one
+smooth path into the wall FLOWER arrives 0.7 s sooner and is now the baseline (54.8, TIP 3 in 10, PARK 13; the
+FLOWER load fires sooner, so TIP 3 comes more often and PARK less). Keeping the catch for the GARDEN load (one
+load of 4, then the FLOWER's 4: 8 POLLEN, exactly the tipping weight) fell to 51.7, TIP 3 in 4: the catch fired as
+its own load is what gives margin. Letting the GARDEN fire run instead of cutting it for PARK: 53.7, TIP 3 in 10
+but no PARK. For the Stages Autos, catching TIP 1's spill at the drop zone first, standing or not, then filling
+up to 4 or firing three loads: all 16 variants below the current routes (angled 48.5–49.8 against 51.6; wall
+46.3–47.3 against 47.3, TIP 2 up to 54 of 60 but 3–5 s later). The study's new "intake misses per run" says why:
+15 pieces a run too high, 16–25 while the intake is busy.
 
 **Everything below is how the routes were tuned before that, kept as a record.** Those numbers are from before
 6 Oct 2026 12:00 UTC: a fixed 1.0 s TIP and pieces that stopped rolling too soon, so they read high. Where two

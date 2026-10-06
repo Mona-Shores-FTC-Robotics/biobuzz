@@ -1,6 +1,6 @@
 # Every spill guide on every current Auto
 
-Run **6 Oct 2026 12:55 UTC** on `claude/simulator`, on the simulator as it now stands: each TIP takes 0.58–1.12 s
+Run **6 Oct 2026 13:40 UTC** on `claude/simulator`, on the simulator as it now stands: each TIP takes 0.58–1.12 s
 ([tip timing](tip-timing.md)) and spilled pieces roll as far as videos show ([rolling](rolling.md)). One runner
 for every cell (`AutoStudyTest`, the same as the README's baselines): 60 matches each, seeds 1–60, the same
 partners. `python3 tools/auto-routes/shape_matrix.py 60` reruns it all (about 2.5 minutes).
@@ -19,9 +19,9 @@ longer. Both Stages routes wait 1.3 s from TIP 2's start and fire TIP 2 from y 1
 
 | Robot | Qual-PartnerShootsRight | Qual-PartnerStages, angled partner | Qual-PartnerStages, wall partner |
 |---|---|---|---|
-| **Flat Intake** (the baseline, no guide) | 55.0 pts · TIP 3 7 · PARK 28 · G409 0 | 51.6 · TIP 2 53 · PARK 55 · G409 0 | 47.3 · TIP 2 49 · no PARK · G409 0 |
+| **Flat Intake** (the baseline, no guide) | 54.8 pts · TIP 3 10 · PARK 13 · G409 0 | 51.6 · TIP 2 53 · PARK 55 · G409 0 | 47.3 · TIP 2 49 · no PARK · G409 0 |
 | **Rigid V** | **64.1** · TIP 3 **33** · PARK 33 · G409 3 | 51.9 · TIP 2 54 · PARK 55 · G409 2; into the HIVE frame in 5 runs | **no clean route yet** (see below) |
-| **Ramp Hook** (as the 8 in hook) | 60.3 · TIP 3 15 · PARK 59 · G409 **30** | 50.9 · TIP 2 52 · PARK 51 · G409 **41**; crosses the centre line in 5 | 47.3 · TIP 2 49 · G409 **19** |
+| **Ramp Hook** (as the 8 in hook) | **66.3** · TIP 3 **35** · PARK 51 · G409 **30** | 50.9 · TIP 2 52 · PARK 51 · G409 **41**; crosses the centre line in 5 | 47.3 · TIP 2 49 · G409 **19** |
 
 All counts are runs of 60. The full-width 18 in robot (16.2 in intake, no guide) on its own ShootsRight route, for
 comparison: 62.8 · TIP 3 35 · G409 11. TIP 1 with a partner that can't shoot is our 4 preloads alone: it fails in
@@ -38,8 +38,12 @@ foul risk in a real match.
   that widens the mouth: driven through by the plain 14 in intake, it is batted aside.
 - **With a partner that can't shoot**, TIP 3 is out of reach for every shape; the V brings TIP 2 about 1 s sooner
   but scores the same.
-- **The Ramp Hook (as the 8 in hook) gets TIP 3 more often than plain (15 of 60) but falling pieces touch it in
-  half the runs or more.** G409 is the problem to solve first, with the ramp's own shape.
+- **The Ramp Hook (as the 8 in hook) now out-scores the Rigid V on ShootsRight (66.3, TIP 3 in 35 of 60):** held at
+  its spot, TIP 2's spill is a real load, and the one smooth path into the wall FLOWER (6 Oct review) leaves time
+  to fire the GARDEN. But falling pieces touch it in half the runs; G409 is the problem to solve first, with the
+  ramp's own shape.
+- **The intake is the limiter**: 15 pieces a run reach the front too high and 16–25 while the intake is busy
+  (the study line's "intake misses per run"). See the README, "What we've learned".
 
 **Open**
 

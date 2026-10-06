@@ -125,6 +125,8 @@ public final class AutoSim {
         /** The decisions again, each with the time it happened, for reading where the time goes. */
         final List<String> timeline = new ArrayList<>();
         final List<double[]> poses = new ArrayList<>();
+        /** Pieces at this robot's intake that were not taken, by why (FieldSim "miss: ..." events, one per piece per 0.3 s). */
+        final java.util.Map<String, Integer> misses = new java.util.TreeMap<>();
         /** LEAVE (Competition Manual §10.5.4): not touching the perimeter wall when AUTO ends. */
         boolean leave;
         /** AUTO PARK (§10.5.4): at least partly in the alliance's LOADING ZONE when AUTO ends. */
@@ -522,6 +524,15 @@ public final class AutoSim {
             sim.step(LOOP_S);
             for (String e : sim.drainEvents()) {
                 if (e.startsWith("score: ") && e.contains(alliance.name())) result.scored++;
+                if (e.startsWith("miss: ")) {  // "miss: <why> <piece> robot <n>"
+                    String[] w = e.split(" ");
+                    int robot = Integer.parseInt(w[w.length - 1]) - 1;
+                    if (robot >= 0 && robot < result.robots.size()) {
+                        RobotResult rr = result.robots.get(robot);
+                        rr.misses.merge(w[1], 1, Integer::sum);
+                        rr.timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, e));
+                    }
+                }
                 if (e.startsWith("G409: ")) {
                     result.g409++;
                     // In the touching robot's timeline too, so a study's timeline shows during which step it happened.
