@@ -66,9 +66,7 @@ def write_all():
             r.folder = autogen.EXPERIMENTS
             r.write()
     for name, (design, hook_at) in qual_shapes.O3_SHAPES.items():
-        r = qual_shapes.o3_shaped(name, hook_at)
-        r.folder = autogen.EXPERIMENTS
-        r.write()
+        qual_shapes.o3_shaped(name, hook_at).write()  # into TeamCode/autos, where qual_shapes keeps them
 
 
 if __name__ == "__main__":
