@@ -310,6 +310,15 @@ public class AutoStudyTest {
         FieldSim.frictionScale = friction == null ? 1 : Double.parseDouble(friction);
         // BIOBUZZ_AUTO_TIP_SECONDS: every TIP this long (by default each is drawn from
         // FieldSim.tipSecondsRange, the 6 Oct 2026 videos' range, doc/tip-timing.md).
+        // BIOBUZZ_AUTO_SPREAD scales the launcher's shot-to-shot spread (FieldSim.spreadScale; 1 = the placeholder,
+        // about 5 shots in 6 scoring; 0 = every shot the same), for asking what a more accurate launcher buys.
+        String spread = System.getenv("BIOBUZZ_AUTO_SPREAD");
+        FieldSim.spreadScale = spread == null ? 1 : Double.parseDouble(spread);
+        // BIOBUZZ_AUTO_AIM_DEG: fire once the robot faces the CELL this closely (2 by default); BIOBUZZ_AUTO_FIRE_STILL=1:
+        // and only once it is still. Together with BIOBUZZ_AUTO_SPREAD=0 they are "every shot from a known position".
+        String aim = System.getenv("BIOBUZZ_AUTO_AIM_DEG");
+        AutoSim.AIM_TOLERANCE_RAD = Math.toRadians(aim == null ? 2 : Double.parseDouble(aim));
+        AutoSim.fireOnlyWhenStill = "1".equals(System.getenv("BIOBUZZ_AUTO_FIRE_STILL"));
         String tip = System.getenv("BIOBUZZ_AUTO_TIP_SECONDS");
         double tipBefore = org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds;
         double[] tipRange = FieldSim.tipSecondsRange;
@@ -321,6 +330,9 @@ public class AutoStudyTest {
             studyAll(specs);
         } finally {
             FieldSim.frictionScale = 1;
+            FieldSim.spreadScale = 1;
+            AutoSim.AIM_TOLERANCE_RAD = Math.toRadians(2);
+            AutoSim.fireOnlyWhenStill = false;
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = tipBefore;
             FieldSim.tipSecondsRange = tipRange;
         }
@@ -335,12 +347,15 @@ public class AutoStudyTest {
         final List<Double> tips = new ArrayList<>();
         /** Our robot's intake misses by why, "interval=3,height=2" (AutoSim.RobotResult#misses). */
         String misses = "";
+        /** Our alliance's shots launched and scored (every robot's). */
+        int launched, scored;
 
         String line() {
             StringBuilder t = new StringBuilder();
             for (double x : tips) t.append(t.length() == 0 ? "" : ",").append(x);
             return seed + "\t" + points + "\t" + load + "\t" + held + "\t" + g409 + "\t" + parked + "\t" + robots + "\t"
-                    + problems + "\t" + t + "\t" + misses + "\t" + firstProblem.replace('\t', ' ').replace('\n', ' ');
+                    + problems + "\t" + t + "\t" + misses + "\t" + launched + "\t" + scored + "\t"
+                    + firstProblem.replace('\t', ' ').replace('\n', ' ');
         }
 
         static Row parse(String[] f, int at) {
@@ -355,7 +370,9 @@ public class AutoStudyTest {
             r.problems = Integer.parseInt(f[at + 7]);
             if (f.length > at + 8 && !f[at + 8].isEmpty()) for (String x : f[at + 8].split(",")) r.tips.add(Double.parseDouble(x));
             r.misses = f.length > at + 9 ? f[at + 9] : "";
-            r.firstProblem = f.length > at + 10 ? f[at + 10] : "";
+            r.launched = f.length > at + 10 ? Integer.parseInt(f[at + 10]) : 0;
+            r.scored = f.length > at + 11 ? Integer.parseInt(f[at + 11]) : 0;
+            r.firstProblem = f.length > at + 12 ? f[at + 12] : "";
             return r;
         }
     }
@@ -477,6 +494,8 @@ public class AutoStudyTest {
                 m.append(m.length() == 0 ? "" : ",").append(e.getKey()).append('=').append(e.getValue());
             }
             row.misses = m.toString();
+            row.scored = r.scored;
+            for (AutoSim.RobotResult robot : r.robots) row.launched += robot.launched;
             for (AutoSim.RobotResult robot : r.robots) {
                 row.robots++;
                 if (robot.leave && robot.park) row.parked++;
@@ -507,6 +526,7 @@ public class AutoStudyTest {
         double points = 0, load = 0, held = 0;
         int parked = 0, robots = 0, problems = 0, g409 = 0, g409Runs = 0, runs = rows.size();
         Map<String, Integer> misses = new java.util.TreeMap<>();
+        int launched = 0, scored = 0;
         String firstProblem = null;
         for (Row r : rows) {
             for (int i = 0; i < r.tips.size() && i < count.length; i++) {
@@ -522,6 +542,8 @@ public class AutoStudyTest {
             robots += r.robots;
             problems += r.problems;
             if (firstProblem == null && !r.firstProblem.isEmpty()) firstProblem = r.firstProblem;
+            launched += r.launched;
+            scored += r.scored;
             if (!r.misses.isEmpty()) {
                 for (String kv : r.misses.split(",")) {
                     String[] p = kv.split("=");
@@ -530,7 +552,7 @@ public class AutoStudyTest {
             }
         }
         if (!misses.isEmpty()) {
-            StringBuilder m = new StringBuilder("STUDY   intake misses per run:");
+            StringBuilder m = new StringBuilder("STUDY   misses per run (intake, and shots that fell):");
             for (Map.Entry<String, Integer> e : misses.entrySet()) {
                 m.append(String.format(Locale.ROOT, " %s %.1f", e.getKey(), (double) e.getValue() / runs));
             }
@@ -543,7 +565,8 @@ public class AutoStudyTest {
         }
         line.append(String.format(Locale.ROOT, " | %.1f pts, parked %d/%d, CELL %.0f%%, held %.1f, G409 %.1f (%d runs)%s",
                 points / runs, parked, robots, 100 * load / runs, held / runs, (double) g409 / runs, g409Runs,
-                problems == 0 ? "" : ", PROBLEMS " + problems));
+                problems == 0 ? "" : ", PROBLEMS " + problems)
+                + (launched == 0 ? "" : String.format(Locale.ROOT, ", shots %.0f%% of %.1f", 100.0 * scored / launched, (double) launched / runs)));
         System.out.println("STUDY " + line);
     }
 }

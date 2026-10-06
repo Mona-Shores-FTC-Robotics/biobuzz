@@ -63,6 +63,16 @@ up to 4 or firing three loads: all 16 variants below the current routes (angled 
 46.3–47.3 against 47.3, TIP 2 up to 54 of 60 but 3–5 s later). The study's new "intake misses per run" says why:
 15 pieces a run too high, 16–25 while the intake is busy.
 
+**Shot accuracy** (6 Oct 2026, 60 runs): `BIOBUZZ_AUTO_SPREAD` scales the launcher's shot-to-shot spread (1 = the
+placeholder, 0 = none), `BIOBUZZ_AUTO_AIM_DEG` is how closely the robot must face the CELL before firing (2 by
+default) and `BIOBUZZ_AUTO_FIRE_STILL=1` fires only once it is still. Today's launcher: ShootsRight 94% of 17.6
+shots, the Stages Autos 89% of 13.4. Spread 0: 96% / 92%. Aim 0.5°, still, spread 0: 96% / 92–93%. So the spread
+and the aim are not where the misses come from; the study line now says what is (hit the HIVE; short, long, wide;
+a shot still in the air when AUTO ends counts as not scored, which is all of ShootsRight's 4% with no spread; the
+Stages Autos' one miss a run is the 4th preload, fired into the CELL the 3rd just tipped, at every firing distance
+tried, y 113.5–122).
+Angled TIP 2: 53 of 60 today, 58 with no spread; wall 49 and 50 (its failures are the row pickup, not shots).
+
 **Everything below is how the routes were tuned before that, kept as a record.** Those numbers are from before
 6 Oct 2026 12:00 UTC: a fixed 1.0 s TIP and pieces that stopped rolling too soon, so they read high. Where two
 are given, the second is "slow tiles", a what-if for the rolling friction, since dropped.

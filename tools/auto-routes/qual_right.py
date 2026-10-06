@@ -523,7 +523,7 @@ def staged_row(r, partner, row_ms, west):
 
 
 def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot="option3", n_fire_y=None,
-                  catch_ms=0, stand=0, topup=False, **kw):
+                  catch_ms=0, stand=0, topup=False, keep_last=False, **kw):
     """Qual-PartnerStages with a realistic staging partner (A or B). plan "chase": TIP 1, its spill caught
     driving north through the tunnel and fired, then the staged row (as qual.stages). plan "west": TIP 1,
     then north along the west lane (clear of TIP 1's spill) to the staged row, fired, then the far FLOWER,
@@ -536,7 +536,10 @@ def stages_staged(name, partner="A", plan="chase", land=500, row_ms=1600, robot=
     # A parks at (19, 100), on our PARK spot. Parking round it instead (up a lane east of it to the LOADING
     # ZONE's free top corner, 13, 116.5) took too long to finish by 30 s, and the endgame guard's cut-short
     # park then drove into the HIVE frame: with A, no PARK (tail(park=False)).
-    r.add(fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000))
+    # keep_last (6 Oct 2026): stop firing when the TIP starts. The 3rd preload tips the match-start CELL and the 4th,
+    # 0.45 s later, meets a CELL already swinging (it hits the HIVE or goes long in every run): kept, it is one
+    # more piece for the next load.
+    r.add(fire(r, "Fire the preloads (TIP 1)", "Tip" if keep_last else "Empty", ms=4000))
     if plan == "chase":
         # Mentor, 6 Oct 2026 (no sensors in the baseline): catch TIP 1's spill at the drop zone, the wait timed from
         # the TIP's start (catch_ms; before: the CELL settled plus `land`), standing `stand` ms more as it rolls
@@ -624,6 +627,15 @@ STAGES = {
 # before) and TIP 2 fired from y 119 (113.5 before: a fast TIP threw a POLLEN onto us). Angled 55.0, TIP 2 in 19,
 # PARK 20, no G409; wall 49.0, TIP 2 in 18, no G409 (t1300-n1190 above; y 117.5 still one G409 run each).
 STAGES["qual-stages-angled"] = STAGES["qual-stages-angled-t1300-n1190"]
+# (60 runs: angled 50.6 against 51.6, wall 48.0 against 47.3: within noise either way, not adopted.)
+STAGES["qual-stages-angled-keep"] = lambda name: stages_staged(name, partner="B", plan="chase", n_fire_y=119, keep_last=True,
+                                                               **{**V3, "third": False, "garden": "two", "settle": False, "extra": 1300})
+STAGES["qual-stages-wall-keep"] = lambda name: stages_staged(name, partner="A", plan="west", n_fire_y=119, keep_last=True,
+                                                             **{**V3, "third": False, "garden": "two", "park": False, "settle": False, "extra": 1300})
+# Where TIP 2's shots miss from (6 Oct 2026, with no shot spread the angled Auto still loses 1.1 shots a run, hitting
+# the HIVE or going long): the firing spot's distance, y 113.5 (the old spot) to 122.
+STAGES.update({f"qual-stages-angled-n{int(y * 10)}": (lambda name, y=y: stages_staged(name, partner="B", plan="chase", n_fire_y=y,
+    **{**V3, "third": False, "garden": "two", "settle": False, "extra": 1300})) for y in (113.5, 116, 122)})
 # Mentor review (6 Oct 2026): catch TIP 1's spill at the drop zone first, both partners, then fill up and fire.
 TAIL = {**V3, "third": False, "garden": "two", "settle": False, "extra": 1300}
 for p, kind, extra in (("B", "angled", {}), ("A", "wall", {"park": False})):

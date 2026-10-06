@@ -274,6 +274,13 @@ final class FieldSim {
         double rejectedUntil = -1;
         /** A miss at an intake is reported once per 0.3 s per piece (events "miss: ..."), not every step. */
         double missLoggedUntil = -1;
+        /**
+         * The robot that launched it, until the shot is resolved: it scored (no event), or came down on the tiles
+         * (event "miss: shot-hive ..." if it hit the HIVE on the way, else "miss: shot-short/long/wide ...").
+         */
+        Bot shotBy;
+        boolean shotHitHive;
+        double[] shotFrom, shotAim;
         /** The robot that just launched it, until it has left that robot's outline; else null. */
         Bot launchedBy;
         /**
@@ -433,6 +440,9 @@ final class FieldSim {
     static final class Bot {
         private boolean present;
         private double x, y, h, vx, vy, w;
+        /** How fast the robot is moving, in/s, and turning, rad/s (for firing only when still). */
+        double speed() { return Math.hypot(vx, vy); }
+        double spin() { return Math.abs(w); }
         private double prevX, prevY, prevH;
         private boolean intaking;
         private double lastCaptureAt = Double.NEGATIVE_INFINITY;
@@ -933,6 +943,10 @@ final class FieldSim {
         p.wy = -12;
         p.wz = 0;
         p.launchedBy = bot;
+        p.shotBy = bot;
+        p.shotHitHive = false;
+        p.shotFrom = new double[] {from[0], from[1]};
+        p.shotAim = new double[] {target[0], target[1]};
         return new double[] {vx, vy, vz};
     }
 
@@ -1019,7 +1033,12 @@ final class FieldSim {
                     continue;
                 }
                 boolean contact = false;
-                for (Rocker r : rockers) contact |= collideRocker(p, r);
+                for (Rocker r : rockers) {
+                    if (collideRocker(p, r)) {
+                        contact = true;
+                        if (p.shotBy != null) p.shotHitHive = true;
+                    }
+                }
                 if (collideFootBars(p)) {
                     contact = true;
                     p.touchedTile = true;
@@ -1365,6 +1384,7 @@ final class FieldSim {
         if (p.z < r) {
             p.z = r;
             p.touchedTile = true;
+            if (p.shotBy != null) shotLanded(p);
             if (p.vz < 0) {
                 double impact = -p.vz;
                 p.vz = impact * bounce(physics.tileRestitution);
@@ -1516,6 +1536,21 @@ final class FieldSim {
         return Math.abs(ly) < design.frameWidthIn / 2 + p.kind.radius ? "beside" : null;
     }
 
+    /** A shot that came down on the tiles without scoring: why, as a "miss:" event, with where it fell against the aim. */
+    private void shotLanded(Piece p) {
+        String why;
+        if (p.shotHitHive) {
+            why = "shot-hive";
+        } else {
+            double dx = p.shotAim[0] - p.shotFrom[0], dy = p.shotAim[1] - p.shotFrom[1], len = Math.hypot(dx, dy);
+            double along = ((p.x - p.shotAim[0]) * dx + (p.y - p.shotAim[1]) * dy) / len;
+            double across = Math.abs((p.x - p.shotAim[0]) * -dy + (p.y - p.shotAim[1]) * dx) / len;
+            why = across > Math.abs(along) ? "shot-wide" : along < 0 ? "shot-short" : "shot-long";
+        }
+        events.add("miss: " + why + " " + name(p.kind) + " robot " + (bots.indexOf(p.shotBy) + 1));
+        p.shotBy = null;
+    }
+
     private void miss(Bot bot, Piece p, String why) {
         if (time < p.missLoggedUntil) return;
         p.missLoggedUntil = time + 0.3;
@@ -1558,7 +1593,10 @@ final class FieldSim {
             if (end != 0) now = r.cell(end);
         }
         if (now != p.cell) {
-            if (now != null && p.cell == null) events.add("score: " + name(p.kind) + " into " + now.clusterName());
+            if (now != null && p.cell == null) {
+                events.add("score: " + name(p.kind) + " into " + now.clusterName());
+                p.shotBy = null;
+            }
             if (now == null && p.cell != null) {
                 events.add("spill: " + name(p.kind) + " out of " + p.cell.clusterName());
                 if (fromLoweredCell(p.cell)) {

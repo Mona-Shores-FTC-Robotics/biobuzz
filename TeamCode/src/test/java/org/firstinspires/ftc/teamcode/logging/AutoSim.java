@@ -84,7 +84,9 @@ public final class AutoSim {
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
     static final double HUMAN_DELAY_S = 2.0;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
-    static final double AIM_TOLERANCE_RAD = Math.toRadians(2);
+    static double AIM_TOLERANCE_RAD = Math.toRadians(2);
+    /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
+    static boolean fireOnlyWhenStill = false;
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -875,6 +877,7 @@ public final class AutoSim {
                 if (drive.pathDone()) drive.turnToward(bearing, LOOP_S);
             }
             if (aim == null || Math.abs(yawError) >= AIM_TOLERANCE_RAD || now < nextShotAt) return;
+            if (fireOnlyWhenStill && (body.speed() > 1 || body.spin() > Math.toRadians(2))) return;
             // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
             // pieces at the far CELL from home). The real LaunchAll needs the same check.
             double[] here = pedro(drive.pose);

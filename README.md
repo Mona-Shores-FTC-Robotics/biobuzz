@@ -85,6 +85,17 @@ all of them). The guides being explored, each on the Flat Intake:
 | Front Pen | Arms forward and a crossbeam: a pen in front of the intake | Dropped: pieces must fall into it (G409), and it holds more than 4 (G407) |
 | Funnel flaps | Short flaps on a smaller chassis | Dropped: a weaker Rigid V |
 
+- **A perfect launcher alone doesn't make the shots** (6 Oct, 60 runs each): with no shot-to-shot spread at all,
+  the Autos' shots still score only 92–96%, and firing only once the robot is still and within 0.5° of the CELL
+  changes nothing (`BIOBUZZ_AUTO_SPREAD`, `_AIM_DEG`, `_FIRE_STILL`). ShootsRight's remaining 4% are shots still
+  in the air when AUTO ends; the Stages Autos' one miss a run is the 4th preload, fired 0.45 s after the 3rd
+  tipped the CELL, into a CELL already swinging (the firing distance makes no difference). So in the simulator a
+  launcher with no spread scores every shot that matters. "Known positions, no disruption" (mentor) is the right requirement; the simulator says it is worth about
+  2–4 points a match on its own, and the 8-POLLEN TIP 2 stays fragile until the shots are near 100%.
+- **The build team's 6 Oct CAD has a 9.4 in mouth, not 14** (read from the STEP, 6 Oct): the simulated Flat Intake
+  has been more generous than the design, and two things in the CAD look worth a question (the roller clears the
+  floor by 2.84 in, a POLLEN is 2.8 in tall; the launcher belt gears the flywheel down). [CAD vs. the
+  simulator](doc/cad-6-oct.md).
 - **The intake is the limiter, and the simulator now says why** (6 Oct 13:40 UTC). In every Auto, 15 pieces a run
   reach the intake's front too high (bouncing, their top above the 5 in mouth) and 16–25 arrive while it is busy
   (one piece per 0.35 s; the rest bounce off the body). Catching TIP 1's spill at the drop zone before anything
