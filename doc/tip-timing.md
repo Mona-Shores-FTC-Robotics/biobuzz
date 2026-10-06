@@ -2,17 +2,17 @@
 
 Measured 6 Oct 2026 from the videos in the team's Drive folder ("BIOBUZZ spill and roll"): a YouTube test run
 (https://youtu.be/Cw-tVeKDDIo, 1280×720, 60 fps, a cleared field and an on-screen TIP counter) and the team's
-3 Oct phone films (IMG_1957 and IMG_1960, 4K at 120 fps). Frames: `sim-review/tip-frames/`.
+3 Oct phone films (IMG_1957 and IMG_1960, 4K at 120 fps). Frames: `sim-review/tip-*.jpg`.
 
 **A TIP takes about 0.5–1.2 s, most often about 1 s**, from the CELL visibly starting to swing to it hitting the
 other stop. The simulator's assumed 1.0 s (`HiveCalibration.ASSUMED_TIP_SECONDS`) is inside that range.
 
 | Video | Starts to swing | Hits the stop | Time | Frames |
 |---|---|---|---|---|
-| YouTube, TIP at 31 s | ~31.35 s | ~32.5 s | ~1.15 s | `youtube-tip-31s.jpg` |
-| YouTube, TIP at 94 s | ~94.75 s | ~95.3 s | ~0.55 s | `youtube-tip-94s.jpg` |
-| IMG_1957 (120 fps) | ~2.45 s | ~3.40 s | ~0.95 s | `img1957-tip.jpg` |
-| IMG_1960 (120 fps) | ~5.05 s | ~6.10 s | ~1.05 s | `img1960-tip.jpg` |
+| YouTube, TIP at 31 s | ~31.35 s | ~32.5 s | ~1.15 s | `sim-review/tip-youtube-tip-31s.jpg` |
+| YouTube, TIP at 94 s | ~94.75 s | ~95.3 s | ~0.55 s | `sim-review/tip-youtube-tip-94s.jpg` |
+| IMG_1957 (120 fps) | ~2.45 s | ~3.40 s | ~0.95 s | `sim-review/tip-img1957-tip.jpg` |
+| IMG_1960 (120 fps) | ~5.05 s | ~6.10 s | ~1.05 s | `sim-review/tip-img1960-tip.jpg` |
 
 **How it was read.** Every TIP has two parts: a slow creep as the CELL leaves its stop (a few degrees, hard to
 see), then a swing that speeds up and slams into the other stop, rebounds once and settles about 0.2 s later.
