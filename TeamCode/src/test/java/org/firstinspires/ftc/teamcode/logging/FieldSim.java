@@ -183,6 +183,11 @@ final class FieldSim {
     static double[] tipSecondsRange = FILMED_TIP_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
+
+    /** A flap's or guide's restitution: its own (RobotDesign#flapRestitution) or the robot's. */
+    static double flapRestitution(RobotDesign d) {
+        return Double.isNaN(d.flapRestitution) ? robotRestitution : d.flapRestitution;
+    }
     // ---- Air: off unless a run asks for it (AutoSim's launcher aims as if there were none) ---------
 
     /** AndyMark's masses: POLLEN 0.055 lb, NECTAR 0.091 lb. */
@@ -1294,7 +1299,7 @@ final class FieldSim {
                 double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
                 flap |= box(p, cx, cy, bh + Math.atan2(side * d.guideOutIn, d.guideForwardIn), hl, t, 0, d.flapHeightIn,
-                        fvx, fvy, bot.w, bounce(robotRestitution));
+                        fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
         }
         if (d.hasFlaps() && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
@@ -1306,13 +1311,13 @@ final class FieldSim {
                 double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
                 flap |= box(p, cx, cy, bh + Math.atan2(side * d.flapOutIn, d.flapForwardIn), hl, t, 0, d.flapHeightIn,
-                        fvx, fvy, bot.w, bounce(robotRestitution));
+                        fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
             if (d.flapCrossbeam) {
                 double lx = half + d.flapForwardIn;
                 double cx = bx + lx * c, cy = by + lx * s;
                 double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
-                flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
+                flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
         }
         if ((hit || flap) && !p.touchedTile) {

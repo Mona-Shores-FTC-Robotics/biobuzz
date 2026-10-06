@@ -183,6 +183,8 @@ final class RobotDesign {
     /** How tall a flap is; a placeholder until one is drawn (it must stop a rolling 2.8 in POLLEN). */
     double flapHeightIn = 4;
     static final double FLAP_THICKNESS_IN = 0.25;
+    /** How bouncy the flaps are (FieldSim's restitution), when not the robot's own (NaN). */
+    double flapRestitution = Double.NaN;
     /** Which front corners have a flap (mentor, 5 Oct 2026: a "right hook" has only the right one). */
     boolean flapLeft = true, flapRight = true;
     /**
@@ -368,6 +370,7 @@ final class RobotDesign {
         d.flapOutIn = flapOutIn;
         d.flapForwardIn = flapForwardIn;
         d.flapHeightIn = flapHeightIn;
+        d.flapRestitution = flapRestitution;
         d.flapLeft = flapLeft;
         d.flapRight = flapRight;
         d.flapCrossbeam = flapCrossbeam;
