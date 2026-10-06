@@ -166,6 +166,8 @@ final class RobotAssets {
                     ? model(flat, Look.FLAT_INTAKE, false)
                     : name.equals("flat intake, rigid V")
                     ? model(AutoStudyTest.flatIntakeWith("flat intake, rigid V", 0), Look.FLAT_INTAKE, false)
+                    : name.startsWith("flat intake, rigid V ")  // its width and angle variants, drawn in full too
+                    ? model(AutoStudyTest.designs().get(name), Look.FLAT_INTAKE, false)
                     : shapesRobot(BodyShape.MATCH[i]);
             Files.write(new File(dir, "model_" + i + ".glb").toPath(), part.write());
         }

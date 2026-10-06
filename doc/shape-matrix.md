@@ -58,6 +58,27 @@ for the Flat Intake; "beside" (pieces off the intake's sides) drops from 1.8 on 
   45° V; a longer or wider V needs its own.
 - **No V gets TIP 3 with a partner that can't shoot**, as above.
 
+## Where the Ramp Hook waits
+
+Run **6 Oct 2026 17:10 UTC**, the same runner, 60 runs. The Ramp Hook waits for TIP 2's spill with its face this far
+from the north wall (37.5 in is its route above; the 90% Drop Zone is 32.0–46.6 in from the wall). Experiments:
+`qual-right-o3-ramp-f*` and `qual-stages-angled-ramp-f*`.
+
+| Face from the wall | ShootsRight | 3 TIPs | Both LEAVE + PARK | G409 runs | Kept 4 of TIP 2's spill | Stages, angled partner |
+|---|---|---|---|---|---|---|
+| 34.5 in | 63.3 | 28 | 44 | 58 | 24 | 51.0 · G409 36 |
+| 35.5 in | 64.5 | 31 | 46 | 56 | 25 | 50.9 · G409 37 |
+| 36.5 in | 66.2 | 35 | 50 | 44 | 27 | 50.9 · G409 37 |
+| **37.5 in** (its route) | 66.3 | 35 | 51 | **30** | 28 | 50.9 · G409 41 |
+| 38.5 in | **66.7** | **36** | **52** | 34 | **33** | 50.9 · G409 46 |
+| 39.5 in | 64.9 | 31 | 51 | 48 | 24 | 51.0 · G409 51 |
+
+- **No spot gets G409 down.** Every touch is TIP 2's spill still in the air (14.4–15.1 s, 1–7 in up, falling up to
+  160 in/s): it lands on the robot's front face (8.7 in ahead of its centre) or on the hook (14 in ahead). Closer
+  in, more falls on the robot; further out, more on the hook. Moving the robot can't fix it; the hook's shape or
+  when it comes down might.
+- 37.5 and 38.5 in are about level; the route stays at 37.5 (fewest touches).
+
 **What it says**
 
 - **The Rigid V is the only guide that clearly helps, and only where TIP 3 is within reach.** With the partner

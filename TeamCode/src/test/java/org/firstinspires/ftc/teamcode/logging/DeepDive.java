@@ -23,7 +23,7 @@ import java.util.Locale;
  */
 final class DeepDive {
 
-    static final int RUNS = 20;
+    static final int RUNS = Integer.getInteger("deepdive.runs", 20);
 
     private DeepDive() {
     }
