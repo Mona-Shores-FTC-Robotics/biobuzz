@@ -4,7 +4,7 @@ Outer wheel plates + standoffs + 80 mm wheel shafts + outer bearings, odometry p
     pip install cadquery
     python3 cad/robot-addons/build.py        # writes dhs-addons.step and stl/*.stl next to this file
 """
-import os, sys
+import math, os, sys
 import cadquery as cq
 from OCP.BRepTools import BRepTools
 from OCP.TopoDS import TopoDS_Shape
@@ -26,6 +26,8 @@ LO_Y, HI_Y = F + 1.5 * IN, F + 3.75 * IN       # side arm shafts: bottom and top
 RISER_Z = HZ + 2.6 * IN                        # where the arm's tall part starts
 CORNER_Z0, CORNER_Z1 = ZB + ROD_X - 14.0, ZB + DEPTH
 BORE, M4, M3 = 8.3, 4.3, 2.6
+REX_AF = 7.0 + 0.3                             # REX across flats (+ clearance): CHECK on a test print before trusting it
+FRONT_LEFT = 132.0                             # the front shaft's free left end, from centre (288 mm shaft)
 STANDOFF_Y, STANDOFF_Z = (-120.3, -86.3), (63.7, -56.3)   # rail holes clear of both wheels
 xr = lambda d: C - d       # right side
 xl = lambda d: C + d       # left side
@@ -45,19 +47,20 @@ parts = {}   # name -> (workplane, colour, kind)
 def add(name, wp, colour, kind): parts[name] = (wp, colour, kind)
 
 # ---------------- outer wheel plates (both sides) ----------------
-def outer_plate():
+def outer_plate(hinge=True):
     x0, x1 = xr(PLATE_IN), xr(PLATE_IN + PLATE_T)
-    prof = (cq.Workplane("YZ").polyline([(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, 196.0), (-52.0, 206.0),
-                                          (-52.0, HZ + 6), (HY - 2, HZ + 16), (-127.0, HZ + 14)]).close())
+    pts = ([(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, 196.0), (-52.0, 206.0), (-52.0, HZ + 6), (HY - 2, HZ + 16), (-127.0, HZ + 14)]
+           if hinge else [(-127.0, AX_ZR - 24), (-79.0, AX_ZR - 24), (-79.0, AX_ZF + 24), (-127.0, AX_ZF + 24)])
+    prof = cq.Workplane("YZ").polyline(pts).close()
     p = prof.extrude(PLATE_T).translate((x1, 0, 0))
     for z in (AX_ZF, AX_ZR): p = p.cut(cyl("x", (0, AX_Y, z), 14.0, x1 - 1, x0 + 1))
-    p = p.cut(cyl("x", (0, HY, HZ), 14.0, x1 - 1, x0 + 1))
+    if hinge: p = p.cut(cyl("x", (0, HY, HZ), 14.0, x1 - 1, x0 + 1))
     for y in STANDOFF_Y:
         for z in STANDOFF_Z: p = p.cut(cyl("x", (0, y, z), M4, x1 - 1, x0 + 1))
     return p
 plateR = outer_plate()
 add("outer_plate_R (1/8 in aluminium)", plateR, (0.75, 0.78, 0.82), "cut")
-add("outer_plate_L (1/8 in aluminium)", mirror(plateR), (0.75, 0.78, 0.82), "cut")
+add("outer_plate_L (1/8 in aluminium)", mirror(outer_plate(hinge=False)), (0.75, 0.78, 0.82), "cut")
 for side, f in (("R", xr), ("L", xl)):
     for y in STANDOFF_Y:
         for z in STANDOFF_Z:
@@ -65,7 +68,7 @@ for side, f in (("R", xr), ("L", xl)):
     for z in (AX_ZF, AX_ZR):
         add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (8mm REX, 80 mm, replaces 72 mm)", cyl("x", (0, AX_Y, z), 8.0, f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
         add(f"bearing_{side}_{'front' if z > 0 else 'rear'} (8mm REX flanged, 14 mm OD)", cyl("x", (0, AX_Y, z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
-    add(f"bearing_{side}_hinge (8mm REX flanged, 14 mm OD)", cyl("x", (0, HY, HZ), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
+add("bearing_R_hinge (8mm REX flanged, 14 mm OD)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 
 # ---------------- hinge brackets on the front uprights (printed) ----------------
 def bracket():
@@ -79,7 +82,6 @@ def bracket():
     return b
 brR = bracket()
 add("hinge_bracket_R (print)", brR, (0.18, 0.37, 0.62), "print")
-add("hinge_bracket_L (print)", mirror(brR), (0.18, 0.37, 0.62), "print")
 
 # ---------------- the hook (built for the right side, mirrored) ----------------
 hook = {}
@@ -103,7 +105,9 @@ def corner():
     c = box(x0, x1, F + BOTTOM, HI_Y + 9, CORNER_Z0, CORNER_Z1)
     c = c.cut(cyl("z", (xr(SIDE), LO_Y, 0), BORE, CORNER_Z0 - 1, CORNER_Z0 + 20))
     c = c.cut(cyl("z", (xr(SIDE), HI_Y, 0), BORE, CORNER_Z0 - 1, CORNER_Z0 + 20))
-    c = c.cut(cyl("x", (0, FS_Y, FS_Z), BORE, x0 + 1, xr(156.0)))
+    rex = (cq.Workplane("YZ").polygon(6, REX_AF / math.cos(math.pi / 6)).extrude(30).translate((xr(156.0), FS_Y, FS_Z))
+           .intersect(cyl("x", (0, FS_Y, FS_Z), BORE, xr(156.0), xr(156.0) + 30)))
+    c = c.cut(rex)                                   # REX-shaped, blind: the front shaft can't turn in it
     return c
 def clip(axis):
     """The curtain clip: 16 x 16 x 38 mm, shaft bore 7.5 mm up, 24 mm panel slot from the top."""
@@ -123,20 +127,20 @@ def ramp_block():
     return b.translate((C, F + BOTTOM, ZB))
 hubR, riserR, cornerR = hub(), riser(), corner()
 for nm, wp in (("hinge_hub", hubR), ("riser", riserR), ("corner_block", cornerR)):
-    hadd(nm + "_R (print)", wp, (0.18, 0.37, 0.62), "print"); hadd(nm + "_L (print)", mirror(wp), (0.18, 0.37, 0.62), "print")
+    hadd(nm + "_R (print)", wp, (0.18, 0.37, 0.62), "print")     # one arm only: a second would corral spilled pieces
 hadd("flower_block (print)", ramp_block(), (0.69, 0.42, 0.85), "print")
-for s, f in (("R", xr), ("L", xl)):
+for s, f in (("R", xr),):
     hadd(f"arm_shaft_bottom_{s} (8mm REX, 192 mm)", cyl("z", (f(SIDE), LO_Y, 0), 8.0, HZ + 4, HZ + 4 + 192), (0.8, 0.82, 0.85), "buy")
     hadd(f"arm_shaft_top_{s} (8mm REX, 144 mm)", cyl("z", (f(SIDE), HI_Y, 0), 8.0, CORNER_Z0 + 19 - 144, CORNER_Z0 + 19), (0.8, 0.82, 0.85), "buy")
     hadd(f"side_panel_{s} (1/16 polycarbonate)", box(f(SIDE) - 0.8, f(SIDE) + 0.8, LO_Y + 8, HI_Y - 8, RISER_Z + 10, CORNER_Z0 - 2), (0.6, 0.78, 0.96), "cut")
     for z in (RISER_Z + 28, CORNER_Z0 - 22):
         hadd(f"side_clip_{s}_{z:.0f}_lo (print)", clip("z").translate((f(SIDE), LO_Y - 7.5, z)), (0.18, 0.37, 0.62), "print")
         hadd(f"side_clip_{s}_{z:.0f}_hi (print)", clip("z").mirror("XZ").translate((f(SIDE), HI_Y + 7.5, z)), (0.18, 0.37, 0.62), "print")
-hadd("front_shaft (8mm REX, 312 mm)", cyl("x", (0, FS_Y, FS_Z), 8.0, xr(156.0), xl(156.0)), (0.8, 0.82, 0.85), "buy")
+hadd("front_shaft (8mm REX, 288 mm)", cyl("x", (0, FS_Y, FS_Z), 8.0, xr(156.0), xl(FRONT_LEFT)), (0.8, 0.82, 0.85), "buy")
 for d in (60, 110):
     for f in (xr, xl): hadd(f"curtain_clip_{d}_{'R' if f is xr else 'L'} (print)", clip("x").translate((f(d), FS_Y - 7.5, FS_Z)), (0.18, 0.37, 0.62), "print")
 for s, f in (("R", xr), ("L", xl)):
-    hadd(f"curtain_{s} (1/16 polycarbonate)", box(f(38.6), f(SIDE - 10), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), (0.6, 0.78, 0.96), "cut")
+    hadd(f"curtain_{s} (1/16 polycarbonate)", box(f(38.6), f(SIDE - 10) if s == "R" else f(FRONT_LEFT - 8), F + 1.3 * IN, F + 3.5 * IN, FS_Z - 0.8, FS_Z + 0.8), (0.6, 0.78, 0.96), "cut")
     for x in (42.0, 46.0):
         pass
 for z in (FS_Z,):
@@ -144,7 +148,6 @@ for z in (FS_Z,):
         for f in (xr, xl): hadd(f"collar_{'R' if f is xr else 'L'} (8mm REX clamping collar)", cyl("x", (0, FS_Y, FS_Z), 21.0, f(d - 4), f(d + 4)), (0.8, 0.82, 0.85), "buy")
 
 # hinge axles: left one 88 mm through bracket, hub, plate bearing; right: 48 mm stub + the servo's 36 mm REX servo shaft
-add("hinge_axle_L (8mm REX, 88 mm)", cyl("x", (0, HY, HZ), 8.0, xl(117.0), xl(205.0)), (0.8, 0.82, 0.85), "buy")
 add("hinge_stub_R (8mm REX, 48 mm)", cyl("x", (0, HY, HZ), 8.0, xr(117.0), xr(165.0)), (0.8, 0.82, 0.85), "buy")
 add("servo_shaft_R (goBILDA 8mm REX servo shaft, 25T, 36 mm)", cyl("x", (0, HY, HZ), 8.0, xr(161.0), xr(197.0)), (0.8, 0.82, 0.85), "buy")
 SPL = PLATE_IN + PLATE_T + 2.0
