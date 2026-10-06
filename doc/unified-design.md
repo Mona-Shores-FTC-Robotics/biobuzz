@@ -30,7 +30,7 @@ superseded; its FLOWER half carries on below.
 |---|---|---|
 | **Rigid V** | Intake Design | The V's angle, length, height and shape within the envelope, and the intake behind it. The CAD's drawn V (17.8 in tips, 2.8 in ahead, `cad/intake-b/`) is the starting point. |
 | **FLOWER extractor** | Flower Extracter | The old hook redesigned for FLOWERs only: no walls, two arms for rigidity, far lower than 8 in. It must stow inside the 18 in start cube with the V fitted. |
-| **FLOWER scorer** | Pivoting arm nectar scorer | The NECTAR/POLLEN FLOWER scorer, in the same envelope. |
+| **FLOWER scorer** | Pivoting arm nectar scorer | **The rear scorer is dropped for now** (no wall rollers, bumper or servo panel: it takes no space). The chat is now looking at a **front NECTAR-capping assist**: a cage over the FLOWER's top while the extractor holds the robot on the FLOWER, so the turret can cap from that seat. |
 | **Transfer, intake to turret** | Intake-to-turret transfer (session_019KDmb4SvV5VjdaM2USg71K) | How pieces get from the roller to the turret at any turret angle, holding up to 4 (G407), NECTAR and POLLEN. The first idea to weigh: feed through the turret's rotation axis, with a single-file floor channel as the magazine. |
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
@@ -41,18 +41,23 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 
 | Baseline | Route | Points | 3 TIPs (of 60) | Notes |
 |---|---|---|---|---|
-| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 10 |
-| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | still clips the HIVE frame in 4 runs, on the straight park at the end of AUTO |
-| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | 53.3 | 20 | no collisions |
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **71.2** | **48** | PARK 58, G409 8 runs, no problems |
+| `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
+| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
+
+Refitted for the 15.12 in body (front 7.56 in ahead of centre), 6 Oct 2026, 60 runs. **The angled Auto's 4 HIVE-frame
+clips** come only when TIP 1 fails (2 of our 4 preloads miss). The route then goes back through the tunnel holding 4,
+and with the turn at x 55.5 the flaps clip the west foot bar at 26.7 s. The simulator chat is giving the route a
+branch for when TIP 1 hasn't happened; the clips vanish at the launcher's target accuracy.
 
 Built by `baselines_v.py`; design "rigid V" (= the drawn V).
 
-**Two fixes the simulator chat made, which put these above or below the numbers in the next sections:**
-- **Partner shoots (ShootsRight):** the routes were fitted for the 14.5 in body. With the drawn V's 15.12 in body (15.24 was its width), every
-  run touched the far FLOWER. Refitted for 7.62 in, it scores 71.2. The true half-length is 7.56 in (the CAD re-measure below), so these routes are 0.06 in conservative.
+**Two fixes the simulator chat made, which change these from the numbers in the next sections:**
+- **Partner shoots (ShootsRight):** the routes were fitted for the old 14.5 in body. With the drawn V's 15.12 in body,
+  every run touched the far FLOWER. Refitted for the real body, it scores 71.2.
 - **Wall partner:** the row sweep's start point and its 180° turn put the V over the parked partner. The robots collided
-  in most runs, so 55.7/56.3 was not legal. Starting 2 in short of the row, with a tighter turn, there are no collisions
-  and it scores 53.3.
+  in most runs, so 55.7 and 56.3 were not legal scores. Starting 2 in short of the row, with a tighter turn, there are
+  no collisions.
 
 **From now on, a route with any problem is disqualified.** That means a collision, or a HIVE or FLOWER hit: the
 study line's PROBLEMS, and `problemRuns` in DeepDive's `cases.csv`. The numbers below were measured before this
@@ -159,6 +164,17 @@ throughout.
   lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
   position and I'll re-check.
 
+**The NECTAR-capping cage may block the camera while seated at a FLOWER** (the user's ruling, 6 Oct 2026). Stowed
+or driving, it stays under the ceiling above. What it means for the code:
+- **Localization: nothing to do.** With no tags in view, there's no seed, no relocalize and no would-relocalize, and
+  the Pinpoint carries the pose. A partly blocked view is fine too, because `CellFix.fit` uses whichever tags remain.
+- **TIP tracking: one change needed.** `HiveTracker` takes a settled CELL vanishing while the robot holds still as a
+  TIP starting. That's exactly what the cage looks like when it drops while seated, so it would count a false TIP
+  and assume the other CELL is up 2.5 s later. When the scorer subsystem is written, it must tell `robot.hive` that
+  the view is blocked while the cage is down, and `HiveSubsystem` must not count a loss during that time.
+  - The hook is a read-only accessor the scorer exposes (`viewBlocked()`), which `HiveSubsystem` reads. Add it in
+    the same PR as the cage.
+
 ## FLOWER extractor (from the Flower Extracter chat, 6 Oct 2026)
 
 Full write-up: `doc/robot-cad.md` on `claude/robotics-meeting-notes-lq2y55`.
@@ -185,6 +201,18 @@ the drive pods. Past about 140° the block hits the intake's upper cross-channel
 
 **Still to design:** the drive, a servo above the roller on the right driving the right arm through a short link,
 with hard stops at 0° and 125°.
+
+## Capping a FLOWER from the extractor's seat: open questions for the user
+
+The seat: the robot on the FLOWER's centreline, the FLOWER's centre 7.09 in ahead of the face (X 14.65 in the model
+frame).
+
+- **Shot distance.** The launcher exit is about 15.3 in from the FLOWER's centre: turret axis 10.73 in behind the face,
+  exit 2.5 in ahead of the axis. The scorer's shot sim gives about 51% capping with a cage at 16 in, and better
+  closer. The only lever is the extractor block's gap to the roller, now 2.5 in: 1.0 in gives 13.8 in, and 0 gives
+  12.8 in. That trades against extraction, which is untested at those gaps.
+- **The Limelight.** A cage over the FLOWER's top, at about 21.9 in, would sit inside the camera's keep-clear zone,
+  whose ceiling at the FLOWER is 18.7 in. That matters only while the cage is engaged.
 
 ## The envelope
 
