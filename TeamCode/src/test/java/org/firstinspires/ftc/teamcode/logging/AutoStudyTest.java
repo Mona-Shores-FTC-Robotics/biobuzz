@@ -184,6 +184,7 @@ public class AutoStudyTest {
         // seated robot off the FLOWER to fire. Its exit point is still the placeholder's.
         rigidV.launcher = RobotDesign.Launcher.TURRET;
         rigidV.exitForwardIn = -2.045;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026, ac817a6); the height is still the placeholder
+        rigidV.laneCapacity = true;  // Transfer v3's lane: 4 POLLEN, 3 NECTAR, or 3 NECTAR and a POLLEN (mentor, 7 Oct 2026: "that's the expectation of the design")
         m.put("rigid V", rigidV);
         // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis, with its
         // capacity (4 POLLEN, 3 NECTAR). "rigid V" itself is a turret firing every 0.2 s now (claude/simulator, issue
