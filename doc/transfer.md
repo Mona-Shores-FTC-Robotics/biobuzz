@@ -257,7 +257,38 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Decision, 7 Oct 2026: the lane is the mentor's wheel channel
+## Decision, 7 Oct 2026 (second): the mentor's layout, balls on the field floor
+
+The mentor's whole-robot STEP (`Robot.step`, Drive, 7 Oct 14:03) shows how he has actually laid the transfer out,
+and it is simpler than the wheel channel: **the balls ride on the field floor**, in a line down the centreline from
+the intake to under the turret, with no lane floor at all. **Adopted.** What it is, in the robot frame:
+
+- **No floor.** A NECTAR on the tiles has its top at 3.61, which clears the launcher's front cross-channel (bottom
+  3.84) and the front drive motors' encoder caps; a ball on a 0.9 in floor hits both. So the 0.9 floor, the parallel
+  wall, the hinged wall and the side wheel row are all dropped. The ramp becomes a low lip under the roller.
+- **The lane drive is two flat star wheels** (3.5 in OD, 7 mm hex bore) on vertical axes at (X 5.20, Y ±3.15),
+  tucked under the front drive motors, gripping each ball at its equator and pushing it rearward along the floor.
+  That is the wheel channel folded flat. Their drive isn't drawn yet.
+- **Under the launcher, the launcher's own 7x11 plates are the walls** (inner faces Y −1.86 / +2.17).
+- **The gate and the kicker are the mentor's feed roller** under the flywheel nip (z 6.65), lifting the first ball
+  from the floor. Its position is still to be read from his export.
+
+**What the physics adds (sent to the CAD chat):**
+- **The star wheels as drawn grip a NECTAR 0.4 in but barely touch a POLLEN** (rims at |Y| 1.40, z 1.59..2.09; a
+  POLLEN's half-width there is 1.22..1.39). Lower them 0.3 in and bring them 0.25 in inboard, and both are gripped
+  (POLLEN about 0.25, NECTAR about 0.65; star fingers take that).
+- **The lane's length is the count.** 4 NECTAR (14.5 in) implies 5 POLLEN (14.0): G407 broken by geometry. The first
+  ball's rest point against the stopped feed roller must be **between X −2.6 and −5.4** (11.2 to 13.9 in from the
+  roller's grip at X 8.56): 4 POLLEN and 3 NECTAR, never 5 or 4. His 4-NECTAR line is too long by about an inch.
+- **The roller runs whenever the robot brakes**, or the queue rolls forward out of the mouth: balls on the tiles stay
+  put when the robot moves. The simulator already runs the intake throughout.
+- Capacity, hand-off (the first ball rising on the axis to the nip at 6.65) and the 0.25 s interval stand.
+
+What remains of the earlier designs: the lane's position and length, the capacity rule, the gate principle (a
+stopped wheel holds the queue), and the simulator numbers. The polycord lane, the J-kicker and the raised wheel
+channel are the record of how we got here.
+
+## Decision, 7 Oct 2026 (first): the lane is the mentor's wheel channel (superseded the same day)
 
 The mentor has prototyped the lane in the lab: two grid plates as floor and ceiling, wheels on vertical shafts in two
 staggered rows along the sides, and printed hub pulleys that bolt to each wheel's face so one belt chains a row from
