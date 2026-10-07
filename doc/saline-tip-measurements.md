@@ -14,6 +14,7 @@ What each number feeds is in [saline-preview-day2.md](saline-preview-day2.md).
 | Rocker first seen moving | 26923.628 | **7.38 s** |
 | Rocker about halfway through its swing | 26924.978 | 8.73 s (1.35 s into the swing) |
 | Rocker resting on its far stop; the spill already leaving the CELL, coming down on the robot parked under it | 26925.828 | **9.58 s** (2.20 s swing) |
+| First spilled piece touches the tiles, around and just beyond the robot in front of the CELL | 26926.112 | 9.87 s (2.48 s after the rocker started, 0.28 s after it stopped) |
 
 The simulated spring hood's first shot is at about 2.5 s (2 s spin-up + 0.45 s a shot), so the simulator's
 launcher is slightly quicker off the line than Infinity Tech, the event's top-ranked robot.
@@ -35,3 +36,8 @@ TIP complete at about 5.6 s (start 4.6 s, swing 1.0 s). Of the 4 s difference, 3
 third POLLEN landing and the rocker moving, 1.2 s the slower swing, and the launcher's slower start is offset by
 the simulated spin-up. The wait is the part the simulator does not model at all, and it moves every "wait for the
 TIP" branch, the spill catch spots and the chance of a third TIP inside AUTO.
+
+**The spill's first touch** came 0.28 s after the rocker reached its stop, as the 3 Oct films showed (pieces pour
+off the lip as the rocker lands). The simulator's first touch at 1.1–1.4 s after the TIP starts is that same
+mechanism on a 1.0 s swing, so it follows the swing once that is corrected; nothing separate to refit. The camera is
+too oblique to measure the landing distance, so the filmed 35–47 in stands.
