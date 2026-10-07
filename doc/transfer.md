@@ -257,7 +257,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v2, drawn (CAD chat, 7 Oct 2026, commit 12d34bb on `claude/robotics-meeting-notes-lq2y55`)
+## Transfer v2, drawn (CAD chat, 7 Oct 2026, commits 12d34bb and ea86820 on `claude/robotics-meeting-notes-lq2y55`)
 
 The mentor's layout, from his `FeederConcept.step` and screenshots, fitted to his 7 Oct `Robot.step`. Balls never
 touch the field: the roller pushes each up the ramp onto a lip; two driven wheel shafts (32 mm compliant at X 3.74,
@@ -276,6 +276,14 @@ crossed to the rear) so they match speed. Swept clear of the robot and the front
 | **Ceiling squeeze** | "POLLEN squeezed 0.2" must be the foam compressing, not the ball (0.2 in of ball squeeze is about 30 lbf) | Foam ≥ 0.5 in, soft (PE or EVA, 2–3 lb/ft³); band preload 1–2 lbf, rate about 2 lbf/in |
 | **Ceiling hinge** | Hinged at X 5.6, it can't lift at the lip, so a NECTAR entering there jams, and a NECTAR at the first wheel needs a 2 in swing at the band | A parallel-link ceiling (lifts evenly everywhere), or the hinge forward over the roller with the rest gap tapering from ≥ 3.7 at the lip to 2.6 over the wheels |
 | Stands | The ramp and lip, the lane wheels and drive, the walls at \|Y\| 1.87, the cup at the nip, the feeder drive and sequence, the 11.4 in lane | |
+
+**All three applied in commit ea86820** (CAD chat, 7 Oct): an IR break-beam across the lane at X 5.55, z 2.4 (both
+sizes cross it), on printed brackets through windows in the walls; 0.5 in soft PE/EVA foam resting 2.6 over the
+ball-bottom line, bands 1–2 lbf preload at 2 lbf/in; and the ceiling on **four 1.2 in parallel links** on posts at
+X 6.3 and 2.2, resting 45° down toward the rear, so a NECTAR lifts it 0.82 anywhere along its length (it moves 0.35
+rearward as it rises). The ceiling now runs from X 6.5, over the ramp's top, to 0.95, so the entry gap at the lip
+is the same 2.6 in foam face. Raised ceiling, links and both ball sizes swept clear; the front links pass 0.05 under
+the raised 11-hole channel.
 
 **For the mentor:** v2 changes his frame (the 11-hole channel up 21 mm; the launcher's front 10-hole cross-channel and
 two dual blocks removed; the front U-beams 0.25 in further apart). His agreement before anything is cut. And the
@@ -567,11 +575,9 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`, at commit 3263aec, **being redrawn around the real launcher** (see "The real launcher" above), drawn by the Flower Extracter chat and
-swept clear of the robot, the roller at every float height, the extractor at 0/75/150° and the J-wheel's full lift
-(`tools/robot-cad/transfer_sweep.py`). In the AdvantageScope model the J-wheel and arms are a moving component
-(model_2, rotation about +Y through the pivot, 0 at rest to 36.8° at full float) and the roller-shaft pulley
-rides with the roller. The simulator draws held pieces at the positions above.
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v2 at commit ea86820** (the mentor's layout with the
+three physics fixes; see "Transfer v2" above), swept clear of the robot and the front with both ball sizes. The
+J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
 
