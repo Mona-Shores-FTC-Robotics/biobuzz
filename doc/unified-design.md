@@ -425,7 +425,7 @@ turn and get lined up, then shoot those 4; and the turn away from the FLOWER ran
 `qual-right-v-flower-first-hold` (`stream.py`): the preloads fired one by one from the seat, the FLOWER's 4 collected,
 back out and turn to N_FIRE, then fired there stopped. TIP 2 can only start once they're away, so the robot already
 stands where the baseline waits for the spill. 10 runs: **70.0 · 3 TIPs in 7 · PARK 10 · G409 2**, against the
-streaming flower first's 66.0 · 5 and preloads first's 72.0 · 8 on the same simulator. The GARDEN approach (through
+streaming flower first's 66.0 · 5 and preloads first's 72.0 · 8 on the same simulator. **60 runs** (the AdvantageScope chat): **70.6 · 3 TIPs in 47 · PARK 119 of 120**, against the streaming flower first's 65.3 on the same simulator. The GARDEN approach (through
 the wall) is in the shared tail: the simulator chat's wall check and fix.
 
 **Still open:**
