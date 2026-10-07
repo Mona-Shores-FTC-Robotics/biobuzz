@@ -79,3 +79,5 @@ lint/generated/
 lint/outputs/
 lint/tmp/
 # lint/reports/
+# Python bytecode from the CAD and simulation scripts
+__pycache__/
