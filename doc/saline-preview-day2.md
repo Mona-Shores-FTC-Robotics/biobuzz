@@ -56,21 +56,21 @@ same ones `AutoSim` scores with). Most were read with 5–15 s of AUTO left, so 
 | Q23 | blue 36, red 8 | 4:46:15 | TIP + both robots LEAVE + PARK |
 | Q26 | red 31, blue 11 | 5:01:45 | TIP + 8 + 3 |
 | Q28 | blue 16, red 0 | 5:13:27 | both robots LEAVE + PARK |
-| Q29 | red 40 | 5:24:39 | **two TIPs** (CyBugs + CyberSmiths), the day's best AUTO |
+| Q29 | red 40 | 5:24:39 | one TIP and a 20-point penalty (checked on video), not two TIPs |
 | Q30 | red 16, blue 8 | 5:30:31 | |
 | Playoff M6 | blue 16, red 11 | 7:50:24 | |
 | Final M10 | 36–36 | 8:42:29 | a TIP and two LEAVE + PARK on each side |
 
-So at Saline a good AUTO was **one TIP plus parking, 28–36 points for the alliance**. Two TIPs in AUTO happened
-once in 45 matches. Three never did. A typical alliance scored 8–16: robots that left and parked, or did
+So at Saline a good AUTO was **one TIP plus parking, 28–36 points for the alliance**. No alliance made two TIPs
+in AUTO in 45 matches; the one 40 was a TIP and a penalty. Three never came close. A typical alliance scored 8–16: robots that left and parked, or did
 nothing.
 
 ## Against the simulator
 
 The README's baseline table and `sim-results` give, for our Autos with a simulated partner, median alliance AUTO
 points of **51–76** in the qualifier Autos (1.8–2.95 TIPs, the first at about 4.6 s), 56–63 for
-`three-tip-adaptive`, and 80–92 for the two-robot `duo-lz` pairs. Saline's best was 40 and its best teams
-average 28–32. The gap has three parts, and they matter differently.
+`three-tip-adaptive`, and 80–92 for the two-robot `duo-lz` pairs. Saline's best was 36 (plus a penalty once) and its best
+teams average 28–32. The gap has three parts, and they matter differently.
 
 1. **The simulated partner is a Saline top-four robot.** The baselines' partners fire their preloads and
    TIP (`PartnerStage19SideParkAuto`, `partner-preloads-*.pp`) at 40 in/s. At Saline the median *team*
@@ -99,7 +99,7 @@ What the simulator got right, as far as the commentary can tell:
   (Q26, 5:01:19): a fresh CELL (3 NECTAR) tipped on the third POLLEN, as §12.3 and `HiveCalibration` say.
 - **One TIP from the preloads is routine for a good robot**; the simulator's TIP 1 at 4–5 s is the same
   shape of AUTO as Infinity Tech's and CyBugs' (TIP, then park), only faster than anything seen. Nobody
-  at Saline collected more pieces and TIPped again within AUTO except CyBugs + CyberSmiths once.
+  at Saline collected more pieces and TIPped again within AUTO.
 - **Waiting for the TIP.** Robots held pieces until their CELL came up ("Looks going to wait for the tip",
   P4 7:34:38), and human players held NECTAR until a TIP (the rules briefing at 1:05:01), which is what
   `AutoSim.humanNectar` does 2 s after each TIP.
@@ -132,7 +132,7 @@ camera is fixed and wide, so a TIP's swing time is measurable (first movement to
 | 4:30:19 → 4:30:30 | Q20 | CyBugs TIPs the blue CELL in AUTO |
 | 4:55:50 → 4:56:00 | Q25 | Infinity Tech TIPs in AUTO ("and they park, too") |
 | 5:01:19 → 5:01:35 | Q26 | Frost RoboFalcons: three POLLEN, TIP (the calibration check) |
-| 5:24:22 → 5:24:40 | Q29 | CyBugs' two AUTO TIPs, red |
+| 5:24:22 → 5:24:40 | Q29 | CyBugs' AUTO TIP, red (the 40 on the board includes a penalty) |
 | 7:28:30 → 7:29:00 | Playoff M3 | Infinity Tech + CyBugs' AUTO TIP (128–41 match) |
 | 8:42:29 → 8:42:45 | Final M10 | a TIP on each side in AUTO |
 | 2:17:10, 2:27:07, 2:37:59, 4:17:43, 5:31:43 | Q4, Q6, Q8, Q18, Q30 | TELEOP TIPs, for more swings to average |
