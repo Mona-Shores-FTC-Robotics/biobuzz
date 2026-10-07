@@ -170,14 +170,16 @@ final class HiveCalibration {
             FieldSim.Physics physics = FITTED.get(key);
             if (physics == null) {
                 double friction = FieldSim.frictionScale;
-                double[] tipRange = FieldSim.tipSecondsRange;
+                double[] tipRange = FieldSim.tipSecondsRange, dwellRange = FieldSim.tipDwellRange;
                 FieldSim.frictionScale = 1;
                 FieldSim.tipSecondsRange = null;  // fitted at the calibrated speed; FieldSim varies each TIP from it
+                FieldSim.tipDwellRange = null;  // the fit times the swing itself; the dwell before it is FieldSim's
                 try {
                     physics = computeFit();
                 } finally {
                     FieldSim.frictionScale = friction;
                     FieldSim.tipSecondsRange = tipRange;
+                    FieldSim.tipDwellRange = dwellRange;
                 }
                 FITTED.put(key, physics);
             }
@@ -233,8 +235,9 @@ final class HiveCalibration {
 
     /** Times a TIP: match start, POLLEN placed one at a time until it tips. NaN if it never does. */
     double timedTip(FieldSim.Physics physics) {
-        double[] tipRange = FieldSim.tipSecondsRange;
+        double[] tipRange = FieldSim.tipSecondsRange, dwellRange = FieldSim.tipDwellRange;
         FieldSim.tipSecondsRange = null;  // the calibrated speed, not one TIP's draw
+        FieldSim.tipDwellRange = null;  // and the swing alone, without the dwell before it
         try {
             FieldSim sim = upwardCell(physics, NECTAR_AT_MATCH_START, 0, false);
             for (int k = 0; k < pollenToTipFromMatchStart() + 3 && sim.red.tips == 0; k++) {
@@ -244,6 +247,7 @@ final class HiveCalibration {
             return sim.red.tips == 0 ? Double.NaN : sim.red.lastTipSeconds;
         } finally {
             FieldSim.tipSecondsRange = tipRange;
+            FieldSim.tipDwellRange = dwellRange;
         }
     }
 
@@ -286,11 +290,12 @@ final class HiveCalibration {
 
     /**
      * Lets a piece settle, and a rocker that has started to move finish: a piece rolling to the
-     * back of the CELL can lift it off its stop for a moment without tipping it.
+     * back of the CELL can lift it off its stop for a moment without tipping it. A rocker over its
+     * tipping weight in its dwell (FieldSim.tipDwellRange, up to 3.4 s) is waited out too.
      */
     static void settleRocker(FieldSim sim) {
         settle(sim);
-        for (int i = 0; i < 1000 && (sim.red.state() == HiveState.TRANSITION || sim.blue.state() == HiveState.TRANSITION); i++) {
+        for (int i = 0; i < 1000 && (sim.rockerBusy(sim.red) || sim.rockerBusy(sim.blue)); i++) {
             sim.step(LOOP_S);
         }
     }

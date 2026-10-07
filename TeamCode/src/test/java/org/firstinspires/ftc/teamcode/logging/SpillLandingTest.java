@@ -64,6 +64,9 @@ public class SpillLandingTest {
     static List<Landing> landings(int seeds, int nectar) {
         FieldSim.Physics physics = HiveCalibration.current().fit();
         List<Landing> out = new ArrayList<>();
+        double[] dwellRange = FieldSim.tipDwellRange;
+        FieldSim.tipDwellRange = null;  // where a spill lands once the TIP starts; the dwell before it is not asked
+        try {
         for (long seed = 1; seed <= seeds; seed++) {
             FieldSim sim = new FieldSim(new ArrayList<>(), seed, physics);
             sim.red.locked = true;
@@ -118,6 +121,9 @@ public class SpillLandingTest {
                 e.getValue().restFromWallIn = Math.abs(e.getKey().y - wallY);
                 e.getValue().restX = e.getKey().x;
             }
+        }
+        } finally {
+            FieldSim.tipDwellRange = dwellRange;
         }
         return out;
     }

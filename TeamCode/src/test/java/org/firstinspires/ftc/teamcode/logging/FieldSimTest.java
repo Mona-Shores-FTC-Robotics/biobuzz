@@ -167,9 +167,9 @@ public class FieldSimTest {
             sim.setRobot(sim.red.centreX, y, Math.PI / 2, 0, 0, 0, false);
             assertNotNull(sim.launch(aim));
             shots++;
-            // Flight, settling, and a TIP that has started finishing: as in the calibration.
+            // Flight, settling, the dwell over the tipping weight, and a TIP that has started finishing: as in the calibration.
             run(sim, 0.6 + HiveCalibration.SETTLE_S);
-            for (int i = 0; i < 500 && sim.red.state() == HiveState.TRANSITION; i++) sim.step(LOOP);
+            for (int i = 0; i < 1000 && sim.rockerBusy(sim.red); i++) sim.step(LOOP);
         }
         assertEquals("tipped after " + shots + " shots", 1, sim.red.tips);
         assertEquals("launched POLLEN tip it on the calibrated count, like dropped ones",

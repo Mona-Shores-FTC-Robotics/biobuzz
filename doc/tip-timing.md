@@ -25,8 +25,11 @@ swing is visible. The YouTube video has three more TIPs (about 2, 56 and 125 s) 
 **Checked against the Saline Preview Event (7 Oct 2026).** Eleven AUTO TIPs frame-stepped on the Day 2 stream
 ([saline-tip-measurements.md](saline-tip-measurements.md)) swing in 0.65–0.9 s, median 0.75, inside this range
 and toward its short end; one swung in 2.2 s because 1.3 s of it was creep. New there: on every TIP the rocker
-sat 0.25–3.4 s (median about 2 s) after the threshold POLLEN settled before it left its stop. The simulator has
-no such wait, so its TIPs come about 2 s early.
+sat 0.25–3.4 s (median about 2 s) after the threshold POLLEN settled before it left its stop. Since 7 Oct 2026
+(issue #167) the simulator has that dwell as a state before the swing (`FieldSim.FILMED_TIP_DWELL_SECONDS`, drawn
+per TIP; a CELL a full POLLEN past its threshold waits at most 0.5 s, as the event's volleys did), so a Tip trigger
+fires about 2 s after the threshold piece settles, not at once; the HIVE calibration and the spill-landing fit time
+the swing alone, without it. The robot's `HiveTracker.Tuning.tipSeconds` is 0.8 s, the event median.
 
 **Why they differ.** Not known. A CELL loaded well past its tipping weight probably swings faster, but these
 videos don't show how many pieces were in each.

@@ -122,6 +122,28 @@ Auto's row sweep ended at face y 139, tips at 141.8, so its last step is 138 (`g
 runs, no wall problems: **72.3** / **52.7** / **53.0**, seat fire **72.7**; ShootsRight gained from the longer loop
 (TIP 3 in 50 of 60, 43 before: the GARDEN's 4 now arrive more often).
 
+**The dwell before a TIP** (7 Oct 2026 18:00 UTC, issue #167: eleven event TIPs sat 0.25–3.4 s, median about 2 s,
+after the threshold POLLEN settled before the rocker moved; the simulator had none). `FieldSim.FILMED_TIP_DWELL_SECONDS`,
+drawn per TIP, shorter the further past the threshold the load is (a volley: at most 0.5 s). TIP 1 comes at 5.1–5.3 s
+(4.5–4.8 before: the partner's volley overshoots), TIP 2 1.2–1.8 s later than before. What that did to the routes:
+- **ShootsRight**: the GARDEN is reached at 25.5 s and its shots end at 27–28.4 s, so TIP 3 comes after the buzzer
+  and the unguarded "TIP 3 coming?" ending lost PARK in 4 runs of 10. The park path now follows the GARDEN fire
+  directly, so the endgame guard cuts the fire for it, and it is drawn with the heading held at 270
+  (`baselines_v.park_from_garden`): a path facing 90 turned the robot half round in the corner, the V's tips
+  through the west wall. The guard's cut at the GARDEN still missed PARK in 6 of 60 (the drive from there, off the
+  drawn path and from rest, needs 0.3 s more than the path's estimate), so `AutoKit.GUARD_MARGIN_S` is 1.0 s (0.5
+  before). 60 runs: **56.7**, TIP 3 in 3 (50 on the instant TIP), PARK 60 of 60, no problems. The GARDEN leg now
+  mostly loads the CELL for TELEOP (67%).
+- **The GARDEN moved to x 9.5** on the V (`qual_right.GARDEN_X_IN`, `baselines_v.GARDEN_X_V`): at 8.5 its tips sat
+  0.4 in through the west wall, and any yaw there was a wall hit.
+- **The angled Auto** drops the GARDEN (`shape_matrix.STAGES["angled"]`, `garden: "none"` like the wall Auto): with
+  TIP 2 at 20 s the GARDEN came at 26 s, too late to fire, it never made TIP 3 (0 of 60), and the guard's cut-short
+  park from it turned into the west wall. PARK straight after TIP 2's spill is fired: **52.7**, PARK 52 of 60 (the
+  8 are TIP 1 failures: the catch branch runs long and clips the HIVE frame, the known problem).
+- **The wall Auto**: **52.7**, TIP 2 in 54, PARK 60 of 60. **Seat fire**: **72.2**, TIP 3 in 52, PARK 58 of 60: the
+  one route the dwell barely touches, because it fires as the pieces come instead of driving to a spot and waiting.
+`BIOBUZZ_AUTO_TIP_DWELL=0` runs a study without the dwell, for before/after.
+
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
 waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "Empty": with nothing held on arrival that

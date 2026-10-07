@@ -17,10 +17,23 @@ import qual_shapes
 import shape_matrix
 
 
+def park_from_garden(r, tag="", **kw):
+    """The park path, drawn from the GARDEN with the heading held at 270: the endgame guard cuts the GARDEN wait or
+    the drive back at 26.7 s (the dwell puts the GARDEN at 25.5 s), and a path drawn from S_FIRE facing 90 turned the
+    robot half round in the corner, the V's tips through the west wall (4 runs of 60, 7 Oct 2026). Held at 270 there is
+    no turn: out of the corner north-east, then north up the west side, backwards into PARK. From S_FIRE (the fire not
+    cut) the follower turns there, where there is room, and joins the path."""
+    r.at = "GARDEN"
+    return [r.go("PARK", ctrl=[(24, 30)], heading=270, park=True)]
+
+
 def shoots_right(name):
     qual_shapes.ROUTE_OF[name] = qual_shapes.ROUTE_OF["qual-right-o3-rigid-v"]
     third = qual_right.third_load
-    qual_right.third_load = park_first.park_first
+    # PARK guarded (7 Oct 2026, with the dwell before a TIP, issue #167): the GARDEN's shots end at 27-28.4 s and the
+    # unguarded "TIP 3 coming?" wait parked in 4 runs of 10. Now the park path follows the fire directly, so the
+    # endgame guard cuts the fire for it; shots away still TIP after the buzzer (Competition Manual 10.5).
+    qual_right.third_load = park_from_garden
     try:
         return qual_shapes.o3_shaped(name, None)
     finally:
@@ -82,6 +95,7 @@ FLOWER_FACE_V = 4.59
 
 
 FLAP_AHEAD_V = 2.8  # the drawn V's flap tips ahead of the face (RobotDesign.flapForwardIn)
+GARDEN_X_V = 9.5  # the V's tips 8.89 in aside, 0.6 in off the west wall
 
 
 def build_for_v(build, name):
@@ -89,12 +103,15 @@ def build_for_v(build, name):
     qual_right.FRONT_IN["option3"] = FRONT_IN_V
     qual_right.FLOWER_FACE_IN["option3"] = FLOWER_FACE_V
     qual_right.FLAP_AHEAD_IN["option3"] = FLAP_AHEAD_V
+    garden_x = qual_right.GARDEN_X_IN["option3"]
+    qual_right.GARDEN_X_IN["option3"] = GARDEN_X_V
     sweep = qual_right.O3["qual-right-o3-sweep"]
     qual_right.O3["qual-right-o3-sweep"] = {**sweep, "sweep_y": 12}  # the sweep 2 in off the south wall, for the turn in
     try:
         return build(name)
     finally:
         qual_right.FRONT_IN["option3"], qual_right.FLOWER_FACE_IN["option3"], qual_right.FLAP_AHEAD_IN["option3"] = front, face, flap
+        qual_right.GARDEN_X_IN["option3"] = garden_x
         qual_right.O3["qual-right-o3-sweep"] = sweep
 
 
