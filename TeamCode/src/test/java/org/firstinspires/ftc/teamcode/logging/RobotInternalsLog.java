@@ -295,7 +295,7 @@ final class RobotInternalsLog {
      */
     static double[] components(double extractorDown, double riseIn, double yaw, double lift) {
         double[] out = new double[7 * COUNT];
-        System.arraycopy(AutoSim.cadComponents(extractorDown), 0, out, 7 * EXTRACTOR, 7);
+        System.arraycopy(AutoSim.cadComponents(extractorDown, 0), 0, out, 7 * EXTRACTOR, 7);
         out[7 * ROLLER + 2] = riseIn * M;
         out[7 * ROLLER + 3] = 1;
         // About +Z through (TURRET_X, 0): translation = p - R p.

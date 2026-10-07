@@ -73,6 +73,6 @@ public class RobotInternalsLogTest {
         assertEquals(1.3 * 0.0254, RobotInternalsLog.components(1, 1.3, 0, 0)[7 * RobotInternalsLog.ROLLER + 2], 1e-9);
         // The extractor's pose is the CAD's (AutoSim.cadComponents).
         double[] stowed = RobotInternalsLog.components(0, 0, 0, 0);
-        for (int i = 0; i < 7; i++) assertEquals(AutoSim.cadComponents(0)[i], stowed[i], 1e-12);
+        for (int i = 0; i < 7; i++) assertEquals(AutoSim.cadComponents(0, 0)[i], stowed[i], 1e-12);
     }
 }

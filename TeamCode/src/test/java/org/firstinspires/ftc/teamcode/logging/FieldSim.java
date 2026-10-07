@@ -160,9 +160,8 @@ final class FieldSim {
     }
     static double spreadScale = 1;
     /**
-     * A launched piece's spin about the field's y axis (rad/s). -12 since the launcher was first modelled: backspin
-     * only for a shot travelling along x, spin along the flight for the straight-on shots along y (which it barely
-     * bends), and sidespin for a shot off the CELL's axis. BIOBUZZ_AUTO_SPIN overrides it (DeepDive).
+     * A launched piece's backspin (rad/s, negative for backspin as it has always been written), about the horizontal
+     * normal to its line of flight. BIOBUZZ_AUTO_SPIN overrides it (DeepDive).
      */
     static double launchSpin = -12;
     /**
@@ -322,6 +321,8 @@ final class FieldSim {
         /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
         Bot capturedBy;
         double capturedAt = Double.NaN;
+        /** When it has reached the launcher through the transfer ({@link RobotDesign#transferFeedS}); launchable from then. */
+        double readyAt = Double.NEGATIVE_INFINITY;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -890,6 +891,8 @@ final class FieldSim {
 
     // ---- Launching ----------------------------------------------------------------------------
 
+    /** A launched piece's backspin, rad/s (a placeholder: the flywheels' grip is unmeasured). */
+
     /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
     double[] launchVelocity(double[] from, double[] target) {
         return launchVelocity(from, target, 6);
@@ -980,8 +983,11 @@ final class FieldSim {
         p.vx = vx;
         p.vy = vy;
         p.vz = vz;
-        p.wx = 0;
-        p.wy = launchSpin;
+        // Backspin about the horizontal normal to the line of flight (until 7 Oct 2026 it was wy = -12 in the field
+        // frame, which is backspin only for a shot along +x; the body-designs chat's catch), as fast as launchSpin.
+        double horizontal = Math.hypot(vx, vy), backspin = -launchSpin;
+        p.wx = horizontal > 1e-9 ? backspin * vy / horizontal : 0;
+        p.wy = horizontal > 1e-9 ? -backspin * vx / horizontal : 0;
         p.wz = 0;
         p.launchedBy = bot;
         p.shotBy = bot;
@@ -1646,6 +1652,7 @@ final class FieldSim {
         bot.lastCaptureAt = time;
         p.capturedBy = bot;
         p.capturedAt = time;
+        p.readyAt = time + bot.design.transferFeedS;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

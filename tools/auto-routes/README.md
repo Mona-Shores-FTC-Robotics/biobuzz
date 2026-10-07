@@ -82,6 +82,24 @@ FLOWER gives up pieces only once it is down and seated. ShootsRight 71.2 → **7
 runs: the wall FLOWER's load fires sooner and more spills get touched); the Stages Autos unchanged (51.6, 55.3: they
 reach the far FLOWER only when the row fails to TIP).
 
+**Turret and transfer** (7 Oct 2026 00:20 UTC). The unified design's launcher is a turret fed through its axis by the
+transfer, so the `rigid V` design is now `Launcher.TURRET` (it aims without turning the robot) with
+`RobotDesign.transferFeedS` 0.5 s (a placeholder): a piece is launchable 0.5 s after the intake took it. Both cost
+time on every load: ShootsRight 72.2 → **70.2** (TIP 3 in 51 → 45), angled **51.9**, wall 55.3 → **51.7** (TIP 3 in
+26 → 17: its last load was already late).
+
+**Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
+extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
+waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "Empty": with nothing held on arrival that
+is true at once, which lost TIP 3 in every run of the first try). A frame-fixed launcher could not do it at all: to
+aim it turned the seated robot off the FLOWER (34.6; hence the turret). Two endings, 60 runs on the turret robot:
+- **west** (`qual-right-v-seatfire-west`): TIP 2 from the far FLOWER's seat at 11.1 s (13.0 before), then down the
+  west side clear of the spill to the wall FLOWER, its 4 fired from the seat, then the GARDEN's 4 from S_FIRE:
+  **72.0**, TIP 3 in 50 of 60 at 24.5 s, PARK 60 of 60, G409 10, no problems. Beats the baseline's 70.2.
+- **catch** (`qual-right-v-seatfire-catch`): TIP 2 from the seat, then to N_FIRE to catch its spill as the baseline
+  does: 62.5, TIP 3 in 22, G409 21 (it drives into the spill as it falls; waiting at the seat first lost the catch
+  altogether, 55.2, TIP 3 in 0: the seat is 15 in from where the spill lands).
+
 **Shot accuracy** (6 Oct 2026, 60 runs): `BIOBUZZ_AUTO_SPREAD` scales the launcher's shot-to-shot spread (1 = the
 placeholder, 0 = none), `BIOBUZZ_AUTO_AIM_DEG` is how closely the robot must face the CELL before firing (2 by
 default) and `BIOBUZZ_AUTO_FIRE_STILL=1` fires only once it is still. Today's launcher: ShootsRight 94% of 17.6
