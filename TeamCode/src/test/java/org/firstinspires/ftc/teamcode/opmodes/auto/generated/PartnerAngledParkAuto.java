@@ -5,6 +5,7 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -42,13 +43,16 @@ public final class PartnerAngledParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(32, 128.53, 227.3);
-        Pose parkP = p.of(14, 109, 227.3);
+        Pose parkP = p.of(11, 115, 270);
+
+        // Other poses the paths need (control points, unnamed endpoints).
+        Pose startToParkPSegment1Start = p.of(11, 115, 227.3);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToParkP = Paths.line(start, parkP).constant(parkP);
+        Path startToParkP = Paths.line(start, parkP).heading(Interpolator.piecewise().until(0.65, Interpolator.linear(startToParkPSegment1Start, parkP)).until(1, Interpolator.constant(parkP)));
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 1.8,
+                kit.guarded("Auto", startToParkP, 1.7,
                         kit.path("START to PARK_P", startToParkP)));
     }
 }

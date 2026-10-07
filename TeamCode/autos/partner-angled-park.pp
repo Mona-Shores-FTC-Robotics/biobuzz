@@ -16,13 +16,33 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 14,
-        "y": 109
+        "x": 11,
+        "y": 115
       },
       "controlPoints": [],
       "heading": {
-        "type": "constant",
-        "degrees": 227.3
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0.0,
+              "endProgress": 0.65,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 227.3,
+                "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.65,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            }
+          ]
+        }
       }
     }
   ],
@@ -158,9 +178,9 @@
         227.3
       ],
       "PARK_P": [
-        14,
-        109,
-        227.3
+        11,
+        115,
+        270
       ]
     },
     "pathEnds": {

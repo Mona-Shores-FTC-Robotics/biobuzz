@@ -538,7 +538,7 @@ def stages_v3(name, robot="option3", land=500, **kw):
 # B's back-right corner on the wall (y 141.25), aimed at PARK_B; parked, no corner touches a wall (LEAVE)
 # and one is in the LOADING ZONE; its corners clear the far FLOWER at the start, and parked reach x 26.7 and y 96.3 (our PARK is below).
 ANGLED = (32.0, 128.53, 227.3)  # = AutoStudyTest.ANGLED_PARTNER
-PARK_B = (14, 109)
+PARK_B = (11, 115)  # (14, 109) until 7 Oct 2026 (mentor: the path too steep, its corner 3 in from our PARK): now flatter and square against the alliance wall, body x 2-20, y 106-124, 8 in above our PARK
 
 
 def wall_partner(name="partner-stage19-side-park"):
@@ -553,8 +553,8 @@ def wall_partner(name="partner-stage19-side-park"):
 
 def angled_partner(name="partner-angled-park"):
     r = Route(name, ANGLED, speed=40)
-    r.pt("PARK_P", *PARK_B, ANGLED[2])
-    r.add(r.go("PARK_P", heading=ANGLED[2], park=True))
+    r.pt("PARK_P", *PARK_B, 270)  # turns square on the way: angled, an 18 in body reaches 12.7 in to a corner
+    r.add(r.go("PARK_P", park=True))
     return r
 
 
