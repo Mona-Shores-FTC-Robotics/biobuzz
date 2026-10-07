@@ -180,7 +180,7 @@ public class AutoStudyTest {
         // fires while the extractor feeds"), so it aims without turning the robot: a frame-fixed launcher swung the
         // seated robot off the FLOWER to fire. Its exit point is still the placeholder's.
         rigidV.launcher = RobotDesign.Launcher.TURRET;
-        rigidV.exitForwardIn = -2.845;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026); the height is still the placeholder
+        rigidV.exitForwardIn = -2.045;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026, ac817a6); the height is still the placeholder
         m.put("rigid V", rigidV);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {

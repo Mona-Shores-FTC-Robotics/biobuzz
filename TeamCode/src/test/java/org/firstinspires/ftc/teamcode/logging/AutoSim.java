@@ -781,7 +781,7 @@ public final class AutoSim {
     static final double EXTRACTOR_STOWED_DEG = 146;
 
     /** The CAD model's turret axis, +Z through here (m; the bearing's inner race); positive yaw turns left, 0 facing forward. */
-    static final double TURRET_AXIS_X_M = -0.072215;
+    static final double TURRET_AXIS_X_M = -0.051895;  // the launcher moved 0.8 in forward, 7 Oct 2026 (ac817a6)
     static final double TURRET_AXIS_Y_M = 0.004;
     /** How many components the CAD model has (cad/advantagescope/Robot_BIOBUZZ/config.json). */
     static final int CAD_COMPONENTS = 8;
