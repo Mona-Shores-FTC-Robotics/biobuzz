@@ -46,7 +46,7 @@ def vol(a, b):
     try: return (man(a) ^ man(b)).volume()
     except Exception: return -1
 OK_TOUCH = re.compile(r'1107-0015-0384')   # brackets bolt to the rails
-EXPECTED = re.compile(r'(feeder_shaft.*Lowside U-Channel)|(flywheel_belt.*41T)')   # shafts in their channels' bearings; belts on their pulleys
+EXPECTED = re.compile(r'(feeder_shaft.*Lowside U-Channel)|(flywheel_belt.*41T)|(feeder_shaft.*launcher_front_channel)')   # shafts in their channels' bearings; belts on their pulleys
 print('--- transfer vs mentor robot')
 for n, m in tr.items():
     for p, bm in base:
@@ -65,7 +65,8 @@ for i in range(len(names)):
         a, b = names[i], names[j]
         pair = a + ' | ' + b
         if re.search(r'shaft|jackshaft', a + b) and re.search(r'wheels|pulley|feeder_(front|rear) |miter|feeder_jackshaft.*pulley', pair) and (a.split(' ')[0].split('_')[-1] == b.split(' ')[0].split('_')[-1] or 'jackshaft' in pair or 'miter' in pair): continue
-        if re.search(r'belt', pair) and re.search(r'pulley|jackshaft|shaft', pair): continue
+        if re.search(r'belt|cord', pair) and re.search(r'pulley|jackshaft|shaft', pair): continue
+        if re.search(r'pad_hinge', pair) or re.search(r'feeder_shaft.*(feeder_pulley|launcher_front_channel)|feeder \(.*feeder_shaft', pair): continue
         if v > 2e-3: print(f'{v:8.4f} in3  {a[:45]:45s} x {b[:45]}')
 # ball sweeps
 print('--- balls along the lane and up from the cup')
@@ -83,21 +84,20 @@ def sweep(R, pts, label, ignore=re.compile(r'^$')):
 for R, nm in ((TR.RN, 'NECTAR'), (TR.RP, 'POLLEN')):
     z = TR.FLOOR_Z + R + 0.02
     lane = [(x, z) for x in np.linspace(TR.COL_X, 5.6, 26)]
-    sweep(R, lane, nm + ' along the lane into the feeders', re.compile(r'ceiling|lane_rollers|feeder_(L|R) |feeder_floor \('))
+    sweep(R, lane, nm + ' along the lane into the feeder', re.compile(r'ceiling|lane_wheels|transfer: feeder \(|pad_(foam|plate)|feeder_floor \('))
     up = [(TR.COL_X, zz) for zz in np.linspace(z, 6.2, 14)]
-    sweep(R, up, nm + ' driven up the column', re.compile(r'feeder_(L|R) |96mm Gecko|feeder_floor \('))
+    sweep(R, up, nm + ' driven up the column', re.compile(r'transfer: feeder \(|pad_(foam|plate)|96mm Gecko|feeder_floor \('))
 
-# the feeders swung out for a NECTAR: each feeder, its shaft, motor and arms turn about its pivot by SWING_DEG, outward
-print('--- feeders swung out (NECTAR) vs the robot, our front and the fixed transfer')
+# the pad swung back for a NECTAR: the plate and foam turn about the hinge (along X) until the face is 0.77 further out
+print('--- pad swung back (NECTAR) vs the robot, our front and the rest of the transfer')
 import trimesh.transformations as tt
-SWINGS = lambda n, nm: re.match(rf'feeder_({nm} |shaft_{nm} |arm_(front|rear)_{nm} |gear_feeder_{nm} )', n + ' ')
-fixed_tr = [(n, m) for n, m in tr.items() if not (SWINGS(n, 'L') or SWINGS(n, 'R'))]
-for nm, s_ in (('L', 1), ('R', -1)):
-    y = TR.LANE_Y + s_ * TR.FEED_Y
-    R_ = tt.rotation_matrix(math.radians(s_ * TR.SWING_DEG), [1, 0, 0], [0, y, TR.PIVOT_Z])   # +angle about +X swings a feeder hanging below its pivot toward +Y
-    for n in [k for k in tr if SWINGS(k, nm)]:
-        m = tr[n].copy(); m.apply_transform(R_)
-        for p, bm in base + [('front: ' + k, v) for k, v in front.items()] + [('transfer: ' + k, v) for k, v in fixed_tr]:
-            v = vol(m, bm)
-            if v > 1e-4 and not re.search(r'Lowside U-Channel|feeder_(stop|band_post|pivot|gear_pivot)|launcher_front_channel', p): print(f'{v:8.4f}  {n[:40]} x {p[-60:]}')
-        print('  swung', n[:30], 'Y', m.bounds[:, 1].round(2), 'z', m.bounds[:, 2].round(2))
+hy, hz = TR.PAD_HINGE
+ang = math.atan2(0.77, 3.0 - hz)                       # 0.77 at the ball's contact height (about z 3.0)
+R_ = tt.rotation_matrix(-ang, [1, 0, 0], [0, hy, hz])   # -angle about +X moves the pad's top toward -Y
+rest = [(n, m) for n, m in tr.items() if not n.startswith('pad_')]
+for n in [k for k in tr if k.startswith('pad_plate') or k.startswith('pad_foam')]:
+    m = tr[n].copy(); m.apply_transform(R_)
+    for p, bm in base + [('front: ' + k, v) for k, v in front.items()] + [('transfer: ' + k, v) for k, v in rest]:
+        v = vol(m, bm)
+        if v > 1e-4: print(f'{v:8.4f}  {n[:40]} x {p[-60:]}')
+    print('  swung', n[:30], 'Y', m.bounds[:, 1].round(2), 'z', m.bounds[:, 2].round(2))
