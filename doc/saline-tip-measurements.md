@@ -84,8 +84,10 @@ one. All times are seconds after START.
 | Playoff M3, red (above, by hand) | Infinity Tech | 4.1 | 7.4 | 9.6 | 3.3 | 2.2 |
 
 **The swing is 0.65–0.9 s, median 0.75 s**, on ten of eleven TIPs. Playoff M3's 2.2 s is 1.3 s of visible
-creep (first half of the arc) and then a 0.9 s swing, so the swing proper matches there too. The simulator's
-1.0 s is a little slow; `HiveTracker.Tuning.tipSeconds` should be about 0.8.
+creep (first half of the arc) and then a 0.9 s swing, so the swing proper matches there too. This agrees with
+the practice-field films ([tip-timing.md](tip-timing.md)): the simulator already draws each TIP from 0.58–1.12 s
+(`FieldSim.FILMED_TIP_SECONDS`), and the event sits in the short half of that range. Only the HIVE calibration's
+1.0 s (`ASSUMED_TIP_SECONDS`) and the robot's NaN `HiveTracker.Tuning.tipSeconds` are still to set; 0.8 s fits both.
 
 **The wait is the real finding: 0.25–3.4 s, median about 2 s**, between the third POLLEN settling and the
 rocker leaving its stop, on every TIP. Sometimes it is invisible (the rocker sits, then goes), sometimes it is a
