@@ -108,7 +108,8 @@ with the transfer's 0.5 s feed:
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
 it's fully down before the robot drives in (the mentor's review, 7 Oct). The zip's README has the scores.
-Flower-first over 60 runs: 71.3 points, TIP 3 in 48 of 60, PARK in 59, and no problem runs.
+Over 60 runs with the extractor down before the seat, flower-first scores 66.3 (TIP 3 in 33 of 60) and the right-side
+stream 70.9 (TIP 3 in 47).
 
 Made with:
 
