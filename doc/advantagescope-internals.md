@@ -98,22 +98,19 @@ The layout's tabs:
 
 ## Sample logs
 
-`sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3:
-- `qual-right-v-flower-first-l2000`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
+`sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3,
+with the transfer's 0.5 s feed:
+- `qual-right-v-flower-first-l2600`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
 - `qual-stages-angled-v-stream-leave`;
 - `qual-stages-wall-v-stream-x700-leave`.
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. The zip's README has the scores.
-
-They come in two sets, because the simulator branches disagree on how long a piece takes from intake to firable
-(`RobotDesign.transferFeedS`). `claude/simulator` sets a 0.5 s placeholder, and the body designs branch has 0. At
-0.5 s, flower-first falls from 76 to 36: the FLOWER's pieces aren't ready within its 2 s at the seat, so TIP 2 never
-comes. The transfer's own figure is 0.35 s.
+Flower-first over 60 runs: 71.3 points, TIP 3 in 48 of 60, PARK in 59, and no problem runs.
 
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2000Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
