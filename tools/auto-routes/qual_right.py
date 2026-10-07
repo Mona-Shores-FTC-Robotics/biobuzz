@@ -125,8 +125,12 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
     else:  # "sweep": west along the south, intake first, through what TIP 1's spill left there, then the GARDEN
         sy = sweep_y
         r.pt("SWEEP_E", 57.5, sy, 180).pt("SWEEP_W", 22, sy, 180)
+        # Into the GARDEN by a loop out to y about 15.5: the V's tips reach 13.65 in from the centre, so the turn from
+        # 180 to 270 happens up there (between 15% and 60% of the path), then the robot slides south square into the
+        # GARDEN. Turning on the sweep line swung the tips through the south wall (7 Oct 2026). sweep_y is 12 on the
+        # V (baselines_v).
         out += [r.go("SWEEP_E", turn_by=1.0), r.go("SWEEP_W", heading=180),
-                r.go("GARDEN", ctrl=[(8.5, sy + 4)], turn_by=0.8)]
+                r.go("GARDEN", ctrl=[(12, sy + 8)], turn_after=0.15, turn_by=0.6)]
     out += [r.wait(f"The GARDEN{tag}", when=["IntakeFull"], ms=1500),
             r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
             fire(r, f"Fire the GARDEN{tag}", "Empty", ms=garden_ms) if wall_flower != "first" or park_guard
@@ -232,6 +236,15 @@ FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.build
 # it (doc/robot-cad.md "Seated on a FLOWER"; baselines_v.py sets it for the Rigid V). The FLOWER points move by the
 # difference from the 18 in robot's 11.2 in; the start, the GARDEN and PARK only by the front face's.
 FLOWER_FACE_IN = {"baseline": 2.2, "proto": 2.2, "option3": 2.2}
+# How far a robot's guides reach ahead of its face (the V's flap tips: 2.8 in on the drawn V, baselines_v sets it): the
+# GARDEN point keeps them WALL_CLEAR_IN off the south wall (7 Oct 2026: the tips poked 0.6 in through it).
+FLAP_AHEAD_IN = {"baseline": 0.0, "proto": 0.0, "option3": 0.0}
+WALL_CLEAR_IN = 0.6
+
+
+def garden_y(robot):
+    """The nearest the robot's centre may be to the south wall at the GARDEN: its face plus its guides plus clearance."""
+    return FRONT_IN[robot] + FLAP_AHEAD_IN[robot] + WALL_CLEAR_IN
 
 
 # Fire from the extractor's seat (mentor, 6 Oct 2026: "the robot shoots while extracting"): at a FLOWER, instead of
@@ -277,7 +290,7 @@ def right(name, robot="baseline", n_fire=None, **kw):
             r.pt(k, x, y + df, h)  # the FLOWER is north of us, facing 90
         for k in ("GARDEN", "GARDEN_IN"):
             x, y, h = r.points[k]
-            r.pt(k, x, y - d, h)  # the GARDEN is at the south wall, facing 270
+            r.pt(k, x, max(y - d, garden_y(robot)) if k == "GARDEN" else y - d, h)  # the GARDEN is at the south wall, facing 270
         x, y, h = r.points["PARK"]
         r.pt("PARK", x, y + d, h)  # a corner must reach into the LOADING ZONE (y 94.3-117.9)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
@@ -462,6 +475,8 @@ def fit(robot):
                 x, y, h = move((x, y, h), 1, df)
             elif name.startswith(("GARDEN", "PARK")):
                 x, y, h = move((x, y, h), 1)
+                if name == "GARDEN":
+                    y = max(y, round(garden_y(robot), 2))
             return super().pt(name, x, y, h)
     return Fit
 

@@ -110,6 +110,18 @@ from the north no path fits between the parked partner and the west foot. 60 run
 axis at X −2.845 in; the old −4 was the earlier launcher's). `exitForwardIn` −2.845 on `rigid V`, the exit height still
 the 12 in placeholder: **69.5** / **52.3** / **52.3**, seat fire **72.0**, within a point of before each way.
 
+**Off the walls** (7 Oct 2026 17:30 UTC; mentor, on the flower-first log: "we shouldn't be riding through the wall").
+The simulator never stopped a robot at a wall, and nothing said when one went through: now a corner or V tip more
+than 0.5 in outside the field is a problem (`AutoSim.WALL_SLACK_IN`, "DRIVES INTO A WALL at", with the corner and the
+pose in the timeline), like the HIVE frame and a FLOWER. At 10 runs it flagged all four Autos: the GARDEN point
+(8.5, 9.56) put the V's tips 0.6 in through the south wall, so the GARDEN now stands off by the face, the flaps and
+0.6 in (`qual_right.garden_y`, `FLAP_AHEAD_IN`; 10.96 on the V); ShootsRight's turn from the sweep into the GARDEN
+swung the tips through the wall (the V reaches 13.65 in to a tip), so the sweep runs on y 12 and the approach loops
+out to y about 15.5, turns there and slides south square (`tail`, `turn_after=0.15, turn_by=0.6`); and the wall
+Auto's row sweep ended at face y 139, tips at 141.8, so its last step is 138 (`guide_routes.SWEEP_FACE_Y`). 60
+runs, no wall problems: **72.3** / **52.7** / **53.0**, seat fire **72.7**; ShootsRight gained from the longer loop
+(TIP 3 in 50 of 60, 43 before: the GARDEN's 4 now arrive more often).
+
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
 waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "Empty": with nothing held on arrival that

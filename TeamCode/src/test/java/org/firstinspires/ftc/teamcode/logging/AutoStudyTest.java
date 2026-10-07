@@ -568,7 +568,7 @@ public class AutoStudyTest {
                 row.robots++;
                 if (robot.leave && robot.park) row.parked++;
                 if (robot.illegalStart != null || !Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)
-                        || !Double.isNaN(robot.hitFlowerAt)) {
+                        || !Double.isNaN(robot.hitFlowerAt) || !Double.isNaN(robot.hitWallAt)) {
                     if (row.problems++ == 0) row.firstProblem = robot.toString();
                 }
             }
