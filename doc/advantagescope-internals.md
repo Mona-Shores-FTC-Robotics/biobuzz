@@ -37,12 +37,12 @@ A Pose3d[] of the `Robot_BIOBUZZ` model's components, in the order agreed with t
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 150° stowed | The simulator's `Extractor/Down` (`AutoSim.Bot.extractor`: down on the approach to a FLOWER, up as the robot leaves) |
 | 1 | Roller, motor and carriage | Straight up, 0 to 1.3 in | Rises until it clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in, as `doc/transfer.md` gives (0.85). |
 | 2 | Turret | About +Z through X −3.17 in | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. 0 (straight ahead) at the start |
-| 3 | J arm and J-wheel | About +Y through the arm's pivot (X 0.72, z 3.36 in; a 60 mm arm at 30°). Positive lifts the wheel, 36.8° at most (0.99 in at the axle) | Lifts until the wheel clears a piece, less its 0.1 in grip on a POLLEN. So a NECTAR going round the J lifts it about 26°, and a POLLEN barely moves it |
+| 3 | J arm and J-wheel | About +Y through the arm's pivot (X 0.72, z 3.36 in; a 60 mm arm at 30°). Positive lifts the wheel, 34.4° at most (0.95 in at the axle) | Lifts until the wheel clears a piece, less its 0.1 in grip on a POLLEN. A POLLEN barely moves it. A NECTAR's lift is scaled to peak at the transfer chat's figure, the axle 0.92 in up (33°): the drawn J is a circle about the resting axle, which on its own gives only 0.79 in |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
 
-`Robot_BIOBUZZ` has all four (the CAD chat's commit c708dff). Component 2 is only the turret's bearing for now: the
+`Robot_BIOBUZZ` has all four (the CAD chat's commit 314539f). Component 2 is only the turret's bearing for now: the
 launcher is drawn once it has an outline, on the same axis.
 
 ### Readouts: `<robot>/Internals/*`

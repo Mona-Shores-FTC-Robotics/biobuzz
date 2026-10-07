@@ -41,10 +41,19 @@ public class RobotInternalsLogTest {
         double[] pollen = {RobotInternalsLog.J_AXLE_X - (RobotInternalsLog.OUTER_J_RADIUS - P) * Math.sin(a),
                 RobotInternalsLog.J_AXLE_Z - (RobotInternalsLog.OUTER_J_RADIUS - P) * Math.cos(a)};
         assertTrue("NECTAR lifts the arm", Math.toDegrees(RobotInternalsLog.jLift(nectar, N)) > 15);
+        // On a NECTAR's path, the drawn lift peaks at the transfer's figure.
+        assertEquals(RobotInternalsLog.NECTAR_J_LIFT_DEG, Math.toDegrees(peakNectarLift()), 0.1);
         assertTrue("POLLEN is gripped", Math.toDegrees(RobotInternalsLog.jLift(pollen, P)) < 2);
         // Queued at the stop, neither lifts it: the queue rests against the stopped wheel.
         assertEquals(0, RobotInternalsLog.jLift(new double[] {FieldSim.LANE_FIRST_NECTAR_X, 0.9 + N}, N), 1e-9);
         assertEquals(0, RobotInternalsLog.jLift(new double[] {FieldSim.LANE_FIRST_POLLEN_X, 0.9 + P}, P), 1e-9);
+    }
+
+    private static double peakNectarLift() {
+        RobotInternalsLog.Path path = new RobotInternalsLog.Path(N, -4, 12);
+        double peak = 0;
+        for (double s = 0; s <= path.length; s += 0.05) peak = Math.max(peak, RobotInternalsLog.jLift(path.at(s), N));
+        return peak * RobotInternalsLog.NECTAR_J_SCALE;
     }
 
     @Test

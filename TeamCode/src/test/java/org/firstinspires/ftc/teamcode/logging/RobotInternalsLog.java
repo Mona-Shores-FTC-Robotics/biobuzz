@@ -51,10 +51,17 @@ final class RobotInternalsLog {
     /** The J-wheel's axle at rest, its radius (48 mm) and how far it grips a POLLEN. The outer J's radius about that axle. */
     static final double J_AXLE_X = -1.32, J_AXLE_Z = 4.54, J_WHEEL_RADIUS = 0.945, J_GRIP = 0.1, OUTER_J_RADIUS = 3.64;
     /**
-     * The J-wheel's arm: pivot (X, z), 60 mm to the axle at 30 deg, and the most it lifts: 0.99 in at the axle
-     * (the CAD chat's model, cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json "model_3").
+     * The J-wheel's arm: pivot (X, z), 60 mm to the axle at 30 deg, and the most it lifts: 0.95 in at the axle (the CAD
+     * chat's model, cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json "model_3").
      */
-    static final double J_PIVOT_X = 0.72, J_PIVOT_Z = 3.36, J_ARM_MAX_DEG = 36.8;
+    static final double J_PIVOT_X = 0.72, J_PIVOT_Z = 3.36, J_ARM_MAX_DEG = 34.4;
+    /**
+     * How far a NECTAR at the J's mouth lifts the arm: the axle 0.92 in up (the transfer chat's figure), about 33 deg.
+     * The drawn J is a circle about the resting axle, which gives less (about 0.79 in), so a NECTAR's contact lift is
+     * scaled to peak here; {@link #jLift} still decides when the arm rises and falls.
+     */
+    static final double NECTAR_J_LIFT_DEG = 33;
+
     /** The turret's axis. */
     static final double TURRET_X = -3.17;
     /**
@@ -218,10 +225,12 @@ final class RobotInternalsLog {
                 // Roller: rises until it clears the piece, less the squeeze a POLLEN gets (so only a NECTAR lifts it).
                 double reach = ROLLER_RADIUS + r - ROLLER_SQUEEZE, dx = xz[0] - ROLLER_X;
                 if (Math.abs(dx) < reach) rise = Math.max(rise, xz[1] + Math.sqrt(reach * reach - dx * dx) - ROLLER_Z);
-                lift = Math.max(lift, jLift(xz, r));
+                double contact = jLift(xz, r);
+                lift = Math.max(lift, p.kind == FieldSim.Kind.POLLEN ? contact : contact * NECTAR_J_SCALE);
                 held.get(p.kind.ordinal()).add(piecePose(f.pose, xz[0], xz[1], along.get(p), r));
             }
             rise = Math.min(ROLLER_FLOAT_MAX, rise);
+            lift = Math.min(Math.toRadians(J_ARM_MAX_DEG), lift);
             if (!cad) return;
             double error = 0;
             if (f.aim != null) {
@@ -254,6 +263,16 @@ final class RobotInternalsLog {
                 }
             }
         }
+    }
+
+    /** {@link #NECTAR_J_LIFT_DEG} over the contact lift's peak on a NECTAR's drawn path (the exit doesn't matter). */
+    static final double NECTAR_J_SCALE;
+
+    static {
+        Path path = new Path(FieldSim.NECTAR_RADIUS_IN, -4, 12);
+        double peak = 0;
+        for (double s = 0; s <= path.length; s += 0.05) peak = Math.max(peak, jLift(path.at(s), FieldSim.NECTAR_RADIUS_IN));
+        NECTAR_J_SCALE = Math.toRadians(NECTAR_J_LIFT_DEG) / peak;
     }
 
     /** How far the J-wheel's arm must lift (rad) to clear a piece at {@code xz}, less the wheel's grip. */
