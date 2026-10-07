@@ -186,7 +186,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
                "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 150 deg stowed",
                "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
                "model_2": "the turret (for now only its bearing; the launcher is to come): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
-               "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 36.8 deg is full float, the axle 0.99 in up (a NECTAR at the mouth lifts it about 0.92 in, about 34 deg; a POLLEN barely)"},
+               "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 34.4 deg is full float, the axle 0.95 in up (a NECTAR at the mouth lifts it about 0.92 in, about 33 deg; a POLLEN barely)"},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
     for fn in ("model.glb", "model_0.glb", "model_1.glb", "model_2.glb") + (("model_3.glb",) if jarm else ()):
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())
