@@ -86,7 +86,7 @@ for rise in (0, 0.65 * IN, 1.3 * IN):
             if x[:2] not in seen: seen.add(x[:2]); print(f"   rise {rise / IN:.2f} ext {ext}:", x)
 print("   ", "clear" if not seen else "")
 # J arm lift: 1.2 in of travel at the axle, perpendicular to the arm
-a0 = math.degrees(math.atan2(4.54 - PV[1], -1.32 - PV[0])); a1 = 180 - math.degrees(math.asin(math.sin(math.radians(180 - a0)) + 0.95 / (60 / IN)))   # the axle 0.95 in up (cad/transfer FLOAT_UP)
+a0 = math.degrees(math.atan2(4.54 - PV[1], -1.32 - PV[0])); a1 = 180 - math.degrees(math.asin(math.sin(math.radians(180 - a0)) + 0.99 / (60 / IN)))   # the axle 0.99 in up (cad/transfer FLOAT_UP)
 print(f"== the J arm lifting: {a0:.0f} -> {a1:.0f} deg about the pivot")
 for f in np.linspace(0, 1, 7):
     lift = (a1 - a0) * f               # negative: the axle is behind the pivot, so lifting it turns rear points up

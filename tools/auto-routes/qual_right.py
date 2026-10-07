@@ -41,9 +41,10 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
         out += [r.go("WEST_VIA", turn_by=0.8), r.go("WALL_FLOWER_TURN", ctrl=[(west - 6, 62)], heading=180),
                 r.go("WALL_FLOWER", heading=180)]
         r.at = "WALL_FLOWER"
-        if SEAT_FIRE:  # its 4 fired from the seat as they come, then straight round into the GARDEN
+        if SEAT_FIRE:  # its 4 fired from the seat as they come, then south first and round into the GARDEN (bending
+            # west at once, via (8.5, 30), the body clipped the FLOWER's bracket on the way out: every run, 7 Oct 2026)
             out += seat_fire_cards(r, f"Extract and fire the wall FLOWER{tag}", "Tip", ms=3000)
-            out += [r.go("GARDEN", ctrl=[(8.5, 30)], turn_by=0.7)]
+            out += [r.go("GARDEN", ctrl=[(r.points["WALL_FLOWER"][0], 28)], turn_by=0.7)]
         else:
             out += [r.wait(f"The wall FLOWER{tag}", when=["IntakeFull"], ms=2300),
                     r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the wall FLOWER{tag}", "Empty", ms=garden_ms)]
@@ -224,7 +225,7 @@ def third_load(r, tag="", wait_full=1100, catch3=False, tip_ms=0):
 # drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
 FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in; "option3": flatIntake, 14.5 in
 # How far from a FLOWER's centre the front face stops to take its POLLEN: 2.2 in with the intake mouth against the
-# ~2 in tube (helpers.FLOWER_PICKUP_IN for the 18 in robot: 9 + 2.2); 7.09 in with the CAD's FLOWER extractor seated on
+# ~2 in tube (helpers.FLOWER_PICKUP_IN for the 18 in robot: 9 + 2.2); 4.59 in with the CAD's FLOWER extractor seated on
 # it (doc/robot-cad.md "Seated on a FLOWER"; baselines_v.py sets it for the Rigid V). The FLOWER points move by the
 # difference from the 18 in robot's 11.2 in; the start, the GARDEN and PARK only by the front face's.
 FLOWER_FACE_IN = {"baseline": 2.2, "proto": 2.2, "option3": 2.2}

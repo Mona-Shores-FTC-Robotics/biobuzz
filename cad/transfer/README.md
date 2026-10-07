@@ -18,7 +18,7 @@ The doc's "Build spec for CAD", with the changes the transfer chat confirmed on 
 |---|---|
 | Fixed | the ramp (1/16 in polycarbonate) and its two printed brackets to the side plates; the lane floor (1/16 in polycarbonate, top at 0.9, slotted for the strand pulleys); two lane walls (**1/8 in** polycarbonate, inner faces at Y ±2.1, X −5.1..7.2, up to 5.0; cut to 3.4 over the front drive motors' encoder caps and to 4.4 under the raised 11-hole channel; up to 6.6 at the chute); three aluminium mounting strips to the rails; two 6 mm D-shafts and four 0.5 in pulleys; two polycord floor strands at Y ±0.5; the outer J and chute (printed, two halves); a lid over the queue; the arm's pivot stubs and the two 16T pulleys on the left one; two hard stops (on ±0.1 in slots) and two three-hole band posts; the J motor over the left rail with its cradle and its belt to the left pivot stub; the countershaft (6.0, 4.0) with two 16 mm pulleys and the lower loop to the front strand shaft (16 mm); the turret bearing and its two cross-channels, for reference (they're the launcher's) |
 | Float (rises with the roller, 0 to 1.3 in) | the 32 mm pulley on the roller's shaft, in the roller's gap at Y +2.35..+2.9, and the upper polycord loop to the countershaft (2:1 up) |
-| Arm (floats about the pivot until the axle is 0.95 in up: 34.4°) | the J-wheel's two gecko wheels and shaft, the two 1/8 in aluminium arms (60 mm, pivot at (0.72, 3.36), 30° above horizontal), the 16T pulley on the J shaft and the 40T belt to the pivot stub |
+| Arm (floats about the pivot until the axle is 0.99 in up: 36.8°) | the J-wheel's two gecko wheels and shaft, the two 1/8 in aluminium arms (60 mm, pivot at (0.72, 3.36), 30° above horizontal), the 16T pulley on the J shaft and the 40T belt to the pivot stub |
 
 **This CAD's choices, confirmed by the transfer chat:**
 - **Mounting:** three 1/8 in aluminium strips under the floor (X 3.78, 1.89 and −2.84), each tabbed up to both rails'
@@ -31,11 +31,11 @@ The doc's "Build spec for CAD", with the changes the transfer chat confirmed on 
 - **The walls are one piece each side,** 1/8 in thick, so they carry the pivots and the countershaft without ribs.
 
 **Where this CAD differs from the spec, and why:**
-- **The float is 0.95 in of vertical rise at the axle (34.4° of arm rotation, about 1.42 in along the arc).** A NECTAR at
+- **The float is 0.99 in of vertical rise at the axle (36.8° of arm rotation, about 1.52 in along the arc).** A NECTAR at
   the mouth needs 0.92 in of rise (the transfer chat's figure). Along the arc, 1.2 in rises only 0.85, because the arm turns
-  as it lifts. At full float the wheel's top is at 6.44, 0.16 under the turret bearing.
+  as it lifts. At full float the wheel's top is at 6.48, 0.12 under the turret bearing.
 - **The turret's front cross-channel is at X 0.85..1.35, not 0.0..0.5.** The J-wheel moves forward as well as up when
-  it floats (perpendicular to the arm). At full float its front is at about X 0.65.
+  it floats (perpendicular to the arm). At full float its front is at about X 0.74.
 - **The lid over the pocket became a lid over the queue** (X 0.7..2.3 at z 5.0), because the floating wheel sweeps
   the space the spec gave the lid.
 - **The band posts are forward of and above the pivot** (X 1.0..1.4, z 5.2..5.6), out of the arms' sweep.
@@ -49,7 +49,7 @@ The doc's "Build spec for CAD", with the changes the transfer chat confirmed on 
 |---|---|
 | At rest | clear of the robot, except where the strips and the motor's cradle bolt to the rails (the "Launcher Concept" gives way to the turret) |
 | Against the front (`cad/intake-b/`), with the roller at 0, 0.65 and 1.3 in and the extractor at 0, 75 and 150° | clear |
-| The J-wheel floating to full (axle 0.95 in up) | clear of the walls, stops, posts, lid and the turret's channels |
+| The J-wheel floating to full (axle 0.99 in up) | clear of the walls, stops, posts, lid and the turret's channels |
 | The raised 11-hole channel | above the walls' cut-out to 4.4 |
 
 Before the lane goes in: raise the old intake's 11-hole channel 8 mm and remove its two pattern spacers.
