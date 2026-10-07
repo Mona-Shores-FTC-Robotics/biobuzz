@@ -115,6 +115,9 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
             r.at = "S_FIRE"
             if last:
                 return out + go_park(r, park=False)
+    if garden == "none":  # no GARDEN load: PARK straight after TIP 2's spill is fired (the wall partner, 7 Oct 2026:
+        # with the GARDEN the park came too late, PARK in 26 of 60; TIP 3 from it came in 17)
+        return out + go_park(r)
     if garden == "two":
         out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270)]
     elif garden == "one":  # one path: round the corner into the GARDEN, turned by the time it is lined up
@@ -515,7 +518,10 @@ PARK_B = (14, 109)
 
 def wall_partner(name="partner-stage19-side-park"):
     r = Route(name, (19, 132.25, 270), speed=40)
-    r.pt("PARK_P", 19, 100, 270)  # a corner (x 10, y 109) in the LOADING ZONE; its top edge y 109
+    # Body y 103-121 at the LOADING ZONE's top (its corner (10, 117.9) in the zone), leaving the zone's bottom for our
+    # PARK (13, 87.44; mentor, 7 Oct 2026: "partner and us should basically always park"). At y 100 it sat on our spot.
+    # Our row sweep passes it with its west edge just east of x 28 (guide_routes.ROW_X_OFFSET).
+    r.pt("PARK_P", 18, 112, 270)  # x 18: east edge 27, a corner (9, 103) in the zone
     r.add(r.go("PARK_P", heading=270, park=True))
     return r
 

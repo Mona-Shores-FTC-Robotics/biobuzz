@@ -128,6 +128,7 @@ def row_face_first(r, partner, row_ms, west):
     return out
 
 
+ROW_X_OFFSET = [0.0]
 ROW_PIECES_Y = (128.0, 130.9, 133.7, 136.5)  # A's row (AutoStudyTest.stagedFor), x 29.6
 # Where the face stops, one step a piece. The pieces touch, so the face pushes the rest of the row along ahead
 # of it into the north wall (there at y 134.5, 137.3, 140.1): the steps follow them to the wall.
@@ -143,7 +144,10 @@ def row_sweep(r, partner, row_ms, west):
         return _staged_row(r, partner, row_ms, west)
     h = ANGLE[0]
     d = (math.cos(math.radians(h)), math.sin(math.radians(h)))
-    at = lambda fy: (round(29.6 - 7.25 * d[0], 2), round(fy - 7.25 * d[1], 2))
+    # ROW_X_OFFSET: the face's middle this far east of the row (0: on it). With the partner parked at y 112, its body
+    # (x 10-28, to y 121) sits under the sweep's start, so the baseline sweeps with its west edge just east of it
+    # (6.5: the row 6.5 in left of the centre line, inside the 13.8 in mouth; baselines_v, 7 Oct 2026).
+    at = lambda fy: (round(29.6 + ROW_X_OFFSET[0] - 7.25 * d[0], 2), round(fy - 7.25 * d[1], 2))
     # ROW_S's face 2 in short of the first piece (was 4): with the drawn V's 15.24 in body, 4 in put the robot's south
     # edge over the parked partner A's north edge (y 109) by 0.7 in, "robots collide at 11.0 s" in every run.
     r.pt("ROW_S", *at(ROW_PIECES_Y[0] - 1.4 - 2), h)

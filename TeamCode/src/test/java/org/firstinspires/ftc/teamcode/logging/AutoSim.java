@@ -1222,7 +1222,9 @@ public final class AutoSim {
             }
             // Down on the way in whether or not the robot has room (mentor, 7 Oct 2026: deploy it before you get there,
             // then drive into it): the FLOWER's pieces stay in it until a shot makes room (FieldSim.hasRoom).
-            boolean want = (body.extractorDown > 0 && seated) || (running && (pathToFlower || flowerAhead));
+            // Only a path to a FLOWER brings it down: merely passing one (the far FLOWER at the end of the row sweep)
+            // used to drop it and then count it blocked, 7 Oct 2026.
+            boolean want = (body.extractorDown > 0 && seated) || (running && pathToFlower);
             // It cannot swing down onto a FLOWER already at the face: the block lands on it. Down only if it was down
             // before the robot got there; otherwise it stays where it is and takes nothing (FieldSim.inIntake).
             boolean blocked = want && inTheWay && body.extractorDown < 1;
@@ -1232,7 +1234,7 @@ public final class AutoSim {
             }
             if (want != extractorWanted) {
                 extractorWanted = want;
-                log.putEvent(tag() + "extractor " + (want ? (pathToFlower ? "down: driving to a FLOWER" : "down: a FLOWER ahead")
+                log.putEvent(tag() + "extractor " + (want ? "down: driving to a FLOWER"
                         : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
             }
             double step = LOOP_S / design.extractorDeployS;
