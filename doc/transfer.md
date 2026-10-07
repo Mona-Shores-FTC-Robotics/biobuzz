@@ -280,8 +280,9 @@ flick it but not drive it. v3 pinches and drives. Robot frame, inches:
   and at most 3 NECTAR, any mix, kept by the lane's length alone. Balls queue nose to tail from the backstop to the
   intake roller's axle (X 8.56), and a ball is held once its centre is behind the axle. The longest legal load,
   3 NECTAR + 1 POLLEN with the POLLEN last, needs 12.26 in from backstop to axle; the shortest illegal ones need
-  12.60 (5 POLLEN) and 12.67 (4 NECTAR). So **the backstop sits 12.43 in behind the axle, at X −3.87, on ±0.2 in
-  slots** for tuning on the robot. The margins are 0.17 in each way, and ball size varies about ±1.5%, so the
+  12.60 (5 POLLEN) and 12.67 (4 NECTAR). So **the backstop sits 12.43 in behind the axle, on ±0.2 in slots** for tuning on the robot. (Commit bd5e4e2: the
+  intake roller is now 2 in vector wheels, WCP-0353/0354, axle at X 8.62, so the backstop is at X −3.81; the
+  12.43 in and the window are unchanged.) The margins are 0.17 in each way, and ball size varies about ±1.5%, so the
   slots are not optional: set them with the team's own balls. **To get that length the mentor's launcher and turret
   move forward 0.8 in: the launch column is now at X −2.045.** The moved launcher touches nothing.
 - **Feeder drive:** the feeder motors sit outboard (Y ±6.7, z 5.3, under the flywheel motors), belted to a jackshaft
@@ -328,6 +329,12 @@ done"; features can go):**
 - Unchanged: the count by length (backstop 12.43 in behind the roller axle on ±0.2 slots), the launcher forward
   0.8, the offset-wheel lane flat at z 1.3. Clear for both sizes with the pad swung back. `cad/transfer/README.md`
   has a module table: what comes off with what.
+- The belts are drawn (`lane_belt`, `lane_drive_cord`, `feeder_belt` in `build.py`); they're thin and easy to miss
+  in a render. In a bottom-up view the feeder is the black roller with the 16T pulley at one end, over the red
+  pad-hinge rod.
+- **Asked 7 Oct, pending the user's go-ahead in the CAD chat:** the lane redrawn with 3–4 shafts of the mentor's
+  own Geckos (not eight 24 mm shafts), the transfer on goBILDA grid plates and channel with the custom parts listed,
+  and labelled side and top views.
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
