@@ -1,5 +1,9 @@
 # The transfer: intake roller to the launcher (v3, 7 Oct 2026)
 
+> **This reworks the mentor's launcher**, not just adds to it: his flywheel motors move out and up, the plates, blocks
+> and standoffs that held them under the flywheels go, and so do his launcher's front cross-channel and front U-beams.
+> Show him this before anything is ordered. The list is under "Changes it needs in the mentor's CAD".
+
 The lane from our intake roller into the mentor's flywheels, drawn in the robot CAD's frame so `dhs-transfer.step` lands
 in place in Onshape beside `cad/intake-b/dhs-intake-b.step`. `build.py` holds every number. Frame: +X forward, +Y left,
 +Z up, inches, origin on the floor under the chassis centre (7.56 in behind the front face). Earlier versions (the
@@ -19,8 +23,8 @@ feeders: they drive the ball, gripped, straight up into the flywheels. One feed,
 | Lane | flat, ball-bottom at z 1.3, centreline Y 0; seven shafts of 24 mm compliant rollers, 1.08 in apart, from X 5.3 to -1.18, belted from one Yellow Jacket outside the right wall. Walls (1/8 in polycarbonate) at |Y| 1.87, top z 2.6, under the front drive motors; a NECTAR clears their encoder caps by 0.06 |
 | Ramp | X 8.0 z 0.05 to X 5.7 z 1.3 |
 | Ceiling | flat, 1/16 in polycarbonate with 0.5 in soft foam (polyethylene or EVA, 2–3 lb/ft³), X 5.3 to -0.95, on four parallel links (1.2 in; posts at X 6.05 and 2.2). Foam face 2.6 in over the lane: a POLLEN presses the foam 0.2; a NECTAR lifts it 0.82. Bands about 1–2 lbf preload |
-| Feeders | two goBILDA 72 mm Gecko wheels a side (softest durometer), shafts along X at Y ±2.72, z 3.21, over X −3.79..−1.90 (the flywheels' span), tops 0.15 under the flywheels. A POLLEN is squeezed 0.10 a side, a NECTAR 0.51. Gripped from where it enters (centre 2.70 / 3.11) up to 3.96 (POLLEN) / 4.95 (NECTAR); the flywheels take a NECTAR from 5.77 |
-| Feeder drive | one Yellow Jacket (1150 RPM) per feeder, face-mounted on the launcher's front channel, straight onto the feeder shaft. Run them at the same speed |
+| Feeders | two goBILDA 72 mm Gecko wheels a side (softest durometer), on sprung arms: each feeder, its shaft and its motor hang from a front and a rear arm (1.0 in) on a pivot straight above its axis, on the launcher's front and rear channels. A hard stop (±0.1 in slots) sets the POLLEN squeeze, 0.10 a side; a band of about 1 lbf preload holds it there; a NECTAR swings both out 0.41 in (24°, rising 0.09), so both sizes enter the stopped feeders under the lane's push and the ball stays on the column. Axles at rest along X at Y ±2.72, z 3.21, over X −3.79..−1.90 (the flywheels' span), tops 0.26 under the flywheels. Gripped from where it enters (centre 2.70 / 3.11) up to 3.96 (POLLEN) / 4.95 (NECTAR); the flywheels take a NECTAR from 5.77 |
+| Feeder drive | one Yellow Jacket (1150 RPM) per feeder, face-mounted on its front arm, straight onto the feeder shaft; it swings with the feeder. Run them at the same speed |
 | Backstop | X -4.67: the ball's back rests on it, so it sits centred on the column; a short floor between the feeders at the lane's height |
 | Ball count | the lane takes 5 POLLEN or 4 NECTAR, so the G407 limit is kept by count: an IR break-beam across the lane at X 5.45, z 2.3 counts balls in and the code stops the intake at the limit |
 
@@ -30,9 +34,11 @@ feeders: they drive the ball, gripped, straight up into the flywheels. One feed,
 
 - **The flywheel motors move out and up**, along X at Y ±6.7, z 7.0, on brackets on the launcher frame's side
   channels, belted to his 41T pulleys. Their old place under the flywheels (with the 7x11 plates, 1-hole channels,
-  mini quad blocks, 16T pulleys, belts and the standoffs and spacers that held them) is where the feeders go.
-- **The launcher's front 3-hole channels become 5-hole**, reaching down to carry the feeder shafts and motors.
-- The launcher's front cross-channel and its two dual blocks go; its front U-beams move 0.25 in further apart.
+  mini quad blocks, dual blocks, 16T pulleys, belts and the standoffs and spacers that held them) is where the feeders go.
+- **The launcher's front 3-hole channels become 5-hole**, reaching down, slotted for the feeder shafts' swing; they and
+  the rear channels carry the feeder arms' pivots.
+- The launcher's front cross-channel, its two dual blocks and the two U-beams under it go (the lane's balls run where
+  they are).
 - The old intake's 11-hole channel goes up 30 mm.
 - His pinwheel, its servo and his two star wheels go (our extractor and this lane replace them).
 
@@ -41,12 +47,11 @@ feeders: they drive the ball, gripped, straight up into the flywheels. One feed,
 `tools/robot-cad/transfer2_check.py`, against the mentor's Robot.step (7 Oct, lined up by the rails, with the edits
 above) and our front, by exact mesh intersection: nothing in the transfer or the launcher changes touches the robot or
 the front, and a NECTAR and a POLLEN rolled along the lane into the feeders and driven up the column touch nothing but
-the rollers, the ceiling, the feeders and the flywheels.
+the rollers, the ceiling, the feeders and the flywheels; and the feeders, their motors and arms swung out for a
+NECTAR touch nothing.
 
 ## Open
 
 - **The flywheels don't touch a POLLEN** (3.19 in gap; a POLLEN is 2.80). The mentor's FeederConcept puts one flywheel
   on a sprung swing arm; the turret launcher needs the same.
-- Pushing a NECTAR in between the stopped feeders takes a firm push (0.51 a side of squeeze). If the lane's rollers
-  slip, put one feeder on a light sprung arm, or soften the ceiling's push less.
 - 24 mm rollers and the break-beam: part numbers to choose.

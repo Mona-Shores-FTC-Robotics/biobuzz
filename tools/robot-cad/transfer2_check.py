@@ -86,3 +86,17 @@ for R, nm in ((TR.RN, 'NECTAR'), (TR.RP, 'POLLEN')):
     sweep(R, lane, nm + ' along the lane into the feeders', re.compile(r'ceiling|lane_rollers|feeder_(L|R) |feeder_floor \('))
     up = [(TR.COL_X, zz) for zz in np.linspace(z, 6.2, 14)]
     sweep(R, up, nm + ' driven up the column', re.compile(r'feeder_(L|R) |96mm Gecko|feeder_floor \('))
+
+# the feeders swung out for a NECTAR: each feeder, its shaft, motor and arms turn about its pivot by SWING_DEG, outward
+print('--- feeders swung out (NECTAR) vs the robot, our front and the fixed transfer')
+import trimesh.transformations as tt
+fixed_tr = [(n, m) for n, m in tr.items() if not re.match(r'feeder_(L|R) |feeder_(shaft|motor)_|feeder_arm', n)]
+for nm, s_ in (('L', 1), ('R', -1)):
+    y = TR.LANE_Y + s_ * TR.FEED_Y
+    R_ = tt.rotation_matrix(math.radians(s_ * TR.SWING_DEG), [1, 0, 0], [0, y, TR.PIVOT_Z])   # +angle about +X swings a feeder hanging below its pivot toward +Y
+    for n in [k for k in tr if re.match(rf'feeder_(shaft_|motor_|arm_front_|arm_rear_)?{nm}\b', k) or re.match(rf'feeder_arm_(front|rear)_{nm}\b', k)]:
+        m = tr[n].copy(); m.apply_transform(R_)
+        for p, bm in base + [('front: ' + k, v) for k, v in front.items()] + [('transfer: ' + k, v) for k, v in fixed_tr]:
+            v = vol(m, bm)
+            if v > 1e-4 and not re.search(r'Lowside U-Channel|feeder_(stop|band_post|pivot)|launcher_front_channel', p): print(f'{v:8.4f}  {n[:40]} x {p[-60:]}')
+        print('  swung', n[:30], 'Y', m.bounds[:, 1].round(2), 'z', m.bounds[:, 2].round(2))

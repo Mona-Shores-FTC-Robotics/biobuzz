@@ -29,10 +29,15 @@ COL_X = -2.845                          # the launch column: under the flywheels
 # reach the drive rails)
 RF, FEED_W = 36 / 25.4, 1.89
 FEED_X = (-3.79, -1.90)                 # the flywheels' X span
-FEED_SQ_P = 0.10                        # a POLLEN squeezed this much each side; a NECTAR then 0.51 (the soft Gecko tread takes it)
+FEED_SQ_P = 0.10                        # a POLLEN squeezed this much each side, the feeders on their stops; a NECTAR swings each out 0.41
+ARM_L = 1.0                             # each feeder hangs on two short arms from a pivot straight above its axis: it swings out
+SWING = (RN - RP) / 1.0                 # sideways (0.41 in each; the arc rises 0.09) against a band, so both sizes enter the stopped feeders
+PIVOT_Z = None                          # set below
 FEED_Y = RF + RP - FEED_SQ_P            # each feeder's axis this far either side of the centreline (2.72)
-FEED_Z = 4.78 - 0.15 - RF               # their tops 0.15 under the flywheels' bottoms (axes at 3.21; the right motor clears a launcher block)
+FEED_Z = 4.78 - 0.26 - RF               # their tops 0.26 under the flywheels' bottoms (axes at 3.10; swung out, the right motor clears a launcher block)
 FLOOR_Z = 1.3                           # the lane's ball-bottom height: a POLLEN's centre (2.70) and a NECTAR's (3.11) are both in the feeders' grip
+PIVOT_Z = FEED_Z + ARM_L
+SWING_DEG = math.degrees(math.asin(SWING / ARM_L))
 GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - FEED_Y ** 2)    # gripped up to here (centre): 4.01 POLLEN
 GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - FEED_Y ** 2)    # 5.00 NECTAR; the flywheels take a NECTAR from 5.77
 BACKSTOP_X = COL_X - RN - 0.02          # the ball's back stops here, so it sits on the column
@@ -157,13 +162,27 @@ for s in (-1, 1):
     bb = bx(BEAM[0] - 0.25, BEAM[0] + 0.25, s * WO, s * (WO + 0.45), BEAM[1] - 0.35, BEAM[1] + 0.35).cut(cyly(*BEAM, 0.22, -3, 3))
     part(fixed, f"break_beam_bracket_{'L' if s > 0 else 'R'} (print; one half of an IR break-beam pair across the lane)", bb, BLUE, "print")
 
-# ---- the feeders: a second pair of the flywheels' wheels under them, gripping the ball by its sides ----
+# ---- the feeders: on sprung arms, one pair each side of the ball, under the flywheels, gripping it by its sides ----
+# Each feeder, its shaft and its motor hang from two arms (front and rear) on a pivot straight above the feeder's axis,
+# on the launcher's front and rear channels. A hard stop sets the POLLEN squeeze (0.10 a side); a band of about 1 lbf
+# preload holds it there; a NECTAR swings each one out 0.41 in. The ball stays on the column either way.
+FA_X, RA_X = (-1.0, -0.875), (-4.05, -3.925)          # the front and rear arm plates' X spans (motor face on the front one)
 for s, nm in ((1, "L"), (-1, "R")):
     y = LANE_Y + s * FEED_Y
     part(fixed, f"feeder_{nm} (goBILDA 72 mm Gecko x2, softest durometer)", cq.Workplane("YZ").center(y, FEED_Z).circle(RF).extrude(FEED_W).translate((FEED_X[0], 0, 0)), (0.35, 0.66, 0.31), "buy")
-    part(fixed, f"feeder_shaft_{nm} (8mm REX, 136 mm; bearings in the launcher's front and rear channels)", cq.Workplane("YZ").center(y, FEED_Z).circle(4 / 25.4).extrude(4.0).translate((-4.95, 0, 0)), STEEL, "buy")
-    part(fixed, f"feeder_motor_{nm} (goBILDA 5203-2402-0005, 1150 RPM; face-mounted to the launcher's front channel, straight onto the feeder shaft)",
-         cq.Workplane("YZ").center(y, FEED_Z).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((-1.10, 0, 0)), BLACK, "buy")
+    part(fixed, f"feeder_shaft_{nm} (8mm REX, 88 mm; bearings in the two arms)", cq.Workplane("YZ").center(y, FEED_Z).circle(4 / 25.4).extrude(FA_X[1] - RA_X[0] + 0.1).translate((RA_X[0] - 0.05, 0, 0)), STEEL, "buy")
+    part(fixed, f"feeder_motor_{nm} (goBILDA 5203-2402-0005, 1150 RPM; face-mounted on the front arm, straight onto the feeder shaft; swings with it)",
+         cq.Workplane("YZ").center(y, FEED_Z).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((FA_X[1], 0, 0)), BLACK, "buy")
+    for x0, x1, w in (FA_X + ("front",), RA_X + ("rear",)):
+        arm = cq.Workplane("YZ").center(y, (PIVOT_Z + FEED_Z) / 2).rect(0.7, ARM_L + 0.7).extrude(x1 - x0).translate((x0, 0, 0))
+        arm = arm.cut(cq.Workplane("YZ").center(y, FEED_Z).circle(14 / 25.4 / 2).extrude(1).translate((x0 - 0.5, 0, 0))).cut(cq.Workplane("YZ").center(y, PIVOT_Z).circle(8.3 / 25.4 / 2).extrude(1).translate((x0 - 0.5, 0, 0)))
+        part(fixed, f"feeder_arm_{w}_{nm} (1/8 in aluminium, {ARM_L} in pivot to axle)", arm, ALU, "cut")
+    part(fixed, f"feeder_pivot_{nm} (8mm REX stubs, front arm to the launcher's front channel, rear arm to its rear channel)",
+         cq.Workplane("YZ").center(y, PIVOT_Z).circle(4 / 25.4).extrude(FA_X[0] - 0.02 - (-1.10)).translate((-1.10, 0, 0)).union(cq.Workplane("YZ").center(y, PIVOT_Z).circle(4 / 25.4).extrude(RA_X[0] - (-4.41)).translate((-4.41, 0, 0))), STEEL, "buy")
+    stop = bx(-1.10, -1.0, s * (FEED_Y - 0.6), s * (FEED_Y - 0.35), FEED_Z + 0.75, FEED_Z + 1.0)   # the front arm (0.35 either side of the axle) rests on it
+    part(fixed, f"feeder_stop_{nm} (print, on the launcher's front channel, +-0.1 in slots: sets the POLLEN squeeze)", stop, BLUE, "print")
+    post = bx(-1.10 + 0.0, -1.0, s * (FEED_Y + 0.9), s * (FEED_Y + 1.15), FEED_Z + 0.6, FEED_Z + 1.0)
+    part(fixed, f"feeder_band_post_{nm} (print, on the front channel; band to the front arm: about 1 lbf at rest)", post, BLUE, "print")
 # under the ball between the feeders: a short floor, and a backstop that sets it on the column
 fl = bx(BACKSTOP_X - 0.15, FEED_X[1] + 0.15, -1.3, 1.3, FLOOR_Z - T16, FLOOR_Z)
 part(fixed, "feeder_floor (1/16 in polycarbonate, between the feeders)", fl, POLY, "cut")
@@ -173,7 +192,9 @@ for s in (-1, 1):
 
 # ---- the launcher changes: its front channels reach down to the feeder shafts, the flywheel motors move out and up ----
 for s, y0, y1 in ((1, 2.43, 4.67), (-1, -4.36, -2.12)):
-    part(launcher, f"launcher_front_channel_{'L' if s > 0 else 'R'} (goBILDA 5-hole lowside U-channel, replacing the 3-hole: carries the feeder shaft and motor)", bx(-1.58, -1.10, y0, y1, 1.88, 3.76), ALU, "buy")
+    fy = s * FEED_Y
+    ch = bx(-1.58, -1.10, y0, y1, 1.88, 3.76).cut(bx(-2, -0.5, min(fy, fy + s * SWING) - 0.22, max(fy, fy + s * SWING) + 0.22, FEED_Z - 0.22, FEED_Z + 0.32))
+    part(launcher, f"launcher_front_channel_{'L' if s > 0 else 'R'} (goBILDA 5-hole lowside U-channel, replacing the 3-hole; slotted for the feeder shaft's swing; carries the feeder arm's pivot)", ch, ALU, "buy")
 P41 = 41 * 5 / math.pi / 25.4
 for s, fy in ((1, FLY_Y[0]), (-1, FLY_Y[1])):
     my = s * FM_Y
