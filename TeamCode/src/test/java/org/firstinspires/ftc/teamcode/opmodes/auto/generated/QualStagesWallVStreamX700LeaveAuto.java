@@ -73,6 +73,7 @@ public final class QualStagesWallVStreamX700LeaveAuto {
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
         Pose nLowToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose nLowToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
+        Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
@@ -98,7 +99,7 @@ public final class QualStagesWallVStreamX700LeaveAuto {
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToNFire = Paths.line(farFlower, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
         Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.87, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
         Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
