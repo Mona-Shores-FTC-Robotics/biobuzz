@@ -1728,19 +1728,17 @@ final class FieldSim {
      * the others. Kept apart so a moving robot does not rewrite every piece on the field each loop.
      */
     /**
-     * Where held pieces are drawn: single file on the transfer's lane floor, on the centre line, queued against
-     * the J-wheel (the transfer chat, 6 Oct 2026; doc/unified-design.md "Transfer"). The rearmost piece's centre
-     * is {@link #HELD_LANE_REAR_POLLEN_IN} ahead of the robot's centre for POLLEN, {@link #HELD_LANE_REAR_NECTAR_IN}
-     * for NECTAR; each later one sits its radius plus the previous piece's radius further forward. A drawing only.
+     * Where held pieces are drawn, in the CAD's transfer (the robot-CAD chat, 7 Oct 2026, cad/transfer/build.py):
+     * ball 1 in the feeder cup under the flywheels, the rest queued up the 17 deg lane, each touching the one
+     * ahead, all on the centre line. Robot frame, inches: {ahead of the centre, up}. The first launched is ball
+     * 1; a mixed queue uses each kind's own slot. A drawing only: capacity is {@link #ROBOT_CAPACITY}.
      */
-    static final double HELD_LANE_FLOOR_IN = 0.9;
-    static final double HELD_LANE_REAR_POLLEN_IN = -0.64;
-    static final double HELD_LANE_REAR_NECTAR_IN = 0.73;
+    static final double[][] HELD_POLLEN_IN = {{-2.845, 2.998}, {-0.316, 4.201}, {2.358, 3.370}, {5.032, 2.539}};
+    static final double[][] HELD_NECTAR_IN = {{-2.845, 3.672}, {0.723, 4.288}, {4.180, 3.214}, {5.032, 2.539}};
 
-    static double heldAlongIn(List<Piece> stored, int slot) {
-        double along = stored.get(0).kind == Kind.POLLEN ? HELD_LANE_REAR_POLLEN_IN : HELD_LANE_REAR_NECTAR_IN;
-        for (int i = 1; i <= slot; i++) along += stored.get(i - 1).kind.radius + stored.get(i).kind.radius;
-        return along;
+    static double[] heldAt(List<Piece> stored, int slot) {
+        double[][] slots = stored.get(slot).kind == Kind.POLLEN ? HELD_POLLEN_IN : HELD_NECTAR_IN;
+        return slots[Math.min(slot, slots.length - 1)];
     }
 
     double[] pieces(Kind kind, boolean held) {
@@ -1755,10 +1753,10 @@ final class FieldSim {
                 for (Bot bot : bots) {
                     int slot = bot.stored.indexOf(p);
                     if (slot < 0) continue;
-                    double along = heldAlongIn(bot.stored, slot);
-                    x = bot.x + along * Math.cos(bot.h);
-                    y = bot.y + along * Math.sin(bot.h);
-                    z = HELD_LANE_FLOOR_IN + p.kind.radius;
+                    double[] at = heldAt(bot.stored, slot);
+                    x = bot.x + at[0] * Math.cos(bot.h);
+                    y = bot.y + at[0] * Math.sin(bot.h);
+                    z = at[1];
                 }
             }
             // Pedro → Center/Rotated is a quarter turn about z, (x, y, z) → (−y, x, z); a rotation's
