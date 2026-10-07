@@ -38,6 +38,81 @@
     }
   },
   "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
-  "model_2": "the turret and the launcher under it (the designer's Launcher Concept, all drawn as turning with the turret): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
-  "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 36.8 deg is full float, the axle 0.99 in up (a NECTAR at the mouth lifts it about 0.92 in, about 33 deg; a POLLEN barely)"
+  "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (-0.072215, 0.004000) m (the inner race's centre, X -2.8431 in, Y 0.1575 in); positive yaw turns left; 0 = facing forward, as drawn",
+  "model_4": {
+    "what": "the intake roller: its shaft, two 48 mm gecko wheels, its 24T pulley and the lane's drive pulley",
+    "axis_point_m": [
+      0.217424,
+      0.0,
+      0.084963
+    ],
+    "axis": [
+      0,
+      1,
+      0
+    ],
+    "intake_spin": "+angle about +Y (the bottom of the roller moves rearward)",
+    "diameter_m": 0.048,
+    "pose": "spin about the resting axle first, then translation [0, 0, rise] as model_1"
+  },
+  "model_5": {
+    "what": "flywheel axle left (+Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
+    "axis_point_m": [
+      -0.0762,
+      0.092532,
+      0.168808
+    ],
+    "axis": [
+      -1,
+      0,
+      0
+    ],
+    "throw_spin": "+angle about the axis as given throws the piece up (the rims between the wheels move up)",
+    "diameter_m": 0.096
+  },
+  "model_6": {
+    "what": "flywheel axle right (-Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
+    "axis_point_m": [
+      -0.0762,
+      -0.084506,
+      0.168808
+    ],
+    "axis": [
+      1,
+      0,
+      0
+    ],
+    "throw_spin": "+angle about the axis as given throws the piece up (the rims between the wheels move up)",
+    "diameter_m": 0.096
+  },
+  "model_3": {
+    "what": "the front feeder (66.7 mm foam wheel, shaft, pulley), across the robot under the flywheels",
+    "axis_point_m": [
+      -0.013843,
+      0.0,
+      0.039624
+    ],
+    "axis": [
+      0,
+      1,
+      0
+    ],
+    "feed_spin": "+angle about the axis as given pops the ball in the cup up into the flywheels",
+    "diameter_m": 0.0667
+  },
+  "model_7": {
+    "what": "the rear feeder (66.7 mm foam wheel, shaft, pulley), across the robot under the flywheels",
+    "axis_point_m": [
+      -0.130683,
+      0.0,
+      0.039624
+    ],
+    "axis": [
+      0,
+      -1,
+      0
+    ],
+    "feed_spin": "+angle about the axis as given pops the ball in the cup up into the flywheels",
+    "diameter_m": 0.0667
+  }
 }

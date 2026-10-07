@@ -780,27 +780,31 @@ public final class AutoSim {
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
     static final double EXTRACTOR_STOWED_DEG = 146;
 
-    /** The CAD model's turret axis, +Z through here (m); positive yaw turns left, 0 facing forward as drawn. */
-    static final double TURRET_AXIS_X_M = -0.080518;
+    /** The CAD model's turret axis, +Z through here (m; the bearing's inner race); positive yaw turns left, 0 facing forward. */
+    static final double TURRET_AXIS_X_M = -0.072215;
+    static final double TURRET_AXIS_Y_M = 0.004;
+    /** How many components the CAD model has (cad/advantagescope/Robot_BIOBUZZ/config.json). */
+    static final int CAD_COMPONENTS = 8;
 
     /**
-     * The CAD model's four component poses (translation m, quaternion w x y z; its extractor_poses.json): the FLOWER
+     * The CAD model's component poses (translation m, quaternion w x y z; its extractor_poses.json): 0 the FLOWER
      * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 146 stowed), for {@code down} from 0
-     * (stowed) to 1 (down); the floating roller, down; the turret turned {@code turretYawRad} about its axis; the
-     * transfer's J arm at rest. The roller and the J arm do not move in the logs yet.
+     * (stowed) to 1 (down); 1 the roller's carriage, down; 2 the turret turned {@code turretYawRad} about its axis;
+     * 3 to 7 (the feeders, the intake roller, the flywheels) at rest: the logs do not spin them yet.
      */
     static double[] cadComponents(double down, double turretYawRad) {
         double a = Math.toRadians(EXTRACTOR_STOWED_DEG * (1 - down));
         double px = EXTRACTOR_PIVOT_M[0], pz = EXTRACTOR_PIVOT_M[2];
         // R (about +Y by -a) applied to the pivot; translation = pivot - R pivot.
         double rx = px * Math.cos(a) - pz * Math.sin(a), rz = px * Math.sin(a) + pz * Math.cos(a);
-        // The turret about +Z through (TURRET_AXIS_X_M, 0): translation = axis - R axis.
-        double tx = TURRET_AXIS_X_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
-        return new double[] {
-                px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0,
-                0, 0, 0, 1, 0, 0, 0,
-                tx - tx * c, -tx * s, 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2),
-                0, 0, 0, 1, 0, 0, 0};
+        // The turret about +Z through (TURRET_AXIS_X_M, TURRET_AXIS_Y_M): translation = axis - R axis.
+        double tx = TURRET_AXIS_X_M, ty = TURRET_AXIS_Y_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
+        double[] poses = new double[7 * CAD_COMPONENTS];
+        for (int i = 0; i < CAD_COMPONENTS; i++) poses[7 * i + 3] = 1;  // identity
+        System.arraycopy(new double[] {px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0}, 0, poses, 0, 7);
+        System.arraycopy(new double[] {tx - (tx * c - ty * s), ty - (tx * s + ty * c), 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2)},
+                0, poses, 14, 7);
+        return poses;
     }
 
     private final class Bot {
