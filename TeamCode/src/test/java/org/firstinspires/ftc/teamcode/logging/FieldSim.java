@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveState;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Random;
 
 /**
@@ -204,6 +205,18 @@ final class FieldSim {
      */
     static final double[] FILMED_TIP_SECONDS = {0.58, 1.12};
     static double[] tipSecondsRange = FILMED_TIP_SECONDS;
+    /**
+     * The dwell: how long a raised CELL whose load has crossed its tipping weight sits before the rocker leaves
+     * its stop, drawn afresh per TIP (issue #167; eleven AUTO TIPs on the Saline stream, doc/saline-tip-measurements.md:
+     * 0.25–3.4 s, median about 2 s; the simulator had none, so its TIPs came about 2 s early). A CELL at exactly
+     * its threshold draws from this range; one a full POLLEN past it waits at most
+     * {@link #FILMED_TIP_DWELL_OVERLOADED_S} (Q26's and Q9's volleys: 0.25–0.5 s), in between in proportion, and
+     * pieces arriving during the dwell shorten it. The {@code Tip} trigger and the robot's HiveTracker see the
+     * rocker start to move, so this is a state before the swing, not a longer swing. Null: no dwell.
+     */
+    static final double[] FILMED_TIP_DWELL_SECONDS = {0.25, 3.4};
+    static final double FILMED_TIP_DWELL_OVERLOADED_S = 0.5;
+    static double[] tipDwellRange = FILMED_TIP_DWELL_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
     static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
 
@@ -362,6 +375,9 @@ final class FieldSim {
         private double leftStopAt;
         /** This TIP's swing speed against the calibrated one ({@link #tipSecondsRange}). */
         private double swingFactor = 1;
+        /** When the load first beat the hold on this stop (NaN: it has not), and this dwell's draw in 0–1. */
+        private double dwellFrom = Double.NaN;
+        private double dwellDraw;
         /**
          * TIPs started: counts up once a rocker has swung {@link #TIP_STARTED_RAD} off its stop,
          * like the robot's {@code HiveTracker.tipsStarted()}; a piece rolling in that lifts it a
@@ -463,6 +479,7 @@ final class FieldSim {
     private final Random variety;
     /** Each TIP's speed ({@link #tipSecondsRange}): its own stream, so the others draw as before. */
     private final Random tipTiming;
+    private final Random tipDwell;
     /** A gentle unevenness per 12 in square of tiles: the sideways pull, in/s². */
     private final double[][][] tileSlope = new double[12][12][2];
     private final List<String> events = new ArrayList<>();
@@ -584,6 +601,7 @@ final class FieldSim {
         random = new Random(seed);
         variety = new Random(seed * 7919L + 13);
         tipTiming = new Random(seed * 104729L + 7);
+        tipDwell = new Random(seed * 15485863L + 29);
         for (int i = 0; i < tileSlope.length; i++) {
             for (int j = 0; j < tileSlope[i].length; j++) {
                 double a = variety.nextDouble() * 2 * Math.PI, m = variety.nextDouble() * PLACEHOLDER_TILE_SLOPE_IN_PER_S2;
@@ -1144,7 +1162,11 @@ final class FieldSim {
         double before = r.angle;
         if ((r.angle >= TILT_RAD && torque >= 0) || (r.angle <= -TILT_RAD && torque <= 0)) {
             r.rate = 0;
+            r.dwellFrom = Double.NaN;  // the load fell back under the hold (a piece bounced out)
+        } else if (dwelling(r, torque)) {
+            r.rate = 0;
         } else {
+            r.dwellFrom = Double.NaN;
             if (Math.abs(Math.abs(r.angle) - TILT_RAD) < 1e-12) r.swingFactor = tipSwingFactor();  // leaving a stop
             r.rate = torque / hold * physics.swingRadPerS * swingScale * r.swingFactor;
             if (Math.signum(r.rate) == Math.signum(r.angle) && TILT_RAD - Math.abs(r.angle) < PLACEHOLDER_DAMPER_ZONE_RAD) {
@@ -1165,6 +1187,7 @@ final class FieldSim {
         }
         if (!wasSettled && settledNow) {
             r.rate = 0;
+            r.dwellFrom = Double.NaN;
             // A rocker that lifts off its stop and settles back (a piece rolling to the back of the
             // CELL) has not tipped.
             if (Math.signum(r.angle) != Math.signum(r.tipFrom)) {
@@ -1173,6 +1196,42 @@ final class FieldSim {
                 events.add(r.alliance + " HIVE tipped: " + r.state() + " (" + r.cell(r.raisedEnd()).clusterName() + " up)");
             }
         }
+    }
+
+    /**
+     * Whether a rocker at its stop, with its load past the hold, is still in its dwell ({@link #tipDwellRange}).
+     * {@code torque} is the net push off the stop, POLLEN-weight inches; its size against one POLLEN's at the
+     * load's mean lever says how far past the threshold the CELL is.
+     */
+    private boolean dwelling(Rocker r, double torque) {
+        if (tipDwellRange == null || Math.abs(Math.abs(r.angle) - TILT_RAD) >= 1e-12) return false;
+        if (Double.isNaN(r.dwellFrom)) {
+            r.dwellFrom = time;
+            r.dwellDraw = tipDwell.nextDouble();
+        }
+        double lever = 0;
+        int n = 0;
+        for (Piece p : pieces) {
+            if (p.where == Where.FIELD && p.cell != null && p.cell.alliance() == r.alliance) {
+                lever += Math.abs(p.y - CENTRE_IN);
+                n++;
+            }
+        }
+        lever = n > 0 ? lever / n : (CELL_BACK_IN + CELL_OPENING_IN) / 2;
+        double excessPollen = Math.min(1, Math.abs(torque) / (weight(Kind.POLLEN) * lever));
+        double longest = tipDwellRange[1] + (FILMED_TIP_DWELL_OVERLOADED_S - tipDwellRange[1]) * excessPollen;
+        double dwell = Math.min(tipDwellRange[0], longest) + r.dwellDraw * Math.max(0, longest - tipDwellRange[0]);
+        if (time - r.dwellFrom < dwell) return true;
+        events.add(String.format(Locale.ROOT, "%s HIVE over its tipping weight for %.2f s; the rocker moves", r.alliance, time - r.dwellFrom));
+        return false;
+    }
+
+    /**
+     * Whether a rocker is mid-TIP or sitting over its tipping weight in its dwell: what a caller that wants to see
+     * a TIP through (the calibration's settleRocker, tests) waits out before adding the next piece.
+     */
+    boolean rockerBusy(Rocker r) {
+        return r.state() == HiveState.TRANSITION || !Double.isNaN(r.dwellFrom);
     }
 
     private void collidePieces() {

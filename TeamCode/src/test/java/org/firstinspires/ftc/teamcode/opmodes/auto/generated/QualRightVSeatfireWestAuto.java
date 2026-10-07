@@ -43,7 +43,7 @@ public final class QualRightVSeatfireWestAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
-        Pose garden = p.of(8.5, 10.96, 270);
+        Pose garden = p.of(9.5, 10.96, 270);
         Pose park = p.of(13, 87.44, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
@@ -63,8 +63,8 @@ public final class QualRightVSeatfireWestAuto {
         Pose westViaToWallFlowerTurnControl1 = p.of(29, 62, 0);
         Pose wallFlowerToGardenControl1 = p.of(24.86, 47.36, 0);
         Pose wallFlowerToGardenControl2 = p.of(14.86, 28, 0);
-        Pose wallFlowerToGardenSegment1Heading = p.of(8.5, 10.96, 180);
-        Pose wallFlowerToGardenSegment2Start = p.of(8.5, 10.96, 180);
+        Pose wallFlowerToGardenSegment1Heading = p.of(9.5, 10.96, 180);
+        Pose wallFlowerToGardenSegment2Start = p.of(9.5, 10.96, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);

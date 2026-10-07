@@ -404,6 +404,9 @@ public class AutoStudyTest {
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = Double.parseDouble(tip);
             FieldSim.tipSecondsRange = null;
         }
+        // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
+        double[] dwellRange = FieldSim.tipDwellRange;
+        if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
         try {
             studyAll(specs);
         } finally {
@@ -413,6 +416,7 @@ public class AutoStudyTest {
             AutoSim.fireOnlyWhenStill = false;
             org.firstinspires.ftc.teamcode.vision.HiveTracker.Tuning.tipSeconds = tipBefore;
             FieldSim.tipSecondsRange = tipRange;
+            FieldSim.tipDwellRange = dwellRange;
         }
     }
 

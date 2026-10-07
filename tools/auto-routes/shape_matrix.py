@@ -15,7 +15,11 @@ import qual_shapes
 
 V3 = qual_right.VARIANTS["qual-right-v3"]
 STAGES = {  # suffix: (partner, plan, options), as qual_right.STAGES' baselines (6 Oct 2026: TIP-timed wait, TIP 2 from y 119)
-    "angled": ("B", "chase", {**V3, "third": False, "garden": "two", "settle": False, "extra": 1300, "n_fire_y": 119}),
+    # garden "none" since 7 Oct 2026 (with the dwell before a TIP, issue #167): TIP 2 comes at 20 s and the GARDEN at
+    # 26 s, too late to fire; the GARDEN load never made TIP 3 (0 of 60) and the endgame guard's cut-short park from the
+    # GARDEN (a path drawn from S_FIRE) turned the V's tips into the west wall and clipped the HIVE frame. PARK straight
+    # after TIP 2's spill is fired, as the wall Auto does.
+    "angled": ("B", "chase", {**V3, "third": False, "garden": "none", "settle": False, "extra": 1300, "n_fire_y": 119}),
     # park: True since 7 Oct 2026 (mentor: both robots always PARK; the wall partner now parks at y 112, above our spot).
     # The matrix's numbers above were run with the partner on our spot and no PARK for us.
     "wall": ("A", "west", {**V3, "third": False, "garden": "two", "park": True, "settle": False, "extra": 1300, "n_fire_y": 119}),

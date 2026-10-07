@@ -220,7 +220,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 8.5,
+        "x": 9.5,
         "y": 10.959999999999999
       },
       "controlPoints": [
@@ -303,34 +303,6 @@
     },
     {
       "id": "to-park-10",
-      "color": "#3cc8e4",
-      "name": "S_FIRE to PARK",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 13,
-        "y": 87.44
-      },
-      "controlPoints": [
-        {
-          "x": 28,
-          "y": 24
-        },
-        {
-          "x": 24,
-          "y": 70
-        }
-      ],
-      "heading": {
-        "type": "constant",
-        "degrees": 90
-      }
-    },
-    {
-      "id": "to-park-11",
       "color": "#3cc8e4",
       "name": "S_FIRE to PARK",
       "waitBeforeMs": 0,
@@ -472,10 +444,6 @@
     {
       "kind": "path",
       "lineId": "to-park-10"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-park-11"
     }
   ],
   "settings": {
@@ -593,7 +561,7 @@
         270
       ],
       "GARDEN": [
-        8.5,
+        9.5,
         10.959999999999999,
         270
       ],
@@ -663,8 +631,7 @@
       "to-sweep-w-7": "SWEEP_W",
       "to-garden-8": "GARDEN",
       "to-s-fire-9": "S_FIRE",
-      "to-park-10": "PARK",
-      "to-park-11": "PARK"
+      "to-park-10": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -877,37 +844,10 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-24",
-        "kind": "firstOf",
-        "label": "TIP 3 coming?",
-        "rows": [
-          {
-            "when": [
-              "Tip"
-            ],
-            "cards": [
-              {
-                "id": "p-22",
-                "kind": "path",
-                "lineId": "to-park-10",
-                "park": true
-              }
-            ],
-            "label": "TIP 3: PARK"
-          },
-          {
-            "afterMs": 800,
-            "cards": [
-              {
-                "id": "p-23",
-                "kind": "path",
-                "lineId": "to-park-11",
-                "park": true
-              }
-            ],
-            "label": "Not yet: PARK anyway"
-          }
-        ]
+        "id": "p-22",
+        "kind": "path",
+        "lineId": "to-park-10",
+        "park": true
       }
     ]
   },
