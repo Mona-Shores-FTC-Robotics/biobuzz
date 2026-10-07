@@ -22,10 +22,10 @@ it below the flywheels' reach, and the rest queue nose to tail behind it. Feedin
 pinched against the pad, straight up into the flywheels. One feed, one ball.
 
 **The count is the lane's length.** Balls queue nose to tail from the backstop to the intake roller's axle (X
-8.56), and a ball is held once its centre is behind it. The team's rule: at most 4 pieces, at most 3 of
+8.62, the roller's 2 in vector wheels), and a ball is held once its centre is behind it. The team's rule: at most 4 pieces, at most 3 of
 them NECTAR (a lane that took 4 NECTAR would take 5 POLLEN). Every legal load must fit (the longest, 3 NECTAR +
 1 POLLEN, needs 12.26 in from the backstop to the axle) and every illegal one must not (the shortest, 5 POLLEN, needs
-12.60; 4 NECTAR 12.67). The backstop sits mid-window, 12.43 in behind the axle (X -3.87), on ±0.2 in slots:
+12.60; 4 NECTAR 12.67). The backstop sits mid-window, 12.43 in behind the axle (X -3.81), on ±0.2 in slots:
 set it on the robot with real balls. No sensor, no software count.
 
 ## Numbers
@@ -38,7 +38,7 @@ set it on the robot with real balls. No sensor, no software count.
 | Feeder | one: two goBILDA 72 mm Gecko wheels (softest durometer) on a fixed shaft along X at Y 2.87, z 3.25, over X -2.99..-1.10 (the flywheels' span), in bearings in the launcher's front and rear channels. Its tread's inner edge at Y 1.45: a POLLEN presses 0.10 into it, a NECTAR 0.15 |
 | Pad | opposite the feeder: 1/8 in aluminium with 0.5 in soft foam, hinged along X at its foot (Y -1.75, z 1.45), banded inward onto a stop (±0.1 in slots). The foam face rests at Y -1.05: a POLLEN presses it 0.2 and centres at Y 0.15; a NECTAR swings it back 0.77 and centres at −0.21. The band's light preload lets both sizes enter the stopped feeder under the lane's push |
 | Feeder drive | one Yellow Jacket (1150 RPM) outboard on the left (Y 6.7, z 5.3), under the moved flywheel motor, one HTD5 belt straight to the feeder shaft: fixed centres, no tensioner |
-| Backstop | X -3.87, ±0.2 in slots (see the count, above); a short floor between the feeder and the pad at the lane's height |
+| Backstop | X -3.81, ±0.2 in slots (see the count, above); a short floor between the feeder and the pad at the lane's height |
 
 ## Building and servicing it
 

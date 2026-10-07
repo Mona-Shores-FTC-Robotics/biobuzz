@@ -46,11 +46,11 @@ PAD_TOP = 4.55
 GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - (FEED_Y - 0.15) ** 2)    # the feeder grips a POLLEN up to here (centre)
 GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - (FEED_Y + 0.21) ** 2)    # and a NECTAR; the flywheels take a NECTAR from 5.77
 # The count, by length. The lead ball's back rests on the backstop; the queue runs nose to tail to the intake roller's
-# axle (X 8.56), and a ball is held once its centre is behind it. Every legal load must fit (the longest, 3 NECTAR +
+# axle (X 8.62), and a ball is held once its centre is behind it. Every legal load must fit (the longest, 3 NECTAR +
 # 1 POLLEN, needs 12.26 in from the backstop to the axle) and every illegal one must not (the shortest, 5 POLLEN,
 # needs 12.60; 4 NECTAR 12.67). The backstop sits mid-window, 12.43 in behind the axle, on +-0.2 in slots to tune it.
-ROLLER_AXLE_X = 8.56
-BACKSTOP_X = ROLLER_AXLE_X - 12.43      # -3.87: a NECTAR in the feeders is centred on the column (X -2.04)
+ROLLER_AXLE_X = 7.56 + 0.061 + 1.0      # the roller's 2 in vector wheels, their back 0.06 in clear of the face
+BACKSTOP_X = ROLLER_AXLE_X - 12.43      # -3.81: a NECTAR in the feeders sits 0.06 in ahead of the column's centre (X -2.04)
 RAMP = ((8.0, 0.05), (5.7, FLOOR_Z))
 R_R = 12 / 25.4                         # lane rollers: 24 mm compliant, tops at FLOOR_Z
 ROLL_X = [5.3 - 0.8 * i for i in range(8)]    # eight shafts, 0.8 in apart, the last just ahead of the feeders. As in the mentor's

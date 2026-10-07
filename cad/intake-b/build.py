@@ -15,11 +15,12 @@ import build as A                      # the robot frame, helpers and the chassi
 from build import C, F, FACE, IN, AX_Y, AX_ZF, AX_ZR, RAIL_OUT, PLATE_IN, PLATE_T, BORE, M3, M4, xr, xl, box, cyl, clip, ramp_block
 
 # ---- the numbers the intake study fixed ----
-ROLL_Y = F + 2.4 * IN + 24.0           # roller axle at rest: bottom of the 48 mm wheels 2.4 in up
-ROLL_Z = FACE + 1.0 * IN               # ...1.0 in in front of the face (its front 1.94 in out)
-ROLL_HALF = 6.9 * IN                   # 13.8 in of wheels
+ROLL_R = 25.4                          # 2 in vector wheels (WCP-0353/0354): they move every piece to the middle, where the lane is
+ROLL_Y = F + 2.4 * IN + ROLL_R         # roller axle at rest: bottom of the wheels 2.4 in up
+ROLL_Z = FACE + 0.061 * IN + ROLL_R    # ...its back 0.06 in clear of the front uprights (its front 2.06 in out)
+ROLL_HALF = 6.9 * IN                   # the roller's ends: the left pulley and the right gear sit outside this
+VEC_IN, VEC_N, VEC_W = 0.4 * IN, 6, 1.0 * IN   # vector wheels from 0.4 in each side of centre, 6 a side, 1.0 in wide
 FLOAT = 1.3 * IN                       # the roller rises this far: 0.85 in passes a NECTAR with 0.4 in of give, 1.3 with none
-TRANSFER_GAP = (2.35 * IN, 2.9 * IN)   # gap in the roller, left of centre, for the transfer's lane pulley
 # Roller drive, 1:1: two goBILDA 3417-4008-0024 pulleys (24T HTD5, 8mm REX bore) on the shortest 9 mm belt, the
 # 3412 Series 55-tooth (275 mm). Its centres: (275 - 24 * 5) / 2 = 77.5 mm, so the motor sits 77.5 mm over the roller.
 # The motor rides on the roller's carriage, so the belt never changes length as the roller floats.
@@ -35,6 +36,8 @@ STOW = float(os.environ.get("STOW", "146"))      # degrees from down to stowed: 
 V_IN, V_OUT, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 4.0 * IN    # Rigid V plates: from the side plates' outer face...
 V_ROOT, V_TIP = ROLL_Z + 14, FACE + 2.8 * IN                          # ...at their front edge, forward to 2.8 in (18 in start)
 OUT0, OUT1 = PLATE_IN + PLATE_T, PLATE_IN + 2 * PLATE_T              # the float plates, outboard of the side plates
+GEAR_R, GEAR_W = 25.5, 6.0
+GX0, GX1 = ROLL_HALF + 2.0, ROLL_HALF + 2.0 + GEAR_W                   # gear plane, right of the roller's end
 
 fixed, flt, hook, vee = {}, {}, {}, {}
 def part(d, name, wp, col, kind): d[name] = (wp, col, kind)
@@ -82,10 +85,20 @@ for s, f in (("R", xr), ("L", xl)):
 
 # ---- the floating roller and its carriage ----
 part(flt, "roller_shaft (8mm REX, 400 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(OUT1 + 3), xl(OUT1 + 3)), STEEL, "buy")
-_edges = [-ROLL_HALF, -TRANSFER_GAP[1], -TRANSFER_GAP[0], ROLL_HALF]   # + = right
-for i in range(0, len(_edges), 2):
-    lo, hi = _edges[i], _edges[i + 1]
-    part(flt, f"roller_wheels_{i // 2} (48 mm gecko)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, C - hi, C - lo), (0.35, 0.66, 0.31), "buy")
+# The roller centres what it picks up: everything behind it except the lane's 3.7 in is the robot's face, so a piece
+# taken in off-centre has to be moved sideways by the roller itself. Each half is vector wheels whose rollers push it
+# back and toward the middle; the face (and the ramp brackets in front of it) is the fence it slides along. Pulling in
+# (bottom moving back), a WCP-0353 pushes to the robot's left, so it goes on the right half and the WCP-0354 on the left.
+# Their 1/2 in hex bores take a printed insert on the 8mm REX shaft. A ball's centre can't pass 6.16 in (the side
+# plates), so the 0.4-6.4 in each side covers every one, and inside 0.4 in it already clears the lane's walls.
+part(flt, "roller_centre_wheel (48 mm gecko, 0.8 in)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, C - VEC_IN, C + VEC_IN), (0.35, 0.66, 0.31), "buy")
+for s, sgn, hand in (("L", 1, "WCP-0354"), ("R", -1, "WCP-0353")):
+    for k in range(VEC_N):
+        a, b = VEC_IN + k * VEC_W, VEC_IN + (k + 1) * VEC_W
+        part(flt, f"roller_vector_{s}{k} ({hand}, 2 in vector wheel, printed 1/2 hex to 8mm REX insert)",
+             cyl("x", (0, ROLL_Y, ROLL_Z), 2 * ROLL_R, C + sgn * a, C + sgn * b), (0.15, 0.15, 0.17), "buy")
+    e0 = VEC_IN + VEC_N * VEC_W
+    part(flt, f"roller_end_spacer_{s} (goBILDA 8mm REX spacer, 12.5 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 10.0, C + sgn * e0, C + sgn * ROLL_HALF), STEEL, "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(flt, f"roller_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(OUT0), f(OUT1 + 1.2)), BRASS, "buy")
 fr = link((ROLL_Y, ROLL_Z), (ROLL_Y + 40, ROLL_Z), 24.0, xr(OUT0), xr(OUT1))        # right: outboard, slides on the side plate
@@ -130,22 +143,32 @@ part(fixed, "carriage_guides_L (2 x M4 shoulder screws in the left upright's fro
 # stops act on a tab on the servo's gear.
 # Two stub shafts, each from its side plate's bearing in to the arm: nothing crosses the middle above the block, so the
 # FLOWER (its bracket, posts and uprights) passes between the arms. The arms and the block's cross shaft make a U.
+# Each arm sits on its stub's inner end, held there by an M4 screw and washer in the shaft's tapped end; goBILDA spacers
+# (8 mm bore, 10 mm OD) fill from the arm out to the bearing (on the right, either side of the gear). So the U of arms
+# and cross shaft is trapped between the side plates, and nothing near the roller is wider than 12 mm: the floating
+# roller's 2 in wheels pass under the stubs with 0.07 in to spare, where 21 mm collars would touch them.
 for s, f in (("R", xr), ("L", xl)):
-    part(hook, f"extractor_stub_{s} (8mm REX, {PLATE_IN + PLATE_T + 2 - (EX_X - EX_T / 2 - 9.5):.0f} mm)", cyl("x", (0, EXS_Y, EXS_Z), 8.0, f(EX_X - EX_T / 2 - 9.5), f(PLATE_IN + PLATE_T + 2)), STEEL, "buy")
+    part(hook, f"extractor_stub_{s} (8mm REX, {PLATE_IN + PLATE_T + 2 - (EX_X - EX_T / 2):.0f} mm, tapped M4 ends)", cyl("x", (0, EXS_Y, EXS_Z), 8.0, f(EX_X - EX_T / 2), f(PLATE_IN + PLATE_T + 2)), STEEL, "buy")
+    part(hook, f"arm_screw_{s} (M4 x 10 button head and a 12 mm washer, into the stub's end)", cyl("x", (0, EXS_Y, EXS_Z), 12.0, f(EX_X - EX_T / 2 - 1.2), f(EX_X - EX_T / 2))
+         .union(cyl("x", (0, EXS_Y, EXS_Z), 7.6, f(EX_X - EX_T / 2 - 3.4), f(EX_X - EX_T / 2 - 1.2))), STEEL, "buy")
+    runs = [(EX_X + EX_T / 2, GX0), (GX1, PLATE_IN - 1.2)] if s == "R" else [(EX_X + EX_T / 2, PLATE_IN - 1.2)]
+    for k, (a0, a1) in enumerate(runs):
+        part(hook, f"arm_spacers_{s}{k} (goBILDA 8 mm bore spacers, 10 mm OD, stacked to {a1 - a0:.1f} mm)", cyl("x", (0, EXS_Y, EXS_Z), 10.0, f(a0), f(a1)), STEEL, "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(fixed, f"extractor_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, EXS_Y, EXS_Z), 14.0, f(PLATE_IN - 1.2), f(PLATE_IN + PLATE_T)), BRASS, "buy")
     xa, xb = f(EX_X - EX_T / 2), f(EX_X + EX_T / 2)
     arm = link((EXS_Y, EXS_Z), EX_FS, 15.0, xa, xb)    # 15 mm wide: clears the roller motor when stowed and the roller floats
     arm = arm.cut(cyl("x", (0, EXS_Y, EXS_Z), BORE, min(xa, xb) - 1, max(xa, xb) + 1)).cut(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE, min(xa, xb) - 1, max(xa, xb) + 1))
-    part(hook, f"extractor_arm_{s} (1/8 in aluminium, REX hole at the shaft)", arm, ALU, "cut")
-    for d0 in (EX_X - EX_T / 2 - 8.5, EX_X + EX_T / 2 + 0.5):
-        part(hook, f"arm_collar_{s}_{d0:.0f} (8mm REX clamping collar)", cyl("x", (0, EXS_Y, EXS_Z), 21.0, f(d0), f(d0 + 8)), STEEL, "buy")
+    if s == "L":   # stowed, the left arm lies over the roller's motor: relieve it for the motor's whole float, 1.75 mm clear
+        mx0, mx1 = xl(FACE_X - 7), xl(FACE_X - 127)
+        relief = (cyl("x", (0, MOTOR_Y, ROLL_Z), 41.0, mx0, mx1).union(cyl("x", (0, MOTOR_Y + FLOAT, ROLL_Z), 41.0, mx0, mx1))
+                  .union(box(mx0, mx1, MOTOR_Y, MOTOR_Y + FLOAT, ROLL_Z - 20.5, ROLL_Z + 20.5)))
+        arm = arm.cut(relief.rotate((0, EXS_Y, EXS_Z), (1, EXS_Y, EXS_Z), STOW))
+    part(hook, f"extractor_arm_{s} (1/8 in aluminium, REX hole at the shaft{'; relieved over the roller motor' if s == 'L' else ''})", arm, ALU, "cut")
 part(hook, f"extractor_cross_shaft (8mm REX, {2 * EX_X + 12:.0f} mm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(EX_X + 6), xl(EX_X + 6)), STEEL, "buy")
 part(hook, "flower_block (print)", ramp_block().translate((0, 0, EX_ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
 for s, f in (("R", xr), ("L", xl)):
     part(hook, f"block_collar_{s} (8mm REX clamping collar)", cyl("x", (0, EX_FS[0], EX_FS[1]), 21.0, f(1.36 * IN + 0.5), f(1.36 * IN + 8.5)), STEEL, "buy")
-GEAR_R, GEAR_W = 25.5, 6.0
-GX0, GX1 = ROLL_HALF + 2.0, ROLL_HALF + 2.0 + GEAR_W                   # gear plane, right of the roller's end
 # A sector gear: teeth only where they mesh between down and stowed, so nothing sticks out ahead when stowed.
 SV_Y, SV_Z = EXS_Y + 44.45, EXS_Z - 25.0                               # the servo's spline: 51 mm from the shaft, up and back
 MESH_Q = math.degrees(math.atan2(SV_Y - EXS_Y, SV_Z - EXS_Z))         # the mesh, seen from the shaft (about 120 deg)

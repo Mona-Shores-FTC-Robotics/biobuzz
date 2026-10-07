@@ -83,9 +83,10 @@ def sweep(R, pts, label, ignore=re.compile(r'^$')):
     if not hits: print(f'  {label}: clear')
 for R, nm in ((TR.RN, 'NECTAR'), (TR.RP, 'POLLEN')):
     z = TR.FLOOR_Z + R + 0.02
-    lane = [(x, z) for x in np.linspace(TR.COL_X, 5.6, 26)]
+    lane = [(x, z) for x in np.linspace(max(TR.COL_X, TR.BACKSTOP_X + R + 0.01), 5.6, 26)]
     sweep(R, lane, nm + ' along the lane into the feeder', re.compile(r'ceiling|lane_wheels|transfer: feeder \(|pad_(foam|plate)|feeder_floor \('))
-    up = [(TR.COL_X, zz) for zz in np.linspace(z, 6.2, 14)]
+    x_rest = max(TR.COL_X, TR.BACKSTOP_X + R + 0.01)     # it rests against the backstop if that's ahead of the column's centre
+    up = [(x_rest, zz) for zz in np.linspace(z, 6.2, 14)]
     sweep(R, up, nm + ' driven up the column', re.compile(r'transfer: feeder \(|pad_(foam|plate)|96mm Gecko|feeder_floor \('))
 
 # the pad swung back for a NECTAR: the plate and foam turn about the hinge (along X) until the face is 0.77 further out
