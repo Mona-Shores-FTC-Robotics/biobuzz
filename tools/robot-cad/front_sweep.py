@@ -17,7 +17,7 @@ SKIP_ROBOT = ("72mm Steel Shaft", "1611", "48mm Gecko Wheel", "Intake <1> / 240m
               "Intake <1> / 5203", "Red Nectar", "Blue Nectar")    # replaced parts and game pieces
 TOUCH = {("float_plate", "side_plate"), ("float_link", "side_plate"), ("float_guide", "side_plate"), ("roller_shaft", "side_plate"),
          ("float_plate", "float_stop"), ("float_link", "float_stop"), ("motor_carriage", "carriage_guides"),
-         ("extractor_shaft", "side_plate"), ("extractor_shaft", "extractor_bearing"), ("extractor_gear", "servo_gear"),
+         ("extractor_shaft", "side_plate"), ("extractor_shaft", "extractor_bearing"), ("extractor_stub", "side_plate"), ("extractor_stub", "extractor_bearing"), ("extractor_stub", "extractor_gear"), ("extractor_stub", "extractor_arm"), ("extractor_stub", "arm_collar"), ("extractor_gear", "servo_gear"),
          ("roller_bearing", "side_plate")}
 def page(v): v = np.asarray(v); return np.c_[(C - v[:, 0]) / IN, (v[:, 1] - F) / IN, (FACE - v[:, 2]) / IN]
 def asc(v):   # STEP mm -> AdvantageScope inches

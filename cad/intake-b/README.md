@@ -24,13 +24,15 @@ importing). Four sub-assemblies:
      set on the rig; it isn't drawn.
    - **Travel:** 0.85 in passes a NECTAR if it gives 0.4 in; the slots allow 1.3 in, which passes one that doesn't give
      at all.
-3. **The FLOWER extractor, on its own fixed shaft** (8 mm REX), 2.4 in ahead of the face and 4.5 in up, above any piece.
-   It turns 0 (down) to 150° (folded up in front of the roller).
-   - Two 1/8 in aluminium arms, 1.8 in each side of centre, clamped to the shaft by REX holes and collars.
-   - A 104 mm cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front. Same block, same
-     seat on the FLOWER as before (`doc/robot-cad.md`).
-   - No walls and nothing at the floor but the narrow block, so it doesn't corral spilled pieces. A POLLEN passes
-     between the arms (3.5 in clear).
+3. **The FLOWER extractor, about a fixed axis** 2.4 in ahead of the face and 4.5 in up, on two stub shafts (8 mm REX)
+   from the side plates. It turns 0 (down) to 146° (folded up in front of the roller).
+   - Two 1/8 in aluminium arms, 15 mm wide, **4.2 in each side of centre: outside the FLOWER** (±2.35 at its widest),
+     clamped to the stubs by REX holes and collars. Nothing crosses the middle above the block, so the FLOWER passes
+     between the arms.
+   - A 226 mm cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front. Seated, the
+     FLOWER's centre is 4.59 in ahead of the face, and the robot can arrive about 1 in off-centre and 2° off and still
+     seat (`doc/robot-cad.md`, "Seated on a FLOWER").
+   - No walls and nothing at the floor but the narrow block, so it doesn't corral spilled pieces.
    - Driven through a 1:1 printed gear pair (module 1.5, 34 teeth, 51 mm centres) in the gap between the roller's
      right end and the side plate. The shaft's gear is a sector, with teeth only where they mesh, so nothing sticks
      out ahead when stowed.
@@ -51,7 +53,8 @@ intersection, so parts that only slide against each other don't count.
 | | |
 |---|---|
 | Roller and motor, rising 0 to 1.3 in | clear |
-| Extractor, every 5° from 0 to 150°, with the roller down, half up and fully up | clear |
+| Extractor, every 5° from 0 to 146°, with the roller down, half up and fully up | clear |
+| Driving into the FLOWER, up to 1.25 in off-centre and ±2° | the block, on the FLOWER's uprights, is the first thing to touch |
 | Deployed, front to back | 20.96 / 24 in (the block's tip 5.84 in out). Swinging, at most 22.6 in |
 | Starting, front to back | 17.96 / 18 in (the V plates' tips 2.84 in out; the stowed extractor 2.81, the side plates 2.83) |
 | Height | the stowed extractor 9.5 in; the motor's top 8.0 in at rest, 9.3 floated |
@@ -64,8 +67,8 @@ intersection, so parts that only slide against each other don't count.
 |---|---|---|---|
 | Roller and motor, down | 7.56..9.50 | ±7.93 | 2.40..7.97 |
 | Roller and motor, up 1.3 | 7.56..9.50 | ±7.93 | 3.70..9.27 |
-| Extractor, down | 9.26..13.40 | ±1.9 (its shaft ±7.76) | 0.61..5.56 |
-| Extractor, stowed (150°) | 8.71..10.37 | same | 3.44..9.51 |
+| Extractor, down | 9.26..13.40 | arms ±4.2 (stubs to ±7.76) | 0.61..5.56 |
+| Extractor, stowed (146°) | 8.90..10.39 | same | 3.44..9.57 |
 
 ## Parts to order (goBILDA; check stock and pack sizes on gobilda.com)
 
@@ -74,7 +77,7 @@ intersection, so parts that only slide against each other don't count.
 | Roller motor | 5203-2402-0005 Yellow Jacket, 5.2:1, 1150 RPM (or -0014, 13.7:1, 435 RPM, if the cardboard test wants a slower roller) | 1 |
 | Extractor servo | 2000-0025-0002 Dual Mode Servo (25-2, Torque) | 1 |
 | Flanged bearings, 8 mm REX bore, 14 mm OD: 2 for the roller (in the float plates), 2 for the extractor's shaft, 4 for the wheels | 1611-0514-4008 (2-pack) | 8 bearings |
-| 8 mm REX shafts | roller 400 mm, extractor shaft 392 mm, extractor cross shaft 104 mm, wheels 80 mm ×4 | |
+| 8 mm REX shafts | roller 400 mm, two extractor stubs about 105 mm, extractor cross shaft 226 mm, wheels 80 mm ×4 | |
 | Roller drive, 1:1 (1150 RPM at the roller, about 114 in/s at the wheels' surface) | 3417-4008-0024 pulley, 24T HTD5, 8mm REX bore, ×2; 3412 Series belt, 9 mm, 55T (275 mm pitch length) | 2 + 1 |
 | Step-down option, 2:3 (about 767 RPM, 76 in/s) | 3417-4008-0016 (16T) on the motor instead, same 24T on the roller and the same 55T belt | 1 |
 | 48 mm gecko wheels for 13.8 in of roller | | about 20 |

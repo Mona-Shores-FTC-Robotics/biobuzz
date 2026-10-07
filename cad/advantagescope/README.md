@@ -23,7 +23,7 @@ front face). That's the point the simulator's `RobotAssets` assumes Pedro tracks
 change `CENTRE_BACK_IN` in `build_model.py` and rebuild.
 
 **The extractor's pose:** it turns about its own shaft, an axis along +Y through (0.2530, 0, 0.1143) m (2.4 in ahead
-of the face, 4.5 in up). Front up is a rotation about +Y by −angle: 0° deployed, 150° stowed. For an angle θ the component pose is that rotation about the
+of the face, 4.5 in up). Front up is a rotation about +Y by −angle: 0° deployed, 146° stowed. For an angle θ the component pose is that rotation about the
 pivot, i.e. translation = pivot − R·pivot. `extractor_poses.json` has both ends.
 
 **The roller's pose:** a translation of (0, 0, rise), with rise from 0 (down, as drawn) to 0.033 m (1.3 in). It lifts
