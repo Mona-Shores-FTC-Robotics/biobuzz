@@ -377,8 +377,8 @@ final class RobotInternalsLog {
 
     /**
      * A piece's path through the transfer, for one piece radius, in the robot frame (X, z), inches: under the roller,
-     * up the ramp, up the rising lane to its end over the front feeder, down into the cup, straight up through the
-     * flywheels, and across to the launcher's exit.
+     * up the ramp, up the rising lane to its end over the front feeder, down into the cup, and straight up the turret's
+     * axis through the flywheels to the launcher's exit height.
      */
     static final class Path {
         final double[] xs, zs, cum;
@@ -398,8 +398,9 @@ final class RobotInternalsLog {
             double u = (r - FieldSim.POLLEN_RADIUS_IN) / (FieldSim.NECTAR_RADIUS_IN - FieldSim.POLLEN_RADIUS_IN);
             pts.add(new double[] {CUP_X, CUP_Z_POLLEN + u * (CUP_Z_NECTAR - CUP_Z_POLLEN)});
             int cupAt = pts.size() - 1;
-            pts.add(new double[] {CUP_X, exitZ - 1});
-            pts.add(new double[] {exitX, exitZ});
+            // Straight up the turret's axis, through the flywheels' nip and the turret's bore, to the exit's height. The
+            // simulator's shot leaves from the design's exit point (exitX), which may sit a little off the axis.
+            pts.add(new double[] {CUP_X, exitZ});
             xs = new double[pts.size()];
             zs = new double[pts.size()];
             cum = new double[pts.size()];

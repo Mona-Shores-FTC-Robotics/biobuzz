@@ -25,7 +25,7 @@ on the transfer's path (robot frame: X forward from the chassis centre, z up, in
 |---|---|---|
 | Taken in | From X 10.0 on the tiles, under the roller (axle at X 8.56), up the ramp (X 8.0 → 5.8, 0.05 → 0.9 in up), then up the lane: its ball-bottom line rises 17° to X −0.545, z 2.873, over the front feeder | At the lane's 27 in/s, until it reaches its place in the queue |
 | Queued | The front piece seated in the cup at X −2.845 (centre 3.00 in up for a POLLEN, 3.67 for a NECTAR), the rest nose to tail behind it down the lane | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the front feeder holds the next one back at the lane's end |
-| Firing | The piece in the cup waits 0.05 s while the feeders spin up. It then rises straight up the turret's axis through the flywheels, and over to the launcher's exit (the design's, 4 in behind the centre and 12 in up) | It arrives at the exit as the simulator launches it, 0.15 s after it started |
+| Firing | The piece in the cup waits 0.05 s while the feeders spin up. It then rises straight up the turret's axis (X −2.845) through the flywheels' nip and the turret's bore, to the exit's height (12 in). The simulator's shot leaves from its own exit point, 1.2 in behind that, until the hood is designed | It arrives at the exit as the simulator launches it, 0.15 s after it started |
 
 Preloads start in their places. A robot without the transfer (any design without `laneCapacity`) has its held pieces
 placed on the same path, without the motion.

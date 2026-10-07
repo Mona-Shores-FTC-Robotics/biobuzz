@@ -18,7 +18,7 @@ public class RobotInternalsLogTest {
             assertArrayEquals("on the tiles", new double[] {RobotInternalsLog.ENTRY_X, r}, path.at(0), 1e-9);
             assertArrayEquals("the lane's end", new double[] {RobotInternalsLog.LANE_END_X, RobotInternalsLog.LANE_END_Z + r},
                     path.at(path.laneEnd), 1e-9);
-            assertArrayEquals(new double[] {-4, 12}, path.at(path.length), 1e-9);
+            assertArrayEquals("up the axis to the exit's height", new double[] {RobotInternalsLog.CUP_X, 12}, path.at(path.length), 1e-9);
             assertTrue(path.laneEnd < path.cup && path.cup < path.length);
         }
         // Seated in the cup at the measured heights, on the turret's column.
