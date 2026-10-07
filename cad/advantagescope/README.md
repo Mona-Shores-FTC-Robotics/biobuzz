@@ -3,7 +3,7 @@
 `Robot_BIOBUZZ/` is the team's robot from its Onshape CAD, with the decided front (`cad/intake-b/`): the outer wheel
 plates, the odometry pods, the Rigid V plates, and two articulated components: the FLOWER extractor, and the floating
 roller with its motor. It is the robot the simulator's logs draw: `tools/advantagescope/setup-advantagescope.ps1` installs it
-(the root README's *How to watch*), the layout uses it for `/Odometry/Robot3d`, and a log of the baseline design
+(the root README's *Watch a match*), the layout uses it for `/Odometry/Robot3d`, and a log of the baseline design
 ("rigid V") poses its components (`AutoSim.putShape`, `AutoSim.cadComponents`: the extractor swings down on the approach
 to a FLOWER and up as the robot leaves, `Extractor/Down` in the log; the turret turns to the CELL while the launcher
 spins; the roller and the J arm stay at rest). The generated model of

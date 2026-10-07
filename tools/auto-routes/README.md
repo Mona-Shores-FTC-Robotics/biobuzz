@@ -13,7 +13,7 @@ only on contact), the launcher near the back (the piece leaves 4 in behind the c
 75°). Alliance AUTO points over 60 runs (seeds 1–60); how many of the 60 made 3 TIPs; and G409, the runs where our robot
 touched a spilled piece before it reached the tiles (must be 0). On the simulator as it stands since 6 Oct 2026
 12:00 UTC (each TIP 0.58–1.12 s; pieces roll as filmed: [rolling](../../doc/rolling.md)). Links to watch them and
-their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
+their logs: [the root README](../../README.md#latest).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
@@ -288,7 +288,7 @@ AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/recycle3.py
 Each script writes its `.pp` into `TeamCode/autos/`, exports the Java next to the other generated
 Autos (the simulator's, in `TeamCode/src/test/.../generated/`), and runs `AutoStudyTest`. The
 `.pp` files left in `src/test/resources/auto-builder/` are test fixtures. Each current Auto's simulated log
-is in [the root README's table](../../README.md#qualifier-autos-the-baseline-no-walls), made by the Simulate Auto
+is in [the root README's table](../../README.md#latest), made by the Simulate Auto
 workflow.
 
 ## Experiments
