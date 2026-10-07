@@ -114,6 +114,9 @@ public class AutoStudyTest {
         Map<String, RobotDesign> m = new LinkedHashMap<>();
         m.put("turret", RobotDesign.standard());
         m.put("spring hood", RobotDesign.springHood());
+        RobotDesign slowFeed = RobotDesign.springHood().copy("spring hood, slow feed");
+        slowFeed.shotIntervalS = 0.45;  // the interval every study assumed until 7 Oct 2026 (issue #168)
+        m.put(slowFeed.name, slowFeed);
         RobotDesign slow = RobotDesign.springHood().copy("spring hood, 3 s spin-up");
         slow.spinUpS = 3.0;
         m.put(slow.name, slow);

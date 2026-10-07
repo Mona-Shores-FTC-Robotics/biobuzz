@@ -57,9 +57,10 @@ are moving back toward the alliance wall. The simulator's `FILMED_BOUNCE_SCATTER
 its landing point 0.5 s after touchdown; the event spill is at least that fast.
 
 **Where it stops.** 2.1 s after the first touch the pieces are at rest, most of them back against the alliance
-wall or within a foot or two of the robot that scored. On the simulator's normal tiles (`PLACEHOLDER_ROLLING_DECEL`
-12 in/s²) pieces are still rolling 3 s after the TIP and reach 85 in out; stopping this soon is the "slow tiles"
-setting (×3), the alternative every study ran. The event tiles behave like the slow ones.
+wall or within a foot or two of the robot that scored. This spill is a poor test of the tiles: it landed on a
+robot and ran into the wall. Tracked across nine spills ([saline-piece-physics.md](saline-piece-physics.md)), a
+POLLEN rolling free on the event tiles slows at about 3.9 in/s², the simulator's normal setting, not the "slow
+tiles" one; most pieces stop by hitting a wall, a robot or another piece, not by rolling out.
 
 ## Every AUTO TIP in the clips (7 Oct 2026, 20 fps read, ±0.05 s)
 

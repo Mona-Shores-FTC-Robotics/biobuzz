@@ -65,7 +65,7 @@ public class FieldSimTest {
             p.vx = 23;
             run(sim, 1.3);
             assertTrue("speed after 1.3 s " + p.vx, p.vx > 0.7 * 23);
-            run(sim, 6);
+            run(sim, 16);  // NECTAR's 1.5 in/s² (FieldSim.FILMED_NECTAR_ROLLING_DECEL_IN_PER_S2) takes 15.3 s from 23 in/s
             assertEquals(0, Math.hypot(p.vx, p.vy), 1e-9);
         } finally {
             FieldSim.spillVariety = variety;

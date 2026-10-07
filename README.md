@@ -4,24 +4,25 @@ The qualifier Autos, the simulator that scores them, and their logs. `master` is
 
 ## Latest
 
-Run **7 Oct 2026 18:00 UTC**, 60 simulated runs each, on the baseline robot: the Rigid V with the FLOWER extractor,
+Run **7 Oct 2026 19:50 UTC**, 60 simulated runs each, on the baseline robot: the Rigid V with the FLOWER extractor,
 a turret and the transfer ([what that is](doc/simulator.md), [what the simulator knows](doc/what-the-simulator-knows.md)).
 
 | Auto | Points | 3 TIPs | PARK | Log | Route |
 |---|---|---|---|---|---|
-| **ShootsRight** (`qual-right-v`): partner fires its 4 from the right start | **56.7** | 3 of 60 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v.pp) |
-| **Stages, angled partner** (`qual-stages-angled-v`): partner can't shoot | **52.7** | 2 TIPs in 56 | 52 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled-v.pp) |
-| **Stages, wall partner** (`qual-stages-wall-v`): partner can't shoot | **52.7** | 2 TIPs in 54 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall-v.pp) |
-| **ShootsRight, firing from the FLOWER seats** (experiment, not yet the baseline) | **72.2** | 52 of 60 | 58 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_typical.wpilog) | [route](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp) |
+| **ShootsRight** (`qual-right-v`): partner fires its 4 from the right start | **74.0** | 56 of 60 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v/Qual-PartnerShootsRight_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-ShootsRight) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-right-v.pp) |
+| **Stages, angled partner** (`qual-stages-angled-v`): partner can't shoot | **61.3** | 24 of 60 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-angled-v/Qual-PartnerStages-Angled_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Angled) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-angled-v.pp) |
+| **Stages, wall partner** (`qual-stages-wall-v`): partner can't shoot | **53.3** | 2 TIPs in 56 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-stages-wall-v/Qual-PartnerStages-Wall_RigidV_2026-10-07_typical.wpilog) | [together](https://mona-shores-ftc-robotics.github.io/Visualizer/#team=claude/simulator/Qual-Stages-Wall) · [ours](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/qual-stages-wall-v.pp) |
+| **ShootsRight, firing from the FLOWER seats** (experiment, not yet the baseline) | **72.7** | 52 of 60 | 60 | [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_best.wpilog) · [typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_typical.wpilog) | [route](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp) |
 
-**In short.** The HIVE now dwells before it tips, as the event stream showed (0.25–3.4 s after the threshold
-piece lands, [issue 167](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/167)): every TIP comes 0.5–2 s
-later than before, and ShootsRight's GARDEN load no longer makes TIP 3 in time (3 of 60; it was 50). Seat fire
-(firing from the extractor's seat while it feeds) still makes 3 TIPs in 52 of 60, so it is the way forward and goes
-into all three Autos once its log looks right. The Stages Autos PARK straight after TIP 2's spill is fired (the
-GARDEN came too late). No robot drives through a wall (the simulator flags it, like the HIVE frame and a FLOWER).
-Known: the angled Auto clips the HIVE frame and misses PARK in the runs TIP 1 fails. Everything behind
-these numbers: [doc/simulator.md](doc/simulator.md). Everything behind
+**In short.** The simulator now has the event stream's physics ([issue 167](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/167),
+[168](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/168)): the HIVE dwells 0.25–3.4 s before it
+tips, a volley fires a shot every 0.2 s (not 0.45), a spill heads for the alliance wall, NECTAR rolls freer. The
+fast volley loads a CELL past its weight so it dwells least, and every Auto gained: ShootsRight makes 3 TIPs in 56
+of 60 with a fixed launcher, more than seat fire (52), so seat fire is no longer the only way to TIP 3 and the
+turret is not on the critical path for Auto. The angled Auto's GARDEN load is back (TIP 3 in 24); the wall Auto
+still parks after TIP 2's spill. Both robots PARK in every run. No robot drives through a wall (the simulator
+flags it, like the HIVE frame and a FLOWER). Known: the angled Auto clips the HIVE frame in the 4 runs TIP 1 fails.
+Everything behind these numbers: [doc/simulator.md](doc/simulator.md). Everything behind
 these numbers: [doc/simulator.md](doc/simulator.md).
 
 ## Watch a match
