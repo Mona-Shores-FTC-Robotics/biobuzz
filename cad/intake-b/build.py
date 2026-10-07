@@ -27,10 +27,11 @@ PITCH_D24 = 24 * 5 / math.pi           # 38.2 mm
 MOTOR_C = 77.5
 MOTOR_Y = ROLL_Y + MOTOR_C
 EXS_Y, EXS_Z = F + 4.5 * IN, FACE + 2.4 * IN     # the extractor's shaft: above any NECTAR, ahead of the roller
-EX_X, EX_T = 1.8 * IN, 3.175           # extractor arms, from centre; 1/8 in aluminium
+EX_X = float(os.environ.get("EX_X", "4.2")) * IN   # extractor arms, from centre: outside the FLOWER (its widest part, the black bracket, is +-2.35 in)
+EX_T = 3.175                           # 1/8 in aluminium
 EX_ZB = FACE + 1.94 * IN + 2.5 * IN    # the FLOWER block's back edge, down
 EX_FS = (F + A.ROD_Z, EX_ZB + A.ROD_X) # the block's cross shaft (y, z)
-STOW = float(os.environ.get("STOW", "150"))      # degrees from down to stowed
+STOW = float(os.environ.get("STOW", "146"))      # degrees from down to stowed: 146 keeps the block inside the 18 in start and the left arm off the roller motor
 V_IN, V_OUT, V_TOP = PLATE_IN + PLATE_T, 9.0 * IN - 4.0, 4.0 * IN    # Rigid V plates: from the side plates' outer face...
 V_ROOT, V_TIP = ROLL_Z + 14, FACE + 2.8 * IN                          # ...at their front edge, forward to 2.8 in (18 in start)
 OUT0, OUT1 = PLATE_IN + PLATE_T, PLATE_IN + 2 * PLATE_T              # the float plates, outboard of the side plates
@@ -127,16 +128,19 @@ part(fixed, "carriage_guides_L (2 x M4 shoulder screws in the left upright's fro
 # to STOW (folded up in front of the robot). A servo over the roller on the right drives the shaft through a 1:1 printed
 # gear pair (module 1.5, 34 teeth, 51 mm centres) in the gap between the roller's right end and the side plate; the hard
 # stops act on a tab on the servo's gear.
-part(hook, "extractor_shaft (8mm REX, 392 mm)", cyl("x", (0, EXS_Y, EXS_Z), 8.0, xr(PLATE_IN + PLATE_T + 2), xl(PLATE_IN + PLATE_T + 2)), STEEL, "buy")
+# Two stub shafts, each from its side plate's bearing in to the arm: nothing crosses the middle above the block, so the
+# FLOWER (its bracket, posts and uprights) passes between the arms. The arms and the block's cross shaft make a U.
+for s, f in (("R", xr), ("L", xl)):
+    part(hook, f"extractor_stub_{s} (8mm REX, {PLATE_IN + PLATE_T + 2 - (EX_X - EX_T / 2 - 9.5):.0f} mm)", cyl("x", (0, EXS_Y, EXS_Z), 8.0, f(EX_X - EX_T / 2 - 9.5), f(PLATE_IN + PLATE_T + 2)), STEEL, "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(fixed, f"extractor_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, EXS_Y, EXS_Z), 14.0, f(PLATE_IN - 1.2), f(PLATE_IN + PLATE_T)), BRASS, "buy")
     xa, xb = f(EX_X - EX_T / 2), f(EX_X + EX_T / 2)
-    arm = link((EXS_Y, EXS_Z), EX_FS, 18.0, xa, xb)
+    arm = link((EXS_Y, EXS_Z), EX_FS, 15.0, xa, xb)    # 15 mm wide: clears the roller motor when stowed and the roller floats
     arm = arm.cut(cyl("x", (0, EXS_Y, EXS_Z), BORE, min(xa, xb) - 1, max(xa, xb) + 1)).cut(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE, min(xa, xb) - 1, max(xa, xb) + 1))
     part(hook, f"extractor_arm_{s} (1/8 in aluminium, REX hole at the shaft)", arm, ALU, "cut")
     for d0 in (EX_X - EX_T / 2 - 8.5, EX_X + EX_T / 2 + 0.5):
         part(hook, f"arm_collar_{s}_{d0:.0f} (8mm REX clamping collar)", cyl("x", (0, EXS_Y, EXS_Z), 21.0, f(d0), f(d0 + 8)), STEEL, "buy")
-part(hook, "extractor_cross_shaft (8mm REX, 104 mm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(EX_X + 6), xl(EX_X + 6)), STEEL, "buy")
+part(hook, f"extractor_cross_shaft (8mm REX, {2 * EX_X + 12:.0f} mm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(EX_X + 6), xl(EX_X + 6)), STEEL, "buy")
 part(hook, "flower_block (print)", ramp_block().translate((0, 0, EX_ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
 for s, f in (("R", xr), ("L", xl)):
     part(hook, f"block_collar_{s} (8mm REX clamping collar)", cyl("x", (0, EX_FS[0], EX_FS[1]), 21.0, f(1.36 * IN + 0.5), f(1.36 * IN + 8.5)), STEEL, "buy")

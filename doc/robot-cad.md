@@ -133,28 +133,33 @@ refuses it).
   front face.
 - **0.85 in of rise** passes a NECTAR that gives 0.4 in; the slots allow 1.3 in, for one that doesn't give.
 
-**The extractor turns on its own fixed shaft,** in bearings in the side plates, 2.4 in ahead of the face and 4.5 in up.
-- **Arms:** two 1/8 in aluminium arms, 1.8 in left and right of centre, clamped to the shaft.
-- **Block:** the cross shaft and FLOWER block are as before, the block's back edge 2.5 in ahead of the roller's front. So
-  the seat (below) is unchanged.
-- **The shaft spans the robot, but above any piece** (its bottom is 4.34 in up), and only the narrow block reaches the
-  floor, so it doesn't corral.
-- **Range:** 0 (down) to 150° (folded up in front of the roller).
+**The extractor turns about a fixed axis,** 2.4 in ahead of the face and 4.5 in up, on **two stub shafts**, one from each
+side plate's bearing in to its arm.
+- **Arms:** two 1/8 in aluminium arms, 15 mm wide, **4.2 in left and right of centre: outside the FLOWER**, whose widest
+  part (the black bracket under its posts) is ±2.35 in. Nothing crosses the middle above the block, so the FLOWER's
+  bracket, posts and uprights pass between the arms as the robot drives in. The arms and the block's cross shaft make a U.
+  (Until 7 Oct the arms were 1.8 in out on one full-width shaft. That hit the FLOWER's bracket 1.3 in before the block
+  could seat: see "Seated on a FLOWER".)
+- **Block:** the FLOWER block as before, its back edge 2.5 in ahead of the roller's front, on a 226 mm cross shaft.
+- **Only the narrow block reaches the floor,** so it doesn't corral.
+- **Range:** 0 (down) to 146° (folded up in front of the roller). 146° keeps the block inside the 18 in start and the left
+  arm clear of the roller motor when the roller floats.
 - **Drive:** a 1:1 printed gear pair in the gap between the roller's right end and the side plate. The shaft's gear is a
   sector, so nothing sticks out ahead when stowed.
 
 **Checked** (`tools/robot-cad/front_sweep.py`):
-- The roller rising 0 to 1.3 in, and the extractor every 5° from 0 to 150° with the roller down, half up and fully up:
+- The roller rising 0 to 1.3 in, and the extractor every 5° from 0 to 146° with the roller down, half up and fully up:
   clear of the robot and of every new part.
 - Starting length 17.96 in, deployed 20.96, at most 22.6 while swinging. 17.8 in across.
+- Driving into the FLOWER (`tools/robot-cad/flower_seat.py`, the FLOWER of `tools/robot-cad/flower.py`): see below.
 - The extractor is about 430 g as drawn, mostly the shaft on its own axis. Worst servo load about 1.3 kg·cm.
 
 | Outline (X fwd, Y left, Z up, in; chassis centre) | X | Y | Z |
 |---|---|---|---|
 | Roller and motor, down | 7.56..9.50 | ±7.93 | 2.40..7.97 |
 | Roller and motor, up 1.3 | 7.56..9.50 | ±7.93 | 3.70..9.27 |
-| Extractor, down | 9.26..13.40 | ±1.9 (its shaft ±7.76) | 0.61..5.56 |
-| Extractor, stowed | 8.71..10.37 | same | 3.44..9.51 |
+| Extractor, down | 9.26..13.40 | arms ±4.2 (stubs to ±7.76) | 0.61..5.56 |
+| Extractor, stowed | 8.90..10.39 | same | 3.44..9.57 |
 
 ## The robot's origin, and the odometry pods from it
 
@@ -179,16 +184,32 @@ forward), that's an X-pod offset of about +6.46 in and a Y-pod offset of about �
 
 ## Seated on a FLOWER (for the scorer and the routes)
 
-With the extractor down, the block's curved tip nests between the FLOWER's grey uprights and stops on their inside
-corners, 1.25 in short of the FLOWER's centre. So:
-- **Depth:** the front face is **7.09 in** from the FLOWER's centre and **9.80 in** from the wall. In the model frame
-  (origin at the chassis centre), the FLOWER's centre is at X = 14.65 in.
-- **Sideways:** the robot sits on the FLOWER's centreline.
-- **Heading:** set by the drive, not by the extractor or the wall.
+**Corrected 7 Oct 2026.** Until then this section said the FLOWER's centre was 7.09 in ahead of the face. That had the
+grey uprights on the wrong side of the FLOWER's centre: they stand 1.25 in *beyond* it (toward the wall), at the back of
+the bottom ring's hole. So the robot sat about 2.5 in short in the simulator, as the user saw in the logs.
 
-From there the launcher's exit (turret axis 10.73 in behind the face, exit 2.5 in ahead of it) is about 15.3 in from the
-FLOWER's centre. Moving the block closer to the roller shortens that: a 1.0 in gap gives 13.8 in, and 0 gives 12.8 in.
-That costs extraction margin, untested.
+With the extractor down, the block's curved tip nests between the grey uprights and stops on them. So:
+- **Depth:** the FLOWER's centre is **4.59 in ahead of the front face** (X = 12.15 in from the chassis centre), and the
+  face is **7.30 in from the wall**. The robot sets this itself: drive in until the block stalls on the uprights.
+- **Sideways:** the robot ends on the FLOWER's centreline when it arrives square; the curved tip draws it in.
+- **Heading:** set by the drive.
+- **Nothing else touches.** At the seat, the roller's front is 0.3 in from the FLOWER's bracket, and the roller clears its
+  bottom ring (0.43 in tall) and green posts. The arms and stub shafts are outside the FLOWER's width.
+
+**Room for error** (`tools/robot-cad/flower_seat.py`: the robot driven in at each offset and heading until something
+touches):
+
+| Robot off the FLOWER's centreline | Heading off | First contact | FLOWER's centre ahead of the face |
+|---|---|---|---|
+| 0 to 1.25 in | 0 or ±2° | the block, on an upright | 4.42–4.58 (seated) |
+| 1.25 in | −2° (turned away) | an arm collar on the FLOWER's bracket | 5.08 (short) |
+
+So the robot can arrive up to about **1 in to either side and 2° off** and still seat. Once off-centre, the block meets
+the FLOWER's bottom POLLEN on its side, not square. Whether it still empties the FLOWER that far off is for the
+cardboard test: `tools/ramp-hook/` simulates the centred case only.
+
+From there the launcher's exit (turret axis 10.73 in behind the face, exit 2.5 in ahead of it) is about 12.8 in from
+the FLOWER's centre, not the 15.3 given earlier.
 
 Emptying, in `tools/ramp-hook/extractor.py` (ramp.py's 2-D model with the real block and seat): all 4 POLLEN reach the
 roller about 0.77 s after the block meets the uprights.

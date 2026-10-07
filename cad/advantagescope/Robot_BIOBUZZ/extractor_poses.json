@@ -6,7 +6,7 @@
     0.1143
   ],
   "axis": "+Y",
-  "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 150 deg stowed",
+  "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 146 deg stowed",
   "poses": {
     "deployed": {
       "angle_deg": 0.0,
@@ -23,16 +23,16 @@
       ]
     },
     "stowed": {
-      "angle_deg": 150.0,
+      "angle_deg": 146.0,
       "translation_m": [
-        0.52922,
+        0.52663,
         0.0,
-        0.08679
+        0.06759
       ],
       "rotation_quaternion_wxyz": [
-        0.258819,
+        0.292372,
         0.0,
-        -0.965926,
+        -0.956305,
         0.0
       ]
     }
