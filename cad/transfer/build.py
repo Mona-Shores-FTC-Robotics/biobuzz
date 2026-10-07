@@ -1,18 +1,18 @@
-"""The intake-to-launcher transfer, v2 (7 Oct 2026): ramp, a short climbing wheel lane under a sprung ceiling, and a
-cup of two feeder wheels under the flywheels. Drawn in the robot CAD's frame, so dhs-transfer.step lands in place in
-Onshape next to cad/intake-b/dhs-intake-b.step.
+"""The intake-to-launcher transfer, v3 (7 Oct 2026): a ramp, a flat lane of small compliant rollers under a flat sprung
+ceiling, and a pair of side feeders under the flywheels that pinch each ball and drive it straight up into them.
+Drawn in the robot CAD's frame, so dhs-transfer.step lands in place in Onshape next to cad/intake-b/dhs-intake-b.step.
 
     python3 cad/transfer/build.py        # writes dhs-transfer.step and stl/ next to this file
 
-Drawn in the robot frame (+X forward, +Y left, +Z up, inches, origin on the floor under the chassis centre, 7.56 in
-behind the front face) and moved into the CAD's millimetres at the end. Groups: "fixed" (ramp, lane, walls, ceiling,
-cup, drives) and "float" (nothing yet: the lane no longer runs off the roller's shaft).
+Robot frame: +X forward, +Y left, +Z up, inches, origin on the floor under the chassis centre (7.56 in behind the front
+face), moved into the CAD's millimetres at the end. Groups: "fixed" (ramp, lane, ceiling, feeders and their drives) and
+"launcher" (the changes the feeders need in the mentor's launcher: the flywheel motors moved out and up, its front
+channels extended down to carry the feeder shafts).
 
-How it works: the intake roller pushes each ball up the ramp; two driven wheel shafts carry it up the lane under a
-sprung, foam-lined ceiling to the front feeder; it rolls over the stopped front feeder and drops into the cup, sitting
-on both feeders under the flywheels. Feeding spins both feeders up into the cup: the ball pops straight up into the
-flywheels, and the front feeder's top, moving forward, holds the next ball back. Stopped, they let it roll in.
-The mentor's layout from his screenshots (feeders across the robot, front and back of the ball); the numbers are ours.
+How it works: the intake roller pushes each ball up the ramp onto the lane. The lane's rollers carry it back under the
+ceiling, which presses it onto them, and push it in between the two feeders, which sit under the flywheels and grip it
+by its sides. Stopped, the feeders hold it there, below the flywheels' reach; the next ball waits behind it. Feeding
+runs the feeders up: they drive the ball, gripped, straight up into the flywheels.
 """
 import math, os, sys
 import cadquery as cq
@@ -21,32 +21,38 @@ from build import C, F, FACE, IN
 
 CENTRE_BACK_IN = 7.56
 T16, TW = 1 / 16, 1 / 8
-LANE_Y = 0.0                            # the lane's centreline (the front drive motors' encoder caps leave |Y| 1.87)
-WALL_IN = 1.87                          # the lane walls' inner faces, |Y|: a NECTAR (1.81) clears the caps by 0.06
+LANE_Y = 0.0                            # the lane's and the feeders' centreline
+WALL_IN = 1.87                          # the lane walls' inner faces, |Y|: a NECTAR clears the drive motors' encoder caps by 0.06
 RN, RP = 1.81, 1.40                     # NECTAR, POLLEN radii
-# the cup: two feeder wheels (the mentor's FeederWheel: 66.7 mm foam on a 40 mm hub, 48 mm wide), shafts across Y
-RF, FW = 66.68 / 2 / IN, 48 / IN
-CUP_X = -2.845                          # under the flywheels' centre (X -3.79..-1.90)
-CUP_S = 2.3                             # each feeder's axis this far ahead of / behind the cup's centre
-FEED_Z = 1.56                           # feeder axes: their bottoms 0.25 off the tiles
-FEED_X = (CUP_X + CUP_S, CUP_X - CUP_S) # front, rear
-SEAT_N = FEED_Z + math.sqrt((RN + RF) ** 2 - CUP_S ** 2)   # a NECTAR's centre in the cup (3.67: clear of the flywheels, which start touching at 5.77)
-SEAT_P = FEED_Z + math.sqrt((RP + RF) ** 2 - CUP_S ** 2)
-# the ramp and the lane: ball-bottom line from the ramp's top to the front feeder's top
-RAMP = ((8.0, 0.05), (5.8, 0.9))
-LANE_TOP = (FEED_X[0], FEED_Z + RF)
-SLOPE = (LANE_TOP[1] - RAMP[1][1]) / (RAMP[1][0] - LANE_TOP[0])
-line = lambda x: RAMP[1][1] + SLOPE * (RAMP[1][0] - x)
-LANE_WHEELS = [(3.74, 32 / IN / 2, "compliant wheel, 32 mm, 30A (to choose)"), (None, 24 / IN, "48 mm Gecko wheel")]   # the second sits just ahead of the front feeder
-CEIL_GAP = 2.6                          # sprung ceiling's foam face above the ball-bottom line at rest: a POLLEN (2.80) squeezed 0.2
-CEIL_X = (5.6, 0.95)                    # hinged at the front, band-held at the rear; a NECTAR lifts it 0.82
-CHAN_RAISE = 21 / IN                    # the old intake's 11-hole channel goes up 21 mm (a lane NECTAR's top is 5.14 under it)
+COL_X = -2.845                          # the launch column: under the flywheels' centre and the turret's axis
+# the feeders: goBILDA 72 mm Gecko wheels, two side by side, on shafts along X, under the flywheels (96 mm ones would
+# reach the drive rails)
+RF, FEED_W = 36 / 25.4, 1.89
+FEED_X = (-3.79, -1.90)                 # the flywheels' X span
+FEED_SQ_P = 0.10                        # a POLLEN squeezed this much each side; a NECTAR then 0.51 (the soft Gecko tread takes it)
+FEED_Y = RF + RP - FEED_SQ_P            # each feeder's axis this far either side of the centreline (2.72)
+FEED_Z = 4.78 - 0.15 - RF               # their tops 0.15 under the flywheels' bottoms (axes at 3.21; the right motor clears a launcher block)
+FLOOR_Z = 1.3                           # the lane's ball-bottom height: a POLLEN's centre (2.70) and a NECTAR's (3.11) are both in the feeders' grip
+GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - FEED_Y ** 2)    # gripped up to here (centre): 4.01 POLLEN
+GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - FEED_Y ** 2)    # 5.00 NECTAR; the flywheels take a NECTAR from 5.77
+BACKSTOP_X = COL_X - RN - 0.02          # the ball's back stops here, so it sits on the column
+RAMP = ((8.0, 0.05), (5.7, FLOOR_Z))
+R_R = 12 / 25.4                         # lane rollers: 24 mm compliant, tops at FLOOR_Z
+ROLL_X = [5.3 - 1.08 * i for i in range(7)]   # seven shafts, 1.08 in apart, the last just ahead of the feeders
+ROLL_Z = FLOOR_Z - R_R
+CEIL_GAP, FOAM = 2.6, 0.5               # the ceiling's foam face 2.6 over the lane: a POLLEN presses the foam 0.2; a NECTAR lifts it 0.82
+CEIL_X = (5.3, -0.95)                   # ends clear of a ball going up the column
+LINK_L, LINK_DEG = 1.2, 45.0            # parallel links, rest 45 deg down toward the rear, level at 0.85 lift
+LINKS = ((6.05, 5.2), (2.2, 1.35))      # (fixed pivot X, ceiling tab X): clear of the drive motors' encoder caps (X 3.09..5.11)
+BEAM = (5.45, 2.3)                      # break-beam across the lane (X, z): counts balls in
+CHAN_RAISE = 30 / 25.4                  # the old intake's 11-hole channel goes up 30 mm: a lane NECTAR (top 4.92), the lifted ceiling (5.37) and its front links (5.49) pass under it; its top (7.50) stays under the L-beam above (7.58)
 RAIL_IN = 4.88
-FM = (0.3, 0.95)                        # the feeder drive's jackshaft (X, z), along Y; miter gears to the feeder motor
-FM_Y = 2.9                              # the feeder motor's axis Y (along X, under the left flywheel motor)
-LM = (4.75, 1.15)                       # the lane drive's jackshaft (right side)
-LM_Y = -3.3                             # the lane motor's axis Y (along X, outside the right wall)
-MOTOR_D, MOTOR_L = 37 / IN, 100 / IN
+LM = (4.75, 1.0)                        # the lane drive's jackshaft (right side), and its motor's axis Y
+LM_Y = -3.3
+MOTOR_D, MOTOR_L = 37 / 25.4, 100 / 25.4
+FLY_Y = (3.6427, -3.3276)               # the flywheels' axles (mentor's), z 6.646
+FLY_Z = 6.646
+FM_Y, FM_Z = 6.7, 7.0                   # the flywheel motors, moved out and up (along X), belted to his 41T pulleys at X -4.06
 
 fixed, flt, arm = {}, {}, {}
 def part(d, name, wp, col, kind): d[name] = (wp, col, kind)
@@ -88,19 +94,8 @@ def arc_slot(c, r, a0, a1, w, y0, y1, n=16):
     return sl
 WY = lambda s: (s * WALL_IN, s * (WALL_IN + TW))
 WO = WALL_IN + TW
+launcher = {}
 
-def axle_on_line(x, r):
-    """Where a wheel of radius r sits so its top touches the lane's ball-bottom line near X x."""
-    a = math.atan(SLOPE)
-    return (x - r * math.sin(a), line(x) - r * math.cos(a))
-# the second lane wheel: as far back as it can go and still clear the front feeder by 0.06 in
-_r = LANE_WHEELS[1][1]; _x = LANE_TOP[0] + 1.0
-while math.dist(axle_on_line(_x, _r), (FEED_X[0], FEED_Z)) < _r + RF + 0.06: _x += 0.01
-LANE_WHEELS[1] = (round(_x, 2), _r, LANE_WHEELS[1][2])
-
-# ---- the ramp (1/16 in polycarbonate) and its two brackets to the side plates, then a short static lane floor ----
-first_x = axle_on_line(*LANE_WHEELS[0][:2])[0] + LANE_WHEELS[0][1]
-pts = [RAMP[0], RAMP[1], (first_x, line(first_x))]
 def sheet(pts, y0, y1, t=T16):
     out = None
     for (x0, z0), (x1, z1) in zip(pts, pts[1:]):
@@ -108,83 +103,100 @@ def sheet(pts, y0, y1, t=T16):
         seg = xz([(x0, z0), (x1, z1), (x1 - nx, z1 - nz), (x0 - nx, z0 - nz)], y0, y1)
         out = seg if out is None else out.union(seg)
     return out
-part(fixed, "ramp_and_lane_lip (1/16 in polycarbonate, bent at X 5.8)", sheet(pts, -WALL_IN, WALL_IN), POLY, "cut")
+
+# ---- the ramp (1/16 in polycarbonate) and its two brackets to the side plates ----
+part(fixed, "ramp (1/16 in polycarbonate)", sheet([RAMP[0], RAMP[1], (ROLL_X[0] + R_R, FLOOR_Z)], -WALL_IN, WALL_IN), POLY, "cut")
 for s in (-1, 1):
     br = xz([(7.75, 0.12), (8.15, 0.12), (8.15, 0.3), (7.75, 0.3)], s * WALL_IN, s * 4.0).union(xz([(7.75, 0.12), (8.15, 0.12), (8.15, 1.6), (7.75, 1.6)], s * 4.0, s * 7.56))
     part(fixed, f"ramp_bracket_{'L' if s > 0 else 'R'} (print, to the side plate; slotted +-0.5 in in X)", br, BLUE, "print")
 
-# ---- the lane walls (1/8 in polycarbonate): low under the front drive motors, they carry the lane shafts and the front feeder ----
+# ---- the lane walls: low under the front drive motors, they carry the rollers ----
 def wall(s):
     y0, y1 = sorted(WY(s))
-    w = xz([(-1.2, 0.3), (5.75, 0.3), (5.75, 2.6), (-1.2, 2.6)], y0, y1)       # ends ahead of the launcher's side plates (X -1.26)
-    for x, r, _ in LANE_WHEELS: w = w.cut(cyly(*axle_on_line(x, r), 14 / IN, y0 - 0.1, y1 + 0.1))
-    w = w.cut(cyly(FEED_X[0], FEED_Z, 14 / IN, y0 - 0.1, y1 + 0.1))
-    w = w.cut(cyly(*(FM if s > 0 else LM), 14 / IN, y0 - 0.1, y1 + 0.1))
+    w = xz([(-1.85, 0.3), (6.5, 0.3), (6.5, 2.6), (-1.85, 2.6)], y0, y1)
+    for x in ROLL_X: w = w.cut(cyly(x, ROLL_Z, 14 / 25.4, y0 - 0.1, y1 + 0.1))
+    w = w.cut(cyly(*BEAM, 0.22, y0 - 0.1, y1 + 0.1))
+    if s < 0: w = w.cut(cyly(*LM, 14 / 25.4, y0 - 0.1, y1 + 0.1))
     return w
 for s, nm in ((1, "L"), (-1, "R")): part(fixed, f"lane_wall_{nm} (1/8 in polycarbonate)", wall(s), POLY, "cut")
-for s, nm in ((1, "L"), (-1, "R")):
-    y0, y1 = sorted(WY(s))
-    rp = xz([(FEED_X[1] - 0.85, 0.3), (-4.95, 0.3), (-4.95, 2.4), (FEED_X[1] - 0.85, 2.4)], y0, y1)     # under and behind the launcher's 5-hole channel
-    rp = rp.cut(cyly(FEED_X[1], FEED_Z, 14 / IN, y0 - 0.1, y1 + 0.1))
-    part(fixed, f"rear_feeder_plate_{nm} (1/8 in aluminium)", rp, ALU, "cut")
-    yy0, yy1 = sorted((s * WO, s * RAIL_IN))
-    br = bx(-5.95, -5.45, yy0, yy1, 1.0, 1.125).union(bx(-5.95, -5.45, s * (RAIL_IN - 0.125), s * RAIL_IN, 1.0, 1.6)).union(bx(-5.95, -5.45, s * WO, s * (WO + 0.125), 1.0, 1.6))
-    part(fixed, f"rear_feeder_bracket_{nm} (1/8 in aluminium, plate to rail)", br, ALU, "cut")
-for x in (5.5, 0.2):                    # wall brackets to the rails, under the motors' bodies: low at the front (the drive
-    for s in (-1, 1):                   # wheels' shafts are at z 1.9), high at the rear (the feeder motor runs under it)
+for x in (5.75, 0.2):
+    for s in (-1, 1):
         y0, y1 = sorted((s * WO, s * RAIL_IN))
-        zb = 1.95 if x < 1 else 1.0
-        br = bx(x - 0.3, x + 0.3, y0, y1, zb, zb + 0.125).union(bx(x - 0.3, x + 0.3, s * (RAIL_IN - 0.125), s * RAIL_IN, 1.0, max(zb + 0.125, 1.6))).union(bx(x - 0.3, x + 0.3, s * WO, s * (WO + 0.125), 1.0, zb + 0.125))
-        part(fixed, f"wall_bracket_X{x:+.1f}_{'L' if s > 0 else 'R'} (1/8 in aluminium, wall to rail over the motors' bodies)", br, ALU, "cut")
+        br = bx(x - 0.25, x + 0.25, y0, y1, 1.0, 1.125).union(bx(x - 0.25, x + 0.25, s * (RAIL_IN - 0.125), s * RAIL_IN, 1.0, 1.6)).union(bx(x - 0.25, x + 0.25, s * WO, s * (WO + 0.125), 1.0, 1.6))
+        part(fixed, f"wall_bracket_X{x:+.2f}_{'L' if s > 0 else 'R'} (1/8 in aluminium, wall to rail)", br, ALU, "cut")
 
-# ---- the lane's two driven shafts ----
-P16 = 16 * 5 / math.pi / IN
-for i, (x, r, nm) in enumerate(LANE_WHEELS):
-    ax_ = axle_on_line(x, r)
-    part(fixed, f"lane_wheels_{i} ({nm} x2)", cyly(*ax_, 2 * r, LANE_Y - 0.94, LANE_Y + 0.94), BLACK if r > 0.8 else (0.25, 0.25, 0.28), "buy")
-    part(fixed, f"lane_shaft_{i} (8mm REX, 1611-0514-4008 bearings in both walls)", cyly(*ax_, 8 / IN, -WO - 0.45, WO + 0.1), STEEL, "buy")
-    part(fixed, f"lane_shaft_pulley_{i} (16T HTD5, outside the right wall)", cyly(*ax_, P16, -WO - 0.4, -WO - 0.05), BLACK, "buy")
-part(fixed, "lane_jackshaft (8mm REX, outside the right wall) and its 16T", cyly(*LM, 8 / IN, -WALL_IN, LM_Y).union(cyly(*LM, P16, -WO - 0.4, -WO - 0.05)), STEEL, "buy")
-ax0, ax1 = axle_on_line(*LANE_WHEELS[0][:2]), axle_on_line(*LANE_WHEELS[1][:2])
-part(fixed, "lane_belt (HTD5 9 mm, over the jackshaft and both lane shafts)", cord(LM, ax0, P16 / 2, P16 / 2, -WO - 0.22, t=0.09).union(cord(ax0, ax1, P16 / 2, P16 / 2, -WO - 0.22, t=0.09)), BLACK, "buy")
+# ---- the lane rollers: seven shafts of 24 mm compliant rollers, belted from one motor outside the right wall ----
+P16 = 16 * 5 / math.pi / 25.4
+for i, x in enumerate(ROLL_X):
+    part(fixed, f"lane_rollers_{i} (24 mm compliant roller x2, to choose)", cyly(x, ROLL_Z, 2 * R_R, -1.2, 1.2), (0.25, 0.25, 0.28), "buy")
+    part(fixed, f"lane_shaft_{i} (8mm REX, bearings in both walls)", cyly(x, ROLL_Z, 8 / 25.4, -WO - 0.45, WO + 0.1), STEEL, "buy")
+    part(fixed, f"lane_pulley_{i} (print, 12 mm, outside the right wall)", cyly(x, ROLL_Z, 12 / 25.4, -WO - 0.4, -WO - 0.1), BLUE, "print")
+part(fixed, "lane_belt (3/16 in polycord over all seven pulleys and the jackshaft)", cord((ROLL_X[0], ROLL_Z), (ROLL_X[-1], ROLL_Z), 6 / 25.4, 6 / 25.4, -WO - 0.25), RED, "buy")
+part(fixed, "lane_jackshaft (8mm REX, outside the right wall)", cyly(*LM, 8 / 25.4, -WALL_IN, LM_Y), STEEL, "buy")
 part(fixed, "lane_motor (goBILDA 5203-2402-0005, 1150 RPM; along X outside the right wall, miter gears to the jackshaft)",
-     cq.Workplane("YZ").center(LM_Y, LM[1]).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((LM[0] - 0.2 - MOTOR_L, 0, 0)), BLACK, "buy")
-part(fixed, "lane_miter_gears (1:1 pair, 8mm REX bore, to choose)", cq.Workplane("YZ").center(LM_Y, LM[1]).circle(0.4).extrude(0.3).translate((LM[0] - 0.2, 0, 0)), (0.7, 0.6, 0.3), "buy")
+     cq.Workplane("YZ").center(LM_Y, LM[1] + 0.3).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((LM[0] - 0.2 - MOTOR_L, 0, 0)), BLACK, "buy")
 
-# ---- the sprung, foam-lined ceiling: hinged at the front, band-held at the rear ----
-cx0, cx1 = CEIL_X
-c0, c1 = (cx0, line(cx0) + CEIL_GAP), (cx1, line(cx1) + CEIL_GAP)
-def strip(z_lo, t, y):                 # a band along the ceiling line, z_lo..z_lo+t above it
-    return xz([(c0[0], c0[1] + z_lo), (c1[0], c1[1] + z_lo), (c1[0], c1[1] + z_lo + t), (c0[0], c0[1] + z_lo + t)], -y, y)
-part(fixed, "ceiling_foam (1/4 in closed-cell foam, glued under the ceiling)", strip(0, 0.25, WALL_IN - 0.15), (0.3, 0.3, 0.32), "buy")
-part(fixed, "ceiling (1/16 in polycarbonate, hinged at its front; lifts 0.82 for a NECTAR)", strip(0.25, T16, WALL_IN - 0.05), POLY, "cut")
+# ---- the flat ceiling, foam-faced, on parallel links: lifts evenly, 0.82 for a NECTAR anywhere ----
+cz = FLOOR_Z + CEIL_GAP
+part(fixed, f"ceiling_foam ({FOAM} in soft polyethylene or EVA foam, 2-3 lb/ft3)", bx(CEIL_X[1], CEIL_X[0], -WALL_IN + 0.15, WALL_IN - 0.15, cz, cz + FOAM), (0.3, 0.3, 0.32), "buy")
+ceil = bx(CEIL_X[1], CEIL_X[0], -WALL_IN + 0.05, WALL_IN - 0.05, cz + FOAM, cz + FOAM + T16)
+top = cz + FOAM + T16
+for fx, tx in LINKS: ceil = ceil.union(bx(tx - 0.25, tx + 0.25, -WO, WO, top, top + 0.06))
+part(fixed, "ceiling (1/16 in polycarbonate on four parallel links; band-held down)", ceil, POLY, "cut")
+a_ = math.radians(LINK_DEG)
 for s in (-1, 1):
     y0, y1 = sorted(WY(s))
-    part(fixed, f"ceiling_hinge_post_{'L' if s > 0 else 'R'} (print, on the wall's front end)", bx(5.45, 5.75, y0, y1, 2.6, c0[1] + 0.45).cut(cyly(5.6, c0[1] + 0.33, 0.13, -3, 3)), BLUE, "print")
+    for i, (fx, tx) in enumerate(LINKS):
+        pz = top + LINK_L * math.sin(a_)
+        part(fixed, f"ceiling_link_post_{'front' if i == 0 else 'rear'}_{'L' if s > 0 else 'R'} (print, on the wall's top edge)", bx(fx - 0.2, fx + 0.2, y0, y1, 2.6, pz + 0.25).cut(cyly(fx, pz, 0.13, -3, 3)), BLUE, "print")
+        ly0, ly1 = sorted((s * WO, s * (WO + 0.125)))
+        part(fixed, f"ceiling_link_{'front' if i == 0 else 'rear'}_{'L' if s > 0 else 'R'} (1/8 in aluminium, {LINK_L} in centres)", bar((fx, pz), (tx, top + 0.03), 0.35, ly0, ly1), ALU, "cut")
     post = bx(0.55, 0.95, s * WO, s * (WO + 0.3), 1.5, 2.0)
     for dx in (-0.12, 0.0, 0.12): post = post.cut(cyly(0.75 + dx, 1.75, 0.08, -3, 3))
-    part(fixed, f"ceiling_band_post_{'L' if s > 0 else 'R'} (print, three holes; band up to the ceiling's rear hook)", post, BLUE, "print")
+    part(fixed, f"ceiling_band_post_{'L' if s > 0 else 'R'} (print, three holes; band up to the rear tab: 1-2 lbf preload)", post, BLUE, "print")
+    bb = bx(BEAM[0] - 0.25, BEAM[0] + 0.25, s * WO, s * (WO + 0.45), BEAM[1] - 0.35, BEAM[1] + 0.35).cut(cyly(*BEAM, 0.22, -3, 3))
+    part(fixed, f"break_beam_bracket_{'L' if s > 0 else 'R'} (print; one half of an IR break-beam pair across the lane)", bb, BLUE, "print")
 
-# ---- the cup: two feeders under the flywheels ----
-for nm, x in (("front", FEED_X[0]), ("rear", FEED_X[1])):
-    part(fixed, f"feeder_{nm} (mentor's FeederWheel: 66.7 mm foam on a 40 mm hub, 48 mm wide)", cyly(x, FEED_Z, 2 * RF, LANE_Y - FW / 2, LANE_Y + FW / 2), (0.55, 0.8, 0.95), "buy")
-    part(fixed, f"feeder_shaft_{nm} (8mm REX, bearings in the {'lane walls' if nm == 'front' else 'rear feeder plates'})", cyly(x, FEED_Z, 8 / IN, -WO - 0.1, WO + 0.1), STEEL, "buy")
-    part(fixed, f"feeder_pulley_{nm} (print, 20 mm V-groove, inside the lane beside the feeder)", cyly(x, FEED_Z, 20 / IN, LANE_Y + FW / 2 + 0.05, LANE_Y + FW / 2 + 0.3), BLUE, "print")
-P20 = 20 / IN
-part(fixed, "feeder_jackshaft (8mm REX, from the miter gears into the lane) and its pulley", cyly(*FM, 8 / IN, LANE_Y + FW / 2 + 0.3, FM_Y - 0.5).union(cyly(*FM, P20, LANE_Y + FW / 2 + 0.05, LANE_Y + FW / 2 + 0.3)), STEEL, "buy")
-yb = LANE_Y + FW / 2 + 0.175
-part(fixed, "feeder_belt_front (3/16 in polycord, jackshaft to the front feeder)", cord(FM, (FEED_X[0], FEED_Z), P20 / 2, P20 / 2, yb), RED, "buy")
-part(fixed, "feeder_belt_rear (3/16 in polycord, crossed: the rear feeder turns the other way)", bar((FEED_X[0], FEED_Z + P20 / 2), (FEED_X[1], FEED_Z - P20 / 2), 3 / 16, yb - 0.09, yb + 0.09).union(bar((FEED_X[0], FEED_Z - P20 / 2), (FEED_X[1], FEED_Z + P20 / 2), 3 / 16, yb - 0.09, yb + 0.09)), RED, "buy")
-part(fixed, "feeder_motor (goBILDA 5203-2402-0003, 1620 RPM; along X under the left flywheel motor)",
-     cq.Workplane("YZ").center(FM_Y, FM[1]).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((FM[0] - 0.45 - MOTOR_L, 0, 0)), BLACK, "buy")
-part(fixed, "feeder_miter_gears (1:1 pair, 8mm REX bore, to choose)", cq.Workplane("YZ").center(FM_Y, FM[1]).circle(0.4).extrude(0.3).translate((FM[0] - 0.45, 0, 0)), (0.7, 0.6, 0.3), "buy")
+# ---- the feeders: a second pair of the flywheels' wheels under them, gripping the ball by its sides ----
+for s, nm in ((1, "L"), (-1, "R")):
+    y = LANE_Y + s * FEED_Y
+    part(fixed, f"feeder_{nm} (goBILDA 72 mm Gecko x2, softest durometer)", cq.Workplane("YZ").center(y, FEED_Z).circle(RF).extrude(FEED_W).translate((FEED_X[0], 0, 0)), (0.35, 0.66, 0.31), "buy")
+    part(fixed, f"feeder_shaft_{nm} (8mm REX, 136 mm; bearings in the launcher's front and rear channels)", cq.Workplane("YZ").center(y, FEED_Z).circle(4 / 25.4).extrude(4.0).translate((-4.95, 0, 0)), STEEL, "buy")
+    part(fixed, f"feeder_motor_{nm} (goBILDA 5203-2402-0005, 1150 RPM; face-mounted to the launcher's front channel, straight onto the feeder shaft)",
+         cq.Workplane("YZ").center(y, FEED_Z).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((-1.10, 0, 0)), BLACK, "buy")
+# under the ball between the feeders: a short floor, and a backstop that sets it on the column
+fl = bx(BACKSTOP_X - 0.15, FEED_X[1] + 0.15, -1.3, 1.3, FLOOR_Z - T16, FLOOR_Z)
+part(fixed, "feeder_floor (1/16 in polycarbonate, between the feeders)", fl, POLY, "cut")
+part(fixed, "backstop (1/8 in polycarbonate; the ball's back rests on it, centred on the column)", bx(BACKSTOP_X - 0.125, BACKSTOP_X, -1.3, 1.3, FLOOR_Z, 3.6), POLY, "cut")
+for s in (-1, 1):
+    part(fixed, f"feeder_floor_hanger_{'L' if s > 0 else 'R'} (print, floor to the launcher's rear channel; the front edge bolts to the lane walls)", bx(-4.85, -4.62, s * 1.3, s * 2.0, FLOOR_Z - 0.2, 1.95), BLUE, "print")
+
+# ---- the launcher changes: its front channels reach down to the feeder shafts, the flywheel motors move out and up ----
+for s, y0, y1 in ((1, 2.43, 4.67), (-1, -4.36, -2.12)):
+    part(launcher, f"launcher_front_channel_{'L' if s > 0 else 'R'} (goBILDA 5-hole lowside U-channel, replacing the 3-hole: carries the feeder shaft and motor)", bx(-1.58, -1.10, y0, y1, 1.88, 3.76), ALU, "buy")
+P41 = 41 * 5 / math.pi / 25.4
+for s, fy in ((1, FLY_Y[0]), (-1, FLY_Y[1])):
+    my = s * FM_Y
+    part(launcher, f"flywheel_motor_{'L' if s > 0 else 'R'} (the mentor's 312 RPM Yellow Jacket, moved: along X outboard of the launcher frame)",
+         cq.Workplane("YZ").center(my, FM_Z).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((-3.8, 0, 0)), (0.95, 0.75, 0.2), "buy")
+    part(launcher, f"flywheel_motor_pulley_{'L' if s > 0 else 'R'} (16T HTD5)", cq.Workplane("YZ").center(my, FM_Z).circle(P16 / 2).extrude(0.35).translate((-4.2, 0, 0)), BLACK, "buy")
+    (y0_, z0_), (y1_, z1_) = (fy, FLY_Z), (my, FM_Z)
+    L = math.hypot(y1_ - y0_, z1_ - z0_); ny, nz = -(z1_ - z0_) / L, (y1_ - y0_) / L
+    runs = None
+    for sg in (1, -1):
+        a0 = (y0_ + sg * ny * P41 / 2, z0_ + sg * nz * P41 / 2); a1 = (y1_ + sg * ny * P16 / 2, z1_ + sg * nz * P16 / 2)
+        ln = math.hypot(a1[0] - a0[0], a1[1] - a0[1]); ang = math.degrees(math.atan2(a1[1] - a0[1], a1[0] - a0[0]))
+        r = cq.Workplane("YZ").rect(ln, 0.09).extrude(0.35).rotate((0, 0, 0), (1, 0, 0), ang).translate((-4.2, (a0[0] + a1[0]) / 2, (a0[1] + a1[1]) / 2))
+        runs = r if runs is None else runs.union(r)
+    part(launcher, f"flywheel_belt_{'L' if s > 0 else 'R'} (HTD5 9 mm, his 41T to the moved motor)", runs, BLACK, "buy")
+    part(launcher, f"flywheel_motor_bracket_{'L' if s > 0 else 'R'} (1/8 in aluminium, on the launcher frame's side channel)", bx(-3.0, -1.0, s * 5.35, s * 5.83, 5.74, 5.865).union(bx(-3.0, -1.0, s * 5.83, s * 5.955, 5.74, FM_Z + 0.75)), ALU, "cut")
 
 # ---- into the robot CAD's millimetres: (x, y, z)_CAD = (C + Y, F + Z, FACE - 7.56 in + X), all times 25.4 ----
 MAT = cq.Matrix([[0, IN, 0, C], [0, 0, IN, F], [IN, 0, 0, FACE - CENTRE_BACK_IN * IN]])
 def to_cad(wp):
     shp = wp.val() if len(wp.vals()) == 1 else cq.Compound.makeCompound(wp.vals())
     return shp.transformGeometry(MAT)
-GROUPS = (("transfer, fixed", "fixed", fixed),)
+GROUPS = (("transfer, fixed", "fixed", fixed), ("launcher changes (the mentor's to agree)", "launcher", launcher))
 if __name__ == "__main__":
     out = os.path.dirname(os.path.abspath(__file__)); os.makedirs(out + "/stl", exist_ok=True)
     assy = cq.Assembly(name="DHS transfer"); mesh = {}
@@ -199,4 +211,4 @@ if __name__ == "__main__":
     assy.save(out + "/dhs-transfer.step")
     if os.environ.get("MESH_OUT"):
         import pickle; pickle.dump(mesh, open(os.environ["MESH_OUT"], "wb"))
-    print(len(fixed), "fixed,", len(flt), "float,", len(arm), "arm parts")
+    print(len(fixed), "fixed,", len(launcher), "launcher parts")

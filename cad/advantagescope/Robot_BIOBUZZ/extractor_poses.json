@@ -59,7 +59,7 @@
     "what": "flywheel axle left (+Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
       -0.0762,
-      0.092532,
+      0.092525,
       0.168808
     ],
     "axis": [
@@ -74,7 +74,7 @@
     "what": "flywheel axle right (-Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
       -0.0762,
-      -0.084506,
+      -0.084521,
       0.168808
     ],
     "axis": [
@@ -86,33 +86,33 @@
     "diameter_m": 0.096
   },
   "model_3": {
-    "what": "the front feeder (66.7 mm foam wheel, shaft, pulley), across the robot under the flywheels",
+    "what": "the left (+Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
     "axis_point_m": [
-      -0.013843,
-      0.0,
-      0.039624
+      -0.072263,
+      0.06902,
+      0.081602
     ],
     "axis": [
+      -1,
       0,
-      1,
       0
     ],
-    "feed_spin": "+angle about the axis as given pops the ball in the cup up into the flywheels",
-    "diameter_m": 0.0667
+    "feed_spin": "+angle about the axis as given drives the ball up between the feeders",
+    "diameter_m": 0.072
   },
   "model_7": {
-    "what": "the rear feeder (66.7 mm foam wheel, shaft, pulley), across the robot under the flywheels",
+    "what": "the right (-Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
     "axis_point_m": [
-      -0.130683,
-      0.0,
-      0.039624
+      -0.072263,
+      -0.06902,
+      0.081602
     ],
     "axis": [
+      1,
       0,
-      -1,
       0
     ],
-    "feed_spin": "+angle about the axis as given pops the ball in the cup up into the flywheels",
-    "diameter_m": 0.0667
+    "feed_spin": "+angle about the axis as given drives the ball up between the feeders",
+    "diameter_m": 0.072
   }
 }
