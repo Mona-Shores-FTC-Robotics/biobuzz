@@ -623,7 +623,7 @@
         "park": false
       },
       {
-        "id": "w-25",
+        "id": "w-29",
         "kind": "firstOf",
         "label": "TIP 1 (the partner), seated at the FLOWER",
         "rows": [
@@ -631,33 +631,36 @@
             "when": [
               "LeftCellUp"
             ],
-            "cards": []
+            "cards": [
+              {
+                "id": "a-25",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "a-26",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "a-27",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "a-28",
+                "kind": "action",
+                "name": "LaunchOne"
+              }
+            ],
+            "label": "TIP 1: fire the preloads"
           },
           {
-            "afterMs": 9000,
-            "cards": []
+            "afterMs": 5000,
+            "cards": [],
+            "label": "No TIP 1: on to N_FIRE with them"
           }
         ]
-      },
-      {
-        "id": "a-26",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-27",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-28",
-        "kind": "action",
-        "name": "LaunchOne"
-      },
-      {
-        "id": "a-29",
-        "kind": "action",
-        "name": "LaunchOne"
       },
       {
         "id": "w-30",

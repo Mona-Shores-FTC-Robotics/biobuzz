@@ -144,6 +144,18 @@ drawn per TIP, shorter the further past the threshold the load is (a volley: at 
   one route the dwell barely touches, because it fires as the pieces come instead of driving to a spot and waiting.
 `BIOBUZZ_AUTO_TIP_DWELL=0` runs a study without the dwell, for before/after.
 
+**The event's piece physics** (7 Oct 2026 19:50 UTC, issue #168, from the same Saline clips: `doc/saline-piece-physics.md`).
+A shot every 0.2 s in a volley (`RobotDesign.shotIntervalS`; 0.45 before, a guess; "spring hood, slow feed" keeps
+it), the landing kick along the piece's throw within 60° (`FieldSim.FILMED_BOUNCE_SCATTER_SPREAD_RAD`, the size
+refitted to 0.1: the films' 24 in at 0.5 s, most of the spill within 16 in of the alliance wall at 3 s as the
+event shows), and NECTAR rolling at 1.5 in/s² (POLLEN 4.0). The fast volley is what matters: four shots in 0.6 s
+put a CELL a full POLLEN past its weight, so it dwells 0.5 s, not 2–3; TIP 1 at 4.3–4.6 s, TIP 2 at 12.7 / 16.6 /
+18.2 / 11.5 s. 60 runs: ShootsRight **74.0**, TIP 3 in 56 (3 on the slow volley), PARK 60 of 60; the angled Auto
+back on `garden: "two"` **61.3**, TIP 3 in 24 (the GARDEN leg lost on the slow volley, it pays now; with the GARDEN
+the wall Auto still turned into the west wall at the guard's cut, so it keeps `garden: "none"`): **53.3**; seat
+fire **72.7**, TIP 3 in 52. A fixed launcher now out-TIPs seat fire on the right start: the turret is not what Auto
+needs.
+
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
 waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "Empty": with nothing held on arrival that
@@ -289,9 +301,9 @@ route changes for its size it starts off the wall and its front never reaches th
 width is worth asking the build team about before it is fixed.
 
 The commands these Autos use (`CollectSeen`, `LaunchAll`, `IntakeFull`, `LeftCellUp`, ...) exist only in
-the simulator so far, and its launcher (2 s spin-up, 0.45 s a shot) and intake (0.35 s a piece) numbers
-are unmeasured. How pieces bounce and roll after a spill lands is the least-measured part of the
-simulator: film a TIP to check it.
+the simulator so far; its launcher's 2 s spin-up and 0.2 s a shot are the event's best robot's (the Saline
+stream, issue #168), its intake's 0.35 s a piece is unmeasured. How pieces bounce and roll after a spill lands
+is checked against the event's tracked pieces (doc/saline-piece-physics.md); film a TIP of our own to check it closer.
 
 ## Open them in the Visualizer
 

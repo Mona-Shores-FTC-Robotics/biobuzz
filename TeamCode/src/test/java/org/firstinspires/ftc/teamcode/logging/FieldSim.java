@@ -132,6 +132,15 @@ final class FieldSim {
      * 16409's test Auto video (YouTube CBCioC3x-vc) slowed at about 3 in/s², inside the per-piece spread.
      */
     static final double FILMED_ROLLING_DECEL_IN_PER_S2 = 4.0;
+    /**
+     * NECTAR rolls freer: about 1.5 in/s² (0–3, five tracks) against POLLEN's 3.9 on the Saline event tiles
+     * (doc/saline-piece-physics.md, issue #168). Low confidence; it makes spilled NECTAR reach a wall more often.
+     */
+    static final double FILMED_NECTAR_ROLLING_DECEL_IN_PER_S2 = 1.5;
+
+    static double rollingDecel(Kind kind) {
+        return kind == Kind.POLLEN ? FILMED_ROLLING_DECEL_IN_PER_S2 : FILMED_NECTAR_ROLLING_DECEL_IN_PER_S2;
+    }
     /** Height of the simulated robot's body; pieces hit it below this. */
     static final double PLACEHOLDER_ROBOT_HEIGHT_IN = 14.0;
     /** Where a launched piece leaves the robot: forward of centre, and up. */
@@ -191,10 +200,21 @@ final class FieldSim {
      * from the wall to 86 in out. Refitted 6 Oct 2026 to the same films once pieces stopped dragging on
      * the tiles ({@link #FILMED_ROLLING_DECEL_IN_PER_S2}; 0.45 before, against the old drag); {@link SpillLandingTest} prints
      * the spread (BIOBUZZ_BOUNCE_SCATTER reprints the fit). Only landings faster than {@link #BOUNCE_SCATTER_MIN_IN_PER_S}: a rolling piece stays put.
+     * Refitted again 7 Oct 2026 once the kick followed the throw ({@link #FILMED_BOUNCE_SCATTER_SPREAD_RAD}): 0.1
+     * puts the median piece 24 in from its landing point 0.5 s later (p90 30; the films 24, the event 12–20) and most
+     * of the spill within 16 in of the alliance wall 3 s after the TIP, as the event stream shows; 0.3 along the throw
+     * sent it 35 in and 43 in out.
      */
-    static final double FILMED_BOUNCE_SCATTER = 0.3;
+    static final double FILMED_BOUNCE_SCATTER = 0.1;
     static double bounceScatter = FILMED_BOUNCE_SCATTER;
     static final double BOUNCE_SCATTER_MIN_IN_PER_S = 30;
+    /**
+     * The kick's direction: within this many radians of the piece's horizontal velocity (the rocker's throw),
+     * not any direction. At Saline nearly every spilled piece headed for the alliance wall, few sideways and
+     * fewer back toward the HIVE (doc/saline-piece-physics.md, issue #168); a random direction sent a third of
+     * them back. A piece landing without horizontal speed still kicks any way.
+     */
+    static final double FILMED_BOUNCE_SCATTER_SPREAD_RAD = Math.toRadians(60);
     static double spillExitScale = FILMED_SPILL_EXIT_SCALE;
     /**
      * How long a TIP takes, seconds, drawn afresh for each TIP from this range (mentor, 6 Oct 2026): the
@@ -1514,7 +1534,8 @@ final class FieldSim {
                 // A holey ball on foam bounces off at an angle (3 Oct 2026 films: a spill fans out fast
                 // in every direction from where it lands): part of a hard landing's speed goes sideways.
                 if (bounceScatter > 0 && impact > BOUNCE_SCATTER_MIN_IN_PER_S && variety != null) {
-                    double a = 2 * Math.PI * variety.nextDouble();
+                    double a = Math.hypot(p.vx, p.vy) < RESTING_IN_PER_S ? 2 * Math.PI * variety.nextDouble()
+                            : Math.atan2(p.vy, p.vx) + (2 * variety.nextDouble() - 1) * FILMED_BOUNCE_SCATTER_SPREAD_RAD;
                     double k = bounceScatter * impact * (0.5 + variety.nextDouble());
                     p.vx += k * Math.cos(a);
                     p.vy += k * Math.sin(a);
@@ -1578,7 +1599,7 @@ final class FieldSim {
     private static void applyFriction(Piece p, double h, boolean sliding) {
         double speed = Math.hypot(p.vx, p.vy);
         double slower = Math.max(0, speed * (1 - (sliding ? PLACEHOLDER_CONTACT_FRICTION * frictionScale * h : 0))
-                - FILMED_ROLLING_DECEL_IN_PER_S2 * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
+                - rollingDecel(p.kind) * frictionScale * (1 + (p.rollScale - 1) * spillVariety) * h);
         double keep = speed < 1e-9 ? 0 : slower / speed;
         p.vx *= keep;
         p.vy *= keep;

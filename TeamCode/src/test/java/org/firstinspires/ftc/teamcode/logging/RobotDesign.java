@@ -101,7 +101,12 @@ final class RobotDesign {
     Launcher launcher = Launcher.TURRET;
     /** Launchers side by side: each shot interval fires this many. */
     int launchers = 1;
-    double shotIntervalS = 0.45;
+    /**
+     * Seconds between shots in a volley: 0.2, from the event's best robot (Infinity Tech at Saline, 0.14–0.25 s
+     * apart in two volleys, doc/saline-piece-physics.md, issue #168). 0.45 until 7 Oct 2026, a guess; the
+     * "slow feed" study design keeps it.
+     */
+    double shotIntervalS = 0.2;
     double spinUpS = 1.0;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
