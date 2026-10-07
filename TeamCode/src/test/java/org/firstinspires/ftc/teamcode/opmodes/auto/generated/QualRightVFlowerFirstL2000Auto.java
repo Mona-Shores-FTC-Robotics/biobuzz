@@ -45,17 +45,17 @@ public final class QualRightVFlowerFirstL2000Auto {
         Pose start = p.of(59, 133.69, 270);
         Pose garden = p.of(8.5, 9.56, 270);
         Pose park = p.of(13, 87.44, 90);
-        Pose farFlower = p.of(47.36, 129.03, 90);
-        Pose farFlowerTurn = p.of(47.36, 120.73, 90);
+        Pose farFlower = p.of(47.36, 126.64, 90);
+        Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
         Pose sweepE = p.of(57.5, 10, 180);
         Pose sweepW = p.of(22, 10, 180);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToFarFlowerTurnControl1 = p.of(59, 120.73, 0);
-        Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 120.73, 270);
-        Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 120.73, 270);
+        Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
+        Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
+        Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);

@@ -12,10 +12,30 @@ transfer"): the far FLOWER is about 45 in from the left CELL, inside the simulat
 """
 import autogen
 import baselines_v
+import helpers
 import qual_right
 import retime
 
 _flower, _fire = qual_right.flower, qual_right.fire
+# The FLOWER seat (CAD chat, 7 Oct 2026, c04f0cb on claude/robotics-meeting-notes-lq2y55): the FLOWER's centre 4.59 in
+# ahead of the robot's face, where the extractor's block stalls on the FLOWER's uprights. helpers.FLOWER_PICKUP_IN
+# (11.2 from an 18 in robot's centre) puts the face 2.2 in from it; the routes here move their FLOWER points out by the
+# difference, so the face stops at 4.59 on any body (qual_right.fit keeps the face where helpers puts it).
+SEAT_FACE_IN = 4.59
+
+
+class seated:
+    """Within it, helpers' FLOWER points put the face SEAT_FACE_IN from the FLOWER's centre."""
+
+    def __enter__(self):
+        self.saved = helpers.FLOWER_PICKUP_IN, helpers.FLOWER_APPROACH_IN
+        d = SEAT_FACE_IN - (helpers.FLOWER_PICKUP_IN - 9)
+        helpers.FLOWER_PICKUP_IN += d
+        helpers.FLOWER_APPROACH_IN += d
+        return self
+
+    def __exit__(self, *a):
+        helpers.FLOWER_PICKUP_IN, helpers.FLOWER_APPROACH_IN = self.saved
 SEAT_MS = 400  # the robot settles into the FLOWER after the path ends; the intake pulls meanwhile
 STREAM_MS = [4500]  # at most this long at the FLOWER, or until the TIP (set per route)
 
@@ -43,7 +63,8 @@ def build(base, name, wait=None, stream_ms=4500):
     qual_right.flower, qual_right.fire = flower, fire
     restore = retime.with_wait(base, wait) if wait is not None else (lambda: None)
     try:
-        return baselines_v.build_for_v(baselines_v.BASELINES[base], name)
+        with seated():
+            return baselines_v.build_for_v(baselines_v.BASELINES[base], name)
     finally:
         restore()
         qual_right.flower, qual_right.fire = _flower, _fire
@@ -97,7 +118,8 @@ def build_flower_first(name, wait=200, leave_ms=2600):
     qual_right.right = right_flower_first
     restore = retime.with_wait("qual-right-v", wait)
     try:
-        return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+        with seated():
+            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
     finally:
         restore()
         qual_right.right = _right
