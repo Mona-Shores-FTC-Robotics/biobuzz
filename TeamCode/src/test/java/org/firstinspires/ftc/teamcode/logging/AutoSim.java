@@ -491,7 +491,8 @@ public final class AutoSim {
         // The robot's insides (held pieces on the transfer's path, the CAD model's moving parts): drawn by
         // RobotInternalsLog from what the simulation did, written once the match is over.
         RobotInternalsLog internals = new RobotInternalsLog(sim, sim.rocker(alliance));
-        for (Bot b : bots) internals.track(b.keyPrefix, b.body, b.design, cadModel(b.design.name), b.design.laneCapacity);
+        // The CAD robot has the transfer whether or not the design limits its load by the lane (laneCapacity).
+        for (Bot b : bots) internals.track(b.keyPrefix, b.body, b.design, cadModel(b.design.name), cadModel(b.design.name));
         fieldLog.drawsHeld = false;
         // Pre-roll: the field as it starts, disabled, before AUTO begins at PRE_ROLL_S.
         log.put(AdvantageScopeKeys.ENABLED, false, 0);

@@ -27,7 +27,7 @@ on the transfer's path (robot frame: X forward from the chassis centre, z up, in
 | Queued | The lead piece held between the feeder and the pad against the backstop: a POLLEN's centre at X −2.455, 0.15 in left of the centre line; a NECTAR's at −2.045 on the turret's axis, 0.21 in right (2.70 / 3.10 in up). It moves over to that side over the last inch. The rest sit nose to tail behind it, each the two radii further forward: 4 POLLEN at −2.455, 0.345, 3.145, 5.945; 3 NECTAR at −2.045, 1.555, 5.155 | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the next waits right behind the hold and rolls in when it has gone |
 | Firing | The held piece waits 0.05 s while the feeders spin up. It then rises up the column on the turret's axis (X −2.045) through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in. The simulator's shot starts there | It arrives at the exit as the simulator launches it, 0.15 s after it started |
 
-Preloads start in their places. A robot without the transfer (any design without `laneCapacity`) has its held pieces
+Preloads start in their places. A robot drawn without the CAD model (any design other than "rigid V" and its variants) has its held pieces
 placed on the same path, without the motion.
 
 ### Moving parts: `<robot>/Internals/Components`
@@ -103,20 +103,20 @@ The layout's tabs:
 
 ## Sample logs
 
-`sim-review/advantagescope-internals.zip` has the four routes for review, on "rigid V, turret transfer", seed 3, with the
-transfer's 0.5 s feed and the simulator's wall check. Over 60 runs:
-- `qual-right-v-seatfire-west`: the best right-side Auto, 72.3 points, TIP 3 in 52;
-- `qual-right-v-flower-first-hold`: the mentor's flower first, 70.6, TIP 3 in 47;
-- `qual-stages-angled-v`: the plain angled baseline, 52.6, with 9 runs into the HIVE frame late in AUTO;
+`sim-review/advantagescope-internals.zip` has the four routes for review, on "rigid V" (the decided robot, a shot every
+0.2 s), seed 3, with the transfer's 0.5 s feed and the simulator's wall check. Over 60 runs:
+- `qual-right-v-flower-first-hold`: the mentor's flower first, 74.0, TIP 3 in 56;
+- `qual-right-v-seatfire-west`: 72.7, TIP 3 in 52;
+- `qual-stages-angled-v`: the plain angled baseline, 61.3, TIP 3 in 24, with 4 runs into the HIVE frame late in AUTO;
 - `qual-stages-wall-v-stream-x700-leave`: the wall pairing, where both robots PARK, 53.3.
 
-Seed 3 is a typical run for each. The zip's README has the full table.
+The zip's README has the full table.
 
 Made with:
 
 ```
 BIOBUZZ_AUTO_STUDY="QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
-BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
+BIOBUZZ_AUTO_DESIGNS="rigid V" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
 The partner's design and speed are the baselines' (`baselines_v.py`). Without them the partner takes our design, and
