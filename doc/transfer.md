@@ -283,6 +283,10 @@ the intake to under the turret, with no lane floor at all. **Adopted.** What it 
 - **The roller runs whenever the robot brakes**, or the queue rolls forward out of the mouth: balls on the tiles stay
   put when the robot moves. The simulator already runs the intake throughout.
 - Capacity, hand-off (the first ball rising on the axis to the nip at 6.65) and the 0.25 s interval stand.
+- **Confirmed from `Robot.step`** (CAD chat): his lead NECTAR's centre sits at X −3.47, inside the window, so the
+  count comes out at 4 POLLEN / 3 NECTAR; the star wheels can go 0.3 lower and 0.25 inboard (nothing in the way);
+  and the 11-hole channel's bottom (4.43) clears a NECTAR on the field by 0.82, so **the 8 mm raise and the spacer
+  removal are no longer needed.**
 
 What remains of the earlier designs: the lane's position and length, the capacity rule, the gate principle (a
 stopped wheel holds the queue), and the simulator numbers. The polycord lane, the J-kicker and the raised wheel
