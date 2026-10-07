@@ -41,3 +41,11 @@ TIP" branch, the spill catch spots and the chance of a third TIP inside AUTO.
 off the lip as the rocker lands). The simulator's first touch at 1.1–1.4 s after the TIP starts is that same
 mechanism on a 1.0 s swing, so it follows the swing once that is corrected; nothing separate to refit. The camera is
 too oblique to measure the landing distance, so the filmed 35–47 in stands.
+
+**Frames kept** (`doc/media/saline/`, 720p stream captures, the red CELL seen from the alliance wall end):
+
+| File | Stream time | What it shows |
+|---|---|---|
+| `m3-tip1-26925.828-rocker-on-stop.png` | 26925.828 | The rocker on its stop; the spill leaving the lip above the robot |
+| `m3-tip1-26926.112-first-touch.png` | 26926.112 | The first piece on the tiles; the rest in the air around the robot |
+| `m3-tip1-26926.178-spreading.png` | 26926.178 | Four frames later: pieces already spread a robot's width to each side |
