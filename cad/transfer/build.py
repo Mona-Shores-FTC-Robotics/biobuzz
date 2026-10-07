@@ -38,8 +38,12 @@ LANE_TOP = (FEED_X[0], FEED_Z + RF)
 SLOPE = (LANE_TOP[1] - RAMP[1][1]) / (RAMP[1][0] - LANE_TOP[0])
 line = lambda x: RAMP[1][1] + SLOPE * (RAMP[1][0] - x)
 LANE_WHEELS = [(3.74, 32 / IN / 2, "compliant wheel, 32 mm, 30A (to choose)"), (None, 24 / IN, "48 mm Gecko wheel")]   # the second sits just ahead of the front feeder
-CEIL_GAP = 2.6                          # sprung ceiling's foam face above the ball-bottom line at rest: a POLLEN (2.80) squeezed 0.2
-CEIL_X = (5.6, 0.95)                    # hinged at the front, band-held at the rear; a NECTAR lifts it 0.82
+CEIL_GAP = 2.6                          # the ceiling's foam face above the ball-bottom line at rest: a POLLEN (2.80) presses the foam 0.2
+FOAM = 0.5                              # soft polyethylene/EVA foam (2-3 lb/ft3): the squeeze is in the foam, not the ball
+CEIL_X = (6.5, 0.95)                    # from over the ramp's top to just ahead of the front feeder
+LINK_L, LINK_DEG = 1.2, 45.0            # parallel links: rest 45 deg down toward the rear; level is 0.85 up (a NECTAR needs 0.82)
+LINKS = ((6.3, 5.45), (2.2, 1.35))      # (fixed pivot X, ceiling tab X) front and rear: clear of the drive motors' encoder caps
+BEAM = (5.55, 2.4)                      # break-beam across the lane (X, z): counts balls in, so the code stops the intake at the limit
 CHAN_RAISE = 21 / IN                    # the old intake's 11-hole channel goes up 21 mm (a lane NECTAR's top is 5.14 under it)
 RAIL_IN = 4.88
 FM = (0.3, 0.95)                        # the feeder drive's jackshaft (X, z), along Y; miter gears to the feeder motor
@@ -116,7 +120,8 @@ for s in (-1, 1):
 # ---- the lane walls (1/8 in polycarbonate): low under the front drive motors, they carry the lane shafts and the front feeder ----
 def wall(s):
     y0, y1 = sorted(WY(s))
-    w = xz([(-1.2, 0.3), (5.75, 0.3), (5.75, 2.6), (-1.2, 2.6)], y0, y1)       # ends ahead of the launcher's side plates (X -1.26)
+    w = xz([(-1.2, 0.3), (6.5, 0.3), (6.5, 2.6), (-1.2, 2.6)], y0, y1)        # ends ahead of the launcher's side plates (X -1.26)
+    w = w.cut(cyly(*BEAM, 0.22, y0 - 0.1, y1 + 0.1))                                  # the break-beam's window
     for x, r, _ in LANE_WHEELS: w = w.cut(cyly(*axle_on_line(x, r), 14 / IN, y0 - 0.1, y1 + 0.1))
     w = w.cut(cyly(FEED_X[0], FEED_Z, 14 / IN, y0 - 0.1, y1 + 0.1))
     w = w.cut(cyly(*(FM if s > 0 else LM), 14 / IN, y0 - 0.1, y1 + 0.1))
@@ -151,19 +156,30 @@ part(fixed, "lane_motor (goBILDA 5203-2402-0005, 1150 RPM; along X outside the r
      cq.Workplane("YZ").center(LM_Y, LM[1]).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((LM[0] - 0.2 - MOTOR_L, 0, 0)), BLACK, "buy")
 part(fixed, "lane_miter_gears (1:1 pair, 8mm REX bore, to choose)", cq.Workplane("YZ").center(LM_Y, LM[1]).circle(0.4).extrude(0.3).translate((LM[0] - 0.2, 0, 0)), (0.7, 0.6, 0.3), "buy")
 
-# ---- the sprung, foam-lined ceiling: hinged at the front, band-held at the rear ----
-cx0, cx1 = CEIL_X
-c0, c1 = (cx0, line(cx0) + CEIL_GAP), (cx1, line(cx1) + CEIL_GAP)
-def strip(z_lo, t, y):                 # a band along the ceiling line, z_lo..z_lo+t above it
+# ---- the sprung, foam-lined ceiling on parallel links: it lifts evenly along its length (0.82 for a NECTAR anywhere) ----
+c0, c1 = (CEIL_X[0], line(CEIL_X[0]) + CEIL_GAP), (CEIL_X[1], line(CEIL_X[1]) + CEIL_GAP)
+def strip(z_lo, t, y):                 # a band along the ceiling line, z_lo..z_lo+t above the foam face
     return xz([(c0[0], c0[1] + z_lo), (c1[0], c1[1] + z_lo), (c1[0], c1[1] + z_lo + t), (c0[0], c0[1] + z_lo + t)], -y, y)
-part(fixed, "ceiling_foam (1/4 in closed-cell foam, glued under the ceiling)", strip(0, 0.25, WALL_IN - 0.15), (0.3, 0.3, 0.32), "buy")
-part(fixed, "ceiling (1/16 in polycarbonate, hinged at its front; lifts 0.82 for a NECTAR)", strip(0.25, T16, WALL_IN - 0.05), POLY, "cut")
+part(fixed, f"ceiling_foam ({FOAM} in soft polyethylene or EVA foam, 2-3 lb/ft3, glued under the ceiling)", strip(0, FOAM, WALL_IN - 0.15), (0.3, 0.3, 0.32), "buy")
+ceil = strip(FOAM, T16, WALL_IN - 0.05)
+top = lambda x: line(x) + CEIL_GAP + FOAM + T16
+a_ = math.radians(LINK_DEG)
+for fx, tx in LINKS:                    # tabs from the ceiling out over the walls to the links
+    ceil = ceil.union(bx(tx - 0.25, tx + 0.25, -WO, WO, top(tx) - 0.06, top(tx)))
+part(fixed, "ceiling (1/16 in polycarbonate on four parallel links; band-held down)", ceil, POLY, "cut")
 for s in (-1, 1):
     y0, y1 = sorted(WY(s))
-    part(fixed, f"ceiling_hinge_post_{'L' if s > 0 else 'R'} (print, on the wall's front end)", bx(5.45, 5.75, y0, y1, 2.6, c0[1] + 0.45).cut(cyly(5.6, c0[1] + 0.33, 0.13, -3, 3)), BLUE, "print")
+    for i, (fx, tx) in enumerate(LINKS):
+        pz = top(tx) + LINK_L * math.sin(a_)
+        post = bx(fx - 0.2, fx + 0.2, y0, y1, 2.6, pz + 0.25).cut(cyly(fx, pz, 0.13, -3, 3))
+        part(fixed, f"ceiling_link_post_{'front' if i == 0 else 'rear'}_{'L' if s > 0 else 'R'} (print, on the wall's top edge)", post, BLUE, "print")
+        ly0, ly1 = sorted((s * WO, s * (WO + 0.125)))
+        part(fixed, f"ceiling_link_{'front' if i == 0 else 'rear'}_{'L' if s > 0 else 'R'} (1/8 in aluminium, {LINK_L} in centres)", bar((fx, pz), (tx, top(tx) - 0.03), 0.35, ly0, ly1), ALU, "cut")
     post = bx(0.55, 0.95, s * WO, s * (WO + 0.3), 1.5, 2.0)
     for dx in (-0.12, 0.0, 0.12): post = post.cut(cyly(0.75 + dx, 1.75, 0.08, -3, 3))
-    part(fixed, f"ceiling_band_post_{'L' if s > 0 else 'R'} (print, three holes; band up to the ceiling's rear hook)", post, BLUE, "print")
+    part(fixed, f"ceiling_band_post_{'L' if s > 0 else 'R'} (print, three holes; band up to the rear tab: about 1-2 lbf preload, 2 lbf/in)", post, BLUE, "print")
+    bb = bx(BEAM[0] - 0.25, BEAM[0] + 0.25, s * WO, s * (WO + 0.45), BEAM[1] - 0.35, BEAM[1] + 0.35).cut(cyly(*BEAM, 0.22, -3, 3))
+    part(fixed, f"break_beam_bracket_{'L' if s > 0 else 'R'} (print; holds one half of an IR break-beam pair, e.g. Adafruit 2167, across the lane)", bb, BLUE, "print")
 
 # ---- the cup: two feeders under the flywheels ----
 for nm, x in (("front", FEED_X[0]), ("rear", FEED_X[1])):
