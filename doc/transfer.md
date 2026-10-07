@@ -271,6 +271,22 @@ the gate to the launcher.
 0.25 in of squeeze, so with hard wheels a gap that grips a NECTAR (3.62) misses a POLLEN (2.80). Compliant (soft)
 wheels, or a sprung row, close that. Feed a POLLEN and a NECTAR back to back; if both come through, the lane is done.
 
+**The lab prototypes, read from the mentor's STEPs (CAD chat, 7 Oct).** Both lane files (`Assembly 2`, `Assembly 2
+Copy 1` in the Drive folder) share: **72 mm goBILDA Gecko 30A wheels (compliant)**, 0.94 in wide, on vertical 8 mm
+REX shafts in bearings in two goBILDA grid plates used as floor and ceiling; **one row of wheels along one side**,
+alternating high and low so neighbours overlap; the row at 15° to the plates' edge; no belts, motor or opposite wall
+drawn yet. `Assembly 2`: 6 shafts, two stacked wheels each, 48 mm pitch, 10.1 in long. `Copy 1`: 5 shafts, one wheel
+each, 60 mm pitch, 17.4 in long. So the lane is a **wall of soft wheels on one side pushing balls along a floor
+against a plain wall on the other**; the compliant wheels answer the two-size question, and the 15° taper (if
+deliberate) squeezes the ball into the wheels without a spring.
+
+**What fits the robot:** the lane's room is from the ramp's top (X 5.8) to the launcher's feed roller, about 8–9 in.
+`Assembly 2`'s geometry (48 mm pitch, two wheels per shaft) fits nearly as drawn with 4–5 shafts; `Copy 1`'s 17.4 in
+would be cut to 4 shafts. In `Copy 1` the high wheels (z 2.45..3.40 above a floor at −2.43) sit above any ball on the
+floor, so it's a sketch, not the build. **Questions for the mentor:** is the far side a plain wall; is the 15° on
+purpose; and is the 6.6–6.9 in plate gap meant (it's two balls tall; a ceiling at about 4 in would fit under the
+raised 11-hole channel).
+
 **Still to settle, from the mentor's CAD:** the wheel type and row gap; which row is driven (one driven row and
 free idlers opposite is enough); the plate gap (a NECTAR needs 3.7 in between the plates, and the top plate must stay
 under the raised 11-hole channel at 4.75); and where the lane's last wheel hands off to the launcher's feed roller.
