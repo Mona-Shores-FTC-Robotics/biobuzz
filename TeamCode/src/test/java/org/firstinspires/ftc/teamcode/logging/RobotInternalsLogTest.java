@@ -12,22 +12,32 @@ public class RobotInternalsLogTest {
     private static final double P = FieldSim.POLLEN_RADIUS_IN, N = FieldSim.NECTAR_RADIUS_IN;
 
     @Test
-    public void thePathRunsUnderTheRollerUpTheLaneIntoTheCupAndUpToTheExit() {
+    public void thePathRunsUnderTheRollerAlongTheLaneToTheHoldAndUpTheAxis() {
         for (double r : new double[] {P, N}) {
             RobotInternalsLog.Path path = new RobotInternalsLog.Path(r, -4, 12);
             assertArrayEquals("on the tiles", new double[] {RobotInternalsLog.ENTRY_X, r}, path.at(0), 1e-9);
-            assertArrayEquals("the lane's end", new double[] {RobotInternalsLog.LANE_END_X, RobotInternalsLog.LANE_END_Z + r},
-                    path.at(path.laneEnd), 1e-9);
-            assertArrayEquals("up the axis to the exit's height", new double[] {RobotInternalsLog.CUP_X, 12}, path.at(path.length), 1e-9);
-            assertTrue(path.laneEnd < path.cup && path.cup < path.length);
+            assertArrayEquals("up the axis to the exit's height", new double[] {RobotInternalsLog.HOLD_X, 12}, path.at(path.length), 1e-9);
+            assertTrue(path.hold < path.length);
         }
-        // Seated in the cup at the measured heights, on the turret's column.
-        assertArrayEquals(new double[] {RobotInternalsLog.CUP_X, 3.00}, new RobotInternalsLog.Path(P, -4, 12).cupPoint(), 1e-9);
-        assertArrayEquals(new double[] {RobotInternalsLog.CUP_X, 3.67}, new RobotInternalsLog.Path(N, -4, 12).cupPoint(), 1e-9);
-        // The column rises straight up from the cup, within the turret's bore.
-        RobotInternalsLog.Path n = new RobotInternalsLog.Path(N, -4, 12);
-        assertEquals(RobotInternalsLog.CUP_X, n.at(n.cup + 4)[0], 1e-9);
-        assertEquals(RobotInternalsLog.TURRET_X, RobotInternalsLog.CUP_X, 0.01);
+        // Held on the flat lane at the CAD's heights: POLLEN 2.70, NECTAR 3.11 (to the radius's rounding).
+        assertArrayEquals(new double[] {-2.845, 2.70}, new RobotInternalsLog.Path(P, -4, 12).holdPoint(), 0.01);
+        assertArrayEquals(new double[] {-2.845, 3.11}, new RobotInternalsLog.Path(N, -4, 12).holdPoint(), 0.01);
+        assertEquals(RobotInternalsLog.TURRET_X, RobotInternalsLog.HOLD_X, 0.01);
+    }
+
+    @Test
+    public void theQueueSitsNoseToTailFromTheHoldAsTheCadPlacesIt() {
+        // The CAD chat's queue (146f130): POLLEN at X -2.845, -0.045, 2.755, 5.555; NECTAR at -2.845, 0.775, 4.395.
+        double[][] expected = {{-2.845, -0.045, 2.755, 5.555}, {-2.845, 0.775, 4.395}};
+        double[] radius = {P, N};
+        for (int k = 0; k < 2; k++) {
+            RobotInternalsLog.Path path = new RobotInternalsLog.Path(radius[k], -4, 12);
+            for (int q = 0; q < expected[k].length; q++) {
+                // Each further piece one diameter back along the path from the hold. The CAD's NECTAR is 3.62 in across,
+                // the simulator's 3.60, so the third NECTAR sits 0.04 in nearer.
+                assertEquals("slot " + q, expected[k][q], path.at(path.hold - q * 2 * radius[k])[0], 0.05);
+            }
+        }
     }
 
     @Test

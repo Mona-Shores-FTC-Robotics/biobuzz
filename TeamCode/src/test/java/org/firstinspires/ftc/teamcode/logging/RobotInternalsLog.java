@@ -18,18 +18,18 @@ import java.util.Map;
  * to know when it will be launched.
  *
  * <p><b>Robot frame</b> (the CAD model's): X forward, z up, inches, origin on the floor under the chassis centre.
- * All pieces travel on the centre line. The transfer is v2 (the CAD chat's 12d34bb, on the mentor's CAD): a ramp, a
- * wheel lane rising 17 deg, a feeder cup on the turret's axis, and two foam feeder wheels that pop a piece straight up
- * into the launcher's flywheels. The simulator tracks only which pieces are held, and in what order. So where a piece
+ * All pieces travel on the centre line. The transfer is the CAD chat's 146f130, on the mentor's CAD: a ramp, a flat
+ * lane, and two pairs of feeder wheels either side of the turret's axis that hold the lead piece against a backstop
+ * and drive it straight up into the launcher's flywheels. The simulator tracks only which pieces are held, and in what order. So where a piece
  * is between those events is interpolated:
  * <ul>
  *   <li><b>Entry:</b> from under the roller, up the ramp and along the lane to its place in the queue, at
  *   {@link #LANE_IN_PER_S}.</li>
- *   <li><b>Queue:</b> the front piece seated in the cup, the rest nose to tail behind it along the lane. Each moves up
- *   at {@link #LANE_IN_PER_S} when the one ahead leaves; while a piece is being fed, the front feeder holds the next
- *   one back at the lane's end.</li>
- *   <li><b>Firing:</b> the piece in the cup waits {@link #FEED_SPIN_UP_S} while the feeders spin up. It then rises
- *   straight up through the flywheels to the launcher's exit, arriving as the simulator launches it,
+ *   <li><b>Queue:</b> the lead piece held between the feeders, the rest nose to tail behind it on the flat lane. Each
+ *   moves up at {@link #LANE_IN_PER_S} when the one ahead leaves; while a piece is being fed, the next waits right
+ *   behind the hold and rolls in once it has gone.</li>
+ *   <li><b>Firing:</b> the held piece waits {@link #FEED_SPIN_UP_S} while the feeders spin up. It then rises straight
+ *   up the turret's axis through the flywheels to the launcher's exit height, arriving as the simulator launches it,
  *   {@link #CLIMB_S} after the fire command.</li>
  * </ul>
  */
@@ -37,7 +37,7 @@ final class RobotInternalsLog {
 
     /** The CAD model's component poses, in this order (agreed with the CAD chat): the key's suffix after a robot's prefix. */
     static final String COMPONENTS = "/Internals/Components";
-    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, FRONT_FEEDER = 3, INTAKE_ROLLER = 4, REAR_FEEDER = 7, COUNT = 8;
+    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, LEFT_FEEDER = 3, INTAKE_ROLLER = 4, RIGHT_FEEDER = 7, COUNT = 8;
 
     /**
      * A part that spins about a fixed axle while its mechanism runs: the intake roller (which also rises with the
@@ -70,10 +70,10 @@ final class RobotInternalsLog {
     static final Spinner[] FLYWHEELS = {
             new Spinner(5, new double[] {-0.0762, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
             new Spinner(6, new double[] {-0.0762, -0.084521, 0.168808}, new double[] {1, 0, 0})};
-    /** The front (+Y axis) and rear (-Y axis) feeder wheels under the cup: both pop the piece up. */
+    /** The left and right feeders, two 72 mm wheels each on axles along X either side of the held piece: both drive it up. */
     static final Spinner[] FEEDERS = {
-            new Spinner(FRONT_FEEDER, new double[] {-0.013843, 0, 0.039624}, new double[] {0, 1, 0}),
-            new Spinner(REAR_FEEDER, new double[] {-0.130683, 0, 0.039624}, new double[] {0, -1, 0})};
+            new Spinner(LEFT_FEEDER, new double[] {-0.072263, 0.069020, 0.081602}, new double[] {-1, 0, 0}),
+            new Spinner(RIGHT_FEEDER, new double[] {-0.072263, -0.069020, 0.081602}, new double[] {1, 0, 0})};
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
     static final double LANE_IN_PER_S = 27;
@@ -82,12 +82,10 @@ final class RobotInternalsLog {
 
     /** Where an entering piece is first drawn: its centre just ahead of the roller's axle, on the tiles. */
     static final double ENTRY_X = 10.0;
-    /** The ramp: from X 8.0 (0.05 in up) to X 5.8, 0.9 in up, where the lane starts. */
-    static final double RAMP_START_X = 8.0, RAMP_START_Z = 0.05, LANE_START_X = 5.8, LANE_FLOOR_Z = 0.9;
-    /** The lane's end: its ball-bottom line rises 17 deg from the ramp's top to here, over the front feeder. */
-    static final double LANE_END_X = -0.545, LANE_END_Z = 2.873;
-    /** The feeder cup on the turret's axis, and a seated piece's centre height: POLLEN 3.00, NECTAR 3.67. */
-    static final double CUP_X = -2.845, CUP_Z_POLLEN = 3.00, CUP_Z_NECTAR = 3.67;
+    /** The ramp: from X 8.0 (0.05 in up) to X 5.7, 1.3 in up, where the flat lane starts (ball-bottom at 1.3). */
+    static final double RAMP_START_X = 8.0, RAMP_START_Z = 0.05, LANE_START_X = 5.7, LANE_FLOOR_Z = 1.3;
+    /** Where the lead piece is held, between the feeders against the backstop, on the turret's axis. */
+    static final double HOLD_X = -2.845;
     /** The roller: axle at rest (X, z), radius, the most it floats, and how far a POLLEN squeezes its gecko tread. */
     static final double ROLLER_X = 8.56, ROLLER_Z = 3.35, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
 
@@ -237,14 +235,14 @@ final class RobotInternalsLog {
                 }
             }
             along.keySet().retainAll(Arrays.asList(f.stored));
-            // The queue: the front piece seated in the cup (held back at the lane's end while another is being fed),
-            // the rest nose to tail behind it along the lane.
-            double behind = 0, lastR = 0;
+            // The queue: the lead piece held between the feeders, the rest nose to tail behind it. While a piece is
+            // being fed, the next waits right behind the hold.
+            double behind = 0, lastR = climbing.isEmpty() ? 0 : climbing.get(0).kind.radius;
             for (int q = 0; q < queue.size(); q++) {
                 FieldSim.Piece p = queue.get(q);
                 Path path = path(p.kind.radius);
-                double front = climbing.isEmpty() ? path.cup : path.laneEnd;
-                if (q > 0) behind += lastR + p.kind.radius;
+                double front = path.hold;
+                if (q > 0 || !climbing.isEmpty()) behind += lastR + p.kind.radius;
                 lastR = p.kind.radius;
                 double target = Math.max(0, front - behind);
                 Double s = along.get(p);
@@ -258,7 +256,7 @@ final class RobotInternalsLog {
             for (FieldSim.Piece p : climbing) {
                 double toGo = (climbingTo.get(p) - f.us) / 1e6;
                 Path path = path(p.kind.radius);
-                double from = climbFrom.computeIfAbsent(p, k -> along.getOrDefault(k, path.cup));
+                double from = climbFrom.computeIfAbsent(p, k -> along.getOrDefault(k, path.hold));
                 double moving = CLIMB_S - FEED_SPIN_UP_S;
                 double u = Math.max(0, Math.min(1, (moving - toGo) / moving));
                 along.put(p, from + u * (path.length - from));
@@ -377,14 +375,14 @@ final class RobotInternalsLog {
 
     /**
      * A piece's path through the transfer, for one piece radius, in the robot frame (X, z), inches: under the roller,
-     * up the ramp, up the rising lane to its end over the front feeder, down into the cup, and straight up the turret's
-     * axis through the flywheels to the launcher's exit height.
+     * up the ramp, along the flat lane to the hold between the feeders, and straight up the turret's axis through the
+     * flywheels to the launcher's exit height.
      */
     static final class Path {
         final double[] xs, zs, cum;
         final double length;
-        /** How far along a piece is at the lane's end, and seated in the cup. */
-        final double laneEnd, cup;
+        /** How far along a piece is when held between the feeders. */
+        final double hold;
 
         Path(double r, double exitX, double exitZ) {
             List<double[]> pts = new ArrayList<>();
@@ -392,15 +390,11 @@ final class RobotInternalsLog {
             pts.add(new double[] {ROLLER_X, r});
             pts.add(new double[] {RAMP_START_X, RAMP_START_Z + r});
             pts.add(new double[] {LANE_START_X, LANE_FLOOR_Z + r});
-            pts.add(new double[] {LANE_END_X, LANE_END_Z + r});
-            int laneEndAt = pts.size() - 1;
-            // Seated in the cup: POLLEN's and NECTAR's measured heights, between them by size.
-            double u = (r - FieldSim.POLLEN_RADIUS_IN) / (FieldSim.NECTAR_RADIUS_IN - FieldSim.POLLEN_RADIUS_IN);
-            pts.add(new double[] {CUP_X, CUP_Z_POLLEN + u * (CUP_Z_NECTAR - CUP_Z_POLLEN)});
-            int cupAt = pts.size() - 1;
+            pts.add(new double[] {HOLD_X, LANE_FLOOR_Z + r});
+            int holdAt = pts.size() - 1;
             // Straight up the turret's axis, through the flywheels' nip and the turret's bore, to the exit's height. The
             // simulator's shot leaves from the design's exit point (exitX), which may sit a little off the axis.
-            pts.add(new double[] {CUP_X, exitZ});
+            pts.add(new double[] {HOLD_X, exitZ});
             xs = new double[pts.size()];
             zs = new double[pts.size()];
             cum = new double[pts.size()];
@@ -410,13 +404,12 @@ final class RobotInternalsLog {
                 if (k > 0) cum[k] = cum[k - 1] + Math.hypot(xs[k] - xs[k - 1], zs[k] - zs[k - 1]);
             }
             length = cum[cum.length - 1];
-            laneEnd = cum[laneEndAt];
-            cup = cum[cupAt];
+            hold = cum[holdAt];
         }
 
-        /** Where a piece sits seated in the cup. */
-        double[] cupPoint() {
-            return at(cup);
+        /** Where a piece sits held between the feeders. */
+        double[] holdPoint() {
+            return at(hold);
         }
 
         /** (X, z) at {@code s} inches along. */
