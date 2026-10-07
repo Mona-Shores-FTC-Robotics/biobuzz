@@ -93,6 +93,8 @@ public final class AutoSim {
     static final double CAMERA_HALF_FOV_RAD = Math.toRadians(35);
     /** Beyond this from the raised CELL the launcher holds fire: past ~56 in nothing scores (ShotMapTest). */
     static final double MAX_SHOT_RANGE_IN = 60;
+    /** How far a corner may reach past a wall's face before it counts as driving into the wall. */
+    static final double WALL_SLACK_IN = 0.5;
     static final double CAMERA_RANGE_IN = 60;
     /** A start pose's frame corner this near the perimeter counts as touching the wall. */
     static final double START_WALL_IN = 1.0;
@@ -147,6 +149,8 @@ public final class AutoSim {
         double hitHiveAt = Double.NaN;
         /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
         double hitFlowerAt = Double.NaN;
+        /** When the robot's outline first reached through a field wall by more than {@link #WALL_SLACK_IN}; NaN if never. */
+        double hitWallAt = Double.NaN;
 
         RobotResult(String auto) {
             this.auto = auto;
@@ -162,7 +166,9 @@ public final class AutoSim {
                             + (Double.isNaN(hitHiveAt) ? ""
                             : String.format(Locale.ROOT, ", DRIVES INTO THE HIVE FRAME at %.1f s", hitHiveAt))
                             + (Double.isNaN(hitFlowerAt) ? ""
-                            : String.format(Locale.ROOT, ", DRIVES INTO A FLOWER at %.1f s", hitFlowerAt)));
+                            : String.format(Locale.ROOT, ", DRIVES INTO A FLOWER at %.1f s", hitFlowerAt))
+                            + (Double.isNaN(hitWallAt) ? ""
+                            : String.format(Locale.ROOT, ", DRIVES INTO A WALL at %.1f s", hitWallAt)));
         }
     }
 
@@ -791,7 +797,7 @@ public final class AutoSim {
     static final double EXTRACTOR_STOWED_DEG = 146;
 
     /** The CAD model's turret axis, +Z through here (m; the bearing's inner race); positive yaw turns left, 0 facing forward. */
-    static final double TURRET_AXIS_X_M = -0.072215;
+    static final double TURRET_AXIS_X_M = -0.051895;  // the launcher moved 0.8 in forward, 7 Oct 2026 (ac817a6)
     static final double TURRET_AXIS_Y_M = 0.004;
     /** How many components the CAD model has (cad/advantagescope/Robot_BIOBUZZ/config.json). */
     static final int CAD_COMPONENTS = 8;
@@ -1057,6 +1063,21 @@ public final class AutoSim {
             if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn, design.frameWidthIn)) {
                 result.hitFlowerAt = now;
                 log.putEvent(tag() + "drives into a FLOWER", us);
+            }
+            // The walls (mentor review, 7 Oct 2026: a turn beside a wall swung the corners through it, and nothing said
+            // so). The simulator does not stop the robot at a wall; a corner or V tip beyond one by more than the slack
+            // (the start touches a wall on purpose) is a problem, like the HIVE frame.
+            if (Double.isNaN(result.hitWallAt)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                    if (c[0] < -WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN
+                            || c[1] < -WALL_SLACK_IN || c[1] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN) {
+                        result.hitWallAt = now;
+                        log.putEvent(tag() + "drives into a wall", us);
+                        result.timeline.add(String.format(Locale.ROOT, "%5.2f drives into a wall: corner (%.1f, %.1f) at (%.1f, %.1f) heading %.0f",
+                                now, c[0], c[1], pose[0], pose[1], Math.toDegrees(pose[2])));
+                        break;
+                    }
+                }
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {

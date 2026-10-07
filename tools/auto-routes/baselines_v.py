@@ -81,14 +81,21 @@ FRONT_IN_V = 15.12 / 2  # the body is 15.12 in long (15.24 wide): its face 7.56 
 FLOWER_FACE_V = 4.59
 
 
+FLAP_AHEAD_V = 2.8  # the drawn V's flap tips ahead of the face (RobotDesign.flapForwardIn)
+
+
 def build_for_v(build, name):
-    front, face = qual_right.FRONT_IN["option3"], qual_right.FLOWER_FACE_IN["option3"]
+    front, face, flap = qual_right.FRONT_IN["option3"], qual_right.FLOWER_FACE_IN["option3"], qual_right.FLAP_AHEAD_IN["option3"]
     qual_right.FRONT_IN["option3"] = FRONT_IN_V
     qual_right.FLOWER_FACE_IN["option3"] = FLOWER_FACE_V
+    qual_right.FLAP_AHEAD_IN["option3"] = FLAP_AHEAD_V
+    sweep = qual_right.O3["qual-right-o3-sweep"]
+    qual_right.O3["qual-right-o3-sweep"] = {**sweep, "sweep_y": 12}  # the sweep 2 in off the south wall, for the turn in
     try:
         return build(name)
     finally:
-        qual_right.FRONT_IN["option3"], qual_right.FLOWER_FACE_IN["option3"] = front, face
+        qual_right.FRONT_IN["option3"], qual_right.FLOWER_FACE_IN["option3"], qual_right.FLAP_AHEAD_IN["option3"] = front, face, flap
+        qual_right.O3["qual-right-o3-sweep"] = sweep
 
 
 if __name__ == "__main__":

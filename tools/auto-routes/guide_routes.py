@@ -132,7 +132,7 @@ ROW_X_OFFSET = [0.0]
 ROW_PIECES_Y = (128.0, 130.9, 133.7, 136.5)  # A's row (AutoStudyTest.stagedFor), x 29.6
 # Where the face stops, one step a piece. The pieces touch, so the face pushes the rest of the row along ahead
 # of it into the north wall (there at y 134.5, 137.3, 140.1): the steps follow them to the wall.
-SWEEP_FACE_Y = (127.0, 130.0, 133.4, 136.2, 139.0)
+SWEEP_FACE_Y = (127.0, 130.0, 133.4, 136.2, 138.0)  # the last step 138 (was 139): the V's tips 2.8 in ahead stay 0.7 in off the north wall
 
 
 def row_sweep(r, partner, row_ms, west):
