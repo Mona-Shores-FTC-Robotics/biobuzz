@@ -18,7 +18,7 @@ roller's spring isn't drawn.
 behind the front face). Millimetres. (The separate `cad/intake-b/` and `cad/transfer/` STEPs stay in the team CAD's own
 frame, for importing into its Onshape assembly.)
 
-**Where the file is:** it's about 380 MB (about 30 MB as `BIOBUZZ-robot.step.xz`), too big for git. It goes in the
+**Where the file is:** it's about 380 MB (37 MB as `BIOBUZZ-robot.step.xz`), too big for git. It goes in the
 team's Drive, in the `biobuzz` folder next to "DHS Robot Copy.step".
 
 **Rebuild:**
