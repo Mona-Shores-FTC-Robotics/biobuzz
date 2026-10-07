@@ -287,9 +287,21 @@ floor, so it's a sketch, not the build. **Questions for the mentor:** is the far
 purpose; and is the 6.6–6.9 in plate gap meant (it's two balls tall; a ceiling at about 4 in would fit under the
 raised 11-hole channel).
 
-**Still to settle, from the mentor's CAD:** the wheel type and row gap; which row is driven (one driven row and
-free idlers opposite is enough); the plate gap (a NECTAR needs 3.7 in between the plates, and the top plate must stay
-under the raised 11-hole channel at 4.75); and where the lane's last wheel hands off to the launcher's feed roller.
+**Decided from the goal (7 Oct), for the mentor to correct if he knows better:**
+- **The far side is a plain, smooth wall.** One driven row moves a ball along a wall; a second row would need a
+  reversed drive for no gain.
+- **The channel is parallel, not tapered.** The ramp and roller already deliver on the centreline; a taper only
+  costs magazine width. A short flare at the entry.
+- **The ceiling plate is a bearing carrier** under the raised 11-hole channel (top at or below 4.7); the floor at
+  0.9 sets the ball's height. Wheel stacks 1.9 in per shaft, alternating low and high, as in `Assembly 2`.
+- **The wall is hinged and banded, 2.7 in from the wheel faces at rest**, so a POLLEN is gripped 0.1 in and a NECTAR
+  pushes the wall out 0.9. If the mentor's tests show the 30A wheels alone take both sizes, bolt the wall and drop
+  the band. The same principle as the J's floating arm, applied to the wall.
+- Four or five shafts at 48 mm pitch, driven by one belt over the printed hub pulleys; the rearmost wheel pair is
+  the last thing a ball touches before the launcher's feed roller.
+
+**Still to settle, from the mentor's CAD:** the feed roller's position (the live launcher tab hasn't been exported
+yet; `Launcher Concept.step` is the 6 Oct launcher with hard wheels and a 3.19 in nip).
 
 ## The real launcher (7 Oct 2026): the J feeds its flywheels
 
