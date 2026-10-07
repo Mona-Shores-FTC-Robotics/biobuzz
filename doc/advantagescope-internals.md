@@ -103,9 +103,11 @@ The layout's tabs:
 
 ## Sample logs
 
-`sim-review/advantagescope-internals.zip` has the four routes for review, on "rigid V" (the decided robot, a shot every
+`sim-review/advantagescope-internals.zip` has the routes for review, on "rigid V" (the decided robot, a shot every
 0.2 s), seed 3, with the transfer's 0.5 s feed and the simulator's wall check. Over 60 runs:
-- `qual-right-v-flower-first-hold`: the mentor's flower first, 74.0, TIP 3 in 56;
+- `qual-right-v-flower-first-tip3` (partner `partner-preloads-right-high`): flower first, waiting for TIP 3, filling up
+  from its spill and parking deeper; 74.0, TIP 3 in 56, 1.7 pieces held into TELEOP;
+- `qual-right-v-flower-first-hold`: the mentor's flower first, for comparison; 74.0, TIP 3 in 56;
 - `qual-right-v-seatfire-west`: 72.7, TIP 3 in 52;
 - `qual-stages-angled-v`: the plain angled baseline, 61.3, TIP 3 in 24, with 4 runs into the HIVE frame late in AUTO;
 - `qual-stages-wall-v-stream-x700-leave`: the wall pairing, where both robots PARK, 53.3.
@@ -115,7 +117,7 @@ The zip's README has the full table.
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstTip3Auto,PartnerPreloadsRightHighAuto@50;QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
