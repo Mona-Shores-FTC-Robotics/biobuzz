@@ -457,6 +457,24 @@ frame's corners, and also through the turn back to its starting heading; a piece
 east, then the turn north for PARK swung the tips across. Still to try (mentor): carry TIP 3's spill under the HIVE and
 fire it before PARK; or PARK straight away, deep, and fire from the LOADING ZONE.
 
+**Mentor review of the TIP 3 route (7 Oct 2026, evening), `qual-right-v-flower-first-carry-settle-b2` with
+`partner-preloads-right-south`** (stream.py `build_flower_first_north`):
+1. *TIP 2: "1-3 inches further back, start moving toward the drop zone", no piece hitting us.* N_FIRE 2 in further
+   back: no measurable change. Starting the drive south a fixed 0.6-1.8 s after TIP 2 starts, instead of when the
+   CELL settles: 0.6 s touched the falling spill in 5 runs of 10, and every timing lost TIP 3 (16 of 20 against 19),
+   so the route keeps the settle wait.
+2. *TIP 3: "catching stuff but oriented the wrong way".* TIP 3's spill rolls south off the HIVE toward the wall,
+   past S_FIRE. The robot now holds there facing the HIVE, intake running, for up to 1.5 s and catches what rolls in
+   (3.6 pieces on average), instead of turning west to look for it.
+3. *"Go shoot them on the opposite side, then park; the partner parks on its side."* Up the lane under the HIVE,
+   with the control points held at x 58.5 so the robot's back clears the frame's west foot (x 45-47, to y 90), and
+   west into the LOADING ZONE's north end (14.5, 116); the partner parks at the south end (10.5, 96). Firing the catch
+   does not fit: TIP 3 comes at 21-22 s (25.6 s in a slow match), and catch, the lane, a fire and PARK need about 8 s.
+   From N_UP the guard cut the fire every time; firing from the catch spot over the HIVE hit the HIVE. So the robot
+   carries them into TELEOP.
+60 runs, rigid V: **74.3 · 3 TIPs in 57 · both PARK 60 · 3.65 held into TELEOP · no problem runs** (the TIP 3 ending:
+74.0 · 56 · 1.7 held).
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).

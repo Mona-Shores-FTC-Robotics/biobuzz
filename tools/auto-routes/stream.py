@@ -145,7 +145,7 @@ if __name__ == "__main__":
 # the 4 preloads one by one (each makes room for a FLOWER POLLEN), hold until the FLOWER's 4 are in, back out and turn
 # to N_FIRE, then fire them there, stopped: TIP 2 can only start once they're away, so the robot is already standing
 # where the baseline waits for its spill.
-def right_flower_first_hold(name, robot="baseline", n_fire=None, **kw):
+def right_flower_first_hold(name, robot="baseline", n_fire=None, _tail=True, **kw):
     r = _right(name, robot=robot, n_fire=n_fire, **kw)
     r.cards, r.lines, r.path_ends = [], [], {}
     r.at = "START"
@@ -161,7 +161,8 @@ def right_flower_first_hold(name, robot="baseline", n_fire=None, **kw):
     r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
     r.at = "N_FIRE"
     r.add(r.wait("Fire the far FLOWER's 4, lined up (TIP 2)", when=["Tip"], ms=2500, alongside="LaunchAll"))
-    r.add(*qual_right.tail(r, **kw))
+    if _tail:
+        r.add(*qual_right.tail(r, **kw))
     return r
 
 
@@ -241,3 +242,133 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(r.name)
+
+
+# Mentor review of the TIP 3 route (7 Oct 2026, evening):
+# 1. TIP 2: "slightly too close to the tip zone ... 1-3 inches further back but started moving toward the drop zone",
+#    timed so no spilled piece touches the robot as it falls (G409) yet it still collects 4. N_FIRE moves back
+#    NORTH_BACK_IN; the drive south through the spill starts TIP2_GO_MS after the TIP starts (settle=False, extra).
+# 2. TIP 3: "our robot should be catching stuff but it's oriented the wrong way". TIP 3's spill comes to rest along
+#    the south wall (20 runs: x 36-72, y 1-19), behind a robot firing from S_FIRE facing north. It now fires the
+#    GARDEN facing south (the turret aims), then sweeps west along y 10 through the spill.
+# 3. "plenty of time to pick that tip up and go shoot them on the opposite side then park ... the partner park closer
+#    to their side": up the lane under the HIVE (x 50, between the foot bars at x 33 and 83) and west into the
+#    LOADING ZONE's north end, PARK_N (14.5, 116) facing west, 50 in from the left CELL (up after TIP 3, at about
+#    (58, 90)), inside the turret's 60 in, so it fires them from PARK. The partner parks at the zone's south end
+#    (partner-preloads-right-south, (10.5, 96)), on its side, 2.4 in clear of us.
+NORTH_BACK_IN, TIP2_GO_MS = [2.0], [1200]
+
+
+def tip3_sweep_north(r, tag="", **kw):
+    """From S_FIRE, facing the HIVE, once the GARDEN's shots are away: TIP 3's spill rolls south off the HIVE toward
+    the wall, past S_FIRE, so the robot holds there facing it, intake running, and catches what rolls in (mentor:
+    "catching stuff but it's oriented the wrong way": it used to turn west to look for the spill with the webcam).
+    Then straight north up the lane under the HIVE (x 57.5, between the frame's feet at x 46 and 95), west into
+    PARK_N, and fires what it caught from there."""
+    r.at = "S_FIRE"
+    x, y, h = r.points["S_FIRE"]
+    r.pt("S_CATCH3", CATCH3_X[0], y, 90)
+    r.pt("PARK", 14.5, 116, 180)
+    out = []
+    if abs(CATCH3_X[0] - x) > 0.1:
+        out.append(r.go("S_CATCH3", heading=90))
+        r.at = "S_CATCH3"
+    # One path up the lane and round into PARK: two (a stop at the lane's end) left the endgame guard too little
+    # time, and it cut the fire from PARK.
+    # Straight up the lane to N_FIRE (a curve into PARK from S_FIRE bent west under the HIVE into the frame's west
+    # foot), fire there standing still, lined up, about 26 in from the left CELL (up after TIP 3, about (58, 90)),
+    # then the short hop west into PARK. The park path is the last card (the endgame guard never cuts the last card,
+    # and a fire card after it was cut every time); short, so the guard leaves the fire its time.
+    r.pt("N_UP", 57.5, 116, 90)
+    if FIRE3_AT[0] == "south":
+        # Fire from the catch spot itself, over the HIVE: the left CELL is within the turret's 60 in of y 32 on the
+        # lane. Then up the lane and west into PARK, the last card.
+        r.pt("S_CATCH3", CATCH3_X[0], 32, 90)
+        out = [r.go("S_CATCH3", heading=90)]
+        r.at = "S_CATCH3"
+        out += [r.wait(f"TIP 3{tag}", when=["Tip"], ms=TIP3_MS),
+                r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=CATCH3_MS[0]),
+                r.wait(f"Fire TIP 3's spill at the left CELL{tag}", when=["Empty"], ms=1500, alongside="LaunchAll"),
+                r.go("PARK", ctrl=[(57.5, 116)], turn_after=0.55, turn_by=0.9, park=True)]
+        r.at = "PARK"
+        return out
+    out += [r.wait(f"TIP 3{tag}", when=["Tip"], ms=TIP3_MS),
+            r.wait(f"Catch TIP 3's spill{tag}", when=["IntakeFull"], ms=CATCH3_MS[0])]
+    if FIRE3_AT[0] == "north":
+        out.append(r.go("N_UP", heading=90))
+        r.at = "N_UP"
+        out += [r.wait(f"Fire TIP 3's spill at the left CELL{tag}", when=["Empty"], ms=1500, alongside="LaunchAll"),
+                r.go("PARK", turn_after=0.1, turn_by=0.6, park=True)]
+    else:
+        # One park path from the catch spot, so the endgame guard knows the whole drive: with a stop at N_UP it
+        # judged only the hop from there, cut a late TIP 3's catch too late, and the robot ended short of the zone
+        # (2 runs in 20). Control points stacked at the lane's top (x 58.5, an inch right of the lane) hold it on the
+        # lane until its back is past the HIVE frame's west foot (x 45-47, to y 90): with two, it bent west early and
+        # its rear corner caught the foot at y 96 in every run.
+        out.append(r.go("PARK", ctrl=[(58.5, 100), (58.5, 116), (58.5, 116), (58.5, 116)], turn_after=0.8,
+                        turn_by=0.98, park=True))
+    r.at = "PARK"
+    return out
+
+
+CATCH3_X, CATCH3_MS, FIRE3_AT = [57.5], [2000], ["north"]
+
+
+def right_flower_first_north(name, robot="baseline", n_fire=None, **kw):
+    if TIP2_GO_MS[0] is not None:  # None: the baseline's TIP 2 timing (until the CELL settles, then its extra)
+        kw = dict(kw, settle=False, extra=TIP2_GO_MS[0])
+    r = right_flower_first_hold(name, robot=robot, n_fire=n_fire, _tail=False, **kw)
+    x, y, h = r.points["N_FIRE"]
+    r.pt("N_FIRE", x, y + NORTH_BACK_IN[0], h)
+    r.add(*qual_right.tail(r, **kw))
+    return r
+
+
+def partner_right_south(name="partner-preloads-right-south"):
+    """partners.partner_right, parked at the LOADING ZONE's south end (y 96), its own side, leaving the north end to us."""
+    import autogen as ag
+    from helpers import fire as hfire
+    r = ag.Route(name, (59, 9.5, 90), speed=40)
+    r.pt("PARK_P", 10.5, 96, 90)
+    r.add(r.action("SpinUp"), r.action("IntakeOff"), hfire(r, "Fire the preloads", "Empty", ms=4500),
+          r.go("PARK_P", ctrl=[(26, 20), (26, 80)], park=True))
+    return r
+
+
+def build_flower_first_north(name, back=2.0, go_ms=1200, wait=200, catch_x=57.5, catch_ms=2000, fire_at="north"):
+    NORTH_BACK_IN[0], TIP2_GO_MS[0], CATCH3_X[0], CATCH3_MS[0], FIRE3_AT[0] = back, go_ms, catch_x, catch_ms, fire_at
+    park, right = baselines_v.park_from_garden, qual_right.right
+    baselines_v.park_from_garden = tip3_sweep_north
+    restore = retime.with_wait("qual-right-v", wait)
+    qual_right.right = right_flower_first_north
+    try:
+        with seated():
+            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+    finally:
+        restore()
+        baselines_v.park_from_garden, qual_right.right = park, right
+
+
+NORTH = {f"qual-right-v-flower-first-north-b{int(b)}-g{g}": (b, g, 57.5, 2000) for b in (0.0, 2.0) for g in (600, 900, 1200, 1500, 1800)}
+NORTH.update({f"qual-right-v-flower-first-north-c{int(x)}-{ms}": (2.0, 1200, x, ms) for x in (50, 57.5) for ms in (1500, 2500, 3500)})
+SOUTH_FIRE = {f"qual-right-v-flower-first-south-g{g}-c{ms}": (2.0, g, 57.5, ms) for g in (1200, 1500) for ms in (1000, 1500, 2000)}
+CARRY = {f"qual-right-v-flower-first-carry-g{g}-c{ms}": (2.0, g, 57.5, ms) for g in (1200, 1500) for ms in (1500, 2000)}
+CARRY.update({f"qual-right-v-flower-first-carry-settle-b{int(b)}": (b, None, 57.5, 1500) for b in (0.0, 2.0)})
+
+if __name__ == "__main__":
+    for name, (b, g, cx, cms) in NORTH.items():
+        r = build_flower_first_north(name, b, g, catch_x=cx, catch_ms=cms)
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+    for name, (b, g, cx, cms) in CARRY.items():
+        r = build_flower_first_north(name, b, g, catch_x=cx, catch_ms=cms, fire_at="none")
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+    for name, (b, g, cx, cms) in SOUTH_FIRE.items():
+        r = build_flower_first_north(name, b, g, catch_x=cx, catch_ms=cms, fire_at="south")
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+    r = partner_right_south()
+    r.folder = autogen.EXPERIMENTS
+    r.write()
+    print(len(NORTH), "north variants and", r.name)
