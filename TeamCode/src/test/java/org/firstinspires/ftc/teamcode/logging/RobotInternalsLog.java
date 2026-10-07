@@ -64,7 +64,11 @@ final class RobotInternalsLog {
      */
     static final Spinner INTAKE_ROLLER_SPIN = new Spinner(new double[] {8.56 * 0.0254, 0, 3.35 * 0.0254}, new double[] {0, 1, 0}, 1);
     /** The launcher's flywheels, one per axle, in component order from 5. Empty until the CAD chat exports them. */
-    static final Spinner[] FLYWHEELS = {};
+    static final Spinner[] FLYWHEELS = {
+            // 5, left (+Y) and 6, right (-Y): each two 96 mm Gecko wheels on one axle; +angle throws the piece up (the
+            // CAD chat, 47d34aa, provisional until the new launcher CAD is in).
+            new Spinner(new double[] {-0.084201, 0.092532, 0.168796}, new double[] {-1, 0, 0}, 1),
+            new Spinner(new double[] {-0.084201, -0.084506, 0.168796}, new double[] {1, 0, 0}, 1)};
     static final int COUNT = 5 + FLYWHEELS.length;
 
     /** Lane speed: a hollow ball rolls at about 0.4 of the floor strands' 68 in/s. */
@@ -92,8 +96,8 @@ final class RobotInternalsLog {
      */
     static final double NECTAR_J_LIFT_DEG = 33;
 
-    /** The turret's axis. */
-    static final double TURRET_X = -3.17;
+    /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, 47d34aa). */
+    static final double TURRET_X = -0.080201 / 0.0254, TURRET_Y = 0.004 / 0.0254;
     /**
      * How fast the drawn turret turns (the simulator aims instantly; a placeholder until the turret is built), so a
      * viewer sees it turn. {@code TurretErrorDeg} shows how far the drawing lags the aim.
@@ -269,7 +273,7 @@ final class RobotInternalsLog {
             if (f.aim != null) {
                 // Toward the aim point while the launcher is spun up or firing; otherwise it holds its last angle.
                 double c = Math.cos(f.pose[2]), s = Math.sin(f.pose[2]);
-                double ax = f.pose[0] + TURRET_X * c, ay = f.pose[1] + TURRET_X * s;
+                double ax = f.pose[0] + TURRET_X * c - TURRET_Y * s, ay = f.pose[1] + TURRET_X * s + TURRET_Y * c;
                 double want = AdvantageScopeFrame.wrap(Math.atan2(f.aim[1] - ay, f.aim[0] - ax) - f.pose[2]);
                 double turn = AdvantageScopeFrame.wrap(want - turretYaw), most = Math.toRadians(PLACEHOLDER_TURRET_DEG_PER_S) * dt;
                 turretYaw = AdvantageScopeFrame.wrap(turretYaw + Math.max(-most, Math.min(most, turn)));
@@ -345,7 +349,7 @@ final class RobotInternalsLog {
         System.arraycopy(AutoSim.cadComponents(extractorDown, 0), 0, out, 7 * EXTRACTOR, 7);
         out[7 * ROLLER + 2] = riseIn * M;
         out[7 * ROLLER + 3] = 1;
-        about(out, TURRET, new double[] {TURRET_X * M, 0, 0}, new double[] {0, 0, 1}, yaw);
+        about(out, TURRET, new double[] {TURRET_X * M, TURRET_Y * M, 0}, new double[] {0, 0, 1}, yaw);
         about(out, J_ARM, new double[] {J_PIVOT_X * M, 0, J_PIVOT_Z * M}, new double[] {0, 1, 0}, lift);
         Spinner r = INTAKE_ROLLER_SPIN;
         about(out, INTAKE_ROLLER, r.pointM, r.axis, r.sign * rollerSpin);

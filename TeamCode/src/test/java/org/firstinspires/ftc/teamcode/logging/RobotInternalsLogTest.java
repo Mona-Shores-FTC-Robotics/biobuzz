@@ -64,11 +64,11 @@ public class RobotInternalsLogTest {
             for (int i = 0; i < 7; i++) assertEquals("component " + c + "[" + i + "]", identity[i], rest[7 * c + i], 1e-9);
         }
         // The turret's axis stays where it is whatever the yaw: p = R p + t.
-        double yaw = 1.0, px = RobotInternalsLog.TURRET_X * 0.0254;
+        double yaw = 1.0, px = RobotInternalsLog.TURRET_X * 0.0254, py = RobotInternalsLog.TURRET_Y * 0.0254;
         double[] turret = RobotInternalsLog.components(1, 0, yaw, 0);
         int t = 7 * RobotInternalsLog.TURRET;
-        assertEquals(px, px * Math.cos(yaw) + turret[t], 1e-9);
-        assertEquals(0, px * Math.sin(yaw) + turret[t + 1], 1e-9);
+        assertEquals(px, px * Math.cos(yaw) - py * Math.sin(yaw) + turret[t], 1e-9);
+        assertEquals(py, px * Math.sin(yaw) + py * Math.cos(yaw) + turret[t + 1], 1e-9);
         // The roller floats straight up.
         assertEquals(1.3 * 0.0254, RobotInternalsLog.components(1, 1.3, 0, 0)[7 * RobotInternalsLog.ROLLER + 2], 1e-9);
         // The extractor's pose is the CAD's (AutoSim.cadComponents).
@@ -88,5 +88,20 @@ public class RobotInternalsLogTest {
         assertEquals(p[2] + rise * 0.0254, rz + c[k + 2], 1e-9);
         assertEquals(Math.cos(spin / 2), c[k + 3], 1e-12);
         assertEquals(Math.sin(spin / 2), c[k + 5], 1e-12);
+    }
+
+    @Test
+    public void eachFlywheelSpinsAboutItsOwnAxle() {
+        double spin = 0.7;
+        double[] c = RobotInternalsLog.components(1, 0, 0, 0, 0, spin);
+        for (int k = 0; k < RobotInternalsLog.FLYWHEELS.length; k++) {
+            RobotInternalsLog.Spinner w = RobotInternalsLog.FLYWHEELS[k];
+            int i = 7 * (RobotInternalsLog.INTAKE_ROLLER + 1 + k);
+            // Along X: R p = (x, y cos - z sin, y sin + z cos) for a +X axis; the axle point stays put.
+            double a = w.sign * spin * w.axis[0], y = w.pointM[1], z = w.pointM[2];
+            assertEquals(w.pointM[0], w.pointM[0] + c[i], 1e-9);
+            assertEquals(y, y * Math.cos(a) - z * Math.sin(a) + c[i + 1], 1e-9);
+            assertEquals(z, y * Math.sin(a) + z * Math.cos(a) + c[i + 2], 1e-9);
+        }
     }
 }
