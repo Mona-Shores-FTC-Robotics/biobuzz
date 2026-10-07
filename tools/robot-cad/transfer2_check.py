@@ -18,37 +18,21 @@ def cad_mesh(shape):
 cache = 'base_mesh.pkl'
 if os.path.exists(cache): base = pickle.load(open(cache, 'rb'))
 else:
-    leaves, bs = FR.read_team(sys.argv[1])
-    from OCP.Bnd import Bnd_Box
-    from OCP.BRepBndLib import BRepBndLib
-    def bbox(k, l):
-        b = Bnd_Box(); BRepBndLib.Add_s(bs[k].wrapped.Moved(l), b); return b.Get()
-    rails = [bbox(k, l) for p, k, l, c in leaves if p and p[-1].startswith('1107-0015-0384')]
-    dz, dx = FACE - max(b[5] for b in rails), (C + 136.0) - max(b[3] for b in rails)
-    def mv(v): t = gp_Trsf(); t.SetTranslation(gp_Vec(*v)); return TopLoc_Location(t)
     base = []
-    for path, k, loc, col in leaves:
+    for path, shp, loc, col, key in FR.placed_team(sys.argv[1]):     # the mentor's parts, lined up and edited as the full STEP has them
         p = ' / '.join(path)
-        if FR.SKIP.search(p) or re.search(r'Screw|screw|Nut|2800-|2802-|2829-|CAGE|Washer|text', p): continue
-        loc = mv((dx, 0, dz)).Multiplied(loc)
-        if FR.RAISE.search(p): loc = mv((0, TR.CHAN_RAISE * IN, 0)).Multiplied(loc)
-        b = bbox(k, loc)
-        xm = ((b[2] + b[5]) / 2 - (FACE - 7.56 * IN)) / IN; ym = ((b[0] + b[3]) / 2 - C) / IN
-        if FR.FRONT_OF_LAUNCHER.search(p) and xm > -2.0:
-            if 'U Beam' in p: loc = mv((math.copysign(FR.WIDEN_IN * IN, ym), 0, 0)).Multiplied(loc); b = bbox(k, loc)
-            else: continue
-        # only what's near the lane
-        X0, X1 = (b[2] - (FACE - 7.56 * IN)) / IN, (b[5] - (FACE - 7.56 * IN)) / IN
-        Y0, Y1 = (b[0] - C) / IN, (b[3] - C) / IN; Z0, Z1 = (b[1] - F) / IN, (b[4] - F) / IN
-        if X1 < -8 or X0 > 9.5 or Y1 < -5 or Y0 > 5 or Z0 > 9: continue
-        m = cad_mesh(cq.Shape.cast(bs[k].wrapped.Moved(loc)))
-        if m is not None: base.append((p, m))
+        if re.search(r'Screw|screw|Nut|2800-|2802-|2829-|CAGE|Washer|text', p): continue
+        m = cad_mesh(cq.Shape.cast(shp.wrapped.Moved(loc)))
+        if m is None: continue
+        lo, hi = m.bounds
+        if hi[0] < -8 or lo[0] > 9.5 or hi[1] < -5 or lo[1] > 5 or lo[2] > 9: continue
+        base.append((p, m))
     pickle.dump(base, open(cache, 'wb'))
 print(len(base), 'mentor parts near the lane')
 def mesh_of(wp, to_cad=True):
     shp = TR.to_cad(wp) if to_cad else (wp.val() if hasattr(wp, 'val') else wp)
     return cad_mesh(shp)
-tr = {n: mesh_of(wp) for n, (wp, col, kind) in TR.fixed.items()}
+tr = {n: mesh_of(wp) for n, (wp, col, kind) in list(TR.fixed.items()) + list(TR.launcher.items())}
 front = {}
 for title, g, d in IB.GROUPS:
     for n, (wp, col, kind) in d.items():
@@ -62,11 +46,12 @@ def vol(a, b):
     try: return (man(a) ^ man(b)).volume()
     except Exception: return -1
 OK_TOUCH = re.compile(r'1107-0015-0384')   # brackets bolt to the rails
+EXPECTED = re.compile(r'(feeder_shaft.*Lowside U-Channel)|(flywheel_belt.*41T)')   # shafts in their channels' bearings; belts on their pulleys
 print('--- transfer vs mentor robot')
 for n, m in tr.items():
     for p, bm in base:
         v = vol(m, bm)
-        if v > 1e-4 and not (('bracket' in n) and OK_TOUCH.search(p)): print(f'{v:8.4f} in3  {n[:50]:50s} x {p[-60:]}')
+        if v > 1e-4 and not (('bracket' in n) and OK_TOUCH.search(p)) and not EXPECTED.search(n + ' ' + p): print(f'{v:8.4f} in3  {n[:50]:50s} x {p[-60:]}')
 print('--- transfer vs our front')
 for n, m in tr.items():
     for fn, fm in front.items():
@@ -96,8 +81,8 @@ def sweep(R, pts, label, ignore=re.compile(r'^$')):
     for p, v in sorted(hits.items(), key=lambda kv: -kv[1]): print(f'  {label}: {v:7.4f} in3  {p[-70:]}')
     if not hits: print(f'  {label}: clear')
 for R, nm in ((TR.RN, 'NECTAR'), (TR.RP, 'POLLEN')):
-    lane = [(x, TR.line(x) + R + 0.02) for x in np.linspace(TR.LANE_TOP[0] + 0.3, 5.6, 24)]
-    sweep(R, lane, nm + ' on the lane', re.compile(r'ceiling|lane_wheels|feeder_front|ramp'))
-    seat = TR.SEAT_N if R > 1.6 else TR.SEAT_P
-    up = [(TR.CUP_X, z) for z in np.linspace(seat + 0.02, 5.7, 12)]
-    sweep(R, up, nm + ' popped up', re.compile(r'feeder_(front|rear)\b|96mm Gecko'))
+    z = TR.FLOOR_Z + R + 0.02
+    lane = [(x, z) for x in np.linspace(TR.COL_X, 5.6, 26)]
+    sweep(R, lane, nm + ' along the lane into the feeders', re.compile(r'ceiling|lane_rollers|feeder_(L|R) |feeder_floor \('))
+    up = [(TR.COL_X, zz) for zz in np.linspace(z, 6.2, 14)]
+    sweep(R, up, nm + ' driven up the column', re.compile(r'feeder_(L|R) |96mm Gecko|feeder_floor \('))

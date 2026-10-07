@@ -1728,13 +1728,13 @@ final class FieldSim {
      * the others. Kept apart so a moving robot does not rewrite every piece on the field each loop.
      */
     /**
-     * Where held pieces are drawn, in the CAD's transfer (the robot-CAD chat, 7 Oct 2026, cad/transfer/build.py):
-     * ball 1 in the feeder cup under the flywheels, the rest queued up the 17 deg lane, each touching the one
-     * ahead, all on the centre line. Robot frame, inches: {ahead of the centre, up}. The first launched is ball
-     * 1; a mixed queue uses each kind's own slot. A drawing only: capacity is {@link #ROBOT_CAPACITY}.
+     * Where held pieces are drawn, in the CAD's transfer (v3, the robot-CAD chat, 7 Oct 2026, cad/transfer/README.md):
+     * ball 1 between the side feeders under the launch column (X -2.845), the rest queued back along the flat lane,
+     * each touching the one ahead, all on the centre line. Robot frame, inches: {ahead of the centre, up}. The first
+     * launched is ball 1; a mixed queue uses each kind's own slot. A drawing only: capacity is {@link #ROBOT_CAPACITY}.
      */
-    static final double[][] HELD_POLLEN_IN = {{-2.845, 2.998}, {-0.316, 4.201}, {2.358, 3.370}, {5.032, 2.539}};
-    static final double[][] HELD_NECTAR_IN = {{-2.845, 3.672}, {0.723, 4.288}, {4.180, 3.214}, {5.032, 2.539}};
+    static final double[][] HELD_POLLEN_IN = {{-2.845, 2.70}, {-0.045, 2.70}, {2.755, 2.70}, {5.555, 2.70}};
+    static final double[][] HELD_NECTAR_IN = {{-2.845, 3.11}, {0.775, 3.11}, {4.395, 3.11}, {5.555, 2.70}};
 
     static double[] heldAt(List<Piece> stored, int slot) {
         double[][] slots = stored.get(slot).kind == Kind.POLLEN ? HELD_POLLEN_IN : HELD_NECTAR_IN;

@@ -137,3 +137,46 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(name)
+
+
+# Mentor review of flower first (7 Oct 2026): "shoot the four that you have, then stop shooting until all four are
+# collected, do the turning, get oriented, then shoot the last four ... the extra half a second is worth it to be
+# perfectly lined up"; and the turn away from the FLOWER "might be running into where the balls will drop". So: seated,
+# the 4 preloads one by one (each makes room for a FLOWER POLLEN), hold until the FLOWER's 4 are in, back out and turn
+# to N_FIRE, then fire them there, stopped: TIP 2 can only start once they're away, so the robot is already standing
+# where the baseline waits for its spill.
+def right_flower_first_hold(name, robot="baseline", n_fire=None, **kw):
+    r = _right(name, robot=robot, n_fire=n_fire, **kw)
+    r.cards, r.lines, r.path_ends = [], [], {}
+    r.at = "START"
+    r.add(r.action("SpinUp"), *_flower(r, "FAR_FLOWER", "The far FLOWER", 1500)[:-1],
+          r.wait("TIP 1 (the partner), seated at the FLOWER", when=["LeftCellUp"], ms=9000),
+          *[r.action("LaunchOne") for _ in range(4)],
+          r.wait("The far FLOWER's 4, collected", when=["IntakeFull"], ms=FLOWER_HOLD_MS[0]))
+    r.at = "FAR_FLOWER"
+    r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
+    r.at = "N_FIRE"
+    r.add(r.wait("Fire the far FLOWER's 4, lined up (TIP 2)", when=["Tip"], ms=2500, alongside="LaunchAll"))
+    r.add(*qual_right.tail(r, **kw))
+    return r
+
+
+FLOWER_HOLD_MS = [3000]  # at most: 4 pulls at 0.5 s after the first shot, then the transfer's feed
+
+
+def build_flower_first_hold(name, wait=200):
+    qual_right.right = right_flower_first_hold
+    restore = retime.with_wait("qual-right-v", wait)
+    try:
+        with seated():
+            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+    finally:
+        restore()
+        qual_right.right = _right
+
+
+if __name__ == "__main__":
+    r = build_flower_first_hold("qual-right-v-flower-first-hold")
+    r.folder = autogen.EXPERIMENTS
+    r.write()
+    print(r.name if hasattr(r, "name") else "qual-right-v-flower-first-hold")
