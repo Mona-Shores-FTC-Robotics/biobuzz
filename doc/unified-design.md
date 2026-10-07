@@ -214,6 +214,195 @@ frame).
 - **The Limelight.** A cage over the FLOWER's top, at about 21.9 in, would sit inside the camera's keep-clear zone,
   whose ceiling at the FLOWER is 18.7 in. That matters only while the cage is engaged.
 
+## Transfer (from the intake-to-turret transfer chat, 6 Oct 2026)
+
+**Owner:** the Intake-to-turret transfer chat (session_019KDmb4SvV5VjdaM2USg71K), issue #164. Full write-up, three
+concepts, sketches and a cardboard checklist: `doc/transfer.md` on `spike/164-transfer`. Not yet on a robot.
+
+**Concept: a floor lane that is the magazine, and a J-kicker up the turret axis.**
+- The roller throws each piece up a 25° ramp into a 4.2 in wide lane along the centreline. The floor is 0.9 in up,
+  with two polycord strands on it, driven off the roller's shaft.
+- At the back, a 48 mm gecko wheel floats on a banded arm over a fixed J-curve.
+  - Stopped, it is what the queue rests against.
+  - Running, it kicks each piece straight up the turret axis, through a hollow bearing (goBILDA 105 mm ID turret),
+    into the launcher's throat.
+- So it works at every turret angle, with **one new motor** (Yellow Jacket 1620 rpm) and no sensor.
+
+**Outline** (model frame: +x forward, +y left, +z up, inches, origin on the floor under the chassis centre):
+
+| Part | x | y | z |
+|---|---|---|---|
+| Ramp | 5.8 .. 7.2 | −2.1 .. 2.1 | 0.25 .. 0.9 |
+| Lane, keep-out inside the walls | −1.3 .. 7.2 | −2.35 .. 2.35 | 0.25 .. 5.0 |
+| Lane drive belt, outside the left wall, from a pulley on the roller shaft at y +2.6 | 5.2 .. 9.0 | 2.35 .. 2.9 | 0.2 .. 3.9 |
+| J-wheel, arms, pivot (full float) | −2.3 .. 0.8 | −2.6 .. 2.6 | 1.9 .. 6.3 |
+| Outer J and chute, keep-out | −5.1 .. −1.0 | −2.2 .. 2.2 | 0.25 .. 6.6 |
+| J motor (anywhere in this box) | −4.0 .. 2.0 | 2.6 .. 4.6 | 0.8 .. 4.0 |
+| Turret bearing | centred on (−3.17, 0) | | bottom at 6.6 or higher |
+
+**Key numbers**
+
+| | |
+|---|---|
+| Hand-off to the launcher | On the turret axis (−3.17, 0) for NECTAR, and 0.4 in behind it for POLLEN. Crossing z 6.6 going up at about 70 in/s |
+| Intake to ready to fire | 0.35 s |
+| Fire command to the piece leaving the transfer | 0.15 s |
+| Shot interval | **0.25 s**, set by the roller's power while firing (0.15–0.4 s possible). The launcher's recovery is the limit |
+| Volley of 4 | about 0.9 s |
+| Holds | 4 POLLEN, 3 NECTAR, 3–4 mixed, **never 5**: G407 by geometry. At the start, 4 preloads of any mix |
+
+**What it needs from the others**
+- **From the robot:** the centreline strip, 4.7 in wide from x −5.1 to 7.2, kept free below z 5.0. So the battery,
+  the hubs and any cross-channels go to the sides or above 5.2 in.
+- **From the launcher:**
+  - its turret on the axis at x −3.17, with its bearing 6.6 in up or higher;
+  - a throat with a mouth about 4 in across, centred on the axis.
+- **Motor ports:** the transfer brings the count to 8 (4 drive, roller, J, flywheel, turret). A second flywheel motor
+  means a servo-driven turret.
+
+**Flag for the intake.** The pieces are stiff plastic balls. A NECTAR (3.62 in) is taller than the roller's axle
+(3.35 in), with the roller's bottom at 2.4. So a fixed roller there can't take a NECTAR. It needs to float.
+
+## The intake roller floats (Intake Design chat, 6 Oct 2026)
+
+Flagged by the transfer chat (#164): a NECTAR (3.62 in) is taller than the fixed roller's axle (3.35 in), so a
+fixed roller at 2.4 in can't take one. In the simulator that would cost 2 to 11 points across the Autos.
+
+**The decision** (`doc/intake-design.md` on `spike/160-intake-design`):
+- **The roller rises up to 1.3 in,** on arms pivoting about its motor shaft, 77.5 mm above the resting axle, so the
+  belt length stays constant. A spring returns it to a down stop at 2.4 in.
+- **The extractor gets a fixed pivot,** preferably on the motor shaft, with its arms outside the roller's ends.
+- **The transfer's pulley stays on the roller shaft,** belted about the float pivot.
+- **The CAD chat is redrawing.**
+
+**In the simulator:** a gap rule (`RobotDesign.rollerFloatIn`, miss reason "gap") refuses a piece bigger than the gap
+under the roller plus its float. The design to use is "DHS intake-b, floating roller". The scores already published for
+the drawn intake and V are the floating roller's: the earlier runs let NECTAR through anyway.
+
+## The transfer in the simulator (6 Oct 2026, 60 runs)
+
+The three baselines on the drawn V, with the transfer's two effects separately and together (`doc/transfer.md` on
+`spike/164-transfer`).
+- **Shots:** every 0.25 s, against the baseline launcher's 0.45 s.
+- **Lane capacity** (`RobotDesign.laneCapacity`): 4 POLLEN, 3 NECTAR, 3–4 mixed.
+
+The routes are the baselines unchanged, so they're still timed for 0.45 s shots.
+
+| Design | Partner shoots | Stages, angled partner | Stages, wall partner |
+|---|---|---|---|
+| Baseline | 71.2 · 3 TIPs in 48 · G409 8 | 51.6 · TIP 3 in 0 · 4 problem runs | 55.3 · 3 TIPs in 26 · G409 16 |
+| 0.25 s shots | 69.2 · 42 · G409 12 | **56.6 · 3 TIPs in 14** · 2 problem runs | **58.0** · 26 · G409 26 |
+| Lane capacity | 70.5 · 46 · G409 6 | 51.3 · 0 | 54.3 · 23 |
+| Both (the transfer) | 68.5 · 40 · G409 13 | 54.3 · 7 | 58.0 · 26 · G409 25 |
+
+**What it says:**
+- **Faster shots win with a staging partner.** TIP 2 comes 1.6–1.9 s sooner (19.1 s → 17.2–17.5 s). For the first
+  time the angled partner's Auto makes 3 TIPs (14 of 60), and the wall partner's gains 2.7 points.
+- **Faster shots lose 2 points with the partner that shoots.** That route waits a fixed time after each volley for the
+  spill. Firing sooner moves the TIP and its spill earlier against those waits, so it keeps less, and G409 rises. The
+  route needs retiming for the faster launcher before this number means anything.
+- **The lane's 3-NECTAR limit costs little:** 0.3–1.0 points.
+- **G409 rises with the faster shots** (Stages wall 16 → 25–26). Spills come down while the robot is still close in.
+  Retimed waits should bring it back down.
+
+**Retimed for the 0.25 s shots** (`tools/auto-routes/retime.py`, 60 runs on "rigid V, transfer"). Only the
+wait for TIP 2's spill to land changes:
+
+| Auto | Wait | Points | 3 TIPs (of 60) | G409 runs | Tried |
+|---|---|---|---|---|---|
+| Partner shoots | **200 ms** after TIP 2 settles (was 500) | 70.5 (untuned 68.5; 0.45 s baseline 71.2) | 46 (40; 48) | 16 | 0: 68.5, G409 58 · 100: 70.2, G409 43 · 800: 65.5 · 1100: 64.5 |
+| Angled partner | **1300 ms** from TIP 2's start (unchanged) | 54.3 | 7 | 19 | 700: 51.7 and PARK 24 · 1000: 53.4 and PARK 41 · 1600: 53.3 |
+| Wall partner | **700 ms** from TIP 2's start (was 1300) | **60.7** (untuned 58.0; baseline 55.3) | **34** (26; 26) | 32 | 400: 53.3 · 550: 58.0 · 1000: 58.3 · 1600: 56.7 |
+
+**With the transfer and its retimed waits, each Auto against the 0.45 s baseline:**
+- **Partner shoots:** holds level, 70.5 against 71.2, within the 60-run noise.
+- **Angled partner:** gains 2.7 points.
+- **Wall partner:** gains 5.4 points, with 3 TIPs in 34 of 60 runs instead of 26.
+
+**What it costs: G409.** A shorter wait means driving into a spill that is still landing. The wall partner's Auto
+goes from 16 to 32 touched runs, and partner shoots from 8 to 16. If G409 gets called on a real field, the longer
+waits are the fallback.
+
+## Shoot while extracting (6 Oct 2026, 60 runs)
+
+**Setup.**
+- **Design** "rigid V, turret transfer": the transfer (0.25 s shots, lane capacity) feeding a **turret**, so the
+  robot can face a FLOWER while the turret aims at the CELL.
+- **Routes** (`tools/auto-routes/stream.py`, the `-leave` routes): the retimed baselines, with every far-FLOWER visit
+  turned into a stream. The robot drives in and **sits 0.4 s**, so it's seated before it fires. Then StreamOn: each
+  POLLEN is fired as it comes out. It **leaves once the 4 are away**, 1.3 s later. The GARDEN and the wall FLOWER are
+  out of the simulator's 60 in range of the CELL that needs them then.
+
+**The first version lost 1 shot in 4, and it wasn't the seat.** That route turned StreamOn the moment the path
+ended. The robot was still rolling into the FLOWER, and streaming fires while moving, carrying the robot's motion
+into the shot. The first POLLEN went wide in every run; the other three, fired seated, all scored. The robot also
+waited at the FLOWER for TIP 2, reached the spill about 2 s after the TIP and kept 2 of 4. Seated first and leaving
+early fixed both.
+
+| Auto | Turret, no streaming | Turret, streaming (seated, leave early) |
+|---|---|---|
+| Partner shoots | 71.8 · 3 TIPs in 50 · PARK 58. TIP 2 at 11.4 s, TIP 3 at 23.5 s | 70.9 · 47 · PARK 59. **TIP 2 at 9.5 s, TIP 3 at 21.6 s** |
+| at zero spread | 75.3 · 58 · PARK 60 | 74.3 · 55 · PARK 60 |
+| Angled partner | 52.3 · TIP 3 in 5 · PARK 40 | 51.6 · 5 · **PARK 11** |
+| Wall partner | 58.7 · 30 (zero spread: 64.3 · 40) | the same; the far FLOWER is only its fallback |
+
+**What it says:**
+- **Streaming works and saves about 2 s,** with TIP 2 and TIP 3 both earlier. The score is level (70.9 against 71.8,
+  within the noise) because the routes don't spend the time: after TIP 3 at 21.6 s the robot PARKs with about 6 s
+  to spare. The next step is a route that uses it.
+- **The angled partner's Auto loses PARK** in its fallback branch, the far FLOWER when TIP 2 doesn't come off the row.
+  It needs a route fix before streaming is usable there.
+- **The simulator's launch spin is fixed in the field frame** (`FieldSim.launch`, `p.wy = -12`). That is backspin
+  only for a shot travelling along x; our shots travel along y. It wasn't the cause above (the misses stayed with
+  spin off), but the simulator chat should fix it. `FieldSim.launchSpin` / `BIOBUZZ_AUTO_SPIN` expose it for testing.
+
+## Flower first (7 Oct 2026, 60 runs)
+
+**The user's plan:** "path to the FLOWER immediately and then shoot all 8 from there". The route is ShootsRight,
+`qual-right-v-flower-first-l<ms>` in `stream.py`:
+- From the start, straight to the far FLOWER, seated with the face 4.59 in from its centre (the CAD's seat).
+- Wait there for the partner's TIP 1.
+- StreamOn: the 4 preloads, then the FLOWER's 4 as the lane frees up.
+- Leave after `<ms>`, then the baseline's tail.
+
+**Run on** "rigid V, turret transfer" (seat 4.59, the 0.5 s `transferFeedS` placeholder), partner on spring hood at 40.
+
+| Leave after | Points | 3 TIPs | PARK | G409 runs | Zero spread |
+|---|---|---|---|---|---|
+| 1.8 s, 2.2 s | 36 | 0 (no TIP 2) | 60 | 0 | 36 |
+| **2.6 s** | **71.3** | **48** | **59** | 20 | **73.3 · 52 · PARK 60** |
+| 3.0 s | 69.3 | 42 | 59 | 8 | 70.7 · 44 |
+| 3.4 s | 63.3 | 24 | 59 | 11 | 63.0 · 21 |
+
+No run had a problem (collision, HIVE or FLOWER hit, centre line).
+
+- **2.6 s is the leave timer.** On the 0.5 s feed the last FLOWER POLLEN is ready about 0.5 s after it leaves the
+  FLOWER, so anything shorter leaves with it aboard and TIP 2 never comes. Waiting longer only costs the spill.
+- **The earlier "flower-first scores 36" was the route, not the feed.** `stream.seated()` moved the FLOWER points
+  on top of `baselines_v.FLOWER_FACE_V`, which already moves them, so the face stopped 9.48 in out and never seated.
+  It now sets `FLOWER_FACE_V` instead.
+- **This is the Auto's level with the baseline, about 2 s sooner,** like streaming. The time it frees after TIP 3
+  is still unused.
+
+**Streaming from N_FIRE on the same feed** (`-leave<ms>`, the robot fires the preloads first, then streams the
+FLOWER): the 1.3 s leave also leaves with the 4th POLLEN aboard (37.9). 1.8 s gives **71.6 · 3 TIPs in 49 · PARK 59**,
+level with flower-first; 2.3 s 68.9. The Stages routes don't move (angled 51.7, PARK 12; wall 58.7): the far
+FLOWER is only their fallback.
+
+**Extractor down before the FLOWER (mentor, 7 Oct 2026).** "You cannot deploy the flower extractor while at the
+flower. You need to deploy it BEFORE you get there and then drive into it." The simulator kept it up while the robot held
+4, so on flower first it swung down only after the first shot, already at the FLOWER. Now (`AutoSim.extractor`) it comes
+down on any path that ends at a FLOWER, full or not, and the FLOWER's pieces stay in it until a shot makes room. One it
+reaches before it is down blocks it (event `extractor blocked`): it takes nothing. Flower first is unchanged by it
+(10 runs: 70.0, 3 TIPs in 7, PARK 10, TIP 2 at 7.4 s and TIP 3 at 20.1 s, against the plain route's 11.5 s and 23.6 s at
+the same 70.0); the extractor is down from 1.0 s, with the robot seated from about 2.8 s. Whether a robot may sit
+pushed into the FLOWER before it fires is a rules question still open.
+
+**Still open:**
+- ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
+- **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
+  PARK in quals is non-negotiable, so that route needs a PARK ending.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
