@@ -12,7 +12,7 @@
 behind the front face). Millimetres. (The separate `cad/intake-b/` and `cad/transfer/` STEPs stay in the team CAD's own
 frame, for importing into its Onshape assembly.)
 
-**Where the file is:** it's about 284 MB (53 MB zipped), too big for git. The zip, `BIOBUZZ-robot-step.zip`, goes in the
+**Where the file is:** it's about 284 MB (27 MB as `BIOBUZZ-robot.step.xz`, 53 MB zipped), too big for git. It goes in the
 team's Drive, in the `biobuzz` folder next to "DHS Robot Copy.step".
 
 **Rebuild:**

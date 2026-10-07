@@ -31,4 +31,4 @@ comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the sec
 `MESH_OUT` set, the third (for the real odometry pods) from `cad/robot-addons/build.py` with `POD_DIR` and `MESH_OUT`.
 
 **The same robot as a STEP:** `cad/full-robot/` builds one STEP of the whole robot as drawn, in this model's frame
-(millimetres). The file is too big for git; it lives in the team's Drive (`biobuzz/BIOBUZZ-robot-step.zip`).
+(millimetres). The file is too big for git; it lives in the team's Drive (`biobuzz/BIOBUZZ-robot.step.xz`).
