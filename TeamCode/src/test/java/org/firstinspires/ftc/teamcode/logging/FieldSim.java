@@ -887,6 +887,7 @@ final class FieldSim {
     // ---- Launching ----------------------------------------------------------------------------
 
     /** A launched piece's backspin, rad/s (a placeholder: the flywheels' grip is unmeasured). */
+    static final double LAUNCH_BACKSPIN_RAD_PER_S = 12;
 
     /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
     double[] launchVelocity(double[] from, double[] target) {
