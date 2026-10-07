@@ -106,19 +106,20 @@ The layout's tabs:
 `sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3,
 with the transfer's 0.5 s feed:
 - `qual-right-v-flower-first-l2600`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
+- `qual-right-v-flower-first-hold`: the mentor's version: the preloads fired from the seat, the FLOWER's 4 collected, then fired lined up at N_FIRE;
 - `qual-right-v-stream-x200-leave1800`: the partner shoots, and we stream at the far FLOWER;
 - `qual-stages-angled-v-stream-leave`;
 - `qual-stages-wall-v-stream-x700-leave`, refitted to the wall pairing where both robots PARK.
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
 it's fully down before the robot drives in (the mentor's review, 7 Oct). The zip's README has the scores.
-Over 60 runs, flower-first scores 65.3 (TIP 3 in 31 of 60) and the right-side stream 70.9 (TIP 3 in 48), with the
+Over 60 runs, flower-first hold scores 70.6 (TIP 3 in 47 of 60), flower-first streaming 65.3 (TIP 3 in 31 of 60) and the right-side stream 70.9 (TIP 3 in 48), with the
 shot's exit on the turret's axis.
 
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
