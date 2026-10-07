@@ -19,9 +19,8 @@ a turret and the transfer ([what that is](doc/simulator.md), [what the simulator
 [168](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/168)): the HIVE dwells 0.25–3.4 s before it
 tips, a volley fires a shot every 0.2 s (not 0.45), a spill heads for the alliance wall, NECTAR rolls freer. The
 fast volley loads a CELL past its weight so it dwells least, and every Auto gained: ShootsRight makes 3 TIPs in 56
-of 60 firing from its spots, more than seat fire (52), so seat fire is shelved. The model still aims with the
-turret; the same route on a turret held still is being measured, so that the turret can be taken off Auto's
-critical path with a number. The angled Auto's GARDEN load is back (TIP 3 in 24); the wall Auto
+of 60 firing from its spots, more than seat fire (52), so seat fire is shelved. The same route with the turret
+held still scores 73.7 (TIP 3 in 55 of 60, PARK 60 of 60): the turret is not on Auto's critical path. The angled Auto's GARDEN load is back (TIP 3 in 24); the wall Auto
 still parks after TIP 2's spill. Both robots PARK in every run. No robot drives through a wall (the simulator
 flags it, like the HIVE frame and a FLOWER). Known: the angled Auto clips the HIVE frame in the 4 runs TIP 1 fails.
 Everything behind these numbers: [doc/simulator.md](doc/simulator.md).
