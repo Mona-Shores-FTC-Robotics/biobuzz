@@ -11,6 +11,10 @@ behind the front face. The sketches are in `doc/transfer/` (`sketch.py` draws th
 
 ## The answer
 
+> **Read "Transfer v3" first: it is the current design** (7 Oct 2026). What follows from here to the build spec is
+> the 6 Oct J-kicker design, kept as the record of the reasoning that the current design inherits (the stiff balls,
+> the capacity by length, the stopped-wheel gate, the hand-off up the turret axis).
+
 **A floor lane that is also the magazine, then one floating wheel that kicks each piece up through the hollow turret
 bearing.** One new motor and no sensor. Because the hand-off is on the turret's axis, it works at every turret angle.
 
@@ -257,7 +261,42 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v2, drawn (CAD chat, 7 Oct 2026, commits 12d34bb and ea86820 on `claude/robotics-meeting-notes-lq2y55`)
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commit 146f130 on `claude/robotics-meeting-notes-lq2y55`): the current design
+
+**Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
+flick it but not drive it. v3 pinches and drives. Robot frame, inches:
+
+- **Lane:** flat, ball-bottom at z 1.3, on **seven driven 24 mm roller shafts** (X 5.3 to −1.18), under a flat
+  foam-faced **parallel-link ceiling** (foam face 2.6 over the lane; a POLLEN presses the foam 0.2, a NECTAR lifts
+  the ceiling 0.82). Ramp from (8.0, 0.05) to (5.7, 1.3) under the floating roller.
+- **Feeders:** two 72 mm Gecko wheels a side, shafts along X at Y ±2.717, z 3.213, spanning the flywheels
+  (X −3.79..−1.90), tops 0.15 under the flywheels. One 1150 rpm Yellow Jacket per feeder, direct on the shaft,
+  face-mounted on the launcher's front channel. A ball is gripped from entry up to centre z 3.96 (POLLEN) / 4.95
+  (NECTAR); the flywheels take a NECTAR from 5.77.
+- **Holding and feeding:** a backstop at X −4.675 stops the lead ball on the column (X −2.845); the **stopped
+  feeders hold it there**, out of the flywheels' reach, with the next ball nose to tail behind it. Feeding runs both
+  feeders. Swept clear for both sizes along the lane and up the column.
+- **Count:** 5 POLLEN / 4 NECTAR fit physically; the IR break-beam at (5.45, 2.3) counts balls in and the code stops
+  the intake at 4.
+
+**The physics' one change (sent 7 Oct): the sprung feeder is the design, not the fallback.** With both feeder
+shafts fixed, a NECTAR must deflect the two wheels 0.51 in each to enter while they're stopped, and it must enter
+stopped, because that is how the lead ball is held. The lane's push is about 1 lbf per ball (roller friction under
+the foam preload), 3–4 lbf with a full queue; two compliant wheels deflected half an inch each take far more. So:
+**one feeder on a short arm with a hard stop set for the POLLEN gap (0.10 a side) and a band of about 2 lbf preload;
+a NECTAR lifts it 0.82.** The same principle as the ceiling and the old J-arm. A POLLEN (0.10 a side) was fine either
+way.
+
+**Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the flywheel
+motors move out and up (Y ±6.7, z 7.0, belted to his 41T pulleys); the motor plates, blocks and standoffs under the
+flywheels are removed; the front channels become 5-hole; the front cross-channel goes and the front U-beams spread
+0.25 in; the old intake's 11-hole channel goes up 30 mm. That is a rework of his launcher, not a tweak. And the
+flywheel nip (3.19 in) still doesn't touch a POLLEN until his sprung-arm flywheel is on the turret launcher.
+
+**Superseded by v3:** the J-kicker (concepts A–C and the build spec below), the polycord lane, the wheel-channel
+lane, and v2's cup. They stay in this file as the record.
+
+## Transfer v2, drawn (CAD chat, 7 Oct 2026, commits 12d34bb and ea86820; superseded by v3)
 
 The mentor's layout, from his `FeederConcept.step` and screenshots, fitted to his 7 Oct `Robot.step`. Balls never
 touch the field: the roller pushes each up the ramp onto a lip; two driven wheel shafts (32 mm compliant at X 3.74,
@@ -575,8 +614,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v2 at commit ea86820** (the mentor's layout with the
-three physics fixes; see "Transfer v2" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 146f130** (pinch-and-drive feeders; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
