@@ -16,11 +16,12 @@
             "/Odometry/Robot",
             "/Sim",
             "/Sim/GamePieces",
-            "/Sim/GamePieces/Held"
+            "/Sim/GamePieces/Held",
+            "/Internals"
           ]
         },
         "tabs": {
-          "selected": 3,
+          "selected": 4,
           "tabs": [
             {
               "type": 0,
@@ -32,10 +33,72 @@
             },
             {
               "type": 1,
-              "title": "",
+              "title": "Internals",
               "controller": {
-                "leftSources": [],
-                "rightSources": [],
+                "leftSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/Internals/TurretYawDeg",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#2b66a2",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/Internals/TurretErrorDeg",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#e5b31b",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/Internals/ExtractorDeg",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#af2437",
+                      "size": "normal"
+                    }
+                  }
+                ],
+                "rightSources": [
+                  {
+                    "type": "stepped",
+                    "logKey": "/Internals/RollerRiseIn",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#c0b487",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/Internals/Climbing",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#858584",
+                      "size": "normal"
+                    }
+                  },
+                  {
+                    "type": "stepped",
+                    "logKey": "/Sim/Robot/Held",
+                    "logType": "Number",
+                    "visible": true,
+                    "options": {
+                      "color": "#3b875a",
+                      "size": "normal"
+                    }
+                  }
+                ],
                 "discreteSources": [],
                 "leftLockedRange": null,
                 "rightLockedRange": null,
@@ -80,7 +143,7 @@
             },
             {
               "type": 3,
-              "title": "",
+              "title": "Field",
               "controller": {
                 "sources": [
                   {
@@ -94,7 +157,7 @@
                   },
                   {
                     "type": "component",
-                    "logKey": "/BodyShape/Components",
+                    "logKey": "/Internals/Components",
                     "logType": "Pose3d[]",
                     "visible": true,
                     "options": {}
@@ -195,6 +258,248 @@
                   0.20481915122357902,
                   -0.004076462792502546,
                   -0.31961460668939945
+                ]
+              },
+              "controlsHeight": 539
+            },
+            {
+              "type": 3,
+              "title": "Inside the robot",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "/Odometry/Robot3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ Robot"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/Internals/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "/Sim/Hive/Structure",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ HIVE"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/Sim/Hive/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/Partner3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  }
+                ],
+                "game": "FTC:2026-2027 Field (HIVE sim)"
+              },
+              "controllerUUID": "biobuzzinternalsorbitrobot0000001",
+              "renderer": {
+                "cameraIndex": -2,
+                "orbitFov": 35,
+                "cameraPosition": [
+                  0.6,
+                  0.5,
+                  0.5
+                ],
+                "cameraTarget": [
+                  0,
+                  0.15,
+                  0
+                ]
+              },
+              "controlsHeight": 539
+            },
+            {
+              "type": 3,
+              "title": "Limelight",
+              "controller": {
+                "sources": [
+                  {
+                    "type": "robot",
+                    "logKey": "/Odometry/Robot3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ Robot"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/Internals/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "robot",
+                    "logKey": "/Sim/Hive/Structure",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "BIOBUZZ HIVE"
+                    }
+                  },
+                  {
+                    "type": "component",
+                    "logKey": "/Sim/Hive/Components",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {}
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/Partner3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/BlueNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Blue)"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/Pollen",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Pollen"
+                    }
+                  },
+                  {
+                    "type": "gamePiece",
+                    "logKey": "/Sim/GamePieces/Held/RedNectar",
+                    "logType": "Pose3d[]",
+                    "visible": true,
+                    "options": {
+                      "variant": "Nectar (Red)"
+                    }
+                  }
+                ],
+                "game": "FTC:2026-2027 Field (HIVE sim)"
+              },
+              "controllerUUID": "biobuzzinternalslimelightview0001",
+              "renderer": {
+                "cameraIndex": 0,
+                "orbitFov": 50,
+                "cameraPosition": [
+                  0,
+                  0,
+                  0
+                ],
+                "cameraTarget": [
+                  0,
+                  0,
+                  0
                 ]
               },
               "controlsHeight": 539

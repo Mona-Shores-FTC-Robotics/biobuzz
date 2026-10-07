@@ -17,7 +17,7 @@ import numpy as np, trimesh, fast_simplification
 import importlib.util
 _spec = importlib.util.spec_from_file_location("transfer", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "transfer", "build.py"))
 TRF = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(TRF)   # the transfer's numbers (feeder axes)
-FEEDER_PART = re.compile(r"^feeder_(shaft_)?(L|R)\b")
+FEEDER_PART = re.compile(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder |pad_plate |pad_foam )")
 
 IN, M = 25.4, 0.0254
 C, F, FACE = -59.62, -151.75, 207.73                 # robot CAD (mm): centre x, floor y, front face z
@@ -148,7 +148,8 @@ TURRET_AXIS = (-2.8431 + TRF.LAUNCHER_SHIFT, 0.1575)   # the inner race's centre
 FLYWHEEL_AXLES = {"Launcher subassembly <2>": 3.6427, "Launcher subassembly <1>": -3.3276}   # axle Y; both at z 6.6455
 FLYWHEEL_Z = 6.646
 FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
-FEEDERS = {"L": 3, "R": 7}             # component numbers: the transfer's left and right feeders (wheels and shafts)
+FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
+PAD = 7
 ROLLER_AXLE = (8.56, 3.345)                            # X, z at rest
 ROLLER_SPINS = r"^roller_shaft|^roller_wheels|^roller_pulley|^lane_drive_pulley_roller"
 
@@ -194,7 +195,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     floats = [(n, m) for n, m in add.items() if m["grp"] == "float"] + ([(n, m) for n, m in tr.items() if m["grp"] == "float"] if tr else [])
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if not re.search(ROLLER_SPINS, n)]
     roller = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if re.search(ROLLER_SPINS, n)]
-    feed = {k: [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(rf"feeder_(shaft_)?{k}\b", n)] for k in FEEDERS} if tr else {}
+    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder )", n)]} if tr else {}
+    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^pad_(plate|foam) ", n)] if tr else []
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
     merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
@@ -203,6 +205,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     merged(roller).export(include_normals=True, file_obj=os.path.join(OUT, "model_4.glb"))
     for i, k in enumerate(FLYWHEEL_AXLES): merged(fly[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{5 + i}.glb"))
     for k, i in FEEDERS.items(): merged(feed[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{i}.glb"))
+    merged(pad).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{PAD}.glb"))
     # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
     # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
@@ -231,10 +234,12 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
                **{f"model_{5 + i}": {"what": f"flywheel axle {'left (+Y)' if y > 0 else 'right (-Y)'}: two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley", "axis_point_m": [round(FLYWHEEL_X * M, 6), round(y * M, 6), round(FLYWHEEL_Z * M, 6)],
                                       "axis": [-1, 0, 0] if y > 0 else [1, 0, 0], "throw_spin": "+angle about the axis as given throws the piece up (the rims between the wheels move up)", "diameter_m": 0.096}
                   for i, y in enumerate(FLYWHEEL_AXLES.values())},
-               **{f"model_{i}": {"what": f"the {'left (+Y)' if k == 'L' else 'right (-Y)'} feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
-                                 "axis_point_m": [round(TRF.COL_X * M, 6), round((1 if k == 'L' else -1) * TRF.FEED_Y * M, 6), round(TRF.FEED_Z * M, 6)],
-                                 "axis": [-1, 0, 0] if k == "L" else [1, 0, 0], "feed_spin": "+angle about the axis as given drives the ball up between the feeders",
-                                 "diameter_m": 0.072} for k, i in FEEDERS.items()}},
+               "model_3": {"what": "the feeder: two 72 mm Gecko wheels, shaft and pulley, along X on the left under the flywheels",
+                           "axis_point_m": [round(TRF.COL_X * M, 6), round(TRF.FEED_Y * M, 6), round(TRF.FEED_Z * M, 6)],
+                           "axis": [-1, 0, 0], "feed_spin": "+angle about the axis as given drives the ball up", "diameter_m": 0.072},
+               "model_7": {"what": "the sprung pad opposite the feeder: plate and foam, hinged along X at its foot",
+                           "axis_point_m": [round(TRF.COL_X * M, 6), round(TRF.PAD_HINGE[0] * M, 6), round(TRF.PAD_HINGE[1] * M, 6)],
+                           "axis": [1, 0, 0], "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 26 deg for a NECTAR"}},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
     for fn in ["model.glb"] + [f"model_{i}.glb" for i in range(8)]:
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())

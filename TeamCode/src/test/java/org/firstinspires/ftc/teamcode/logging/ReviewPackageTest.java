@@ -234,7 +234,9 @@ public class ReviewPackageTest {
     @Test
     public void layoutKeysAreInTwoRobotLogs() throws Exception {
         File log = new File(TeamCodeDir.simLogs(), "layout-check.wpilog");
-        AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get(TRIANGLE), null, Double.NaN, 1, log);
+        // On "rigid V", the published logs' design: the layout's "Inside the robot" and "Internals" tabs (7 Oct 2026,
+        // issue #166) read /Internals/*, which only the CAD-model designs write.
+        AutoStudyTest.run("Recycle3RightAuto,Recycle3LeftAuto@50", AutoStudyTest.designs().get("rigid V"), null, Double.NaN, 1, log);
         checkLayout(log);
     }
 

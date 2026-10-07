@@ -488,6 +488,12 @@ public final class AutoSim {
         for (Bot b : bots) b.start(log, result.robots.get(b.index));
 
         FieldSimLog fieldLog = new FieldSimLog();
+        // The robot's insides (held pieces on the transfer's path, the CAD model's moving parts): drawn by
+        // RobotInternalsLog from what the simulation did, written once the match is over.
+        RobotInternalsLog internals = new RobotInternalsLog(sim, sim.rocker(alliance));
+        // The CAD robot has the transfer whether or not the design limits its load by the lane (laneCapacity).
+        for (Bot b : bots) internals.track(b.keyPrefix, b.body, b.design, cadModel(b.design.name), cadModel(b.design.name));
+        fieldLog.drawsHeld = false;
         // Pre-roll: the field as it starts, disabled, before AUTO begins at PRE_ROLL_S.
         log.put(AdvantageScopeKeys.ENABLED, false, 0);
         log.put(AdvantageScopeKeys.AUTONOMOUS, true, 0);
@@ -498,6 +504,7 @@ public final class AutoSim {
             FieldRobot.putAll(log, allRobots, 0);
         }
         fieldLog.write(log, sim, 0);
+        for (Bot b : bots) internals.record(b.index, false, false, 0);
         putClock(log, -PRE_ROLL_S);
         long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
@@ -616,6 +623,7 @@ public final class AutoSim {
                 sim.enterNectar(alliance);
             }
             fieldLog.write(log, sim, us);
+            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, us);
             putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
@@ -637,6 +645,8 @@ public final class AutoSim {
         long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
         for (Bot b : bots) b.putStill(log, lastUs);
         fieldLog.write(log, sim, lastUs);
+        for (Bot b : bots) internals.record(b.index, false, false, lastUs);
+        internals.write(log);
         putClock(log, last);
         Scheduler.reset();
         return result;
@@ -777,10 +787,11 @@ public final class AutoSim {
     /** One robot: its exported Auto, drivetrain, launcher and intake. */
     /**
      * Designs drawn with the CAD's whole-robot model ({@code BIOBUZZ Robot}) rather than {@code BIOBUZZ Robot
-     * (designs)}: the baseline, "rigid V", and the name it had while the body-designs branch drew it.
+     * (designs)}: the baseline, "rigid V", its variants ("rigid V, transfer"), and the name it had while the
+     * body-designs branch drew it.
      */
     static boolean cadModel(String design) {
-        return design.equals("rigid V") || design.startsWith("flat intake, rigid V as drawn");
+        return design.equals("rigid V") || design.startsWith("rigid V, ") || design.startsWith("flat intake, rigid V as drawn");
     }
     /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
