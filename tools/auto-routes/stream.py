@@ -67,3 +67,47 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(name)
+
+
+# The user's plan (7 Oct 2026): "path to the FLOWER immediately and shoot all 8 from there". ShootsRight: from the start
+# straight to the far FLOWER, seated there while the partner makes TIP 1; once the left CELL rises, StreamOn fires the
+# 4 preloads from the seat, and each one that leaves makes room in the lane for a FLOWER POLLEN, fired in turn: all 8
+# for TIP 2 without moving. Leave once they're away, for TIP 2's spill, then the baseline's tail.
+_right = qual_right.right
+FLOWER_FIRST_LEAVE_MS = [2600]  # after StreamOn: 4 preloads at 0.25 s overlapping 4 pulls at 0.5 s, and the last shot
+
+
+def right_flower_first(name, robot="baseline", n_fire=None, **kw):
+    r = _right(name, robot=robot, n_fire=n_fire, **kw)  # for its points and fitted spots; the cards are redrawn below
+    r.cards, r.lines, r.path_ends = [], [], {}
+    r.at = "START"
+    r.add(r.action("SpinUp"), *_flower(r, "FAR_FLOWER", "The far FLOWER", 1500)[:-1],
+          r.wait("TIP 1 (the partner), seated at the FLOWER", when=["LeftCellUp"], ms=9000), r.action("StreamOn"),
+          r.wait("The preloads and the far FLOWER, all 8 from the seat (TIP 2)", when=["Tip"], ms=FLOWER_FIRST_LEAVE_MS[0]),
+          r.action("StreamOff"))
+    r.at = "FAR_FLOWER"
+    r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
+    r.at = "N_FIRE"
+    r.add(*qual_right.tail(r, **kw))
+    return r
+
+
+def build_flower_first(name, wait=200, leave_ms=2600):
+    FLOWER_FIRST_LEAVE_MS[0] = leave_ms
+    qual_right.right = right_flower_first
+    restore = retime.with_wait("qual-right-v", wait)
+    try:
+        return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+    finally:
+        restore()
+        qual_right.right = _right
+
+
+FLOWER_FIRST = {f"qual-right-v-flower-first-l{ms}": ms for ms in (1800, 2000, 2200, 2600)}
+
+if __name__ == "__main__":
+    for name, ms in FLOWER_FIRST.items():
+        r = build_flower_first(name, 200, ms)
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+        print(name)
