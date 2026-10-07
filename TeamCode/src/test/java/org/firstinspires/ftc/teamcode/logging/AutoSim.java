@@ -1604,14 +1604,13 @@ public final class AutoSim {
         }
 
         /**
-         * Whether the robot at {@code pose} reaches over the centre line (G402; a spill scatters right up to it, and
-         * 1 in short of it because the robot drifts as it arrives) or within {@code wall} of a wall. The whole
-         * outline, V tips and flaps included, as the problem checks judge it: the frame's corners alone let it chase a
-         * piece by the centre line or the south wall with its tips over.
+         * Whether the robot at {@code pose} reaches over the centre line (G402; a spill scatters right up to it) or
+         * within {@code wall} of a wall. The whole outline, V tips and flaps included, as the problem checks judge it:
+         * the frame's corners alone let it chase a piece by the centre line or the south wall with its tips over.
          */
         private boolean outOfBounds(double[] pose, double wall) {
             for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
-                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN + 1 : c[0] > FieldSim.CENTRE_IN - 1) return true;
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                 if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
             return false;
