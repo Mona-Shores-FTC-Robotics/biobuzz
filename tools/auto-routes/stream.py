@@ -187,3 +187,57 @@ if __name__ == "__main__":
     r.folder = autogen.EXPERIMENTS
     r.write()
     print(r.name if hasattr(r, "name") else "qual-right-v-flower-first-hold")
+
+
+# Mentor review of the hold route's logs (7 Oct 2026): "The park should go further into the park zone; it just barely
+# parks" and "there is so much time before parking that we really should wait for TIP 3, fill up, then park". TIP 3
+# comes at about 21.7 s and the robot was parked by 22.1 s. So from S_FIRE once the GARDEN's shots are away: wait for
+# TIP 3, give its spill a moment to land, take what the webcam sees of it (the spill scatters: half of it lands on our
+# side, near the GARDEN and up the west side), then drive into PARK. The endgame guard still cuts to PARK in time.
+# PARK deeper: the robot's centre at y 95 (its frame y 87.4-102.6, about 8 in inside the zone, y 94.3-117.9), x 10.5.
+# Both robots can't be fully inside (the zone is 23.6 in long, the two robots 33), so the partner parks at the zone's
+# far end, y 116 (partner-preloads-right-high), 1.6 in clear of our V's tips.
+DEEP_PARK = (10.5, 95, 90)
+TIP3_MS, LAND_MS, COLLECT_MS = 2500, 800, 3000
+
+
+def tip3_collect_park(r, tag="", **kw):
+    r.at = "S_FIRE"
+    r.pt("PARK", *DEEP_PARK)
+    # The webcam looks from S_COLLECT facing west, away from the HIVE: from S_FIRE facing north it chased a piece up
+    # beside the HIVE frame's west foot bar (x 46, y 51-90) and stalled there. The park path runs up the west side
+    # (x 24), clear of the bar, from S_COLLECT.
+    r.pt("S_COLLECT", 50, 24, 180)
+    out = [r.wait(f"TIP 3{tag}", when=["Tip"], ms=TIP3_MS), r.go("S_COLLECT", turn_by=0.8)]
+    r.at = "S_COLLECT"
+    out += [r.wait(f"TIP 3's spill lands{tag}", when=["IntakeFull"], ms=LAND_MS),
+            r.wait(f"Fill up from TIP 3's spill{tag}", when=["IntakeFull"], ms=COLLECT_MS, alongside="CollectSeen")]
+    return out + [r.go("PARK", ctrl=[(24, 30), (24, 70)], heading=90, turn_by=0.5, park=True)]
+
+
+def partner_right_high(name="partner-preloads-right-high"):
+    """partners.partner_right, parked at the LOADING ZONE's far end (y 116), leaving room for us to park deep."""
+    import autogen as ag
+    from helpers import fire as hfire
+    r = ag.Route(name, (59, 9.5, 90), speed=40)
+    r.pt("PARK_P", 10.5, 116, 90)
+    r.add(r.action("SpinUp"), r.action("IntakeOff"), hfire(r, "Fire the preloads", "Empty", ms=4500),
+          r.go("PARK_P", ctrl=[(26, 20), (26, 100)], park=True))
+    return r
+
+
+def build_flower_first_tip3(name, wait=200):
+    # baselines_v.shoots_right ends the route with park_from_garden (its third_load): swap that for ours.
+    park = baselines_v.park_from_garden
+    baselines_v.park_from_garden = tip3_collect_park
+    try:
+        return build_flower_first_hold(name, wait)
+    finally:
+        baselines_v.park_from_garden = park
+
+
+if __name__ == "__main__":
+    for r in (build_flower_first_tip3("qual-right-v-flower-first-tip3"), partner_right_high()):
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+        print(r.name)
