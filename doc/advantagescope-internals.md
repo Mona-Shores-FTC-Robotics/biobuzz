@@ -37,12 +37,12 @@ A Pose3d[] of the `Robot_BIOBUZZ` model's components, in the order agreed with t
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 150° stowed | The simulator's `Extractor/Down` (`AutoSim.Bot.extractor`: down on the approach to a FLOWER, up as the robot leaves) |
 | 1 | Roller, motor and carriage | Straight up, 0 to 1.3 in | Rises until it clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in, as `doc/transfer.md` gives (0.85). |
 | 2 | Turret | About +Z through X −3.17 in | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. 0 (straight ahead) at the start |
-| 3 | J arm and J-wheel | About +Y through the arm's pivot (X 0.72, z 3.36 in; a 60 mm arm at 30°). Positive lifts the wheel, 34.4° at most (0.95 in at the axle) | Lifts until the wheel clears a piece, less its 0.1 in grip on a POLLEN. A POLLEN barely moves it. A NECTAR's lift is scaled to peak at the transfer chat's figure, the axle 0.92 in up (33°): the drawn J is a circle about the resting axle, which on its own gives only 0.79 in |
+| 3 | J arm and J-wheel | About +Y through the arm's pivot (X 0.72, z 3.36 in; a 60 mm arm at 30°). Positive lifts the wheel, 36.8° at most (0.99 in at the axle) | Lifts until the wheel clears a piece, less its 0.1 in grip on a POLLEN. A POLLEN barely moves it. A NECTAR's lift is scaled to peak at the transfer chat's figure, the axle 0.92 in up (33°): the drawn J is a circle about the resting axle, which on its own gives only 0.79 in |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
 
-`Robot_BIOBUZZ` has all four (the CAD chat's commit 314539f). Component 2 is only the turret's bearing for now: the
+`Robot_BIOBUZZ` has all four (the CAD chat's commit 3263aec). Component 2 is only the turret's bearing for now: the
 launcher is drawn once it has an outline, on the same axis.
 
 ### Readouts: `<robot>/Internals/*`
@@ -102,10 +102,11 @@ One per qualifier Auto, on the "rigid V, transfer" design (0.25 s shots, the lan
 
 ```
 BIOBUZZ_AUTO_STUDY="QualRightVAuto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVAuto,PartnerStage19SideParkAuto@50" \
-BIOBUZZ_AUTO_DESIGNS="rigid V, transfer" BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
+BIOBUZZ_AUTO_DESIGNS="rigid V, transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
-The logs land in `TeamCode/build/sim-logs/`. These were made without Gradle, by compiling the test sources with plain
+The partner's design and speed are the baselines' (`baselines_v.py`): without them the partner takes our design, and
+its start no longer touches the wall. The logs land in `TeamCode/build/sim-logs/`. These were made without Gradle, by compiling the test sources with plain
 `javac` against Pedro core 3.0.1, Ivy 1.1.1 and JUnit 4.13.2 from Maven Central, with a one-line stub for Panels'
 `@Configurable`.
 
