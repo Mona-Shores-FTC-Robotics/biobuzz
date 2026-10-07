@@ -51,10 +51,10 @@ final class RobotInternalsLog {
     /** The J-wheel's axle at rest, its radius (48 mm) and how far it grips a POLLEN. The outer J's radius about that axle. */
     static final double J_AXLE_X = -1.32, J_AXLE_Z = 4.54, J_WHEEL_RADIUS = 0.945, J_GRIP = 0.1, OUTER_J_RADIUS = 3.64;
     /**
-     * The J-wheel's arm: pivot (X, z), 60 mm to the axle at 30 deg, and the most it lifts: 1.2 in of float at the axle
+     * The J-wheel's arm: pivot (X, z), 60 mm to the axle at 30 deg, and the most it lifts: 0.99 in at the axle
      * (the CAD chat's model, cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json "model_3").
      */
-    static final double J_PIVOT_X = 0.72, J_PIVOT_Z = 3.36, J_ARM_MAX_DEG = 29.1;
+    static final double J_PIVOT_X = 0.72, J_PIVOT_Z = 3.36, J_ARM_MAX_DEG = 36.8;
     /** The turret's axis. */
     static final double TURRET_X = -3.17;
     /**
