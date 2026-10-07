@@ -107,9 +107,11 @@ def placed_team(robot_step):
     tr = gp_Trsf(); tr.SetTranslation(gp_Vec(dx, 0, dz)); align = TopLoc_Location(tr)
     def moved(v): t = gp_Trsf(); t.SetTranslation(gp_Vec(*v)); return TopLoc_Location(t)
     out = []
+    lean = os.environ.get("LEAN")                     # LEAN=1: leave out fasteners, for a single small download
     for path, key, loc, col in leaves:
         p = " / ".join(path)
         if SKIP.search(p): continue
+        if lean and re.search(r"[Ss]crew|Nut|[Ww]asher|2800-|2802-|2812-|2806-|2829-|CAGE|e-clip|shim|_9\d{4}A\d{3}", p): continue
         loc = align.Multiplied(loc)
         if RAISE.search(p): loc = moved((0, TR.CHAN_RAISE * IN, 0)).Multiplied(loc)
         if FRONT_OF_LAUNCHER.search(p):
@@ -146,7 +148,7 @@ def main(robot_step, out):
     top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(to_model))
     team = cq.Assembly(name="team robot CAD (the mentor's Robot.step, 7 Oct), replaced parts left out")
     kept = 0
-    pods = RP.pods(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
+    pods = RP.pods_inst(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
     for i, (path, shp, loc, col, key) in enumerate(placed_team(robot_step)):
         team.add(shp, name=f"{i:04d} {path[-1] if path else '?'}"[:120], loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
     print("kept", kept)
@@ -159,7 +161,7 @@ def main(robot_step, out):
         if title.startswith("chassis"):
             for n, parts in pods.items():
                 pod = cq.Assembly(name=n)
-                for k, (pn, shp, col) in enumerate(parts): pod.add(shp, name=f"{k:02d} {pn}"[:120], color=cq.Color(*col))
+                for k, (pn, shp, loc, col) in enumerate(parts): pod.add(shp, name=f"{k:02d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*col))
                 sub.add(pod)
         top.add(sub)
     for title, g, d in TR.GROUPS:

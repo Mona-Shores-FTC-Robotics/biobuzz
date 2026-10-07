@@ -31,5 +31,8 @@ It takes about 5 minutes. The example chassis is the team's (in Drive, where the
 https://downloads.limelightvision.io/cad/LIMELIGHT3ACAD_STEP.stp. Without `EXAMPLE_STEP` the pods are drawn as their
 envelope boxes; without `LL_STEP` only the camera's mount is drawn.
 
+`LEAN=1` leaves out the mentor's screws, nuts, washers and other fasteners: about 260 MB instead of 380, and it opens
+faster. Use it for a file to look at; use the full one to build from.
+
 `python3 cad/full-robot/real_parts.py <example chassis STEP> <LIMELIGHT3ACAD_STEP.stp> vendor_mesh.pkl` writes the same
 vendor parts as meshes for the AdvantageScope model (its `VENDOR_PKL`).

@@ -40,6 +40,45 @@ def read_leaves(path, keep=None):
     for i in range(1, roots.Length() + 1): walk(roots.Value(i), TopLoc_Location(), [], None)
     return out
 
+def read_leaves_inst(path, keep=None):
+    """As read_leaves, but [(path names, base shape, TopLoc_Location, colour)] with one base shape per distinct part, so
+    an assembly built from them keeps repeated parts as instances (the pods' screws, the two pods themselves)."""
+    doc = TDocStd_Document(TCollection_ExtendedString("d"))
+    r = STEPCAFControl_Reader(); r.SetNameMode(True); r.SetColorMode(True); r.ReadFile(path); r.Transfer(doc)
+    st = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main()); ct = XCAFDoc_DocumentTool.ColorTool_s(doc.Main())
+    def name(l):
+        a = TDataStd_Name(); return a.Get().ToExtString() if l.FindAttribute(TDataStd_Name.GetID_s(), a) else "?"
+    def colour(l):
+        q = Quantity_Color(); s_ = st.GetShape_s(l)
+        for kind in (XCAFDoc_ColorSurf, XCAFDoc_ColorGen):
+            if ct.GetColor(s_, kind, q): return (q.Red(), q.Green(), q.Blue())
+        return None
+    out, base = [], {}
+    def walk(l, loc, names, col):
+        if st.IsReference_s(l):
+            ref = TDF_Label(); st.GetReferredShape_s(l, ref)
+            walk(ref, loc.Multiplied(st.GetLocation_s(l)), names + [name(l)], colour(l) or col); return
+        if st.IsAssembly_s(l):
+            seq = TDF_LabelSequence(); st.GetComponents_s(l, seq)
+            for i in range(1, seq.Length() + 1): walk(seq.Value(i), loc, names, col)
+            return
+        if keep is None or keep.search(" / ".join(names)):
+            k = l.Tag()
+            if k not in base: base[k] = cq.Shape.cast(st.GetShape_s(l))
+            out.append((names, base[k], loc, colour(l) or col or (0.6, 0.62, 0.66)))
+    roots = TDF_LabelSequence(); st.GetFreeShapes(roots)
+    for i in range(1, roots.Length() + 1): walk(roots.Value(i), TopLoc_Location(), [], None)
+    return out
+
+def pods_inst(example_step, pod_move):
+    """As pods, but [(part name, base shape, TopLoc_Location, colour)] per pod, sharing base shapes between the pods."""
+    parts = read_leaves_inst(example_step, re.compile(r"Odometery pod <\d>"))
+    out = {}
+    for n, (stem, _, d) in pod_move.items():
+        k = stem[-1]; t = gp_Trsf(); t.SetTranslation(gp_Vec(*d)); mv = TopLoc_Location(t)
+        out[n] = [(names[-1], shp, mv.Multiplied(loc), col) for names, shp, loc, col in parts if any(f"Odometery pod <{k}>" in p for p in names)]
+    return out
+
 def pods(example_step, pod_move):
     """{robot pod name: [(part name, shape, colour)]}: the example chassis' two pods, moved to ours by pod_move
     (cad/robot-addons/build.py's POD_MOVE: name -> (pod file stem 'pod1'/'pod2', bbox, translation))."""
