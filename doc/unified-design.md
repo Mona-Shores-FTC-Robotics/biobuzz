@@ -420,6 +420,14 @@ reaches before it is down blocks it (event `extractor blocked`): it takes nothin
 the same 70.0); the extractor is down from 1.0 s, with the robot seated from about 2.8 s. Whether a robot may sit
 pushed into the FLOWER before it fires is a rules question still open.
 
+**Mentor review of the flower-first log (7 Oct 2026):** shoot the 4 preloads, stop until the FLOWER's 4 are in,
+turn and get lined up, then shoot those 4; and the turn away from the FLOWER ran through where TIP 2's spill drops.
+`qual-right-v-flower-first-hold` (`stream.py`): the preloads fired one by one from the seat, the FLOWER's 4 collected,
+back out and turn to N_FIRE, then fired there stopped. TIP 2 can only start once they're away, so the robot already
+stands where the baseline waits for the spill. 10 runs: **70.0 · 3 TIPs in 7 · PARK 10 · G409 2**, against the
+streaming flower first's 66.0 · 5 and preloads first's 72.0 · 8 on the same simulator. The GARDEN approach (through
+the wall) is in the shared tail: the simulator chat's wall check and fix.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
