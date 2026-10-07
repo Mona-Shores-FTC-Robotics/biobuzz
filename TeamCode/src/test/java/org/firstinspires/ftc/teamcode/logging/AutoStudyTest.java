@@ -175,6 +175,11 @@ public class AutoStudyTest {
         // FLOWER extractor and scorer to come): the drawn V under the name the logs carry, "rigid V".
         RobotDesign rigidV = drawnV("", 4, Double.NaN, true, true).copy("rigid V");
         rigidV.extractorSeatIn = 7.09;  // the CAD's extractor seated: doc/robot-cad.md "Seated on a FLOWER"
+        rigidV.transferFeedS = RobotDesign.PLACEHOLDER_TRANSFER_FEED_S;  // the transfer chat's lane and J-wheel, untimed
+        // The unified design's launcher is a turret (the transfer feeds through its axis; mentor, 6 Oct 2026: "the turret
+        // fires while the extractor feeds"), so it aims without turning the robot: a frame-fixed launcher swung the
+        // seated robot off the FLOWER to fire. Its exit point is still the placeholder's.
+        rigidV.launcher = RobotDesign.Launcher.TURRET;
         m.put("rigid V", rigidV);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {

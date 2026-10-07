@@ -957,6 +957,8 @@ public final class AutoSim {
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
             if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
+            // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
+            if (now < body.stored.get(0).readyAt) return;
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
             boolean dedicated = design.dedicatedLaunchers && !catapult;

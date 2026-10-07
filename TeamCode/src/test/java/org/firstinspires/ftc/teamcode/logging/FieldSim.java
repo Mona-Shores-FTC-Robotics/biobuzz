@@ -293,6 +293,8 @@ final class FieldSim {
         /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
         Bot capturedBy;
         double capturedAt = Double.NaN;
+        /** When it has reached the launcher through the transfer ({@link RobotDesign#transferFeedS}); launchable from then. */
+        double readyAt = Double.NEGATIVE_INFINITY;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -1617,6 +1619,7 @@ final class FieldSim {
         bot.lastCaptureAt = time;
         p.capturedBy = bot;
         p.capturedAt = time;
+        p.readyAt = time + bot.design.transferFeedS;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

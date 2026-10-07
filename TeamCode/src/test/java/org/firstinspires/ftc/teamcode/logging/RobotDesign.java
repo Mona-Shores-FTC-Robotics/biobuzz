@@ -83,6 +83,14 @@ final class RobotDesign {
     double extractorDeployS = PLACEHOLDER_EXTRACTOR_DEPLOY_S;
     static final double PLACEHOLDER_EXTRACTOR_DEPLOY_S = 0.5;
     /**
+     * The transfer: how long a piece takes from the intake to the launcher (roller, lane, J-wheel, turret:
+     * doc/unified-design.md "Transfer"). The launcher fires only pieces that have arrived, so a robot that fires
+     * while it is still taking pieces (seated on a FLOWER with the extractor) waits this long for each one. 0:
+     * no transfer modelled, pieces are launchable at once. A placeholder until the transfer runs.
+     */
+    double transferFeedS = 0;
+    static final double PLACEHOLDER_TRANSFER_FEED_S = 0.5;
+    /**
      * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
      * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
      * robot. Placeholders until an intake is tested: toss pieces in at a few speeds and count.
@@ -355,6 +363,7 @@ final class RobotDesign {
         d.flowerPullS = flowerPullS;
         d.extractorSeatIn = extractorSeatIn;
         d.extractorDeployS = extractorDeployS;
+        d.transferFeedS = transferFeedS;
         d.launcher = launcher;
         d.launchers = launchers;
         d.shotIntervalS = shotIntervalS;
