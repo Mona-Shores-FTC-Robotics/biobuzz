@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-right-v.pp",
-  "spec": "QualRightVAuto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/autos/qual-stages-angled-v.pp",
+  "spec": "QualStagesAngledVAuto,PartnerAngledParkAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v.pp",
+    "AutoSource": "qual-stages-angled-v.pp",
     "SavedBy": "README, qualifier Autos baseline (off the walls, 7 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight",
+  "title": "Qual-PartnerStages-Angled",
   "usual": true
 }
