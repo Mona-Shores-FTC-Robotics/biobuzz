@@ -45,21 +45,21 @@ public final class QualRightVSeatfireWestAuto {
         Pose start = p.of(59, 133.69, 270);
         Pose garden = p.of(8.5, 9.56, 270);
         Pose park = p.of(13, 87.44, 90);
-        Pose farFlower = p.of(47.36, 124.14, 90);
-        Pose farFlowerTurn = p.of(47.36, 115.84, 90);
+        Pose farFlower = p.of(47.36, 126.64, 90);
+        Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose wallFlower = p.of(17.36, 47.36, 180);
-        Pose wallFlowerTurn = p.of(25.66, 47.36, 180);
+        Pose wallFlower = p.of(14.86, 47.36, 180);
+        Pose wallFlowerTurn = p.of(23.16, 47.36, 180);
         Pose westVia = p.of(35, 96, 225);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose nFireToFarFlowerTurnControl1 = p.of(57.5, 115.84, 0);
-        Pose nFireToFarFlowerTurnSegment1Heading = p.of(47.36, 115.84, 270);
-        Pose nFireToFarFlowerTurnSegment2Start = p.of(47.36, 115.84, 270);
+        Pose nFireToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
+        Pose nFireToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
+        Pose nFireToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
         Pose farFlowerToWestViaSegment1Start = p.of(35, 96, 90);
         Pose westViaToWallFlowerTurnControl1 = p.of(29, 62, 0);
-        Pose wallFlowerToGardenControl1 = p.of(8.5, 30, 0);
+        Pose wallFlowerToGardenControl1 = p.of(14.86, 28, 0);
         Pose wallFlowerToGardenSegment1Start = p.of(8.5, 9.56, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);

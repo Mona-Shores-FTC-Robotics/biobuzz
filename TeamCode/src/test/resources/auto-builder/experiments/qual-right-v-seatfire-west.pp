@@ -36,12 +36,12 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.36,
-        "y": 115.84
+        "y": 118.34
       },
       "controlPoints": [
         {
           "x": 57.5,
-          "y": 115.84
+          "y": 118.34
         }
       ],
       "heading": {
@@ -80,7 +80,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 47.36,
-        "y": 124.14
+        "y": 126.64
       },
       "controlPoints": [],
       "heading": {
@@ -137,7 +137,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 25.66,
+        "x": 23.16,
         "y": 47.36
       },
       "controlPoints": [
@@ -161,7 +161,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 17.36,
+        "x": 14.86,
         "y": 47.36
       },
       "controlPoints": [],
@@ -185,8 +185,8 @@
       },
       "controlPoints": [
         {
-          "x": 8.5,
-          "y": 30
+          "x": 14.86,
+          "y": 28
         }
       ],
       "heading": {
@@ -519,17 +519,17 @@
       ],
       "FAR_FLOWER": [
         47.36,
-        124.14,
+        126.64,
         90
       ],
       "FAR_FLOWER_IN": [
         47.36,
-        118.34,
+        120.84,
         90
       ],
       "FAR_FLOWER_TURN": [
         47.36,
-        115.84,
+        118.34,
         90
       ],
       "S_FIRE": [
@@ -543,17 +543,17 @@
         270
       ],
       "WALL_FLOWER": [
-        17.36,
+        14.86,
         47.36,
         180
       ],
       "WALL_FLOWER_IN": [
-        23.16,
+        20.66,
         47.36,
         180
       ],
       "WALL_FLOWER_TURN": [
-        25.66,
+        23.16,
         47.36,
         180
       ],

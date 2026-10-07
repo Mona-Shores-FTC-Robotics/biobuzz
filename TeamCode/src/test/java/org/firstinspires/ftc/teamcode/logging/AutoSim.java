@@ -778,14 +778,14 @@ public final class AutoSim {
     }
     /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
-    static final double EXTRACTOR_STOWED_DEG = 150;
+    static final double EXTRACTOR_STOWED_DEG = 146;
 
     /** The CAD model's turret axis, +Z through here (m); positive yaw turns left, 0 facing forward as drawn. */
     static final double TURRET_AXIS_X_M = -0.080518;
 
     /**
      * The CAD model's four component poses (translation m, quaternion w x y z; its extractor_poses.json): the FLOWER
-     * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 150 stowed), for {@code down} from 0
+     * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 146 stowed), for {@code down} from 0
      * (stowed) to 1 (down); the floating roller, down; the turret turned {@code turretYawRad} about its axis; the
      * transfer's J arm at rest. The roller and the J arm do not move in the logs yet.
      */
@@ -1231,7 +1231,7 @@ public final class AutoSim {
         void putShape(WpiLog log, long us) throws IOException {
             if (cadModel(design.name)) {
                 // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor at
-                // its angle (150 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
+                // its angle (146 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
                 // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
                 double down = body == null ? 0 : body.extractorDown;
                 double yaw = 0;
