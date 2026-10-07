@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v3, from the CAD chat's commit 146f130. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v3, from the CAD chat's commit 22b8aaa. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -41,10 +41,10 @@ turn at a display rate, 2 turns a second, while they run: real roller and flywhe
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 146° stowed | The simulator's `Extractor/Down`: down on the way to a FLOWER, up as the robot leaves |
 | 1 | Roller carriage, motor, float plates | Straight up, 0 to 1.3 in | Rises until the roller clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in |
 | 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.072215, 0.004) m, 4 mm left of the centre line | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. Straight ahead at the start |
-| 3 | Left feeder: two 72 mm wheels on an axle along X | About −X through (−0.072263, 0.069020, 0.081602) m | Spins while a piece is being fed, driving it up |
+| 3 | Left feeder: two 72 mm wheels on an axle along X | About −X through (−0.072263, 0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
 | 4 | Intake roller | About +Y through its axle (0.217424, 0, 0.084963) m, plus the carriage's rise | Spins while the intake runs; the bottom moves rearward |
 | 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.0762, ±0.0925, 0.1688) m | Spin while the launcher is spun up, both throwing the piece up |
-| 7 | Right feeder: two 72 mm wheels on an axle along X | About +X through (−0.072263, −0.069020, 0.081602) m | Spins while a piece is being fed, driving it up |
+| 7 | Right feeder: two 72 mm wheels on an axle along X | About +X through (−0.072263, −0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.

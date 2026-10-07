@@ -72,8 +72,8 @@ final class RobotInternalsLog {
             new Spinner(6, new double[] {-0.0762, -0.084521, 0.168808}, new double[] {1, 0, 0})};
     /** The left and right feeders, two 72 mm wheels each on axles along X either side of the held piece: both drive it up. */
     static final Spinner[] FEEDERS = {
-            new Spinner(LEFT_FEEDER, new double[] {-0.072263, 0.069020, 0.081602}, new double[] {-1, 0, 0}),
-            new Spinner(RIGHT_FEEDER, new double[] {-0.072263, -0.069020, 0.081602}, new double[] {1, 0, 0})};
+            new Spinner(LEFT_FEEDER, new double[] {-0.072263, 0.069020, 0.078808}, new double[] {-1, 0, 0}),
+            new Spinner(RIGHT_FEEDER, new double[] {-0.072263, -0.069020, 0.078808}, new double[] {1, 0, 0})};
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
     static final double LANE_IN_PER_S = 27;
