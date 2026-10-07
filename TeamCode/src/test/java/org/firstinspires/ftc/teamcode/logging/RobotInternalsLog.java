@@ -18,7 +18,7 @@ import java.util.Map;
  * to know when it will be launched.
  *
  * <p><b>Robot frame</b> (the CAD model's): X forward, z up, inches, origin on the floor under the chassis centre.
- * All pieces travel on the centre line. The transfer is the CAD chat's 146f130, on the mentor's CAD: a ramp, a flat
+ * All pieces travel on the centre line. The transfer is the CAD chat's ac817a6, on the mentor's CAD: a ramp, a flat
  * lane, and two pairs of feeder wheels either side of the turret's axis that hold the lead piece against a backstop
  * and drive it straight up into the launcher's flywheels. The simulator tracks only which pieces are held, and in what order. So where a piece
  * is between those events is interpolated:
@@ -68,12 +68,12 @@ final class RobotInternalsLog {
     static final Spinner INTAKE_ROLLER_SPIN = new Spinner(INTAKE_ROLLER, new double[] {0.217424, 0, 0.084963}, new double[] {0, 1, 0});
     /** The launcher's two flywheel axles, left (+Y) and right (-Y), two 96 mm wheels each: both throw the piece up. */
     static final Spinner[] FLYWHEELS = {
-            new Spinner(5, new double[] {-0.0762, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
-            new Spinner(6, new double[] {-0.0762, -0.084521, 0.168808}, new double[] {1, 0, 0})};
+            new Spinner(5, new double[] {-0.05588, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
+            new Spinner(6, new double[] {-0.05588, -0.084521, 0.168808}, new double[] {1, 0, 0})};
     /** The left and right feeders, two 72 mm wheels each on axles along X either side of the held piece: both drive it up. */
     static final Spinner[] FEEDERS = {
-            new Spinner(LEFT_FEEDER, new double[] {-0.072263, 0.069020, 0.078808}, new double[] {-1, 0, 0}),
-            new Spinner(RIGHT_FEEDER, new double[] {-0.072263, -0.069020, 0.078808}, new double[] {1, 0, 0})};
+            new Spinner(LEFT_FEEDER, new double[] {-0.051943, 0.069020, 0.078808}, new double[] {-1, 0, 0}),
+            new Spinner(RIGHT_FEEDER, new double[] {-0.051943, -0.069020, 0.078808}, new double[] {1, 0, 0})};
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
     static final double LANE_IN_PER_S = 27;
@@ -84,13 +84,16 @@ final class RobotInternalsLog {
     static final double ENTRY_X = 10.0;
     /** The ramp: from X 8.0 (0.05 in up) to X 5.7, 1.3 in up, where the flat lane starts (ball-bottom at 1.3). */
     static final double RAMP_START_X = 8.0, RAMP_START_Z = 0.05, LANE_START_X = 5.7, LANE_FLOOR_Z = 1.3;
-    /** Where the lead piece is held, between the feeders against the backstop, on the turret's axis. */
-    static final double HOLD_X = -2.845;
+    /**
+     * Where the lead piece is held, between the feeders against the backstop at X -3.87: a POLLEN's centre at -2.455,
+     * a NECTAR's on the turret's axis at -2.045. It is fed straight up the column at {@link #COLUMN_X}.
+     */
+    static final double HOLD_X_POLLEN = -2.455, HOLD_X_NECTAR = -2.045, COLUMN_X = -2.045;
     /** The roller: axle at rest (X, z), radius, the most it floats, and how far a POLLEN squeezes its gecko tread. */
     static final double ROLLER_X = 8.56, ROLLER_Z = 3.35, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
 
-    /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, 12d34bb). */
-    static final double TURRET_X = -0.072215 / 0.0254, TURRET_Y = 0.004 / 0.0254;
+    /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, ac817a6). */
+    static final double TURRET_X = -0.051895 / 0.0254, TURRET_Y = 0.004 / 0.0254;
     /**
      * How fast the drawn turret turns (the simulator aims instantly; a placeholder until the turret is built), so a
      * viewer sees it turn. {@code TurretErrorDeg} shows how far the drawing lags the aim.
@@ -235,16 +238,19 @@ final class RobotInternalsLog {
                 }
             }
             along.keySet().retainAll(Arrays.asList(f.stored));
-            // The queue: the lead piece held between the feeders, the rest nose to tail behind it. While a piece is
-            // being fed, the next waits right behind the hold.
-            double behind = 0, lastR = climbing.isEmpty() ? 0 : climbing.get(0).kind.radius;
-            for (int q = 0; q < queue.size(); q++) {
-                FieldSim.Piece p = queue.get(q);
+            // The queue: the lead piece held between the feeders, the rest nose to tail behind it, each the two radii
+            // further forward (the CAD chat's slots). While a piece is being fed, the next waits right behind it.
+            double x = Double.NaN, lastR = 0;
+            if (!climbing.isEmpty()) {
+                FieldSim.Piece c = climbing.get(0);
+                x = holdX(c.kind.radius);
+                lastR = c.kind.radius;
+            }
+            for (FieldSim.Piece p : queue) {
                 Path path = path(p.kind.radius);
-                double front = path.hold;
-                if (q > 0 || !climbing.isEmpty()) behind += lastR + p.kind.radius;
+                x = Double.isNaN(x) ? holdX(p.kind.radius) : x + lastR + p.kind.radius;
                 lastR = p.kind.radius;
-                double target = Math.max(0, front - behind);
+                double target = path.alongAtX(x);
                 Double s = along.get(p);
                 // Preloads (and anything already held when the log starts) start in their place; a piece taken
                 // in starts under the roller. Without the transfer, every piece is simply in its place.
@@ -369,6 +375,12 @@ final class RobotInternalsLog {
                 Math.round(qw * 1e3) / 1e3, Math.round(-qyP * 1e3) / 1e3, Math.round(qxP * 1e3) / 1e3, 0};
     }
 
+    /** Where a piece of radius {@code r} is held: POLLEN's and NECTAR's measured places, between them by size. */
+    static double holdX(double r) {
+        double u = (r - FieldSim.POLLEN_RADIUS_IN) / (FieldSim.NECTAR_RADIUS_IN - FieldSim.POLLEN_RADIUS_IN);
+        return HOLD_X_POLLEN + u * (HOLD_X_NECTAR - HOLD_X_POLLEN);
+    }
+
     private static double mm(double meters) {
         return Math.round(meters * 1e3) / 1e3;
     }
@@ -390,11 +402,11 @@ final class RobotInternalsLog {
             pts.add(new double[] {ROLLER_X, r});
             pts.add(new double[] {RAMP_START_X, RAMP_START_Z + r});
             pts.add(new double[] {LANE_START_X, LANE_FLOOR_Z + r});
-            pts.add(new double[] {HOLD_X, LANE_FLOOR_Z + r});
+            pts.add(new double[] {holdX(r), LANE_FLOOR_Z + r});
             int holdAt = pts.size() - 1;
-            // Straight up the turret's axis, through the flywheels' nip and the turret's bore, to the exit's height. The
-            // simulator's shot leaves from the design's exit point (exitX), which may sit a little off the axis.
-            pts.add(new double[] {HOLD_X, exitZ});
+            // Up the column on the turret's axis, through the flywheels' nip and the turret's bore, to the exit's height.
+            // The simulator's shot leaves from the design's exit point (exitX), which may sit a little off the axis.
+            pts.add(new double[] {COLUMN_X, exitZ});
             xs = new double[pts.size()];
             zs = new double[pts.size()];
             cum = new double[pts.size()];
@@ -405,6 +417,16 @@ final class RobotInternalsLog {
             }
             length = cum[cum.length - 1];
             hold = cum[holdAt];
+        }
+
+        /** How far along the path, on the way in (entry to the hold), a centre at {@code x} is. */
+        double alongAtX(double x) {
+            for (int k = 1; k < xs.length && cum[k - 1] < hold; k++) {
+                if (xs[k] <= x && x <= xs[k - 1] && xs[k - 1] != xs[k]) {
+                    return cum[k - 1] + (xs[k - 1] - x) / (xs[k - 1] - xs[k]) * (cum[k] - cum[k - 1]);
+                }
+            }
+            return x > xs[0] ? 0 : hold;
         }
 
         /** Where a piece sits held between the feeders. */
