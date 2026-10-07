@@ -45,6 +45,7 @@ SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern 
 # (the last line: the flywheel motors, their belts and the plates and blocks that held them under the flywheels, where the
 # feeders go; cad/transfer/ draws the motors moved out and up)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
 RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (21 mm): a lane NECTAR passes under it
+LAUNCHER = re.compile(r"^Launcher Concept|^Dual Block \(GB\)")   # the launcher, turret and the two blocks tying its frame to the chassis
 FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
 
 def read_team(path):
@@ -118,6 +119,7 @@ def placed_team(robot_step):
         if re.search(r"Launcher subassembly <\d> / (64mm Standoff|27mm Standoff|\d+\.?\d*mm Spacer)", p):
             b = bbox(key, loc)
             if (b[1] + b[4]) / 2 - F < 4.3 * IN: continue   # the old motor's standoffs and spacers, where the feeders go
+        if LAUNCHER.search(p): loc = moved((0, 0, TR.LAUNCHER_SHIFT * IN)).Multiplied(loc)   # forward: the lane's length sets the 3 NECTAR / 4 POLLEN limit
         out.append((path, base[key], loc, col, key))
     return out
 
