@@ -144,10 +144,10 @@ def transfer():
 # too) and the 176-tooth gear on it, about +Z through the inner race's centre. The flywheels: each axle's shaft and
 # everything centred on it (wheels, hubs, 41T pulley, spacers), about +X. The roller: its shaft, wheels and pulleys.
 TURRET_TURNS = r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176"
-TURRET_AXIS = (-2.8431, 0.1575)
+TURRET_AXIS = (-2.8431 + TRF.LAUNCHER_SHIFT, 0.1575)   # the inner race's centre, with the launcher moved forward (cad/transfer)
 FLYWHEEL_AXLES = {"Launcher subassembly <2>": 3.6427, "Launcher subassembly <1>": -3.3276}   # axle Y; both at z 6.6455
 FLYWHEEL_Z = 6.646
-FLYWHEEL_X = -3.0                      # a point on both axles (their shafts run X -4.89..-1.11)
+FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
 FEEDERS = {"L": 3, "R": 7}             # component numbers: the transfer's left and right feeders (wheels and shafts)
 ROLLER_AXLE = (8.56, 3.345)                            # X, z at rest
 ROLLER_SPINS = r"^roller_shaft|^roller_wheels|^roller_pulley|^lane_drive_pulley_roller"

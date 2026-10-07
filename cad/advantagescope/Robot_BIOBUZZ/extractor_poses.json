@@ -38,7 +38,7 @@
     }
   },
   "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
-  "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (-0.072215, 0.004000) m (the inner race's centre, X -2.8431 in, Y 0.1575 in); positive yaw turns left; 0 = facing forward, as drawn",
+  "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (-0.051895, 0.004000) m (the inner race's centre, X -2.0431 in, Y 0.1575 in); positive yaw turns left; 0 = facing forward, as drawn",
   "model_4": {
     "what": "the intake roller: its shaft, two 48 mm gecko wheels, its 24T pulley and the lane's drive pulley",
     "axis_point_m": [
@@ -58,7 +58,7 @@
   "model_5": {
     "what": "flywheel axle left (+Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
-      -0.0762,
+      -0.05588,
       0.092525,
       0.168808
     ],
@@ -73,7 +73,7 @@
   "model_6": {
     "what": "flywheel axle right (-Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
-      -0.0762,
+      -0.05588,
       -0.084521,
       0.168808
     ],
@@ -88,9 +88,9 @@
   "model_3": {
     "what": "the left (+Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
     "axis_point_m": [
-      -0.072263,
+      -0.051943,
       0.06902,
-      0.081602
+      0.078808
     ],
     "axis": [
       -1,
@@ -103,9 +103,9 @@
   "model_7": {
     "what": "the right (-Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
     "axis_point_m": [
-      -0.072263,
+      -0.051943,
       -0.06902,
-      0.081602
+      0.078808
     ],
     "axis": [
       1,

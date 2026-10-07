@@ -180,7 +180,7 @@ public class AutoStudyTest {
         // fires while the extractor feeds"), so it aims without turning the robot: a frame-fixed launcher swung the
         // seated robot off the FLOWER to fire. Its exit point is still the placeholder's.
         rigidV.launcher = RobotDesign.Launcher.TURRET;
-        rigidV.exitForwardIn = -2.845;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026); the height is still the placeholder
+        rigidV.exitForwardIn = -2.045;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026, ac817a6); the height is still the placeholder
         m.put("rigid V", rigidV);
         // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis. Its
         // shot interval (0.25 s against 0.45 s), its capacity (4 POLLEN, 3 NECTAR), and both. "rigid V" itself is a
@@ -581,7 +581,7 @@ public class AutoStudyTest {
                 row.robots++;
                 if (robot.leave && robot.park) row.parked++;
                 if (robot.illegalStart != null || !Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)
-                        || !Double.isNaN(robot.hitFlowerAt)) {
+                        || !Double.isNaN(robot.hitFlowerAt) || !Double.isNaN(robot.hitWallAt)) {
                     if (row.problems++ == 0) row.firstProblem = robot.toString();
                 }
             }
