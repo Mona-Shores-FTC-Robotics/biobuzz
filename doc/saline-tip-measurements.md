@@ -78,12 +78,11 @@ one. All times are seconds after START.
 | Q25, blue | Infinity Tech | 10.3 | 11.0 | 11.8 | 0.75 | 0.8 |
 | Q26, red | Frost RoboFalcons | 11.2 | 11.5 | 12.2 | 0.25 | 0.7 |
 | Q29, red, TIP 1 | CyBugs | 3.7 | 5.6 | 6.3 | 1.9 | 0.75 |
-| Q29, red, TIP 2 | CyBugs | – | 9.4 | 10.1 | – | 0.65 |
 | Final M10, red | Infinity Tech | 5.0 (more arrived until ~8.4) | 8.8 | 9.6 | ≤ 3.8 | 0.8 |
 | Final M10, blue | Team KRASH | 8.9 | 12.0 | 12.9 | 3.1 | 0.9 |
 | Playoff M3, red (above, by hand) | Infinity Tech | 4.1 | 7.4 | 9.6 | 3.3 | 2.2 |
 
-**The swing is 0.65–0.9 s, median 0.75 s**, on ten of eleven TIPs. Playoff M3's 2.2 s is 1.3 s of visible
+**The swing is 0.65–0.9 s, median 0.75 s**, on nine of ten TIPs. Playoff M3's 2.2 s is 1.3 s of visible
 creep (first half of the arc) and then a 0.9 s swing, so the swing proper matches there too. This agrees with
 the practice-field films ([tip-timing.md](tip-timing.md)): the simulator already draws each TIP from 0.58–1.12 s
 (`FieldSim.FILMED_TIP_SECONDS`), and the event sits in the short half of that range. Only the HIVE calibration's
@@ -98,5 +97,6 @@ threshold (Q26's volley, Q9's) goes almost at once. Either way the model needs a
 is crossed, drawn from roughly 0–3.5 s, shorter the further past the threshold the load is.
 
 **What the fastest AUTO TIPs looked like.** TIP 1 complete at 6.3 s (CyBugs, Q29), 8.0, 8.3, 9.6, 9.6 s; the
-rest 11–14 s. The simulator's 5.6 s is quicker than the quickest seen. CyBugs' second TIP of Q29 came 3.8 s
-after the first (they fired into the newly raised CELL at once), at 10.1 s: the only two-TIP AUTO of the day.
+rest 11–14 s. The simulator's 5.6 s is quicker than the quickest seen. **No AUTO at Saline had two TIPs.** Q29's
+"red 40" was one TIP and a 20-point penalty (a mentor watched the match; an earlier read of the frames here had
+guessed a second swing at 10 s, wrongly). Eleven TIPs were measured; ten swings are in the table.
