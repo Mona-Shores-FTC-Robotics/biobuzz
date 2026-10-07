@@ -261,7 +261,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commit 146f130 on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 and 22b8aaa on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -283,9 +283,17 @@ flick it but not drive it. v3 pinches and drives. Robot frame, inches:
 shafts fixed, a NECTAR must deflect the two wheels 0.51 in each to enter while they're stopped, and it must enter
 stopped, because that is how the lead ball is held. The lane's push is about 1 lbf per ball (roller friction under
 the foam preload), 3–4 lbf with a full queue; two compliant wheels deflected half an inch each take far more. So:
-**one feeder on a short arm with a hard stop set for the POLLEN gap (0.10 a side) and a band of about 2 lbf preload;
-a NECTAR lifts it 0.82.** The same principle as the ceiling and the old J-arm. A POLLEN (0.10 a side) was fine either
-way.
+**sprung feeders.** The same principle as the ceiling and the old J-arm. A POLLEN (0.10 a side) was fine either way.
+
+**Drawn in commit 22b8aaa, with one improvement: both feeders swing, 0.41 each,** not one swinging 0.82 (a single
+72 mm feeder swung 0.82 would reach Y 4.96, past the drive rail's inner face at 4.88, and with both swinging the
+ball stays on the column). Each feeder, its shaft and its motor hang from a front and a rear 1.0 in arm on a pivot
+straight above its axis (z 4.10), on the launcher's front and rear channels; the front channel is slotted for the
+swing. A hard stop on ±0.1 in slots sets the POLLEN squeeze (0.10 a side); a band of about 1 lbf preload holds it;
+a NECTAR swings both out 0.41 (24°, rising 0.09). At rest the axles are at Y ±2.717, z 3.10, tops 0.26 under the
+flywheels. Clear at rest and swung out, both sizes, along the lane and up the column. The launcher's front U-beams
+and the old motor module's dual blocks are also removed (they tied the removed cross-channel, or sat in the arms'
+way).
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the flywheel
 motors move out and up (Y ±6.7, z 7.0, belted to his 41T pulleys); the motor plates, blocks and standoffs under the
@@ -614,7 +622,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 146f130** (pinch-and-drive feeders; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 22b8aaa** (pinch-and-drive feeders, both sprung; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
