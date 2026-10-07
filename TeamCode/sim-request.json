@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-stages-angled-v.pp",
-  "spec": "QualStagesAngledVAuto,PartnerAngledParkAuto@50",
+  "pp": "TeamCode/autos/qual-stages-wall-v.pp",
+  "spec": "QualStagesWallVAuto,PartnerStage19SideParkAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-stages-angled-v.pp",
+    "AutoSource": "qual-stages-wall-v.pp",
     "SavedBy": "README, qualifier Autos baseline (the dwell before a TIP, 7 Oct 2026)"
   },
-  "title": "Qual-PartnerStages-Angled",
+  "title": "Qual-PartnerStages-Wall",
   "usual": true
 }
