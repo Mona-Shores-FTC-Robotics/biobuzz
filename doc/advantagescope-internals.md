@@ -2,7 +2,7 @@
 
 Issue #166. In the simulator's logs you can follow each game piece:
 - it comes in under the roller, and the roller floats up over a NECTAR and spins while the intake runs;
-- it queues up the rising lane, seats in the feeder cup, and is popped straight up through the spinning flywheels;
+- it queues along the flat lane, is held between the side feeders, and is driven straight up through the spinning flywheels;
 - the turret ring turns to aim, and the FLOWER extractor swings.
 
 Before this, a piece vanished into the robot and reappeared as a shot.
@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v2, from the CAD chat's commit ea86820. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v3, from the CAD chat's commit 146f130. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -23,9 +23,9 @@ on the transfer's path (robot frame: X forward from the chassis centre, z up, in
 
 | Stage | Where | When |
 |---|---|---|
-| Taken in | From X 10.0 on the tiles, under the roller (axle at X 8.56), up the ramp (X 8.0 → 5.8, 0.05 → 0.9 in up), then up the lane: its ball-bottom line rises 17° to X −0.545, z 2.873, over the front feeder | At the lane's 27 in/s, until it reaches its place in the queue |
-| Queued | The front piece seated in the cup at X −2.845 (centre 3.00 in up for a POLLEN, 3.67 for a NECTAR), the rest nose to tail behind it down the lane | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the front feeder holds the next one back at the lane's end |
-| Firing | The piece in the cup waits 0.05 s while the feeders spin up. It then rises straight up the turret's axis (X −2.845) through the flywheels' nip and the turret's bore, to the exit's height (12 in). The simulator's shot leaves from its own exit point, 1.2 in behind that, until the hood is designed | It arrives at the exit as the simulator launches it, 0.15 s after it started |
+| Taken in | From X 10.0 on the tiles, under the roller (axle at X 8.56), up the ramp (X 8.0 → 5.7, 0.05 → 1.3 in up), then along the flat lane (ball-bottom 1.3 in up) | At the lane's 27 in/s, until it reaches its place in the queue |
+| Queued | The lead piece held between the side feeders at X −2.845 (the turret's axis; centre 2.70 in up for a POLLEN, 3.11 for a NECTAR), the rest nose to tail behind it: POLLEN at −2.845, −0.045, 2.755, 5.555; NECTAR at −2.845, 0.755, 4.355 | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the next waits right behind the hold and rolls in when it has gone |
+| Firing | The held piece waits 0.05 s while the feeders spin up. It then rises straight up the turret's axis through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in, where the simulator's shot starts | It arrives at the exit as the simulator launches it, 0.15 s after it started |
 
 Preloads start in their places. A robot without the transfer (any design without `laneCapacity`) has its held pieces
 placed on the same path, without the motion.
@@ -41,10 +41,10 @@ turn at a display rate, 2 turns a second, while they run: real roller and flywhe
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 146° stowed | The simulator's `Extractor/Down`: down on the way to a FLOWER, up as the robot leaves |
 | 1 | Roller carriage, motor, float plates | Straight up, 0 to 1.3 in | Rises until the roller clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in |
 | 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.072215, 0.004) m, 4 mm left of the centre line | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. Straight ahead at the start |
-| 3 | Front feeder wheel | About +Y through (−0.013843, 0, 0.039624) m | Spins while a piece is being fed |
+| 3 | Left feeder: two 72 mm wheels on an axle along X | About −X through (−0.072263, 0.069020, 0.081602) m | Spins while a piece is being fed, driving it up |
 | 4 | Intake roller | About +Y through its axle (0.217424, 0, 0.084963) m, plus the carriage's rise | Spins while the intake runs; the bottom moves rearward |
 | 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.0762, ±0.0925, 0.1688) m | Spin while the launcher is spun up, both throwing the piece up |
-| 7 | Rear feeder wheel | About −Y through (−0.130683, 0, 0.039624) m | Spins while a piece is being fed |
+| 7 | Right feeder: two 72 mm wheels on an axle along X | About +X through (−0.072263, −0.069020, 0.081602) m | Spins while a piece is being fed, driving it up |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
@@ -97,7 +97,7 @@ The layout's tabs:
 | Tab | What |
 |---|---|
 | **Field** | The whole field, as before, with the robot posed from `/Internals/Components` |
-| **Inside the robot** | Orbits the robot, close in. Drag to look in under the turret, at the lane, the cup and the feeders |
+| **Inside the robot** | Orbits the robot, close in. Drag to look in under the turret, at the lane and the feeders |
 | **Limelight** | The camera's view: the robot's first camera (`config.json`, 4.0 in ahead of the centre, 14 in up, 45° up) |
 | **Internals** | The readouts above, with `/Sim/Robot/Held` |
 
@@ -112,7 +112,8 @@ with the transfer's 0.5 s feed:
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
 it's fully down before the robot drives in (the mentor's review, 7 Oct). The zip's README has the scores.
-Over 60 runs, flower-first scores 67.6 (TIP 3 in 37 of 60) and the right-side stream 70.9 (TIP 3 in 47).
+Over 60 runs, flower-first scores 65.3 (TIP 3 in 31 of 60) and the right-side stream 70.9 (TIP 3 in 48), with the
+shot's exit on the turret's axis.
 
 Made with:
 
@@ -130,7 +131,8 @@ JUnit 4.13.2 from Maven Central, with a one-line stub for Panels' `@Configurable
 ## Tests
 
 `RobotInternalsLogTest` checks the drawing against the transfer's numbers:
-- the path's ends, the lane's end, and a seated piece's height in the cup;
+- the path's ends, and a held piece's height between the feeders;
+- the queue's places, against the CAD chat's own;
 - the column straight up the turret's axis;
 - each component is the identity at rest and turns about its own axis;
 - the intake roller spins about its axle and rises with the carriage;
