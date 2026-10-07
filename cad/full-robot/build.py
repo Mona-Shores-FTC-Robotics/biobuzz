@@ -104,6 +104,7 @@ def placed_team(robot_step):
     rails = [bbox(k, l) for pth, k, l, c in leaves if pth and pth[-1].startswith("1107-0015-0384")]
     dz, dx = FACE - max(b[5] for b in rails), (C + 136.0) - max(b[3] for b in rails)
     print(f"aligned by the rails: +{dx:.2f} mm across, +{dz:.2f} mm forward")
+    placed_team.align = (dx, dz)
     tr = gp_Trsf(); tr.SetTranslation(gp_Vec(dx, 0, dz)); align = TopLoc_Location(tr)
     def moved(v): t = gp_Trsf(); t.SetTranslation(gp_Vec(*v)); return TopLoc_Location(t)
     out = []
@@ -143,16 +144,22 @@ def write_mesh(robot_step, out_pkl):
         rows.append((p, vv, f, col))
     pickle.dump(rows, open(out_pkl, "wb")); print(len(rows), "meshes ->", out_pkl)
 
-def main(robot_step, out):
-    to_model = RP.to_model(C, F, FACE)
-    top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(to_model))
+def main(robot_step, out, additions=False):
+    """The whole robot in the model frame; or, with additions, only our parts, in the frame of the mentor's Robot.step,
+    so they drop into his Onshape assembly at its origin (the edits to his parts are listed in cad/transfer/README.md)."""
     team = cq.Assembly(name="team robot CAD (the mentor's Robot.step, 7 Oct), replaced parts left out")
     kept = 0
     pods = RP.pods_inst(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
     for i, (path, shp, loc, col, key) in enumerate(placed_team(robot_step)):
+        if additions: break
         team.add(shp, name=f"{i:04d} {path[-1] if path else '?'}"[:120], loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
-    print("kept", kept)
-    top.add(team)
+    if additions:
+        dx, dz = placed_team.align; t = gp_Trsf(); t.SetTranslation(gp_Vec(-dx, 0, -dz))
+        top = cq.Assembly(name="BIOBUZZ additions (the frame of the mentor's Robot.step: insert at the origin)", loc=cq.Location(TopLoc_Location(t)))
+    else:
+        top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(RP.to_model(C, F, FACE)))
+        print("kept", kept)
+        top.add(team)
     for title, g, d in IB.GROUPS:
         sub = cq.Assembly(name=f"front: {title}")
         for n, (wp, col, kind) in d.items():
@@ -182,4 +189,5 @@ def main(robot_step, out):
 
 if __name__ == "__main__":
     if sys.argv[1] == "--mesh": write_mesh(*sys.argv[2:4])
+    elif sys.argv[1] == "--additions": main(*sys.argv[2:4], additions=True)
     else: main(*sys.argv[1:3])

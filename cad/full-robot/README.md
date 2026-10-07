@@ -34,5 +34,14 @@ envelope boxes; without `LL_STEP` only the camera's mount is drawn.
 `LEAN=1` leaves out the mentor's screws, nuts, washers and other fasteners: about 260 MB instead of 380, and it opens
 faster. Use it for a file to look at; use the full one to build from.
 
+**Only our parts, for Onshape:**
+
+    EXAMPLE_STEP=... LL_STEP=... python3 cad/full-robot/build.py --additions Robot.step BIOBUZZ-additions.step
+
+This writes the front, the transfer, the launcher's new parts and the Limelight, and nothing of the mentor's. They are
+placed in the frame of that Robot.step, so in Onshape you insert the file at the origin of his assembly and they land
+where they belong. The changes to his own parts (the launcher 0.8 in forward, the 11-hole channel raised 30 mm, the
+parts that come out) can't travel in this file; they are listed in `cad/transfer/README.md`.
+
 `python3 cad/full-robot/real_parts.py <example chassis STEP> <LIMELIGHT3ACAD_STEP.stp> vendor_mesh.pkl` writes the same
 vendor parts as meshes for the AdvantageScope model (its `VENDOR_PKL`).
