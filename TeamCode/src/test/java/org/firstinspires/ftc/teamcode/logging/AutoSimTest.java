@@ -28,13 +28,13 @@ import java.util.List;
 public class AutoSimTest {
 
     /**
-     * The CAD model's extractor pose in the logs matches its extractor_poses.json: stowed is 150 deg about the shaft
+     * The CAD model's extractor pose in the logs matches its extractor_poses.json: stowed is 146 deg about the shaft
      * (the file's translation and quaternion), down is the identity, and the roller's pose is the identity throughout.
      */
     @Test
     public void cadExtractorPoseMatchesTheModelsFile() {
         double[] stowed = AutoSim.cadComponents(0);
-        double[] file = {0.52922, 0, 0.08679, 0.258819, 0, -0.965926, 0};
+        double[] file = {0.52663, 0, 0.06759, 0.292372, 0, -0.956305, 0};
         for (int i = 0; i < 7; i++) assertEquals("stowed[" + i + "]", file[i], stowed[i], 1e-4);
         double[] down = AutoSim.cadComponents(1);
         double[] identity = {0, 0, 0, 1, 0, 0, 0};

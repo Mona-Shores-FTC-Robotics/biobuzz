@@ -788,11 +788,11 @@ public final class AutoSim {
     }
     /** The CAD model's extractor shaft (cad/advantagescope/Robot_BIOBUZZ/extractor_poses.json): along +Y through here, m. */
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
-    static final double EXTRACTOR_STOWED_DEG = 150;
+    static final double EXTRACTOR_STOWED_DEG = 146;
 
     /**
      * The CAD model's two component poses (translation m, quaternion w x y z): the FLOWER extractor turned about its
-     * shaft by -angle about +Y (0 deg down as drawn, 150 stowed), for {@code down} from 0 (stowed) to 1 (down), then
+     * shaft by -angle about +Y (0 deg down as drawn, 146 stowed), for {@code down} from 0 (stowed) to 1 (down), then
      * the floating roller, down (its identity pose).
      */
     static double[] cadComponents(double down) {
@@ -1229,7 +1229,7 @@ public final class AutoSim {
         void putShape(WpiLog log, long us) throws IOException {
             if (cadModel(design.name)) {
                 // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor,
-                // zeroed deployed, at its angle (150 deg stowed, 0 down), and the floating roller, down.
+                // zeroed deployed, at its angle (146 deg stowed, 0 down), and the floating roller, down.
                 double down = body == null ? 0 : body.extractorDown;
                 if (down == shapeLogged) return;
                 shapeLogged = down;
