@@ -11,6 +11,7 @@ NECTARs. The designer's "Launcher Concept" (the goBILDA turret over two pairs of
 transfer's own turret reference parts are left out in its favour. The old intake's 11-hole channel is raised
 8 mm, as the transfer needs."""
 import math, os, re, sys, time
+import numpy as np
 import cadquery as cq
 from OCP.STEPCAFControl import STEPCAFControl_Reader
 from OCP.TDocStd import TDocStd_Document
@@ -21,6 +22,8 @@ from OCP.TDataStd import TDataStd_Name
 from OCP.TopLoc import TopLoc_Location
 from OCP.Quantity import Quantity_Color
 from OCP.gp import gp_Trsf, gp_Vec
+from OCP.Bnd import Bnd_Box
+from OCP.BRepBndLib import BRepBndLib
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "intake-b")); sys.path.insert(0, os.path.join(HERE, "..", "robot-addons"))
 import importlib.util
@@ -31,8 +34,16 @@ IB = load("intake_b", os.path.join(HERE, "..", "intake-b", "build.py"))
 TR = load("transfer", os.path.join(HERE, "..", "transfer", "build.py"))
 A = IB.A
 C, F, FACE, IN = A.C, A.F, A.FACE, A.IN
-SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)|Nectar|Pollen")
-RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")
+# Left out of the mentor's CAD: the old intake roller, its motor and mount, its guides on the towers (V-groove bearings and
+# their cavities, and the roller's own bearings) and its spacers (our floating roller replaces them); his pinwheel, its
+# servo, block and shaft (our FLOWER extractor replaces it); his two 3.5 in star wheels (the transfer's wheel lane
+# replaces them); his staged NECTAR and POLLEN; and the launcher's front cross-channel with its two dual blocks (the
+# lane's balls run through where it is; the 8-hole channel above still ties the frame).
+SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043|V-Groove|Cavity1|8x14x5mm Bearing|4\.5in OD|Servo|Compact Servo Block)"
+                  r"|^3\.5in OD|Nectar|Pollen|Wheel Assembly <\d> / 72mm Steel Shaft")   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
+RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (21 mm): a lane NECTAR passes under it
+FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
+WIDEN_IN = 0.25   # the launcher's front U-beams move this much further apart: the lane's balls pass between them
 
 def read_team(path):
     t0 = time.time()
@@ -81,19 +92,57 @@ def limelight_mount():
     return [("Limelight wedge (print, stand-in)", wedge, (0.18, 0.37, 0.62)), ("Limelight plate (stand-in)", plate, (0.18, 0.37, 0.62)),
             ("Limelight beam between the front towers (stand-in)", beam, (0.67, 0.7, 0.74))]
 
+def placed_team(robot_step):
+    """The mentor's parts we keep, lined up and edited: [(path, base shape, TopLoc_Location, colour)]."""
+    leaves, base = read_team(robot_step)
+    def bbox(key, loc):
+        b = Bnd_Box(); BRepBndLib.Add_s(base[key].wrapped.Moved(loc), b); return b.Get()
+    # the mentor's exports move his assembly's origin: line it up by the drive rails (front ends at FACE, right one at C+136 mm)
+    rails = [bbox(k, l) for pth, k, l, c in leaves if pth and pth[-1].startswith("1107-0015-0384")]
+    dz, dx = FACE - max(b[5] for b in rails), (C + 136.0) - max(b[3] for b in rails)
+    print(f"aligned by the rails: +{dx:.2f} mm across, +{dz:.2f} mm forward")
+    tr = gp_Trsf(); tr.SetTranslation(gp_Vec(dx, 0, dz)); align = TopLoc_Location(tr)
+    def moved(v): t = gp_Trsf(); t.SetTranslation(gp_Vec(*v)); return TopLoc_Location(t)
+    out = []
+    for path, key, loc, col in leaves:
+        p = " / ".join(path)
+        if SKIP.search(p): continue
+        loc = align.Multiplied(loc)
+        if RAISE.search(p): loc = moved((0, TR.CHAN_RAISE * IN, 0)).Multiplied(loc)
+        if FRONT_OF_LAUNCHER.search(p):
+            b = bbox(key, loc); x_model = ((b[2] + b[5]) / 2 - (FACE - 7.56 * IN)) / IN; y_model = ((b[0] + b[3]) / 2 - C) / IN
+            if x_model > -2.0:
+                if "U Beam" in p: loc = moved((math.copysign(WIDEN_IN * IN, y_model), 0, 0)).Multiplied(loc)
+                else: continue                            # the front cross-channel and its two dual blocks
+        out.append((path, base[key], loc, col, key))
+    return out
+
+def write_mesh(robot_step, out_pkl):
+    """The kept, placed parts as meshes for cad/advantagescope/build_model.py: [(path, vertices (CAD inches), faces, colour)],
+    the format tools/robot-cad/slim.py writes. Fasteners and tiny parts are left out, as slim.py does."""
+    import pickle
+    rows, cache = [], {}
+    for path, shp, loc, col, key in placed_team(robot_step):
+        p = " / ".join(path)
+        if re.search(r"text|e-clip|shim|Screw|screw|Bearing|pins|Nut|nut|Washer|washer|Cavity|2800-|2802-|2829-|CAGE", p): continue
+        if key not in cache:
+            v, f = shp.tessellate(0.4, 0.5); cache[key] = (np.array([(q.x, q.y, q.z) for q in v]), np.array(f))
+        v, f = cache[key]
+        if not len(f): continue
+        T = loc.Transformation(); M = np.array([[T.Value(i, j) for j in range(1, 5)] for i in range(1, 4)])
+        vv = (v @ M[:, :3].T + M[:, 3]) / IN
+        if np.linalg.norm(vv.max(0) - vv.min(0)) < 0.35: continue
+        rows.append((p, vv, f, col))
+    pickle.dump(rows, open(out_pkl, "wb")); print(len(rows), "meshes ->", out_pkl)
+
 def main(robot_step, out):
     to_model = RP.to_model(C, F, FACE)
     top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(to_model))
-    team = cq.Assembly(name="team robot CAD (DHS Robot Copy), replaced parts left out")
+    team = cq.Assembly(name="team robot CAD (the mentor's Robot.step, 7 Oct), replaced parts left out")
     kept = 0
-    leaves, base = read_team(robot_step)
     pods = RP.pods(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
-    lift = TopLoc_Location(gp_Trsf()); tr8 = gp_Trsf(); tr8.SetTranslation(gp_Vec(0, 8.0, 0)); lift8 = TopLoc_Location(tr8)
-    for i, (path, key, loc, col) in enumerate(leaves):
-        p = " / ".join(path)
-        if SKIP.search(p): continue
-        if RAISE.search(p): loc = lift8.Multiplied(loc)
-        team.add(base[key], name=f"{i:04d} {path[-1] if path else '?'}"[:120], loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
+    for i, (path, shp, loc, col, key) in enumerate(placed_team(robot_step)):
+        team.add(shp, name=f"{i:04d} {path[-1] if path else '?'}"[:120], loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
     print("kept", kept)
     top.add(team)
     for title, g, d in IB.GROUPS:
@@ -124,4 +173,5 @@ def main(robot_step, out):
     t0 = time.time(); top.save(out); print("wrote", out, os.path.getsize(out) // 1_000_000, "MB in", round(time.time() - t0), "s")
 
 if __name__ == "__main__":
-    main(*sys.argv[1:3])
+    if sys.argv[1] == "--mesh": write_mesh(*sys.argv[2:4])
+    else: main(*sys.argv[1:3])
