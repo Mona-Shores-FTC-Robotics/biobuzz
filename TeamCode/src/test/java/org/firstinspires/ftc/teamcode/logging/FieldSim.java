@@ -863,6 +863,9 @@ final class FieldSim {
 
     // ---- Launching ----------------------------------------------------------------------------
 
+    /** A launched piece's backspin, rad/s (a placeholder: the flywheels' grip is unmeasured). */
+    static final double LAUNCH_BACKSPIN_RAD_PER_S = 12;
+
     /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
     double[] launchVelocity(double[] from, double[] target) {
         return launchVelocity(from, target, 6);
@@ -953,8 +956,11 @@ final class FieldSim {
         p.vx = vx;
         p.vy = vy;
         p.vz = vz;
-        p.wx = 0;
-        p.wy = -12;
+        // Backspin about the horizontal normal to the line of flight (until 7 Oct 2026 it was wy = -12 in the field
+        // frame, which is backspin only for a shot along +x; the body-designs chat's catch).
+        double horizontal = Math.hypot(vx, vy);
+        p.wx = horizontal > 1e-9 ? LAUNCH_BACKSPIN_RAD_PER_S * vy / horizontal : 0;
+        p.wy = horizontal > 1e-9 ? -LAUNCH_BACKSPIN_RAD_PER_S * vx / horizontal : 0;
         p.wz = 0;
         p.launchedBy = bot;
         p.shotBy = bot;

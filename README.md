@@ -28,6 +28,9 @@ the GARDEN's 4 after, `qual-right-v-seatfire-west` scores **72.0** (TIP 2 at 11.
 60 at 24.5 s, PARK in all 60, G409 10) against the baseline's 70.2 on the same robot. Firing from the seat and then
 going back to the old catch spot scored 62.5: the robot arrives as the spill falls (G409 in 21 runs). Not yet the
 baseline: adopting it, and carrying it into the Stages Autos, is the next decision (`tools/auto-routes/seat_fire.py`).
+Watch it: [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_best.wpilog) ·
+[typical](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-results/qual-right-v-seatfire-west/Qual-PartnerShootsRight-SeatFire_RigidV_2026-10-07_typical.wpilog) ·
+[the route](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp).
 The FLOWER scorer is shelved (6 Oct).
 
 Points are average alliance AUTO points over 60 simulated runs (seeds 1–60; 3 TIPs, LEAVE and PARK; a perfect run
@@ -213,8 +216,10 @@ laptop. Set it up once, then watch any log.
 
 What you see: our robot, **BIOBUZZ Robot**, built from the team's CAD (`cad/advantagescope/`): the chassis
 with its outer wheel plates and odometry pods, the floating 14 in intake roller, the Rigid V plates, the FLOWER
-extractor (swinging down as the robot nears a FLOWER, up as it leaves) and the Limelight, which you can look
-through (right-click the 3D view → **Limelight**; its body isn't drawn yet). The partner is the green ghost. The baseline logs above are simulated with that robot
+extractor (swinging down as the robot nears a FLOWER, up as it leaves), the transfer (lane, J-wheel, chute) with
+the held pieces single file on its lane, the turret bearing turning to the CELL while the launcher spins, and the
+Limelight, which you can look through (right-click the 3D view → **Limelight**). The launcher itself and the roller's
+float are not drawn yet. The partner is the green ghost. The baseline logs above are simulated with that robot
 ("rigid V"). A log of another design (the superseded Flat Intake ones, or a study) draws nothing right until
 you pick **BIOBUZZ Robot (designs)** in the robot row's model menu: that model holds every simulated design
 and the log says which to show. The picture never changes what happened: a log is one simulated match with

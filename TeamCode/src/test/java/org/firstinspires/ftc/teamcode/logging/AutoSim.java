@@ -780,17 +780,27 @@ public final class AutoSim {
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
     static final double EXTRACTOR_STOWED_DEG = 150;
 
+    /** The CAD model's turret axis, +Z through here (m); positive yaw turns left, 0 facing forward as drawn. */
+    static final double TURRET_AXIS_X_M = -0.080518;
+
     /**
-     * The CAD model's two component poses (translation m, quaternion w x y z): the FLOWER extractor turned about its
-     * shaft by -angle about +Y (0 deg down as drawn, 150 stowed), for {@code down} from 0 (stowed) to 1 (down), then
-     * the floating roller, down (its identity pose).
+     * The CAD model's four component poses (translation m, quaternion w x y z; its extractor_poses.json): the FLOWER
+     * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 150 stowed), for {@code down} from 0
+     * (stowed) to 1 (down); the floating roller, down; the turret turned {@code turretYawRad} about its axis; the
+     * transfer's J arm at rest. The roller and the J arm do not move in the logs yet.
      */
-    static double[] cadComponents(double down) {
+    static double[] cadComponents(double down, double turretYawRad) {
         double a = Math.toRadians(EXTRACTOR_STOWED_DEG * (1 - down));
         double px = EXTRACTOR_PIVOT_M[0], pz = EXTRACTOR_PIVOT_M[2];
         // R (about +Y by -a) applied to the pivot; translation = pivot - R pivot.
         double rx = px * Math.cos(a) - pz * Math.sin(a), rz = px * Math.sin(a) + pz * Math.cos(a);
-        return new double[] {px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0, 0, 0, 0, 1, 0, 0, 0};
+        // The turret about +Z through (TURRET_AXIS_X_M, 0): translation = axis - R axis.
+        double tx = TURRET_AXIS_X_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
+        return new double[] {
+                px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0,
+                0, 0, 0, 1, 0, 0, 0,
+                tx - tx * c, -tx * s, 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2),
+                0, 0, 0, 1, 0, 0, 0};
     }
 
     private final class Bot {
@@ -1220,12 +1230,20 @@ public final class AutoSim {
          */
         void putShape(WpiLog log, long us) throws IOException {
             if (cadModel(design.name)) {
-                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor,
-                // zeroed deployed, at its angle (150 deg stowed, 0 down), and the floating roller, down.
+                // The whole-robot model built from the CAD (cad/advantagescope/Robot_BIOBUZZ): the FLOWER extractor at
+                // its angle (150 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
+                // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
                 double down = body == null ? 0 : body.extractorDown;
-                if (down == shapeLogged) return;
-                shapeLogged = down;
-                log.putPose3dArray(keyPrefix + "/BodyShape/Components", cadComponents(down), us);
+                double yaw = 0;
+                double[] aim = spinning && design.launcher == RobotDesign.Launcher.TURRET ? sim.rocker(alliance).aimPoint() : null;
+                if (aim != null) {
+                    double[] at = pedro(drive.pose);
+                    yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(Math.atan2(aim[1] - at[1], aim[0] - at[0]) - at[2]))));
+                }
+                double key = down + 1000 * yaw;
+                if (key == shapeLogged) return;
+                shapeLogged = key;
+                log.putPose3dArray(keyPrefix + "/BodyShape/Components", cadComponents(down, yaw), us);
                 return;
             }
             double out = body == null ? 0 : body.wallsOut;
