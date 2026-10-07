@@ -8,10 +8,12 @@ roller with its motor. Copy the folder into AdvantageScope's custom assets folde
 |---|---|
 | `model.glb` | The robot and everything fixed: goBILDA's odometry pods and Limelight's own 3A (with `VENDOR_PKL`), the camera on a stand-in mount (a beam between the front towers' tops and a 45° wedge), and the transfer (`cad/transfer/`) at rest. Left out: the old intake roller and motor (the new ones replace them) and the NECTARs staged in the CAD (the simulator draws the pieces the robot holds). The transfer doesn't fit the launcher yet (`cad/transfer/README.md`) |
 | `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
-| `model_1.glb` | Component 1, the roller, its motor and carriage, drawn down |
-| `model_2.glb` | Component 2, the designer's "Launcher Concept": goBILDA's turret with two pairs of 96 mm flywheels under it, all drawn as turning with the turret, facing forward. It turns about +Z through (−0.0805, 0) m |
+| `model_1.glb` | Component 1, the roller's motor, carriage and float plates (not the roller), drawn down |
+| `model_2.glb` | Component 2, what turns on the turret: the goBILDA bearing's inner race and its 176T gear (the hood joins it later), facing forward. It turns about +Z through the inner race's centre, (−0.08020, 0.00400) m. The designer's launcher under it is fixed: it shoots up into the hood |
 | `model_3.glb` | Component 3, the transfer's J-wheel and arms, at rest |
-| `config.json` | FTC robot, no rotations, four components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
+| `model_4.glb` | Component 4, the intake roller: its shaft, wheels and pulleys. It spins about its axle (+Y through X 8.56 in, z 3.35 in at rest) and floats with component 1 |
+| `model_5.glb`, `model_6.glb` | Components 5 and 6, the launcher's left (+Y) and right (−Y) flywheel axles, each two 96 mm Gecko wheels with their shaft, hub and 41T pulley. Axles along X at Y +3.643 / −3.327 in, z 6.6455 in |
+| `config.json` | FTC robot, no rotations, seven components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
 | `extractor_poses.json` | The extractor's component pose, deployed and stowed, and the roller's |
 
 **Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the
