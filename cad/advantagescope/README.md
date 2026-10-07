@@ -12,10 +12,12 @@ of another design.
 
 | File | What |
 |---|---|
-| `model.glb` | The robot and everything fixed, with the Limelight on a stand-in mount (a beam between the front towers' tops and a 45° wedge) at the camera's position. Left out: the old intake roller and motor (the new ones replace them) and the NECTARs staged in the CAD (the simulator draws the pieces the robot holds). The intake-to-turret transfer is drawn as placeholder solids from its envelope (`doc/transfer.md` on `spike/164-transfer`): lane, ramp, J-wheel and arms, outer J and chute, countershaft pulley, J motor and the turret bearing ring. The CAD's "Launcher Concept" is still drawn and overlaps the J until the turret has an outline |
+| `model.glb` | The robot and everything fixed: goBILDA's odometry pods and Limelight's own 3A (with `VENDOR_PKL`), the camera on a stand-in mount (a beam between the front towers' tops and a 45° wedge), and the transfer (`cad/transfer/`) at rest. Left out: the old intake roller and motor (the new ones replace them) and the NECTARs staged in the CAD (the simulator draws the pieces the robot holds). The transfer doesn't fit the launcher yet (`cad/transfer/README.md`) |
 | `model_0.glb` | Component 0, the FLOWER extractor, drawn deployed |
 | `model_1.glb` | Component 1, the roller, its motor and carriage, drawn down |
-| `config.json` | FTC robot, `disableSimplification` (see below), no rotations, two components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
+| `model_2.glb` | Component 2, the designer's "Launcher Concept": goBILDA's turret with two pairs of 96 mm flywheels under it, all drawn as turning with the turret, facing forward. It turns about +Z through (−0.0805, 0) m |
+| `model_3.glb` | Component 3, the transfer's J-wheel and arms, at rest |
+| `config.json` | FTC robot, `disableSimplification` (see below), no rotations, four components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
 | `extractor_poses.json` | The extractor's component pose, deployed and stowed, and the roller's |
 
 **Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the
@@ -34,7 +36,7 @@ would be component 2 when its outline exists.
 
 **What AdvantageScope needs from the files** (both learnt the hard way on 6 Oct 2026, from its `OptimizeGeometries.ts`): every mesh must carry vertex normals, or it is dropped silently, and the config sets `disableSimplification`, or small parts are culled by rendering mode. `build_model.py` does both; check a rebuilt model with a glTF viewer before committing.
 
-**Rebuild:** `python3 cad/advantagescope/build_model.py keep.pkl front_mesh.pkl [addons_mesh.pkl]`. The first
+**Rebuild:** `VENDOR_PKL=vendor_mesh.pkl python3 cad/advantagescope/build_model.py keep.pkl front_mesh.pkl [addons_mesh.pkl [transfer_mesh.pkl]]`. `VENDOR_PKL` comes from `cad/full-robot/real_parts.py`. The first
 comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the second from `cad/intake-b/build.py` with
 `MESH_OUT` set, the third (for the real odometry pods) from `cad/robot-addons/build.py` with `POD_DIR` and `MESH_OUT`.
 

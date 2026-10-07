@@ -225,6 +225,11 @@ The transfer's lane runs down the centreline (Y ±2.35, X −5.1..7.2, below Z 5
   over-travel stop is the 9-hole channel on top of the uprights.
 - **The front drive motors' encoder caps** (X 2.36..3.93, |Y| 1.87..2.59, Z 3.48..5.05): the lane walls drop to 3.4 in there.
 - **The extractor's servo gear and stops** are now over the roller at the right end, clear of the strip. The lane walls end at X 7.0.
-- **The CAD's "Launcher Concept"** is replaced by the turret.
+- **The CAD's "Launcher Concept"** is the designer's launcher: goBILDA's turret (3208-0004-0001) at Z 8.72..9.52, centred
+  X −3.16, with two pairs of 96 mm flywheels hung under it (Z 4.78..8.56) and their 312 rpm motors (Z 2.13..3.70). It
+  stays. The transfer was drawn as if it went, so it doesn't yet fit it (exact mesh check): the J-wheels and the 10-hole lowside channel (0.27 in³ of overlap), the outer J and chute and that channel (0.18), the J
+  motor and a 5-hole lowside channel (0.10), the right lane wall and the launcher subassembly's channels, Mini Quad Block,
+  41T pulley and belt, and the J shaft and arm drive against its channels and U-beams. The
+  transfer's J and chute have to be redrawn to feed these flywheels.
 - **The lane's drive pulley** on the roller shaft at Y +2.35..+2.9 has the roller's only gap. The roller floats, so its
   belt to the lane needs a sprung idler.
