@@ -257,6 +257,40 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
+## The real launcher (7 Oct 2026): the J feeds its flywheels
+
+**Correction from the CAD chat.** The CAD's "Launcher Concept" is not a placeholder: it is the designer's launcher.
+goBILDA's turret (3208-0004-0001) sits at z 8.72..9.52 centred on X −3.16, with two pairs of 96 mm flywheels hung
+under it (X −3.87..−1.97, |Y| 1.44..5.53, z 4.78..8.56; shafts along X at |Y| about 3.4, z 6.65) and their 312 rpm
+motors low on both sides (X −4.55..0.95, |Y| 2.19..4.07, z 2.13..3.70). It fires **straight up the turret axis**
+from the flywheel nip at (−3.16, 6.65). The transfer was drawn as if it went (commit 3263aec), so it clashes with
+the launcher's frame: the J-wheels and chute with a 10-hole lowside channel, the J motor with a 5-hole channel, the
+right lane wall with the launcher's channels, Mini Quad Block, 41T pulley and belt, and the J shaft and arm drive
+with its channels and U-beams.
+
+**What doesn't change.** The concept: the J still delivers the ball upward on the axis, which is what the nip
+takes. The lane, the ramp, the roller drive, the countershaft, the strands, the arm, the stop and the band. The
+ball column (NECTAR on the axis, POLLEN 0.4 in behind it) is within the flywheel stack's X −3.87..−1.97.
+
+**What changes** (being redrawn; the launcher's part boxes are requested):
+- The turret reference ring and its two cross-channels go; the launcher has its own frame. The hand-off numbers
+  for the launcher change to: **the ball rises on the axis from z 4.54 and must reach the nip at z 6.65**, a
+  2.1 in rise. 40 in/s is enough; the J gives 64–80, so 1620 rpm stays, and 1150 rpm (46–57) becomes acceptable
+  if a gentler entry is wanted.
+- The chute's side walls are cut to z 4.7 between X −4.0 and −1.9, under the flywheels; above that the wheels'
+  lower rims (6.8 in apart at z 4.78, closing to the nip) guide the ball.
+- Lane walls to Y ±2.05 inside (4.1 in clear), so the right wall clears the launcher's parts at |Y| 2.19.
+- The J motor leaves the launcher motors' band: along +Y at about (X −0.3, z 5.2), Y 2.7..6.2, on the left wall's
+  top edge, belted down to the left pivot stub (about 2.1 in centres); fallback at X 1.5..3.0 ahead of the
+  launcher motors.
+- The J-wheel's clash with the 10-hole channel is resolved once that channel's box and job are known; the axle
+  stays at (−1.32, 4.54) if at all possible, because it sets the ball column.
+
+**A flag for the launcher's designer.** With the flywheel centres at |Y| 3.4 and 96 mm wheels, the nip gap is about
+3.02 in: a POLLEN (2.80) isn't gripped, and a NECTAR (3.62) is squeezed 0.6 in, which these stiff balls can't take.
+The launcher study (TeamCode/README, "Choosing a launcher") found exactly this failure and recommends one wheel with
+a spring-loaded hood, or one sprung side. The transfer can't fix that; it's the first thing to confirm in the CAD.
+
 ## Build spec for CAD (6 Oct 2026)
 
 Front entry only. Robot frame, inches unless mm is written. Where a goBILDA number is given, check it on gobilda.com
@@ -434,7 +468,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`, at commit **3263aec** (the final design; its STEP is identical to c708dff's), drawn by the Flower Extracter chat and
+`claude/robotics-meeting-notes-lq2y55`, at commit 3263aec, **being redrawn around the real launcher** (see "The real launcher" above), drawn by the Flower Extracter chat and
 swept clear of the robot, the roller at every float height, the extractor at 0/75/150° and the J-wheel's full lift
 (`tools/robot-cad/transfer_sweep.py`). In the AdvantageScope model the J-wheel and arms are a moving component
 (model_2, rotation about +Y through the pivot, 0 at rest to 36.8° at full float) and the roller-shaft pulley
