@@ -49,3 +49,8 @@ too oblique to measure the landing distance, so the filmed 35–47 in stands.
 | `m3-tip1-26925.828-rocker-on-stop.png` | 26925.828 | The rocker on its stop; the spill leaving the lip above the robot |
 | `m3-tip1-26926.112-first-touch.png` | 26926.112 | The first piece on the tiles; the rest in the air around the robot |
 | `m3-tip1-26926.178-spreading.png` | 26926.178 | Four frames later: pieces already spread a robot's width to each side |
+| `m3-tip1-26926.428-spread.png` | 26926.428 | 0.32 s after the first touch: pieces from the alliance wall to past the robot on both sides, 2–3 ft of spread, heading back toward the wall; the HIVE end still landing |
+
+**How fast it spreads.** 0.32 s after the first touch the pieces cover 2–3 ft either side of where they landed and
+are moving back toward the alliance wall. The simulator's `FILMED_BOUNCE_SCATTER` puts the median piece 24 in from
+its landing point 0.5 s after touchdown; the event spill is at least that fast.
