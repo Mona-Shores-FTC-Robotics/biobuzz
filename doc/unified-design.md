@@ -378,6 +378,46 @@ early fixed both.
   only for a shot travelling along x; our shots travel along y. It wasn't the cause above (the misses stayed with
   spin off), but the simulator chat should fix it. `FieldSim.launchSpin` / `BIOBUZZ_AUTO_SPIN` expose it for testing.
 
+## Flower first (7 Oct 2026, 60 runs)
+
+**The user's plan:** "path to the FLOWER immediately and then shoot all 8 from there". The route is ShootsRight,
+`qual-right-v-flower-first-l<ms>` in `stream.py`:
+- From the start, straight to the far FLOWER, seated with the face 4.59 in from its centre (the CAD's seat).
+- Wait there for the partner's TIP 1.
+- StreamOn: the 4 preloads, then the FLOWER's 4 as the lane frees up.
+- Leave after `<ms>`, then the baseline's tail.
+
+**Run on** "rigid V, turret transfer" (seat 4.59, the 0.5 s `transferFeedS` placeholder), partner on spring hood at 40.
+
+| Leave after | Points | 3 TIPs | PARK | G409 runs | Zero spread |
+|---|---|---|---|---|---|
+| 1.8 s, 2.2 s | 36 | 0 (no TIP 2) | 60 | 0 | 36 |
+| **2.6 s** | **71.3** | **48** | **59** | 20 | **73.3 · 52 · PARK 60** |
+| 3.0 s | 69.3 | 42 | 59 | 8 | 70.7 · 44 |
+| 3.4 s | 63.3 | 24 | 59 | 11 | 63.0 · 21 |
+
+No run had a problem (collision, HIVE or FLOWER hit, centre line).
+
+- **2.6 s is the leave timer.** On the 0.5 s feed the last FLOWER POLLEN is ready about 0.5 s after it leaves the
+  FLOWER, so anything shorter leaves with it aboard and TIP 2 never comes. Waiting longer only costs the spill.
+- **The earlier "flower-first scores 36" was the route, not the feed.** `stream.seated()` moved the FLOWER points
+  on top of `baselines_v.FLOWER_FACE_V`, which already moves them, so the face stopped 9.48 in out and never seated.
+  It now sets `FLOWER_FACE_V` instead.
+- **This is the Auto's level with the baseline, about 2 s sooner,** like streaming. The time it frees after TIP 3
+  is still unused.
+
+**Streaming from N_FIRE on the same feed** (`-leave<ms>`, the robot fires the preloads first, then streams the
+FLOWER): the 1.3 s leave also leaves with the 4th POLLEN aboard (37.9). 1.8 s gives **71.6 · 3 TIPs in 49 · PARK 59**,
+level with flower-first; 2.3 s 68.9. The Stages routes don't move (angled 51.7, PARK 12; wall 58.7): the far
+FLOWER is only their fallback.
+
+**Still open:**
+- The simulator's committed `rigid V` still seats at 7.09. The baselines (`QualRightVAuto` and the rest) are fitted
+  to it, so on a 4.59 seat they extract nothing (QualRightVAuto: 32.6). They need refitting when the simulator
+  chat lands 4.59.
+- **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
+  PARK in quals is non-negotiable, so that route needs a PARK ending.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.

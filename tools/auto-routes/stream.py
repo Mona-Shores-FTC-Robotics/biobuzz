@@ -80,6 +80,9 @@ ROUTES = {"qual-right-v-stream": ("qual-right-v", None), "qual-right-v-stream-x2
 # TIP 2 starts: waiting for the TIP put the robot back at N_FIRE about 2 s after it started, with the spill scattered
 # (2 of 4 picked up against 3.9). Gone 1.3 s after seated (the 4th shot away), it is back as the TIP starts.
 LEAVE = {f"{n}-leave": (b, w, 1300) for n, (b, w) in list(ROUTES.items())}
+# On the transfer's 0.5 s feed (RobotDesign.transferFeedS, claude/simulator) the 4th POLLEN is ready about 0.5 s after it
+# leaves the FLOWER, so 1.3 s leaves with it still aboard and TIP 2 never comes: -leave1800 and -leave2300 wait for it.
+LEAVE.update({f"{n}-leave{ms}": (b, w, ms) for n, (b, w) in list(ROUTES.items()) for ms in (1800, 2300)})
 ROUTES = {n: (b, w, 4500) for n, (b, w) in ROUTES.items()}
 ROUTES.update(LEAVE)
 
