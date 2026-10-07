@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v2, from the CAD chat's commit 12d34bb. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v2, from the CAD chat's commit ea86820. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -108,8 +108,7 @@ with the transfer's 0.5 s feed:
 - `qual-right-v-flower-first-l2600`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
 - `qual-right-v-stream-x200-leave1800`: the partner shoots, and we stream at the far FLOWER;
 - `qual-stages-angled-v-stream-leave`;
-- `qual-stages-wall-v-stream-x700-leave`. **Its robots collide at about 10 s, in all 60 runs:** the simulator chat moved
-  the wall partner's PARK (both robots PARK), and this route isn't refitted to it yet.
+- `qual-stages-wall-v-stream-x700-leave`, refitted to the wall pairing where both robots PARK.
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
 it's fully down before the robot drives in (the mentor's review, 7 Oct). The zip's README has the scores.
