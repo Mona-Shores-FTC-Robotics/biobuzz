@@ -385,7 +385,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 8.5,
-        "y": 9.56
+        "y": 10.96
       },
       "controlPoints": [],
       "heading": {
@@ -549,7 +549,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 8.5,
-        "y": 9.56
+        "y": 10.96
       },
       "controlPoints": [],
       "heading": {
@@ -890,7 +890,7 @@
       ],
       "GARDEN": [
         8.5,
-        9.56,
+        10.96,
         270
       ],
       "PARK": [

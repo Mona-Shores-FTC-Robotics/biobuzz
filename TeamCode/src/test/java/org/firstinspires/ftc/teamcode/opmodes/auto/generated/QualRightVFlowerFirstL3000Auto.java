@@ -43,14 +43,14 @@ public final class QualRightVFlowerFirstL3000Auto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
-        Pose garden = p.of(8.5, 9.56, 270);
+        Pose garden = p.of(8.5, 10.96, 270);
         Pose park = p.of(13, 87.44, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
         Pose nFire = p.of(57.5, 114, 270);
-        Pose sweepE = p.of(57.5, 10, 180);
-        Pose sweepW = p.of(22, 10, 180);
+        Pose sweepE = p.of(57.5, 12, 180);
+        Pose sweepW = p.of(22, 12, 180);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
@@ -61,8 +61,9 @@ public final class QualRightVFlowerFirstL3000Auto {
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
-        Pose sweepWToGardenControl1 = p.of(8.5, 14, 0);
-        Pose sweepWToGardenSegment1Start = p.of(8.5, 9.56, 180);
+        Pose sweepWToGardenControl1 = p.of(12, 20, 0);
+        Pose sweepWToGardenSegment1Heading = p.of(8.5, 10.96, 180);
+        Pose sweepWToGardenSegment2Start = p.of(8.5, 10.96, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
@@ -77,7 +78,7 @@ public final class QualRightVFlowerFirstL3000Auto {
         Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
         Path sFireToSweepE = Paths.line(sFire, sweepE).linear(sFire, sweepE);
         Path sweepEToSweepW = Paths.line(sweepE, sweepW).constant(sweepW);
-        Path sweepWToGarden = Paths.curve(sweepW, sweepWToGardenControl1, garden).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(sweepWToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
+        Path sweepWToGarden = Paths.curve(sweepW, sweepWToGardenControl1, garden).heading(Interpolator.piecewise().until(0.15, Interpolator.constant(sweepWToGardenSegment1Heading)).until(0.6, Interpolator.linear(sweepWToGardenSegment2Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path sFireToParkPath = Paths.curve(sFire, sFireToPark_2Control1, sFireToPark_2Control2, park).constant(park);

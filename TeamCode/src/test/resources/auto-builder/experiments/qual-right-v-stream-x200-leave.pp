@@ -182,7 +182,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 10
+        "y": 12
       },
       "controlPoints": [],
       "heading": {
@@ -202,7 +202,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 22,
-        "y": 10
+        "y": 12
       },
       "controlPoints": [],
       "heading": {
@@ -221,12 +221,12 @@
       "kind": "atomic",
       "endPoint": {
         "x": 8.5,
-        "y": 9.559999999999999
+        "y": 10.959999999999999
       },
       "controlPoints": [
         {
-          "x": 8.5,
-          "y": 14
+          "x": 12,
+          "y": 20
         }
       ],
       "heading": {
@@ -234,8 +234,16 @@
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
-              "endProgress": 0.8,
+              "startProgress": 0,
+              "endProgress": 0.15,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.15,
+              "endProgress": 0.6,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 180,
@@ -243,7 +251,7 @@
               }
             },
             {
-              "startProgress": 0.8,
+              "startProgress": 0.6,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -586,7 +594,7 @@
       ],
       "GARDEN": [
         8.5,
-        9.559999999999999,
+        10.959999999999999,
         270
       ],
       "PARK": [
@@ -636,12 +644,12 @@
       ],
       "SWEEP_E": [
         57.5,
-        10,
+        12,
         180
       ],
       "SWEEP_W": [
         22,
-        10,
+        12,
         180
       ]
     },

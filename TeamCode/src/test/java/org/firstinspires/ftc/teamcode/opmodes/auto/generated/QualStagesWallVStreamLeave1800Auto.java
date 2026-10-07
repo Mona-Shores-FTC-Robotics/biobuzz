@@ -56,7 +56,7 @@ public final class QualStagesWallVStreamLeave1800Auto {
         Pose row2 = p.of(35.1, 122.75, 90);
         Pose row3 = p.of(35.1, 126.15, 90);
         Pose row4 = p.of(35.1, 128.95, 90);
-        Pose rowN = p.of(35.1, 131.75, 90);
+        Pose rowN = p.of(35.1, 130.75, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(55.5, 104, 90);

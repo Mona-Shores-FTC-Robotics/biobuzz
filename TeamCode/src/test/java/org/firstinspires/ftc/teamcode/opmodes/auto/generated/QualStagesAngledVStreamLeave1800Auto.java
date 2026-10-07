@@ -47,7 +47,7 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Pose nTurn = p.of(55.5, 104, 270);
         Pose sCatch = p.of(57.5, 28, 90);
         Pose gardenIn = p.of(8.5, 20.56, 270);
-        Pose garden = p.of(8.5, 9.56, 270);
+        Pose garden = p.of(8.5, 10.96, 270);
         Pose park = p.of(13, 87.44, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
