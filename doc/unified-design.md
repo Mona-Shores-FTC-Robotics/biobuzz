@@ -434,6 +434,11 @@ partner's stream routes are retired:** the far FLOWER is only that route's fallb
 little time to PARK (leave 1.3 s: PARK 2 of 10; 1.8 s: 53.5, PARK 1 of 10; the plain route 55.0, PARK 8 of 10).
 Use the plain `qual-stages-angled-v` for that pairing.
 
+**On the HIVE's dwell before a TIP (claude/simulator 3e0813b), 60 runs:** flower first, hold **70.6 · 3 TIPs in 47 ·
+PARK 59 · G409 15 · 1 problem run** (seed 1 drives into a FLOWER at 26.3 s, in the shared ending) against the simulator
+chat's seat fire **72.3 · 52 · PARK 60 · G409 6 · none**. Seat fire is the better right-side Auto; the hold route's 10-run
+lead (72.0 against 70.0) was noise.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
