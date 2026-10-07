@@ -101,6 +101,7 @@ The layout's tabs:
 `sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3,
 with the transfer's 0.5 s feed:
 - `qual-right-v-flower-first-l2600`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
+- `qual-right-v-stream-x200-leave1800`: the partner shoots, and we stream at the far FLOWER;
 - `qual-stages-angled-v-stream-leave`;
 - `qual-stages-wall-v-stream-x700-leave`.
 
@@ -110,7 +111,7 @@ Flower-first over 60 runs: 71.3 points, TIP 3 in 48 of 60, PARK in 59, and no pr
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
