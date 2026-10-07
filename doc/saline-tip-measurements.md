@@ -12,6 +12,7 @@ What each number feeds is in [saline-preview-day2.md](saline-preview-day2.md).
 | First piece leaves Infinity Tech's launcher | 26919.181 | **2.94 s** |
 | Third POLLEN lands in the raised red CELL (3 NECTAR + 3 POLLEN: the §12.3 threshold); a fourth shot, a little late, hits the rim and stays out | 26920.362 | 4.12 s |
 | Rocker first seen moving | 26923.628 | **7.38 s** |
+| Rocker about halfway through its swing | 26924.978 | 8.73 s (1.35 s into the swing) |
 
 The simulated spring hood's first shot is at about 2.5 s (2 s spin-up + 0.45 s a shot), so the simulator's
 launcher is slightly quicker off the line than Infinity Tech, the event's top-ranked robot.
