@@ -21,6 +21,7 @@ Autos' results rest on; a measurement replaces it. In the order the results move
 **CAD questions for the designer** (`doc/cad-6-oct.md`): the 9.4 in mouth; the roller height; the launcher belt
 (16T on a 312 rpm motor driving 41T on the wheel gears the flywheel down).
 
-**Robot code** (mentor's call, CLAUDE.md): `HiveTracker.Tuning.tipSeconds` is NaN; the films say 0.55–1.15 s.
+**Robot code**: `HiveTracker.Tuning.tipSeconds` is 0.8 s, the median of eleven event TIPs (7 Oct 2026); no
+longer open.
 
 **Already measured from video, no robot needed:** TIP time, rolling, bounce, where a spill lands.

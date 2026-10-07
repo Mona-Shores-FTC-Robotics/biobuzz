@@ -46,8 +46,6 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
         Pose sCatch = p.of(57.5, 28, 90);
-        Pose gardenIn = p.of(8.5, 20.56, 270);
-        Pose garden = p.of(8.5, 10.96, 270);
         Pose park = p.of(13, 87.44, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
@@ -64,9 +62,6 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Pose rowNToNLowSegment2Start = p.of(57.5, 114, 137.3);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
-        Pose sFireToGardenInSegment1Start = p.of(8.5, 20.56, 90);
-        Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
-        Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
         Pose sFireToParkControl2 = p.of(24, 70, 0);
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
@@ -77,9 +72,6 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
-        Pose sFireToGardenIn_2Segment1Start = p.of(8.5, 20.56, 90);
-        Pose gardenToSFire_2Segment1Heading = p.of(57.5, 24, 270);
-        Pose gardenToSFire_2Segment2Start = p.of(57.5, 24, 270);
         Pose sFireToPark_2Control1 = p.of(28, 24, 0);
         Pose sFireToPark_2Control2 = p.of(24, 70, 0);
 
@@ -91,17 +83,11 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
         Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
-        Path sFireToGardenIn = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
-        Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
         Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.87, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
-        Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
-        Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
-        Path gardenToSFirePath = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFire_2Segment1Heading)).until(1, Interpolator.linear(gardenToSFire_2Segment2Start, sFire)));
         Path sFireToParkPath = Paths.curve(sFire, sFireToPark_2Control1, sFireToPark_2Control2, park).constant(park);
 
         return kit.sequence(
@@ -139,15 +125,6 @@ public final class QualStagesAngledVStreamLeave1800Auto {
                                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("S_FIRE to GARDEN_IN", sFireToGardenIn),
-                                        kit.path("GARDEN_IN to GARDEN", gardenInToGarden),
-                                        kit.firstOf("The GARDEN",
-                                                kit.when("IntakeFull"),
-                                                kit.afterMs(1500)),
-                                        kit.path("GARDEN to S_FIRE", gardenToSFire),
-                                        kit.firstOf("Fire the GARDEN", kit.command("LaunchAll"),
-                                                kit.when("Empty"),
-                                                kit.afterMs(1800)),
                                         kit.path("S_FIRE to PARK", sFireToPark))),
                         kit.afterMs(600).then(
                                 kit.guarded("No: the far FLOWER", sFireToParkPath, 2.8,
@@ -170,15 +147,6 @@ public final class QualStagesAngledVStreamLeave1800Auto {
                                         kit.firstOf("Fire TIP 2's spill (B)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("S_FIRE to GARDEN_IN", sFireToGardenInPath),
-                                        kit.path("GARDEN_IN to GARDEN", gardenInToGardenPath),
-                                        kit.firstOf("The GARDEN (B)",
-                                                kit.when("IntakeFull"),
-                                                kit.afterMs(1500)),
-                                        kit.path("GARDEN to S_FIRE", gardenToSFirePath),
-                                        kit.firstOf("Fire the GARDEN (B)", kit.command("LaunchAll"),
-                                                kit.when("Empty"),
-                                                kit.afterMs(1800)),
                                         kit.path("S_FIRE to PARK", sFireToParkPath)))));
     }
 }

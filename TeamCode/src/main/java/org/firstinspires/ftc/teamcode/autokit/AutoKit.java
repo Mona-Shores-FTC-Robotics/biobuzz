@@ -32,8 +32,13 @@ public final class AutoKit {
     /** Length of the Autonomous period. */
     public static final double AUTO_LENGTH_S = 30.0;
 
-    /** Extra time the endgame guard leaves on top of a park path's drive time. */
-    public static final double GUARD_MARGIN_S = 0.5;
+    /**
+     * Extra time the endgame guard leaves on top of a park path's drive time. The drive time is the
+     * Auto Builder's estimate for the drawn path; a cut comes wherever the robot is, often off that
+     * path and at rest (simulated 7 Oct 2026: a park cut at the GARDEN needed 0.3 s more than the
+     * path drawn from the firing spot, and PARK was lost in 6 runs of 60 on a 0.5 s margin).
+     */
+    public static final double GUARD_MARGIN_S = 1.0;
 
     private final AutoDrive drive;
     private final AutoRegistry registry;

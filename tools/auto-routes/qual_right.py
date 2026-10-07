@@ -242,6 +242,12 @@ FLAP_AHEAD_IN = {"baseline": 0.0, "proto": 0.0, "option3": 0.0}
 WALL_CLEAR_IN = 0.6
 
 
+# The GARDEN's x: the robot's half width plus what its guides reach aside, off the west wall by WALL_CLEAR_IN (8.5 for
+# the drawn robots; 9.5 on the V, whose tips reach 8.89 in aside: at 8.5 they sat 0.4 in through the wall, and the
+# endgame guard's park from there turned them further in, 7 Oct 2026).
+GARDEN_X_IN = {"baseline": 8.5, "proto": 8.5, "option3": 8.5}
+
+
 def garden_y(robot):
     """The nearest the robot's centre may be to the south wall at the GARDEN: its face plus its guides plus clearance."""
     return FRONT_IN[robot] + FLAP_AHEAD_IN[robot] + WALL_CLEAR_IN
@@ -290,7 +296,11 @@ def right(name, robot="baseline", n_fire=None, **kw):
             r.pt(k, x, y + df, h)  # the FLOWER is north of us, facing 90
         for k in ("GARDEN", "GARDEN_IN"):
             x, y, h = r.points[k]
-            r.pt(k, x, max(y - d, garden_y(robot)) if k == "GARDEN" else y - d, h)  # the GARDEN is at the south wall, facing 270
+            if k == "GARDEN":
+                x, y = max(x, GARDEN_X_IN[robot]), max(y - d, garden_y(robot))
+            else:
+                y -= d
+            r.pt(k, x, y, h)  # the GARDEN is at the south wall, facing 270
         x, y, h = r.points["PARK"]
         r.pt("PARK", x, y + d, h)  # a corner must reach into the LOADING ZONE (y 94.3-117.9)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
@@ -476,7 +486,7 @@ def fit(robot):
             elif name.startswith(("GARDEN", "PARK")):
                 x, y, h = move((x, y, h), 1)
                 if name == "GARDEN":
-                    y = max(y, round(garden_y(robot), 2))
+                    x, y = max(x, GARDEN_X_IN[robot]), max(y, round(garden_y(robot), 2))
             return super().pt(name, x, y, h)
     return Fit
 

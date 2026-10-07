@@ -1314,9 +1314,10 @@ middle of the range that satisfies every case: 7 POLLEN must hold at 67.8 POLLEN
 Two things are not published, so they are ours to measure. Each is NaN until measured, and the log's
 **Calibration** metadata says which are still assumed:
 
-- [ ] **Tip time** → `HiveTracker.Tuning.tipSeconds`, the robot's own value (HIVE lesson 3). Film a
-      tip in slow motion 3 times, from first movement to resting, and average. Until then: 1.0 s.
-      The fit scales the swing speed so a simulated tip takes exactly this long.
+- [x] **Tip time** → `HiveTracker.Tuning.tipSeconds`, the robot's own value (HIVE lesson 3): 0.8 s,
+      the median of eleven event TIPs frame-stepped on the Saline stream (`doc/saline-tip-measurements.md`,
+      0.65–0.9 s) and inside the team's films' 0.58–1.12 s. The fit scales the swing speed so a
+      simulated calibration tip takes exactly this long.
 - [ ] **Bounce** → `HiveCalibration.MEASURED_DROP_IN`, `MEASURED_REBOUND_IN`. Drop a POLLEN onto the
       tiles from 40 in, measured to the ball's bottom, beside a tape measure. Film the first bounce and
       read its top, also to the ball's bottom. Do it 3 times. Until then: restitution 0.35.
@@ -1869,8 +1870,9 @@ round; its look-around turn checks the HIVE's feet and the centre line too, and 
 piece near the centre line. A real `CollectSeen` needs the same rules.
 
 **Still to measure:** the first touch with a tape in the shot, where pieces come to rest (film from
-above), and the swing time per CELL (`HiveTracker.Tuning.tipSeconds`, still the assumed 1.0 s, so the
-simulated swing is slower than filmed). The test that measures all three, with a printable notes sheet, is
+above), and what the dwell before a TIP is (pieces settling to the back skin, or pivot friction: film the CELL
+from the side as the third POLLEN lands). The swing time is measured (0.8 s, `HiveTracker.Tuning.tipSeconds`).
+The test that measures the first two, with a printable notes sheet, is
 [`doc/spill-test.md`](../doc/spill-test.md).
 
 ### Two robots and five or more TIPs

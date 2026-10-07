@@ -32,10 +32,11 @@ public final class HiveTracker {
     @Configurable
     public static class Tuning {
         /**
-         * Seconds from the start of a TIP to the HIVE settled the other way. NaN until measured
-         * (film a TIP); NaN, zero or negative assumes nothing, and a TIP ends only when seen.
+         * Seconds from the start of a TIP to the HIVE settled the other way: 0.8, from eleven event TIPs
+         * (0.65–0.9 s, doc/saline-tip-measurements.md) and the team's films (0.58–1.12 s, doc/tip-timing.md).
+         * NaN, zero or negative assumes nothing, and a TIP ends only when seen.
          */
-        public static double tipSeconds = Double.NaN;
+        public static double tipSeconds = 0.8;
 
         /**
          * How long a settled CELL must be out of view, while the robot keeps looking, before that

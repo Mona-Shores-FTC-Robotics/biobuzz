@@ -182,11 +182,12 @@ public class AutoKitTest {
     @Test
     public void guardParksBeforeACardWhenTheTimeLeftDoesNotCoverTheParkPath() {
         Path park = line(0, 10);
-        now = 27.6; // 2.4 s left; park needs 2 + 0.5
+        now = 27.6; // 2.4 s left; park needs 2 + the margin
         run(kit.guarded("If tipped", park, 2.0,
                 kit.command("ShootAll"),
                 kit.path("Park", park)), 5);
-        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("park needs 2.5 s: parking now")));
+        String needs = String.format(java.util.Locale.ROOT, "park needs %.1f s: parking now", 2.0 + AutoKit.GUARD_MARGIN_S);
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith(needs)));
         assertFalse("ShootAll must be skipped", log.contains("ShootAll"));
         assertEquals(java.util.Collections.singletonList(park), drive.followed);
     }
@@ -198,7 +199,7 @@ public class AutoKitTest {
                 .command("ShootAll", 0.1, () -> record("ShootAll"))
                 .trigger("HiveTipped", () -> false), () -> now).trace(trace::add);
         Path park = line(0, 10);
-        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.5 s
+        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.0 s
         now = deadline - 5; // the wait would run 5 s past the deadline
         run(kit.guarded("If tipped", park, 2.0,
                 kit.firstOf("Wait for Tip", kit.command("LaunchAll", 10.0),
