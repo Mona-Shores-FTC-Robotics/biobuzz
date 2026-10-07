@@ -25,7 +25,7 @@ on the transfer's path (robot frame: X forward from the chassis centre, z up, in
 |---|---|---|
 | Taken in | From X 10.0 on the tiles, under the roller (axle at X 8.56), up the ramp (X 8.0 → 5.7, 0.05 → 1.3 in up), then along the flat lane (ball-bottom 1.3 in up) | At the lane's 27 in/s, until it reaches its place in the queue |
 | Queued | The lead piece held between the side feeders against the backstop: a POLLEN's centre at X −2.455, a NECTAR's at −2.045 on the turret's axis (2.70 / 3.10 in up). The rest sit nose to tail behind it, each the two radii further forward: 4 POLLEN at −2.455, 0.345, 3.145, 5.945; 3 NECTAR at −2.045, 1.555, 5.155 | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the next waits right behind the hold and rolls in when it has gone |
-| Firing | The held piece waits 0.05 s while the feeders spin up. It then rises up the column on the turret's axis (X −2.045) through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in. The simulator's shot starts there, but 0.8 in behind, at X −2.845, until its exit is moved with the launcher | It arrives at the exit as the simulator launches it, 0.15 s after it started |
+| Firing | The held piece waits 0.05 s while the feeders spin up. It then rises up the column on the turret's axis (X −2.045) through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in. The simulator's shot starts there | It arrives at the exit as the simulator launches it, 0.15 s after it started |
 
 Preloads start in their places. A robot without the transfer (any design without `laneCapacity`) has its held pieces
 placed on the same path, without the motion.
@@ -104,22 +104,23 @@ The layout's tabs:
 ## Sample logs
 
 `sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3,
-with the transfer's 0.5 s feed:
-- `qual-right-v-flower-first-l2600`: the user's plan, straight to the far FLOWER and all 8 fired from the seat;
-- `qual-right-v-flower-first-hold`: the mentor's version: the preloads fired from the seat, the FLOWER's 4 collected, then fired lined up at N_FIRE;
+with the transfer's 0.5 s feed and the simulator's wall check:
+- `qual-right-v-flower-first-hold`: the mentor's flower first. The preloads are fired from the seat, the FLOWER's 4
+  collected, then fired lined up at N_FIRE;
+- `qual-right-v-flower-first-l2600`: flower first streaming all 8 from the seat, kept for comparison;
 - `qual-right-v-stream-x200-leave1800`: the partner shoots, and we stream at the far FLOWER;
-- `qual-stages-angled-v-stream-leave`;
-- `qual-stages-wall-v-stream-x700-leave`, refitted to the wall pairing where both robots PARK.
+- `qual-stages-angled-v`: the plain angled baseline (the stream version is retired, because it cost PARK);
+- `qual-stages-wall-v-stream-x700-leave`: the wall pairing, where both robots PARK.
 
 The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
-it's fully down before the robot drives in (the mentor's review, 7 Oct). The zip's README has the scores.
-Over 60 runs, flower-first hold scores 70.6 (TIP 3 in 47 of 60), flower-first streaming 65.3 (TIP 3 in 31 of 60) and the right-side stream 70.9 (TIP 3 in 48), with the
-shot's exit on the turret's axis.
+it's fully down before the robot drives in. The zip's README has the scores. Over 60 runs, flower-first hold scores
+70.6 (TIP 3 in 47 of 60), the right-side stream 69.3 and the wall stream 52.7, with no problem runs. The angled
+baseline scores 53.8, with 2 wall problems late in AUTO.
 
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVStreamLeaveAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
