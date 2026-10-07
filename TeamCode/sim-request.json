@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-flower-first-tip3.pp",
-  "spec": "QualRightVFlowerFirstTip3Auto,PartnerPreloadsRightHighAuto@50",
+  "pp": "TeamCode/autos/qual-right-v.pp",
+  "spec": "QualRightVAuto,PartnerPreloadsRightAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-flower-first-tip3.pp",
-    "SavedBy": "README, flower first (the body-designs chat, 7 Oct 2026)"
+    "AutoSource": "qual-right-v.pp",
+    "SavedBy": "README, qualifier Autos baseline (the robot insides drawn, 7 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-FlowerFirst",
+  "title": "Qual-PartnerShootsRight",
   "usual": true
 }
