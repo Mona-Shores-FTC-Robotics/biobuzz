@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-stages-wall-v.pp",
-  "spec": "QualStagesWallVAuto,PartnerStage19SideParkAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp",
+  "spec": "QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-stages-wall-v.pp",
+    "AutoSource": "qual-right-v-seatfire-west.pp",
     "SavedBy": "README, qualifier Autos baseline (the robot insides drawn, 7 Oct 2026)"
   },
-  "title": "Qual-PartnerStages-Wall",
+  "title": "Qual-PartnerShootsRight-SeatFire",
   "usual": true
 }
