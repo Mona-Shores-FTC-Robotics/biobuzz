@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp",
-  "spec": "QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/autos/qual-stages-wall-v.pp",
+  "spec": "QualStagesWallVAuto,PartnerStage19SideParkAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-seatfire-west.pp",
+    "AutoSource": "qual-stages-wall-v.pp",
     "SavedBy": "README, qualifier Autos baseline (Rigid V, the extractor seated on the FLOWERs, 6 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-SeatFire",
+  "title": "Qual-PartnerStages-Wall",
   "usual": true
 }

@@ -13,7 +13,7 @@ only on contact), the launcher near the back (the piece leaves 4 in behind the c
 75°). Alliance AUTO points over 60 runs (seeds 1–60); how many of the 60 made 3 TIPs; and G409, the runs where our robot
 touched a spilled piece before it reached the tiles (must be 0). On the simulator as it stands since 6 Oct 2026
 12:00 UTC (each TIP 0.58–1.12 s; pieces roll as filmed: [rolling](../../doc/rolling.md)). Links to watch them and
-their logs: [the root README](../../README.md#qualifier-autos-the-baseline-no-walls).
+their logs: [the root README](../../README.md#latest).
 
 | Partner | Our Auto (file, script) | Partner's Auto | Points | 3 TIPs | G409 | Updated (UTC) |
 |---|---|---|---|---|---|---|
@@ -93,6 +93,18 @@ figure, 0.35 s, and the FLOWER visits reworked after the mentor's review (7 Oct 
 start of the path in and up only 6 in clear, every departure from a FLOWER straight back 10 in before turning,
 `autogen.FLOWER_BACK_OUT_IN`): **70.2** / **51.9** / **51.7**, seat fire **72.3** (G409 14: backing out of the far
 FLOWER crosses where TIP 2's spill lands).
+
+**Both robots PARK** (mentor, 7 Oct 2026 16:30 UTC: "partner and us should basically always park"; the wall pairing had
+the partner parked on our spot and no PARK for us). The wall partner now parks at the LOADING ZONE's top, (18, 112):
+body x 9-27, y 103-121, a corner in the zone. Our row sweep passes it with its west edge just east of x 27, the row
+5.5 in left of the centre line (`guide_routes.ROW_X_OFFSET`, `baselines_v.ROW_X_OFFSET_V`; on the row itself, the
+sweep's start sat over the partner: collisions in 10 of 10), and after TIP 2's spill is fired we PARK at the usual
+(13, 87.44) instead of loading the GARDEN (`tail(garden="none")`; with the GARDEN the park came too late, PARK in 26
+of 60, and it made TIP 3 in only 17). The fallback (the row fails to TIP 2, the far FLOWER does) parks by one path
+straight down the tunnel from N_FIRE with the heading held until south of the HIVE's feet (`baselines_v.FALLBACK_PARK_CTRL`):
+as a tunnel run plus a park card the guard cut the run between the feet and the lead-in turned the robot there, and
+from the north no path fits between the parked partner and the west foot. 60 runs: **52.3**, TIP 2 in 54, PARK 60 of
+60 for both robots, G409 9, no problems (51.7 with no PARK before).
 
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
@@ -276,7 +288,7 @@ AUTO_BUILDER_DIR=../visualizer python3 tools/auto-routes/recycle3.py
 Each script writes its `.pp` into `TeamCode/autos/`, exports the Java next to the other generated
 Autos (the simulator's, in `TeamCode/src/test/.../generated/`), and runs `AutoStudyTest`. The
 `.pp` files left in `src/test/resources/auto-builder/` are test fixtures. Each current Auto's simulated log
-is in [the root README's table](../../README.md#qualifier-autos-the-baseline-no-walls), made by the Simulate Auto
+is in [the root README's table](../../README.md#latest), made by the Simulate Auto
 workflow.
 
 ## Experiments

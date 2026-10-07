@@ -64,7 +64,7 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 |---|---|---|---|---|
 | `qual-right-v` | `qual-right-o3-rigid-v-park` | **70.2** | **45** | PARK 58, G409 8 runs, no problems. Turret, 0.35 s transfer feed, the extractor seated (the face 4.59 in from the FLOWER) and every FLOWER left straight back, 7 Oct 02:10 UTC; 72.2 / 51 with a fixed launcher and no feed delay. Firing from the seats (`qual-right-v-seatfire-west`): 72.3, TIP 3 in 51 |
 | `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
-| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
+| `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **52.3** | – | TIP 2 in 54, PARK 60 for both robots (the partner at the zone's top, our sweep east of it, no GARDEN load; 7 Oct 16:30 UTC), G409 9, no problems. 55.3 / 26 with the partner on our spot and no PARK for us |
 
 Refitted for the 15.12 in body (front 7.56 in ahead of centre), 6 Oct 2026, 60 runs. **The angled Auto's 4 HIVE-frame
 clips** come only when TIP 1 fails (2 of our 4 preloads miss). The route then goes back through the tunnel holding 4,
