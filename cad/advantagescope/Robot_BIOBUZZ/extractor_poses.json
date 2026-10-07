@@ -86,33 +86,32 @@
     "diameter_m": 0.096
   },
   "model_3": {
-    "what": "the left (+Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
+    "what": "the feeder: two 72 mm Gecko wheels, shaft and pulley, along X on the left under the flywheels",
     "axis_point_m": [
       -0.051943,
-      0.06902,
-      0.078808
+      0.07283,
+      0.08255
     ],
     "axis": [
       -1,
       0,
       0
     ],
-    "feed_spin": "+angle about the axis as given drives the ball up between the feeders",
+    "feed_spin": "+angle about the axis as given drives the ball up",
     "diameter_m": 0.072
   },
   "model_7": {
-    "what": "the right (-Y) feeder: two 72 mm Gecko wheels and their shaft, along X under the flywheels",
+    "what": "the sprung pad opposite the feeder: plate and foam, hinged along X at its foot",
     "axis_point_m": [
       -0.051943,
-      -0.06902,
-      0.078808
+      -0.04445,
+      0.03683
     ],
     "axis": [
       1,
       0,
       0
     ],
-    "feed_spin": "+angle about the axis as given drives the ball up between the feeders",
-    "diameter_m": 0.072
+    "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 26 deg for a NECTAR"
   }
 }

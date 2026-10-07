@@ -74,7 +74,7 @@ public class RobotInternalsLogTest {
     @Test
     public void eachFlywheelAndFeederSpinsAboutItsOwnAxle() {
         double[] c = RobotInternalsLog.components(1, 0, 0, 0, 0.7, 0.9);
-        for (RobotInternalsLog.Spinner[] set : new RobotInternalsLog.Spinner[][] {RobotInternalsLog.FLYWHEELS, RobotInternalsLog.FEEDERS}) {
+        for (RobotInternalsLog.Spinner[] set : new RobotInternalsLog.Spinner[][] {RobotInternalsLog.FLYWHEELS, {RobotInternalsLog.FEEDER_SPIN}}) {
             for (RobotInternalsLog.Spinner w : set) {
                 assertArrayEquals("component " + w.component, w.pointM, apply(c, w.component, w.pointM), 1e-9);
                 // A point off the axle moves.
@@ -98,5 +98,16 @@ public class RobotInternalsLogTest {
 
     private static double[] cross(double[] a, double[] b) {
         return new double[] {a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]};
+    }
+
+    @Test
+    public void thePadSwingsAboutItsHinge() {
+        double[] c = RobotInternalsLog.components(1, 0, 0, 0, 0, 0, Math.toRadians(RobotInternalsLog.PAD_NECTAR_DEG));
+        double[] hinge = RobotInternalsLog.PAD_HINGE_M;
+        assertArrayEquals(hinge, apply(c, RobotInternalsLog.PAD, hinge), 1e-9);
+        // Its top, 2 in up from the hinge, swings out (away from the feeder, to -Y) by about sin 26 deg x 2 in.
+        double[] top = {hinge[0], hinge[1], hinge[2] + 2 * 0.0254};
+        double[] moved = apply(c, RobotInternalsLog.PAD, top);
+        assertEquals(-2 * 0.0254 * Math.sin(Math.toRadians(26)), moved[1] - top[1], 1e-6);
     }
 }

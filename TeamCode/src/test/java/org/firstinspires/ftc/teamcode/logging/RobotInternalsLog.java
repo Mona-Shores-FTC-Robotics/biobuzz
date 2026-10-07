@@ -18,9 +18,9 @@ import java.util.Map;
  * to know when it will be launched.
  *
  * <p><b>Robot frame</b> (the CAD model's): X forward, z up, inches, origin on the floor under the chassis centre.
- * All pieces travel on the centre line. The transfer is the CAD chat's ac817a6, on the mentor's CAD: a ramp, a flat
- * lane, and two pairs of feeder wheels either side of the turret's axis that hold the lead piece against a backstop
- * and drive it straight up into the launcher's flywheels. The simulator tracks only which pieces are held, and in what order. So where a piece
+ * All pieces travel on the centre line. The transfer is the CAD chat's 2f78001, on the mentor's CAD: a ramp, a flat
+ * lane, and a feeder with a sprung pad opposite it that hold the lead piece against a backstop and drive it straight up
+ * into the launcher's flywheels. The simulator tracks only which pieces are held, and in what order. So where a piece
  * is between those events is interpolated:
  * <ul>
  *   <li><b>Entry:</b> from under the roller, up the ramp and along the lane to its place in the queue, at
@@ -37,7 +37,7 @@ final class RobotInternalsLog {
 
     /** The CAD model's component poses, in this order (agreed with the CAD chat): the key's suffix after a robot's prefix. */
     static final String COMPONENTS = "/Internals/Components";
-    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, LEFT_FEEDER = 3, INTAKE_ROLLER = 4, RIGHT_FEEDER = 7, COUNT = 8;
+    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, FEEDER = 3, INTAKE_ROLLER = 4, PAD = 7, COUNT = 8;
 
     /**
      * A part that spins about a fixed axle while its mechanism runs: the intake roller (which also rises with the
@@ -70,10 +70,14 @@ final class RobotInternalsLog {
     static final Spinner[] FLYWHEELS = {
             new Spinner(5, new double[] {-0.05588, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
             new Spinner(6, new double[] {-0.05588, -0.084521, 0.168808}, new double[] {1, 0, 0})};
-    /** The left and right feeders, two 72 mm wheels each on axles along X either side of the held piece: both drive it up. */
-    static final Spinner[] FEEDERS = {
-            new Spinner(LEFT_FEEDER, new double[] {-0.051943, 0.069020, 0.078808}, new double[] {-1, 0, 0}),
-            new Spinner(RIGHT_FEEDER, new double[] {-0.051943, -0.069020, 0.078808}, new double[] {1, 0, 0})};
+    /** The feeder: two 72 mm wheels on a shaft along X, left of the held piece; it drives the piece up. */
+    static final Spinner FEEDER_SPIN = new Spinner(FEEDER, new double[] {-0.051943, 0.072822, 0.082550}, new double[] {-1, 0, 0});
+    /**
+     * The sprung foam pad opposite the feeder, hinged along X at its foot: it doesn't spin. A positive angle swings its
+     * top out, 0 at rest (a POLLEN) and {@link #PAD_NECTAR_DEG} while a NECTAR is in the feeder.
+     */
+    static final double[] PAD_HINGE_M = {-0.051943, -0.04445, 0.03683}, PAD_AXIS = {1, 0, 0};
+    static final double PAD_NECTAR_DEG = 26;
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
     static final double LANE_IN_PER_S = 27;
@@ -86,9 +90,14 @@ final class RobotInternalsLog {
     static final double RAMP_START_X = 8.0, RAMP_START_Z = 0.05, LANE_START_X = 5.7, LANE_FLOOR_Z = 1.3;
     /**
      * Where the lead piece is held, between the feeders against the backstop at X -3.87: a POLLEN's centre at -2.455,
-     * a NECTAR's on the turret's axis at -2.045. It is fed straight up the column at {@link #COLUMN_X}.
+     * a NECTAR's on the turret's axis at -2.045. Pressed between the feeder and the pad, a POLLEN sits 0.15 in left of the
+     * centre line and a NECTAR 0.21 in right (the CAD chat, 2f78001). It is fed straight up the column at
+     * {@link #COLUMN_X}, from that side offset.
      */
     static final double HOLD_X_POLLEN = -2.455, HOLD_X_NECTAR = -2.045, COLUMN_X = -2.045;
+    static final double HOLD_Y_POLLEN = 0.15, HOLD_Y_NECTAR = -0.21;
+    /** How far before the hold a piece starts moving over to its side offset. */
+    static final double HOLD_Y_BLEND_IN = 1.0;
     /** The roller: axle at rest (X, z), radius, the most it floats, and how far a POLLEN squeezes its gecko tread. */
     static final double ROLLER_X = 8.56, ROLLER_Z = 3.35, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
 
@@ -267,16 +276,21 @@ final class RobotInternalsLog {
                 double u = Math.max(0, Math.min(1, (moving - toGo) / moving));
                 along.put(p, from + u * (path.length - from));
             }
-            // Each piece's place, and the roller's float.
-            double rise = 0;
+            // Each piece's place, the roller's float, and the pad (swung out while a NECTAR is in the feeder).
+            double rise = 0, pad = 0;
             for (FieldSim.Piece p : f.stored) {
                 Path path = path(p.kind.radius);
-                double[] xz = path.at(along.get(p));
+                double sAlong = along.get(p);
+                double[] xz = path.at(sAlong);
                 double r = p.kind.radius;
+                if (p.kind != FieldSim.Kind.POLLEN && sAlong > path.hold - 0.3 && xz[1] < path.holdPoint()[1] + FEEDER_REACH_IN) {
+                    pad = Math.toRadians(PAD_NECTAR_DEG);
+                }
+                double y = holdY(r) * Math.max(0, Math.min(1, 1 - (path.hold - sAlong) / HOLD_Y_BLEND_IN));
                 // Roller: rises until it clears the piece, less the squeeze a POLLEN gets (so only a NECTAR lifts it).
                 double reach = ROLLER_RADIUS + r - ROLLER_SQUEEZE, dx = xz[0] - ROLLER_X;
                 if (Math.abs(dx) < reach) rise = Math.max(rise, xz[1] + Math.sqrt(reach * reach - dx * dx) - ROLLER_Z);
-                held.get(p.kind.ordinal()).add(piecePose(f.pose, xz[0], xz[1], along.get(p), r));
+                held.get(p.kind.ordinal()).add(piecePose(f.pose, xz[0], y, xz[1], sAlong, r));
             }
             rise = Math.min(ROLLER_FLOAT_MAX, rise);
             if (!cad) return;
@@ -294,7 +308,7 @@ final class RobotInternalsLog {
             if (f.intakeOn) rollerSpin = (rollerSpin + turn) % (2 * Math.PI);
             if (f.launcherOn) flywheelSpin = (flywheelSpin + turn) % (2 * Math.PI);
             if (!climbing.isEmpty()) feederSpin = (feederSpin + turn) % (2 * Math.PI);
-            double[] components = components(f.extractorDown, rise, turretYaw, rollerSpin, flywheelSpin, feederSpin);
+            double[] components = components(f.extractorDown, rise, turretYaw, rollerSpin, flywheelSpin, feederSpin, pad);
             for (int k = 0; k < components.length; k++) components[k] = Math.round(components[k] * 1e5) / 1e5;
             if (!Arrays.equals(components, componentsLast)) {
                 log.putPose3dArray(prefix + COMPONENTS, components, f.us);
@@ -328,10 +342,17 @@ final class RobotInternalsLog {
      *   <li>the roller's carriage, raised {@code riseIn};</li>
      *   <li>the turret ring, turned {@code yaw} about its axis;</li>
      *   <li>the intake roller, turned {@code rollerSpin} about its axle and raised with the carriage;</li>
-     *   <li>each flywheel, turned {@code flywheelSpin}, and each feeder, turned {@code feederSpin}, about its axle.</li>
+     *   <li>each flywheel, turned {@code flywheelSpin}, and the feeder, turned {@code feederSpin}, about its axle;</li>
+     *   <li>the pad, swung out about its hinge (0 unless given).</li>
      * </ul>
      */
     static double[] components(double extractorDown, double riseIn, double yaw, double rollerSpin, double flywheelSpin, double feederSpin) {
+        return components(extractorDown, riseIn, yaw, rollerSpin, flywheelSpin, feederSpin, 0);
+    }
+
+    /** As above, with the pad swung out {@code pad} (rad) about its hinge. */
+    static double[] components(double extractorDown, double riseIn, double yaw, double rollerSpin, double flywheelSpin, double feederSpin,
+                               double pad) {
         double[] out = new double[7 * COUNT];
         System.arraycopy(AutoSim.cadComponents(extractorDown, 0), 0, out, 7 * EXTRACTOR, 7);
         out[7 * ROLLER + 2] = riseIn * M;
@@ -340,7 +361,8 @@ final class RobotInternalsLog {
         about(out, INTAKE_ROLLER_SPIN, rollerSpin);
         out[7 * INTAKE_ROLLER + 2] += riseIn * M;
         for (Spinner w : FLYWHEELS) about(out, w, flywheelSpin);
-        for (Spinner w : FEEDERS) about(out, w, feederSpin);
+        about(out, FEEDER_SPIN, feederSpin);
+        about(out, PAD, PAD_HINGE_M, PAD_AXIS, pad);
         return out;
     }
 
@@ -360,13 +382,13 @@ final class RobotInternalsLog {
     }
 
     /**
-     * A held piece at {@code x} ahead of the robot's centre and {@code z} up, on its centre line, as an
+     * A held piece at {@code x} ahead of the robot's centre, {@code y} to its left and {@code z} up, as an
      * AdvantageScope Pose3d (Center/Rotated, metres). It rolls as it goes: turned {@code along / r} about the
      * robot's left axis.
      */
-    static double[] piecePose(double[] pose, double x, double z, double along, double r) {
+    static double[] piecePose(double[] pose, double x, double y, double z, double along, double r) {
         double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
-        double fx = pose[0] + x * c, fy = pose[1] + x * s;
+        double fx = pose[0] + x * c - y * s, fy = pose[1] + x * s + y * c;
         double half = -along / r / 2;
         // About the robot's left axis (-sin h, cos h, 0) in Pedro; Pedro -> Center/Rotated turns an axis (x, y) to (-y, x).
         double qw = Math.cos(half), qxP = -s * Math.sin(half), qyP = c * Math.sin(half);
@@ -374,6 +396,15 @@ final class RobotInternalsLog {
                 mm(AdvantageScopeFrame.xMeters(fx, fy)), mm(AdvantageScopeFrame.yMeters(fx, fy)), mm(z * M),
                 Math.round(qw * 1e3) / 1e3, Math.round(-qyP * 1e3) / 1e3, Math.round(qxP * 1e3) / 1e3, 0};
     }
+
+    /** How far to the left a piece of radius {@code r} sits when held, between POLLEN's and NECTAR's by size. */
+    static double holdY(double r) {
+        double u = (r - FieldSim.POLLEN_RADIUS_IN) / (FieldSim.NECTAR_RADIUS_IN - FieldSim.POLLEN_RADIUS_IN);
+        return HOLD_Y_POLLEN + u * (HOLD_Y_NECTAR - HOLD_Y_POLLEN);
+    }
+
+    /** How far up from its hold a fed piece is still in the feeder (the wheel's 72 mm, roughly), for the pad. */
+    static final double FEEDER_REACH_IN = 2.0;
 
     /** Where a piece of radius {@code r} is held: POLLEN's and NECTAR's measured places, between them by size. */
     static double holdX(double r) {
