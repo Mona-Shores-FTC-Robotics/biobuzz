@@ -1,0 +1,11 @@
+{
+ "26900": {"near_left": [168, 522], "near_right": [1122, 512], "far_right": [1033, 305], "far_left": [326, 305]},
+ "31340": {"near_left": [190, 518], "near_right": [1110, 512], "far_right": [1032, 296], "far_left": [330, 298]},
+ "14690": {"near_left": [190, 532], "near_right": [1035, 526], "far_right": [960, 366], "far_left": [300, 368]},
+ "8170":  {"near_left": [190, 526], "near_right": [1032, 520], "far_right": [965, 364], "far_left": [300, 368]},
+ "15760": {"near_left": [190, 547], "near_right": [1118, 540], "far_right": [1035, 312], "far_left": [335, 318]},
+ "16210": {"near_left": [185, 556], "near_right": [1150, 550], "far_right": [1005, 358], "far_left": [330, 364]},
+ "18070": {"near_left": [185, 553], "near_right": [1150, 548], "far_right": [1000, 357], "far_left": [330, 362]},
+ "17740": {"near_left": [190, 528], "near_right": [1215, 522], "far_right": [1065, 320], "far_left": [305, 322]},
+ "19450": {"near_left": [190, 528], "near_right": [1215, 522], "far_right": [1065, 320], "far_left": [305, 324]}
+}
