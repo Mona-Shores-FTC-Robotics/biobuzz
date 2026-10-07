@@ -75,8 +75,9 @@ corners over the parked partner: collisions in 60, then 5, then 0 of 60; 56.0 �
 corrected body, 15.12 in long; turning at 45–60% cost 2–5 points more). Angled partner **51.6**.
 
 **The FLOWER extractor** (6 Oct 2026 23:05 UTC, mentor review of the logs on the CAD model: the body was driving into the
-FLOWER). The V takes a FLOWER with the CAD's extractor, so `FLOWER_FACE_IN` (`qual_right.py`) puts the face 7.09 in from
-the FLOWER's centre instead of 2.2 (`baselines_v.FLOWER_FACE_V`): both FLOWERs' points sit 4.89 in further out. The
+FLOWER). The V takes a FLOWER with the CAD's extractor, so `FLOWER_FACE_IN` (`qual_right.py`) puts the face 4.59 in from
+the FLOWER's centre instead of 2.2 (`baselines_v.FLOWER_FACE_V`; 7.09 until 7 Oct 2026, the CAD chat's sign error): both
+FLOWERs' points sit 2.39 in further out. The
 simulator swings the extractor down on the approach (`RobotDesign.extractorSeatIn`, 0.5 s placeholder) and the
 FLOWER gives up pieces only once it is down and seated. ShootsRight 71.2 → **72.2**, TIP 3 in 48 → 51 (G409 8 → 14
 runs: the wall FLOWER's load fires sooner and more spills get touched); the Stages Autos unchanged (51.6, 55.3: they
@@ -86,7 +87,8 @@ reach the far FLOWER only when the row fails to TIP).
 transfer, so the `rigid V` design is now `Launcher.TURRET` (it aims without turning the robot) with
 `RobotDesign.transferFeedS` 0.5 s (a placeholder): a piece is launchable 0.5 s after the intake took it. Both cost
 time on every load: ShootsRight 72.2 → **70.2** (TIP 3 in 51 → 45), angled **51.9**, wall 55.3 → **51.7** (TIP 3 in
-26 → 17: its last load was already late).
+26 → 17: its last load was already late). With the seat corrected to 4.59 in (7 Oct 01:00 UTC; the FLOWER points
+2.5 in closer, the problem check's FLOWER 2.35 in wide): **69.8** / **51.9** / **51.7**.
 
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
@@ -94,8 +96,10 @@ waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "E
 is true at once, which lost TIP 3 in every run of the first try). A frame-fixed launcher could not do it at all: to
 aim it turned the seated robot off the FLOWER (34.6; hence the turret). Two endings, 60 runs on the turret robot:
 - **west** (`qual-right-v-seatfire-west`): TIP 2 from the far FLOWER's seat at 11.1 s (13.0 before), then down the
-  west side clear of the spill to the wall FLOWER, its 4 fired from the seat, then the GARDEN's 4 from S_FIRE:
-  **72.0**, TIP 3 in 50 of 60 at 24.5 s, PARK 60 of 60, G409 10, no problems. Beats the baseline's 70.2.
+  west side clear of the spill to the wall FLOWER, its 4 fired from the seat, then south and round into the GARDEN
+  (bending west at once clipped the FLOWER's bracket on the way out) for its 4, fired from S_FIRE: **73.0** on the
+  corrected seat (72.0 on the 7.09 seat), TIP 3 in 53 of 60 at 24.6 s, PARK 60 of 60, G409 7, no problems. Beats the
+  baseline's 69.8.
 - **catch** (`qual-right-v-seatfire-catch`): TIP 2 from the seat, then to N_FIRE to catch its spill as the baseline
   does: 62.5, TIP 3 in 22, G409 21 (it drives into the spill as it falls; waiting at the seat first lost the catch
   altogether, 55.2, TIP 3 in 0: the seat is 15 in from where the spill lands).

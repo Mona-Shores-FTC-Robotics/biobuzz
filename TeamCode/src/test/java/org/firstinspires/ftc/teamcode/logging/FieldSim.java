@@ -806,7 +806,7 @@ final class FieldSim {
      * one. The bottom POLLEN comes out of its retrieval opening, so an intake takes it with the
      * robot's front against the tube.
      */
-    static final double PLACEHOLDER_FLOWER_RADIUS_IN = 2.0;
+    static final double PLACEHOLDER_FLOWER_RADIUS_IN = 2.35;  // the bracket's half-width (tools/robot-cad/flower.py), 7 Oct 2026
 
     /** Whether an {@code size}-square robot at {@code (x, y, heading)} overlaps any FLOWER holder. */
     boolean hitsFlower(double x, double y, double heading, double size) {

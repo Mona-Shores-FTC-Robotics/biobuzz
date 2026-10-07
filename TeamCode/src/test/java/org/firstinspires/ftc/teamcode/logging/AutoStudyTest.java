@@ -174,9 +174,7 @@ public class AutoStudyTest {
         // The baseline robot since 6 Oct 2026 21:15 UTC (mentor: one robot, the Rigid V as drawn in the team's CAD; the
         // FLOWER extractor and scorer to come): the drawn V under the name the logs carry, "rigid V".
         RobotDesign rigidV = drawnV("", 4, Double.NaN, true, true).copy("rigid V");
-        // The FLOWER's centre this far ahead of the face with the extractor seated (the CAD chat, c04f0cb: 7.09 had the
-        // uprights on the wrong side of its centre).
-        rigidV.extractorSeatIn = 4.59;
+        rigidV.extractorSeatIn = 4.59;  // the CAD's extractor seated: doc/robot-cad.md "Seated on a FLOWER" (7.09 until 7 Oct: a sign error)
         rigidV.transferFeedS = RobotDesign.PLACEHOLDER_TRANSFER_FEED_S;  // the transfer chat's lane and J-wheel, untimed
         // The unified design's launcher is a turret (the transfer feeds through its axis; mentor, 6 Oct 2026: "the turret
         // fires while the extractor feeds"), so it aims without turning the robot: a frame-fixed launcher swung the

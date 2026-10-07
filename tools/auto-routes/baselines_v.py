@@ -39,10 +39,11 @@ PARTNER = {"qual-right-v": "PartnerPreloadsRightAuto", "qual-stages-angled-v": "
 # routes' FLOWER and GARDEN spots and the start move by the difference (qual_right.fit), or the body overlaps the
 # FLOWER tube by 0.17 in at the pickup ("DRIVES INTO A FLOWER" in every run of the body-designs branch's V routes).
 FRONT_IN_V = 15.12 / 2  # the body is 15.12 in long (15.24 wide): its face 7.56 in from the centre
-# The V takes a FLOWER with the CAD's extractor, seated with the face 7.09 in from the FLOWER's centre (doc/robot-cad.md),
-# not with the intake mouth against the tube (2.2): its FLOWER points sit 4.89 in further out (mentor, 6 Oct 2026: the
-# mechanism meets the FLOWER, not the body; RobotDesign.extractorSeatIn, the simulator deploys it on the approach).
-FLOWER_FACE_V = 7.09
+# The V takes a FLOWER with the CAD's extractor, seated with the face 4.59 in from the FLOWER's centre (doc/robot-cad.md;
+# 7.09 until 7 Oct 2026, a sign error in the CAD chat's measure), not with the intake mouth against the tube (2.2): its
+# FLOWER points sit 2.39 in further out (mentor, 6 Oct 2026: the mechanism meets the FLOWER, not the body;
+# RobotDesign.extractorSeatIn, the simulator deploys it on the approach).
+FLOWER_FACE_V = 4.59
 
 
 def build_for_v(build, name):
