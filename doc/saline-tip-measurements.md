@@ -50,7 +50,13 @@ too oblique to measure the landing distance, so the filmed 35–47 in stands.
 | `m3-tip1-26926.112-first-touch.png` | 26926.112 | The first piece on the tiles; the rest in the air around the robot |
 | `m3-tip1-26926.178-spreading.png` | 26926.178 | Four frames later: pieces already spread a robot's width to each side |
 | `m3-tip1-26926.428-spread.png` | 26926.428 | 0.32 s after the first touch: pieces from the alliance wall to past the robot on both sides, 2–3 ft of spread, heading back toward the wall; the HIVE end still landing |
+| `m3-tip1-26928.195-at-rest.webp` | 26928.195 | 2.1 s after the first touch, wider view: the spill at rest (one piece at the far right still creeping). A row of POLLEN against the alliance wall at both ends, two NECTAR and a few POLLEN within a foot or two of the robot, a couple of strays toward the HIVE lane |
 
 **How fast it spreads.** 0.32 s after the first touch the pieces cover 2–3 ft either side of where they landed and
 are moving back toward the alliance wall. The simulator's `FILMED_BOUNCE_SCATTER` puts the median piece 24 in from
 its landing point 0.5 s after touchdown; the event spill is at least that fast.
+
+**Where it stops.** 2.1 s after the first touch the pieces are at rest, most of them back against the alliance
+wall or within a foot or two of the robot that scored. On the simulator's normal tiles (`PLACEHOLDER_ROLLING_DECEL`
+12 in/s²) pieces are still rolling 3 s after the TIP and reach 85 in out; stopping this soon is the "slow tiles"
+setting (×3), the alternative every study ran. The event tiles behave like the slow ones.
