@@ -428,6 +428,12 @@ stands where the baseline waits for the spill. 10 runs: **70.0 · 3 TIPs in 7 ·
 streaming flower first's 66.0 · 5 and preloads first's 72.0 · 8 on the same simulator. **60 runs** (the AdvantageScope chat): **70.6 · 3 TIPs in 47 · PARK 119 of 120**, against the streaming flower first's 65.3 on the same simulator. The GARDEN approach (through
 the wall) is in the shared tail: the simulator chat's wall check and fix.
 
+**Regenerated on the simulator chat's GARDEN fix and wall check (cfae8b2), 10 runs, no wall or other problems:**
+flower first, hold 70.0 · 7 · PARK 10; preloads first 70.0 · 7 · PARK 10; wall stream 56.0 · PARK 10. **The angled
+partner's stream routes are retired:** the far FLOWER is only that route's fallback, and streaming there leaves too
+little time to PARK (leave 1.3 s: PARK 2 of 10; 1.8 s: 53.5, PARK 1 of 10; the plain route 55.0, PARK 8 of 10).
+Use the plain `qual-stages-angled-v` for that pairing.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
