@@ -2,7 +2,13 @@
 
 `Robot_BIOBUZZ/` is the team's robot from its Onshape CAD, with the decided front (`cad/intake-b/`): the outer wheel
 plates, the odometry pods, the Rigid V plates, and two articulated components: the FLOWER extractor, and the floating
-roller with its motor. Copy the folder into AdvantageScope's custom assets folder and pick "BIOBUZZ Robot".
+roller with its motor. It is the robot the simulator's logs draw: `tools/advantagescope/setup-advantagescope.ps1` installs it
+(the root README's *How to watch*), the layout uses it for `/Odometry/Robot3d`, and a log of the baseline design
+("rigid V") poses its components (`AutoSim.putShape`, `AutoSim.cadComponents`: the extractor swings down on the approach
+to a FLOWER and up as the robot leaves, `Extractor/Down` in the log; the turret turns to the CELL while the launcher
+spins; the roller and the J arm stay at rest). The generated model of
+every other simulated design is **BIOBUZZ Robot (designs)**, from `RobotAssets`; pick it in that row's model menu for a log
+of another design.
 
 | File | What |
 |---|---|
@@ -11,7 +17,7 @@ roller with its motor. Copy the folder into AdvantageScope's custom assets folde
 | `model_1.glb` | Component 1, the roller, its motor and carriage, drawn down |
 | `model_2.glb` | Component 2, the designer's "Launcher Concept": goBILDA's turret with two pairs of 96 mm flywheels under it, all drawn as turning with the turret, facing forward. It turns about +Z through (−0.0805, 0) m |
 | `model_3.glb` | Component 3, the transfer's J-wheel and arms, at rest |
-| `config.json` | FTC robot, no rotations, four components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
+| `config.json` | FTC robot, `disableSimplification` (see below), no rotations, four components, and the Limelight as a camera: lens on the centreline 4.0 in ahead of the origin and 14.0 in up, pitched 45° up (`[y: −45, z: 0]`), Limelight 3A, 640 × 480, 54.5° |
 | `extractor_poses.json` | The extractor's component pose, deployed and stowed, and the roller's |
 
 **Frame:** +X forward, +Y left, +Z up, metres, origin on the floor under the chassis frame's centre (7.56 in behind the
@@ -27,6 +33,8 @@ when a NECTAR passes under it.
 
 The rear FLOWER scorer is dropped (FLOWER scorer chat, 6 Oct 2026). A front NECTAR-capping assist is being looked at; it
 would be component 2 when its outline exists.
+
+**What AdvantageScope needs from the files** (both learnt the hard way on 6 Oct 2026, from its `OptimizeGeometries.ts`): every mesh must carry vertex normals, or it is dropped silently, and the config sets `disableSimplification`, or small parts are culled by rendering mode. `build_model.py` does both; check a rebuilt model with a glTF viewer before committing.
 
 **Rebuild:** `VENDOR_PKL=vendor_mesh.pkl python3 cad/advantagescope/build_model.py keep.pkl front_mesh.pkl [addons_mesh.pkl [transfer_mesh.pkl]]`. `VENDOR_PKL` comes from `cad/full-robot/real_parts.py`. The first
 comes from `tools/robot-cad/slim.py` run on the robot's STEP (in Drive), the second from `cad/intake-b/build.py` with
