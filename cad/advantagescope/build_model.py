@@ -145,7 +145,7 @@ def transfer():
 # everything centred on it (wheels, hubs, 41T pulley, spacers), about +X. The roller: its shaft, wheels and pulleys.
 TURRET_TURNS = r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176"
 TURRET_AXIS = (-2.8431, 0.1575)
-FLYWHEEL_AXLES = {"Launcher subassembly <2>": 3.643, "Launcher subassembly <1>": -3.327}   # axle Y; both at z 6.6455
+FLYWHEEL_AXLES = {"Launcher subassembly <2>": 3.6427, "Launcher subassembly <1>": -3.3276}   # axle Y; both at z 6.6455
 FLYWHEEL_Z = 6.646
 FLYWHEEL_X = -3.0                      # a point on both axles (their shafts run X -4.89..-1.11)
 FEEDERS = {"front": 3, "rear": 7}       # component numbers; the transfer's feeder wheels, shafts and pulleys

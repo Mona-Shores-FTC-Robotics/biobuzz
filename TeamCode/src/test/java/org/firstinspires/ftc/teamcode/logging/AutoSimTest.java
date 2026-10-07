@@ -38,18 +38,18 @@ public class AutoSimTest {
         for (int i = 0; i < 7; i++) assertEquals("stowed[" + i + "]", file[i], stowed[i], 1e-4);
         double[] down = AutoSim.cadComponents(1, 0);
         double[] identity = {0, 0, 0, 1, 0, 0, 0};
-        assertEquals(28, down.length);
+        assertEquals(7 * AutoSim.CAD_COMPONENTS, down.length);
         for (int i = 0; i < 7; i++) assertEquals("down[" + i + "]", identity[i], down[i], 1e-9);
-        for (int i = 7; i < 28; i++) {
+        for (int i = 7; i < down.length; i++) {
             assertEquals("rest stowed[" + i + "]", identity[i % 7], stowed[i], 1e-9);
             assertEquals("rest down[" + i + "]", identity[i % 7], down[i], 1e-9);
         }
         // The turret turned a quarter left about its axis: the axis point stays put.
         double[] left = AutoSim.cadComponents(1, Math.PI / 2);
-        double ax = AutoSim.TURRET_AXIS_X_M;
-        // Apply the pose to the axis point (ax, 0): R (ax, 0) = (0, ax), plus the translation.
-        assertEquals(ax, left[14] + 0, 1e-9);
-        assertEquals(0, left[15] + ax, 1e-9);
+        double ax = AutoSim.TURRET_AXIS_X_M, ay = AutoSim.TURRET_AXIS_Y_M;
+        // Apply the pose to the axis point (ax, ay): R (ax, ay) = (-ay, ax), plus the translation.
+        assertEquals(ax, left[14] - ay, 1e-9);
+        assertEquals(ay, left[15] + ax, 1e-9);
         assertEquals(Math.cos(Math.PI / 4), left[17], 1e-9);
         assertEquals(Math.sin(Math.PI / 4), left[20], 1e-9);
     }
