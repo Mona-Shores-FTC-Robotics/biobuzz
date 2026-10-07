@@ -23,7 +23,9 @@
   servo, the pulleys, the bearings, the Gecko wheels, the collars and WCP's vector wheels.
 
 **For Onshape** the top level is `FRAME` (everything that doesn't move) and one `MOVES n` group per moving body, each
-named with the mate it needs. `ONSHAPE.md` covers fixing, mating and animating it.
+named with the mate it needs. `--mentor` and `--ours` (in place of the STEP's first argument) write the mentor's half
+and ours as two files in the same frame, each small enough to send. `ONSHAPE.md` covers importing, fixing, mating and
+animating them.
 
 **Still not drawn:** the roller's spring; screws in the mounts.
 

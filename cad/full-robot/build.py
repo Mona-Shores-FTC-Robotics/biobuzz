@@ -174,18 +174,19 @@ def mentor_motion(path, shp, loc):
         if abs(yc - FLYWHEELS[sub][1]) < 0.35 and abs(zc - 6.646) < 0.35: return FLYWHEELS[sub][0]
     return None
 
-def main(robot_step, out, additions=False):
+def main(robot_step, out, additions=False, only=None):
     """The whole robot in the model frame, as FRAME and the moving groups; or, with additions, only our parts, in the
-    frame of the mentor's Robot.step, so they drop into his Onshape assembly at its origin."""
+    frame of the mentor's Robot.step, so they drop into his Onshape assembly at its origin. only="mentor" or "ours"
+    writes half of the whole robot (same frame, same groups), for two files that each stay a manageable size."""
     if additions:
         dx, dz = (placed_team(robot_step), placed_team.align)[1]; t = gp_Trsf(); t.SetTranslation(gp_Vec(-dx, 0, -dz))
         top = cq.Assembly(name="BIOBUZZ additions (the frame of the mentor's Robot.step: insert at the origin)", loc=cq.Location(TopLoc_Location(t)))
     else:
         top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(RP.to_model(C, F, FACE)))
-    frame = cq.Assembly(name="FRAME - everything that doesn't move (right-click, Fix)")
+    frame = cq.Assembly(name={"mentor": "FRAME - the mentor's robot (right-click, Fix)", "ours": "FRAME - our parts (right-click, Fix)"}.get(only, "FRAME - everything that doesn't move (right-click, Fix)"))
     moving = {k: cq.Assembly(name=t) for k, t in MOVING}
     pods = RP.pods_inst(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
-    if not additions:
+    if not additions and only != "ours":
         team = cq.Assembly(name="team robot CAD (the mentor's Robot.step, 7 Oct), replaced parts left out")
         kept = 0
         for i, (path, shp, loc, col, key) in enumerate(placed_team(robot_step)):
@@ -194,6 +195,7 @@ def main(robot_step, out, additions=False):
         print("kept", kept)
         frame.add(team)
     vdir = os.environ.get("VENDOR_DIR")                  # goBILDA's and WCP's STEPs: the real parts in place of drawn envelopes
+    ours = only != "mentor"
     def add_part(sub, n, shp, col, others):
         real = RP.vendor_parts(n, shp, others, vdir) if vdir else None
         if real is None: real = RP.servo_parts(n, shp, IB, vdir) if vdir else None
@@ -201,7 +203,7 @@ def main(robot_step, out, additions=False):
         va = cq.Assembly(name=n)
         for k, (pn, vs, loc, vc) in enumerate(real): va.add(vs, name=f"{k:03d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*vc))
         sub.add(va)
-    for title, g, d in IB.GROUPS:
+    for title, g, d in IB.GROUPS if ours else ():
         sub = cq.Assembly(name=f"front: {title}")
         shapes = {n: (wp.val() if hasattr(wp, "val") else wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
@@ -215,7 +217,7 @@ def main(robot_step, out, additions=False):
                 for k, (pn, shp, loc, col) in enumerate(parts): pod.add(shp, name=f"{k:02d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*col))
                 sub.add(pod)
         frame.add(sub)
-    for title, g, d in TR.GROUPS:
+    for title, g, d in TR.GROUPS if ours else ():
         sub = cq.Assembly(name=f"transfer: {title}")
         shapes = {n: TR.to_cad(wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
@@ -234,14 +236,15 @@ def main(robot_step, out, additions=False):
         for k, (pn, shp, col) in enumerate(RP.limelight_in_cad(os.environ["LL_STEP"], C, F, FACE)):
             cam.add(shp, name=f"{k:02d} {pn}"[:120], color=cq.Color(*col))
         ll.add(cam)
-    frame.add(ll)
+    if ours: frame.add(ll)
     top.add(frame)
     for k, t in MOVING:
         if moving[k].children or moving[k].shapes: top.add(moving[k])
-        else: print("empty:", t)
+        elif not only: print("empty:", t)
     t0 = time.time(); top.save(out); print("wrote", out, os.path.getsize(out) // 1_000_000, "MB in", round(time.time() - t0), "s")
 
 if __name__ == "__main__":
     if sys.argv[1] == "--mesh": write_mesh(*sys.argv[2:4])
     elif sys.argv[1] == "--additions": main(*sys.argv[2:4], additions=True)
+    elif sys.argv[1] in ("--mentor", "--ours"): main(*sys.argv[2:4], only=sys.argv[1][2:])
     else: main(*sys.argv[1:3])

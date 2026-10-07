@@ -1,18 +1,31 @@
 # The full robot in Onshape: fixed, mated, moving
 
-`BIOBUZZ-robot.step` arrives in Onshape with no joints. STEP can carry shapes and positions but not mates. To make
-that quick, the file is already split into what moves: its top level is **FRAME** and one group per moving body,
-named with the mate it needs. You fix one thing, make the groups rigid, then add nine mates.
+The robot comes as two STEP files in the same frame, so each stays a manageable size:
+
+- `BIOBUZZ-1-mentor-robot.step`: the mentor's robot, every screw included, with our edits to it (the launcher 0.8 in
+  forward, the raised channel, the parts our design replaces taken out). Its turret ring and flywheels are their own
+  groups.
+- `BIOBUZZ-2-our-parts.step`: the front, the transfer, the launcher's new parts, the pods and the Limelight on its
+  mount, with goBILDA's and WCP's own models of every bought part.
+
+STEP carries shapes and positions but no mates, so both files arrive in Onshape with no joints. To make setting them
+up quick, each file is already split into what moves: a **FRAME** group and one group per moving body, named with the
+mate it needs. You fix the two FRAMEs, make the groups rigid, then add nine mates. (`build.py` without `--mentor` or
+`--ours` writes the same robot as one file.)
 
 ## 1. Import
 
-1. **Create → Document**, then **Import** `BIOBUZZ-robot.step`. Leave "Flatten assembly" off. The file is large,
-   so the import takes several minutes.
-2. Open the Assembly tab it makes. The list on the left shows `FRAME …` and `MOVES 1 …` to `MOVES 9 …`.
+1. Unzip both files (7-Zip on Windows; a double-click on a Mac).
+2. **Create → Document**, then **Import** both `.step` files. Leave "Flatten assembly" off. They're large, so the
+   import takes several minutes.
+3. Each file gets its own Assembly tab. Do sections 2 and 3 below in each tab: every mate is between parts of the same
+   file (MOVES 5 to 7 in the mentor's, the rest in ours).
+4. Then make a new Assembly tab, **Insert** both, leave each at the origin and fix them. They share one frame, so the
+   two halves land together, and their mates come with them.
 
 ## 2. Everything that doesn't move: two clicks per group
 
-- Right-click **FRAME** → **Fix**. The whole robot frame is now one fixed piece.
+- Right-click each **FRAME** (one per file) → **Fix**. The robot's frame is now fixed in place.
 - Right-click each **MOVES** group → **Make rigid**. Each one now moves as a single piece.
 
 That replaces adding a Fastened mate to every part.
