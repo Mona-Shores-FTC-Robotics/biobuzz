@@ -47,10 +47,13 @@ The doc's "Build spec for CAD", with the changes the transfer chat confirmed on 
 
 | | |
 |---|---|
-| At rest | clear of the robot, except where the strips and the motor's cradle bolt to the rails (the "Launcher Concept" gives way to the turret) |
+| At rest | clear of the robot, except where the strips and the motor's cradle bolt to the rails. **Not clear of the "Launcher Concept"**, which was assumed to go and stays (see below) |
 | Against the front (`cad/intake-b/`), with the roller at 0, 0.65 and 1.3 in and the extractor at 0, 75 and 150° | clear |
 | The J-wheel floating to full (axle 0.99 in up) | clear of the walls, stops, posts, lid and the turret's channels |
 | The raised 11-hole channel | above the walls' cut-out to 4.4 |
+
+**The Launcher Concept stays.** It is the designer's launcher: goBILDA's turret at Z 8.72..9.52 (not the reference ring at
+6.6..7.8 drawn here) with two pairs of 96 mm flywheels hung under it. The transfer overlaps it: the J-wheels and the 10-hole lowside channel (0.27 in³ of overlap), the outer J and chute and that channel (0.18), the J motor and a 5-hole lowside channel (0.10), the right lane wall and the launcher subassembly's channels, Mini Quad Block, 41T pulley and belt, and the J shaft and arm drive against its channels and U-beams. The J and chute need redrawing to feed those flywheels, and the reference ring and cross-channels drawn here go.
 
 Before the lane goes in: raise the old intake's 11-hole channel 8 mm and remove its two pattern spacers.
 
