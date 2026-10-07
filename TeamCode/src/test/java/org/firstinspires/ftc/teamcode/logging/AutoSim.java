@@ -780,27 +780,31 @@ public final class AutoSim {
     static final double[] EXTRACTOR_PIVOT_M = {0.25298, 0, 0.1143};
     static final double EXTRACTOR_STOWED_DEG = 146;
 
-    /** The CAD model's turret axis, +Z through here (m); positive yaw turns left, 0 facing forward as drawn. */
-    static final double TURRET_AXIS_X_M = -0.080518;
+    /** The CAD model's turret axis, +Z through here (m; the bearing's inner race); positive yaw turns left, 0 facing forward. */
+    static final double TURRET_AXIS_X_M = -0.072215;
+    static final double TURRET_AXIS_Y_M = 0.004;
+    /** How many components the CAD model has (cad/advantagescope/Robot_BIOBUZZ/config.json). */
+    static final int CAD_COMPONENTS = 8;
 
     /**
-     * The CAD model's four component poses (translation m, quaternion w x y z; its extractor_poses.json): the FLOWER
+     * The CAD model's component poses (translation m, quaternion w x y z; its extractor_poses.json): 0 the FLOWER
      * extractor turned about its shaft by -angle about +Y (0 deg down as drawn, 146 stowed), for {@code down} from 0
-     * (stowed) to 1 (down); the floating roller, down; the turret turned {@code turretYawRad} about its axis; the
-     * transfer's J arm at rest. The roller and the J arm do not move in the logs yet.
+     * (stowed) to 1 (down); 1 the roller's carriage, down; 2 the turret turned {@code turretYawRad} about its axis;
+     * 3 to 7 (the feeders, the intake roller, the flywheels) at rest: the logs do not spin them yet.
      */
     static double[] cadComponents(double down, double turretYawRad) {
         double a = Math.toRadians(EXTRACTOR_STOWED_DEG * (1 - down));
         double px = EXTRACTOR_PIVOT_M[0], pz = EXTRACTOR_PIVOT_M[2];
         // R (about +Y by -a) applied to the pivot; translation = pivot - R pivot.
         double rx = px * Math.cos(a) - pz * Math.sin(a), rz = px * Math.sin(a) + pz * Math.cos(a);
-        // The turret about +Z through (TURRET_AXIS_X_M, 0): translation = axis - R axis.
-        double tx = TURRET_AXIS_X_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
-        return new double[] {
-                px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0,
-                0, 0, 0, 1, 0, 0, 0,
-                tx - tx * c, -tx * s, 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2),
-                0, 0, 0, 1, 0, 0, 0};
+        // The turret about +Z through (TURRET_AXIS_X_M, TURRET_AXIS_Y_M): translation = axis - R axis.
+        double tx = TURRET_AXIS_X_M, ty = TURRET_AXIS_Y_M, c = Math.cos(turretYawRad), s = Math.sin(turretYawRad);
+        double[] poses = new double[7 * CAD_COMPONENTS];
+        for (int i = 0; i < CAD_COMPONENTS; i++) poses[7 * i + 3] = 1;  // identity
+        System.arraycopy(new double[] {px - rx, 0, pz - rz, Math.cos(a / 2), 0, -Math.sin(a / 2), 0}, 0, poses, 0, 7);
+        System.arraycopy(new double[] {tx - (tx * c - ty * s), ty - (tx * s + ty * c), 0, Math.cos(turretYawRad / 2), 0, 0, Math.sin(turretYawRad / 2)},
+                0, poses, 14, 7);
+        return poses;
     }
 
     private final class Bot {
@@ -1188,6 +1192,8 @@ public final class AutoSim {
          */
         static final double EXTRACTOR_PATH_END_SHORT_IN = 12;
         static final double EXTRACTOR_PATH_END_PAST_IN = 6;
+        /** ... and the path's end heading must point at that FLOWER within this (the row sweep ends near the far FLOWER, facing past it). */
+        static final double EXTRACTOR_PATH_END_FACING_DEG = 20;
         /** A FLOWER nearer the face than the seat plus this is under the block's swing: it cannot come down onto it. */
         static final double EXTRACTOR_BLOCKED_PAST_IN = 2;
 
@@ -1215,14 +1221,19 @@ public final class AutoSim {
                 if (lx > face && lx < face + EXTRACTOR_DEPLOY_AHEAD_IN && Math.abs(ly) < EXTRACTOR_DEPLOY_ASIDE_IN) flowerAhead = true;
                 if (lx > face - 1 && lx < seat + EXTRACTOR_SEATED_SLACK_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) seated = true;
                 if (lx > face - 1 && lx < seat + EXTRACTOR_BLOCKED_PAST_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) inTheWay = true;
-                if (end != null && !drive.pathDone()) {
+                if (end != null) {  // a finished path still counts until the next one starts (no flicker between the two legs in)
                     double beyond = Math.hypot(f[0] - end[0], f[1] - end[1]) - seat;
-                    if (beyond > -EXTRACTOR_PATH_END_PAST_IN && beyond < EXTRACTOR_PATH_END_SHORT_IN) pathToFlower = true;
+                    double facing = AdvantageScopeFrame.wrap(Math.atan2(f[1] - end[1], f[0] - end[0]) - end[2]);
+                    if (design.intakeAtBack) facing = AdvantageScopeFrame.wrap(facing + Math.PI);
+                    if (beyond > -EXTRACTOR_PATH_END_PAST_IN && beyond < EXTRACTOR_PATH_END_SHORT_IN
+                            && Math.abs(Math.toDegrees(facing)) < EXTRACTOR_PATH_END_FACING_DEG) pathToFlower = true;
                 }
             }
             // Down on the way in whether or not the robot has room (mentor, 7 Oct 2026: deploy it before you get there,
             // then drive into it): the FLOWER's pieces stay in it until a shot makes room (FieldSim.hasRoom).
-            boolean want = (body.extractorDown > 0 && seated) || (running && (pathToFlower || flowerAhead));
+            // Only a path to a FLOWER brings it down: merely passing one (the far FLOWER at the end of the row sweep)
+            // used to drop it and then count it blocked, 7 Oct 2026.
+            boolean want = (body.extractorDown > 0 && seated) || (running && pathToFlower);
             // It cannot swing down onto a FLOWER already at the face: the block lands on it. Down only if it was down
             // before the robot got there; otherwise it stays where it is and takes nothing (FieldSim.inIntake).
             boolean blocked = want && inTheWay && body.extractorDown < 1;
@@ -1232,7 +1243,7 @@ public final class AutoSim {
             }
             if (want != extractorWanted) {
                 extractorWanted = want;
-                log.putEvent(tag() + "extractor " + (want ? (pathToFlower ? "down: driving to a FLOWER" : "down: a FLOWER ahead")
+                log.putEvent(tag() + "extractor " + (want ? "down: driving to a FLOWER"
                         : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
             }
             double step = LOOP_S / design.extractorDeployS;
@@ -1675,11 +1686,11 @@ public final class AutoSim {
             return done;
         }
 
-        /** Where the path being followed ends (x, y), or null without one. */
+        /** Where the path being followed ends (x, y, heading), or null without one. */
         double[] pathEnd() {
             if (current == null) return null;
             Pose end = current.endPose();
-            return new double[] {end.x(), end.y()};
+            return new double[] {end.x(), end.y(), end.heading()};
         }
 
         @Override

@@ -1,22 +1,148 @@
 {
   "pairs": [
-    {"name": "Qual-ShootsRight", "files": ["qual-right-v.pp", "partner-preloads-right.pp"], "note": "baseline, Rigid V: partner fires from the right start; PARK first when TIP 3 is late"},
-    {"name": "Qual-Stages-Angled", "files": ["qual-stages-angled-v.pp", "partner-angled-park.pp"], "note": "baseline, Rigid V: partner can't shoot, starts angled with its 4 POLLEN beside it, drives straight to PARK; turns out of the tunnel at x 55.5"},
-    {"name": "Qual-Stages-Wall", "files": ["qual-stages-wall-v.pp", "partner-stage19-side-park.pp"], "note": "baseline, Rigid V: partner can't shoot, starts against the wall with its 4 POLLEN beside it; the row swept square; the partner parks on our spot, so no PARK for us"},
-    {"name": "Qual-ShootsRight-FlatIntake", "files": ["qual-right-o3.pp", "partner-preloads-right.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"},
-    {"name": "Qual-Stages-Angled-FlatIntake", "files": ["qual-stages-angled.pp", "partner-angled-park.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"},
-    {"name": "Qual-Stages-Wall-FlatIntake", "files": ["qual-stages-wall.pp", "partner-stage19-side-park.pp"], "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"},
-    {"name": "Qual-PartnerShootsLeft", "files": ["qual-partner-shoots-left.pp", "partner-preloads-left.pp"], "note": "qualifier, partner fires from the standard left start: one launcher 70"},
-    {"name": "Qual-PartnerParksLeft", "files": ["qual-partner-parks-left.pp", "partner-park-left.pp"], "note": "qualifier, partner only drives and parks from the left start: one launcher 57"},
-    {"name": "Qual-PartnerShootsRight-v3", "files": ["qual-right-v3.pp", "partner-preloads-right.pp"], "note": "full-width robot (the what-if): partner fires from the right start; 3 TIPs in 17 of 20"},
-    {"name": "Qual-PartnerStages", "files": ["qual-partner-stages.pp", "partner-stage-exit.pp"], "note": "partner can't shoot, stages its preloads: work in progress"},
-    {"name": "Qual-PartnerShootsRight", "files": ["qual-partner-shoots-right.pp", "partner-preloads-right.pp"], "note": "qualifier, partner fires from the right start: one launcher 72"},
-    {"name": "Sister-Recycle", "files": ["recycle3-right.pp", "recycle3-left.pp"], "note": "sister robots, catapult: 58 / 55; one launcher 49"},
-    {"name": "Sister-ThrowBack", "files": ["recycle5-right.pp", "recycle5-left.pp"], "note": "recycle3 + throws both ways: 60 / 49; one launcher 46"},
-    {"name": "Sister-SetDown", "files": ["recycle4-right.pp", "recycle4-left.pp"], "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 52 / 52"},
-    {"name": "PartnerShoots-ThreeTip", "files": ["three-tip-adaptive.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 76 / 76; one launcher 59"},
-    {"name": "PartnerShoots-Tunnel", "files": ["solo-tunnel.pp", "partner-preloads-park.pp"], "note": "partner fires its preloads: 55 / 57; one launcher 56"},
-    {"name": "PartnerShootsRight-LeftTunnel", "files": ["left-tunnel.pp", "partner-preloads-right.pp"], "note": "partner fires from the right start: 63 / 73; one launcher 52"},
-    {"name": "PartnerStages-ThreeTip", "files": ["staged-three-tip.pp", "partner-leave-park.pp"], "note": "partner can't shoot: 59 / 59; one launcher 56"}
+    {
+      "name": "Qual-ShootsRight",
+      "files": [
+        "qual-right-v.pp",
+        "partner-preloads-right.pp"
+      ],
+      "note": "baseline, Rigid V: partner fires from the right start; PARK first when TIP 3 is late"
+    },
+    {
+      "name": "Qual-Stages-Angled",
+      "files": [
+        "qual-stages-angled-v.pp",
+        "partner-angled-park.pp"
+      ],
+      "note": "baseline, Rigid V: partner can't shoot, starts angled with its 4 POLLEN beside it, drives straight to PARK; turns out of the tunnel at x 55.5"
+    },
+    {
+      "name": "Qual-Stages-Wall",
+      "files": [
+        "qual-stages-wall-v.pp",
+        "partner-stage19-side-park.pp"
+      ],
+      "note": "baseline, Rigid V: partner can't shoot, starts against the wall with its 4 POLLEN beside it, drives forward and parks at the top of the LOADING ZONE; the row swept square just east of it; we PARK below it after TIP 2's spill (mentor, 7 Oct: both robots always park)"
+    },
+    {
+      "name": "Qual-ShootsRight-FlatIntake",
+      "files": [
+        "qual-right-o3.pp",
+        "partner-preloads-right.pp"
+      ],
+      "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner fires from the right start; 3 TIPs in 11 of 20, no G409 touches"
+    },
+    {
+      "name": "Qual-Stages-Angled-FlatIntake",
+      "files": [
+        "qual-stages-angled.pp",
+        "partner-angled-park.pp"
+      ],
+      "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts angled with its 4 POLLEN on the tiles beside it, drives straight to PARK; 2 TIPs and PARK"
+    },
+    {
+      "name": "Qual-Stages-Wall-FlatIntake",
+      "files": [
+        "qual-stages-wall.pp",
+        "partner-stage19-side-park.pp"
+      ],
+      "note": "superseded 6 Oct 2026 (the Flat Intake baseline, no guide): partner can't shoot, starts against the wall with its 4 POLLEN on the tiles beside it, drives straight forward; 2 TIPs, no PARK for us"
+    },
+    {
+      "name": "Qual-PartnerShootsLeft",
+      "files": [
+        "qual-partner-shoots-left.pp",
+        "partner-preloads-left.pp"
+      ],
+      "note": "qualifier, partner fires from the standard left start: one launcher 70"
+    },
+    {
+      "name": "Qual-PartnerParksLeft",
+      "files": [
+        "qual-partner-parks-left.pp",
+        "partner-park-left.pp"
+      ],
+      "note": "qualifier, partner only drives and parks from the left start: one launcher 57"
+    },
+    {
+      "name": "Qual-PartnerShootsRight-v3",
+      "files": [
+        "qual-right-v3.pp",
+        "partner-preloads-right.pp"
+      ],
+      "note": "full-width robot (the what-if): partner fires from the right start; 3 TIPs in 17 of 20"
+    },
+    {
+      "name": "Qual-PartnerStages",
+      "files": [
+        "qual-partner-stages.pp",
+        "partner-stage-exit.pp"
+      ],
+      "note": "partner can't shoot, stages its preloads: work in progress"
+    },
+    {
+      "name": "Qual-PartnerShootsRight",
+      "files": [
+        "qual-partner-shoots-right.pp",
+        "partner-preloads-right.pp"
+      ],
+      "note": "qualifier, partner fires from the right start: one launcher 72"
+    },
+    {
+      "name": "Sister-Recycle",
+      "files": [
+        "recycle3-right.pp",
+        "recycle3-left.pp"
+      ],
+      "note": "sister robots, catapult: 58 / 55; one launcher 49"
+    },
+    {
+      "name": "Sister-ThrowBack",
+      "files": [
+        "recycle5-right.pp",
+        "recycle5-left.pp"
+      ],
+      "note": "recycle3 + throws both ways: 60 / 49; one launcher 46"
+    },
+    {
+      "name": "Sister-SetDown",
+      "files": [
+        "recycle4-right.pp",
+        "recycle4-left.pp"
+      ],
+      "note": "recycle3 + set pieces down, not redesigned for the filmed spill: 52 / 52"
+    },
+    {
+      "name": "PartnerShoots-ThreeTip",
+      "files": [
+        "three-tip-adaptive.pp",
+        "partner-preloads-park.pp"
+      ],
+      "note": "partner fires its preloads: 76 / 76; one launcher 59"
+    },
+    {
+      "name": "PartnerShoots-Tunnel",
+      "files": [
+        "solo-tunnel.pp",
+        "partner-preloads-park.pp"
+      ],
+      "note": "partner fires its preloads: 55 / 57; one launcher 56"
+    },
+    {
+      "name": "PartnerShootsRight-LeftTunnel",
+      "files": [
+        "left-tunnel.pp",
+        "partner-preloads-right.pp"
+      ],
+      "note": "partner fires from the right start: 63 / 73; one launcher 52"
+    },
+    {
+      "name": "PartnerStages-ThreeTip",
+      "files": [
+        "staged-three-tip.pp",
+        "partner-leave-park.pp"
+      ],
+      "note": "partner can't shoot: 59 / 59; one launcher 56"
+    }
   ]
 }

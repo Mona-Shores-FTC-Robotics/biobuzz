@@ -1,14 +1,18 @@
-"""The intake-to-turret transfer (issue #164, doc/transfer.md on spike/164-transfer, concept A), in the robot CAD's
-frame, so dhs-transfer.step lands in place in Onshape next to cad/intake-b/dhs-intake-b.step.
+"""The intake-to-launcher transfer, v2 (7 Oct 2026): ramp, a short climbing wheel lane under a sprung ceiling, and a
+cup of two feeder wheels under the flywheels. Drawn in the robot CAD's frame, so dhs-transfer.step lands in place in
+Onshape next to cad/intake-b/dhs-intake-b.step.
 
     python3 cad/transfer/build.py        # writes dhs-transfer.step and stl/ next to this file
 
-Drawn in the robot frame the transfer chat uses (+X forward, +Y left, +Z up, inches, origin on the floor under the
-chassis centre, 7.56 in behind the front face) and moved into the CAD's millimetres at the end. Groups: "fixed"
-(the lane, strands, chute, mounts, J motor), "float" (the lane-drive pulley on the roller's shaft, which rises with
-the roller), "arm" (the J-wheel, its shaft and arms: they lift up to 1.2 in for a NECTAR, about the pivot).
-Follows the doc's "Build spec for CAD", with the transfer chat's confirmed changes (the J motor over the left rail,
-belted to the pivot stub; mounting strips to the rails; 1/8 in walls). Where it differs, the README says why.
+Drawn in the robot frame (+X forward, +Y left, +Z up, inches, origin on the floor under the chassis centre, 7.56 in
+behind the front face) and moved into the CAD's millimetres at the end. Groups: "fixed" (ramp, lane, walls, ceiling,
+cup, drives) and "float" (nothing yet: the lane no longer runs off the roller's shaft).
+
+How it works: the intake roller pushes each ball up the ramp; two driven wheel shafts carry it up the lane under a
+sprung, foam-lined ceiling to the front feeder; it rolls over the stopped front feeder and drops into the cup, sitting
+on both feeders under the flywheels. Feeding spins both feeders up into the cup: the ball pops straight up into the
+flywheels, and the front feeder's top, moving forward, holds the next ball back. Stopped, they let it roll in.
+The mentor's layout from his screenshots (feeders across the robot, front and back of the ball); the numbers are ours.
 """
 import math, os, sys
 import cadquery as cq
@@ -16,29 +20,33 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."
 from build import C, F, FACE, IN
 
 CENTRE_BACK_IN = 7.56
-T16, TW = 1 / 16, 1 / 8                 # polycarbonate: the floor, ramp and lid 1/16 in; the walls 1/8 in (they carry the pivots and the countershaft)
-FLOOR_Z, WALL_Y, WALL_TOP = 0.9, 2.1, 5.0
-LANE_X0, LANE_X1 = -1.3, 7.2            # walls along the lane (they carry on back as the chute's sides, to X -5.1)
-STRAND_Y, STRAND_X, STRAND_Z, STRAND_D = 0.5, (5.6, -1.0), 0.65, 0.5    # build spec: Y +-0.5, 0.5 in pulleys on 6 mm D-shafts
-J_AXLE, ARM_L = (-1.32, 4.54), 60 / IN  # 60 mm: a 40T HTD5 belt on two 16T pulleys
-ARM_DEG = 30.0                          # arm above horizontal toward the rear: pivot (0.72, 3.36)
-PIVOT = (J_AXLE[0] + ARM_L * math.cos(math.radians(ARM_DEG)), J_AXLE[1] - ARM_L * math.sin(math.radians(ARM_DEG)))
-FLOAT_UP = 0.99                         # the axle's vertical rise at full float: a NECTAR at the mouth needs 0.92 (transfer chat); the wheel stays 0.12 under the bearing
-LIFT_DEG = math.degrees(math.asin(math.sin(math.radians(ARM_DEG)) + FLOAT_UP / ARM_L)) - ARM_DEG   # arm rotation for it (36.8 deg)
-J_R, J_W = 24.0 / IN, 2.0               # 48 mm gecko wheels, two side by side
-J_OUT, J_BACK, CHUTE_TOP = 3.64, -4.96, 6.6
+T16, TW = 1 / 16, 1 / 8
+LANE_Y = 0.0                            # the lane's centreline (the front drive motors' encoder caps leave |Y| 1.87)
+WALL_IN = 1.87                          # the lane walls' inner faces, |Y|: a NECTAR (1.81) clears the caps by 0.06
+RN, RP = 1.81, 1.40                     # NECTAR, POLLEN radii
+# the cup: two feeder wheels (the mentor's FeederWheel: 66.7 mm foam on a 40 mm hub, 48 mm wide), shafts across Y
+RF, FW = 66.68 / 2 / IN, 48 / IN
+CUP_X = -2.845                          # under the flywheels' centre (X -3.79..-1.90)
+CUP_S = 2.3                             # each feeder's axis this far ahead of / behind the cup's centre
+FEED_Z = 1.56                           # feeder axes: their bottoms 0.25 off the tiles
+FEED_X = (CUP_X + CUP_S, CUP_X - CUP_S) # front, rear
+SEAT_N = FEED_Z + math.sqrt((RN + RF) ** 2 - CUP_S ** 2)   # a NECTAR's centre in the cup (3.67: clear of the flywheels, which start touching at 5.77)
+SEAT_P = FEED_Z + math.sqrt((RP + RF) ** 2 - CUP_S ** 2)
+# the ramp and the lane: ball-bottom line from the ramp's top to the front feeder's top
 RAMP = ((8.0, 0.05), (5.8, 0.9))
-CSHAFT = (6.0, 4.0)                     # the lane drive's countershaft, Y +2.6, on the left wall's outer face
-ROLLER = (8.56, 3.35)                   # the roller's axle at rest (it floats up 1.3 in)
-CHAN_Z = (4.75, 6.32)                   # the old intake's 11-hole channel, raised 8 mm
-TURRET = (-3.17, 0.0)
-TCHAN = ((-5.6, -5.1), (0.85, 1.35))      # the turret's two cross-channels (the launcher's), tops at z 6.6. The spec's front one
-                                        # (X 0.0..0.5) is in the J-wheel's way at full float: the wheel moves forward as it lifts
-JM = (-2.4, 3.7)                        # J motor's axis (along Y), over the left rail, belted to the left pivot stub
-STRIPS_X = (3.78, 1.89, -2.835)         # mounting strips under the lane, on the rails' lower hole row (24 mm pitch)
-RAIL_IN = 4.88                          # the rails' inner faces, |Y|
-AY = 2.25                               # the arms' inner faces, |Y| (just outside the walls)
-MOTOR_D, MOTOR_L = 37 / IN, 3.5
+LANE_TOP = (FEED_X[0], FEED_Z + RF)
+SLOPE = (LANE_TOP[1] - RAMP[1][1]) / (RAMP[1][0] - LANE_TOP[0])
+line = lambda x: RAMP[1][1] + SLOPE * (RAMP[1][0] - x)
+LANE_WHEELS = [(3.74, 32 / IN / 2, "compliant wheel, 32 mm, 30A (to choose)"), (None, 24 / IN, "48 mm Gecko wheel")]   # the second sits just ahead of the front feeder
+CEIL_GAP = 2.6                          # sprung ceiling's foam face above the ball-bottom line at rest: a POLLEN (2.80) squeezed 0.2
+CEIL_X = (5.6, 0.95)                    # hinged at the front, band-held at the rear; a NECTAR lifts it 0.82
+CHAN_RAISE = 21 / IN                    # the old intake's 11-hole channel goes up 21 mm (a lane NECTAR's top is 5.14 under it)
+RAIL_IN = 4.88
+FM = (0.3, 0.95)                        # the feeder drive's jackshaft (X, z), along Y; miter gears to the feeder motor
+FM_Y = 2.9                              # the feeder motor's axis Y (along X, under the left flywheel motor)
+LM = (4.75, 1.15)                       # the lane drive's jackshaft (right side)
+LM_Y = -3.3                             # the lane motor's axis Y (along X, outside the right wall)
+MOTOR_D, MOTOR_L = 37 / IN, 100 / IN
 
 fixed, flt, arm = {}, {}, {}
 def part(d, name, wp, col, kind): d[name] = (wp, col, kind)
@@ -78,106 +86,105 @@ def arc_slot(c, r, a0, a1, w, y0, y1, n=16):
     sl = xz(pts, y0, y1)
     for a in (a0, a1): sl = sl.union(cyly(c[0] + r * math.cos(math.radians(a)), c[1] + r * math.sin(math.radians(a)), w, y0, y1))
     return sl
-WY = lambda s: (s * WALL_Y, s * (WALL_Y + TW))        # a wall's two faces
-WO = WALL_Y + TW                                      # the walls' outer faces, |Y|
+WY = lambda s: (s * WALL_IN, s * (WALL_IN + TW))
+WO = WALL_IN + TW
 
-# ---- the ramp (1/16 in polycarbonate) and its two brackets to the side plates ----
-(ax, az), (bxx, bz) = RAMP
-dvec = (bxx - ax, bz - az); L = math.hypot(*dvec); nrm = (-dvec[1] / L * T16, dvec[0] / L * T16)
-part(fixed, "ramp (1/16 in polycarbonate)", xz([(ax, az), (bxx, bz), (bxx - nrm[0], bz - nrm[1]), (ax - nrm[0], az - nrm[1])], -WALL_Y, WALL_Y), POLY, "cut")
+def axle_on_line(x, r):
+    """Where a wheel of radius r sits so its top touches the lane's ball-bottom line near X x."""
+    a = math.atan(SLOPE)
+    return (x - r * math.sin(a), line(x) - r * math.cos(a))
+# the second lane wheel: as far back as it can go and still clear the front feeder by 0.06 in
+_r = LANE_WHEELS[1][1]; _x = LANE_TOP[0] + 1.0
+while math.dist(axle_on_line(_x, _r), (FEED_X[0], FEED_Z)) < _r + RF + 0.06: _x += 0.01
+LANE_WHEELS[1] = (round(_x, 2), _r, LANE_WHEELS[1][2])
+
+# ---- the ramp (1/16 in polycarbonate) and its two brackets to the side plates, then a short static lane floor ----
+first_x = axle_on_line(*LANE_WHEELS[0][:2])[0] + LANE_WHEELS[0][1]
+pts = [RAMP[0], RAMP[1], (first_x, line(first_x))]
+def sheet(pts, y0, y1, t=T16):
+    out = None
+    for (x0, z0), (x1, z1) in zip(pts, pts[1:]):
+        L = math.hypot(x1 - x0, z1 - z0); nx, nz = -(z1 - z0) / L * t, (x1 - x0) / L * t
+        seg = xz([(x0, z0), (x1, z1), (x1 - nx, z1 - nz), (x0 - nx, z0 - nz)], y0, y1)
+        out = seg if out is None else out.union(seg)
+    return out
+part(fixed, "ramp_and_lane_lip (1/16 in polycarbonate, bent at X 5.8)", sheet(pts, -WALL_IN, WALL_IN), POLY, "cut")
 for s in (-1, 1):
-    br = xz([(7.75, 0.12), (8.15, 0.12), (8.15, 0.3), (7.75, 0.3)], s * WALL_Y, s * 4.0).union(xz([(7.75, 0.12), (8.15, 0.12), (8.15, 1.6), (7.75, 1.6)], s * 4.0, s * 7.56))
+    br = xz([(7.75, 0.12), (8.15, 0.12), (8.15, 0.3), (7.75, 0.3)], s * WALL_IN, s * 4.0).union(xz([(7.75, 0.12), (8.15, 0.12), (8.15, 1.6), (7.75, 1.6)], s * 4.0, s * 7.56))
     part(fixed, f"ramp_bracket_{'L' if s > 0 else 'R'} (print, to the side plate; slotted +-0.5 in in X)", br, BLUE, "print")
 
-# ---- the lane: floor, walls, strands ----
-floor = bx(LANE_X0, RAMP[1][0], -WALL_Y, WALL_Y, FLOOR_Z - T16, FLOOR_Z)
-for x in STRAND_X:
-    for s in (-1, 1): floor = floor.cut(bx(x - 0.32, x + 0.32, s * STRAND_Y - 0.15, s * STRAND_Y + 0.15, 0, 2))
-part(fixed, "lane_floor (1/16 in polycarbonate, slots for the strand pulleys)", floor, POLY, "cut")
+# ---- the lane walls (1/8 in polycarbonate): low under the front drive motors, they carry the lane shafts and the front feeder ----
 def wall(s):
     y0, y1 = sorted(WY(s))
-    w = xz([(-5.1, 0.73), (LANE_X1, 0.73), (LANE_X1, WALL_TOP), (5.55, WALL_TOP), (5.55, 4.4), (5.0, 4.4), (5.0, WALL_TOP),
-            (4.0, WALL_TOP), (4.0, 3.4), (2.3, 3.4), (2.3, WALL_TOP), (-1.0, WALL_TOP), (-1.0, CHUTE_TOP), (-5.1, CHUTE_TOP)], y0, y1)
-    for x in STRAND_X: w = w.union(bx(x - 0.35, x + 0.35, y0, y1, 0.3, 0.8))                # ears for the strand shafts' bearings
-    for x in STRAND_X: w = w.cut(cyly(x, STRAND_Z, 10 / IN, y0 - 0.1, y1 + 0.1))           # 6 mm-bore flanged bearings
-    w = w.cut(cyly(*PIVOT, 14 / IN, y0 - 0.1, y1 + 0.1))
-    w = w.cut(arc_slot(PIVOT, ARM_L, 180 - ARM_DEG - LIFT_DEG - 3, 180 - ARM_DEG + 3, 10 / IN, y0 - 0.1, y1 + 0.1))   # the J shaft floats in this
-    if s > 0: w = w.cut(cyly(*CSHAFT, 14 / IN, y0 - 0.1, y1 + 0.1))
+    w = xz([(-1.2, 0.3), (5.75, 0.3), (5.75, 2.6), (-1.2, 2.6)], y0, y1)       # ends ahead of the launcher's side plates (X -1.26)
+    for x, r, _ in LANE_WHEELS: w = w.cut(cyly(*axle_on_line(x, r), 14 / IN, y0 - 0.1, y1 + 0.1))
+    w = w.cut(cyly(FEED_X[0], FEED_Z, 14 / IN, y0 - 0.1, y1 + 0.1))
+    w = w.cut(cyly(*(FM if s > 0 else LM), 14 / IN, y0 - 0.1, y1 + 0.1))
     return w
-for s, nm in ((1, "L"), (-1, "R")): part(fixed, f"lane_wall_{nm} (1/16 in polycarbonate)", wall(s), POLY, "cut")
-for i, x in enumerate(STRAND_X):
-    part(fixed, f"strand_shaft_{i} (6 mm D-shaft, {'goBILDA 2100 series, to confirm; carries the lane pulley' if i == 0 else 'idler'})",
-         cyly(x, STRAND_Z, 6 / IN, -WALL_Y - 0.2, 2.85 if i == 0 else WALL_Y + 0.2), STEEL, "buy")
-    for s in (-1, 1):
-        part(fixed, f"strand_pulley_{i}{'L' if s > 0 else 'R'} (print, 0.5 in V-groove)", cyly(x, STRAND_Z, STRAND_D, s * STRAND_Y - 0.12, s * STRAND_Y + 0.12), BLUE, "print")
+for s, nm in ((1, "L"), (-1, "R")): part(fixed, f"lane_wall_{nm} (1/8 in polycarbonate)", wall(s), POLY, "cut")
+for s, nm in ((1, "L"), (-1, "R")):
+    y0, y1 = sorted(WY(s))
+    rp = xz([(FEED_X[1] - 0.85, 0.3), (-4.95, 0.3), (-4.95, 2.4), (FEED_X[1] - 0.85, 2.4)], y0, y1)     # under and behind the launcher's 5-hole channel
+    rp = rp.cut(cyly(FEED_X[1], FEED_Z, 14 / IN, y0 - 0.1, y1 + 0.1))
+    part(fixed, f"rear_feeder_plate_{nm} (1/8 in aluminium)", rp, ALU, "cut")
+    yy0, yy1 = sorted((s * WO, s * RAIL_IN))
+    br = bx(-5.95, -5.45, yy0, yy1, 1.0, 1.125).union(bx(-5.95, -5.45, s * (RAIL_IN - 0.125), s * RAIL_IN, 1.0, 1.6)).union(bx(-5.95, -5.45, s * WO, s * (WO + 0.125), 1.0, 1.6))
+    part(fixed, f"rear_feeder_bracket_{nm} (1/8 in aluminium, plate to rail)", br, ALU, "cut")
+for x in (5.5, 0.2):                    # wall brackets to the rails, under the motors' bodies: low at the front (the drive
+    for s in (-1, 1):                   # wheels' shafts are at z 1.9), high at the rear (the feeder motor runs under it)
+        y0, y1 = sorted((s * WO, s * RAIL_IN))
+        zb = 1.95 if x < 1 else 1.0
+        br = bx(x - 0.3, x + 0.3, y0, y1, zb, zb + 0.125).union(bx(x - 0.3, x + 0.3, s * (RAIL_IN - 0.125), s * RAIL_IN, 1.0, max(zb + 0.125, 1.6))).union(bx(x - 0.3, x + 0.3, s * WO, s * (WO + 0.125), 1.0, zb + 0.125))
+        part(fixed, f"wall_bracket_X{x:+.1f}_{'L' if s > 0 else 'R'} (1/8 in aluminium, wall to rail over the motors' bodies)", br, ALU, "cut")
+
+# ---- the lane's two driven shafts ----
+P16 = 16 * 5 / math.pi / IN
+for i, (x, r, nm) in enumerate(LANE_WHEELS):
+    ax_ = axle_on_line(x, r)
+    part(fixed, f"lane_wheels_{i} ({nm} x2)", cyly(*ax_, 2 * r, LANE_Y - 0.94, LANE_Y + 0.94), BLACK if r > 0.8 else (0.25, 0.25, 0.28), "buy")
+    part(fixed, f"lane_shaft_{i} (8mm REX, 1611-0514-4008 bearings in both walls)", cyly(*ax_, 8 / IN, -WO - 0.45, WO + 0.1), STEEL, "buy")
+    part(fixed, f"lane_shaft_pulley_{i} (16T HTD5, outside the right wall)", cyly(*ax_, P16, -WO - 0.4, -WO - 0.05), BLACK, "buy")
+part(fixed, "lane_jackshaft (8mm REX, outside the right wall) and its 16T", cyly(*LM, 8 / IN, -WALL_IN, LM_Y).union(cyly(*LM, P16, -WO - 0.4, -WO - 0.05)), STEEL, "buy")
+ax0, ax1 = axle_on_line(*LANE_WHEELS[0][:2]), axle_on_line(*LANE_WHEELS[1][:2])
+part(fixed, "lane_belt (HTD5 9 mm, over the jackshaft and both lane shafts)", cord(LM, ax0, P16 / 2, P16 / 2, -WO - 0.22, t=0.09).union(cord(ax0, ax1, P16 / 2, P16 / 2, -WO - 0.22, t=0.09)), BLACK, "buy")
+part(fixed, "lane_motor (goBILDA 5203-2402-0005, 1150 RPM; along X outside the right wall, miter gears to the jackshaft)",
+     cq.Workplane("YZ").center(LM_Y, LM[1]).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((LM[0] - 0.2 - MOTOR_L, 0, 0)), BLACK, "buy")
+part(fixed, "lane_miter_gears (1:1 pair, 8mm REX bore, to choose)", cq.Workplane("YZ").center(LM_Y, LM[1]).circle(0.4).extrude(0.3).translate((LM[0] - 0.2, 0, 0)), (0.7, 0.6, 0.3), "buy")
+
+# ---- the sprung, foam-lined ceiling: hinged at the front, band-held at the rear ----
+cx0, cx1 = CEIL_X
+c0, c1 = (cx0, line(cx0) + CEIL_GAP), (cx1, line(cx1) + CEIL_GAP)
+def strip(z_lo, t, y):                 # a band along the ceiling line, z_lo..z_lo+t above it
+    return xz([(c0[0], c0[1] + z_lo), (c1[0], c1[1] + z_lo), (c1[0], c1[1] + z_lo + t), (c0[0], c0[1] + z_lo + t)], -y, y)
+part(fixed, "ceiling_foam (1/4 in closed-cell foam, glued under the ceiling)", strip(0, 0.25, WALL_IN - 0.15), (0.3, 0.3, 0.32), "buy")
+part(fixed, "ceiling (1/16 in polycarbonate, hinged at its front; lifts 0.82 for a NECTAR)", strip(0.25, T16, WALL_IN - 0.05), POLY, "cut")
 for s in (-1, 1):
-    part(fixed, f"floor_strand_{'L' if s > 0 else 'R'} (3/16 in 83A polycord loop, about 14.8 in)",
-         cord((STRAND_X[0], STRAND_Z), (STRAND_X[1], STRAND_Z), STRAND_D / 2 - 0.03, STRAND_D / 2 - 0.03, s * STRAND_Y), RED, "buy")
-# mounting: three 1/8 in aluminium strips under the floor, tabbed up to both rails' inner faces on their lower hole row (z 1.24)
-for x in STRIPS_X:
-    st = bx(x - 0.5, x + 0.5, -RAIL_IN + 0.125, RAIL_IN - 0.125, 0.6, 0.725)
-    for s in (-1, 1): st = st.union(bx(x - 0.5, x + 0.5, s * (RAIL_IN - 0.125), s * RAIL_IN, 0.6, 1.6)).cut(cyly(x, 1.24, 4.3 / IN, -6, 6))
-    part(fixed, f"lane_strip_X{x:+.2f} (1/8 in aluminium, bolts to both rails)", st, ALU, "cut")
+    y0, y1 = sorted(WY(s))
+    part(fixed, f"ceiling_hinge_post_{'L' if s > 0 else 'R'} (print, on the wall's front end)", bx(5.45, 5.75, y0, y1, 2.6, c0[1] + 0.45).cut(cyly(5.6, c0[1] + 0.33, 0.13, -3, 3)), BLUE, "print")
+    post = bx(0.55, 0.95, s * WO, s * (WO + 0.3), 1.5, 2.0)
+    for dx in (-0.12, 0.0, 0.12): post = post.cut(cyly(0.75 + dx, 1.75, 0.08, -3, 3))
+    part(fixed, f"ceiling_band_post_{'L' if s > 0 else 'R'} (print, three holes; band up to the ceiling's rear hook)", post, BLUE, "print")
 
-# ---- the outer J and chute (printed PETG, two halves) and the lid over the pocket ----
-cx, cz = J_AXLE
-arc = lambda r: [(cx + r * math.cos(q), cz + r * math.sin(q)) for q in [math.radians(-90 - 90 * i / 24) for i in range(25)]]
-shell = arc(J_OUT + 0.125) + [(J_BACK - 0.125, CHUTE_TOP), (J_BACK, CHUTE_TOP)] + arc(J_OUT)[::-1]
-part(fixed, "outer_J_and_chute (print, PETG, 1/8 in, two halves; bolts to the walls and the turret's rear channel)", xz(shell, -WALL_Y, WALL_Y), BLUE, "print")
-part(fixed, "queue_lid (1/16 in polycarbonate; ahead of the J-wheel's float)", bx(0.7, 2.3, -WALL_Y, WALL_Y, WALL_TOP - T16, WALL_TOP), POLY, "cut")
-
-# ---- the J-wheel on its floating arms (drawn at rest, on the hard stops) ----
-part(arm, "J_wheels (48 mm gecko x2)", cyly(*J_AXLE, 2 * J_R, -J_W / 2, J_W / 2), GREEN, "buy")
-part(arm, "J_shaft (8mm REX, about 135 mm)", cyly(*J_AXLE, 8 / IN, -AY - 0.25, 2.8), STEEL, "buy")
-P16 = 16 * 5 / math.pi / IN                                       # 16T HTD5 pitch diameter
-for s in (-1, 1):
-    y = s * AY
-    a = bar(PIVOT, J_AXLE, 0.6, y, y + s * 0.125).cut(cyly(*PIVOT, 14 / IN, y - 1, y + 1)).cut(cyly(*J_AXLE, 8.3 / IN, y - 1, y + 1))
-    part(arm, f"J_arm_{'L' if s > 0 else 'R'} (1/8 in aluminium, 60 mm, on a 1611-0514-0008 bearing)", a, ALU, "cut")
-part(arm, "arm_drive (16T HTD5 on the J shaft + 40T belt, 60 mm; outside the left arm)", cyly(*J_AXLE, P16, 2.42, 2.75)
-     .union(cord(PIVOT, J_AXLE, P16 / 2, P16 / 2, 2.585, t=0.09)), BLACK, "buy")
-part(fixed, "pivot_stub_pulleys (16T HTD5 x2 on the left stub: the arm drive's and the motor belt's)", cyly(*PIVOT, P16, 2.42, 2.75).union(cyly(*PIVOT, P16, 2.85, 3.15)), BLACK, "buy")
-part(fixed, "pivot_stub_L (8mm REX, in a 1611-0514-4008 in the left wall)", cyly(*PIVOT, 8 / IN, WALL_Y, 3.25), STEEL, "buy")
-part(fixed, "pivot_stub_R (8mm REX, dead, in the right wall)", cyly(*PIVOT, 8 / IN, -WALL_Y, -AY - 0.25), STEEL, "buy")
-sx = PIVOT[0] - 1.2; sz = PIVOT[1] + 1.2 * math.tan(math.radians(ARM_DEG)) - 0.3 / math.cos(math.radians(ARM_DEG))   # under the arm, 1.2 in behind the pivot
-for s in (-1, 1):
-    blk = bx(sx - 0.3, sx + 0.3, s * WO, s * (AY + 0.125), sz - 0.5, sz - 0.01)
-    for dx in (-0.15, 0.15): blk = blk.cut(bx(sx + dx - 0.085, sx + dx + 0.085, -3, 3, sz - 0.35, sz - 0.15))   # +-0.1 in slots for its bolts
-    part(fixed, f"arm_stop_{'L' if s > 0 else 'R'} (print; bolted through +-0.1 in slots: the POLLEN gap)", blk, BLUE, "print")
-    post = bx(1.0, 1.4, s * WO, s * 2.95, 5.2, 5.6)
-    for dx in (-0.12, 0.0, 0.12): post = post.cut(cyly(1.2 + dx, 5.4, 0.08, -3.1, 3.1))
-    part(fixed, f"band_post_{'L' if s > 0 else 'R'} (print, three holes; 1/4 in surgical tubing to the arm's tip)", post, BLUE, "print")
-
-# ---- the J motor, over the left rail, belted to the left pivot stub ----
-part(fixed, "J_motor (goBILDA 5203-2402-0003, 1620 RPM)", cyly(*JM, MOTOR_D, 3.25, 3.25 + 100 / IN), BLACK, "buy")
-part(fixed, "J_motor_shaft_pulley (16T HTD5)", cyly(*JM, P16, 2.85, 3.15), BLACK, "buy")
-part(fixed, "J_motor_belt (HTD5 9 mm, about 3.1 in centres)", cord(JM, PIVOT, P16 / 2, P16 / 2, 3.0, t=0.09), BLACK, "buy")
-cr = bx(JM[0] - 0.8, JM[0] + 0.8, RAIL_IN, RAIL_IN + 0.47, 2.85, JM[1] - 0.2).cut(cyly(*JM, 37.5 / IN, 4.0, 6.0))
-part(fixed, "J_motor_cradle (print, bolts to the left rail's top)", cr, BLUE, "print")
-
-# ---- the lane drive, 2:1 up: roller shaft (32 mm) -> countershaft (16 mm, 16 mm) -> front strand shaft (16 mm) ----
-P32, P16V = 32 / IN, 16 / IN
-part(flt, "lane_drive_pulley_roller (print, 32 mm V-groove, in the roller's gap)", cyly(*ROLLER, P32, 2.45, 2.62), BLUE, "print")
-part(flt, "lane_drive_upper_loop (3/16 in polycord, about 8.3 in)", cord(ROLLER, CSHAFT, P32 / 2, P16V / 2, 2.535), RED, "buy")
-part(fixed, "countershaft (8mm REX, 30 mm, one 1611-0514-4008 on the left wall)", cyly(*CSHAFT, 8 / IN, WALL_Y, 2.95), STEEL, "buy")
-part(fixed, "countershaft_pulleys (print, 16 mm V-groove x2)", cyly(*CSHAFT, P16V, 2.45, 2.62).union(cyly(*CSHAFT, P16V, 2.66, 2.83)), BLUE, "print")
-part(fixed, "lane_shaft_pulley (print, 16 mm V-groove, on the front strand shaft)", cyly(STRAND_X[0], STRAND_Z, P16V, 2.66, 2.83), BLUE, "print")
-part(fixed, "lane_drive_lower_loop (3/16 in polycord, about 8.7 in)", cord(CSHAFT, (STRAND_X[0], STRAND_Z), P16V / 2, P16V / 2, 2.745), RED, "buy")
-
-# ---- the turret bearing and its two cross-channels (the launcher's; drawn for reference and fit) ----
-part(fixed, "turret_bearing_REFERENCE (goBILDA 3208-0004-0001; outer size to confirm)",
-     cq.Workplane("XY").circle(6.0 / 2).circle(105 / IN / 2).extrude(1.2).translate((TURRET[0], TURRET[1], CHUTE_TOP)), (0.55, 0.57, 0.6), "buy")
-for x0, x1 in TCHAN:
-    part(fixed, f"turret_channel_X{x0:+.1f}_REFERENCE (1120-series U-channel across the rails; its supports are the launcher's)",
-         bx(x0, x1, -5.35, 5.35, CHUTE_TOP - 0.94, CHUTE_TOP), ALU, "buy")
+# ---- the cup: two feeders under the flywheels ----
+for nm, x in (("front", FEED_X[0]), ("rear", FEED_X[1])):
+    part(fixed, f"feeder_{nm} (mentor's FeederWheel: 66.7 mm foam on a 40 mm hub, 48 mm wide)", cyly(x, FEED_Z, 2 * RF, LANE_Y - FW / 2, LANE_Y + FW / 2), (0.55, 0.8, 0.95), "buy")
+    part(fixed, f"feeder_shaft_{nm} (8mm REX, bearings in the {'lane walls' if nm == 'front' else 'rear feeder plates'})", cyly(x, FEED_Z, 8 / IN, -WO - 0.1, WO + 0.1), STEEL, "buy")
+    part(fixed, f"feeder_pulley_{nm} (print, 20 mm V-groove, inside the lane beside the feeder)", cyly(x, FEED_Z, 20 / IN, LANE_Y + FW / 2 + 0.05, LANE_Y + FW / 2 + 0.3), BLUE, "print")
+P20 = 20 / IN
+part(fixed, "feeder_jackshaft (8mm REX, from the miter gears into the lane) and its pulley", cyly(*FM, 8 / IN, LANE_Y + FW / 2 + 0.3, FM_Y - 0.5).union(cyly(*FM, P20, LANE_Y + FW / 2 + 0.05, LANE_Y + FW / 2 + 0.3)), STEEL, "buy")
+yb = LANE_Y + FW / 2 + 0.175
+part(fixed, "feeder_belt_front (3/16 in polycord, jackshaft to the front feeder)", cord(FM, (FEED_X[0], FEED_Z), P20 / 2, P20 / 2, yb), RED, "buy")
+part(fixed, "feeder_belt_rear (3/16 in polycord, crossed: the rear feeder turns the other way)", bar((FEED_X[0], FEED_Z + P20 / 2), (FEED_X[1], FEED_Z - P20 / 2), 3 / 16, yb - 0.09, yb + 0.09).union(bar((FEED_X[0], FEED_Z - P20 / 2), (FEED_X[1], FEED_Z + P20 / 2), 3 / 16, yb - 0.09, yb + 0.09)), RED, "buy")
+part(fixed, "feeder_motor (goBILDA 5203-2402-0003, 1620 RPM; along X under the left flywheel motor)",
+     cq.Workplane("YZ").center(FM_Y, FM[1]).circle(MOTOR_D / 2).extrude(MOTOR_L).translate((FM[0] - 0.45 - MOTOR_L, 0, 0)), BLACK, "buy")
+part(fixed, "feeder_miter_gears (1:1 pair, 8mm REX bore, to choose)", cq.Workplane("YZ").center(FM_Y, FM[1]).circle(0.4).extrude(0.3).translate((FM[0] - 0.45, 0, 0)), (0.7, 0.6, 0.3), "buy")
 
 # ---- into the robot CAD's millimetres: (x, y, z)_CAD = (C + Y, F + Z, FACE - 7.56 in + X), all times 25.4 ----
 MAT = cq.Matrix([[0, IN, 0, C], [0, 0, IN, F], [IN, 0, 0, FACE - CENTRE_BACK_IN * IN]])
 def to_cad(wp):
     shp = wp.val() if len(wp.vals()) == 1 else cq.Compound.makeCompound(wp.vals())
     return shp.transformGeometry(MAT)
-GROUPS = (("transfer, fixed", "fixed", fixed), ("lane drive on the roller shaft (floats with the roller)", "float", flt),
-          ("J-wheel and arms (lift up to 1.2 in about the pivot)", "arm", arm))
+GROUPS = (("transfer, fixed", "fixed", fixed),)
 if __name__ == "__main__":
     out = os.path.dirname(os.path.abspath(__file__)); os.makedirs(out + "/stl", exist_ok=True)
     assy = cq.Assembly(name="DHS transfer"); mesh = {}

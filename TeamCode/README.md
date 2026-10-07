@@ -1384,7 +1384,7 @@ hold the numbers they were built with, not live ones.
 
 **On Windows, all of the above in one go:** `tools/advantagescope/setup-advantagescope.ps1` builds the
 HIVE assets and the generated robots, installs the CAD robot, replaces any older BIOBUZZ assets in `userAssets`, and puts the layout in
-Downloads (the root README's *How to watch them* has the PowerShell to paste).
+Downloads (the root README's *Watch a match* has the PowerShell to paste).
 
 **Side walls.** The same build also writes `Robot_BIOBUZZWalls` (**BIOBUZZ Robot (side walls)**):
 an 18 in square robot whose side walls slide forward 6 in, making it 24 in long (R105 allows

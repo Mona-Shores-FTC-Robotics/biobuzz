@@ -16,8 +16,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 19,
-        "y": 100
+        "x": 18,
+        "y": 112
       },
       "controlPoints": [],
       "heading": {
@@ -158,8 +158,8 @@
         270
       ],
       "PARK_P": [
-        19,
-        100,
+        18,
+        112,
         270
       ]
     },

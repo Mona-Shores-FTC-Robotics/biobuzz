@@ -10,7 +10,7 @@ grabbed pieces up to 3 in out), before 5 Oct 2026, and have not been re-run sinc
 - their numbers and their simulated logs are from those older runs.
 
 They are kept, unchanged, for their ideas. The current Autos are in
-[the root README](../../README.md#qualifier-autos-the-baseline-no-walls). To bring one back: re-run
+[the root README](../../README.md#latest). To bring one back: re-run
 its script on the current robot (`BIOBUZZ_AUTO_DESIGNS="builders' option 3 (5 Oct CAD)"`), check
 G409, and move it to the root README with the date it was run.
 

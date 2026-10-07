@@ -27,10 +27,45 @@ def shoots_right(name):
         qual_right.third_load = third
 
 
+# The wall partner parks at y 103-121 (qual_right.wall_partner): the row sweep runs with its west edge east of the
+# partner's x 28, the row 6.5 in left of the centre line (guide_routes.ROW_X_OFFSET; mentor, 7 Oct 2026: both robots
+# always PARK).
+ROW_X_OFFSET_V = 5.5
+WALL_KW = {"garden": "none"}  # PARK after TIP 2's spill, no GARDEN load (tail's garden="none")  # west edge 27.5 (the partner at x 18 ends at 27); the V tips at x 44 clear the far FLOWER (45.0)
+
+
+# The fallback (the row fails to TIP 2, the far FLOWER does, about 1 run in 10): from N_FIRE one path to PARK, straight
+# down the tunnel at x 57.5 with the heading held until it is south of the HIVE's feet (y 51-90), then round to PARK.
+# As a tunnel run plus a park card, the guard cut the run between the feet and the park path's lead-in turned the robot
+# there (clips in 23 of 60); from the north no path fits between the parked partner and the west foot (7 Oct 2026).
+FALLBACK_PARK_CTRL = [(57.5, -5), (57.5, -10)]  # both under x 57.5: with (30, 10) the curve bent west inside the feet (the V tips at x 47, clips in 4 of 10)
+
+
+def sweep_east_of_partner(build, name):
+    import shape_matrix
+    guide_routes.ROW_X_OFFSET[0] = ROW_X_OFFSET_V
+    wall = shape_matrix.STAGES["wall"]
+    shape_matrix.STAGES["wall"] = (wall[0], wall[1], {**wall[2], **WALL_KW})
+    tail = qual_right.tail
+
+    def park_down_the_tunnel(r, tag="", **kw):
+        if tag == " (B)":
+            return [r.wait("It lands (B)", when=["IntakeFull"], ms=1300),
+                    r.go("PARK", ctrl=FALLBACK_PARK_CTRL, turn_after=0.45, turn_by=0.9, park=True)]
+        return tail(r, tag=tag, **kw)
+    qual_right.tail = park_down_the_tunnel
+    try:
+        return build(name)
+    finally:
+        guide_routes.ROW_X_OFFSET[0] = 0.0
+        shape_matrix.STAGES["wall"] = wall
+        qual_right.tail = tail
+
+
 BASELINES = {
     "qual-right-v": shoots_right,
     "qual-stages-angled-v": guide_routes.turning_west(lambda n: shape_matrix.stages_for("rigid-v", "angled", n)),
-    "qual-stages-wall-v": guide_routes.turning_west(lambda n: guide_routes.rigid_v_wall("rigid-v", n, 90, sweep=True)),
+    "qual-stages-wall-v": guide_routes.turning_west(lambda n: sweep_east_of_partner(lambda m: guide_routes.rigid_v_wall("rigid-v", m, 90, sweep=True), n)),
 }
 PARTNER = {"qual-right-v": "PartnerPreloadsRightAuto", "qual-stages-angled-v": "PartnerAngledParkAuto",
            "qual-stages-wall-v": "PartnerStage19SideParkAuto"}
