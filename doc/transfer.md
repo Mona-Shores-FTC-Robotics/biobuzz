@@ -379,9 +379,12 @@ two dual blocks removed; the front U-beams 0.25 in further apart). His agreement
 flywheel nip (3.19 in) still doesn't touch a POLLEN: his `FeederConcept` has one flywheel on a sprung swing arm; the
 turret launcher needs the same.
 
-**For the simulator:** capacity 4 by count (not 5); hand-off from the cup at X −2.845 up into the nip; the feed
-takes one spin-up of the feeders per ball, so the 0.25 s interval is the feeders' spin-up plus the next ball's
-roll into the cup; measure both on the prototype.
+**For the simulator (7 Oct, body designs chat):** the capacity rule is in `FieldSim.hasRoom` (opt-in through
+`laneCapacity`; whether the baseline adopts it is with the mentor): a piece is held if the queue's diameters minus the
+last piece's radius come to 12.43 in or less. The simulator's shot interval is now **0.2 s**, from the mentor's issue
+#168 (the event's best robot measured 0.14–0.25 s a shot), not the 0.45 placeholder or this doc's 0.25; the transfer's
+measured cycle (feeder spin-up plus the next ball's advance) replaces it when it exists. The hand-off and held-piece
+positions went to the AdvantageScope chat, which owns that drawing.
 
 ## Decision, 7 Oct 2026 (final): the mentor's transfer, balls on a wheel bed under a sprung ceiling
 
