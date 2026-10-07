@@ -1601,15 +1601,29 @@ public final class AutoSim {
                 // started collecting with: the Auto's next path starts from that heading.
                 double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
                 for (double g = 0; g <= 1.0001; g += 0.25) {
-                    for (double[] c : edges(new double[] {mid[0], mid[1], end[2] + back * g}, span(design) + 5)) {
+                    double[] turned = {mid[0], mid[1], end[2] + back * g};
+                    for (double[] c : edges(turned, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
                     }
+                    // Its V tips swing as it turns: over the centre line or into a wall (a piece by the centre line,
+                    // collected facing east, then the turn north for PARK put the tips across).
+                    if (outOfBounds(turned, wall)) return true;
                 }
-                for (double[] c : corners(mid, design)) {
-                    // G402: no part of the robot past the centre line (a spill scatters right up to it).
-                    if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
-                    if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
-                }
+                if (outOfBounds(mid, wall)) return true;
+            }
+            return false;
+        }
+
+        /**
+         * Whether the robot at {@code pose} reaches over the centre line (G402; a spill scatters right up to it, and
+         * 1 in short of it because the robot drifts as it arrives) or within {@code wall} of a wall. The whole
+         * outline, V tips and flaps included, as the problem checks judge it: the frame's corners alone let it chase a
+         * piece by the centre line or the south wall with its tips over.
+         */
+        private boolean outOfBounds(double[] pose, double wall) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN + 1 : c[0] > FieldSim.CENTRE_IN - 1) return true;
+                if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
             return false;
         }

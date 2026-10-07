@@ -446,6 +446,17 @@ chat's figures). One fix on the way: when the partner missed TIP 1 (1 run in 60)
 because LaunchOne waits until it has fired and the CELL up before TIP 1 is out of the seat's range. The preloads are
 now fired from the seat only once the left CELL is up; without TIP 1 in 5 s the robot takes them to N_FIRE.
 
+**Mentor review of the hold route (7 Oct 2026): PARK deeper, and use the time after TIP 3.**
+`qual-right-v-flower-first-tip3` with `partner-preloads-right-high` (stream.py): after the GARDEN's shots, wait for TIP 3
+(about 21.7 s), turn west at S_COLLECT (50, 24), let the spill land, take what the webcam sees of it (up to 3 s or 4
+held), then up the west side (x 24) into PARK at (10.5, 95), the robot's frame about 8 in inside the zone; the partner
+parks at the zone's far end (10.5, 116), 1.6 in clear. 60 runs, "rigid V": **74.0 · 3 TIPs in 56 · both PARK 60 ·
+1.65 held into TELEOP · no problem runs** (the hold route: the same 74.0, 0 held). Two fixes to CollectSeen on the way
+(AutoSim.approachHitsFrame): it judges walls and the centre line by the whole outline (V tips and flaps), not the
+frame's corners, and also through the turn back to its starting heading; a piece by the centre line, collected facing
+east, then the turn north for PARK swung the tips across. Still to try (mentor): carry TIP 3's spill under the HIVE and
+fire it before PARK; or PARK straight away, deep, and fire from the LOADING ZONE.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
