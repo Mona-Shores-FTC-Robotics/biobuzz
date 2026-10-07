@@ -57,10 +57,14 @@ public final class QualRightVSeatfireWestAuto {
         Pose nFireToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
         Pose nFireToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose nFireToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
-        Pose farFlowerToWestViaSegment1Start = p.of(35, 96, 90);
+        Pose farFlowerToWestViaControl1 = p.of(47.36, 116.64, 0);
+        Pose farFlowerToWestViaSegment1Heading = p.of(35, 96, 90);
+        Pose farFlowerToWestViaSegment2Start = p.of(35, 96, 90);
         Pose westViaToWallFlowerTurnControl1 = p.of(29, 62, 0);
-        Pose wallFlowerToGardenControl1 = p.of(14.86, 28, 0);
-        Pose wallFlowerToGardenSegment1Start = p.of(8.5, 9.56, 180);
+        Pose wallFlowerToGardenControl1 = p.of(24.86, 47.36, 0);
+        Pose wallFlowerToGardenControl2 = p.of(14.86, 28, 0);
+        Pose wallFlowerToGardenSegment1Heading = p.of(8.5, 9.56, 180);
+        Pose wallFlowerToGardenSegment2Start = p.of(8.5, 9.56, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
@@ -70,10 +74,10 @@ public final class QualRightVSeatfireWestAuto {
         Path startToNFire = Paths.line(start, nFire).constant(nFire);
         Path nFireToFarFlowerTurn = Paths.curve(nFire, nFireToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nFireToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nFireToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToWestVia = Paths.line(farFlower, westVia).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(farFlowerToWestViaSegment1Start, westVia)).until(1, Interpolator.constant(westVia)));
+        Path farFlowerToWestVia = Paths.curve(farFlower, farFlowerToWestViaControl1, westVia).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToWestViaSegment1Heading)).until(0.8, Interpolator.linear(farFlowerToWestViaSegment2Start, westVia)).until(1, Interpolator.constant(westVia)));
         Path westViaToWallFlowerTurn = Paths.curve(westVia, westViaToWallFlowerTurnControl1, wallFlowerTurn).constant(wallFlowerTurn);
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
-        Path wallFlowerToGarden = Paths.curve(wallFlower, wallFlowerToGardenControl1, garden).heading(Interpolator.piecewise().until(0.7, Interpolator.linear(wallFlowerToGardenSegment1Start, garden)).until(1, Interpolator.constant(garden)));
+        Path wallFlowerToGarden = Paths.curve(wallFlower, wallFlowerToGardenControl1, wallFlowerToGardenControl2, garden).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToGardenSegment1Heading)).until(0.7, Interpolator.linear(wallFlowerToGardenSegment2Start, garden)).until(1, Interpolator.constant(garden)));
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
 

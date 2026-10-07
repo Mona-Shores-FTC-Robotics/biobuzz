@@ -41,7 +41,7 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 
 | Baseline | Route | Points | 3 TIPs (of 60) | Notes |
 |---|---|---|---|---|
-| `qual-right-v` | `qual-right-o3-rigid-v-park` | **69.8** | **44** | PARK 58, G409 12 runs, no problems. Turret, 0.5 s transfer feed, the extractor seated (the face 4.59 in from the FLOWER), 7 Oct 01:00 UTC; 72.2 / 51 with a fixed launcher and no feed delay. Firing from the seats (`qual-right-v-seatfire-west`): 73.0, TIP 3 in 53 |
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **70.2** | **45** | PARK 58, G409 8 runs, no problems. Turret, 0.35 s transfer feed, the extractor seated (the face 4.59 in from the FLOWER) and every FLOWER left straight back, 7 Oct 02:10 UTC; 72.2 / 51 with a fixed launcher and no feed delay. Firing from the seats (`qual-right-v-seatfire-west`): 72.3, TIP 3 in 51 |
 | `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
 | `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
 
