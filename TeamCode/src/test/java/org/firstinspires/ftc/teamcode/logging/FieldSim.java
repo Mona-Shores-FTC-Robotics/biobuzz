@@ -160,11 +160,6 @@ final class FieldSim {
     }
     static double spreadScale = 1;
     /**
-     * A launched piece's backspin (rad/s, negative for backspin as it has always been written), about the horizontal
-     * normal to its line of flight. BIOBUZZ_AUTO_SPIN overrides it (DeepDive).
-     */
-    static double launchSpin = -12;
-    /**
      * How untidy spills are (mentor review: pieces ended up lined against the wall). 1 = the
      * placeholders below, 0 = none. Each piece rolls with its own resistance, the tiles are slightly
      * uneven, and a piece leaving a CELL gets a small random kick and spin. Drawn from its own
@@ -984,10 +979,10 @@ final class FieldSim {
         p.vy = vy;
         p.vz = vz;
         // Backspin about the horizontal normal to the line of flight (until 7 Oct 2026 it was wy = -12 in the field
-        // frame, which is backspin only for a shot along +x; the body-designs chat's catch), as fast as launchSpin.
-        double horizontal = Math.hypot(vx, vy), backspin = -launchSpin;
-        p.wx = horizontal > 1e-9 ? backspin * vy / horizontal : 0;
-        p.wy = horizontal > 1e-9 ? -backspin * vx / horizontal : 0;
+        // frame, which is backspin only for a shot along +x; the body-designs chat's catch).
+        double horizontal = Math.hypot(vx, vy);
+        p.wx = horizontal > 1e-9 ? LAUNCH_BACKSPIN_RAD_PER_S * vy / horizontal : 0;
+        p.wy = horizontal > 1e-9 ? -LAUNCH_BACKSPIN_RAD_PER_S * vx / horizontal : 0;
         p.wz = 0;
         p.launchedBy = bot;
         p.shotBy = bot;

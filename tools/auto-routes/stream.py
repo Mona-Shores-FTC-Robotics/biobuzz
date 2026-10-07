@@ -19,23 +19,24 @@ import retime
 _flower, _fire = qual_right.flower, qual_right.fire
 # The FLOWER seat (CAD chat, 7 Oct 2026, c04f0cb on claude/robotics-meeting-notes-lq2y55): the FLOWER's centre 4.59 in
 # ahead of the robot's face, where the extractor's block stalls on the FLOWER's uprights. helpers.FLOWER_PICKUP_IN
-# (11.2 from an 18 in robot's centre) puts the face 2.2 in from it; the routes here move their FLOWER points out by the
-# difference, so the face stops at 4.59 on any body (qual_right.fit keeps the face where helpers puts it).
+# puts an 18 in robot's face 2.2 in from it; qual_right.fit moves the FLOWER points so the face stops at
+# baselines_v.FLOWER_FACE_V, which seated() sets to 4.59.
 SEAT_FACE_IN = 4.59
 
 
 class seated:
-    """Within it, helpers' FLOWER points put the face SEAT_FACE_IN from the FLOWER's centre."""
+    """Within it, the V's FLOWER points put the face SEAT_FACE_IN from the FLOWER's centre (baselines_v.FLOWER_FACE_V,
+    which qual_right.fit applies; shifting helpers' points as well would move the robot out twice)."""
 
     def __enter__(self):
-        self.saved = helpers.FLOWER_PICKUP_IN, helpers.FLOWER_APPROACH_IN
-        d = SEAT_FACE_IN - (helpers.FLOWER_PICKUP_IN - 9)
-        helpers.FLOWER_PICKUP_IN += d
-        helpers.FLOWER_APPROACH_IN += d
+        self.saved = baselines_v.FLOWER_FACE_V
+        baselines_v.FLOWER_FACE_V = SEAT_FACE_IN
         return self
 
     def __exit__(self, *a):
-        helpers.FLOWER_PICKUP_IN, helpers.FLOWER_APPROACH_IN = self.saved
+        baselines_v.FLOWER_FACE_V = self.saved
+
+
 SEAT_MS = 400  # the robot settles into the FLOWER after the path ends; the intake pulls meanwhile
 STREAM_MS = [4500]  # at most this long at the FLOWER, or until the TIP (set per route)
 
@@ -125,7 +126,7 @@ def build_flower_first(name, wait=200, leave_ms=2600):
         qual_right.right = _right
 
 
-FLOWER_FIRST = {f"qual-right-v-flower-first-l{ms}": ms for ms in (1800, 2000, 2200, 2600)}
+FLOWER_FIRST = {f"qual-right-v-flower-first-l{ms}": ms for ms in (1800, 2000, 2200, 2600, 3000, 3400)}
 
 if __name__ == "__main__":
     for name, ms in FLOWER_FIRST.items():

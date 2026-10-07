@@ -161,8 +161,6 @@ final class DeepDive {
         // As AutoStudyTest: BIOBUZZ_AUTO_SPREAD scales the launcher's shot-to-shot spread (1 = the placeholder, 0 = none).
         String spread = System.getenv("BIOBUZZ_AUTO_SPREAD");
         FieldSim.spreadScale = spread == null ? 1 : Double.parseDouble(spread);
-        String spin = System.getenv("BIOBUZZ_AUTO_SPIN");
-        if (spin != null) FieldSim.launchSpin = Double.parseDouble(spin);
         List<Double> frictions = new ArrayList<>();
         for (String f : args[0].split(",")) frictions.add(Double.parseDouble(f));
         for (int i = 1; i < args.length; i++) {
