@@ -257,6 +257,35 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
+## Transfer v2, drawn (CAD chat, 7 Oct 2026, commit 12d34bb on `claude/robotics-meeting-notes-lq2y55`)
+
+The mentor's layout, from his `FeederConcept.step` and screenshots, fitted to his 7 Oct `Robot.step`. Balls never
+touch the field: the roller pushes each up the ramp onto a lip; two driven wheel shafts (32 mm compliant at X 3.74,
+48 mm Gecko at X 2.03, two wheels each, one Yellow Jacket through miter gears) carry it down a 17° line; a
+foam-lined sprung ceiling presses it onto the wheels; it rolls over the stopped front feeder into a **cup** between
+two 66.7 mm foam feeder wheels (X −0.545 and −5.145, z 1.56) centred under the flywheels (X −2.845). Both feeders
+spin up to pop the lead ball into the nip; the front feeder's top moves forward meanwhile and holds the next ball
+back; stop them and the next ball rolls into the cup. One feed, one ball. One motor drives both feeders (polycord,
+crossed to the rear) so they match speed. Swept clear of the robot and the front with both ball sizes.
+
+**Checked against the physics (7 Oct):**
+
+| | Finding | Fix |
+|---|---|---|
+| **Count** | With the lead ball at X −2.845, the 5th POLLEN's centre lands at 8.35 and the 4th NECTAR's at 8.01, both inside the roller's grip (8.56): **the lane holds 5 POLLEN or 4 NECTAR.** For 4/3 by geometry the lead ball would have to sit between X −2.30 and +0.16, and the cup can't move (it's under the nip). *My earlier window of −2.6 to −5.4 counted one ball too many.* | **G407 by count:** a break-beam across the lane at the lip (X 5.8); the code counts balls in and stops the intake at 4. It also gives "full" and "empty". The one sensor on the robot. The driver can count instead, but the beam is cheap |
+| **Ceiling squeeze** | "POLLEN squeezed 0.2" must be the foam compressing, not the ball (0.2 in of ball squeeze is about 30 lbf) | Foam ≥ 0.5 in, soft (PE or EVA, 2–3 lb/ft³); band preload 1–2 lbf, rate about 2 lbf/in |
+| **Ceiling hinge** | Hinged at X 5.6, it can't lift at the lip, so a NECTAR entering there jams, and a NECTAR at the first wheel needs a 2 in swing at the band | A parallel-link ceiling (lifts evenly everywhere), or the hinge forward over the roller with the rest gap tapering from ≥ 3.7 at the lip to 2.6 over the wheels |
+| Stands | The ramp and lip, the lane wheels and drive, the walls at \|Y\| 1.87, the cup at the nip, the feeder drive and sequence, the 11.4 in lane | |
+
+**For the mentor:** v2 changes his frame (the 11-hole channel up 21 mm; the launcher's front 10-hole cross-channel and
+two dual blocks removed; the front U-beams 0.25 in further apart). His agreement before anything is cut. And the
+flywheel nip (3.19 in) still doesn't touch a POLLEN: his `FeederConcept` has one flywheel on a sprung swing arm; the
+turret launcher needs the same.
+
+**For the simulator:** capacity 4 by count (not 5); hand-off from the cup at X −2.845 up into the nip; the feed
+takes one spin-up of the feeders per ball, so the 0.25 s interval is the feeders' spin-up plus the next ball's
+roll into the cup; measure both on the prototype.
+
 ## Decision, 7 Oct 2026 (final): the mentor's transfer, balls on a wheel bed under a sprung ceiling
 
 **From the user, who knows the mentor's intent:** the balls **ride on top of the transfer wheels**, and a **sprung
