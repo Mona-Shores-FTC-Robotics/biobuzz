@@ -87,7 +87,7 @@ public final class QualRightVFlowerFirstHoldAuto {
                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                         kit.firstOf("TIP 1 (the partner), seated at the FLOWER",
                                 kit.when("LeftCellUp"),
-                                kit.afterMs(9000)),
+                                kit.afterMs(5000)),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),
                         kit.command("LaunchOne"),

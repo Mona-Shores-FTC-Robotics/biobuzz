@@ -634,7 +634,7 @@
             "cards": []
           },
           {
-            "afterMs": 9000,
+            "afterMs": 5000,
             "cards": []
           }
         ]
