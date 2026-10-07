@@ -261,7 +261,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 and 22b8aaa on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130, 22b8aaa and ac817a6 on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -273,11 +273,25 @@ flick it but not drive it. v3 pinches and drives. Robot frame, inches:
   (X −3.79..−1.90), tops 0.15 under the flywheels. One 1150 rpm Yellow Jacket per feeder, direct on the shaft,
   face-mounted on the launcher's front channel. A ball is gripped from entry up to centre z 3.96 (POLLEN) / 4.95
   (NECTAR); the flywheels take a NECTAR from 5.77.
-- **Holding and feeding:** a backstop at X −4.675 stops the lead ball on the column (X −2.845); the **stopped
+- **Holding and feeding:** a backstop stops the lead ball on the launch column (X −2.045 since ac817a6); the **stopped
   feeders hold it there**, out of the flywheels' reach, with the next ball nose to tail behind it. Feeding runs both
   feeders. Swept clear for both sizes along the lane and up the column.
-- **Count:** 5 POLLEN / 4 NECTAR fit physically; the IR break-beam at (5.45, 2.3) counts balls in and the code stops
-  the intake at 4.
+- **Count: by geometry, no sensor** (commit ac817a6; the user rejected the break-beam). The rule: at most 4 pieces
+  and at most 3 NECTAR, any mix, kept by the lane's length alone. Balls queue nose to tail from the backstop to the
+  intake roller's axle (X 8.56), and a ball is held once its centre is behind the axle. The longest legal load,
+  3 NECTAR + 1 POLLEN with the POLLEN last, needs 12.26 in from backstop to axle; the shortest illegal ones need
+  12.60 (5 POLLEN) and 12.67 (4 NECTAR). So **the backstop sits 12.43 in behind the axle, at X −3.87, on ±0.2 in
+  slots** for tuning on the robot. The margins are 0.17 in each way, and ball size varies about ±1.5%, so the
+  slots are not optional: set them with the team's own balls. **To get that length the mentor's launcher and turret
+  move forward 0.8 in: the launch column is now at X −2.045.** The moved launcher touches nothing.
+- **Feeder drive:** the feeder motors sit outboard (Y ±6.7, z 5.3, under the flywheel motors), belted to a jackshaft
+  on each arm's pivot, with a 20T–20T mod-0.8 gear pair down to the feeder; the arms are 16 mm, so the belt's length
+  never changes on the swing.
+- **Lane (ac817a6):** the mentor's offset wheels, scaled to the lane's height: eight shafts 0.8 in apart, each with
+  1 in of 24 mm compliant wheels to one side, alternating; printed hub pulleys and one belt. Flat at z 1.3 under
+  the sprung ceiling.
+- The mentor's right flywheel already has a pivot shaft under it (about Y −3.2, z 4.8), likely the start of his
+  sprung flywheel arm; kept and clear.
 
 **The physics' one change (sent 7 Oct): the sprung feeder is the design, not the fallback.** With both feeder
 shafts fixed, a NECTAR must deflect the two wheels 0.51 in each to enter while they're stopped, and it must enter
@@ -295,7 +309,8 @@ flywheels. Clear at rest and swung out, both sizes, along the lane and up the co
 and the old motor module's dual blocks are also removed (they tied the removed cross-channel, or sat in the arms'
 way).
 
-**Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the flywheel
+**Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
+turret move forward 0.8 in (for the count by geometry); the flywheel
 motors move out and up (Y ±6.7, z 7.0, belted to his 41T pulleys); the motor plates, blocks and standoffs under the
 flywheels are removed; the front channels become 5-hole; the front cross-channel goes and the front U-beams spread
 0.25 in; the old intake's 11-hole channel goes up 30 mm. That is a rework of his launcher, not a tweak. And the
@@ -622,7 +637,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 22b8aaa** (pinch-and-drive feeders, both sprung; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit ac817a6** (pinch-and-drive feeders, both sprung, count by geometry; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
