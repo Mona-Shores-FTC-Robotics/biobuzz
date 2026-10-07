@@ -42,8 +42,9 @@ A Pose3d[] of the `Robot_BIOBUZZ` model's components, in the order agreed with t
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
 
-`Robot_BIOBUZZ` has all four (the CAD chat's commit c04f0cb). Component 2 is only the turret's bearing for now: the
-launcher is drawn once it has an outline, on the same axis.
+`Robot_BIOBUZZ` has all four (the CAD chat's commit a096022). Component 2 is the designer's Launcher Concept, goBILDA's
+turret with two 96 mm flywheel pairs under it, on the turret's axis. Until the transfer chat redraws the J and chute to
+feed those flywheels, a climbing piece is drawn passing through them.
 
 ### Readouts: `<robot>/Internals/*`
 

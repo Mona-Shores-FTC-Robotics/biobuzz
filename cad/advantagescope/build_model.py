@@ -7,7 +7,7 @@ origin on the floor under the point Pedro tracks (here: the chassis frame's cent
 
 ROBOT_MESH_PKL is tools/robot-cad/slim.py's keep.pkl (the team's robot STEP, 143 MB, in Drive). ADDON_MESH_PKL is
 cad/intake-b/build.py's MESH_OUT; TRANSFER_MESH_PKL (optional, 4th) is cad/transfer/build.py's. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the roller,
-its motor and carriage, drawn down (it floats straight up to 1.3 in); model_2 is the turret, facing forward; model_3 is the
+its motor and carriage, drawn down (it floats straight up to 1.3 in); model_2 is the turret with its launcher (the designer's Launcher Concept), facing forward; model_3 is the
 transfer's J-wheel on its arms, at rest.
 """
 import json, math, os, pickle, re, sys
@@ -61,7 +61,7 @@ def as_in_to_cad(p):
     p = np.asarray(p, float)
     return np.c_[C + p[:, 1] * IN, F + p[:, 2] * IN, FACE - CENTRE_BACK_IN * IN + p[:, 0] * IN]
 
-def limelight():
+def limelight(mount_only=False):
     """The Limelight 3A where config.json's camera is (lens 4.0 in ahead, 14.0 in up, pitched 45 deg up), on a stand-in
     mount: a 16 mm beam between the two front towers' tops and a plate with a 45 deg printed wedge under the camera.
     The body is about 3.5 x 2.4 x 0.95 in; the mount is drawn only to show where it goes, below the camera's view."""
@@ -76,8 +76,13 @@ def limelight():
     wedge = np.array([e + np.array([0, sy * 1.2, 0]) for e in edge for sy in (-1, 1)] +
                      [np.array([x, sy * 1.2, 12.25]) for x in (min(e[0] for e in edge), 5.4) for sy in (-1, 1)])
     def boxpts(lo, hi): return np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
+    if mount_only:                                   # the real camera is drawn from Limelight's STEP: sit the wedge under its bottom face
+        back, low = 16.9 / IN, 19.1 / IN             # lens to its back face and to its bottom face
+        edge = [lens - u * low - n * back, lens - u * low]
+        wedge = np.array([e + np.array([0, sy * 1.2, 0]) for e in edge for sy in (-1, 1)] +
+                         [np.array([x, sy * 1.2, 12.25]) for x in (min(e[0] for e in edge), 5.4) for sy in (-1, 1)])
     out = []
-    for pts, rgb in ((body, (0.13, 0.14, 0.16)), (glass, (0.05, 0.05, 0.06)), (wedge, (0.18, 0.37, 0.62)),
+    for pts, rgb in (() if mount_only else ((body, (0.13, 0.14, 0.16)), (glass, (0.05, 0.05, 0.06)))) + ((wedge, (0.18, 0.37, 0.62)),
                      (boxpts([4.2, -1.2, 12.13], [6.9, 1.2, 12.25]), (0.18, 0.37, 0.62)), (boxpts([6.3, -4.85, 11.5], [6.9, 4.85, 12.13]), (0.67, 0.7, 0.74))):
         h = trimesh.convex.convex_hull(pts)
         out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
@@ -137,23 +142,27 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
         if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
         if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
         lift = [0, 8.0, 0] if "Intake <1> / 11 Hole Lowside" in path else [0, 0, 0]   # raised 8 mm for the transfer's lane (doc/transfer.md)
-        if path.startswith("Launcher Concept"): continue   # dropped (the mentor, 6 Oct): the turret's launcher replaces it
-        base.append(mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08))
+        m = mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08)
+        # the designer's Launcher Concept: the goBILDA turret with the two flywheel pairs hung under it, all drawn as
+        # turning with the turret (which of its frame parts stay on the chassis is the designer's to say)
+        (turret if path.startswith("Launcher Concept") else base).append(m)
     for n, m in add.items():
         if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
             base.append(mesh(m["v"], m["f"], m["col"], 0.6 if "polycarbonate" in n else 1.0))
-    if pod_pkl:
+    vendor = pickle.load(open(os.environ["VENDOR_PKL"], "rb")) if os.environ.get("VENDOR_PKL") else {}
+    if vendor:                                        # goBILDA's pods and Limelight's 3A, part by part (cad/full-robot/real_parts.py)
+        base += [mesh(m["v"], m["f"], m["col"], decimate=0.03) for m in vendor.values()]
+    elif pod_pkl:
         for n, m in pickle.load(open(pod_pkl, "rb")).items():
             if m["grp"] == "pod": base.append(mesh(m["v"], m["f"], m["col"], decimate=0.05))
     else:
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
-    base += limelight()
+    base += limelight(mount_only=any(m["kind"] == "camera" for m in vendor.values()))
     tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
     if tr is None: base += transfer()                 # placeholder solids until cad/transfer/ exists
     else:
-        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "fixed" and not n.startswith("turret_bearing")]
-        turret += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if n.startswith("turret_bearing")]
+        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "fixed" and not n.startswith("turret_")]   # its turret references: the real turret is above
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "float"]
     if tr: flt += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] == "float"]
@@ -185,7 +194,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     json.dump({"component": "model_0: FLOWER extractor", "pivot_m": [round(x, 5) for x in pivot], "axis": "+Y",
                "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 146 deg stowed",
                "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
-               "model_2": "the turret (for now only its bearing; the launcher is to come): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
+               "model_2": "the turret and the launcher under it (the designer's Launcher Concept, all drawn as turning with the turret): rotation about +Z by the yaw about (-0.080518, 0) m (X -3.17 in); positive yaw turns left; 0 = facing forward, as drawn",
                "model_3": "the transfer's J-wheel and arms: rotation about +Y by +angle about (0.018288, 0, 0.085344) m (the arm's pivot, X 0.72 in, Z 3.36 in); 0 at rest on its stops (the arm 30 deg above horizontal toward the rear); 36.8 deg is full float, the axle 0.99 in up (a NECTAR at the mouth lifts it about 0.92 in, about 33 deg; a POLLEN barely)"},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
     for fn in ("model.glb", "model_0.glb", "model_1.glb", "model_2.glb") + (("model_3.glb",) if jarm else ()):
