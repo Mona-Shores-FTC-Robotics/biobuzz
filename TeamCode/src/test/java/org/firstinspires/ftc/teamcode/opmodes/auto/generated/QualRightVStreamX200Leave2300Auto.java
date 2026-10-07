@@ -56,6 +56,7 @@ public final class QualRightVStreamX200Leave2300Auto {
         Pose nFireToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
         Pose nFireToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose nFireToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
+        Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
@@ -73,7 +74,7 @@ public final class QualRightVStreamX200Leave2300Auto {
         Path startToNFire = Paths.line(start, nFire).constant(nFire);
         Path nFireToFarFlowerTurn = Paths.curve(nFire, nFireToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nFireToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nFireToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
-        Path farFlowerToNFire = Paths.line(farFlower, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
         Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
         Path sFireToSweepE = Paths.line(sFire, sweepE).linear(sFire, sweepE);
         Path sweepEToSweepW = Paths.line(sweepE, sweepW).constant(sweepW);

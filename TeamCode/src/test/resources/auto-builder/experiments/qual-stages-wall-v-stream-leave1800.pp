@@ -341,7 +341,12 @@
         "x": 57.5,
         "y": 119
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 47.36,
+          "y": 116.64
+        }
+      ],
       "heading": {
         "type": "piecewise",
         "piecewiseHeading": {
