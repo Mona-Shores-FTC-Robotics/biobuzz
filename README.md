@@ -90,6 +90,12 @@ How the routes were tuned: [the qualifier Autos](tools/auto-routes/README.md#the
 Each study's full write-up is linked; these are the conclusions, with the date they were run. All of it is
 the simulator, nothing measured on a robot: [what the simulator knows, and what it guesses](doc/what-the-simulator-knows.md).
 
+**Checked against the first real event** (Saline Preview, 3 Oct 2026; reviewed 7 Oct). A good AUTO there was one
+TIP and parking, 28–36 for the alliance; the best was 40; the simulator's baselines say 51–92 because their
+partner TIPs and their shots never bounce back out. The calibration held: a fresh CELL tipped on the third
+POLLEN. [What Saline says about the simulator](doc/saline-preview-day2.md), with where to frame-step the stream
+for the HIVE's swing time.
+
 **Names** (6 Oct 2026). A **spill guide** is a shape on the robot that keeps landed pieces from scattering and
 steers them to the intake; it must not touch a falling one (G409), so it is lined up outside the **Drop Zone**,
 where a spill's pieces first touch down (the **90% Drop Zone** holds 9 in 10 first touches; the **full Drop Zone**
