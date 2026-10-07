@@ -75,23 +75,24 @@ final class FieldSim {
     static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
     static final int ROBOT_CAPACITY = 4;
-    /** The transfer's lane (RobotDesign#laneCapacity): the first piece's centre, POLLEN and NECTAR, and the farthest forward a centre may be. */
-    static final double LANE_FIRST_POLLEN_X = -0.64, LANE_FIRST_NECTAR_X = 0.73, LANE_LAST_X = 8.56;
+    /**
+     * The transfer's lane (RobotDesign#laneCapacity; Transfer v3, the transfer chat, 7 Oct 2026): pieces queue nose to
+     * tail from a backstop to the intake roller's axle, and one is held once its centre is behind the axle. The
+     * backstop is this far behind the axle.
+     */
+    static final double LANE_LENGTH_IN = 12.43;
 
-    /** Whether {@code bot} has room for one more piece of {@code kind}. */
+    /**
+     * Whether {@code bot} has room for one more piece of {@code kind}: at most 4 (G407) and, with the lane, a load fits
+     * if its diameters less the last piece's radius come to at most {@link #LANE_LENGTH_IN} (4 POLLEN, 3 NECTAR, or 3
+     * NECTAR and a POLLEN; not 5 POLLEN or 4 NECTAR).
+     */
     static boolean hasRoom(Bot bot, Kind kind) {
         if (bot.stored.size() >= ROBOT_CAPACITY) return false;
         if (!bot.design.laneCapacity) return true;
-        double x = Double.NaN, d = 0;
-        java.util.List<Kind> kinds = new java.util.ArrayList<>();
-        for (Piece q : bot.stored) kinds.add(q.kind);
-        kinds.add(kind);
-        for (Kind k : kinds) {
-            double dk = 2 * k.radius;
-            x = Double.isNaN(x) ? (k == Kind.POLLEN ? LANE_FIRST_POLLEN_X : LANE_FIRST_NECTAR_X) : x + (d + dk) / 2;
-            d = dk;
-        }
-        return x <= LANE_LAST_X;
+        double length = kind.radius;
+        for (Piece q : bot.stored) length += 2 * q.kind.radius;
+        return length <= LANE_LENGTH_IN;
     }
 
     /** Whether {@code bot} is full: no room even for a POLLEN, the smallest piece. */
