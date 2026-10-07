@@ -261,7 +261,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130, 22b8aaa and ac817a6 on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → 2f78001 on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -308,6 +308,26 @@ a NECTAR swings both out 0.41 (24°, rising 0.09). At rest the axles are at Y ±
 flywheels. Clear at rest and swung out, both sizes, along the lane and up the column. The launcher's front U-beams
 and the old motor module's dual blocks are also removed (they tied the removed cross-channel, or sat in the arms'
 way).
+
+**Redone for build and service, commit 2f78001 (the user's call: "if we can't build it or service it, it won't get
+done"; features can go):**
+- **One driven feeder plus a sprung pad** replaces the two swing-arm feeders. The feeder is two 72 mm Gecko wheels
+  on a fixed shaft along X at Y +2.87, z 3.25, in bearings in the launcher's front and rear channels; its motor sits
+  outboard left (Y 6.7, z 5.3) on one HTD5 belt at fixed centres. Opposite it, a **pad** of 1/8 in aluminium with
+  0.5 in foam, hinged along X at its foot (Y −1.75, z 1.45) and banded onto a slotted stop: a POLLEN presses 0.10
+  into the tread and 0.2 into the foam (centring at Y 0.15); a NECTAR swings the pad back 0.77 (centring at
+  Y −0.21). The light band lets both enter the stopped feeder.
+- **Grip:** the feeder grips a ball up to centre z 3.85 (POLLEN) / 4.08 (NECTAR); the flywheels take a NECTAR
+  from 5.77, so the last 1.7 in is on the ball's own speed. That's fine by the numbers: one driven wheel against a
+  padded wall is the launcher study's hood layout, and the ball leaves it at 0.4–0.45 of the tread speed, 68–77 in/s
+  at 1150 rpm on 72 mm wheels, against the 36 in/s a 1.7 in coast needs. The feature traded is the second driven
+  side's grip, which the numbers say it didn't need.
+- **Ceiling:** on four shoulder-screw pins in vertical slots in printed posts, with bands; lifts evenly 0.82 for a
+  NECTAR and comes off by unhooking the bands.
+- **Lane drive:** a quarter-twist polycord loop from a motor along X to the first lane shaft; no miter gears.
+- Unchanged: the count by length (backstop 12.43 in behind the roller axle on ±0.2 slots), the launcher forward
+  0.8, the offset-wheel lane flat at z 1.3. Clear for both sizes with the pad swung back. `cad/transfer/README.md`
+  has a module table: what comes off with what.
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
@@ -637,7 +657,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit ac817a6** (pinch-and-drive feeders, both sprung, count by geometry; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 2f78001** (one driven feeder and a sprung pad, count by geometry, built for service; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
