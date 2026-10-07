@@ -101,13 +101,26 @@
         "x": 35,
         "y": 96
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 47.36,
+          "y": 116.64
+        }
+      ],
       "heading": {
         "type": "piecewise",
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.3,
               "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
@@ -185,6 +198,10 @@
       },
       "controlPoints": [
         {
+          "x": 24.86,
+          "y": 47.36
+        },
+        {
           "x": 14.86,
           "y": 28
         }
@@ -194,7 +211,15 @@
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 180
+              }
+            },
+            {
+              "startProgress": 0.3,
               "endProgress": 0.7,
               "interpolationType": "linear",
               "parameters": {

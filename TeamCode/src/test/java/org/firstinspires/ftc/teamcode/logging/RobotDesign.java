@@ -89,7 +89,8 @@ final class RobotDesign {
      * no transfer modelled, pieces are launchable at once. A placeholder until the transfer runs.
      */
     double transferFeedS = 0;
-    static final double PLACEHOLDER_TRANSFER_FEED_S = 0.5;
+    /** The transfer's design figure for intake to ready (doc/transfer.md, spike/164-transfer); 0.5 was the first guess. */
+    static final double TRANSFER_FEED_DESIGN_S = 0.35;
     /**
      * Catching (mentor review: it was perfect). A loose piece that reaches the intake is kept with
      * this chance, and not at all if it is moving faster than intakeMaxSpeedInPerS relative to the
