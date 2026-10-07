@@ -1177,7 +1177,7 @@ public final class AutoSim {
         static final double EXTRACTOR_DEPLOY_AHEAD_IN = 18;
         /** How far off the robot's centre line that FLOWER may be. */
         static final double EXTRACTOR_DEPLOY_ASIDE_IN = 6;
-        boolean extractorWanted;
+        boolean extractorWanted, extractorBlocked;
 
         /** How far past the seat a FLOWER may be, and how far aside, for the extractor to count as still on it. */
         static final double EXTRACTOR_SEATED_SLACK_IN = 6;  // the block's tip clear of the FLOWER's footprint before it lifts
@@ -1188,6 +1188,8 @@ public final class AutoSim {
          */
         static final double EXTRACTOR_PATH_END_SHORT_IN = 12;
         static final double EXTRACTOR_PATH_END_PAST_IN = 6;
+        /** A FLOWER nearer the face than the seat plus this is under the block's swing: it cannot come down onto it. */
+        static final double EXTRACTOR_BLOCKED_PAST_IN = 2;
 
         /**
          * The FLOWER extractor (RobotDesign#extractorSeatIn), run by the robot rather than the Auto, like the side
@@ -1202,7 +1204,7 @@ public final class AutoSim {
          * generated Autos do not carry an action for it yet.
          */
         void extractor(WpiLog log, double[] pose, boolean running, long us) throws IOException {
-            boolean flowerAhead = false, seated = false, pathToFlower = false;
+            boolean flowerAhead = false, seated = false, pathToFlower = false, inTheWay = false;
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
             double face = design.frameIn / 2, seat = face + design.extractorSeatIn;
             double[] end = drive.pathEnd();
@@ -1212,21 +1214,30 @@ public final class AutoSim {
                 if (design.intakeAtBack) lx = -lx;
                 if (lx > face && lx < face + EXTRACTOR_DEPLOY_AHEAD_IN && Math.abs(ly) < EXTRACTOR_DEPLOY_ASIDE_IN) flowerAhead = true;
                 if (lx > face - 1 && lx < seat + EXTRACTOR_SEATED_SLACK_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) seated = true;
+                if (lx > face - 1 && lx < seat + EXTRACTOR_BLOCKED_PAST_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) inTheWay = true;
                 if (end != null && !drive.pathDone()) {
                     double beyond = Math.hypot(f[0] - end[0], f[1] - end[1]) - seat;
                     if (beyond > -EXTRACTOR_PATH_END_PAST_IN && beyond < EXTRACTOR_PATH_END_SHORT_IN) pathToFlower = true;
                 }
             }
-            boolean room = body.stored.size() < FieldSim.ROBOT_CAPACITY;
-            boolean want = (body.extractorDown > 0 && seated) || (running && room && (pathToFlower || flowerAhead));
+            // Down on the way in whether or not the robot has room (mentor, 7 Oct 2026: deploy it before you get there,
+            // then drive into it): the FLOWER's pieces stay in it until a shot makes room (FieldSim.hasRoom).
+            boolean want = (body.extractorDown > 0 && seated) || (running && (pathToFlower || flowerAhead));
+            // It cannot swing down onto a FLOWER already at the face: the block lands on it. Down only if it was down
+            // before the robot got there; otherwise it stays where it is and takes nothing (FieldSim.inIntake).
+            boolean blocked = want && inTheWay && body.extractorDown < 1;
+            if (blocked != extractorBlocked) {
+                extractorBlocked = blocked;
+                if (blocked) log.putEvent(tag() + "extractor blocked: at the FLOWER before it was down", us);
+            }
             if (want != extractorWanted) {
                 extractorWanted = want;
                 log.putEvent(tag() + "extractor " + (want ? (pathToFlower ? "down: driving to a FLOWER" : "down: a FLOWER ahead")
-                        : !room ? "up: holding 4" : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
+                        : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
             }
             double step = LOOP_S / design.extractorDeployS;
             double before = body.extractorDown;
-            body.extractorDown = want ? Math.min(1, before + step) : Math.max(0, before - step);
+            body.extractorDown = blocked ? before : want ? Math.min(1, before + step) : Math.max(0, before - step);
             if (body.extractorDown != before) {
                 log.put(keyPrefix + "/Extractor/Down", body.extractorDown, us);
                 putShape(log, us);
