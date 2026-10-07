@@ -185,15 +185,15 @@ public class AutoStudyTest {
         rigidV.launcher = RobotDesign.Launcher.TURRET;
         rigidV.exitForwardIn = -2.045;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026, ac817a6); the height is still the placeholder
         m.put("rigid V", rigidV);
-        // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis. Its
-        // shot interval (0.25 s against 0.45 s), its capacity (4 POLLEN, 3 NECTAR), and both. "rigid V" itself is a
-        // turret now (claude/simulator), so "rigid V, turret transfer" is the same as "rigid V, transfer"; the name stays
-        // for the routes and logs that use it.
+        // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis, with its
+        // capacity (4 POLLEN, 3 NECTAR). "rigid V" itself is a turret firing every 0.2 s now (claude/simulator, issue
+        // #168), so the transfer designs take its interval; "rigid V, 0.25 s shots" keeps the transfer chat's 0.25 s for
+        // comparison. "rigid V, turret transfer" is the same as "rigid V, transfer"; the name stays for the routes and
+        // logs that use it.
         RobotDesign v = m.get("rigid V");
         RobotDesign fast = v.copy("rigid V, 0.25 s shots"), lane = v.copy("rigid V, lane"), transfer = v.copy("rigid V, transfer");
         fast.shotIntervalS = 0.25;
         lane.laneCapacity = true;
-        transfer.shotIntervalS = 0.25;
         transfer.laneCapacity = true;
         RobotDesign turretTransfer = transfer.copy("rigid V, turret transfer");
         turretTransfer.launcher = RobotDesign.Launcher.TURRET;
