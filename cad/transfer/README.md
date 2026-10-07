@@ -50,7 +50,7 @@ set it on the robot with real balls. No sensor, no software count.
 | Feeder motor | two bracket screws, belt off | motor, pulley, bracket |
 | Lane | polycord off, two wall-bracket screws a side | walls, eight shafts, wheels, hub pulleys |
 
-Three motors in the transfer (lane, feeder) and the launcher (two flywheel motors, moved). Off the shelf: goBILDA motors,
+Two motors in the transfer (lane, feeder), plus the launcher's two flywheel motors, moved. Off the shelf: goBILDA motors,
 REX shafts, bearings, Gecko wheels, HTD5 pulleys and belts. To choose: the 24 mm compliant wheels. Made: polycarbonate
 and aluminium plates, printed posts, blocks, pulleys and brackets, polycord, foam.
 
