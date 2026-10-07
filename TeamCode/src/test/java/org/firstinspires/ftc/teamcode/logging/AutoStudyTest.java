@@ -184,7 +184,11 @@ public class AutoStudyTest {
         lane.laneCapacity = true;
         transfer.shotIntervalS = 0.25;
         transfer.laneCapacity = true;
-        for (RobotDesign d : new RobotDesign[] {fast, lane, transfer}) m.put(d.name, d);
+        // The decided robot (the user, 6 Oct evening): the transfer feeding a turret, so it can shoot while it
+        // extracts a FLOWER (the robot faces the FLOWER; the turret aims at the CELL).
+        RobotDesign turretTransfer = transfer.copy("rigid V, turret transfer");
+        turretTransfer.launcher = RobotDesign.Launcher.TURRET;
+        for (RobotDesign d : new RobotDesign[] {fast, lane, transfer, turretTransfer}) m.put(d.name, d);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);

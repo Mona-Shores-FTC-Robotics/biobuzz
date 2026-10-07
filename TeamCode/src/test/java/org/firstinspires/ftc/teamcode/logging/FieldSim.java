@@ -160,6 +160,12 @@ final class FieldSim {
     }
     static double spreadScale = 1;
     /**
+     * A launched piece's spin about the field's y axis (rad/s). -12 since the launcher was first modelled: backspin
+     * only for a shot travelling along x, spin along the flight for the straight-on shots along y (which it barely
+     * bends), and sidespin for a shot off the CELL's axis. BIOBUZZ_AUTO_SPIN overrides it (DeepDive).
+     */
+    static double launchSpin = -12;
+    /**
      * How untidy spills are (mentor review: pieces ended up lined against the wall). 1 = the
      * placeholders below, 0 = none. Each piece rolls with its own resistance, the tiles are slightly
      * uneven, and a piece leaving a CELL gets a small random kick and spin. Drawn from its own
@@ -975,7 +981,7 @@ final class FieldSim {
         p.vy = vy;
         p.vz = vz;
         p.wx = 0;
-        p.wy = -12;
+        p.wy = launchSpin;
         p.wz = 0;
         p.launchedBy = bot;
         p.shotBy = bot;

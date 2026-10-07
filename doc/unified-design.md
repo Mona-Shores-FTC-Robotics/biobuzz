@@ -346,6 +346,39 @@ wait for TIP 2's spill to land changes:
 goes from 16 to 32 touched runs, and partner shoots from 8 to 16. If G409 gets called on a real field, the longer
 waits are the fallback.
 
+## Shoot while extracting (6 Oct 2026, 60 runs)
+
+**Setup.**
+- **Design** "rigid V, turret transfer": the transfer (0.25 s shots, lane capacity) feeding a **turret**, so the
+  robot can face a FLOWER while the turret aims at the CELL.
+- **Routes** (`tools/auto-routes/stream.py`, the `-leave` routes): the retimed baselines, with every far-FLOWER visit
+  turned into a stream. The robot drives in and **sits 0.4 s**, so it's seated before it fires. Then StreamOn: each
+  POLLEN is fired as it comes out. It **leaves once the 4 are away**, 1.3 s later. The GARDEN and the wall FLOWER are
+  out of the simulator's 60 in range of the CELL that needs them then.
+
+**The first version lost 1 shot in 4, and it wasn't the seat.** That route turned StreamOn the moment the path
+ended. The robot was still rolling into the FLOWER, and streaming fires while moving, carrying the robot's motion
+into the shot. The first POLLEN went wide in every run; the other three, fired seated, all scored. The robot also
+waited at the FLOWER for TIP 2, reached the spill about 2 s after the TIP and kept 2 of 4. Seated first and leaving
+early fixed both.
+
+| Auto | Turret, no streaming | Turret, streaming (seated, leave early) |
+|---|---|---|
+| Partner shoots | 71.8 · 3 TIPs in 50 · PARK 58. TIP 2 at 11.4 s, TIP 3 at 23.5 s | 70.9 · 47 · PARK 59. **TIP 2 at 9.5 s, TIP 3 at 21.6 s** |
+| at zero spread | 75.3 · 58 · PARK 60 | 74.3 · 55 · PARK 60 |
+| Angled partner | 52.3 · TIP 3 in 5 · PARK 40 | 51.6 · 5 · **PARK 11** |
+| Wall partner | 58.7 · 30 (zero spread: 64.3 · 40) | the same; the far FLOWER is only its fallback |
+
+**What it says:**
+- **Streaming works and saves about 2 s,** with TIP 2 and TIP 3 both earlier. The score is level (70.9 against 71.8,
+  within the noise) because the routes don't spend the time: after TIP 3 at 21.6 s the robot PARKs with about 6 s
+  to spare. The next step is a route that uses it.
+- **The angled partner's Auto loses PARK** in its fallback branch, the far FLOWER when TIP 2 doesn't come off the row.
+  It needs a route fix before streaming is usable there.
+- **The simulator's launch spin is fixed in the field frame** (`FieldSim.launch`, `p.wy = -12`). That is backspin
+  only for a shot travelling along x; our shots travel along y. It wasn't the cause above (the misses stayed with
+  spin off), but the simulator chat should fix it. `FieldSim.launchSpin` / `BIOBUZZ_AUTO_SPIN` expose it for testing.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
