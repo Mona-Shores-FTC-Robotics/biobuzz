@@ -36,8 +36,10 @@ roll are now checked against video ([tip timing](tip-timing.md), [rolling](rolli
 
 A `.wpilog` only stores numbers over time: where each robot is, where every piece is, the HIVE's angle, and
 the position of each part of the robot. The layout (`sim-review/advantagescope-layout.json`) draws our robot as
-**BIOBUZZ Robot**, the team's CAD (`cad/advantagescope/Robot_BIOBUZZ`, committed) with the FLOWER extractor as
-a moving part; a baseline log ("rigid V") holds it stowed through AUTO. The simulator's body for that design is
+**BIOBUZZ Robot**, the team's CAD (`cad/advantagescope/Robot_BIOBUZZ`, committed) with four moving parts: the FLOWER
+extractor, the floating roller, the turret and the transfer's J arm. A baseline log ("rigid V") swings the extractor
+down on the approach to a FLOWER and up as the robot leaves, and turns the turret to the CELL while the launcher
+spins; the roller and the J arm stay at rest (the simulator doesn't lift them yet). The simulator's body for that design is
 the CAD's measurements (`doc/cad-6-oct.md`: 15.12 × 15.24 in, the V's plates), so the drawing and the simulation
 agree to the extent the measurements do. Every other simulated design is a part of **BIOBUZZ Robot (designs)**,
 generated from the simulator's own numbers (`RobotAssets.java`): a log of one says which part to show at the

@@ -39,11 +39,17 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
         # straight to the wall FLOWER: its 4 (they sit still), then the GARDEN's 4, fired straight on, for TIP 3
         r.pt("WEST_VIA", west, 96, 225)
         out += [r.go("WEST_VIA", turn_by=0.8), r.go("WALL_FLOWER_TURN", ctrl=[(west - 6, 62)], heading=180),
-                r.go("WALL_FLOWER", heading=180), r.wait(f"The wall FLOWER{tag}", when=["IntakeFull"], ms=2300)]
+                r.go("WALL_FLOWER", heading=180)]
         r.at = "WALL_FLOWER"
-        out += [r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the wall FLOWER{tag}", "Empty", ms=garden_ms)]
-        r.at = "S_FIRE"
-        out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270),
+        if SEAT_FIRE:  # its 4 fired from the seat as they come, then straight round into the GARDEN
+            out += seat_fire_cards(r, f"Extract and fire the wall FLOWER{tag}", "Tip", ms=3000)
+            out += [r.go("GARDEN", ctrl=[(8.5, 30)], turn_by=0.7)]
+        else:
+            out += [r.wait(f"The wall FLOWER{tag}", when=["IntakeFull"], ms=2300),
+                    r.go("S_FIRE", turn_after=0.3, turn_by=1.0), fire(r, f"Fire the wall FLOWER{tag}", "Empty", ms=garden_ms)]
+            r.at = "S_FIRE"
+            out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270)]
+        out += [
                 r.wait(f"The GARDEN{tag}", when=["IntakeFull"], ms=1500), r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
                 r.wait(f"Fire the GARDEN (TIP 3){tag}", when=["LeftCellUp"], ms=2500, alongside="LaunchAll")]
         r.at = "S_FIRE"
@@ -89,15 +95,25 @@ def tail(r, spill_at="S_CATCH", garden="two", leftovers=False, settle=True, tag=
                     r.wait(f"Fill up at the GARDEN{tag}", when=["IntakeFull"], ms=1500), r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
                     fire(r, f"Fire the catch and the GARDEN{tag}", "Empty", ms=garden_ms)]
             r.at = "S_FIRE"
-        out += wall_flower_in(r, tag, flower_in)
-        r.at = "WALL_FLOWER"
         last = wall_flower == "garden-first"
-        out += [r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
-                r.wait(f"Fire the wall FLOWER{tag}{' (TIP 3)' if last else ''}", when=["LeftCellUp" if last else "Empty"],
-                       ms=2500 if last else garden_ms, alongside="LaunchAll")]
-        r.at = "S_FIRE"
-        if last:
-            return out + go_park(r, park=False)
+        if SEAT_FIRE:  # the wall FLOWER's 4 fired from the seat as they come; then straight round into the GARDEN
+            out += wall_flower_in(r, tag, flower_in)[:-1]
+            r.at = "WALL_FLOWER"
+            # Not "Empty": with nothing held on arrival it is true at once. A TIP ends it (TIP 3 under way); else
+            # 3 s covers the 4 (one per 0.5 s out of the FLOWER, 0.5 s through the transfer, fired as they arrive).
+            out += seat_fire_cards(r, f"Extract and fire the wall FLOWER{tag}{' (TIP 3)' if last else ''}", "Tip", ms=3000)
+            if last:
+                return out + go_park(r, park=False)
+            garden = "one"
+        else:
+            out += wall_flower_in(r, tag, flower_in)
+            r.at = "WALL_FLOWER"
+            out += [r.go("S_FIRE", turn_after=0.3, turn_by=1.0),
+                    r.wait(f"Fire the wall FLOWER{tag}{' (TIP 3)' if last else ''}", when=["LeftCellUp" if last else "Empty"],
+                           ms=2500 if last else garden_ms, alongside="LaunchAll")]
+            r.at = "S_FIRE"
+            if last:
+                return out + go_park(r, park=False)
     if garden == "two":
         out += [r.go("GARDEN_IN", turn_by=0.6), r.go("GARDEN", heading=270)]
     elif garden == "one":  # one path: round the corner into the GARDEN, turned by the time it is lined up
@@ -207,6 +223,30 @@ def third_load(r, tag="", wait_full=1100, catch3=False, tip_ms=0):
 # start wall behind, a FLOWER, the GARDEN) move by the difference from the 18 in robot the route was
 # drawn for, and PARK by as much, so a corner still reaches the LOADING ZONE. The firing spots stay: the prototype scores straight on from y 17-29 and 113-125 (ShotMapTest).
 FRONT_IN = {"baseline": 9.0, "proto": 7.5, "option3": 7.25}  # RobotDesign.buildersPrototype 15 in; "option3": flatIntake, 14.5 in
+# How far from a FLOWER's centre the front face stops to take its POLLEN: 2.2 in with the intake mouth against the
+# ~2 in tube (helpers.FLOWER_PICKUP_IN for the 18 in robot: 9 + 2.2); 7.09 in with the CAD's FLOWER extractor seated on
+# it (doc/robot-cad.md "Seated on a FLOWER"; baselines_v.py sets it for the Rigid V). The FLOWER points move by the
+# difference from the 18 in robot's 11.2 in; the start, the GARDEN and PARK only by the front face's.
+FLOWER_FACE_IN = {"baseline": 2.2, "proto": 2.2, "option3": 2.2}
+
+
+# Fire from the extractor's seat (mentor, 6 Oct 2026: "the robot shoots while extracting"): at a FLOWER, instead of
+# waiting for 4 and driving to the firing spot, stream shots while the extractor feeds (StreamOn; the simulator fires
+# each piece once it has come through the transfer, RobotDesign.transferFeedS). Tried on ShootsRight first
+# (seat_fire.py); set by that script, never by hand. "catch": after TIP 2 from the far FLOWER's seat, to N_FIRE at once
+# to catch its spill there as the baseline does; "west": instead down the west side to the wall FLOWER (tail's `west`),
+# fired from its seat, then the GARDEN (the spill is left alone).
+SEAT_FIRE = False
+
+
+def seat_fire_cards(r, label, until, ms=3500):
+    """Stream shots from where the robot stands (seated on a FLOWER) until `until` or `ms`."""
+    return [r.action("StreamOn"), r.wait(label, when=[until], ms=ms), r.action("StreamOff")]
+
+
+def flower_shift(robot):
+    """How much further forward (toward the FLOWER) `robot` stops than the 18 in robot the routes were drawn for."""
+    return 9.0 + 2.2 - FRONT_IN[robot] - FLOWER_FACE_IN[robot]
 
 
 class Sized(Route):
@@ -222,31 +262,45 @@ class Sized(Route):
 def right(name, robot="baseline", n_fire=None, **kw):
     """As qual.shoots_right, with tail(**kw) after TIP 2, for `robot` (FRONT_IN)."""
     d = 9.0 - FRONT_IN[robot]
+    df = flower_shift(robot)
     r = Sized(name, (N_START[0], N_START[1] + d, N_START[2]), speed=50)
     ends(r)
     r.size = 2 * FRONT_IN[robot]
     r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *(n_fire or N_FIRE))
-    if d:
+    if df:
         for k in ("FAR_FLOWER", "FAR_FLOWER_IN", "FAR_FLOWER_TURN"):
             x, y, h = r.points[k]
-            r.pt(k, x, y + d, h)  # the FLOWER is north of us, facing 90
+            r.pt(k, x, y + df, h)  # the FLOWER is north of us, facing 90
         for k in ("GARDEN", "GARDEN_IN"):
             x, y, h = r.points[k]
             r.pt(k, x, y - d, h)  # the GARDEN is at the south wall, facing 270
         x, y, h = r.points["PARK"]
         r.pt("PARK", x, y + d, h)  # a corner must reach into the LOADING ZONE (y 94.3-117.9)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
-    if d:
+    if df:
         for k in ("WALL_FLOWER", "WALL_FLOWER_IN", "WALL_FLOWER_TURN"):
             x, y, h = r.points[k]
-            r.pt(k, x - d, y, h)  # the wall FLOWER is west of us, facing 180
+            r.pt(k, x - df, y, h)  # the wall FLOWER is west of us, facing 180
     r.add(r.action("SpinUp"), r.go("N_FIRE", heading=270),
           r.wait("TIP 1 (the partner)", when=["LeftCellUp"], ms=9000),
           fire(r, "Fire the preloads at the left CELL", "Empty", ms=2500))
     r.at = "N_FIRE"
-    r.add(*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300))
-    r.at = "FAR_FLOWER"
-    r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
+    if SEAT_FIRE:  # the far FLOWER's 4 fired from the seat as they come; TIP 2's spill lands while still seated
+        # (the seat is at the edge of where it falls, x 49-67; driving through it as it fell touched it in 21 of 60
+        # runs); then to N_FIRE for the tail, which does not wait again.
+        r.add(*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300)[:-1])
+        r.at = "FAR_FLOWER"
+        r.add(*seat_fire_cards(r, "Extract and fire the far FLOWER (TIP 2)", "Tip"))
+        kw = dict(kw)
+        if SEAT_FIRE == "west":  # straight from the seat down the west side: the tail starts here
+            kw.update(west=kw.get("west") or 35, settle=False, extra=0)
+            r.add(*tail(r, **kw))
+            return r
+        r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
+    else:
+        r.add(*flower(r, "FAR_FLOWER", "The far FLOWER", ms=2300))
+        r.at = "FAR_FLOWER"
+        r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0), fire(r, "Fire the far FLOWER (TIP 2)", "Tip", ms=2500))
     r.at = "N_FIRE"
     r.add(*tail(r, **kw))
     return r
@@ -387,10 +441,11 @@ def fit(robot):
     the GARDEN) and PARK move forward by as much."""
     import math
     d = 9.0 - FRONT_IN[robot]
+    df = flower_shift(robot)
 
-    def move(p, sign):
+    def move(p, sign, by=d):
         x, y, h = p
-        return (round(x + sign * d * math.cos(math.radians(h)), 2), round(y + sign * d * math.sin(math.radians(h)), 2), h)
+        return (round(x + sign * by * math.cos(math.radians(h)), 2), round(y + sign * by * math.sin(math.radians(h)), 2), h)
 
     class Fit(Sized):
         size = 2 * FRONT_IN[robot]
@@ -399,7 +454,9 @@ def fit(robot):
             super().__init__(name, move(start, -1), **kw)
 
         def pt(self, name, x, y, h):
-            if name.startswith(("FAR_FLOWER", "WALL_FLOWER", "GARDEN", "PARK")):
+            if name.startswith(("FAR_FLOWER", "WALL_FLOWER")):
+                x, y, h = move((x, y, h), 1, df)
+            elif name.startswith(("GARDEN", "PARK")):
                 x, y, h = move((x, y, h), 1)
             return super().pt(name, x, y, h)
     return Fit

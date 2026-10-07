@@ -160,12 +160,6 @@ final class FieldSim {
     }
     static double spreadScale = 1;
     /**
-     * A launched piece's spin about the field's y axis (rad/s). -12 since the launcher was first modelled: backspin
-     * only for a shot travelling along x, spin along the flight for the straight-on shots along y (which it barely
-     * bends), and sidespin for a shot off the CELL's axis. BIOBUZZ_AUTO_SPIN overrides it (DeepDive).
-     */
-    static double launchSpin = -12;
-    /**
      * How untidy spills are (mentor review: pieces ended up lined against the wall). 1 = the
      * placeholders below, 0 = none. Each piece rolls with its own resistance, the tiles are slightly
      * uneven, and a piece leaving a CELL gets a small random kick and spin. Drawn from its own
@@ -322,6 +316,8 @@ final class FieldSim {
         /** The robot whose intake last took it, and when (FieldSim time); null and NaN if none has. */
         Bot capturedBy;
         double capturedAt = Double.NaN;
+        /** When it has reached the launcher through the transfer ({@link RobotDesign#transferFeedS}); launchable from then. */
+        double readyAt = Double.NEGATIVE_INFINITY;
         /**
          * Whether, since it last left a CELL, it has touched something other than a robot: the
          * tiles, a field wall, the HIVE's feet, a parked robot, or a piece that already had. G409
@@ -493,6 +489,8 @@ final class FieldSim {
          * Its caller moves it; the walls stop pieces only while it is above 0.
          */
         double wallsOut;
+        /** How far down its FLOWER extractor is ({@link RobotDesign#extractorSeatIn}), 0 stowed to 1 down. Its caller moves it. */
+        double extractorDown;
         /**
          * Which flap a one-armed design has down now: +1 its left, -1 its right, 0 as its design says.
          * Its caller sets it ({@link RobotDesign#flapTowardCentre}).
@@ -888,6 +886,9 @@ final class FieldSim {
 
     // ---- Launching ----------------------------------------------------------------------------
 
+    /** A launched piece's backspin, rad/s (a placeholder: the flywheels' grip is unmeasured). */
+    static final double LAUNCH_BACKSPIN_RAD_PER_S = 12;
+
     /** The ballistic launch (no drag) that puts a piece on {@code target}, or null if out of reach. */
     double[] launchVelocity(double[] from, double[] target) {
         return launchVelocity(from, target, 6);
@@ -978,8 +979,11 @@ final class FieldSim {
         p.vx = vx;
         p.vy = vy;
         p.vz = vz;
-        p.wx = 0;
-        p.wy = launchSpin;
+        // Backspin about the horizontal normal to the line of flight (until 7 Oct 2026 it was wy = -12 in the field
+        // frame, which is backspin only for a shot along +x; the body-designs chat's catch).
+        double horizontal = Math.hypot(vx, vy);
+        p.wx = horizontal > 1e-9 ? LAUNCH_BACKSPIN_RAD_PER_S * vy / horizontal : 0;
+        p.wy = horizontal > 1e-9 ? -LAUNCH_BACKSPIN_RAD_PER_S * vx / horizontal : 0;
         p.wz = 0;
         p.launchedBy = bot;
         p.shotBy = bot;
@@ -1622,6 +1626,16 @@ final class FieldSim {
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
         double mouth = design.frameIn / 2 + design.intakeReachIn;
+        if (p.flower >= 0 && !Double.isNaN(design.extractorSeatIn)) {
+            // The extractor, down and seated on the FLOWER (its centre at the seat, within the tolerance), takes the stack.
+            if (bot.extractorDown < 0.95) return false;
+            double[] f = flowers.get(p.flower);
+            double fx = (f[0] - bx) * c + (f[1] - by) * s, fy = -(f[0] - bx) * s + (f[1] - by) * c;
+            if (design.intakeAtBack) fx = -fx;
+            double seat = design.frameIn / 2 + design.extractorSeatIn;
+            return Math.abs(fx - seat) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN
+                    && Math.abs(fy) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
+        }
         if (design.intakeOnContact && p.flower < 0) {
             return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
                     && Math.abs(ly) < design.intakeWidthIn / 2 && p.z + p.kind.radius <= design.intakeHeightIn;
@@ -1634,6 +1648,7 @@ final class FieldSim {
         bot.lastCaptureAt = time;
         p.capturedBy = bot;
         p.capturedAt = time;
+        p.readyAt = time + bot.design.transferFeedS;
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;
@@ -1707,6 +1722,22 @@ final class FieldSim {
      * {@code x, y, z, qw, qx, qy, qz}: those the robot holds ({@code held}, drawn inside it), or all
      * the others. Kept apart so a moving robot does not rewrite every piece on the field each loop.
      */
+    /**
+     * Where held pieces are drawn: single file on the transfer's lane floor, on the centre line, queued against
+     * the J-wheel (the transfer chat, 6 Oct 2026; doc/unified-design.md "Transfer"). The rearmost piece's centre
+     * is {@link #HELD_LANE_REAR_POLLEN_IN} ahead of the robot's centre for POLLEN, {@link #HELD_LANE_REAR_NECTAR_IN}
+     * for NECTAR; each later one sits its radius plus the previous piece's radius further forward. A drawing only.
+     */
+    static final double HELD_LANE_FLOOR_IN = 0.9;
+    static final double HELD_LANE_REAR_POLLEN_IN = -0.64;
+    static final double HELD_LANE_REAR_NECTAR_IN = 0.73;
+
+    static double heldAlongIn(List<Piece> stored, int slot) {
+        double along = stored.get(0).kind == Kind.POLLEN ? HELD_LANE_REAR_POLLEN_IN : HELD_LANE_REAR_NECTAR_IN;
+        for (int i = 1; i <= slot; i++) along += stored.get(i - 1).kind.radius + stored.get(i).kind.radius;
+        return along;
+    }
+
     double[] pieces(Kind kind, boolean held) {
         int n = 0;
         for (Piece p : pieces) if (p.kind == kind && (p.where == Where.ROBOT) == held) n++;
@@ -1719,9 +1750,10 @@ final class FieldSim {
                 for (Bot bot : bots) {
                     int slot = bot.stored.indexOf(p);
                     if (slot < 0) continue;
-                    x = bot.x - 2.5 * Math.cos(bot.h);
-                    y = bot.y - 2.5 * Math.sin(bot.h);
-                    z = 4 + slot * 2.2 * p.kind.radius;
+                    double along = heldAlongIn(bot.stored, slot);
+                    x = bot.x + along * Math.cos(bot.h);
+                    y = bot.y + along * Math.sin(bot.h);
+                    z = HELD_LANE_FLOOR_IN + p.kind.radius;
                 }
             }
             // Pedro → Center/Rotated is a quarter turn about z, (x, y, z) → (−y, x, z); a rotation's
