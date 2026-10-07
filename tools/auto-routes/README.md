@@ -88,7 +88,11 @@ transfer, so the `rigid V` design is now `Launcher.TURRET` (it aims without turn
 `RobotDesign.transferFeedS` 0.5 s (a placeholder): a piece is launchable 0.5 s after the intake took it. Both cost
 time on every load: ShootsRight 72.2 → **70.2** (TIP 3 in 51 → 45), angled **51.9**, wall 55.3 → **51.7** (TIP 3 in
 26 → 17: its last load was already late). With the seat corrected to 4.59 in (7 Oct 01:00 UTC; the FLOWER points
-2.5 in closer, the problem check's FLOWER 2.35 in wide): **69.8** / **51.9** / **51.7**.
+2.5 in closer, the problem check's FLOWER 2.35 in wide): **69.8** / **51.9** / **51.7**. With the transfer's own feed
+figure, 0.35 s, and the FLOWER visits reworked after the mentor's review (7 Oct 02:10 UTC: the extractor down from the
+start of the path in and up only 6 in clear, every departure from a FLOWER straight back 10 in before turning,
+`autogen.FLOWER_BACK_OUT_IN`): **70.2** / **51.9** / **51.7**, seat fire **72.3** (G409 14: backing out of the far
+FLOWER crosses where TIP 2's spill lands).
 
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
@@ -98,8 +102,8 @@ aim it turned the seated robot off the FLOWER (34.6; hence the turret). Two endi
 - **west** (`qual-right-v-seatfire-west`): TIP 2 from the far FLOWER's seat at 11.1 s (13.0 before), then down the
   west side clear of the spill to the wall FLOWER, its 4 fired from the seat, then south and round into the GARDEN
   (bending west at once clipped the FLOWER's bracket on the way out) for its 4, fired from S_FIRE: **73.0** on the
-  corrected seat (72.0 on the 7.09 seat), TIP 3 in 53 of 60 at 24.6 s, PARK 60 of 60, G409 7, no problems. Beats the
-  baseline's 69.8.
+  corrected seat (72.0 on the 7.09 seat), TIP 3 in 53 of 60 at 24.6 s, PARK 60 of 60, G409 7, no problems; **72.3**
+  with the back-outs and the 0.35 s feed. Beats the baseline's 70.2.
 - **catch** (`qual-right-v-seatfire-catch`): TIP 2 from the seat, then to N_FIRE to catch its spill as the baseline
   does: 62.5, TIP 3 in 22, G409 21 (it drives into the spill as it falls; waiting at the seat first lost the catch
   altogether, 55.2, TIP 3 in 0: the seat is 15 in from where the spill lands).

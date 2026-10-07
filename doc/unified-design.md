@@ -62,7 +62,7 @@ The three qualifier baselines are the drawn V on these routes, published from `c
 
 | Baseline | Route | Points | 3 TIPs (of 60) | Notes |
 |---|---|---|---|---|
-| `qual-right-v` | `qual-right-o3-rigid-v-park` | **69.8** | **44** | PARK 58, G409 12 runs, no problems. Turret, 0.5 s transfer feed, the extractor seated (the face 4.59 in from the FLOWER), 7 Oct 01:00 UTC; 72.2 / 51 with a fixed launcher and no feed delay. Firing from the seats (`qual-right-v-seatfire-west`): 73.0, TIP 3 in 53 |
+| `qual-right-v` | `qual-right-o3-rigid-v-park` | **70.2** | **45** | PARK 58, G409 8 runs, no problems. Turret, 0.35 s transfer feed, the extractor seated (the face 4.59 in from the FLOWER) and every FLOWER left straight back, 7 Oct 02:10 UTC; 72.2 / 51 with a fixed launcher and no feed delay. Firing from the seats (`qual-right-v-seatfire-west`): 72.3, TIP 3 in 51 |
 | `qual-stages-angled-v` | `qual-stages-angled-rigid-v-18-30-t555` | 51.6 | – | TIP 2 in 53, PARK 55, G409 14. 4 problem runs, all where TIP 1 failed (see below). |
 | `qual-stages-wall-v` | `qual-stages-wall-rigid-v-18-30-sweep90-t555` | **55.3** | **26** | G409 16, no problems |
 
@@ -412,10 +412,17 @@ FLOWER): the 1.3 s leave also leaves with the 4th POLLEN aboard (37.9). 1.8 s gi
 level with flower-first; 2.3 s 68.9. The Stages routes don't move (angled 51.7, PARK 12; wall 58.7): the far
 FLOWER is only their fallback.
 
+**Extractor down before the FLOWER (mentor, 7 Oct 2026).** "You cannot deploy the flower extractor while at the
+flower. You need to deploy it BEFORE you get there and then drive into it." The simulator kept it up while the robot held
+4, so on flower first it swung down only after the first shot, already at the FLOWER. Now (`AutoSim.extractor`) it comes
+down on any path that ends at a FLOWER, full or not, and the FLOWER's pieces stay in it until a shot makes room. One it
+reaches before it is down blocks it (event `extractor blocked`): it takes nothing. Flower first is unchanged by it
+(10 runs: 70.0, 3 TIPs in 7, PARK 10, TIP 2 at 7.4 s and TIP 3 at 20.1 s, against the plain route's 11.5 s and 23.6 s at
+the same 70.0); the extractor is down from 1.0 s, with the robot seated from about 2.8 s. Whether a robot may sit
+pushed into the FLOWER before it fires is a rules question still open.
+
 **Still open:**
-- The simulator's committed `rigid V` still seats at 7.09. The baselines (`QualRightVAuto` and the rest) are fitted
-  to it, so on a 4.59 seat they extract nothing (QualRightVAuto: 32.6). They need refitting when the simulator
-  chat lands 4.59.
+- ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
   PARK in quals is non-negotiable, so that route needs a PARK ending.
 

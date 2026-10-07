@@ -19,6 +19,11 @@ TEMPLATE = json.load(open(f"{PP_DIR}/spill-three-tip.pp"))
 TYPICAL = {"LaunchOne": 0.5, "LaunchAll": 2.0, "ShootAll": 2.0, "CollectSeen": 2.0, "SpinUp": 0.1, "SpinDown": 0.1,
            "IntakeOn": 0.1, "IntakeOff": 0.1}
 
+# Leaving a FLOWER's seat: a control point this far straight back, and no turning until this far along the path.
+FLOWER_BACK_OUT_IN = 10
+FLOWER_BACK_OUT_TURN_AFTER = 0.3
+
+
 class Route:
     def __init__(self, name, start, speed=50, folder=None):
         self.name, self.speed, self.folder = name, speed, folder or DEFAULT_FOLDER
@@ -62,6 +67,16 @@ class Route:
     def go(self, to, ctrl=(), heading="linear", park=False, turn_from=None, turn_by=0.65, turn_after=0.0):
         """turn_from: turn linearly from this heading (the robot's real one) instead of the start point's."""
         a, b = self.points[self.at], self.points[to]
+        if self.at.endswith("FLOWER") and not to.startswith(self.at):
+            # Leaving a FLOWER's seat (mentor, 7 Oct 2026: the extractor lifted through the FLOWER): the path leaves
+            # straight back first (a control point behind the seat) with the heading held until it is clear.
+            import math
+            back = (round(a[0] - FLOWER_BACK_OUT_IN * math.cos(math.radians(a[2])), 2),
+                    round(a[1] - FLOWER_BACK_OUT_IN * math.sin(math.radians(a[2])), 2))
+            ctrl = [back, *ctrl]
+            if heading == "linear":
+                turn_after = max(turn_after, FLOWER_BACK_OUT_TURN_AFTER)
+                turn_by = max(turn_by, turn_after + 0.3)
         lid = f"to-{to.lower().replace('_', '-')}-{len(self.lines) + 1}"
         if heading == "linear":
             h0 = a[2] if turn_from is None else turn_from
