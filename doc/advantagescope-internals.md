@@ -103,24 +103,19 @@ The layout's tabs:
 
 ## Sample logs
 
-`sim-review/advantagescope-internals.zip` has the shoot-while-extracting routes on "rigid V, turret transfer", seed 3,
-with the transfer's 0.5 s feed and the simulator's wall check:
-- `qual-right-v-flower-first-hold`: the mentor's flower first. The preloads are fired from the seat, the FLOWER's 4
-  collected, then fired lined up at N_FIRE;
-- `qual-right-v-flower-first-l2600`: flower first streaming all 8 from the seat, kept for comparison;
-- `qual-right-v-stream-x200-leave1800`: the partner shoots, and we stream at the far FLOWER;
-- `qual-stages-angled-v`: the plain angled baseline (the stream version is retired, because it cost PARK);
-- `qual-stages-wall-v-stream-x700-leave`: the wall pairing, where both robots PARK.
+`sim-review/advantagescope-internals.zip` has the four routes for review, on "rigid V, turret transfer", seed 3, with the
+transfer's 0.5 s feed and the simulator's wall check. Over 60 runs:
+- `qual-right-v-seatfire-west`: the best right-side Auto, 72.3 points, TIP 3 in 52;
+- `qual-right-v-flower-first-hold`: the mentor's flower first, 70.6, TIP 3 in 47;
+- `qual-stages-angled-v`: the plain angled baseline, 52.6, with 9 runs into the HIVE frame late in AUTO;
+- `qual-stages-wall-v-stream-x700-leave`: the wall pairing, where both robots PARK, 53.3.
 
-The extractor seats with the FLOWER's centre 4.59 in ahead of the face. It comes down on the way to the FLOWER, so
-it's fully down before the robot drives in. The zip's README has the scores. Over 60 runs, flower-first hold scores
-70.6 (TIP 3 in 47 of 60), the right-side stream 69.3 and the wall stream 52.7, with no problem runs. The angled
-baseline scores 53.8, with 2 wall problems late in AUTO.
+Seed 3 is a typical run for each. The zip's README has the full table.
 
 Made with:
 
 ```
-BIOBUZZ_AUTO_STUDY="QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstL2600Auto,PartnerPreloadsRightAuto@50;QualRightVStreamX200Leave1800Auto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
+BIOBUZZ_AUTO_STUDY="QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50;QualRightVFlowerFirstHoldAuto,PartnerPreloadsRightAuto@50;QualStagesAngledVAuto,PartnerAngledParkAuto@50;QualStagesWallVStreamX700LeaveAuto,PartnerStage19SideParkAuto@50" \
 BIOBUZZ_AUTO_DESIGNS="rigid V, turret transfer" BIOBUZZ_AUTO_PARTNER_DESIGN="spring hood" BIOBUZZ_AUTO_PARTNER_SPEED=40 BIOBUZZ_AUTO_SEEDS=3 BIOBUZZ_AUTO_LOGS=1 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*'
 ```
 
