@@ -497,7 +497,7 @@ public final class AutoSim {
             FieldRobot.putAll(log, allRobots, 0);
         }
         fieldLog.write(log, sim, 0);
-        for (Bot b : bots) internals.record(b.index, false, 0);
+        for (Bot b : bots) internals.record(b.index, false, false, 0);
         putClock(log, -PRE_ROLL_S);
         long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
@@ -616,7 +616,7 @@ public final class AutoSim {
                 sim.enterNectar(alliance);
             }
             fieldLog.write(log, sim, us);
-            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, us);
+            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, us);
             putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
@@ -638,7 +638,7 @@ public final class AutoSim {
         long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
         for (Bot b : bots) b.putStill(log, lastUs);
         fieldLog.write(log, sim, lastUs);
-        for (Bot b : bots) internals.record(b.index, false, lastUs);
+        for (Bot b : bots) internals.record(b.index, false, false, lastUs);
         internals.write(log);
         putClock(log, last);
         Scheduler.reset();

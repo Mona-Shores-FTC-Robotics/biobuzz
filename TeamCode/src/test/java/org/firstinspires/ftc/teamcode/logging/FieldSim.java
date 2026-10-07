@@ -525,6 +525,11 @@ final class FieldSim {
             return new double[] {x, y, h};
         }
 
+        /** Whether its intake is running this loop. */
+        boolean intaking() {
+            return intaking;
+        }
+
         /** Whether its launcher is set to throw over the back (RobotDesign#launchesBothWays). */
         boolean launchingBack;
 

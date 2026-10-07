@@ -75,4 +75,18 @@ public class RobotInternalsLogTest {
         double[] stowed = RobotInternalsLog.components(0, 0, 0, 0);
         for (int i = 0; i < 7; i++) assertEquals(AutoSim.cadComponents(0, 0)[i], stowed[i], 1e-12);
     }
+
+    @Test
+    public void theIntakeRollerSpinsAboutItsAxleAndRisesWithTheCarriage() {
+        double spin = 1.2, rise = 0.8;
+        double[] c = RobotInternalsLog.components(1, rise, 0, 0, spin, 0);
+        int k = 7 * RobotInternalsLog.INTAKE_ROLLER;
+        double[] p = RobotInternalsLog.INTAKE_ROLLER_SPIN.pointM;
+        // The axle maps to itself raised by the rise: R p + t = p + (0, 0, rise). About +Y, R p = (x cos + z sin, y, -x sin + z cos).
+        double rx = p[0] * Math.cos(spin) + p[2] * Math.sin(spin), rz = -p[0] * Math.sin(spin) + p[2] * Math.cos(spin);
+        assertEquals(p[0], rx + c[k], 1e-9);
+        assertEquals(p[2] + rise * 0.0254, rz + c[k + 2], 1e-9);
+        assertEquals(Math.cos(spin / 2), c[k + 3], 1e-12);
+        assertEquals(Math.sin(spin / 2), c[k + 5], 1e-12);
+    }
 }

@@ -35,7 +35,37 @@ final class RobotInternalsLog {
 
     /** The CAD model's component poses, in this order (agreed with the CAD chat): the key's suffix after a robot's prefix. */
     static final String COMPONENTS = "/Internals/Components";
-    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, J_ARM = 3, COUNT = 4;
+    static final int EXTRACTOR = 0, ROLLER = 1, TURRET = 2, J_ARM = 3, INTAKE_ROLLER = 4;
+
+    /**
+     * A part that spins about a fixed axle while its mechanism runs: the intake roller (component 4, which also rises with
+     * the carriage) and the launcher's flywheels (components 5 on, one per axle, from the CAD chat). The logs are 50 Hz,
+     * so a real roller or flywheel speed would alias; each turns at a slow display rate instead
+     * ({@link #DISPLAY_REV_PER_S}), only to show that it is running.
+     */
+    static final class Spinner {
+        final double[] pointM, axis;
+        /** +1 if a positive angle about {@code axis} is the way it turns when running, else -1. */
+        final int sign;
+
+        Spinner(double[] pointM, double[] axis, int sign) {
+            double n = Math.sqrt(axis[0] * axis[0] + axis[1] * axis[1] + axis[2] * axis[2]);
+            this.pointM = pointM;
+            this.axis = new double[] {axis[0] / n, axis[1] / n, axis[2] / n};
+            this.sign = sign;
+        }
+    }
+
+    /** How fast a running roller or flywheel is drawn turning: slow enough to read at 50 Hz (14 deg a frame). */
+    static final double DISPLAY_REV_PER_S = 2;
+    /**
+     * The intake roller about its resting axle (+Y through X 8.56, z 3.35 in). A positive angle about +Y moves its bottom
+     * rearward, which pulls a piece in.
+     */
+    static final Spinner INTAKE_ROLLER_SPIN = new Spinner(new double[] {8.56 * 0.0254, 0, 3.35 * 0.0254}, new double[] {0, 1, 0}, 1);
+    /** The launcher's flywheels, one per axle, in component order from 5. Empty until the CAD chat exports them. */
+    static final Spinner[] FLYWHEELS = {};
+    static final int COUNT = 5 + FLYWHEELS.length;
 
     /** Lane speed: a hollow ball rolls at about 0.4 of the floor strands' 68 in/s. */
     static final double LANE_IN_PER_S = 27;
@@ -91,10 +121,12 @@ final class RobotInternalsLog {
     }
 
     /** One loop: the {@code index}th tracked robot's state now. {@code aiming}: its launcher is spun up or firing (the turret tracks the CELL). */
-    void record(int index, boolean aiming, long us) {
+    void record(int index, boolean aiming, boolean launcherOn, long us) {
         Track t = tracks.get(index);
         Frame f = new Frame();
         f.us = us;
+        f.intakeOn = t.body.intaking();
+        f.launcherOn = launcherOn;
         f.pose = t.body.pose();
         f.stored = t.body.stored.toArray(new FieldSim.Piece[0]);
         f.extractorDown = t.body.extractorDown;
@@ -141,6 +173,7 @@ final class RobotInternalsLog {
         FieldSim.Piece[] stored;
         double extractorDown;
         double[] aim;
+        boolean intakeOn, launcherOn;
     }
 
     private final class Track {
@@ -156,7 +189,7 @@ final class RobotInternalsLog {
         /** Where a firing piece was when its climb started. */
         final Map<FieldSim.Piece, Double> climbFrom = new IdentityHashMap<>();
         final Map<Double, Path> paths = new HashMap<>();
-        double turretYaw;
+        double turretYaw, rollerSpin, flywheelSpin;
         long lastUs;
         double[] componentsLast;
         final double[] readoutsLast = new double[6];
@@ -242,7 +275,10 @@ final class RobotInternalsLog {
                 turretYaw = AdvantageScopeFrame.wrap(turretYaw + Math.max(-most, Math.min(most, turn)));
                 error = AdvantageScopeFrame.wrap(want - turretYaw);
             }
-            double[] components = components(f.extractorDown, rise, turretYaw, lift);
+            double turn = 2 * Math.PI * DISPLAY_REV_PER_S * dt;
+            if (f.intakeOn) rollerSpin = (rollerSpin + turn) % (2 * Math.PI);
+            if (f.launcherOn) flywheelSpin = (flywheelSpin + turn) % (2 * Math.PI);
+            double[] components = components(f.extractorDown, rise, turretYaw, lift, rollerSpin, flywheelSpin);
             for (int k = 0; k < components.length; k++) components[k] = Math.round(components[k] * 1e5) / 1e5;
             if (!Arrays.equals(components, componentsLast)) {
                 log.putPose3dArray(prefix + COMPONENTS, components, f.us);
@@ -288,31 +324,48 @@ final class RobotInternalsLog {
         return Math.toRadians(J_ARM_MAX_DEG);
     }
 
-    /**
-     * The four component poses, translation (m) then quaternion (w, x, y, z): the extractor (as
-     * {@link AutoSim#cadComponents}), the roller raised {@code riseIn}, the turret turned {@code yaw} about its axis,
-     * and the J arm lifted {@code lift} about its pivot.
-     */
+    /** As {@link #components(double, double, double, double, double, double)}, with nothing spinning. */
     static double[] components(double extractorDown, double riseIn, double yaw, double lift) {
+        return components(extractorDown, riseIn, yaw, lift, 0, 0);
+    }
+
+    /**
+     * The component poses, translation (m) then quaternion (w, x, y, z):
+     * <ul>
+     *   <li>the extractor, as {@link AutoSim#cadComponents};</li>
+     *   <li>the roller's carriage, raised {@code riseIn};</li>
+     *   <li>the turret, turned {@code yaw} about its axis;</li>
+     *   <li>the J arm, lifted {@code lift} about its pivot;</li>
+     *   <li>the intake roller, turned {@code rollerSpin} about its axle and raised with the carriage;</li>
+     *   <li>each flywheel, turned {@code flywheelSpin} about its axle.</li>
+     * </ul>
+     */
+    static double[] components(double extractorDown, double riseIn, double yaw, double lift, double rollerSpin, double flywheelSpin) {
         double[] out = new double[7 * COUNT];
         System.arraycopy(AutoSim.cadComponents(extractorDown, 0), 0, out, 7 * EXTRACTOR, 7);
         out[7 * ROLLER + 2] = riseIn * M;
         out[7 * ROLLER + 3] = 1;
-        // About +Z through (TURRET_X, 0): translation = p - R p.
-        double px = TURRET_X * M;
-        int t = 7 * TURRET;
-        out[t] = px - px * Math.cos(yaw);
-        out[t + 1] = -px * Math.sin(yaw);
-        out[t + 3] = Math.cos(yaw / 2);
-        out[t + 6] = Math.sin(yaw / 2);
-        // About +Y through the arm pivot.
-        double ax = J_PIVOT_X * M, az = J_PIVOT_Z * M, c = Math.cos(lift), s = Math.sin(lift);
-        int j = 7 * J_ARM;
-        out[j] = ax - (ax * c + az * s);
-        out[j + 2] = az - (-ax * s + az * c);
-        out[j + 3] = Math.cos(lift / 2);
-        out[j + 5] = Math.sin(lift / 2);
+        about(out, TURRET, new double[] {TURRET_X * M, 0, 0}, new double[] {0, 0, 1}, yaw);
+        about(out, J_ARM, new double[] {J_PIVOT_X * M, 0, J_PIVOT_Z * M}, new double[] {0, 1, 0}, lift);
+        Spinner r = INTAKE_ROLLER_SPIN;
+        about(out, INTAKE_ROLLER, r.pointM, r.axis, r.sign * rollerSpin);
+        out[7 * INTAKE_ROLLER + 2] += riseIn * M;
+        for (int k = 0; k < FLYWHEELS.length; k++) {
+            Spinner w = FLYWHEELS[k];
+            about(out, INTAKE_ROLLER + 1 + k, w.pointM, w.axis, w.sign * flywheelSpin);
+        }
         return out;
+    }
+
+    /** Component {@code c}: turned {@code angle} about the unit {@code axis} through {@code p} (translation = p - R p). */
+    private static void about(double[] out, int c, double[] p, double[] axis, double angle) {
+        double cs = Math.cos(angle), sn = Math.sin(angle), dot = axis[0] * p[0] + axis[1] * p[1] + axis[2] * p[2];
+        // Rodrigues: R p = p cos + (axis x p) sin + axis (axis . p)(1 - cos).
+        double[] cross = {axis[1] * p[2] - axis[2] * p[1], axis[2] * p[0] - axis[0] * p[2], axis[0] * p[1] - axis[1] * p[0]};
+        int k = 7 * c;
+        for (int i = 0; i < 3; i++) out[k + i] = p[i] - (p[i] * cs + cross[i] * sn + axis[i] * dot * (1 - cs));
+        out[k + 3] = Math.cos(angle / 2);
+        for (int i = 0; i < 3; i++) out[k + 4 + i] = axis[i] * Math.sin(angle / 2);
     }
 
     /**
