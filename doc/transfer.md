@@ -257,6 +257,24 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
+## Decision, 7 Oct 2026: the lane is the mentor's wheel channel
+
+The mentor has prototyped the lane in the lab: two grid plates as floor and ceiling, wheels on vertical shafts in two
+staggered rows along the sides, and printed hub pulleys that bolt to each wheel's face so one belt chains a row from
+one motor. It does the polycord lane's job with positive drive on every ball. **Adopted as the lane's drive.** The
+strands, their pulleys, the countershaft and the roller-shaft pulley become the fallback. Everything else here
+stands: the lane's position down the centreline, the ramp under the floating roller, the capacity by length
+(4 POLLEN, 3 NECTAR, never 5), the shot interval set by the lane's speed, and the stopped wheel at the lane's end as
+the gate to the launcher.
+
+**The one thing the prototype has to show, in the lab:** that its wheels grip both sizes. The balls take under
+0.25 in of squeeze, so with hard wheels a gap that grips a NECTAR (3.62) misses a POLLEN (2.80). Compliant (soft)
+wheels, or a sprung row, close that. Feed a POLLEN and a NECTAR back to back; if both come through, the lane is done.
+
+**Still to settle, from the mentor's CAD:** the wheel type and row gap; which row is driven (one driven row and
+free idlers opposite is enough); the plate gap (a NECTAR needs 3.7 in between the plates, and the top plate must stay
+under the raised 11-hole channel at 4.75); and where the lane's last wheel hands off to the launcher's feed roller.
+
 ## The real launcher (7 Oct 2026): the J feeds its flywheels
 
 **Correction from the CAD chat.** The CAD's "Launcher Concept" is not a placeholder: it is the designer's launcher.
