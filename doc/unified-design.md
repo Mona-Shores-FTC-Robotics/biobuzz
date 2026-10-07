@@ -412,9 +412,7 @@ level with flower-first; 2.3 s 68.9. The Stages routes don't move (angled 51.7, 
 FLOWER is only their fallback.
 
 **Still open:**
-- The simulator's committed `rigid V` still seats at 7.09. The baselines (`QualRightVAuto` and the rest) are fitted
-  to it, so on a 4.59 seat they extract nothing (QualRightVAuto: 32.6). They need refitting when the simulator
-  chat lands 4.59.
+- ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
   PARK in quals is non-negotiable, so that route needs a PARK ending.
 
