@@ -1,6 +1,6 @@
 # Keeps a laptop's AdvantageScope current with this branch, in one command, and opens a log:
 #
-#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open right|angled|wall|seatfire|<file>] [-Typical]
+#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open right|flowerfirst|angled|wall|seatfire|<file>] [-Typical]
 #
 # What it does, every run: pulls nothing itself (the README's one-liner does the git part); installs this branch's
 # robot model (cad/advantagescope/Robot_BIOBUZZ, committed) and the generated assets (the field "2026-2027 Field
@@ -99,7 +99,7 @@ Copy-Item -Force $source $layout
 # 6. The README table's latest logs, from the sim-results branch, into one folder (the names in the README).
 $logs = Join-Path $HOME "Downloads\biobuzz-logs"
 New-Item -ItemType Directory -Force $logs | Out-Null
-$autos = [ordered]@{ right = "qual-right-v"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; seatfire = "qual-right-v-seatfire-west" }
+$autos = [ordered]@{ right = "qual-right-v"; flowerfirst = "qual-right-v-flower-first-tip3"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; seatfire = "qual-right-v-seatfire-west" }
 $raw = "https://raw.githubusercontent.com/Mona-Shores-FTC-Robotics/biobuzz/sim-results"
 $named = @{}
 foreach ($k in $autos.Keys) {
@@ -114,9 +114,15 @@ foreach ($k in $autos.Keys) {
         $name = $latest.namedLogs.$label
         if (-not $name) { continue }
         $target = Join-Path $logs $name
-        if (-not (Test-Path $target)) {
+        # A log's name carries only the day its route last changed, so the same name is published again whenever the
+        # simulator changes: a sidecar remembers which commit the copy here came from, and a different one is fetched
+        # again (7 Oct 2026: the mentor watched the morning's log all day).
+        $stamp = "$target.commit"
+        $have = if (Test-Path $stamp) { Get-Content $stamp -Raw } else { "" }
+        if (-not (Test-Path $target) -or $have.Trim() -ne $latest.commit) {
             Invoke-WebRequest -Uri "$raw/$auto/$name" -OutFile $target -TimeoutSec 120
-            Write-Host "Downloaded $name"
+            Set-Content -NoNewline $stamp $latest.commit
+            Write-Host "Downloaded $name (simulated at $($latest.commit.Substring(0, 7)))"
         }
         $named["$k-$label"] = $target
     }
