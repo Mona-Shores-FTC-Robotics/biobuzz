@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v3, from the CAD chat's commit 22b8aaa. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v3, from the CAD chat's commit ac817a6. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -24,8 +24,8 @@ on the transfer's path (robot frame: X forward from the chassis centre, z up, in
 | Stage | Where | When |
 |---|---|---|
 | Taken in | From X 10.0 on the tiles, under the roller (axle at X 8.56), up the ramp (X 8.0 → 5.7, 0.05 → 1.3 in up), then along the flat lane (ball-bottom 1.3 in up) | At the lane's 27 in/s, until it reaches its place in the queue |
-| Queued | The lead piece held between the side feeders at X −2.845 (the turret's axis; centre 2.70 in up for a POLLEN, 3.11 for a NECTAR), the rest nose to tail behind it: POLLEN at −2.845, −0.045, 2.755, 5.555; NECTAR at −2.845, 0.755, 4.355 | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the next waits right behind the hold and rolls in when it has gone |
-| Firing | The held piece waits 0.05 s while the feeders spin up. It then rises straight up the turret's axis through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in, where the simulator's shot starts | It arrives at the exit as the simulator launches it, 0.15 s after it started |
+| Queued | The lead piece held between the side feeders against the backstop: a POLLEN's centre at X −2.455, a NECTAR's at −2.045 on the turret's axis (2.70 / 3.10 in up). The rest sit nose to tail behind it, each the two radii further forward: 4 POLLEN at −2.455, 0.345, 3.145, 5.945; 3 NECTAR at −2.045, 1.555, 5.155 | Each piece moves up at 27 in/s when the one ahead leaves. While a piece is being fed, the next waits right behind the hold and rolls in when it has gone |
+| Firing | The held piece waits 0.05 s while the feeders spin up. It then rises up the column on the turret's axis (X −2.045) through the flywheels' nip (6.65 in up) and the turret's bore to the exit's height, 12 in. The simulator's shot starts there, but 0.8 in behind, at X −2.845, until its exit is moved with the launcher | It arrives at the exit as the simulator launches it, 0.15 s after it started |
 
 Preloads start in their places. A robot without the transfer (any design without `laneCapacity`) has its held pieces
 placed on the same path, without the motion.
@@ -40,11 +40,11 @@ turn at a display rate, 2 turns a second, while they run: real roller and flywhe
 |---|---|---|---|
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 146° stowed | The simulator's `Extractor/Down`: down on the way to a FLOWER, up as the robot leaves |
 | 1 | Roller carriage, motor, float plates | Straight up, 0 to 1.3 in | Rises until the roller clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in |
-| 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.072215, 0.004) m, 4 mm left of the centre line | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. Straight ahead at the start |
-| 3 | Left feeder: two 72 mm wheels on an axle along X | About −X through (−0.072263, 0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
+| 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.051895, 0.004) m, 4 mm left of the centre line | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. Straight ahead at the start |
+| 3 | Left feeder: two 72 mm wheels on an axle along X | About −X through (−0.051943, 0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
 | 4 | Intake roller | About +Y through its axle (0.217424, 0, 0.084963) m, plus the carriage's rise | Spins while the intake runs; the bottom moves rearward |
-| 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.0762, ±0.0925, 0.1688) m | Spin while the launcher is spun up, both throwing the piece up |
-| 7 | Right feeder: two 72 mm wheels on an axle along X | About +X through (−0.072263, −0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
+| 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.05588, ±0.0925, 0.1688) m | Spin while the launcher is spun up, both throwing the piece up |
+| 7 | Right feeder: two 72 mm wheels on an axle along X | About +X through (−0.051943, −0.069020, 0.078808) m | Spins while a piece is being fed, driving it up |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
