@@ -150,8 +150,12 @@ def right_flower_first_hold(name, robot="baseline", n_fire=None, **kw):
     r.cards, r.lines, r.path_ends = [], [], {}
     r.at = "START"
     r.add(r.action("SpinUp"), *_flower(r, "FAR_FLOWER", "The far FLOWER", 1500)[:-1],
-          r.wait("TIP 1 (the partner), seated at the FLOWER", when=["LeftCellUp"], ms=FLOWER_TIP1_MS[0]),
-          *[r.action("LaunchOne") for _ in range(4)],
+          # The preloads one by one only once the left CELL is up: LaunchOne waits until it has fired, and the CELL
+          # that is up before TIP 1 is out of the seat's range, so a missed TIP 1 held the robot there all AUTO. Without
+          # TIP 1 it goes on full (the next wait passes at once) and fires them from N_FIRE.
+          r.wait("TIP 1 (the partner), seated at the FLOWER", when=["LeftCellUp"], ms=FLOWER_TIP1_MS[0],
+                 yes=[r.action("LaunchOne") for _ in range(4)], yes_label="TIP 1: fire the preloads",
+                 no_label="No TIP 1: on to N_FIRE with them"),
           r.wait("The far FLOWER's 4, collected", when=["IntakeFull"], ms=FLOWER_HOLD_MS[0]))
     r.at = "FAR_FLOWER"
     r.add(r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
@@ -162,9 +166,8 @@ def right_flower_first_hold(name, robot="baseline", n_fire=None, **kw):
 
 
 FLOWER_HOLD_MS = [3000]
-# How long to sit at the FLOWER for the partner's TIP 1 (it settles about 3 s after the robot seats). 9 s, the plain
-# route's wait, left a missed TIP 1 (1 run in 60) so late that the endgame guard's cut-short PARK clipped a FLOWER and
-# the HIVE frame; past this the robot leaves for N_FIRE with its preloads and fires them there.
+# How long to sit at the FLOWER for the partner's TIP 1 (it settles about 3 s after the robot seats); past this the
+# robot leaves for N_FIRE with its preloads and fires them there.
 FLOWER_TIP1_MS = [5000]  # at most: 4 pulls at 0.5 s after the first shot, then the transfer's feed
 
 

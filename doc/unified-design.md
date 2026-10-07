@@ -439,6 +439,12 @@ PARK 59 · G409 15 · 1 problem run** (seed 1 drives into a FLOWER at 26.3 s, in
 chat's seat fire **72.3 · 52 · PARK 60 · G409 6 · none**. Seat fire is the better right-side Auto; the hold route's 10-run
 lead (72.0 against 70.0) was noise.
 
+**On the 0.2 s shot interval (claude/simulator 2698d62), 60 runs:** flower first, hold **74.0 · 3 TIPs in 56 · PARK 60
+· G409 16 · no problem runs**, level with the plain right route's 74.0 and ahead of seat fire's 72.7 (the simulator
+chat's figures). One fix on the way: when the partner missed TIP 1 (1 run in 60) the robot sat at the FLOWER all AUTO,
+because LaunchOne waits until it has fired and the CELL up before TIP 1 is out of the seat's range. The preloads are
+now fired from the seat only once the left CELL is up; without TIP 1 in 5 s the robot takes them to N_FIRE.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
