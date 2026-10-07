@@ -197,7 +197,11 @@ public class AutoStudyTest {
         transfer.laneCapacity = true;
         RobotDesign turretTransfer = transfer.copy("rigid V, turret transfer");
         turretTransfer.launcher = RobotDesign.Launcher.TURRET;
-        for (RobotDesign d : new RobotDesign[] {fast, lane, transfer, turretTransfer}) m.put(d.name, d);
+        // The turret held still (mentor, 7 Oct 2026: plan for it to move, but keep one baseline Auto that works without
+        // it): the launcher points straight ahead, so the drivetrain turns the robot to face the CELL for every shot.
+        RobotDesign fixedTurret = v.copy("rigid V, fixed turret");
+        fixedTurret.launcher = RobotDesign.Launcher.FIXED;
+        for (RobotDesign d : new RobotDesign[] {fast, lane, transfer, turretTransfer, fixedTurret}) m.put(d.name, d);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);
