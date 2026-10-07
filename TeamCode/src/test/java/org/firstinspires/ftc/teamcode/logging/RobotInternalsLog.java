@@ -136,7 +136,7 @@ final class RobotInternalsLog {
         if (!t.frames.isEmpty()) {
             List<FieldSim.Piece> now = Arrays.asList(f.stored);
             for (FieldSim.Piece p : t.frames.get(t.frames.size() - 1).stored) {
-                if (!now.contains(p) && p.shotFrom != null && p.shotFrom != t.shotSeen.get(p)) t.launchedAt.put(p, us);
+                if (!now.contains(p) && p.shotFrom != null && p.shotFrom != t.shotSeen.get(p)) t.launchedAt.computeIfAbsent(p, k -> new ArrayList<>()).add(us);
             }
         }
         for (FieldSim.Piece p : f.stored) t.shotSeen.put(p, p.shotFrom);
@@ -181,7 +181,10 @@ final class RobotInternalsLog {
         final RobotDesign design;
         final boolean cad, transfer;
         final List<Frame> frames = new ArrayList<>();
-        final Map<FieldSim.Piece, Long> launchedAt = new IdentityHashMap<>();
+        /** When each piece was launched: a piece shot, missed and taken in again can be launched more than once. */
+        final Map<FieldSim.Piece, List<Long>> launchedAt = new IdentityHashMap<>();
+        /** The launch each climbing piece is climbing toward. */
+        final Map<FieldSim.Piece, Long> climbingTo = new IdentityHashMap<>();
         final Map<FieldSim.Piece, double[]> shotSeen = new IdentityHashMap<>();
         /** Where each held piece is drawn: inches along its path ({@link Path}). */
         final Map<FieldSim.Piece, Double> along = new IdentityHashMap<>();
@@ -219,9 +222,19 @@ final class RobotInternalsLog {
             List<FieldSim.Piece> climbing = new ArrayList<>();
             if (!transfer) queue.addAll(Arrays.asList(f.stored));
             else for (FieldSim.Piece p : f.stored) {
-                Long at = launchedAt.get(p);
-                if (at != null && at - f.us <= Math.round(CLIMB_S * 1e6)) climbing.add(p);
-                else queue.add(p);
+                // Launched within CLIMB_S from now. A piece shot earlier and taken in again is in the queue again.
+                Long next = null;
+                for (long at : launchedAt.getOrDefault(p, java.util.Collections.emptyList())) {
+                    if (at > f.us && at - f.us <= Math.round(CLIMB_S * 1e6)) next = at;
+                }
+                if (next != null) {
+                    climbing.add(p);
+                    climbingTo.put(p, next);
+                } else {
+                    queue.add(p);
+                    climbingTo.remove(p);
+                    climbFrom.remove(p);
+                }
             }
             along.keySet().retainAll(Arrays.asList(f.stored));
             // The queue: the front piece seated in the cup (held back at the lane's end while another is being fed),
@@ -230,7 +243,7 @@ final class RobotInternalsLog {
             for (int q = 0; q < queue.size(); q++) {
                 FieldSim.Piece p = queue.get(q);
                 Path path = path(p.kind.radius);
-                double front = q == 0 && climbing.isEmpty() ? path.cup : path.laneEnd;
+                double front = climbing.isEmpty() ? path.cup : path.laneEnd;
                 if (q > 0) behind += lastR + p.kind.radius;
                 lastR = p.kind.radius;
                 double target = Math.max(0, front - behind);
@@ -243,7 +256,7 @@ final class RobotInternalsLog {
                 along.put(p, s);
             }
             for (FieldSim.Piece p : climbing) {
-                double toGo = (launchedAt.get(p) - f.us) / 1e6;
+                double toGo = (climbingTo.get(p) - f.us) / 1e6;
                 Path path = path(p.kind.radius);
                 double from = climbFrom.computeIfAbsent(p, k -> along.getOrDefault(k, path.cup));
                 double moving = CLIMB_S - FEED_SPIN_UP_S;
