@@ -185,6 +185,23 @@ public class AutoStudyTest {
         rigidV.launcher = RobotDesign.Launcher.TURRET;
         rigidV.exitForwardIn = -2.045;  // the launch column up the turret axis (the robot-CAD chat, 7 Oct 2026, ac817a6); the height is still the placeholder
         m.put("rigid V", rigidV);
+        // The transfer (doc/transfer.md on spike/164-transfer, 6 Oct 2026): a floor lane up the turret axis, with its
+        // capacity (4 POLLEN, 3 NECTAR). "rigid V" itself is a turret firing every 0.2 s now (claude/simulator, issue
+        // #168), so the transfer designs take its interval; "rigid V, 0.25 s shots" keeps the transfer chat's 0.25 s for
+        // comparison. "rigid V, turret transfer" is the same as "rigid V, transfer"; the name stays for the routes and
+        // logs that use it.
+        RobotDesign v = m.get("rigid V");
+        RobotDesign fast = v.copy("rigid V, 0.25 s shots"), lane = v.copy("rigid V, lane"), transfer = v.copy("rigid V, transfer");
+        fast.shotIntervalS = 0.25;
+        lane.laneCapacity = true;
+        transfer.laneCapacity = true;
+        RobotDesign turretTransfer = transfer.copy("rigid V, turret transfer");
+        turretTransfer.launcher = RobotDesign.Launcher.TURRET;
+        // The turret held still (mentor, 7 Oct 2026: plan for it to move, but keep one baseline Auto that works without
+        // it): the launcher points straight ahead, so the drivetrain turns the robot to face the CELL for every shot.
+        RobotDesign fixedTurret = v.copy("rigid V, fixed turret");
+        fixedTurret.launcher = RobotDesign.Launcher.FIXED;
+        for (RobotDesign d : new RobotDesign[] {fast, lane, transfer, turretTransfer, fixedTurret}) m.put(d.name, d);
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);

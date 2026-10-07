@@ -24,13 +24,33 @@ late hooks, hook staging of preloads, and the hook's G409 work. Their routes sta
 `keep4.py`, `qual_stage.py`, `guide_routes.py`'s `stages_hook*`). [Ramp hook](ramp-hook.md)'s spill half is
 superseded; its FLOWER half carries on below.
 
+## The user's decisions, 6 Oct 2026 (evening)
+
+Passed on by the Flower Extracter / robot CAD chat.
+
+1. **The FLOWER extractor stays at the front.**
+   - It's on its own shaft, 2.4 in ahead of the face and 4.5 in up.
+   - The roller floats straight up 1.3 in, so a NECTAR passes under it.
+   - Drawn and swept in `cad/intake-b/` on `claude/robotics-meeting-notes-lq2y55`, commit 70b2561.
+   - A rear extractor was weighed and dropped: entering from the rear reverses the J, so the robot couldn't shoot
+     while extracting.
+2. **Shoot while extracting.** The turret fires from the seat while the extractor feeds roller → lane → J → turret.
+   The Autos are to be built around that, in simulation.
+3. **Simple, reliable hardware and ideas** over clever ones.
+4. **The Limelight is fixed, facing forward:** no pan servo, not on the turret.
+5. **The FLOWER scorer (the NECTAR-capping cage) is shelved,** to revisit later.
+6. **The transfer gets fully CADed next,** by the CAD chat, from the transfer chat's design.
+
+The V is unchanged: its roots moved 4 mm forward, its tabs are lower, and the tips are still 2.84 in ahead. The
+starting length is 17.96 in.
+
 ## Who does what
 
 | Part | Owner (chat) | What it decides |
 |---|---|---|
 | **Rigid V** | Intake Design | The V's angle, length, height and shape within the envelope, and the intake behind it. The CAD's drawn V (17.8 in tips, 2.8 in ahead, `cad/intake-b/`) is the starting point. |
 | **FLOWER extractor** | Flower Extracter | The old hook redesigned for FLOWERs only: no walls, two arms for rigidity, far lower than 8 in. It must stow inside the 18 in start cube with the V fitted. |
-| **FLOWER scorer** | Pivoting arm nectar scorer | **The rear scorer is dropped for now** (no wall rollers, bumper or servo panel: it takes no space). The chat is now looking at a **front NECTAR-capping assist**: a cage over the FLOWER's top while the extractor holds the robot on the FLOWER, so the turret can cap from that seat. |
+| **FLOWER scorer** | Pivoting arm nectar scorer | **Shelved** (the user, 6 Oct evening). Before that: **the rear scorer is dropped for now** (no wall rollers, bumper or servo panel: it takes no space). The chat is now looking at a **front NECTAR-capping assist**: a cage over the FLOWER's top while the extractor holds the robot on the FLOWER, so the turret can cap from that seat. |
 | **Transfer, intake to turret** | Intake-to-turret transfer (session_019KDmb4SvV5VjdaM2USg71K) | How pieces get from the roller to the turret at any turret angle, holding up to 4 (G407), NECTAR and POLLEN. The first idea to weigh: feed through the turret's rotation axis, with a single-file floor channel as the magazine. |
 | **Simulator and routes** | FTC BIOBUZZ robot body designs (this branch) | Runs every candidate through the three qualifier Autos (60 runs), and draws each Auto for the unified robot. |
 | **Simulator physics, baselines** | Claude/Simulator Baseline | Makes the Rigid V robot the baseline. Models the extractor and scorer when their geometry exists. |
@@ -164,7 +184,9 @@ throughout.
   lowering it loses the UP row at the firing spots. Moving the lens back changes the ranges above, so tell me the new
   position and I'll re-check.
 
-**The NECTAR-capping cage may block the camera while seated at a FLOWER** (the user's ruling, 6 Oct 2026). Stowed
+**Decided (the user, 6 Oct 2026): the Limelight is fixed, facing forward.** No pan servo, and not on the turret; the mount above stands.
+
+**Shelved with the FLOWER scorer: the NECTAR-capping cage.** Kept for when it comes back. It may block the camera while seated at a FLOWER (the user's ruling, 6 Oct 2026). Stowed
 or driving, it stays under the ceiling above. What it means for the code:
 - **Localization: nothing to do.** With no tags in view, there's no seed, no relocalize and no would-relocalize, and
   the Pinpoint carries the pose. A partly blocked view is fine too, because `CellFix.fit` uses whichever tags remain.
@@ -397,6 +419,42 @@ reaches before it is down blocks it (event `extractor blocked`): it takes nothin
 (10 runs: 70.0, 3 TIPs in 7, PARK 10, TIP 2 at 7.4 s and TIP 3 at 20.1 s, against the plain route's 11.5 s and 23.6 s at
 the same 70.0); the extractor is down from 1.0 s, with the robot seated from about 2.8 s. Whether a robot may sit
 pushed into the FLOWER before it fires is a rules question still open.
+
+**Mentor review of the flower-first log (7 Oct 2026):** shoot the 4 preloads, stop until the FLOWER's 4 are in,
+turn and get lined up, then shoot those 4; and the turn away from the FLOWER ran through where TIP 2's spill drops.
+`qual-right-v-flower-first-hold` (`stream.py`): the preloads fired one by one from the seat, the FLOWER's 4 collected,
+back out and turn to N_FIRE, then fired there stopped. TIP 2 can only start once they're away, so the robot already
+stands where the baseline waits for the spill. 10 runs: **70.0 · 3 TIPs in 7 · PARK 10 · G409 2**, against the
+streaming flower first's 66.0 · 5 and preloads first's 72.0 · 8 on the same simulator. **60 runs** (the AdvantageScope chat): **70.6 · 3 TIPs in 47 · PARK 119 of 120**, against the streaming flower first's 65.3 on the same simulator. The GARDEN approach (through
+the wall) is in the shared tail: the simulator chat's wall check and fix.
+
+**Regenerated on the simulator chat's GARDEN fix and wall check (cfae8b2), 10 runs, no wall or other problems:**
+flower first, hold 70.0 · 7 · PARK 10; preloads first 70.0 · 7 · PARK 10; wall stream 56.0 · PARK 10. **The angled
+partner's stream routes are retired:** the far FLOWER is only that route's fallback, and streaming there leaves too
+little time to PARK (leave 1.3 s: PARK 2 of 10; 1.8 s: 53.5, PARK 1 of 10; the plain route 55.0, PARK 8 of 10).
+Use the plain `qual-stages-angled-v` for that pairing.
+
+**On the HIVE's dwell before a TIP (claude/simulator 3e0813b), 60 runs:** flower first, hold **70.6 · 3 TIPs in 47 ·
+PARK 59 · G409 15 · 1 problem run** (seed 1 drives into a FLOWER at 26.3 s, in the shared ending) against the simulator
+chat's seat fire **72.3 · 52 · PARK 60 · G409 6 · none**. Seat fire is the better right-side Auto; the hold route's 10-run
+lead (72.0 against 70.0) was noise.
+
+**On the 0.2 s shot interval (claude/simulator 2698d62), 60 runs:** flower first, hold **74.0 · 3 TIPs in 56 · PARK 60
+· G409 16 · no problem runs**, level with the plain right route's 74.0 and ahead of seat fire's 72.7 (the simulator
+chat's figures). One fix on the way: when the partner missed TIP 1 (1 run in 60) the robot sat at the FLOWER all AUTO,
+because LaunchOne waits until it has fired and the CELL up before TIP 1 is out of the seat's range. The preloads are
+now fired from the seat only once the left CELL is up; without TIP 1 in 5 s the robot takes them to N_FIRE.
+
+**Mentor review of the hold route (7 Oct 2026): PARK deeper, and use the time after TIP 3.**
+`qual-right-v-flower-first-tip3` with `partner-preloads-right-high` (stream.py): after the GARDEN's shots, wait for TIP 3
+(about 21.7 s), turn west at S_COLLECT (50, 24), let the spill land, take what the webcam sees of it (up to 3 s or 4
+held), then up the west side (x 24) into PARK at (10.5, 95), the robot's frame about 8 in inside the zone; the partner
+parks at the zone's far end (10.5, 116), 1.6 in clear. 60 runs, "rigid V": **74.0 · 3 TIPs in 56 · both PARK 60 ·
+1.65 held into TELEOP · no problem runs** (the hold route: the same 74.0, 0 held). Two fixes to CollectSeen on the way
+(AutoSim.approachHitsFrame): it judges walls and the centre line by the whole outline (V tips and flaps), not the
+frame's corners, and also through the turn back to its starting heading; a piece by the centre line, collected facing
+east, then the turn north for PARK swung the tips across. Still to try (mentor): carry TIP 3's spill under the HIVE and
+fire it before PARK; or PARK straight away, deep, and fire from the LOADING ZONE.
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.

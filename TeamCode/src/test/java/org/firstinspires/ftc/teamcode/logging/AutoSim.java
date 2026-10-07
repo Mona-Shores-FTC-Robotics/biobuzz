@@ -1035,7 +1035,7 @@ public final class AutoSim {
             double vx = (pose[0] - prev[0]) / LOOP_S, vy = (pose[1] - prev[1]) / LOOP_S;
             double w = AdvantageScopeFrame.wrap(pose[2] - prev[2]) / LOOP_S;
             prev = pose;
-            boolean intaking = running && intakeEnabled && body.stored.size() < FieldSim.ROBOT_CAPACITY;
+            boolean intaking = running && intakeEnabled && !FieldSim.full(body);
             if (design.sideWallsSlideIn > 0 || design.sideWallsOutIn > 0 || design.flapsDeploy) {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
@@ -1162,7 +1162,7 @@ public final class AutoSim {
                 boolean spillHere = !design.flapsDeploy || (pose[1] > FieldSim.CENTRE_IN) == wallSpillHighY;
                 if (design.flapEitherSide && body.wallsOut == 0) body.flapsOnly = towardCentre(pose[0], pose[2]);
                 boolean armInside = !design.flapTowardCentre || towardCentre(pose[0], pose[2]) == body.flapsOnly;
-                if (running && !wallsWanted && near && spillHere && !tooLate && body.stored.size() < FieldSim.ROBOT_CAPACITY) {
+                if (running && !wallsWanted && near && spillHere && !tooLate && !FieldSim.full(body)) {
                     if (!armInside) {
                         log.putEvent(tag() + "hook stays up: its arm would be on the side away from the centre line", us);
                     } else {
@@ -1178,7 +1178,7 @@ public final class AutoSim {
                 hookStopped |= body.wallsOut >= 1 && speed < HOOK_STILL_IN_PER_S;
                 String why = !running ? "AUTO ended"
                         : hookHeld ? null
-                        : body.stored.size() >= FieldSim.ROBOT_CAPACITY ? "holding 4"
+                        : FieldSim.full(body) ? "holding 4"
                         : !near ? "left the HIVE"
                         : speed > (design.flapsDeploy && hookStopped ? HOOK_STILL_IN_PER_S : WALLS_DRIVE_OFF_IN_PER_S) ? "driving off"
                         // A hook still sliding to its spot may turn a little on the way.
@@ -1373,7 +1373,7 @@ public final class AutoSim {
                     // down until HookUp, whatever the robot does meanwhile; done once it has finished swinging.
                     .command("HookDown", RobotDesign.standard().sideWallsTravelS, () -> hook(true))
                     .command("HookUp", RobotDesign.standard().sideWallsTravelS, () -> hook(false))
-                    .trigger("IntakeFull", () -> design.countsPieces && body.stored.size() >= FieldSim.ROBOT_CAPACITY)
+                    .trigger("IntakeFull", () -> design.countsPieces && FieldSim.full(body))
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
                         FieldSim.Rocker hive = sim.rocker(alliance);
@@ -1507,7 +1507,7 @@ public final class AutoSim {
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
-                    .setDone(() -> body.stored.size() >= FieldSim.ROBOT_CAPACITY
+                    .setDone(() -> FieldSim.full(body)
                             || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
                     .setEnd(end -> drive.hold(drive.pose));
         }
@@ -1590,15 +1590,28 @@ public final class AutoSim {
                 // started collecting with: the Auto's next path starts from that heading.
                 double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
                 for (double g = 0; g <= 1.0001; g += 0.25) {
-                    for (double[] c : edges(new double[] {mid[0], mid[1], end[2] + back * g}, span(design) + 5)) {
+                    double[] turned = {mid[0], mid[1], end[2] + back * g};
+                    for (double[] c : edges(turned, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
                     }
+                    // Its V tips swing as it turns: over the centre line or into a wall (a piece by the centre line,
+                    // collected facing east, then the turn north for PARK put the tips across).
+                    if (outOfBounds(turned, wall)) return true;
                 }
-                for (double[] c : corners(mid, design)) {
-                    // G402: no part of the robot past the centre line (a spill scatters right up to it).
-                    if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
-                    if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
-                }
+                if (outOfBounds(mid, wall)) return true;
+            }
+            return false;
+        }
+
+        /**
+         * Whether the robot at {@code pose} reaches over the centre line (G402; a spill scatters right up to it) or
+         * within {@code wall} of a wall. The whole outline, V tips and flaps included, as the problem checks judge it:
+         * the frame's corners alone let it chase a piece by the centre line or the south wall with its tips over.
+         */
+        private boolean outOfBounds(double[] pose, double wall) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
+                if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
             return false;
         }
