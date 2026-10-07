@@ -22,6 +22,12 @@ HIVE's own stand, frame by frame, not against the picture; an automatic track of
 the camera and by pieces being shot in. So each start is ±0.1 s, and a little late: the creep begins before the
 swing is visible. The YouTube video has three more TIPs (about 2, 56 and 125 s) not yet read the same way.
 
+**Checked against the Saline Preview Event (7 Oct 2026).** Eleven AUTO TIPs frame-stepped on the Day 2 stream
+([saline-tip-measurements.md](saline-tip-measurements.md)) swing in 0.65–0.9 s, median 0.75, inside this range
+and toward its short end; one swung in 2.2 s because 1.3 s of it was creep. New there: on every TIP the rocker
+sat 0.25–3.4 s (median about 2 s) after the threshold POLLEN settled before it left its stop. The simulator has
+no such wait, so its TIPs come about 2 s early.
+
 **Why they differ.** Not known. A CELL loaded well past its tipping weight probably swings faster, but these
 videos don't show how many pieces were in each.
 

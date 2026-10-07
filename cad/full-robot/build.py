@@ -40,7 +40,10 @@ C, F, FACE, IN = A.C, A.F, A.FACE, A.IN
 # replaces them); his staged NECTAR and POLLEN; and the launcher's front cross-channel with its two dual blocks (the
 # lane's balls run through where it is; the 8-hole channel above still ties the frame).
 SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043|V-Groove|Cavity1|8x14x5mm Bearing|4\.5in OD|Servo|Compact Servo Block)"
-                  r"|^3\.5in OD|Nectar|Pollen|Wheel Assembly <\d> / 72mm Steel Shaft")   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
+                  r"|^3\.5in OD|Nectar|Pollen|Wheel Assembly <\d> / 72mm Steel Shaft"
+                  r"|Launcher subassembly <\d> / (312rpm Motor|7x11 hole Aluminum Plate|1 Hole Lowside U-Channel|Mini Quad Block|16t HTD5 Pulley|\[LS\] HTD5 belt 68)")
+# (the last line: the flywheel motors, their belts and the plates and blocks that held them under the flywheels, where the
+# feeders go; cad/transfer/ draws the motors moved out and up)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
 RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (21 mm): a lane NECTAR passes under it
 FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
 WIDEN_IN = 0.25   # the launcher's front U-beams move this much further apart: the lane's balls pass between them
@@ -114,6 +117,9 @@ def placed_team(robot_step):
             if x_model > -2.0:
                 if "U Beam" in p: loc = moved((math.copysign(WIDEN_IN * IN, y_model), 0, 0)).Multiplied(loc)
                 else: continue                            # the front cross-channel and its two dual blocks
+        if re.search(r"Launcher subassembly <\d> / (64mm Standoff|27mm Standoff|\d+\.?\d*mm Spacer)", p):
+            b = bbox(key, loc)
+            if (b[1] + b[4]) / 2 - F < 4.3 * IN: continue   # the old motor's standoffs and spacers, where the feeders go
         out.append((path, base[key], loc, col, key))
     return out
 

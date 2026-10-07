@@ -106,6 +106,10 @@ as a tunnel run plus a park card the guard cut the run between the feet and the 
 from the north no path fits between the parked partner and the west foot. 60 runs: **52.3**, TIP 2 in 54, PARK 60 of
 60 for both robots, G409 9, no problems (51.7 with no PARK before).
 
+**The launch exit on the turret axis** (7 Oct 2026 18:30 UTC, the robot-CAD chat: the launch column runs up the turret
+axis at X −2.845 in; the old −4 was the earlier launcher's). `exitForwardIn` −2.845 on `rigid V`, the exit height still
+the 12 in placeholder: **69.5** / **52.3** / **52.3**, seat fire **72.0**, within a point of before each way.
+
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of
 waiting for 4 and driving to the firing spot; a TIP or 3–3.5 s ends it (not "Empty": with nothing held on arrival that
