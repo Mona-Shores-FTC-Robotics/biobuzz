@@ -23,6 +23,13 @@ mate it needs. You fix the two FRAMEs, make the groups rigid, then add nine mate
 4. Then make a new Assembly tab, **Insert** both, leave each at the origin and fix them. They share one frame, so the
    two halves land together, and their mates come with them.
 
+**Fewer tabs.** Onshape makes a tab for every distinct part it imports, which is a lot of tabs here. Two things help:
+- In the import dialog, choose to split the assembly into multiple documents. The parts then go into their own
+  documents, and this one keeps the assemblies. (Leave "Flatten assembly" off: it would merge the FRAME and MOVES
+  groups.)
+- The tab manager (bottom left) lists every tab, searches them and makes folders: put the Part Studios in a "parts"
+  folder and keep the Assembly tabs on top.
+
 ## 2. Everything that doesn't move: two clicks per group
 
 - Right-click each **FRAME** (one per file) → **Fix**. The robot's frame is now fixed in place.
