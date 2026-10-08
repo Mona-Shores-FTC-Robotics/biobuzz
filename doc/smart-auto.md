@@ -133,14 +133,18 @@ The verdict line when locked:
 ● READY · LOCKED
 ```
 
-## The screen
+## The screens
 
-The Match page during INIT. The Driver Station renders HTML (`controls/Display`): bold, `<big>`, `<small>` and font
-colours. Repeated spaces collapse, so rows are dots and labels, not padded columns. Each row's value takes the row's
-colour (green, amber, red), so a glance down the page reads the state. **The alliance comes first**, big and bold
-in red or blue (mentor, 9 Oct 2026: "that is really important to get right"), then the verdict.
+Two Driver Station pages during INIT (mentor, 9 Oct 2026: "a heavier one with numbers that you have to hit share to
+get to and then a lighter one where we have the questions"). Back/Share already cycles the pages
+(`controls/Display`); CHECKS goes right after MATCH, so it is one press away. It changes only what is shown, so it
+works when locked.
 
-Healthy, no buttons pressed:
+The Driver Station renders HTML: bold, `<big>`, `<small>` and font colours. Repeated spaces collapse, so rows are dots
+and labels, not padded columns. Each value takes its status colour (green, amber, red), so a glance reads the state.
+
+**MATCH: light, for the drive team.** The alliance first, big and in red or blue (mentor: "that is really important to
+get right"), then the verdict, the two choices, and every check on one line, each name in its colour:
 
 ```
 ● RED ALLIANCE
@@ -148,36 +152,33 @@ Healthy, no buttons pressed:
 ─────────────────────────────────────────────
 ● Partner    Left Launch & Park · launches from the left start, then parks
 ● Plan       SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
+● Camera  ● Start  ● Pinpoint  ● Turret  ● Battery
+◀▶ partner · Y backup · hold ▲ camera off · ▼ reset · hold LB+RB lock
+```
+
+When a check isn't green, its name turns amber or red, and one line under them names the worst one and what to do:
+
+```
+● Camera  ● Start  ● Pinpoint  ● Turret  ● Battery
+battery 12.4 V: swap it · Share for details
+```
+
+When it is NOT READY, the verdict line names the one thing to do ("NOT READY: press ◀ ▶ to pick the partner").
+
+**CHECKS: verbose, for whoever is debugging.** One row per check, with the numbers:
+
+```
+CHECKS
 ● Camera     sees the HIVE (4 AprilTags)
 ● Start      right start · in position (0.6 in)
 ● Pinpoint   ready
 ● Turret     at home (0.4°)
 ● Battery    13.3 V
-◀▶ partner · Y backup · hold ▲ camera off · ▼ reset · hold LB+RB lock
 ```
 
-The camera is down:
-
-```
-● RED ALLIANCE (you)
-● NOT READY: press ◀ ▶ to pick the partner
-─────────────────────────────────────────────
-● Partner    not picked: press ◀ ▶
-● Plan       BACKUP: on timers · 2 TIPs + PARK
-● Camera     not connected
-● Start      waits on the partner
-● Pinpoint   ready
-● Turret     at home (0.4°)
-● Battery    12.8 V: swap if there is time
-```
-
-Rows say what a person can check by eye: "sees the HIVE (4 AprilTags)", the tags in view right now, not "14
-fixes" (a fix is one tag sighting turned into a position; the start check wants 5 that agree). Whether the position
-is confirmed shows on the Start row. Counts like fixes go on the Robot page, for whoever is debugging.
-
-The two lines above the rule are the only ones the drive team must read: the alliance, then READY or NOT READY. When
-it is NOT READY, that line names the one thing to do. Nothing on them repeats a row below: the partner, the plan and
-its route, and the start each have their own row. Nothing else shares the page during INIT.
+Rows say what a person can check by eye: "sees the HIVE (4 AprilTags)", the tags in view right now, not "14 fixes"
+(a fix is one tag sighting turned into a position; the start check wants 5 that agree). Counts like fixes go on the
+Robot page.
 
 ## The robot light (later)
 
@@ -229,7 +230,7 @@ drivetrain, which is the point. Normally nobody touches them.
 | Health accessors: `vision.health()`, the Pinpoint's readiness, `turret.health()`, battery | Each subsystem | Mentor (hardware), turret chat for the turret |
 | Camera DISABLED switch, including no fixes into the filter | `vision/`, `localization/` | Mentor |
 | `decide(health, overrides)`, the partner table, and their unit test | `opmodes/auto/` | Students |
-| The INIT screen | `opmodes/auto/`, using `controls/Display` | Students |
+| The INIT screens: MATCH and CHECKS (a CHECKS page added to `Display`'s page cycle) | `opmodes/auto/`, `controls/Display` | Students; the page cycle is mentor |
 | Smart Auto itself: picks one of four generated routes at PLAY and runs it as `BuiltAuto` does | `opmodes/auto/` | Students |
 | The routes: L-Quals, R-Quals (spill-free), Backup-L, Backup-R, the emergency parks | `TeamCode/autos/*.pp`, exported from the Visualizer | Students with the simulator chat |
 
