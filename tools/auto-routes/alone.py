@@ -232,7 +232,10 @@ def west_garden(r, fire3, fire_g=None):
         r.add(r.go(gname, heading=270))
     r.at = gname
     r.add(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500),
-          r.go("PARK", ctrl=[(24, 40)] if gname == "FIRE3" else [], turn_after=0.2, turn_by=0.8, park=True))
+          # From (45, 26) the (24, 40) curve swung the V into the HIVE frame (20 of 20); (30, 40) is the lane route's.
+          # (FIRE_G too: a straight park from (45, 26) clipped the west foot's corner, 60 of 60.)
+          r.go("PARK", ctrl=([(30, 40)] if r.points[gname][0] > 35 else [(24, 40)]) if gname in ("FIRE3", "FIRE_G") else [],
+               turn_after=0.2, turn_by=0.8, park=True))
     return r
 
 
@@ -284,7 +287,8 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(n)
-    for r in (partner_park_only(), partner_left_v(), shoots_right_v("qual-shoots-right-v-fixed")):
+    for r in (partner_park_only(), partner_left_v(), shoots_right_v("qual-shoots-right-v-fixed"),
+              shoots_right_v("qual-shoots-right-v-fixed-west45", fire3=(45, 26, 90), ending="west")):
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(r.name)

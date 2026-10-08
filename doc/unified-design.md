@@ -546,6 +546,13 @@ that counted shots fired, not pieces in.) Tried and no better:
   (not until a new TIP: one that started during the drive left it waiting 4 s). No GARDEN fallback: its check came
   inside the TIP's dwell and sent the robot to the GARDEN with TIP 3 on its way, and the guard turned it into the
   wall. 60 runs: **73.7, 3 TIPs in 54**, PARK 60; 2 problem runs (late runs cut at 26.5 s: the HIVE frame, a FLOWER).
+- **(iii), TIP 3 from sure pieces: `qual-shoots-right-v-fixed-west45`** (mentor, 8 Oct 2026: "i think we need to make
+  it not luck"): the lane route's TIP 3 rested on catching TIP 2's spill, and missed the same 4 seeds on every body
+  (the dual hook too: same 4). Now the far FLOWER's 4 are fired at N_FIRE and the robot leaves at once, down the west
+  side for the wall FLOWER's 4 and then the GARDEN's 4, both volleys from (45, 26) (from (25, 28) a shot hit the HIVE),
+  PARK by (30, 40) (a straight park from (45, 26) clipped the west foot's corner). 60 runs: **74.7, 3 TIPs in 58**,
+  PARK 60, no problem runs, no TIP 3 miss; both misses are TIP 2 after the partner's preloads hit the HIVE (TIP 1
+  late or never, and the left CELL never up for ours).
 - **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
   TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
   FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
