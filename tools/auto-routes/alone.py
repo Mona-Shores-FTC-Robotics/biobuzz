@@ -34,8 +34,8 @@ def seat(r, name, at, heading):
 
 
 def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
-          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False):
-    r = Route(name, S_START, speed=50)
+          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False, speed=50, garden=False, tip3_ms=2500):
+    r = Route(name, S_START, speed=speed)
     r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
@@ -87,8 +87,19 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     r.at = "WALL_FLOWER"
     r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=wall_ms), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
     r.at = "FIRE3"
-    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=2500),
-          r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
+    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=tip3_ms))
+    if garden:
+        # Eight pieces left the right CELL at 91-95% in some runs: the GARDEN's 4 if it is still up, while there is time.
+        r.pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
+        more = [r.go("GARDEN_IN", turn_after=0.2, turn_by=0.8)]
+        r.at = "GARDEN_IN"
+        more.append(r.go("GARDEN", heading=270))
+        r.at = "GARDEN"
+        more += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("FIRE3", turn_after=0.3, turn_by=0.9)]
+        r.at = "FIRE3"
+        more.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
+        r.add(r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, no=more, yes_label="TIP 3", no_label="Not yet: the GARDEN"))
+    r.add(r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
     return r
 
 

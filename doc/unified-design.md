@@ -522,6 +522,12 @@ the right CELL at 91-95%, because the left CELL keeps part of TIP 2's load). Tri
   for TIP 3 (south of it, north through it, down the west side) costs 5.1 s against the lane's 2.6 s and picked up
   2 of the 4: 2, 1 and 2 TIPs in seeds 1-3. Dropped. (A route whose partner set its preloads down at the FLOWER
   mid-match reached 40/60; withdrawn, since no partner can.)
+- **Faster** (20 runs each; DeepDive takes `Auto@<in/s>` for our drivetrain): 60, 70, 80 in/s gave 14, 12, 15 of 20
+  (50: 43 of 60). The TIPs come earlier (TIP 3's median 26.6 s at 50, 23.9 s at 80) but the misses are weight, not
+  time. With the GARDEN as a fallback when the right CELL is still up after the wall FLOWER (`garden=True`): 16, 14,
+  15 of 20 at 50, 60, 80; at 80 the GARDEN's 4 are collected by 27.4 s and the guard parks before they are fired, and
+  the lane at 80 touched a falling piece (G409). Most of the match is spin-up (2 s), extraction (about 1.6 s a
+  FLOWER), the 0.2 s shot interval and the HIVE's dwell, which speed does not change.
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.

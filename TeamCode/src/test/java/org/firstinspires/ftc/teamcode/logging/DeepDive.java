@@ -15,7 +15,7 @@ import java.util.Locale;
  * Every Auto pair, on every robot asked for, measured for the qualifier goal (mentor, 6 Oct 2026): 3 TIPs, both
  * robots LEAVE and PARK, no G409, and after each TIP our robot picks up 4 of its spill to fire at the other CELL.
  * {@link DeepDiveTest} runs it (opt in); each case is one line,
- * {@code label|our Auto|partner Auto|our design|partner design ("same": ours)|partner speed (NaN: ours)}.
+ * {@code label|our Auto[@top speed, in/s]|partner Auto|our design|partner design ("same": ours)|partner speed (NaN: ours)}.
  *
  * <p>Writes, under {@code build/sim-logs/deep-dive/}: {@code cases.csv} (one row a case and tiles),
  * {@code runs.csv} (one row a run, every TIP's numbers) and, normal tiles only, {@code logs/<case>-best.wpilog}
@@ -49,6 +49,12 @@ final class DeepDive {
     static void runCase(String spec, double friction) throws Exception {
         String[] c = spec.split("\\|");
         String label = c[0], ours = c[1], partner = c[2];
+        // Our drivetrain's top speed, in/s: "Auto@60" (the routes draw 50, the simulator's default).
+        String ourSpeed = "50";
+        if (ours.contains("@")) {
+            ourSpeed = ours.substring(ours.indexOf('@') + 1);
+            ours = ours.substring(0, ours.indexOf('@'));
+        }
         RobotDesign design = AutoStudyTest.designs().get(c[3]);
         if (design == null) throw new IllegalArgumentException("no design " + c[3]);
         RobotDesign partnerDesign = c[4].equals("same") ? design : AutoStudyTest.designs().get(c[4]);
@@ -66,7 +72,7 @@ final class DeepDive {
         try {
             for (int i = 0; i < RUNS; i++) {
                 long seed = i + 1;
-                AutoSim.Result r = AutoStudyTest.run(ours + "," + partner + "@50", design, partnerDesign, partnerSpeed, seed,
+                AutoSim.Result r = AutoStudyTest.run(ours + "," + partner + "@" + ourSpeed, design, partnerDesign, partnerSpeed, seed,
                         new File(scratch, seed + ".wpilog"));
                 int pts = r.autoPoints();
                 points += pts;
