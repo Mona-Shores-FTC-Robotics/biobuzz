@@ -53,6 +53,12 @@ light flashes white. The camera says which start we are on; with no camera, D-pa
 | **Right** | R-Quals | R-Quals: TIP 1 is ours at once anyway |
 | **Left** | L-Quals: waits for the partner's TIP 1, makes it itself by 9.2 s if it never comes | **L-Quals, no wait**: makes TIP 1 itself at once (to build and measure, open item 7) |
 
+**Each behaviour has its own colour** (mentor, 9 Oct 2026: "a separate color ... for each specific one? so the kids get
+used to it"): Launch & Park in **violet**, Just Park in **cyan**, on the Driver Station, the scouting sheet and any card
+the drive coach holds. Never an alliance colour (red, blue) or a status colour (green, amber, red); cyan is the nearest
+to blue, so it is only ever used next to the word "Partner", never on the robot light. A new behaviour gets a new
+colour from the same rule.
+
 In BACKUP the partner changes nothing: Backup-L or Backup-R counts only on TIPs it makes itself. The right start scores
 more with a Just Park partner, if it is free. Scouting still decides details the two words hide: a Just Park partner
 that waits at the standard left start is the case `doc/r-quals-partner-timing.md` covers. A partner-specific Auto (one
