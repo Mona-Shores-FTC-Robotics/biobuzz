@@ -727,6 +727,17 @@ Times are when the CELL is fully up. Both robots park, with a median of 26.2 s (
 
 What is left is a TIP one piece short (7 of 8 in): a shot into the HIVE or a short catch, spread over TIPs 2-4.
 
+**5 TIPs, explored (9 Oct 2026, `tools/auto-routes/sister5.py`).** The mentor's idea: each robot keeps to its own end
+and feeds on its own end's spills, R doesn't park (5 TIPs + 1 PARK is 111 points against 96, and in playoffs only the
+score counts). 20 runs each: 2-3 TIPs, worse than the 4-TIP pair. **The blocker is pieces, not time.** Five TIPs take
+4 + 8 + 8 + 8 + 8 = 36; our half holds 20 that are always there, so 16 must come back from the four spills (about 8
+pieces each). Measured recovery: catching a spill as it falls, standing still, gets about 2 (TIP 1's: 2, so TIP 3
+came up 6 of 8 without L's 3 from across the field); the webcam picking up a spill already on the floor gets 0-3 in
+3 s (it has scattered). So each end recovers well under half of each spill, and the 4-TIP pair works only because L
+carries pieces across. What could close the gap: **human NECTAR** (one NECTAR may be entered per TIP of our HIVE,
+G426: up to 4 by TIP 4, about 6.6 POLLEN's weight, delivered at the LOADING ZONE beside L; the simulator doesn't model
+it yet), or a mechanism that recovers far more of a spill.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
