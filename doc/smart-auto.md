@@ -47,11 +47,11 @@ The rules allow INIT to hold motors and servos still (R103.B), and the robot mus
 | Row | Healthy | Not healthy | How it's read |
 |---|---|---|---|
 | **Camera** | ON: sees HIVE tags | BROKEN: not connected, or no HIVE tag for 3 s. DISABLED: by a person. ⚠ SUSPECT: tags seen, but the fixes match no start (off by more than a few inches, or scattered) | `robot.vision.isConnected()`, the `CameraBlind` test, `StartCheck` |
-| **Start** | L or R, confirmed by the camera | Unknown until a side button is pressed | `StartCheck` against both candidate starts |
-| **Alliance** | From the camera (today's `MatchSetup`) | From X / B | Unchanged |
-| **Pinpoint** | Ready | Missing or not ready → PARK ONLY | The localizer's status |
-| **Turret** | Absolute angle read and inside its limits | No encoder, or angle out of range → held forward | `turret.health()` (asked of the turret chat) |
-| **Battery** | ≥ 12.5 V | ⚠ below 12.5 V, ✖ below 12.0 V (thresholds to be measured) | The hub's voltage sensor |
+| **Start** | L or R, confirmed by the camera, within 1 in: "in position" | 1-3 in: ⚠ "nudge it". Over 3 in: ✖ "reposition", and NOT READY. Much further (about 12 in, or scattered fixes) the camera itself is suspect. Picked by ◀ ▶ with no camera: ⚠ "no camera to check it". The tolerances are to be set from a field test | `StartCheck` against both candidate starts |
+| **Alliance** | From the camera (today's `MatchSetup`), the word in its own colour | From X / B | Unchanged |
+| **Pinpoint** | Ready | Not found or not ready → PARK ONLY | The localizer's status |
+| **Turret** | The absolute encoder reads home: the starting configuration puts the turret at a known angle, so its reading is a check of the encoder itself | No signal: ✖, held forward, the robot aims. Not home (say 12°): ⚠, either it was left turned or the encoder slipped; a person turns it home, and if it still reads off, re-zeroes the encoder | `turret.health()` (asked of the turret chat: it must read the home angle in INIT, without moving) |
+| **Battery** | 13.0 V or more | ⚠ below 13.0 V, "swap if there is time"; ✖ below 12.5 V, "swap it". A warning only; the thresholds are to be measured where shots start falling short | The hub's voltage sensor |
 
 **A suspect camera is never disabled by the robot.** It turns the row amber and suggests the button; a person
 decides. **Disabled means fully off**: no side or alliance proposal, no TIP detection, and no tag fixes into Pedro's
@@ -116,7 +116,8 @@ The first line when locked:
 ## The screen
 
 The Match page during INIT. The Driver Station renders HTML (`controls/Display`): bold, `<big>`, `<small>` and font
-colours. Repeated spaces collapse, so rows are dots and labels, not padded columns.
+colours. Repeated spaces collapse, so rows are dots and labels, not padded columns. Each row's value takes the row's
+colour (green, amber, red), so a glance down the page reads the state; the alliance is written in red or blue.
 
 Healthy, no buttons pressed:
 
@@ -124,11 +125,11 @@ Healthy, no buttons pressed:
 ● SMART · RIGHT START · RED                      READY
 ─────────────────────────────────────────────
 ● Camera     sees the HIVE (4 AprilTags)
-● Start      right · 0.8 in off
-● Alliance   red
+● Start      right start · in position (0.6 in)
+● Alliance   RED
 ● Pinpoint   ready
-● Turret     142.3° · in range
-● Battery    13.1 V
+● Turret     at home (0.4°)
+● Battery    13.3 V
 D-pad ◀▶ side · Y backup · hold ▲ camera off · ▼ reset
 ```
 
@@ -139,10 +140,10 @@ The camera is down:
 ─────────────────────────────────────────────
 ● Camera     not connected
 ● Start      press ◀ or ▶
-● Alliance   red (you)
+● Alliance   RED (you)
 ● Pinpoint   ready
-● Turret     142.3° · in range
-● Battery    12.8 V
+● Turret     at home (0.4°)
+● Battery    12.8 V: swap if there is time
 Backup runs on timers: 2 TIPs + PARK, more if the partner's shots land.
 ```
 
