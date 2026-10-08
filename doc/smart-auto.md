@@ -79,10 +79,39 @@ row of the table above. The screen and the log both print the same `plan.reasons
 | Y | Toggle SMART ⇄ BACKUP | "(you)" |
 | Hold D-pad ▲ 1 s | Camera disabled ⇄ back to detection (held, so a bump can't do it) | "(you)" |
 | D-pad ▼ | Clear every override: back to what was detected | — |
+| Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the first line |
 
 An override always wins, and is always marked "(you)". One that disagrees with the camera (▶ while the camera sees
 the left start) is allowed, but its row turns amber and says what the camera sees. Every binding is labelled, so
 the Controls page lists them with no extra work.
+
+## Lock: nothing changes by accident while waiting
+
+The drive team can sit at the field for 1-10 minutes before a match starts, holding gamepads. So the screen locks
+(mentor, 9 Oct 2026: "students often sit at the podium 1-10 minutes ... they could accidentally push a button").
+
+- **Lock and unlock are one chord: hold both bumpers (LB + RB) for 2 s.** That's hard to do by accident, and no
+  setting uses either bumper.
+- **It locks itself** once the plan is READY and no button has been pressed for 30 s. The first line counts down
+  ("locks in 12 s") so it is never a surprise.
+- **Locked, every override button does nothing**, X / B included. A press only flashes "LOCKED: hold LB + RB 2 s to
+  change", so a student who presses something sees that nothing changed and why.
+- **The plan is frozen while locked.** The checks keep running and their rows keep updating; if one changes (the
+  camera loses the HIVE because someone walks in front of it), the row turns amber with "changed since lock" and
+  the first line adds "CHECK". It does not change the plan by itself: a person unlocks and decides. A locked SMART
+  plan whose camera then fails is still safe, because every SMART wait has a time limit.
+- **Reset** is ▼ (clear every override, back to what was detected), which works only unlocked. A full reset is
+  stopping the OpMode and pressing INIT again, as today.
+- **Pairing a gamepad doesn't change anything.** The Driver Station pairs gamepads with Start + A and Start + B,
+  and B is the red-alliance button. Any press while Start is held is ignored.
+- **Every override, lock and unlock is written to the match log** with its time, so "who changed the side?" has an
+  answer afterwards.
+
+The first line when locked:
+
+```
+● SMART · RIGHT START · RED                 READY · LOCKED
+```
 
 ## The screen
 
