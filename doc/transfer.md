@@ -11,7 +11,8 @@ behind the front face. The sketches are in `doc/transfer/` (`sketch.py` draws th
 
 ## The answer
 
-> **Read "Transfer v3" first: it is the current design** (7 Oct 2026). What follows from here to the build spec is
+> **Read "Transfer v3" first: it is the current design** (7–8 Oct 2026; its last two entries, "Plan A" and "The
+> mentor's 8 Oct export", are where things stand). What follows from here to the build spec is
 > the 6 Oct J-kicker design, kept as the record of the reasoning that the current design inherits (the stiff balls,
 > the capacity by length, the stopped-wheel gate, the hand-off up the turret axis).
 
@@ -261,7 +262,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → ef878ce on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7–8 Oct 2026, commits 146f130 → 6bc7b2e on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -372,6 +373,79 @@ count at 8 (4 drive + roller + 2 flywheels; the lane and feeder would have made 
   idler for the roller's 1.3 in float and replaces one vector wheel). The transfer chat prefers the first.
 - *The hand-off gap* (feeder release to the flywheels' first touch, 1.7 in) stays the top open item for the mentor,
   with the sprung flywheel arm: closing it changes his launcher geometry.
+
+**Plan A, commits 8b7ca1f → 6bc7b2e (8 Oct, afternoon): no transfer motor at all.** This replaces the motor-count
+plan, the lane-servo stopgap and the one-motor-flywheels proposal above. `cad/transfer/README.md` is the full record.
+- **Lane:** the intake roller's motor (5203, 1150 rpm) runs the roller and the lane together. A printed 20 mm pulley
+  on the roller shaft drives a goBILDA 5 mm round belt (334 mm) to a 24 mm pulley on a jackshaft under the ramp
+  (X 6.05, z 0.76); a 24T–24T pinion pair outside the left wall turns lane shaft 0 the lane's way. A fixed idler
+  hung from the old intake's 9-hole channel keeps the belt's path within about 3% as the roller floats its 1.3 in,
+  so the belt stays 5–8% stretched with no tensioner. **958 rpm at the lane shafts, 47 in/s of tread, about
+  24 in/s of ball.** A NECTAR pitch (3.62 in) passes in 0.15 s, a POLLEN in 0.12 s: under the simulator's 0.2 s.
+- **Feeder:** belted to the **left flywheel's shaft**, which becomes a 144 mm REX out through the mentor's front
+  channel bearing: 16T there to 24T on the feeder (275 mm belt, 87.3 mm centres). It spins whenever the flywheels
+  do, at 2/3 of their speed. It hangs on a **yoke**, two 1/4 in aluminium arms turning on the flywheel shaft and
+  carrying the feeder shaft, so the belt's centres never change as it swings.
+- **Gate:** one goBILDA Speed servo under the yoke, horn and pushrod to a tab on the front arm, swings the yoke
+  10°: out, the feeder clears a waiting ball (NECTAR 0.45, POLLEN 0.50); in, it pinches the ball against the pad
+  and throws it up into the flywheels. **Feeding is the gate alone.** Swung in, the feeder is at Y 2.87, z 3.30,
+  the same place v4 had it.
+- **Motors:** drive 4, intake + lane 1, flywheels 2 (6000 rpm 1:1 Yellow Jackets, 16T to his 41T, about 2340 rpm
+  free), **turret 1** (312 rpm, belted 1:1 onto the kit's 64T gear on its own shaft; about 113 rpm at the turret).
+  That is 8. Servos: the extractor and the gate.
+
+*The physics check (transfer chat, 8 Oct):*
+- *The hand-off gap is closed by speed, not geometry.* At 2340 rpm the feeder turns 1560 rpm, 232 in/s of tread on
+  72 mm wheels; the ball leaves one wheel against a pad at 0.4–0.5 of that, 93–116 in/s, against the 36 in/s the
+  1.7 in coast to the flywheels needs. With the flywheels loaded to 1900 rpm it is still 75 in/s. The flight takes
+  about 0.02 s and the ball drops under 0.1 in. **The hand-off gap is no longer a question for the mentor.**
+- *The one-motor-flywheels proposal is moot:* the lane needs no motor, so the eighth goes to the turret.
+- *The shot interval is the lane's speed, and the user's decision (CAD chat, 15:07) is constant feed:* the gate
+  stays in for the volley and the lane delivers a ball every 0.12–0.15 s, which the feeder throws on arrival. No
+  open-and-close gating between shots; **the flywheels must recover within one lane pitch**, with heavier flywheels
+  if testing says so. The prototypes measured 1800–2400 rpm by distance (2400 from the corner, 1800 close at about
+  70°); with 16T motor pulleys the flywheels top out near 2340 free, so the CAD chat is changing to **24T motor
+  pulleys** (about 3500 free, 2400 at two-thirds of the motor's speed, the rest for respinning), held until the
+  spacing below settles. Running the intake motor slower during a volley remains a knob, since it is the lane's
+  motor; the 0.2 s the simulator uses is a power setting, not a limit.
+- *A full lane shows as a current rise on the intake motor* (rollers slipping under a held queue). The user wants
+  that used instead of a sensor; it goes to software and the first test, with the number measured on the robot.
+- *The lane's load on the intake motor:* about 1.7 kg·cm at the roller for a full lane held against the backstop
+  with the rollers slipping under it, about 20% of the 1150 rpm Yellow Jacket's stall, on top of intaking. Keep
+  the ceiling foam's preload near 1 lbf and watch the motor's current while the lane is full and running.
+- *One thing to check in the CAD, not yet done:* the gate servo holds the pinch. The ball's reaction on the feeder
+  (a POLLEN pressed 0.10 into the tread, a NECTAR 0.15) acts about 3.35 in below the yoke's pivot, so the servo
+  sees it through the horn-and-pushrod ratio. If that is near the Speed servo's stall, the fix is the v3 idea: a
+  band pulls the yoke in and sets the pinch, and the servo only pulls it out to wait.
+- *Still the mentor's:* the flywheel nip (3.19 in, from a 177 mm axle spacing) does not touch a POLLEN. The lab
+  prototype shot both sizes with **fixed** wheels, reportedly at 144 mm centre to centre; with the 15A Gecko tread
+  the wheel is the spring, so a fixed gap can work where the stiff-ball numbers (under 0.25 in of ball squeeze)
+  said a rigid pinch could not: the tread takes the rest. Which spacing and which wheel is his launcher's change,
+  and he is testing it (below). And he must agree to the launcher changes: forward 0.8 in, motors out and up at
+  6000 rpm, the longer left shaft, the turret motor, the removed channels. The CAD chat is holding its one-page
+  sign-off note for him until the spacing is settled, since both change his launcher.
+
+**The mentor's 8 Oct export (CAD chat, 15:34, from `Robot10-8-26.step` and `Assembly 7.step` on the shared Drive):**
+- **He is building his own hand-off where our feeder sits.** His launcher gains two goBILDA 6-hole lowside
+  U-channels along X about 2 in either side of centre at lane height, and two foam-tube rollers about 2.6 in across
+  on axes along Y, one at about X −0.5 (where a ball enters the column; our last lane shaft is at X −0.3) and one at
+  about X −5.2, centres at z 2.3. They occupy the space of our feeder, pad and backstop.
+- **The front-left drive motor moved** 1.27 in back and 0.5 in up, belt included. Where it is now it overlaps our
+  lane's rear ceiling post and the turret motor.
+- **The flywheels in the Robot have not moved:** 177 mm axle to axle, an 81 mm (3.19 in) gap. `Assembly 1` was a
+  144 mm test (48 mm gap) and `Assembly 7` is a 168 mm one (72 mm gap, a POLLEN and a NECTAR drawn in it). A 72 mm
+  gap only just touches a 71 mm POLLEN; 48 mm presses a POLLEN 23 mm and a NECTAR 44 mm, almost all of it in the
+  15A tread. The spacing sweep he is running in the lab is the right experiment: the launcher study's 80%/48% for a
+  fixed gap assumed a stiffer tread than his, and his prototype's result beats the model. Confirm the wheel part
+  number with the spacing; the gap means nothing without the diameter.
+- **The CAD chat has paused every change in the launcher and feeder area until the mentor answers**, and left the
+  lane drive, yoke and turret motor in the repo as drawn. Its three questions for him: (1) are the foam-tube rollers
+  his hand-off from the lane into the flywheels, so our side should stop at the lane and feed his part; (2) which
+  spacing and which wheels is he settling on, 144 or 168 mm; (3) why did the front-left drive motor move.
+- **Whatever the hand-off becomes, two things in it are ours to protect:** the count. A backstop that stops the lead
+  ball 12.43 in behind the roller axle (X −3.81 at the current launcher position), on ±0.2 in slots, is what keeps
+  the robot at 4 pieces and 3 NECTAR with no sensor; and the lane must deliver a ball into his part on the robot's
+  centreline at z 1.3 without a step it cannot climb. Both go in the note to him with the CAD chat's questions.
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
@@ -704,8 +778,13 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 at commit ef878ce** (goBILDA rebuild of v3; lane on a geared servo, feeder drive and hand-off gap open for the mentor; see "v4" in "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
-J-kicker CAD (commit 3263aec) is the record of the earlier design.
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 with Plan A drives at commit 6bc7b2e** (goBILDA
+rebuild of v3; the intake motor runs the lane, the feeder is belted to the left flywheel shaft on a swinging yoke
+with a servo gate, a belted turret motor; see "Plan A" in "Transfer v3" above), checked against the mentor's 7 Oct
+`Robot.step`: no clashes, 131 screws with 0 problems, both ball sizes swept clear. **It is not yet checked against
+his 8 Oct export**, which puts his own rollers where our feeder is; the CAD chat has paused launcher-area changes
+until he answers (see "The mentor's 8 Oct export"). The J-kicker CAD (commit 3263aec) is the record of the earlier
+design.
 
 ## Who this goes to
 
