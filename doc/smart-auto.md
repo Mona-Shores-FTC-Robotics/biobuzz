@@ -264,6 +264,24 @@ drivetrain, which is the point. Normally nobody touches them.
 | Smart Auto itself: picks one of four generated routes at PLAY and runs it as `BuiltAuto` does | `opmodes/auto/` | Students |
 | The routes: L-Quals, R-Quals (spill-free), Backup-L, Backup-R, the emergency parks | `TeamCode/autos/*.pp`, exported from the Visualizer | Students with the simulator chat |
 
+## Later: richer partners
+
+The mentor expects more than two partner behaviours (9 Oct 2026: "our partner does more than just shoot preloads and
+park"; "some sort of timing number, or a delay ... to avoid crashing into each other"; "under hive vs. around hive ...
+for pathing with two autos working together"). The principle that keeps this screen robust as it grows: **the field
+input stays one pick.** Everything richer about a partner lives in a scouted profile, made in the pits, never typed at
+the field.
+
+- **More behaviours** are richer profiles ("takes the far FLOWER", "scores TIP 2"), each naming the Auto of ours that
+  goes with it. The screen's list gets longer; each entry keeps its own colour. Picking by team number (the number on
+  the partner robot in front of the drive team) is the likely form once there are many.
+- **A delay** belongs to the profile, not to a dial at the field: a number entered under match pressure is the kind of
+  mistake this design removes. If a field adjustment proves necessary, it is a few fixed steps (say +0, +2, +4 s),
+  shown big, and locked with everything else.
+- **Lanes** ("under the HIVE", "around the HIVE") are part of route design: two Autos are compatible when their lanes
+  and times don't overlap, and the simulator's 4-robot mode proves a pair safe before it becomes a profile. The
+  screen only ever shows the result.
+
 ## Open items
 
 1. **The simulator needs a camera-down mode** (Tip never fires, no start check) before Backup-L and Backup-R can be
