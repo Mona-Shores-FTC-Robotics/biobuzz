@@ -52,6 +52,10 @@ from sister import R_START, L_START, R_S, R_N, L_N, L_TURN, L_S, seated_stream
 R_F5, L_F5 = (42, 22, 90), (61, 30, 270)
 L_T5 = (60, 20, 270)  # L's top-up: TIP 3's leftovers lie between L_F5 and the end wall
 R_F5_WIDE = (38, 20, 90)  # 6 in between the Vs: at R_F5, R's floor pickups met L arriving in the lane
+# Clean firing spots (the 8 Oct scan: the right CELL clean from y <= 30 at x 42-66). From L_F5 (61, 30) and R_F5_WIDE
+# (38, 20), at the edges, shots hit the HIVE's frame: L lost 1-2 of TIP 5 that way in 5 of the 14 runs that reached it.
+# Mid-zone instead, one robot at a time: R fires the moment TIP 4 raises the CELL, then clears out to the GARDEN side.
+R_F5_MID, L_F5_MID, L_T5_MID, R_CLEAR = (46, 18, 90), (55, 26, 270), (55, 16, 270), (16, 26, 90)
 # Where R looks for pieces on the floor: TIP 1's spill rests about x 45-65, y 18-40 (R_C1, before TIP 2); TIP 3's leftovers
 # at the right end after L has caught its share (R_C5, before L arrives in the lane).
 R_C1, R_C5 = (50, 24, 90), (48, 26, 90)
@@ -61,7 +65,7 @@ R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
-           top5_ms=0, creep1=False, f5=None):
+           top5_ms=0, creep1=False, f5=None, clear5=False):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -131,6 +135,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "R_F5"
         cards = [r.wait("TIP 4: the right CELL up", when=["RightCellUp"], ms=8000),
                  fire(r, "R's 4 at the right CELL (TIP 5, with L)", "Empty", ms=3000)]
+        if clear5:
+            # Out of L's way: L comes down the lane to the middle of the clean firing area 3 s or more after this.
+            r.pt("R_CLEAR", *R_CLEAR)
+            cards.append(r.go("R_CLEAR", heading=90))
+            r.at = "R_CLEAR"
         if top5_ms:
             # About 5 s left: what lies at the right end (TIP 3's spill, less L's catch), picked up and fired too.
             cards.append(r.go("R_C5", heading=90))
@@ -212,9 +221,9 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
-          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0):
+          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None):
     r = Route(name, L_START, speed=50)
-    r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *L_F5)
+    r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
     r.at = "FAR_FLOWER_TURN"
@@ -256,7 +265,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     if top5_ms:
         # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
         # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
-        r.pt("L_T5", *L_T5)
+        r.pt("L_T5", *(t5 or L_T5))
         r.add(r.go("L_T5", heading=270))
         r.at = "L_T5"
         r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
@@ -279,6 +288,8 @@ def variants():
             right5("sister5d-right-direct", mode="direct", fill1_ms=2500, f5=R_F5_WIDE),
             left5("sister5d-left-all3", keep1=False, top5_ms=1500),
             left5("sister5d-left", top5_ms=1500),
+            right5("sister5e-right-direct", mode="direct", fill1_ms=2500, f5=R_F5_MID, clear5=True),
+            left5("sister5e-left-all3", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID),
             left5("sister5c-left", creep4=True, catch4_ms=1000), left5("sister5c-left-all3", keep1=False, creep4=True, catch4_ms=1000),
             left5(), left5("sister5b-left-all3", keep1=False)]
 
