@@ -197,6 +197,10 @@ Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelig
 - **Shots slow the flywheels a little more:** the feeder takes its pulse from the left flywheel's shaft.
 - **The flywheels' speed is an estimate** (about 2340 RPM free, 1900 to 2100 loaded), not measured.
 - **Tune on the robot:** the gate servo's two positions, and the yoke's in and out.
-- **The TPU rollers:** print one and try it on a ball before printing five; durometer and wall count matter.
-- **The rail holes:** the mentor's rails sit 0.4 mm out of level along their length in his CAD. Check the standoff holes
-  line up on the robot.
+- **The TPU rollers:** print one first: TPU 95A, 3 walls, 20% gyroid infill, 0.2 mm layers. On a ball it should grip a
+  ball moving along the lane and slip, not grab, under a ball held still. Too grabby: fewer walls; too slippery: more
+  walls or a softer TPU. Then print the other four the same.
+- **The rail holes:** the mentor's rails sit 0.4 mm out of level along their length in his CAD (almost certainly a
+  mate in his assembly, not the real channel). The walls' standoff screws are flat heads, which centre themselves, so a
+  bigger hole wouldn't help: cut the walls without their eight standoff holes, bolt the standoffs to the rails, hold
+  each wall against them and drill its holes through, then countersink (it's our polycarbonate).
