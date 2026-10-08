@@ -1503,6 +1503,10 @@ public final class AutoSim {
                     .command("HookDown", RobotDesign.standard().sideWallsTravelS, () -> hook(true))
                     .command("HookUp", RobotDesign.standard().sideWallsTravelS, () -> hook(false))
                     .trigger("IntakeFull", () -> design.countsPieces && FieldSim.full(body))
+                    // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
+                    // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
+                    .trigger("HeldWorth4", () -> design.countsPieces
+                            && body.stored.stream().mapToDouble(p -> sim.weight(p.kind)).sum() >= 4 - 1e-9)
                     .trigger("LauncherReady", this::launcherReady)
                     .triggerSince("Tip", () -> {
                         FieldSim.Rocker hive = sim.rocker(alliance);

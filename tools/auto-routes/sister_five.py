@@ -77,7 +77,7 @@ R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
-           top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False):
+           top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull"):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -148,7 +148,12 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "R_F5"
         cards = [r.wait("TIP 4: the right CELL up", when=["RightCellUp"], ms=8000),
                  fire(r, "R's 4 at the right CELL (TIP 5, with L)", "Empty", ms=3000)]
-        if clear5:
+        if park5:
+            # Mentor, 8 Oct 2026: "R robot literally has plenty of time to park even after TIP 5". Out of L's way
+            # first (west, then up the left side clear of the wall FLOWER) and on to PARK, about 2.5 s.
+            cards.append(r.go("PARK", ctrl=[(20, 30), (16, 70)], heading=90, park=True))
+            r.at = "PARK"
+        elif clear5:
             # Out of L's way: L comes down the lane to the middle of the clean firing area 3 s or more after this.
             r.pt("R_CLEAR", *R_CLEAR)
             cards.append(r.go("R_CLEAR", heading=90))
@@ -267,7 +272,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "R_S"
         four.append(r.wait("The right CELL up", when=["RightCellUp"], ms=1500, yes=normal4(), no=[done4]))
         r.at = "S_CATCH"
-        r.add(r.wait("Holding 4? Then 5 TIPs", when=["IntakeFull"], ms=50, yes=five, no=four,
+        r.add(r.wait("Holding 4? Then 5 TIPs", when=[decide], ms=50, yes=five, no=four,
                      yes_label="4 held: go for 5 TIPs", no_label="Fewer: 4 TIPs and PARK"))
     if mode == "branch":
         done = r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, yes=early, no=normal(),
@@ -373,6 +378,9 @@ def variants():
             right5("sister5f-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True),
             right5("sister5g-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True, back_out=True),
             right5("sister5h-right", mode="auto", fill1_ms=3500, f5=R_F5_MID, clear5=True, back_out=True),
+            right5("sister5i-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True),
+            right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
+                   decide="HeldWorth4"),
             left5("sister5h-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True),
             right5("sister5e-right-direct-rn108", mode="direct", fill1_ms=2500, f5=R_F5_MID, clear5=True, rn=(30, 108, 90)),
             left5("sister5e-left-all3", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID),
