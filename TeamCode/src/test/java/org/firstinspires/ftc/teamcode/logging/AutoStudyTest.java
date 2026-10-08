@@ -203,6 +203,34 @@ public class AutoStudyTest {
         RobotDesign fixedTurret = v.copy("rigid V, fixed turret");
         fixedTurret.launcher = RobotDesign.Launcher.FIXED;
         for (RobotDesign d : new RobotDesign[] {fast, lane, transfer, turretTransfer, fixedTurret}) m.put(d.name, d);
+        // The fixed-turret baseline's spill guide (mentor, 8 Oct 2026: "we may have to explore the hook extractor again.
+        // or different angle V?"): the V's tips wider apart at the same 2.8 in forward (R105: 18 in long allows 24 in
+        // across), the V deeper at the drawn 17.8 in across (18 in across allows 24 in long), and the drawn V as rigid
+        // guides with the dual Ramp Hook (8 in arm and crossbeam, down as our CELL starts to TIP) on its flaps.
+        for (double across : new double[] {22, 24}) {
+            RobotDesign wide = fixedTurret.copy(String.format(Locale.ROOT, "rigid V %.0f in, fixed turret", across));
+            wide.flapOutIn = (across - wide.frameWidthIn) / 2;
+            m.put(wide.name, wide.checked());
+        }
+        RobotDesign deep = fixedTurret.copy("rigid V 6 in deep, fixed turret");
+        deep.flapForwardIn = 6;
+        m.put(deep.name, deep.checked());
+        RobotDesign vHook = fixedTurret.copy("rigid V + dual hook, fixed turret");
+        vHook.guideOutIn = vHook.flapOutIn;
+        vHook.guideForwardIn = vHook.flapForwardIn;
+        vHook.flapOutIn = 0;
+        vHook.flapForwardIn = 8;
+        vHook.flapLeft = false;
+        vHook.flapCrossbeam = true;
+        vHook.flapsDeploy = true;
+        vHook.flapTowardCentre = true;
+        vHook.flapEitherSide = true;
+        vHook.sideWallsDeployS = 0;
+        vHook.sideWallsTravelS = 0.3;
+        m.put(vHook.name, vHook.checked());
+        RobotDesign vHookTurret = vHook.copy("rigid V + dual hook");
+        vHookTurret.launcher = RobotDesign.Launcher.TURRET;
+        m.put(vHookTurret.name, vHookTurret.checked());
         // The Rigid V's width and angle (mentor, 6 Oct 2026); 18 in at 45 degrees is "flat intake, rigid V" above.
         for (double[] wa : RIGID_V_VARIANTS) {
             RobotDesign d = rigidV(wa[0], wa[1]);
