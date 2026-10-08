@@ -17,9 +17,9 @@ trust a camera that is talking but wrong. The screen makes all three visible.
 - One OpMode chooses between a full plan and a backup plan by itself, and flags anything it can't decide.
 - The backup runs on time alone: no camera, no turret (the robot turns to aim). 3 TIPs + PARK would be ideal;
   2 TIPs + PARK is acceptable. It counts only on TIPs it makes itself; a partner's shots are a bonus.
-- The drive team picks the partner from the behaviours scouting knows: **Just Park, Left Launch & Park, Right Launch
-  & Park**. Until one is picked: NOT READY, and the robot light flashes white. The partner fixes our start, so nobody
-  picks a side.
+- The drive team picks what the partner does, from scouting: **Launch & Park** or **Just Park**. The partner starts
+  on the other start from ours, so where we are placed says where it is. Until one is picked: NOT READY, and the
+  robot light flashes white.
 - The camera can be disabled by hand when it is connected but its vision is wrong.
 - The turret's angle comes from an absolute encoder read through an OctoQuad (workstream #81).
 - The flywheel is not checked during INIT (spinning it up before PLAY isn't allowed). A failsafe for a broken
@@ -29,10 +29,10 @@ trust a camera that is talking but wrong. The screen makes all three visible.
 
 | Plan | When | What it does | Expect |
 |---|---|---|---|
-| **SMART** | The camera sees the HIVE and where the robot is | The partner's route (below). Waits react to the HIVE, as today | 3 TIPs + PARK |
-| **BACKUP** | The camera is broken or disabled, or someone forced it | Backup-L or Backup-R, by the partner: every wait is a timer, aiming by turning the robot, the TIPs made by us alone | 2 TIPs + PARK, a 3rd if a partner's shots land |
+| **SMART** | The camera sees the HIVE and where the robot is | The route for our start and the partner (below). Waits react to the HIVE, as today | 3 TIPs + PARK |
+| **BACKUP** | The camera is broken or disabled, or someone forced it | Backup-L or Backup-R: every wait is a timer, aiming by turning the robot, the TIPs made by us alone | 2 TIPs + PARK, a 3rd if a partner's shots land |
 | **PARK ONLY** | The Pinpoint is missing or not ready (no path following) | A timed drive into the LOADING ZONE | PARK, if a timed drive can be made reliable; else LEAVE only |
-| **NOT READY** | No partner or no alliance picked, or the robot is on the wrong start for that partner | Won't move at PLAY; the screen says what to do | — |
+| **NOT READY** | No partner or alliance picked, no side (with no camera), or the robot is far off its start | Won't move at PLAY; the screen says what to do | — |
 
 All the qualifier routes aim by turning the robot (they are measured on "rigid V, fixed turret"), so **a broken
 turret never changes the plan**: with no trustworthy turret angle the turret is held forward and the routes run
@@ -43,19 +43,20 @@ does; R-Quals today catches TIP 1's spill for TIP 2 and needs a spill-free versi
 
 ## The partner
 
-The one choice a person makes before every match, from scouting. It fixes our start (two robots can't share one) and
-so our route:
+The one choice a person makes before every match, from scouting: what the partner does (mentor, 9 Oct 2026: "Just
+Park or Launch & Park for now ... if we are right, we know they are starting in the [other] start spot"). A toggles
+it; there is no default, so until it is picked the verdict line says "NOT READY: press A to pick the partner" and the
+light flashes white. The camera says which start we are on; with no camera, D-pad ◀ ▶ say it.
 
-| Partner | What it does | We start | SMART route | BACKUP route |
-|---|---|---|---|---|
-| **Just Park** | Doesn't launch; parks | Right | R-Quals: TIP 1 is ours at once | Backup-R |
-| **Left Launch & Park** | Launches its preloads from the left start, then parks | Right | R-Quals | Backup-R |
-| **Right Launch & Park** | Launches its preloads from the right start, then parks | Left | L-Quals | Backup-L |
+| We start | Launch & Park | Just Park |
+|---|---|---|
+| **Right** | R-Quals | R-Quals: TIP 1 is ours at once anyway |
+| **Left** | L-Quals: waits for the partner's TIP 1, makes it itself by 9.2 s if it never comes | **L-Quals, no wait**: makes TIP 1 itself at once (to build and measure, open item 7) |
 
-D-pad ◀ ▶ step through the list. There is no default: until a partner is picked the verdict line says "NOT READY:
-press ◀ ▶ to pick the partner" and the light flashes white. A partner-specific Auto (one built for a scouted team)
-is a new entry here, with its route. Scouting still decides details the list hides: a Just Park partner that waits at
-the standard left start is the case `doc/r-quals-partner-timing.md` covers.
+In BACKUP the partner changes nothing: Backup-L or Backup-R counts only on TIPs it makes itself. The right start scores
+more with a Just Park partner, if it is free. Scouting still decides details the two words hide: a Just Park partner
+that waits at the standard left start is the case `doc/r-quals-partner-timing.md` covers. A partner-specific Auto (one
+built for a scouted team) is a new entry in the list.
 
 ## The checks (INIT, nothing moves)
 
@@ -65,7 +66,7 @@ The rules allow INIT to hold motors and servos still (R103.B), and the robot mus
 | Row | Healthy | Not healthy | How it's read |
 |---|---|---|---|
 | **Camera** | ON: sees HIVE tags | BROKEN: not connected, or no HIVE tag for 3 s. DISABLED: by a person. ⚠ SUSPECT: tags seen, but the fixes match no start (off by more than a few inches, or scattered) | `robot.vision.isConnected()`, the `CameraBlind` test, `StartCheck` |
-| **Start** | The start the partner implies, confirmed by the camera, within 1 in: "in position" | On the other start: ✖ "this partner needs us on the right start", NOT READY (the robot is misplaced, or the partner is mis-picked). 1-3 in off: ⚠ "nudge it". Over 3 in: ✖ "reposition", NOT READY. Much further (about 12 in, or scattered fixes) the camera itself is suspect. No camera: ⚠ "no camera to check it". The tolerances are to be set from a field test | `StartCheck` against both candidate starts |
+| **Start** | Left or right, seen by the camera, within 1 in: "in position" | No camera: picked by ◀ ▶, ⚠ "no camera to check it". A ◀ ▶ pick the camera disagrees with: ✖, NOT READY. 1-3 in off: ⚠ "nudge it". Over 3 in: ✖ "reposition", NOT READY. Much further (about 12 in, or scattered fixes) the camera itself is suspect. The tolerances are to be set from a field test | `StartCheck` against both candidate starts |
 | **Alliance** | From the camera (today's `MatchSetup`), the word in its own colour | From X / B | Unchanged |
 | **Pinpoint** | Ready | Not found or not ready → PARK ONLY | The localizer's status |
 | **Turret** | The absolute encoder reads home: the starting configuration puts the turret at a known angle, so its reading is a check of the encoder itself | No signal: ✖, held forward, the robot aims. Not home (say 12°): ⚠, either it was left turned or the encoder slipped; a person turns it home, and if it still reads off, re-zeroes the encoder | `turret.health()` (asked of the turret chat: it must read the home angle in INIT, without moving) |
@@ -81,9 +82,8 @@ filter. A camera that is wrong but trusted would drag the pose, and every path a
 Pinpoint not ready                  → PARK ONLY
 camera ON and sees where we are     → SMART  (unless Y forced BACKUP)
 otherwise                           → BACKUP
-partner or alliance not picked      → NOT READY until a button picks it
-robot on the wrong start            → NOT READY (the partner fixes our start)
-the route                           → from the partner and the plan (the table above)
+partner, alliance or side unknown   → NOT READY until a button picks it
+the route                           → from our start and the partner (the table above)
 turret not healthy                  → held forward (every plan already aims by turning)
 ```
 
@@ -95,14 +95,16 @@ row of the table above. The screen and the log both print the same `plan.reasons
 | Button | Does | Shown as |
 |---|---|---|
 | X / B | Blue / red alliance (as today) | "(you)" |
-| D-pad ◀ / ▶ | Step through the partners | The Partner row |
+| A | The partner: Launch & Park ⇄ Just Park | The Partner row |
+| D-pad ◀ / ▶ | Left / right start, needed only with no camera | "(you)" |
 | Y | Toggle SMART ⇄ BACKUP | "(you)" |
 | Hold D-pad ▲ 1 s | Camera disabled ⇄ back to detection (held, so a bump can't do it) | "(you)" |
 | D-pad ▼ | Clear every override: back to what was detected. The partner stays | — |
 | Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the verdict line |
 
-An override always wins, and is always marked "(you)". One that disagrees with the camera (X while the camera sees
-the red side) is allowed, but its row turns amber and says what the camera sees. Every binding is labelled, so
+An override always wins, and is always marked "(you)". An alliance that disagrees with the camera (X while the camera
+sees the red side) is allowed, but its row turns amber and says what the camera sees; a side that disagrees with it
+is NOT READY, since the robot can't be on both starts. Every binding is labelled, so
 the Controls page lists them with no extra work.
 
 ## Lock: nothing changes by accident while waiting
@@ -150,10 +152,10 @@ get right"), then the verdict, the two choices, and every check on one line, eac
 ● RED ALLIANCE
 ● READY · locks in 24 s
 ─────────────────────────────────────────────
-● Partner    Left Launch & Park · launches from the left start, then parks
+● Partner    Launch & Park · from the left start: launches its preloads, then parks
 ● Plan       SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
 ● Camera  ● Start  ● Pinpoint  ● Turret  ● Battery
-◀▶ partner · Y backup · hold ▲ camera off · ▼ reset · hold LB+RB lock
+A partner · ◀▶ side (no camera) · Y backup · hold ▲ camera off · ▼ reset · hold LB+RB lock
 ```
 
 When a check isn't green, its name turns amber or red, and one line under them names the worst one and what to do:
@@ -163,7 +165,7 @@ When a check isn't green, its name turns amber or red, and one line under them n
 battery 12.4 V: swap it · Share for details
 ```
 
-When it is NOT READY, the verdict line names the one thing to do ("NOT READY: press ◀ ▶ to pick the partner").
+When it is NOT READY, the verdict line names the one thing to do ("NOT READY: press A to pick the partner").
 
 **CHECKS: verbose, for whoever is debugging.** One row per check, with the numbers:
 
@@ -225,7 +227,7 @@ drivetrain, which is the point. Normally nobody touches them.
 
 | Piece | Where | Who |
 |---|---|---|
-| Candidate starts: `StartCheck` judged against both starts, returning the one confirmed (Smart Auto compares it with the partner's) | `localization/StartCheck`, `RobotOpMode` (today: one declared start) | Mentor (substrate) |
+| Candidate starts: `StartCheck` judged against both starts, returning the one confirmed | `localization/StartCheck`, `RobotOpMode` (today: one declared start) | Mentor (substrate) |
 | Measured start poses (L and R per alliance) | `localization/StartPositions`, still empty | On a robot |
 | Health accessors: `vision.health()`, the Pinpoint's readiness, `turret.health()`, battery | Each subsystem | Mentor (hardware), turret chat for the turret |
 | Camera DISABLED switch, including no fixes into the filter | `vision/`, `localization/` | Mentor |
@@ -245,3 +247,5 @@ drivetrain, which is the point. Normally nobody touches them.
 4. **PARK ONLY without the Pinpoint**: can a timed drive reach the LOADING ZONE reliably, or is it LEAVE only?
 5. **The flywheel encoder failsafe** (later): what Auto does if the flywheel never reports reaching speed.
 6. **Battery thresholds**: measure where the launcher's shots start to fall short.
+7. **L-Quals, no wait**, for a Just Park partner: TIP 1 made at once instead of after the 9.2 s wait. Build and
+   measure against today's L-Quals with the same partner (2 TIPs in 53 of 60).
