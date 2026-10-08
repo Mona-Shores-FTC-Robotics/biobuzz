@@ -537,6 +537,37 @@ that counted shots fired, not pieces in.) Tried and no better:
   left CELL as it rises after our TIP 1, then forward to y 124 and west along it to (10.5, 118), out of our lane before
   we come north; `partners.preloads_left` parks under the far FLOWER and onto our PARK). 60 runs: **71.7, 3 TIPs in
   49**, PARK 60, no problem runs; misses: TIP 3 (10, 3-7 pieces in), TIP 1 (1, two preloads hit the HIVE).
+- **(ii), using the partner's pieces: `qual-left-partner-v-fixed`** (mentor, 8 Oct 2026: "a scenario that is easier"):
+  the partner's 4 and our catch tip TIP 2 at 11-12.5 s, while we are in the far FLOWER's seat, and p4-lane-r then
+  stood at N_FIRE firing at nothing for 2.5 s. Now: if the right CELL is up within 1.5 s of the FLOWER's 4, wait 0.6 s
+  for the spill, onto the lane's top (57.5, 108) and straight down it facing north (one curve from the seat entered
+  the HIVE frame's feet at x 54 and clipped the west foot, 18 of 20), fire the FLOWER's 4 from (45, 26) (from S_FIRE a
+  shot hit the HIVE), then the wall FLOWER's 4 (TIP 3: 8 pieces). Otherwise N_FIRE, firing until the right CELL is up
+  (not until a new TIP: one that started during the drive left it waiting 4 s). No GARDEN fallback: its check came
+  inside the TIP's dwell and sent the robot to the GARDEN with TIP 3 on its way, and the guard turned it into the
+  wall. 60 runs: **73.7, 3 TIPs in 54**, PARK 60; 2 problem runs (late runs cut at 26.5 s: the HIVE frame, a FLOWER).
+- **(iii), TIP 3 from sure pieces: `qual-shoots-right-v-fixed-west45`** (mentor, 8 Oct 2026: "i think we need to make
+  it not luck"): the lane route's TIP 3 rested on catching TIP 2's spill, and missed the same 4 seeds on every body
+  (the dual hook too: same 4). Now the far FLOWER's 4 are fired at N_FIRE and the robot leaves at once, down the west
+  side for the wall FLOWER's 4 and then the GARDEN's 4, both volleys from (45, 26) (from (25, 28) a shot hit the HIVE),
+  PARK by (30, 40) (a straight park from (45, 26) clipped the west foot's corner). 60 runs: **74.7, 3 TIPs in 58**,
+  PARK 60, no problem runs, no TIP 3 miss; both misses are TIP 2 after the partner's preloads hit the HIVE (TIP 1
+  late or never, and the left CELL never up for ours).
+- **(iii) with a plan for a TIP 1 that never comes: `qual-shoots-right-v-fixed-west45-r`** (mentor, 8 Oct 2026: "we
+  need to have a plan if it never comes"; "i dont expect the fallback to get to 3 tips"). No left CELL up 6 s after
+  we reach FAR_FLOWER_TURN: down the lane, our preloads at the right CELL until the left CELL is up (a late TIP from
+  the partner's pieces ends it too), the spill caught, back up, the catch and the far FLOWER's 4 at the left CELL
+  (TIP 2), fired and gone; west to x 30, straight down it to (30, 36), turn there, across to (45, 29) and PARK. No wall
+  FLOWER (reached at 24 s, the guard cut it seated). The GARDEN's volley, and PARK's start, are 3 in north of (45, 26),
+  where the V met a partner dead at the right start. Test partners: `partner-right-silent` (never shoots, parks) and
+  `partner-right-dead` (never shoots, never moves). 60 runs each, rigid V with a fixed turret:
+
+  | Partner | 3 TIPs | 2 TIPs | 1 TIP | Our PARK | Problem runs |
+  |---|---|---|---|---|---|
+  | shoots (`partner-preloads-right-high`) | 58 | 1 | 1 | 60 | 0 |
+  | never shoots, parks | 0 | 53 | 7 | 60 | 0 |
+  | never shoots, never moves | 0 | 53 | 7 | 60 | 0 |
+
 - **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
   TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
   FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
@@ -546,6 +577,20 @@ that counted shots fired, not pieces in.) Tried and no better:
   The flower-first turret routes (`qual-right-v-flower-first-carry-settle-b2`, 57 of 60 on "rigid V") fire while
   seated, which a fixed launcher cannot: 0 of 60 and a FLOWER hit at about 4 s in every run. Firing the wall FLOWER's
   4 from (25, 28) instead of (45, 26), for a nearer GARDEN: 14 of 20.
+
+**What a mechanism buys the fixed-turret baselines** (8 Oct 2026, 20 runs each, 3 TIPs; same routes):
+
+| Body | (i) parks only | (ii) left partner | (iii) right partner |
+|---|---|---|---|
+| rigid V, fixed turret | 16 | 20 | 16 |
+| ... 1 s spin-up (from 2 s) | 12 | 20 | 16 |
+| ... 0.25 s extractor pull (from 0.5 s) | 17 | 20 | 16 |
+| ... both | 12 | 20 | 16 |
+| rigid V (moving turret) | 15 | 19 | 16 |
+
+None moves the needle on these routes: every miss left is a TIP short of pieces (a short catch, a shot into the HIVE),
+not short of time. (i) loses with the faster spin-up: TIP 1 comes earlier and the catch at S_CATCH, timed for it,
+takes less. (iii)'s misses are identical in every body: TIP 3 rests on the lane's catch of TIP 2's spill.
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.

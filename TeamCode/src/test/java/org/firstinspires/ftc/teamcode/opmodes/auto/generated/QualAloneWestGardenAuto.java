@@ -72,7 +72,7 @@ public final class QualAloneWestGardenAuto {
         Pose fire3ToGardenInSegment2Start = p.of(9.5, 20.56, 90);
         Pose gardenToFire3Segment1Heading = p.of(45, 26, 270);
         Pose gardenToFire3Segment2Start = p.of(45, 26, 270);
-        Pose fire3ToParkControl1 = p.of(24, 40, 0);
+        Pose fire3ToParkControl1 = p.of(30, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
