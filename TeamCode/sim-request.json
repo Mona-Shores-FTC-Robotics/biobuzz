@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/autos/l-quals.pp",
-  "spec": "LQualsAuto,PartnerPreloadsRightHighAuto|RQualsAuto,PartnerLeftVAuto@50",
+  "spec": "LQualsAuto,PartnerPreloadsRightHighAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -69,9 +69,9 @@
   "alliance": "RED",
   "metadata": {
     "AutoSource": "l-quals.pp",
-    "SavedBy": "README, a whole match: L-Quals on red against R-Quals on blue (8 Oct 2026)"
+    "SavedBy": "README, the qualifier Autos L-Quals and R-Quals, after the plate-contact fix (8 Oct 2026)"
   },
-  "title": "Match-LQuals-vs-RQuals",
+  "title": "L-Quals",
   "usual": true,
-  "folder": "match-l-vs-r"
+  "folder": "l-quals"
 }
