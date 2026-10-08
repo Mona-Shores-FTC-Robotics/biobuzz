@@ -12,6 +12,24 @@ TIPs 1-4 are sister.py's. Then, with TIP 4 raising the right CELL:
 
 Robots stop at 30 s: TIP 5's pieces must be in by then; the TIP itself counts if it completes before TELEOP (§10.5 B).
 
+Results so far (8 Oct 2026, "rigid V" on both, 20 runs each; sister.py's pair: 4 TIPs + 2 PARK in 19 of 20, 94.0 pts
+a match on average):
+
+    R order + fills              L          5 TIPs  4   3   <=2  collide  mean pts
+    branch, fill + top-up        keeps 1       1   17   1    1     18      84.5
+    direct, fill + top-up        all to T3     5    8   2    5     13      79.5
+    swap, fill + top-up          all to T3     5    5   5    5     11      76.5
+    direct, fill + top-up        keeps 1       6    2   5    7      8      73.5
+
+What decides it:
+- Without the GARDEN, TIP 3 comes up one or two short in a quarter to a third of runs (R's TIP 1 catch is often 3,
+  and filling it off the floor while waiting for TIP 2 didn't reach 4), and those matches end at 2 TIPs.
+- TIP 5 gets R's 4 and L's catch of TIP 4's spill (2-3 in its 1.2 s), and ends 1-3 short; R's top-up off the floor
+  at the end adds little.
+- R's floor pickups at the right end meet L coming down the lane (collisions at 23-29 s).
+- Pieces are not spent evenly: sister.py's TIP 3 gets 9.7 POLLEN-worth on average (1-2 more than it needs, some after
+  the rocker has started), TIP 4 8.4. A count of what is in the CELL would let R hold back the extra for TIP 5.
+
     python3 sister_five.py     writes them into experiments/
 """
 import autogen
