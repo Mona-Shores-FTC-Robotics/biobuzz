@@ -160,7 +160,7 @@ FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
 FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
 PAD = 7
 ROLLER_AXLE = (TRF.ROLLER_AXLE_X, 3.4)                            # X, z at rest
-ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley"
+ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^roller_collar|^roller_eclip"
 
 def on_axle(v, y, z, tol=0.12):
     """True when a part (CAD-inch vertices) is centred on the flywheel axle at (y, z) in the robot frame."""

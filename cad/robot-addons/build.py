@@ -64,9 +64,9 @@ add("outer_plate_L (1/8 in aluminium)", mirror(outer_plate(hinge=False)), (0.75,
 for side, f in (("R", xr), ("L", xl)):
     for y in STANDOFF_Y:
         for z in STANDOFF_Z:
-            add(f"standoff_{side}_{z:+.0f}_{y:.0f} (M4, 56 mm)", cyl("x", (0, y, z), 7.0, f(RAIL_OUT), f(PLATE_IN)), (0.55, 0.6, 0.66), "buy")
+            add(f"standoff_{side}_{z:+.0f}_{y:.0f} (goBILDA 1501-0006-0560, M4 standoff, 56 mm)", cyl("x", (0, y, z), 7.0, f(RAIL_OUT), f(PLATE_IN)), (0.55, 0.6, 0.66), "buy")
     for z in (AX_ZF, AX_ZR):
-        add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (8mm REX, 80 mm, replaces 72 mm)", cyl("x", (0, AX_Y, z), 8.0, f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
+        add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (goBILDA 2106-4008-0800, 8mm REX, 80 mm, e-clips; replaces 72 mm)", cyl("x", (0, AX_Y, z), 8.0, f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
         add(f"bearing_{side}_{'front' if z > 0 else 'rear'} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, AX_Y, z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 add("bearing_R_hinge (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 

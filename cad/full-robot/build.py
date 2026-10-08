@@ -159,7 +159,7 @@ TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the r
 TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)
 FASTENER = re.compile(r"[Ss]crew|Nut|2800-|2802-|2812-|2829-")
 FLYWHEELS = {"Launcher subassembly <2>": ("fly_L", 3.6427), "Launcher subassembly <1>": ("fly_R", -3.3276)}
-ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley")
+ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^roller_collar|^roller_eclip")
 
 def mentor_motion(path, shp, loc):
     """Which moving group a part of the mentor's goes in, or None (the frame)."""

@@ -57,6 +57,7 @@ TOUCH = re.compile(r'(float_(plate|link|guide|stop)|roller_shaft|roller_bearing|
                    r'|motor_shaft.*(motor_pulley|roller_motor|motor_carriage)|(motor_pulley|roller_motor|motor_carriage).*motor_shaft|belt.*pulley|pulley.*belt'
                    r'|roller_bearing.*float_(plate|link)|float_(plate|link).*roller_bearing|wheel_shaft.*bearing|bearing.*wheel_shaft|standoff.*side_plate|side_plate.*standoff'
                    r'|rigid_v_plate.*side_plate|side_plate.*rigid_v_plate|servo_bracket.*extractor_servo|extractor_servo.*servo_bracket|extractor_stop.*servo_bracket|servo_bracket.*extractor_stop'
+                   r'|roller_vector_insert.*roller_vector|roller_vector.*roller_vector_insert|cross_spacers.*(block_collar|extractor_arm|extractor_cross_shaft)|(block_collar|extractor_arm|extractor_cross_shaft).*cross_spacers'
                    r'|pod_adapter.*odometry|odometry.*pod_adapter|motor_carriage.*float_link|float_link.*motor_carriage|roller_motor.*motor_carriage|motor_carriage.*roller_motor')
 import fasteners as FA
 def held(a, b):
