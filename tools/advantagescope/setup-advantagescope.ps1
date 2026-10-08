@@ -119,10 +119,11 @@ foreach ($k in $autos.Keys) {
         # simulator changes: a sidecar remembers which commit the copy here came from, and a different one is fetched
         # again (7 Oct 2026: the mentor watched the morning's log all day).
         $stamp = "$target.commit"
-        $have = if (Test-Path $stamp) { Get-Content $stamp -Raw } else { "" }
-        if (-not (Test-Path $target) -or $have.Trim() -ne $latest.commit) {
+        $have = if (Test-Path -LiteralPath $stamp) { Get-Content -LiteralPath $stamp -Raw } else { "" }
+        if (-not (Test-Path -LiteralPath $target) -or $have.Trim() -ne $latest.commit) {
             Invoke-WebRequest -Uri "$raw/$auto/$name" -OutFile $target -TimeoutSec 120
-            Set-Content -NoNewline $stamp $latest.commit
+            # Named on purpose: given positionally, Windows PowerShell took the hash as the path (8 Oct 2026).
+            Set-Content -LiteralPath $stamp -Value $latest.commit -NoNewline
             Write-Host "Downloaded $name (simulated at $($latest.commit.Substring(0, 7)))"
         }
         $named["$k-$label"] = $target
