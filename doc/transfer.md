@@ -261,7 +261,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → 8d79623 on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → ef878ce on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -339,7 +339,10 @@ done"; features can go):**
 **v4, commits 6df7d13 and 8d79623 (8 Oct): the goBILDA rebuild.** `build.py` is rebuilt from goBILDA parts with
 every screw drawn (107 fasteners checked, 0 problems). Same function and numbers: floor at z 1.3, feeder at Y 2.87,
 z 3.25 over the flywheels' span, pad face at −1.05, backstop at X −3.81 on ±0.2 slots, the 12.43 in count window.
-The lane is **5 shafts 1.4 in apart** (was 8 at 0.8) with 24 mm printed TPU rollers and polycord in pairs; the walls
+(Reviewed and pushed as commits fd18c05 and ef878ce: the pad hinge is knuckles on a REX rod with e-clips, the
+ceiling pins sit on printed blocks, the feeder shaft is held by a collar; 132 screws checked, 0 problems; no
+clashes; both balls sweep clear.) The lane is **5 shafts 1.4 in apart** (was 8 at 0.8) with 24 mm printed TPU
+rollers and polycord in pairs; the walls
 are 1/4 in polycarbonate (inner faces |Y| 1.86) on 80 mm REX standoffs to the rails' own holes; the feeder's bearings
 sit in two small aluminium plates on the mentor's channels (which lean 5.4°, so their holes miss the feeder axis);
 his front 3-hole channel stays; the pad hinge is at z 1.62 in printed blocks; the ramp slides into slots in the
@@ -356,8 +359,10 @@ count at 8 (4 drive + roller + 2 flywheels; the lane and feeder would have made 
   anyway; or a DC motor on the feeder.
 - *The lane on a servo is 3× too slow.* Under a pressed ceiling a ball moves at half the roller tread: 24 mm rollers
   at 180 rpm give 4.5 in/s, so 0.6–0.8 s between shots against the simulator's 0.2 s.
-- *Motor count, resolved 8 Oct:* **the feeder goes back on a DC motor** (5203-2402-0005, 1150 rpm, above the feeder
-  shaft at Y 2.87, z 6.30, 24T–24T on a 275 mm belt), making 8. **The lane stays on its servo as a stopgap**, with a
+- *Motor count, 8 Oct:* the plan is **the feeder on a DC motor** (5203-2402-0005, 1150 rpm, above the feeder shaft
+  at Y 2.87, z 6.30, 24T–24T on a 275 mm belt), making 8. In the CAD as pushed (commits fd18c05, ef878ce) the feeder
+  is still a servo: the motor needs one of the mentor's channels to move, so it is listed for him with the other
+  option, closing the hand-off gap so a servo suffices. **The lane stays on its servo as a stopgap**, with a
   2.5:1 step-up and 6 V from a Servo Power Module: about 575 rpm at the lane shafts, 14 in/s of ball, 0.26 s between
   NECTARs, which meets the target. Its weak point is torque, not speed: about 0.5 kg·cm per ball under the foam, so
   a full lane (about 2 kg·cm) is at the servo's 1.9 kg·cm stall. Keep the foam preload light (about 1 lbf) and let
@@ -699,7 +704,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 at commit 8d79623** (goBILDA rebuild of v3; its servo drives are under correction, see "v4" in "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 at commit ef878ce** (goBILDA rebuild of v3; lane on a geared servo, feeder drive and hand-off gap open for the mentor; see "v4" in "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
