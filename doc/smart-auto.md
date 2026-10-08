@@ -143,10 +143,10 @@ RED ALLIANCE · READY · LOCKED
 
 ## The screens
 
-**Two pages during Smart Auto's INIT: MATCH and CHECKS**, and Share flips between them (mentor, 9 Oct 2026: "a heavier
-one with numbers that you have to hit share to get to and then a lighter one where we have the questions"; then "the
-other 2 pages really arent adding anything"). The CONTROLS and ROBOT pages stay for TeleOp, as today; during this
-INIT, `Display` cycles only these two. Share changes only what is shown, so it works when locked.
+**One page during Smart Auto's INIT** (mentor, 9 Oct 2026: "the other 2 pages really arent adding anything"; "the
+checks screen is a bit redundant ... everything on the check page is already on your face now in an orderly way").
+The checks grid and the line under it say what a verbose page would. Share does nothing during this INIT; if deeper
+telemetry is needed later it goes behind Share. The CONTROLS and ROBOT pages stay for TeleOp, as today.
 
 The Driver Station draws telemetry with Android's basic HTML: bold, `<big>`, `<small>`, font colours and monospace
 (`<tt>`), but **no tables and no control of width**, so nothing can be justified across the screen. Columns are made
@@ -175,7 +175,7 @@ isn't green, a line under the grid names the worst and what to do:
 
 ```
 ● Battery    12.4 V
-battery 12.4 V: swap it · Share for details
+battery 12.4 V: swap it
 ```
 
 **Every button sits next to what it changes**, in its gamepad colour, so there is no button list to read (the mentor
@@ -196,17 +196,6 @@ Hold LB + RB 2 s to lock now
 
 When it is NOT READY, the top line names the one thing to do ("RED ALLIANCE · NOT READY: press A to pick the
 partner").
-
-**CHECKS: verbose, for whoever is debugging.** One row per check, with the numbers:
-
-```
-CHECKS
-● Camera     sees the HIVE (4 AprilTags)
-● Start Pose right start · in position (0.6 in)
-● Pinpoint   ready
-● Turret     at home (0.4°)
-● Battery    13.3 V
-```
 
 The buttons are still labelled bindings, so TeleOp's CONTROLS page lists them under "Before PLAY" with no extra
 work.
@@ -265,7 +254,7 @@ drivetrain, which is the point. Normally nobody touches them.
 | Health accessors: `vision.health()`, the Pinpoint's readiness, `turret.health()`, battery | Each subsystem | Mentor (hardware), turret chat for the turret |
 | Camera DISABLED switch, including no fixes into the filter | `vision/`, `localization/` | Mentor |
 | `decide(health, overrides)`, the partner table, and their unit test | `opmodes/auto/` | Students |
-| The INIT screens: MATCH and CHECKS (`Display` cycling just these two during Smart Auto's INIT) | `opmodes/auto/`, `controls/Display` | Students; the page cycle is mentor |
+| The INIT screen (`Display` showing only it during Smart Auto's INIT) | `opmodes/auto/`, `controls/Display` | Students; the page cycle is mentor |
 | Smart Auto itself: picks one of four generated routes at PLAY and runs it as `BuiltAuto` does | `opmodes/auto/` | Students |
 | The routes: L-Quals, R-Quals (spill-free), Backup-L, Backup-R, the emergency parks | `TeamCode/autos/*.pp`, exported from the Visualizer | Students with the simulator chat |
 
