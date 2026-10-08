@@ -143,10 +143,10 @@ RED ALLIANCE · READY · LOCKED
 
 ## The screens
 
-Four Driver Station pages, cycled by Back/Share as today (`controls/Display`): **MATCH**, **CHECKS**, **CONTROLS**,
-**ROBOT** (mentor, 9 Oct 2026: "a heavier one with numbers that you have to hit share to get to and then a lighter
-one where we have the questions"). CHECKS is one press from MATCH. Share changes only what is shown, so it works when
-locked.
+**Two pages during Smart Auto's INIT: MATCH and CHECKS**, and Share flips between them (mentor, 9 Oct 2026: "a heavier
+one with numbers that you have to hit share to get to and then a lighter one where we have the questions"; then "the
+other 2 pages really arent adding anything"). The CONTROLS and ROBOT pages stay for TeleOp, as today; during this
+INIT, `Display` cycles only these two. Share changes only what is shown, so it works when locked.
 
 The Driver Station draws telemetry with Android's basic HTML: bold, `<big>`, `<small>`, font colours and monospace
 (`<tt>`), but **no tables and no control of width**, so nothing can be justified across the screen. Columns are made
@@ -178,9 +178,21 @@ isn't green, a line under the grid names the worst and what to do:
 battery 12.4 V: swap it · Share for details
 ```
 
-**One hint line, never a list of buttons** (the mentor called the old button list "definitely the weakest spot"). It
-shows the one that matters now: "Hold LB + RB 2 s to lock now" when ready, how to unlock when locked, and nothing else;
-a NOT READY top line already names its button. Every button lives on CONTROLS.
+**Every button sits next to what it changes**, in its gamepad colour, so there is no button list to read (the mentor
+called the old list "definitely the weakest spot"): X and B beside the alliance, A beside Partner, Y beside Plan.
+The rarer ones appear only when they apply: ◀ ▶ in the line under the grid when there is no camera to see the
+start, "hold ▲" when the camera is suspect. When locked the buttons do nothing, so none are shown. One hint line
+holds the rest: "▼ clears your changes" once someone has changed something, "Hold LB + RB 2 s to lock now" when ready,
+how to unlock when locked.
+
+```
+RED ALLIANCE  X B · READY · locks in 24 s
+─────────────────────────────────────────────
+Partner A  Launch & Park · from the left start: launches its preloads, then parks
+Plan Y     SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
+...
+Hold LB + RB 2 s to lock now
+```
 
 When it is NOT READY, the top line names the one thing to do ("RED ALLIANCE · NOT READY: press A to pick the
 partner").
@@ -196,24 +208,8 @@ CHECKS
 ● Battery    13.3 V
 ```
 
-**CONTROLS: every button**, generated from the binding labels as today (`RobotOpMode` already builds this page), in two
-groups, each key in its gamepad colour:
-
-```
-BEFORE PLAY   either gamepad · unlocked
-A        Partner: Launch & Park ⇄ Just Park      (each in its partner colour)
-X        Blue alliance
-B        Red alliance
-◀ ▶      Left / right start (only with no camera)
-Y        Smart ⇄ Backup
-hold ▲   Camera off ⇄ on (1 s)
-▼        Clear overrides (the partner stays)
-LB+RB    Lock ⇄ unlock (hold 2 s)
-Share    Next page (any time, even locked)
-AFTER PLAY    the bindings, as today
-```
-
-**ROBOT**: one block per subsystem from `describe()`, as today.
+The buttons are still labelled bindings, so TeleOp's CONTROLS page lists them under "Before PLAY" with no extra
+work.
 
 Rows say what a person can check by eye: "sees the HIVE (4 AprilTags)", the tags in view right now, not "14 fixes"
 (a fix is one tag sighting turned into a position; the start check wants 5 that agree). Counts like fixes go on the
@@ -269,7 +265,7 @@ drivetrain, which is the point. Normally nobody touches them.
 | Health accessors: `vision.health()`, the Pinpoint's readiness, `turret.health()`, battery | Each subsystem | Mentor (hardware), turret chat for the turret |
 | Camera DISABLED switch, including no fixes into the filter | `vision/`, `localization/` | Mentor |
 | `decide(health, overrides)`, the partner table, and their unit test | `opmodes/auto/` | Students |
-| The INIT screens: MATCH, CHECKS and the BEFORE PLAY group on CONTROLS (a CHECKS page added to `Display`'s page cycle) | `opmodes/auto/`, `controls/Display` | Students; the page cycle is mentor |
+| The INIT screens: MATCH and CHECKS (`Display` cycling just these two during Smart Auto's INIT) | `opmodes/auto/`, `controls/Display` | Students; the page cycle is mentor |
 | Smart Auto itself: picks one of four generated routes at PLAY and runs it as `BuiltAuto` does | `opmodes/auto/` | Students |
 | The routes: L-Quals, R-Quals (spill-free), Backup-L, Backup-R, the emergency parks | `TeamCode/autos/*.pp`, exported from the Visualizer | Students with the simulator chat |
 
