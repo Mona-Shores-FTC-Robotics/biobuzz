@@ -103,7 +103,7 @@ for sn, I in FA.INFO.items():
             if own(n, j): continue
             mm = posed(m, grp.get(n, 'fixed'), stow)
             v = vol(shank, mm, None if stow else n)
-            if into and into.search(n) and re.search(r"\(print|\(1/4 in aluminium", n):   # a heat-set insert's or a tap's drawn hole:
+            if into and into.search(n) and re.search(r"\(print|\(\d+/\d+ in (5052 )?aluminium", n):   # a heat-set insert's or a tap's drawn hole:
                 lo_, hi_ = m.bounds                                                  # the thread is the shank's length inside the part
                 pts_ = np.linspace(cyl_axis[0], cyl_axis[1], 41)
                 engaged = max(engaged, ((pts_ >= lo_) & (pts_ <= hi_)).all(1).mean() * L)

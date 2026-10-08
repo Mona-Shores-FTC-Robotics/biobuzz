@@ -7,7 +7,8 @@ in place in Onshape next to cad/intake-b/dhs-intake-b.step.
 
 Robot frame: +X forward, +Y left, +Z up, inches, origin on the floor under the chassis centre (7.56 in behind the front
 face), moved into the CAD's millimetres at the end. Groups: "fixed" (ramp, lane, ceiling, feeder, pad and their drives)
-and "launcher" (the changes in the mentor's launcher: the flywheel motors moved out and up).
+"launcher" (the changes in the mentor's launcher: the flywheel motors moved out and up) and "elec" (the
+electronics bay at the back: the battery, both hubs and the switch on one bent plate; README "Electronics bay").
 
 How it works: the intake roller pushes each ball up the ramp onto the lane. The lane's rollers carry it back under the
 ceiling, which presses it onto them, and push it in between the feeder and the pad, under the flywheels, against the
@@ -164,7 +165,7 @@ FEEDER_SPINS = r"^(feeder \(|feeder_shaft |feeder_pulley \(|feeder_spacers_|feed
 FEEDER_SWINGS = r"^(feeder_arm_|feeder_bearing_|feeder_pivot_bearing_|gate_tab |gate_pin_arm )"   # what swings with its yoke (the feeder rides on it)
 PAD_SWINGS = r"^pad_(plate|foam|foam_glue|knuckle_rear|knuckle_front|hinge|hinge_eclip_rear|hinge_eclip_front) "                 # what swings with the pad
 
-fixed, launcher = {}, {}
+fixed, launcher, elec = {}, {}, {}
 def part(d, name, wp, col, kind): d[name] = (wp, col, kind)
 BLUE, ALU, STEEL, POLY, BLACK, GREEN, RED, TPU = (0.18, 0.37, 0.62), (0.75, 0.78, 0.82), (0.8, 0.82, 0.85), (0.6, 0.78, 0.96), (0.13, 0.15, 0.17), (0.35, 0.66, 0.31), (0.75, 0.2, 0.2), (0.22, 0.22, 0.24)
 
@@ -678,6 +679,64 @@ for nm, (z0, z1) in (("plate", TP_Z), ("mount", (TG_MOUNT_Z[0] + 0.1, TG_MOUNT_Z
     part(launcher, f"turret_gear_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cylz(*TG, 14 * MM, z0, z1).union(cylz(*TG, 15 * MM, z0 - 0.8 * MM, z0)), STEEL, "buy")
 part(launcher, "turret_gear_spacers (goBILDA 8mm REX spacers: the pulley up to the kit's mount)", cylz(*TG, 12 * MM, TPUL_Z[1], TG_MOUNT_Z[0] + 0.1 - 0.8 * MM), STEEL, "buy")
 part(launcher, "turret_gear_eclip (with the shaft)", cylz(*TG, 12 * MM, TGS[0] + 0.02, TGS[0] + 0.05), STEEL, "buy")
+# ---- the electronics bay, at the back over the drive motors: a bent 3/16 in aluminium plate stands on the chassis's rear
+#      angle; the Control Hub and the Expansion Hub hang on its back face, ports out, with the battery between them in a
+#      printed cradle. Every port, the battery and the hubs' screws are reached from behind or above; the switch is on top.
+#      The plate's tongue runs back over both rear chassis members and bolts to their top flanges' 8 mm grid ----
+REAR_HOLES_X = (-7.247, -5.987)                     # the top-flange hole lines (X) of his rear channel (1107-0013-0336) and angle (1103-0041-0328), z 5.733
+REAR_TOP = 5.733
+EP_T = 3 / 16
+EP_X = (-5.85, -5.85 + EP_T)                        # the plate's upright, on the angle's top flange (X -6.146 to -5.673)
+EP_Y, EP_TOP = 8.15, 10.42
+TONGUE = ((-7.50, EP_X[0]), 1.85)                   # back over both flanges, between the drive motors' encoder caps (|Y| 1.87)
+TONGUE_HOLES = [(x, s_ * 8 * 3 * MM) for x in REAR_HOLES_X for s_ in (-1, 1)]
+HUB = (143 * MM, 103 * MM, 29.5 * MM)               # REV's drawing: both hubs, M3 through holes 128 x 88 in the corner tabs
+HUB_TAB = 4.0                                       # the corner tabs' thickness, mm (to check on a hub; the screw is M3 x 8 either way)
+HUB_Z0 = 6.25
+HUB_IN = 2.45                                       # the hubs' inner edges, |Y|: the battery cradle between them
+BAT = (113.5 * MM, 90.5 * MM, 23 * MM)              # REV-31-1302: along Y, up, along X
+CR_FLOOR = (REAR_TOP + EP_T, REAR_TOP + EP_T + 0.3)
+BAT_X = (EP_X[0] - 0.03 - BAT[2], EP_X[0] - 0.03)
+BAT_Z = (CR_FLOOR[1] + 0.01, CR_FLOOR[1] + 0.01 + BAT[1])
+CR_X = (BAT_X[0] - 0.03 - 0.1, EP_X[0])
+CR_W = BAT[0] / 2 + 0.01                            # the cradle's walls' inner faces, |Y|
+part(elec, "elec_plate (3/16 in 5052 aluminium, cut and bent: the upright the hubs hang on, its tongue bolted to the rear chassis; M3 holes tapped)",
+     bx(*EP_X, -EP_Y, EP_Y, REAR_TOP, EP_TOP).union(bx(TONGUE[0][0], EP_X[1], -TONGUE[1], TONGUE[1], REAR_TOP, REAR_TOP + EP_T)), ALU, "cut")
+HUBS = {}
+for s_, nm, sku in ((1, "control_hub", "REV-31-1595 Control Hub"), (-1, "expansion_hub", "REV-31-1153 Expansion Hub")):
+    y0, y1 = sorted((s_ * HUB_IN, s_ * (HUB_IN + HUB[0]))); x0, x1 = EP_X[0] - HUB[2], EP_X[0]; z0, z1 = HUB_Z0, HUB_Z0 + HUB[1]
+    tab = 11 * MM
+    body = bx(x0, x1, y0, y1, z0, z1)
+    for cy in (y0, y1 - tab):
+        for cz in (z0, z1 - tab): body = body.cut(bx(x0 - 0.01, x1 - HUB_TAB * MM, cy, cy + tab, cz, cz + tab))
+    yc, zc = (y0 + y1) / 2, (z0 + z1) / 2
+    holes = [(yc + dy * MM, zc + dz * MM) for dy in (-64, 64) for dz in (-44, 44)]
+    for hy, hz in holes: body = body.cut(cylx(hy, hz, 3.4 * MM, x0 - 0.1, x1 + 0.1))
+    hn = f"{nm} ({sku}: on the plate's back face, ports out the back; four M3 through its corner tabs)"
+    part(elec, hn, body, (0.24, 0.25, 0.27), "buy"); HUBS[nm] = (hn, holes)
+    c = bolt(elec, f"hub_{nm}", f"the {nm.replace('_', ' ')} to the electronics plate (from behind, into the plate's tapped holes)", [(x1 - HUB_TAB * MM, hy, hz) for hy, hz in holes], (1, 0, 0), HUB_TAB, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=(nm,))
+    drill(elec, [nm], c)
+part(elec, "battery (REV-31-1302 12 V Slim Battery: drops into its cradle from above, a hook-and-loop strap over the top)", bx(*BAT_X, -BAT[0] / 2, BAT[0] / 2, *BAT_Z), (0.10, 0.10, 0.11), "buy")
+cr = bx(*CR_X, -CR_W - 0.1, CR_W + 0.1, *CR_FLOOR)                                      # floor
+for s_ in (-1, 1): cr = cr.union(bx(*CR_X, *sorted((s_ * CR_W, s_ * (CR_W + 0.1))), CR_FLOOR[0], 8.0))   # side walls
+cr = cr.union(bx(CR_X[0], CR_X[0] + 0.1, -CR_W - 0.1, CR_W + 0.1, CR_FLOOR[0], 7.3))  # back lip
+for s_ in (-1, 1): cr = cr.cut(bx(CR_X[0] + 0.25, CR_X[1] - 0.25, *sorted((s_ * (CR_W - 0.05), s_ * (CR_W + 0.15))), 7.45, 7.7))   # strap slots
+part(elec, "battery_cradle (print PETG: floor, side walls, back lip and strap slots; held down by the tongue's front screws)", cr, (0.95, 0.55, 0.15), "print")
+TH = [(x, y, CR_FLOOR[1] - 4.6 * MM) for x, y in TONGUE_HOLES if x > -6.5] 
+for x, y, z in TH:
+    k_ = next(k for k in elec if k.startswith("battery_cradle"))
+    wp_, col_, kind_ = elec[k_]; elec[k_] = (wp_.cut(cylz(x, y, 8 * MM, z, CR_FLOOR[1] + 0.01)), col_, kind_)    # counterbores: the heads sit below the battery
+c = bolt(elec, "elec_tongue_front", "the plate's tongue and the battery cradle to the rear angle's top flange (nuts under the flange, from below)", TH, (0, 0, -1), (CR_FLOOR[1] - 4.6 * MM - CR_FLOOR[0]) * IN + EP_T * IN + 2.5, nut=True, through=("battery_cradle", "elec_plate"), service="battery and cradle out first")
+drill(elec, ["battery_cradle", "elec_plate"], c)
+c = bolt(elec, "elec_tongue_rear", "the plate's tongue to the rear channel's top flange (nuts under the flange)", [(x, y, REAR_TOP + EP_T) for x, y in TONGUE_HOLES if x < -6.5], (0, 0, -1), EP_T * IN + 2.5, nut=True, through=("elec_plate",))
+drill(elec, ["elec_plate"], c)
+SW = ((EP_X[1] + 0.1, EP_X[1] + 0.1 + 0.55), (-0.6, 0.6), (9.55, 10.40))                   # the switch's body (X, Y, z), its rocker on top
+part(elec, "power_switch (REV-31-1387 Switch Cable and Bracket's rocker: on top, in reach from above and behind)", bx(*SW[0], *SW[1], *SW[2]).union(bx(SW[0][0] + 0.12, SW[0][1] - 0.12, -0.35, 0.35, SW[2][1], SW[2][1] + 0.12)), RED, "buy")
+sh = bx(EP_X[1], SW[0][1] + 0.08, -0.72, 0.72, 9.45, SW[2][1]).cut(bx(SW[0][0], SW[0][1], SW[1][0], SW[1][1], SW[2][0], SW[2][1] + 0.1))
+sh = sh.union(bx(EP_X[1], EP_X[1] + 3 * MM, -1.15, 1.15, 9.7, 10.2))
+part(elec, "switch_holder (print PETG: the switch presses into its pocket; two M3 from the front into the plate's tapped holes)", sh, (0.95, 0.55, 0.15), "print")
+c = bolt(elec, "switch_holder", "the switch holder to the electronics plate (from the front)", [(EP_X[1] + 3 * MM, s_ * 0.95, 9.95) for s_ in (-1, 1)], (-1, 0, 0), 3.0, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=("switch_holder",))
+drill(elec, ["switch_holder"], c)
 # ---- the holes the screws thread into: a heat-set insert's hole in a printed part, a tap drill in a cut one ----
 def threaded_holes(d):
     import re as _re
@@ -690,14 +749,14 @@ def threaded_holes(d):
             dia = ({4: 5.6, 3: 4.0}[dd] if kind_ == "print" else {4: 3.3, 3: 2.5}[dd]) * MM
             hole = cq.Workplane().add(cq.Solid.makeCylinder(dia / 2, ln, cq.Vector(*p0), cq.Vector(*a)))
             d[k] = (wp_.cut(hole), col_, kind_)
-threaded_holes(fixed); threaded_holes(launcher)
+threaded_holes(fixed); threaded_holes(launcher); threaded_holes(elec)
 
 # ---- into the robot CAD's millimetres: (x, y, z)_CAD = (C + Y, F + Z, FACE - 7.56 in + X), all times 25.4 ----
 MAT = cq.Matrix([[0, IN, 0, C], [0, 0, IN, F], [IN, 0, 0, FACE - CENTRE_BACK_IN * IN]])
 def to_cad(wp):
     shp = wp.val() if len(wp.vals()) == 1 else cq.Compound.makeCompound(wp.vals())
     return shp.transformGeometry(MAT)
-GROUPS = (("transfer, fixed", "fixed", fixed), ("launcher changes (the mentor's to agree)", "launcher", launcher))
+GROUPS = (("transfer, fixed", "fixed", fixed), ("launcher changes (the mentor's to agree)", "launcher", launcher), ("electronics bay", "elec", elec))
 if __name__ == "__main__":
     out = HERE; os.makedirs(out + "/stl", exist_ok=True)
     assy = cq.Assembly(name="DHS transfer"); mesh = {}
@@ -712,7 +771,7 @@ if __name__ == "__main__":
     assy.save(out + "/dhs-transfer.step")
     if os.environ.get("MESH_OUT"):
         import pickle; pickle.dump(mesh, open(os.environ["MESH_OUT"], "wb"))
-    print(len(fixed), "fixed,", len(launcher), "launcher parts")
+    print(len(fixed), "fixed,", len(launcher), "launcher,", len(elec), "electronics parts")
     print(f"feeder belt: centres {FEED_C * IN:.2f} mm, needs {belt_len(FEED_C, P16, P24) * IN:.1f} mm, belt {FEED_BELT[0]}; feeder axle Y {FEED_Y:.3f} z {FEED_Z:.3f}")
     Ls = [belt_len_path(belt_path(LD_LOOP(ROLLER_AXLE[1] + f))) * IN for f in (0, 0.325, 0.65, 0.975, 1.3)]
     print(f"lane drive belt: path {min(Ls):.1f}-{max(Ls):.1f} mm as the roller floats, belt {LD_BELT[0]} (stretch {100 * (min(Ls) / LD_BELT[0] - 1):.1f}-{100 * (max(Ls) / LD_BELT[0] - 1):.1f}%)")

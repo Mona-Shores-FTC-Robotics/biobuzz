@@ -201,7 +201,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     if tr is None: base += transfer()                 # placeholder solids without TRANSFER_MESH_PKL
     else:
         FLY_L = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")       # ours on the left flywheel's shaft: it spins
-        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher") and not FEEDER_PART.match(n) and not FLY_L.match(n) and not n.startswith("flywheel_pulley_R")]   # the feeders spin: components 3 and 7
+        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher", "elec") and not FEEDER_PART.match(n) and not FLY_L.match(n) and not n.startswith("flywheel_pulley_R")]   # the feeders spin: components 3 and 7
         left = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] > 0)
         fly[left] += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if FLY_L.match(n)]
         right = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] < 0)

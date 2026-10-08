@@ -132,10 +132,39 @@ The intake roller's motor (5203-2402-0005, 1150 RPM) and the roller's lane pulle
 | Gate servo | Four tab screws (nuts on the tabs); the bracket comes off its REX standoff with the left wall off | servo, horn, bracket |
 | Pad | Two hinge-block screws from under the floor | plate, foam, knuckles, hinge rod, blocks, band (the stop stays on the floor) |
 | Turret motor | Belt off, then four face screws from above (before the pulley) | motor, 24T pulley |
+| Battery | Undo the strap, lift it out of the cradle | battery |
+| A hub | Unplug, then four M3 from behind through its corner tabs | the hub |
+| Electronics plate | Battery and cradle out, then four M4 down through the tongue (nuts under the chassis flanges) | plate, switch holder |
 
 The standoffs stay on the rails. They go on during the chassis build, before the outer wheel plates and the pods,
 because their screws go in from outside the rails. The fastener check's "service order" notes are these and the other
 orders in the table above, and every other screw has a key path.
+
+## Electronics bay
+
+The battery, both hubs and the power switch live in one bay at the back of the robot, above the rear drive motors.
+The CAD said this was the only free space with access from outside: X −7.5 to −4.4, full width, from the chassis top
+(z 5.73) up. It's group "elec" in `build.py`.
+
+- **The plate:** one piece of 3/16 in 5052 aluminium, cut and bent. The upright stands on the rear angle's top flange
+  (1103-0041-0328). A tongue runs back over both rear chassis members and bolts to their top flanges' 8 mm grid with
+  four M4, nuts underneath, where the drive motors leave room (between the encoder caps, |Y| < 1.87). Nothing on a
+  goBILDA part is drilled. The plate's M3 holes are tapped (3/16 in gives 4 mm of thread).
+- **The hubs** (Control Hub left, Expansion Hub right) hang on the plate's back face with their faces out. Every port
+  plugs in from behind or from above, and the LEDs are visible. Each is held by four M3 × 8 through the corner tabs'
+  through-holes (REV's drawing: 143 × 103 × 29.5 mm, holes 128 × 88), screwed in from behind into the plate. Taking a
+  hub off is unplug and four screws, with nothing else in the way. Wires to the drive motors drop straight down
+  between the rear chassis members.
+- **The battery** (REV slim, 113.5 × 90.5 × 23 mm) stands between the hubs in a printed PETG cradle. It lifts straight
+  out from above, with a hook-and-loop strap through the cradle's slots. Its lead, the switch and the Control Hub's
+  XT30 are all within a few inches of each other.
+- **The power switch** (REV-31-1387) sits in a printed holder on top of the plate, rocker up. It's reachable from
+  above and behind, as inspection wants.
+- **Clearances:** the hubs' backs are 0.55 in inside the rear frame, and the bay stays inside the 18 in start cube.
+  The top of the bay is z 10.4. A future turret hood that sweeps lower than z 10.5 more than 3.6 in behind the turret's
+  axis would hit it, so the hood has to be checked against the bay.
+- **To check on a real hub:** the corner tabs' thickness (4 mm assumed; M3 × 8 suits 3 to 4 mm). Each hub is 0.1 in clear of
+  the cradle's walls.
 
 ## Changes it needs in the mentor's CAD
 
@@ -178,6 +207,8 @@ edits above) and our front, by exact mesh intersection:
 - **Balls:** a NECTAR and a POLLEN rolled along the lane into the feeder and driven up the column touch nothing but
   the rollers, the ceiling, the feeder, the pad and the flywheels.
 - **Pad:** swung back for a NECTAR, it touches nothing.
+- **Electronics bay:** the plate, hubs, battery, cradle and switch touch nothing but the chassis flanges the plate
+  stands on.
 
 `tools/robot-cad/front2_check.py` sweeps the front's roller (rising) and extractor (every 10°) against all of it:
 clear.
@@ -185,7 +216,7 @@ clear.
 `tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount. For each it
 checks that the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a
 tapped hole gives enough thread.
-Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 131 screws, 0 problems, 27 with a service order.
+Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 145 screws, 0 problems, 30 with a service order.
 
 ## Open
 
