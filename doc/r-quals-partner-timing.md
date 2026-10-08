@@ -209,5 +209,8 @@ bar" (range ±1.5 plus the 1.5 in tolerance), `seat_error.py`, 60 runs, 3 TIPs:
 | | CAD bar | 55 | 55 | 55 | 29 |
 
 The CAD bar doubles the tolerance: a ±2 in seat error costs nothing (it cost 25 runs), and ±4 costs what ±2 costs
-the block today. It does not reach the corner seat (7.3 in off), so `qual-south-v-corner` still needs the corner
-or a wider bar. Heading error (the 3° figures) is not modelled; deployed, the bar again changed nothing else.
+the block today. It does not reach the corner seat (7.3 in off), and nothing CAD can fit does (6.2-7.0 in arms
+reach ±3.5-4.5 and need the front redesigned; 7 in is not reachable). With the FLOWER at the bar's -3.0 end the robot
+sits at x 44.36, its side at x 51.98, 2 in into a partner at the standard left start; at -4.5 it is still 0.5 in in
+(the V's tip 1.75 in). So **`qual-south-v-corner` is off**: R-Quals beside a partner that stays at its start has no
+extractor that makes it safe, and that partner is a scouting "no" for R-Quals (L-Quals' pairing instead). Heading error (the 3° figures) is not modelled; deployed, the bar again changed nothing else.
