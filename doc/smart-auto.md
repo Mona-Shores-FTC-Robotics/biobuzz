@@ -157,21 +157,29 @@ The two lines above the rule are the only ones the drive team must read: the all
 it is NOT READY, that line names the one thing to do. Nothing on them repeats a row below: the side is on the Start
 row and the plan is the Plan row, with what to expect from it. Nothing else shares the page during INIT.
 
-## Indicator lights (later)
+## The robot light (later)
 
-The screen helps only the person holding the Driver Station. Lights on the robot let a partner, the field staff or a
-coach in the stands catch what the drive team missed (mentor, 9 Oct 2026: "having things flashing to alert the
-audience (and team members) in case our drive team is not on the ball"). The proposal, for the goBILDA indicator
-lights:
+The screen helps only the person holding the Driver Station. A light on the robot lets a partner, the field staff or
+a coach in the stands catch what the drive team missed (mentor, 9 Oct 2026: "having things flashing to alert the
+audience (and team members) in case our drive team is not on the ball").
 
-| Light | Shows | Why |
-|---|---|---|
-| **Alliance** | Solid red or blue: the alliance the robot thinks it is on. White, flashing: none yet | A robot glowing blue on the red side is visibly wrong from anywhere in the venue |
-| **Status** | Green: SMART and ready, pulsing until locked, solid once locked. Amber: BACKUP or PARK ONLY, the same pulse rule. Amber, flashing: NOT READY, or something changed since the lock | Never red or blue, so it can't be mistaken for the alliance |
+**Decided (mentor, 9 Oct 2026):** one light, and it shows the alliance. Anyone can check the alliance against the
+field without knowing our code, and a wrong alliance is the costliest mistake (the whole Auto runs turned about). How
+it lights says whether all is well, so red never means "error" (the mentor: "i definitley wouldnt use red to show
+error here because of red alliance shenanigans").
 
-Limits from the manual: lighting that flashes faster than 5 Hz invites scrutiny, so nothing goes past 2 Hz. A
-powered light can't be the alliance sign, so these sit alongside the required sign and never replace it. What the
-lights show during the match is a later design.
+| Light | Means |
+|---|---|
+| Solid red or blue | Ready, on that alliance |
+| Red or blue, flashing | That alliance, but NOT READY, or something changed since the lock |
+| Red and blue, alternating | Mismatch: the camera sees one alliance and the buttons chose the other. The buttons still win (the camera may be the thing that's wrong); the alliance line turns amber, "camera sees blue", and the verdict line adds CHECK |
+| White, flashing | No alliance at all |
+
+With the camera off there is nothing to disagree with a wrong button, and the solid colour is the only safeguard: a
+blue glow on the red side. Limits from the manual: lighting faster than 5 Hz invites scrutiny, so nothing passes
+2 Hz, and a powered light can't be the alliance sign, so the light sits beside the required sign. A second, status
+light (Smart or Backup) would add little the screen doesn't show; add one only for a reason. What the light shows
+during the match is a later design.
 
 ## At PLAY and after
 
