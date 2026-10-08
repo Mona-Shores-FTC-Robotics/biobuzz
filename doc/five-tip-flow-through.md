@@ -122,12 +122,27 @@ What could still change that, in order of how much it would move the number:
 1. **Real spills cross the centre line less than the simulator's.** The right CELL's pieces sit at x 58-67, within
    4-13 in of the line (x 70.75), so a small sideways kick takes them over. The Saline tracks
    (`tools/saline-stream/saline-rolling-tracks.csv`) are 25 clean rolls chosen for deceleration, not whole spills,
-   so they can't answer this. Counting, in two or three Saline spills, how many pieces end past the centre line
-   or under the HIVE would settle it.
+   so they can't answer this. The filmed spill test (`doc/spill-test.md`, 20 TIPs, on the next-meeting list) settles
+   it. Until then, treat crossing as unknown.
 2. **The pieces under the HIVE are reachable.** That's about 1 a spill if the robot can reach under the frame
    from our half.
 3. **G407 allows a pen.** It doesn't help at this catch spot (capacity wasn't binding), but it would let a robot
    gather a spill's floor pieces in one pass instead of two.
+
+### Replies from the other chats (8 Oct 2026)
+
+- **Transfer** (`doc/transfer.md` § "Flow-through: out the back for a 5-TIP Auto", spike/164-transfer): a back exit
+  is the lane continued, with the backstop turned into a gate. The cost is a third servo, an exit sensor and a
+  3.8 × 3.8 in opening. But "at most 4 aboard" holds by geometry only while the queue is stopped. With the gate open,
+  the path from the roller to the back face holds 6 POLLEN nose to tail. Pieces off a pile bunch, so a 5th piece is
+  inside for about 0.2 s per piece. Streaming through the turret is clean (5 POLLEN don't fit in the 10.7 in to the
+  launch column). Streaming out the back is clean only with spaced entry, which the shared motor can't afford. Their
+  alternative needs nothing new built: shed pieces through the launcher at low flywheel speed, turret toward the
+  wall. Whether that lob lands in the wall gap rather than over the wall is the simulator's question. Streaming while
+  intaking is the design as drawn, at any turret angle, about 1.2 s for 8.
+- **Simulator:** the films fix where a spill lands, how fast it spreads and that it heads for the wall. They don't
+  measure sideways travel over the whole roll, and the wall bounce (`PLACEHOLDER_WALL_RESTITUTION` 0.5) is a guess.
+  So treat "crosses the centre line" as unknown until the filmed spill test (`doc/spill-test.md`), not as a number.
 
 ### Draft question for the official Q&A (G407)
 
@@ -137,6 +152,11 @@ What could still change that, in order of how much it would move the number:
 > resting inside the guide CONTROLLED under G407 (for example as "stuck in/on" the robot or as herding), so that the
 > robot would be in violation until they leave the guide? Does the answer change if the guide was lowered after the
 > elements had already touched the tiles?
+
+> A second question, if we build a flow-through path: our intake feeds a lane that carries scoring elements through
+> the robot and out its back. While a stream passes through, a fifth element can be inside the robot's frame for
+> about 0.2 s before the first one has fully left. Is a momentary count above 4 during continuous pass-through a
+> G407 violation?
 
 ## Asks
 
