@@ -3,6 +3,14 @@
 **Status: design, 9 Oct 2026.** From a conversation with the mentor; nothing here is built yet. The decisions it
 records are marked **Decided**; the rest is the proposal, for the mentor and students to change.
 
+**Try it:** [`smart-auto.html`](smart-auto.html) is a working mock of the screen: download it, or open it from a clone,
+in any browser (GitHub only shows its source, since a page on github.com can't run scripts). Live version:
+https://claude.ai/artifact/4BvtxZ5JrXjdpH6GrkjCW7 (private until shared).
+
+| Ready | Camera down |
+|---|---|
+| ![The INIT screen, ready](smart-auto-ready.png) | ![The INIT screen with the camera down](smart-auto-camera-down.png) |
+
 ## The idea
 
 The drive team should not have to make decisions at the field. So there is **one Autonomous**, *Smart Auto*. During
