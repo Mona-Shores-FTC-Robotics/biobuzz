@@ -226,6 +226,11 @@ public class AutoStudyTest {
         RobotDesign fastBoth = fastSpin.copy("rigid V, fixed turret, 1 s spin-up, 0.25 s pull");
         fastBoth.flowerPullS = 0.25;
         for (RobotDesign d : new RobotDesign[] {fastSpin, fastPull, fastBoth}) m.put(d.name, d);
+        // An extractor that takes a FLOWER at a front corner of the V (routes chat, 8 Oct 2026): R-Quals seats beside
+        // the far FLOWER, clear of a left partner still at its start.
+        RobotDesign cornerExtractor = fixedTurret.copy("rigid V, fixed turret, corner extractor");
+        cornerExtractor.extractorLateralIn = -7.3;  // the right front corner: west of the far FLOWER, facing north
+        m.put(cornerExtractor.name, cornerExtractor);
         RobotDesign vHook = fixedTurret.copy("rigid V + dual hook, fixed turret");
         vHook.guideOutIn = vHook.flapOutIn;
         vHook.guideForwardIn = vHook.flapForwardIn;
@@ -638,6 +643,19 @@ public class AutoStudyTest {
             }
             if (!Double.isNaN(r.robotsCollidedAt) && row.problems++ == 0) {
                 row.firstProblem = String.format(Locale.ROOT, "robots collide at %.1f s", r.robotsCollidedAt);
+            }
+            // BIOBUZZ_AUTO_SEED_ROWS=1: one line per seed for a script to count (TIPs, points, each robot's PARK and
+            // problems, the robots' collision).
+            if (System.getenv("BIOBUZZ_AUTO_SEED_ROWS") != null) {
+                StringBuilder sr = new StringBuilder(String.format(Locale.ROOT, "STUDY SEEDROW %s|%s|%d|%d|%d|%s", spec, designName,
+                        seed, r.autoTips(), r.autoPoints(), Double.isNaN(r.robotsCollidedAt) ? "-" : String.format(Locale.ROOT, "%.1f", r.robotsCollidedAt)));
+                for (AutoSim.RobotResult robot : r.robots) {
+                    sr.append('|').append(robot.leave && robot.park ? "P" : "-")
+                            .append(Double.isNaN(robot.hitHiveAt) ? "" : "H").append(Double.isNaN(robot.hitFlowerAt) ? "" : "F")
+                            .append(Double.isNaN(robot.hitWallAt) ? "" : "W").append(Double.isNaN(robot.crossedAt) ? "" : "C")
+                            .append(robot.illegalStart == null ? "" : "S");
+                }
+                System.out.println(sr);
             }
             // BIOBUZZ_AUTO_TIMELINE=issues: the timeline of every run with a G409 touch or a problem.
             if ("issues".equals(tl) && (row.g409 > 0 || row.problems > 0)) {

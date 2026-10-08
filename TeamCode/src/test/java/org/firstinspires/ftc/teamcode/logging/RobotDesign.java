@@ -77,6 +77,12 @@ final class RobotDesign {
      * stows it when it leaves ({@link AutoSim}); a FLOWER gives up pieces only while it is down and seated.
      */
     double extractorSeatIn = Double.NaN;
+    /**
+     * How far the extractor reaches to the robot's left of its centre line (negative: right): the FLOWER's centre sits
+     * this far aside when seated. 0, the CAD's extractor, on the centre line. 7.3: one that takes a FLOWER at the left
+     * front corner (routes chat, 8 Oct 2026), so the body seats beside the FLOWER instead of in front of it.
+     */
+    double extractorLateralIn = 0;
     /** How far the seat may be off, along and across, for the extractor to still take the stack. */
     static final double EXTRACTOR_SEAT_TOLERANCE_IN = 1.5;
     /** Time for the extractor to swing its 150 deg; a placeholder until the servo is driven. */
@@ -374,6 +380,7 @@ final class RobotDesign {
         d.intakeMaxSpeedInPerS = intakeMaxSpeedInPerS;
         d.flowerPullS = flowerPullS;
         d.extractorSeatIn = extractorSeatIn;
+        d.extractorLateralIn = extractorLateralIn;
         d.extractorDeployS = extractorDeployS;
         d.transferFeedS = transferFeedS;
         d.launcher = launcher;

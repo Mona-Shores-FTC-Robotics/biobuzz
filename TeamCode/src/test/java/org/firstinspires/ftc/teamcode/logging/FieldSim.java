@@ -1720,7 +1720,7 @@ final class FieldSim {
             if (design.intakeAtBack) fx = -fx;
             double seat = design.frameIn / 2 + design.extractorSeatIn;
             return Math.abs(fx - seat) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN
-                    && Math.abs(fy) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
+                    && Math.abs(fy - design.extractorLateralIn) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
         }
         if (design.intakeOnContact && p.flower < 0) {
             return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN
