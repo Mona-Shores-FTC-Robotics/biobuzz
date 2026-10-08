@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit 8d79623. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit ef878ce. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -44,7 +44,7 @@ turn at a display rate, 2 turns a second, while they run: real roller and flywhe
 | 3 | Feeder: two 72 mm wheels on a shaft along X, left of the held piece | About −X through (−0.051943, 0.072822, 0.082550) m | Spins while a piece is being fed, driving it up |
 | 4 | Intake roller | About +Y through its axle (0.218973, 0, 0.08636) m, plus the carriage's rise | Spins while the intake runs; the bottom moves rearward |
 | 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.05588, ±0.0925, 0.1688) m | Spin while the launcher is spun up, both throwing the piece up |
-| 7 | Sprung foam pad opposite the feeder, hinged along X at its foot | About +X through (−0.051943, −0.04445, 0.041148) m | Doesn't spin. Swings out 26° while a NECTAR is in the feeder (held, or in its first 2 in up), otherwise at rest |
+| 7 | Sprung foam pad opposite the feeder, hinged along X at its foot | About +X through (−0.051943, −0.04826, 0.041148) m | Doesn't spin. Swings out 29° while a NECTAR is in the feeder (held, or in its first 2 in up), otherwise at rest |
 
 `/Internals/Components` replaces `/BodyShape/Components` for the CAD model. The simulator still writes
 `BodyShape/Components` for the older layouts.
