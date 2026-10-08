@@ -42,7 +42,7 @@ public final class PartnerLeaveParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(24, 132.25, 270);
-        Pose parkP = p.of(10.5, 110, 270);
+        Pose parkP = p.of(10.5, 116, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToParkPControl1 = p.of(24, 118, 0);
@@ -51,7 +51,7 @@ public final class PartnerLeaveParkAuto {
         Path startToParkP = Paths.curve(start, startToParkPControl1, parkP).constant(parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 1.8,
+                kit.guarded("Auto", startToParkP, 1.7,
                         kit.path("START to PARK_P", startToParkP)));
     }
 }
