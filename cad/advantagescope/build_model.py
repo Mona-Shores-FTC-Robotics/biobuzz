@@ -154,13 +154,13 @@ def transfer():
 # everything centred on it (wheels, hubs, 41T pulley, spacers), about +X. The roller: its shaft, wheels and pulleys.
 TURRET_TURNS = r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176"
 TURRET_AXIS = (-2.8431 + TRF.LAUNCHER_SHIFT, 0.1575)   # the inner race's centre, with the launcher moved forward (cad/transfer)
-FLYWHEEL_AXLES = {"Launcher subassembly <2>": 3.6427, "Launcher subassembly <1>": -3.3276}   # axle Y; both at z 6.6455
+FLYWHEEL_AXLES = {"Launcher subassembly <2>": TRF.FLY_Y[0], "Launcher subassembly <1>": TRF.FLY_Y[1]}   # axle Y (the modules moved in); both at z 6.6455
 FLYWHEEL_Z = 6.646
 FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
 FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
 PAD = 7
 ROLLER_AXLE = (TRF.ROLLER_AXLE_X, 3.4)                            # X, z at rest
-ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^roller_collar|^roller_eclip"
+ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_lane_pulley|^roller_pulley|^roller_collar|^roller_eclip"
 
 def on_axle(v, y, z, tol=0.12):
     """True when a part (CAD-inch vertices) is centred on the flywheel axle at (y, z) in the robot frame."""
@@ -200,7 +200,12 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
     if tr is None: base += transfer()                 # placeholder solids without TRANSFER_MESH_PKL
     else:
-        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher") and not FEEDER_PART.match(n)]   # the feeders spin: components 3 and 7
+        FLY_L = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")       # ours on the left flywheel's shaft: it spins
+        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher") and not FEEDER_PART.match(n) and not FLY_L.match(n) and not n.startswith("flywheel_pulley_R")]   # the feeders spin: components 3 and 7
+        left = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] > 0)
+        fly[left] += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if FLY_L.match(n)]
+        right = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] < 0)
+        fly[right] += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if n.startswith("flywheel_pulley_R")]
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
     floats = [(n, m) for n, m in add.items() if m["grp"] == "float"] + ([(n, m) for n, m in tr.items() if m["grp"] == "float"] if tr else [])
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if not re.search(ROLLER_SPINS, n)]

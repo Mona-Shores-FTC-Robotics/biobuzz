@@ -68,10 +68,10 @@ final class RobotInternalsLog {
     static final Spinner INTAKE_ROLLER_SPIN = new Spinner(INTAKE_ROLLER, new double[] {0.218973, 0, 0.08636}, new double[] {0, 1, 0});
     /** The launcher's two flywheel axles, left (+Y) and right (-Y), two 96 mm wheels each: both throw the piece up. */
     static final Spinner[] FLYWHEELS = {
-            new Spinner(5, new double[] {-0.05588, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
-            new Spinner(6, new double[] {-0.05588, -0.084521, 0.168808}, new double[] {1, 0, 0})};
+            new Spinner(5, new double[] {-0.05588, 0.076525, 0.168808}, new double[] {-1, 0, 0}),
+            new Spinner(6, new double[] {-0.05588, -0.068521, 0.168808}, new double[] {1, 0, 0})};
     /** The feeder: two 72 mm wheels on a shaft along X, left of the held piece; it drives the piece up. */
-    static final Spinner FEEDER_SPIN = new Spinner(FEEDER, new double[] {-0.051943, 0.07283, 0.08255}, new double[] {-1, 0, 0});
+    static final Spinner FEEDER_SPIN = new Spinner(FEEDER, new double[] {-0.051943, 0.07283, 0.081619}, new double[] {-1, 0, 0});
     /**
      * The sprung foam pad opposite the feeder, hinged along X at its foot: it doesn't spin. A positive angle swings its
      * top out, 0 at rest (a POLLEN) and {@link #PAD_NECTAR_DEG} while a NECTAR is in the feeder.
