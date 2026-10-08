@@ -479,9 +479,10 @@ part(fixed, "feeder_shaft_spacer (goBILDA 8mm REX spacers: the pulley to the e-c
 part(fixed, f"feeder_belt (goBILDA {FEED_BELT[1]}, HTD5 9 mm, {FEED_BELT[0]} mm: the left flywheel's 16T to the feeder's 24T; fixed centres {FEED_C * IN:.1f} mm)", loop("YZ", (y, FEED_Z), P24 / 2, (FLY_Y[0], FLY_Z), P16 / 2, 0.14, 9 * MM, BELT_X - 4.5 * MM), BLACK, "buy")
 # the gate servo: a goBILDA 2000-0025-0003 Speed servo, spline up, under the front arm, on a printed bracket inside the left
 # drive rail; its printed horn and a printed pushrod swing the arm by an M3 shoulder screw in a printed tab on the arm.
-GS_SPL = (0.545, 4.10)                              # the spline, (X, Y); the servo's long axis toward -Y (its outer tab screws clear of the rail for a key from below)
+GS_SPL = (0.0, 4.13)                                # the spline, (X, Y): the horn points +X mid-stroke and swings +-45 deg, the pushrod
+                                                    # runs along Y to the pin; the servo's long axis toward -Y
 TAB_T = (TAB_P[1] - 0.12, TAB_P[1] + 0.20)          # the tab's z: below the feeder's bearing, on the arm's front face
-PR_Z = (TAB_T[0] - 0.02 - 4 * MM, TAB_T[0] - 0.02)  # the pushrod's z, under the tab
+PR_Z = (TAB_T[0] - 0.15 - 4 * MM, TAB_T[0] - 0.15)  # the pushrod's z, under the tab (which drops 0.1 as the yoke swings out)
 HORN_Z = (PR_Z[0] - 0.02 - 4 * MM, PR_Z[0] - 0.02)  # the horn's, under the pushrod
 GS_TOP = HORN_Z[0] - 4.1 * MM                       # the servo's case top (its spline 4.1 mm proud)
 PIN_X = 0.50                                        # the pushrod pin's X, in the tab
@@ -492,11 +493,11 @@ vendor(GSN, "2000-0025-0003.step", (-10.0, 0.0, 12.8), (0, 0, 1), (1, 0, 0), (GS
 # the horn's tip, for the drawn (in) pose: the pushrod runs from it to the tab's pin
 PR_L = 1.05                                         # pushrod centres
 def horn_tip(pin):
-    """The horn's tip (X, Y) that puts the pushrod's far end on pin (X, Y): the solution on the lane's side."""
+    """The horn's tip (X, Y) that puts the pushrod's far end on pin (X, Y): the solution ahead of the spline (+X)."""
     sx, sy = GS_SPL; d = math.hypot(pin[0] - sx, pin[1] - sy)
     a = math.atan2(pin[1] - sy, pin[0] - sx); c = (HORN_R ** 2 + d ** 2 - PR_L ** 2) / (2 * HORN_R * d)
-    t = a - math.acos(max(-1, min(1, c)))
-    return (sx + HORN_R * math.cos(t), sy + HORN_R * math.sin(t))
+    tips = [(sx + HORN_R * math.cos(t), sy + HORN_R * math.sin(t)) for t in (a - math.acos(max(-1, min(1, c))), a + math.acos(max(-1, min(1, c))))]
+    return max(tips, key=lambda q: q[0])
 PIN_IN = (PIN_X, TAB_P[0]); PIN_OUT = (PIN_X, arm_rot(TAB_P, ARM_IN - ARM_OUT)[0])
 HT = horn_tip(PIN_IN)
 def bar_xy(p0, p1, w, z0, z1):

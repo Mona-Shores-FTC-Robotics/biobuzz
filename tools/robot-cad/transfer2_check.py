@@ -170,7 +170,7 @@ for p, m in everything:
 print('--- the feeder swung out (waiting)')
 SWING = re.compile(TR.FEEDER_SPINS + '|' + TR.FEEDER_SWINGS + r'|^feeder_belt')
 R_out = tt.rotation_matrix(TR.ARM_IN - TR.ARM_OUT, [1, 0, 0], [0, TR.PIVOT[0], TR.PIVOT[1]])
-others = [(p, m) for p, m in base] + [('front: ' + k, v) for k, v in front.items()] + [('transfer: ' + k, v) for k, v in tr.items() if not SWING.search(k) and not k.startswith('gate_pushrod')]
+others = [(p, m) for p, m in base] + [('front: ' + k, v) for k, v in front.items()] + [('transfer: ' + k, v) for k, v in tr.items() if not SWING.search(k) and not re.match(r'gate_(pushrod|horn|pin_horn)', k)]   # the linkage: posed below
 for n in [k for k in tr if SWING.search(k)]:
     m = tr[n].copy(); m.apply_transform(R_out)
     for p, bm in others:
@@ -194,3 +194,17 @@ for ang in range(0, int(IB.STOW) + 1, 10):
         for n, tm in tr.items():
             v = vol(m, tm)
             if v > 1e-4: print(f'  {ang:3d} deg: {v:8.4f} in3  {hn[:40]} x {n[:50]}')
+# the gate's horn, pushrod and pins at the swung-out pose (the horn turned to put the pushrod on the moved pin)
+print('--- the gate linkage swung out')
+ho = TR.horn_tip(TR.PIN_OUT)
+link = {'horn': TR.bar_xy(TR.GS_SPL, ho, 0.36, *TR.HORN_Z), 'pushrod': TR.bar_xy(ho, TR.PIN_OUT, 0.32, *TR.PR_Z),
+        'horn pin': TR.cylz(*ho, 7 * TR.MM, TR.PR_Z[1], TR.PR_Z[1] + 0.12).union(TR.cylz(*ho, 4 * TR.MM, TR.HORN_Z[0], TR.PR_Z[1]))}
+swung = [(n, tr[n].copy()) for n in tr if SWING.search(n)]
+for n_, m_ in swung: m_.apply_transform(R_out)
+others2 = [(p, m) for p, m in others if not re.search(r'gate_(horn|pushrod|pin_horn)|gate_servo \(', p)] + [('transfer (swung): ' + n_, m_) for n_, m_ in swung if not n_.startswith('gate_pin_arm')]
+for nm_, wp_ in link.items():
+    lm = mesh_of(wp_, to_cad=True)
+    for p, bm in others2:
+        v = vol(lm, bm)
+        if v > 1e-4: print(f'  {nm_}: {v:8.4f} in3 x {p[-60:]}')
+print(f'  horn {math.degrees(math.atan2(TR.HT[1] - TR.GS_SPL[1], TR.HT[0] - TR.GS_SPL[0])):.0f} deg in, {math.degrees(math.atan2(ho[1] - TR.GS_SPL[1], ho[0] - TR.GS_SPL[0])):.0f} deg out')

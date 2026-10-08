@@ -3,14 +3,19 @@
 The robot comes as two STEP files in the same frame, so each stays a manageable size:
 
 - `BIOBUZZ-1-mentor-robot.step`: the mentor's robot, every screw included, with our edits to it (the launcher 0.8 in
-  forward, the raised channel, the parts our design replaces taken out). Its turret ring and flywheels are their own
-  groups.
-- `BIOBUZZ-2-our-parts.step`: the front, the transfer, the launcher's new parts, the pods and the Limelight on its
-  mount, with goBILDA's and WCP's own models of most bought parts.
+  forward, the raised channel, the parts our design replaces taken out, among them the left flywheel's 96 mm shaft).
+  Its turret ring, flywheels and turret drive gear are their own groups.
+- `BIOBUZZ-2-our-parts.step`: the front, the transfer, the launcher's new parts (the moved flywheel motors, the left
+  flywheel's longer shaft, the turret motor and the drive gear's shaft), the pods and the Limelight on its mount, with
+  goBILDA's and WCP's own models of most bought parts.
+
+Two groups have parts in both files: **MOVES 6** (the mentor's left flywheel; our longer shaft, its spacers, the 16T
+that drives the feeder and the e-clip) and **MOVES 10** (the mentor's 64T drive gear; our shaft, 24T pulley, spacers
+and e-clip under it).
 
 STEP carries shapes and positions but no mates, so both files arrive in Onshape with no joints. To make setting them
 up quick, each file is already split into what moves: a **FRAME** group and one group per moving body, named with the
-mate it needs. You fix the two FRAMEs, lock each moving group, then add ten mates. (`build.py` without `--mentor` or
+mate it needs. You fix the two FRAMEs, lock each moving group, then add the mates in section 3. (`build.py` without `--mentor` or
 `--ours` writes the same robot as one file.)
 
 ## 1. Import
@@ -18,10 +23,10 @@ mate it needs. You fix the two FRAMEs, lock each moving group, then add ten mate
 1. Unzip both files (7-Zip on Windows; a double-click on a Mac).
 2. **Create → Document**, then **Import** both `.step` files. Leave "Flatten assembly" off. They're large, so the
    import takes several minutes.
-3. Each file gets its own Assembly tab. Do sections 2 and 3 below in each tab: every mate is between parts of the same
-   file (MOVES 5 to 7 and 10 in the mentor's, the rest in ours).
+3. Each file gets its own Assembly tab. Do sections 2 and 3 below in each tab: the table says which file each mate is
+   in (MOVES 5, 6, 7 and 10 in the mentor's; MOVES 1 to 4, 6, 8 to 11 in ours).
 4. Then make a new Assembly tab, **Insert** both, leave each at the origin and fix them. They share one frame, so the
-   two halves land together, and their mates come with them.
+   two halves land together, and their mates come with them. Add the two mates the table marks "both files" there.
 
 **Fewer tabs.** Onshape makes a tab for every distinct part it imports, which is a lot of tabs here. Two things help:
 - In the import dialog, choose to split the assembly into multiple documents. The parts then go into their own
@@ -46,24 +51,28 @@ If it flips over, click **Flip primary axis**; if it only turns about its axis, 
 surface you need, click the **eyeball** on its row to hide it, pick on FRAME, then show it again. To check a mate, click
 each connector under it: one should highlight the moving group, the other FRAME.
 
-## 3. The ten mates
+## 3. The mates
 
 Use the **Revolute** or **Slider** mate. For a Revolute, click a round edge on the moving group, then a round edge on
 the same axis in FRAME (or in the group it rides on): Onshape puts the joint on that axis. For a Slider, click a flat
 face that faces up on each side: the slide is along the face's normal.
 
-| Group | Mate | Click | Limits |
-|---|---|---|---|
-| MOVES 1 roller carriage | Slider, to FRAME | the top face of the motor carriage, then the top face of a float stop | 0 to 1.3 in (33 mm), up |
-| MOVES 2 intake roller | Revolute, to MOVES 1 | the roller shaft's end, then a roller bearing | none |
-| MOVES 3 FLOWER extractor | Revolute, to FRAME | a stub shaft's end, then its bearing in the side plate | 0 to 146° (0 is down) |
-| MOVES 4 servo gear | Revolute, to FRAME | the servo gear's hub, then the servo's spline | none |
-| MOVES 5 turret ring | Revolute, to FRAME | from below: the inner race's inner edge, then the outer race's inner edge (1 mm apart in height) | none |
-| MOVES 6 flywheel left | Revolute, to FRAME | the Hyper Hub's end circle, then the 8 mm spacer circle touching it (or the 41T pulley's end, then the 12.5 mm spacer) | none |
-| MOVES 7 flywheel right | Revolute, to FRAME | the same, right side | none |
-| MOVES 8 feeder | Revolute, to FRAME | the feeder shaft's end, then the hole it runs in | none |
-| MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod's end (the rod turns with the pad: its knuckles have REX bores), then the round hole in a pad hinge block | 0 to about 29° (a NECTAR) |
-| MOVES 10 turret drive gear | Revolute, to FRAME | the goBILDA 2302-0014-0064 gear's bore edge, then the round edge of the shaft or bearing it turns on | none |
+| Group | File | Mate | Click | Limits |
+|---|---|---|---|---|
+| MOVES 1 roller carriage | ours | Slider, to FRAME | the top face of the motor carriage, then the top face of a float stop | 0 to 1.3 in (33 mm), up |
+| MOVES 2 intake roller | ours | Revolute, to MOVES 1 | the roller shaft's end, then a roller bearing | none |
+| MOVES 3 FLOWER extractor | ours | Revolute, to FRAME | a stub shaft's end, then its bearing in the side plate | 0 to 146° (0 is down) |
+| MOVES 4 servo gear | ours | Revolute, to FRAME | the servo gear's hub, then the servo's spline | none |
+| MOVES 5 turret ring | mentor's | Revolute, to FRAME | from below: the inner race's inner edge, then the outer race's inner edge (1 mm apart in height) | none |
+| MOVES 6 flywheel left | mentor's | Revolute, to FRAME | the Hyper Hub's end circle, then the 8 mm spacer circle touching it (or the 41T pulley's end, then the 12.5 mm spacer) | none |
+| MOVES 6 flywheel left (our shaft) | both files | Fastened, to the mentor's MOVES 6 | our shaft's round edge where it enters the Hyper Hub, then the hub's bore edge | |
+| MOVES 7 flywheel right | mentor's | Revolute, to FRAME | the same, right side | none |
+| MOVES 8 feeder | ours | Revolute, to MOVES 11 | the feeder shaft's round edge, then the bore of its bearing in a yoke arm | none |
+| MOVES 9 sprung pad | ours | Revolute, to FRAME | the pad hinge rod's end (the rod turns with the pad: its knuckles have REX bores), then the round hole in a pad hinge block | 0 to about 29° (a NECTAR) |
+| MOVES 10 turret drive gear | mentor's | Revolute, to FRAME | the goBILDA 2302-0014-0064 gear's bore edge, then the round edge of the kit's mount under it | none |
+| MOVES 10 turret drive gear (our shaft) | ours | Revolute, to FRAME | the gear shaft's round edge, then the bore of its bearing in the turret motor plate | none |
+| MOVES 10, the two halves | both files | Fastened, our MOVES 10 to the mentor's | the shaft's top end, then the gear's bore edge | |
+| MOVES 11 feeder yoke | ours | Revolute, to MOVES 6 (our shaft) | a yoke arm's pivot bearing's bore edge, then the flywheel shaft's round edge beside it | 0 to about 10° (in, as drawn, to out) |
 
 Then two **mate relations**:
 - **Gear** between the MOVES 3 and MOVES 4 mates, ratio 1, reversed. The servo and the extractor then turn together,
@@ -81,6 +90,7 @@ Right-click a mate in the Mates list → **Animate**. Set the start, end and num
 - MOVES 3 from 0 to 146° folds the extractor up, and the servo gear turns with it.
 - MOVES 1 from 0 to 1.3 in shows the roller rising for a NECTAR.
 - MOVES 10 turns the turret ring with it.
+- MOVES 11 from 0 to 10° swings the feeder out, clear of a waiting ball, and back in to feed.
 - MOVES 2, 6, 7 and 8 spin.
 
 Onshape doesn't simulate contact, so a wheel won't push a ball by itself. To show a ball moving, insert POLLEN or

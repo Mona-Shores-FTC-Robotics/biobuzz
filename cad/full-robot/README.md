@@ -6,8 +6,10 @@
   - his old intake: its roller, motor, mount, carriage and the V-guides it rode, and the pattern spacers;
   - his pinwheel and its servo, his two star wheels and the staged balls;
   - the drive wheels' shafts, which our outer plates' 80 mm ones replace;
-  - his flywheel motors, their 7x11 plates, 1-hole channels, mini quad blocks, 16T pulleys, belts and dual blocks, and
-    the old motor standoffs and spacers (the transfer redraws the motors moved out and up).
+  - his flywheel motors (312 RPM), their 7x11 plates, 1-hole channels, mini quad blocks, 16T pulleys, belts and dual
+    blocks, and the old motor standoffs and spacers (the transfer redraws the motors moved out and up, as 6000 RPM
+    Yellow Jackets);
+  - the left flywheel's 96 mm shaft (the transfer draws a 144 mm one that drives the feeder and carries its yoke).
 
   His 11-hole channel is raised 30 mm, and the launcher is moved 0.8 in forward, its front cross-channel and U-beams
   taken out (`cad/transfer/README.md` says why). His "Launcher Concept" is kept: goBILDA's turret, with two pairs of
@@ -15,8 +17,12 @@
 - **The unified front** (`cad/intake-b/`): side and float plates, the floating vector-wheel roller and its motor, the
   spread-arm FLOWER extractor drawn deployed, the Rigid V plates and the outer wheel plates' standoffs.
 - **goBILDA's odometry pods**, part by part with their colours, cut from the example chassis.
-- **The transfer** (`cad/transfer/`): the ramp, a lane of five shafts of printed rollers on a continuous-rotation servo,
-  the sprung ceiling, and the feeder (on its own servo) and its pad under the flywheels.
+- **The transfer** (`cad/transfer/`): the ramp, a lane of five shafts of printed rollers driven from the intake
+  roller's motor (a round belt over an idler, a jackshaft and a gear pair), the sprung ceiling, and the feeder and its
+  pad under the flywheels. The feeder is belted to the left flywheel's shaft and hangs on a yoke that a gate servo
+  swings.
+- **The launcher's changes** (`cad/transfer/`, its "launcher" group): the flywheel motors moved out and up, the left
+  flywheel's longer shaft, and the turret's motor, plate, belt and drive-gear shaft.
 - **The Limelight 3A** (Limelight's own STEP) on a goBILDA mount, the right way up, every screw drawn:
   - a 1121 low-side U-channel mast (6 hole) stands on the mentor's 9-hole front channel and bolts to his 35-hole
     L-beam's top row of holes;

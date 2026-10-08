@@ -19,13 +19,19 @@ importing). Four sub-assemblies:
      rollers push a piece back and toward the middle; the face is the fence it slides along. Pulling in, a WCP-0353
      pushes to the robot's left, so the 0353s go on the right half and the 0354s on the left. A ball's centre can't
      pass 6.16 in (the side plates), so the wheels from 0.4 to 6.4 in each side cover every one; inside 0.4 in a 0.8 in
-     48 mm gecko (3632-4008-0048) pulls straight in, where a piece already clears the lane's walls. The vector wheels'
-     1/2 in hex bores take printed inserts (1/2 in hex outside, 8mm REX bore) on the shaft.
+     48 mm gecko (3632-4008-0048) pulls straight in, where a piece already clears the lane's walls. On the left the outer
+     three wheels sit 0.5 in further out (3.9 to 6.9 in), past a gap at 3.4 to 3.9 in for the lane's drive pulley. The
+     vector wheels' 1/2 in hex bores take printed inserts (1/2 in hex outside, 8mm REX bore) on the shaft.
+   - **The roller's motor also drives the transfer's lane.** A printed pulley (20 mm pitch diameter, 8mm REX bore) in
+     the left gap drives a goBILDA 5 mm round belt to the lane's jackshaft (`cad/transfer/`, "Lane drive"). The belt
+     rides with the roller; an idler on the transfer keeps its length within about 3% as the roller floats. The roller
+     and the lane always run together, so reversing the intake reverses the lane.
    - **Shaft:** a goBILDA 2106-4008-4320 8mm REX shaft cut to 403 mm at its right end; its factory end, with the e-clip
      groove, is on the left. Its e-clip outside the left bearing stops it going right. A clamping collar
      (2910-1020-4008) inside the roller's right end, between the last vector wheel and the end and clear of the
-     extractor's gear, pushes the wheel stack, the left pulley and the left bearing, so it can't go left. End spacers
-     (8mm REX) fill the rest: 12.7 mm on the left; on the right the collar sits against the last vector wheel.
+     extractor's gear, pushes the wheel stack, the lane pulley, the left pulley and the left bearing, so it can't go
+     left. There are no end spacers: on the left the shifted wheels reach the roller's end; on the right the collar
+     sits against the last vector wheel.
    - **Slots, not arms.** The roller can't move back: its rear is 0.06 in from the front uprights. So its shaft rises in
      vertical slots in the side plates, and its bearings sit in two outboard float plates that slide on the plates'
      outer faces.
@@ -101,13 +107,14 @@ the earlier robot CAD, on its 0.1 in grid; its results below are from before the
 | 8mm REX shafts | roller: 2106-4008-4320, cut to 403 mm | 1 |
 | 8mm REX standoffs, M4-tapped ends | extractor stubs: 1516-4008-0960 (96 mm), each cut to 92 mm; extractor cross shaft: 1516-4008-2160 (216 mm) | 2 + 1 |
 | Wheel shafts | 80 mm, as in `cad/robot-addons/` | 4 |
-| Roller drive, 1:1 (1150 RPM at the roller, about 114 in/s at the wheels' surface) | 3417-4008-0024 pulley, 24T HTD5, 8mm REX bore, ×2; 3412 Series belt, 9 mm, 55T (275 mm pitch length) | 2 + 1 |
-| Step-down option, 2:3 (about 767 RPM, 76 in/s) | 3417-4008-0016 (16T) on the motor instead, same 24T on the roller and the same 55T belt | 1 |
+| Roller drive, 1:1 (1150 RPM at the roller, about 114 in/s at the wheels' surface; the lane runs at 958 RPM off the roller's lane pulley) | 3417-4008-0024 pulley, 24T HTD5, 8mm REX bore, ×2; 3412 Series belt, 9 mm, 55T (275 mm pitch length) | 2 + 1 |
+| Step-down option, 2:3 (about 767 RPM, 76 in/s; it slows the lane by the same 2:3) | 3417-4008-0016 (16T) on the motor instead, same 24T on the roller and the same 55T belt | 1 |
 | Roller wheels | WCP-0353 (×6) and WCP-0354 (×6), 2 in vector wheels; one 48 mm gecko (3632-4008-0048) in the middle; a printed insert (1/2 in hex outside, 8mm REX bore) in each vector wheel | 12 + 1 |
+| The lane's drive pulley on the roller | printed (`stl/roller_lane_pulley.stl`): 20 mm pitch diameter groove, 8mm REX bore; the round belt is `cad/transfer/`'s | 1 |
 | M4 standoffs, 56 mm | | 8 |
 | M4 shoulder screws, 5 mm shoulder, low head: the motor carriage (2) and the right float plate (1) | | 3 |
 | 8mm REX clamping collars: 2 at the block, 1 inside the roller's right end | 2910-1020-4008 | 3 |
-| 8mm REX spacers: the roller's end spacers (12.7 mm, left end only) and the cross spacers (62.0 mm a side, collar to arm) | | stacks |
+| 8mm REX spacers: the cross spacers (62.0 mm a side, collar to arm) | | stacks |
 | The extractor's arms: an M4 × 10 button head and a 12 mm washer each, and 8 mm bore spacers (10 mm OD) from the arm to the bearing: 82.5 mm left; 69.0 + 7.5 mm right, either side of the gear | | 2 + 2 stacks |
 | A light extension spring (or two) to hold the roller down; its force is the POLLEN bite, set on the rig | | 1-2 |
 | 1/8 in aluminium: side plates, float plates, V plates, extractor arms | | |
@@ -129,13 +136,13 @@ transfer (`cad/transfer/`) and the Limelight mount.
 | Joint | Holds | Fastener | Count | Service |
 |---|---|---|---|---|
 | `plate_standoff_R` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
-| `rail_standoff_R` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail: the transfer's lane servo (right) or feeder (left) comes out first |
+| `rail_standoff_R` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail; on the left the transfer's feeder, gate servo bracket or turret motor comes out first |
 | `float_stop_R` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
 | `arm_stub_R` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
 | `cross_end_R` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
 | `v_tab_R` | Rigid V plate's tab to the side plate | M4 x 14 + lock nut | 2 |  |
 | `plate_standoff_L` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
-| `rail_standoff_L` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail: the transfer's lane servo (right) or feeder (left) comes out first |
+| `rail_standoff_L` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail; on the left the transfer's feeder, gate servo bracket or turret motor comes out first |
 | `float_stop_L` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
 | `arm_stub_L` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
 | `cross_end_L` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
@@ -154,20 +161,15 @@ transfer (`cad/transfer/`) and the Limelight mount.
 | `wall_standoff_L` | the L wall to its standoffs (flat heads, flush inside the lane) | M4 x 14 flat head into a tapped hole | 4 |  |
 | `wall_rail_R` | the R wall's standoffs to the rail (from outside the rail) | M4 x 10 into a tapped hole | 4 |  |
 | `wall_standoff_R` | the R wall to its standoffs (flat heads, flush inside the lane) | M4 x 14 flat head into a tapped hole | 4 |  |
-| `lane_servo_rail` | the lane servo's standoffs to the right rail (from outside the rail) | M4 x 10 into a tapped hole | 2 |  |
-| `lane_servo_tabs` | the lane servo's tabs to its standoffs | M4 x 10 into a tapped hole | 2 | the right wall off first (its four flat heads), or a short key |
-| `servo_pulley` | the lane servo's pulley to its spline (the servo's own M3 horn screw) | M3 x 8 servo horn screw, with the servo into a tapped hole | 1 | the right wall off first (its four flat heads) |
+| `idler_hanger` | the idler's hanger to the 9-hole channel's web (from above the web) | M4 x 10 into a tapped hole | 4 |  |
 | `ceiling_block_front_R` | the pin block to the ceiling (from below; the foam is cut away round the heads) | M3 x 6 into a tapped hole | 2 |  |
 | `ceiling_block_rear_R` | the pin block to the ceiling (from below; the foam is cut away round the heads) | M3 x 6 into a tapped hole | 2 |  |
 | `ceiling_post_R` | the ceiling's posts to the R wall (flat heads, flush inside the lane, into heat-set inserts) | M4 x 14 flat head into a tapped hole | 2 |  |
 | `ceiling_block_front_L` | the pin block to the ceiling (from below; the foam is cut away round the heads) | M3 x 6 into a tapped hole | 2 |  |
 | `ceiling_block_rear_L` | the pin block to the ceiling (from below; the foam is cut away round the heads) | M3 x 6 into a tapped hole | 2 |  |
 | `ceiling_post_L` | the ceiling's posts to the L wall (flat heads, flush inside the lane, into heat-set inserts) | M4 x 14 flat head into a tapped hole | 2 |  |
-| `feeder_plate_rear` | the feeder's rear bearing plate, from behind the rear channel's web into its tapped holes | M4 x 8 into a tapped hole | 2 |  |
-| `feeder_plate_front` | the feeder's front bearing plate to the front channel's web (nuts behind it) | M4 x 16 + lock nut | 2 |  |
-| `feeder_servo_standoffs` | the feeder servo's standoffs to the front bearing plate (flat heads from behind, before the plate goes on) | M4 x 14 flat head into a tapped hole | 2 | before the plate goes on |
-| `feeder_hub_pulley` | the 24T hub-mount pulley to the servo hub (4 mm of the hub's 7 mm thread) | M4 x 16 into a tapped hole | 4 | before the servo goes on |
-| `feeder_servo_tabs` | the feeder servo's tabs to its standoffs | M4 x 10 into a tapped hole | 2 |  |
+| `gate_tab` | the gate tab to the front arm (from the arm's back face) | M4 x 14 into a tapped hole | 2 | with the arm off the shaft |
+| `gate_servo_tabs` | the gate servo's tabs to its bracket (from below; nuts on the tabs) | M4 x 16 + lock nut | 4 |  |
 | `pad_knuckle_rear` | the pad plate to its rear knuckle (from the plate's inner face, below the foam) | M4 x 10 into a tapped hole | 2 |  |
 | `pad_knuckle_front` | the pad plate to its front knuckle (from the plate's inner face, below the foam) | M4 x 10 into a tapped hole | 2 |  |
 | `feeder_bridge` | the feeder bridge to the rear channels' webs (from inside the channels) | M4 x 10 into a tapped hole | 4 | with the feeder out (its two bearing plates) |
@@ -178,6 +180,8 @@ transfer (`cad/transfer/`) and the Limelight mount.
 | `fly_bracket_L` | the L flywheel motor bracket to the side channel's top flange | M4 x 12 + lock nut | 2 |  |
 | `fly_face_R` | the R flywheel motor to its bracket | M4 x 10 into a tapped hole | 4 | before the pulley |
 | `fly_bracket_R` | the R flywheel motor bracket to the side channel's top flange | M4 x 12 + lock nut | 2 |  |
+| `turret_motor_face` | the turret motor to its plate (from above; the heads under its pulley) | M4 x 10 into a tapped hole | 4 | before the pulley |
+| `turret_plate` | the turret motor plate under the 8-hole channel's bottom flange (from below; nuts inside the channel, a wrench from its open front) | M4 x 12 + lock nut | 2 |  |
 | `ll_mast_R` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
 | `ll_bracket_R` | Limelight bracket to the mast | M4 x 12 + lock nut | 2 |  |
 | `ll_mast_L` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
@@ -187,7 +191,6 @@ transfer (`cad/transfer/`) and the Limelight mount.
 
 | To buy | Count |
 |---|---|
-| M3 x 8 servo horn screw, with the servo | 1 |
 | M4 heat-set insert (printed parts) | 23 |
 | M4 large washer, 12 mm OD | 4 |
 | M4 shoulder screw, 5 mm x 4 mm shoulder, low head | 2 |
@@ -195,13 +198,13 @@ transfer (`cad/transfer/`) and the Limelight mount.
 | M4 spacer, 6 mm long, 7 mm OD (under the Limelight) | 2 |
 | goBILDA 2800-0003-0006, M3 x 6 socket head screw | 8 |
 | goBILDA 2800-0003-0008, M3 x 8 socket head screw | 1 |
-| goBILDA 2800-0004-0008, M4 x 8 socket head screw | 11 |
-| goBILDA 2800-0004-0010, M4 x 10 socket head screw | 58 |
-| goBILDA 2800-0004-0012, M4 x 12 socket head screw | 10 |
-| goBILDA 2800-0004-0014, M4 x 14 socket head screw | 18 |
-| goBILDA 2800-0004-0016, M4 x 16 socket head screw | 8 |
-| goBILDA 2802-0004-0014, M4 x 14 flat head screw | 14 |
-| goBILDA 2812-0004-0007, M4 nylon-insert lock nut | 27 |
+| goBILDA 2800-0004-0008, M4 x 8 socket head screw | 9 |
+| goBILDA 2800-0004-0010, M4 x 10 socket head screw | 60 |
+| goBILDA 2800-0004-0012, M4 x 12 socket head screw | 12 |
+| goBILDA 2800-0004-0014, M4 x 14 socket head screw | 20 |
+| goBILDA 2800-0004-0016, M4 x 16 socket head screw | 6 |
+| goBILDA 2802-0004-0014, M4 x 14 flat head screw | 12 |
+| goBILDA 2812-0004-0007, M4 nylon-insert lock nut | 31 |
 
 **Service order.** The roller motor's four screws sit under its pulley: take the float link (2 screws) and the pulley
 off, and the key reaches them through the left side plate's service holes. The servo gear covers the servo's upper two
