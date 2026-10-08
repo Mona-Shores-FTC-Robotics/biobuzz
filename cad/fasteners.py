@@ -34,24 +34,24 @@ def _perp(a):
     x = (r[1] * a[2] - r[2] * a[1], r[2] * a[0] - r[0] * a[2], r[0] * a[1] - r[1] * a[0])
     return _unit((x[1] * a[2] - x[2] * a[1], x[2] * a[0] - x[0] * a[2], x[0] * a[1] - x[1] * a[0]))
 
-def length_for(grip, d=4, nut=True, tapped=None):
+def length_for(grip, d=4, nut=True, tapped=None, min_engage=None):
     """The shortest standard length: through `grip` mm into a nut, or into a tapped hole `tapped` mm deep."""
     lengths = M4_LENGTHS if d == 4 else M3_LENGTHS
     if nut:
         need = grip + NUT_H + 1.0
         ok = [L for L in lengths if L >= need]
     else:
-        lo, hi = grip + 1.5 * d, grip + tapped - 0.5
+        lo, hi = grip + (1.5 * d if min_engage is None else min_engage), grip + tapped - 0.5
         ok = [L for L in lengths if lo <= L <= hi]
     if not ok: raise ValueError(f"no M{d} length for a {grip:.1f} mm grip" + (" and a nut" if nut else f" into {tapped} mm of thread"))
     return ok[0]
 
-def bolt(parts, joint, holds, heads, axis, grip, d=4, nut=True, tapped=None, into=None, through=(), col=(0.25, 0.26, 0.28), label=None, service=None):
+def bolt(parts, joint, holds, heads, axis, grip, d=4, nut=True, tapped=None, into=None, through=(), col=(0.25, 0.26, 0.28), label=None, service=None, min_engage=None, modelled=False):
     """Screws at each head point (the head's underside, on the first part's surface), pointing along axis through
     `grip` mm of parts, into a nut or a tapped hole. Adds them to `parts` (a build's part dict) and returns the
     clearance-hole cutter to cut from the parts they pass through. `through` names (by their start) the parts it
     clamps, `into` the part (a regular expression on its name) whose thread it engages, for the fastener check."""
-    a = _unit(axis); L = length_for(grip, d, nut, tapped)
+    a = _unit(axis); L = length_for(grip, d, nut, tapped, min_engage)
     sku = (f"2800-0004-{L:04d}" if d == 4 else f"2800-0003-{L:04d}")
     hd, hh = HEAD[d]; cut = None
     for i, p in enumerate(heads):
@@ -60,7 +60,7 @@ def bolt(parts, joint, holds, heads, axis, grip, d=4, nut=True, tapped=None, int
         n = f"screw_{joint}_{i} ({label})" if label else f"screw_{joint}_{i} (goBILDA {sku}, M{d} x {L} socket head)"
         parts[n] = (env, col, "buy")
         if not label: SCREWS[n] = (sku, top, a)
-        INFO[n] = dict(joint=joint, head=p, axis=a, d=d, L=L, grip=grip, nut=nut, into=into, through=tuple(through), service=service)
+        INFO[n] = dict(joint=joint, head=p, axis=a, d=d, L=L, grip=grip, nut=nut, into=into, through=tuple(through), service=service, modelled=modelled)
         if nut:
             seat = tuple(p[k] + a[k] * grip for k in range(3))
             nn = f"nut_{joint}_{i} (goBILDA 2812-0004-0007, M4 nylon-insert lock nut)"

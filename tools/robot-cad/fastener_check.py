@@ -41,6 +41,19 @@ for title, g, d in IB.GROUPS:
     for n, (wp, col, kind) in d.items():
         m = cad_mesh(wp.val() if hasattr(wp, 'val') and len(wp.vals()) == 1 else cq.Compound.makeCompound(wp.vals()))
         if m is not None: ours[n], grp[n] = m, g
+# the Limelight's goBILDA mount (with VENDOR_DIR and LL_STEP, as the full build takes them)
+if os.environ.get("VENDOR_DIR") and os.environ.get("LL_STEP"):
+    RP = FR.RP; rig = RP.limelight_rig()
+    from OCP.TopLoc import TopLoc_Location
+    back = RP.to_model(C, F, FACE).Inverted()
+    for key, fname, label in (("mast", RP.LL_MAST[1], "Limelight mast"), ("bracket", "1111-0001-0001", "Limelight bracket"), ("beam", "1102-0009-0072", "Limelight beam")):
+        leaves = RP._vendor(fname, os.environ["VENDOR_DIR"])
+        sh = cq.Compound.makeCompound([cq.Shape.cast(s_.wrapped.Moved(TopLoc_Location(back.Multiplied(rig[key])))) for n_, s_, c_ in leaves])
+        ours[label], grp[label] = cad_mesh(sh), 'fixed'
+    cam = cq.Compound.makeCompound([s_ for n_, s_, c_ in RP.limelight_in_cad(os.environ["LL_STEP"], C, F, FACE)])
+    ours["Limelight 3A"], grp["Limelight 3A"] = cad_mesh(cam), 'fixed'
+    for n, (wp, col, kind) in RP.limelight_fasteners({}, C, F, FACE).items():
+        ours[n], grp[n] = cad_mesh(wp.val()), 'fixed'
 def man(m): return mf.Manifold(mf.Mesh(vert_properties=np.asarray(m.vertices, np.float32), tri_verts=np.asarray(m.faces, np.uint32)))
 MAN = {}
 def vol(a, b, kb=None):
@@ -92,7 +105,7 @@ for sn, I in FA.INFO.items():
             if v > TOL: notes.append(f'head hits {n.split(" / ")[-1][:40]}')
             v = vol(key, mm)
             if v > TOL: notes.append(f'no key access ({n.split(" / ")[-1][:30]})')
-        if not I['nut'] and into and engaged < 1.5 * d: notes.append(f'only {engaged:.1f} mm of thread')
+        if not I['nut'] and into and not I.get('modelled') and engaged < 1.5 * d: notes.append(f'only {engaged:.1f} mm of thread')
         if I.get('service') and notes and all(n.startswith('no key access') for n in notes):
             print(f'{sn.split(" (")[0]:34s} M{d}x{L}{tag}: service order: {I["service"]}'); continue
         if notes:

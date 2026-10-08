@@ -197,7 +197,8 @@ def main(robot_step, out, additions=False, only=None):
     vdir = os.environ.get("VENDOR_DIR")                  # goBILDA's and WCP's STEPs: the real parts in place of drawn envelopes
     ours = only != "mentor"
     def add_part(sub, n, shp, col, others):
-        real = RP.vendor_parts(n, shp, others, vdir) if vdir else None
+        real = RP.fastener_parts(n, vdir) if vdir else None
+        if real is None: real = RP.vendor_parts(n, shp, others, vdir) if vdir else None
         if real is None: real = RP.servo_parts(n, shp, IB, vdir) if vdir else None
         if real is None: sub.add(shp, name=n, color=cq.Color(*col)); return
         va = cq.Assembly(name=n)
@@ -231,6 +232,9 @@ def main(robot_step, out, additions=False, only=None):
     for k, (pn, shp, loc, col) in enumerate(mount): ll.add(shp, name=f"{k:02d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*col))
     if not mount:
         for n, wp, col in limelight_mount(): ll.add(TR.to_cad(wp), name=n, color=cq.Color(*col))
+    else:
+        llf = RP.limelight_fasteners({}, C, F, FACE)
+        for n, (wp, col, kind) in llf.items(): add_part(ll, n, wp.val() if hasattr(wp, "val") else wp, col, {})
     if os.environ.get("LL_STEP"):
         cam = cq.Assembly(name="Limelight 3A (LIMELIGHT3ACAD_STEP.stp)")
         for k, (pn, shp, col) in enumerate(RP.limelight_in_cad(os.environ["LL_STEP"], C, F, FACE)):

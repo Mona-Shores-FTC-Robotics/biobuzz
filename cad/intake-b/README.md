@@ -106,10 +106,83 @@ belt (55T) needs that centre distance with two 24T pulleys. The carriage holds b
 however far the roller floats. The 2:3 option on the same belt needs about 87.3 mm; the carriage's motor holes would
 move up 9.8 mm.
 
+## Every screw
+
+Every joint is drawn with its screws, nuts, washers and inserts, as goBILDA's own parts in the full STEP. Nothing on the
+mentor's robot needs drilling: what bolts to his parts uses holes and slots they already have.
+`tools/robot-cad/fastener_check.py Robot.step` checks each screw against the parts it holds and the whole robot: its
+shank only through holes, its head and nut clear, a hex key able to reach it, at least 1.5 diameters of thread in a
+tapped hole. All pass. `tools/robot-cad/fastener_list.py` writes this list from the drawing.
+
+| Joint | Holds | Fastener | Count | Service |
+|---|---|---|---|---|
+| `plate_standoff_R` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `rail_standoff_R` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `float_stop_R` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
+| `arm_stub_R` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
+| `cross_end_R` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
+| `v_tab_R` | Rigid V plate's tab to the side plate | M4 x 14 + lock nut | 2 |  |
+| `plate_standoff_L` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `rail_standoff_L` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `float_stop_L` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
+| `arm_stub_L` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
+| `cross_end_L` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
+| `v_tab_L` | Rigid V plate's tab to the side plate | M4 x 14 + lock nut | 2 |  |
+| `pod_R` | right odometry pod to the rail | M4 x 10 into a tapped hole | 4 |  |
+| `pod_L` | left odometry pod to its adapter | M4 x 14 into a tapped hole | 4 |  |
+| `pod_adapter` | left pod's adapter to the rail | M4 x 16 + lock nut | 2 |  |
+| `motor_face` | roller motor to its carriage | M4 x 8 into a tapped hole | 4 | take the float link (2 screws) and the motor's pulley off first; the key then goes through the side plate's service holes |
+| `float_guide_R` | right float plate's guide in the side plate's slot | M4 shoulder screw, 5 mm x 6.5 mm shoulder + lock nut | 1 |  |
+| `link_bridge` | float link to the carriage's bridge | M4 x 10 into a tapped hole | 2 |  |
+| `servo_bracket` | servo bracket to the right upright's web | M4 x 14 + lock nut | 2 |  |
+| `carriage_guides` | roller carriage's slide, on the left upright's web | M4 shoulder screw, 5 mm x 4 mm shoulder, low head + lock nut | 2 |  |
+| `servo_tabs` | servo to its bracket | M4 x 10 into a tapped hole | 4 | the servo gear covers the upper two: take it off first (its screw through the side plate's service hole) |
+| `servo_gear` | servo gear on the spline | M3 x 8 into a tapped hole | 1 |  |
+| `ll_mast_R` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
+| `ll_bracket_R` | Limelight bracket to the mast | M4 x 12 + lock nut | 2 |  |
+| `ll_mast_L` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
+| `ll_bracket_L` | Limelight bracket to the mast | M4 x 12 + lock nut | 2 |  |
+| `ll_beam` | Limelight beam to the bracket's bent leg | M4 x 14 + lock nut | 2 | under the camera: take the camera off first (its two screws, from under the beam's ends) |
+| `ll_camera` | Limelight 3A to the beam, on spacers | M4 x 14 into a tapped hole | 2 |  |
+
+| To buy | Count |
+|---|---|
+| M4 heat-set insert, 8 mm (printed parts) | 6 |
+| M4 large washer, 12 mm OD | 4 |
+| M4 shoulder screw, 5 mm x 4 mm shoulder, low head | 2 |
+| M4 shoulder screw, 5 mm x 6.5 mm shoulder | 1 |
+| M4 spacer, 6 mm long, 7 mm OD (under the Limelight) | 2 |
+| goBILDA 2800-0003-0008, M3 x 8 socket head screw | 1 |
+| goBILDA 2800-0004-0008, M4 x 8 socket head screw | 8 |
+| goBILDA 2800-0004-0010, M4 x 10 socket head screw | 26 |
+| goBILDA 2800-0004-0012, M4 x 12 socket head screw | 6 |
+| goBILDA 2800-0004-0014, M4 x 14 socket head screw | 16 |
+| goBILDA 2800-0004-0016, M4 x 16 socket head screw | 2 |
+| goBILDA 2812-0004-0007, M4 nylon-insert lock nut | 21 |
+
+**Service order.** The roller motor's four screws sit under its pulley: take the float link (2 screws) and the pulley
+off, and the key reaches them through the left side plate's service holes. The servo gear covers the servo's upper two
+tab screws: take the gear off first (its M3 through the right side plate's service hole).
+
+**What drawing them found** (all fixed in the drawing):
+- The standoffs sat half off the rail's slots; they're now at the slots' middles (y -117.05 and -89.75).
+- The front uprights have no holes in their front flanges. The servo bracket and the roller carriage now each wrap
+  round the upright's front corner and bolt into the web's slots (10.45 mm behind the face), nuts inside the channel.
+- The servo had nothing to screw into, and its spline caught only 1.6 mm of its gear. The servo now sits 2 mm further
+  out (3.6 mm of spline in the gear), on a new bracket: a frame behind its tabs (heat-set inserts, since a nut would
+  touch the servo's body) and arms carrying both hard stops (the stowed stop wasn't attached to anything).
+- The servo gear had no spline socket. The extractor's gear and its arms had round holes on REX shafts, so they
+  couldn't drive them; they're REX now. The cross shaft had nothing holding it sideways: a screw and washer in each end.
+- The motor carriage's motor holes were M3; the Yellow Jacket's face is M4 on goBILDA's 16 mm square. They're M4 now,
+  counterbored, because the heads sit under the pulley. The float link and the carriage's bridge overlapped; the bridge
+  now stops at the side plate and the link bolts to its end.
+- The float stops were too small for a screw; each has a tail now, behind the V plate's tab.
+- The right odometry pod's mount missed the rail's holes; it moves 1 mm up and 8 mm back onto the slot ends. (The pods'
+  offsets are measured on the robot, for the Pinpoint.)
+- The floated roller brushed the new servo bracket's frame; its window is open on that side.
+
 ## Before anything is cut or printed
 
 - The robot's designer has to agree, because the old roller and motor behind the face go.
-- Check that the left upright's front face has M4 holes at 7.6 and 7.9 in up (8 mm apart, above the motor) for the
-  carriage's shoulder screws. The holes lower down are behind the motor.
-- The servo, motor, pod and V-plate mounting holes are placeholders, so drill them to match the real parts.
+- The heat-set inserts (6) go in the motor carriage's bridge and the servo bracket's frame after printing.
 - The STLs are where the parts sit on the robot, so lay each one flat before printing.

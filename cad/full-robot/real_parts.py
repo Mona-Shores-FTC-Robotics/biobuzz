@@ -119,7 +119,9 @@ def _mv(t, p):
 # hole rows at z 13.2 / 21.2 / 29.2, x 47.5 and 111.5; the lens at (79.5, 8.8, 16.2).
 LL_MAST_X, LL_MAST_Z0 = 5.663 * 25.4, 6.319 * 25.4
 LL_MAST = (168.0, "1121-0006-0168")          # 6-hole: the lens 14.2 in up, about config.json's 14
-LL_DROP = 8.0                                # the bracket, one grid hole down the mast: the camera clears the mast's top
+LL_DROP = 12.0                               # the bracket, down the mast from its top: on the mast's hole rows (4 mod 8 mm)
+LL_BEAM_SHIFT = 0.69                         # the beam along the bracket's leg, onto its hole row (from the two files)
+LL_SPACER = 6.0                              # the camera stands on two spacers: the beam's screw heads fit under it
 def limelight_rig(mast_len=None, drop=None):
     """{piece: gp_Trsf (its STEP's frame -> model frame, mm)} for the mast, bracket, beam and camera."""
     r2 = math.sqrt(0.5)
@@ -134,12 +136,58 @@ def limelight_rig(mast_len=None, drop=None):
     up_back = (-r2, 0.0, r2)
     # beam: local x (its length) -> +Y, y (through its holes) -> the face normal, z -> x cross y
     bx, by = (0, 1, 0), nrm; bz = (bx[1] * by[2] - bx[2] * by[1], bx[2] * by[0] - bx[0] * by[2], bx[0] * by[1] - bx[1] * by[0])
-    beam = _trsf((bx, by, bz), (0, 0, 0)); o = _mv(beam, (0, 0, 0)); beam.SetTranslationPart(gp_Vec(*leg_c))
-    top = _mv(beam, (0.0, 4.0, 0.0))                                             # the beam's outer face, at its centre hole
+    beam = _trsf((bx, by, bz), (0, 0, 0))
+    beam.SetTranslationPart(gp_Vec(*(leg_c[k] + up_back[k] * LL_BEAM_SHIFT for k in range(3))))
+    top = _mv(beam, (0.0, 4.0 + LL_SPACER, 0.0))                                 # the spacers' tops, over the beam's centre hole
     # camera: its +y (out of the lens) -> forward-up; its file's +z is the camera's bottom, so -> down-forward (right way up)
     cy, cz = nrm, (-up_back[0], -up_back[1], -up_back[2]); cx = (cy[1] * cz[2] - cy[2] * cz[1], cy[2] * cz[0] - cy[0] * cz[2], cy[0] * cz[1] - cy[1] * cz[0])
     cam = _trsf((cx, cy, cz), (0, 0, 0)); o = _mv(cam, (79.5, -8.1, 21.2)); cam.SetTranslationPart(gp_Vec(top[0] - o[0], top[1] - o[1], top[2] - o[2]))
     return {"mast": mast, "bracket": br, "beam": beam, "camera": cam}
+
+def limelight_fasteners(parts, C, F, FACE):
+    """The mount's screws, nuts and the camera's spacers, into `parts` (team CAD frame, cad/fasteners.py's bolt()):
+    the mast to the mentor's L-beam (his top row of holes, 7.894 in up) and the bracket to the mast (their hole rows at
+    11.673 and 12.303 in), all at 16 mm either side of the centreline, nuts inside the mast; the flat beam to the
+    bracket's leg (nuts under it); the camera on two 6 mm spacers at the beam's ends, M4 from under the beam into its
+    4.8 mm threads (4 mm of thread: the camera is light)."""
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    import fasteners as FA
+    back = to_model(C, F, FACE).Inverted(); rig = limelight_rig()
+    def cad(p_mm): return _mv(back, p_mm)
+    def cad_dir(d): q = gp_Dir(*d).Transformed(back); return (q.X(), q.Y(), q.Z())
+    IN = 25.4
+    for y in (-16.0, 16.0):
+        FA.bolt(parts, f"ll_mast_{'L' if y > 0 else 'R'}", "Limelight mast to the L-beam", [cad((5.565 * IN, y, 7.894 * IN))], cad_dir((1, 0, 0)), 5.0, through=("mentor: ", "Limelight mast"))
+        FA.bolt(parts, f"ll_bracket_{'L' if y > 0 else 'R'}", "Limelight bracket to the mast", [cad((5.565 * IN, y, z * IN)) for z in (11.673, 12.303)], cad_dir((1, 0, 0)), 5.0,
+                through=("Limelight bracket", "Limelight mast"))
+    b = rig["beam"]; n = gp_Dir(0, 1, 0).Transformed(b); nrm = (n.X(), n.Y(), n.Z())
+    FA.bolt(parts, "ll_beam", "Limelight beam to the bracket's bent leg", [cad(_mv(b, (x, 4.0, 0.0))) for x in (-16.0, 16.0)], cad_dir(tuple(-c for c in nrm)), 6.5,
+            through=("Limelight beam", "Limelight bracket"), service="under the camera: take the camera off first (its two screws, from under the beam's ends)")
+    FA.bolt(parts, "ll_camera", "Limelight 3A to the beam, on spacers", [cad(_mv(b, (x, 0.0, 0.0))) for x in (-32.0, 32.0)], cad_dir(nrm), 4.0 + LL_SPACER,
+            nut=False, tapped=4.8, min_engage=4.0, into="^Limelight 3A", through=("Limelight beam", "Limelight spacer"), modelled=True)
+    for i, x in enumerate((-32.0, 32.0)):
+        p0 = cad(_mv(b, (x, 4.0, 0.0)))
+        sp = cq.Workplane(cq.Plane(origin=p0, xDir=FA._perp(cad_dir(nrm)), normal=cad_dir(nrm))).circle(3.5).circle(2.15).extrude(LL_SPACER)
+        parts[f"Limelight spacer {i} (M4 spacer, 6 mm long, 7 mm OD)"] = (sp, (0.8, 0.82, 0.85), "buy")
+    return parts
+
+def fastener_parts(name, vdir):
+    """goBILDA's own model of a screw or nut drawn by cad/fasteners.py: [(name, shape, TopLoc_Location, colour)], or None."""
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    import fasteners as FA
+    if name in FA.SCREWS:
+        sku, top, a = FA.SCREWS[name]; leaves = _vendor(sku, vdir)
+        if not leaves: return None
+        zmax = max(s.BoundingBox().zmax for n_, s, c in leaves)
+        loc = place((0.0, 0.0, zmax), (0, 0, -1), top, a)
+    elif name in FA.NUTS:
+        sku, seat, a = FA.NUTS[name]; leaves = _vendor(sku, vdir)
+        if not leaves: return None
+        loc = place((0.0, 0.0, 0.0), (0, 1, 0), seat, a)
+    else: return None
+    return [(n_[-1] if n_ else sku, s, loc, c) for n_, s, c in leaves]
 
 def limelight_lens_in(**kw):
     """The lens (inches, model frame) and the camera's view direction, as the mount puts them."""

@@ -14,11 +14,16 @@
   spread-arm FLOWER extractor drawn deployed, the Rigid V plates and the outer wheel plates' standoffs.
 - **goBILDA's odometry pods**, part by part with their colours, cut from the example chassis.
 - **The transfer** (`cad/transfer/`): ramp, wheel lane, sprung ceiling, the feeder and its pad under the flywheels.
-- **The Limelight 3A** (Limelight's own STEP) on a goBILDA mount, the right way up. A 1121 low-side U-channel mast
-  (6 hole) stands on the mentor's 9-hole front channel, bolted to his 35-hole L-beam. A 1111 angle pattern bracket
-  (one leg bent 45°) sits on the back of the mast's top. A 1102 flat beam (9 hole) goes across it, and the camera
-  bolts to the beam's end holes through its own M4 holes. The lens comes out at X 5.43, Y 0, 14.22 in up, looking 45°
-  up. `TeamCode`'s `CameraMount` is still placeholders, to be measured on the robot.
+- **The Limelight 3A** (Limelight's own STEP) on a goBILDA mount, the right way up, every screw drawn:
+  - a 1121 low-side U-channel mast (6 hole) stands on the mentor's 9-hole front channel and bolts to his 35-hole
+    L-beam's top row of holes;
+  - a 1111 angle pattern bracket (one leg bent 45°) bolts to the back of the mast's top;
+  - a 1102 flat beam (9 hole) bolts across the bracket's bent leg;
+  - the camera stands on two 6 mm spacers at the beam's ends, M4 up through the beam into its own threaded holes. The
+    spacers leave room for the beam's screw heads under the camera.
+
+  The lens comes out at X 5.58, Y 0, 14.25 in up, looking 45° up. `TeamCode`'s `CameraMount` is still placeholders, to
+  be measured on the robot.
 - **Real vendor parts** in place of our drawn envelopes, when `VENDOR_DIR` is set (below): the Yellow Jacket motors, the
   servo, the pulleys, the bearings, the Gecko wheels, the collars and WCP's vector wheels.
 
