@@ -31,7 +31,7 @@ trust a camera that is talking but wrong. The screen makes all three visible.
 |---|---|---|---|
 | **SMART** | The camera sees the HIVE and where the robot is | The route for our start and the partner (below). Waits react to the HIVE, as today | 3 TIPs + PARK |
 | **BACKUP** | The camera is broken or disabled, or someone forced it | Backup-L or Backup-R: every wait is a timer, aiming by turning the robot, the TIPs made by us alone | 2 TIPs + PARK, a 3rd if a partner's shots land |
-| **PARK ONLY** | The Pinpoint is missing or not ready (no path following) | A timed drive into the LOADING ZONE | PARK, if a timed drive can be made reliable; else LEAVE only |
+| **PARK ONLY** | The Pinpoint is missing or not ready | From the known start (the camera's start check, or ◀ ▶) into the LOADING ZONE, by the drive wheels' encoders if they are wired; else a timed drive | PARK; LEAVE only if neither proves reliable |
 | **NOT READY** | No partner or alliance picked, no side (with no camera), or the robot is far off its start | Won't move at PLAY; the screen says what to do | — |
 
 All the qualifier routes aim by turning the robot (they are measured on "rigid V, fixed turret"), so **a broken
@@ -268,7 +268,11 @@ drivetrain, which is the point. Normally nobody touches them.
    are always full. Measure at 60 runs against each partner in the list, plus late and never-moving versions of each.
 3. **A spill-free R-Quals** (the baseline rule): TIP 2 from the wall FLOWER carried up the left side, as the sister
    Autos do.
-4. **PARK ONLY without the Pinpoint**: can a timed drive reach the LOADING ZONE reliably, or is it LEAVE only?
+4. **PARK ONLY without the Pinpoint.** The start is still known (the camera's start check needs no Pinpoint; with no
+   camera, ◀ ▶ give it); what's lost is odometry while driving. Preferred: Pedro localizing from the drive motors'
+   encoders, enough for one short path. Needs the encoders wired on both robots (check at the next meeting) and a
+   second localizer in `Constants.createLocalizer` (mentor). Fallback: a timed drive. Measure which reaches the
+   LOADING ZONE reliably, or settle for LEAVE.
 5. **The flywheel encoder failsafe** (later): what Auto does if the flywheel never reports reaching speed.
 6. **Battery thresholds**: measure where the launcher's shots start to fall short.
 7. **L-Quals, no wait**, for a Just Park partner: TIP 1 made at once instead of after the 9.2 s wait. Build and
