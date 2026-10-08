@@ -762,6 +762,64 @@ block in about 1.0 s). This is the rear version to build, if any:
 **Showstoppers:** none mechanical. With the floor-level door the rear path would cost the transfer one sprung door
 and a J motor that reverses. What decided it was the reversed J: no shooting while extracting.
 
+## Flow-through: out the back for a 5-TIP Auto (asked by the body-designs chat, 8 Oct 2026)
+
+The mentor's concept (`doc/five-tip-flow-through.md` on `claude/biobuzz-robot-body-designs-hi386c`): the front
+intakes continuously, pieces travel through the robot and out a gate at the back, never more than 4 aboard; the
+gate closes to keep 4 for the turret; later the robot turns round and streams a staged row while intaking. Two
+questions came to the transfer. The answers, by the geometry and Plan A as drawn:
+
+**1. Where the turret takes pieces from, and whether the two paths conflict.** From the same place as today: the
+launch column at X −2.045, where the lead piece stops against the backstop. The lane already runs the length of the
+robot along the centreline at z 1.3, front to back, so a back exit is the lane continued: **the backstop becomes the
+gate.** Closed, it is today's backstop and the count by length holds. Open, the lane (which runs whenever the intake
+runs) carries pieces through the column and out. The hand-off and the flow-through are one line; they don't fight,
+with one rule: **the feeder yoke is swung out while flowing through** (under constant feed, a feeder swung in would
+throw every passing piece). What it costs:
+- the floor extended 3.75 in from the backstop (X −3.81) to the back face (X −7.56), and an opening there of about
+  3.8 in wide by 3.8 in high, centred on Y 0 from z 1.2;
+- a gate: a servo-lifted stop at the backstop's slots (a third servo, after the extractor and the feeder gate);
+- **one sensor at the exit** to count pieces out and close the gate after 4. The count aboard stays geometric; the
+  gate decision cannot be: nothing in the transfer knows when a piece has left;
+- **the CAD chat must check the exit against what sits there now:** the feeder bridge bolted behind the launcher's
+  two rear channels (it carries the floor and backstop, so it becomes the gate's frame), the rear channels
+  themselves if they cross the centreline below z 5, the mentor's new foam-tube roller at about X −5.2, and the
+  battery and hubs, which have no place in the CAD yet.
+
+**The catch: "at most 4 aboard" is true by geometry only when the queue is stopped.** The count rule works because
+the backstop is 12.43 in behind the roller axle, and 5 POLLEN need 12.60. With the gate open the controlled path
+runs from the axle to clear of the back face, about 17.6 in (16.2 to the face plus a radius), which holds 6 POLLEN or
+4 NECTAR nose to tail. Pieces do arrive nose to tail from a pile: the roller feeds faster than the lane carries
+(about 40–60 in/s of ball against 24), so a spill falling into the roller bunches in the lane. In a bunched POLLEN
+stream the 5th piece's centre is behind the axle for about 0.2 s before the 1st is clear of the back, every piece.
+A faster exit roller doesn't fix it: the 1st still has 4 in of lane at 24 in/s before any exit pinch reaches it, and
+that alone is longer than the 0.12 s between POLLEN. To be at most 4 by geometry the exit would have to be within
+about 10 in of the roller axle, which is the launch column. So:
+- **Streaming through the turret is G407-clean by geometry** (axle to column 10.7 in; 5 POLLEN need 11.2). That is
+  Plan A's constant feed, unchanged.
+- **Streaming out the back is clean only if pieces enter spaced**, which from a pile they don't. Spacing them means
+  metering at the entry (a lane faster than the roller feeds, which the shared motor's torque budget won't give, or
+  an entry gate), or accepting a 0.2 s transient of a 5th piece inside the robot that no referee can see. Which of
+  those is the mentor's call, and the rule reading belongs in the official Q&A with the wall-row question the
+  body-designs doc already lists.
+- An alternative with nothing new to build: **shed pieces through the launcher at low flywheel speed**, turret
+  turned toward the wall, instead of out the back. It is the same stream as firing, so the count is clean. Whether a
+  low lob at the launcher's angle stays in the field and lands in the gap by the wall is for the simulator chat;
+  a piece over the wall is gone.
+
+**2. Streaming while intaking.** Yes, and it is what Plan A does: one motor runs the roller and the lane, the feeder
+spins with the flywheels, the gate stays in, and every piece is thrown as it reaches the column, 0.12–0.15 s apart at
+full lane speed. The lane never holds more than 4 because pieces leave through the flywheels as fast as they arrive;
+if the flywheels stall, the backstop holds and the count rule caps it at 4. The flywheels are fixed to the chassis
+under the turret ring, so the hand-off is the same at every turret angle, 180° included. Two limits, neither the
+transfer's: the flywheels must recover within one lane pitch (the user's decision, 24T pulleys and heavier wheels if
+needed), and the intake rate from a row on the floor while the chassis creeps, which sets the stream's pace. Eight
+pieces at lane speed is about 1.2 s of throwing; the creep will be longer.
+
+**For the mentor, in one line:** the transfer already flows through, front to back, and already streams; a back
+exit is a gate at the backstop, a floor to the back face, a servo and an exit sensor, plus an opening the CAD has
+to find; but out the back it holds 4 only when stopped, and through the turret it holds 4 always.
+
 ## On the robot, once built (not a gate for CAD)
 
 The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NECTAR:
