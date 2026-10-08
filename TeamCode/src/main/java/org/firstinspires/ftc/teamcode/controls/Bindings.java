@@ -17,6 +17,9 @@ import java.util.function.BooleanSupplier;
  * operator.when("A", "Fire (hold)", () -> gamepad2.a).whileHeld(robot.launcher.fire());
  * }</pre>
  *
+ * <p>Start is reserved for pairing a gamepad on the Driver Station: a press made while it is held
+ * fires nothing ({@link PairingGuard}), and Start itself is never bound.
+ *
  * <p>Bind in {@code onInit()}. {@code RobotOpMode} polls every binding once per loop after PLAY —
  * never during INIT, when the robot is not allowed to move.
  *
@@ -26,16 +29,27 @@ import java.util.function.BooleanSupplier;
 public final class Bindings {
 
     private final String title;
+    private final PairingGuard pairing;
     private final List<Trigger> triggers = new ArrayList<>();
     private final List<String> labels = new ArrayList<>();
 
+    /** Bindings with no pairing guard: for tests and rigs. */
     public Bindings(String title) {
+        this(title, () -> false);
+    }
+
+    /**
+     * {@code start}: whether this gamepad's Start is held. A press made while it is held, pairing
+     * the gamepad (Start + A, Start + B), fires nothing ({@link PairingGuard}). Never bind Start.
+     */
+    public Bindings(String title, BooleanSupplier start) {
         this.title = title;
+        this.pairing = new PairingGuard(start);
     }
 
     /** Bind {@code condition}, shown on the Controls page as "{@code input} — {@code action}". */
     public Trigger when(String input, String action, BooleanSupplier condition) {
-        Trigger trigger = new Trigger(condition);
+        Trigger trigger = new Trigger(pairing.guard(condition));
         triggers.add(trigger);
         labels.add(input + " — " + action);
         return trigger;

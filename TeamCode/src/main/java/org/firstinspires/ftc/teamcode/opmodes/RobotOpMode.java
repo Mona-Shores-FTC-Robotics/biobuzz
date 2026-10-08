@@ -15,6 +15,7 @@ import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.controls.PairingGuard;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
@@ -33,6 +34,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.BooleanSupplier;
 
 /**
  * The base class for every OpMode that runs the robot. It owns the loop, so your OpMode is only
@@ -120,10 +122,18 @@ public abstract class RobotOpMode extends OpMode {
     protected final LoopTimer loopTimer = new LoopTimer();
 
     /** Gamepad 1 bindings. Bind in {@link #onInit()}; they fire after PLAY. */
-    protected final Bindings driver = new Bindings("DRIVER — gamepad 1");
+    protected final Bindings driver = new Bindings("DRIVER — gamepad 1", () -> gamepad1.start || gamepad1.options);
 
     /** Gamepad 2 bindings. Bind in {@link #onInit()}; they fire after PLAY. */
-    protected final Bindings operator = new Bindings("OPERATOR — gamepad 2");
+    protected final Bindings operator = new Bindings("OPERATOR — gamepad 2", () -> gamepad2.start || gamepad2.options);
+
+    // The INIT alliance buttons, guarded so pairing a gamepad (Start + B) doesn't choose red (#171).
+    private final PairingGuard pairing1 = new PairingGuard(() -> gamepad1.start || gamepad1.options);
+    private final PairingGuard pairing2 = new PairingGuard(() -> gamepad2.start || gamepad2.options);
+    private final BooleanSupplier blue1 = pairing1.guard(() -> gamepad1.x);
+    private final BooleanSupplier blue2 = pairing2.guard(() -> gamepad2.x);
+    private final BooleanSupplier red1 = pairing1.guard(() -> gamepad1.b);
+    private final BooleanSupplier red2 = pairing2.guard(() -> gamepad2.b);
 
     /** The Driver Station screen. Use it to write the Match page in {@link #onLoop()}. */
     protected Display display;
@@ -238,8 +248,11 @@ public abstract class RobotOpMode extends OpMode {
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
-        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
-        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
+        // Every guard read every loop (no short-circuit): each keeps its own press state.
+        boolean blue = blue1.getAsBoolean() | blue2.getAsBoolean();
+        boolean red = red1.getAsBoolean() | red2.getAsBoolean();
+        if (blue) setup.chooseManually(Alliance.BLUE);
+        if (red) setup.chooseManually(Alliance.RED);
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
@@ -368,6 +381,7 @@ public abstract class RobotOpMode extends OpMode {
             display.line("X — Blue alliance");
             display.line("B — Red alliance");
             display.line("Back/Share — next page (any time)");
+            display.line("Start/Options — pairing only: presses made while it is held are ignored");
             describeBindings(driver);
             describeBindings(operator);
         } else {
