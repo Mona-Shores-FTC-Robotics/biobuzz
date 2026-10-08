@@ -45,7 +45,7 @@ does; R-Quals today catches TIP 1's spill for TIP 2 and needs a spill-free versi
 
 The one choice a person makes before every match, from scouting: what the partner does (mentor, 9 Oct 2026: "Just
 Park or Launch & Park for now ... if we are right, we know they are starting in the [other] start spot"). A toggles
-it; there is no default, so until it is picked the verdict line says "NOT READY: press A to pick the partner" and the
+it; there is no default, so until it is picked the top line says "NOT READY: press A to pick the partner" and the
 light flashes white. The camera says which start we are on; with no camera, D-pad ◀ ▶ say it.
 
 | We start | Launch & Park | Just Park |
@@ -100,7 +100,7 @@ row of the table above. The screen and the log both print the same `plan.reasons
 | Y | Toggle SMART ⇄ BACKUP | "(you)" |
 | Hold D-pad ▲ 1 s | Camera disabled ⇄ back to detection (held, so a bump can't do it) | "(you)" |
 | D-pad ▼ | Clear every override: back to what was detected. The partner stays | — |
-| Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the verdict line |
+| Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the top line |
 
 An override always wins, and is always marked "(you)". An alliance that disagrees with the camera (X while the camera
 sees the red side) is allowed, but its row turns amber and says what the camera sees; a side that disagrees with it
@@ -114,13 +114,13 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 
 - **Lock and unlock are one chord: hold both bumpers (LB + RB) for 2 s.** That's hard to do by accident, and no
   setting uses either bumper.
-- **It locks itself** once the plan is READY and no button has been pressed for 30 s. The verdict line counts down
+- **It locks itself** once the plan is READY and no button has been pressed for 30 s. The top line counts down
   ("locks in 12 s") so it is never a surprise.
 - **Locked, every override button does nothing**, X / B included. A press only flashes "LOCKED: hold LB + RB 2 s to
   change", so a student who presses something sees that nothing changed and why.
 - **The plan is frozen while locked.** The checks keep running and their rows keep updating; if one changes (the
   camera loses the HIVE because someone walks in front of it), the row turns amber with "changed since lock" and
-  the verdict line adds "CHECK". It does not change the plan by itself: a person unlocks and decides. A locked SMART
+  the top line adds "CHECK". It does not change the plan by itself: a person unlocks and decides. A locked SMART
   plan whose camera then fails is still safe, because every SMART wait has a time limit.
 - **Reset** is ▼ (clear every override, back to what was detected), which works only unlocked. A full reset is
   stopping the OpMode and pressing INIT again, as today.
@@ -129,10 +129,10 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 - **Every override, lock and unlock is written to the match log** with its time, so "who changed the partner?" has an
   answer afterwards.
 
-The verdict line when locked:
+The top line when locked:
 
 ```
-● READY · LOCKED
+RED ALLIANCE · READY · LOCKED
 ```
 
 ## The screens
@@ -145,15 +145,16 @@ works when locked.
 The Driver Station renders HTML: bold, `<big>`, `<small>` and font colours. Repeated spaces collapse, so rows are dots
 and labels, not padded columns. Each value takes its status colour (green, amber, red), so a glance reads the state.
 
-**MATCH: light, for the drive team.** The alliance first, big and in red or blue (mentor: "that is really important to
-get right"), then the verdict, the two choices, and every check on one line, each name in its colour:
+**MATCH: light, for the drive team.** One line first: the alliance, big and in red or blue (mentor: "that is really
+important to get right"), then the verdict. Then the two choices, and every check on one line, each name in its
+colour. Only the checks have dots; on the lines above, the coloured words say enough (mentor: "i dont know that the
+bullet points add anything for the first 4").
 
 ```
-● RED ALLIANCE
-● READY · locks in 24 s
+RED ALLIANCE · READY · locks in 24 s
 ─────────────────────────────────────────────
-● Partner    Launch & Park · from the left start: launches its preloads, then parks
-● Plan       SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
+Partner    Launch & Park · from the left start: launches its preloads, then parks
+Plan       SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
 ● Camera  ● Start  ● Pinpoint  ● Turret  ● Battery
 A partner · ◀▶ side (no camera) · Y backup · hold ▲ camera off · ▼ reset · hold LB+RB lock
 ```
@@ -165,7 +166,8 @@ When a check isn't green, its name turns amber or red, and one line under them n
 battery 12.4 V: swap it · Share for details
 ```
 
-When it is NOT READY, the verdict line names the one thing to do ("NOT READY: press A to pick the partner").
+When it is NOT READY, the top line names the one thing to do ("RED ALLIANCE · NOT READY: press A to pick the
+partner").
 
 **CHECKS: verbose, for whoever is debugging.** One row per check, with the numbers:
 
@@ -197,7 +199,7 @@ error here because of red alliance shenanigans").
 |---|---|
 | Solid red or blue | Ready, on that alliance |
 | Red or blue, flashing | That alliance, but NOT READY, or something changed since the lock |
-| Red and blue, alternating | Mismatch: the camera sees one alliance and the buttons chose the other. The buttons still win (the camera may be the thing that's wrong); the alliance line turns amber, "camera sees blue", and the verdict line adds CHECK |
+| Red and blue, alternating | Mismatch: the camera sees one alliance and the buttons chose the other. The buttons still win (the camera may be the thing that's wrong); the alliance line turns amber, "camera sees blue", and the top line adds CHECK |
 | White, flashing | No alliance, or no partner picked yet |
 
 With the camera off there is nothing to disagree with a wrong button, and the solid colour is the only safeguard: a
