@@ -10,7 +10,7 @@ The robot comes as two STEP files in the same frame, so each stays a manageable 
 
 STEP carries shapes and positions but no mates, so both files arrive in Onshape with no joints. To make setting them
 up quick, each file is already split into what moves: a **FRAME** group and one group per moving body, named with the
-mate it needs. You fix the two FRAMEs, lock each moving group, then add nine mates. (`build.py` without `--mentor` or
+mate it needs. You fix the two FRAMEs, lock each moving group, then add ten mates. (`build.py` without `--mentor` or
 `--ours` writes the same robot as one file.)
 
 ## 1. Import
@@ -19,7 +19,7 @@ mate it needs. You fix the two FRAMEs, lock each moving group, then add nine mat
 2. **Create → Document**, then **Import** both `.step` files. Leave "Flatten assembly" off. They're large, so the
    import takes several minutes.
 3. Each file gets its own Assembly tab. Do sections 2 and 3 below in each tab: every mate is between parts of the same
-   file (MOVES 5 to 7 in the mentor's, the rest in ours).
+   file (MOVES 5 to 7 and 10 in the mentor's, the rest in ours).
 4. Then make a new Assembly tab, **Insert** both, leave each at the origin and fix them. They share one frame, so the
    two halves land together, and their mates come with them.
 
@@ -46,7 +46,7 @@ If it flips over, click **Flip primary axis**; if it only turns about its axis, 
 surface you need, click the **eyeball** on its row to hide it, pick on FRAME, then show it again. To check a mate, click
 each connector under it: one should highlight the moving group, the other FRAME.
 
-## 3. The nine mates
+## 3. The ten mates
 
 Use the **Revolute** or **Slider** mate. For a Revolute, click a round edge on the moving group, then a round edge on
 the same axis in FRAME (or in the group it rides on): Onshape puts the joint on that axis. For a Slider, click a flat
@@ -62,10 +62,14 @@ face that faces up on each side: the slide is along the face's normal.
 | MOVES 6 flywheel left | Revolute, to FRAME | the Hyper Hub's end circle, then the 8 mm spacer circle touching it (or the 41T pulley's end, then the 12.5 mm spacer) | none |
 | MOVES 7 flywheel right | Revolute, to FRAME | the same, right side | none |
 | MOVES 8 feeder | Revolute, to FRAME | the feeder shaft's end, then the hole it runs in | none |
-| MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod, for both: set the second one's owner to the pad | 0 to about 29° (a NECTAR) |
+| MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod's end (the rod turns with the pad: its knuckles have REX bores), then the round hole in a pad hinge block | 0 to about 29° (a NECTAR) |
+| MOVES 10 turret drive gear | Revolute, to FRAME | the goBILDA 2302-0014-0064 gear's bore edge, then the round edge of the shaft or bearing it turns on | none |
 
-Then one **mate relation**: **Gear** between the MOVES 3 and MOVES 4 mates, ratio 1, reversed. The servo and the
-extractor then turn together, as their 1:1 gears do.
+Then two **mate relations**:
+- **Gear** between the MOVES 3 and MOVES 4 mates, ratio 1, reversed. The servo and the extractor then turn together,
+  as their 1:1 gears do.
+- **Gear** between the MOVES 5 and MOVES 10 mates (both in the mentor's tab), reversed, its ratio the ring's tooth
+  count over the drive gear's. The turret ring then turns with its drive gear.
 
 If a mate points the wrong way (the carriage slides down, the extractor folds backward), flip it with the arrows in
 the mate dialog.
@@ -76,6 +80,7 @@ Right-click a mate in the Mates list → **Animate**. Set the start, end and num
 
 - MOVES 3 from 0 to 146° folds the extractor up, and the servo gear turns with it.
 - MOVES 1 from 0 to 1.3 in shows the roller rising for a NECTAR.
+- MOVES 10 turns the turret ring with it.
 - MOVES 2, 6, 7 and 8 spin.
 
 Onshape doesn't simulate contact, so a wheel won't push a ball by itself. To show a ball moving, insert POLLEN or

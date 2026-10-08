@@ -92,7 +92,7 @@ for s, f in (("R", xr), ("L", xl)):
          box(f(OUT0), f(OUT1), ROLL_Y - 19, ROLL_Y - 13, ROLL_Z - 36, ROLL_Z + 10).union(box(f(OUT0), f(OUT1), ROLL_Y - 31, ROLL_Y - 13, ROLL_Z - 36, ROLL_Z - 20)), BLUE, "print")
 
 # ---- the floating roller and its carriage ----
-part(flt, "roller_shaft (goBILDA 2106-4008-4320, 8mm REX, cut to 400 mm at its right end; its factory end, with the e-clip groove, on the left)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(OUT1 + 3), xl(OUT1 + 3)), STEEL, "buy")
+part(flt, "roller_shaft (goBILDA 2106-4008-4320, 8mm REX, cut to 403 mm at its right end; its factory end, with the e-clip groove, on the left)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(OUT1 + 3), xl(OUT1 + 3)), STEEL, "buy")
 # The roller centres what it picks up: everything behind it except the lane's 3.7 in is the robot's face, so a piece
 # taken in off-centre has to be moved sideways by the roller itself. Each half is vector wheels whose rollers push it
 # back and toward the middle; the face is the fence it slides along. Pulling in
@@ -107,14 +107,14 @@ for s, sgn, hand in (("L", 1, "WCP-0354"), ("R", -1, "WCP-0353")):
              cyl("x", (0, ROLL_Y, ROLL_Z), 2 * ROLL_R, C + sgn * a, C + sgn * b), (0.15, 0.15, 0.17), "buy")
         hexa = cq.Workplane("YZ").center(ROLL_Y, ROLL_Z).polygon(6, 12.6 / math.cos(math.pi / 6)).extrude(VEC_W - 0.4).translate((min(C + sgn * a, C + sgn * b) + 0.2, 0, 0))
         part(flt, f"roller_vector_insert_{s}{k} (print, PETG: 1/2 in hex outside, 8mm REX bore, in the wheel)", hexa.cut(rex(ROLL_Y, ROLL_Z, min(C + sgn * a, C + sgn * b) - 1, max(C + sgn * a, C + sgn * b) + 1)), BLUE, "print")
-    e0 = VEC_IN + VEC_N * VEC_W
-    e1 = ROLL_HALF if s == "L" else e0 + 2.2         # on the right a collar takes the rest of the end space (below)
-    part(flt, f"roller_end_spacer_{s} (goBILDA 8mm REX spacer, {e1 - e0:.1f} mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 10.0, C + sgn * e0, C + sgn * e1), STEEL, "buy")
-# the shaft is held along its length: a clamping collar at the roller's right end (inside its width, clear of the
-# extractor's gear) pushes the wheel stack, the left pulley and the left bearing (it can't go left), and the e-clip on its
-# factory end outside the left bearing stops it going right
+    if s == "L":
+        e0 = VEC_IN + VEC_N * VEC_W
+        part(flt, f"roller_end_spacer_L (goBILDA 8mm REX spacer, {ROLL_HALF - e0:.1f} mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 10.0, C + sgn * e0, C + sgn * ROLL_HALF), STEEL, "buy")
+# the shaft is held along its length: a clamping collar at the roller's right end, against the last vector wheel (inside
+# the roller's width, clear of the extractor's gear), pushes the wheel stack, the left spacer and pulley and the left
+# bearing (it can't go left), and the e-clip on its factory end outside the left bearing stops it going right
 e0 = VEC_IN + VEC_N * VEC_W
-part(flt, "roller_collar_R (goBILDA 2910-1020-4008, 8mm REX clamping collar)", cyl("x", (0, ROLL_Y, ROLL_Z), 20.0, xr(e0 + 2.2), xr(ROLL_HALF)), STEEL, "buy")
+part(flt, "roller_collar_R (goBILDA 2910-1020-4008, 8mm REX clamping collar)", cyl("x", (0, ROLL_Y, ROLL_Z), 20.0, xr(e0), xr(e0 + 10.3)), STEEL, "buy")
 part(flt, "roller_eclip_L (with the shaft, on its factory end)", cyl("x", (0, ROLL_Y, ROLL_Z), 12.0, xl(OUT1 + 1.4), xl(OUT1 + 2.4)), STEEL, "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(flt, f"roller_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, f(OUT0), f(OUT1 + 1.2)), BRASS, "buy")
