@@ -65,7 +65,7 @@ R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
-           top5_ms=0, creep1=False, f5=None, clear5=False):
+           top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -73,7 +73,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
                       firing spot, on the way back down."""
     r = Route(name, R_START, speed=50)
     r.pt("S_CATCH", *S_CATCH).pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
-    r.pt("R_S", *R_S).pt("R_N", *R_N).pt("R_F5", *R_F5).pt("R_W", 30, 40, 90).pt("R_PRE", 57, 20, 90)
+    r.pt("R_S", *R_S).pt("R_N", *rn).pt("R_F5", *R_F5).pt("R_W", 30, 40, 90).pt("R_PRE", 57, 20, 90)
     r.pt("PARK", 10.5, 95, 90).pt("R_C5", *R_C5)
     if f5 is not None:
         r.pt("R_F5", *f5)
@@ -107,8 +107,9 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     else:
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
     n0 = len(r.cards)
-    r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
-    if mode != "swap":
+    if mode != "auto":
+        r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
+    if mode not in ("swap", "auto"):
         r.add(r.go("GARDEN_IN", turn_after=0.1, turn_by=0.7))
         r.at = "GARDEN_IN"
         r.add(r.go("GARDEN", heading=270))
@@ -200,6 +201,54 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         tail += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("R_F5", turn_after=0.2, turn_by=0.8)]
         tail += tip5_fire()
         r.add(*tail)
+    if mode == "auto":
+        # R's own count decides (40 runs of sister5e: with 4 held after the top-up TIP 3 came in 18 of 18; with fewer, in
+        # 12 of 22). Full: the direct route to 5 TIPs. Not full: sister.py's 4 TIPs and PARK, the GARDEN's 4 kept
+        # for TIP 3 if it needs them.
+        def to_garden():
+            r.at = "S_CATCH"
+            cards = [fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000),
+                     r.go("GARDEN_IN", turn_after=0.1, turn_by=0.7)]
+            r.at = "GARDEN_IN"
+            cards.append(r.go("GARDEN", heading=270))
+            r.at = "GARDEN"
+            cards.append(r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500))
+            return cards
+
+        five = to_garden() + [r.go("R_W", turn_after=0.1, turn_by=0.8)]
+        r.at = "R_W"
+        five.append(r.go("R_N", heading=90))
+        five += tip4_at_rn(ms=10000)
+        five += wall_flower_from("R_N", ctrl=[(30, 80)])
+        five.append(r.go("R_F5", turn_after=0.2, turn_by=0.8))
+        five += tip5_fire()
+
+        def park_from_rn():
+            r.at = "R_N"
+            return [r.go("PARK", heading=90, park=True)]
+
+        four = to_garden() + [r.go("R_S", turn_after=0.2, turn_by=0.8)]
+        r.at = "R_S"
+        early4 = [r.go("R_W", heading=90)]
+        r.at = "R_W"
+        early4.append(r.go("R_N", heading=90))
+        early4 += tip4_at_rn() + park_from_rn()
+
+        def normal4():
+            r.at = "R_S"
+            cards = [fire(r, "The GARDEN's 4 (TIP 3)", "Tip", ms=2500)]
+            cards += wall_flower_from("R_S")
+            cards.append(r.go("R_N", ctrl=[(30, 80)], turn_after=0.3, turn_by=0.9))
+            cards += tip4_at_rn() + park_from_rn()
+            return cards
+
+        done4 = r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, yes=early4, no=normal4(),
+                       yes_label="Yes: the GARDEN's 4 to TIP 4", no_label="No: the GARDEN's 4 to TIP 3")
+        r.at = "R_S"
+        four.append(r.wait("The right CELL up", when=["RightCellUp"], ms=1500, yes=normal4(), no=[done4]))
+        r.at = "S_CATCH"
+        r.add(r.wait("Holding 4? Then 5 TIPs", when=["IntakeFull"], ms=50, yes=five, no=four,
+                     yes_label="4 held: go for 5 TIPs", no_label="Fewer: 4 TIPs and PARK"))
     if mode == "branch":
         done = r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, yes=early, no=normal(),
                       yes_label="Yes: the GARDEN's 4 to TIP 4", no_label="No: the GARDEN's 4 to TIP 3")
@@ -289,6 +338,9 @@ def variants():
             left5("sister5d-left-all3", keep1=False, top5_ms=1500),
             left5("sister5d-left", top5_ms=1500),
             right5("sister5e-right-direct", mode="direct", fill1_ms=2500, f5=R_F5_MID, clear5=True),
+            # Mentor, watching seed 17: R's TIP 4 shots from R_N look too flat; 3-5 in further on for a steeper launch.
+            right5("sister5f-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True),
+            right5("sister5e-right-direct-rn108", mode="direct", fill1_ms=2500, f5=R_F5_MID, clear5=True, rn=(30, 108, 90)),
             left5("sister5e-left-all3", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID),
             left5("sister5c-left", creep4=True, catch4_ms=1000), left5("sister5c-left-all3", keep1=False, creep4=True, catch4_ms=1000),
             left5(), left5("sister5b-left-all3", keep1=False)]
