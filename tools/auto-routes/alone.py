@@ -348,6 +348,86 @@ def partner_right_dead(name="partner-right-dead"):
     return r
 
 
+def partner_left_test(name, kind, delay_ms=0):
+    """Test partners for the left start (partner_left_v's start and park): "silent" never shoots (it keeps its
+    preloads, parks when partner-left-v would have), "dead" never shoots and never moves, "slow" fires delay_ms after
+    the left CELL rises."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    if kind == "dead":
+        r.add(r.wait("Dead", when=["Empty"], ms=30000))
+        return r
+    r.pt("DOWN", 59, 124, 270).pt("PARK_P", 10.5, 118, 270)
+    if kind == "silent":
+        r.add(r.action("IntakeOff"), r.wait("Where it would fire", when=["Empty"], ms=6000), r.go("DOWN", heading=270))
+    else:
+        r.add(r.action("SpinUp"), r.action("IntakeOff"), r.wait("Left CELL up", when=["LeftCellUp"], ms=8000),
+              r.wait("Slow", when=["Empty"], ms=delay_ms),
+              fire(r, "Fire the preloads at the left CELL", "Empty", ms=3000), r.go("DOWN", heading=270))
+    r.at = "DOWN"
+    r.add(r.go("PARK_P", ctrl=[(30, 124)], heading=270, park=True))
+    return r
+
+
+def left_partner_safe(name, lw=(36, 104, 90), wall_ms=3000):
+    # LW: at (36, 100) a fixed launcher's aiming turn swung the back into the HIVE frame (59 of 60); at (36, 104) the
+    # V's front is 0.6 in off a late partner's way west along y 124 (a partner 3 s late: collisions in 55 of 60).
+    """(ii) for a left partner that may not do its job (mentor, 8 Oct 2026: "do the same for the left partner"). Its
+    state can only be read from the HIVE, so nothing goes near its start (59, 132.25), the far FLOWER beside it, or
+    its way west along y 124. TIP 1 ours as qual-left-partner-v-fixed; the catch fired at the left CELL from LW,
+    south-west of the partner's ground; down the west side for the wall FLOWER's 4 (sure pieces). Then the HIVE says
+    what the partner did: the right CELL up (its 4 and our catch made TIP 2), the wall FLOWER's 4 and the GARDEN's 4
+    at the right CELL from FIRE3 / FIRE_G (TIP 3, as qual-shoots-right-v-fixed-west45); the left CELL still up (it
+    did not fire, or not yet), back to LW and the wall FLOWER's 4 at the left CELL (TIP 2), then home down x 30.
+    PARK from FIRE_G (45, 29)."""
+    r = Route(name, S_START, speed=50)
+    r.pt("S_CATCH", *S_CATCH).pt("PARK", *PARK).pt("FIRE3", 45, 26, 90).pt("FIRE_G", 45, 29, 90).pt("LW", *lw)
+    r.pt("LANE_TOP", 57.5, 108, 90).pt("WEST_LOW", 30, 36, 90)
+    r.pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
+    seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
+    r.add(r.action("SpinUp"), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=3000), r.go("S_CATCH"))
+    r.at = "S_CATCH"
+    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
+             fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
+    r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry),
+          r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500),
+          # up the lane to its top, then west to LW (bending west on the way clipped the frame's west foot)
+          r.go("LANE_TOP", heading=90))
+    r.at = "LANE_TOP"
+    r.add(r.go("LW", heading=90))
+    r.at = "LW"
+    # round the HIVE frame's west foot on x 30 to the wall FLOWER
+    r.add(fire(r, "Fire the catch at the left CELL", "Empty", ms=2000),
+          r.go("WALL_FLOWER_TURN", ctrl=[(30, 80)], turn_after=0.3, turn_by=0.9))
+    r.at = "WALL_FLOWER_TURN"
+    r.add(r.go("WALL_FLOWER", heading=180))
+    r.at = "WALL_FLOWER"
+    r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=wall_ms))
+    # TIP 2 came (the partner's 4 in): TIP 3 from the wall FLOWER's 4 and the GARDEN's 4.
+    yes = [r.go("FIRE3", turn_after=0.3, turn_by=0.9)]
+    r.at = "FIRE3"
+    yes += [fire(r, "Fire the wall FLOWER's 4 at the right CELL", "Empty", ms=2000),
+            r.go("GARDEN_IN", turn_after=0.2, turn_by=0.8)]
+    r.at = "GARDEN_IN"
+    yes.append(r.go("GARDEN", heading=270))
+    r.at = "GARDEN"
+    yes += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("FIRE_G", turn_after=0.3, turn_by=0.9)]
+    r.at = "FIRE_G"
+    yes.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
+    # Not yet: back north for TIP 2, then home backed straight down x 30 (the V's tips at x 39, the foot at 45).
+    r.at = "WALL_FLOWER"
+    no = [r.go("LW", ctrl=[(30, 80)], turn_after=0.3, turn_by=0.9)]
+    r.at = "LW"
+    no += [fire(r, "Fire the wall FLOWER's 4 at the left CELL (TIP 2)", "RightCellUp", ms=3000),
+           r.go("WEST_LOW", ctrl=[(30, 100)], heading=90)]
+    r.at = "WEST_LOW"
+    no.append(r.go("FIRE_G", heading=90))
+    r.add(r.wait("TIP 2 yet?", when=["RightCellUp"], ms=50, yes=yes, no=no,
+                 yes_label="Yes: TIP 3 from the wall FLOWER and the GARDEN", no_label="No: back north for TIP 2"))
+    r.at = "FIRE_G"
+    r.add(r.go("PARK", ctrl=[(30, 40)], turn_after=0.2, turn_by=0.8, park=True))
+    return r
+
+
 def partner_park_only(name="partner-park-only"):
     """A partner that only parks, keeping its 4 preloads, from the standard left start: straight south off the wall,
     then west along y 116, clear of the far FLOWER (partners.park_left's lane at y 127.5 drives into it now), into
@@ -388,7 +468,9 @@ if __name__ == "__main__":
               # a clean drive home to 7 s (from 8 s the guard cut it inside the HIVE's feet); home down the lane.
               shoots_right_v("qual-shoots-right-v-fixed-west45-r", fire3=(45, 26, 90), ending="west", rescue=True,
                              tip1_wait_ms=7000, rescue_home="lane"),
-              partner_right_silent(), partner_right_dead(), partner_right_slow(3000), partner_right_slow(6000)):
+              partner_right_silent(), partner_right_dead(), partner_right_slow(3000), partner_right_slow(6000),
+              partner_left_test("partner-left-silent", "silent"), partner_left_test("partner-left-dead", "dead"),
+              partner_left_test("partner-left-slow-3000", "slow", 3000), left_partner_safe("qual-left-partner-v-safe")):
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(r.name)
