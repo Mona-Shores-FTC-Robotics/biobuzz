@@ -298,9 +298,9 @@ the field.
 3. **R-Quals without relying on a spill.** The baseline rule (`doc/unified-design.md`): no TIP may depend on catching
    pieces that fall out of the HIVE. Today's R-Quals waits under the HIVE to catch TIP 1's spill and fires it for
    TIP 2, so it breaks the rule. The pieces always there: our 4, the partner's 4 if it launches, two FLOWERs and the
-   GARDEN. With a Launch & Park partner that is 20, exactly 3 TIPs; with Just Park, 16, so 2 TIPs, never 3 (today's
-   R-Quals, catching, gets 3 in 38 of 60). **For the mentor:** keep the rule for Just Park and accept 2 TIPs, or let
-   R-Quals catch for its 3rd TIP on top of a spill-free 2 (a missed catch then costs only the 3rd).
+   GARDEN. With a Launch & Park partner that is 20, exactly 3 TIPs; with Just Park, 16, so 2 TIPs. **Decided (mentor,
+   9 Oct 2026): allow the bonus catch.** R-Quals makes 2 TIPs from pieces that are always there, and may catch a spill
+   for its 3rd on top; a missed catch costs only the 3rd. To build and measure.
 4. **PARK ONLY without the Pinpoint.** The start is still known (the camera's start check needs no Pinpoint; with no
    camera, ◀ ▶ give it); what's lost is odometry while driving. Preferred: Pedro localizing from the drive motors'
    encoders, enough for one short path. Needs the encoders wired on both robots (check at the next meeting) and a

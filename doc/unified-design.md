@@ -741,4 +741,5 @@ What is left is a TIP one piece short (7 of 8 in): a shot into the HIVE or a sho
   falling pollen/nectar at all in order to establish a reliable baseline"; "this is really only a rule for these two
   baseline autos"). Their TIPs come from preloads, FLOWERs and the GARDEN, which are always there; a catch is a bonus
   on top. Other Autos (the sister pair, partner-specific ones) may plan on catches. That gives our half 20 POLLEN: exactly 3 TIPs (4 + 8 + 8) with a partner
-  that shoots its preloads, and 2 TIPs with one that doesn't.
+  that shoots its preloads, and 2 TIPs with one that doesn't. With a Just Park partner, R-Quals may catch a spill for a 3rd TIP on top of
+  a spill-free 2 (mentor, 9 Oct 2026: "allow the bonus catch").
