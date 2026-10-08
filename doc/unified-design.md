@@ -546,6 +546,30 @@ that counted shots fired, not pieces in.) Tried and no better:
   (not until a new TIP: one that started during the drive left it waiting 4 s). No GARDEN fallback: its check came
   inside the TIP's dwell and sent the robot to the GARDEN with TIP 3 on its way, and the guard turned it into the
   wall. 60 runs: **73.7, 3 TIPs in 54**, PARK 60; 2 problem runs (late runs cut at 26.5 s: the HIVE frame, a FLOWER).
+- **One route from the south start: `qual-south-v`** (mentor, 8 Oct 2026: "realistically should only be 1 or 2
+  autos"). `qual-alone-p4-lane-r`, the far FLOWER's 4 fired at N_FIRE until the right CELL is up (a left partner's 4
+  and our catch can have tipped it already, and the card ends at once), the lane's catch fired from (45, 26).
+  (`qual-left-partner-v-fixed` with a park-only partner: 1 of 60, its "TIP 2 already?" wait and late N_FIRE cost
+  2.5 s.) 60 runs, rigid V with a fixed turret: partner shoots from the left **56** with 3 TIPs (PARK 60, 1 problem
+  run); partner parks only **38** (PARK 60, no problems); a left partner still at its start (silent, dead) collides.
+
+- **(ii) for a left partner that may not do its job: `qual-left-partner-v-safe`** (mentor, 8 Oct 2026). A left
+  partner that is slow, never fires or never moves sits at its start (59, 132.25), beside the far FLOWER and over
+  N_FIRE, or crosses y 124 on its way west: `qual-left-partner-v-fixed` collided with it in 45-56 of 60 runs (test
+  partners `partner-left-silent`, `-dead`, `-slow-3000`). The safe route goes nowhere near it: the catch fired from LW
+  (36, 104), down the west side for the wall FLOWER's 4, then the HIVE decides: the right CELL up (TIP 2 came), the
+  wall FLOWER's 4 and the GARDEN's 4 at the right CELL (TIP 3); still the left, back to LW for TIP 2 and home. 60 runs,
+  rigid V with a fixed turret:
+
+  | Left partner | 3 TIPs | 2 TIPs | 1 TIP | Our PARK | Problem runs |
+  |---|---|---|---|---|---|
+  | shoots (`partner-left-v`) | 47 | 12 | 1 | 59 | 3 (HIVE frame) |
+  | never shoots, parks | 0 | 53 | 7 | 59 | 3 |
+  | never shoots, never moves | 0 | 53 | 7 | 59 | 3 |
+  | shoots 3 s late | 48 | 11 | 1 | 5 | 55 (collides on its way west) |
+
+  The cost against `qual-left-partner-v-fixed` (54 of 60 with a partner that does its job): 7 runs of 3 TIPs.
+
 - **(iii), TIP 3 from sure pieces: `qual-shoots-right-v-fixed-west45`** (mentor, 8 Oct 2026: "i think we need to make
   it not luck"): the lane route's TIP 3 rested on catching TIP 2's spill, and missed the same 4 seeds on every body
   (the dual hook too: same 4). Now the far FLOWER's 4 are fired at N_FIRE and the robot leaves at once, down the west
