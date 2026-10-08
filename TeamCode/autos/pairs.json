@@ -3,10 +3,10 @@
     {
       "name": "Qual-ShootsRight",
       "files": [
-        "qual-right-v.pp",
-        "partner-preloads-right.pp"
+        "qual-shoots-right-v-fixed-west45-r.pp",
+        "partner-preloads-right-high.pp"
       ],
-      "note": "baseline, Rigid V: partner fires from the right start; PARK first when TIP 3 is late"
+      "note": "baseline, Rigid V, no turret: partner fires from the right start; TIP 3 from the wall FLOWER and the GARDEN; waits 7 s for TIP 1, else makes TIP 2 itself and parks"
     },
     {
       "name": "Qual-Stages-Angled",

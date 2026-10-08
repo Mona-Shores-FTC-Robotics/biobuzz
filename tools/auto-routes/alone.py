@@ -386,8 +386,7 @@ if __name__ == "__main__":
               shoots_right_v("qual-shoots-right-v-fixed-west45", fire3=(45, 26, 90), ending="west"),
               # The fallback's wait (mentor: "6s might be too soon... a slow robot"): 2 TIPs held to a 10 s wait, PARK and
               # a clean drive home to 7 s (from 8 s the guard cut it inside the HIVE's feet); home down the lane.
-              shoots_right_v("qual-shoots-right-v-fixed-west45-r", fire3=(45, 26, 90), ending="west", rescue=True,
-                             tip1_wait_ms=7000, rescue_home="lane"),
+              # qual-shoots-right-v-fixed-west45-r is the ShootsRight baseline since 8 Oct 2026: baselines_v builds it.
               partner_right_silent(), partner_right_dead(), partner_right_slow(3000), partner_right_slow(6000)):
         r.folder = autogen.EXPERIMENTS
         r.write()
