@@ -86,6 +86,7 @@ for rise, ang in poses:
             v = vol(P[n], P[k])
             if v > 2e-3: seen.setdefault((n.split(' ')[0], k.split(' ')[0]), []).append((rise, ang, round(v, 3)))
         for k, tm in tr.items():
+            if k.startswith('lane_drive_belt'): continue      # it rides with the roller: tools/robot-cad/transfer2_check.py checks it at the roller's float
             v = vol(P[n], tm)
             if v > 2e-3: seen.setdefault((n.split(' ')[0], 'transfer: ' + k.split(' ')[0]), []).append((rise, ang, round(v, 3)))
 for (a, b), hits in sorted(seen.items()):
