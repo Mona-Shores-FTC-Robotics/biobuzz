@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smart Auto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a working Driver Station on the left beside the robot's state, then the rules as reference tables below. */
+:root {
+  --bg: #f3f4f6;
+  --surface: #ffffff;
+  --fg: #1b1f27;
+  --muted: #5a6272;
+  --line: #d9dde4;
+  --accent: #2c4fd8;
+  --accent-soft: #e4e9fb;
+  --ok: #2e8b3e;
+  --warn: #b7791f;
+  --fault: #c62828;
+  /* The Driver Station screen is always dark, as on the real app. */
+  --ds-bg: #101214;
+  --ds-fg: #eceff1;
+  --ds-dim: #9aa3ad;
+  --ds-ok: #4CAF50;
+  --ds-warn: #FFB300;
+  --ds-fault: #E53935;
+  --ds-frame: #26292e;
+  --pad-x: #3f6fd8;
+  --pad-b: #d6453d;
+  --pad-y: #d9a520;
+  --pad-n: #4a4f57;
+  --display: "Barlow Condensed", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --body: "Barlow", "Helvetica Neue", Arial, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171c; --surface: #1c2027; --fg: #e8ebf0; --muted: #9aa3b2; --line: #2e343e;
+    --accent: #7d98ff; --accent-soft: #232b45; --ok: #5cc06c; --warn: #e0a83d; --fault: #ef6b62;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171c; --surface: #1c2027; --fg: #e8ebf0; --muted: #9aa3b2; --line: #2e343e;
+  --accent: #7d98ff; --accent-soft: #232b45; --ok: #5cc06c; --warn: #e0a83d; --fault: #ef6b62;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 16px; line-height: 1.55; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 72px; }
+h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01em; text-wrap: balance; margin: 0; line-height: 1.1; }
+h1 { font-size: clamp(2.6rem, 6vw, 3.6rem); }
+h2 { font-size: 1.75rem; margin-bottom: 14px; }
+h3 { font-size: 1.2rem; margin-bottom: 8px; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: .12em; font-size: .85rem; color: var(--accent); }
+.lede { font-size: 1.15rem; color: var(--muted); margin-top: 12px; }
+header { display: grid; gap: 6px; margin-bottom: 36px; }
+section { margin-top: 56px; display: grid; gap: 14px; }
+.decided { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.chip { font-size: .85rem; padding: 4px 10px; border-radius: 999px; background: var(--accent-soft); color: var(--fg); border: 1px solid var(--line); }
+
+/* The working demo */
+.demo { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 300px); gap: 28px; align-items: start; }
+@media (max-width: 820px) { .demo { grid-template-columns: minmax(0, 1fr); } }
+.phone { background: var(--ds-frame); border-radius: 18px; padding: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.ds-bar { display: flex; justify-content: space-between; align-items: center; color: var(--ds-dim); font-family: var(--mono); font-size: .72rem; padding: 0 6px 10px; gap: 8px; flex-wrap: wrap; }
+.ds-bar .opm { color: var(--ds-fg); }
+.ds { background: var(--ds-bg); color: var(--ds-fg); border-radius: 8px; padding: 14px 16px; font-family: Roboto, "Helvetica Neue", Arial, sans-serif; font-size: .95rem; min-height: 330px; overflow-wrap: anywhere; }
+.ds .page { font-weight: 700; }
+.ds small { color: var(--ds-dim); }
+.ds .headline { font-size: 1.25rem; font-weight: 700; margin: 10px 0 2px; display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; }
+.ds .verdict { font-size: .95rem; font-weight: 700; }
+.ds hr { border: 0; border-top: 1px solid #2c3036; margin: 10px 0; }
+.ds .row { margin: 3px 0; }
+.pc { font-weight: 700; padding: 1px 8px; border-radius: 4px; color: #14171c; text-transform: none; letter-spacing: 0; }
+.pc.launch { background: #C084FC; } .pc.park { background: #22D3EE; }
+.ds .grid { margin-top: 8px; line-height: 1.6; }
+.ds tt { font-family: var(--mono); font-size: .84rem; }
+.ds .alliance { margin: 2px 0 8px; font-size: 1.15rem; letter-spacing: .02em; }
+.ds .row b { font-weight: 600; }
+.ds .you { color: var(--ds-dim); font-style: italic; }
+.ds .note { color: var(--ds-dim); font-size: .85rem; margin-top: 10px; }
+.dot { font-size: 1.05em; }
+.pad { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+.btn { font-family: var(--display); font-weight: 600; font-size: 1rem; min-width: 46px; height: 46px; padding: 0 12px; border-radius: 999px; border: 0; color: #fff; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+.btn:focus-visible, .ctl:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.btn small { font-family: var(--body); font-weight: 500; font-size: .7rem; opacity: .85; }
+.btn.a { background: #3f9b52; }
+.btn.x { background: var(--pad-x); } .btn.b { background: var(--pad-b); } .btn.y { background: var(--pad-y); color: #1b1f27; }
+.btn.n { background: var(--pad-n); }
+.btn.on { box-shadow: 0 0 0 3px var(--surface), 0 0 0 5px var(--accent); }
+.btn.lock { background: #2b2f36; border: 1px solid #5a606a; }
+.ds .flash { color: var(--ds-warn); font-weight: 700; margin-top: 8px; }
+.ds .lk { color: var(--ds-dim); font-size: .85rem; font-weight: 600; }
+.lights { display: flex; flex-wrap: wrap; gap: 12px 28px; justify-content: center; margin-top: 16px; font-size: .85rem; color: var(--muted); }
+.lamp-wrap { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.lamp { width: 26px; height: 26px; border-radius: 50%; background: #3a3f46; box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); flex: none; }
+.lamp.glow { box-shadow: 0 0 14px 2px var(--lamp), inset 0 0 0 2px rgba(255,255,255,.25); background: var(--lamp); }
+@media (prefers-reduced-motion: no-preference) {
+  .lamp.pulse { animation: pulse 1s ease-in-out infinite; }
+  .lamp.flash { animation: flash .8s steps(1, end) infinite; }
+  .lamp.swap { animation: swap 1.2s steps(1, end) infinite; }
+}
+@keyframes pulse { 50% { opacity: .35; } }
+@keyframes flash { 50% { opacity: .1; } }
+@keyframes swap { 0% { background: #FF5A4E; box-shadow: 0 0 14px 2px #FF5A4E; } 50% { background: #4F9DFF; box-shadow: 0 0 14px 2px #4F9DFF; } }
+.padcap { text-align: center; color: var(--muted); font-size: .85rem; margin-top: 8px; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 16px; }
+.panel h3 { font-size: 1.1rem; }
+.field { display: grid; gap: 6px; }
+.field > span { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: .08em; font-size: .8rem; color: var(--muted); }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.ctl { font: inherit; font-size: .88rem; padding: 5px 10px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--fg); cursor: pointer; }
+.ctl[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: #fff; }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.volt { font-family: var(--mono); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.reasons { font-size: .9rem; color: var(--muted); border-top: 1px solid var(--line); padding-top: 12px; }
+.reasons ol { margin: 6px 0 0; padding-left: 20px; }
+
+/* Reference */
+.tablewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--display); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; font-size: .8rem; color: var(--muted); }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.tag { display: inline-block; font-family: var(--display); font-weight: 700; letter-spacing: .05em; padding: 1px 8px; border-radius: 4px; font-size: .85rem; color: #fff; }
+.tag.smart { background: var(--ok); } .tag.backup { background: var(--warn); } .tag.park { background: var(--accent); } .tag.nr { background: var(--fault); }
+.flow { font-family: var(--mono); font-size: .88rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; overflow-x: auto; white-space: pre; line-height: 1.7; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card p { font-size: .95rem; color: var(--muted); }
+ol.open { margin: 0; padding-left: 22px; display: grid; gap: 6px; max-width: 75ch; }
+footer { margin-top: 56px; color: var(--muted); font-size: .9rem; }
+code { font-family: var(--mono); font-size: .88em; }
+@media (prefers-reduced-motion: no-preference) { .ds .headline, .ds .row { transition: color .15s; } }
+</style></head><body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">BIOBUZZ · Autonomous · design</div>
+    <h1>Smart Auto</h1>
+    <p class="lede">One Autonomous that checks the robot during INIT, picks its own plan, and shows why on one Driver Station screen. With a healthy robot the drive team reads one green line and presses PLAY.</p>
+    <div class="decided" aria-label="Decided">
+      <span class="chip">One OpMode picks Smart or Backup itself</span>
+      <span class="chip">Backup runs on timers, no camera, no turret</span>
+      <span class="chip">No partner assumption</span>
+      <span class="chip">Camera can be disabled by hand</span>
+      <span class="chip">Turret angle from an OctoQuad absolute encoder</span>
+      <span class="chip">No flywheel check in INIT</span>
+      <span class="chip">The screen locks while the team waits</span>
+      <span class="chip">Alliance first, in its colour</span>
+      <span class="chip">One robot light: the alliance</span>
+    </div>
+  </header>
+
+  <section aria-labelledby="try">
+    <h2 id="try">Try it</h2>
+    <p>One Driver Station page during INIT. Break something on the right, or press the gamepad buttons under the screen. The screen is what the Match page would show during INIT; the plan comes from the same rules as the robot's <code>decide(health, overrides)</code>.</p>
+    <div class="demo">
+      <div>
+        <div class="phone">
+          <div class="ds-bar"><span class="opm">Auto: Smart</span><span>INIT</span></div>
+          <div class="ds" id="ds" aria-live="polite"></div>
+        </div>
+        <div class="lights" aria-label="Robot indicator lights">
+          <div class="lamp-wrap"><span class="lamp" id="lampA"></span><span><b>Robot light</b><br><span id="lampAtxt"></span></span></div>
+        </div>
+        <div class="pad" role="group" aria-label="Gamepad overrides">
+          <button class="btn x" id="bx" type="button" title="Blue alliance">X</button>
+          <button class="btn b" id="bb" type="button" title="Red alliance">B</button>
+          <button class="btn n" id="bl" type="button" title="Left start (only needed with no camera)">◀</button>
+          <button class="btn n" id="br" type="button" title="Right start (only needed with no camera)">▶</button>
+          <button class="btn a" id="ba" type="button" title="Partner: Launch & Park ⇄ Just Park">A</button>
+          <button class="btn y" id="by" type="button" title="Toggle Smart / Backup">Y</button>
+          <button class="btn n" id="bu" type="button" title="Hold 1 s: camera disabled / back to detection">▲ <small>hold</small></button>
+          <button class="btn n" id="bd" type="button" title="Clear every override">▼</button>
+          <button class="btn n lock" id="bk" type="button" title="Hold both bumpers 2 s: lock or unlock">LB+RB <small>hold</small></button>
+        </div>
+        <div class="padcap">Each button shows on the screen next to what it changes.</div>
+      </div>
+
+      <div class="panel" aria-label="Robot state">
+        <h3>The robot</h3>
+        <div class="field"><span>Camera</span>
+          <div class="seg" data-key="camera">
+            <button class="ctl" type="button" data-v="on">Sees the HIVE</button>
+            <button class="ctl" type="button" data-v="suspect">Tags, wrong fixes</button>
+            <button class="ctl" type="button" data-v="broken">Not connected</button>
+          </div>
+        </div>
+        <div class="field"><span>Robot placed on</span>
+          <div class="seg" data-key="placed">
+            <button class="ctl" type="button" data-v="L">Left start</button>
+            <button class="ctl" type="button" data-v="R">Right start</button>
+          </div>
+        </div>
+        <div class="field"><span>How far off its start</span>
+          <div class="seg" data-key="off">
+            <button class="ctl" type="button" data-v="0.6">0.6 in</button>
+            <button class="ctl" type="button" data-v="2.0">2 in</button>
+            <button class="ctl" type="button" data-v="5.0">5 in</button>
+          </div>
+        </div>
+        <div class="field"><span>Field side</span>
+          <div class="seg" data-key="field">
+            <button class="ctl" type="button" data-v="RED">Red</button>
+            <button class="ctl" type="button" data-v="BLUE">Blue</button>
+          </div>
+        </div>
+        <div class="field"><span>Pinpoint</span>
+          <div class="seg" data-key="pinpoint">
+            <button class="ctl" type="button" data-v="ready">Ready</button>
+            <button class="ctl" type="button" data-v="missing">Missing</button>
+          </div>
+        </div>
+        <div class="field"><span>Turret encoder</span>
+          <div class="seg" data-key="turret">
+            <button class="ctl" type="button" data-v="home">At home</button>
+            <button class="ctl" type="button" data-v="turned">Reads 12°</button>
+            <button class="ctl" type="button" data-v="none">No signal</button>
+          </div>
+        </div>
+        <div class="field"><span>Battery <span class="volt" id="voltv">13.3 V</span></span>
+          <input type="range" id="volt" min="11.4" max="13.8" step="0.1" value="13.3" aria-label="Battery voltage">
+        </div>
+        <div class="reasons"><b>Why this plan</b><ol id="why"></ol></div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="partner">
+    <h2 id="partner">The partner</h2>
+    <p>The one choice a person makes before every match, from scouting: what the partner does. It starts on the other start from ours, so where we are placed says where it is. A toggles <span class="pc launch">Launch &amp; Park</span> and <span class="pc park">Just Park</span>, each always in its own colour, here, on the Driver Station and on the scouting sheet; there is no default, so until it is picked the screen says NOT READY and the light flashes white.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>We start</th><th><span class="pc launch">Launch &amp; Park</span></th><th><span class="pc park">Just Park</span></th></tr></thead>
+      <tbody>
+        <tr><td>Right</td><td>R-Quals</td><td>R-Quals: TIP 1 is ours at once anyway</td></tr>
+        <tr><td>Left</td><td>L-Quals: waits for the partner's TIP 1, makes it itself by 9.2 s if it never comes</td><td>Not a plan: a Just Park partner gives no TIP 1, so we start on the right. NOT READY</td></tr>
+      </tbody>
+    </table></div>
+    <p>The camera says which start we're on. With no camera, ◀ ▶ say it. A partner-specific Auto (one built for a scouted team) is a new entry in the list.</p>
+  </section>
+
+  <section aria-labelledby="plans">
+    <h2 id="plans">The plans</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Plan</th><th>When</th><th>What it does</th><th>Expect</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag smart">SMART</span></td><td>The camera sees the HIVE and confirms one of our starts</td><td>That side's qualifier route (L-Quals or R-Quals). Waits react to the HIVE</td><td>3 TIPs + PARK</td></tr>
+        <tr><td><span class="tag backup">BACKUP</span></td><td>Camera broken or disabled, or Y pressed</td><td>That side's backup route: every wait a timer, aiming by turning the robot, only TIPs we make ourselves</td><td>2 TIPs + PARK; a 3rd if the partner's shots land</td></tr>
+        <tr><td><span class="tag park">PARK ONLY</span></td><td>The Pinpoint is missing: no path following</td><td>A timed drive into the LOADING ZONE</td><td>PARK if a timed drive proves reliable, else LEAVE</td></tr>
+        <tr><td><span class="tag nr">NOT READY</span></td><td>No partner or no alliance picked, no side (with no camera), or the robot is far off its start</td><td>Won't move at PLAY. The screen names the button to press</td><td>Nothing until fixed</td></tr>
+      </tbody>
+    </table></div>
+    <p>Every qualifier route aims by turning the robot, so a broken turret never changes the plan: with no trustworthy angle it is held forward and the routes run unchanged.</p>
+  </section>
+
+  <section aria-labelledby="order">
+    <h2 id="order">The decision, in order</h2>
+<div class="flow">Pinpoint not ready                → PARK ONLY
+camera ON and a start confirmed   → SMART   (unless Y forced BACKUP)
+otherwise                         → BACKUP
+partner, alliance or side unknown → NOT READY until a button picks it
+the route                         → from our start and the partner
+turret not healthy                → held forward; every plan already aims by turning</div>
+    <p>One pure function with no hardware in it, unit-tested at a laptop with a test for every line above. The screen and the match log print the same reasons.</p>
+  </section>
+
+  <section aria-labelledby="lock">
+    <h2 id="lock">Lock</h2>
+    <p>A drive team can wait 1 to 10 minutes at the field holding gamepads, so the screen locks. In the mock above, press a few buttons and then leave it for 30 seconds.</p>
+    <div class="cols">
+      <div class="card"><h3>One chord</h3><p>Hold both bumpers for 2 seconds to lock or unlock. Hard to do by accident, and no setting uses a bumper.</p></div>
+      <div class="card"><h3>Locks itself</h3><p>Once the plan is READY and nothing has been pressed for 30 seconds. The first line counts down, so it's never a surprise.</p></div>
+      <div class="card"><h3>Buttons do nothing</h3><p>Locked, every override is ignored, X and B included. A press flashes "LOCKED: hold LB + RB 2 s to change" so nobody wonders.</p></div>
+      <div class="card"><h3>The plan is frozen</h3><p>Checks keep updating. One that changes turns amber, "changed since lock", and the first line adds CHECK. A person unlocks and decides.</p></div>
+      <div class="card"><h3>Pairing is safe</h3><p>The Driver Station pairs gamepads with Start + A and Start + B, and B is red alliance. Every press while Start is held is ignored.</p></div>
+      <div class="card"><h3>Everything is logged</h3><p>Each override, lock and unlock goes into the match log with its time, so a wrong pick can be traced afterwards.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="lights">
+    <h2 id="lights">The robot light (later)</h2>
+    <p>The screen only helps the person holding the Driver Station. A light on the robot lets a partner, the field staff or a coach in the stands catch what the drive team missed. It shows the alliance, because anyone can check that against the field without knowing our code, and a wrong alliance is the costliest mistake. How it lights says whether all is well, so red never has to mean "error".</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Light</th><th>Means</th></tr></thead>
+      <tbody>
+        <tr><td>Solid red or blue</td><td>Ready, on that alliance</td></tr>
+        <tr><td>Red or blue, flashing</td><td>That alliance, but not ready, or something changed since the lock</td></tr>
+        <tr><td>Red and blue, alternating</td><td>Mismatch: the camera sees one alliance and the buttons chose the other. The buttons still win; the screen says CHECK</td></tr>
+        <tr><td>White, flashing</td><td>No alliance, partner or side picked yet</td></tr>
+      </tbody>
+    </table></div>
+    <p>With the camera off there is nothing to disagree with a wrong button, and the solid colour is the only safeguard: a blue glow on the red side. Limits from the manual: lighting faster than 5 Hz invites scrutiny, so nothing here passes 2 Hz, and a powered light can't be the alliance sign, so it sits beside the required sign.</p>
+  </section>
+
+  <section aria-labelledby="checks">
+    <h2 id="checks">What INIT checks</h2>
+    <p>INIT may hold motors and servos still (R103.B) and the robot must be motionless once INIT is done (G304.H), so every check reads and nothing moves.</p>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Row</th><th>Healthy</th><th>Not healthy</th></tr></thead>
+      <tbody>
+        <tr><td>Camera</td><td>Sees HIVE tags</td><td>Not connected, or no HIVE tag for 3 s. <b>Suspect</b> when it sees tags but the fixes match neither start: the row turns amber and suggests ▲, but the robot never disables it on its own</td></tr>
+        <tr><td>Start</td><td>Left or right, seen by the camera, within 1 in: "in position"</td><td>No camera: picked by ◀ ▶, amber, "no camera to check it". A ◀ ▶ pick the camera disagrees with: red, NOT READY. 1-3 in off: amber, "nudge it". Over 3 in: red, "reposition", NOT READY. Over about 12 in the camera itself is suspect. Tolerances to be set from a field test</td></tr>
+        <tr><td>Alliance</td><td>From the camera, as today, shown in its own colour</td><td>X or B</td></tr>
+        <tr><td>Pinpoint</td><td>Ready</td><td>Missing or not ready: PARK ONLY</td></tr>
+        <tr><td>Turret</td><td>The absolute encoder reads home (the starting configuration has the turret at a known angle): "at home"</td><td>No signal: red, held forward, the robot aims. Not home (say 12°): amber, because either the turret was left turned or the encoder slipped; a person turns it home, and if it still reads off, re-zeroes it</td></tr>
+        <tr><td>Battery</td><td>13.0 V or more</td><td>Amber below 13.0 V, "swap if there is time"; red below 12.5 V, "swap it". A warning only; the thresholds are to be measured where shots start falling short</td></tr>
+      </tbody>
+    </table></div>
+    <p><b>Disabled means fully off:</b> no start check or alliance proposal, no TIP detection, and no tag fixes into Pedro's filter. A camera that is wrong but trusted drags the pose, and every path after it.</p>
+  </section>
+
+  <section aria-labelledby="after">
+    <h2 id="after">At PLAY and after</h2>
+    <div class="cols">
+      <div class="card"><h3>The plan locks</h3><p>At PLAY the plan is frozen and written to the match log as one event with its reasons, so a bad match can be explained from the <code>.wpilog</code>.</p></div>
+      <div class="card"><h3>It stays on screen</h3><p>The Match page keeps "SMART · RIGHT · RED" as its first line through AUTO, above the route's own lines.</p></div>
+      <div class="card"><h3>Camera lost mid-match</h3><p>Costs no more than a backup: every SMART wait has a time limit, and its timeout branch carries on sensibly. That is a rule for every SMART route.</p></div>
+      <div class="card"><h3>Insurance</h3><p><b>Emergency Park L</b> and <b>Emergency Park R</b> sit at the bottom of the DS list: no checks, no camera, no screen. If Smart Auto's own code fails in INIT, they still park.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="who">
+    <h2 id="who">Who builds what</h2>
+    <div class="tablewrap"><table>
+      <thead><tr><th>Piece</th><th>Where</th><th>Who</th></tr></thead>
+      <tbody>
+        <tr><td>Two candidate starts in the start check</td><td><code>localization/StartCheck</code>, <code>RobotOpMode</code></td><td>Mentor</td></tr>
+        <tr><td>Measured start poses</td><td><code>localization/StartPositions</code> (empty today)</td><td>On a robot</td></tr>
+        <tr><td>Health of each system</td><td>Each subsystem; the turret through the OctoQuad</td><td>Mentor, turret chat</td></tr>
+        <tr><td>Camera disable, including no pose fixes</td><td><code>vision/</code>, <code>localization/</code></td><td>Mentor</td></tr>
+        <tr><td><code>decide()</code> and its test</td><td><code>opmodes/auto/</code></td><td>Students</td></tr>
+        <tr><td>The INIT screen</td><td><code>opmodes/auto/</code> with <code>controls/Display</code></td><td>Students</td></tr>
+        <tr><td>Smart Auto, running one of four routes</td><td><code>opmodes/auto/</code></td><td>Students</td></tr>
+        <tr><td>Routes: L-Quals, R-Quals, Backup-L, Backup-R, emergency parks</td><td><code>TeamCode/autos/*.pp</code></td><td>Students, with the simulator</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="open">
+    <h2 id="open">Still open</h2>
+    <ol class="open">
+      <li>A camera-down mode in the simulator, so the backup routes can be measured (asked of the simulator chat).</li>
+      <li>Backup-L and Backup-R: timer-only, aiming by turning, TIP 1 from our preloads at once, TIP 2 from FLOWERs that are always full. 60 runs against every partner type.</li>
+      <li>A spill-free R-Quals, to meet the baseline rule: TIP 2 from the wall FLOWER, carried up the left side.</li>
+      <li>PARK ONLY without the Pinpoint: can a timed drive reach the LOADING ZONE reliably, or is it LEAVE only?</li>
+      <li>A failsafe for a broken flywheel encoder, later.</li>
+      <li>Battery thresholds, measured where the launcher's shots start falling short.</li>
+    </ol>
+  </section>
+
+  <footer>Design of 9 October 2026. The full text is <code>doc/smart-auto.md</code> on <code>claude/biobuzz-robot-body-designs-hi386c</code>. Field coordinates in inches, Pedro's frame.</footer>
+</div>
+
+<script>
+(function () {
+  var state = { camera: 'on', placed: 'R', off: '0.6', field: 'RED', pinpoint: 'ready', turret: 'home', volt: 13.3 };
+  var ov = { alliance: null, side: null, partner: null, backup: false, camOff: false };
+  var lock = { on: false, plan: null, health: null };
+  var lastPress = Date.now(), flashUntil = 0, flashMsg = '';
+  var page = 'match';
+  var AUTO_LOCK_S = 30;
+  var C = { ok: '#4CAF50', warn: '#FFB300', fault: '#E53935', dim: '#9aa3ad', red: '#FF5A4E', blue: '#4F9DFF' };
+  // Start tolerance (to be set from a field test): in position, nudge it, reposition.
+  var START_OK_IN = 1.0, START_NUDGE_IN = 3.0;
+  // Battery (to be measured): green from 13.0 V, amber from 12.5 V, red below.
+  var BATT_OK_V = 13.0, BATT_LOW_V = 12.5;
+  var sideName = { L: 'left', R: 'right' };
+  // What scouting says the partner does. It starts on the other start from ours; this says what it does there.
+  var PARTNERS = ['launch', 'park'];
+  var PARTNER = {
+    // Each behaviour has its own colour, never an alliance (red, blue) or a status (green, amber, red) colour.
+    launch: { name: 'Launch & Park', says: 'launches its preloads, then parks', color: '#C084FC' },
+    park:   { name: 'Just Park', says: "doesn't launch, parks", color: '#22D3EE' }
+  };
+  function route(mode, side, partner) { return mode === 'PARK ONLY' ? 'Park Only' : (mode === 'SMART' ? side + '-Quals' : 'Backup-' + side); }
+
+  function decide() {
+    var reasons = [];
+    var camUsable = state.camera === 'on' && !ov.camOff;
+    var camSide = camUsable ? state.placed : null;
+    var camAlliance = camUsable ? state.field : null;
+    var partner = ov.partner;
+    var side = ov.side || camSide;
+    var alliance = ov.alliance || camAlliance;
+    var mode;
+    if (state.pinpoint !== 'ready') { mode = 'PARK ONLY'; reasons.push('The Pinpoint is missing, so no path can be followed: PARK ONLY.'); }
+    else if (camUsable && camSide && !ov.backup) { mode = 'SMART'; reasons.push('The camera sees the HIVE and where the robot is: SMART.'); }
+    else {
+      mode = 'BACKUP';
+      if (ov.backup && camUsable) reasons.push('Y forced BACKUP. The camera still checks the start and the alliance.');
+      else if (ov.camOff) reasons.push('The camera is disabled by hand: BACKUP, on timers.');
+      else if (state.camera === 'broken') reasons.push('The camera is not connected: BACKUP, on timers.');
+      else reasons.push('The camera sees tags but its fixes match neither start, so it confirms nothing: BACKUP.');
+    }
+    if (partner && side) reasons.push('Partner: ' + PARTNER[partner].name + ', on the ' + sideName[side === 'L' ? 'R' : 'L'] + ' start; we run ' + route(mode, side, partner) + '.');
+    var parkLeft = partner === 'park' && side === 'L';
+    if (parkLeft) reasons.push('A Just Park partner gives no TIP 1, so we start on the right and make it ourselves. On the left: either the robot is on the wrong start or the partner was mis-picked.');
+    var off = parseFloat(state.off);
+    var startState = !side ? 'none' : (!camSide ? 'unchecked' : (camSide !== side ? 'wrong' : (off <= START_OK_IN ? 'ok' : (off <= START_NUDGE_IN ? 'nudge' : 'move'))));
+    var ready = !!(partner && alliance && side) && startState !== 'move' && startState !== 'wrong' && !parkLeft;
+    if (!partner) reasons.push('No partner yet: press A to pick what it does.');
+    if (!side) reasons.push('No camera to see the start: press ◀ or ▶ for the side.');
+    if (!alliance) reasons.push('No alliance yet: press X (blue) or B (red).');
+    if (startState === 'wrong') reasons.push('You chose the ' + sideName[side] + ' start but the camera sees the robot on the ' + sideName[camSide] + ': move the robot, or press ▼ to clear.');
+    if (startState === 'nudge') reasons.push('The robot is ' + off.toFixed(1) + ' in from its start: nudge it closer (within ' + START_OK_IN.toFixed(0) + ' in is in position).');
+    if (startState === 'move') reasons.push('The robot is ' + off.toFixed(1) + ' in from its start: reposition it. More than ' + START_NUDGE_IN.toFixed(0) + ' in is NOT READY.');
+    if (ov.alliance && camAlliance && ov.alliance !== camAlliance) reasons.push('You chose ' + ov.alliance.toLowerCase() + ' but the camera sees ' + camAlliance.toLowerCase() + '.');
+    if (state.turret === 'none') reasons.push('No signal from the turret encoder: the turret is held forward and the robot aims by turning, so the route is unchanged.');
+    if (state.turret === 'turned') reasons.push('The turret reads 12° at the start, where it should read 0°. Either it was left turned or its encoder has slipped: turn it home, and if it still reads 12° the encoder needs re-zeroing.');
+    if (state.volt < BATT_LOW_V) reasons.push('Battery ' + state.volt.toFixed(1) + ' V: swap it.');
+    else if (state.volt < BATT_OK_V) reasons.push('Battery ' + state.volt.toFixed(1) + ' V: swap it if there is time.');
+    return { mode: mode, partner: partner, side: side, alliance: alliance, ready: ready, startState: startState, off: off, camUsable: camUsable, camSide: camSide, camAlliance: camAlliance, reasons: reasons };
+  }
+
+  function health() {
+    return { partner: ov.partner, side: ov.side, camera: state.camera, placed: state.placed, off: state.off, field: state.field, pinpoint: state.pinpoint, turret: state.turret, volt: state.volt < BATT_LOW_V ? 'red' : (state.volt < BATT_OK_V ? 'amber' : 'ok') };
+  }
+  function changed(key) { return lock.on && lock.health[key] !== health()[key]; }
+
+  // A button shown next to the thing it changes, in its gamepad colour. Hidden when locked: the buttons do nothing then.
+  var KEY = { A: '#57C26A', X: '#4F9DFF', B: '#FF5A4E', Y: '#F2C230' };
+  // "(A)", or "(X/B)" for a pair: each letter in its gamepad colour.
+  function key() {
+    if (lock.on) return '';
+    var ks = Array.prototype.slice.call(arguments);
+    return ' (' + ks.map(function (k) { return '<b><font color="' + (KEY[k] || '#cfd6dd') + '">' + k + '</font></b>'; }).join('/') + ')';
+  }
+  function pad(t, n) { t = String(t); return t + new Array(Math.max(1, n - t.length + 1)).join('&nbsp;'); }
+  function dot(c) { return '<font class="dot" color="' + c + '">●</font>'; }
+  function you(on) { return on ? ' <span class="you">(you)</span>' : ''; }
+  // The value takes the row's colour (or its own, like the alliance); anything after it stays plain.
+  function row(c, label, value, rest, keys, valueColor) {
+    var ch = (keys || []).some(changed);
+    if (ch) { c = C.warn; rest = (rest || '') + ' · <font color="' + C.warn + '">changed since lock</font>'; }
+    return '<div class="row">' + dot(c) + ' <b>' + label + '</b>: <font color="' + (valueColor || c) + '">' + value + '</font>' + (rest || '') + '</div>';
+  }
+
+  // A row with no dot: for the choices, where the coloured value says enough.
+  function plain(c, label, value, rest, keys) {
+    if ((keys || []).some(changed)) { c = C.warn; rest = (rest || '') + ' · <font color="' + C.warn + '">changed since lock</font>'; }
+    return '<div class="row"><b>' + label + '</b>: <font color="' + c + '">' + value + '</font>' + (rest || '') + '</div>';
+  }
+
+  function render() {
+    var live = decide();
+    var p = lock.on ? lock.plan : live;
+    var anyChange = lock.on && ['camera', 'placed', 'off', 'field', 'pinpoint', 'turret', 'volt'].some(changed);
+    // Each check once: the Match page shows its name in its colour, the Checks page the full row.
+    function chk(name, c, value, rest, keys, fix, short) {
+      if ((keys || []).some(changed)) { c = C.warn; fix = fix || 'changed since lock'; rest = (rest || '') + ' · <font color="' + C.warn + '">changed since lock</font>'; short = 'changed'; }
+      return { name: name, c: c, value: value, rest: rest || '', fix: fix || '', short: short || value };
+    }
+    var checks = [];
+    if (ov.camOff) checks.push(chk('Camera', C.fault, 'DISABLED', you(true) + ': no start check, no pose fixes', ['camera'], 'camera disabled', 'disabled'));
+    else if (state.camera === 'on') checks.push(chk('Camera', C.ok, 'sees the HIVE', ' (4 AprilTags)', ['camera'], '', '4 tags'));
+    else if (state.camera === 'suspect') checks.push(chk('Camera', C.warn, 'sees tags, fixes match no start', ' (off 31 in) · hold ▲ to disable?', ['camera'], 'camera fixes match no start: hold ▲ to disable it?', 'suspect'));
+    else checks.push(chk('Camera', C.fault, 'not connected', '', ['camera'], 'camera not connected: running BACKUP', 'offline'));
+    var sideTxt = p.side ? sideName[p.side] + ' start' : '';
+    if (!p.side) checks.push(chk('Start Pose', C.fault, 'unknown', ': press ◀ or ▶', ['placed', 'off'], 'press ◀ or ▶ for the side', '◀/▶ side'));
+    else if (p.startState === 'unchecked') checks.push(chk('Start Pose', C.warn, sideTxt, you(!!ov.side) + ' · no camera to check it', ['placed', 'off'], 'start pose not checked: no camera', 'unchecked'));
+    else if (p.startState === 'wrong') checks.push(chk('Start Pose', C.fault, sideTxt + you(true), ': the camera sees the robot on the ' + sideName[live.camSide] + ' start', ['placed', 'off'], 'start pose: the camera sees the other start', 'other start'));
+    else if (p.startState === 'ok') checks.push(chk('Start Pose', C.ok, sideTxt + ' · in position', ' (' + p.off.toFixed(1) + ' in)', ['placed', 'off'], '', p.off.toFixed(1) + ' in'));
+    else if (p.startState === 'nudge') checks.push(chk('Start Pose', C.warn, sideTxt + ' · ' + p.off.toFixed(1) + ' in off', ': nudge it', ['placed', 'off'], 'start pose ' + p.off.toFixed(1) + ' in off: nudge it', p.off.toFixed(1) + ' in'));
+    else checks.push(chk('Start Pose', C.fault, sideTxt + ' · ' + p.off.toFixed(1) + ' in off', ': reposition', ['placed', 'off'], 'start pose ' + p.off.toFixed(1) + ' in off: reposition', p.off.toFixed(1) + ' in'));
+    checks.push(state.pinpoint === 'ready' ? chk('Pinpoint', C.ok, 'ready', '', ['pinpoint']) : chk('Pinpoint', C.fault, 'not found', ' · PARK ONLY, from the known start', ['pinpoint'], 'Pinpoint not found: PARK ONLY, driven from the ' + (p.side ? sideName[p.side] + ' start' : 'start') + ' by wheel encoders', 'missing'));
+    if (state.turret === 'home') checks.push(chk('Turret', C.ok, 'at home', ' (0.4°)', ['turret'], '', 'home'));
+    else if (state.turret === 'turned') checks.push(chk('Turret', C.warn, 'reads 12.0°, not home', ': turn it home, or re-zero the encoder', ['turret'], 'turret reads 12°, not home: turn it home', '12.0°'));
+    else checks.push(chk('Turret', C.fault, 'no encoder signal', ' · held forward, robot aims', ['turret'], 'turret encoder: no signal; the robot aims', 'no signal'));
+    var vc = state.volt < BATT_LOW_V ? C.fault : (state.volt < BATT_OK_V ? C.warn : C.ok);
+    var vr = state.volt < BATT_LOW_V ? ': swap it' : (state.volt < BATT_OK_V ? ': swap if there is time' : '');
+    checks.push(chk('Battery', vc, state.volt.toFixed(1) + ' V', vr, ['volt'], vc === C.ok ? '' : 'battery ' + state.volt.toFixed(1) + ' V' + vr, state.volt.toFixed(1) + ' V'));
+
+    var h = '';
+    {
+      h += '<div class="page">MATCH</div>';
+      if (p.alliance) {
+        var ac = ov.alliance && live.camAlliance && ov.alliance !== live.camAlliance;
+        var acol = p.alliance === 'RED' ? C.red : C.blue;
+        var allianceTxt = '<big><b><font color="' + acol + '">' + p.alliance + ' ALLIANCE</font></b></big>' + key('X', 'B') + you(!!ov.alliance) + (ac ? ' <font color="' + C.warn + '">(camera sees ' + live.camAlliance.toLowerCase() + ')</font>' : '') + (changed('field') ? ' <font color="' + C.warn + '">(changed since lock)</font>' : '');
+      } else var allianceTxt = '<big><b><font color="' + C.fault + '">NO ALLIANCE</font></b></big>';
+      if (!p.alliance) allianceTxt += key('X', 'B');
+      // The verdict, and when NOT READY the one thing to do about it.
+      var fix = !p.alliance ? 'press X (blue) or B (red)' : (!p.partner ? 'press A to pick the partner' : (!p.side ? 'press ◀ or ▶ for the side' : (p.startState === 'wrong' ? 'robot on the other start' : (p.startState === 'move' ? 'reposition the robot' : ''))));
+      var vcol = !p.ready ? C.fault : (anyChange || mismatch() ? C.warn : C.ok);
+      var verdict = p.ready ? 'READY' : 'NOT READY';
+      var after = '';
+      // NOT READY alone: the red line below already says what and which button.
+      if (!p.ready) after = '';
+      else if (lock.on) after = ' · LOCKED' + (anyChange || mismatch() ? ' · <font color="' + C.warn + '">CHECK</font>' : '');
+      else after = (mismatch() ? ' · <font color="' + C.warn + '">CHECK</font>' : '') + ' <span class="lk">· locks in ' + Math.max(0, Math.ceil(AUTO_LOCK_S - (Date.now() - lastPress) / 1000)) + ' s</span>';
+      // One line: the alliance, then the verdict. No dot: the words carry the colour.
+      h += '<div class="headline"><span>' + allianceTxt + ' · <font color="' + vcol + '">' + verdict + '</font>' + after + '</span></div>';
+      h += '<hr>';
+      if (p.partner) h += plain(PARTNER[p.partner].color, 'Partner' + key('A'), PARTNER[p.partner].name, (p.side ? ' · from the ' + sideName[p.side === 'L' ? 'R' : 'L'] + ' start' : '') + ': ' + PARTNER[p.partner].says, ['partner']);
+      else h += plain(C.fault, 'Partner' + key('A'), 'not picked', ': Launch & Park or Just Park', ['partner']);
+      var planTxt = { 'SMART': ': reacts to the HIVE · 3 TIPs + PARK', 'BACKUP': ': on timers · 2 TIPs + PARK', 'PARK ONLY': ': no Pinpoint · from the known start to the LOADING ZONE by wheel encoders' }[p.mode];
+      h += plain(p.mode === 'SMART' ? C.ok : C.warn, 'Plan' + key('Y'), p.mode + (p.side ? ' · ' + route(p.mode, p.side, p.partner) : ''), you(ov.backup) + planTxt);
+      // The checks on one line: each name in its colour. The worst one, if any, says what to do.
+      // The checks as an aligned grid: monospace and non-breaking spaces, since the Driver Station's HTML has no tables.
+      function cell(k) { return dot(k.c) + ' ' + pad(k.name, 11) + '<font color="' + k.c + '">' + pad(k.short, 10) + '</font>'; }
+      var byName = {}; checks.forEach(function (k) { byName[k.name] = k; });
+      h += '<div class="grid"><tt>' + cell(byName['Camera']) + ' ' + cell(byName['Pinpoint']) + '<br>' + cell(byName['Start Pose']) + ' ' + cell(byName['Turret']) + '<br>' + cell(byName['Battery']) + '</tt></div>';
+      var worst = checks.filter(function (k) { return k.c === C.fault; })[0] || checks.filter(function (k) { return k.c === C.warn; })[0];
+      // Not when the verdict line already says it (NOT READY: wrong start).
+      // NOT READY: what is still needed that no red line above already shows, with its button. READY: the worst warning, if any.
+      var need = [];
+      // Alliance and partner aren't listed: their own red lines already show their buttons.
+      if (!p.side) need.push('side' + key('◀', '▶'));
+      if (p.startState === 'wrong') need.push('robot on the other start');
+      if (p.partner === 'park' && p.side === 'L') need.push('Just Park partner: we start on the right');
+      if (p.startState === 'move') need.push('reposition the robot (' + p.off.toFixed(1) + ' in off)');
+      if (!p.ready && need.length) h += '<div class="row"><font color="' + C.fault + '">To be READY: </font>' + need.join(' · ') + '</div>';
+      else if (worst) h += '<div class="row"><font color="' + worst.c + '">' + worst.fix + '</font></div>';
+    }
+    if (Date.now() < flashUntil) h += '<div class="flash">' + flashMsg + '</div>';
+    // Only the hints that matter now; every other button sits next to what it changes.
+    var changedSomething = !!(ov.alliance || ov.side || ov.backup || ov.camOff);
+    if (page === 'match') h += '<div class="note">' + (lock.on ? 'Hold LB + RB 2 s to unlock' : (function (t) { return t.charAt(0).toUpperCase() + t.slice(1); })([changedSomething ? '▼ clears your changes' : '', p.ready ? 'hold LB + RB 2 s to lock now' : ''].filter(Boolean).join(' · '))) + '</div>';
+    document.getElementById('ds').innerHTML = h;
+    lamps(p, anyChange);
+    var why = (lock.on ? ['Locked: the plan is frozen until someone holds LB + RB.'] : []).concat(live.reasons);
+    if (anyChange) why.push('Something changed since the lock. The plan stays as locked until a person unlocks and decides.');
+    document.getElementById('why').innerHTML = why.map(function (r) { return '<li>' + r + '</li>'; }).join('');
+    mark();
+  }
+
+  // One light, never faster than 2 Hz (the R-rules scrutinise lighting that flashes above 5 Hz). It shows the
+  // alliance, and how it lights says whether all is well, so red never has to mean "error".
+  function lamp(id, color, mode, txt) {
+    var e = document.getElementById(id);
+    e.className = 'lamp' + (color ? ' glow' : '') + (mode ? ' ' + mode : '');
+    e.style.setProperty('--lamp', color || 'transparent');
+    document.getElementById(id + 'txt').textContent = txt;
+  }
+  function mismatch() { var l = decide(); return !!(ov.alliance && l.camAlliance && ov.alliance !== l.camAlliance); }
+  function lamps(p, anyChange) {
+    if (!p.alliance || !p.partner || !p.side) { lamp('lampA', '#f2f2f2', 'flash', 'white, flashing: ' + (!p.alliance ? 'no alliance' : (!p.partner ? 'no partner picked' : 'no side'))); return; }
+    var col = p.alliance === 'RED' ? C.red : C.blue, name = p.alliance.toLowerCase();
+    if (mismatch()) lamp('lampA', col, 'swap', 'red and blue, alternating: the camera and the buttons disagree');
+    else if (!p.ready || anyChange) lamp('lampA', col, 'flash', name + ', flashing: ' + (anyChange ? 'changed since lock' : 'not ready'));
+    else lamp('lampA', col, '', 'solid ' + name + ': ready');
+  }
+
+  function mark() {
+    document.querySelectorAll('.seg').forEach(function (seg) {
+      var k = seg.getAttribute('data-key');
+      seg.querySelectorAll('.ctl').forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-v') === state[k])); });
+    });
+    tog('bx', ov.alliance === 'BLUE'); tog('bb', ov.alliance === 'RED');
+    tog('bl', ov.side === 'L'); tog('br', ov.side === 'R'); tog('ba', !!ov.partner);
+    tog('by', ov.backup); tog('bu', ov.camOff); tog('bk', lock.on);
+  }
+  function tog(id, on) { var e = document.getElementById(id); e.classList.toggle('on', on); e.setAttribute('aria-pressed', String(on)); }
+
+  document.querySelectorAll('.seg').forEach(function (seg) {
+    seg.addEventListener('click', function (e) {
+      var b = e.target.closest('.ctl'); if (!b) return;
+      state[seg.getAttribute('data-key')] = b.getAttribute('data-v'); render();
+    });
+  });
+  document.getElementById('volt').addEventListener('input', function (e) {
+    state.volt = parseFloat(e.target.value); document.getElementById('voltv').textContent = state.volt.toFixed(1) + ' V'; render();
+  });
+  function on(id, f) {
+    document.getElementById(id).addEventListener('click', function () {
+      lastPress = Date.now();
+      if (lock.on) { flashMsg = 'LOCKED: hold LB + RB 2 s to change'; flashUntil = Date.now() + 2500; render(); setTimeout(render, 2600); return; }
+      f(); render();
+    });
+  }
+  on('bx', function () { ov.alliance = 'BLUE'; });
+  on('bb', function () { ov.alliance = 'RED'; });
+  on('bl', function () { ov.side = 'L'; });
+  on('br', function () { ov.side = 'R'; });
+  on('ba', function () { ov.partner = ov.partner === 'launch' ? 'park' : 'launch'; });
+  on('by', function () { ov.backup = !ov.backup; });
+  on('bu', function () { ov.camOff = !ov.camOff; });
+  on('bd', function () { ov = { alliance: null, side: null, partner: ov.partner, backup: false, camOff: false }; });
+  function doLock() { lock = { on: true, plan: decide(), health: health() }; }
+  // Back/Share changes the page even when locked: it only changes what is shown.
+  document.getElementById('bk').addEventListener('click', function () {
+    lastPress = Date.now();
+    // Only a READY plan can be locked; unlocking always works.
+    if (lock.on) lock = { on: false, plan: null, health: null };
+    else if (decide().ready) doLock();
+    else { flashMsg = "Can't lock: NOT READY"; flashUntil = Date.now() + 2500; setTimeout(render, 2600); }
+    render();
+  });
+  setInterval(function () {
+    if (!lock.on && decide().ready && Date.now() - lastPress >= AUTO_LOCK_S * 1000) doLock();
+    if (!lock.on) render();
+  }, 1000);
+  render();
+})();
+</script>
+
+</body></html>
