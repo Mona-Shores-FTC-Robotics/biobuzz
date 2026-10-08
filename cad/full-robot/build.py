@@ -223,8 +223,7 @@ def main(robot_step, out, additions=False, only=None):
         shapes = {n: TR.to_cad(wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
             if n.startswith("turret_"): continue           # the transfer's turret references; the real turret is in the Launcher Concept
-            dest = moving["feeder"] if re.match(r"feeder \(|feeder_shaft |feeder_pulley_feeder ", n) else \
-                   moving["pad"] if re.match(r"pad_plate |pad_foam ", n) else sub
+            dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else sub
             add_part(dest, n, shapes[n], col, shapes)
         frame.add(sub)
     ll = cq.Assembly(name="Limelight 3A on its goBILDA mount")

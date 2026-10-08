@@ -20,7 +20,7 @@ TRF = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(TRF)   # 
 _spec = importlib.util.spec_from_file_location("real_parts", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "full-robot", "real_parts.py"))
 RPM = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(RPM)
 LENS = RPM.limelight_lens_in()[0]                 # the camera's lens on its goBILDA mount, inches
-FEEDER_PART = re.compile(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder |pad_plate |pad_foam )")
+FEEDER_PART = re.compile(TRF.FEEDER_SPINS + "|" + TRF.PAD_SWINGS)
 
 IN, M = 25.4, 0.0254
 C, F, FACE = -59.62, -151.75, 207.73                 # robot CAD (mm): centre x, floor y, front face z
@@ -199,8 +199,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     floats = [(n, m) for n, m in add.items() if m["grp"] == "float"] + ([(n, m) for n, m in tr.items() if m["grp"] == "float"] if tr else [])
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if not re.search(ROLLER_SPINS, n)]
     roller = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if re.search(ROLLER_SPINS, n)]
-    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder )", n)]} if tr else {}
-    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^pad_(plate|foam) ", n)] if tr else []
+    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.FEEDER_SPINS, n)]} if tr else {}
+    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.PAD_SWINGS, n)] if tr else []
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
     merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))

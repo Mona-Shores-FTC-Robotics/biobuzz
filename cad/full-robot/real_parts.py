@@ -263,6 +263,14 @@ def vendor_parts(name, shape, others, vdir):
     """[(part name, base shape, TopLoc_Location, colour)] of the vendor part(s) for the drawn part `name` (team CAD mm),
     or None to keep the drawing. `others` is {name: shape} of the parts drawn with it: a motor's shaft points to the
     pulley or shaft on its axis."""
+    import os, sys
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+    import fasteners as FA
+    if name in FA.PLACED:                            # a directional part its build placed itself
+        fname, so, sa, sr, do, da, dr = FA.PLACED[name]; leaves = _vendor(fname, vdir)
+        if leaves is None: return None
+        loc = place(so, sa, do, da, sr, dr)
+        return [(names[-1] if names else fname, shp, loc, col) for names, shp, col in leaves]
     for rx, fname, kind, la, lp, lw in VENDOR:
         if not re.search(rx, name): continue
         leaves = _vendor(fname, vdir)

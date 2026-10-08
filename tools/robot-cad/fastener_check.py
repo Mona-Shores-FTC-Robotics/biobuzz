@@ -1,12 +1,12 @@
-"""Check every screw drawn in cad/intake-b (and what it builds on) against the parts it holds, the rest of our parts and
-the mentor's Robot.step, lined up as the full STEP has it.
+"""Check every screw drawn in cad/intake-b, cad/transfer (and what they build on) against the parts it holds, the rest of
+our parts and the mentor's Robot.step, lined up as the full STEP has it.
 
     python3 tools/robot-cad/fastener_check.py Robot.step     # caches all_base_mesh.pkl: the mentor's whole robot as meshes
 
 For each screw:
 - the shank runs only through holes: it may touch only the part it threads into (a part it should clamp but hits
   means a missing or misplaced hole; a part it shouldn't meet at all is a clash);
-- the head and the nut clear everything;
+- the head and the nut clear everything (a flat head sits in its countersink, so only its key is checked);
 - a hex key reaches the head: a 6 mm cylinder (the key and the hand's margin) 40 mm out from the head along the axis;
 - a tapped hole gives it at least 1.5 diameters of thread.
 Moving parts are checked where they're drawn (roller down, extractor down) and, for the extractor, stowed too."""
@@ -41,6 +41,11 @@ for title, g, d in IB.GROUPS:
     for n, (wp, col, kind) in d.items():
         m = cad_mesh(wp.val() if hasattr(wp, 'val') and len(wp.vals()) == 1 else cq.Compound.makeCompound(wp.vals()))
         if m is not None: ours[n], grp[n] = m, g
+TR = FR.TR
+for title, g, d in TR.GROUPS:
+    for n, (wp, col, kind) in d.items():
+        m = cad_mesh(TR.to_cad(wp))
+        if m is not None: ours[n], grp[n] = m, 'fixed'
 # the Limelight's goBILDA mount (with VENDOR_DIR and LL_STEP, as the full build takes them)
 if os.environ.get("VENDOR_DIR") and os.environ.get("LL_STEP"):
     RP = FR.RP; rig = RP.limelight_rig()
@@ -87,7 +92,7 @@ for sn, I in FA.INFO.items():
         tag = ' (stowed)' if stow else ''
         shank = posed(cyl_mesh(I['head'], I['axis'], d - 0.6, L), g, stow)
         hd, hh = FA.HEAD[d]
-        top = tuple(I['head'][k] - I['axis'][k] * hh for k in range(3))
+        top = I['head'] if I.get('flat') else tuple(I['head'][k] - I['axis'][k] * hh for k in range(3))
         head = posed(cyl_mesh(top, I['axis'], hd - 0.4, hh - 0.2), g, stow)
         key = posed(cyl_mesh(top, tuple(-c for c in I['axis']), 6.0, 40.0), g, stow)
         into = re.compile(I['into']) if I['into'] else None
@@ -101,11 +106,11 @@ for sn, I in FA.INFO.items():
                 if into and into.search(n): engaged += v / (math.pi * ((d - 0.6) / 2 / IN) ** 2) * IN
                 elif any(n.startswith(t) for t in I['through']): notes.append(f'no hole in {n.split(" ")[0]}')
                 else: notes.append(f'shank hits {n.split(" / ")[-1][:40]}')
-            v = vol(head, mm)
+            v = 0.0 if I.get('flat') else vol(head, mm)
             if v > TOL: notes.append(f'head hits {n.split(" / ")[-1][:40]}')
             v = vol(key, mm)
             if v > TOL: notes.append(f'no key access ({n.split(" / ")[-1][:30]})')
-        if not I['nut'] and into and not I.get('modelled') and engaged < 1.5 * d: notes.append(f'only {engaged:.1f} mm of thread')
+        if not I['nut'] and into and not I.get('modelled') and engaged < (I.get('min_engage') or 1.5 * d) - 0.3: notes.append(f'only {engaged:.1f} mm of thread')
         if I.get('service') and notes and all(n.startswith('no key access') for n in notes):
             print(f'{sn.split(" (")[0]:34s} M{d}x{L}{tag}: service order: {I["service"]}'); continue
         if notes:
