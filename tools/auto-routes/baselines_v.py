@@ -2,7 +2,8 @@
 the team's CAD; the Flat Intake baseline dropped). Each is the body-designs branch's best route for the V, exported
 under the baseline's name into TeamCode/autos:
 
-- qual-shoots-right-v-fixed-west45-r: ShootsRight (alone.shoots_right_v, since 8 Oct 2026); qual-right-v, the sweep route with PARK first, is the previous one (experiments/).
+- l-quals: ShootsRight from the left start (alone.shoots_right_v, since 8 Oct 2026; qual-right-v, the sweep route, is the previous one, in experiments/).
+- r-quals: from the right start (alone.alone with VARIANTS["qual-south-v"]), 3 TIPs with any partner that is out of its way.
 - qual-stages-angled-v: the angled partner, "chase", turning out of the tunnel at x 55.5 (guide_routes.turning_west).
 - qual-stages-wall-v: the wall partner, the row swept square (guide_routes.row_sweep, 90), the same turn.
 
@@ -84,12 +85,24 @@ def shoots_right_fixed(name):
     return alone.shoots_right_v(name, fire3=(45, 26, 90), ending="west", rescue=True, tip1_wait_ms=7000, rescue_home="lane")
 
 
+def r_quals(name):
+    """R-Quals (mentor, 8 Oct 2026): from the drive team's right start, red (59, 8.06, 90): the 3-TIPs-alone route
+    (alone.alone, VARIANTS["qual-south-v"]) with the far FLOWER's 4 fired at N_FIRE until RightCellUp and the lane's
+    catch fired from x 45. A partner we can't count on starts at the west start (24, 132.25); one that shoots from
+    the standard left start must be clear of it by about 7 s."""
+    import alone
+    return alone.alone(name, **alone.VARIANTS["qual-south-v"])
+
+
+# The qualifier Autos (mentor, 8 Oct 2026), named for the drive team's start, the same on both alliances (the field
+# turns a half turn about its centre): L-Quals from the left start, R-Quals from the right.
 BASELINES = {
-    "qual-shoots-right-v-fixed-west45-r": shoots_right_fixed,
+    "l-quals": shoots_right_fixed,
+    "r-quals": r_quals,
     "qual-stages-angled-v": guide_routes.turning_west(lambda n: shape_matrix.stages_for("rigid-v", "angled", n)),
     "qual-stages-wall-v": guide_routes.turning_west(lambda n: sweep_east_of_partner(lambda m: guide_routes.rigid_v_wall("rigid-v", m, 90, sweep=True), n)),
 }
-PARTNER = {"qual-shoots-right-v-fixed-west45-r": "PartnerPreloadsRightHighAuto", "qual-stages-angled-v": "PartnerAngledParkAuto",
+PARTNER = {"l-quals": "PartnerPreloadsRightHighAuto", "r-quals": "PartnerLeftVAuto", "qual-stages-angled-v": "PartnerAngledParkAuto",
            "qual-stages-wall-v": "PartnerStage19SideParkAuto"}
 
 # The drawn V's body is 15.12 in long (its face 7.56 in from the centre), not the Flat Intake's 14.5 (7.25): the
