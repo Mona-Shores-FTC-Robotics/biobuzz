@@ -208,6 +208,8 @@ public class ReviewPackageTest {
         Set<String> missing = new LinkedHashSet<>(layoutKeys(layout));
         if (!twoRobots) missing.removeIf(k -> k.contains("Partner"));
         missing.removeAll(new WpiLogReader(Files.readAllBytes(log.toPath())).entries.keySet());
+        // The opponents' robots (AutoSim.alsoRunOpponent) are in a log only when they ran.
+        missing.removeIf(k -> k.contains("Opponent"));
         if (!missing.isEmpty()) {
             fail(log.getName() + " lacks keys the AdvantageScope layout uses: " + missing);
         }

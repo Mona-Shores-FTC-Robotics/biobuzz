@@ -156,6 +156,13 @@ the wall Auto still turned into the west wall at the guard's cut, so it keeps `g
 fire **72.7**, TIP 3 in 52. A fixed launcher now out-TIPs seat fire on the right start: the turret is not what Auto
 needs.
 
+**All four robots** (8 Oct 2026; mentor: see more in one view, and realistic interaction). A study spec names the
+other alliance after a `|`: `LQualsAuto,PartnerPreloadsRightHighAuto|RQualsAuto,PartnerLeftVAuto@50` runs our
+L-Quals pair on red against our R-Quals pair on blue (each blue Auto is the red drawing turned half a turn, as the
+generated class does for BLUE). The STUDY line adds "the other alliance N pts"; the log carries four robots
+(`/Odometry/OpponentA3d`, `OpponentB3d`, drawn as ghosts in the layout); collisions are checked between any two
+robots, and the human player enters NECTAR for both alliances. `AutoSim.alsoRunOpponent` is the API.
+
 **PARK deep in the zone** (8 Oct 2026; mentor: "parks too close to the park zone"). Our PARK was (13, 87.44): only a
 corner's tip 0.7 in inside the LOADING ZONE (x 0-11, y 94.3-117.9). Now (10.5, 95) (`qual.py`'s base point, the fit
 adds the V's shortfall), the frame y 87.4-102.6, 8 in inside; the partners park at the zone's far end so both fit

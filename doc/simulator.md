@@ -35,7 +35,8 @@ Watch it: [best](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/raw/sim-res
 [the route](https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=claude/simulator/TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp).
 The FLOWER scorer is shelved (6 Oct).
 
-Points are average alliance AUTO points over 60 simulated runs (seeds 1–60; 3 TIPs, LEAVE and PARK; a perfect run
+Points are average alliance AUTO points over 60 simulated runs (two robots on our alliance; a study can also run the
+other alliance's two, `red pair|blue pair` in the spec, since 8 Oct 2026) (seeds 1–60; 3 TIPs, LEAVE and PARK; a perfect run
 is 76). **G409** is how many runs our robot touched a spilled piece before it reached the tiles (the rule: don't
 catch or deflect a TIP's spill). Numbers run **7 Oct 2026 19:50 UTC** on the simulator as it stands (each TIP
 0.58–1.12 s, pieces rolling as filmed). Each log downloads as `<Auto>_RigidV_<date simulated>_best` or `_typical`.
