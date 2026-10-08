@@ -491,7 +491,10 @@ from beside the wall FLOWER the shots crossed the HIVE); PARK. 60 runs, rigid V,
 The partner makes no difference: the route never uses a staged row. TIPs at about 4, 15 and 26 s. The 4 problem runs
 are TIP 1 failing (the HIVE tips at 23 s): the endgame guard's park, drawn from (45, 26), drags the V out through the
 wall FLOWER, as the baseline's runs into the HIVE frame. `partners.park_left` drives into the far FLOWER and onto our
-PARK, so the park-only partner here is new. A 4th TIP does not fit: TIP 3 comes at about 26 s.
+PARK, so the park-only partner here is new. A 4th TIP does not fit: TIP 3 comes at about 26 s. **It needs no turret** (every shot is from a standstill): on "rigid V, fixed turret", with S_FIRE moved to x 55 (a
+fixed launcher turning there to face the right CELL swung the V's tips over the centre line from x 57.5), 20 runs:
+67.0, 3 TIPs in 12, PARK 20, 1 problem run (a TIP 1 failure), with the park-only or the angled partner; 66.0 / 14 with
+the turret. The Stages baselines with the turret fixed: angled 62.0 / 6, wall 56.0 / 0 (20 runs).
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
