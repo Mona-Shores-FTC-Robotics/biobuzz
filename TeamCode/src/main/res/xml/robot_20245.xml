@@ -54,6 +54,14 @@
             <!-- Odometry: goBILDA Pinpoint on I2C bus 1. -->
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
 
+            <!-- Turret angle: Digital Chicken Labs OctoQuad on I2C bus 2, with
+                 the turret's REV Thru-Bore absolute output on OctoQuad channel 4
+                 (TurretSubsystem.ENCODER_CHANNEL). Bus 2 is a specification
+                 chosen at a desk, like every port in this file: bus 0 carries
+                 the Control Hub's own IMU and bus 1 the Pinpoint, so 2 is the
+                 first free one. Wire it here. -->
+            <OctoQuadFTC name="octoquad" port="2" bus="2" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the launcher flywheels. Ports are carried over from

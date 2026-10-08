@@ -66,10 +66,13 @@ import java.util.List;
  *
  * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
  * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
- * stops, this records the alliance and the robot's final pose in {@link Handoff}. When any other
- * OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose and inherits
- * the alliance, and the Match page says so — or says there was no handoff. Subclasses never touch
- * either.
+ * stops, this records the alliance, the robot's final pose and whether the turret's zero was
+ * verified in {@link Handoff}. When any other OpMode initializes within {@link Handoff#MAX_AGE_MS}
+ * of that, it restores the pose and inherits the alliance and the turret verdict, and the Match page
+ * says so — or says there was no handoff. Subclasses never touch either.
+ *
+ * <p>The turret's zero is settled at PLAY: verified if Auto handed that on, or if the turret reads
+ * home right now. INIT shows the turret check either way, with nothing moving.
  *
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
  * camera checks the placement ({@link StartCheck}): a confirmed placement is also what confirms the
@@ -111,6 +114,7 @@ public abstract class RobotOpMode extends OpMode {
     private boolean poseFromAuto;
     private Display.Level handoffLevel;
     private String handoffNote;
+    private boolean turretVerifiedByAuto;
 
     private StartPosition declaredStart;
 
@@ -187,6 +191,7 @@ public abstract class RobotOpMode extends OpMode {
             display.status("Start", handoffLevel, handoffNote);
         }
         startCheck.describe(display);
+        robot.turret.describe(display);
         onInitLoop();
         Scheduler.execute();
         finishPage();
@@ -196,6 +201,7 @@ public abstract class RobotOpMode extends OpMode {
     public final void start() {
         loopTimer.reset();
         setup.lock();
+        robot.turret.settleZeroAtPlay(turretVerifiedByAuto);
         driver.prime();
         operator.prime();
         if (!isAutonomous()) {
@@ -230,7 +236,8 @@ public abstract class RobotOpMode extends OpMode {
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, System.currentTimeMillis());
+            Handoff.record(setup.alliance(), pose, robot.turret.zeroVerified(),
+                    System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -266,6 +273,7 @@ public abstract class RobotOpMode extends OpMode {
             return;
         }
         setup.inheritFromAuto(handoff.alliance);
+        turretVerifiedByAuto = handoff.turretZeroVerified;
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);

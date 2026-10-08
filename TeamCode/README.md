@@ -441,6 +441,49 @@ is a different element (`<Webcam>`) with a per-unit serial number, so one kind
 for both would mean "not on a hub", not "checked like this". The webcam is still
 on `DeviceNameLiteralTest`'s allowlist, waiting on its own decision.
 
+### The turret's OctoQuad, and the one port Java knows
+
+The turret's angle comes from a REV Thru-Bore encoder's absolute (pulse-width)
+output, read by a Digital Chicken Labs OctoQuad (`<OctoQuadFTC>`) on I2C bus 2
+of each competition robot. The decision and the options rejected for it (a motor
+encoder plus homing, an absolute encoder into a hub analog port) are on #81; the
+CAD requirements are #170, the code is #169.
+
+| Fact | Value | Where it is written |
+|---|---|---|
+| I2C bus | 2. Bus 0 carries the Control Hub's own IMU and bus 1 the Pinpoint | `robot_*.xml` |
+| OctoQuad channel | 4, the first of bank 2, which is set to pulse width | `TurretSubsystem.ENCODER_CHANNEL` |
+| Encoder ratio | exactly 1:1 with the turret, which rotates continuously | #170 |
+| Home offset, direction | measured per robot, NaN/0 until then | `TurretCalibration` |
+
+**The channel is the one port Java knows.** The XML has no element for an
+OctoQuad channel, so the alternative was a channel number per robot in a config
+object, which is the pattern that let DECODE's names drift. Both robots carry
+identical hardware, so one constant is a specification, like the ports here:
+wire it to channel 4.
+
+**Set up every init, not saved to the OctoQuad's flash.** `TurretSubsystem`
+writes the bank mode and the Thru-Bore's 1–1024 µs pulse range at every init. A
+few I2C writes buy an OctoQuad that works the moment it is swapped in, with no
+`UtilityOctoQuadConfigMenu` step and no flash wear. Wrap tracking is off: at 1:1
+the angle within one turn is the turret's angle, and wrap tracking only counts
+turns while powered, so it would add nothing but a way to be wrong after a power
+cycle.
+
+**Expect one Driver Station warning until the board is fitted.** Both configs
+declare the OctoQuad, so a robot without one plugged in shows the SDK's global
+warning "OctoQuad does not report correct CHIP_ID value" at startup. It is the
+SDK's own check (`OctoQuadImpl.verifyInitialization`), it does not stop
+anything, and it goes away once an OctoQuad answers on bus 2. The turret line
+on the Robot page says the same thing in plainer words.
+
+**There is no homing, and no soft limits.** At 1:1 the absolute encoder reads
+the true angle at power-on with nothing moving. The INIT check (`TurretHealth`:
+HOME, NOT_HOME, UNCALIBRATED, NO_SIGNAL) exists only to catch the encoder
+slipping on its shaft, which is detectable only when the turret is known to be at
+home: at the start of a match. Autonomous hands TeleOp a *verdict* through
+`Handoff` ("zero verified"), not an angle, because TeleOp reads the angle itself.
+
 ### Risk: bundled configs depend on Sloth, not just the SDK
 
 **This is load-bearing and completely non-obvious.** Sloth reflectively
