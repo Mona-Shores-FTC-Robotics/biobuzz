@@ -1,6 +1,6 @@
 # Keeps a laptop's AdvantageScope current with this branch, in one command, and opens a log:
 #
-#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open right|flowerfirst|angled|wall|seatfire|<file>] [-Typical]
+#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open right|flowerfirst|angled|wall|alone|seatfire|<file>] [-Typical]
 #
 # What it does, every run: pulls nothing itself (the README's one-liner does the git part); installs this branch's
 # robot model (cad/advantagescope/Robot_BIOBUZZ, committed) and the generated assets (the field "2026-2027 Field
@@ -99,7 +99,7 @@ Copy-Item -Force $source $layout
 # 6. The README table's latest logs, from the sim-results branch, into one folder (the names in the README).
 $logs = Join-Path $HOME "Downloads\biobuzz-logs"
 New-Item -ItemType Directory -Force $logs | Out-Null
-$autos = [ordered]@{ right = "qual-right-v"; flowerfirst = "qual-right-v-flower-first-carry-settle-b2"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; seatfire = "qual-right-v-seatfire-west" }
+$autos = [ordered]@{ right = "qual-right-v"; flowerfirst = "qual-right-v-flower-first-carry-settle-b2"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; alone = "qual-alone-flower-f45-s500"; seatfire = "qual-right-v-seatfire-west" }
 $raw = "https://raw.githubusercontent.com/Mona-Shores-FTC-Robotics/biobuzz/sim-results"
 $named = @{}
 foreach ($k in $autos.Keys) {
