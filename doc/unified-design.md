@@ -738,6 +738,16 @@ carries pieces across. What could close the gap: **human NECTAR** (one NECTAR ma
 G426: up to 4 by TIP 4, about 6.6 POLLEN's weight, delivered at the LOADING ZONE beside L; the simulator doesn't model
 it yet), or a mechanism that recovers far more of a spill.
 
+**If every spill gave 4** (the mentor: "five tip auto needs a way to reliably always get 4 from spill. If we had that
+would it be possible?"), `tools/auto-routes/five_tip_budget.py` times it: TIP 3 from TIP 1's spill and the GARDEN,
+TIP 4 from TIP 2's spill and 3 human NECTAR, TIP 5 from TIP 3's spill and the wall FLOWER, nobody crossing. G407 holds
+a robot to 4 pieces, so each TIP's second load is staged (set down beside the firing spot, picked back up). Turret:
+TIP 5's shots away by 29.5 s in 66% of matches; fixed launcher 27%. **Streamed** instead (the second load fired while
+the robot intakes it from the staged pile, never more than 4 aboard, as the turret already streams TIP 2): 100% and
+90% (turret / fixed; a fixed launcher streams only if the pile lies the way it faces to shoot). So with a turret, 4 per spill plus streaming makes 5 TIPs + 1 PARK workable on paper; the
+staged pick-up time, the NECTAR trip and a 0.8 s catch are guesses to measure. G407 allows pass-through: pieces that
+leave the robot (set down or launched) are no longer CONTROLled, but herding a pile is.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.
