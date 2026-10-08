@@ -556,6 +556,20 @@ that counted shots fired, not pieces in.) Tried and no better:
   seated, which a fixed launcher cannot: 0 of 60 and a FLOWER hit at about 4 s in every run. Firing the wall FLOWER's
   4 from (25, 28) instead of (45, 26), for a nearer GARDEN: 14 of 20.
 
+**What a mechanism buys the fixed-turret baselines** (8 Oct 2026, 20 runs each, 3 TIPs; same routes):
+
+| Body | (i) parks only | (ii) left partner | (iii) right partner |
+|---|---|---|---|
+| rigid V, fixed turret | 16 | 20 | 16 |
+| ... 1 s spin-up (from 2 s) | 12 | 20 | 16 |
+| ... 0.25 s extractor pull (from 0.5 s) | 17 | 20 | 16 |
+| ... both | 12 | 20 | 16 |
+| rigid V (moving turret) | 15 | 19 | 16 |
+
+None moves the needle on these routes: every miss left is a TIP short of pieces (a short catch, a shot into the HIVE),
+not short of time. (i) loses with the faster spin-up: TIP 1 comes earlier and the catch at S_CATCH, timed for it,
+takes less. (iii)'s misses are identical in every body: TIP 3 rests on the lane's catch of TIP 2's spill.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The endgame guard parks a seated robot sideways**: it follows the park path from its start, so a cut at the wall
