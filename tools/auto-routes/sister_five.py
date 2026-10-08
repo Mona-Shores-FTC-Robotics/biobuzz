@@ -311,7 +311,8 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     else:
         r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
               r.go("L_N", ctrl=[(57.5, 50), (57.5, 104)], turn_after=0.85, turn_by=1.0))
-        r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
+        r.at = "L_N"
+    r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     if noturn4:
         # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
         r.add(r.go("L_N", turn_by=1.0))
