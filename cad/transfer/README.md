@@ -185,7 +185,7 @@ clear.
 `tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount. For each it
 checks that the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a
 tapped hole gives enough thread.
-Fastener check: TBD
+Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 131 screws, 0 problems, 27 with a service order.
 
 ## Open
 

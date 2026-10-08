@@ -60,7 +60,7 @@ FEED_X = (-3.79 + SH, -1.90 + SH)       # the flywheels' X span
 # 0.77. Low band preload, so both sizes enter the stopped feeder under the lane's push.
 FEED_IN = 1.45                          # the feeder's tread, inner edge, Y, swung in (feeding): a POLLEN presses 0.10 into it and centres at
                                         # Y 0.15; a NECTAR presses 0.15, centres at -0.21
-FEED_OUT = 2.05                         # swung out (waiting): it spins all the time, and clears a waiting NECTAR by 0.24, a POLLEN on the wall by 0.19
+FEED_OUT = 2.05                         # swung out (waiting): it spins all the time, and clears a waiting NECTAR by 0.45, a POLLEN on the wall by 0.50 (tools/robot-cad/transfer2_check.py)
 FEED_Y = FEED_IN + RF                   # its axle's Y, swung in (2.87)
 P_C, N_C = FEED_IN + 0.10 - RP, FEED_IN + 0.15 - RN     # a pinched POLLEN's and NECTAR's centres, Y
 # it swings on two arms about the left flywheel's shaft, which drives it by a belt: its axle stays FEED_C from that shaft
@@ -577,7 +577,7 @@ for side in (BR_HOLES[:2], BR_HOLES[2:]):          # two towers, one behind each
     bridge = bridge.union(bx(*BR_X, min(ys_) - 0.25, max(ys_) + 0.25, SHELF_Z[0], max(h[1] for h in side) + 0.25))
     bridge = bridge.union(bx(*BR_X, min(ys_) - 0.25 if ys_[0] > 0 else -2.55, max(ys_) + 0.25 if ys_[0] < 0 else 1.35, *SHELF_Z))
 part(fixed, "feeder_bridge (print, PETG or nylon: behind the launcher's rear channels, its shelf under the feeder floor; M4 heat-set inserts)", bridge, BLUE, "print")
-bolt(fixed, "feeder_bridge", "the feeder bridge to the rear channels' webs (from inside the channels)", [(REAR_WEB[0], *h) for h in BR_HOLES], (-1, 0, 0), REAR_WEB_T, nut=False, tapped=10, into="feeder_bridge", service="with the feeder out (its two bearing plates)")
+bolt(fixed, "feeder_bridge", "the feeder bridge to the rear channels' webs (from inside the channels)", [(REAR_WEB[0], *h) for h in BR_HOLES], (-1, 0, 0), REAR_WEB_T, nut=False, tapped=10, into="feeder_bridge", service="with the feeder out (its yoke off the flywheel shaft)")
 FL_X = (SHELF_X[0] + 0.05, FEED_X[1] + 0.15)
 fl = bx(*FL_X, -2.5, 1.3, FLOOR_Z - FLOOR_T, FLOOR_Z)
 part(fixed, "feeder_floor (1/8 in polycarbonate, between the feeder and the pad)", fl, POLY, "cut")

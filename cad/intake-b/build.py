@@ -260,7 +260,7 @@ for s, f in (("R", xr), ("L", xl)):
                                                   nut=False, tapped=8, into=f"^standoff_{s}", through=(f"side_plate_{s}",)))
     heads = [(f(A.RAIL_OUT - 2.5), y, z) for y in A.STANDOFF_Y for z in A.STANDOFF_Z]
     FA.bolt(fixed, f"rail_standoff_{s}", "chassis rail to the standoffs", heads, OUT_[s], 2.5, nut=False, tapped=8, into=f"^standoff_{s}", through=("mentor: ",),
-            service="from inside the rail; on the left the transfer's feeder, gate servo bracket or turret motor comes out first")
+            service="from inside the rail" + ("; the transfer's feeder, gate servo bracket or turret motor comes out first" if s == "L" else ""))
     # the float stop, by its tail, to the side plate
     FA.drill(fixed, [f"float_stop_{s}", f"side_plate_{s}"], FA.bolt(fixed, f"float_stop_{s}", "float stop to the side plate", [(f(OUT1), ROLL_Y - 24, ROLL_Z - 28)],
                                                                    IN_[s], 2 * PLATE_T, through=(f"float_stop_{s}", f"side_plate_{s}")))

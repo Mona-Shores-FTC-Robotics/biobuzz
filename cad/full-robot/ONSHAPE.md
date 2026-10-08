@@ -72,7 +72,7 @@ face that faces up on each side: the slide is along the face's normal.
 | MOVES 10 turret drive gear | mentor's | Revolute, to FRAME | the goBILDA 2302-0014-0064 gear's bore edge, then the round edge of the kit's mount under it | none |
 | MOVES 10 turret drive gear (our shaft) | ours | Revolute, to FRAME | the gear shaft's round edge, then the bore of its bearing in the turret motor plate | none |
 | MOVES 10, the two halves | both files | Fastened, our MOVES 10 to the mentor's | the shaft's top end, then the gear's bore edge | |
-| MOVES 11 feeder yoke | ours | Revolute, to MOVES 6 (our shaft) | a yoke arm's pivot bearing's bore edge, then the flywheel shaft's round edge beside it | 0 to about 10° (in, as drawn, to out) |
+| MOVES 11 feeder yoke | ours | Revolute, to FRAME (not to the spinning shaft) | a yoke arm's pivot bearing's outer edge, then the mentor's front flywheel bearing's outer edge in the channel (the same axis) | 0 to about 10° (in, as drawn, to out) |
 
 Then two **mate relations**:
 - **Gear** between the MOVES 3 and MOVES 4 mates, ratio 1, reversed. The servo and the extractor then turn together,
