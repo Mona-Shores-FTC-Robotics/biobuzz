@@ -45,7 +45,7 @@ does; R-Quals today catches TIP 1's spill for TIP 2 and needs a spill-free versi
 
 The one choice a person makes before every match, from scouting: what the partner does (mentor, 9 Oct 2026: "Just
 Park or Launch & Park for now ... if we are right, we know they are starting in the [other] start spot"). A toggles
-it; there is no default, so until it is picked the top line says "NOT READY: press A to pick the partner" and the
+it; there is no default, so until it is picked the top line says NOT READY, the Partner row is red and the
 light flashes white. The camera says which start we are on; with no camera, D-pad ◀ ▶ say it.
 
 | We start | Launch & Park | Just Park |
@@ -194,8 +194,8 @@ Plan Y     SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
 Hold LB + RB 2 s to lock now
 ```
 
-When it is NOT READY, the top line names the one thing to do ("RED ALLIANCE · NOT READY: press A to pick the
-partner").
+When it is NOT READY, the top line says just that ("RED ALLIANCE · NOT READY"): the red line below it already says
+what and which button, so the top line doesn't repeat it (mentor: "having the pick A twice is not needed").
 
 The buttons are still labelled bindings, so TeleOp's CONTROLS page lists them under "Before PLAY" with no extra
 work.
