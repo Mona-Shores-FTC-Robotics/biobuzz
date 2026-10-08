@@ -5,8 +5,10 @@
 import pickle, numpy as np, re, sys, importlib.util
 import matplotlib; matplotlib.use('Agg'); import matplotlib.pyplot as plt
 from matplotlib.collections import PolyCollection
-sys.path.insert(0, '/home/user/biobuzz/cad')
-s = importlib.util.spec_from_file_location('tr', '/home/user/biobuzz/cad/transfer/build.py'); TR = importlib.util.module_from_spec(s); s.loader.exec_module(TR)
+import os
+ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
+sys.path.insert(0, os.path.join(ROOT, 'cad'))
+s = importlib.util.spec_from_file_location('tr', os.path.join(ROOT, 'cad', 'transfer', 'build.py')); TR = importlib.util.module_from_spec(s); s.loader.exec_module(TR)
 C, F, FACE, IN = TR.C, TR.F, TR.FACE, TR.IN
 mesh = pickle.load(open('sys.argv[1]', 'rb'))
 def model(v): v = np.asarray(v); return np.c_[(v[:, 2] - (FACE - 7.56 * IN)) / IN, (v[:, 0] - C) / IN, (v[:, 1] - F) / IN]
@@ -37,8 +39,8 @@ def draw(ax, axes, depth, view, flip=1):
     ax.set_aspect('equal'); ax.autoscale_view(); ax.grid(lw=0.3, alpha=0.4)
 fig, ax = plt.subplots(figsize=(13, 6.5)); draw(ax, [0, 2], 1, 'side', flip=1)
 ax.set_xlabel('X (in, forward)'); ax.set_ylabel('Z (in, up)'); ax.set_title('Transfer v4, from the left (+Y toward the viewer): the lane, the feeder and the moved flywheel motors')
-ax.invert_xaxis(); fig.tight_layout(); fig.savefig('/home/user/biobuzz/cad/transfer/views/side.png', dpi=130)
+ax.invert_xaxis(); fig.tight_layout(); fig.savefig(os.path.join(ROOT, 'cad', 'transfer', 'views', 'side.png'), dpi=130)
 fig, ax = plt.subplots(figsize=(13, 7)); draw(ax, [0, 1], 2, 'top', flip=1)
 ax.set_xlabel('X (in, forward)'); ax.set_ylabel('Y (in, left)'); ax.set_title('Transfer v4 from above (ceiling and flywheel parts drawn too)')
-ax.invert_xaxis(); fig.tight_layout(); fig.savefig('/home/user/biobuzz/cad/transfer/views/top.png', dpi=130)
+ax.invert_xaxis(); fig.tight_layout(); fig.savefig(os.path.join(ROOT, 'cad', 'transfer', 'views', 'top.png'), dpi=130)
 print('ok')

@@ -34,7 +34,7 @@ balls. No sensor, no software count.
 ![The transfer from the left](views/side.png)
 ![The transfer from above](views/top.png)
 
-(`views/` is drawn from the build's meshes; rerun it after a change.)
+(`views/` is drawn by `tools/robot-cad/transfer_views.py` from the build's meshes; rerun it after a change.)
 
 ## What changed in v4, and why
 
