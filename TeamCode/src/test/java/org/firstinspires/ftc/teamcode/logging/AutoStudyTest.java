@@ -215,6 +215,17 @@ public class AutoStudyTest {
         RobotDesign deep = fixedTurret.copy("rigid V 6 in deep, fixed turret");
         deep.flapForwardIn = 6;
         m.put(deep.name, deep.checked());
+        // What a mechanism change buys the fixed-turret baselines (mentor, 8 Oct 2026: "is there some mechanism or
+        // something we can build to do better"): the flywheel up to speed in 1 s (a lighter wheel, or a second motor;
+        // RobotDesign.springHood's 2 s is four 82 mm steel wheels on one 6000 rpm motor), and the extractor pulling a
+        // FLOWER's piece every 0.25 s (the placeholder is 0.5 s).
+        RobotDesign fastSpin = fixedTurret.copy("rigid V, fixed turret, 1 s spin-up");
+        fastSpin.spinUpS = 1.0;
+        RobotDesign fastPull = fixedTurret.copy("rigid V, fixed turret, 0.25 s pull");
+        fastPull.flowerPullS = 0.25;
+        RobotDesign fastBoth = fastSpin.copy("rigid V, fixed turret, 1 s spin-up, 0.25 s pull");
+        fastBoth.flowerPullS = 0.25;
+        for (RobotDesign d : new RobotDesign[] {fastSpin, fastPull, fastBoth}) m.put(d.name, d);
         RobotDesign vHook = fixedTurret.copy("rigid V + dual hook, fixed turret");
         vHook.guideOutIn = vHook.flapOutIn;
         vHook.guideForwardIn = vHook.flapForwardIn;
