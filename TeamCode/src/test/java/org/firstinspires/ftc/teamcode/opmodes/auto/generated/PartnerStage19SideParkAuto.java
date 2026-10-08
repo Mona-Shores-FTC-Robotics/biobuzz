@@ -42,13 +42,13 @@ public final class PartnerStage19SideParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(19, 132.25, 270);
-        Pose parkP = p.of(18, 112, 270);
+        Pose parkP = p.of(18, 114, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToParkP = Paths.line(start, parkP).constant(parkP);
 
         return kit.sequence(
-                kit.guarded("Auto", startToParkP, 1.6,
+                kit.guarded("Auto", startToParkP, 1.5,
                         kit.path("START to PARK_P", startToParkP)));
     }
 }

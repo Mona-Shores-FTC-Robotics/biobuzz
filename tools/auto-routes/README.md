@@ -99,7 +99,7 @@ the partner parked on our spot and no PARK for us). The wall partner now parks a
 body x 9-27, y 103-121, a corner in the zone. Our row sweep passes it with its west edge just east of x 27, the row
 5.5 in left of the centre line (`guide_routes.ROW_X_OFFSET`, `baselines_v.ROW_X_OFFSET_V`; on the row itself, the
 sweep's start sat over the partner: collisions in 10 of 10), and after TIP 2's spill is fired we PARK at the usual
-(13, 87.44) instead of loading the GARDEN (`tail(garden="none")`; with the GARDEN the park came too late, PARK in 26
+(10.5, 95 since 8 Oct 2026; 13, 87.44 then) instead of loading the GARDEN (`tail(garden="none")`; with the GARDEN the park came too late, PARK in 26
 of 60, and it made TIP 3 in only 17). The fallback (the row fails to TIP 2, the far FLOWER does) parks by one path
 straight down the tunnel from N_FIRE with the heading held until south of the HIVE's feet (`baselines_v.FALLBACK_PARK_CTRL`):
 as a tunnel run plus a park card the guard cut the run between the feet and the lead-in turned the robot there, and
@@ -155,6 +155,12 @@ back on `garden: "two"` **61.3**, TIP 3 in 24 (the GARDEN leg lost on the slow v
 the wall Auto still turned into the west wall at the guard's cut, so it keeps `garden: "none"`): **53.3**; seat
 fire **72.7**, TIP 3 in 52. A fixed launcher now out-TIPs seat fire on the right start: the turret is not what Auto
 needs.
+
+**PARK deep in the zone** (8 Oct 2026; mentor: "parks too close to the park zone"). Our PARK was (13, 87.44): only a
+corner's tip 0.7 in inside the LOADING ZONE (x 0-11, y 94.3-117.9). Now (10.5, 95) (`qual.py`'s base point, the fit
+adds the V's shortfall), the frame y 87.4-102.6, 8 in inside; the partners park at the zone's far end so both fit
+(the zone is 23.6 in long, two robots 33): the right partner at (10.5, 116) (110 before), the wall partner at
+(18, 114) (112), the angled at (11, 115) as it was; 2.4-4.4 in between the bodies. 60 runs: 74.0 / 61.0 / 53.3, unchanged within noise.
 
 **Firing from the extractor's seat** (`seat_fire.py`, `qual_right.SEAT_FIRE`; mentor, 6 Oct: "the robot shoots while
 extracting", one Auto first). At a FLOWER the robot streams shots (StreamOn) while the extractor feeds, instead of

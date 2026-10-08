@@ -71,7 +71,7 @@ def partner_right(name="partner-preloads-right"):
     """Starts in front of the right CELL, fires at once, parks toward the far-left end of the LOADING
     ZONE like the other reference partners (mentor review), leaving the near end for us."""
     r = Route(name, (59, 9.5, 90), speed=40)
-    r.pt("PARK_P", 10.5, 110, 90)
+    r.pt("PARK_P", 10.5, 116, 90)  # the zone's far end (110 until 8 Oct 2026): we park deep at y 95, body to 102.6; this body from 107
     # Intake off: it only fires its preloads, so it has no reason to sweep up the TIP 1 spill on its
     # way to park (it used to, and left us nothing at the right end).
     r.add(r.action("SpinUp"), r.action("IntakeOff"), fire(r, "Fire the preloads", "Empty", ms=4500),

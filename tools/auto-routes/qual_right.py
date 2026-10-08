@@ -538,15 +538,15 @@ def stages_v3(name, robot="option3", land=500, **kw):
 # B's back-right corner on the wall (y 141.25), aimed at PARK_B; parked, no corner touches a wall (LEAVE)
 # and one is in the LOADING ZONE; its corners clear the far FLOWER at the start, and parked reach x 26.7 and y 96.3 (our PARK is below).
 ANGLED = (32.0, 128.53, 227.3)  # = AutoStudyTest.ANGLED_PARTNER
-PARK_B = (11, 115)  # (14, 109) until 7 Oct 2026 (mentor: the path too steep, its corner 3 in from our PARK): now flatter and square against the alliance wall, body x 2-20, y 106-124, 8 in above our PARK
+PARK_B = (11, 115)  # (14, 109) until 7 Oct 2026 (mentor: the path too steep, its corner 3 in from our PARK): now flatter and square against the alliance wall, body x 2-20, y 106-124, 3.4 in above our body (PARK (10.5, 95) since 8 Oct 2026)
 
 
 def wall_partner(name="partner-stage19-side-park"):
     r = Route(name, (19, 132.25, 270), speed=40)
     # Body y 103-121 at the LOADING ZONE's top (its corner (10, 117.9) in the zone), leaving the zone's bottom for our
-    # PARK (13, 87.44; mentor, 7 Oct 2026: "partner and us should basically always park"). At y 100 it sat on our spot.
+    # PARK ((10.5, 95) since 8 Oct 2026, body to y 102.6; mentor, 7 Oct: "partner and us should basically always park"). At y 100 it sat on our spot.
     # Our row sweep passes it with its west edge just east of x 28 (guide_routes.ROW_X_OFFSET).
-    r.pt("PARK_P", 18, 112, 270)  # x 18: east edge 27, a corner (9, 103) in the zone
+    r.pt("PARK_P", 18, 114, 270)  # x 18: east edge 27, a corner (9, 105) in the zone; y 114 (112 until 8 Oct 2026): we park deep at y 95, body to 102.6
     r.add(r.go("PARK_P", heading=270, park=True))
     return r
 

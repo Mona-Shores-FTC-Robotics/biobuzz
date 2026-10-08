@@ -53,7 +53,10 @@ def ends(r):
     r.pt("S_BACK", S_CATCH[0], S_CATCH[1] - 3, 90).pt("N_BACK", N_CATCH[0], N_CATCH[1] + 3, 270)
     r.pt("GARDEN_IN", 8.5, 22, 270).pt("GARDEN", 8.5, 11, 270)
     # AUTO PARK: one corner in the LOADING ZONE (x 0-11, y 94.3-117.9), below the partner parked at its far end.
-    r.pt("PARK", 13, 86, 90)
+    # (13, 86) until 8 Oct 2026: only a corner's tip reached into the LOADING ZONE (y 94.3-117.9; mentor: "parks too
+    # close to the park zone"). Now the body sits 8 in inside: the fit adds half the body's shortfall from 18 in, so
+    # the V's centre lands at (10.5, 95), its frame y 87.4-102.6, x 2.9-18.1. The partners park at the zone's far end.
+    r.pt("PARK", 10.5, 93.56, 90)
     flower_points(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
 
 
