@@ -53,13 +53,13 @@ balls. No sensor, no software count.
 
 | | |
 |---|---|
-| Lane | Flat, ball-bottom at z 1.3, centreline Y 0. **Shafts:** five, 1.4 in apart, X 5.3 to -0.3, each carrying one 24 mm × 1 in printed TPU roller on one side, alternating. **Bearings:** goBILDA 1611 flanged, pressed into both walls. **Drive:** the shafts chain in pairs on 3/16 in polycord loops (one printed three-groove pulley per shaft); the lane servo drives shaft 2. **Walls:** 1/4 in polycarbonate, inner faces at \|Y\| 1.86, z 0.3 to 2.6, X -0.8 to 7.4, under the front drive motors; a NECTAR clears their encoder caps by 0.05. |
-| Lane servo | Right side, in the gap between the right wall and the rail. Its tabs sit on two 43 mm standoffs from the rail's web; its spline points at the lane (X 2.60, z 1.78). |
+| Lane | Flat, ball-bottom at z 1.3, centreline Y 0. **Shafts:** five, 1.4 in apart, X 5.3 to -0.3, each carrying one 24 mm × 1 in printed TPU roller on one side, alternating. **Bearings:** goBILDA 1611 flanged, pressed into both walls. **Drive:** the shafts chain in pairs on 3/16 in polycord loops (one printed three-groove pulley per shaft); the lane servo drives shaft 3 (X 1.1). **Walls:** 1/4 in polycarbonate, inner faces at \|Y\| 1.86, z 0.3 to 2.6, X -0.8 to 7.4, under the front drive motors; a NECTAR clears their encoder caps by 0.05. |
+| Lane servo | A goBILDA 2000-0025-0004 Super Speed in continuous rotation, powered at 6 V from a REV Servo Power Module (230 RPM). Right side, in the gap between the right wall and the rail: its tabs sit on two 43 mm standoffs from the rail's web (tab face at Y -3.57), its spline points at the lane (X 1.81, z 2.42). A printed pulley on the spline, 40 mm pitch diameter, drives shaft 3's 16 mm groove by polycord: 2.5:1 up, 575 RPM at the lane shafts. **Lane speed:** 575 RPM × π × 24 mm rollers = 28.4 in/s of roller tread, so about 14.2 in/s of ball (the ball rolls under the still ceiling at half the tread's speed). |
 | Ramp | X 8.0 z 0.05 to X 5.7 z 1.3, 1/16 in polycarbonate. Its edges sit 0.1 in deep in slots routed in the walls' inner faces. |
-| Ceiling | Flat, 1/16 in polycarbonate with 0.5 in soft foam (polyethylene or EVA, 2–3 lb/ft³), X 5.3 to -0.15. **Pins:** four shoulder screws riding vertical slots in printed posts screwed to the walls' outer faces (X 5.35 and 2.5). **Clearance:** the foam face is 2.6 in over the lane, so a POLLEN presses the foam 0.2 and a NECTAR lifts it 0.82. **Bands:** about 1–2 lbf preload, hooked on the posts. |
+| Ceiling | Flat, 1/16 in polycarbonate with 0.5 in soft foam (polyethylene or EVA, 2–3 lb/ft³), X 5.3 to -0.15. **Pins:** a printed pin block screwed up into the ceiling's edge at each corner (M3, from below; the foam is cut away round the heads) reaches out over the wall; an M3 shoulder screw (4 mm shoulder × 10 mm) through the slot of a printed post on the wall's outer face threads into a heat-set insert in the block's end. Two posts a side, X 5.35 and 2.5, each held by a flat-head screw from inside the lane; the slots are 0.85 in long. **Clearance:** the foam face is 2.6 in over the lane, so a POLLEN presses the foam 0.2 and a NECTAR lifts it 0.82. **Bands:** about 1–2 lbf preload, hooked on the posts. |
 | Feeder | One: two goBILDA 72 mm Gecko wheels (softest durometer) on a goBILDA 120 mm REX shaft along X at Y 2.87, z 3.25, over X -2.99 to -1.10 (the flywheels' span). Its tread's inner edge is at Y 1.45: a POLLEN presses 0.10 into it, a NECTAR 0.15. |
 | Feeder drive | The feeder servo sits 47.5 mm above the feeder shaft, 3° inboard, ahead of the launcher. A goBILDA 1910 servo hub on its spline carries a 3411 24T hub-mount pulley, belted (215 mm) to a 3417 24T on the feeder shaft. Its tabs sit on two 34 mm standoffs from the front bearing plate. |
-| Pad | Opposite the feeder: 1/8 in aluminium with 0.5 in soft foam, hinged along X at its foot (Y -1.75, z 1.62) in two printed blocks on the feeder floor, and banded inward onto a printed stop (its screw in a ±0.1 in slot). **At rest:** the foam face is at Y -1.05, so a POLLEN presses it 0.2 and centres at Y 0.15. **For a NECTAR:** it swings back 0.77 and the NECTAR centres at Y -0.21. |
+| Pad | Opposite the feeder: 1/8 in aluminium with 0.5 in soft foam, hinged along X at its foot (Y -1.90, z 1.62). **Hinge:** two printed knuckles with REX bores, bolted to the plate's foot, on a goBILDA 2106-4008-0640 steel REX shaft (64 mm) that turns in round holes in two printed blocks on the feeder floor, held by its e-clips outside the blocks. **Stop:** a printed block outboard of the front knuckle, below the hinge, screwed from under the floor through a ±0.1 in slot (the slot sets the POLLEN squeeze); the band pulls the pad's top in, so the knuckle's foot swings out onto it. **At rest:** the foam face is at Y -1.05, so a POLLEN presses it 0.2 and centres at Y 0.15. **For a NECTAR:** it swings back 0.77 at the ball's centre height (z about 3.0), about 29° (atan2(0.77, 3.0 - 1.62) = 29.2°), and the NECTAR centres at Y -0.21. |
 | Floor and backstop | **Floor:** 1/8 in polycarbonate between the feeder and the pad, at the lane's height, resting on the shelf of a printed bridge bolted behind the launcher's two rear channels. **Backstop:** printed, an L, its foot screwed through the floor into the shelf in ±0.2 in slots. |
 | Flywheel motors | Moved out and up, along X at (Y 6.92, z 7.02) left and (Y -6.71, z 7.03) right, faces at X -2.65 pointing back. **Brackets:** 1/8 in aluminium, bent, on the launcher's side channels' top flanges. **Belts:** from their 16T pulleys to his 41T: goBILDA 315 mm (left) and 320 mm (right). |
 
@@ -76,6 +76,8 @@ balls. No sensor, no software count.
 | 1611-0514-4008 | 12 | flanged bearing: five lane shafts × 2, the feeder × 2 |
 | 2106-4008-1440 | 5 | 144 mm REX shaft (e-clips): the lane |
 | 2106-4008-1200 | 1 | 120 mm REX shaft (e-clips): the feeder |
+| 2106-4008-0640 | 1 | 64 mm REX shaft (e-clips): the pad's hinge |
+| 2910-1020-4008 | 1 | 8mm REX clamping collar: the feeder shaft, against its front bearing |
 | 3632-0014-0072 | 2 | 72 mm Gecko wheel, softest durometer: the feeder |
 | 1910-0025-0816 | 1 | servo hub: the feeder servo |
 | 3411-0014-0024 | 1 | 24T HTD5 hub-mount pulley: the feeder servo |
@@ -88,8 +90,9 @@ balls. No sensor, no software count.
 **Other bought parts:**
 - 3/16 in polycord: 5 welded loops, each cut 8% short;
 - foam, for the ceiling and the pad;
-- four M3 shoulder screws, for the ceiling's pins;
-- M4 heat-set inserts, for the printed parts;
+- four M3 shoulder screws (4 mm shoulder × 10 mm), for the ceiling's pins;
+- a REV Servo Power Module, to run the lane servo at 6 V;
+- M4 heat-set inserts, for the printed parts, and M3 ones for the ceiling's pin blocks;
 - bands.
 
 **Made:**
@@ -97,7 +100,7 @@ balls. No sensor, no software count.
   (polycarbonate); the two feeder bearing plates (1/4 in aluminium, the rear one tapped M4); the pad plate (1/8 in
   aluminium); the two flywheel motor brackets (1/8 in aluminium, bent).
 - **Printed** (STLs in `stl/`): the five TPU rollers, the lane spacers and pulleys, the servo pulley, the ceiling
-  posts, the pad's hinge blocks and stop, the feeder bridge and the backstop.
+  posts and pin blocks, the pad's knuckles, hinge blocks and stop, the feeder bridge and the backstop.
 
 ## Building and servicing it
 
@@ -109,11 +112,11 @@ balls. No sensor, no software count.
 | Lane servo | The right wall off, two tab screws | servo, pulley |
 | Feeder | Belt off; the front plate's two nuts; the rear plate's two screws from behind the rear channel | wheels, shaft, both plates and bearings, pulley |
 | Feeder servo | Two tab screws | servo, hub, pulley |
-| Pad | Two hinge-block screws from under the floor | plate, foam, hinge rod, blocks, band |
+| Pad | Two hinge-block screws from under the floor | plate, foam, knuckles, hinge rod, blocks, band (the stop stays on the floor) |
 
 The standoffs stay on the rails. They go on during the chassis build, before the outer wheel plates and the pods,
-because their screws go in from outside the rails. The fastener check's 26 "service order" notes are these orders,
-and every other screw has a key path.
+because their screws go in from outside the rails. The fastener check's 28 "service order" notes are these and the
+other orders in the table above, and every other screw has a key path.
 
 ## Changes it needs in the mentor's CAD
 
@@ -150,18 +153,34 @@ edits above) and our front, by exact mesh intersection:
 `tools/robot-cad/front2_check.py` sweeps the front's roller (rising) and extractor (every 10°) against all of it:
 clear.
 
-`tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount, 117 in
+`tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount, 132 in
 all. For each it checks that the shank passes only through holes, the head and nut clear everything, a key reaches the
-head, and a tapped hole gives enough thread. Result: 0 problems; 26 screws need another part off first, as listed
+head, and a tapped hole gives enough thread. Result: 0 problems; 28 screws need another part off first (service orders), as listed
 above.
 
 ## Open
 
 - **The flywheels don't touch a POLLEN** (3.19 in gap; a POLLEN is 2.80). The mentor's sprung flywheel arm is the fix.
-- **Servo torque:** the feeder servo's torque against the pad's squeeze is the thing to test first. If it stalls, the
-  goBILDA 2000-0025-0003 (Speed: twice the torque, half the speed) fits the same mounts.
-- **Grip height:** the feeder grips a ball up to centre z 3.99 (POLLEN) and 4.22 (NECTAR); the flywheels take a NECTAR
-  from 5.77, so the ball covers the last 1.5 in on its speed.
+- **The feeder can't throw the ball into the flywheels (the mentor's decision).** The feeder grips a ball up to centre
+  z 3.99 (POLLEN) and 4.22 (NECTAR); the flywheels take a NECTAR from 5.77. The ball has to coast the last ~1.7 in on
+  the speed the feeder gives it, and a servo can't give it that much. Two ways out:
+  - **(a) close the hand-off gap**, so the feeder hands the ball straight into the flywheels with no coast. Then a servo
+    works, and the drawn servo and belt stay.
+  - **(b) a DC motor on the feeder**, once the mentor moves one of his launcher channels to make room for it. The robot
+    has 7 of the 8 DC motors FTC allows, so this uses the last one.
+- **The lane servo is limited by torque, not speed.** Each ball under the foam ceiling takes about 1 lbf to drive
+  (friction about 0.6 × roughly 1.5 lbf of foam preload, plus the ball's weight). At the 12 mm roller radius that is
+  about 0.5 kg·cm per ball, so four queued balls need about 2 kg·cm at the lane shafts. The servo stalls at 4.7 kg·cm at
+  6 V, which is about 1.9 kg·cm at the shafts after the 2.5:1 step-up. A full lane will crawl or stall.
+  - Mitigation: keep the foam preload light (about 1 lbf), and keep the TPU rollers slippery enough to slip under a
+    stalled queue. Even then it is marginal.
+  - The lane servo is a stopgap. Three options for the team:
+    - **(a) gear the mentor's two flywheels together** and drive both from one motor, with a gear pair between the
+      shafts. This frees a DC motor for the lane and the feeder. It also locks the two wheels to the same speed, so the
+      shot gets no sidespin. This is the preferred option.
+    - **(b) drive the lane from the roller shaft.** This needs a sprung idler, because the roller floats 1.3 in, which
+      stretches the cord about 18%.
+    - **(c) close the hand-off gap** for the feeder (as above).
 - **The TPU rollers:** print one and try it on a ball before printing five; durometer and wall count matter.
 - **The rail holes:** the mentor's rails sit 0.4 mm out of level along their length in his CAD. Check the standoff holes
   line up on the robot.
