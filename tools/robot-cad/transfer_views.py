@@ -10,7 +10,7 @@ ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..')
 sys.path.insert(0, os.path.join(ROOT, 'cad'))
 s = importlib.util.spec_from_file_location('tr', os.path.join(ROOT, 'cad', 'transfer', 'build.py')); TR = importlib.util.module_from_spec(s); s.loader.exec_module(TR)
 C, F, FACE, IN = TR.C, TR.F, TR.FACE, TR.IN
-mesh = pickle.load(open('sys.argv[1]', 'rb'))
+mesh = pickle.load(open(sys.argv[1], 'rb'))
 def model(v): v = np.asarray(v); return np.c_[(v[:, 2] - (FACE - 7.56 * IN)) / IN, (v[:, 0] - C) / IN, (v[:, 1] - F) / IN]
 LABELS = [('lane_wall_L', 'lane wall (1/4 in PC)'), ('lane_roller_0', 'TPU rollers, 5 shafts'), ('lane_servo', 'lane servo (CR)'),
           ('wall_standoff_R0', 'REX standoffs to the rail'), ('ceiling (', 'ceiling (foam under)'), ('ramp (', 'ramp (in wall slots)'),
