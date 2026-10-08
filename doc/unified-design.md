@@ -537,6 +537,15 @@ that counted shots fired, not pieces in.) Tried and no better:
   left CELL as it rises after our TIP 1, then forward to y 124 and west along it to (10.5, 118), out of our lane before
   we come north; `partners.preloads_left` parks under the far FLOWER and onto our PARK). 60 runs: **71.7, 3 TIPs in
   49**, PARK 60, no problem runs; misses: TIP 3 (10, 3-7 pieces in), TIP 1 (1, two preloads hit the HIVE).
+- **(ii), using the partner's pieces: `qual-left-partner-v-fixed`** (mentor, 8 Oct 2026: "a scenario that is easier"):
+  the partner's 4 and our catch tip TIP 2 at 11-12.5 s, while we are in the far FLOWER's seat, and p4-lane-r then
+  stood at N_FIRE firing at nothing for 2.5 s. Now: if the right CELL is up within 1.5 s of the FLOWER's 4, wait 0.6 s
+  for the spill, onto the lane's top (57.5, 108) and straight down it facing north (one curve from the seat entered
+  the HIVE frame's feet at x 54 and clipped the west foot, 18 of 20), fire the FLOWER's 4 from (45, 26) (from S_FIRE a
+  shot hit the HIVE), then the wall FLOWER's 4 (TIP 3: 8 pieces). Otherwise N_FIRE, firing until the right CELL is up
+  (not until a new TIP: one that started during the drive left it waiting 4 s). No GARDEN fallback: its check came
+  inside the TIP's dwell and sent the robot to the GARDEN with TIP 3 on its way, and the guard turned it into the
+  wall. 60 runs: **73.7, 3 TIPs in 54**, PARK 60; 2 problem runs (late runs cut at 26.5 s: the HIVE frame, a FLOWER).
 - **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
   TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
   FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
