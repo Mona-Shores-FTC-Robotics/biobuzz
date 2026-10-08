@@ -195,6 +195,8 @@ public final class AutoSim {
         final List<RobotResult> robots = new ArrayList<>();
         /** When two robots first overlapped, which real robots cannot; NaN if they never did. */
         double robotsCollidedAt = Double.NaN;
+        /** When robots of the two alliances first overlapped (opponents ran); NaN if they never did. */
+        double alliancesCollidedAt = Double.NaN;
         /** Spilled pieces a robot touched before they reached the tiles: G409 fouls. */
         int g409;
         /**
@@ -590,15 +592,21 @@ public final class AutoSim {
                 for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
                 FieldRobot.putAll(log, allRobots, us);
             }
-            if (bots.size() > 1 && Double.isNaN(result.robotsCollidedAt)) {
-                for (int i = 0; i < bots.size() && Double.isNaN(result.robotsCollidedAt); i++) {
+            if (bots.size() > 1 && (Double.isNaN(result.robotsCollidedAt) || (result.opponents && Double.isNaN(result.alliancesCollidedAt)))) {
+                for (int i = 0; i < bots.size(); i++) {
                     for (int j = i + 1; j < bots.size(); j++) {
-                        if (!overlap(bots.get(i), bots.get(j))) continue;
-                        result.robotsCollidedAt = now;
                         Bot a = bots.get(i), b = bots.get(j);
+                        boolean across = a.alliance != b.alliance;
+                        if (!Double.isNaN(result.robotsCollidedAt) && (!across || !Double.isNaN(result.alliancesCollidedAt))) continue;
+                        if (!overlap(a, b)) continue;
+                        if (Double.isNaN(result.robotsCollidedAt)) result.robotsCollidedAt = now;
+                        if (across && Double.isNaN(result.alliancesCollidedAt)) result.alliancesCollidedAt = now;
                         log.putEvent(String.format(Locale.ROOT, "ROBOTS COLLIDE: robot %d (%s) and robot %d (%s) at the same place at the same time",
                                 i + 1, a.alliance, j + 1, b.alliance), us);
-                        break;
+                        double[] pa = pedro(a.drive.pose), pb = pedro(b.drive.pose);
+                        result.robots.get(a.index).timeline.add(String.format(Locale.ROOT,
+                                "%5.2f ROBOTS COLLIDE: at (%.1f, %.1f, %.0f deg), robot %d (%s) at (%.1f, %.1f, %.0f deg)",
+                                now, pa[0], pa[1], Math.toDegrees(pa[2]), j + 1, b.alliance, pb[0], pb[1], Math.toDegrees(pb[2])));
                     }
                 }
             }
@@ -1316,10 +1324,14 @@ public final class AutoSim {
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
             double face = design.frameIn / 2, seat = face + design.extractorSeatIn;
             double[] end = drive.pathEnd();
-            for (double[] f : sim.flowers) {
-                double lx = (f[0] - pose[0]) * c + (f[1] - pose[1]) * s;
-                double ly = -(f[0] - pose[0]) * s + (f[1] - pose[1]) * c;
+            double aside = design.extractorLateralIn;
+            for (double[] flower : sim.flowers) {
+                double lx = (flower[0] - pose[0]) * c + (flower[1] - pose[1]) * s;
+                double ly = -(flower[0] - pose[0]) * s + (flower[1] - pose[1]) * c - aside;
                 if (design.intakeAtBack) lx = -lx;
+                // An extractor off the centre line: where the FLOWER would be for one on it, seen from the path's end.
+                double[] f = end == null || aside == 0 ? flower
+                        : new double[] {flower[0] + aside * Math.sin(end[2]), flower[1] - aside * Math.cos(end[2])};
                 if (lx > face && lx < face + EXTRACTOR_DEPLOY_AHEAD_IN && Math.abs(ly) < EXTRACTOR_DEPLOY_ASIDE_IN) flowerAhead = true;
                 if (lx > face - 1 && lx < seat + EXTRACTOR_SEATED_SLACK_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) seated = true;
                 if (lx > face - 1 && lx < seat + EXTRACTOR_BLOCKED_PAST_IN && Math.abs(ly) < EXTRACTOR_SEATED_ASIDE_IN) inTheWay = true;
@@ -1387,7 +1399,9 @@ public final class AutoSim {
                 double key = down + 1000 * yaw;
                 if (key == shapeLogged) return;
                 shapeLogged = key;
-                log.putPose3dArray(keyPrefix + "/BodyShape/Components", cadComponents(down, yaw), us);
+                double[] components = cadComponents(down, yaw);
+                components[1] += design.extractorLateralIn * AdvantageScopeFrame.METERS_PER_INCH;  // an extractor off the centre line
+                log.putPose3dArray(keyPrefix + "/BodyShape/Components", components, us);
                 return;
             }
             double out = body == null ? 0 : body.wallsOut;

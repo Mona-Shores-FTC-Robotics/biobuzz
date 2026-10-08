@@ -551,7 +551,11 @@ that counted shots fired, not pieces in.) Tried and no better:
   and our catch can have tipped it already, and the card ends at once), the lane's catch fired from (45, 26).
   (`qual-left-partner-v-fixed` with a park-only partner: 1 of 60, its "TIP 2 already?" wait and late N_FIRE cost
   2.5 s.) 60 runs, rigid V with a fixed turret: partner shoots from the left **56** with 3 TIPs (PARK 60, 1 problem
-  run); partner parks only **38** (PARK 60, no problems); a left partner still at its start (silent, dead) collides.
+  run); partner parks only **38** (PARK 60, no problems); a left partner still at the standard left start (59,
+  132.25) collides (silent, dead: 47-60 of 60), because that start overlaps the far FLOWER's seat and N_FIRE. A
+  partner dead at the west start (24, 132.25), against the wall west of the far FLOWER, does not: **38**, PARK 60, no
+  problems (`partner-left-dead-west`). A partner that cannot shoot has no reason to start at the standard left
+  start, so it does not get in the way. This is R-Quals (mentor's name; L-Quals is the ShootsRight baseline).
 
 - **(ii) for a left partner that may not do its job: `qual-left-partner-v-safe`** (mentor, 8 Oct 2026). A left
   partner that is slow, never fires or never moves sits at its start (59, 132.25), beside the far FLOWER and over
@@ -631,6 +635,44 @@ takes less. (iii)'s misses are identical in every body: TIP 3 rests on the lane'
   back-out first in `AutoKit.guarded` (sent to the simulator chat).
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
   PARK in quals is non-negotiable, so that route needs a PARK ending.
+
+## The qualifier Autos: which to run (8 Oct 2026)
+
+Two Autos for qualifiers, named for where we start as the drive team sees it (the field is a half turn between
+the alliances, `doc/game/README.md`, so left and right hold on both): **L-Quals**
+(`qual-shoots-right-v-fixed-west45-r`) and **R-Quals** (`qual-south-v`). Ask the partner one question before the
+match: "Do you shoot, and how sure are you?" 60 runs each, rigid V with a fixed turret.
+
+| Partner | Run | Why | Expect |
+|---|---|---|---|
+| **Can't shoot** | **R-Quals**, the partner starting near its park (out of the standard left start) | TIP 1 is ours at once; nothing waits on the partner | 3 TIPs in 38 |
+| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 58 |
+| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 58 if it shoots; 2 TIPs in 53 if it does not |
+
+What not to do, and why:
+- **A partner that can't shoot with L-Quals**: L-Quals waits until 9.2 s for a TIP 1 that never comes, then gets 2
+  TIPs at most. R-Quals gets 3 in 38 of 60 with the same partner.
+- **An unreliable shooter with R-Quals**: it starts at the standard left start (59, 132.25), beside the far
+  FLOWER's seat. If it never fires and stays, we meet it at about 6.5 s on the way to the far FLOWER (60 of 60
+  runs; the simulator lets the robots pass through each other, so its 3-TIP counts there are not real): expect
+  TIP 1 and PARK, maybe TIP 2. R-Quals can't tell a partner that fired from one that did not before it commits
+  (the HIVE only tips once our catch is in, at about 11 s), and it can't see the other robot.
+- **A slow shooter with R-Quals**: a left partner that fires 3 s late is still at its start when we come by:
+  collisions in 56 of 60 runs at about 6.8 s (`partner-left-slow-3000`). A normal left partner has fired and left
+  by about 6.4 s, so R-Quals needs a partner that shoots *and* moves on time; L-Quals' partner starts on the other
+  side and never crosses our way, even dead.
+- Neither Auto can make a partner score. L-Quals' fallback only limits what a partner that was meant to shoot
+  costs us when it doesn't.
+
+**A corner extractor** (8 Oct 2026, 60 runs, [r-quals-partner-timing.md](r-quals-partner-timing.md)): an
+extractor 7.3 in off the centre line (the right front corner) seats R-Quals at x 40 and, with TIP 2 fired from the
+lane's top at y 115.5 (`qual-south-v-corner`), keeps 56 of 60 with a good partner and stops the collisions with a
+partner dead or waiting at the standard left start (60 of 60 to 0; 35 runs of 3 TIPs). It does not help against a
+partner that *leaves* late: its way west along y 124 crosses our whole side (56 of 60 still collide). With the
+instruction "if you have not left by 6 s, stay until 18 s", a late partner is harmless (55 of 60, no collisions).
+A forward distance sensor could see the partner at about 6 s, but only says it is there, not when it will leave:
+not worth building yet. The whole match with four robots (both Autos on blue too): no contact between the
+alliances in 240 runs, both blue Autos make their 3 TIPs.
 
 ## The envelope
 
