@@ -58,6 +58,15 @@ TOUCH = re.compile(r'(float_(plate|link|guide|stop)|roller_shaft|roller_bearing|
                    r'|roller_bearing.*float_(plate|link)|float_(plate|link).*roller_bearing|wheel_shaft.*bearing|bearing.*wheel_shaft|standoff.*side_plate|side_plate.*standoff'
                    r'|rigid_v_plate.*side_plate|side_plate.*rigid_v_plate|servo_bracket.*extractor_servo|extractor_servo.*servo_bracket|extractor_stop.*servo_bracket|servo_bracket.*extractor_stop'
                    r'|pod_adapter.*odometry|odometry.*pod_adapter|motor_carriage.*float_link|float_link.*motor_carriage|roller_motor.*motor_carriage|motor_carriage.*roller_motor')
+import fasteners as FA
+def held(a, b):
+    """True when a is a screw (or its nut or washer) and b is a part it threads into or clamps."""
+    for sn, I in FA.INFO.items():
+        j = I['joint']
+        if a.startswith('nut_' + j + '_') and b == sn: return True
+        if a == sn or a.startswith('nut_' + j + '_'):
+            if (I['into'] and re.search(I['into'], b)) or any(b.startswith(t) for t in I['through']): return True
+    return re.match(r'(arm|cross)_washer_', a) is not None and re.match(r'screw_(arm_stub|cross_end)_|extractor_(arm|stub|cross)', b) is not None
 ROBOT_OK = re.compile(r'1107-0015-0384|72mm Steel Shaft|1611-')        # the side plates bolt to the rails; shafts the add-ons replace
 seen = {}
 poses = [(r, a) for r in (0.0, 0.3, 0.6, 0.85, 1.05, 1.3) for a in range(0, int(IB.STOW) + 1, 10)] + [(r, IB.STOW) for r in (0.0, 0.3, 0.6, 0.85, 1.05, 1.3)]
@@ -72,7 +81,7 @@ for rise, ang in poses:
         for k in front:
             if k == n or (grp[k] == grp[n] and k < n): continue
             pair = n + ' | ' + k
-            if TOUCH.search(pair): continue
+            if TOUCH.search(pair) or held(n, k) or held(k, n): continue
             v = vol(P[n], P[k])
             if v > 2e-3: seen.setdefault((n.split(' ')[0], k.split(' ')[0]), []).append((rise, ang, round(v, 3)))
         for k, tm in tr.items():

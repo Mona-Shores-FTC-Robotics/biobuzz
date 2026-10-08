@@ -28,7 +28,7 @@ CORNER_Z0, CORNER_Z1 = ZB + ROD_X - 14.0, ZB + DEPTH
 BORE, M4, M3 = 8.3, 4.3, 2.6
 REX_AF = 7.0 + 0.3                             # REX across flats (+ clearance): CHECK on a test print before trusting it
 FRONT_LEFT = 132.0                             # the front shaft's free left end, from centre (288 mm shaft)
-STANDOFF_Y, STANDOFF_Z = (-120.3, -86.3), (63.7, -56.3)   # rail holes clear of both wheels
+STANDOFF_Y, STANDOFF_Z = (-117.05, -89.75), (63.7, -56.3)   # the middles of the rail's vertical slots, clear of both wheels
 xr = lambda d: C - d       # right side
 xl = lambda d: C + d       # left side
 
@@ -158,7 +158,9 @@ add("servo_R (goBILDA 2000-0025-0002, Torque)", servo, (0.13, 0.15, 0.17), "buy"
 # ---------------- odometry pods (from the example STEP) ----------------
 # The pods are goBILDA's own CAD, cut from the team's example robot (pod1/pod2.brep, ~16 MB each, kept out of git).
 # The STEP gets a stand-in box with each pod's exact envelope; with POD_DIR set, the real pods are meshed for checks.
-POD_MOVE = {"odometry_pod_R_strafe (goBILDA 3110-0001-0002)": ("pod1", (-332.75, 70.31, 2.23, -290.18, 139.4, 45.65), (xr(RAIL_OUT) + 290.18, F - 70.31, -8.3 - 23.94)),
+# The right pod's mount (M4 tapped, 32 mm square) on the rail's slot ends: 1 mm up and 8 mm back from where the
+# example robot had it, so four screws from inside the rail reach it.
+POD_MOVE = {"odometry_pod_R_strafe (goBILDA 3110-0001-0002)": ("pod1", (-332.75, 70.31, 2.23, -290.18, 139.4, 45.65), (xr(RAIL_OUT) + 290.18, F - 70.31 + 1.0, -8.3 - 23.94 - 8.0)),
             "odometry_pod_L_forward (goBILDA 3110-0001-0002)": ("pod2", (-48.09, 70.31, -21.77, -4.66, 139.4, 20.79), (xl(RAIL_OUT + 28.0) + 26.375, F - 70.31, 8.0 + 21.77))}
 PODS = {}
 for n, (fn, bb, d) in POD_MOVE.items():
@@ -167,7 +169,6 @@ for n, (fn, bb, d) in POD_MOVE.items():
     if os.environ.get("POD_DIR") and os.path.exists(path):
         s = TopoDS_Shape(); BRepTools.Read_s(s, path, BRep_Builder()); PODS[n] = cq.Shape.cast(s).translate(cq.Vector(*d))
 ad = box(xl(RAIL_OUT), xl(RAIL_OUT + 6), -125.0, -82.0, -24.0, 8.0).union(box(xl(RAIL_OUT), xl(RAIL_OUT + 52), -125.0, -82.0, 2.0, 8.0))
-for y in STANDOFF_Y: ad = ad.cut(cyl("x", (0, y, -8.3), M4, xl(RAIL_OUT) - 1, xl(RAIL_OUT + 7)))
 add("pod_adapter_L (print)", ad, (0.18, 0.37, 0.62), "print")
 
 if __name__ == "__main__":

@@ -12,6 +12,8 @@ import math, os, sys
 import cadquery as cq
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "robot-addons"))
 import build as A                      # the robot frame, helpers and the chassis add-ons
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
+import fasteners as FA                 # goBILDA screws and nuts: bolt() drills the holes and adds them
 from build import C, F, FACE, IN, AX_Y, AX_ZF, AX_ZR, RAIL_OUT, PLATE_IN, PLATE_T, BORE, M3, M4, xr, xl, box, cyl, clip, ramp_block
 
 # ---- the numbers the intake study fixed ----
@@ -54,6 +56,11 @@ def sector_at(cy, cz, a0, a1, r0, r1, x0, x1):
     n = 12; ang = [math.radians(a0 + (a1 - a0) * i / n) for i in range(n + 1)]
     pts = [(cy + r1 * math.sin(q), cz + r1 * math.cos(q)) for q in ang] + [(cy + r0 * math.sin(q), cz + r0 * math.cos(q)) for q in reversed(ang)]
     return cq.Workplane("YZ").polyline(pts).close().extrude(abs(x1 - x0)).translate((min(x0, x1), 0, 0))
+def rex(y, z, x0, x1):
+    """An 8 mm REX shaft's profile along x (the hex across its flats, inside its 8 mm round): a hole that drives it."""
+    lo, hi = min(x0, x1), max(x0, x1)
+    return (cq.Workplane("YZ").polygon(6, A.REX_AF / math.cos(math.pi / 6)).extrude(hi - lo).translate((lo, y, z))
+            .intersect(cyl("x", (0, y, z), BORE, lo, hi)))
 def slot(y0, y1, z, w, x0, x1):
     """A vertical slot through a plate in the y-z plane, rounded ends."""
     return cyl("x", (0, y0, z), w, x0, x1).union(cyl("x", (0, y1, z), w, x0, x1)).union(box(x0, x1, y0, y1, z - w / 2, z + w / 2))
@@ -81,7 +88,8 @@ for n, (wp, col, kind) in A.parts.items():            # keep the chassis add-ons
     if n.startswith(("outer_plate", "hinge_", "servo", "bearing_R_hinge")): continue
     part(fixed, n, wp, col, kind)
 for s, f in (("R", xr), ("L", xl)):
-    part(fixed, f"float_stop_{s} (print, under the float plate)", box(f(OUT0), f(OUT1), ROLL_Y - 19, ROLL_Y - 13, ROLL_Z - 10, ROLL_Z + 10), BLUE, "print")
+    part(fixed, f"float_stop_{s} (print, under the float plate; its tail, behind the V plate's tab, carries its screw)",
+         box(f(OUT0), f(OUT1), ROLL_Y - 19, ROLL_Y - 13, ROLL_Z - 36, ROLL_Z + 10).union(box(f(OUT0), f(OUT1), ROLL_Y - 31, ROLL_Y - 13, ROLL_Z - 36, ROLL_Z - 20)), BLUE, "print")
 
 # ---- the floating roller and its carriage ----
 part(flt, "roller_shaft (8mm REX, 400 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(OUT1 + 3), xl(OUT1 + 3)), STEEL, "buy")
@@ -104,7 +112,6 @@ for s, f in (("R", xr), ("L", xl)):
 fr = link((ROLL_Y, ROLL_Z), (ROLL_Y + 40, ROLL_Z), 24.0, xr(OUT0), xr(OUT1))        # right: outboard, slides on the side plate
 fr = fr.cut(cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, xr(OUT1) - 1, xr(OUT0) + 1)).cut(cyl("x", (0, ROLL_Y + 40, ROLL_Z), M4, xr(OUT1) - 1, xr(OUT0) + 1))
 part(flt, "float_plate_R (1/8 in aluminium)", fr, ALU, "cut")
-part(flt, "float_guide_R (M4 shoulder screw, 5 mm shoulder, in the side plate's slot)", cyl("x", (0, ROLL_Y + 40, ROLL_Z), 5.0, xr(PLATE_IN - 3), xr(OUT1 + 3)), STEEL, "buy")
 # Belt drive inside the left plate, between the roller's end (6.9 in) and the plate (7.56 in).
 PUL0, PUL1 = ROLL_HALF + 1.5, PLATE_IN - 2.0
 part(flt, "roller_pulley_L (goBILDA 3417-4008-0024, 24T HTD5)", cyl("x", (0, ROLL_Y, ROLL_Z), PITCH_D24, xl(PUL0), xl(PUL1)), BLACK, "buy")
@@ -113,27 +120,31 @@ R = PITCH_D24 / 2
 part(flt, "roller_belt_L (goBILDA 3412 Series, 9 mm, 55T, 275 mm)", box(xl(PUL0 + 1.5), xl(PUL1 - 1.5), ROLL_Y - R - 3, MOTOR_Y + R + 3, ROLL_Z - R - 3, ROLL_Z + R + 3)
      .cut(box(xl(PUL0), xl(PUL1), ROLL_Y - R, MOTOR_Y + R, ROLL_Z - R, ROLL_Z + R)), BLACK, "buy")
 FACE_X = PUL0 - 1.0                     # the motor's mounting face, just inboard of its pulley
-part(flt, "roller_motor_L (goBILDA 5203-2402-0005, 1150 RPM)", cyl("x", (0, MOTOR_Y, ROLL_Z), 37.0, xl(FACE_X - 7), xl(FACE_X - 127)), BLACK, "buy")
-part(flt, "motor_shaft_L (the motor's own 24 mm 8mm-REX output shaft)", cyl("x", (0, MOTOR_Y, ROLL_Z), 8.0, xl(FACE_X - 7), xl(FACE_X + 20)), STEEL, "buy")
+part(flt, "roller_motor_L (goBILDA 5203-2402-0005, 1150 RPM)", cyl("x", (0, MOTOR_Y, ROLL_Z), 37.0, xl(FACE_X - 6), xl(FACE_X - 126)), BLACK, "buy")
+part(flt, "motor_shaft_L (the motor's own 24 mm 8mm-REX output shaft)", cyl("x", (0, MOTOR_Y, ROLL_Z), 8.0, xl(FACE_X - 6), xl(FACE_X + 18)), STEEL, "buy")
 # Left carriage: the motor's face plate and cradle (sliding on the left upright's front face on two shoulder screws in
 # slots), a bridge over the motor pulley and the side plate's top edge, and an outboard link plate down to the roller's
 # left bearing. Roller, motor and both pulleys move as one.
 BR0, BR1 = MOTOR_Y + 24, MOTOR_Y + 40
-GUIDE_Y = (32.8, 40.8)                  # the upright's front-face holes above the motor (low-head shoulder screws)
+# The uprights (the mentor's goBILDA 5-hole low-side channels) have no holes in their front flanges; their web, on the
+# outboard side (|x| 133.5-136), has short vertical slots at y -7.3, 16.7, 40.7, 10.45 mm behind the face. The carriage
+# and the servo bracket each wrap round the upright's front corner and bolt into those, nuts inside the channel.
+WEB_X, WEB_Z = 136.0, FACE - 10.45      # the web's outboard face; the slots' height behind the face
+GUIDE_Y = (16.7, 40.7)                  # the carriage's two shoulder screws, in the left upright's web slots
 mb = box(xl(FACE_X - 6), xl(FACE_X), MOTOR_Y - 24, BR1, FACE, ROLL_Z + 24)                    # face plate
 mb = mb.union(box(xl(124.0), xl(FACE_X - 6), -28.0, 46.0, FACE, FACE + 4.0))                 # cradle on the upright's face
-mb = mb.union(box(xl(FACE_X - 6), xl(OUT1), BR0, BR1, ROLL_Z - 12, ROLL_Z + 12))               # bridge
+mb = mb.union(box(xl(FACE_X - 6), xl(OUT0), BR0, BR1, ROLL_Z - 12, ROLL_Z + 12))               # bridge, to the side plate's outer face
 mb = mb.cut(box(xl(FACE_X - 7), xl(FACE_X + 1), MOTOR_Y - 7, MOTOR_Y + 7, ROLL_Z - 7, ROLL_Z + 7))
-for dz in (-8, 8):
-    for dy in (-8, 8): mb = mb.cut(cyl("x", (0, MOTOR_Y + dy, ROLL_Z + dz), 3.4, xl(FACE_X - 7), xl(FACE_X + 1)))
-for y in GUIDE_Y: mb = mb.cut(cyl("z", (C + 128.0, y - FLOAT, 0), M4 + 0.5, FACE - 1, FACE + 8).union(cyl("z", (C + 128.0, y, 0), M4 + 0.5, FACE - 1, FACE + 8))
-                                .union(box(C + 128.0 - 2.4, C + 128.0 + 2.4, y - FLOAT, y, FACE - 1, FACE + 8)))
+for dz in (-8, 8):    # the Yellow Jacket's face: M4 on goBILDA's 16 mm square; counterbored, the heads sit under the pulley
+    for dy in (-8, 8): mb = mb.cut(cyl("x", (0, MOTOR_Y + dy, ROLL_Z + dz), 7.6, xl(FACE_X - 4.2), xl(FACE_X + 1)))
+mb = mb.union(box(xl(WEB_X + 0.2), xl(WEB_X + 4.2), -24.0, 47.0, FACE - 17.0, FACE + 4.0))     # tab on the upright's web
+for y in GUIDE_Y:   # the shoulders (5 mm) ride in these as the roller floats
+    mb = mb.cut(cyl("x", (0, y - FLOAT, WEB_Z), 5.3, xl(WEB_X), xl(WEB_X + 5)).union(cyl("x", (0, y, WEB_Z), 5.3, xl(WEB_X), xl(WEB_X + 5)))
+                .union(box(xl(WEB_X), xl(WEB_X + 5), y - FLOAT, y, WEB_Z - 2.65, WEB_Z + 2.65)))
 part(flt, "motor_carriage_L (print)", mb, BLUE, "print")
 fl = link((ROLL_Y, ROLL_Z), (BR1 - 12, ROLL_Z), 24.0, xl(OUT0), xl(OUT1))
 fl = fl.cut(cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, xl(OUT0) - 1, xl(OUT1) + 1))
 part(flt, "float_link_L (1/8 in aluminium, bolts to the carriage's bridge)", fl, ALU, "cut")
-part(fixed, "carriage_guides_L (2 x M4 shoulder screws in the left upright's front face)",
-     cyl("z", (C + 128.0, GUIDE_Y[0], 0), 5.0, FACE - 4, FACE + 6.5).union(cyl("z", (C + 128.0, GUIDE_Y[1], 0), 5.0, FACE - 4, FACE + 6.5)), STEEL, "buy")
 
 # ---- the FLOWER extractor: its own fixed shaft at X 9.9, Z 4.5 in ----
 # Two 1/8 in aluminium arms, 1.8 in each side of centre, clamped to an 8 mm REX shaft that turns in bearings in the side
@@ -149,23 +160,27 @@ part(fixed, "carriage_guides_L (2 x M4 shoulder screws in the left upright's fro
 # roller's 2 in wheels pass under the stubs with 0.07 in to spare, where 21 mm collars would touch them.
 for s, f in (("R", xr), ("L", xl)):
     part(hook, f"extractor_stub_{s} (8mm REX, {PLATE_IN + PLATE_T + 2 - (EX_X - EX_T / 2):.0f} mm, tapped M4 ends)", cyl("x", (0, EXS_Y, EXS_Z), 8.0, f(EX_X - EX_T / 2), f(PLATE_IN + PLATE_T + 2)), STEEL, "buy")
-    part(hook, f"arm_screw_{s} (M4 x 10 button head and a 12 mm washer, into the stub's end)", cyl("x", (0, EXS_Y, EXS_Z), 12.0, f(EX_X - EX_T / 2 - 1.2), f(EX_X - EX_T / 2))
-         .union(cyl("x", (0, EXS_Y, EXS_Z), 7.6, f(EX_X - EX_T / 2 - 3.4), f(EX_X - EX_T / 2 - 1.2))), STEEL, "buy")
+    part(hook, f"arm_washer_{s} (M4 large washer, 12 mm OD, under the screw in the stub's end)", cyl("x", (0, EXS_Y, EXS_Z), 12.0, f(EX_X - EX_T / 2 - 1.2), f(EX_X - EX_T / 2))
+         .cut(cyl("x", (0, EXS_Y, EXS_Z), FA.CLEAR[4], f(EX_X - EX_T / 2 - 2), f(EX_X - EX_T / 2 + 1))), STEEL, "buy")
     runs = [(EX_X + EX_T / 2, GX0), (GX1, PLATE_IN - 1.2)] if s == "R" else [(EX_X + EX_T / 2, PLATE_IN - 1.2)]
     for k, (a0, a1) in enumerate(runs):
-        part(hook, f"arm_spacers_{s}{k} (goBILDA 8 mm bore spacers, 10 mm OD, stacked to {a1 - a0:.1f} mm)", cyl("x", (0, EXS_Y, EXS_Z), 10.0, f(a0), f(a1)), STEEL, "buy")
+        part(hook, f"arm_spacers_{s}{k} (goBILDA 8 mm bore spacers, 10 mm OD, stacked to {a1 - a0:.1f} mm)",
+             cyl("x", (0, EXS_Y, EXS_Z), 10.0, f(a0), f(a1)).cut(cyl("x", (0, EXS_Y, EXS_Z), 8.1, f(a0) - 1 if f(a0) < f(a1) else f(a0) + 1, f(a1) + 1 if f(a0) < f(a1) else f(a1) - 1)), STEEL, "buy")
 for s, f in (("R", xr), ("L", xl)):
     part(fixed, f"extractor_bearing_{s} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, EXS_Y, EXS_Z), 14.0, f(PLATE_IN - 1.2), f(PLATE_IN + PLATE_T)), BRASS, "buy")
     xa, xb = f(EX_X - EX_T / 2), f(EX_X + EX_T / 2)
     arm = link((EXS_Y, EXS_Z), EX_FS, 15.0, xa, xb)    # 15 mm wide: clears the roller motor when stowed and the roller floats
-    arm = arm.cut(cyl("x", (0, EXS_Y, EXS_Z), BORE, min(xa, xb) - 1, max(xa, xb) + 1)).cut(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE, min(xa, xb) - 1, max(xa, xb) + 1))
+    arm = arm.cut(rex(EXS_Y, EXS_Z, min(xa, xb) - 1, max(xa, xb) + 1)).cut(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE, min(xa, xb) - 1, max(xa, xb) + 1))   # REX: the stub drives it
     if s == "L":   # stowed, the left arm lies over the roller's motor: relieve it for the motor's whole float, 1.75 mm clear
         mx0, mx1 = xl(FACE_X - 7), xl(FACE_X - 127)
         relief = (cyl("x", (0, MOTOR_Y, ROLL_Z), 41.0, mx0, mx1).union(cyl("x", (0, MOTOR_Y + FLOAT, ROLL_Z), 41.0, mx0, mx1))
                   .union(box(mx0, mx1, MOTOR_Y, MOTOR_Y + FLOAT, ROLL_Z - 20.5, ROLL_Z + 20.5)))
         arm = arm.cut(relief.rotate((0, EXS_Y, EXS_Z), (1, EXS_Y, EXS_Z), STOW))
     part(hook, f"extractor_arm_{s} (1/8 in aluminium, REX hole at the shaft{'; relieved over the roller motor' if s == 'L' else ''})", arm, ALU, "cut")
-part(hook, f"extractor_cross_shaft (8mm REX, {2 * EX_X + 12:.0f} mm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(EX_X + 6), xl(EX_X + 6)), STEEL, "buy")
+    part(hook, f"cross_washer_{s} (M4 large washer, 12 mm OD, under the screw in the cross shaft's end)", cyl("x", (0, EX_FS[0], EX_FS[1]), 12.0, f(EX_X + EX_T / 2), f(EX_X + EX_T / 2 + 1.2))
+         .cut(cyl("x", (0, EX_FS[0], EX_FS[1]), FA.CLEAR[4], f(EX_X + EX_T / 2 - 1), f(EX_X + EX_T / 2 + 2))), STEEL, "buy")
+CROSS_HALF = EX_X + EX_T / 2 - 0.5     # its ends 0.5 mm inside the arms' outer faces, so the screws' washers clamp the arms
+part(hook, f"extractor_cross_shaft (8mm REX, {2 * CROSS_HALF:.0f} mm, tapped M4 ends)", cyl("x", (0, EX_FS[0], EX_FS[1]), 8.0, xr(CROSS_HALF), xl(CROSS_HALF)), STEEL, "buy")
 part(hook, "flower_block (print)", ramp_block().translate((0, 0, EX_ZB - A.ZB)), (0.69, 0.42, 0.85), "print")
 for s, f in (("R", xr), ("L", xl)):
     part(hook, f"block_collar_{s} (8mm REX clamping collar)", cyl("x", (0, EX_FS[0], EX_FS[1]), 21.0, f(1.36 * IN + 0.5), f(1.36 * IN + 8.5)), STEEL, "buy")
@@ -173,23 +188,38 @@ for s, f in (("R", xr), ("L", xl)):
 SV_Y, SV_Z = EXS_Y + 44.45, EXS_Z - 25.0                               # the servo's spline: 51 mm from the shaft, up and back
 MESH_Q = math.degrees(math.atan2(SV_Y - EXS_Y, SV_Z - EXS_Z))         # the mesh, seen from the shaft (about 120 deg)
 egear = cyl("x", (0, EXS_Y, EXS_Z), 20.0, xr(GX0), xr(GX1)).union(sector_at(EXS_Y, EXS_Z, MESH_Q - STOW - 12, MESH_Q + 12, 10, GEAR_R + 1.5, xr(GX0), xr(GX1)))
-part(hook, "extractor_gear_R (print: module 1.5, 34T sector, clamped to the shaft)", egear.cut(cyl("x", (0, EXS_Y, EXS_Z), BORE, xr(GX1) - 1, xr(GX0) + 1)), BLUE, "print")
+part(hook, "extractor_gear_R (print: module 1.5, 34T sector; REX bore, held between the stub's spacers)", egear.cut(rex(EXS_Y, EXS_Z, xr(GX1) - 1, xr(GX0) + 1)), BLUE, "print")
 SPLX = GX0 - 0.5                                                       # servo's spline face (inboard of the gear)
-sv = box(xr(SPLX - 2), xr(SPLX - 38.6), SV_Y - 10, SV_Y + 10, SV_Z - 30.4, SV_Z + 10.2)
-sv = sv.union(box(xr(SPLX - 8), xr(SPLX - 10.5), SV_Y - 10, SV_Y + 10, SV_Z - 37.2, SV_Z + 17))
+# goBILDA's 2000-0025-0002 as its file has it: case top at SPLX (the spline's 4.1 mm reach 3.6 mm into the gear), body
+# 40 mm inboard, the tabs 10.3-12.8 mm in from the top, their M4 holes 48 x 10 mm apart.
+sv = box(xr(SPLX), xr(SPLX - 40.0), SV_Y - 10, SV_Y + 10, SV_Z - 30.0, SV_Z + 10.0)
+sv = sv.union(box(xr(SPLX - 10.3), xr(SPLX - 12.8), SV_Y - 10, SV_Y + 10, SV_Z - 37.2, SV_Z + 17.2))
+for dy in (-5.0, 5.0):
+    for dz in (-34.0, 14.0): sv = sv.cut(cyl("x", (0, SV_Y + dy, SV_Z + dz), 4.5, xr(SPLX - 10), xr(SPLX - 13.1)))
+sv = sv.union(cyl("x", (0, SV_Y, SV_Z), 5.9, xr(SPLX), xr(SPLX + 4.1)))      # its H25T spline, M3 tapped in the centre
 part(fixed, "extractor_servo (goBILDA 2000-0025-0002, Torque)", sv, BLACK, "buy")
 
 # The servo's gear turns the opposite way to the shaft: its tab (r 20-38 mm) swings from TAB_D (down) to TAB_D - STOW
 # (stowed), clear of the mesh (about 260-340 deg), from pointing forward and from the roller shaft, and meets a stop block 1 deg past each end.
 TAB_HALF, TAB_D = 7.0, 205.0
 sgear = cyl("x", (0, SV_Y, SV_Z), 2 * GEAR_R + 3, xr(GX0), xr(GX1)).union(sector_at(SV_Y, SV_Z, TAB_D - TAB_HALF, TAB_D + TAB_HALF, 20, 38, xr(GX0), xr(GX1)))
-part(fixed, "servo_gear (print: module 1.5, 34T, on the servo's spline; with the stop tab)", sgear, BLUE, "print")
-for nm, a0, a1 in (("down", TAB_D + TAB_HALF + 1, TAB_D + TAB_HALF + 13), ("stowed", TAB_D - STOW - TAB_HALF - 13, TAB_D - STOW - TAB_HALF - 1)):
-    part(fixed, f"extractor_stop_{nm} (print, on the servo bracket)", sector_at(SV_Y, SV_Z, a0, a1, 30, 40, xr(GX0), xr(GX1 + 4)), BLUE, "print")
-sb = box(xr(124.0), xr(SPLX - 2), SV_Y - 23, SV_Y + 17, FACE, SV_Z - 30.4)               # bolts to the right upright's front face...
-sb = sb.union(box(xr(SPLX - 38.6), xr(SPLX - 2), SV_Y - 14, SV_Y - 10, FACE, SV_Z + 10.2))  # ...and cradles the servo
-for y in (-7.2, 8.8): sb = sb.cut(cyl("z", (C - 128.0, y, 0), M4, FACE - 1, SV_Z))
-part(fixed, "extractor_servo_bracket (print)", sb, BLUE, "print")
+sgear = sgear.cut(cyl("x", (0, SV_Y, SV_Z), 6.2, xr(GX0) + 0.1, xr(GX0 + 4.1)))   # the H25T spline's socket (print it to fit, or ream)
+part(fixed, "servo_gear (print: module 1.5, 34T, on the servo's H25T spline, an M3 screw in its centre; with the stop tab)", sgear, BLUE, "print")
+# One printed bracket, the hard stops part of it:
+# - a base on the right upright's front flange (two M4 into nuts inside the channel);
+# - a frame behind the servo's tabs, its window round the servo's body (four M4 through the tabs into heat-set inserts:
+#   a nut there would touch the body);
+# - an arm under each hard stop, outside the tab's swing (r 20-38 mm, 52-212 deg about the spline).
+FR0, FR1 = SPLX - 21.8, SPLX - 12.8     # the frame: 9 mm, inboard of the tabs (room for 8 mm heat-set inserts)
+stops = {nm: sector_at(SV_Y, SV_Z, a0, a1, 30, 40, xr(GX0), xr(GX1 + 4)) for nm, a0, a1 in
+         (("down", TAB_D + TAB_HALF + 1, TAB_D + TAB_HALF + 13), ("stowed", TAB_D - STOW - TAB_HALF - 13, TAB_D - STOW - TAB_HALF - 1))}
+sb = box(xr(124.0), xr(FR1), SV_Y - 23, SV_Y + 17, FACE, FACE + 5.6)                          # base, on the upright's front
+sb = sb.union(box(xr(WEB_X + 0.2), xr(WEB_X + 5.2), SV_Y - 23, SV_Y + 17, FACE - 17.0, FACE + 5.6))   # foot, on its web
+sb = sb.union(box(xr(FR0), xr(FR1), SV_Y - 15, SV_Y + 36, FACE, SV_Z + 34))                  # frame
+sb = sb.cut(box(xr(FR0) - 1, xr(FR1) + 1, SV_Y - 20.0, SV_Y + 10.6, SV_Z - 30.6, SV_Z + 10.6))  # its window, open on the low side: the floated roller passes there
+sb = sb.union(box(xr(FR1), xr(GX1 + 4), SV_Y - 32, SV_Y - 22, FACE, FACE + 5.6)).union(stops["down"])          # down stop's arm
+sb = sb.union(box(xr(FR1), xr(GX1 + 4), SV_Y + 22, SV_Y + 36, SV_Z + 18, SV_Z + 34)).union(stops["stowed"])    # stowed stop's arm
+part(fixed, "extractor_servo_bracket (print; the hard stops are part of it)", sb, BLUE, "print")
 
 # ---- the Rigid V's corner plates (optional) ----
 for s, f, sg in (("R", xr, -1), ("L", xl, 1)):
@@ -199,6 +229,72 @@ for s, f, sg in (("R", xr, -1), ("L", xl, 1)):
     pl = pl.rotate((0, 0, 0), (0, 1, 0), math.degrees(math.atan2(-dz, dx))).translate((a[0], F + 0.25 * IN, a[1]))
     tab = box(f(V_IN), f(V_IN + 3.175), -125.0, -86.0, V_ROOT - 24, V_ROOT + 2)
     part(vee, f"rigid_v_plate_{s} (1/8 in aluminium, optional)", pl.union(tab), ALU, "cut")
+
+# ---- fasteners: every screw, nut and insert (cad/fasteners.py picks the goBILDA length and drills the holes) ----
+IN_ = {"R": (1, 0, 0), "L": (-1, 0, 0)}          # inboard, along x
+OUT_ = {"R": (-1, 0, 0), "L": (1, 0, 0)}
+for s, f in (("R", xr), ("L", xl)):
+    # side plate to its four standoffs, and the chassis rail to the standoffs' other ends (goBILDA standoffs: tapped through)
+    heads = [(f(PLATE_IN + PLATE_T), y, z) for y in A.STANDOFF_Y for z in A.STANDOFF_Z]
+    FA.drill(fixed, [f"side_plate_{s}"], FA.bolt(fixed, f"plate_standoff_{s}", "side plate to its standoffs", heads, IN_[s], PLATE_T,
+                                                  nut=False, tapped=8, into=f"^standoff_{s}", through=(f"side_plate_{s}",)))
+    heads = [(f(A.RAIL_OUT - 2.5), y, z) for y in A.STANDOFF_Y for z in A.STANDOFF_Z]
+    FA.bolt(fixed, f"rail_standoff_{s}", "chassis rail to the standoffs", heads, OUT_[s], 2.5, nut=False, tapped=8, into=f"^standoff_{s}", through=("mentor: ",))
+    # the float stop, by its tail, to the side plate
+    FA.drill(fixed, [f"float_stop_{s}", f"side_plate_{s}"], FA.bolt(fixed, f"float_stop_{s}", "float stop to the side plate", [(f(OUT1), ROLL_Y - 24, ROLL_Z - 28)],
+                                                                   IN_[s], 2 * PLATE_T, through=(f"float_stop_{s}", f"side_plate_{s}")))
+    # the extractor's arm on its stub's end, and the cross shaft's end against the arm (a washer under each head)
+    FA.bolt(hook, f"arm_stub_{s}", "extractor arm on its stub's end", [(f(EX_X - EX_T / 2 - 1.2), EXS_Y, EXS_Z)], OUT_[s], 1.2,
+            nut=False, tapped=10, into=f"^extractor_stub_{s}", through=(f"arm_washer_{s}",))
+    FA.bolt(hook, f"cross_end_{s}", "cross shaft's end against the extractor arm", [(f(EX_X + EX_T / 2 + 1.2), EX_FS[0], EX_FS[1])], IN_[s], 1.7,
+            nut=False, tapped=10, into="^extractor_cross_shaft", through=(f"cross_washer_{s}",))
+    # the Rigid V plate's tab to the side plate
+    h = FA.bolt(vee, f"v_tab_{s}", "Rigid V plate's tab to the side plate", [(f(V_IN + 3.175), y, ROLL_Z + 3) for y in (-115.0, -96.0)],
+                IN_[s], 2 * 3.175, through=(f"rigid_v_plate_{s}", f"side_plate_{s}"))
+    FA.drill(vee, [f"rigid_v_plate_{s}"], h); FA.drill(fixed, [f"side_plate_{s}"], h)
+# the odometry pods: the right one's mount from inside the rail, through its slot ends; the left one's up through the
+# adapter's arm, and the adapter to the rail (nuts inside the rail)
+FA.bolt(fixed, "pod_R", "right odometry pod to the rail", [(xr(A.RAIL_OUT - 2.5), y, z) for y in (-119.4, -87.4) for z in (-32.3, -0.3)],
+        OUT_["R"], 2.7, nut=False, tapped=11, into="^odometry_pod_R", through=())
+FA.drill(fixed, ["pod_adapter_L"], FA.bolt(fixed, "pod_L", "left odometry pod to its adapter", [(xl(d), y, 2.0) for d in (148.0, 180.0) for y in (-120.4, -88.4)],
+                                          (0, 0, 1), 6.2, nut=False, tapped=11, into="^odometry_pod_L", through=("pod_adapter_L",)))
+# (the rail's round holes at z -16.3: their heads stay out of the key's way to the pod's screws)
+FA.drill(fixed, ["pod_adapter_L"], FA.bolt(fixed, "pod_adapter", "left pod's adapter to the rail", [(xl(A.RAIL_OUT + 6), y, -16.3) for y in (-111.5, -95.5)],
+                                          IN_["L"], 6 + 2.5, through=("pod_adapter_L",)))
+# the roller motor's face, through the carriage's counterbores (the heads under the pulley)
+FA.drill(flt, ["motor_carriage_L"], FA.bolt(flt, "motor_face", "roller motor to its carriage", [(xl(FACE_X - 4.2), MOTOR_Y + dy, ROLL_Z + dz) for dy in (-8, 8) for dz in (-8, 8)],
+        IN_["L"], 1.8, nut=False, tapped=10.5, into="^roller_motor_L", through=("motor_carriage_L",),
+        service="take the float link (2 screws) and the motor's pulley off first; the key then goes through the side plate's service holes"))
+# Service holes in the side plates, so a hex key reaches screws the plates would hide: the roller motor's four (left; take
+# its pulley off first), the servo's two lower tab screws and its gear's centre screw (right; take the gear off before
+# the two upper tab screws, which it covers).
+ACCESS = {"L": [(MOTOR_Y + dy, ROLL_Z + dz) for dy in (-8, 8) for dz in (-8, 8)],
+          "R": [(SV_Y + dy, SV_Z - 34) for dy in (-5, 5)] + [(SV_Y, SV_Z)]}
+for s, f in (("R", xr), ("L", xl)):
+    cut = None
+    for y, z in ACCESS[s]:
+        h = cyl("x", (0, y, z), 8.0, f(PLATE_IN) - (1 if s == "L" else -1), f(PLATE_IN + PLATE_T) + (1 if s == "L" else -1)); cut = h if cut is None else cut.union(h)
+    FA.drill(fixed, [f"side_plate_{s}"], cut)
+# the right float plate's guide: a shoulder screw through the float plate, its shoulder riding in the side plate's slot,
+# the nut on the shoulder's end (it clamps the float plate only, so the plate slides)
+FA.bolt(flt, "float_guide_R", "right float plate's guide in the side plate's slot", [(xr(OUT1), ROLL_Y + 40, ROLL_Z)], IN_["R"], 2 * PLATE_T + 0.3,
+        through=("float_plate_R", "side_plate_R"), label="M4 shoulder screw, 5 mm x 6.5 mm shoulder")
+# the float link to the carriage's bridge (heat-set inserts in the print)
+FA.drill(flt, ["float_link_L"], FA.bolt(flt, "link_bridge", "float link to the carriage's bridge", [(xl(OUT1), BR0 + 8, ROLL_Z + dz) for dz in (-6, 6)],
+                                       IN_["L"], PLATE_T, nut=False, tapped=8, into="^motor_carriage_L", through=("float_link_L",)))
+# the servo bracket's foot to the right upright's web slots, and the carriage's shoulder screws in the left one's: nuts
+# inside the channels
+FA.drill(fixed, ["extractor_servo_bracket"], FA.bolt(fixed, "servo_bracket", "servo bracket to the right upright's web", [(xr(WEB_X + 5.2), y, WEB_Z) for y in (-7.3, 16.7)],
+                                                    IN_["R"], 5.0 + 0.2 + 2.5, through=("extractor_servo_bracket",)))
+FA.bolt(fixed, "carriage_guides", "roller carriage's slide, on the left upright's web", [(xl(WEB_X + 4.2), y, WEB_Z) for y in GUIDE_Y],
+        IN_["L"], 4.0 + 0.2 + 2.5, through=("motor_carriage_L",), label="M4 shoulder screw, 5 mm x 4 mm shoulder, low head")
+# the servo by its tabs to the bracket's frame (heat-set inserts in the frame)
+FA.drill(fixed, ["extractor_servo_bracket"], FA.bolt(fixed, "servo_tabs", "servo to its bracket", [(xr(SPLX - 10.3), SV_Y + dy, SV_Z + dz) for dy in (-5, 5) for dz in (-34, 14)],
+                                                    IN_["R"], 2.5, nut=False, tapped=8, into="^extractor_servo_bracket", through=("extractor_servo ",),
+                                                    service="the servo gear covers the upper two: take it off first (its screw through the side plate's service hole)"))
+# the servo gear on its spline: an M3 into the spline's tapped centre
+FA.drill(fixed, ["servo_gear"], FA.bolt(fixed, "servo_gear", "servo gear on the spline", [(xr(GX1), SV_Y, SV_Z)], IN_["R"], GX1 - GX0 - 3.6, d=3,
+                                       nut=False, tapped=7, into="^extractor_servo ", through=("servo_gear",)))
 
 GROUPS = (("chassis, side plates and servo (fixed)", "fixed", fixed), ("roller and its motor (float up to 1.3 in)", "float", flt),
           ("FLOWER extractor (turns about its shaft, 0 down to STOW)", "hook", hook), ("rigid V plates (optional)", "vee", vee))
