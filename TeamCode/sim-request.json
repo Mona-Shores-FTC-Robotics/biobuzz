@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-alone-flower-f45-s500.pp",
-  "spec": "QualAloneFlowerF45S500Auto,PartnerParkOnlyAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-alone-p4-lane-r.pp",
+  "spec": "QualAloneP4LaneRAuto,PartnerParkOnlyAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-alone-flower-f45-s500.pp",
-    "SavedBy": "README, alone: 3 TIPs with a partner that cannot shoot, firing from x 55 (8 Oct 2026)"
+    "AutoSource": "qual-alone-p4-lane-r.pp",
+    "SavedBy": "README, alone: 3 TIPs with a partner that cannot shoot, TIP 1 recovered (8 Oct 2026)"
   },
-  "title": "Qual-Alone-FlowerFirst",
+  "title": "Qual-Alone-3TIPs",
   "usual": true
 }
