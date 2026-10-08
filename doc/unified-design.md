@@ -664,9 +664,15 @@ What not to do, and why:
 - Neither Auto can make a partner score. L-Quals' fallback only limits what a partner that was meant to shoot
   costs us when it doesn't.
 
-Open: an extractor that reaches a FLOWER at the robot's left front corner, about 7.3 in off its centre line,
-would let R-Quals seat at the far FLOWER clear of a partner still at the standard left start (mentor, 8 Oct
-2026). Not yet asked of the extractor or simulator chats.
+**A corner extractor** (8 Oct 2026, 60 runs, [r-quals-partner-timing.md](r-quals-partner-timing.md)): an
+extractor 7.3 in off the centre line (the right front corner) seats R-Quals at x 40 and, with TIP 2 fired from the
+lane's top at y 115.5 (`qual-south-v-corner`), keeps 56 of 60 with a good partner and stops the collisions with a
+partner dead or waiting at the standard left start (60 of 60 to 0; 35 runs of 3 TIPs). It does not help against a
+partner that *leaves* late: its way west along y 124 crosses our whole side (56 of 60 still collide). With the
+instruction "if you have not left by 6 s, stay until 18 s", a late partner is harmless (55 of 60, no collisions).
+A forward distance sensor could see the partner at about 6 s, but only says it is there, not when it will leave:
+not worth building yet. The whole match with four robots (both Autos on blue too): no contact between the
+alliances in 240 runs, both blue Autos make their 3 TIPs.
 
 ## The envelope
 

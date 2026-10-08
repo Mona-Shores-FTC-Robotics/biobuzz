@@ -401,7 +401,9 @@ public class AutoStudyTest {
     /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
             throws Exception {
-        return run(spec, design, partnerDesign, partnerSpeed, seed, Alliance.RED, Collections.emptyMap(), file);
+        // BIOBUZZ_AUTO_ALLIANCE=BLUE: our pair on blue (the Autos turned half a turn), the opponents, if any, on red.
+        String a = System.getenv("BIOBUZZ_AUTO_ALLIANCE");
+        return run(spec, design, partnerDesign, partnerSpeed, seed, a == null ? Alliance.RED : Alliance.valueOf(a), Collections.emptyMap(), file);
     }
 
     /**
