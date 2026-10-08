@@ -123,7 +123,7 @@ Healthy, no buttons pressed:
 ```
 ● SMART · RIGHT START · RED                      READY
 ─────────────────────────────────────────────
-● Camera     sees the HIVE · 14 fixes
+● Camera     sees the HIVE · position confirmed
 ● Start      right · 0.8 in off
 ● Alliance   red
 ● Pinpoint   ready
@@ -145,6 +145,10 @@ The camera is down:
 ● Battery    12.8 V
 Backup runs on timers: 2 TIPs + PARK, more if the partner's shots land.
 ```
+
+Rows say what a fact means for the match, not how it was measured: "position confirmed", not "14 fixes" (a fix
+is one tag sighting turned into a position; the start check wants 5 that agree). Counts like that go on the Robot
+page, for whoever is debugging.
 
 The first line is the only one the drive team must read: the plan, the side, the alliance, and READY or NOT READY in
 green or red. Rows below explain it. Nothing else shares the page during INIT.
