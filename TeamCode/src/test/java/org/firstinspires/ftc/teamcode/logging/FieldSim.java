@@ -1446,11 +1446,15 @@ final class FieldSim {
         if (!Double.isNaN(d.extractorLateralMaxIn) && !Double.isNaN(d.extractorSeatIn) && bot.extractorDown > 0.5) {
             // A wide extractor's bar, down: across the seat line, its span the lateral range plus the seat tolerance.
             double[] range = d.extractorLateralRange();
-            double lx = half + d.extractorSeatIn, ly = (range[0] + range[1]) / 2;
+            double lx = half + (Double.isNaN(d.extractorBarAheadIn) ? d.extractorSeatIn : d.extractorBarAheadIn);
+            double ly = (range[0] + range[1]) / 2;
             double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
             double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
-            flap |= box(p, cx, cy, bh, RobotDesign.FLAP_THICKNESS_IN, (range[1] - range[0]) / 2 + RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN,
-                    0, d.extractorBarHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
+            double halfDepth = Double.isNaN(d.extractorBarDepthIn) ? RobotDesign.FLAP_THICKNESS_IN : d.extractorBarDepthIn / 2;
+            double halfSpan = Double.isNaN(d.extractorBarHalfSpanIn)
+                    ? (range[1] - range[0]) / 2 + RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN : d.extractorBarHalfSpanIn;
+            flap |= box(p, cx, cy, bh, halfDepth, halfSpan, d.extractorBarBottomIn, d.extractorBarHeightIn, fvx, fvy, bot.w,
+                    bounce(robotRestitution));
         }
         if ((hit || flap) && !p.touchedTile) {
             p.frameBeforeTile |= hit;

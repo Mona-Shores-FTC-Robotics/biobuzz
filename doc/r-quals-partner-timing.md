@@ -204,9 +204,12 @@ bar" (range ±1.5 plus the 1.5 in tolerance), `seat_error.py`, 60 runs, 3 TIPs:
 | Auto | Extractor | ±0 | ±1 | ±2 | ±4 in |
 |---|---|---|---|---|---|
 | L-Quals | centre block (±1.5) | 57 | 57 | 32 | 9 |
-| | CAD bar (±3.0) | 57 | 57 | 57 | 32 |
+| | CAD bar (±3.0) | 58 | 58 | 58 | 32 |
 | R-Quals | centre block | 56 | 56 | 30 | 9 |
-| | CAD bar | 55 | 55 | 55 | 29 |
+| | CAD bar | 56 | 56 | 56 | 30 |
+
+With CAD's deployed outline (the bar across ±5.52 in, 0.70-1.35 in off the tiles, 1.4 in deep, its tip 5.84 in ahead
+of the face; the first run had a 1.5 in tall strip at the seat): G409 the same runs (L-Quals 0, R-Quals 17 of 60).
 
 The CAD bar doubles the tolerance: a ±2 in seat error costs nothing (it cost 25 runs), and ±4 costs what ±2 costs
 the block today. It does not reach the corner seat (7.3 in off), and nothing CAD can fit does (6.2-7.0 in arms
