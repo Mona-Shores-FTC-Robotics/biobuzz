@@ -1,5 +1,6 @@
 # Keeps a laptop's AdvantageScope current with this branch, in one command, and opens a log:
 #
+#   tools\advantagescope\watch-biobuzz.cmd (a menu), or
 #   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open l|r|match|flowerfirst|angled|wall|alone|left|seatfire|<file>] [-Typical]
 #
 # What it does, every run: pulls nothing itself (the README's one-liner does the git part); installs this branch's

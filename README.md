@@ -45,11 +45,13 @@ and do **File → Import Layout…** → `Downloads\advantagescope-layout.json`.
 
 **Every time** (one command; seconds, unless the asset code changed), in PowerShell:
 ```powershell
-$b = "claude/simulator"; if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch -q origin $b; git -C $HOME\biobuzz checkout -q $b; git -C $HOME\biobuzz pull -q origin $b } else { git clone -q -b $b https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }; powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-advantagescope.ps1 -Open right
+$b = "claude/simulator"; if (Test-Path $HOME\biobuzz) { git -C $HOME\biobuzz fetch -q origin $b; git -C $HOME\biobuzz checkout -q $b; git -C $HOME\biobuzz pull -q origin $b } else { git clone -q -b $b https://github.com/Mona-Shores-FTC-Robotics/biobuzz.git $HOME\biobuzz }; powershell -ExecutionPolicy Bypass -File $HOME\biobuzz\tools\advantagescope\setup-advantagescope.ps1 -Open l
 ```
 That pulls the branch, refreshes the robot model, downloads the table's logs to **`Downloads\biobuzz-logs`**, and
-opens AdvantageScope on the ShootsRight best log. `-Open angled`, `wall` or `seatfire` for the others, `-Typical`
-for the typical run, or `-Open <path to a .wpilog>`. Press **Space**; AUTO starts 1 s in. It tells you if the layout
+opens AdvantageScope on the L-Quals best log. `-Open r`, `match`, `flowerfirst`, `angled`, `wall` or `seatfire` for
+the others, `-Typical` for the typical run, or `-Open <path to a .wpilog>`. Once the clone exists, a menu does the
+same: `tools\advantagescope\watch-biobuzz.cmd` (double-click it, or a shortcut to it on the desktop); it pulls first,
+so its choices are always this table's. Press **Space**; AUTO starts 1 s in. It tells you if the layout
 changed (then **File → Import Layout…** once). The robot is the team's CAD (`cad/advantagescope/`); the partner is
 the green ghost.
 
