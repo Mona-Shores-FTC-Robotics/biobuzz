@@ -278,7 +278,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
-          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None):
+          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False):
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -302,10 +302,20 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.pt("L_C", *creep)
     r.add(r.wait("TIP 3's spill lands", when=["IntakeFull"], ms=800), r.go("L_C", heading=90))
     r.at = "L_C"
-    r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
-          r.go("L_N", ctrl=[(57.5, 50), (57.5, 104)], turn_after=0.85, turn_by=1.0))
+    if noturn4:
+        # Up the lane still facing it (90), no turn at the end: the turret fires back over the shoulder.
+        r.pt("L_N4", L_N[0], L_N[1] - 2, 90)
+        r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
+              r.go("L_N4", ctrl=[(57.5, 50), (57.5, 104)], heading=90))
+        r.at = "L_N4"
+    else:
+        r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
+              r.go("L_N", ctrl=[(57.5, 50), (57.5, 104)], turn_after=0.85, turn_by=1.0))
+        r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
+    if noturn4:
+        # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
+        r.add(r.go("L_N", turn_by=1.0))
     r.at = "L_N"
-    r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
     r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
     if creep4:
@@ -349,6 +359,8 @@ def variants():
             # Mentor, watching seed 17: R's TIP 4 shots from R_N look too flat; 3-5 in further on for a steeper launch.
             right5("sister5f-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True),
             right5("sister5g-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True, back_out=True),
+            right5("sister5h-right", mode="auto", fill1_ms=3500, f5=R_F5_MID, clear5=True, back_out=True),
+            left5("sister5h-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True),
             right5("sister5e-right-direct-rn108", mode="direct", fill1_ms=2500, f5=R_F5_MID, clear5=True, rn=(30, 108, 90)),
             left5("sister5e-left-all3", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID),
             left5("sister5c-left", creep4=True, catch4_ms=1000), left5("sister5c-left-all3", keep1=False, creep4=True, catch4_ms=1000),
