@@ -34,8 +34,8 @@ def seat(r, name, at, heading):
 
 
 def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
-          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False):
-    r = Route(name, S_START, speed=50)
+          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False, speed=50, garden=False, tip3_ms=2500):
+    r = Route(name, S_START, speed=speed)
     r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
@@ -87,8 +87,62 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     r.at = "WALL_FLOWER"
     r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=wall_ms), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
     r.at = "FIRE3"
-    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=2500),
-          r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
+    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=tip3_ms))
+    if garden:
+        # Eight pieces left the right CELL at 91-95% in some runs: the GARDEN's 4 if it is still up, while there is time.
+        r.pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
+        more = [r.go("GARDEN_IN", turn_after=0.2, turn_by=0.8)]
+        r.at = "GARDEN_IN"
+        more.append(r.go("GARDEN", heading=270))
+        r.at = "GARDEN"
+        more += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("FIRE3", turn_after=0.3, turn_by=0.9)]
+        r.at = "FIRE3"
+        more.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
+        r.add(r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, no=more, yes_label="TIP 3", no_label="Not yet: the GARDEN"))
+    r.add(r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
+    return r
+
+
+def shoots_right_v(name, garden=True, tip1_wait_ms=6000, tip2_ms=4000, fire3=(45, 26, 90)):
+    """Baseline (iii), a partner that shoots its preloads from the right start (TIP 1 is its 4): ours from the north
+    start into the left CELL, fired from FAR_FLOWER_TURN as soon as it rises (a fixed launcher reaches it from there,
+    30 in), then the far FLOWER's 4 from N_FIRE (TIP 2, about 4 s sooner than qual-alone's); TIP 3 as qual-alone-p4-lane
+    (TIP 2's spill down the lane, the wall FLOWER), the GARDEN if the right CELL is still up and there is time; PARK."""
+    r = Route(name, (59, 133.69, 270), speed=50)
+    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK).pt("FIRE3", *fire3)
+    seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
+    seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
+    r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
+    r.at = "FAR_FLOWER_TURN"
+    r.add(r.wait("TIP 1 (the partner's preloads)", when=["LeftCellUp"], ms=tip1_wait_ms),
+          fire(r, "Fire our preloads at the left CELL", "Empty", ms=3000), r.go("FAR_FLOWER", heading=90))
+    r.at = "FAR_FLOWER"
+    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
+    r.at = "N_FIRE"
+    # Until the TIP itself (the dwell is up to 3.4 s): leaving on a 2.5 s timer drove into the lane ahead of the spill.
+    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Tip", ms=tip2_ms),
+          r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=500),
+          r.go("S_FIRE", ctrl=[(57.5, 100)], heading=270))
+    r.at = "S_FIRE"
+    r.add(fire(r, "Fire TIP 2's catch at the right CELL", "Empty", ms=2000),
+          r.go("WALL_FLOWER_TURN", turn_after=0.2, turn_by=0.8))
+    r.at = "WALL_FLOWER_TURN"
+    r.add(r.go("WALL_FLOWER", heading=180))
+    r.at = "WALL_FLOWER"
+    r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
+    r.at = "FIRE3"
+    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=1500))
+    if garden:
+        r.pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
+        more = [r.go("GARDEN_IN", turn_after=0.2, turn_by=0.8)]
+        r.at = "GARDEN_IN"
+        more.append(r.go("GARDEN", heading=270))
+        r.at = "GARDEN"
+        more += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("FIRE3", turn_after=0.3, turn_by=0.9)]
+        r.at = "FIRE3"
+        more.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
+        r.add(r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, no=more, yes_label="TIP 3", no_label="Not yet: the GARDEN"))
+    r.add(r.go("PARK", ctrl=[(30, 40)] if fire3[0] > 35 else [(24, 40)], turn_after=0.2, turn_by=0.8, park=True))
     return r
 
 
@@ -127,6 +181,20 @@ def west_garden(r, fire3, fire_g=None):
     return r
 
 
+def partner_left_v(name="partner-left-v"):
+    """A partner that shoots its preloads, from the standard left start: fires them at the left CELL when it rises
+    (after our TIP 1), then gets out of our lane before we come north (about 8 s): forward to y 124, west along it
+    (clear of the far FLOWER and of our way into its seat, which we reach later) into the LOADING ZONE's far end
+    (10.5, 118), clear of our PARK. partners.preloads_left parks under the far FLOWER and onto our PARK."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    r.pt("DOWN", 59, 124, 270).pt("PARK_P", 10.5, 118, 270)
+    r.add(r.action("SpinUp"), r.action("IntakeOff"), r.wait("Left CELL up", when=["LeftCellUp"], ms=8000),
+          fire(r, "Fire the preloads at the left CELL", "Empty", ms=3000), r.go("DOWN", heading=270))
+    r.at = "DOWN"
+    r.add(r.go("PARK_P", ctrl=[(30, 124)], heading=270, park=True))
+    return r
+
+
 def partner_park_only(name="partner-park-only"):
     """A partner that only parks, keeping its 4 preloads, from the standard left start: straight south off the wall,
     then west along y 116, clear of the far FLOWER (partners.park_left's lane at y 127.5 drives into it now), into
@@ -146,6 +214,9 @@ VARIANTS["qual-alone-west-garden"] = {"after_tip2": "west_garden", "fire3": (45,
 # All four preloads fired (3000 ms: the 2500 ms card ended a shot early, so one miss lost TIP 1). A longer TIP 1
 # catch (2500/3000 ms) lost more to TIP 3's clock than it gained at TIP 2 (12/20, 6/20 against 16/20).
 VARIANTS["qual-alone-p4-lane"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000}
+# Baseline (i): a missed TIP 1 recovered (two preloads can hit the HIVE; then the run went late and the guard parked
+# the robot sideways out of the wall FLOWER's seat).
+VARIANTS["qual-alone-p4-lane-r"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000, "tip1_retry": True}
 VARIANTS["qual-alone-p4-west"] = {"after_tip2": "west_garden", "fire3": (25, 28, 90), "fire_g": (25, 28, 90),
                                   "fire1_ms": 3000}
 
@@ -155,7 +226,7 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(n)
-    r = partner_park_only()
-    r.folder = autogen.EXPERIMENTS
-    r.write()
-    print(r.name)
+    for r in (partner_park_only(), partner_left_v(), shoots_right_v("qual-shoots-right-v-fixed")):
+        r.folder = autogen.EXPERIMENTS
+        r.write()
+        print(r.name)

@@ -496,8 +496,62 @@ fixed launcher turning there to face the right CELL swung the V's tips over the 
 67.0, 3 TIPs in 12, PARK 20, 1 problem run (a TIP 1 failure), with the park-only or the angled partner; 66.0 / 14 with
 the turret. The Stages baselines with the turret fixed: angled 62.0 / 6, wall 56.0 / 0 (20 runs).
 
+**Baseline (i), partner parks, fixed turret: `qual-alone-p4-lane-r`** (8 Oct 2026, 60 runs, "rigid V, fixed turret",
+partner-park-only): 68.0, 3 TIPs in 43, PARK 60, no problem runs. Two changes from f45-s500: all four preloads fired
+(the 2500 ms card ended a shot early, so one miss lost TIP 1), and a missed TIP 1 recovered (no TIP in 4 s: catch what
+fell in front of the HIVE and fire it at the right CELL); the FLOWER drags were all late runs after a TIP 1 failure.
+The misses left: TIP 2 (7) and TIP 3 (10), each with fewer than 8 pieces in the CELL (8 in it always tipped; counted
+from the score events, 60 runs: TIP 2 misses 6-7 in, TIP 3 misses 3-7 in). The robot brings too few: TIP 2 when the
+TIP 1 catch is short; TIP 3 when the lane's catch of TIP 2's spill is short or the wall FLOWER's volley is cut for
+PARK; once (seed 1) a shot from S_FIRE hit the HIVE. (Until 8 Oct this said 8 pieces left the right CELL at 91-95%:
+that counted shots fired, not pieces in.) Tried and no better:
+- A longer TIP 1 catch (2500, 3000 ms): 12/20, 6/20; the time comes out of TIP 3.
+- The GARDEN while TIP 1 dwells, fired for TIP 2: the left CELL reaches only 52% on 4.
+- The west ending (wall FLOWER, then GARDEN, fired from (25, 28)): 14/20.
+- Bodies (20 runs each, both routes): V 22 in, 24 in, 6 in deep: no more TIPs, and their outline crosses the centre
+  line and the HIVE frame on routes drawn for the drawn V; V + dual Ramp Hook: 15/20; the moving turret: 15/20.
+- A second load from TIP 2's spill at (55, 30) or (55, 34): 0/20. **Where TIP 2's spill goes**: 8 pieces land just
+  north of the HIVE (x 50-67, y 93-98) at about 16.5 s, in front of the robot at N_FIRE; the lane drive scoops 4 (the
+  lane's capacity), and the rest roll off, two of them over the centre line. Each CELL opens at its own end, so TIP 3
+  is fired from the south while TIP 2's leftovers lie north: a hook would hold them where the robot is not. The lane
+  caps any body at 4 per trip, so a hook pays only on a route that comes back for a second load, and here that trip
+  costs what the wall FLOWER does.
+- **A partner's staged preloads.** TIP 2 is decided by what we carry north (60 runs of p4-lane-r: 4 carried, TIP 2
+  in 46 of 46; 3, 7 of 9; 2 or fewer, 0 of 5), so staged pieces near the left CELL looked like the fix. A partner
+  that can't shoot can't set them down mid-match either (mentor, 8 Oct 2026): its preloads start on the tiles
+  touching it (G304), so they sit at its start. A partner at the standard left start (59, 132.25) with a row across its
+  front is boxed in (the row south, the far FLOWER west, the centre line east). From (30, 132.25), west of the far
+  FLOWER, it slides off along the wall and parks at (10.5, 118), and the row stays at y 121.6, x 26-34; collecting it
+  for TIP 3 (south of it, north through it, down the west side) costs 5.1 s against the lane's 2.6 s and picked up
+  2 of the 4: 2, 1 and 2 TIPs in seeds 1-3. Dropped. (A route whose partner set its preloads down at the FLOWER
+  mid-match reached 40/60; withdrawn, since no partner can.)
+- **Faster** (20 runs each; DeepDive takes `Auto@<in/s>` for our drivetrain): 60, 70, 80 in/s gave 14, 12, 15 of 20
+  (50: 43 of 60). The TIPs come earlier (TIP 3's median 26.6 s at 50, 23.9 s at 80) but TIP 3 still
+  misses: the lane's catch is short as often. With the GARDEN as a fallback when the right CELL is still up after the wall FLOWER (`garden=True`): 16, 14,
+  15 of 20 at 50, 60, 80; at 80 the GARDEN's 4 are collected by 27.4 s and the guard parks before they are fired, and
+  the lane at 80 touched a falling piece (G409). Most of the match is spin-up (2 s), extraction (about 1.6 s a
+  FLOWER), the 0.2 s shot interval and the HIVE's dwell, which speed does not change.
+
+**Baselines (ii) and (iii), a partner that shoots its preloads, fixed turret** (8 Oct 2026, `alone.py`):
+- **(ii), the partner at the left start:** `qual-alone-p4-lane-r` unchanged, with `partner-left-v` (fires its 4 at the
+  left CELL as it rises after our TIP 1, then forward to y 124 and west along it to (10.5, 118), out of our lane before
+  we come north; `partners.preloads_left` parks under the far FLOWER and onto our PARK). 60 runs: **71.7, 3 TIPs in
+  49**, PARK 60, no problem runs; misses: TIP 3 (10, 3-7 pieces in), TIP 1 (1, two preloads hit the HIVE).
+- **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
+  TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
+  FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
+  spill and caught nothing), TIP 2 at about 12.5 s; then TIP 2's spill down the lane, the wall FLOWER, and the GARDEN
+  if the right CELL is still up. 60 runs: **72.0, 3 TIPs in 50**, PARK 60, no problem runs; misses: TIP 3 (8, 5-7
+  pieces in), TIP 2 (2).
+  The flower-first turret routes (`qual-right-v-flower-first-carry-settle-b2`, 57 of 60 on "rigid V") fire while
+  seated, which a fixed launcher cannot: 0 of 60 and a FLOWER hit at about 4 s in every run. Firing the wall FLOWER's
+  4 from (25, 28) instead of (45, 26), for a nearer GARDEN: 14 of 20.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
+- **The endgame guard parks a seated robot sideways**: it follows the park path from its start, so a cut at the wall
+  FLOWER's seat drags the V through the FLOWER whatever the path's middle (three control layouts, same hits). Needs a
+  back-out first in `AutoKit.guarded` (sent to the simulator chat).
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
   PARK in quals is non-negotiable, so that route needs a PARK ending.
 
