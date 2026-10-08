@@ -23,6 +23,8 @@ import java.util.Map;
  * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;Recycle3RightAuto,Recycle3LeftAuto@50" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
+ * An Auto followed by {@code :blind} ({@code BackupLAuto:blind,PartnerLeftVAuto@50}) runs with its camera down
+ * ({@link AutoSim#cameraDown}): its HIVE waits run to their time limits, as Smart Auto's BACKUP plan would.
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
  * {@code BIOBUZZ_AUTO_VARIETY=0} turns off the field-frame variety (tile slopes, spill kicks, bounce scatter), which
  * makes a seed the same run on red and on blue: for checking that an Auto's blue version is its red one turned.
@@ -408,6 +410,17 @@ public class AutoStudyTest {
 
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
+    /** A spec's Auto may carry {@code :blind}: it runs with its camera down ({@link AutoSim#cameraDown}). */
+    static final String BLIND = ":blind";
+
+    static String autoName(String specAuto) {
+        return specAuto.endsWith(BLIND) ? specAuto.substring(0, specAuto.length() - BLIND.length()) : specAuto;
+    }
+
+    static boolean cameraDown(String specAuto) {
+        return specAuto.endsWith(BLIND);
+    }
+
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
         // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
         String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
@@ -434,15 +447,17 @@ public class AutoStudyTest {
         // alliance's pieces, spills and traffic are there, and the blue versions of our Autos get run).
         String[] sides = at[0].split("\\|");
         String[] autos = sides[0].split(",");
-        Class<?> first = Class.forName(PKG + autos[0]);
+        Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
+        if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
         if (autos.length > 1) {
             double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
-            Class<?> second = Class.forName(PKG + autos[1]);
+            Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            if (cameraDown(autos[1])) sim.cameraDown();
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
             double[][] staged = stagedFor(second.getSimpleName());
             if (staged != null) sim.stagesPreloads(staged);
@@ -450,10 +465,11 @@ public class AutoStudyTest {
         if (sides.length > 1) {
             String[] theirs = sides[1].split(",");
             for (int i = 0; i < theirs.length; i++) {
-                Class<?> opponent = Class.forName(PKG + theirs[i]);
+                Class<?> opponent = Class.forName(PKG + autoName(theirs[i]));
                 // Their first robot like ours, their second like our partner.
                 double s = i == 0 || Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
                 sim.alsoRunOpponent(opponent).speed(s, s * 0.9).design(i == 0 || partnerDesign == null ? design : partnerDesign);
+                if (cameraDown(theirs[i])) sim.cameraDown();
                 double[][] staged = stagedFor(opponent.getSimpleName());
                 if (staged != null) sim.stagesPreloads(staged);
             }

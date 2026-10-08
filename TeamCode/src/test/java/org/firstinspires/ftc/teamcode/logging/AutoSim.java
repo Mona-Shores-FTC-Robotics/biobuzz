@@ -149,6 +149,8 @@ public final class AutoSim {
          * alliance's half (mentor, 3 Oct 2026).
          */
         String illegalStart;
+        /** It ran with its camera down ({@link AutoSim#cameraDown}): no HIVE trigger ever fired for it. */
+        boolean cameraDown;
         /** When the robot first ran into the HIVE frame's feet, which a real one cannot; NaN if never. */
         double hitHiveAt = Double.NaN;
         /** When the robot's body first overlapped a FLOWER holder, which a real one cannot; NaN if never. */
@@ -165,7 +167,7 @@ public final class AutoSim {
 
         @Override
         public String toString() {
-            return String.format(Locale.ROOT, "%s launched %d, %s, LEAVE %s, PARK %s%s", auto, launched,
+            return String.format(Locale.ROOT, "%s%s launched %d, %s, LEAVE %s, PARK %s%s", auto, cameraDown ? " (camera down)" : "", launched,
                     finished ? String.format(Locale.ROOT, "finished at %.1f s", finishedAt) : "still running at 30 s",
                     leave ? "yes" : "no", park ? "yes" : "no", (illegalStart == null ? "" : ", ILLEGAL START: " + illegalStart)
                             + (Double.isNaN(crossedAt) ? ""
@@ -386,6 +388,19 @@ public final class AutoSim {
      */
     AutoSim collectZone(double minX, double maxX) {
         configuring.zone = new double[] {minX, maxX};
+        return this;
+    }
+
+    /**
+     * This robot runs with its camera down, as Smart Auto's BACKUP plan does (doc/smart-auto.md: the camera broken
+     * or disabled): the HIVE's state is invisible to it, so {@code Tip}, {@code HiveTipped}, {@code LeftCellUp} and
+     * {@code RightCellUp} never fire and every wait on them runs to its time limit, and {@code CameraBlind} is true.
+     * What the robot feels still works: {@code Empty}, {@code IntakeFull}, {@code LauncherReady}. The start check
+     * stays: it is the referee's rule (G304), not the robot's camera. The HIVE still tips when the shots land; the
+     * robot just cannot see it, so its TIP count in the result is what the field did, not what it knew.
+     */
+    AutoSim cameraDown() {
+        configuring.cameraDown = true;
         return this;
     }
 
@@ -901,6 +916,8 @@ public final class AutoSim {
         final int index;
         final SimDrive drive = new SimDrive();
         RobotDesign design = RobotDesign.standard();
+        /** The camera is down ({@link AutoSim#cameraDown}): the HIVE's state is invisible to this robot. */
+        boolean cameraDown;
         /** CollectSeen's x range, drawn for RED; null for anywhere. */
         double[] zone;
         /** Where this robot sets its preloads on the tiles, drawn for RED; null to carry them. */
@@ -994,7 +1011,9 @@ public final class AutoSim {
                 body.flapsOnly = towardCentre(prev[0], heading);
                 log.putEvent(tag() + "hook built with its arm on the " + (body.flapsOnly > 0 ? "left" : "right"), index);
             }
-            log.putEvent("Auto: " + result.auto + robot + " for " + alliance + (rotated ? " (rotated)" : ""), index);
+            result.cameraDown = cameraDown;
+            log.putEvent("Auto: " + result.auto + robot + " for " + alliance + (rotated ? " (rotated)" : "")
+                    + (cameraDown ? ", camera down" : ""), index);
             auto.schedule();
         }
 
@@ -1488,16 +1507,16 @@ public final class AutoSim {
                     .triggerSince("Tip", () -> {
                         FieldSim.Rocker hive = sim.rocker(alliance);
                         int before = hive.tipsStarted - (hive.state() == HiveState.TRANSITION ? 1 : 0);
-                        return () -> hive.tipsStarted > before;
+                        return () -> !cameraDown && hive.tipsStarted > before;
                     })
                     // The alliance's HIVE is no longer as it started the match.
-                    .trigger("HiveTipped", () -> sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
+                    .trigger("HiveTipped", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     // Which CELL is up and settled, as HiveTracker reports it: unlike Tip, true for as
                     // long as it lasts, so a long wait can be split into short ones.
-                    .trigger("LeftCellUp", () -> sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
-                    .trigger("RightCellUp", () -> sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
+                    .trigger("LeftCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
+                    .trigger("RightCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
                     .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
-                    .trigger("CameraBlind", () -> false);
+                    .trigger("CameraBlind", () -> cameraDown);
         }
 
         /**
