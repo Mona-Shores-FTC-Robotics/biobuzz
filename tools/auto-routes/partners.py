@@ -6,13 +6,13 @@ def leave_park():
     for us to collect (AutoStudyTest.LEAVE_PARTNER_STAGED), so it drives straight off to park
     toward the far-left end of the LOADING ZONE, off the wall (mentor review)."""
     r = Route("partner-leave-park", (24, 132.25, 270), speed=40)
-    r.pt("PARK_P", 10.5, 110, 270)
+    r.pt("PARK_P", 10.5, 116, 270)  # the zone's far end (110 until 8 Oct 2026): we park deep at y 95, body to 102.6
     r.add(r.go("PARK_P", ctrl=[(24, 118)], heading=270, park=True))
     return r
 
 def preloads_park():
     r = Route("partner-preloads-park", (59, 132.25, 270), speed=40)
-    r.pt("PARK_P", 10.5, 111, 270)  # the far-left end of the LOADING ZONE, off the wall
+    r.pt("PARK_P", 10.5, 116, 270)  # the far-left end of the LOADING ZONE, off the wall (111 until 8 Oct 2026: we park deep at y 95)
     r.add(r.action("SpinUp"),
           *waits(r, "Left CELL up", "LeftCellUp", 8.0),
           fire(r, "Fire the preloads", "Empty"),

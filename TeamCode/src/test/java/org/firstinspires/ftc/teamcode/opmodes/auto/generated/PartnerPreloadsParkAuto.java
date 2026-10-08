@@ -42,7 +42,7 @@ public final class PartnerPreloadsParkAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 132.25, 270);
-        Pose parkP = p.of(10.5, 111, 270);
+        Pose parkP = p.of(10.5, 116, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToParkPControl1 = p.of(59, 116, 0);
