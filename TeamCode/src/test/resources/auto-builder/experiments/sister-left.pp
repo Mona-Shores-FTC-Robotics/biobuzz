@@ -180,7 +180,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59,
-        "y": 30
+        "y": 22
       },
       "controlPoints": [],
       "heading": {
@@ -189,9 +189,28 @@
       }
     },
     {
-      "id": "to-l-n-6",
+      "id": "to-l-c-6",
       "color": "#3cc8e4",
-      "name": "L_S to L_N",
+      "name": "L_S to L_C",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 58,
+        "y": 40
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-l-n-7",
+      "color": "#3cc8e4",
+      "name": "L_C to L_N",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -237,7 +256,7 @@
       }
     },
     {
-      "id": "to-park-l-7",
+      "id": "to-park-l-8",
       "color": "#3cc8e4",
       "name": "L_N to PARK_L",
       "waitBeforeMs": 0,
@@ -362,11 +381,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-l-n-6"
+      "lineId": "to-l-c-6"
     },
     {
       "kind": "path",
-      "lineId": "to-park-l-7"
+      "lineId": "to-l-n-7"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-l-8"
     }
   ],
   "settings": {
@@ -413,19 +436,21 @@
         "SpinUp",
         "StreamOn",
         "StreamOff",
+        "LaunchOne",
         "LaunchAll"
       ],
       "conditions": [
         "Empty",
         "LeftCellUp",
         "Tip",
-        "RightCellUp",
-        "IntakeFull"
+        "IntakeFull",
+        "RightCellUp"
       ],
       "typicalS": {
         "SpinUp": 0.1,
         "StreamOn": 1.0,
         "StreamOff": 1.0,
+        "LaunchOne": 0.5,
         "LaunchAll": 2.0
       },
       "events": [
@@ -450,7 +475,7 @@
       ],
       "L_S": [
         59,
-        30,
+        22,
         90
       ],
       "PARK_L": [
@@ -472,6 +497,11 @@
         47.36,
         118.34,
         90
+      ],
+      "L_C": [
+        58,
+        40,
+        90
       ]
     },
     "pathEnds": {
@@ -480,8 +510,9 @@
       "to-l-n-3": "L_N",
       "to-l-turn-4": "L_TURN",
       "to-l-s-5": "L_S",
-      "to-l-n-6": "L_N",
-      "to-park-l-7": "PARK_L"
+      "to-l-c-6": "L_C",
+      "to-l-n-7": "L_N",
+      "to-park-l-8": "PARK_L"
     },
     "startAt": "START",
     "cards": [
@@ -570,7 +601,7 @@
         "park": false
       },
       {
-        "id": "w-10",
+        "id": "w-22",
         "kind": "firstOf",
         "label": "TIP 2 started",
         "rows": [
@@ -578,123 +609,145 @@
             "when": [
               "RightCellUp"
             ],
-            "cards": []
+            "cards": [
+              {
+                "id": "w-10",
+                "kind": "firstOf",
+                "label": "TIP 2's spill lands",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 500,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-11",
+                "kind": "path",
+                "lineId": "to-l-turn-4",
+                "park": false
+              },
+              {
+                "id": "p-12",
+                "kind": "path",
+                "lineId": "to-l-s-5",
+                "park": false
+              },
+              {
+                "id": "a-13",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "a-14",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "a-15",
+                "kind": "action",
+                "name": "LaunchOne"
+              },
+              {
+                "id": "w-16",
+                "kind": "firstOf",
+                "label": "TIP 3",
+                "rows": [
+                  {
+                    "when": [
+                      "LeftCellUp"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 6000,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "w-17",
+                "kind": "firstOf",
+                "label": "TIP 3's spill lands",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 800,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-18",
+                "kind": "path",
+                "lineId": "to-l-c-6",
+                "park": false
+              },
+              {
+                "id": "w-19",
+                "kind": "firstOf",
+                "label": "Catch TIP 3's spill",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2000,
+                    "cards": []
+                  }
+                ]
+              },
+              {
+                "id": "p-20",
+                "kind": "path",
+                "lineId": "to-l-n-7",
+                "park": false
+              },
+              {
+                "id": "w-21",
+                "kind": "firstOf",
+                "label": "TIP 3's catch at the left CELL (TIP 4, with R)",
+                "rows": [
+                  {
+                    "when": [
+                      "Empty"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2000,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
+              }
+            ]
           },
           {
-            "afterMs": 4000,
-            "cards": []
+            "afterMs": 4500,
+            "cards": [],
+            "label": "No TIP 2: park"
           }
         ]
       },
       {
-        "id": "w-11",
-        "kind": "firstOf",
-        "label": "TIP 2's spill lands",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 500,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "p-12",
+        "id": "p-23",
         "kind": "path",
-        "lineId": "to-l-turn-4",
-        "park": false
-      },
-      {
-        "id": "p-13",
-        "kind": "path",
-        "lineId": "to-l-s-5",
-        "park": false
-      },
-      {
-        "id": "w-14",
-        "kind": "firstOf",
-        "label": "TIP 2's catch at the right CELL (TIP 3, with R)",
-        "rows": [
-          {
-            "when": [
-              "Empty"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2000,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "w-15",
-        "kind": "firstOf",
-        "label": "TIP 3",
-        "rows": [
-          {
-            "when": [
-              "LeftCellUp"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 6000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "w-16",
-        "kind": "firstOf",
-        "label": "Catch TIP 3's spill",
-        "rows": [
-          {
-            "when": [
-              "IntakeFull"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 3000,
-            "cards": []
-          }
-        ]
-      },
-      {
-        "id": "p-17",
-        "kind": "path",
-        "lineId": "to-l-n-6",
-        "park": false
-      },
-      {
-        "id": "w-18",
-        "kind": "firstOf",
-        "label": "TIP 3's catch at the left CELL (TIP 4, with R)",
-        "rows": [
-          {
-            "when": [
-              "Empty"
-            ],
-            "cards": []
-          },
-          {
-            "afterMs": 2000,
-            "cards": []
-          }
-        ],
-        "alongside": "LaunchAll"
-      },
-      {
-        "id": "p-19",
-        "kind": "path",
-        "lineId": "to-park-l-7",
+        "lineId": "to-park-l-8",
         "park": true
       }
     ]

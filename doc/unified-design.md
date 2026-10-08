@@ -668,6 +668,53 @@ Open: an extractor that reaches a FLOWER at the robot's left front corner, about
 would let R-Quals seat at the far FLOWER clear of a partner still at the standard left start (mentor, 8 Oct
 2026). Not yet asked of the extractor or simulator chats.
 
+## Two of our robots: the playoff best case (8-9 Oct 2026)
+
+The mentor's overnight question: "the maximum number of tips + 2 park ... using two copies of our own robot ...
+imagine that we pick our sister team for the playoffs". **4 TIPs + 2 PARK (96 points)**, in more than 9 runs of 10.
+`tools/auto-routes/sister.py` writes the Autos into `experiments/`. A pair is built for one body, and each pair does
+worse on the other body (below).
+
+| Body | Run | Points | 4 TIPs | 3 | 2 | Both PARK | Collisions | G409 runs |
+|---|---|---|---|---|---|---|---|---|
+| **rigid V, fixed turret** | `sister-right-fixed` + `sister-left-fixed` | **94.3** | **111 of 120** | 8 | 1 | 120 | 0 | 3 |
+| rigid V (moving turret) | `sister-right` + `sister-left` | 92.9 | 108 of 120 | 5 | 7 | 120 | 0 | 5 |
+| rigid V (moving turret) | the fixed pair | 92.0 | 102 of 120 | 12 | 6 | 120 | 0 | 4, and 4 runs into the HIVE frame, 3 over the centre line |
+
+120 runs is two sets of 60 seeds (1-60 and 61-120); the halves agree within 4 runs. One robot works each end and
+carries pieces across when its end runs out. R starts at the right start, L at the left start:
+
+| TIP | Pieces | Median (fixed) | Median (turret) |
+|---|---|---|---|
+| 1 | R's preloads, from 12 in out | 4.1 s | 4.0 s |
+| 2 | L's preloads and the far FLOWER's 4 (turret: streamed, seated at the FLOWER; fixed: preloads from FAR_FLOWER_TURN, the FLOWER's 4 from L_N) | 11.6 s | 8.7 s |
+| 3 | R's catch of TIP 1, the GARDEN's 4, and 3 of L's catch of TIP 2, caught going down the lane | 19.1 s | 15.9 s |
+| 4 | L's catch of TIP 3 plus the piece it kept; R's 4 from the wall FLOWER, or the GARDEN's 4 if TIP 3 didn't need them | 27.2 s | 23.6 s |
+
+Times are when the CELL is fully up. Both robots park, with a median of 26.2 s (fixed) and 22.8 s (turret).
+
+- **No 5th TIP with 2 PARK.** A TIP counts for AUTO if it completes before TELEOP (§10.5 B, the 8 s transition, so
+  up to 38 s), but its pieces must be in by about 29.5 s and are fired from the right end. PARK is judged at 30 s in
+  the LOADING ZONE, at the left end. The only pieces left by then are TIP 4's spill, which lands at the left end at
+  24-27 s. 5 TIPs with no PARK would be 106 points against 96; it needs both robots to catch nearly all of TIP 4's
+  spill and fire it from the right end by 29.5 s. Not tried.
+- **G409 shaped the routes.** Standing at y 28-30 under the right CELL, the V touched pieces still in the air in 54 of
+  60 runs. R now stands at y 21 for TIP 1's spill and L fires TIP 3 from y 22, both standing still, with no fewer
+  4-TIP runs. A robot that waited back and drove in after the spill landed caught nothing, because the pieces bounced off
+  a moving intake. **R-Quals waits at S_CATCH (y 28) and has G409 in 11 of 60 runs: the same fix may carry over.**
+- **TIP 2 is L's 8 exactly.** In 4 of 60 turret runs, 1 shot hit the HIVE, L came down the lane with nothing and met R.
+  Now R rescues it: with no TIP 2 by 6.5 s after its catch (9 s on the fixed launcher), R takes the catch up the
+  left side (x 30, clear of the HIVE frame's foot at x 46) and fires it at the left CELL, while L parks. That gives
+  2 TIPs and 2 PARK (56 points); before, those runs scored 36-56 with a collision.
+- **The fixed launcher wins on 4 TIPs** even though its TIP 2 is 3 s later. It needed one branch: TIP 3 often
+  completes before R brings the GARDEN's 4 (sometimes with R arriving mid-tip), and R used to wait 3 s for a CELL
+  that was already down. Now R carries those 4 straight to TIP 4: from 52 to 56 of 60.
+- **The robots never touch**, because of where they turn. L turns at (57, 36), below the HIVE frame's feet and inside
+  the centre line. R comes up the left side at x 30 and fires from (30, 104), clear of L at L_N (55, 116). L parks
+  along y 127, above R.
+
+What is left is a TIP one piece short (7 of 8 in): a shot into the HIVE or a short catch, spread over TIPs 2-4.
+
 ## The envelope
 
 - **R102:** 18 × 18 × 18 in at the start.

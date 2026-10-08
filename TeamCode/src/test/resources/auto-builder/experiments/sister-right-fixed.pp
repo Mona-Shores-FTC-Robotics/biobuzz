@@ -675,7 +675,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "sister-right",
+    "exportName": "sister-right-fixed",
     "registry": {
       "actions": [
         "SpinUp",
@@ -1142,7 +1142,7 @@
             ]
           },
           {
-            "afterMs": 6500,
+            "afterMs": 9000,
             "cards": [
               {
                 "id": "p-30",

@@ -20,7 +20,7 @@ public final class SisterLeftAuto {
     public static final String SOURCE = "sister-left.pp";
 
     /** Registered robot commands this Auto uses; checked when the OpMode initialises. */
-    public static final String[] COMMANDS = {"LaunchAll", "SpinUp", "StreamOff", "StreamOn"};
+    public static final String[] COMMANDS = {"LaunchAll", "LaunchOne", "SpinUp", "StreamOff", "StreamOn"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
     public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp", "RightCellUp", "Tip"};
@@ -45,10 +45,11 @@ public final class SisterLeftAuto {
         Pose start = p.of(59, 133.69, 270);
         Pose lN = p.of(55, 116, 270);
         Pose lTurn = p.of(57, 36, 90);
-        Pose lS = p.of(59, 30, 90);
+        Pose lS = p.of(59, 22, 90);
         Pose parkL = p.of(10.5, 120, 270);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
+        Pose lC = p.of(58, 40, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
@@ -61,10 +62,10 @@ public final class SisterLeftAuto {
         Pose lNToLTurnControl2 = p.of(57.5, 50, 0);
         Pose lNToLTurnSegment1Heading = p.of(57, 36, 270);
         Pose lNToLTurnSegment2Start = p.of(57, 36, 270);
-        Pose lSToLNControl1 = p.of(57.5, 50, 0);
-        Pose lSToLNControl2 = p.of(57.5, 104, 0);
-        Pose lSToLNSegment1Heading = p.of(55, 116, 90);
-        Pose lSToLNSegment2Start = p.of(55, 116, 90);
+        Pose lCToLNControl1 = p.of(57.5, 50, 0);
+        Pose lCToLNControl2 = p.of(57.5, 104, 0);
+        Pose lCToLNSegment1Heading = p.of(55, 116, 90);
+        Pose lCToLNSegment2Start = p.of(55, 116, 90);
         Pose lNToParkLControl1 = p.of(44, 127, 0);
         Pose lNToParkLControl2 = p.of(24, 127, 0);
 
@@ -74,7 +75,8 @@ public final class SisterLeftAuto {
         Path farFlowerToLN = Paths.curve(farFlower, farFlowerToLNControl1, lN).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToLNSegment1Heading)).until(1, Interpolator.linear(farFlowerToLNSegment2Start, lN)));
         Path lNToLTurn = Paths.curve(lN, lNToLTurnControl1, lNToLTurnControl2, lTurn).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(lNToLTurnSegment1Heading)).until(1, Interpolator.linear(lNToLTurnSegment2Start, lTurn)));
         Path lTurnToLS = Paths.line(lTurn, lS).constant(lS);
-        Path lSToLN = Paths.curve(lS, lSToLNControl1, lSToLNControl2, lN).heading(Interpolator.piecewise().until(0.85, Interpolator.constant(lSToLNSegment1Heading)).until(1, Interpolator.linear(lSToLNSegment2Start, lN)));
+        Path lSToLC = Paths.line(lS, lC).constant(lC);
+        Path lCToLN = Paths.curve(lC, lCToLNControl1, lCToLNControl2, lN).heading(Interpolator.piecewise().until(0.85, Interpolator.constant(lCToLNSegment1Heading)).until(1, Interpolator.linear(lCToLNSegment2Start, lN)));
         Path lNToParkL = Paths.curve(lN, lNToParkLControl1, lNToParkLControl2, parkL).constant(parkL);
 
         return kit.sequence(
@@ -95,26 +97,30 @@ public final class SisterLeftAuto {
                         kit.command("StreamOff"),
                         kit.path("FAR_FLOWER to L_N", farFlowerToLN),
                         kit.firstOf("TIP 2 started",
-                                kit.when("RightCellUp"),
-                                kit.afterMs(4000)),
-                        kit.firstOf("TIP 2's spill lands",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(500)),
-                        kit.path("L_N to L_TURN", lNToLTurn),
-                        kit.path("L_TURN to L_S", lTurnToLS),
-                        kit.firstOf("TIP 2's catch at the right CELL (TIP 3, with R)", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(2000)),
-                        kit.firstOf("TIP 3",
-                                kit.when("LeftCellUp"),
-                                kit.afterMs(6000)),
-                        kit.firstOf("Catch TIP 3's spill",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(3000)),
-                        kit.path("L_S to L_N", lSToLN),
-                        kit.firstOf("TIP 3's catch at the left CELL (TIP 4, with R)", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(2000)),
+                                kit.when("RightCellUp").then(
+                                        kit.firstOf("TIP 2's spill lands",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(500)),
+                                        kit.path("L_N to L_TURN", lNToLTurn),
+                                        kit.path("L_TURN to L_S", lTurnToLS),
+                                        kit.command("LaunchOne"),
+                                        kit.command("LaunchOne"),
+                                        kit.command("LaunchOne"),
+                                        kit.firstOf("TIP 3",
+                                                kit.when("LeftCellUp"),
+                                                kit.afterMs(6000)),
+                                        kit.firstOf("TIP 3's spill lands",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(800)),
+                                        kit.path("L_S to L_C", lSToLC),
+                                        kit.firstOf("Catch TIP 3's spill",
+                                                kit.when("IntakeFull"),
+                                                kit.afterMs(2000)),
+                                        kit.path("L_C to L_N", lCToLN),
+                                        kit.firstOf("TIP 3's catch at the left CELL (TIP 4, with R)", kit.command("LaunchAll"),
+                                                kit.when("Empty"),
+                                                kit.afterMs(2000))),
+                                kit.afterMs(4500)),
                         kit.path("L_N to PARK_L", lNToParkL)));
     }
 }
