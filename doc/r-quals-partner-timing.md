@@ -195,3 +195,19 @@ placeholders. **Rerun with CAD's width**: set `wideBar.extractorLateralIn` / `ex
 
 Since section 1 was run the simulator has changed (claude/simulator's transfer and plate-contact models): the corner
 route with a dead partner at the left start now makes 3 TIPs in 30-32 of 60 (35 then), with a good partner 55-56.
+
+**CAD's compromise bar** (robot CAD chat, 8 Oct 2026, `doc/robot-cad.md` "A wider FLOWER bar"): arms at 5.6 in with a
+straight bar, the FLOWER seats within **±3.0 in** of the centre line square on (±2.5 in at 3° off; today's block
+±1.5, ±1 at 3° off), the FLOWER's centre 4.59 in ahead of the face either way. Design "rigid V, fixed turret, CAD
+bar" (range ±1.5 plus the 1.5 in tolerance), `seat_error.py`, 60 runs, 3 TIPs:
+
+| Auto | Extractor | ±0 | ±1 | ±2 | ±4 in |
+|---|---|---|---|---|---|
+| L-Quals | centre block (±1.5) | 57 | 57 | 32 | 9 |
+| | CAD bar (±3.0) | 57 | 57 | 57 | 32 |
+| R-Quals | centre block | 56 | 56 | 30 | 9 |
+| | CAD bar | 55 | 55 | 55 | 29 |
+
+The CAD bar doubles the tolerance: a ±2 in seat error costs nothing (it cost 25 runs), and ±4 costs what ±2 costs
+the block today. It does not reach the corner seat (7.3 in off), so `qual-south-v-corner` still needs the corner
+or a wider bar. Heading error (the 3° figures) is not modelled; deployed, the bar again changed nothing else.

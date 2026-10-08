@@ -242,7 +242,13 @@ public class AutoStudyTest {
         wideBar.extractorLateralIn = -7.3;
         wideBar.extractorLateralMaxIn = 7.3;
         m.put(wideBar.name, wideBar);
-        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar}) {
+        // CAD's compromise (robot CAD chat, 8 Oct 2026, doc/robot-cad.md "A wider FLOWER bar"): arms at 5.6 in with a
+        // straight bar, the FLOWER seats within +-3.0 in of the centre line square on (+-2.5 at 3 deg off).
+        RobotDesign cadBar = fixedTurret.copy("rigid V, fixed turret, CAD bar");
+        cadBar.extractorLateralIn = -(3.0 - RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN);
+        cadBar.extractorLateralMaxIn = 3.0 - RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN;
+        m.put(cadBar.name, cadBar);
+        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar, cadBar}) {
             for (int e : new int[] {1, 2, 4}) {
                 RobotDesign err = base.copy(base.name + ", seat error " + e + " in");
                 err.seatErrorIn = e;
