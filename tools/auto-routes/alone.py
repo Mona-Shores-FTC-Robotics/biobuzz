@@ -20,7 +20,9 @@ from helpers import FAR_FLOWER_AT, WALL_FLOWER_AT, fire
 
 S_START = (59, 8.06, 90)
 SEAT_IN, IN_IN, TURN_IN = 12.15, 17.95, 20.45  # the V's centre from the FLOWER: seated, straight back, turn room
-S_CATCH, S_FIRE, N_FIRE = (57.5, 28, 90), (57.5, 24, 270), (57.5, 119, 270)  # S_FIRE: arrived at facing south
+# S_FIRE: arrived at facing south, 2.5 in west of the lane: a fixed launcher turns the robot there to face the right
+# CELL, and from x 57.5 the V's tips swung over the centre line (18 of 20 runs).
+S_CATCH, S_FIRE, N_FIRE = (57.5, 28, 90), (55, 24, 270), (57.5, 119, 270)
 PARK = (10.5, 95, 90)
 
 

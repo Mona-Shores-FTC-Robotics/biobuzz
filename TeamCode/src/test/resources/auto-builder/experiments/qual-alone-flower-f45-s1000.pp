@@ -132,7 +132,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 57.5,
+        "x": 55,
         "y": 24
       },
       "controlPoints": [
@@ -471,7 +471,7 @@
         90
       ],
       "S_FIRE": [
-        57.5,
+        55,
         24,
         270
       ],
