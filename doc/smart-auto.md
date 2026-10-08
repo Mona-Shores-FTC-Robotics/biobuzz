@@ -120,6 +120,8 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 
 - **Lock and unlock are one chord: hold both bumpers (LB + RB) for 2 s.** That's hard to do by accident, and no
   setting uses either bumper.
+- **Only a READY plan can be locked** (mentor, 9 Oct 2026). Locking says "this is final"; holding LB + RB while NOT
+  READY only flashes "Can't lock: NOT READY". Unlocking always works.
 - **It locks itself** once the plan is READY and no button has been pressed for 30 s. The top line counts down
   ("locks in 12 s") so it is never a surprise.
 - **Locked, every override button does nothing**, X / B included. A press only flashes "LOCKED: hold LB + RB 2 s to
