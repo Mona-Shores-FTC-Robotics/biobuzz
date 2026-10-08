@@ -761,10 +761,25 @@ for s_, nm in ((1, "control_hub"), (-1, "expansion_hub")):
     yc = s_ * (HUB_IN + HUB[0] / 2)
     c = bolt(elec, f"{nm}_cover", f"the {nm.replace('_', ' ')}'s cover to the plate's front face (from the front; a knurled M3 thumb screw, no tool)", [(EP_X[1] + CV_T, yc, 10.45)], (-1, 0, 0), CV_T * IN, d=3, nut=False, tapped=EP_T * IN + 1.0, min_engage=3, into="elec_plate", through=(f"{nm}_cover",))   # its tip ends just above the hub, behind the plate
     drill(elec, [f"{nm}_cover"], c)
-# the Pinpoint odometry computer: flat (its IMU's yaw axis vertical) on the launcher's left side channel's top flange,
-# beside the left flywheel motor, the odometry pods' cables to it short; it goes to the Control Hub's I2C bus 1
-PP = ((-0.05, -0.05 + 1.5), (4.55, 4.55 + 1.5), (SIDE_TOP + 0.16, SIDE_TOP + 0.16 + 0.45))
-part(elec, "pinpoint (goBILDA 3110-0002-0001 Pinpoint odometry computer, size approximate: flat on the left side channel, on two M4 standoffs into its top flange's 8 mm grid)", bx(*PP[0], *PP[1], *PP[2]), (0.2, 0.2, 0.22), "buy")
+# the Pinpoint odometry computer (goBILDA 3110-0002-0001, 42.5 x 40 x 16.6 mm, four threaded holes 32 mm square on its
+# underside): flat, so its IMU's yaw axis is vertical, beside the left flywheel motor. A printed plate bolts down onto the
+# top of the launcher's left side channel (two M4 into its 8 mm grid, nuts inside the channel) and reaches forward past the
+# channel's front end (X 0.80), where the Pinpoint's four M4 go up from below through the plate. The pods' cables to it
+# are short; it goes to the Control Hub's I2C bus 1
+PP_C = (0.80 + 21.25 * MM + 0.06, SIDE_FLANGE_HOLES[1] - 14 * MM)  # its centre (X, Y): just past the channel's end, clear of the turret motor
+PP_PL = (SIDE_TOP, SIDE_TOP + 0.20)                                  # the plate's z: on the channel's top face
+PP_Z = (PP_PL[1], PP_PL[1] + 16.6 * MM)
+PP_FL = [(-0.149 - k * 8 * MM, SIDE_FLANGE_HOLES[1]) for k in (0, 2)] # the channel's top holes the plate bolts to
+PPN = "pinpoint (goBILDA 3110-0002-0001 Pinpoint odometry computer: flat on its printed plate; connectors toward the front and back)"
+part(elec, PPN, bx(PP_C[0] - 21.25 * MM, PP_C[0] + 21.25 * MM, PP_C[1] - 20 * MM, PP_C[1] + 20 * MM, *PP_Z), (0.2, 0.2, 0.22), "buy")
+vendor(PPN, "3110-0002-0001.step", (0, 0, -8), (0, 0, 1), (1, 0, 0), (PP_C[0], PP_C[1], PP_Z[0]), (0, 0, 1), (0, 1, 0))
+ppl = bx(PP_FL[1][0] - 0.25, PP_C[0] + 21.25 * MM + 0.05, SIDE_FLANGE[1][0], SIDE_FLANGE[1][1], *PP_PL)              # the arm along the channel
+ppl = ppl.union(bx(0.80 - 0.3, PP_C[0] + 21.25 * MM + 0.05, PP_C[1] - 20 * MM - 0.05, SIDE_FLANGE[1][1], *PP_PL))   # the Pinpoint's pad
+part(elec, "pinpoint_plate (print PETG, 0.2 in: bolted down onto the left side channel's top, reaching past its front end)", ppl, (0.95, 0.55, 0.15), "print")
+c = bolt(elec, "pinpoint", "the Pinpoint to its plate (from below, into its threaded holes)", [(PP_C[0] + dx * 16 * MM, PP_C[1] + dy * 16 * MM, PP_PL[0]) for dx in (-1, 1) for dy in (-1, 1)], (0, 0, 1), 0.20 * IN, nut=False, tapped=7.8, into="pinpoint \\(", through=("pinpoint_plate",))
+drill(elec, ["pinpoint_plate"], c)
+c = bolt(elec, "pinpoint_plate", "the Pinpoint's plate to the top of the left side channel (nuts inside the channel)", [(x, y, PP_PL[1]) for x, y in PP_FL], (0, 0, -1), 0.20 * IN + SIDE_FLANGE_T, nut=True, through=("pinpoint_plate",))
+drill(elec, ["pinpoint_plate"], c)
 # ---- the holes the screws thread into: a heat-set insert's hole in a printed part, a tap drill in a cut one ----
 def threaded_holes(d):
     import re as _re

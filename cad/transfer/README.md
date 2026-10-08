@@ -160,6 +160,11 @@ The CAD said this was the only free space with access from outside: X −7.5 to 
   XT30 are all within a few inches of each other.
 - **The power switch** (REV-31-1387) sits in a printed holder on top of the plate, rocker up. It's reachable from
   above and behind, as inspection wants.
+- **The Pinpoint** (goBILDA 3110-0002-0001, from goBILDA's model) lies flat, its IMU's yaw axis vertical, just ahead of
+  the left launcher side channel's front end, beside the left flywheel motor (X 0.86 to 2.54, Y 4.30 to 5.88, 6 in up).
+  A printed 0.2 in PETG plate bolts down onto the top of that channel (two M4 into its 8 mm grid, nuts inside the
+  channel) and reaches forward past its end. The Pinpoint's own four M4 x 12 go up from below through the plate into its
+  threaded holes; they're reachable there because nothing is under the plate past the channel's end.
 - **Clearances:** the hubs' faces are 0.70 in inside the rear frame (the covers 0.06), and the bay stays inside the 18 in start cube.
   The top of the bay is z 10.7 (the switch's roof, 11.3). A future turret hood that sweeps lower than that more than
   3 in behind the turret's axis would hit it, so the hood has to be checked against the bay.
@@ -188,7 +193,7 @@ Each hub's motor edge faces the battery: the XT30s, the switch and the RS485 lin
 | CH motor 2 (encoder: velocity) | flywheel, left | 13 | 20 |
 | CH motor 3 | intake and lane (floats 1.3 in: leave a 2 in loop at the carriage) | 19 | 29 |
 | CH servo 0 | gate servo | 12 | 19 |
-| CH I2C bus 1 | Pinpoint (its pods: left 6 in, right 17 in, so cables of 11 and 25 in) | 10 | 16 |
+| CH I2C bus 1 | Pinpoint (its pods: left about 7 in, right about 17 in, so cables of 12 and 25 in) | 11 | 17 |
 | CH USB 3.0 | Limelight (up the mast) | 18 | 27 |
 | CH USB 2.0 | webcam (proposed: on the mast, pitched down) | 20 | 29 |
 | EH motor 0 | drive, front right | 16 | 23 |
@@ -268,7 +273,7 @@ clear.
 `tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount. For each it
 checks that the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a
 tapped hole gives enough thread.
-Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 147 screws, 0 problems, 38 with a service order.
+Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 153 screws, 0 problems, 38 with a service order.
 
 ## Open
 

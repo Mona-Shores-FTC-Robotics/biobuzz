@@ -57,7 +57,7 @@ ROBOT_OK = [(r'^wall_standoff_', r'1107-0015-0384'),
             (r'^flywheel_shaft_L|^flywheel_spacers_L_(rear|front)', r'Launcher subassembly <2> / (8x14x5mm Bearing|8mm REX Hyper Hub|41T HTD5 Pulley|8mm Spacer|12\.5mm Spacer|1505-0032-0160|Sonic Hub|(3|5) Hole Lowside)'),
             (r'^idler_hanger', r'Intake <1> / 9 Hole Lowside'),
             (r'^flywheel_pulley_', r'Launcher subassembly <(1|2)> / (96mm Steel Shaft|12\.5mm Spacer|8x14x5mm Bearing)'),
-            (r'^turret_motor_plate', r'Launcher Concept <1> / 8 Hole Lowside'), (r'^elec_plate', r'1103-0041-0328|1107-0013-0336'), (r'^turret_gear_(shaft|bearing_mount)', r'1231-0048-0001|2302-0014-0064')]
+            (r'^turret_motor_plate', r'Launcher Concept <1> / 8 Hole Lowside'), (r'^elec_plate', r'1103-0041-0328|1107-0013-0336'), (r'^pinpoint_plate', r'Launcher Concept <1> / 5 Hole Lowside U-Channel'), (r'^turret_gear_(shaft|bearing_mount)', r'1231-0048-0001|2302-0014-0064')]
 def robot_ok(n, p): return any(re.search(a, n) and re.search(b, p) for a, b in ROBOT_OK)
 def axle(n):
     """Which shaft a part rides on: ('lane', i), ('feeder',), ('servo',) or None."""
@@ -74,7 +74,7 @@ def axle(n):
     if re.match(r'(lane_servo|servo_pulley)', n): return ('servo',)
     if re.match(r'feeder_motor( \(|_pulley)', n): return ('feeder motor',)
     return None
-TOUCH = [(r'^(control_hub|expansion_hub|battery_cradle|switch_holder) ', r'^elec_plate'), (r'^(control_hub|expansion_hub)_cover', r'^elec_plate'), (r'^battery ', r'^battery_cradle'), (r'^power_switch', r'^switch_holder'),
+TOUCH = [(r'^(control_hub|expansion_hub|battery_cradle|switch_holder) ', r'^elec_plate'), (r'^(control_hub|expansion_hub)_cover', r'^elec_plate'), (r'^battery ', r'^battery_cradle'), (r'^pinpoint ', r'^pinpoint_plate'), (r'^power_switch', r'^switch_holder'),
          (r'^lane_wall_', r'^lane_bearing_|^wall_standoff_|^ceiling_post_|^jack_bearing_'),
          (r'^lane_cord_(\d)', r'^lane_pulley_'), (r'^lane_drive_belt', r'^jack_pulley|^idler_pulley'), (r'^lane_pinion_0', r'^jack_pinion'),
          (r'^idler_hanger', r'^idler_(bearing|shaft|spacers)'), (r'^feeder_arm_', r'^feeder_(pivot_)?bearing_'),
