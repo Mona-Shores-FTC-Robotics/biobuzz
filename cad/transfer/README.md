@@ -133,7 +133,7 @@ The intake roller's motor (5203-2402-0005, 1150 RPM) and the roller's lane pulle
 | Pad | Two hinge-block screws from under the floor | plate, foam, knuckles, hinge rod, blocks, band (the stop stays on the floor) |
 | Turret motor | Belt off, then four face screws from above (before the pulley) | motor, 24T pulley |
 | Battery | Undo the strap, lift it out of the cradle | battery |
-| A hub | Unplug, then four M3 from behind through its corner tabs | the hub |
+| A hub | Its cover (one thumb screw, lift off), unplug, then four M3 from behind through its corner tabs | the hub |
 | Electronics plate | Battery and cradle out, then four M4 down through the tongue (nuts under the chassis flanges) | plate, switch holder |
 
 The standoffs stay on the rails. They go on during the chassis build, before the outer wheel plates and the pods,
@@ -153,18 +153,70 @@ The CAD said this was the only free space with access from outside: X −7.5 to 
 - **The hubs** (Control Hub left, Expansion Hub right) hang on the plate's back face with their faces out. Every port
   plugs in from behind or from above, and the LEDs are visible. Each is held by four M3 × 8 through the corner tabs'
   through-holes (REV's drawing: 143 × 103 × 29.5 mm, holes 128 × 88), screwed in from behind into the plate. Taking a
-  hub off is unplug and four screws, with nothing else in the way. Wires to the drive motors drop straight down
+  hub off is its cover's thumb screw, unplug, and four screws. Wires to the drive motors drop straight down
   between the rear chassis members.
 - **The battery** (REV slim, 113.5 × 90.5 × 23 mm) stands between the hubs in a printed PETG cradle. It lifts straight
   out from above, with a hook-and-loop strap through the cradle's slots. Its lead, the switch and the Control Hub's
   XT30 are all within a few inches of each other.
 - **The power switch** (REV-31-1387) sits in a printed holder on top of the plate, rocker up. It's reachable from
   above and behind, as inspection wants.
-- **Clearances:** the hubs' backs are 0.55 in inside the rear frame, and the bay stays inside the 18 in start cube.
-  The top of the bay is z 10.4. A future turret hood that sweeps lower than z 10.5 more than 3.6 in behind the turret's
-  axis would hit it, so the hood has to be checked against the bay.
+- **Clearances:** the hubs' faces are 0.70 in inside the rear frame (the covers 0.06), and the bay stays inside the 18 in start cube.
+  The top of the bay is z 10.7 (the switch's roof, 11.3). A future turret hood that sweeps lower than that more than
+  3 in behind the turret's axis would hit it, so the hood has to be checked against the bay.
 - **To check on a real hub:** the corner tabs' thickness (4 mm assumed; M3 × 8 suits 3 to 4 mm). Each hub is 0.1 in clear of
   the cradle's walls.
+
+### Covers and switch
+
+- **Hub covers:** each hub has a 1/16 in clear polycarbonate cover, bent twice. It hooks over the plate's top edge and
+  drops down behind the hub, inside the frame's back face, to 0.35 in above the hub's bottom. A knurled M3 thumb
+  screw through its front lip holds it, reached from above with no tool. The LEDs show through it. Cables leave by
+  the open bottom and the open ends, with 0.58 in between the hub's face and the cover for plugs. A hit from behind
+  lands on the cover, which spreads it over the plate, and lift-off is one screw.
+- **Switch roof:** the switch holder has a roof 0.33 in over the rocker, closed in front and at the sides. A falling
+  ball can't reach the rocker. A finger reaches it over the plate's top edge from behind.
+
+### Wiring
+
+Left-side devices go to the Control Hub, right-side ones to the Expansion Hub, so most runs stay on their own side.
+Each hub's motor edge faces the battery: the XT30s, the switch and the RS485 link are all at the middle.
+
+| Hub port | Device | Run (in) | Cable at least (in) |
+|---|---|---|---|
+| CH motor 0 | drive, front left | 16 | 24 |
+| CH motor 1 | drive, rear left | 4 | 8 |
+| CH motor 2 (encoder: velocity) | flywheel, left | 13 | 20 |
+| CH motor 3 | intake and lane (floats 1.3 in: leave a 2 in loop at the carriage) | 19 | 29 |
+| CH servo 0 | gate servo | 12 | 19 |
+| CH I2C bus 1 | Pinpoint (its pods: left 6 in, right 17 in, so cables of 11 and 25 in) | 10 | 16 |
+| CH USB 3.0 | Limelight (up the mast) | 18 | 27 |
+| CH USB 2.0 | webcam (proposed: on the mast, pitched down) | 20 | 29 |
+| EH motor 0 | drive, front right | 16 | 23 |
+| EH motor 1 | drive, rear right | 4 | 8 |
+| EH motor 2 (encoder: velocity) | flywheel, right | 13 | 20 |
+| EH motor 3 (encoder: position) | turret | 17 | 25 |
+| EH servo 0 | extractor servo | 22 | 31 |
+| EH servos 1 to 3 | the three goBILDA indicator lights (placement from the indicator chat) | | |
+
+**How the runs were found.** `tools/robot-cad/cable_routes.py` (on the map `tools/robot-cad/occupancy_map.py` builds) finds the shortest path from each port to each device
+through the robot's occupancy map, on a 0.1 in grid. Every moving part's sweep (roller, extractor, feeder, pad) and
+the balls' paths through the lane and up the column are blocked. It prefers to stay within 0.4 in of structure, where a
+run can be tied. The "run" column is that path, and "at least" adds 30% plus 3 in for routing and plugs.
+`doc/media/wiring-routes.png` draws them all. Every device has a path; none crosses a ball path or a moving part.
+
+**Build them as three trunks, not as the drawn paths:**
+- **Left trunk:** from the Control Hub, down behind it and forward along the top of the left launcher side channel.
+  It passes the Pinpoint and the left flywheel motor, then goes down the front left upright to the intake motor, with
+  the loop for its float. The drive FL and gate servo branches drop off it.
+- **Right trunk:** the same on the right, to the right flywheel, drive FR and the extractor servo.
+- **Turret:** its motor is on the left but its port is on the Expansion Hub. Run it across under the launcher's rear
+  channel with the right trunk's bundle, or swap it with the intake onto the Control Hub if that's easier on the
+  robot.
+- **USB:** along the left trunk to the front, then up the Limelight's mast. Don't run it over the top of the launcher:
+  the turret turns there.
+
+**Not wired yet:** a hood servo on the turret (if one is added) needs a loop through the turret's rotation; the turret
+must have hard limits, not continuous rotation.
 
 ## Changes it needs in the mentor's CAD
 
@@ -216,7 +268,7 @@ clear.
 `tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount. For each it
 checks that the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a
 tapped hole gives enough thread.
-Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 145 screws, 0 problems, 30 with a service order.
+Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 147 screws, 0 problems, 38 with a service order.
 
 ## Open
 

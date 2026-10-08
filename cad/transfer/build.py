@@ -686,8 +686,9 @@ part(launcher, "turret_gear_eclip (with the shaft)", cylz(*TG, 12 * MM, TGS[0] +
 REAR_HOLES_X = (-7.247, -5.987)                     # the top-flange hole lines (X) of his rear channel (1107-0013-0336) and angle (1103-0041-0328), z 5.733
 REAR_TOP = 5.733
 EP_T = 3 / 16
-EP_X = (-5.85, -5.85 + EP_T)                        # the plate's upright, on the angle's top flange (X -6.146 to -5.673)
-EP_Y, EP_TOP = 8.15, 10.42
+EP_X = (-5.70, -5.70 + EP_T)                        # the plate's upright, at the front edge of the angle's top flange (X -6.146 to -5.673):
+                                                    # 0.69 in from the hubs' faces to the frame's back, for the plugs and their wires' bends
+EP_Y, EP_TOP = 8.15, 10.60
 TONGUE = ((-7.50, EP_X[0]), 1.85)                   # back over both flanges, between the drive motors' encoder caps (|Y| 1.87)
 TONGUE_HOLES = [(x, s_ * 8 * 3 * MM) for x in REAR_HOLES_X for s_ in (-1, 1)]
 HUB = (143 * MM, 103 * MM, 29.5 * MM)               # REV's drawing: both hubs, M3 through holes 128 x 88 in the corner tabs
@@ -714,7 +715,7 @@ for s_, nm, sku in ((1, "control_hub", "REV-31-1595 Control Hub"), (-1, "expansi
     for hy, hz in holes: body = body.cut(cylx(hy, hz, 3.4 * MM, x0 - 0.1, x1 + 0.1))
     hn = f"{nm} ({sku}: on the plate's back face, ports out the back; four M3 through its corner tabs)"
     part(elec, hn, body, (0.24, 0.25, 0.27), "buy"); HUBS[nm] = (hn, holes)
-    c = bolt(elec, f"hub_{nm}", f"the {nm.replace('_', ' ')} to the electronics plate (from behind, into the plate's tapped holes)", [(x1 - HUB_TAB * MM, hy, hz) for hy, hz in holes], (1, 0, 0), HUB_TAB, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=(nm,))
+    c = bolt(elec, f"hub_{nm}", f"the {nm.replace('_', ' ')} to the electronics plate (from behind, into the plate's tapped holes)", [(x1 - HUB_TAB * MM, hy, hz) for hy, hz in holes], (1, 0, 0), HUB_TAB, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=(nm,), service="its cover off first (one thumb screw)")
     drill(elec, [nm], c)
 part(elec, "battery (REV-31-1302 12 V Slim Battery: drops into its cradle from above, a hook-and-loop strap over the top)", bx(*BAT_X, -BAT[0] / 2, BAT[0] / 2, *BAT_Z), (0.10, 0.10, 0.11), "buy")
 cr = bx(*CR_X, -CR_W - 0.1, CR_W + 0.1, *CR_FLOOR)                                      # floor
@@ -730,13 +731,40 @@ c = bolt(elec, "elec_tongue_front", "the plate's tongue and the battery cradle t
 drill(elec, ["battery_cradle", "elec_plate"], c)
 c = bolt(elec, "elec_tongue_rear", "the plate's tongue to the rear channel's top flange (nuts under the flange)", [(x, y, REAR_TOP + EP_T) for x, y in TONGUE_HOLES if x < -6.5], (0, 0, -1), EP_T * IN + 2.5, nut=True, through=("elec_plate",))
 drill(elec, ["elec_plate"], c)
-SW = ((EP_X[1] + 0.1, EP_X[1] + 0.1 + 0.55), (-0.6, 0.6), (9.55, 10.40))                   # the switch's body (X, Y, z), its rocker on top
-part(elec, "power_switch (REV-31-1387 Switch Cable and Bracket's rocker: on top, in reach from above and behind)", bx(*SW[0], *SW[1], *SW[2]).union(bx(SW[0][0] + 0.12, SW[0][1] - 0.12, -0.35, 0.35, SW[2][1], SW[2][1] + 0.12)), RED, "buy")
-sh = bx(EP_X[1], SW[0][1] + 0.08, -0.72, 0.72, 9.45, SW[2][1]).cut(bx(SW[0][0], SW[0][1], SW[1][0], SW[1][1], SW[2][0], SW[2][1] + 0.1))
-sh = sh.union(bx(EP_X[1], EP_X[1] + 3 * MM, -1.15, 1.15, 9.7, 10.2))
+SW = ((EP_X[1] + 0.1, EP_X[1] + 0.1 + 0.55), (-0.6, 0.6), (9.90, 10.75))                   # the switch's body (X, Y, z), its rocker on top
+part(elec, "power_switch (REV-31-1387 Switch Cable and Bracket's rocker: on top, under its holder's roof; a finger reaches it from behind)", bx(*SW[0], *SW[1], *SW[2]).union(bx(SW[0][0] + 0.12, SW[0][1] - 0.12, -0.35, 0.35, SW[2][1], SW[2][1] + 0.12)), RED, "buy")
+sh = bx(EP_X[1], SW[0][1] + 0.08, -0.72, 0.72, 9.80, SW[2][1]).cut(bx(SW[0][0], SW[0][1], SW[1][0], SW[1][1], SW[2][0], SW[2][1] + 0.1))
+sh = sh.union(bx(EP_X[1], EP_X[1] + 3 * MM, -1.15, 1.15, 9.95, 10.45))
 part(elec, "switch_holder (print PETG: the switch presses into its pocket; two M3 from the front into the plate's tapped holes)", sh, (0.95, 0.55, 0.15), "print")
-c = bolt(elec, "switch_holder", "the switch holder to the electronics plate (from the front)", [(EP_X[1] + 3 * MM, s_ * 0.95, 9.95) for s_ in (-1, 1)], (-1, 0, 0), 3.0, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=("switch_holder",))
+c = bolt(elec, "switch_holder", "the switch holder to the electronics plate (from the front)", [(EP_X[1] + 3 * MM, s_ * 0.95, 10.20) for s_ in (-1, 1)], (-1, 0, 0), 3.0, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=("switch_holder",))
 drill(elec, ["switch_holder"], c)
+# the switch's roof: a ball landing on the bay can't reach the rocker; a finger reaches in over the plate's top edge from behind
+ROOF_Z = (11.20, 11.32)
+roof = bx(EP_X[1], SW[0][1] + 0.08, -0.72, 0.72, *ROOF_Z)
+for y_ in ((-0.72, -0.62), (0.62, 0.72)): roof = roof.union(bx(EP_X[1], SW[0][1] + 0.08, *y_, SW[2][1], ROOF_Z[1]))
+roof = roof.union(bx(SW[0][1], SW[0][1] + 0.08, -0.72, 0.72, SW[2][1], ROOF_Z[1]))
+k_ = next(k for k in elec if k.startswith("switch_holder"))
+wp_, col_, kind_ = elec[k_]; elec[k_] = (wp_.union(roof), col_, kind_)
+# the hubs' covers: 1/16 in clear polycarbonate, bent twice; each hooks over the plate's top edge and drops behind its hub
+# (cables leave by the open bottom and ends; the LEDs show through). One M3 thumb screw through the front lip holds each:
+# undo it from above, lift the cover off
+CV_T = 1 / 16
+CV_BACK = -7.50                                      # inside the frame's back face (X -7.564); 0.58 in behind the hubs' faces for the plugs
+CV_Z0, CV_ZT = 6.60, EP_TOP + 0.02                   # the open bottom; the top's underside
+CV_LIP = 10.05                                       # the front lip's bottom, on the plate's front face
+for s_, nm in ((1, "control_hub"), (-1, "expansion_hub")):
+    y0, y1 = sorted((s_ * (HUB_IN - 0.05), s_ * (HUB_IN + HUB[0] + 0.05)))
+    cv = bx(CV_BACK, CV_BACK + CV_T, y0, y1, CV_Z0, CV_ZT + CV_T)                      # back
+    cv = cv.union(bx(CV_BACK, EP_X[1] + CV_T, y0, y1, CV_ZT, CV_ZT + CV_T))           # top
+    cv = cv.union(bx(EP_X[1], EP_X[1] + CV_T, y0, y1, CV_LIP, CV_ZT + CV_T))          # front lip
+    part(elec, f"{nm}_cover (1/16 in clear polycarbonate, bent twice: hooks over the plate's top edge, one thumb screw)", cv, POLY, "cut")
+    yc = s_ * (HUB_IN + HUB[0] / 2)
+    c = bolt(elec, f"{nm}_cover", f"the {nm.replace('_', ' ')}'s cover to the plate's front face (from the front; a knurled M3 thumb screw, no tool)", [(EP_X[1] + CV_T, yc, 10.45)], (-1, 0, 0), CV_T * IN, d=3, nut=False, tapped=EP_T * IN + 1.0, min_engage=3, into="elec_plate", through=(f"{nm}_cover",))   # its tip ends just above the hub, behind the plate
+    drill(elec, [f"{nm}_cover"], c)
+# the Pinpoint odometry computer: flat (its IMU's yaw axis vertical) on the launcher's left side channel's top flange,
+# beside the left flywheel motor, the odometry pods' cables to it short; it goes to the Control Hub's I2C bus 1
+PP = ((-0.05, -0.05 + 1.5), (4.55, 4.55 + 1.5), (SIDE_TOP + 0.16, SIDE_TOP + 0.16 + 0.45))
+part(elec, "pinpoint (goBILDA 3110-0002-0001 Pinpoint odometry computer, size approximate: flat on the left side channel, on two M4 standoffs into its top flange's 8 mm grid)", bx(*PP[0], *PP[1], *PP[2]), (0.2, 0.2, 0.22), "buy")
 # ---- the holes the screws thread into: a heat-set insert's hole in a printed part, a tap drill in a cut one ----
 def threaded_holes(d):
     import re as _re

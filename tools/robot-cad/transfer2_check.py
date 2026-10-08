@@ -74,7 +74,7 @@ def axle(n):
     if re.match(r'(lane_servo|servo_pulley)', n): return ('servo',)
     if re.match(r'feeder_motor( \(|_pulley)', n): return ('feeder motor',)
     return None
-TOUCH = [(r'^(control_hub|expansion_hub|battery_cradle|switch_holder) ', r'^elec_plate'), (r'^battery ', r'^battery_cradle'), (r'^power_switch', r'^switch_holder'),
+TOUCH = [(r'^(control_hub|expansion_hub|battery_cradle|switch_holder) ', r'^elec_plate'), (r'^(control_hub|expansion_hub)_cover', r'^elec_plate'), (r'^battery ', r'^battery_cradle'), (r'^power_switch', r'^switch_holder'),
          (r'^lane_wall_', r'^lane_bearing_|^wall_standoff_|^ceiling_post_|^jack_bearing_'),
          (r'^lane_cord_(\d)', r'^lane_pulley_'), (r'^lane_drive_belt', r'^jack_pulley|^idler_pulley'), (r'^lane_pinion_0', r'^jack_pinion'),
          (r'^idler_hanger', r'^idler_(bearing|shaft|spacers)'), (r'^feeder_arm_', r'^feeder_(pivot_)?bearing_'),
