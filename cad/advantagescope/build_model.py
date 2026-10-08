@@ -17,7 +17,10 @@ import numpy as np, trimesh, fast_simplification
 import importlib.util
 _spec = importlib.util.spec_from_file_location("transfer", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "transfer", "build.py"))
 TRF = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(TRF)   # the transfer's numbers (feeder axes)
-FEEDER_PART = re.compile(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder |pad_plate |pad_foam )")
+_spec = importlib.util.spec_from_file_location("real_parts", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "full-robot", "real_parts.py"))
+RPM = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(RPM)
+LENS = RPM.limelight_lens_in()[0]                 # the camera's lens on its goBILDA mount, inches
+FEEDER_PART = re.compile(TRF.FEEDER_SPINS + "|" + TRF.PAD_SWINGS)
 
 IN, M = 25.4, 0.0254
 C, F, FACE = -59.62, -151.75, 207.73                 # robot CAD (mm): centre x, floor y, front face z
@@ -150,8 +153,8 @@ FLYWHEEL_Z = 6.646
 FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
 FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
 PAD = 7
-ROLLER_AXLE = (8.56, 3.345)                            # X, z at rest
-ROLLER_SPINS = r"^roller_shaft|^roller_wheels|^roller_pulley|^lane_drive_pulley_roller"
+ROLLER_AXLE = (TRF.ROLLER_AXLE_X, 3.4)                            # X, z at rest
+ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^lane_drive_pulley_roller"
 
 def on_axle(v, y, z, tol=0.12):
     """True when a part (CAD-inch vertices) is centred on the flywheel axle at (y, z) in the robot frame."""
@@ -186,7 +189,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     else:
         for n, m in add.items():
             if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
-    base += limelight(mount_only=any(m["kind"] == "camera" for m in vendor.values()))
+    if not any(m["kind"] == "mount" for m in vendor.values()):      # the goBILDA mount comes with the vendor meshes
+        base += limelight(mount_only=any(m["kind"] == "camera" for m in vendor.values()))
     tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
     if tr is None: base += transfer()                 # placeholder solids until cad/transfer/ exists
     else:
@@ -195,8 +199,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     floats = [(n, m) for n, m in add.items() if m["grp"] == "float"] + ([(n, m) for n, m in tr.items() if m["grp"] == "float"] if tr else [])
     flt = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if not re.search(ROLLER_SPINS, n)]
     roller = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if re.search(ROLLER_SPINS, n)]
-    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^(feeder \(|feeder_shaft |feeder_pulley_feeder )", n)]} if tr else {}
-    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(r"^pad_(plate|foam) ", n)] if tr else []
+    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.FEEDER_SPINS, n)]} if tr else {}
+    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.PAD_SWINGS, n)] if tr else []
     os.makedirs(OUT, exist_ok=True)
     merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
     merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
@@ -206,10 +210,11 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     for i, k in enumerate(FLYWHEEL_AXLES): merged(fly[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{5 + i}.glb"))
     for k, i in FEEDERS.items(): merged(feed[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{i}.glb"))
     merged(pad).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{PAD}.glb"))
-    # The Limelight (Limelight Localization chat, 19429's measured mount): lens on the centreline 4.0 in ahead of the
-    # chassis centre and 14.0 in up, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across.
+    # The Limelight where the CAD's goBILDA mount puts its lens (cad/full-robot/real_parts.py, limelight_rig): on the
+    # centreline, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across. (The Limelight chat's earlier
+    # number, from 19429's mount, was 4.0 in ahead and 14.0 in up; TeamCode's CameraMount is measured on the robot.)
     camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
-              "position": [round(4.0 * M, 5), 0.0, round(14.0 * M, 5)], "resolution": [640, 480], "fov": 54.5}
+              "position": [round(LENS[0] * M, 5), 0.0, round(LENS[2] * M, 5)], "resolution": [640, 480], "fov": 54.5}
     # disableSimplification: AdvantageScope otherwise decimates a model and drops meshes by rendering mode, and
     # this one (plain part names, no NOSIMPLIFY) came out blank on the field (6 Oct 2026).
     config = {"name": NAME, "isFTC": True, "disableSimplification": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],

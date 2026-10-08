@@ -42,9 +42,9 @@
   "model_4": {
     "what": "the intake roller: its shaft, two 48 mm gecko wheels, its 24T pulley and the lane's drive pulley",
     "axis_point_m": [
-      0.217424,
+      0.218973,
       0.0,
-      0.084963
+      0.08636
     ],
     "axis": [
       0,
@@ -105,7 +105,7 @@
     "axis_point_m": [
       -0.051943,
       -0.04445,
-      0.03683
+      0.041148
     ],
     "axis": [
       1,
