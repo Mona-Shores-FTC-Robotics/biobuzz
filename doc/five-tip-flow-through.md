@@ -151,15 +151,15 @@ off (`FieldSim.spillVariety`: per-piece roll and tile-slope variety; `FieldSim.b
 
 | Setting | Held | Across the centre line | Robot full (s after the TIP) |
 |---|---|---|---|
-| As fitted (variety 1, scatter 0.1) | 2.6 | 1.6 | 7.5 (often never) |
+| As fitted (variety 1, scatter 0.1) | 2.6 | 1.6 | 7.5 |
 | No variety | 2.9 | 1.4 | 6.9 |
 | No scatter | 3.3 | 1.4 | 5.0 |
 | Neither | 3.2 | about 0 | 5.4 |
 | Neither, rigid V 24 in | 3.1 | about 0 | 5.4 |
 
 The region counts are net changes in floor pieces, and other pieces get knocked about, so a few go negative. Read
-them as about 0. Without its random spread the spill stays on our half, and the robot fills to 4 within about
-0.5 s of the spill landing. So the centre-line loss in the table above is the part of the model nobody has
+them as about 0. Without its random spread the spill stays on our half, and the robot holds 3.2 on average
+(4 in most runs; "Robot full" counts a run that never fills as 9 s). So the centre-line loss in the table above is the part of the model nobody has
 measured. If real spills behave like the no-spread case, the limit becomes the 4-piece G407 cap, and the flow-through
 and pen questions below decide whether 5 TIPs work. The filmed spill test tells which world we are in.
 
