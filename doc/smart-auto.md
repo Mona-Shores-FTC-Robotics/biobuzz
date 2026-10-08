@@ -51,7 +51,7 @@ light flashes white. The camera says which start we are on; with no camera, D-pa
 | We start | Launch & Park | Just Park |
 |---|---|---|
 | **Right** | R-Quals | R-Quals: TIP 1 is ours at once anyway |
-| **Left** | L-Quals: waits for the partner's TIP 1, makes it itself by 9.2 s if it never comes | **L-Quals, no wait**: makes TIP 1 itself at once (to build and measure, open item 7) |
+| **Left** | L-Quals: waits for the partner's TIP 1, makes it itself by 9.2 s if it never comes | **Not a plan: NOT READY.** A Just Park partner gives no TIP 1, so we start on the right and make it ourselves (mentor, 9 Oct 2026). On the left, the robot is on the wrong start or the partner was mis-picked |
 
 **Each behaviour has its own colour** (mentor, 9 Oct 2026: "a separate color ... for each specific one? so the kids get
 used to it"): Launch & Park in **violet**, Just Park in **cyan**, on the Driver Station, the scouting sheet and any card
@@ -59,8 +59,7 @@ the drive coach holds. Never an alliance colour (red, blue) or a status colour (
 to blue, so it is only ever used next to the word "Partner", never on the robot light. A new behaviour gets a new
 colour from the same rule.
 
-In BACKUP the partner changes nothing: Backup-L or Backup-R counts only on TIPs it makes itself. The right start scores
-more with a Just Park partner, if it is free. Scouting still decides details the two words hide: a Just Park partner
+In BACKUP the partner changes nothing: Backup-L or Backup-R counts only on TIPs it makes itself. Scouting still decides details the two words hide: a Just Park partner
 that waits at the standard left start is the case `doc/r-quals-partner-timing.md` covers. A partner-specific Auto (one
 built for a scouted team) is a new entry in the list.
 
@@ -288,8 +287,12 @@ the field.
    measured. Asked of the simulator chat.
 2. **Backup-L and Backup-R**: timer-only, aiming by turning, TIP 1 from our preloads at once, TIP 2 from FLOWERs that
    are always full. Measure at 60 runs against each partner in the list, plus late and never-moving versions of each.
-3. **A spill-free R-Quals** (the baseline rule): TIP 2 from the wall FLOWER carried up the left side, as the sister
-   Autos do.
+3. **R-Quals without relying on a spill.** The baseline rule (`doc/unified-design.md`): no TIP may depend on catching
+   pieces that fall out of the HIVE. Today's R-Quals waits under the HIVE to catch TIP 1's spill and fires it for
+   TIP 2, so it breaks the rule. The pieces always there: our 4, the partner's 4 if it launches, two FLOWERs and the
+   GARDEN. With a Launch & Park partner that is 20, exactly 3 TIPs; with Just Park, 16, so 2 TIPs, never 3 (today's
+   R-Quals, catching, gets 3 in 38 of 60). **For the mentor:** keep the rule for Just Park and accept 2 TIPs, or let
+   R-Quals catch for its 3rd TIP on top of a spill-free 2 (a missed catch then costs only the 3rd).
 4. **PARK ONLY without the Pinpoint.** The start is still known (the camera's start check needs no Pinpoint; with no
    camera, ◀ ▶ give it); what's lost is odometry while driving. Preferred: Pedro localizing from the drive motors'
    encoders, enough for one short path. Needs the encoders wired on both robots (check at the next meeting) and a
@@ -297,5 +300,3 @@ the field.
    LOADING ZONE reliably, or settle for LEAVE.
 5. **The flywheel encoder failsafe** (later): what Auto does if the flywheel never reports reaching speed.
 6. **Battery thresholds**: measure where the launcher's shots start to fall short.
-7. **L-Quals, no wait**, for a Just Park partner: TIP 1 made at once instead of after the 9.2 s wait. Build and
-   measure against today's L-Quals with the same partner (2 TIPs in 53 of 60).
