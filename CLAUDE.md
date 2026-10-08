@@ -107,8 +107,10 @@ Degrees only on screens. It is the only frame a person reads or types — on the
 the Visualizer, in docs, issues and conversation. A library that works in another frame (Panels'
 canvas, Limelight camera space) is converted inside the one class that talks to it, and nothing
 downstream sees the other frame; never add a frame or unit toggle anywhere. The field is
-`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and mirrors across
-`FIELD_CENTRE_INCHES`; `FieldFrameTest` fails any other file that states the size (generated
+`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and is a half turn, not a
+mirror, between the alliances: an Auto drawn for red runs for blue turned about (`FIELD_CENTRE_INCHES`,
+`FIELD_CENTRE_INCHES`), so the drive team's left and right hold on both, AUDIENCE and SCORING swap
+(`doc/game/README.md`). `FieldFrameTest` fails any other file that states the size (generated
 Autos, written by the Visualizer on the same field, are exempt). Field facts
 that depend on the frame live in `util/FieldFrame`.
 

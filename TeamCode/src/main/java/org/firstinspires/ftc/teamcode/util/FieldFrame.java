@@ -18,7 +18,7 @@ public final class FieldFrame {
      * The playing field's side, wall face to wall face, in inches.
      *
      * <p>Not 144. The nominal 12 ft ignores the thickness of the perimeter wall; last season showed
-     * 141.5 in matches the real field, and it is what our Visualizer fork draws and mirrors with.
+     * 141.5 in matches the real field, and it is what our Visualizer fork draws and turns with.
      * (A tape measure on our practice field is the check, if it is ever in doubt.) A second
      * number here is how last season's frame bugs started, so nothing else in the code states the
      * field's size: {@code FieldFrameTest} fails the build if one appears.
