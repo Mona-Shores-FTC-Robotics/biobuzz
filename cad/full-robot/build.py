@@ -37,9 +37,11 @@ C, F, FACE, IN = A.C, A.F, A.FACE, A.IN
 SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043|V-Groove|Cavity1|8x14x5mm Bearing|4\.5in OD|Servo|Compact Servo Block"
                   r"|3700-0145-0288|1108-0001-0002|1222-0001-0001|3312-4008-0008)"   # his intake carriage: the V-guides it rode, its plates, mount and hubs
                   r"|^3\.5in OD|Nectar|Pollen|Wheel Assembly <\d> / 72mm Steel Shaft"
-                  r"|Launcher subassembly <\d> / (312rpm Motor|7x11 hole Aluminum Plate|1 Hole Lowside U-Channel|Mini Quad Block|16t HTD5 Pulley|\[LS\] HTD5 belt 68|Dual Block)")
+                  r"|Launcher subassembly <\d> / (312rpm Motor|7x11 hole Aluminum Plate|1 Hole Lowside U-Channel|Mini Quad Block|16t HTD5 Pulley|\[LS\] HTD5 belt 68|Dual Block)"
+                  r"|Launcher subassembly <2> / 96mm Steel Shaft")
 # (the last line: the flywheel motors, their belts and the plates and blocks that held them under the flywheels, where the
-# feeders go; cad/transfer/ draws the motors moved out and up)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
+# feeders go; cad/transfer/ draws the motors moved out and up), and the left flywheel's 96 mm shaft (cad/transfer/ draws a
+# longer one that drives the feeder and carries its yoke)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
 RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (30 mm): a lane NECTAR passes under it
 LAUNCHER = re.compile(r"^Launcher Concept|^Dual Block \(GB\)")   # the launcher, turret and the two blocks tying its frame to the chassis
 FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
@@ -153,13 +155,16 @@ MOVING = [
     ("feeder", "MOVES 8 - feeder (Revolute)"),
     ("pad", "MOVES 9 - sprung pad (Revolute at its hinge, swings out for a NECTAR)"),
     ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
+    ("feeder_yoke", "MOVES 11 - feeder yoke (Revolute about the left flywheel's shaft: the gate servo swings it 10 deg)"),
 ]
+FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L)")   # ours, on the left flywheel's shaft
+TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)")             # ours, on the turret drive gear's shaft
 TURRET_TURNS = re.compile(r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176")
 TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the ring that drives it
 TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)
 FASTENER = re.compile(r"[Ss]crew|Nut|2800-|2802-|2812-|2829-")
 FLYWHEELS = {"Launcher subassembly <2>": ("fly_L", 3.6427), "Launcher subassembly <1>": ("fly_R", -3.3276)}
-ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^roller_collar|^roller_eclip")
+ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_lane_pulley|^roller_pulley|^roller_collar|^roller_eclip")
 
 def mentor_motion(path, shp, loc):
     """Which moving group a part of the mentor's goes in, or None (the frame)."""
@@ -246,7 +251,9 @@ def main(robot_step, out, additions=False, only=None):
         sub = cq.Assembly(name=f"transfer: {title}")
         shapes = {n: TR.to_cad(wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
-            dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else sub
+            dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else \
+                   moving["feeder_yoke"] if re.match(TR.FEEDER_SWINGS, n) else moving["fly_L"] if FLY_L_SPINS.match(n) else \
+                   moving["turret_gear"] if TURRET_GEAR_TURNS.match(n) else sub
             add_part(dest, n, shapes[n], col, shapes)
         frame.add(sub)
     ll = cq.Assembly(name="Limelight 3A on its goBILDA mount")

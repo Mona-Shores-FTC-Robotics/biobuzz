@@ -14,11 +14,12 @@ ceiling, which presses it onto them, and push it in between the feeder and the p
 backstop. Stopped, the feeder holds it there, below the flywheels' reach; the rest queue behind it. Feeding runs the
 feeder: it drives the ball, pinched against the pad, straight up into the flywheels.
 
-What v4 changed from v3, and why (README "What changed in v4"): the lane runs on a continuous-rotation servo instead of a
-motor (v3 made nine DC motors; FTC allows eight), on five shafts instead of eight; the walls hang from the drive rails on
-goBILDA REX standoffs; the feeder's bearings sit in two small plates on the mentor's launcher channels instead of holes
-drilled in them; the feeder runs on a second continuous-rotation servo, belted (215 mm) to its shaft; every belt is a
-goBILDA length on fixed centres; every screw is drawn and checked.
+Drives (plan A, README "Drives"): no motor of its own. The intake roller's motor also runs the lane, through a goBILDA
+round belt from a pulley on the roller and a goBILDA gear pair that turns it the lane's way; a fixed idler keeps the belt's
+length within 3% as the roller floats. The feeder is belted to the left flywheel's shaft, so it spins whenever the
+flywheels do, and swings on two arms about that shaft. A servo is the gate: it holds the feeder swung out, clear of the
+waiting ball; swung in, it pinches the ball against the sprung pad and drives it up.
+The launcher changes: the flywheel motors move out and up, and become goBILDA 6000 RPM (1:1) Yellow Jackets.
 """
 import math, os, sys
 import cadquery as cq
@@ -57,9 +58,12 @@ FEED_X = (-3.79 + SH, -1.90 + SH)       # the flywheels' X span
 # One driven feeder on the left, fixed; opposite it a sprung foam pad on a bottom hinge. The pad takes the size
 # difference: it rests where a POLLEN presses its foam 0.2 (and the feeder's tread 0.1), and a NECTAR pushes it back
 # 0.77. Low band preload, so both sizes enter the stopped feeder under the lane's push.
-FEED_IN = 1.45                          # the feeder's tread, inner edge, Y: a POLLEN presses 0.10 into it and centres at Y 0.15; a NECTAR presses 0.15, centres at -0.21
-FEED_Y = FEED_IN + RF                   # its axle's Y (2.87)
-# its axle (FEED_Z, below): 3.25, as high as it goes and stay 0.17 clear of the left flywheel
+FEED_IN = 1.45                          # the feeder's tread, inner edge, Y, swung in (feeding): a POLLEN presses 0.10 into it and centres at
+                                        # Y 0.15; a NECTAR presses 0.15, centres at -0.21
+FEED_OUT = 2.05                         # swung out (waiting): it spins all the time, and clears a waiting NECTAR by 0.24, a POLLEN on the wall by 0.19
+FEED_Y = FEED_IN + RF                   # its axle's Y, swung in (2.87)
+P_C, N_C = FEED_IN + 0.10 - RP, FEED_IN + 0.15 - RN     # a pinched POLLEN's and NECTAR's centres, Y
+# it swings on two arms about the left flywheel's shaft, which drives it by a belt: its axle stays FEED_C from that shaft
 FLOOR_Z = 1.3                           # the lane's ball-bottom height: a POLLEN's centre (2.70) and a NECTAR's (3.11) are in the feeder's grip
 PAD_FACE = -1.05                        # the pad's foam face at rest, Y; 0.5 in of foam on 1/8 in aluminium
 PAD_FOAM = 0.5
@@ -83,48 +87,48 @@ CEIL_TRAVEL = 0.85                      # slot length: a NECTAR lifts it 0.82
 CHAN_RAISE = 30 / 25.4                  # the old intake's 11-hole channel goes up 30 mm: a lane NECTAR (top 4.92) and the lifted ceiling pass under it
 WALL_X = (FEED_X[1] + 0.3, 7.4)         # the walls end just ahead of the feeder and the pad's hinge block, and carry the ramp in slots
 RAMP_SLOT = 0.1                         # the ramp's edges sit this deep in slots routed in the walls' inner faces
-# the lane's drive: a goBILDA 2000-0025-0004 Super Speed servo in continuous rotation (programmed with the 3102 programmer),
-# powered at 6 V by a REV Servo Power Module (230 RPM). Its tabs stand on two 43 mm standoffs from the right rail's web,
-# its spline toward the lane; a 40 mm printed pulley on the spline drives shaft 3's 16 mm groove by polycord: 2.5:1 up,
-# about 575 RPM at the lane shafts (28 in/s of roller tread, about 14 in/s of ball)
-SV_TABS = [RAIL_HOLE(x, 56.5) for x in (32, 80)]   # the tabs' lower pair of holes (48 mm apart) on two of the web's holes
-SV_C = (56 * MM, (56.5 + 5) * MM)                  # the case's centre (X, z): the holes are 5 mm below it
-SV_SPL = (SV_C[0] - 10 * MM, SV_C[1])              # the spline: 10 mm from the centre, toward the back (clear of shaft 2's pulley)
-SV_STANDOFF = 43 * MM
-SV_TAB_Y = -(RAIL_WEB_IN - SV_STANDOFF)            # the tabs' face, Y (-3.57)
-SV_PUL_PD = 40 * MM                                # the servo pulley's groove (pitch) diameter
-SV_SHAFT = 3                                       # the lane shaft it drives
-# pulleys: printed, three 3/16 in polycord grooves on every lane shaft outside the right wall (one part); the shafts chain
-# in pairs on grooves a and b, the servo drives shaft 3 on groove c
-PUL_Y0, PUL_L = -(WO + 0.04), 17 * MM              # from the bearing's flange outward
-GROOVE = [PUL_Y0 - (3 + 5.5 * k) * MM for k in range(3)]
+# the lane's drive: from the intake roller (cad/intake-b), whose motor (1150 RPM) now runs the roller and the lane. A
+# printed pulley on the roller (20 mm pitch diameter, in a gap in its left vector wheels) drives a goBILDA 5 mm round belt
+# round a printed 24 mm pulley on a jackshaft under the ramp and a goBILDA idler hung from the old intake's 9-hole channel.
+# The jackshaft turns the way the roller does; a pair of goBILDA 24T pinions turns lane shaft 0 the other way, as the lane
+# needs. The idler sits where the belt's length changes least as the roller floats (3%, inside its stretch).
+# The lane shafts turn at 1150 x 20 / 24 = 958 RPM: 47 in/s of roller tread, about 24 in/s of ball.
+LD_Y = 3.65                             # the round belt's plane, Y: the roller's gap is 3.4-3.9 (cad/intake-b ROLL_GAP)
+LD_RR, LD_RJ, LD_RI = 10 * MM, 12 * MM, 8 * MM      # pitch radii: the roller's pulley, the jackshaft's, the idler's (goBILDA 3401)
+LD_CORD = 5 * MM
+GEAR_C = 19.2 * MM                      # two 24T mod 0.8 pinions' centres
+_ja = math.radians(-5)                  # the jackshaft: ahead of lane shaft 0 and a little lower, under the ramp
+IDLER = (6.35, 5.40)                    # (X, z): under the 9-hole channel's web (z 6.22), its hanger on four of the web's holes
+CHAN_WEB_Z = (6.219, 6.317)             # that channel's web: it opens downward, its flanges at X 5.66-5.76 and 7.45-7.55
+CHAN_HOLES = [(6.285, 3.572), (6.934, 3.572), (6.285, 4.222), (6.934, 4.222)]   # 4 mm holes in its web (X, Y), measured from his CAD
+ROLLER_AXLE = (7.56 + 0.061 + 1.0, 3.4) # the intake roller's axle at rest (X, z); it rises 1.3
+LD_BELT = (334, "3405-0005-0334")       # goBILDA round belt, 5 mm, 334 mm: stretched 5.3-8.5% on this loop as the roller floats
+# pulleys: printed, two 3/16 in polycord grooves on every lane shaft outside the right wall (one part); the shafts chain
+# in pairs on grooves a and b, from shaft 0
+PUL_Y0, PUL_L = -(WO + 0.04), 11.5 * MM            # from the bearing's flange outward
+GROOVE = [PUL_Y0 - (3 + 5.5 * k) * MM for k in range(2)]
 PUL_PD = 16 * MM                                   # the grooves' pitch diameter
-# the feeder's drive: a second goBILDA 2000-0025-0004 Super Speed servo in continuous rotation, straight above the
-# feeder's shaft, ahead of the launcher: a goBILDA 1910-0025-0816 hub on its spline carries a goBILDA 3411-0014-0024
-# 24T hub-mount pulley, belted (goBILDA 3412-0009-0215) to a 3417-4008-0024 24T on the feeder's shaft. The servo's tabs
-# stand on two 34 mm standoffs from the front bearing plate, which reaches up the mentor's front 3-hole channel for it.
-# A servo can't throw the ball the 1.7 in up to the flywheels (README "Open"): either the hand-off closes up, or a DC
-# motor goes here once one of the mentor's launcher channels moves to make room for it.
+# the feeder's drive: belted to the left flywheel's shaft, so it spins whenever the flywheels do, and swings on two arms
+# about that shaft (the belt's centres never change). His 96 mm shaft becomes a
+# goBILDA 2106-4008-1440 (144 mm), out through the front channel's bearing; a 3417-4008-0016 16T on it drives a
+# 3417-4008-0024 24T on the feeder's shaft on a goBILDA 3412-0009-0275 belt (fixed centres: the feeder's height is set by
+# them). The feeder's tread runs at half the flywheels' surface speed (2341 x 16 / 24 = 1561 RPM, 232 in/s).
 P24 = 24 * 5 / math.pi / 25.4
 MOTOR_D = 37 * MM
 QB = 43 * MM                                       # a goBILDA quad block: sizes the flywheel motor bracket's upright
-FEED_BELT = (215, "3412-0009-0215")
-FEED_C = (FEED_BELT[0] * MM - math.pi * P24) / 2   # 47.5 mm: the belt's exact centres
-FD_PUL_X = (-0.06 + 5.5 * MM, -0.06 + 17.5 * MM)  # the 24Ts' plane: ahead of the front bearing plate by the hub-pulley screws' heads
+FEED_BELT = (275, "3412-0009-0275")
+FD_PUL_X = (0.97, 0.97 + 12 * MM)                  # the belt's plane: ahead of his 8-hole channel (X 0.79) and the arm's servo
 BELT_X = sum(FD_PUL_X) / 2
 P16, P41 = 16 * 5 / math.pi / 25.4, 41 * 5 / math.pi / 25.4
 def belt_len(c, d0, d1):
     """An open belt's pitch length (inches) for centres c and pitch diameters d0, d1."""
     return 2 * c + math.pi * (d0 + d1) / 2 + (d1 - d0) ** 2 / (4 * c)
-
-FEED_Z = 3.25
-FS_TILT = math.radians(3)                          # the feeder servo sits on the belt's centres, 3 deg inboard of straight up:
-FS_Y, FS_Z = FEED_IN + RF - FEED_C * math.sin(FS_TILT), FEED_Z + FEED_C * math.cos(FS_TILT)   # clear of the front plate's screws
-FS_LONG, FS_ACROSS = (-math.sin(FS_TILT), math.cos(FS_TILT)), (math.cos(FS_TILT), math.sin(FS_TILT))   # its case's long axis, (Y, z)
-FS_HOLES = [(FS_Y + 34 * MM * FS_LONG[0] + dy * MM * FS_ACROSS[0], FS_Z + 34 * MM * FS_LONG[1] + dy * MM * FS_ACROSS[1]) for dy in (-5, 5)]
-# (its tabs' far pair of holes; the near pair is inside the pulley)
-GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - (FEED_Y - 0.15) ** 2)    # the feeder grips a POLLEN up to here (centre)
-GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - (FEED_Y + 0.21) ** 2)    # and a NECTAR; the flywheels take a NECTAR from 5.77
+def centres_for(L, d0, d1):
+    lo, hi = 1.0, 10.0
+    for _ in range(80):
+        c = (lo + hi) / 2
+        lo, hi = (c, hi) if belt_len(c, d0, d1) < L else (lo, c)
+    return c
 
 # the flywheel motors, moved out and up (along X, facing back), each belted to his 41T pulley on a goBILDA belt length:
 # 315 mm (left) and 320 mm (right); the centres are set for those
@@ -139,6 +143,12 @@ def _fly_motor(s):
         lo, hi = (c, hi) if belt_len(c, P41, P16) < L else (lo, c)
     return fy + d[0] * c, FLY_Z + d[1] * c
 FM = {s: _fly_motor(s) for s in (1, -1)}
+FEED_C = centres_for(FEED_BELT[0] * MM, P16, P24)  # the feeder belt's centres (3.44 in)
+FEED_Z = FLY_Z - math.sqrt(FEED_C ** 2 - (FLY_Y[0] - FEED_Y) ** 2)   # the feeder's axle height, swung in (3.30): always 0.13 clear of the left flywheel
+ARM_IN = math.atan2(FLY_Y[0] - FEED_Y, FLY_Z - FEED_Z)                # the arms' angle from straight down, swung in (feeding)
+ARM_OUT = math.asin((FLY_Y[0] - FEED_OUT - RF) / FEED_C)              # and swung out (waiting): 10 deg apart
+GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - (FEED_Y - P_C) ** 2)    # the feeder grips a POLLEN up to here (centre)
+GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - (FEED_Y - N_C) ** 2)    # and a NECTAR; the flywheels take a NECTAR from 5.77
 FLY_BELT_X = -3.26                      # his 41T pulleys' belt plane (launcher moved)
 FM_FACE = -2.65                         # the moved motors' faces, X (shafts pointing back)
 SIDE_FLANGE = {1: (5.35, 5.83), -1: (-5.51, -5.04)}   # the launcher side channels' top flanges, Y; top face z 5.74
@@ -146,7 +156,8 @@ SIDE_FLANGE_HOLES = {1: 5.669, -1: -5.354}          # their 4 mm holes' line, Y;
 SIDE_FLANGE_T = 2.54
 SIDE_TOP = 5.74
 
-FEEDER_SPINS = r"^(feeder \(|feeder_shaft |feeder_pulley \(|feeder_spacers_|feeder_shaft_spacer |feeder_shaft_collar |feeder_eclip )"   # what turns with the feeder
+FEEDER_SPINS = r"^(feeder \(|feeder_shaft |feeder_pulley \(|feeder_spacers_|feeder_shaft_spacer |feeder_shaft_collar |feeder_eclip)"   # what turns with the feeder
+FEEDER_SWINGS = r"^(feeder_arm_|feeder_bearing_|feeder_pivot_bearing_|gate_tab |gate_pin_arm )"   # what swings with its yoke (the feeder rides on it)
 PAD_SWINGS = r"^pad_(plate|foam|foam_glue|knuckle_rear|knuckle_front|hinge|hinge_eclip_rear|hinge_eclip_front) "                 # what swings with the pad
 
 fixed, launcher = {}, {}
@@ -182,10 +193,10 @@ def _hull(plane, c0, r0, c1, r1, w, at):
     sp = (r0 - r1) / L; cp = math.sqrt(max(0.0, 1 - sp * sp))
     m = [(u[0] * sp + s * n[0] * cp, u[1] * sp + s * n[1] * cp) for s in (1, -1)]
     poly = [(a0 + r0 * m[0][0], b0 + r0 * m[0][1]), (a1 + r1 * m[0][0], b1 + r1 * m[0][1]), (a1 + r1 * m[1][0], b1 + r1 * m[1][1]), (a0 + r0 * m[1][0], b0 + r0 * m[1][1])]
-    ext = (lambda wp: wp.extrude(w)) if plane == "YZ" else (lambda wp: wp.extrude(-w))
+    ext = (lambda wp: wp.extrude(w)) if plane in ("YZ", "XY") else (lambda wp: wp.extrude(-w))
     s = ext(cq.Workplane(plane).polyline(poly).close())
     for c, r in ((c0, r0), (c1, r1)): s = s.union(ext(cq.Workplane(plane).center(*c).circle(r)))
-    return s.translate((at, 0, 0) if plane == "YZ" else (0, at, 0))
+    return s.translate({"YZ": (at, 0, 0), "XZ": (0, at, 0), "XY": (0, 0, at)}[plane])
 def loop(plane, c0, r0, c1, r1, t, w, at):
     """A belt (or cord) loop of thickness t and width w around two pulleys of pitch radii r0, r1, centred on the pitch line."""
     return _hull(plane, c0, r0 + t / 2, c1, r1 + t / 2, w, at).cut(_hull(plane, c0, max(0.01, r0 - t / 2), c1, max(0.01, r1 - t / 2), w + 0.02, at - 0.01))
@@ -236,13 +247,14 @@ def vendor(name, fname, src_o, src_ax, src_ref, dst_o, dst_ax, dst_ref):
 
 # ---- the ramp (1/16 in polycarbonate): its edges slide into slots routed in the walls (a drop of CA each side holds it) ----
 RAMP_PTS = [RAMP[0], RAMP[1], (ROLL_X[0] + R_R, FLOOR_Z)]
+JACK = (ROLL_X[0] + GEAR_C * math.cos(_ja), ROLL_Z + GEAR_C * math.sin(_ja))   # (X, z): its bearings clear the ramp's slots
 part(fixed, "ramp (1/16 in polycarbonate; its edges in the walls' slots)", sheet(RAMP_PTS, -WALL_IN - RAMP_SLOT + 0.01, WALL_IN + RAMP_SLOT - 0.01), POLY, "cut")
 
 # ---- the lane walls: 1/4 in polycarbonate, on four REX standoffs each from the rail, low under the front drive motors ----
 def wall(s):
     y0, y1 = sorted((s * WALL_IN, s * WO))
     w = xz([(WALL_X[0], WALL_Z[0]), (WALL_X[1], WALL_Z[0]), (WALL_X[1], WALL_Z[1]), (WALL_X[0], WALL_Z[1])], y0, y1)
-    for x in ROLL_X: w = w.cut(cyly(x, ROLL_Z, 14 * MM, y0 - 0.1, y1 + 0.1))        # the shafts' flanged bearings, pressed in from outside
+    for x, z in [(x, ROLL_Z) for x in ROLL_X] + [JACK]: w = w.cut(cyly(x, z, 14 * MM, y0 - 0.1, y1 + 0.1))   # the shafts' flanged bearings, pressed in from outside
     slot = sheet([(RAMP_PTS[0][0] - 0.3, RAMP_PTS[0][1] - 0.3 * 1.25 / 2.3)] + RAMP_PTS[1:], s * WALL_IN - 0.01 * s, s * (WALL_IN + RAMP_SLOT), t=T16 + 0.01)
     return w.cut(slot)
 for s, nm in ((1, "L"), (-1, "R")): part(fixed, f"lane_wall_{nm} (1/4 in polycarbonate)", wall(s), POLY, "cut")
@@ -266,13 +278,16 @@ for i, x in enumerate(ROLL_X):
     part(fixed, f"lane_spacer_{i}a (print, PETG, 12 mm OD tube, 8mm REX bore)", cyly(x, ROLL_Z, 12 * MM, side * (0.05 + ROLL_W), side * BRG_IN).cut(bore), BLUE, "print")
     part(fixed, f"lane_spacer_{i}b (print, PETG, 12 mm OD tube, 8mm REX bore)", cyly(x, ROLL_Z, 12 * MM, side * 0.05, -side * BRG_IN).cut(bore), BLUE, "print")
     y_left = WO + 0.08                  # the left e-clip, just outside the bearing's flange
-    part(fixed, f"lane_shaft_{i} (goBILDA 2106-4008-1440, 8mm REX, 144 mm, e-clips)", cyly(x, ROLL_Z, 8 * MM, y_left, y_left - SHAFT_L * MM), STEEL, "buy")
+    if i == 0:                          # shaft 0 is longer on the left, for the drive's pinion (its right end as the others')
+        part(fixed, f"lane_shaft_0 (goBILDA 2106-4008-1680, 8mm REX, 168 mm, e-clips)", cyly(x, ROLL_Z, 8 * MM, y_left - SHAFT_L * MM + 168 * MM, y_left - SHAFT_L * MM), STEEL, "buy")
+    else:
+        part(fixed, f"lane_shaft_{i} (goBILDA 2106-4008-1440, 8mm REX, 144 mm, e-clips)", cyly(x, ROLL_Z, 8 * MM, y_left, y_left - SHAFT_L * MM), STEEL, "buy")
     for s, nm in ((1, "L"), (-1, "R")):
         part(fixed, f"lane_bearing_{i}{nm} (goBILDA 1611-0514-4008 flanged bearing)", cyly(x, ROLL_Z, 14 * MM, s * BRG_IN, s * WO).union(cyly(x, ROLL_Z, 15 * MM, s * WO, s * (WO + 0.8 * MM))), STEEL, "buy")
         vendor(f"lane_bearing_{i}{nm} (goBILDA 1611-0514-4008 flanged bearing)", "1611-0514-4008.STEP", (0, 4.8, 0), (0, -1, 0), (1, 0, 0), (x, s * (WO + 0.8 * MM), ROLL_Z), (0, -s, 0), (1, 0, 0))
     pul = cyly(x, ROLL_Z, 19 * MM, PUL_Y0, PUL_Y0 - PUL_L)
     for g in GROOVE: pul = pul.cut(cyly(x, ROLL_Z, 22 * MM, g + 2.4 * MM, g - 2.4 * MM).cut(cyly(x, ROLL_Z, PUL_PD - 4.8 * MM, g + 3 * MM, g - 3 * MM)))
-    part(fixed, f"lane_pulley_{i} (print, PETG, three 3/16 in polycord grooves, 8mm REX bore)", pul.cut(bore), BLUE, "print")
+    part(fixed, f"lane_pulley_{i} (print, PETG, two 3/16 in polycord grooves, 8mm REX bore)", pul.cut(bore), BLUE, "print")
     part(fixed, f"lane_shaft_spacer_{i} (goBILDA 8mm REX spacers, stacked to the e-clip)", cyly(x, ROLL_Z, 12 * MM, PUL_Y0 - PUL_L, y_left - SHAFT_L * MM + 0.08), STEEL, "buy")
 for i in range(4):                      # the shafts chain in pairs, grooves a and b alternating
     g = GROOVE[i % 2]
@@ -291,22 +306,85 @@ def place_local(wp, o, z_dir, x_dir):
     sh = wp.val().scale(MM)
     loc = cq.Location(cq.Plane(origin=o, xDir=x_dir, normal=z_dir))
     return cq.Workplane().add(sh.moved(loc))
-def servo():
-    return place_local(servo_local(), (SV_SPL[0], SV_TAB_Y + 12.8 * MM, SV_SPL[1]), (0, 1, 0), (1, 0, 0))
-SV_NAME = "lane_servo (goBILDA 2000-0025-0004 Super Speed, continuous rotation, 6 V)"
-part(fixed, SV_NAME, servo(), BLACK, "buy")
-vendor(SV_NAME, "2000-0025-0002.step", (-10.0, 0.0, 12.8), (0, 0, 1), (1, 0, 0), (SV_SPL[0], SV_TAB_Y + 12.8 * MM, SV_SPL[1]), (0, 1, 0), (1, 0, 0))
-for k, (x, z) in enumerate(SV_TABS):
-    part(fixed, f"servo_standoff_{k} (goBILDA 1501-0006-0430, M4 standoff, 43 mm)", cyly(x, z, 6 * MM, -RAIL_WEB_IN, SV_TAB_Y), STEEL, "buy")
-bolt(fixed, "lane_servo_rail", "the lane servo's standoffs to the right rail (from outside the rail)", [(x, -RAIL_WEB_OUT, z) for x, z in SV_TABS], (0, 1, 0), 2.3, nut=False, tapped=10, into="^servo_standoff_")
-bolt(fixed, "lane_servo_tabs", "the lane servo's tabs to its standoffs", [(x, SV_TAB_Y + 2.5 * MM, z) for x, z in SV_TABS], (0, -1, 0), 2.5, nut=False, tapped=10, into="^servo_standoff_", through=("lane_servo",), service="the right wall off first (its four flat heads), or a short key")
-sp_y0 = SV_TAB_Y + 12.8 * MM
-sp_y1 = GROOVE[2] + 3 * MM                          # the pulley runs from the case's top out to past groove c
-pul = cyly(*SV_SPL, SV_PUL_PD + 3 * MM, sp_y0, sp_y1).cut(cyly(*SV_SPL, SV_PUL_PD + 6 * MM, GROOVE[2] + 2.4 * MM, GROOVE[2] - 2.4 * MM).cut(cyly(*SV_SPL, SV_PUL_PD - 4.8 * MM, GROOVE[2] + 3 * MM, GROOVE[2] - 3 * MM)))
-pul = pul.cut(cyly(*SV_SPL, 6.2 * MM, sp_y0 - 0.01, sp_y0 + 4.2 * MM)).cut(cyly(*SV_SPL, 3.4 * MM, sp_y0, sp_y1 + 0.01)).cut(cyly(*SV_SPL, 6 * MM, sp_y1 - 3.2 * MM, sp_y1 + 0.01))
-part(fixed, "servo_pulley (print, PETG: one 40 mm polycord groove, H25T spline socket; an M3 screw into the spline holds it)", pul, BLUE, "print")
-bolt(fixed, "servo_pulley", "the lane servo's pulley to its spline (the servo's own M3 horn screw)", [(SV_SPL[0], sp_y1 - 3.2 * MM, SV_SPL[1])], (0, -1, 0), (sp_y1 - 3.2 * MM - (sp_y0 + 4.1 * MM)) * IN, d=3, nut=False, tapped=4.5, min_engage=3, label="M3 x 8 servo horn screw, with the servo", into="lane_servo", through=("servo_pulley",), modelled=True, service="the right wall off first (its four flat heads)")
-part(fixed, f"servo_cord (3/16 in polycord, welded loop, cut 8% short; servo to shaft {SV_SHAFT}, 2.5:1)", loop("XZ", SV_SPL, SV_PUL_PD / 2, (ROLL_X[SV_SHAFT], ROLL_Z), PUL_PD / 2, 3 / 16, 3 / 16, GROOVE[2] - 3 / 32), RED, "buy")
+
+# ---- the lane's drive, from the intake roller (constants above): a goBILDA 5 mm round belt over the roller's pulley, the
+#      idler and the jackshaft's pulley; two goBILDA 24T pinions from the jackshaft to lane shaft 0 ----
+def pinion(x, z, y0, teeth_first=True):
+    """A goBILDA 2303-4008-0024 (24T mod 0.8, 8mm REX, set screws): 6 mm of teeth (20.8 mm) and 8 mm of hub (15 mm),
+    along Y from y0 outward (+Y), the teeth first."""
+    t = cyly(x, z, 20.8 * MM, y0, y0 + 6 * MM); h = cyly(x, z, 15 * MM, y0 + 6 * MM, y0 + 14 * MM)
+    return t.union(h)
+GEAR_Y0 = WO + 0.8 * MM + 0.5 * MM                  # the pinions' teeth, just outside the bearings' flanges
+GEAR_Y1 = GEAR_Y0 + 14 * MM
+part(fixed, "lane_pinion_0 (goBILDA 2303-4008-0024, 24T mod 0.8 pinion, 8mm REX, set screws; on lane shaft 0)", pinion(ROLL_X[0], ROLL_Z, GEAR_Y0), STEEL, "buy")
+part(fixed, "jack_pinion (goBILDA 2303-4008-0024, 24T mod 0.8 pinion, 8mm REX, set screws; on the jackshaft)", pinion(*JACK, GEAR_Y0), STEEL, "buy")
+y_l0 = WO + 0.08 - SHAFT_L * MM + 168 * MM          # lane shaft 0's left end
+part(fixed, "lane_shaft_spacer_0L (goBILDA 8mm REX spacers, stacked: the pinion to the e-clip)", cyly(ROLL_X[0], ROLL_Z, 12 * MM, GEAR_Y1, y_l0 - 0.06), STEEL, "buy")
+part(fixed, "lane_eclip_0L (with the shaft)", cyly(ROLL_X[0], ROLL_Z, 12 * MM, y_l0 - 0.06, y_l0 - 0.03), STEEL, "buy")
+JP_Y = (LD_Y - 6.35 * MM, LD_Y + 6.35 * MM)         # the jackshaft's pulley, in the belt's plane
+JACK_L = 168
+y_j1 = JP_Y[1] + 0.1; y_j0 = y_j1 - JACK_L * MM     # the jackshaft: left end just past its pulley
+part(fixed, f"jack_shaft (goBILDA 2106-4008-{JACK_L * 10:04d}, 8mm REX, {JACK_L} mm, e-clips: under the ramp, across the lane)", cyly(*JACK, 8 * MM, y_j0, y_j1), STEEL, "buy")
+for sgn, nm in ((1, "L"), (-1, "R")):
+    part(fixed, f"jack_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cyly(*JACK, 14 * MM, sgn * BRG_IN, sgn * WO).union(cyly(*JACK, 15 * MM, sgn * WO, sgn * (WO + 0.8 * MM))), STEEL, "buy")
+    vendor(f"jack_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", "1611-0514-4008.STEP", (0, 4.8, 0), (0, -1, 0), (1, 0, 0), (JACK[0], sgn * (WO + 0.8 * MM), JACK[1]), (0, -sgn, 0), (1, 0, 0))
+part(fixed, "jack_spacers_L (goBILDA 8mm REX spacers, stacked: the pinion to the pulley)", cyly(*JACK, 12 * MM, GEAR_Y1, JP_Y[0]), STEEL, "buy")
+part(fixed, "jack_spacers_R (goBILDA 8mm REX spacers, stacked: the bearing to the e-clip)", cyly(*JACK, 12 * MM, -(WO + 0.8 * MM), y_j0 + 0.06), STEEL, "buy")
+for e, yy in (("L", y_j1 - 0.06), ("R", y_j0 + 0.03)):
+    part(fixed, f"jack_eclip_{e} (with the shaft)", cyly(*JACK, 12 * MM, yy, yy + 0.03), STEEL, "buy")
+def groove_pulley(x, z, pd, y0, y1, bore=True):
+    """A printed round-belt pulley along Y: flanges round a 5 mm groove at LD_Y, pitch diameter pd."""
+    od = pd + 5 * MM
+    pul = cyly(x, z, od, y0, y1).cut(cyly(x, z, od + 0.1, LD_Y - 2.6 * MM, LD_Y + 2.6 * MM).cut(cyly(x, z, pd - 4.6 * MM, LD_Y - 3 * MM, LD_Y + 3 * MM)))
+    return pul.cut(rex_y(x, z, y0 - 0.1, y1 + 0.1)) if bore else pul
+part(fixed, "jack_pulley (print, PETG: 24 mm pitch diameter groove for the 5 mm round belt, 8mm REX bore)", groove_pulley(*JACK, 2 * LD_RJ, *JP_Y), BLUE, "print")
+# the idler: a goBILDA 3401-4008-0016 (16 mm pitch diameter, REX bore) on a short REX shaft in two flanged bearings, in a
+# printed fork hung from four of the 9-hole channel's web holes (M4 from above the web, into heat-set inserts)
+ID_PY = (LD_Y - 3 * MM, LD_Y - 3 * MM + 14 * MM)    # the 3401's groove side toward the lane, its hub outboard
+ID_CHEEK = ((ID_PY[0] - 0.05 - 0.25, ID_PY[0] - 0.05), (ID_PY[1] + 0.05, ID_PY[1] + 0.05 + 0.25))
+part(fixed, "idler_pulley (goBILDA 3401-4008-0016, 16 mm PD round-belt pulley, 8mm REX, set screw)", cyly(*IDLER, 19.6 * MM, *ID_PY).cut(cyly(*IDLER, 22 * MM, LD_Y - 2.6 * MM, LD_Y + 2.6 * MM).cut(cyly(*IDLER, 2 * LD_RI - 4.6 * MM, LD_Y - 3 * MM, LD_Y + 3 * MM))), STEEL, "buy")
+vendor("idler_pulley (goBILDA 3401-4008-0016, 16 mm PD round-belt pulley, 8mm REX, set screw)", "3401-4008-0016 assembly.STEP", (28.365, 20.325, 31.31), (0, 0, 1), (1, 0, 0), (IDLER[0], ID_PY[0], IDLER[1]), (0, 1, 0), (1, 0, 0))
+ID_SH = (ID_CHEEK[0][0] - 0.06, ID_CHEEK[1][1] + 0.06)
+part(fixed, f"idler_shaft (goBILDA 2106-4008-0320, 8mm REX, 32 mm, e-clips)", cyly(*IDLER, 8 * MM, ID_SH[0], ID_SH[0] + 32 * MM), STEEL, "buy")
+for nm, (c0, c1) in (("in", ID_CHEEK[0]), ("out", ID_CHEEK[1])):
+    yf = c1 if nm == "in" else c0                    # the flange on the cheek's face toward the pulley
+    part(fixed, f"idler_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cyly(*IDLER, 14 * MM, c0, c1).union(cyly(*IDLER, 15 * MM, yf, yf + (0.8 * MM if nm == "in" else -0.8 * MM))), STEEL, "buy")
+part(fixed, "idler_spacers (goBILDA 8mm REX spacers: the bearings to the pulley)", cyly(*IDLER, 12 * MM, ID_CHEEK[0][1] + 0.8 * MM, ID_PY[0]).union(cyly(*IDLER, 12 * MM, ID_PY[1], ID_CHEEK[1][0] - 0.8 * MM)), STEEL, "buy")
+HG_X = (CHAN_HOLES[0][0] - 0.25, CHAN_HOLES[1][0] + 0.25)  # the hanger's block, between the channel's flanges, under its web
+HG_Y = (ID_CHEEK[0][0], ID_CHEEK[1][1])
+hg = bx(*HG_X, *HG_Y, IDLER[1] + 0.47, CHAN_WEB_Z[0])
+hg = hg.union(bx(IDLER[0] - 0.3, IDLER[0] + 0.3, *ID_CHEEK[0], IDLER[1] - 0.3, CHAN_WEB_Z[0])).union(bx(IDLER[0] - 0.3, IDLER[0] + 0.3, *ID_CHEEK[1], IDLER[1] - 0.3, CHAN_WEB_Z[0]))
+hg = hg.union(cyly(*IDLER, 0.6, *ID_CHEEK[0])).union(cyly(*IDLER, 0.6, *ID_CHEEK[1]))
+hg = hg.cut(cyly(*IDLER, 14 * MM, ID_CHEEK[0][0] - 0.1, ID_CHEEK[1][1] + 0.1).intersect(bx(-9, 9, ID_CHEEK[0][0] - 0.1, ID_CHEEK[1][1] + 0.1, -9, 9)))
+hg = hg.cut(bx(IDLER[0] - 0.42, IDLER[0] + 0.42, ID_CHEEK[0][1], ID_CHEEK[1][0], IDLER[1] - 0.6, IDLER[1] + 0.45))   # the pulley's room
+part(fixed, "idler_hanger (print, PETG: a fork under the 9-hole channel's web; the idler's two bearings pressed in; M4 heat-set inserts)", hg, BLUE, "print")
+bolt(fixed, "idler_hanger", "the idler's hanger to the 9-hole channel's web (from above the web)", [(hx, hy, CHAN_WEB_Z[1]) for hx, hy in CHAN_HOLES], (0, 0, -1), (CHAN_WEB_Z[1] - CHAN_WEB_Z[0]) * IN, nut=False, tapped=10, into="idler_hanger")
+# the belt: its path at rest (the roller down), drawn as a 5 mm cord of straight runs and arcs
+def belt_path(circles):
+    """Tangent runs and arcs round circles [(centre (X, z), r, turn)] in the X-z plane (turn +1: counter-clockwise as
+    drawn with X right and z up); returns the cord's centreline as points."""
+    def tangent(cA, rA, sA, cB, rB, sB):
+        D = (cB[0] - cA[0], cB[1] - cA[1]); dist = math.hypot(*D); k = sB * rB - sA * rA
+        th = math.atan2(D[1], D[0]) - math.asin(k / dist); d = (math.cos(th), math.sin(th)); pd = (-d[1], d[0])
+        return (cA[0] - sA * rA * pd[0], cA[1] - sA * rA * pd[1]), (cB[0] - sB * rB * pd[0], cB[1] - sB * rB * pd[1])
+    n = len(circles); segs = [tangent(*circles[i], *circles[(i + 1) % n]) for i in range(n)]
+    pts = []
+    for i in range(n):
+        c, r, sg = circles[i]; arr = segs[i - 1][1]; dep = segs[i][0]
+        a0 = math.atan2(arr[1] - c[1], arr[0] - c[0]); a1 = math.atan2(dep[1] - c[1], dep[0] - c[0])
+        sweep = (a1 - a0) % (2 * math.pi) if sg > 0 else -((a0 - a1) % (2 * math.pi))
+        for k in range(13): a = a0 + sweep * k / 12; pts.append((c[0] + r * math.cos(a), c[1] + r * math.sin(a)))
+    return pts
+def belt_len_path(pts): return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:] + pts[:1]))
+LD_LOOP = lambda zr: [(JACK, LD_RJ, 1), ((ROLLER_AXLE[0], zr), LD_RR, 1), (IDLER, LD_RI, 1)]   # all three inside the loop: they turn alike
+LD_PTS = belt_path(LD_LOOP(ROLLER_AXLE[1]))
+cord = None
+for a, b in zip(LD_PTS, LD_PTS[1:] + LD_PTS[:1]):
+    L_ = math.hypot(b[0] - a[0], b[1] - a[1])
+    if L_ < 1e-4: continue
+    seg = cq.Workplane().add(cq.Solid.makeCylinder(LD_CORD / 2, L_, cq.Vector(a[0], LD_Y, a[1]), cq.Vector(b[0] - a[0], 0, b[1] - a[1])))
+    cord = seg if cord is None else cord.union(seg)
+part(fixed, f"lane_drive_belt (goBILDA {LD_BELT[1]}, 5 mm round belt, {LD_BELT[0]} mm: the roller to the jackshaft, over the idler)", cord, RED, "buy")
 
 # ---- the flat ceiling, foam-faced, on pins in vertical slots: lifts evenly, 0.82 for a NECTAR anywhere; unhook the bands
 #      and it lifts off ----
@@ -342,11 +420,13 @@ for s in (-1, 1):
     c = bolt(fixed, f"ceiling_post_{nm}", f"the ceiling's posts to the {nm} wall (flat heads, flush inside the lane, into heat-set inserts)", heads, (0, s, 0), WALL_T * IN, nut=False, tapped=10, into=f"ceiling_post_", through=(f"lane_wall_{nm}",), flat=True)
     drill(fixed, [f"lane_wall_{nm}"], c)
 
-# ---- the feeder: one driven, fixed, on the left; a sprung foam pad on the right ----
-# The feeder's shaft runs in two flanged bearings in small 1/4 in aluminium plates bolted to the mentor's launcher
-# channels' existing holes (their own bearing holes miss its axis: his channels lean 5.4 deg): the rear plate inside the
-# rear channel, on its web; the front one on the front of the front 3-hole channel's web, hanging below it. A bolt-on
-# module: belt off, four plate screws, and it drops out.
+# ---- the feeder: one driven, on the left, on a swinging yoke; a sprung foam pad on the right ----
+# The feeder hangs from a yoke ahead of the launcher: two 1/4 in aluminium arms, 0.37 in apart, each with a flanged
+# bearing on the left flywheel's shaft (REX bore, so its inner race turns with the shaft) and one on the feeder's shaft,
+# which reaches back 3 in from them to carry the wheels (there's no room for an arm behind: his rear channel holds a hub
+# where it would go). The flywheel shaft's 16T drives the feeder's 24T by a belt whose centres the yoke keeps. A servo,
+# by a pushrod to a tab on the inner arm, swings it: in, the feeder pinches the ball against the pad (drawn so); out
+# (10 deg), it clears the waiting ball.
 y = LANE_Y + FEED_Y
 U, V = (0.0944, 0.9955), (0.9955, -0.0944)        # the launcher channels' along and across directions (Y, z), as they lean
 def lat(o, a, b): return (o[0] + (a * U[0] + b * V[0]) * MM, o[1] + (a * U[1] + b * V[1]) * MM)
@@ -354,12 +434,15 @@ REAR_O, FRONT_O = (3.286, 2.907), (3.464, 4.794)   # a 14 mm pattern hole on eac
 REAR_WEB, FRONT_WEB = (-3.99, -4.09), (-0.31, -0.41)   # the webs' faces, X (toward the feeder, away)
 PL_T = 0.25
 REAR_WEB_T, FRONT_WEB_T = 2.54, 2.54
-# rear: two screws from behind the rear channel's web into the plate's tapped holes (the feeder blocks the front);
-# front: two screws and nuts through the front channel's outboard holes, clear of the sonic hub the mentor has behind
-# its web at its lowest pattern (the plate clears that hub's four screw heads)
-FB = {"rear": (REAR_WEB[0], REAR_WEB[0] + PL_T, [lat(REAR_O, -8, -8), lat(REAR_O, 12, 0)], []),
-      "front": (FRONT_WEB[0], FRONT_WEB[0] + PL_T, [lat(FRONT_O, 16, 16), lat(FRONT_O, 40, 16)], FS_HOLES)}
-HUB_SCREWS = [lat(FRONT_O, a, b) for a in (-8, 8) for b in (-8, 8)]
+ARM_X = {"front": (-0.12, -0.12 + PL_T),           # ahead of the front channel, clear of the screw heads of the hub behind its web
+         "outer": (0.50, 0.50 + PL_T)}              # under his 8-hole channel's bottom flange, behind the belts' plane
+PIVOT = (FLY_Y[0], FLY_Z)
+def arm_rot(p, a):
+    """A point (Y, z) turned a radians about the flywheel's shaft (positive: the feeder swings out, toward +Y)."""
+    dy, dz = p[0] - PIVOT[0], p[1] - PIVOT[1]
+    return (PIVOT[0] + dy * math.cos(a) - dz * math.sin(a), PIVOT[1] + dy * math.sin(a) + dz * math.cos(a))
+ARM_DIR = ((FEED_Y - PIVOT[0]) / FEED_C, (FEED_Z - PIVOT[1]) / FEED_C)  # pivot to the feeder, drawn (in)
+TAB_P = (PIVOT[0] + ARM_DIR[0] * (FEED_C + 0.62), PIVOT[1] + ARM_DIR[1] * (FEED_C + 0.62))   # the pushrod's pin, below the feeder
 def plate_outline(pts, x0, x1, r):
     """A plate round a set of points (Y, z): the convex hull of r-radius circles about them."""
     import itertools
@@ -372,49 +455,81 @@ def plate_outline(pts, x0, x1, r):
     for a, b, c_ in itertools.combinations(pts, 3):
         if abs((b[0] - a[0]) * (c_[1] - a[1]) - (b[1] - a[1]) * (c_[0] - a[0])) > 1e-4: pl = pl.union(yz([a, b, c_], x0, x1))
     return pl
-for nm, (x0, x1, holes, extra) in FB.items():
-    pl = plate_outline([(y, FEED_Z)] + holes + extra, x0, x1, 0.3).cut(cylx(y, FEED_Z, 14 * MM, x0 - 0.1, x1 + 0.1))
-    if nm == "front":
-        pl = pl.cut(cylx(FLY_Y[0], FLY_Z, 18 * MM, x0 - 0.1, x1 + 0.1))   # clear of the left flywheel shaft's bearing, proud of the web
-        for h in HUB_SCREWS: pl = pl.cut(cylx(*h, 8.5 * MM, x0 - 0.1, x1 + 0.1))   # and of the hub's screw heads
-    part(fixed, f"feeder_bearing_plate_{nm} (1/4 in aluminium, on the launcher channel's web)", pl, ALU, "cut")
-    part(fixed, f"feeder_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cylx(y, FEED_Z, 14 * MM, x1 - 4.2 * MM, x1).union(cylx(y, FEED_Z, 15 * MM, x1, x1 + 0.8 * MM)), STEEL, "buy")
-    vendor(f"feeder_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", "1611-0514-4008.STEP", (0, 4.8, 0), (0, -1, 0), (1, 0, 0), (x1 + 0.8 * MM, y, FEED_Z), (-1, 0, 0), (0, 1, 0))
-    if nm == "rear":
-        c = bolt(fixed, "feeder_plate_rear", "the feeder's rear bearing plate, from behind the rear channel's web into its tapped holes", [(REAR_WEB[1], *h) for h in holes], (1, 0, 0), REAR_WEB_T, nut=False, tapped=PL_T * IN, min_engage=5, into="feeder_bearing_plate_rear")
-    else:
-        c = bolt(fixed, "feeder_plate_front", "the feeder's front bearing plate to the front channel's web (nuts behind it)", [(x1, *h) for h in holes], (-1, 0, 0), PL_T * IN + FRONT_WEB_T, nut=True, through=(f"feeder_bearing_plate_{nm}",))
-        drill(fixed, [f"feeder_bearing_plate_{nm}"], c)
-    if extra:
-        c = bolt(fixed, f"feeder_servo_standoffs", "the feeder servo's standoffs to the front bearing plate (flat heads from behind, before the plate goes on)", [(x0, *h) for h in extra], (1, 0, 0), PL_T * IN, nut=False, tapped=10, into="feeder_servo_standoff_", through=(f"feeder_bearing_plate_{nm}",), flat=True, service="before the plate goes on")
-        drill(fixed, [f"feeder_bearing_plate_{nm}"], c)
+for nm, (x0, x1) in ARM_X.items():
+    pts = [PIVOT, (y, FEED_Z)] + ([(TAB_P[0], TAB_P[1] + 0.12)] if nm == "front" else [])
+    pl = plate_outline(pts, x0, x1, 0.30).cut(cylx(y, FEED_Z, 14 * MM, x0 - 0.1, x1 + 0.1)).cut(cylx(*PIVOT, 14 * MM, x0 - 0.1, x1 + 0.1))
+    part(fixed, f"feeder_arm_{nm} (1/4 in aluminium: turns on the flywheel shaft, carries the feeder)", pl, ALU, "cut")
+    for which, (cy_, cz_) in (("", (y, FEED_Z)), ("pivot_", PIVOT)):
+        bn = f"feeder_{which}bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing{', on the flywheel shaft' if which else ''})"
+        part(fixed, bn, cylx(cy_, cz_, 14 * MM, x1 - 4.2 * MM, x1).union(cylx(cy_, cz_, 15 * MM, x1, x1 + 0.8 * MM)), STEEL, "buy")
+        vendor(bn, "1611-0514-4008.STEP", (0, 4.8, 0), (0, -1, 0), (1, 0, 0), (x1 + 0.8 * MM, cy_, cz_), (-1, 0, 0), (0, 1, 0))
 part(fixed, "feeder (goBILDA 3632-0014-0072 72 mm Gecko x2, softest durometer)", cylx(y, FEED_Z, 2 * RF, FEED_X[0], FEED_X[1]), GREEN, "buy")
-x_rear = REAR_WEB[0] + 0.02                         # the shaft's rear end, just clear of the rear channel's web
 FEED_SHAFT_L = 120
-part(fixed, "feeder_shaft (goBILDA 2106-4008-1200, 8mm REX, 120 mm, e-clip at the front)", cylx(y, FEED_Z, 8 * MM, x_rear, x_rear + FEED_SHAFT_L * MM), STEEL, "buy")
-part(fixed, "feeder_spacers_rear (goBILDA 8mm REX spacers, stacked: rear bearing to the wheels)", cylx(y, FEED_Z, 12 * MM, FB["rear"][1] + 0.8 * MM, FEED_X[0]), STEEL, "buy")
-FCOL = (FB["front"][0] - 10.3 * MM, FB["front"][0])   # a clamping collar against the front bearing: with the e-clip ahead, it holds the shaft both ways
+x_rear = FD_PUL_X[1] + 0.1 - FEED_SHAFT_L * MM     # the shaft's rear end, just behind the wheels (its front end past the pulley)
+part(fixed, "feeder_shaft (goBILDA 2106-4008-1200, 8mm REX, 120 mm, e-clips: from the yoke back through the wheels)", cylx(y, FEED_Z, 8 * MM, x_rear, x_rear + FEED_SHAFT_L * MM), STEEL, "buy")
+part(fixed, "feeder_eclip_rear (with the shaft, behind the wheels)", cylx(y, FEED_Z, 12 * MM, x_rear + 0.03, x_rear + 0.06), STEEL, "buy")
+part(fixed, "feeder_spacers_yoke (goBILDA 8mm REX spacers: between the yoke's arms)", cylx(y, FEED_Z, 12 * MM, ARM_X["front"][1] + 0.8 * MM, ARM_X["outer"][0]), STEEL, "buy")
+FCOL = (ARM_X["front"][0] - 10.3 * MM, ARM_X["front"][0])   # a clamping collar against the front bearing: with the e-clip ahead, it holds the shaft both ways
 part(fixed, "feeder_spacers_front (goBILDA 8mm REX spacers, stacked: the wheels to the collar)", cylx(y, FEED_Z, 12 * MM, FEED_X[1], FCOL[0]), STEEL, "buy")
 part(fixed, "feeder_shaft_collar (goBILDA 2910-1020-4008, 8mm REX clamping collar)", cylx(y, FEED_Z, 20 * MM, *FCOL), STEEL, "buy")
-part(fixed, "feeder_spacers_mid (goBILDA 8mm REX spacers: the front bearing to the pulley)", cylx(y, FEED_Z, 12 * MM, FB["front"][1] + 0.8 * MM, FD_PUL_X[0]), STEEL, "buy")
-# the feeder's servo, straight above the shaft, spline pointing back; its hub and hub-mount pulley in the belt's plane
-FSN = "feeder_servo (goBILDA 2000-0025-0004 Super Speed, continuous rotation)"
-FS_TOP = FD_PUL_X[1] + 7.5 * MM                     # the servo's case top, X: the pulley, then the 1910 hub's 7 mm
-part(fixed, FSN, place_local(servo_local(), (FS_TOP, FS_Y, FS_Z), (-1, 0, 0), (0, *FS_LONG)), BLACK, "buy")
-vendor(FSN, "2000-0025-0002.step", (-10.0, 0.0, 12.8), (0, 0, 1), (1, 0, 0), (FS_TOP, FS_Y, FS_Z), (-1, 0, 0), (0, *FS_LONG))
-part(fixed, "feeder_servo_hub (goBILDA 1910-0025-0816 servo hub)", cylx(FS_Y, FS_Z, 32 * MM, FD_PUL_X[1], FS_TOP - 0.5 * MM), ALU, "buy")
-part(fixed, "feeder_servo_pulley (goBILDA 3411-0014-0024, 24T HTD5 hub-mount)", cylx(FS_Y, FS_Z, 38.8 * MM, *FD_PUL_X).cut(cylx(FS_Y, FS_Z, 14 * MM, FD_PUL_X[0] - 0.1, FD_PUL_X[1] + 0.1)), BLACK, "buy")
-c = bolt(fixed, "feeder_hub_pulley", "the 24T hub-mount pulley to the servo hub (4 mm of the hub's 7 mm thread)", [(FD_PUL_X[0], FS_Y + dy * MM, FS_Z + dz * MM) for dy in (-8, 8) for dz in (-8, 8)], (1, 0, 0), 12, nut=False, tapped=7, min_engage=4, into="feeder_servo_hub", through=("feeder_servo_pulley",), service="before the servo goes on")
-drill(fixed, ["feeder_servo_pulley"], c)                   # (the real pulley's pattern holes)
-FS_TAB = FS_TOP + 12.8 * MM                          # the tabs' face toward the plate, X
-for k, (hy, hz) in enumerate(FS_HOLES):
-    part(fixed, f"feeder_servo_standoff_{k} (goBILDA 1501-0006-0340, M4 standoff, 34 mm)", cylx(hy, hz, 6 * MM, -0.06, FS_TAB), STEEL, "buy")
-bolt(fixed, "feeder_servo_tabs", "the feeder servo's tabs to its standoffs", [(FS_TAB + 2.5 * MM, hy, hz) for hy, hz in FS_HOLES], (-1, 0, 0), 2.5, nut=False, tapped=10, into="feeder_servo_standoff_", through=("feeder_servo (",))
+part(fixed, "feeder_spacers_mid (goBILDA 8mm REX spacers: the outer arm's bearing to the pulley)", cylx(y, FEED_Z, 12 * MM, ARM_X["outer"][1] + 0.8 * MM, FD_PUL_X[0]), STEEL, "buy")
 part(fixed, "feeder_pulley (goBILDA 3417-4008-0024, 24T HTD5, 8mm REX)", cylx(y, FEED_Z, 38.8 * MM, *FD_PUL_X), BLACK, "buy")
 part(fixed, "feeder_eclip (included with the shaft)", cylx(y, FEED_Z, 12 * MM, x_rear + FEED_SHAFT_L * MM - 0.04, x_rear + FEED_SHAFT_L * MM - 0.01), STEEL, "buy")
 part(fixed, "feeder_shaft_spacer (goBILDA 8mm REX spacers: the pulley to the e-clip)", cylx(y, FEED_Z, 12 * MM, FD_PUL_X[1], x_rear + FEED_SHAFT_L * MM - 0.04), STEEL, "buy")
-part(fixed, f"feeder_belt (goBILDA {FEED_BELT[1]}, HTD5 9 mm, {FEED_BELT[0]} mm; fixed centres {FEED_C * IN:.1f} mm)", loop("YZ", (y, FEED_Z), P24 / 2, (FS_Y, FS_Z), P24 / 2, 0.14, 9 * MM, BELT_X - 4.5 * MM), BLACK, "buy")
-# the pad: 1/8 in aluminium plate, foam on its inner face, hinged along X at its bottom, banded inward against a stop
+part(fixed, f"feeder_belt (goBILDA {FEED_BELT[1]}, HTD5 9 mm, {FEED_BELT[0]} mm: the left flywheel's 16T to the feeder's 24T; fixed centres {FEED_C * IN:.1f} mm)", loop("YZ", (y, FEED_Z), P24 / 2, (FLY_Y[0], FLY_Z), P16 / 2, 0.14, 9 * MM, BELT_X - 4.5 * MM), BLACK, "buy")
+# the gate servo: a goBILDA 2000-0025-0003 Speed servo, spline up, under the front arm, on a printed bracket inside the left
+# drive rail; its printed horn and a printed pushrod swing the arm by an M3 shoulder screw in a printed tab on the arm.
+GS_SPL = (0.545, 4.10)                              # the spline, (X, Y); the servo's long axis toward -Y (its outer tab screws clear of the rail for a key from below)
+TAB_T = (TAB_P[1] - 0.12, TAB_P[1] + 0.20)          # the tab's z: below the feeder's bearing, on the arm's front face
+PR_Z = (TAB_T[0] - 0.02 - 4 * MM, TAB_T[0] - 0.02)  # the pushrod's z, under the tab
+HORN_Z = (PR_Z[0] - 0.02 - 4 * MM, PR_Z[0] - 0.02)  # the horn's, under the pushrod
+GS_TOP = HORN_Z[0] - 4.1 * MM                       # the servo's case top (its spline 4.1 mm proud)
+PIN_X = 0.50                                        # the pushrod pin's X, in the tab
+HORN_R = 0.50
+GSN = "gate_servo (goBILDA 2000-0025-0003 Speed servo: swings the feeder in and out)"
+part(fixed, GSN, place_local(servo_local(), (GS_SPL[0], GS_SPL[1], GS_TOP + 4.1 * MM - 4.1 * MM), (0, 0, 1), (0, -1, 0)), BLACK, "buy")
+vendor(GSN, "2000-0025-0003.step", (-10.0, 0.0, 12.8), (0, 0, 1), (1, 0, 0), (GS_SPL[0], GS_SPL[1], GS_TOP), (0, 0, 1), (0, -1, 0))
+# the horn's tip, for the drawn (in) pose: the pushrod runs from it to the tab's pin
+PR_L = 1.05                                         # pushrod centres
+def horn_tip(pin):
+    """The horn's tip (X, Y) that puts the pushrod's far end on pin (X, Y): the solution on the lane's side."""
+    sx, sy = GS_SPL; d = math.hypot(pin[0] - sx, pin[1] - sy)
+    a = math.atan2(pin[1] - sy, pin[0] - sx); c = (HORN_R ** 2 + d ** 2 - PR_L ** 2) / (2 * HORN_R * d)
+    t = a - math.acos(max(-1, min(1, c)))
+    return (sx + HORN_R * math.cos(t), sy + HORN_R * math.sin(t))
+PIN_IN = (PIN_X, TAB_P[0]); PIN_OUT = (PIN_X, arm_rot(TAB_P, ARM_IN - ARM_OUT)[0])
+HT = horn_tip(PIN_IN)
+def bar_xy(p0, p1, w, z0, z1):
+    """A flat bar in the X-Y plane between two points, rounded ends."""
+    L = math.hypot(p1[0] - p0[0], p1[1] - p0[1]); ang = math.degrees(math.atan2(p1[1] - p0[1], p1[0] - p0[0]))
+    b = cq.Workplane("XY").center(L / 2, 0).rect(L, w).extrude(z1 - z0).union(cq.Workplane("XY").circle(w / 2).extrude(z1 - z0)).union(cq.Workplane("XY").center(L, 0).circle(w / 2).extrude(z1 - z0))
+    return b.rotate((0, 0, 0), (0, 0, 1), ang).translate((p0[0], p0[1], z0))
+hn = bar_xy(GS_SPL, HT, 0.36, *HORN_Z).cut(cylz(*GS_SPL, 6.2 * MM, HORN_Z[0] - 0.01, HORN_Z[0] + 3 * MM)).cut(cylz(*GS_SPL, 3.4 * MM, HORN_Z[0], HORN_Z[1] + 0.01)).cut(cylz(*HT, 3.2 * MM, HORN_Z[0] - 0.01, HORN_Z[1] + 0.01))
+part(fixed, "gate_horn (print, PETG: on the servo's H25T spline, the servo's M3 horn screw; an M3 heat-set insert at its tip)", hn, BLUE, "print")
+pr = bar_xy(HT, PIN_IN, 0.32, *PR_Z).cut(cylz(*HT, 4.2 * MM, PR_Z[0] - 0.01, PR_Z[1] + 0.01)).cut(cylz(*PIN_IN, 4.2 * MM, PR_Z[0] - 0.01, PR_Z[1] + 0.01))
+part(fixed, "gate_pushrod (print, PETG: 4 mm bores on the two shoulder screws)", pr, BLUE, "print")
+tab = bx(ARM_X["front"][1], PIN_X + 0.22, TAB_P[0] - 0.22, TAB_P[0] + 0.22, *TAB_T)
+part(fixed, "gate_tab (print, PETG: on the front arm's face, below its bearing; M3 heat-set insert for the pin, M4 for its screws)", tab, BLUE, "print")
+for nm_, (px_, py_), z_top, z_bot, into in (("gate_pin_arm", PIN_IN, TAB_T[0], PR_Z[0], "gate_tab"), ("gate_pin_horn", HT, PR_Z[1] + 0.12, HORN_Z[0], "gate_horn")):
+    sc = cylz(px_, py_, 4 * MM, z_bot - 0.01, z_top).union(cylz(px_, py_, 3 * MM, z_top, z_top + 5 * MM) if nm_ == "gate_pin_arm" else cylz(px_, py_, 3 * MM, z_bot - 4 * MM, z_bot))
+    sc = sc.union(cylz(px_, py_, 7 * MM, z_bot - 0.12, z_bot) if nm_ == "gate_pin_arm" else cylz(px_, py_, 7 * MM, z_top, z_top + 0.12))
+    part(fixed, f"{nm_} (M3 shoulder screw, 4 mm shoulder: the pushrod's pivot)", sc, STEEL, "buy")
+c = bolt(fixed, "gate_tab", "the gate tab to the front arm (from the arm's back face)", [(ARM_X["front"][0], TAB_P[0] + dy, (TAB_T[0] + TAB_T[1]) / 2 + 0.04) for dy in (-0.12, 0.12)], (1, 0, 0), PL_T * IN, nut=False, tapped=10, into="gate_tab", through=("feeder_arm_front",), service="with the arm off the shaft")
+drill(fixed, ["feeder_arm_front"], c)
+# the servo's bracket: printed, under its tabs (a window for its case), out to the left wall's lower front REX standoff,
+# which passes through it (its REX hole can't turn on it): it goes on that standoff before the wall goes on
+GS_TAB_Z = GS_TOP - 12.8 * MM                       # the tabs' upper face; they sit on the bracket
+gsb_z = (GS_TAB_Z - 2.5 * MM - 0.25, GS_TAB_Z - 2.5 * MM)
+GS_SO = STANDOFFS[1][0]                             # (X, z) of that standoff
+gsb = bx(GS_SPL[0] - 0.42, GS_SO[0] - 0.2, GS_SPL[1] - 1.65, GS_SPL[1] + 0.72, *gsb_z)
+gsb = gsb.union(bx(GS_SO[0] - 0.27, GS_SO[0] + 0.27, 3.3, 4.3, gsb_z[0], GS_SO[1] + 0.37))
+gsb = gsb.cut(bx(GS_SPL[0] - 10.5 * MM, GS_SPL[0] + 10.5 * MM, GS_SPL[1] - 30.5 * MM, GS_SPL[1] + 10.5 * MM, gsb_z[0] - 0.1, gsb_z[1] + 0.1))
+gsb = gsb.cut(rex_y(*GS_SO, 3.0, 4.6))
+part(fixed, "gate_servo_bracket (print, PETG or nylon: under the servo's tabs, on the left wall's front REX standoff)", gsb, BLUE, "print")
+GS_HOLES = [(GS_SPL[0] + dx * MM, GS_SPL[1] - ly * MM) for ly in (-14, 34) for dx in (-5, 5)]
+c = bolt(fixed, "gate_servo_tabs", "the gate servo's tabs to its bracket (from below; nuts on the tabs)", [(hx, hy, gsb_z[0]) for hx, hy in GS_HOLES], (0, 0, 1), 0.25 * IN + 2.5, nut=True, through=("gate_servo_bracket", "gate_servo ("))
+drill(fixed, ["gate_servo_bracket"], c)
+# the pad: 1/8 in aluminium plate, foam on its inner face, hinged along X at its bottom, banded inward against a stop.
 px0, px1 = FEED_X[0] + 0.05, FEED_X[1] - 0.05
 part(fixed, f"pad_foam ({PAD_FOAM} in soft foam, as the ceiling's)", bx(px0, px1, PAD_FACE - PAD_FOAM, PAD_FACE, PAD_HINGE[1] + 0.55, PAD_TOP), (0.3, 0.3, 0.32), "buy")
 PLY = (PAD_FACE - PAD_FOAM - 0.125, PAD_FACE - PAD_FOAM)   # the plate's faces, Y
@@ -460,7 +575,6 @@ for side in (BR_HOLES[:2], BR_HOLES[2:]):          # two towers, one behind each
     ys_ = [h[0] for h in side]
     bridge = bridge.union(bx(*BR_X, min(ys_) - 0.25, max(ys_) + 0.25, SHELF_Z[0], max(h[1] for h in side) + 0.25))
     bridge = bridge.union(bx(*BR_X, min(ys_) - 0.25 if ys_[0] > 0 else -2.55, max(ys_) + 0.25 if ys_[0] < 0 else 1.35, *SHELF_Z))
-for h in FB["rear"][2]: bridge = bridge.cut(cylx(*h, 8.5 * MM, BR_X[0] - 0.1, BR_X[1] + 0.1))   # the rear plate's screw heads, and a key through
 part(fixed, "feeder_bridge (print, PETG or nylon: behind the launcher's rear channels, its shelf under the feeder floor; M4 heat-set inserts)", bridge, BLUE, "print")
 bolt(fixed, "feeder_bridge", "the feeder bridge to the rear channels' webs (from inside the channels)", [(REAR_WEB[0], *h) for h in BR_HOLES], (-1, 0, 0), REAR_WEB_T, nut=False, tapped=10, into="feeder_bridge", service="with the feeder out (its two bearing plates)")
 FL_X = (SHELF_X[0] + 0.05, FEED_X[1] + 0.15)
@@ -483,12 +597,20 @@ k_ = next(k for k in fixed if k.startswith("feeder_floor ("))
 wp_, col_, kind_ = fixed[k_]
 fixed[k_] = (wp_.cut(bx(PS_SCREW[0] - 2.2 * MM, PS_SCREW[0] + 2.2 * MM, PS_SCREW[1] - 0.1 - 2.2 * MM, PS_SCREW[1] + 0.1 + 2.2 * MM, FLOOR_Z - 0.2, FLOOR_Z + 0.1)), col_, kind_)
 
-# ---- the launcher changes: the flywheel motors move out and up (his old place for them is where the feeder and pad go) ----
+# ---- the launcher changes: the flywheel motors move out and up (his old place for them is where the feeder and pad go)
+#      and become goBILDA 6000 RPM (1:1) Yellow Jackets; the left flywheel's shaft gets longer, for the feeder's belt ----
+FLY_SHAFT = (-4.09, -4.09 + 144 * MM)              # his 96 mm shaft's rear end, kept; out through the front arm to the 16T
+part(launcher, "flywheel_shaft_L (goBILDA 2106-4008-1440, 8mm REX, 144 mm, e-clip at the front: in place of his 96 mm shaft)", cylx(*PIVOT, 8 * MM, *FLY_SHAFT), STEEL, "buy")
+part(launcher, "flywheel_spacers_L_front (goBILDA 8mm REX spacers: his front bearing to the front arm's)", cylx(*PIVOT, 10 * MM, -0.25, ARM_X["front"][0]), STEEL, "buy")
+part(launcher, "flywheel_spacers_L_yoke (goBILDA 8mm REX spacers: between the yoke's arms)", cylx(*PIVOT, 12 * MM, ARM_X["front"][1] + 0.8 * MM, ARM_X["outer"][0]), STEEL, "buy")
+part(launcher, "flywheel_spacers_L_pulley (goBILDA 8mm REX spacers: the outer arm's bearing to the 16T)", cylx(*PIVOT, 12 * MM, ARM_X["outer"][1] + 0.8 * MM, FD_PUL_X[0]), STEEL, "buy")
+part(launcher, "flywheel_feeder_pulley (goBILDA 3417-4008-0016, 16T HTD5, 8mm REX: drives the feeder)", cylx(*PIVOT, 28 * MM, *FD_PUL_X), BLACK, "buy")
+part(launcher, "flywheel_shaft_eclip_L (with the shaft)", cylx(*PIVOT, 12 * MM, FLY_SHAFT[1] - 0.06, FLY_SHAFT[1] - 0.03), STEEL, "buy")
 for s in (1, -1):
     nm = 'L' if s > 0 else 'R'; my, mz = FM[s]; fy = FLY_Y[0] if s > 0 else FLY_Y[1]
-    mn = f"flywheel_motor_{nm} (the mentor's 312 RPM Yellow Jacket, moved: along X outboard of the launcher frame)"
-    part(launcher, mn, cylx(my, mz, MOTOR_D, FM_FACE, FM_FACE + 116.5 * MM), (0.95, 0.75, 0.2), "buy")
-    vendor(mn, "5203-2402-0019 assembly.STEP", (-37.15, 101.7, -11.05), (0, 1, 0), (1, 0, 0), (FM_FACE, my, mz), (-1, 0, 0), (0, 0, 1))
+    mn = f"flywheel_motor_{nm} (goBILDA 5203-2402-0001, 6000 RPM Yellow Jacket, 1:1: along X outboard of the launcher frame)"
+    part(launcher, mn, cylx(my, mz, MOTOR_D, FM_FACE, FM_FACE + 107.7 * MM), (0.95, 0.75, 0.2), "buy")
+    vendor(mn, "5203-2402-0001 assembly.STEP", (-37.15, 92.9, -11.05), (0, 1, 0), (1, 0, 0), (FM_FACE, my, mz), (-1, 0, 0), (0, 0, 1))
     part(launcher, f"flywheel_motor_pulley_{nm} (goBILDA 3417-4008-0016, 16T HTD5)", cylx(my, mz, 28 * MM, FLY_BELT_X - 6 * MM, FLY_BELT_X + 6 * MM), BLACK, "buy")
     part(launcher, f"flywheel_belt_{nm} (goBILDA {FLY_BELT[s][1]}, HTD5 9 mm, his 41T to the moved motor)", loop("YZ", (fy, FLY_Z), P41 / 2, (my, mz), P16 / 2, 0.14, 9 * MM, FLY_BELT_X - 4.5 * MM), BLACK, "buy")
     # the bracket: a 1/8 in aluminium L, its foot on the side channel's top flange, its upright holding the motor's face
@@ -505,6 +627,51 @@ for s in (1, -1):
     c = bolt(launcher, f"fly_bracket_{nm}", f"the {nm} flywheel motor bracket to the side channel's top flange", [(-0.149 - k * 8 * MM, SIDE_FLANGE_HOLES[s], SIDE_TOP + 0.125) for k in (6, 7)], (0, 0, -1), 3.2 + SIDE_FLANGE_T, nut=True, through=(f"flywheel_motor_bracket_{nm}",))
     drill(launcher, [f"flywheel_motor_bracket_{nm}"], c)
 
+# ---- the turret's drive (the mentor's to agree): his goBILDA gear-driven turret kit (3208-0004-0001, 2.75:1) is drawn
+#      with its 64T drive gear on its motor mount but no motor. A motor can't hang under the gear (the lane runs there), so
+#      the gear gets its own short shaft, in a bearing in the kit's mount and one in a plate under his front 8-hole
+#      channel; a goBILDA 312 RPM motor hangs from that plate beside the lane and drives the shaft 1:1 by a belt (the turret
+#      turns at 113 RPM; its encoder reads 2.75 x 537.7 counts per turret turn) ----
+TG = (1.737, 0.158)                                 # the drive gear's axis (X, Y), measured from his CAD
+TG_MOUNT_Z = (8.889, 9.204)                         # his kit's 1231 mount under the gear
+TP_Z = (6.999 - 0.125, 6.999)                       # the plate (1/8 in aluminium), under the channel's bottom flange
+CH8_HOLES = [(0.636, -0.158), (0.636, 0.787)]       # two of that flange's holes (X, Y), measured from his CAD
+TBELT = (295, "3412-0009-0295")
+TB_C = (TBELT[0] * MM - math.pi * P24) / 2          # 24T to 24T: 87.5 mm
+TM = (2.50, TG[1] + math.sqrt(TB_C ** 2 - (2.50 - TG[0]) ** 2))   # the motor's axis: clear of the wall standoffs and the ceiling's posts
+TPUL_Z = (TP_Z[1] + 0.18, TP_Z[1] + 0.18 + 12 * MM) # the 24Ts' plane: over the motor's face screws' heads
+def plate_xy(pts, z0, z1, r):
+    """A plate in the X-Y plane round points (X, Y): the hull of r-radius circles."""
+    import itertools
+    pl = None
+    for p_ in pts:
+        c_ = cylz(*p_, 2 * r, z0, z1); pl = c_ if pl is None else pl.union(c_)
+    for a_, b_ in itertools.combinations(pts, 2):
+        ln = math.hypot(b_[0] - a_[0], b_[1] - a_[1]); nn = ((a_[1] - b_[1]) / ln * r, (b_[0] - a_[0]) / ln * r)
+        pl = pl.union(cq.Workplane("XY").polyline([(a_[0] + nn[0], a_[1] + nn[1]), (b_[0] + nn[0], b_[1] + nn[1]), (b_[0] - nn[0], b_[1] - nn[1]), (a_[0] - nn[0], a_[1] - nn[1])]).close().extrude(z1 - z0).translate((0, 0, z0)))
+    for a_, b_, c_ in itertools.combinations(pts, 3):
+        if abs((b_[0] - a_[0]) * (c_[1] - a_[1]) - (b_[1] - a_[1]) * (c_[0] - a_[0])) > 1e-4:
+            pl = pl.union(cq.Workplane("XY").polyline([a_, b_, c_]).close().extrude(z1 - z0).translate((0, 0, z0)))
+    return pl
+tp = plate_xy(CH8_HOLES + [TG, TM], *TP_Z, 0.32).union(cylz(*TM, 1.7, *TP_Z))
+tp = tp.cut(cylz(*TG, 14 * MM, TP_Z[0] - 0.1, TP_Z[1] + 0.1)).cut(cylz(*TM, 16 * MM, TP_Z[0] - 0.1, TP_Z[1] + 0.1))
+part(launcher, "turret_motor_plate (1/8 in aluminium: under the front 8-hole channel's bottom flange; the gear shaft's lower bearing, the motor's face)", tp, ALU, "cut")
+TMN = "turret_motor (goBILDA 5203-2402-0019, 312 RPM Yellow Jacket: turns the turret, 1:1 to its drive gear)"
+part(launcher, TMN, cylz(*TM, MOTOR_D, TP_Z[0] - 116.5 * MM, TP_Z[0]), (0.95, 0.75, 0.2), "buy")
+vendor(TMN, "5203-2402-0019 assembly.STEP", (-37.15, 101.7, -11.05), (0, 1, 0), (1, 0, 0), (*TM, TP_Z[0]), (0, 0, 1), (1, 0, 0))
+part(launcher, "turret_motor_pulley (goBILDA 3417-4008-0024, 24T HTD5)", cylz(*TM, 38.8 * MM, *TPUL_Z), BLACK, "buy")
+part(launcher, "turret_gear_pulley (goBILDA 3417-4008-0024, 24T HTD5)", cylz(*TG, 38.8 * MM, *TPUL_Z), BLACK, "buy")
+c = bolt(launcher, "turret_motor_face", "the turret motor to its plate (from above; the heads under its pulley)", [(TM[0] + dx * MM, TM[1] + dy * MM, TP_Z[1]) for dx in (-8, 8) for dy in (-8, 8)], (0, 0, -1), 3.2, nut=False, tapped=10.5, into="turret_motor \\(", through=("turret_motor_plate",), service="before the pulley")
+drill(launcher, ["turret_motor_plate"], c)
+c = bolt(launcher, "turret_plate", "the turret motor plate under the 8-hole channel's bottom flange (from below; nuts inside the channel, a wrench from its open front)", [(hx, hy, TP_Z[0]) for hx, hy in CH8_HOLES], (0, 0, 1), 2.5 + 3.2, nut=True, through=("turret_motor_plate",))
+drill(launcher, ["turret_motor_plate"], c)
+part(launcher, f"turret_belt (goBILDA {TBELT[1]}, HTD5 9 mm, {TBELT[0]} mm: fixed centres {TB_C * IN:.1f} mm)", loop("XY", TG, P24 / 2, TM, P24 / 2, 0.14, 9 * MM, sum(TPUL_Z) / 2 - 4.5 * MM), BLACK, "buy")
+TGS = (TP_Z[0] - 0.12, TG_MOUNT_Z[1] + 0.36)         # the gear's shaft: below the plate's bearing up into the gear's hub
+part(launcher, "turret_gear_shaft (goBILDA 2106-4008-0720, 8mm REX, 72 mm, e-clips: the drive gear on it as the kit mounts it on a motor's shaft)", cylz(*TG, 8 * MM, *TGS), STEEL, "buy")
+for nm, (z0, z1) in (("plate", TP_Z), ("mount", (TG_MOUNT_Z[0] + 0.1, TG_MOUNT_Z[1]))):
+    part(launcher, f"turret_gear_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cylz(*TG, 14 * MM, z0, z1).union(cylz(*TG, 15 * MM, z0 - 0.8 * MM, z0)), STEEL, "buy")
+part(launcher, "turret_gear_spacers (goBILDA 8mm REX spacers: the pulley up to the kit's mount)", cylz(*TG, 12 * MM, TPUL_Z[1], TG_MOUNT_Z[0] + 0.1 - 0.8 * MM), STEEL, "buy")
+part(launcher, "turret_gear_eclip (with the shaft)", cylz(*TG, 12 * MM, TGS[0] + 0.02, TGS[0] + 0.05), STEEL, "buy")
 # ---- the holes the screws thread into: a heat-set insert's hole in a printed part, a tap drill in a cut one ----
 def threaded_holes(d):
     import re as _re
@@ -540,7 +707,10 @@ if __name__ == "__main__":
     if os.environ.get("MESH_OUT"):
         import pickle; pickle.dump(mesh, open(os.environ["MESH_OUT"], "wb"))
     print(len(fixed), "fixed,", len(launcher), "launcher parts")
-    print(f"feeder belt: centres {FEED_C * IN:.2f} mm, needs {belt_len(FEED_C, P24, P24) * IN:.1f} mm, belt {FEED_BELT[0]}")
+    print(f"feeder belt: centres {FEED_C * IN:.2f} mm, needs {belt_len(FEED_C, P16, P24) * IN:.1f} mm, belt {FEED_BELT[0]}; feeder axle Y {FEED_Y:.3f} z {FEED_Z:.3f}")
+    Ls = [belt_len_path(belt_path(LD_LOOP(ROLLER_AXLE[1] + f))) * IN for f in (0, 0.325, 0.65, 0.975, 1.3)]
+    print(f"lane drive belt: path {min(Ls):.1f}-{max(Ls):.1f} mm as the roller floats, belt {LD_BELT[0]} (stretch {100 * (min(Ls) / LD_BELT[0] - 1):.1f}-{100 * (max(Ls) / LD_BELT[0] - 1):.1f}%)")
+    print(f"feeder arms: in {math.degrees(ARM_IN):.1f} deg, out {math.degrees(ARM_OUT):.1f} deg; grip tops P {GRIP_TOP_P:.2f} N {GRIP_TOP_N:.2f}")
     for s in (1, -1):
         fy = FLY_Y[0] if s > 0 else FLY_Y[1]; c = math.hypot(FM[s][0] - fy, FM[s][1] - FLY_Z)
         print(f"flywheel belt {'L' if s > 0 else 'R'}: motor at Y {FM[s][0]:.3f} z {FM[s][1]:.3f}, needs {belt_len(c, P41, P16) * IN:.1f} mm, belt {FLY_BELT[s][0]}")

@@ -23,6 +23,7 @@ ROLL_Z = FACE + 0.061 * IN + ROLL_R    # ...its back 0.06 in clear of the front 
 ROLL_HALF = 6.9 * IN                   # the roller's ends: the left pulley and the right gear sit outside this
 VEC_IN, VEC_N, VEC_W = 0.4 * IN, 6, 1.0 * IN   # vector wheels from 0.4 in each side of centre, 6 a side, 1.0 in wide
 FLOAT = 1.3 * IN                       # the roller rises this far: 0.85 in passes a NECTAR with 0.4 in of give, 1.3 with none
+ROLL_GAP = (3.4 * IN, 3.9 * IN)        # a gap in the left half's wheels for the lane's drive pulley (cad/transfer LD_Y, 3.65 in)
 # Roller drive, 1:1: two goBILDA 3417-4008-0024 pulleys (24T HTD5, 8mm REX bore) on the shortest 9 mm belt, the
 # 3412 Series 55-tooth (275 mm). Its centres: (275 - 24 * 5) / 2 = 77.5 mm, so the motor sits 77.5 mm over the roller.
 # The motor rides on the roller's carriage, so the belt never changes length as the roller floats.
@@ -98,21 +99,24 @@ part(flt, "roller_shaft (goBILDA 2106-4008-4320, 8mm REX, cut to 403 mm at its r
 # back and toward the middle; the face is the fence it slides along. Pulling in
 # (bottom moving back), a WCP-0353 pushes to the robot's left, so it goes on the right half and the WCP-0354 on the left.
 # Their 1/2 in hex bores take a printed insert on the 8mm REX shaft. A ball's centre can't pass 6.16 in (the side
-# plates), so the 0.4-6.4 in each side covers every one, and inside 0.4 in it already clears the lane's walls.
+# plates), so the 0.4-6.4 in each side covers every one, and inside 0.4 in it already clears the lane's walls. On the left
+# the outer three wheels sit 0.5 in further out, past a gap (ROLL_GAP) for the pulley that drives the lane.
 part(flt, "roller_centre_wheel (goBILDA 3632-4008-0048, 48 mm gecko, 0.8 in)", cyl("x", (0, ROLL_Y, ROLL_Z), 48.0, C - VEC_IN, C + VEC_IN), (0.35, 0.66, 0.31), "buy")
 for s, sgn, hand in (("L", 1, "WCP-0354"), ("R", -1, "WCP-0353")):
     for k in range(VEC_N):
         a, b = VEC_IN + k * VEC_W, VEC_IN + (k + 1) * VEC_W
+        if s == "L" and k >= 3: a, b = a + 0.5 * IN, b + 0.5 * IN
         part(flt, f"roller_vector_{s}{k} ({hand}, 2 in vector wheel, on a printed 1/2 hex to 8mm REX insert)",
              cyl("x", (0, ROLL_Y, ROLL_Z), 2 * ROLL_R, C + sgn * a, C + sgn * b), (0.15, 0.15, 0.17), "buy")
         hexa = cq.Workplane("YZ").center(ROLL_Y, ROLL_Z).polygon(6, 12.6 / math.cos(math.pi / 6)).extrude(VEC_W - 0.4).translate((min(C + sgn * a, C + sgn * b) + 0.2, 0, 0))
         part(flt, f"roller_vector_insert_{s}{k} (print, PETG: 1/2 in hex outside, 8mm REX bore, in the wheel)", hexa.cut(rex(ROLL_Y, ROLL_Z, min(C + sgn * a, C + sgn * b) - 1, max(C + sgn * a, C + sgn * b) + 1)), BLUE, "print")
-    if s == "L":
-        e0 = VEC_IN + VEC_N * VEC_W
-        part(flt, f"roller_end_spacer_L (goBILDA 8mm REX spacer, {ROLL_HALF - e0:.1f} mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 10.0, C + sgn * e0, C + sgn * ROLL_HALF), STEEL, "buy")
+# the lane's drive pulley, in the left half's gap: a 5 mm round belt to the transfer's jackshaft (cad/transfer)
+g0, g1 = C + ROLL_GAP[0], C + ROLL_GAP[1]; gm = (g0 + g1) / 2
+lp = cyl("x", (0, ROLL_Y, ROLL_Z), 25.0, g0 + 0.1, g1 - 0.1).cut(cyl("x", (0, ROLL_Y, ROLL_Z), 25.1, gm - 2.6, gm + 2.6).cut(cyl("x", (0, ROLL_Y, ROLL_Z), 20.0 - 4.6, gm - 3.0, gm + 3.0)))
+part(flt, "roller_lane_pulley (print, PETG: 20 mm pitch diameter groove for the lane's 5 mm round belt, 8mm REX bore)", lp.cut(rex(ROLL_Y, ROLL_Z, g0 - 1, g1 + 1)), BLUE, "print")
 # the shaft is held along its length: a clamping collar at the roller's right end, against the last vector wheel (inside
-# the roller's width, clear of the extractor's gear), pushes the wheel stack, the left spacer and pulley and the left
-# bearing (it can't go left), and the e-clip on its factory end outside the left bearing stops it going right
+# the roller's width, clear of the extractor's gear), pushes the wheel stack, the lane's pulley, the left pulley and the
+# left bearing (it can't go left), and the e-clip on its factory end outside the left bearing stops it going right
 e0 = VEC_IN + VEC_N * VEC_W
 part(flt, "roller_collar_R (goBILDA 2910-1020-4008, 8mm REX clamping collar)", cyl("x", (0, ROLL_Y, ROLL_Z), 20.0, xr(e0), xr(e0 + 10.3)), STEEL, "buy")
 part(flt, "roller_eclip_L (with the shaft, on its factory end)", cyl("x", (0, ROLL_Y, ROLL_Z), 12.0, xl(OUT1 + 1.4), xl(OUT1 + 2.4)), STEEL, "buy")
@@ -256,7 +260,7 @@ for s, f in (("R", xr), ("L", xl)):
                                                   nut=False, tapped=8, into=f"^standoff_{s}", through=(f"side_plate_{s}",)))
     heads = [(f(A.RAIL_OUT - 2.5), y, z) for y in A.STANDOFF_Y for z in A.STANDOFF_Z]
     FA.bolt(fixed, f"rail_standoff_{s}", "chassis rail to the standoffs", heads, OUT_[s], 2.5, nut=False, tapped=8, into=f"^standoff_{s}", through=("mentor: ",),
-            service="from inside the rail: the transfer's lane servo (right) or feeder (left) comes out first")
+            service="from inside the rail; on the left the transfer's feeder, gate servo bracket or turret motor comes out first")
     # the float stop, by its tail, to the side plate
     FA.drill(fixed, [f"float_stop_{s}", f"side_plate_{s}"], FA.bolt(fixed, f"float_stop_{s}", "float stop to the side plate", [(f(OUT1), ROLL_Y - 24, ROLL_Z - 28)],
                                                                    IN_[s], 2 * PLATE_T, through=(f"float_stop_{s}", f"side_plate_{s}")))

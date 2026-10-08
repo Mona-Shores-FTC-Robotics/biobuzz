@@ -224,10 +224,12 @@ def limelight_in_cad(ll_step, C, F, FACE):
 VENDOR = [
     # (name regex, file, kind, local axis, local reference point, local width or None)
     (r"5203-2402-0005", "5203-2402-0005 assembly.STEP", "motor", (0, 1, 0), (-37.15, 92.9, -11.05), None),     # +Y: body to shaft; the point is the gearbox face
+    (r"5203-2402-0001", "5203-2402-0001 assembly.STEP", "motor", (0, 1, 0), (-37.15, 92.9, -11.05), None),
     (r"312 RPM Yellow Jacket", "5203-2402-0019 assembly.STEP", "motor", (0, 1, 0), (-37.15, 101.7, -11.05), None),
     (r"1611-0514-4008", "1611-0514-4008.STEP", "round", (0, 1, 0), (0, 2.5, 0), 5.0),
     (r"3417-4008-0024", "3417-4008-0024.step", "round", (0, 0, 1), (0, 0, 6.0), 12.0),
     (r"16T HTD5", "3417-4008-0016.step", "round", (0, 0, 1), (0, 0, 0), 12.0),
+    (r"2303-4008-0024", "2303-4008-0024 assembly.STEP", "round", (0, 0, -1), (5.3, 13.17, 15.69), 14.0),   # -z: hub to teeth (the teeth drawn inboard)
     (r"72 mm Gecko", "3632-0014-0072.step", "round", (0, 1, 0), (0, 0, 0), 24.0),
     (r"48 mm gecko", "3632-4008-0048.step", "round", (0, 1, 0), (0, 0, 0), 16.0),
     (r"8mm REX clamping collar", "2910-1020-4008 assembly.STEP", "round", (0, 1, 0), (-10.8, -19.75, 19.1), 10.3),

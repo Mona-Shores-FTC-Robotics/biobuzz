@@ -12,12 +12,13 @@ s = importlib.util.spec_from_file_location('tr', os.path.join(ROOT, 'cad', 'tran
 C, F, FACE, IN = TR.C, TR.F, TR.FACE, TR.IN
 mesh = pickle.load(open(sys.argv[1], 'rb'))
 def model(v): v = np.asarray(v); return np.c_[(v[:, 2] - (FACE - 7.56 * IN)) / IN, (v[:, 0] - C) / IN, (v[:, 1] - F) / IN]
-LABELS = [('lane_wall_L', 'lane wall (1/4 in PC)'), ('lane_roller_0', 'TPU rollers, 5 shafts'), ('lane_servo', 'lane servo (CR)'),
+LABELS = [('lane_wall_L', 'lane wall (1/4 in PC)'), ('lane_roller_0', 'TPU rollers, 5 shafts'), ('lane_drive_belt', 'round belt from the roller'),
           ('wall_standoff_R0', 'REX standoffs to the rail'), ('ceiling (', 'ceiling (foam under)'), ('ramp (', 'ramp (in wall slots)'),
-          ('feeder (', 'feeder: 72 mm Geckos'), ('feeder_servo (', 'feeder servo (CR)'), ('feeder_belt', '215 mm belt'),
-          ('feeder_bearing_plate_front', 'front bearing plate'), ('feeder_bearing_plate_rear', 'rear bearing plate'),
+          ('feeder (', 'feeder: 72 mm Geckos'), ('feeder_belt', '275 mm belt from the flywheel'), ('jack_pulley', 'jackshaft + 24T pinions'),
+          ('feeder_arm_front', 'front swing arm'), ('feeder_arm_rear', 'rear swing arm'), ('gate_servo (', 'gate servo'),
+          ('idler_hanger', 'idler on the 9-hole channel'), ('turret_motor (', 'turret motor'), ('turret_belt', '295 mm turret belt'),
           ('pad_plate', 'sprung pad'), ('backstop', 'backstop (slots: the count)'), ('feeder_bridge', 'printed bridge + floor'),
-          ('flywheel_motor_L', 'flywheel motor (moved)'), ('flywheel_belt_L', '315 mm belt'), ('flywheel_motor_bracket_L', 'motor bracket'),
+          ('flywheel_motor_L', 'flywheel motor, 6000 RPM'), ('flywheel_belt_L', '315 mm belt'), ('flywheel_motor_bracket_L', 'motor bracket'),
           ('ceiling_post_front_L', 'ceiling post')]
 def draw(ax, axes, depth, view, flip=1):
     polys, cols, keys = [], [], []
