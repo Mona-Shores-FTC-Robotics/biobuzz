@@ -34,7 +34,7 @@ def seat(r, name, at, heading):
 
 
 def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
-          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500):
+          after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False):
     r = Route(name, S_START, speed=50)
     r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -44,7 +44,11 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     # catch its spill as it rolls south toward the wall (it rolled past a robot that left after the TIP).
     r.add(r.action("SpinUp"), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=fire1_ms), r.go("S_CATCH"))
     r.at = "S_CATCH"
-    r.add(r.wait("TIP 1", when=["Tip"], ms=4000),
+    # tip1_retry: two of the four preloads can miss (shot-hive, 3 of 60): no TIP in 4 s, catch what fell in front of
+    # the HIVE and fire it at the right CELL, rather than going north with the right CELL still down.
+    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
+             fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)] if tip1_retry else []
+    r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry),
           r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=tip1_catch))
     # Up the lane (x 57.5, between the HIVE frame's feet at x 46 and 95), the control points stacked at its top so
     # the robot's back is past the west foot's end (y 90) before it bends west, then into the far FLOWER's seat.
@@ -84,7 +88,7 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=wall_ms), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
     r.at = "FIRE3"
     r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=2500),
-          r.go("PARK", ctrl=[(30, 40)], turn_after=0.2, turn_by=0.8, park=True))
+          r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
     return r
 
 
