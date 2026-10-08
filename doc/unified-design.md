@@ -646,7 +646,7 @@ match: "Do you shoot, and how sure are you?" 60 runs each, rigid V with a fixed 
 | Partner | Run | Why | Expect |
 |---|---|---|---|
 | **Can't shoot** | **R-Quals**, the partner starting near its park (out of the standard left start) | TIP 1 is ours at once; nothing waits on the partner | 3 TIPs in 38 |
-| **Shoots, reliably** | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 58 |
+| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 58 |
 | **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 58 if it shoots; 2 TIPs in 53 if it does not |
 
 What not to do, and why:
@@ -657,6 +657,10 @@ What not to do, and why:
   runs; the simulator lets the robots pass through each other, so its 3-TIP counts there are not real): expect
   TIP 1 and PARK, maybe TIP 2. R-Quals can't tell a partner that fired from one that did not before it commits
   (the HIVE only tips once our catch is in, at about 11 s), and it can't see the other robot.
+- **A slow shooter with R-Quals**: a left partner that fires 3 s late is still at its start when we come by:
+  collisions in 56 of 60 runs at about 6.8 s (`partner-left-slow-3000`). A normal left partner has fired and left
+  by about 6.4 s, so R-Quals needs a partner that shoots *and* moves on time; L-Quals' partner starts on the other
+  side and never crosses our way, even dead.
 - Neither Auto can make a partner score. L-Quals' fallback only limits what a partner that was meant to shoot
   costs us when it doesn't.
 
