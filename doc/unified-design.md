@@ -551,7 +551,11 @@ that counted shots fired, not pieces in.) Tried and no better:
   and our catch can have tipped it already, and the card ends at once), the lane's catch fired from (45, 26).
   (`qual-left-partner-v-fixed` with a park-only partner: 1 of 60, its "TIP 2 already?" wait and late N_FIRE cost
   2.5 s.) 60 runs, rigid V with a fixed turret: partner shoots from the left **56** with 3 TIPs (PARK 60, 1 problem
-  run); partner parks only **38** (PARK 60, no problems); a left partner still at its start (silent, dead) collides.
+  run); partner parks only **38** (PARK 60, no problems); a left partner still at the standard left start (59,
+  132.25) collides (silent, dead: 47-60 of 60), because that start overlaps the far FLOWER's seat and N_FIRE. A
+  partner dead at the west start (24, 132.25), against the wall west of the far FLOWER, does not: **38**, PARK 60, no
+  problems (`partner-left-dead-west`). So an unreliable partner starts there. R-Quals (mentor's name; L-Quals is the
+  ShootsRight baseline).
 
 - **(ii) for a left partner that may not do its job: `qual-left-partner-v-safe`** (mentor, 8 Oct 2026). A left
   partner that is slow, never fires or never moves sits at its start (59, 132.25), beside the far FLOWER and over

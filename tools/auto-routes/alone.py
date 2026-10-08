@@ -353,15 +353,15 @@ def partner_right_dead(name="partner-right-dead"):
     return r
 
 
-def partner_left_test(name, kind, delay_ms=0):
+def partner_left_test(name, kind, delay_ms=0, x=59):
     """Test partners for the left start (partner_left_v's start and park): "silent" never shoots (it keeps its
     preloads, parks when partner-left-v would have), "dead" never shoots and never moves, "slow" fires delay_ms after
     the left CELL rises."""
-    r = Route(name, (59, 132.25, 270), speed=40)
+    r = Route(name, (x, 132.25, 270), speed=40)
     if kind == "dead":
         r.add(r.wait("Dead", when=["Empty"], ms=30000))
         return r
-    r.pt("DOWN", 59, 124, 270).pt("PARK_P", 10.5, 118, 270)
+    r.pt("DOWN", x, 124, 270).pt("PARK_P", 10.5, 118, 270)
     if kind == "silent":
         r.add(r.action("IntakeOff"), r.wait("Where it would fire", when=["Empty"], ms=6000), r.go("DOWN", heading=270))
     else:
@@ -480,7 +480,8 @@ if __name__ == "__main__":
                              tip1_wait_ms=7000, rescue_home="lane"),
               partner_right_silent(), partner_right_dead(), partner_right_slow(3000), partner_right_slow(6000),
               partner_left_test("partner-left-silent", "silent"), partner_left_test("partner-left-dead", "dead"),
-              partner_left_test("partner-left-slow-3000", "slow", 3000), left_partner_safe("qual-left-partner-v-safe")):
+              partner_left_test("partner-left-slow-3000", "slow", 3000),
+              partner_left_test("partner-left-dead-west", "dead", x=24), left_partner_safe("qual-left-partner-v-safe")):
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(r.name)
