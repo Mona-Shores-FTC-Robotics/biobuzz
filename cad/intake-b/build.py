@@ -199,8 +199,15 @@ blk = ramp_block().translate((0, 0, EX_ZB - A.ZB))
 bb_ = blk.val().BoundingBox()
 blk = blk.union(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE + 0.4, bb_.xmin + 0.5, bb_.xmax - 0.5).intersect(blk.val().BoundingBox() and cq.Workplane().add(cq.Solid.makeBox(bb_.xlen, bb_.ylen, bb_.zlen, cq.Vector(bb_.xmin, bb_.ymin, bb_.zmin)))))
 blk = blk.cut(rex(EX_FS[0], EX_FS[1], bb_.xmin - 1, bb_.xmax + 1))
+EX_BAR = os.environ.get("EX_BAR") == "1"   # study only (doc/robot-cad.md, "A wider FLOWER bar"): the block's profile, straight, from arm to arm
+if EX_BAR:
+    bh = EX_X - EX_T / 2 - 0.5
+    y0_, z1_ = bb_.ymin, bb_.zmax                                                # its bottom (0.7 in up) and its tip
+    prof = [(z1_, y0_), (z1_, y0_ + 0.65 * IN), (z1_ - 0.5 * IN, y0_ + 0.65 * IN), (z1_ - 1.4 * IN, y0_)]
+    blk = cq.Workplane("YZ").polyline([(y, z) for z, y in prof]).close().extrude(2 * bh).translate((xr(bh), 0, 0))
+    blk = blk.union(cyl("x", (0, EX_FS[0], EX_FS[1]), BORE + 0.4 + 6, xr(bh), xl(bh))).cut(rex(EX_FS[0], EX_FS[1], xr(bh) - 1, xl(bh) + 1))
 part(hook, "flower_block (print, PETG; 8mm REX bore)", blk, (0.69, 0.42, 0.85), "print")
-for s, f in (("R", xr), ("L", xl)):
+for s, f in (("R", xr), ("L", xl)) if not EX_BAR else ():
     part(hook, f"block_collar_{s} (goBILDA 2910-1020-4008, 8mm REX clamping collar)", cyl("x", (0, EX_FS[0], EX_FS[1]), 21.0, f(1.36 * IN + 0.5), f(1.36 * IN + 8.5)), STEEL, "buy")
     part(hook, f"cross_spacers_{s} (goBILDA 8mm REX spacers, stacked to {EX_X - EX_T / 2 - (1.36 * IN + 8.5):.1f} mm: the collar out to the arm)", cyl("x", (0, EX_FS[0], EX_FS[1]), 10.0, f(1.36 * IN + 8.5), f(EX_X - EX_T / 2)).cut(rex(EX_FS[0], EX_FS[1], -1e3, 1e3)), STEEL, "buy")
 # A sector gear: teeth only where they mesh between down and stowed, so nothing sticks out ahead when stowed.

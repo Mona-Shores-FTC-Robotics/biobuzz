@@ -217,6 +217,53 @@ roller about 0.77 s after the block meets the uprights.
 A cage over the FLOWER's top that blocks the Limelight only while seated at a FLOWER is acceptable (the user, 6 Oct
 2026). Stowed or driving, everything stays under the Limelight's keep-clear ceiling.
 
+## A wider FLOWER bar (study, 8 Oct 2026)
+
+The mentor asked (through the body-designs chat) whether the extractor could become a full-width bar, so the robot
+needn't line up so exactly with a FLOWER. A note first: that request described the arms as 1.8 in out on the roller
+shaft. That is the pre-7 Oct extractor; today's arms are 4.2 in out on their own shaft (above).
+
+**What limits the offset today.** The narrow block nests in the FLOWER's 2.79 in hole between the grey uprights.
+Off-centre, it still seats on one upright. What stops it is the FLOWER's black bracket (±2.35 in, 3.55 to 4.15 in up)
+hitting an arm. So the limit is the arm spacing, not the block.
+
+**The study.** Swap the block for a straight bar with the block's profile (front 0.7 to 1.35 in up, 0.5 in flat top,
+1.4 in deep), arm to arm on the cross shaft, and move the arms out. Its bottom passes over the bottom ring (0.43 in),
+and its front stops on both uprights at the same depth as the block, under the bottom POLLEN, so the emptying slice
+(`tools/ramp-hook/extractor.py`) is the block's. Built as `EX_X=<in> EX_BAR=1 python3 cad/intake-b/build.py` (study
+switches only; the default build is unchanged). Each variant was driven into the FLOWER at each offset and at 0 and ±3°
+(`flower_seat.py`'s method) and swept 0 to 146° with the roller at every float height (`front2_check.py`).
+
+| Arms from centre | Seats (square) | Seats (3° off) | Sweep and stow | Start size |
+|---|---|---|---|---|
+| 4.2 in, narrow block (today) | ±1.5 in | ±1 in | clear | unchanged |
+| **5.6 in, bar** | **±3.0 in** | **±2.5 in** | **clear** | **unchanged** |
+| 6.2 in, bar | ±3.5 in | ±3 in | right arm hits the servo bracket stowed | unchanged |
+| 6.5 in, bar | ±4.0 in | ±3.5 in | right arm hits the servo and its bracket; a cross-shaft screw hits the motor carriage | unchanged |
+| 7.0 in, bar | ±4.5 in | ±3.5 in | hits the servo, its gear and bracket, and the roller motor's belt and carriage | unchanged |
+
+In every case the first contact past the limit is still the FLOWER's bracket on an arm. The V plates are never reached.
+
+**Recommendation: the compromise, arms at 5.6 in with a bar.** It doubles the room for error (±1.5 → ±3 in) and needs
+nothing else to move. Past about 6 in the arms run into the extractor's drive on the right and the roller motor on the
+left, so a true full-width bar (±4.5 in and more) means moving the servo drive outboard of the side plate, which is a
+redesign of the front. Since 7 in of offset can't be reached without that, ±3 in plus the drive lining up on
+`HiveFieldPoints` (`poseReferenced()`) is the realistic target.
+
+What it costs:
+- **Mass and servo:** about +45 g (a printed bar about 11 in long, 40% infill, and a 287 mm cross shaft). That's about
+  +0.6 kg·cm at worst, so roughly 2 kg·cm of the Torque servo's 25.
+- **Stiffness:** off-centre, the FLOWER pushes one end of the bar, and the twist reaches the hard stop (on the right)
+  through the cross shaft. With the aluminium REX standoff alone that's roughly 3 mm of give under 30 N. With the
+  printed bar on it, about 1 mm. A steel REX shaft cut to 287 mm, with clamping collars outside the arms in place of
+  the tapped-end screws, halves that again.
+- **Rules:** the bar is low and full-width only while the extractor is down at a FLOWER. Check the control/herding
+  rules for pieces it might push while lowered.
+- **Not lost:** the narrow block also drew the robot onto the centreline. The bar doesn't need to, since it empties
+  the FLOWER anywhere along it.
+- **To test:** the cardboard rig with the FLOWER 2 to 3 in off the bar's centre. Do all four POLLEN still come out
+  and reach the roller? The vector wheels centre them from there.
+
 ## Room for the transfer (issue #164, `doc/transfer.md` on `spike/164-transfer`)
 
 The transfer is `cad/transfer/` (v4): a ramp, a lane of five roller shafts under a sprung ceiling, and a feeder against
