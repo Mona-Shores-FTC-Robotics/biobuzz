@@ -38,10 +38,11 @@ SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern 
                   r"|3700-0145-0288|1108-0001-0002|1222-0001-0001|3312-4008-0008)"   # his intake carriage: the V-guides it rode, its plates, mount and hubs
                   r"|^3\.5in OD|Nectar|Pollen|Wheel Assembly <\d> / 72mm Steel Shaft"
                   r"|Launcher subassembly <\d> / (312rpm Motor|7x11 hole Aluminum Plate|1 Hole Lowside U-Channel|Mini Quad Block|16t HTD5 Pulley|\[LS\] HTD5 belt 68|Dual Block)"
-                  r"|Launcher subassembly <2> / 96mm Steel Shaft")
+                  r"|Launcher subassembly <2> / 96mm Steel Shaft|41T HTD5 Pulley")
 # (the last line: the flywheel motors, their belts and the plates and blocks that held them under the flywheels, where the
 # feeders go; cad/transfer/ draws the motors moved out and up), and the left flywheel's 96 mm shaft (cad/transfer/ draws a
-# longer one that drives the feeder and carries its yoke)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
+# longer one that drives the feeder and carries its yoke), and his custom 41T flywheel pulleys (goBILDA 24T in their place)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
+RIGHT_TIES = re.compile(r"Launcher Concept <1> / (1301-0016-4012|5 Hole U Beam - 40mm|5 Square Beam - 40mm|32mm Steel Shaft - 12mm REX)")   # tied to the right module: they move with it
 RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (30 mm): a lane NECTAR passes under it
 LAUNCHER = re.compile(r"^Launcher Concept|^Dual Block \(GB\)")   # the launcher, turret and the two blocks tying its frame to the chassis
 FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
@@ -121,6 +122,10 @@ def placed_team(robot_step):
             b = bbox(key, loc)
             if (b[1] + b[4]) / 2 - F < 4.3 * IN: continue   # the old motor's standoffs and spacers, where the feeders go
         if LAUNCHER.search(p): loc = moved((0, 0, TR.LAUNCHER_SHIFT * IN)).Multiplied(loc)   # forward: the lane's length sets the 3 NECTAR / 4 POLLEN limit
+        side = 1 if "Launcher subassembly <2>" in p else -1 if "Launcher subassembly <1>" in p else 0
+        if not side and RIGHT_TIES.search(p):
+            b = bbox(key, loc); side = -1 if (b[0] + b[3]) / 2 - C < 0 else 0
+        if side: loc = moved((-side * TR.FLY_IN * IN, 0, 0)).Multiplied(loc)   # the flywheel modules move in, 145 mm apart
         out.append((path, base[key], loc, col, key))
     return out
 
@@ -157,13 +162,13 @@ MOVING = [
     ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
     ("feeder_yoke", "MOVES 11 - feeder yoke (Revolute about the left flywheel's shaft: the gate servo swings it 10 deg)"),
 ]
-FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L)")   # ours, on the left flywheel's shaft
+FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")   # ours, on the left flywheel's shaft
 TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)")             # ours, on the turret drive gear's shaft
 TURRET_TURNS = re.compile(r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176")
 TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the ring that drives it
 TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)
 FASTENER = re.compile(r"[Ss]crew|Nut|2800-|2802-|2812-|2829-")
-FLYWHEELS = {"Launcher subassembly <2>": ("fly_L", 3.6427), "Launcher subassembly <1>": ("fly_R", -3.3276)}
+FLYWHEELS = {"Launcher subassembly <2>": ("fly_L", TR.FLY_Y[0]), "Launcher subassembly <1>": ("fly_R", TR.FLY_Y[1])}
 ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_lane_pulley|^roller_pulley|^roller_collar|^roller_eclip")
 
 def mentor_motion(path, shp, loc):
@@ -252,7 +257,7 @@ def main(robot_step, out, additions=False, only=None):
         shapes = {n: TR.to_cad(wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
             dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else \
-                   moving["feeder_yoke"] if re.match(TR.FEEDER_SWINGS, n) else moving["fly_L"] if FLY_L_SPINS.match(n) else \
+                   moving["feeder_yoke"] if re.match(TR.FEEDER_SWINGS, n) else moving["fly_L"] if FLY_L_SPINS.match(n) else moving["fly_R"] if n.startswith("flywheel_pulley_R") else \
                    moving["turret_gear"] if TURRET_GEAR_TURNS.match(n) else sub
             add_part(dest, n, shapes[n], col, shapes)
         frame.add(sub)

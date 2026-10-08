@@ -197,6 +197,9 @@ Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelig
 - **Shots slow the flywheels a little more:** the feeder takes its pulse from the left flywheel's shaft.
 - **The flywheels' speed is an estimate** (about 2340 RPM free, 1900 to 2100 loaded), not measured.
 - **Tune on the robot:** the gate servo's two positions, and the yoke's in and out.
+- **The gate servo holds the pinch for a whole volley.** The pad's band sets the pinch (about 1.5 lbf); its reaction on
+  the feeder, 3.35 in below the yoke's pivot, is about 0.7 kg·cm at the servo through the horn and pushrod: under 10% of
+  the Speed servo's stall. If testing shows more, a band pulling the yoke in (the servo only pulling it out) takes it.
 - **The TPU rollers:** print one first: TPU 95A, 3 walls, 20% gyroid infill, 0.2 mm layers. On a ball it should grip a
   ball moving along the lane and slip, not grab, under a ball held still. Too grabby: fewer walls; too slippery: more
   walls or a softer TPU. Then print the other four the same.

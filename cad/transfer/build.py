@@ -132,15 +132,19 @@ def centres_for(L, d0, d1):
 
 # the flywheel motors, moved out and up (along X, facing back), each belted to his 41T pulley on a goBILDA belt length:
 # 315 mm (left) and 320 mm (right); the centres are set for those
-FLY_Y = (3.6427, -3.3276)               # the flywheels' axles (mentor's), z 6.646
+FLY_IN = 16 * MM                        # each flywheel module moves in two holes (16 mm) on the launcher frame: 145 mm axle to
+                                        # axle (was 177), a 49 mm gap between the 96 mm wheels, as the prototype that shot both pieces
+                                        # (144). One hole either way per side gives 129 or 161 mm (cad/full-robot moves his modules)
+FLY_Y = (3.6427 - FLY_IN, -3.3276 + FLY_IN)   # the flywheels' axles, z 6.646
 FLY_Z = 6.646
-FLY_BELT = {1: (315, "3412-0009-0315"), -1: (320, "3412-0009-0320")}
+FLY_BELT = {1: (295, "3412-0009-0295"), -1: (295, "3412-0009-0295")}   # 16T on the motor, 24T on the flywheel (1.5:1: 4000 RPM
+                                        # free, so 2400 leaves the motor a third of its speed to recover each shot)
 def _fly_motor(s):
     fy = FLY_Y[0] if s > 0 else FLY_Y[1]; d = (s * 1.0, 0.115); n = math.hypot(*d); d = (d[0] / n, d[1] / n)
     L = FLY_BELT[s][0] * MM; lo, hi = 2.0, 5.0
     for _ in range(60):
         c = (lo + hi) / 2
-        lo, hi = (c, hi) if belt_len(c, P41, P16) < L else (lo, c)
+        lo, hi = (c, hi) if belt_len(c, P24, P16) < L else (lo, c)
     return fy + d[0] * c, FLY_Z + d[1] * c
 FM = {s: _fly_motor(s) for s in (1, -1)}
 FEED_C = centres_for(FEED_BELT[0] * MM, P16, P24)  # the feeder belt's centres (3.44 in)
@@ -149,7 +153,7 @@ ARM_IN = math.atan2(FLY_Y[0] - FEED_Y, FLY_Z - FEED_Z)                # the arms
 ARM_OUT = math.asin((FLY_Y[0] - FEED_OUT - RF) / FEED_C)              # and swung out (waiting): 10 deg apart
 GRIP_TOP_P = FEED_Z + math.sqrt((RF + RP) ** 2 - (FEED_Y - P_C) ** 2)    # the feeder grips a POLLEN up to here (centre)
 GRIP_TOP_N = FEED_Z + math.sqrt((RF + RN) ** 2 - (FEED_Y - N_C) ** 2)    # and a NECTAR; the flywheels take a NECTAR from 5.77
-FLY_BELT_X = -3.26                      # his 41T pulleys' belt plane (launcher moved)
+FLY_BELT_X = -3.20                      # the flywheels' 24T pulleys' belt plane (in place of his 41T pulleys)
 FM_FACE = -2.65                         # the moved motors' faces, X (shafts pointing back)
 SIDE_FLANGE = {1: (5.35, 5.83), -1: (-5.51, -5.04)}   # the launcher side channels' top flanges, Y; top face z 5.74
 SIDE_FLANGE_HOLES = {1: 5.669, -1: -5.354}          # their 4 mm holes' line, Y; at X = -0.149 - 8 mm k
@@ -430,7 +434,7 @@ for s in (-1, 1):
 y = LANE_Y + FEED_Y
 U, V = (0.0944, 0.9955), (0.9955, -0.0944)        # the launcher channels' along and across directions (Y, z), as they lean
 def lat(o, a, b): return (o[0] + (a * U[0] + b * V[0]) * MM, o[1] + (a * U[1] + b * V[1]) * MM)
-REAR_O, FRONT_O = (3.286, 2.907), (3.464, 4.794)   # a 14 mm pattern hole on each channel (Y, z)
+REAR_O, FRONT_O = (3.286 - FLY_IN, 2.907), (3.464 - FLY_IN, 4.794)   # a 14 mm pattern hole on each left channel (Y, z), the module moved in
 REAR_WEB, FRONT_WEB = (-3.99, -4.09), (-0.31, -0.41)   # the webs' faces, X (toward the feeder, away)
 PL_T = 0.25
 REAR_WEB_T, FRONT_WEB_T = 2.54, 2.54
@@ -613,7 +617,8 @@ for s in (1, -1):
     part(launcher, mn, cylx(my, mz, MOTOR_D, FM_FACE, FM_FACE + 107.7 * MM), (0.95, 0.75, 0.2), "buy")
     vendor(mn, "5203-2402-0001 assembly.STEP", (-37.15, 92.9, -11.05), (0, 1, 0), (1, 0, 0), (FM_FACE, my, mz), (-1, 0, 0), (0, 0, 1))
     part(launcher, f"flywheel_motor_pulley_{nm} (goBILDA 3417-4008-0016, 16T HTD5)", cylx(my, mz, 28 * MM, FLY_BELT_X - 6 * MM, FLY_BELT_X + 6 * MM), BLACK, "buy")
-    part(launcher, f"flywheel_belt_{nm} (goBILDA {FLY_BELT[s][1]}, HTD5 9 mm, his 41T to the moved motor)", loop("YZ", (fy, FLY_Z), P41 / 2, (my, mz), P16 / 2, 0.14, 9 * MM, FLY_BELT_X - 4.5 * MM), BLACK, "buy")
+    part(launcher, f"flywheel_pulley_{nm} (goBILDA 3417-4008-0024, 24T HTD5, on the flywheel's shaft: in place of his 41T)", cylx(fy, FLY_Z, 38.8 * MM, FLY_BELT_X - 6 * MM, FLY_BELT_X + 6 * MM), BLACK, "buy")
+    part(launcher, f"flywheel_belt_{nm} (goBILDA {FLY_BELT[s][1]}, HTD5 9 mm: the motor's 16T to the flywheel's 24T)", loop("YZ", (fy, FLY_Z), P24 / 2, (my, mz), P16 / 2, 0.14, 9 * MM, FLY_BELT_X - 4.5 * MM), BLACK, "buy")
     # the bracket: a 1/8 in aluminium L, its foot on the side channel's top flange, its upright holding the motor's face
     f0, f1 = sorted(SIDE_FLANGE[s]); xb0, xb1 = FM_FACE - 0.125, FM_FACE
     yo = my + s * (QB / 2)
@@ -714,4 +719,4 @@ if __name__ == "__main__":
     print(f"feeder arms: in {math.degrees(ARM_IN):.1f} deg, out {math.degrees(ARM_OUT):.1f} deg; grip tops P {GRIP_TOP_P:.2f} N {GRIP_TOP_N:.2f}")
     for s in (1, -1):
         fy = FLY_Y[0] if s > 0 else FLY_Y[1]; c = math.hypot(FM[s][0] - fy, FM[s][1] - FLY_Z)
-        print(f"flywheel belt {'L' if s > 0 else 'R'}: motor at Y {FM[s][0]:.3f} z {FM[s][1]:.3f}, needs {belt_len(c, P41, P16) * IN:.1f} mm, belt {FLY_BELT[s][0]}")
+        print(f"flywheel belt {'L' if s > 0 else 'R'}: motor at Y {FM[s][0]:.3f} z {FM[s][1]:.3f}, needs {belt_len(c, P24, P16) * IN:.1f} mm, belt {FLY_BELT[s][0]}")

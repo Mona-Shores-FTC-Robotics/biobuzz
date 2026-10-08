@@ -56,6 +56,7 @@ ROBOT_OK = [(r'^wall_standoff_', r'1107-0015-0384'),
             (r'^flywheel_belt_', r'41T HTD5 Pulley'), (r'^feeder_bridge', r'Launcher subassembly <(1|2)> / 5 Hole Lowside'),
             (r'^flywheel_shaft_L|^flywheel_spacers_L_(rear|front)', r'Launcher subassembly <2> / (8x14x5mm Bearing|8mm REX Hyper Hub|41T HTD5 Pulley|8mm Spacer|12\.5mm Spacer|1505-0032-0160|Sonic Hub|(3|5) Hole Lowside)'),
             (r'^idler_hanger', r'Intake <1> / 9 Hole Lowside'),
+            (r'^flywheel_pulley_', r'Launcher subassembly <(1|2)> / (96mm Steel Shaft|12\.5mm Spacer|8x14x5mm Bearing)'),
             (r'^turret_motor_plate', r'Launcher Concept <1> / 8 Hole Lowside'), (r'^turret_gear_(shaft|bearing_mount)', r'1231-0048-0001|2302-0014-0064')]
 def robot_ok(n, p): return any(re.search(a, n) and re.search(b, p) for a, b in ROBOT_OK)
 def axle(n):
@@ -64,7 +65,7 @@ def axle(n):
     if m: return ('lane', m.group(2))
     if re.match(r'jack_', n): return ('jack',)
     if re.match(r'idler_(pulley|shaft|bearing|spacers)', n): return ('idler',)
-    if re.match(r'flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L)|feeder_pivot_bearing', n): return ('flywheel L',)
+    if re.match(r'flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)|feeder_pivot_bearing', n): return ('flywheel L',)
     if re.match(r'turret_gear_(shaft|bearing|spacers|eclip|pulley)', n): return ('turret gear',)
     if re.match(r'turret_motor( \(|_pulley)', n): return ('turret motor',)
     if re.match(r'feeder( \(|_shaft|_spacers|_bearing_(front|outer) |_pulley \(|_shaft_spacer|_shaft_collar|_eclip)', n): return ('feeder',)
@@ -81,7 +82,7 @@ TOUCH = [(r'^lane_wall_', r'^lane_bearing_|^wall_standoff_|^ceiling_post_|^jack_
          (r'^turret_motor_plate', r'^turret_gear_bearing_plate|^turret_motor \('), (r'^turret_belt', r'^turret_(gear|motor)_pulley'),
          (r'^ceiling_pin_block', r'^ceiling \(|^ceiling_pin_|^ceiling_post'), (r'^ceiling_pin_(front|rear)', r'^ceiling_post'), (r'_glue \(', r'_foam \(|^ceiling \(|^pad_plate'),
          (r'^pad_knuckle', r'^pad_plate|^pad_hinge_block'), (r'^pad_stop', r'^pad_plate|^pad_knuckle_front|^feeder_floor'), (r'^pad_hinge_eclip', r'^pad_hinge_block'),
-         (r'^flywheel_motor_bracket_(.)', r'^flywheel_motor_'), (r'^flywheel_motor_pulley', r'^flywheel_(motor|belt)'),
+         (r'^flywheel_motor_bracket_(.)', r'^flywheel_motor_'), (r'^flywheel_motor_pulley', r'^flywheel_(motor|belt)'), (r'^flywheel_belt_', r'^flywheel_pulley_'),
          (r'^ceiling \(', r'^ceiling_(pin|post)'), (r'^ceiling_pin', r'^ceiling_post'), (r'^ceiling_foam', r'^ceiling \('),
          (r'^pad_(plate|foam)', r'^pad_(plate|foam|hinge)'), (r'^pad_hinge', r'^pad_hinge_block'), (r'^pad_stop', r'^pad_hinge_block'),
          (r'^ramp \(', r'^lane_wall_'), (r'^feeder_floor \(', r'^feeder_bridge|^backstop|^pad_hinge_block|^pad_stop'), (r'^backstop', r'^feeder_bridge'), (r'^pad_hinge \(', r'^pad_hinge_block'), (r'^pad_plate', r'^pad_stop')]
