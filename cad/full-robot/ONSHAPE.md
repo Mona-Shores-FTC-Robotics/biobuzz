@@ -42,7 +42,8 @@ That replaces adding a Fastened mate to every part.
 **How a Revolute works.** Its two mate connectors are the two halves of a hinge: connector 1 on the part that turns,
 connector 2 on the part that holds still (FRAME). Onshape snaps them together and lets the first spin about their
 blue (Z) arrow. Pick two circles **on the same axis and in the same plane**, or the group jumps to meet the second one.
-If it flips over, click **Flip primary axis**; if it only turns about its axis, drag it back. To check a mate, click
+If it flips over, click **Flip primary axis**; if it only turns about its axis, drag it back. If the moving group hides the
+surface you need, click the **eyeball** on its row to hide it, pick on FRAME, then show it again. To check a mate, click
 each connector under it: one should highlight the moving group, the other FRAME.
 
 ## 3. The nine mates
