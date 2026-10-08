@@ -146,6 +146,9 @@ VARIANTS["qual-alone-west-garden"] = {"after_tip2": "west_garden", "fire3": (45,
 # All four preloads fired (3000 ms: the 2500 ms card ended a shot early, so one miss lost TIP 1). A longer TIP 1
 # catch (2500/3000 ms) lost more to TIP 3's clock than it gained at TIP 2 (12/20, 6/20 against 16/20).
 VARIANTS["qual-alone-p4-lane"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000}
+# Baseline (i): a missed TIP 1 recovered (two preloads can hit the HIVE; then the run went late and the guard parked
+# the robot sideways out of the wall FLOWER's seat).
+VARIANTS["qual-alone-p4-lane-r"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000, "tip1_retry": True}
 VARIANTS["qual-alone-p4-west"] = {"after_tip2": "west_garden", "fire3": (25, 28, 90), "fire_g": (25, 28, 90),
                                   "fire1_ms": 3000}
 

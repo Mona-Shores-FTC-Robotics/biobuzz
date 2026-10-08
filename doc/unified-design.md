@@ -496,8 +496,29 @@ fixed launcher turning there to face the right CELL swung the V's tips over the 
 67.0, 3 TIPs in 12, PARK 20, 1 problem run (a TIP 1 failure), with the park-only or the angled partner; 66.0 / 14 with
 the turret. The Stages baselines with the turret fixed: angled 62.0 / 6, wall 56.0 / 0 (20 runs).
 
+**Baseline (i), partner parks, fixed turret: `qual-alone-p4-lane-r`** (8 Oct 2026, 60 runs, "rigid V, fixed turret",
+partner-park-only): 68.0, 3 TIPs in 43, PARK 60, no problem runs. Two changes from f45-s500: all four preloads fired
+(the 2500 ms card ended a shot early, so one miss lost TIP 1), and a missed TIP 1 recovered (no TIP in 4 s: catch what
+fell in front of the HIVE and fire it at the right CELL); the FLOWER drags were all late runs after a TIP 1 failure.
+The misses left: TIP 2 one piece short of the left CELL's tipping weight (7), TIP 3 short of weight (10: 8 pieces leave
+the right CELL at 91-95%, because the left CELL keeps part of TIP 2's load). Tried and no better:
+- A longer TIP 1 catch (2500, 3000 ms): 12/20, 6/20; the time comes out of TIP 3.
+- The GARDEN while TIP 1 dwells, fired for TIP 2: the left CELL reaches only 52% on 4.
+- The west ending (wall FLOWER, then GARDEN, fired from (25, 28)): 14/20.
+- Bodies (20 runs each, both routes): V 22 in, 24 in, 6 in deep: no more TIPs, and their outline crosses the centre
+  line and the HIVE frame on routes drawn for the drawn V; V + dual Ramp Hook: 15/20; the moving turret: 15/20.
+- A second load from TIP 2's spill at (55, 30) or (55, 34): 0/20. **Where TIP 2's spill goes**: 8 pieces land just
+  north of the HIVE (x 50-67, y 93-98) at about 16.5 s, in front of the robot at N_FIRE; the lane drive scoops 4 (the
+  lane's capacity), and the rest roll off, two of them over the centre line. Each CELL opens at its own end, so TIP 3
+  is fired from the south while TIP 2's leftovers lie north: a hook would hold them where the robot is not. The lane
+  caps any body at 4 per trip, so a hook pays only on a route that comes back for a second load, and here that trip
+  costs what the wall FLOWER does.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
+- **The endgame guard parks a seated robot sideways**: it follows the park path from its start, so a cut at the wall
+  FLOWER's seat drags the V through the FLOWER whatever the path's middle (three control layouts, same hits). Needs a
+  back-out first in `AutoKit.guarded` (sent to the simulator chat).
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
   PARK in quals is non-negotiable, so that route needs a PARK ending.
 
