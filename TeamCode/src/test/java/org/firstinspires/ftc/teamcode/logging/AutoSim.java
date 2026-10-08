@@ -1292,6 +1292,8 @@ public final class AutoSim {
         /** How far off the robot's centre line that FLOWER may be. */
         static final double EXTRACTOR_DEPLOY_ASIDE_IN = 6;
         boolean extractorWanted, extractorBlocked;
+        /** Draws each seat's lateral error (RobotDesign#seatErrorIn), apart from the field's random so nothing else moves. */
+        private java.util.Random seatErrors;
 
         /** How far past the seat a FLOWER may be, and how far aside, for the extractor to count as still on it. */
         static final double EXTRACTOR_SEATED_SLACK_IN = 6;  // the block's tip clear of the FLOWER's footprint before it lifts
@@ -1324,12 +1326,19 @@ public final class AutoSim {
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
             double face = design.frameIn / 2, seat = face + design.extractorSeatIn;
             double[] end = drive.pathEnd();
-            double aside = design.extractorLateralIn;
+            double[] range = design.extractorLateralRange();
             for (double[] flower : sim.flowers) {
                 double lx = (flower[0] - pose[0]) * c + (flower[1] - pose[1]) * s;
-                double ly = -(flower[0] - pose[0]) * s + (flower[1] - pose[1]) * c - aside;
+                double ly0 = -(flower[0] - pose[0]) * s + (flower[1] - pose[1]) * c;
+                double ly = ly0 - Math.max(range[0], Math.min(range[1], ly0));  // off the extractor's reach (0 inside it)
                 if (design.intakeAtBack) lx = -lx;
-                // An extractor off the centre line: where the FLOWER would be for one on it, seen from the path's end.
+                // An extractor off the centre line, or a wide one: where the FLOWER would be for one on the centre line,
+                // seen from the path's end, the nearest point of its reach.
+                double aside = 0;
+                if (end != null) {
+                    double ec = Math.cos(end[2]), es = Math.sin(end[2]);
+                    aside = Math.max(range[0], Math.min(range[1], -(flower[0] - end[0]) * es + (flower[1] - end[1]) * ec));
+                }
                 double[] f = end == null || aside == 0 ? flower
                         : new double[] {flower[0] + aside * Math.sin(end[2]), flower[1] - aside * Math.cos(end[2])};
                 if (lx > face && lx < face + EXTRACTOR_DEPLOY_AHEAD_IN && Math.abs(ly) < EXTRACTOR_DEPLOY_ASIDE_IN) flowerAhead = true;
@@ -1357,6 +1366,11 @@ public final class AutoSim {
             }
             if (want != extractorWanted) {
                 extractorWanted = want;
+                if (want && design.seatErrorIn > 0) {  // this seat's lateral error (RobotDesign#seatErrorIn)
+                    if (seatErrors == null) seatErrors = new java.util.Random(seed * 1_000_003L + index);
+                    body.seatErrorIn = (2 * seatErrors.nextDouble() - 1) * design.seatErrorIn;
+                    log.putEvent(tag() + String.format(Locale.ROOT, "seat error %.1f in", body.seatErrorIn), us);
+                }
                 log.putEvent(tag() + "extractor " + (want ? "down: driving to a FLOWER"
                         : running ? "up: leaving the FLOWER" : "up: AUTO ended"), us);
             }
@@ -1400,7 +1414,8 @@ public final class AutoSim {
                 if (key == shapeLogged) return;
                 shapeLogged = key;
                 double[] components = cadComponents(down, yaw);
-                components[1] += design.extractorLateralIn * AdvantageScopeFrame.METERS_PER_INCH;  // an extractor off the centre line
+                double[] reach = design.extractorLateralRange();  // an extractor off the centre line (a bar: its middle)
+                components[1] += (reach[0] + reach[1]) / 2 * AdvantageScopeFrame.METERS_PER_INCH;
                 log.putPose3dArray(keyPrefix + "/BodyShape/Components", components, us);
                 return;
             }

@@ -126,3 +126,54 @@ blue).
   tile slopes, the spill kicks and each piece's rolling resistance fall on different pieces for blue. So the same
   seed is a different run for blue, from the same distribution; `BIOBUZZ_AUTO_VARIETY=0` turns the variety off,
   and then red and blue match to the hundredth of a second. Read the matches' 3-TIP counts as ±4.
+
+## 3. A wide extractor bar, and what a seat-position error costs (8 Oct 2026)
+
+Asked by the body-designs chat for the mentor ("having to line up as close as we do is a real problem"): a T-shaped
+bar out past the V's tips, so a FLOWER seats anywhere across it. Simulator (this branch): `RobotDesign`'s
+`extractorLateralIn` .. `extractorLateralMaxIn` is the range the FLOWER's centre may sit in, plus the 1.5 in seat
+tolerance at each end. **"rigid V, fixed turret, wide bar"** is -7.3 .. 7.3 in, a placeholder until CAD sends the
+widest bar that clears the V; down, the bar is a solid strip across the seat line (1.5 in tall, a placeholder) that
+pieces bounce off. **`seatErrorIn`**: each time the extractor comes down the robot's real seat is off by a lateral
+error drawn evenly in ±N in (its own random, so nothing else in the run changes), and the FLOWER gives up pieces only
+if it still falls in the extractor's reach. The robot does not retry: it waits its 3 s and leaves with what it has.
+`tools/auto-routes/seat_error.py` runs the matrix. 60 runs, "rigid V, fixed turret", partners "spring hood" at 40, on
+the simulator as of claude/simulator dd6a0d7.
+
+| Auto (partner) | Extractor | ±0 | ±1 | ±2 | ±4 in |
+|---|---|---|---|---|---|
+| L-Quals (`partner-preloads-right-high`) | centre block (today's, ±1.5) | 57 | 57 | 32 | 9 |
+| | wide bar | 57 | 57 | 57 | 57 |
+| R-Quals (`partner-left-v`) | centre block | 56 | 56 | 30 | 9 |
+| | wide bar | 54 | 54 | 54 | 55 |
+| `qual-south-v-corner` (`partner-left-v`) | corner (-7.3 ± 1.5) | 55 | 55 | 29 | 9 |
+| | wide bar, FLOWER at the bar's end (-7.3) | 55 | 55 | 44 | 30 |
+| | wide bar, FLOWER 1.5 in inside it (-5.8, `qual-south-v-corner-in`) | 55 | 55 | 55 | 44 |
+
+(Runs with 3 TIPs of 60. PARK 59-60 of 60 everywhere; no robot collisions with `partner-left-v`.)
+
+- **The centre block needs the seat within about 1.5 in.** ±1 costs nothing; ±2 (a quarter of the seats miss)
+  costs about 25 runs of 3 TIPs on every route; ±4 leaves 9. A missed FLOWER loses that TIP's 4 pieces outright.
+- **The wide bar makes a centre seat immune to ±4 in**, on both qualifier Autos (L-Quals 57 at every error, R-Quals
+  54-55).
+- **The corner route sits at the bar's end**, so half of any error falls off it (44 at ±2, 30 at ±4). Aimed 1.5 in
+  inside the end (robot at x 41.56 instead of 40.06) it holds 55 to ±2 and 44 at ±4, but the V's right tip is then
+  at x 50.45, 0.45 in inside an 18 in partner's footprint at the standard left start. The simulator's robot-robot
+  check uses the frames, not the V's tips, so that overlap is not counted: a wider bar, past ±7.3, is what lets the
+  corner route have both.
+- **Deployed, the bar hurts nothing measurable**: G409 the same runs on every route (L-Quals 0, R-Quals 17, corner
+  18-20 of 60, with or without the bar), PARK the same, no new problems. R-Quals 54 against 56 is inside the ±4
+  noise (section 2). It is down only on the approach to a FLOWER and while seated.
+- **Beside a partner at the far FLOWER**, unchanged: the bar sits ahead of the body, so the corner route's body
+  and its clearance are the same. One fix from this study: N_LOW, where the corner route fires TIP 2, moves from y
+  115.5 to **114.5**. At 115.5 the back cleared an 18 in partner at its start by 0.2 in, and one that turned 1° to
+  aim met it in 10 of 60 runs (the earlier runs had the partner on our 15.12 in body); at 114.5, 1 of 60, 3 TIPs
+  unchanged (55 with a good partner, 32 with a dead one, 54 with a 3 s-late one that holds).
+
+The model's limits: the error is lateral only (a seat short or long of the FLOWER is not modelled), the robot's
+body is not moved by it (only where the FLOWER sits against the extractor), and the bar's width and height are
+placeholders. **Rerun with CAD's width**: set `wideBar.extractorLateralIn` / `extractorLateralMaxIn` in
+`AutoStudyTest` and run `python3 seat_error.py`.
+
+Since section 1 was run the simulator has changed (claude/simulator's transfer and plate-contact models): the corner
+route with a dead partner at the left start now makes 3 TIPs in 30-32 of 60 (35 then), with a good partner 55-56.

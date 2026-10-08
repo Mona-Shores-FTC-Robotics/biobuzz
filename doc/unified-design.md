@@ -672,7 +672,9 @@ partner that *leaves* late: its way west along y 124 crosses our whole side (56 
 instruction "if you have not left by 6 s, stay until 18 s", a late partner is harmless (55 of 60, no collisions).
 A forward distance sensor could see the partner at about 6 s, but only says it is there, not when it will leave:
 not worth building yet. The whole match with four robots (both Autos on blue too): no contact between the
-alliances in 240 runs, both blue Autos make their 3 TIPs.
+alliances in 240 runs, both blue Autos make their 3 TIPs. **A wide extractor bar** (±7.3 in placeholder, same doc, section 3): today's centre block
+needs the seat within about 1.5 in (a ±2 in seat error costs about 25 runs of 3 TIPs of 60 on every route, ±4 leaves
+9); the bar makes L-Quals and R-Quals immune to ±4 in and, deployed, changes nothing else measurable.
 
 ## The envelope
 

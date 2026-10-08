@@ -233,6 +233,20 @@ public class AutoStudyTest {
         RobotDesign cornerExtractor = fixedTurret.copy("rigid V, fixed turret, corner extractor");
         cornerExtractor.extractorLateralIn = -7.3;  // the right front corner: west of the far FLOWER, facing north
         m.put(cornerExtractor.name, cornerExtractor);
+        // A wide extractor (body-designs chat, 8 Oct 2026): a T-shaped bar out past the V's tips, so a FLOWER seats anywhere
+        // across it; +-7.3 in until CAD sends the widest bar that clears the V. And how much a seat-position error costs
+        // each: "seat error N in", a lateral error drawn evenly in +-N at every FLOWER seat.
+        RobotDesign wideBar = fixedTurret.copy("rigid V, fixed turret, wide bar");
+        wideBar.extractorLateralIn = -7.3;
+        wideBar.extractorLateralMaxIn = 7.3;
+        m.put(wideBar.name, wideBar);
+        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar}) {
+            for (int e : new int[] {1, 2, 4}) {
+                RobotDesign err = base.copy(base.name + ", seat error " + e + " in");
+                err.seatErrorIn = e;
+                m.put(err.name, err);
+            }
+        }
         RobotDesign vHook = fixedTurret.copy("rigid V + dual hook, fixed turret");
         vHook.guideOutIn = vHook.flapOutIn;
         vHook.guideForwardIn = vHook.flapForwardIn;

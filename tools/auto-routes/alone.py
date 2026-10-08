@@ -579,7 +579,11 @@ VARIANTS["qual-south-v"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms
 #   good partner but the back corner met a dead partner in all 60 at y 114.4 (turn finished by 0.8-0.9); kept low
 #   through (48, 108) and turned by 0.75 of the path:
 VARIANTS["qual-south-v-side"] = dict(VARIANTS["qual-south-v"], aside=-7.3, side_fire_y=110)
-VARIANTS["qual-south-v-corner"] = dict(VARIANTS["qual-south-v-side"], n_low=115.5, n_low_turn=(0.3, 0.75, (48, 108)))
+# N_LOW at y 114.5 since the wide-bar study (8 Oct 2026): at 115.5 the back cleared an 18 in partner at its start by
+# 0.2 in, and one that turned 1 deg to aim met it in 10 of 60 runs (1 at 114.5; 3 TIPs unchanged).
+VARIANTS["qual-south-v-corner"] = dict(VARIANTS["qual-south-v-side"], n_low=114.5, n_low_turn=(0.3, 0.75, (48, 108)))
+# On a wide bar (seat_error.py): the FLOWER aimed 1.5 in inside the bar's -7.3 end, so a seat error has room both ways.
+VARIANTS["qual-south-v-corner-in"] = dict(VARIANTS["qual-south-v-corner"], aside=-5.8)
 # qual-south-v-corner: 56/0, 56/56, 35/0, 36/23, 36/0; with a late partner that holds at its start until 18-20 s
 # (partner_left_hold): fires 3 s late 55/0, never fires 35/4 (the 4: TIP 1 missed and we ran late).
 VARIANTS["qual-alone-p4-west"] = {"after_tip2": "west_garden", "fire3": (25, 28, 90), "fire_g": (25, 28, 90),
