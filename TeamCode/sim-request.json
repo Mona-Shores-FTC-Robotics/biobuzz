@@ -1,6 +1,6 @@
 {
   "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-alone-p4-lane-r.pp",
-  "spec": "QualAloneP4LaneRAuto,PartnerParkOnlyAuto@50",
+  "spec": "QualAloneP4LaneRAuto,PartnerLeftVAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,9 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-alone-p4-lane-r.pp",
-    "SavedBy": "README, alone: 3 TIPs with a partner that cannot shoot, TIP 1 recovered (8 Oct 2026)"
+    "AutoSource": "qual-alone-p4-lane-r-left.pp",
+    "SavedBy": "README, the partner shoots from the left start (8 Oct 2026)"
   },
-  "title": "Qual-Alone-3TIPs",
+  "title": "Qual-PartnerShootsLeft",
   "usual": true
 }
