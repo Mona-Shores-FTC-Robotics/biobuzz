@@ -35,7 +35,7 @@ def seat(r, name, at, heading):
 
 def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
           after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False, speed=50, garden=False, tip3_ms=2500,
-          skip_nfire=False, lane_fire=None):
+          skip_nfire=False, lane_fire=None, tip2_until="Tip"):
     r = Route(name, S_START, speed=speed)
     r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -72,7 +72,8 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
         r.at = "FAR_FLOWER_TURN"
     if after_tip2 == "west_garden":
         return west_garden(r, fire3, fire_g)
-    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Tip", ms=tip2_ms))
+    # tip2_until "RightCellUp": a left partner's 4 and our catch can have tipped it already (it then ends at once).
+    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", tip2_until, ms=tip2_ms))
     if tip2_settle:
         r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=tip2_settle))
     # TIP 3: south through TIP 2's spill down the lane, then round into the wall FLOWER's seat.
@@ -84,6 +85,10 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     # TIP 2's catch fired standing at S_FIRE, on the way: from the wall FLOWER's side the shots crossed the HIVE
     # (3 of 8 "shot-hive"). Then the same hold at the wall FLOWER, its 4 fired from FIRE3, south of the HIVE.
     r.pt("FIRE3", *fire3)
+    if lane_fire is not None:  # from S_FIRE a shot in some runs hit the HIVE: on to a clean spot first
+        r.pt("LANE_FIRE", *lane_fire)
+        r.add(r.go("LANE_FIRE", turn_after=0.2, turn_by=0.8))
+        r.at = "LANE_FIRE"
     r.add(fire(r, "Fire TIP 2's catch at the right CELL", "Empty", ms=2000), r.go("WALL_FLOWER_TURN", turn_after=0.2, turn_by=0.8))
     r.at = "WALL_FLOWER_TURN"
     r.add(r.go("WALL_FLOWER", heading=180))
@@ -453,6 +458,11 @@ VARIANTS["qual-alone-p4-lane-r"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "
 VARIANTS["qual-left-partner-v-fixed"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000, "tip1_retry": True,
                                          "skip_nfire": True, "garden": False, "tip3_ms": 2500, "tip2_ms": 4000,
                                          "lane_fire": (45, 26, 90)}
+# One route from the south start for a partner that parks only or shoots from the left (mentor, 8 Oct 2026: "realistically
+# should only be 1 or 2 autos"): qual-alone-p4-lane-r, the FLOWER's 4 fired until the right CELL is up (a left partner's
+# 4 and our catch can have tipped it already), the lane's catch fired from (45, 26) (from S_FIRE a shot hit the HIVE).
+VARIANTS["qual-south-v"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000, "tip1_retry": True,
+                            "tip2_until": "RightCellUp", "tip2_ms": 4000, "lane_fire": (45, 26, 90)}
 VARIANTS["qual-alone-p4-west"] = {"after_tip2": "west_garden", "fire3": (25, 28, 90), "fire_g": (25, 28, 90),
                                   "fire1_ms": 3000}
 
