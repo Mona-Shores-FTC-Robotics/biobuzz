@@ -48,7 +48,7 @@ public final class QualStagesAngledVStreamLeave1800Auto {
         Pose sCatch = p.of(57.5, 28, 90);
         Pose gardenIn = p.of(8.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);
-        Pose park = p.of(13, 87.44, 90);
+        Pose park = p.of(10.5, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
@@ -131,7 +131,7 @@ public final class QualStagesAngledVStreamLeave1800Auto {
                         kit.afterMs(2500)),
                 kit.firstOf("TIP 2?",
                         kit.when("Tip").then(
-                                kit.guarded("Yes", sFireToPark, 2.8,
+                                kit.guarded("Yes", sFireToPark, 3,
                                         kit.firstOf("It lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1300)),
@@ -150,7 +150,7 @@ public final class QualStagesAngledVStreamLeave1800Auto {
                                                 kit.afterMs(1800)),
                                         kit.path("S_FIRE to PARK", sFireToPark))),
                         kit.afterMs(600).then(
-                                kit.guarded("No: the far FLOWER", sFireToParkPath, 2.8,
+                                kit.guarded("No: the far FLOWER", sFireToParkPath, 3,
                                         kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
                                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                                         kit.firstOf("Seated at the FLOWER",

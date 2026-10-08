@@ -44,7 +44,7 @@ public final class QualRightVStreamX200Auto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
         Pose garden = p.of(9.5, 10.96, 270);
-        Pose park = p.of(13, 87.44, 90);
+        Pose park = p.of(10.5, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
@@ -66,7 +66,7 @@ public final class QualRightVStreamX200Auto {
         Pose sweepWToGardenSegment2Start = p.of(9.5, 10.96, 180);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
-        Pose gardenToPark = p.of(13, 87.44, 270);
+        Pose gardenToPark = p.of(10.5, 95, 270);
         Pose gardenToParkControl1 = p.of(24, 30, 0);
 
         // Paths, written as the stock Visualizer export writes them.
@@ -82,7 +82,7 @@ public final class QualRightVStreamX200Auto {
         Path gardenToParkPath = Paths.curve(sFire, gardenToParkControl1, gardenToPark).constant(gardenToPark);
 
         return kit.sequence(
-                kit.guarded("Auto", gardenToParkPath, 2.8,
+                kit.guarded("Auto", gardenToParkPath, 3,
                         kit.command("SpinUp"),
                         kit.path("START to N_FIRE", startToNFire),
                         kit.firstOf("TIP 1 (the partner)",

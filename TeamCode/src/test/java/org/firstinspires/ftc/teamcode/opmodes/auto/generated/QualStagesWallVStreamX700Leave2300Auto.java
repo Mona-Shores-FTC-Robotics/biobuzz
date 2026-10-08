@@ -46,7 +46,7 @@ public final class QualStagesWallVStreamX700Leave2300Auto {
         Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
         Pose sCatch = p.of(57.5, 28, 90);
-        Pose park = p.of(13, 87.44, 90);
+        Pose park = p.of(10.5, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
@@ -76,8 +76,8 @@ public final class QualStagesWallVStreamX700Leave2300Auto {
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
         Pose nFireToParkControl1 = p.of(57.5, -5, 0);
         Pose nFireToParkControl2 = p.of(57.5, -10, 0);
-        Pose nFireToParkSegment1Heading = p.of(13, 87.44, 270);
-        Pose nFireToParkSegment2Start = p.of(13, 87.44, 270);
+        Pose nFireToParkSegment1Heading = p.of(10.5, 95, 270);
+        Pose nFireToParkSegment2Start = p.of(10.5, 95, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
@@ -140,7 +140,7 @@ public final class QualStagesWallVStreamX700Leave2300Auto {
                         kit.afterMs(2500)),
                 kit.firstOf("TIP 2?",
                         kit.when("Tip").then(
-                                kit.guarded("Yes", sFireToPark, 2.8,
+                                kit.guarded("Yes", sFireToPark, 3,
                                         kit.firstOf("It lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(700)),
@@ -150,7 +150,7 @@ public final class QualStagesWallVStreamX700Leave2300Auto {
                                                 kit.afterMs(2000)),
                                         kit.path("S_FIRE to PARK", sFireToPark))),
                         kit.afterMs(600).then(
-                                kit.guarded("No: the far FLOWER", nFireToPark, 4.8,
+                                kit.guarded("No: the far FLOWER", nFireToPark, 4.9,
                                         kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
                                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                                         kit.firstOf("Seated at the FLOWER",

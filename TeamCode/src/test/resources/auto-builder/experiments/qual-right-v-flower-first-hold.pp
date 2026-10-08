@@ -292,8 +292,8 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 13,
-        "y": 87.44
+        "x": 10.5,
+        "y": 95.0
       },
       "controlPoints": [
         {
@@ -537,8 +537,8 @@
         270
       ],
       "PARK": [
-        13,
-        87.44,
+        10.5,
+        95.0,
         90
       ],
       "FAR_FLOWER": [

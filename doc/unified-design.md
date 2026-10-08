@@ -475,6 +475,24 @@ fire it before PARK; or PARK straight away, deep, and fire from the LOADING ZONE
 60 runs, rigid V: **74.3 · 3 TIPs in 57 · both PARK 60 · 3.65 held into TELEOP · no problem runs** (the TIP 3 ending:
 74.0 · 56 · 1.7 held).
 
+**3 TIPs with a partner that cannot shoot (mentor, 8 Oct 2026: "can a flower first turret type get us there?"),
+`qual-alone-flower-f45-s500` (tools/auto-routes/alone.py)**, from the south start: TIP 1 from our preloads, its spill
+caught facing the HIVE; the catch fired at FAR_FLOWER_TURN, the far FLOWER's 4 held, then fired from N_FIRE (TIP 2);
+TIP 2's spill caught down the lane and fired at S_FIRE; the wall FLOWER's 4 held, then fired from (45, 26) (TIP 3:
+from beside the wall FLOWER the shots crossed the HIVE); PARK. 60 runs, rigid V, each partner:
+
+| Partner | Points | 3 TIPs | PARK | Problem runs |
+|---|---|---|---|---|
+| parks only (`partner-park-only`, at the zone's far end) | 62.7 | 35 | 60 | 4 |
+| Stages, angled | 62.7 | 35 | 60 | 4 |
+| Stages, wall | 62.7 | 35 | 60 | 4 |
+| the angled baseline, for comparison | 61.0 | 23 | 60 | 4 |
+
+The partner makes no difference: the route never uses a staged row. TIPs at about 4, 15 and 26 s. The 4 problem runs
+are TIP 1 failing (the HIVE tips at 23 s): the endgame guard's park, drawn from (45, 26), drags the V out through the
+wall FLOWER, as the baseline's runs into the HIVE frame. `partners.park_left` drives into the far FLOWER and onto our
+PARK, so the park-only partner here is new. A 4th TIP does not fit: TIP 3 comes at about 26 s.
+
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
 - **The wall partner's Auto has no PARK at all** (`QualStagesWallVAuto` and its stream variants: PARK in 0 of 60).
