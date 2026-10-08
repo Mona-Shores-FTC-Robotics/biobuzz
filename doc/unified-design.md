@@ -513,14 +513,15 @@ the right CELL at 91-95%, because the left CELL keeps part of TIP 2's load). Tri
   is fired from the south while TIP 2's leftovers lie north: a hook would hold them where the robot is not. The lane
   caps any body at 4 per trip, so a hook pays only on a route that comes back for a second load, and here that trip
   costs what the wall FLOWER does.
-- **The partner stages its preloads at the far FLOWER** (`partner-stage-far` + `qual-alone-staged-far`, mentor's
-  idea): TIP 2 was decided by what we carried north (60 runs of p4-lane-r: 4 carried, TIP 2 in 46 of 46; 3, 7 of 9; 2
-  or fewer, 0 of 5). The partner sets its 4 down in a row across the seat line at y 109 and parks at (10.5, 118) by
-  4 s; we wait out TIP 1's spill with the intake off, drive through the row (4 of 4 picked up), fire them from
-  FAR_FLOWER_TURN, then the FLOWER's 4. 60 runs: 68.0, 3 TIPs in 40, PARK 60, no problems; TIP 2 misses 2 (from 7),
-  but TIP 3 misses 17 (from 10): TIP 2 comes about a second later with a heavier left CELL, and TIP 3 rests on the
-  lane's catch of TIP 2's spill (0-1 pieces in the misses) and lands at 26.5-30 s, so the GARDEN fallback never runs.
-  Leaving for the row before TIP 1's spill scattered the row (2 picked up, TIP 2 in 1 of 20).
+- **A partner's staged preloads.** TIP 2 is decided by what we carry north (60 runs of p4-lane-r: 4 carried, TIP 2
+  in 46 of 46; 3, 7 of 9; 2 or fewer, 0 of 5), so staged pieces near the left CELL looked like the fix. A partner
+  that can't shoot can't set them down mid-match either (mentor, 8 Oct 2026): its preloads start on the tiles
+  touching it (G304), so they sit at its start. A partner at the standard left start (59, 132.25) with a row across its
+  front is boxed in (the row south, the far FLOWER west, the centre line east). From (30, 132.25), west of the far
+  FLOWER, it slides off along the wall and parks at (10.5, 118), and the row stays at y 121.6, x 26-34; collecting it
+  for TIP 3 (south of it, north through it, down the west side) costs 5.1 s against the lane's 2.6 s and picked up
+  2 of the 4: 2, 1 and 2 TIPs in seeds 1-3. Dropped. (A route whose partner set its preloads down at the FLOWER
+  mid-match reached 40/60; withdrawn, since no partner can.)
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.

@@ -127,81 +127,6 @@ def west_garden(r, fire3, fire_g=None):
     return r
 
 
-def staged_far(name, row_y=109.0, margin="garden", direct=False):
-    """The partner stages its preloads at the far FLOWER (mentor, 8 Oct 2026: "had your partner stage them like
-    literally on or near the flower so you can grab from there"). TIP 2 was decided by what we carried north (60 runs:
-    4 carried, TIP 2 in 46 of 46; 3, 7 of 9; 2 or fewer, 0 of 5): the staged row is those 4, at the left CELL's end.
-    TIP 1 from our preloads, no catch (wait for the TIP only, so the left CELL is up); up the lane, west below the
-    row and north through it into FAR_FLOWER_TURN (the row's 4); fire them at the left CELL; the far FLOWER's 4 from
-    N_FIRE (TIP 2); TIP 3 as qual-alone-p4-lane, and the GARDEN if the right CELL is still up after the wall FLOWER."""
-    r = Route(name, S_START, speed=50)
-    r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK).pt("FIRE3", 45, 26, 90)
-    r.pt("ROW_S", FAR_FLOWER_AT[0], row_y - 11, 90)
-    seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
-    seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
-    r.add(r.action("SpinUp"), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=3000))
-    if direct:  # north at once, ahead of TIP 1's spill: no wait for the TIP and no recovery
-        r.add(r.go("ROW_S", ctrl=[(57.5, 104), (57.5, 104)], heading=90))
-        return staged_far_north(r, margin)
-    r.add(r.go("S_CATCH"))
-    r.at = "S_CATCH"
-    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
-             fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
-    # The intake off while TIP 1's spill rolls past (leaving at the TIP touched it falling, G409), so the row fills it.
-    r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry), r.action("IntakeOff"),
-          r.wait("TIP 1's spill rolls past", when=["IntakeFull"], ms=1500), r.action("IntakeOn"),
-          r.go("ROW_S", ctrl=[(57.5, 104), (57.5, 104)], heading=90))
-    return staged_far_north(r, margin)
-
-
-def staged_far_north(r, margin):
-    r.at = "ROW_S"
-    r.add(r.go("FAR_FLOWER_TURN", heading=90))
-    r.at = "FAR_FLOWER_TURN"
-    r.add(fire(r, "Fire the staged 4 at the left CELL", "Empty", ms=2000), r.go("FAR_FLOWER", heading=90))
-    r.at = "FAR_FLOWER"
-    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
-    r.at = "N_FIRE"
-    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Tip", ms=2500),
-          r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=500),
-          r.go("S_FIRE", ctrl=[(57.5, 100)], heading=270))
-    r.at = "S_FIRE"
-    r.add(fire(r, "Fire TIP 2's catch at the right CELL", "Empty", ms=2000), r.go("WALL_FLOWER_TURN", turn_after=0.2, turn_by=0.8))
-    r.at = "WALL_FLOWER_TURN"
-    r.add(r.go("WALL_FLOWER", heading=180))
-    r.at = "WALL_FLOWER"
-    r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
-    r.at = "FIRE3"
-    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=2500))
-    if margin == "garden":
-        r.pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
-        more = [r.go("GARDEN_IN", turn_after=0.2, turn_by=0.8)]
-        r.at = "GARDEN_IN"
-        more.append(r.go("GARDEN", heading=270))
-        r.at = "GARDEN"
-        more += [r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("FIRE3", turn_after=0.3, turn_by=0.9)]
-        r.at = "FIRE3"
-        more.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
-        r.add(r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, no=more, yes_label="TIP 3", no_label="Not yet: the GARDEN"))
-    r.add(r.go("PARK", ctrl=[(30, 40)], turn_after=0.2, turn_by=0.8, park=True))
-    return r
-
-
-def partner_stage_far(name="partner-stage-far", row_y=109.0):
-    """A partner that can't shoot, from the standard left start: forward to set its 4 POLLEN down in a row across the
-    far FLOWER's seat line, 12 in short of our seat (SetDown puts them 11.9 in ahead of a spring hood's centre, x
-    42.9-51.9), then west to the LOADING ZONE's far end (10.5, 118), clear of the row and of our PARK. Done by about 5 s."""
-    r = Route(name, (59, 132.25, 270), speed=40)
-    r.pt("DOWN", 59, row_y + 11.9, 270).pt("STAGE", FAR_FLOWER_AT[0], row_y + 11.9, 270).pt("PARK_P", 10.5, 118, 270)
-    r.add(r.go("DOWN", heading=270))
-    r.at = "DOWN"
-    r.add(r.go("STAGE", heading=270),
-          r.wait("Set the preloads down", when=["Empty"], ms=1500, alongside="SetDown"))
-    r.at = "STAGE"
-    r.add(r.go("PARK_P", ctrl=[(30, row_y + 11.9)], heading=270, park=True))
-    return r
-
-
 def partner_park_only(name="partner-park-only"):
     """A partner that only parks, keeping its 4 preloads, from the standard left start: straight south off the wall,
     then west along y 116, clear of the far FLOWER (partners.park_left's lane at y 127.5 drives into it now), into
@@ -233,8 +158,7 @@ if __name__ == "__main__":
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(n)
-    for r in (partner_park_only(), partner_stage_far(), staged_far("qual-alone-staged-far"),
-              staged_far("qual-alone-staged-far-nogarden", margin=None)):
+    for r in (partner_park_only(),):
         r.folder = autogen.EXPERIMENTS
         r.write()
         print(r.name)
