@@ -898,10 +898,13 @@ final class FieldSim {
         for (Piece p : pieces) {
             if (p.where != Where.OUTSIDE || p.kind != kind) continue;
             double y = (zone[2] + zone[3]) / 2;
+            // The next free spot along the zone: toward +y for red, -y for blue, so the field stays a half turn
+            // (8 Oct 2026, the 4-robot chat: +y for both made blue's runs differ from red's from the second NECTAR).
+            double along = alliance == Alliance.BLUE ? -1 : 1;
             for (double dy = 0; dy < 10; dy += 4) {
-                double[] at = {(zone[0] + zone[1]) / 2, y + dy, NECTAR_RADIUS_IN + 0.05};
+                double[] at = {(zone[0] + zone[1]) / 2, y + along * dy, NECTAR_RADIUS_IN + 0.05};
                 if (free(at, NECTAR_RADIUS_IN)) {
-                    y += dy;
+                    y += along * dy;
                     break;
                 }
             }
