@@ -65,18 +65,18 @@ final class RobotInternalsLog {
      * about each axis as given is the way it turns when running.
      */
     /** The intake roller about its resting axle, +Y: its bottom moves rearward, pulling a piece in. */
-    static final Spinner INTAKE_ROLLER_SPIN = new Spinner(INTAKE_ROLLER, new double[] {0.217424, 0, 0.084963}, new double[] {0, 1, 0});
+    static final Spinner INTAKE_ROLLER_SPIN = new Spinner(INTAKE_ROLLER, new double[] {0.218973, 0, 0.08636}, new double[] {0, 1, 0});
     /** The launcher's two flywheel axles, left (+Y) and right (-Y), two 96 mm wheels each: both throw the piece up. */
     static final Spinner[] FLYWHEELS = {
             new Spinner(5, new double[] {-0.05588, 0.092525, 0.168808}, new double[] {-1, 0, 0}),
             new Spinner(6, new double[] {-0.05588, -0.084521, 0.168808}, new double[] {1, 0, 0})};
     /** The feeder: two 72 mm wheels on a shaft along X, left of the held piece; it drives the piece up. */
-    static final Spinner FEEDER_SPIN = new Spinner(FEEDER, new double[] {-0.051943, 0.072822, 0.082550}, new double[] {-1, 0, 0});
+    static final Spinner FEEDER_SPIN = new Spinner(FEEDER, new double[] {-0.051943, 0.07283, 0.08255}, new double[] {-1, 0, 0});
     /**
      * The sprung foam pad opposite the feeder, hinged along X at its foot: it doesn't spin. A positive angle swings its
      * top out, 0 at rest (a POLLEN) and {@link #PAD_NECTAR_DEG} while a NECTAR is in the feeder.
      */
-    static final double[] PAD_HINGE_M = {-0.051943, -0.04445, 0.03683}, PAD_AXIS = {1, 0, 0};
+    static final double[] PAD_HINGE_M = {-0.051943, -0.04445, 0.041148}, PAD_AXIS = {1, 0, 0};
     static final double PAD_NECTAR_DEG = 26;
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
@@ -99,7 +99,7 @@ final class RobotInternalsLog {
     /** How far before the hold a piece starts moving over to its side offset. */
     static final double HOLD_Y_BLEND_IN = 1.0;
     /** The roller: axle at rest (X, z), radius, the most it floats, and how far a POLLEN squeezes its gecko tread. */
-    static final double ROLLER_X = 8.56, ROLLER_Z = 3.35, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
+    static final double ROLLER_X = 8.621, ROLLER_Z = 3.40, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
 
     /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, ac817a6). */
     static final double TURRET_X = -0.051895 / 0.0254, TURRET_Y = 0.004 / 0.0254;
