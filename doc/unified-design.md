@@ -500,8 +500,11 @@ the turret. The Stages baselines with the turret fixed: angled 62.0 / 6, wall 56
 partner-park-only): 68.0, 3 TIPs in 43, PARK 60, no problem runs. Two changes from f45-s500: all four preloads fired
 (the 2500 ms card ended a shot early, so one miss lost TIP 1), and a missed TIP 1 recovered (no TIP in 4 s: catch what
 fell in front of the HIVE and fire it at the right CELL); the FLOWER drags were all late runs after a TIP 1 failure.
-The misses left: TIP 2 one piece short of the left CELL's tipping weight (7), TIP 3 short of weight (10: 8 pieces leave
-the right CELL at 91-95%, because the left CELL keeps part of TIP 2's load). Tried and no better:
+The misses left: TIP 2 (7) and TIP 3 (10), each with fewer than 8 pieces in the CELL (8 in it always tipped; counted
+from the score events, 60 runs: TIP 2 misses 6-7 in, TIP 3 misses 3-7 in). The robot brings too few: TIP 2 when the
+TIP 1 catch is short; TIP 3 when the lane's catch of TIP 2's spill is short or the wall FLOWER's volley is cut for
+PARK; once (seed 1) a shot from S_FIRE hit the HIVE. (Until 8 Oct this said 8 pieces left the right CELL at 91-95%:
+that counted shots fired, not pieces in.) Tried and no better:
 - A longer TIP 1 catch (2500, 3000 ms): 12/20, 6/20; the time comes out of TIP 3.
 - The GARDEN while TIP 1 dwells, fired for TIP 2: the left CELL reaches only 52% on 4.
 - The west ending (wall FLOWER, then GARDEN, fired from (25, 28)): 14/20.
@@ -523,11 +526,26 @@ the right CELL at 91-95%, because the left CELL keeps part of TIP 2's load). Tri
   2 of the 4: 2, 1 and 2 TIPs in seeds 1-3. Dropped. (A route whose partner set its preloads down at the FLOWER
   mid-match reached 40/60; withdrawn, since no partner can.)
 - **Faster** (20 runs each; DeepDive takes `Auto@<in/s>` for our drivetrain): 60, 70, 80 in/s gave 14, 12, 15 of 20
-  (50: 43 of 60). The TIPs come earlier (TIP 3's median 26.6 s at 50, 23.9 s at 80) but the misses are weight, not
-  time. With the GARDEN as a fallback when the right CELL is still up after the wall FLOWER (`garden=True`): 16, 14,
+  (50: 43 of 60). The TIPs come earlier (TIP 3's median 26.6 s at 50, 23.9 s at 80) but TIP 3 still
+  misses: the lane's catch is short as often. With the GARDEN as a fallback when the right CELL is still up after the wall FLOWER (`garden=True`): 16, 14,
   15 of 20 at 50, 60, 80; at 80 the GARDEN's 4 are collected by 27.4 s and the guard parks before they are fired, and
   the lane at 80 touched a falling piece (G409). Most of the match is spin-up (2 s), extraction (about 1.6 s a
   FLOWER), the 0.2 s shot interval and the HIVE's dwell, which speed does not change.
+
+**Baselines (ii) and (iii), a partner that shoots its preloads, fixed turret** (8 Oct 2026, `alone.py`):
+- **(ii), the partner at the left start:** `qual-alone-p4-lane-r` unchanged, with `partner-left-v` (fires its 4 at the
+  left CELL as it rises after our TIP 1, then forward to y 124 and west along it to (10.5, 118), out of our lane before
+  we come north; `partners.preloads_left` parks under the far FLOWER and onto our PARK). 60 runs: **71.7, 3 TIPs in
+  49**, PARK 60, no problem runs; misses: TIP 3 (10, 3-7 pieces in), TIP 1 (1, two preloads hit the HIVE).
+- **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
+  TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
+  FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
+  spill and caught nothing), TIP 2 at about 12.5 s; then TIP 2's spill down the lane, the wall FLOWER, and the GARDEN
+  if the right CELL is still up. 60 runs: **72.0, 3 TIPs in 50**, PARK 60, no problem runs; misses: TIP 3 (8, 5-7
+  pieces in), TIP 2 (2).
+  The flower-first turret routes (`qual-right-v-flower-first-carry-settle-b2`, 57 of 60 on "rigid V") fire while
+  seated, which a fixed launcher cannot: 0 of 60 and a FLOWER hit at about 4 s in every run. Firing the wall FLOWER's
+  4 from (25, 28) instead of (45, 26), for a nearer GARDEN: 14 of 20.
 
 **Still open:**
 - ~~The baselines fitted to the 7.09 seat~~: claude/simulator now seats at 4.59 (`FLOWER_FACE_V` too); merged.
