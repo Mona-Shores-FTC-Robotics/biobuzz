@@ -119,6 +119,10 @@ blue).
   our Autos stay on their own side of the HIVE, the opponents' too.
 - The 3-TIP counts move by up to 4 runs between rows. That is the simulator's sensitivity, not the other
   alliance: the same seeds run on blue alone give 56 of 60 runs identical to red for L-Quals, and the other 4 lose
-  TIP 3 (54 against 58). In seed 6 the first difference is a red NECTAR our robot meets at 12.5 s on red that it
-  doesn't meet on blue, so something in the field is not quite a half turn (sent to the simulator chat). Read
-  the matches' 3-TIP counts as ±4.
+  TIP 3 (54 against 58). Answered by the simulator chat, 8 Oct 2026: the field and the Autos are a half turn
+  (`FieldSymmetryTest`; two things were not and are fixed: blue's human NECTAR stepped +y, red's way, and a piece
+  resting against the HIVE's side counted as touching it on one alliance and not the other, a rounding knife edge),
+  but a seed's variety is drawn in the field frame on purpose, since one field is shared by both alliances: the
+  tile slopes, the spill kicks and each piece's rolling resistance fall on different pieces for blue. So the same
+  seed is a different run for blue, from the same distribution; `BIOBUZZ_AUTO_VARIETY=0` turns the variety off,
+  and then red and blue match to the hundredth of a second. Read the matches' 3-TIP counts as ±4.

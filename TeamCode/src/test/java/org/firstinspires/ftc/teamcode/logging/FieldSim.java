@@ -1343,7 +1343,7 @@ final class FieldSim {
         double nx = local[0] - q[0], ny = local[1] - q[1], nz = local[2] - q[2];
         double d = Math.sqrt(nx * nx + ny * ny + nz * nz);
         double rad = p.kind.radius;
-        if (d >= rad) return false;
+        if (d >= rad - CONTACT_IN) return false;
         if (d < 1e-9) {
             nx = ny = nz = 0;
             if (fixed == 0) nx = 1;
@@ -1506,7 +1506,7 @@ final class FieldSim {
                 depth = ez + rad;
             }
         } else {
-            if (d >= rad) return false;
+            if (d >= rad - CONTACT_IN) return false;
             nx /= d;
             ny /= d;
             nz /= d;
@@ -1520,6 +1520,15 @@ final class FieldSim {
         bounce(p, new double[] {wnx, wny, nz}, vx - omega * ry0, vy + omega * rx0, 0, restitution);
         return true;
     }
+
+    /**
+     * How far into a plate or box a piece must be to touch it. A piece pushed out to exactly its radius
+     * sits on a knife edge: rounding in the frame conversions decided whether the next step was a
+     * contact (with its sliding friction) or not, and decided it differently for red and blue (8 Oct
+     * 2026, {@link FieldSymmetryTest}: a POLLEN rolling along the HIVE's side slowed six times harder
+     * on one alliance). Now a piece resting against a surface with no speed into it rolls free on both.
+     */
+    static final double CONTACT_IN = 1e-6;
 
     /** Whether the last {@link #collideField} touched a field wall, not just the tiles. */
     private boolean wallHit;

@@ -24,6 +24,8 @@ import java.util.Map;
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
+ * {@code BIOBUZZ_AUTO_VARIETY=0} turns off the field-frame variety (tile slopes, spill kicks, bounce scatter), which
+ * makes a seed the same run on red and on blue: for checking that an Auto's blue version is its red one turned.
  */
 public class AutoStudyTest {
 
@@ -475,6 +477,7 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
         double[] dwellRange = FieldSim.tipDwellRange;
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
+        if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }
         try {
             studyAll(specs);
         } finally {
