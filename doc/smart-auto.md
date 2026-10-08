@@ -107,26 +107,27 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 - **Every override, lock and unlock is written to the match log** with its time, so "who changed the side?" has an
   answer afterwards.
 
-The first line when locked:
+The first line when locked (the alliance has its own line just below it):
 
 ```
-● SMART · RIGHT START · RED                 READY · LOCKED
+● SMART · RIGHT START                      READY · LOCKED
 ```
 
 ## The screen
 
 The Match page during INIT. The Driver Station renders HTML (`controls/Display`): bold, `<big>`, `<small>` and font
 colours. Repeated spaces collapse, so rows are dots and labels, not padded columns. Each row's value takes the row's
-colour (green, amber, red), so a glance down the page reads the state; the alliance is written in red or blue.
+colour (green, amber, red), so a glance down the page reads the state. **The alliance comes first**, big and bold
+in red or blue (mentor, 9 Oct 2026: "that is really important to get right"), right under the plan line.
 
 Healthy, no buttons pressed:
 
 ```
-● SMART · RIGHT START · RED                      READY
+● SMART · RIGHT START                           READY
 ─────────────────────────────────────────────
+● RED ALLIANCE
 ● Camera     sees the HIVE (4 AprilTags)
 ● Start      right start · in position (0.6 in)
-● Alliance   RED
 ● Pinpoint   ready
 ● Turret     at home (0.4°)
 ● Battery    13.3 V
@@ -138,9 +139,9 @@ The camera is down:
 ```
 ● BACKUP · PICK A SIDE                       NOT READY
 ─────────────────────────────────────────────
+● RED ALLIANCE (you)
 ● Camera     not connected
 ● Start      press ◀ or ▶
-● Alliance   RED (you)
 ● Pinpoint   ready
 ● Turret     at home (0.4°)
 ● Battery    12.8 V: swap if there is time
@@ -153,6 +154,22 @@ is confirmed shows on the Start row. Counts like fixes go on the Robot page, for
 
 The first line is the only one the drive team must read: the plan, the side, the alliance, and READY or NOT READY in
 green or red. Rows below explain it. Nothing else shares the page during INIT.
+
+## Indicator lights (later)
+
+The screen helps only the person holding the Driver Station. Lights on the robot let a partner, the field staff or a
+coach in the stands catch what the drive team missed (mentor, 9 Oct 2026: "having things flashing to alert the
+audience (and team members) in case our drive team is not on the ball"). The proposal, for the goBILDA indicator
+lights:
+
+| Light | Shows | Why |
+|---|---|---|
+| **Alliance** | Solid red or blue: the alliance the robot thinks it is on. White, flashing: none yet | A robot glowing blue on the red side is visibly wrong from anywhere in the venue |
+| **Status** | Green: SMART and ready, pulsing until locked, solid once locked. Amber: BACKUP or PARK ONLY, the same pulse rule. Amber, flashing: NOT READY, or something changed since the lock | Never red or blue, so it can't be mistaken for the alliance |
+
+Limits from the manual: lighting that flashes faster than 5 Hz invites scrutiny, so nothing goes past 2 Hz. A
+powered light can't be the alliance sign, so these sit alongside the required sign and never replace it. What the
+lights show during the match is a later design.
 
 ## At PLAY and after
 
