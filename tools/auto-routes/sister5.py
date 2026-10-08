@@ -105,6 +105,35 @@ def right5b(name="sister5-right-catch", collect_ms=3000):
     return r
 
 
+def right_block(name="spill-block", at=(60, 36, 90), wait_ms=6000):
+    """An experiment, not an Auto: TIP 1 from R_PRE, then stand at `at` through its spill (the side as a wall along the
+    centre line, x 70.75), to see whether that keeps the pieces that cross it on our half (spilltrack.py)."""
+    r = Route(name, R_START, speed=50)
+    r.pt("R_PRE", *R_PRE).pt("BLOCK", *at)
+    r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
+    r.at = "R_PRE"
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.action("IntakeOff"), r.go("BLOCK", heading=90))
+    r.at = "BLOCK"
+    r.add(r.wait("Stand through the spill", when=["Empty"], ms=wait_ms))
+    return r
+
+
+def right_block_late(name="spill-block-late", hold=(57.5, 21, 90), at=(60, 36, 90), land_ms=1300):
+    """An experiment: wait clear of the falling spill, then step beside the centre line once it has touched down
+    (1.1-1.4 s after the TIP starts, doc/simulator.md), to stop the pieces rolling across it without a G409."""
+    r = Route(name, R_START, speed=50)
+    r.pt("R_PRE", *R_PRE).pt("HOLD", *hold).pt("BLOCK", *at)
+    r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
+    r.at = "R_PRE"
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.action("IntakeOff"), r.go("HOLD", heading=90))
+    r.at = "HOLD"
+    r.add(r.wait("TIP 1", when=["Tip"], ms=4000), r.wait("The spill touches down", when=["Empty"], ms=land_ms),
+          r.go("BLOCK", heading=90))
+    r.at = "BLOCK"
+    r.add(r.wait("Stand", when=["Empty"], ms=5000))
+    return r
+
+
 def left5(name="sister5-left", fixed=True, collect_ms=3000, tip3_ms=15000):
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *L_N).pt("L_C", *L_C).pt("PARK_L", *PARK_L)
@@ -134,7 +163,8 @@ def left5(name="sister5-left", fixed=True, collect_ms=3000, tip3_ms=15000):
 
 
 def variants():
-    return [right5(), right5b(), left5(), left5("sister5-left-turret", fixed=False)]
+    return [right5(), right5b(), left5(), left5("sister5-left-turret", fixed=False),
+            right_block(), right_block("spill-block-wall", at=(57.5, 21, 90)), right_block_late()]
 
 
 if __name__ == "__main__":

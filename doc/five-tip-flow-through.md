@@ -59,9 +59,20 @@ are partly guesses.
 From the simulator (`spilltrack.py` on the sister5 logs, TIP 1 with nobody near, 10 runs): of the pieces traced out of
 the right CELL, about 2 come to rest at our right end, and about 2.6 roll over the centre line onto the other
 alliance's half, out of reach in AUTO (G402). If that is what a real spill does, no intake at one end can recover 8,
-and the work goes to stopping pieces from leaving (a robot's side along the centre line as a wall? a catcher that
-reaches the pieces' path?) rather than to the intake. **The simulator's bounce is assumed, not measured.** Filming
-real spills (`doc/spill-test.md`) comes first.
+and the work goes to stopping pieces from leaving rather than to the intake.
+
+Blocking the centre line, tried (`sister5.py`'s spill-block routes, intake off, 20 runs each, TIP 1's spill):
+
+| Robot during the spill | Rest at our right end | Cross the centre line | G409 runs |
+|---|---|---|---|
+| Away (at the GARDEN) | 1.8 | 2.6 | 0 / 20 |
+| Wall side, (57.5, 21) | 2.0 | 2.2 | 0 / 20 |
+| Beside the centre line, (60, 36), standing through it | **2.7** | **1.2** | **20 / 20** |
+| Wall side, then stepping to (60, 36) 1.3 s after the TIP starts | 1.2 | 2.2 | 20 / 20 |
+
+Blocking helps only from inside the landing zone, where falling pieces touch the robot (G409) every run. **The
+simulator's bounce is assumed, not measured**, so filming real spills (`doc/spill-test.md`) comes before any of this
+is built on.
 
 ## Asks
 
