@@ -39,7 +39,11 @@ Then, 40 runs each:
     sister5h-right (3.5 s top-up)                                   no change
     R_N at y 108 (mentor: R's TIP 4 shots look flat)               no change in the simulator (no bounce-outs there)
 
-R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
+    sister5i (+ R parks after TIP 5)                               5 TIPs 15, 4 20, 3 4, <=2 1     95.6
+    sister5i-worth (+ R decides on weight, HeldWorth4)              5 TIPs 19, 4 15, 3 4, <=2 2     96.5  <- best
+    (sister5i-worth: R goes for 5 in 25 of 40, makes it in 19, parks after TIP 5 in 20.)
+
+Before parking and weight: R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
 The lever now is how often R's TIP 1 catch reaches 4.
 
 What decides it:
