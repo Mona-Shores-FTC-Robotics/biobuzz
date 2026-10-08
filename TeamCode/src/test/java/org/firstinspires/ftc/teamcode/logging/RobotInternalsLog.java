@@ -76,8 +76,8 @@ final class RobotInternalsLog {
      * The sprung foam pad opposite the feeder, hinged along X at its foot: it doesn't spin. A positive angle swings its
      * top out, 0 at rest (a POLLEN) and {@link #PAD_NECTAR_DEG} while a NECTAR is in the feeder.
      */
-    static final double[] PAD_HINGE_M = {-0.051943, -0.04445, 0.041148}, PAD_AXIS = {1, 0, 0};
-    static final double PAD_NECTAR_DEG = 26;
+    static final double[] PAD_HINGE_M = {-0.051943, -0.04826, 0.041148}, PAD_AXIS = {1, 0, 0};
+    static final double PAD_NECTAR_DEG = 29;
 
     /** Lane speed: about 0.4 of the lane's drive speed, as a hollow ball rolls on a moving floor. */
     static final double LANE_IN_PER_S = 27;
@@ -99,7 +99,7 @@ final class RobotInternalsLog {
     /** How far before the hold a piece starts moving over to its side offset. */
     static final double HOLD_Y_BLEND_IN = 1.0;
     /** The roller: axle at rest (X, z), radius, the most it floats, and how far a POLLEN squeezes its gecko tread. */
-    static final double ROLLER_X = 8.621, ROLLER_Z = 3.40, ROLLER_RADIUS = 0.95, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
+    static final double ROLLER_X = 8.621, ROLLER_Z = 3.40, ROLLER_RADIUS = 1.0, ROLLER_FLOAT_MAX = 1.3, ROLLER_SQUEEZE = 0.4;
 
     /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, ac817a6). */
     static final double TURRET_X = -0.051895 / 0.0254, TURRET_Y = 0.004 / 0.0254;

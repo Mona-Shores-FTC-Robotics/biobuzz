@@ -105,9 +105,9 @@ public class RobotInternalsLogTest {
         double[] c = RobotInternalsLog.components(1, 0, 0, 0, 0, 0, Math.toRadians(RobotInternalsLog.PAD_NECTAR_DEG));
         double[] hinge = RobotInternalsLog.PAD_HINGE_M;
         assertArrayEquals(hinge, apply(c, RobotInternalsLog.PAD, hinge), 1e-9);
-        // Its top, 2 in up from the hinge, swings out (away from the feeder, to -Y) by about sin 26 deg x 2 in.
+        // Its top, 2 in up from the hinge, swings out (away from the feeder, to -Y) by about sin 29 deg x 2 in.
         double[] top = {hinge[0], hinge[1], hinge[2] + 2 * 0.0254};
         double[] moved = apply(c, RobotInternalsLog.PAD, top);
-        assertEquals(-2 * 0.0254 * Math.sin(Math.toRadians(26)), moved[1] - top[1], 1e-6);
+        assertEquals(-2 * 0.0254 * Math.sin(Math.toRadians(RobotInternalsLog.PAD_NECTAR_DEG)), moved[1] - top[1], 1e-6);
     }
 }

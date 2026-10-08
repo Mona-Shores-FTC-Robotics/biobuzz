@@ -40,7 +40,7 @@
   "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
   "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (-0.051895, 0.004000) m (the inner race's centre, X -2.0431 in, Y 0.1575 in); positive yaw turns left; 0 = facing forward, as drawn",
   "model_4": {
-    "what": "the intake roller: its shaft, two 48 mm gecko wheels, its 24T pulley and the lane's drive pulley",
+    "what": "the intake roller: its shaft, WCP 2 in vector wheels, a 48 mm gecko centre wheel, end spacers and its pulley",
     "axis_point_m": [
       0.218973,
       0.0,
@@ -52,7 +52,7 @@
       0
     ],
     "intake_spin": "+angle about +Y (the bottom of the roller moves rearward)",
-    "diameter_m": 0.048,
+    "diameter_m": 0.0508,
     "pose": "spin about the resting axle first, then translation [0, 0, rise] as model_1"
   },
   "model_5": {
@@ -104,7 +104,7 @@
     "what": "the sprung pad opposite the feeder: plate and foam, hinged along X at its foot",
     "axis_point_m": [
       -0.051943,
-      -0.04445,
+      -0.04826,
       0.041148
     ],
     "axis": [
@@ -112,6 +112,6 @@
       0,
       0
     ],
-    "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 26 deg for a NECTAR"
+    "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 29 deg for a NECTAR"
   }
 }
