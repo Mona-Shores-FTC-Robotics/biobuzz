@@ -638,6 +638,9 @@ takes less. (iii)'s misses are identical in every body: TIP 3 rests on the lane'
 
 ## The qualifier Autos: which to run (8 Oct 2026)
 
+**Superseded in part by `doc/smart-auto.md`** (9 Oct 2026): one Autonomous that checks the robot and picks between these
+routes and a timer-only backup by itself.
+
 Two Autos for qualifiers, named for where we start as the drive team sees it (the field is a half turn between
 the alliances, `doc/game/README.md`, so left and right hold on both): **L-Quals**
 (`qual-shoots-right-v-fixed-west45-r`) and **R-Quals** (`qual-south-v`). Scout the partner's Auto before the
