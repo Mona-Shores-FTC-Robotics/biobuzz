@@ -79,7 +79,7 @@ row of the table above. The screen and the log both print the same `plan.reasons
 | Y | Toggle SMART ⇄ BACKUP | "(you)" |
 | Hold D-pad ▲ 1 s | Camera disabled ⇄ back to detection (held, so a bump can't do it) | "(you)" |
 | D-pad ▼ | Clear every override: back to what was detected | — |
-| Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the first line |
+| Hold LB + RB 2 s | Lock ⇄ unlock (below) | "LOCKED" on the verdict line |
 
 An override always wins, and is always marked "(you)". One that disagrees with the camera (▶ while the camera sees
 the left start) is allowed, but its row turns amber and says what the camera sees. Every binding is labelled, so
@@ -92,13 +92,13 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 
 - **Lock and unlock are one chord: hold both bumpers (LB + RB) for 2 s.** That's hard to do by accident, and no
   setting uses either bumper.
-- **It locks itself** once the plan is READY and no button has been pressed for 30 s. The first line counts down
+- **It locks itself** once the plan is READY and no button has been pressed for 30 s. The verdict line counts down
   ("locks in 12 s") so it is never a surprise.
 - **Locked, every override button does nothing**, X / B included. A press only flashes "LOCKED: hold LB + RB 2 s to
   change", so a student who presses something sees that nothing changed and why.
 - **The plan is frozen while locked.** The checks keep running and their rows keep updating; if one changes (the
   camera loses the HIVE because someone walks in front of it), the row turns amber with "changed since lock" and
-  the first line adds "CHECK". It does not change the plan by itself: a person unlocks and decides. A locked SMART
+  the verdict line adds "CHECK". It does not change the plan by itself: a person unlocks and decides. A locked SMART
   plan whose camera then fails is still safe, because every SMART wait has a time limit.
 - **Reset** is ▼ (clear every override, back to what was detected), which works only unlocked. A full reset is
   stopping the OpMode and pressing INIT again, as today.
@@ -177,7 +177,8 @@ lights show during the match is a later design.
 
 - **The plan locks at PLAY** and is written to the match log as one event with its reasons, so a bad match can be
   explained afterwards from the `.wpilog`.
-- **The Match page's first line keeps the plan during AUTO** ("SMART · RIGHT · RED"), above the route's own lines.
+- **The Match page keeps the alliance and the plan on top during AUTO** ("RED ALLIANCE", "SMART"), above the
+  route's own lines.
 - **A camera lost mid-match** costs nothing worse than a backup: every SMART wait already has a time limit, and on
   its timeout branch the route carries on. This is a rule for every SMART route: no wait without a time limit that
   leads somewhere sensible.
