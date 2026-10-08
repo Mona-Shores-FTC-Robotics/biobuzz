@@ -65,6 +65,46 @@ Why, from tracing the pieces at the face:
 So in the simulator, the best robot keeps about 4.8 of 7 (69%), right at the 70% line with no margin and before a
 single miss. The ceiling says a better catcher could get to 84%; nothing modelled so far does.
 
+## Sizing the moat: can anything hold a whole spill, every time?
+
+Mentor, 8 Oct 2026: pieces hit each other as they land and go sideways or back, so a pocket that waits for them to roll
+in never guarantees 8; "design a moat and figure out what the size of that moat has to be in order to have no
+violations 100% of the time. And then back into, can our robot support that moat?" A moat is legal under G409 as long
+as no piece touches it before it touches the tiles: pieces fall through its open middle, land, and hit its walls only
+after. `tools/auto-routes/moat.py` sizes it on 199 simulated spills (TIP 1's 7 pieces at our end and TIP 2's 8 at the
+other, turned to our end; 1492 pieces), from logs with our robot away.
+
+**What 100% needs, in the simulator:**
+
+- **The landing patch:** first touches fall in x 47.1-70.8, y 34.0-47.5 (24 in across, 13.5 in deep; 90% of them in
+  x 49-67, y 38-44). Pieces land right up to the centre line.
+- **Walls 7-9 in tall.** Pieces hit the tiles and bounce back up to about 6-8 in, travelling 10-15 in before touching
+  again. The robot's face needs about 8.7 in, the side toward the centre line about 8 in, the other side about 6.5 in,
+  and the HIVE side about 5 in. A lower wall is hopped.
+- **Inside about 27.7 × 17.5 in:** x 45.1-72.8 (2 in over the centre line), y 32-49.5. At that size nothing falling
+  touches the walls on the way down.
+
+**That doesn't fit.** R105 caps the whole robot, body and moat together, at 18 × 24 in. The moat alone is bigger than
+that, before any body. **A moat that holds every spill isn't possible under the rules.** How close the largest ones
+that fit get (walls 8 in, body 18 in tall, `moat.py --fit`):
+
+| Robot | Moat inside | Keeps of a spill | Every piece kept | Spills with a G409 |
+|---|---|---|---|---|
+| Today's 15.12 in body, 18 wide × 24 long | 17 × 8.4 | 63% | 0 of 199 | 28 of 199 |
+| A 9.5 in body, 18 wide × 24 long | 17 × 14 | 72% | 0 of 199 | 10 of 199 |
+| A 9 in body, 24 wide × 18 long | 23.5 × 8.4 | 87% | 70 of 199 | 26 of 199 |
+| (No body: 24 × 18 of moat. Not a robot; the ceiling) | 23.5 × 17.5 | 99% | 180 of 199 | 1 of 199 |
+
+Every moat that fits has to stand in or beside the landing patch, where falling pieces skim past at the height its
+walls need. Lowering the walls to stop the G409s lets the bounces over (the 9 in body's moat with a 4 in HIVE-side wall:
+86% kept, a G409 in 13 of 199). Walls that rise after the spill lands would remove that conflict, but the landings
+spread over a few tenths of a second, so some pieces are bouncing while others are still falling.
+
+So, in the simulator: our robot can't carry a moat that guarantees a spill. The best that fits needs a robot only
+9 in deep, a different robot from ours, and it keeps 87% while fouling G409 in about 1 spill in 8. The numbers rest on
+the simulator's bounce heights, which are placeholders. The filmed spill test should measure two things that decide
+it: the size of the landing patch, and how high pieces bounce off the tiles.
+
 ## What the simulator can't tell us
 
 The simulator chat: the films fix where a spill lands, how fast it spreads and that it heads for the wall, but not
