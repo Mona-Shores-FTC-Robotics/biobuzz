@@ -21,6 +21,15 @@ a match on average):
     swap, fill + top-up          all to T3     5    5   5    5     11      76.5
     direct, fill + top-up        keeps 1       6    2   5    7      8      73.5
 
+    direct, creep catches         keeps 1       1    0   2   17      0      51.5
+    direct, creep catches         all to T3     2    7   3    8      0      69.5
+    direct, fill; L tops up (5d)  all to T3     6    7   2    5      0      80.5   <- best clean so far
+    direct, fill; L tops up       keeps 1       6    2   5    7      0      73.5
+
+(5d: R fills its TIP 1 catch off the floor and fires TIP 5 from R_F5_WIDE, out of the lane; L tops TIP 5 up with
+TIP 3's leftovers between L_F5 and the end wall. Creeping into a spill after it lands didn't help R: the pieces have
+rolled past by then.)
+
 What decides it:
 - Without the GARDEN, TIP 3 comes up one or two short in a quarter to a third of runs (R's TIP 1 catch is often 3,
   and filling it off the floor while waiting for TIP 2 didn't reach 4), and those matches end at 2 TIPs.
@@ -41,13 +50,18 @@ from sister import R_START, L_START, R_S, R_N, L_N, L_TURN, L_S, seated_stream
 # TIP 5's firing spots at the right end (the right CELL is clean from y <= 30, x 42-66): R toward the GARDEN side, L in
 # the lane, their Vs (8.9 in either side) about 3 in apart.
 R_F5, L_F5 = (42, 22, 90), (61, 30, 270)
+L_T5 = (60, 20, 270)  # L's top-up: TIP 3's leftovers lie between L_F5 and the end wall
+R_F5_WIDE = (38, 20, 90)  # 6 in between the Vs: at R_F5, R's floor pickups met L arriving in the lane
 # Where R looks for pieces on the floor: TIP 1's spill rests about x 45-65, y 18-40 (R_C1, before TIP 2); TIP 3's leftovers
 # at the right end after L has caught its share (R_C5, before L arrives in the lane).
 R_C1, R_C5 = (50, 24, 90), (48, 26, 90)
+# Creeping into a spill once it has landed (L's TIP 3 catch, at (58, 40), fills almost at once): TIP 1's at the right
+# end, TIP 4's at the left end (the same spot turned about the field's centre line).
+R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
-           top5_ms=0):
+           top5_ms=0, creep1=False, f5=None):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -57,6 +71,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     r.pt("S_CATCH", *S_CATCH).pt("GARDEN_IN", 9.5, 20.56, 270).pt("GARDEN", 9.5, 10.96, 270)
     r.pt("R_S", *R_S).pt("R_N", *R_N).pt("R_F5", *R_F5).pt("R_W", 30, 40, 90).pt("R_PRE", 57, 20, 90)
     r.pt("PARK", 10.5, 95, 90).pt("R_C5", *R_C5)
+    if f5 is not None:
+        r.pt("R_F5", *f5)
     seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
     r.pt("S_CATCH", *catch_at)
     r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
@@ -66,7 +82,14 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
              fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
     r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry))
-    if fill1_ms:
+    if creep1:
+        # As L takes TIP 3's spill: once it has landed, forward into it intake first, then back to fire from S_CATCH.
+        r.pt("R_C1", *R_C1_CREEP)
+        r.add(r.wait("TIP 1's spill lands", when=["IntakeFull"], ms=800), r.go("R_C1", heading=90))
+        r.at = "R_C1"
+        r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500), r.go("S_CATCH", heading=90))
+        r.at = "S_CATCH"
+    elif fill1_ms:
         # R stands idle from its catch until TIP 2 (about 4 s): about 4 of TIP 1's spill lie around it. Topped up
         # off the floor to 4, TIP 3 needs no GARDEN (one short in a third of runs without it).
         r.pt("R_C1", *R_C1)
@@ -189,7 +212,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
-          bail_ms=4500, catch4_ms=1200, tip4_ms=8000):
+          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0):
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *L_F5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -218,11 +241,26 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.at = "L_N"
     r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
-    r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms),
-          r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
-          r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
+    r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
+    if creep4:
+        r.pt("L_C4", *L_C4)
+        r.add(r.wait("TIP 4's spill lands", when=["IntakeFull"], ms=800), r.go("L_C4", heading=270))
+        r.at = "L_C4"
+        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
+              r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
+    else:
+        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
+              r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
     r.at = "L_F5"
     r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
+    if top5_ms:
+        # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
+        # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
+        r.pt("L_T5", *L_T5)
+        r.add(r.go("L_T5", heading=270))
+        r.at = "L_T5"
+        r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
+              fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
     yes = r.cards[n0:]
     del r.cards[n0:]
     r.at = "L_N"
@@ -236,6 +274,12 @@ def variants():
             right5("sister5b-right-direct-fill", mode="direct", fill1_ms=2500, top5_ms=2500),
             right5("sister5b-right-swap-fill", mode="swap", fill1_ms=2500, top5_ms=2500),
             right5("sister5b-right-fill", fill1_ms=2500, top5_ms=2500),
+            right5("sister5c-right-direct", mode="direct", creep1=True, f5=R_F5_WIDE),
+            right5("sister5c-right", creep1=True, f5=R_F5_WIDE),
+            right5("sister5d-right-direct", mode="direct", fill1_ms=2500, f5=R_F5_WIDE),
+            left5("sister5d-left-all3", keep1=False, top5_ms=1500),
+            left5("sister5d-left", top5_ms=1500),
+            left5("sister5c-left", creep4=True, catch4_ms=1000), left5("sister5c-left-all3", keep1=False, creep4=True, catch4_ms=1000),
             left5(), left5("sister5b-left-all3", keep1=False)]
 
 
