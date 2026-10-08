@@ -179,7 +179,7 @@ def left5(name="sister5-left", fixed=True, collect_ms=3000, tip3_ms=15000):
 def variants():
     return [right5(), right5b(), left5(), left5("sister5-left-turret", fixed=False),
             right_block(), right_block("spill-block-wall", at=(57.5, 21, 90)), right_block_late(),
-            right_catch()]
+            right_catch(), right_catch("spill-catch-broadside", at=(58, 25, 90))]
 
 
 if __name__ == "__main__":
