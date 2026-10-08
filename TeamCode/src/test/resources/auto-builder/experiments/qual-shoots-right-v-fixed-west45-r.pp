@@ -526,47 +526,33 @@
       }
     },
     {
-      "id": "to-west-top-16",
+      "id": "to-lane-low-16",
       "color": "#3cc8e4",
-      "name": "N_FIRE to WEST_TOP",
+      "name": "N_FIRE to LANE_LOW",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 30,
-        "y": 112
-      },
-      "controlPoints": [],
-      "heading": {
-        "type": "constant",
-        "degrees": 270
-      }
-    },
-    {
-      "id": "to-west-low-17",
-      "color": "#3cc8e4",
-      "name": "WEST_TOP to WEST_LOW",
-      "waitBeforeMs": 0,
-      "waitAfterMs": 0,
-      "waitBeforeName": "",
-      "waitAfterName": "",
-      "kind": "atomic",
-      "endPoint": {
-        "x": 30,
+        "x": 56,
         "y": 36
       },
-      "controlPoints": [],
+      "controlPoints": [
+        {
+          "x": 57.5,
+          "y": 100
+        }
+      ],
       "heading": {
         "type": "constant",
         "degrees": 270
       }
     },
     {
-      "id": "to-fire-g-18",
+      "id": "to-fire-g-17",
       "color": "#3cc8e4",
-      "name": "WEST_LOW to FIRE_G",
+      "name": "LANE_LOW to FIRE_G",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -582,8 +568,16 @@
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0.0,
-              "endProgress": 0.3,
+              "startProgress": 0,
+              "endProgress": 0.2,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
+              }
+            },
+            {
+              "startProgress": 0.2,
+              "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 270,
@@ -591,7 +585,7 @@
               }
             },
             {
-              "startProgress": 0.3,
+              "startProgress": 0.8,
               "endProgress": 1,
               "interpolationType": "constant",
               "parameters": {
@@ -740,15 +734,11 @@
     },
     {
       "kind": "path",
-      "lineId": "to-west-top-16"
+      "lineId": "to-lane-low-16"
     },
     {
       "kind": "path",
-      "lineId": "to-west-low-17"
-    },
-    {
-      "kind": "path",
-      "lineId": "to-fire-g-18"
+      "lineId": "to-fire-g-17"
     }
   ],
   "settings": {
@@ -890,13 +880,8 @@
         28,
         90
       ],
-      "WEST_TOP": [
-        30,
-        112,
-        270
-      ],
-      "WEST_LOW": [
-        30,
+      "LANE_LOW": [
+        56,
         36,
         270
       ]
@@ -917,9 +902,8 @@
       "to-far-flower-turn-13": "FAR_FLOWER_TURN",
       "to-far-flower-14": "FAR_FLOWER",
       "to-n-fire-15": "N_FIRE",
-      "to-west-top-16": "WEST_TOP",
-      "to-west-low-17": "WEST_LOW",
-      "to-fire-g-18": "FIRE_G"
+      "to-lane-low-16": "LANE_LOW",
+      "to-fire-g-17": "FIRE_G"
     },
     "startAt": "START",
     "cards": [
@@ -935,7 +919,7 @@
         "park": false
       },
       {
-        "id": "w-32",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "TIP 1 (the partner's preloads)",
         "rows": [
@@ -1119,7 +1103,7 @@
             "label": "TIP 1: as planned"
           },
           {
-            "afterMs": 6000,
+            "afterMs": 7000,
             "cards": [
               {
                 "id": "p-19",
@@ -1242,19 +1226,13 @@
               {
                 "id": "p-29",
                 "kind": "path",
-                "lineId": "to-west-top-16",
+                "lineId": "to-lane-low-16",
                 "park": false
               },
               {
                 "id": "p-30",
                 "kind": "path",
-                "lineId": "to-west-low-17",
-                "park": false
-              },
-              {
-                "id": "p-31",
-                "kind": "path",
-                "lineId": "to-fire-g-18",
+                "lineId": "to-fire-g-17",
                 "park": false
               }
             ],

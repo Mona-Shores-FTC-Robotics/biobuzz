@@ -554,17 +554,25 @@ that counted shots fired, not pieces in.) Tried and no better:
   PARK 60, no problem runs, no TIP 3 miss; both misses are TIP 2 after the partner's preloads hit the HIVE (TIP 1
   late or never, and the left CELL never up for ours).
 - **(iii) with a plan for a TIP 1 that never comes: `qual-shoots-right-v-fixed-west45-r`** (mentor, 8 Oct 2026: "we
-  need to have a plan if it never comes"; "i dont expect the fallback to get to 3 tips"). No left CELL up 6 s after
-  we reach FAR_FLOWER_TURN: down the lane, our preloads at the right CELL until the left CELL is up (a late TIP from
-  the partner's pieces ends it too), the spill caught, back up, the catch and the far FLOWER's 4 at the left CELL
-  (TIP 2), fired and gone; west to x 30, straight down it to (30, 36), turn there, across to (45, 29) and PARK. No wall
-  FLOWER (reached at 24 s, the guard cut it seated). The GARDEN's volley, and PARK's start, are 3 in north of (45, 26),
-  where the V met a partner dead at the right start. Test partners: `partner-right-silent` (never shoots, parks) and
-  `partner-right-dead` (never shoots, never moves). 60 runs each, rigid V with a fixed turret:
+  need to have a plan if it never comes"; "i dont expect the fallback to get to 3 tips"; "6s might be too soon like
+  what if they are just a slow robot"). No left CELL up 7 s after we reach FAR_FLOWER_TURN (9.2 s into AUTO): down the
+  lane, our preloads at the right CELL until the left CELL is up (a late TIP from the partner's pieces ends it too),
+  the spill caught, back up, the catch and the far FLOWER's 4 at the left CELL (TIP 2), fired and gone; home down the
+  lane facing south to (56, 36), turned there (clear of the HIVE frame's feet, the centre line and a partner dead at
+  the right start), across to (45, 29) and PARK. No wall FLOWER. The GARDEN's volley, and PARK's start, are at
+  (45, 29): at (45, 26) the V met a dead partner's corner. Test partners: `partner-right-silent` (never shoots,
+  parks), `partner-right-dead` (never shoots, never moves), `partner-right-slow-<ms>` (fires that late).
+
+  The wait, swept with a silent partner (60 runs each): 2 TIPs in 53 at every wait up to 10 s, none from 12 s; PARK
+  and a clean drive home to 7 s (home down the west side: to 6 s). Past that the guard cuts the late fallback with
+  the robot north or inside the HIVE's feet, and the park path, which starts south of the HIVE, crosses the frame.
+  60 runs each at 7 s, rigid V with a fixed turret:
 
   | Partner | 3 TIPs | 2 TIPs | 1 TIP | Our PARK | Problem runs |
   |---|---|---|---|---|---|
   | shoots (`partner-preloads-right-high`) | 58 | 1 | 1 | 60 | 0 |
+  | shoots 3 s late (TIP 1 at about 4.7 s) | 58 | 1 | 1 | 60 | 0 |
+  | shoots 6 s late (TIP 1 at about 7.7 s) | 25 | 34 | 1 | 60 | 0 |
   | never shoots, parks | 0 | 53 | 7 | 60 | 0 |
   | never shoots, never moves | 0 | 53 | 7 | 60 | 0 |
 
