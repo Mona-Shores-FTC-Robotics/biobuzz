@@ -107,10 +107,10 @@ The drive team can sit at the field for 1-10 minutes before a match starts, hold
 - **Every override, lock and unlock is written to the match log** with its time, so "who changed the side?" has an
   answer afterwards.
 
-The first line when locked (the alliance has its own line just below it):
+The verdict line when locked:
 
 ```
-● SMART · RIGHT START                      READY · LOCKED
+● READY · LOCKED
 ```
 
 ## The screen
@@ -123,9 +123,10 @@ in red or blue (mentor, 9 Oct 2026: "that is really important to get right"), ri
 Healthy, no buttons pressed:
 
 ```
-● SMART · RIGHT START                           READY
-─────────────────────────────────────────────
 ● RED ALLIANCE
+● READY · locks in 24 s
+─────────────────────────────────────────────
+● Plan       SMART: reacts to the HIVE · 3 TIPs + PARK
 ● Camera     sees the HIVE (4 AprilTags)
 ● Start      right start · in position (0.6 in)
 ● Pinpoint   ready
@@ -137,23 +138,24 @@ D-pad ◀▶ side · Y backup · hold ▲ camera off · ▼ reset
 The camera is down:
 
 ```
-● BACKUP · PICK A SIDE                       NOT READY
-─────────────────────────────────────────────
 ● RED ALLIANCE (you)
+● NOT READY: press ◀ or ▶ for the side
+─────────────────────────────────────────────
+● Plan       BACKUP: on timers · 2 TIPs + PARK
 ● Camera     not connected
 ● Start      press ◀ or ▶
 ● Pinpoint   ready
 ● Turret     at home (0.4°)
 ● Battery    12.8 V: swap if there is time
-Backup runs on timers: 2 TIPs + PARK, more if the partner's shots land.
 ```
 
 Rows say what a person can check by eye: "sees the HIVE (4 AprilTags)", the tags in view right now, not "14
 fixes" (a fix is one tag sighting turned into a position; the start check wants 5 that agree). Whether the position
 is confirmed shows on the Start row. Counts like fixes go on the Robot page, for whoever is debugging.
 
-The first line is the only one the drive team must read: the plan, the side, the alliance, and READY or NOT READY in
-green or red. Rows below explain it. Nothing else shares the page during INIT.
+The two lines above the rule are the only ones the drive team must read: the alliance, then READY or NOT READY. When
+it is NOT READY, that line names the one thing to do. Nothing on them repeats a row below: the side is on the Start
+row and the plan is the Plan row, with what to expect from it. Nothing else shares the page during INIT.
 
 ## Indicator lights (later)
 
