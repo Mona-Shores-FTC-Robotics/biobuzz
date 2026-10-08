@@ -31,6 +31,11 @@ NECTAR (a lane that took 4 NECTAR would take 5 POLLEN):
 The backstop sits mid-window, 12.43 in behind the axle (X -3.81), on ±0.2 in slots: set it on the robot with real
 balls. No sensor, no software count.
 
+![The transfer from the left](views/side.png)
+![The transfer from above](views/top.png)
+
+(`views/` is drawn from the build's meshes; rerun it after a change.)
+
 ## What changed in v4, and why
 
 | v3 | v4 | Why |
