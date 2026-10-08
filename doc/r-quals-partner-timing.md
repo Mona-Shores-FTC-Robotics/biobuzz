@@ -23,7 +23,8 @@ Two routes (`tools/auto-routes/alone.py`, `side_seat`; run with `python3 side_se
 - `qual-south-v-side`: both volleys from SIDE_FIRE (40.06, 110), straight back from the seat. TIP 2's spill is
   not caught from there, so without a partner's 4 TIP 3 is short.
 - **`qual-south-v-corner`**: TIP 1's catch fired from SIDE_FIRE, then the seat, then TIP 2 from **N_LOW (57.5,
-  115.5) facing south**, the lane's top far enough south that the back (y 123.06) clears a partner at its start.
+  115.5) facing south** (114.5 since section 3), the lane's top far enough south that the back clears a partner at
+  its start.
   The robot leaves the seat straight back and turns through west while still at y 108-112. From there, R-Quals as
   before.
 
@@ -36,8 +37,8 @@ Two routes (`tools/auto-routes/alone.py`, `side_seat`; run with `python3 side_se
 | dead at the west start (24, 132.25) | 38 / 0 | 1 / 0 | 36 / 0 |
 | shoots 3 s late, then leaves west along y 124 | 56 / **56** | 49 / 56 | 56 / **56** |
 | never shoots, leaves at 6 s | 38 / 20 | 1 / 23 | 36 / 23 |
-| shoots 3 s late, **then holds at its start until 18 s** | 56 / **59** | 49 / 0 | **55 / 0** |
-| never shoots, **holds at its start until 18 s** | 37 / **60** | 1 / 5 | **35 / 6** |
+| shoots 3 s late, **then stays at its start until 18 s** | 56 / **59** | 49 / 0 | **55 / 0** |
+| never shoots, **stays at its start until 18 s** | 37 / **60** | 1 / 5 | **35 / 6** |
 
 PARK 60 of 60 in every row. Our own problem runs (HIVE frame, FLOWER, wall): none on the corner route.
 
@@ -48,10 +49,12 @@ What this says:
   along y 124 (body y 115-133), across the far FLOWER's seat and everything north of y 105 on our side. It meets
   us wherever we are between 7 and 11 s, seat or no seat. The 6 remaining collisions with the holding partner are
   runs where TIP 1 missed and we were still north at 18-20 s.
-- So the corner extractor needs one instruction to the left partner: **"If you have not left your start by 6 s,
-  stay there until 18 s, then park."** A late partner that holds is then harmless (55 of 60), one that never fires
-  costs what a non-shooting partner always costs (35-36). Without the corner extractor that instruction does
-  nothing (59-60 collisions: the partner at its start is in our seat and N_FIRE).
+- So **which left partners the corner route works with is a scouting question** (a partner runs the one Auto it
+  has; we cannot ask it to wait, hold or take a path: mentor, 8 Oct 2026, "Rules every chat keeps"). It works with
+  a partner whose Auto leaves the left start by about 6 s, or stays there (dead, or not moving until about 18 s):
+  55 of 60 for one that fires late and stays, 35-36 for one that never fires. It does not work with one whose Auto
+  leaves west along y 124 between about 6 and 12 s. Without the corner extractor even a partner that stays is a
+  collision (59-60 of 60: at its start it is in our seat and N_FIRE).
 
 ### (b) Seeing the partner at about 6 s
 
@@ -75,8 +78,9 @@ What it would take: one sensor, its `DeviceNames` constant, an XML entry on each
 us the partner is still there, not whether it will leave in the next 2 s. With the corner route, a partner that is
 there and stays is already safe; one that leaves late is the hazard, and the only safe answer is to wait south of
 y 105 until it has gone, then about 1.5 s for it to pass x 40 (a 2-3 s wait, which costs TIP 3 in most runs: a
-1.4 s slower route made TIP 3 in 1-2 runs of 60 without a partner's 4). The sensor is worth building only if
-partners won't follow the "hold until 18 s" instruction. Nothing built: this needs the robot, and a checklist.
+1.4 s slower route made TIP 3 in 1-2 runs of 60 without a partner's 4). Scouting answers the same question
+before the match, for free: when does the partner's Auto leave the left start, and which way. Nothing built: this
+needs the robot, and a checklist.
 
 ### Recommendation
 
@@ -84,10 +88,14 @@ partners won't follow the "hold until 18 s" instruction. Nothing built: this nee
    TIPs if not; its partner starts on the other side and never crosses our way).
 2. **If the extractor team can put the extractor at a front corner** without losing its seat (the FLOWER sits
    2.4 in from the V's right tip in the simulator), R-Quals becomes `qual-south-v-corner`: the same 56 with a good
-   partner, and safe from a partner that is dead or holds at the left start. It must come with the "hold until
-   18 s" instruction to the left partner; a partner that leaves late along y 124 still collides (56 of 60).
-3. **Don't build the sensor yet.** It only helps against a partner that ignores the instruction, and then by
-   waiting, which costs TIP 3.
+   partner, and safe beside a partner that is dead at the left start or whose Auto stays there. **Scout the left
+   partner's Auto**: run the corner route only with one that is off its start by about 6 s or stays put; one that
+   leaves west along y 124 later than that still collides (56 of 60): give that partner L-Quals' pairing instead.
+   Like R-Quals, it fires TIP 1's catch with the far FLOWER's 4 for TIP 2 and TIP 2's catch toward TIP 3, so if it
+   becomes the R-Quals baseline the rule "a baseline never relies on a spill" (mentor, 8 Oct 2026) applies to it as
+   it does to R-Quals today.
+3. **Don't build the sensor yet.** Scouting tells us before the match what the sensor would tell us at 6 s, and the
+   sensor's only answer to a late leaver is waiting, which costs TIP 3.
 
 Open for the mentor: the extractor's corner (right, as here, or left with the robot seated facing east), and
 whether its offset moves the transfer.
