@@ -640,8 +640,9 @@ takes less. (iii)'s misses are identical in every body: TIP 3 rests on the lane'
 
 Two Autos for qualifiers, named for where we start as the drive team sees it (the field is a half turn between
 the alliances, `doc/game/README.md`, so left and right hold on both): **L-Quals**
-(`qual-shoots-right-v-fixed-west45-r`) and **R-Quals** (`qual-south-v`). Ask the partner one question before the
-match: "Do you shoot, and how sure are you?" 60 runs each, rigid V with a fixed turret.
+(`qual-shoots-right-v-fixed-west45-r`) and **R-Quals** (`qual-south-v`). Scout the partner's Auto before the
+match (it is fixed: see the rules below): does it shoot, how reliably, where does it start, and when does it leave.
+60 runs each, rigid V with a fixed turret.
 
 | Partner | Run | Why | Expect |
 |---|---|---|---|
@@ -729,3 +730,11 @@ What is left is a TIP one piece short (7 of 8 in): a shot into the HIVE or a sho
 - **Numbers come from the simulator at 60 runs on the three qualifier Autos**, each part on a route drawn for it,
   or from a cardboard or field test. Never from a guess.
 - **PARK is non-negotiable in quals.** No route trades it away.
+- **A partner's Auto is fixed** (mentor, 9 Oct 2026: "there is no such thing in FTC as 'tell the partner to do X'
+  ... scout our teammates and make sure we have an auto that works with theirs"). A partner usually has one Auto it
+  can't reliably change. So we scout what it does (where it starts, whether and when it shoots, where it goes and
+  when) and pick or build one of ours that works with it. No plan asks a partner to wait, hold or take a path.
+- **The baseline never relies on a spill** (mentor, 9 Oct 2026: "do not rely on falling pollen/nectar at all in
+  order to establish a reliable baseline"). A baseline's TIPs come from preloads, FLOWERs and the GARDEN, which are
+  always there; a catch is a bonus on top. That gives our half 20 POLLEN: exactly 3 TIPs (4 + 8 + 8) with a partner
+  that shoots its preloads, and 2 TIPs with one that doesn't.
