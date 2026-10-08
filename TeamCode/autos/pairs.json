@@ -1,12 +1,20 @@
 {
   "pairs": [
     {
-      "name": "Qual-ShootsRight",
+      "name": "L-Quals",
       "files": [
-        "qual-shoots-right-v-fixed-west45-r.pp",
+        "l-quals.pp",
         "partner-preloads-right-high.pp"
       ],
-      "note": "baseline, Rigid V, no turret: partner fires from the right start; TIP 3 from the wall FLOWER and the GARDEN; waits 7 s for TIP 1, else makes TIP 2 itself and parks"
+      "note": "qualifier Auto from the drive team's left start, Rigid V, no turret: copes with any partner; TIP 3 from the wall FLOWER and the GARDEN; waits 7 s for the partner's TIP 1, else makes TIP 2 itself and parks"
+    },
+    {
+      "name": "R-Quals",
+      "files": [
+        "r-quals.pp",
+        "partner-left-v.pp"
+      ],
+      "note": "qualifier Auto from the drive team's right start, Rigid V, no turret: 3 TIPs on its own; the partner starts at the west start or is clear of the standard left start by 7 s"
     },
     {
       "name": "Qual-Stages-Angled",

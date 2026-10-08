@@ -491,7 +491,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-south-v",
+    "exportName": "r-quals",
     "registry": {
       "actions": [
         "SpinUp",

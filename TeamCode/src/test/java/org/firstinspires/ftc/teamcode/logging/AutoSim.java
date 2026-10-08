@@ -41,6 +41,10 @@ import java.util.Locale;
  *       robot is (as if the robot aims); whether it goes in is up to the physics. {@code Tip} is
  *       true once the alliance's HIVE has started to tip since the wait began, as the robot's
  *       {@code HiveTracker} reports it, but from the simulation's truth rather than a camera.</li>
+ *   <li><b>The opponents</b> ({@link #alsoRunOpponent}): up to two robots of the other alliance, each running an
+ *       exported Auto turned half a turn as it would on blue, so a whole match is on the field: their pieces,
+ *       their spills across the centre line, their traffic (mentor, 8 Oct 2026). The result reports both
+ *       alliances' AUTO points; the log shows them as {@code /Odometry/OpponentA3d} and {@code OpponentB3d}.</li>
  *   <li><b>The other robot</b> ({@link #alsoRun}): an alliance's second robot can run its own Auto on
  *       the same field at the same time; the log shows it as {@code /Odometry/Partner3d} and both
  *       robots together as {@link FieldRobot#ALL_3D}. A partner that stands still
@@ -152,6 +156,9 @@ public final class AutoSim {
         /** When the robot's outline first reached through a field wall by more than {@link #WALL_SLACK_IN}; NaN if never. */
         double hitWallAt = Double.NaN;
 
+        /** The alliance this robot played for: ours, or the opponents' ({@link #alsoRunOpponent}). */
+        Alliance alliance;
+
         RobotResult(String auto) {
             this.auto = auto;
         }
@@ -180,10 +187,16 @@ public final class AutoSim {
         int scored;
         /** When each TIP completed, including in the transition after AUTO, where they still count. */
         final List<Double> tipsAt = new ArrayList<>();
+        /** The other alliance's TIPs, when opponents run ({@link #alsoRunOpponent}); empty otherwise. */
+        final List<Double> theirTipsAt = new ArrayList<>();
+        /** Whether opponents ran: then {@link #theirAutoPoints()} means something. */
+        boolean opponents;
         /** Each robot's own account, in the order they were added. */
         final List<RobotResult> robots = new ArrayList<>();
         /** When two robots first overlapped, which real robots cannot; NaN if they never did. */
         double robotsCollidedAt = Double.NaN;
+        /** When robots of the two alliances first overlapped (opponents ran); NaN if they never did. */
+        double alliancesCollidedAt = Double.NaN;
         /** Spilled pieces a robot touched before they reached the tiles: G409 fouls. */
         int g409;
         /**
@@ -242,7 +255,15 @@ public final class AutoSim {
         /** AUTO points from TIPs, LEAVE and PARK (Table 10-2); CELL and GARDEN points count later. */
         int autoPoints() {
             int points = 20 * autoTips();
-            for (RobotResult r : robots) points += (r.leave ? 3 : 0) + (r.park ? 5 : 0);
+            for (RobotResult r : robots) if (r.alliance == alliance) points += (r.leave ? 3 : 0) + (r.park ? 5 : 0);
+            return points;
+        }
+
+        /** The other alliance's AUTO points, the same way, when opponents ran; 0 otherwise. */
+        int theirAutoPoints() {
+            int points = 0;
+            for (double t : theirTipsAt) if (t < AutoKit.AUTO_LENGTH_S + AFTER_S) points += 20;
+            for (RobotResult r : robots) if (r.alliance != alliance) points += (r.leave ? 3 : 0) + (r.park ? 5 : 0);
             return points;
         }
 
@@ -262,6 +283,12 @@ public final class AutoSim {
             StringBuilder out = new StringBuilder(head);
             for (RobotResult r : robots) out.append("; ").append(r);
             out.append(String.format(Locale.ROOT, "; %d AUTO points; %s", autoPoints(), headStart()));
+            if (opponents) {
+                StringBuilder theirs = new StringBuilder();
+                for (double t : theirTipsAt) theirs.append(String.format(Locale.ROOT, " %.1f s", t));
+                out.append(String.format(Locale.ROOT, "; %s: %d AUTO points, HIVE tipped at%s", alliance.other(),
+                        theirAutoPoints(), theirTipsAt.isEmpty() ? " (never)" : theirs.toString()));
+            }
             if (!Double.isNaN(robotsCollidedAt)) {
                 out.append(String.format(Locale.ROOT, "; ROBOTS COLLIDE at %.1f s", robotsCollidedAt));
             }
@@ -298,6 +325,7 @@ public final class AutoSim {
     private double[][] partnerSpots;
     private boolean humanNectar;
     private final List<Double> nectarDueAt = new ArrayList<>();
+    private final List<Double> theirNectarDueAt = new ArrayList<>();
     private double now;
     private List<double[]> lastArc;
     private int lane;
@@ -314,8 +342,23 @@ public final class AutoSim {
      * time. {@link #speed} and {@link #design} after this call set up that robot.
      */
     AutoSim alsoRun(Class<?> autoClass) {
-        if (bots.size() == 2) throw new IllegalStateException("an alliance has two robots");
-        configuring = new Bot(autoClass, bots.size());
+        return add(autoClass, alliance);
+    }
+
+    /**
+     * Adds a robot of the other alliance, running its own exported Auto (drawn for RED, it runs turned half a turn,
+     * as it would on blue): a whole match, four robots, with the other alliance's pieces, spills and traffic
+     * (mentor, 8 Oct 2026). Up to two. {@link #speed} and {@link #design} after this call set up that robot.
+     */
+    AutoSim alsoRunOpponent(Class<?> autoClass) {
+        return add(autoClass, alliance.other());
+    }
+
+    private AutoSim add(Class<?> autoClass, Alliance of) {
+        int same = 0;
+        for (Bot b : bots) if (b.alliance == of) same++;
+        if (same == 2) throw new IllegalStateException("an alliance has two robots");
+        configuring = new Bot(autoClass, bots.size(), of);
         bots.add(configuring);
         return this;
     }
@@ -452,12 +495,16 @@ public final class AutoSim {
         List<String> names = new ArrayList<>();
         for (Bot b : bots) names.add(name(b.autoClass));
         Result result = new Result(runName(), alliance, names);
+        for (Bot b : bots) result.robots.get(b.index).alliance = b.alliance;
+        for (Bot b : bots) result.opponents |= b.alliance != alliance;
         HiveCalibration calibration = HiveCalibration.current();
         sim = new FieldSim(HiveAssets.committedStagedPieces(), seed, calibration.fit());
         boolean red = alliance == Alliance.RED;
         // Every robot on the field, in FieldRobot slot order: the ones running Autos, then a
         // partner that stands still. Logged together each loop so AdvantageScope can show them all.
-        if (partnerPose != null && bots.size() > 1) {
+        int ourRobots = 0;
+        for (Bot b : bots) if (b.alliance == alliance) ourRobots++;
+        if (partnerPose != null && ourRobots > 1) {
             throw new IllegalStateException("an alliance has two robots: a standing partner and two Autos is three");
         }
         int robots = bots.size() + (partnerPose != null ? 1 : 0);
@@ -545,12 +592,23 @@ public final class AutoSim {
                 for (Bot b : bots) System.arraycopy(b.prev, 0, allRobots, 3 * b.index, 3);
                 FieldRobot.putAll(log, allRobots, us);
             }
-            if (bots.size() > 1 && Double.isNaN(result.robotsCollidedAt) && overlap(bots.get(0), bots.get(1))) {
-                result.robotsCollidedAt = now;
-                log.putEvent("ROBOTS COLLIDE: the two paths cross at the same time", us);
-                double[] p0 = pedro(bots.get(0).drive.pose), p1 = pedro(bots.get(1).drive.pose);
-                result.robots.get(0).timeline.add(String.format(Locale.ROOT, "%5.2f ROBOTS COLLIDE: at (%.1f, %.1f, %.0f deg), the other at (%.1f, %.1f, %.0f deg)",
-                        now, p0[0], p0[1], Math.toDegrees(p0[2]), p1[0], p1[1], Math.toDegrees(p1[2])));
+            if (bots.size() > 1 && (Double.isNaN(result.robotsCollidedAt) || (result.opponents && Double.isNaN(result.alliancesCollidedAt)))) {
+                for (int i = 0; i < bots.size(); i++) {
+                    for (int j = i + 1; j < bots.size(); j++) {
+                        Bot a = bots.get(i), b = bots.get(j);
+                        boolean across = a.alliance != b.alliance;
+                        if (!Double.isNaN(result.robotsCollidedAt) && (!across || !Double.isNaN(result.alliancesCollidedAt))) continue;
+                        if (!overlap(a, b)) continue;
+                        if (Double.isNaN(result.robotsCollidedAt)) result.robotsCollidedAt = now;
+                        if (across && Double.isNaN(result.alliancesCollidedAt)) result.alliancesCollidedAt = now;
+                        log.putEvent(String.format(Locale.ROOT, "ROBOTS COLLIDE: robot %d (%s) and robot %d (%s) at the same place at the same time",
+                                i + 1, a.alliance, j + 1, b.alliance), us);
+                        double[] pa = pedro(a.drive.pose), pb = pedro(b.drive.pose);
+                        result.robots.get(a.index).timeline.add(String.format(Locale.ROOT,
+                                "%5.2f ROBOTS COLLIDE: at (%.1f, %.1f, %.0f deg), robot %d (%s) at (%.1f, %.1f, %.0f deg)",
+                                now, pa[0], pa[1], Math.toDegrees(pa[2]), j + 1, b.alliance, pb[0], pb[1], Math.toDegrees(pb[2])));
+                    }
+                }
             }
 
             sim.step(LOOP_S);
@@ -625,12 +683,23 @@ public final class AutoSim {
                 nectarDueAt.remove(0);
                 sim.enterNectar(alliance);
             }
+            if (result.opponents) {
+                FieldSim.Rocker theirs = sim.rocker(alliance.other());
+                if (theirs.tips > result.theirTipsAt.size()) {
+                    result.theirTipsAt.add(now);
+                    if (humanNectar) theirNectarDueAt.add(now + HUMAN_DELAY_S);
+                }
+                while (!theirNectarDueAt.isEmpty() && now >= theirNectarDueAt.get(0)) {
+                    theirNectarDueAt.remove(0);
+                    sim.enterNectar(alliance.other());
+                }
+            }
             fieldLog.write(log, sim, us);
             for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, us);
             putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
-        for (Bot b : bots) result.launched += result.robots.get(b.index).launched;
+        for (Bot b : bots) if (b.alliance == alliance) result.launched += result.robots.get(b.index).launched;
         FieldSim.Rocker ours = sim.rocker(alliance);
         result.cellLoad = Math.max(0, sim.tippingTorque(ours) / sim.physics.holdTorque);
         for (Bot b : bots) result.held += b.body.stored.size();
@@ -854,9 +923,13 @@ public final class AutoSim {
         int shotTarget;
         double nextShotAt;
 
-        Bot(Class<?> autoClass, int index) {
+        /** The alliance this robot plays for: the run's own, or the other one for an opponent. */
+        final Alliance alliance;
+
+        Bot(Class<?> autoClass, int index, Alliance alliance) {
             this.autoClass = autoClass;
             this.index = index;
+            this.alliance = alliance;
             this.robot = FieldRobot.slot(index);
         }
 

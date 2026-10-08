@@ -569,7 +569,7 @@ VARIANTS["qual-south-v"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms
 # R-Quals seated beside the far FLOWER (routes chat, 8 Oct 2026): an extractor at the V's right front corner, 7.3 in
 # off the centre line (facing north at the far FLOWER, the robot west of it, x 40.06), on "rigid V, fixed turret,
 # corner extractor". side_seat.py runs them; 60 runs, 3 TIPs / robots collide, against partner-left-v, -slow-3000,
-# -dead, -silent, -dead-west (qual-south-v: 56/0, 56/56, 37/60, 38/20, 38/0):
+# -dead, -silent, -dead-west (r-quals, qual-south-v: 56/0, 56/56, 37/60, 38/20, 38/0):
 # - qual-south-v-side: both volleys from SIDE_FIRE (40.06, 110): 49/0, 49/56, 1/0, 1/23, 1/0. TIP 2's spill is not
 #   caught from there (one piece), so TIP 3 is short without a partner's 4. Firing and leaving at once with the
 #   GARDEN after (SIDE_FIRE at y 110 or 104): no TIP 3 at all without a partner (the GARDEN comes too late), 47 or 35

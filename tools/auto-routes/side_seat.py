@@ -12,7 +12,7 @@ from collections import defaultdict
 import alone
 import autogen
 
-ROUTES = {"QualSouthVAuto": "rigid V, fixed turret", "QualSouthVSideAuto": "rigid V, fixed turret, corner extractor",
+ROUTES = {"RQualsAuto": "rigid V, fixed turret", "QualSouthVSideAuto": "rigid V, fixed turret, corner extractor",
           "QualSouthVCornerAuto": "rigid V, fixed turret, corner extractor"}
 # The left test partners (alone.py), and two that hold at their start until 18 s if they are late (partner_left_hold).
 PARTNERS = ["PartnerLeftVAuto", "PartnerLeftSlow3000Auto", "PartnerLeftDeadAuto", "PartnerLeftSilentAuto",

@@ -412,7 +412,10 @@ public class AutoStudyTest {
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
-        String[] autos = at[0].split(",");
+        // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
+        // alliance's pieces, spills and traffic are there, and the blue versions of our Autos get run).
+        String[] sides = at[0].split("\\|");
+        String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autos[0]);
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
         if (first == PartnerThreeTipAuto.class) {
@@ -425,6 +428,17 @@ public class AutoStudyTest {
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
             double[][] staged = stagedFor(second.getSimpleName());
             if (staged != null) sim.stagesPreloads(staged);
+        }
+        if (sides.length > 1) {
+            String[] theirs = sides[1].split(",");
+            for (int i = 0; i < theirs.length; i++) {
+                Class<?> opponent = Class.forName(PKG + theirs[i]);
+                // Their first robot like ours, their second like our partner.
+                double s = i == 0 || Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
+                sim.alsoRunOpponent(opponent).speed(s, s * 0.9).design(i == 0 || partnerDesign == null ? design : partnerDesign);
+                double[][] staged = stagedFor(opponent.getSimpleName());
+                if (staged != null) sim.stagesPreloads(staged);
+            }
         }
         for (Map.Entry<String, String> m : metadata.entrySet()) sim.metadata(m.getKey(), m.getValue());
         return sim.write(file);
@@ -483,13 +497,15 @@ public class AutoStudyTest {
         String misses = "";
         /** Our alliance's shots launched and scored (every robot's). */
         int launched, scored;
+        /** The other alliance's AUTO points when opponents ran; NaN otherwise. */
+        double theirPoints = Double.NaN;
 
         String line() {
             StringBuilder t = new StringBuilder();
             for (double x : tips) t.append(t.length() == 0 ? "" : ",").append(x);
             return seed + "\t" + points + "\t" + load + "\t" + held + "\t" + g409 + "\t" + parked + "\t" + robots + "\t"
                     + problems + "\t" + t + "\t" + misses + "\t" + launched + "\t" + scored + "\t"
-                    + firstProblem.replace('\t', ' ').replace('\n', ' ');
+                    + firstProblem.replace('\t', ' ').replace('\n', ' ') + "\t" + theirPoints;
         }
 
         static Row parse(String[] f, int at) {
@@ -507,6 +523,7 @@ public class AutoStudyTest {
             r.launched = f.length > at + 10 ? Integer.parseInt(f[at + 10]) : 0;
             r.scored = f.length > at + 11 ? Integer.parseInt(f[at + 11]) : 0;
             r.firstProblem = f.length > at + 12 ? f[at + 12] : "";
+            r.theirPoints = f.length > at + 13 ? Double.parseDouble(f[at + 13]) : Double.NaN;
             return r;
         }
     }
@@ -623,6 +640,7 @@ public class AutoStudyTest {
             row.seed = seed;
             for (int i = 0; i < r.autoTips(); i++) row.tips.add(r.tipsAt.get(i));
             row.points = r.autoPoints();
+            if (r.opponents) row.theirPoints = r.theirAutoPoints();
             row.g409 = r.g409;
             row.load = r.cellLoad;
             row.held = r.held;
@@ -632,10 +650,12 @@ public class AutoStudyTest {
             }
             row.misses = m.toString();
             row.scored = r.scored;
-            for (AutoSim.RobotResult robot : r.robots) row.launched += robot.launched;
+            for (AutoSim.RobotResult robot : r.robots) if (robot.alliance == r.alliance) row.launched += robot.launched;
             for (AutoSim.RobotResult robot : r.robots) {
-                row.robots++;
-                if (robot.leave && robot.park) row.parked++;
+                if (robot.alliance == r.alliance) {  // the parked count is our alliance's; problems count on both sides
+                    row.robots++;
+                    if (robot.leave && robot.park) row.parked++;
+                }
                 if (robot.illegalStart != null || !Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)
                         || !Double.isNaN(robot.hitFlowerAt) || !Double.isNaN(robot.hitWallAt)) {
                     if (row.problems++ == 0) row.firstProblem = robot.toString();
@@ -649,6 +669,10 @@ public class AutoStudyTest {
             if (System.getenv("BIOBUZZ_AUTO_SEED_ROWS") != null) {
                 StringBuilder sr = new StringBuilder(String.format(Locale.ROOT, "STUDY SEEDROW %s|%s|%d|%d|%d|%s", spec, designName,
                         seed, r.autoTips(), r.autoPoints(), Double.isNaN(r.robotsCollidedAt) ? "-" : String.format(Locale.ROOT, "%.1f", r.robotsCollidedAt)));
+                if (r.opponents) {  // a whole match: the other alliance's TIPs and points, and when the alliances first met
+                    sr.append(String.format(Locale.ROOT, "|vs|%d|%d|%s", r.theirTipsAt.size(), r.theirAutoPoints(),
+                            Double.isNaN(r.alliancesCollidedAt) ? "-" : String.format(Locale.ROOT, "%.1f", r.alliancesCollidedAt)));
+                }
                 for (AutoSim.RobotResult robot : r.robots) {
                     sr.append('|').append(robot.leave && robot.park ? "P" : "-")
                             .append(Double.isNaN(robot.hitHiveAt) ? "" : "H").append(Double.isNaN(robot.hitFlowerAt) ? "" : "F")
@@ -673,7 +697,8 @@ public class AutoStudyTest {
     private static void summarize(String spec, String designName, List<Row> rows) {
         int[] count = new int[8];
         double[] sum = new double[8];
-        double points = 0, load = 0, held = 0;
+        double points = 0, load = 0, held = 0, theirPoints = 0;
+        int theirRuns = 0;
         int parked = 0, robots = 0, problems = 0, g409 = 0, g409Runs = 0, runs = rows.size();
         Map<String, Integer> misses = new java.util.TreeMap<>();
         int launched = 0, scored = 0;
@@ -684,6 +709,10 @@ public class AutoStudyTest {
                 sum[i] += r.tips.get(i);
             }
             points += r.points;
+            if (!Double.isNaN(r.theirPoints)) {
+                theirPoints += r.theirPoints;
+                theirRuns++;
+            }
             g409 += r.g409;
             if (r.g409 > 0) g409Runs++;
             load += r.load;
@@ -716,6 +745,7 @@ public class AutoStudyTest {
         line.append(String.format(Locale.ROOT, " | %.1f pts, parked %d/%d, CELL %.0f%%, held %.1f, G409 %.1f (%d runs)%s",
                 points / runs, parked, robots, 100 * load / runs, held / runs, (double) g409 / runs, g409Runs,
                 problems == 0 ? "" : ", PROBLEMS " + problems)
+                + (theirRuns == 0 ? "" : String.format(Locale.ROOT, ", the other alliance %.1f pts", theirPoints / theirRuns))
                 + (launched == 0 ? "" : String.format(Locale.ROOT, ", shots %.0f%% of %.1f", 100.0 * scored / launched, (double) launched / runs)));
         System.out.println("STUDY " + line);
     }

@@ -189,6 +189,26 @@
                     }
                   },
                   {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentA3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#3b82f6"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentB3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#60a5fa"
+                    }
+                  },
+                  {
                     "type": "gamePiece",
                     "logKey": "/Sim/GamePieces/BlueNectar",
                     "logType": "Pose3d[]",
@@ -310,6 +330,26 @@
                     }
                   },
                   {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentA3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#3b82f6"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentB3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#60a5fa"
+                    }
+                  },
+                  {
                     "type": "gamePiece",
                     "logKey": "/Sim/GamePieces/BlueNectar",
                     "logType": "Pose3d[]",
@@ -428,6 +468,26 @@
                     "options": {
                       "model": "Drive Base",
                       "color": "#00ff00"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentA3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#3b82f6"
+                    }
+                  },
+                  {
+                    "type": "ghost",
+                    "logKey": "/Odometry/OpponentB3d",
+                    "logType": "Pose3d",
+                    "visible": true,
+                    "options": {
+                      "model": "Drive Base",
+                      "color": "#60a5fa"
                     }
                   },
                   {

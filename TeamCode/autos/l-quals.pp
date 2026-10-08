@@ -779,7 +779,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-shoots-right-v-fixed-west45-r",
+    "exportName": "l-quals",
     "registry": {
       "actions": [
         "SpinUp",
