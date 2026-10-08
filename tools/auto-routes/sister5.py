@@ -134,6 +134,20 @@ def right_block_late(name="spill-block-late", hold=(57.5, 21, 90), at=(60, 36, 9
     return r
 
 
+def right_catch(name="spill-catch-wall", at=(57.5, 21, 90), wait_ms=6000):
+    """An experiment for containment designs: TIP 1 from R_PRE, then stand wall side, clear of G409, with the intake on
+    through the spill (the Saline films: nearly every piece rolls toward the alliance wall). Run it on each design and
+    count with spilltrack.py; the robot holds at most 4, the rest are what it kept within reach."""
+    r = Route(name, R_START, speed=50)
+    r.pt("R_PRE", *R_PRE).pt("CATCH", *at)
+    r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
+    r.at = "R_PRE"
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.go("CATCH", heading=90))
+    r.at = "CATCH"
+    r.add(r.wait("TIP 1", when=["Tip"], ms=4000), r.wait("Catch through the spill", when=["Empty"], ms=wait_ms))
+    return r
+
+
 def left5(name="sister5-left", fixed=True, collect_ms=3000, tip3_ms=15000):
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *L_N).pt("L_C", *L_C).pt("PARK_L", *PARK_L)
@@ -164,7 +178,8 @@ def left5(name="sister5-left", fixed=True, collect_ms=3000, tip3_ms=15000):
 
 def variants():
     return [right5(), right5b(), left5(), left5("sister5-left-turret", fixed=False),
-            right_block(), right_block("spill-block-wall", at=(57.5, 21, 90)), right_block_late()]
+            right_block(), right_block("spill-block-wall", at=(57.5, 21, 90)), right_block_late(),
+            right_catch()]
 
 
 if __name__ == "__main__":

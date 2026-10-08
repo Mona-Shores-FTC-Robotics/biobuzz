@@ -74,6 +74,70 @@ Blocking helps only from inside the landing zone, where falling pieces touch the
 simulator's bounce is assumed, not measured**, so filming real spills (`doc/spill-test.md`) comes before any of this
 is built on.
 
+## Containment, tried (9 Oct 2026)
+
+The mentor: "I really think we may need the hook or some containment type thing to get this to work consistently."
+The Saline films (`doc/saline-piece-physics.md` § 5) say where to put it: a spill first touches 35-42 in out, and
+nearly every piece then rolls toward the wall at 25-40 in/s; 12 of 28 were within 5 in of the wall 3 s later. The
+simulator already throws them that way (`FieldSim.FILMED_BOUNCE_SCATTER_SPREAD_RAD`, fitted to those films). So
+the catcher waits at the wall side, out of G409's reach, and lets the spill roll into it.
+
+`sister5.py`'s `right_catch`: TIP 1 from R_PRE, then stand at (57.5, 21) facing the HIVE, intake on, through the
+spill. TIP 1 spills 7 pieces (4 POLLEN, 3 NECTAR); later TIPs spill 8. Same route on every design, 20 runs each,
+counted by `catchcount.py`:
+
+| Design | Held (of 4 max) | On the floor at our end | **Kept in reach** | Across the centre line | Under the HIVE | G409 runs |
+|---|---|---|---|---|---|---|
+| rigid V (turret) | 2.6 | 1.7 | **4.3** | 1.6 | 0.3 | 0 / 20 |
+| rigid V, fixed turret | 2.2 | 1.9 | **4.1** | 1.8 | 0.7 | 0 / 20 |
+| rigid V 24 in across | 2.6 | 1.6 | **4.2** | 0.9 | 1.0 | 0 / 20 |
+| rigid V 6 in deep | 2.5 | 1.9 | **4.4** | 1.5 | 0.9 | 0 / 20 |
+| spring hood, full-width intake | 1.4 | 2.0 | 3.4 | 2.8 | 0.9 | 0 / 20 |
+| … with side walls out at the TIP | 2.4 | 2.0 | **4.4** | 0.7 | 1.2 | 3 / 20 |
+| spring hood, large right hook | 0.6 | 1.9 | 2.5 | 2.4 | 1.8 | 16 / 20 |
+| flat intake, ramp hook | 0.7 | 2.5 | 3.2 | 2.6 | 1.1 | 6 / 20 |
+
+"Kept in reach" is held plus on the floor at our end (our half, y < 51), which still has to be picked up.
+"Under the HIVE" counts either half.
+
+What it says:
+
+- **The V already contains about as well as anything legal.** Every G409-clean design keeps 4.1-4.4 of 7.
+  Widening the V to 24 in or adding side walls halves what crosses the centre line, but those pieces end up under the
+  HIVE instead, not in the robot.
+- **The hooks lose.** A hook down while the spill falls is touched by falling pieces (G409 in 16 of 20 runs for the
+  large hook, 6 of 20 for the ramp hook), and it sits across the intake, so the robot takes in less (0.6-0.7).
+- **Capacity isn't the limit here.** The robot held 4 in only some runs; on average 2.2-2.6. A pen holding more
+  than 4 would not have added much at this spot. The limit is what reaches the robot at all.
+
+**The budget with the best containment.** After TIP 2 our half holds 8 pieces that are always there (the GARDEN and
+the wall FLOWER). TIPs 3-5 need 24, so 16 must come from the spills of TIPs 1-3 (7 + 8 + 8 = 23 pieces). That is 70%
+of every spill, every match. The best design keeps 63% in reach and holds fewer than that. On average that is about
+22 of the 24 needed, short before a single miss, and every floor pickup costs time. In the simulator, then,
+containment doesn't make 5 TIPs consistent. It needs about 1.5 more pieces kept per spill, and none of these
+designs gets close.
+
+What could still change that, in order of how much it would move the number:
+
+1. **Real spills cross the centre line less than the simulator's.** The right CELL's pieces sit at x 58-67, within
+   4-13 in of the line (x 70.75), so a small sideways kick takes them over. The Saline tracks
+   (`tools/saline-stream/saline-rolling-tracks.csv`) are 25 clean rolls chosen for deceleration, not whole spills,
+   so they can't answer this. Counting, in two or three Saline spills, how many pieces end past the centre line
+   or under the HIVE would settle it.
+2. **The pieces under the HIVE are reachable.** That's about 1 a spill if the robot can reach under the frame
+   from our half.
+3. **G407 allows a pen.** It doesn't help at this catch spot (capacity wasn't binding), but it would let a robot
+   gather a spill's floor pieces in one pass instead of two.
+
+### Draft question for the official Q&A (G407)
+
+> During AUTO our robot has a rigid guide (a V-shaped frame) in front of its intake. Scoring elements from a spill
+> roll across the tiles and come to rest inside the V, touching the guide, while the robot already holds 4 scoring
+> elements in its internal path. The robot is not moving and the elements were not pushed there. Are the elements
+> resting inside the guide CONTROLLED under G407 (for example as "stuck in/on" the robot or as herding), so that the
+> robot would be in violation until they leave the guide? Does the answer change if the guide was lowered after the
+> elements had already touched the tiles?
+
 ## Asks
 
 - **Intake Design / transfer:** can a front-to-back path that holds at most 4, with a back gate and a piece counter,
