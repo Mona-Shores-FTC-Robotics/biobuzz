@@ -45,7 +45,45 @@
       }
     },
     {
-      "id": "to-garden-in-3",
+      "id": "to-r-c1-3",
+      "color": "#3cc8e4",
+      "name": "S_CATCH to R_C1",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 50,
+        "y": 24
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-s-catch-4",
+      "color": "#3cc8e4",
+      "name": "R_C1 to S_CATCH",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 21
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-garden-in-5",
       "color": "#3cc8e4",
       "name": "S_CATCH to GARDEN_IN",
       "waitBeforeMs": 0,
@@ -92,7 +130,7 @@
       }
     },
     {
-      "id": "to-garden-4",
+      "id": "to-garden-6",
       "color": "#3cc8e4",
       "name": "GARDEN_IN to GARDEN",
       "waitBeforeMs": 0,
@@ -111,7 +149,7 @@
       }
     },
     {
-      "id": "to-r-w-5",
+      "id": "to-r-w-7",
       "color": "#3cc8e4",
       "name": "R_S to R_W",
       "waitBeforeMs": 0,
@@ -130,7 +168,7 @@
       }
     },
     {
-      "id": "to-r-n-6",
+      "id": "to-r-n-8",
       "color": "#3cc8e4",
       "name": "R_W to R_N",
       "waitBeforeMs": 0,
@@ -149,7 +187,7 @@
       }
     },
     {
-      "id": "to-wall-flower-turn-7",
+      "id": "to-wall-flower-turn-9",
       "color": "#3cc8e4",
       "name": "R_N to WALL_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -201,7 +239,7 @@
       }
     },
     {
-      "id": "to-wall-flower-8",
+      "id": "to-wall-flower-10",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER_TURN to WALL_FLOWER",
       "waitBeforeMs": 0,
@@ -220,7 +258,7 @@
       }
     },
     {
-      "id": "to-r-f5-9",
+      "id": "to-r-f5-11",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER to R_F5",
       "waitBeforeMs": 0,
@@ -272,7 +310,45 @@
       }
     },
     {
-      "id": "to-r-w-10",
+      "id": "to-r-c5-12",
+      "color": "#3cc8e4",
+      "name": "R_F5 to R_C5",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 48,
+        "y": 26
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-f5-13",
+      "color": "#3cc8e4",
+      "name": "R_C5 to R_F5",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 42,
+        "y": 22
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-w-14",
       "color": "#3cc8e4",
       "name": "GARDEN to R_W",
       "waitBeforeMs": 0,
@@ -319,7 +395,7 @@
       }
     },
     {
-      "id": "to-r-n-11",
+      "id": "to-r-n-15",
       "color": "#3cc8e4",
       "name": "R_W to R_N",
       "waitBeforeMs": 0,
@@ -338,7 +414,7 @@
       }
     },
     {
-      "id": "to-wall-flower-turn-12",
+      "id": "to-wall-flower-turn-16",
       "color": "#3cc8e4",
       "name": "R_N to WALL_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -390,7 +466,7 @@
       }
     },
     {
-      "id": "to-wall-flower-13",
+      "id": "to-wall-flower-17",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER_TURN to WALL_FLOWER",
       "waitBeforeMs": 0,
@@ -409,7 +485,7 @@
       }
     },
     {
-      "id": "to-r-f5-14",
+      "id": "to-r-f5-18",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER to R_F5",
       "waitBeforeMs": 0,
@@ -461,7 +537,45 @@
       }
     },
     {
-      "id": "to-r-w-15",
+      "id": "to-r-c5-19",
+      "color": "#3cc8e4",
+      "name": "R_F5 to R_C5",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 48,
+        "y": 26
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-f5-20",
+      "color": "#3cc8e4",
+      "name": "R_C5 to R_F5",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 42,
+        "y": 22
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-r-w-21",
       "color": "#3cc8e4",
       "name": "S_CATCH to R_W",
       "waitBeforeMs": 0,
@@ -480,7 +594,7 @@
       }
     },
     {
-      "id": "to-r-n-16",
+      "id": "to-r-n-22",
       "color": "#3cc8e4",
       "name": "R_W to R_N",
       "waitBeforeMs": 0,
@@ -499,7 +613,7 @@
       }
     },
     {
-      "id": "to-park-17",
+      "id": "to-park-23",
       "color": "#3cc8e4",
       "name": "R_N to PARK",
       "waitBeforeMs": 0,
@@ -603,63 +717,87 @@
     },
     {
       "kind": "path",
-      "lineId": "to-garden-in-3"
+      "lineId": "to-r-c1-3"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-4"
+      "lineId": "to-s-catch-4"
     },
     {
       "kind": "path",
-      "lineId": "to-r-w-5"
+      "lineId": "to-garden-in-5"
     },
     {
       "kind": "path",
-      "lineId": "to-r-n-6"
+      "lineId": "to-garden-6"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-7"
+      "lineId": "to-r-w-7"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-8"
+      "lineId": "to-r-n-8"
     },
     {
       "kind": "path",
-      "lineId": "to-r-f5-9"
+      "lineId": "to-wall-flower-turn-9"
     },
     {
       "kind": "path",
-      "lineId": "to-r-w-10"
+      "lineId": "to-wall-flower-10"
     },
     {
       "kind": "path",
-      "lineId": "to-r-n-11"
+      "lineId": "to-r-f5-11"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-12"
+      "lineId": "to-r-c5-12"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-13"
+      "lineId": "to-r-f5-13"
     },
     {
       "kind": "path",
-      "lineId": "to-r-f5-14"
+      "lineId": "to-r-w-14"
     },
     {
       "kind": "path",
-      "lineId": "to-r-w-15"
+      "lineId": "to-r-n-15"
     },
     {
       "kind": "path",
-      "lineId": "to-r-n-16"
+      "lineId": "to-wall-flower-turn-16"
     },
     {
       "kind": "path",
-      "lineId": "to-park-17"
+      "lineId": "to-wall-flower-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-f5-18"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-c5-19"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-f5-20"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-w-21"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-r-n-22"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-23"
     }
   ],
   "settings": {
@@ -700,11 +838,12 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "sister5b-right-direct",
+    "exportName": "sister5b-right-direct-fill",
     "registry": {
       "actions": [
         "SpinUp",
-        "LaunchAll"
+        "LaunchAll",
+        "CollectSeen"
       ],
       "conditions": [
         "Empty",
@@ -715,7 +854,8 @@
       ],
       "typicalS": {
         "SpinUp": 0.1,
-        "LaunchAll": 2.0
+        "LaunchAll": 2.0,
+        "CollectSeen": 2.0
       },
       "events": [
         "Tip"
@@ -791,26 +931,37 @@
         23.16,
         47.36,
         180
+      ],
+      "R_C1": [
+        50,
+        24,
+        90
       ]
     },
     "pathEnds": {
       "to-r-pre-1": "R_PRE",
       "to-s-catch-2": "S_CATCH",
-      "to-garden-in-3": "GARDEN_IN",
-      "to-garden-4": "GARDEN",
-      "to-r-w-5": "R_W",
-      "to-r-n-6": "R_N",
-      "to-wall-flower-turn-7": "WALL_FLOWER_TURN",
-      "to-wall-flower-8": "WALL_FLOWER",
-      "to-r-f5-9": "R_F5",
-      "to-r-w-10": "R_W",
-      "to-r-n-11": "R_N",
-      "to-wall-flower-turn-12": "WALL_FLOWER_TURN",
-      "to-wall-flower-13": "WALL_FLOWER",
-      "to-r-f5-14": "R_F5",
-      "to-r-w-15": "R_W",
-      "to-r-n-16": "R_N",
-      "to-park-17": "PARK"
+      "to-r-c1-3": "R_C1",
+      "to-s-catch-4": "S_CATCH",
+      "to-garden-in-5": "GARDEN_IN",
+      "to-garden-6": "GARDEN",
+      "to-r-w-7": "R_W",
+      "to-r-n-8": "R_N",
+      "to-wall-flower-turn-9": "WALL_FLOWER_TURN",
+      "to-wall-flower-10": "WALL_FLOWER",
+      "to-r-f5-11": "R_F5",
+      "to-r-c5-12": "R_C5",
+      "to-r-f5-13": "R_F5",
+      "to-r-w-14": "R_W",
+      "to-r-n-15": "R_N",
+      "to-wall-flower-turn-16": "WALL_FLOWER_TURN",
+      "to-wall-flower-17": "WALL_FLOWER",
+      "to-r-f5-18": "R_F5",
+      "to-r-c5-19": "R_C5",
+      "to-r-f5-20": "R_F5",
+      "to-r-w-21": "R_W",
+      "to-r-n-22": "R_N",
+      "to-park-23": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -903,7 +1054,7 @@
         ]
       },
       {
-        "id": "w-8",
+        "id": "w-11",
         "kind": "firstOf",
         "label": "Catch TIP 1's spill",
         "rows": [
@@ -915,12 +1066,44 @@
           },
           {
             "afterMs": 1500,
-            "cards": []
+            "cards": [
+              {
+                "id": "p-8",
+                "kind": "path",
+                "lineId": "to-r-c1-3",
+                "park": false
+              },
+              {
+                "id": "w-9",
+                "kind": "firstOf",
+                "label": "TIP 1's spill off the floor",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ],
+                "alongside": "CollectSeen"
+              },
+              {
+                "id": "p-10",
+                "kind": "path",
+                "lineId": "to-s-catch-4",
+                "park": false
+              }
+            ],
+            "label": "Not full: off the floor"
           }
         ]
       },
       {
-        "id": "w-37",
+        "id": "w-48",
         "kind": "firstOf",
         "label": "TIP 2 (L): the right CELL up",
         "rows": [
@@ -930,7 +1113,7 @@
             ],
             "cards": [
               {
-                "id": "w-9",
+                "id": "w-12",
                 "kind": "firstOf",
                 "label": "TIP 1's catch at the right CELL",
                 "rows": [
@@ -948,19 +1131,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-10",
+                "id": "p-13",
                 "kind": "path",
-                "lineId": "to-garden-in-3",
+                "lineId": "to-garden-in-5",
                 "park": false
               },
               {
-                "id": "p-11",
+                "id": "p-14",
                 "kind": "path",
-                "lineId": "to-garden-4",
+                "lineId": "to-garden-6",
                 "park": false
               },
               {
-                "id": "w-12",
+                "id": "w-15",
                 "kind": "firstOf",
                 "label": "The GARDEN's 4",
                 "rows": [
@@ -977,19 +1160,19 @@
                 ]
               },
               {
-                "id": "p-23",
+                "id": "p-30",
                 "kind": "path",
-                "lineId": "to-r-w-10",
+                "lineId": "to-r-w-14",
                 "park": false
               },
               {
-                "id": "p-24",
+                "id": "p-31",
                 "kind": "path",
-                "lineId": "to-r-n-11",
+                "lineId": "to-r-n-15",
                 "park": false
               },
               {
-                "id": "w-25",
+                "id": "w-32",
                 "kind": "firstOf",
                 "label": "The left CELL up",
                 "rows": [
@@ -1006,7 +1189,7 @@
                 ]
               },
               {
-                "id": "w-26",
+                "id": "w-33",
                 "kind": "firstOf",
                 "label": "R's 4 at the left CELL (TIP 4, with L)",
                 "rows": [
@@ -1024,19 +1207,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-27",
+                "id": "p-34",
                 "kind": "path",
-                "lineId": "to-wall-flower-turn-12",
+                "lineId": "to-wall-flower-turn-16",
                 "park": false
               },
               {
-                "id": "p-28",
+                "id": "p-35",
                 "kind": "path",
-                "lineId": "to-wall-flower-13",
+                "lineId": "to-wall-flower-17",
                 "park": false
               },
               {
-                "id": "w-29",
+                "id": "w-36",
                 "kind": "firstOf",
                 "label": "The wall FLOWER's 4",
                 "rows": [
@@ -1053,13 +1236,13 @@
                 ]
               },
               {
-                "id": "p-30",
+                "id": "p-37",
                 "kind": "path",
-                "lineId": "to-r-f5-14",
+                "lineId": "to-r-f5-18",
                 "park": false
               },
               {
-                "id": "w-31",
+                "id": "w-38",
                 "kind": "firstOf",
                 "label": "TIP 4: the right CELL up",
                 "rows": [
@@ -1076,7 +1259,7 @@
                 ]
               },
               {
-                "id": "w-32",
+                "id": "w-39",
                 "kind": "firstOf",
                 "label": "R's 4 at the right CELL (TIP 5, with L)",
                 "rows": [
@@ -1092,6 +1275,54 @@
                   }
                 ],
                 "alongside": "LaunchAll"
+              },
+              {
+                "id": "p-40",
+                "kind": "path",
+                "lineId": "to-r-c5-19",
+                "park": false
+              },
+              {
+                "id": "w-41",
+                "kind": "firstOf",
+                "label": "Top-up off the floor",
+                "rows": [
+                  {
+                    "when": [
+                      "IntakeFull"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 2500,
+                    "cards": []
+                  }
+                ],
+                "alongside": "CollectSeen"
+              },
+              {
+                "id": "p-42",
+                "kind": "path",
+                "lineId": "to-r-f5-20",
+                "park": false
+              },
+              {
+                "id": "w-43",
+                "kind": "firstOf",
+                "label": "The top-up at the right CELL (TIP 5)",
+                "rows": [
+                  {
+                    "when": [
+                      "Tip"
+                    ],
+                    "cards": []
+                  },
+                  {
+                    "afterMs": 4000,
+                    "cards": []
+                  }
+                ],
+                "alongside": "LaunchAll"
               }
             ]
           },
@@ -1099,19 +1330,19 @@
             "afterMs": 6500,
             "cards": [
               {
-                "id": "p-33",
+                "id": "p-44",
                 "kind": "path",
-                "lineId": "to-r-w-15",
+                "lineId": "to-r-w-21",
                 "park": false
               },
               {
-                "id": "p-34",
+                "id": "p-45",
                 "kind": "path",
-                "lineId": "to-r-n-16",
+                "lineId": "to-r-n-22",
                 "park": false
               },
               {
-                "id": "w-35",
+                "id": "w-46",
                 "kind": "firstOf",
                 "label": "No TIP 2: TIP 1's catch at the left CELL (TIP 2)",
                 "rows": [
@@ -1129,9 +1360,9 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-36",
+                "id": "p-47",
                 "kind": "path",
-                "lineId": "to-park-17",
+                "lineId": "to-park-23",
                 "park": true
               }
             ]

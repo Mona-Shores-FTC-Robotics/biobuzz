@@ -776,11 +776,11 @@
               {
                 "id": "w-22",
                 "kind": "firstOf",
-                "label": "TIP 4: the right CELL up",
+                "label": "TIP 4",
                 "rows": [
                   {
                     "when": [
-                      "RightCellUp"
+                      "Tip"
                     ],
                     "cards": []
                   },
