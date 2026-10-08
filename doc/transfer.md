@@ -261,7 +261,7 @@ of the front uprights.) Checked against the transfer:
   the NECTAR's centre at 1.81 on the tiles. The ramp starts 0.05 in up at X 8.0, under the piece's rear half, so it
   touches the piece only once the roller has pushed it rearward.
 
-## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → 2f78001 on `claude/robotics-meeting-notes-lq2y55`): the current design
+## Transfer v3, drawn (CAD chat, 7 Oct 2026, commits 146f130 → 8d79623 on `claude/robotics-meeting-notes-lq2y55`): the current design
 
 **Why v3:** a ball resting on top of two feeder wheels (v2's cup) is held on only by its weight, so the feeders could
 flick it but not drive it. v3 pinches and drives. Robot frame, inches:
@@ -335,6 +335,30 @@ done"; features can go):**
 - **Asked 7 Oct, pending the user's go-ahead in the CAD chat:** the lane redrawn with 3–4 shafts of the mentor's
   own Geckos (not eight 24 mm shafts), the transfer on goBILDA grid plates and channel with the custom parts listed,
   and labelled side and top views.
+
+**v4, commits 6df7d13 and 8d79623 (8 Oct): the goBILDA rebuild.** `build.py` is rebuilt from goBILDA parts with
+every screw drawn (107 fasteners checked, 0 problems). Same function and numbers: floor at z 1.3, feeder at Y 2.87,
+z 3.25 over the flywheels' span, pad face at −1.05, backstop at X −3.81 on ±0.2 slots, the 12.43 in count window.
+The lane is **5 shafts 1.4 in apart** (was 8 at 0.8) with 24 mm printed TPU rollers and polycord in pairs; the walls
+are 1/4 in polycarbonate (inner faces |Y| 1.86) on 80 mm REX standoffs to the rails' own holes; the feeder's bearings
+sit in two small aluminium plates on the mentor's channels (which lean 5.4°, so their holes miss the feeder axis);
+his front 3-hole channel stays; the pad hinge is at z 1.62 in printed blocks; the ramp slides into slots in the
+walls; every belt is a real 3412 length. Clear of the robot, the front and itself, both sizes, pad swung.
+
+**v4 drove the lane and the feeder with continuous-rotation servos** (goBILDA 2000-0025-0004) to keep the DC motor
+count at 8 (4 drive + roller + 2 flywheels; the lane and feeder would have made 9). **The physics rejects that
+(sent 8 Oct):**
+- *The feeder can't reach the flywheels on a servo.* It releases the ball at centre z 3.85/4.08; the flywheels
+  first touch a NECTAR at 5.77; the 1.7 in coast needs 36 in/s at release, i.e. 80–90 in/s of tread, 550–600 rpm
+  on 72 mm wheels. A Super Speed servo at about 180 rpm gives 27 in/s of tread and a 0.2 in coast. Fix: close the
+  hand-off so the flywheels grip before the feeder releases (release within about 0.2 in of their first touch:
+  feeder up about 1.5 in, or flywheels down), which makes the feeder's speed irrelevant and is the better mechanism
+  anyway; or a DC motor on the feeder.
+- *The lane on a servo is 3× too slow.* Under a pressed ceiling a ball moves at half the roller tread: 24 mm rollers
+  at 180 rpm give 4.5 in/s, so 0.6–0.8 s between shots against the simulator's 0.2 s.
+- *Motor count:* drive the lane off the intake roller's shaft (the 6 Oct polycord loop, 2:1 up; lane speed by roller
+  power in software), which frees the DC motor for the feeder: 8 motors. Or one motor for both flywheels through a
+  gear pair.
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
@@ -667,7 +691,7 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v3 at commit 2f78001** (one driven feeder and a sprung pad, count by geometry, built for service; see "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 at commit 8d79623** (goBILDA rebuild of v3; its servo drives are under correction, see "v4" in "Transfer v3" above), swept clear of the robot and the front with both ball sizes. The
 J-kicker CAD (commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
