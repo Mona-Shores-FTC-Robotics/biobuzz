@@ -183,5 +183,15 @@ body is not moved by it (only where the FLOWER sits against the extractor), and 
 placeholders. **Rerun with CAD's width**: set `wideBar.extractorLateralIn` / `extractorLateralMaxIn` in
 `AutoStudyTest` and run `python3 seat_error.py`.
 
+**What the mentor took from it** (8 Oct 2026): the bar's case is made, and no more modelling is needed for it.
+- *Front-to-back* needs no tolerance: the robot drives into the FLOWER's back poles, which set the distance.
+- *Canting*: a longer bar resists twisting, so the bar should be as wide as fits, touching both back poles across its
+  whole lateral range.
+- *Separate jobs*: the bar has one job, the FLOWER. The V no longer helps take a FLOWER, so it can be shaped for
+  spills alone.
+- *The open work is CAD's*: where the servo and the bar's arms go, the space they take on the robot, and keeping a
+  good V. The V and spill catching are where most development is still needed, and they interact with the bar's
+  packaging. Sent to the CAD chat. The simulator reruns when its outline arrives.
+
 Since section 1 was run the simulator has changed (claude/simulator's transfer and plate-contact models): the corner
 route with a dead partner at the left start now makes 3 TIPs in 30-32 of 60 (35 then), with a good partner 55-56.
