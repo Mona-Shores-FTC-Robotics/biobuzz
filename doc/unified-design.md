@@ -553,6 +553,21 @@ that counted shots fired, not pieces in.) Tried and no better:
   PARK by (30, 40) (a straight park from (45, 26) clipped the west foot's corner). 60 runs: **74.7, 3 TIPs in 58**,
   PARK 60, no problem runs, no TIP 3 miss; both misses are TIP 2 after the partner's preloads hit the HIVE (TIP 1
   late or never, and the left CELL never up for ours).
+- **(iii) with a plan for a TIP 1 that never comes: `qual-shoots-right-v-fixed-west45-r`** (mentor, 8 Oct 2026: "we
+  need to have a plan if it never comes"; "i dont expect the fallback to get to 3 tips"). No left CELL up 6 s after
+  we reach FAR_FLOWER_TURN: down the lane, our preloads at the right CELL until the left CELL is up (a late TIP from
+  the partner's pieces ends it too), the spill caught, back up, the catch and the far FLOWER's 4 at the left CELL
+  (TIP 2), fired and gone; west to x 30, straight down it to (30, 36), turn there, across to (45, 29) and PARK. No wall
+  FLOWER (reached at 24 s, the guard cut it seated). The GARDEN's volley, and PARK's start, are 3 in north of (45, 26),
+  where the V met a partner dead at the right start. Test partners: `partner-right-silent` (never shoots, parks) and
+  `partner-right-dead` (never shoots, never moves). 60 runs each, rigid V with a fixed turret:
+
+  | Partner | 3 TIPs | 2 TIPs | 1 TIP | Our PARK | Problem runs |
+  |---|---|---|---|---|---|
+  | shoots (`partner-preloads-right-high`) | 58 | 1 | 1 | 60 | 0 |
+  | never shoots, parks | 0 | 53 | 7 | 60 | 0 |
+  | never shoots, never moves | 0 | 53 | 7 | 60 | 0 |
+
 - **(iii), the partner at the right start:** `qual-shoots-right-v-fixed` with `partner-preloads-right-high` (its 4 are
   TIP 1). We start north (59, 133.69), wait at FAR_FLOWER_TURN for the left CELL, fire our preloads there, the far
   FLOWER's 4 from N_FIRE until the TIP itself (up to 4 s: leaving on a 2.5 s timer drove into the lane ahead of the
