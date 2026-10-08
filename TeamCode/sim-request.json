@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-alone-flower-f45-s500.pp",
-  "spec": "QualAloneFlowerF45S500Auto,PartnerParkOnlyAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-shoots-right-v-fixed-west45-r.pp",
+  "spec": "QualShootsRightVFixedWest45RAuto,PartnerPreloadsRightHighAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,9 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-alone-flower-f45-s500.pp",
-    "SavedBy": "README, alone: 3 TIPs with a partner that cannot shoot (the body-designs chat, 8 Oct 2026)"
+    "AutoSource": "qual-shoots-right-v-fixed-west45-r.pp",
+    "SavedBy": "README, ShootsRight candidate baseline, 7 s wait for TIP 1 (8 Oct 2026)"
   },
-  "title": "Qual-Alone-FlowerFirst",
-  "usual": true
+  "title": "Qual-PartnerShootsRight-Candidate",
+  "usual": true,
+  "folder": "qual-shoots-right-v-fixed-west45-r"
 }

@@ -26,10 +26,13 @@ public final class FieldFrame {
     public static final double FIELD_SIZE_INCHES = 141.5;
 
     /**
-     * Field centre on either axis, in inches — also the line the two alliances mirror across.
-     *
-     * <p>The Visualizer's exported Autos mirror with {@code PoseFactory.mirrorX(70.75)}; robot code
-     * that mirrors writes {@code mirrorX(FieldFrame.FIELD_CENTRE_INCHES)}, never {@code 144 - x}.
+     * Field centre on either axis, in inches — also the point the two alliances turn about. The
+     * BIOBUZZ field is rotationally symmetric, not mirrored: the Event Field Setup Guide §8.3 puts
+     * the red LOADING ZONE on tile A5 and the blue one on tile F2, a half-turn about the centre (a
+     * mirror would put it on F5). So an Auto drawn for red runs for blue with every pose turned half
+     * a turn about ({@code FIELD_CENTRE_INCHES}, {@code FIELD_CENTRE_INCHES}): the Visualizer's
+     * exported Autos use {@code PoseFactory.mirrorAroundPoint(70.75, 70.75)}, and the simulator does
+     * the same. Robot code that converts writes it from this constant, never {@code 144 - x}.
      */
     public static final double FIELD_CENTRE_INCHES = FIELD_SIZE_INCHES / 2.0;
 

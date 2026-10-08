@@ -1057,6 +1057,7 @@ public final class AutoSim {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
+                result.timeline.add(String.format(Locale.ROOT, "%5.2f drives into the HIVE frame at (%.1f, %.1f) heading %.0f", now, pose[0], pose[1], Math.toDegrees(pose[2])));
                         break;
                     }
                 }
@@ -1064,6 +1065,7 @@ public final class AutoSim {
             if (Double.isNaN(result.hitFlowerAt) && sim.hitsFlower(pose[0], pose[1], pose[2], design.frameIn, design.frameWidthIn)) {
                 result.hitFlowerAt = now;
                 log.putEvent(tag() + "drives into a FLOWER", us);
+                result.timeline.add(String.format(Locale.ROOT, "%5.2f drives into a FLOWER at (%.1f, %.1f) heading %.0f", now, pose[0], pose[1], Math.toDegrees(pose[2])));
             }
             // The walls (mentor review, 7 Oct 2026: a turn beside a wall swung the corners through it, and nothing said
             // so). The simulator does not stop the robot at a wall; a corner or V tip beyond one by more than the slack

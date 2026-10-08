@@ -2,7 +2,7 @@
 the team's CAD; the Flat Intake baseline dropped). Each is the body-designs branch's best route for the V, exported
 under the baseline's name into TeamCode/autos:
 
-- qual-right-v: ShootsRight on the V's sweep route, PARK first when TIP 3 is late (park_first.py).
+- qual-shoots-right-v-fixed-west45-r: ShootsRight (alone.shoots_right_v, since 8 Oct 2026); qual-right-v, the sweep route with PARK first, is the previous one (experiments/).
 - qual-stages-angled-v: the angled partner, "chase", turning out of the tunnel at x 55.5 (guide_routes.turning_west).
 - qual-stages-wall-v: the wall partner, the row swept square (guide_routes.row_sweep, 90), the same turn.
 
@@ -75,12 +75,21 @@ def sweep_east_of_partner(build, name):
         qual_right.tail = tail
 
 
+def shoots_right_fixed(name):
+    """ShootsRight since 8 Oct 2026 (mentor: "yes agreed"): alone.shoots_right_v, TIP 3 from the wall FLOWER's 4 and the
+    GARDEN's 4 fired from x 45, and a plan for a TIP 1 that never comes (wait 7 s, then our preloads at the right CELL,
+    TIP 2, home down the lane, PARK). Needs no turret: 75.0 at 60 runs on the turret held still (qual-right-v 73.7),
+    53.7 against a partner that never shoots (qual-right-v 18)."""
+    import alone
+    return alone.shoots_right_v(name, fire3=(45, 26, 90), ending="west", rescue=True, tip1_wait_ms=7000, rescue_home="lane")
+
+
 BASELINES = {
-    "qual-right-v": shoots_right,
+    "qual-shoots-right-v-fixed-west45-r": shoots_right_fixed,
     "qual-stages-angled-v": guide_routes.turning_west(lambda n: shape_matrix.stages_for("rigid-v", "angled", n)),
     "qual-stages-wall-v": guide_routes.turning_west(lambda n: sweep_east_of_partner(lambda m: guide_routes.rigid_v_wall("rigid-v", m, 90, sweep=True), n)),
 }
-PARTNER = {"qual-right-v": "PartnerPreloadsRightAuto", "qual-stages-angled-v": "PartnerAngledParkAuto",
+PARTNER = {"qual-shoots-right-v-fixed-west45-r": "PartnerPreloadsRightHighAuto", "qual-stages-angled-v": "PartnerAngledParkAuto",
            "qual-stages-wall-v": "PartnerStage19SideParkAuto"}
 
 # The drawn V's body is 15.12 in long (its face 7.56 in from the centre), not the Flat Intake's 14.5 (7.25): the

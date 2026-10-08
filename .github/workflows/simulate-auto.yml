@@ -70,7 +70,9 @@ jobs:
           meta["SourcePath"] = req.get("pp", "")
           meta["SimRun"] = f'{os.environ["GITHUB_SERVER_URL"]}/{os.environ["GITHUB_REPOSITORY"]}/actions/runs/{os.environ["GITHUB_RUN_ID"]}'
           json.dump(req, open(os.path.join(os.environ["RUNNER_TEMP"], "sim", "request.json"), "w"))
-          auto = os.path.basename(req.get("pp", "unknown.pp"))[:-3]
+          # The results folder: the request's "folder" when set (one route run with two partners publishes to two
+          # folders, 8 Oct 2026), else the Auto's file name.
+          auto = req.get("folder") or os.path.basename(req.get("pp", "unknown.pp"))[:-3]
           with open(os.environ["GITHUB_OUTPUT"], "a") as out:
               out.write(f"auto={auto}\n")
           EOF
