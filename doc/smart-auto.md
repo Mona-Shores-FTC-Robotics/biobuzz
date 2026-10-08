@@ -172,8 +172,10 @@ Plan       SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
 Hold LB + RB 2 s to lock now
 ```
 
-The checks are an aligned grid (monospace), each with its dot, its name and one short value in its colour. When one
-isn't green, a line under the grid names the worst and what to do:
+The checks are an aligned grid (monospace), each with its dot, its name and one short value in its colour. The line
+under the grid says what to do. When NOT READY, it lists what is still needed that no red line above already shows,
+each with its button: with the camera down, for example, "To be READY: side (◀/▶)" (the alliance line above is
+already red with its X/B). When READY, it names the worst warning, if any:
 
 ```
 ● Battery    12.4 V
