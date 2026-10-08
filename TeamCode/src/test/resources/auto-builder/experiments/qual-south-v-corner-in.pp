@@ -36,7 +36,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 40.06,
+        "x": 41.56,
         "y": 110
       },
       "controlPoints": [
@@ -65,7 +65,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 40.06,
+        "x": 41.56,
         "y": 126.64
       },
       "controlPoints": [],
@@ -89,11 +89,11 @@
       },
       "controlPoints": [
         {
-          "x": 40.06,
+          "x": 41.56,
           "y": 116.64
         },
         {
-          "x": 40.06,
+          "x": 41.56,
           "y": 110
         },
         {
@@ -216,7 +216,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 23.16,
-        "y": 40.06
+        "y": 41.56
       },
       "controlPoints": [],
       "heading": {
@@ -263,7 +263,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.86,
-        "y": 40.06
+        "y": 41.56
       },
       "controlPoints": [],
       "heading": {
@@ -287,7 +287,7 @@
       "controlPoints": [
         {
           "x": 24.86,
-          "y": 40.06
+          "y": 41.56
         }
       ],
       "heading": {
@@ -503,7 +503,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-south-v-corner",
+    "exportName": "qual-south-v-corner-in",
     "registry": {
       "actions": [
         "SpinUp",
@@ -550,37 +550,37 @@
         90
       ],
       "FAR_FLOWER": [
-        40.06,
+        41.56,
         126.64,
         90
       ],
       "FAR_FLOWER_IN": [
-        40.06,
+        41.56,
         120.84,
         90
       ],
       "FAR_FLOWER_TURN": [
-        40.06,
+        41.56,
         118.34,
         90
       ],
       "WALL_FLOWER": [
         14.86,
-        40.06,
+        41.56,
         180
       ],
       "WALL_FLOWER_IN": [
         20.66,
-        40.06,
+        41.56,
         180
       ],
       "WALL_FLOWER_TURN": [
         23.16,
-        40.06,
+        41.56,
         180
       ],
       "SIDE_FIRE": [
-        40.06,
+        41.56,
         110,
         90
       ],

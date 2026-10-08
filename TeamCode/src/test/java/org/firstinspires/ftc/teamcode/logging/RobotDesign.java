@@ -83,6 +83,24 @@ final class RobotDesign {
      * front corner (routes chat, 8 Oct 2026), so the body seats beside the FLOWER instead of in front of it.
      */
     double extractorLateralIn = 0;
+    /**
+     * A wide extractor (body-designs chat, 8 Oct 2026: a T-shaped bar out past the V's tips): the FLOWER's centre may sit
+     * anywhere from extractorLateralIn to this far left of the centre line (NaN: one point, extractorLateralIn). Down,
+     * the bar is a solid strip across the seat line that pieces bounce off ({@link #extractorBarHeightIn}).
+     */
+    double extractorLateralMaxIn = Double.NaN;
+    /** The bar's height off the tiles while down; a placeholder until CAD draws it. */
+    double extractorBarHeightIn = 1.5;
+    /**
+     * A seat-position error (body-designs chat): each time the extractor comes down, the robot's real seat is off its
+     * drawn one by a lateral error drawn evenly from -this to +this (in), so the FLOWER sits that much aside.
+     */
+    double seatErrorIn = 0;
+
+    /** The lateral range, {least, most} to the robot's left, the FLOWER's centre may sit in when seated. */
+    double[] extractorLateralRange() {
+        return new double[] {extractorLateralIn, Double.isNaN(extractorLateralMaxIn) ? extractorLateralIn : extractorLateralMaxIn};
+    }
     /** How far the seat may be off, along and across, for the extractor to still take the stack. */
     static final double EXTRACTOR_SEAT_TOLERANCE_IN = 1.5;
     /** Time for the extractor to swing its 150 deg; a placeholder until the servo is driven. */
@@ -381,6 +399,9 @@ final class RobotDesign {
         d.flowerPullS = flowerPullS;
         d.extractorSeatIn = extractorSeatIn;
         d.extractorLateralIn = extractorLateralIn;
+        d.extractorLateralMaxIn = extractorLateralMaxIn;
+        d.extractorBarHeightIn = extractorBarHeightIn;
+        d.seatErrorIn = seatErrorIn;
         d.extractorDeployS = extractorDeployS;
         d.transferFeedS = transferFeedS;
         d.launcher = launcher;
