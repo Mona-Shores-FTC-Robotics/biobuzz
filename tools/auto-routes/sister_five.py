@@ -30,6 +30,18 @@ a match on average):
 TIP 3's leftovers between L_F5 and the end wall. Creeping into a spill after it lands didn't help R: the pieces have
 rolled past by then.)
 
+Then, 40 runs each:
+
+    sister5e (TIP 5 from mid-zone spots, R clears out)            5 TIPs 21, 4 5, 3 4, <=2 10    84.8
+    sister5f (R's count decides: 4 held -> 5 TIPs, else sister's)  5 TIPs 15, 4 20, 3 4, <=2 1     93.4
+    sister5g (+ R backs out of the GARDEN in one path)              5 TIPs 15, 4 19, 3 5, <=2 1     92.9
+    sister5g + sister5h-left (L doesn't turn on the lane)           5 TIPs 15, 4 20, 3 4, <=2 1     93.4  (1 collision)
+    sister5h-right (3.5 s top-up)                                   no change
+    R_N at y 108 (mentor: R's TIP 4 shots look flat)               no change in the simulator (no bounce-outs there)
+
+R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
+The lever now is how often R's TIP 1 catch reaches 4.
+
 What decides it:
 - Without the GARDEN, TIP 3 comes up one or two short in a quarter to a third of runs (R's TIP 1 catch is often 3,
   and filling it off the floor while waiting for TIP 2 didn't reach 4), and those matches end at 2 TIPs.
