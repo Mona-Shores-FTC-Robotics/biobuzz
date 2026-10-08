@@ -1,15 +1,10 @@
-"""The whole robot as drawn, in one STEP: the team's CAD (DHS Robot Copy, from Drive) with the parts we replaced left out,
-plus the unified front (cad/intake-b/), the transfer (cad/transfer/), goBILDA's odometry pods and Limelight's own 3A, on
-a stand-in mount. In the AdvantageScope model's frame: +X forward, +Y left, +Z up, origin on the floor under the chassis
-centre (7.56 in behind the front face). Millimetres.
+"""The whole robot as drawn, in one STEP (or two halves): the mentor's Robot.step with the parts we replaced left out,
+plus the unified front (cad/intake-b/), the transfer (cad/transfer/), goBILDA's odometry pods and the Limelight 3A on its
+goBILDA mount. In the AdvantageScope model's frame: +X forward, +Y left, +Z up, origin on the floor under the chassis
+centre (7.56 in behind the front face). Millimetres. Usage and inputs: README.md.
 
-    EXAMPLE_STEP=<example chassis STEP> LL_STEP=<LIMELIGHT3ACAD_STEP.stp> \
-        python3 cad/full-robot/build.py <robot.step> <out.step>
-
-Left out of the team's CAD: the old intake's roller, motor, its motor mount and the two pattern spacers, and the staged
-NECTARs. The designer's "Launcher Concept" (the goBILDA turret over two pairs of flywheels) is kept as drawn; the
-transfer's own turret reference parts are left out in its favour. The old intake's 11-hole channel is raised
-8 mm, as the transfer needs."""
+What comes out of the mentor's CAD is SKIP (below). His "Launcher Concept" (the goBILDA turret over two pairs of
+flywheels) moves 0.8 in forward, and the old intake's 11-hole channel is raised 30 mm, as the transfer needs."""
 import math, os, re, sys, time
 import numpy as np
 import cadquery as cq
@@ -45,7 +40,7 @@ SKIP = re.compile(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern 
                   r"|Launcher subassembly <\d> / (312rpm Motor|7x11 hole Aluminum Plate|1 Hole Lowside U-Channel|Mini Quad Block|16t HTD5 Pulley|\[LS\] HTD5 belt 68|Dual Block)")
 # (the last line: the flywheel motors, their belts and the plates and blocks that held them under the flywheels, where the
 # feeders go; cad/transfer/ draws the motors moved out and up)   # the drive wheels' shafts: our 80 mm ones (outer plates) replace them
-RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (21 mm): a lane NECTAR passes under it
+RAISE = re.compile(r"Intake <1> / 11 Hole Lowside")    # up TR.CHAN_RAISE (30 mm): a lane NECTAR passes under it
 LAUNCHER = re.compile(r"^Launcher Concept|^Dual Block \(GB\)")   # the launcher, turret and the two blocks tying its frame to the chassis
 FRONT_OF_LAUNCHER = re.compile(r"^Launcher Concept <1> / (10 Hole Lowside U-Channel \(GB\)|Dual Block \(GB\)|5 Hole U Beam - 40mm \(GB\))\s*$")
 
@@ -157,8 +152,12 @@ MOVING = [
     ("fly_R", "MOVES 7 - flywheel right (Revolute)"),
     ("feeder", "MOVES 8 - feeder (Revolute)"),
     ("pad", "MOVES 9 - sprung pad (Revolute at its hinge, swings out for a NECTAR)"),
+    ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
 ]
 TURRET_TURNS = re.compile(r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176")
+TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the ring that drives it
+TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)
+FASTENER = re.compile(r"[Ss]crew|Nut|2800-|2802-|2812-|2829-")
 FLYWHEELS = {"Launcher subassembly <2>": ("fly_L", 3.6427), "Launcher subassembly <1>": ("fly_R", -3.3276)}
 ROLLER_SPINS = re.compile(r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley")
 
@@ -167,6 +166,12 @@ def mentor_motion(path, shp, loc):
     p = " / ".join(path)
     if not p.startswith("Launcher Concept"): return None
     if TURRET_TURNS.search(p): return "turret"
+    if TURRET_GEAR.search(p): return "turret_gear"
+    if FASTENER.search(p):                             # the screws that hold the ring gear to the inner race turn with them
+        b = Bnd_Box(); BRepBndLib.Add_s(shp.wrapped.Moved(loc), b); x0, y0, z0, x1, y1, z1 = b.Get()
+        X, Y, Z = ((z0 + z1) / 2 - (FACE - 7.56 * IN)) / IN, ((x0 + x1) / 2 - C) / IN, ((y0 + y1) / 2 - F) / IN
+        if math.hypot(X - TURRET_AXIS[0], Y - TURRET_AXIS[1]) < 2.5 and 8.6 < Z < 10.3: return "turret"
+        return None
     sub = next((k for k in FLYWHEELS if k in p), None)
     if sub and not re.search(r"Bearing|belt|Channel|Block|Motor|motor|Spacer", p):
         b = Bnd_Box(); BRepBndLib.Add_s(shp.wrapped.Moved(loc), b); x0, y0, z0, x1, y1, z1 = b.Get()
@@ -174,15 +179,33 @@ def mentor_motion(path, shp, loc):
         if abs(yc - FLYWHEELS[sub][1]) < 0.35 and abs(zc - 6.646) < 0.35: return FLYWHEELS[sub][0]
     return None
 
+JUNK = re.compile(r"^(NAUO\d*|=>\[[\d:]+\]|PATCH(:\d+)?|SOLID|Body\d*|Part\d*|\d+|COMPOUND|Open CASCADE STEP translator.*|)$", re.I)
+def part_name(raw, owner=None):
+    """A readable instance name: the mentor's part names without CAD suffixes (":1__Body1", "rev1"), and for a vendor
+    model's pieces with meaningless names (NAUO1, =>[0:1:1:4]), the part they belong to."""
+    n = re.sub(r"(:\d+)?(__Body\d+)?$", "", re.sub(r"^\d+ ", "", str(raw))).strip()
+    n = re.sub(r"\s+(rev\d+)$", "", n)
+    if JUNK.match(n) or JUNK.match(n.split(".")[0]): n = (owner.split(" (")[0] if owner else "part") + " piece"
+    return n[:110]
+def unique(assy, name):
+    """cadquery needs unique names within an assembly: the second "x" becomes "x (2)"."""
+    taken = {c.name for c in assy.children}
+    if name not in taken: return name
+    k = 2
+    while f"{name} ({k})" in taken: k += 1
+    return f"{name} ({k})"
+
 def main(robot_step, out, additions=False, only=None):
     """The whole robot in the model frame, as FRAME and the moving groups; or, with additions, only our parts, in the
     frame of the mentor's Robot.step, so they drop into his Onshape assembly at its origin. only="mentor" or "ours"
     writes half of the whole robot (same frame, same groups), for two files that each stay a manageable size."""
     if additions:
         dx, dz = (placed_team(robot_step), placed_team.align)[1]; t = gp_Trsf(); t.SetTranslation(gp_Vec(-dx, 0, -dz))
-        top = cq.Assembly(name="BIOBUZZ additions (the frame of the mentor's Robot.step: insert at the origin)", loc=cq.Location(TopLoc_Location(t)))
+        top = cq.Assembly(name="BIOBUZZ additions (the frame of the mentor's Robot.step: insert at the origin)"); where = cq.Location(TopLoc_Location(t))
     else:
-        top = cq.Assembly(name="BIOBUZZ robot (model frame: +X forward, +Y left, +Z up, mm)", loc=cq.Location(RP.to_model(C, F, FACE)))
+        top = cq.Assembly(name={"mentor": "BIOBUZZ 1 - the mentor's robot", "ours": "BIOBUZZ 2 - our parts"}.get(only, "BIOBUZZ robot")
+                          + " (model frame: +X forward, +Y left, +Z up, mm)")
+        where = cq.Location(RP.to_model(C, F, FACE))     # on each group, so the file has no wrapper layer
     frame = cq.Assembly(name={"mentor": "FRAME - the mentor's robot (right-click, Fix)", "ours": "FRAME - our parts (right-click, Fix)"}.get(only, "FRAME - everything that doesn't move (right-click, Fix)"))
     moving = {k: cq.Assembly(name=t) for k, t in MOVING}
     pods = RP.pods_inst(os.environ["EXAMPLE_STEP"], A.POD_MOVE) if os.environ.get("EXAMPLE_STEP") else {}
@@ -191,7 +214,8 @@ def main(robot_step, out, additions=False, only=None):
         kept = 0
         for i, (path, shp, loc, col, key) in enumerate(placed_team(robot_step)):
             g = mentor_motion(path, shp, loc)
-            (moving[g] if g else team).add(shp, name=f"{i:04d} {path[-1] if path else '?'}"[:120], loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
+            dest = moving[g] if g else team
+            dest.add(shp, name=unique(dest, part_name(path[-1] if path else "part")), loc=cq.Location(loc), color=cq.Color(*col)); kept += 1
         print("kept", kept)
         frame.add(team)
     vdir = os.environ.get("VENDOR_DIR")                  # goBILDA's and WCP's STEPs: the real parts in place of drawn envelopes
@@ -202,7 +226,7 @@ def main(robot_step, out, additions=False, only=None):
         if real is None: real = RP.servo_parts(n, shp, IB, vdir) if vdir else None
         if real is None: sub.add(shp, name=n, color=cq.Color(*col)); return
         va = cq.Assembly(name=n)
-        for k, (pn, vs, loc, vc) in enumerate(real): va.add(vs, name=f"{k:03d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*vc))
+        for k, (pn, vs, loc, vc) in enumerate(real): va.add(vs, name=unique(va, part_name(pn, n)), loc=cq.Location(loc), color=cq.Color(*vc))
         sub.add(va)
     for title, g, d in IB.GROUPS if ours else ():
         sub = cq.Assembly(name=f"front: {title}")
@@ -215,20 +239,19 @@ def main(robot_step, out, additions=False, only=None):
         if title.startswith("chassis"):
             for n, parts in pods.items():
                 pod = cq.Assembly(name=n)
-                for k, (pn, shp, loc, col) in enumerate(parts): pod.add(shp, name=f"{k:02d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*col))
+                for k, (pn, shp, loc, col) in enumerate(parts): pod.add(shp, name=unique(pod, part_name(pn, n)), loc=cq.Location(loc), color=cq.Color(*col))
                 sub.add(pod)
         frame.add(sub)
     for title, g, d in TR.GROUPS if ours else ():
         sub = cq.Assembly(name=f"transfer: {title}")
         shapes = {n: TR.to_cad(wp) for n, (wp, col, kind) in d.items()}
         for n, (wp, col, kind) in d.items():
-            if n.startswith("turret_"): continue           # the transfer's turret references; the real turret is in the Launcher Concept
             dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else sub
             add_part(dest, n, shapes[n], col, shapes)
         frame.add(sub)
     ll = cq.Assembly(name="Limelight 3A on its goBILDA mount")
     mount = RP.limelight_mount_in_cad(vdir, C, F, FACE) if vdir else []
-    for k, (pn, shp, loc, col) in enumerate(mount): ll.add(shp, name=f"{k:02d} {pn}"[:120], loc=cq.Location(loc), color=cq.Color(*col))
+    for k, (pn, shp, loc, col) in enumerate(mount): ll.add(shp, name=unique(ll, part_name(pn, "Limelight mount")), loc=cq.Location(loc), color=cq.Color(*col))
     if not mount:
         for n, wp, col in limelight_mount(): ll.add(TR.to_cad(wp), name=n, color=cq.Color(*col))
     else:
@@ -237,12 +260,12 @@ def main(robot_step, out, additions=False, only=None):
     if os.environ.get("LL_STEP"):
         cam = cq.Assembly(name="Limelight 3A (LIMELIGHT3ACAD_STEP.stp)")
         for k, (pn, shp, col) in enumerate(RP.limelight_in_cad(os.environ["LL_STEP"], C, F, FACE)):
-            cam.add(shp, name=f"{k:02d} {pn}"[:120], color=cq.Color(*col))
+            cam.add(shp, name=unique(cam, part_name(pn, "Limelight 3A")), color=cq.Color(*col))
         ll.add(cam)
     if ours: frame.add(ll)
-    top.add(frame)
+    top.add(frame, loc=where)
     for k, t in MOVING:
-        if moving[k].children or moving[k].shapes: top.add(moving[k])
+        if moving[k].children or moving[k].shapes: top.add(moving[k], loc=where)
         elif not only: print("empty:", t)
     t0 = time.time(); top.save(out); print("wrote", out, os.path.getsize(out) // 1_000_000, "MB in", round(time.time() - t0), "s")
 
