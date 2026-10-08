@@ -179,17 +179,19 @@ battery 12.4 V: swap it
 ```
 
 **Every button sits next to what it changes**, in its gamepad colour, so there is no button list to read (the mentor
-called the old list "definitely the weakest spot"): X and B beside the alliance, A beside Partner, Y beside Plan.
+called the old list "definitely the weakest spot"): "(X/B)" after the alliance, "(A)" after Partner, "(Y)" after Plan.
+The alliance keeps two buttons, not one toggle: a press always means the same colour, so nobody needs to know the
+current state, and a double-tap can't land on the wrong one (X is blue and B is red on our gamepads, as in TeleOp).
 The rarer ones appear only when they apply: ◀ ▶ in the line under the grid when there is no camera to see the
 start, "hold ▲" when the camera is suspect. When locked the buttons do nothing, so none are shown. One hint line
 holds the rest: "▼ clears your changes" once someone has changed something, "Hold LB + RB 2 s to lock now" when ready,
 how to unlock when locked.
 
 ```
-RED ALLIANCE  X B · READY · locks in 24 s
+RED ALLIANCE (X/B) · READY · locks in 24 s
 ─────────────────────────────────────────────
-Partner A  Launch & Park · from the left start: launches its preloads, then parks
-Plan Y     SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
+Partner (A)  Launch & Park · from the left start: launches its preloads, then parks
+Plan (Y)     SMART · R-Quals: reacts to the HIVE · 3 TIPs + PARK
 ...
 Hold LB + RB 2 s to lock now
 ```
