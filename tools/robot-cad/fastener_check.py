@@ -91,6 +91,7 @@ for sn, I in FA.INFO.items():
     for stow in ((False, True) if g == 'hook' else (False,)):
         tag = ' (stowed)' if stow else ''
         shank = posed(cyl_mesh(I['head'], I['axis'], d - 0.6, L), g, stow)
+        cyl_axis = (to_model([I['head']])[0], to_model([tuple(I['head'][k] + I['axis'][k] * L for k in range(3))])[0])
         hd, hh = FA.HEAD[d]
         top = I['head'] if I.get('flat') else tuple(I['head'][k] - I['axis'][k] * hh for k in range(3))
         head = posed(cyl_mesh(top, I['axis'], hd - 0.4, hh - 0.2), g, stow)
@@ -102,6 +103,10 @@ for sn, I in FA.INFO.items():
             if own(n, j): continue
             mm = posed(m, grp.get(n, 'fixed'), stow)
             v = vol(shank, mm, None if stow else n)
+            if into and into.search(n) and re.search(r"\(print|\(1/4 in aluminium", n):   # a heat-set insert's or a tap's drawn hole:
+                lo_, hi_ = m.bounds                                                  # the thread is the shank's length inside the part
+                pts_ = np.linspace(cyl_axis[0], cyl_axis[1], 41)
+                engaged = max(engaged, ((pts_ >= lo_) & (pts_ <= hi_)).all(1).mean() * L)
             if v > TOL:
                 if into and into.search(n): engaged += v / (math.pi * ((d - 0.6) / 2 / IN) ** 2) * IN
                 elif any(n.startswith(t) for t in I['through']): notes.append(f'no hole in {n.split(" ")[0]}')

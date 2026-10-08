@@ -58,14 +58,17 @@ def axle(n):
     """Which shaft a part rides on: ('lane', i), ('feeder',), ('servo',) or None."""
     m = re.match(r'lane_(roller|spacer|shaft|bearing|pulley|shaft_spacer)_(\d)', n)
     if m: return ('lane', m.group(2))
-    if re.match(r'feeder( \(|_shaft|_spacers|_bearing_(rear|front) |_pulley \(|_shaft_spacer)', n): return ('feeder',)
+    if re.match(r'feeder( \(|_shaft|_spacers|_bearing_(rear|front) |_pulley \(|_shaft_spacer|_shaft_collar|_eclip)', n): return ('feeder',)
+    if re.match(r'pad_(hinge \(|hinge_eclip|knuckle)', n): return ('pad hinge',)
     if re.match(r'(lane_servo|servo_pulley)', n): return ('servo',)
-    if re.match(r'feeder_servo( |_hub|_pulley)', n): return ('feeder servo',)
+    if re.match(r'feeder_motor( \(|_pulley)', n): return ('feeder motor',)
     return None
 TOUCH = [(r'^lane_wall_', r'^lane_bearing_|^wall_standoff_|^ceiling_post_'),
          (r'^lane_cord_(\d)', r'^lane_pulley_'), (r'^servo_cord', r'^servo_pulley|^lane_pulley_2'),
          (r'^servo_standoff_', r'^lane_servo'), (r'^feeder_bearing_plate_', r'^feeder_bearing_'),
-         (r'^feeder_belt', r'^feeder_(servo_)?pulley'), (r'^feeder_servo_standoff', r'^feeder_servo |^feeder_bearing_plate_front'),
+         (r'^feeder_belt', r'^feeder_(motor_|servo_)?pulley'), (r'^feeder_servo \(', r'^feeder_servo_(hub|standoff)'), (r'^feeder_servo_hub', r'^feeder_servo_pulley'), (r'^feeder_servo_standoff', r'^feeder_bearing_plate_front'), (r'^feeder_motor_standoff', r'^feeder_motor_block|^feeder_bearing_plate_front'), (r'^feeder_motor_block', r'^feeder_motor[ _]'),
+         (r'^ceiling_pin_block', r'^ceiling \(|^ceiling_pin_|^ceiling_post'), (r'^ceiling_pin_(front|rear)', r'^ceiling_post'), (r'_glue \(', r'_foam \(|^ceiling \(|^pad_plate'),
+         (r'^pad_knuckle', r'^pad_plate|^pad_hinge_block'), (r'^pad_stop', r'^pad_plate|^pad_knuckle_front|^feeder_floor'), (r'^pad_hinge_eclip', r'^pad_hinge_block'),
          (r'^flywheel_motor_bracket_(.)', r'^flywheel_motor_'), (r'^flywheel_motor_pulley', r'^flywheel_(motor|belt)'),
          (r'^ceiling \(', r'^ceiling_(pin|post)'), (r'^ceiling_pin', r'^ceiling_post'), (r'^ceiling_foam', r'^ceiling \('),
          (r'^pad_(plate|foam)', r'^pad_(plate|foam|hinge)'), (r'^pad_hinge', r'^pad_hinge_block'), (r'^pad_stop', r'^pad_hinge_block'),
@@ -119,7 +122,7 @@ print('--- pad swung back (NECTAR) vs the robot, our front and the rest of the t
 import trimesh.transformations as tt
 hy, hz = TR.PAD_HINGE
 ang = math.atan2(0.77, 3.0 - hz)                       # 0.77 at the ball's contact height (about z 3.0)
-R_ = tt.rotation_matrix(-ang, [1, 0, 0], [0, hy, hz])   # -angle about +X moves the pad's top toward -Y
+R_ = tt.rotation_matrix(ang, [1, 0, 0], [0, hy, hz])    # +angle about +X moves the pad's top toward -Y (out)
 rest = [(n, m) for n, m in tr.items() if not n.startswith('pad_')]
 for n in [k for k in tr if k.startswith('pad_plate') or k.startswith('pad_foam')]:
     m = tr[n].copy(); m.apply_transform(R_)
