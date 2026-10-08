@@ -1,5 +1,5 @@
 """The unified front, in the robot CAD's frame (mm): x across (right is -x), y up, z forward.
-A 13.8 in roller 1.0 in in front of the face that floats straight up 1.3 in so a NECTAR passes under it; the FLOWER
+A 13.8 in roller, its axle 1.06 in in front of the face, that floats straight up 1.3 in so a NECTAR passes under it; the FLOWER
 extractor on its own fixed shaft ahead of the roller; and the Rigid V's two corner plates as an optional group.
 The wheel-plate standoffs, 80 mm wheel shafts, bearings and odometry pods are cad/robot-addons'.
 
@@ -95,7 +95,7 @@ for s, f in (("R", xr), ("L", xl)):
 part(flt, "roller_shaft (8mm REX, 400 mm)", cyl("x", (0, ROLL_Y, ROLL_Z), 8.0, xr(OUT1 + 3), xl(OUT1 + 3)), STEEL, "buy")
 # The roller centres what it picks up: everything behind it except the lane's 3.7 in is the robot's face, so a piece
 # taken in off-centre has to be moved sideways by the roller itself. Each half is vector wheels whose rollers push it
-# back and toward the middle; the face (and the ramp brackets in front of it) is the fence it slides along. Pulling in
+# back and toward the middle; the face is the fence it slides along. Pulling in
 # (bottom moving back), a WCP-0353 pushes to the robot's left, so it goes on the right half and the WCP-0354 on the left.
 # Their 1/2 in hex bores take a printed insert on the 8mm REX shaft. A ball's centre can't pass 6.16 in (the side
 # plates), so the 0.4-6.4 in each side covers every one, and inside 0.4 in it already clears the lane's walls.
@@ -147,7 +147,7 @@ fl = fl.cut(cyl("x", (0, ROLL_Y, ROLL_Z), 14.0, xl(OUT0) - 1, xl(OUT1) + 1))
 part(flt, "float_link_L (1/8 in aluminium, bolts to the carriage's bridge)", fl, ALU, "cut")
 
 # ---- the FLOWER extractor: its own fixed shaft at X 9.9, Z 4.5 in ----
-# Two 1/8 in aluminium arms, 1.8 in each side of centre, clamped to an 8 mm REX shaft that turns in bearings in the side
+# Two 1/8 in aluminium arms, 4.2 in each side of centre, clamped to an 8 mm REX shaft that turns in bearings in the side
 # plates. A short cross shaft carries the FLOWER block, its back edge 2.5 in ahead of the roller's front. It turns 0 (down)
 # to STOW (folded up in front of the robot). A servo over the roller on the right drives the shaft through a 1:1 printed
 # gear pair (module 1.5, 34 teeth, 51 mm centres) in the gap between the roller's right end and the side plate; the hard

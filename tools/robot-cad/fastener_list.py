@@ -2,7 +2,7 @@
 
     python3 tools/robot-cad/fastener_list.py      # the front (cad/intake-b), the transfer (cad/transfer) and the Limelight's mount
 
-It reads cad/fasteners.py's records after building the front and the mount, so the list is always the drawing's."""
+It reads cad/fasteners.py's records after building the front, the transfer and the mount, so the list is always the drawing's."""
 import os, sys, re, collections, importlib.util
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..', 'cad', 'full-robot'))

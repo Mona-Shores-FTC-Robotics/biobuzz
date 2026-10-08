@@ -1,4 +1,5 @@
-"""Screws and nuts for the drawn assemblies: goBILDA's M4 and M3 socket head screws and M4 nylon-insert lock nuts.
+"""Screws and nuts for the drawn assemblies: goBILDA's M4 and M3 socket head screws, M4 flat (countersunk) head
+screws and M4 nylon-insert lock nuts.
 
 A joint names its screw by where the head sits and which way the shank points. bolt() picks the shortest goBILDA
 length that fits, drills the clearance holes, and adds the screw (and the nut, if there is one) as parts. The
@@ -22,7 +23,7 @@ SCREWS, NUTS = {}, {}                            # part name -> (goBILDA part, t
 PLACED = {}                                      # part name -> (vendor file, src origin, src axis, src ref, dst origin, dst axis, dst ref):
                                                  # a directional vendor part a build places itself (team CAD mm)
 INFO = {}                                        # screw part name -> what the fastener check needs (below)
-JOINTS = []                                      # (joint, what it holds, screw size and length, count)
+JOINTS = []                                      # (joint, what it holds, fastener, count, service note)
 
 def _unit(v):
     n = math.sqrt(sum(c * c for c in v)); return tuple(c / n for c in v)

@@ -17,8 +17,8 @@ feeder: it drives the ball, pinched against the pad, straight up into the flywhe
 What v4 changed from v3, and why (README "What changed in v4"): the lane runs on a continuous-rotation servo instead of a
 motor (v3 made nine DC motors; FTC allows eight), on five shafts instead of eight; the walls hang from the drive rails on
 goBILDA REX standoffs; the feeder's bearings sit in two small plates on the mentor's launcher channels instead of holes
-drilled in them; the feeder motor sits in a goBILDA quad block in the launcher's side channel; every belt is a goBILDA
-length on fixed centres; every screw is drawn and checked.
+drilled in them; the feeder runs on a second continuous-rotation servo, belted (215 mm) to its shaft; every belt is a
+goBILDA length on fixed centres; every screw is drawn and checked.
 """
 import math, os, sys
 import cadquery as cq
@@ -78,7 +78,7 @@ ROLL_W = 1.0                            # lane, each shaft's roller sits to one 
 ROLL_Z = FLOOR_Z - R_R
 CEIL_GAP, FOAM = 2.6, 0.5               # the ceiling's foam face 2.6 over the lane: a POLLEN presses the foam 0.2; a NECTAR lifts it 0.82
 CEIL_X = (5.3, -0.95 + SH)              # ends clear of a ball going up the column
-CEIL_PINS = (5.35, 2.5)                # the ceiling rides on two pins a side in vertical slots in posts on the walls' top edges
+CEIL_PINS = (5.35, 2.5)                # the ceiling rides on two pins a side in vertical slots in posts on the walls' outer faces
 CEIL_TRAVEL = 0.85                      # slot length: a NECTAR lifts it 0.82
 CHAN_RAISE = 30 / 25.4                  # the old intake's 11-hole channel goes up 30 mm: a lane NECTAR (top 4.92) and the lifted ceiling pass under it
 WALL_X = (FEED_X[1] + 0.3, 7.4)         # the walls end just ahead of the feeder and the pad's hinge block, and carry the ramp in slots
@@ -102,7 +102,7 @@ PUL_PD = 16 * MM                                   # the grooves' pitch diameter
 # (A motor here made nine DC motors with the flywheels and the drive, and wouldn't fit beside the feeder.)
 P24 = 24 * 5 / math.pi / 25.4
 MOTOR_D = 37 * MM
-QB = 43 * MM                                       # a goBILDA quad block (the motor bracket's upright clears its size)
+QB = 43 * MM                                       # a goBILDA quad block: sizes the flywheel motor bracket's upright
 FEED_BELT = (215, "3412-0009-0215")
 FEED_C = (FEED_BELT[0] * MM - math.pi * P24) / 2   # 47.5 mm: the belt's exact centres
 FD_PUL_X = (-0.06 + 5.5 * MM, -0.06 + 17.5 * MM)  # the 24Ts' plane: ahead of the front bearing plate by the hub-pulley screws' heads
@@ -111,9 +111,6 @@ P16, P41 = 16 * 5 / math.pi / 25.4, 41 * 5 / math.pi / 25.4
 def belt_len(c, d0, d1):
     """An open belt's pitch length (inches) for centres c and pitch diameters d0, d1."""
     return 2 * c + math.pi * (d0 + d1) / 2 + (d1 - d0) ** 2 / (4 * c)
-P24 = 24 * 5 / math.pi / 25.4
-MOTOR_D = 37 * MM
-QB = 43 * MM                                       # a goBILDA quad block (the motor bracket's upright clears its size)
 
 FEED_Z = 3.25
 FS_TILT = math.radians(3)                          # the feeder servo sits on the belt's centres, 3 deg inboard of straight up:
@@ -306,7 +303,7 @@ for s in (-1, 1):
     drill(fixed, [f"lane_wall_{nm}"], c)
 
 # ---- the feeder: one driven, fixed, on the left; a sprung foam pad on the right ----
-# The feeder's shaft runs in two flanged bearings in small 1/4 in polycarbonate plates bolted to the mentor's launcher
+# The feeder's shaft runs in two flanged bearings in small 1/4 in aluminium plates bolted to the mentor's launcher
 # channels' existing holes (their own bearing holes miss its axis: his channels lean 5.4 deg): the rear plate inside the
 # rear channel, on its web; the front one on the front of the front 3-hole channel's web, hanging below it. A bolt-on
 # module: belt off, four plate screws, and it drops out.

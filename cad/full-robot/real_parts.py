@@ -1,5 +1,7 @@
 """Vendor CAD for the whole-robot builds: the goBILDA odometry pods (cut from the example chassis STEP, with their
-parts and colours) and the Limelight 3A (Limelight's own STEP, downloads.limelightvision.io/cad/LIMELIGHT3ACAD_STEP.stp).
+parts and colours), the Limelight 3A (Limelight's own STEP, downloads.limelightvision.io/cad/LIMELIGHT3ACAD_STEP.stp)
+and its goBILDA mount, and the vendor parts that replace our drawn envelopes: goBILDA's and WCP's models of the motors,
+pulleys, bearings, wheels and collars, goBILDA's fastener models and the servos.
 Shapes come back in the team CAD's frame (mm: x across, y up, z forward)."""
 import math, re
 import cadquery as cq
@@ -111,7 +113,7 @@ def _trsf(cols, origin):
 def _mv(t, p):
     q = gp_Pnt(*p).Transformed(t); return (q.X(), q.Y(), q.Z())
 
-# The Limelight's goBILDA mount, model frame (mm): a 1121 low-side U-channel mast (8 hole, 216 mm) standing on the
+# The Limelight's goBILDA mount, model frame (mm): a 1121 low-side U-channel mast (6 hole, 168 mm) standing on the
 # mentor's 9-hole front channel, its web bolted to the front face of his 35-hole L-beam; a 1111 angle pattern bracket
 # (one leg bent 45 deg) on the back of the mast's top, its bent leg rising backward; a 1102 flat beam (9 hole, 72 mm)
 # across that leg; the camera bolted through its back's M4 holes (64 mm apart, goBILDA's 8 mm grid) to the beam's end

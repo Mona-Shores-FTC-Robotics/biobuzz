@@ -112,7 +112,7 @@ balls. No sensor, no software count.
 | Pad | Two hinge-block screws from under the floor | plate, foam, hinge rod, blocks, band |
 
 The standoffs stay on the rails. They go on during the chassis build, before the outer wheel plates and the pods,
-because their screws go in from outside the rails. The fastener check's 24 "service order" notes are these orders,
+because their screws go in from outside the rails. The fastener check's 26 "service order" notes are these orders,
 and every other screw has a key path.
 
 ## Changes it needs in the mentor's CAD
@@ -150,9 +150,10 @@ edits above) and our front, by exact mesh intersection:
 `tools/robot-cad/front2_check.py` sweeps the front's roller (rising) and extractor (every 10°) against all of it:
 clear.
 
-`tools/robot-cad/fastener_check.py` covers every screw, here and in the front, 107 in all. For each it checks that
-the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a tapped hole gives
-enough thread. Result: 0 problems; 24 screws need another part off first, as listed above.
+`tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount, 117 in
+all. For each it checks that the shank passes only through holes, the head and nut clear everything, a key reaches the
+head, and a tapped hole gives enough thread. Result: 0 problems; 26 screws need another part off first, as listed
+above.
 
 ## Open
 

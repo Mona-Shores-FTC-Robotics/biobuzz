@@ -16,11 +16,10 @@ importing). Four sub-assemblies:
      of the face, its back 0.06 in clear of the uprights.
    - **It centres what it picks up.** Behind the roller everything but the lane's middle 3.7 in is the robot's face, so
      a piece taken in off-centre has to be moved sideways by the roller itself. Each half is six vector wheels whose
-     rollers push a piece back and toward the middle; the face (and the ramp brackets in front of it) is the fence it
-     slides along. Pulling in, a WCP-0353 pushes to the robot's left, so the 0353s go on the right half and the 0354s
-     on the left. A ball's centre can't pass 6.16 in (the side plates), so the wheels from 0.4 to 6.4 in each side
-     cover every one; inside 0.4 in a 0.8 in 48 mm gecko pulls straight in, where a piece already clears the lane's
-     walls. Their 1/2 in hex bores take a printed insert on the 8mm REX shaft.
+     rollers push a piece back and toward the middle; the face is the fence it slides along. Pulling in, a WCP-0353
+     pushes to the robot's left, so the 0353s go on the right half and the 0354s on the left. A ball's centre can't
+     pass 6.16 in (the side plates), so the wheels from 0.4 to 6.4 in each side cover every one; inside 0.4 in a 0.8 in
+     48 mm gecko pulls straight in, where a piece already clears the lane's walls. Their 1/2 in hex bores take a printed insert on the 8mm REX shaft.
    - **Slots, not arms.** The roller can't move back: its rear is 0.06 in from the front uprights. So its shaft rises in
      vertical slots in the side plates, and its bearings sit in two outboard float plates that slide on the plates'
      outer faces.
@@ -112,18 +111,19 @@ Every joint is drawn with its screws, nuts, washers and inserts, as goBILDA's ow
 mentor's robot needs drilling: what bolts to his parts uses holes and slots they already have.
 `tools/robot-cad/fastener_check.py Robot.step` checks each screw against the parts it holds and the whole robot: its
 shank only through holes, its head and nut clear, a hex key able to reach it, at least 1.5 diameters of thread in a
-tapped hole. All pass. `tools/robot-cad/fastener_list.py` writes this list from the drawing.
+tapped hole. All pass. `tools/robot-cad/fastener_list.py` writes this list from the drawing. It covers the front, the
+transfer (`cad/transfer/`) and the Limelight mount.
 
 | Joint | Holds | Fastener | Count | Service |
 |---|---|---|---|---|
 | `plate_standoff_R` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
-| `rail_standoff_R` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `rail_standoff_R` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail: the transfer's lane servo (right) or feeder (left) comes out first |
 | `float_stop_R` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
 | `arm_stub_R` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
 | `cross_end_R` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
 | `v_tab_R` | Rigid V plate's tab to the side plate | M4 x 14 + lock nut | 2 |  |
 | `plate_standoff_L` | side plate to its standoffs | M4 x 10 into a tapped hole | 4 |  |
-| `rail_standoff_L` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 |  |
+| `rail_standoff_L` | chassis rail to the standoffs | M4 x 10 into a tapped hole | 4 | from inside the rail: the transfer's lane servo (right) or feeder (left) comes out first |
 | `float_stop_L` | float stop to the side plate | M4 x 14 + lock nut | 1 |  |
 | `arm_stub_L` | extractor arm on its stub's end | M4 x 8 into a tapped hole | 1 |  |
 | `cross_end_L` | cross shaft's end against the extractor arm | M4 x 8 into a tapped hole | 1 |  |
@@ -138,6 +138,26 @@ tapped hole. All pass. `tools/robot-cad/fastener_list.py` writes this list from 
 | `carriage_guides` | roller carriage's slide, on the left upright's web | M4 shoulder screw, 5 mm x 4 mm shoulder, low head + lock nut | 2 |  |
 | `servo_tabs` | servo to its bracket | M4 x 10 into a tapped hole | 4 | the servo gear covers the upper two: take it off first (its screw through the side plate's service hole) |
 | `servo_gear` | servo gear on the spline | M3 x 8 into a tapped hole | 1 |  |
+| `wall_rail_L` | the L wall's standoffs to the rail (from outside the rail) | M4 x 10 into a tapped hole | 4 |  |
+| `wall_standoff_L` | the L wall to its standoffs (flat heads, flush inside the lane) | M4 x 14 flat head into a tapped hole | 4 |  |
+| `wall_rail_R` | the R wall's standoffs to the rail (from outside the rail) | M4 x 10 into a tapped hole | 4 |  |
+| `wall_standoff_R` | the R wall to its standoffs (flat heads, flush inside the lane) | M4 x 14 flat head into a tapped hole | 4 |  |
+| `servo_rail` | the servo's standoffs to the right rail (from outside the rail) | M4 x 10 into a tapped hole | 2 |  |
+| `servo_tabs` | the servo's tabs to its standoffs | M4 x 10 into a tapped hole | 2 | the right wall off first (its four flat heads), or a short key |
+| `ceiling_post_R` | the ceiling's posts to the R wall (flat heads, flush inside the lane, into heat-set inserts) | M4 x 14 flat head into a tapped hole | 2 |  |
+| `ceiling_post_L` | the ceiling's posts to the L wall (flat heads, flush inside the lane, into heat-set inserts) | M4 x 14 flat head into a tapped hole | 2 |  |
+| `feeder_plate_rear` | the feeder's rear bearing plate, from behind the rear channel's web into its tapped holes | M4 x 8 into a tapped hole | 2 |  |
+| `feeder_plate_front` | the feeder's front bearing plate to the front channel's web (nuts behind it) | M4 x 16 + lock nut | 2 |  |
+| `feeder_servo_standoffs` | the feeder servo's standoffs to the front bearing plate (flat heads from behind, before the plate goes on) | M4 x 14 flat head into a tapped hole | 2 | before the plate goes on |
+| `feeder_hub_pulley` | the 24T hub-mount pulley to the servo hub (4 mm of the hub's 7 mm thread) | M4 x 16 into a tapped hole | 4 | before the servo goes on |
+| `feeder_servo_tabs` | the feeder servo's tabs to its standoffs | M4 x 10 into a tapped hole | 2 |  |
+| `feeder_bridge` | the feeder bridge to the rear channels' webs (from inside the channels) | M4 x 10 into a tapped hole | 4 | with the feeder out (its two bearing plates) |
+| `backstop` | the backstop's foot through the floor into the bridge's shelf (slotted) | M4 x 14 into a tapped hole | 2 |  |
+| `pad_blocks` | the pad's hinge blocks and stop to the floor (from below, into heat-set inserts) | M4 x 10 into a tapped hole | 3 |  |
+| `fly_face_L` | the L flywheel motor to its bracket | M4 x 10 into a tapped hole | 4 | before the pulley |
+| `fly_bracket_L` | the L flywheel motor bracket to the side channel's top flange | M4 x 12 + lock nut | 2 |  |
+| `fly_face_R` | the R flywheel motor to its bracket | M4 x 10 into a tapped hole | 4 | before the pulley |
+| `fly_bracket_R` | the R flywheel motor bracket to the side channel's top flange | M4 x 12 + lock nut | 2 |  |
 | `ll_mast_R` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
 | `ll_bracket_R` | Limelight bracket to the mast | M4 x 12 + lock nut | 2 |  |
 | `ll_mast_L` | Limelight mast to the L-beam | M4 x 12 + lock nut | 1 |  |
@@ -147,18 +167,19 @@ tapped hole. All pass. `tools/robot-cad/fastener_list.py` writes this list from 
 
 | To buy | Count |
 |---|---|
-| M4 heat-set insert, 8 mm (printed parts) | 6 |
+| M4 heat-set insert (printed parts) | 17 |
 | M4 large washer, 12 mm OD | 4 |
 | M4 shoulder screw, 5 mm x 4 mm shoulder, low head | 2 |
 | M4 shoulder screw, 5 mm x 6.5 mm shoulder | 1 |
 | M4 spacer, 6 mm long, 7 mm OD (under the Limelight) | 2 |
 | goBILDA 2800-0003-0008, M3 x 8 socket head screw | 1 |
-| goBILDA 2800-0004-0008, M4 x 8 socket head screw | 8 |
-| goBILDA 2800-0004-0010, M4 x 10 socket head screw | 26 |
-| goBILDA 2800-0004-0012, M4 x 12 socket head screw | 6 |
-| goBILDA 2800-0004-0014, M4 x 14 socket head screw | 16 |
-| goBILDA 2800-0004-0016, M4 x 16 socket head screw | 2 |
-| goBILDA 2812-0004-0007, M4 nylon-insert lock nut | 21 |
+| goBILDA 2800-0004-0008, M4 x 8 socket head screw | 10 |
+| goBILDA 2800-0004-0010, M4 x 10 socket head screw | 53 |
+| goBILDA 2800-0004-0012, M4 x 12 socket head screw | 10 |
+| goBILDA 2800-0004-0014, M4 x 14 socket head screw | 18 |
+| goBILDA 2800-0004-0016, M4 x 16 socket head screw | 8 |
+| goBILDA 2802-0004-0014, M4 x 14 flat head screw | 14 |
+| goBILDA 2812-0004-0007, M4 nylon-insert lock nut | 27 |
 
 **Service order.** The roller motor's four screws sit under its pulley: take the float link (2 screws) and the pulley
 off, and the key reaches them through the left side plate's service holes. The servo gear covers the servo's upper two
@@ -184,5 +205,6 @@ tab screws: take the gear off first (its M3 through the right side plate's servi
 ## Before anything is cut or printed
 
 - The robot's designer has to agree, because the old roller and motor behind the face go.
-- The heat-set inserts (6) go in the motor carriage's bridge and the servo bracket's frame after printing.
+- The heat-set inserts (17) go in the motor carriage's bridge, the servo bracket's frame, the transfer's ceiling posts,
+  feeder bridge and pad blocks after printing.
 - The STLs are where the parts sit on the robot, so lay each one flat before printing.

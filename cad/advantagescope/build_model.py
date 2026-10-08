@@ -1,16 +1,22 @@
-"""The whole robot as an AdvantageScope model: Robot_BIOBUZZ/{model.glb, model_0.glb, model_1.glb, config.json}.
+"""The whole robot as an AdvantageScope model: Robot_BIOBUZZ/{model.glb, model_0.glb .. model_7.glb, config.json,
+extractor_poses.json}.
 
 AdvantageScope's robot frame (as TeamCode's simulator RobotAssets uses it): +X forward, +Y left, +Z up, metres,
 origin on the floor under the point Pedro tracks (here: the chassis frame's centre, 7.56 in behind the front face).
 
     python3 cad/advantagescope/build_model.py ROBOT_MESH_PKL ADDON_MESH_PKL [POD_MESH_PKL [TRANSFER_MESH_PKL]]
 
-ROBOT_MESH_PKL is tools/robot-cad/slim.py's keep.pkl (the team's robot STEP, 143 MB, in Drive). ADDON_MESH_PKL is
-cad/intake-b/build.py's MESH_OUT; TRANSFER_MESH_PKL (optional, 4th) is cad/transfer/build.py's. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the roller,
-its motor and carriage without the roller, drawn down (it floats straight up to 1.3 in); model_2 is what turns on the turret
-(the goBILDA bearing's inner race and its gear), facing forward; model_3 is the transfer's J-wheel on its arms, at rest;
-model_4 is the intake roller (it floats and spins); model_5 and model_6 are the launcher's two flywheel axles (they spin).
-The rest of the designer's Launcher Concept (flywheel motors, frame, the bearing's outer race) is fixed, in model.glb.
+ROBOT_MESH_PKL is `python3 cad/full-robot/build.py --mesh Robot.step keep.pkl` (the mentor's CAD, lined up and edited
+as the full-robot STEP has it). ADDON_MESH_PKL is cad/intake-b/build.py's MESH_OUT; POD_MESH_PKL is
+cad/robot-addons/build.py's; TRANSFER_MESH_PKL is cad/transfer/build.py's. VENDOR_PKL (environment) is
+cad/full-robot/real_parts.py's vendor meshes.
+
+model.glb is the robot and everything fixed. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the
+roller's motor, carriage and float plates without the roller, drawn down (it floats straight up to 1.3 in); model_2 is
+what turns on the turret (the goBILDA bearing's inner race and its gear), facing forward; model_3 is the transfer's
+feeder (wheels, shaft, pulley; it spins); model_4 is the intake roller (it floats and spins); model_5 and model_6 are
+the launcher's two flywheel axles (they spin); model_7 is the transfer's sprung pad (it swings).
+The rest of the designer's Launcher Concept (frame, the bearing's outer race) is fixed, in model.glb.
 """
 import json, math, os, pickle, re, sys
 import numpy as np, trimesh, fast_simplification
@@ -71,8 +77,8 @@ def as_in_to_cad(p):
     return np.c_[C + p[:, 1] * IN, F + p[:, 2] * IN, FACE - CENTRE_BACK_IN * IN + p[:, 0] * IN]
 
 def limelight(mount_only=False):
-    """The Limelight 3A where config.json's camera is (lens 4.0 in ahead, 14.0 in up, pitched 45 deg up), on a stand-in
-    mount: a 16 mm beam between the two front towers' tops and a plate with a 45 deg printed wedge under the camera.
+    """The Limelight 3A at the Limelight chat's earlier position (lens 4.0 in ahead, 14.0 in up, pitched 45 deg up; not
+    config.json's camera, which is on the goBILDA mount at real_parts.limelight_lens_in()), on a stand-in mount: a 16 mm beam between the two front towers' tops and a plate with a 45 deg printed wedge under the camera.
     The body is about 3.5 x 2.4 x 0.95 in; the mount is drawn only to show where it goes, below the camera's view."""
     lens, a = np.array([4.0, 0.0, 14.0]), math.radians(45)
     n, u = np.array([math.cos(a), 0, math.sin(a)]), np.array([-math.sin(a), 0, math.cos(a)])   # view direction, camera up
@@ -98,8 +104,8 @@ def limelight(mount_only=False):
     return out
 
 def transfer():
-    """The intake-to-turret transfer (transfer chat, issue #164, doc/transfer.md on spike/164-transfer) as placeholder
-    solids from its envelope boxes, until it has real parts. AdvantageScope inches, drawn fixed."""
+    """The fallback without a transfer mesh: the v1 transfer (issue #164) as placeholder solids from its envelope boxes,
+    drawn fixed, in AdvantageScope inches. cad/transfer/build.py's MESH_OUT replaces it."""
     from shapely.geometry import Polygon, Point
     from shapely.ops import unary_union
     PURPLE, GREEN, DARK, GREY = (0.55, 0.47, 0.75), (0.35, 0.66, 0.31), (0.19, 0.2, 0.23), (0.67, 0.7, 0.74)
@@ -154,7 +160,7 @@ FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
 FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
 PAD = 7
 ROLLER_AXLE = (TRF.ROLLER_AXLE_X, 3.4)                            # X, z at rest
-ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley|^lane_drive_pulley_roller"
+ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_end_spacer|^roller_pulley"
 
 def on_axle(v, y, z, tol=0.12):
     """True when a part (CAD-inch vertices) is centred on the flywheel axle at (y, z) in the robot frame."""
@@ -166,7 +172,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     keep = pickle.load(open(robot_pkl, "rb"))
     add = pickle.load(open(addon_pkl, "rb"))
     base, turret, fly = [], [], {k: [] for k in FLYWHEEL_AXLES}
-    for path, v, f, col in keep:                      # the team's robot, in inches as slim.py keeps it
+    for path, v, f, col in keep:                      # the team's robot, in inches as full-robot --mesh writes it
         if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
         if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
         lift = [0, 0, 0]                              # ROBOT_MESH_PKL comes from cad/full-robot/build.py --mesh, already lined up and edited
@@ -192,7 +198,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
     if not any(m["kind"] == "mount" for m in vendor.values()):      # the goBILDA mount comes with the vendor meshes
         base += limelight(mount_only=any(m["kind"] == "camera" for m in vendor.values()))
     tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
-    if tr is None: base += transfer()                 # placeholder solids until cad/transfer/ exists
+    if tr is None: base += transfer()                 # placeholder solids without TRANSFER_MESH_PKL
     else:
         base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher") and not FEEDER_PART.match(n)]   # the feeders spin: components 3 and 7
     ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
@@ -233,8 +239,8 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
                "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 146 deg stowed",
                "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
                "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (%.6f, %.6f) m (the inner race's centre, X %.4f in, Y %.4f in); positive yaw turns left; 0 = facing forward, as drawn" % (TURRET_AXIS[0] * M, TURRET_AXIS[1] * M, *TURRET_AXIS),
-               "model_4": {"what": "the intake roller: its shaft, two 48 mm gecko wheels, its 24T pulley and the lane's drive pulley", "axis_point_m": [round(ROLLER_AXLE[0] * M, 6), 0.0, round(ROLLER_AXLE[1] * M, 6)], "axis": [0, 1, 0],
-                           "intake_spin": "+angle about +Y (the bottom of the roller moves rearward)", "diameter_m": 0.048,
+               "model_4": {"what": "the intake roller: its shaft, WCP 2 in vector wheels, a 48 mm gecko centre wheel, end spacers and its pulley", "axis_point_m": [round(ROLLER_AXLE[0] * M, 6), 0.0, round(ROLLER_AXLE[1] * M, 6)], "axis": [0, 1, 0],
+                           "intake_spin": "+angle about +Y (the bottom of the roller moves rearward)", "diameter_m": 0.0508,
                            "pose": "spin about the resting axle first, then translation [0, 0, rise] as model_1"},
                **{f"model_{5 + i}": {"what": f"flywheel axle {'left (+Y)' if y > 0 else 'right (-Y)'}: two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley", "axis_point_m": [round(FLYWHEEL_X * M, 6), round(y * M, 6), round(FLYWHEEL_Z * M, 6)],
                                       "axis": [-1, 0, 0] if y > 0 else [1, 0, 0], "throw_spin": "+angle about the axis as given throws the piece up (the rims between the wheels move up)", "diameter_m": 0.096}
@@ -244,7 +250,7 @@ def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
                            "axis": [-1, 0, 0], "feed_spin": "+angle about the axis as given drives the ball up", "diameter_m": 0.072},
                "model_7": {"what": "the sprung pad opposite the feeder: plate and foam, hinged along X at its foot",
                            "axis_point_m": [round(TRF.COL_X * M, 6), round(TRF.PAD_HINGE[0] * M, 6), round(TRF.PAD_HINGE[1] * M, 6)],
-                           "axis": [1, 0, 0], "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 26 deg for a NECTAR"}},
+                           "axis": [1, 0, 0], "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 29 deg for a NECTAR"}},
               open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
     for fn in ["model.glb"] + [f"model_{i}.glb" for i in range(8)]:
         s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())

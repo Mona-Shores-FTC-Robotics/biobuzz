@@ -6,7 +6,7 @@ The robot comes as two STEP files in the same frame, so each stays a manageable 
   forward, the raised channel, the parts our design replaces taken out). Its turret ring and flywheels are their own
   groups.
 - `BIOBUZZ-2-our-parts.step`: the front, the transfer, the launcher's new parts, the pods and the Limelight on its
-  mount, with goBILDA's and WCP's own models of every bought part.
+  mount, with goBILDA's and WCP's own models of most bought parts.
 
 STEP carries shapes and positions but no mates, so both files arrive in Onshape with no joints. To make setting them
 up quick, each file is already split into what moves: a **FRAME** group and one group per moving body, named with the
@@ -62,7 +62,7 @@ face that faces up on each side: the slide is along the face's normal.
 | MOVES 6 flywheel left | Revolute, to FRAME | the Hyper Hub's end circle, then the 8 mm spacer circle touching it (or the 41T pulley's end, then the 12.5 mm spacer) | none |
 | MOVES 7 flywheel right | Revolute, to FRAME | the same, right side | none |
 | MOVES 8 feeder | Revolute, to FRAME | the feeder shaft's end, then the hole it runs in | none |
-| MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod, for both: set the second one's owner to the pad | 0 to about 26° (a NECTAR) |
+| MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod, for both: set the second one's owner to the pad | 0 to about 29° (a NECTAR) |
 
 Then one **mate relation**: **Gear** between the MOVES 3 and MOVES 4 mates, ratio 1, reversed. The servo and the
 extractor then turn together, as their 1:1 gears do.
@@ -79,5 +79,6 @@ Right-click a mate in the Mates list → **Animate**. Set the start, end and num
 - MOVES 2, 6, 7 and 8 spin.
 
 Onshape doesn't simulate contact, so a wheel won't push a ball by itself. To show a ball moving, insert POLLEN or
-NECTAR (FIRST's models from the field CAD), put a **Slider** on it along the lane, and animate that. Add a
-**Rack and pinion** relation to a lane wheel's Revolute if you want them to move together.
+NECTAR (FIRST's models from the field CAD), put a **Slider** on it along the lane, and animate that. To show the
+feeder driving a ball up, give the ball a vertical **Slider** in the column and a **Rack and pinion** relation to the
+MOVES 8 feeder's Revolute.
