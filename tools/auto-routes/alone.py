@@ -26,20 +26,25 @@ S_CATCH, S_FIRE, N_FIRE = (57.5, 28, 90), (55, 24, 270), (57.5, 119, 270)
 PARK = (10.5, 95, 90)
 
 
-def seat(r, name, at, heading):
+def seat(r, name, at, heading, aside=0.0):
+    """aside: an extractor that reaches the FLOWER this far left of the robot's centre line (negative: right), so the
+    robot's centre sits that far the other way (RobotDesign.extractorLateralIn)."""
     import math
     c, s = math.cos(math.radians(heading)), math.sin(math.radians(heading))
     for suffix, d in (("", SEAT_IN), ("_IN", IN_IN), ("_TURN", TURN_IN)):
-        r.pt(name + suffix, round(at[0] - d * c, 2), round(at[1] - d * s, 2), heading)
+        r.pt(name + suffix, round(at[0] - d * c + aside * s, 2), round(at[1] - d * s - aside * c, 2), heading)
 
 
 def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
           after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False, speed=50, garden=False, tip3_ms=2500,
-          skip_nfire=False, lane_fire=None, tip2_until="Tip"):
+          skip_nfire=False, lane_fire=None, tip2_until="Tip", aside=0.0, side_fire_y=None, n_low=None, n_low_turn=None):
     r = Route(name, S_START, speed=speed)
     r.pt("S_CATCH", *S_CATCH).pt("S_FIRE", *S_FIRE).pt("N_FIRE", *N_FIRE).pt("PARK", *PARK)
-    seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
-    seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
+    seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90, aside)
+    seat(r, "WALL_FLOWER", WALL_FLOWER_AT, 180, aside)
+    if side_fire_y is not None:
+        return side_seat(r, aside, side_fire_y, tip1_catch, fire1_ms, tip1_retry, tip2_until, tip2_ms, tip2_settle,
+                         fire3, lane_fire, wall_ms, tip3_ms, park_ctrl, n_low, n_low_turn)
 
     # TIP 1: our preloads at the right CELL from the start, then to S_CATCH before the TIP, facing the HIVE, and
     # catch its spill as it rolls south toward the wall (it rolled past a robot that left after the TIP).
@@ -107,6 +112,83 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
         r.at = "FIRE3"
         more.append(fire(r, "Fire the GARDEN's 4 (TIP 3)", "Tip", ms=2500))
         r.add(r.wait("TIP 3 done?", when=["LeftCellUp"], ms=50, no=more, yes_label="TIP 3", no_label="Not yet: the GARDEN"))
+    r.add(r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
+    return r
+
+
+def side_seat(r, aside, fire_y, tip1_catch, fire1_ms, tip1_retry, tip2_until, tip2_ms, tip2_settle, fire3, lane_fire,
+              wall_ms, tip3_ms, park_ctrl, n_low=None, n_low_turn=None):
+    """R-Quals seated beside the far FLOWER (routes chat, 8 Oct 2026): an extractor at a front corner, `aside` in off
+    the centre line, puts the robot at x about 40 in the far FLOWER's seat instead of 47.36, clear of a left partner
+    still at the standard left start (59, 132.25: x 50-68, y 123.25-141.25). Its V's tips are 8.89 in either side of
+    the centre and 13.65 in from it, so near x 50-68 the robot stays at y <= 112. TIP 1's catch is fired from
+    SIDE_FIRE, straight back from the seat; TIP 2 from there too, or (n_low) from N_LOW on the lane's top, facing
+    south far enough down to clear the partner. Otherwise qual-south-v."""
+    seat_x = r.points["FAR_FLOWER"][0]
+    r.pt("SIDE_FIRE", seat_x, fire_y, 90)
+    r.add(r.action("SpinUp"), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=fire1_ms), r.go("S_CATCH"))
+    r.at = "S_CATCH"
+    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
+             fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)] if tip1_retry else []
+    r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry),
+          r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=tip1_catch))
+    # Up the lane until the back is past the west foot's end (y 90), then west below the partner's start.
+    r.add(r.go("SIDE_FIRE", ctrl=[(57.5, 100), (57.5, fire_y - 2)], turn_by=0.5))
+    r.at = "SIDE_FIRE"
+    r.add(fire(r, "Fire the catch at the left CELL", "Empty", ms=2000), r.go("FAR_FLOWER", heading=90))
+    r.at = "FAR_FLOWER"
+    if n_low is not None:
+        # n_low: TIP 2 fired from the lane's top facing south (the left CELL ahead), as N_FIRE but this far south: the
+        # back at y <= 122.6, clear of a partner still at its start (y >= 123.25), so the robot can wait there for the
+        # TIP and catch its spill down the lane as qual-south-v does. Out of the seat straight back, turned south at
+        # SIDE_TURN (13.65 in from the V's tips to the centre: 16 in from the partner's corner at (50, 123.25)), then
+        # across to the lane square.
+        r.pt("N_LOW", 57.5, n_low, 269)  # 269: the turn goes through west, the V's tips away from the partner
+        r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000))
+        if n_low_turn is None:
+            r.pt("SIDE_TURN", seat_x, fire_y - 2, 269)
+            r.add(r.go("SIDE_TURN", turn_after=0.75, turn_by=1.0))
+            r.at = "SIDE_TURN"
+            r.add(r.go("N_LOW", heading=269))
+        else:  # one path, turning on the way (n_low_turn = (turn_after, turn_by))
+            ctrl = [(seat_x, fire_y)] if len(n_low_turn) < 3 else [(seat_x, fire_y), n_low_turn[2]]
+            r.add(r.go("N_LOW", ctrl=ctrl, turn_after=n_low_turn[0], turn_by=n_low_turn[1]))
+        r.at = "N_LOW"
+        r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", tip2_until, ms=tip2_ms))
+        if tip2_settle:
+            r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=tip2_settle))
+        r.add(r.go("S_FIRE", ctrl=[(57.5, 100)], heading=270))
+        r.at = "S_FIRE"
+        return side_tail(r, fire3, lane_fire, wall_ms, tip3_ms, park_ctrl)
+    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("SIDE_FIRE", heading=90))
+    r.at = "SIDE_FIRE"
+    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", tip2_until, ms=tip2_ms))
+    if tip2_settle:
+        r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=tip2_settle))
+    # Onto the lane's top below the partner's start, turning south there (clear of the HIVE frame's feet, which end at
+    # y 90), then straight down it: one curve from SIDE_FIRE met the west foot.
+    r.pt("LANE_TOP_S", 57.5, fire_y - 4, 270)
+    r.add(r.go("LANE_TOP_S", turn_by=0.8))
+    r.at = "LANE_TOP_S"
+    r.add(r.go("S_FIRE", ctrl=[(57.5, 100)], heading=270))
+    r.at = "S_FIRE"
+    return side_tail(r, fire3, lane_fire, wall_ms, tip3_ms, park_ctrl)
+
+
+def side_tail(r, fire3, lane_fire, wall_ms, tip3_ms, park_ctrl):
+    """qual-south-v's TIP 3 from S_FIRE: TIP 2's catch at the right CELL, the wall FLOWER's 4 (TIP 3), PARK."""
+    r.pt("FIRE3", *fire3)
+    if lane_fire is not None:
+        r.pt("LANE_FIRE", *lane_fire)
+        r.add(r.go("LANE_FIRE", turn_after=0.2, turn_by=0.8))
+        r.at = "LANE_FIRE"
+    r.add(fire(r, "Fire TIP 2's catch at the right CELL", "Empty", ms=2000), r.go("WALL_FLOWER_TURN", turn_after=0.2, turn_by=0.8))
+    r.at = "WALL_FLOWER_TURN"
+    r.add(r.go("WALL_FLOWER", heading=180))
+    r.at = "WALL_FLOWER"
+    r.add(r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=wall_ms), r.go("FIRE3", turn_after=0.3, turn_by=0.9))
+    r.at = "FIRE3"
+    r.add(fire(r, "Fire the wall FLOWER's 4 (TIP 3)", "Tip", ms=tip3_ms))
     r.add(r.go("PARK", ctrl=list(park_ctrl), turn_after=0.2, turn_by=0.8, park=True))
     return r
 
@@ -373,6 +455,27 @@ def partner_left_test(name, kind, delay_ms=0, x=59):
     return r
 
 
+def partner_left_hold(name, delay_ms, leave_ms=18000):
+    """A left partner late at its start that holds there instead of crossing our side (routes chat, 8 Oct 2026): it
+    fires delay_ms after the left CELL rises (never, if None), then waits at its start until about leave_ms into
+    AUTO, when R-Quals with the corner extractor is down the lane, and parks as partner-left-v. The instruction to
+    give a left partner: "if you have not left by 6 s, stay put until 18 s"."""
+    r = Route(name, (59, 132.25, 270), speed=40)
+    r.pt("DOWN", 59, 124, 270).pt("PARK_P", 10.5, 118, 270)
+    if delay_ms is None:
+        r.add(r.action("IntakeOff"), r.wait("Hold at the start", when=["Empty"], ms=leave_ms))
+    else:
+        r.add(r.action("SpinUp"), r.action("IntakeOff"), r.wait("Left CELL up", when=["LeftCellUp"], ms=8000),
+              r.wait("Slow", when=["Empty"], ms=delay_ms),
+              fire(r, "Fire the preloads at the left CELL", "Empty", ms=3000),
+              # the left CELL rises at about 4 s and a volley takes about 0.7 s
+              r.wait("Hold at the start", when=["IntakeFull"], ms=max(0, leave_ms - 4000 - delay_ms - 700)))
+    r.add(r.go("DOWN", heading=270))
+    r.at = "DOWN"
+    r.add(r.go("PARK_P", ctrl=[(30, 124)], heading=270, park=True))
+    return r
+
+
 def left_partner_safe(name, lw=(36, 104, 90), wall_ms=3000):
     # LW: at (36, 100) a fixed launcher's aiming turn swung the back into the HIVE frame (59 of 60); at (36, 104) the
     # V's front is 0.6 in off a late partner's way west along y 124 (a partner 3 s late: collisions in 55 of 60).
@@ -463,6 +566,26 @@ VARIANTS["qual-left-partner-v-fixed"] = {"tip2_settle": 500, "fire3": (45, 26, 9
 # 4 and our catch can have tipped it already), the lane's catch fired from (45, 26) (from S_FIRE a shot hit the HIVE).
 VARIANTS["qual-south-v"] = {"tip2_settle": 500, "fire3": (45, 26, 90), "fire1_ms": 3000, "tip1_retry": True,
                             "tip2_until": "RightCellUp", "tip2_ms": 4000, "lane_fire": (45, 26, 90)}
+# R-Quals seated beside the far FLOWER (routes chat, 8 Oct 2026): an extractor at the V's right front corner, 7.3 in
+# off the centre line (facing north at the far FLOWER, the robot west of it, x 40.06), on "rigid V, fixed turret,
+# corner extractor". side_seat.py runs them; 60 runs, 3 TIPs / robots collide, against partner-left-v, -slow-3000,
+# -dead, -silent, -dead-west (r-quals, qual-south-v: 56/0, 56/56, 37/60, 38/20, 38/0):
+# - qual-south-v-side: both volleys from SIDE_FIRE (40.06, 110): 49/0, 49/56, 1/0, 1/23, 1/0. TIP 2's spill is not
+#   caught from there (one piece), so TIP 3 is short without a partner's 4. Firing and leaving at once with the
+#   GARDEN after (SIDE_FIRE at y 110 or 104): no TIP 3 at all without a partner (the GARDEN comes too late), 47 or 35
+#   with one; at y 104 the bend under the west foot hit the HIVE frame.
+# - TIP 2 from N_LOW, the lane's top facing south at y 115.5 (back 0.2 in clear of a 18 in partner at its start):
+#   turning at SIDE_TURN first, 53/0, 53/56, 1/0, 2/23 (1.4 s slower: TIP 3 too late); turning on the way, 56 with a
+#   good partner but the back corner met a dead partner in all 60 at y 114.4 (turn finished by 0.8-0.9); kept low
+#   through (48, 108) and turned by 0.75 of the path:
+VARIANTS["qual-south-v-side"] = dict(VARIANTS["qual-south-v"], aside=-7.3, side_fire_y=110)
+# N_LOW at y 114.5 since the wide-bar study (8 Oct 2026): at 115.5 the back cleared an 18 in partner at its start by
+# 0.2 in, and one that turned 1 deg to aim met it in 10 of 60 runs (1 at 114.5; 3 TIPs unchanged).
+VARIANTS["qual-south-v-corner"] = dict(VARIANTS["qual-south-v-side"], n_low=114.5, n_low_turn=(0.3, 0.75, (48, 108)))
+# On a wide bar (seat_error.py): the FLOWER aimed 1.5 in inside the bar's -7.3 end, so a seat error has room both ways.
+VARIANTS["qual-south-v-corner-in"] = dict(VARIANTS["qual-south-v-corner"], aside=-5.8)
+# qual-south-v-corner: 56/0, 56/56, 35/0, 36/23, 36/0; with a late partner that holds at its start until 18-20 s
+# (partner_left_hold): fires 3 s late 55/0, never fires 35/4 (the 4: TIP 1 missed and we ran late).
 VARIANTS["qual-alone-p4-west"] = {"after_tip2": "west_garden", "fire3": (25, 28, 90), "fire_g": (25, 28, 90),
                                   "fire1_ms": 3000}
 

@@ -27,17 +27,17 @@
       }
     },
     {
-      "id": "to-far-flower-turn-2",
+      "id": "to-side-fire-2",
       "color": "#3cc8e4",
-      "name": "S_CATCH to FAR_FLOWER_TURN",
+      "name": "S_CATCH to SIDE_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
-        "y": 118.34
+        "x": 40.06,
+        "y": 110
       },
       "controlPoints": [
         {
@@ -46,11 +46,7 @@
         },
         {
           "x": 57.5,
-          "y": 118
-        },
-        {
-          "x": 57.5,
-          "y": 118
+          "y": 108
         }
       ],
       "heading": {
@@ -62,14 +58,14 @@
     {
       "id": "to-far-flower-3",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER_TURN to FAR_FLOWER",
+      "name": "SIDE_FIRE to FAR_FLOWER",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 47.36,
+        "x": 40.06,
         "y": 126.64
       },
       "controlPoints": [],
@@ -79,9 +75,33 @@
       }
     },
     {
-      "id": "to-n-fire-4",
+      "id": "to-side-fire-4",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER to N_FIRE",
+      "name": "FAR_FLOWER to SIDE_FIRE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 40.06,
+        "y": 110
+      },
+      "controlPoints": [
+        {
+          "x": 40.06,
+          "y": 116.64
+        }
+      ],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-lane-top-s-5",
+      "color": "#3cc8e4",
+      "name": "SIDE_FIRE to LANE_TOP_S",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -89,33 +109,28 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 119
+        "y": 106
       },
-      "controlPoints": [
-        {
-          "x": 47.36,
-          "y": 116.64
-        }
-      ],
+      "controlPoints": [],
       "heading": {
         "type": "piecewise",
         "piecewiseHeading": {
           "segments": [
             {
-              "startProgress": 0,
-              "endProgress": 0.3,
-              "interpolationType": "constant",
-              "parameters": {
-                "degrees": 90
-              }
-            },
-            {
-              "startProgress": 0.3,
-              "endProgress": 1.0,
+              "startProgress": 0.0,
+              "endProgress": 0.8,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
                 "endDeg": 270
+              }
+            },
+            {
+              "startProgress": 0.8,
+              "endProgress": 1,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 270
               }
             }
           ]
@@ -123,9 +138,9 @@
       }
     },
     {
-      "id": "to-s-fire-5",
+      "id": "to-s-fire-6",
       "color": "#3cc8e4",
-      "name": "N_FIRE to S_FIRE",
+      "name": "LANE_TOP_S to S_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -147,7 +162,7 @@
       }
     },
     {
-      "id": "to-lane-fire-6",
+      "id": "to-lane-fire-7",
       "color": "#3cc8e4",
       "name": "S_FIRE to LANE_FIRE",
       "waitBeforeMs": 0,
@@ -194,7 +209,7 @@
       }
     },
     {
-      "id": "to-wall-flower-turn-7",
+      "id": "to-wall-flower-turn-8",
       "color": "#3cc8e4",
       "name": "LANE_FIRE to WALL_FLOWER_TURN",
       "waitBeforeMs": 0,
@@ -204,7 +219,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 23.16,
-        "y": 47.36
+        "y": 40.06
       },
       "controlPoints": [],
       "heading": {
@@ -241,7 +256,7 @@
       }
     },
     {
-      "id": "to-wall-flower-8",
+      "id": "to-wall-flower-9",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER_TURN to WALL_FLOWER",
       "waitBeforeMs": 0,
@@ -251,7 +266,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 14.86,
-        "y": 47.36
+        "y": 40.06
       },
       "controlPoints": [],
       "heading": {
@@ -260,7 +275,7 @@
       }
     },
     {
-      "id": "to-fire3-9",
+      "id": "to-fire3-10",
       "color": "#3cc8e4",
       "name": "WALL_FLOWER to FIRE3",
       "waitBeforeMs": 0,
@@ -275,7 +290,7 @@
       "controlPoints": [
         {
           "x": 24.86,
-          "y": 47.36
+          "y": 40.06
         }
       ],
       "heading": {
@@ -312,7 +327,7 @@
       }
     },
     {
-      "id": "to-park-10",
+      "id": "to-park-11",
       "color": "#3cc8e4",
       "name": "FIRE3 to PARK",
       "waitBeforeMs": 0,
@@ -418,7 +433,7 @@
     },
     {
       "kind": "path",
-      "lineId": "to-far-flower-turn-2"
+      "lineId": "to-side-fire-2"
     },
     {
       "kind": "path",
@@ -426,31 +441,35 @@
     },
     {
       "kind": "path",
-      "lineId": "to-n-fire-4"
+      "lineId": "to-side-fire-4"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-5"
+      "lineId": "to-lane-top-s-5"
     },
     {
       "kind": "path",
-      "lineId": "to-lane-fire-6"
+      "lineId": "to-s-fire-6"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-turn-7"
+      "lineId": "to-lane-fire-7"
     },
     {
       "kind": "path",
-      "lineId": "to-wall-flower-8"
+      "lineId": "to-wall-flower-turn-8"
     },
     {
       "kind": "path",
-      "lineId": "to-fire3-9"
+      "lineId": "to-wall-flower-9"
     },
     {
       "kind": "path",
-      "lineId": "to-park-10"
+      "lineId": "to-fire3-10"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-11"
     }
   ],
   "settings": {
@@ -491,7 +510,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "qual-south-v",
+    "exportName": "qual-south-v-side",
     "registry": {
       "actions": [
         "SpinUp",
@@ -538,34 +557,44 @@
         90
       ],
       "FAR_FLOWER": [
-        47.36,
+        40.06,
         126.64,
         90
       ],
       "FAR_FLOWER_IN": [
-        47.36,
+        40.06,
         120.84,
         90
       ],
       "FAR_FLOWER_TURN": [
-        47.36,
+        40.06,
         118.34,
         90
       ],
       "WALL_FLOWER": [
         14.86,
-        47.36,
+        40.06,
         180
       ],
       "WALL_FLOWER_IN": [
         20.66,
-        47.36,
+        40.06,
         180
       ],
       "WALL_FLOWER_TURN": [
         23.16,
-        47.36,
+        40.06,
         180
+      ],
+      "SIDE_FIRE": [
+        40.06,
+        110,
+        90
+      ],
+      "LANE_TOP_S": [
+        57.5,
+        106,
+        270
       ],
       "FIRE3": [
         45,
@@ -580,15 +609,16 @@
     },
     "pathEnds": {
       "to-s-catch-1": "S_CATCH",
-      "to-far-flower-turn-2": "FAR_FLOWER_TURN",
+      "to-side-fire-2": "SIDE_FIRE",
       "to-far-flower-3": "FAR_FLOWER",
-      "to-n-fire-4": "N_FIRE",
-      "to-s-fire-5": "S_FIRE",
-      "to-lane-fire-6": "LANE_FIRE",
-      "to-wall-flower-turn-7": "WALL_FLOWER_TURN",
-      "to-wall-flower-8": "WALL_FLOWER",
-      "to-fire3-9": "FIRE3",
-      "to-park-10": "PARK"
+      "to-side-fire-4": "SIDE_FIRE",
+      "to-lane-top-s-5": "LANE_TOP_S",
+      "to-s-fire-6": "S_FIRE",
+      "to-lane-fire-7": "LANE_FIRE",
+      "to-wall-flower-turn-8": "WALL_FLOWER_TURN",
+      "to-wall-flower-9": "WALL_FLOWER",
+      "to-fire3-10": "FIRE3",
+      "to-park-11": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -694,7 +724,7 @@
       {
         "id": "p-8",
         "kind": "path",
-        "lineId": "to-far-flower-turn-2",
+        "lineId": "to-side-fire-2",
         "park": false
       },
       {
@@ -741,7 +771,7 @@
       {
         "id": "p-12",
         "kind": "path",
-        "lineId": "to-n-fire-4",
+        "lineId": "to-side-fire-4",
         "park": false
       },
       {
@@ -782,17 +812,23 @@
       {
         "id": "p-15",
         "kind": "path",
-        "lineId": "to-s-fire-5",
+        "lineId": "to-lane-top-s-5",
         "park": false
       },
       {
         "id": "p-16",
         "kind": "path",
-        "lineId": "to-lane-fire-6",
+        "lineId": "to-s-fire-6",
         "park": false
       },
       {
-        "id": "w-17",
+        "id": "p-17",
+        "kind": "path",
+        "lineId": "to-lane-fire-7",
+        "park": false
+      },
+      {
+        "id": "w-18",
         "kind": "firstOf",
         "label": "Fire TIP 2's catch at the right CELL",
         "rows": [
@@ -810,19 +846,19 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-18",
-        "kind": "path",
-        "lineId": "to-wall-flower-turn-7",
-        "park": false
-      },
-      {
         "id": "p-19",
         "kind": "path",
-        "lineId": "to-wall-flower-8",
+        "lineId": "to-wall-flower-turn-8",
         "park": false
       },
       {
-        "id": "w-20",
+        "id": "p-20",
+        "kind": "path",
+        "lineId": "to-wall-flower-9",
+        "park": false
+      },
+      {
+        "id": "w-21",
         "kind": "firstOf",
         "label": "The wall FLOWER's 4",
         "rows": [
@@ -839,13 +875,13 @@
         ]
       },
       {
-        "id": "p-21",
+        "id": "p-22",
         "kind": "path",
-        "lineId": "to-fire3-9",
+        "lineId": "to-fire3-10",
         "park": false
       },
       {
-        "id": "w-22",
+        "id": "w-23",
         "kind": "firstOf",
         "label": "Fire the wall FLOWER's 4 (TIP 3)",
         "rows": [
@@ -863,9 +899,9 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-23",
+        "id": "p-24",
         "kind": "path",
-        "lineId": "to-park-10",
+        "lineId": "to-park-11",
         "park": true
       }
     ]

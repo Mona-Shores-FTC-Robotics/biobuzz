@@ -1752,6 +1752,13 @@ BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;DuoLzSouthAuto,DuoLzNorthAuto@50" BIOBUZZ_
   ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
 ```
 
+An Auto followed by `:blind` (`BackupLAuto:blind,PartnerLeftVAuto@50`) runs with its camera down, as Smart
+Auto's BACKUP plan would (`doc/smart-auto.md`): `Tip`, `LeftCellUp`, `RightCellUp` and `HiveTipped` never
+fire for it, so each such wait runs to its time limit, and `CameraBlind` is true; `Empty` and `IntakeFull`
+still work, the start check still runs (it is the referee's rule, not the camera's), and the HIVE still
+tips when its shots land. Any robot in the spec can be blind, so a backup route can be measured beside a
+normal partner, or against blind opponents.
+
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.
 

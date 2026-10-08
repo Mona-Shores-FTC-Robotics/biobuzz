@@ -529,6 +529,8 @@ final class FieldSim {
         double wallsOut;
         /** How far down its FLOWER extractor is ({@link RobotDesign#extractorSeatIn}), 0 stowed to 1 down. Its caller moves it. */
         double extractorDown;
+        /** This seat's lateral error (RobotDesign#seatErrorIn), drawn by its caller each time the extractor comes down. */
+        double seatErrorIn;
         /**
          * Which flap a one-armed design has down now: +1 its left, -1 its right, 0 as its design says.
          * Its caller sets it ({@link RobotDesign#flapTowardCentre}).
@@ -898,10 +900,13 @@ final class FieldSim {
         for (Piece p : pieces) {
             if (p.where != Where.OUTSIDE || p.kind != kind) continue;
             double y = (zone[2] + zone[3]) / 2;
+            // The next free spot along the zone: toward +y for red, -y for blue, so the field stays a half turn
+            // (8 Oct 2026, the 4-robot chat: +y for both made blue's runs differ from red's from the second NECTAR).
+            double along = alliance == Alliance.BLUE ? -1 : 1;
             for (double dy = 0; dy < 10; dy += 4) {
-                double[] at = {(zone[0] + zone[1]) / 2, y + dy, NECTAR_RADIUS_IN + 0.05};
+                double[] at = {(zone[0] + zone[1]) / 2, y + along * dy, NECTAR_RADIUS_IN + 0.05};
                 if (free(at, NECTAR_RADIUS_IN)) {
-                    y += dy;
+                    y += along * dy;
                     break;
                 }
             }
@@ -1340,7 +1345,7 @@ final class FieldSim {
         double nx = local[0] - q[0], ny = local[1] - q[1], nz = local[2] - q[2];
         double d = Math.sqrt(nx * nx + ny * ny + nz * nz);
         double rad = p.kind.radius;
-        if (d >= rad) return false;
+        if (d >= rad - CONTACT_IN) return false;
         if (d < 1e-9) {
             nx = ny = nz = 0;
             if (fixed == 0) nx = 1;
@@ -1438,6 +1443,15 @@ final class FieldSim {
                 flap |= box(p, cx, cy, bh, t, halfWidth + d.flapOutIn, 0, d.flapHeightIn, fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
         }
+        if (!Double.isNaN(d.extractorLateralMaxIn) && !Double.isNaN(d.extractorSeatIn) && bot.extractorDown > 0.5) {
+            // A wide extractor's bar, down: across the seat line, its span the lateral range plus the seat tolerance.
+            double[] range = d.extractorLateralRange();
+            double lx = half + d.extractorSeatIn, ly = (range[0] + range[1]) / 2;
+            double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
+            double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
+            flap |= box(p, cx, cy, bh, RobotDesign.FLAP_THICKNESS_IN, (range[1] - range[0]) / 2 + RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN,
+                    0, d.extractorBarHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
+        }
         if ((hit || flap) && !p.touchedTile) {
             p.frameBeforeTile |= hit;
             p.flapBeforeTile |= flap;
@@ -1503,7 +1517,7 @@ final class FieldSim {
                 depth = ez + rad;
             }
         } else {
-            if (d >= rad) return false;
+            if (d >= rad - CONTACT_IN) return false;
             nx /= d;
             ny /= d;
             nz /= d;
@@ -1517,6 +1531,15 @@ final class FieldSim {
         bounce(p, new double[] {wnx, wny, nz}, vx - omega * ry0, vy + omega * rx0, 0, restitution);
         return true;
     }
+
+    /**
+     * How far into a plate or box a piece must be to touch it. A piece pushed out to exactly its radius
+     * sits on a knife edge: rounding in the frame conversions decided whether the next step was a
+     * contact (with its sliding friction) or not, and decided it differently for red and blue (8 Oct
+     * 2026, {@link FieldSymmetryTest}: a POLLEN rolling along the HIVE's side slowed six times harder
+     * on one alliance). Now a piece resting against a surface with no speed into it rolls free on both.
+     */
+    static final double CONTACT_IN = 1e-6;
 
     /** Whether the last {@link #collideField} touched a field wall, not just the tiles. */
     private boolean wallHit;
@@ -1705,6 +1728,11 @@ final class FieldSim {
     /** How far off the intake's face a piece still counts as touching it (RobotDesign#intakeOnContact). */
     static final double INTAKE_CONTACT_SLACK_IN = 0.25;
 
+    /** How far {@code ly} lies outside {@code range} ({least, most}); 0 inside it. */
+    static double aside(double ly, double[] range) {
+        return ly < range[0] ? range[0] - ly : ly > range[1] ? ly - range[1] : 0;
+    }
+
     private boolean inIntake(Bot bot, Piece p, double bx, double by, double bh) {
         RobotDesign design = bot.design;
         double c = Math.cos(bh), s = Math.sin(bh);
@@ -1720,7 +1748,7 @@ final class FieldSim {
             if (design.intakeAtBack) fx = -fx;
             double seat = design.frameIn / 2 + design.extractorSeatIn;
             return Math.abs(fx - seat) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN
-                    && Math.abs(fy) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
+                    && aside(fy + bot.seatErrorIn, design.extractorLateralRange()) < RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN && p.z < design.intakeHeightIn;
         }
         if (design.intakeOnContact && p.flower < 0) {
             return lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN

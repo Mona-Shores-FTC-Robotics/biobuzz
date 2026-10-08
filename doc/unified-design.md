@@ -650,8 +650,8 @@ match (it is fixed: see the rules below): does it shoot, how reliably, where doe
 | Partner | Run | Why | Expect |
 |---|---|---|---|
 | **Can't shoot** | **R-Quals**, the partner starting near its park (out of the standard left start) | TIP 1 is ours at once; nothing waits on the partner | 3 TIPs in 38 |
-| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 58 |
-| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 58 if it shoots; 2 TIPs in 53 if it does not |
+| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 55; L-Quals 3 TIPs in 54 (±4) |
+| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 54 if it shoots; 2 TIPs in 53 if it does not |
 
 What not to do, and why:
 - **A partner that can't shoot with L-Quals**: L-Quals waits until 9.2 s for a TIP 1 that never comes, then gets 2
@@ -668,9 +668,17 @@ What not to do, and why:
 - Neither Auto can make a partner score. L-Quals' fallback only limits what a partner that was meant to shoot
   costs us when it doesn't.
 
-Open: an extractor that reaches a FLOWER at the robot's left front corner, about 7.3 in off its centre line,
-would let R-Quals seat at the far FLOWER clear of a partner still at the standard left start (mentor, 8 Oct
-2026). Not yet asked of the extractor or simulator chats.
+**A corner extractor** (8 Oct 2026, 60 runs, [r-quals-partner-timing.md](r-quals-partner-timing.md)): an
+extractor 7.3 in off the centre line (the right front corner) seats R-Quals at x 40 and, with TIP 2 fired from the
+lane's top at y 114.5 (`qual-south-v-corner`), keeps 56 of 60 with a good partner and stops the collisions with a
+partner dead or waiting at the standard left start (60 of 60 to 0; 35 runs of 3 TIPs). It does not help against a
+partner that *leaves* late: its way west along y 124 crosses our whole side (56 of 60 still collide). So it is a
+scouting call: a left partner whose Auto is off its start by about 6 s, or stays there until about 18 s, works
+(55 of 60, no collisions, for one that fires late and stays); one that leaves west later does not. A forward
+distance sensor could see the partner at about 6 s, but scouting answers that before the match: not worth building. The whole match with four robots (both Autos on blue too): no contact between the
+alliances in 240 runs, both blue Autos make their 3 TIPs. **A wide extractor bar** (±7.3 in placeholder, same doc, section 3): today's centre block
+needs the seat within about 1.5 in (a ±2 in seat error costs about 25 runs of 3 TIPs of 60 on every route, ±4 leaves
+9); the bar makes L-Quals and R-Quals immune to ±4 in and, deployed, changes nothing else measurable.
 
 ## Two of our robots: the playoff best case (8-9 Oct 2026)
 

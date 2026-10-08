@@ -23,7 +23,11 @@ import java.util.Map;
  * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;Recycle3RightAuto,Recycle3LeftAuto@50" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
+ * An Auto followed by {@code :blind} ({@code BackupLAuto:blind,PartnerLeftVAuto@50}) runs with its camera down
+ * ({@link AutoSim#cameraDown}): its HIVE waits run to their time limits, as Smart Auto's BACKUP plan would.
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
+ * {@code BIOBUZZ_AUTO_VARIETY=0} turns off the field-frame variety (tile slopes, spill kicks, bounce scatter), which
+ * makes a seed the same run on red and on blue: for checking that an Auto's blue version is its red one turned.
  */
 public class AutoStudyTest {
 
@@ -226,6 +230,25 @@ public class AutoStudyTest {
         RobotDesign fastBoth = fastSpin.copy("rigid V, fixed turret, 1 s spin-up, 0.25 s pull");
         fastBoth.flowerPullS = 0.25;
         for (RobotDesign d : new RobotDesign[] {fastSpin, fastPull, fastBoth}) m.put(d.name, d);
+        // An extractor that takes a FLOWER at a front corner of the V (routes chat, 8 Oct 2026): R-Quals seats beside
+        // the far FLOWER, clear of a left partner still at its start.
+        RobotDesign cornerExtractor = fixedTurret.copy("rigid V, fixed turret, corner extractor");
+        cornerExtractor.extractorLateralIn = -7.3;  // the right front corner: west of the far FLOWER, facing north
+        m.put(cornerExtractor.name, cornerExtractor);
+        // A wide extractor (body-designs chat, 8 Oct 2026): a T-shaped bar out past the V's tips, so a FLOWER seats anywhere
+        // across it; +-7.3 in until CAD sends the widest bar that clears the V. And how much a seat-position error costs
+        // each: "seat error N in", a lateral error drawn evenly in +-N at every FLOWER seat.
+        RobotDesign wideBar = fixedTurret.copy("rigid V, fixed turret, wide bar");
+        wideBar.extractorLateralIn = -7.3;
+        wideBar.extractorLateralMaxIn = 7.3;
+        m.put(wideBar.name, wideBar);
+        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar}) {
+            for (int e : new int[] {1, 2, 4}) {
+                RobotDesign err = base.copy(base.name + ", seat error " + e + " in");
+                err.seatErrorIn = e;
+                m.put(err.name, err);
+            }
+        }
         RobotDesign vHook = fixedTurret.copy("rigid V + dual hook, fixed turret");
         vHook.guideOutIn = vHook.flapOutIn;
         vHook.guideForwardIn = vHook.flapForwardIn;
@@ -387,6 +410,17 @@ public class AutoStudyTest {
 
     static final String PKG = "org.firstinspires.ftc.teamcode.opmodes.auto.generated.";
 
+    /** A spec's Auto may carry {@code :blind}: it runs with its camera down ({@link AutoSim#cameraDown}). */
+    static final String BLIND = ":blind";
+
+    static String autoName(String specAuto) {
+        return specAuto.endsWith(BLIND) ? specAuto.substring(0, specAuto.length() - BLIND.length()) : specAuto;
+    }
+
+    static boolean cameraDown(String specAuto) {
+        return specAuto.endsWith(BLIND);
+    }
+
     static AutoSim.Result run(String spec, RobotDesign design, long seed, File file) throws Exception {
         // The partner can differ from us: BIOBUZZ_AUTO_PARTNER_SPEED and BIOBUZZ_AUTO_PARTNER_DESIGN.
         String ps = System.getenv("BIOBUZZ_AUTO_PARTNER_SPEED"), pd = System.getenv("BIOBUZZ_AUTO_PARTNER_DESIGN");
@@ -396,7 +430,9 @@ public class AutoStudyTest {
     /** As {@link #run(String, RobotDesign, long, File)}, with the partner's design and speed (null and NaN: as ours). */
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed, File file)
             throws Exception {
-        return run(spec, design, partnerDesign, partnerSpeed, seed, Alliance.RED, Collections.emptyMap(), file);
+        // BIOBUZZ_AUTO_ALLIANCE=BLUE: our pair on blue (the Autos turned half a turn), the opponents, if any, on red.
+        String a = System.getenv("BIOBUZZ_AUTO_ALLIANCE");
+        return run(spec, design, partnerDesign, partnerSpeed, seed, a == null ? Alliance.RED : Alliance.valueOf(a), Collections.emptyMap(), file);
     }
 
     /**
@@ -407,19 +443,36 @@ public class AutoStudyTest {
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
-        String[] autos = at[0].split(",");
-        Class<?> first = Class.forName(PKG + autos[0]);
+        // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
+        // alliance's pieces, spills and traffic are there, and the blue versions of our Autos get run).
+        String[] sides = at[0].split("\\|");
+        String[] autos = sides[0].split(",");
+        Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
+        if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
         if (autos.length > 1) {
             double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
-            Class<?> second = Class.forName(PKG + autos[1]);
+            Class<?> second = Class.forName(PKG + autoName(autos[1]));
             sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            if (cameraDown(autos[1])) sim.cameraDown();
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
             double[][] staged = stagedFor(second.getSimpleName());
             if (staged != null) sim.stagesPreloads(staged);
+        }
+        if (sides.length > 1) {
+            String[] theirs = sides[1].split(",");
+            for (int i = 0; i < theirs.length; i++) {
+                Class<?> opponent = Class.forName(PKG + autoName(theirs[i]));
+                // Their first robot like ours, their second like our partner.
+                double s = i == 0 || Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
+                sim.alsoRunOpponent(opponent).speed(s, s * 0.9).design(i == 0 || partnerDesign == null ? design : partnerDesign);
+                if (cameraDown(theirs[i])) sim.cameraDown();
+                double[][] staged = stagedFor(opponent.getSimpleName());
+                if (staged != null) sim.stagesPreloads(staged);
+            }
         }
         for (Map.Entry<String, String> m : metadata.entrySet()) sim.metadata(m.getKey(), m.getValue());
         return sim.write(file);
@@ -454,6 +507,7 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
         double[] dwellRange = FieldSim.tipDwellRange;
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
+        if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }
         try {
             studyAll(specs);
         } finally {
@@ -478,13 +532,15 @@ public class AutoStudyTest {
         String misses = "";
         /** Our alliance's shots launched and scored (every robot's). */
         int launched, scored;
+        /** The other alliance's AUTO points when opponents ran; NaN otherwise. */
+        double theirPoints = Double.NaN;
 
         String line() {
             StringBuilder t = new StringBuilder();
             for (double x : tips) t.append(t.length() == 0 ? "" : ",").append(x);
             return seed + "\t" + points + "\t" + load + "\t" + held + "\t" + g409 + "\t" + parked + "\t" + robots + "\t"
                     + problems + "\t" + t + "\t" + misses + "\t" + launched + "\t" + scored + "\t"
-                    + firstProblem.replace('\t', ' ').replace('\n', ' ');
+                    + firstProblem.replace('\t', ' ').replace('\n', ' ') + "\t" + theirPoints;
         }
 
         static Row parse(String[] f, int at) {
@@ -502,6 +558,7 @@ public class AutoStudyTest {
             r.launched = f.length > at + 10 ? Integer.parseInt(f[at + 10]) : 0;
             r.scored = f.length > at + 11 ? Integer.parseInt(f[at + 11]) : 0;
             r.firstProblem = f.length > at + 12 ? f[at + 12] : "";
+            r.theirPoints = f.length > at + 13 ? Double.parseDouble(f[at + 13]) : Double.NaN;
             return r;
         }
     }
@@ -618,6 +675,7 @@ public class AutoStudyTest {
             row.seed = seed;
             for (int i = 0; i < r.autoTips(); i++) row.tips.add(r.tipsAt.get(i));
             row.points = r.autoPoints();
+            if (r.opponents) row.theirPoints = r.theirAutoPoints();
             row.g409 = r.g409;
             row.load = r.cellLoad;
             row.held = r.held;
@@ -627,10 +685,12 @@ public class AutoStudyTest {
             }
             row.misses = m.toString();
             row.scored = r.scored;
-            for (AutoSim.RobotResult robot : r.robots) row.launched += robot.launched;
+            for (AutoSim.RobotResult robot : r.robots) if (robot.alliance == r.alliance) row.launched += robot.launched;
             for (AutoSim.RobotResult robot : r.robots) {
-                row.robots++;
-                if (robot.leave && robot.park) row.parked++;
+                if (robot.alliance == r.alliance) {  // the parked count is our alliance's; problems count on both sides
+                    row.robots++;
+                    if (robot.leave && robot.park) row.parked++;
+                }
                 if (robot.illegalStart != null || !Double.isNaN(robot.crossedAt) || !Double.isNaN(robot.hitHiveAt)
                         || !Double.isNaN(robot.hitFlowerAt) || !Double.isNaN(robot.hitWallAt)) {
                     if (row.problems++ == 0) row.firstProblem = robot.toString();
@@ -638,6 +698,23 @@ public class AutoStudyTest {
             }
             if (!Double.isNaN(r.robotsCollidedAt) && row.problems++ == 0) {
                 row.firstProblem = String.format(Locale.ROOT, "robots collide at %.1f s", r.robotsCollidedAt);
+            }
+            // BIOBUZZ_AUTO_SEED_ROWS=1: one line per seed for a script to count (TIPs, points, each robot's PARK and
+            // problems, the robots' collision).
+            if (System.getenv("BIOBUZZ_AUTO_SEED_ROWS") != null) {
+                StringBuilder sr = new StringBuilder(String.format(Locale.ROOT, "STUDY SEEDROW %s|%s|%d|%d|%d|%s", spec, designName,
+                        seed, r.autoTips(), r.autoPoints(), Double.isNaN(r.robotsCollidedAt) ? "-" : String.format(Locale.ROOT, "%.1f", r.robotsCollidedAt)));
+                if (r.opponents) {  // a whole match: the other alliance's TIPs and points, and when the alliances first met
+                    sr.append(String.format(Locale.ROOT, "|vs|%d|%d|%s", r.theirTipsAt.size(), r.theirAutoPoints(),
+                            Double.isNaN(r.alliancesCollidedAt) ? "-" : String.format(Locale.ROOT, "%.1f", r.alliancesCollidedAt)));
+                }
+                for (AutoSim.RobotResult robot : r.robots) {
+                    sr.append('|').append(robot.leave && robot.park ? "P" : "-")
+                            .append(Double.isNaN(robot.hitHiveAt) ? "" : "H").append(Double.isNaN(robot.hitFlowerAt) ? "" : "F")
+                            .append(Double.isNaN(robot.hitWallAt) ? "" : "W").append(Double.isNaN(robot.crossedAt) ? "" : "C")
+                            .append(robot.illegalStart == null ? "" : "S");
+                }
+                System.out.println(sr);
             }
             // BIOBUZZ_AUTO_TIMELINE=issues: the timeline of every run with a G409 touch or a problem.
             if ("issues".equals(tl) && (row.g409 > 0 || row.problems > 0)) {
@@ -655,7 +732,8 @@ public class AutoStudyTest {
     private static void summarize(String spec, String designName, List<Row> rows) {
         int[] count = new int[8];
         double[] sum = new double[8];
-        double points = 0, load = 0, held = 0;
+        double points = 0, load = 0, held = 0, theirPoints = 0;
+        int theirRuns = 0;
         int parked = 0, robots = 0, problems = 0, g409 = 0, g409Runs = 0, runs = rows.size();
         Map<String, Integer> misses = new java.util.TreeMap<>();
         int launched = 0, scored = 0;
@@ -666,6 +744,10 @@ public class AutoStudyTest {
                 sum[i] += r.tips.get(i);
             }
             points += r.points;
+            if (!Double.isNaN(r.theirPoints)) {
+                theirPoints += r.theirPoints;
+                theirRuns++;
+            }
             g409 += r.g409;
             if (r.g409 > 0) g409Runs++;
             load += r.load;
@@ -698,6 +780,7 @@ public class AutoStudyTest {
         line.append(String.format(Locale.ROOT, " | %.1f pts, parked %d/%d, CELL %.0f%%, held %.1f, G409 %.1f (%d runs)%s",
                 points / runs, parked, robots, 100 * load / runs, held / runs, (double) g409 / runs, g409Runs,
                 problems == 0 ? "" : ", PROBLEMS " + problems)
+                + (theirRuns == 0 ? "" : String.format(Locale.ROOT, ", the other alliance %.1f pts", theirPoints / theirRuns))
                 + (launched == 0 ? "" : String.format(Locale.ROOT, ", shots %.0f%% of %.1f", 100.0 * scored / launched, (double) launched / runs)));
         System.out.println("STUDY " + line);
     }

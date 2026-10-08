@@ -120,6 +120,28 @@ public class AutoSimTest {
         }
     }
 
+    /**
+     * With the camera down ({@link AutoSim#cameraDown}) L-Quals cannot see TIP 1, so its wait for it runs to
+     * its 7 s limit and the Auto takes its no-partner branch, firing its own preloads; the HIVE still tips when
+     * those land, but no decision of the robot's names a CELL it saw.
+     */
+    @Test
+    public void aRobotWithItsCameraDownWaitsOutEveryHiveTrigger() throws Exception {
+        Class<?> auto = Class.forName(GENERATED + ".LQualsAuto");
+        AutoSim.Result seeing = new AutoSim(auto, Alliance.RED, 3572L).write(
+                new File(TeamCodeDir.simLogs(), "auto-camera-on.wpilog"));
+        AutoSim.Result blind = new AutoSim(auto, Alliance.RED, 3572L).cameraDown().write(
+                new File(TeamCodeDir.simLogs(), "auto-camera-down.wpilog"));
+        assertTrue(blind.toString(), blind.robots.get(0).cameraDown);
+        assertFalse(seeing.toString(), seeing.robots.get(0).cameraDown);
+        for (String d : blind.decisions) {
+            assertFalse("a blind robot saw the HIVE: " + d, d.contains(": LeftCellUp") || d.contains(": RightCellUp")
+                    || d.contains(": Tip ") || d.endsWith(": Tip"));
+        }
+        assertTrue(blind.toString(), blind.decisions.stream().anyMatch(d -> d.contains("ms passed")));
+        assertTrue("the shots still tip the HIVE: " + blind, !blind.tipsAt.isEmpty());
+    }
+
     private static void checkLog(File file) throws IOException {
         WpiLogReader r = new WpiLogReader(Files.readAllBytes(file.toPath()));
         assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_POLLEN).type);

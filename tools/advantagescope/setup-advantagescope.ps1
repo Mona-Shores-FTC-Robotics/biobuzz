@@ -1,6 +1,7 @@
 # Keeps a laptop's AdvantageScope current with this branch, in one command, and opens a log:
 #
-#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open right|flowerfirst|angled|wall|alone|left|seatfire|<file>] [-Typical]
+#   tools\advantagescope\watch-biobuzz.cmd (a menu), or
+#   powershell -ExecutionPolicy Bypass -File tools\advantagescope\setup-advantagescope.ps1 [-Open l|r|match|flowerfirst|angled|wall|alone|left|seatfire|<file>] [-Typical]
 #
 # What it does, every run: pulls nothing itself (the README's one-liner does the git part); installs this branch's
 # robot model (cad/advantagescope/Robot_BIOBUZZ, committed) and the generated assets (the field "2026-2027 Field
@@ -99,7 +100,7 @@ Copy-Item -Force $source $layout
 # 6. The README table's latest logs, from the sim-results branch, into one folder (the names in the README).
 $logs = Join-Path $HOME "Downloads\biobuzz-logs"
 New-Item -ItemType Directory -Force $logs | Out-Null
-$autos = [ordered]@{ right = "qual-shoots-right-v-fixed-west45-r"; flowerfirst = "qual-right-v-flower-first-carry-settle-b2"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; alone = "qual-alone-p4-lane-r"; left = "qual-alone-p4-lane-r-left"; seatfire = "qual-right-v-seatfire-west" }
+$autos = [ordered]@{ l = "l-quals"; r = "r-quals"; match = "match-l-vs-r"; right = "l-quals"; flowerfirst = "qual-right-v-flower-first-carry-settle-b2"; angled = "qual-stages-angled-v"; wall = "qual-stages-wall-v"; alone = "r-quals"; left = "r-quals"; seatfire = "qual-right-v-seatfire-west" }
 $raw = "https://raw.githubusercontent.com/Mona-Shores-FTC-Robotics/biobuzz/sim-results"
 $named = @{}
 foreach ($k in $autos.Keys) {
@@ -118,10 +119,11 @@ foreach ($k in $autos.Keys) {
         # simulator changes: a sidecar remembers which commit the copy here came from, and a different one is fetched
         # again (7 Oct 2026: the mentor watched the morning's log all day).
         $stamp = "$target.commit"
-        $have = if (Test-Path $stamp) { Get-Content $stamp -Raw } else { "" }
-        if (-not (Test-Path $target) -or $have.Trim() -ne $latest.commit) {
+        $have = if (Test-Path -LiteralPath $stamp) { Get-Content -LiteralPath $stamp -Raw } else { "" }
+        if (-not (Test-Path -LiteralPath $target) -or $have.Trim() -ne $latest.commit) {
             Invoke-WebRequest -Uri "$raw/$auto/$name" -OutFile $target -TimeoutSec 120
-            Set-Content -NoNewline $stamp $latest.commit
+            # Named on purpose: given positionally, Windows PowerShell took the hash as the path (8 Oct 2026).
+            Set-Content -LiteralPath $stamp -Value $latest.commit -NoNewline
             Write-Host "Downloaded $name (simulated at $($latest.commit.Substring(0, 7)))"
         }
         $named["$k-$label"] = $target
