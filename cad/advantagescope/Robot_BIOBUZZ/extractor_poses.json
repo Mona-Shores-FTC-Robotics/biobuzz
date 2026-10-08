@@ -59,7 +59,7 @@
     "what": "flywheel axle left (+Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
       -0.05588,
-      0.092525,
+      0.076525,
       0.168808
     ],
     "axis": [
@@ -74,7 +74,7 @@
     "what": "flywheel axle right (-Y): two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley",
     "axis_point_m": [
       -0.05588,
-      -0.084521,
+      -0.068521,
       0.168808
     ],
     "axis": [
@@ -90,7 +90,7 @@
     "axis_point_m": [
       -0.051943,
       0.07283,
-      0.083792
+      0.081619
     ],
     "axis": [
       -1,

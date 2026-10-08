@@ -197,6 +197,10 @@ Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelig
 - **Shots slow the flywheels a little more:** the feeder takes its pulse from the left flywheel's shaft.
 - **The flywheels' speed is an estimate** (about 2340 RPM free, 1900 to 2100 loaded), not measured.
 - **Tune on the robot:** the gate servo's two positions, and the yoke's in and out.
+- **Flywheels at 145 mm (Option B).** Each module moves in two 8 mm holes on the launcher frame; one hole either way
+  gives 129 or 161 mm. At 145 a NECTAR entering the column grazes the right module's front 3-hole channel by about 1 mm:
+  swap it for goBILDA's 2-hole channel, which ends 24 mm higher. The flywheels take goBILDA 24T pulleys (16T on the
+  motors, 1.5:1, 4000 RPM free) in place of the custom 41T.
 - **The gate servo holds the pinch for a whole volley.** The pad's band sets the pinch (about 1.5 lbf); its reaction on
   the feeder, 3.35 in below the yoke's pivot, is about 0.7 kg·cm at the servo through the horn and pushrod: under 10% of
   the Speed servo's stall. If testing shows more, a band pulling the yoke in (the servo only pulling it out) takes it.
