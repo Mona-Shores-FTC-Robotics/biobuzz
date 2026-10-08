@@ -15,6 +15,7 @@ echo    4  Flower first   ShootsRight option, fires from the FLOWER seat (needs 
 echo    5  Stages, angled partner
 echo    6  Stages, wall partner
 echo    7  Seat fire      shelved (needs the turret)
+echo    8  Sister         both of our robots, 4 TIPs and 2 PARK (no turret)
 echo.
 set /p "N=Number [1]: "
 if "%N%"=="" set N=1
@@ -26,6 +27,7 @@ if "%N%"=="4" set KEY=flowerfirst
 if "%N%"=="5" set KEY=angled
 if "%N%"=="6" set KEY=wall
 if "%N%"=="7" set KEY=seatfire
+if "%N%"=="8" set KEY=sister
 if "%KEY%"=="" echo Not a choice: %N% & exit /b 1
 set /p "T=Typical run instead of the best one? [n]: "
 set TYP=
