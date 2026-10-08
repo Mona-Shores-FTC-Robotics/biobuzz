@@ -356,9 +356,17 @@ count at 8 (4 drive + roller + 2 flywheels; the lane and feeder would have made 
   anyway; or a DC motor on the feeder.
 - *The lane on a servo is 3× too slow.* Under a pressed ceiling a ball moves at half the roller tread: 24 mm rollers
   at 180 rpm give 4.5 in/s, so 0.6–0.8 s between shots against the simulator's 0.2 s.
-- *Motor count:* drive the lane off the intake roller's shaft (the 6 Oct polycord loop, 2:1 up; lane speed by roller
-  power in software), which frees the DC motor for the feeder: 8 motors. Or one motor for both flywheels through a
-  gear pair.
+- *Motor count, resolved 8 Oct:* **the feeder goes back on a DC motor** (5203-2402-0005, 1150 rpm, above the feeder
+  shaft at Y 2.87, z 6.30, 24T–24T on a 275 mm belt), making 8. **The lane stays on its servo as a stopgap**, with a
+  2.5:1 step-up and 6 V from a Servo Power Module: about 575 rpm at the lane shafts, 14 in/s of ball, 0.26 s between
+  NECTARs, which meets the target. Its weak point is torque, not speed: about 0.5 kg·cm per ball under the foam, so
+  a full lane (about 2 kg·cm) is at the servo's 1.9 kg·cm stall. Keep the foam preload light (about 1 lbf) and let
+  the TPU rollers slip under a held queue. For the real fix the team chooses between **one motor driving both
+  flywheels through a gear pair** (frees a DC motor for the lane, touches nothing at the front, and locks the two
+  flywheels to the same speed, which the launcher wants anyway) and the roller-shaft polycord drive (needs a sprung
+  idler for the roller's 1.3 in float and replaces one vector wheel). The transfer chat prefers the first.
+- *The hand-off gap* (feeder release to the flywheels' first touch, 1.7 in) stays the top open item for the mentor,
+  with the sprung flywheel arm: closing it changes his launcher geometry.
 
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
