@@ -55,8 +55,7 @@ public final class QualShootsRightVFixedWest45RAuto {
         Pose fireG = p.of(45, 29, 90);
         Pose laneTop = p.of(57.5, 108, 90);
         Pose sCatch = p.of(57.5, 28, 90);
-        Pose westTop = p.of(30, 112, 270);
-        Pose westLow = p.of(30, 36, 270);
+        Pose laneLow = p.of(56, 36, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
@@ -65,6 +64,7 @@ public final class QualShootsRightVFixedWest45RAuto {
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
+        Pose nFireToWallFlowerTurnControl1 = p.of(30, 112, 0);
         Pose nFireToWallFlowerTurnControl2 = p.of(30, 64, 0);
         Pose nFireToWallFlowerTurnSegment1Heading = p.of(23.16, 47.36, 270);
         Pose nFireToWallFlowerTurnSegment2Start = p.of(23.16, 47.36, 270);
@@ -82,14 +82,16 @@ public final class QualShootsRightVFixedWest45RAuto {
         Pose farFlowerToNFire_2Control1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFire_2Segment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFire_2Segment2Start = p.of(57.5, 119, 90);
-        Pose westLowToFireGSegment1Start = p.of(45, 29, 270);
+        Pose nFireToLaneLowControl1 = p.of(57.5, 100, 0);
+        Pose laneLowToFireGSegment1Heading = p.of(45, 29, 270);
+        Pose laneLowToFireGSegment2Start = p.of(45, 29, 270);
         Pose fireGToParkControl1 = p.of(30, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(0.9, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)).until(1, Interpolator.constant(farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
-        Path nFireToWallFlowerTurn = Paths.curve(nFire, westTop, nFireToWallFlowerTurnControl2, wallFlowerTurn).heading(Interpolator.piecewise().until(0.15, Interpolator.constant(nFireToWallFlowerTurnSegment1Heading)).until(0.7, Interpolator.linear(nFireToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
+        Path nFireToWallFlowerTurn = Paths.curve(nFire, nFireToWallFlowerTurnControl1, nFireToWallFlowerTurnControl2, wallFlowerTurn).heading(Interpolator.piecewise().until(0.15, Interpolator.constant(nFireToWallFlowerTurnSegment1Heading)).until(0.7, Interpolator.linear(nFireToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
         Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
         Path wallFlowerToFire3 = Paths.curve(wallFlower, wallFlowerToFire3Control1, fire3).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToFire3Segment1Heading)).until(0.9, Interpolator.linear(wallFlowerToFire3Segment2Start, fire3)).until(1, Interpolator.constant(fire3)));
         Path fire3ToGardenIn = Paths.line(fire3, gardenIn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(fire3ToGardenInSegment1Heading)).until(0.8, Interpolator.linear(fire3ToGardenInSegment2Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
@@ -100,9 +102,8 @@ public final class QualShootsRightVFixedWest45RAuto {
         Path sCatchToFarFlowerTurn = Paths.curve(sCatch, sCatchToFarFlowerTurnControl1, sCatchToFarFlowerTurnControl2, sCatchToFarFlowerTurnControl3, farFlowerTurn).linear(sCatch, farFlowerTurn);
         Path farFlowerTurnToFarFlowerPath = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFirePath = Paths.curve(farFlower, farFlowerToNFire_2Control1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFire_2Segment1Heading)).until(1, Interpolator.linear(farFlowerToNFire_2Segment2Start, nFire)));
-        Path nFireToWestTop = Paths.line(nFire, westTop).constant(westTop);
-        Path westTopToWestLow = Paths.line(westTop, westLow).constant(westLow);
-        Path westLowToFireG = Paths.line(westLow, fireG).heading(Interpolator.piecewise().until(0.3, Interpolator.linear(westLowToFireGSegment1Start, fireG)).until(1, Interpolator.constant(fireG)));
+        Path nFireToLaneLow = Paths.curve(nFire, nFireToLaneLowControl1, laneLow).constant(laneLow);
+        Path laneLowToFireG = Paths.line(laneLow, fireG).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(laneLowToFireGSegment1Heading)).until(0.8, Interpolator.linear(laneLowToFireGSegment2Start, fireG)).until(1, Interpolator.constant(fireG)));
         Path fireGToPark = Paths.curve(fireG, fireGToParkControl1, park).linear(fireG, park);
 
         return kit.sequence(
@@ -140,7 +141,7 @@ public final class QualShootsRightVFixedWest45RAuto {
                                         kit.firstOf("Fire the GARDEN's 4 (TIP 3)", kit.command("LaunchAll"),
                                                 kit.when("Tip"),
                                                 kit.afterMs(2500))),
-                                kit.afterMs(6000).then(
+                                kit.afterMs(7000).then(
                                         kit.path("FAR_FLOWER_TURN to LANE_TOP", farFlowerTurnToLaneTop),
                                         kit.path("LANE_TOP to S_CATCH", laneTopToSCatch),
                                         kit.firstOf("No TIP 1: fire ours at the right CELL", kit.command("LaunchAll"),
@@ -161,9 +162,8 @@ public final class QualShootsRightVFixedWest45RAuto {
                                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
-                                        kit.path("N_FIRE to WEST_TOP", nFireToWestTop),
-                                        kit.path("WEST_TOP to WEST_LOW", westTopToWestLow),
-                                        kit.path("WEST_LOW to FIRE_G", westLowToFireG))),
+                                        kit.path("N_FIRE to LANE_LOW", nFireToLaneLow),
+                                        kit.path("LANE_LOW to FIRE_G", laneLowToFireG))),
                         kit.path("FIRE_G to PARK", fireGToPark)));
     }
 }
