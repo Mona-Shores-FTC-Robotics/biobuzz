@@ -10,7 +10,7 @@ The robot comes as two STEP files in the same frame, so each stays a manageable 
 
 STEP carries shapes and positions but no mates, so both files arrive in Onshape with no joints. To make setting them
 up quick, each file is already split into what moves: a **FRAME** group and one group per moving body, named with the
-mate it needs. You fix the two FRAMEs, make the groups rigid, then add nine mates. (`build.py` without `--mentor` or
+mate it needs. You fix the two FRAMEs, lock each moving group, then add nine mates. (`build.py` without `--mentor` or
 `--ours` writes the same robot as one file.)
 
 ## 1. Import
@@ -33,9 +33,17 @@ mate it needs. You fix the two FRAMEs, make the groups rigid, then add nine mate
 ## 2. Everything that doesn't move: two clicks per group
 
 - Right-click each **FRAME** (one per file) → **Fix**. The robot's frame is now fixed in place.
-- Right-click each **MOVES** group → **Make rigid**. Each one now moves as a single piece.
+- Make each **MOVES** group rigid: hover its row in the instance list and click the small **lock** icon at the right
+  end. Without it, each part in the group turns on its own. (Onshape's **Group** tool, selecting every part under the
+  group, does the same.)
 
 That replaces adding a Fastened mate to every part.
+
+**How a Revolute works.** Its two mate connectors are the two halves of a hinge: connector 1 on the part that turns,
+connector 2 on the part that holds still (FRAME). Onshape snaps them together and lets the first spin about their
+blue (Z) arrow. Pick two circles **on the same axis and in the same plane**, or the group jumps to meet the second one.
+If it flips over, click **Flip primary axis**; if it only turns about its axis, drag it back. To check a mate, click
+each connector under it: one should highlight the moving group, the other FRAME.
 
 ## 3. The nine mates
 
@@ -49,8 +57,8 @@ face that faces up on each side: the slide is along the face's normal.
 | MOVES 2 intake roller | Revolute, to MOVES 1 | the roller shaft's end, then a roller bearing | none |
 | MOVES 3 FLOWER extractor | Revolute, to FRAME | a stub shaft's end, then its bearing in the side plate | 0 to 146° (0 is down) |
 | MOVES 4 servo gear | Revolute, to FRAME | the servo gear's hub, then the servo's spline | none |
-| MOVES 5 turret ring | Revolute, to FRAME | the bearing's inner race edge, then its outer race edge | none |
-| MOVES 6 flywheel left | Revolute, to FRAME | the flywheel shaft's end, then its bearing | none |
+| MOVES 5 turret ring | Revolute, to FRAME | from below: the inner race's inner edge, then the outer race's inner edge (1 mm apart in height) | none |
+| MOVES 6 flywheel left | Revolute, to FRAME | the Hyper Hub's end circle, then the 8 mm spacer circle touching it (or the 41T pulley's end, then the 12.5 mm spacer) | none |
 | MOVES 7 flywheel right | Revolute, to FRAME | the same, right side | none |
 | MOVES 8 feeder | Revolute, to FRAME | the feeder shaft's end, then the hole it runs in | none |
 | MOVES 9 sprung pad | Revolute, to FRAME | the pad hinge rod, for both: set the second one's owner to the pad | 0 to about 26° (a NECTAR) |
