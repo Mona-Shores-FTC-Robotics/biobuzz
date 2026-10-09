@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-quals.pp",
-  "spec": "LQualsAuto,PartnerPreloadsRightHighAuto|RQualsAuto,PartnerLeftVAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-flower-first-carry-settle-b2.pp",
+  "spec": "QualRightVFlowerFirstCarrySettleB2Auto,PartnerPreloadsRightSouthAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "l-quals.pp",
-    "SavedBy": "README, a whole match: L-Quals on red against R-Quals on blue, with the turret inside its 720 deg window (9 Oct 2026)"
+    "AutoSource": "qual-right-v-flower-first-carry-settle-b2.pp",
+    "SavedBy": "README, flower first, carry the spill, with the turret inside its 720 deg window (9 Oct 2026)"
   },
-  "title": "Match-LQuals-vs-RQuals",
+  "title": "Qual-PartnerShootsRight-FlowerFirst",
   "usual": true,
-  "folder": "match-l-vs-r"
+  "folder": "qual-right-v-flower-first-carry-settle-b2"
 }
