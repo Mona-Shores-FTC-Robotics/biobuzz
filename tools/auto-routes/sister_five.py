@@ -121,6 +121,7 @@ R_BACK = (34, 24, 90)
 # The LOADING ZONE (x 0-11, y 94.3-117.9): where L waits facing the wall for the drive team's NECTAR, and parks.
 L_LZ, L_LZP = (20, 110, 180), (14, 106, 180)
 R_LZ = (18, 110, 180)
+R_CATCH, R_PILE = (12, 96, 90), (14, 80, 270)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -371,7 +372,26 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             r.at = "R_W"
             five.append(r.go("R_N", heading=90))
         five += tip4_at_rn(ms=10000)
-        if lz5:
+        if lz5 in ("catch", "catchf", "pile"):
+            # The rolled entry (simulator chat, 9 Oct 2026: released 1 s after a TIP at the far end of the zone, 5 in off
+            # the wall, rolling toward -y at about 12 in/s; one not caught stops near (5, 67) along the wall).
+            # "catch": R waits at R_CATCH, intake facing up the wall, for the ones still to come; "catchf" then fills
+            # up at the wall FLOWER; "pile": R sweeps up the ones already rolled past, by the wall, then the FLOWER.
+            r.at = "R_N"
+            if lz5 == "pile":
+                r.pt("R_PILE", *R_PILE)
+                five.append(r.go("R_PILE", ctrl=[(24, 90)], heading=270))
+                r.at = "R_PILE"
+                five.append(r.wait("Rolled NECTAR off the wall", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+                five += wall_flower_from("R_PILE")
+            else:
+                r.pt("R_CATCH", *R_CATCH)
+                five.append(r.go("R_CATCH", ctrl=[(18, 90)], heading=90))
+                r.at = "R_CATCH"
+                five.append(r.wait("Catch the rolled NECTAR", when=["IntakeFull"], ms=lz_ms))
+                if lz5 == "catchf":
+                    five += wall_flower_from("R_CATCH")
+        elif lz5:
             # Human-player NECTAR (G426.A, a Q&A pending): by now the drive team has entered one after each of TIPs
             # 1-3 in the LOADING ZONE, 25 in from R_N. R takes them with the webcam (3 NECTAR fill the lane, worth
             # about 5 POLLEN) instead of the wall FLOWER's 4, 57 in away, and goes on as before.
