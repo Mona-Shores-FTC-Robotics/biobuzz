@@ -380,6 +380,9 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             five.append(r.go("R_LZ", heading=180))
             r.at = "R_LZ"
             five.append(r.wait("NECTAR off the LOADING ZONE", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+            if lz5 == "flower":
+                # Then the wall FLOWER's POLLEN to fill up (the third NECTAR lands only 2 s after TIP 3).
+                five += wall_flower_from("R_LZ", ctrl=[(20, 80)])
         else:
             five += wall_flower_from("R_N", ctrl=[(30, 80)])
         if mid5_ms:
