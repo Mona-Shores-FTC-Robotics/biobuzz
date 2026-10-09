@@ -117,23 +117,28 @@ R_F5_POCKET = (36, 36, 90)
 R_T3 = (42, 12, 90)
 # The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
 R_T3_NEAR = (50, 12, 90)
-R_TOP2 = (34, 58, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
 
 def topup2(r, ms):
-    """TIP 2 overdue (the left CELL up 7 s: one short), polled every 0.4 s for up to ms: north along x 34, west of the
-    HIVE's feet, to R_TOP2, one piece at the left CELL, back to where R was. TIP 2 first, or neither: on with the plan."""
+    """TIP 2 overdue (the left CELL up 7 s: one short), polled every 0.4 s for up to ms: to R_N up the west side, one
+    piece at the left CELL (two if needed), back to where R was. TIP 2 first, or neither: on with the plan."""
     here = r.at
 
     def top():
-        r.pt("R_TOP2", *R_TOP2)
+        # Up the west side along x 30 (R_W, as the old rescue: the V clear of the HIVE's feet) to R_N, where R fires
+        # at the left CELL for TIP 4; one piece, a second if that one doesn't tip it, and back the same way.
         r.at = here
-        cards = [r.go("R_TOP2", ctrl=[(34, 30)], heading=90)]
-        r.at = "R_TOP2"
-        cards += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000),
-                  r.go(here, ctrl=[(34, 30)], heading=90)]
+        cards = [r.go("R_W", heading=90)]
+        r.at = "R_W"
+        cards.append(r.go("R_N", heading=90))
+        r.at = "R_N"
+        again = [r.action("LaunchOne"), r.wait("TIP 2 topped up again", when=["RightCellUp"], ms=2500)]
+        cards += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=1500, no=again),
+                  r.go("R_W", heading=90)]
+        r.at = "R_W"
+        cards.append(r.go(here, heading=90))
         r.at = here
         return cards
 
@@ -191,9 +196,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "S_CATCH"
         full = None
         if topup2_ms is not None and t3_at is None:
-            # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): no TIP 2 by about 11.3 s (later than any
-            # on its own), R fires one of its catch at the left CELL from R_TOP2 (39 in from it, clear of the HIVE's
-            # feet) and comes back. The wait starts about 7.5 s with the catch full, about 10.3 s after a fill.
+            # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): once the left CELL has been up 7 s
+            # (TIP 2 comes 3.6-5.8 s after TIP 1 on its own), R fires one of its catch at it from R_N and comes back.
             full = [topup2(r, topup2_ms[0])]
             fill.append(topup2(r, topup2_ms[1]))
         if t3_at is not None:
