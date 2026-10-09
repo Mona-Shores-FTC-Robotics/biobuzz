@@ -99,13 +99,37 @@ def placed_team(robot_step):
     leaves, base = read_team(robot_step)
     def bbox(key, loc):
         b = Bnd_Box(); BRepBndLib.Add_s(base[key].wrapped.Moved(loc), b); return b.Get()
-    # the mentor's exports move his assembly's origin: line it up by the drive rails (front ends at FACE, right one at C+136 mm)
-    rails = [bbox(k, l) for pth, k, l, c in leaves if pth and pth[-1].startswith("1107-0015-0384")]
-    dz, dx = FACE - max(b[5] for b in rails), (C + 136.0) - max(b[3] for b in rails)
-    print(f"aligned by the rails: +{dx:.2f} mm across, +{dz:.2f} mm forward")
+    # the mentor's exports move his assembly's origin: line it up by the intake's front uprights (his 5-hole low-side
+    # channels: front faces at FACE, the left one's outer face at C+136 mm). They were flush with the 15-hole rails' front
+    # ends until 9 Oct, when the rails became 13-hole (336 mm) and the front wheels moved 48 mm back; the uprights didn't move.
+    ups = [bbox(k, l) for pth, k, l, c in leaves if pth and len(pth) > 1 and "Intake" in pth[-2] and pth[-1].startswith("5 Hole Lowside U-Channel")]
+    dz, dx = FACE - max(b[5] for b in ups), (C + 136.0) - max(b[3] for b in ups)
+    print(f"aligned by the front uprights: +{dx:.2f} mm across, +{dz:.2f} mm forward")
     placed_team.align = (dx, dz)
     tr = gp_Trsf(); tr.SetTranslation(gp_Vec(dx, 0, dz)); align = TopLoc_Location(tr)
     def moved(v): t = gp_Trsf(); t.SetTranslation(gp_Vec(*v)); return TopLoc_Location(t)
+    # MOTORS_FROM=<an older Robot.step>: his 9 Oct export dropped the four drive motor assemblies (they were mated to the
+    # rails and rear angle he replaced) but kept their belts. Put them back from the older file: each front one follows its
+    # wheel and belt (48 mm back), the rear one stays where it was.
+    if os.environ.get("MOTORS_FROM") and not any("belt motor" in " ".join(pth) for pth, k, l, c in leaves):
+        ol, ob = read_team(os.environ["MOTORS_FROM"])
+        def obox(key, loc):
+            b = Bnd_Box(); BRepBndLib.Add_s(ob[key].wrapped.Moved(loc), b); return b.Get()
+        oups = [obox(k, l) for pth, k, l, c in ol if pth and len(pth) > 1 and "Intake" in pth[-2] and pth[-1].startswith("5 Hole Lowside U-Channel")]
+        odz, odx = FACE - max(b[5] for b in oups), (C + 136.0) - max(b[3] for b in oups)
+        def wheel_z(lv, bx, ddz, wanted):
+            zs = [bx(k, l)[5] + ddz for pth, k, l, c in lv if any(w in " ".join(pth) for w in wanted) and "3606" in pth[-1]]
+            return max(zs) if zs else None
+        front = ("Wheel Assembly <2>", "Wheel Assembly <4>")
+        shift = wheel_z(leaves, bbox, dz, front) - wheel_z(ol, obox, odz, front)
+        print(f"drive motors from {os.environ['MOTORS_FROM']}: front ones {shift:+.1f} mm")
+        nb = max(base) + 1
+        for pth, k, l, c in ol:
+            j = " ".join(pth)
+            if "belt motor" not in j: continue
+            dzz = odz + (shift if "59 tooth" in j else 0.0) - dz          # into this file's frame (align is added below)
+            t = gp_Trsf(); t.SetTranslation(gp_Vec(odx - dx, 0, dzz))
+            base[nb + k] = ob[k]; leaves.append((["(restored) " + pth[0]] + pth[1:], nb + k, TopLoc_Location(t).Multiplied(l), c))
     out = []
     lean = os.environ.get("LEAN")                     # LEAN=1: leave out fasteners, for a single small download
     for path, key, loc, col in leaves:
