@@ -117,6 +117,7 @@ R_F5_POCKET = (36, 36, 90)
 R_T3 = (42, 12, 90)
 # The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
 R_T3_NEAR = (50, 12, 90)
+R_BACK = (34, 24, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -137,8 +138,11 @@ def topup2(r, ms):
         again = [r.action("LaunchOne"), r.wait("TIP 2 topped up again", when=["RightCellUp"], ms=2500)]
         cards += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=1500, no=again),
                   r.go("R_W", heading=90)]
+        # Not back to the catch spot: L arrives beside it (L_S) for TIP 3 now. R_BACK is west of L there and on the
+        # way from the catch spot to the GARDEN, where R's next path goes; the follower picks it up from there.
+        r.pt("R_BACK", *R_BACK)
         r.at = "R_W"
-        cards.append(r.go(here, heading=90))
+        cards.append(r.go("R_BACK", heading=90))
         r.at = here
         return cards
 
