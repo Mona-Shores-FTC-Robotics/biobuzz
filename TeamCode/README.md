@@ -1766,9 +1766,9 @@ the raised CELL and fires once the turret is within 2 deg. The timeline reports 
 the turret" (or "on target when the fire step began"), each side switch, when the turret was on target after it, and
 how long before the next fire step the switch came; a launch at the far CELL is flagged. `BIOBUZZ_AUTO_TURRET_DEG_PER_S`
 overrides the slew for every robot in a study (0: aims at once, as before 9 Oct 2026); `BIOBUZZ_AUTO_TIMELINE=all`
-prints every seed's timeline for a script to count. The turret's travel is unlimited (a slip ring, issues #169/#170)
-until that is settled; `RobotDesign.turretTravelDeg` or `BIOBUZZ_AUTO_TURRET_TRAVEL_DEG` (393: the two-encoder
-turret's window, 720: with gears for it) holds it inside a window centred on straight ahead: between fire steps a turret wound past 200 deg unwinds to
+prints every seed's timeline for a script to count. The turret's travel is 720 deg (`RobotDesign.turretTravelDeg`, the
+mentor's margin inside the two-encoder turret's 1178 deg absolute window, 9 Oct 2026; `BIOBUZZ_AUTO_TURRET_TRAVEL_DEG`
+tries another, 0 for a slip ring's unlimited turn), a window centred on straight ahead: between fire steps a turret wound past 200 deg unwinds to
 the nearer reading of its bearing (`AutoSim.TURRET_UNWIND_RAD`), so the unwind happens on the drive and never inside
 a fire step; the timeline reports each one ("turret: the long way round, 300 deg in 1.2 s").
 

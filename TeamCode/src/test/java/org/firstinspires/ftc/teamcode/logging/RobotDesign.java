@@ -155,10 +155,13 @@ final class RobotDesign {
      * (doc/motors-and-servos.md), and about 720 if gears for it are found (the internals chat, 9 Oct 2026): inside a
      * window the turret sometimes has to unwind the long way round, up to a turn, instead of following the target
      * through +-180. The published routes wind the turret up to three turns one way (the internals chat's count),
-     * so a limit costs them time. Unlimited until #170 is settled; BIOBUZZ_AUTO_TURRET_TRAVEL_DEG tries a window.
+     * so a limit costs them time. 720 (mentor, 9 Oct 2026, through the internals chat): the CAD's encoder B is a
+     * 36T now (4f53e4f), absolute over 1178 deg, and 720 leaves about 229 deg each side for overshoot, backlash,
+     * the decode's 4 deg tolerance and a turret nudged while the robot is off. The 60-seed studies cost nothing
+     * even at 393. BIOBUZZ_AUTO_TURRET_TRAVEL_DEG tries another window; 0 is without limit.
      */
-    double turretTravelDeg = Double.NaN;
-    static final double TURRET_TWO_ENCODER_WINDOW_DEG = 393;
+    double turretTravelDeg = TURRET_TRAVEL_DEG;
+    static final double TURRET_TRAVEL_DEG = 720, TURRET_ENCODER_WINDOW_DEG = 1178, TURRET_TWO_ENCODER_WINDOW_DEG = 393;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
     /**
