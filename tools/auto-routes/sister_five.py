@@ -120,6 +120,7 @@ R_T3_NEAR = (50, 12, 90)
 R_BACK = (34, 24, 90)
 # The LOADING ZONE (x 0-11, y 94.3-117.9): where L waits facing the wall for the drive team's NECTAR, and parks.
 L_LZ, L_LZP = (20, 110, 180), (14, 106, 180)
+R_LZ = (18, 110, 180)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -158,7 +159,8 @@ def topup2(r, ms):
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None, catch_cards=False):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None, catch_cards=False, lz5=False,
+           lz_ms=2500):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -369,7 +371,17 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             r.at = "R_W"
             five.append(r.go("R_N", heading=90))
         five += tip4_at_rn(ms=10000)
-        five += wall_flower_from("R_N", ctrl=[(30, 80)])
+        if lz5:
+            # Human-player NECTAR (G426.A, a Q&A pending): by now the drive team has entered one after each of TIPs
+            # 1-3 in the LOADING ZONE, 25 in from R_N. R takes them with the webcam (3 NECTAR fill the lane, worth
+            # about 5 POLLEN) instead of the wall FLOWER's 4, 57 in away, and goes on as before.
+            r.pt("R_LZ", *R_LZ)
+            r.at = "R_N"
+            five.append(r.go("R_LZ", heading=180))
+            r.at = "R_LZ"
+            five.append(r.wait("NECTAR off the LOADING ZONE", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+        else:
+            five += wall_flower_from("R_N", ctrl=[(30, 80)])
         if mid5_ms:
             # Simulator chat, 9 Oct 2026: R parked at 26 s still holding the wall FLOWER's 4 when TIP 4 came up
             # short (seeds 19, 34). Wait between the ends: TIP 4 -> the right end for TIP 5; no TIP 4 by mid5_ms ->
