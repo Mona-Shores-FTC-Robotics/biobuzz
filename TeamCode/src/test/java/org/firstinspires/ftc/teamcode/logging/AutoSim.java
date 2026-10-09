@@ -87,7 +87,7 @@ public final class AutoSim {
 
     // Mechanisms: not measured, like the rest of the simulated robot.
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
-    static final double HUMAN_DELAY_S = 2.0;
+    static double humanDelayS = 2.0;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
     /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
@@ -423,7 +423,7 @@ public final class AutoSim {
     }
 
     /**
-     * Has the drive team enter one NECTAR into the LOADING ZONE {@link #HUMAN_DELAY_S} after each
+     * Has the drive team enter one NECTAR into the LOADING ZONE {@link #humanDelayS} after each
      * TIP of their HIVE, as G426 allows. Off unless asked for: whether that is allowed during AUTO is
      * worth confirming with the Q&amp;A before an Auto counts on it.
      */
@@ -693,7 +693,7 @@ public final class AutoSim {
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
-                if (humanNectar) nectarDueAt.add(now + HUMAN_DELAY_S);
+                if (humanNectar) nectarDueAt.add(now + humanDelayS);
             }
             while (!nectarDueAt.isEmpty() && now >= nectarDueAt.get(0)) {
                 nectarDueAt.remove(0);
@@ -703,7 +703,7 @@ public final class AutoSim {
                 FieldSim.Rocker theirs = sim.rocker(alliance.other());
                 if (theirs.tips > result.theirTipsAt.size()) {
                     result.theirTipsAt.add(now);
-                    if (humanNectar) theirNectarDueAt.add(now + HUMAN_DELAY_S);
+                    if (humanNectar) theirNectarDueAt.add(now + humanDelayS);
                 }
                 while (!theirNectarDueAt.isEmpty() && now >= theirNectarDueAt.get(0)) {
                     theirNectarDueAt.remove(0);
@@ -1848,7 +1848,7 @@ public final class AutoSim {
             // it may drive up to the wall for a piece until the last WALL_CLEAR_S, then stays 1 in off.
             double wall = now < AutoKit.AUTO_LENGTH_S - WALL_CLEAR_S ? 0 : 1;
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
-            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
             double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
                     design.intakeAtBack ? bearing + Math.PI : bearing};
             for (double f = 0; f <= 1.0001; f += 0.25) {
@@ -1877,6 +1877,10 @@ public final class AutoSim {
                     if (outOfBounds(turned, wall)) return true;
                 }
                 if (outOfBounds(mid, wall)) return true;
+                // The whole outline, a slide's head and the V tips included, clear of the HIVE frame's feet too.
+                for (double[] c : outline(mid, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
+                    if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                }
             }
             return false;
         }
@@ -1912,7 +1916,7 @@ public final class AutoSim {
             double[] at = pedro(drive.pose);
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double heading = design.intakeAtBack ? bearing + Math.PI : bearing;
-            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
             double tx = p.x - (mouth - 1) * Math.cos(bearing), ty = p.y - (mouth - 1) * Math.sin(bearing);
             // Stay on our own half (with room for the corners of a robot turned any way), and inside
             // the walls.

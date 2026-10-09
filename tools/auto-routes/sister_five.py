@@ -118,6 +118,8 @@ R_T3 = (42, 12, 90)
 # The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
 R_T3_NEAR = (50, 12, 90)
 R_BACK = (34, 24, 90)
+# The LOADING ZONE (x 0-11, y 94.3-117.9): where L waits facing the wall for the drive team's NECTAR, and parks.
+L_LZ, L_LZP = (20, 110, 180), (14, 106, 180)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -435,7 +437,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
           bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False,
-          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88, catch_cards=False):
+          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88, catch_cards=False,
+          lz=None, lz_ms=2500):
     """ln, ls, lturn: L's waits for TIP 2's and TIP 3's spills and its turn below the HIVE (moved back for a front whose
     flaps reach further, so they stay out of a spill still falling, G409). catch_cards: scheduled guides
     (RobotDesign#catchScheduled) out for each catch (TIP 2's at L_N, TIP 3's at L_S, TIP 4's at L_N) and in before L
@@ -497,51 +500,72 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         r.at = "L_N"
     r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     m0 = len(r.cards)
-    if noturn4:
-        # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
-        r.add(r.go("L_N", turn_by=1.0))
-    r.at = "L_N"
-    if catch_cards:
-        r.add(r.action("CatchOut"))
-    # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
-    r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
-    if creep4:
-        r.pt("L_C4", *L_C4)
-        r.add(r.wait("TIP 4's spill lands", when=["IntakeFull"], ms=800), r.go("L_C4", heading=270))
-        r.at = "L_C4"
-        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
-              r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
+    if lz:
+        # Human-player NECTAR (G426.A: one per TIP of our HIVE, entered through the LOADING ZONE; a Q&A is pending):
+        # by the time L has fired its share of TIP 4 (about 21 s) the drive team has entered three, after TIPs 1-3.
+        # L picks them up there with the webcam instead of catching TIP 4's spill, tops TIP 4 up with one if it hasn't
+        # come, and then either takes the rest down the lane to TIP 5 ("tip5") or parks in the zone ("station").
+        r.pt("L_LZ", *L_LZ)
+        r.at = "L_N4" if noturn4 else "L_N"
+        r.add(r.go("L_LZ", heading=180))
+        r.at = "L_LZ"
+        r.add(r.wait("NECTAR off the LOADING ZONE", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+        top = [r.action("LaunchOne"), r.wait("TIP 4 topped up", when=["RightCellUp"], ms=2000)]
+        r.add(r.wait("TIP 4 done?", when=["RightCellUp"], ms=1500, no=top, no_label="No: a NECTAR at the left CELL"))
+        if lz == "station":
+            r.pt("L_LZP", *L_LZP)
+            r.add(r.go("L_LZP", heading=180, park=True))
+            r.at = "L_LZP"
+        else:
+            r.add(r.go("L_F5", ctrl=[(40, 104), (57.5, 100), (57.5, 50)], heading=270))
+            r.at = "L_F5"
+            r.add(fire(r, "The NECTAR at the right CELL (TIP 5, with R)", "Empty", ms=3000))
     else:
-        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms))
+        if noturn4:
+            # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
+            r.add(r.go("L_N", turn_by=1.0))
+        r.at = "L_N"
         if catch_cards:
-            r.add(r.action("CatchIn"))
-        r.add(r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
-    r.at = "L_F5"
-    r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
-    if top5_ms:
-        # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
-        # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
-        r.pt("L_T5", *(t5 or L_T5))
-        r.add(r.go("L_T5", heading=270))
-        r.at = "L_T5"
-        r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
-              top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
-    if noturn4 and top4_ms:
-        # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
-        # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
-        # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
-        five = r.cards[m0:]
-        del r.cards[m0:]
-        del five[2 if catch_cards else 1]  # the "TIP 4" wait: the TIP has already come on this branch
-        r.pt("L_T4", *L_T4)
-        r.at = "L_N4"
-        short = [r.go("L_T4", heading=90)]
-        r.at = "L_T4"
-        short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
-                  top_up(r, "The top-up at the left CELL (TIP 4)", "Left", ms=2500),
-                  r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
-        r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
-                     no_label="No TIP 4: top it up and park"))
+            r.add(r.action("CatchOut"))
+        # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
+        r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
+        if creep4:
+            r.pt("L_C4", *L_C4)
+            r.add(r.wait("TIP 4's spill lands", when=["IntakeFull"], ms=800), r.go("L_C4", heading=270))
+            r.at = "L_C4"
+            r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
+                  r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
+        else:
+            r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms))
+            if catch_cards:
+                r.add(r.action("CatchIn"))
+            r.add(r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
+        r.at = "L_F5"
+        r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
+        if top5_ms:
+            # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
+            # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
+            r.pt("L_T5", *(t5 or L_T5))
+            r.add(r.go("L_T5", heading=270))
+            r.at = "L_T5"
+            r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
+                  top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
+        if noturn4 and top4_ms:
+            # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
+            # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
+            # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
+            five = r.cards[m0:]
+            del r.cards[m0:]
+            del five[2 if catch_cards else 1]  # the "TIP 4" wait: the TIP has already come on this branch
+            r.pt("L_T4", *L_T4)
+            r.at = "L_N4"
+            short = [r.go("L_T4", heading=90)]
+            r.at = "L_T4"
+            short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
+                      top_up(r, "The top-up at the left CELL (TIP 4)", "Left", ms=2500),
+                      r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
+            r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
+                         no_label="No TIP 4: top it up and park"))
     yes = r.cards[n0:]
     del r.cards[n0:]
     r.at = "L_N"
