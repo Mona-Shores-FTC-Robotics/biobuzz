@@ -447,6 +447,40 @@ plan, the lane-servo stopgap and the one-motor-flywheels proposal above. `cad/tr
   the robot at 4 pieces and 3 NECTAR with no sensor; and the lane must deliver a ball into his part on the robot's
   centreline at z 1.3 without a step it cannot climb. Both go in the note to him with the CAD chat's questions.
 
+**The 8 Oct meeting (recorded by the CAD chat in `doc/meeting-2026-10-08.md` and `doc/motors-and-servos.md`, commits
+fe94e47 and 0d9d622), and what it does to the transfer:**
+- **The feeder is independent of the launcher** (the flywheels must reach speed without firing) **and gets its own
+  DC motor**, the one the turret frees: the turret goes to a servo (continuous mode, belted 1:1 to the kit's drive
+  gear, two analog absolute encoders for the angle). Motors: drive 4, intake + lane 1, flywheels 2, feeder 1. Servos:
+  extractor, turret. **Plan A's yoke, belt off the flywheel shaft and gate servo are superseded.** The feeder goes
+  back to a fixed shaft in bearings (v4's two small plates on the mentor's channels) with the sprung pad opposite,
+  and **stopping the feeder is the gate**: v3's mechanism, where the stopped feeder holds the lead ball on the column
+  and the pad's light band lets both sizes enter it. Constant feed is unchanged: the feeder runs through the volley
+  and throws each piece as the lane delivers it. The physics was done on 8 Oct for exactly this: a 1150 rpm Yellow
+  Jacket on 72 mm wheels gives 68–77 in/s at exit against the 36 in/s the 1.7 in coast needs, so the hand-off gap
+  stays closed by speed; the earlier candidate position was above the feeder shaft at Y 2.87, z 6.30 on a 24T–24T
+  275 mm belt, which needed one of the mentor's channels to move. Where it sits now is the CAD chat's to find; the
+  flywheel motors have since moved out and up, which may have opened the space.
+- **"The transfer is gravity-fed or tied to the intake."** Plan A's lane, driven off the intake roller's motor, is
+  "tied to the intake" and is drawn and checked. **Gravity does not fit this robot:** a ball must roll from the ramp
+  top (X 5.7) to the column (X −2.045) within one lane pitch and must not run back up the lane when the robot
+  brakes, which needs a slope steeper than the braking (tan θ > a/g, about 10° just to roll, nearer 25° to stay put
+  under hard braking). Even 10° over that run is 1.4 in, which raises the lane's front to z 2.7 under the front
+  drive motors, whose encoder caps a NECTAR already clears by 0.05 in; the intake would also have to lift pieces
+  that much higher. And a gravity lane has no way to drive pieces positively into the stopped feeder at lane pitch.
+  So the transfer's answer is **tied to the intake, as drawn**, with the two notes already in this file: the lane
+  loads the intake motor about 20% of stall when full, and reversing the intake reverses the lane.
+- **#170, the launcher possibly on the turret with a slip ring.** If the launcher turns with the turret, the hand-off
+  still works because it is on the turret's axis: the feeder on the chassis throws the ball straight up the launch
+  column into a nip that may face any way. Two things the transfer then requires of #170: **nothing enters the
+  column**, a clear bore of at least 3.9 in from the flywheel nip up through the ring (the kit's 105 mm ID is 4.13 in,
+  0.25 in a side round a NECTAR, so **no slip ring fits inside the ring**: it goes above it with its own through-bore
+  of 100 mm or more, or off-axis around the outside, or the ring grows); and the feeder's centring is accepted: the
+  pad centres a POLLEN at Y 0.15 and a NECTAR at Y −0.21, so at some turret angles a ball enters the nip up to 0.21 in
+  toward one wheel, an unequal squeeze the flywheels' grip absorbs. The feeder's own spin on the ball is about X,
+  so at a turret angle it is no longer about the flywheels' axis; the flywheels cancel it if they grip, which is the
+  same condition as before.
+
 **Changes to the mentor's launcher in v3, which he has to agree to before anything is ordered:** the launcher and
 turret move forward 0.8 in (for the count by geometry); the flywheel
 motors move out and up (Y ±6.7, z 7.0, belted to his 41T pulleys); the motor plates, blocks and standoffs under the
@@ -836,13 +870,13 @@ The adjustments above are set on the robot in this order, with 6 POLLEN and 4 NE
 ## In the whole-robot model
 
 **The CAD is `cad/transfer/`** (build.py, dhs-transfer.step, STLs, README with parts) on
-`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 with Plan A drives at commit 6bc7b2e** (goBILDA
-rebuild of v3; the intake motor runs the lane, the feeder is belted to the left flywheel shaft on a swinging yoke
-with a servo gate, a belted turret motor; see "Plan A" in "Transfer v3" above), checked against the mentor's 7 Oct
-`Robot.step`: no clashes, 131 screws with 0 problems, both ball sizes swept clear. **It is not yet checked against
-his 8 Oct export**, which puts his own rollers where our feeder is; the CAD chat has paused launcher-area changes
-until he answers (see "The mentor's 8 Oct export"). The J-kicker CAD (commit 3263aec) is the record of the earlier
-design.
+`claude/robotics-meeting-notes-lq2y55`. **Current: transfer v4 with Plan A drives, turret on a servo, at commit
+0d9d622** (goBILDA rebuild of v3; the intake motor runs the lane; see "Plan A" in "Transfer v3" above), checked
+against the mentor's 7 Oct `Robot.step`: no clashes, 162 screws with 0 problems, both ball sizes swept clear. **Two
+parts of it are stale:** the feeder is still the yoke belted off the left flywheel with a gate servo, which the 8 Oct
+meeting superseded with an independent motor-driven feeder (see "The 8 Oct meeting"); and it is not checked against
+his 8 Oct export, which puts his own rollers where our feeder is (see "The mentor's 8 Oct export"). The J-kicker CAD
+(commit 3263aec) is the record of the earlier design.
 
 ## Who this goes to
 
