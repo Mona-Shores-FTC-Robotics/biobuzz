@@ -959,6 +959,31 @@ final class FieldSim {
         return false;
     }
 
+    /**
+     * The same NECTAR rolled along the wall instead (doc/human-nectar.md, the CAD chat, 9 Oct 2026): released
+     * {@code offWallIn} from the alliance wall at the LOADING ZONE's end away from the HIVE, rolling toward the HIVE
+     * end at {@code speedInPerS}, where a robot can wait for it with its intake back along the wall. It slows by
+     * NECTAR's rolling resistance alone, so a gentle roll stops inside the zone and a brisk one leaves it.
+     */
+    boolean enterNectarRolled(Alliance alliance, double offWallIn, double speedInPerS) {
+        Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
+        double[] zone = loadingZone(alliance);
+        boolean blue = alliance == Alliance.BLUE;
+        for (Piece p : pieces) {
+            if (p.where != Where.OUTSIDE || p.kind != kind) continue;
+            p.where = Where.FIELD;
+            p.x = blue ? FIELD_SIZE_IN - offWallIn : offWallIn;
+            p.y = blue ? zone[2] + NECTAR_RADIUS_IN + 1 : zone[3] - NECTAR_RADIUS_IN - 1;
+            p.z = NECTAR_RADIUS_IN + 0.05;
+            p.vx = p.vz = 0;
+            p.vy = blue ? speedInPerS : -speedInPerS;
+            events.add(String.format(Locale.ROOT, "human: %s rolled along the wall from (%.1f, %.1f) at %.0f in/s",
+                    name(kind), p.x, p.y, speedInPerS));
+            return true;
+        }
+        return false;
+    }
+
     /** Messages since the last call: shots scored, tips, spills. */
     List<String> drainEvents() {
         List<String> out = new ArrayList<>(events);

@@ -1778,7 +1778,12 @@ What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInP
 fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
 describing ours (9 Oct 2026, the CAD chat's redesign brief). `BIOBUZZ_AUTO_HUMAN_NECTAR=1` has the drive team enter
 one NECTAR into the LOADING ZONE 2 s after each TIP (G426), for both alliances; every baseline runs without it until
-the Q&A confirms the entry is allowed during AUTO. Two more what-ifs from the same brief:
+the Q&A confirms the entry is allowed during AUTO. `BIOBUZZ_AUTO_HUMAN_ENTRY=roll` rolls it along the wall instead
+(doc/human-nectar.md on the meeting-notes branch: released 1 s after the TIP at the zone's end away from the HIVE,
+12 in/s, 5 in off the wall, one in twenty wide, held while a robot is on that half of the zone), and
+`BIOBUZZ_AUTO_HUMAN_BANK=3` holds the first entries until three are owed and rolls them in together, 0.6 s apart.
+A 12 in/s roll leaves the zone unless a robot waits for it; `HumanNectarTest` pins the roll's distance.
+Two more what-ifs from the same brief:
 `RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
 piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
 `StreamOn`), and `RobotDesign.launchRangeIn` (60 in is the placeholder). `tools/auto-routes/flow_solo.py` is the

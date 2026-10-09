@@ -551,6 +551,10 @@ public class AutoStudyTest {
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
         // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
         // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
+        // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N: how the drive team's NECTAR goes in (see AutoSim).
+        AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
+        AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
         String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
         FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
         String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");

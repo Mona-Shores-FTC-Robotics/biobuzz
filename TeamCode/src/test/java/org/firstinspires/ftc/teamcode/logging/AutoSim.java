@@ -87,6 +87,20 @@ public final class AutoSim {
     // Mechanisms: not measured, like the rest of the simulated robot.
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
     static final double HUMAN_DELAY_S = 2.0;
+    /**
+     * The rolled entry (doc/human-nectar.md, 9 Oct 2026): released this long after the TIP once no robot is on the
+     * release half of the zone, this far off the wall give or take an inch, at this speed give or take 2 in/s, and
+     * one in twenty goes wide (6 in further off the wall). The numbers are placeholders until a practice drill
+     * measures them. BIOBUZZ_AUTO_HUMAN_ENTRY=roll turns it on; BIOBUZZ_AUTO_HUMAN_BANK=N holds the first entries
+     * until N are owed (TU02's G426 note: a NECTAR need not be entered at once) and rolls them in one after another.
+     */
+    static boolean humanRolls = false;
+    static int humanBank = 0;
+    static final double HUMAN_ROLL_DELAY_S = 1.0;
+    static final double HUMAN_ROLL_OFF_WALL_IN = 5.0;
+    static final double HUMAN_ROLL_SPEED_IN_PER_S = 12.0;
+    static final double HUMAN_ROLL_MISS_CHANCE = 0.05;
+    static final double HUMAN_ROLL_GAP_S = 0.6;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
     /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
@@ -336,6 +350,8 @@ public final class AutoSim {
     private boolean humanNectar;
     private final List<Double> nectarDueAt = new ArrayList<>();
     private final List<Double> theirNectarDueAt = new ArrayList<>();
+    /** Whether the first bank has gone in: ours, theirs. */
+    private final boolean[] bankEntered = new boolean[2];
     private double now;
     private List<double[]> lastArc;
     private int lane;
@@ -437,6 +453,43 @@ public final class AutoSim {
     AutoSim humanNectar(boolean on) {
         humanNectar = on;
         return this;
+    }
+
+    /** One loop's human-player entries for an alliance: {@code due} holds when each owed NECTAR may go in. */
+    private void humanEntries(Alliance a, List<Double> due, int side, Result result) {
+        if (due.isEmpty() || now < due.get(0)) return;
+        if (humanBank > 1 && !bankEntered[side] && due.size() < humanBank) return;  // the human waits for the bank
+        if (!humanRolls) {
+            due.remove(0);
+            sim.enterNectar(a);
+            bankEntered[side] = true;
+            return;
+        }
+        if (!releasePathClear(a)) return;  // the delay stretches while a robot is on the release half
+        due.remove(0);
+        bankEntered[side] = true;
+        boolean wide = sim.random.nextDouble() < HUMAN_ROLL_MISS_CHANCE;
+        double off = Math.max(2.5, HUMAN_ROLL_OFF_WALL_IN + sim.random.nextGaussian() + (wide ? 6 : 0));
+        double speed = Math.max(6, HUMAN_ROLL_SPEED_IN_PER_S + 2 * sim.random.nextGaussian());
+        if (sim.enterNectarRolled(a, off, speed)) {
+            String text = String.format(Locale.ROOT, "human: NECTAR rolled along the wall, %.1f in off it at %.0f in/s%s",
+                    off, speed, wide ? " (wide)" : "");
+            for (Bot b : bots) if (b.alliance == a) result.robots.get(b.index).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, text));
+        }
+        // The next of a bank follows after a gap.
+        if (!due.isEmpty()) due.set(0, Math.max(due.get(0), now + HUMAN_ROLL_GAP_S));
+    }
+
+    /** No robot's centre on the release half of the alliance's LOADING ZONE (the end away from the HIVE), 9 in around it. */
+    private boolean releasePathClear(Alliance a) {
+        double[] zone = FieldSim.loadingZone(a);
+        double mid = (zone[2] + zone[3]) / 2;
+        double yLo = a == Alliance.BLUE ? zone[2] : mid, yHi = a == Alliance.BLUE ? mid : zone[3];
+        for (Bot b : bots) {
+            double[] pose = pedro(b.drive.pose);
+            if (pose[0] > zone[0] - 9 && pose[0] < zone[1] + 9 && pose[1] > yLo - 9 && pose[1] < yHi + 9) return false;
+        }
+        return true;
     }
 
     /** The staged pieces' rings: {@code /Sim/Staged/Ring<i>}, one a piece Outtake pushed out. */
@@ -700,22 +753,16 @@ public final class AutoSim {
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
-                if (humanNectar) nectarDueAt.add(now + HUMAN_DELAY_S);
+                if (humanNectar) nectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
             }
-            while (!nectarDueAt.isEmpty() && now >= nectarDueAt.get(0)) {
-                nectarDueAt.remove(0);
-                sim.enterNectar(alliance);
-            }
+            humanEntries(alliance, nectarDueAt, 0, result);
             if (result.opponents) {
                 FieldSim.Rocker theirs = sim.rocker(alliance.other());
                 if (theirs.tips > result.theirTipsAt.size()) {
                     result.theirTipsAt.add(now);
-                    if (humanNectar) theirNectarDueAt.add(now + HUMAN_DELAY_S);
+                    if (humanNectar) theirNectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
                 }
-                while (!theirNectarDueAt.isEmpty() && now >= theirNectarDueAt.get(0)) {
-                    theirNectarDueAt.remove(0);
-                    sim.enterNectar(alliance.other());
-                }
+                humanEntries(alliance.other(), theirNectarDueAt, 1, result);
             }
             fieldLog.write(log, sim, us);
             for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, b.turretYaw, us);
