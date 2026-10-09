@@ -1093,9 +1093,11 @@ public final class AutoSim {
             }
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
                 // A frame-fixed launcher: the drivetrain turns the robot to face the CELL first (or,
-                // with slats that flip, to put its back to it, if that is the smaller turn).
+                // with slats that flip, to put its back to it, if that is the smaller turn). The bearing is
+                // from the launcher's own axis (as the turret's is), not the robot's centre: 2.5 deg out close in.
                 double[] at = pedro(drive.pose);
-                double bearing = Math.atan2(aim[1] - at[1], aim[0] - at[0]);
+                double[] from = launcherAxis(at);
+                double bearing = Math.atan2(aim[1] - from[1], aim[0] - from[0]);
                 yawError = AdvantageScopeFrame.wrap(bearing - at[2]);
                 if (design.launchesBothWays) {
                     double backError = AdvantageScopeFrame.wrap(bearing + Math.PI - at[2]);
@@ -1839,10 +1841,15 @@ public final class AutoSim {
          */
         private double turretTarget(double[] aim) {
             double[] at = pedro(drive.pose);
+            double[] from = launcherAxis(at);
+            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - from[1], aim[0] - from[0]) - at[2]);
+        }
+
+        /** The launcher's axis in the world, for the robot at {@code at}: {@link #TURRET_AXIS_X_M} behind its centre. */
+        private double[] launcherAxis(double[] at) {
             double c = Math.cos(at[2]), s = Math.sin(at[2]);
             double ax = TURRET_AXIS_X_M / AdvantageScopeFrame.METERS_PER_INCH, ay = TURRET_AXIS_Y_M / AdvantageScopeFrame.METERS_PER_INCH;
-            double x = at[0] + ax * c - ay * s, y = at[1] + ax * s + ay * c;
-            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - y, aim[0] - x) - at[2]);
+            return new double[] {at[0] + ax * c - ay * s, at[1] + ax * s + ay * c};
         }
 
         /**
