@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/l-quals.pp",
-  "spec": "LQualsAuto,PartnerPreloadsRightHighAuto@50",
+  "pp": "TeamCode/autos/r-quals.pp",
+  "spec": "RQualsAuto,PartnerLeftVAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "l-quals.pp",
+    "AutoSource": "r-quals.pp",
     "SavedBy": "README, the qualifier Autos L-Quals and R-Quals, with the turret slewing by the side-of-field rule and the 0d9d622 model (9 Oct 2026)"
   },
-  "title": "L-Quals",
+  "title": "R-Quals",
   "usual": true,
-  "folder": "l-quals"
+  "folder": "r-quals"
 }
