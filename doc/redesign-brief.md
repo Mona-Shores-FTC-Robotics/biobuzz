@@ -89,6 +89,28 @@ spill at the far end, and the floor is empty by 21 to 25 s in every top-up tried
 partner that collects (which is the Sister pair) or a robot that recovers a whole spill in about 6 s while holding at
 most 4 at a time (a flow-through intake that fires as it collects). That is a different robot, not a tuned one.
 
+## Folding flaps on retuned routes (body-designs chat, 9 Oct, d0b812a)
+
+Sister five, both robots with 8 in folding flaps (6 in ahead of the intake mouth; 8.88 in is the most R105 allows on a
+15.12 in frame), routes retuned (`sister_five.py`), 60 runs each:
+
+| Front, routes, intake | 5 TIPs | Points |
+|---|---|---|
+| Today's front and routes | 16 | 92.7 |
+| Today's front, new routes (today's / faster intake) | 20 / 29 | |
+| Folding 8 in, new routes, today's intake | 33 | 99.4 |
+| Folding 8 in, new routes, 0.17 s and 120 in/s intake | 40 | 102.3 |
+
+No run ended at 2 TIPs or fewer: R now tops up a short TIP 2 (a `TipOverdue` trigger, the left CELL up 7 s), which
+takes the matches ending at 2 TIPs from 4 to 0. Roughly, the front is worth 13 fifth TIPs, the intake 7 to 9, the
+routes about 4.
+
+The flaps must **fold themselves** within about 0.3 s whenever, out, they would reach a wall, the HIVE frame or the
+centre line (now or 0.4 s ahead), and while the extractor is down. Fixed 8 in flaps hit walls, the frame and the
+centre line in every run. So the design needs pose-aware, fast-folding flaps. A slide-out intake of 3 to 6.9 in does
+about as well as 6 in flaps; camera field of view and chase radius change nothing. The pieces R still misses are over
+the centre line, against walls 35 to 50 in away, or pushed NECTAR.
+
 ## Solo 4 TIPs: no, for any robot the simulator can build (9 Oct)
 
 Partner parks only. Today's robot gets 3 TIPs in 42 of 60 (TIP 3 at 27.2 s); with a 0.17 s / 120 in/s intake, 46;
