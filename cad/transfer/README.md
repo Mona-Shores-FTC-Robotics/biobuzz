@@ -100,7 +100,7 @@ balls. No sensor, no software count.
 | 3412-0009-0315, -0320 | 1 each | HTD5 belts: the flywheels |
 | 5203-2402-0001 | 2 | 6000 RPM (1:1) Yellow Jacket: the flywheels |
 | 2000-0025-0003 | 1 | Speed servo, in continuous mode: the turret |
-| 48T gear, module 0.8 (goBILDA, the turret kit's series; check stock) | 1 | turret encoder B, on the 176T ring |
+| 2302-0014-0048 | 1 | 48T mod 0.8 hub-mount gear (14 mm bore, on an 8mm REX hub): turret encoder B, on the 176T ring |
 | 2106-4008-0320 | 1 | 32 mm REX shaft, cut to 26 mm: turret encoder B |
 | AS5600-type analog encoder board + 6 x 2.5 mm diametric magnet | 2 | the turret's absolute encoders |
 | 8mm REX spacers | stacks | the lane shafts' outer ends, the jackshaft, the idler, the feeder shaft, the left flywheel's shaft, the turret gear's shaft |

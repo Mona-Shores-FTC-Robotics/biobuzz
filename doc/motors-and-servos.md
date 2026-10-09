@@ -28,6 +28,17 @@ That's one job too many, so one of them has to share a motor or move to a servo.
 The feeder needs no encoder, so its motor port's encoder input is free (a lane-full sensor, if the intake current
 spike isn't enough).
 
+## The turret's encoders: why two, not one at 1:1
+
+Checked against goBILDA's catalogue on 9 Oct. The turret kit (3208-0004-0001, 2.75:1, 105 mm bore) is a 176-tooth
+mod 0.8 ring driven by its 64T hub-mount gear, and its page has no encoder provision. A single absolute encoder at
+exactly 1:1 (issue #170, rule 2) would need a 176T gear meshing the ring, and goBILDA's largest mod 0.8 gear is 108T.
+The 105 mm centre is the ball path, so nothing can sit on the axis either. The two-encoder trick works with stock
+parts: the kit's 64T (2.75 turns per turret turn) and a 2302-0014-0048 48T (3.67 turns), unique over 393 deg. Two
+REV Thru-Bore encoders on the OctoQuad (#169) can read them. The flywheels stay off the turret (8 Oct), so nothing
+electrical rides on it and no slip ring is needed unless a hood servo is added. goBILDA's own drive table for this kit
+lists a servo option (1x Axon MINI: 40.4 RPM at the turret, 242 deg/s), which matches the speed assumed above.
+
 ## The plans
 
 | Plan | The four non-drive motors | Servos | Trade-off |
