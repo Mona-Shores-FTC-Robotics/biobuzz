@@ -117,13 +117,14 @@ R_F5_POCKET = (36, 36, 90)
 R_T3 = (42, 12, 90)
 # The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
 R_T3_NEAR = (50, 12, 90)
+R_TOP2 = (36, 58, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -183,6 +184,17 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         if r.at != "R_T3":
             r.add(r.go("R_T3", heading=90))
         hold = r.at = "R_T3"
+    if topup2_ms is not None:
+        # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): no TIP 2 within topup2_ms of R's catch, R
+        # fires one of it at the left CELL from R_TOP2 (39 in from it, clear of the HIVE's feet) and comes back.
+        r.pt("R_TOP2", *R_TOP2)
+        r.at = hold
+        top = [r.go("R_TOP2", heading=90)]
+        r.at = "R_TOP2"
+        top += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000), r.go(hold, heading=90)]
+        r.at = hold
+        r.add(r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=topup2_ms, no=top, no_label="No: top it up"))
+        rescue_ms = None
     n0 = len(r.cards)
     if mode != "auto":
         r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
@@ -390,9 +402,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
           bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False,
-          top4_ms=0, top4_wait_ms=2500, fill3_ms=0):
+          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88):
+    """ln, ls, lturn: L's waits for TIP 2's and TIP 3's spills and its turn below the HIVE (moved back for a front whose
+    flaps reach further, so they stay out of a spill still falling, G409)."""
     r = Route(name, L_START, speed=50)
-    r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
+    r.pt("L_N", *ln).pt("L_TURN", *lturn).pt("L_S", *ls).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
     r.at = "FAR_FLOWER_TURN"
@@ -401,7 +415,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     n0 = len(r.cards)
     # TIP 3: TIP 2's spill caught on the way down the lane (sister.py's lane_down).
     r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=settle_ms),
-          r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=0.88, turn_by=1.0))
+          r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=lturn_after, turn_by=1.0))
     r.at = "L_TURN"
     r.add(r.go("L_S", heading=90))
     r.at = "L_S"
@@ -416,7 +430,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.at = "L_C"
     if noturn4:
         # Up the lane still facing it (90), no turn at the end: the turret fires back over the shoulder.
-        r.pt("L_N4", L_N[0], L_N[1] - 2, 90)
+        r.pt("L_N4", ln[0], ln[1] - 2, 90)
         if fill3_ms:
             # Simulator chat: L's catch ends on its limit holding 2-3 in the runs where TIP 4 comes up short; top
             # it up off the floor (as R does after TIP 1) before the lane.

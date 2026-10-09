@@ -754,7 +754,7 @@ public final class AutoSim {
      * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
      * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
      */
-    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly, double slideOut) {
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly, double slideOut, boolean flapsFolded) {
         List<double[]> out = corners(pose, design);
         if (design.hasGuides()) {  // the rigid V's free ends
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
@@ -772,7 +772,7 @@ public final class AutoSim {
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
-        boolean folded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+        boolean folded = flapsFolded || (design.flapsAfterStart && now < CATCHER_DEPLOY_S);
         if (design.hasFlaps() && !folded && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
             for (int side = -1; side <= 1; side += 2) {
@@ -1157,11 +1157,11 @@ public final class AutoSim {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
             if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
-            body.flapsFolded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+            if (design.flapsAfterStart) flaps(log, pose, vx, vy, w, us);
             if (design.slideMaxIn > 0) slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -1179,7 +1179,7 @@ public final class AutoSim {
             // so). The simulator does not stop the robot at a wall; a corner or V tip beyond one by more than the slack
             // (the start touches a wall on purpose) is a problem, like the HIVE frame.
             if (Double.isNaN(result.hitWallAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     if (c[0] < -WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN
                             || c[1] < -WALL_SLACK_IN || c[1] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN) {
                         result.hitWallAt = now;
@@ -1192,7 +1192,7 @@ public final class AutoSim {
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;
@@ -1349,6 +1349,49 @@ public final class AutoSim {
         }
 
         boolean slideLogged;
+
+        /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
+        static final double FLAP_LOOKAHEAD_S = 0.4;
+        /** ... and come back out once clear for this long. */
+        static final double FLAP_UNFOLD_S = 0.3;
+        double flapsClearSince = Double.NaN;
+
+        /**
+         * Folding flaps (RobotDesign#flapsAfterStart), run by the robot: folded at START, out from CATCHER_DEPLOY_S, and
+         * folded again whenever, out, they would reach over the centre line (G402), into a wall or the HIVE frame, now or
+         * {@link #FLAP_LOOKAHEAD_S} ahead, or while the FLOWER extractor is down; out again {@link #FLAP_UNFOLD_S} after
+         * that clears. A guess at a robot that knows its pose: nothing like it is drawn. Logged as {@code Flaps/Folded}.
+         */
+        void flaps(WpiLog log, double[] pose, double vx, double vy, double w, long us) throws IOException {
+            double[] ahead = {pose[0] + vx * FLAP_LOOKAHEAD_S, pose[1] + vy * FLAP_LOOKAHEAD_S, pose[2] + w * FLAP_LOOKAHEAD_S};
+            boolean blocked = now < CATCHER_DEPLOY_S || body.extractorDown > 0 || extractorWanted
+                    || flapsReach(pose) || flapsReach(ahead);
+            boolean was = body.flapsFolded;
+            if (blocked) {
+                body.flapsFolded = true;
+                flapsClearSince = Double.NaN;
+            } else {
+                if (Double.isNaN(flapsClearSince)) flapsClearSince = now;
+                if (now - flapsClearSince >= FLAP_UNFOLD_S) body.flapsFolded = false;
+            }
+            if (body.flapsFolded != was || !flapsLogged) {
+                flapsLogged = true;
+                log.put(keyPrefix + "/Flaps/Folded", body.flapsFolded, us);
+            }
+        }
+
+        boolean flapsLogged;
+
+        /** Whether the robot at {@code pose} with its flaps out reaches over the centre line, a wall or into the HIVE frame. */
+        private boolean flapsReach(double[] pose) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, false)) {
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
+                if (c[0] < WALL_SLACK_IN || c[1] < WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN - WALL_SLACK_IN
+                        || c[1] > FieldSim.FIELD_SIZE_IN - WALL_SLACK_IN) return true;
+                if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+            }
+            return false;
+        }
 
         /** Whether the slide's head, {@code e} out, stays on our half, inside the walls and out of the HIVE frame. */
         private boolean slideClear(double[] pose, double e) {
@@ -1800,7 +1843,7 @@ public final class AutoSim {
          * the frame's corners alone let it chase a piece by the centre line or the south wall with its tips over.
          */
         private boolean outOfBounds(double[] pose, double wall) {
-            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                 if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                 if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
