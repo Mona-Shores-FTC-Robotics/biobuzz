@@ -49,6 +49,18 @@ Then, 40 runs each:
 Before parking and weight: R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
 The lever now is how often R's TIP 1 catch reaches 4.
 
+9 Oct 2026, 60 runs each (this build now matches the simulator chat's: the same seeds fail):
+
+    sister5i + sister5h-left (published as "sister5")            5 TIPs 17, 4 33, 3 6, <=2 4     92.3
+    sister5j (L tops TIP 4 up at the left end wall; R parks if late) 5 TIPs 15, 4 35, 3 6, <=2 4   93.2  (L finds nothing there)
+    sister5k (R waits at R_MID; no TIP 4 -> its 4 to the left CELL) 5 TIPs 15, 4 37, 3 4, <=2 4    92.3  (5 collisions)
+    sister5l (as 5k, TIP 5 from the clean pocket (36, 36))          5 TIPs 16, 4 36, 3 4, <=2 4    92.7  (1 collision, at 9.7 s)
+    sister.py (4 TIPs + 2 PARK), same build                                                          93.0
+
+What is left is not routes: the 4 two-TIP runs are L's TIP 2 stream losing one shot to the HIVE from the far FLOWER
+seat (TIP 2 needs all 8; sister.py shares it), and the 4 three-TIP runs are TIP 4 one piece short in sister's plan
+with nothing left on the floor to top it up (L's and R's floor pickups at 21-25 s find nothing).
+
 What decides it:
 - Without the GARDEN, TIP 3 comes up one or two short in a quarter to a third of runs (R's TIP 1 catch is often 3,
   and filling it off the floor while waiting for TIP 2 didn't reach 4), and those matches end at 2 TIPs.
