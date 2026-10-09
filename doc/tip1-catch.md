@@ -202,3 +202,23 @@ a NECTAR weighs 0.091 lb, 1.65 POLLEN. Today's V unless stated.
   the time of a robot that is busy elsewhere. What would change that is the technique in doc/human-nectar.md (on
   claude/robotics-meeting-notes-lq2y55): the drive team holds the NECTAR and rolls it along the wall into a robot
   already waiting in the zone, on cue. The simulator's drop is a placeholder until that is practised and timed.
+
+## Rolled NECTAR (the simulator chat's model, claude/simulator e507f53)
+
+The drive team rolls each NECTAR along the wall from the far end of the LOADING ZONE, 5 in off it at about 12 in/s,
+1 s after the TIP; "bank 3" holds the first three and rolls them 0.6 s apart after TIP 3. Uncaught, they stop 2-5 in
+off the wall at y 75-90. Run on a scratch merge of that commit with this branch (not merged here), today's V, 60 runs.
+
+| R after TIP 4 (at R_N) | one per TIP: 5 TIPs | bank 3: 5 TIPs |
+|---|---|---|
+| nothing (today's routes) | 24 | 24 |
+| waits at (12, 96) facing up the wall to catch, 3 s | 1 | 3 |
+| catches, then the wall FLOWER | 11 | 15 (14 at x 10) |
+| CollectSeen at (14, 80) | 10 | 18 |
+| **sweeps down the wall at x 10 to y 64, then the wall FLOWER** | **25** | **25** |
+
+- **Nobody catches a roll:** R gets to the zone at 16-18 s, and every roll (bank included, about 14.5-17.4 s) has
+  already gone past. The catch spot is the right place only if the drive team holds the NECTAR until R is there.
+- **The sweep picks up 1-2 NECTAR on the way and costs nothing,** but R fills to its 4 at the wall FLOWER either
+  way, so a NECTAR only replaces a POLLEN in the load. That doesn't make another TIP.
+- So rolled NECTAR doesn't help Sister five either. It would help a robot that is short of pieces, or in TELEOP.
