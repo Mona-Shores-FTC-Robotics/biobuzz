@@ -111,6 +111,26 @@ centre line in every run. So the design needs pose-aware, fast-folding flaps. A 
 about as well as 6 in flaps; camera field of view and chase radius change nothing. The pieces R still misses are over
 the centre line, against walls 35 to 50 in away, or pushed NECTAR.
 
+## Buildable fronts and the human NECTAR, simulated (body-designs chat, 9 Oct, 2710997)
+
+Same Sister five routes, 5 TIPs out of 60 at today's / a 0.17 s intake:
+
+| Front | 5 TIPs |
+|---|---|
+| Today's 2.8 in V | 20 / 29 |
+| **Fixed 3.4 in flaps** (the longest that never touch a wall, the HIVE's feet or the centre line) | **28 / 30** |
+| Scheduled 8 in flaps on a 0.5 s servo (out only for the catches) | 28 / 31 |
+| The same on a 1.0 s servo (still swinging when the spill lands) | 18 / 21 |
+
+So **fixed 3.4 in flaps do about as well as scheduled 8 in ones, with nothing to actuate**. The fast pose-aware
+folding flaps scored more (33 / 40) but aren't reasonable to build.
+
+Human-player NECTAR, as the simulator drops it (mid-zone, 2 s after each TIP), did **not** help Sister five: 19 to
+24 against 20 to 30 without, and worse where a robot had to wait at the zone (collisions). R reaches the zone at about
+16 s with only 2 entered, and the drop rolls them out of the zone. The roll-into-a-waiting-intake technique
+([human-nectar.md](human-nectar.md)) might do better, but it needs a robot already waiting there, and time is the
+problem. The drop is a placeholder until a practice drill gives real timings.
+
 ## Solo 4 TIPs: no, for any robot the simulator can build (9 Oct)
 
 Partner parks only. Today's robot gets 3 TIPs in 42 of 60 (TIP 3 at 27.2 s); with a 0.17 s / 120 in/s intake, 46;
