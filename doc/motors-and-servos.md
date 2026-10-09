@@ -9,6 +9,25 @@ FTC allows eight motors (check the current manual for the servo limit). The driv
 wants five more jobs: intake, flywheel L, flywheel R, a feeder that pushes each piece into the flywheels, and a turret.
 That's one job too many, so one of them has to share a motor or move to a servo.
 
+## Decided at the 8 Oct meeting
+
+- **Turret: a servo**, using the two-absolute-encoder gear trick (below) so it always knows its angle. Plan D.
+- **Two launcher motors**, one per flywheel.
+- **The feeder is independent of the launcher**, so the flywheels can spin up without firing. It gets the motor the
+  turret freed. Stopping the feeder is the gate, so no gate servo.
+- **The transfer is gravity-fed or tied to the intake** (still being designed). There's no motor left for it, so
+  "tied to the intake" is the fallback.
+
+| Motors (8) | Servos |
+|---|---|
+| drive x4 | turret (continuous, with two analog absolute encoders) |
+| flywheel L, flywheel R | FLOWER extractor |
+| feeder | |
+| intake (+ transfer if tied to it) | |
+
+The feeder needs no encoder, so its motor port's encoder input is free (a lane-full sensor, if the intake current
+spike isn't enough).
+
 ## The plans
 
 | Plan | The four non-drive motors | Servos | Trade-off |
