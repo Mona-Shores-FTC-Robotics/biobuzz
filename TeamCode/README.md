@@ -1784,7 +1784,12 @@ the Q&A confirms the entry is allowed during AUTO. `BIOBUZZ_AUTO_HUMAN_ENTRY=rol
 `BIOBUZZ_AUTO_HUMAN_BANK=3` holds the first entries until three are owed and rolls them in together, 0.6 s apart.
 `BIOBUZZ_AUTO_HUMAN_CUE=1` holds every entry until one of our robots sits still within 4 in of (10, 96), the catch
 spot (blue the half turn), as a drive team would wait for its robot. A 12 in/s roll leaves the zone unless a robot
-waits for it; `HumanNectarTest` pins the roll's distance.
+waits for it; `HumanNectarTest` pins the roll's distance. What the runs said (9 Oct 2026, 60 seeds each, today's
+robot): on the Sister five routes as drawn, nobody is at the zone when a NECTAR arrives, and every variant sits within
+noise of the 16/60 fifth TIPs (the body-designs chat's retuned routes: 24 without, 23-25 with a catcher waiting on the
+cue, 10 when it tops up at the wall FLOWER afterwards). The catch itself is reliable (all 3 of a bank in 22 of 28
+runs, the first roll 0.4 s after the robot is seated); it breaks even because an emptied CELL needs 7.95 POLLEN-weights
+and a 4-piece load of NECTAR is 6.6, so NECTAR replaces POLLEN in a load and never adds a load.
 Two more what-ifs from the same brief:
 `RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
 piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
