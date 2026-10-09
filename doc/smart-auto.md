@@ -293,8 +293,24 @@ the field.
 
 1. **The simulator needs a camera-down mode** (Tip never fires, no start check) before Backup-L and Backup-R can be
    measured. Asked of the simulator chat.
-2. **Backup-L and Backup-R**: timer-only, aiming by turning, TIP 1 from our preloads at once, TIP 2 from FLOWERs that
-   are always full. Measure at 60 runs against each partner in the list, plus late and never-moving versions of each.
+2. **Backup-L and Backup-R: built and measured** (`tools/auto-routes/backup.py`, 9 Oct 2026). Rigid V, fixed
+   launcher, the camera down (the simulator's `:blind`), 60 runs against every partner in the simulator:
+
+   | Route | Partner | 2 TIPs | PARK | Collisions | Frame / centre line |
+   |---|---|---|---|---|---|
+   | Backup-R | launches from the left (on time / 3 s late) | 60 / 60 | 60 / 60 | 0 / 0 | 0 |
+   | Backup-R | just parks / dead at its start | 59 / 59 | 60 / 60 | 0 | 0 |
+   | Backup-L | launches from the right (on time / 3 s late) | 59 / 60 | 60 / 60 | 0 | 0 |
+   | Backup-L | never launches / dead at its start | 59 / 59 | 60 / 60 | 0 | 0 |
+
+   Each makes TIP 1 itself and TIP 2 from the GARDEN and a FLOWER, so it can't tell, and doesn't need to know, what
+   the partner did. Backup-R: preloads from (57, 20), the GARDEN's 4, then the wall FLOWER's 4, each fired at the left
+   CELL from (32, 104). Backup-L waits 2.5 s for the right partner to launch and leave, comes down the lane, fires
+   its preloads at the right CELL from (55, 30) (spent if the partner's tipped it), then the GARDEN's 4 from (32, 104)
+   and the far FLOWER's 4 from (52, 119). The one miss in 60 is TIP 2 a piece short (a shot into the HIVE): 8 pieces
+   and no spare. Both park at (10.5, 92), partly in the zone, below a partner parked at its far end (at y 95 the Vs
+   met in 60 of 60). Backup-R waits 2.5 s at (30, 40) so a left partner leaving late crosses y 124 before it gets to
+   (32, 104) (collisions 56 of 60 without the wait). Both finish by about 22 s.
 3. **R-Quals without relying on a spill.** The baseline rule (`doc/unified-design.md`): no TIP may depend on catching
    pieces that fall out of the HIVE. Today's R-Quals waits under the HIVE to catch TIP 1's spill and fires it for
    TIP 2, so it breaks the rule. The pieces always there: our 4, the partner's 4 if it launches, two FLOWERs and the
