@@ -121,7 +121,8 @@ R_BACK = (34, 24, 90)
 # The LOADING ZONE (x 0-11, y 94.3-117.9): where L waits facing the wall for the drive team's NECTAR, and parks.
 L_LZ, L_LZP = (20, 110, 180), (14, 106, 180)
 R_LZ = (18, 110, 180)
-R_CATCH, R_PILE = (12, 96, 90), (14, 80, 270)
+R_CATCH, R_PILE = (10, 96, 90), (14, 80, 270)
+R_SW0, R_SW1 = (10, 98, 270), (10, 64, 270)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -372,13 +373,23 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             r.at = "R_W"
             five.append(r.go("R_N", heading=90))
         five += tip4_at_rn(ms=10000)
-        if lz5 in ("catch", "catchf", "pile"):
+        if lz5 in ("catch", "catchf", "pile", "sweep"):
             # The rolled entry (simulator chat, 9 Oct 2026: released 1 s after a TIP at the far end of the zone, 5 in off
             # the wall, rolling toward -y at about 12 in/s; one not caught stops near (5, 67) along the wall).
             # "catch": R waits at R_CATCH, intake facing up the wall, for the ones still to come; "catchf" then fills
             # up at the wall FLOWER; "pile": R sweeps up the ones already rolled past, by the wall, then the FLOWER.
             r.at = "R_N"
-            if lz5 == "pile":
+            if lz5 == "sweep":
+                # Uncaught rolls stop 2-5 in off the wall at y 75-90: drop onto the wall and drive straight down it,
+                # the 14 in intake from x 3 to 17, then on to the wall FLOWER.
+                r.pt("R_SW0", *R_SW0)
+                r.pt("R_SW1", *R_SW1)
+                five.append(r.go("R_SW0", ctrl=[(18, 104)], heading=270))
+                r.at = "R_SW0"
+                five.append(r.go("R_SW1", heading=270))
+                r.at = "R_SW1"
+                five += wall_flower_from("R_SW1")
+            elif lz5 == "pile":
                 r.pt("R_PILE", *R_PILE)
                 five.append(r.go("R_PILE", ctrl=[(24, 90)], heading=270))
                 r.at = "R_PILE"
