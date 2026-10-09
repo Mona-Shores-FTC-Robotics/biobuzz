@@ -1759,9 +1759,14 @@ still work, the start check still runs (it is the referee's rule, not the camera
 tips when its shots land. Any robot in the spec can be blind, so a backup route can be measured beside a
 normal partner, or against blind opponents.
 
-A turret design's turret turns at `RobotDesign.turretSlewRadPerS` (240 deg/s, the servo of the 8 Oct 2026 meeting),
-tracking the raised CELL whenever the flywheels spin and firing once within 2 deg; `BIOBUZZ_AUTO_TURRET_DEG_PER_S`
-overrides it for every robot in a study (0: aims at once, as before 9 Oct 2026).
+A turret design's turret turns at `RobotDesign.turretSlewRadPerS` (240 deg/s, the servo of the 8 Oct 2026 meeting).
+While the flywheels spin it pre-aims at the CELL of the end the robot is in, switching only past the HIVE frame's span
+(`AutoSim.TURRET_SWITCH_IN`: y 51 and 90.5 for red, the mentor's rule with hysteresis, 9 Oct 2026); a launch goes at
+the raised CELL and fires once the turret is within 2 deg. The timeline reports "turret: the fire step waited N s for
+the turret" (or "on target when the fire step began"), each side switch, when the turret was on target after it, and
+how long before the next fire step the switch came; a launch at the far CELL is flagged. `BIOBUZZ_AUTO_TURRET_DEG_PER_S`
+overrides the slew for every robot in a study (0: aims at once, as before 9 Oct 2026); `BIOBUZZ_AUTO_TIMELINE=all`
+prints every seed's timeline for a script to count.
 
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.

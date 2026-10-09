@@ -486,6 +486,11 @@ final class FieldSim {
         double[] aimPoint() {
             int end = raisedEnd();
             if (end == 0) return null;
+            return aimPointFor(end);
+        }
+
+        /** The same point for the CELL at {@code end} (+1 high y, -1 low y), raised or not: where a turret pre-aims. */
+        double[] aimPointFor(int end) {
             return toWorld(0, end * (CELL_OPENING_IN - 2.5), CELL_FLOOR_IN + 0.45 * HiveGeometry.OPENING_HEIGHT_IN);
         }
     }
