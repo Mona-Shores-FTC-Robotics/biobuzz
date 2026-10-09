@@ -103,11 +103,6 @@ final class RobotInternalsLog {
 
     /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, ac817a6). */
     static final double TURRET_X = -0.051895 / 0.0254, TURRET_Y = 0.004 / 0.0254;
-    /**
-     * How fast the drawn turret turns: about 240 deg/s on its goBILDA servo (the 8 Oct meeting). The simulator aims
-     * instantly; {@code TurretErrorDeg} shows how far the drawing lags the aim.
-     */
-    static final double TURRET_DEG_PER_S = 240;
 
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
