@@ -650,8 +650,8 @@ match (it is fixed: see the rules below): does it shoot, how reliably, where doe
 | Partner | Run | Why | Expect |
 |---|---|---|---|
 | **Can't shoot** | **R-Quals**, the partner starting near its park (out of the standard left start) | TIP 1 is ours at once; nothing waits on the partner | 3 TIPs in 38 |
-| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 55; L-Quals 3 TIPs in 54 (±4) |
-| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 54 if it shoots; 2 TIPs in 53 if it does not |
+| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 55 (±4) |
+| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 55 if it shoots; 2 TIPs in 53 if it does not |
 
 What not to do, and why:
 - **A partner that can't shoot with L-Quals**: L-Quals waits until 9.2 s for a TIP 1 that never comes, then gets 2
