@@ -84,6 +84,13 @@ from alone import seat, S_CATCH
 from helpers import WALL_FLOWER_AT, FAR_FLOWER_AT, fire
 from sister import R_START, L_START, R_S, R_N, L_N, L_TURN, L_S, seated_stream
 
+
+def top_up(r, label, cell, ms):
+    """A top-up fired only while its CELL is still up: one that comes after the TIP it was for (TIP 5 at 26.6-29.1 s,
+    the top-up 0.3-1.1 s later, 9 of 60 runs of 5l) would go at the other CELL, across the field."""
+    return r.wait(f"{cell} CELL still up?", when=[f"{cell}CellUp"], ms=50, yes=[fire(r, label, "Tip", ms=ms)],
+                  no_label="No: the TIP came, hold the top-up")
+
 # TIP 5's firing spots at the right end (the right CELL is clean from y <= 30, x 42-66): R toward the GARDEN side, L in
 # the lane, their Vs (8.9 in either side) about 3 in apart.
 R_F5, L_F5 = (42, 22, 90), (61, 30, 270)
@@ -233,7 +240,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             cards += [r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms, alongside="CollectSeen"),
                       r.go("R_F5", heading=90)]
             r.at = "R_F5"
-            cards.append(fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
+            cards.append(top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
         return cards
 
     # Early: TIP 3 came without the GARDEN's 4, so they go to TIP 4 and the wall FLOWER is TIP 5's.
@@ -456,7 +463,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         r.add(r.go("L_T5", heading=270))
         r.at = "L_T5"
         r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
-              fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
+              top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
     if noturn4 and top4_ms:
         # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
         # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
@@ -469,7 +476,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         short = [r.go("L_T4", heading=90)]
         r.at = "L_T4"
         short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
-                  fire(r, "The top-up at the left CELL (TIP 4)", "Tip", ms=2500),
+                  top_up(r, "The top-up at the left CELL (TIP 4)", "Left", ms=2500),
                   r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
         r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
                      no_label="No TIP 4: top it up and park"))

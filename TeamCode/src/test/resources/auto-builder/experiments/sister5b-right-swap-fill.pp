@@ -1107,7 +1107,7 @@
         ]
       },
       {
-        "id": "w-48",
+        "id": "w-50",
         "kind": "firstOf",
         "label": "TIP 2 (L): the right CELL up",
         "rows": [
@@ -1135,25 +1135,25 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-27",
+                "id": "p-28",
                 "kind": "path",
                 "lineId": "to-r-w-12",
                 "park": false
               },
               {
-                "id": "p-28",
+                "id": "p-29",
                 "kind": "path",
                 "lineId": "to-wall-flower-turn-13",
                 "park": false
               },
               {
-                "id": "p-29",
+                "id": "p-30",
                 "kind": "path",
                 "lineId": "to-wall-flower-14",
                 "park": false
               },
               {
-                "id": "w-30",
+                "id": "w-31",
                 "kind": "firstOf",
                 "label": "The wall FLOWER's 4",
                 "rows": [
@@ -1170,13 +1170,13 @@
                 ]
               },
               {
-                "id": "p-31",
+                "id": "p-32",
                 "kind": "path",
                 "lineId": "to-r-n-15",
                 "park": false
               },
               {
-                "id": "w-32",
+                "id": "w-33",
                 "kind": "firstOf",
                 "label": "The left CELL up",
                 "rows": [
@@ -1193,7 +1193,7 @@
                 ]
               },
               {
-                "id": "w-33",
+                "id": "w-34",
                 "kind": "firstOf",
                 "label": "R's 4 at the left CELL (TIP 4, with L)",
                 "rows": [
@@ -1211,19 +1211,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-34",
+                "id": "p-35",
                 "kind": "path",
                 "lineId": "to-garden-in-16",
                 "park": false
               },
               {
-                "id": "p-35",
+                "id": "p-36",
                 "kind": "path",
                 "lineId": "to-garden-17",
                 "park": false
               },
               {
-                "id": "w-36",
+                "id": "w-37",
                 "kind": "firstOf",
                 "label": "The GARDEN's 4",
                 "rows": [
@@ -1240,13 +1240,13 @@
                 ]
               },
               {
-                "id": "p-37",
+                "id": "p-38",
                 "kind": "path",
                 "lineId": "to-r-f5-18",
                 "park": false
               },
               {
-                "id": "w-38",
+                "id": "w-39",
                 "kind": "firstOf",
                 "label": "TIP 4: the right CELL up",
                 "rows": [
@@ -1263,7 +1263,7 @@
                 ]
               },
               {
-                "id": "w-39",
+                "id": "w-40",
                 "kind": "firstOf",
                 "label": "R's 4 at the right CELL (TIP 5, with L)",
                 "rows": [
@@ -1281,13 +1281,13 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-40",
+                "id": "p-41",
                 "kind": "path",
                 "lineId": "to-r-c5-19",
                 "park": false
               },
               {
-                "id": "w-41",
+                "id": "w-42",
                 "kind": "firstOf",
                 "label": "Top-up off the floor",
                 "rows": [
@@ -1305,28 +1305,47 @@
                 "alongside": "CollectSeen"
               },
               {
-                "id": "p-42",
+                "id": "p-43",
                 "kind": "path",
                 "lineId": "to-r-f5-20",
                 "park": false
               },
               {
-                "id": "w-43",
+                "id": "w-45",
                 "kind": "firstOf",
-                "label": "The top-up at the right CELL (TIP 5)",
+                "label": "Right CELL still up?",
                 "rows": [
                   {
                     "when": [
-                      "Tip"
+                      "RightCellUp"
                     ],
-                    "cards": []
+                    "cards": [
+                      {
+                        "id": "w-44",
+                        "kind": "firstOf",
+                        "label": "The top-up at the right CELL (TIP 5)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Tip"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 4000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ]
                   },
                   {
-                    "afterMs": 4000,
-                    "cards": []
+                    "afterMs": 50,
+                    "cards": [],
+                    "label": "No: the TIP came, hold the top-up"
                   }
-                ],
-                "alongside": "LaunchAll"
+                ]
               }
             ]
           },
@@ -1334,19 +1353,19 @@
             "afterMs": 6500,
             "cards": [
               {
-                "id": "p-44",
+                "id": "p-46",
                 "kind": "path",
                 "lineId": "to-r-w-21",
                 "park": false
               },
               {
-                "id": "p-45",
+                "id": "p-47",
                 "kind": "path",
                 "lineId": "to-r-n-22",
                 "park": false
               },
               {
-                "id": "w-46",
+                "id": "w-48",
                 "kind": "firstOf",
                 "label": "No TIP 2: TIP 1's catch at the left CELL (TIP 2)",
                 "rows": [
@@ -1364,7 +1383,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-47",
+                "id": "p-49",
                 "kind": "path",
                 "lineId": "to-park-23",
                 "park": true

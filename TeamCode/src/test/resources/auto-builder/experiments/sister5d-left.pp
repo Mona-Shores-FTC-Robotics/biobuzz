@@ -668,7 +668,7 @@
         "park": false
       },
       {
-        "id": "w-30",
+        "id": "w-31",
         "kind": "firstOf",
         "label": "TIP 2 started",
         "rows": [
@@ -884,22 +884,41 @@
                 ]
               },
               {
-                "id": "w-28",
+                "id": "w-29",
                 "kind": "firstOf",
-                "label": "The top-up at the right CELL (TIP 5)",
+                "label": "Right CELL still up?",
                 "rows": [
                   {
                     "when": [
-                      "Tip"
+                      "RightCellUp"
                     ],
-                    "cards": []
+                    "cards": [
+                      {
+                        "id": "w-28",
+                        "kind": "firstOf",
+                        "label": "The top-up at the right CELL (TIP 5)",
+                        "rows": [
+                          {
+                            "when": [
+                              "Tip"
+                            ],
+                            "cards": []
+                          },
+                          {
+                            "afterMs": 4000,
+                            "cards": []
+                          }
+                        ],
+                        "alongside": "LaunchAll"
+                      }
+                    ]
                   },
                   {
-                    "afterMs": 4000,
-                    "cards": []
+                    "afterMs": 50,
+                    "cards": [],
+                    "label": "No: the TIP came, hold the top-up"
                   }
-                ],
-                "alongside": "LaunchAll"
+                ]
               }
             ]
           },
@@ -907,7 +926,7 @@
             "afterMs": 4500,
             "cards": [
               {
-                "id": "p-29",
+                "id": "p-30",
                 "kind": "path",
                 "lineId": "to-park-l-10",
                 "park": true
