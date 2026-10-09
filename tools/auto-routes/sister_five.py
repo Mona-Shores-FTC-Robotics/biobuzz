@@ -102,6 +102,8 @@ R_MID = (24, 40, 90)
 R_F5_POCKET = (36, 36, 90)
 # Where R waits for TIP 2 and fires TIP 1's catch, out of L's turning circle at L_TURN.
 R_T3 = (42, 12, 90)
+# The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
+R_T3_NEAR = (50, 12, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -143,10 +145,20 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "S_CATCH"
         fill = [r.go("R_C1", heading=90)]
         r.at = "R_C1"
+        back = "S_CATCH"
+        if t3_at is not None:
+            r.pt("R_T3", *t3_at)
+            back = "R_T3"
         fill += [r.wait("TIP 1's spill off the floor", when=["IntakeFull"], ms=fill1_ms, alongside="CollectSeen"),
-                 r.go("S_CATCH", heading=90)]
+                 r.go(back, heading=90)]
         r.at = "S_CATCH"
-        r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, no=fill, no_label="Not full: off the floor"))
+        if t3_at is not None:
+            # Full already: straight to R_T3 too. Both branches end there.
+            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=[r.go("R_T3", heading=90)],
+                         no=fill, no_label="Not full: off the floor"))
+            r.at = "R_T3"
+        else:
+            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, no=fill, no_label="Not full: off the floor"))
     else:
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
     hold = "S_CATCH"
@@ -155,7 +167,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         # reached R still firing at S_CATCH (its V's tips at y 31). R waits for TIP 2 and fires TIP 1's catch from
         # t3_at instead: clear of that circle, inside the clean firing area, on the way to the GARDEN.
         r.pt("R_T3", *t3_at)
-        r.add(r.go("R_T3", heading=90))
+        if r.at != "R_T3":
+            r.add(r.go("R_T3", heading=90))
         hold = r.at = "R_T3"
     n0 = len(r.cards)
     if mode != "auto":
@@ -487,6 +500,8 @@ def variants():
                    west_exit=True),
             right5("sister5n-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
                    t3_at=R_T3),
+            right5("sister5o-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   t3_at=R_T3_NEAR),
             left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),

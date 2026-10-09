@@ -73,7 +73,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 42,
+        "x": 50,
         "y": 12
       },
       "controlPoints": [],
@@ -92,7 +92,7 @@
       "waitAfterName": "",
       "kind": "atomic",
       "endPoint": {
-        "x": 42,
+        "x": 50,
         "y": 12
       },
       "controlPoints": [],
@@ -1388,7 +1388,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "sister5n-right",
+    "exportName": "sister5o-right",
     "registry": {
       "actions": [
         "SpinUp",
@@ -1488,7 +1488,7 @@
         90
       ],
       "R_T3": [
-        42,
+        50,
         12,
         90
       ],
