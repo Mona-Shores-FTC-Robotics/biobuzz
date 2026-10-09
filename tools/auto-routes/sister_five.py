@@ -117,21 +117,32 @@ R_F5_POCKET = (36, 36, 90)
 R_T3 = (42, 12, 90)
 # The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
 R_T3_NEAR = (50, 12, 90)
-R_TOP2 = (36, 58, 90)
+R_TOP2 = (34, 58, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
 
 def topup2(r, ms):
-    """No TIP 2 within ms: to R_TOP2 west of the HIVE's feet, one piece at the left CELL, back to where R was."""
+    """TIP 2 overdue (the left CELL up 7 s: one short), polled every 0.4 s for up to ms: north along x 34, west of the
+    HIVE's feet, to R_TOP2, one piece at the left CELL, back to where R was. TIP 2 first, or neither: on with the plan."""
     here = r.at
-    r.pt("R_TOP2", *R_TOP2)
-    top = [r.go("R_TOP2", ctrl=[(36, 30)], heading=90)]
-    r.at = "R_TOP2"
-    top += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000),
-            r.go(here, ctrl=[(36, 30)], heading=90)]
-    r.at = here
-    return r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=ms, no=top, no_label="No: top it up")
+
+    def top():
+        r.pt("R_TOP2", *R_TOP2)
+        r.at = here
+        cards = [r.go("R_TOP2", ctrl=[(34, 30)], heading=90)]
+        r.at = "R_TOP2"
+        cards += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000),
+                  r.go(here, ctrl=[(34, 30)], heading=90)]
+        r.at = here
+        return cards
+
+    def poll(k):
+        rest = [poll(k - 1)] if k > 1 else []
+        return r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=400,
+                      no=[r.wait("TIP 2 overdue?", when=["TipOverdue"], ms=20, yes=top(), no=rest, yes_label="Overdue: top it up")])
+
+    return poll(max(1, int(ms / 420)))
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,

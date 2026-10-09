@@ -1159,6 +1159,11 @@ public final class AutoSim {
             if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
             if (design.flapsAfterStart) flaps(log, pose, vx, vy, w, us);
             if (design.slideMaxIn > 0) slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
+            int raised = sim.rocker(alliance).raisedEnd();
+            if (raised != lastRaised) {
+                lastRaised = raised;
+                raisedSince = now;
+            }
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
                 for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
@@ -1349,6 +1354,10 @@ public final class AutoSim {
         }
 
         boolean slideLogged;
+        /** Which CELL is up (FieldSim.Rocker#raisedEnd) and since when: TipOverdue. */
+        int lastRaised;
+        double raisedSince;
+        static final double TIP_OVERDUE_S = 7.0;
 
         /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
         static final double FLAP_LOOKAHEAD_S = 0.4;
@@ -1620,6 +1629,9 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
+                    // A CELL up this long has not filled on its own (TIP 2 comes 3.6-5.8 s after TIP 1, 60 runs; one short,
+                    // 14 s or more): the robot times it from the HIVE camera's state.
+                    .trigger("TipOverdue", () -> !cameraDown && sim.rocker(alliance).raisedEnd() != 0 && now - raisedSince >= TIP_OVERDUE_S)
                     .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
                     .trigger("CameraBlind", () -> cameraDown);
         }
