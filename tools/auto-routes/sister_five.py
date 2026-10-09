@@ -85,6 +85,9 @@ R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
 L_T4 = (55, 128, 90)
 # Where R waits with the wall FLOWER's 4 for TIP 4, between the ends: 1.5 s to R_F5_MID, 2 s back to R_N.
 R_MID = (24, 40, 90)
+# R's TIP 5 spot when it waits at R_MID: the 8 Oct scan's clean pocket at y 36 (x 36-42), 12 in from R_MID and
+# out of L's lane (at R_F5_MID R was still firing when L came down: collisions at 24-25 s in 5 of 60).
+R_F5_POCKET = (36, 36, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
@@ -454,6 +457,7 @@ def variants():
                    r5_wait_ms=4000),
             left5("sister5j-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, top4_ms=1500),
             right5("sister5k-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True, mid5_ms=3000),
+            right5("sister5l-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000),
             left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),
