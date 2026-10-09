@@ -161,9 +161,13 @@ MOVING = [
     ("pad", "MOVES 9 - sprung pad (Revolute at its hinge, swings out for a NECTAR)"),
     ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
     ("feeder_yoke", "MOVES 11 - feeder yoke (Revolute about the left flywheel's shaft: the gate servo swings it 10 deg)"),
+    ("turret_servo", "MOVES 12 - turret servo's hub and pulley (Revolute; Belt relation 1:1 with MOVES 10)"),
+    ("turret_enc_B", "MOVES 13 - encoder B gear (Revolute; Gear relation with MOVES 5, 176:48)"),
 ]
 FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")   # ours, on the left flywheel's shaft
-TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)")             # ours, on the turret drive gear's shaft
+TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)|^turret_enc_A_magnet")
+TURRET_SERVO_TURNS = re.compile(r"^turret_servo_(hub|pulley)")
+ENC_B_TURNS = re.compile(r"^turret_enc_B_(shaft|gear|spacers|eclip|magnet)")             # ours, on the turret drive gear's shaft
 TURRET_TURNS = re.compile(r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176")
 TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the ring that drives it
 TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)
@@ -258,7 +262,7 @@ def main(robot_step, out, additions=False, only=None):
         for n, (wp, col, kind) in d.items():
             dest = moving["feeder"] if re.match(TR.FEEDER_SPINS, n) else moving["pad"] if re.match(TR.PAD_SWINGS, n) else \
                    moving["feeder_yoke"] if re.match(TR.FEEDER_SWINGS, n) else moving["fly_L"] if FLY_L_SPINS.match(n) else moving["fly_R"] if n.startswith("flywheel_pulley_R") else \
-                   moving["turret_gear"] if TURRET_GEAR_TURNS.match(n) else sub
+                   moving["turret_gear"] if TURRET_GEAR_TURNS.match(n) else moving["turret_servo"] if TURRET_SERVO_TURNS.match(n) else moving["turret_enc_B"] if ENC_B_TURNS.match(n) else sub
             add_part(dest, n, shapes[n], col, shapes)
         frame.add(sub)
     ll = cq.Assembly(name="Limelight 3A on its goBILDA mount")

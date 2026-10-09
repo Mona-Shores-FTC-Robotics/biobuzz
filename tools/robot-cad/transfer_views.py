@@ -16,7 +16,7 @@ LABELS = [('lane_wall_L', 'lane wall (1/4 in PC)'), ('lane_roller_0', 'TPU rolle
           ('wall_standoff_R0', 'REX standoffs to the rail'), ('ceiling (', 'ceiling (foam under)'), ('ramp (', 'ramp (in wall slots)'),
           ('feeder (', 'feeder: 72 mm Geckos'), ('feeder_belt', '275 mm belt from the flywheel'), ('jack_pulley', 'jackshaft + 24T pinions'),
           ('feeder_arm_front', 'front swing arm'), ('feeder_arm_rear', 'rear swing arm'), ('gate_servo (', 'gate servo'),
-          ('idler_hanger', 'idler on the 9-hole channel'), ('turret_motor (', 'turret motor'), ('turret_belt', '295 mm turret belt'),
+          ('idler_hanger', 'idler on the 9-hole channel'), ('turret_servo (', 'turret servo'), ('turret_belt', '295 mm turret belt'),
           ('pad_plate', 'sprung pad'), ('backstop', 'backstop (slots: the count)'), ('feeder_bridge', 'printed bridge + floor'),
           ('flywheel_motor_L', 'flywheel motor, 6000 RPM'), ('flywheel_belt_L', '315 mm belt'), ('flywheel_motor_bracket_L', 'motor bracket'),
           ('ceiling_post_front_L', 'ceiling post')]

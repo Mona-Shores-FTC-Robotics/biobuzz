@@ -6,7 +6,7 @@ The robot comes as two STEP files in the same frame, so each stays a manageable 
   forward, the raised channel, the parts our design replaces taken out, among them the left flywheel's 96 mm shaft).
   Its turret ring, flywheels and turret drive gear are their own groups.
 - `BIOBUZZ-2-our-parts.step`: the front, the transfer, the launcher's new parts (the moved flywheel motors, the left
-  flywheel's longer shaft, the turret motor and the drive gear's shaft), the pods and the Limelight on its mount, with
+  flywheel's longer shaft, the turret servo, its two encoders and the drive gear's shaft), the pods and the Limelight on its mount, with
   goBILDA's and WCP's own models of most bought parts.
 
 Two groups have parts in both files: **MOVES 6** (the mentor's left flywheel; our longer shaft, its spacers, the 16T
@@ -70,8 +70,10 @@ face that faces up on each side: the slide is along the face's normal.
 | MOVES 8 feeder | ours | Revolute, to MOVES 11 | the feeder shaft's round edge, then the bore of its bearing in a yoke arm | none |
 | MOVES 9 sprung pad | ours | Revolute, to FRAME | the pad hinge rod's end (the rod turns with the pad: its knuckles have REX bores), then the round hole in a pad hinge block | 0 to about 29° (a NECTAR) |
 | MOVES 10 turret drive gear | mentor's | Revolute, to FRAME | the goBILDA 2302-0014-0064 gear's bore edge, then the round edge of the kit's mount under it | none |
-| MOVES 10 turret drive gear (our shaft) | ours | Revolute, to FRAME | the gear shaft's round edge, then the bore of its bearing in the turret motor plate | none |
+| MOVES 10 turret drive gear (our shaft) | ours | Revolute, to FRAME | the gear shaft's round edge, then the bore of its bearing in the turret drive plate | none |
 | MOVES 10, the two halves | both files | Fastened, our MOVES 10 to the mentor's | the shaft's top end, then the gear's bore edge | |
+| MOVES 12 turret servo's hub and pulley | ours | Revolute, to FRAME | the hub's round edge, then the servo spline's | none |
+| MOVES 13 encoder B gear | ours | Revolute, to FRAME | the encoder shaft's round edge, then the bore of its bearing | none |
 | MOVES 11 feeder yoke | ours | Revolute, to FRAME (not to the spinning shaft) | a yoke arm's pivot bearing's outer edge, then the mentor's front flywheel bearing's outer edge in the channel (the same axis) | 0 to about 10° (in, as drawn, to out) |
 
 Then two **mate relations**:
@@ -89,7 +91,7 @@ Right-click a mate in the Mates list → **Animate**. Set the start, end and num
 
 - MOVES 3 from 0 to 146° folds the extractor up, and the servo gear turns with it.
 - MOVES 1 from 0 to 1.3 in shows the roller rising for a NECTAR.
-- MOVES 10 turns the turret ring with it.
+- MOVES 10 turns the turret ring with it. Add a **Gear** relation between MOVES 5 and MOVES 13 (ratio 176:48, reversed) and the encoder gear turns with the ring.
 - MOVES 11 from 0 to 10° swings the feeder out, clear of a waiting ball, and back in to feed.
 - MOVES 2, 6, 7 and 8 spin.
 

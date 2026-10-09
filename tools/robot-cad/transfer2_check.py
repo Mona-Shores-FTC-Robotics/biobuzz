@@ -57,7 +57,7 @@ ROBOT_OK = [(r'^wall_standoff_', r'1107-0015-0384'),
             (r'^flywheel_shaft_L|^flywheel_spacers_L_(rear|front)', r'Launcher subassembly <2> / (8x14x5mm Bearing|8mm REX Hyper Hub|41T HTD5 Pulley|8mm Spacer|12\.5mm Spacer|1505-0032-0160|Sonic Hub|(3|5) Hole Lowside)'),
             (r'^idler_hanger', r'Intake <1> / 9 Hole Lowside'),
             (r'^flywheel_pulley_', r'Launcher subassembly <(1|2)> / (96mm Steel Shaft|12\.5mm Spacer|8x14x5mm Bearing)'),
-            (r'^turret_motor_plate', r'Launcher Concept <1> / 8 Hole Lowside'), (r'^elec_plate', r'1103-0041-0328|1107-0013-0336'), (r'^pinpoint_plate', r'Launcher Concept <1> / 5 Hole Lowside U-Channel'), (r'^turret_gear_(shaft|bearing_mount)', r'1231-0048-0001|2302-0014-0064')]
+            (r'^turret_(drive_plate|enc_B_plate)', r'Launcher Concept <1> / 8 Hole Lowside'), (r'^turret_enc_B_gear', r'2325-0105-0176'), (r'^elec_plate', r'1103-0041-0328|1107-0013-0336'), (r'^pinpoint_plate', r'Launcher Concept <1> / 5 Hole Lowside U-Channel'), (r'^turret_gear_(shaft|bearing_mount)', r'1231-0048-0001|2302-0014-0064')]
 def robot_ok(n, p): return any(re.search(a, n) and re.search(b, p) for a, b in ROBOT_OK)
 def axle(n):
     """Which shaft a part rides on: ('lane', i), ('feeder',), ('servo',) or None."""
@@ -67,7 +67,8 @@ def axle(n):
     if re.match(r'idler_(pulley|shaft|bearing|spacers)', n): return ('idler',)
     if re.match(r'flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)|feeder_pivot_bearing', n): return ('flywheel L',)
     if re.match(r'turret_gear_(shaft|bearing|spacers|eclip|pulley)', n): return ('turret gear',)
-    if re.match(r'turret_motor( \(|_pulley)', n): return ('turret motor',)
+    if re.match(r'turret_servo( \(|_hub|_pulley)', n): return ('turret servo',)
+    if re.match(r'turret_enc_B_(shaft|bearing|spacers|gear|eclip|magnet)', n): return ('turret encoder B',)
     if re.match(r'feeder( \(|_shaft|_spacers|_bearing_(front|outer) |_pulley \(|_shaft_spacer|_shaft_collar|_eclip)', n): return ('feeder',)
     if re.match(r'gate_(servo \(|horn)', n): return ('gate servo',)
     if re.match(r'pad_(hinge \(|hinge_eclip|knuckle)', n): return ('pad hinge',)
@@ -80,7 +81,7 @@ TOUCH = [(r'^(control_hub|expansion_hub|battery_cradle|switch_holder) ', r'^elec
          (r'^idler_hanger', r'^idler_(bearing|shaft|spacers)'), (r'^feeder_arm_', r'^feeder_(pivot_)?bearing_'),
          (r'^feeder_belt', r'^feeder_pulley|^flywheel_feeder_pulley'), (r'^gate_tab', r'^feeder_arm_front|^gate_pin_arm'),
          (r'^gate_pushrod', r'^gate_pin_'), (r'^gate_horn', r'^gate_pin_horn|^gate_servo \('), (r'^gate_servo_bracket', r'^gate_servo \(|^wall_standoff_L0'),
-         (r'^turret_motor_plate', r'^turret_gear_bearing_plate|^turret_motor \('), (r'^turret_belt', r'^turret_(gear|motor)_pulley'),
+         (r'^turret_drive_plate', r'^turret_gear_bearing_plate|^turret_servo \(|^turret_enc_A_hanger'), (r'^turret_belt', r'^turret_(gear|servo)_pulley'), (r'^turret_enc_B_plate', r'^turret_enc_B_(bridge|bearing)'), (r'^turret_enc_(A|B) \(', r'^turret_enc_(A_hanger|B_bridge)'), (r'^turret_enc_A_magnet', r'^turret_gear_shaft'), (r'^turret_enc_B_magnet', r'^turret_enc_B_gear'),
          (r'^ceiling_pin_block', r'^ceiling \(|^ceiling_pin_|^ceiling_post'), (r'^ceiling_pin_(front|rear)', r'^ceiling_post'), (r'_glue \(', r'_foam \(|^ceiling \(|^pad_plate'),
          (r'^pad_knuckle', r'^pad_plate|^pad_hinge_block'), (r'^pad_stop', r'^pad_plate|^pad_knuckle_front|^feeder_floor'), (r'^pad_hinge_eclip', r'^pad_hinge_block'),
          (r'^flywheel_motor_bracket_(.)', r'^flywheel_motor_'), (r'^flywheel_motor_pulley', r'^flywheel_(motor|belt)'), (r'^flywheel_belt_', r'^flywheel_pulley_'),
