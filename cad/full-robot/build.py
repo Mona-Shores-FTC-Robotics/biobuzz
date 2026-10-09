@@ -162,7 +162,7 @@ MOVING = [
     ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
     ("feeder_yoke", "MOVES 11 - feeder yoke (Revolute about the left flywheel's shaft: the gate servo swings it 10 deg)"),
     ("turret_servo", "MOVES 12 - turret servo's hub and pulley (Revolute; Belt relation 1:1 with MOVES 10)"),
-    ("turret_enc_B", "MOVES 13 - encoder B gear (Revolute; Gear relation with MOVES 10, 64:48)"),
+    ("turret_enc_B", "MOVES 13 - encoder B gear (Revolute; Gear relation with MOVES 10, 64:36)"),
 ]
 FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")   # ours, on the left flywheel's shaft
 TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)|^turret_enc_A_sleeve")

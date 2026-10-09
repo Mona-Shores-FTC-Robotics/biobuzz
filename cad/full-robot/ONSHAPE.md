@@ -91,7 +91,7 @@ Right-click a mate in the Mates list → **Animate**. Set the start, end and num
 
 - MOVES 3 from 0 to 146° folds the extractor up, and the servo gear turns with it.
 - MOVES 1 from 0 to 1.3 in shows the roller rising for a NECTAR.
-- MOVES 10 turns the turret ring with it. Add a **Gear** relation between MOVES 10 and MOVES 13 (ratio 64:48, reversed) and encoder B's gear turns with the drive gear.
+- MOVES 10 turns the turret ring with it. Add a **Gear** relation between MOVES 10 and MOVES 13 (ratio 64:36, reversed) and encoder B's gear turns with the drive gear.
 - MOVES 11 from 0 to 10° swings the feeder out, clear of a waiting ball, and back in to feed.
 - MOVES 2, 6, 7 and 8 spin.
 
