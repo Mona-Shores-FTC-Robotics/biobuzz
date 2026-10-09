@@ -1,9 +1,9 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp",
-  "spec": "QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50",
-  "design": "rigid V",
-  "partnerDesign": "spring hood",
-  "partnerSpeed": 40.0,
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister-right-fixed.pp",
+  "spec": "SisterRightFixedAuto,SisterLeftFixedAuto@50",
+  "design": "rigid V, fixed turret",
+  "partnerDesign": "rigid V, fixed turret",
+  "partnerSpeed": 50.0,
   "seeds": [
     1,
     2,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-seatfire-west.pp",
-    "SavedBy": "README, seat fire (shelved), with the turret slewing by the side-of-field rule and the 0d9d622 model (9 Oct 2026)"
+    "AutoSource": "sister-right-fixed.pp",
+    "SavedBy": "README, Sister: two of our robots, 4 TIPs and 2 PARK (the body-designs chat, 8 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-SeatFire",
+  "title": "Sister-4TIPs",
   "usual": true,
-  "folder": "qual-right-v-seatfire-west"
+  "folder": "sister"
 }
