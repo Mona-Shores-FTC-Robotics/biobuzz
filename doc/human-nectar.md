@@ -42,6 +42,21 @@ wall or at the zone's edge is hard for an intake to take.
 - The simulator currently drops each NECTAR at the centre of the zone, 2 s after the TIP, with no spread. Once the
   practice below gives real numbers, the simulator uses them.
 
+## A loading-zone station (the user's idea, 9 Oct, to be scored)
+
+With the turret, a robot can sit at the LOADING ZONE with its intake facing the drop spot and keep the launcher on the
+CELL while it waits: the human places the NECTAR, the intake takes it, and it fires without turning. The routes
+already know a robot parked in the zone is inside the north CELL's firing wedge (duo-lz), so the station also earns
+AUTO PARK.
+- **The limit is one NECTAR per TIP** in AUTO (G426.A), so in AUTO it's a pickup and a shot after each TIP, not a
+  stream. The rest of the NECTAR can only come in with 60 s left (G426.B), in TELEOP.
+- **Stay on the right side of G427.C.** The NECTAR must touch the tile before the robot. Placing it with the mouth an
+  inch away so it rolls straight in is the kind of thing G427's note warns against ("should not attempt to push the
+  boundaries"). Keep the intake a few inches back from the spot and let the robot take it once it's resting on the
+  tile.
+- **Whose job it is:** in the Sister pair, L works the left end, which is where the shortfall is. Whether L can afford
+  to wait at the zone between TIPs is for the simulator and the body-designs chat to score.
+
 ## Practice drill (to do before an Auto relies on it)
 
 On the practice field, with a tape grid on the tiles of the LOADING ZONE:
