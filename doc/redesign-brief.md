@@ -89,6 +89,23 @@ spill at the far end, and the floor is empty by 21 to 25 s in every top-up tried
 partner that collects (which is the Sister pair) or a robot that recovers a whole spill in about 6 s while holding at
 most 4 at a time (a flow-through intake that fires as it collects). That is a different robot, not a tuned one.
 
+## Solo 4 TIPs: no, for any robot the simulator can build (9 Oct)
+
+Partner parks only. Today's robot gets 3 TIPs in 42 of 60 (TIP 3 at 27.2 s); with a 0.17 s / 120 in/s intake, 46;
+with that and a 65 in/s drive, 51 (TIP 3 at 25.9 s, 3.6 s left, and a 4th needs 8 more pieces). The simulator then
+built a flow-through robot (fires while it sweeps, pushes a 5th piece out the back so it never holds more than 4) and
+ran a solo probe route: TIP 1 at 3.8 s, then nothing, in every seed. The limits are geometric, not the intake:
+
+1. You can't stream into the far CELL from your own end: shots hit the HIVE or go long, even with a steeper arc. So
+   firing while collecting only works at the end whose CELL is raised, which after your own TIP is the other end:
+   pieces have to be carried across, 4 at a time (the R-Quals cycle).
+2. A spill ends up against the end wall and around the wall FLOWER, where a front can't sweep it without hitting the
+   FLOWER holder or the wall, and for the first 1.5 to 2 s it's still in the air (G409).
+3. G407 makes every later TIP two trips.
+
+So the solo brief is **3 TIPs + PARK** (R-Quals, about 72 points at best), and the floor with a preload-only partner
+stays 3 TIPs in 55 of 60. The redesign's gain is in the Sister pair, where the other robot is at the raised CELL's end.
+
 ## Hard limits (game manual, TU03)
 
 - R102: start inside an 18 in cube (preloads may stick out). G304: start touching the wall.
