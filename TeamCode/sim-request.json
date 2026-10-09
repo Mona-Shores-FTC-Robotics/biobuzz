@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-flower-first-carry-settle-b2.pp",
-  "spec": "QualRightVFlowerFirstCarrySettleB2Auto,PartnerPreloadsRightSouthAuto@50",
+  "pp": "TeamCode/autos/qual-stages-angled-v.pp",
+  "spec": "QualStagesAngledVAuto,PartnerAngledParkAuto@50",
   "design": "rigid V",
   "partnerDesign": "spring hood",
   "partnerSpeed": 40.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-flower-first-carry-settle-b2.pp",
-    "SavedBy": "README, flower first, carry the spill, with the turret slewing by the side-of-field rule and the 0d9d622 model (9 Oct 2026)"
+    "AutoSource": "qual-stages-angled-v.pp",
+    "SavedBy": "README, the staged Autos, with the turret slewing by the side-of-field rule and the 0d9d622 model (9 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-FlowerFirst",
+  "title": "Qual-PartnerStages-Angled",
   "usual": true,
-  "folder": "qual-right-v-flower-first-carry-settle-b2"
+  "folder": "qual-stages-angled-v"
 }
