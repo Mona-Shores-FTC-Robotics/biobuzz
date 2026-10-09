@@ -748,7 +748,7 @@ tw = thru_cradle(EB_O, EB_X, EB_TOPZ, 1.5, lid=True)
 tw = tw.union(bx(GB[0] - 0.35, GB[0] + 0.35, GB[1] - 0.35, GB[1] + 0.35, EB_TOPZ, TOWER_TOP))   # the column up to the top bearing (clear of the Limelight mast screws' key)
 tw = tw.cut(cylz(*GB, 14.2 * MM, TOWER_TOP - 0.21, TOWER_TOP + 0.1)).cut(cylz(*GB, 13.5 * MM, EB_TOPZ - 0.2, TOWER_TOP - 0.2))
 part(launcher, "turret_enc_B_tower (print PETG: cradles encoder B on the plate, its column carries the 36T shaft's top bearing; M4 heat-set inserts in its foot)", tw, BLUE, "print")
-EB_DN = [(GB[0] + s_ * 0.5, GB[1] + (THRU[0] - CR_W / 2) * MM) for s_ in (-1, 1)]   # in its cradle's back wall, clear of encoder A under the plate
+EB_DN = [(GB[0] + dx_, GB[1] + (THRU[0] - CR_W / 2) * MM) for dx_ in (-0.25, 0.65)]   # in its cradle's back wall, clear of encoder A's cradle under the plate
 c = bolt(launcher, "turret_enc_B_tower", "encoder B's tower to the drive plate (from below, into its inserts)", [(x, y, TP_Z[0]) for x, y in EB_DN], (0, 0, 1), 3 / 16 * IN, nut=False, tapped=10, into="turret_enc_B_tower", through=("turret_drive_plate",), service="with the plate off the channel")
 drill(launcher, ["turret_drive_plate"], c)
 # ---- the electronics bay, at the back over the drive motors: a bent 3/16 in aluminium plate stands on the chassis's rear
