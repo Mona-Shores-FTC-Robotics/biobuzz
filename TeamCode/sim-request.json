@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/qual-stages-wall-v.pp",
-  "spec": "QualStagesWallVAuto,PartnerStage19SideParkAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp",
+  "spec": "QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-stages-wall-v.pp",
-    "SavedBy": "README, the staged Autos, with the turret inside its 720 deg window (9 Oct 2026)"
+    "AutoSource": "qual-right-v-seatfire-west.pp",
+    "SavedBy": "README, seat fire (shelved), with the turret inside its 720 deg window (9 Oct 2026)"
   },
-  "title": "Qual-PartnerStages-Wall",
+  "title": "Qual-PartnerShootsRight-SeatFire",
   "usual": true,
-  "folder": "qual-stages-wall-v"
+  "folder": "qual-right-v-seatfire-west"
 }
