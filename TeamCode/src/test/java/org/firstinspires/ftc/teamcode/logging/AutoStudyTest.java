@@ -485,6 +485,9 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
+        // BIOBUZZ_AUTO_HUMAN_NECTAR=1: a drive-team NECTAR into the LOADING ZONE after each TIP (G426), for both
+        // alliances. Off by default until the Q&A confirms it is allowed during AUTO (9 Oct 2026).
+        if ("1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(true);
         if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);

@@ -1776,7 +1776,9 @@ What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInP
 `RobotDesign` field on every robot's design for the study (a copy; the named designs keep their values), and
 `BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4. `RobotDesign.firesOnTheMove` lets a design
 fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
-describing ours (9 Oct 2026, the CAD chat's redesign brief). Two more what-ifs from the same brief:
+describing ours (9 Oct 2026, the CAD chat's redesign brief). `BIOBUZZ_AUTO_HUMAN_NECTAR=1` has the drive team enter
+one NECTAR into the LOADING ZONE 2 s after each TIP (G426), for both alliances; every baseline runs without it until
+the Q&A confirms the entry is allowed during AUTO. Two more what-ifs from the same brief:
 `RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
 piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
 `StreamOn`), and `RobotDesign.launchRangeIn` (60 in is the placeholder). `tools/auto-routes/flow_solo.py` is the
