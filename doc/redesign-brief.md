@@ -4,6 +4,18 @@ What a redesigned robot has to do, from the simulator and body-designs chats. Ev
 runs unless marked *estimate*; the intake's grab rate, interval, speed limit and the bounces are placeholders, not
 measurements. Nothing here is measured on a robot.
 
+## Strategy order (set by the user, 9 Oct)
+
+1. **Solo 4 TIPs** (partner does nothing or parks), if any robot can do it. The user doubts it can; the simulator is
+   checking feasibility first, because if it's possible it outranks everything else.
+2. **Keep the floor:** 3 TIPs in about 55 of 60 with a partner that only shoots preloads (L-Quals does this today).
+   No redesign may lose it.
+3. **The Sister pair, the main target:** both robots ours, choreography planned together. At early events about 10
+   robots can top quals; two of ours with a rehearsed joint Auto is a large edge in alliance play.
+4. Low priority: a partner running a simple Auto of its own (too varied to plan for). One look later.
+
+The design follows from these in that order: robot abilities are scored in the simulator first, mechanisms come after.
+
 ## The goals
 
 1. **The Sister five-TIP Auto, nearly every time.** Today: 5 TIPs in 16 of 60 runs (93.3 points).
