@@ -122,6 +122,18 @@ R_TOP2 = (36, 58, 90)
 L_CF = (52, 32, 90)
 
 
+def topup2(r, ms):
+    """No TIP 2 within ms: to R_TOP2 west of the HIVE's feet, one piece at the left CELL, back to where R was."""
+    here = r.at
+    r.pt("R_TOP2", *R_TOP2)
+    top = [r.go("R_TOP2", ctrl=[(36, 30)], heading=90)]
+    r.at = "R_TOP2"
+    top += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000),
+            r.go(here, ctrl=[(36, 30)], heading=90)]
+    r.at = here
+    return r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=ms, no=top, no_label="No: top it up")
+
+
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
            r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None):
@@ -166,13 +178,22 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         fill += [r.wait("TIP 1's spill off the floor", when=["IntakeFull"], ms=fill1_ms, alongside="CollectSeen"),
                  r.go(back, heading=90)]
         r.at = "S_CATCH"
+        full = None
+        if topup2_ms is not None and t3_at is None:
+            # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): no TIP 2 by about 11.3 s (later than any
+            # on its own), R fires one of its catch at the left CELL from R_TOP2 (39 in from it, clear of the HIVE's
+            # feet) and comes back. The wait starts about 7.5 s with the catch full, about 10.3 s after a fill.
+            full = [topup2(r, topup2_ms[0])]
+            fill.append(topup2(r, topup2_ms[1]))
         if t3_at is not None:
             # Full already: straight to R_T3 too. Both branches end there.
             r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=[r.go("R_T3", heading=90)],
                          no=fill, no_label="Not full: off the floor"))
             r.at = "R_T3"
         else:
-            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, no=fill, no_label="Not full: off the floor"))
+            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=full, no=fill, no_label="Not full: off the floor"))
+            if topup2_ms is not None:
+                rescue_ms = None
     else:
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
     hold = "S_CATCH"
@@ -184,17 +205,6 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         if r.at != "R_T3":
             r.add(r.go("R_T3", heading=90))
         hold = r.at = "R_T3"
-    if topup2_ms is not None:
-        # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): no TIP 2 within topup2_ms of R's catch, R
-        # fires one of it at the left CELL from R_TOP2 (39 in from it, clear of the HIVE's feet) and comes back.
-        r.pt("R_TOP2", *R_TOP2)
-        r.at = hold
-        top = [r.go("R_TOP2", heading=90)]
-        r.at = "R_TOP2"
-        top += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=3000), r.go(hold, heading=90)]
-        r.at = hold
-        r.add(r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=topup2_ms, no=top, no_label="No: top it up"))
-        rescue_ms = None
     n0 = len(r.cards)
     if mode != "auto":
         r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
