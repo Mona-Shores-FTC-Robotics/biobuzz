@@ -100,13 +100,15 @@ R_MID = (24, 40, 90)
 # R's TIP 5 spot when it waits at R_MID: the 8 Oct scan's clean pocket at y 36 (x 36-42), 12 in from R_MID and
 # out of L's lane (at R_F5_MID R was still firing when L came down: collisions at 24-25 s in 5 of 60).
 R_F5_POCKET = (36, 36, 90)
+# Where R waits for TIP 2 and fires TIP 1's catch, out of L's turning circle at L_TURN.
+R_T3 = (42, 12, 90)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0, west_exit=False):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -147,6 +149,14 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, no=fill, no_label="Not full: off the floor"))
     else:
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
+    hold = "S_CATCH"
+    if t3_at is not None:
+        # Simulator chat, seed 25: with TIP 2 early, L's turn at L_TURN (its V sweeps 13.7 in round (57, 36))
+        # reached R still firing at S_CATCH (its V's tips at y 31). R waits for TIP 2 and fires TIP 1's catch from
+        # t3_at instead: clear of that circle, inside the clean firing area, on the way to the GARDEN.
+        r.pt("R_T3", *t3_at)
+        r.add(r.go("R_T3", heading=90))
+        hold = r.at = "R_T3"
     n0 = len(r.cards)
     if mode != "auto":
         r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
@@ -262,7 +272,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         # 12 of 22). Full: the direct route to 5 TIPs. Not full: sister.py's 4 TIPs and PARK, the GARDEN's 4 kept
         # for TIP 3 if it needs them.
         def to_garden():
-            r.at = "S_CATCH"
+            r.at = hold
             # West first (simulator chat, seed 25: R's turn toward the GARDEN swept into L coming down the lane to
             # L_TURN when TIP 2 came early).
             exit_ctrl = [(42, 19)] if west_exit else []
@@ -329,7 +339,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
                        yes_label="Yes: the GARDEN's 4 to TIP 4", no_label="No: the GARDEN's 4 to TIP 3")
         r.at = "R_S"
         four.append(r.wait("The right CELL up", when=["RightCellUp"], ms=1500, yes=normal4(), no=[done4]))
-        r.at = "S_CATCH"
+        r.at = hold
         r.add(r.wait("Holding 4? Then 5 TIPs", when=[decide], ms=50, yes=five, no=four,
                      yes_label="4 held: go for 5 TIPs", no_label="Fewer: 4 TIPs and PARK"))
     if mode == "branch":
@@ -341,7 +351,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     if rescue_ms is not None:
         yes = r.cards[n0:]
         del r.cards[n0:]
-        r.at = "S_CATCH"
+        r.at = hold
         no = [r.go("R_W", heading=90)]
         r.at = "R_W"
         no.append(r.go("R_N", heading=90))
@@ -475,6 +485,8 @@ def variants():
             right5("sister5l-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000),
             right5("sister5m-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
                    west_exit=True),
+            right5("sister5n-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   t3_at=R_T3),
             left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),
