@@ -523,6 +523,9 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (0: aims at once, as the simulation did before 9 Oct 2026).
         String slew = System.getenv("BIOBUZZ_AUTO_TURRET_DEG_PER_S");
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
+        // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
+        String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");
+        AutoSim.turretTravelOverrideDeg = travel == null ? Double.NaN : Double.parseDouble(travel);
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }
         try {
             studyAll(specs);

@@ -95,6 +95,10 @@ public final class AutoSim {
     static double turretSlewOverrideRadPerS = Double.NaN;
     /** The side-of-field aim's hysteresis: the turret switches CELLs this far past the centre line (y 51 and 90.5 for red). */
     static final double TURRET_SWITCH_IN = 19.75;
+    /** BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (NaN: each design's own; 0: without limit). */
+    static double turretTravelOverrideDeg = Double.NaN;
+    /** Wound past this between fire steps, a turret with a travel window unwinds to the nearer reading of its bearing. */
+    static final double TURRET_UNWIND_RAD = Math.toRadians(200);
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -940,8 +944,15 @@ public final class AutoSim {
         boolean firing;
         /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
         boolean streaming;
-        /** Where the turret points, rad left of forward (0 home), moved at {@link RobotDesign#turretSlewRadPerS}. */
+        /**
+         * Where the turret points, rad left of forward (0 home), moved at {@link RobotDesign#turretSlewRadPerS}. Not
+         * wrapped: it counts turns, so a travel window ({@link RobotDesign#turretTravelDeg}) can hold it, and the
+         * internals log's TurretYawDeg shows how far it has wound.
+         */
         double turretYaw;
+        /** How often the turret went the long way round to stay inside its window, and the time that took, s. */
+        int longWayRound;
+        double longWayS;
         /**
          * Which CELL the turret pre-aims at: +1 the high-y end, -1 the low-y end, 0 not yet chosen. The mentor's rule
          * (9 Oct 2026): track the CELL of the end the robot is in, with hysteresis across the HIVE frame's span, where
@@ -1450,7 +1461,7 @@ public final class AutoSim {
                 // its angle (146 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
                 // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
                 double down = body == null ? 0 : body.extractorDown;
-                double yaw = Math.toRadians(Math.round(Math.toDegrees(turretYaw)));
+                double yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(turretYaw))));
                 double key = down + 1000 * yaw;
                 if (key == shapeLogged) return;
                 shapeLogged = key;
@@ -1869,9 +1880,38 @@ public final class AutoSim {
             double target = aim == null ? 0 : turretTarget(aim);
             double slew = Double.isNaN(turretSlewOverrideRadPerS) ? design.turretSlewRadPerS
                     : turretSlewOverrideRadPerS <= 0 ? Double.POSITIVE_INFINITY : turretSlewOverrideRadPerS;
+            // The nearest angle that reads as the target: the short way round, unless the travel window forbids it,
+            // when it is the long way (the other side of the window), which a limited turret has to take.
+            double travel = Double.isNaN(turretTravelOverrideDeg) ? design.turretTravelDeg
+                    : turretTravelOverrideDeg <= 0 ? Double.NaN : turretTravelOverrideDeg;
             double error = AdvantageScopeFrame.wrap(target - turretYaw);
+            double goal = turretYaw + error;
+            if (!Double.isNaN(travel)) {
+                double half = Math.toRadians(travel) / 2;
+                boolean launching = firing || streaming;
+                if (goal > half) goal -= 2 * Math.PI;
+                else if (goal < -half) goal += 2 * Math.PI;
+                goal = Math.max(-half, Math.min(half, goal));
+                // Between fire steps the turret unwinds while it has the slack: once wound past TURRET_UNWIND_RAD it
+                // takes the other reading of the same bearing, nearer home, so a wide window is not used up on the
+                // drive and the unwind never lands inside a fire step (9 Oct 2026: with 720 deg L-Quals unwound 357
+                // deg at N_FIRE and its TIP 2 step timed out; with 393 the edge forced the same unwind on the drive).
+                if (!launching && Math.abs(goal) > TURRET_UNWIND_RAD) {
+                    double other = goal - Math.copySign(2 * Math.PI, goal);
+                    if (Math.abs(other) <= half && Math.abs(other) < Math.abs(goal)) goal = other;
+                }
+                if (Math.abs(goal - turretYaw) > Math.abs(error) + 1e-9 && Math.abs(error) < Math.PI - 1e-9 && aim != null
+                        && Double.isNaN(aimedSince) && !longWayFrom.equals(turretCellAndAim(aim))) {
+                    longWayFrom = turretCellAndAim(aim);
+                    longWayRound++;
+                    double s = Math.abs(goal - turretYaw) / slew;
+                    longWayS += Double.isInfinite(slew) ? 0 : s;
+                    pending.add(String.format(Locale.ROOT, "turret: the long way round, %.0f deg in %.1f s, to stay inside its %.0f deg window",
+                            Math.toDegrees(Math.abs(goal - turretYaw)), Double.isInfinite(slew) ? 0 : s, travel));
+                }
+            }
             double step = slew * LOOP_S;
-            turretYaw = Math.abs(error) <= step ? target : AdvantageScopeFrame.wrap(turretYaw + Math.copySign(step, error));
+            turretYaw = Math.abs(goal - turretYaw) <= step ? goal : turretYaw + Math.copySign(step, goal - turretYaw);
             boolean onTarget = aim != null && Math.abs(AdvantageScopeFrame.wrap(target - turretYaw)) < AIM_TOLERANCE_RAD;
             if (!onTarget) {
                 aimedSince = Double.NaN;
@@ -1882,6 +1922,13 @@ public final class AutoSim {
                     pending.add(String.format(Locale.ROOT, "turret: on target %.2f s after the side switch", now - crossedAt));
                 }
             }
+        }
+
+        /** Which aim a long way round was last reported for (the CELL end and whether a launch is on), so each is counted once. */
+        private String longWayFrom = "";
+
+        private String turretCellAndAim(double[] aim) {
+            return turretCell + (firing || streaming ? "L" : "T") + (sim.rocker(alliance).raisedEnd());
         }
 
         /** A fire step's first shot: how long the step waited for the turret, from its start to the turret settling. */

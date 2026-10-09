@@ -149,6 +149,16 @@ final class RobotDesign {
      */
     double turretSlewRadPerS = Math.toRadians(TURRET_SERVO_DEG_PER_S);
     static final double TURRET_SERVO_DEG_PER_S = 240, TURRET_MOTOR_DEG_PER_S = 680;
+    /**
+     * How far the turret may turn in all, degrees, centred on straight ahead; NaN: without limit (a slip ring, issues
+     * #169/#170). The two-encoder turret the students drew knows its angle only inside one 393 deg window
+     * (doc/motors-and-servos.md), and about 720 if gears for it are found (the internals chat, 9 Oct 2026): inside a
+     * window the turret sometimes has to unwind the long way round, up to a turn, instead of following the target
+     * through +-180. The published routes wind the turret up to three turns one way (the internals chat's count),
+     * so a limit costs them time. Unlimited until #170 is settled; BIOBUZZ_AUTO_TURRET_TRAVEL_DEG tries a window.
+     */
+    double turretTravelDeg = Double.NaN;
+    static final double TURRET_TWO_ENCODER_WINDOW_DEG = 393;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
     /**
@@ -431,6 +441,7 @@ final class RobotDesign {
         d.laneCapacity = laneCapacity;
         d.spinUpS = spinUpS;
         d.turretSlewRadPerS = turretSlewRadPerS;
+        d.turretTravelDeg = turretTravelDeg;
         d.launchesNectar = launchesNectar;
         d.countsPieces = countsPieces;
         d.nectarSpeedFactor = nectarSpeedFactor;
