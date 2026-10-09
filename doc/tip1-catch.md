@@ -79,3 +79,76 @@ Speed matters; how sure the grab is matters little, because the pieces that are 
 - A 10-12 in long chassis is a simulator shape: whether the drive, turret and lane fit is the CAD chat's question.
 - The intake numbers (grab, interval, speed limit) and every bounce are placeholders until a rig is timed and filmed.
 - These are R's opening only; the Sister five score with the best front is the next run.
+
+# Today's frame with folding flaps, a slide intake, more vision, and Sister five retuned (9 Oct 2026, evening)
+
+Everything below is the simulator, 60 seeded runs each; every intake number is a placeholder. New design fields
+(commits dbaeb9d, b14802f, 1884c38): `flapsAfterStart` (flaps folded inside the frame at START, out from 1 s, R105),
+`slideMaxIn` / `slideSpeedInPerS` (the intake head runs forward while intaking and nearly still, never over the
+centre line, a wall or the HIVE frame), and the piece camera's field of view, range and chase radius. A robot with
+folding flaps folds them itself whenever, out, they would reach over the centre line, a wall or the HIVE frame (now or
+0.4 s ahead) or while the FLOWER extractor is down: the GARDEN, the FLOWER seats and turns near the HIVE.
+
+## R's opening (holds 4 at TIP 2), today's 15.12 x 15.24 frame
+
+Flap lengths are from the frame's front face; the intake mouth is 1.94 in ahead of it, so 8 in flaps reach 6 in ahead
+of the mouth (8.88 is the most R105 allows: 24 in long).
+
+| Front | Holds 4 | G409 runs |
+|---|---|---|
+| today's V (2.8 in) | 21 | 0 |
+| folding flaps 6 / 8 / 8.88 in | 34 / 40 / 46 | 0 / 4 / 10 |
+| folding 8 in, a piece every 0.2 s | 42 | 4 |
+| folding 8 in, 0.17 s and 120 in/s | 44 | 4 |
+| folding 8 in, the better route (catch at y 16, sweep to (46, 30)) | 48 | 0 |
+| **folding 8 in, better route, 0.2 s** | **51** | 0 |
+| slide intake 3 / 5 / 6.9 in (30 in/s) | 34 / 32 / 31 | 0 |
+| slide 6.9 in at 60 in/s / with a 0.2 s intake | 30 / 36 | 0 |
+| slide 5 in plus folding 8 in flaps | 46 | 4 |
+| camera 180 deg / 360 deg (today 70) | 20 / 20 | 0 |
+| camera 360 deg, chase radius 60 in (today 36) / today's camera, 60 in | 21 / 21 | 0 |
+| camera 360 deg, 60 in, better route / with folding 8 in and 0.2 s | 35 (route alone 32) / 43 (without it 42) | 0 / 4 |
+
+- **A slide is worth about what 6 in flaps are (31-34),** and a longer or faster slide adds nothing; on top of 8 in
+  flaps it adds 6. Modelled simply: the head reaches but doesn't sweep sideways or push.
+- **More vision crosses no threshold.** In the runs that end with 3, the missing pieces are over the centre line
+  (2.5 a run, no robot may follow them), against the walls 35-50 in away (a chase can't take them without driving
+  into the wall), or NECTAR pushed about the field rather than TIP 1's spill. A wider camera sees nothing more that
+  R can reach in time.
+
+## Sister five, both robots the same front (5 TIPs of 60)
+
+Changes to the routes (`sister_five.py`):
+- **R:** catches TIP 1 at (57.5, 16), sweeps to (46, 30).
+- **R, TIP 2 top-up:** if the left CELL has stayed up 7 s, TIP 2 is one short. That's L's 8th shot bouncing off the full CELL, 4 of 60. R then fires one or two pieces at it from R_N and comes back to (34, 24), clear of L.
+  - New trigger `TipOverdue`. TIP 2 normally comes 3.6–5.8 s after TIP 1; one short, 14 s or more.
+- **L:** waits for TIP 2's spill at y 120–122 (was 116) and for TIP 3's at y 18–19 (was 22), so 8 in flaps stay out of a spill still falling (G409).
+- **L, before parking:** waits 10.5 s for TIP 2 (was 4.5 s), so the top-up has time.
+
+| Front, routes | Intake | 5 TIPs | 4 | 3 | <=2 | mean pts | collide | frame / wall / cross | G409 runs |
+|---|---|---|---|---|---|---|---|---|---|
+| today's V, today's routes (sister5l + sister5h) | today | 16 | 36 | 4 | 4 | 92.7 | 1 | 1 / 0 / 0 | 1 |
+| today's V, today's routes | 0.17 s, 120 in/s | 28 | 25 | 3 | 4 | 97.0 | 1 | 0 | 6 |
+| today's V, new routes | today | 20 | 32 | 7 | 1 | 94.5 | 1 | 1 / 0 / 0 | 0 |
+| today's V, new routes | 0.17 s, 120 in/s | 29 | 20 | 9 | 2 | 96.0 | 0 | 2 / 0 / 0 | 1 |
+| folding 8 in, today's routes (flaps fold for walls, frame, line) | today | 20 | 32 | 4 | 4 | 94.0 | 0 | 0 | 56 |
+| folding 8 in, new routes, L at y 120 / 19 | today | 36 | 16 | 8 | 0 | 100.1 | 0 | 0 | 8 |
+| folding 8 in, new routes, L at y 120 / 19 | 0.17 s, 120 in/s | 42 | 13 | 5 | 0 | 103.0 | 0 | 0 | 15 |
+| folding 8 in, new routes, L at y 122 / 18 | today | 33 | 20 | 7 | 0 | 99.4 | 0 | 0 | 2 |
+| **folding 8 in, new routes, L at y 122 / 18** | **0.17 s, 120 in/s** | **40** | 15 | 5 | **0** | **102.3** | **0** | **0** | **3** |
+
+(sister5l-right/sister5h-left as published; the new routes are `right5(topup2_ms=(6000, 6000), catch_at=(57.5, 16,
+90))` with R_C1 = (46, 30), and `left5(bail_ms=10500, ln=(55, 122, 270), ls=(59, 18, 90))`.)
+
+- The front is worth about 13 fifth TIPs (20 to 33), the faster intake about 7-9 more, the routes about 4.
+- The TIP 2 top-up ends the 2-TIP matches (4 of 60 to 0).
+- Not fixed: today's V clips the HIVE's foot on R's park path from the TIP 5 pocket at 28.5 s (1-4 runs); folding flaps
+  fold for it.
+
+## Caveats
+
+- Flaps that fold themselves near walls and the HIVE assume the robot knows its pose and can fold a flap in about
+  0.3 s; nothing like it is drawn.
+- The slide is modelled as a moving mouth, not a mechanism: no sideways sweep, no pushing.
+- G409 here is the simulator's reading (a flap touching a piece still falling); the remaining runs are L's flaps at its
+  TIP 2 wait.
