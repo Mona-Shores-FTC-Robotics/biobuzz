@@ -106,7 +106,7 @@ L_CF = (52, 32, 90)
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -263,8 +263,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         # for TIP 3 if it needs them.
         def to_garden():
             r.at = "S_CATCH"
+            # West first (simulator chat, seed 25: R's turn toward the GARDEN swept into L coming down the lane to
+            # L_TURN when TIP 2 came early).
+            exit_ctrl = [(42, 19)] if west_exit else []
             cards = [fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000),
-                     r.go("GARDEN_IN", turn_after=0.1, turn_by=0.7)]
+                     r.go("GARDEN_IN", ctrl=exit_ctrl, turn_after=0.3 if west_exit else 0.1, turn_by=0.9 if west_exit else 0.7)]
             r.at = "GARDEN_IN"
             cards.append(r.go("GARDEN", heading=270))
             r.at = "GARDEN"
@@ -470,6 +473,8 @@ def variants():
             left5("sister5j-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, top4_ms=1500),
             right5("sister5k-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True, mid5_ms=3000),
             right5("sister5l-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000),
+            right5("sister5m-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   west_exit=True),
             left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),
