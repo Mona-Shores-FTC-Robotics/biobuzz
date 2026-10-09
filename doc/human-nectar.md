@@ -14,22 +14,26 @@ on a field yet: the numbers to aim for are targets for practice, not measurement
   robot (G425). Reaching over the wall to release it is how G427 expects it to go in.
 - Nobody may signal the robot (G401). The Auto has to find the NECTAR by itself.
 
-## The technique: place it, don't roll it
+## The technique: a gentle roll along the wall, into a waiting intake
 
-The one entry we have on film (Saline P3) was rolled in at 17 to 20 in/s and stopped 11 in from the wall, at the far
-edge of the 11 in deep zone. A rolled or dropped NECTAR goes somewhere different every time, and a piece against a
-wall or at the zone's edge is hard for an intake to take.
+Placing a NECTAR still takes a reach and a second or two; with only a few seconds between a TIP and the next shot,
+a roll is faster (the user, 9 Oct). The one entry on film (Saline P3) was rolled at 17 to 20 in/s straight out from
+the wall and stopped 11 in out, at the far edge of the 11 in deep zone: a roll across the zone has almost no room to
+stop. So roll it **along** the zone instead, parallel to the wall, where it has the zone's full length (about 23.6 in):
 
-1. **Hold it low, then let go.** Reach over the wall at a marked spot along it and lower the NECTAR as close to the
-   tile as is comfortable, about 4 to 6 in out from the wall, then open the hand. No throw, no spin: it should land
-   and stay within a couple of inches.
-2. **Always the same spot.** Pick one spot along the zone (its middle, unless the routes want otherwise) and use a
-   landmark on the wall or a tile seam to find it without looking twice. The Auto is written for that spot.
-3. **Cue on the TIP, then wait for the gap.** The cue is our HIVE tipping (the rocker swinging over). The NECTAR goes in
-   about 1 s after it, and only if no robot is in or heading for the zone. If a robot is in the way, wait: a late
-   NECTAR costs a little time, while one that hits a robot is a MINOR FOUL and is lost.
-4. **Keep the parking spots clear.** Both robots park in this zone at the end of AUTO. The NECTAR goes where the Auto
-   collects it before parking, not on a parking spot.
+1. **Release inside the zone.** Lower it over the wall at a marked spot at one end of the zone so its first touch is
+   the tile inside the zone (G427.C), then push it gently along the wall toward the other end. A slow, repeatable
+   push matters more than a fast one.
+2. **The robot waits at the other end**, intake facing back along the wall toward the release spot, a few inches
+   off the wall. The NECTAR rolls into the intake, and the turret is already on the CELL.
+3. **Cue on the TIP.** Roll as soon as our HIVE has tipped and the path along the wall is clear. Never roll it at a
+   robot that's still moving into place.
+4. **Keep the parking spots clear.** Both robots park in this zone at the end of AUTO; the roll ends at the robot,
+   not on a parking spot.
+
+On the rules: a rolled NECTAR whose first touch is the tile inside the zone meets G427.C even if it then rolls into a
+robot. G427's note asks teams not to "push the boundaries" of how NECTAR is entered, so this is worth adding to the
+pending Q&A question, or asking the head referee at the first event.
 
 ## The robot's side
 
@@ -37,8 +41,8 @@ wall or at the zone's edge is hard for an intake to take.
   (`vision/PieceVisionSubsystem`) steer onto the red NECTAR, as the spill pickups do. That absorbs a few inches of
   placement spread, and if no NECTAR is seen (the human waited, or it rolled), the Auto moves on after a set time
   instead of waiting.
-- **Approach along the wall, intake first, from the side away from the HIVE**, so a piece a few inches off the wall
-  goes straight into the intake.
+- **Wait at the far end of the zone, intake facing the roll**, so the NECTAR comes to the intake; if it stops short
+  or wanders, the camera steers onto it.
 - The simulator currently drops each NECTAR at the centre of the zone, 2 s after the TIP, with no spread. Once the
   practice below gives real numbers, the simulator uses them.
 
@@ -61,11 +65,11 @@ AUTO PARK.
 
 On the practice field, with a tape grid on the tiles of the LOADING ZONE:
 
-1. Someone calls "TIP" at random moments; the human player enters a NECTAR at the spot. Do 20 a person.
-2. Record for each: the time from the call to release, and where it came to rest (inches from the wall and from the
-   spot).
-3. Targets: released within about 1 s of the call, and 19 of 20 resting within 2 in of the spot, at least 3 in off the
-   wall.
+1. Someone calls "TIP" at random moments; the human player rolls a NECTAR along the wall from the release spot. Do
+   20 a person.
+2. Record for each: the time from the call to release, the time the roll takes to reach the far end, and how far off
+   the line along the wall it drifts.
+3. Targets: released within about 1 s of the call, and 19 of 20 arriving within 2 in of the line at the robot's end.
 4. Then with a robot: run the Auto's pickup on 20 entries and count the clean pickups and the time from release to the
    NECTAR being held.
 
