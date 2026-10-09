@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit 0d9d622, with the electronics bay, the turret's servo and encoders, and the Pinpoint. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit c569f93, with the electronics bay, the turret's servo, its two Thru-Bore encoders and the OctoQuad, and the Pinpoint. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
