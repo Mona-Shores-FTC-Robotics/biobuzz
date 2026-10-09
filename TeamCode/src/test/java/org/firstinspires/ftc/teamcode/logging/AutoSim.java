@@ -96,6 +96,14 @@ public final class AutoSim {
      */
     static boolean humanRolls = false;
     static int humanBank = 0;
+    /**
+     * Roll on cue (BIOBUZZ_AUTO_HUMAN_CUE=1): every owed NECTAR, bank or single, is held until one of the alliance's
+     * robots sits at the catch spot, {@link #HUMAN_CUE_RADIUS_IN} around {@link #HUMAN_CATCH_SPOT_RED} (blue the
+     * half turn) and nearly still, as a drive team would wait for its robot. With no catcher, nothing is entered.
+     */
+    static boolean humanCue = false;
+    static final double[] HUMAN_CATCH_SPOT_RED = {10, 96};
+    static final double HUMAN_CUE_RADIUS_IN = 4;
     static final double HUMAN_ROLL_DELAY_S = 1.0;
     static final double HUMAN_ROLL_OFF_WALL_IN = 5.0;
     static final double HUMAN_ROLL_SPEED_IN_PER_S = 12.0;
@@ -465,6 +473,7 @@ public final class AutoSim {
             bankEntered[side] = true;
             return;
         }
+        if (humanCue && !catcherReady(a)) return;  // the human waits for the robot
         if (!releasePathClear(a)) return;  // the delay stretches while a robot is on the release half
         due.remove(0);
         bankEntered[side] = true;
@@ -478,6 +487,18 @@ public final class AutoSim {
         }
         // The next of a bank follows after a gap.
         if (!due.isEmpty()) due.set(0, Math.max(due.get(0), now + HUMAN_ROLL_GAP_S));
+    }
+
+    /** One of the alliance's robots at the catch spot and nearly still (under 2 in/s). */
+    private boolean catcherReady(Alliance a) {
+        double sx = a == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - HUMAN_CATCH_SPOT_RED[0] : HUMAN_CATCH_SPOT_RED[0];
+        double sy = a == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - HUMAN_CATCH_SPOT_RED[1] : HUMAN_CATCH_SPOT_RED[1];
+        for (Bot b : bots) {
+            if (b.alliance != a) continue;
+            double[] pose = pedro(b.drive.pose);
+            if (Math.hypot(pose[0] - sx, pose[1] - sy) < HUMAN_CUE_RADIUS_IN && b.body.speed() < 2) return true;
+        }
+        return false;
     }
 
     /** No robot's centre on the release half of the alliance's LOADING ZONE (the end away from the HIVE), 9 in around it. */

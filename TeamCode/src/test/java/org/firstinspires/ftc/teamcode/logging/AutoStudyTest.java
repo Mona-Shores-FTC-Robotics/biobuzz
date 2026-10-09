@@ -488,6 +488,12 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_HUMAN_NECTAR=1: a drive-team NECTAR into the LOADING ZONE after each TIP (G426), for both
         // alliances. Off by default until the Q&A confirms it is allowed during AUTO (9 Oct 2026).
         if ("1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(true);
+        // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N / BIOBUZZ_AUTO_HUMAN_CUE=1: how it goes in (see
+        // AutoSim). Read here, not in the study loop, so a direct run() gets them too (the body-designs chat, 9 Oct).
+        AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
+        AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
+        AutoSim.humanCue = "1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_CUE"));
         if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
@@ -551,10 +557,6 @@ public class AutoStudyTest {
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
         // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
         // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
-        // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N: how the drive team's NECTAR goes in (see AutoSim).
-        AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
-        String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
-        AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
         String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
         FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
         String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");

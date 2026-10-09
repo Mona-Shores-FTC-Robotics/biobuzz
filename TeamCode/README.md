@@ -1782,7 +1782,9 @@ the Q&A confirms the entry is allowed during AUTO. `BIOBUZZ_AUTO_HUMAN_ENTRY=rol
 (doc/human-nectar.md on the meeting-notes branch: released 1 s after the TIP at the zone's end away from the HIVE,
 12 in/s, 5 in off the wall, one in twenty wide, held while a robot is on that half of the zone), and
 `BIOBUZZ_AUTO_HUMAN_BANK=3` holds the first entries until three are owed and rolls them in together, 0.6 s apart.
-A 12 in/s roll leaves the zone unless a robot waits for it; `HumanNectarTest` pins the roll's distance.
+`BIOBUZZ_AUTO_HUMAN_CUE=1` holds every entry until one of our robots sits still within 4 in of (10, 96), the catch
+spot (blue the half turn), as a drive team would wait for its robot. A 12 in/s roll leaves the zone unless a robot
+waits for it; `HumanNectarTest` pins the roll's distance.
 Two more what-ifs from the same brief:
 `RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
 piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
