@@ -89,8 +89,16 @@ final class RobotDesign {
      * the bar is a solid strip across the seat line that pieces bounce off ({@link #extractorBarHeightIn}).
      */
     double extractorLateralMaxIn = Double.NaN;
-    /** The bar's height off the tiles while down; a placeholder until CAD draws it. */
+    /** The bar's top off the tiles while down; a placeholder until CAD draws it. */
     double extractorBarHeightIn = 1.5;
+    /** The bar's underside off the tiles while down (pieces lower than it pass under). */
+    double extractorBarBottomIn = 0;
+    /** The bar's half-span across the robot; NaN: the lateral range plus the seat tolerance. */
+    double extractorBarHalfSpanIn = Double.NaN;
+    /** The bar's middle, ahead of the front face; NaN: at the seat (extractorSeatIn). */
+    double extractorBarAheadIn = Double.NaN;
+    /** The bar's depth, front to back; NaN: a thin plate. */
+    double extractorBarDepthIn = Double.NaN;
     /**
      * A seat-position error (body-designs chat): each time the extractor comes down, the robot's real seat is off its
      * drawn one by a lateral error drawn evenly from -this to +this (in), so the FLOWER sits that much aside.
@@ -132,6 +140,15 @@ final class RobotDesign {
      */
     double shotIntervalS = 0.2;
     double spinUpS = 1.0;
+    /**
+     * How fast the turret turns, rad/s ({@link Launcher#TURRET} only). The 8 Oct 2026 design meeting put the turret
+     * on a continuous servo (goBILDA Speed, doc/motors-and-servos.md): about 240 deg/s at the turret, 90 deg in
+     * about 0.4 s; the 312 rpm motor it replaced did about 680. The simulation aimed at once until 9 Oct 2026. The
+     * turret tracks the raised CELL whenever the flywheels spin, so it is pre-aimed by the time a launch is asked for,
+     * and a launch waits until it is within {@code AutoSim.AIM_TOLERANCE_RAD}. {@code Double.POSITIVE_INFINITY}: at once.
+     */
+    double turretSlewRadPerS = Math.toRadians(TURRET_SERVO_DEG_PER_S);
+    static final double TURRET_SERVO_DEG_PER_S = 240, TURRET_MOTOR_DEG_PER_S = 680;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
     /**
@@ -401,6 +418,10 @@ final class RobotDesign {
         d.extractorLateralIn = extractorLateralIn;
         d.extractorLateralMaxIn = extractorLateralMaxIn;
         d.extractorBarHeightIn = extractorBarHeightIn;
+        d.extractorBarBottomIn = extractorBarBottomIn;
+        d.extractorBarHalfSpanIn = extractorBarHalfSpanIn;
+        d.extractorBarAheadIn = extractorBarAheadIn;
+        d.extractorBarDepthIn = extractorBarDepthIn;
         d.seatErrorIn = seatErrorIn;
         d.extractorDeployS = extractorDeployS;
         d.transferFeedS = transferFeedS;
@@ -409,6 +430,7 @@ final class RobotDesign {
         d.shotIntervalS = shotIntervalS;
         d.laneCapacity = laneCapacity;
         d.spinUpS = spinUpS;
+        d.turretSlewRadPerS = turretSlewRadPerS;
         d.launchesNectar = launchesNectar;
         d.countsPieces = countsPieces;
         d.nectarSpeedFactor = nectarSpeedFactor;

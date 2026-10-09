@@ -142,6 +142,29 @@ public class AutoSimTest {
         assertTrue("the shots still tip the HIVE: " + blind, !blind.tipsAt.isEmpty());
     }
 
+    /**
+     * The turret slews ({@link RobotDesign#turretSlewRadPerS}): Backup-L fires from spots well off the CELL's
+     * bearing, so a turret that barely turns never gets within 2 deg and fires nothing, while the servo's 240 deg/s
+     * is close to aiming at once. (Seat fire is no test: seated at the FLOWER the turret is already on the CELL.)
+     */
+    @Test
+    public void aSlowTurretHoldsItsShotsUntilItIsAimed() throws Exception {
+        Class<?> auto = Class.forName(GENERATED + ".BackupLAuto");
+        double was = AutoSim.turretSlewOverrideRadPerS;
+        try {
+            AutoSim.turretSlewOverrideRadPerS = 0;  // at once
+            int atOnce = new AutoSim(auto, Alliance.RED, 3572L).write(new File(TeamCodeDir.simLogs(), "turret-at-once.wpilog")).launched;
+            AutoSim.turretSlewOverrideRadPerS = Math.toRadians(RobotDesign.TURRET_SERVO_DEG_PER_S);
+            int servo = new AutoSim(auto, Alliance.RED, 3572L).write(new File(TeamCodeDir.simLogs(), "turret-servo.wpilog")).launched;
+            AutoSim.turretSlewOverrideRadPerS = Math.toRadians(0.5);  // barely turns
+            int stuck = new AutoSim(auto, Alliance.RED, 3572L).write(new File(TeamCodeDir.simLogs(), "turret-stuck.wpilog")).launched;
+            assertTrue("at once " + atOnce + ", stuck " + stuck, stuck < atOnce / 2);
+            assertTrue("at once " + atOnce + ", servo " + servo, servo >= atOnce - 2);
+        } finally {
+            AutoSim.turretSlewOverrideRadPerS = was;
+        }
+    }
+
     private static void checkLog(File file) throws IOException {
         WpiLogReader r = new WpiLogReader(Files.readAllBytes(file.toPath()));
         assertEquals("struct:Pose3d[]", r.entry(FieldSimLog.KEY_POLLEN).type);

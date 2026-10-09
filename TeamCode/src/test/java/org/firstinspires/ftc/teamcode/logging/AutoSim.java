@@ -91,6 +91,8 @@ public final class AutoSim {
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
     /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
     static boolean fireOnlyWhenStill = false;
+    /** BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (NaN: each design's own; 0: at once, as before 9 Oct 2026). */
+    static double turretSlewOverrideRadPerS = Double.NaN;
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -936,6 +938,8 @@ public final class AutoSim {
         boolean firing;
         /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
         boolean streaming;
+        /** Where the turret points, rad left of forward (0 home), moved at {@link RobotDesign#turretSlewRadPerS}. */
+        double turretYaw;
         int shotsFired;
         int shotTarget;
         double nextShotAt;
@@ -1051,9 +1055,14 @@ public final class AutoSim {
 
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
+            trackTurret();
             if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             double[] aim = sim.rocker(alliance).aimPoint();
             double yawError = 0;
+            if (aim != null && design.launcher == RobotDesign.Launcher.TURRET) {
+                // The turret is still swinging to the CELL (RobotDesign#turretSlewRadPerS): fire once it is there.
+                yawError = AdvantageScopeFrame.wrap(turretTarget(aim) - turretYaw);
+            }
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
                 // A frame-fixed launcher: the drivetrain turns the robot to face the CELL first (or,
                 // with slats that flip, to put its back to it, if that is the smaller turn).
@@ -1423,12 +1432,7 @@ public final class AutoSim {
                 // its angle (146 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
                 // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
                 double down = body == null ? 0 : body.extractorDown;
-                double yaw = 0;
-                double[] aim = spinning && design.launcher == RobotDesign.Launcher.TURRET ? sim.rocker(alliance).aimPoint() : null;
-                if (aim != null) {
-                    double[] at = pedro(drive.pose);
-                    yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(Math.atan2(aim[1] - at[1], aim[0] - at[0]) - at[2]))));
-                }
+                double yaw = Math.toRadians(Math.round(Math.toDegrees(turretYaw)));
                 double key = down + 1000 * yaw;
                 if (key == shapeLogged) return;
                 shapeLogged = key;
@@ -1782,6 +1786,28 @@ public final class AutoSim {
                 return;
             }
             drive.follow(Paths.line(from, to).linear(from, to));
+        }
+
+        /** The turret's aim at {@code aim}, rad left of the robot's forward. */
+        private double turretTarget(double[] aim) {
+            double[] at = pedro(drive.pose);
+            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - at[1], aim[0] - at[0]) - at[2]);
+        }
+
+        /**
+         * One loop of the turret: toward the raised CELL while the flywheels spin (pre-aimed during the drive, as the
+         * HiveTracker lets the real one be), home otherwise, the short way round (it is continuous), at the design's
+         * slew. A fixed launcher has none.
+         */
+        private void trackTurret() {
+            if (design.launcher != RobotDesign.Launcher.TURRET) return;
+            double[] aim = spinning ? sim.rocker(alliance).aimPoint() : null;
+            double target = aim == null ? 0 : turretTarget(aim);
+            double slew = Double.isNaN(turretSlewOverrideRadPerS) ? design.turretSlewRadPerS
+                    : turretSlewOverrideRadPerS <= 0 ? Double.POSITIVE_INFINITY : turretSlewOverrideRadPerS;
+            double error = AdvantageScopeFrame.wrap(target - turretYaw);
+            double step = slew * LOOP_S;
+            turretYaw = Math.abs(error) <= step ? target : AdvantageScopeFrame.wrap(turretYaw + Math.copySign(step, error));
         }
 
         private void spinUp() {

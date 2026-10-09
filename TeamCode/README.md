@@ -1759,6 +1759,10 @@ still work, the start check still runs (it is the referee's rule, not the camera
 tips when its shots land. Any robot in the spec can be blind, so a backup route can be measured beside a
 normal partner, or against blind opponents.
 
+A turret design's turret turns at `RobotDesign.turretSlewRadPerS` (240 deg/s, the servo of the 8 Oct 2026 meeting),
+tracking the raised CELL whenever the flywheels spin and firing once within 2 deg; `BIOBUZZ_AUTO_TURRET_DEG_PER_S`
+overrides it for every robot in a study (0: aims at once, as before 9 Oct 2026).
+
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.
 

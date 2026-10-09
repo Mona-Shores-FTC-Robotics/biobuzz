@@ -1,9 +1,9 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister5i-right.pp",
-  "spec": "Sister5iRightAuto,Sister5hLeftAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-flower-first-carry-settle-b2.pp",
+  "spec": "QualRightVFlowerFirstCarrySettleB2Auto,PartnerPreloadsRightSouthAuto@50",
   "design": "rigid V",
-  "partnerDesign": "rigid V",
-  "partnerSpeed": 50.0,
+  "partnerDesign": "spring hood",
+  "partnerSpeed": 40.0,
   "seeds": [
     1,
     2,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "sister5i-right.pp",
-    "SavedBy": "README, Sister five: two of our robots, 5 TIPs when the catch allows (the body-designs chat, 8 Oct 2026)"
+    "AutoSource": "qual-right-v-flower-first-carry-settle-b2.pp",
+    "SavedBy": "README, flower first with the turret slewing at 240 deg/s (9 Oct 2026)"
   },
-  "title": "Sister-5TIPs",
+  "title": "Qual-PartnerShootsRight-FlowerFirst",
   "usual": true,
-  "folder": "sister5"
+  "folder": "qual-right-v-flower-first-carry-settle-b2"
 }
