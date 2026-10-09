@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister5g-right.pp",
-  "spec": "Sister5gRightAuto,Sister5hLeftAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister5i-right.pp",
+  "spec": "Sister5iRightAuto,Sister5hLeftAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,7 +68,7 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "sister5g-right.pp",
+    "AutoSource": "sister5i-right.pp",
     "SavedBy": "README, Sister five: two of our robots, 5 TIPs when the catch allows (the body-designs chat, 8 Oct 2026)"
   },
   "title": "Sister-5TIPs",
