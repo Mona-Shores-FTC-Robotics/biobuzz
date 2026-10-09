@@ -57,6 +57,12 @@ The lever now is how often R's TIP 1 catch reaches 4.
     sister5l (as 5k, TIP 5 from the clean pocket (36, 36))          5 TIPs 16, 4 36, 3 4, <=2 4    92.7  (1 collision, at 9.7 s)
     sister.py (4 TIPs + 2 PARK), same build                                                          93.0
 
+    sister5m (R leaves S_CATCH west first)                          5 TIPs 16, 4 35, 3 5, <=2 4    92.3  (seed 25 still collides)
+    sister5n (R waits for TIP 2 at (42, 12), out of L's turn)        5 TIPs 14, 4 30, 3 11, <=2 5   88.9  (no collision, R late)
+    sister5o (... at (50, 12), straight from its top-up)             5 TIPs 9, 4 39, 3 8, <=2 4     89.0  (no collision)
+    Moving R's TIP 3 spot costs more than seed 25's collision (L's turn at L_TURN reaching R at S_CATCH when TIP 2 is
+    early): sister5l stays the plan.
+
 What is left is not routes: the 4 two-TIP runs are L's TIP 2 stream losing one shot to the HIVE from the far FLOWER
 seat (TIP 2 needs all 8; sister.py shares it), and the 4 three-TIP runs are TIP 4 one piece short in sister's plan
 with nothing left on the floor to top it up (L's and R's floor pickups at 21-25 s find nothing).
