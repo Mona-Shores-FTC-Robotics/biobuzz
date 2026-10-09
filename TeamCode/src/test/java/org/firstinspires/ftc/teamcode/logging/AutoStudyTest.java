@@ -452,8 +452,31 @@ public class AutoStudyTest {
      * As above, for {@code alliance} (the Autos are rotated when they were drawn for the other one),
      * with {@code metadata} added to the log's Metadata tab.
      */
+    /**
+     * BIOBUZZ_AUTO_DESIGN_SET="field=value,field=value": every robot's design with those RobotDesign fields set (a
+     * what-if sweep: "intakeWidthIn=28,shotIntervalS=0.1,firesOnTheMove=true"), on a copy, so the named designs stay.
+     */
+    static RobotDesign withSet(RobotDesign design) throws Exception {
+        String set = System.getenv("BIOBUZZ_AUTO_DESIGN_SET");
+        if (design == null || set == null || set.isEmpty()) return design;
+        RobotDesign d = design.checked();
+        for (String kv : set.split(",")) {
+            String[] p = kv.trim().split("=");
+            java.lang.reflect.Field f = RobotDesign.class.getDeclaredField(p[0].trim());
+            f.setAccessible(true);
+            Class<?> t = f.getType();
+            if (t == double.class) f.setDouble(d, Double.parseDouble(p[1].trim()));
+            else if (t == int.class) f.setInt(d, Integer.parseInt(p[1].trim()));
+            else if (t == boolean.class) f.setBoolean(d, Boolean.parseBoolean(p[1].trim()));
+            else throw new IllegalArgumentException("BIOBUZZ_AUTO_DESIGN_SET: " + p[0] + " is not a number or a boolean");
+        }
+        return d;
+    }
+
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
+        design = withSet(design);
+        partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
@@ -524,6 +547,9 @@ public class AutoStudyTest {
         String slew = System.getenv("BIOBUZZ_AUTO_TURRET_DEG_PER_S");
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
         // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
+        // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
+        String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
+        FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
         String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");
         AutoSim.turretTravelOverrideDeg = travel == null ? Double.NaN : Double.parseDouble(travel);
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }

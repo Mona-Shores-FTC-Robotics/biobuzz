@@ -1772,6 +1772,12 @@ tries another, 0 for a slip ring's unlimited turn), a window centred on straight
 the nearer reading of its bearing (`AutoSim.TURRET_UNWIND_RAD`), so the unwind happens on the drive and never inside
 a fire step; the timeline reports each one ("turret: the long way round, 300 deg in 1.2 s").
 
+What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInPerS=120"` sets any numeric or boolean
+`RobotDesign` field on every robot's design for the study (a copy; the named designs keep their values), and
+`BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4. `RobotDesign.firesOnTheMove` lets a design
+fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
+describing ours (9 Oct 2026, the CAD chat's redesign brief).
+
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.
 

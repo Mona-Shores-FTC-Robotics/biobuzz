@@ -215,6 +215,12 @@ final class RobotDesign {
      */
     boolean compensatesMotion = false;
     /**
+     * Whether it fires while still driving (a what-if for the CAD chat, 9 Oct 2026): the launcher is not held until
+     * the robot has nearly stopped at a firing spot, and the shot allows for the robot's motion
+     * ({@link #compensatesMotion}). The real robot fires once nearly still.
+     */
+    boolean firesOnTheMove = false;
+    /**
      * A frame-fixed launcher whose slats flip to throw straight back as well as forward (mentor,
      * 3 Oct 2026, instead of a turret): the robot turns whichever end is nearer to facing the CELL.
      */
@@ -459,6 +465,7 @@ final class RobotDesign {
         d.catapultCup = catapultCup;
         d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
+        d.firesOnTheMove = firesOnTheMove;
         d.launchesBothWays = launchesBothWays;
         d.flipS = flipS;
         d.sideWallsSlideIn = sideWallsSlideIn;

@@ -74,7 +74,8 @@ final class FieldSim {
     /** The standard design's intake ({@link RobotDesign#intakeWidthIn}), for planners that aim at it. */
     static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
-    static final int ROBOT_CAPACITY = 4;
+    /** How many pieces a robot holds at once (G407's limit is 4; BIOBUZZ_AUTO_CAPACITY tries another in a study). */
+    static int ROBOT_CAPACITY = 4;
     /**
      * The transfer's lane (RobotDesign#laneCapacity; Transfer v3, the transfer chat, 7 Oct 2026): pieces queue nose to
      * tail from a backstop to the intake roller's axle, and one is held once its centre is behind the axle. The
