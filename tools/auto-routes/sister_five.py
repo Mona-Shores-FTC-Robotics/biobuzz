@@ -40,7 +40,10 @@ Then, 40 runs each:
     R_N at y 108 (mentor: R's TIP 4 shots look flat)               no change in the simulator (no bounce-outs there)
 
     sister5i (+ R parks after TIP 5)                               5 TIPs 15, 4 20, 3 4, <=2 1     95.6
-    sister5i-worth (+ R decides on weight, HeldWorth4)              5 TIPs 19, 4 15, 3 4, <=2 2     96.5  <- best
+    sister5i-worth (+ R decides on weight, HeldWorth4)              5 TIPs 19, 4 15, 3 4, <=2 2     96.5
+    The plan is sister5i-right + sister5h-left, deciding on the piece count (mentor, 9 Oct 2026: "Worth 4 should be
+    saved for later, no sensor plans atm"). HeldWorth4 needs a sensor that tells NECTAR from POLLEN (one at the lane
+    mouth, or a distance sensor reading the queue's length, would do); it is kept for when there is one.
     (sister5i-worth: R goes for 5 in 25 of 40, makes it in 19, parks after TIP 5 in 20.)
 
 Before parking and weight: R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
