@@ -536,6 +536,10 @@ final class FieldSim {
          * Its caller sets it ({@link RobotDesign#flapTowardCentre}).
          */
         int flapsOnly;
+        /** How far its slide intake is out ({@link RobotDesign#slideMaxIn}), in. Its caller moves it. */
+        double slideOut;
+        /** Its flaps are still folded ({@link RobotDesign#flapsAfterStart}). Its caller sets it. */
+        boolean flapsFolded;
 
         /**
          * Where the robot is this loop. The previous pose and this one are blended across the
@@ -1425,7 +1429,7 @@ final class FieldSim {
                         fvx, fvy, bot.w, bounce(flapRestitution(d)));
             }
         }
-        if (d.hasFlaps() && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
+        if (d.hasFlaps() && !bot.flapsFolded && (!d.flapsDeploy || bot.wallsOut >= 1)) {  // folded flaps are inside the frame
             // RobotDesign#flapOutIn: a thin plate from each front corner to its free end, the tiles up.
             double hl = d.flapLengthIn() / 2, t = RobotDesign.FLAP_THICKNESS_IN / 2;
             for (int side = -1; side <= 1; side += 2) {
@@ -1698,7 +1702,7 @@ final class FieldSim {
         double lx = (p.x - bx) * c + (p.y - by) * s;
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
-        double mouth = design.frameIn / 2 + design.intakeReachIn;
+        double mouth = design.frameIn / 2 + design.intakeReachIn + bot.slideOut;
         if (!(lx > mouth - 2 && lx < mouth + p.kind.radius + INTAKE_CONTACT_SLACK_IN)) return null;
         if (Math.abs(ly) < design.intakeWidthIn / 2) return p.z + p.kind.radius > design.intakeHeightIn ? "height" : null;
         return Math.abs(ly) < design.frameWidthIn / 2 + p.kind.radius ? "beside" : null;
@@ -1739,7 +1743,7 @@ final class FieldSim {
         double lx = (p.x - bx) * c + (p.y - by) * s;
         double ly = -(p.x - bx) * s + (p.y - by) * c;
         if (design.intakeAtBack) lx = -lx;
-        double mouth = design.frameIn / 2 + design.intakeReachIn;
+        double mouth = design.frameIn / 2 + design.intakeReachIn + bot.slideOut;
         if (p.flower >= 0 && !Double.isNaN(design.extractorSeatIn)) {
             // The extractor, down and seated on the FLOWER (its centre at the seat, within the tolerance), takes the stack.
             if (bot.extractorDown < 0.95) return false;
@@ -1762,7 +1766,7 @@ final class FieldSim {
         bot.lastCaptureAt = time;
         p.capturedBy = bot;
         p.capturedAt = time;
-        p.readyAt = time + bot.design.transferFeedS;
+        p.readyAt = time + bot.design.transferFeedS + (bot.slideOut > 0 ? bot.slideOut / bot.design.slideSpeedInPerS : 0);
         p.where = Where.ROBOT;
         p.flower = -1;
         p.cell = null;

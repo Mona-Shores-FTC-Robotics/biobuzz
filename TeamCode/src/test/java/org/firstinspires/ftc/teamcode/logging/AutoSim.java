@@ -754,7 +754,7 @@ public final class AutoSim {
      * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
      * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
      */
-    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly) {
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly, double slideOut) {
         List<double[]> out = corners(pose, design);
         if (design.hasGuides()) {  // the rigid V's free ends
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
@@ -764,7 +764,16 @@ public final class AutoSim {
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
-        if (design.hasFlaps() && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
+        if (slideOut > 0) {  // the slide intake's head (RobotDesign#slideMaxIn)
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = (design.intakeAtBack ? -1 : 1) * (design.frameIn / 2 + design.intakeReachIn + slideOut);
+            for (int side = -1; side <= 1; side += 2) {
+                double ly = side * design.intakeWidthIn / 2;
+                out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+            }
+        }
+        boolean folded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+        if (design.hasFlaps() && !folded && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
             for (int side = -1; side <= 1; side += 2) {
                 if (flapsOnly != 0 ? side != flapsOnly : side > 0 ? !design.flapLeft : !design.flapRight) continue;
@@ -1148,9 +1157,11 @@ public final class AutoSim {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
             if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
+            body.flapsFolded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+            if (design.slideMaxIn > 0) slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -1168,7 +1179,7 @@ public final class AutoSim {
             // so). The simulator does not stop the robot at a wall; a corner or V tip beyond one by more than the slack
             // (the start touches a wall on purpose) is a problem, like the HIVE frame.
             if (Double.isNaN(result.hitWallAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
                     if (c[0] < -WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN
                             || c[1] < -WALL_SLACK_IN || c[1] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN) {
                         result.hitWallAt = now;
@@ -1181,7 +1192,7 @@ public final class AutoSim {
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;
@@ -1211,7 +1222,7 @@ public final class AutoSim {
          */
         double[] intakeZone(double[] pose, boolean on) {
             if (!on) return new double[0];
-            double mouth = design.frameIn / 2 + design.intakeReachIn, w = design.intakeWidthIn / 2;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut, w = design.intakeWidthIn / 2;
             // Drawn for a POLLEN (FieldSim.inIntake): touching the face, or up to 3 in out.
             double reach = design.intakeOnContact ? FieldSim.POLLEN_RADIUS_IN + FieldSim.INTAKE_CONTACT_SLACK_IN : 3;
             double near = mouth - 2, far = mouth + reach, sign = design.intakeAtBack ? -1 : 1;
@@ -1307,6 +1318,51 @@ public final class AutoSim {
         }
 
         boolean wallsLogged;
+
+        /** The slide intake goes out only while the robot drives slower than this ... */
+        static final double SLIDE_DRIVE_IN_PER_S = 25;
+        /** ... and turns slower than this. */
+        static final double SLIDE_TURN_RAD_PER_S = 0.6;
+
+        /**
+         * The slide intake (RobotDesign#slideMaxIn), run by the robot: out while it intakes, nearly still, with no FLOWER
+         * extractor down, as far as it can go without the head reaching over the centre line (G402), into a wall or the
+         * HIVE frame; back otherwise, at RobotDesign#slideSpeedInPerS. Logged as {@code Intake/SlideOut} (in).
+         */
+        void slide(WpiLog log, double[] pose, double speed, double turnRate, boolean intaking, long us) throws IOException {
+            double target = 0;
+            if (intaking && now >= CATCHER_DEPLOY_S && speed < SLIDE_DRIVE_IN_PER_S && Math.abs(turnRate) < SLIDE_TURN_RAD_PER_S
+                    && body.extractorDown <= 0 && !extractorWanted) {
+                for (double e = design.slideMaxIn; e > 0; e -= 0.5) {
+                    if (slideClear(pose, e)) {
+                        target = e;
+                        break;
+                    }
+                }
+            }
+            double step = design.slideSpeedInPerS * LOOP_S, before = body.slideOut;
+            body.slideOut = before < target ? Math.min(target, before + step) : Math.max(target, before - step);
+            if (body.slideOut != before || !slideLogged) {
+                slideLogged = true;
+                log.put(keyPrefix + "/Intake/SlideOut", body.slideOut, us);
+            }
+        }
+
+        boolean slideLogged;
+
+        /** Whether the slide's head, {@code e} out, stays on our half, inside the walls and out of the HIVE frame. */
+        private boolean slideClear(double[] pose, double e) {
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = (design.intakeAtBack ? -1 : 1) * (design.frameIn / 2 + design.intakeReachIn + e);
+            for (double f = -1; f <= 1.0001; f += 0.5) {
+                double ly = f * design.intakeWidthIn / 2;
+                double x = pose[0] + lx * c - ly * s, y = pose[1] + lx * s + ly * c;
+                if (alliance == Alliance.BLUE ? x < FieldSim.CENTRE_IN : x > FieldSim.CENTRE_IN) return false;
+                if (x < 0 || y < 0 || x > FieldSim.FIELD_SIZE_IN || y > FieldSim.FIELD_SIZE_IN) return false;
+                if (FieldSim.inHiveFrame(x, y)) return false;
+            }
+            return true;
+        }
 
         /** How far ahead of the face a FLOWER's centre may be for the extractor to come down on the approach. */
         static final double EXTRACTOR_DEPLOY_AHEAD_IN = 18;
@@ -1636,14 +1692,14 @@ public final class AutoSim {
                         target[0] = nearestSeen(origin);
                         if (target[0] != null) {
                             driveOnto(target[0]);
-                        } else if (drive.pathDone() && lookedAround[0] < LOOK_AROUND_RAD && canTurnHere()) {
+                        } else if (drive.pathDone() && lookedAround[0] < Math.toRadians(design.lookAroundDeg) && canTurnHere()) {
                             // Nothing in view: turn on the spot to look around.
                             drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
                     .setDone(() -> FieldSim.full(body)
-                            || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
+                            || (target[0] == null && (lookedAround[0] >= Math.toRadians(design.lookAroundDeg) || !canTurnHere())))
                     .setEnd(end -> drive.hold(drive.pose));
         }
 
@@ -1679,8 +1735,8 @@ public final class AutoSim {
                 if (p.kind == theirs || (p.kind != FieldSim.Kind.POLLEN && !design.launchesNectar)) continue;
                 if (FieldSim.underHive(p.x, p.y)) continue;
                 double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
-                if (d > CAMERA_RANGE_IN || Math.hypot(p.x - origin[0], p.y - origin[1]) > COLLECT_RADIUS_IN) continue;
-                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > CAMERA_HALF_FOV_RAD) continue;
+                if (d > design.cameraRangeIn || Math.hypot(p.x - origin[0], p.y - origin[1]) > design.collectRadiusIn) continue;
+                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg)) continue;
                 if (alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN) continue;
                 if (zone != null) {
                     double xRed = alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x;
@@ -1744,7 +1800,7 @@ public final class AutoSim {
          * the frame's corners alone let it chase a piece by the centre line or the south wall with its tips over.
          */
         private boolean outOfBounds(double[] pose, double wall) {
-            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut)) {
                 if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                 if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
