@@ -282,6 +282,18 @@ final class RobotDesign {
      */
     boolean flapsAfterStart = false;
     /**
+     * With {@link #flapsAfterStart}: whether the robot folds the flaps itself near walls, the HIVE frame and the centre line
+     * (a robot that knows its pose and folds in 0.3 s); false: out from 1 s after START for the whole match, unless
+     * {@link #catchScheduled}.
+     */
+    boolean flapsAutoFold = true;
+    /**
+     * The flaps and the slide (RobotDesign#slideMaxIn) out only between the Auto's CatchOut and CatchIn cards: a servo,
+     * no pose logic, taking {@link #catchActuateS} to swing (or slide) either way. The route keeps them clear.
+     */
+    boolean catchScheduled = false;
+    double catchActuateS = 0.5;
+    /**
      * A slide intake: the intake's head runs forward on a slide, up to this far past {@link #intakeReachIn}, while the
      * robot intakes and is nearly still ({@link AutoSim}), and back while it drives. 0: no slide. A captured piece rides
      * back to the lane at {@link #slideSpeedInPerS} before it can feed. Placeholders: nothing like it is drawn.
@@ -462,6 +474,9 @@ final class RobotDesign {
         d.guideOutIn = guideOutIn;
         d.guideForwardIn = guideForwardIn;
         d.flapsAfterStart = flapsAfterStart;
+        d.flapsAutoFold = flapsAutoFold;
+        d.catchScheduled = catchScheduled;
+        d.catchActuateS = catchActuateS;
         d.slideMaxIn = slideMaxIn;
         d.slideSpeedInPerS = slideSpeedInPerS;
         d.cameraHalfFovDeg = cameraHalfFovDeg;

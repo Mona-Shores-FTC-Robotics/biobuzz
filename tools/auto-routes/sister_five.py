@@ -156,7 +156,7 @@ def topup2(r, ms):
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None, catch_cards=False):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -172,7 +172,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     r.pt("S_CATCH", *catch_at)
     r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
     r.at = "R_PRE"
-    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.go("S_CATCH", heading=90))
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000))
+    if catch_cards:
+        # Scheduled guides (RobotDesign#catchScheduled): out for TIP 1's catch, in once it is over.
+        r.add(r.action("CatchOut"))
+    r.add(r.go("S_CATCH", heading=90))
     r.at = "S_CATCH"
     retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
              fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
@@ -202,8 +206,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         if topup2_ms is not None and t3_at is None:
             # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): once the left CELL has been up 7 s
             # (TIP 2 comes 3.6-5.8 s after TIP 1 on its own), R fires one of its catch at it from R_N and comes back.
-            full = [topup2(r, topup2_ms[0])]
-            fill.append(topup2(r, topup2_ms[1]))
+            full = [r.action("CatchIn")] * catch_cards + [topup2(r, topup2_ms[0])]
+            fill += [r.action("CatchIn")] * catch_cards + [topup2(r, topup2_ms[1])]
         if t3_at is not None:
             # Full already: straight to R_T3 too. Both branches end there.
             r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=[r.go("R_T3", heading=90)],
@@ -431,9 +435,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
           bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False,
-          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88):
+          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88, catch_cards=False):
     """ln, ls, lturn: L's waits for TIP 2's and TIP 3's spills and its turn below the HIVE (moved back for a front whose
-    flaps reach further, so they stay out of a spill still falling, G409)."""
+    flaps reach further, so they stay out of a spill still falling, G409). catch_cards: scheduled guides
+    (RobotDesign#catchScheduled) out for each catch (TIP 2's at L_N, TIP 3's at L_S, TIP 4's at L_N) and in before L
+    turns or drives on; L comes down the lane facing it and turns at L_TURN only once they are in."""
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *ln).pt("L_TURN", *lturn).pt("L_S", *ls).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -441,13 +447,20 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.at = "FAR_FLOWER_TURN"
     r.add(*seated_stream(r, stream_ms))
     r.at = "L_N"
+    if catch_cards:
+        r.add(r.action("CatchOut"))
     n0 = len(r.cards)
     # TIP 3: TIP 2's spill caught on the way down the lane (sister.py's lane_down).
-    r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=settle_ms),
-          r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=lturn_after, turn_by=1.0))
+    r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=settle_ms))
+    if catch_cards:
+        r.add(r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], heading=270), r.action("CatchIn"))
+    else:
+        r.add(r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=lturn_after, turn_by=1.0))
     r.at = "L_TURN"
     r.add(r.go("L_S", heading=90))
     r.at = "L_S"
+    if catch_cards:
+        r.add(r.action("CatchOut"))
     if keep1:
         r.add(*[r.action("LaunchOne") for _ in range(3)])
     else:
@@ -474,6 +487,8 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
                          no_label="Not full: off the floor"))
         else:
             r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms))
+        if catch_cards:
+            r.add(r.action("CatchIn"))
         r.add(r.go("L_N4", ctrl=[(57.5, 50), (57.5, 104)], heading=90))
         r.at = "L_N4"
     else:
@@ -486,6 +501,8 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
         r.add(r.go("L_N", turn_by=1.0))
     r.at = "L_N"
+    if catch_cards:
+        r.add(r.action("CatchOut"))
     # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
     r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
     if creep4:
@@ -495,8 +512,10 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
               r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
     else:
-        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
-              r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
+        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms))
+        if catch_cards:
+            r.add(r.action("CatchIn"))
+        r.add(r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
     r.at = "L_F5"
     r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
     if top5_ms:
@@ -513,7 +532,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
         five = r.cards[m0:]
         del r.cards[m0:]
-        del five[1]  # the "TIP 4" wait: the TIP has already come on this branch
+        del five[2 if catch_cards else 1]  # the "TIP 4" wait: the TIP has already come on this branch
         r.pt("L_T4", *L_T4)
         r.at = "L_N4"
         short = [r.go("L_T4", heading=90)]

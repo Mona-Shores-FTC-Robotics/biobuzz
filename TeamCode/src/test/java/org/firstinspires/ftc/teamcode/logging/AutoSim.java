@@ -1157,8 +1157,20 @@ public final class AutoSim {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
             if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
-            if (design.flapsAfterStart) flaps(log, pose, vx, vy, w, us);
-            if (design.slideMaxIn > 0) slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
+            if (design.catchScheduled) {
+                double swing = LOOP_S / design.catchActuateS;
+                catchOut = catchWanted ? Math.min(1, catchOut + swing) : Math.max(0, catchOut - swing);
+                body.flapsFolded = design.flapsAfterStart && catchOut < 0.5;  // fixed guides stay out
+            } else if (design.flapsAfterStart && design.flapsAutoFold) {
+                flaps(log, pose, vx, vy, w, us);
+            } else {
+                body.flapsFolded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+            }
+            if (design.slideMaxIn > 0 && design.catchScheduled) {
+                body.slideOut = catchOut * design.slideMaxIn;
+            } else if (design.slideMaxIn > 0) {
+                slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
+            }
             int raised = sim.rocker(alliance).raisedEnd();
             if (raised != lastRaised) {
                 lastRaised = raised;
@@ -1354,6 +1366,9 @@ public final class AutoSim {
         }
 
         boolean slideLogged;
+        /** RobotDesign#catchScheduled: what the Auto asked for (CatchOut / CatchIn) and how far out they are, 0 to 1. */
+        boolean catchWanted;
+        double catchOut;
         /** Which CELL is up (FieldSim.Rocker#raisedEnd) and since when: TipOverdue. */
         int lastRaised;
         double raisedSince;
@@ -1612,6 +1627,9 @@ public final class AutoSim {
                     // down until HookUp, whatever the robot does meanwhile; done once it has finished swinging.
                     .command("HookDown", RobotDesign.standard().sideWallsTravelS, () -> hook(true))
                     .command("HookUp", RobotDesign.standard().sideWallsTravelS, () -> hook(false))
+                    // RobotDesign#catchScheduled: the flaps (and slide) out for a catch and back in.
+                    .command("CatchOut", 1.0, () -> catchCard(true))
+                    .command("CatchIn", 1.0, () -> catchCard(false))
                     .trigger("IntakeFull", () -> design.countsPieces && FieldSim.full(body))
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
@@ -1720,6 +1738,20 @@ public final class AutoSim {
                         wallsWanted = down;
                     })
                     .setDone(() -> !design.flapsDeploy || (down ? body.wallsOut >= 1 : body.wallsOut <= 0));
+        }
+
+        private Command catchCard(boolean out) {
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        if (!design.catchScheduled) {
+                            pending.add("nothing scheduled to move: Catch" + (out ? "Out" : "In") + " does nothing");
+                            return;
+                        }
+                        if (catchWanted != out) pending.add("catch guides " + (out ? "out" : "in") + ": the Auto asked");
+                        catchWanted = out;
+                    })
+                    // CatchOut starts the swing and goes on (a servo); CatchIn waits until they are in, so a turn can follow.
+                    .setDone(() -> !design.catchScheduled || out || catchOut <= 0);
         }
 
         /**
