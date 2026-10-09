@@ -238,8 +238,29 @@ error here because of red alliance shenanigans").
 With the camera off there is nothing to disagree with a wrong button, and the solid colour is the only safeguard: a
 blue glow on the red side. Limits from the manual: lighting faster than 5 Hz invites scrutiny, so nothing passes
 2 Hz, and a powered light can't be the alliance sign, so the light sits beside the required sign. A second, status
-light (Smart or Backup) would add little the screen doesn't show; add one only for a reason. What the light shows
-during the match is a later design.
+light (Smart or Backup) would add little the screen doesn't show; add one only for a reason.
+
+**Where it goes and how it's driven** (the indicator-lights chat, 9 Oct 2026; its team write-up, "Before PLAY: the
+alliance light"):
+
+- **Face-up on top of the right front tower**, about x 6.6, y −5.1 in (robot frame, 7 Oct whole-robot model), light
+  top about 15 in: the highest fixed point, unblocked (the Limelight between the towers tops out at 14.7 in; a 17°
+  sight line from the far side clears it by about 1.8 in), and it looks the same from either start. Not the rear: about
+  5 in lower, and the launcher hides it from the front and left.
+- **From PLAY the same light is the "ready to shoot" (LAUNCH) light.** The flywheel can't spin in INIT, so the two jobs
+  never overlap: one light, one servo port.
+- **goBILDA 3118-0808-0002** on the SDK's default 600–2400 µs servo range (don't call `setPwmRange`): red 0.277, blue
+  0.611, white 1.0, off 0.0. Flashing is the colour and 0.0 in turn at 2 Hz; red/blue alternating switches every 0.5 s
+  (1 Hz). It can't dim (below 1100 µs it is off), so a "pulse" is a blink.
+
+To check at the next meeting:
+
+- **Can the partner's drive team see it?** Eyes about 5 ft up, at the same wall: the light is 17° (from 12 ft) to 43°
+  (from 4 ft) above its face. Look from both starts. If it's hard to see from behind, chain a second light at the rear
+  right corner of the launcher frame (about x −4.5, y −4.2, z 9.5) off the same port; chained lights act together.
+- **What it shows before INIT and after STOP**, with no PWM signal (undocumented).
+- **Does the tower top take a goBILDA 1202 angle mount?** It is about 15 × 10 mm in the CAD. If not, the ends of the
+  Limelight beam (about 12.2 in high, y ±3.3).
 
 ## At PLAY and after
 
