@@ -11,6 +11,7 @@ import com.pedropathing.paths.Path;
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveState;
 
@@ -1022,8 +1023,9 @@ public final class AutoSim {
             return -Math.sin(heading) * (FieldSim.CENTRE_IN - x) > 0 ? 1 : -1;
         }
 
+        /** The first robot's trace lines read as the robot's own match log writes them (AutoTrace); a second as "auto2: ". */
         String tag() {
-            return index == 0 ? "auto: " : "auto" + (index + 1) + ": ";
+            return index == 0 ? AutoTrace.EVENT_PREFIX : "auto" + (index + 1) + ": ";
         }
 
         void afterScheduler(WpiLog log, RobotResult result, boolean running, long us) throws IOException {

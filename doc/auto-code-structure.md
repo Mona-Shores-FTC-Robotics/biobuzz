@@ -171,7 +171,10 @@ Backup-R, the park routes.
 
 Each step is useful on its own.
 
-1. **Trace to the match log** (D, first bullet). One line, no hardware. Every robot test from then on is comparable.
+1. **Trace to the match log** (D, first bullet). **Done, 9 Oct 2026:** `opmodes/auto/AutoTrace` sends every `AutoKit`
+   trace line to the match log as `auto: …` (the simulator uses the same `AutoTrace.EVENT_PREFIX`) and keeps the last
+   four for the Match page. It runs only when a card starts or a wait ends; `MatchLog.event` hands the string to the
+   background writer, so no file work in the loop.
 2. **`LeftCellUp` / `RightCellUp` on the robot**: `HiveTracker` already has the state. Two lines in
    `AutoRegistration`.
 3. **`AutoRoute` and `RouteRunner`** (A), with `BuiltAuto` rewritten on top. No behaviour change, so the existing

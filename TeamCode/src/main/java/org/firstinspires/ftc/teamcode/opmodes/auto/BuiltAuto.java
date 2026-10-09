@@ -33,6 +33,7 @@ import java.util.function.Function;
  */
 public abstract class BuiltAuto extends RobotOpMode {
 
+    /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
 
     private final String[] commands;
@@ -44,8 +45,7 @@ public abstract class BuiltAuto extends RobotOpMode {
     private AutoRegistry registry;
     private long startNs;
     private String problem;
-    private final String[] trace = new String[TRACE_LINES];
-    private int traceCount;
+    private AutoTrace trace;
 
     protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
@@ -78,8 +78,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         boolean rotated = !alliance.name().equals(drawnFor);
         robot.drive.setPose(startPose.apply(rotated));
         startNs = System.nanoTime();
+        // Every line to the match log, the last few to the Match page.
+        trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
-                .trace(this::remember);
+                .trace(trace);
         build.apply(kit, rotated).schedule();
     }
 
@@ -89,14 +91,6 @@ public abstract class BuiltAuto extends RobotOpMode {
             display.status("Auto", Display.Level.FAULT, problem);
             return;
         }
-        for (int i = Math.max(0, traceCount - TRACE_LINES); i < traceCount; i++) {
-            display.line(trace[i % TRACE_LINES]);
-        }
-    }
-
-    /** Keeps the last few trace lines for the Match page. */
-    private void remember(String line) {
-        trace[traceCount % TRACE_LINES] = line;
-        traceCount++;
+        if (trace != null) trace.forEachRecent(display::line);
     }
 }
