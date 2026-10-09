@@ -49,6 +49,18 @@ Then, 40 runs each:
 Before parking and weight: R goes for 5 in 18 of 40 and makes it in 15; the rest is sister's plan at 91 (L doesn't park: it can't tell R switched).
 The lever now is how often R's TIP 1 catch reaches 4.
 
+9 Oct 2026, 60 runs each (this build now matches the simulator chat's: the same seeds fail):
+
+    sister5i + sister5h-left (published as "sister5")            5 TIPs 17, 4 33, 3 6, <=2 4     92.3
+    sister5j (L tops TIP 4 up at the left end wall; R parks if late) 5 TIPs 15, 4 35, 3 6, <=2 4   93.2  (L finds nothing there)
+    sister5k (R waits at R_MID; no TIP 4 -> its 4 to the left CELL) 5 TIPs 15, 4 37, 3 4, <=2 4    92.3  (5 collisions)
+    sister5l (as 5k, TIP 5 from the clean pocket (36, 36))          5 TIPs 16, 4 36, 3 4, <=2 4    92.7  (1 collision, at 9.7 s)
+    sister.py (4 TIPs + 2 PARK), same build                                                          93.0
+
+What is left is not routes: the 4 two-TIP runs are L's TIP 2 stream losing one shot to the HIVE from the far FLOWER
+seat (TIP 2 needs all 8; sister.py shares it), and the 4 three-TIP runs are TIP 4 one piece short in sister's plan
+with nothing left on the floor to top it up (L's and R's floor pickups at 21-25 s find nothing).
+
 What decides it:
 - Without the GARDEN, TIP 3 comes up one or two short in a quarter to a third of runs (R's TIP 1 catch is often 3,
   and filling it off the floor while waiting for TIP 2 didn't reach 4), and those matches end at 2 TIPs.
@@ -81,10 +93,20 @@ R_C1, R_C5 = (50, 24, 90), (48, 26, 90)
 # Creeping into a spill once it has landed (L's TIP 3 catch, at (58, 40), fills almost at once): TIP 1's at the right
 # end, TIP 4's at the left end (the same spot turned about the field's centre line).
 R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
+# L's TIP 4 top-up: from L_N4 toward the left end wall, where TIP 2's leftovers come to rest.
+L_T4 = (55, 128, 90)
+# Where R waits with the wall FLOWER's 4 for TIP 4, between the ends: 1.5 s to R_F5_MID, 2 s back to R_N.
+R_MID = (24, 40, 90)
+# R's TIP 5 spot when it waits at R_MID: the 8 Oct scan's clean pocket at y 36 (x 36-42), 12 in from R_MID and
+# out of L's lane (at R_F5_MID R was still firing when L came down: collisions at 24-25 s in 5 of 60).
+R_F5_POCKET = (36, 36, 90)
+# Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
+L_CF = (52, 32, 90)
 
 
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
-           top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull"):
+           top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
+           r5_wait_ms=0, mid5_ms=0):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -153,6 +175,16 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
     def tip5_fire():
         r.at = "R_F5"
+        if park5 and r5_wait_ms:
+            # No TIP 4 within r5_wait_ms of getting here: TIP 5 is off; park while there is time.
+            r.at = "R_F5"
+            late = [r.go("PARK", ctrl=[(20, 30), (16, 70)], heading=90, park=True)]
+            r.at = "R_F5"
+            go5 = [fire(r, "R's 4 at the right CELL (TIP 5, with L)", "Empty", ms=3000),
+                   r.go("PARK", ctrl=[(20, 30), (16, 70)], heading=90, park=True)]
+            r.at = "PARK"
+            return [r.wait("TIP 4: the right CELL up", when=["RightCellUp"], ms=r5_wait_ms, yes=go5, no=late,
+                           no_label="No TIP 4: park")]
         cards = [r.wait("TIP 4: the right CELL up", when=["RightCellUp"], ms=8000),
                  fire(r, "R's 4 at the right CELL (TIP 5, with L)", "Empty", ms=3000)]
         if park5:
@@ -252,8 +284,24 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             five.append(r.go("R_N", heading=90))
         five += tip4_at_rn(ms=10000)
         five += wall_flower_from("R_N", ctrl=[(30, 80)])
-        five.append(r.go("R_F5", turn_after=0.2, turn_by=0.8))
-        five += tip5_fire()
+        if mid5_ms:
+            # Simulator chat, 9 Oct 2026: R parked at 26 s still holding the wall FLOWER's 4 when TIP 4 came up
+            # short (seeds 19, 34). Wait between the ends: TIP 4 -> the right end for TIP 5; no TIP 4 by mid5_ms ->
+            # back to R_N, the 4 at the left CELL (they complete TIP 4), and PARK next door.
+            r.pt("R_MID", *R_MID)
+            five.append(r.go("R_MID", turn_after=0.2, turn_by=0.8))
+            r.at = "R_MID"
+            yes5 = [r.go("R_F5", heading=90)] + tip5_fire()
+            r.at = "R_MID"
+            no5 = [r.go("R_N", heading="linear")]
+            r.at = "R_N"
+            no5 += [fire(r, "TIP 4 short: R's 4 at the left CELL", "Empty", ms=2000),
+                    r.go("PARK", heading=90, park=True)]
+            five.append(r.wait("TIP 4: the right CELL up", when=["RightCellUp"], ms=mid5_ms, yes=yes5, no=no5,
+                               no_label="No TIP 4: R's 4 to it"))
+        else:
+            five.append(r.go("R_F5", turn_after=0.2, turn_by=0.8))
+            five += tip5_fire()
 
         def park_from_rn():
             r.at = "R_N"
@@ -302,7 +350,8 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
-          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False):
+          bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False,
+          top4_ms=0, top4_wait_ms=2500, fill3_ms=0):
     r = Route(name, L_START, speed=50)
     r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -329,14 +378,28 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     if noturn4:
         # Up the lane still facing it (90), no turn at the end: the turret fires back over the shoulder.
         r.pt("L_N4", L_N[0], L_N[1] - 2, 90)
-        r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
-              r.go("L_N4", ctrl=[(57.5, 50), (57.5, 104)], heading=90))
+        if fill3_ms:
+            # Simulator chat: L's catch ends on its limit holding 2-3 in the runs where TIP 4 comes up short; top
+            # it up off the floor (as R does after TIP 1) before the lane.
+            r.pt("L_CF", *L_CF)
+            r.at = "L_C"
+            fill = [r.go("L_CF", heading=90)]
+            r.at = "L_CF"
+            fill += [r.wait("TIP 3's spill off the floor", when=["IntakeFull"], ms=fill3_ms, alongside="CollectSeen"),
+                     r.go("L_C", heading=90)]
+            r.at = "L_C"
+            r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms, no=fill,
+                         no_label="Not full: off the floor"))
+        else:
+            r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms))
+        r.add(r.go("L_N4", ctrl=[(57.5, 50), (57.5, 104)], heading=90))
         r.at = "L_N4"
     else:
         r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
               r.go("L_N", ctrl=[(57.5, 50), (57.5, 104)], turn_after=0.85, turn_by=1.0))
         r.at = "L_N"
     r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
+    m0 = len(r.cards)
     if noturn4:
         # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
         r.add(r.go("L_N", turn_by=1.0))
@@ -362,6 +425,22 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         r.at = "L_T5"
         r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
               fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
+    if noturn4 and top4_ms:
+        # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
+        # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
+        # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
+        five = r.cards[m0:]
+        del r.cards[m0:]
+        del five[1]  # the "TIP 4" wait: the TIP has already come on this branch
+        r.pt("L_T4", *L_T4)
+        r.at = "L_N4"
+        short = [r.go("L_T4", heading=90)]
+        r.at = "L_T4"
+        short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
+                  fire(r, "The top-up at the left CELL (TIP 4)", "Tip", ms=2500),
+                  r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
+        r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
+                     no_label="No TIP 4: top it up and park"))
     yes = r.cards[n0:]
     del r.cards[n0:]
     r.at = "L_N"
@@ -386,6 +465,12 @@ def variants():
             right5("sister5g-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, clear5=True, back_out=True),
             right5("sister5h-right", mode="auto", fill1_ms=3500, f5=R_F5_MID, clear5=True, back_out=True),
             right5("sister5i-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True),
+            right5("sister5j-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
+                   r5_wait_ms=4000),
+            left5("sister5j-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, top4_ms=1500),
+            right5("sister5k-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True, mid5_ms=3000),
+            right5("sister5l-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000),
+            left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),
             left5("sister5h-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True),
