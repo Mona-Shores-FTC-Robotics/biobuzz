@@ -1821,10 +1821,17 @@ public final class AutoSim {
             drive.follow(Paths.line(from, to).linear(from, to));
         }
 
-        /** The turret's aim at {@code aim}, rad left of the robot's forward. */
+        /**
+         * The turret's aim at {@code aim}, rad left of the robot's forward, from the turret's own axis (2 in behind
+         * the robot's centre, {@link #TURRET_AXIS_X_M}): from the centre it was up to 3 deg out at the closest firing
+         * spots, which the internals log's TurretErrorDeg showed (9 Oct 2026).
+         */
         private double turretTarget(double[] aim) {
             double[] at = pedro(drive.pose);
-            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - at[1], aim[0] - at[0]) - at[2]);
+            double c = Math.cos(at[2]), s = Math.sin(at[2]);
+            double ax = TURRET_AXIS_X_M / AdvantageScopeFrame.METERS_PER_INCH, ay = TURRET_AXIS_Y_M / AdvantageScopeFrame.METERS_PER_INCH;
+            double x = at[0] + ax * c - ay * s, y = at[1] + ax * s + ay * c;
+            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - y, aim[0] - x) - at[2]);
         }
 
         /**
