@@ -89,8 +89,16 @@ final class RobotDesign {
      * the bar is a solid strip across the seat line that pieces bounce off ({@link #extractorBarHeightIn}).
      */
     double extractorLateralMaxIn = Double.NaN;
-    /** The bar's height off the tiles while down; a placeholder until CAD draws it. */
+    /** The bar's top off the tiles while down; a placeholder until CAD draws it. */
     double extractorBarHeightIn = 1.5;
+    /** The bar's underside off the tiles while down (pieces lower than it pass under). */
+    double extractorBarBottomIn = 0;
+    /** The bar's half-span across the robot; NaN: the lateral range plus the seat tolerance. */
+    double extractorBarHalfSpanIn = Double.NaN;
+    /** The bar's middle, ahead of the front face; NaN: at the seat (extractorSeatIn). */
+    double extractorBarAheadIn = Double.NaN;
+    /** The bar's depth, front to back; NaN: a thin plate. */
+    double extractorBarDepthIn = Double.NaN;
     /**
      * A seat-position error (body-designs chat): each time the extractor comes down, the robot's real seat is off its
      * drawn one by a lateral error drawn evenly from -this to +this (in), so the FLOWER sits that much aside.
@@ -401,6 +409,10 @@ final class RobotDesign {
         d.extractorLateralIn = extractorLateralIn;
         d.extractorLateralMaxIn = extractorLateralMaxIn;
         d.extractorBarHeightIn = extractorBarHeightIn;
+        d.extractorBarBottomIn = extractorBarBottomIn;
+        d.extractorBarHalfSpanIn = extractorBarHalfSpanIn;
+        d.extractorBarAheadIn = extractorBarAheadIn;
+        d.extractorBarDepthIn = extractorBarDepthIn;
         d.seatErrorIn = seatErrorIn;
         d.extractorDeployS = extractorDeployS;
         d.transferFeedS = transferFeedS;

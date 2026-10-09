@@ -195,3 +195,25 @@ placeholders. **Rerun with CAD's width**: set `wideBar.extractorLateralIn` / `ex
 
 Since section 1 was run the simulator has changed (claude/simulator's transfer and plate-contact models): the corner
 route with a dead partner at the left start now makes 3 TIPs in 30-32 of 60 (35 then), with a good partner 55-56.
+
+**CAD's compromise bar** (robot CAD chat, 8 Oct 2026, `doc/robot-cad.md` "A wider FLOWER bar"): arms at 5.6 in with a
+straight bar, the FLOWER seats within **±3.0 in** of the centre line square on (±2.5 in at 3° off; today's block
+±1.5, ±1 at 3° off), the FLOWER's centre 4.59 in ahead of the face either way. Design "rigid V, fixed turret, CAD
+bar" (range ±1.5 plus the 1.5 in tolerance), `seat_error.py`, 60 runs, 3 TIPs:
+
+| Auto | Extractor | ±0 | ±1 | ±2 | ±4 in |
+|---|---|---|---|---|---|
+| L-Quals | centre block (±1.5) | 57 | 57 | 32 | 9 |
+| | CAD bar (±3.0) | 58 | 58 | 58 | 32 |
+| R-Quals | centre block | 56 | 56 | 30 | 9 |
+| | CAD bar | 56 | 56 | 56 | 30 |
+
+With CAD's deployed outline (the bar across ±5.52 in, 0.70-1.35 in off the tiles, 1.4 in deep, its tip 5.84 in ahead
+of the face; the first run had a 1.5 in tall strip at the seat): G409 the same runs (L-Quals 0, R-Quals 17 of 60).
+
+The CAD bar doubles the tolerance: a ±2 in seat error costs nothing (it cost 25 runs), and ±4 costs what ±2 costs
+the block today. It does not reach the corner seat (7.3 in off), and nothing CAD can fit does (6.2-7.0 in arms
+reach ±3.5-4.5 and need the front redesigned; 7 in is not reachable). With the FLOWER at the bar's -3.0 end the robot
+sits at x 44.36, its side at x 51.98, 2 in into a partner at the standard left start; at -4.5 it is still 0.5 in in
+(the V's tip 1.75 in). So **`qual-south-v-corner` is off**: R-Quals beside a partner that stays at its start has no
+extractor that makes it safe, and that partner is a scouting "no" for R-Quals (L-Quals' pairing instead). Heading error (the 3° figures) is not modelled; deployed, the bar again changed nothing else.
