@@ -131,6 +131,17 @@ Human-player NECTAR, as the simulator drops it (mid-zone, 2 s after each TIP), d
 ([human-nectar.md](human-nectar.md)) might do better, but it needs a robot already waiting there, and time is the
 problem. The drop is a placeholder until a practice drill gives real timings.
 
+## Human NECTAR, banked or not, can't make a 4th TIP (simulator, 9 Oct, e507f53)
+
+With a preload-only partner or alone, turning human NECTAR on changes nothing (74.7 / 74.3 and 68.0 points, no TIP 4,
+60 runs each). The binding limit is the tipping rule, not time. After a TIP the raised CELL is empty and needs about
+7.95 POLLEN-weights. A NECTAR counts as 1.65 POLLEN (3 NECTAR + 3 POLLEN tips; 8 POLLEN tips; 7 holds), and a robot may
+hold 4 pieces (G407): 4 NECTAR is only 6.6. **No single load tips an empty CELL**, however many NECTAR are banked, so a
+4th TIP needs two loads, and with TIP 3 at 24 to 25 s there's no time for two. In the Sister five, entering NECTAR
+(one per TIP, rolled or dropped, or a bank of 3) is within noise on today's routes (13 to 17 against 16), because no
+robot is there to take it. The body-designs chat is building a catcher variant (a robot waiting at the zone's end for
+the bank's three, which roll in at about 17 to 18 s).
+
 ## Solo 4 TIPs: no, for any robot the simulator can build (9 Oct)
 
 Partner parks only. Today's robot gets 3 TIPs in 42 of 60 (TIP 3 at 27.2 s); with a 0.17 s / 120 in/s intake, 46;
