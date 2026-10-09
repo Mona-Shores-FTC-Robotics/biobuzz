@@ -1882,8 +1882,12 @@ public final class AutoSim {
             if (fireStepReported || design.launcher != RobotDesign.Launcher.TURRET) return;
             fireStepReported = true;
             double waited = Double.isNaN(fireStepStart) || Double.isNaN(aimedSince) ? 0 : Math.max(0, aimedSince - fireStepStart);
-            pending.add(waited <= 0.011 ? "turret: on target when the fire step began"
-                    : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited));
+            // With where the robot fires from, so every fire spot can be checked against its end (mentor, 9 Oct 2026).
+            double[] at = pedro(drive.pose);
+            String where = String.format(Locale.ROOT, " (firing from (%.0f, %.0f) at the %s CELL)", at[0], at[1],
+                    sim.rocker(alliance).raisedEnd() > 0 ? "high-end" : "low-end");
+            pending.add((waited <= 0.011 ? "turret: on target when the fire step began"
+                    : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited)) + where);
         }
 
         private void spinUp() {
