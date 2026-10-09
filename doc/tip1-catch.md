@@ -152,3 +152,53 @@ Changes to the routes (`sister_five.py`):
 - The slide is modelled as a moving mouth, not a mechanism: no sideways sweep, no pushing.
 - G409 here is the simulator's reading (a flap touching a piece still falling); the remaining runs are L's flaps at its
   TIP 2 wait.
+
+# Buildable fronts and human-player NECTAR (9 Oct 2026, late)
+
+Same Sister five routes as above (R `topup2_ms=(6000, 6000)`, catch at (57.5, 16), sweep to (46, 30); L `bail_ms=10500`,
+waits at y 122 and y 18), both robots the same front, 60 runs each, simulator only.
+
+## Fronts a team can build (the self-folding flaps above can't be)
+
+| Front | Intake | 5 TIPs | <=2 | mean pts | frame / wall / cross | G409 runs |
+|---|---|---|---|---|---|---|
+| today's V (2.8 in) | today | 20 | 1 | 94.5 | 1 / 0 / 0 | 0 |
+| today's V | 0.17 s, 120 in/s | 29 | 2 | 96.0 | 2 / 0 / 0 | 1 |
+| **fixed flaps 3.4 in** (out from 1 s, never fold) | today | **28** | 2 | 97.3 | 1 / 0 / 0 | 0 |
+| fixed flaps 3.4 in | 0.17 s, 120 in/s | 30 | 2 | 97.4 | 1 / 0 / 0 | 1 |
+| fixed flaps 4 / 5 / 6 in | today | 29 / 30 / 33 | 0-2 | 97-101 | **every run** hits a wall and the HIVE frame (6 in: the centre line too) | 0-2 |
+| scheduled 8 in flaps, 0.5 s servo (CatchOut / CatchIn cards) | today / 0.17 s | 28 / 31 | 0 / 1 | 96.4 / 97.6 | 0-2 / 0 / 0 | 2-3 |
+| scheduled 8 in flaps, 1.0 s servo | today / 0.17 s | 18 / 21 | 0 | 94.2 / 94.9 | 2 / 0 / 0, 3-4 collisions | 2 |
+| scheduled slide 5 / 6.9 in | today | 1 / 0 | 10-16 | 75-80 | 10-27 frame hits | 0-1 |
+
+- **3.4 in is the longest fixed flap that stays clear** (4 in: R's GARDEN pickup puts it past the south wall, and the
+  turns reach the HIVE's feet). It does as well as scheduled 8 in flaps on a 0.5 s servo, with nothing to actuate.
+- A 1 s servo loses the catch: the flaps are still swinging when the spill lands.
+- **The slide result isn't a slide result:** R's webcam chase with the head out drives it into the HIVE's foot. The
+  chase now counts the slide's reach and the whole outline, but routing the slide (in for the chase, out for the
+  stationary catch) is unfinished. On R's opening alone a slide is worth about 6 in flaps (above).
+
+## Human-player NECTAR (G426.A: one per TIP of our HIVE, through the LOADING ZONE; Q&A pending)
+
+The simulator's drive team drops each NECTAR in the middle of the LOADING ZONE (x 0-11, y 94-118) 2 s after the TIP;
+a NECTAR weighs 0.091 lb, 1.65 POLLEN. Today's V unless stated.
+
+| Plan | 5 TIPs | <=2 | collide | mean pts |
+|---|---|---|---|---|
+| no NECTAR (above) | 20 | 1 | 1 | 94.5 |
+| NECTAR entered, routes unchanged | 19 | 2 | 1 | 92.2 |
+| L, after its TIP 4 share, takes them down the lane to TIP 5 | 9 | 2 | 35 | 90.5 |
+| L parks at a LOADING ZONE station after TIP 4 | 0 | 2 | 59 | 90.8 |
+| R, after TIP 4 at R_N (25 in from the zone), takes them instead of the wall FLOWER (2.5 s) | 13 | 2 | 1 | 90.4 |
+| ... waiting up to 4.5 s for the third | 11 | 2 | 1 | 88.7 |
+| ... then the wall FLOWER to fill up | 19 | 2 | 1 | 91.7 |
+| R takes them, 3.4 in fixed flaps, 0.17 s intake | 24 (30 without NECTAR) | 2 | 0 | 95.5 |
+
+- **L can't get there:** R is at R_N, beside the zone, firing TIP 4 when L would go (35-59 collisions in 60).
+- **R gets there at about 16 s and finds about one NECTAR:** two have been entered by then (after TIPs 1 and 2; the
+  third lands 2 s after TIP 3, about 17.7 s), and the simulator's drop rolls them out of the zone or toward the field.
+  R leaves with 0-2 in 26 of 27 runs, less than the wall FLOWER's 4 POLLEN.
+- So in Sister five, as simulated, the NECTAR doesn't help: one per TIP is little, it arrives late, and taking it costs
+  the time of a robot that is busy elsewhere. What would change that is the technique in doc/human-nectar.md (on
+  claude/robotics-meeting-notes-lq2y55): the drive team holds the NECTAR and rolls it along the wall into a robot
+  already waiting in the zone, on cue. The simulator's drop is a placeholder until that is practised and timed.
