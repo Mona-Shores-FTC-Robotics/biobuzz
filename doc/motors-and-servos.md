@@ -11,7 +11,8 @@ That's one job too many, so one of them has to share a motor or move to a servo.
 
 ## Decided at the 8 Oct meeting
 
-- **Turret: a servo**, using the two-absolute-encoder gear trick (below) so it always knows its angle. Plan D.
+- **Turret: a servo**, using the two-absolute-encoder gear trick (below) so it always knows its angle. Plan D. The
+  flywheels stay off the turret (9 Oct), so nothing electrical rides on it.
 - **Two launcher motors**, one per flywheel.
 - **The feeder is independent of the launcher**, so the flywheels can spin up without firing. It gets the motor the
   turret freed. Stopping the feeder is the gate, so no gate servo.
@@ -20,7 +21,7 @@ That's one job too many, so one of them has to share a motor or move to a servo.
 
 | Motors (8) | Servos |
 |---|---|
-| drive x4 | turret (continuous, with two analog absolute encoders) |
+| drive x4 | turret (continuous, with two REV Thru-Bore encoders on an OctoQuad) |
 | flywheel L, flywheel R | FLOWER extractor |
 | feeder | |
 | intake (+ transfer if tied to it) | |
@@ -34,8 +35,10 @@ Checked against goBILDA's catalogue on 9 Oct. The turret kit (3208-0004-0001, 2.
 mod 0.8 ring driven by its 64T hub-mount gear, and its page has no encoder provision. A single absolute encoder at
 exactly 1:1 (issue #170, rule 2) would need a 176T gear meshing the ring, and goBILDA's largest mod 0.8 gear is 108T.
 The 105 mm centre is the ball path, so nothing can sit on the axis either. The two-encoder trick works with stock
-parts: the kit's 64T (2.75 turns per turret turn) and a 2302-0014-0048 48T (3.67 turns), unique over 393 deg. Two
-REV Thru-Bore encoders on the OctoQuad (#169) can read them. The flywheels stay off the turret (8 Oct), so nothing
+parts: an encoder on the kit's 64T drive gear's shaft (2.75 turns per turret turn) and one on a 2302-0014-0048 48T that
+meshes that 64T (176/48 = 3.67 turns: meshing the 64T gives the same ratio as meshing the ring), unique over 393 deg.
+Two REV Thru-Bore encoders on the OctoQuad (#169) read them. Both sit on the turret's drive plate, in front of the
+ring, clear of anything that turns with the turret (cad/transfer). The flywheels stay off the turret (8 Oct), so nothing
 electrical rides on it and no slip ring is needed unless a hood servo is added. goBILDA's own drive table for this kit
 lists a servo option (1x Axon MINI: 40.4 RPM at the turret, 242 deg/s), which matches the speed assumed above.
 

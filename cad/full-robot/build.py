@@ -162,12 +162,12 @@ MOVING = [
     ("turret_gear", "MOVES 10 - turret drive gear (Revolute; Gear relation with MOVES 5)"),
     ("feeder_yoke", "MOVES 11 - feeder yoke (Revolute about the left flywheel's shaft: the gate servo swings it 10 deg)"),
     ("turret_servo", "MOVES 12 - turret servo's hub and pulley (Revolute; Belt relation 1:1 with MOVES 10)"),
-    ("turret_enc_B", "MOVES 13 - encoder B gear (Revolute; Gear relation with MOVES 5, 176:48)"),
+    ("turret_enc_B", "MOVES 13 - encoder B gear (Revolute; Gear relation with MOVES 10, 64:48)"),
 ]
 FLY_L_SPINS = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")   # ours, on the left flywheel's shaft
-TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)|^turret_enc_A_magnet")
+TURRET_GEAR_TURNS = re.compile(r"^turret_gear_(shaft|pulley|spacers|eclip)|^turret_enc_A_sleeve")
 TURRET_SERVO_TURNS = re.compile(r"^turret_servo_(hub|pulley)")
-ENC_B_TURNS = re.compile(r"^turret_enc_B_(shaft|gear|spacers|eclip|magnet)")             # ours, on the turret drive gear's shaft
+ENC_B_TURNS = re.compile(r"^turret_enc_B_(shaft|gear|spacers|eclip|sleeve)")             # ours, on the turret drive gear's shaft
 TURRET_TURNS = re.compile(r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176")
 TURRET_GEAR = re.compile(r"2302-0014-0064")              # the gear beside the ring that drives it
 TURRET_AXIS = (-2.045, 0.155)                          # model X, Y (the launcher moved forward)

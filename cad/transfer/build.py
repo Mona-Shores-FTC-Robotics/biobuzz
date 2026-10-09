@@ -638,13 +638,14 @@ for s in (1, -1):
 #      (3208-0004-0001, 2.75:1) keeps its 64T drive gear, on its own short shaft in a bearing in the kit's mount and one in
 #      a plate under the front 8-hole channel. A goBILDA Speed servo in continuous mode stands in that plate, case down
 #      through a window, and drives the shaft 1:1 by a belt (the turret turns at about 40 RPM, 240 deg/s). Its angle comes
-#      from two analog absolute encoders that read the ring through different ratios: A on the drive gear's shaft
-#      (2.75 turns per turret turn), B on a 48T gear meshing the ring (3.67 turns per turret turn). The pair of readings
-#      is unique over 393 deg of turret, so it knows its angle at power-up (doc/motors-and-servos.md) ----
+#      from two REV Thru-Bore absolute encoders on an OctoQuad (issue #169), reading through different ratios: A on the
+#      drive gear's shaft (176/64 = 2.75 turns per turret turn), B on a 48T gear meshing that 64T (176/48 = 3.67 turns
+#      per turret turn). The pair of readings is unique over 393 deg of turret, so it knows its angle at power-up; a 1:1
+#      encoder can't be built from stock gears (the ring is 176T, goBILDA's largest mod 0.8 gear 108T; doc/motors-and-servos.md) ----
 TG = (1.737, 0.158)                                 # the drive gear's axis (X, Y), measured from his CAD
 TG_MOUNT_Z = (8.889, 9.204)                         # his kit's 1231 mount under the gear
-TP_Z = (6.999 - 0.125, 6.999)                       # the plate (1/8 in aluminium), under the channel's bottom flange
-CH8_HOLES = [(0.636, -0.158), (0.636, 0.787)]       # two of that flange's holes (X, Y), measured from his CAD
+TP_Z = (6.999 - 3 / 16, 6.999)                      # the plate (3/16 in aluminium: it reaches forward to carry the encoders), under the channel's bottom flange
+CH8_HOLES = [(0.636, -1.417), (0.636, -2.047)]      # two of that flange's holes (X, Y), measured from his CAD, outside encoder A's cradle and the feeder's belt
 TBELT = (295, "3412-0009-0295")
 TB_C = (TBELT[0] * MM - math.pi * P24) / 2          # 24T to 24T: 87.5 mm
 TM = (2.50, TG[1] + math.sqrt(TB_C ** 2 - (2.50 - TG[0]) ** 2))   # the servo's spline: clear of the wall standoffs and the ceiling's posts
@@ -668,79 +669,86 @@ def plate_xy(pts, z0, z1, r):
             pl = pl.union(cq.Workplane("XY").polyline([a_, b_, c_]).close().extrude(z1 - z0).translate((0, 0, z0)))
     return pl
 sv_corners = [sv_xy(lx, ly) for lx in (10 - 32, 10 + 32) for ly in (-14, 14)]
-tp = plate_xy(CH8_HOLES + [TG, TM], *TP_Z, 0.32).union(plate_xy(sv_corners + [TM], *TP_Z, 0.12))
-tp = tp.cut(cylz(*TG, 14 * MM, TP_Z[0] - 0.1, TP_Z[1] + 0.1))
+GB = (TG[0] + 0.8 * (64 + 48) / 2 * MM, TG[1])    # encoder B's 48T, meshing the 64T on the far side from the ring
+ENC_PAD = (0.07, GB[0] + 1.24, TG[1] - 1.24, TG[1] + 1.68)   # the plate under both encoders' cradles (X0, X1, Y0, Y1)
+tp = plate_xy(CH8_HOLES + [TG, TM], *TP_Z, 0.32).union(plate_xy(sv_corners + [TM], *TP_Z, 0.12)).union(bx(*ENC_PAD, *TP_Z))
+tp = tp.cut(cylz(*TG, 14 * MM, TP_Z[0] - 0.1, TP_Z[1] + 0.1)).cut(cylz(*GB, 14 * MM, TP_Z[0] - 0.1, TP_Z[1] + 0.1))
 win = [sv_xy(lx, ly) for lx in (10 - 20.5, 10 + 20.5) for ly in (-10.5, 10.5)]
 tp = tp.cut(cq.Workplane("XY").polyline([win[0], win[1], win[3], win[2]]).close().extrude(0.5).translate((0, 0, TP_Z[0] - 0.1)))
-part(launcher, "turret_drive_plate (1/8 in aluminium: under the front 8-hole channel's bottom flange; the gear shaft's lower bearing, the servo's tabs on it, its case down through a window)", tp, ALU, "cut")
+part(launcher, "turret_drive_plate (3/16 in aluminium: under the front 8-hole channel's bottom flange; the gear shaft's lower bearing, the servo's tabs on it, its case down through a window; both encoders' cradles)", tp, ALU, "cut")
 TSN = "turret_servo (goBILDA 2000-0025-0003 Speed servo, set to continuous mode: turns the turret, 1:1 to its drive gear)"
 part(launcher, TSN, place_local(servo_local(), (*TM, SV_TOP), (0, 0, 1), SV_DIR), BLACK, "buy")
 vendor(TSN, "2000-0025-0003.step", (-10.0, 0.0, 12.8), (0, 0, 1), (1, 0, 0), (*TM, SV_TOP), (0, 0, 1), SV_DIR)
 part(launcher, "turret_servo_hub (goBILDA servo hub, 25T spline to 8mm REX, check the SKU: carries the 24T pulley)", cylz(*TM, 18 * MM, *SV_HUB), STEEL, "buy")
 part(launcher, "turret_servo_pulley (goBILDA 3417-4008-0024, 24T HTD5, on the servo's hub)", cylz(*TM, 38.8 * MM, *TPUL_Z), BLACK, "buy")
 part(launcher, "turret_gear_pulley (goBILDA 3417-4008-0024, 24T HTD5)", cylz(*TG, 38.8 * MM, *TPUL_Z), BLACK, "buy")
-c = bolt(launcher, "turret_servo_tabs", "the turret servo's tabs to its plate (from above, nuts under the plate)", [(*sv_xy(10 + dx, dy), SV_TAB + 2.5 * MM) for dx in (-24, 24) for dy in (-5, 5)], (0, 0, -1), 2.5 + TP_Z[1] * 0 + 0.125 * IN, nut=True, through=("turret_servo (", "turret_drive_plate"), service="before the hub and pulley")
+c = bolt(launcher, "turret_servo_tabs", "the turret servo's tabs to its plate (from above, nuts under the plate)", [(*sv_xy(10 + dx, dy), SV_TAB + 2.5 * MM) for dx in (-24, 24) for dy in (-5, 5)], (0, 0, -1), 2.5 + 3 / 16 * IN, nut=True, through=("turret_servo (", "turret_drive_plate"), service="before the hub and pulley")
 drill(launcher, ["turret_drive_plate"], c)
-c = bolt(launcher, "turret_plate", "the turret drive plate under the 8-hole channel's bottom flange (from below; nuts inside the channel, a wrench from its open front)", [(hx, hy, TP_Z[0]) for hx, hy in CH8_HOLES], (0, 0, 1), 2.5 + 3.2, nut=True, through=("turret_drive_plate",))
+c = bolt(launcher, "turret_plate", "the turret drive plate under the 8-hole channel's bottom flange (from below; nuts inside the channel, a wrench from its open front)", [(hx, hy, TP_Z[0]) for hx, hy in CH8_HOLES], (0, 0, 1), 2.5 + 3 / 16 * IN, nut=True, through=("turret_drive_plate",))
 drill(launcher, ["turret_drive_plate"], c)
 part(launcher, f"turret_belt (goBILDA {TBELT[1]}, HTD5 9 mm, {TBELT[0]} mm: fixed centres {TB_C * IN:.1f} mm)", loop("XY", TG, P24 / 2, TM, P24 / 2, 0.14, 9 * MM, sum(TPUL_Z) / 2 - 4.5 * MM), BLACK, "buy")
-TGS = (TP_Z[0] - 0.12, TG_MOUNT_Z[1] + 0.36)         # the gear's shaft: below the plate's bearing up into the gear's hub
-part(launcher, "turret_gear_shaft (goBILDA 2106-4008-0720, 8mm REX, 72 mm, e-clips: the drive gear on it as the kit mounts it on a motor's shaft)", cylz(*TG, 8 * MM, *TGS), STEEL, "buy")
+TGS = (TG_MOUNT_Z[1] + 0.36 - 96 * MM, TG_MOUNT_Z[1] + 0.36)   # the gear's shaft: up into the gear's hub, down through encoder A
+part(launcher, "turret_gear_shaft (goBILDA 2106-4008-0960, 8mm REX, 96 mm, e-clips: the drive gear on it as the kit mounts it on a motor's shaft; through encoder A)", cylz(*TG, 8 * MM, *TGS), STEEL, "buy")
 for nm, (z0, z1) in (("plate", TP_Z), ("mount", (TG_MOUNT_Z[0] + 0.1, TG_MOUNT_Z[1]))):
     part(launcher, f"turret_gear_bearing_{nm} (goBILDA 1611-0514-4008 flanged bearing)", cylz(*TG, 14 * MM, z0, z1).union(cylz(*TG, 15 * MM, z0 - 0.8 * MM, z0)), STEEL, "buy")
 part(launcher, "turret_gear_spacers (goBILDA 8mm REX spacers: the pulley up to the kit's mount)", cylz(*TG, 12 * MM, TPUL_Z[1], TG_MOUNT_Z[0] + 0.1 - 0.8 * MM), STEEL, "buy")
 part(launcher, "turret_gear_eclip (with the shaft)", cylz(*TG, 12 * MM, TGS[0] + 0.02, TGS[0] + 0.05), STEEL, "buy")
-# the two absolute encoders: analog magnetic boards (an AS5600 breakout or similar, 23 mm square, 3.3 V, analog out to a
-# hub's analog port), each under or over a diametric magnet (6 x 2.5 mm) in a printed cap on its shaft's end
-ENC_B = (23 * MM, 1.6 * MM)                         # board: side, thickness
-def enc_board(x, y, z0):
-    return bx(x - ENC_B[0] / 2, x + ENC_B[0] / 2, y - ENC_B[0] / 2, y + ENC_B[0] / 2, z0, z0 + ENC_B[1]).union(cylz(x, y, 5 * MM, z0 + ENC_B[1], z0 + ENC_B[1] + 1 * MM))
-ENCN = "(analog absolute magnetic encoder board, AS5600 type, 23 mm: reads the magnet over its chip; to an analog port)"
-# A: under the drive gear's shaft, in a printed hanger below the plate (two M3 up through the plate into its inserts)
-EA_CAP = (TGS[0] - 0.13, TGS[0] + 0.01)
-part(launcher, "turret_enc_A_magnet (6 x 2.5 mm diametric magnet in a printed cap pressed on the drive gear shaft's lower end)", cylz(*TG, 12 * MM, *EA_CAP), (0.55, 0.55, 0.6), "buy")
-EA_FLOOR = (EA_CAP[0] - 0.06 - ENC_B[1] / IN * 0 - 0.25 - 1.6 * MM, EA_CAP[0] - 0.06 - 1.6 * MM)   # the hanger's floor; the board on it
-part(launcher, f"turret_enc_A {ENCN}", enc_board(*TG, EA_FLOOR[1]), (0.1, 0.35, 0.2), "buy")
-han = bx(TG[0] - 0.65, TG[0] + 0.65, TG[1] - 0.62, TG[1] + 0.62, EA_FLOOR[0], TP_Z[0])
-han = han.cut(bx(TG[0] - 0.49, TG[0] + 0.49, TG[1] - 0.49, TG[1] + 0.49, EA_FLOOR[1], TP_Z[0] + 0.1))
-han = han.cut(bx(TG[0] + 0.3, TG[0] + 0.8, TG[1] - 0.2, TG[1] + 0.2, EA_FLOOR[1], TP_Z[0] + 0.1))   # the cable's slot
-part(launcher, "turret_enc_A_hanger (print PETG: under the drive plate, the encoder board on its floor; M3 heat-set inserts)", han, BLUE, "print")
-EA_UP = [(TG[0] - 0.57, TG[1]), (TG[0] + 0.12, TG[1] + 0.55)]
-c = bolt(launcher, "turret_enc_A_hanger", "the encoder A hanger to the drive plate (from above, into its inserts)", [(x, y, TP_Z[1]) for x, y in EA_UP], (0, 0, -1), 0.125 * IN, d=3, nut=False, tapped=6, min_engage=3, into="turret_enc_A_hanger", through=("turret_drive_plate",), service="before the pulleys")
+# the two absolute encoders: REV Thru-Bore (REV-11-1271, absolute PWM output) on both shafts, each in a printed cradle
+# with a printed sleeve (8mm REX bore, 1/2 in hex outside) in its bore, cabled to an OctoQuad (FTC Edition) in the
+# electronics bay, which reads both pulse widths and goes to the Control Hub's I2C bus 2 (#169)
+THRU = (-21.15, 36.21, 24.89, -2.0, 13.83)          # the encoder in its own frame (mm): x from, x to (connector +x), +-y, z from, z to; the bore on the z axis
+def thru_box(o, x_dir, extra=0.0):
+    """The encoder's envelope (a box, its bore cut) at robot point o (bore axis, local z 0), local +z up, +x along x_dir."""
+    b = cq.Workplane("XY").box(THRU[1] - THRU[0] + 2 * extra, 2 * THRU[2] + 2 * extra, THRU[4] - THRU[3]).translate(((THRU[0] + THRU[1]) / 2, 0, (THRU[3] + THRU[4]) / 2))
+    b = b.cut(cq.Workplane("XY").circle(6.4).extrude(40).translate((0, 0, -20)))
+    return place_local(b, o, (0, 0, 1), x_dir)
+CR_W = 6.0                                           # the cradles' walls (mm): room for an M4 heat-set insert
+def thru_cradle(o, x_dir, z_top, floor, lid=False):
+    """A printed cradle round an encoder: 6 mm walls, a floor `floor` mm under it with a hole for the shaft, up to z_top
+    (with a lid over it, holed for the sleeve, if lid)."""
+    h = z_top - (o[2] + THRU[3] * MM) + floor * MM
+    w = cq.Workplane("XY").box(THRU[1] - THRU[0] + 2 * CR_W, 2 * THRU[2] + 2 * CR_W, h / MM).translate(((THRU[0] + THRU[1]) / 2, 0, THRU[3] - floor + h / MM / 2))
+    top = z_top - 0.08 if lid else z_top + 1
+    w = w.cut(cq.Workplane("XY").box(THRU[1] - THRU[0] + 0.4, 2 * THRU[2] + 0.4, (top - (o[2] + THRU[3] * MM)) / MM).translate(((THRU[0] + THRU[1]) / 2, 0, THRU[3] + (top - (o[2] + THRU[3] * MM)) / MM / 2)))
+    w = w.cut(cq.Workplane("XY").circle(7.5 if not lid else 7.5).extrude(80).translate((0, 0, -40)))
+    w = w.cut(cq.Workplane("XY").box(14, 20, 14).translate((THRU[1] + CR_W / 2, 0, (THRU[3] + THRU[4]) / 2)))   # the cable's slot at the connector
+    return place_local(w, o, (0, 0, 1), x_dir)
+TBN = "(REV-11-1271 Thru-Bore Encoder, absolute PWM output to the OctoQuad)"
+# A: under the plate on the drive gear's shaft, its cradle screwed up to the plate
+EA_O = (TG[0], TG[1], TP_Z[0] - 0.08 - THRU[4] * MM)       # its bore's origin: the encoder's top 0.08 in under the plate (the bearing's flange)
+EA_X = (-1, 0, 0)
+part(launcher, f"turret_enc_A {TBN}", thru_box(EA_O, EA_X), (0.15, 0.15, 0.16), "buy")
+vendor(f"turret_enc_A {TBN}", "REV-11-1271.STEP", (0, 0, 0), (0, 0, 1), (1, 0, 0), EA_O, (0, 0, 1), EA_X)
+part(launcher, "turret_enc_A_sleeve (print PETG: 8mm REX bore, 1/2 in hex outside, in encoder A's bore)", cylz(*TG, 12.6 * MM, EA_O[2] + THRU[3] * MM, EA_O[2] + THRU[4] * MM).cut(cylz(*TG, 8.2 * MM, 0, 20)), BLUE, "print")
+part(launcher, "turret_enc_A_cradle (print PETG: holds encoder A under the drive plate; M4 heat-set inserts in its walls)", thru_cradle(EA_O, EA_X, TP_Z[0], 3.0), BLUE, "print")
+EA_UP = [(TG[0] - 0.40, TG[1] + s_ * (THRU[2] + CR_W / 2 + 0.2) * MM) for s_ in (-1, 1)]
+c = bolt(launcher, "turret_enc_A_cradle", "encoder A's cradle up to the drive plate (from above, into its inserts)", [(x, y, TP_Z[1]) for x, y in EA_UP], (0, 0, -1), 3 / 16 * IN, nut=False, tapped=10, into="turret_enc_A_cradle", through=("turret_drive_plate",), service="before the pulleys")
 drill(launcher, ["turret_drive_plate"], c)
-c = bolt(launcher, "turret_enc_A_board", "encoder A's board to the hanger's floor (with the hanger off the plate)", [(TG[0] + dx * 0.36, TG[1] - 0.36, EA_FLOOR[1] + ENC_B[1]) for dx in (-1, 1)], (0, 0, -1), ENC_B[1] * IN, d=3, nut=False, tapped=5, min_engage=4, into="turret_enc_A_hanger", through=("turret_enc_A ",), service="with the hanger off the plate")
-drill(launcher, ["turret_enc_A "], c)
-# B: a goBILDA 48T gear (module 0.8, as the kit's) meshing the turret's 176T ring at its right side, on a short shaft in a
-# 3/16 in plate bolted to the top of the front 8-hole channel; its board on a printed bridge over the shaft's top end
-RING_C = (-2.0435, 0.1575)                           # the ring's centre (X, Y)
-RING_Z = (9.40, 9.64)                                # its teeth (and the 64T's), z
-GB = (RING_C[0], RING_C[1] - 0.8 * (176 + 48) / 2 * MM)
-EB_PL = (8.889, 8.889 + 3 / 16)                      # the plate, on the channel's top face (z 8.889)
-EB_HOLES = [(0.636, -3.307), (0.636, -3.622)]        # two of that face's holes
-ebp = bx(GB[0] - 0.42, 0.794, -3.80, -3.02, *EB_PL).union(bx(GB[0] - 0.42, GB[0] + 0.42, -4.58, -3.02, *EB_PL))
-ebp = ebp.cut(cylz(*GB, 14 * MM, EB_PL[0] - 0.1, EB_PL[1] + 0.1))
-part(launcher, "turret_enc_B_plate (3/16 in aluminium: on the front 8-hole channel's top, out over the right flywheel; the encoder gear's bearing)", ebp, ALU, "cut")
-c = bolt(launcher, "turret_enc_B_plate", "the encoder B plate to the front 8-hole channel's top face (nuts inside the channel)", [(x, y, EB_PL[1]) for x, y in EB_HOLES], (0, 0, -1), 3 / 16 * IN + 2.5, nut=True, through=("turret_enc_B_plate",))
-drill(launcher, ["turret_enc_B_plate"], c)
-EBS = (EB_PL[0] - 0.09, 9.82)
-part(launcher, "turret_enc_B_shaft (goBILDA 2106-4008-0320, 8mm REX, cut to 26 mm at its top: e-clip under the bearing)", cylz(*GB, 8 * MM, *EBS), STEEL, "buy")
-part(launcher, "turret_enc_B_bearing (goBILDA 1611-0514-4008 flanged bearing, flange on top)", cylz(*GB, 14 * MM, *EB_PL).union(cylz(*GB, 15 * MM, EB_PL[1], EB_PL[1] + 0.8 * MM)), STEEL, "buy")
-part(launcher, "turret_enc_B_spacers (goBILDA 8mm REX spacers: the bearing up to the gear)", cylz(*GB, 12 * MM, EB_PL[1] + 0.8 * MM, RING_Z[0]), STEEL, "buy")
-part(launcher, "turret_enc_B_gear (goBILDA 2302-0014-0048, aluminium mod 0.8 hub-mount gear, 48T, 14 mm bore, on an 8mm REX hub: meshes the 176T ring)", cylz(*GB, 0.8 * 50 * MM, *RING_Z).cut(cylz(*GB, 8.2 * MM, RING_Z[0] - 0.1, RING_Z[1] + 0.1)), (0.85, 0.85, 0.88), "buy")
-part(launcher, "turret_enc_B_eclip (with the shaft)", cylz(*GB, 12 * MM, EBS[0] + 0.02, EBS[0] + 0.05), STEEL, "buy")
-EB_CAP = (RING_Z[1] + 0.01, EBS[1] + 0.04)
-part(launcher, "turret_enc_B_magnet (6 x 2.5 mm diametric magnet in a printed cap pressed on the encoder shaft's top end: holds the gear down)", cylz(*GB, 12 * MM, *EB_CAP), (0.55, 0.55, 0.6), "buy")
-EB_CHIP = EB_CAP[1] + 0.04                           # the board's chip, facing down over the magnet; the board above it
-EB_BZ = (EB_CHIP + 1 * MM, EB_CHIP + 1 * MM + ENC_B[1])
-part(launcher, f"turret_enc_B {ENCN}", bx(GB[0] - ENC_B[0] / 2, GB[0] + ENC_B[0] / 2, GB[1] - ENC_B[0] / 2, GB[1] + ENC_B[0] / 2, *EB_BZ).union(cylz(*GB, 5 * MM, EB_CHIP, EB_BZ[0])), (0.1, 0.35, 0.2), "buy")
-ARM_Z = (EB_BZ[1], EB_BZ[1] + 0.25)
-br = bx(GB[0] - 0.2, GB[0] + 0.2, -4.58, -4.26, EB_PL[1], ARM_Z[1])
-br = br.union(bx(GB[0] - 0.47, GB[0] + 0.47, -4.58, -2.92, *ARM_Z))
-part(launcher, "turret_enc_B_bridge (print PETG: from the plate's outer lobe up and over the encoder shaft; the board under it; M3 heat-set inserts)", br, BLUE, "print")
-c = bolt(launcher, "turret_enc_B_bridge", "the encoder B bridge to its plate (from below, into its inserts)", [(GB[0], -4.42, EB_PL[0])], (0, 0, 1), 3 / 16 * IN, d=3, nut=False, tapped=6, min_engage=3, into="turret_enc_B_bridge", through=("turret_enc_B_plate",))
-drill(launcher, ["turret_enc_B_plate"], c)
-c = bolt(launcher, "turret_enc_B_board", "encoder B's board up under the bridge (with the bridge off)", [(GB[0] + dx * 0.36, GB[1] + 0.36, ARM_Z[0] - ENC_B[1]) for dx in (-1, 1)], (0, 0, 1), ENC_B[1] * IN, d=3, nut=False, tapped=5, min_engage=4, into="turret_enc_B_bridge", through=("turret_enc_B ",), service="with the bridge off the plate")
-drill(launcher, ["turret_enc_B "], c)
+# B: a goBILDA 48T on its own shaft beside the drive gear, meshing the 64T; the shaft turns in a bearing in the plate and
+# one at the top of a printed tower on the plate, which also cradles encoder B just above the plate
+EBS = (TP_Z[0] - 0.12, TP_Z[0] - 0.12 + 80 * MM)
+part(launcher, "turret_enc_B_shaft (goBILDA 2106-4008-0800, 8mm REX, 80 mm, e-clips)", cylz(*GB, 8 * MM, *EBS), STEEL, "buy")
+TOWER_TOP = 9.30                                   # the tower's top bearing, just under the gear
+for nm_, (z0, z1) in (("plate", TP_Z), ("tower", (TOWER_TOP - 0.20, TOWER_TOP))):
+    part(launcher, f"turret_enc_B_bearing_{nm_} (goBILDA 1611-0514-4008 flanged bearing)", cylz(*GB, 14 * MM, z0, z1).union(cylz(*GB, 15 * MM, z0 - 0.8 * MM, z0)), STEEL, "buy")
+GZ = (9.40, 9.64)                                     # the 64T's (and the ring's) teeth, z
+part(launcher, "turret_enc_B_spacers (goBILDA 8mm REX spacers: the tower's bearing up to the gear)", cylz(*GB, 12 * MM, TOWER_TOP, GZ[0]), STEEL, "buy")
+part(launcher, "turret_enc_B_gear (goBILDA 2302-0014-0048, aluminium mod 0.8 hub-mount gear, 48T, 14 mm bore, on an 8mm REX hub: meshes the kit's 64T)", cylz(*GB, 0.8 * 50 * MM, *GZ).cut(cylz(*GB, 8.2 * MM, 0, 20)), (0.85, 0.85, 0.88), "buy")
+for nm_, z_ in (("top", GZ[1] + 0.01), ("bottom", EBS[0] + 0.02)):
+    part(launcher, f"turret_enc_B_eclip_{nm_} (with the shaft)", cylz(*GB, 12 * MM, z_, z_ + 0.03), STEEL, "buy")
+EB_O = (GB[0], GB[1], TP_Z[1] + 0.06 - THRU[3] * MM)        # encoder B just above the plate, on its cradle's floor
+EB_X = (0, 1, 0)                                      # its connector toward +Y: clear of the drive pulley and the Limelight mast's screws
+part(launcher, f"turret_enc_B {TBN}", thru_box(EB_O, EB_X), (0.15, 0.15, 0.16), "buy")
+vendor(f"turret_enc_B {TBN}", "REV-11-1271.STEP", (0, 0, 0), (0, 0, 1), (1, 0, 0), EB_O, (0, 0, 1), EB_X)
+part(launcher, "turret_enc_B_sleeve (print PETG: 8mm REX bore, 1/2 in hex outside, in encoder B's bore)", cylz(*GB, 12.6 * MM, EB_O[2] + THRU[3] * MM, EB_O[2] + THRU[4] * MM).cut(cylz(*GB, 8.2 * MM, 0, 20)), BLUE, "print")
+EB_TOPZ = EB_O[2] + THRU[4] * MM + 0.05
+tw = thru_cradle(EB_O, EB_X, EB_TOPZ, 1.5, lid=True)
+tw = tw.union(bx(GB[0] - 0.35, GB[0] + 0.35, GB[1] - 0.35, GB[1] + 0.35, EB_TOPZ, TOWER_TOP))   # the column up to the top bearing (clear of the Limelight mast screws' key)
+tw = tw.cut(cylz(*GB, 14.2 * MM, TOWER_TOP - 0.21, TOWER_TOP + 0.1)).cut(cylz(*GB, 13.5 * MM, EB_TOPZ - 0.2, TOWER_TOP - 0.2))
+part(launcher, "turret_enc_B_tower (print PETG: cradles encoder B on the plate, its column carries the 48T shaft's top bearing; M4 heat-set inserts in its foot)", tw, BLUE, "print")
+EB_DN = [(GB[0] + s_ * 0.5, GB[1] + (THRU[0] - CR_W / 2) * MM) for s_ in (-1, 1)]   # in its cradle's back wall, clear of encoder A under the plate
+c = bolt(launcher, "turret_enc_B_tower", "encoder B's tower to the drive plate (from below, into its inserts)", [(x, y, TP_Z[0]) for x, y in EB_DN], (0, 0, 1), 3 / 16 * IN, nut=False, tapped=10, into="turret_enc_B_tower", through=("turret_drive_plate",), service="with the plate off the channel")
+drill(launcher, ["turret_drive_plate"], c)
 # ---- the electronics bay, at the back over the drive motors: a bent 3/16 in aluminium plate stands on the chassis's rear
 #      angle; the Control Hub and the Expansion Hub hang on its back face, ports out, with the battery between them in a
 #      printed cradle. Every port, the battery and the hubs' screws are reached from behind or above; the switch is on top.
@@ -823,6 +831,18 @@ for s_, nm in ((1, "control_hub"), (-1, "expansion_hub")):
     yc = s_ * (HUB_IN + HUB[0] / 2)
     c = bolt(elec, f"{nm}_cover", f"the {nm.replace('_', ' ')}'s cover to the plate's front face (from the front; a knurled M3 thumb screw, no tool)", [(EP_X[1] + CV_T, yc, 10.45)], (-1, 0, 0), CV_T * IN, d=3, nut=False, tapped=EP_T * IN + 1.0, min_engage=3, into="elec_plate", through=(f"{nm}_cover",))   # its tip ends just above the hub, behind the plate
     drill(elec, [f"{nm}_cover"], c)
+# the OctoQuad (Digital Chicken Labs, FTC Edition, size approximate): reads both turret encoders' pulse widths; on the
+# electronics plate's front face beside the battery, its connectors up, reached from above; to the Control Hub's I2C bus 2
+OQ = ((EP_X[1], EP_X[1] + 13 * MM), (3.0, 3.0 + 61 * MM), (8.45, 8.45 + 38 * MM))   # high, so its screws' keys pass over the launcher's rear channel and the turret ring
+part(elec, "octoquad (Digital Chicken Labs OctoQuad FTC Edition, size approximate: the turret encoders to I2C)", bx(*OQ[0], *OQ[1], *OQ[2]), (0.15, 0.3, 0.55), "buy")
+oqh = bx(EP_X[1], OQ[0][1] + 2 * MM, OQ[1][0] - 2.5 * MM, OQ[1][1] + 2.5 * MM, OQ[2][0] - 2.5 * MM, OQ[2][0] + 0.5)   # a cup for its lower half
+oqh = oqh.cut(bx(OQ[0][0] - 0.1, OQ[0][1] + 0.01, OQ[1][0] - 0.01, OQ[1][1] + 0.01, OQ[2][0], OQ[2][0] + 1))
+oqh = oqh.cut(bx(OQ[0][0] + 3 * MM, OQ[0][1] + 3 * MM, OQ[1][0] + 0.3, OQ[1][1] - 0.3, OQ[2][0] - 0.2, OQ[2][0] + 1))  # its front open, for the label
+for y0_, y1_ in ((OQ[1][0] - 0.35, OQ[1][0] - 2.5 * MM), (OQ[1][1] + 2.5 * MM, OQ[1][1] + 0.35)):
+    oqh = oqh.union(bx(EP_X[1], EP_X[1] + 3 * MM, y0_, y1_, OQ[2][0] - 2.5 * MM, OQ[2][1]))   # the side ears, up to its top
+part(elec, "octoquad_holder (print PETG: a cup for the OctoQuad on the plate's front face, two ears screwed to the plate; a strap over its top)", oqh, (0.95, 0.55, 0.15), "print")
+c = bolt(elec, "octoquad_holder", "the OctoQuad holder to the electronics plate's front face (from the front, over the launcher's rear channel)", [(EP_X[1] + 3 * MM, y_, OQ[2][1] - 0.15) for y_ in (OQ[1][0] - 0.22, OQ[1][1] + 0.22)], (-1, 0, 0), 3.0, d=3, nut=False, tapped=EP_T * IN, min_engage=3, into="elec_plate", through=("octoquad_holder",))
+drill(elec, ["octoquad_holder"], c)
 # the Pinpoint odometry computer (goBILDA 3110-0002-0001, 42.5 x 40 x 16.6 mm, four threaded holes 32 mm square on its
 # underside): flat, so its IMU's yaw axis is vertical, beside the left flywheel motor. A printed plate bolts down onto the
 # top of the launcher's left side channel (two M4 into its 8 mm grid, nuts inside the channel) and reaches forward past the

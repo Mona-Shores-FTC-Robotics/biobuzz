@@ -71,7 +71,7 @@ balls. No sensor, no software count.
 | Pad | Opposite the feeder: 1/8 in aluminium with 0.5 in soft foam, hinged along X at its foot (Y -1.90, z 1.62). **Hinge:** two printed knuckles with REX bores, bolted to the plate's foot, on a goBILDA 2106-4008-0640 steel REX shaft (64 mm) that turns in round holes in two printed blocks on the feeder floor, held by its e-clips outside the blocks. **Stop:** a printed block outboard of the front knuckle, below the hinge, screwed from under the floor through a ±0.1 in slot (the slot sets the POLLEN squeeze); the band pulls the pad's top in, so the knuckle's foot swings out onto it. **At rest:** the foam face is at Y -1.05, so a POLLEN presses it 0.2 and centres at Y 0.15. **For a NECTAR:** it swings back 0.77 at the ball's centre height (z about 3.0), about 29° (atan2(0.77, 3.0 - 1.62) = 29.2°), and the NECTAR centres at Y -0.21. |
 | Floor and backstop | **Floor:** 1/8 in polycarbonate between the feeder and the pad, at the lane's height, resting on the shelf of a printed bridge bolted behind the launcher's two rear channels. **Backstop:** printed, an L, its foot screwed through the floor into the shelf in ±0.2 in slots. |
 | Flywheel motors | goBILDA 5203-2402-0001 6000 RPM (1:1) Yellow Jackets, moved out and up, along X at (Y 6.92, z 7.02) left and (Y -6.71, z 7.03) right, faces at X -2.65 pointing back. **Brackets:** 1/8 in aluminium, bent, on the launcher's side channels' top flanges. **Belts:** from their 16T pulleys to his 41T: goBILDA 315 mm (left) and 320 mm (right). **Speed:** 6000 × 16 / 41 = about 2340 RPM at the flywheels free; probably 1900 to 2100 loaded (an estimate, not measured). A 24T motor pulley would raise it, with a new belt length. |
-| Turret drive (decided 8 Oct: a servo) | The goBILDA turret kit's 64T drive gear gets its own shaft (2106-4008-0720, 72 mm), in a 1611 bearing in the kit's 1231 mount and one in a 1/8 in aluminium plate bolted under the front 8-hole channel's bottom flange. A goBILDA 2000-0025-0003 Speed servo, set to continuous mode, stands in that plate (its tabs on it, its case down through a window; spline at X 2.50, Y 3.52) and drives the shaft 1:1 through a servo-to-REX hub and a 3412-0009-0295 belt (two 3417-4008-0024 24T): the turret turns at about 40 RPM (240°/s; the kit is 2.75:1). **Absolute angle:** two analog magnetic encoder boards (AS5600 type) read diametric magnets on two shaft ends. A sits under the drive gear's shaft, in a printed hanger below the plate (2.75 turns per turret turn). B sits over a goBILDA 48T gear meshing the 176T ring at its right side (3.67 turns per turret turn), on a short shaft in a 3/16 in plate on the front 8-hole channel's top, its board on a printed bridge. The pair of readings repeats only every 393° of turret, so the turret knows its angle at power-up. |
+| Turret drive (decided 8 Oct: a servo) | The goBILDA turret kit's 64T drive gear (it meshes the kit's 176T ring, 2.75:1) gets its own shaft (2106-4008-0960, 96 mm), in a 1611 bearing in the kit's 1231 mount and one in a 3/16 in aluminium plate bolted under the front 8-hole channel's bottom flange. A goBILDA 2000-0025-0003 Speed servo, set to continuous mode, stands in that plate (tabs on it, case down through a window; spline at X 2.50, Y 3.52) and drives the shaft 1:1 through a servo-to-REX hub and a 3412-0009-0295 belt (two 3417-4008-0024 24T): the turret turns at about 40 RPM (240°/s, as goBILDA's own servo option for this kit). **Absolute angle:** two REV Thru-Bore encoders (REV-11-1271, absolute PWM) read by an OctoQuad (#169). A rides the drive gear's shaft under the plate, in a printed cradle (176/64 = 2.75 turns per turret turn). B rides a goBILDA 2302-0014-0048 48T that meshes the 64T on the side away from the ring, on an 80 mm shaft in a bearing in the plate and one atop a printed tower that also cradles the encoder (176/48 = 3.67 turns per turret turn). The pair of readings repeats only every 393° of turret, so it knows its angle at power-up. A single 1:1 encoder (#170) can't be built from stock gears: the ring is 176T, goBILDA's largest mod 0.8 gear 108T, and the ring's 105 mm bore is the ball path. |
 
 ## Parts
 
@@ -85,7 +85,6 @@ balls. No sensor, no software count.
 | 2106-4008-1440 | 5 | 144 mm REX shaft (e-clips): lane shafts 1 to 4, and the left flywheel's new shaft |
 | 2106-4008-1680 | 2 | 168 mm REX shaft (e-clips): lane shaft 0 and the jackshaft |
 | 2106-4008-1200 | 1 | 120 mm REX shaft (e-clips): the feeder |
-| 2106-4008-0720 | 1 | 72 mm REX shaft (e-clips): the turret's drive gear |
 | 2106-4008-0640 | 1 | 64 mm REX shaft (e-clips): the pad's hinge |
 | 2106-4008-0320 | 1 | 32 mm REX shaft (e-clips): the idler |
 | 2303-4008-0024 | 2 | 24T mod 0.8 pinion: the jackshaft to lane shaft 0 |
@@ -100,9 +99,11 @@ balls. No sensor, no software count.
 | 3412-0009-0315, -0320 | 1 each | HTD5 belts: the flywheels |
 | 5203-2402-0001 | 2 | 6000 RPM (1:1) Yellow Jacket: the flywheels |
 | 2000-0025-0003 | 1 | Speed servo, in continuous mode: the turret |
-| 2302-0014-0048 | 1 | 48T mod 0.8 hub-mount gear (14 mm bore, on an 8mm REX hub): turret encoder B, on the 176T ring |
-| 2106-4008-0320 | 1 | 32 mm REX shaft, cut to 26 mm: turret encoder B |
-| AS5600-type analog encoder board + 6 x 2.5 mm diametric magnet | 2 | the turret's absolute encoders |
+| 2302-0014-0048 | 1 | 48T mod 0.8 hub-mount gear (14 mm bore, on an 8mm REX hub): turret encoder B, meshing the kit's 64T |
+| 2106-4008-0800 | 1 | 80 mm REX shaft: turret encoder B |
+| 2106-4008-0960 | 1 | 96 mm REX shaft: the turret's drive gear, through encoder A (in place of the 72 mm) |
+| REV-11-1271 | 2 | REV Thru-Bore Encoder, absolute PWM: the turret's encoders A and B |
+| OctoQuad FTC Edition (Digital Chicken Labs) | 1 | reads both encoders; on the electronics plate's front face, to the Control Hub's I2C bus 2 |
 | 8mm REX spacers | stacks | the lane shafts' outer ends, the jackshaft, the idler, the feeder shaft, the left flywheel's shaft, the turret gear's shaft |
 
 The intake roller's motor (5203-2402-0005, 1150 RPM) and the roller's lane pulley are `cad/intake-b/`'s.
@@ -117,7 +118,7 @@ The intake roller's motor (5203-2402-0005, 1150 RPM) and the roller's lane pulle
 **Made:**
 - **Cut:** the two walls (1/4 in polycarbonate, with routed slots and countersinks); the ramp, ceiling and floor
   (polycarbonate); the two yoke arms (1/4 in aluminium); the pad plate (1/8 in aluminium); the two flywheel motor
-  brackets (1/8 in aluminium, bent); the turret drive plate (1/8 in aluminium); turret encoder B's plate (3/16 in aluminium).
+  brackets (1/8 in aluminium, bent); the turret drive plate (3/16 in aluminium).
 - **Printed** (STLs in `stl/`): the five TPU rollers, the lane spacers and pulleys, the jackshaft's pulley, the idler's
   hanger, the ceiling posts and pin blocks, the gate's horn, pushrod, tab and servo bracket, the pad's knuckles, hinge
   blocks and stop, the feeder bridge and the backstop. The roller's lane pulley is printed from `cad/intake-b/stl/`.
@@ -135,7 +136,7 @@ The intake roller's motor (5203-2402-0005, 1150 RPM) and the roller's lane pulle
 | Gate servo | Four tab screws (nuts on the tabs); the bracket comes off its REX standoff with the left wall off | servo, horn, bracket |
 | Pad | Two hinge-block screws from under the floor | plate, foam, knuckles, hinge rod, blocks, band (the stop stays on the floor) |
 | Turret servo | Belt off, hub and pulley off its spline, then four tab screws from above (nuts under the plate) | servo |
-| Turret encoders | A: two screws up from the plate's top drop the hanger. B: one screw from under its plate frees the bridge; two M3 hold each board | boards, magnets in their caps |
+| Turret encoders | A: belt and pulleys off, two screws from the plate's top drop its cradle, then the drive gear's shaft slides out of it. B: with the drive plate off the channel, two screws from below free the tower; the 48T shaft lifts out of encoder B | encoders, sleeves, tower, 48T |
 | Battery | Undo the strap, lift it out of the cradle | battery |
 | A hub | Its cover (one thumb screw, lift off), unplug, then four M3 from behind through its corner tabs | the hub |
 | Electronics plate | Battery and cradle out, then four M4 down through the tongue (nuts under the chassis flanges) | plate, switch holder |
@@ -205,7 +206,8 @@ Each hub's motor edge faces the battery: the XT30s, the switch and the RS485 lin
 | EH motor 2 (encoder: velocity) | flywheel, right | 13 | 20 |
 | EH motor 3 | the independent feeder (decided 8 Oct; the transfer is still being designed) | | |
 | EH servo 1 | turret servo (continuous) | 17 | 25 |
-| EH analog 0, 1 | turret encoders A and B | about 17 | 25 |
+| OctoQuad channels 4, 5 (pulse-width bank) | turret encoders A and B (REV 6-pin to 4-pin, the ABS signal moved to pin 5, per #170) | about 14 | 20 |
+| CH I2C bus 2 | OctoQuad | about 4 | 10 |
 | EH servo 0 | extractor servo | 22 | 31 |
 | EH servos 1 to 3 | the three goBILDA indicator lights (placement from the indicator chat) | | |
 
@@ -220,7 +222,7 @@ run can be tied. The "run" column is that path, and "at least" adds 30% plus 3 i
   It passes the Pinpoint and the left flywheel motor, then goes down the front left upright to the intake motor, with
   the loop for its float. The drive FL and gate servo branches drop off it.
 - **Right trunk:** the same on the right, to the right flywheel, drive FR and the extractor servo.
-- **Turret:** its servo and both encoders are near the middle, but their ports are on the Expansion Hub. Run it across under the launcher's rear
+- **Turret:** its servo is on an Expansion Hub servo port; both encoders go to the OctoQuad in the electronics bay. Run it across under the launcher's rear
   channel with the right trunk's bundle, or swap it with the intake onto the Control Hub if that's easier on the
   robot.
 - **USB:** along the left trunk to the front, then up the Limelight's mast. Don't run it over the top of the launcher:
@@ -259,7 +261,7 @@ must have hard limits, not continuous rotation.
   and sends queued balls back toward the roller.
 - **The feeder spins whenever the flywheels do.** Feeding is the gate servo alone: in feeds, out waits. Its two
   positions are tuned on the robot.
-- **The turret:** a continuous servo under closed-loop control on the encoders. Encoder A turns 176/64 = 2.75 times per turret turn, B 176/48 = 3.67; the pair is unique over 393°. At power-up, list the turret angles A's reading allows (one per 131°), predict B for each, and take the one that matches; from then on, track A.
+- **The turret:** a continuous servo under closed-loop control on the encoders (OctoQuad pulse-width channels). Encoder A turns 176/64 = 2.75 times per turret turn, B 176/48 = 3.67; the pair is unique over 393°. At power-up, list the turret angles A's reading allows (one per 131°), predict B for each, and take the one that matches; from then on track A (or the OctoQuad's own wrap tracking).
 
 ## Checked
 
@@ -279,7 +281,7 @@ clear.
 `tools/robot-cad/fastener_check.py` covers every screw in the front, the transfer and the Limelight mount. For each it
 checks that the shank passes only through holes, the head and nut clear everything, a key reaches the head, and a
 tapped hole gives enough thread.
-Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 162 screws, 0 problems, 41 with a service order.
+Fastener check (`tools/robot-cad/fastener_check.py`, front, transfer and Limelight): 159 screws, 0 problems, 36 with a service order.
 
 ## Open
 
