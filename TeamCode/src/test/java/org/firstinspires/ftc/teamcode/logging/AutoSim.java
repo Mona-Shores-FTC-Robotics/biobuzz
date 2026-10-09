@@ -1118,7 +1118,7 @@ public final class AutoSim {
             // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
             // pieces at the far CELL from home). The real LaunchAll needs the same check.
             double[] here = pedro(drive.pose);
-            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > MAX_SHOT_RANGE_IN) return;
+            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > design.launchRangeIn) return;
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
             if (!streaming && !design.firesOnTheMove && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
@@ -1532,6 +1532,9 @@ public final class AutoSim {
                     .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
+                    // A flow-through intake's back gate (RobotDesign#flowThrough; a what-if): nothing on another design.
+                    .command("GateOpen", 0.1, () -> Commands.instant(() -> body.gateOpen = design.flowThrough))
+                    .command("GateClose", 0.1, () -> Commands.instant(() -> body.gateOpen = false))
                     .command("SetDown", 1.5, this::setDown)
                     .command("Outtake", 1.0, this::outtake)
                     // The hook from the Auto (mentor, 5 Oct 2026), next to the TIP-triggered swing in sideWalls:
@@ -1690,7 +1693,10 @@ public final class AutoSim {
                     })
                     .setDone(() -> FieldSim.full(body)
                             || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
-                    .setEnd(end -> drive.hold(drive.pose));
+                    .setEnd(end -> {
+                        drive.hold(drive.pose);
+                        if (target[0] == null && !FieldSim.full(body)) pending.add("collect: nothing to chase; " + nearestRejected);
+                    });
         }
 
         /**
@@ -1714,25 +1720,33 @@ public final class AutoSim {
             return true;
         }
 
+        /** Why the nearest loose piece was not chased, for the timeline when CollectSeen finds nothing. */
+        private String nearestRejected = "";
+
         private FieldSim.Piece nearestSeen(double[] origin) {
             double[] at = pedro(drive.pose);
             double facing = at[2] + (design.intakeAtBack ? Math.PI : 0);
             FieldSim.Kind theirs = alliance == Alliance.BLUE ? FieldSim.Kind.RED_NECTAR : FieldSim.Kind.BLUE_NECTAR;
             FieldSim.Piece best = null;
-            double bestD = Double.MAX_VALUE;
+            double bestD = Double.MAX_VALUE, nearestD = Double.MAX_VALUE;
+            nearestRejected = "no loose piece on our half";
             for (FieldSim.Piece p : sim.pieces) {
-                if (p.where != FieldSim.Where.FIELD || p.flower >= 0 || p.cell != null || p.z > 4) continue;
+                if (p.where != FieldSim.Where.FIELD || p.flower >= 0 || p.cell != null) continue;
                 if (p.kind == theirs || (p.kind != FieldSim.Kind.POLLEN && !design.launchesNectar)) continue;
-                if (FieldSim.underHive(p.x, p.y)) continue;
-                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
-                if (d > CAMERA_RANGE_IN || Math.hypot(p.x - origin[0], p.y - origin[1]) > COLLECT_RADIUS_IN) continue;
-                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > CAMERA_HALF_FOV_RAD) continue;
                 if (alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN) continue;
-                if (zone != null) {
-                    double xRed = alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x;
-                    if (xRed < zone[0] || xRed > zone[1]) continue;
+                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
+                String why = p.z > 4 ? "still in the air" : FieldSim.underHive(p.x, p.y) ? "under the HIVE"
+                        : d > CAMERA_RANGE_IN ? "beyond the camera" : Math.hypot(p.x - origin[0], p.y - origin[1]) > COLLECT_RADIUS_IN ? "too far from where the collect began"
+                        : Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > CAMERA_HALF_FOV_RAD ? "out of the camera's view"
+                        : zone != null && ((alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) < zone[0] || (alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) > zone[1]) ? "outside the collect zone"
+                        : approachHitsFrame(p, at, origin[2]) ? "the approach would hit the HIVE frame, a FLOWER or a wall" : null;
+                if (why != null) {
+                    if (d < nearestD) {
+                        nearestD = d;
+                        nearestRejected = String.format(Locale.ROOT, "nearest %s %.0f in away at (%.0f, %.0f): %s", FieldSim.name(p.kind), d, p.x, p.y, why);
+                    }
+                    continue;
                 }
-                if (approachHitsFrame(p, at, origin[2])) continue;
                 if (d < bestD) {
                     bestD = d;
                     best = p;

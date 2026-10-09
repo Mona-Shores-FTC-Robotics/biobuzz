@@ -220,6 +220,16 @@ final class RobotDesign {
      * ({@link #compensatesMotion}). The real robot fires once nearly still.
      */
     boolean firesOnTheMove = false;
+    /** How far it can launch, in: {@code AutoSim.MAX_SHOT_RANGE_IN} (60, a placeholder) unless a what-if says more. */
+    double launchRangeIn = 60;
+    /**
+     * A flow-through intake (the body-designs chat's brief, doc/five-tip-flow-through.md; a what-if for the CAD
+     * chat's redesign, 9 Oct 2026): pieces travel through the robot and, while its gate is open ({@code GateOpen}),
+     * out of the back onto the tiles behind it whenever a 5th arrives, so it never CONTROLS more than 4 (G407) however
+     * fast a spill comes; with the gate closed ({@code GateClose}) it fills to 4 like any robot. Firing as it collects
+     * is {@code StreamOn}, which every design has.
+     */
+    boolean flowThrough = false;
     /**
      * A frame-fixed launcher whose slats flip to throw straight back as well as forward (mentor,
      * 3 Oct 2026, instead of a turret): the robot turns whichever end is nearer to facing the CELL.
@@ -466,6 +476,8 @@ final class RobotDesign {
         d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
         d.firesOnTheMove = firesOnTheMove;
+        d.launchRangeIn = launchRangeIn;
+        d.flowThrough = flowThrough;
         d.launchesBothWays = launchesBothWays;
         d.flipS = flipS;
         d.sideWallsSlideIn = sideWallsSlideIn;

@@ -533,6 +533,8 @@ final class FieldSim {
          * Its caller moves it; the walls stop pieces only while it is above 0.
          */
         double wallsOut;
+        /** A flow-through intake's back gate (RobotDesign#flowThrough): open, a 5th piece pushes the first out the back. */
+        boolean gateOpen;
         /** How far down its FLOWER extractor is ({@link RobotDesign#extractorSeatIn}), 0 stowed to 1 down. Its caller moves it. */
         double extractorDown;
         /** This seat's lateral error (RobotDesign#seatErrorIn), drawn by its caller each time the extractor comes down. */
@@ -848,6 +850,36 @@ final class FieldSim {
         return true;
     }
 
+    /** How fast a piece leaves a flow-through robot's back, in/s: it rolls to the wall behind when the robot is near it (a guess). */
+    static final double PLACEHOLDER_OUT_BACK_IN_PER_S = 20;
+
+    /**
+     * A flow-through robot ({@link RobotDesign#flowThrough}) with its gate open passes its first piece out of the
+     * back as another comes in: onto the tiles just behind it, rolling away from it at
+     * {@link #PLACEHOLDER_OUT_BACK_IN_PER_S}, so a row settles against the end wall when the robot stands near it.
+     */
+    void outBack(Bot bot) {
+        if (bot.stored.isEmpty()) return;
+        Piece p = bot.stored.remove(0);
+        double c = Math.cos(bot.h), s = Math.sin(bot.h);
+        double behind = -(bot.design.frameIn / 2 + p.kind.radius + 0.1);
+        double left = 0.5 * variety.nextGaussian();
+        double v = -PLACEHOLDER_OUT_BACK_IN_PER_S * (1 + 0.15 * variety.nextGaussian());
+        p.where = Where.FIELD;
+        p.cell = null;
+        p.flower = -1;
+        p.x = bot.x + behind * c - left * s;
+        p.y = bot.y + behind * s + left * c;
+        p.z = p.kind.radius;
+        p.vx = bot.vx + v * c;
+        p.vy = bot.vy + v * s;
+        p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        p.touchedTile = true;
+        outtaken.add(p);
+        events.add("out the back: " + name(p.kind) + " (" + bot.stored.size() + " held)");
+    }
+
     /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
     static boolean underHive(double x, double y) {
         return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
@@ -1116,6 +1148,7 @@ final class FieldSim {
                         if (why != null && !full(bot)) miss(bot, p, why);
                         continue;
                     }
+                    if (bot.design.flowThrough && bot.gateOpen && !hasRoom(bot, p.kind) && canTake(bot, p)) outBack(bot);
                     if (!hasRoom(bot, p.kind)) {
                         miss(bot, p, "full");
                     } else if (!canTake(bot, p)) {

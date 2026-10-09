@@ -1776,7 +1776,14 @@ What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInP
 `RobotDesign` field on every robot's design for the study (a copy; the named designs keep their values), and
 `BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4. `RobotDesign.firesOnTheMove` lets a design
 fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
-describing ours (9 Oct 2026, the CAD chat's redesign brief).
+describing ours (9 Oct 2026, the CAD chat's redesign brief). Two more what-ifs from the same brief:
+`RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
+piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
+`StreamOn`), and `RobotDesign.launchRangeIn` (60 in is the placeholder). `tools/auto-routes/flow_solo.py` is the
+probe that asked whether one robot can make 4 TIPs alone (no: shots from one end into the far CELL hit the HIVE, the
+spill ends against the wall and the wall FLOWER, and G407 makes every later TIP two trips). A CollectSeen that chased
+nothing now says why in the timeline ("collect: nothing to chase; nearest POLLEN 16 in away at (59, 6): the approach
+would hit the HIVE frame, a FLOWER or a wall").
 
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.
