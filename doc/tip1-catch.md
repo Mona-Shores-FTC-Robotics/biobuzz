@@ -222,3 +222,20 @@ off the wall at y 75-90. Run on a scratch merge of that commit with this branch 
 - **The sweep picks up 1-2 NECTAR on the way and costs nothing,** but R fills to its 4 at the wall FLOWER either
   way, so a NECTAR only replaces a POLLEN in the load. That doesn't make another TIP.
 - So rolled NECTAR doesn't help Sister five either. It would help a robot that is short of pieces, or in TELEOP.
+
+### Rolled on cue (claude/simulator f96529f)
+
+`BIOBUZZ_AUTO_HUMAN_CUE=1`: the drive team holds every NECTAR owed until one of our robots sits still within 4 in of
+(10, 96), then rolls them 0.6 s apart. R waits there after TIP 4, intake facing up the wall.
+
+| R after TIP 4 | 5 TIPs of 60 |
+|---|---|
+| nothing (rolled, not on cue) | 24 |
+| catches for 4.5 s (bank 3 on cue) | 23: R catches all 3 in 22 of 28 runs |
+| catches for 3.5 s | 25 |
+| catches for 4.5 s, then the wall FLOWER (bank 3 / one per TIP on cue) | 10 / 10 |
+
+- **On cue the catch works, but it only breaks even:** 3 NECTAR (4.95 POLLEN-weights) in place of the wall FLOWER's
+  4 POLLEN, for about the same time. Topping up to 4 at the FLOWER costs a TIP 5 in more than half the runs.
+- The simulator chat's reading of the tipping rule says why: an emptied CELL needs 7.95 POLLEN-weights, and a 4-piece
+  load of NECTAR is 6.6. So NECTAR can lighten a load only when a robot arrives short; it never adds one.
