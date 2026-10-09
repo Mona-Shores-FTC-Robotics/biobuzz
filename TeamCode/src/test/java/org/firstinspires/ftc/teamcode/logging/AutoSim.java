@@ -93,6 +93,8 @@ public final class AutoSim {
     static boolean fireOnlyWhenStill = false;
     /** BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (NaN: each design's own; 0: at once, as before 9 Oct 2026). */
     static double turretSlewOverrideRadPerS = Double.NaN;
+    /** The side-of-field aim's hysteresis: the turret switches CELLs this far past the centre line (y 51 and 90.5 for red). */
+    static final double TURRET_SWITCH_IN = 19.75;
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -568,7 +570,7 @@ public final class AutoSim {
             FieldRobot.putAll(log, allRobots, 0);
         }
         fieldLog.write(log, sim, 0);
-        for (Bot b : bots) internals.record(b.index, false, false, 0);
+        for (Bot b : bots) internals.record(b.index, false, false, b.turretYaw, 0);
         putClock(log, -PRE_ROLL_S);
         long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
@@ -712,7 +714,7 @@ public final class AutoSim {
                 }
             }
             fieldLog.write(log, sim, us);
-            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, us);
+            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, b.turretYaw, us);
             putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
@@ -734,7 +736,7 @@ public final class AutoSim {
         long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
         for (Bot b : bots) b.putStill(log, lastUs);
         fieldLog.write(log, sim, lastUs);
-        for (Bot b : bots) internals.record(b.index, false, false, lastUs);
+        for (Bot b : bots) internals.record(b.index, false, false, b.turretYaw, lastUs);
         internals.write(log);
         putClock(log, last);
         Scheduler.reset();
@@ -940,6 +942,21 @@ public final class AutoSim {
         boolean streaming;
         /** Where the turret points, rad left of forward (0 home), moved at {@link RobotDesign#turretSlewRadPerS}. */
         double turretYaw;
+        /**
+         * Which CELL the turret pre-aims at: +1 the high-y end, -1 the low-y end, 0 not yet chosen. The mentor's rule
+         * (9 Oct 2026): track the CELL of the end the robot is in, with hysteresis across the HIVE frame's span, where
+         * nobody fires: switch to the high end above y 90.5, to the low end below y 51 (centre +-19.75, so blue's
+         * turned-around Autos get the same rule); start on the start's end. A launch always goes at the raised CELL.
+         */
+        int turretCell;
+        /** When the turret last came within AIM_TOLERANCE_RAD of its target and stayed there; NaN while off. */
+        double aimedSince = Double.NaN;
+        /** When the current fire step (LaunchAll or StreamOn) began, and whether its turret wait is in the timeline. */
+        double fireStepStart = Double.NaN;
+        boolean fireStepReported, farCellReported;
+        /** The last side switch: when, and whether the turret has reported arriving since. */
+        double crossedAt = Double.NaN;
+        boolean crossArrivedReported;
         int shotsFired;
         int shotTarget;
         double nextShotAt;
@@ -1094,6 +1111,7 @@ public final class AutoSim {
             if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
+            reportTurretWait();
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
             boolean dedicated = design.dedicatedLaunchers && !catapult;
@@ -1494,6 +1512,7 @@ public final class AutoSim {
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
                     .command("StreamOn", 0.1, () -> Commands.instant(() -> {
                         spinUp();
+                        fireStepBegins();
                         streaming = true;
                         nextShotAt = Math.max(nextShotAt, now);
                     }))
@@ -1531,10 +1550,22 @@ public final class AutoSim {
          * Spins up if needed and fires up to {@code count} pieces at the raised CELL, a volley per
          * {@link RobotDesign#shotIntervalS}; done when that many have gone or the robot is empty.
          */
+        /** A fire step begins (LaunchAll, StreamOn): what the turret report measures from. */
+        private void fireStepBegins() {
+            fireStepStart = now;
+            fireStepReported = false;
+            farCellReported = false;
+            if (!Double.isNaN(crossedAt)) {
+                pending.add(String.format(Locale.ROOT, "turret: the fire step began %.1f s after the side switch", now - crossedAt));
+                crossedAt = Double.NaN;
+            }
+        }
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
                         spinUp();
+                        fireStepBegins();
                         firing = true;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE ? Integer.MAX_VALUE : shotsFired + count;
@@ -1710,14 +1741,16 @@ public final class AutoSim {
             double mouth = design.frameIn / 2 + design.intakeReachIn;
             double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
                     design.intakeAtBack ? bearing + Math.PI : bearing};
-            for (double f = 0; f <= 1.0001; f += 0.25) {
+            // Sampled every tenth of the way and of the turn (every quarter until 9 Oct 2026, when a chase beside the
+            // foot at x 46 clipped the frame between samples, body-designs chat, seed 36).
+            for (double f = 0; f <= 1.0001; f += 0.1) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
                 if (sim.hitsFlower(mid[0], mid[1], mid[2], span(design))) return true;
                 // 2.5 in clear of the HIVE's feet, along every edge: a spill lands right in front of the foot
                 // bars' ends (2 in wide, narrower than corners' spacing), and the robot drifts as it arrives.
                 // It turns on the way: try every heading between the one it starts with and the one it ends with.
                 double turn = AdvantageScopeFrame.wrap(end[2] - at[2]);
-                for (double g = 0; g <= 1.0001; g += 0.25) {
+                for (double g = 0; g <= 1.0001; g += 0.1) {
                     double h = at[2] + turn * g;
                     for (double[] c : edges(new double[] {mid[0], mid[1], h}, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
@@ -1726,7 +1759,7 @@ public final class AutoSim {
                 // And from anywhere on the way (the wait can end mid-drive), turn back to the heading it
                 // started collecting with: the Auto's next path starts from that heading.
                 double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
-                for (double g = 0; g <= 1.0001; g += 0.25) {
+                for (double g = 0; g <= 1.0001; g += 0.1) {
                     double[] turned = {mid[0], mid[1], end[2] + back * g};
                     for (double[] c : edges(turned, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
@@ -1801,13 +1834,56 @@ public final class AutoSim {
          */
         private void trackTurret() {
             if (design.launcher != RobotDesign.Launcher.TURRET) return;
-            double[] aim = spinning ? sim.rocker(alliance).aimPoint() : null;
+            FieldSim.Rocker hive = sim.rocker(alliance);
+            double y = pedro(drive.pose)[1];
+            if (turretCell == 0) turretCell = y < FieldSim.CENTRE_IN ? -1 : 1;
+            int before = turretCell;
+            if (y > FieldSim.CENTRE_IN + TURRET_SWITCH_IN) turretCell = 1;
+            if (y < FieldSim.CENTRE_IN - TURRET_SWITCH_IN) turretCell = -1;
+            if (turretCell != before) {
+                pending.add(String.format(Locale.ROOT, "turret: switched to the %s CELL at y %.1f", turretCell > 0 ? "high-end" : "low-end", y));
+                crossedAt = now;
+                crossArrivedReported = false;
+            }
+            double[] aim = null;
+            if (spinning) {
+                double[] raised = hive.aimPoint();
+                boolean launching = firing || streaming;
+                if (launching && raised != null) {
+                    aim = raised;  // a launch goes at the raised CELL wherever it is
+                    if (hive.raisedEnd() != turretCell && !farCellReported) {
+                        farCellReported = true;
+                        pending.add(String.format(Locale.ROOT, "turret: fires at the far CELL (the robot is at the %s end, y %.1f)", turretCell > 0 ? "high" : "low", y));
+                    }
+                } else {
+                    aim = hive.aimPointFor(turretCell);
+                }
+            }
             double target = aim == null ? 0 : turretTarget(aim);
             double slew = Double.isNaN(turretSlewOverrideRadPerS) ? design.turretSlewRadPerS
                     : turretSlewOverrideRadPerS <= 0 ? Double.POSITIVE_INFINITY : turretSlewOverrideRadPerS;
             double error = AdvantageScopeFrame.wrap(target - turretYaw);
             double step = slew * LOOP_S;
             turretYaw = Math.abs(error) <= step ? target : AdvantageScopeFrame.wrap(turretYaw + Math.copySign(step, error));
+            boolean onTarget = aim != null && Math.abs(AdvantageScopeFrame.wrap(target - turretYaw)) < AIM_TOLERANCE_RAD;
+            if (!onTarget) {
+                aimedSince = Double.NaN;
+            } else if (Double.isNaN(aimedSince)) {
+                aimedSince = now;
+                if (!Double.isNaN(crossedAt) && !crossArrivedReported) {
+                    crossArrivedReported = true;
+                    pending.add(String.format(Locale.ROOT, "turret: on target %.2f s after the side switch", now - crossedAt));
+                }
+            }
+        }
+
+        /** A fire step's first shot: how long the step waited for the turret, from its start to the turret settling. */
+        private void reportTurretWait() {
+            if (fireStepReported || design.launcher != RobotDesign.Launcher.TURRET) return;
+            fireStepReported = true;
+            double waited = Double.isNaN(fireStepStart) || Double.isNaN(aimedSince) ? 0 : Math.max(0, aimedSince - fireStepStart);
+            pending.add(waited <= 0.011 ? "turret: on target when the fire step began"
+                    : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited));
         }
 
         private void spinUp() {

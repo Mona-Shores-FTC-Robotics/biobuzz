@@ -130,10 +130,11 @@ final class RobotInternalsLog {
     }
 
     /** One loop: the {@code index}th tracked robot's state now. {@code aiming}: its launcher is spun up or firing (the turret tracks the CELL). */
-    void record(int index, boolean aiming, boolean launcherOn, long us) {
+    void record(int index, boolean aiming, boolean launcherOn, double turretYawRad, long us) {
         Track t = tracks.get(index);
         Frame f = new Frame();
         f.us = us;
+        f.turretYaw = turretYawRad;
         f.intakeOn = t.body.intaking();
         f.launcherOn = launcherOn;
         f.pose = t.body.pose();
@@ -182,6 +183,8 @@ final class RobotInternalsLog {
         FieldSim.Piece[] stored;
         double extractorDown;
         double[] aim;
+        /** The simulator's turret yaw (AutoSim.Bot#turretYaw), rad left of forward. */
+        double turretYaw;
         boolean intakeOn, launcherOn;
     }
 
@@ -294,14 +297,14 @@ final class RobotInternalsLog {
             }
             rise = Math.min(ROLLER_FLOAT_MAX, rise);
             if (!cad) return;
+            // The turret is the simulator's (AutoSim slews it at RobotDesign#turretSlewRadPerS and pre-aims it by the
+            // mentor's side-of-field rule, 9 Oct 2026); TurretErrorDeg is how far it is off the raised CELL's aim.
+            turretYaw = f.turretYaw;
             double error = 0;
             if (f.aim != null) {
-                // Toward the aim point while the launcher is spun up or firing; otherwise it holds its last angle.
                 double c = Math.cos(f.pose[2]), s = Math.sin(f.pose[2]);
                 double ax = f.pose[0] + TURRET_X * c - TURRET_Y * s, ay = f.pose[1] + TURRET_X * s + TURRET_Y * c;
                 double want = AdvantageScopeFrame.wrap(Math.atan2(f.aim[1] - ay, f.aim[0] - ax) - f.pose[2]);
-                double turn = AdvantageScopeFrame.wrap(want - turretYaw), most = Math.toRadians(TURRET_DEG_PER_S) * dt;
-                turretYaw = AdvantageScopeFrame.wrap(turretYaw + Math.max(-most, Math.min(most, turn)));
                 error = AdvantageScopeFrame.wrap(want - turretYaw);
             }
             double turn = 2 * Math.PI * DISPLAY_REV_PER_S * dt;

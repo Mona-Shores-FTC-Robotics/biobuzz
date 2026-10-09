@@ -681,7 +681,8 @@ public class AutoStudyTest {
                 System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
             }
             String tl = System.getenv("BIOBUZZ_AUTO_TIMELINE");
-            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : !tl.equals("issues") && Long.parseLong(tl) == seed)) {
+            if (tl != null && tl.isEmpty()) tl = null;  // BIOBUZZ_AUTO_TIMELINE= (a script's empty default) means unset
+            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("all") || (tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : !tl.equals("issues") && Long.parseLong(tl) == seed))) {
                 System.out.println("STUDY   seed " + seed + ": " + r);
                 for (AutoSim.RobotResult robot : r.robots) {
                     for (String t : robot.timeline) System.out.println("STUDY     " + robot.auto + " " + t);
