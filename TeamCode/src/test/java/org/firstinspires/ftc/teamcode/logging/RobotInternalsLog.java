@@ -104,10 +104,10 @@ final class RobotInternalsLog {
     /** The turret's axis: the bearing's inner race, 4 mm left of the centre line (the CAD chat, ac817a6). */
     static final double TURRET_X = -0.051895 / 0.0254, TURRET_Y = 0.004 / 0.0254;
     /**
-     * How fast the drawn turret turns (the simulator aims instantly; a placeholder until the turret is built), so a
-     * viewer sees it turn. {@code TurretErrorDeg} shows how far the drawing lags the aim.
+     * How fast the drawn turret turns: about 240 deg/s on its goBILDA servo (the 8 Oct meeting). The simulator aims
+     * instantly; {@code TurretErrorDeg} shows how far the drawing lags the aim.
      */
-    static final double PLACEHOLDER_TURRET_DEG_PER_S = 360;
+    static final double TURRET_DEG_PER_S = 240;
 
     private static final double M = AdvantageScopeFrame.METERS_PER_INCH;
 
@@ -300,7 +300,7 @@ final class RobotInternalsLog {
                 double c = Math.cos(f.pose[2]), s = Math.sin(f.pose[2]);
                 double ax = f.pose[0] + TURRET_X * c - TURRET_Y * s, ay = f.pose[1] + TURRET_X * s + TURRET_Y * c;
                 double want = AdvantageScopeFrame.wrap(Math.atan2(f.aim[1] - ay, f.aim[0] - ax) - f.pose[2]);
-                double turn = AdvantageScopeFrame.wrap(want - turretYaw), most = Math.toRadians(PLACEHOLDER_TURRET_DEG_PER_S) * dt;
+                double turn = AdvantageScopeFrame.wrap(want - turretYaw), most = Math.toRadians(TURRET_DEG_PER_S) * dt;
                 turretYaw = AdvantageScopeFrame.wrap(turretYaw + Math.max(-most, Math.min(most, turn)));
                 error = AdvantageScopeFrame.wrap(want - turretYaw);
             }

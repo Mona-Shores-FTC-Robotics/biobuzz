@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit 2f3f868, with the electronics bay at the back. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit 0d9d622, with the electronics bay, the turret's servo and encoders, and the Pinpoint. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -72,9 +72,10 @@ timings, as above.
 - **The feed starts before the fire command.** The simulator launches a piece the moment the launcher allows it,
   with no transfer delay. The drawing puts the 0.15 s feed before that launch, so the first piece of a volley starts
   rising 0.15 s before `LaunchAll` appears in the events. The shots leave at the simulator's times.
-- **The turret's speed is a placeholder,** 360°/s (`PLACEHOLDER_TURRET_DEG_PER_S`). The simulator aims instantly; the
-  drawing turns at a finite rate, so you can see it turn. `TurretErrorDeg` shows the lag. It's large only for about
-  0.4 s after the raised CELL changes, which on the routes here is well before the next shot.
+- **The turret turns at 240°/s** (`TURRET_DEG_PER_S`, its goBILDA servo, from the 8 Oct meeting). The simulator aims
+  instantly; the drawing turns at that rate, and `TurretErrorDeg` shows how far it lags the aim. Where the robot spins
+  faster than the turret can counter-rotate, a piece is drawn going up while the turret is still off target: the
+  simulator scores that shot as if the turret were on target, so watch `TurretErrorDeg` at each `Climbing`.
 - **The roller's float** comes from the pieces' drawn places, not from any physics. The simulator's own intake rule
   decides which pieces get in.
 - **A piece shot, missed and taken in again** joins the queue again, and is drawn rising to the launcher again before
