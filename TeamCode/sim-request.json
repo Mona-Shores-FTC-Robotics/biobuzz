@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-flower-first-carry-settle-b2.pp",
-  "spec": "QualRightVFlowerFirstCarrySettleB2Auto,PartnerPreloadsRightSouthAuto@50",
+  "pp": "TeamCode/autos/qual-stages-angled-v.pp",
+  "spec": "QualStagesAngledVAuto,PartnerAngledParkAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-flower-first-carry-settle-b2.pp",
+    "AutoSource": "qual-stages-angled-v.pp",
     "SavedBy": "README, the partner-shoots and staged Autos, with the robot's measured 0.4 restitution (10 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-FlowerFirst",
+  "title": "Qual-PartnerStages-Angled",
   "usual": true,
-  "folder": "qual-right-v-flower-first-carry-settle-b2"
+  "folder": "qual-stages-angled-v"
 }
