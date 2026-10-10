@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/qual-right-v-seatfire-west.pp",
-  "spec": "QualRightVSeatfireWestAuto,PartnerPreloadsRightAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister-right-fixed.pp",
+  "spec": "SisterRightFixedAuto,SisterLeftFixedAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "qual-right-v-seatfire-west.pp",
-    "SavedBy": "README, the partner-shoots and staged Autos, with the robot's measured 0.4 restitution (10 Oct 2026)"
+    "AutoSource": "sister-right-fixed.pp",
+    "SavedBy": "README, the Sister pairs: two of our robots, with the robot's measured 0.4 restitution (10 Oct 2026)"
   },
-  "title": "Qual-PartnerShootsRight-SeatFire",
+  "title": "Sister-4TIPs",
   "usual": true,
-  "folder": "qual-right-v-seatfire-west"
+  "folder": "sister"
 }
