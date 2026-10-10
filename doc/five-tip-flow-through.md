@@ -7,7 +7,8 @@ turret and simulator chats.
 ## Why
 
 Five TIPs need 4 + 8 + 8 + 8 + 8 = 36 pieces. Our half holds 20 that are always there (both robots' preloads, the two
-FLOWERs, the GARDEN); the rest must come back out of the spills. Human NECTAR can't be entered during AUTO (mentor).
+FLOWERs, the GARDEN) plus the human player's NECTAR, one per TIP into the LOADING ZONE (G426; allowed during AUTO, team
+decision 10 Oct 2026); the rest must come back out of the spills.
 Measured today (`tools/auto-routes/sister5.py`): a robot catching a spill standing still gets about 2; picking a spill
 up off the floor with the webcam gets 0-3 in 3 s. So two robots each kept to their own end get 2-3 TIPs, and the
 4-TIP pair works only because one robot carries pieces across the field.

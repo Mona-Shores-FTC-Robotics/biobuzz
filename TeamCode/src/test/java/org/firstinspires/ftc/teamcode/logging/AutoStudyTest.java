@@ -485,9 +485,9 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
-        // BIOBUZZ_AUTO_HUMAN_NECTAR=1: a drive-team NECTAR into the LOADING ZONE after each TIP (G426), for both
-        // alliances. Off by default until the Q&A confirms it is allowed during AUTO (9 Oct 2026).
-        if ("1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(true);
+        // The drive team's NECTAR into the LOADING ZONE after each TIP (G426) is on by default, for both alliances
+        // (team decision, 10 Oct 2026). BIOBUZZ_AUTO_HUMAN_NECTAR=0 turns it off for a comparison.
+        if ("0".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(false);
         // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N / BIOBUZZ_AUTO_HUMAN_CUE=1: how it goes in (see
         // AutoSim). Read here, not in the study loop, so a direct run() gets them too (the body-designs chat, 9 Oct).
         AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));

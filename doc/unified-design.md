@@ -734,7 +734,9 @@ score counts). 20 runs each: 2-3 TIPs, worse than the 4-TIP pair. **The blocker 
 pieces each). Measured recovery: catching a spill as it falls, standing still, gets about 2 (TIP 1's: 2, so TIP 3
 came up 6 of 8 without L's 3 from across the field); the webcam picking up a spill already on the floor gets 0-3 in
 3 s (it has scattered). So each end recovers well under half of each spill, and the 4-TIP pair works only because L
-carries pieces across. Human NECTAR can't help: it can't be entered during AUTO (mentor, 9 Oct 2026). What could close
+carries pieces across. The human player's NECTAR (one per TIP into the LOADING ZONE, allowed during AUTO: team decision,
+10 Oct 2026) does not close it either: it replaces a POLLEN in a 4-piece load and never adds a load, since an emptied
+CELL needs 7.95 POLLEN-weights and 4 NECTAR weigh 6.6 (`TeamCode/README.md`, the what-if paragraph). What could close
 the gap is a mechanism that recovers far more of a spill.
 
 **If every spill gave 4** (the mentor: "five tip auto needs a way to reliably always get 4 from spill. If we had that

@@ -355,7 +355,8 @@ public final class AutoSim {
     java.util.function.BiConsumer<FieldSim, Double> observer;
     private double[] partnerPose;
     private double[][] partnerSpots;
-    private boolean humanNectar;
+    /** On by default: the team's reading of G426/G427 (lab, 10 Oct 2026) is that the human player enters NECTAR during AUTO. */
+    private boolean humanNectar = true;
     private final List<Double> nectarDueAt = new ArrayList<>();
     private final List<Double> theirNectarDueAt = new ArrayList<>();
     /** Whether the first bank has gone in: ours, theirs. */
@@ -454,9 +455,11 @@ public final class AutoSim {
     }
 
     /**
-     * Has the drive team enter one NECTAR into the LOADING ZONE {@link #HUMAN_DELAY_S} after each
-     * TIP of their HIVE, as G426 allows. Off unless asked for: whether that is allowed during AUTO is
-     * worth confirming with the Q&amp;A before an Auto counts on it.
+     * Whether the drive team enters one NECTAR into the LOADING ZONE {@link #HUMAN_DELAY_S} after each
+     * TIP of their HIVE, as G426 allows during AUTO (team decision, 10 Oct 2026). On by default; a study
+     * turns it off to see what the entry is worth. The mid-zone drop 2 s after the TIP is a placeholder
+     * for the drive team's technique (a roll along the wall into a waiting intake, doc/human-nectar.md)
+     * until their drill gives real timings.
      */
     AutoSim humanNectar(boolean on) {
         humanNectar = on;
