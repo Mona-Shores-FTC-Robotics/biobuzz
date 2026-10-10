@@ -30,6 +30,8 @@ import cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__))
 MM = 1 / 25.4
 CHECK_ONLY = os.environ.get("CHECK_ONLY") == "1"
+LM_DIR = os.path.join(HERE, ".cache", "launcher")    # the mentor's launcher module, cached by launcher_module.py
+USE_LM = os.path.exists(os.path.join(LM_DIR, "index.json")) and os.environ.get("NO_LAUNCHER_MODULE") != "1"
 
 # ---------------------------------------------------------------- the outline the Auto asks for
 FACE, BACK = 7.3, -7.05                 # body 14.35 in (the back gives the start outline's margin; the face and the flaps stay put)
@@ -244,12 +246,13 @@ for sx, fx in ((1, "F"), (-1, "B")):
              f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{DRIVE_BELT[sx]} belt")
 # ---- odometry pods (goBILDA 4-bar, for 96 mm wheels; the Pinpoint's): a forward pod on the left, a strafe pod on the right
 POD_H, POD_W, POD_D = 69.5 * MM, 43 * MM, 41.5 * MM     # floor to the top of its block; across its block; mount face to wheel side
-part("odometry", "odo_pod_forward", box(1.0 - POD_W / 2, 1.0 + POD_W / 2, RAIL_IN - 0.15 - POD_D, RAIL_IN - 0.15, 0, POD_H), "buy",
-     "goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the left rail")
-part("odometry", "odo_pod_strafe", box(0.0, POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
+ODO_FWD_X = 2.15                        # both pods on the right: the left side under the launcher has its feeder belt and gate servo
+part("odometry", "odo_pod_forward", box(ODO_FWD_X - POD_W / 2, ODO_FWD_X + POD_W / 2, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_D, 0, POD_H), "buy",
+     "goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail")
+part("odometry", "odo_pod_strafe", box(-0.7, -0.7 + POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
      "goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail")
-for s_, n, x0, y0 in ((1, "L", 1.0 - POD_W / 2 - 0.25, RAIL_IN - 0.15), (-1, "R", -0.25, -(RAIL_IN - 0.15))):
-    ad = box(x0, x0 + (POD_W if s_ > 0 else POD_D) + 0.5, *sorted((y0, y0 + s_ * 0.15)), RAIL_Z[0] + CH_T, RAIL_Z[1] - CH_T)
+for n, x0, x1 in (("F", ODO_FWD_X - POD_W / 2 - 0.1, ODO_FWD_X + POD_W / 2 + 0.1), ("S", -0.8, -0.7 + POD_D + 0.1)):
+    ad = box(x0, x1, -(RAIL_IN - 0.15), -RAIL_IN, RAIL_Z[0] + CH_T, RAIL_Z[1] - CH_T)
     part("odometry", f"odo_adapter_{n}", ad, "print", "PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint)")
 
 # ---- the fixed flaps: also the side plates that carry the extractor's stubs
@@ -343,7 +346,7 @@ for s, n in SIDES:
 for k, x in enumerate(LANE_SHAFTS):
     part("lane", f"lane_shaft_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 8 * MM, -WALL_IN - WALL_T, WALL_IN + WALL_T), "buy", "goBILDA 8mm REX shaft, 144 mm (2106-4008-1440)")
     part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller")
-CEIL_X = (COL_X + 1.6, 4.5)
+CEIL_X = (-0.55, 4.5)                    # from just ahead of the launcher's front uprights (X -0.63) to the front drive motors
 CEIL_Z = LANE_BOTTOM + 2 * RP - 0.2     # the free rollers' bottoms, at rest (a POLLEN presses them 0.2)
 part("lane", "ceiling", box(*CEIL_X, -WALL_IN, WALL_IN, CEIL_Z + 0.8, CEIL_Z + 0.95), "print",
      "PETG: the sprung ceiling's frame, on pins in slotted posts (as cad/transfer), carrying free rollers")
@@ -351,13 +354,12 @@ for k in range(4):
     x = CEIL_X[0] + 0.5 + k * (CEIL_X[1] - CEIL_X[0] - 1.0) / 3
     part("lane", f"ceiling_roller_{k}", cyl("y", (x, CEIL_Z + 0.4), 0.8, -1.5, 1.5), "print",
          "PETG: a free-spinning ceiling roller on two 608 bearings (the ball moves at the lane's full tread speed, not half)")
-part("lane", "floor", box(BACKSTOP_X - 0.2, COL_X + 1.4, -1.7, 1.45, LANE_BOTTOM - 0.13, LANE_BOTTOM), "print", "PETG: the floor under the feeder and pad")
-part("lane", "backstop", box(BACKSTOP_X - 0.2, BACKSTOP_X, -1.2, 1.2, LANE_BOTTOM, 3.0), "print", "PETG: backstop, on +-0.2 in slots (set with real balls: the 4-piece count)")
+if not USE_LM:                            # the launcher module brings its own floor and backstop (cad/transfer's)
+  part("lane", "floor", box(BACKSTOP_X - 0.2, COL_X + 1.4, -1.7, 1.45, LANE_BOTTOM - 0.13, LANE_BOTTOM), "print", "PETG: the floor under the feeder and pad")
+  part("lane", "backstop", box(BACKSTOP_X - 0.2, BACKSTOP_X, -1.2, 1.2, LANE_BOTTOM, 3.0), "print", "PETG: backstop, on +-0.2 in slots (set with real balls: the 4-piece count)")
 
 # ---- launcher: the mentor's goBILDA launcher module with cad/transfer's changes (launcher_module.py), placed by the
 # column; without its cache, this file's own stand-in
-LM_DIR = os.path.join(HERE, ".cache", "launcher")
-USE_LM = os.path.exists(os.path.join(LM_DIR, "index.json")) and os.environ.get("NO_LAUNCHER_MODULE") != "1"
 if USE_LM:
     import json
     from OCP.BRepTools import BRepTools
@@ -399,7 +401,8 @@ else:
          "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit)")
     part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
     part("launcher", "turret_enc_B", cyl("z", ENC_B, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2")
-hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, KIT_Z + KIT_H, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
+HOOD_Z = 9.70 if USE_LM else KIT_Z + KIT_H   # on the turret's top (the module's kit is 9.68 at its top)
+hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
 # ---- electronics
@@ -414,8 +417,12 @@ part("elec", "limelight", box(6.1, 7.2, -1.1, 1.1, 13.4, 14.8), "buy", "Limeligh
 # ================================================================ checks
 def solid(w): return w.val() if hasattr(w, "val") else w
 
+_BB = {}
 def bb(w):
-    b = solid(w).BoundingBox(); return (b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax)
+    k = id(w)
+    if k not in _BB:
+        b = solid(w).BoundingBox(); _BB[k] = ((b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax), w)   # keep w alive so its id stays unique
+    return _BB[k][0]
 
 def overlap(a, b, tol=1e-4):
     A, B = bb(a), bb(b)
