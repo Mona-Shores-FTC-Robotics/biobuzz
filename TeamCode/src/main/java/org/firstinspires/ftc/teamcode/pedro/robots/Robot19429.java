@@ -48,7 +48,7 @@ public final class Robot19429 {
      * replaced.</b> Pod offsets say where the Pinpoint sat on one frame, so on the new chassis these
      * are wrong by construction. They are kept only so the code compiles and the field view has
      * something to show. Run the Pinpoint Tuner on this robot and paste over them before trusting
-     * any pose (#78, the bring-up checklist).
+     * any pose (#175, the bring-up checklist under #78).
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
