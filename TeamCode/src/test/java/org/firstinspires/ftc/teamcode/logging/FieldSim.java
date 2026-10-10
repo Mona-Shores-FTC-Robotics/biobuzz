@@ -118,7 +118,13 @@ final class FieldSim {
     static final double PLACEHOLDER_WALL_RESTITUTION = 0.45;
     static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
     static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
-    static final double PLACEHOLDER_ROBOT_RESTITUTION = 0.1;
+    /**
+     * Restitution off the robot's surfaces (body, flaps and guides unless a design sets its own): the lab's drop test
+     * of 10 Oct 2026 on the mentor's black foam pad over a hard backing, POLLEN about 0.40 and NECTAR about 0.38, one
+     * slow-motion drop each. Provisional until the full set (a softer face is being sought); 0.1 was the placeholder
+     * before it.
+     */
+    static final double MEASURED_ROBOT_RESTITUTION = 0.4;
     /**
      * Fraction of sliding speed lost per second in contact with a surface: a robot, the HIVE, a CELL, a
      * wall. Not on the tiles alone: a piece rolling on the tiles slows only by {@link #FILMED_ROLLING_DECEL_IN_PER_S2}.
@@ -240,7 +246,7 @@ final class FieldSim {
     static final double FILMED_TIP_DWELL_OVERLOADED_S = 0.5;
     static double[] tipDwellRange = FILMED_TIP_DWELL_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
-    static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
+    static double robotRestitution = MEASURED_ROBOT_RESTITUTION;
 
     /** A flap's or guide's restitution: its own (RobotDesign#flapRestitution) or the robot's. */
     static double flapRestitution(RobotDesign d) {

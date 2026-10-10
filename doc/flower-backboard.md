@@ -246,8 +246,8 @@ angled plate:
 2. **Friction and spin at impact.** `bounce` reflects only the normal velocity (restitution) and leaves the
    sliding velocity and the spin alone. Spin matters only in flight (lift) and on the tiles (rolling). Off
    a steep plate, friction and spin decide where the ball goes.
-3. **Restitution off our plate.** The robot's is `PLACEHOLDER_ROBOT_RESTITUTION` = 0.1, a guess made for
-   frame bumps, not for a NECTAR hitting a plate at 3 to 5 m/s.
+3. **Restitution off our plate.** The robot's is `MEASURED_ROBOT_RESTITUTION` = 0.4 (the lab's drop test, 10 Oct 2026, provisional; 0.1 until then, a guess made for
+   frame bumps, not for a NECTAR hitting a plate at 3 to 5 m/s).
 4. **The FLOWER's top.** A FLOWER is a 2 in tube (`PLACEHOLDER_FLOWER_RADIUS_IN`) that holds its staged
    POLLEN. There's no top ring, no backstop, no 4 in opening, no scoring volume, and nothing catches a ball
    from above.
