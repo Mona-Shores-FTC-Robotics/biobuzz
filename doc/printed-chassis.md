@@ -41,9 +41,12 @@ short enough that the flaps fit inside 18 in from the start**, so there is no fo
   unchanged; what changes is that the flaps reach 0.6 in further ahead of the intake.
 - Width stays 18 in over the flap roots, about 15.2 in over the wheels.
 
-**To confirm with the simulator and body-designs chats:** is the 3.4 in measured from the face (as today's 2.8 in V is)
-or from the intake's mouth, and does a 14.6 in body with fixed 3.4 in flaps from t = 0 score the same as the run that
-deploys them at 1 s.
+**The flaps' geometry** (body-designs chat, from the simulator's flap model): each flap is hinged at a front corner of
+the frame, on the face at the frame's side; its tip is 3.4 in ahead of the **face** (not the mouth) and 1.38 in outside
+the frame's side, splayed about 22° outward. On the 15.24 in wide frame the tips are 18.0 in across. The 4 in height is
+a placeholder. Nothing in the routes reads the body length; the footprint checks follow the outline. The catch spots sit
+0.26 in further from the pieces on a 14.6 in body, which a run checks: **the body-designs chat is scoring a 14.6 in body
+with the flaps fixed from START against the 28 / 60 of the deploy-at-1 s version.**
 
 ## Layout
 
@@ -134,8 +137,8 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 ## Open questions
 
-1. **Simulator / body-designs:** where the 3.4 in is measured from, and whether a 14.6 in body with the flaps fixed from
-   t = 0 scores as the deploy-at-1 s run does.
+1. **Body-designs chat (running):** whether a 14.6 in body with the flaps fixed from START scores as the deploy-at-1 s
+   run does (28 / 60).
 2. **Mentors:** printer, materials (TPU? nylon-CF?), and whether they agree to a goBILDA ladder rather than an all-printed
    frame.
 3. **Drop test** (brief, "Measure it first"): EVA vs polyethylene foam on a printed backer, so the flap backer is drawn
