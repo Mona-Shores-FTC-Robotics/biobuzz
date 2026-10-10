@@ -2,7 +2,8 @@
 # Clash check for an add-on module on the mentor's robot as he drew it: every part of his, lined up by his intake's front
 # uprights and NOT edited (nothing left out or moved), against the module's parts. Our full robot moves his launcher
 # forward (cad/transfer LAUNCHER_SHIFT); his doesn't, so a module drawn on his launcher is moved back by that much.
-# Modules: "turret" (the servo turret drive and its two encoders, cad/transfer's turret_* parts and their screws).
+# Modules: "turret" (the servo turret drive and its two encoders, cad/transfer's turret_* parts and their screws);
+# "flaps" and "flaps_folded" (cad/modules/flaps, swung out and folded for START).
 # Exact mesh intersection (manifold3d), inches, robot frame. Caches raw_base_mesh.pkl here.
 import sys, os, re, pickle, importlib.util, numpy as np, trimesh, manifold3d as mf
 import cadquery as cq
@@ -27,12 +28,15 @@ else:
         if m is not None: base.append((p, m))
     pickle.dump(base, open(cache, 'wb'))
 module = sys.argv[2] if len(sys.argv) > 2 else 'turret'
-MODULES = {'turret': (r'^(turret_|screw_turret_|nut_turret_)', TR.launcher, -TR.LAUNCHER_SHIFT)}
-rx, group, dx = MODULES[module]
+def turret():
+    return {n: (TR.to_cad(wp), -TR.LAUNCHER_SHIFT) for n, (wp, c, k) in TR.launcher.items() if re.search(r'^(turret_|screw_turret_|nut_turret_)', n)}
+def flaps(state):
+    FL = load('flaps', '/home/user/biobuzz/cad/modules/flaps/build.py')
+    return {n: (TR.to_cad(wp), 0.0) for n, (wp, c, k) in getattr(FL, state).items()}
+MODULES = {'turret': turret, 'flaps': lambda: flaps('deployed'), 'flaps_folded': lambda: flaps('folded')}
 kit = {}
-for n, (wp, col, kind) in group.items():
-    if not re.search(rx, n): continue
-    m = cad_mesh(TR.to_cad(wp))
+for n, (shp, dx) in MODULES[module]().items():
+    m = cad_mesh(shp)
     if m is None: continue
     m.apply_translation((dx, 0, 0)); kit[n] = m
 lo = np.min([m.bounds[0] for m in kit.values()], 0) - 1; hi = np.max([m.bounds[1] for m in kit.values()], 0) + 1
@@ -52,8 +56,13 @@ for n, m in kit.items():
             hits += 1; print(f'  {v:8.4f} in3  {n[:55]:55s} x {p.split(" / ")[-1][:50]}')
 # what of his sits where the module goes: his turret drive (motor, gear) that the servo replaces
 print('--- his parts within 1 in of the drive gear axis (what the kit replaces or meets)')
-tg = np.array([TR.TG[0] + dx, TR.TG[1]])
-for p, b in near:
-    c = (b.bounds[0][:2] + b.bounds[1][:2]) / 2
-    if np.linalg.norm(c - tg) < 1.0: print(f'  {p[-80:]}  z {b.bounds[0][2]:.2f}..{b.bounds[1][2]:.2f}')
+if module == 'turret':
+    tg = np.array([TR.TG[0] - TR.LAUNCHER_SHIFT, TR.TG[1]])
+    for p, b in near:
+        c = (b.bounds[0][:2] + b.bounds[1][:2]) / 2
+        if np.linalg.norm(c - tg) < 1.0: print(f'  {p[-80:]}  z {b.bounds[0][2]:.2f}..{b.bounds[1][2]:.2f}')
+# the robot's size with the module: his parts (pieces left out) plus the module's
+allb = [m.bounds for p, m in base if not re.search(r'Pollen|Nectar|POLLEN|NECTAR', p)] + [m.bounds for m in kit.values()]
+lo_, hi_ = np.min([b[0] for b in allb], 0), np.max([b[1] for b in allb], 0)
+print(f'robot with the module: {hi_[0] - lo_[0]:.2f} in long (X {lo_[0]:.2f}..{hi_[0]:.2f}), {hi_[1] - lo_[1]:.2f} in wide, {hi_[2] - lo_[2]:.2f} in tall')
 print(f'{hits} clashes')
