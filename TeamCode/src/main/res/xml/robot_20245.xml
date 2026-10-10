@@ -54,6 +54,10 @@
             <!-- Odometry: goBILDA Pinpoint on I2C bus 1. -->
             <goBILDAPinpoint name="pinpoint" port="1" bus="1" />
 
+            <!-- FLOWER stick: one servo on a stick, the extractor's first
+                 edition (#177). Plug it into servo port 0. -->
+            <Servo name="flowerStick" port="0" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the launcher flywheels. Ports are carried over from
