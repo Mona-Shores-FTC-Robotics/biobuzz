@@ -62,6 +62,12 @@ public final class DeviceNames {
     // motor. See robot_launcher_rig.xml.
     public static final String LAUNCHER2 = "launcher2";
 
+    // Turret angle: a Digital Chicken Labs OctoQuad, reading the turret's REV
+    // Thru-Bore encoder (absolute, pulse-width output). Which OctoQuad channel
+    // the encoder is on is a wiring fact the XML has no element for, so it is
+    // the one port Java knows: TurretSubsystem.ENCODER_CHANNEL. See #169.
+    public static final String OCTOQUAD = "octoquad";
+
     /**
      * What kind of port a device occupies. Determines which XML element tags
      * are legal for it, and which Java class {@code ValidateHardware} asks the
@@ -119,6 +125,7 @@ public final class DeviceNames {
             new Device(LAUNCHER_CENTER, Kind.MOTOR),
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(PINPOINT, Kind.I2C),
+            new Device(OCTOQUAD, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
     /** The two-wheel launcher bench rig: one Y-cabled motor pair, nothing else. */

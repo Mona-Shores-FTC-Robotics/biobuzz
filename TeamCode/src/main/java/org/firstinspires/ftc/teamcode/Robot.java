@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
@@ -34,8 +35,9 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no intake, launcher or turret here, because none is designed yet. A subsystem for
- * hardware nobody has designed would be a guess wearing a class name.
+ * <p>There is no intake or launcher here, because neither is designed yet. A subsystem for
+ * hardware nobody has designed would be a guess wearing a class name. The turret is here only as
+ * far as its design is decided: its angle sensor (#169), not yet its motor.
  */
 public class Robot {
 
@@ -52,6 +54,12 @@ public class Robot {
     public final PieceVisionSubsystem pieces;
 
     /**
+     * The turret's angle sensor (an OctoQuad reading an absolute encoder) and its INIT health check.
+     * Always present: {@code NO_SIGNAL} if the OctoQuad is missing or not answering.
+     */
+    public final TurretSubsystem turret;
+
+    /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
      */
@@ -63,8 +71,10 @@ public class Robot {
         vision = new LimelightVisionSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap, vision);
         pieces = new PieceVisionSubsystem(hardwareMap);
+        turret = new TurretSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, pieces));
+        subsystems = Collections.unmodifiableList(
+                Arrays.<Subsystem>asList(vision, drive, pieces, turret));
     }
 
     /** Every subsystem, in the order they were built. */

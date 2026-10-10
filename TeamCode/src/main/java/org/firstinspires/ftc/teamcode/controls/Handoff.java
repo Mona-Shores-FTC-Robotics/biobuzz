@@ -5,7 +5,8 @@ import com.pedropathing.math.Pose;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
- * What Autonomous leaves for TeleOp: the alliance and where the robot ended up.
+ * What Autonomous leaves for TeleOp: the alliance, where the robot ended up, and whether the
+ * turret's zero was verified at the start of the match.
  *
  * <p><b>This is the one piece of static robot state in the codebase, on purpose.</b> The SDK builds
  * a fresh OpMode for TeleOp, and a static field is the only thing that survives the switch. Nothing
@@ -32,11 +33,17 @@ public final class Handoff {
         public final Alliance alliance;
         /** Field pose in Pedro coordinates, or null if the Pinpoint was missing. */
         public final Pose pose;
+        /**
+         * True if Autonomous confirmed the turret's zero at its start (the turret read home). A
+         * verdict, not an angle: TeleOp reads the angle itself, from the absolute encoder.
+         */
+        public final boolean turretZeroVerified;
         public final long recordedAtMs;
 
-        Snapshot(Alliance alliance, Pose pose, long recordedAtMs) {
+        Snapshot(Alliance alliance, Pose pose, boolean turretZeroVerified, long recordedAtMs) {
             this.alliance = alliance;
             this.pose = pose;
+            this.turretZeroVerified = turretZeroVerified;
             this.recordedAtMs = recordedAtMs;
         }
 
@@ -51,8 +58,9 @@ public final class Handoff {
     }
 
     /** Called by {@code RobotOpMode} when an Autonomous OpMode stops. */
-    public static void record(Alliance alliance, Pose pose, long nowMs) {
-        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose, nowMs);
+    public static void record(Alliance alliance, Pose pose, boolean turretZeroVerified, long nowMs) {
+        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose,
+                turretZeroVerified, nowMs);
     }
 
     /** The last Autonomous's handoff, or null if there is none or it is stale. */

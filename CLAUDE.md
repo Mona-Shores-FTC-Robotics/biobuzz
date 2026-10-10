@@ -46,6 +46,8 @@ Three layers, each written in exactly one place:
 - **A device name appears only in `DeviceNames`.** Never a string literal, never a field on an
   `@Configurable` object. A name is identity, not tuning.
 - **Java never knows a port.** Two robots wired differently differ only in their XML.
+  One exception: an OctoQuad channel, which the XML cannot express —
+  `TurretSubsystem.ENCODER_CHANNEL` is that spec. → README § "The turret's OctoQuad"
 - **Adding a device:** the `DeviceNames` constant, the device list of every robot that has it
   (`COMPETITION_ROBOT` covers both), and the element in each of those robots' XML — same PR.
 - **Adding a robot or rig:** a `robot_<name>.xml` plus a `RobotIdentity` line. A rig with
