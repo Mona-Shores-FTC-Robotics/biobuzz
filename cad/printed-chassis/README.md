@@ -69,7 +69,7 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 | Roller | goBILDA 48 mm Gecko wheels, as the mentor's, ±4.35 in, axle 1.0 ahead of the face, 2.4 off the tiles | no vector wheels: his star wheels centre the pieces |
 | Roller arms | inside the wheels, at \|Y\| 5.0 to 5.3 over the rails; pivot X 4.3, z 4.05, on the front brackets; the 1620 RPM motor on the right arm above the roller (275 mm belt) | inside the wheels because his belts run outside them; the pivot is level with the roller's mid-float, so it rises nearly straight up |
 | Front brackets | printed, one a side, bolted to the front drive motor's U-channel mount | hang the star wheel's servo and carry the arm's pivot |
-| Star wheels (the mentor's) | two 3.5 in flexible stars (16 flaps, from photos of his parts) lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.2: a NECTAR's middle, just over the rails | each driven from above by a continuous servo: a round 8 mm hardened shaft into his one-way needle clutch (HF081412), pressed into a printed hub that drives the star's hex adapter. The servo and its coupling are still TBD |
+| Star wheels (the mentor's) | two 3.5 in flexible stars (SWYFT Intake Wheels, 30A, cut into 16 flaps) lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.2: a NECTAR's middle, just over the rails | each driven from above by a continuous servo: a round 8 mm hardened shaft into his one-way needle clutch (HF081412), pressed into a printed hub that drives the star's hex adapter. The servo and its coupling are still TBD |
 | Ramp and mouth floor | the whole mouth's width (±4.8, inside the rails), in halves | so a piece taken in off-centre climbs to the lane's height too, where the stars reach it |
 | Lane | five TPU-roller shafts, walls at \|Y\| 1.86, a ceiling of free rollers from X −0.55 to 4.5 | the ball moves at the tread's speed, not half of it |
 | Launcher (the mentor's) | his goBILDA launcher module with `cad/transfer`'s changes (flywheel motors out and up, the feeder on a yoke with its gate servo, the pad, the backstop, the turret servo and both encoders), placed by the launch column at X −2.37 | the turret's drive gear points forward, as his |
@@ -108,7 +108,7 @@ are in `cad/modules/launcher-module` and `cad/modules/drive-module` on the CAD c
 | 5203-2402-0003 Yellow Jacket, 1620 RPM | goBILDA | 1 | roller and lane |
 | 3417-4008-0024 24T HTD5 pulleys, 3412-0009-0275 belt | goBILDA | 2, 1 | roller |
 | 3632-4008-0048 48 mm Gecko wheels | goBILDA | about 8 | the roller, as the mentor's |
-| 3.5 in OD flexible star wheels, 7 mm hex bore | as the mentor's (vendor TBD) | 2 | centre pieces into the lane |
+| SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm), cut into 16 flaps as the mentor's | swyftrobotics.com ($24.99 for 4) | 2 | centre pieces into the lane (30A TPE: squishy enough to squeeze a NECTAR 0.41 in a side; bench-check it) |
 | One-way needle clutch HF081412 (8 x 14 x 12 mm drawn cup; the mentor's is Amazon Sankoly-US SK230309GZZC-6P) | Amazon | 2 (6-pack) | the star wheels' one-way drive, pressed into a printed hub (13.9-13.95 mm bore); CHECK with calipers and which way it free-wheels |
 | 8 mm round hardened shaft (ground steel, h6), short | any (McMaster, Misumi) | 2 | the clutch runs on it: not REX |
 | Continuous servos | as the mentor's (TBD) | 2 | drive the star wheels |
@@ -126,7 +126,7 @@ print**: no screw holes, inserts, bores or ribs yet.
 1. **Screws, inserts and service paths**, drawn and checked as `cad/intake-b` and `cad/transfer` do
    (`tools/robot-cad/fastener_check.py`), each module's way out checked; a build order; a two-robot parts list.
 2. **For the mentor:** where the hubs and battery go (here: the back), which battery, how his launcher frame bolts down
-   (his CAD shows it floating 1 in over the rails), and the star wheels' vendor, one-way bearing and servo.
+   (his CAD shows it floating 1 in over the rails), and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
 4. **The lane's round-belt drive and idler, the roller's spring, the ceiling's pins and bands**: as `cad/transfer`,

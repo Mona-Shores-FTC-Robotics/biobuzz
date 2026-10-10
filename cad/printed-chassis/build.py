@@ -348,7 +348,7 @@ for s, n in SIDES:
 for s, n in SIDES:
     sx, sy = STAR[0], s * STAR[1]
     part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
-         "3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD)")
+         "SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD)")
     part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy",
          "8 mm ROUND hardened shaft (ground steel, h6), vertical, from the servo: the clutch's rollers run on it, so not 8mm REX (its flats would let them slip)")
     part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 20 * MM, STAR_Z + STAR_W / 2 + 0.05, STAR_Z + STAR_W / 2 + 0.05 + 14 * MM), "print",
