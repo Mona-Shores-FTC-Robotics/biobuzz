@@ -1,21 +1,23 @@
-# A printed clean-sheet robot (concept, 10 Oct 2026, draft for review)
+# A printed clean-sheet robot (concept agreed 10 Oct 2026; CAD in `cad/printed-chassis/`)
 
 Issue #172. A robot as easy as possible to build, service and change, printing whatever printing does better and buying
 the rest. It is drawn from the Auto strategy in [redesign-brief.md](redesign-brief.md), not the other way round.
 Nothing here is built or measured; this is the concept to agree before much is drawn.
 
-## Printer and material assumptions (revise when the mentors confirm)
+## Printers and materials (the user, 10 Oct: the mentors have common home printers)
 
-| | Assumed | Matters for |
+Any common home printer will do, so the design asks only what they all have:
+
+| | Rule | Why |
 |---|---|---|
-| Bed | 256 × 256 × 256 mm (Bambu P1S / X1C class) | every printed part fits it; nothing longer than about 250 mm is printed in one piece |
-| Default material | **PETG** | brackets, pods, modules |
-| Rollers and grippy faces | **TPU 95A** (prints on this class of printer) | intake wheels, lane rollers, feeder tread option |
-| Jigs and fit coupons | PLA+ | drilling and cutting jigs, test fits |
-| Nylon-CF | **only if the mentors say it's available** | the two parts that most want it are named below; each has a PETG fallback |
+| Part size | **Every printed part fits 210 × 210 × 200 mm** | the smallest common bed (Prusa MK4 250 × 210, Ender-3 220 × 220, Bambu A1 / P1S 256). A Bambu A1 mini (180 mm) can't print the largest parts. |
+| Default material | **PETG**, 4 walls, 40% gyroid | strong and tough enough for brackets and modules, prints on every one of these |
+| Rollers and grippy faces | **TPU 95A**, small parts only | prints best on a direct-drive extruder (Bambu, Prusa MK4); on a Bowden printer (Ender-3) slow it down or buy the bought alternative named in the parts list |
+| Jigs and fit coupons | PLA or PLA+ | |
+| Nylon-CF | **not used**: it needs a hardened nozzle and a dry box | the parts that would want it (turret ring, extractor arms) are drawn thicker in PETG instead |
 | Inserts | M3 and M4 brass heat-set | every screw into a printed part |
 
-Parts where material choice matters are marked **(material)** below.
+Parts where material or orientation matters are marked **(material)** below.
 
 ## What the Auto asks of the robot
 
@@ -93,7 +95,7 @@ lane's end:
 
 ## The frame: a stock ladder, printed everything else
 
-Long, stiff members are what printing does worst and goBILDA does best, and nothing over 250 mm prints in one piece. So:
+Long, stiff members are what printing does worst and goBILDA does best, and nothing over about 200 mm prints in one piece on every home printer. So:
 
 - **Bought:** two goBILDA U-channel side rails and two cross channels (a ladder, as the Strafer kit is), with goBILDA's
   hole pattern, so nothing is drilled.
@@ -123,9 +125,9 @@ Reused from today's design where it's sound; changed where printing makes it sim
 | **Lane** | 5 shafts of rollers under a **still** foam ceiling: the ball rolls at half the tread's speed (about 24 in/s) | **Driven top and bottom** (printed TPU rollers below, a round-belt top run above, from the same motor): the ball moves at full tread speed | At 0.17 s a piece, 3.6 in pieces need at least 21 in/s with no gap; today's lane has no margin. Same motor, twice the speed. |
 | **4-piece count** | Lane length, backstop on slots | **Same**: roller axle to backstop 12.43 in, backstop on ±0.2 in slots, set with real balls | It works and needs nothing. |
 | **Feeder, gate, pad** | Feeder on a yoke belted to the left flywheel, gate servo, sprung pad | **Same principle, printed yoke and pad, own motor** (the 8 Oct motor budget: the turret is a servo, so the feeder gets a motor) | Unchanged decision; printing only makes the brackets. |
-| **Turret** | goBILDA 176T kit + 64T, servo, two Thru-Bore encoders on a 64T and a 36T (1178° window) | **Printed ring gear on four V-groove bearing rollers** (stock 625/608 bearings), servo-driven, same two-encoder trick with **ratios we choose** (e.g. pinions differing by one tooth for a much wider window) | The kit dictated the 64/36 compromise; a printed ring doesn't. The ring is the one part most worth **nylon-CF (material)**; PETG fallback is thicker. |
+| **Turret** | goBILDA 176T kit + 64T, servo, two Thru-Bore encoders on a 64T and a 36T (1178° window) | **Printed ring gear on four V-groove bearing rollers** (stock 625/608 bearings), servo-driven, same two-encoder trick with **ratios we choose** (e.g. pinions differing by one tooth for a much wider window) | The kit dictated the 64/36 compromise; a printed ring doesn't. The ring is PETG, drawn thick **(material)**. |
 | **Flywheels** | Two stock 96 mm wheels, 6000 RPM Yellow Jackets | **Same, bought**; printed motor brackets and guard | Stock wheels are balanced and durable; printing them isn't worth it. |
-| **FLOWER extractor** | Arms on stubs, cross shaft, printed gear pair, servo | **Same geometry**, arms printed instead of cut aluminium **(material: nylon-CF, or PETG at 6 mm)** | The drawn geometry is checked against the FLOWER; only the build method changes. |
+| **FLOWER extractor** | Arms on stubs, cross shaft, printed gear pair, servo | **Same geometry**, arms printed instead of cut aluminium **(material: PETG, 6 mm or thicker)** | The drawn geometry is checked against the FLOWER; only the build method changes. |
 | **Drive** | goBILDA mecanum, belted, wheels hung on the rail plus an added outer plate | **Same wheels and motors, in four printed pods**, wheel supported both sides | One corner out with four screws instead of a frame strip-down. |
 | **Limelight** | goBILDA mast on the launcher | **Printed mast on the electronics tray**, same lens position and 45° pitch | The camera position is localization data: keep it where the code expects. |
 
@@ -158,8 +160,8 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 ## Open questions
 
-1. **Mentors:** printer, materials (TPU? nylon-CF?), and whether they agree to a goBILDA ladder rather than an all-printed
-   frame.
+1. ~~Printer, materials, ladder frame~~: agreed (the user, 10 Oct): common home printers, a goBILDA ladder with printed
+   modules.
 2. **Drop test** (brief, "Measure it first"): EVA vs polyethylene foam on a printed backer, so the flap backer is drawn
    for the winner.
 3. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, the driven-top lane's
