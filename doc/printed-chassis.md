@@ -12,7 +12,7 @@ PETG-CF or nylon-CF are all available. The design keeps cost sensible and says w
 | | Rule | Why |
 |---|---|---|
 | Part size | **Every printed part within 180 mm each way** (the user, 10 Oct) | fits the smallest common home bed (210 mm) with room for a brim, and big flat PETG plates warp less. Bigger parts are printed in pieces and bolted: the tray, the launcher's top plate, the lane walls |
-| Default material | **PETG**, 4 walls, 40% gyroid | brackets, pods, lane, tray: cheap and tough |
+| Default material | **PETG**, 4 walls, 40% gyroid | brackets, the lane, the tray: cheap and tough |
 | Stiff parts | **PETG-CF** (or nylon-CF) **(material)** | only where a part must not flex: the flaps (they carry the extractor's stubs), the extractor's arms, the launcher's top plate (the turret's base) |
 | Faces a piece hits | **TPU 95A printed onto the rigid part** on the dual-material printer | the flaps' inner faces and tips (below); also the lane's rollers |
 | Jigs and fit coupons | PLA or PLA+ | |
@@ -102,7 +102,7 @@ lane's end:
 | Front of body | The intake roller on two swing arms; the TPU-faced flaps' roots |
 | Middle | The lane: 4 pieces nose to tail, roller axle to backstop 12.26 to 12.60 in (the window `cad/transfer/` found) |
 | Back third | The launch column, the feeder and pad, the flywheels under a printed turret, the electronics on top |
-| Corners | Four drive pods, one per wheel, each a module |
+| Corners | Four goBILDA drive corners: wheel between the rail and an outer pattern plate, motor on a pattern plate above |
 
 ## The frame: a stock ladder, printed everything else
 
@@ -129,8 +129,8 @@ So:
 
 | Module | What it is | Comes off with |
 |---|---|---|
-| Drive pod ×4 | wheel on its own shaft in two bearings, its motor and belt, all in one printed housing | 4 screws; swap a whole corner in the pit (the front motors also sit under the front cross channel: v2 settles how they come out) |
-| Front | the two flaps (TPU-faced), the extractor's stubs and servo | 2 screws a flap, into its pod |
+| Drive corner ×4 (goBILDA) | wheel on an 80 mm shaft in the rail and the outer plate, its motor on a vertical pattern plate, belt between | the screws-and-service pass settles each part's way out (the front motors sit under the front cross channel) |
+| Front | the two flaps (swappable soft faces), the extractor's stubs and servo | a few screws a flap, into the outer plate's front end |
 | Intake | roller, its swing arms, motor | 2 pivot screws + motor plug |
 | Lane | walls, rollers, ceiling, ramp | 4 screws (v2 settles its path out: the front drive motors cross over it) |
 | Launcher | turret kit and its drive, flywheel cassettes and motors, feeder, pad, backstop | 4 screws |
@@ -153,14 +153,14 @@ Reused from today's design where it's sound; changed where printing makes it sim
 | **Turret** | goBILDA 3208-0004-0001 kit (176T ring, 64T drive gear, 105 mm bore), servo, two Thru-Bore encoders on the 64T and a 36T (1178° window) | **The same kit and drive, bought** (the user, 10 Oct), on a PETG-CF top plate, its drive gear pointing back; the servo and encoders as `cad/modules/turret-kit` | A stock ring is round, stiff and known; the encoders' window (1178°) covers the routes' 1080°. |
 | **Flywheels** | Two stock 96 mm wheels, 6000 RPM Yellow Jackets | **Same, bought**; printed motor brackets and guard | Stock wheels are balanced and durable; printing them isn't worth it. |
 | **FLOWER extractor** | Arms on stubs, cross shaft, printed gear pair, servo | **Same geometry**, arms printed instead of cut aluminium **(material: PETG-CF, 6 mm)** | The drawn geometry is checked against the FLOWER; only the build method changes. |
-| **Drive** | goBILDA mecanum, belted, wheels hung on the rail plus an added outer plate | **Same wheels and motors, in four printed pods**, wheel supported both sides | One corner out with four screws instead of a frame strip-down. |
+| **Drive** | goBILDA mecanum, belted, wheels hung on the rail plus an added outer plate | **All goBILDA** (the user, 10 Oct): the mentor's corner with a goBILDA outer pattern plate, motors on vertical pattern plates, last season's 435 RPM motors | Printed pods would carry the whole drivetrain's loads in plastic, and Pedro depends on the wheels staying aligned. |
 | **Limelight** | goBILDA mast on the launcher | **Printed mast on the electronics tray**, same lens position and 45° pitch | The camera position is localization data: keep it where the code expects. |
 
 ## Bought vs printed (first cut; the full list with sources comes with the CAD)
 
 | Bought | Printed |
 |---|---|
-| goBILDA channel ×4 (ladder) | 4 drive pods |
+| goBILDA channels, pattern plates, standoffs (ladder and drive corners) | odometry pod adapters |
 | 4 goBILDA mecanum wheels, 4 drive motors (as today) | flaps with TPU faces |
 | Intake motor (1620 RPM Yellow Jacket); 48 mm Gecko wheels; the mentor's star wheels, their servos and one-way bearings | roller swing arms, the mouth's ramp and floor, the star servos' brackets |
 | 2 flywheel motors (6000 RPM), 2 × 96 mm flywheels | lane walls, TPU lane rollers, pulleys, ramp |
