@@ -279,3 +279,27 @@ after its TIP 1 floor pickup. Restitution 0.1 (the simulator's guess) unless "fo
 
 The mentor's numbers are rough: the routes were tuned for a 15 in robot, and the simulator hinges his flaps at the
 frame's corners (his are drawn on the uprights, beside the mouth), so his face beside the mouth is still exposed.
+
+## Restitution curve, and the lab's first drop test (10 Oct 2026)
+
+The lab's first drops (provisional: one drop per ball, slow-motion video) put the mentor's black lane-bar foam, flat on
+a hard surface, at **about 0.40** (POLLEN 17 in to 2.75 in; NECTAR 11.5 in to 1.7 in, 0.38), and bare tile at
+0.25-0.30 for NECTAR. So that foam is springy: the 0.4 case, not the dead face (0) the foam rows above assumed.
+
+The printed chassis (17.75 x 17.75 outline: 14.35 x 15.24 body, flaps 3.4 in ahead, 1.255 in out, fixed from START),
+Sister five, both robots, 60 runs; the front and flaps share one restitution:
+
+| restitution | 0 | 0.05 | 0.1 | 0.2 | 0.3 | **0.4 (this foam)** |
+|---|---|---|---|---|---|---|
+| runs with 5 TIPs | 32 | 30 | 28 | 16 | 4 | **6** |
+| R holding 4 after its TIP 1 pickup | 39 | 37 | 40 | 29 | 18 | **13** |
+| mean points | 98 | 98 | 97 | 91 | 87 | **87** |
+
+- **The current best estimate for a face of this foam is the 0.4 column: about 6 of 60 fifth TIPs,** not the 32 the
+  "foam" rows above gave. Today's V at 0.4 was 4.
+- **Most of the gain needs e at or below about 0.1;** 0.2 keeps only half of it, and from 0.3 on it is gone.
+- **So a different face is needed:** soft open-cell or low-density foam, or printed TPU, ideally on a hinged flap that
+  gives a little, not on a hard backing. Monday's drop set (three drops per ball, camera level) should include those
+  candidates; anything above about 0.15 isn't worth building.
+- What the simulator's 0.1 guess for the bare robot was worth is now in question too: if the bare polycarbonate and
+  printed faces turn out nearer 0.3-0.4, every result in this doc is optimistic by about the 0.1 -> 0.4 drop.
