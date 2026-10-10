@@ -131,6 +131,25 @@ Human-player NECTAR, as the simulator drops it (mid-zone, 2 s after each TIP), d
 ([human-nectar.md](human-nectar.md)) might do better, but it needs a robot already waiting there, and time is the
 problem. The drop is a placeholder until a practice drill gives real timings.
 
+## A damped front may matter more than its shape (body-designs chat, 10 Oct)
+
+The simulator gives every robot surface one bounciness (restitution), a guessed 0.1 that nobody has measured. Sister
+five, 60 runs, fifth TIPs / R holding 4 after TIP 1's spill:
+
+| Front | Restitution 0 (foam or curtain) | 0.1 (the guess) | 0.4 (bare polycarbonate?) |
+|---|---|---|---|
+| Today's V | 28 / 38 | 21 / 32 | 4 / 12 |
+| Fixed 3.4 in flaps | **33 / 42** | 28 | 5 / 13 |
+
+So bounces off our own front are a big share of what R misses, and **the real front's bounciness decides whether the
+simulator has been optimistic all along**. If bare polycarbonate is near 0.4, foam facing is worth more than any front
+shape we've studied. (The model uses one value for every surface and angle, doesn't model a curtain swinging back, and
+can't stop pieces the robot pushes while moving.)
+
+**Measure it first (no robot needed):** drop a POLLEN and a NECTAR from a known height (say 24 in) onto a piece of the
+V's polycarbonate and onto a 0.5 in EVA or polyethylene foam sample, film the rebound at 60 fps, and compute
+restitution = sqrt(rebound height / drop height). Ten drops each. Send the numbers to the simulator chat.
+
 ## Human NECTAR, banked or not, can't make a 4th TIP (simulator, 9 Oct, e507f53)
 
 With a preload-only partner or alone, turning human NECTAR on changes nothing (74.7 / 74.3 and 68.0 points, no TIP 4,
