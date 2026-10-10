@@ -13,7 +13,9 @@ vendor file it says CHECK.
 
 Modules (each comes off on its own; doc/printed-chassis.md, "The frame"):
     frame      two 1120 rails, a low rear cross channel, a high front cross channel on two printed uprights
-    pod_XX     four drive pods: wheel on its own shaft between two printed plates, its motor face-mounted above, belted
+    corner_XX  four drive corners, all goBILDA: wheel shaft in the rail and an outer pattern plate, motor on a vertical
+               pattern plate above the axle, belted 1:1
+    odometry   the Pinpoint's two goBILDA odometry pods on printed adapters
     front_X    the two fixed flaps, which are also the side plates carrying the extractor's stubs
     extractor  the FLOWER extractor (cad/intake-b's geometry, its arms printed)
     intake     the roller on two printed swing arms; its motor rides the right arm's tail
@@ -65,18 +67,26 @@ def at(origin, toward, d):
 # ---------------------------------------------------------------- frame
 RAIL_OUT = 5.0                          # the rails' webs' outer faces, |Y|
 RAIL_IN = RAIL_OUT - CH_LOW             # their flanges' inner edges (4.53): low-side, so the feeder's wheels pass over them
-RAIL_Z = (0.75, 0.75 + CH)              # 1120 on its side, open inward
-RAIL_X = (-336 * MM / 2, 336 * MM / 2)  # 1121-0013-0336
+PITCH = 24 * MM                         # goBILDA's pattern: a 14 mm hole every 24 mm along a channel or plate
+PLATE_T = 2.5 * MM                      # 1123 pattern plates
+RAIL_Z = (WHEEL_R - CH / 2, WHEEL_R + CH / 2)   # on its side, open inward, its holes' row at the axles' height
+RAIL_CX = FACE - WHEEL_R - 5 * PITCH    # the rail's middle hole; the front axle five holes ahead, the rear six behind
+RAIL_X = (RAIL_CX - 168 * MM, RAIL_CX + 168 * MM)   # 1121-0013-0336: its front end at the face
 # ---------------------------------------------------------------- drive pods: identical, the front ones' motors higher (over the lane)
-AXLE = {1: FACE - WHEEL_R, -1: BACK + WHEEL_R}   # the wheels flush with the face and the back (wheelbase 10.57)
-WHEEL_Y = (5.915, 5.915 + WHEEL_W)      # wheel between the pod's plates; outer face 7.38
-POD_IN = (RAIL_OUT, RAIL_OUT + 0.2)     # inner plate (5 mm PETG), against the rail's web
-PULLEY_Y = (5.25, 5.25 + PULLEY_W)      # the belt's plane, between the inner plate and the wheel
-POD_OUT = (7.42, HALF_W)                # outer plate
-POD_X = 3.9                             # the pod's length along X, centred on its axle
-POD_TOP = 4.05
-DRIVE_BELT = {1: 340, -1: 225}          # front: the motor over the lane's ceiling; rear: straight above the axle
-DRIVE_MOTOR = {sx: (AXLE[sx], WHEEL_R + centres(DRIVE_BELT[sx])) for sx in (1, -1)}
+# Each corner, as the mentor's (doc/robot-cad.md) plus cad/robot-addons' outer plate, all goBILDA: the wheel's shaft in a
+# bearing in the rail's web and one in an outer pattern plate on 56 mm standoffs; its pulley inboard of the wheel; the motor
+# straight above the axle, its face screwed to a vertical pattern plate on the rail, so the belt's centres are a whole
+# number of pattern holes and nothing is drilled.
+AXLE = {1: RAIL_CX + 5 * PITCH, -1: RAIL_CX - 6 * PITCH}   # wheelbase 11 holes, 264 mm (10.39 in); the front wheels flush with the face
+MPLATE_Y = (RAIL_OUT, RAIL_OUT + PLATE_T)                 # the motor plates, on the rails' webs' outer faces
+PULLEY_Y = (MPLATE_Y[1] + 0.05, MPLATE_Y[1] + 0.05 + PULLEY_W)   # the belt's plane, between the motor plate and the wheel
+WHEEL_Y = (PULLEY_Y[1] + 0.05, PULLEY_Y[1] + 0.05 + WHEEL_W)
+OPLATE_Y = (MPLATE_Y[1] + 56 * MM, MPLATE_Y[1] + 56 * MM + PLATE_T)   # the outer plates, on 56 mm standoffs
+DRIVE_HOLES = {1: 5, -1: 3}             # the motor this many holes above the axle: front over the lane's ceiling (120 mm); rear 72 mm
+                                        # (two holes up, its shaft's end touches the wheel)
+DRIVE_BELT = {1: 360, -1: 265}          # 2 x centres + 120: front exact; rear 0.5 mm long (CHECK its tension on the robot)
+DRIVE_MOTOR = {sx: (AXLE[sx], WHEEL_R + DRIVE_HOLES[sx] * PITCH) for sx in (1, -1)}
+MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "1123-0048-0144, cut to 4 holes (120 mm) so it stays under the launcher's belts")}   # the axle at its lowest hole, the motor at its top one
 
 # ---------------------------------------------------------------- intake
 ROLL_R = 24 * MM                        # goBILDA 48 mm Gecko wheels, as the mentor's roller (no vector wheels: his star wheels centre)
@@ -86,8 +96,9 @@ ROLL_HALF = 4.9                         # the wheels span the mouth the star whe
 # ---------------------------------------------------------------- the mentor's star wheels (his 9 Oct Robot.step, read by the CAD chat)
 STAR_R, STAR_W = 3.5 / 2, 0.5           # "3.5in OD 7mm Hex Bore": a flexible 12-flap star, lying flat (axis vertical); vendor TBD
 STAR = (FACE - 2.36, 3.15)              # its centre: 2.36 in behind the face, 3.15 either side (tips 2.80 apart: a NECTAR bends each 0.41)
-STAR_Z = 3.05                           # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
-                                        # ramp (bottom z 1.3) where the stars are, so they sit at the balls' middles (POLLEN 2.7, NECTAR 3.11), just over the rails
+STAR_Z = 3.2                            # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
+                                        # ramp (bottom z 1.3) where the stars are, so they sit just over the rails: a NECTAR's middle (3.11), 0.5 above a POLLEN's
+                                        # (his sit 0.44 above a POLLEN's)
 STAR_FLEX = 0.08                        # clearance round each star; its flaps bend toward the lane, where only pieces are (how far: push one with a NECTAR)
 ARM_Y = (6.95, 7.25)
 BELT_Y = (6.55, 6.9)
@@ -131,7 +142,7 @@ _ka = math.radians(KIT_ANG)
 DRIVE_GEAR = (COL_X - 96 * MM * math.cos(_ka), -96 * MM * math.sin(_ka))   # the 64T's axis; encoder A rides its shaft, B a 36T meshing it
 ENC_B = (DRIVE_GEAR[0] + 40 * MM * math.sin(_ka), DRIVE_GEAR[1] - 40 * MM * math.cos(_ka))   # 40 mm off, square to the ring's direction, toward the back
 
-FRONT_CROSS_X, FRONT_CROSS_Z = 5.3, 7.0
+FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor plates, over the front drive motors
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
@@ -205,32 +216,41 @@ def mir(wp, s): return wp if s > 0 else wp.mirror("XZ")
 # ---- frame
 for s, n in SIDES:
     part("frame", f"rail_{n}", mir(channel_x(*RAIL_X, RAIL_OUT, True, RAIL_Z[0], CH_LOW), s), "buy", "goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails")
-part("frame", "rear_cross", channel_y(-120 * MM, 120 * MM, RAIL_X[0] + CH_T, RAIL_Z[0]), "buy", "goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket)")
-part("frame", "front_cross", channel_y(-132 * MM, 132 * MM, FRONT_CROSS_X, FRONT_CROSS_Z, open_down=True), "buy",
-     "goBILDA 1120-0010-0264 U-channel, 10 hole (264 mm), over the lane and the front drive motors, bolted on the front pods' motor mounts (no uprights: the mouth stays open to its full width)")
+part("frame", "rear_cross", box(RAIL_X[0], RAIL_X[0] + CH_T, -120 * MM, 120 * MM, *RAIL_Z).union(box(RAIL_X[0], RAIL_X[0] + CH_LOW, -120 * MM, 120 * MM, RAIL_Z[0], RAIL_Z[0] + CH_T)).union(
+     box(RAIL_X[0], RAIL_X[0] + CH_LOW, -120 * MM, 120 * MM, RAIL_Z[1] - CH_T, RAIL_Z[1])), "buy",
+     "goBILDA 1121-0009-0240 low-side U-channel (240 mm), standing at the rails' back ends, between their webs on goBILDA pattern brackets (CHECK the bracket)")
+part("frame", "front_cross", channel_y(-120 * MM, 120 * MM, FRONT_CROSS_X, FRONT_CROSS_Z, open_down=True), "buy",
+     "goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on goBILDA pattern brackets (no uprights: the mouth stays open to its full width)")
 
-# ---- drive pods
+# ---- drive corners (goBILDA)
+for s_, n in SIDES:
+    op = box(*RAIL_X, *OPLATE_Y, *RAIL_Z)
+    part("frame", f"outer_plate_{n}", mir(op, s_), "buy", "goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs")
+    for k in (-3, 2):                       # between the wheels, where no belt runs
+        for dz in (-16 * MM, 16 * MM):
+            part("frame", f"standoff_{n}_{k}_{'hi' if dz > 0 else 'lo'}", mir(cyl("y", (RAIL_CX + k * PITCH, WHEEL_R + dz), 6 * MM, MPLATE_Y[1], OPLATE_Y[0]), s_), "buy",
+                 "goBILDA 1501-0006-0560 M4 standoff, 56 mm")
 for sx, fx in ((1, "F"), (-1, "B")):
-    ax = AXLE[sx]; mx, mz = DRIVE_MOTOR[sx]
+    ax = AXLE[sx]; mx, mz = DRIVE_MOTOR[sx]; nh, pn = MPLATE[sx]
     for s, n in SIDES:
         nm = fx + n
-        inner_top = mz + 0.8
-        pod = box(ax - POD_X / 2, ax + POD_X / 2, *POD_IN, 0.5, POD_TOP)
-        pod = pod.union(box(mx - 0.9, mx + 0.9, *POD_IN, POD_TOP - 0.1, inner_top))            # the motor's mount, up the inner plate
-        pod = pod.union(box(ax - POD_X / 2, ax + POD_X / 2, *POD_OUT, 0.5, POD_TOP))
-        pod = pod.union(box(ax - POD_X / 2, ax + POD_X / 2, PULLEY_Y[1] + 0.03, POD_OUT[1], POD_TOP - 0.2, POD_TOP))   # bridge over the wheel
-        for e in (-1, 1): pod = pod.union(box(ax + e * 0.95, ax + e * POD_X / 2, POD_IN[0], POD_OUT[1], POD_TOP - 0.2, POD_TOP))   # the bridge's ends cross the belt's plane, clear of the belt
-        if sx > 0:
-            pod = pod.cut(box(FACE - 0.1, FACE + 1, 0, 8, 0, 8)).cut(box(FACE - 0.6, FACE + 1, POD_OUT[0] - 0.01, 8, 0, 8))   # the flap's root closes the front
-            pod = pod.cut(slab_y([(INTAKE_MOTOR[0], INTAKE_MOTOR[1] - 0.95), (ROLL[0], ROLL[1] - 0.95), (ROLL[0], 9), (INTAKE_MOTOR[0], 9)], PULLEY_Y[1] + 0.02, 8))   # under the roller's belt and arm
-        else: pod = pod.cut(box(BACK - 1, BACK, 0, 8, 0, 8))
-        pod = pod.cut(cyl("y", (ax, WHEEL_R), 14 * MM, 0, 8)).cut(cyl("y", (mx, mz), 0.6, 0, 8))
-        part(f"pod_{nm}", f"pod_{nm}", mir(pod, s), "print", "PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner")
-        part(f"pod_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
-        part(f"pod_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, POD_IN[0] + 0.01, POD_OUT[1] - 0.01), s), "buy", "goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length)")
-        part(f"pod_{nm}", f"drive_motor_{nm}", mir(motor_y(POD_IN[0], (mx, mz), 1), s), "buy", "goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1)")
-        part(f"pod_{nm}", f"drive_belt_{nm}", mir(belt_y((ax, WHEEL_R), (mx, mz), PULLEY24_D, *PULLEY_Y), s), "buy",
+        mp = box(ax - CH / 2, ax + CH / 2, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH)
+        part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn} pattern plate (1 x {nh} hole), standing on the rail's web: the drive motor screws to it, {DRIVE_HOLES[sx]} holes above the axle")
+        part(f"corner_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
+        part(f"corner_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, RAIL_OUT - CH_T, OPLATE_Y[1] + 0.05), s), "buy",
+             "goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip")
+        part(f"corner_{nm}", f"drive_motor_{nm}", mir(motor_y(MPLATE_Y[0], (mx, mz), 1), s), "buy", "goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1)")
+        part(f"corner_{nm}", f"drive_belt_{nm}", mir(belt_y((ax, WHEEL_R), (mx, mz), PULLEY24_D, *PULLEY_Y), s), "buy",
              f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{DRIVE_BELT[sx]} belt")
+# ---- odometry pods (goBILDA 4-bar, for 96 mm wheels; the Pinpoint's): a forward pod on the left, a strafe pod on the right
+POD_H, POD_W, POD_D = 69.5 * MM, 43 * MM, 41.5 * MM     # floor to the top of its block; across its block; mount face to wheel side
+part("odometry", "odo_pod_forward", box(1.0 - POD_W / 2, 1.0 + POD_W / 2, RAIL_IN - 0.15 - POD_D, RAIL_IN - 0.15, 0, POD_H), "buy",
+     "goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the left rail")
+part("odometry", "odo_pod_strafe", box(0.0, POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
+     "goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail")
+for s_, n, x0, y0 in ((1, "L", 1.0 - POD_W / 2 - 0.25, RAIL_IN - 0.15), (-1, "R", -0.25, -(RAIL_IN - 0.15))):
+    ad = box(x0, x0 + (POD_W if s_ > 0 else POD_D) + 0.5, *sorted((y0, y0 + s_ * 0.15)), RAIL_Z[0] + CH_T, RAIL_Z[1] - CH_T)
+    part("odometry", f"odo_adapter_{n}", ad, "print", "PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint)")
 
 # ---- the fixed flaps: also the side plates that carry the extractor's stubs
 for s, n in SIDES:
@@ -239,7 +259,7 @@ for s, n in SIDES:
     T, FACE_T = 0.25, 0.2                  # a 5 mm face plate (3 mm TPU on a 2 mm PETG backer), screwed to the flap's inner side
     plate = box(0, L, -T, 0, 0.25, 4.25).union(box(L * (2.4 - 0.5) / 3.4, L * (2.4 + 0.5) / 3.4, -T, 0, 4.25, 5.0))   # taller round the extractor's stub
     plate = plate.rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
-    plate = plate.union(box(FACE - 0.6, FACE + 0.05, POD_OUT[0], HALF_W, 0.5, POD_TOP))                              # the root: the front pod's outer plate's last 0.6 in
+    plate = plate.union(box(FACE - 0.6, FACE + 0.05, OPLATE_Y[1], HALF_W, RAIL_Z[0], 4.05))                     # the root: bolted outside the outer plate's front end
     foam = box(L * 0.3, L, -T - FACE_T, -T, 0.25, 4.25).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     trim = box(-20, FLAP_TIP[0], -20, 20, -20, 20)
     plate, foam = plate.intersect(trim), foam.intersect(trim)
@@ -286,8 +306,8 @@ def intake(lift):
     return {k: (rot_y(w, PIVOT, d), kind, what) for k, (w, kind, what) in out.items()}
 for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, moves="intake")
 for s, n in SIDES:
-    br = box(PIVOT[0] - 0.5, PIVOT[0] + 0.5, RAIL_OUT, HALF_W, RAIL_Z[0], RAIL_Z[1]).union(box(PIVOT[0] - 0.5, PIVOT[0] + 0.5, ARM_Y[1] + 0.02, HALF_W, RAIL_Z[0], PIVOT[1] + 0.4))
-    part("intake", f"intake_pivot_{n}", mir(br, s), "print", "PETG: pivot bracket on the rail's web, outside the arm; an M5 shoulder screw is the pivot")
+    br = box(PIVOT[0] - 0.5, PIVOT[0] + 0.5, OPLATE_Y[1], HALF_W, RAIL_Z[0], PIVOT[1] + 0.4)
+    part("intake", f"intake_pivot_{n}", mir(br, s), "print", "PETG: pivot bracket bolted outside the outer plate; an M5 shoulder screw through it is the arms' pivot")
 
 # ---- lane
 (rx0, rz0), (rx1, rz1) = RAMP
@@ -391,14 +411,18 @@ def overlap(a, b, tol=1e-4):
     except Exception: return -1.0
 
 # parts that touch by design (a shaft in its part, a belt round its motor's shaft, a stack)
-ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "pod_"), ("drive_belt_", "drive_motor_"), ("drive_belt_", "wheel_shaft_"),
+ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_", "motor_plate_"), ("wheel_shaft_", "outer_plate_"),
+           ("drive_belt_", "drive_motor_"), ("drive_belt_", "wheel_shaft_"), ("drive_motor_", "motor_plate_"), ("motor_plate_", "rail_"),
+           ("standoff_", "outer_plate_"), ("standoff_", "motor_plate_"), ("standoff_", "rail_"), ("outer_plate_", "flap_"), ("intake_pivot_", "outer_plate_"),
            ("roller_shaft", "roller"), ("roller_shaft", "intake_arm_"), ("roller_belt", "intake_motor"), ("roller_belt", "roller_shaft"),
            ("lane_shaft_", "lane_roller_"), ("lane_shaft_", "lane_wall_"), ("fly_shaft_", "flywheel_"), ("fly_shaft_", "fly_cassette_"),
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
-           ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
-           ("drive_motor_", "pod_"), ("ex_servo", "flap_R"), ("flap_", "pod_F"), ("intake_pivot_", "rail_"), ("front_upright_", "rail_"), ("rear_cross", "rail_"),
-           ("pod_", "rail_"), ("front_cross", "front_upright_"), ("star_shaft_", "star_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"), ("star_bracket_", "front_cross"), ("front_cross", "pod_F"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast")]
+           ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"),
+           ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
+           ("star_shaft_", "star_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
+           ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
+           ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
 def allowed(a, b):
     return any((a.startswith(p) and b.startswith(q)) or (b.startswith(p) and a.startswith(q)) for p, q in ALLOWED)
 
@@ -451,7 +475,7 @@ def report():
     path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5)]
     for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
         for sgn in (1, -1):                 # (the star, the floor, the ramp and the roller, which rises, may touch it; nothing else)
-            yc = sgn * (MOUTH_HALF - r + 0.3)
+            yc = sgn * (MOUTH_HALF - r)          # as far out as the floor holds it
             d = STAR_R + r - 0.41
             xc = STAR[0] + math.sqrt(max(d * d - (abs(yc) - STAR[1]) ** 2, 0))
             ball = cq.Workplane("XY").sphere(r).translate((xc, yc, LANE_BOTTOM + r))

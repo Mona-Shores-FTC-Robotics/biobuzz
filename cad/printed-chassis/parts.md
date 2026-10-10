@@ -4,6 +4,26 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 
 | Part | Module | Make | What |
 |---|---|---|---|
+| `drive_belt_BL` | corner_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0265 belt |
+| `drive_motor_BL` | corner_BL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_BL` | corner_BL | buy | goBILDA 1123-0048-0144, cut to 4 holes (120 mm) so it stays under the launcher's belts pattern plate (1 x 4 hole), standing on the rail's web: the drive motor screws to it, 3 holes above the axle |
+| `wheel_BL` | corner_BL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_BL` | corner_BL | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_BR` | corner_BR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0265 belt |
+| `drive_motor_BR` | corner_BR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_BR` | corner_BR | buy | goBILDA 1123-0048-0144, cut to 4 holes (120 mm) so it stays under the launcher's belts pattern plate (1 x 4 hole), standing on the rail's web: the drive motor screws to it, 3 holes above the axle |
+| `wheel_BR` | corner_BR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_BR` | corner_BR | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_FL` | corner_FL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0360 belt |
+| `drive_motor_FL` | corner_FL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_FL` | corner_FL | buy | goBILDA 1123-0048-0144 pattern plate (1 x 5 hole), standing on the rail's web: the drive motor screws to it, 5 holes above the axle |
+| `wheel_FL` | corner_FL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_FL` | corner_FL | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_FR` | corner_FR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0360 belt |
+| `drive_motor_FR` | corner_FR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_FR` | corner_FR | buy | goBILDA 1123-0048-0144 pattern plate (1 x 5 hole), standing on the rail's web: the drive motor screws to it, 5 holes above the axle |
+| `wheel_FR` | corner_FR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_FR` | corner_FR | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
 | `battery` | elec | buy | 12 V battery, as today's (CHECK) |
 | `control_hub` | elec | buy | REV Control Hub |
 | `expansion_hub` | elec | buy | REV Expansion Hub |
@@ -18,10 +38,20 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `ex_servo` | extractor | buy | goBILDA 2000-0025-0002 Torque servo, on the right flap, 1:1 printed gear pair to the right stub (CHECK the box) |
 | `ex_stub_L` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
 | `ex_stub_R` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
-| `front_cross` | frame | buy | goBILDA 1120-0010-0264 U-channel, 10 hole (264 mm), over the lane and the front drive motors, bolted on the front pods' motor mounts (no uprights: the mouth stays open to its full width) |
+| `front_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on goBILDA pattern brackets (no uprights: the mouth stays open to its full width) |
+| `outer_plate_L` | frame | buy | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs |
+| `outer_plate_R` | frame | buy | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs |
 | `rail_L` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rail_R` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
-| `rear_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket) |
+| `rear_cross` | frame | buy | goBILDA 1121-0009-0240 low-side U-channel (240 mm), standing at the rails' back ends, between their webs on goBILDA pattern brackets (CHECK the bracket) |
+| `standoff_L_-3_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_-3_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_2_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_2_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_-3_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_-3_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_2_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_2_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
 | `flap_L` | front_L | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
 | `flap_face_L` | front_L | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
 | `flap_R` | front_R | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
@@ -29,8 +59,8 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `intake_arm_L` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_arm_R` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_motor` | intake | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) and the lane |
-| `intake_pivot_L` | intake | print | PETG: pivot bracket on the rail's web, outside the arm; an M5 shoulder screw is the pivot |
-| `intake_pivot_R` | intake | print | PETG: pivot bracket on the rail's web, outside the arm; an M5 shoulder screw is the pivot |
+| `intake_pivot_L` | intake | print | PETG: pivot bracket bolted outside the outer plate; an M5 shoulder screw through it is the arms' pivot |
+| `intake_pivot_R` | intake | print | PETG: pivot bracket bolted outside the outer plate; an M5 shoulder screw through it is the arms' pivot |
 | `roller` | intake | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels, as the mentor's roller (about 10 across the 9.8 in span) |
 | `roller_belt` | intake | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0410 belt |
 | `roller_shaft` | intake | buy | goBILDA 8mm REX shaft, cut to 371 mm (CHECK) |
@@ -93,23 +123,7 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `turret_enc_B` | launcher | buy | REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2 |
 | `turret_kit` | launcher | buy | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope |
 | `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit) |
-| `drive_belt_BL` | pod_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
-| `drive_motor_BL` | pod_BL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
-| `pod_BL` | pod_BL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
-| `wheel_BL` | pod_BL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
-| `wheel_shaft_BL` | pod_BL | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
-| `drive_belt_BR` | pod_BR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
-| `drive_motor_BR` | pod_BR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
-| `pod_BR` | pod_BR | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
-| `wheel_BR` | pod_BR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
-| `wheel_shaft_BR` | pod_BR | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
-| `drive_belt_FL` | pod_FL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0340 belt |
-| `drive_motor_FL` | pod_FL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
-| `pod_FL` | pod_FL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
-| `wheel_FL` | pod_FL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
-| `wheel_shaft_FL` | pod_FL | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
-| `drive_belt_FR` | pod_FR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0340 belt |
-| `drive_motor_FR` | pod_FR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
-| `pod_FR` | pod_FR | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
-| `wheel_FR` | pod_FR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
-| `wheel_shaft_FR` | pod_FR | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
+| `odo_adapter_L` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
+| `odo_adapter_R` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
+| `odo_pod_forward` | odometry | buy | goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the left rail |
+| `odo_pod_strafe` | odometry | buy | goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail |

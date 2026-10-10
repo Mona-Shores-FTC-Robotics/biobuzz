@@ -50,11 +50,12 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 
 | | Where | Notes |
 |---|---|---|
-| Body | X −7.05 to 7.3 (14.35 in), 15.24 in wide over the pods | the 1/4 in for the start margin comes off the back, so the flaps keep their 3.4 in |
+| Body | X −6.97 to 7.3 (14.27 in over the wheels; parts kept inside X −7.05), 15.24 in wide | the 1/4 in for the start margin comes off the back, so the flaps keep their 3.4 in |
 | Flaps | root at the front corners, tips at X 10.7, Y ±8.875 (3.4 in ahead, 1.255 in out) | PETG-CF, 6 mm; they are also the extractor's side plates. Their soft face is a separate plate on three M3 screws (TPU on a PETG backer; bare PETG or foam for the drop test), so the drop test can be done on the finished robot |
-| Rails | goBILDA 1121 low-side, 336 mm, webs at \|Y\| 5.0 | low-side so the feeder's wheels pass over the flanges |
-| Wheels | 96 mm mecanum, axles X 5.41 and −5.16, flush with the face and the back | wheelbase 10.57 in |
-| Drive motors | each face-mounted on its pod's inner plate, belted 1:1 down to its wheel | front ones at z 6.22, over the lane (340 mm belt); rear ones straight above the axle (225 mm belt) |
+| Rails | goBILDA 1121 low-side, 336 mm, webs at \|Y\| 5.0, their row of holes at the axles' height (z 1.89), front ends at the face | low-side so the feeder's wheels pass over the flanges |
+| Wheels | 96 mm mecanum, axles X 5.41 and −4.98, on the rails' own holes (11 holes apart) | wheelbase 10.39 in (264 mm); the front wheels flush with the face |
+| Drive corners (all goBILDA, as the mentor's plus `cad/robot-addons`' outer plate) | each wheel's 80 mm shaft in a bearing in the rail's web and one in an outer 1123 pattern plate (336 mm, on four 56 mm standoffs between the wheels); its 24T pulley inboard of the wheel; the motor (435 RPM) screwed flat to a vertical 1123 pattern plate on the rail, straight above the axle | front motors 5 holes up (120 mm, z 6.61, over the lane; 360 mm belt), rear 3 holes up (72 mm; 265 mm belt), so belt centres are whole pattern holes |
+| Odometry pods | two goBILDA 4-bar pods (96 mm wheel version): forward on the left, strafe on the right, on printed adapters inside the rails | missing from v1; the Pinpoint needs them |
 | Roller | goBILDA 48 mm Gecko wheels, as the mentor's, ±4.9 in, axle 1.0 ahead of the face, 2.4 off the tiles | no vector wheels: his star wheels centre the pieces |
 | Star wheels (the mentor's) | two 3.5 in flexible stars lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.05: the balls' middles where the ramp has lifted them | each driven from above by a continuous servo through a one-way bearing, hung from the front cross channel. **Drive parts TBD**: his CAD draws none, so the servo, shaft and one-way bearing are placeholders |
 | Ramp and mouth floor | the whole mouth's width (±4.45, inside the rails), in halves | so a piece taken in off-centre climbs to the lane's height too, where the stars reach it |
@@ -82,13 +83,14 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 - **The roller is the mentor's: 48 mm Geckos, no vector wheels, and his two flexible star wheels centre the pieces**
   (the user, 10 Oct: he likes them; geometry from his 9 Oct Robot.step). His stars sit at floor height because his
   pieces stay on the floor; here they're lifted to the lane's height by a ramp the whole mouth wide, so the stars sit
-  at the balls' middles. The front cross channel now rests on the front pods (no uprights), so the mouth is open to
+  at the balls' middles. The front cross channel has no uprights (it sits between the front motor plates), so the mouth is open to
   its full width.
 - **The rails are low-side channel (as today's), not 1120.** A 48 mm deep flange put the rail in the feeder's wheels.
-- **All four pods are belted**, the motor above the wheel. Direct drive at axle height can't cross the lane at the
-  front, and the rear ones match the front.
-- **The front drive motors can't come out with their pod's four screws alone**: their belt is short enough to slip off,
-  but the front cross channel sits over them. v2 has to make that path, or accept it.
+- **The drive corners are goBILDA** (the user, 10 Oct): no printed pods. Each corner is the mentor's (wheel shaft in a
+  bearing in the rail, belt up to a motor above) with `cad/robot-addons`' outer plate, here a goBILDA pattern plate. The
+  motors screw to vertical pattern plates, so every belt's centres are whole pattern holes, and the wheelbase is 11 rail
+  holes. The front cross channel sits between the front motor plates, over the front motors: the screws-and-service
+  pass settles how a front motor comes out.
 
 ## Bought parts (sources)
 
@@ -97,13 +99,18 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 | Part | Source | Count | For |
 |---|---|---|---|
 | 1121-0013-0336 low-side U-channel, 336 mm | goBILDA | 2 | rails |
-| 1120-0009-0240 U-channel, 240 mm | goBILDA | 1 | rear cross member |
+| 1121-0009-0240 low-side U-channel, 240 mm | goBILDA | 1 | rear cross member |
+| 1123-0048-0336 pattern plate (1 x 13) | goBILDA | 2 | outer wheel plates |
+| 1123-0048-0144 pattern plate (1 x 5) | goBILDA | 4 | motor plates (the two rear ones cut to 4 holes) |
+| 1501-0006-0560 M4 standoff, 56 mm | goBILDA | 8 | outer plates |
+| 2106-4008-0800 8mm REX shaft, 80 mm | goBILDA | 4 | wheel shafts |
+| 3110-0001-0002 4-bar odometry pod | goBILDA | 2 | Pinpoint odometry |
 | 3213-3606-0002 96 mm mecanum wheel set | goBILDA | 1 set | drive |
 | 5203-2402-0014 Yellow Jacket, 435 RPM | goBILDA | 4 | drive, as last season's (DECODE: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | 5203-2402-0003 Yellow Jacket, 1620 RPM | goBILDA | 2 | roller and lane; feeder |
 | 5203-2402-0001 Yellow Jacket, 6000 RPM | goBILDA | 2 | flywheels |
 | 3417-4008-0024 24T HTD5 pulley, 8mm REX | goBILDA | 18 | every belt is 1:1 (2 of them the turret's) |
-| 3412-0009-0340 / -0225 / -0410 / -0315 HTD5 belts | goBILDA | 2 / 3 / 1 / 2 | front drive / rear drive and feeder / roller / flywheels |
+| 3412-0009-0360 / -0265 / -0225 / -0410 / -0315 HTD5 belts | goBILDA | 2 / 2 / 1 / 1 / 2 | front drive / rear drive / feeder / roller / flywheels |
 | 1611-0514-4008 flanged bearing, 8mm REX | goBILDA | about 30 | wheels, roller, lane, flywheels, feeder, extractor |
 | 8mm REX shafts and standoffs | goBILDA | stacks | as `parts.md` |
 | 2000-0025-0002 Torque servo | goBILDA | 1 | extractor |
@@ -111,7 +118,7 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 | 3632-4008-0048 48 mm Gecko wheels | goBILDA | about 10 | the roller, as the mentor's |
 | 3.5 in OD flexible star wheels, 7 mm hex bore | as the mentor's (vendor TBD) | 2 | centre pieces into the lane |
 | Continuous servos, one-way bearings, 7 mm hex shafts | as the mentor's (TBD) | 2 each | drive the star wheels |
-| 1120-0010-0264 U-channel, 264 mm | goBILDA | 1 | front cross member, on the front pods (replaces the 216 mm one and its printed uprights) |
+| 1120-0009-0240 U-channel, 240 mm | goBILDA | 1 | front cross member, between the front motor plates on pattern brackets |
 | 3632-0014-0072 72 mm Gecko, softest | goBILDA | 2 | feeder |
 | 96 mm flywheels | as the mentor's launcher | 4 | |
 | 608 bearings | any | 8 | ceiling rollers |
