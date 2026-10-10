@@ -69,7 +69,7 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 | Roller | goBILDA 48 mm Gecko wheels, as the mentor's, ±4.35 in, axle 1.0 ahead of the face, 2.4 off the tiles | no vector wheels: his star wheels centre the pieces |
 | Roller arms | inside the wheels, at \|Y\| 5.0 to 5.3 over the rails; pivot X 4.3, z 4.05, on the front brackets; the 1620 RPM motor on the right arm above the roller (275 mm belt) | inside the wheels because his belts run outside them; the pivot is level with the roller's mid-float, so it rises nearly straight up |
 | Front brackets | printed, one a side, bolted to the front drive motor's U-channel mount | hang the star wheel's servo and carry the arm's pivot |
-| Star wheels (the mentor's) | two 3.5 in flexible stars (SWYFT Intake Wheels, 30A, cut into 16 flaps) lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.2: a NECTAR's middle, just over the rails | each driven from above by a continuous servo: a round 8 mm hardened shaft into his one-way needle clutch (HF081412), pressed into a printed hub that drives the star's hex adapter. The servo and its coupling are still TBD |
+| Star wheels (the mentor's) | two 3.5 in flexible stars (SWYFT Intake Wheels, 30A, cut into 16 flaps) lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.2: a NECTAR's middle, just over the rails | each driven from above by a continuous servo: a round 8 mm hardened shaft into his one-way needle clutch (HF081412), pressed into a printed hub that drives the star's hex adapter. The clutch locks driving the star inward and free-wheels when a piece overruns it, so the servos turn one way only and a jam is cleared by the roller and lane, not the stars. The servo and its coupling are still TBD |
 | Ramp and mouth floor | the whole mouth's width (±4.8, inside the rails), in halves | so a piece taken in off-centre climbs to the lane's height too, where the stars reach it |
 | Lane | five TPU-roller shafts, walls at \|Y\| 1.86, a ceiling of free rollers from X −0.55 to 4.5 | the ball moves at the tread's speed, not half of it |
 | Launcher (the mentor's) | his goBILDA launcher module with `cad/transfer`'s changes (flywheel motors out and up, the feeder on a yoke with its gate servo, the pad, the backstop, the turret servo and both encoders), placed by the launch column at X −2.37 | the turret's drive gear points forward, as his |
@@ -131,7 +131,10 @@ print**: no screw holes, inserts, bores or ribs yet.
    module's way out checked, a build order, a two-robot parts list.
 2. **The launcher's mounting and its sprung flywheel modules.** The mentor now wants each flywheel module sprung so the
    pinch sets itself for POLLEN and NECTAR (the fixed 3.19 in gap misses a POLLEN), and has no plan yet for how the
-   launcher frame attaches. Whether the flywheels move onto the turret is waiting on the user. One known touch is
+   launcher frame attaches. Confirmed at the lab: the two modules spring toward each other, the stops set the minimum
+   gap for a POLLEN (2.80 in, less any squeeze), a NECTAR (3.62) pushes them about 0.41 in apart each side, the pinch
+   stays on the column axis, and the springs' rate and preload are his (parameters). The redraw leaves each module's
+   swept travel, motors included, plus margin. Whether the flywheels move onto the turret is waiting on the user. One known touch is
    allowed by name until then: the left-front drive motor's can against the transfer's feeder belt (0.0002 in³).
 2a. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
