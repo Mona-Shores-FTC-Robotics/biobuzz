@@ -44,9 +44,11 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
-     * team it would be, and copied to both robot files so testing can start. Re-measure on this
-     * robot once the chassis are assigned to teams.
+     * Pinpoint Tuner output. <b>Stale: measured on the prototype chassis, which is being
+     * replaced.</b> Pod offsets say where the Pinpoint sat on one frame, so on the new chassis these
+     * are wrong by construction. They are kept only so the code compiles and the field view has
+     * something to show. Run the Pinpoint Tuner on this robot and paste over them before trusting
+     * any pose (#78, the bring-up checklist).
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
