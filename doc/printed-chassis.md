@@ -60,6 +60,13 @@ simulator only, Sister five, both robots on the outline, today's routes unchange
 - **Foam is the bigger win, +10 fifth TIPs**, and it also took the G409 risk to zero: with bare flaps, in 4 runs a flap
   or the robot touched a spilled POLLEN still in the air. The simulator's restitution is a guess; the drop test comes
   first.
+- **Cross-check (simulator chat, `claude/simulator` 891e44b), routes not retuned:** 5 TIPs in 16 / 60 for both today's
+  body and the 14.6 in one at today's intake; at a 0.17 s / 120 in/s intake, 27 on today's body against 22 on the
+  14.6 in one. The catch spots were tuned for the drawn front, which on the shorter body is 0.26 in further from the
+  route's pose, with the mouth (1.94 in ahead of the face in both) 0.6 in further behind the flap tips than behind the
+  V's. So **the routes' catch spots move with the body**, and the fair number is the retuned one above. The mouth's
+  reach ahead of the face is ours to set in the CAD; the further forward, the closer to the simulated today's front.
+  The simulator models the drive as a box, so it says nothing about wheelbase.
 
 ## Layout
 
