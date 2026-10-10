@@ -138,12 +138,16 @@ To print a block for this build, give `block.py` the wheels' diameter. The lab's
 shaft can't turn in it, so the block needs no set screws.
 
     python3 cad/modules/flower-stick-proto/block.py --wheel-mm 48 --bottom 0.70
+    python3 cad/modules/flower-stick-proto/block.py --wheel-mm 38 --bottom 0.50 --top 1.30   # small wheels
 
-- **Provisional: the wheel diameter hasn't been measured yet.** These two files assume 48 mm wheels; re-run with
-  the measured diameter before printing.
-  - `stl/block_hex_shaft0.945_bottom0.70.stl`: bottom 0.70 in, top 1.35; 2.1 mm of plastic under the bore.
-  - `stl/block_hex_shaft0.945_bottom0.65.stl`: 0.05 in lower, with 3.3 mm under the bore. Print this one if the
-    other cracks.
+- **The wheels measure about 1.5 in (38 mm)** from a tape-measure photo, which puts the shaft about 0.75 in off the
+  tiles. That's too low for the 0.65 in block, which needs a shaft at 0.85 in or more. So these blocks are lower and
+  taller: bottom 0.50 in, top 1.30. That's the mentor's first sketch, which emptied all 4 POLLEN in `ramp.py`, but it
+  clears the bottom ring by only 0.07 in. **Provisional until the shaft height is measured directly.**
+  - `stl/block_hex_shaft0.748_bottom0.50.stl`: 38 mm wheels.
+  - `stl/block_hex_shaft0.787_bottom0.54.stl`: 40 mm wheels.
+  - `stl/block_hex_shaft0.945_bottom0.70.stl` and `_bottom0.65`: 48 mm wheels. Fitting 48 mm wheels gives the ring
+    0.27 in of clearance instead.
 - **Wheels much over 52 mm put the shaft too high.** The 0.65 in block can't keep its top under 1.35 in with the
   bore inside it, and `block.py` refuses. Ask for a block that hangs below the shaft.
 - Print the fit coupon from `cad/ramp-hook/` first. Its bores are round, so on a hex shaft read it across the

@@ -20,16 +20,21 @@ g.add_argument("--wheel-mm", type=float, help="diameter of the wheels on the sha
 ap.add_argument("--bore", choices=("hex", "rex"), default="hex",
                 help="hex: plain 8 mm hex shaft (8.3 mm across the flats, flats top and bottom; it can't turn, so no set "
                      "screws needed); rex: goBILDA 8mm REX (8.3 mm round)")
-ap.add_argument("--bottom", type=float, default=0.70, help="block bottom above the tiles, inches (0.6 to 0.85)")
+ap.add_argument("--bottom", type=float, default=0.70, help="block bottom above the tiles, inches (0.6 to 0.85; down to 0.5 "
+                "for small wheels, as the mentor's first sketch had it, at 0.07 in over the bottom ring)")
+ap.add_argument("--top", type=float, help="block top above the tiles, inches (default: bottom + 0.65; keep it 1.25 to 1.35)")
 a = ap.parse_args()
 shaft = a.shaft if a.shaft is not None else a.wheel_mm / 2 / IN
-rh.BOTTOM, rh.TOP, rh.ROD_Z = a.bottom * IN, (a.bottom + 0.65) * IN, shaft * IN
+top = a.top if a.top is not None else a.bottom + 0.65
+rh.BOTTOM, rh.TOP, rh.ROD_Z = a.bottom * IN, top * IN, shaft * IN
 under = (shaft - a.bottom) * IN - (rh.ROD_D + rh.FIT) / 2
-over = (a.bottom + 0.65 - shaft) * IN - (rh.ROD_D + rh.FIT) / 2
-if not 0.6 <= a.bottom <= 0.85: raise SystemExit(f"bottom {a.bottom} in is outside 0.6 to 0.85 (the ring is 0.43 tall)")
+over = (top - shaft) * IN - (rh.ROD_D + rh.FIT) / 2
+if not 0.5 <= a.bottom <= 0.85: raise SystemExit(f"bottom {a.bottom} in is outside 0.5 to 0.85 (the ring is 0.43 tall)")
+if a.bottom < 0.6: print(f"note: bottom {a.bottom:.2f} in clears the 0.43 in ring by only {a.bottom - 0.43:.2f} in")
+if not 1.2 <= top <= 1.4: raise SystemExit(f"top {top} in is outside 1.2 to 1.4 (a taller front shoves the POLLEN back)")
 if under < 2.0 or over < 2.0:
     raise SystemExit(f"the bore leaves {under:.1f} mm below it and {over:.1f} mm above: under 2 mm. Move --bottom so the "
-                     f"shaft ({shaft:.3f} in) sits nearer the block's middle ({a.bottom + 0.325:.3f} in)")
+                     f"shaft ({shaft:.3f} in) sits nearer the block's middle ({(a.bottom + top) / 2:.3f} in)")
 if a.bore == "hex":
     import math, trimesh
     def hex_hole(length, x, z, d):                 # across the flats = d; a vertex at +-x, so flats top and bottom
@@ -41,5 +46,5 @@ m = rh.ramp_block(); m.apply_translation([0, 0, -m.bounds[0][2]])
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 path = os.path.join(HERE, "stl", f"block_{a.bore}_shaft{shaft:.3f}_bottom{a.bottom:.2f}.stl")
 m.export(path)
-print(f"{os.path.relpath(path)}: {a.bore} bore, shaft {shaft:.3f} in, bottom {a.bottom:.2f}, top {a.bottom + 0.65:.2f}; "
+print(f"{os.path.relpath(path)}: {a.bore} bore, shaft {shaft:.3f} in, bottom {a.bottom:.2f}, top {top:.2f}; "
       f"{under:.1f} mm of plastic under the bore, {over:.1f} mm over it; watertight {m.is_watertight}")
