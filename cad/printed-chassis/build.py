@@ -435,6 +435,8 @@ if USE_LM:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
         k = "lm_" + e["file"][:-5]
         w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
+        if e["file"].startswith("gate_servo_bracket"):      # it moves onto the left module: trimmed clear of the rail's flange (0.41 in of travel)
+            w = w.intersect(box(-20, 20, -20, RAIL_IN - FLY_TRAVEL - 0.05, -20, 20))
         if FLY_MOVES.match(e["file"]):
             b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
         part("launcher", k, w, "buy", f"the mentor's launcher module: {e['name']}" + (" (rides the sprung module)" if mv else ""), mv)
