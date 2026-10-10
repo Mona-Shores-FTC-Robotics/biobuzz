@@ -58,14 +58,14 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `mouth_floor_R` | lane | print | PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers |
 | `ramp_L` | lane | print | PETG: half the ramp, the mouth's whole width |
 | `ramp_R` | lane | print | PETG: half the ramp, the mouth's whole width |
-| `star_L` | lane | buy | 3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane |
-| `star_R` | lane | buy | 3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane |
-| `star_clutch_L` | lane | buy | one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it |
-| `star_clutch_R` | lane | buy | one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it |
-| `star_servo_L` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it |
-| `star_servo_R` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it |
-| `star_shaft_L` | lane | buy | 7 mm hex shaft, vertical (TBD, with the mentor's parts) |
-| `star_shaft_R` | lane | buy | 7 mm hex shaft, vertical (TBD, with the mentor's parts) |
+| `star_L` | lane | buy | 3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD) |
+| `star_R` | lane | buy | 3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD) |
+| `star_clutch_L` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it |
+| `star_clutch_R` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it |
+| `star_servo_L` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn) |
+| `star_servo_R` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn) |
+| `star_shaft_L` | lane | buy | 8 mm ROUND hardened shaft (ground steel, h6), vertical, from the servo: the clutch's rollers run on it, so not 8mm REX (its flats would let them slip) |
+| `star_shaft_R` | lane | buy | 8 mm ROUND hardened shaft (ground steel, h6), vertical, from the servo: the clutch's rollers run on it, so not 8mm REX (its flats would let them slip) |
 | `hood` | launcher | print | PETG: the hood that turns the shot out (drawn as a tube and a lid) |
 | `odo_adapter_F` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
 | `odo_adapter_S` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
