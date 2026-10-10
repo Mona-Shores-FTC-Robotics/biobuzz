@@ -23,9 +23,9 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `rail_R` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rear_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket) |
 | `flap_L` | front_L | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
-| `flap_face_L` | front_L | print | TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces |
+| `flap_face_L` | front_L | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
 | `flap_R` | front_R | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
-| `flap_face_R` | front_R | print | TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces |
+| `flap_face_R` | front_R | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
 | `intake_arm_L` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_arm_R` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_motor` | intake | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) and the lane |
@@ -94,22 +94,22 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `turret_kit` | launcher | buy | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope |
 | `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit) |
 | `drive_belt_BL` | pod_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
-| `drive_motor_BL` | pod_BL | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
+| `drive_motor_BL` | pod_BL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | `pod_BL` | pod_BL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
 | `wheel_BL` | pod_BL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
 | `wheel_shaft_BL` | pod_BL | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
 | `drive_belt_BR` | pod_BR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
-| `drive_motor_BR` | pod_BR | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
+| `drive_motor_BR` | pod_BR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | `pod_BR` | pod_BR | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
 | `wheel_BR` | pod_BR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
 | `wheel_shaft_BR` | pod_BR | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
 | `drive_belt_FL` | pod_FL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0340 belt |
-| `drive_motor_FL` | pod_FL | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
+| `drive_motor_FL` | pod_FL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | `pod_FL` | pod_FL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
 | `wheel_FL` | pod_FL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
 | `wheel_shaft_FL` | pod_FL | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |
 | `drive_belt_FR` | pod_FR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0340 belt |
-| `drive_motor_FR` | pod_FR | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
+| `drive_motor_FR` | pod_FR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | `pod_FR` | pod_FR | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |
 | `wheel_FR` | pod_FR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
 | `wheel_shaft_FR` | pod_FR | buy | goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length) |

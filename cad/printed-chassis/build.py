@@ -228,7 +228,7 @@ for sx, fx in ((1, "F"), (-1, "B")):
         part(f"pod_{nm}", f"pod_{nm}", mir(pod, s), "print", "PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner")
         part(f"pod_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
         part(f"pod_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, POD_IN[0] + 0.01, POD_OUT[1] - 0.01), s), "buy", "goBILDA 2106-4008-0640 8mm REX shaft, 64 mm (CHECK the length)")
-        part(f"pod_{nm}", f"drive_motor_{nm}", mir(motor_y(POD_IN[0], (mx, mz), 1), s), "buy", "goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio)")
+        part(f"pod_{nm}", f"drive_motor_{nm}", mir(motor_y(POD_IN[0], (mx, mz), 1), s), "buy", "goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1)")
         part(f"pod_{nm}", f"drive_belt_{nm}", mir(belt_y((ax, WHEEL_R), (mx, mz), PULLEY24_D, *PULLEY_Y), s), "buy",
              f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{DRIVE_BELT[sx]} belt")
 
@@ -236,15 +236,15 @@ for sx, fx in ((1, "F"), (-1, "B")):
 for s, n in SIDES:
     root, tip = (FACE, HALF_W), FLAP_TIP
     ang = math.atan2(tip[1] - root[1], tip[0] - root[0]); L = math.hypot(tip[0] - root[0], tip[1] - root[1])
-    T, FACE_T = 0.25, 0.12                 # a 3 mm TPU face, printed onto the flap's inner side and round its tip
+    T, FACE_T = 0.25, 0.2                  # a 5 mm face plate (3 mm TPU on a 2 mm PETG backer), screwed to the flap's inner side
     plate = box(0, L, -T, 0, 0.25, 4.25).union(box(L * (2.4 - 0.5) / 3.4, L * (2.4 + 0.5) / 3.4, -T, 0, 4.25, 5.0))   # taller round the extractor's stub
     plate = plate.rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     plate = plate.union(box(FACE - 0.6, FACE + 0.05, POD_OUT[0], HALF_W, 0.5, POD_TOP))                              # the root: the front pod's outer plate's last 0.6 in
-    foam = box(L * 0.3, L, -T - FACE_T, -T, 0.25, 4.25).union(box(L - FACE_T, L, -T, 0, 0.25, 4.25)).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
+    foam = box(L * 0.3, L, -T - FACE_T, -T, 0.25, 4.25).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     trim = box(-20, FLAP_TIP[0], -20, 20, -20, 20)
     plate, foam = plate.intersect(trim), foam.intersect(trim)
     part(f"front_{n}", f"flap_{n}", mir(plate, s), "print", "PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod")
-    part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces")
+    part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline")
 
 # ---- extractor (moves: angle 0 down .. 146 stowed)
 def extractor(deg):

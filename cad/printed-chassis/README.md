@@ -51,7 +51,7 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 | | Where | Notes |
 |---|---|---|
 | Body | X −7.05 to 7.3 (14.35 in), 15.24 in wide over the pods | the 1/4 in for the start margin comes off the back, so the flaps keep their 3.4 in |
-| Flaps | root at the front corners, tips at X 10.7, Y ±8.875 (3.4 in ahead, 1.255 in out) | PETG-CF, 6 mm, with 3 mm of TPU printed onto the inner face and tip; they are also the extractor's side plates |
+| Flaps | root at the front corners, tips at X 10.7, Y ±8.875 (3.4 in ahead, 1.255 in out) | PETG-CF, 6 mm; they are also the extractor's side plates. Their soft face is a separate plate on three M3 screws (TPU on a PETG backer; bare PETG or foam for the drop test), so the drop test can be done on the finished robot |
 | Rails | goBILDA 1121 low-side, 336 mm, webs at \|Y\| 5.0 | low-side so the feeder's wheels pass over the flanges |
 | Wheels | 96 mm mecanum, axles X 5.41 and −5.16, flush with the face and the back | wheelbase 10.57 in |
 | Drive motors | each face-mounted on its pod's inner plate, belted 1:1 down to its wheel | front ones at z 6.22, over the lane (340 mm belt); rear ones straight above the axle (225 mm belt) |
@@ -99,7 +99,7 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 | 1121-0013-0336 low-side U-channel, 336 mm | goBILDA | 2 | rails |
 | 1120-0009-0240 U-channel, 240 mm | goBILDA | 1 | rear cross member |
 | 3213-3606-0002 96 mm mecanum wheel set | goBILDA | 1 set | drive |
-| 5203 Yellow Jacket, the drive's current ratio | goBILDA | 4 | drive (the CAD draws the two-stage length) |
+| 5203-2402-0014 Yellow Jacket, 435 RPM | goBILDA | 4 | drive, as last season's (DECODE: 537.7 ticks a rev, 96 mm wheels, 1:1) |
 | 5203-2402-0003 Yellow Jacket, 1620 RPM | goBILDA | 2 | roller and lane; feeder |
 | 5203-2402-0001 Yellow Jacket, 6000 RPM | goBILDA | 2 | flywheels |
 | 3417-4008-0024 24T HTD5 pulley, 8mm REX | goBILDA | 18 | every belt is 1:1 (2 of them the turret's) |
