@@ -133,6 +133,12 @@ print**: no screw holes, inserts, bores or ribs yet. They show size and place, a
 
 ## Open (v2, and before anything is printed)
 
+0. **Drive belts: inboard or outboard of the wheel.** Here the 24T pulley is between the rail and the wheel, with an
+   outer plate carrying the shaft, so changing a belt means taking the outer plate and the wheel off. The mentor's
+   robot puts the pulley outboard of the wheel (the CAD chat read his 8 Oct file): a belt slips off without taking
+   anything apart, but the belt is the robot's outermost part, against walls and other robots. The screws-and-service
+   pass weighs the two and picks one.
+
 1. **Screws, inserts and service paths**, drawn and checked as `cad/intake-b` and `cad/transfer` do
    (`tools/robot-cad/fastener_check.py`).
 2. **The electronics are high** (hubs and battery at z 9 to 11). Look for a lower home for the battery.
