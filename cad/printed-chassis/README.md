@@ -129,7 +129,12 @@ print**: no screw holes, inserts, bores or ribs yet.
    or named heat-set inserts on printed ones. A part with no path fails the build. Alongside it: screws checked as
    `tools/robot-cad/fastener_check.py` does (shank only through holes, head and key room, thread engagement), each
    module's way out checked, a build order, a two-robot parts list.
-2. **The launcher's mounting and its sprung flywheel modules.** The mentor now wants each flywheel module sprung so the
+2. **A face that gives.** The simulator needs the flaps' faces at restitution 0.1 or lower (0.2 keeps half the gain,
+   0.3 none; the mentor's lane foam drops at about 0.4), and the body-designs chat asks for a flap that can give. The
+   flap here also carries the extractor's stub, so it stays rigid; v2 mounts the swappable face plate on compliant
+   standoffs (printed TPU flexures or rubber grommets) so the face itself gives, and keeps the face swappable for
+   whatever Monday's drop tests pick (TPU, soft foam).
+3. **The launcher's mounting and its sprung flywheel modules.** The mentor now wants each flywheel module sprung so the
    pinch sets itself for POLLEN and NECTAR (the fixed 3.19 in gap misses a POLLEN), and has no plan yet for how the
    launcher frame attaches. Confirmed at the lab: the two modules spring toward each other, the stops set the minimum
    gap for a POLLEN (2.80 in, less any squeeze), a NECTAR (3.62) pushes them about 0.41 in apart each side, the pinch
@@ -140,12 +145,12 @@ print**: no screw holes, inserts, bores or ribs yet.
    bottom; a spare ~2 in gripper wheel beside it, likely the feeder's. No pivot, slide or spring yet: the sprung mount is
    undesigned on his side too. Whether the flywheels move onto the turret is waiting on the user. One known touch is
    allowed by name until then: the left-front drive motor's can against the transfer's feeder belt (0.0002 in³).
-2a. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
-3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
+4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
+5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
-4. **The lane's round-belt drive and idler, the roller's spring, the ceiling's pins and bands**: as `cad/transfer`,
+6. **The lane's round-belt drive and idler, the roller's spring, the ceiling's pins and bands**: as `cad/transfer`,
    redrawn on this frame.
-5. **The hood's real shape**, from the launcher rig.
-6. **CHECK items**: the hubs' and battery's sizes, the servo boxes, the pulleys' flange width.
-7. **Rig tests** (doc/printed-chassis.md): the drop test (TPU, bare PETG, foam), the roller's grab rate, the free-roller
+7. **The hood's real shape**, from the launcher rig.
+8. **CHECK items**: the hubs' and battery's sizes, the servo boxes, the pulleys' flange width.
+9. **Rig tests** (doc/printed-chassis.md): the drop test (TPU, bare PETG, foam), the roller's grab rate, the free-roller
    lane's speed, and how far a star wheel's flaps bend under a NECTAR.

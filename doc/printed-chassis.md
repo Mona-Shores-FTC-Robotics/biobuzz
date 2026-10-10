@@ -81,6 +81,12 @@ simulator only, Sister five, both robots on the outline, today's routes unchange
   restitution 0.1 (the baseline, TPU-like) 16, 0.4 (a hard plate) 10, 0.6 8; at the 0.17 s intake, 0.05 26, 0.1 27,
   0.4 25. A hard face costs about 6 at today's intake and 2 at the fast one, and softer than 0.1 buys nothing. So the
   flaps get a TPU face; the structure behind it can be as stiff as it likes.
+- **How soft the face must be** (body-designs chat, on this 17.75 in outline, Sister five, 60 runs; 5 TIPs / R holds 4 /
+  mean points): restitution 0: 32 / 39 / 98; 0.05: 30 / 37 / 98; 0.1: 28 / 40 / 97; 0.2: 16 / 29 / 91; 0.3: 4 / 18 / 87;
+  0.4: 6 / 13 / 87. Most of the gain needs 0.1 or lower; half is left at 0.2, none from 0.3. The first lab drop tests
+  (provisional, 10 Oct) put the mentor's black lane-bar foam at about 0.4 on both balls. So **a face measuring above
+  about 0.15 isn't worth building**; the printed TPU face, bare polycarbonate and a bare printed face are dropped on
+  Monday.
 
 ## Layout
 
