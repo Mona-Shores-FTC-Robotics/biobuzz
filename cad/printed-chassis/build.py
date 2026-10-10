@@ -24,7 +24,7 @@ Modules (each comes off on its own; doc/printed-chassis.md, "The frame"):
                two-encoder drive under its drive gear, hood
     elec       tray, Control Hub, Expansion Hub, battery, Limelight mast
 """
-import math, os, sys
+import math, os, re, sys
 import cadquery as cq
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -354,38 +354,51 @@ for k in range(4):
 part("lane", "floor", box(BACKSTOP_X - 0.2, COL_X + 1.4, -1.7, 1.45, LANE_BOTTOM - 0.13, LANE_BOTTOM), "print", "PETG: the floor under the feeder and pad")
 part("lane", "backstop", box(BACKSTOP_X - 0.2, BACKSTOP_X, -1.2, 1.2, LANE_BOTTOM, 3.0), "print", "PETG: backstop, on +-0.2 in slots (set with real balls: the 4-piece count)")
 
-# ---- launcher
-for s, n in SIDES:
-    fy = s * FLY_Y
-    for k, (a, b) in enumerate(((FLY_X[0], FLY_X[0] + 0.8), (FLY_X[1] - 0.8, FLY_X[1]))):
-        part("launcher", f"flywheel_{n}{k}", cyl("x", (fy, FLY_Z), 2 * FLY_R, a, b), "buy", "96 mm flywheel, as the mentor's launcher (CHECK the part)")
-    part("launcher", f"fly_shaft_{n}", cyl("x", (fy, FLY_Z), 8 * MM, FLY_X[0] - 1.05, FLY_X[1] + 0.3), "buy", "goBILDA 8mm REX shaft, 120 mm")
-    cas = box(FLY_X[1] + 0.05, FLY_X[1] + 0.3, s * 2.1, s * 5.4, 4.7, 8.6).union(box(FLY_X[0] - 0.3, FLY_X[0] - 0.05, s * 2.1, s * 5.4, 4.7, 8.6))   # inner edges clear of a NECTAR in the column
-    part("launcher", f"fly_cassette_{n}", cas.cut(cyl("x", (fy, FLY_Z), 14 * MM, FLY_X[0] - 1, FLY_X[1] + 1)), "print",
-         "PETG: flywheel cassette, its two bearing plates (one per side; comes out as a unit with its wheel and motor)")
-    fm = (s * FLY_MOTOR[0], FLY_MOTOR[1])
-    part("launcher", f"fly_motor_{n}", motor_x(FLY_X[0] - 1.0 + PULLEY_W + 0.05 + MOTOR_SHAFT, fm, -1), "buy", "goBILDA 5203-2402-0001 Yellow Jacket, 6000 RPM")
-    part("launcher", f"fly_belt_{n}", belt_x((fy, FLY_Z), fm, PULLEY24_D, FLY_X[0] - 1.0, FLY_X[0] - 1.0 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FLY_BELT} belt (1:1; the launcher rig sets the ratio)")
-FX = (FLY_X[0], FLY_X[1])
-part("launcher", "feeder", cyl("x", FEED[:2], 2 * FEED[2], *FX), "buy", "goBILDA 3632-0014-0072 72 mm Gecko x2, softest")
-part("launcher", "feeder_shaft", cyl("x", FEED[:2], 8 * MM, FX[0] - 0.2, FX[1] + 0.9), "buy", "goBILDA 8mm REX shaft, 120 mm")
-part("launcher", "feeder_motor", motor_x(FX[1] + 1.35, FEED_MOTOR, -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM, belted 1:1 (stopping it is the gate)")
-part("launcher", "feeder_belt", belt_x(FEED[:2], FEED_MOTOR, PULLEY24_D, FX[1] + 0.45, FX[1] + 0.45 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FEED_BELT} belt")
-part("launcher", "pad", box(*FX, -1.05 - 0.75, -1.05, 1.62, 4.4), "print", "PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad)")
-TOP_X = (COL_X - 3.9, COL_X + 3.0)
-for s_, n in SIDES:
-    half = box(*TOP_X, 0, s_ * 4.0, KIT_Z - 0.25, KIT_Z).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
-    part("launcher", f"top_plate_{n}", half, "print",
-         "PETG-CF, 6 mm (material: the turret's base): half the launcher's top plate (two halves, bolted on the cassettes); the turret kit bolts across both by its own pattern")
-kit = box(COL_X - KIT_HALF, COL_X + KIT_HALF, -KIT_HALF, KIT_HALF, KIT_Z, KIT_Z + KIT_H).union(
-      box(COL_X - KIT_LOBE, COL_X - KIT_HALF, -1.1, 1.1, KIT_Z, KIT_Z + KIT_H)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
-kit = kit.rotate((COL_X, 0, 0), (COL_X, 0, 1), KIT_ANG)
-part("launcher", "turret_kit", kit, "buy", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope")
-gx, gy = DRIVE_GEAR; pz = KIT_Z - 0.25
-part("launcher", "turret_servo", box(gx + 0.1, gx + 0.9, gy - 0.75 - 40 * MM, gy - 0.75, pz - 37 * MM, pz), "buy",
-     "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit)")
-part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
-part("launcher", "turret_enc_B", cyl("z", ENC_B, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2")
+# ---- launcher: the mentor's goBILDA launcher module with cad/transfer's changes (launcher_module.py), placed by the
+# column; without its cache, this file's own stand-in
+LM_DIR = os.path.join(HERE, ".cache", "launcher")
+USE_LM = os.path.exists(os.path.join(LM_DIR, "index.json")) and os.environ.get("NO_LAUNCHER_MODULE") != "1"
+if USE_LM:
+    import json
+    from OCP.BRepTools import BRepTools
+    from OCP.BRep import BRep_Builder
+    from OCP.TopoDS import TopoDS_Shape
+    for e in json.load(open(os.path.join(LM_DIR, "index.json")))["parts"]:
+        sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
+        k = "lm_" + e["file"][:-5]
+        part("launcher", k, cq.Workplane().add(cq.Shape.cast(sh)), "buy", f"the mentor's launcher module: {e['name']}")
+else:
+    for s, n in SIDES:
+        fy = s * FLY_Y
+        for k, (a, b) in enumerate(((FLY_X[0], FLY_X[0] + 0.8), (FLY_X[1] - 0.8, FLY_X[1]))):
+            part("launcher", f"flywheel_{n}{k}", cyl("x", (fy, FLY_Z), 2 * FLY_R, a, b), "buy", "96 mm flywheel, as the mentor's launcher (CHECK the part)")
+        part("launcher", f"fly_shaft_{n}", cyl("x", (fy, FLY_Z), 8 * MM, FLY_X[0] - 1.05, FLY_X[1] + 0.3), "buy", "goBILDA 8mm REX shaft, 120 mm")
+        cas = box(FLY_X[1] + 0.05, FLY_X[1] + 0.3, s * 2.1, s * 5.4, 4.7, 8.6).union(box(FLY_X[0] - 0.3, FLY_X[0] - 0.05, s * 2.1, s * 5.4, 4.7, 8.6))   # inner edges clear of a NECTAR in the column
+        part("launcher", f"fly_cassette_{n}", cas.cut(cyl("x", (fy, FLY_Z), 14 * MM, FLY_X[0] - 1, FLY_X[1] + 1)), "print",
+             "PETG: flywheel cassette, its two bearing plates (one per side; comes out as a unit with its wheel and motor)")
+        fm = (s * FLY_MOTOR[0], FLY_MOTOR[1])
+        part("launcher", f"fly_motor_{n}", motor_x(FLY_X[0] - 1.0 + PULLEY_W + 0.05 + MOTOR_SHAFT, fm, -1), "buy", "goBILDA 5203-2402-0001 Yellow Jacket, 6000 RPM")
+        part("launcher", f"fly_belt_{n}", belt_x((fy, FLY_Z), fm, PULLEY24_D, FLY_X[0] - 1.0, FLY_X[0] - 1.0 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FLY_BELT} belt (1:1; the launcher rig sets the ratio)")
+    FX = (FLY_X[0], FLY_X[1])
+    part("launcher", "feeder", cyl("x", FEED[:2], 2 * FEED[2], *FX), "buy", "goBILDA 3632-0014-0072 72 mm Gecko x2, softest")
+    part("launcher", "feeder_shaft", cyl("x", FEED[:2], 8 * MM, FX[0] - 0.2, FX[1] + 0.9), "buy", "goBILDA 8mm REX shaft, 120 mm")
+    part("launcher", "feeder_motor", motor_x(FX[1] + 1.35, FEED_MOTOR, -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM, belted 1:1 (stopping it is the gate)")
+    part("launcher", "feeder_belt", belt_x(FEED[:2], FEED_MOTOR, PULLEY24_D, FX[1] + 0.45, FX[1] + 0.45 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FEED_BELT} belt")
+    part("launcher", "pad", box(*FX, -1.05 - 0.75, -1.05, 1.62, 4.4), "print", "PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad)")
+    TOP_X = (COL_X - 3.9, COL_X + 3.0)
+    for s_, n in SIDES:
+        half = box(*TOP_X, 0, s_ * 4.0, KIT_Z - 0.25, KIT_Z).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
+        part("launcher", f"top_plate_{n}", half, "print",
+             "PETG-CF, 6 mm (material: the turret's base): half the launcher's top plate (two halves, bolted on the cassettes); the turret kit bolts across both by its own pattern")
+    kit = box(COL_X - KIT_HALF, COL_X + KIT_HALF, -KIT_HALF, KIT_HALF, KIT_Z, KIT_Z + KIT_H).union(
+          box(COL_X - KIT_LOBE, COL_X - KIT_HALF, -1.1, 1.1, KIT_Z, KIT_Z + KIT_H)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
+    kit = kit.rotate((COL_X, 0, 0), (COL_X, 0, 1), KIT_ANG)
+    part("launcher", "turret_kit", kit, "buy", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope")
+    gx, gy = DRIVE_GEAR; pz = KIT_Z - 0.25
+    part("launcher", "turret_servo", box(gx + 0.1, gx + 0.9, gy - 0.75 - 40 * MM, gy - 0.75, pz - 37 * MM, pz), "buy",
+         "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit)")
+    part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
+    part("launcher", "turret_enc_B", cyl("z", ENC_B, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2")
 hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, KIT_Z + KIT_H, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
@@ -436,7 +449,7 @@ def clashes(shapes, only=None):
         for b in names[i + 1:]:
             if only and not (only(a) or only(b)): continue
             if only and only(a) and only(b): continue
-            if allowed(a, b): continue
+            if allowed(a, b) or (a.startswith("lm_") and b.startswith("lm_")): continue
             v = overlap(shapes[a], shapes[b])
             if v > 1e-4 or v < 0: out.append((a, b, v))
     return out
@@ -471,6 +484,7 @@ def report():
 
     print("== pieces on their path (a NECTAR and a POLLEN at each step; only what's meant to touch them may)")
     bad = []
+    LM_TOUCH = re.compile(r"^lm_.*(feeder|pad_|Gecko|backstop|Hyper_Hub|Spacer|Sonic)", re.I)
     TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp_", "mouth_floor_", "floor", "backstop", "hood", "star_")   # the hood's lid turns the shot
     path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5)]
     for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
@@ -487,7 +501,7 @@ def report():
         for x, z0 in path:
             ball = cq.Workplane("XY").sphere(r).translate((x, 0.15 if z0 > LANE_BOTTOM else 0, z0 + (r if z0 == LANE_BOTTOM else 0)))
             for k, w in shapes.items():
-                if k.startswith(TOUCH) or k.startswith(("lane_shaft_",)): continue
+                if k.startswith(TOUCH) or k.startswith(("lane_shaft_",)) or LM_TOUCH.search(k): continue
                 if overlap(ball, w) > 1e-4: bad.append(f"{'NECTAR' if r == RN else 'POLLEN'} at X {x:.2f} z {z0:.2f} x {k}")
     print("   " + ("; ".join(sorted(set(bad))) if bad else "clear: the mouth's edges past the stars, lane, column, ring bore and hood"))
     ok &= not bad
