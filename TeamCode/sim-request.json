@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister-right-fixed.pp",
-  "spec": "SisterRightFixedAuto,SisterLeftFixedAuto@50",
+  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister5l-right.pp",
+  "spec": "Sister5lRightAuto,Sister5hLeftAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "sister-right-fixed.pp",
+    "AutoSource": "sister5l-right.pp",
     "SavedBy": "README, the Sister pairs: two of our robots, with the robot's measured 0.4 restitution (10 Oct 2026)"
   },
-  "title": "Sister-4TIPs",
+  "title": "Sister-5TIPs",
   "usual": true,
-  "folder": "sister"
+  "folder": "sister5"
 }
