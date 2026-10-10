@@ -62,8 +62,8 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 
 | | Where | Notes |
 |---|---|---|
-| Rails | goBILDA 1121 low-side, 360 mm (14 hole), webs at \|Y\| 5.35 (his track), their holes at the axles' height, front ends 0.15 in behind the face | 0.15 in back so his rear motors clear his launcher's rear channel |
-| Drive corners (the mentor's) | his corner exactly, each placed by its axle: the 72 mm shaft in a 1309 hub in the rail's web and in bearings in the wheel's pattern plates, its 24T pulley outboard of the wheel, the 435 RPM motor lying along Y on the rail's top, clamped in a 1-hole U-channel mount (front) or 1201 mounts and a 1107 cross channel (rear) | axles X 5.26 and −5.13, wheelbase 264 mm (11 rail holes; his is 240). His right corners differ from his left (FR's motor 0.74 in further forward, its shaft 0.1 in further out), so both right corners are mirrors of his left ones: one design, four times |
+| Rails | goBILDA 1121 low-side, 360 mm (14 hole), webs at \|Y\| 5.35 (his track), their holes at the axles' height, front ends 0.15 in behind the face | 0.15 in back so his rear motors clear his launcher's rear channel; the front wheels sit a hole back from the rails' ends, as his, so the flaps' root blocks bolt to the rails ahead of them |
+| Drive corners (the mentor's) | his corner exactly, each placed by its axle: the 72 mm shaft in a 1309 hub in the rail's web and in bearings in the wheel's pattern plates, its 24T pulley outboard of the wheel, the 435 RPM motor lying along Y on the rail's top, clamped in a 1-hole U-channel mount (front) or 1201 mounts and a 1107 cross channel (rear) | axles X 4.32 and −5.13, wheelbase 240 mm (10 rail holes, as his). His right corners differ from his left (FR's motor 0.74 in further forward, its shaft 0.1 in further out), so both right corners are mirrors of his left ones: one design, four times |
 | Odometry pods | two goBILDA 4-bar pods (96 mm wheel version), both on the right, on printed adapters inside the rail | the left side under the launcher has its feeder belt and gate servo |
 | Flaps | root blocks at the front corners, ahead of the wheels and bolted to the rails' ends; tips at X 10.7, Y ±8.875 (3.4 in ahead, 1.255 in out) | PETG-CF, 6 mm; they are also the extractor's side plates. Their soft face is a separate plate on three M3 screws (TPU on a PETG backer; bare PETG or foam for the drop test) |
 | Roller | goBILDA 48 mm Gecko wheels, as the mentor's, ±4.35 in, axle 1.0 ahead of the face, 2.4 off the tiles | no vector wheels: his star wheels centre the pieces |
@@ -131,7 +131,8 @@ print**: no screw holes, inserts, bores or ribs yet.
    module's way out checked, a build order, a two-robot parts list.
 2. **The launcher's mounting and its sprung flywheel modules.** The mentor now wants each flywheel module sprung so the
    pinch sets itself for POLLEN and NECTAR (the fixed 3.19 in gap misses a POLLEN), and has no plan yet for how the
-   launcher frame attaches. Whether the flywheels move onto the turret is waiting on the user.
+   launcher frame attaches. Whether the flywheels move onto the turret is waiting on the user. One known touch is
+   allowed by name until then: the left-front drive motor's can against the transfer's feeder belt (0.0002 in³).
 2a. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.

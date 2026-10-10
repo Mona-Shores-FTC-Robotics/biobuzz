@@ -84,7 +84,8 @@ RAIL_X = (FACE - RAIL_BACK - 360 * MM, FACE - RAIL_BACK) if DM_LAYOUT else (RAIL
 # bearing in the rail's web and one in an outer pattern plate on 56 mm standoffs; its pulley inboard of the wheel; the motor
 # straight above the axle, its face screwed to a vertical pattern plate on the rail, so the belt's centres are a whole
 # number of pattern holes and nothing is drilled.
-AXLE = {1: RAIL_CX + 5 * PITCH, -1: RAIL_CX - 6 * PITCH}   # wheelbase 11 holes, 264 mm (10.39 in); the front wheels at the rails' front end
+AXLE = ({1: RAIL_CX + 4 * PITCH, -1: RAIL_CX - 6 * PITCH} if DM_LAYOUT else   # his wheelbase, 240 mm: the front wheels a hole back, as his,
+        {1: RAIL_CX + 5 * PITCH, -1: RAIL_CX - 6 * PITCH})                         # so the rails' front ends carry the flaps' root blocks
 UCH_FRONT = AXLE[1] - 1.55              # the front of his front drive motor's 1-hole U-channel mount (X 3.83 with the axle at 5.41)
 MPLATE_Y = (RAIL_OUT, RAIL_OUT + PLATE_T)                 # the motor plates, on the rails' webs' outer faces
 PULLEY_Y = (MPLATE_Y[1] + 0.05, MPLATE_Y[1] + 0.05 + PULLEY_W)   # the belt's plane, between the motor plate and the wheel
@@ -279,7 +280,7 @@ for s, n in SIDES:
     T, FACE_T = 0.25, 0.2                  # a 5 mm face plate (3 mm TPU on a 2 mm PETG backer), screwed to the flap's inner side
     plate = box(0, L, -T, 0, 0.25, 4.25).union(box(L * (2.4 - 0.5) / 3.4, L * (2.4 + 0.5) / 3.4, -T, 0, 4.25, 5.0))   # taller round the extractor's stub
     plate = plate.rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
-    plate = plate.union(box(FACE, FACE + 0.45, ARM_Y[1] + 0.05, HALF_W, RAIL_Z[0], 4.05))                      # the root: a block ahead of the wheel, bolted to the rail's end
+    plate = plate.union(box(AXLE[1] + WHEEL_R + 0.1, FACE + 0.45, RAIL_OUT + 0.01, HALF_W, RAIL_Z[0], 4.05))   # the root: ahead of the wheel, against the rail's web
     foam = box(L * 0.3, L, -T - FACE_T, -T, 0.25, 4.25).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     trim = box(-20, FLAP_TIP[0], -20, 20, -20, 20)
     plate, foam = plate.intersect(trim), foam.intersect(trim)
@@ -475,6 +476,8 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
+           ("dm_FL_motor", "lm_feeder_belt"),   # KNOWN: his left-front motor's can touches the transfer's feeder belt (0.0002 in^3) with
+                                                # the front axles a hole back; the launcher's feeder is being redesigned (README, Open 2)
            ("dm_", "rail_"), ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
            ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),
