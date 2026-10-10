@@ -134,7 +134,11 @@ print**: no screw holes, inserts, bores or ribs yet.
    launcher frame attaches. Confirmed at the lab: the two modules spring toward each other, the stops set the minimum
    gap for a POLLEN (2.80 in, less any squeeze), a NECTAR (3.62) pushes them about 0.41 in apart each side, the pinch
    stays on the column axis, and the springs' rate and preload are his (parameters). The redraw leaves each module's
-   swept travel, motors included, plus margin. Whether the flywheels move onto the turret is waiting on the user. One known touch is
+   swept travel, motors included, plus margin. His built module (photos, 10 Oct): two parallel goBILDA pattern plates on
+   edge (about 48 x 96 mm class), two ~4 in grey gripper wheels side by side on one shaft through their top (about 1.5 in
+   of tread), a large pulley behind them, belted from a 5203 (apparently 312 RPM) on a small bracket at the plates'
+   bottom; a spare ~2 in gripper wheel beside it, likely the feeder's. No pivot, slide or spring yet: the sprung mount is
+   undesigned on his side too. Whether the flywheels move onto the turret is waiting on the user. One known touch is
    allowed by name until then: the left-front drive motor's can against the transfer's feeder belt (0.0002 in³).
 2a. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
