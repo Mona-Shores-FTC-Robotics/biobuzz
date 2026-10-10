@@ -5,6 +5,8 @@ block (`cad/ramp-hook/`) on an 8 mm REX shaft across his front. The shaft is hel
 goBILDA grid plates, and the plates bolt to holes his front uprights already have: **no drilling, no cutting.** It
 doesn't fold.
 
+![The stick on his robot, and seated on a FLOWER](proto-3d.png)
+
 ![Side and top view, on his robot, with a FLOWER seated](proto.png)
 
 Checked on 10 Oct against his 9 Oct Robot.step with `tools/robot-cad/module_check.py flower_stick` and
