@@ -133,15 +133,21 @@ FLOWER, and carry the lower shaft and the block. **The wheels set the height:** 
 A hand push into a FLOWER loaded with 4 POLLEN (slow-mo, filmed from above) brought at least 2 POLLEN out. They then
 piled up against the chassis, because that end has no intake. Counts and timing from a side view are still to come.
 
-To print a block for this build, give `block.py` the wheels' diameter:
+To print a block for this build, give `block.py` the wheels' diameter. The lab's shaft and wheel bores are **plain
+8 mm hex**, not REX, so the block's bore is hex by default: 8.3 mm across the flats, flats top and bottom. A hex
+shaft can't turn in it, so the block needs no set screws.
 
     python3 cad/modules/flower-stick-proto/block.py --wheel-mm 48 --bottom 0.70
 
-- `stl/block_shaft0.945_bottom0.70.stl`: 48 mm wheels. Bottom 0.70 in, top 1.35; 2.1 mm of plastic under the bore.
-- `stl/block_shaft0.945_bottom0.65.stl`: the same, 0.05 in lower, with 3.3 mm under the bore. Print this one if
-  the other cracks.
+- **Provisional: the wheel diameter hasn't been measured yet.** These two files assume 48 mm wheels; re-run with
+  the measured diameter before printing.
+  - `stl/block_hex_shaft0.945_bottom0.70.stl`: bottom 0.70 in, top 1.35; 2.1 mm of plastic under the bore.
+  - `stl/block_hex_shaft0.945_bottom0.65.stl`: 0.05 in lower, with 3.3 mm under the bore. Print this one if the
+    other cracks.
 - **Wheels much over 52 mm put the shaft too high.** The 0.65 in block can't keep its top under 1.35 in with the
-  bore inside it, and `block.py` refuses. Use 48 mm wheels, or ask for a block that hangs below the shaft.
+  bore inside it, and `block.py` refuses. Ask for a block that hangs below the shaft.
+- Print the fit coupon from `cad/ramp-hook/` first. Its bores are round, so on a hex shaft read it across the
+  flats; or print one block and check the fit.
 
 ## Files
 

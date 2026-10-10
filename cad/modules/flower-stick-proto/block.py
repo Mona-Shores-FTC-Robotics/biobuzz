@@ -5,7 +5,7 @@ the pivoting arms whose wheels roll on the tiles put the shaft at the wheels' ra
     python3 cad/modules/flower-stick-proto/block.py --shaft 0.945 --bottom 0.70
 
 The block is cad/ramp-hook's (1.4 in deep, curved front, 0.5 in flat top), 0.65 in tall, its bore 12 mm behind the tip.
-Writes stl/block_shaft<height>_bottom<height>.stl, flat side down, in millimetres.
+Writes stl/block_<bore>_shaft<height>_bottom<height>.stl, flat side down, in millimetres.
 """
 import argparse, importlib.util, os
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -17,6 +17,9 @@ ap = argparse.ArgumentParser()
 g = ap.add_mutually_exclusive_group(required=True)
 g.add_argument("--shaft", type=float, help="shaft centre above the tiles, inches")
 g.add_argument("--wheel-mm", type=float, help="diameter of the wheels on the shaft that roll on the tiles, mm")
+ap.add_argument("--bore", choices=("hex", "rex"), default="hex",
+                help="hex: plain 8 mm hex shaft (8.3 mm across the flats, flats top and bottom; it can't turn, so no set "
+                     "screws needed); rex: goBILDA 8mm REX (8.3 mm round)")
 ap.add_argument("--bottom", type=float, default=0.70, help="block bottom above the tiles, inches (0.6 to 0.85)")
 a = ap.parse_args()
 shaft = a.shaft if a.shaft is not None else a.wheel_mm / 2 / IN
@@ -27,9 +30,16 @@ if not 0.6 <= a.bottom <= 0.85: raise SystemExit(f"bottom {a.bottom} in is outsi
 if under < 2.0 or over < 2.0:
     raise SystemExit(f"the bore leaves {under:.1f} mm below it and {over:.1f} mm above: under 2 mm. Move --bottom so the "
                      f"shaft ({shaft:.3f} in) sits nearer the block's middle ({a.bottom + 0.325:.3f} in)")
+if a.bore == "hex":
+    import math, trimesh
+    def hex_hole(length, x, z, d):                 # across the flats = d; a vertex at +-x, so flats top and bottom
+        c = trimesh.creation.cylinder(radius=d / 2 / math.cos(math.pi / 6), height=length, sections=6)
+        c.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
+        c.apply_translation([x, 0, z]); return c
+    rh.rod_hole = hex_hole
 m = rh.ramp_block(); m.apply_translation([0, 0, -m.bounds[0][2]])
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
-path = os.path.join(HERE, "stl", f"block_shaft{shaft:.3f}_bottom{a.bottom:.2f}.stl")
+path = os.path.join(HERE, "stl", f"block_{a.bore}_shaft{shaft:.3f}_bottom{a.bottom:.2f}.stl")
 m.export(path)
-print(f"{os.path.relpath(path)}: shaft {shaft:.3f} in, bottom {a.bottom:.2f}, top {a.bottom + 0.65:.2f}; "
+print(f"{os.path.relpath(path)}: {a.bore} bore, shaft {shaft:.3f} in, bottom {a.bottom:.2f}, top {a.bottom + 0.65:.2f}; "
       f"{under:.1f} mm of plastic under the bore, {over:.1f} mm over it; watertight {m.is_watertight}")
