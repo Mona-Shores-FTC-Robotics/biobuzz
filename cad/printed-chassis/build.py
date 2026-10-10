@@ -597,7 +597,10 @@ def report():
 def parts_md():
     rows = ["| Part | Module | Make | What |", "|---|---|---|---|"]
     for k, p in sorted(PARTS.items(), key=lambda kv: (kv[1]["module"], kv[0])):
+        if k.startswith(("lm_", "dm_")): continue
         rows.append(f"| `{k}` | {p['module']} | {dict(print='print', buy='buy', cut='cut')[p['kind']]} | {p['what']} |")
+    if USE_LM: rows.append("| `lm_*` | launcher | buy | the mentor's launcher module (cad/modules/launcher-module), placed by the launch column |")
+    if USE_DM: rows.append("| `dm_*` | corner_* | buy | the mentor's four drive corners (cad/modules/drive-module), each by its axle; the right ones mirrored from his left |")
     return "\n".join(rows) + "\n"
 
 def views(out_dir):
@@ -652,27 +655,34 @@ if __name__ == "__main__":
     # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
     # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
     def group_of(k):
-        if PARTS[k]["moves"] == "intake": return "MOVES 1 intake arms - revolute on the arms' pivot (Y axis), 0 to 13 deg up"
+        if PARTS[k]["moves"] == "intake": return f"MOVES 1 intake arms - revolute on the arms' pivot (Y axis), 0 to {lift_deg(FLOAT):.0f} deg up"
         if PARTS[k]["moves"] == "extractor" and not k.startswith("ex_stub"): return "MOVES 2 extractor - revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
         for n, i in (("FL", 3), ("FR", 4), ("BL", 5), ("BR", 6)):
-            if k == f"wheel_{n}": return f"MOVES {i} wheel {n} - revolute on its shaft"
+            if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"MOVES {i} wheel {n} - revolute on its shaft"
         if k == "star_L": return "MOVES 7 star wheel L - revolute on its vertical shaft"
         if k == "star_R": return "MOVES 8 star wheel R - revolute on its vertical shaft"
         return "FRAME - fix"
     groups = {}
     for k in PARTS: groups.setdefault(group_of(k), []).append(k)
     asm = cq.Assembly(name="printed_chassis")
+    full = cq.Assembly(name="printed_chassis_with_the_mentors_modules")      # with his launcher and drive corners: too big for git
     for g in sorted(groups, key=lambda g: (not g.startswith("FRAME"), int(g.split()[1]) if g.startswith("MOVES") else 0)):
-        sub = cq.Assembly(name=g)
+        sub, fsub = cq.Assembly(name=g), cq.Assembly(name=g)
         for k in groups[g]:
             p = PARTS[k]
             s = solid(p["shape"]).scale(25.4)
             col = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}[p["kind"]]
             if k.startswith(("flap_face", "pad")): col = cq.Color(0.95, 0.75, 0.2)
-            sub.add(s, name=k, color=col)
+            if not k.startswith(("lm_", "dm_")): sub.add(s, name=k, color=col)
+            fsub.add(s, name=k, color=col)
             if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
-        asm.add(sub, name=g)
+        if sub.children: asm.add(sub, name=g)
+        full.add(fsub, name=g)
     asm.save(os.path.join(HERE, "printed-chassis.step"))
+    if USE_LM or USE_DM:
+        import gzip, shutil
+        fp = os.path.join(HERE, ".cache", "printed-chassis-full.step"); full.save(fp)
+        with open(fp, "rb") as a, gzip.open(fp + ".gz", "wb") as b: shutil.copyfileobj(a, b)
     with open(os.path.join(HERE, "parts.md"), "w") as f:
         f.write("# Parts, layout v1 (written by build.py)\n\nScrews, nuts and inserts come with v2. CHECK marks a size not read from a vendor file.\n\n" + parts_md())
     views(os.path.join(HERE, "views"))
