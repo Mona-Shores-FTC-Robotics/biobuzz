@@ -468,6 +468,21 @@ def report():
     print("   " + ("; ".join(sorted(set(bad))) if bad else "clear: the mouth's edges past the stars, lane, column, ring bore and hood"))
     ok &= not bad
 
+    print("== a NECTAR rolling in across the mouth (on the tiles, then up the ramp), against the extractor and the flaps")
+    (rx0, rz0), (rx1, rz1) = RAMP
+    def bottom(x):
+        return 0.0 if x >= rx0 else (rz0 + (rx0 - x) / (rx0 - rx1) * (rz1 - rz0) if x >= rx1 else LANE_BOTTOM)
+    hit, gap = [], 99.0
+    for y in (0.0, 2.0, 3.0, 4.0, MOUTH_HALF):
+        for i in range(41):
+            x = 12.5 - 0.15 * i; z = bottom(x) + RN
+            ball = cq.Workplane("XY").sphere(RN).translate((x, y, z))
+            for k in shapes:
+                if k.startswith(("ex_", "flap")) and overlap(ball, shapes[k]) > 1e-5: hit.append(f"X {x:.2f} Y {y} x {k}")
+            if y + RN > EX_ARM_Y: gap = min(gap, math.hypot(x - EX_AXIS[0], z - EX_AXIS[1]) - RN - 4 * MM)
+    print("   " + ("; ".join(hit[:6]) if hit else f"clear; it passes {gap:.2f} in under the extractor's stub shafts (only a piece wider of centre than {EX_ARM_Y - RN:.2f} in goes under them)"))
+    ok &= not hit
+
     print("== outline")
     allb = [bb(w) for w in shapes.values()]
     x0, x1 = min(b[0] for b in allb), max(b[1] for b in allb)
