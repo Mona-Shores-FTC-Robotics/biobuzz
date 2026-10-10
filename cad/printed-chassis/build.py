@@ -30,11 +30,12 @@ MM = 1 / 25.4
 CHECK_ONLY = os.environ.get("CHECK_ONLY") == "1"
 
 # ---------------------------------------------------------------- the outline the Auto asks for
-FACE, BACK = 7.3, -7.3                  # body 14.6 in
+FACE, BACK = 7.3, -7.05                 # body 14.35 in (the back gives the start outline's margin; the face and the flaps stay put)
 HALF_W = 7.62                           # 15.24 in wide over the pods, the simulator's frameWidthIn
-FLAP_TIP = (FACE + 3.4, 9.0)            # the simulator's flap: hinged at the front corner, tip 3.4 ahead and 1.38 out
-START_CUBE = 18.0
-BED = (210.0, 210.0, 200.0)             # the smallest common home printer's build volume, mm (doc: "Printers and materials")
+FLAP_TIP = (FACE + 3.4, 8.875)          # the simulator's flap: hinged at the front corner, tip 3.4 ahead (1.255 out, inside the margin)
+R102 = 18.0
+START_CUBE = R102 - 0.25                # designed to 17.75 over everything: 1/8 in a side for print error, faces, screw heads, cables
+BED = (180.0, 180.0, 180.0)             # every printed part within 180 mm each way: a 210 mm bed less a brim, and less warp
 
 # ---------------------------------------------------------------- pieces
 RP, RN = 1.40, 1.81                     # POLLEN, NECTAR radii (2.80 / 3.62 in)
@@ -67,7 +68,7 @@ RAIL_IN = RAIL_OUT - CH_LOW             # their flanges' inner edges (4.53): low
 RAIL_Z = (0.75, 0.75 + CH)              # 1120 on its side, open inward
 RAIL_X = (-336 * MM / 2, 336 * MM / 2)  # 1121-0013-0336
 # ---------------------------------------------------------------- drive pods: identical, the front ones' motors higher (over the lane)
-AX = 5.41                               # FACE - WHEEL_R: the front wheels flush with the face, as today's
+AXLE = {1: FACE - WHEEL_R, -1: BACK + WHEEL_R}   # the wheels flush with the face and the back (wheelbase 10.57)
 WHEEL_Y = (5.915, 5.915 + WHEEL_W)      # wheel between the pod's plates; outer face 7.38
 POD_IN = (RAIL_OUT, RAIL_OUT + 0.2)     # inner plate (5 mm PETG), against the rail's web
 PULLEY_Y = (5.25, 5.25 + PULLEY_W)      # the belt's plane, between the inner plate and the wheel
@@ -75,7 +76,7 @@ POD_OUT = (7.42, HALF_W)                # outer plate
 POD_X = 3.9                             # the pod's length along X, centred on its axle
 POD_TOP = 4.05
 DRIVE_BELT = {1: 340, -1: 225}          # front: the motor over the lane's ceiling; rear: straight above the axle
-DRIVE_MOTOR = {sx: (sx * AX, WHEEL_R + centres(DRIVE_BELT[sx])) for sx in (1, -1)}
+DRIVE_MOTOR = {sx: (AXLE[sx], WHEEL_R + centres(DRIVE_BELT[sx])) for sx in (1, -1)}
 
 # ---------------------------------------------------------------- intake
 ROLL_R = 1.0                            # 2 in vector wheels, as cad/intake-b
@@ -100,6 +101,7 @@ LANE_BOTTOM = 1.3
 WALL_IN, WALL_T = 1.86, 0.25
 COUNT_WINDOW = (12.26, 12.60)           # roller axle to backstop: 3 NECTAR + 1 POLLEN must fit, 5 POLLEN and 4 NECTAR must not
 BACKSTOP_X = ROLL[0] - 12.43
+BACKSTOP_SLOT = 0.2                     # +-, on the robot: set it with real pieces
 COL_X = BACKSTOP_X + 1.765              # the launch column: the first ball's centre against the backstop, under the turret's axis
 LANE_SHAFTS = [ROLL[0] - 3.16 - 1.4 * k for k in range(5)]
 RAMP = ((FACE + 0.44, 0.05), (FACE - 1.86, LANE_BOTTOM))
@@ -116,7 +118,11 @@ KIT_Z = 8.85                            # goBILDA 3208-0004-0001 gear-driven tur
 KIT_HALF, KIT_H = 72 * MM, 20 * MM      # 176T ring, 105 mm bore (the ball's path); its 64T drive gear 96 mm from the axis, the
 KIT_LOBE = 122.4 * MM                   # base reaching 122.4 mm out that way. The drive gear points back, clear of the tray.
 KIT_BORE = 105 / 2 * MM
-DRIVE_GEAR = (COL_X - 96 * MM, 0.0)     # the 64T's axis (X, Y); encoder A rides its shaft, B a 36T meshing it (40 mm away)
+KIT_ANG = -40.0                         # the drive gear points back and 40 deg to the left, so the kit's lobe stays inside the back
+                                        # (its square's front corner then reaches X 1.63 at Y +0.35: the tray is notched round it)
+_ka = math.radians(KIT_ANG)
+DRIVE_GEAR = (COL_X - 96 * MM * math.cos(_ka), -96 * MM * math.sin(_ka))   # the 64T's axis; encoder A rides its shaft, B a 36T meshing it
+ENC_B = (DRIVE_GEAR[0] + 40 * MM * math.sin(_ka), DRIVE_GEAR[1] - 40 * MM * math.cos(_ka))   # 40 mm off, square to the ring's direction, toward the back
 
 FRONT_CROSS_X, FRONT_CROSS_Z = 5.3, 7.0
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
@@ -200,7 +206,7 @@ for s, n in SIDES:
 
 # ---- drive pods
 for sx, fx in ((1, "F"), (-1, "B")):
-    ax = sx * AX; mx, mz = DRIVE_MOTOR[sx]
+    ax = AXLE[sx]; mx, mz = DRIVE_MOTOR[sx]
     for s, n in SIDES:
         nm = fx + n
         inner_top = mz + 0.8
@@ -283,7 +289,9 @@ for s, n in SIDES:
 part("lane", "ramp", slab_y([(rx0, rz0), (rx1, rz1), (rx1, rz1 - 0.08), (rx0, rz0 - 0.05)], -WALL_IN + 0.01, WALL_IN - 0.01), "print", "PETG: the ramp, in slots in the walls")
 LANE_X = (COL_X + 1.4, FACE - 0.16)
 for s, n in SIDES:
-    part("lane", f"lane_wall_{n}", mir(box(*LANE_X, WALL_IN, WALL_IN + WALL_T, 0.3, 2.6), s), "print", "PETG, 1/4 in: lane wall with the shafts' bearings; on two REX standoffs to the rail")
+    xm = (LANE_SHAFTS[2] + LANE_SHAFTS[3]) / 2                    # split between two shafts, so each half holds whole bearings
+    for h, (a, b) in (("front", (xm, LANE_X[1])), ("rear", (LANE_X[0], xm))):
+        part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, 2.6), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail")
 for k, x in enumerate(LANE_SHAFTS):
     part("lane", f"lane_shaft_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 8 * MM, -WALL_IN - WALL_T, WALL_IN + WALL_T), "buy", "goBILDA 8mm REX shaft, 144 mm (2106-4008-1440)")
     part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller")
@@ -316,25 +324,30 @@ part("launcher", "feeder_shaft", cyl("x", FEED[:2], 8 * MM, FX[0] - 0.2, FX[1] +
 part("launcher", "feeder_motor", motor_x(FX[1] + 1.35, FEED_MOTOR, -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM, belted 1:1 (stopping it is the gate)")
 part("launcher", "feeder_belt", belt_x(FEED[:2], FEED_MOTOR, PULLEY24_D, FX[1] + 0.45, FX[1] + 0.45 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FEED_BELT} belt")
 part("launcher", "pad", box(*FX, -1.05 - 0.75, -1.05, 1.62, 4.4), "print", "PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad)")
-part("launcher", "top_plate", box(BACK, COL_X + 3.0, -4.0, 4.0, KIT_Z - 0.25, KIT_Z).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20)), "print",
-     "PETG-CF, 6 mm (material: the turret's base): the launcher's top plate on the cassettes; the turret kit bolts on top, its drive under")
+TOP_X = (COL_X - 3.9, COL_X + 3.0)
+for s_, n in SIDES:
+    half = box(*TOP_X, 0, s_ * 4.0, KIT_Z - 0.25, KIT_Z).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
+    part("launcher", f"top_plate_{n}", half, "print",
+         "PETG-CF, 6 mm (material: the turret's base): half the launcher's top plate (two halves, bolted on the cassettes); the turret kit bolts across both by its own pattern")
 kit = box(COL_X - KIT_HALF, COL_X + KIT_HALF, -KIT_HALF, KIT_HALF, KIT_Z, KIT_Z + KIT_H).union(
       box(COL_X - KIT_LOBE, COL_X - KIT_HALF, -1.1, 1.1, KIT_Z, KIT_Z + KIT_H)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
-part("launcher", "turret_kit", kit, "buy", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore); drawn as its envelope")
-gx, gy = DRIVE_GEAR
-part("launcher", "turret_servo", box(gx + 0.15, gx + 0.15 + 40 * MM, gy + 1.0, gy + 1.0 + 20 * MM, KIT_Z - 0.25 - 37 * MM, KIT_Z - 0.25), "buy",
-     "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 to the 64T's shaft (cad/modules/turret-kit's drive)")
-part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, KIT_Z - 0.25 - 0.75, KIT_Z - 0.25), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
-part("launcher", "turret_enc_B", cyl("z", (gx, gy - 40 * MM), 1.4, KIT_Z - 0.25 - 0.75, KIT_Z - 0.25), "buy", "REV-11-1271 on a 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg")
+kit = kit.rotate((COL_X, 0, 0), (COL_X, 0, 1), KIT_ANG)
+part("launcher", "turret_kit", kit, "buy", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope")
+gx, gy = DRIVE_GEAR; pz = KIT_Z - 0.25
+part("launcher", "turret_servo", box(gx + 0.1, gx + 0.9, gy - 0.75 - 40 * MM, gy - 0.75, pz - 37 * MM, pz), "buy",
+     "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit)")
+part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
+part("launcher", "turret_enc_B", cyl("z", ENC_B, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2")
 hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, KIT_Z + KIT_H, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
 # ---- electronics
-part("elec", "tray", box(*TRAY_X, -TRAY_HALF, TRAY_HALF, TRAY_Z - 0.2, TRAY_Z), "print", "PETG: electronics tray on the front cross channel and the launcher's top plate")
-part("elec", "control_hub", box(TRAY_X[0] + 0.05, TRAY_X[0] + 0.05 + HUB[0], -HUB[1] - 0.1, -0.1, TRAY_Z, TRAY_Z + HUB[2]), "buy", "REV Control Hub")
-part("elec", "expansion_hub", box(TRAY_X[0] + 0.05, TRAY_X[0] + 0.05 + HUB[0], -HUB[1] - 0.1, -0.1, TRAY_Z + HUB[2] + 0.1, TRAY_Z + 2 * HUB[2] + 0.1), "buy", "REV Expansion Hub")
-part("elec", "battery", box(TRAY_X[0] + 0.05, TRAY_X[0] + 0.05 + BATTERY[0], 0.3, 0.3 + BATTERY[1], TRAY_Z, TRAY_Z + BATTERY[2]), "buy", "12 V battery, as today's (CHECK)")
-part("elec", "limelight_mast", box(6.75, 7.15, -0.5, 0.5, TRAY_Z, 13.4), "print", "PETG: Limelight mast; lens about 14 in up, 45 deg up, as today")
+for s_, n in SIDES:
+    part("elec", f"tray_{n}", box(*TRAY_X, 0, s_ * TRAY_HALF, TRAY_Z - 0.2, TRAY_Z).cut(cyl("z", (COL_X, 0), 2 * 4.12, 0, 20)), "print", "PETG: half the electronics tray (two halves, bolted), on the front cross channel and the launcher's top plate")
+part("elec", "control_hub", box(TRAY_X[0] + 0.4, TRAY_X[0] + 0.4 + HUB[0], -HUB[1] - 0.1, -0.1, TRAY_Z, TRAY_Z + HUB[2]), "buy", "REV Control Hub")
+part("elec", "expansion_hub", box(TRAY_X[0] + 0.4, TRAY_X[0] + 0.4 + HUB[0], -HUB[1] - 0.1, -0.1, TRAY_Z + HUB[2] + 0.1, TRAY_Z + 2 * HUB[2] + 0.1), "buy", "REV Expansion Hub")
+part("elec", "battery", box(TRAY_X[1] - BATTERY[0], TRAY_X[1], 0.6, 0.6 + BATTERY[1], TRAY_Z, TRAY_Z + BATTERY[2]), "buy", "12 V battery, as today's (CHECK)")
+part("elec", "limelight_mast", box(6.75, 7.15, 0.0, 0.55, TRAY_Z, 13.4), "print", "PETG: Limelight mast; lens about 14 in up, 45 deg up, as today")
 part("elec", "limelight", box(6.1, 7.2, -1.1, 1.1, 13.4, 14.8), "buy", "Limelight 3A")
 
 # ================================================================ checks
@@ -355,7 +368,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "pod_"), ("drive_belt_",
            ("lane_shaft_", "lane_roller_"), ("lane_shaft_", "lane_wall_"), ("fly_shaft_", "flywheel_"), ("fly_shaft_", "fly_cassette_"),
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
-           ("turret_kit", "top_plate"), ("flap_face_", "flap_"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
+           ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
            ("drive_motor_", "pod_"), ("ex_servo", "flap_R"), ("flap_", "pod_F"), ("intake_pivot_", "rail_"), ("front_upright_", "rail_"), ("rear_cross", "rail_"),
            ("pod_", "rail_"), ("front_cross", "front_upright_"), ("tray", "front_cross"), ("limelight", "limelight_mast")]
 def allowed(a, b):
@@ -418,7 +431,7 @@ def report():
     x0, x1 = min(b[0] for b in allb), max(b[1] for b in allb)
     y0, y1 = min(b[2] for b in allb), max(b[3] for b in allb)
     z1 = max(b[5] for b in allb)
-    print(f"   start: X {x0:.2f}..{x1:.2f} ({x1 - x0:.2f} / {START_CUBE}), Y {y0:.2f}..{y1:.2f} ({y1 - y0:.2f} / {START_CUBE}), height {z1:.2f} / {START_CUBE}")
+    print(f"   start: X {x0:.2f}..{x1:.2f} ({x1 - x0:.2f}), Y {y0:.2f}..{y1:.2f} ({y1 - y0:.2f}), height {z1:.2f}: designed to {START_CUBE} (R102 {R102}, 1/8 in a side)")
     ok &= x1 - x0 <= START_CUBE + 1e-6 and y1 - y0 <= START_CUBE + 1e-6 and z1 <= START_CUBE
     dep = [bb(w) for k, (w, _, _) in extractor(0).items()]
     dx1 = max(x1, max(b[1] for b in dep))
@@ -431,6 +444,9 @@ def report():
     gap = ROLL[0] - BACKSTOP_X
     print(f"   {gap:.2f} in: 3 NECTAR + 1 POLLEN need {COUNT_WINDOW[0]}, 5 POLLEN {COUNT_WINDOW[1]}: " + ("inside the window" if COUNT_WINDOW[0] < gap < COUNT_WINDOW[1] else "OUTSIDE"))
     ok &= COUNT_WINDOW[0] < gap < COUNT_WINDOW[1]
+    lo, hi = gap - BACKSTOP_SLOT, gap + BACKSTOP_SLOT
+    print(f"   the backstop's slots reach {lo:.2f} to {hi:.2f}: " + ("they cover the whole window, so it's set on the robot with real pieces" if lo <= COUNT_WINDOW[0] and hi >= COUNT_WINDOW[1] else "NOT the whole window"))
+    ok &= lo <= COUNT_WINDOW[0] and hi >= COUNT_WINDOW[1]
 
     print("== printed parts on a", " x ".join(f"{v:.0f}" for v in BED), "mm bed")
     for k, p in PARTS.items():

@@ -16,24 +16,24 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 
 | Check | Result |
 |---|---|
-| Starting outline (R102) | **18.00 × 18.00 in**, 14.8 in tall. The flap tips are the front, the pods the back. Nothing deploys but the extractor. |
-| Extractor down (R105) | 20.44 in front to back, of 24 |
+| Starting outline (R102) | **17.75 × 17.75 in**, 14.8 in tall: designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front, the rear wheels the back. Nothing deploys but the extractor. |
+| Extractor down (R105) | 20.19 in front to back, of 24 |
 | Width behind the face | 15.24 in (the simulator's frame); only the flaps are wider, at the front |
 | Static clashes | none (shafts in their own hubs, belts on their own pulleys, and bolted faces excepted, by name in `ALLOWED`) |
 | The roller rising 1.3 in on its swing arms | clear at 0, 0.33, 0.65, 1.0 and 1.3 in; the axle moves at most 0.04 in forward, so it rises nearly straight up |
 | The extractor, every 10° from down to stowed, roller down and up | clear |
 | A NECTAR and a POLLEN on their path (lane, column, ring bore, hood) | touch only what should: rollers, ceiling, feeder, pad, flywheels, hood lid |
-| The 4-piece count | roller axle to backstop 12.43 in, inside the 12.26 to 12.60 window (`cad/transfer`'s) |
-| Printed parts on a 210 × 210 × 200 mm bed | all fit; the largest is the tray, 160 × 208 mm |
+| The 4-piece count | roller axle to backstop 12.43 in, inside the 12.26 to 12.60 window (`cad/transfer`'s). The backstop sits on ±0.2 in slots, which reach 12.23 to 12.63, so it's set on the robot with real pieces |
+| Printed parts within 180 mm each way | all fit (room for a brim on a 210 mm bed, and less warp); the largest is half the top plate, 175 × 102 mm. The tray, the top plate and the lane walls are each printed in two halves and bolted |
 
 ## Layout
 
 | | Where | Notes |
 |---|---|---|
-| Body | X −7.3 to 7.3 (14.6 in), 15.24 in wide over the pods | |
-| Flaps | root at the front corners, tips at X 10.7, Y ±9.0 (the simulator's 3.4 in flap) | PETG-CF, 6 mm, with 3 mm of TPU printed onto the inner face and tip; they are also the extractor's side plates |
+| Body | X −7.05 to 7.3 (14.35 in), 15.24 in wide over the pods | the 1/4 in for the start margin comes off the back, so the flaps keep their 3.4 in |
+| Flaps | root at the front corners, tips at X 10.7, Y ±8.875 (3.4 in ahead, 1.255 in out) | PETG-CF, 6 mm, with 3 mm of TPU printed onto the inner face and tip; they are also the extractor's side plates |
 | Rails | goBILDA 1121 low-side, 336 mm, webs at \|Y\| 5.0 | low-side so the feeder's wheels pass over the flanges |
-| Wheels | 96 mm mecanum, axles X ±5.41, the front ones flush with the face | wheelbase 10.82 in |
+| Wheels | 96 mm mecanum, axles X 5.41 and −5.16, flush with the face and the back | wheelbase 10.57 in |
 | Drive motors | each face-mounted on its pod's inner plate, belted 1:1 down to its wheel | front ones at z 6.22, over the lane (340 mm belt); rear ones straight above the axle (225 mm belt) |
 | Roller | 2 in vector wheels, ±6.5 in, axle 1.0 ahead of the face, 2.4 off the tiles | as `cad/intake-b`'s, 0.06 in further back |
 | Roller arms | pivot X 2.6, z 4.05; motor on the right arm at X 3.41, z 6.35, 410 mm belt to the roller | the arm rises over the front wheel; the pivot is level with the roller's mid-float, so it rises straight up |
@@ -41,8 +41,8 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 | Launch column | X −2.37, the first ball against the backstop at X −4.13 | |
 | Flywheels | 96 mm, axles along X at Y ±2.85, z 6.65; each in a printed cassette with its motor (315 mm belt) | |
 | Feeder | 72 mm Geckos at Y 2.87, z 3.30; own 1620 RPM motor ahead of it (225 mm belt) | stopping it is the gate (the 8 Oct motor plan) |
-| Turret | goBILDA 3208-0004-0001 kit on a PETG-CF top plate at z 8.85, drive gear pointing back; servo and both encoders under the plate, as `cad/modules/turret-kit` | the kit is an envelope from goBILDA's STEP |
-| Electronics | tray on the front cross channel at z 9.1: both hubs stacked, the battery beside them, the Limelight mast at the front | **high**: see "Open" |
+| Turret | goBILDA 3208-0004-0001 kit on a PETG-CF top plate (two halves) at z 8.85, its drive gear 40° left of straight back so its lobe stays inside the back; the Speed servo belted 1:1 to the 64T's shaft, encoder A on that shaft, B on a 36T meshing the 64T (1178°, an OctoQuad on I2C bus 2), all under the plate as `cad/modules/turret-kit` | the kit is an envelope from goBILDA's STEP |
+| Electronics | tray (two halves) on the front cross channel at z 9.1, notched round the turret kit's corner: both hubs stacked, the battery beside them, the Limelight mast at the front | **high**: see "Open" |
 
 ### What changed from the concept, and why
 
@@ -100,8 +100,8 @@ print**: no screw holes, inserts, bores or ribs yet. They show size and place, a
 1. **Screws, inserts and service paths**, drawn and checked as `cad/intake-b` and `cad/transfer` do
    (`tools/robot-cad/fastener_check.py`).
 2. **The electronics are high** (hubs and battery at z 9 to 11). Look for a lower home for the battery.
-3. **The turret drive under the top plate**, from `cad/modules/turret-kit` (servo, belt, encoder cradles), in place of
-   the envelopes drawn here.
+3. **Fit the kit's footprint and the turret-kit drive plate onto the printed back third**: the kit's own mounting pattern
+   in the top plate, and `cad/modules/turret-kit`'s servo, belt and encoder cradles in place of the envelopes here.
 4. **The lane's round-belt drive and idler, the roller's spring, the ceiling's pins and bands, the pad's hinge**: as
    `cad/transfer`, redrawn on this frame.
 5. **The hood's real shape**, from the launcher rig.

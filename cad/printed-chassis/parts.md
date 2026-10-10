@@ -9,7 +9,8 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `expansion_hub` | elec | buy | REV Expansion Hub |
 | `limelight` | elec | buy | Limelight 3A |
 | `limelight_mast` | elec | print | PETG: Limelight mast; lens about 14 in up, 45 deg up, as today |
-| `tray` | elec | print | PETG: electronics tray on the front cross channel and the launcher's top plate |
+| `tray_L` | elec | print | PETG: half the electronics tray (two halves, bolted), on the front cross channel and the launcher's top plate |
+| `tray_R` | elec | print | PETG: half the electronics tray (two halves, bolted), on the front cross channel and the launcher's top plate |
 | `ex_arm_L` | extractor | print | PETG, 6 mm: extractor arm (cad/intake-b's, printed) |
 | `ex_arm_R` | extractor | print | PETG, 6 mm: extractor arm (cad/intake-b's, printed) |
 | `ex_block` | extractor | print | PETG: the FLOWER block (doc/ramp-hook.md's profile; drawn as its box here) |
@@ -52,8 +53,10 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `lane_shaft_2` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
 | `lane_shaft_3` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
 | `lane_shaft_4` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
-| `lane_wall_L` | lane | print | PETG, 1/4 in: lane wall with the shafts' bearings; on two REX standoffs to the rail |
-| `lane_wall_R` | lane | print | PETG, 1/4 in: lane wall with the shafts' bearings; on two REX standoffs to the rail |
+| `lane_wall_L_front` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
+| `lane_wall_L_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
+| `lane_wall_R_front` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
+| `lane_wall_R_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
 | `ramp` | lane | print | PETG: the ramp, in slots in the walls |
 | `feeder` | launcher | buy | goBILDA 3632-0014-0072 72 mm Gecko x2, softest |
 | `feeder_belt` | launcher | buy | goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0225 belt |
@@ -73,11 +76,12 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `flywheel_R1` | launcher | buy | 96 mm flywheel, as the mentor's launcher (CHECK the part) |
 | `hood` | launcher | print | PETG: the hood that turns the shot out (drawn as a tube and a lid) |
 | `pad` | launcher | print | PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad) |
-| `top_plate` | launcher | print | PETG-CF, 6 mm (material: the turret's base): the launcher's top plate on the cassettes; the turret kit bolts on top, its drive under |
+| `top_plate_L` | launcher | print | PETG-CF, 6 mm (material: the turret's base): half the launcher's top plate (two halves, bolted on the cassettes); the turret kit bolts across both by its own pattern |
+| `top_plate_R` | launcher | print | PETG-CF, 6 mm (material: the turret's base): half the launcher's top plate (two halves, bolted on the cassettes); the turret kit bolts across both by its own pattern |
 | `turret_enc_A` | launcher | buy | REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle |
-| `turret_enc_B` | launcher | buy | REV-11-1271 on a 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg |
-| `turret_kit` | launcher | buy | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore); drawn as its envelope |
-| `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 to the 64T's shaft (cad/modules/turret-kit's drive) |
+| `turret_enc_B` | launcher | buy | REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2 |
+| `turret_kit` | launcher | buy | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore), by its own mounting pattern; drawn as its envelope |
+| `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit) |
 | `drive_belt_BL` | pod_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
 | `drive_motor_BL` | pod_BL | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
 | `pod_BL` | pod_BL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |

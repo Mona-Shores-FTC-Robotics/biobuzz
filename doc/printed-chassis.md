@@ -11,7 +11,7 @@ PETG-CF or nylon-CF are all available. The design keeps cost sensible and says w
 
 | | Rule | Why |
 |---|---|---|
-| Part size | **Every printed part fits 210 × 210 × 200 mm** | the smallest common home bed (Prusa MK4 250 × 210, Ender-3 220 × 220, Bambu 256), so any of the mentors' printers can print any part |
+| Part size | **Every printed part within 180 mm each way** (the user, 10 Oct) | fits the smallest common home bed (210 mm) with room for a brim, and big flat PETG plates warp less. Bigger parts are printed in pieces and bolted: the tray, the launcher's top plate, the lane walls |
 | Default material | **PETG**, 4 walls, 40% gyroid | brackets, pods, lane, tray: cheap and tough |
 | Stiff parts | **PETG-CF** (or nylon-CF) **(material)** | only where a part must not flex: the flaps (they carry the extractor's stubs), the extractor's arms, the launcher's top plate (the turret's base) |
 | Faces a piece hits | **TPU 95A printed onto the rigid part** on the dual-material printer | the flaps' inner faces and tips (below); also the lane's rollers |
@@ -32,12 +32,15 @@ From the brief, in its order:
    fixed forward Limelight, drive speed about where the routes are timed (50 in/s).
 6. **R102 / R105:** inside 18 in at the start, 18 × 24 × 29 after START.
 
-## The one decision the brief makes for us: an 18.0 in outline with the flaps fixed
+## The one decision the brief makes for us: a 17.75 in outline with the flaps fixed
 
 The simulator's fixed flaps deploy at 1 s on today's 15.12 in frame. A clean sheet can do better: **make the body
 short enough that the flaps fit inside 18 in from the start**, so there is no fold, latch or servo at all.
 
-- Flap tips 3.4 in ahead of the face → **body 14.6 in, face to back, flap tip to back 18.0 in.**
+- Flap tips 3.4 in ahead of the face → **body 14.35 in, face to back, flap tip to back 17.75 in.** The design keeps 1/8 in a
+  side inside the 18 in cube (the user, 10 Oct) for print error, soft faces, screw heads, cables and sag, measured over
+  everything; that 1/4 in comes off the back, so the flaps keep their reach. Across, the tips are 17.75 apart (1.255 in
+  outside the frame instead of 1.38).
 - That is the same outer length as today's robot with its V (17.96), so every route's wall and HIVE clearances are
   unchanged; what changes is that the flaps reach 0.6 in further ahead of the intake.
 - Width stays 18 in over the flap roots, about 15.2 in over the wheels.
@@ -58,6 +61,8 @@ simulator only, Sister five, both robots on the outline, today's routes unchange
 | The same, foam-faced flaps and front (restitution 0) | **98** | **32** / 18 / 1 | 41 |
 
 - Fixing the flaps from START costs nothing against deploying them at 1 s, and the routes need no change.
+- These runs are on the 14.6 in body. The 17.75 in outline (14.35 in body, tips 1.255 in out) is with the body-designs
+  chat to re-score.
 - **Foam is the bigger win, +10 fifth TIPs**, and it also took the G409 risk to zero: with bare flaps, in 4 runs a flap
   or the robot touched a spilled POLLEN still in the air. The simulator's restitution is a guess; the drop test comes
   first.
@@ -80,12 +85,12 @@ Same order as today, front to back, because the lane's length is the 4-piece cou
 lane's end:
 
 ```
-  flap tips ─┐                                                        18.0 in
+  flap tips ─┐                                                        17.75 in
              ▼
      ╲  flap (TPU)     roller on swing arms     lane (free-roller ceiling)         turret + flywheels      ╱
       ╲═══════════╗   ◯  ───────────────────────────────────────────────  ▣ launch column        ║
        front face ╚═══┴═══ wheel ══════════════════════════════════════════ wheel ════════════════╝
-                   ◄─3.4─►◄──────────────────────── 14.6 body ──────────────────────────────────►
+                   ◄─3.4─►◄──────────────────────── 14.35 body ─────────────────────────────────►
 ```
 
 | Region | What's there |
@@ -167,7 +172,7 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 | Brief | How |
 |---|---|
-| Fixed 3.4 in flaps, nothing to actuate | 14.6 in body + 3.4 in flaps = 18.0 in at the start; no deploy |
+| Fixed 3.4 in flaps, nothing to actuate | 14.35 in body + 3.4 in flaps = 17.75 in at the start (1/8 in margin a side); no deploy |
 | Low-bounce front | TPU printed onto every flap face a spill can reach; foam if the drop test says TPU bounces |
 | 0.17 to 0.2 s intake, 120 in/s arrivals | faster roller surface; a free-roller ceiling, so the lane runs at twice today's ball speed |
 | ≤ 4 pieces, physically | lane length, as `cad/transfer/` sets it |
