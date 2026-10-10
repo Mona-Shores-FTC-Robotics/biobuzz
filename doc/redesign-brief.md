@@ -189,6 +189,43 @@ team's working assumption since 9 Oct has been that it can't be entered in AUTO 
 source or a Q&A answer before an Auto counts on it. If allowed, it gives the left end 2 NECTAR by TIP 3 and 3 by TIP 4,
 about the shortfall.
 
+## Carrying 4 NECTAR: a bend in the lane can count (10 Oct, idea, untested)
+
+The user (10 Oct): worth exploring if there is an elegant way to carry any 4 pieces, 4 NECTAR included, never 5. No
+software count, and no slower 4-piece shot. NECTAR matters in the endgame.
+
+- **Why a straight lane can't.** The count is the lane's length, and a queue's length is the sum of its diameters.
+  4 NECTAR (4 x 3.62 = 14.5 in) need more than 5 POLLEN (5 x 2.8 = 14.0 in), so any length that takes 4 NECTAR
+  takes 5 POLLEN. That is why today's lane stops at 3 NECTAR.
+- **A bend changes the arithmetic.** Make the queue turn a corner, with the pieces pressed onto the inside of the
+  bend. Small pieces waste more of the corner than big ones, so 5 POLLEN can need more room than 4 NECTAR. The mouth
+  goes between the two lengths. `tools/robot-cad/queue_bend.py` checks every mix of 4 and 5 pieces (2D, ideal
+  spheres, every piece touching the guide). The window is the room a 5-piece queue needs beyond a 4-piece one:
+
+  | Lane | Window | Best geometry |
+  |---|---|---|
+  | straight | -0.48 in (can't) | |
+  | 90° bend | +0.29 in | gate 4 in before the bend, inner radius 0.25 in |
+  | 120° | +0.43 in | gate 4 in before the bend, inner radius 0.25 in |
+  | 150° | +0.53 in | gate 4 in before the bend, inner radius 1.0 in |
+  | 180° (a hairpin) | +0.76 in | gate 4 in before the bend, inner radius 0.5 in |
+
+- **What it costs.**
+  - The pieces have to stay pressed onto the inside of the bend. The queue is pushed from behind, so it wants to bow
+    outward. A sprung belt or pad on the outside has to beat that, just as the sprung ceiling presses pieces onto
+    today's lane.
+  - The mouth (where a 5th piece is refused) has to sit within a few tenths of an inch.
+  - Variation in piece size eats into the window: 0.05 in on a POLLEN moves it by about 0.25 in.
+  - The redesign already turns 90° from the lane up into the launch column, but 0.29 in is thin. Leaning the column
+    back to make a 120° to 150° bend, or a hairpin, gives more room and costs height and packaging.
+  - Shooting is unchanged: the feeder still drives pieces one after another up the column.
+- **Test before any CAD.** Print a bend jig: the guide plus a foam pad behind the pieces, with the mouth on a
+  sliding stop. Then, with real pieces:
+  1. Push 4 NECTAR in by hand and check the mouth closes.
+  2. Push in 5 POLLEN and check the 5th is refused.
+  3. Try every mix, 20 times each, and record where each queue's tail ends.
+  Do it at 90° and at 150°. If the real window is under about 0.2 in, drop the idea.
+
 ## Hard limits (game manual, TU03)
 
 - R102: start inside an 18 in cube (preloads may stick out). G304: start touching the wall.
