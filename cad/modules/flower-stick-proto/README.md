@@ -123,4 +123,5 @@ before changing anything else. Then try the forward reach on whichever block did
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
 - `proto.png`: the picture above, drawn from his Robot.step.
+- `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.
 - To re-check: `python3 tools/robot-cad/module_check.py Robot.step flower_stick_seated`, run from a scratch folder.
