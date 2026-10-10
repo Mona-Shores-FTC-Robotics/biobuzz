@@ -23,7 +23,7 @@ OUT = os.path.join(HERE, ".cache", "launcher")
 MODULE_COLUMN_IN = (-2.045, 0.158)
 LANE = re.compile(r"^(Part 1|foam tube hub|Hole Lowside U-Channel \(GB\) \((5|7)\))")   # his lane: the centre channels, hubs and balls
 
-def read(path):
+def read(path, full=False):
     doc = TDocStd_Document(TCollection_ExtendedString("doc"))
     r = STEPCAFControl_Reader(); r.SetNameMode(True); r.ReadFile(path); r.Transfer(doc)
     st = XCAFDoc_DocumentTool.ShapeTool_s(doc.Main())
@@ -39,10 +39,17 @@ def read(path):
             seq = TDF_LabelSequence(); st.GetComponents_s(lab, seq)
             for i in range(1, seq.Length() + 1): walk(seq.Value(i), loc, path)
             return
-        out.append((path[-1] if path else name(lab), st.GetShape_s(lab).Moved(loc)))
+        out.append(((path or [name(lab)]) if full else (path[-1] if path else name(lab)), st.GetShape_s(lab).Moved(loc)))
     roots = TDF_LabelSequence(); st.GetFreeShapes(roots)
     for i in range(1, roots.Length() + 1): walk(roots.Value(i), TopLoc_Location(), [])
     return out
+
+def read_groups(path):
+    """The same, as {top-level group: [(name, shape)]}."""
+    groups = {}
+    for full, sh in read(path, full=True):
+        groups.setdefault(full[0], []).append((full[-1], sh))
+    return groups
 
 if __name__ == "__main__":
     sys.path.insert(0, HERE)
