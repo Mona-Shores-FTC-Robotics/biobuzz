@@ -107,6 +107,7 @@ STAR = (FACE - 2.36, 3.15)              # its centre: 2.36 in behind the face, 3
 STAR_Z = 3.2                            # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
                                         # ramp (bottom z 1.3) where the stars are, so they sit just over the rails: a NECTAR's middle (3.11), 0.5 above a POLLEN's
                                         # (his sit 0.44 above a POLLEN's)
+SV_Z = STAR_Z + STAR_W / 2 + 0.05 + 14 * MM + 0.1   # the star servo's underside: over the clutch's printed hub
 STAR_FLEX = 0.08                        # clearance round each star; its flaps bend toward the lane, where only pieces are (how far: push one with a NECTAR)
 ARM_Y = (5.0, 5.3)                      # inside the wheels (his belts run outside them), over the rails
 BELT_Y = (4.4, 4.99)
@@ -347,14 +348,16 @@ for s, n in SIDES:
 for s, n in SIDES:
     sx, sy = STAR[0], s * STAR[1]
     part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
-         "3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane")
-    part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 7 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy", "7 mm hex shaft, vertical (TBD, with the mentor's parts)")
-    part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 0.9, STAR_Z + STAR_W / 2 + 0.15, STAR_Z + STAR_W / 2 + 0.5), "buy",
-         "one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it")
-    sv = box(sx - 0.45, sx + 1.13, sy - 0.4, sy + 0.4, STAR_Z + 0.75, STAR_Z + 0.75 + 37 * MM)
-    part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it")
-    top = STAR_Z + 0.75 + 37 * MM
-    br = box(UCH_FRONT, sx + 1.15, 2.7, 4.95, top, top + 0.2)                                       # over the servo
+         "3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD)")
+    part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy",
+         "8 mm ROUND hardened shaft (ground steel, h6), vertical, from the servo: the clutch's rollers run on it, so not 8mm REX (its flats would let them slip)")
+    part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 20 * MM, STAR_Z + STAR_W / 2 + 0.05, STAR_Z + STAR_W / 2 + 0.05 + 14 * MM), "print",
+         "PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; "
+         "CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it")
+    sv = box(sx - 1.13, sx + 0.45, sy - 0.4, sy + 0.4, SV_Z, SV_Z + 37 * MM)    # its body back toward the drive motor, clear of the intake motor
+    part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn)")
+    top = SV_Z + 37 * MM
+    br = box(UCH_FRONT, sx + 0.5, 2.7, 4.95, top, top + 0.2)                                        # over the servo
     br = br.union(box(UCH_FRONT, 4.05, 4.4, 4.95, PIVOT[1] - 0.45, top))                             # down the U-channel mount's front face
     br = br.union(box(PIVOT[0] - 0.3, PIVOT[0] + 0.3, 4.75, 4.95, PIVOT[1] - 0.45, top))        # the arms' pivot, inboard of the arm
     br = br.union(box(UCH_FRONT, PIVOT[0] + 0.3, 4.75, 4.95, PIVOT[1] - 0.45, PIVOT[1] - 0.25))
@@ -439,7 +442,7 @@ part("elec", "battery", box(AXLE[-1] - 1.82, AXLE[-1] - 1.82 + BATTERY[2], -BATT
 for s_, n in SIDES:
     part("elec", f"battery_cradle_{n}", box(AXLE[-1] - 1.87, AXLE[-1] - 1.87 + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45), "print",
          "PETG: half the battery's cradle, hung from the rails' bottom flanges")
-for k, (z0, z1) in enumerate(((STAR_Z + 0.95 + 37 * MM, 9.6), (9.6, 13.4))):
+for k, (z0, z1) in enumerate(((SV_Z + 0.2 + 37 * MM, 9.6), (9.6, 13.4))):
     part("elec", f"limelight_mast_{k}", box(4.4, 4.8, 3.0, 3.5, z0, z1), "print",
          "PETG: Limelight mast on the left front bracket, in two pieces (bed size); lens about 14 in up, 45 deg up (its offsets go in CameraMount)")
 part("elec", "limelight", box(4.05, 5.15, 2.15, 4.35, 13.4, 14.8), "buy", "Limelight 3A")
@@ -470,7 +473,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"),
            ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
-           ("star_shaft_", "star_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
+           ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
            ("dm_", "rail_"), ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
