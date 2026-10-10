@@ -571,13 +571,29 @@ if __name__ == "__main__":
     print("ALL CHECKS PASS" if ok else "CHECKS FAIL")
     if CHECK_ONLY: sys.exit(0 if ok else 1)
     os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
+    # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
+    # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
+    def group_of(k):
+        if PARTS[k]["moves"] == "intake": return "MOVES 1 intake arms - revolute on the arms' pivot (Y axis), 0 to 13 deg up"
+        if PARTS[k]["moves"] == "extractor" and not k.startswith("ex_stub"): return "MOVES 2 extractor - revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
+        for n, i in (("FL", 3), ("FR", 4), ("BL", 5), ("BR", 6)):
+            if k == f"wheel_{n}": return f"MOVES {i} wheel {n} - revolute on its shaft"
+        if k == "star_L": return "MOVES 7 star wheel L - revolute on its vertical shaft"
+        if k == "star_R": return "MOVES 8 star wheel R - revolute on its vertical shaft"
+        return "FRAME - fix"
+    groups = {}
+    for k in PARTS: groups.setdefault(group_of(k), []).append(k)
     asm = cq.Assembly(name="printed_chassis")
-    for k, p in PARTS.items():
-        s = solid(p["shape"]).scale(25.4)
-        col = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}[p["kind"]]
-        if k.startswith(("flap_face", "pad")): col = cq.Color(0.95, 0.75, 0.2)
-        asm.add(s, name=k, color=col)
-        if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
+    for g in sorted(groups, key=lambda g: (not g.startswith("FRAME"), int(g.split()[1]) if g.startswith("MOVES") else 0)):
+        sub = cq.Assembly(name=g)
+        for k in groups[g]:
+            p = PARTS[k]
+            s = solid(p["shape"]).scale(25.4)
+            col = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}[p["kind"]]
+            if k.startswith(("flap_face", "pad")): col = cq.Color(0.95, 0.75, 0.2)
+            sub.add(s, name=k, color=col)
+            if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
+        asm.add(sub, name=g)
     asm.save(os.path.join(HERE, "printed-chassis.step"))
     with open(os.path.join(HERE, "parts.md"), "w") as f:
         f.write("# Parts, layout v1 (written by build.py)\n\nScrews, nuts and inserts come with v2. CHECK marks a size not read from a vendor file.\n\n" + parts_md())

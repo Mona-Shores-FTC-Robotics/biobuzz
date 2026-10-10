@@ -26,6 +26,26 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 | The 4-piece count | roller axle to backstop 12.43 in, inside the 12.26 to 12.60 window (`cad/transfer`'s). The backstop sits on ±0.2 in slots, which reach 12.23 to 12.63, so it's set on the robot with real pieces |
 | Printed parts within 180 mm each way | all fit (room for a brim on a 210 mm bed, and less warp); the largest is half the top plate, 175 × 102 mm. The tray, the top plate and the lane walls are each printed in two halves and bolted |
 
+## In Onshape
+
+`printed-chassis.step` is the whole robot in one file (about 2 MB, millimetres, origin on the floor under the body's
+centre, +X forward, +Z up). It's for looking, measuring and checking fits: the parts arrive as solids with no
+features, so anything to be edited is changed in `build.py` and re-exported.
+
+1. **Create → Document → Import** `printed-chassis.step`. Leave **Flatten assembly off**.
+2. The assembly arrives in groups, as `cad/full-robot`'s do. Right-click **FRAME - fix** → **Fix**, then lock each
+   **MOVES** group (the lock icon at the right of its row) so its parts move together.
+3. Add the mates the groups' names give (`cad/full-robot/ONSHAPE.md`, section 2, explains Revolute mates):
+
+| Group | Mate | Limits |
+|---|---|---|
+| MOVES 1 intake arms | Revolute about the arms' pivot (a round edge of `intake_pivot_L` on the Y axis) | 0 to 13° (the roller rises 1.3 in) |
+| MOVES 2 extractor | Revolute about the stub shafts | 0 (down) to 146° (stowed, as drawn) |
+| MOVES 3 to 6 wheels | Revolute on each wheel's shaft | none |
+| MOVES 7 and 8 star wheels | Revolute on each star's vertical shaft | none |
+
+Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
+
 ## Layout
 
 | | Where | Notes |
