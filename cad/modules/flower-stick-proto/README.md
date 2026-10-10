@@ -53,6 +53,10 @@ Grid positions count goBILDA's 8 mm holes. On each upright's web, use the two **
 upright's bottom end**: these are at X 5.98 and X 7.24, z 3.48. The flaps module uses the same two holes; you can't
 fit both at once.
 
+**Confirm on the robot:** these holes come from the 9 Oct Robot.step. His built chassis (tall fixed uprights, slider
+rails for a floating intake) may differ. Check that the holes are there and that a nut fits behind each one before
+bolting anything. Every joint below names its holes or the threaded part it goes into; nothing floats.
+
 1. **Plate A on each upright's web, outside face.** Put A's top-row holes 1 and 5 on the web's two holes. A hangs
    below the upright (to z 1.43), and its front edge is 0.47 in past his face. Fit 2 × M4 × 12 from outside, with
    lock nuts inside the channel, flats up and down. His Dual Block sits about 0.3 mm below the nuts.
