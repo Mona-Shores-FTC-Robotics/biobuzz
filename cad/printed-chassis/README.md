@@ -2,7 +2,7 @@
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
-corners are in it, placed by their axles. **Screws, gear teeth, springs and the lane's drive belt are not drawn yet**
+corners are in it, placed by their axles. His built robot (photos, 10 Oct) now supersedes his 9 Oct CAD as the reference. **Screws, gear teeth, springs and the lane's drive belt are not drawn yet**
 (v2). Nothing here is built.
 
     python3 cad/printed-chassis/build.py          # checks, then writes printed-chassis.step, stl/, parts.md, views/
@@ -123,10 +123,16 @@ print**: no screw holes, inserts, bores or ribs yet.
 
 ## Open (v2, and before anything is printed)
 
-1. **Screws, inserts and service paths**, drawn and checked as `cad/intake-b` and `cad/transfer` do
-   (`tools/robot-cad/fastener_check.py`), each module's way out checked; a build order; a two-robot parts list.
-2. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, how his launcher frame bolts down
-   (his CAD shows it floating 1 in over the rails), and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
+1. **Every part shows what it bolts to** (the user's rule, from the mentor's one criticism of the 9 Oct CAD: "there were
+   not spots to connect things"). v2 draws every fastener and checks that each part has at least one fastener path to
+   its neighbour, and through them to the rails, through real holes: goBILDA's 8 mm grid on bought parts, drilled holes
+   or named heat-set inserts on printed ones. A part with no path fails the build. Alongside it: screws checked as
+   `tools/robot-cad/fastener_check.py` does (shank only through holes, head and key room, thread engagement), each
+   module's way out checked, a build order, a two-robot parts list.
+2. **The launcher's mounting and its sprung flywheel modules.** The mentor now wants each flywheel module sprung so the
+   pinch sets itself for POLLEN and NECTAR (the fixed 3.19 in gap misses a POLLEN), and has no plan yet for how the
+   launcher frame attaches. Whether the flywheels move onto the turret is waiting on the user.
+2a. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
 4. **The lane's round-belt drive and idler, the roller's spring, the ceiling's pins and bands**: as `cad/transfer`,
