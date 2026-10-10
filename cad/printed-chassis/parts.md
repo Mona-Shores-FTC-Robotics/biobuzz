@@ -23,10 +23,10 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `rail_L` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rail_R` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rear_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket) |
-| `flap_L` | front_L | print | PETG, 6 mm: the fixed flap and the extractor's side plate; bolts to the front pod |
-| `flap_foam_L` | front_L | buy | 1/2 in EVA or polyethylene foam on a clip-on backer (the drop test picks it) |
-| `flap_R` | front_R | print | PETG, 6 mm: the fixed flap and the extractor's side plate; bolts to the front pod |
-| `flap_foam_R` | front_R | buy | 1/2 in EVA or polyethylene foam on a clip-on backer (the drop test picks it) |
+| `flap_L` | front_L | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
+| `flap_face_L` | front_L | print | TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces |
+| `flap_R` | front_R | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
+| `flap_face_R` | front_R | print | TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces |
 | `intake_arm_L` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_arm_R` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_motor` | intake | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) and the lane |
@@ -73,15 +73,11 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `flywheel_R1` | launcher | buy | 96 mm flywheel, as the mentor's launcher (CHECK the part) |
 | `hood` | launcher | print | PETG: the hood that turns the shot out (drawn as a tube and a lid) |
 | `pad` | launcher | print | PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad) |
-| `ring_roller_0` | launcher | buy | 625 or 608 bearing in a printed V-groove tyre |
-| `ring_roller_1` | launcher | buy | 625 or 608 bearing in a printed V-groove tyre |
-| `ring_roller_2` | launcher | buy | 625 or 608 bearing in a printed V-groove tyre |
-| `ring_roller_3` | launcher | buy | 625 or 608 bearing in a printed V-groove tyre |
-| `top_plate` | launcher | print | PETG, 6 mm... drawn 0.05 thick here: the launcher's top plate on the cassettes, carries the ring's rollers, the servo and the encoders |
-| `turret_encoder_0` | launcher | buy | REV-11-1271 Thru-Bore encoder on a printed pinion: the two-encoder decode, ratios chosen in v2 |
-| `turret_encoder_1` | launcher | buy | REV-11-1271 Thru-Bore encoder on a printed pinion: the two-encoder decode, ratios chosen in v2 |
-| `turret_ring` | launcher | print | PETG: turret ring with its gear cut in its rim (drawn plain); rides on four V-groove rollers |
-| `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous: drives the ring by a printed pinion |
+| `top_plate` | launcher | print | PETG-CF, 6 mm (material: the turret's base): the launcher's top plate on the cassettes; the turret kit bolts on top, its drive under |
+| `turret_enc_A` | launcher | buy | REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle |
+| `turret_enc_B` | launcher | buy | REV-11-1271 on a 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg |
+| `turret_kit` | launcher | buy | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore); drawn as its envelope |
+| `turret_servo` | launcher | buy | goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 to the 64T's shaft (cad/modules/turret-kit's drive) |
 | `drive_belt_BL` | pod_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0225 belt |
 | `drive_motor_BL` | pod_BL | buy | goBILDA 5203 Yellow Jacket, as today's drive (CHECK the ratio) |
 | `pod_BL` | pod_BL | print | PETG: inner plate, outer plate and bridge in one; wheel bearings in both plates, motor on the inner |

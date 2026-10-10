@@ -4,20 +4,19 @@ Issue #172. A robot as easy as possible to build, service and change, printing w
 the rest. It is drawn from the Auto strategy in [redesign-brief.md](redesign-brief.md), not the other way round.
 Nothing here is built or measured; this is the concept to agree before much is drawn.
 
-## Printers and materials (the user, 10 Oct: the mentors have common home printers)
+## Printers and materials (the user and the mentors, 10 Oct)
 
-Any common home printer will do, so the design asks only what they all have:
+The mentors print at home, one printer is dual-material, and any reasonably priced filament is fine: PETG, TPU and
+PETG-CF or nylon-CF are all available. The design keeps cost sensible and says where a part needs the dearer one.
 
 | | Rule | Why |
 |---|---|---|
-| Part size | **Every printed part fits 210 × 210 × 200 mm** | the smallest common bed (Prusa MK4 250 × 210, Ender-3 220 × 220, Bambu A1 / P1S 256). A Bambu A1 mini (180 mm) can't print the largest parts. |
-| Default material | **PETG**, 4 walls, 40% gyroid | strong and tough enough for brackets and modules, prints on every one of these |
-| Rollers and grippy faces | **TPU 95A**, small parts only | prints best on a direct-drive extruder (Bambu, Prusa MK4); on a Bowden printer (Ender-3) slow it down or buy the bought alternative named in the parts list |
+| Part size | **Every printed part fits 210 × 210 × 200 mm** | the smallest common home bed (Prusa MK4 250 × 210, Ender-3 220 × 220, Bambu 256), so any of the mentors' printers can print any part |
+| Default material | **PETG**, 4 walls, 40% gyroid | brackets, pods, lane, tray: cheap and tough |
+| Stiff parts | **PETG-CF** (or nylon-CF) **(material)** | only where a part must not flex: the flaps (they carry the extractor's stubs), the extractor's arms, the launcher's top plate (the turret's base) |
+| Faces a piece hits | **TPU 95A printed onto the rigid part** on the dual-material printer | the flaps' inner faces and tips (below); also the lane's rollers |
 | Jigs and fit coupons | PLA or PLA+ | |
-| Nylon-CF | **not used**: it needs a hardened nozzle and a dry box | the parts that would want it (turret ring, extractor arms) are drawn thicker in PETG instead |
 | Inserts | M3 and M4 brass heat-set | every screw into a printed part |
-
-Parts where material or orientation matters are marked **(material)** below.
 
 ## What the Auto asks of the robot
 
@@ -26,7 +25,7 @@ From the brief, in its order:
 1. **Fixed flaps reaching 3.4 in ahead of the face**, the longest that never touch a wall, the HIVE's feet or the centre
    line. They do as well as scheduled 8 in flaps (28 / 30 fifth TIPs of 60) with nothing to actuate.
 2. **A dead front.** Restitution 0 against 0.4 is 33 against 5 fifth TIPs: the front's bounce matters more than its
-   shape. Every surface a spilled piece can hit is foam-faced.
+   shape. Every surface a spilled piece can hit gets a soft face (TPU, or foam if the drop test asks).
 3. **A faster intake:** a piece every 0.17 to 0.2 s, taking pieces arriving at up to about 120 in/s.
 4. **At most 4 pieces, by geometry** (G407), with no sensor and no software count.
 5. **Everything the current robot does:** turret, two flywheels, an independent feeder, the FLOWER extractor, the
@@ -70,6 +69,10 @@ simulator only, Sister five, both robots on the outline, today's routes unchange
   V's. So **the catch spots should be re-tuned for the body**; on the retuned routes above the loss doesn't show. The mouth's
   reach ahead of the face is ours to set in the CAD; the further forward, the closer to the simulated today's front.
   The simulator models the drive as a box, so it says nothing about wheelbase.
+- **How hard can the flaps be?** (simulator chat, 891e44b, routes as first drawn, fifth TIPs of 60): at today's intake,
+  restitution 0.1 (the baseline, TPU-like) 16, 0.4 (a hard plate) 10, 0.6 8; at the 0.17 s intake, 0.05 26, 0.1 27,
+  0.4 25. A hard face costs about 6 at today's intake and 2 at the fast one, and softer than 0.1 buys nothing. So the
+  flaps get a TPU face; the structure behind it can be as stiff as it likes.
 
 ## Layout
 
@@ -79,7 +82,7 @@ lane's end:
 ```
   flap tips ─┐                                                        18.0 in
              ▼
-     ╲  flap (foam)    roller on swing arms     lane (free-roller ceiling)         turret + flywheels      ╱
+     ╲  flap (TPU)     roller on swing arms     lane (free-roller ceiling)         turret + flywheels      ╱
       ╲═══════════╗   ◯  ───────────────────────────────────────────────  ▣ launch column        ║
        front face ╚═══┴═══ wheel ══════════════════════════════════════════ wheel ════════════════╝
                    ◄─3.4─►◄──────────────────────── 14.6 body ──────────────────────────────────►
@@ -88,14 +91,28 @@ lane's end:
 | Region | What's there |
 |---|---|
 | Front 3.4 in | The two fixed flaps and the FLOWER extractor (stowed in front of the roller, as today) |
-| Front of body | The intake roller on two swing arms, foam-faced front bulkhead |
+| Front of body | The intake roller on two swing arms; the TPU-faced flaps' roots |
 | Middle | The lane: 4 pieces nose to tail, roller axle to backstop 12.26 to 12.60 in (the window `cad/transfer/` found) |
 | Back third | The launch column, the feeder and pad, the flywheels under a printed turret, the electronics on top |
 | Corners | Four drive pods, one per wheel, each a module |
 
 ## The frame: a stock ladder, printed everything else
 
-Long, stiff members are what printing does worst and goBILDA does best, and nothing over about 200 mm prints in one piece on every home printer. So:
+**The recommendation, judged against the user's goals** (the user, 10 Oct: "I gave you my goals": the Sister five Auto
+above all, then ease of building, serviceability and fast iteration). Mentors, push back here if you disagree.
+
+- **Auto performance:** the drive's geometry, stiffness and wheel alignment decide how well Pedro follows a route. A
+  goBILDA channel ladder is square and stiff out of the box; a printed frame over 15 in long would be spliced from
+  several prints, and its alignment would depend on each print and joint.
+- **Building:** the ladder is four bought channels and their brackets, every hole already there. Nothing long is printed,
+  nothing is drilled.
+- **Service:** every mechanism is a printed module bolted to the ladder; a broken one comes off on its own.
+- **Iteration:** what changes from week to week (the flaps, the intake, the lane, the launcher's frame) is all printed,
+  and reprinting one module doesn't touch the frame or anything else.
+- **The cost:** a little weight against an all-printed frame, and the frame's hole pattern on a 24 mm grid sets where
+  modules can bolt.
+
+So:
 
 - **Bought:** two goBILDA U-channel side rails and two cross channels (a ladder, as the Strafer kit is), with goBILDA's
   hole pattern, so nothing is drilled.
@@ -105,10 +122,10 @@ Long, stiff members are what printing does worst and goBILDA does best, and noth
 | Module | What it is | Comes off with |
 |---|---|---|
 | Drive pod ×4 | wheel on its own shaft in two bearings, its motor and belt, all in one printed housing | 4 screws; swap a whole corner in the pit (the front motors also sit under the front cross channel: v2 settles how they come out) |
-| Front | front bulkhead with foam face, flap roots, extractor stubs and servo | 4 screws |
+| Front | the two flaps (TPU-faced), the extractor's stubs and servo | 2 screws a flap, into its pod |
 | Intake | roller, its swing arms, motor | 2 pivot screws + motor plug |
-| Lane | walls, rollers, top belt, ramp | 4 screws, lifts out upward |
-| Launcher | turret ring and rollers, flywheels and motors, feeder, pad, backstop | 4 screws |
+| Lane | walls, rollers, ceiling, ramp | 4 screws (v2 settles its path out: the front drive motors cross over it) |
+| Launcher | turret kit and its drive, flywheel cassettes and motors, feeder, pad, backstop | 4 screws |
 | Electronics tray | Control Hub, Expansion Hub, OctoQuad, switch, battery cradle | 4 screws, plugs stay on the tray |
 
 ## What printing changes, mechanism by mechanism
@@ -117,17 +134,17 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 | Mechanism | Today (`cad/intake-b/`, `cad/transfer/`) | Clean sheet | Why |
 |---|---|---|---|
-| **Flaps** | Rigid V, 1/8 in aluminium, tips 2.8 in out | **Fixed printed flaps, tips 3.4 in out, 1/2 in EVA foam on a clip-on backer** | Brief items 1 and 2. The foam backer clips off, so the drop test can try foams without reprinting. |
-| **Front face** | bare channel and plates | **Foam across the whole face below 4 in**, same clip-on backer | A spilled piece that hits the face should die there, not bounce away. |
+| **Flaps** | Rigid V, 1/8 in aluminium, tips 2.8 in out | **Fixed flaps, tips 3.4 in out: a rigid PETG-CF core (it carries the extractor's stub) with 3 mm of TPU printed onto its inner face and round its tip** | Brief items 1 and 2. In the simulator a hard flap (restitution 0.4) loses about 6 fifth TIPs of 60 at today's intake and 2 at the fast one, while going softer than 0.1 buys nothing (below). TPU is about there; foam on a clip-on backer is the fallback if the drop test says otherwise. |
+| **Front face** | bare channel and plates | **Nothing to face**: the roller fills the face between the flaps (±6.5 in), and the flaps' roots cover the rest | A spilled piece that reaches the face meets the roller or a TPU face. |
 | **Intake roller** | Floats straight up 1.3 in in slots, motor on a sliding carriage | **Roller on two printed swing arms pivoting behind the front wheels, level with its mid-float, so it rises straight up; its motor rides the right arm**, belted to the roller over the wheel | Today's slots exist only because the old uprights stood behind the roller. A swing arm needs no slots, carriage or slides, and its belt keeps its length. |
 | **Roller wheels** | WCP vector wheels + printed inserts | **WCP vector wheels if they test better, else printed TPU vector wheels** | Printing makes the bore, the hex and the spacing ours; a test decides which grips better. |
 | **Roller speed** | 1150 RPM × 2 in ≈ 120 in/s surface | **About 150 to 170 in/s surface** (a 1620 RPM motor or a larger roller) | The brief wants pieces arriving at 120 in/s taken; the surface must outrun them. |
 | **Lane** | 5 shafts of rollers under a **still** foam ceiling: the ball rolls at half the tread's speed (about 24 in/s) | **A ceiling of free-spinning rollers** over the same TPU rollers: the ball rides at the full tread speed | At 0.17 s a piece, 3.6 in pieces need at least 21 in/s with no gap; today's lane has no margin. Twice the speed with no extra drive (the CAD replaced the driven top run first proposed here). |
 | **4-piece count** | Lane length, backstop on slots | **Same**: roller axle to backstop 12.43 in, backstop on ±0.2 in slots, set with real balls | It works and needs nothing. |
 | **Feeder, gate, pad** | Feeder on a yoke belted to the left flywheel, gate servo, sprung pad | **Same principle, printed yoke and pad, own motor** (the 8 Oct motor budget: the turret is a servo, so the feeder gets a motor) | Unchanged decision; printing only makes the brackets. |
-| **Turret** | goBILDA 176T kit + 64T, servo, two Thru-Bore encoders on a 64T and a 36T (1178° window) | **Printed ring gear on four V-groove bearing rollers** (stock 625/608 bearings), servo-driven, same two-encoder trick with **ratios we choose** (e.g. pinions differing by one tooth for a much wider window) | The kit dictated the 64/36 compromise; a printed ring doesn't. The ring is PETG, drawn thick **(material)**. |
+| **Turret** | goBILDA 3208-0004-0001 kit (176T ring, 64T drive gear, 105 mm bore), servo, two Thru-Bore encoders on the 64T and a 36T (1178° window) | **The same kit and drive, bought** (the user, 10 Oct), on a PETG-CF top plate, its drive gear pointing back; the servo and encoders as `cad/modules/turret-kit` | A stock ring is round, stiff and known; the encoders' window (1178°) covers the routes' 1080°. |
 | **Flywheels** | Two stock 96 mm wheels, 6000 RPM Yellow Jackets | **Same, bought**; printed motor brackets and guard | Stock wheels are balanced and durable; printing them isn't worth it. |
-| **FLOWER extractor** | Arms on stubs, cross shaft, printed gear pair, servo | **Same geometry**, arms printed instead of cut aluminium **(material: PETG, 6 mm or thicker)** | The drawn geometry is checked against the FLOWER; only the build method changes. |
+| **FLOWER extractor** | Arms on stubs, cross shaft, printed gear pair, servo | **Same geometry**, arms printed instead of cut aluminium **(material: PETG-CF, 6 mm)** | The drawn geometry is checked against the FLOWER; only the build method changes. |
 | **Drive** | goBILDA mecanum, belted, wheels hung on the rail plus an added outer plate | **Same wheels and motors, in four printed pods**, wheel supported both sides | One corner out with four screws instead of a frame strip-down. |
 | **Limelight** | goBILDA mast on the launcher | **Printed mast on the electronics tray**, same lens position and 45° pitch | The camera position is localization data: keep it where the code expects. |
 
@@ -135,23 +152,23 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 | Bought | Printed |
 |---|---|
-| goBILDA U-channel ×4 (ladder) | 4 drive pods |
-| 4 goBILDA mecanum wheels, 4 drive motors (as today) | front bulkhead, flaps, foam backers |
+| goBILDA channel ×4 (ladder) | 4 drive pods |
+| 4 goBILDA mecanum wheels, 4 drive motors (as today) | flaps with TPU faces |
 | Intake motor (1620 RPM Yellow Jacket, or 1150 with a larger roller) | roller swing arms, roller hubs or TPU vector wheels |
 | 2 flywheel motors (6000 RPM), 2 × 96 mm flywheels | lane walls, TPU lane rollers, pulleys, ramp |
 | Feeder motor; feeder Gecko wheels | feeder yoke, pad, backstop, launcher frame |
-| Turret servo, extractor servo, gate servo | turret ring gear, roller carriers, encoder pinions |
+| goBILDA turret kit, turret servo, extractor servo | launcher top plate, encoder cradles (`cad/modules/turret-kit`) |
 | 2 REV Thru-Bore encoders, OctoQuad | extractor arms, gear pair, servo brackets |
 | goBILDA REX shafts, bearings, collars, belts, pulleys | electronics tray, battery cradle, Limelight mast |
-| 625/608 bearings for the turret rollers | drilling and fit jigs (PLA+) |
-| EVA / polyethylene foam, round belt, M3/M4 screws, inserts | |
+| 608 bearings for the ceiling's rollers | drilling and fit jigs (PLA+) |
+| Round belt, M3/M4 screws, inserts (foam only if the drop test asks) | |
 
 ## How it meets the brief
 
 | Brief | How |
 |---|---|
 | Fixed 3.4 in flaps, nothing to actuate | 14.6 in body + 3.4 in flaps = 18.0 in at the start; no deploy |
-| Low-bounce front | foam on every face a spill can reach, on clip-on backers for the drop test |
+| Low-bounce front | TPU printed onto every flap face a spill can reach; foam if the drop test says TPU bounces |
 | 0.17 to 0.2 s intake, 120 in/s arrivals | faster roller surface; a free-roller ceiling, so the lane runs at twice today's ball speed |
 | ≤ 4 pieces, physically | lane length, as `cad/transfer/` sets it |
 | Turret, flywheels, feeder, extractor | kept; built from printed parts and stock motion parts |
@@ -160,12 +177,11 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 ## Open questions
 
-1. ~~Printer, materials, ladder frame~~: agreed (the user, 10 Oct): common home printers, a goBILDA ladder with printed
-   modules.
-2. **Drop test** (brief, "Measure it first"): EVA vs polyethylene foam on a printed backer, so the flap backer is drawn
-   for the winner.
-3. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, the driven-top lane's
-   speed, and a printed ring's backlash against the two-encoder decode tolerance.
+1. ~~Printer, materials, ladder frame, turret~~: settled (the user, 10 Oct; above).
+2. **Drop test** (brief, "Measure it first"): a POLLEN and a NECTAR onto a printed TPU face, a bare PETG face and a 1/2 in
+   EVA sample; restitution = sqrt(rebound / drop), ten drops each. The simulator chat turns the numbers into fifth TIPs.
+3. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, and the free-roller
+   lane's speed.
 
 ## The CAD
 

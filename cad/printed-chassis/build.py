@@ -18,7 +18,8 @@ Modules (each comes off on its own; doc/printed-chassis.md, "The frame"):
     extractor  the FLOWER extractor (cad/intake-b's geometry, its arms printed)
     intake     the roller on two printed swing arms; its motor rides the right arm's tail
     lane       ramp, walls, five roller shafts, a sprung ceiling of free rollers, floor and backstop
-    launcher   flywheel cassettes, feeder and its motor, pad, top plate, printed turret ring on four bearing rollers, hood
+    launcher   flywheel cassettes, feeder and its motor, pad, top plate, goBILDA's turret kit with cad/transfer's servo and
+               two-encoder drive under its drive gear, hood
     elec       tray, Control Hub, Expansion Hub, battery, Limelight mast
 """
 import math, os, sys
@@ -111,7 +112,11 @@ FLY_BELT = 315
 FLY_MOTOR = (FLY_Y + math.sqrt(centres(FLY_BELT) ** 2 - (7.0 - FLY_Z) ** 2), 7.0)                 # |Y|, z; along X, face 0.6 behind the column, shaft back
 FEED_BELT = 225
 FEED_MOTOR = at((2.87, 3.30), (3.9, 5.0), centres(FEED_BELT))   # Y, z; along X ahead of the feeder, shaft back, belted 1:1
-RING = (8.75, 9.25, 3.0, 105 / 2 * MM)  # printed turret ring: z0, z1, outer radius, bore radius (the ball's path)
+KIT_Z = 8.85                            # goBILDA 3208-0004-0001 gear-driven turret kit (its STEP): a 144 mm square base, 20 mm tall,
+KIT_HALF, KIT_H = 72 * MM, 20 * MM      # 176T ring, 105 mm bore (the ball's path); its 64T drive gear 96 mm from the axis, the
+KIT_LOBE = 122.4 * MM                   # base reaching 122.4 mm out that way. The drive gear points back, clear of the tray.
+KIT_BORE = 105 / 2 * MM
+DRIVE_GEAR = (COL_X - 96 * MM, 0.0)     # the 64T's axis (X, Y); encoder A rides its shaft, B a 36T meshing it (40 mm away)
 
 FRONT_CROSS_X, FRONT_CROSS_Z = 5.3, 7.0
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
@@ -220,15 +225,15 @@ for sx, fx in ((1, "F"), (-1, "B")):
 for s, n in SIDES:
     root, tip = (FACE, HALF_W), FLAP_TIP
     ang = math.atan2(tip[1] - root[1], tip[0] - root[0]); L = math.hypot(tip[0] - root[0], tip[1] - root[1])
-    T, FOAM = 0.25, 0.5
+    T, FACE_T = 0.25, 0.12                 # a 3 mm TPU face, printed onto the flap's inner side and round its tip
     plate = box(0, L, -T, 0, 0.25, 4.25).union(box(L * (2.4 - 0.5) / 3.4, L * (2.4 + 0.5) / 3.4, -T, 0, 4.25, 5.0))   # taller round the extractor's stub
     plate = plate.rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     plate = plate.union(box(FACE - 0.6, FACE + 0.05, POD_OUT[0], HALF_W, 0.5, POD_TOP))                              # the root: the front pod's outer plate's last 0.6 in
-    foam = box(L * 0.5, L, -T - FOAM, -T, 0.25, 4.25).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
+    foam = box(L * 0.3, L, -T - FACE_T, -T, 0.25, 4.25).union(box(L - FACE_T, L, -T, 0, 0.25, 4.25)).rotate((0, 0, 0), (0, 0, 1), math.degrees(ang)).translate((root[0], root[1], 0))
     trim = box(-20, FLAP_TIP[0], -20, 20, -20, 20)
     plate, foam = plate.intersect(trim), foam.intersect(trim)
-    part(f"front_{n}", f"flap_{n}", mir(plate, s), "print", "PETG, 6 mm: the fixed flap and the extractor's side plate; bolts to the front pod")
-    part(f"front_{n}", f"flap_foam_{n}", mir(foam, s), "buy", "1/2 in EVA or polyethylene foam on a clip-on backer (the drop test picks it)")
+    part(f"front_{n}", f"flap_{n}", mir(plate, s), "print", "PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod")
+    part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "TPU 95A, 3 mm, printed onto the flap (dual-material): its inner face and tip. Foam on a clip-on backer is the fallback if the drop test says TPU bounces")
 
 # ---- extractor (moves: angle 0 down .. 146 stowed)
 def extractor(deg):
@@ -299,7 +304,7 @@ for s, n in SIDES:
     for k, (a, b) in enumerate(((FLY_X[0], FLY_X[0] + 0.8), (FLY_X[1] - 0.8, FLY_X[1]))):
         part("launcher", f"flywheel_{n}{k}", cyl("x", (fy, FLY_Z), 2 * FLY_R, a, b), "buy", "96 mm flywheel, as the mentor's launcher (CHECK the part)")
     part("launcher", f"fly_shaft_{n}", cyl("x", (fy, FLY_Z), 8 * MM, FLY_X[0] - 1.05, FLY_X[1] + 0.3), "buy", "goBILDA 8mm REX shaft, 120 mm")
-    cas = box(FLY_X[1] + 0.05, FLY_X[1] + 0.3, s * 2.1, s * 5.4, 4.7, 8.7).union(box(FLY_X[0] - 0.3, FLY_X[0] - 0.05, s * 2.1, s * 5.4, 4.7, 8.7))   # inner edges clear of a NECTAR in the column
+    cas = box(FLY_X[1] + 0.05, FLY_X[1] + 0.3, s * 2.1, s * 5.4, 4.7, 8.6).union(box(FLY_X[0] - 0.3, FLY_X[0] - 0.05, s * 2.1, s * 5.4, 4.7, 8.6))   # inner edges clear of a NECTAR in the column
     part("launcher", f"fly_cassette_{n}", cas.cut(cyl("x", (fy, FLY_Z), 14 * MM, FLY_X[0] - 1, FLY_X[1] + 1)), "print",
          "PETG: flywheel cassette, its two bearing plates (one per side; comes out as a unit with its wheel and motor)")
     fm = (s * FLY_MOTOR[0], FLY_MOTOR[1])
@@ -311,18 +316,18 @@ part("launcher", "feeder_shaft", cyl("x", FEED[:2], 8 * MM, FX[0] - 0.2, FX[1] +
 part("launcher", "feeder_motor", motor_x(FX[1] + 1.35, FEED_MOTOR, -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM, belted 1:1 (stopping it is the gate)")
 part("launcher", "feeder_belt", belt_x(FEED[:2], FEED_MOTOR, PULLEY24_D, FX[1] + 0.45, FX[1] + 0.45 + PULLEY_W), "buy", f"goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0{FEED_BELT} belt")
 part("launcher", "pad", box(*FX, -1.05 - 0.75, -1.05, 1.62, 4.4), "print", "PETG plate with 1/2 in foam, hinged at its foot (cad/transfer's pad)")
-part("launcher", "top_plate", box(COL_X - 3.2, COL_X + 3.0, -4.0, 4.0, 8.7, 8.75).cut(cyl("z", (COL_X, 0), 2 * RING[3], 8, 9)), "print",
-     "PETG, 6 mm... drawn 0.05 thick here: the launcher's top plate on the cassettes, carries the ring's rollers, the servo and the encoders")
-ring = cyl("z", (COL_X, 0), 2 * RING[2], RING[0], RING[1]).cut(cyl("z", (COL_X, 0), 2 * RING[3], 0, 20))
-part("launcher", "turret_ring", ring, "print", "PETG: turret ring with its gear cut in its rim (drawn plain); rides on four V-groove rollers")
-for k in range(4):
-    a = math.radians(45 + 90 * k); r = RING[2] + 0.3
-    part("launcher", f"ring_roller_{k}", cyl("z", (COL_X + r * math.cos(a), r * math.sin(a)), 0.6, 8.75, 9.35), "buy", "625 or 608 bearing in a printed V-groove tyre")
-hood = cyl("z", (COL_X, 0), 2 * RING[3] + 0.4, RING[1], 11.5).cut(cyl("z", (COL_X, 0), 2 * RING[3], RING[1] - 1, 12))
-part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -RING[3] - 0.2, RING[3] + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
-part("launcher", "turret_servo", box(COL_X - 1.0, COL_X + 0.6, -4.0, -3.2, 8.75, 10.2), "buy", "goBILDA 2000-0025-0003 Speed servo, continuous: drives the ring by a printed pinion")
-for k, y in enumerate((3.25, 3.25)):
-    part("launcher", f"turret_encoder_{k}", box(COL_X - 1.2 + 1.4 * k, COL_X - 0.2 + 1.4 * k, 3.25, 4.0, 8.75, 9.35), "buy", "REV-11-1271 Thru-Bore encoder on a printed pinion: the two-encoder decode, ratios chosen in v2")
+part("launcher", "top_plate", box(BACK, COL_X + 3.0, -4.0, 4.0, KIT_Z - 0.25, KIT_Z).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20)), "print",
+     "PETG-CF, 6 mm (material: the turret's base): the launcher's top plate on the cassettes; the turret kit bolts on top, its drive under")
+kit = box(COL_X - KIT_HALF, COL_X + KIT_HALF, -KIT_HALF, KIT_HALF, KIT_Z, KIT_Z + KIT_H).union(
+      box(COL_X - KIT_LOBE, COL_X - KIT_HALF, -1.1, 1.1, KIT_Z, KIT_Z + KIT_H)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, 0, 20))
+part("launcher", "turret_kit", kit, "buy", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, 64T drive gear, 105 mm bore); drawn as its envelope")
+gx, gy = DRIVE_GEAR
+part("launcher", "turret_servo", box(gx + 0.15, gx + 0.15 + 40 * MM, gy + 1.0, gy + 1.0 + 20 * MM, KIT_Z - 0.25 - 37 * MM, KIT_Z - 0.25), "buy",
+     "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 to the 64T's shaft (cad/modules/turret-kit's drive)")
+part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, KIT_Z - 0.25 - 0.75, KIT_Z - 0.25), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
+part("launcher", "turret_enc_B", cyl("z", (gx, gy - 40 * MM), 1.4, KIT_Z - 0.25 - 0.75, KIT_Z - 0.25), "buy", "REV-11-1271 on a 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg")
+hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, KIT_Z + KIT_H, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
+part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
 # ---- electronics
 part("elec", "tray", box(*TRAY_X, -TRAY_HALF, TRAY_HALF, TRAY_Z - 0.2, TRAY_Z), "print", "PETG: electronics tray on the front cross channel and the launcher's top plate")
@@ -350,7 +355,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "pod_"), ("drive_belt_",
            ("lane_shaft_", "lane_roller_"), ("lane_shaft_", "lane_wall_"), ("fly_shaft_", "flywheel_"), ("fly_shaft_", "fly_cassette_"),
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
-           ("ring_roller_", "turret_ring"), ("ring_roller_", "top_plate"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
+           ("turret_kit", "top_plate"), ("flap_face_", "flap_"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
            ("drive_motor_", "pod_"), ("ex_servo", "flap_R"), ("flap_", "pod_F"), ("intake_pivot_", "rail_"), ("front_upright_", "rail_"), ("rear_cross", "rail_"),
            ("pod_", "rail_"), ("front_cross", "front_upright_"), ("tray", "front_cross"), ("limelight", "limelight_mast")]
 def allowed(a, b):
@@ -454,7 +459,7 @@ def views(out_dir):
     for k, p in PARTS.items():
         v, f = solid(p["shape"]).tessellate(0.02, 0.5)
         v = np.array([(q.x, q.y, q.z) for q in v]); c = COL[p["kind"]]
-        if k.startswith(("flap_foam", "pad")): c = (0.95, 0.72, 0.20)
+        if k.startswith(("flap_face", "pad")): c = (0.95, 0.72, 0.20)
         if k.startswith(("wheel_", "roller", "flywheel_", "feeder")) and p["kind"] == "buy": c = (0.25, 0.25, 0.28)
         for t in f: tris.append((v[list(t)], c))
     def paint(ax, R, title):
@@ -497,7 +502,7 @@ if __name__ == "__main__":
     for k, p in PARTS.items():
         s = solid(p["shape"]).scale(25.4)
         col = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}[p["kind"]]
-        if k.startswith(("flap_foam", "pad")): col = cq.Color(0.95, 0.75, 0.2)
+        if k.startswith(("flap_face", "pad")): col = cq.Color(0.95, 0.75, 0.2)
         asm.add(s, name=k, color=col)
         if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
     asm.save(os.path.join(HERE, "printed-chassis.step"))
