@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.vision.HiveSubsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
 
@@ -48,6 +49,9 @@ public class Robot {
      */
     public final LimelightVisionSubsystem vision;
 
+    /** Both HIVEs over the match: which way each is, and whether a TIP has started. */
+    public final HiveSubsystem hive;
+
     /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
     public final PieceVisionSubsystem pieces;
 
@@ -62,9 +66,11 @@ public class Robot {
         // update order, so this loop's sightings reach this loop's pose.
         vision = new LimelightVisionSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap, vision);
+        // After the drive, so it compares this loop's camera with this loop's pose.
+        hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, pieces));
+        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, hive, pieces));
     }
 
     /** Every subsystem, in the order they were built. */

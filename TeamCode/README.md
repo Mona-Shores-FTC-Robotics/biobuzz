@@ -1183,19 +1183,68 @@ Ordered roughly by what unblocks what.
 
 #### Settled: can the camera see the lowered cell's tags?
 
-Yes, most likely — so there is no shortcut here, and height classification is
-genuinely needed.
+**From the start positions, no — measured on 19429 (#156).** Facing the red HIVE from the
+red audience start, the UP CELL's four tags read cleanly; tipped DOWN, its tags face away and
+the CELL drops out of the sighting list. Mid-tip, one tag stayed in view while the row fell
+about 7 in (50 → 43 in) with the state reading UNKNOWN, then it was lost. So a TIP shows as
+"UNKNOWN, height falling" first and "tags gone" second; `HiveTracker` uses both. The DOWN
+height in `CellStateTracker.Geometry` is therefore a tape measurement, not a camera reading.
+Other viewpoints (far side, steep angles) are untested.
 
-The question was whether a lowered cell's tags rotate out of view, which would have
-meant "a visible tag implies UP" and deleted most of the work above. They do not.
-Figure 9-7 labels the cluster "**AprilTag Cluster under each CELL**" and shows both
-the raised and the lowered cell's clusters in the same side elevation. The geometry
-agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
-stays within 30° of vertical in both positions rather than rotating away.
+### HIVE tracking and camera localization, end to end (#157)
 
-Read off a figure rather than measured, so confirm it on a real field — actual
-sightlines also depend on camera height and range. But plan for both cells being
-readable, which is the harder case and also the more useful one.
+The measured numbers, all from 19429 on 3 Oct 2026 (#156):
+
+| What | Value | Where it lives |
+|---|---|---|
+| Camera mount | fwd 4, left 0, up 14 in, pitch 45°, yaw 0 | `CameraMount` |
+| Tag row height | UP 50.2 in (camera), DOWN 35.0 in (tape) | `CellStateTracker.Geometry` |
+| Row swing | ~15 in, not the 9.4 in `HiveGeometry.STATE_HEIGHT_DELTA_IN` derives: the tags sit ~15 in from the pivot, not at the CELL centre | — |
+| CELL field points | AUDIENCE rows at y 58.4 (UP) / 59.9 (DOWN); the rest from the rocker geometry | `HiveFieldPoints` |
+| TIP time | ~2.5 s, from one video; provisional | `HiveTracker.Tuning.tipSeconds` |
+
+**TIP tracking.** `CellStateTracker` says what each CELL is now (UP / DOWN / UNKNOWN, by
+height). `HiveSubsystem` (`robot.hive`) feeds one `HiveTracker` per HIVE: a CELL seen mid-tip,
+or a settled CELL lost while the robot holds still, starts a TIP; after `tipSeconds` the other
+CELL is assumed up until the camera says otherwise.
+
+**Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
+position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
+TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
+CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
+MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
+CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
+Pinpoint carries the pose in between:
+
+1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
+   row agree. The driver's field-centric forward does not move.
+2. **Relocalize** on demand (`relocalizeFromCamera()`), refused beyond DECODE's 18 in / 20°.
+3. **Would-relocalize.** Whenever the robot is still and a settled CELL is in view, record how far
+   the camera says the pose is off, without acting. This is the measurement that decides whether
+   stationary relocalizing should ever act.
+
+Continuous camera fixes (`LocalizationTuning.continuousFixes`) are **off by default**: a tuned
+Pinpoint holds a match on its own, the tags sit on flexing polycarbonate, and a bad fix drags the
+pose somewhere false (Chief Delphi thread 524104, #3, #4, #15). #82 session 5 is where that gets
+measured.
+
+Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
+SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
+from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
+a SCORING one. That predicted RED_AUDIENCE, which was then measured. The other three are derived;
+facing each with Raw Tag Dump confirms it (highest id on the robot's right facing +y for AUDIENCE,
+left for SCORING).
+
+**Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
+the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
+graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
+odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
+relocalizes, Y resets field-centric forward.
+
+**The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
+`new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
+so `getRoll()` is the turn about camera X, which Limelight's docs call "pitch". The tag tilt of
+a tipping CELL seen head-on is in `getRoll()`. `Vision: Tag Tilt` settles the rotation order.
 
 ### What was dropped from the DECODE port, and why
 

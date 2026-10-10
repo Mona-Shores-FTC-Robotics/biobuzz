@@ -19,7 +19,11 @@ public enum HiveCell {
     BLUE_AUDIENCE("BLUE AUDIENCE", Alliance.BLUE, Side.AUDIENCE),
     BLUE_SCORING("BLUE SCORING", Alliance.BLUE, Side.SCORING);
 
-    /** Which end of the field a cell sits at. */
+    /**
+     * Which end of the field a cell sits at. AUDIENCE: the audience side. SCORING: the opposite side,
+     * where the scoring table is (the manual: "on the side of the FIELD opposite of the audience").
+     * The names are FIRST's, from the SDK's cluster names.
+     */
     public enum Side { SCORING, AUDIENCE }
 
     private final String clusterName;
@@ -42,6 +46,24 @@ public enum HiveCell {
     /** True if this cell belongs to {@code alliance}. {@code UNKNOWN} matches nothing. */
     public boolean belongsTo(Alliance alliance) {
         return alliance != null && alliance != Alliance.UNKNOWN && this.alliance == alliance;
+    }
+
+    /**
+     * The alliance's LEFT CELL, as its drivers see it from their alliance area: the one that starts
+     * the match DOWN. The red one is at the rear (the SDK's "RED SCORING" cluster), the blue one at
+     * the audience end. Null for UNKNOWN.
+     */
+    public static HiveCell leftCell(Alliance alliance) {
+        if (alliance == Alliance.RED) return RED_SCORING;
+        if (alliance == Alliance.BLUE) return BLUE_AUDIENCE;
+        return null;
+    }
+
+    /** The alliance's RIGHT CELL: the one that starts the match UP. Null for UNKNOWN. */
+    public static HiveCell rightCell(Alliance alliance) {
+        if (alliance == Alliance.RED) return RED_AUDIENCE;
+        if (alliance == Alliance.BLUE) return BLUE_SCORING;
+        return null;
     }
 
     /** Looks up a cell by its SDK cluster name, or null if no cell matches. */
