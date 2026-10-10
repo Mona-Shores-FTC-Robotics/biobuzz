@@ -1,6 +1,8 @@
-# Entering NECTAR in AUTO, reliably (9 Oct, draft)
+# Entering NECTAR in AUTO, reliably (draft)
 
-If the pending Q&A confirms it, our human player enters one NECTAR through the LOADING ZONE after each of our HIVE's
+Human players can enter NECTAR during AUTO (decided 10 Oct).
+
+Our human player enters one NECTAR through the LOADING ZONE after each of our HIVE's
 TIPs during AUTO (G426.A), and an Auto picks it up. This is how to make that repeatable. Nothing here has been tried
 on a field yet: the numbers to aim for are targets for practice, not measurements.
 
@@ -32,8 +34,8 @@ stop. So roll it **along** the zone instead, parallel to the wall, where it has 
    not on a parking spot.
 
 On the rules: a rolled NECTAR whose first touch is the tile inside the zone meets G427.C even if it then rolls into a
-robot. G427's note asks teams not to "push the boundaries" of how NECTAR is entered, so this is worth adding to the
-pending Q&A question, or asking the head referee at the first event.
+robot. G427's note asks teams not to "push the boundaries" of how NECTAR is entered. Rolling (as opposed to entering at all)
+is worth confirming with the head referee at the first event.
 
 ## The robot's side
 

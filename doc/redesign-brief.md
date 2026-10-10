@@ -178,16 +178,18 @@ ran a solo probe route: TIP 1 at 3.8 s, then nothing, in every seed. The limits 
 So the solo brief is **3 TIPs + PARK** (R-Quals, about 72 points at best), and the floor with a preload-only partner
 stays 3 TIPs in 55 of 60. The redesign's gain is in the Sister pair, where the other robot is at the raised CELL's end.
 
-## Human-player NECTAR in AUTO: allowed by the text, unconfirmed (9 Oct)
+## Human players can enter NECTAR in AUTO
 
-The left end starts with 8 pieces to the right end's 15, and every lost Sister run is a left-side shortfall. G426.A
-lets the drive team enter one NECTAR through the LOADING ZONE (at the left end) each time its HIVE TIPs, and nothing in
-the manual (TU04, 8 Oct) limits that to TELEOP: G426 and G427 have no period limit, G401 (AUTO) forbids only
-interacting with a ROBOT or an OPERATOR CONSOLE, and TU02's edit to G426 added "NECTAR does not have to be entered
-immediately when a HIVE TIP occurs". The Saline stream shows a red NECTAR entered 2.3 s after an AUTO TIP. The
-team's working assumption since 9 Oct has been that it can't be entered in AUTO (unified-design.md); that needs a
-source or a Q&A answer before an Auto counts on it. If allowed, it gives the left end 2 NECTAR by TIP 3 and 3 by TIP 4,
-about the shortfall.
+Decided by the team on 10 Oct. The 9 Oct remark that they can't is withdrawn.
+
+- **The rule.** G426.A lets the drive team enter one NECTAR through the LOADING ZONE (at the left end) each time its
+  HIVE TIPs. Nothing in the manual (TU04) limits that to TELEOP:
+  - G426 and G427 have no period limit.
+  - G401 (AUTO) forbids only interacting with a ROBOT or an OPERATOR CONSOLE.
+  - TU02's edit to G426 says NECTAR "does not have to be entered immediately when a HIVE TIP occurs".
+- **The precedent.** The Saline stream shows a red NECTAR entered 2.3 s after an AUTO TIP.
+- **Why it matters.** The left end starts with 8 pieces to the right end's 15, and every lost Sister run is a left-side
+  shortfall. Human NECTAR gives the left end 2 NECTAR by TIP 3 and 3 by TIP 4, about the size of that shortfall.
 
 ## Carrying 4 NECTAR: a bend in the lane can count (10 Oct, idea, untested)
 
