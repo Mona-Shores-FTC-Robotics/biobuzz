@@ -259,3 +259,21 @@ routes, both robots the same, no NECTAR, 60 runs each; "R full" is R's TIP 1 flo
 - The model's limits: one value for all surfaces and angles, no "soak-up" time (a curtain that swings back), and
   a piece hit by a moving robot still leaves at the robot's speed whatever the restitution, so a damped face can't
   stop a piece the robot pushes.
+
+## Two fronts for the other chats (10 Oct 2026)
+
+Sister five, both robots the same, today's routes, 60 runs. Mean points / runs with 5, 4, <=2 TIPs / R holding 4
+after its TIP 1 floor pickup. Restitution 0.1 (the simulator's guess) unless "foam" (0).
+
+| Front | mean | 5 / 4 / <=2 | R full | notes |
+|---|---|---|---|---|
+| today's V | 95 | 21 / 33 / 1 | 32 | |
+| **printed chassis: 14.6 x 15.24 body, 3.4 in flaps fixed from START (18.0 x 18.0)** | 95 | 22 / 31 / 2 | 37 | 4 runs a flap touches a POLLEN still falling (G409) |
+| ... with foam | **98** | **32** / 18 / 1 | | no G409 |
+| mentor's 9 Oct front (16.6 x 14.1, 9.76 in mouth), bare | 59 | 0 / 4 / 38 | 2 | |
+| ... flaps 3.4 in ahead, 1.38 out (out after START: 20 in long) | 80 | 0 / 32 / 4 | 5 | R into the south wall every run (12-13 s) |
+| ... flaps and foam | 84 | 3 / 37 / 3 | 10 | same |
+| ... foam, no flaps | 65 | 0 / 11 / 27 | 1 | |
+
+The mentor's numbers are rough: the routes were tuned for a 15 in robot, and the simulator hinges his flaps at the
+frame's corners (his are drawn on the uprights, beside the mouth), so his face beside the mouth is still exposed.
