@@ -137,6 +137,14 @@ RAMP = ((FACE + 0.44, 0.05), (FACE - 1.86, LANE_BOTTOM))
 # ---------------------------------------------------------------- launcher (cad/transfer's, about the column)
 FLY_R, FLY_Y, FLY_Z = 96 / 2 * MM, 2.85, 6.65
 FLY_X = (COL_X - 0.95, COL_X + 0.95)
+FLY_TRAVEL = RN - RP                    # each flywheel module's spring travel: a POLLEN at rest, a NECTAR pushes each side out 0.41
+                                        # (the same squeeze on both: rest gap = 2 RP - squeeze; his module's CAD has 1.93, the rig sets it)
+FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig sets them (README, Open 3)
+# the mentor's flywheel parts that ride the sprung modules (each side slides out in Y, its motor with it); his plates stay
+# put as the frame (slotted for the shafts' travel), and the feeder's yoke turns on a fixed stub ahead of the left module
+FLY_MOVES = re.compile(r"^(96mm_Gecko|96mm_Steel_Shaft|8mm_Spacer_|part_piece|8mm_REX_Hyper_Hub|1505-0032-0160|8x14x5mm_Bearing_-_Round_Bore_GB_[3-6]_|"
+                       r"flywheel_(motor|pulley|belt)_)")
+FLY_PLATES = re.compile(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)_")
 FEED = (2.87, 3.30, 36 * MM)            # feeder axle Y, z, radius (72 mm Gecko)
 FLY_BELT = 315
 FLY_MOTOR = (FLY_Y + math.sqrt(centres(FLY_BELT) ** 2 - (7.0 - FLY_Z) ** 2), 7.0)                 # |Y|, z; along X, face 0.6 behind the column, shaft back
@@ -214,6 +222,15 @@ def rot_y(wp, about_xz, deg):
     return wp.rotate((about_xz[0], 0, about_xz[1]), (about_xz[0], 1, about_xz[1]), -deg)
 
 # ================================================================ parts
+def solid(w): return w.val() if hasattr(w, "val") else w
+
+_BB = {}
+def bb(w):
+    k = id(w)
+    if k not in _BB:
+        b = solid(w).BoundingBox(); _BB[k] = ((b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax), w)   # keep w alive so its id stays unique
+    return _BB[k][0]
+
 PARTS = {}          # name -> dict(shape, module, kind ('print' | 'buy' | 'cut'), what, moves)
 
 def part(module, name, shape, kind, what, moves=None):
@@ -389,7 +406,10 @@ if USE_LM:
     for e in json.load(open(os.path.join(LM_DIR, "index.json")))["parts"]:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
         k = "lm_" + e["file"][:-5]
-        part("launcher", k, cq.Workplane().add(cq.Shape.cast(sh)), "buy", f"the mentor's launcher module: {e['name']}")
+        w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
+        if FLY_MOVES.match(e["file"]):
+            b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
+        part("launcher", k, w, "buy", f"the mentor's launcher module: {e['name']}" + (" (rides the sprung module)" if mv else ""), mv)
 else:
     for s, n in SIDES:
         fy = s * FLY_Y
@@ -449,14 +469,6 @@ for k, (z0, z1) in enumerate(((SV_Z + 0.2 + 37 * MM, 9.6), (9.6, 13.4))):
 part("elec", "limelight", box(4.05, 5.15, 2.15, 4.35, 13.4, 14.8), "buy", "Limelight 3A")
 
 # ================================================================ checks
-def solid(w): return w.val() if hasattr(w, "val") else w
-
-_BB = {}
-def bb(w):
-    k = id(w)
-    if k not in _BB:
-        b = solid(w).BoundingBox(); _BB[k] = ((b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax), w)   # keep w alive so its id stays unique
-    return _BB[k][0]
 
 def overlap(a, b, tol=1e-4):
     A, B = bb(a), bb(b)
@@ -527,6 +539,29 @@ def report():
             for a, b, v in clashes({**base, **mv_i, **mv}, only=lambda n: n in mv): bad.append((deg, a, b))
         print(f"   roller up {lift:.2f}: " + ("clear" if not bad else "; ".join(f"{d} deg {a} x {b}" for d, a, b in bad[:8])))
         ok &= not bad
+
+    if any(p["moves"] in ("fly_L", "fly_R") for p in PARTS.values()):
+        print(f"== the flywheel modules opening 0 .. {FLY_TRAVEL:.2f} in each side (a NECTAR between them), motors with them")
+        mvk = [k for k, p in PARTS.items() if p["moves"] in ("fly_L", "fly_R")]
+        fixed = {k: v for k, v in shapes.items() if k not in mvk and not FLY_PLATES.match(k[3:])}
+        def hits(d):
+            out = {}
+            for k in mvk:
+                sg = 1 if PARTS[k]["moves"] == "fly_L" else -1
+                w = solid(shapes[k]).translate(cq.Vector(0, sg * d, 0))
+                for f, fw in fixed.items():
+                    v = overlap(w, fw)
+                    if v > 1e-4 or v < 0: out[(k, f)] = v
+            return out
+        rest = hits(0.0); new_ = {}
+        for d in (FLY_TRAVEL / 2, FLY_TRAVEL):
+            for kf, v in hits(d).items():
+                if v > rest.get(kf, 0) + 1e-4: new_.setdefault(kf, d)
+        for (a, b), d in sorted(new_.items()): print(f"   at {d:.2f}: CLASH {a} x {b}")
+        print("   " + ("clear (his plates are slotted for the shafts' travel)" if not new_ else f"{len(new_)} clashes"))
+        ok &= not new_
+        b = [bb(solid(shapes[k]).translate(cq.Vector(0, (1 if PARTS[k]["moves"] == "fly_L" else -1) * FLY_TRAVEL, 0))) for k in mvk]
+        print(f"   opened: Y {min(x[2] for x in b):.2f}..{max(x[3] for x in b):.2f} (R105 allows 18 wide after START)")
 
     print("== pieces on their path (a NECTAR and a POLLEN at each step; only what's meant to touch them may)")
     bad = []
@@ -667,6 +702,8 @@ if __name__ == "__main__":
             if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"MOVES {i} wheel {n} - revolute on its shaft"
         if k == "star_L": return "MOVES 7 star wheel L - revolute on its vertical shaft"
         if k == "star_R": return "MOVES 8 star wheel R - revolute on its vertical shaft"
+        if PARTS[k]["moves"] == "fly_L": return f"MOVES 9 flywheel module L - slider along Y, 0 to {FLY_TRAVEL:.2f} in out (sprung in)"
+        if PARTS[k]["moves"] == "fly_R": return f"MOVES 10 flywheel module R - slider along Y, 0 to {FLY_TRAVEL:.2f} in out (sprung in)"
         return "FRAME - fix"
     groups = {}
     for k in PARTS: groups.setdefault(group_of(k), []).append(k)

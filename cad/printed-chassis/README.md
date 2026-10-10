@@ -55,6 +55,7 @@ too big for git: the build writes it as `.cache/printed-chassis-full.step.gz`, t
 | MOVES 2 extractor | Revolute about the stub shafts | 0 (down) to 146° (stowed, as drawn) |
 | MOVES 3 to 6 wheels | Revolute on each wheel's shaft | none |
 | MOVES 7 and 8 star wheels | Revolute on each star's vertical shaft | none |
+| MOVES 9 and 10 flywheel modules | Slider along Y (left +Y, right −Y) | 0 to 0.41 in out; sprung back in |
 
 Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 
@@ -144,8 +145,16 @@ print**: no screw holes, inserts, bores or ribs yet.
    of tread), a large pulley behind them, belted from a 5203 (apparently 312 RPM) on a small bracket at the plates'
    bottom; a spare ~2 in gripper wheel beside it, likely the feeder's. No pivot, slide or spring yet: the sprung mount is
    undesigned on his side too. The flywheels stay fixed under the turret (the user, 10 Oct): the turret turns only the
-   hood above them, so the sprung modules mount to the frame and their motors' wires never cross the ring. One known
-   touch is allowed by name until the redraw: the left-front drive motor's can against the transfer's feeder belt (0.0002 in³).
+   hood above them, so the sprung modules mount to the frame and their motors' wires never cross the ring. **Drawn now
+   as a placeholder:** each side's wheels, shaft, hubs, bearings, pulley, belt and motor ride a module that slides out
+   0.41 in (`FLY_TRAVEL`, a NECTAR's extra width per side) from his rest pose; his four plates stay as the frame, slotted
+   for the shafts' travel. `build.py` slides both open and checks them against everything fixed (clear; opened, the
+   motors reach Y ±7.92, inside R105's 18). Still to design: the slide or pivot itself (goBILDA or MGN9 rails, or swing
+   arms), the springs (`FLY_SPRING`: rate and preload from the rig) and the stops (rest gap: his CAD has 1.93 in, so a
+   POLLEN is squeezed 0.87; the rig sets it). **The feeder loses its drive:** its yoke turned on, and was belted from,
+   the left flywheel's shaft, which now moves. The yoke stays on a fixed stub at the same axis, ahead of the module;
+   that stub needs its own motor (the 8th: four drive, intake, two flywheels, feeder), still to place. One known touch is
+   allowed by name until then: the left-front drive motor's can against the feeder belt (0.0002 in³).
 4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
