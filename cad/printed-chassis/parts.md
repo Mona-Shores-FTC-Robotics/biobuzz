@@ -4,7 +4,7 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 
 | Part | Module | Make | What |
 |---|---|---|---|
-| `battery` | elec | buy | 12 V battery, on edge across the robot, low between the rails under the rear cross channel (CHECK its size: the team's battery) |
+| `battery` | elec | buy | Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails under the rear cross channel (CHECK its size) |
 | `battery_cradle_L` | elec | print | PETG: half the battery's cradle, hung from the rails' bottom flanges |
 | `battery_cradle_R` | elec | print | PETG: half the battery's cradle, hung from the rails' bottom flanges |
 | `control_hub` | elec | buy | REV Control Hub, standing on edge, plugs to the back |
@@ -58,8 +58,8 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `mouth_floor_R` | lane | print | PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers |
 | `ramp_L` | lane | print | PETG: half the ramp, the mouth's whole width |
 | `ramp_R` | lane | print | PETG: half the ramp, the mouth's whole width |
-| `star_L` | lane | buy | 3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD) |
-| `star_R` | lane | buy | 3.5 in OD flexible star wheel, 16 flaps with a lip at each tip, spoked hub, on a 7 mm (or 1/4 in) hex through a ~25 mm black hub adapter, as the mentor's (vendor TBD) |
+| `star_L` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
+| `star_R` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
 | `star_clutch_L` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it |
 | `star_clutch_R` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it |
 | `star_servo_L` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn) |
