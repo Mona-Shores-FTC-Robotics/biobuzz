@@ -61,8 +61,11 @@ simulator only, Sister five, both robots on the outline, today's routes unchange
 | The same, foam-faced flaps and front (restitution 0) | **98** | **32** / 18 / 1 | 41 |
 
 - Fixing the flaps from START costs nothing against deploying them at 1 s, and the routes need no change.
-- These runs are on the 14.6 in body. The 17.75 in outline (14.35 in body, tips 1.255 in out) is with the body-designs
-  chat to re-score.
+- **The 17.75 in outline costs nothing** (body-designs chat, same routes, 60 runs): 14.35 × 15.24 body, tips 3.4 in ahead
+  and 1.255 in out, fixed from START. At restitution 0.1, 97 points, 5 / 4 / ≤2 TIPs in 28 / 26 / 2, R holds 4 in 40;
+  at 0, 98, 32 / 18 / 1, 39. Frame hits 2, walls and centre line 0, G409 in 0 to 2 runs. Against the 18.0 outline's
+  22 and 32, within run-to-run spread. (The simulator centres the frame, so its face moved 0.125 in back where ours
+  stays put; far below what changes these results.)
 - **Foam is the bigger win, +10 fifth TIPs**, and it also took the G409 risk to zero: with bare flaps, in 4 runs a flap
   or the robot touched a spilled POLLEN still in the air. The simulator's restitution is a guess; the drop test comes
   first.
