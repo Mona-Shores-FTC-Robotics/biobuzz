@@ -94,8 +94,9 @@ def limelight_mount():
     return [("Limelight wedge (print, stand-in)", wedge, (0.18, 0.37, 0.62)), ("Limelight plate (stand-in)", plate, (0.18, 0.37, 0.62)),
             ("Limelight beam between the front towers (stand-in)", beam, (0.67, 0.7, 0.74))]
 
-def placed_team(robot_step):
-    """The mentor's parts we keep, lined up and edited: [(path, base shape, TopLoc_Location, colour)]."""
+def placed_team(robot_step, raw=False):
+    """The mentor's parts we keep, lined up and edited: [(path, base shape, TopLoc_Location, colour)].
+    raw: every part of his, lined up but not edited (no parts left out or moved), for checking add-on modules on his robot."""
     leaves, base = read_team(robot_step)
     def bbox(key, loc):
         b = Bnd_Box(); BRepBndLib.Add_s(base[key].wrapped.Moved(loc), b); return b.Get()
@@ -134,9 +135,11 @@ def placed_team(robot_step):
     lean = os.environ.get("LEAN")                     # LEAN=1: leave out fasteners, for a single small download
     for path, key, loc, col in leaves:
         p = " / ".join(path)
-        if SKIP.search(p): continue
+        if not raw and SKIP.search(p): continue
         if lean and re.search(r"[Ss]crew|Nut|[Ww]asher|2800-|2802-|2812-|2806-|2829-|CAGE|e-clip|shim|_9\d{4}A\d{3}| text", p): continue
         loc = align.Multiplied(loc)
+        if raw:
+            out.append((path, base[key], loc, col, key)); continue
         if RAISE.search(p): loc = moved((0, TR.CHAN_RAISE * IN, 0)).Multiplied(loc)
         if FRONT_OF_LAUNCHER.search(p):
             b = bbox(key, loc); x_model = ((b[2] + b[5]) / 2 - (FACE - 7.56 * IN)) / IN; y_model = ((b[0] + b[3]) / 2 - C) / IN
