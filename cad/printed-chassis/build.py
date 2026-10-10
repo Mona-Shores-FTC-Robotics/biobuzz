@@ -79,9 +79,16 @@ DRIVE_BELT = {1: 340, -1: 225}          # front: the motor over the lane's ceili
 DRIVE_MOTOR = {sx: (AXLE[sx], WHEEL_R + centres(DRIVE_BELT[sx])) for sx in (1, -1)}
 
 # ---------------------------------------------------------------- intake
-ROLL_R = 1.0                            # 2 in vector wheels, as cad/intake-b
-ROLL = (FACE + 1.0, 3.4)                # axle at rest: bottom 2.4 in off the tiles, front 2.0 in ahead of the face (as today's)
-ROLL_HALF = 6.5                         # the roller's wheels; its pulley at 6.55..6.9, the arms at 6.95..7.25
+ROLL_R = 24 * MM                        # goBILDA 48 mm Gecko wheels, as the mentor's roller (no vector wheels: his star wheels centre)
+ROLL = (FACE + 1.0, 2.4 + ROLL_R)       # axle at rest: bottom 2.4 in off the tiles, ahead of the face on the swing arms
+ROLL_HALF = 4.9                         # the wheels span the mouth the star wheels can reach (+-4.9; his mouth is 9.76);
+                                        # the shaft carries on to the pulley at 6.55..6.9 and the arms at 6.95..7.25
+# ---------------------------------------------------------------- the mentor's star wheels (his 9 Oct Robot.step, read by the CAD chat)
+STAR_R, STAR_W = 3.5 / 2, 0.5           # "3.5in OD 7mm Hex Bore": a flexible 12-flap star, lying flat (axis vertical); vendor TBD
+STAR = (FACE - 2.36, 3.15)              # its centre: 2.36 in behind the face, 3.15 either side (tips 2.80 apart: a NECTAR bends each 0.41)
+STAR_Z = 3.05                           # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
+                                        # ramp (bottom z 1.3) where the stars are, so they sit at the balls' middles (POLLEN 2.7, NECTAR 3.11), just over the rails
+STAR_FLEX = 0.08                        # clearance round each star; its flaps bend toward the lane, where only pieces are (how far: push one with a NECTAR)
 ARM_Y = (6.95, 7.25)
 BELT_Y = (6.55, 6.9)
 PIVOT = (2.6, 4.05)                     # the arms' pivot: behind the front pods, level with the roller's mid-float, so it rises straight up
@@ -199,10 +206,8 @@ def mir(wp, s): return wp if s > 0 else wp.mirror("XZ")
 for s, n in SIDES:
     part("frame", f"rail_{n}", mir(channel_x(*RAIL_X, RAIL_OUT, True, RAIL_Z[0], CH_LOW), s), "buy", "goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails")
 part("frame", "rear_cross", channel_y(-120 * MM, 120 * MM, RAIL_X[0] + CH_T, RAIL_Z[0]), "buy", "goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket)")
-part("frame", "front_cross", channel_y(-108 * MM, 108 * MM, FRONT_CROSS_X, FRONT_CROSS_Z, open_down=True), "buy", "goBILDA 1120-0008-0216 U-channel, 8 hole (216 mm), over the lane and the front drive motors")
-for s, n in SIDES:
-    up = box(6.2, FRONT_CROSS_X + CH, 3.6, RAIL_OUT - CH_T - 0.02, RAIL_Z[1], FRONT_CROSS_Z)
-    part("frame", f"front_upright_{n}", mir(up, s), "print", "PETG: stands on the rail's top flange, carries the front cross channel")
+part("frame", "front_cross", channel_y(-132 * MM, 132 * MM, FRONT_CROSS_X, FRONT_CROSS_Z, open_down=True), "buy",
+     "goBILDA 1120-0010-0264 U-channel, 10 hole (264 mm), over the lane and the front drive motors, bolted on the front pods' motor mounts (no uprights: the mouth stays open to its full width)")
 
 # ---- drive pods
 for sx, fx in ((1, "F"), (-1, "B")):
@@ -267,7 +272,7 @@ def lift_deg(lift):
 
 def intake(lift):
     out = {}
-    out["roller"] = (cyl("y", ROLL, 2 * ROLL_R, -ROLL_HALF, ROLL_HALF), "buy", "WCP-0353 x6 / WCP-0354 x6 2 in vector wheels and a 48 mm gecko, as cad/intake-b (or printed TPU, if a test says so)")
+    out["roller"] = (cyl("y", ROLL, 2 * ROLL_R, -ROLL_HALF, ROLL_HALF), "buy", "goBILDA 3632-4008-0048 48 mm Gecko wheels, as the mentor's roller (about 10 across the 9.8 in span)")
     out["roller_shaft"] = (cyl("y", ROLL, 8 * MM, -ARM_Y[1], ARM_Y[1]), "buy", "goBILDA 8mm REX shaft, cut to 371 mm (CHECK)")
     for s, n in SIDES:
         y0, y1 = ARM_Y
@@ -286,12 +291,35 @@ for s, n in SIDES:
 
 # ---- lane
 (rx0, rz0), (rx1, rz1) = RAMP
-part("lane", "ramp", slab_y([(rx0, rz0), (rx1, rz1), (rx1, rz1 - 0.08), (rx0, rz0 - 0.05)], -WALL_IN + 0.01, WALL_IN - 0.01), "print", "PETG: the ramp, in slots in the walls")
+MOUTH_HALF = RAIL_IN - 0.08            # the ramp and the floor under the stars span the whole mouth, inside the rails' flanges, so a
+                                        # piece taken in off-centre climbs to the lane's height too, where the stars reach its middle
+MOUTH_FLOOR_X = (STAR[0] - STAR_R - 0.05, rx1)
+for s_, n in SIDES:
+    rmp = slab_y([(rx0, rz0), (rx1, rz1), (rx1, rz1 - 0.12), (rx0, rz0 - 0.05)], *((0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)))
+    rmp = rmp.cut(box(LANE_SHAFTS[0] - 0.55, LANE_SHAFTS[0] + 0.55, -1.05, 1.05, 0, 2))
+    part("lane", f"ramp_{n}", rmp, "print", "PETG: half the ramp, the mouth's whole width")
+    fl = box(*MOUTH_FLOOR_X, 0, s_ * MOUTH_HALF, LANE_BOTTOM - 0.13, LANE_BOTTOM)
+    for x in LANE_SHAFTS[:2]: fl = fl.cut(box(x - 0.55, x + 0.55, -1.05, 1.05, 0, 2))     # the lane's first two rollers come up through it
+    part("lane", f"mouth_floor_{n}", fl, "print", "PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers")
 LANE_X = (COL_X + 1.4, FACE - 0.16)
 for s, n in SIDES:
     xm = (LANE_SHAFTS[2] + LANE_SHAFTS[3]) / 2                    # split between two shafts, so each half holds whole bearings
-    for h, (a, b) in (("front", (xm, LANE_X[1])), ("rear", (LANE_X[0], xm))):
-        part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, 2.6), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail")
+    for h, (a, b) in (("front", (xm, MOUTH_FLOOR_X[0] - 0.02)), ("rear", (LANE_X[0], xm))):   # ahead of these, the mouth floor and the stars
+        top = 2.6
+        part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, top), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail")
+# ---- the mentor's star wheels, servo-driven through one-way bearings (drive TBD: his CAD draws none)
+for s, n in SIDES:
+    sx, sy = STAR[0], s * STAR[1]
+    part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
+         "3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane")
+    part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 7 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy", "7 mm hex shaft, vertical (TBD, with the mentor's parts)")
+    part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 0.9, STAR_Z + STAR_W / 2 + 0.15, STAR_Z + STAR_W / 2 + 0.5), "buy",
+         "one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it")
+    sv = box(sx - 0.45, sx + 1.13, sy - 0.4, sy + 0.4, STAR_Z + 0.75, STAR_Z + 0.75 + 37 * MM)
+    part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it")
+    top = STAR_Z + 0.75 + 37 * MM
+    br = box(sx - 0.45, 6.5, sy - 0.45, sy + 0.45, top, top + 0.2).union(box(6.2, 6.5, sy - 0.45, sy + 0.45, top, FRONT_CROSS_Z))
+    part("lane", f"star_bracket_{n}", br, "print", "PETG: hangs the star's servo from the front cross channel, over the star (clear of the front drive motor)")
 for k, x in enumerate(LANE_SHAFTS):
     part("lane", f"lane_shaft_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 8 * MM, -WALL_IN - WALL_T, WALL_IN + WALL_T), "buy", "goBILDA 8mm REX shaft, 144 mm (2106-4008-1440)")
     part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller")
@@ -370,11 +398,15 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "pod_"), ("drive_belt_",
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("pod_F", "flap_"), ("intake_motor", "intake_arm_R"),
            ("drive_motor_", "pod_"), ("ex_servo", "flap_R"), ("flap_", "pod_F"), ("intake_pivot_", "rail_"), ("front_upright_", "rail_"), ("rear_cross", "rail_"),
-           ("pod_", "rail_"), ("front_cross", "front_upright_"), ("tray", "front_cross"), ("limelight", "limelight_mast")]
+           ("pod_", "rail_"), ("front_cross", "front_upright_"), ("star_shaft_", "star_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"), ("star_bracket_", "front_cross"), ("front_cross", "pod_F"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast")]
 def allowed(a, b):
     return any((a.startswith(p) and b.startswith(q)) or (b.startswith(p) and a.startswith(q)) for p, q in ALLOWED)
 
 def clashes(shapes, only=None):
+    shapes = dict(shapes)
+    for s_, n in SIDES:                     # each star with room for its flaps to bend
+        if f"star_{n}" in shapes:
+            shapes[f"star_{n}"] = cyl("z", (STAR[0], s_ * STAR[1]), 2 * (STAR_R + STAR_FLEX), STAR_Z - STAR_W / 2 - 0.1, STAR_Z + STAR_W / 2 + 0.1)
     names = sorted(shapes); out = []
     for i, a in enumerate(names):
         for b in names[i + 1:]:
@@ -414,16 +446,26 @@ def report():
         ok &= not bad
 
     print("== pieces on their path (a NECTAR and a POLLEN at each step; only what's meant to touch them may)")
-    TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp", "floor", "backstop", "hood")   # the hood's lid turns the shot
-    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5)]
     bad = []
+    TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp_", "mouth_floor_", "floor", "backstop", "hood", "star_")   # the hood's lid turns the shot
+    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5)]
+    for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
+        for sgn in (1, -1):                 # (the star, the floor, the ramp and the roller, which rises, may touch it; nothing else)
+            yc = sgn * (MOUTH_HALF - r + 0.3)
+            d = STAR_R + r - 0.41
+            xc = STAR[0] + math.sqrt(max(d * d - (abs(yc) - STAR[1]) ** 2, 0))
+            ball = cq.Workplane("XY").sphere(r).translate((xc, yc, LANE_BOTTOM + r))
+            for k, w in shapes.items():
+                if k in (f"star_{'L' if sgn > 0 else 'R'}",) or k.startswith(("mouth_floor_", "ramp_", "roller", "lane_roller_")): continue
+                y = yc
+                if overlap(ball, w) > 1e-4: bad.append(f"off-centre {'NECTAR' if r == RN else 'POLLEN'} at Y {y} x {k}")
     for r in (RN, RP):
         for x, z0 in path:
             ball = cq.Workplane("XY").sphere(r).translate((x, 0.15 if z0 > LANE_BOTTOM else 0, z0 + (r if z0 == LANE_BOTTOM else 0)))
             for k, w in shapes.items():
                 if k.startswith(TOUCH) or k.startswith(("lane_shaft_",)): continue
                 if overlap(ball, w) > 1e-4: bad.append(f"{'NECTAR' if r == RN else 'POLLEN'} at X {x:.2f} z {z0:.2f} x {k}")
-    print("   " + ("; ".join(sorted(set(bad))) if bad else "clear: lane, column, ring bore and hood"))
+    print("   " + ("; ".join(sorted(set(bad))) if bad else "clear: the mouth's edges past the stars, lane, column, ring bore and hood"))
     ok &= not bad
 
     print("== outline")

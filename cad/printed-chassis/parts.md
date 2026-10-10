@@ -18,9 +18,7 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `ex_servo` | extractor | buy | goBILDA 2000-0025-0002 Torque servo, on the right flap, 1:1 printed gear pair to the right stub (CHECK the box) |
 | `ex_stub_L` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
 | `ex_stub_R` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
-| `front_cross` | frame | buy | goBILDA 1120-0008-0216 U-channel, 8 hole (216 mm), over the lane and the front drive motors |
-| `front_upright_L` | frame | print | PETG: stands on the rail's top flange, carries the front cross channel |
-| `front_upright_R` | frame | print | PETG: stands on the rail's top flange, carries the front cross channel |
+| `front_cross` | frame | buy | goBILDA 1120-0010-0264 U-channel, 10 hole (264 mm), over the lane and the front drive motors, bolted on the front pods' motor mounts (no uprights: the mouth stays open to its full width) |
 | `rail_L` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rail_R` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
 | `rear_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel, 9 hole (240 mm), between the rails' webs on goBILDA pattern brackets (CHECK the bracket) |
@@ -33,7 +31,7 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `intake_motor` | intake | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) and the lane |
 | `intake_pivot_L` | intake | print | PETG: pivot bracket on the rail's web, outside the arm; an M5 shoulder screw is the pivot |
 | `intake_pivot_R` | intake | print | PETG: pivot bracket on the rail's web, outside the arm; an M5 shoulder screw is the pivot |
-| `roller` | intake | buy | WCP-0353 x6 / WCP-0354 x6 2 in vector wheels and a 48 mm gecko, as cad/intake-b (or printed TPU, if a test says so) |
+| `roller` | intake | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels, as the mentor's roller (about 10 across the 9.8 in span) |
 | `roller_belt` | intake | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0410 belt |
 | `roller_shaft` | intake | buy | goBILDA 8mm REX shaft, cut to 371 mm (CHECK) |
 | `backstop` | lane | print | PETG: backstop, on +-0.2 in slots (set with real balls: the 4-piece count) |
@@ -57,7 +55,20 @@ Screws, nuts and inserts come with v2. CHECK marks a size not read from a vendor
 | `lane_wall_L_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
 | `lane_wall_R_front` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
 | `lane_wall_R_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail |
-| `ramp` | lane | print | PETG: the ramp, in slots in the walls |
+| `mouth_floor_L` | lane | print | PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers |
+| `mouth_floor_R` | lane | print | PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers |
+| `ramp_L` | lane | print | PETG: half the ramp, the mouth's whole width |
+| `ramp_R` | lane | print | PETG: half the ramp, the mouth's whole width |
+| `star_L` | lane | buy | 3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane |
+| `star_R` | lane | buy | 3.5 in OD flexible star wheel, 7 mm hex bore, as the mentor's (vendor TBD); spins pieces in, toward the lane |
+| `star_bracket_L` | lane | print | PETG: hangs the star's servo from the front cross channel, over the star (clear of the front drive motor) |
+| `star_bracket_R` | lane | print | PETG: hangs the star's servo from the front cross channel, over the star (clear of the front drive motor) |
+| `star_clutch_L` | lane | buy | one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it |
+| `star_clutch_R` | lane | buy | one-way bearing / clutch, as the mentor's (part TBD): the star can't be pushed backwards, and a fast piece overruns it |
+| `star_servo_L` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it |
+| `star_servo_R` | lane | buy | continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice; a goBILDA Speed servo drawn), clear of the feeder motor behind it |
+| `star_shaft_L` | lane | buy | 7 mm hex shaft, vertical (TBD, with the mentor's parts) |
+| `star_shaft_R` | lane | buy | 7 mm hex shaft, vertical (TBD, with the mentor's parts) |
 | `feeder` | launcher | buy | goBILDA 3632-0014-0072 72 mm Gecko x2, softest |
 | `feeder_belt` | launcher | buy | goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0225 belt |
 | `feeder_motor` | launcher | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM, belted 1:1 (stopping it is the gate) |

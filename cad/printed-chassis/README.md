@@ -22,7 +22,7 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 | Static clashes | none (shafts in their own hubs, belts on their own pulleys, and bolted faces excepted, by name in `ALLOWED`) |
 | The roller rising 1.3 in on its swing arms | clear at 0, 0.33, 0.65, 1.0 and 1.3 in; the axle moves at most 0.04 in forward, so it rises nearly straight up |
 | The extractor, every 10° from down to stowed, roller down and up | clear |
-| A NECTAR and a POLLEN on their path (lane, column, ring bore, hood) | touch only what should: rollers, ceiling, feeder, pad, flywheels, hood lid |
+| A NECTAR and a POLLEN on their path (the mouth's edges where they meet the stars, the lane, column, ring bore, hood) | touch only what should: roller, stars, floor, lane rollers, ceiling, feeder, pad, flywheels, hood lid |
 | The 4-piece count | roller axle to backstop 12.43 in, inside the 12.26 to 12.60 window (`cad/transfer`'s). The backstop sits on ±0.2 in slots, which reach 12.23 to 12.63, so it's set on the robot with real pieces |
 | Printed parts within 180 mm each way | all fit (room for a brim on a 210 mm bed, and less warp); the largest is half the top plate, 175 × 102 mm. The tray, the top plate and the lane walls are each printed in two halves and bolted |
 
@@ -35,7 +35,9 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 | Rails | goBILDA 1121 low-side, 336 mm, webs at \|Y\| 5.0 | low-side so the feeder's wheels pass over the flanges |
 | Wheels | 96 mm mecanum, axles X 5.41 and −5.16, flush with the face and the back | wheelbase 10.57 in |
 | Drive motors | each face-mounted on its pod's inner plate, belted 1:1 down to its wheel | front ones at z 6.22, over the lane (340 mm belt); rear ones straight above the axle (225 mm belt) |
-| Roller | 2 in vector wheels, ±6.5 in, axle 1.0 ahead of the face, 2.4 off the tiles | as `cad/intake-b`'s, 0.06 in further back |
+| Roller | goBILDA 48 mm Gecko wheels, as the mentor's, ±4.9 in, axle 1.0 ahead of the face, 2.4 off the tiles | no vector wheels: his star wheels centre the pieces |
+| Star wheels (the mentor's) | two 3.5 in flexible stars lying flat, 2.36 in behind the face, ±3.15 in (tips 2.80 apart, as his), at z 3.05: the balls' middles where the ramp has lifted them | each driven from above by a continuous servo through a one-way bearing, hung from the front cross channel. **Drive parts TBD**: his CAD draws none, so the servo, shaft and one-way bearing are placeholders |
+| Ramp and mouth floor | the whole mouth's width (±4.45, inside the rails), in halves | so a piece taken in off-centre climbs to the lane's height too, where the stars reach it |
 | Roller arms | pivot X 2.6, z 4.05; motor on the right arm at X 3.41, z 6.35, 410 mm belt to the roller | the arm rises over the front wheel; the pivot is level with the roller's mid-float, so it rises straight up |
 | Lane | five TPU-roller shafts, walls at \|Y\| 1.86, ceiling of free rollers | the ball moves at the tread's speed, not half of it (below) |
 | Launch column | X −2.37, the first ball against the backstop at X −4.13 | |
@@ -57,6 +59,11 @@ Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's 
 - **The flaps are PETG-CF with TPU printed onto their faces** (the dual-material printer), not foam on a backer. A flap
   that yields at its root on a hit (the simulator chat's idea) doesn't fit here: the flap also carries the extractor's
   stub, so it has to stay stiff; only its face and tip are soft.
+- **The roller is the mentor's: 48 mm Geckos, no vector wheels, and his two flexible star wheels centre the pieces**
+  (the user, 10 Oct: he likes them; geometry from his 9 Oct Robot.step). His stars sit at floor height because his
+  pieces stay on the floor; here they're lifted to the lane's height by a ramp the whole mouth wide, so the stars sit
+  at the balls' middles. The front cross channel now rests on the front pods (no uprights), so the mouth is open to
+  its full width.
 - **The rails are low-side channel (as today's), not 1120.** A 48 mm deep flange put the rail in the feeder's wheels.
 - **All four pods are belted**, the motor above the wheel. Direct drive at axle height can't cross the lane at the
   front, and the rear ones match the front.
@@ -71,7 +78,6 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 |---|---|---|---|
 | 1121-0013-0336 low-side U-channel, 336 mm | goBILDA | 2 | rails |
 | 1120-0009-0240 U-channel, 240 mm | goBILDA | 1 | rear cross member |
-| 1120-0008-0216 U-channel, 216 mm | goBILDA | 1 | front cross member |
 | 3213-3606-0002 96 mm mecanum wheel set | goBILDA | 1 set | drive |
 | 5203 Yellow Jacket, the drive's current ratio | goBILDA | 4 | drive (the CAD draws the two-stage length) |
 | 5203-2402-0003 Yellow Jacket, 1620 RPM | goBILDA | 2 | roller and lane; feeder |
@@ -82,7 +88,10 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 | 8mm REX shafts and standoffs | goBILDA | stacks | as `parts.md` |
 | 2000-0025-0002 Torque servo | goBILDA | 1 | extractor |
 | 2000-0025-0003 Speed servo | goBILDA | 1 | turret (continuous) |
-| WCP-0353 ×6, WCP-0354 ×6 2 in vector wheels, 48 mm gecko | WCP, goBILDA | | roller, as `cad/intake-b` |
+| 3632-4008-0048 48 mm Gecko wheels | goBILDA | about 10 | the roller, as the mentor's |
+| 3.5 in OD flexible star wheels, 7 mm hex bore | as the mentor's (vendor TBD) | 2 | centre pieces into the lane |
+| Continuous servos, one-way bearings, 7 mm hex shafts | as the mentor's (TBD) | 2 each | drive the star wheels |
+| 1120-0010-0264 U-channel, 264 mm | goBILDA | 1 | front cross member, on the front pods (replaces the 216 mm one and its printed uprights) |
 | 3632-0014-0072 72 mm Gecko, softest | goBILDA | 2 | feeder |
 | 96 mm flywheels | as the mentor's launcher | 4 | |
 | 608 bearings | any | 8 | ceiling rollers |
