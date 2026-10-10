@@ -45,8 +45,21 @@ short enough that the flaps fit inside 18 in from the start**, so there is no fo
 the frame, on the face at the frame's side; its tip is 3.4 in ahead of the **face** (not the mouth) and 1.38 in outside
 the frame's side, splayed about 22° outward. On the 15.24 in wide frame the tips are 18.0 in across. The 4 in height is
 a placeholder. Nothing in the routes reads the body length; the footprint checks follow the outline. The catch spots sit
-0.26 in further from the pieces on a 14.6 in body, which a run checks: **the body-designs chat is scoring a 14.6 in body
-with the flaps fixed from START against the 28 / 60 of the deploy-at-1 s version.**
+0.26 in further from the pieces on a 14.6 in body.
+
+**Scored** (body-designs chat, 10 Oct, `doc/tip1-catch.md` 5d0f240 on `claude/biobuzz-robot-body-designs-hi386c`;
+simulator only, Sister five, both robots on the outline, today's routes unchanged, 60 runs):
+
+| Outline | Mean points | 5 / 4 / ≤2 TIPs | R holds 4 after TIP 1 |
+|---|---|---|---|
+| Today's, 15.12 × 15.24, V | 95 | 21 / 33 / 1 | 32 |
+| **14.6 × 15.24, 3.4 in flaps fixed from START** | 95 | 22 / 31 / 2 | 37 |
+| The same, foam-faced flaps and front (restitution 0) | **98** | **32** / 18 / 1 | 41 |
+
+- Fixing the flaps from START costs nothing against deploying them at 1 s, and the routes need no change.
+- **Foam is the bigger win, +10 fifth TIPs**, and it also took the G409 risk to zero: with bare flaps, in 4 runs a flap
+  or the robot touched a spilled POLLEN still in the air. The simulator's restitution is a guess; the drop test comes
+  first.
 
 ## Layout
 
@@ -137,13 +150,11 @@ Reused from today's design where it's sound; changed where printing makes it sim
 
 ## Open questions
 
-1. **Body-designs chat (running):** whether a 14.6 in body with the flaps fixed from START scores as the deploy-at-1 s
-   run does (28 / 60).
-2. **Mentors:** printer, materials (TPU? nylon-CF?), and whether they agree to a goBILDA ladder rather than an all-printed
+1. **Mentors:** printer, materials (TPU? nylon-CF?), and whether they agree to a goBILDA ladder rather than an all-printed
    frame.
-3. **Drop test** (brief, "Measure it first"): EVA vs polyethylene foam on a printed backer, so the flap backer is drawn
+2. **Drop test** (brief, "Measure it first"): EVA vs polyethylene foam on a printed backer, so the flap backer is drawn
    for the winner.
-4. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, the driven-top lane's
+3. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, the driven-top lane's
    speed, and a printed ring's backlash against the two-encoder decode tolerance.
 
 ## Next
