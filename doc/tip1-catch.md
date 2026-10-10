@@ -270,6 +270,8 @@ after its TIP 1 floor pickup. Restitution 0.1 (the simulator's guess) unless "fo
 | today's V | 95 | 21 / 33 / 1 | 32 | |
 | **printed chassis: 14.6 x 15.24 body, 3.4 in flaps fixed from START (18.0 x 18.0)** | 95 | 22 / 31 / 2 | 37 | 4 runs a flap touches a POLLEN still falling (G409) |
 | ... with foam | **98** | **32** / 18 / 1 | | no G409 |
+| printed chassis, 1/8 in margin: 14.35 x 15.24 body, flap tips 1.255 out (17.75 x 17.75) | 97 | 28 / 26 / 2 | 40 | no G409 |
+| ... with foam | 98 | 32 / 18 / 1 | 39 | 2 runs G409 |
 | mentor's 9 Oct front (16.6 x 14.1, 9.76 in mouth), bare | 59 | 0 / 4 / 38 | 2 | |
 | ... flaps 3.4 in ahead, 1.38 out (out after START: 20 in long) | 80 | 0 / 32 / 4 | 5 | R into the south wall every run (12-13 s) |
 | ... flaps and foam | 84 | 3 / 37 / 3 | 10 | same |
