@@ -239,3 +239,23 @@ off the wall at y 75-90. Run on a scratch merge of that commit with this branch 
   4 POLLEN, for about the same time. Topping up to 4 at the FLOWER costs a TIP 5 in more than half the runs.
 - The simulator chat's reading of the tipping rule says why: an emptied CELL needs 7.95 POLLEN-weights, and a 4-piece
   load of NECTAR is 6.6. So NECTAR can lighten a load only when a robot arrives short; it never adds one.
+
+## How bouncy the robot's front is (CAD chat, 10 Oct 2026: foam facing or curtains)
+
+The simulator gives every robot surface (frame, V, flaps) one restitution, `FieldSim.PLACEHOLDER_ROBOT_RESTITUTION`
+= 0.1, a guess: nobody has measured it. Contacts slower than `RESTING_IN_PER_S` don't bounce at all. Sister five
+routes, both robots the same, no NECTAR, 60 runs each; "R full" is R's TIP 1 floor pickup ending with 4 held.
+
+| Front | restitution 0 (foam / curtain) | 0.1 (the simulator's guess) | 0.4 (bare polycarbonate) |
+|---|---|---|---|
+| today's V: 5 TIPs / R full | **28** / 38 | 21 / 32 | 4 / 12 |
+| fixed flaps 3.4 in: 5 TIPs / R full | **33** / 42 | 28 / - | 5 / 13 |
+
+- **Bounce off the front is a large share of what R misses**, in the simulator: going from 0.1 to 0 is worth 5-7 fifth
+  TIPs in 60, and going to 0.4 loses nearly all of them. Mean points go 85-87 at 0.4, 95-97 at 0.1, 95-99 at 0.
+- So the first thing to measure is the real front's restitution: drop a POLLEN onto the V's polycarbonate and onto a
+  0.5 in EVA sample from a known height and film the rebound (rebound height / drop height = e squared). If the bare
+  front is nearer 0.4 than 0.1, the simulator has been optimistic and damping is worth more than anything above.
+- The model's limits: one value for all surfaces and angles, no "soak-up" time (a curtain that swings back), and
+  a piece hit by a moving robot still leaves at the robot's speed whatever the restitution, so a damped face can't
+  stop a piece the robot pushes.
