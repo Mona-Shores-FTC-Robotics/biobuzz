@@ -449,7 +449,7 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
-        // BIOBUZZ_AUTO_HUMAN_NECTAR=1: our drive team enters a NECTAR after each of our TIPs (G426.A, a Q&A pending);
+        // BIOBUZZ_AUTO_HUMAN_NECTAR=1: our drive team enters a NECTAR after each of our TIPs (G426.A; allowed in AUTO);
         // BIOBUZZ_AUTO_HUMAN_DELAY_S: how long after the TIP it lands (2 s unless set).
         if ("1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(true);
         String humanDelay = System.getenv("BIOBUZZ_AUTO_HUMAN_DELAY_S");

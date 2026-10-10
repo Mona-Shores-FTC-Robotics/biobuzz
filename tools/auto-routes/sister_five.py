@@ -403,7 +403,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
                 if lz5 == "catchf":
                     five += wall_flower_from("R_CATCH")
         elif lz5:
-            # Human-player NECTAR (G426.A, a Q&A pending): by now the drive team has entered one after each of TIPs
+            # Human-player NECTAR (G426.A, allowed in AUTO): by now the drive team has entered one after each of TIPs
             # 1-3 in the LOADING ZONE, 25 in from R_N. R takes them with the webcam (3 NECTAR fill the lane, worth
             # about 5 POLLEN) instead of the wall FLOWER's 4, 57 in away, and goes on as before.
             r.pt("R_LZ", *R_LZ)
@@ -547,7 +547,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     m0 = len(r.cards)
     if lz:
-        # Human-player NECTAR (G426.A: one per TIP of our HIVE, entered through the LOADING ZONE; a Q&A is pending):
+        # Human-player NECTAR (G426.A: one per TIP of our HIVE, entered through the LOADING ZONE; allowed in AUTO):
         # by the time L has fired its share of TIP 4 (about 21 s) the drive team has entered three, after TIPs 1-3.
         # L picks them up there with the webcam instead of catching TIP 4's spill, tops TIP 4 up with one if it hasn't
         # come, and then either takes the rest down the lane to TIP 5 ("tip5") or parks in the zone ("station").

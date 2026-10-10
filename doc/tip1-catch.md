@@ -178,7 +178,7 @@ waits at y 122 and y 18), both robots the same front, 60 runs each, simulator on
   chase now counts the slide's reach and the whole outline, but routing the slide (in for the chase, out for the
   stationary catch) is unfinished. On R's opening alone a slide is worth about 6 in flaps (above).
 
-## Human-player NECTAR (G426.A: one per TIP of our HIVE, through the LOADING ZONE; Q&A pending)
+## Human-player NECTAR (G426.A: one per TIP of our HIVE, through the LOADING ZONE; allowed during AUTO, team decision 10 Oct)
 
 The simulator's drive team drops each NECTAR in the middle of the LOADING ZONE (x 0-11, y 94-118) 2 s after the TIP;
 a NECTAR weighs 0.091 lb, 1.65 POLLEN. Today's V unless stated.
