@@ -141,9 +141,11 @@ FLY_TRAVEL = RN - RP                    # each flywheel module's spring travel: 
                                         # (the same squeeze on both: rest gap = 2 RP - squeeze; his module's CAD has 1.93, the rig sets it)
 FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig sets them (README, Open 3)
 # the mentor's flywheel parts that ride the sprung modules (each side slides out in Y, its motor with it); his plates stay
-# put as the frame (slotted for the shafts' travel), and the feeder's yoke turns on a fixed stub ahead of the left module
+# put as the frame (slotted for the shafts' travel). The feeder rides the left module whole: its yoke turns on, and is
+# belted from, the left flywheel's shaft, and no motor of its own fits (a search of every belt and angle found none), so
+# its gate servo moves onto the module too and a NECTAR opening the module carries the feeder out with it
 FLY_MOVES = re.compile(r"^(96mm_Gecko|96mm_Steel_Shaft|8mm_Spacer_|part_piece|8mm_REX_Hyper_Hub|1505-0032-0160|8x14x5mm_Bearing_-_Round_Bore_GB_[3-6]_|"
-                       r"flywheel_(motor|pulley|belt)_)")
+                       r"flywheel_|feeder_(?!bridge|floor)|gate_servo)")
 FLY_PLATES = re.compile(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)_")
 FEED = (2.87, 3.30, 36 * MM)            # feeder axle Y, z, radius (72 mm Gecko)
 FLY_BELT = 315
@@ -164,6 +166,7 @@ FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
+CRADLE_X = (RAIL_X[0] + 12 * MM, RAIL_X[0] + 28 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
 
 # ================================================================ helpers (inches)
@@ -281,13 +284,14 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
              f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{DRIVE_BELT[sx]} belt")
 # ---- odometry pods (goBILDA 4-bar, for 96 mm wheels; the Pinpoint's): a forward pod on the left, a strafe pod on the right
 POD_H, POD_W, POD_D = 69.5 * MM, 43 * MM, 41.5 * MM     # floor to the top of its block; across its block; mount face to wheel side
-ODO_FWD_X = 2.15                        # both pods on the right: the left side under the launcher has its feeder belt and gate servo
+ODO_FWD_X = -2.15                       # both pods on the right: the left side under the launcher has its feeder belt and gate servo;
+ODO_STRAFE_X = -0.40                    # the forward one under the launcher's right side, the strafe one between the lane walls' standoffs
 part("odometry", "odo_pod_forward", box(ODO_FWD_X - POD_W / 2, ODO_FWD_X + POD_W / 2, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_D, 0, POD_H), "buy",
      "goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail")
-part("odometry", "odo_pod_strafe", box(-0.7, -0.7 + POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
+part("odometry", "odo_pod_strafe", box(ODO_STRAFE_X, ODO_STRAFE_X + POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
      "goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail")
-for n, x0, x1 in (("F", ODO_FWD_X - POD_W / 2 - 0.1, ODO_FWD_X + POD_W / 2 + 0.1), ("S", -0.8, -0.7 + POD_D + 0.1)):
-    ad = box(x0, x1, -(RAIL_IN - 0.15), -RAIL_IN, RAIL_Z[0] + CH_T, RAIL_Z[1] - CH_T)
+for n, x0, x1 in (("F", ODO_FWD_X - POD_W / 2 - 0.05, ODO_FWD_X + POD_W / 2 + 0.05), ("S", ODO_STRAFE_X - 0.05, ODO_STRAFE_X + POD_D + 0.05)):
+    ad = box(x0, x1, -(RAIL_IN - 0.15), -(RAIL_OUT - CH_T), RAIL_Z[0] + CH_T, 2.40)   # fills the rail up to under its top flange's nuts
     part("odometry", f"odo_adapter_{n}", ad, "print", "PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint)")
 
 # ---- the fixed flaps: also the side plates that carry the extractor's stubs
@@ -349,19 +353,33 @@ for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, mo
 MOUTH_HALF = RAIL_IN - 0.08            # the ramp and the floor under the stars span the whole mouth, inside the rails' flanges, so a
                                         # piece taken in off-centre climbs to the lane's height too, where the stars reach its middle
 MOUTH_FLOOR_X = (STAR[0] - STAR_R - 0.05, rx1)
+def rail_x(k): return RAIL_X[0] + (4 + 8 * k) * MM    # the rails' 4 mm holes: every 8 mm from 4 mm off the back end (CHECK on a real channel)
+FLANGE_HOLE_Y = RAIL_OUT - 0.344        # the low-side flanges' row of 4 mm holes, 8.7 mm from the web's outer face (read from the same
+                                        # channel in the mentor's launcher; CHECK on a real one)
+MOUTH_TABS = (rail_x(32), rail_x(38))   # clear of his front corners' hubs inside the rail (X 3.68 .. 4.94)
 for s_, n in SIDES:
     rmp = slab_y([(rx0, rz0), (rx1, rz1), (rx1, rz1 - 0.12), (rx0, rz0 - 0.05)], *((0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)))
     rmp = rmp.cut(box(LANE_SHAFTS[0] - 0.55, LANE_SHAFTS[0] + 0.55, -1.05, 1.05, 0, 2))
-    part("lane", f"ramp_{n}", rmp, "print", "PETG: half the ramp, the mouth's whole width")
     fl = box(*MOUTH_FLOOR_X, 0, s_ * MOUTH_HALF, LANE_BOTTOM - 0.13, LANE_BOTTOM)
+    for x in MOUTH_TABS: fl = fl.union(box(x - 0.25, x + 0.25, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), RAIL_Z[0] + CH_T, LANE_BOTTOM))   # on the bottom flange
     for x in LANE_SHAFTS[:2]: fl = fl.cut(box(x - 0.55, x + 0.55, -1.05, 1.05, 0, 2))     # the lane's first two rollers come up through it
-    part("lane", f"mouth_floor_{n}", fl, "print", "PETG: half the floor under the star wheels, at the lane's height; carries lane shafts 0 and 1's bearings on hangers")
+    part("lane", f"mouth_floor_{n}", fl.union(rmp), "print", "PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), "
+         "on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers")
 LANE_X = (COL_X + 1.4, FACE - 0.16)
+WALL_SPLIT = 1.80
 for s, n in SIDES:
-    xm = (LANE_SHAFTS[2] + LANE_SHAFTS[3]) / 2                    # split between two shafts, so each half holds whole bearings
+    xm = WALL_SPLIT                                               # between shafts 2 and 3, so each half holds whole bearings and two standoffs
     for h, (a, b) in (("front", (xm, MOUTH_FLOOR_X[0] - 0.02)), ("rear", (LANE_X[0], xm))):   # ahead of these, the mouth floor and the stars
         top = 2.6
-        part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, top), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two REX standoffs to the rail")
+        part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, top), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail")
+WALL_STANDOFFS = {"rear": ((rail_x(20), 0), (rail_x(27), 0)), "front": ((rail_x(28), 1), (rail_x(29), 0))}   # X, row (0: 8 mm over the
+                                        # axles' row, clear of the gate servo; 1: 8 mm under it); between the odometry pods, and behind the
+                                        # front wheels (the screws' heads are outside the rails' webs)
+WS_Z = (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM)
+for s, n in SIDES:
+    for h, sts in WALL_STANDOFFS.items():
+        for k, (x, row) in enumerate(sts):
+            part("lane", f"wall_standoff_{n}_{h}{k}", mir(cyl("y", (x, WS_Z[row]), 6 * MM, WALL_IN + WALL_T, RAIL_OUT - CH_T), s), "buy", "goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked)")
 # ---- the mentor's star wheels, servo-driven through one-way bearings (drive TBD: his CAD draws none)
 for s, n in SIDES:
     sx, sy = STAR[0], s * STAR[1]
@@ -376,18 +394,28 @@ for s, n in SIDES:
     part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn)")
     top = SV_Z + 37 * MM
     br = box(UCH_FRONT, sx + 0.5, 2.7, 4.95, top, top + 0.2)                                        # over the servo
-    br = br.union(box(UCH_FRONT, 4.05, 4.4, 4.95, PIVOT[1] - 0.45, top))                             # down the U-channel mount's front face
+    br = br.union(box(UCH_FRONT, 4.05, 4.4, 4.85, PIVOT[1] - 0.45, top))                             # down the U-channel mount's front face
     br = br.union(box(PIVOT[0] - 0.3, PIVOT[0] + 0.3, 4.75, 4.95, PIVOT[1] - 0.45, top))        # the arms' pivot, inboard of the arm
-    br = br.union(box(UCH_FRONT, PIVOT[0] + 0.3, 4.75, 4.95, PIVOT[1] - 0.45, PIVOT[1] - 0.25))
+    br = br.union(box(UCH_FRONT, PIVOT[0] + 0.3, 4.6, 4.85, PIVOT[1] - 0.45, PIVOT[1] - 0.25))
+    br = br.union(box(PIVOT[0] - 0.3, PIVOT[0] + 0.3, 4.6, 4.95, PIVOT[1] - 0.45, PIVOT[1] + 0.35))   # the pivot's boss, deep enough for its insert
+    br = br.union(box(UCH_FRONT, 3.58, 4.4, RAIL_OUT - 0.02, RAIL_Z[1], RAIL_Z[1] + 0.2))             # a foot on the rail's top flange
+    br = br.union(box(UCH_FRONT, 3.45, 4.4, 4.80, RAIL_Z[1], PIVOT[1] - 0.45))                         # up to the face, clear of the star
     part("lane", f"front_bracket_{n}", mir(br, s), "print",
-         "PETG: bolts to the front drive motor's U-channel mount; hangs the star's servo and carries the intake arm's pivot (an M5 shoulder screw)")
+         "PETG: on the rail's top flange (his motor fills the U-channel mount, so nothing bolts through that); hangs the star's servo and carries the intake arm's pivot (a shoulder screw)")
 for k, x in enumerate(LANE_SHAFTS):
     part("lane", f"lane_shaft_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 8 * MM, -WALL_IN - WALL_T, WALL_IN + WALL_T), "buy", "goBILDA 8mm REX shaft, 144 mm (2106-4008-1440)")
     part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller")
 CEIL_X = (-0.55, 4.5)                    # from just ahead of the launcher's front uprights (X -0.63) to the front drive motors
 CEIL_Z = LANE_BOTTOM + 2 * RP - 0.2     # the free rollers' bottoms, at rest (a POLLEN presses them 0.2)
-part("lane", "ceiling", box(*CEIL_X, -WALL_IN, WALL_IN, CEIL_Z + 0.8, CEIL_Z + 0.95), "print",
-     "PETG: the sprung ceiling's frame, on pins in slotted posts (as cad/transfer), carrying free rollers")
+CEIL_POSTS = (2.90,)                    # X: the ceiling hinges on one post a side at its front (his front drive motors cross over the
+                                        # lane behind it, from X 1.0 to 2.6, so no post fits there); its rear is free, banded down
+ceil = box(*CEIL_X, -WALL_IN, WALL_IN, CEIL_Z + 0.8, CEIL_Z + 0.95)
+for x in CEIL_POSTS: ceil = ceil.union(box(x - 0.17, x + 0.17, -2.5, 2.5, CEIL_Z + 0.8, CEIL_Z + 0.95))   # ears over the posts
+part("lane", "ceiling", ceil, "print", "PETG: the sprung ceiling's frame, hinged at its front on the posts' pins, its rear banded down (a piece lifts it), carrying free rollers")
+for s, n in SIDES:
+    for k, x in enumerate(CEIL_POSTS):
+        part("lane", f"ceiling_post_{n}{k}", mir(box(x - 0.17, x + 0.17, WALL_IN + WALL_T, 2.5, 1.0, CEIL_Z + 0.75), s), "print",
+             "PETG: a ceiling post, screwed to the wall's outer face; the ceiling's hinge pin through its top")
 for k in range(4):
     x = CEIL_X[0] + 0.5 + k * (CEIL_X[1] - CEIL_X[0] - 1.0) / 3
     part("lane", f"ceiling_roller_{k}", cyl("y", (x, CEIL_Z + 0.4), 0.8, -1.5, 1.5), "print",
@@ -442,31 +470,182 @@ else:
          "goBILDA 2000-0025-0003 Speed servo, continuous, under the top plate: belted 1:1 (24T, 295 mm) to the 64T's shaft (cad/modules/turret-kit)")
     part("launcher", "turret_enc_A", cyl("z", DRIVE_GEAR, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 Thru-Bore encoder on the 64T's shaft (2.75 turns a turret turn), in cad/modules/turret-kit's printed cradle")
     part("launcher", "turret_enc_B", cyl("z", ENC_B, 1.4, pz - 0.75, pz), "buy", "REV-11-1271 on a goBILDA 2303-4008-0036 36T meshing the 64T (4.89 turns): with A, the angle anywhere in 1178 deg; both on an OctoQuad, I2C bus 2")
+LM_CH_Z = 3.843                         # the launcher's side channels' undersides
+LM_FOOT_Y1 = 5.669                      # the launcher's side channel's outer edge
+LM_HOLE_Y, LM_HOLE_X0 = 5.54, -0.665    # its flange's holes (read from his model): every 8 mm along X from this one
+FOOT_SEAT = 3.30                        # the foot-to-rail screw's head, in its pocket
+HOOD_TOP = "lm_2325-0105-0176_1"          # the turret's 176T ring: the hood screws to its top
+HOOD_FLANGE_D = 5.6                     # the hood's flange on the turret's top, four M4 down into it
+LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
+if USE_LM:
+    for s, n in SIDES:
+        for k, x in enumerate(LM_FEET):
+            ft = box(x - 0.3, x + 0.3, 4.95, LM_FOOT_Y1, RAIL_Z[1], LM_CH_Z).cut(cyl("z", (x, FLANGE_HOLE_Y), 8.5 * MM, FOOT_SEAT, LM_CH_Z + 0.1))
+            part("launcher", f"launcher_foot_{n}{k}", mir(ft, s), "print",
+                 "PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange "
+                 "(fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet)")
 HOOD_Z = 9.70 if USE_LM else KIT_Z + KIT_H   # on the turret's top (the module's kit is 9.68 at its top)
-hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
+hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
 # ---- electronics
 # Electronics (the mentor's CAD places none, CHECK with him): both hubs standing on edge in a printed rack on the rear
 # drive motors' cross channel, their plugs to the back; the battery low under that channel, between the rails; the
 # Limelight on a mast from the left front bracket, looking forward over everything.
-EL_X = (AXLE[-1] - 1.75, AXLE[-1] - 0.75)                  # the hubs' X (1 in thick, standing), behind the launcher's rear channels
+EL_X = (AXLE[-1] - 1.32, AXLE[-1] - 0.32)                  # the hubs' X (1 in thick, standing), behind the launcher's rear channels
+RACK_SCREW_X = -6.715                   # his 1107's top flange's holes (read from his model), every 8 mm from Y 0
+RACK_SCREW_Y = (8 * MM, 32 * MM)              # only between his rear motors (they sit 1.5 mm under the flange from |Y| 1.87 out): no nut fits over them
 RACK_Z = 5.73 + 0.0                          # the 1107 channel's top
 for s_, n in SIDES:
-    part("elec", f"rack_{n}", box(EL_X[0] - 0.12, EL_X[1] + 0.05, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2).union(
-         box(EL_X[0] - 0.12, EL_X[0] - 0.02, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])), "print",
-         "PETG: half the electronics rack, on the rear cross channel: a shelf and a back wall the hub screws to")
+    part("elec", f"rack_{n}", box(RACK_SCREW_X - 0.2, EL_X[1] + 0.05, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2).union(
+         box(EL_X[0] - 0.1, EL_X[0], 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])), "print",
+         "PETG: half the electronics rack, on the rear cross channel: a shelf and a back wall the hub screws to; two M4 at its inner end, the shelf resting on the flange the rest of the way")
 part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
 part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
 part("elec", "battery", box(AXLE[-1] - 1.82, AXLE[-1] - 1.82 + BATTERY[2], -BATTERY[0] / 2, BATTERY[0] / 2, 0.45, 0.45 + BATTERY[1]), "buy",
      "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails under the rear cross channel (CHECK its size)")
 for s_, n in SIDES:
-    part("elec", f"battery_cradle_{n}", box(AXLE[-1] - 1.87, AXLE[-1] - 1.87 + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45), "print",
-         "PETG: half the battery's cradle, hung from the rails' bottom flanges")
-for k, (z0, z1) in enumerate(((SV_Z + 0.2 + 37 * MM, 9.6), (9.6, 13.4))):
-    part("elec", f"limelight_mast_{k}", box(4.4, 4.8, 3.0, 3.5, z0, z1), "print",
-         "PETG: Limelight mast on the left front bracket, in two pieces (bed size); lens about 14 in up, 45 deg up (its offsets go in CameraMount)")
-part("elec", "limelight", box(4.05, 5.15, 2.15, 4.35, 13.4, 14.8), "buy", "Limelight 3A")
+    cr = box(AXLE[-1] - 1.87, AXLE[-1] - 1.87 + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
+    for x in CRADLE_X: cr = cr.union(box(x - 0.22, x + 0.22, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), 0.3, RAIL_Z[0]))   # risers to the flange
+    part("elec", f"battery_cradle_{n}", cr, "print", "PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap)")
+MAST = (4.4, 4.8, 3.6, 4.1)             # beside the star servo (its nuts under the bracket's top clear the servo)
+MAST_Z0 = SV_Z + 0.2 + 37 * MM
+TENON = box(4.5, 4.7, 3.72, 3.98, 9.6, 10.1)
+part("elec", "limelight_mast_0", box(*MAST, MAST_Z0, 9.6).union(box(4.05, 5.15, 3.55, 4.5, MAST_Z0, MAST_Z0 + 0.25)).union(TENON), "print",
+     "PETG: the Limelight mast's lower half, its foot on two M4 through the left front bracket's top, a tenon into the upper half")
+part("elec", "limelight_mast_1", box(*MAST, 9.6, 13.4).cut(TENON), "print",
+     "PETG: the mast's upper half, on the tenon with one M3 through both; the Limelight on its top, about 14 in up, 45 deg up (its offsets go in CameraMount)")
+part("elec", "limelight", box(4.05, 5.15, 2.75, 4.95, 13.4, 14.8), "buy", "Limelight 3A, on two M4 into the mast's top")
+
+
+# ================================================================ fasteners and joints (v2: every part shows what holds it)
+# Every screw is drawn and checked: it passes through each part it clamps (a printed part gets its hole cut; a goBILDA
+# part of the mentor's must show a real hole there; the rails' holes are on goBILDA's 8 mm grid), its threads end in an
+# insert, a nut, a standoff or a tapped hole with enough engagement, and its head, the hex key behind it and any nut hit
+# nothing. Parts held another way (a shaft in its bearings, a servo on its own screws) are listed in CAPTIVE and DEVICE.
+# Then every part must reach the rails through these joints.
+SCREW = {   # d, clearance, head d, head h, insert hole, insert length, nut h, nut d (mm); socket-head cap screws, nylocs, Ruthex-type inserts
+    "M3": (3.0, 3.4, 5.5, 3.0, 4.0, 5.7, 4.0, 5.5),       # (a nut's across-flats: turned flat to a wall)
+    "M4": (4.0, 4.4, 7.0, 4.0, 5.6, 8.1, 5.0, 7.0),
+    "M5": (5.0, 5.5, 8.5, 5.0, 6.4, 9.5, 5.0, 8.0),
+}
+FASTENERS = []
+def screw(name, a, b, size, length, p, v, end, via=(), cb=False, what="", match=None):
+    """A screw: its head seated on part a at p, pointing along v, through via, threading into b ('insert', 'nut', 'tapped')."""
+    n = math.sqrt(sum(c * c for c in v)); v = tuple(c / n for c in v)
+    FASTENERS.append(dict(name=name, a=a, b=b, size=size, L=length, p=tuple(p), v=v, end=end, via=tuple(via), cb=cb, what=what, match=match))
+
+CAPTIVE = []        # (part, held by, how)
+DEVICE = []         # (part, mounted on, its own fasteners: text, count of screws)
+def captive(a, b, how): CAPTIVE.append((a, b, how))
+def device(a, b, how, count): DEVICE.append((a, b, how, count))
+
+def _cyl(p, v, r, t0, t1):
+    P = cq.Vector(*[p[i] + v[i] * t0 for i in range(3)])
+    return cq.Workplane().add(cq.Solid.makeCylinder(r, t1 - t0, P, cq.Vector(*v)))
+
+def screw_solids(f):
+    d, _, hd, hh, *_ = SCREW[f["size"]]
+    return _cyl(f["p"], f["v"], d / 2 * MM, 0, f["L"] * MM).union(_cyl(f["p"], f["v"], hd / 2 * MM, -hh * MM, 0))
+
+# ---- the joints
+for s, n in SIDES:
+    m = (1, s, 1)
+    def P(x, y, z): return (x, s * y, z)
+    def V(x, y, z): return (x, s * y, z)
+    # flap root -> rail web: from inside the rail, into the root's inserts
+    for x, z in ((rail_x(43), WHEEL_R + 8 * MM), (rail_x(44), WHEEL_R - 8 * MM)):
+        screw(f"flap_{n}_{x:.2f}", f"rail_{n}", f"flap_{n}", "M4", 12, P(x, RAIL_OUT - CH_T, z), V(0, 1, 0), "insert", what="the flap's root to the rail's web")
+    # the swappable face -> flap: three countersunk M3 into the flap's inserts
+    root, tip = (FACE, HALF_W), FLAP_TIP
+    ang = math.atan2(tip[1] - root[1], tip[0] - root[0]); L = math.hypot(tip[0] - root[0], tip[1] - root[1])
+    nrm = (math.sin(ang), -math.cos(ang))                  # into the flap from its inner face (left side)
+    for k, f in enumerate((0.42, 0.66, 0.9)):
+        x0, y0 = root[0] + f * L * math.cos(ang), root[1] + f * L * math.sin(ang)
+        px, py = x0 + nrm[0] * 0.33, y0 + nrm[1] * 0.33     # the countersunk head's seat, 3 mm into the 5 mm face plate
+        screw(f"face_{n}{k}", f"flap_face_{n}", f"flap_{n}", "M3", 8, P(px + 0.0, py, 2.25), V(-nrm[0], -nrm[1], 0), "insert", cb=True,
+              what="the swappable face to its flap (countersunk, flush on the face)")
+    # odometry adapters -> right rail web; the pods screw through both
+    if s < 0:
+        for nm, pod, ks in (("F", "odo_pod_forward", (13, 14)), ("S", "odo_pod_strafe", (21, 23))):
+            for k, z in zip(ks, (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM)):
+                screw(f"odo_{nm}{k}", "rail_R", pod, "M4", 25, (rail_x(k), -RAIL_OUT, z), (0, 1, 0), "tapped", via=(f"odo_adapter_{nm}",),
+                      what="the odometry pod, through its adapter and the rail's web (from outside)")
+    # lane walls -> standoffs -> rail web
+    for h, sts in WALL_STANDOFFS.items():
+        for k, (x, row) in enumerate(sts):
+            z = WS_Z[row]
+            screw(f"wall_{n}_{h}{k}", f"lane_wall_{n}_{h}", f"wall_standoff_{n}_{h}{k}", "M4", 10, P(x, WALL_IN + 4 * MM, z), V(0, 1, 0), "tapped", cb=True,
+                  what="a lane wall to its standoff (counterbored: the head below the lane's face)")
+            screw(f"wall_rail_{n}_{h}{k}", f"rail_{n}", f"wall_standoff_{n}_{h}{k}", "M4", 10, P(x, RAIL_OUT, z), V(0, -1, 0), "tapped",
+                  what="the standoff to the rail's web (from outside)")
+    # the mouth -> the rail's bottom flange: from above, inside the rail, into a nut under it
+    for x in MOUTH_TABS:
+        screw(f"mouth_{n}_{x:.2f}", f"mouth_floor_{n}", f"rail_{n}", "M4", 16, P(x, FLANGE_HOLE_Y, LANE_BOTTOM), V(0, 0, -1), "nut",
+              what="the mouth to the rail's bottom flange")
+    # front bracket -> the rail's top flange
+    for x in (rail_x(31), rail_x(33)):
+        screw(f"bracket_{n}_{x:.2f}", f"front_bracket_{n}", f"rail_{n}", "M4", 16, P(x, FLANGE_HOLE_Y, RAIL_Z[1] + 0.2), V(0, 0, -1), "nut",
+              what="the front bracket's foot to the rail's top flange")
+    # intake arm pivot: a shoulder screw through the arm into the bracket's boss
+    screw(f"arm_pivot_{n}", f"intake_arm_{n}", f"front_bracket_{n}", "M5", 18, P(PIVOT[0], ARM_Y[1], PIVOT[1]), V(0, -1, 0), "insert",
+          what="the intake arm's pivot: goBILDA-style 6 mm shoulder screw, 8 mm shoulder, M5 thread (CHECK the SKU)")
+    # ceiling posts -> walls (M3 from inside the lane, counterbored)
+    for k, x in enumerate(CEIL_POSTS):
+        wall = f"lane_wall_{n}_{'rear' if x < WALL_SPLIT else 'front'}"
+        for z in (1.4, 2.2):
+            screw(f"post_{n}{k}_{z}", wall, f"ceiling_post_{n}{k}", "M3", 12, P(x, WALL_IN + 3 * MM, z), V(0, 1, 0), "insert", cb=True,
+                  what="a ceiling post to the wall (counterbored in the wall)")
+        captive("ceiling", f"ceiling_post_{n}{k}", "hinged on a pin (an M4 shoulder screw) through its ear and the post")
+    # battery cradle risers -> rail's bottom flange: from inside the rail, into the riser's insert
+    for x in CRADLE_X:
+        screw(f"cradle_{n}_{x:.2f}", f"rail_{n}", f"battery_cradle_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, RAIL_Z[0] + CH_T), V(0, 0, -1), "insert",
+              what="the battery cradle's riser to the rail's bottom flange")
+    # rack -> his 1107's top flange, into nuts under it
+    for y in RACK_SCREW_Y:
+        screw(f"rack_{n}_{y}", f"rack_{n}", "dm_BR_1107-0013-0336_1", "M4", 16, P(RACK_SCREW_X, y, RACK_Z + 0.2), V(0, 0, -1), "nut",
+              what="the electronics rack to the rear cross channel's top flange")
+    # launcher feet: up from inside the rail; down from inside the launcher's side channel
+    if USE_LM:
+        lmch = "lm_Hole_Lowside_U-Channel_GB_6__1" if s > 0 else "lm_Hole_Lowside_U-Channel_GB_4__1"
+        for k, x in enumerate(LM_FEET):
+            screw(f"foot_rail_{n}{k}", f"launcher_foot_{n}{k}", f"rail_{n}", "M4", 20, P(x, FLANGE_HOLE_Y, FOOT_SEAT), V(0, 0, -1), "nut", cb=True,
+                  what="a launcher foot to the rail's top flange")
+            xl = LM_HOLE_X0 + round((x - LM_HOLE_X0) / (8 * MM)) * 8 * MM
+            screw(f"foot_lm_{n}{k}", lmch, f"launcher_foot_{n}{k}", "M4", 12, P(xl, LM_HOLE_Y, LM_CH_Z + CH_T), V(0, 0, -1), "insert",
+                  what="the launcher's side channel to its foot", match="his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel")
+    # the extractor, the stars, the intake and the lane's shafts: held by bearings and shafts
+    captive(f"ex_stub_{n}", f"flap_{n}", "turns in a goBILDA 1611 flanged bearing in the flap")
+    captive(f"ex_arm_{n}", f"ex_stub_{n}", "clamped on the stub (REX bore, a set screw)")
+    captive("ex_cross", f"ex_arm_{n}", "through both arms, M4 screws into its ends")
+    captive(f"star_shaft_{n}", f"star_servo_{n}", "on the servo's spline through a printed coupler (TBD with the mentor)")
+    captive(f"star_clutch_{n}", f"star_shaft_{n}", "the one-way clutch pressed in its bore, on the round shaft")
+    captive(f"star_{n}", f"star_clutch_{n}", "on the hub's hex")
+    device(f"star_servo_{n}", f"front_bracket_{n}", "M4 x 12 through the servo's tabs into the bracket's inserts", 4)
+    captive("roller_shaft", f"intake_arm_{n}", "in a goBILDA 1611 flanged bearing in each arm, e-clips")
+captive("ex_block", "ex_cross", "clamped on the cross shaft")
+device("ex_servo", "flap_R", "M4 x 12 through the servo's tabs into the flap's inserts", 4)
+captive("roller", "roller_shaft", "on the REX shaft")
+captive("roller_belt", "roller_shaft", "on the 24T pulleys")
+device("intake_motor", "intake_arm_R", "M4 x 8 into the motor's face (goBILDA pattern) through the arm", 4)
+for k, x in enumerate(LANE_SHAFTS):
+    wall = "mouth_floor" if k < 2 else ("lane_wall_{}_front" if x > WALL_SPLIT else "lane_wall_{}_rear")
+    for n in ("L", "R"):
+        captive(f"lane_shaft_{k}", wall.format(n) if "{" in wall else f"{wall}_{n}", "in a goBILDA 1611 flanged bearing, e-clips")
+    captive(f"lane_roller_{k}", f"lane_shaft_{k}", "on the REX shaft")
+for k in range(4): captive(f"ceiling_roller_{k}", "ceiling", "on two 608 bearings and an 8 mm shaft through the ceiling's sides")
+captive("battery", "battery_cradle_L", "a strap round it and both halves")
+captive("battery_cradle_R", "battery_cradle_L", "")   # noqa (the strap): each half also screws to its own rail
+device("control_hub", "rack_L", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
+device("expansion_hub", "rack_R", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
+device("limelight", "limelight_mast_1", "M4 into the mast's inserts (its mounting holes)", 2)
+for x in (4.25, 4.95):
+    screw(f"mast_{x}", "limelight_mast_0", "front_bracket_L", "M4", 20, (x, 4.3, MAST_Z0 + 0.25), (0, 0, -1), "nut", what="the mast's foot to the bracket's top")
+screw("mast_splice", "limelight_mast_1", "limelight_mast_1", "M3", 16, (4.8, 3.85, 9.85), (-1, 0, 0), "nut", via=("limelight_mast_0",), what="the mast's splice")
+for k in range(4):
+    a = math.radians(45 + 90 * k)
+    screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 2.55 * math.cos(a), 2.55 * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
+          what="the hood's flange to the turret's top", match="through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit")
 
 # ================================================================ checks
 
@@ -512,8 +691,105 @@ def clashes(shapes, only=None):
             if v > 1e-4 or v < 0: out.append((a, b, v))
     return out
 
-def report():
+
+def joint_report():
+    """The v2 checks: every screw, then every part's path to the rails."""
     ok = True
+    shapes = {k: p["shape"] for k, p in PARTS.items()}
+    holed = lambda k: k.startswith(("lm_", "dm_"))            # the mentor's goBILDA parts: their holes are in the model
+    def trange(sol, f):                                         # where along the screw a solid sits (in)
+        b = solid(sol).BoundingBox(); p, v = f["p"], f["v"]
+        ts = [sum((c[i] - p[i]) * v[i] for i in range(3)) for c in ((x, y, z) for x in (b.xmin, b.xmax) for y in (b.ymin, b.ymax) for z in (b.zmin, b.zmax))]
+        return min(ts), max(ts)
+    def inside(sh, w):
+        try:
+            x = solid(sh).intersect(solid(w)); return x if x.Volume() > 1e-6 else None
+        except Exception: return None
+    print(f"== fasteners: {len(FASTENERS)} screws drawn and checked")
+    bad = []
+    for f in FASTENERS:
+        d, clr, hd, hh, ih, il, nh, nd = SCREW[f["size"]]
+        L = f["L"] * MM
+        shank = _cyl(f["p"], f["v"], d / 2 * MM, 0, L)
+        def fail(msg): bad.append(f"{f['name']}: {msg}")
+        for k in (f["a"],) + f["via"] + (f["b"],):
+            if k not in shapes: fail(f"no part {k}"); continue
+        if any(k not in shapes for k in (f["a"],) + f["via"] + (f["b"],)): continue
+        clamp = [f["a"]] + list(f["via"]) + ([f["b"]] if f["end"] == "nut" else [])
+        for k in dict.fromkeys(clamp):
+            w = shapes[k]
+            if holed(k):
+                if f["match"]: continue
+                if inside(_cyl(f["p"], f["v"], (d / 2 - 0.1) * MM, 0, L), w) is not None: fail(f"hits {k}'s material: no hole there")
+                elif inside(_cyl(f["p"], f["v"], hd / 2 * MM, 0, L), w) is None: fail(f"misses {k}")
+            else:
+                if inside(shank, w) is None: fail(f"misses {k}")
+                if k.startswith("rail_"):                       # goBILDA's grid, 4 mm holes every 8 mm (the 14 mm ones every 24)
+                    p, v = f["p"], f["v"]
+                    gx = ((p[0] - RAIL_X[0]) / MM - 4) / 8
+                    if abs(gx - round(gx)) > 0.02: fail(f"off the rail's 8 mm grid along X ({p[0]:.3f})")
+                    if abs(v[1]) > 0.9:
+                        gz = (p[2] - WHEEL_R) / MM / 8
+                        if abs(gz - round(gz)) > 0.02 or abs(round(gz)) > 2 or (round(gz) == 0 and round(gx) % 3 == 1): fail(f"off the rail web's 4 mm holes (z {p[2]:.3f})")
+                    elif abs(abs(p[1]) - FLANGE_HOLE_Y) > 0.02: fail(f"off the rail flange's hole row (Y {p[1]:.3f})")
+        # where it threads
+        b = shapes[f["b"]]
+        if f["end"] in ("insert", "tapped") and not (f["match"] and holed(f["b"])):
+            x = inside(shank, b); need = (0.8 * il if f["end"] == "insert" else 1.5 * d) * MM
+            got = 0 if x is None else x.Volume() / (math.pi * (d / 2 * MM) ** 2)
+            if got < need - 1e-3: fail(f"only {got / MM:.1f} mm of thread in {f['b']} (needs {need / MM:.1f})")
+            if x is not None and trange(x, f)[1] > L - 1e-3 and f["end"] == "insert":
+                pass
+        others = {k: w for k, w in shapes.items() if k not in clamp and k != f["b"]}
+        if f["end"] == "nut":
+            t_exit = max(trange(inside(shank, shapes[k]) or shapes[k], f)[1] for k in clamp)
+            if L - t_exit < nh * MM - 1e-3: fail(f"{(L - t_exit) / MM:.1f} mm past the last part: no room for the nut ({nh} mm)")
+            nut = _cyl(f["p"], f["v"], nd / 2 * MM, t_exit + 0.005, t_exit + nh * MM)
+            for k, w in shapes.items():
+                if overlap(nut, w) > 1e-5: fail(f"its nut hits {k}")
+        for k, w in others.items():
+            if f["match"] and holed(k): continue
+            if overlap(shank, w) > 1e-5: fail(f"runs into {k}")
+        head = _cyl(f["p"], f["v"], hd / 2 * MM, -hh * MM, -0.002)
+        key = _cyl(f["p"], f["v"], 2.0 * MM, -hh * MM - 0.75, -hh * MM)
+        for k, w in shapes.items():
+            if (f["cb"] or f["match"]) and k == f["a"]: continue
+            if overlap(head, w) > 1e-5: fail(f"its head hits {k}")
+            if overlap(key, w) > 1e-5: fail(f"no room for the hex key: {k}")
+    for m in bad: print("   " + m)
+    for f in FASTENERS:
+        if f["match"]: print(f"   to locate on the robot: {f['name']} ({f['what']}): {f['match']}")
+    print("   " + ("all pass: through real holes, enough thread, heads, keys and nuts clear" if not bad else f"{len(bad)} problems"))
+    ok &= not bad
+
+    print("== every part reaches the rails through screws, bearings or its own mounting")
+    node = lambda k: "launcher module (the mentor's)" if k.startswith("lm_") else (f"drive corner {k[3:5]} (the mentor's)" if k.startswith("dm_") else k)
+    edges = {}
+    def link(a, b):
+        a, b = node(a), node(b); edges.setdefault(a, set()).add(b); edges.setdefault(b, set()).add(a)
+    for f in FASTENERS:
+        for k in (f["a"],) + f["via"]: link(k, f["b"])
+    for a, b, *_ in CAPTIVE + DEVICE: link(a, b)
+    for c in ("FL", "BL"): link(f"dm_{c}_", "rail_L")      # his corners bolt to the rails by their own plates
+    for c in ("FR", "BR"): link(f"dm_{c}_", "rail_R")
+    link("dm_BR_", "rail_L")                               # his 1107 ties the rails at the back
+    for k, p in PARTS.items():
+        if p["moves"] in ("fly_L", "fly_R"): link(k, "lm_")   # the sprung modules: on the launcher frame (their slides TBD, README)
+    seen, todo = set(), ["rail_L"]
+    while todo:
+        k = todo.pop()
+        if k in seen: continue
+        seen.add(k); todo += list(edges.get(k, ()))
+    loose = sorted({node(k) for k in PARTS} - seen)
+    print("   " + ("all of them" if not loose else "LOOSE: " + ", ".join(loose)))
+    ok &= not loose
+    n = {}
+    for f in FASTENERS: n[(f["size"], f["L"])] = n.get((f["size"], f["L"]), 0) + 1
+    print("   screws: " + ", ".join(f"{c} x {sz} x {l}" for (sz, l), c in sorted(n.items())) + f"; plus {sum(c for *_, c in DEVICE)} on devices (servos, hubs, motor)")
+    return ok
+
+def report():
+    ok = joint_report()
     shapes = {k: p["shape"] for k, p in PARTS.items()}
     print("== static clashes (start pose: extractor stowed, roller down)")
     c = clashes(shapes)
@@ -635,6 +911,45 @@ def report():
     b = bb(PARTS[big]["shape"]); print(f"   all fit; the largest is {big}: " + " x ".join(f"{(b[2 * i + 1] - b[2 * i]) * 25.4:.0f}" for i in range(3)) + " mm")
     return ok
 
+def cut_holes():
+    """Each screw's holes in the parts it passes: clearance, a counterbore for a sunk head, the insert's hole where it threads."""
+    for f in FASTENERS:
+        d, clr, hd, hh, ih, il, nh, nd = SCREW[f["size"]]
+        L = f["L"] * MM
+        clamp = [f["a"]] + list(f["via"]) + ([f["b"]] if f["end"] == "nut" else [])
+        for k in dict.fromkeys(clamp + [f["b"]]):
+            p = PARTS[k]
+            if not (p["kind"] == "print" or k.startswith("rail_")): continue
+            dia = clr if k in clamp else (ih if f["end"] == "insert" else clr)
+            cut = _cyl(f["p"], f["v"], dia / 2 * MM, -0.01, L)
+            if f["cb"] and k == f["a"]: cut = cut.union(_cyl(f["p"], f["v"], (hd + 0.6) / 2 * MM, -0.6, 0))
+            try: p["shape"] = solid(p["shape"]).cut(solid(cut))
+            except Exception as e: print("   (hole not cut:", f["name"], k, e, ")")
+
+def fasteners_md():
+    rows, n, ins, nuts = [], {}, {}, {}
+    for f in FASTENERS:
+        n[(f["size"], f["L"])] = n.get((f["size"], f["L"]), 0) + 1
+        if f["end"] == "insert": ins[f["size"]] = ins.get(f["size"], 0) + 1
+        if f["end"] == "nut": nuts[f["size"]] = nuts.get(f["size"], 0) + 1
+    rows += ["## Screws (v2, drawn and checked by build.py)", "", "| Screw | One robot | Two robots |", "|---|---|---|"]
+    for (sz, l), c in sorted(n.items()): rows.append(f"| {sz} x {l} socket head{' (countersunk for the faces)' if sz == 'M3' and l == 8 else ''} | {c} | {2 * c} |")
+    for sz, c in sorted(ins.items()): rows.append(f"| {sz} heat-set insert | {c} | {2 * c} |")
+    for sz, c in sorted(nuts.items()): rows.append(f"| {sz} nyloc nut | {c} | {2 * c} |")
+    dv = sum(c for *_, c in DEVICE)
+    rows += [f"| on the devices (servos, hubs, intake motor, Limelight): see below | {dv} | {2 * dv} |", "",
+             "Buy 20% over for each line: dropped screws and stripped inserts.", "",
+             "## Every joint", "", "| Joint | Holds | Screw | Through | Into |", "|---|---|---|---|---|"]
+    for f in FASTENERS:
+        into = {"insert": f"an insert in `{f['b']}`", "nut": "a nyloc", "tapped": f"`{f['b']}`'s thread"}[f["end"]]
+        thr = ", ".join(f"`{k}`" for k in dict.fromkeys([f["a"]] + list(f["via"]) + ([f["b"]] if f["end"] == "nut" else [])))
+        rows.append(f"| {f['name']} | {f['what']}{' (CHECK: ' + f['match'] + ')' if f['match'] else ''} | {f['size']} x {f['L']} | {thr} | {into} |")
+    rows += ["", "| Held without a screw of its own | By | How |", "|---|---|---|"]
+    for a, b, how in CAPTIVE:
+        if how: rows.append(f"| `{a}` | `{b}` | {how} |")
+    for a, b, how, c in DEVICE: rows.append(f"| `{a}` | `{b}` | {how} ({c}) |")
+    return "\n".join(rows) + "\n"
+
 def parts_md():
     rows = ["| Part | Module | Make | What |", "|---|---|---|---|"]
     for k, p in sorted(PARTS.items(), key=lambda kv: (kv[1]["module"], kv[0])):
@@ -692,6 +1007,7 @@ if __name__ == "__main__":
     ok = report()
     print("ALL CHECKS PASS" if ok else "CHECKS FAIL")
     if CHECK_ONLY: sys.exit(0 if ok else 1)
+    cut_holes()
     os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
     # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
     # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
@@ -721,12 +1037,17 @@ if __name__ == "__main__":
             if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
         if sub.children: asm.add(sub, name=g)
         full.add(fsub, name=g)
+    fz, ffz = cq.Assembly(name="FASTENERS - fix"), cq.Assembly(name="FASTENERS - fix")
+    for f in FASTENERS:
+        sh = solid(screw_solids(f)).scale(25.4)
+        fz.add(sh, name=f"screw_{f['name']}", color=cq.Color(0.2, 0.2, 0.22)); ffz.add(sh, name=f"screw_{f['name']}", color=cq.Color(0.2, 0.2, 0.22))
+    asm.add(fz, name="FASTENERS - fix"); full.add(ffz, name="FASTENERS - fix")
     asm.save(os.path.join(HERE, "printed-chassis.step"))
     if USE_LM or USE_DM:
         import gzip, shutil
         fp = os.path.join(HERE, ".cache", "printed-chassis-full.step"); full.save(fp)
         with open(fp, "rb") as a, gzip.open(fp + ".gz", "wb") as b: shutil.copyfileobj(a, b)
     with open(os.path.join(HERE, "parts.md"), "w") as f:
-        f.write("# Parts, layout v1 (written by build.py)\n\nScrews, nuts and inserts come with v2. CHECK marks a size not read from a vendor file.\n\n" + parts_md())
+        f.write("# Parts (written by build.py)\n\nCHECK marks a size not read from a vendor file. Two robots: double every line.\n\n" + parts_md() + "\n" + fasteners_md())
     views(os.path.join(HERE, "views"))
     print("wrote printed-chassis.step, stl/, parts.md, views/")

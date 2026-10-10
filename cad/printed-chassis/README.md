@@ -1,9 +1,9 @@
-# The printed clean-sheet robot: layout v1 (10 Oct 2026)
+# The printed clean-sheet robot: layout v2, with its screws (10 Oct 2026)
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
-corners are in it, placed by their axles. His built robot (photos, 10 Oct) now supersedes his 9 Oct CAD as the reference. **Screws, gear teeth, springs and the lane's drive belt are not drawn yet**
-(v2). Nothing here is built.
+corners are in it, placed by their axles. His built robot (photos, 10 Oct) now supersedes his 9 Oct CAD as the reference. **Every
+screw is drawn and checked** (v2); gear teeth, springs and the lane's drive belt are not drawn yet. Nothing here is built.
 
     python3 cad/printed-chassis/build.py          # checks, then writes printed-chassis.step, stl/, parts.md, views/
     CHECK_ONLY=1 python3 cad/printed-chassis/build.py
@@ -32,6 +32,9 @@ README no longer describes.
 | Starting outline (R102) | **17.73 × 17.75 in**, 14.8 in tall: designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
 | Extractor down (R105) | 20.2 in front to back, of 24 |
 | Width behind the face | 15.24 in: nothing behind the face is wider (his shafts' ends at ±7.62) |
+| Every screw (67, plus 26 on servos, hubs and the intake motor) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| Every part reaches the rails | through screws, bearings and shafts (`CAPTIVE`) or its own mounting screws (`DEVICE`): no part floats |
+| The flywheel modules opening 0.41 in each side | clear, motors and the feeder with them; opened, they reach Y ±7.92 (R105 allows 18 wide) |
 | Static clashes | none, with his launcher and corners in (shafts in their own hubs, belts on their own pulleys and bolted faces excepted, by name in `ALLOWED`; his modules' own parts aren't checked against each other) |
 | The roller rising 1.3 in on its swing arms | clear at 0, 0.33, 0.65, 1.0 and 1.3 in; the axle moves at most 0.06 in forward |
 | The extractor, every 10° from down to stowed, roller down and up | clear |
@@ -46,7 +49,7 @@ README no longer describes.
 too big for git: the build writes it as `.cache/printed-chassis-full.step.gz`, to share through the team's Drive.
 
 1. **Create → Document → Import** the STEP. Leave **Flatten assembly off**.
-2. Right-click **FRAME - fix** → **Fix**, then lock each **MOVES** group (the lock icon at the right of its row).
+2. Right-click **FRAME - fix** and **FASTENERS - fix** → **Fix**, then lock each **MOVES** group (the lock icon at the right of its row).
 3. Add the mates the groups' names give (`cad/full-robot/ONSHAPE.md`, section 2, explains Revolute mates):
 
 | Group | Mate | Limits |
@@ -117,19 +120,48 @@ are in `cad/modules/launcher-module` and `cad/modules/drive-module` on the CAD c
 | 1611-0514-4008 flanged bearings, 8mm REX shafts and standoffs | goBILDA | stacks | roller, lane, extractor (`parts.md`) |
 | 608 bearings | any | 8 | ceiling rollers |
 | Foam, 1/2 in | any | | the flaps only if the drop test says TPU bounces |
-| M3 / M4 heat-set inserts, M4 socket heads | any / goBILDA | | v2 counts them |
+| M3 / M4 / M5 heat-set inserts, socket-head screws, nylocs | any (goBILDA's M4 for the grid) | | counted per robot and for two in `parts.md` |
 
-Every printed part is listed in `parts.md` with its material. The STLs in `stl/` are **v1 layout shapes, not ready to
-print**: no screw holes, inserts, bores or ribs yet.
+Every printed part is listed in `parts.md` with its material, then every screw: the count for one robot and for two, and
+each joint (what it holds, the screw, what it passes through, what it threads into). The STLs in `stl/` have their screw
+holes, counterbores and insert holes cut; they are **not ready to print** yet: no bearing bores, ribs or fillets.
+
+## Build order and service
+
+Each step only needs the ones before it, and nothing has to come off to reach a later step's screws.
+
+1. Rails and the mentor's four drive corners (his plates bolt them to the rails; his 1107 ties the rails at the back).
+2. Battery cradle halves (an M4 each from inside the rail into the riser's insert); the battery goes in last, on a strap.
+3. Odometry pods: each through its adapter and the right rail's web, from outside.
+4. Lane walls on their standoffs (four a side, from outside the rail and from inside the lane, counterbored), with the
+   lane's shafts and rollers in their bearings; the ceiling's posts on the front walls; the ceiling on its hinge pins.
+5. The mouth halves (ramp and floor in one), each on two M4 into nuts under the rail's bottom flange.
+6. Front brackets on the rails' top flanges; the star servos, shafts, clutch hubs and stars under them; the intake arms
+   on their shoulder screws, with the roller.
+7. Flaps (two M4 each from inside the rail), then the swappable faces (three countersunk M3 each).
+8. Launcher feet (an M4 through each foot's pocket into a nut under the rail's top flange: fit them before the launcher
+   goes on), then the launcher, down onto its four feet (an M4 each from inside its side channels), then the hood.
+9. The electronics rack (two M4 a half at its inner end, into nuts under his 1107's top flange) and the hubs.
+10. The Limelight's mast on the left front bracket (two M4 into nuts under the bracket's top), its splice, the Limelight.
+
+To service: a face is three screws; the launcher lifts off its feet after four screws, with its wiring; a mouth half is
+two screws; a lane wall half is four; a flap is two. The hubs come off their rack without touching anything else.
 
 ## Open (v2, and before anything is printed)
 
-1. **Every part shows what it bolts to** (the user's rule, from the mentor's one criticism of the 9 Oct CAD: "there were
-   not spots to connect things"). v2 draws every fastener and checks that each part has at least one fastener path to
-   its neighbour, and through them to the rails, through real holes: goBILDA's 8 mm grid on bought parts, drilled holes
-   or named heat-set inserts on printed ones. A part with no path fails the build. Alongside it: screws checked as
-   `tools/robot-cad/fastener_check.py` does (shank only through holes, head and key room, thread engagement), each
-   module's way out checked, a build order, a two-robot parts list.
+1. **What v2's screws leave to check.** Done: every part shows what it bolts to, through which holes (the mentor's
+   rule), and the build fails if a screw or a part doesn't. Left: **(a)** eight screws to locate on the robot: the
+   launcher's side channels to their feet (his channels' flange holes don't read cleanly from his model) and the hood to
+   the turret (through the 176T gear into the kit's inner race, as longer copies of the kit's own screws). **(b)** Two
+   readings to confirm on a real goBILDA 1121 channel with calipers: the 4 mm holes every 8 mm from 4 mm off its end,
+   and the flanges' hole row 8.7 mm from the web's outer face (read from the same channel in his launcher). **(c)** The
+   electronics rack screws to his 1107 only at its inner end (his rear motors sit 1.5 mm under the flange from
+   |Y| 1.87 out, so no nut fits there); the shelf rests on the flange the rest of the way. Add a zip tie at its outer
+   end if it rattles. **(d)** Moved for screws: the odometry pods (forward pod to X −2.15 under the launcher's right
+   side, strafe pod to X −0.40, between the lane walls' standoffs; their offsets are measured on the robot anyway); the
+   hubs 0.43 in forward; the ceiling now hinges at its front on one post a side (his front drive motors cross the lane
+   behind it). **(e)** Fit coupons: print a 20 mm block with each insert size and one hole of each clearance before the
+   big parts.
 2. **A face that gives.** The simulator needs the flaps' faces at restitution 0.1 or lower (0.2 keeps half the gain,
    0.3 none; the mentor's lane foam drops at about 0.4), and the body-designs chat asks for a flap that can give. The
    flap here also carries the extractor's stub, so it stays rigid; v2 mounts the swappable face plate on compliant
@@ -151,10 +183,11 @@ print**: no screw holes, inserts, bores or ribs yet.
    for the shafts' travel. `build.py` slides both open and checks them against everything fixed (clear; opened, the
    motors reach Y ±7.92, inside R105's 18). Still to design: the slide or pivot itself (goBILDA or MGN9 rails, or swing
    arms), the springs (`FLY_SPRING`: rate and preload from the rig) and the stops (rest gap: his CAD has 1.93 in, so a
-   POLLEN is squeezed 0.87; the rig sets it). **The feeder loses its drive:** its yoke turned on, and was belted from,
-   the left flywheel's shaft, which now moves. The yoke stays on a fixed stub at the same axis, ahead of the module;
-   that stub needs its own motor (the 8th: four drive, intake, two flywheels, feeder), still to place. One known touch is
-   allowed by name until then: the left-front drive motor's can against the feeder belt (0.0002 in³).
+   POLLEN is squeezed 0.87; the rig sets it). **The feeder rides the left module:** its yoke turns on, and is belted
+   from, the left flywheel's shaft, so the whole feeder, its belt and its gate servo move out with the left module (a
+   search of every belt length and angle found no room for a feeder motor of its own). The left module is then
+   heavier than the right, so its spring is stiffer (the rig sets both). One known touch is allowed by name: the
+   left-front drive motor's can against the feeder belt (0.0002 in³).
 4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
