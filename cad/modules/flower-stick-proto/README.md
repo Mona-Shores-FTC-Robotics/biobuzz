@@ -120,10 +120,30 @@ before changing anything else. Then try the forward reach on whichever block did
 - **What to bring back:** the table, and a measurement of the real FLOWER's pocket edge (the base plate's
   thickness). That's the number `doc/ramp-hook.md` says decides a short block against a long one.
 
+## The pivoting build with wheels (what the lab built, 10 Oct)
+
+The fixed plates were hard to get to the right height without a drill, so the lab built a pivot instead. Two pattern
+beams swing from a cross shaft at the robot's end. Small wheels at their lower ends roll on the tiles, outside the
+FLOWER, and carry the lower shaft and the block. **The wheels set the height:** the shaft sits at the wheels' radius.
+
+A hand push into a FLOWER loaded with 4 POLLEN (slow-mo, filmed from above) brought at least 2 POLLEN out. They then
+piled up against the chassis, because that end has no intake. Counts and timing from a side view are still to come.
+
+To print a block for this build, give `block.py` the wheels' diameter:
+
+    python3 cad/modules/flower-stick-proto/block.py --wheel-mm 48 --bottom 0.70
+
+- `stl/block_shaft0.945_bottom0.70.stl`: 48 mm wheels. Bottom 0.70 in, top 1.35; 2.1 mm of plastic under the bore.
+- `stl/block_shaft0.945_bottom0.65.stl`: the same, 0.05 in lower, with 3.3 mm under the bore. Print this one if
+  the other cracks.
+- **Wheels much over 52 mm put the shaft too high.** The 0.65 in block can't keep its top under 1.35 in with the
+  bore inside it, and `block.py` refuses. Use 48 mm wheels, or ask for a block that hangs below the shaft.
+
 ## Files
 
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
+- `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.
 - To re-check: `python3 tools/robot-cad/module_check.py Robot.step flower_stick_seated`, run from a scratch folder.
