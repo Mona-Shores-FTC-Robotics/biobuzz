@@ -3,7 +3,9 @@
 # uprights and NOT edited (nothing left out or moved), against the module's parts. Our full robot moves his launcher
 # forward (cad/transfer LAUNCHER_SHIFT); his doesn't, so a module drawn on his launcher is moved back by that much.
 # Modules: "turret" (the servo turret drive and its two encoders, cad/transfer's turret_* parts and their screws);
-# "flaps" and "flaps_folded" (cad/modules/flaps, swung out and folded for START).
+# "flaps" and "flaps_folded" (cad/modules/flaps, swung out and folded for START); "flower_stick" (cad/modules/flower-stick-proto)
+# and "flower_stick_seated" (the same with tools/robot-cad/flower.py's FLOWER seated on its block: the FLOWER may touch
+# only the block).
 # Exact mesh intersection (manifold3d), inches, robot frame. Caches raw_base_mesh.pkl here.
 import sys, os, re, pickle, importlib.util, numpy as np, trimesh, manifold3d as mf
 import cadquery as cq
@@ -33,9 +35,18 @@ def turret():
 def flaps(state):
     FL = load('flaps', '/home/user/biobuzz/cad/modules/flaps/build.py')
     return {n: (TR.to_cad(wp), 0.0) for n, (wp, c, k) in getattr(FL, state).items()}
-MODULES = {'turret': turret, 'flaps': lambda: flaps('deployed'), 'flaps_folded': lambda: flaps('folded')}
+def flower_stick(seated):
+    FS = load('flower_stick', '/home/user/biobuzz/cad/modules/flower-stick-proto/build.py')
+    out = {n: (TR.to_cad(wp), 0.0) for n, (wp, c, k) in FS.parts.items()}
+    if seated:
+        sys.path.insert(0, '/home/user/biobuzz/tools/robot-cad'); import flower
+        out.update({f'FLOWER {n}': (m, None) for n, m in flower.parts(FS.SEAT_D).items() if n != 'field_wall'})
+    return out
+MODULES = {'turret': turret, 'flaps': lambda: flaps('deployed'), 'flaps_folded': lambda: flaps('folded'),
+           'flower_stick': lambda: flower_stick(False), 'flower_stick_seated': lambda: flower_stick(True)}
 kit = {}
 for n, (shp, dx) in MODULES[module]().items():
+    if dx is None: kit[n] = shp; continue        # already a mesh in the robot frame
     m = cad_mesh(shp)
     if m is None: continue
     m.apply_translation((dx, 0, 0)); kit[n] = m
@@ -50,6 +61,9 @@ def vol(a, b):
 TOL = 2e-4
 hits = 0
 for n, m in kit.items():
+    if n.startswith('FLOWER'):                   # the FLOWER against the module: it should touch only the block
+        for n2, m2 in kit.items():
+            if not n2.startswith('FLOWER') and vol(m, m2) > TOL: hits += 1; print(f'  {vol(m, m2):8.4f} in3  {n[:55]:55s} x {n2[:50]}')
     for p, b in near:
         v = vol(m, b)
         if v > TOL or v < 0:
@@ -62,7 +76,7 @@ if module == 'turret':
         c = (b.bounds[0][:2] + b.bounds[1][:2]) / 2
         if np.linalg.norm(c - tg) < 1.0: print(f'  {p[-80:]}  z {b.bounds[0][2]:.2f}..{b.bounds[1][2]:.2f}')
 # the robot's size with the module: his parts (pieces left out) plus the module's
-allb = [m.bounds for p, m in base if not re.search(r'Pollen|Nectar|POLLEN|NECTAR', p)] + [m.bounds for m in kit.values()]
+allb = [m.bounds for p, m in base if not re.search(r'Pollen|Nectar|POLLEN|NECTAR', p)] + [m.bounds for n, m in kit.items() if not n.startswith('FLOWER')]
 lo_, hi_ = np.min([b[0] for b in allb], 0), np.max([b[1] for b in allb], 0)
 print(f'robot with the module: {hi_[0] - lo_[0]:.2f} in long (X {lo_[0]:.2f}..{hi_[0]:.2f}), {hi_[1] - lo_[1]:.2f} in wide, {hi_[2] - lo_[2]:.2f} in tall')
 print(f'{hits} clashes')
