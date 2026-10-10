@@ -3,10 +3,10 @@ two pairs of 96 mm flywheels, their channels and the dual blocks that tie it to 
 the flywheel motors moved out and up, the modules 16 mm in, the turret's servo drive and encoders, and the feeder, gate,
 pad and backstop. Placed as on our full robot (cad/full-robot placed_team: his launcher 0.8 in forward).
 
-    MOTORS_FROM=... python3 cad/modules/launcher-module/build.py <his 9 Oct Robot.step>
+    LEAN=1 MOTORS_FROM=... python3 cad/modules/launcher-module/build.py <his 9 Oct Robot.step>
 
 Writes launcher-module.step next to this file: millimetres, robot frame (+X forward, +Y left, +Z up, origin on the floor
-under his chassis centre, his front face at X 7.56 in), and prints the column's position, the envelope and the parts of
+under his chassis centre, his front face at X 7.56 in; LEAN=1 leaves out fasteners), and prints the column's position, the envelope and the parts of
 his chassis it touches (its interface)."""
 import os, re, sys, importlib.util
 import numpy as np, cadquery as cq
@@ -38,6 +38,7 @@ if __name__ == "__main__":
     for d, rx in ((TR.launcher, None), (TR.fixed, OURS_FIXED)):
         for n, (wp, col, kind) in d.items():
             if rx and not rx.search(n): continue
+            if os.environ.get("LEAN") and FAST.search(n): continue
             s = TR.to_cad(wp); ours.add(s, name=n, color=cq.Color(*col))
             if not FAST.search(n): boxes.append((n, robot_box(s)))
     where = cq.Location(RP.to_model(C, F, FACE))
