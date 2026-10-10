@@ -79,7 +79,7 @@ lane's end:
 ```
   flap tips ─┐                                                        18.0 in
              ▼
-     ╲  flap (foam)    roller on swing arms     lane (driven top and bottom)       turret + flywheels      ╱
+     ╲  flap (foam)    roller on swing arms     lane (free-roller ceiling)         turret + flywheels      ╱
       ╲═══════════╗   ◯  ───────────────────────────────────────────────  ▣ launch column        ║
        front face ╚═══┴═══ wheel ══════════════════════════════════════════ wheel ════════════════╝
                    ◄─3.4─►◄──────────────────────── 14.6 body ──────────────────────────────────►
@@ -104,7 +104,7 @@ Long, stiff members are what printing does worst and goBILDA does best, and noth
 
 | Module | What it is | Comes off with |
 |---|---|---|
-| Drive pod ×4 | wheel on its own shaft in two bearings, its motor and belt, all in one printed housing | 4 screws; swap a whole corner in the pit |
+| Drive pod ×4 | wheel on its own shaft in two bearings, its motor and belt, all in one printed housing | 4 screws; swap a whole corner in the pit (the front motors also sit under the front cross channel: v2 settles how they come out) |
 | Front | front bulkhead with foam face, flap roots, extractor stubs and servo | 4 screws |
 | Intake | roller, its swing arms, motor | 2 pivot screws + motor plug |
 | Lane | walls, rollers, top belt, ramp | 4 screws, lifts out upward |
@@ -119,10 +119,10 @@ Reused from today's design where it's sound; changed where printing makes it sim
 |---|---|---|---|
 | **Flaps** | Rigid V, 1/8 in aluminium, tips 2.8 in out | **Fixed printed flaps, tips 3.4 in out, 1/2 in EVA foam on a clip-on backer** | Brief items 1 and 2. The foam backer clips off, so the drop test can try foams without reprinting. |
 | **Front face** | bare channel and plates | **Foam across the whole face below 4 in**, same clip-on backer | A spilled piece that hits the face should die there, not bounce away. |
-| **Intake roller** | Floats straight up 1.3 in in slots, motor on a sliding carriage | **Roller on two printed swing arms about the lane's first shaft; its belt runs through the pivot**, so the belt never changes length and nothing slides | Today's slots exist only because the old uprights stood behind the roller. Without them a swing arm is the standard, simpler answer. |
+| **Intake roller** | Floats straight up 1.3 in in slots, motor on a sliding carriage | **Roller on two printed swing arms pivoting behind the front wheels, level with its mid-float, so it rises straight up; its motor rides the right arm**, belted to the roller over the wheel | Today's slots exist only because the old uprights stood behind the roller. A swing arm needs no slots, carriage or slides, and its belt keeps its length. |
 | **Roller wheels** | WCP vector wheels + printed inserts | **WCP vector wheels if they test better, else printed TPU vector wheels** | Printing makes the bore, the hex and the spacing ours; a test decides which grips better. |
 | **Roller speed** | 1150 RPM × 2 in ≈ 120 in/s surface | **About 150 to 170 in/s surface** (a 1620 RPM motor or a larger roller) | The brief wants pieces arriving at 120 in/s taken; the surface must outrun them. |
-| **Lane** | 5 shafts of rollers under a **still** foam ceiling: the ball rolls at half the tread's speed (about 24 in/s) | **Driven top and bottom** (printed TPU rollers below, a round-belt top run above, from the same motor): the ball moves at full tread speed | At 0.17 s a piece, 3.6 in pieces need at least 21 in/s with no gap; today's lane has no margin. Same motor, twice the speed. |
+| **Lane** | 5 shafts of rollers under a **still** foam ceiling: the ball rolls at half the tread's speed (about 24 in/s) | **A ceiling of free-spinning rollers** over the same TPU rollers: the ball rides at the full tread speed | At 0.17 s a piece, 3.6 in pieces need at least 21 in/s with no gap; today's lane has no margin. Twice the speed with no extra drive (the CAD replaced the driven top run first proposed here). |
 | **4-piece count** | Lane length, backstop on slots | **Same**: roller axle to backstop 12.43 in, backstop on ±0.2 in slots, set with real balls | It works and needs nothing. |
 | **Feeder, gate, pad** | Feeder on a yoke belted to the left flywheel, gate servo, sprung pad | **Same principle, printed yoke and pad, own motor** (the 8 Oct motor budget: the turret is a servo, so the feeder gets a motor) | Unchanged decision; printing only makes the brackets. |
 | **Turret** | goBILDA 176T kit + 64T, servo, two Thru-Bore encoders on a 64T and a 36T (1178° window) | **Printed ring gear on four V-groove bearing rollers** (stock 625/608 bearings), servo-driven, same two-encoder trick with **ratios we choose** (e.g. pinions differing by one tooth for a much wider window) | The kit dictated the 64/36 compromise; a printed ring doesn't. The ring is PETG, drawn thick **(material)**. |
@@ -152,7 +152,7 @@ Reused from today's design where it's sound; changed where printing makes it sim
 |---|---|
 | Fixed 3.4 in flaps, nothing to actuate | 14.6 in body + 3.4 in flaps = 18.0 in at the start; no deploy |
 | Low-bounce front | foam on every face a spill can reach, on clip-on backers for the drop test |
-| 0.17 to 0.2 s intake, 120 in/s arrivals | faster roller surface; a lane driven top and bottom at twice today's ball speed |
+| 0.17 to 0.2 s intake, 120 in/s arrivals | faster roller surface; a free-roller ceiling, so the lane runs at twice today's ball speed |
 | ≤ 4 pieces, physically | lane length, as `cad/transfer/` sets it |
 | Turret, flywheels, feeder, extractor | kept; built from printed parts and stock motion parts |
 | R102 / R105 | 18 × 18 at the start; deployed, only the extractor reaches forward (about 21 in front to back, as today) |
@@ -167,7 +167,10 @@ Reused from today's design where it's sound; changed where printing makes it sim
 3. **Rig tests before the CAD is trusted:** the swing-arm roller's grab rate on POLLEN and NECTAR, the driven-top lane's
    speed, and a printed ring's backlash against the two-encoder decode tolerance.
 
-## Next
+## The CAD
 
-Once this is agreed: `cad/printed-chassis/build.py` in the style of `cad/*/build.py` (robot frame, inches, every screw),
-a clash check, and the parts list with sources.
+Layout v1 is in [cad/printed-chassis/](../cad/printed-chassis/README.md): every module at its size and place, the
+bought parts from goBILDA's STEP files, and checks for clashes (static, the roller's rise, the extractor's swing),
+the pieces' path, the outline, the 4-piece count and every printed part's size. All pass. Its README lists what
+changed from this concept, the bought parts with sources, and what v2 adds (screws, gear teeth, springs, the lane's
+belt).
