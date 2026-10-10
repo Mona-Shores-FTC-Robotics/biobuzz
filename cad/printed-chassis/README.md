@@ -85,8 +85,8 @@ goBILDA part numbers are from goBILDA's site (Oct 2026). Counts are for one robo
 | EVA or polyethylene foam, 1/2 in | any | | flaps, pad (the drop test picks it) |
 | M3 / M4 heat-set inserts, M4 socket heads | any / goBILDA | | v2 counts them |
 
-Every printed part is listed in `parts.md` with its material; the STLs are in `stl/`, placed as on the robot (lay each
-flat before slicing).
+Every printed part is listed in `parts.md` with its material. The STLs in `stl/` are **v1 layout shapes, not ready to
+print**: no screw holes, inserts, bores or ribs yet. They show size and place, and that each fits the bed.
 
 ## Open (v2, and before anything is printed)
 
