@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/autos/r-quals.pp",
-  "spec": "RQualsAuto,PartnerLeftVAuto@50",
+  "pp": "TeamCode/autos/l-quals.pp",
+  "spec": "LQualsAuto,PartnerPreloadsRightHighAuto|RQualsAuto,PartnerLeftVAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "r-quals.pp",
-    "SavedBy": "README, the qualifier Autos L-Quals and R-Quals, with the human player's NECTAR entering during AUTO (10 Oct 2026)"
+    "AutoSource": "l-quals.pp",
+    "SavedBy": "README, a whole match: L-Quals on red against R-Quals on blue, with the human player's NECTAR entering during AUTO (10 Oct 2026)"
   },
-  "title": "R-Quals",
+  "title": "Match-LQuals-vs-RQuals",
   "usual": true,
-  "folder": "r-quals"
+  "folder": "match-l-vs-r"
 }
