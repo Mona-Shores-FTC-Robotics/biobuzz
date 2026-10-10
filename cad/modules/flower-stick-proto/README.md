@@ -138,16 +138,16 @@ To print a block for this build, give `block.py` the wheels' diameter. The lab's
 shaft can't turn in it, so the block needs no set screws.
 
     python3 cad/modules/flower-stick-proto/block.py --wheel-mm 48 --bottom 0.70
-    python3 cad/modules/flower-stick-proto/block.py --shaft 1.00 --bottom 0.70          # a measured shaft height
+    python3 cad/modules/flower-stick-proto/block.py --shaft 0.77 --bottom 0.52 --top 1.30   # the lab's 39 mm wheels
 
-- **The shaft measures about 1.0 in off the table** (tape stood upright beside it, 10 Oct). A first photo, taken
-  from above, suggested 1.5 in wheels and a 0.75 in shaft; the upright reading is the one to trust.
-  - **Print `stl/block_hex_shaft1.000_bottom0.70.stl`:** bottom 0.70 in, top 1.35, with 3.5 mm of plastic under
-    the bore and 4.7 mm over it. If the shaft is really anywhere from 0.9 to 1.1 in, the bottom lands between 0.6
-    and 0.8, which is still inside the window.
-  - After fitting it, check the block's bottom clears a 5/8 in (16 mm) stack, such as a goBILDA 16 mm standoff
-    stood on end.
-  - `stl/block_hex_shaft0.945_bottom0.70.stl` and `_bottom0.65`: for 48 mm wheels.
+- **The wheels are about 1.55 in (39 mm) across.** That's from a tape stood upright against a wheel (10 Oct): its
+  top reads about 1.54 in. So the shaft sits about 0.77 in off the tiles, too low for the standard block. (An
+  earlier reading of 1.0 in was a misread of a blurry photo.)
+  - **Print `stl/block_hex_shaft0.770_bottom0.52.stl`:** bottom 0.52 in, top 1.30, the shape of the mentor's first
+    sketch, which emptied all 4 POLLEN in `ramp.py`. It clears the 0.43 in ring by only about 0.1 in (0.07 to 0.12
+    if the shaft is really 0.75 to 0.80).
+  - **Better: fit wheels about 48 mm (1.9 in) across.** That raises the shaft to about 0.95 in, so the standard
+    block (`stl/block_hex_shaft0.945_bottom0.70.stl`) fits with 0.27 in of clearance over the ring.
 - **Wheels much over 52 mm put the shaft too high.** The 0.65 in block can't keep its top under 1.35 in with the
   bore inside it, and `block.py` refuses. Ask for a block that hangs below the shaft.
 - Print the fit coupon from `cad/ramp-hook/` first. Its bores are round, so on a hex shaft read it across the
