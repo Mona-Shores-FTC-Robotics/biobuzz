@@ -32,7 +32,7 @@ All goBILDA, all checked on gobilda.com on 10 Oct.
 | Grid plate 5 × 17 (40 × 136 mm), plate B | 1116-0040-0136 | 2 |
 | Hyper Hub, 8mm REX bore, clamping | 1310-0016-4008 | 2 |
 | 8mm REX shaft, 264 mm, uncut | 2106-4008-2640 | 1 |
-| Clamping collar, 8mm REX, 9 mm long | 2910-0920-4008 (the 2910-1020-4008 in `cad/intake-b/` is discontinued) | 2 |
+| Clamping collar, 8mm REX, 9 mm long | 2910-0920-4008. Any 8mm REX collar from stock works: the discontinued 10 mm 2910-1020-4008, or a 2920 set-screw collar. They only back up the block's set screws. | 2 |
 | M4 × 12 socket head | 2800-0004-0012 | 12 |
 | M4 × 8 socket head (B into the hubs) | 2800-0004-0008 | 8 |
 | M4 nylon-insert lock nut | 2812-0004-0007 | 12 |
