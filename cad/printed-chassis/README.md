@@ -74,7 +74,7 @@ Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
 | Lane | five TPU-roller shafts, walls at \|Y\| 1.86, a ceiling of free rollers from X −0.55 to 4.5 | the ball moves at the tread's speed, not half of it |
 | Launcher (the mentor's) | his goBILDA launcher module with `cad/transfer`'s changes (flywheel motors out and up, the feeder on a yoke with its gate servo, the pad, the backstop, the turret servo and both encoders), placed by the launch column at X −2.37 | the turret's drive gear points forward, as his |
 | Hood | printed, on the turret's top | a placeholder until the launcher rig settles its shape |
-| Electronics | both hubs standing on edge in a printed rack on the rear motors' cross channel, plugs to the back (X −6.9 to −5.9, z 5.9 to 10.0); the battery on edge across the robot, low between the rails under that channel; the Limelight on a two-piece mast on the left front bracket, lens about 14 in up | his CAD has no electronics: **ask him where he wants them, and which battery the team uses** |
+| Electronics | both hubs standing on edge in a printed rack on the rear motors' cross channel, plugs to the back (X −6.9 to −5.9, z 5.9 to 10.0); the battery on edge across the robot, low between the rails under that channel; the Limelight on a two-piece mast on the left front bracket, lens about 14 in up | his built chassis (10 Oct) stands the hubs on the rails' inner faces; here the lane, feeder and odometry pods fill those, so they stand at the back instead. His battery is a Modern Robotics 12 V NiMH: **CHECK its size** (drawn 5.7 × 3.3 × 1.8 in) |
 
 ### What changed, and why
 
@@ -125,7 +125,7 @@ print**: no screw holes, inserts, bores or ribs yet.
 
 1. **Screws, inserts and service paths**, drawn and checked as `cad/intake-b` and `cad/transfer` do
    (`tools/robot-cad/fastener_check.py`), each module's way out checked; a build order; a two-robot parts list.
-2. **For the mentor:** where the hubs and battery go (here: the back), which battery, how his launcher frame bolts down
+2. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, how his launcher frame bolts down
    (his CAD shows it floating 1 in over the rails), and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 3. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.

@@ -438,7 +438,7 @@ for s_, n in SIDES:
 part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
 part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
 part("elec", "battery", box(AXLE[-1] - 1.82, AXLE[-1] - 1.82 + BATTERY[2], -BATTERY[0] / 2, BATTERY[0] / 2, 0.45, 0.45 + BATTERY[1]), "buy",
-     "12 V battery, on edge across the robot, low between the rails under the rear cross channel (CHECK its size: the team's battery)")
+     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails under the rear cross channel (CHECK its size)")
 for s_, n in SIDES:
     part("elec", f"battery_cradle_{n}", box(AXLE[-1] - 1.87, AXLE[-1] - 1.87 + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45), "print",
          "PETG: half the battery's cradle, hung from the rails' bottom flanges")
