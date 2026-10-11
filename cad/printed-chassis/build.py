@@ -33,8 +33,10 @@ CHECK_ONLY = os.environ.get("CHECK_ONLY") == "1"
 LM_DIR = os.path.join(HERE, ".cache", "launcher")    # the mentor's launcher module, cached by launcher_module.py
 USE_LM = os.path.exists(os.path.join(LM_DIR, "index.json")) and os.environ.get("NO_LAUNCHER_MODULE") != "1"
 DM_DIR = os.path.join(HERE, ".cache", "drive")       # the mentor's drive corners, cached by drive_module.py
-USE_DM = os.path.exists(os.path.join(DM_DIR, "index.json")) and os.environ.get("NO_DRIVE_MODULE") != "1"
-DM_LAYOUT = USE_DM or os.environ.get("DM_LAYOUT") == "1"   # the frame laid out for his corners (drive_module.py places them by it)
+USE_DM = False                          # layout v3: our own four corners on his track and wheelbase (his built corners are the
+                                        # reference for both, not the parts: theirs put the front motors across the lane, where
+                                        # the feeder's motor must go). drive_module.py stays, to compare against his.
+DM_LAYOUT = True                        # the frame laid out for his track and wheelbase
 
 # ---------------------------------------------------------------- the outline the Auto asks for
 FACE, BACK = 7.3, -7.05                 # body 14.35 in (the back gives the start outline's margin; the face and the flaps stay put)
@@ -93,9 +95,10 @@ WHEEL_Y = (PULLEY_Y[1] + 0.05, PULLEY_Y[1] + 0.05 + WHEEL_W)
 OPLATE_Y = (MPLATE_Y[1] + 56 * MM, MPLATE_Y[1] + 56 * MM + PLATE_T)   # the outer plates, on 56 mm standoffs
 DRIVE_HOLES = {1: 5, -1: 3}             # the motor this many holes above the axle: front over the lane's ceiling (120 mm); rear 72 mm
                                         # (two holes up, its shaft's end touches the wheel)
-DRIVE_BELT = {1: 360, -1: 265}          # 2 x centres + 120: front exact; rear 0.5 mm long (CHECK its tension on the robot)
-DRIVE_MOTOR = {sx: (AXLE[sx], WHEEL_R + DRIVE_HOLES[sx] * PITCH) for sx in (1, -1)}
-MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "1123-0048-0144, cut to 4 holes (120 mm) so it stays under the launcher's belts")}   # the axle at its lowest hole, the motor at its top one
+DRIVE_BELT = {1: 360, -1: 275}          # 2 x centres + 120: front exact; rear 3 mm long (75.9 mm centres): slot the plate, CHECK its tension
+DRIVE_MOTOR = {1: (AXLE[1], WHEEL_R + 5 * PITCH),             # front: straight over the axle, over the stars and the intake's pivot
+               -1: (AXLE[-1] - PITCH, WHEEL_R + 3 * PITCH)}    # rear: a hole behind and three up, under the launcher's back (as his)
+MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt")}   # the axle at its lowest hole, the motor at its top one
 
 # ---------------------------------------------------------------- intake
 ROLL_R = 24 * MM                        # goBILDA 48 mm Gecko wheels, as the mentor's roller (no vector wheels: his star wheels centre)
@@ -175,7 +178,7 @@ FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
-CRADLE_X = (RAIL_X[0] + 12 * MM, RAIL_X[0] + 28 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
+CRADLE_X = (RAIL_X[0] + 28 * MM, RAIL_X[0] + 44 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
 
 # ================================================================ helpers (inches)
@@ -275,7 +278,7 @@ if USE_DM:
 for s_, n in (() if USE_DM else SIDES):
     op = box(*RAIL_X, *OPLATE_Y, *RAIL_Z)
     part("frame", f"outer_plate_{n}", mir(op, s_), "buy", "goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs")
-    for k in (-3, 2):                       # between the wheels, where no belt runs
+    for k in (-3, 1):                       # between the wheels, where no belt runs
         for dz in (-16 * MM, 16 * MM):
             part("frame", f"standoff_{n}_{k}_{'hi' if dz > 0 else 'lo'}", mir(cyl("y", (RAIL_CX + k * PITCH, WHEEL_R + dz), 6 * MM, MPLATE_Y[1], OPLATE_Y[0]), s_), "buy",
                  "goBILDA 1501-0006-0560 M4 standoff, 56 mm")
@@ -283,8 +286,8 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
     ax = AXLE[sx]; mx, mz = DRIVE_MOTOR[sx]; nh, pn = MPLATE[sx]
     for s, n in SIDES:
         nm = fx + n
-        mp = box(ax - CH / 2, ax + CH / 2, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH)
-        part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn} pattern plate (1 x {nh} hole), standing on the rail's web: the drive motor screws to it, {DRIVE_HOLES[sx]} holes above the axle")
+        mp = box(min(ax, mx) - CH / 2, max(ax, mx) + CH / 2, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH)
+        part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn}, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole")
         part(f"corner_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
         part(f"corner_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, RAIL_OUT - CH_T, OPLATE_Y[1] + 0.05), s), "buy",
              "goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip")
@@ -507,33 +510,34 @@ hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).union(cyl("z", (CO
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
 # ---- electronics
-# Electronics (the mentor's CAD places none, CHECK with him): both hubs standing on edge in a printed rack on the rear
-# drive motors' cross channel, their plugs to the back; the battery low under that channel, between the rails; the
-# Limelight on a mast from the left front bracket, looking forward over everything.
+# Electronics (CHECK with the mentor): both hubs standing on edge in a printed rack over the rear drive motors, their plugs
+# to the back, the rack on two standoffs from the rear cross channel (between the rear motors' inner ends); the battery
+# low between the rails, ahead of that channel; the Limelight on a mast in the middle of the front cross channel.
 EL_X = (AXLE[-1] - 1.32, AXLE[-1] - 0.32)                  # the hubs' X (1 in thick, standing), behind the launcher's rear channels
-RACK_SCREW_X = -6.715                   # his 1107's top flange's holes (read from his model), every 8 mm from Y 0
-RACK_SCREW_Y = (8 * MM, 32 * MM)              # only between his rear motors (they sit 1.5 mm under the flange from |Y| 1.87 out): no nut fits over them
-RACK_Z = 5.73 + 0.0                          # the 1107 channel's top
+RACK_SCREW_X = RAIL_X[0] + 6 * MM       # the rear cross channel's top flange, mid-flange (CHECK, as the rails' flanges)
+RACK_SCREW_Y = (8 * MM, 16 * MM)        # between the rear motors' inner ends (|Y| 0.76)
+RACK_Z = 5.73                           # over the rear drive motors (their tops at 5.53)
+RACK_STANDOFF = (RAIL_Z[1], RACK_Z)     # goBILDA 1501 M4 standoffs, 72 mm
 for s_, n in SIDES:
     part("elec", f"rack_{n}", box(RACK_SCREW_X - 0.2, EL_X[1] + 0.05, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2).union(
          box(EL_X[0] - 0.1, EL_X[0], 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])), "print",
-         "PETG: half the electronics rack, on the rear cross channel: a shelf and a back wall the hub screws to; two M4 at its inner end, the shelf resting on the flange the rest of the way")
+         "PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to; on two standoffs at its inner end")
+    for k, y in enumerate(RACK_SCREW_Y):
+        part("elec", f"rack_standoff_{n}{k}", cyl("z", (RACK_SCREW_X, s_ * y), 6 * MM, *RACK_STANDOFF), "buy", "goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed)")
 part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
 part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
-part("elec", "battery", box(AXLE[-1] - 1.82, AXLE[-1] - 1.82 + BATTERY[2], -BATTERY[0] / 2, BATTERY[0] / 2, 0.45, 0.45 + BATTERY[1]), "buy",
-     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails under the rear cross channel (CHECK its size)")
+BAT_X = RAIL_X[0] + CH_LOW + 0.05      # just ahead of the rear cross channel
+part("elec", "battery", box(BAT_X, BAT_X + BATTERY[2], -BATTERY[0] / 2, BATTERY[0] / 2, 0.45, 0.45 + BATTERY[1]), "buy",
+     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel (CHECK its size)")
 for s_, n in SIDES:
-    cr = box(AXLE[-1] - 1.87, AXLE[-1] - 1.87 + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
+    cr = box(BAT_X - 0.05, BAT_X + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
     for x in CRADLE_X: cr = cr.union(box(x - 0.22, x + 0.22, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), 0.3, RAIL_Z[0]))   # risers to the flange
     part("elec", f"battery_cradle_{n}", cr, "print", "PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap)")
-MAST = (4.4, 4.8, 3.6, 4.1)             # beside the star servo (its nuts under the bracket's top clear the servo)
-MAST_Z0 = SV_Z + 0.2 + 37 * MM
-TENON = box(4.5, 4.7, 3.72, 3.98, 9.6, 10.1)
-part("elec", "limelight_mast_0", box(*MAST, MAST_Z0, 9.6).union(box(4.05, 5.15, 3.55, 4.5, MAST_Z0, MAST_Z0 + 0.25)).union(TENON), "print",
-     "PETG: the Limelight mast's lower half, its foot on two M4 through the left front bracket's top, a tenon into the upper half")
-part("elec", "limelight_mast_1", box(*MAST, 9.6, 13.4).cut(TENON), "print",
-     "PETG: the mast's upper half, on the tenon with one M3 through both; the Limelight on its top, about 14 in up, 45 deg up (its offsets go in CameraMount)")
-part("elec", "limelight", box(4.05, 5.15, 2.75, 4.95, 13.4, 14.8), "buy", "Limelight 3A, on two M4 into the mast's top")
+MAST_Z0 = FRONT_CROSS_Z + CH            # on the front cross channel's top, in the middle
+MAST_X = AXLE[1]
+part("elec", "limelight_mast", box(MAST_X - 0.2, MAST_X + 0.2, -0.25, 0.25, MAST_Z0, 13.4).union(box(MAST_X - 0.45, MAST_X + 0.45, -0.75, 0.75, MAST_Z0, MAST_Z0 + 0.25)), "print",
+     "PETG: the Limelight mast, its foot on two M4 through the front cross channel's top; the Limelight on its top, about 14 in up, 45 deg up, on the robot's centreline (its offsets go in CameraMount)")
+part("elec", "limelight", box(MAST_X - 0.55, MAST_X + 0.55, -1.1, 1.1, 13.4, 14.8), "buy", "Limelight 3A, on two M4 into the mast's top")
 
 
 # ================================================================ fasteners and joints (v2: every part shows what holds it)
@@ -606,8 +610,8 @@ for s, n in SIDES:
         screw(f"bracket_{n}_{x:.2f}", f"front_bracket_{n}", f"rail_{n}", "M4", 16, P(x, FLANGE_HOLE_Y, RAIL_Z[1] + 0.2), V(0, 0, -1), "nut",
               what="the front bracket's foot to the rail's top flange")
     # intake arm pivot: a shoulder screw through the arm into the bracket's boss
-    screw(f"arm_pivot_{n}", f"intake_arm_{n}", f"front_bracket_{n}", "M5", 18, P(PIVOT[0], ARM_Y[1], PIVOT[1]), V(0, -1, 0), "insert",
-          what="the intake arm's pivot: goBILDA-style 6 mm shoulder screw, 8 mm shoulder, M5 thread (CHECK the SKU)")
+    screw(f"arm_pivot_{n}", f"front_bracket_{n}", f"intake_arm_{n}", "M5", 18, P(PIVOT[0], 4.6, PIVOT[1]), V(0, 1, 0), "insert",
+          what="the intake arm's pivot: a shoulder screw from inside the bracket, turning in a flanged bushing in its boss, into the arm's insert (the drive motor's plate is just outboard of the arm)")
     # ceiling posts -> walls (M3 from inside the lane, counterbored)
     for k, x in enumerate(CEIL_POSTS):
         wall = f"lane_wall_{n}_{'rear' if x < WALL_SPLIT else 'front'}"
@@ -620,9 +624,11 @@ for s, n in SIDES:
         screw(f"cradle_{n}_{x:.2f}", f"rail_{n}", f"battery_cradle_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, RAIL_Z[0] + CH_T), V(0, 0, -1), "insert",
               what="the battery cradle's riser to the rail's bottom flange")
     # rack -> his 1107's top flange, into nuts under it
-    for y in RACK_SCREW_Y:
-        screw(f"rack_{n}_{y}", f"rack_{n}", "dm_BR_1107-0013-0336_1", "M4", 16, P(RACK_SCREW_X, y, RACK_Z + 0.2), V(0, 0, -1), "nut",
-              what="the electronics rack to the rear cross channel's top flange")
+    for k, y in enumerate(RACK_SCREW_Y):
+        screw(f"rack_{n}{k}", f"rack_{n}", f"rack_standoff_{n}{k}", "M4", 12, P(RACK_SCREW_X, y, RACK_Z + 0.2), V(0, 0, -1), "tapped",
+              what="the electronics rack to its standoff")
+        screw(f"rack_standoff_{n}{k}", "rear_cross", f"rack_standoff_{n}{k}", "M4", 10, P(RACK_SCREW_X, y, RAIL_Z[1] - CH_T), (0, 0, 1), "tapped",
+              what="the rack's standoff to the rear cross channel's top flange (from inside the channel)")
     # launcher feet: up from inside the rail; down from inside the launcher's side channel
     if USE_LM:
         lmch = "lm_Hole_Lowside_U-Channel_GB_6__1" if s > 0 else "lm_Hole_Lowside_U-Channel_GB_4__1"
@@ -641,6 +647,24 @@ for s, n in SIDES:
     captive(f"star_{n}", f"star_clutch_{n}", "on the hub's hex")
     device(f"star_servo_{n}", f"front_bracket_{n}", "M4 x 12 through the servo's tabs into the bracket's inserts", 4)
     captive("roller_shaft", f"intake_arm_{n}", "in a goBILDA 1611 flanged bearing in each arm, e-clips")
+if not USE_DM:
+    for s, n in SIDES:
+        for fx in ("F", "B"):
+            nm = fx + n
+            device(f"motor_plate_{nm}", f"rail_{n}", "M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid)", 4)
+            device(f"drive_motor_{nm}", f"motor_plate_{nm}", "M4 x 8 into the motor's face (goBILDA pattern)", 4)
+            captive(f"wheel_shaft_{nm}", f"rail_{n}", "in a goBILDA 1611 bearing in the rail's web, and one in the outer plate")
+            captive(f"wheel_{nm}", f"wheel_shaft_{nm}", "on the REX shaft, a hub")
+            captive(f"drive_belt_{nm}", f"wheel_shaft_{nm}", "on the 24T pulleys")
+        device(f"outer_plate_{n}", f"standoff_{n}_1_hi", "M4 x 8 into the standoffs", 4)
+        for k in (-3, 1):
+            for h in ("hi", "lo"):
+                device(f"standoff_{n}_{k}_{h}", f"rail_{n}", "M4 x 10 through the motor plate side's rail web", 1)
+                device(f"outer_plate_{n}", f"standoff_{n}_{k}_{h}", "", 0)
+    device("rear_cross", "rail_L", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
+    device("rear_cross", "rail_R", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
+    device("front_cross", "motor_plate_FL", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
+    device("front_cross", "motor_plate_FR", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
 captive("ex_block", "ex_cross", "clamped on the cross shaft")
 device("ex_servo", "flap_R", "M4 x 12 through the servo's tabs into the flap's inserts", 4)
 captive("roller", "roller_shaft", "on the REX shaft")
@@ -656,10 +680,9 @@ captive("battery", "battery_cradle_L", "a strap round it and both halves")
 captive("battery_cradle_R", "battery_cradle_L", "")   # noqa (the strap): each half also screws to its own rail
 device("control_hub", "rack_L", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
 device("expansion_hub", "rack_R", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
-device("limelight", "limelight_mast_1", "M4 into the mast's inserts (its mounting holes)", 2)
-for x in (4.25, 4.95):
-    screw(f"mast_{x}", "limelight_mast_0", "front_bracket_L", "M4", 20, (x, 4.3, MAST_Z0 + 0.25), (0, 0, -1), "nut", what="the mast's foot to the bracket's top")
-screw("mast_splice", "limelight_mast_1", "limelight_mast_1", "M3", 16, (4.8, 3.85, 9.85), (-1, 0, 0), "nut", via=("limelight_mast_0",), what="the mast's splice")
+device("limelight", "limelight_mast", "M4 into the mast's inserts (its mounting holes)", 2)
+for y in (-0.55, 0.55):
+    screw(f"mast_{y}", "limelight_mast", "front_cross", "M4", 16, (MAST_X, y, MAST_Z0 + 0.25), (0, 0, -1), "nut", what="the mast's foot to the front cross channel's top")
 for k in range(4):
     a = math.radians(45 + 90 * k)
     screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 2.55 * math.cos(a), 2.55 * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
@@ -707,6 +730,29 @@ def clashes(shapes, only=None):
             if v > 1e-4 or v < 0: out.append((a, b, v))
     return out
 
+
+# ================================================================ the space budget (layout v3)
+# Volumes reserved before the parts that fill them are drawn: nothing else may enter one. A mechanism that needs a motor
+# gets its motor's box here first, so a missing home shows up at layout time, not after the screws are done.
+FEED_MOTOR = (3.60, 2.25)               # Y, z: the feeder's motor (a 5203, 1150 RPM to start), along X on the left module,
+                                        # outboard of the feeder and under the flywheel's motor; its shaft back through the
+                                        # module's back plate to a 24T pulley behind it, belted (245 mm) to the left feeder's shaft
+RESERVED = {
+    "feeder_motor": (box(-4.33 + MOTOR_SHAFT, -4.33 + MOTOR_SHAFT + MOTOR_L1, FEED_MOTOR[0] - MOTOR_SQ / 2, FEED_MOTOR[0] + MOTOR_SQ / 2 + FLY_TRAVEL,
+                         FEED_MOTOR[1] - MOTOR_SQ / 2, FEED_MOTOR[1] + MOTOR_SQ / 2), ("feeder_",), "the feeder's motor and its travel with the left module"),
+    "feeder_drive": (box(-4.95, -4.30, FEED_Y - 0.8, FEED_MOTOR[0] + 0.78 + FLY_TRAVEL, FEED_MOTOR[1] - 0.8, FEED_Z + 0.8), ("feeder_",),
+                     "the feeder's belt and pulleys behind the module's back plate"),
+    "turret_sweep": (cyl("z", (COL_X, 0), 2 * (KIT_BORE + 0.25 + 2.45), 11.5, 12.3), ("hood",), "the hood's lid as the turret turns"),
+}
+
+def space_report():
+    ok = True
+    print("== the space budget: reserved volumes (layout v3)")
+    for nm, (w, owners, what) in RESERVED.items():
+        inn = [k for k, p in PARTS.items() if not k.startswith(owners) and overlap(w, p["shape"]) > 1e-4]
+        print(f"   {nm} ({what}): " + ("clear" if not inn else "INTRUDED by " + ", ".join(inn[:8]) + (f" and {len(inn) - 8} more" if len(inn) > 8 else "")))
+        ok &= not inn
+    return ok
 
 def joint_report():
     """The v2 checks: every screw, then every part's path to the rails."""
@@ -786,9 +832,10 @@ def joint_report():
     for f in FASTENERS:
         for k in (f["a"],) + f["via"]: link(k, f["b"])
     for a, b, *_ in CAPTIVE + DEVICE: link(a, b)
-    for c in ("FL", "BL"): link(f"dm_{c}_", "rail_L")      # his corners bolt to the rails by their own plates
-    for c in ("FR", "BR"): link(f"dm_{c}_", "rail_R")
-    link("dm_BR_", "rail_L")                               # his 1107 ties the rails at the back
+    if USE_DM:
+        for c in ("FL", "BL"): link(f"dm_{c}_", "rail_L")      # his corners bolt to the rails by their own plates
+        for c in ("FR", "BR"): link(f"dm_{c}_", "rail_R")
+        link("dm_BR_", "rail_L")                               # his 1107 ties the rails at the back
     for k, p in PARTS.items():
         if p["moves"] in ("fly_L", "fly_R"): link(k, "lm_")   # the sprung modules: on the launcher frame (their slides TBD, README)
     seen, todo = set(), ["rail_L"]
@@ -805,7 +852,8 @@ def joint_report():
     return ok
 
 def report():
-    ok = joint_report()
+    ok = space_report()
+    ok &= joint_report()
     shapes = {k: p["shape"] for k, p in PARTS.items()}
     print("== static clashes (start pose: extractor stowed, roller down)")
     c = clashes(shapes)
@@ -979,7 +1027,8 @@ def fasteners_md():
     rows += ["", "| Held without a screw of its own | By | How |", "|---|---|---|"]
     for a, b, how in CAPTIVE:
         if how: rows.append(f"| `{a}` | `{b}` | {how} |")
-    for a, b, how, c in DEVICE: rows.append(f"| `{a}` | `{b}` | {how} ({c}) |")
+    for a, b, how, c in DEVICE:
+        if how: rows.append(f"| `{a}` | `{b}` | {how} ({c}) |")
     return "\n".join(rows) + "\n"
 
 def parts_md():

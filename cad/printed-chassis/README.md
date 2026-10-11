@@ -1,4 +1,12 @@
-# The printed clean-sheet robot: layout v2, with its screws (10 Oct 2026)
+# The printed clean-sheet robot: layout v3 in progress (11 Oct 2026)
+
+> **Layout v3, in progress.** The robot is being re-planned top-down around a space budget (`RESERVED` in `build.py`:
+> volumes reserved for each motor and sweep before anything else is drawn; the build fails if a part intrudes). Step 1
+> is done: our own four goBILDA corners on the mentor's track and wheelbase (front motors straight above their axles,
+> five holes up, clear of the space ahead of the launcher; rear motors a hole behind and three up, as his), a front
+> cross channel tying the rails (the Limelight's mast on it, centred), the electronics rack on standoffs from the rear
+> cross channel. Step 2 re-houses the launcher in its budget; until then the checks fail on the mentor's launcher
+> module, which still sits where step 1's corners and reserves now are. The v2 notes below describe v2.
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
