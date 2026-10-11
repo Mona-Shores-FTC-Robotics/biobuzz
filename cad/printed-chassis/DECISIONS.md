@@ -35,10 +35,10 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | Layout v3: re-plan top-down around a space budget; the mentor's built robot is the reference for each mechanism's job and key dimensions, not its parts | patching his packaging left no home for the feeder motor | the mentor prefers his packaging (then v2 stands) |
 | 11 Oct | Our own corners on his track and wheelbase, mirrored: front motors straight over their axles, five holes up; rear motors a hole behind and three up | frees the space ahead of the launcher; identical left and right for spares, two robots and Pedro's tuning | — |
 | 11 Oct | A front cross channel ties the rails; the Limelight's mast stands on it, centred | closes "front of frame"; a centred camera | — |
+| 11 Oct | The battery stands against the right rail, ahead of the rear cross channel | the feeder's drive is behind the module on the left; 0.6 kg 1.95 in right about balances the feeder's motor 3.6 in left | the mentor's battery is a different size |
+| 11 Oct | The turret's drive gear points forward (as his); its servo and encoder B swing 180° about the gear's axis, behind it | searched every 15°: anywhere else the drive's hardware meets a flywheel's shaft ends; this clears the front drive motors by 1.3 in, belt and mesh unchanged | — |
 
 ## Open, in the order they get decided (hardest to move first)
 
-1. Where the battery goes (it's 1.8 in thick, unconfirmed size; it meets the feeder's drive behind the module).
-2. The turret's drive and encoders (behind the column, out of the front drive motors' way).
 3. The launcher's frame around the column, inside the rear corners.
 4. Its feet, the sprung slides' hardware, the screws.

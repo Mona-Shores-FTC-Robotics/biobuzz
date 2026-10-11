@@ -499,6 +499,12 @@ if USE_LM:
              "goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): " + ("driven by the feeder's motor" if s > 0 else "free, in the pad's place"), mv)
         part("launcher", f"feeder_shaft_{n}", cyl("x", (y, FEED_Z), 8 * MM, -4.32, -0.45), "buy",
              "goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates" + ("; its 24T pulley ahead of the front plate" if s > 0 else ", the wheels free on bearings"), mv)
+if USE_LM:                              # v3: the turret's servo and encoder B swung 180 deg about the drive gear's axis, behind it
+    TURRET_SWING = 180                  # (the drive gear still points forward, as his): clear of the front drive motors by 1.3 in
+    gk = [k for k in PARTS if k.startswith("lm_2302-0014-0064")][0]; gb = bb(PARTS[gk]["shape"])
+    gax = ((gb[0] + gb[1]) / 2, (gb[2] + gb[3]) / 2)
+    for k in [k for k in PARTS if re.match(r"^lm_turret_(servo|belt|enc_B)", k)]:
+        PARTS[k]["shape"] = cq.Workplane().add(solid(PARTS[k]["shape"]).rotate(cq.Vector(gax[0], gax[1], 0), cq.Vector(gax[0], gax[1], 1), TURRET_SWING))
 LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
 if USE_LM:
     for s, n in SIDES:
