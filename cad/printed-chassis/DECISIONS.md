@@ -67,6 +67,9 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | The intake: the swing arms kept (the user asked about the mentor's slides: a slide's two guides across 9.8 in rack and wear, and the pivots fit); the motor properly mounted (a plate on its face bridged to the right arm, its far end in a cradle on a standoff from the left arm), the arms PETG-CF | the motor's face was 0.6 in from the arm with the belt between: it wasn't mounted at all, and hung off one arm | the mentor's slides are built and proven |
 | 11 Oct | Nothing floats: a check measures the gap at every claimed mounting. The front cross channel on taller front motor plates (1123-0048-0192) through printed end blocks; the rear cross channel on printed corner blocks; washers under the middle outer-plate standoffs; the extractor's servo horn; the lane's front shafts' hangers; the ceiling's hinge | each was 0.05 to 1.0 in from what it was said to bolt to ("goBILDA pattern brackets" that were never drawn) | — |
 | 11 Oct | The flywheel sides' blocks run between the rails of printed guides inside his channels; his channels get rough windows | a hand-cut slot in aluminium can't be a sliding fit | the guides wear (then PTFE tape, or printed in nylon) |
+| 11 Oct | **v3.2:** the hood's lid at 15.25 in (the robot 15.6 in tall), so a NECTAR turned out flat under it clears the hub roofs by 0.25 in in every direction; a `shot_exit` ring is reserved for it | the turret turns the hood all the way round and shots left at 10 to 11.5 in: aimed within about 75° of ahead, one went through the hubs and the Limelight. A voxel search found no room for a hub anywhere below that height, in any orientation, even with no room for plugs | the launcher rig's hood shoots steeply enough to clear them lower (then the lid can come down, and the check says how far) |
+| 11 Oct | The hubs lie flat on a PETG deck (not PETG-CF: no carbon under them) on the front cross channel, either side of the Limelight, each under a printed roof on four posts (four screws); 0.6 in clear round every edge for plugs (`plugs_` reserves); REV's resistive grounding strap | the old deck put the hubs 0.16 in apart and 0.26 in from the turning hood, edges that carry plugs; their tops were bare to falling pieces and other robots' arms | — |
+| 11 Oct | The Limelight between the hubs, on its own base on the front cross channel (2 M4 up from inside the channel); a check keeps the robot out of its 54.5 × 42° view | the hubs' plug room took the deck's tongue | — |
 
 ## Open
 
@@ -74,8 +77,8 @@ reopen it without its test failing or new information that answers "reopen if". 
 2. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
 3. Confirm on real parts: the battery's and hubs' sizes, the servos' spline positions.
 4. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.
-5. The Limelight's new pose (on the wedge, about 14.5 in up, 45° up) goes into `CameraMount`.
+5. The Limelight's new pose (between the hubs on the centreline, lens about 10.8 in up and 4.6 in ahead of the body's centre, 45° up) goes into `CameraMount`; measure it on the robot.
 6. Confirm the servo horn's screw pattern (4 M3 on a 16 mm circle is drawn) before printing the extractor's gear.
-7. The hood is still a stand-in (a tube and a lid): the launcher rig sets its shape.
+7. The hood is still a stand-in (a tube and a lid): the launcher rig sets its shape. Its lid stays at 15.25 in unless the real hood's launch angle clears the hub roofs lower (`shot_exit` is the check).
 8. **The star wheel's joint to its shaft:** the SWYFT wheel's 7 mm hex bore can't take the 8 mm round shaft (the one-way clutch needs round). With the mentor's star in hand: a 1/2 in hex variant of the wheel and a printed adapter, or its bore drilled out to 8 mm and a printed clamp hub bolted to its face.
 9. The front motor plates are now 1123-0048-0192 (192 mm): order those, not 0144.

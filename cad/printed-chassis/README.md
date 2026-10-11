@@ -20,6 +20,15 @@
 > frame; every part said to bolt to another is checked to touch it (that found the front and rear cross channels on
 > brackets that were never drawn); the flywheel slides run in printed guides. One joint is left to settle with the
 > mentor's parts in hand: the star wheel on its shaft (DECISIONS.md, open).
+>
+> **v3.2, the electronics out of the line of fire (11 Oct).** The turret turns the hood all the way round, and the hood
+> turned shots out at 10 to 11.5 in: aimed within about 75° of ahead, a shot went through the hubs and the Limelight.
+> No room for a hub was left anywhere below that height (a voxel search, every orientation, even with no room for
+> plugs), so the hood's lid went up instead: a NECTAR turned out flat under it clears everything by 0.25 in, in any
+> direction (`shot_exit`, a reserved ring). The hubs lie on a PETG deck on the front cross channel, either side of the
+> Limelight, each under a printed roof on four posts that lifts off (four screws), with 0.6 in clear round every edge
+> for its plugs (`plugs_L`, `plugs_R`); REV's grounding strap is drawn. New checks: the roofs lift off, and nothing of
+> the robot is in the Limelight's field of view.
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
@@ -60,12 +69,15 @@ README no longer describes.
 
 | Check | Result |
 |---|---|
-| Starting outline (R102) | **17.72 × 17.75 in**, 12.2 in tall (the hood; the Limelight on the hub deck): designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
+| Starting outline (R102) | **17.72 × 17.75 in**, 15.6 in tall (the hood's lid, high enough that every shot clears the hub roofs): designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the battery and the rear drive mounts the back. Nothing deploys but the extractor. |
 | Extractor down (R105) | 20.2 in front to back, of 24 |
 | Width behind the face | 15.24 in: nothing behind the face is wider (his shafts' ends at ±7.62) |
-| Every screw (104, plus 107 on servos, hubs and motors) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
-| Service | the battery lifts straight up out of its shelf, nothing over it |
-| Mountings | every part said to bolt to or ride on another touches it (127 of them); the star wheels' joint to their shafts is to settle |
+| Every screw (112, plus 115 on servos, hubs, motors and the Limelight) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| Service | the battery lifts straight up out of its shelf, and each hub's roof straight up off its posts, nothing over either |
+| The shot leaving the hood | turned out flat (the worst case) in any direction, out to 14 in: hits nothing (`shot_exit`) |
+| The hubs' plugs | 0.6 in clear round every edge of each hub and over it, under its roof (`plugs_L`, `plugs_R`) |
+| The Limelight's view | 54.5 × 42°, 45° up, to 30 in: nothing of the robot in it |
+| Mountings | every part said to bolt to or ride on another touches it (132 of them); the star wheels' joint to their shafts is to settle |
 | The real parts | each bought part's own model (72 of them) inside its envelope, or, where it reaches past it, hitting nothing there |
 | Every part reaches the rails | through screws, bearings and shafts (`CAPTIVE`) or its own mounting screws (`DEVICE`): no part floats |
 | The flywheel modules opening 0.41 in each side | clear, motors and the feeder with them; opened, they reach Y ±7.92 (R105 allows 18 wide) |
@@ -110,7 +122,7 @@ clear polycarbonate), bought parts in their makers' colours, screws dark grey. T
 | Lane | five TPU-roller shafts, walls at \|Y\| 1.86, a ceiling of free rollers from X −0.55 to 4.5 | the ball moves at the tread's speed, not half of it |
 | Launcher (the mentor's) | his goBILDA launcher module with `cad/transfer`'s changes (flywheel motors out and up, the feeder on a yoke with its gate servo, the pad, the backstop, the turret servo and both encoders), placed by the launch column at X −2.37 | the turret's drive gear points forward, as his |
 | Hood | printed, on the turret's top | a placeholder until the launcher rig settles its shape |
-| Electronics | both hubs standing on edge in a printed rack on the rear motors' cross channel, plugs to the back (X −6.9 to −5.9, z 5.9 to 10.0); the battery on edge across the robot, low between the rails under that channel; the Limelight on a two-piece mast on the left front bracket, lens about 14 in up | his built chassis (10 Oct) stands the hubs on the rails' inner faces; here the lane, feeder and odometry pods fill those, so they stand at the back instead. His battery is a Modern Robotics 12 V NiMH: **CHECK its size** (drawn 5.7 × 3.3 × 1.8 in) |
+| Electronics | both hubs flat on a two-piece PETG deck on the front cross channel's top (X 3.1 to 7.2, \|Y\| 2.05 to 7.7, z 9.5 to 10.7), each under a printed roof on four posts, 0.6 in clear round every edge for plugs; the Limelight between them on its own base on the channel, 45° up, lens 10.8 in up on the centreline; the battery on edge across the robot on a shelf over the rear drive motors | there's no room for a hub below the shot's exit (a voxel search of every orientation), so the hood's lid rose to clear the roofs. His battery is a Modern Robotics 12 V NiMH: **CHECK its size** (drawn 5.7 × 3.3 × 1.8 in) |
 
 ### What changed, and why
 
@@ -181,11 +193,12 @@ printer-hours: [BOM.md](BOM.md). Each step below needs only the ones before it.
    and the yoke (its rear block) in the plates' slots, the flywheel shaft and wheels, the motor on its bracket under the
    yoke, the belt; the springs to their anchors; set each side's rest gap with its stop screw. The turret kit, its drive
    plate, servo and encoders; the hood.
-9. **Electronics:** the rack on its standoffs, the hubs; the Limelight mast on the front cross channel.
+9. **Electronics:** the battery's shelf on its standoffs; the Limelight's base on the front cross channel (from inside the
+   channel); the deck halves (their screws before the hubs), the hubs, the grounding strap, the roofs.
 
 **Service:** a flap face is three screws; a feeder arm comes off its pivot shaft after one e-clip; a flywheel side's
 spring unhooks and its yoke lifts out with the motor once the front block's two screws are out; the launcher lifts off
-its four feet; the hubs come off the rack without touching anything else.
+its four feet; a hub's roof is four screws, and every plug is then in reach from above.
 
 ## Open (v2, and before anything is printed)
 

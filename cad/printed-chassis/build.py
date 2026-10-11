@@ -891,8 +891,19 @@ if USE_LM:
                  "PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange "
                  "(fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet)")
 HOOD_Z = 9.70 if USE_LM else KIT_Z + KIT_H   # on the turret's top (the module's kit is 9.68 at its top)
-hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
-part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
+# The hubs sit on a deck on the front cross channel under printed roofs (below), and the turret turns the hood all the way
+# round, so every shot leaves over them: the hood's lid is high enough that a NECTAR turned out flat under it clears the
+# roofs by SHOT_CLEAR (the "shot_exit" reserve checks it). Until 11 Oct the lid was at 11.5 and a shot aimed within about
+# 75 deg of ahead went through the hubs and the Limelight.
+DECK_Z, DECK_T = FRONT_CROSS_Z + CH, 0.24  # the hub deck, flat on the front cross channel's top
+HUB_GAP = 0.6                           # round each hub's edges, for its plugs (they go in from above, at its edges) and their bends
+ROOF_Z = DECK_Z + DECK_T + HUB[2] + HUB_GAP   # the roofs' undersides
+ROOF_T = 0.12
+SHOT_CLEAR = 0.25
+HOOD_LID = ROOF_Z + ROOF_T + SHOT_CLEAR + 2 * RN   # the lid's underside: a NECTAR under it has its bottom SHOT_CLEAR over the roofs
+hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, HOOD_LID).union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, HOOD_LID + 1))
+part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, HOOD_LID, HOOD_LID + 0.3)), "print",
+     "PETG: the hood that turns the shot out (drawn as a tube and a lid: the launcher rig sets its shape; its lid no lower than drawn, so every shot clears the hub roofs)")
 
 # ---- electronics (v3.1, 11 Oct): the battery where it lifts straight out between matches; the hubs flat on a deck over the
 # front, their plugs at their edges; the Limelight on the deck's front tongue. (Until v3.1 the battery sat low between the
@@ -915,39 +926,53 @@ _bat = box(*BAT_X, -BATTERY[0] / 2, BATTERY[0] / 2, *BAT_Z)
 part("elec", "battery", cq.Workplane().add(solid(_bat).fillet(4 * MM, solid(_bat).Edges())), "buy",
      "Modern Robotics 12 V NiMH battery (the mentor's; CHECK its size), standing on edge on the shelf at the back: unstrap, lift out")
 
-# The hub deck: two PETG-CF halves at z 9.75, over the turret's drive and the front cross channel, on legs to that channel's top
-# (its centreline holes, every 24 mm) and to the launcher's front top channel; each hub flat on its half, plugs at its edges
-DECK_Z, DECK_T = 9.75, 0.24
-DECK_X = (0.6, 5.3)                     # the hubs (103 mm along X, 143 across) from X 0.7; the legs' screws just ahead of them
+# The hub deck (11 Oct, v3.2): two PETG halves flat on the front cross channel's top, the hubs lying on them either side of
+# the Limelight, each under a printed roof on four posts. Every edge of a hub has HUB_GAP clear for its plugs (the
+# "plugs_" reserves); the roof keeps falling pieces and other robots' arms off; four screws take it off. Clear of the
+# turret's drive and encoders behind (X < 2.46) and the extractor in front (X > 8.78); the shot leaves over the roofs.
+HUB_X = (3.10, 3.10 + HUB[1])           # 103 mm along X: from just ahead of the turret's encoder tower (its plugs' gap 0.64)
+HUB_Y = (2.05, 2.05 + HUB[0])           # 143 mm across, |Y|: the Limelight between the two hubs' plug gaps
+POST = 0.36                             # the roofs' posts (part of the deck), at each hub's corners, clear of its edges' plugs
+POST_X = (HUB_X[0] - 0.04 - POST, HUB_X[1] + 0.04)
+POST_Y = (HUB_Y[0] - 0.03 - POST, HUB_Y[1] + 0.03)
+ROOF_X = (HUB_X[0] - HUB_GAP, HUB_X[1] + HUB_GAP)
+ROOF_Y = (HUB_Y[0] - HUB_GAP, HUB_Y[1] + HUB_GAP)
+DECK_X = (2.60, POST_X[1] + POST + 0.05)
 FC_HOLE_X = FRONT_CROSS_X + 40 * MM     # the front cross channel's web: goBILDA's model has 4 mm holes 40 mm across, every 8 mm along
-FC_HOLE_Y = (56 * MM, 96 * MM)        # (inboard of the channel's end blocks)
-LM_FRONT_TOP = "lm_Hole_Lowside_U-Channel_GB_8__1"   # the launcher's front top channel (its top flange at z 8.89, X 0..0.48)
-DECK_REAR_Y = (3.0, 3.6)                # the rear legs, outboard of the turret's encoder tower (|Y| < 2.8) and the hood's sweep
+FC_HOLE_Y = (56 * MM, 96 * MM)          # (fitted before the hubs go on)
+DECK_IN = 1.15                          # each half's inner edge: the Limelight's base between them (and each half fits a 180 mm bed)
+DECK_END = (FC_HOLE_X, 112 * MM)        # the outboard screw: through the channel's top into its printed end block, which fills the channel's end
+DECK_RIB_X = (3.45, 5.15)               # the outboard ribs under each half, past the end block (|Y| > 5.45)
 for s_, n in SIDES:
-    dk = box(*DECK_X, 0, s_ * (HUB[0] + 0.15), DECK_Z, DECK_Z + DECK_T)
-    dk = dk.union(box(0.0, DECK_X[0] + 0.1, s_ * DECK_REAR_Y[0], s_ * DECK_REAR_Y[1], DECK_Z, DECK_Z + DECK_T))          # rear tab
-    dk = dk.union(box(0.05, 0.43, s_ * DECK_REAR_Y[0], s_ * DECK_REAR_Y[1], 8.89, DECK_Z))                            # rear leg
-    for y in FC_HOLE_Y: dk = dk.union(box(FC_HOLE_X - 0.3, FC_HOLE_X + 0.3, s_ * (y - 0.3), s_ * (y + 0.3), FRONT_CROSS_Z + CH, DECK_Z))   # front legs
-    dk = dk.union(box(DECK_X[1] - 0.1, 6.55, 0, s_ * 1.1, DECK_Z, DECK_Z + DECK_T))                                    # the Limelight's tongue
+    dk = box(*DECK_X, s_ * DECK_IN, s_ * (POST_Y[1] + POST + 0.05), DECK_Z, DECK_Z + DECK_T)
+    for x in DECK_RIB_X: dk = dk.union(box(x - 0.12, x + 0.12, s_ * 5.45, s_ * (POST_Y[1] + POST), DECK_Z - 0.4, DECK_Z))
+    for px in POST_X:
+        for py in POST_Y: dk = dk.union(box(px, px + POST, s_ * py, s_ * (py + POST), DECK_Z, ROOF_Z))
     part("elec", f"hub_deck_{n}", dk, "print",
-         "PETG-CF, 6 mm: half the hub deck, over the turret's drive and the front cross channel: legs to that channel's top (2 M4) and to the launcher's front top channel (1 M4); its hub screwed flat on it")
+         "PETG (not CF: no carbon under the hub), 6 mm: half the hub deck, flat on the front cross channel's top (2 M4 into it, 1 into its end block: all fitted before the hub), "
+         "ribbed under its outboard end; its hub screwed flat on it, four posts for the hub's roof")
+    part("elec", f"hub_roof_{n}", box(*ROOF_X, s_ * ROOF_Y[0], s_ * ROOF_Y[1], ROOF_Z, ROOF_Z + ROOF_T), "print",
+         "PETG, 3 mm: the roof over a hub, on the deck's four posts (4 M4): falling pieces and other robots' arms land on it; the plugs and their wires go in under its edges")
 for s_, n, nm, sku in ((1, "L", "control_hub", "REV-31-1595"), (-1, "R", "expansion_hub", "REV-31-1153")):
-    y0, y1 = sorted((s_ * 0.08, s_ * (0.08 + HUB[0])))
-    part("elec", nm, dress(box(0.7, 0.7 + HUB[1], y0, y1, DECK_Z + DECK_T, DECK_Z + DECK_T + HUB[2]), sku,
-         (0.7 + HUB[1] / 2, (y0 + y1) / 2, DECK_Z + DECK_T), (0, 1, 0), (-1, 0, 0)), "buy",
-         f"REV {'Control' if s_ > 0 else 'Expansion'} Hub, flat on the deck's {'left' if s_ > 0 else 'right'} half, its plugs at its edges")
+    y0, y1 = sorted((s_ * HUB_Y[0], s_ * HUB_Y[1]))
+    part("elec", nm, dress(box(*HUB_X, y0, y1, DECK_Z + DECK_T, DECK_Z + DECK_T + HUB[2]), sku,
+         ((HUB_X[0] + HUB_X[1]) / 2, (y0 + y1) / 2, DECK_Z + DECK_T), (0, 1, 0), (-1, 0, 0)), "buy",
+         f"REV {'Control' if s_ > 0 else 'Expansion'} Hub, flat on the deck's {'left' if s_ > 0 else 'right'} half under its roof, {HUB_GAP} in clear round every edge for its plugs")
+part("elec", "ground_strap", cyl("y", (HUB_X[0] - 0.3, DECK_Z + DECK_T + 0.18), 0.35, 2.4, 3.9), "buy",
+     "REV-31-1269 Resistive Grounding Strap: the control hub's spare XT30 to a frame screw (REV's ESD advice), cable-tied to the deck behind the hub")
 LL = (48.11 * MM, 72.11 * MM, 16.8 * MM)  # Limelight 3A: tall, wide, thick (its docs' drawing)
 LL_Z, LL_XD = (math.sqrt(0.5), 0, math.sqrt(0.5)), (-math.sqrt(0.5), 0, math.sqrt(0.5))   # the way it looks (45 deg up); up its face
-LL_BASE = DECK_Z + DECK_T
-LL_O = (DECK_X[1] - 0.15 + LL[0] / 2 * math.sqrt(0.5), 0.0, LL_BASE + LL[0] / 2 * math.sqrt(0.5))   # its back face's middle, its lower edge on the tongue
+LL_BASE = DECK_Z + 0.35                 # the Limelight's base: thick enough for its screws' inserts
+LL_X0 = FRONT_CROSS_X + 0.08            # between the hubs, over the front cross channel: its top under the shot
+LL_O = (LL_X0 + LL[0] / 2 * math.sqrt(0.5), 0.0, LL_BASE + LL[0] / 2 * math.sqrt(0.5))   # its back face's middle, its lower edge on the tongue
 def _ll(pts): return [(LL_O[0] + a * LL_XD[0] + b * LL_Z[0], LL_O[2] + a * LL_XD[2] + b * LL_Z[2]) for a, b in pts]
 _lo, _hi = _ll([(-LL[0] / 2, 0)])[0], _ll([(LL[0] / 2, 0)])[0]
-part("elec", "limelight_mount", slab_y([_lo, _hi, (_hi[0], LL_BASE)], -0.75, 0.75), "print",
-     "PETG-CF: the Limelight's 45 deg wedge on the deck's tongue (2 M4 down into the deck's inserts), the camera on its face (2 M4); its pose goes in CameraMount")
+part("elec", "limelight_mount", slab_y([_lo, _hi, (_hi[0], LL_BASE)], -0.75, 0.75).union(box(FRONT_CROSS_X + 0.02, FRONT_CROSS_X + CH - 0.02, -(DECK_IN - 0.1), DECK_IN - 0.1, DECK_Z, LL_BASE)), "print",
+     "PETG-CF: the Limelight's 45 deg wedge on a base on the front cross channel's top, between the hub deck's halves (2 M4 up through the channel's top into its inserts), the camera on its face (2 M4); its pose goes in CameraMount")
 ll = cq.Workplane("XY").box(LL[0], LL[1], LL[2]).edges("|Z").fillet(4 * MM).translate((0, 0, LL[2] / 2)).union(
      cq.Workplane("XY").circle(6 * MM).extrude(3 * MM).translate((0, 0, LL[2])))
 part("elec", "limelight", cq.Workplane().add(solid(ll).moved(cq.Location(cq.Plane(origin=LL_O, xDir=LL_XD, normal=LL_Z)))), "buy",
-     "Limelight 3A (72 x 48 x 17 mm), looking 45 deg up from the front of the hub deck; its pose goes in CameraMount")
+     "Limelight 3A (72 x 48 x 17 mm), looking 45 deg up from between the hubs; its pose goes in CameraMount")
 
 
 # ================================================================ fasteners and joints (v2: every part shows what holds it)
@@ -963,10 +988,11 @@ SCREW = {   # d, clearance, head d, head h, insert hole, insert length, nut h, n
 }
 FASTENERS = []
 LIFTS_OUT = {"battery"}     # comes out every match, so it never blocks a screw's head or its key
-def screw(name, a, b, size, length, p, v, end, via=(), cb=False, what="", match=None):
-    """A screw: its head seated on part a at p, pointing along v, through via, threading into b ('insert', 'nut', 'tapped')."""
+def screw(name, a, b, size, length, p, v, end, via=(), cb=False, what="", match=None, before=()):
+    """A screw: its head seated on part a at p, pointing along v, through via, threading into b ('insert', 'nut', 'tapped').
+    before: parts fitted after it (it's turned before they go on, so they never block its head or key)."""
     n = math.sqrt(sum(c * c for c in v)); v = tuple(c / n for c in v)
-    FASTENERS.append(dict(name=name, a=a, b=b, size=size, L=length, p=tuple(p), v=v, end=end, via=tuple(via), cb=cb, what=what, match=match))
+    FASTENERS.append(dict(name=name, a=a, b=b, size=size, L=length, p=tuple(p), v=v, end=end, via=tuple(via), cb=cb, what=what, match=match, before=tuple(before)))
 
 CAPTIVE = []        # (part, held by, how)
 DEVICE = []         # (part, mounted on, its own fasteners: text, count of screws)
@@ -1142,15 +1168,21 @@ captive("battery", "rack_L", "a hook-and-loop strap round it and through both ha
 device("control_hub", "hub_deck_L", "M3 x 8 up through the deck into its four mounting holes", 4)
 device("expansion_hub", "hub_deck_R", "M3 x 8 up through the deck into its four mounting holes", 4)
 device("limelight", "limelight_mount", "M4 into its mounting holes, through the wedge's face", 2)
+captive("ground_strap", "hub_deck_L", "two cable ties through the deck; its ring terminal under a frame screw")
 for s_, n in SIDES:
+    hub = "control_hub" if s_ > 0 else "expansion_hub"
     for y in FC_HOLE_Y:
-        screw(f"deck_{n}_{y:.2f}", f"hub_deck_{n}", "front_cross", "M4", 30, (FC_HOLE_X, s_ * y, DECK_Z + DECK_T), (0, 0, -1), "nut", cb=True,
-              what="the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel")
-    screw(f"deck_rear_{n}", f"hub_deck_{n}", LM_FRONT_TOP, "M4", 25, (0.24, s_ * sum(DECK_REAR_Y) / 2, 9.40), (0, 0, -1), "nut", cb=True,   # its head down a pocket in the leg
-          what="the hub deck's rear leg to the launcher's front top channel's flange, a nyloc under it", match="mark the hole from the real channel's top flange")
+        screw(f"deck_{n}_{y:.2f}", f"hub_deck_{n}", "front_cross", "M4", 16, (FC_HOLE_X, s_ * y, DECK_Z + DECK_T - 4 * MM), (0, 0, -1), "nut", cb=True,
+              before=(f"{hub}",), what="the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on")
+    screw(f"deck_end_{n}", f"hub_deck_{n}", f"front_cross_end_{n}", "M4", 20, (DECK_END[0], s_ * DECK_END[1], DECK_Z + DECK_T - 4 * MM), (0, 0, -1), "insert", via=("front_cross",), cb=True,
+          before=(f"{hub}",), what="the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on")
+    for i, px in enumerate(POST_X):
+        for j, py in enumerate(POST_Y):
+            screw(f"roof_{n}{i}{j}", f"hub_roof_{n}", f"hub_deck_{n}", "M4", 12, (px + POST / 2, s_ * (py + POST / 2), ROOF_Z + ROOF_T), (0, 0, -1), "insert",
+                  what="the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off")
 for y in (-0.4, 0.4):
-    screw(f"ll_mount_{y}", "hub_deck_L" if y > 0 else "hub_deck_R", "limelight_mount", "M4", 16, (DECK_X[1] + 0.2, y, DECK_Z), (0, 0, 1), "insert",
-          what="the deck's tongue up into the Limelight wedge's inserts (from under the deck)")
+    screw(f"ll_mount_{y}", "front_cross", "limelight_mount", "M4", 10, (FC_HOLE_X, y, DECK_Z - CH_T), (0, 0, 1), "insert",
+          what="up through the front cross channel's top into the Limelight base's inserts (from inside the channel)")
 for k in range(4):
     a = math.radians(90 * k)
     screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 64 * MM * math.cos(a), 64 * MM * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
@@ -1171,7 +1203,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("front_pad_", "flap_"), ("front_pad_", "flap_face_"), ("ramp_skin_", "mouth_floor_"), ("ramp_skin_", "ramp_skin_"),
            ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"), ("front_cross_end_", "front_cross"), ("front_cross_end_", "motor_plate_F"), ("rear_corner_", "rear_cross"), ("rear_corner_", "rail_"), ("standoff_washers_", "rail_"), ("standoff_washers_", "standoff_"), ("ex_horn", "ex_servo"), ("ex_horn", "ex_gear_servo"),
            ("star_shaft_", "star_"), ("star_bearing_", "star_shaft_"), ("star_bearing_", "front_bracket_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
-           ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("hub_deck_", "hub_deck_"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
+           ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("limelight_mount", "front_cross"), ("hub_deck_", "hub_deck_"), ("hub_roof_", "hub_deck_"), ("ground_strap", "hub_deck_"), ("hub_deck_", "front_cross"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
            ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "launcher_tray_"), ("feeder_post_", "launcher_tray_"), ("launcher_tray_", "rail_"), ("launcher_tray_", "lm_feeder_floor"), ("launcher_tray_", "lm_backstop"),
@@ -1208,7 +1240,16 @@ RESERVED = {
                          FEED_MOTOR[1] - MOTOR_SQ / 2, FEED_MOTOR[1] + MOTOR_SQ / 2), ("feeder_",), "the feeder's motor, fixed to the frame"),
     "feeder_drive": (box(*BELT_A_X, FEED_Y - 0.8, FEED_MOTOR[0] + 0.8, FEED_PIVOT_Z - 0.8, FEED_MOTOR[1] + 0.8), ("feeder_",),
                      "belt A, the motor to the left arm's pivot shaft, behind the launcher's back plates"),
-    "turret_sweep": (cyl("z", (COL_X, 0), 2 * (KIT_BORE + 0.25 + 2.45), 11.5, 12.3), ("hood",), "the hood's lid as the turret turns"),
+    "turret_sweep": (cyl("z", (COL_X, 0), 2 * (KIT_BORE + 0.25 + 2.45), HOOD_LID, HOOD_LID + 0.4), ("hood",), "the hood's lid as the turret turns"),
+    "shot_exit": (cyl("z", (COL_X, 0), 2 * 14, HOOD_LID - 2 * RN - 0.01, HOOD_LID).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.45, 0, 20)), ("hood",),
+                  "every shot as it leaves the hood, turned out flat (the worst case) in any direction the turret faces, out to 14 in"),
+    **{f"plugs_{n}": (box(HUB_X[0] - HUB_GAP, HUB_X[0], s_ * HUB_Y[0], s_ * HUB_Y[1], DECK_Z + DECK_T, ROOF_Z)
+                      .union(box(HUB_X[1], HUB_X[1] + HUB_GAP, s_ * HUB_Y[0], s_ * HUB_Y[1], DECK_Z + DECK_T, ROOF_Z))
+                      .union(box(*HUB_X, s_ * (HUB_Y[0] - HUB_GAP), s_ * HUB_Y[0], DECK_Z + DECK_T, ROOF_Z))
+                      .union(box(*HUB_X, s_ * HUB_Y[1], s_ * (HUB_Y[1] + HUB_GAP), DECK_Z + DECK_T, ROOF_Z))
+                      .union(box(*HUB_X, s_ * HUB_Y[0], s_ * HUB_Y[1], DECK_Z + DECK_T + HUB[2], ROOF_Z)), (hub, "ground_strap"),
+                      f"round the {hub.replace('_', ' ')}'s edges and over it: its plugs and their wires")
+       for s_, n, hub in ((1, "L", "control_hub"), (-1, "R", "expansion_hub"))},
 }
 
 def space_report():
@@ -1288,7 +1329,7 @@ def joint_report():
         key = _cyl(f["p"], f["v"], 2.0 * MM, -hh * MM - 0.75, -hh * MM)
         for k, w in shapes.items():
             if (f["cb"] or f["match"]) and k == f["a"]: continue
-            if k in LIFTS_OUT: continue          # out of the way whenever a screw is turned
+            if k in LIFTS_OUT or k in f["before"]: continue   # out of the way whenever a screw is turned
             if overlap(head, w) > 1e-5: fail(f"its head hits {k}")
             if overlap(key, w) > 1e-5: fail(f"no room for the hex key: {k}")
     for m in bad: print("   " + m)
@@ -1393,12 +1434,27 @@ def dress_report():
     return ok
 
 def service_report():
-    """What has to come off the robot between matches comes off without tools or other parts moving: the battery lifts
-    straight up out of its shelf (to z 11.4, under the hood's lid as it sweeps)."""
-    print("== service: the battery lifts straight out")
-    b = bb(PARTS["battery"]["shape"]); path = box(b[0], b[1], b[2], b[3], b[5], 11.4)
-    hit = [k for k, p in PARTS.items() if k != "battery" and overlap(path, p["shape"]) > 1e-5]
-    print("   clear, " + f"{11.4 - b[5]:.1f} in over it" if not hit else "   BLOCKED by " + ", ".join(hit))
+    """What has to come off the robot between matches comes off without other parts moving: the battery lifts straight
+    up out of its shelf, and each hub's roof straight up off its posts (four screws), both to under the hood's lid."""
+    ok = True
+    for k, what in (("battery", "the battery lifts straight out"), ("hub_roof_L", "the left hub's roof lifts off"), ("hub_roof_R", "the right hub's roof lifts off")):
+        print(f"== service: {what}")
+        b = bb(PARTS[k]["shape"]); path = box(b[0], b[1], b[2], b[3], b[5], HOOD_LID)
+        hit = [j for j, p in PARTS.items() if j != k and overlap(path, p["shape"]) > 1e-5]
+        print("   clear, " + f"{HOOD_LID - b[5]:.1f} in over it" if not hit else "   BLOCKED by " + ", ".join(hit))
+        ok &= not hit
+    return ok
+
+LL_FOV = (54.5, 42.0)       # Limelight 3A's field of view, across and up (deg)
+def view_report():
+    """The Limelight sees out: nothing of the robot inside its field of view (to 30 in), the extractor stowed."""
+    print("== the Limelight's view (54.5 x 42 deg, 45 deg up)")
+    lens = tuple(LL_O[i] + (LL[2] + 0.02) * LL_Z[i] for i in range(3))
+    d = 30.0
+    pl = cq.Plane(origin=lens, xDir=(0, 1, 0), normal=LL_Z)
+    cone = cq.Workplane(pl).rect(0.02, 0.02).workplane(offset=d).rect(2 * d * math.tan(math.radians(LL_FOV[0] / 2)), 2 * d * math.tan(math.radians(LL_FOV[1] / 2))).loft()
+    hit = [k for k, p in PARTS.items() if k not in ("limelight", "limelight_mount") and overlap(cone, p["shape"]) > 1e-5]
+    print("   clear" if not hit else "   BLOCKED by " + ", ".join(hit))
     return not hit
 
 def mounting_report():
@@ -1422,6 +1478,7 @@ def report():
     ok = service_report()
     ok &= mounting_report()
     ok &= space_report()
+    ok &= view_report()
     ok &= joint_report()
     ok &= dress_report()
     shapes = {k: p["shape"] for k, p in PARTS.items()}
@@ -1517,7 +1574,7 @@ def report():
     bad = []
     LM_TOUCH = re.compile(r"^lm_.*(feeder|pad_|Gecko|backstop|Hyper_Hub|Spacer|Sonic)", re.I)
     TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp_", "mouth_floor_", "floor", "backstop", "hood", "star_")   # the hood's lid turns the shot
-    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5)]
+    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5, 12.0, HOOD_LID - RN - 0.02)]
     for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
         for sgn in (1, -1):                 # (the star, the floor, the ramp and the roller, which rises, may touch it; nothing else)
             yc = sgn * (MOUTH_HALF - r)          # as far out as the floor holds it
