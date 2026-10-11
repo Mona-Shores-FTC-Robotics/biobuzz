@@ -62,8 +62,10 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `standoff_R_1_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
 | `flap_L` | front_L | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
 | `flap_face_L` | front_L | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
+| `front_pad_L` | front_L | print | TPU 95A, 5 mm (or foam): the soft pad on the flap root's front face, where the spill lands; three countersunk M3 into the root, swappable |
 | `flap_R` | front_R | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
 | `flap_face_R` | front_R | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
+| `front_pad_R` | front_R | print | TPU 95A, 5 mm (or foam): the soft pad on the flap root's front face, where the spill lands; three countersunk M3 into the root, swappable |
 | `intake_arm_L` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_arm_R` | intake | print | PETG: swing arm, pivot to roller bearing (the right one also carries the motor) |
 | `intake_motor` | intake | buy | goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) |
@@ -95,6 +97,8 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `lane_wall_R_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail |
 | `mouth_floor_L` | lane | print | PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers |
 | `mouth_floor_R` | lane | print | PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers |
+| `ramp_skin_L` | lane | print | TPU 95A, 2.5 mm (or foam, whichever the drop test picks): the ramp's soft skin, where the spill lands; on four countersunk M3 into the ramp, swappable like the flaps' faces |
+| `ramp_skin_R` | lane | print | TPU 95A, 2.5 mm (or foam, whichever the drop test picks): the ramp's soft skin, where the spill lands; on four countersunk M3 into the ramp, swappable like the flaps' faces |
 | `star_L` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
 | `star_R` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
 | `star_clutch_L` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers): its top screwed to the servo's goBILDA 25T horn (4 M3), so the servo turns the hub, the clutch drives the shaft and the star one way only; a fast piece overruns it, and it can't be pushed backwards |
@@ -166,7 +170,7 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | M4 heat-set insert | 12 | 24 |
 | M5 heat-set insert | 2 | 4 |
 | M4 nyloc nut | 26 | 52 |
-| on the devices (servos, hubs, intake motor, Limelight): see below | 106 | 212 |
+| on the devices (servos, hubs, intake motor, Limelight): see below | 120 | 240 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
 
@@ -359,6 +363,10 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `rear_cross` | `rail_R` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FL` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FR` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_pad_L` | `flap_L` | 3 countersunk M3 x 10 into the root's inserts (3) |
+| `ramp_skin_L` | `mouth_floor_L` | 4 countersunk M3 x 8 into the ramp's inserts (4) |
+| `front_pad_R` | `flap_R` | 3 countersunk M3 x 10 into the root's inserts (3) |
+| `ramp_skin_R` | `mouth_floor_R` | 4 countersunk M3 x 8 into the ramp's inserts (4) |
 | `fly_yoke_L` | `lm_flywheel_motor_bracket_L_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
 | `fly_yoke_R` | `lm_flywheel_motor_bracket_R_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
 | `feeder_motor` | `feeder_rear_block_L` | M4 x 8 into the motor's face (goBILDA pattern) (4) |

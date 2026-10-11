@@ -46,9 +46,12 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | **The lane is passive**: its rollers free on bearings; the intake roller throws each piece back, and the queue pushes the last one in | a drive from the intake crosses the star wheels on both sides, or stretches its belt 23% as the roller floats; no motor is spare | the rig: four pieces fed by the roller don't all reach the backstop on the flat lane (then a drive, or a 2° slope) |
 | 11 Oct | The star's clutch hub screws to the servo's goBILDA horn; the round shaft carries the star through a printed hex adapter | no room between the hub and the servo for a separate coupler | — |
 | 11 Oct | The extractor: a 1:1 printed mod-1 gear pair, inboard of the right flap, from the servo's horn to the right stub | — | — |
+| 11 Oct | **The whole front is soft and swappable**: TPU (or foam) pads on the flap roots' front faces and a TPU skin on the ramp, as well as the flaps' faces | the simulator (11 Oct): the spill bounces off the body's front and the mouth, not the flaps; 0.4 to 0.1 there is worth 6 to 9 points; with it and the fast intake, v3 scores Sister 94.0 and Sister five 96.7 (27 fifth TIPs of 60), against the mentor's robot's 88.0 and 81.2 | Monday's drop test: no material we can fit reaches 0.1 |
+| 11 Oct | The intake rate is the second lever (3 to 5 points; 13 to 27 fifth TIPs): the roller stays full-width at 1620 RPM | the simulator | the intake bench test misses a piece every 0.17 s |
 
 ## Open
 
-1. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
-2. Confirm on real parts: the goBILDA channel hole rows, the battery's and hubs' sizes, the servos' spline positions.
-3. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.
+1. Software: the Autos' start poses are drawn for the mentor's longer body; redraw them for v3 (14.35 in) so it backs onto the wall.
+2. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
+3. Confirm on real parts: the goBILDA channel hole rows, the battery's and hubs' sizes, the servos' spline positions.
+4. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.

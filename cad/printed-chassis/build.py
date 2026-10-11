@@ -335,6 +335,8 @@ for s, n in SIDES:
     trim = box(-20, FLAP_TIP[0], -20, 20, -20, 20)
     plate, foam = plate.intersect(trim), foam.intersect(trim)
     part(f"front_{n}", f"flap_{n}", mir(plate, s), "print", "PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod")
+    part(f"front_{n}", f"front_pad_{n}", mir(box(FACE + 0.45, FACE + 0.65, RAIL_OUT + 0.05, HALF_W - 0.05, RAIL_Z[0] + 0.1, 4.0), s), "print",
+         "TPU 95A, 5 mm (or foam): the soft pad on the flap root's front face, where the spill lands; three countersunk M3 into the root, swappable")
     part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline")
 
 # ---- extractor (moves: angle 0 down .. 146 stowed)
@@ -385,6 +387,8 @@ for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, mo
 
 # ---- lane
 (rx0, rz0), (rx1, rz1) = RAMP
+SKIN_T = 0.10                           # the ramp's soft skin: the simulator's biggest lever is bounce where the spill lands
+SKIN_X1 = 7.0                           # (the body's front and the mouth: 0.4 to 0.1 is worth 6 to 9 points), back to here, then thin to the tip
 MOUTH_HALF = RAIL_IN - 0.08            # the ramp and the floor under the stars span the whole mouth, inside the rails' flanges, so a
                                         # piece taken in off-centre climbs to the lane's height too, where the stars reach its middle
 MOUTH_FLOOR_X = (STAR[0] - STAR_R - 0.05, rx1)
@@ -393,7 +397,11 @@ FLANGE_HOLE_Y = RAIL_OUT - 0.344        # the low-side flanges' row of 4 mm hole
                                         # channel in the mentor's launcher; CHECK on a real one)
 MOUTH_TABS = (rail_x(32), rail_x(38))   # clear of his front corners' hubs inside the rail (X 3.68 .. 4.94)
 for s_, n in SIDES:
-    rmp = slab_y([(rx0, rz0), (rx1, rz1), (rx1, rz1 - 0.12), (rx0, rz0 - 0.05)], *((0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)))
+    ys = (0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)
+    def ramp_z(x): return rz1 + (rx1 - x) / (rx1 - rx0) * (rz0 - rz1)
+    rmp = slab_y([(rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T), (rx1, rz1 - SKIN_T - 0.15), (SKIN_X1, ramp_z(SKIN_X1) - SKIN_T - 0.15), (rx0, rz0 - 0.05)], *ys)
+    part("lane", f"ramp_skin_{n}", slab_y([(rx1, rz1), (SKIN_X1, ramp_z(SKIN_X1)), (rx0, rz0), (rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T)], *ys), "print",
+         "TPU 95A, 2.5 mm (or foam, whichever the drop test picks): the ramp's soft skin, where the spill lands; on four countersunk M3 into the ramp, swappable like the flaps' faces")
     rmp = rmp.cut(box(LANE_SHAFTS[0] - 0.55, LANE_SHAFTS[0] + 0.55, -1.05, 1.05, 0, 2))
     fl = box(*MOUTH_FLOOR_X, 0, s_ * MOUTH_HALF, LANE_BOTTOM - 0.13, LANE_BOTTOM)
     for x in MOUTH_TABS: fl = fl.union(box(x - 0.25, x + 0.25, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), RAIL_Z[0] + CH_T, LANE_BOTTOM))   # on the bottom flange
@@ -801,6 +809,9 @@ if not USE_DM:
     device("front_cross", "motor_plate_FL", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
     device("front_cross", "motor_plate_FR", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
 captive("ex_block", "ex_cross", "clamped on the cross shaft")
+for n in ("L", "R"):
+    device(f"front_pad_{n}", f"flap_{n}", "3 countersunk M3 x 10 into the root's inserts", 3)
+    device(f"ramp_skin_{n}", f"mouth_floor_{n}", "4 countersunk M3 x 8 into the ramp's inserts", 4)
 if USE_LM:
     for n in ("L", "R"):
         captive(f"feeder_wheel_{n}", f"feeder_shaft_{n}", "on the shaft (the left's pinned, the right's free on bearings)")
@@ -852,7 +863,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("lane_shaft_", "lane_roller_"), ("lane_shaft_", "lane_wall_"), ("fly_shaft_", "flywheel_"), ("fly_shaft_", "fly_cassette_"),
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
-           ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"),
+           ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("front_pad_", "flap_"), ("front_pad_", "flap_face_"), ("ramp_skin_", "mouth_floor_"), ("ramp_skin_", "ramp_skin_"),
            ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),

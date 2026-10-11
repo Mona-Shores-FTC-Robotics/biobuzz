@@ -127,6 +127,8 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `fly_yoke_R` | PETG-CF | 1 | 2 | 24 |
 | `front_bracket_L` | PETG | 1 | 2 | 34 |
 | `front_bracket_R` | PETG | 1 | 2 | 34 |
+| `front_pad_L` | TPU 95A | 1 | 2 | 14 |
+| `front_pad_R` | TPU 95A | 1 | 2 | 14 |
 | `hood` | PETG | 1 | 2 | 162 |
 | `intake_arm_L` | PETG | 1 | 2 | 11 |
 | `intake_arm_R` | PETG | 1 | 2 | 20 |
@@ -151,22 +153,24 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `lm_turret_enc_A_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
 | `lm_turret_enc_B_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
 | `lm_turret_enc_B_tower_print_PETG_cradles_encoder_B_on_the_plate_1` | PETG | 1 | 2 | 27 |
-| `mouth_floor_L` | PETG | 1 | 2 | 25 |
-| `mouth_floor_R` | PETG | 1 | 2 | 25 |
+| `mouth_floor_L` | PETG | 1 | 2 | 29 |
+| `mouth_floor_R` | PETG | 1 | 2 | 29 |
 | `odo_adapter_F` | PETG | 1 | 2 | 14 |
 | `odo_adapter_S` | PETG | 1 | 2 | 14 |
 | `rack_L` | PETG | 1 | 2 | 47 |
 | `rack_R` | PETG | 1 | 2 | 47 |
+| `ramp_skin_L` | TPU 95A | 1 | 2 | 12 |
+| `ramp_skin_R` | TPU 95A | 1 | 2 | 12 |
 | `star_clutch_L` | PETG | 1 | 2 | 2 |
 | `star_clutch_R` | PETG | 1 | 2 | 2 |
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 0.87 kg | 1.74 kg |
+| PETG | 0.88 kg | 1.75 kg |
 | PETG-CF | 0.38 kg | 0.77 kg |
-| TPU 95A | 0.07 kg | 0.13 kg |
+| TPU 95A | 0.12 kg | 0.24 kg |
 
-About 110 printer-hours a robot, 220 for two: with four home printers, about 5.5 days at 10 h a day.
+About 115 printer-hours a robot, 230 for two: with four home printers, about 5.8 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
@@ -184,7 +188,7 @@ About 110 printer-hours a robot, 220 for two: with four home printers, about 5.5
 | M4 heat-set insert | 12 | 24 |
 | M5 heat-set insert | 2 | 4 |
 | M4 nyloc nut | 26 | 52 |
-| on the devices (servos, hubs, intake motor, Limelight): see below | 106 | 212 |
+| on the devices (servos, hubs, intake motor, Limelight): see below | 120 | 240 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
 
@@ -377,6 +381,10 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `rear_cross` | `rail_R` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FL` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FR` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_pad_L` | `flap_L` | 3 countersunk M3 x 10 into the root's inserts (3) |
+| `ramp_skin_L` | `mouth_floor_L` | 4 countersunk M3 x 8 into the ramp's inserts (4) |
+| `front_pad_R` | `flap_R` | 3 countersunk M3 x 10 into the root's inserts (3) |
+| `ramp_skin_R` | `mouth_floor_R` | 4 countersunk M3 x 8 into the ramp's inserts (4) |
 | `fly_yoke_L` | `lm_flywheel_motor_bracket_L_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
 | `fly_yoke_R` | `lm_flywheel_motor_bracket_R_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
 | `feeder_motor` | `feeder_rear_block_L` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
