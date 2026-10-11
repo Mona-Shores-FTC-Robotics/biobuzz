@@ -143,6 +143,7 @@ FLY_R, FLY_Y, FLY_Z = 96 / 2 * MM, 2.85, 6.65
 FLY_X = (COL_X - 0.95, COL_X + 0.95)
 FLY_TRAVEL = RN - RP                    # each flywheel module's spring travel: a POLLEN at rest, a NECTAR pushes each side out 0.41
                                         # (the same squeeze on both: rest gap = 2 RP - squeeze; his module's CAD has 1.93, the rig sets it)
+FLY_AXIS = (2.855, 6.673)               # Y, z: each flywheel shaft (his module)
 FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig sets them (README, Open 3)
 # the mentor's flywheel parts that ride the sprung modules (each side slides out in Y, its motor with it); his plates stay
 # put as the frame (slotted for the shafts' travel).
@@ -153,7 +154,7 @@ FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig set
 # and its flywheel-to-feeder drive are left out of his module (OLD_FEEDER)
 FLY_MOVES = re.compile(r"^(96mm_Gecko|96mm_Steel_Shaft|8mm_Spacer_|part_piece|8mm_REX_Hyper_Hub|1505-0032-0160|8x14x5mm_Bearing_-_Round_Bore_GB_[3-6]_|"
                        r"flywheel_(motor|pulley|belt)_)")
-OLD_FEEDER = re.compile(r"^(flywheel_feeder_pulley|flywheel_spacers_L_|flywheel_shaft_eclip_L|feeder_(?!bridge|floor)|gate_servo|pad_)")
+OLD_FEEDER = re.compile(r"^(flywheel_feeder_pulley|flywheel_spacers_L_|flywheel_shaft_eclip_L|feeder_(?!floor)|gate_servo|pad_)")   # his bridge too: our tray replaces it
 FEED_R = 24 * MM                        # 48 mm Gecko wheels, two side by side a side, as wide as the flywheels' pair
 FEED_SQUEEZE = 0.37                     # into a POLLEN, each side (as the transfer's feeder): the rig sets it
 FEED_Y = RP + FEED_R - FEED_SQUEEZE     # 1.975: the wheels' axes, either side of the column
@@ -472,6 +473,12 @@ if USE_LM:
             w = w.intersect(box(-20, -4.72, -20, 20, -20, 20))
         if re.match(r"^Hole_Lowside_U-Channel_GB_(10|12)__1", e["file"]):   # his back plates: only the flywheels' part (above the feeder's arms)
             w = w.intersect(box(-20, 20, -20, 20, 4.75, 20))
+        if re.match(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)__1", e["file"]):   # the bearing blocks' slots, 0.41 in outward
+            for sg in (1, -1):
+                y0, y1 = sorted((sg * (FLY_AXIS[0] - 0.46), sg * (FLY_AXIS[0] + 0.46 + FLY_TRAVEL)))
+                w = w.cut(box(-20, 20, y0, y1, FLY_AXIS[1] - 0.56, FLY_AXIS[1] + 0.56))
+        if e["file"].startswith("feeder_floor"):            # notched round the feeder arms' rear blocks
+            w = w.cut(box(-4.70, -3.80, 0.6, 20, -20, 20)).cut(box(-4.70, -3.80, -20, -0.6, -20, 20))
         if LM_RAISE.match(e["file"]): w = cq.Workplane().add(solid(w).translate(cq.Vector(0, 0, LM_RAISE_Z)))
         if e["file"].startswith("feeder_bridge"):          # clear of the battery and of the feeder's drive
             w = w.intersect(box(BAT_X + BATTERY[2] + 0.05, 20, -20, 20, -20, 20)).cut(box(-5.05, -4.41, FEED_Y - 0.81, 20, -20, 20)).cut(box(-4.42, -3.30, 1.55, 4.7, -20, 20)).cut(box(-4.42, -3.30, -2.4, -1.55, -20, 20))
@@ -521,6 +528,9 @@ HOOD_FLANGE_D = 5.6                     # the hood's flange on the turret's top,
 # it (the wheel moves sideways, 0.04 in down over its 0.41). On the left that pivot shaft is also the drive: the feeder's
 # motor, bolted to the frame, belts to it (belt A, behind the launcher's back plates), and a belt along the arm (belt B)
 # takes it up to the wheel. Both belts keep their length however the arm swings, so the motor never moves.
+LT_Z = (RAIL_Z[0] + CH_T, 1.175)      # the launcher tray: on the rails' bottom flanges, under the feeder floor
+LT_X = (-4.65, -1.30)
+LT_TABS = (rail_x(8), rail_x(10))     # its screws into the rails' bottom flanges
 FEED_PIVOT_Z = FEED_Z - centres(215)    # 2.0: the arm's pivot, 47.5 mm (a 215 mm belt) under the wheel's axle
 FEED_SWING = math.degrees(math.asin(FLY_TRAVEL / centres(215)))   # 12.7 deg: the arm's swing for a NECTAR
 FEED_MOTOR = (FEED_Y + math.sqrt(centres(215) ** 2 - 0.2 ** 2), FEED_PIVOT_Z + 0.2)   # Y, z: the feeder's motor (a 5203, 1150 RPM
@@ -541,14 +551,18 @@ if USE_LM:
         for a, b in ARM_X:
             pl = cq.Workplane("YZ").polyline(_strip((y, FEED_PIVOT_Z), (y, FEED_Z), 0.32)).close().extrude(b - a).translate((a, 0, 0))
             pl = pl.union(cyl("x", (y, FEED_PIVOT_Z), 0.64, a, b)).union(cyl("x", (y, FEED_Z), 0.64, a, b))
+            if a < -3: pl = pl.union(box(-4.03, b, s * 1.40, s * 1.70, LT_Z[1] + 0.26, FEED_PIVOT_Z - 0.2))   # the rear plate's tab: rests on the block's foot
             arm = pl if arm is None else arm.union(pl)
         part("launcher", f"feeder_arm_{n}", arm, "print", "PETG-CF, 6 mm: the feeder wheel's arm, two plates either side of the wheels on 1611 bearings, swinging on the pivot shaft; "
              "an extension spring (or a band) from it to the launcher's frame pulls it in, a stop screw sets the rest gap (the rig sets both)", mv)
         part("launcher", f"feeder_pivot_{n}", cyl("x", (y, FEED_PIVOT_Z), 8 * MM, BELT_A_X[0] if s > 0 else -4.41, -0.97), "buy",
              "goBILDA 8mm REX shaft: the arm's pivot" + (", and the feeder's drive: belt A's pulley behind, belt B's on the arm, turning in 1611 bearings in the rear and front blocks" if s > 0 else ", in the rear and front blocks"))
-        blk = box(-4.41, -4.17, s * 1.6, s * (4.65 if s > 0 else 2.35), 1.31, FEED_PIVOT_Z + 0.6)
-        part("launcher", f"feeder_rear_block_{n}", blk, "print", "PETG: the arm's rear pivot block" + (" and the feeder motor's face plate" if s > 0 else "") + ", on the launcher's feeder bridge")
-        part("launcher", f"feeder_front_block_{n}", box(-1.15, -0.97, s * 1.75, s * 2.25, 1.3, 2.3), "print", "PETG: the arm's front pivot block, screwed to the lane wall's end")
+        blk = box(-4.41, -4.17, s * 1.6, s * (4.65 if s > 0 else 3.25), LT_Z[1], FEED_PIVOT_Z + 0.6)
+        foot = box(-4.06, -3.92, s * 1.06, s * 1.85, LT_Z[1], LT_Z[1] + 0.25).union(box(-4.41, -4.06, s * (1.18 if s > 0 else 1.50), s * 1.85, LT_Z[1], LT_Z[1] + 0.25))   # clear of the backstop and belt B
+        blk = blk.union(foot).union(box(-4.41, -3.95, s * 2.9, s * 3.05, 2.98, 3.42))          # the spring's lug, outboard of the arm
+        part("launcher", f"feeder_rear_block_{n}", blk, "print",
+             "PETG: the arm's rear pivot block" + (", the feeder motor's face plate" if s > 0 else "") + ", the spring's lug, and the foot the arm's tab rests on (an M3 set screw in it sets the rest gap), on the launcher tray")
+        part("launcher", f"feeder_front_block_{n}", box(-1.15, -0.97, s * 1.75, s * 2.25, 0.7, 2.3), "print", "PETG: the arm's front pivot block, screwed to the lane wall's end")
     part("launcher", "feeder_belt_B", belt_x((FEED_Y, FEED_PIVOT_Z), (FEED_Y, FEED_Z), PULLEY24_D, *BELT_B_X), "buy",
          "goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0215 belt: the pivot shaft up the arm to the feeder wheel", "feed_L")
     part("launcher", "feeder_belt_A", belt_x(FEED_MOTOR, (FEED_Y, FEED_PIVOT_Z), PULLEY24_D, *BELT_A_X), "buy",
@@ -576,26 +590,28 @@ if USE_LM:                              # v3: the turret's drive gear still poin
 # in slots in his front and back plates (like a belt tensioner); a printed yoke over the motor ties it to the rear block,
 # so the side's wheels, shaft, pulleys, belt and motor move together and the belt keeps its length; an extension spring
 # from the yoke to an anchor on the rear top channel pulls it in, and an M4 stop screw in the anchor sets the rest gap
-FLY_AXIS = (2.855, 6.673)               # Y, z: each flywheel shaft (his module)
+if USE_LM:
+    for s, n in SIDES:
+        tr = box(*LT_X, 0, s * (RAIL_OUT - CH_T - 0.01), *LT_Z)
+        if s < 0: tr = tr.cut(box(ODO_FWD_X - POD_W / 2 - 0.08, ODO_FWD_X + POD_W / 2 + 0.08, -6, -3.0, 0, 3))   # the forward odometry pod drops through
+        part("launcher", f"launcher_tray_{n}", tr, "print", "PETG, 3.3 mm: half the launcher's tray, across the rails' bottom flanges under the feeder floor; the feeder arms' blocks and spring posts stand on it")
 if USE_LM:
     for s, n in SIDES:
         y, mv = s * FLY_AXIS[0], f"fly_{n}"
-        for h, (a, b) in (("front", (-1.10, -0.62)), ("rear", (-4.41, -3.93))):
-            part("launcher", f"fly_block_{n}_{h}", box(a, b, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.45, FLY_AXIS[1] + 0.45), "print",
-                 "PETG-CF: a flywheel bearing block, the shaft's 8x14 bearing in it, sliding in a 0.41 in slot in the plate (his plate gets the slot)", mv)
-        yk = box(-4.70, -2.19, s * 5.30, s * 7.40, 7.95, 8.20).union(box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * 7.40, 7.95, 8.20)).union(
-             box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * (FLY_AXIS[0] + 0.35), FLY_AXIS[1] + 0.3, 8.20))
+        part("launcher", f"fly_block_{n}_front", box(-1.10, -0.62, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.55, FLY_AXIS[1] + 0.55), "print",
+             "PETG-CF: the flywheel's front bearing block, the shaft's 8x14 bearing in it, sliding in a 0.41 in slot in his front plate", mv)
+        yk = box(-4.41, -3.93, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.55, FLY_AXIS[1] + 0.55)                      # the rear bearing block, in the back plate's slot
+        yk = yk.union(box(-4.70, -4.41, s * (FLY_AXIS[0] - 0.35), s * (FLY_AXIS[0] + 0.35), 6.78, 8.20))       # up behind the plate, over his rear channel
+        yk = yk.union(box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * 7.40, 7.95, 8.20)).union(box(-4.70, -2.19, s * 5.30, s * 7.40, 7.95, 8.20))   # over to the motor
         part("launcher", f"fly_yoke_{n}", yk, "print",
-             "PETG-CF: the flywheel side's yoke, over the motor: its bracket to the rear bearing block (behind the back plate), so the motor rides with the wheels", mv)
+             "PETG-CF, one piece: the flywheel's rear bearing block (in the back plate's slot), up behind the plate and over to the motor's bracket, so the motor rides with the wheels", mv)
         part("launcher", f"fly_anchor_{n}", box(-4.71, -4.43, s * 0.55, s * (FLY_AXIS[0] - 0.36), 7.85, 8.38), "print",
              "PETG: the flywheel side's spring anchor and stop, on the rear top channel's front face; an M4 stop screw through it sets the rest gap (the rig sets it)")
         part("launcher", f"fly_spring_{n}", cyl("y", (-4.56, 8.24), 0.25, s * 0.75, s * (FLY_AXIS[0] - 0.36)), "buy",
              "extension spring, about 0.25 in OD: the anchor to the yoke (rate and preload from the rig; CHECK)")
         # the feeder arm's spring and stop: a post on the feeder floor's rear corner
-        part("launcher", f"feeder_post_{n}", box(-4.10, -3.92, s * 0.70, s * 1.10, 1.31, 3.40), "print",
-             "PETG: the feeder arm's spring post and stop (an M4 stop screw through it sets the rest gap), on the feeder floor")
-        part("launcher", f"feeder_spring_{n}", cyl("y", (-4.01, 3.15), 0.2, s * 1.10, s * (FEED_Y - 0.33)), "buy",
-             "extension spring, about 0.2 in OD: the post to the arm (rate and preload from the rig; CHECK)")
+        part("launcher", f"feeder_spring_{n}", cyl("y", (-4.05, 3.20), 0.2, s * 2.9, s * (FEED_Y + 0.33)), "buy",
+             "compression spring, about 0.2 in OD, 0.6 in free: the rear block's lug pushes the arm in (rate and preload from the rig; CHECK)")
 LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
 if USE_LM:
     for s, n in SIDES:
@@ -738,6 +754,19 @@ for s, n in SIDES:
             xl = LM_HOLE_X0 + round((x - LM_HOLE_X0) / (8 * MM)) * 8 * MM
             screw(f"foot_lm_{n}{k}", lmch, f"launcher_foot_{n}{k}", "M4", 12, P(xl, LM_HOLE_Y, LM_CH_Z + CH_T), V(0, 0, -1), "insert",
                   what="the launcher's side channel to its foot", match="his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel")
+    if USE_LM:
+        for x in LT_TABS:
+            screw(f"tray_{n}_{x:.2f}", f"launcher_tray_{n}", f"rail_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, LT_Z[1]), V(0, 0, -1), "nut",
+                  what="the launcher tray to the rail's bottom flange")
+        for yy in (2.6, 2.95):
+            screw(f"feeder_block_{n}_{yy}", f"feeder_rear_block_{n}", f"launcher_tray_{n}", "M4", 20, P(-4.29, yy, 1.55), V(0, 0, -1), "nut", cb=True,
+                  what="the feeder arm's rear block to the tray")
+        for z in (0.95, 1.42):
+            screw(f"feeder_front_{n}_{z}", f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3", 12, P(-1.15, WALL_IN + WALL_T / 2, z), V(1, 0, 0), "insert",
+                  what="the feeder arm's front block to the lane wall's end")
+        for y in (0.75, 2.2):
+            screw(f"anchor_{n}_{y}", f"fly_anchor_{n}", "lm_Hole_Lowside_U-Channel_GB_2__1", "M4", 25, P(-4.43, y, 7.95), V(-1, 0, 0), "nut",
+                  what="the flywheel spring's anchor to the rear top channel", match="through the channel's front face: mark from the real channel")
     # the extractor, the stars, the intake and the lane's shafts: held by bearings and shafts
     captive(f"ex_stub_{n}", f"flap_{n}", "turns in a goBILDA 1611 flanged bearing in the flap")
     captive(f"ex_arm_{n}", f"ex_stub_{n}", "clamped on the stub (REX bore, a set screw)")
@@ -773,17 +802,12 @@ if USE_LM:
         captive(f"feeder_arm_{n}", f"feeder_pivot_{n}", "swings on 1611 bearings on the pivot shaft")
         captive(f"feeder_pivot_{n}", f"feeder_rear_block_{n}", "in 1611 bearings in the rear and front blocks, e-clips")
         captive(f"feeder_pivot_{n}", f"feeder_front_block_{n}", "in a 1611 bearing")
-        device(f"feeder_rear_block_{n}", "lm_feeder_bridge_print_PETG_or_nylon_behind_the_launcher_s_rear_1", "M4 x 16 down into the bridge's inserts", 2)
-        device(f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3 x 12 into the wall end's inserts", 2)
     for n in ("L", "R"):
         captive(f"fly_block_{n}_front", f"lm_Hole_Lowside_U-Channel_GB_{11 if n == 'L' else 9}__1", "slides in the plate's slot, the shaft's bearing in it")
-        captive(f"fly_block_{n}_rear", f"lm_Hole_Lowside_U-Channel_GB_{12 if n == 'L' else 10}__1", "slides in the plate's slot, the shaft's bearing in it")
-        device(f"fly_yoke_{n}", f"fly_block_{n}_rear", "M4 x 16 into the block's inserts, through the back plate's slot", 2)
+        captive(f"fly_yoke_{n}", f"lm_Hole_Lowside_U-Channel_GB_{12 if n == 'L' else 10}__1", "its block slides in the plate's slot, the shaft's bearing in it")
         device(f"fly_yoke_{n}", f"lm_flywheel_motor_bracket_{n}_1_8_in_aluminium_L_bent_on_the_laun_1", "M4 x 10 through the bracket's top into the yoke's inserts", 2)
-        device(f"fly_anchor_{n}", "lm_Hole_Lowside_U-Channel_GB_2__1", "M4 x 12 through the channel's front face into nylocs", 2)
         captive(f"fly_spring_{n}", f"fly_anchor_{n}", "hooked to the anchor's pin and the yoke's")
-        device(f"feeder_post_{n}", "lm_feeder_floor_1_8_in_polycarbonate_between_the_feeder_and_the_1", "M4 x 12 up through the floor into the post's inserts", 2)
-        captive(f"feeder_spring_{n}", f"feeder_post_{n}", "hooked to the post's pin and the arm's")
+        captive(f"feeder_spring_{n}", f"feeder_rear_block_{n}", "seated in the lug's pocket and the arm's")
     device("feeder_motor", "feeder_rear_block_L", "M4 x 8 into the motor's face (goBILDA pattern)", 4)
     captive("feeder_belt_A", "feeder_pivot_L", "on the 24T pulleys"); captive("feeder_belt_B", "feeder_pivot_L", "on the 24T pulleys")
 if USE_LM: device("turret_drive_plate", "lm_Hole_Lowside_U-Channel_GB_8__1", "M4 x 10 up through the plate into nylocs in the launcher's front top channel", 4)
@@ -826,10 +850,10 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
-           ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "lm_feeder_bridge"),
-           ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"),
+           ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "launcher_tray_"), ("feeder_post_", "launcher_tray_"), ("launcher_tray_", "rail_"), ("launcher_tray_", "lm_feeder_floor"), ("launcher_tray_", "lm_backstop"),
+           ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"), ("fly_yoke_", "lm_"),
            ("fly_anchor_", "lm_Hole_Lowside_U-Channel_GB_2__1"), ("fly_spring_", "fly_anchor_"), ("fly_spring_", "fly_yoke_"), ("fly_anchor_", "fly_yoke_"),
-           ("feeder_post_", "lm_feeder_floor"), ("feeder_spring_", "feeder_post_"), ("feeder_spring_", "feeder_arm_"), ("feeder_post_", "feeder_arm_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
+           ("feeder_spring_", "feeder_rear_block_"), ("feeder_spring_", "feeder_arm_"), ("feeder_arm_", "feeder_rear_block_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
            ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),
            ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
@@ -1163,10 +1187,10 @@ def cut_bores():
                 d = 13.92 * MM if "clutch" in how else BEARING_OD if re.search(r"(1611|bearing)", how) else (8.1 * MM if "roller" in pr else 8.4 * MM)
                 jobs.append((sh, pr, d))
     for n in ("L", "R"):
-        for h in ("front", "rear"):
-            if f"fly_block_{n}_{h}" in PARTS:
+        for k in (f"fly_block_{n}_front", f"fly_yoke_{n}"):
+            if k in PARTS:
                 y = (1 if n == "L" else -1) * FLY_AXIS[0]
-                jobs.append((None, f"fly_block_{n}_{h}", ("x", [y, FLY_AXIS[1]], (-6, 2), BEARING_OD)))
+                jobs.append((None, k, ("x", [y, FLY_AXIS[1]], (-6, 2), BEARING_OD)))
     done = 0
     for sh, pr, d in jobs:
         if sh is None: ax, c, (a0, a1), d = d
