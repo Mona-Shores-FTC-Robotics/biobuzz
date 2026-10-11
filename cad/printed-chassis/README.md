@@ -189,7 +189,10 @@ two screws; a lane wall half is four; a flap is two. The hubs come off their rac
    the feeder's shaft or its yoke's pivot, found no clear spot: the turret's drive plate and servo sit just over the
    pivot, his left-front drive motor crosses the lane at X 1.0 to 2.6, the star wheel and its servo are ahead and the
    flywheels behind. Its yoke still turns on the left flywheel's shaft in his model, which now moves: it needs a fixed
-   pivot of its own too.
+   pivot of its own too. **The mentor wants two feeder wheels** (11 Oct) to cover the gap to the flywheels. The model agrees for a POLLEN: held
+   against the pad, the one 72 mm feeder lets go of it at centre z 4.58 and the flywheels (rest gap 1.93) first touch it at
+   4.83, a 0.25 in stretch with nothing driving it; a NECTAR is always in contact with one or the other. Where the second
+   wheel goes, and whether both run off the feeder's one motor, is his to say; the feeder motor's place waits on it.
 4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
