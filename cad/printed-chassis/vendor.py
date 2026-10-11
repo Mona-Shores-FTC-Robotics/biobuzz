@@ -37,6 +37,7 @@ MODELS = {
     "1120-0009-0240": ("1120-0009-0240", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "U-channel: a flange's outer face, its end, the open edge; X across, Y along, Z to the web"),
     "1123-0048-0336": ("1123-0048-0336", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "pattern plate: one face, its end, one edge; X through it, Y along it"),
     "1123-0048-0144": ("1123-0048-0144", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "the same"),
+    "1123-0048-0192": ("1123-0048-0192", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "the same"),
     "REV-31-1595": ("REV-31-1595", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Control Hub: its base's middle; Z along its length, X across, Y up through it to the lid"),
     "REV-31-1153": ("REV-31-1153", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Expansion Hub: the same"),
     "1501-0006-0560": ("1501-0006-0560", r"\.step$", (0, -28.0, 0), (0, 1, 0), (1, 0, 0), "M4 standoff: one end, on its axis"),
@@ -101,7 +102,7 @@ def _read(data, pattern):
 
 # The plane each model is symmetric about, (local axis, where along it), for placing its mirror image on the other side:
 # local Y = 0 unless listed. The channels and plates run from 0 along Y, so they flip across their width instead.
-SYMMETRY = {k: (2, 24 / 25.4) for k in ("1121-0014-0360", "1121-0009-0240", "1123-0048-0336", "1123-0048-0144")}
+SYMMETRY = {k: (2, 24 / 25.4) for k in ("1121-0014-0360", "1121-0009-0240", "1123-0048-0336", "1123-0048-0144", "1123-0048-0192")}
 SYMMETRY["1120-0009-0240"] = (0, 24 / 25.4)
 
 # Colours for files that carry none (goBILDA's motors, wheels and channels), by each solid's place in the local frame (inches)
