@@ -782,7 +782,7 @@ LM_CH_Z = 3.843                         # the launcher's side channels' undersid
 LM_FOOT_Y1 = 5.669                      # the launcher's side channel's outer edge
 LM_HOLE_Y, LM_HOLE_X0 = 5.54, -0.665    # its flange's holes (read from his model): every 8 mm along X from this one
 FOOT_SEAT = 3.30                        # the foot-to-rail screw's head, in its pocket
-HOOD_TOP = "lm_2325-0105-0176_1"          # the turret's 176T ring: the hood screws to its top
+TURRET_TOP = "lm_2325-0105-0176_1"        # the turret's 176T ring: the hood screws to its top
 HOOD_FLANGE_D = 5.6                     # the hood's flange on the turret's top, four M4 down into it
 # Four springs (11 Oct): each flywheel side and each feeder wheel opens on its own, so a NECTAR waiting in the feeder never
 # opens the flywheels under a POLLEN being shot. Each feeder wheel is on its own arm, hung from a pivot shaft right under
@@ -892,18 +892,35 @@ if USE_LM:
                  "(fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet)")
 HOOD_Z = 9.70 if USE_LM else KIT_Z + KIT_H   # on the turret's top (the module's kit is 9.68 at its top)
 # The hubs sit on a deck on the front cross channel under printed roofs (below), and the turret turns the hood all the way
-# round, so every shot leaves over them: the hood's lid is high enough that a NECTAR turned out flat under it clears the
-# roofs by SHOT_CLEAR (the "shot_exit" reserve checks it). Until 11 Oct the lid was at 11.5 and a shot aimed within about
-# 75 deg of ahead went through the hubs and the Limelight.
+# round, so every shot leaves over them. The hood is a curved elbow: the ball runs up the column, starts to turn at
+# HOOD_BEND_Z and leaves at LAUNCH_DEG above flat, its centre on an arc of HOOD_BEND. The "shot_exit" reserve is the
+# ball's path from there (grown by SHOT_CLEAR), swept all the way round the turret: nothing may be in it. Until 11 Oct the
+# hood turned shots out flat at 10 to 11.5 in, and one aimed within about 75 deg of ahead went through the hubs.
 DECK_Z, DECK_T = FRONT_CROSS_Z + CH, 0.24  # the hub deck, flat on the front cross channel's top
 HUB_GAP = 0.6                           # round each hub's edges, for its plugs (they go in from above, at its edges) and their bends
 ROOF_Z = DECK_Z + DECK_T + HUB[2] + HUB_GAP   # the roofs' undersides
 ROOF_T = 0.12
 SHOT_CLEAR = 0.25
-HOOD_LID = ROOF_Z + ROOF_T + SHOT_CLEAR + 2 * RN   # the lid's underside: a NECTAR under it has its bottom SHOT_CLEAR over the roofs
-hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, HOOD_LID).union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, HOOD_LID + 1))
-part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, HOOD_LID, HOOD_LID + 0.3)), "print",
-     "PETG: the hood that turns the shot out (drawn as a tube and a lid: the launcher rig sets its shape; its lid no lower than drawn, so every shot clears the hub roofs)")
+LAUNCH_DEG = 45.0                       # the shallowest shot the hood gives (the launcher rig sets it: if it's shallower, the check says so)
+HOOD_BEND = 3.0                         # the ball's centre's bend radius in the hood
+HOOD_BEND_Z = HOOD_Z + 0.2              # where it starts to turn (its centre), just over the turret's top
+HOOD_WALL, HOOD_PLAY = 0.12, 0.10       # the hood's wall; the ball's clearance in it
+def hood_path(f):
+    """The ball's centre in the hood, f radians round the bend from straight up: (out from the column's axis, z)."""
+    return (HOOD_BEND * (1 - math.cos(f)), HOOD_BEND_Z + HOOD_BEND * math.sin(f))
+HOOD_TURN = math.radians(90 - LAUNCH_DEG)
+HOOD_EXIT = hood_path(HOOD_TURN)
+def _hood_tube(rad):
+    P = lambda f: cq.Vector(COL_X + hood_path(f)[0], 0, hood_path(f)[1])
+    w = cq.Wire.assembleEdges([cq.Edge.makeLine(cq.Vector(COL_X, 0, HOOD_Z), cq.Vector(COL_X, 0, HOOD_BEND_Z)),
+                               cq.Edge.makeThreePointArc(P(0), P(HOOD_TURN / 2), P(HOOD_TURN))])
+    return cq.Workplane("XY").workplane(offset=HOOD_Z).center(COL_X, 0).circle(rad).sweep(cq.Workplane().add(w), transition="round")
+hood = _hood_tube(RN + HOOD_PLAY + HOOD_WALL).cut(_hood_tube(RN + HOOD_PLAY))
+hood = hood.union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2).cut(cyl("z", (COL_X, 0), 2 * (RN + HOOD_PLAY), HOOD_Z - 0.1, HOOD_Z + 0.3)))
+part("launcher", "hood", hood, "print",
+     f"PETG: the hood, a curved elbow on the turret's top: it turns the shot {LAUNCH_DEG:.0f} deg up from flat on a {HOOD_BEND:.0f} in bend "
+     "(a stand-in: the launcher rig sets its shape; any shape whose shot clears the shot_exit check will do)")
+HOOD_TOP = bb(PARTS["hood"]["shape"])[5]
 
 # ---- electronics (v3.1, 11 Oct): the battery where it lifts straight out between matches; the hubs flat on a deck over the
 # front, their plugs at their edges; the Limelight on the deck's front tongue. (Until v3.1 the battery sat low between the
@@ -1185,7 +1202,7 @@ for y in (-0.4, 0.4):
           what="up through the front cross channel's top into the Limelight base's inserts (from inside the channel)")
 for k in range(4):
     a = math.radians(90 * k)
-    screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 64 * MM * math.cos(a), 64 * MM * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
+    screw(f"hood_{k}", "hood", TURRET_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 64 * MM * math.cos(a), 64 * MM * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
           what="the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear)",
           match="confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback")
 
@@ -1235,14 +1252,31 @@ def clashes(shapes, only=None):
 # ================================================================ the space budget (layout v3)
 # Volumes reserved before the parts that fill them are drawn: nothing else may enter one. A mechanism that needs a motor
 # gets its motor's box here first, so a missing home shows up at layout time, not after the screws are done.
+def _hood_sweep():
+    b = bb(PARTS["hood"]["shape"])
+    reach = max(math.hypot(x - COL_X, y) for x in b[:2] for y in b[2:4])
+    return cyl("z", (COL_X, 0), 2 * reach, HOOD_BEND_Z, b[5] + 0.05)
+
+def _shot_exit(reach=14.0):
+    """The ball's path after the hood, grown by SHOT_CLEAR, revolved about the column's axis: (out, z) clipped at the axis."""
+    t = math.radians(LAUNCH_DEG); rr = RN + SHOT_CLEAR; (u0, z0) = HOOD_EXIT
+    L = (reach - u0) / math.cos(t); n = (-math.sin(t), math.cos(t)); d = (math.cos(t), math.sin(t))
+    poly = [(u0 + n[0] * rr, z0 + n[1] * rr), (u0 - n[0] * rr, z0 - n[1] * rr)]
+    poly += [(u0 + L * d[0] - n[0] * rr, z0 + L * d[1] - n[1] * rr), (u0 + L * d[0] + n[0] * rr, z0 + L * d[1] + n[1] * rr)]
+    out, lim = [], 0.05                                         # clip to u >= lim (Sutherland-Hodgman, one edge)
+    for i, (p, q) in enumerate(zip(poly, poly[1:] + poly[:1])):
+        if p[0] >= lim: out.append(p)
+        if (p[0] >= lim) != (q[0] >= lim):
+            k = (lim - p[0]) / (q[0] - p[0]); out.append((lim, p[1] + k * (q[1] - p[1])))
+    return cq.Workplane("XZ", origin=(COL_X, 0, 0)).polyline(out).close().revolve(360, (0, 0, 0), (0, 1, 0))
+
 RESERVED = {
     "feeder_motor": (box(FEED_MOTOR_FACE, FEED_MOTOR_FACE + MOTOR_L1, FEED_MOTOR[0] - MOTOR_SQ / 2, FEED_MOTOR[0] + MOTOR_SQ / 2,
                          FEED_MOTOR[1] - MOTOR_SQ / 2, FEED_MOTOR[1] + MOTOR_SQ / 2), ("feeder_",), "the feeder's motor, fixed to the frame"),
     "feeder_drive": (box(*BELT_A_X, FEED_Y - 0.8, FEED_MOTOR[0] + 0.8, FEED_PIVOT_Z - 0.8, FEED_MOTOR[1] + 0.8), ("feeder_",),
                      "belt A, the motor to the left arm's pivot shaft, behind the launcher's back plates"),
-    "turret_sweep": (cyl("z", (COL_X, 0), 2 * (KIT_BORE + 0.25 + 2.45), HOOD_LID, HOOD_LID + 0.4), ("hood",), "the hood's lid as the turret turns"),
-    "shot_exit": (cyl("z", (COL_X, 0), 2 * 14, HOOD_LID - 2 * RN - 0.01, HOOD_LID).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.45, 0, 20)), ("hood",),
-                  "every shot as it leaves the hood, turned out flat (the worst case) in any direction the turret faces, out to 14 in"),
+    "turret_sweep": (_hood_sweep(), ("hood",), "the hood as the turret turns"),
+    "shot_exit": (_shot_exit(), ("hood",), f"every shot leaving the hood ({LAUNCH_DEG:.0f} deg up), the ball grown by {SHOT_CLEAR} in, in any direction the turret faces, out to 14 in"),
     **{f"plugs_{n}": (box(HUB_X[0] - HUB_GAP, HUB_X[0], s_ * HUB_Y[0], s_ * HUB_Y[1], DECK_Z + DECK_T, ROOF_Z)
                       .union(box(HUB_X[1], HUB_X[1] + HUB_GAP, s_ * HUB_Y[0], s_ * HUB_Y[1], DECK_Z + DECK_T, ROOF_Z))
                       .union(box(*HUB_X, s_ * (HUB_Y[0] - HUB_GAP), s_ * HUB_Y[0], DECK_Z + DECK_T, ROOF_Z))
@@ -1435,13 +1469,13 @@ def dress_report():
 
 def service_report():
     """What has to come off the robot between matches comes off without other parts moving: the battery lifts straight
-    up out of its shelf, and each hub's roof straight up off its posts (four screws), both to under the hood's lid."""
+    up out of its shelf, and each hub's roof straight up off its posts (four screws), both to the hood's height."""
     ok = True
     for k, what in (("battery", "the battery lifts straight out"), ("hub_roof_L", "the left hub's roof lifts off"), ("hub_roof_R", "the right hub's roof lifts off")):
         print(f"== service: {what}")
-        b = bb(PARTS[k]["shape"]); path = box(b[0], b[1], b[2], b[3], b[5], HOOD_LID)
+        b = bb(PARTS[k]["shape"]); path = box(b[0], b[1], b[2], b[3], b[5], HOOD_TOP)
         hit = [j for j, p in PARTS.items() if j != k and overlap(path, p["shape"]) > 1e-5]
-        print("   clear, " + f"{HOOD_LID - b[5]:.1f} in over it" if not hit else "   BLOCKED by " + ", ".join(hit))
+        print("   clear, " + f"{HOOD_TOP - b[5]:.1f} in over it" if not hit else "   BLOCKED by " + ", ".join(hit))
         ok &= not hit
     return ok
 
@@ -1574,7 +1608,8 @@ def report():
     bad = []
     LM_TOUCH = re.compile(r"^lm_.*(feeder|pad_|Gecko|backstop|Hyper_Hub|Spacer|Sonic)", re.I)
     TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp_", "mouth_floor_", "floor", "backstop", "hood", "star_")   # the hood's lid turns the shot
-    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, 10.5, 12.0, HOOD_LID - RN - 0.02)]
+    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, HOOD_BEND_Z)] \
+           + [(COL_X + hood_path(HOOD_TURN * k / 4)[0], hood_path(HOOD_TURN * k / 4)[1]) for k in (1, 2, 3, 4)]
     for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
         for sgn in (1, -1):                 # (the star, the floor, the ramp and the roller, which rises, may touch it; nothing else)
             yc = sgn * (MOUTH_HALF - r)          # as far out as the floor holds it
