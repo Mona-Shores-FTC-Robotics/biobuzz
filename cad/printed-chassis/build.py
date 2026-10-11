@@ -101,7 +101,7 @@ DRIVE_BELT = {1: 360, -1: 275}          # 2 x centres + 120: both exact
 DRIVE_MOTOR = {1: (AXLE[1], WHEEL_R + 5 * PITCH),             # front: straight over the axle, over the stars and the intake's pivot
                -1: (AXLE[-1] - math.sqrt(77.5 ** 2 - 72 ** 2) * MM + 0.06, WHEEL_R + 3 * PITCH)}   # (0.06 in forward: the belt inside the outline; 0.45 mm of tension in the slots)   # rear: behind and three holes up, under the
                                         # launcher's back (as his), at a 275 mm belt's own centres (the plate's motor holes slotted)
-MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt")}   # the axle at its lowest hole, the motor at its top one
+MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "rear motor plate")}   # the axle at its lowest hole, the motor at its top one
 
 # ---------------------------------------------------------------- intake
 ROLL_R = 24 * MM                        # goBILDA 48 mm Gecko wheels, as the mentor's roller (no vector wheels: his star wheels centre)
@@ -114,7 +114,9 @@ STAR = (FACE - 2.36, 3.15)              # its centre: 2.36 in behind the face, 3
 STAR_Z = 3.2                            # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
                                         # ramp (bottom z 1.3) where the stars are, so they sit just over the rails: a NECTAR's middle (3.11), 0.5 above a POLLEN's
                                         # (his sit 0.44 above a POLLEN's)
-SV_Z = STAR_Z + STAR_W / 2 + 0.05 + 14 * MM + 0.1   # the star servo's underside: over the clutch's printed hub
+STAR_BRG_Z = (STAR_Z + STAR_W / 2 + 0.10, STAR_Z + STAR_W / 2 + 0.10 + 5 * MM)   # the star shaft's bearing (8x14x5, round bore), in the bracket's arm just over the star
+STAR_HUB_Z = (STAR_BRG_Z[1] + 0.03, STAR_BRG_Z[1] + 0.03 + 13 * MM)             # the clutch's printed hub (its 12 mm clutch and a 1 mm floor)
+SV_Z = STAR_HUB_Z[1] + 0.02             # the star servo's spline face, on the hub: its case top 0.04 under the front drive motor
 STAR_FLEX = 0.08                        # clearance round each star; its flaps bend toward the lane, where only pieces are (how far: push one with a NECTAR)
 ARM_Y = (5.0, 5.3)                      # inside the wheels (his belts run outside them), over the rails
 BELT_Y = (4.4, 4.99)
@@ -455,8 +457,22 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
         mp = box(min(ax, mx) - CH / 2, max(ax, mx) + CH / 2, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH)
         if mx != ax:                    # the rear: the motor's two columns of holes, and only a strip down to the axle (his launcher's frame is over the rest)
             mp = box(max(mx - CH / 2, RAIL_X[0]), mx + MOTOR_SQ / 2 + 0.04, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH).union(box(mx, ax + 0.3, *MPLATE_Y, RAIL_Z[0], WHEEL_R + 0.6))
-        if mx == ax: mp = dress(mp, "1123-0048-0144", (ax - CH / 2, MPLATE_Y[0], RAIL_Z[0]), (1, 0, 0), (0, 1, 0))
-        part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn}, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole")
+        if mx == ax:
+            mp = dress(mp, "1123-0048-0144", (ax - CH / 2, MPLATE_Y[0], RAIL_Z[0]), (1, 0, 0), (0, 1, 0))
+            part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn}, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole")
+        else:                           # the rear: no stock plate has the motor 72 mm up and 29 mm behind the axle, so it's cut
+            hy = lambda c, d: cyl("y", c, d, MPLATE_Y[0] - 0.1, MPLATE_Y[1] + 0.1)
+            u = ((ax - mx) / math.hypot(ax - mx, WHEEL_R - mz), (WHEEL_R - mz) / math.hypot(ax - mx, WHEEL_R - mz))   # along the belt
+            mp = mp.cut(hy((ax, WHEEL_R), 14 * MM)).cut(hy((mx, mz), 14 * MM))                                # the axle's bearing, the motor's boss
+            for a_, b_ in ((-8, -8), (-8, 8), (8, -8), (8, 8)):                                                 # its four M4, slotted 2 mm along the belt
+                c = (mx + a_ * MM, mz + b_ * MM)
+                mp = mp.cut(hy(c, 4.4 * MM)).cut(hy((c[0] + 2 * MM * u[0], c[1] + 2 * MM * u[1]), 4.4 * MM)).cut(
+                     slab_y(_strip(c, (c[0] + 2 * MM * u[0], c[1] + 2 * MM * u[1]), 2.2 * MM), MPLATE_Y[0] - 0.1, MPLATE_Y[1] + 0.1))
+            for k in (1, 4):                                                                                    # to the rail's web: its +-8 mm rows
+                for dz in (-8 * MM, 8 * MM): mp = mp.cut(hy((rail_x(k), WHEEL_R + dz), 4.4 * MM))
+            part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "cut",
+                 "rear motor plate, cut from 2.5 mm (0.1 in) 6061 aluminium sheet to the drawing (or drilled from a goBILDA 1123-0048-0144 with the STEP printed 1:1 as a template): "
+                 "the axle's 14 mm bearing hole, the motor's 14 mm boss hole and its four M4 slotted 2 mm along the belt for tension, four M4 to the rail's web")
         part(f"corner_{nm}", f"wheel_{nm}", mir(dress(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), "mecanum_A" if sx > 0 else "mecanum_B", (ax, sum(WHEEL_Y) / 2, WHEEL_R), (0, 1, 0), (1, 0, 0)), s), "buy",
              "goBILDA 3213-3606-0002 96 mm mecanum, one wheel of the set of 4 (its rollers make an X seen from above)")
         part(f"corner_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, RAIL_OUT - CH_T, OPLATE_Y[1] + 0.05), s), "buy",
@@ -627,9 +643,9 @@ for s, n in SIDES:
     sx, sy = STAR[0], s * STAR[1]
     part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
          "SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD)")
-    part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy",
+    part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_HUB_Z[1] - 1 * MM), "buy",
          "8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat)")
-    part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 20 * MM, STAR_Z + STAR_W / 2 + 0.05, STAR_Z + STAR_W / 2 + 0.05 + 14 * MM), "print",
+    part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 20 * MM, *STAR_HUB_Z), "print",
          "PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; "
          "CHECK with calipers): its top screwed to the servo's goBILDA 25T horn (4 M3), so the servo turns the hub, the clutch drives the shaft and the star one way only; a fast piece overruns it, and it can't be pushed backwards")
     sv = servo("2000-0025-0003", (sx, sy, SV_Z), (0, 0, -1), (-1, 0, 0))   # its spline down to the clutch's hub, its body back toward the drive motor
@@ -637,6 +653,9 @@ for s, n in SIDES:
     top = SV_Z + SERVO_TAB[0]               # the servo's tabs sit on a plate, its case down through a window in it
     br = box(sx - 1.54, sx + 0.75, STAR[1] - 0.40, 4.45, top - 0.25, top).cut(box(sx - 1.201, sx + 0.414, 0, STAR[1] + 0.414, 0, 10))
     br = br.union(box(UCH_FRONT, 4.05, 4.4, 4.85, PIVOT[1] - 0.45, top))                             # down the U-channel mount's front face
+    arm = box(sx - 0.42, sx + 0.42, STAR[1] - 0.42, 4.85, *STAR_BRG_Z).union(cyl("z", (sx, STAR[1]), 0.84, *STAR_BRG_Z))   # the star shaft's bearing arm, over the star,
+    br = br.union(arm.cut(cyl("z", (sx, STAR[1]), 14 * MM, 0, 10)))                                       # out to the pivot's boss (the bearing pressed in from below)
+    br = br.union(box(PIVOT[0] - 0.3, sx + 0.42, 4.6, 4.85, STAR_BRG_Z[0], PIVOT[1] - 0.45))
     br = br.union(box(PIVOT[0] - 0.3, PIVOT[0] + 0.3, 4.75, 4.95, PIVOT[1] - 0.45, top))        # the arms' pivot, inboard of the arm
     br = br.union(box(UCH_FRONT, PIVOT[0] + 0.3, 4.6, 4.85, PIVOT[1] - 0.45, PIVOT[1] - 0.25))
     br = br.union(box(PIVOT[0] - 0.3, PIVOT[0] + 0.3, 4.6, 4.95, PIVOT[1] - 0.45, PIVOT[1] + 0.35))   # the pivot's boss, deep enough for its insert
@@ -1004,7 +1023,7 @@ for s, n in SIDES:
     captive(f"ex_stub_{n}", f"flap_{n}", "turns in a goBILDA 1611 flanged bearing in the flap")
     captive(f"ex_arm_{n}", f"ex_stub_{n}", "clamped on the stub (REX bore, a set screw)")
     captive("ex_cross", f"ex_arm_{n}", "through both arms, M4 screws into its ends")
-    captive(f"star_shaft_{n}", f"star_servo_{n}", "on the servo's spline through a printed coupler (TBD with the mentor)")
+    captive(f"star_shaft_{n}", f"front_bracket_{n}", "in an 8x14x5 round-bore bearing in the bracket's arm over the star; the clutch in its hub above is the second support")
     captive(f"star_clutch_{n}", f"star_shaft_{n}", "the one-way clutch pressed in its bore, on the round shaft")
     captive(f"star_{n}", f"star_clutch_{n}", "on the hub's hex")
     device(f"star_servo_{n}", f"front_bracket_{n}", "M4 x 12 through the servo's tabs into the bracket's inserts", 4)
