@@ -8,11 +8,12 @@ Buy about 10% extra of every small part.
 | Part | One robot | Two robots |
 |---|---|---|
 | 8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat) | 2 | 4 |
-| Limelight 3A (72 x 48 x 17 mm), looking 45 deg up from the front of the hub deck; its pose goes in CameraMount | 1 | 2 |
+| Limelight 3A (72 x 48 x 17 mm), looking 45 deg up from between the hubs; its pose goes in CameraMount | 1 | 2 |
 | Modern Robotics 12 V NiMH battery (the mentor's; CHECK its size), standing on edge on the shelf at the back: unstrap, lift out | 1 | 2 |
-| REV Control Hub, flat on the deck's left half, its plugs at its edges | 1 | 2 |
-| REV Expansion Hub, flat on the deck's right half, its plugs at its edges | 1 | 2 |
+| REV Control Hub, flat on the deck's left half under its roof, 0.6 in clear round every edge for its plugs | 1 | 2 |
+| REV Expansion Hub, flat on the deck's right half under its roof, 0.6 in clear round every edge for its plugs | 1 | 2 |
 | REV-11-1271 Thru-Bore Encoder, absolute PWM output to the OctoQuad | 2 | 4 |
+| REV-31-1269 Resistive Grounding Strap: the control hub's spare XT30 to a frame screw (REV's ESD advice), cable-tied to the deck behind the hub | 1 | 2 |
 | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) | 2 | 4 |
 | compression spring, about 0.2 in OD, 0.6 in free: the rear block's lug pushes the arm in (rate and preload from the rig; CHECK) | 2 | 4 |
 | extension spring, about 0.25 in OD: the anchor to the yoke (rate and preload from the rig; CHECK) | 2 | 4 |
@@ -138,9 +139,11 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `front_cross_end_R` | PETG-CF | 1 | 2 | 33 |
 | `front_pad_L` | TPU 95A | 1 | 2 | 14 |
 | `front_pad_R` | TPU 95A | 1 | 2 | 14 |
-| `hood` | PETG | 1 | 2 | 162 |
-| `hub_deck_L` | PETG-CF | 1 | 2 | 84 |
-| `hub_deck_R` | PETG-CF | 1 | 2 | 84 |
+| `hood` | PETG | 1 | 2 | 230 |
+| `hub_deck_L` | PETG | 1 | 2 | 111 |
+| `hub_deck_R` | PETG | 1 | 2 | 111 |
+| `hub_roof_L` | PETG | 1 | 2 | 49 |
+| `hub_roof_R` | PETG | 1 | 2 | 49 |
 | `intake_arm_L` | PETG-CF | 1 | 2 | 22 |
 | `intake_arm_R` | PETG-CF | 1 | 2 | 22 |
 | `intake_cradle` | PETG | 1 | 2 | 8 |
@@ -160,7 +163,7 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `launcher_foot_R1` | PETG | 1 | 2 | 4 |
 | `launcher_tray_L` | PETG | 1 | 2 | 26 |
 | `launcher_tray_R` | PETG | 1 | 2 | 20 |
-| `limelight_mount` | PETG-CF | 1 | 2 | 15 |
+| `limelight_mount` | PETG-CF | 1 | 2 | 31 |
 | `lm_backstop_print_PETG_an_L_its_foot_s_two_slots_-0.2_in_set_th_1` | PETG | 1 | 2 | 10 |
 | `lm_turret_enc_A_cradle_print_PETG_holds_encoder_A_under_the_dri_1` | PETG | 1 | 2 | 25 |
 | `lm_turret_enc_A_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
@@ -181,11 +184,11 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 0.70 kg | 1.40 kg |
-| PETG-CF | 0.72 kg | 1.44 kg |
+| PETG | 1.09 kg | 2.17 kg |
+| PETG-CF | 0.56 kg | 1.13 kg |
 | TPU 95A | 0.12 kg | 0.24 kg |
 
-About 128 printer-hours a robot, 256 for two: with four home printers, about 6.4 days at 10 h a day.
+About 147 printer-hours a robot, 295 for two: with four home printers, about 7.4 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
@@ -194,17 +197,16 @@ About 128 printer-hours a robot, 256 for two: with four home printers, about 6.4
 | M3 x 8 socket head (countersunk for the faces) | 6 | 12 |
 | M3 x 10 socket head | 2 | 4 |
 | M3 x 12 socket head | 8 | 16 |
-| M4 x 10 socket head | 20 | 40 |
-| M4 x 12 socket head | 34 | 68 |
-| M4 x 16 socket head | 16 | 32 |
-| M4 x 20 socket head | 8 | 16 |
-| M4 x 25 socket head | 4 | 8 |
-| M4 x 30 socket head | 4 | 8 |
+| M4 x 10 socket head | 22 | 44 |
+| M4 x 12 socket head | 42 | 84 |
+| M4 x 16 socket head | 18 | 36 |
+| M4 x 20 socket head | 10 | 20 |
+| M4 x 25 socket head | 2 | 4 |
 | M5 x 18 socket head | 2 | 4 |
 | M3 heat-set insert | 16 | 32 |
-| M4 heat-set insert | 24 | 48 |
+| M4 heat-set insert | 34 | 68 |
 | M5 heat-set insert | 2 | 4 |
-| M4 nyloc nut | 30 | 60 |
+| M4 nyloc nut | 28 | 56 |
 | on the devices (servos, hubs, intake motor, Limelight): see below | 115 | 230 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
@@ -305,14 +307,22 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | rc_rail_bot_R | the rail's bottom flange into the rear corner block (from under the robot) | M4 x 12 | `rail_R` | an insert in `rear_corner_R` |
 | ex_mount_0 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
 | ex_mount_1 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
-| deck_L_2.20 | the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel | M4 x 30 | `hub_deck_L`, `front_cross` | a nyloc |
-| deck_L_3.78 | the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel | M4 x 30 | `hub_deck_L`, `front_cross` | a nyloc |
-| deck_rear_L | the hub deck's rear leg to the launcher's front top channel's flange, a nyloc under it (CHECK: mark the hole from the real channel's top flange) | M4 x 25 | `hub_deck_L`, `lm_Hole_Lowside_U-Channel_GB_8__1` | a nyloc |
-| deck_R_2.20 | the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel | M4 x 30 | `hub_deck_R`, `front_cross` | a nyloc |
-| deck_R_3.78 | the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel | M4 x 30 | `hub_deck_R`, `front_cross` | a nyloc |
-| deck_rear_R | the hub deck's rear leg to the launcher's front top channel's flange, a nyloc under it (CHECK: mark the hole from the real channel's top flange) | M4 x 25 | `hub_deck_R`, `lm_Hole_Lowside_U-Channel_GB_8__1` | a nyloc |
-| ll_mount_-0.4 | the deck's tongue up into the Limelight wedge's inserts (from under the deck) | M4 x 16 | `hub_deck_R` | an insert in `limelight_mount` |
-| ll_mount_0.4 | the deck's tongue up into the Limelight wedge's inserts (from under the deck) | M4 x 16 | `hub_deck_L` | an insert in `limelight_mount` |
+| deck_L_2.20 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_L`, `front_cross` | a nyloc |
+| deck_L_3.78 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_L`, `front_cross` | a nyloc |
+| deck_end_L | the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on | M4 x 20 | `hub_deck_L`, `front_cross` | an insert in `front_cross_end_L` |
+| roof_L00 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
+| roof_L01 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
+| roof_L10 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
+| roof_L11 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
+| deck_R_2.20 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_R`, `front_cross` | a nyloc |
+| deck_R_3.78 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_R`, `front_cross` | a nyloc |
+| deck_end_R | the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on | M4 x 20 | `hub_deck_R`, `front_cross` | an insert in `front_cross_end_R` |
+| roof_R00 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
+| roof_R01 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
+| roof_R10 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
+| roof_R11 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
+| ll_mount_-0.4 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
+| ll_mount_0.4 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
 | hood_0 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_1 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_2 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
@@ -405,6 +415,7 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `ceiling_roller_2` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `ceiling_roller_3` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `battery` | `rack_L` | a hook-and-loop strap round it and through both halves' slots |
+| `ground_strap` | `hub_deck_L` | two cable ties through the deck; its ring terminal under a frame screw |
 | `star_servo_L` | `front_bracket_L` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
 | `star_servo_R` | `front_bracket_R` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
 | `motor_plate_FL` | `rail_L` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
