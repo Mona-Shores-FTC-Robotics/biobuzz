@@ -139,7 +139,7 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `front_cross_end_R` | PETG-CF | 1 | 2 | 33 |
 | `front_pad_L` | TPU 95A | 1 | 2 | 14 |
 | `front_pad_R` | TPU 95A | 1 | 2 | 14 |
-| `hood` | PETG | 1 | 2 | 230 |
+| `hood` | PETG | 1 | 2 | 70 |
 | `hub_deck_L` | PETG | 1 | 2 | 111 |
 | `hub_deck_R` | PETG | 1 | 2 | 111 |
 | `hub_roof_L` | PETG | 1 | 2 | 49 |
@@ -184,11 +184,11 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 1.09 kg | 2.17 kg |
+| PETG | 0.93 kg | 1.85 kg |
 | PETG-CF | 0.56 kg | 1.13 kg |
 | TPU 95A | 0.12 kg | 0.24 kg |
 
-About 147 printer-hours a robot, 295 for two: with four home printers, about 7.4 days at 10 h a day.
+About 134 printer-hours a robot, 268 for two: with four home printers, about 6.7 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
