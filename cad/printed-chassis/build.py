@@ -388,8 +388,10 @@ WALL_STANDOFFS = {"rear": ((rail_x(20), 0), (rail_x(27), 0)), "front": ((rail_x(
                                         # axles' row, clear of the gate servo; 1: 8 mm under it); between the odometry pods, and behind the
                                         # front wheels (the screws' heads are outside the rails' webs)
 WS_Z = (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM)
+WALL_STANDOFFS_L = {"rear": ((rail_x(25), 1), (rail_x(27), 0))}   # the left rear wall's both ahead of the feeder's motor (its reserve ends at X 0.83)
+def wall_standoffs(n): return {h: (WALL_STANDOFFS_L.get(h, v) if n == "L" else v) for h, v in WALL_STANDOFFS.items()}
 for s, n in SIDES:
-    for h, sts in WALL_STANDOFFS.items():
+    for h, sts in wall_standoffs(n).items():
         for k, (x, row) in enumerate(sts):
             part("lane", f"wall_standoff_{n}_{h}{k}", mir(cyl("y", (x, WS_Z[row]), 6 * MM, WALL_IN + WALL_T, RAIL_OUT - CH_T), s), "buy", "goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked)")
 # ---- the mentor's star wheels, servo-driven through one-way bearings (drive TBD: his CAD draws none)
@@ -527,8 +529,10 @@ for s_, n in SIDES:
 part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
 part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
 BAT_X = RAIL_X[0] + CH_LOW + 0.05      # just ahead of the rear cross channel
-part("elec", "battery", box(BAT_X, BAT_X + BATTERY[2], -BATTERY[0] / 2, BATTERY[0] / 2, 0.45, 0.45 + BATTERY[1]), "buy",
-     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel (CHECK its size)")
+BAT_Y = (-(RAIL_IN - 0.08), -(RAIL_IN - 0.08) + BATTERY[0])   # against the right rail: the feeder's drive is on the left, and
+                                        # the battery's 1.95 in to the right about balances the feeder's motor on the left module
+part("elec", "battery", box(BAT_X, BAT_X + BATTERY[2], *BAT_Y, 0.45, 0.45 + BATTERY[1]), "buy",
+     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size)")
 for s_, n in SIDES:
     cr = box(BAT_X - 0.05, BAT_X + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
     for x in CRADLE_X: cr = cr.union(box(x - 0.22, x + 0.22, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), 0.3, RAIL_Z[0]))   # risers to the flange
@@ -594,7 +598,7 @@ for s, n in SIDES:
                 screw(f"odo_{nm}{k}", "rail_R", pod, "M4", 25, (rail_x(k), -RAIL_OUT, z), (0, 1, 0), "tapped", via=(f"odo_adapter_{nm}",),
                       what="the odometry pod, through its adapter and the rail's web (from outside)")
     # lane walls -> standoffs -> rail web
-    for h, sts in WALL_STANDOFFS.items():
+    for h, sts in wall_standoffs(n).items():
         for k, (x, row) in enumerate(sts):
             z = WS_Z[row]
             screw(f"wall_{n}_{h}{k}", f"lane_wall_{n}_{h}", f"wall_standoff_{n}_{h}{k}", "M4", 10, P(x, WALL_IN + 4 * MM, z), V(0, 1, 0), "tapped", cb=True,
