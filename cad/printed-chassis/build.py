@@ -141,11 +141,12 @@ FLY_TRAVEL = RN - RP                    # each flywheel module's spring travel: 
                                         # (the same squeeze on both: rest gap = 2 RP - squeeze; his module's CAD has 1.93, the rig sets it)
 FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig sets them (README, Open 3)
 # the mentor's flywheel parts that ride the sprung modules (each side slides out in Y, its motor with it); his plates stay
-# put as the frame (slotted for the shafts' travel). The feeder rides the left module whole: its yoke turns on, and is
-# belted from, the left flywheel's shaft, and no motor of its own fits (a search of every belt and angle found none), so
-# its gate servo moves onto the module too and a NECTAR opening the module carries the feeder out with it
+# put as the frame (slotted for the shafts' travel). The feeder is independent, on its own motor (the 8 Oct motor budget):
+# never driven from a flywheel. The transfer's flywheel-to-feeder pulley and belt are left out (FEED_FROM_FLYWHEEL), and
+# the feeder's own motor isn't placed yet (README, Open 3)
 FLY_MOVES = re.compile(r"^(96mm_Gecko|96mm_Steel_Shaft|8mm_Spacer_|part_piece|8mm_REX_Hyper_Hub|1505-0032-0160|8x14x5mm_Bearing_-_Round_Bore_GB_[3-6]_|"
-                       r"flywheel_|feeder_(?!bridge|floor)|gate_servo)")
+                       r"flywheel_(motor|pulley|belt)_)")
+FEED_FROM_FLYWHEEL = re.compile(r"^(flywheel_feeder_pulley|feeder_belt)")
 FLY_PLATES = re.compile(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)_")
 FEED = (2.87, 3.30, 36 * MM)            # feeder axle Y, z, radius (72 mm Gecko)
 FLY_BELT = 315
@@ -434,9 +435,8 @@ if USE_LM:
     for e in json.load(open(os.path.join(LM_DIR, "index.json")))["parts"]:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
         k = "lm_" + e["file"][:-5]
+        if FEED_FROM_FLYWHEEL.match(e["file"]): continue
         w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
-        if e["file"].startswith("gate_servo_bracket"):      # it moves onto the left module: trimmed clear of the rail's flange (0.41 in of travel)
-            w = w.intersect(box(-20, 20, -20, RAIL_IN - FLY_TRAVEL - 0.05, -20, 20))
         if FLY_MOVES.match(e["file"]):
             b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
         part("launcher", k, w, "buy", f"the mentor's launcher module: {e['name']}" + (" (rides the sprung module)" if mv else ""), mv)
@@ -669,8 +669,6 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
-           ("dm_FL_motor", "lm_feeder_belt"),   # KNOWN: his left-front motor's can touches the transfer's feeder belt (0.0002 in^3) with
-                                                # the front axles a hole back; the launcher's feeder is being redesigned (README, Open 2)
            ("dm_", "rail_"), ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
            ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),

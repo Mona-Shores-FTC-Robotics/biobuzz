@@ -183,11 +183,13 @@ two screws; a lane wall half is four; a flap is two. The hubs come off their rac
    for the shafts' travel. `build.py` slides both open and checks them against everything fixed (clear; opened, the
    motors reach Y ±7.92, inside R105's 18). Still to design: the slide or pivot itself (goBILDA or MGN9 rails, or swing
    arms), the springs (`FLY_SPRING`: rate and preload from the rig) and the stops (rest gap: his CAD has 1.93 in, so a
-   POLLEN is squeezed 0.87; the rig sets it). **The feeder rides the left module:** its yoke turns on, and is belted
-   from, the left flywheel's shaft, so the whole feeder, its belt and its gate servo move out with the left module (a
-   search of every belt length and angle found no room for a feeder motor of its own). The left module is then
-   heavier than the right, so its spring is stiffer (the rig sets both). One known touch is allowed by name: the
-   left-front drive motor's can against the feeder belt (0.0002 in³).
+   POLLEN is squeezed 0.87; the rig sets it). **The feeder needs its own motor, and none fits yet.** It is never driven
+   from a flywheel (the 8 Oct motor budget: the feeder is independent), so the transfer's flywheel-to-feeder pulley and
+   belt are left out of the model. A search of every goBILDA belt from 215 to 360 mm at every 10°, for a 5203 belted to
+   the feeder's shaft or its yoke's pivot, found no clear spot: the turret's drive plate and servo sit just over the
+   pivot, his left-front drive motor crosses the lane at X 1.0 to 2.6, the star wheel and its servo are ahead and the
+   flywheels behind. Its yoke still turns on the left flywheel's shaft in his model, which now moves: it needs a fixed
+   pivot of its own too.
 4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
