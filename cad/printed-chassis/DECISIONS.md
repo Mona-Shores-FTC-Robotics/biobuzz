@@ -48,10 +48,13 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | The extractor: a 1:1 printed mod-1 gear pair, inboard of the right flap, from the servo's horn to the right stub | — | — |
 | 11 Oct | **The whole front is soft and swappable**: TPU (or foam) pads on the flap roots' front faces and a TPU skin on the ramp, as well as the flaps' faces | the simulator (11 Oct): the spill bounces off the body's front and the mouth, not the flaps; 0.4 to 0.1 there is worth 6 to 9 points; with it and the fast intake, v3 scores Sister 94.0 and Sister five 96.7 (27 fifth TIPs of 60), against the mentor's robot's 88.0 and 81.2 | Monday's drop test: no material we can fit reaches 0.1 |
 | 11 Oct | The intake rate is the second lever (3 to 5 points; 13 to 27 fifth TIPs): the roller stays full-width at 1620 RPM | the simulator | the intake bench test misses a piece every 0.17 s |
+| 11 Oct | The rails' holes as goBILDA's STEP has them (the CAD chat): stations every 8 mm from 8 mm off the end; web holes at ±8 and ±16 mm, only ±16 at every 24 mm (a 14 mm bore on the centreline there); flange row 8.0 mm from the web's face. Every rail screw re-placed on it | read from the vendor's model, not the mentor's | — |
+| 11 Oct | The hood screws to the 176T gear's 64 mm-radius holes (the 56 mm-radius free ones are the fallback) | the CAD chat, from goBILDA's STEP; the 56 mm ones sit under the hood's tube | the part doesn't have them |
+| 11 Oct | Soft faces printed as a TPU 95A gyroid lattice, 10-20% infill, no top skin (the ramp's skin with one thin top skin); Monday drops solid TPU, two lattice infills and memory foam on a backer; no grommets | the body-designs chat: a face that crushes locally beats a stiff face on a soft mount, for pieces this light | the drop test |
 
 ## Open
 
 1. Software: the Autos' start poses are drawn for the mentor's longer body; redraw them for v3 (14.35 in) so it backs onto the wall.
 2. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
-3. Confirm on real parts: the goBILDA channel hole rows, the battery's and hubs' sizes, the servos' spline positions.
+3. Confirm on real parts: the battery's and hubs' sizes, the servos' spline positions.
 4. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.

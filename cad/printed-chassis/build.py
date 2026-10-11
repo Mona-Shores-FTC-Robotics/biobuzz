@@ -187,7 +187,7 @@ FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
 BAT_X = RAIL_X[0] + CH_LOW + 0.05      # the battery just ahead of the rear cross channel
-CRADLE_X = (RAIL_X[0] + 28 * MM, RAIL_X[0] + 44 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
+CRADLE_X = (RAIL_X[0] + 24 * MM, RAIL_X[0] + 40 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
 
 # ================================================================ helpers (inches)
@@ -314,12 +314,12 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
 # ---- odometry pods (goBILDA 4-bar, for 96 mm wheels; the Pinpoint's): a forward pod on the left, a strafe pod on the right
 POD_H, POD_W, POD_D = 69.5 * MM, 43 * MM, 41.5 * MM     # floor to the top of its block; across its block; mount face to wheel side
 ODO_FWD_X = -2.15                       # both pods on the right: the left side under the launcher has its feeder belt and gate servo;
-ODO_STRAFE_X = -0.40                    # the forward one under the launcher's right side, the strafe one between the lane walls' standoffs
+ODO_STRAFE_X = -0.60                    # the forward one under the launcher's right side, the strafe one between the lane walls' standoffs
 part("odometry", "odo_pod_forward", box(ODO_FWD_X - POD_W / 2, ODO_FWD_X + POD_W / 2, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_D, 0, POD_H), "buy",
      "goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail")
 part("odometry", "odo_pod_strafe", box(ODO_STRAFE_X, ODO_STRAFE_X + POD_D, -(RAIL_IN - 0.15), -(RAIL_IN - 0.15) + POD_W, 0, POD_H), "buy",
      "goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail")
-for n, x0, x1 in (("F", ODO_FWD_X - POD_W / 2 - 0.05, ODO_FWD_X + POD_W / 2 + 0.05), ("S", ODO_STRAFE_X - 0.05, ODO_STRAFE_X + POD_D + 0.05)):
+for n, x0, x1 in (("F", ODO_FWD_X - POD_W / 2 - 0.05, ODO_FWD_X + POD_W / 2 + 0.05), ("S", ODO_STRAFE_X, ODO_STRAFE_X + POD_D)):
     ad = box(x0, x1, -(RAIL_IN - 0.15), -(RAIL_OUT - CH_T), RAIL_Z[0] + CH_T, 2.40)   # fills the rail up to under its top flange's nuts
     part("odometry", f"odo_adapter_{n}", ad, "print", "PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint)")
 
@@ -336,8 +336,8 @@ for s, n in SIDES:
     plate, foam = plate.intersect(trim), foam.intersect(trim)
     part(f"front_{n}", f"flap_{n}", mir(plate, s), "print", "PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod")
     part(f"front_{n}", f"front_pad_{n}", mir(box(FACE + 0.45, FACE + 0.65, RAIL_OUT + 0.05, HALF_W - 0.05, RAIL_Z[0] + 0.1, 4.0), s), "print",
-         "TPU 95A, 5 mm (or foam): the soft pad on the flap root's front face, where the spill lands; three countersunk M3 into the root, swappable")
-    part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline")
+         "TPU 95A gyroid lattice, 10-20% infill, no top skin, 5 mm (or memory foam on a backer, as the drop test picks): the soft pad on the flap root's front face, where the spill lands; three countersunk M3 into the root, swappable")
+    part(f"front_{n}", f"flap_face_{n}", mir(foam, s), "print", "swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A as a gyroid lattice, 10-20% infill, no top skin (it crushes and soaks up the hit); for the drop test also solid TPU (the control) and memory foam on a 1 mm backer (the deadest reference), all the same outline")
 
 # ---- extractor (moves: angle 0 down .. 146 stowed)
 def extractor(deg):
@@ -392,16 +392,15 @@ SKIN_X1 = 7.0                           # (the body's front and the mouth: 0.4 t
 MOUTH_HALF = RAIL_IN - 0.08            # the ramp and the floor under the stars span the whole mouth, inside the rails' flanges, so a
                                         # piece taken in off-centre climbs to the lane's height too, where the stars reach its middle
 MOUTH_FLOOR_X = (STAR[0] - STAR_R - 0.05, rx1)
-def rail_x(k): return RAIL_X[0] + (4 + 8 * k) * MM    # the rails' 4 mm holes: every 8 mm from 4 mm off the back end (CHECK on a real channel)
-FLANGE_HOLE_Y = RAIL_OUT - 0.344        # the low-side flanges' row of 4 mm holes, 8.7 mm from the web's outer face (read from the same
-                                        # channel in the mentor's launcher; CHECK on a real one)
+def rail_x(k): return RAIL_X[0] + (8 + 8 * k) * MM    # the rails' 4 mm hole stations: every 8 mm from 8 mm off the end (goBILDA's STEP, via the CAD chat)
+FLANGE_HOLE_Y = RAIL_OUT - 8.0 * MM     # the low-side flanges' row of 4 mm holes, 8.0 mm from the web's outer face (goBILDA's STEP)
 MOUTH_TABS = (rail_x(32), rail_x(38))   # clear of his front corners' hubs inside the rail (X 3.68 .. 4.94)
 for s_, n in SIDES:
     ys = (0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)
     def ramp_z(x): return rz1 + (rx1 - x) / (rx1 - rx0) * (rz0 - rz1)
     rmp = slab_y([(rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T), (rx1, rz1 - SKIN_T - 0.15), (SKIN_X1, ramp_z(SKIN_X1) - SKIN_T - 0.15), (rx0, rz0 - 0.05)], *ys)
     part("lane", f"ramp_skin_{n}", slab_y([(rx1, rz1), (SKIN_X1, ramp_z(SKIN_X1)), (rx0, rz0), (rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T)], *ys), "print",
-         "TPU 95A, 2.5 mm (or foam, whichever the drop test picks): the ramp's soft skin, where the spill lands; on four countersunk M3 into the ramp, swappable like the flaps' faces")
+         "TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin, where the spill lands; four countersunk M3 into the ramp, swappable like the flaps' faces")
     rmp = rmp.cut(box(LANE_SHAFTS[0] - 0.55, LANE_SHAFTS[0] + 0.55, -1.05, 1.05, 0, 2))
     fl = box(*MOUTH_FLOOR_X, 0, s_ * MOUTH_HALF, LANE_BOTTOM - 0.13, LANE_BOTTOM)
     for x in MOUTH_TABS: fl = fl.union(box(x - 0.25, x + 0.25, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), RAIL_Z[0] + CH_T, LANE_BOTTOM))   # on the bottom flange
@@ -409,17 +408,17 @@ for s_, n in SIDES:
     part("lane", f"mouth_floor_{n}", fl.union(rmp), "print", "PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), "
          "on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers")
 LANE_X = (COL_X + 1.4, FACE - 0.16)
-WALL_SPLIT = 1.80
+WALL_SPLIT = 1.65
 for s, n in SIDES:
     xm = WALL_SPLIT                                               # between shafts 2 and 3, so each half holds whole bearings and two standoffs
     for h, (a, b) in (("front", (xm, MOUTH_FLOOR_X[0] - 0.02)), ("rear", (LANE_X[0], xm))):   # ahead of these, the mouth floor and the stars
         top = 2.6
         part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, top), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail")
-WALL_STANDOFFS = {"rear": ((rail_x(20), 0), (rail_x(27), 0)), "front": ((rail_x(28), 1), (rail_x(29), 0))}   # X, row (0: 8 mm over the
+WALL_STANDOFFS = {"rear": ((rail_x(19), 0), (rail_x(25), 1)), "front": ((rail_x(27), 1), (rail_x(28), 0))}   # X, row (0: 8 mm over the
                                         # axles' row, clear of the gate servo; 1: 8 mm under it); between the odometry pods, and behind the
                                         # front wheels (the screws' heads are outside the rails' webs)
-WS_Z = (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM)
-WALL_STANDOFFS_L = {"rear": ((rail_x(25), 1), (rail_x(27), 0))}   # the left rear wall's both ahead of the feeder's motor (its reserve ends at X 0.83)
+WS_Z = (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM, WHEEL_R + 16 * MM, WHEEL_R - 16 * MM)   # the web's rows (at a 24 mm station only the +-16 ones)
+WALL_STANDOFFS_L = {"rear": ((rail_x(22), 1), (rail_x(25), 0))}   # the left rear wall's both ahead of the feeder's motor (its reserve ends at X 0.83)
 def wall_standoffs(n): return {h: (WALL_STANDOFFS_L.get(h, v) if n == "L" else v) for h, v in WALL_STANDOFFS.items()}
 for s, n in SIDES:
     for h, sts in wall_standoffs(n).items():
@@ -706,7 +705,7 @@ for s, n in SIDES:
     def P(x, y, z): return (x, s * y, z)
     def V(x, y, z): return (x, s * y, z)
     # flap root -> rail web: from inside the rail, into the root's inserts
-    for x, z in ((rail_x(43), WHEEL_R + 8 * MM), (rail_x(44), WHEEL_R - 8 * MM)):
+    for x, z in ((rail_x(42), WHEEL_R + 8 * MM), (rail_x(43), WHEEL_R - 8 * MM)):
         screw(f"flap_{n}_{x:.2f}", f"rail_{n}", f"flap_{n}", "M4", 12, P(x, RAIL_OUT - CH_T, z), V(0, 1, 0), "insert", what="the flap's root to the rail's web")
     # the swappable face -> flap: three countersunk M3 into the flap's inserts
     root, tip = (FACE, HALF_W), FLAP_TIP
@@ -719,7 +718,7 @@ for s, n in SIDES:
               what="the swappable face to its flap (countersunk, flush on the face)")
     # odometry adapters -> right rail web; the pods screw through both
     if s < 0:
-        for nm, pod, ks in (("F", "odo_pod_forward", (13, 14)), ("S", "odo_pod_strafe", (21, 23))):
+        for nm, pod, ks in (("F", "odo_pod_forward", (12, 13)), ("S", "odo_pod_strafe", (21, 22))):
             for k, z in zip(ks, (WHEEL_R + 8 * MM, WHEEL_R - 8 * MM)):
                 screw(f"odo_{nm}{k}", "rail_R", pod, "M4", 25, (rail_x(k), -RAIL_OUT, z), (0, 1, 0), "tapped", via=(f"odo_adapter_{nm}",),
                       what="the odometry pod, through its adapter and the rail's web (from outside)")
@@ -736,7 +735,7 @@ for s, n in SIDES:
         screw(f"mouth_{n}_{x:.2f}", f"mouth_floor_{n}", f"rail_{n}", "M4", 16, P(x, FLANGE_HOLE_Y, LANE_BOTTOM), V(0, 0, -1), "nut",
               what="the mouth to the rail's bottom flange")
     # front bracket -> the rail's top flange
-    for x in (rail_x(31), rail_x(33)):
+    for x in (rail_x(31), rail_x(32)):
         screw(f"bracket_{n}_{x:.2f}", f"front_bracket_{n}", f"rail_{n}", "M4", 16, P(x, FLANGE_HOLE_Y, RAIL_Z[1] + 0.2), V(0, 0, -1), "nut",
               what="the front bracket's foot to the rail's top flange")
     # intake arm pivot: a shoulder screw through the arm into the bracket's boss
@@ -848,9 +847,10 @@ device("limelight", "limelight_mast", "M4 into the mast's inserts (its mounting 
 for y in (-0.55, 0.55):
     screw(f"mast_{y}", "limelight_mast", "front_cross", "M4", 16, (MAST_X, y, MAST_Z0 + 0.25), (0, 0, -1), "nut", what="the mast's foot to the front cross channel's top")
 for k in range(4):
-    a = math.radians(45 + 90 * k)
-    screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 2.55 * math.cos(a), 2.55 * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
-          what="the hood's flange to the turret's top", match="through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit")
+    a = math.radians(90 * k)
+    screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 64 * MM * math.cos(a), 64 * MM * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
+          what="the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear)",
+          match="confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback")
 
 # ================================================================ checks
 
@@ -949,11 +949,12 @@ def joint_report():
                 if inside(shank, w) is None: fail(f"misses {k}")
                 if k.startswith("rail_"):                       # goBILDA's grid, 4 mm holes every 8 mm (the 14 mm ones every 24)
                     p, v = f["p"], f["v"]
-                    gx = ((p[0] - RAIL_X[0]) / MM - 4) / 8
-                    if abs(gx - round(gx)) > 0.02: fail(f"off the rail's 8 mm grid along X ({p[0]:.3f})")
+                    st = (p[0] - RAIL_X[0]) / MM; gx = st / 8
+                    if abs(gx - round(gx)) > 0.02 or not 8 <= round(st) <= 352: fail(f"off the rail's 8 mm hole stations along X ({p[0]:.3f})")
                     if abs(v[1]) > 0.9:
                         gz = (p[2] - WHEEL_R) / MM / 8
-                        if abs(gz - round(gz)) > 0.02 or abs(round(gz)) > 2 or (round(gz) == 0 and round(gx) % 3 == 1): fail(f"off the rail web's 4 mm holes (z {p[2]:.3f})")
+                        ok_rows = (-2, 2) if round(st) % 24 == 0 else (-2, -1, 1, 2)
+                        if abs(gz - round(gz)) > 0.02 or round(gz) not in ok_rows: fail(f"off the rail web's 4 mm holes (z {p[2]:.3f} at station {round(st)} mm)")
                     elif abs(abs(p[1]) - FLANGE_HOLE_Y) > 0.02: fail(f"off the rail flange's hole row (Y {p[1]:.3f})")
         # where it threads
         b = shapes[f["b"]]
