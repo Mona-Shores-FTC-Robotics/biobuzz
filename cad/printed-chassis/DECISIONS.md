@@ -59,6 +59,14 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | The hubs are REV's 29.6 mm thick (not 1 in); the rack's back wall is slotted over its standoffs' screws | the rack screws and the flywheel springs' anchors leave no room to move the hubs | — |
 | 11 Oct | The Limelight drawn at its size (72 x 48 x 17 mm), on a 45° wedge on the mast's top | its docs' drawing | — |
 | 11 Oct | Printed parts' edges rounded 0.8 mm (or chamfered where OCC can't round them); the extractor's gears and the FLOWER block drawn to their real profiles | they're the STLs that get printed | — |
+| 11 Oct | **v3.1, the practicality pass.** Checked as a mechanic would, not only for clashes: can it come apart, is each part held, can it be made | the user: "a lot of weird things that don't actually practically work" | — |
+| 11 Oct | The battery stands on the shelf over the rear drive motors and lifts straight out (a strap); a check proves the lift | low between the rails it was boxed in by the rear cross channel, the rear motors and the launcher: no battery swap between matches | — |
+| 11 Oct | The hubs lie flat on a PETG-CF deck over the front (on the front cross channel and the launcher's front top channel); the Limelight on the deck's tongue, not a printed mast | the battery took the rack's place; the mast was a 0.4 in printed stick 4 in tall | the hubs' wiring wants them elsewhere |
+| 11 Oct | Each star's shaft runs in a bearing in a thin arm of the front bracket over the star; the servo rises 0.18 in (0.04 in under the front drive motor) | it hung on the servo's spline through the clutch | — |
+| 11 Oct | The rear motor plates are cut from 2.5 mm aluminium to the drawing | the "pattern plate (CHECK the SKU)" was an invented part | goBILDA has a plate with this pattern |
+| 11 Oct | The intake: the swing arms kept (the user asked about the mentor's slides: a slide's two guides across 9.8 in rack and wear, and the pivots fit); the motor properly mounted (a plate on its face bridged to the right arm, its far end in a cradle on a standoff from the left arm), the arms PETG-CF | the motor's face was 0.6 in from the arm with the belt between: it wasn't mounted at all, and hung off one arm | the mentor's slides are built and proven |
+| 11 Oct | Nothing floats: a check measures the gap at every claimed mounting. The front cross channel on taller front motor plates (1123-0048-0192) through printed end blocks; the rear cross channel on printed corner blocks; washers under the middle outer-plate standoffs; the extractor's servo horn; the lane's front shafts' hangers; the ceiling's hinge | each was 0.05 to 1.0 in from what it was said to bolt to ("goBILDA pattern brackets" that were never drawn) | — |
+| 11 Oct | The flywheel sides' blocks run between the rails of printed guides inside his channels; his channels get rough windows | a hand-cut slot in aluminium can't be a sliding fit | the guides wear (then PTFE tape, or printed in nylon) |
 
 ## Open
 
@@ -69,3 +77,5 @@ reopen it without its test failing or new information that answers "reopen if". 
 5. The Limelight's new pose (on the wedge, about 14.5 in up, 45° up) goes into `CameraMount`.
 6. Confirm the servo horn's screw pattern (4 M3 on a 16 mm circle is drawn) before printing the extractor's gear.
 7. The hood is still a stand-in (a tube and a lid): the launcher rig sets its shape.
+8. **The star wheel's joint to its shaft:** the SWYFT wheel's 7 mm hex bore can't take the 8 mm round shaft (the one-way clutch needs round). With the mentor's star in hand: a 1/2 in hex variant of the wheel and a printed adapter, or its bore drilled out to 8 mm and a printed clamp hub bolted to its face.
+9. The front motor plates are now 1123-0048-0192 (192 mm): order those, not 0144.

@@ -13,6 +13,13 @@
 > `vendor.py`), and checked as built: where a real part reaches past the envelope the clash checks use, the build
 > checks what it hits there. That found four things the boxes hid: the star servos' mounting, the extractor servo's
 > depth, the odometry pods turned 90° off their holes, and standoff lengths goBILDA doesn't sell (DECISIONS.md).
+>
+> **v3.1, the practicality pass (11 Oct).** Checked as a mechanic would: the battery now lifts straight out from the
+> back; the hubs and the Limelight sit on a deck over the front; the star shafts run in bearings; the rear motor plates
+> are a cuttable drawing, not an invented part; the intake motor is actually mounted and the swing arms are a braced
+> frame; every part said to bolt to another is checked to touch it (that found the front and rear cross channels on
+> brackets that were never drawn); the flywheel slides run in printed guides. One joint is left to settle with the
+> mentor's parts in hand: the star wheel on its shaft (DECISIONS.md, open).
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
@@ -53,10 +60,12 @@ README no longer describes.
 
 | Check | Result |
 |---|---|
-| Starting outline (R102) | **17.72 × 17.75 in**, 15.2 in tall (the Limelight on its wedge): designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
+| Starting outline (R102) | **17.72 × 17.75 in**, 12.2 in tall (the hood; the Limelight on the hub deck): designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
 | Extractor down (R105) | 20.2 in front to back, of 24 |
 | Width behind the face | 15.24 in: nothing behind the face is wider (his shafts' ends at ±7.62) |
-| Every screw (88, plus 120 on servos, hubs and motors) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| Every screw (104, plus 107 on servos, hubs and motors) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| Service | the battery lifts straight up out of its shelf, nothing over it |
+| Mountings | every part said to bolt to or ride on another touches it (127 of them); the star wheels' joint to their shafts is to settle |
 | The real parts | each bought part's own model (72 of them) inside its envelope, or, where it reaches past it, hitting nothing there |
 | Every part reaches the rails | through screws, bearings and shafts (`CAPTIVE`) or its own mounting screws (`DEVICE`): no part floats |
 | The flywheel modules opening 0.41 in each side | clear, motors and the feeder with them; opened, they reach Y ±7.92 (R105 allows 18 wide) |
