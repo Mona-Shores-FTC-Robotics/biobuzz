@@ -584,14 +584,28 @@ def intake(lift):
     for k in range(ROLL_WHEELS): dress(rl, "3632-4008-0048", (ROLL[0], -ROLL_HALF + 8 * MM + k * (2 * ROLL_HALF - 16 * MM) / (ROLL_WHEELS - 1), ROLL[1]), (0, 1, 0), (1, 0, 0))
     out["roller"] = (rl, "buy", f"goBILDA 3632-4008-0048 48 mm Gecko wheels x{ROLL_WHEELS}, as the mentor's roller, evenly spaced across the {2 * ROLL_HALF:.1f} in span on 8mm REX spacers")
     out["roller_shaft"] = (cyl("y", ROLL, 8 * MM, -ARM_Y[1], ARM_Y[1]), "buy", "goBILDA 8mm REX shaft, cut to 371 mm (CHECK)")
-    for s, n in SIDES:
+    mx, mz = INTAKE_MOTOR; top = mz + PULLEY24_D / 2 + 0.17          # over the motor's pulley and its belt
+    for s, n in SIDES:                  # both arms the same: pivot to roller, and up to the motor's height
         y0, y1 = ARM_Y
         arm = slab_y(_strip(PIVOT, ROLL, 0.35), y0, y1).union(cyl("y", ROLL, 0.8, y0, y1)).union(cyl("y", PIVOT, 0.8, y0, y1))
-        if s < 0: arm = arm.union(slab_y(_strip(ROLL, INTAKE_MOTOR, 0.4), y0, y1)).union(cyl("y", INTAKE_MOTOR, 1.1, y0, y1))   # up to the motor
-        out[f"intake_arm_{n}"] = (mir(arm, s), "print", "PETG: swing arm, pivot to roller bearing (the right one also carries the motor)")
+        arm = arm.union(slab_y(_strip(ROLL, INTAKE_MOTOR, 0.4), y0, y1)).union(cyl("y", INTAKE_MOTOR, 1.1, y0, y1))
+        arm = arm.union(box(mx - 0.1, mx + 0.75, y0, y1, mz, top + 0.25))     # (its front half: lifted, the back swings toward the front cross channel)
+        out[f"intake_arm_{n}"] = (mir(arm, s), "print", "PETG-CF, 7.6 mm: swing arm, pivot to the roller's bearing and up to the motor's height; the two arms, the roller's shaft and the tie make one stiff frame")
+    face = BELT_Y[0] - 0.02             # the motor's face, inboard of its belt
+    mm_ = box(mx - 0.75, mx + 0.75, face - 0.25, face, mz - 0.75, mz + 0.75).union(box(mx - 0.1, mx + 0.75, face - 0.25, face, mz, top + 0.25)).union(
+          box(mx - 0.1, mx + 0.75, face - 0.25, ARM_Y[0], top, top + 0.25))
+    mm_ = mm_.cut(cyl("y", INTAKE_MOTOR, 14 * MM, face - 1, face + 1))
+    out["intake_motor_mount"] = (mir(mm_, -1), "print",
+         "PETG-CF: the intake motor's mount: a plate on the motor's face (4 M4 into it, the shaft through), bridged over its pulley and belt to the right arm (2 M4 into inserts)")
+    tie_y = (0.30, 0.30 + 120 * MM)
+    out["intake_tie"] = (cyl("y", INTAKE_MOTOR, 8 * MM, *tie_y), "buy", "goBILDA 1516-4008-1200 8mm REX standoff, 120 mm (CHECK it's stocked): the left arm to the motor's cradle, on the motor's axis")
+    cr = cyl("y", INTAKE_MOTOR, 1.75, -0.95, -0.35).cut(cyl("y", INTAKE_MOTOR, 36.4 * MM, -1, -0.3)).union(cyl("y", INTAKE_MOTOR, 0.7, -0.14, tie_y[0] + 0.25))
+    cr = cr.cut(placed(cq.Workplane("XY").polygon(6, 2 * (REX_FLATS + 0.1 * MM) / math.cos(math.pi / 6)).extrude(0.5), (mx, tie_y[0] - 0.25, mz), (0, 1, 0)))
+    out["intake_cradle"] = (cr, "print",
+         "PETG: the intake motor's cradle: a ring clamped round the can's far end (an M3 pinch screw), the tie standoff in its REX socket (a set screw), so the motor spans both arms")
     out["roller_belt"] = (mir(belt_y(INTAKE_MOTOR, ROLL, PULLEY24_D, *BELT_Y), -1), "buy",
                           f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{ROLLER_BELT} belt")
-    out["intake_motor"] = (mir(motor_y(BELT_Y[0] - 0.02, INTAKE_MOTOR, 1, MOTOR_L1), -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface)")
+    out["intake_motor"] = (mir(motor_y(face, INTAKE_MOTOR, 1, MOTOR_L1), -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface)")
     d = lift_deg(lift)
     return {k: (rot_y(w, PIVOT, d), kind, what) for k, (w, kind, what) in out.items()}
 for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, moves="intake")
@@ -1073,7 +1087,11 @@ device("ex_gear_servo", "ex_servo", "4 M3 into the servo's goBILDA horn", 4)
 captive("ex_gear_stub", "ex_stub_R", "clamped on the stub, a set screw")
 captive("roller", "roller_shaft", "on the REX shaft")
 captive("roller_belt", "roller_shaft", "on the 24T pulleys")
-device("intake_motor", "intake_arm_R", "M4 x 8 into the motor's face (goBILDA pattern) through the arm", 4)
+device("intake_motor", "intake_motor_mount", "M4 x 8 through the mount's plate into the motor's face (goBILDA's 16 mm square)", 4)
+device("intake_motor_mount", "intake_arm_R", "M4 x 12 through the arm into the mount's inserts", 2)
+captive("intake_tie", "intake_arm_L", "an M4 x 10 through the arm into the standoff's end")
+captive("intake_cradle", "intake_tie", "the standoff in the cradle's REX socket, a set screw")
+captive("intake_motor", "intake_cradle", "clamped round its can by the cradle's M3 pinch screw")
 for k, x in enumerate(LANE_SHAFTS):
     wall = "mouth_floor" if k < 2 else ("lane_wall_{}_front" if x > WALL_SPLIT else "lane_wall_{}_rear")
     for n in ("L", "R"):
@@ -1106,7 +1124,7 @@ for k in range(4):
 ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_", "motor_plate_"), ("wheel_shaft_", "outer_plate_"),
            ("drive_belt_", "drive_motor_"), ("drive_belt_", "wheel_shaft_"), ("drive_motor_", "motor_plate_"), ("motor_plate_", "rail_"),
            ("standoff_", "outer_plate_"), ("standoff_", "motor_plate_"), ("standoff_", "rail_"), ("outer_plate_", "flap_"), ("intake_pivot_", "outer_plate_"),
-           ("roller_shaft", "roller"), ("roller_shaft", "intake_arm_"), ("roller_belt", "intake_motor"), ("roller_belt", "roller_shaft"),
+           ("roller_shaft", "roller"), ("roller_shaft", "intake_arm_"), ("roller_belt", "intake_motor"), ("intake_motor", "intake_motor_mount"), ("intake_motor_mount", "intake_arm_R"), ("intake_tie", "intake_arm_L"), ("intake_tie", "intake_cradle"), ("intake_cradle", "intake_motor"), ("roller_belt", "intake_motor_mount"), ("roller_belt", "roller_shaft"),
            ("lane_shaft_", "lane_roller_"), ("lane_shaft_", "lane_wall_"), ("fly_shaft_", "flywheel_"), ("fly_shaft_", "fly_cassette_"),
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
