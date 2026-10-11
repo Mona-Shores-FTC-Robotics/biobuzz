@@ -772,6 +772,7 @@ if USE_LM:
         captive(f"feeder_shaft_{n}", f"feeder_arm_{n}", "in 1611 bearings in the arm's plates, e-clips")
         captive(f"feeder_arm_{n}", f"feeder_pivot_{n}", "swings on 1611 bearings on the pivot shaft")
         captive(f"feeder_pivot_{n}", f"feeder_rear_block_{n}", "in 1611 bearings in the rear and front blocks, e-clips")
+        captive(f"feeder_pivot_{n}", f"feeder_front_block_{n}", "in a 1611 bearing")
         device(f"feeder_rear_block_{n}", "lm_feeder_bridge_print_PETG_or_nylon_behind_the_launcher_s_rear_1", "M4 x 16 down into the bridge's inserts", 2)
         device(f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3 x 12 into the wall end's inserts", 2)
     for n in ("L", "R"):
@@ -1147,6 +1148,34 @@ def cut_holes():
             try: p["shape"] = solid(p["shape"]).cut(solid(cut))
             except Exception as e: print("   (hole not cut:", f["name"], k, e, ")")
 
+BEARING_OD = 14.1 * MM                  # goBILDA 1611 flanged / 8x14x5 bearings: a 14 mm pocket (CHECK the press on a fit coupon)
+def cut_bores():
+    """Every shaft through a printed part gets its bore: a bearing's pocket where the joint says it turns in one, else a
+    clearance (or, for a printed roller on its shaft, a snug) hole along the shaft's own axis."""
+    def axis_of(w):
+        b = bb(w); ext = [b[1] - b[0], b[3] - b[2], b[5] - b[4]]; i = ext.index(max(ext))
+        c = [(b[2 * j] + b[2 * j + 1]) / 2 for j in range(3)]
+        return "xyz"[i], [c[j] for j in range(3) if j != i], (b[2 * i], b[2 * i + 1])
+    jobs = []
+    for a, b, how in CAPTIVE:
+        for sh, pr in ((a, b), (b, a)):
+            if sh in PARTS and pr in PARTS and re.search(r"(shaft|pivot|stub)", sh) and PARTS[pr]["kind"] == "print" and not re.search(r"(shaft|pivot|stub)", pr):
+                d = 13.92 * MM if "clutch" in how else BEARING_OD if re.search(r"(1611|bearing)", how) else (8.1 * MM if "roller" in pr else 8.4 * MM)
+                jobs.append((sh, pr, d))
+    for n in ("L", "R"):
+        for h in ("front", "rear"):
+            if f"fly_block_{n}_{h}" in PARTS:
+                y = (1 if n == "L" else -1) * FLY_AXIS[0]
+                jobs.append((None, f"fly_block_{n}_{h}", ("x", [y, FLY_AXIS[1]], (-6, 2), BEARING_OD)))
+    done = 0
+    for sh, pr, d in jobs:
+        if sh is None: ax, c, (a0, a1), d = d
+        else: ax, c, (a0, a1) = axis_of(PARTS[sh]["shape"])
+        try:
+            PARTS[pr]["shape"] = solid(PARTS[pr]["shape"]).cut(solid(cyl(ax, c, d, a0 - 0.5, a1 + 0.5))); done += 1
+        except Exception as e: print("   (bore not cut:", sh, pr, e, ")")
+    return done
+
 def fasteners_md():
     rows, n, ins, nuts = [], {}, {}, {}
     for f in FASTENERS:
@@ -1230,6 +1259,7 @@ if __name__ == "__main__":
     print("ALL CHECKS PASS" if ok else "CHECKS FAIL")
     if CHECK_ONLY: sys.exit(0 if ok else 1)
     cut_holes()
+    print(f"cut {cut_bores()} bores (bearing pockets and shaft holes) in the printed parts")
     os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
     # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
     # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
