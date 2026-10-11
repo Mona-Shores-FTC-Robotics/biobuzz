@@ -1,0 +1,389 @@
+# Bill of materials (written by build.py from the model)
+
+Quantities are for **one robot**; the last column is for two. CHECK marks a part number or size to confirm before ordering.
+Buy about 10% extra of every small part.
+
+## Bought
+
+| Part | One robot | Two robots |
+|---|---|---|
+| 8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat) | 2 | 4 |
+| Limelight 3A, on two M4 into the mast's top | 1 | 2 |
+| Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size) | 1 | 2 |
+| REV Control Hub, standing on edge, plugs to the back | 1 | 2 |
+| REV Expansion Hub, standing on edge, plugs to the back | 1 | 2 |
+| REV-11-1271 Thru-Bore Encoder, absolute PWM output to the OctoQuad | 2 | 4 |
+| SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) | 2 | 4 |
+| compression spring, about 0.2 in OD, 0.6 in free: the rear block's lug pushes the arm in (rate and preload from the rig; CHECK) | 2 | 4 |
+| extension spring, about 0.25 in OD: the anchor to the yoke (rate and preload from the rig; CHECK) | 2 | 4 |
+| goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on goBILDA pattern brackets (no uprights: the mouth stays open to its full width) | 1 | 2 |
+| goBILDA 1121 low-side U-channel, 144 mm (1121-00xx-0144) | 2 | 4 |
+| goBILDA 1121 low-side U-channel, 216 mm (1121-00xx-0216) | 2 | 4 |
+| goBILDA 1121 low-side U-channel, 264 mm (1121-00xx-0264) | 1 | 2 |
+| goBILDA 1121 low-side U-channel, 72 mm (1121-00xx-0072) | 2 | 4 |
+| goBILDA 1121 low-side U-channel, 96 mm (1121-00xx-0096) | 3 | 6 |
+| goBILDA 1121-0009-0240 low-side U-channel (240 mm), standing at the rails' back ends, between their webs on goBILDA pattern brackets (CHECK the bracket) | 1 | 2 |
+| goBILDA 1121-0014-0360 low-side U-channel (360 mm), the mentor's track | 2 | 4 |
+| goBILDA 1123-0048-0144, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole | 2 | 4 |
+| goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs | 2 | 4 |
+| goBILDA 120 mm L-beam | 1 | 2 |
+| goBILDA 1501-0006-0560 M4 standoff, 56 mm | 8 | 16 |
+| goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) | 4 | 8 |
+| goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) | 8 | 16 |
+| goBILDA 1505-0032-0160 (as the mentor's flywheel stack; CHECK) | 2 | 4 |
+| goBILDA 1516-4008-0960 8mm REX standoff, cut | 2 | 4 |
+| goBILDA 1516-4008-2160 8mm REX standoff (216 mm) | 1 | 2 |
+| goBILDA 1611-0514-4008 flanged bearing | 4 | 8 |
+| goBILDA 168 mm flat beam | 1 | 2 |
+| goBILDA 2000-0025-0002 Torque servo, on the right flap, its spline inboard (CHECK the box) | 1 | 2 |
+| goBILDA 2000-0025-0003 Speed servo, continuous mode, over the star, its spline on the star's axis | 2 | 4 |
+| goBILDA 2000-0025-0003 Speed servo, set to continuous mode: turns the turret, 1:1 to its drive gear | 1 | 2 |
+| goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip | 4 | 8 |
+| goBILDA 2303-4008-0036, steel mod 0.8 pinion, 36T, 8mm REX bore, hub down: meshes the kit's 64T | 1 | 2 |
+| goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail | 1 | 2 |
+| goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail | 1 | 2 |
+| goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, bearing, 64T drive gear and its mount) | 1 | 2 |
+| goBILDA 3213-3606-0002 96 mm mecanum, set of 4 | 1 | 2 |
+| goBILDA 3412-0009-0295, HTD5 9 mm, 295 mm: fixed centres 87.5 mm | 1 | 2 |
+| goBILDA 3412-0009-0295, HTD5 9 mm: the motor's 16T to the flywheel's 24T | 2 | 4 |
+| goBILDA 3417-4008-0016, 16T HTD5 | 2 | 4 |
+| goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0275 belt | 3 | 6 |
+| goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0360 belt | 2 | 4 |
+| goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0215 belt: the feeder's motor to the left arm's pivot shaft | 1 | 2 |
+| goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0215 belt: the pivot shaft up the arm to the feeder wheel | 1 | 2 |
+| goBILDA 3417-4008-0024, 24T HTD5 | 1 | 2 |
+| goBILDA 3417-4008-0024, 24T HTD5, on the flywheel's shaft: in place of his 41T | 2 | 4 |
+| goBILDA 3417-4008-0024, 24T HTD5, on the servo's hub | 1 | 2 |
+| goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): driven through its arm's belt | 1 | 2 |
+| goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): free, in the pad's place | 1 | 2 |
+| goBILDA 3632-4008-0048 48 mm Gecko wheels, as the mentor's roller (about 10 across the 9.8 in span) | 1 | 2 |
+| goBILDA 40 mm U-beam | 2 | 4 |
+| goBILDA 40 mm square beam | 1 | 2 |
+| goBILDA 5203-2402-0001, 6000 RPM Yellow Jacket, 1:1: along X outboard of the launcher frame | 2 | 4 |
+| goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) | 1 | 2 |
+| goBILDA 5203-2402-0005 Yellow Jacket, 1150 RPM (CHECK the speed on the rig), its face on the left rear block: fixed, never moves | 1 | 2 |
+| goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) | 4 | 8 |
+| goBILDA 8 x 14 x 5 mm round-bore bearing | 6 | 12 |
+| goBILDA 8mm REX Hyper Hub | 2 | 4 |
+| goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) | 5 | 10 |
+| goBILDA 8mm REX shaft, cut to 371 mm (CHECK) | 1 | 2 |
+| goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates, the wheels free on bearings | 1 | 2 |
+| goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates; belt B's 24T pulley on it | 1 | 2 |
+| goBILDA 8mm REX shaft: the arm's pivot, and the feeder's drive: belt A's pulley behind, belt B's on the arm, turning in 1611 bearings in the rear and front blocks | 1 | 2 |
+| goBILDA 8mm REX shaft: the arm's pivot, in the rear and front blocks | 1 | 2 |
+| goBILDA 8mm REX spacer (8 mm long) | 2 | 4 |
+| goBILDA 8mm REX spacers: the pulley up to the kit's mount | 1 | 2 |
+| goBILDA 96 mm 8mm REX steel shaft | 1 | 2 |
+| goBILDA 96 mm Gecko wheel, 15A (the flywheels) | 4 | 8 |
+| goBILDA dual block (CHECK the SKU) | 5 | 10 |
+| goBILDA pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole | 2 | 4 |
+| goBILDA quad block (CHECK the SKU) | 1 | 2 |
+| goBILDA servo hub, 25T spline to 8mm REX, check the SKU: carries the 24T pulley | 1 | 2 |
+| the mentor's flywheel-shaft collar (as his module; CHECK the part) | 2 | 4 |
+
+## Made (cut, not printed)
+
+| Part | One robot | Two robots |
+|---|---|---|
+| 1/8 in aluminium L, bent; on the launcher frame's side channel | 2 | 4 |
+| 1/8 in polycarbonate, between the feeder and the pad | 1 | 2 |
+| 3/16 in aluminium (or 6 mm PETG-CF): the turret's drive plate, his redrawn shorter (to X 3.3, clear of the front drive motors), with windows for the servo and the encoders; under the launcher's front top channel | 1 | 2 |
+
+## Printed
+
+Grams are an estimate (the part's volume at about 55% effective fill); print hours at about 12 g/h.
+
+| Part | Material | One robot | Two robots | Grams each |
+|---|---|---|---|---|
+| `battery_cradle_L` | PETG | 1 | 2 | 19 |
+| `battery_cradle_R` | PETG | 1 | 2 | 19 |
+| `ceiling` | PETG | 1 | 2 | 33 |
+| `ceiling_post_L0` | PETG | 1 | 2 | 5 |
+| `ceiling_post_R0` | PETG | 1 | 2 | 5 |
+| `ceiling_roller_0` | PETG | 1 | 2 | 17 |
+| `ceiling_roller_1` | PETG | 1 | 2 | 17 |
+| `ceiling_roller_2` | PETG | 1 | 2 | 17 |
+| `ceiling_roller_3` | PETG | 1 | 2 | 17 |
+| `ex_arm_L` | PETG | 1 | 2 | 9 |
+| `ex_arm_R` | PETG | 1 | 2 | 9 |
+| `ex_block` | PETG | 1 | 2 | 50 |
+| `ex_gear_servo` | PETG-CF | 1 | 2 | 3 |
+| `ex_gear_stub` | PETG-CF | 1 | 2 | 3 |
+| `feeder_arm_L` | PETG-CF | 1 | 2 | 6 |
+| `feeder_arm_R` | PETG-CF | 1 | 2 | 6 |
+| `feeder_front_block_L` | PETG | 1 | 2 | 1 |
+| `feeder_front_block_R` | PETG | 1 | 2 | 1 |
+| `feeder_rear_block_L` | PETG | 1 | 2 | 11 |
+| `feeder_rear_block_R` | PETG | 1 | 2 | 6 |
+| `flap_L` | PETG-CF | 1 | 2 | 156 |
+| `flap_R` | PETG-CF | 1 | 2 | 156 |
+| `flap_face_L` | TPU 95A | 1 | 2 | 21 |
+| `flap_face_R` | TPU 95A | 1 | 2 | 21 |
+| `fly_anchor_L` | PETG | 1 | 2 | 3 |
+| `fly_anchor_R` | PETG | 1 | 2 | 3 |
+| `fly_block_L_front` | PETG-CF | 1 | 2 | 4 |
+| `fly_block_R_front` | PETG-CF | 1 | 2 | 4 |
+| `fly_yoke_L` | PETG-CF | 1 | 2 | 24 |
+| `fly_yoke_R` | PETG-CF | 1 | 2 | 24 |
+| `front_bracket_L` | PETG | 1 | 2 | 34 |
+| `front_bracket_R` | PETG | 1 | 2 | 34 |
+| `hood` | PETG | 1 | 2 | 162 |
+| `intake_arm_L` | PETG | 1 | 2 | 11 |
+| `intake_arm_R` | PETG | 1 | 2 | 20 |
+| `lane_roller_0` | TPU 95A | 1 | 2 | 5 |
+| `lane_roller_1` | TPU 95A | 1 | 2 | 5 |
+| `lane_roller_2` | TPU 95A | 1 | 2 | 5 |
+| `lane_roller_3` | TPU 95A | 1 | 2 | 5 |
+| `lane_roller_4` | TPU 95A | 1 | 2 | 5 |
+| `lane_wall_L_front` | PETG | 1 | 2 | 8 |
+| `lane_wall_L_rear` | PETG | 1 | 2 | 16 |
+| `lane_wall_R_front` | PETG | 1 | 2 | 8 |
+| `lane_wall_R_rear` | PETG | 1 | 2 | 16 |
+| `launcher_foot_L0` | PETG | 1 | 2 | 4 |
+| `launcher_foot_L1` | PETG | 1 | 2 | 4 |
+| `launcher_foot_R0` | PETG | 1 | 2 | 4 |
+| `launcher_foot_R1` | PETG | 1 | 2 | 4 |
+| `launcher_tray_L` | PETG | 1 | 2 | 26 |
+| `launcher_tray_R` | PETG | 1 | 2 | 20 |
+| `limelight_mast` | PETG | 1 | 2 | 13 |
+| `lm_backstop_print_PETG_an_L_its_foot_s_two_slots_-0.2_in_set_th_1` | PETG | 1 | 2 | 10 |
+| `lm_turret_enc_A_cradle_print_PETG_holds_encoder_A_under_the_dri_1` | PETG | 1 | 2 | 25 |
+| `lm_turret_enc_A_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
+| `lm_turret_enc_B_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
+| `lm_turret_enc_B_tower_print_PETG_cradles_encoder_B_on_the_plate_1` | PETG | 1 | 2 | 27 |
+| `mouth_floor_L` | PETG | 1 | 2 | 25 |
+| `mouth_floor_R` | PETG | 1 | 2 | 25 |
+| `odo_adapter_F` | PETG | 1 | 2 | 14 |
+| `odo_adapter_S` | PETG | 1 | 2 | 14 |
+| `rack_L` | PETG | 1 | 2 | 47 |
+| `rack_R` | PETG | 1 | 2 | 47 |
+| `star_clutch_L` | PETG | 1 | 2 | 2 |
+| `star_clutch_R` | PETG | 1 | 2 | 2 |
+
+| Filament | One robot | Two robots |
+|---|---|---|
+| PETG | 0.87 kg | 1.74 kg |
+| PETG-CF | 0.38 kg | 0.77 kg |
+| TPU 95A | 0.07 kg | 0.13 kg |
+
+About 110 printer-hours a robot, 220 for two: with four home printers, about 5.5 days at 10 h a day.
+
+## Screws (v2, drawn and checked by build.py)
+
+| Screw | One robot | Two robots |
+|---|---|---|
+| M3 x 8 socket head (countersunk for the faces) | 6 | 12 |
+| M3 x 12 socket head | 8 | 16 |
+| M4 x 10 socket head | 20 | 40 |
+| M4 x 12 socket head | 24 | 48 |
+| M4 x 16 socket head | 10 | 20 |
+| M4 x 20 socket head | 8 | 16 |
+| M4 x 25 socket head | 8 | 16 |
+| M5 x 18 socket head | 2 | 4 |
+| M3 heat-set insert | 14 | 28 |
+| M4 heat-set insert | 12 | 24 |
+| M5 heat-set insert | 2 | 4 |
+| M4 nyloc nut | 26 | 52 |
+| on the devices (servos, hubs, intake motor, Limelight): see below | 106 | 212 |
+
+Buy 20% over for each line: dropped screws and stripped inserts.
+
+## Every joint
+
+| Joint | Holds | Screw | Through | Into |
+|---|---|---|---|---|
+| flap_L_6.68 | the flap's root to the rail's web | M4 x 12 | `rail_L` | an insert in `flap_L` |
+| flap_L_6.99 | the flap's root to the rail's web | M4 x 12 | `rail_L` | an insert in `flap_L` |
+| face_L0 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_L` | an insert in `flap_L` |
+| face_L1 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_L` | an insert in `flap_L` |
+| face_L2 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_L` | an insert in `flap_L` |
+| wall_L_rear0 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_L_rear` | `wall_standoff_L_rear0`'s thread |
+| wall_rail_L_rear0 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_L` | `wall_standoff_L_rear0`'s thread |
+| wall_L_rear1 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_L_rear` | `wall_standoff_L_rear1`'s thread |
+| wall_rail_L_rear1 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_L` | `wall_standoff_L_rear1`'s thread |
+| wall_L_front0 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_L_front` | `wall_standoff_L_front0`'s thread |
+| wall_rail_L_front0 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_L` | `wall_standoff_L_front0`'s thread |
+| wall_L_front1 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_L_front` | `wall_standoff_L_front1`'s thread |
+| wall_rail_L_front1 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_L` | `wall_standoff_L_front1`'s thread |
+| mouth_L_3.21 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_L`, `rail_L` | a nyloc |
+| mouth_L_5.10 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_L`, `rail_L` | a nyloc |
+| bracket_L_2.90 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_L`, `rail_L` | a nyloc |
+| bracket_L_3.53 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_L`, `rail_L` | a nyloc |
+| arm_pivot_L | the intake arm's pivot: a shoulder screw from inside the bracket, turning in a flanged bushing in its boss, into the arm's insert (the drive motor's plate is just outboard of the arm) | M5 x 18 | `front_bracket_L` | an insert in `intake_arm_L` |
+| post_L0_1.4 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_L_front` | an insert in `ceiling_post_L0` |
+| post_L0_2.2 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_L_front` | an insert in `ceiling_post_L0` |
+| cradle_L_-5.92 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_L` | an insert in `battery_cradle_L` |
+| cradle_L_-5.29 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_L` | an insert in `battery_cradle_L` |
+| rack_L0 | the electronics rack to its standoff | M4 x 12 | `rack_L` | `rack_standoff_L0`'s thread |
+| rack_standoff_L0 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_L0`'s thread |
+| rack_L1 | the electronics rack to its standoff | M4 x 12 | `rack_L` | `rack_standoff_L1`'s thread |
+| rack_standoff_L1 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_L1`'s thread |
+| foot_rail_L0 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_L0`, `rail_L` | a nyloc |
+| foot_lm_L0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_6__1` | an insert in `launcher_foot_L0` |
+| foot_rail_L1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_L1`, `rail_L` | a nyloc |
+| foot_lm_L1 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_6__1` | an insert in `launcher_foot_L1` |
+| tray_L_-4.35 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_L`, `rail_L` | a nyloc |
+| tray_L_-3.72 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_L`, `rail_L` | a nyloc |
+| feeder_block_L_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `launcher_tray_L` | a nyloc |
+| feeder_block_L_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `launcher_tray_L` | a nyloc |
+| feeder_front_L_0.95 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_L` | an insert in `lane_wall_L_rear` |
+| feeder_front_L_1.42 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_L` | an insert in `lane_wall_L_rear` |
+| anchor_L_0.75 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_L`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
+| anchor_L_2.2 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_L`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
+| flap_R_6.68 | the flap's root to the rail's web | M4 x 12 | `rail_R` | an insert in `flap_R` |
+| flap_R_6.99 | the flap's root to the rail's web | M4 x 12 | `rail_R` | an insert in `flap_R` |
+| face_R0 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
+| face_R1 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
+| face_R2 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
+| odo_F13 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
+| odo_F14 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
+| odo_S21 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_S` | `odo_pod_strafe`'s thread |
+| odo_S23 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_S` | `odo_pod_strafe`'s thread |
+| wall_R_rear0 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_rear` | `wall_standoff_R_rear0`'s thread |
+| wall_rail_R_rear0 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_R` | `wall_standoff_R_rear0`'s thread |
+| wall_R_rear1 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_rear` | `wall_standoff_R_rear1`'s thread |
+| wall_rail_R_rear1 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_R` | `wall_standoff_R_rear1`'s thread |
+| wall_R_front0 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_front` | `wall_standoff_R_front0`'s thread |
+| wall_rail_R_front0 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_R` | `wall_standoff_R_front0`'s thread |
+| wall_R_front1 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_front` | `wall_standoff_R_front1`'s thread |
+| wall_rail_R_front1 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_R` | `wall_standoff_R_front1`'s thread |
+| mouth_R_3.21 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_R`, `rail_R` | a nyloc |
+| mouth_R_5.10 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_R`, `rail_R` | a nyloc |
+| bracket_R_2.90 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_R`, `rail_R` | a nyloc |
+| bracket_R_3.53 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_R`, `rail_R` | a nyloc |
+| arm_pivot_R | the intake arm's pivot: a shoulder screw from inside the bracket, turning in a flanged bushing in its boss, into the arm's insert (the drive motor's plate is just outboard of the arm) | M5 x 18 | `front_bracket_R` | an insert in `intake_arm_R` |
+| post_R0_1.4 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_R_front` | an insert in `ceiling_post_R0` |
+| post_R0_2.2 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_R_front` | an insert in `ceiling_post_R0` |
+| cradle_R_-5.92 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_R` | an insert in `battery_cradle_R` |
+| cradle_R_-5.29 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_R` | an insert in `battery_cradle_R` |
+| rack_R0 | the electronics rack to its standoff | M4 x 12 | `rack_R` | `rack_standoff_R0`'s thread |
+| rack_standoff_R0 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_R0`'s thread |
+| rack_R1 | the electronics rack to its standoff | M4 x 12 | `rack_R` | `rack_standoff_R1`'s thread |
+| rack_standoff_R1 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_R1`'s thread |
+| foot_rail_R0 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_R0`, `rail_R` | a nyloc |
+| foot_lm_R0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R0` |
+| foot_rail_R1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_R1`, `rail_R` | a nyloc |
+| foot_lm_R1 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R1` |
+| tray_R_-4.35 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_R`, `rail_R` | a nyloc |
+| tray_R_-3.72 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_R`, `rail_R` | a nyloc |
+| feeder_block_R_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `launcher_tray_R` | a nyloc |
+| feeder_block_R_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `launcher_tray_R` | a nyloc |
+| feeder_front_R_0.95 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_R` | an insert in `lane_wall_R_rear` |
+| feeder_front_R_1.42 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_R` | an insert in `lane_wall_R_rear` |
+| anchor_R_0.75 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
+| anchor_R_2.2 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
+| mast_-0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
+| mast_0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
+| hood_0 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
+| hood_1 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
+| hood_2 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
+| hood_3 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
+
+| Held without a screw of its own | By | How |
+|---|---|---|
+| `ceiling` | `ceiling_post_L0` | hinged on a pin (an M4 shoulder screw) through its ear and the post |
+| `ex_stub_L` | `flap_L` | turns in a goBILDA 1611 flanged bearing in the flap |
+| `ex_arm_L` | `ex_stub_L` | clamped on the stub (REX bore, a set screw) |
+| `ex_cross` | `ex_arm_L` | through both arms, M4 screws into its ends |
+| `star_shaft_L` | `star_servo_L` | on the servo's spline through a printed coupler (TBD with the mentor) |
+| `star_clutch_L` | `star_shaft_L` | the one-way clutch pressed in its bore, on the round shaft |
+| `star_L` | `star_clutch_L` | on the hub's hex |
+| `roller_shaft` | `intake_arm_L` | in a goBILDA 1611 flanged bearing in each arm, e-clips |
+| `ceiling` | `ceiling_post_R0` | hinged on a pin (an M4 shoulder screw) through its ear and the post |
+| `ex_stub_R` | `flap_R` | turns in a goBILDA 1611 flanged bearing in the flap |
+| `ex_arm_R` | `ex_stub_R` | clamped on the stub (REX bore, a set screw) |
+| `ex_cross` | `ex_arm_R` | through both arms, M4 screws into its ends |
+| `star_shaft_R` | `star_servo_R` | on the servo's spline through a printed coupler (TBD with the mentor) |
+| `star_clutch_R` | `star_shaft_R` | the one-way clutch pressed in its bore, on the round shaft |
+| `star_R` | `star_clutch_R` | on the hub's hex |
+| `roller_shaft` | `intake_arm_R` | in a goBILDA 1611 flanged bearing in each arm, e-clips |
+| `wheel_shaft_FL` | `rail_L` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_FL` | `wheel_shaft_FL` | on the REX shaft, a hub |
+| `drive_belt_FL` | `wheel_shaft_FL` | on the 24T pulleys |
+| `wheel_shaft_BL` | `rail_L` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_BL` | `wheel_shaft_BL` | on the REX shaft, a hub |
+| `drive_belt_BL` | `wheel_shaft_BL` | on the 24T pulleys |
+| `wheel_shaft_FR` | `rail_R` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_FR` | `wheel_shaft_FR` | on the REX shaft, a hub |
+| `drive_belt_FR` | `wheel_shaft_FR` | on the 24T pulleys |
+| `wheel_shaft_BR` | `rail_R` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_BR` | `wheel_shaft_BR` | on the REX shaft, a hub |
+| `drive_belt_BR` | `wheel_shaft_BR` | on the 24T pulleys |
+| `ex_block` | `ex_cross` | clamped on the cross shaft |
+| `feeder_wheel_L` | `feeder_shaft_L` | on the shaft (the left's pinned, the right's free on bearings) |
+| `feeder_shaft_L` | `feeder_arm_L` | in 1611 bearings in the arm's plates, e-clips |
+| `feeder_arm_L` | `feeder_pivot_L` | swings on 1611 bearings on the pivot shaft |
+| `feeder_pivot_L` | `feeder_rear_block_L` | in 1611 bearings in the rear and front blocks, e-clips |
+| `feeder_pivot_L` | `feeder_front_block_L` | in a 1611 bearing |
+| `feeder_wheel_R` | `feeder_shaft_R` | on the shaft (the left's pinned, the right's free on bearings) |
+| `feeder_shaft_R` | `feeder_arm_R` | in 1611 bearings in the arm's plates, e-clips |
+| `feeder_arm_R` | `feeder_pivot_R` | swings on 1611 bearings on the pivot shaft |
+| `feeder_pivot_R` | `feeder_rear_block_R` | in 1611 bearings in the rear and front blocks, e-clips |
+| `feeder_pivot_R` | `feeder_front_block_R` | in a 1611 bearing |
+| `fly_block_L_front` | `lm_Hole_Lowside_U-Channel_GB_11__1` | slides in the plate's slot, the shaft's bearing in it |
+| `fly_yoke_L` | `lm_Hole_Lowside_U-Channel_GB_12__1` | its block slides in the plate's slot, the shaft's bearing in it |
+| `fly_spring_L` | `fly_anchor_L` | hooked to the anchor's pin and the yoke's |
+| `feeder_spring_L` | `feeder_rear_block_L` | seated in the lug's pocket and the arm's |
+| `fly_block_R_front` | `lm_Hole_Lowside_U-Channel_GB_9__1` | slides in the plate's slot, the shaft's bearing in it |
+| `fly_yoke_R` | `lm_Hole_Lowside_U-Channel_GB_10__1` | its block slides in the plate's slot, the shaft's bearing in it |
+| `fly_spring_R` | `fly_anchor_R` | hooked to the anchor's pin and the yoke's |
+| `feeder_spring_R` | `feeder_rear_block_R` | seated in the lug's pocket and the arm's |
+| `feeder_belt_A` | `feeder_pivot_L` | on the 24T pulleys |
+| `feeder_belt_B` | `feeder_pivot_L` | on the 24T pulleys |
+| `ex_gear_stub` | `ex_stub_R` | clamped on the stub, a set screw |
+| `roller` | `roller_shaft` | on the REX shaft |
+| `roller_belt` | `roller_shaft` | on the 24T pulleys |
+| `lane_shaft_0` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_0` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_roller_0` | `lane_shaft_0` | free on two 8x14x5 bearings on the shaft |
+| `lane_shaft_1` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_1` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_roller_1` | `lane_shaft_1` | free on two 8x14x5 bearings on the shaft |
+| `lane_shaft_2` | `lane_wall_L_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_2` | `lane_wall_R_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_roller_2` | `lane_shaft_2` | free on two 8x14x5 bearings on the shaft |
+| `lane_shaft_3` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_3` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_roller_3` | `lane_shaft_3` | free on two 8x14x5 bearings on the shaft |
+| `lane_shaft_4` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_4` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_roller_4` | `lane_shaft_4` | free on two 8x14x5 bearings on the shaft |
+| `ceiling_roller_0` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
+| `ceiling_roller_1` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
+| `ceiling_roller_2` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
+| `ceiling_roller_3` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
+| `battery` | `battery_cradle_L` | a strap round it and both halves |
+| `star_servo_L` | `front_bracket_L` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
+| `star_servo_R` | `front_bracket_R` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
+| `motor_plate_FL` | `rail_L` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_FL` | `motor_plate_FL` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `motor_plate_BL` | `rail_L` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_BL` | `motor_plate_BL` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `outer_plate_L` | `standoff_L_1_hi` | M4 x 8 into the standoffs (4) |
+| `standoff_L_-3_hi` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_-3_lo` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_1_hi` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_1_lo` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `motor_plate_FR` | `rail_R` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_FR` | `motor_plate_FR` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `motor_plate_BR` | `rail_R` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_BR` | `motor_plate_BR` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `outer_plate_R` | `standoff_R_1_hi` | M4 x 8 into the standoffs (4) |
+| `standoff_R_-3_hi` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_-3_lo` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_1_hi` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_1_lo` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `rear_cross` | `rail_L` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `rear_cross` | `rail_R` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_cross` | `motor_plate_FL` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_cross` | `motor_plate_FR` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `fly_yoke_L` | `lm_flywheel_motor_bracket_L_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
+| `fly_yoke_R` | `lm_flywheel_motor_bracket_R_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
+| `feeder_motor` | `feeder_rear_block_L` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `turret_drive_plate` | `lm_Hole_Lowside_U-Channel_GB_8__1` | M4 x 10 up through the plate into nylocs in the launcher's front top channel (4) |
+| `ex_servo` | `flap_R` | M4 x 12 through the servo's tabs into the flap's inserts (4) |
+| `ex_gear_servo` | `ex_servo` | 4 M3 into the servo's goBILDA horn (4) |
+| `intake_motor` | `intake_arm_R` | M4 x 8 into the motor's face (goBILDA pattern) through the arm (4) |
+| `control_hub` | `rack_L` | M3 x 8 into its four mounting holes, through the rack's wall (4) |
+| `expansion_hub` | `rack_R` | M3 x 8 into its four mounting holes, through the rack's wall (4) |
+| `limelight` | `limelight_mast` | M4 into the mast's inserts (its mounting holes) (2) |

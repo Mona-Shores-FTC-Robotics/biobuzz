@@ -138,26 +138,34 @@ Every printed part is listed in `parts.md` with its material, then every screw: 
 each joint (what it holds, the screw, what it passes through, what it threads into). The STLs in `stl/` have their screw
 holes, counterbores and insert holes cut; they are **not ready to print** yet: no bearing bores, ribs or fillets.
 
-## Build order and service
+## Build order and service (layout v3)
 
-Each step only needs the ones before it, and nothing has to come off to reach a later step's screws.
+The full parts list for one robot and for two, with every screw, insert and nut, and the print list with filament and
+printer-hours: [BOM.md](BOM.md). Each step below needs only the ones before it.
 
-1. Rails and the mentor's four drive corners (his plates bolt them to the rails; his 1107 ties the rails at the back).
-2. Battery cradle halves (an M4 each from inside the rail into the riser's insert); the battery goes in last, on a strap.
-3. Odometry pods: each through its adapter and the right rail's web, from outside.
-4. Lane walls on their standoffs (four a side, from outside the rail and from inside the lane, counterbored), with the
-   lane's shafts and rollers in their bearings; the ceiling's posts on the front walls; the ceiling on its hinge pins.
-5. The mouth halves (ramp and floor in one), each on two M4 into nuts under the rail's bottom flange.
-6. Front brackets on the rails' top flanges; the star servos, shafts, clutch hubs and stars under them; the intake arms
-   on their shoulder screws, with the roller.
-7. Flaps (two M4 each from inside the rail), then the swappable faces (three countersunk M3 each).
-8. Launcher feet (an M4 through each foot's pocket into a nut under the rail's top flange: fit them before the launcher
-   goes on), then the launcher, down onto its four feet (an M4 each from inside its side channels), then the hood.
-9. The electronics rack (two M4 a half at its inner end, into nuts under his 1107's top flange) and the hubs.
-10. The Limelight's mast on the left front bracket (two M4 into nuts under the bracket's top), its splice, the Limelight.
+1. **Frame:** the two 360 mm rails, the rear cross channel on its brackets, the front cross channel between the front
+   motor plates.
+2. **Drive corners (all four the same, mirrored):** motor plate on the rail's web, wheel shaft through the web and the
+   outer plate (56 mm standoffs), 24T pulleys and belt, the 435 RPM motor on its plate (front: straight above the axle;
+   rear: behind and up, its holes slotted to tension the belt).
+3. **Under the frame:** battery cradle halves (against the right rail), the launcher tray halves on the rails' bottom
+   flanges, the odometry pods through their adapters.
+4. **Lane:** walls on their standoffs, shafts with their free TPU rollers, the ceiling posts, the ceiling on its pins.
+5. **Mouth:** the two mouth halves (ramp and floor) on the rails' bottom flanges.
+6. **Front:** front brackets on the rails' top flanges; star servos, clutch hubs on their horns, round shafts, stars;
+   intake arms on their pivots with the roller and its motor; flaps, then their faces; the extractor and its gear pair.
+7. **Feeder:** both rear blocks on the tray (the left with the feeder motor's face), front blocks on the lane walls'
+   ends, the pivot shafts, the arms with their wheels, belt A and belt B, the springs; set each arm's rest gap with its
+   set screw.
+8. **Launcher:** the feet on the rails, then the launcher frame down onto them; in each side, the front bearing block
+   and the yoke (its rear block) in the plates' slots, the flywheel shaft and wheels, the motor on its bracket under the
+   yoke, the belt; the springs to their anchors; set each side's rest gap with its stop screw. The turret kit, its drive
+   plate, servo and encoders; the hood.
+9. **Electronics:** the rack on its standoffs, the hubs; the Limelight mast on the front cross channel.
 
-To service: a face is three screws; the launcher lifts off its feet after four screws, with its wiring; a mouth half is
-two screws; a lane wall half is four; a flap is two. The hubs come off their rack without touching anything else.
+**Service:** a flap face is three screws; a feeder arm comes off its pivot shaft after one e-clip; a flywheel side's
+spring unhooks and its yoke lifts out with the motor once the front block's two screws are out; the launcher lifts off
+its four feet; the hubs come off the rack without touching anything else.
 
 ## Open (v2, and before anything is printed)
 

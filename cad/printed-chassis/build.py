@@ -272,7 +272,7 @@ def mir(wp, s): return wp if s > 0 else wp.mirror("XZ")
 
 # ---- frame
 for s, n in SIDES:
-    part("frame", f"rail_{n}", mir(channel_x(*RAIL_X, RAIL_OUT, True, RAIL_Z[0], CH_LOW), s), "buy", "goBILDA 1121-0014-0360 low-side U-channel (360 mm), his track" if USE_DM else "goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails")
+    part("frame", f"rail_{n}", mir(channel_x(*RAIL_X, RAIL_OUT, True, RAIL_Z[0], CH_LOW), s), "buy", "goBILDA 1121-0014-0360 low-side U-channel (360 mm), the mentor's track" if DM_LAYOUT else "goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails")
 if not USE_DM:                          # his rear motors' 1107 channel ties the rails at the back
   part("frame", "rear_cross", box(RAIL_X[0], RAIL_X[0] + CH_T, -120 * MM, 120 * MM, *RAIL_Z).union(box(RAIL_X[0], RAIL_X[0] + CH_LOW, -120 * MM, 120 * MM, RAIL_Z[0], RAIL_Z[0] + CH_T)).union(
      box(RAIL_X[0], RAIL_X[0] + CH_LOW, -120 * MM, 120 * MM, RAIL_Z[1] - CH_T, RAIL_Z[1])), "buy",
@@ -305,7 +305,7 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
         if mx != ax:                    # the rear: the motor's two columns of holes, and only a strip down to the axle (his launcher's frame is over the rest)
             mp = box(max(mx - CH / 2, RAIL_X[0]), mx + MOTOR_SQ / 2 + 0.04, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH).union(box(mx, ax + 0.3, *MPLATE_Y, RAIL_Z[0], WHEEL_R + 0.6))
         part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn}, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole")
-        part(f"corner_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
+        part(f"corner_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum, one wheel of the set of 4")
         part(f"corner_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, RAIL_OUT - CH_T, OPLATE_Y[1] + 0.05), s), "buy",
              "goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip")
         part(f"corner_{nm}", f"drive_motor_{nm}", mir(motor_y(MPLATE_Y[0], (mx, mz), 1), s), "buy", "goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1)")
@@ -378,7 +378,7 @@ def intake(lift):
         out[f"intake_arm_{n}"] = (mir(arm, s), "print", "PETG: swing arm, pivot to roller bearing (the right one also carries the motor)")
     out["roller_belt"] = (mir(belt_y(INTAKE_MOTOR, ROLL, PULLEY24_D, *BELT_Y), -1), "buy",
                           f"goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0{ROLLER_BELT} belt")
-    out["intake_motor"] = (mir(motor_y(BELT_Y[0] - 0.02, INTAKE_MOTOR, 1, MOTOR_L1), -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface) and the lane")
+    out["intake_motor"] = (mir(motor_y(BELT_Y[0] - 0.02, INTAKE_MOTOR, 1, MOTOR_L1), -1), "buy", "goBILDA 5203-2402-0003 Yellow Jacket, 1620 RPM: the roller (about 170 in/s at its surface)")
     d = lift_deg(lift)
     return {k: (rot_y(w, PIVOT, d), kind, what) for k, (w, kind, what) in out.items()}
 for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, moves="intake")
@@ -428,7 +428,7 @@ for s, n in SIDES:
          "PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; "
          "CHECK with calipers): its top screwed to the servo's goBILDA 25T horn (4 M3), so the servo turns the hub, the clutch drives the shaft and the star one way only; a fast piece overruns it, and it can't be pushed backwards")
     sv = box(sx - 1.13, sx + 0.45, sy - 0.4, sy + 0.4, SV_Z, SV_Z + 37 * MM)    # its body back toward the drive motor, clear of the intake motor
-    part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn)")
+    part("lane", f"star_servo_{n}", sv, "buy", "goBILDA 2000-0025-0003 Speed servo, continuous mode, over the star, its spline on the star's axis")
     top = SV_Z + 37 * MM
     br = box(UCH_FRONT, sx + 0.5, 2.7, 4.95, top, top + 0.2)                                        # over the servo
     br = br.union(box(UCH_FRONT, 4.05, 4.4, 4.85, PIVOT[1] - 0.45, top))                             # down the U-channel mount's front face
@@ -1233,6 +1233,73 @@ def fasteners_md():
         if how: rows.append(f"| `{a}` | `{b}` | {how} ({c}) |")
     return "\n".join(rows) + "\n"
 
+
+# ---------------------------------------------------------------- the bill of materials (both robots), from the model
+LM_NAMES = [   # the mentor's launcher's parts, as a buyer reads them
+    (r"^(2325-|1628-|IR$|OR$|2302-0014-0064|1231-0048)", "goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, bearing, 64T drive gear and its mount)", "kit"),
+    (r"^Hole Lowside U-Channel", "goBILDA 1121 low-side U-channel, {len} mm (1121-00xx-{len:04d})", "len"),
+    (r"^96mm Gecko Wheel", "goBILDA 96 mm Gecko wheel, 15A (the flywheels)", None),
+    (r"^96mm Steel Shaft", "goBILDA 96 mm 8mm REX steel shaft", None),
+    (r"^8x14x5mm Bearing", "goBILDA 8 x 14 x 5 mm round-bore bearing", None),
+    (r"^8mm REX Hyper Hub", "goBILDA 8mm REX Hyper Hub", None),
+    (r"^8mm Spacer", "goBILDA 8mm REX spacer (8 mm long)", None),
+    (r"^1505-0032-0160", "goBILDA 1505-0032-0160 (as the mentor's flywheel stack; CHECK)", None),
+    (r"^Dual Block", "goBILDA dual block (CHECK the SKU)", None),
+    (r"^Quad Block", "goBILDA quad block (CHECK the SKU)", None),
+    (r"^Square Beam", "goBILDA 40 mm square beam", None),
+    (r"^Hole U Beam", "goBILDA 40 mm U-beam", None),
+    (r"^Hole Flat Beam", "goBILDA 168 mm flat beam", None),
+    (r"^Hole L Beam", "goBILDA 120 mm L-beam", None),
+    (r"^part piece", "the mentor's flywheel-shaft collar (as his module; CHECK the part)", None),
+]
+
+def bom_md():
+    buy, made, printed = {}, {}, []
+    def add(d, k, n=1): d[k] = d.get(k, 0) + n
+    for k, p in PARTS.items():
+        w = p["what"]
+        if k.startswith("lm_"):
+            nm = re.sub(r"\s*\(\d+\)$", "", w.split(": ", 1)[1]).replace(" (rides the sprung module)", "")
+            if re.search(r"(with the shaft|included)", nm): continue      # e-clips: they come with their shafts
+            if p["kind"] == "buy" and re.match(r"^[A-Za-z0-9_]+ \(", nm):    # cad/transfer's parts carry their own description
+                inner = nm[nm.index("(") + 1:nm.rindex(")")]
+                if re.search(r"(print|PETG)", inner): printed.append((k, "PETG", inner, p)); continue
+                if re.search(r"(aluminium|polycarbonate)", inner): add(made, inner); continue
+                add(buy, inner); continue
+            for rx, label, how in LM_NAMES:
+                if re.search(rx, nm):
+                    if how == "kit": add(buy, label, 0); buy[label] = 1
+                    elif how == "len":
+                        b = bb(p["shape"]); L = round(max(b[1] - b[0], b[3] - b[2], b[5] - b[4]) * 25.4 / 24) * 24
+                        add(buy, label.format(len=L))
+                    else: add(buy, label)
+                    break
+            else: add(buy, nm + " (the mentor's module; CHECK)")
+            continue
+        if p["kind"] == "print": printed.append((k, None, w, p)); continue
+        if p["kind"] == "cut": add(made, w); continue
+        if "set of 4" in w: buy["goBILDA 3213-3606-0002 96 mm mecanum, set of 4"] = 1; continue
+        add(buy, w)
+    rows = ["# Bill of materials (written by build.py from the model)", "",
+            "Quantities are for **one robot**; the last column is for two. CHECK marks a part number or size to confirm before ordering.",
+            "Buy about 10% extra of every small part.", "", "## Bought", "", "| Part | One robot | Two robots |", "|---|---|---|"]
+    for nm, c in sorted(buy.items()): rows.append(f"| {nm} | {c} | {2 * c} |")
+    rows += ["", "## Made (cut, not printed)", "", "| Part | One robot | Two robots |", "|---|---|---|"]
+    for nm, c in sorted(made.items()): rows.append(f"| {nm} | {c} | {2 * c} |")
+    rows += ["", "## Printed", "", "Grams are an estimate (the part's volume at about 55% effective fill); print hours at about 12 g/h.", "",
+             "| Part | Material | One robot | Two robots | Grams each |", "|---|---|---|---|---|"]
+    tot = {}
+    for k, mat, w, p in sorted(printed, key=lambda r: r[0]):
+        mat = mat or ("PETG-CF" if "PETG-CF" in w else "TPU 95A" if "TPU" in w else "PETG")
+        g = solid(p["shape"]).Volume() * 16.387 * (1.27 if "PETG" in mat else 1.21) * 0.55
+        tot[mat] = tot.get(mat, 0) + g
+        rows.append(f"| `{k}` | {mat} | 1 | 2 | {g:.0f} |")
+    rows += ["", "| Filament | One robot | Two robots |", "|---|---|---|"]
+    for mat, g in sorted(tot.items()): rows.append(f"| {mat} | {g / 1000:.2f} kg | {2 * g / 1000:.2f} kg |")
+    hours = sum(tot.values()) / 12
+    rows += ["", f"About {hours:.0f} printer-hours a robot, {2 * hours:.0f} for two: with four home printers, about {2 * hours / 4 / 10:.1f} days at 10 h a day.", ""]
+    return "\n".join(rows) + "\n" + fasteners_md()
+
 def parts_md():
     rows = ["| Part | Module | Make | What |", "|---|---|---|---|"]
     for k, p in sorted(PARTS.items(), key=lambda kv: (kv[1]["module"], kv[0])):
@@ -1333,6 +1400,7 @@ if __name__ == "__main__":
         import gzip, shutil
         fp = os.path.join(HERE, ".cache", "printed-chassis-full.step"); full.save(fp)
         with open(fp, "rb") as a, gzip.open(fp + ".gz", "wb") as b: shutil.copyfileobj(a, b)
+    with open(os.path.join(HERE, "BOM.md"), "w") as f: f.write(bom_md())
     with open(os.path.join(HERE, "parts.md"), "w") as f:
         f.write("# Parts (written by build.py)\n\nCHECK marks a size not read from a vendor file. Two robots: double every line.\n\n" + parts_md() + "\n" + fasteners_md())
     views(os.path.join(HERE, "views"))
