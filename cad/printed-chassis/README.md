@@ -15,6 +15,9 @@ screw is drawn and checked** (v2); gear teeth, springs and the lane's drive belt
 
     python3 cad/printed-chassis/build.py          # checks, then writes printed-chassis.step, stl/, parts.md, views/
     CHECK_ONLY=1 python3 cad/printed-chassis/build.py
+    python3 cad/printed-chassis/budget.py         # 20 s: views/budget.png, every part's box and the reserved volumes
+
+Settled decisions, why, and what would reopen each: [DECISIONS.md](DECISIONS.md).
 
 Frame: +X forward, +Y left, +Z up, inches, origin on the floor under the body's centre; the STEPs are in millimetres.
 
