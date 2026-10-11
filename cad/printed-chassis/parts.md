@@ -4,16 +4,39 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 
 | Part | Module | Make | What |
 |---|---|---|---|
-| `battery` | elec | buy | Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails under the rear cross channel (CHECK its size) |
+| `drive_belt_BL` | corner_BL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0275 belt |
+| `drive_motor_BL` | corner_BL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_BL` | corner_BL | buy | goBILDA pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole |
+| `wheel_BL` | corner_BL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_BL` | corner_BL | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_BR` | corner_BR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0275 belt |
+| `drive_motor_BR` | corner_BR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_BR` | corner_BR | buy | goBILDA pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole |
+| `wheel_BR` | corner_BR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_BR` | corner_BR | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_FL` | corner_FL | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0360 belt |
+| `drive_motor_FL` | corner_FL | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_FL` | corner_FL | buy | goBILDA 1123-0048-0144, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole |
+| `wheel_FL` | corner_FL | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_FL` | corner_FL | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `drive_belt_FR` | corner_FR | buy | goBILDA 3417-4008-0024 24T HTD5 pulleys x2, 3412-0009-0360 belt |
+| `drive_motor_FR` | corner_FR | buy | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) |
+| `motor_plate_FR` | corner_FR | buy | goBILDA 1123-0048-0144, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole |
+| `wheel_FR` | corner_FR | buy | goBILDA 3213-3606-0002 96 mm mecanum (set of 4) |
+| `wheel_shaft_FR` | corner_FR | buy | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip |
+| `battery` | elec | buy | Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size) |
 | `battery_cradle_L` | elec | print | PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap) |
 | `battery_cradle_R` | elec | print | PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap) |
 | `control_hub` | elec | buy | REV Control Hub, standing on edge, plugs to the back |
 | `expansion_hub` | elec | buy | REV Expansion Hub, standing on edge, plugs to the back |
 | `limelight` | elec | buy | Limelight 3A, on two M4 into the mast's top |
-| `limelight_mast_0` | elec | print | PETG: the Limelight mast's lower half, its foot on two M4 through the left front bracket's top, a tenon into the upper half |
-| `limelight_mast_1` | elec | print | PETG: the mast's upper half, on the tenon with one M3 through both; the Limelight on its top, about 14 in up, 45 deg up (its offsets go in CameraMount) |
-| `rack_L` | elec | print | PETG: half the electronics rack, on the rear cross channel: a shelf and a back wall the hub screws to; two M4 at its inner end, the shelf resting on the flange the rest of the way |
-| `rack_R` | elec | print | PETG: half the electronics rack, on the rear cross channel: a shelf and a back wall the hub screws to; two M4 at its inner end, the shelf resting on the flange the rest of the way |
+| `limelight_mast` | elec | print | PETG: the Limelight mast, its foot on two M4 through the front cross channel's top; the Limelight on its top, about 14 in up, 45 deg up, on the robot's centreline (its offsets go in CameraMount) |
+| `rack_L` | elec | print | PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to; on two standoffs at its inner end |
+| `rack_R` | elec | print | PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to; on two standoffs at its inner end |
+| `rack_standoff_L0` | elec | buy | goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) |
+| `rack_standoff_L1` | elec | buy | goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) |
+| `rack_standoff_R0` | elec | buy | goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) |
+| `rack_standoff_R1` | elec | buy | goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) |
 | `ex_arm_L` | extractor | print | PETG, 6 mm: extractor arm (cad/intake-b's, printed) |
 | `ex_arm_R` | extractor | print | PETG, 6 mm: extractor arm (cad/intake-b's, printed) |
 | `ex_block` | extractor | print | PETG: the FLOWER block (doc/ramp-hook.md's profile; drawn as its box here) |
@@ -21,8 +44,20 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `ex_servo` | extractor | buy | goBILDA 2000-0025-0002 Torque servo, on the right flap, 1:1 printed gear pair to the right stub (CHECK the box) |
 | `ex_stub_L` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
 | `ex_stub_R` | extractor | buy | goBILDA 1516-4008-0960 8mm REX standoff, cut |
-| `rail_L` | frame | buy | goBILDA 1121-0014-0360 low-side U-channel (360 mm), his track |
-| `rail_R` | frame | buy | goBILDA 1121-0014-0360 low-side U-channel (360 mm), his track |
+| `front_cross` | frame | buy | goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on goBILDA pattern brackets (no uprights: the mouth stays open to its full width) |
+| `outer_plate_L` | frame | buy | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs |
+| `outer_plate_R` | frame | buy | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs |
+| `rail_L` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
+| `rail_R` | frame | buy | goBILDA 1121-0013-0336 low-side U-channel, 13 hole (336 mm), as today's rails |
+| `rear_cross` | frame | buy | goBILDA 1121-0009-0240 low-side U-channel (240 mm), standing at the rails' back ends, between their webs on goBILDA pattern brackets (CHECK the bracket) |
+| `standoff_L_-3_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_-3_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_1_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_L_1_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_-3_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_-3_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_1_hi` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
+| `standoff_R_1_lo` | frame | buy | goBILDA 1501-0006-0560 M4 standoff, 56 mm |
 | `flap_L` | front_L | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
 | `flap_face_L` | front_L | print | swappable face plate on three M3 screws into the flap's heat-set inserts: TPU 95A printed on a PETG backer (dual-material) by default; a bare PETG plate or foam glued to a backer for the drop test, all the same outline |
 | `flap_R` | front_R | print | PETG-CF, 6 mm (material: it carries the extractor's stub, so it must not flex): the fixed flap and the extractor's side plate; bolts to the front pod |
@@ -74,17 +109,21 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `wall_standoff_R_front1` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
 | `wall_standoff_R_rear0` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
 | `wall_standoff_R_rear1` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
+| `feeder_shaft_L` | launcher | buy | goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates; its 24T pulley ahead of the front plate |
+| `feeder_shaft_R` | launcher | buy | goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates, the wheels free on bearings |
+| `feeder_wheel_L` | launcher | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): driven by the feeder's motor |
+| `feeder_wheel_R` | launcher | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): free, in the pad's place |
 | `hood` | launcher | print | PETG: the hood that turns the shot out (drawn as a tube and a lid) |
 | `launcher_foot_L0` | launcher | print | PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange (fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet) |
 | `launcher_foot_L1` | launcher | print | PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange (fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet) |
 | `launcher_foot_R0` | launcher | print | PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange (fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet) |
 | `launcher_foot_R1` | launcher | print | PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange (fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet) |
+| `turret_drive_plate` | launcher | cut | 3/16 in aluminium (or 6 mm PETG-CF): the turret's drive plate, his redrawn shorter (to X 3.3, clear of the front drive motors), with windows for the servo and the encoders; under the launcher's front top channel |
 | `odo_adapter_F` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
 | `odo_adapter_S` | odometry | print | PETG: the odometry pod's adapter, inside the rail's web (the pod's offsets are measured on the robot, for the Pinpoint) |
 | `odo_pod_forward` | odometry | buy | goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail |
 | `odo_pod_strafe` | odometry | buy | goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail |
 | `lm_*` | launcher | buy | the mentor's launcher module (cad/modules/launcher-module), placed by the launch column |
-| `dm_*` | corner_* | buy | the mentor's four drive corners (cad/modules/drive-module), each by its axle; the right ones mirrored from his left |
 
 ## Screws (v2, drawn and checked by build.py)
 
@@ -92,19 +131,17 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 |---|---|---|
 | M3 x 8 socket head (countersunk for the faces) | 6 | 12 |
 | M3 x 12 socket head | 4 | 8 |
-| M3 x 16 socket head | 1 | 2 |
-| M4 x 10 socket head | 16 | 32 |
-| M4 x 12 socket head | 16 | 32 |
-| M4 x 16 socket head | 12 | 24 |
-| M4 x 20 socket head | 6 | 12 |
+| M4 x 10 socket head | 20 | 40 |
+| M4 x 12 socket head | 20 | 40 |
+| M4 x 16 socket head | 10 | 20 |
+| M4 x 20 socket head | 4 | 8 |
 | M4 x 25 socket head | 4 | 8 |
 | M5 x 18 socket head | 2 | 4 |
 | M3 heat-set insert | 10 | 20 |
 | M4 heat-set insert | 12 | 24 |
 | M5 heat-set insert | 2 | 4 |
-| M3 nyloc nut | 1 | 2 |
-| M4 nyloc nut | 18 | 36 |
-| on the devices (servos, hubs, intake motor, Limelight): see below | 26 | 52 |
+| M4 nyloc nut | 14 | 28 |
+| on the devices (servos, hubs, intake motor, Limelight): see below | 94 | 188 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
 
@@ -129,13 +166,15 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | mouth_L_5.10 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_L`, `rail_L` | a nyloc |
 | bracket_L_2.90 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_L`, `rail_L` | a nyloc |
 | bracket_L_3.53 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_L`, `rail_L` | a nyloc |
-| arm_pivot_L | the intake arm's pivot: goBILDA-style 6 mm shoulder screw, 8 mm shoulder, M5 thread (CHECK the SKU) | M5 x 18 | `intake_arm_L` | an insert in `front_bracket_L` |
+| arm_pivot_L | the intake arm's pivot: a shoulder screw from inside the bracket, turning in a flanged bushing in its boss, into the arm's insert (the drive motor's plate is just outboard of the arm) | M5 x 18 | `front_bracket_L` | an insert in `intake_arm_L` |
 | post_L0_1.4 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_L_front` | an insert in `ceiling_post_L0` |
 | post_L0_2.2 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_L_front` | an insert in `ceiling_post_L0` |
-| cradle_L_-6.55 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_L` | an insert in `battery_cradle_L` |
 | cradle_L_-5.92 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_L` | an insert in `battery_cradle_L` |
-| rack_L_0.31496062992125984 | the electronics rack to the rear cross channel's top flange | M4 x 16 | `rack_L`, `dm_BR_1107-0013-0336_1` | a nyloc |
-| rack_L_1.2598425196850394 | the electronics rack to the rear cross channel's top flange | M4 x 16 | `rack_L`, `dm_BR_1107-0013-0336_1` | a nyloc |
+| cradle_L_-5.29 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_L` | an insert in `battery_cradle_L` |
+| rack_L0 | the electronics rack to its standoff | M4 x 12 | `rack_L` | `rack_standoff_L0`'s thread |
+| rack_standoff_L0 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_L0`'s thread |
+| rack_L1 | the electronics rack to its standoff | M4 x 12 | `rack_L` | `rack_standoff_L1`'s thread |
+| rack_standoff_L1 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_L1`'s thread |
 | foot_rail_L0 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_L0`, `rail_L` | a nyloc |
 | foot_lm_L0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_6__1` | an insert in `launcher_foot_L0` |
 | foot_rail_L1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_L1`, `rail_L` | a nyloc |
@@ -161,20 +200,21 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | mouth_R_5.10 | the mouth to the rail's bottom flange | M4 x 16 | `mouth_floor_R`, `rail_R` | a nyloc |
 | bracket_R_2.90 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_R`, `rail_R` | a nyloc |
 | bracket_R_3.53 | the front bracket's foot to the rail's top flange | M4 x 16 | `front_bracket_R`, `rail_R` | a nyloc |
-| arm_pivot_R | the intake arm's pivot: goBILDA-style 6 mm shoulder screw, 8 mm shoulder, M5 thread (CHECK the SKU) | M5 x 18 | `intake_arm_R` | an insert in `front_bracket_R` |
+| arm_pivot_R | the intake arm's pivot: a shoulder screw from inside the bracket, turning in a flanged bushing in its boss, into the arm's insert (the drive motor's plate is just outboard of the arm) | M5 x 18 | `front_bracket_R` | an insert in `intake_arm_R` |
 | post_R0_1.4 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_R_front` | an insert in `ceiling_post_R0` |
 | post_R0_2.2 | a ceiling post to the wall (counterbored in the wall) | M3 x 12 | `lane_wall_R_front` | an insert in `ceiling_post_R0` |
-| cradle_R_-6.55 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_R` | an insert in `battery_cradle_R` |
 | cradle_R_-5.92 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_R` | an insert in `battery_cradle_R` |
-| rack_R_0.31496062992125984 | the electronics rack to the rear cross channel's top flange | M4 x 16 | `rack_R`, `dm_BR_1107-0013-0336_1` | a nyloc |
-| rack_R_1.2598425196850394 | the electronics rack to the rear cross channel's top flange | M4 x 16 | `rack_R`, `dm_BR_1107-0013-0336_1` | a nyloc |
+| cradle_R_-5.29 | the battery cradle's riser to the rail's bottom flange | M4 x 12 | `rail_R` | an insert in `battery_cradle_R` |
+| rack_R0 | the electronics rack to its standoff | M4 x 12 | `rack_R` | `rack_standoff_R0`'s thread |
+| rack_standoff_R0 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_R0`'s thread |
+| rack_R1 | the electronics rack to its standoff | M4 x 12 | `rack_R` | `rack_standoff_R1`'s thread |
+| rack_standoff_R1 | the rack's standoff to the rear cross channel's top flange (from inside the channel) | M4 x 10 | `rear_cross` | `rack_standoff_R1`'s thread |
 | foot_rail_R0 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_R0`, `rail_R` | a nyloc |
 | foot_lm_R0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R0` |
 | foot_rail_R1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_R1`, `rail_R` | a nyloc |
 | foot_lm_R1 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R1` |
-| mast_4.25 | the mast's foot to the bracket's top | M4 x 20 | `limelight_mast_0`, `front_bracket_L` | a nyloc |
-| mast_4.95 | the mast's foot to the bracket's top | M4 x 20 | `limelight_mast_0`, `front_bracket_L` | a nyloc |
-| mast_splice | the mast's splice | M3 x 16 | `limelight_mast_1`, `limelight_mast_0` | a nyloc |
+| mast_-0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
+| mast_0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
 | hood_0 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_1 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_2 | the hood's flange to the turret's top (CHECK: through the 176T gear's holes into the kit's inner race, as longer copies of the kit's own screws: read the pattern off the kit) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
@@ -198,6 +238,18 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `star_clutch_R` | `star_shaft_R` | the one-way clutch pressed in its bore, on the round shaft |
 | `star_R` | `star_clutch_R` | on the hub's hex |
 | `roller_shaft` | `intake_arm_R` | in a goBILDA 1611 flanged bearing in each arm, e-clips |
+| `wheel_shaft_FL` | `rail_L` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_FL` | `wheel_shaft_FL` | on the REX shaft, a hub |
+| `drive_belt_FL` | `wheel_shaft_FL` | on the 24T pulleys |
+| `wheel_shaft_BL` | `rail_L` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_BL` | `wheel_shaft_BL` | on the REX shaft, a hub |
+| `drive_belt_BL` | `wheel_shaft_BL` | on the 24T pulleys |
+| `wheel_shaft_FR` | `rail_R` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_FR` | `wheel_shaft_FR` | on the REX shaft, a hub |
+| `drive_belt_FR` | `wheel_shaft_FR` | on the 24T pulleys |
+| `wheel_shaft_BR` | `rail_R` | in a goBILDA 1611 bearing in the rail's web, and one in the outer plate |
+| `wheel_BR` | `wheel_shaft_BR` | on the REX shaft, a hub |
+| `drive_belt_BR` | `wheel_shaft_BR` | on the 24T pulleys |
 | `ex_block` | `ex_cross` | clamped on the cross shaft |
 | `roller` | `roller_shaft` | on the REX shaft |
 | `roller_belt` | `roller_shaft` | on the 24T pulleys |
@@ -223,8 +275,31 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `battery` | `battery_cradle_L` | a strap round it and both halves |
 | `star_servo_L` | `front_bracket_L` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
 | `star_servo_R` | `front_bracket_R` | M4 x 12 through the servo's tabs into the bracket's inserts (4) |
+| `motor_plate_FL` | `rail_L` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_FL` | `motor_plate_FL` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `motor_plate_BL` | `rail_L` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_BL` | `motor_plate_BL` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `outer_plate_L` | `standoff_L_1_hi` | M4 x 8 into the standoffs (4) |
+| `standoff_L_-3_hi` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_-3_lo` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_1_hi` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_L_1_lo` | `rail_L` | M4 x 10 through the motor plate side's rail web (1) |
+| `motor_plate_FR` | `rail_R` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_FR` | `motor_plate_FR` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `motor_plate_BR` | `rail_R` | M4 x 10 through the plate and the rail's web, nylocs inside (goBILDA grid) (4) |
+| `drive_motor_BR` | `motor_plate_BR` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
+| `outer_plate_R` | `standoff_R_1_hi` | M4 x 8 into the standoffs (4) |
+| `standoff_R_-3_hi` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_-3_lo` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_1_hi` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `standoff_R_1_lo` | `rail_R` | M4 x 10 through the motor plate side's rail web (1) |
+| `rear_cross` | `rail_L` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `rear_cross` | `rail_R` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_cross` | `motor_plate_FL` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `front_cross` | `motor_plate_FR` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `turret_drive_plate` | `lm_Hole_Lowside_U-Channel_GB_8__1` | M4 x 10 up through the plate into nylocs in the launcher's front top channel (4) |
 | `ex_servo` | `flap_R` | M4 x 12 through the servo's tabs into the flap's inserts (4) |
 | `intake_motor` | `intake_arm_R` | M4 x 8 into the motor's face (goBILDA pattern) through the arm (4) |
 | `control_hub` | `rack_L` | M3 x 8 into its four mounting holes, through the rack's wall (4) |
 | `expansion_hub` | `rack_R` | M3 x 8 into its four mounting holes, through the rack's wall (4) |
-| `limelight` | `limelight_mast_1` | M4 into the mast's inserts (its mounting holes) (2) |
+| `limelight` | `limelight_mast` | M4 into the mast's inserts (its mounting holes) (2) |
