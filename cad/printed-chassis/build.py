@@ -141,12 +141,20 @@ FLY_TRAVEL = RN - RP                    # each flywheel module's spring travel: 
                                         # (the same squeeze on both: rest gap = 2 RP - squeeze; his module's CAD has 1.93, the rig sets it)
 FLY_SPRING = dict(rate=None, preload=None)   # lbf/in, lbf: the launcher rig sets them (README, Open 3)
 # the mentor's flywheel parts that ride the sprung modules (each side slides out in Y, its motor with it); his plates stay
-# put as the frame (slotted for the shafts' travel). The feeder is independent, on its own motor (the 8 Oct motor budget):
-# never driven from a flywheel. The transfer's flywheel-to-feeder pulley and belt are left out (FEED_FROM_FLYWHEEL), and
-# the feeder's own motor isn't placed yet (README, Open 3)
+# put as the frame (slotted for the shafts' travel).
+# The feeder (the mentor, 11 Oct): a pair of wheels parallel to the flywheels, one each side of the column under them, each
+# riding its side's module, so one spring a side sets both pinches. The left one is driven by the feeder's own motor, on
+# the left module (never from a flywheel: the 8 Oct motor budget); the right one is free and takes the pad's place. It
+# stays put (no gate servo): stopping its motor is the gate. The transfer's single feeder, its yoke, gate servo and pad,
+# and its flywheel-to-feeder drive are left out of his module (OLD_FEEDER)
 FLY_MOVES = re.compile(r"^(96mm_Gecko|96mm_Steel_Shaft|8mm_Spacer_|part_piece|8mm_REX_Hyper_Hub|1505-0032-0160|8x14x5mm_Bearing_-_Round_Bore_GB_[3-6]_|"
                        r"flywheel_(motor|pulley|belt)_)")
-FEED_FROM_FLYWHEEL = re.compile(r"^(flywheel_feeder_pulley|feeder_belt)")
+OLD_FEEDER = re.compile(r"^(flywheel_feeder_pulley|flywheel_spacers_L_|flywheel_shaft_eclip_L|feeder_(?!bridge|floor)|gate_servo|pad_)")
+FEED_R = 24 * MM                        # 48 mm Gecko wheels, two side by side a side, as wide as the flywheels' pair
+FEED_SQUEEZE = 0.37                     # into a POLLEN, each side (as the transfer's feeder): the rig sets it
+FEED_Y = RP + FEED_R - FEED_SQUEEZE     # 1.975: the wheels' axes, either side of the column
+FEED_Z = 3.87                           # high enough that a POLLEN is always gripped by the feeder or the flywheels, from the
+                                        # backstop up, and still 0.1 in clear of the flywheels at rest
 FLY_PLATES = re.compile(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)_")
 FEED = (2.87, 3.30, 36 * MM)            # feeder axle Y, z, radius (72 mm Gecko)
 FLY_BELT = 315
@@ -435,7 +443,7 @@ if USE_LM:
     for e in json.load(open(os.path.join(LM_DIR, "index.json")))["parts"]:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
         k = "lm_" + e["file"][:-5]
-        if FEED_FROM_FLYWHEEL.match(e["file"]): continue
+        if OLD_FEEDER.match(e["file"]): continue
         w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
         if FLY_MOVES.match(e["file"]):
             b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
@@ -478,6 +486,14 @@ LM_HOLE_Y, LM_HOLE_X0 = 5.54, -0.665    # its flange's holes (read from his mode
 FOOT_SEAT = 3.30                        # the foot-to-rail screw's head, in its pocket
 HOOD_TOP = "lm_2325-0105-0176_1"          # the turret's 176T ring: the hood screws to its top
 HOOD_FLANGE_D = 5.6                     # the hood's flange on the turret's top, four M4 down into it
+if USE_LM:
+    FX = (-3.307, -1.413)               # the flywheels' wheels' span along X (his module)
+    for s, n in SIDES:
+        y, mv = s * FEED_Y, f"fly_{n}"
+        part("launcher", f"feeder_wheel_{n}", cyl("x", (y, FEED_Z), 2 * FEED_R, *FX), "buy",
+             "goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): " + ("driven by the feeder's motor" if s > 0 else "free, in the pad's place"), mv)
+        part("launcher", f"feeder_shaft_{n}", cyl("x", (y, FEED_Z), 8 * MM, -4.32, -0.45), "buy",
+             "goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates" + ("; its 24T pulley ahead of the front plate" if s > 0 else ", the wheels free on bearings"), mv)
 LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
 if USE_LM:
     for s, n in SIDES:
@@ -669,7 +685,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
-           ("dm_", "rail_"), ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
+           ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "lm_Hole_Lowside_U-Channel_GB_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
            ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),
            ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
@@ -838,6 +854,22 @@ def report():
         ok &= not new_
         b = [bb(solid(shapes[k]).translate(cq.Vector(0, (1 if PARTS[k]["moves"] == "fly_L" else -1) * FLY_TRAVEL, 0))) for k in mvk]
         print(f"   opened: Y {min(x[2] for x in b):.2f}..{max(x[3] for x in b):.2f} (R105 allows 18 wide after START)")
+
+    gk = [k for k in PARTS if k.startswith("lm_96mm_Gecko") and bb(PARTS[k]["shape"])[2] > 0]
+    if gk and "feeder_wheel_L" in PARTS:
+        b = bb(PARTS[gk[0]]["shape"]); WY, WZ, WR = (b[2] + b[3]) / 2, (b[4] + b[5]) / 2, (b[3] - b[2]) / 2
+        print("== the feeder pair hands each piece to the flywheels (centred in the column, each side's module open as far as the piece pushes it)")
+        for nm, r in (("POLLEN", RP), ("NECTAR", RN)):
+            d = max(0.0, r - RP)                                   # the module's opening: a NECTAR pushes it 0.41
+            def reach(cy, cz, cr):
+                h2 = (r + cr) ** 2 - (cy + d) ** 2
+                return (cz - math.sqrt(h2), cz + math.sqrt(h2)) if h2 > 0 else None
+            f, w = reach(FEED_Y, FEED_Z, FEED_R), reach(WY, WZ, WR)
+            z0 = LANE_BOTTOM + r
+            good = f and w and f[0] <= z0 and f[1] - w[0] >= 0.05
+            print(f"   {nm}: gripped by the feeder from z {f[0]:.2f} (at the backstop it's at {z0:.2f}) to {f[1]:.2f}; by the flywheels from {w[0]:.2f}: "
+                  + (f"{f[1] - w[0]:.2f} in of overlap" if good else "A GAP"))
+            ok &= bool(good)
 
     print("== pieces on their path (a NECTAR and a POLLEN at each step; only what's meant to touch them may)")
     bad = []

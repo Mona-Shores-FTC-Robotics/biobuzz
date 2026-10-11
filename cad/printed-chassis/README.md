@@ -183,16 +183,16 @@ two screws; a lane wall half is four; a flap is two. The hubs come off their rac
    for the shafts' travel. `build.py` slides both open and checks them against everything fixed (clear; opened, the
    motors reach Y ±7.92, inside R105's 18). Still to design: the slide or pivot itself (goBILDA or MGN9 rails, or swing
    arms), the springs (`FLY_SPRING`: rate and preload from the rig) and the stops (rest gap: his CAD has 1.93 in, so a
-   POLLEN is squeezed 0.87; the rig sets it). **The feeder needs its own motor, and none fits yet.** It is never driven
-   from a flywheel (the 8 Oct motor budget: the feeder is independent), so the transfer's flywheel-to-feeder pulley and
-   belt are left out of the model. A search of every goBILDA belt from 215 to 360 mm at every 10°, for a 5203 belted to
-   the feeder's shaft or its yoke's pivot, found no clear spot: the turret's drive plate and servo sit just over the
-   pivot, his left-front drive motor crosses the lane at X 1.0 to 2.6, the star wheel and its servo are ahead and the
-   flywheels behind. Its yoke still turns on the left flywheel's shaft in his model, which now moves: it needs a fixed
-   pivot of its own too. **The mentor wants two feeder wheels** (11 Oct) to cover the gap to the flywheels. The model agrees for a POLLEN: held
-   against the pad, the one 72 mm feeder lets go of it at centre z 4.58 and the flywheels (rest gap 1.93) first touch it at
-   4.83, a 0.25 in stretch with nothing driving it; a NECTAR is always in contact with one or the other. Where the second
-   wheel goes, and whether both run off the feeder's one motor, is his to say; the feeder motor's place waits on it.
+   POLLEN is squeezed 0.87; the rig sets it). **The feeder is a pair of wheels** (the mentor, 11 Oct): 48 mm Geckos, two
+   side by side each side of the column under the flywheels, axes parallel to theirs (Y ±1.975, z 3.87). Each rides its
+   side's module, so **one spring a side sets both pinches**, and a NECTAR opens both by the same 0.41 in. The left pair
+   is driven by the feeder's own motor, which rides the left module (never from a flywheel: the 8 Oct motor budget); the
+   right pair is free and takes the pad's place. The feeder stays put: stopping its motor is the gate, and the gate servo
+   goes. The transfer's single feeder, its yoke, gate servo and pad are left out of his module. `build.py` checks the
+   handoff: a POLLEN is gripped from the backstop until the flywheels have it (with one feeder wheel there was a 0.25 in
+   stretch with nothing driving it). **One known catch:** a NECTAR waiting in the stopped feeder holds that side's
+   module open, so a POLLEN being shot then is barely squeezed. Either the lane stops until each shot clears, or the
+   rig shows it doesn't matter (hold a NECTAR in the feeder and shoot a POLLEN).
 4. **For the mentor:** whether the hubs at the back suit him (his own chassis has them on the rails), the Modern Robotics battery's size, and the star wheels' servo, shaft and adapter (the wheels are SWYFT's; the clutch is identified).
 5. **The front of the frame.** Nothing ties the rails together at the front but the flaps' root blocks and the front
    brackets; v2 adds a cross member, or shows those are enough.
