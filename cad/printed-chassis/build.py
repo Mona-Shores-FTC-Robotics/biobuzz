@@ -95,9 +95,10 @@ WHEEL_Y = (PULLEY_Y[1] + 0.05, PULLEY_Y[1] + 0.05 + WHEEL_W)
 OPLATE_Y = (MPLATE_Y[1] + 56 * MM, MPLATE_Y[1] + 56 * MM + PLATE_T)   # the outer plates, on 56 mm standoffs
 DRIVE_HOLES = {1: 5, -1: 3}             # the motor this many holes above the axle: front over the lane's ceiling (120 mm); rear 72 mm
                                         # (two holes up, its shaft's end touches the wheel)
-DRIVE_BELT = {1: 360, -1: 275}          # 2 x centres + 120: front exact; rear 3 mm long (75.9 mm centres): slot the plate, CHECK its tension
+DRIVE_BELT = {1: 360, -1: 275}          # 2 x centres + 120: both exact
 DRIVE_MOTOR = {1: (AXLE[1], WHEEL_R + 5 * PITCH),             # front: straight over the axle, over the stars and the intake's pivot
-               -1: (AXLE[-1] - PITCH, WHEEL_R + 3 * PITCH)}    # rear: a hole behind and three up, under the launcher's back (as his)
+               -1: (AXLE[-1] - math.sqrt(77.5 ** 2 - 72 ** 2) * MM + 0.06, WHEEL_R + 3 * PITCH)}   # (0.06 in forward: the belt inside the outline; 0.45 mm of tension in the slots)   # rear: behind and three holes up, under the
+                                        # launcher's back (as his), at a 275 mm belt's own centres (the plate's motor holes slotted)
 MPLATE = {1: (5, "1123-0048-0144"), -1: (4, "pattern plate 2 holes wide x 4 (CHECK the SKU), the motor's holes slotted for the belt")}   # the axle at its lowest hole, the motor at its top one
 
 # ---------------------------------------------------------------- intake
@@ -158,6 +159,12 @@ FEED_SQUEEZE = 0.37                     # into a POLLEN, each side (as the trans
 FEED_Y = RP + FEED_R - FEED_SQUEEZE     # 1.975: the wheels' axes, either side of the column
 FEED_Z = 3.87                           # high enough that a POLLEN is always gripped by the feeder or the flywheels, from the
                                         # backstop up, and still 0.1 in clear of the flywheels at rest
+# v3: his frame re-housed (README, DECISIONS.md): the flywheels' pivot hardware goes (the sprung slides replace it); his turret
+# drive plate is redrawn shorter; the rear lower cross channel, its blocks and the column's back guides rise 0.9 in, above the
+# feeder's drive; the feeder bridge is trimmed clear of the battery
+LM_DROP = re.compile(r"^(Sonic_Hub|32mm_Steel_Shaft|1301-|1600-|1603-|turret_drive_plate)")
+LM_RAISE = re.compile(r"^(Hole_Lowside_U-Channel_GB__1\.|Dual_Block_GB__1\.|Dual_Block_GB_[234]__1|Hole_U_Beam_|Square_Beam_)")
+LM_RAISE_Z = 0.9
 FLY_PLATES = re.compile(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)_")
 FEED = (2.87, 3.30, 36 * MM)            # feeder axle Y, z, radius (72 mm Gecko)
 FLY_BELT = 315
@@ -178,6 +185,7 @@ FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
+BAT_X = RAIL_X[0] + CH_LOW + 0.05      # the battery just ahead of the rear cross channel
 CRADLE_X = (RAIL_X[0] + 28 * MM, RAIL_X[0] + 44 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
 
@@ -246,6 +254,12 @@ def bb(w):
         b = solid(w).BoundingBox(); _BB[k] = ((b.xmin, b.xmax, b.ymin, b.ymax, b.zmin, b.zmax), w)   # keep w alive so its id stays unique
     return _BB[k][0]
 
+def overlap(a, b, tol=1e-4):
+    A, B = bb(a), bb(b)
+    if any(A[2 * i] > B[2 * i + 1] - tol or B[2 * i] > A[2 * i + 1] - tol for i in range(3)): return 0.0
+    try: return solid(a).intersect(solid(b)).Volume()
+    except Exception: return -1.0
+
 PARTS = {}          # name -> dict(shape, module, kind ('print' | 'buy' | 'cut'), what, moves)
 
 def part(module, name, shape, kind, what, moves=None):
@@ -287,6 +301,8 @@ for sx, fx in (() if USE_DM else ((1, "F"), (-1, "B"))):
     for s, n in SIDES:
         nm = fx + n
         mp = box(min(ax, mx) - CH / 2, max(ax, mx) + CH / 2, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH)
+        if mx != ax:                    # the rear: the motor's two columns of holes, and only a strip down to the axle (his launcher's frame is over the rest)
+            mp = box(max(mx - CH / 2, RAIL_X[0]), mx + MOTOR_SQ / 2 + 0.04, *MPLATE_Y, RAIL_Z[0], RAIL_Z[0] + nh * PITCH + CH - PITCH).union(box(mx, ax + 0.3, *MPLATE_Y, RAIL_Z[0], WHEEL_R + 0.6))
         part(f"corner_{nm}", f"motor_plate_{nm}", mir(mp, s), "buy", f"goBILDA {pn}, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole")
         part(f"corner_{nm}", f"wheel_{nm}", mir(cyl("y", (ax, WHEEL_R), 2 * WHEEL_R, *WHEEL_Y), s), "buy", "goBILDA 3213-3606-0002 96 mm mecanum (set of 4)")
         part(f"corner_{nm}", f"wheel_shaft_{nm}", mir(cyl("y", (ax, WHEEL_R), 8 * MM, RAIL_OUT - CH_T, OPLATE_Y[1] + 0.05), s), "buy",
@@ -448,8 +464,13 @@ if USE_LM:
     for e in json.load(open(os.path.join(LM_DIR, "index.json")))["parts"]:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(LM_DIR, e["file"]), BRep_Builder())
         k = "lm_" + e["file"][:-5]
-        if OLD_FEEDER.match(e["file"]): continue
+        if OLD_FEEDER.match(e["file"]) or LM_DROP.match(e["file"]): continue
         w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
+        if re.match(r"^Hole_Lowside_U-Channel_GB_[46]__1", e["file"]):   # his side channels end at the rear blocks, clear of our rear belts
+            w = w.intersect(box(-4.98, 20, -20, 20, -20, 20))
+        if LM_RAISE.match(e["file"]): w = cq.Workplane().add(solid(w).translate(cq.Vector(0, 0, LM_RAISE_Z)))
+        if e["file"].startswith("feeder_bridge"):          # clear of the battery and of the feeder's drive
+            w = w.intersect(box(BAT_X + BATTERY[2] + 0.05, 20, -20, 20, -20, 20)).cut(box(-5.05, -4.41, FEED_Y - 0.81, 20, -20, 20))
         if FLY_MOVES.match(e["file"]):
             b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
         part("launcher", k, w, "buy", f"the mentor's launcher module: {e['name']}" + (" (rides the sprung module)" if mv else ""), mv)
@@ -499,12 +520,23 @@ if USE_LM:
              "goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): " + ("driven by the feeder's motor" if s > 0 else "free, in the pad's place"), mv)
         part("launcher", f"feeder_shaft_{n}", cyl("x", (y, FEED_Z), 8 * MM, -4.32, -0.45), "buy",
              "goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates" + ("; its 24T pulley ahead of the front plate" if s > 0 else ", the wheels free on bearings"), mv)
-if USE_LM:                              # v3: the turret's servo and encoder B swung 180 deg about the drive gear's axis, behind it
-    TURRET_SWING = 180                  # (the drive gear still points forward, as his): clear of the front drive motors by 1.3 in
+if USE_LM:                              # v3: the turret's drive gear still points forward (as his); its servo and encoder B each
+    TURRET_SWING = {"servo": 30, "enc_B": 270}   # swung about the gear's axis to an angle clear of the front drive motors, the
+                                        # flywheels (open too) and the launch column (searched every 15 deg; belt and mesh unchanged)
     gk = [k for k in PARTS if k.startswith("lm_2302-0014-0064")][0]; gb = bb(PARTS[gk]["shape"])
     gax = ((gb[0] + gb[1]) / 2, (gb[2] + gb[3]) / 2)
-    for k in [k for k in PARTS if re.match(r"^lm_turret_(servo|belt|enc_B)", k)]:
-        PARTS[k]["shape"] = cq.Workplane().add(solid(PARTS[k]["shape"]).rotate(cq.Vector(gax[0], gax[1], 0), cq.Vector(gax[0], gax[1], 1), TURRET_SWING))
+    for k in list(PARTS):
+        m = re.match(r"^lm_turret_(servo|belt|enc_B)", k)
+        if not m: continue
+        ang = TURRET_SWING["enc_B" if m.group(1) == "enc_B" else "servo"]
+        PARTS[k]["shape"] = cq.Workplane().add(solid(PARTS[k]["shape"]).rotate(cq.Vector(gax[0], gax[1], 0), cq.Vector(gax[0], gax[1], 1), ang))
+    tb = [bb(PARTS[k]["shape"]) for k in PARTS if re.match(r"^lm_(turret_|2302-|1231-)", k)]
+    tp = box(max(-0.45, min(t[0] for t in tb) - 0.15), min(3.3, max(t[1] for t in tb) + 0.15), min(t[2] for t in tb) - 0.15, max(t[3] for t in tb) + 0.15, 6.811, 6.999)
+    for k in [k for k in PARTS if re.match(r"^lm_(turret_|2302-|1231-)", k)]:
+        b = bb(PARTS[k]["shape"])
+        if b[4] < 6.999 and b[5] > 6.811 and overlap(tp, PARTS[k]["shape"]) > 1e-5: tp = tp.cut(box(b[0] - 0.02, b[1] + 0.02, b[2] - 0.02, b[3] + 0.02, 6, 8))
+    part("launcher", "turret_drive_plate", tp, "cut", "3/16 in aluminium (or 6 mm PETG-CF): the turret's drive plate, his redrawn shorter (to X 3.3, clear of the front drive motors), "
+         "with windows for the servo and the encoders; under the launcher's front top channel")
 LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
 if USE_LM:
     for s, n in SIDES:
@@ -534,7 +566,6 @@ for s_, n in SIDES:
         part("elec", f"rack_standoff_{n}{k}", cyl("z", (RACK_SCREW_X, s_ * y), 6 * MM, *RACK_STANDOFF), "buy", "goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed)")
 part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
 part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
-BAT_X = RAIL_X[0] + CH_LOW + 0.05      # just ahead of the rear cross channel
 BAT_Y = (-(RAIL_IN - 0.08), -(RAIL_IN - 0.08) + BATTERY[0])   # against the right rail: the feeder's drive is on the left, and
                                         # the battery's 1.95 in to the right about balances the feeder's motor on the left module
 part("elec", "battery", box(BAT_X, BAT_X + BATTERY[2], *BAT_Y, 0.45, 0.45 + BATTERY[1]), "buy",
@@ -676,6 +707,7 @@ if not USE_DM:
     device("front_cross", "motor_plate_FL", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
     device("front_cross", "motor_plate_FR", "goBILDA pattern brackets, M4 x 8 into nylocs", 4)
 captive("ex_block", "ex_cross", "clamped on the cross shaft")
+if USE_LM: device("turret_drive_plate", "lm_Hole_Lowside_U-Channel_GB_8__1", "M4 x 10 up through the plate into nylocs in the launcher's front top channel", 4)
 device("ex_servo", "flap_R", "M4 x 12 through the servo's tabs into the flap's inserts", 4)
 captive("roller", "roller_shaft", "on the REX shaft")
 captive("roller_belt", "roller_shaft", "on the 24T pulleys")
@@ -700,11 +732,6 @@ for k in range(4):
 
 # ================================================================ checks
 
-def overlap(a, b, tol=1e-4):
-    A, B = bb(a), bb(b)
-    if any(A[2 * i] > B[2 * i + 1] - tol or B[2 * i] > A[2 * i + 1] - tol for i in range(3)): return 0.0
-    try: return solid(a).intersect(solid(b)).Volume()
-    except Exception: return -1.0
 
 # parts that touch by design (a shaft in its part, a belt round its motor's shaft, a stack)
 ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_", "motor_plate_"), ("wheel_shaft_", "outer_plate_"),
@@ -750,7 +777,7 @@ FEED_MOTOR = (3.60, 2.25)               # Y, z: the feeder's motor (a 5203, 1150
 RESERVED = {
     "feeder_motor": (box(-4.33 + MOTOR_SHAFT, -4.33 + MOTOR_SHAFT + MOTOR_L1, FEED_MOTOR[0] - MOTOR_SQ / 2, FEED_MOTOR[0] + MOTOR_SQ / 2 + FLY_TRAVEL,
                          FEED_MOTOR[1] - MOTOR_SQ / 2, FEED_MOTOR[1] + MOTOR_SQ / 2), ("feeder_",), "the feeder's motor and its travel with the left module"),
-    "feeder_drive": (box(-4.95, -4.30, FEED_Y - 0.8, FEED_MOTOR[0] + 0.78 + FLY_TRAVEL, FEED_MOTOR[1] - 0.8, FEED_Z + 0.8), ("feeder_",),
+    "feeder_drive": (box(-5.04, -4.42, FEED_Y - 0.8, FEED_MOTOR[0] + 0.78 + FLY_TRAVEL, FEED_MOTOR[1] - 0.8, FEED_Z + 0.8), ("feeder_",),
                      "the feeder's belt and pulleys behind the module's back plate"),
     "turret_sweep": (cyl("z", (COL_X, 0), 2 * (KIT_BORE + 0.25 + 2.45), 11.5, 12.3), ("hood",), "the hood's lid as the turret turns"),
 }

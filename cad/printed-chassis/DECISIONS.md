@@ -36,9 +36,12 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | Our own corners on his track and wheelbase, mirrored: front motors straight over their axles, five holes up; rear motors a hole behind and three up | frees the space ahead of the launcher; identical left and right for spares, two robots and Pedro's tuning | — |
 | 11 Oct | A front cross channel ties the rails; the Limelight's mast stands on it, centred | closes "front of frame"; a centred camera | — |
 | 11 Oct | The battery stands against the right rail, ahead of the rear cross channel | the feeder's drive is behind the module on the left; 0.6 kg 1.95 in right about balances the feeder's motor 3.6 in left | the mentor's battery is a different size |
-| 11 Oct | The turret's drive gear points forward (as his); its servo and encoder B swing 180° about the gear's axis, behind it | searched every 15°: anywhere else the drive's hardware meets a flywheel's shaft ends; this clears the front drive motors by 1.3 in, belt and mesh unchanged | — |
+| 11 Oct | The turret's drive gear points forward (as his); its servo swings 30° and encoder B 270° about the gear's axis | searched every 15°, each alone, against the front drive motors, the flywheels open and shut, and the launch column: anywhere else one of them hits; belt and mesh unchanged | — |
+| 11 Oct | His launcher frame re-housed: the flywheels' pivot hardware dropped (the sprung slides replace it); the drive plate redrawn around what it carries; the rear lower cross channel, its blocks and the column's back guides raised 0.9 in above the feeder's drive; the side channels end at X −4.98, clear of our rear belts; the feeder bridge trimmed clear of the battery and the feeder's drive | each the smallest change that clears the budget; the feeder pair holds the ball where the back guides no longer reach | the rig shows the ball needs a back guide below z 4.96 |
+| 11 Oct | Rear drive motors at a 275 mm belt's own centres, 0.06 in forward (0.45 mm of tension in slotted holes) | inside the 17.75 in outline | — |
 
 ## Open, in the order they get decided (hardest to move first)
 
-3. The launcher's frame around the column, inside the rear corners.
-4. Its feet, the sprung slides' hardware, the screws.
+1. The sprung slides' hardware (goBILDA or MGN9 rails), springs and stops; the feeder motor's bracket on the left module.
+2. The turret drive plate's mounting screws and the servo's bracket (drawn as windows in the plate).
+3. Confirm with the mentor: the re-housed frame, the corners, the battery's place and size.
