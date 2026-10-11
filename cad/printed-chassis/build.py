@@ -468,6 +468,8 @@ if USE_LM:
         w = cq.Workplane().add(cq.Shape.cast(sh)); mv = None
         if re.match(r"^Hole_Lowside_U-Channel_GB_[46]__1", e["file"]):   # his side channels end at the rear blocks, clear of our rear belts
             w = w.intersect(box(-4.98, 20, -20, 20, -20, 20))
+        if e["file"].startswith("Hole_Lowside_U-Channel_GB_3__1"):   # his right rear upright: its flanges trimmed behind the right yoke
+            w = w.intersect(box(-20, -4.72, -20, 20, -20, 20))
         if re.match(r"^Hole_Lowside_U-Channel_GB_(10|12)__1", e["file"]):   # his back plates: only the flywheels' part (above the feeder's arms)
             w = w.intersect(box(-20, 20, -20, 20, 4.75, 20))
         if LM_RAISE.match(e["file"]): w = cq.Workplane().add(solid(w).translate(cq.Vector(0, 0, LM_RAISE_Z)))
@@ -570,6 +572,30 @@ if USE_LM:                              # v3: the turret's drive gear still poin
         if b[4] < 6.999 and b[5] > 6.811 and overlap(tp, PARTS[k]["shape"]) > 1e-5: tp = tp.cut(box(b[0] - 0.02, b[1] + 0.02, b[2] - 0.02, b[3] + 0.02, 6, 8))
     part("launcher", "turret_drive_plate", tp, "cut", "3/16 in aluminium (or 6 mm PETG-CF): the turret's drive plate, his redrawn shorter (to X 3.3, clear of the front drive motors), "
          "with windows for the servo and the encoders; under the launcher's front top channel")
+# The flywheel sides' mechanism (four springs): each side's shaft runs in two printed bearing blocks that slide 0.41 in
+# in slots in his front and back plates (like a belt tensioner); a printed yoke over the motor ties it to the rear block,
+# so the side's wheels, shaft, pulleys, belt and motor move together and the belt keeps its length; an extension spring
+# from the yoke to an anchor on the rear top channel pulls it in, and an M4 stop screw in the anchor sets the rest gap
+FLY_AXIS = (2.855, 6.673)               # Y, z: each flywheel shaft (his module)
+if USE_LM:
+    for s, n in SIDES:
+        y, mv = s * FLY_AXIS[0], f"fly_{n}"
+        for h, (a, b) in (("front", (-1.10, -0.62)), ("rear", (-4.41, -3.93))):
+            part("launcher", f"fly_block_{n}_{h}", box(a, b, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.45, FLY_AXIS[1] + 0.45), "print",
+                 "PETG-CF: a flywheel bearing block, the shaft's 8x14 bearing in it, sliding in a 0.41 in slot in the plate (his plate gets the slot)", mv)
+        yk = box(-4.70, -2.19, s * 5.30, s * 7.40, 7.95, 8.20).union(box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * 7.40, 7.95, 8.20)).union(
+             box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * (FLY_AXIS[0] + 0.35), FLY_AXIS[1] + 0.3, 8.20))
+        part("launcher", f"fly_yoke_{n}", yk, "print",
+             "PETG-CF: the flywheel side's yoke, over the motor: its bracket to the rear bearing block (behind the back plate), so the motor rides with the wheels", mv)
+        part("launcher", f"fly_anchor_{n}", box(-4.71, -4.43, s * 0.55, s * (FLY_AXIS[0] - 0.36), 7.85, 8.38), "print",
+             "PETG: the flywheel side's spring anchor and stop, on the rear top channel's front face; an M4 stop screw through it sets the rest gap (the rig sets it)")
+        part("launcher", f"fly_spring_{n}", cyl("y", (-4.56, 8.24), 0.25, s * 0.75, s * (FLY_AXIS[0] - 0.36)), "buy",
+             "extension spring, about 0.25 in OD: the anchor to the yoke (rate and preload from the rig; CHECK)")
+        # the feeder arm's spring and stop: a post on the feeder floor's rear corner
+        part("launcher", f"feeder_post_{n}", box(-4.10, -3.92, s * 0.70, s * 1.10, 1.31, 3.40), "print",
+             "PETG: the feeder arm's spring post and stop (an M4 stop screw through it sets the rest gap), on the feeder floor")
+        part("launcher", f"feeder_spring_{n}", cyl("y", (-4.01, 3.15), 0.2, s * 1.10, s * (FEED_Y - 0.33)), "buy",
+             "extension spring, about 0.2 in OD: the post to the arm (rate and preload from the rig; CHECK)")
 LM_FEET = (rail_x(12), rail_x(21))     # X: the launcher's side channels sit 1.0 in over the rails' top flanges; the rear foot just ahead of the wheel
 if USE_LM:
     for s, n in SIDES:
@@ -748,6 +774,15 @@ if USE_LM:
         captive(f"feeder_pivot_{n}", f"feeder_rear_block_{n}", "in 1611 bearings in the rear and front blocks, e-clips")
         device(f"feeder_rear_block_{n}", "lm_feeder_bridge_print_PETG_or_nylon_behind_the_launcher_s_rear_1", "M4 x 16 down into the bridge's inserts", 2)
         device(f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3 x 12 into the wall end's inserts", 2)
+    for n in ("L", "R"):
+        captive(f"fly_block_{n}_front", f"lm_Hole_Lowside_U-Channel_GB_{11 if n == 'L' else 9}__1", "slides in the plate's slot, the shaft's bearing in it")
+        captive(f"fly_block_{n}_rear", f"lm_Hole_Lowside_U-Channel_GB_{12 if n == 'L' else 10}__1", "slides in the plate's slot, the shaft's bearing in it")
+        device(f"fly_yoke_{n}", f"fly_block_{n}_rear", "M4 x 16 into the block's inserts, through the back plate's slot", 2)
+        device(f"fly_yoke_{n}", f"lm_flywheel_motor_bracket_{n}_1_8_in_aluminium_L_bent_on_the_laun_1", "M4 x 10 through the bracket's top into the yoke's inserts", 2)
+        device(f"fly_anchor_{n}", "lm_Hole_Lowside_U-Channel_GB_2__1", "M4 x 12 through the channel's front face into nylocs", 2)
+        captive(f"fly_spring_{n}", f"fly_anchor_{n}", "hooked to the anchor's pin and the yoke's")
+        device(f"feeder_post_{n}", "lm_feeder_floor_1_8_in_polycarbonate_between_the_feeder_and_the_1", "M4 x 12 up through the floor into the post's inserts", 2)
+        captive(f"feeder_spring_{n}", f"feeder_post_{n}", "hooked to the post's pin and the arm's")
     device("feeder_motor", "feeder_rear_block_L", "M4 x 8 into the motor's face (goBILDA pattern)", 4)
     captive("feeder_belt_A", "feeder_pivot_L", "on the 24T pulleys"); captive("feeder_belt_B", "feeder_pivot_L", "on the 24T pulleys")
 if USE_LM: device("turret_drive_plate", "lm_Hole_Lowside_U-Channel_GB_8__1", "M4 x 10 up through the plate into nylocs in the launcher's front top channel", 4)
@@ -791,7 +826,9 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
            ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "lm_feeder_bridge"),
-           ("feeder_arm_", "feeder_wheel_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
+           ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"),
+           ("fly_anchor_", "lm_Hole_Lowside_U-Channel_GB_2__1"), ("fly_spring_", "fly_anchor_"), ("fly_spring_", "fly_yoke_"), ("fly_anchor_", "fly_yoke_"),
+           ("feeder_post_", "lm_feeder_floor"), ("feeder_spring_", "feeder_post_"), ("feeder_spring_", "feeder_arm_"), ("feeder_post_", "feeder_arm_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
            ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),
            ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
