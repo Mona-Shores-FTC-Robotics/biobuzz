@@ -57,22 +57,18 @@ README no longer describes.
 
 ## In Onshape
 
-`printed-chassis.step` (in git, small) holds our parts. The whole robot with his launcher and corners is about 340 MB,
-too big for git: the build writes it as `.cache/printed-chassis-full.step.gz`, to share through the team's Drive.
+The whole robot is one STEP (the build writes it as `.cache/printed-chassis-full.step`; zipped, it's about 22 MB);
+`printed-chassis.step` in git holds only our parts. **Create → Import** it with **Flatten assembly off**. It opens as
+one sub-assembly per subsystem, numbered in build order:
 
-1. **Create → Document → Import** the STEP. Leave **Flatten assembly off**.
-2. Right-click **FRAME - fix** and **FASTENERS - fix** → **Fix**, then lock each **MOVES** group (the lock icon at the right of its row).
-3. Add the mates the groups' names give (`cad/full-robot/ONSHAPE.md`, section 2, explains Revolute mates):
+01 Frame · 02 Drive corners · 03 Odometry · 04 Flaps and soft faces · 05 Intake roller · 06 Extractor ·
+07 Star wheels and front brackets · 08 Mouth and lane · 09 Feeder and backstop · 10 Flywheels (sprung sides) ·
+11 Turret and hood · 12 Launcher frame and feet · 13 Electronics
 
-| Group | Mate | Limits |
-|---|---|---|
-| MOVES 1 intake arms | Revolute about the arms' pivot (on the front bracket, Y axis) | 0 to 18° (the roller rises 1.3 in) |
-| MOVES 2 extractor | Revolute about the stub shafts | 0 (down) to 146° (stowed, as drawn) |
-| MOVES 3 to 6 wheels | Revolute on each wheel's shaft | none |
-| MOVES 7 and 8 star wheels | Revolute on each star's vertical shaft | none |
-| MOVES 9 and 10 flywheel modules | Slider along Y (left +Y, right −Y) | 0 to 0.41 in out; sprung back in |
-
-Colours: blue is printed, grey is bought, yellow is a soft face (TPU or foam).
+Inside each: its fixed parts, then a **"moves - …"** sub-assembly for each moving body (its name says the mate: a
+revolute or a slider, its axis and its range), then its **screws** (named size × length, then the joint). The mentor's
+launcher parts are named **"mentor - …"**. Colours: blue printed, grey bought, light grey cut, yellow the soft faces,
+dark grey screws. To make it move: fix everything, then unfix each "moves" group and give it the mate its name says.
 
 ## Layout
 

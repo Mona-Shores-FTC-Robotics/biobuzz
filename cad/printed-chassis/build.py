@@ -1374,39 +1374,63 @@ if __name__ == "__main__":
     os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
     # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
     # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
-    def group_of(k):
-        if PARTS[k]["moves"] == "intake": return f"MOVES 1 intake arms - revolute on the arms' pivot (Y axis), 0 to {lift_deg(FLOAT):.0f} deg up"
-        if PARTS[k]["moves"] == "extractor" and not k.startswith("ex_stub"): return "MOVES 2 extractor - revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
-        for n, i in (("FL", 3), ("FR", 4), ("BL", 5), ("BR", 6)):
-            if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"MOVES {i} wheel {n} - revolute on its shaft"
-        if k == "star_L": return "MOVES 7 star wheel L - revolute on its vertical shaft"
-        if k == "star_R": return "MOVES 8 star wheel R - revolute on its vertical shaft"
-        if PARTS[k]["moves"] == "feed_L": return f"MOVES 11 feeder arm L - revolute on its pivot shaft (X axis), 0 to {FEED_SWING:.0f} deg out (sprung in)"
-        if PARTS[k]["moves"] == "feed_R": return f"MOVES 12 feeder arm R - revolute on its pivot shaft (X axis), 0 to {FEED_SWING:.0f} deg out (sprung in)"
-        if PARTS[k]["moves"] == "fly_L": return f"MOVES 9 flywheel module L - slider along Y, 0 to {FLY_TRAVEL:.2f} in out (sprung in)"
-        if PARTS[k]["moves"] == "fly_R": return f"MOVES 10 flywheel module R - slider along Y, 0 to {FLY_TRAVEL:.2f} in out (sprung in)"
-        return "FRAME - fix"
-    groups = {}
-    for k in PARTS: groups.setdefault(group_of(k), []).append(k)
-    asm = cq.Assembly(name="printed_chassis")
-    full = cq.Assembly(name="printed_chassis_with_the_mentors_modules")      # with his launcher and drive corners: too big for git
-    for g in sorted(groups, key=lambda g: (not g.startswith("FRAME"), int(g.split()[1]) if g.startswith("MOVES") else 0)):
-        sub, fsub = cq.Assembly(name=g), cq.Assembly(name=g)
-        for k in groups[g]:
-            p = PARTS[k]
-            s = solid(p["shape"]).scale(25.4)
-            col = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}[p["kind"]]
-            if k.startswith(("flap_face", "pad")): col = cq.Color(0.95, 0.75, 0.2)
-            if not k.startswith(("lm_", "dm_")): sub.add(s, name=k, color=col)
-            fsub.add(s, name=k, color=col)
-            if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(s), os.path.join(HERE, "stl", f"{k}.stl"))
-        if sub.children: asm.add(sub, name=g)
-        full.add(fsub, name=g)
-    fz, ffz = cq.Assembly(name="FASTENERS - fix"), cq.Assembly(name="FASTENERS - fix")
-    for f in FASTENERS:
-        sh = solid(screw_solids(f)).scale(25.4)
-        fz.add(sh, name=f"screw_{f['name']}", color=cq.Color(0.2, 0.2, 0.22)); ffz.add(sh, name=f"screw_{f['name']}", color=cq.Color(0.2, 0.2, 0.22))
-    asm.add(fz, name="FASTENERS - fix"); full.add(ffz, name="FASTENERS - fix")
+    # For Onshape: one sub-assembly per subsystem, in build order; inside it, its fixed parts, then one sub-assembly per
+    # moving body (named with the mate it needs), then its screws. Readable names; the mentor's parts say so.
+    def subsystem(k):
+        m = PARTS[k]["module"]
+        if k.startswith(("feeder_", "lm_feeder_floor", "lm_backstop")): return "09 Feeder and backstop"
+        if k.startswith("fly_") or PARTS[k]["moves"] in ("fly_L", "fly_R"): return "10 Flywheels (sprung sides)"
+        if k.startswith(("hood", "turret_drive_plate", "lm_turret_", "lm_2325", "lm_1628", "lm_IR", "lm_OR", "lm_2302", "lm_1231")): return "11 Turret and hood"
+        if m == "launcher": return "12 Launcher frame and feet"
+        if k.startswith(("star_", "front_bracket_")): return "07 Star wheels and front brackets"
+        return {"frame": "01 Frame", "odometry": "03 Odometry", "extractor": "06 Extractor", "intake": "05 Intake roller", "lane": "08 Mouth and lane",
+                "elec": "13 Electronics"}.get(m, "02 Drive corners" if m.startswith("corner") else "04 Flaps and soft faces" if m.startswith("front") else "14 Other")
+    def motion(k):
+        mv = PARTS[k]["moves"]
+        if mv == "intake": return f"moves - intake arms, revolute on the arms' pivot (Y axis), 0 to {lift_deg(FLOAT):.0f} deg up"
+        if mv == "extractor" and not k.startswith("ex_stub"): return "moves - extractor, revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
+        for n in ("FL", "FR", "BL", "BR"):
+            if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"moves - wheel {n}, revolute on its shaft"
+        if k in ("star_L", "star_R"): return f"moves - star wheel {k[-1]}, revolute on its vertical shaft"
+        if mv in ("feed_L", "feed_R"): return f"moves - feeder arm {mv[-1]}, revolute on its pivot shaft (X axis), 0 to {FEED_SWING:.0f} deg out, sprung in"
+        if mv in ("fly_L", "fly_R"): return f"moves - flywheel side {mv[-1]}, slider along Y, 0 to {FLY_TRAVEL:.2f} in out, sprung in"
+        return None
+    seen = {}
+    def label(k):
+        nm = k
+        if k.startswith("lm_"):
+            nm = "mentor - " + re.sub(r"[^A-Za-z0-9 .,()+_-]", "", PARTS[k]["what"].split(": ", 1)[1].split(" (")[0])[:48]
+        seen[nm] = seen.get(nm, 0) + 1
+        return nm if seen[nm] == 1 else f"{nm} ({seen[nm]})"
+    COLOURS = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}
+    tree = {}
+    for k in PARTS: tree.setdefault(subsystem(k), {}).setdefault(motion(k), []).append(k)
+    screws = {}
+    for f in FASTENERS: screws.setdefault(subsystem(f["a"]) if f["a"] in PARTS else "14 Other", []).append(f)
+    asm = cq.Assembly(name="biobuzz_printed_chassis_v3")
+    full = cq.Assembly(name="biobuzz_printed_chassis_v3_full")
+    for sysname in sorted(set(tree) | set(screws)):
+        sub, fsub = cq.Assembly(name=sysname), cq.Assembly(name=sysname)
+        for mo in sorted(tree.get(sysname, {}), key=lambda m: (m is not None, m or "")):
+            tgt, ftgt = (sub, fsub) if mo is None else (cq.Assembly(name=mo), cq.Assembly(name=mo))
+            for k in tree[sysname][mo]:
+                p = PARTS[k]; sh = solid(p["shape"]).scale(25.4); col = COLOURS[p["kind"]]
+                if k.startswith(("flap_face", "front_pad", "ramp_skin")): col = cq.Color(0.95, 0.75, 0.2)
+                nm = label(k)
+                if not k.startswith(("lm_", "dm_")): tgt.add(sh, name=nm, color=col)
+                ftgt.add(sh, name=nm, color=col)
+                if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(sh), os.path.join(HERE, "stl", f"{k}.stl"))
+            if mo is not None:
+                if tgt.children: sub.add(tgt, name=mo)
+                fsub.add(ftgt, name=mo)
+        if screws.get(sysname):
+            sz, fsz = cq.Assembly(name="screws"), cq.Assembly(name="screws")
+            for f in screws[sysname]:
+                sh = solid(screw_solids(f)).scale(25.4); nm = f"{f['size']}x{f['L']} - {f['name']}"
+                sz.add(sh, name=nm, color=cq.Color(0.2, 0.2, 0.22)); fsz.add(sh, name=nm, color=cq.Color(0.2, 0.2, 0.22))
+            sub.add(sz, name="screws"); fsub.add(fsz, name="screws")
+        if sub.children: asm.add(sub, name=sysname)
+        full.add(fsub, name=sysname)
     asm.save(os.path.join(HERE, "printed-chassis.step"))
     if USE_LM or USE_DM:
         import gzip, shutil
