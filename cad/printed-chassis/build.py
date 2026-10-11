@@ -354,7 +354,13 @@ def extractor(deg):
         res[k] = (w if k.startswith("ex_stub") else rot_y(w, EX_AXIS, deg), kind, what)
     return res
 for k, (w, kind, what) in extractor(EX_STOW).items(): part("extractor", k, w, kind, what, moves="extractor")
-part("extractor", "ex_servo", box(FACE + 1.3, FACE + 2.9, -7.85, -7.3, 4.85, 5.85), "buy", "goBILDA 2000-0025-0002 Torque servo, on the right flap, 1:1 printed gear pair to the right stub (CHECK the box)")
+part("extractor", "ex_servo", box(FACE + 1.3, FACE + 2.9, -7.85, -7.3, 4.85, 5.85), "buy", "goBILDA 2000-0025-0002 Torque servo, on the right flap, its spline inboard (CHECK the box)")
+EX_GEAR_SERVO = (FACE + 1.6, 5.35)      # the servo's spline (X, z), CHECK on the servo
+EX_GEAR_D = math.hypot(EX_AXIS[0] - EX_GEAR_SERVO[0], EX_AXIS[1] - EX_GEAR_SERVO[1])   # 1:1 pair: each pitch diameter = the centres
+part("extractor", "ex_gear_servo", cyl("y", EX_GEAR_SERVO, EX_GEAR_D, -7.30, -7.08), "print",
+     f"PETG-CF: the extractor's servo gear, on the servo's 25T horn (4 M3), mod 1, {round(EX_GEAR_D * 25.4)} teeth, 1:1 with the stub's")
+part("extractor", "ex_gear_stub", cyl("y", EX_AXIS, EX_GEAR_D, -7.30, -7.08), "print",
+     f"PETG-CF: the extractor's stub gear, clamped on the right stub (REX bore, a set screw), mod 1, {round(EX_GEAR_D * 25.4)} teeth")
 
 # ---- intake (moves: lift 0 .. FLOAT)
 def lift_deg(lift):
@@ -417,10 +423,10 @@ for s, n in SIDES:
     part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
          "SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD)")
     part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_Z + 0.9), "buy",
-         "8 mm ROUND hardened shaft (ground steel, h6), vertical, from the servo: the clutch's rollers run on it, so not 8mm REX (its flats would let them slip)")
+         "8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat)")
     part("lane", f"star_clutch_{n}", cyl("z", (sx, sy), 20 * MM, STAR_Z + STAR_W / 2 + 0.05, STAR_Z + STAR_W / 2 + 0.05 + 14 * MM), "print",
          "PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; "
-         "CHECK with calipers; free-wheel direction TBD), its other end driving the star's hex adapter: the star can't be pushed backwards, and a fast piece overruns it")
+         "CHECK with calipers): its top screwed to the servo's goBILDA 25T horn (4 M3), so the servo turns the hub, the clutch drives the shaft and the star one way only; a fast piece overruns it, and it can't be pushed backwards")
     sv = box(sx - 1.13, sx + 0.45, sy - 0.4, sy + 0.4, SV_Z, SV_Z + 37 * MM)    # its body back toward the drive motor, clear of the intake motor
     part("lane", f"star_servo_{n}", sv, "buy", "continuous servo over the star, its spline on the star's axis (TBD: the mentor's choice and its coupling; a goBILDA Speed servo drawn)")
     top = SV_Z + 37 * MM
@@ -435,7 +441,7 @@ for s, n in SIDES:
          "PETG: on the rail's top flange (his motor fills the U-channel mount, so nothing bolts through that); hangs the star's servo and carries the intake arm's pivot (a shoulder screw)")
 for k, x in enumerate(LANE_SHAFTS):
     part("lane", f"lane_shaft_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 8 * MM, -WALL_IN - WALL_T, WALL_IN + WALL_T), "buy", "goBILDA 8mm REX shaft, 144 mm (2106-4008-1440)")
-    part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller")
+    part("lane", f"lane_roller_{k}", cyl("y", (x, LANE_BOTTOM - 12 * MM), 24 * MM, (-1 if k % 2 else 0) * 1.0, (0 if k % 2 else 1) * 1.0), "print", "TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back)")
 CEIL_X = (-0.55, 4.5)                    # from just ahead of the launcher's front uprights (X -0.63) to the front drive motors
 CEIL_Z = LANE_BOTTOM + 2 * RP - 0.2     # the free rollers' bottoms, at rest (a POLLEN presses them 0.2)
 CEIL_POSTS = (2.90,)                    # X: the ceiling hinges on one post a side at its front (his front drive motors cross over the
@@ -812,6 +818,8 @@ if USE_LM:
     captive("feeder_belt_A", "feeder_pivot_L", "on the 24T pulleys"); captive("feeder_belt_B", "feeder_pivot_L", "on the 24T pulleys")
 if USE_LM: device("turret_drive_plate", "lm_Hole_Lowside_U-Channel_GB_8__1", "M4 x 10 up through the plate into nylocs in the launcher's front top channel", 4)
 device("ex_servo", "flap_R", "M4 x 12 through the servo's tabs into the flap's inserts", 4)
+device("ex_gear_servo", "ex_servo", "4 M3 into the servo's goBILDA horn", 4)
+captive("ex_gear_stub", "ex_stub_R", "clamped on the stub, a set screw")
 captive("roller", "roller_shaft", "on the REX shaft")
 captive("roller_belt", "roller_shaft", "on the 24T pulleys")
 device("intake_motor", "intake_arm_R", "M4 x 8 into the motor's face (goBILDA pattern) through the arm", 4)
@@ -819,7 +827,7 @@ for k, x in enumerate(LANE_SHAFTS):
     wall = "mouth_floor" if k < 2 else ("lane_wall_{}_front" if x > WALL_SPLIT else "lane_wall_{}_rear")
     for n in ("L", "R"):
         captive(f"lane_shaft_{k}", wall.format(n) if "{" in wall else f"{wall}_{n}", "in a goBILDA 1611 flanged bearing, e-clips")
-    captive(f"lane_roller_{k}", f"lane_shaft_{k}", "on the REX shaft")
+    captive(f"lane_roller_{k}", f"lane_shaft_{k}", "free on two 8x14x5 bearings on the shaft")
 for k in range(4): captive(f"ceiling_roller_{k}", "ceiling", "on two 608 bearings and an 8 mm shaft through the ceiling's sides")
 captive("battery", "battery_cradle_L", "a strap round it and both halves")
 captive("battery_cradle_R", "battery_cradle_L", "")   # noqa (the strap): each half also screws to its own rail
@@ -845,7 +853,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"),
-           ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
+           ("intake_motor", "intake_arm_R"), ("ex_servo", "flap_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),

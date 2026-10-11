@@ -39,9 +39,16 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | The turret's drive gear points forward (as his); its servo swings 30° and encoder B 270° about the gear's axis | searched every 15°, each alone, against the front drive motors, the flywheels open and shut, and the launch column: anywhere else one of them hits; belt and mesh unchanged | — |
 | 11 Oct | His launcher frame re-housed: the flywheels' pivot hardware dropped (the sprung slides replace it); the drive plate redrawn around what it carries; the rear lower cross channel, its blocks and the column's back guides raised 0.9 in above the feeder's drive; the side channels end at X −4.98, clear of our rear belts; the feeder bridge trimmed clear of the battery and the feeder's drive | each the smallest change that clears the budget; the feeder pair holds the ball where the back guides no longer reach | the rig shows the ball needs a back guide below z 4.96 |
 | 11 Oct | Rear drive motors at a 275 mm belt's own centres, 0.06 in forward (0.45 mm of tension in slotted holes) | inside the 17.75 in outline | — |
+| 11 Oct | The user: no more waiting on the mentor. This design competes with his, with carte blanche to change anything, judged on scoring the sister tip-5 Auto (or beating it), speed of build and serviceability | his packaging can't fit everything | — |
+| 11 Oct | The flywheel sides: each shaft in two printed bearing blocks sliding 0.41 in in slots in the plates; the rear block one piece with a yoke over to the motor, so the motor rides along and the belt keeps its length; an extension spring and a stop screw each | the simplest real mechanism with the motion the checks test; no rails | the rig shows the blocks bind (then PTFE tape, or a parallelogram) |
+| 11 Oct | The feeder arms: a compression spring each from a lug on the rear block; a tab on the arm rests on the block's foot, an M3 set screw sets the rest gap | anywhere inboard of the arm is the ball's path or belt B | — |
+| 11 Oct | A printed launcher tray across the rails' bottom flanges replaces his feeder bridge; the feeder's blocks bolt to it | the bridge couldn't hold the new blocks | — |
+| 11 Oct | **The lane is passive**: its rollers free on bearings; the intake roller throws each piece back, and the queue pushes the last one in | a drive from the intake crosses the star wheels on both sides, or stretches its belt 23% as the roller floats; no motor is spare | the rig: four pieces fed by the roller don't all reach the backstop on the flat lane (then a drive, or a 2° slope) |
+| 11 Oct | The star's clutch hub screws to the servo's goBILDA horn; the round shaft carries the star through a printed hex adapter | no room between the hub and the servo for a separate coupler | — |
+| 11 Oct | The extractor: a 1:1 printed mod-1 gear pair, inboard of the right flap, from the servo's horn to the right stub | — | — |
 
-## Open, in the order they get decided (hardest to move first)
+## Open
 
-1. The sprung slides' hardware (goBILDA or MGN9 rails), springs and stops; the feeder motor's bracket on the left module.
-2. The turret drive plate's mounting screws and the servo's bracket (drawn as windows in the plate).
-3. Confirm with the mentor: the re-housed frame, the corners, the battery's place and size.
+1. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
+2. Confirm on real parts: the goBILDA channel hole rows, the battery's and hubs' sizes, the servos' spline positions.
+3. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.
