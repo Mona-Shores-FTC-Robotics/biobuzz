@@ -736,10 +736,10 @@ if USE_LM:
             w = w.intersect(box(-20, -4.72, -20, 20, -20, 20))
         if re.match(r"^Hole_Lowside_U-Channel_GB_(10|12)__1", e["file"]):   # his back plates: only the flywheels' part (above the feeder's arms)
             w = w.intersect(box(-20, 20, -20, 20, 4.75, 20))
-        if re.match(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)__1", e["file"]):   # the bearing blocks' slots, 0.41 in outward
-            for sg in (1, -1):
-                y0, y1 = sorted((sg * (FLY_AXIS[0] - 0.46), sg * (FLY_AXIS[0] + 0.46 + FLY_TRAVEL)))
-                w = w.cut(box(-20, 20, y0, y1, FLY_AXIS[1] - 0.56, FLY_AXIS[1] + 0.56))
+        if re.match(r"^Hole_Lowside_U-Channel_GB_(9|10|11|12)__1", e["file"]):   # the bearing blocks' windows, 0.41 in outward: cut rough,
+            for sg in (1, -1):                                                     # 0.06 in oversize (the printed guides do the fitting)
+                y0, y1 = sorted((sg * (FLY_AXIS[0] - 0.52), sg * (FLY_AXIS[0] + 0.52 + FLY_TRAVEL)))
+                w = w.cut(box(-20, 20, y0, y1, FLY_AXIS[1] - 0.62, FLY_AXIS[1] + 0.62))
         if e["file"].startswith("feeder_floor"):            # notched round the feeder arms' rear blocks
             w = w.cut(box(-4.70, -3.80, 0.6, 20, -20, 20)).cut(box(-4.70, -3.80, -20, -0.6, -20, 20))
         if LM_RAISE.match(e["file"]): w = cq.Workplane().add(solid(w).translate(cq.Vector(0, 0, LM_RAISE_Z)))
@@ -861,8 +861,16 @@ if USE_LM:
 if USE_LM:
     for s, n in SIDES:
         y, mv = s * FLY_AXIS[0], f"fly_{n}"
+        for f_, (xa, xb), plate in (("front", (-1.08, -0.73), 11 if n == "L" else 9), ("rear", (-4.30, -3.95), 12 if n == "L" else 10)):
+            ga, gb = sorted((s * (FLY_AXIS[0] - 0.50), s * (FLY_AXIS[0] + 0.47 + FLY_TRAVEL)))
+            gd = box(xa, xb, ga, gb, FLY_AXIS[1] + 0.555, FLY_AXIS[1] + 0.75).union(box(xa, xb, ga, gb, FLY_AXIS[1] - 0.75, FLY_AXIS[1] - 0.555))
+            ge = (ga, ga + 0.04) if s > 0 else (gb - 0.04, gb)                      # tied at the column's end, beyond the block's travel
+            gd = gd.union(box(xa, xb, *ge, FLY_AXIS[1] - 0.75, FLY_AXIS[1] + 0.75))
+            part("launcher", f"fly_guide_{n}_{f_}", gd, "print",
+                 f"PETG-CF: the {f_} bearing block's guide, inside his plate's channel: a rail over and under the block (0.005 in each side, a sliding fit), "
+                 "so his plate only needs a rough window; 2 M3 through the plate's web into its inserts")
         part("launcher", f"fly_block_{n}_front", box(-1.10, -0.62, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.55, FLY_AXIS[1] + 0.55), "print",
-             "PETG-CF: the flywheel's front bearing block, the shaft's 8x14 bearing in it, sliding in a 0.41 in slot in his front plate", mv)
+             "PETG-CF: the flywheel's front bearing block, the shaft's 8x14 bearing in it, sliding 0.41 in between its printed guide's rails", mv)
         yk = box(-4.41, -3.93, y - 0.45, y + 0.45, FLY_AXIS[1] - 0.55, FLY_AXIS[1] + 0.55)                      # the rear bearing block, in the back plate's slot
         yk = yk.union(box(-4.70, -4.41, s * (FLY_AXIS[0] - 0.35), s * (FLY_AXIS[0] + 0.35), 6.78, 8.20))       # up behind the plate, over his rear channel
         yk = yk.union(box(-4.70, -4.42, s * (FLY_AXIS[0] - 0.35), s * 7.40, 7.95, 8.20)).union(box(-4.70, -2.19, s * 5.30, s * 7.40, 7.95, 8.20))   # over to the motor
@@ -1104,6 +1112,8 @@ if USE_LM:
         captive(f"fly_block_{n}_front", f"lm_Hole_Lowside_U-Channel_GB_{11 if n == 'L' else 9}__1", "slides in the plate's slot, the shaft's bearing in it")
         captive(f"fly_yoke_{n}", f"lm_Hole_Lowside_U-Channel_GB_{12 if n == 'L' else 10}__1", "its block slides in the plate's slot, the shaft's bearing in it")
         device(f"fly_yoke_{n}", f"lm_flywheel_motor_bracket_{n}_1_8_in_aluminium_L_bent_on_the_laun_1", "M4 x 10 through the bracket's top into the yoke's inserts", 2)
+        for f_, plate in (("front", 11 if n == "L" else 9), ("rear", 12 if n == "L" else 10)):
+            device(f"fly_guide_{n}_{f_}", f"lm_Hole_Lowside_U-Channel_GB_{plate}__1", "2 M3 through the plate's web into the guide's inserts (mark the holes from the real plate)", 2)
         captive(f"fly_spring_{n}", f"fly_anchor_{n}", "hooked to the anchor's pin and the yoke's")
         captive(f"feeder_spring_{n}", f"feeder_rear_block_{n}", "seated in the lug's pocket and the arm's")
     device("feeder_motor", "feeder_rear_block_L", "M4 x 8 into the motor's face (goBILDA pattern)", 4)
@@ -1165,7 +1175,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
            ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "launcher_tray_"), ("feeder_post_", "launcher_tray_"), ("launcher_tray_", "rail_"), ("launcher_tray_", "lm_feeder_floor"), ("launcher_tray_", "lm_backstop"),
-           ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"), ("fly_yoke_", "lm_"),
+           ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_guide_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"), ("fly_yoke_", "lm_"),
            ("fly_anchor_", "lm_Hole_Lowside_U-Channel_GB_2__1"), ("fly_spring_", "fly_anchor_"), ("fly_spring_", "fly_yoke_"), ("fly_anchor_", "fly_yoke_"),
            ("feeder_spring_", "feeder_rear_block_"), ("feeder_spring_", "feeder_arm_"), ("feeder_arm_", "feeder_rear_block_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
            ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), 
