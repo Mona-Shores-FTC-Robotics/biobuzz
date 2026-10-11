@@ -14,6 +14,8 @@ import cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, ".cache", "vendor")
 URL = "https://www.gobilda.com/content/step_files/{}.zip"
+URLS = {"REV-31-1595": "https://www.revrobotics.com/content/cad/REV-31-1595.STEP",     # REV's own files: plain STEP, not zipped
+        "REV-31-1153": "https://www.revrobotics.com/content/cad/REV-31-1153.STEP"}
 
 # key: (SKU, file in its zip (regex), origin (mm, vendor frame), local Z (vendor), local X (vendor), what the frame is)
 # Read from each file (vendor.py --probe prints a model's extents); goBILDA's frames differ part to part.
@@ -35,6 +37,8 @@ MODELS = {
     "1120-0009-0240": ("1120-0009-0240", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "U-channel: a flange's outer face, its end, the open edge; X across, Y along, Z to the web"),
     "1123-0048-0336": ("1123-0048-0336", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "pattern plate: one face, its end, one edge; X through it, Y along it"),
     "1123-0048-0144": ("1123-0048-0144", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "the same"),
+    "REV-31-1595": ("REV-31-1595", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Control Hub: its base's middle; Z along its length, X across, Y up through it to the lid"),
+    "REV-31-1153": ("REV-31-1153", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Expansion Hub: the same"),
     "1501-0006-0560": ("1501-0006-0560", r"\.step$", (0, -28.0, 0), (0, 1, 0), (1, 0, 0), "M4 standoff: one end, on its axis"),
     "1501-0006-0480": ("1501-0006-0480", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same (origin: its lower end, found on load)"),
     "1501-0006-0400": ("1501-0006-0400", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same"),
@@ -52,10 +56,11 @@ def _read(data, pattern):
     from OCP.Quantity import Quantity_Color
     from OCP.TopExp import TopExp_Explorer
     from OCP.TopAbs import TopAbs_SOLID, TopAbs_FACE
-    z = zipfile.ZipFile(io.BytesIO(data))
-    name = next(n for n in z.namelist() if re.search(pattern, n, re.I) and not n.endswith("/"))
+    if data[:4] == b"PK\x03\x04":
+        z = zipfile.ZipFile(io.BytesIO(data))
+        data = z.read(next(n for n in z.namelist() if re.search(pattern, n, re.I) and not n.endswith("/")))
     tmp = os.path.join(CACHE, "_read.step")
-    with open(tmp, "wb") as f: f.write(z.read(name))
+    with open(tmp, "wb") as f: f.write(data)
     doc = TDocStd_Document(TCollection_ExtendedString("doc"))
     r = STEPCAFControl_Reader(); r.SetColorMode(True); r.SetNameMode(True); r.ReadFile(tmp); r.Transfer(doc)
     os.remove(tmp)
@@ -109,7 +114,9 @@ def _paint_motor(b):
     return (0.30, 0.30, 0.32)                                       # the gearbox
 def _paint_mecanum(b):
     return BLACK if (b.center.x ** 2 + b.center.y ** 2) ** 0.5 > 1.2 else (0.62, 0.63, 0.66)   # rollers round a hub
-PAINT = {"5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
+def _paint_hub(b):
+    return (0.20, 0.20, 0.22) if max(b.xlen, b.ylen, b.zlen) > 3.0 else (0.88, 0.88, 0.86)          # the case dark, its plugs light
+PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
 
 def _frame(origin, zv, xv):
     """The vendor-to-local transform: origin to 0, zv to +Z, xv to +X, then millimetres to inches."""
@@ -125,9 +132,9 @@ def fetch(keys=None):
         out = os.path.join(CACHE, key)
         if os.path.exists(os.path.join(out, "index.json")): continue
         if sku not in zips:
-            zp = os.path.join(CACHE, sku + ".zip")
+            zp = os.path.join(CACHE, sku + (".step" if sku in URLS else ".zip"))
             if not os.path.exists(zp):
-                print("fetching", sku); urllib.request.urlretrieve(URL.format(sku), zp)
+                print("fetching", sku); urllib.request.urlretrieve(URLS.get(sku) or URL.format(sku), zp)
             zips[sku] = open(zp, "rb").read()
         parts = _read(zips[sku], pat)
         if origin is None:                          # a standoff: its lower end along its axis
@@ -172,8 +179,11 @@ def placed_box(sh, loc):
     lo, hi = p.min(0), p.max(0)
     return [lo[0], hi[0], lo[1], hi[1], lo[2], hi[2]]
 
+SAME = {"5203-2402-0005": "5203-2402-0003", "5203-2402-0001": "5203-2402-0003"}   # goBILDA's one-stage motors are one model: share it
+
 def model(key):
     """[(shape in inches, local frame, colour)] for a cached model, or None."""
+    key = SAME.get(key, key)
     if key not in _LOADED:
         p = os.path.join(CACHE, key, "index.json")
         if not os.path.exists(p): _LOADED[key] = None

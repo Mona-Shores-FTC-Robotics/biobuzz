@@ -1,0 +1,222 @@
+<title>BIOBUZZ Robot v3</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workshop bench. The robot fills the stage; a narrow parts rail on the left, a part card that docks bottom-right. */
+:root {
+  --bg: #eef1f4;          /* bench grey with a cold steel bias */
+  --stage-top: #f7f9fb;
+  --stage-bot: #d9dfe6;
+  --panel: #ffffff;
+  --fg: #1c232b;
+  --muted: #5b6672;
+  --line: #d3d9e0;
+  --accent: #e8a317;      /* goBILDA-ish yellow, the Yellow Jacket's */
+  --accent-ink: #1c232b;
+  --printed: #2a6bd8;
+  --bought: #8a939c;
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12161b; --stage-top: #1b2128; --stage-bot: #0d1014; --panel: #181d23; --fg: #e6eaef; --muted: #98a3ae;
+  --line: #2a323b; --accent: #f0b232; --accent-ink: #12161b; --printed: #5b93f0; --bought: #9aa3ad; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12161b; --stage-top: #1b2128; --stage-bot: #0d1014; --panel: #181d23; --fg: #e6eaef; --muted: #98a3ae;
+  --line: #2a323b; --accent: #f0b232; --accent-ink: #12161b; --printed: #5b93f0; --bought: #9aa3ad; color-scheme: dark }
+
+html, body { height: 100%; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--fg); font-family: var(--body); font-size: 14px; }
+.app { height: 100%; display: grid; grid-template-columns: 300px minmax(0, 1fr); }
+.rail { border-right: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.rail header { padding: 18px 16px 12px; border-bottom: 1px solid var(--line); display: grid; gap: 4px; }
+.eyebrow { font: 500 11px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { margin: 0; font: 700 30px/1 var(--display); letter-spacing: .01em; text-wrap: balance; }
+.sub { color: var(--muted); font-size: 13px; line-height: 1.45; }
+.controls { padding: 12px 16px; display: grid; gap: 10px; border-bottom: 1px solid var(--line); }
+.row { display: flex; gap: 6px; flex-wrap: wrap; }
+button { font: 500 12px/1 var(--body); color: var(--fg); background: transparent; border: 1px solid var(--line); border-radius: 6px; padding: 7px 10px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+button.on { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+label.slider { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; font-size: 12px; color: var(--muted); }
+input[type=range] { width: 100%; accent-color: var(--accent); }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.systems { overflow-y: auto; padding: 6px 8px 16px; min-height: 0; }
+.sys { display: grid; grid-template-columns: 26px minmax(0, 1fr) auto auto auto; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 6px; }
+.sys:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.sys .n { font: 600 12px/1 var(--mono); color: var(--muted); }
+.sys .t { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sys .c { font: 400 11px/1 var(--mono); color: var(--muted); }
+.sys button { padding: 4px 7px; font-size: 11px; }
+.sys.off .t { color: var(--muted); text-decoration: line-through; }
+.legend { padding: 10px 16px; border-top: 1px solid var(--line); display: flex; gap: 14px; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; }
+.stage { position: relative; min-width: 0; background: linear-gradient(var(--stage-top), var(--stage-bot)); }
+canvas { display: block; width: 100%; height: 100%; }
+.status { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font: 500 14px var(--mono); pointer-events: none; }
+.card { position: absolute; right: 16px; bottom: 16px; width: min(380px, calc(100% - 32px)); background: var(--panel); border: 1px solid var(--line);
+        border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; box-shadow: 0 8px 28px rgba(0,0,0,.12); }
+.card h2 { margin: 0; font: 600 22px/1.05 var(--display); overflow-wrap: anywhere; }
+.card p { margin: 0; line-height: 1.5; font-size: 13px; max-height: 9.5em; overflow-y: auto; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.chip { font: 500 11px/1 var(--mono); padding: 4px 7px; border-radius: 99px; border: 1px solid var(--line); color: var(--muted); }
+.chip.print { color: var(--printed); border-color: color-mix(in srgb, var(--printed) 45%, transparent); }
+.chip.moves { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.hint { position: absolute; left: 16px; bottom: 14px; font: 400 12px var(--mono); color: var(--muted); }
+.axes { position: absolute; left: 16px; top: 14px; font: 500 12px var(--mono); color: var(--muted); }
+@media (max-width: 760px) {
+  .app { grid-template-columns: 1fr; grid-template-rows: minmax(0, 55%) minmax(0, 45%); }
+  .stage { grid-row: 1; } .rail { grid-row: 2; border-right: 0; border-top: 1px solid var(--line); }
+  .rail header .sub { display: none; }
+  .card { right: 8px; left: 8px; bottom: 8px; width: auto; }
+  .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <aside class="rail">
+    <header>
+      <span class="eyebrow">FTC 19429 &middot; 20245 &middot; issue #172</span>
+      <h1>BIOBUZZ Robot v3</h1>
+      <span class="sub">The printed-chassis robot as built: goBILDA and REV parts as their makers' own models, every printed part in its material. Click a part to see what it is.</span>
+    </header>
+    <div class="controls">
+      <div class="row" role="group" aria-label="Camera">
+        <button id="v-iso" class="on">Three-quarter</button><button id="v-front">Front</button><button id="v-side">Side</button><button id="v-top">Top</button>
+      </div>
+      <label class="slider" for="explode">Explode <input id="explode" type="range" min="0" max="100" value="0"> <span id="explode-v" class="num">0 in</span></label>
+      <div class="row"><button id="show-all">Show all</button><button id="spin">Turntable</button></div>
+    </div>
+    <div class="systems" id="systems" aria-label="Subsystems, in build order"></div>
+    <div class="legend">
+      <span><i class="sw" style="background:var(--printed)"></i>Printed PETG</span>
+      <span><i class="sw" style="background:#383b42"></i>PETG-CF</span>
+      <span><i class="sw" style="background:#f5b229"></i>TPU</span>
+      <span><i class="sw" style="background:var(--bought)"></i>Bought</span>
+    </div>
+  </aside>
+  <main class="stage" id="stage">
+    <canvas id="c"></canvas>
+    <div class="status" id="status">Loading the robot (14 MB)…</div>
+    <div class="axes">+X forward &middot; +Y left &middot; inches</div>
+    <div class="hint">Drag to turn &middot; scroll to zoom &middot; right-drag to pan</div>
+    <section class="card" id="card" hidden>
+      <span class="eyebrow" id="card-sys"></span>
+      <h2 id="card-name"></h2>
+      <div class="chips" id="card-chips"></div>
+      <p id="card-what"></p>
+    </section>
+  </main>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const IN = 0.0254;
+const $ = (id) => document.getElementById(id);
+const canvas = $("c"), stage = $("stage");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 0.95;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(2, 4, 3); scene.add(sun);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 0.5));
+const camera = new THREE.PerspectiveCamera(30, 1, 0.01, 50);
+const controls = new OrbitControls(camera, canvas); controls.enableDamping = true;
+
+// a field tile under the robot: 24 in square, the floor at z 0
+const tile = new THREE.Mesh(new THREE.PlaneGeometry(24 * IN, 24 * IN), new THREE.MeshStandardMaterial({ color: 0x6b7280, roughness: 0.95, transparent: true, opacity: 0.18 }));
+tile.rotation.x = -Math.PI / 2; scene.add(tile);
+const grid = new THREE.GridHelper(48 * IN, 2, 0x888888, 0x888888); grid.material.opacity = 0.35; grid.material.transparent = true; scene.add(grid);
+
+function resize() { const r = stage.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(stage); resize();
+
+let robot, systems = [], parts = {}, centre = new THREE.Vector3(), radius = 0.3, spin = false;
+const VIEWS = { iso: [1, 0.75, 1.05], front: [1, 0.12, 0], side: [0, 0.12, -1], top: [-0.001, 1, 0] };   // glTF frame: robot +X forward is +X, its left (+Y) is -Z, up is +Y
+function view(name) {
+  const d = new THREE.Vector3(...VIEWS[name]).normalize();
+  camera.position.copy(centre).addScaledVector(d, radius * 3.4); controls.target.copy(centre); controls.update();
+  document.querySelectorAll('[id^="v-"]').forEach(b => b.classList.toggle("on", b.id === "v-" + name));
+}
+for (const v of Object.keys(VIEWS)) $("v-" + v).addEventListener("click", () => view(v));
+
+const [gltf, meta] = await Promise.all([
+  fetch("robot.glb.txt").then(r => { if (!r.ok) throw new Error("robot.glb.txt: " + r.status); return r.text(); })   // the GLB, base64 (artifacts serve text)
+    .then(t => { const b = atob(t.trim()), u = new Uint8Array(b.length); for (let i = 0; i < b.length; i++) u[i] = b.charCodeAt(i); return new GLTFLoader().parseAsync(u.buffer, ""); }),
+  fetch("parts.json").then(r => r.json()).catch(() => [])
+]).catch(e => { $("status").textContent = "The robot didn't load: " + e.message; throw e; });
+for (const p of meta) parts[p.key] = p;
+robot = gltf.scene; scene.add(robot);
+robot.traverse(o => { if (o.isMesh) { o.geometry.computeVertexNormals(); o.material.side = THREE.DoubleSide; } });
+const box = new THREE.Box3().setFromObject(robot); box.getCenter(centre); radius = box.getSize(new THREE.Vector3()).length() / 2;
+tile.position.y = box.min.y - 0.0005; grid.position.y = box.min.y;
+$("status").hidden = true;
+
+const root = robot.getObjectByName("robot");
+for (const s of root.children) {
+  const b = new THREE.Box3().setFromObject(s), c = b.getCenter(new THREE.Vector3());
+  systems.push({ node: s, dir: c.clone().sub(centre).setY(Math.max(0, c.y - centre.y) * 0.6), home: s.position.clone(), on: true });
+}
+const list = $("systems");
+systems.forEach((s, i) => {
+  const [num, ...rest] = s.node.name.replace(/_/g, " ").split(" ");          // three.js turns spaces in names into underscores
+  const count = s.node.children.filter(c => !c.name.startsWith("screw")).length;
+  const el = document.createElement("div"); el.className = "sys";
+  el.innerHTML = `<span class="n">${num}</span><span class="t" title="${s.node.name}">${rest.join(" ")}</span><span class="c">${count}</span>`;
+  const show = document.createElement("button"); show.textContent = "Hide"; show.setAttribute("aria-label", "Hide " + rest.join(" "));
+  const solo = document.createElement("button"); solo.textContent = "Only";
+  show.onclick = () => { s.on = !s.on; s.node.visible = s.on; el.classList.toggle("off", !s.on); show.textContent = s.on ? "Hide" : "Show"; };
+  solo.onclick = () => systems.forEach((o, j) => { o.on = j === i; o.node.visible = o.on; list.children[j].classList.toggle("off", !o.on); list.children[j].querySelector("button").textContent = o.on ? "Hide" : "Show"; });
+  el.append(show, solo); list.append(el);
+});
+$("show-all").onclick = () => systems.forEach((o, j) => { o.on = true; o.node.visible = true; list.children[j].classList.remove("off"); list.children[j].querySelector("button").textContent = "Hide"; });
+$("explode").addEventListener("input", (e) => {
+  const k = e.target.value / 100; $("explode-v").textContent = (k * 6).toFixed(1) + " in";
+  for (const s of systems) s.node.position.copy(s.home).addScaledVector(s.dir.clone().normalize(), k * 6 * IN * (0.6 + s.dir.length() / radius));
+});
+$("spin").onclick = () => { spin = !spin; $("spin").classList.toggle("on", spin); controls.autoRotate = spin; controls.autoRotateSpeed = 1.2; };
+view("iso");
+
+// picking: a click names the part (its node is the mesh's grandparent or parent under a subsystem)
+const ray = new THREE.Raycaster(), ptr = new THREE.Vector2();
+let picked = null, down = null;
+const glow = new THREE.MeshStandardMaterial({ color: 0xf0b232, emissive: 0x7a4f00, roughness: 0.4 });
+canvas.addEventListener("pointerdown", e => down = [e.clientX, e.clientY]);
+canvas.addEventListener("pointerup", e => {
+  if (!down || Math.hypot(e.clientX - down[0], e.clientY - down[1]) > 4) return;
+  const r = canvas.getBoundingClientRect(); ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+  ray.setFromCamera(ptr, camera);
+  const hit = ray.intersectObject(robot, true).find(h => { let o = h.object; while (o) { if (!o.visible) return false; o = o.parent; } return true; });
+  if (picked) picked.traverse(o => { if (o.isMesh && o.userData.mat) { o.material = o.userData.mat; delete o.userData.mat; } });
+  if (!hit) { $("card").hidden = true; picked = null; return; }
+  let node = hit.object; while (node.parent && node.parent.parent !== root) node = node.parent;
+  picked = node; node.traverse(o => { if (o.isMesh) { o.userData.mat = o.material; o.material = glow; } });
+  const p = parts[node.name] || {};
+  $("card-sys").textContent = node.parent.name.replace(/_/g, " ");
+  $("card-name").textContent = node.name.replace(/^lm_/, "mentor's ").replace(/_/g, " ");
+  $("card-what").textContent = p.what || (node.name.startsWith("screw") ? "A socket-head cap screw, drawn and checked: real holes, enough thread, room for its head and hex key." : "");
+  const chips = $("card-chips"); chips.innerHTML = "";
+  const chip = (t, c) => { const s = document.createElement("span"); s.className = "chip " + (c || ""); s.textContent = t; chips.append(s); };
+  if (p.kind) chip(p.kind === "print" ? "printed" : p.kind === "buy" ? "bought" : "cut", p.kind);
+  if (p.moves) chip(p.moves.replace(/^moves - /, "moves: "), "moves");
+  $("card").hidden = false;
+});
+
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+</script>

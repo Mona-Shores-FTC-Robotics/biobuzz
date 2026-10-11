@@ -8,15 +8,27 @@
 > cross channel; the turret's servo and encoder B swung clear about its drive gear; his launcher frame re-housed with
 > the smallest change at each conflict. Every choice and what would reopen it: [DECISIONS.md](DECISIONS.md). Some v2
 > notes below predate v3.
+>
+> **Real parts (11 Oct).** Every bought part is drawn as its maker's own model (goBILDA's and REV's STEP files,
+> `vendor.py`), and checked as built: where a real part reaches past the envelope the clash checks use, the build
+> checks what it hits there. That found four things the boxes hid: the star servos' mounting, the extractor servo's
+> depth, the odometry pods turned 90° off their holes, and standoff lengths goBILDA doesn't sell (DECISIONS.md).
 
 Issue #172. The concept and its reasoning are in [doc/printed-chassis.md](../../doc/printed-chassis.md). This is the
 layout CAD: every module at its real size and place, checked for clashes. The mentor's own goBILDA launcher and drive
 corners are in it, placed by their axles. His built robot (photos, 10 Oct) now supersedes his 9 Oct CAD as the reference. **Every
-screw is drawn and checked** (v2); gear teeth, springs and the lane's drive belt are not drawn yet. Nothing here is built.
+screw is drawn and checked** (v2); belts are drawn with their teeth, the extractor's gears with theirs; the springs are
+drawn as their envelopes. Nothing here is built.
 
     python3 cad/printed-chassis/build.py          # checks, then writes printed-chassis.step, stl/, parts.md, views/
     CHECK_ONLY=1 python3 cad/printed-chassis/build.py
     python3 cad/printed-chassis/budget.py         # 20 s: views/budget.png, every part's box and the reserved volumes
+    python3 cad/printed-chassis/vendor.py         # once (needs network): fetches goBILDA's and REV's models into .cache/vendor/
+    python3 cad/printed-chassis/render.py         # views/*.png, shaded (VTK; starts its own Xvfb); --near X Y Z R for a close look
+    python3 cad/printed-chassis/viewer.py         # .cache/viewer/robot.glb: a light model for the web viewer (viewer/index.html)
+
+A full build takes about 9 minutes; `CHECK_ONLY=1` about a minute. Without `vendor.py`'s cache the checks still run on
+the envelopes, and the STEP and views draw those instead.
 
 Settled decisions, why, and what would reopen each: [DECISIONS.md](DECISIONS.md).
 
@@ -41,10 +53,11 @@ README no longer describes.
 
 | Check | Result |
 |---|---|
-| Starting outline (R102) | **17.73 × 17.75 in**, 14.8 in tall: designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
+| Starting outline (R102) | **17.72 × 17.75 in**, 15.2 in tall (the Limelight on its wedge): designed 1/8 in a side inside the 18 in cube, for print error, soft faces, screw heads and cables (v2's screws must stay inside it too). The flap tips are the front; the electronics rack and the rear drive mounts the back. Nothing deploys but the extractor. |
 | Extractor down (R105) | 20.2 in front to back, of 24 |
 | Width behind the face | 15.24 in: nothing behind the face is wider (his shafts' ends at ±7.62) |
-| Every screw (67, plus 26 on servos, hubs and the intake motor) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| Every screw (88, plus 120 on servos, hubs and motors) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
+| The real parts | each bought part's own model (72 of them) inside its envelope, or, where it reaches past it, hitting nothing there |
 | Every part reaches the rails | through screws, bearings and shafts (`CAPTIVE`) or its own mounting screws (`DEVICE`): no part floats |
 | The flywheel modules opening 0.41 in each side | clear, motors and the feeder with them; opened, they reach Y ±7.92 (R105 allows 18 wide) |
 | Static clashes | none, with his launcher and corners in (shafts in their own hubs, belts on their own pulleys and bolted faces excepted, by name in `ALLOWED`; his modules' own parts aren't checked against each other) |
@@ -57,8 +70,10 @@ README no longer describes.
 
 ## In Onshape
 
-The whole robot is one STEP (the build writes it as `.cache/printed-chassis-full.step`; zipped, it's about 22 MB);
-`printed-chassis.step` in git holds only our parts. **Create → Import** it with **Flatten assembly off**. It opens as
+The whole robot is one STEP, every bought part as its maker's model (the build writes it as
+`.cache/printed-chassis-full.step`: about 560 MB, 97 MB zipped; each model is stored once and placed per copy);
+`printed-chassis.step` in git holds only our parts, the bought ones as envelopes. To just look at it, use the web
+viewer (`viewer/index.html` with `viewer.py`'s model) or `views/`. **Create → Import** it with **Flatten assembly off**. It opens as
 one sub-assembly per subsystem, numbered in build order:
 
 01 Frame · 02 Drive corners · 03 Odometry · 04 Flaps and soft faces · 05 Intake roller · 06 Extractor ·
@@ -67,8 +82,8 @@ one sub-assembly per subsystem, numbered in build order:
 
 Inside each: its fixed parts, then a **"moves - …"** sub-assembly for each moving body (its name says the mate: a
 revolute or a slider, its axis and its range), then its **screws** (named size × length, then the joint). The mentor's
-launcher parts are named **"mentor - …"**. Colours: blue printed, grey bought, light grey cut, yellow the soft faces,
-dark grey screws. To make it move: fix everything, then unfix each "moves" group and give it the mate its name says.
+launcher parts are named **"mentor - …"**. Colours: printed parts by material (blue PETG, charcoal PETG-CF, amber TPU,
+clear polycarbonate), bought parts in their makers' colours, screws dark grey. To make it move: fix everything, then unfix each "moves" group and give it the mate its name says.
 
 ## Layout
 

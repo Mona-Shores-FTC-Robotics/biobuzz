@@ -9,23 +9,12 @@ build.py calls render(out_dir) after a full build.
 import math, os, shutil, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
 
-# Printed parts by material, read from the part's description; bought parts keep their models' colours
-MATERIAL = (("TPU", (0.96, 0.70, 0.16)), ("PETG-CF", (0.20, 0.22, 0.25)), ("polycarbonate", (0.80, 0.88, 0.95)),
-            ("aluminium", (0.80, 0.81, 0.83)), ("PETG", (0.16, 0.42, 0.85)))
-ENVELOPE = (0.62, 0.62, 0.66)           # a bought part with no model: its envelope
-
 def _display():
     if os.environ.get("DISPLAY") or not shutil.which("Xvfb"): return None
     d = ":%d" % (90 + os.getpid() % 9)
     p = subprocess.Popen(["Xvfb", d, "-screen", "0", "2400x1800x24"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     time.sleep(1.0); os.environ["DISPLAY"] = d
     return p
-
-def colour(B, k, p):
-    if p["kind"] != "print": return ENVELOPE if p["kind"] == "buy" else (0.80, 0.81, 0.83)
-    for word, c in MATERIAL:
-        if word in p["what"]: return c
-    return MATERIAL[-1][1]
 
 def scene(B, keep=lambda b: True):
     """[(vtkPolyData, colour, opacity)]: tessellated once per shape, placed by each look's location."""
@@ -63,7 +52,7 @@ def scene(B, keep=lambda b: True):
                 out.append((poly(v, f, T_of(loc)), c, 1.0))
         else:
             v, f, _ = mesh(B.solid(p["shape"]), 0.01)
-            out.append((poly(v, f), colour(B, k, p), 1.0))
+            out.append((poly(v, f), B.colour_of(k), 1.0))
     for f in getattr(B, "FASTENERS", []):
         try:
             sh = B.solid(B.screw_solids(f))
@@ -91,7 +80,7 @@ def _renderer(parts, cam, up, title, vp=(0, 0, 1, 1), focus=None, parallel=False
     c = r.GetActiveCamera(); f = focus or (0, 0, 5)
     c.SetFocalPoint(*f); c.SetPosition(*(f[i] + 60 * cam[i] for i in range(3))); c.SetViewUp(*up)
     c.SetViewAngle(18); c.SetParallelProjection(parallel)
-    r.ResetCamera(); c.Zoom(1.15 if not parallel else 1.0)
+    r.ResetCamera(); c.Zoom(1.08 if not parallel else 0.95)
     t = vtk.vtkTextActor(); t.SetInput(title); tp = t.GetTextProperty(); tp.SetColor(0.15, 0.15, 0.18); tp.SetFontSize(22); tp.SetFontFamilyToArial()
     t.SetDisplayPosition(14, 10); r.AddActor2D(t)
     return r
@@ -149,6 +138,7 @@ def near(B, point, radius, path):
 if __name__ == "__main__":
     sys.path.insert(0, HERE)
     import build as B
+    B.cut_holes(); B.cut_bores(); B.finish_edges()
     if "--near" in sys.argv:
         i = sys.argv.index("--near"); x, y, z, r = (float(v) for v in sys.argv[i + 1:i + 5])
         out = sys.argv[i + 5] if len(sys.argv) > i + 5 else os.path.join(HERE, "views", "near.png")

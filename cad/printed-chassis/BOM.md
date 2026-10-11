@@ -8,7 +8,7 @@ Buy about 10% extra of every small part.
 | Part | One robot | Two robots |
 |---|---|---|
 | 8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat) | 2 | 4 |
-| Limelight 3A, on two M4 into the mast's top | 1 | 2 |
+| Limelight 3A (72 x 48 x 17 mm), pitched 45 deg up on the mast's wedge, two M4 into its back; its pose goes in CameraMount | 1 | 2 |
 | Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size) | 1 | 2 |
 | REV Control Hub, standing on edge, plugs to the back | 1 | 2 |
 | REV Expansion Hub, standing on edge, plugs to the back | 1 | 2 |
@@ -27,21 +27,20 @@ Buy about 10% extra of every small part.
 | goBILDA 1123-0048-0144, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole | 2 | 4 |
 | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs | 2 | 4 |
 | goBILDA 120 mm L-beam | 1 | 2 |
+| goBILDA 1501-0006-0480 and 1501-0006-0240 M4 standoffs (48 + 24 mm) on an M4 set screw: 72 mm (goBILDA's 1501s stop at 56 mm) | 4 | 8 |
 | goBILDA 1501-0006-0560 M4 standoff, 56 mm | 8 | 16 |
-| goBILDA 1501-0006-0720 M4 standoff, 72 mm (CHECK: 2.9 in needed) | 4 | 8 |
-| goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) | 8 | 16 |
 | goBILDA 1505-0032-0160 (as the mentor's flywheel stack; CHECK) | 2 | 4 |
 | goBILDA 1516-4008-0960 8mm REX standoff, cut | 2 | 4 |
 | goBILDA 1516-4008-2160 8mm REX standoff (216 mm) | 1 | 2 |
 | goBILDA 1611-0514-4008 flanged bearing | 4 | 8 |
 | goBILDA 168 mm flat beam | 1 | 2 |
-| goBILDA 2000-0025-0002 Torque servo, on the right flap, its spline inboard (CHECK the box) | 1 | 2 |
+| goBILDA 2000-0025-0002 Torque servo, straight over the right stub, its spline inboard: its tabs on the mount (4 M4), its case out through the mount's window over the flap | 1 | 2 |
 | goBILDA 2000-0025-0003 Speed servo, continuous mode, over the star, its spline on the star's axis | 2 | 4 |
 | goBILDA 2000-0025-0003 Speed servo, set to continuous mode: turns the turret, 1:1 to its drive gear | 1 | 2 |
 | goBILDA 2106-4008-0800 8mm REX shaft, 80 mm, in a 1611 bearing in the rail's web and one in the outer plate; spacers and an e-clip | 4 | 8 |
 | goBILDA 2303-4008-0036, steel mod 0.8 pinion, 36T, 8mm REX bore, hub down: meshes the kit's 64T | 1 | 2 |
-| goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X, on a printed adapter from the right rail | 1 | 2 |
-| goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y, on a printed adapter from the right rail | 1 | 2 |
+| goBILDA 3110-0001-0002 4-bar odometry pod (96 mm drive wheel version), its wheel rolling along X: screwed by its plate's side face (its tapped holes) to a printed adapter from the right rail | 1 | 2 |
+| goBILDA 3110-0001-0002 4-bar odometry pod, its wheel rolling along Y: outside the right rail between the wheels, its back plate on a printed spacer on the web | 1 | 2 |
 | goBILDA 3208-0004-0001 gear-driven turret kit (176T ring, bearing, 64T drive gear and its mount) | 1 | 2 |
 | goBILDA 3213-3606-0002 96 mm mecanum, set of 4 | 1 | 2 |
 | goBILDA 3412-0009-0295, HTD5 9 mm, 295 mm: fixed centres 87.5 mm | 1 | 2 |
@@ -54,9 +53,9 @@ Buy about 10% extra of every small part.
 | goBILDA 3417-4008-0024, 24T HTD5 | 1 | 2 |
 | goBILDA 3417-4008-0024, 24T HTD5, on the flywheel's shaft: in place of his 41T | 2 | 4 |
 | goBILDA 3417-4008-0024, 24T HTD5, on the servo's hub | 1 | 2 |
+| goBILDA 3632-4008-0048 48 mm Gecko wheels x10, as the mentor's roller, evenly spaced across the 8.7 in span on 8mm REX spacers | 1 | 2 |
 | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): driven through its arm's belt | 1 | 2 |
 | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): free, in the pad's place | 1 | 2 |
-| goBILDA 3632-4008-0048 48 mm Gecko wheels, as the mentor's roller (about 10 across the 9.8 in span) | 1 | 2 |
 | goBILDA 40 mm U-beam | 2 | 4 |
 | goBILDA 40 mm square beam | 1 | 2 |
 | goBILDA 5203-2402-0001, 6000 RPM Yellow Jacket, 1:1: along X outboard of the launcher frame | 2 | 4 |
@@ -80,6 +79,7 @@ Buy about 10% extra of every small part.
 | goBILDA quad block (CHECK the SKU) | 1 | 2 |
 | goBILDA servo hub, 25T spline to 8mm REX, check the SKU: carries the 24T pulley | 1 | 2 |
 | the mentor's flywheel-shaft collar (as his module; CHECK the part) | 2 | 4 |
+| two goBILDA 1501-0006-0400 M4 standoffs (40 mm) on an M4 set screw: 80 mm (goBILDA's 1501s stop at 56 mm) | 8 | 16 |
 
 ## Made (cut, not printed)
 
@@ -106,17 +106,18 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `ceiling_roller_3` | PETG | 1 | 2 | 17 |
 | `ex_arm_L` | PETG | 1 | 2 | 9 |
 | `ex_arm_R` | PETG | 1 | 2 | 9 |
-| `ex_block` | PETG | 1 | 2 | 50 |
+| `ex_block` | PETG | 1 | 2 | 36 |
 | `ex_gear_servo` | PETG-CF | 1 | 2 | 3 |
 | `ex_gear_stub` | PETG-CF | 1 | 2 | 3 |
+| `ex_servo_mount` | PETG-CF | 1 | 2 | 7 |
 | `feeder_arm_L` | PETG-CF | 1 | 2 | 6 |
 | `feeder_arm_R` | PETG-CF | 1 | 2 | 6 |
 | `feeder_front_block_L` | PETG | 1 | 2 | 1 |
 | `feeder_front_block_R` | PETG | 1 | 2 | 1 |
 | `feeder_rear_block_L` | PETG | 1 | 2 | 11 |
-| `feeder_rear_block_R` | PETG | 1 | 2 | 6 |
-| `flap_L` | PETG-CF | 1 | 2 | 156 |
-| `flap_R` | PETG-CF | 1 | 2 | 156 |
+| `feeder_rear_block_R` | PETG | 1 | 2 | 5 |
+| `flap_L` | PETG-CF | 1 | 2 | 155 |
+| `flap_R` | PETG-CF | 1 | 2 | 155 |
 | `flap_face_L` | TPU 95A | 1 | 2 | 21 |
 | `flap_face_R` | TPU 95A | 1 | 2 | 21 |
 | `fly_anchor_L` | PETG | 1 | 2 | 3 |
@@ -125,8 +126,8 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `fly_block_R_front` | PETG-CF | 1 | 2 | 4 |
 | `fly_yoke_L` | PETG-CF | 1 | 2 | 24 |
 | `fly_yoke_R` | PETG-CF | 1 | 2 | 24 |
-| `front_bracket_L` | PETG | 1 | 2 | 34 |
-| `front_bracket_R` | PETG | 1 | 2 | 34 |
+| `front_bracket_L` | PETG | 1 | 2 | 18 |
+| `front_bracket_R` | PETG | 1 | 2 | 18 |
 | `front_pad_L` | TPU 95A | 1 | 2 | 14 |
 | `front_pad_R` | TPU 95A | 1 | 2 | 14 |
 | `hood` | PETG | 1 | 2 | 162 |
@@ -137,9 +138,9 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `lane_roller_2` | TPU 95A | 1 | 2 | 5 |
 | `lane_roller_3` | TPU 95A | 1 | 2 | 5 |
 | `lane_roller_4` | TPU 95A | 1 | 2 | 5 |
-| `lane_wall_L_front` | PETG | 1 | 2 | 9 |
+| `lane_wall_L_front` | PETG | 1 | 2 | 8 |
 | `lane_wall_L_rear` | PETG | 1 | 2 | 15 |
-| `lane_wall_R_front` | PETG | 1 | 2 | 9 |
+| `lane_wall_R_front` | PETG | 1 | 2 | 8 |
 | `lane_wall_R_rear` | PETG | 1 | 2 | 15 |
 | `launcher_foot_L0` | PETG | 1 | 2 | 4 |
 | `launcher_foot_L1` | PETG | 1 | 2 | 4 |
@@ -147,7 +148,7 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `launcher_foot_R1` | PETG | 1 | 2 | 4 |
 | `launcher_tray_L` | PETG | 1 | 2 | 26 |
 | `launcher_tray_R` | PETG | 1 | 2 | 20 |
-| `limelight_mast` | PETG | 1 | 2 | 13 |
+| `limelight_mast` | PETG | 1 | 2 | 25 |
 | `lm_backstop_print_PETG_an_L_its_foot_s_two_slots_-0.2_in_set_th_1` | PETG | 1 | 2 | 10 |
 | `lm_turret_enc_A_cradle_print_PETG_holds_encoder_A_under_the_dri_1` | PETG | 1 | 2 | 25 |
 | `lm_turret_enc_A_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
@@ -155,10 +156,10 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `lm_turret_enc_B_tower_print_PETG_cradles_encoder_B_on_the_plate_1` | PETG | 1 | 2 | 27 |
 | `mouth_floor_L` | PETG | 1 | 2 | 29 |
 | `mouth_floor_R` | PETG | 1 | 2 | 29 |
-| `odo_adapter_F` | PETG | 1 | 2 | 14 |
-| `odo_adapter_S` | PETG | 1 | 2 | 13 |
-| `rack_L` | PETG | 1 | 2 | 47 |
-| `rack_R` | PETG | 1 | 2 | 47 |
+| `odo_adapter_F` | PETG | 1 | 2 | 15 |
+| `odo_spacer_S` | PETG | 1 | 2 | 7 |
+| `rack_L` | PETG | 1 | 2 | 44 |
+| `rack_R` | PETG | 1 | 2 | 44 |
 | `ramp_skin_L` | TPU 95A | 1 | 2 | 12 |
 | `ramp_skin_R` | TPU 95A | 1 | 2 | 12 |
 | `star_clutch_L` | PETG | 1 | 2 | 2 |
@@ -166,25 +167,26 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 0.88 kg | 1.75 kg |
-| PETG-CF | 0.38 kg | 0.77 kg |
+| PETG | 0.83 kg | 1.66 kg |
+| PETG-CF | 0.39 kg | 0.78 kg |
 | TPU 95A | 0.12 kg | 0.24 kg |
 
-About 115 printer-hours a robot, 230 for two: with four home printers, about 5.7 days at 10 h a day.
+About 112 printer-hours a robot, 223 for two: with four home printers, about 5.6 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
 | Screw | One robot | Two robots |
 |---|---|---|
 | M3 x 8 socket head (countersunk for the faces) | 6 | 12 |
+| M3 x 10 socket head | 2 | 4 |
 | M3 x 12 socket head | 8 | 16 |
 | M4 x 10 socket head | 20 | 40 |
 | M4 x 12 socket head | 24 | 48 |
-| M4 x 16 socket head | 10 | 20 |
+| M4 x 16 socket head | 12 | 24 |
 | M4 x 20 socket head | 8 | 16 |
-| M4 x 25 socket head | 8 | 16 |
+| M4 x 25 socket head | 6 | 12 |
 | M5 x 18 socket head | 2 | 4 |
-| M3 heat-set insert | 14 | 28 |
+| M3 heat-set insert | 16 | 32 |
 | M4 heat-set insert | 12 | 24 |
 | M5 heat-set insert | 2 | 4 |
 | M4 nyloc nut | 26 | 52 |
@@ -239,10 +241,10 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | face_R0 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
 | face_R1 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
 | face_R2 | the swappable face to its flap (countersunk, flush on the face) | M3 x 8 | `flap_face_R` | an insert in `flap_R` |
-| odo_F12 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
-| odo_F13 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
-| odo_S21 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_S` | `odo_pod_strafe`'s thread |
-| odo_S22 | the odometry pod, through its adapter and the rail's web (from outside) | M4 x 25 | `rail_R`, `odo_adapter_S` | `odo_pod_strafe`'s thread |
+| odo_F2.52 | the forward odometry pod, through its adapter and the rail's web (from outside) into its side face | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
+| odo_F1.26 | the forward odometry pod, through its adapter and the rail's web (from outside) into its side face | M4 x 25 | `rail_R`, `odo_adapter_F` | `odo_pod_forward`'s thread |
+| odo_S2.52 | the strafe odometry pod: from inside the rail, through the web and its spacer into its back plate | M4 x 16 | `rail_R`, `odo_spacer_S` | `odo_pod_strafe`'s thread |
+| odo_S1.26 | the strafe odometry pod: from inside the rail, through the web and its spacer into its back plate | M4 x 16 | `rail_R`, `odo_spacer_S` | `odo_pod_strafe`'s thread |
 | wall_R_rear0 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_rear` | `wall_standoff_R_rear0`'s thread |
 | wall_rail_R_rear0 | the standoff to the rail's web (from outside) | M4 x 10 | `rail_R` | `wall_standoff_R_rear0`'s thread |
 | wall_R_rear1 | a lane wall to its standoff (counterbored: the head below the lane's face) | M4 x 10 | `lane_wall_R_rear` | `wall_standoff_R_rear1`'s thread |
@@ -276,6 +278,8 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | feeder_front_R_1.42 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_R` | an insert in `lane_wall_R_rear` |
 | anchor_R_0.75 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
 | anchor_R_2.2 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 25 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
+| ex_mount_0 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
+| ex_mount_1 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
 | mast_-0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
 | mast_0.55 | the mast's foot to the front cross channel's top | M4 x 16 | `limelight_mast`, `front_cross` | a nyloc |
 | hood_0 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
@@ -389,7 +393,7 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `fly_yoke_R` | `lm_flywheel_motor_bracket_R_1_8_in_aluminium_L_bent_on_the_laun_1` | M4 x 10 through the bracket's top into the yoke's inserts (2) |
 | `feeder_motor` | `feeder_rear_block_L` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
 | `turret_drive_plate` | `lm_Hole_Lowside_U-Channel_GB_8__1` | M4 x 10 up through the plate into nylocs in the launcher's front top channel (4) |
-| `ex_servo` | `flap_R` | M4 x 12 through the servo's tabs into the flap's inserts (4) |
+| `ex_servo` | `ex_servo_mount` | M4 x 12 through the servo's tabs into the mount's inserts (4) |
 | `ex_gear_servo` | `ex_servo` | 4 M3 into the servo's goBILDA horn (4) |
 | `intake_motor` | `intake_arm_R` | M4 x 8 into the motor's face (goBILDA pattern) through the arm (4) |
 | `control_hub` | `rack_L` | M3 x 8 into its four mounting holes, through the rack's wall (4) |

@@ -51,6 +51,14 @@ reopen it without its test failing or new information that answers "reopen if". 
 | 11 Oct | The rails' holes as goBILDA's STEP has them (the CAD chat): stations every 8 mm from 8 mm off the end; web holes at ±8 and ±16 mm, only ±16 at every 24 mm (a 14 mm bore on the centreline there); flange row 8.0 mm from the web's face. Every rail screw re-placed on it | read from the vendor's model, not the mentor's | — |
 | 11 Oct | The hood screws to the 176T gear's 64 mm-radius holes (the 56 mm-radius free ones are the fallback) | the CAD chat, from goBILDA's STEP; the 56 mm ones sit under the hood's tube | the part doesn't have them |
 | 11 Oct | Soft faces printed as a TPU 95A gyroid lattice, 10-20% infill, no top skin (the ramp's skin with one thin top skin); Monday drops solid TPU, two lattice infills and memory foam on a backer; no grommets | the body-designs chat: a face that crushes locally beats a stiff face on a soft mount, for pieces this light | the drop test |
+| 11 Oct | **Bought parts are drawn as their makers' own models** (goBILDA's and REV's STEP files, `vendor.py`); the checks keep using envelopes, and a real part that reaches past its envelope is checked against what's there | a teaching model has to be the real robot; and the boxes hid four mistakes, below | — |
+| 11 Oct | The star servos stand on a plate under their tabs (4 M4), their cases down through a window to the clutch hubs; no shelf over their backs | a goBILDA servo mounts only by its tabs | — |
+| 11 Oct | The extractor servo stands straight over the right stub on its own PETG-CF mount astride the flap's tall top (2 M3 through a cheek into the flap); a 30-tooth module 1 pair, 1:1, on the servo's horn | the servo is 1.5 in deep: where it was, its case went through the flap | — |
+| 11 Oct | The forward odometry pod screws by its plate's side face (two tapped holes, 32 mm apart) through its adapter at the rail's 96 mm; the strafe pod (43 mm wide, more than the 42 mm between the lane walls' standoffs) outside the right rail between the wheels, its back plate on a pocketed 5 mm spacer, at the rail's 168 mm | the pods' own holes, on the web's +-16 mm rows (only at stations that are multiples of 24 mm) | the Pinpoint's offsets: measured on the robot |
+| 11 Oct | The 80 mm wall standoffs are two 1501-0006-0400 on an M4 set screw; the 72 mm rack standoffs a 0480 and a 0240 | goBILDA's 1501 standoffs stop at 56 mm | — |
+| 11 Oct | The hubs are REV's 29.6 mm thick (not 1 in); the rack's back wall is slotted over its standoffs' screws | the rack screws and the flywheel springs' anchors leave no room to move the hubs | — |
+| 11 Oct | The Limelight drawn at its size (72 x 48 x 17 mm), on a 45° wedge on the mast's top | its docs' drawing | — |
+| 11 Oct | Printed parts' edges rounded 0.8 mm (or chamfered where OCC can't round them); the extractor's gears and the FLOWER block drawn to their real profiles | they're the STLs that get printed | — |
 
 ## Open
 
@@ -58,3 +66,6 @@ reopen it without its test failing or new information that answers "reopen if". 
 2. Rig values: the four springs' rates and preloads, the rest gaps, the feeder motor's speed, the flap faces' material.
 3. Confirm on real parts: the battery's and hubs' sizes, the servos' spline positions.
 4. Holes to mark from his real parts: the launcher's feet, the hood on the turret, the flywheel springs' anchors.
+5. The Limelight's new pose (on the wedge, about 14.5 in up, 45° up) goes into `CameraMount`.
+6. Confirm the servo horn's screw pattern (4 M3 on a 16 mm circle is drawn) before printing the extractor's gear.
+7. The hood is still a stand-in (a tube and a lid): the launcher rig sets its shape.

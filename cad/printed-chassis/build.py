@@ -187,7 +187,7 @@ ENC_B = (DRIVE_GEAR[0] + 40 * MM * math.sin(_ka), DRIVE_GEAR[1] - 40 * MM * math
 FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor plates, over the front drive motors
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
-HUB = (5.63, 4.06, 1.0)                 # REV Control / Expansion Hub, CHECK
+HUB = (143 * MM, 103 * MM, 29.6 * MM)   # REV Control / Expansion Hub: long, wide, thick (REV's own model)
 BAT_X = RAIL_X[0] + CH_LOW + 0.05      # the battery just ahead of the rear cross channel
 CRADLE_X = (RAIL_X[0] + 24 * MM, RAIL_X[0] + 40 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
@@ -300,6 +300,32 @@ def rex_shaft(length, bore=0.0):
     w = hexa.intersect(cq.Workplane("XY").circle(4 * MM).extrude(length))
     if bore: w = w.cut(cq.Workplane("XY").circle(bore / 2).extrude(length))
     return solid(w)
+
+def spur_gear(teeth, module, width, bore=None):
+    """An involute spur gear (20 deg pressure angle) in local XY, from z 0 to width, inches; bore: 'rex' or a diameter."""
+    m = module * MM; rp = m * teeth / 2; rb = rp * math.cos(math.radians(20)); ra = rp + m; rf = rp - 1.25 * m
+    inv = lambda a: math.tan(a) - a
+    half = math.pi / (2 * teeth) + inv(math.acos(rb / rp))          # the tooth's half-angle at the base circle
+    def flank(sign, base):
+        pts = []
+        for i in range(9):
+            r = max(rb, rf) + (ra - max(rb, rf)) * i / 8
+            a = base + sign * (half - inv(math.acos(min(1.0, rb / r))))
+            pts.append((r * math.cos(a), r * math.sin(a)))
+        return pts
+    prof = []
+    for k in range(teeth):
+        c = 2 * math.pi * k / teeth
+        right, left = flank(-1, c), flank(1, c)
+        prof += [(rf * math.cos(c - half - 0.06), rf * math.sin(c - half - 0.06))] + right + left[::-1] + [(rf * math.cos(c + half + 0.06), rf * math.sin(c + half + 0.06))]
+    g = cq.Workplane("XY").polyline(prof).close().extrude(width)
+    if bore == "rex": g = g.cut(cq.Workplane("XY").polygon(6, 2 * (REX_FLATS + 0.1 * MM) / math.cos(math.pi / 6)).extrude(width))
+    elif bore: g = g.cut(cq.Workplane("XY").circle(bore / 2).extrude(width))
+    return g
+
+def placed(w, origin, z, x=(1, 0, 0)):
+    """A shape drawn in its own frame, placed (as dress() places a model)."""
+    return cq.Workplane().add(solid(w).moved(cq.Location(cq.Plane(origin=origin, xDir=x, normal=z))))
 
 HTD5 = dict(pitch=5 * MM, land_r=18.53 * MM, tooth=2.06 * MM, back=1.54 * MM, width=9 * MM)   # the 24T's tips (goBILDA's model), HTD 5 mm belt
 def toothed_belt(centres, r=HTD5["land_r"]):
@@ -492,7 +518,11 @@ def extractor(deg):
         stub_out = 8.3
         out[f"ex_stub_{n}"] = (mir(cyl("y", EX_AXIS, 8 * MM, EX_ARM_Y, stub_out), s), "buy", "goBILDA 1516-4008-0960 8mm REX standoff, cut")
     out["ex_cross"] = (cyl("y", EX_CROSS, 8 * MM, -EX_ARM_Y - 0.12, EX_ARM_Y + 0.12), "buy", "goBILDA 1516-4008-2160 8mm REX standoff (216 mm)")
-    out["ex_block"] = (box(*EX_BLOCK[0], -2.4, 2.4, *EX_BLOCK[1]), "print", "PETG: the FLOWER block (doc/ramp-hook.md's profile; drawn as its box here)")
+    (bx0, bx1), (bz0, bz1) = EX_BLOCK         # doc/ramp-hook.md: 1.4 in deep, a 0.12 in upright strip at the front, the front leaning
+    blk = slab_y([(bx0, bz0), (bx1, bz0), (bx1, bz0 + 0.12), (bx1 - 0.2, bz1), (bx1 - 0.7, bz1), (bx0, bz0 + 0.35)], -2.4, 2.4)   # back 0.2 in to a 0.5 in flat top
+    blk = blk.cut(cyl("z", (bx1 + 1.395 - 0.25, 0), 2.79, 0, 3))   # its front curved to the bottom ring's 2.79 in hole, 0.25 in deep
+    blk = blk.cut(placed(cq.Workplane("XY").polygon(6, 2 * (REX_FLATS + 0.1 * MM) / math.cos(math.pi / 6)).extrude(5.0), (EX_CROSS[0], -2.5, EX_CROSS[1]), (0, 1, 0)))
+    out["ex_block"] = (blk, "print", "PETG: the FLOWER block (doc/ramp-hook.md's profile), threaded on the cross shaft (a REX bore), clamping collars either side")
     res = {}
     for k, (w, kind, what) in out.items():
         res[k] = (w if k.startswith("ex_stub") else rot_y(w, EX_AXIS, deg), kind, what)
@@ -520,9 +550,12 @@ def ex_servo_mount():
 _m, EX_MOUNT_SCREWS = ex_servo_mount()
 part("extractor", "ex_servo_mount", _m, "print",
      "PETG-CF: the extractor servo's mount: the servo's tabs screw to its plate (4 M4 into inserts), its case out through the window; it sits astride the right flap's tall top, two M3 through its cheek into the flap")
-part("extractor", "ex_gear_servo", cyl("y", EX_GEAR_SERVO, EX_GEAR_D, *EX_GEAR_Y), "print",
-     f"PETG-CF: the extractor's servo gear, on the servo's 25T horn (4 M3), mod 1, {round(EX_GEAR_D * 25.4)} teeth, 1:1 with the stub's")
-part("extractor", "ex_gear_stub", cyl("y", EX_AXIS, EX_GEAR_D, *EX_GEAR_Y), "print",
+_gw = EX_GEAR_Y[1] - EX_GEAR_Y[0]
+_gs = spur_gear(30, 1, _gw, 6 * MM)
+for a in range(4): _gs = _gs.cut(cq.Workplane("XY").circle(1.7 * MM).extrude(_gw).translate((8 * MM * math.cos(math.pi / 4 + a * math.pi / 2), 8 * MM * math.sin(math.pi / 4 + a * math.pi / 2), 0)))
+part("extractor", "ex_gear_servo", placed(_gs, (EX_GEAR_SERVO[0], EX_GEAR_Y[0], EX_GEAR_SERVO[1]), (0, 1, 0), (math.cos(math.pi / 30), 0, -math.sin(math.pi / 30))), "print",   # half a tooth round: meshed
+     f"PETG-CF: the extractor's servo gear, on the servo's 25T horn (4 M3 on a 16 mm circle, CHECK on the horn), mod 1, {round(EX_GEAR_D * 25.4)} teeth, 1:1 with the stub's")
+part("extractor", "ex_gear_stub", placed(spur_gear(30, 1, _gw, "rex"), (EX_AXIS[0], EX_GEAR_Y[0], EX_AXIS[1]), (0, 1, 0)), "print",
      f"PETG-CF: the extractor's stub gear, clamped on the right stub (REX bore, a set screw), mod 1, {round(EX_GEAR_D * 25.4)} teeth")
 
 # ---- intake (moves: lift 0 .. FLOAT)
@@ -810,22 +843,25 @@ part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT
 # Electronics (CHECK with the mentor): both hubs standing on edge in a printed rack over the rear drive motors, their plugs
 # to the back, the rack on two standoffs from the rear cross channel (between the rear motors' inner ends); the battery
 # low between the rails, ahead of that channel; the Limelight on a mast in the middle of the front cross channel.
-EL_X = (AXLE[-1] - 1.32, AXLE[-1] - 0.32)                  # the hubs' X (1 in thick, standing), behind the launcher's rear channels
+EL_X = (AXLE[-1] - 0.32 - HUB[2], AXLE[-1] - 0.32)                  # the hubs' X (standing on edge), behind the launcher's rear channels
 RACK_SCREW_X = RAIL_X[0] + 6 * MM       # the rear cross channel's top flange, mid-flange (CHECK, as the rails' flanges)
 RACK_SCREW_Y = (8 * MM, 16 * MM)        # between the rear motors' inner ends (|Y| 0.76)
 RACK_Z = RAIL_Z[1] + 72 * MM            # over the rear drive motors (their tops at 5.53), on 72 mm of standoffs
 RACK_STANDOFF = (RAIL_Z[1], RACK_Z)     # goBILDA 1501 M4 standoffs, 72 mm
 for s_, n in SIDES:
     part("elec", f"rack_{n}", box(RACK_SCREW_X - 0.2, EL_X[1] + 0.05, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2).union(
-         box(EL_X[0] - 0.1, EL_X[0], 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])), "print",
-         "PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to; on two standoffs at its inner end")
+         box(EL_X[0] - 0.1, EL_X[0], 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])).cut(
+         box(EL_X[0] - 0.2, EL_X[0] + 0.01, s_ * (RACK_SCREW_Y[0] - 0.16), s_ * (RACK_SCREW_Y[1] + 0.16), RACK_Z + 0.2, 20)), "print",
+         "PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to (slotted over the standoffs' screws, for the hex key); on two standoffs at its inner end")
     for k, y in enumerate(RACK_SCREW_Y):
         part("elec", f"rack_standoff_{n}{k}", cyl("z", (RACK_SCREW_X, s_ * y), 6 * MM, *RACK_STANDOFF), "buy", "goBILDA 1501-0006-0480 and 1501-0006-0240 M4 standoffs (48 + 24 mm) on an M4 set screw: 72 mm (goBILDA's 1501s stop at 56 mm)")
-part("elec", "control_hub", box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Control Hub, standing on edge, plugs to the back")
-part("elec", "expansion_hub", box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
+part("elec", "control_hub", dress(box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "REV-31-1595", (EL_X[0], 0.05 + HUB[0] / 2, RACK_Z + 0.2 + HUB[1] / 2), (0, 1, 0), (0, 0, 1)), "buy", "REV Control Hub, standing on edge, plugs to the back")
+part("elec", "expansion_hub", dress(box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "REV-31-1153", (EL_X[0], -0.05 - HUB[0] / 2, RACK_Z + 0.2 + HUB[1] / 2), (0, 1, 0), (0, 0, 1)), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
 BAT_Y = (-(RAIL_IN - 0.08), -(RAIL_IN - 0.08) + BATTERY[0])   # against the right rail: the feeder's drive is on the left, and
                                         # the battery's 1.95 in to the right about balances the feeder's motor on the left module
-part("elec", "battery", box(BAT_X, BAT_X + BATTERY[2], *BAT_Y, 0.45, 0.45 + BATTERY[1]), "buy",
+_bat = box(BAT_X, BAT_X + BATTERY[2], *BAT_Y, 0.45, 0.45 + BATTERY[1])
+_bat_look = solid(_bat).fillet(4 * MM, [e for e in solid(_bat).Edges()])
+part("elec", "battery", cq.Workplane().add(_bat_look), "buy",
      "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size)")
 for s_, n in SIDES:
     cr = box(BAT_X - 0.05, BAT_X + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
@@ -833,9 +869,17 @@ for s_, n in SIDES:
     part("elec", f"battery_cradle_{n}", cr, "print", "PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap)")
 MAST_Z0 = FRONT_CROSS_Z + CH            # on the front cross channel's top, in the middle
 MAST_X = AXLE[1]
-part("elec", "limelight_mast", box(MAST_X - 0.2, MAST_X + 0.2, -0.25, 0.25, MAST_Z0, 13.4).union(box(MAST_X - 0.45, MAST_X + 0.45, -0.75, 0.75, MAST_Z0, MAST_Z0 + 0.25)), "print",
-     "PETG: the Limelight mast, its foot on two M4 through the front cross channel's top; the Limelight on its top, about 14 in up, 45 deg up, on the robot's centreline (its offsets go in CameraMount)")
-part("elec", "limelight", box(MAST_X - 0.55, MAST_X + 0.55, -1.1, 1.1, 13.4, 14.8), "buy", "Limelight 3A, on two M4 into the mast's top")
+LL = (48.11 * MM, 72.11 * MM, 16.8 * MM)  # Limelight 3A: tall, wide, thick (its docs' drawing)
+LL_O = (MAST_X + 0.2, 0.0, 13.4 + LL[0] / 2 * math.sqrt(0.5))   # its back face's middle, the body pitched 45 deg up, its bottom edge on the mast's top
+LL_Z, LL_XD = (math.sqrt(0.5), 0, math.sqrt(0.5)), (-math.sqrt(0.5), 0, math.sqrt(0.5))   # the way it looks; up its face
+def _ll(pts): return [(LL_O[0] + a * LL_XD[0] + b * LL_Z[0], LL_O[2] + a * LL_XD[2] + b * LL_Z[2]) for a, b in pts]
+part("elec", "limelight_mast", box(MAST_X - 0.2, MAST_X + 0.2, -0.25, 0.25, MAST_Z0, 13.4).union(box(MAST_X - 0.45, MAST_X + 0.45, -0.75, 0.75, MAST_Z0, MAST_Z0 + 0.25)).union(
+     slab_y([_ll([(-LL[0] / 2, 0)])[0], _ll([(LL[0] / 2, 0)])[0], (_ll([(LL[0] / 2, 0)])[0][0], 13.4)], -0.6, 0.6)), "print",   # a 45 deg wedge under its back
+     "PETG: the Limelight mast, its foot on two M4 through the front cross channel's top; the Limelight on its top's 45 deg wedge, about 14.5 in up, looking 45 deg up, on the robot's centreline (its offsets go in CameraMount)")
+ll = cq.Workplane("XY").box(LL[0], LL[1], LL[2]).edges("|Z").fillet(4 * MM).translate((0, 0, LL[2] / 2)).union(
+     cq.Workplane("XY").circle(6 * MM).extrude(3 * MM).translate((0, 0, LL[2])))
+part("elec", "limelight", cq.Workplane().add(solid(ll).moved(cq.Location(cq.Plane(origin=LL_O, xDir=LL_XD, normal=LL_Z)))), "buy",
+     "Limelight 3A (72 x 48 x 17 mm), pitched 45 deg up on the mast's wedge, two M4 into its back; its pose goes in CameraMount")
 
 
 # ================================================================ fasteners and joints (v2: every part shows what holds it)
@@ -1186,6 +1230,20 @@ def joint_report():
     print("   screws: " + ", ".join(f"{c} x {sz} x {l}" for (sz, l), c in sorted(n.items())) + f"; plus {sum(c for *_, c in DEVICE)} on devices (servos, hubs, motor)")
     return ok
 
+# Colours, for the STEP and the views: printed parts by their material (read from their description), bought parts with
+# no model by what they are, the mentor's parts by their names
+MATERIAL = (("TPU", (0.96, 0.70, 0.16)), ("PETG-CF", (0.22, 0.23, 0.26)), ("polycarbonate", (0.80, 0.88, 0.95)),
+            ("aluminium", (0.80, 0.81, 0.83)), ("PETG", (0.16, 0.42, 0.85)))
+NAMED = ((r"Gecko|belt|servo|motor|Encoder|enc_[AB]_REV|spring|limelight|hub|battery", (0.15, 0.15, 0.16)),
+         (r"[Bb]earing|[Ss]haft|[Ss]pacer|eclip|Steel", (0.70, 0.71, 0.73)),
+         (r"print|PETG", (0.16, 0.42, 0.85)), (r"polycarbonate", (0.80, 0.88, 0.95)))
+def colour_of(k):
+    p = PARTS[k]
+    if p["kind"] == "print":
+        return next((c for w, c in MATERIAL if w in p["what"]), MATERIAL[-1][1])
+    if k.startswith(("flap_face", "front_pad", "ramp_skin")): return MATERIAL[0][1]
+    return next((c for rx, c in NAMED if re.search(rx, k + " " + p["what"])), (0.80, 0.81, 0.83))   # else aluminium (channels, plates, blocks)
+
 DRAWN_COLOUR = {"belt": (0.10, 0.10, 0.11), "rex": (0.70, 0.71, 0.73), "rex_standoff": (0.78, 0.79, 0.81)}
 def look_parts(k):
     """A dressed part as [(shape in its own frame, cq.Location, colour)], inches; None when it has no dress or a model
@@ -1448,6 +1506,20 @@ def cut_bores():
         except Exception as e: print("   (bore not cut:", sh, pr, e, ")")
     return done
 
+def finish_edges():
+    """Round every printed part's edges 0.8 mm (or its straight ones, or chamfer them 0.5 mm, whichever OCC manages), after
+    its holes are cut: nicer to hold and print, and no sharp corners on a robot people handle. The gears keep their teeth."""
+    done = 0
+    for k, p in PARTS.items():
+        if p["kind"] != "print" or k.startswith("ex_gear"): continue
+        s_ = solid(p["shape"]); lines = [e for e in s_.Edges() if e.geomType() == "LINE"]
+        for f in (lambda: s_.fillet(0.8 * MM, s_.Edges()), lambda: s_.fillet(0.8 * MM, lines), lambda: s_.chamfer(0.5 * MM, None, lines)):
+            try:
+                r = f()
+                if r.isValid() and abs(r.Volume() - s_.Volume()) < 0.05 * s_.Volume(): p["shape"] = cq.Workplane().add(r); done += 1; break
+            except Exception: pass
+    return done
+
 def fasteners_md():
     rows, n, ins, nuts = [], {}, {}, {}
     for f in FASTENERS:
@@ -1593,36 +1665,37 @@ def views(out_dir):
         fig, ax = plt.subplots(figsize=(8, 6), dpi=130); paint(ax, R, title)
         fig.tight_layout(); fig.savefig(os.path.join(out_dir, f"{name}.png")); plt.close(fig)
 
+# For Onshape: one sub-assembly per subsystem, in build order; inside it, its fixed parts, then one per moving body
+# (named with the mate it needs), then its screws. Readable names; the mentor's parts say so.
+def subsystem(k):
+    m = PARTS[k]["module"]
+    if k.startswith(("feeder_", "lm_feeder_floor", "lm_backstop")): return "09 Feeder and backstop"
+    if k.startswith("fly_") or PARTS[k]["moves"] in ("fly_L", "fly_R"): return "10 Flywheels (sprung sides)"
+    if k.startswith(("hood", "turret_drive_plate", "lm_turret_", "lm_2325", "lm_1628", "lm_IR", "lm_OR", "lm_2302", "lm_1231")): return "11 Turret and hood"
+    if m == "launcher": return "12 Launcher frame and feet"
+    if k.startswith(("star_", "front_bracket_")): return "07 Star wheels and front brackets"
+    return {"frame": "01 Frame", "odometry": "03 Odometry", "extractor": "06 Extractor", "intake": "05 Intake roller", "lane": "08 Mouth and lane",
+            "elec": "13 Electronics"}.get(m, "02 Drive corners" if m.startswith("corner") else "04 Flaps and soft faces" if m.startswith("front") else "14 Other")
+def motion(k):
+    mv = PARTS[k]["moves"]
+    if mv == "intake": return f"moves - intake arms, revolute on the arms' pivot (Y axis), 0 to {lift_deg(FLOAT):.0f} deg up"
+    if mv == "extractor" and not k.startswith("ex_stub"): return "moves - extractor, revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
+    for n in ("FL", "FR", "BL", "BR"):
+        if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"moves - wheel {n}, revolute on its shaft"
+    if k in ("star_L", "star_R"): return f"moves - star wheel {k[-1]}, revolute on its vertical shaft"
+    if mv in ("feed_L", "feed_R"): return f"moves - feeder arm {mv[-1]}, revolute on its pivot shaft (X axis), 0 to {FEED_SWING:.0f} deg out, sprung in"
+    if mv in ("fly_L", "fly_R"): return f"moves - flywheel side {mv[-1]}, slider along Y, 0 to {FLY_TRAVEL:.2f} in out, sprung in"
+    return None
+
 if __name__ == "__main__":
     ok = report()
     print("ALL CHECKS PASS" if ok else "CHECKS FAIL")
     if CHECK_ONLY: sys.exit(0 if ok else 1)
     cut_holes()
     print(f"cut {cut_bores()} bores (bearing pockets and shaft holes) in the printed parts")
+    print(f"finished the edges of {finish_edges()} printed parts")
     os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
-    # For Onshape (README, "In Onshape"): one FRAME group of everything that doesn't move, and one MOVES group per moving
-    # body, named with the mate it needs, as cad/full-robot does. STEP carries no mates.
-    # For Onshape: one sub-assembly per subsystem, in build order; inside it, its fixed parts, then one sub-assembly per
-    # moving body (named with the mate it needs), then its screws. Readable names; the mentor's parts say so.
-    def subsystem(k):
-        m = PARTS[k]["module"]
-        if k.startswith(("feeder_", "lm_feeder_floor", "lm_backstop")): return "09 Feeder and backstop"
-        if k.startswith("fly_") or PARTS[k]["moves"] in ("fly_L", "fly_R"): return "10 Flywheels (sprung sides)"
-        if k.startswith(("hood", "turret_drive_plate", "lm_turret_", "lm_2325", "lm_1628", "lm_IR", "lm_OR", "lm_2302", "lm_1231")): return "11 Turret and hood"
-        if m == "launcher": return "12 Launcher frame and feet"
-        if k.startswith(("star_", "front_bracket_")): return "07 Star wheels and front brackets"
-        return {"frame": "01 Frame", "odometry": "03 Odometry", "extractor": "06 Extractor", "intake": "05 Intake roller", "lane": "08 Mouth and lane",
-                "elec": "13 Electronics"}.get(m, "02 Drive corners" if m.startswith("corner") else "04 Flaps and soft faces" if m.startswith("front") else "14 Other")
-    def motion(k):
-        mv = PARTS[k]["moves"]
-        if mv == "intake": return f"moves - intake arms, revolute on the arms' pivot (Y axis), 0 to {lift_deg(FLOAT):.0f} deg up"
-        if mv == "extractor" and not k.startswith("ex_stub"): return "moves - extractor, revolute on the stub shafts (Y axis), 0 to 146 deg, drawn stowed"
-        for n in ("FL", "FR", "BL", "BR"):
-            if k in (f"wheel_{n}", f"dm_{n}_wheel"): return f"moves - wheel {n}, revolute on its shaft"
-        if k in ("star_L", "star_R"): return f"moves - star wheel {k[-1]}, revolute on its vertical shaft"
-        if mv in ("feed_L", "feed_R"): return f"moves - feeder arm {mv[-1]}, revolute on its pivot shaft (X axis), 0 to {FEED_SWING:.0f} deg out, sprung in"
-        if mv in ("fly_L", "fly_R"): return f"moves - flywheel side {mv[-1]}, slider along Y, 0 to {FLY_TRAVEL:.2f} in out, sprung in"
-        return None
+    # The STEP carries no mates: README, "In Onshape", says which to add (the "moves - " groups name them).
     seen = {}
     def label(k):
         nm = k
@@ -1630,7 +1703,24 @@ if __name__ == "__main__":
             nm = "mentor - " + re.sub(r"[^A-Za-z0-9 .,()+_-]", "", PARTS[k]["what"].split(": ", 1)[1].split(" (")[0])[:48]
         seen[nm] = seen.get(nm, 0) + 1
         return nm if seen[nm] == 1 else f"{nm} ({seen[nm]})"
-    COLOURS = {"print": cq.Color(0.15, 0.45, 0.85), "buy": cq.Color(0.55, 0.55, 0.58), "cut": cq.Color(0.8, 0.8, 0.8)}
+    MMSH, dressed, plain = {}, [], []
+    def mm(sh):                              # each model's shape scaled once, so every copy of it in the STEP is one shape, placed
+        if id(sh) not in MMSH: MMSH[id(sh)] = (sh.scale(25.4), sh)
+        return MMSH[id(sh)][0]
+    def mm_loc(loc):
+        from OCP.gp import gp_Trsf, gp_Vec
+        t = gp_Trsf(); t.SetValues(*[loc.wrapped.Transformation().Value(i, j) * (25.4 if j == 4 else 1) for i in (1, 2, 3) for j in (1, 2, 3, 4)])
+        return cq.Location(t)
+    def add_part(tgt, k, nm):
+        lp = look_parts(k) if PARTS[k].get("looks") else None
+        if lp:
+            dressed.append(k)
+            sub = cq.Assembly(name=nm)
+            for i, (sh, loc, c) in enumerate(lp): sub.add(mm(sh), name=f"{nm} {i + 1}", loc=mm_loc(loc), color=cq.Color(*c))
+            tgt.add(sub, name=nm)
+        else:
+            if PARTS[k].get("looks"): plain.append(k)
+            tgt.add(solid(PARTS[k]["shape"]).scale(25.4), name=nm, color=cq.Color(*colour_of(k)))
     tree = {}
     for k in PARTS: tree.setdefault(subsystem(k), {}).setdefault(motion(k), []).append(k)
     screws = {}
@@ -1642,12 +1732,10 @@ if __name__ == "__main__":
         for mo in sorted(tree.get(sysname, {}), key=lambda m: (m is not None, m or "")):
             tgt, ftgt = (sub, fsub) if mo is None else (cq.Assembly(name=mo), cq.Assembly(name=mo))
             for k in tree[sysname][mo]:
-                p = PARTS[k]; sh = solid(p["shape"]).scale(25.4); col = COLOURS[p["kind"]]
-                if k.startswith(("flap_face", "front_pad", "ramp_skin")): col = cq.Color(0.95, 0.75, 0.2)
-                nm = label(k)
-                if not k.startswith(("lm_", "dm_")): tgt.add(sh, name=nm, color=col)
-                ftgt.add(sh, name=nm, color=col)
-                if p["kind"] == "print": cq.exporters.export(cq.Workplane().add(sh), os.path.join(HERE, "stl", f"{k}.stl"))
+                p = PARTS[k]; nm = label(k)
+                if not k.startswith(("lm_", "dm_")): tgt.add(solid(p["shape"]).scale(25.4), name=nm, color=cq.Color(*colour_of(k)))
+                add_part(ftgt, k, nm)
+                if p["kind"] == "print": solid(p["shape"]).scale(25.4).exportStl(os.path.join(HERE, "stl", f"{k}.stl"), tolerance=0.05, angularTolerance=0.3, ascii=False)   # 0.05 mm: finer than a printer
             if mo is not None:
                 if tgt.children: sub.add(tgt, name=mo)
                 fsub.add(ftgt, name=mo)
@@ -1664,8 +1752,14 @@ if __name__ == "__main__":
         import gzip, shutil
         fp = os.path.join(HERE, ".cache", "printed-chassis-full.step"); full.save(fp)
         with open(fp, "rb") as a, gzip.open(fp + ".gz", "wb") as b: shutil.copyfileobj(a, b)
+        full.save(os.path.join(HERE, ".cache", "printed-chassis.glb"), tolerance=0.15, angularTolerance=0.35)   # meshes, for viewing (millimetres)
     with open(os.path.join(HERE, "BOM.md"), "w") as f: f.write(bom_md())
     with open(os.path.join(HERE, "parts.md"), "w") as f:
         f.write("# Parts (written by build.py)\n\nCHECK marks a size not read from a vendor file. Two robots: double every line.\n\n" + parts_md() + "\n" + fasteners_md())
-    views(os.path.join(HERE, "views"))
+    print(f"STEP: {len(dressed)} bought parts as their real models" + (f"; {len(plain)} as envelopes (vendor.py hasn't cached their models)" if plain else ""))
+    try:
+        import render
+        render.render(sys.modules[__name__], os.path.join(HERE, "views"))
+    except Exception as e:                   # no VTK or no display: the flat views
+        print("render.py failed (", e, "): drawing the flat views"); views(os.path.join(HERE, "views"))
     print("wrote printed-chassis.step, stl/, parts.md, views/")
