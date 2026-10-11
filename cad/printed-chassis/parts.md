@@ -109,9 +109,20 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `wall_standoff_R_front1` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
 | `wall_standoff_R_rear0` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
 | `wall_standoff_R_rear1` | lane | buy | goBILDA 1501-0006-0800 M4 standoff, 80 mm (CHECK the length is stocked) |
-| `feeder_shaft_L` | launcher | buy | goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates; its 24T pulley ahead of the front plate |
-| `feeder_shaft_R` | launcher | buy | goBILDA 8mm REX shaft, 96 mm, in 1611 bearings in the module's plates, the wheels free on bearings |
-| `feeder_wheel_L` | launcher | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): driven by the feeder's motor |
+| `feeder_arm_L` | launcher | print | PETG-CF, 6 mm: the feeder wheel's arm, two plates either side of the wheels on 1611 bearings, swinging on the pivot shaft; an extension spring (or a band) from it to the launcher's frame pulls it in, a stop screw sets the rest gap (the rig sets both) |
+| `feeder_arm_R` | launcher | print | PETG-CF, 6 mm: the feeder wheel's arm, two plates either side of the wheels on 1611 bearings, swinging on the pivot shaft; an extension spring (or a band) from it to the launcher's frame pulls it in, a stop screw sets the rest gap (the rig sets both) |
+| `feeder_belt_A` | launcher | buy | goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0215 belt: the feeder's motor to the left arm's pivot shaft |
+| `feeder_belt_B` | launcher | buy | goBILDA 3417-4008-0024 24T HTD5 x2, 3412-0009-0215 belt: the pivot shaft up the arm to the feeder wheel |
+| `feeder_front_block_L` | launcher | print | PETG: the arm's front pivot block, screwed to the lane wall's end |
+| `feeder_front_block_R` | launcher | print | PETG: the arm's front pivot block, screwed to the lane wall's end |
+| `feeder_motor` | launcher | buy | goBILDA 5203-2402-0005 Yellow Jacket, 1150 RPM (CHECK the speed on the rig), its face on the left rear block: fixed, never moves |
+| `feeder_pivot_L` | launcher | buy | goBILDA 8mm REX shaft: the arm's pivot, and the feeder's drive: belt A's pulley behind, belt B's on the arm, turning in 1611 bearings in the rear and front blocks |
+| `feeder_pivot_R` | launcher | buy | goBILDA 8mm REX shaft: the arm's pivot, in the rear and front blocks |
+| `feeder_rear_block_L` | launcher | print | PETG: the arm's rear pivot block and the feeder motor's face plate, on the launcher's feeder bridge |
+| `feeder_rear_block_R` | launcher | print | PETG: the arm's rear pivot block, on the launcher's feeder bridge |
+| `feeder_shaft_L` | launcher | buy | goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates; belt B's 24T pulley on it |
+| `feeder_shaft_R` | launcher | buy | goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates, the wheels free on bearings |
+| `feeder_wheel_L` | launcher | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): driven through its arm's belt |
 | `feeder_wheel_R` | launcher | buy | goBILDA 3632-4008-0048 48 mm Gecko wheels x2 (as the roller's): free, in the pad's place |
 | `hood` | launcher | print | PETG: the hood that turns the shot out (drawn as a tube and a lid) |
 | `launcher_foot_L0` | launcher | print | PETG: a launcher foot, between the rail's top flange and the launcher's side channel: an M4 down through a pocket into a nut under the rail's flange (fitted before the launcher goes on), and one down from inside the launcher's channel into an insert (the launcher lifts off its feet) |
@@ -141,7 +152,7 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | M4 heat-set insert | 12 | 24 |
 | M5 heat-set insert | 2 | 4 |
 | M4 nyloc nut | 14 | 28 |
-| on the devices (servos, hubs, intake motor, Limelight): see below | 94 | 188 |
+| on the devices (servos, hubs, intake motor, Limelight): see below | 106 | 212 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
 
@@ -251,6 +262,16 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `wheel_BR` | `wheel_shaft_BR` | on the REX shaft, a hub |
 | `drive_belt_BR` | `wheel_shaft_BR` | on the 24T pulleys |
 | `ex_block` | `ex_cross` | clamped on the cross shaft |
+| `feeder_wheel_L` | `feeder_shaft_L` | on the shaft (the left's pinned, the right's free on bearings) |
+| `feeder_shaft_L` | `feeder_arm_L` | in 1611 bearings in the arm's plates, e-clips |
+| `feeder_arm_L` | `feeder_pivot_L` | swings on 1611 bearings on the pivot shaft |
+| `feeder_pivot_L` | `feeder_rear_block_L` | in 1611 bearings in the rear and front blocks, e-clips |
+| `feeder_wheel_R` | `feeder_shaft_R` | on the shaft (the left's pinned, the right's free on bearings) |
+| `feeder_shaft_R` | `feeder_arm_R` | in 1611 bearings in the arm's plates, e-clips |
+| `feeder_arm_R` | `feeder_pivot_R` | swings on 1611 bearings on the pivot shaft |
+| `feeder_pivot_R` | `feeder_rear_block_R` | in 1611 bearings in the rear and front blocks, e-clips |
+| `feeder_belt_A` | `feeder_pivot_L` | on the 24T pulleys |
+| `feeder_belt_B` | `feeder_pivot_L` | on the 24T pulleys |
 | `roller` | `roller_shaft` | on the REX shaft |
 | `roller_belt` | `roller_shaft` | on the 24T pulleys |
 | `lane_shaft_0` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
@@ -297,6 +318,11 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `rear_cross` | `rail_R` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FL` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
 | `front_cross` | `motor_plate_FR` | goBILDA pattern brackets, M4 x 8 into nylocs (4) |
+| `feeder_rear_block_L` | `lm_feeder_bridge_print_PETG_or_nylon_behind_the_launcher_s_rear_1` | M4 x 16 down into the bridge's inserts (2) |
+| `feeder_front_block_L` | `lane_wall_L_rear` | M3 x 12 into the wall end's inserts (2) |
+| `feeder_rear_block_R` | `lm_feeder_bridge_print_PETG_or_nylon_behind_the_launcher_s_rear_1` | M4 x 16 down into the bridge's inserts (2) |
+| `feeder_front_block_R` | `lane_wall_R_rear` | M3 x 12 into the wall end's inserts (2) |
+| `feeder_motor` | `feeder_rear_block_L` | M4 x 8 into the motor's face (goBILDA pattern) (4) |
 | `turret_drive_plate` | `lm_Hole_Lowside_U-Channel_GB_8__1` | M4 x 10 up through the plate into nylocs in the launcher's front top channel (4) |
 | `ex_servo` | `flap_R` | M4 x 12 through the servo's tabs into the flap's inserts (4) |
 | `intake_motor` | `intake_arm_R` | M4 x 8 into the motor's face (goBILDA pattern) through the arm (4) |
