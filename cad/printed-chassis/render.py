@@ -9,12 +9,17 @@ build.py calls render(out_dir) after a full build.
 import math, os, shutil, subprocess, sys, time
 HERE = os.path.dirname(os.path.abspath(__file__))
 
+_XVFB = None
 def _display():
-    if os.environ.get("DISPLAY") or not shutil.which("Xvfb"): return None
-    d = ":%d" % (90 + os.getpid() % 9)
-    p = subprocess.Popen(["Xvfb", d, "-screen", "0", "2400x1800x24"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    """An Xvfb for this process when there's no display: started once, kept until the process exits."""
+    global _XVFB
+    if _XVFB or os.environ.get("DISPLAY") or not shutil.which("Xvfb"): return None
+    import atexit
+    d = ":%d" % (90 + os.getpid() % 300)
+    _XVFB = subprocess.Popen(["Xvfb", d, "-screen", "0", "2400x1800x24"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    atexit.register(_XVFB.terminate)
     time.sleep(1.0); os.environ["DISPLAY"] = d
-    return p
+    return None
 
 def scene(B, keep=lambda b: True):
     """[(vtkPolyData, colour, opacity)]: tessellated once per shape, placed by each look's location."""

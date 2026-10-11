@@ -22,7 +22,7 @@ Modules (each comes off on its own; doc/printed-chassis.md, "The frame"):
     lane       ramp, walls, five roller shafts, a sprung ceiling of free rollers, floor and backstop
     launcher   flywheel cassettes, feeder and its motor, pad, top plate, goBILDA's turret kit with cad/transfer's servo and
                two-encoder drive under its drive gear, hood
-    elec       tray, Control Hub, Expansion Hub, battery, Limelight mast
+    elec       the battery on a shelf at the back; the hubs and the Limelight on a deck over the front
 """
 import math, os, re, sys
 import cadquery as cq
@@ -188,8 +188,6 @@ FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (143 * MM, 103 * MM, 29.6 * MM)   # REV Control / Expansion Hub: long, wide, thick (REV's own model)
-BAT_X = RAIL_X[0] + CH_LOW + 0.05      # the battery just ahead of the rear cross channel
-CRADLE_X = (RAIL_X[0] + 24 * MM, RAIL_X[0] + 40 * MM)   # the cradle's risers, on the rails' flange holes, clear of his rear hubs' keys
 BATTERY = (5.7, 3.3, 1.8)               # CHECK
 
 # ================================================================ helpers (inches)
@@ -694,8 +692,6 @@ if USE_LM:
         if e["file"].startswith("feeder_floor"):            # notched round the feeder arms' rear blocks
             w = w.cut(box(-4.70, -3.80, 0.6, 20, -20, 20)).cut(box(-4.70, -3.80, -20, -0.6, -20, 20))
         if LM_RAISE.match(e["file"]): w = cq.Workplane().add(solid(w).translate(cq.Vector(0, 0, LM_RAISE_Z)))
-        if e["file"].startswith("feeder_bridge"):          # clear of the battery and of the feeder's drive
-            w = w.intersect(box(BAT_X + BATTERY[2] + 0.05, 20, -20, 20, -20, 20)).cut(box(-5.05, -4.41, FEED_Y - 0.81, 20, -20, 20)).cut(box(-4.42, -3.30, 1.55, 4.7, -20, 20)).cut(box(-4.42, -3.30, -2.4, -1.55, -20, 20))
         if FLY_MOVES.match(e["file"]):
             b = bb(w); mv = "fly_L" if b[2] + b[3] > 0 else "fly_R"
         part("launcher", k, w, "buy", f"the mentor's launcher module: {e['name']}" + (" (rides the sprung module)" if mv else ""), mv)
@@ -839,47 +835,60 @@ HOOD_Z = 9.70 if USE_LM else KIT_Z + KIT_H   # on the turret's top (the module's
 hood = cyl("z", (COL_X, 0), 2 * KIT_BORE + 0.4, HOOD_Z, 11.5).union(cyl("z", (COL_X, 0), HOOD_FLANGE_D, HOOD_Z, HOOD_Z + 0.2)).cut(cyl("z", (COL_X, 0), 2 * KIT_BORE, KIT_Z, 12))
 part("launcher", "hood", hood.union(box(COL_X, COL_X + 2.4, -KIT_BORE - 0.2, KIT_BORE + 0.2, 11.5, 12.2)), "print", "PETG: the hood that turns the shot out (drawn as a tube and a lid)")
 
-# ---- electronics
-# Electronics (CHECK with the mentor): both hubs standing on edge in a printed rack over the rear drive motors, their plugs
-# to the back, the rack on two standoffs from the rear cross channel (between the rear motors' inner ends); the battery
-# low between the rails, ahead of that channel; the Limelight on a mast in the middle of the front cross channel.
-EL_X = (AXLE[-1] - 0.32 - HUB[2], AXLE[-1] - 0.32)                  # the hubs' X (standing on edge), behind the launcher's rear channels
+# ---- electronics (v3.1, 11 Oct): the battery where it lifts straight out between matches; the hubs flat on a deck over the
+# front, their plugs at their edges; the Limelight on the deck's front tongue. (Until v3.1 the battery sat low between the
+# rails, boxed in by the rear cross channel, the rear drive motors and the launcher: it couldn't come out.)
 RACK_SCREW_X = RAIL_X[0] + 6 * MM       # the rear cross channel's top flange, mid-flange (CHECK, as the rails' flanges)
 RACK_SCREW_Y = (8 * MM, 16 * MM)        # between the rear motors' inner ends (|Y| 0.76)
 RACK_Z = RAIL_Z[1] + 72 * MM            # over the rear drive motors (their tops at 5.53), on 72 mm of standoffs
 RACK_STANDOFF = (RAIL_Z[1], RACK_Z)     # goBILDA 1501 M4 standoffs, 72 mm
+BAT_X = (RAIL_X[0] + 0.02, RAIL_X[0] + 0.02 + BATTERY[2])   # standing on edge across the robot, on the shelf over the rear drive
+BAT_Z = (RACK_Z + 0.2, RACK_Z + 0.2 + BATTERY[1])           # motors; nothing over it, so it lifts straight out (a strap holds it)
 for s_, n in SIDES:
-    part("elec", f"rack_{n}", box(RACK_SCREW_X - 0.2, EL_X[1] + 0.05, 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2).union(
-         box(EL_X[0] - 0.1, EL_X[0], 0, s_ * 5.75, RACK_Z, RACK_Z + 0.2 + HUB[1])).cut(
-         box(EL_X[0] - 0.2, EL_X[0] + 0.01, s_ * (RACK_SCREW_Y[0] - 0.16), s_ * (RACK_SCREW_Y[1] + 0.16), RACK_Z + 0.2, 20)), "print",
-         "PETG: half the electronics rack over the rear drive motors: a shelf and a back wall the hub screws to (slotted over the standoffs' screws, for the hex key); on two standoffs at its inner end")
+    sh = box(RACK_SCREW_X - 0.2, BAT_X[1] + 0.02, 0, s_ * (BATTERY[0] / 2 + 0.2), RACK_Z, RACK_Z + 0.2)
+    sh = sh.union(box(RACK_SCREW_X - 0.2, BAT_X[1] + 0.02, s_ * (BATTERY[0] / 2 + 0.02), s_ * (BATTERY[0] / 2 + 0.2), RACK_Z, BAT_Z[0] + 0.8))   # an end cheek
+    sh = sh.cut(box(-6.6, -6.2, s_ * 1.0, s_ * 1.8, RACK_Z - 0.1, RACK_Z + 0.3))       # a slot for the strap
+    part("elec", f"rack_{n}", sh, "print",
+         "PETG: half the battery's shelf over the rear drive motors, an end cheek each side; the battery stands on it, a hook-and-loop strap through the slots, and lifts straight out")
     for k, y in enumerate(RACK_SCREW_Y):
         part("elec", f"rack_standoff_{n}{k}", cyl("z", (RACK_SCREW_X, s_ * y), 6 * MM, *RACK_STANDOFF), "buy", "goBILDA 1501-0006-0480 and 1501-0006-0240 M4 standoffs (48 + 24 mm) on an M4 set screw: 72 mm (goBILDA's 1501s stop at 56 mm)")
-part("elec", "control_hub", dress(box(*EL_X, 0.05, 0.05 + HUB[0], RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "REV-31-1595", (EL_X[0], 0.05 + HUB[0] / 2, RACK_Z + 0.2 + HUB[1] / 2), (0, 1, 0), (0, 0, 1)), "buy", "REV Control Hub, standing on edge, plugs to the back")
-part("elec", "expansion_hub", dress(box(*EL_X, -0.05 - HUB[0], -0.05, RACK_Z + 0.2, RACK_Z + 0.2 + HUB[1]), "REV-31-1153", (EL_X[0], -0.05 - HUB[0] / 2, RACK_Z + 0.2 + HUB[1] / 2), (0, 1, 0), (0, 0, 1)), "buy", "REV Expansion Hub, standing on edge, plugs to the back")
-BAT_Y = (-(RAIL_IN - 0.08), -(RAIL_IN - 0.08) + BATTERY[0])   # against the right rail: the feeder's drive is on the left, and
-                                        # the battery's 1.95 in to the right about balances the feeder's motor on the left module
-_bat = box(BAT_X, BAT_X + BATTERY[2], *BAT_Y, 0.45, 0.45 + BATTERY[1])
-_bat_look = solid(_bat).fillet(4 * MM, [e for e in solid(_bat).Edges()])
-part("elec", "battery", cq.Workplane().add(_bat_look), "buy",
-     "Modern Robotics 12 V NiMH battery (the mentor's), on edge across the robot, low between the rails ahead of the rear cross channel, against the right rail (CHECK its size)")
+_bat = box(*BAT_X, -BATTERY[0] / 2, BATTERY[0] / 2, *BAT_Z)
+part("elec", "battery", cq.Workplane().add(solid(_bat).fillet(4 * MM, solid(_bat).Edges())), "buy",
+     "Modern Robotics 12 V NiMH battery (the mentor's; CHECK its size), standing on edge on the shelf at the back: unstrap, lift out")
+
+# The hub deck: two PETG-CF halves at z 9.75, over the turret's drive and the front cross channel, on legs to that channel's top
+# (its centreline holes, every 24 mm) and to the launcher's front top channel; each hub flat on its half, plugs at its edges
+DECK_Z, DECK_T = 9.75, 0.24
+DECK_X = (0.6, 5.3)                     # the hubs (103 mm along X, 143 across) from X 0.7; the legs' screws just ahead of them
+FC_HOLE_X = FRONT_CROSS_X + 40 * MM     # the front cross channel's web: goBILDA's model has 4 mm holes 40 mm across, every 8 mm along
+FC_HOLE_Y = (56 * MM, 104 * MM)
+LM_FRONT_TOP = "lm_Hole_Lowside_U-Channel_GB_8__1"   # the launcher's front top channel (its top flange at z 8.89, X 0..0.48)
+DECK_REAR_Y = (3.0, 3.6)                # the rear legs, outboard of the turret's encoder tower (|Y| < 2.8) and the hood's sweep
 for s_, n in SIDES:
-    cr = box(BAT_X - 0.05, BAT_X + BATTERY[2] + 0.05, 0, s_ * (RAIL_IN - 0.02), 0.3, 0.45)
-    for x in CRADLE_X: cr = cr.union(box(x - 0.22, x + 0.22, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), 0.3, RAIL_Z[0]))   # risers to the flange
-    part("elec", f"battery_cradle_{n}", cr, "print", "PETG: half the battery's cradle, hung from the rail's bottom flange on two risers (the battery held in by a strap)")
-MAST_Z0 = FRONT_CROSS_Z + CH            # on the front cross channel's top, in the middle
-MAST_X = AXLE[1]
+    dk = box(*DECK_X, 0, s_ * (HUB[0] + 0.15), DECK_Z, DECK_Z + DECK_T)
+    dk = dk.union(box(0.0, DECK_X[0] + 0.1, s_ * DECK_REAR_Y[0], s_ * DECK_REAR_Y[1], DECK_Z, DECK_Z + DECK_T))          # rear tab
+    dk = dk.union(box(0.05, 0.43, s_ * DECK_REAR_Y[0], s_ * DECK_REAR_Y[1], 8.89, DECK_Z))                            # rear leg
+    for y in FC_HOLE_Y: dk = dk.union(box(FC_HOLE_X - 0.3, FC_HOLE_X + 0.3, s_ * (y - 0.3), s_ * (y + 0.3), FRONT_CROSS_Z + CH, DECK_Z))   # front legs
+    dk = dk.union(box(DECK_X[1] - 0.1, 6.55, 0, s_ * 1.1, DECK_Z, DECK_Z + DECK_T))                                    # the Limelight's tongue
+    part("elec", f"hub_deck_{n}", dk, "print",
+         "PETG-CF, 6 mm: half the hub deck, over the turret's drive and the front cross channel: legs to that channel's top (2 M4) and to the launcher's front top channel (1 M4); its hub screwed flat on it")
+for s_, n, nm, sku in ((1, "L", "control_hub", "REV-31-1595"), (-1, "R", "expansion_hub", "REV-31-1153")):
+    y0, y1 = sorted((s_ * 0.08, s_ * (0.08 + HUB[0])))
+    part("elec", nm, dress(box(0.7, 0.7 + HUB[1], y0, y1, DECK_Z + DECK_T, DECK_Z + DECK_T + HUB[2]), sku,
+         (0.7 + HUB[1] / 2, (y0 + y1) / 2, DECK_Z + DECK_T), (0, 1, 0), (-1, 0, 0)), "buy",
+         f"REV {'Control' if s_ > 0 else 'Expansion'} Hub, flat on the deck's {'left' if s_ > 0 else 'right'} half, its plugs at its edges")
 LL = (48.11 * MM, 72.11 * MM, 16.8 * MM)  # Limelight 3A: tall, wide, thick (its docs' drawing)
-LL_O = (MAST_X + 0.2, 0.0, 13.4 + LL[0] / 2 * math.sqrt(0.5))   # its back face's middle, the body pitched 45 deg up, its bottom edge on the mast's top
-LL_Z, LL_XD = (math.sqrt(0.5), 0, math.sqrt(0.5)), (-math.sqrt(0.5), 0, math.sqrt(0.5))   # the way it looks; up its face
+LL_Z, LL_XD = (math.sqrt(0.5), 0, math.sqrt(0.5)), (-math.sqrt(0.5), 0, math.sqrt(0.5))   # the way it looks (45 deg up); up its face
+LL_BASE = DECK_Z + DECK_T
+LL_O = (DECK_X[1] - 0.15 + LL[0] / 2 * math.sqrt(0.5), 0.0, LL_BASE + LL[0] / 2 * math.sqrt(0.5))   # its back face's middle, its lower edge on the tongue
 def _ll(pts): return [(LL_O[0] + a * LL_XD[0] + b * LL_Z[0], LL_O[2] + a * LL_XD[2] + b * LL_Z[2]) for a, b in pts]
-part("elec", "limelight_mast", box(MAST_X - 0.2, MAST_X + 0.2, -0.25, 0.25, MAST_Z0, 13.4).union(box(MAST_X - 0.45, MAST_X + 0.45, -0.75, 0.75, MAST_Z0, MAST_Z0 + 0.25)).union(
-     slab_y([_ll([(-LL[0] / 2, 0)])[0], _ll([(LL[0] / 2, 0)])[0], (_ll([(LL[0] / 2, 0)])[0][0], 13.4)], -0.6, 0.6)), "print",   # a 45 deg wedge under its back
-     "PETG: the Limelight mast, its foot on two M4 through the front cross channel's top; the Limelight on its top's 45 deg wedge, about 14.5 in up, looking 45 deg up, on the robot's centreline (its offsets go in CameraMount)")
+_lo, _hi = _ll([(-LL[0] / 2, 0)])[0], _ll([(LL[0] / 2, 0)])[0]
+part("elec", "limelight_mount", slab_y([_lo, _hi, (_hi[0], LL_BASE)], -0.75, 0.75), "print",
+     "PETG-CF: the Limelight's 45 deg wedge on the deck's tongue (2 M4 down into the deck's inserts), the camera on its face (2 M4); its pose goes in CameraMount")
 ll = cq.Workplane("XY").box(LL[0], LL[1], LL[2]).edges("|Z").fillet(4 * MM).translate((0, 0, LL[2] / 2)).union(
      cq.Workplane("XY").circle(6 * MM).extrude(3 * MM).translate((0, 0, LL[2])))
 part("elec", "limelight", cq.Workplane().add(solid(ll).moved(cq.Location(cq.Plane(origin=LL_O, xDir=LL_XD, normal=LL_Z)))), "buy",
-     "Limelight 3A (72 x 48 x 17 mm), pitched 45 deg up on the mast's wedge, two M4 into its back; its pose goes in CameraMount")
+     "Limelight 3A (72 x 48 x 17 mm), looking 45 deg up from the front of the hub deck; its pose goes in CameraMount")
 
 
 # ================================================================ fasteners and joints (v2: every part shows what holds it)
@@ -894,6 +903,7 @@ SCREW = {   # d, clearance, head d, head h, insert hole, insert length, nut h, n
     "M5": (5.0, 5.5, 8.5, 5.0, 6.4, 9.5, 5.0, 8.0),
 }
 FASTENERS = []
+LIFTS_OUT = {"battery"}     # comes out every match, so it never blocks a screw's head or its key
 def screw(name, a, b, size, length, p, v, end, via=(), cb=False, what="", match=None):
     """A screw: its head seated on part a at p, pointing along v, through via, threading into b ('insert', 'nut', 'tapped')."""
     n = math.sqrt(sum(c * c for c in v)); v = tuple(c / n for c in v)
@@ -963,11 +973,6 @@ for s, n in SIDES:
             screw(f"post_{n}{k}_{z}", wall, f"ceiling_post_{n}{k}", "M3", 12, P(x, WALL_IN + 3 * MM, z), V(0, 1, 0), "insert", cb=True,
                   what="a ceiling post to the wall (counterbored in the wall)")
         captive("ceiling", f"ceiling_post_{n}{k}", "hinged on a pin (an M4 shoulder screw) through its ear and the post")
-    # battery cradle risers -> rail's bottom flange: from inside the rail, into the riser's insert
-    for x in CRADLE_X:
-        screw(f"cradle_{n}_{x:.2f}", f"rail_{n}", f"battery_cradle_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, RAIL_Z[0] + CH_T), V(0, 0, -1), "insert",
-              what="the battery cradle's riser to the rail's bottom flange")
-    # rack -> his 1107's top flange, into nuts under it
     for k, y in enumerate(RACK_SCREW_Y):
         screw(f"rack_{n}{k}", f"rack_{n}", f"rack_standoff_{n}{k}", "M4", 12, P(RACK_SCREW_X, y, RACK_Z + 0.2), V(0, 0, -1), "tapped",
               what="the electronics rack to its standoff")
@@ -993,7 +998,7 @@ for s, n in SIDES:
             screw(f"feeder_front_{n}_{z}", f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3", 12, P(-1.15, WALL_IN + WALL_T / 2, z), V(1, 0, 0), "insert",
                   what="the feeder arm's front block to the lane wall's end")
         for y in (0.75, 2.2):
-            screw(f"anchor_{n}_{y}", f"fly_anchor_{n}", "lm_Hole_Lowside_U-Channel_GB_2__1", "M4", 25, P(-4.43, y, 7.95), V(-1, 0, 0), "nut",
+            screw(f"anchor_{n}_{y}", f"fly_anchor_{n}", "lm_Hole_Lowside_U-Channel_GB_2__1", "M4", 16, P(-4.43, y, 7.95), V(-1, 0, 0), "nut",
                   what="the flywheel spring's anchor to the rear top channel", match="through the channel's front face: mark from the real channel")
     # the extractor, the stars, the intake and the lane's shafts: held by bearings and shafts
     captive(f"ex_stub_{n}", f"flap_{n}", "turns in a goBILDA 1611 flanged bearing in the flap")
@@ -1056,13 +1061,19 @@ for k, x in enumerate(LANE_SHAFTS):
         captive(f"lane_shaft_{k}", wall.format(n) if "{" in wall else f"{wall}_{n}", "in a goBILDA 1611 flanged bearing, e-clips")
     captive(f"lane_roller_{k}", f"lane_shaft_{k}", "free on two 8x14x5 bearings on the shaft")
 for k in range(4): captive(f"ceiling_roller_{k}", "ceiling", "on two 608 bearings and an 8 mm shaft through the ceiling's sides")
-captive("battery", "battery_cradle_L", "a strap round it and both halves")
-captive("battery_cradle_R", "battery_cradle_L", "")   # noqa (the strap): each half also screws to its own rail
-device("control_hub", "rack_L", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
-device("expansion_hub", "rack_R", "M3 x 8 into its four mounting holes, through the rack's wall", 4)
-device("limelight", "limelight_mast", "M4 into the mast's inserts (its mounting holes)", 2)
-for y in (-0.55, 0.55):
-    screw(f"mast_{y}", "limelight_mast", "front_cross", "M4", 16, (MAST_X, y, MAST_Z0 + 0.25), (0, 0, -1), "nut", what="the mast's foot to the front cross channel's top")
+captive("battery", "rack_L", "a hook-and-loop strap round it and through both halves' slots")
+device("control_hub", "hub_deck_L", "M3 x 8 up through the deck into its four mounting holes", 4)
+device("expansion_hub", "hub_deck_R", "M3 x 8 up through the deck into its four mounting holes", 4)
+device("limelight", "limelight_mount", "M4 into its mounting holes, through the wedge's face", 2)
+for s_, n in SIDES:
+    for y in FC_HOLE_Y:
+        screw(f"deck_{n}_{y:.2f}", f"hub_deck_{n}", "front_cross", "M4", 30, (FC_HOLE_X, s_ * y, DECK_Z + DECK_T), (0, 0, -1), "nut", cb=True,
+              what="the hub deck's front leg to the front cross channel's top (its outer hole row, ahead of the hub), a nyloc inside the channel")
+    screw(f"deck_rear_{n}", f"hub_deck_{n}", LM_FRONT_TOP, "M4", 25, (0.24, s_ * sum(DECK_REAR_Y) / 2, 9.40), (0, 0, -1), "nut", cb=True,   # its head down a pocket in the leg
+          what="the hub deck's rear leg to the launcher's front top channel's flange, a nyloc under it", match="mark the hole from the real channel's top flange")
+for y in (-0.4, 0.4):
+    screw(f"ll_mount_{y}", "hub_deck_L" if y > 0 else "hub_deck_R", "limelight_mount", "M4", 16, (DECK_X[1] + 0.2, y, DECK_Z), (0, 0, 1), "insert",
+          what="the deck's tongue up into the Limelight wedge's inserts (from under the deck)")
 for k in range(4):
     a = math.radians(90 * k)
     screw(f"hood_{k}", "hood", HOOD_TOP if USE_LM else "turret_kit", "M4", 12, (COL_X + 64 * MM * math.cos(a), 64 * MM * math.sin(a), HOOD_Z + 0.2), (0, 0, -1), "tapped",
@@ -1083,15 +1094,15 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("front_pad_", "flap_"), ("front_pad_", "flap_face_"), ("ramp_skin_", "mouth_floor_"), ("ramp_skin_", "ramp_skin_"),
            ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"),
            ("star_shaft_", "star_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
-           ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mast"),
+           ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("hub_deck_", "hub_deck_"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
            ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "launcher_tray_"), ("feeder_post_", "launcher_tray_"), ("launcher_tray_", "rail_"), ("launcher_tray_", "lm_feeder_floor"), ("launcher_tray_", "lm_backstop"),
            ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"), ("fly_yoke_", "lm_"),
            ("fly_anchor_", "lm_Hole_Lowside_U-Channel_GB_2__1"), ("fly_spring_", "fly_anchor_"), ("fly_spring_", "fly_yoke_"), ("fly_anchor_", "fly_yoke_"),
            ("feeder_spring_", "feeder_rear_block_"), ("feeder_spring_", "feeder_arm_"), ("feeder_arm_", "feeder_rear_block_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
-           ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), ("battery_cradle_", "rail_"),
-           ("battery_cradle_", "battery"), ("battery_cradle_", "battery_cradle_"), ("limelight_mast", "front_bracket_L"), ("limelight_mast_", "limelight_mast_"), ("flap_", "rail_"),
+           ("rack_", "dm_B"), ("rack_", "control_hub"), ("rack_", "expansion_hub"), ("rack_", "rack_"), 
+           ("flap_", "rail_"),
            ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
 def allowed(a, b):
     return any((a.startswith(p) and b.startswith(q)) or (b.startswith(p) and a.startswith(q)) for p, q in ALLOWED)
@@ -1183,7 +1194,12 @@ def joint_report():
                 pass
         others = {k: w for k, w in shapes.items() if k not in clamp and k != f["b"]}
         if f["end"] == "nut":
-            t_exit = max(trange(inside(shank, shapes[k]) or shapes[k], f)[1] for k in clamp)
+            def wall(k):                                     # through a part's own hole the shank meets nothing: the hole's wall
+                for r in (d, 2 * d, 4 * d):
+                    x = inside(_cyl(f["p"], f["v"], r * MM, 0, L), shapes[k])
+                    if x is not None: return x
+                return shapes[k]
+            t_exit = max(trange(inside(shank, shapes[k]) or wall(k), f)[1] for k in clamp)
             if L - t_exit < nh * MM - 1e-3: fail(f"{(L - t_exit) / MM:.1f} mm past the last part: no room for the nut ({nh} mm)")
             nut = _cyl(f["p"], f["v"], nd / 2 * MM, t_exit + 0.005, t_exit + nh * MM)
             for k, w in shapes.items():
@@ -1195,6 +1211,7 @@ def joint_report():
         key = _cyl(f["p"], f["v"], 2.0 * MM, -hh * MM - 0.75, -hh * MM)
         for k, w in shapes.items():
             if (f["cb"] or f["match"]) and k == f["a"]: continue
+            if k in LIFTS_OUT: continue          # out of the way whenever a screw is turned
             if overlap(head, w) > 1e-5: fail(f"its head hits {k}")
             if overlap(key, w) > 1e-5: fail(f"no room for the hex key: {k}")
     for m in bad: print("   " + m)
@@ -1298,8 +1315,18 @@ def dress_report():
     print(f"   {n} parts dressed" + (f"; not cached, so drawn as envelopes: {len(missing)} (run vendor.py)" if missing else ""))
     return ok
 
+def service_report():
+    """What has to come off the robot between matches comes off without tools or other parts moving: the battery lifts
+    straight up out of its shelf (to z 11.4, under the hood's lid as it sweeps)."""
+    print("== service: the battery lifts straight out")
+    b = bb(PARTS["battery"]["shape"]); path = box(b[0], b[1], b[2], b[3], b[5], 11.4)
+    hit = [k for k, p in PARTS.items() if k != "battery" and overlap(path, p["shape"]) > 1e-5]
+    print("   clear, " + f"{11.4 - b[5]:.1f} in over it" if not hit else "   BLOCKED by " + ", ".join(hit))
+    return not hit
+
 def report():
-    ok = space_report()
+    ok = service_report()
+    ok &= space_report()
     ok &= joint_report()
     ok &= dress_report()
     shapes = {k: p["shape"] for k, p in PARTS.items()}
