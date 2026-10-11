@@ -557,6 +557,9 @@ public class AutoStudyTest {
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
         // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
         // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
+        // BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1: the robot's surfaces' bounce for a what-if (FieldSim.ROBOT_RESTITUTION otherwise).
+        String bounce = System.getenv("BIOBUZZ_AUTO_ROBOT_RESTITUTION");
+        FieldSim.robotRestitution = bounce == null ? FieldSim.ROBOT_RESTITUTION : Double.parseDouble(bounce);
         String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
         FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
         String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");

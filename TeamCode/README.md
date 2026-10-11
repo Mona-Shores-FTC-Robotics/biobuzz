@@ -1775,7 +1775,9 @@ a fire step; the timeline reports each one ("turret: the long way round, 300 deg
 
 What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInPerS=120"` sets any numeric or boolean
 `RobotDesign` field on every robot's design for the study (a copy; the named designs keep their values), and
-`BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4. `RobotDesign.firesOnTheMove` lets a design
+`BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4; `BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1` tries a softer
+or harder robot surface than `FieldSim.ROBOT_RESTITUTION` (the spill lands on the body's front and the intake mouth, so this
+is the lever: 0.4 → 0.1 is worth 7-9 points to the Sister pairs, 11 Oct 2026). `RobotDesign.firesOnTheMove` lets a design
 fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
 describing ours (9 Oct 2026, the CAD chat's redesign brief). The drive team enters one NECTAR into the LOADING ZONE
 after each TIP (G426), for both alliances, in every run: the team's decision of 10 Oct 2026 is that this is allowed
