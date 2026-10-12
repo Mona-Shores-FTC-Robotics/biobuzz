@@ -671,8 +671,8 @@ part("odometry", "odo_spacer_S", sp, "print", "PETG, 5 mm: the strafe pod's spac
 # ---- the mentor's star wheels, servo-driven through one-way bearings (drive TBD: his CAD draws none)
 for s, n in SIDES:
     sx, sy = STAR[0], s * STAR[1]
-    part("lane", f"star_{n}", cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "buy",
-         "SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD)")
+    part("lane", f"star_{n}", dress(cyl("z", (sx, sy), 2 * STAR_R, STAR_Z - STAR_W / 2, STAR_Z + STAR_W / 2), "SR-INTAKEWHEEL-35-7mm", (sx, sy, STAR_Z), (0, 0, 1), (1, 0, 0)), "buy",
+         "SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE over-molded on a nylon core, its black 7 mm hex insert; drawn from SWYFT's own STEP, as bought (the mentor cuts the rim into flaps)")
     part("lane", f"star_shaft_{n}", cyl("z", (sx, sy), 8 * MM, STAR_Z - STAR_W / 2 - 0.1, STAR_HUB_Z[1] - 1 * MM), "buy",
          "8 mm ROUND hardened shaft (ground steel, h6), vertical: the clutch's rollers run on it, so not 8mm REX; the star on its lower end through a printed 7 mm hex adapter (a set screw on a ground flat)")
     part("lane", f"star_bearing_{n}", cyl("z", (sx, sy), 14 * MM, *STAR_BRG_Z).cut(cyl("z", (sx, sy), 8 * MM, 0, 10)), "buy",

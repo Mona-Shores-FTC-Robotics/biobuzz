@@ -15,7 +15,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 CACHE = os.path.join(HERE, ".cache", "vendor")
 URL = "https://www.gobilda.com/content/step_files/{}.zip"
 URLS = {"REV-31-1595": "https://www.revrobotics.com/content/cad/REV-31-1595.STEP",     # REV's own files: plain STEP, not zipped
-        "REV-31-1153": "https://www.revrobotics.com/content/cad/REV-31-1153.STEP"}
+        "REV-31-1153": "https://www.revrobotics.com/content/cad/REV-31-1153.STEP",
+        # SWYFT's own files (their product page's CAD folder, a public Google Drive): the 3.5 in intake wheel, both bores
+        "SR-INTAKEWHEEL-35-7mm": "https://drive.google.com/uc?export=download&id=1wFnhJnbXOyFFqi-5bO4xjs0KWFgjp6ME",
+        "SR-INTAKEWHEEL-35-12": "https://drive.google.com/uc?export=download&id=1DezDpyIvLsmivIOAmzgOo1SZzmiuVp_r"}
 
 # key: (SKU, file in its zip (regex), origin (mm, vendor frame), local Z (vendor), local X (vendor), what the frame is)
 # Read from each file (vendor.py --probe prints a model's extents); goBILDA's frames differ part to part.
@@ -40,6 +43,8 @@ MODELS = {
     "1123-0048-0192": ("1123-0048-0192", r"\.step$", (-24.0, 0, -45.5), (0, 0, 1), (1, 0, 0), "the same"),
     "REV-31-1595": ("REV-31-1595", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Control Hub: its base's middle; Z along its length, X across, Y up through it to the lid"),
     "REV-31-1153": ("REV-31-1153", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Expansion Hub: the same"),
+    "SR-INTAKEWHEEL-35-7mm": ("SR-INTAKEWHEEL-35-7mm", r"", (0, 0, 6.35), (0, 0, 1), (1, 0, 0), "SWYFT 3.5 in intake wheel, 7 mm hex: its centre, mid-width; Z along its axis"),
+    "SR-INTAKEWHEEL-35-12": ("SR-INTAKEWHEEL-35-12", r"", (0, 0, 6.35), (0, 0, 1), (1, 0, 0), "the same, 1/2 in hex"),
     "1501-0006-0560": ("1501-0006-0560", r"\.step$", (0, -28.0, 0), (0, 1, 0), (1, 0, 0), "M4 standoff: one end, on its axis"),
     "1501-0006-0480": ("1501-0006-0480", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same (origin: its lower end, found on load)"),
     "1501-0006-0400": ("1501-0006-0400", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same"),
@@ -119,6 +124,9 @@ def _paint_hub(b):
     return (0.20, 0.20, 0.22) if max(b.xlen, b.ylen, b.zlen) > 3.0 else (0.88, 0.88, 0.86)          # the case dark, its plugs light
 PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
 
+# Files whose colours aren't the part's: SWYFT's wheel is drawn grey; the real one is white TPE on a black insert
+RECOLOUR = {k: (lambda b, c: (0.93, 0.93, 0.91) if max(b.xlen, b.ylen) > 2.0 else (0.10, 0.10, 0.11)) for k in ("SR-INTAKEWHEEL-35-7mm", "SR-INTAKEWHEEL-35-12")}
+
 def _frame(origin, zv, xv):
     """The vendor-to-local transform: origin to 0, zv to +Z, xv to +X, then millimetres to inches."""
     z, x = cq.Vector(*zv).normalized(), cq.Vector(*xv).normalized()
@@ -143,6 +151,7 @@ def fetch(keys=None):
             origin = (b.center.x, b.ymin, b.center.z)
         T = _frame(origin, zv, xv)
         parts = [(s.transformShape(T).scale(1 / 25.4), c) for s, c in parts]
+        if key in RECOLOUR: parts = [(sh, RECOLOUR[key](sh.BoundingBox(), c)) for sh, c in parts]
         rule = next((f for pre, f in PAINT.items() if key.startswith(pre)), None)
         if rule and len(parts) == 1:
             g = {}
