@@ -1237,6 +1237,64 @@ for k in range(4):
           what="the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear)",
           match="confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback")
 
+# ---- shaft hardware (12 Oct): every bearing and collar a shaft turns in or is held by, drawn where it goes (until then
+# most of them were only named in a joint's text, so the BOM and the model were short of them). The bearing goes where
+# the shaft passes each support, its flange on the outer face; collars clamp the shaft against its outermost bearings.
+BRG_SKU, COLLAR_SKU = "1611-0514-4008", "2910-0920-4008"
+BRG_BODY, BRG_FLANGE, COLLAR_W = 3.8 * MM, 1.2 * MM, 9.5 * MM
+HW_PAIRS = set()                        # (hardware, the part it sits in or on): touching by design, not a clash
+SHAFT_HW = [   # (shaft, supports it turns in, collars at its ends: "both", "lo" (its -axis end), "hi" or "")
+    *[(f"wheel_shaft_{c}", (f"rail_{c[1]}", f"outer_plate_{c[1]}"), "") for c in ("FL", "FR", "BL", "BR")],
+    ("roller_shaft", ("intake_arm_L", "intake_arm_R"), "both"),
+    ("ex_stub_L", ("flap_L",), ""), ("ex_stub_R", ("flap_R",), ""),
+    *[(f"lane_shaft_{k}", (f"lane_wall_L_{'front' if x > WALL_SPLIT else 'rear'}", f"lane_wall_R_{'front' if x > WALL_SPLIT else 'rear'}"), "both") for k, x in enumerate(LANE_SHAFTS)],
+    *[(f"feeder_shaft_{n}", (f"feeder_arm_{n}",), "both") for n in ("L", "R")],
+    *[(f"feeder_pivot_{n}", (f"feeder_rear_block_{n}", f"feeder_front_block_{n}"), "both") for n in ("L", "R")],
+    *[(f"fly_shaft_{n}", (f"fly_block_{n}_front", f"fly_yoke_{n}"), "both") for n in ("L", "R")],
+]
+def _axis(k):
+    b = bb(PARTS[k]["shape"]); ln = [b[1] - b[0], b[3] - b[2], b[5] - b[4]]; i = ln.index(max(ln))
+    return i, [(b[2 * j] + b[2 * j + 1]) / 2 for j in range(3)], (b[2 * i], b[2 * i + 1])
+def _place(sku, at, inward):
+    z = tuple(float(v) for v in inward); x = (0, 0, 1) if abs(z[2]) < 0.9 else (1, 0, 0)
+    return sku, tuple(at), z, x
+SHAFT_HW_MISSING = []                   # (shaft, support) where the shaft doesn't pass the support at all
+for sh, sups, ends in SHAFT_HW:
+    if sh not in PARTS: continue
+    i, c, (a0, a1) = _axis(sh); mid = (a0 + a1) / 2; u = [0, 0, 0]; u[i] = 1
+    ax = "xyz"[i]; cc = [c[j] for j in range(3) if j != i]
+    seats = []
+    for sp in sups:
+        if sp not in PARTS: SHAFT_HW_MISSING.append((sh, sp)); continue
+        try: seg = solid(cyl(ax, cc, 14 * MM, a0 - 0.05, a1 + 0.05)).intersect(solid(PARTS[sp]["shape"]))
+        except Exception: seg = None
+        sols = seg.Solids() if seg is not None and seg.Volume() > 1e-7 else []
+        if not sols: SHAFT_HW_MISSING.append((sh, sp)); continue
+        for so in sols:
+            bb_ = so.BoundingBox(); t0, t1 = (bb_.xmin, bb_.xmax) if i == 0 else (bb_.ymin, bb_.ymax) if i == 1 else (bb_.zmin, bb_.zmax)
+            out = 1 if (t0 + t1) / 2 > mid else -1            # its flange on the face away from the shaft's middle
+            face = t1 if out > 0 else t0
+            seats.append((face, out, sp))
+    for j, (face, out, sp) in enumerate(seats):
+        o = list(c); o[i] = face + out * BRG_FLANGE
+        w = cyl(ax, cc, 14 * MM, *sorted((face, face - out * BRG_BODY))).union(cyl(ax, cc, 15 * MM, *sorted((face, face + out * BRG_FLANGE))))
+        k = f"brg_{sh}_{j}"
+        part(PARTS[sp]["module"], k, dress(w, BRG_SKU, o, [-out * v for v in u], (0, 0, 1) if i != 2 else (1, 0, 0)), "buy",
+             f"goBILDA {BRG_SKU} flanged bearing (8 mm REX bore, 14 mm OD; sold in 2-packs): {sh} in {sp}", moves=PARTS[sp]["moves"])
+        captive(k, sp, "pressed into its 14 mm bore, flange out"); captive(sh, k, "turns in it")
+        HW_PAIRS.update({(k, sp), (k, sh)})
+    for end, sgn in (("lo", -1), ("hi", 1)):
+        if ends not in ("both", end) or not seats: continue
+        face, out, sp = max(seats, key=lambda q: sgn * q[0])
+        if out != sgn: continue
+        o = list(c); o[i] = face + out * BRG_FLANGE
+        w = cyl(ax, cc, 20 * MM, *sorted((o[i], o[i] + out * COLLAR_W)))
+        k = f"collar_{sh}_{end}"
+        part(PARTS[sh]["module"], k, dress(w, COLLAR_SKU, o, [out * v for v in u], (0, 0, 1) if i != 2 else (1, 0, 0)), "buy",
+             f"goBILDA {COLLAR_SKU} clamping collar (8 mm REX, M4 pinch bolt): holds {sh} against its bearing", moves=PARTS[sh]["moves"])
+        captive(k, sh, "clamped on the shaft against the bearing's inner race")
+        HW_PAIRS.update({(k, sh), (k, f"brg_{sh}_{seats.index((face, out, sp))}")})
+
 # ================================================================ checks
 
 
@@ -1262,6 +1320,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("flap_", "rail_"),
            ("odo_adapter_", "rail_"), ("odo_adapter_", "odo_pod_")]
 def allowed(a, b):
+    if (a, b) in HW_PAIRS or (b, a) in HW_PAIRS: return True
     return any((a.startswith(p) and b.startswith(q)) or (b.startswith(p) and a.startswith(q)) for p, q in ALLOWED)
 
 def clashes(shapes, only=None):

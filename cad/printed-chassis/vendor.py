@@ -48,6 +48,8 @@ MODELS = {
     "1113-0001-0048": ("1113-0001-0048", r"\.step$", (0, 0, 0), (0, 0, 1), (1, 0, 0), "1113 L-channel, 48 mm: its 48 x 48 flat leg's outer face at Z 0..-2.5 below, centred in X, Y along the corner edge from 0; the other leg down -Z at one X end"),
     "1201-0043-0002": ("1201-0043-0002", r"\.step$", (0, 0, 0), (0, 0, 1), (1, 0, 0), "1201 quad block pattern mount (43 x 43 x 12 mm): the middle of its patterned face, Y in through it; tapped M4"),
     "1501-0006-0160": ("1501-0006-0160", r"\.step$", None, (0, 1, 0), (1, 0, 0), "M4 standoff, 16 mm (origin: its lower end, found on load)"),
+    "1611-0514-4008": ("1611-0514-4008", r"\.step$", (0, 5.0, 0), (0, -1, 0), (1, 0, 0), "1611 flanged bearing, 8 mm REX bore, 14 mm OD, 5 mm: its flange's outer face, Z in through it"),
+    "2910-0920-4008": ("2910-0920-4008", r"\.step$", (-28.85, -0.56, 18.835), (0, -1, 0), (1, 0, 0), "2910 clamping collar, 8 mm REX, 20 mm OD x 9 mm: the face of its 11 mm boss (against a bearing's inner race), Z away through it"),
     "1501-0006-0560": ("1501-0006-0560", r"\.step$", (0, -28.0, 0), (0, 1, 0), (1, 0, 0), "M4 standoff: one end, on its axis"),
     "1501-0006-0480": ("1501-0006-0480", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same (origin: its lower end, found on load)"),
     "1501-0006-0400": ("1501-0006-0400", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same"),
@@ -127,7 +129,7 @@ def _paint_mecanum(b):
     return BLACK if (b.center.x ** 2 + b.center.y ** 2) ** 0.5 > 1.2 else (0.62, 0.63, 0.66)   # rollers round a hub
 def _paint_hub(b):
     return (0.20, 0.20, 0.22) if max(b.xlen, b.ylen, b.zlen) > 3.0 else (0.88, 0.88, 0.86)          # the case dark, its plugs light
-PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "111": lambda b: ALUMINIUM, "120": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
+PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "111": lambda b: ALUMINIUM, "120": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM, "2910-": lambda b: ALUMINIUM, "1611-": lambda b: (0.62, 0.63, 0.66)}
 
 # Files whose colours aren't the part's: SWYFT's wheel is drawn grey; the real one is white TPE on a black insert
 RECOLOUR = {k: (lambda b, c: (0.93, 0.93, 0.91) if max(b.xlen, b.ylen) > 2.0 else (0.10, 0.10, 0.11)) for k in ("SR-INTAKEWHEEL-35-7mm", "SR-INTAKEWHEEL-35-12")}
