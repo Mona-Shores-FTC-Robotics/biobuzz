@@ -42,7 +42,7 @@ if a.bore == "hex":
         c.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
         c.apply_translation([x, 0, z]); return c
     rh.rod_hole = hex_hole
-m = rh.ramp_block(); m.apply_translation([0, 0, -m.bounds[0][2]])
+m = rh.ramp_block(set_screws=a.bore == "rex"); m.apply_translation([0, 0, -m.bounds[0][2]])
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 path = os.path.join(HERE, "stl", f"block_{a.bore}_shaft{shaft:.3f}_bottom{a.bottom:.2f}.stl")
 m.export(path)

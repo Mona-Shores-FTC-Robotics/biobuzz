@@ -62,8 +62,9 @@ def rod_hole(length, x, z, d):
     return c
 
 
-def ramp_block():
-    """Back edge at x 0, curved tip at x DEPTH; z from the part's bottom (BOTTOM above the tiles)."""
+def ramp_block(set_screws=True):
+    """Back edge at x 0, curved tip at x DEPTH; z from the part's bottom (BOTTOM above the tiles). set_screws=False
+    leaves out the two M3 holes up into the rod, for a hex bore that can't turn on its shaft."""
     h, slope_run = TOP - BOTTOM, DEPTH - FLAT
     side = [(0, 0), (slope_run, h), (DEPTH, h), (DEPTH, 0)]
     body = prism_xz(side, -ARC_R - 2, ARC_R + 2)
@@ -77,7 +78,7 @@ def ramp_block():
     cone.apply_translation([DEPTH - ARC_R, 0, 0])
     body = body.intersection(cone)
     holes = [rod_hole(ARC_R * 3, ROD_X, ROD_Z - BOTTOM, ROD_D + FIT)]
-    for y in (-14.0, 14.0):
+    for y in ((-14.0, 14.0) if set_screws else ()):
         s = cylinder(radius=SCREW_D / 2, height=ROD_Z - BOTTOM + 1, sections=24)
         s.apply_translation([ROD_X, y, (ROD_Z - BOTTOM) / 2 - 0.5])
         holes.append(s)
