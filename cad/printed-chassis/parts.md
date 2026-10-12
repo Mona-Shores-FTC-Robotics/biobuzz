@@ -104,23 +104,19 @@ CHECK marks a size not read from a vendor file. Two robots: double every line.
 | `lane_roller_0` | lane | print | TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back) |
 | `lane_roller_1` | lane | print | TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back) |
 | `lane_roller_2` | lane | print | TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back) |
-| `lane_roller_3` | lane | print | TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back) |
-| `lane_roller_4` | lane | print | TPU 95A: 24 mm x 1 in lane roller, free on two 8x14x5 bearings (the lane is passive: the roller's throw and the queue carry each piece back) |
 | `lane_shaft_0` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
 | `lane_shaft_1` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
 | `lane_shaft_2` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
-| `lane_shaft_3` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
-| `lane_shaft_4` | lane | buy | goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) |
 | `lane_wall_L_front` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail |
 | `lane_wall_L_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail |
 | `lane_wall_R_front` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail |
 | `lane_wall_R_rear` | lane | print | PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail |
-| `mouth_floor_L` | lane | print | PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers |
-| `mouth_floor_R` | lane | print | PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers |
-| `ramp_skin_L` | lane | print | TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin, where the spill lands; four countersunk M3 into the ramp, swappable like the flaps' faces |
-| `ramp_skin_R` | lane | print | TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin, where the spill lands; four countersunk M3 into the ramp, swappable like the flaps' faces |
-| `star_L` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
-| `star_R` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) |
+| `mouth_floor_L` | lane | print | PETG: half the ramp (the mouth's whole width), from the tiles beside the star wheels up to the lane, on two tabs on the rail's bottom flange |
+| `mouth_floor_R` | lane | print | PETG: half the ramp (the mouth's whole width), from the tiles beside the star wheels up to the lane, on two tabs on the rail's bottom flange |
+| `ramp_skin_L` | lane | print | TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin; four countersunk M3 into the ramp, swappable like the flaps' faces |
+| `ramp_skin_R` | lane | print | TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin; four countersunk M3 into the ramp, swappable like the flaps' faces |
+| `star_L` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE over-molded on a nylon core, its black 7 mm hex insert; drawn from SWYFT's own STEP, as bought (the mentor cuts the rim into flaps) |
+| `star_R` | lane | buy | SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE over-molded on a nylon core, its black 7 mm hex insert; drawn from SWYFT's own STEP, as bought (the mentor cuts the rim into flaps) |
 | `star_bearing_L` | lane | buy | goBILDA 8x14x5 mm round-bore flanged bearing (as in the mentor's launcher): the star shaft's, in the bracket's arm over the star |
 | `star_bearing_R` | lane | buy | goBILDA 8x14x5 mm round-bore flanged bearing (as in the mentor's launcher): the star shaft's, in the bracket's arm over the star |
 | `star_clutch_L` | lane | print | PETG hub, 13.9-13.95 mm press bore for the one-way clutch (the mentor's: Amazon Sankoly-US SK230309GZZC-6P, read as HF081412, 8 x 14 x 12 mm drawn cup; CHECK with calipers): its top screwed to the servo's goBILDA 25T horn (4 M3), so the servo turns the hub, the clutch drives the shaft and the star one way only; a fast piece overruns it, and it can't be pushed backwards |
@@ -385,21 +381,15 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `intake_tie` | `intake_arm_L` | an M4 x 10 through the arm into the standoff's end |
 | `intake_cradle` | `intake_tie` | the standoff in the cradle's REX socket, a set screw |
 | `intake_motor` | `intake_cradle` | clamped round its can by the cradle's M3 pinch screw |
-| `lane_shaft_0` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_0` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_0` | `lane_wall_L_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_0` | `lane_wall_R_front` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_0` | `lane_shaft_0` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_1` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_1` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_1` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_1` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_1` | `lane_shaft_1` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_2` | `lane_wall_L_front` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_2` | `lane_wall_R_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_2` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_2` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_2` | `lane_shaft_2` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_3` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_3` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_roller_3` | `lane_shaft_3` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_4` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_4` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_roller_4` | `lane_shaft_4` | free on two 8x14x5 bearings on the shaft |
 | `ceiling_roller_0` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `ceiling_roller_1` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `ceiling_roller_2` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |

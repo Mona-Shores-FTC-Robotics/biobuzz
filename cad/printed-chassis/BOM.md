@@ -14,7 +14,7 @@ Buy about 10% extra of every small part.
 | REV Expansion Hub, flat on the deck's right half under its roof, 0.6 in clear round every edge for its plugs | 1 | 2 |
 | REV-11-1271 Thru-Bore Encoder, absolute PWM output to the OctoQuad | 2 | 4 |
 | REV-31-1269 Resistive Grounding Strap: the control hub's spare XT30 to a frame screw (REV's ESD advice), cable-tied to the deck behind the hub | 1 | 2 |
-| SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE on a nylon core, cut by the team into 16 flaps, as the mentor's; on a 7 mm hex through a ~25 mm black adapter (TBD) | 2 | 4 |
+| SWYFT Intake Wheel 3.5 in, 7 mm hex (SR-INTAKEWHEEL-35-7mm, 4 for $24.99): 0.5 in wide, 30A TPE over-molded on a nylon core, its black 7 mm hex insert; drawn from SWYFT's own STEP, as bought (the mentor cuts the rim into flaps) | 2 | 4 |
 | compression spring, about 0.2 in OD, 0.6 in free: the rear block's lug pushes the arm in (rate and preload from the rig; CHECK) | 2 | 4 |
 | extension spring, about 0.25 in OD: the anchor to the yoke (rate and preload from the rig; CHECK) | 2 | 4 |
 | goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on printed end blocks (no uprights: the mouth stays open to its full width) | 1 | 2 |
@@ -67,7 +67,7 @@ Buy about 10% extra of every small part.
 | goBILDA 5203-2402-0014 Yellow Jacket, 435 RPM (13.7:1), as last season's drive (DECODE's Pedro constants: 537.7 ticks a rev, 96 mm wheels, 1:1) | 4 | 8 |
 | goBILDA 8 x 14 x 5 mm round-bore bearing | 6 | 12 |
 | goBILDA 8mm REX Hyper Hub | 2 | 4 |
-| goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) | 5 | 10 |
+| goBILDA 8mm REX shaft, 144 mm (2106-4008-1440) | 3 | 6 |
 | goBILDA 8mm REX shaft, cut to 371 mm (CHECK) | 1 | 2 |
 | goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates, the wheels free on bearings | 1 | 2 |
 | goBILDA 8mm REX shaft, in 1611 bearings in the arm's two plates; belt B's 24T pulley on it | 1 | 2 |
@@ -133,8 +133,8 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `fly_guide_R_rear` | PETG-CF | 1 | 2 | 2 |
 | `fly_yoke_L` | PETG-CF | 1 | 2 | 24 |
 | `fly_yoke_R` | PETG-CF | 1 | 2 | 24 |
-| `front_bracket_L` | PETG | 1 | 2 | 23 |
-| `front_bracket_R` | PETG | 1 | 2 | 23 |
+| `front_bracket_L` | PETG | 1 | 2 | 28 |
+| `front_bracket_R` | PETG | 1 | 2 | 28 |
 | `front_cross_end_L` | PETG-CF | 1 | 2 | 33 |
 | `front_cross_end_R` | PETG-CF | 1 | 2 | 33 |
 | `front_pad_L` | TPU 95A | 1 | 2 | 14 |
@@ -151,8 +151,6 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `lane_roller_0` | TPU 95A | 1 | 2 | 5 |
 | `lane_roller_1` | TPU 95A | 1 | 2 | 5 |
 | `lane_roller_2` | TPU 95A | 1 | 2 | 5 |
-| `lane_roller_3` | TPU 95A | 1 | 2 | 5 |
-| `lane_roller_4` | TPU 95A | 1 | 2 | 5 |
 | `lane_wall_L_front` | PETG | 1 | 2 | 8 |
 | `lane_wall_L_rear` | PETG | 1 | 2 | 15 |
 | `lane_wall_R_front` | PETG | 1 | 2 | 8 |
@@ -169,14 +167,14 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `lm_turret_enc_A_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
 | `lm_turret_enc_B_sleeve_print_PETG_8mm_REX_bore_1_2_in_hex_outsi_1` | PETG | 1 | 2 | 1 |
 | `lm_turret_enc_B_tower_print_PETG_cradles_encoder_B_on_the_plate_1` | PETG | 1 | 2 | 27 |
-| `mouth_floor_L` | PETG | 1 | 2 | 31 |
-| `mouth_floor_R` | PETG | 1 | 2 | 31 |
+| `mouth_floor_L` | PETG | 1 | 2 | 20 |
+| `mouth_floor_R` | PETG | 1 | 2 | 20 |
 | `odo_adapter_F` | PETG | 1 | 2 | 15 |
 | `odo_spacer_S` | PETG | 1 | 2 | 7 |
 | `rack_L` | PETG | 1 | 2 | 15 |
 | `rack_R` | PETG | 1 | 2 | 15 |
-| `ramp_skin_L` | TPU 95A | 1 | 2 | 12 |
-| `ramp_skin_R` | TPU 95A | 1 | 2 | 12 |
+| `ramp_skin_L` | TPU 95A | 1 | 2 | 11 |
+| `ramp_skin_R` | TPU 95A | 1 | 2 | 11 |
 | `rear_corner_L` | PETG-CF | 1 | 2 | 8 |
 | `rear_corner_R` | PETG-CF | 1 | 2 | 8 |
 | `star_clutch_L` | PETG | 1 | 2 | 1 |
@@ -184,11 +182,11 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 0.93 kg | 1.85 kg |
+| PETG | 0.91 kg | 1.83 kg |
 | PETG-CF | 0.56 kg | 1.13 kg |
-| TPU 95A | 0.12 kg | 0.24 kg |
+| TPU 95A | 0.11 kg | 0.21 kg |
 
-About 134 printer-hours a robot, 268 for two: with four home printers, about 6.7 days at 10 h a day.
+About 132 printer-hours a robot, 264 for two: with four home printers, about 6.6 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
@@ -395,21 +393,15 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `intake_tie` | `intake_arm_L` | an M4 x 10 through the arm into the standoff's end |
 | `intake_cradle` | `intake_tie` | the standoff in the cradle's REX socket, a set screw |
 | `intake_motor` | `intake_cradle` | clamped round its can by the cradle's M3 pinch screw |
-| `lane_shaft_0` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_0` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_0` | `lane_wall_L_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_0` | `lane_wall_R_front` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_0` | `lane_shaft_0` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_1` | `mouth_floor_L` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_1` | `mouth_floor_R` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_1` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_1` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_1` | `lane_shaft_1` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_2` | `lane_wall_L_front` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_2` | `lane_wall_R_front` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_2` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
+| `lane_shaft_2` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
 | `lane_roller_2` | `lane_shaft_2` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_3` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_3` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_roller_3` | `lane_shaft_3` | free on two 8x14x5 bearings on the shaft |
-| `lane_shaft_4` | `lane_wall_L_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_shaft_4` | `lane_wall_R_rear` | in a goBILDA 1611 flanged bearing, e-clips |
-| `lane_roller_4` | `lane_shaft_4` | free on two 8x14x5 bearings on the shaft |
 | `ceiling_roller_0` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `ceiling_roller_1` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
 | `ceiling_roller_2` | `ceiling` | on two 608 bearings and an 8 mm shaft through the ceiling's sides |
