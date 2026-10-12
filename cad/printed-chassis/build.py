@@ -454,10 +454,18 @@ for s_, n in (() if USE_DM else SIDES):
     for k, (dx, dz) in enumerate(FC_STANDOFFS):
         part("frame", f"front_cross_standoff_{n}{k}", mir(cyl("y", (AXLE[1] + dx, FC_MID + dz), 6 * MM, FC_BLOCK_Y, RAIL_OUT), s_), "buy",
              "goBILDA 1501-0006-0160 M4 standoff (16 mm): the quad block's face to the front motor plate, on an M4 set screw into the block")
+# The rear cross channel to the rails, all metal: at each corner two L-shaped gussets cut from 2.5 mm 6061 (the rear motor
+# plates' sheet), one across the two channels' top flanges and one across their bottom flanges (each pair level), each on
+# two of the rail's flange holes and two of the cross channel's. (Until 12 Oct a printed block in the corner did this.)
+GUSSET_T = 2.5 * MM
+GUSSET_RAIL_X = (rail_x(0), rail_x(3))          # the rail's flange holes it takes (8 and 32 mm from its back end)
+GUSSET_CROSS_Y = (104 * MM, 112 * MM)           # the cross channel's flange holes it takes (its last two)
 for s_, n in (() if USE_DM else SIDES):
-    cb_ = box(RAIL_X[0] + CH_T + 0.01, RAIL_X[0] + CH_LOW - 0.01, 4.0, RAIL_OUT - CH_T - 0.005, RAIL_Z[0] + CH_T + 0.005, RAIL_Z[1] - CH_T - 0.005)
-    part("frame", f"rear_corner_{n}", mir(cb_, s_), "print",
-         "PETG-CF: a rear corner block, inside the corner of the rear cross channel and the rail: an M4 down through the channel's top flange, two through the rail's top and bottom flanges")
+    for h, z0 in (("top", RAIL_Z[1]), ("bottom", RAIL_Z[0] - GUSSET_T)):
+        g = box(RAIL_X[0], GUSSET_RAIL_X[1] + 0.25, RAIL_IN, RAIL_OUT, z0, z0 + GUSSET_T).union(
+            box(RAIL_X[0], RAIL_X[0] + CH_LOW, GUSSET_CROSS_Y[0] - 0.25, RAIL_OUT, z0, z0 + GUSSET_T))
+        part("frame", f"rear_gusset_{n}_{h}", mir(g, s_), "cut",
+             f"rear corner gusset ({h}), cut from 2.5 mm (0.1 in) 6061 aluminium sheet to the drawing: an L across the rail's and the rear cross channel's {h} flanges, four M4")
 
 # ---- drive corners: the mentor's (drive_module.py), each placed by its own axle; without its cache, this file's own
 if USE_DM:
@@ -1153,12 +1161,13 @@ if not USE_DM:
             screw(f"fcb_plate_{n}{k}", f"motor_plate_F{n}", f"front_cross_standoff_{n}{k}", "M4", 10, (AXLE[1] + dx, s_ * (RAIL_OUT + PLATE_T), FC_MID + dz), (0, -s_, 0), "tapped",
                   what="through the front motor plate into the standoff")
             device(f"front_cross_standoff_{n}{k}", f"front_cross_block_{n}", "an M4 set screw from the standoff into the quad block's tapped face", 0)
-        screw(f"rc_top_{n}", "rear_cross", f"rear_corner_{n}", "M4", 12, (REAR_CROSS_HOLE[0], s_ * REAR_CROSS_HOLE[1], RAIL_Z[1]), (0, 0, -1), "insert",
-              what="the rear cross channel's top flange into its corner block")
-        screw(f"rc_rail_top_{n}", f"rail_{n}", f"rear_corner_{n}", "M4", 12, (rail_x(0), s_ * FLANGE_HOLE_Y, RAIL_Z[1]), (0, 0, -1), "insert",
-              what="the rail's top flange into the rear corner block")
-        screw(f"rc_rail_bot_{n}", f"rail_{n}", f"rear_corner_{n}", "M4", 12, (rail_x(0), s_ * FLANGE_HOLE_Y, RAIL_Z[0]), (0, 0, 1), "insert",
-              what="the rail's bottom flange into the rear corner block (from under the robot)")
+        for h, z, v in (("top", RAIL_Z[1] + GUSSET_T, (0, 0, -1)), ("bottom", RAIL_Z[0] - GUSSET_T, (0, 0, 1))):
+            for x in GUSSET_RAIL_X:
+                screw(f"gus_rail_{n}_{h}_{x:.2f}", f"rear_gusset_{n}_{h}", f"rail_{n}", "M4", 10, (x, s_ * FLANGE_HOLE_Y, z), v, "nut",
+                      what=f"the {h} gusset to the rail's {h} flange, a nyloc inside the rail")
+            for y in GUSSET_CROSS_Y:
+                screw(f"gus_cross_{n}_{h}_{y / MM:.0f}", f"rear_gusset_{n}_{h}", "rear_cross", "M4", 10, (REAR_CROSS_HOLE[0], s_ * y, z), v, "nut",
+                      what=f"the {h} gusset to the rear cross channel's {h} flange, a nyloc inside it")
 captive("ex_block", "ex_cross", "clamped on the cross shaft")
 for n in ("L", "R"):
     device(f"front_pad_{n}", f"flap_{n}", "3 countersunk M3 x 10 into the root's inserts", 3)
@@ -1237,7 +1246,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("front_pad_", "flap_"), ("front_pad_", "flap_face_"), ("ramp_skin_", "mouth_floor_"), ("ramp_skin_", "ramp_skin_"),
-           ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"), ("rear_corner_", "rear_cross"), ("rear_corner_", "rail_"), ("standoff_washers_", "rail_"), ("standoff_washers_", "standoff_"), ("ex_horn", "ex_servo"), ("ex_horn", "ex_gear_servo"),
+           ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"), ("standoff_washers_", "rail_"), ("standoff_washers_", "standoff_"), ("ex_horn", "ex_servo"), ("ex_horn", "ex_gear_servo"),
            ("star_shaft_", "star_"), ("star_bearing_", "star_shaft_"), ("star_bearing_", "front_bracket_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("limelight_mount", "front_cross"), ("hub_deck_", "hub_deck_"), ("hub_roof_", "hub_deck_"), ("ground_strap", "hub_deck_"), ("hub_deck_", "front_cross"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
@@ -1750,7 +1759,7 @@ def cut_holes():
         clamp = [f["a"]] + list(f["via"]) + ([f["b"]] if f["end"] == "nut" else [])
         for k in dict.fromkeys(clamp + [f["b"]]):
             p = PARTS[k]
-            if not (p["kind"] == "print" or k.startswith("rail_")): continue
+            if not (p["kind"] in ("print", "cut") or k.startswith("rail_")): continue
             dia = clr if k in clamp else (ih if f["end"] == "insert" else clr)
             cut = _cyl(f["p"], f["v"], dia / 2 * MM, -0.01, L)
             if f["cb"] and k == f["a"]: cut = cut.union(_cyl(f["p"], f["v"], (hd + 0.6) / 2 * MM, -0.6, 0))
