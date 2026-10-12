@@ -457,7 +457,9 @@ if USE_DM:
         sh = TopoDS_Shape(); BRepTools.Read_s(sh, os.path.join(DM_DIR, e["file"]), BRep_Builder())
         part(f"corner_{e['corner']}", "dm_" + e["file"][:-5], cq.Workplane().add(cq.Shape.cast(sh)), "buy", f"the mentor's drive corner {e['corner']}: {e['name']}")
 for s_, n in (() if USE_DM else SIDES):
-    op = dress(box(*RAIL_X, *OPLATE_Y, *RAIL_Z), "1123-0048-0336", (RAIL_X[0] + 12 * MM, OPLATE_Y[0], RAIL_Z[1]), (0, 0, -1), (0, 1, 0))   # 336 of the rail's 360, centred: its holes on the rail's 24 mm bores
+    op = dress(box(RAIL_X[0] + 24 * MM, RAIL_X[1], *OPLATE_Y, *RAIL_Z), "1123-0048-0336", (RAIL_X[0] + 24 * MM, OPLATE_Y[0], RAIL_Z[1]), (0, 0, -1), (0, 1, 0))
+    # 336 of the rail's 360, flush with its front: its 14 mm bores every 24 mm then fall on the rail's (centred, they were half
+    # a pitch off, 12 mm, and the wheels' shafts went through solid plate: the bore check below now catches that)
     part("frame", f"outer_plate_{n}", mir(op, s_), "buy", "goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs")
     for k in (-3, 1):                       # between the wheels, where no belt runs
         for dz in (-16 * MM, 16 * MM):
@@ -928,7 +930,7 @@ HOOD_TOP = bb(PARTS["hood"]["shape"])[5]
 # ---- electronics (v3.1, 11 Oct): the battery where it lifts straight out between matches; the hubs flat on a deck over the
 # front, their plugs at their edges; the Limelight on the deck's front tongue. (Until v3.1 the battery sat low between the
 # rails, boxed in by the rear cross channel, the rear drive motors and the launcher: it couldn't come out.)
-RACK_SCREW_X = RAIL_X[0] + 6 * MM       # the rear cross channel's top flange, mid-flange (CHECK, as the rails' flanges)
+RACK_SCREW_X = RAIL_X[0] + 8 * MM       # the rear cross channel's top flange: its hole row, 8 mm from its edge (goBILDA's model; the bore check holds it)
 RACK_SCREW_Y = (8 * MM, 16 * MM)        # between the rear motors' inner ends (|Y| 0.76)
 RACK_Z = RAIL_Z[1] + 72 * MM            # over the rear drive motors (their tops at 5.53), on 72 mm of standoffs
 RACK_STANDOFF = (RAIL_Z[1], RACK_Z)     # goBILDA 1501 M4 standoffs, 72 mm
@@ -1200,8 +1202,8 @@ for s_, n in SIDES:
         for j, py in enumerate(POST_Y):
             screw(f"roof_{n}{i}{j}", f"hub_roof_{n}", f"hub_deck_{n}", "M4", 12, (px + POST / 2, s_ * (py + POST / 2), ROOF_Z + ROOF_T), (0, 0, -1), "insert",
                   what="the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off")
-for y in (-0.4, 0.4):
-    screw(f"ll_mount_{y}", "front_cross", "limelight_mount", "M4", 10, (FC_HOLE_X, y, DECK_Z - CH_T), (0, 0, 1), "insert",
+for y in (-8 * MM, 8 * MM):             # the channel's holes, every 8 mm across its top
+    screw(f"ll_mount_{y:.2f}", "front_cross", "limelight_mount", "M4", 10, (FC_HOLE_X, y, DECK_Z - CH_T), (0, 0, 1), "insert",
           what="up through the front cross channel's top into the Limelight base's inserts (from inside the channel)")
 for k in range(4):
     a = math.radians(90 * k)
@@ -1302,7 +1304,9 @@ def joint_report():
     """The v2 checks: every screw, then every part's path to the rails."""
     ok = True
     shapes = {k: p["shape"] for k, p in PARTS.items()}
-    holed = lambda k: k.startswith(("lm_", "dm_"))            # the mentor's goBILDA parts: their holes are in the model
+    realm = {k: real_metal(k) for k, p in PARTS.items() if p["kind"] == "buy"}
+    realm = {k: v for k, v in realm.items() if v is not None}  # our goBILDA channels and plates, as goBILDA's models (holes and all)
+    holed = lambda k: k.startswith(("lm_", "dm_")) or k in realm   # the mentor's goBILDA parts and ours: their holes are in the model
     def trange(sol, f):                                         # where along the screw a solid sits (in)
         b = solid(sol).BoundingBox(); p, v = f["p"], f["v"]
         ts = [sum((c[i] - p[i]) * v[i] for i in range(3)) for c in ((x, y, z) for x in (b.xmin, b.xmax) for y in (b.ymin, b.ymax) for z in (b.zmin, b.zmax))]
@@ -1323,7 +1327,7 @@ def joint_report():
         if any(k not in shapes for k in (f["a"],) + f["via"] + (f["b"],)): continue
         clamp = [f["a"]] + list(f["via"]) + ([f["b"]] if f["end"] == "nut" else [])
         for k in dict.fromkeys(clamp):
-            w = shapes[k]
+            w = realm.get(k, shapes[k])
             if holed(k):
                 if f["match"]: continue
                 if inside(_cyl(f["p"], f["v"], (d / 2 - 0.1) * MM, 0, L), w) is not None: fail(f"hits {k}'s material: no hole there")
@@ -1417,6 +1421,46 @@ def colour_of(k):
     return next((c for rx, c in NAMED if re.search(rx, k + " " + p["what"])), (0.80, 0.81, 0.83))   # else aluminium (channels, plates, blocks)
 
 DRAWN_COLOUR = {"belt": (0.10, 0.10, 0.11), "rex": (0.70, 0.71, 0.73), "rex_standoff": (0.78, 0.79, 0.81)}
+def real_metal(k):
+    """A dressed goBILDA channel or plate as its real model, placed (holes and all), or None."""
+    import vendor
+    L = PARTS[k].get("looks")
+    if not L or not any(isinstance(w, str) and w.startswith("112") for w, *_ in L): return None
+    lp = look_parts(k)
+    return cq.Compound.makeCompound([sh.moved(loc) for sh, loc, _ in lp]) if lp else None
+
+def bore_report():
+    """Every shaft and standoff that passes into one of our goBILDA channels or plates meets a real hole there, in
+    goBILDA's own model: a 14 mm bore round a wheel's shaft (its bearing), an M4 hole at a standoff's end."""
+    print("== shafts and standoffs in the real holes of the goBILDA channels and plates")
+    metal = {k: real_metal(k) for k in PARTS if PARTS[k]["kind"] == "buy"}
+    metal = {k: v for k, v in metal.items() if v is not None}
+    def axis(k):
+        b = bb(PARTS[k]["shape"]); ln = [b[1] - b[0], b[3] - b[2], b[5] - b[4]]; i = ln.index(max(ln))
+        c = [(b[0] + b[1]) / 2, (b[2] + b[3]) / 2, (b[4] + b[5]) / 2]
+        return i, c, (b[2 * i], b[2 * i + 1])
+    rods = [(k, 6.6 * MM, "its bearing's 14 mm bore") for k in PARTS if k.startswith("wheel_shaft_")]
+    rods += [(k, 1.9 * MM, "an M4 hole at its end") for k in PARTS if re.match(r"^(standoff_[LR]_|wall_standoff_|rack_standoff_)", k)]
+    bad, n = [], 0
+    for k, r, need in rods:
+        i, c, (a0, a1) = axis(k)
+        for m, real in metal.items():
+            mb = bb(PARTS[m]["shape"])
+            if not all(mb[2 * j] - 0.05 <= c[j] <= mb[2 * j + 1] + 0.05 for j in range(3) if j != i): continue
+            lo, hi = max(a0, mb[2 * i]) - 0.01, min(a1, mb[2 * i + 1]) + 0.01
+            if lo > hi: continue
+            n += 1
+            for t in (lo + (hi - lo) * f for f in (0.25, 0.5, 0.75)):
+                pts = []
+                for q in range(12):
+                    a = 2 * math.pi * q / 12; o = [math.cos(a) * r, math.sin(a) * r]; P = list(c); P[i] = t
+                    P[(i + 1) % 3] += o[0]; P[(i + 2) % 3] += o[1]; pts.append(P)
+                if any(real.isInside(cq.Vector(*P), 1e-4) for P in pts):
+                    bad.append(f"{k} in {m}: no {need} there ({'XYZ'[i]} {t:.2f})"); break
+    for b_ in bad: print("   " + b_)
+    print(f"   all {n} in real holes" if not bad else f"   {len(bad)} of {n} miss")
+    return not bad
+
 def look_parts(k):
     """A dressed part as [(shape in its own frame, cq.Location, colour)], inches; None when it has no dress or a model
     it needs isn't cached (vendor.py)."""
@@ -1517,6 +1561,7 @@ def report():
     ok &= space_report()
     ok &= view_report()
     ok &= joint_report()
+    ok &= bore_report()
     ok &= dress_report()
     shapes = {k: p["shape"] for k, p in PARTS.items()}
     print("== static clashes (start pose: extractor stowed, roller down)")
