@@ -21,6 +21,12 @@
 > brackets that were never drawn); the flywheel slides run in printed guides. One joint is left to settle with the
 > mentor's parts in hand: the star wheel on its shaft (DECISIONS.md, open).
 >
+> **v3.3, a frame a mentor can trust (12 Oct).** Every structural joint is metal to metal through goBILDA's own holes:
+> the front cross channel's ends on goBILDA quad blocks and 16 mm standoffs to the front motor plates, the rear corners
+> on cut aluminium gussets top and bottom, and an aluminium belly plate across the rails under the launcher (the front
+> half stays open for the mouth). The outer plates were half a hole pitch off the wheels' shafts; new checks hold every
+> shaft, standoff and screw to a real hole in goBILDA's own models.
+>
 > **v3.2, the electronics out of the line of fire (11 Oct).** The turret turns the hood all the way round, and the hood
 > turned shots out at 10 to 11.5 in: aimed within about 75° of ahead, a shot went through the hubs and the Limelight.
 > No room for a hub was left anywhere below that height (a voxel search, every orientation, even with no room for
@@ -76,6 +82,7 @@ README no longer describes.
 | Every screw (112, plus 115 on servos, hubs, motors and the Limelight) | passes through each part it clamps (a real hole in the mentor's goBILDA parts, goBILDA's 8 mm grid on the rails, its hole cut in a printed part), threads into an insert, nut or tapped hole with enough engagement, and its head, its hex key's straight path (0.75 in) and its nut hit nothing. Eight are marked to locate on the robot (below) |
 | Service | the battery lifts straight up out of its shelf, and each hub's roof straight up off its posts, nothing over either |
 | The shot leaving the hood | the ball's path out of the curved hood (45° up), grown by 0.25 in, in every direction the turret faces, out to 14 in: hits nothing (`shot_exit`); from about 15° up it would still clear |
+| Real holes | every wheel shaft and standoff meets a real hole of goBILDA's model (a 14 mm bore, an M4 hole), and every screw through a goBILDA channel or plate (ours and the mentor's) passes a real hole |
 | The hubs' plugs | 0.6 in clear round every edge of each hub and over it, under its roof (`plugs_L`, `plugs_R`) |
 | The Limelight's view | 54.5 × 42°, 45° up, to 30 in: nothing of the robot in it |
 | Mountings | every part said to bolt to or ride on another touches it (132 of them); the star wheels' joint to their shafts is to settle |
