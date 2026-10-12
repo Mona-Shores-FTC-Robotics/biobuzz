@@ -45,6 +45,9 @@ MODELS = {
     "REV-31-1153": ("REV-31-1153", r"", (0, 0, 0), (0, 0, 1), (1, 0, 0), "REV Expansion Hub: the same"),
     "SR-INTAKEWHEEL-35-7mm": ("SR-INTAKEWHEEL-35-7mm", r"", (0, 0, 6.35), (0, 0, 1), (1, 0, 0), "SWYFT 3.5 in intake wheel, 7 mm hex: its centre, mid-width; Z along its axis"),
     "SR-INTAKEWHEEL-35-12": ("SR-INTAKEWHEEL-35-12", r"", (0, 0, 6.35), (0, 0, 1), (1, 0, 0), "the same, 1/2 in hex"),
+    "1113-0001-0048": ("1113-0001-0048", r"\.step$", (0, 0, 0), (0, 0, 1), (1, 0, 0), "1113 L-channel, 48 mm: its 48 x 48 flat leg's outer face at Z 0..-2.5 below, centred in X, Y along the corner edge from 0; the other leg down -Z at one X end"),
+    "1201-0043-0002": ("1201-0043-0002", r"\.step$", (0, 0, 0), (0, 0, 1), (1, 0, 0), "1201 quad block pattern mount (43 x 43 x 12 mm): the middle of its patterned face, Y in through it; tapped M4"),
+    "1501-0006-0160": ("1501-0006-0160", r"\.step$", None, (0, 1, 0), (1, 0, 0), "M4 standoff, 16 mm (origin: its lower end, found on load)"),
     "1501-0006-0560": ("1501-0006-0560", r"\.step$", (0, -28.0, 0), (0, 1, 0), (1, 0, 0), "M4 standoff: one end, on its axis"),
     "1501-0006-0480": ("1501-0006-0480", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same (origin: its lower end, found on load)"),
     "1501-0006-0400": ("1501-0006-0400", r"\.step$", None, (0, 1, 0), (1, 0, 0), "the same"),
@@ -109,6 +112,8 @@ def _read(data, pattern):
 # local Y = 0 unless listed. The channels and plates run from 0 along Y, so they flip across their width instead.
 SYMMETRY = {k: (2, 24 / 25.4) for k in ("1121-0014-0360", "1121-0009-0240", "1123-0048-0336", "1123-0048-0144", "1123-0048-0192")}
 SYMMETRY["1120-0009-0240"] = (0, 24 / 25.4)
+SYMMETRY["1113-0001-0048"] = (1, 24 / 25.4)          # the L-channel: about the middle of its corner edge
+SYMMETRY["1201-0043-0002"] = (0, 0.0)                 # the quad block: about its middle across X
 
 # Colours for files that carry none (goBILDA's motors, wheels and channels), by each solid's place in the local frame (inches)
 ALUMINIUM, STEEL, BLACK = (0.78, 0.79, 0.81), (0.70, 0.71, 0.73), (0.13, 0.13, 0.14)
@@ -122,7 +127,7 @@ def _paint_mecanum(b):
     return BLACK if (b.center.x ** 2 + b.center.y ** 2) ** 0.5 > 1.2 else (0.62, 0.63, 0.66)   # rollers round a hub
 def _paint_hub(b):
     return (0.20, 0.20, 0.22) if max(b.xlen, b.ylen, b.zlen) > 3.0 else (0.88, 0.88, 0.86)          # the case dark, its plugs light
-PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
+PAINT = {"REV-31-": _paint_hub, "5203-": _paint_motor, "mecanum_": _paint_mecanum, "112": lambda b: ALUMINIUM, "111": lambda b: ALUMINIUM, "120": lambda b: ALUMINIUM, "1501-": lambda b: ALUMINIUM}
 
 # Files whose colours aren't the part's: SWYFT's wheel is drawn grey; the real one is white TPE on a black insert
 RECOLOUR = {k: (lambda b, c: (0.93, 0.93, 0.91) if max(b.xlen, b.ylen) > 2.0 else (0.10, 0.10, 0.11)) for k in ("SR-INTAKEWHEEL-35-7mm", "SR-INTAKEWHEEL-35-12")}

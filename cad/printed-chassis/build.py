@@ -189,7 +189,8 @@ _ka = math.radians(KIT_ANG)
 DRIVE_GEAR = (COL_X - 96 * MM * math.cos(_ka), -96 * MM * math.sin(_ka))   # the 64T's axis; encoder A rides its shaft, B a 36T meshing it
 ENC_B = (DRIVE_GEAR[0] + 40 * MM * math.sin(_ka), DRIVE_GEAR[1] - 40 * MM * math.cos(_ka))   # 40 mm off, square to the ring's direction, toward the back
 
-FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, 7.4   # between the front motor plates, over the front drive motors
+FRONT_CROSS_X, FRONT_CROSS_Z = AXLE[1] - CH / 2, WHEEL_R + 21 * 8 * MM - CH / 2   # between the front motor plates, over the front drive
+                                        # motors, centred on the plates and at a height where its pattern falls on theirs (8 mm steps from the axle)
 # ---------------------------------------------------------------- electronics (CHECK every size here against the real parts)
 TRAY_X, TRAY_Z, TRAY_HALF = (0.9, 7.2), FRONT_CROSS_Z + CH + 0.2, 4.1   # tray on the front cross channel
 HUB = (143 * MM, 103 * MM, 29.6 * MM)   # REV Control / Expansion Hub: long, wide, thick (REV's own model)
@@ -438,11 +439,22 @@ if not USE_DM:
      "goBILDA 1120-0009-0240 U-channel (240 mm), over the lane and the front drive motors, between the front motor plates on printed end blocks (no uprights: the mouth stays open to its full width)")
 FC_END_Y = 112 * MM                     # the front cross channel's last side-wall holes (goBILDA's model: every 8 mm along, 8/16/32/40 mm up)
 REAR_CROSS_HOLE = (RAIL_X[0] + 8 * MM, 112 * MM)   # the rear cross channel's top flange: its row 8 mm from its web, its last station
+# The front cross channel's ends to the front motor plates, all metal: in each end a goBILDA 1201-0043-0002 quad block (43 mm,
+# a snug fit inside the channel), four M4 through the channel's side walls into its tapped edges; from its face, four goBILDA
+# 16 mm M4 standoffs (on set screws into its tapped face) out to the plate, an M4 through the plate into each. (Until 12 Oct
+# a printed block did this, and the user's mentor wouldn't have trusted it.)
+FC_BLOCK_Y = 120 * MM                   # the block's face, flush with the channel's end: its tapped edges then meet the channel's last holes (112 mm);
+                                        # the plate's inner face is 15.9 mm on, so the 16 mm standoffs are 0.1 mm proud: the bolts pull the plate to them
+FC_MID = FRONT_CROSS_Z + CH / 2
+FC_STANDOFFS = [(dx * MM, dz * MM) for dx in (-16, 16) for dz in (-16, -8)]   # where the plate's holes meet the block's (goBILDA's models)
 for s_, n in (() if USE_DM else SIDES):
-    eb = box(FRONT_CROSS_X + 0.11, FRONT_CROSS_X + CH - 0.11, 4.15, 4.73, FRONT_CROSS_Z + 0.05, FRONT_CROSS_Z + CH - 0.11).union(   # inside the channel's end
-         box(FRONT_CROSS_X, FRONT_CROSS_X + CH, 4.72, RAIL_OUT, FRONT_CROSS_Z, RAIL_Z[0] + 192 * MM))                                # out to the motor plate
-    part("frame", f"front_cross_end_{n}", mir(eb, s_), "print",
-         "PETG-CF: the front cross channel's end block: inside the channel's end (2 M4 through its side walls) and out to the front motor plate (2 M4 through the plate)")
+    blk = box(AXLE[1] - 21.5 * MM, AXLE[1] + 21.5 * MM, FC_BLOCK_Y - 12 * MM, FC_BLOCK_Y, FC_MID - 21.5 * MM, FC_MID + 21.5 * MM)
+    part("frame", f"front_cross_block_{n}", mir(dress(blk, "1201-0043-0002", (AXLE[1], FC_BLOCK_Y, FC_MID), (0, 0, 1), (-1, 0, 0)), s_), "buy",
+         "goBILDA 1201-0043-0002 quad block pattern mount: in the front cross channel's end, bolted through both its side walls; the standoffs to the motor plate on its face")
+    for k, (dx, dz) in enumerate(FC_STANDOFFS):
+        part("frame", f"front_cross_standoff_{n}{k}", mir(cyl("y", (AXLE[1] + dx, FC_MID + dz), 6 * MM, FC_BLOCK_Y, RAIL_OUT), s_), "buy",
+             "goBILDA 1501-0006-0160 M4 standoff (16 mm): the quad block's face to the front motor plate, on an M4 set screw into the block")
+for s_, n in (() if USE_DM else SIDES):
     cb_ = box(RAIL_X[0] + CH_T + 0.01, RAIL_X[0] + CH_LOW - 0.01, 4.0, RAIL_OUT - CH_T - 0.005, RAIL_Z[0] + CH_T + 0.005, RAIL_Z[1] - CH_T - 0.005)
     part("frame", f"rear_corner_{n}", mir(cb_, s_), "print",
          "PETG-CF: a rear corner block, inside the corner of the rear cross channel and the rail: an M4 down through the channel's top flange, two through the rail's top and bottom flanges")
@@ -962,8 +974,8 @@ ROOF_Y = (HUB_Y[0] - HUB_GAP, HUB_Y[1] + HUB_GAP)
 DECK_X = (2.60, POST_X[1] + POST + 0.05)
 FC_HOLE_X = FRONT_CROSS_X + 40 * MM     # the front cross channel's web: goBILDA's model has 4 mm holes 40 mm across, every 8 mm along
 FC_HOLE_Y = (56 * MM, 96 * MM)          # (fitted before the hubs go on)
+DECK_END = (FC_HOLE_X, FC_BLOCK_Y - 8 * MM)   # the outboard screw: through the channel's top into the quad block's tapped top edge
 DECK_IN = 1.15                          # each half's inner edge: the Limelight's base between them (and each half fits a 180 mm bed)
-DECK_END = (FC_HOLE_X, 112 * MM)        # the outboard screw: through the channel's top into its printed end block, which fills the channel's end
 DECK_RIB_X = (3.45, 5.15)               # the outboard ribs under each half, past the end block (|Y| > 5.45)
 for s_, n in SIDES:
     dk = box(*DECK_X, s_ * DECK_IN, s_ * (POST_Y[1] + POST + 0.05), DECK_Z, DECK_Z + DECK_T)
@@ -1133,12 +1145,14 @@ if not USE_DM:
                 captive(f"standoff_washers_{n}_{k}_{h}", f"rail_{n}", "on the standoff's screw")
                 device(f"outer_plate_{n}", f"standoff_{n}_{k}_{h}", "", 0)
     for s_, n in SIDES:
-        for x, z, v in ((FRONT_CROSS_X, FRONT_CROSS_Z + 16 * MM, (1, 0, 0)), (FRONT_CROSS_X + CH, FRONT_CROSS_Z + 32 * MM, (-1, 0, 0))):
-            screw(f"fc_end_{n}_{z:.2f}", "front_cross", f"front_cross_end_{n}", "M4", 12, (x, s_ * FC_END_Y, z), v, "insert",
-                  what="the front cross channel's side wall into its end block")
-        for dx in (-16 * MM, 16 * MM):
-            screw(f"fc_plate_{n}_{dx:+.2f}", f"motor_plate_F{n}", f"front_cross_end_{n}", "M4", 12, (AXLE[1] + dx, s_ * (RAIL_OUT + PLATE_T), RAIL_Z[0] + 176 * MM),
-                  (0, -s_, 0), "insert", what="the front motor plate into the cross channel's end block (its holes 16 mm off its middle, 176 mm up)")
+        for x, v in ((FRONT_CROSS_X, (1, 0, 0)), (FRONT_CROSS_X + CH, (-1, 0, 0))):   # both side walls, its last holes (8 and 40 mm up)
+            for dz in (-16 * MM, 16 * MM):
+                screw(f"fcb_side_{n}_{x:.2f}_{dz / MM:+.0f}", "front_cross", f"front_cross_block_{n}", "M4", 10, (x, s_ * (FC_BLOCK_Y - 8 * MM), FC_MID + dz), v, "tapped",
+                      what="the front cross channel's side wall into the quad block's tapped edge")
+        for k, (dx, dz) in enumerate(FC_STANDOFFS):
+            screw(f"fcb_plate_{n}{k}", f"motor_plate_F{n}", f"front_cross_standoff_{n}{k}", "M4", 10, (AXLE[1] + dx, s_ * (RAIL_OUT + PLATE_T), FC_MID + dz), (0, -s_, 0), "tapped",
+                  what="through the front motor plate into the standoff")
+            device(f"front_cross_standoff_{n}{k}", f"front_cross_block_{n}", "an M4 set screw from the standoff into the quad block's tapped face", 0)
         screw(f"rc_top_{n}", "rear_cross", f"rear_corner_{n}", "M4", 12, (REAR_CROSS_HOLE[0], s_ * REAR_CROSS_HOLE[1], RAIL_Z[1]), (0, 0, -1), "insert",
               what="the rear cross channel's top flange into its corner block")
         screw(f"rc_rail_top_{n}", f"rail_{n}", f"rear_corner_{n}", "M4", 12, (rail_x(0), s_ * FLANGE_HOLE_Y, RAIL_Z[1]), (0, 0, -1), "insert",
@@ -1196,8 +1210,8 @@ for s_, n in SIDES:
     for y in FC_HOLE_Y:
         screw(f"deck_{n}_{y:.2f}", f"hub_deck_{n}", "front_cross", "M4", 16, (FC_HOLE_X, s_ * y, DECK_Z + DECK_T - 4 * MM), (0, 0, -1), "nut", cb=True,
               before=(f"{hub}",), what="the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on")
-    screw(f"deck_end_{n}", f"hub_deck_{n}", f"front_cross_end_{n}", "M4", 20, (DECK_END[0], s_ * DECK_END[1], DECK_Z + DECK_T - 4 * MM), (0, 0, -1), "insert", via=("front_cross",), cb=True,
-          before=(f"{hub}",), what="the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on")
+    screw(f"deck_end_{n}", f"hub_deck_{n}", f"front_cross_block_{n}", "M4", 16, (DECK_END[0], s_ * DECK_END[1], DECK_Z + DECK_T - 4 * MM), (0, 0, -1), "tapped", via=("front_cross",), cb=True,
+          before=(f"{hub}",), what="the hub deck through the front cross channel's top into the quad block's tapped top edge: before the hub goes on")
     for i, px in enumerate(POST_X):
         for j, py in enumerate(POST_Y):
             screw(f"roof_{n}{i}{j}", f"hub_roof_{n}", f"hub_deck_{n}", "M4", 12, (px + POST / 2, s_ * (py + POST / 2), ROOF_Z + ROOF_T), (0, 0, -1), "insert",
@@ -1223,7 +1237,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("fly_belt_", "fly_shaft_"), ("fly_belt_", "fly_motor_"), ("feeder_shaft", "feeder"), ("feeder_belt", "feeder_shaft"),
            ("feeder_belt", "feeder_motor"), ("ex_stub_", "flap_"), ("ex_stub_", "ex_arm_"), ("ex_cross", "ex_arm_"), ("ex_cross", "ex_block"),
            ("turret_kit", "top_plate_"), ("top_plate_", "top_plate_"), ("tray_", "tray_"), ("lane_wall_", "lane_wall_"), ("flap_face_", "flap_"), ("front_pad_", "flap_"), ("front_pad_", "flap_face_"), ("ramp_skin_", "mouth_floor_"), ("ramp_skin_", "ramp_skin_"),
-           ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"), ("front_cross_end_", "front_cross"), ("front_cross_end_", "motor_plate_F"), ("rear_corner_", "rear_cross"), ("rear_corner_", "rail_"), ("standoff_washers_", "rail_"), ("standoff_washers_", "standoff_"), ("ex_horn", "ex_servo"), ("ex_horn", "ex_gear_servo"),
+           ("intake_motor", "intake_arm_R"), ("ex_gear_", "ex_gear_"), ("ex_gear_stub", "ex_stub_R"), ("ex_gear_servo", "ex_servo"), ("rear_cross", "rail_"), ("front_cross", "motor_plate_F"), ("rear_corner_", "rear_cross"), ("rear_corner_", "rail_"), ("standoff_washers_", "rail_"), ("standoff_washers_", "standoff_"), ("ex_horn", "ex_servo"), ("ex_horn", "ex_gear_servo"),
            ("star_shaft_", "star_"), ("star_bearing_", "star_shaft_"), ("star_bearing_", "front_bracket_"), ("star_clutch_", "star_"), ("star_shaft_", "star_clutch_"), ("lane_shaft_", "mouth_floor_"), ("ramp_", "ramp_"), ("mouth_floor_", "mouth_floor_"), ("ramp_", "mouth_floor_"),
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("limelight_mount", "front_cross"), ("hub_deck_", "hub_deck_"), ("hub_roof_", "hub_deck_"), ("ground_strap", "hub_deck_"), ("hub_deck_", "front_cross"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
@@ -1425,7 +1439,7 @@ def real_metal(k):
     """A dressed goBILDA channel or plate as its real model, placed (holes and all), or None."""
     import vendor
     L = PARTS[k].get("looks")
-    if not L or not any(isinstance(w, str) and w.startswith("112") for w, *_ in L): return None
+    if not L or not any(isinstance(w, str) and w.startswith("11") for w, *_ in L): return None   # goBILDA 11xx: channels, plates, L-channels
     lp = look_parts(k)
     return cq.Compound.makeCompound([sh.moved(loc) for sh, loc, _ in lp]) if lp else None
 
