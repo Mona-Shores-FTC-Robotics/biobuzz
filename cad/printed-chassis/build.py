@@ -814,9 +814,10 @@ HOOD_FLANGE_D = 5.6                     # the hood's flange on the turret's top,
 # it (the wheel moves sideways, 0.04 in down over its 0.41). On the left that pivot shaft is also the drive: the feeder's
 # motor, bolted to the frame, belts to it (belt A, behind the launcher's back plates), and a belt along the arm (belt B)
 # takes it up to the wheel. Both belts keep their length however the arm swings, so the motor never moves.
-LT_Z = (RAIL_Z[0] + CH_T, 1.175)      # the launcher tray: on the rails' bottom flanges, under the feeder floor
+LT_Z = (RAIL_Z[0] + CH_T, RAIL_Z[0] + CH_T + 3.175 * MM)   # the belly plate (1/8 in aluminium): on the rails' bottom flanges, under the feeder floor
 LT_X = (-4.65, -1.30)
-LT_TABS = (rail_x(8), rail_x(10))     # its screws into the rails' bottom flanges
+LT_TABS = {"L": (rail_x(8), rail_x(10), rail_x(13), rail_x(16)),   # its screws into the rails' bottom flanges (the right
+           "R": (rail_x(7), rail_x(8), rail_x(9))}                   # side's behind the forward odometry pod, which drops through it)
 FEED_PIVOT_Z = FEED_Z - centres(215)    # 2.0: the arm's pivot, 47.5 mm (a 215 mm belt) under the wheel's axle
 FEED_SWING = math.degrees(math.asin(FLY_TRAVEL / centres(215)))   # 12.7 deg: the arm's swing for a NECTAR
 FEED_MOTOR = (FEED_Y + math.sqrt(centres(215) ** 2 - 0.2 ** 2), FEED_PIVOT_Z + 0.2)   # Y, z: the feeder's motor (a 5203, 1150 RPM
@@ -879,10 +880,12 @@ if USE_LM:                              # v3: the turret's drive gear still poin
 # so the side's wheels, shaft, pulleys, belt and motor move together and the belt keeps its length; an extension spring
 # from the yoke to an anchor on the rear top channel pulls it in, and an M4 stop screw in the anchor sets the rest gap
 if USE_LM:
-    for s, n in SIDES:
-        tr = box(*LT_X, 0, s * (RAIL_OUT - CH_T - 0.01), *LT_Z)
-        if s < 0: tr = tr.cut(box(ODO_FWD_X - POD_W / 2 - 0.08, ODO_FWD_X + POD_W / 2 + 0.08, -6, -3.0, 0, 3))   # the forward odometry pod drops through
-        part("launcher", f"launcher_tray_{n}", tr, "print", "PETG, 3.3 mm: half the launcher's tray, across the rails' bottom flanges under the feeder floor; the feeder arms' blocks and spring posts stand on it")
+    # The rear half's belly: one plate across both rails' bottom flanges, four M4 into each: it ties the two sides together
+    # against racking and twist where the mouth (the front half) has to stay open. (Until 12 Oct, two PETG halves.)
+    tr = box(*LT_X, -(RAIL_OUT - CH_T - 0.01), RAIL_OUT - CH_T - 0.01, *LT_Z)
+    tr = tr.cut(box(ODO_FWD_X - POD_W / 2 - 0.08, ODO_FWD_X + POD_W / 2 + 0.08, -6, -3.0, 0, 3))   # the forward odometry pod drops through
+    part("frame", "belly_plate", tr, "cut", "belly plate, cut from 1/8 in (3.2 mm) 6061 aluminium sheet to the drawing: across the rails' bottom flanges under the launcher (7 M4); "
+         "the feeder arms' blocks and spring posts stand on it")
 if USE_LM:
     for s, n in SIDES:
         y, mv = s * FLY_AXIS[0], f"fly_{n}"
@@ -1115,11 +1118,11 @@ for s, n in SIDES:
             screw(f"foot_lm_{n}{k}", lmch, f"launcher_foot_{n}{k}", "M4", 12, P(xl, LM_HOLE_Y, LM_CH_Z + CH_T), V(0, 0, -1), "insert",
                   what="the launcher's side channel to its foot", match="his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel")
     if USE_LM:
-        for x in LT_TABS:
-            screw(f"tray_{n}_{x:.2f}", f"launcher_tray_{n}", f"rail_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, LT_Z[1]), V(0, 0, -1), "nut",
-                  what="the launcher tray to the rail's bottom flange")
+        for x in LT_TABS[n]:
+            screw(f"tray_{n}_{x:.2f}", "belly_plate", f"rail_{n}", "M4", 12, P(x, FLANGE_HOLE_Y, LT_Z[1]), V(0, 0, -1), "nut",
+                  what="the belly plate to the rail's bottom flange, a nyloc under it")
         for yy in (2.6, 2.95):
-            screw(f"feeder_block_{n}_{yy}", f"feeder_rear_block_{n}", f"launcher_tray_{n}", "M4", 20, P(-4.29, yy, 1.55), V(0, 0, -1), "nut", cb=True,
+            screw(f"feeder_block_{n}_{yy}", f"feeder_rear_block_{n}", "belly_plate", "M4", 20, P(-4.29, yy, 1.55), V(0, 0, -1), "nut", cb=True,
                   what="the feeder arm's rear block to the tray")
         for z in (0.95, 1.42):
             screw(f"feeder_front_{n}_{z}", f"feeder_front_block_{n}", f"lane_wall_{n}_rear", "M3", 12, P(-1.15, WALL_IN + WALL_T / 2, z), V(1, 0, 0), "insert",
@@ -1251,7 +1254,7 @@ ALLOWED = [("wheel_shaft_", "wheel_"), ("wheel_shaft_", "rail_"), ("wheel_shaft_
            ("star_bracket_", "front_cross"), ("star_bracket_", "star_servo_"), ("tray", "front_cross"), ("limelight", "limelight_mount"), ("limelight_mount", "hub_deck_"), ("limelight_mount", "front_cross"), ("hub_deck_", "hub_deck_"), ("hub_roof_", "hub_deck_"), ("ground_strap", "hub_deck_"), ("hub_deck_", "front_cross"), ("hub_deck_", "control_hub"), ("hub_deck_", "expansion_hub"), ("rack_", "battery"),
            ("dm_", "rail_"), ("feeder_shaft_", "feeder_wheel_"), ("feeder_shaft_", "feeder_arm_"), ("feeder_pivot_", "feeder_arm_"), ("feeder_pivot_", "feeder_rear_block_"),
            ("feeder_pivot_", "feeder_front_block_"), ("feeder_belt_B", "feeder_pivot_L"), ("feeder_belt_B", "feeder_shaft_L"), ("feeder_belt_A", "feeder_pivot_L"),
-           ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "launcher_tray_"), ("feeder_post_", "launcher_tray_"), ("launcher_tray_", "rail_"), ("launcher_tray_", "lm_feeder_floor"), ("launcher_tray_", "lm_backstop"),
+           ("feeder_belt_A", "feeder_motor"), ("feeder_motor", "feeder_rear_block_L"), ("feeder_front_block_", "lane_wall_"), ("feeder_rear_block_", "belly_plate"), ("feeder_post_", "belly_plate"), ("belly_plate", "rail_"), ("belly_plate", "lm_feeder_floor"), ("belly_plate", "lm_backstop"),
            ("feeder_arm_", "feeder_wheel_"), ("fly_block_", "lm_"), ("fly_guide_", "lm_"), ("fly_yoke_", "lm_flywheel_motor_bracket"), ("fly_yoke_", "fly_block_"), ("fly_yoke_", "lm_"),
            ("fly_anchor_", "lm_Hole_Lowside_U-Channel_GB_2__1"), ("fly_spring_", "fly_anchor_"), ("fly_spring_", "fly_yoke_"), ("fly_anchor_", "fly_yoke_"),
            ("feeder_spring_", "feeder_rear_block_"), ("feeder_spring_", "feeder_arm_"), ("feeder_arm_", "feeder_rear_block_"),   # through his plates' slots, with the modules ("front_bracket_", "dm_F"), ("front_bracket_", "star_servo_"), ("intake_arm_", "front_bracket_"),
