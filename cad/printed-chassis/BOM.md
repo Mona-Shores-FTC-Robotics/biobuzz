@@ -28,6 +28,8 @@ Buy about 10% extra of every small part.
 | goBILDA 1123-0048-0192, standing on the rail's web: the drive motor screws to it, the wheel's shaft through its lowest hole | 2 | 4 |
 | goBILDA 1123-0048-0336 pattern plate (1 x 13 hole): the wheels' outer bearings, on 56 mm standoffs | 2 | 4 |
 | goBILDA 120 mm L-beam | 1 | 2 |
+| goBILDA 1201-0043-0002 quad block pattern mount: in the front cross channel's end, bolted through both its side walls; the standoffs to the motor plate on its face | 2 | 4 |
+| goBILDA 1501-0006-0160 M4 standoff (16 mm): the quad block's face to the front motor plate, on an M4 set screw into the block | 8 | 16 |
 | goBILDA 1501-0006-0480 and 1501-0006-0240 M4 standoffs (48 + 24 mm) on an M4 set screw: 72 mm (goBILDA's 1501s stop at 56 mm) | 4 | 8 |
 | goBILDA 1501-0006-0560 M4 standoff, 56 mm | 8 | 16 |
 | goBILDA 1505-0032-0160 (as the mentor's flywheel stack; CHECK) | 2 | 4 |
@@ -92,6 +94,9 @@ Buy about 10% extra of every small part.
 | 1/8 in aluminium L, bent; on the launcher frame's side channel | 2 | 4 |
 | 1/8 in polycarbonate, between the feeder and the pad | 1 | 2 |
 | 3/16 in aluminium (or 6 mm PETG-CF): the turret's drive plate, his redrawn shorter (to X 3.3, clear of the front drive motors), with windows for the servo and the encoders; under the launcher's front top channel | 1 | 2 |
+| belly plate, cut from 1/8 in (3.2 mm) 6061 aluminium sheet to the drawing: across the rails' bottom flanges under the launcher (7 M4); the feeder arms' blocks and spring posts stand on it | 1 | 2 |
+| rear corner gusset (bottom), cut from 2.5 mm (0.1 in) 6061 aluminium sheet to the drawing: an L across the rail's and the rear cross channel's bottom flanges, four M4 | 2 | 4 |
+| rear corner gusset (top), cut from 2.5 mm (0.1 in) 6061 aluminium sheet to the drawing: an L across the rail's and the rear cross channel's top flanges, four M4 | 2 | 4 |
 | rear motor plate, cut from 2.5 mm (0.1 in) 6061 aluminium sheet to the drawing (or drilled from a goBILDA 1123-0048-0144 with the STEP printed 1:1 as a template): the axle's 14 mm bearing hole, the motor's 14 mm boss hole and its four M4 slotted 2 mm along the belt for tension, four M4 to the rail's web | 2 | 4 |
 
 ## Printed
@@ -135,8 +140,6 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `fly_yoke_R` | PETG-CF | 1 | 2 | 24 |
 | `front_bracket_L` | PETG | 1 | 2 | 28 |
 | `front_bracket_R` | PETG | 1 | 2 | 28 |
-| `front_cross_end_L` | PETG-CF | 1 | 2 | 33 |
-| `front_cross_end_R` | PETG-CF | 1 | 2 | 33 |
 | `front_pad_L` | TPU 95A | 1 | 2 | 14 |
 | `front_pad_R` | TPU 95A | 1 | 2 | 14 |
 | `hood` | PETG | 1 | 2 | 70 |
@@ -159,8 +162,6 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `launcher_foot_L1` | PETG | 1 | 2 | 4 |
 | `launcher_foot_R0` | PETG | 1 | 2 | 4 |
 | `launcher_foot_R1` | PETG | 1 | 2 | 4 |
-| `launcher_tray_L` | PETG | 1 | 2 | 26 |
-| `launcher_tray_R` | PETG | 1 | 2 | 20 |
 | `limelight_mount` | PETG-CF | 1 | 2 | 31 |
 | `lm_backstop_print_PETG_an_L_its_foot_s_two_slots_-0.2_in_set_th_1` | PETG | 1 | 2 | 10 |
 | `lm_turret_enc_A_cradle_print_PETG_holds_encoder_A_under_the_dri_1` | PETG | 1 | 2 | 25 |
@@ -171,22 +172,20 @@ Grams are an estimate (the part's volume at about 55% effective fill); print hou
 | `mouth_floor_R` | PETG | 1 | 2 | 20 |
 | `odo_adapter_F` | PETG | 1 | 2 | 15 |
 | `odo_spacer_S` | PETG | 1 | 2 | 7 |
-| `rack_L` | PETG | 1 | 2 | 15 |
-| `rack_R` | PETG | 1 | 2 | 15 |
+| `rack_L` | PETG | 1 | 2 | 14 |
+| `rack_R` | PETG | 1 | 2 | 14 |
 | `ramp_skin_L` | TPU 95A | 1 | 2 | 11 |
 | `ramp_skin_R` | TPU 95A | 1 | 2 | 11 |
-| `rear_corner_L` | PETG-CF | 1 | 2 | 8 |
-| `rear_corner_R` | PETG-CF | 1 | 2 | 8 |
 | `star_clutch_L` | PETG | 1 | 2 | 1 |
 | `star_clutch_R` | PETG | 1 | 2 | 1 |
 
 | Filament | One robot | Two robots |
 |---|---|---|
-| PETG | 0.91 kg | 1.83 kg |
-| PETG-CF | 0.56 kg | 1.13 kg |
+| PETG | 0.87 kg | 1.73 kg |
+| PETG-CF | 0.48 kg | 0.96 kg |
 | TPU 95A | 0.11 kg | 0.21 kg |
 
-About 132 printer-hours a robot, 264 for two: with four home printers, about 6.6 days at 10 h a day.
+About 121 printer-hours a robot, 243 for two: with four home printers, about 6.1 days at 10 h a day.
 
 ## Screws (v2, drawn and checked by build.py)
 
@@ -195,16 +194,16 @@ About 132 printer-hours a robot, 264 for two: with four home printers, about 6.6
 | M3 x 8 socket head (countersunk for the faces) | 6 | 12 |
 | M3 x 10 socket head | 2 | 4 |
 | M3 x 12 socket head | 8 | 16 |
-| M4 x 10 socket head | 22 | 44 |
-| M4 x 12 socket head | 42 | 84 |
-| M4 x 16 socket head | 18 | 36 |
-| M4 x 20 socket head | 10 | 20 |
+| M4 x 10 socket head | 54 | 108 |
+| M4 x 12 socket head | 31 | 62 |
+| M4 x 16 socket head | 20 | 40 |
+| M4 x 20 socket head | 8 | 16 |
 | M4 x 25 socket head | 2 | 4 |
 | M5 x 18 socket head | 2 | 4 |
 | M3 heat-set insert | 16 | 32 |
-| M4 heat-set insert | 34 | 68 |
+| M4 heat-set insert | 18 | 36 |
 | M5 heat-set insert | 2 | 4 |
-| M4 nyloc nut | 28 | 56 |
+| M4 nyloc nut | 47 | 94 |
 | on the devices (servos, hubs, intake motor, Limelight): see below | 115 | 230 |
 
 Buy 20% over for each line: dropped screws and stripped inserts.
@@ -241,10 +240,12 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | foot_lm_L0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_6__1` | an insert in `launcher_foot_L0` |
 | foot_rail_L1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_L1`, `rail_L` | a nyloc |
 | foot_lm_L1 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_6__1` | an insert in `launcher_foot_L1` |
-| tray_L_-4.19 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_L`, `rail_L` | a nyloc |
-| tray_L_-3.56 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_L`, `rail_L` | a nyloc |
-| feeder_block_L_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `launcher_tray_L` | a nyloc |
-| feeder_block_L_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `launcher_tray_L` | a nyloc |
+| tray_L_-4.19 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_L` | a nyloc |
+| tray_L_-3.56 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_L` | a nyloc |
+| tray_L_-2.61 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_L` | a nyloc |
+| tray_L_-1.67 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_L` | a nyloc |
+| feeder_block_L_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `belly_plate` | a nyloc |
+| feeder_block_L_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_L`, `belly_plate` | a nyloc |
 | feeder_front_L_0.95 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_L` | an insert in `lane_wall_L_rear` |
 | feeder_front_L_1.42 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_L` | an insert in `lane_wall_L_rear` |
 | anchor_L_0.75 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 16 | `fly_anchor_L`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
@@ -281,46 +282,65 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | foot_lm_R0 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R0` |
 | foot_rail_R1 | a launcher foot to the rail's top flange | M4 x 20 | `launcher_foot_R1`, `rail_R` | a nyloc |
 | foot_lm_R1 | the launcher's side channel to its foot (CHECK: his channel's flange holes don't read cleanly from his model: mark the foot's insert from the real channel) | M4 x 12 | `lm_Hole_Lowside_U-Channel_GB_4__1` | an insert in `launcher_foot_R1` |
-| tray_R_-4.19 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_R`, `rail_R` | a nyloc |
-| tray_R_-3.56 | the launcher tray to the rail's bottom flange | M4 x 12 | `launcher_tray_R`, `rail_R` | a nyloc |
-| feeder_block_R_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `launcher_tray_R` | a nyloc |
-| feeder_block_R_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `launcher_tray_R` | a nyloc |
+| tray_R_-4.50 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_R` | a nyloc |
+| tray_R_-4.19 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_R` | a nyloc |
+| tray_R_-3.87 | the belly plate to the rail's bottom flange, a nyloc under it | M4 x 12 | `belly_plate`, `rail_R` | a nyloc |
+| feeder_block_R_2.6 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `belly_plate` | a nyloc |
+| feeder_block_R_2.95 | the feeder arm's rear block to the tray | M4 x 20 | `feeder_rear_block_R`, `belly_plate` | a nyloc |
 | feeder_front_R_0.95 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_R` | an insert in `lane_wall_R_rear` |
 | feeder_front_R_1.42 | the feeder arm's front block to the lane wall's end | M3 x 12 | `feeder_front_block_R` | an insert in `lane_wall_R_rear` |
 | anchor_R_0.75 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 16 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
 | anchor_R_2.2 | the flywheel spring's anchor to the rear top channel (CHECK: through the channel's front face: mark from the real channel) | M4 x 16 | `fly_anchor_R`, `lm_Hole_Lowside_U-Channel_GB_2__1` | a nyloc |
-| fc_end_L_8.03 | the front cross channel's side wall into its end block | M4 x 12 | `front_cross` | an insert in `front_cross_end_L` |
-| fc_end_L_8.66 | the front cross channel's side wall into its end block | M4 x 12 | `front_cross` | an insert in `front_cross_end_L` |
-| fc_plate_L_-0.63 | the front motor plate into the cross channel's end block (its holes 16 mm off its middle, 176 mm up) | M4 x 12 | `motor_plate_FL` | an insert in `front_cross_end_L` |
-| fc_plate_L_+0.63 | the front motor plate into the cross channel's end block (its holes 16 mm off its middle, 176 mm up) | M4 x 12 | `motor_plate_FL` | an insert in `front_cross_end_L` |
-| rc_top_L | the rear cross channel's top flange into its corner block | M4 x 12 | `rear_cross` | an insert in `rear_corner_L` |
-| rc_rail_top_L | the rail's top flange into the rear corner block | M4 x 12 | `rail_L` | an insert in `rear_corner_L` |
-| rc_rail_bot_L | the rail's bottom flange into the rear corner block (from under the robot) | M4 x 12 | `rail_L` | an insert in `rear_corner_L` |
-| fc_end_R_8.03 | the front cross channel's side wall into its end block | M4 x 12 | `front_cross` | an insert in `front_cross_end_R` |
-| fc_end_R_8.66 | the front cross channel's side wall into its end block | M4 x 12 | `front_cross` | an insert in `front_cross_end_R` |
-| fc_plate_R_-0.63 | the front motor plate into the cross channel's end block (its holes 16 mm off its middle, 176 mm up) | M4 x 12 | `motor_plate_FR` | an insert in `front_cross_end_R` |
-| fc_plate_R_+0.63 | the front motor plate into the cross channel's end block (its holes 16 mm off its middle, 176 mm up) | M4 x 12 | `motor_plate_FR` | an insert in `front_cross_end_R` |
-| rc_top_R | the rear cross channel's top flange into its corner block | M4 x 12 | `rear_cross` | an insert in `rear_corner_R` |
-| rc_rail_top_R | the rail's top flange into the rear corner block | M4 x 12 | `rail_R` | an insert in `rear_corner_R` |
-| rc_rail_bot_R | the rail's bottom flange into the rear corner block (from under the robot) | M4 x 12 | `rail_R` | an insert in `rear_corner_R` |
+| fcb_side_L_3.37_-16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_L`'s thread |
+| fcb_side_L_3.37_+16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_L`'s thread |
+| fcb_side_L_5.26_-16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_L`'s thread |
+| fcb_side_L_5.26_+16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_L`'s thread |
+| fcb_plate_L0 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FL` | `front_cross_standoff_L0`'s thread |
+| fcb_plate_L1 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FL` | `front_cross_standoff_L1`'s thread |
+| fcb_plate_L2 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FL` | `front_cross_standoff_L2`'s thread |
+| fcb_plate_L3 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FL` | `front_cross_standoff_L3`'s thread |
+| gus_rail_L_top_-6.71 | the top gusset to the rail's top flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_L_top`, `rail_L` | a nyloc |
+| gus_rail_L_top_-5.76 | the top gusset to the rail's top flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_L_top`, `rail_L` | a nyloc |
+| gus_cross_L_top_104 | the top gusset to the rear cross channel's top flange, a nyloc inside it | M4 x 10 | `rear_gusset_L_top`, `rear_cross` | a nyloc |
+| gus_cross_L_top_112 | the top gusset to the rear cross channel's top flange, a nyloc inside it | M4 x 10 | `rear_gusset_L_top`, `rear_cross` | a nyloc |
+| gus_rail_L_bottom_-6.71 | the bottom gusset to the rail's bottom flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_L_bottom`, `rail_L` | a nyloc |
+| gus_rail_L_bottom_-5.76 | the bottom gusset to the rail's bottom flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_L_bottom`, `rail_L` | a nyloc |
+| gus_cross_L_bottom_104 | the bottom gusset to the rear cross channel's bottom flange, a nyloc inside it | M4 x 10 | `rear_gusset_L_bottom`, `rear_cross` | a nyloc |
+| gus_cross_L_bottom_112 | the bottom gusset to the rear cross channel's bottom flange, a nyloc inside it | M4 x 10 | `rear_gusset_L_bottom`, `rear_cross` | a nyloc |
+| fcb_side_R_3.37_-16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_R`'s thread |
+| fcb_side_R_3.37_+16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_R`'s thread |
+| fcb_side_R_5.26_-16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_R`'s thread |
+| fcb_side_R_5.26_+16 | the front cross channel's side wall into the quad block's tapped edge | M4 x 10 | `front_cross` | `front_cross_block_R`'s thread |
+| fcb_plate_R0 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FR` | `front_cross_standoff_R0`'s thread |
+| fcb_plate_R1 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FR` | `front_cross_standoff_R1`'s thread |
+| fcb_plate_R2 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FR` | `front_cross_standoff_R2`'s thread |
+| fcb_plate_R3 | through the front motor plate into the standoff | M4 x 10 | `motor_plate_FR` | `front_cross_standoff_R3`'s thread |
+| gus_rail_R_top_-6.71 | the top gusset to the rail's top flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_R_top`, `rail_R` | a nyloc |
+| gus_rail_R_top_-5.76 | the top gusset to the rail's top flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_R_top`, `rail_R` | a nyloc |
+| gus_cross_R_top_104 | the top gusset to the rear cross channel's top flange, a nyloc inside it | M4 x 10 | `rear_gusset_R_top`, `rear_cross` | a nyloc |
+| gus_cross_R_top_112 | the top gusset to the rear cross channel's top flange, a nyloc inside it | M4 x 10 | `rear_gusset_R_top`, `rear_cross` | a nyloc |
+| gus_rail_R_bottom_-6.71 | the bottom gusset to the rail's bottom flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_R_bottom`, `rail_R` | a nyloc |
+| gus_rail_R_bottom_-5.76 | the bottom gusset to the rail's bottom flange, a nyloc inside the rail | M4 x 10 | `rear_gusset_R_bottom`, `rail_R` | a nyloc |
+| gus_cross_R_bottom_104 | the bottom gusset to the rear cross channel's bottom flange, a nyloc inside it | M4 x 10 | `rear_gusset_R_bottom`, `rear_cross` | a nyloc |
+| gus_cross_R_bottom_112 | the bottom gusset to the rear cross channel's bottom flange, a nyloc inside it | M4 x 10 | `rear_gusset_R_bottom`, `rear_cross` | a nyloc |
 | ex_mount_0 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
 | ex_mount_1 | the extractor servo's mount: through its cheek into the right flap's tall top (an insert in the flap) | M3 x 10 | `ex_servo_mount` | an insert in `flap_R` |
 | deck_L_2.20 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_L`, `front_cross` | a nyloc |
 | deck_L_3.78 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_L`, `front_cross` | a nyloc |
-| deck_end_L | the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on | M4 x 20 | `hub_deck_L`, `front_cross` | an insert in `front_cross_end_L` |
+| deck_end_L | the hub deck through the front cross channel's top into the quad block's tapped top edge: before the hub goes on | M4 x 16 | `hub_deck_L`, `front_cross` | `front_cross_block_L`'s thread |
 | roof_L00 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
 | roof_L01 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
 | roof_L10 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
 | roof_L11 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_L` | an insert in `hub_deck_L` |
 | deck_R_2.20 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_R`, `front_cross` | a nyloc |
 | deck_R_3.78 | the hub deck to the front cross channel's top (its outer hole row), a nyloc inside the channel: before the hub goes on | M4 x 16 | `hub_deck_R`, `front_cross` | a nyloc |
-| deck_end_R | the hub deck through the front cross channel's top into its end block (an insert): before the hub goes on | M4 x 20 | `hub_deck_R`, `front_cross` | an insert in `front_cross_end_R` |
+| deck_end_R | the hub deck through the front cross channel's top into the quad block's tapped top edge: before the hub goes on | M4 x 16 | `hub_deck_R`, `front_cross` | `front_cross_block_R`'s thread |
 | roof_R00 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
 | roof_R01 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
 | roof_R10 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
 | roof_R11 | the hub's roof down onto a post of the deck (an insert in the post's top): four out and the roof lifts off | M4 x 12 | `hub_roof_R` | an insert in `hub_deck_R` |
-| ll_mount_-0.4 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
-| ll_mount_0.4 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
+| ll_mount_-0.31 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
+| ll_mount_0.31 | up through the front cross channel's top into the Limelight base's inserts (from inside the channel) | M4 x 10 | `front_cross` | an insert in `limelight_mount` |
 | hood_0 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_1 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
 | hood_2 | the hood's flange to the turret's 176T gear (its 4 mm holes on a 64 mm radius, at 0, 90, 180 and 270 deg from the drive gear) (CHECK: confirm the 64 mm-radius holes on the part, and whether they go on into the race (the screws' length); the gear's free 56 mm-radius holes are the fallback) | M4 x 12 | `hood` | `lm_2325-0105-0176_1`'s thread |
@@ -428,6 +448,14 @@ Buy 20% over for each line: dropped screws and stripped inserts.
 | `standoff_R_-3_lo` | `standoff_washers_R_-3_lo` | M4 x 12 through the rail's web and the washers into it (1) |
 | `standoff_R_1_hi` | `standoff_washers_R_1_hi` | M4 x 12 through the rail's web and the washers into it (1) |
 | `standoff_R_1_lo` | `standoff_washers_R_1_lo` | M4 x 12 through the rail's web and the washers into it (1) |
+| `front_cross_standoff_L0` | `front_cross_block_L` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_L1` | `front_cross_block_L` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_L2` | `front_cross_block_L` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_L3` | `front_cross_block_L` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_R0` | `front_cross_block_R` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_R1` | `front_cross_block_R` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_R2` | `front_cross_block_R` | an M4 set screw from the standoff into the quad block's tapped face (0) |
+| `front_cross_standoff_R3` | `front_cross_block_R` | an M4 set screw from the standoff into the quad block's tapped face (0) |
 | `front_pad_L` | `flap_L` | 3 countersunk M3 x 10 into the root's inserts (3) |
 | `ramp_skin_L` | `mouth_floor_L` | 4 countersunk M3 x 8 into the ramp's inserts (4) |
 | `front_pad_R` | `flap_R` | 3 countersunk M3 x 10 into the root's inserts (3) |
