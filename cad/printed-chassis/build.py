@@ -111,11 +111,13 @@ ROLL_HALF = 4.35                        # the wheels span the mouth the star whe
 # ---------------------------------------------------------------- the mentor's star wheels (his 9 Oct Robot.step, read by the CAD chat)
 STAR_R, STAR_W = 3.5 / 2, 0.5           # "3.5in OD 7mm Hex Bore": a flexible 12-flap star, lying flat (axis vertical); vendor TBD
 STAR = (FACE - 2.36, 3.15)              # its centre: 2.36 in behind the face, 3.15 either side (tips 2.80 apart: a NECTAR bends each 0.41)
-STAR_Z = 3.2                            # its mid-plane: his sit at z 1.84, at a ball on the floor's middle; here the balls are up the
-                                        # ramp (bottom z 1.3) where the stars are, so they sit just over the rails: a NECTAR's middle (3.11), 0.5 above a POLLEN's
-                                        # (his sit 0.44 above a POLLEN's)
+STAR_Z = 1.75                           # its mid-plane: low, on a piece still rolling on the tiles, between a POLLEN's middle (1.40)
+                                        # and a NECTAR's (1.81); his sit at 1.84. The roller touches a piece first (the stars' servos
+                                        # are slow); the stars drag it in and centre it before it climbs the ramp behind them. (Until
+                                        # 12 Oct they sat at 3.2, up the ramp, and only centred what the roller had already lifted.)
 STAR_BRG_Z = (STAR_Z + STAR_W / 2 + 0.10, STAR_Z + STAR_W / 2 + 0.10 + 5 * MM)   # the star shaft's bearing (8x14x5, round bore), in the bracket's arm just over the star
-STAR_HUB_Z = (STAR_BRG_Z[1] + 0.03, STAR_BRG_Z[1] + 0.03 + 13 * MM)             # the clutch's printed hub (its 12 mm clutch and a 1 mm floor)
+STAR_HUB_Z = (3.78, 3.78 + 13 * MM)     # the clutch's printed hub (its 12 mm clutch and a 1 mm floor), on the servo, which stays up
+                                        # under the front drive motor: the shaft runs down from it through the bearing to the star
 SV_Z = STAR_HUB_Z[1] + 0.02             # the star servo's spline face, on the hub: its case top 0.04 under the front drive motor
 STAR_FLEX = 0.08                        # clearance round each star; its flaps bend toward the lane, where only pieces are (how far: push one with a NECTAR)
 ARM_Y = (5.0, 5.3)                      # inside the wheels (his belts run outside them), over the rails
@@ -139,8 +141,9 @@ COUNT_WINDOW = (12.26, 12.60)           # roller axle to backstop: 3 NECTAR + 1 
 BACKSTOP_X = ROLL[0] - 12.43
 BACKSTOP_SLOT = 0.2                     # +-, on the robot: set it with real pieces
 COL_X = BACKSTOP_X + 1.765              # the launch column: the first ball's centre against the backstop, under the turret's axis
-LANE_SHAFTS = [ROLL[0] - 3.16 - 1.4 * k for k in range(5)]
-RAMP = ((FACE + 0.44, 0.05), (FACE - 1.86, LANE_BOTTOM))
+LANE_SHAFTS = [ROLL[0] - 3.16 - 1.4 * k for k in range(2, 5)]   # the lane's free rollers, from just behind the ramp's top
+RAMP = ((STAR[0] + 0.11, 0.05), (LANE_SHAFTS[0] + 0.51, LANE_BOTTOM))   # from the tiles beside the stars up to the lane: a piece
+                                        # rolls in on the tiles under the roller and past the stars, then climbs
 
 # ---------------------------------------------------------------- launcher (cad/transfer's, about the column)
 FLY_R, FLY_Y, FLY_Z = 96 / 2 * MM, 2.85, 6.65
@@ -628,30 +631,30 @@ for k, (w, kind, what) in intake(0).items(): part("intake", k, w, kind, what, mo
 (rx0, rz0), (rx1, rz1) = RAMP
 SKIN_T = 0.10                           # the ramp's soft skin: the simulator's biggest lever is bounce where the spill lands
 SKIN_X1 = 7.0                           # (the body's front and the mouth: 0.4 to 0.1 is worth 6 to 9 points), back to here, then thin to the tip
-MOUTH_HALF = RAIL_IN - 0.08            # the ramp and the floor under the stars span the whole mouth, inside the rails' flanges, so a
-                                        # piece taken in off-centre climbs to the lane's height too, where the stars reach its middle
-MOUTH_FLOOR_X = (STAR[0] - STAR_R - 0.05, rx1)
+MOUTH_HALF = RAIL_IN - 0.08            # the mouth: a piece rolls in on the tiles anywhere across it, and the stars, low, reach its
+                                        # middle there and centre it before it climbs the ramp
 FLANGE_HOLE_Y = RAIL_OUT - 8.0 * MM     # the low-side flanges' row of 4 mm holes, 8.0 mm from the web's outer face (goBILDA's STEP)
 MOUTH_TABS = (rail_x(32), rail_x(38))   # clear of his front corners' hubs inside the rail (X 3.68 .. 4.94)
+RAMP_EDGE = RAIL_IN - 0.01              # the ramp spans the mouth out to the rails' flanges' inner edges
+LANE_WALL_FRONT = 3.12                  # the lane walls' front ends (the ceiling's posts on them at 2.9), beside the ramp's top: notched round them
 for s_, n in SIDES:
-    ys = (0, MOUTH_HALF) if s_ > 0 else (-MOUTH_HALF, 0)
+    ys = (0, RAMP_EDGE) if s_ > 0 else (-RAMP_EDGE, 0)
     def ramp_z(x): return rz1 + (rx1 - x) / (rx1 - rx0) * (rz0 - rz1)
-    rmp = slab_y([(rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T), (rx1, rz1 - SKIN_T - 0.15), (SKIN_X1, ramp_z(SKIN_X1) - SKIN_T - 0.15), (rx0, rz0 - 0.05)], *ys)
-    part("lane", f"ramp_skin_{n}", slab_y([(rx1, rz1), (SKIN_X1, ramp_z(SKIN_X1)), (rx0, rz0), (rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T)], *ys), "print",
-         "TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin, where the spill lands; four countersunk M3 into the ramp, swappable like the flaps' faces")
-    rmp = rmp.cut(box(LANE_SHAFTS[0] - 0.55, LANE_SHAFTS[0] + 0.55, -1.05, 1.05, 0, 2))
-    fl = box(*MOUTH_FLOOR_X, 0, s_ * MOUTH_HALF, LANE_BOTTOM - 0.13, LANE_BOTTOM)
-    for x in MOUTH_TABS: fl = fl.union(box(x - 0.25, x + 0.25, s_ * 4.6, s_ * (RAIL_OUT - CH_T - 0.01), RAIL_Z[0] + CH_T, LANE_BOTTOM))   # on the bottom flange
-    for x in LANE_SHAFTS[:2]: fl = fl.cut(box(x - 0.55, x + 0.55, -1.05, 1.05, 0, 2))     # the lane's first two rollers come up through it
-    for x in LANE_SHAFTS[:2]:           # and the hangers their shafts' bearings sit in, under it
-        fl = fl.union(box(x - 0.3, x + 0.3, s_ * 1.1, s_ * 1.4, LANE_BOTTOM - 12 * MM - 0.4, LANE_BOTTOM - 0.13).cut(cyl("y", (x, LANE_BOTTOM - 12 * MM), 14 * MM, -2, 2)))
-    part("lane", f"mouth_floor_{n}", fl.union(rmp), "print", "PETG: half the mouth, the ramp and the floor under the star wheels in one (the mouth's whole width), "
-         "on two tabs on the rail's bottom flange; carries lane shafts 0 and 1's bearings on hangers")
+    rmp = slab_y([(rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T), (rx1, rz1 - SKIN_T - 0.15), (rx0, rz0 - SKIN_T - 0.15)], *ys)
+    notch = box(rx1 - 0.1, LANE_WALL_FRONT + 0.02, s_ * (WALL_IN - 0.01), s_ * 2.52, -1, 3)        # the walls' ends and the ceiling's posts
+    rmp = rmp.cut(notch)
+    part("lane", f"ramp_skin_{n}", slab_y([(rx1, rz1), (rx0, rz0), (rx0, rz0 - SKIN_T), (rx1, rz1 - SKIN_T)], *ys).cut(notch), "print",
+         "TPU 95A gyroid lattice, 10-20% infill, 2.5 mm, one thin top skin (pieces roll up it): the ramp's soft skin; four countersunk M3 into the ramp, swappable like the flaps' faces")
+    for x in MOUTH_TABS:                # a tab on the rail's bottom flange, a web down its edge to the ramp
+        rmp = rmp.union(box(x - 0.25, x + 0.25, s_ * (MOUTH_HALF + 0.01), s_ * (RAIL_OUT - CH_T - 0.01), RAIL_Z[0] + CH_T, LANE_BOTTOM))
+        rmp = rmp.union(box(x - 0.25, x + 0.25, s_ * (MOUTH_HALF + 0.01), s_ * RAMP_EDGE, ramp_z(x) - SKIN_T - 0.15, LANE_BOTTOM))
+    part("lane", f"mouth_floor_{n}", rmp, "print", "PETG: half the ramp (the mouth's whole width), from the tiles beside the star wheels up to the lane, "
+         "on two tabs on the rail's bottom flange")
 LANE_X = (COL_X + 1.4, FACE - 0.16)
 WALL_SPLIT = 1.65
 for s, n in SIDES:
     xm = WALL_SPLIT                                               # between shafts 2 and 3, so each half holds whole bearings and two standoffs
-    for h, (a, b) in (("front", (xm, MOUTH_FLOOR_X[0] - 0.02)), ("rear", (LANE_X[0], xm))):   # ahead of these, the mouth floor and the stars
+    for h, (a, b) in (("front", (xm, LANE_WALL_FRONT)), ("rear", (LANE_X[0], xm))):   # ahead of these, the ramp and the stars
         top = 2.6
         part("lane", f"lane_wall_{n}_{h}", mir(box(a, b, WALL_IN, WALL_IN + WALL_T, 0.3, top), s), "print", "PETG, 1/4 in: half a lane wall with its shafts' bearings; on two standoffs to the rail")
 WALL_STANDOFFS = {"rear": ((rail_x(19), 0), (rail_x(25), 1)), "front": ((rail_x(27), 1), (rail_x(28), 0))}   # X, row (0: 8 mm over the
@@ -1176,7 +1179,7 @@ captive("intake_tie", "intake_arm_L", "an M4 x 10 through the arm into the stand
 captive("intake_cradle", "intake_tie", "the standoff in the cradle's REX socket, a set screw")
 captive("intake_motor", "intake_cradle", "clamped round its can by the cradle's M3 pinch screw")
 for k, x in enumerate(LANE_SHAFTS):
-    wall = "mouth_floor" if k < 2 else ("lane_wall_{}_front" if x > WALL_SPLIT else "lane_wall_{}_rear")
+    wall = "lane_wall_{}_front" if x > WALL_SPLIT else "lane_wall_{}_rear"
     for n in ("L", "R"):
         captive(f"lane_shaft_{k}", wall.format(n) if "{" in wall else f"{wall}_{n}", "in a goBILDA 1611 flanged bearing, e-clips")
     captive(f"lane_roller_{k}", f"lane_shaft_{k}", "free on two 8x14x5 bearings on the shaft")
@@ -1608,21 +1611,24 @@ def report():
     bad = []
     LM_TOUCH = re.compile(r"^lm_.*(feeder|pad_|Gecko|backstop|Hyper_Hub|Spacer|Sonic)", re.I)
     TOUCH = ("lane_roller_", "ceiling", "feeder", "pad", "flywheel_", "roller", "ramp_", "mouth_floor_", "floor", "backstop", "hood", "star_")   # the hood's lid turns the shot
-    path = [(x, LANE_BOTTOM) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 4.0, 5.5, 6.5)] + [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, HOOD_BEND_Z)] \
+    (rx0, rz0), (rx1, rz1) = RAMP
+    def floor_z(x): return 0.0 if x >= rx0 else (rz1 + (rx1 - x) / (rx1 - rx0) * (rz0 - rz1) if x >= rx1 else LANE_BOTTOM)
+    lane = [(x, floor_z(x)) for x in (BACKSTOP_X + 1.82, 0.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0)]   # its bottom on the lane, the ramp, the tiles
+    path = [(COL_X, z) for z in (5.0, 6.65, 8.0, 9.0, HOOD_BEND_Z)] \
            + [(COL_X + hood_path(HOOD_TURN * k / 4)[0], hood_path(HOOD_TURN * k / 4)[1]) for k in (1, 2, 3, 4)]
     for r in (RN, RP):                      # off-centre: a piece at the mouth's edge, on the floor, where it meets a star's tips
         for sgn in (1, -1):                 # (the star, the floor, the ramp and the roller, which rises, may touch it; nothing else)
             yc = sgn * (MOUTH_HALF - r)          # as far out as the floor holds it
             d = STAR_R + r - 0.41
             xc = STAR[0] + math.sqrt(max(d * d - (abs(yc) - STAR[1]) ** 2, 0))
-            ball = cq.Workplane("XY").sphere(r).translate((xc, yc, LANE_BOTTOM + r))
+            ball = cq.Workplane("XY").sphere(r).translate((xc, yc, floor_z(xc) + r))
             for k, w in shapes.items():
                 if k in (f"star_{'L' if sgn > 0 else 'R'}",) or k.startswith(("mouth_floor_", "ramp_", "roller", "lane_roller_")): continue
                 y = yc
                 if overlap(ball, w) > 1e-4: bad.append(f"off-centre {'NECTAR' if r == RN else 'POLLEN'} at Y {y} x {k}")
     for r in (RN, RP):
-        for x, z0 in path:
-            ball = cq.Workplane("XY").sphere(r).translate((x, 0.15 if z0 > LANE_BOTTOM else 0, z0 + (r if z0 == LANE_BOTTOM else 0)))
+        for x, z0, lifted in [(x, z, False) for x, z in lane] + [(x, z, True) for x, z in path]:
+            ball = cq.Workplane("XY").sphere(r).translate((x, 0.15 if lifted else 0, z0 if lifted else z0 + r))
             for k, w in shapes.items():
                 if k.startswith(TOUCH) or k.startswith(("lane_shaft_",)) or LM_TOUCH.search(k): continue
                 if overlap(ball, w) > 1e-4: bad.append(f"{'NECTAR' if r == RN else 'POLLEN'} at X {x:.2f} z {z0:.2f} x {k}")
