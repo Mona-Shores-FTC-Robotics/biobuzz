@@ -124,8 +124,9 @@ or fewer). No pass-through, no gate, no driving. TIP 1's spill alone (3 NECTAR, 
 That rests on one reading of G407. The glossary's CONTROL is "fully supported by or stuck in, on, or under the ROBOT,"
 or herding ("moving the SCORING ELEMENT in a preferred direction with a flat or concave face"). A piece resting on the
 tiles in a pocket of a robot that isn't moving is arguably none of those, but it sits against a stopped intake roller,
-and a referee could call it "stuck in". G407's own examples help at the margin: a momentary 5th that is quickly
-reversed is not STRATEGIC, and a non-strategic violation is a verbal warning. That's not a plan to build on. The
+and a referee could call it "stuck in". G407's own examples don't help: the Q&A (Q3, Q23, 14 Oct 2026;
+`doc/game/qa-review.md`) says there is no MOMENTARY exception, and that a robot which routinely controls a fifth
+piece by design is STRATEGIC. So a pocket that is ruled CONTROL is a MAJOR FOUL every match, not a warning. The
 question is drafted in `doc/five-tip-flow-through.md`; it has to be asked before any CAD changes.
 
 ## What it would change on the robot
@@ -137,8 +138,9 @@ qualification baselines (L-/R-Quals use the V to take FLOWERs and catch) and Tel
 
 ## Three steps that decide it, all before CAD changes
 
-1. **Ask the official Q&A** the G407 pocket question (`doc/five-tip-flow-through.md`). A "no" ends the idea, or turns
-   it into flow-through, which has its own G407 problem.
+1. **Ask the official Q&A** the G407 pocket question (`doc/five-tip-flow-through.md`). A "no" ends the idea:
+   flow-through is already out (Q23, no momentary fifth). Q29 (pending) is the nearest question on the board;
+   read its answer first.
 2. **At the next meeting, add a mock-up to the filmed spill test** (`doc/spill-test.md`): plywood or cardboard, 18 in
    wide and 18 in deep: an 18 in face with 6 in walls forward, foam on the inside faces. Stand it at the catch spot
    (x 49-67 in Pedro; face 31 in and wall tips 37 in from the end wall), not moving. For each TIP, count pieces resting inside the pocket 3 s after the TIP, pieces touching it before

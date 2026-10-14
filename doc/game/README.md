@@ -3,9 +3,11 @@
 | File | What | Source |
 |---|---|---|
 | `biobuzz-competition-manual-TU03.pdf` | 2026-2027 FIRST Tech Challenge Competition Manual, BIOBUZZ, **version TU03** (173 pages, dated 1 Oct 2026) | <https://ftc-resources.firstinspires.org/ftc/game/manual>, fetched 8 Oct 2026 |
+| `qa-review.md` | Every answer on the official Q&A board read against our Autos, the simulator and the TeleOp map, with what each changed | <https://game-qa.firstinspires.org/boards/2027/FTC/QA>, read 14 Oct 2026; `python3 tools/game-qa/qa.py` prints the board today |
 
 When FIRST publishes a new Team Update, add the new version next to it (keep the old one) and update this table.
-The official copy is always the one at the link above.
+The official copy is always the one at the link above. A Q&A answer outranks our reading of the manual; when the
+board gains answers, re-read `qa-review.md` against them and update it.
 
 ## Field facts the code depends on
 

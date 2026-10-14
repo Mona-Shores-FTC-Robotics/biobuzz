@@ -11,8 +11,9 @@ the measurements that would make its answer real, roughly in the order they matt
       or under the ROBOT", or herding)? If yes, staging them and then picking up the FLOWER's 4 is 8 CONTROLLED.
       The simulator lifts the hook and backs off before the intake comes back on, so they are never in contact
       while it holds the FLOWER. Is that enough?
-- [ ] Is creeping forward with the hook down and pieces in it herding (CONTROL), as long as it lasts more than a
-      MOMENTARY 3 s?
+- [x] Is creeping forward with the hook down and pieces in it herding (CONTROL), as long as it lasts more than a
+      MOMENTARY 3 s? **There is no MOMENTARY exception** (Q&A Q3, Q23, 14 Oct 2026): herding is CONTROL from the
+      first moment, and a routine case is STRATEGIC. Archived with the hook; see `doc/game/qa-review.md`.
 - [ ] Does anything stop us leaving our own pieces on the tiles near the HIVE in AUTO? (Nothing found in TU03; G411
       hoarding is about the other alliance's access.)
 - [ ] The cheaper alternative §10.3.4 already allows: start with the preloads on the tiles, touching the robot. Is

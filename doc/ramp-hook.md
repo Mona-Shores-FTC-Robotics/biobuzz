@@ -280,7 +280,8 @@ front goes past the pocket's edge:
 4. **G409, the spill.** A sloped insert in the spill's path could be ruled as helping to keep pieces. A 4 in insert
    is far less area than the full-width bar, and the curtains above it are hit by falling pieces anyway.
    **Question for the Q&A:** does a passive ramp on a robot count as catching or controlling a TIP's spill if a
-   falling piece lands on it?
+   falling piece lands on it? **Answered by Q17 (14 Oct 2026):** a falling piece deflecting off any part of the
+   robot is a G409 violation; a verbal warning once, STRATEGIC when routine. See `doc/game/qa-review.md`.
 
 The sections below are earlier steps (the ramp front, the rod, sleeves). Their physics stands; their geometry is
 superseded.
@@ -394,7 +395,7 @@ Quotes and section numbers are from Competition Manual TU03, as `doc/flower-back
   more touches.
 - **R105: 18 × 24 in.** See "Where the tongue goes".
 
-**Questions for the Q&A:**
+**Questions for the Q&A** (not on the board as of 14 Oct 2026; `doc/game/qa-review.md`):
 
 1. Is driving a thin robot ramp into a FLOWER's retrieval opening, so that the staged POLLEN roll out, allowed
    under G415 and G418?
