@@ -103,6 +103,8 @@ R_F5_MID, L_F5_MID, L_T5_MID, R_CLEAR = (46, 18, 90), (55, 26, 270), (55, 16, 27
 # Where R looks for pieces on the floor: TIP 1's spill rests about x 45-65, y 18-40 (R_C1, before TIP 2); TIP 3's leftovers
 # at the right end after L has caught its share (R_C5, before L arrives in the lane).
 R_C1, R_C5 = (50, 24, 90), (48, 26, 90)
+# Sister five's retune (10 Oct 2026): R sweeps TIP 1's spill from further west and north.
+R_C1_P = (46, 30, 90)
 # Creeping into a spill once it has landed (L's TIP 3 catch, at (58, 40), fills almost at once): TIP 1's at the right
 # end, TIP 4's at the left end (the same spot turned about the field's centre line).
 R_C1_CREEP, L_C4 = (58, 40, 90), (58, 101.5, 270)
@@ -162,7 +164,7 @@ def topup2(r, ms):
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
            r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None, catch_cards=False, lz5=False,
-           lz_ms=2500):
+           lz_ms=2500, c1=None):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -197,7 +199,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     elif fill1_ms:
         # R stands idle from its catch until TIP 2 (about 4 s): about 4 of TIP 1's spill lie around it. Topped up
         # off the floor to 4, TIP 3 needs no GARDEN (one short in a third of runs without it).
-        r.pt("R_C1", *R_C1)
+        r.pt("R_C1", *(c1 or R_C1))
         r.at = "S_CATCH"
         fill = [r.go("R_C1", heading=90)]
         r.at = "R_C1"
@@ -621,7 +623,11 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
 
 
 def variants():
-    return [right5(), right5("sister5b-right-direct", mode="direct"), right5("sister5b-right-swap", mode="swap"),
+    return [right5("sister5p-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   topup2_ms=(6000, 6000), catch_at=(57.5, 16, 90), c1=R_C1_P),
+            left5("sister5p-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, bail_ms=10500,
+                  ln=(55, 122, 270), ls=(59, 18, 90)),
+            right5(), right5("sister5b-right-direct", mode="direct"), right5("sister5b-right-swap", mode="swap"),
             right5("sister5b-right-direct-fill", mode="direct", fill1_ms=2500, top5_ms=2500),
             right5("sister5b-right-swap-fill", mode="swap", fill1_ms=2500, top5_ms=2500),
             right5("sister5b-right-fill", fill1_ms=2500, top5_ms=2500),
