@@ -1,7 +1,8 @@
 #!/bin/bash
-# both.sh <name> <right Auto> <left Auto> [SEEDS_MOD]: both robots the "rigid V" changed by SEEDS_MOD
+# both.sh <name> <right Auto> <left Auto> [SEEDS_MOD]: both robots the "rigid V" (or DESIGN) changed by SEEDS_MOD
 # ("field=value;..." RobotDesign fields), seeds 1-60 in three threads; prints one summary line.
 # Env: BIOBUZZ_JARS and BIOBUZZ_CLASSES as for build.sh; BIOBUZZ_BATCH_OUT (default /tmp/biobuzz-batch/runs);
+# DESIGN: a RobotDesign name from AutoStudyTest.designs(), e.g. "rigid V, fixed turret" (default "rigid V").
 # KEEP=1 keeps the .wpilog files (about 7 MB each), otherwise only their events (<seed>.wpilog.ev) stay.
 # The simulator's own switches pass through: BIOBUZZ_AUTO_HUMAN_NECTAR=0, BIOBUZZ_AUTO_HUMAN_ENTRY=roll,
 # BIOBUZZ_AUTO_HUMAN_BANK=3, BIOBUZZ_AUTO_HUMAN_CUE=1, BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1.
@@ -13,7 +14,7 @@ BASE=${BIOBUZZ_BATCH_OUT:-/tmp/biobuzz-batch/runs}
 CP=$CLS:$(ls "$BIOBUZZ_JARS"/*.jar | tr '\n' ':')
 O=$BASE/$1; rm -rf "$O"; mkdir -p "$O"; cd "$ROOT/TeamCode"
 for f in 1 21 41; do
-    SEEDS_MOD="$4" java -cp "$CP" org.firstinspires.ftc.teamcode.logging.SeedsBoth "$2" "$3" "rigid V" $((f+19)) "$O" $f > "$O.$f.out" 2>&1 &
+    SEEDS_MOD="$4" java -cp "$CP" org.firstinspires.ftc.teamcode.logging.SeedsBoth "$2" "$3" "${DESIGN:-rigid V}" $((f+19)) "$O" $f > "$O.$f.out" 2>&1 &
 done
 wait
 cat "$O.1.out" "$O.21.out" "$O.41.out" > "$O.out"
