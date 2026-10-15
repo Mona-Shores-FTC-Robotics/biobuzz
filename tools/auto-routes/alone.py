@@ -39,7 +39,7 @@ def seat(r, name, at, heading, aside=0.0):
         r.pt(name + suffix, round(at[0] - d * c + aside * s, 2), round(at[1] - d * s - aside * c, 2), heading)
 
 
-def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, fire3=(57.5, 24, 90),
+def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fire", wall_ms=3000, far_ms=3000, fire3=(57.5, 24, 90),
           after_tip2="lane", fire_g=None, fire1_ms=2500, tip2_ms=2500, park_ctrl=((30, 40),), tip1_retry=False, speed=50, garden=False, tip3_ms=2500,
           skip_nfire=False, lane_fire=None, tip2_until="Tip", aside=0.0, side_fire_y=None, n_low=None, n_low_turn=None):
     r = Route(name, S_START, speed=speed)
@@ -70,7 +70,7 @@ def alone(name, tip1_catch=1500, tip2_settle=500, tip2_land=0, far_fire_at="n_fi
     # piece as the extractor brought it); back out to N_FIRE and fire them standing.
     r.add(fire(r, "Fire the catch at the left CELL", "Empty", ms=2000), r.go("FAR_FLOWER", heading=90))
     r.at = "FAR_FLOWER"
-    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000))
+    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=far_ms))
     if skip_nfire:
         return skip_n_fire(r, fire3, wall_ms, park_ctrl, garden, tip3_ms, tip2_ms, tip2_settle, lane_fire=lane_fire)
     if far_fire_at == "n_fire":
