@@ -43,7 +43,7 @@ public final class RQualsAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 8.06, 90);
-        Pose sCatch = p.of(57.5, 28, 90);
+        Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 270);
         Pose nFire = p.of(57.5, 119, 270);
         Pose park = p.of(10.5, 95, 90);

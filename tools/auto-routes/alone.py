@@ -22,7 +22,11 @@ S_START = (59, 8.06, 90)
 SEAT_IN, IN_IN, TURN_IN = 12.15, 17.95, 20.45  # the V's centre from the FLOWER: seated, straight back, turn room
 # S_FIRE: arrived at facing south, 2.5 in west of the lane: a fixed launcher turns the robot there to face the right
 # CELL, and from x 57.5 the V's tips swung over the centre line (18 of 20 runs).
-S_CATCH, S_FIRE, N_FIRE = (57.5, 28, 90), (55, 24, 270), (57.5, 119, 270)
+# G409 (Q&A Q17/Q23: a touch on a falling spilled piece is a foul every time): the simulator's spill reaches 41 in
+# from the HIVE's centre line (y 70.75) above a 4 in flap, so a robot facing the HIVE keeps its centre at y <= 19 south /
+# >= 122 north (simulator chat, 15 Oct 2026). R-Quals' catch at y 28 touched in 14 of 60; at y 24 in 1, at 20 and 16 in 0,
+# with the same 3 TIPs (52-53 of 60).
+S_CATCH, S_FIRE, N_FIRE = (57.5, 18, 90), (55, 24, 270), (57.5, 119, 270)
 PARK = (10.5, 95, 90)
 
 

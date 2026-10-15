@@ -416,7 +416,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 28
+        "y": 18
       },
       "controlPoints": [
         {
@@ -877,7 +877,7 @@
       ],
       "S_CATCH": [
         57.5,
-        28,
+        18,
         90
       ],
       "LANE_LOW": [

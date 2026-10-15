@@ -110,7 +110,7 @@ public final class QualRightVFlowerFirstCarrySettleB2Auto {
                                 kit.afterMs(2500)),
                         kit.firstOf("It lands",
                                 kit.when("IntakeFull"),
-                                kit.afterMs(200)),
+                                kit.afterMs(1200)),
                         kit.path("N_FIRE to S_FIRE", nFireToSFire),
                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                 kit.when("Empty"),

@@ -17,7 +17,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 28
+        "y": 18
       },
       "controlPoints": [],
       "heading": {
@@ -519,7 +519,7 @@
       ],
       "S_CATCH": [
         57.5,
-        28,
+        18,
         90
       ],
       "S_FIRE": [

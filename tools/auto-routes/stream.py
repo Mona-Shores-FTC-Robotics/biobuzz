@@ -123,7 +123,7 @@ def build_flower_first(name, wait=200, leave_ms=2600):
     restore = retime.with_wait("qual-right-v", wait)
     try:
         with seated():
-            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+            return baselines_v.build_for_v(baselines_v.shoots_right, name)
     finally:
         restore()
         qual_right.right = _right
@@ -177,7 +177,7 @@ def build_flower_first_hold(name, wait=200):
     restore = retime.with_wait("qual-right-v", wait)
     try:
         with seated():
-            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+            return baselines_v.build_for_v(baselines_v.shoots_right, name)
     finally:
         restore()
         qual_right.right = _right
@@ -317,6 +317,11 @@ CATCH3_X, CATCH3_MS, FIRE3_AT = [57.5], [2000], ["north"]
 def right_flower_first_north(name, robot="baseline", n_fire=None, **kw):
     if TIP2_GO_MS[0] is not None:  # None: the baseline's TIP 2 timing (until the CELL settles, then its extra)
         kw = dict(kw, settle=False, extra=TIP2_GO_MS[0])
+    else:
+        # G409: after the right CELL is up, 1.2 s more before leaving N_FIRE through TIP 2's landing area. Its last
+        # piece lands at most 1.55 s after the TIP starts (simulator chat, 15 Oct 2026); leaving as the CELL settled,
+        # the route met a falling piece at y 113 in 21 of 60 runs.
+        kw = dict(kw, settle=True, extra=max(kw.get("extra", 0), 1200))
     r = right_flower_first_hold(name, robot=robot, n_fire=n_fire, _tail=False, **kw)
     x, y, h = r.points["N_FIRE"]
     r.pt("N_FIRE", x, y + NORTH_BACK_IN[0], h)
@@ -343,7 +348,7 @@ def build_flower_first_north(name, back=2.0, go_ms=1200, wait=200, catch_x=57.5,
     qual_right.right = right_flower_first_north
     try:
         with seated():
-            return baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+            return baselines_v.build_for_v(baselines_v.shoots_right, name)
     finally:
         restore()
         baselines_v.park_from_garden, qual_right.right = park, right

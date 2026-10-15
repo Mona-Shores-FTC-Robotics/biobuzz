@@ -45,7 +45,7 @@ public final class QualStagesAngledVAuto {
         Pose start = p.of(59, 8.06, 90);
         Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
-        Pose sCatch = p.of(57.5, 28, 90);
+        Pose sCatch = p.of(57.5, 21, 90);
         Pose gardenIn = p.of(8.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);
         Pose park = p.of(10.5, 95, 90);
@@ -55,6 +55,7 @@ public final class QualStagesAngledVAuto {
         Pose nFire = p.of(57.5, 119, 270);
         Pose rowS = p.of(49.34, 112.53, 137.3);
         Pose rowN = p.of(46.33, 115.31, 137.3);
+        Pose nWait = p.of(57.5, 123.5, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(55.5, 104, 90);
@@ -62,8 +63,8 @@ public final class QualStagesAngledVAuto {
         Pose nLowToRowSSegment1Start = p.of(49.34, 112.53, 270);
         Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 137.3);
         Pose rowNToNLowSegment2Start = p.of(57.5, 114, 137.3);
-        Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
-        Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose nWaitToSFireSegment1Heading = p.of(57.5, 24, 270);
+        Pose nWaitToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenInSegment1Start = p.of(8.5, 20.56, 90);
         Pose gardenToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFireSegment2Start = p.of(57.5, 24, 270);
@@ -75,8 +76,8 @@ public final class QualStagesAngledVAuto {
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
-        Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
-        Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose nWaitToSFire_2Segment1Heading = p.of(57.5, 24, 270);
+        Pose nWaitToSFire_2Segment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenIn_2Segment1Start = p.of(8.5, 20.56, 90);
         Pose gardenToSFire_2Segment1Heading = p.of(57.5, 24, 270);
         Pose gardenToSFire_2Segment2Start = p.of(57.5, 24, 270);
@@ -90,7 +91,8 @@ public final class QualStagesAngledVAuto {
         Path nLowToRowS = Paths.line(nLow, rowS).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(nLowToRowSSegment1Start, rowS)).until(1, Interpolator.constant(rowS)));
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
-        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
+        Path nLowToNWait = Paths.line(nLow, nWait).constant(nWait);
+        Path nWaitToSFire = Paths.line(nWait, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nWaitToSFireSegment1Heading)).until(1, Interpolator.linear(nWaitToSFireSegment2Start, sFire)));
         Path sFireToGardenIn = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));
@@ -98,7 +100,8 @@ public final class QualStagesAngledVAuto {
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
-        Path nFireToSFire = Paths.line(nFire, sFire).heading(Interpolator.piecewise().until(0.87, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
+        Path nFireToNWait = Paths.line(nFire, nWait).constant(nWait);
+        Path nWaitToSFirePath = Paths.line(nWait, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nWaitToSFire_2Segment1Heading)).until(1, Interpolator.linear(nWaitToSFire_2Segment2Start, sFire)));
         Path sFireToGardenInPath = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenIn_2Segment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGardenPath = Paths.line(gardenIn, garden).constant(garden);
         Path gardenToSFirePath = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFire_2Segment1Heading)).until(1, Interpolator.linear(gardenToSFire_2Segment2Start, sFire)));
@@ -132,10 +135,11 @@ public final class QualStagesAngledVAuto {
                 kit.firstOf("TIP 2?",
                         kit.when("Tip").then(
                                 kit.guarded("Yes", sFireToPark, 3,
+                                        kit.path("N_LOW to N_WAIT", nLowToNWait),
                                         kit.firstOf("It lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1300)),
-                                        kit.path("N_LOW to S_FIRE", nLowToSFire),
+                                        kit.path("N_WAIT to S_FIRE", nWaitToSFire),
                                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
@@ -160,10 +164,11 @@ public final class QualStagesAngledVAuto {
                                         kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Tip"),
                                                 kit.afterMs(2500)),
+                                        kit.path("N_FIRE to N_WAIT", nFireToNWait),
                                         kit.firstOf("It lands (B)",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1300)),
-                                        kit.path("N_FIRE to S_FIRE", nFireToSFire),
+                                        kit.path("N_WAIT to S_FIRE", nWaitToSFirePath),
                                         kit.firstOf("Fire TIP 2's spill (B)", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),

@@ -61,6 +61,18 @@ def stages_for(shape, kind, name):
             r.at = "N_HOOK"
             return [go, *tail(r, **t)]
         qual_right.tail = hooked
+    else:
+        # G409: fire TIP 2 from N_LOW / N_FIRE as before, then straight back to N_WAIT (y 123.5) before its spill comes
+        # down, and wait for it there. At N_LOW (y 114) the V met falling pieces in 4-6 runs of 60; firing from y 123.5
+        # instead cost every 3-TIP run (TIP 2 7 s later) and drove the wall Auto into the HIVE frame.
+        from qual import N_WAIT
+
+        def backed(r, **t):
+            r.pt("N_WAIT", *N_WAIT)
+            go = r.go("N_WAIT", heading=270)
+            r.at = "N_WAIT"
+            return [go, *tail(r, **t)]
+        qual_right.tail = backed
     try:
         return qual_right.stages_staged(name, partner=partner, plan=plan, **kw)
     finally:

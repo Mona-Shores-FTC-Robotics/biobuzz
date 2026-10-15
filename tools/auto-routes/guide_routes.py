@@ -77,7 +77,7 @@ def stages_hook2(name, partner, row=None, ending=None, hold=1000, spot=S_HOOK, n
     r = qual_right.fit("option3")(name, S_START, speed=50)
     ends(r)
     flower_points(r, "WALL_FLOWER", WALL_FLOWER_AT, 180)
-    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", N_FIRE[0], n_fire_y, N_FIRE[2]).pt("S_HOOK", *spot)
+    r.pt("S_FIRE", *S_FIRE).pt("N_FIRE", N_FIRE[0], n_fire_y, N_FIRE[2]).pt("S_HOOK", *spot).pt("N_WAIT", *N_WAIT)
     r.add(r.action("SpinUp"), r.go("S_FIRE", heading=90), fire(r, "Fire the preloads (TIP 1)", "Empty", ms=4000),
           r.go("S_HOOK", heading=90), r.wait("TIP 1 settles", when=["LeftCellUp"], ms=3500),
           r.wait("The hook holds TIP 1's spill" if north_hook else "Hold for TIP 1's spill", when=["IntakeFull"], ms=hold),
@@ -96,12 +96,19 @@ def stages_hook2(name, partner, row=None, ending=None, hold=1000, spot=S_HOOK, n
     if north_hook:
         more += [r.action("HookDown"), r.wait("The hook holds TIP 2's spill (B)", when=["IntakeFull"], ms=extra), r.action("HookUp")]
     else:
-        more.append(r.wait("It lands (B)", when=["IntakeFull"], ms=extra))
-    r.at = "N_FIRE"
+        # G409: straight back out of TIP 2's landing area before it comes down, then wait there.
+        r.at = "N_FIRE"
+        more += [r.go("N_WAIT", heading=270), r.wait("It lands (B)", when=["IntakeFull"], ms=extra)]
+    r.at = "N_WAIT" if not north_hook else "N_FIRE"
     more += qual_right.tail(r, tag=" (B)", extra=0, **kw)
     r.at = "N_LOW"
-    tipped = ([r.action("HookDown"), r.wait("The hook holds TIP 2's spill", when=["IntakeFull"], ms=extra), r.action("HookUp")]
-              if north_hook else [r.wait("It lands", when=["IntakeFull"], ms=extra)]) + qual_right.tail(r, extra=0, **kw)
+    if north_hook:
+        tipped = [r.action("HookDown"), r.wait("The hook holds TIP 2's spill", when=["IntakeFull"], ms=extra), r.action("HookUp")]
+    else:
+        tipped = [r.go("N_WAIT", heading=270)]
+        r.at = "N_WAIT"
+        tipped.append(r.wait("It lands", when=["IntakeFull"], ms=extra))
+    tipped += qual_right.tail(r, extra=0, **kw)
     r.add(r.wait("TIP 2?", when=["Tip"], ms=600, yes=tipped, no=more, yes_label="Yes", no_label="No: the far FLOWER"))
     return r
 

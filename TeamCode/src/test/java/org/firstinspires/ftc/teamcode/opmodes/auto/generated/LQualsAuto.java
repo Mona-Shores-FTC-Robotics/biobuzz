@@ -54,7 +54,7 @@ public final class LQualsAuto {
         Pose garden = p.of(9.5, 10.96, 270);
         Pose fireG = p.of(45, 29, 90);
         Pose laneTop = p.of(57.5, 108, 90);
-        Pose sCatch = p.of(57.5, 28, 90);
+        Pose sCatch = p.of(57.5, 18, 90);
         Pose laneLow = p.of(56, 36, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).

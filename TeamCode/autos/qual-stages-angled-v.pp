@@ -17,7 +17,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 28
+        "y": 21
       },
       "controlPoints": [],
       "heading": {
@@ -297,9 +297,28 @@
       }
     },
     {
-      "id": "to-s-fire-10",
+      "id": "to-n-wait-10",
       "color": "#3cc8e4",
-      "name": "N_FIRE to S_FIRE",
+      "name": "N_FIRE to N_WAIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-s-fire-11",
+      "color": "#3cc8e4",
+      "name": "N_WAIT to S_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -316,14 +335,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.87,
+              "endProgress": 0.88,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.87,
+              "startProgress": 0.88,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -336,7 +355,7 @@
       }
     },
     {
-      "id": "to-garden-in-11",
+      "id": "to-garden-in-12",
       "color": "#3cc8e4",
       "name": "S_FIRE to GARDEN_IN",
       "waitBeforeMs": 0,
@@ -375,7 +394,7 @@
       }
     },
     {
-      "id": "to-garden-12",
+      "id": "to-garden-13",
       "color": "#3cc8e4",
       "name": "GARDEN_IN to GARDEN",
       "waitBeforeMs": 0,
@@ -394,7 +413,7 @@
       }
     },
     {
-      "id": "to-s-fire-13",
+      "id": "to-s-fire-14",
       "color": "#3cc8e4",
       "name": "GARDEN to S_FIRE",
       "waitBeforeMs": 0,
@@ -433,7 +452,7 @@
       }
     },
     {
-      "id": "to-park-14",
+      "id": "to-park-15",
       "color": "#3cc8e4",
       "name": "S_FIRE to PARK",
       "waitBeforeMs": 0,
@@ -461,9 +480,28 @@
       }
     },
     {
-      "id": "to-s-fire-15",
+      "id": "to-n-wait-16",
       "color": "#3cc8e4",
-      "name": "N_LOW to S_FIRE",
+      "name": "N_LOW to N_WAIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-s-fire-17",
+      "color": "#3cc8e4",
+      "name": "N_WAIT to S_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -480,14 +518,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.86,
+              "endProgress": 0.88,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.86,
+              "startProgress": 0.88,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -500,7 +538,7 @@
       }
     },
     {
-      "id": "to-garden-in-16",
+      "id": "to-garden-in-18",
       "color": "#3cc8e4",
       "name": "S_FIRE to GARDEN_IN",
       "waitBeforeMs": 0,
@@ -539,7 +577,7 @@
       }
     },
     {
-      "id": "to-garden-17",
+      "id": "to-garden-19",
       "color": "#3cc8e4",
       "name": "GARDEN_IN to GARDEN",
       "waitBeforeMs": 0,
@@ -558,7 +596,7 @@
       }
     },
     {
-      "id": "to-s-fire-18",
+      "id": "to-s-fire-20",
       "color": "#3cc8e4",
       "name": "GARDEN to S_FIRE",
       "waitBeforeMs": 0,
@@ -597,7 +635,7 @@
       }
     },
     {
-      "id": "to-park-19",
+      "id": "to-park-21",
       "color": "#3cc8e4",
       "name": "S_FIRE to PARK",
       "waitBeforeMs": 0,
@@ -738,43 +776,51 @@
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-10"
+      "lineId": "to-n-wait-10"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-in-11"
+      "lineId": "to-s-fire-11"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-12"
+      "lineId": "to-garden-in-12"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-13"
+      "lineId": "to-garden-13"
     },
     {
       "kind": "path",
-      "lineId": "to-park-14"
+      "lineId": "to-s-fire-14"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-15"
+      "lineId": "to-park-15"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-in-16"
+      "lineId": "to-n-wait-16"
     },
     {
       "kind": "path",
-      "lineId": "to-garden-17"
+      "lineId": "to-s-fire-17"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-18"
+      "lineId": "to-garden-in-18"
     },
     {
       "kind": "path",
-      "lineId": "to-park-19"
+      "lineId": "to-garden-19"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-fire-20"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-21"
     }
   ],
   "settings": {
@@ -861,22 +907,22 @@
       ],
       "S_CATCH": [
         57.5,
-        28,
+        21,
         90
       ],
       "N_CATCH": [
         57.5,
-        113.5,
+        123.5,
         270
       ],
       "S_BACK": [
         57.5,
-        25,
+        18,
         90
       ],
       "N_BACK": [
         57.5,
-        116.5,
+        126.5,
         270
       ],
       "GARDEN_IN": [
@@ -948,6 +994,11 @@
         36,
         100,
         90
+      ],
+      "N_WAIT": [
+        57.5,
+        123.5,
+        270
       ]
     },
     "pathEnds": {
@@ -960,16 +1011,18 @@
       "to-far-flower-turn-7": "FAR_FLOWER_TURN",
       "to-far-flower-8": "FAR_FLOWER",
       "to-n-fire-9": "N_FIRE",
-      "to-s-fire-10": "S_FIRE",
-      "to-garden-in-11": "GARDEN_IN",
-      "to-garden-12": "GARDEN",
-      "to-s-fire-13": "S_FIRE",
-      "to-park-14": "PARK",
-      "to-s-fire-15": "S_FIRE",
-      "to-garden-in-16": "GARDEN_IN",
-      "to-garden-17": "GARDEN",
-      "to-s-fire-18": "S_FIRE",
-      "to-park-19": "PARK"
+      "to-n-wait-10": "N_WAIT",
+      "to-s-fire-11": "S_FIRE",
+      "to-garden-in-12": "GARDEN_IN",
+      "to-garden-13": "GARDEN",
+      "to-s-fire-14": "S_FIRE",
+      "to-park-15": "PARK",
+      "to-n-wait-16": "N_WAIT",
+      "to-s-fire-17": "S_FIRE",
+      "to-garden-in-18": "GARDEN_IN",
+      "to-garden-19": "GARDEN",
+      "to-s-fire-20": "S_FIRE",
+      "to-park-21": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -1115,7 +1168,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-36",
+        "id": "w-38",
         "kind": "firstOf",
         "label": "TIP 2?",
         "rows": [
@@ -1125,7 +1178,13 @@
             ],
             "cards": [
               {
-                "id": "w-27",
+                "id": "p-28",
+                "kind": "path",
+                "lineId": "to-n-wait-16",
+                "park": false
+              },
+              {
+                "id": "w-29",
                 "kind": "firstOf",
                 "label": "It lands",
                 "rows": [
@@ -1142,13 +1201,13 @@
                 ]
               },
               {
-                "id": "p-28",
+                "id": "p-30",
                 "kind": "path",
-                "lineId": "to-s-fire-15",
+                "lineId": "to-s-fire-17",
                 "park": false
               },
               {
-                "id": "w-29",
+                "id": "w-31",
                 "kind": "firstOf",
                 "label": "Fire TIP 2's spill",
                 "rows": [
@@ -1166,19 +1225,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-30",
+                "id": "p-32",
                 "kind": "path",
-                "lineId": "to-garden-in-16",
+                "lineId": "to-garden-in-18",
                 "park": false
               },
               {
-                "id": "p-31",
+                "id": "p-33",
                 "kind": "path",
-                "lineId": "to-garden-17",
+                "lineId": "to-garden-19",
                 "park": false
               },
               {
-                "id": "w-32",
+                "id": "w-34",
                 "kind": "firstOf",
                 "label": "The GARDEN",
                 "rows": [
@@ -1195,13 +1254,13 @@
                 ]
               },
               {
-                "id": "p-33",
+                "id": "p-35",
                 "kind": "path",
-                "lineId": "to-s-fire-18",
+                "lineId": "to-s-fire-20",
                 "park": false
               },
               {
-                "id": "w-34",
+                "id": "w-36",
                 "kind": "firstOf",
                 "label": "Fire the GARDEN",
                 "rows": [
@@ -1219,9 +1278,9 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-35",
+                "id": "p-37",
                 "kind": "path",
-                "lineId": "to-park-19",
+                "lineId": "to-park-21",
                 "park": true
               }
             ],
@@ -1284,7 +1343,13 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-18",
+                "id": "p-18",
+                "kind": "path",
+                "lineId": "to-n-wait-10",
+                "park": false
+              },
+              {
+                "id": "w-19",
                 "kind": "firstOf",
                 "label": "It lands (B)",
                 "rows": [
@@ -1301,13 +1366,13 @@
                 ]
               },
               {
-                "id": "p-19",
+                "id": "p-20",
                 "kind": "path",
-                "lineId": "to-s-fire-10",
+                "lineId": "to-s-fire-11",
                 "park": false
               },
               {
-                "id": "w-20",
+                "id": "w-21",
                 "kind": "firstOf",
                 "label": "Fire TIP 2's spill (B)",
                 "rows": [
@@ -1325,19 +1390,19 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-21",
-                "kind": "path",
-                "lineId": "to-garden-in-11",
-                "park": false
-              },
-              {
                 "id": "p-22",
                 "kind": "path",
-                "lineId": "to-garden-12",
+                "lineId": "to-garden-in-12",
                 "park": false
               },
               {
-                "id": "w-23",
+                "id": "p-23",
+                "kind": "path",
+                "lineId": "to-garden-13",
+                "park": false
+              },
+              {
+                "id": "w-24",
                 "kind": "firstOf",
                 "label": "The GARDEN (B)",
                 "rows": [
@@ -1354,13 +1419,13 @@
                 ]
               },
               {
-                "id": "p-24",
+                "id": "p-25",
                 "kind": "path",
-                "lineId": "to-s-fire-13",
+                "lineId": "to-s-fire-14",
                 "park": false
               },
               {
-                "id": "w-25",
+                "id": "w-26",
                 "kind": "firstOf",
                 "label": "Fire the GARDEN (B)",
                 "rows": [
@@ -1378,9 +1443,9 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-26",
+                "id": "p-27",
                 "kind": "path",
-                "lineId": "to-park-14",
+                "lineId": "to-park-15",
                 "park": true
               }
             ],

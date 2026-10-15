@@ -34,11 +34,18 @@ D = "spring hood, full-width intake"
 # only at x <= 58 (the centre line is 70.75) and clear of the HIVE frame's feet (y 51.3-90.2).
 S_START, N_START = (59, 9.5, 90), (59, 132.25, 270)
 S_SHOOT, N_SHOOT = (57.5, 14, 90), (57.5, 127.5, 270)  # 43 in from each CELL's aim point, head-on
-S_CATCH, N_CATCH = (57.5, 28, 90), (57.5, 113.5, 270)  # just short of where a spill lands, facing it
+# G409 (Q&A Q17/Q23: a touch on a falling spilled piece is a foul every time): the simulator's spill reaches 41 in
+# from the HIVE's centre line (y 70.75) above a 4 in flap, so a robot facing the HIVE keeps its centre at y <= 19 south /
+# >= 122 north (simulator chat, 15 Oct 2026). R-Quals' catch at y 28 touched in 14 of 60; at y 24 in 1, at 20 and 16 in 0,
+# with the same 3 TIPs (52-53 of 60).
+# The Stages Autos catch TIP 1 at y 21, not R-Quals' 18: their TIP 2 is fed by that catch (TIP 2's median 15.8 s at
+# y 28, 18.1 at y 21, 21.3 at y 18), and at y 21 they touched in 0 (angled) and 2 (wall) runs of 60.
+S_CATCH, N_CATCH = (57.5, 21, 90), (57.5, 123.5, 270)  # outside where a spill falls, facing it
 # Straight on, out of the tunnel's north exit: the left CELL scores from y 113 (ShotMapTest; 109 is too
 # close for the hood), and our edge (y 123) stays just below a partner at the standard left start (its
 # edge at 123.25).
-N_LOW = (57.5, 114, 270)
+N_LOW = (57.5, 114, 270)  # a firing spot: fire here, then back off to N_WAIT before a spill comes down
+N_WAIT = (57.5, 123.5, 270)  # outside the falling spill (G409, see S_CATCH)
 # Where we turn round after coming north through the tunnel: a turning robot's corners reach 12.7 in, so
 # at y 104 they clear the HIVE frame (y 90.2) and a partner at the left start or in its lane (y 118.5).
 # Then straight back into N_LOW.
