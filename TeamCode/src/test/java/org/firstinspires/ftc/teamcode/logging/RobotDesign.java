@@ -171,6 +171,14 @@ final class RobotDesign {
      */
     boolean countsPieces = true;
     /**
+     * A weaker full sensor (mentor, 15 Oct 2026: the intake can't be tracked robustly, but "full" can probably be
+     * sensed, e.g. from the intake motor's stall current, issue #181): IntakeFull fires this long after the 4th piece is
+     * in, and each time the robot fills, with this chance it isn't noticed at all (the wait then runs to its limit).
+     * 0 and 0: the exact sensor the studies assume. Empty is not affected.
+     */
+    double fullSenseDelayS = 0;
+    double fullSenseMissChance = 0;
+    /**
      * NECTAR's launch speed as a fraction of what was aimed for: 1 for a launcher that knows which
      * piece it holds and compensates; below 1 for one tuned for POLLEN that throws the heavier
      * NECTAR short.
@@ -492,6 +500,8 @@ final class RobotDesign {
         d.turretTravelDeg = turretTravelDeg;
         d.launchesNectar = launchesNectar;
         d.countsPieces = countsPieces;
+        d.fullSenseDelayS = fullSenseDelayS;
+        d.fullSenseMissChance = fullSenseMissChance;
         d.nectarSpeedFactor = nectarSpeedFactor;
         d.pollenSpeedFactor = pollenSpeedFactor;
         d.arcExtraPitchDeg = arcExtraPitchDeg;

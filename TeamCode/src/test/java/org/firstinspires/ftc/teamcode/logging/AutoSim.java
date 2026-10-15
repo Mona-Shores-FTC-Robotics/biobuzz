@@ -1549,6 +1549,25 @@ public final class AutoSim {
         boolean extractorWanted, extractorBlocked;
         /** Draws each seat's lateral error (RobotDesign#seatErrorIn), apart from the field's random so nothing else moves. */
         private java.util.Random seatErrors;
+        /** RobotDesign#fullSenseDelayS / fullSenseMissChance: when this filling began, whether it goes unnoticed. */
+        private double fullSince = Double.NaN;
+        private boolean fullMissed;
+        private java.util.Random fullMisses;
+
+        /** IntakeFull as the robot's sensor sees it: late by fullSenseDelayS, and sometimes not at all. */
+        private boolean fullSensed() {
+            if (!design.countsPieces || !FieldSim.full(body)) {
+                fullSince = Double.NaN;
+                return false;
+            }
+            if (Double.isNaN(fullSince)) {
+                fullSince = now;
+                if (fullMisses == null) fullMisses = new java.util.Random(seed * 1_000_033L + index);
+                fullMissed = fullMisses.nextDouble() < design.fullSenseMissChance;
+                if (fullMissed) pending.add("sensor: full not noticed");
+            }
+            return !fullMissed && now - fullSince >= design.fullSenseDelayS - 1e-9;
+        }
 
         /** How far past the seat a FLOWER may be, and how far aside, for the extractor to count as still on it. */
         static final double EXTRACTOR_SEATED_SLACK_IN = 6;  // the block's tip clear of the FLOWER's footprint before it lifts
@@ -1740,7 +1759,7 @@ public final class AutoSim {
                     // RobotDesign#catchScheduled: the flaps (and slide) out for a catch and back in.
                     .command("CatchOut", 1.0, () -> catchCard(true))
                     .command("CatchIn", 1.0, () -> catchCard(false))
-                    .trigger("IntakeFull", () -> design.countsPieces && FieldSim.full(body))
+                    .trigger("IntakeFull", this::fullSensed)
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
                     .trigger("HeldWorth4", () -> design.countsPieces
