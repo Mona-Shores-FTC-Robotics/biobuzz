@@ -10,8 +10,8 @@ are what we build, test and tune first.
 | **L-Quals** | `LQualsAuto` (`TeamCode/autos/l-quals.pp`) | Qualifiers, from the left start, partner shoots reliably | 73.7, 3 TIPs in 55, 0 |
 | **R-Quals** | `RQualsAuto` (`r-quals.pp`) | Qualifiers, from the right start, partner can't shoot or might not | 72.7, 3 TIPs in 54, 1 |
 | **Sister** | `SisterRightFixedAuto` + `SisterLeftFixedAuto` | Playoffs with the sister team: two of our robots | 89.0, 4 TIPs in 45, 0 |
-| **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: left start, waits for the partner's TIP 1, preloads at the left CELL, the far FLOWER's 4 (8 shots), PARK | check running |
-| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: right start, preloads at the right CELL straight away (4 make a TIP), PARK. No waiting | check running |
+| **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: L-Quals' opening exactly (left start, waits for the partner's TIP 1, preloads at the left CELL, the far FLOWER's 4: 8 shots), then PARK at the zone's north end | with R-Simple: LEAVE and PARK 60, all 8 fired 56 (the other 4: no TIP 1 within its 7 s wait), 0 |
+| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: right start, preloads at the right CELL straight away (4 make a TIP), PARK at the zone's south end. No waiting | LEAVE and PARK 60, all 4 fired 60, 0 (with L-Simple; the same with R-Quals' partner) |
 
 Which qualifier Auto to run (mentor, 8 Oct): partner can't shoot → R-Quals; shoots reliably → either; says it shoots
 but might not → R-Quals. None of the five needs the turret.
