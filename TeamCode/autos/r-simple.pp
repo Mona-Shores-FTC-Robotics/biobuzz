@@ -280,7 +280,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "simple-left-flower-park",
+    "exportName": "r-simple",
     "registry": {
       "actions": [
         "SpinUp",
