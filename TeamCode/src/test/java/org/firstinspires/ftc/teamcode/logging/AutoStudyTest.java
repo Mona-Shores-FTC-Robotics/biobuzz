@@ -757,6 +757,11 @@ public class AutoStudyTest {
             if (!Double.isNaN(r.robotsCollidedAt) && row.problems++ == 0) {
                 row.firstProblem = String.format(Locale.ROOT, "robots collide at %.1f s", r.robotsCollidedAt);
             }
+            // A G409 touch is a foul every time and STRATEGIC when routine (the Q&A's Q17 and Q23, doc/game/qa-review.md,
+            // 14 Oct 2026): a run with one is a problem run, not a risk to weigh.
+            if (r.g409 > 0 && row.problems++ == 0) {
+                row.firstProblem = String.format(Locale.ROOT, "G409: %d spilled piece%s touched before the tiles", r.g409, r.g409 == 1 ? "" : "s");
+            }
             // BIOBUZZ_AUTO_SEED_ROWS=1: one line per seed for a script to count (TIPs, points, each robot's PARK and
             // problems, the robots' collision).
             if (System.getenv("BIOBUZZ_AUTO_SEED_ROWS") != null) {

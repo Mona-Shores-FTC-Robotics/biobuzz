@@ -146,9 +146,12 @@ public final class Sister5bRightSwapFillAuto {
                                         kit.when("IntakeFull"),
                                         kit.afterMs(2500)),
                                 kit.path("R_C5 to R_F5", rC5ToRF5),
-                                kit.firstOf("The top-up at the right CELL (TIP 5)", kit.command("LaunchAll"),
-                                        kit.when("Tip"),
-                                        kit.afterMs(4000))),
+                                kit.firstOf("Right CELL still up?",
+                                        kit.when("RightCellUp").then(
+                                                kit.firstOf("The top-up at the right CELL (TIP 5)", kit.command("LaunchAll"),
+                                                        kit.when("Tip"),
+                                                        kit.afterMs(4000))),
+                                        kit.afterMs(50))),
                         kit.afterMs(6500).then(
                                 kit.guarded("Timed out", rNToPark, 1.4,
                                         kit.path("S_CATCH to R_W", sCatchToRWPath),

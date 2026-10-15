@@ -734,7 +734,7 @@
         "park": false
       },
       {
-        "id": "w-34",
+        "id": "w-36",
         "kind": "firstOf",
         "label": "TIP 2 started",
         "rows": [
@@ -872,7 +872,7 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-32",
+                "id": "w-34",
                 "kind": "firstOf",
                 "label": "TIP 4",
                 "rows": [
@@ -952,22 +952,41 @@
                         ]
                       },
                       {
-                        "id": "w-27",
+                        "id": "w-28",
                         "kind": "firstOf",
-                        "label": "The top-up at the right CELL (TIP 5)",
+                        "label": "Right CELL still up?",
                         "rows": [
                           {
                             "when": [
-                              "Tip"
+                              "RightCellUp"
                             ],
-                            "cards": []
+                            "cards": [
+                              {
+                                "id": "w-27",
+                                "kind": "firstOf",
+                                "label": "The top-up at the right CELL (TIP 5)",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "Tip"
+                                    ],
+                                    "cards": []
+                                  },
+                                  {
+                                    "afterMs": 4000,
+                                    "cards": []
+                                  }
+                                ],
+                                "alongside": "LaunchAll"
+                              }
+                            ]
                           },
                           {
-                            "afterMs": 4000,
-                            "cards": []
+                            "afterMs": 50,
+                            "cards": [],
+                            "label": "No: the TIP came, hold the top-up"
                           }
-                        ],
-                        "alongside": "LaunchAll"
+                        ]
                       }
                     ]
                   },
@@ -975,13 +994,13 @@
                     "afterMs": 2500,
                     "cards": [
                       {
-                        "id": "p-28",
+                        "id": "p-29",
                         "kind": "path",
                         "lineId": "to-l-t4-11",
                         "park": false
                       },
                       {
-                        "id": "w-29",
+                        "id": "w-30",
                         "kind": "firstOf",
                         "label": "TIP 4 short: off the floor",
                         "rows": [
@@ -998,25 +1017,44 @@
                         ]
                       },
                       {
-                        "id": "w-30",
+                        "id": "w-32",
                         "kind": "firstOf",
-                        "label": "The top-up at the left CELL (TIP 4)",
+                        "label": "Left CELL still up?",
                         "rows": [
                           {
                             "when": [
-                              "Tip"
+                              "LeftCellUp"
                             ],
-                            "cards": []
+                            "cards": [
+                              {
+                                "id": "w-31",
+                                "kind": "firstOf",
+                                "label": "The top-up at the left CELL (TIP 4)",
+                                "rows": [
+                                  {
+                                    "when": [
+                                      "Tip"
+                                    ],
+                                    "cards": []
+                                  },
+                                  {
+                                    "afterMs": 2500,
+                                    "cards": []
+                                  }
+                                ],
+                                "alongside": "LaunchAll"
+                              }
+                            ]
                           },
                           {
-                            "afterMs": 2500,
-                            "cards": []
+                            "afterMs": 50,
+                            "cards": [],
+                            "label": "No: the TIP came, hold the top-up"
                           }
-                        ],
-                        "alongside": "LaunchAll"
+                        ]
                       },
                       {
-                        "id": "p-31",
+                        "id": "p-33",
                         "kind": "path",
                         "lineId": "to-park-l-12",
                         "park": true
@@ -1032,7 +1070,7 @@
             "afterMs": 4500,
             "cards": [
               {
-                "id": "p-33",
+                "id": "p-35",
                 "kind": "path",
                 "lineId": "to-park-l-13",
                 "park": true

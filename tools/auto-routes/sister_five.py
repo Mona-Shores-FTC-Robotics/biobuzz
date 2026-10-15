@@ -57,6 +57,12 @@ The lever now is how often R's TIP 1 catch reaches 4.
     sister5l (as 5k, TIP 5 from the clean pocket (36, 36))          5 TIPs 16, 4 36, 3 4, <=2 4    92.7  (1 collision, at 9.7 s)
     sister.py (4 TIPs + 2 PARK), same build                                                          93.0
 
+    sister5m (R leaves S_CATCH west first)                          5 TIPs 16, 4 35, 3 5, <=2 4    92.3  (seed 25 still collides)
+    sister5n (R waits for TIP 2 at (42, 12), out of L's turn)        5 TIPs 14, 4 30, 3 11, <=2 5   88.9  (no collision, R late)
+    sister5o (... at (50, 12), straight from its top-up)             5 TIPs 9, 4 39, 3 8, <=2 4     89.0  (no collision)
+    Moving R's TIP 3 spot costs more than seed 25's collision (L's turn at L_TURN reaching R at S_CATCH when TIP 2 is
+    early): sister5l stays the plan.
+
 What is left is not routes: the 4 two-TIP runs are L's TIP 2 stream losing one shot to the HIVE from the far FLOWER
 seat (TIP 2 needs all 8; sister.py shares it), and the 4 three-TIP runs are TIP 4 one piece short in sister's plan
 with nothing left on the floor to top it up (L's and R's floor pickups at 21-25 s find nothing).
@@ -77,6 +83,13 @@ from autogen import Route
 from alone import seat, S_CATCH
 from helpers import WALL_FLOWER_AT, FAR_FLOWER_AT, fire
 from sister import R_START, L_START, R_S, R_N, L_N, L_TURN, L_S, seated_stream
+
+
+def top_up(r, label, cell, ms):
+    """A top-up fired only while its CELL is still up: one that comes after the TIP it was for (TIP 5 at 26.6-29.1 s,
+    the top-up 0.3-1.1 s later, 9 of 60 runs of 5l) would go at the other CELL, across the field."""
+    return r.wait(f"{cell} CELL still up?", when=[f"{cell}CellUp"], ms=50, yes=[fire(r, label, "Tip", ms=ms)],
+                  no_label="No: the TIP came, hold the top-up")
 
 # TIP 5's firing spots at the right end (the right CELL is clean from y <= 30, x 42-66): R toward the GARDEN side, L in
 # the lane, their Vs (8.9 in either side) about 3 in apart.
@@ -100,13 +113,56 @@ R_MID = (24, 40, 90)
 # R's TIP 5 spot when it waits at R_MID: the 8 Oct scan's clean pocket at y 36 (x 36-42), 12 in from R_MID and
 # out of L's lane (at R_F5_MID R was still firing when L came down: collisions at 24-25 s in 5 of 60).
 R_F5_POCKET = (36, 36, 90)
+# Where R waits for TIP 2 and fires TIP 1's catch, out of L's turning circle at L_TURN.
+R_T3 = (42, 12, 90)
+# The same, 12 in from where R tops its catch up (R_C1, x 50): at y <= 12 R's V stays out of L's turning circle.
+R_T3_NEAR = (50, 12, 90)
+R_BACK = (34, 24, 90)
+# The LOADING ZONE (x 0-11, y 94.3-117.9): where L waits facing the wall for the drive team's NECTAR, and parks.
+L_LZ, L_LZP = (20, 110, 180), (14, 106, 180)
+R_LZ = (18, 110, 180)
+R_CATCH, R_PILE = (10, 96, 90), (14, 80, 270)
+R_SW0, R_SW1 = (10, 98, 270), (10, 64, 270)
 # Where L tops its TIP 3 catch up off the floor, if it isn't full, before carrying it up the lane.
 L_CF = (52, 32, 90)
 
 
+def topup2(r, ms):
+    """TIP 2 overdue (the left CELL up 7 s: one short), polled every 0.4 s for up to ms: to R_N up the west side, one
+    piece at the left CELL (two if needed), back to where R was. TIP 2 first, or neither: on with the plan."""
+    here = r.at
+
+    def top():
+        # Up the west side along x 30 (R_W, as the old rescue: the V clear of the HIVE's feet) to R_N, where R fires
+        # at the left CELL for TIP 4; one piece, a second if that one doesn't tip it, and back the same way.
+        r.at = here
+        cards = [r.go("R_W", heading=90)]
+        r.at = "R_W"
+        cards.append(r.go("R_N", heading=90))
+        r.at = "R_N"
+        again = [r.action("LaunchOne"), r.wait("TIP 2 topped up again", when=["RightCellUp"], ms=2500)]
+        cards += [r.action("LaunchOne"), r.wait("TIP 2 topped up", when=["RightCellUp"], ms=1500, no=again),
+                  r.go("R_W", heading=90)]
+        # Not back to the catch spot: L arrives beside it (L_S) for TIP 3 now. R_BACK is west of L there and on the
+        # way from the catch spot to the GARDEN, where R's next path goes; the follower picks it up from there.
+        r.pt("R_BACK", *R_BACK)
+        r.at = "R_W"
+        cards.append(r.go("R_BACK", heading=90))
+        r.at = here
+        return cards
+
+    def poll(k):
+        rest = [poll(k - 1)] if k > 1 else []
+        return r.wait("TIP 2 (L) on its own?", when=["RightCellUp"], ms=400,
+                      no=[r.wait("TIP 2 overdue?", when=["TipOverdue"], ms=20, yes=top(), no=rest, yes_label="Overdue: top it up")])
+
+    return poll(max(1, int(ms / 420)))
+
+
 def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), collect_ms=2500, mode="branch", fill1_ms=0,
            top5_ms=0, creep1=False, f5=None, clear5=False, rn=R_N, back_out=False, park5=False, decide="IntakeFull",
-           r5_wait_ms=0, mid5_ms=0):
+           r5_wait_ms=0, mid5_ms=0, west_exit=False, t3_at=None, topup2_ms=None, catch_cards=False, lz5=False,
+           lz_ms=2500):
     """mode: "branch" sister.py's: from the GARDEN back to R_S to see whether TIP 3 still needs its 4.
              "direct" (mentor: "they should just go to the left side and shoot as soon as it can"): the GARDEN's 4
                       straight up the left side to TIP 4; the wall FLOWER's to TIP 5.
@@ -122,7 +178,11 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     r.pt("S_CATCH", *catch_at)
     r.add(r.action("SpinUp"), r.go("R_PRE", heading=90))
     r.at = "R_PRE"
-    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.go("S_CATCH", heading=90))
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000))
+    if catch_cards:
+        # Scheduled guides (RobotDesign#catchScheduled): out for TIP 1's catch, in once it is over.
+        r.add(r.action("CatchOut"))
+    r.add(r.go("S_CATCH", heading=90))
     r.at = "S_CATCH"
     retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
              fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
@@ -141,12 +201,39 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         r.at = "S_CATCH"
         fill = [r.go("R_C1", heading=90)]
         r.at = "R_C1"
+        back = "S_CATCH"
+        if t3_at is not None:
+            r.pt("R_T3", *t3_at)
+            back = "R_T3"
         fill += [r.wait("TIP 1's spill off the floor", when=["IntakeFull"], ms=fill1_ms, alongside="CollectSeen"),
-                 r.go("S_CATCH", heading=90)]
+                 r.go(back, heading=90)]
         r.at = "S_CATCH"
-        r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, no=fill, no_label="Not full: off the floor"))
+        full = None
+        if topup2_ms is not None and t3_at is None:
+            # TIP 2 one short (L's 8th shot bounces off the full CELL, 4 of 60): once the left CELL has been up 7 s
+            # (TIP 2 comes 3.6-5.8 s after TIP 1 on its own), R fires one of its catch at it from R_N and comes back.
+            full = [r.action("CatchIn")] * catch_cards + [topup2(r, topup2_ms[0])]
+            fill += [r.action("CatchIn")] * catch_cards + [topup2(r, topup2_ms[1])]
+        if t3_at is not None:
+            # Full already: straight to R_T3 too. Both branches end there.
+            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=[r.go("R_T3", heading=90)],
+                         no=fill, no_label="Not full: off the floor"))
+            r.at = "R_T3"
+        else:
+            r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500, yes=full, no=fill, no_label="Not full: off the floor"))
+            if topup2_ms is not None:
+                rescue_ms = None
     else:
         r.add(r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
+    hold = "S_CATCH"
+    if t3_at is not None:
+        # Simulator chat, seed 25: with TIP 2 early, L's turn at L_TURN (its V sweeps 13.7 in round (57, 36))
+        # reached R still firing at S_CATCH (its V's tips at y 31). R waits for TIP 2 and fires TIP 1's catch from
+        # t3_at instead: clear of that circle, inside the clean firing area, on the way to the GARDEN.
+        r.pt("R_T3", *t3_at)
+        if r.at != "R_T3":
+            r.add(r.go("R_T3", heading=90))
+        hold = r.at = "R_T3"
     n0 = len(r.cards)
     if mode != "auto":
         r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000))
@@ -204,7 +291,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             cards += [r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms, alongside="CollectSeen"),
                       r.go("R_F5", heading=90)]
             r.at = "R_F5"
-            cards.append(fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
+            cards.append(top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
         return cards
 
     # Early: TIP 3 came without the GARDEN's 4, so they go to TIP 4 and the wall FLOWER is TIP 5's.
@@ -262,9 +349,12 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
         # 12 of 22). Full: the direct route to 5 TIPs. Not full: sister.py's 4 TIPs and PARK, the GARDEN's 4 kept
         # for TIP 3 if it needs them.
         def to_garden():
-            r.at = "S_CATCH"
+            r.at = hold
+            # West first (simulator chat, seed 25: R's turn toward the GARDEN swept into L coming down the lane to
+            # L_TURN when TIP 2 came early).
+            exit_ctrl = [(42, 19)] if west_exit else []
             cards = [fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000),
-                     r.go("GARDEN_IN", turn_after=0.1, turn_by=0.7)]
+                     r.go("GARDEN_IN", ctrl=exit_ctrl, turn_after=0.3 if west_exit else 0.1, turn_by=0.9 if west_exit else 0.7)]
             r.at = "GARDEN_IN"
             cards.append(r.go("GARDEN", heading=270))
             r.at = "GARDEN"
@@ -283,7 +373,49 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
             r.at = "R_W"
             five.append(r.go("R_N", heading=90))
         five += tip4_at_rn(ms=10000)
-        five += wall_flower_from("R_N", ctrl=[(30, 80)])
+        if lz5 in ("catch", "catchf", "pile", "sweep"):
+            # The rolled entry (simulator chat, 9 Oct 2026: released 1 s after a TIP at the far end of the zone, 5 in off
+            # the wall, rolling toward -y at about 12 in/s; one not caught stops near (5, 67) along the wall).
+            # "catch": R waits at R_CATCH, intake facing up the wall, for the ones still to come; "catchf" then fills
+            # up at the wall FLOWER; "pile": R sweeps up the ones already rolled past, by the wall, then the FLOWER.
+            r.at = "R_N"
+            if lz5 == "sweep":
+                # Uncaught rolls stop 2-5 in off the wall at y 75-90: drop onto the wall and drive straight down it,
+                # the 14 in intake from x 3 to 17, then on to the wall FLOWER.
+                r.pt("R_SW0", *R_SW0)
+                r.pt("R_SW1", *R_SW1)
+                five.append(r.go("R_SW0", ctrl=[(18, 104)], heading=270))
+                r.at = "R_SW0"
+                five.append(r.go("R_SW1", heading=270))
+                r.at = "R_SW1"
+                five += wall_flower_from("R_SW1")
+            elif lz5 == "pile":
+                r.pt("R_PILE", *R_PILE)
+                five.append(r.go("R_PILE", ctrl=[(24, 90)], heading=270))
+                r.at = "R_PILE"
+                five.append(r.wait("Rolled NECTAR off the wall", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+                five += wall_flower_from("R_PILE")
+            else:
+                r.pt("R_CATCH", *R_CATCH)
+                five.append(r.go("R_CATCH", ctrl=[(18, 90)], heading=90))
+                r.at = "R_CATCH"
+                five.append(r.wait("Catch the rolled NECTAR", when=["IntakeFull"], ms=lz_ms))
+                if lz5 == "catchf":
+                    five += wall_flower_from("R_CATCH")
+        elif lz5:
+            # Human-player NECTAR (G426.A, allowed in AUTO): by now the drive team has entered one after each of TIPs
+            # 1-3 in the LOADING ZONE, 25 in from R_N. R takes them with the webcam (3 NECTAR fill the lane, worth
+            # about 5 POLLEN) instead of the wall FLOWER's 4, 57 in away, and goes on as before.
+            r.pt("R_LZ", *R_LZ)
+            r.at = "R_N"
+            five.append(r.go("R_LZ", heading=180))
+            r.at = "R_LZ"
+            five.append(r.wait("NECTAR off the LOADING ZONE", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+            if lz5 == "flower":
+                # Then the wall FLOWER's POLLEN to fill up (the third NECTAR lands only 2 s after TIP 3).
+                five += wall_flower_from("R_LZ", ctrl=[(20, 80)])
+        else:
+            five += wall_flower_from("R_N", ctrl=[(30, 80)])
         if mid5_ms:
             # Simulator chat, 9 Oct 2026: R parked at 26 s still holding the wall FLOWER's 4 when TIP 4 came up
             # short (seeds 19, 34). Wait between the ends: TIP 4 -> the right end for TIP 5; no TIP 4 by mid5_ms ->
@@ -326,7 +458,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
                        yes_label="Yes: the GARDEN's 4 to TIP 4", no_label="No: the GARDEN's 4 to TIP 3")
         r.at = "R_S"
         four.append(r.wait("The right CELL up", when=["RightCellUp"], ms=1500, yes=normal4(), no=[done4]))
-        r.at = "S_CATCH"
+        r.at = hold
         r.add(r.wait("Holding 4? Then 5 TIPs", when=[decide], ms=50, yes=five, no=four,
                      yes_label="4 held: go for 5 TIPs", no_label="Fewer: 4 TIPs and PARK"))
     if mode == "branch":
@@ -338,7 +470,7 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
     if rescue_ms is not None:
         yes = r.cards[n0:]
         del r.cards[n0:]
-        r.at = "S_CATCH"
+        r.at = hold
         no = [r.go("R_W", heading=90)]
         r.at = "R_W"
         no.append(r.go("R_N", heading=90))
@@ -351,21 +483,33 @@ def right5(name="sister5b-right", rescue_ms=6500, catch_at=(57.5, 21, 90), colle
 
 def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, creep=(58, 40, 90), keep1=True,
           bail_ms=4500, catch4_ms=1200, tip4_ms=8000, creep4=False, top5_ms=0, f5=L_F5, t5=None, noturn4=False,
-          top4_ms=0, top4_wait_ms=2500, fill3_ms=0):
+          top4_ms=0, top4_wait_ms=2500, fill3_ms=0, ln=L_N, ls=L_S, lturn=L_TURN, lturn_after=0.88, catch_cards=False,
+          lz=None, lz_ms=2500):
+    """ln, ls, lturn: L's waits for TIP 2's and TIP 3's spills and its turn below the HIVE (moved back for a front whose
+    flaps reach further, so they stay out of a spill still falling, G409). catch_cards: scheduled guides
+    (RobotDesign#catchScheduled) out for each catch (TIP 2's at L_N, TIP 3's at L_S, TIP 4's at L_N) and in before L
+    turns or drives on; L comes down the lane facing it and turns at L_TURN only once they are in."""
     r = Route(name, L_START, speed=50)
-    r.pt("L_N", *L_N).pt("L_TURN", *L_TURN).pt("L_S", *L_S).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
+    r.pt("L_N", *ln).pt("L_TURN", *lturn).pt("L_S", *ls).pt("PARK_L", 10.5, 120, 270).pt("L_F5", *f5)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
     r.at = "FAR_FLOWER_TURN"
     r.add(*seated_stream(r, stream_ms))
     r.at = "L_N"
+    if catch_cards:
+        r.add(r.action("CatchOut"))
     n0 = len(r.cards)
     # TIP 3: TIP 2's spill caught on the way down the lane (sister.py's lane_down).
-    r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=settle_ms),
-          r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=0.88, turn_by=1.0))
+    r.add(r.wait("TIP 2's spill lands", when=["IntakeFull"], ms=settle_ms))
+    if catch_cards:
+        r.add(r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], heading=270), r.action("CatchIn"))
+    else:
+        r.add(r.go("L_TURN", ctrl=[(57.5, 100), (57.5, 50)], turn_after=lturn_after, turn_by=1.0))
     r.at = "L_TURN"
     r.add(r.go("L_S", heading=90))
     r.at = "L_S"
+    if catch_cards:
+        r.add(r.action("CatchOut"))
     if keep1:
         r.add(*[r.action("LaunchOne") for _ in range(3)])
     else:
@@ -377,7 +521,7 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
     r.at = "L_C"
     if noturn4:
         # Up the lane still facing it (90), no turn at the end: the turret fires back over the shoulder.
-        r.pt("L_N4", L_N[0], L_N[1] - 2, 90)
+        r.pt("L_N4", ln[0], ln[1] - 2, 90)
         if fill3_ms:
             # Simulator chat: L's catch ends on its limit holding 2-3 in the runs where TIP 4 comes up short; top
             # it up off the floor (as R does after TIP 1) before the lane.
@@ -392,6 +536,8 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
                          no_label="Not full: off the floor"))
         else:
             r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms))
+        if catch_cards:
+            r.add(r.action("CatchIn"))
         r.add(r.go("L_N4", ctrl=[(57.5, 50), (57.5, 104)], heading=90))
         r.at = "L_N4"
     else:
@@ -400,47 +546,72 @@ def left5(name="sister5b-left", stream_ms=2600, settle_ms=500, catch3_ms=2000, c
         r.at = "L_N"
     r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
     m0 = len(r.cards)
-    if noturn4:
-        # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
-        r.add(r.go("L_N", turn_by=1.0))
-    r.at = "L_N"
-    # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
-    r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
-    if creep4:
-        r.pt("L_C4", *L_C4)
-        r.add(r.wait("TIP 4's spill lands", when=["IntakeFull"], ms=800), r.go("L_C4", heading=270))
-        r.at = "L_C4"
-        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
-              r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
+    if lz:
+        # Human-player NECTAR (G426.A: one per TIP of our HIVE, entered through the LOADING ZONE; allowed in AUTO):
+        # by the time L has fired its share of TIP 4 (about 21 s) the drive team has entered three, after TIPs 1-3.
+        # L picks them up there with the webcam instead of catching TIP 4's spill, tops TIP 4 up with one if it hasn't
+        # come, and then either takes the rest down the lane to TIP 5 ("tip5") or parks in the zone ("station").
+        r.pt("L_LZ", *L_LZ)
+        r.at = "L_N4" if noturn4 else "L_N"
+        r.add(r.go("L_LZ", heading=180))
+        r.at = "L_LZ"
+        r.add(r.wait("NECTAR off the LOADING ZONE", when=["IntakeFull"], ms=lz_ms, alongside="CollectSeen"))
+        top = [r.action("LaunchOne"), r.wait("TIP 4 topped up", when=["RightCellUp"], ms=2000)]
+        r.add(r.wait("TIP 4 done?", when=["RightCellUp"], ms=1500, no=top, no_label="No: a NECTAR at the left CELL"))
+        if lz == "station":
+            r.pt("L_LZP", *L_LZP)
+            r.add(r.go("L_LZP", heading=180, park=True))
+            r.at = "L_LZP"
+        else:
+            r.add(r.go("L_F5", ctrl=[(40, 104), (57.5, 100), (57.5, 50)], heading=270))
+            r.at = "L_F5"
+            r.add(fire(r, "The NECTAR at the right CELL (TIP 5, with R)", "Empty", ms=3000))
     else:
-        r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
-              r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
-    r.at = "L_F5"
-    r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
-    if top5_ms:
-        # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
-        # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
-        r.pt("L_T5", *(t5 or L_T5))
-        r.add(r.go("L_T5", heading=270))
-        r.at = "L_T5"
-        r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
-              fire(r, "The top-up at the right CELL (TIP 5)", "Tip", ms=4000))
-    if noturn4 and top4_ms:
-        # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
-        # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
-        # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
-        five = r.cards[m0:]
-        del r.cards[m0:]
-        del five[1]  # the "TIP 4" wait: the TIP has already come on this branch
-        r.pt("L_T4", *L_T4)
-        r.at = "L_N4"
-        short = [r.go("L_T4", heading=90)]
-        r.at = "L_T4"
-        short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
-                  fire(r, "The top-up at the left CELL (TIP 4)", "Tip", ms=2500),
-                  r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
-        r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
-                     no_label="No TIP 4: top it up and park"))
+        if noturn4:
+            # Turned to face TIP 4's spill (it rolls toward the left end wall) while the CELL dwells and the rocker swings.
+            r.add(r.go("L_N", turn_by=1.0))
+        r.at = "L_N"
+        if catch_cards:
+            r.add(r.action("CatchOut"))
+        # TIP 5: TIP 4's spill caught at L_N, straight down the lane facing the right end, fired back over the shoulder.
+        r.add(r.wait("TIP 4", when=["Tip"], ms=tip4_ms))
+        if creep4:
+            r.pt("L_C4", *L_C4)
+            r.add(r.wait("TIP 4's spill lands", when=["IntakeFull"], ms=800), r.go("L_C4", heading=270))
+            r.at = "L_C4"
+            r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms),
+                  r.go("L_F5", ctrl=[(57.5, 50)], heading=270))
+        else:
+            r.add(r.wait("Catch TIP 4's spill", when=["IntakeFull"], ms=catch4_ms))
+            if catch_cards:
+                r.add(r.action("CatchIn"))
+            r.add(r.go("L_F5", ctrl=[(57.5, 100), (57.5, 50)], heading=270))
+        r.at = "L_F5"
+        r.add(fire(r, "TIP 4's catch at the right CELL (TIP 5, with R)", "Empty", ms=3000))
+        if top5_ms:
+            # What lies between L and the end wall (TIP 3's spill, less L's catch): a straight creep toward the wall,
+            # intake first, and fired too. R stays out of the lane at R_F5_WIDE.
+            r.pt("L_T5", *(t5 or L_T5))
+            r.add(r.go("L_T5", heading=270))
+            r.at = "L_T5"
+            r.add(r.wait("Top-up off the floor", when=["IntakeFull"], ms=top5_ms),
+                  top_up(r, "The top-up at the right CELL (TIP 5)", "Right", ms=4000))
+        if noturn4 and top4_ms:
+            # TIP 4 one short (6 of 60 on the simulator chat's build: L's catch of TIP 3's spill was 2-3): no TIP 4
+            # within top4_wait_ms of L's shots, L creeps toward the left end wall through TIP 2's leftovers (it faces
+            # them at L_N4), fires what it picks up, and parks; TIP 5 is off. A CELL still dwelling just gets more.
+            five = r.cards[m0:]
+            del r.cards[m0:]
+            del five[2 if catch_cards else 1]  # the "TIP 4" wait: the TIP has already come on this branch
+            r.pt("L_T4", *L_T4)
+            r.at = "L_N4"
+            short = [r.go("L_T4", heading=90)]
+            r.at = "L_T4"
+            short += [r.wait("TIP 4 short: off the floor", when=["IntakeFull"], ms=top4_ms),
+                      top_up(r, "The top-up at the left CELL (TIP 4)", "Left", ms=2500),
+                      r.go("PARK_L", ctrl=[(30, 128)], heading=270, park=True)]
+            r.add(r.wait("TIP 4", when=["Tip"], ms=top4_wait_ms, yes=five, no=short,
+                         no_label="No TIP 4: top it up and park"))
     yes = r.cards[n0:]
     del r.cards[n0:]
     r.at = "L_N"
@@ -470,6 +641,12 @@ def variants():
             left5("sister5j-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, top4_ms=1500),
             right5("sister5k-right", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True, mid5_ms=3000),
             right5("sister5l-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000),
+            right5("sister5m-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   west_exit=True),
+            right5("sister5n-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   t3_at=R_T3),
+            right5("sister5o-right", mode="auto", fill1_ms=2500, f5=R_F5_POCKET, back_out=True, park5=True, mid5_ms=3000,
+                   t3_at=R_T3_NEAR),
             left5("sister5k-left", keep1=False, top5_ms=1500, f5=L_F5_MID, t5=L_T5_MID, noturn4=True, fill3_ms=2000),
             right5("sister5i-right-worth", mode="auto", fill1_ms=2500, f5=R_F5_MID, back_out=True, park5=True,
                    decide="HeldWorth4"),

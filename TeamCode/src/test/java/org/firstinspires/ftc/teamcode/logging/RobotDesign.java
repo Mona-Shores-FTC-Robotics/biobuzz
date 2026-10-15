@@ -322,6 +322,35 @@ final class RobotDesign {
      * start. Separate from the flaps so a robot can have both a V and a hook.
      */
     double guideOutIn = 0, guideForwardIn = 0;
+    /**
+     * Flaps folded inside the frame at START (R102) and out {@link AutoSim#CATCHER_DEPLOY_S} after it, for the rest of
+     * the match (R105 instead of R102: frame plus flaps within 18 x 24 in). False: as {@link #flapsDeploy} says.
+     */
+    boolean flapsAfterStart = false;
+    /**
+     * With {@link #flapsAfterStart}: whether the robot folds the flaps itself near walls, the HIVE frame and the centre line
+     * (a robot that knows its pose and folds in 0.3 s); false: out from 1 s after START for the whole match, unless
+     * {@link #catchScheduled}.
+     */
+    boolean flapsAutoFold = true;
+    /**
+     * The flaps and the slide (RobotDesign#slideMaxIn) out only between the Auto's CatchOut and CatchIn cards: a servo,
+     * no pose logic, taking {@link #catchActuateS} to swing (or slide) either way. The route keeps them clear.
+     */
+    boolean catchScheduled = false;
+    double catchActuateS = 0.5;
+    /**
+     * A slide intake: the intake's head runs forward on a slide, up to this far past {@link #intakeReachIn}, while the
+     * robot intakes and is nearly still ({@link AutoSim}), and back while it drives. 0: no slide. A captured piece rides
+     * back to the lane at {@link #slideSpeedInPerS} before it can feed. Placeholders: nothing like it is drawn.
+     */
+    double slideMaxIn = 0;
+    double slideSpeedInPerS = 30;
+    /**
+     * The piece camera CollectSeen chases with (the webcam, PieceVisionSubsystem): half its field of view, its range, how
+     * far from where the chase started it may go, and how far it turns to look with nothing in view. Placeholders.
+     */
+    double cameraHalfFovDeg = 35, cameraRangeIn = 60, collectRadiusIn = 36, lookAroundDeg = 90;
 
     boolean hasGuides() {
         return guideOutIn > 0 || guideForwardIn > 0;
@@ -499,6 +528,16 @@ final class RobotDesign {
         d.startBackedToWall = startBackedToWall;
         d.guideOutIn = guideOutIn;
         d.guideForwardIn = guideForwardIn;
+        d.flapsAfterStart = flapsAfterStart;
+        d.flapsAutoFold = flapsAutoFold;
+        d.catchScheduled = catchScheduled;
+        d.catchActuateS = catchActuateS;
+        d.slideMaxIn = slideMaxIn;
+        d.slideSpeedInPerS = slideSpeedInPerS;
+        d.cameraHalfFovDeg = cameraHalfFovDeg;
+        d.cameraRangeIn = cameraRangeIn;
+        d.collectRadiusIn = collectRadiusIn;
+        d.lookAroundDeg = lookAroundDeg;
         return d;
     }
 
@@ -533,7 +572,7 @@ final class RobotDesign {
 
     /** {front to back, side to side} with everything out: what R105 limits. */
     double[] footprintIn() {
-        double ahead = Math.max(Math.max(intakeReachIn, sideWallsSlideIn), Math.max(flapForwardIn, guideForwardIn));
+        double ahead = Math.max(Math.max(intakeReachIn + slideMaxIn, sideWallsSlideIn), Math.max(flapForwardIn, guideForwardIn));
         double across = frameWidthIn + 2 * Math.max(Math.max(sideWallsOutIn, flapOutIn), guideOutIn);
         if (intakeReachIn == 0) across = Math.max(across, intakeWidthIn);
         return new double[] {frameIn + ahead, across};

@@ -140,9 +140,12 @@ public final class Sister5hLeftAuto {
                                 kit.firstOf("Top-up off the floor",
                                         kit.when("IntakeFull"),
                                         kit.afterMs(1500)),
-                                kit.firstOf("The top-up at the right CELL (TIP 5)", kit.command("LaunchAll"),
-                                        kit.when("Tip"),
-                                        kit.afterMs(4000))),
+                                kit.firstOf("Right CELL still up?",
+                                        kit.when("RightCellUp").then(
+                                                kit.firstOf("The top-up at the right CELL (TIP 5)", kit.command("LaunchAll"),
+                                                        kit.when("Tip"),
+                                                        kit.afterMs(4000))),
+                                        kit.afterMs(50))),
                         kit.afterMs(4500).then(
                                 kit.guarded("No TIP 2: park", lNToParkL, 2.1,
                                         kit.path("L_N to PARK_L", lNToParkL)))));

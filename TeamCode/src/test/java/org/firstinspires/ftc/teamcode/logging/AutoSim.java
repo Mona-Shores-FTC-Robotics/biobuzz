@@ -11,6 +11,7 @@ import com.pedropathing.paths.Path;
 import org.firstinspires.ftc.teamcode.autokit.AutoDrive;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
+import org.firstinspires.ftc.teamcode.opmodes.auto.AutoTrace;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.HiveState;
 
@@ -832,7 +833,7 @@ public final class AutoSim {
      * the frame (a 24 in catcher sticks out 3 in each side): what can hit the HIVE frame or reach over
      * the centre line (mentor review: a 24 in catcher can't go through the tunnel under the HIVE).
      */
-    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly) {
+    private static List<double[]> outline(double[] pose, RobotDesign design, double now, double wallsOut, int flapsOnly, double slideOut, boolean flapsFolded) {
         List<double[]> out = corners(pose, design);
         if (design.hasGuides()) {  // the rigid V's free ends
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
@@ -842,7 +843,16 @@ public final class AutoSim {
                 out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
             }
         }
-        if (design.hasFlaps() && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
+        if (slideOut > 0) {  // the slide intake's head (RobotDesign#slideMaxIn)
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = (design.intakeAtBack ? -1 : 1) * (design.frameIn / 2 + design.intakeReachIn + slideOut);
+            for (int side = -1; side <= 1; side += 2) {
+                double ly = side * design.intakeWidthIn / 2;
+                out.add(new double[] {pose[0] + lx * c - ly * s, pose[1] + lx * s + ly * c});
+            }
+        }
+        boolean folded = flapsFolded || (design.flapsAfterStart && now < CATCHER_DEPLOY_S);
+        if (design.hasFlaps() && !folded && (!design.flapsDeploy || wallsOut >= 1)) {  // flaps and crossbeam, every 2 in or so
             double c = Math.cos(pose[2]), s = Math.sin(pose[2]), half = design.frameIn / 2, halfW = design.frameWidthIn / 2;
             for (int side = -1; side <= 1; side += 2) {
                 if (flapsOnly != 0 ? side != flapsOnly : side > 0 ? !design.flapLeft : !design.flapRight) continue;
@@ -1125,8 +1135,9 @@ public final class AutoSim {
             return -Math.sin(heading) * (FieldSim.CENTRE_IN - x) > 0 ? 1 : -1;
         }
 
+        /** The first robot's trace lines read as the robot's own match log writes them (AutoTrace); a second as "auto2: ". */
         String tag() {
-            return index == 0 ? "auto: " : "auto" + (index + 1) + ": ";
+            return index == 0 ? AutoTrace.EVENT_PREFIX : "auto" + (index + 1) + ": ";
         }
 
         void afterScheduler(WpiLog log, RobotResult result, boolean running, long us) throws IOException {
@@ -1257,9 +1268,28 @@ public final class AutoSim {
                 sideWalls(log, pose, Math.hypot(vx, vy), w, running, us);
             }
             if (!Double.isNaN(design.extractorSeatIn)) extractor(log, pose, running, us);
+            if (design.catchScheduled) {
+                double swing = LOOP_S / design.catchActuateS;
+                catchOut = catchWanted ? Math.min(1, catchOut + swing) : Math.max(0, catchOut - swing);
+                body.flapsFolded = design.flapsAfterStart && catchOut < 0.5;  // fixed guides stay out
+            } else if (design.flapsAfterStart && design.flapsAutoFold) {
+                flaps(log, pose, vx, vy, w, us);
+            } else {
+                body.flapsFolded = design.flapsAfterStart && now < CATCHER_DEPLOY_S;
+            }
+            if (design.slideMaxIn > 0 && design.catchScheduled) {
+                body.slideOut = catchOut * design.slideMaxIn;
+            } else if (design.slideMaxIn > 0) {
+                slide(log, pose, Math.hypot(vx, vy), w, intaking, us);
+            }
+            int raised = sim.rocker(alliance).raisedEnd();
+            if (raised != lastRaised) {
+                lastRaised = raised;
+                raisedSince = now;
+            }
             body.set(pose[0], pose[1], pose[2], vx, vy, w, intaking);
             if (Double.isNaN(result.hitHiveAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     if (FieldSim.inHiveFrame(c[0], c[1])) {
                         result.hitHiveAt = now;
                         log.putEvent(tag() + "drives into the HIVE frame", us);
@@ -1277,7 +1307,7 @@ public final class AutoSim {
             // so). The simulator does not stop the robot at a wall; a corner or V tip beyond one by more than the slack
             // (the start touches a wall on purpose) is a problem, like the HIVE frame.
             if (Double.isNaN(result.hitWallAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     if (c[0] < -WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN
                             || c[1] < -WALL_SLACK_IN || c[1] > FieldSim.FIELD_SIZE_IN + WALL_SLACK_IN) {
                         result.hitWallAt = now;
@@ -1290,7 +1320,7 @@ public final class AutoSim {
             }
             if (step == 0) result.illegalStart = startProblem(pose);
             if (running && Double.isNaN(result.crossedAt)) {
-                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+                for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                     boolean over = alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN;
                     if (over) {
                         result.crossedAt = now;
@@ -1320,7 +1350,7 @@ public final class AutoSim {
          */
         double[] intakeZone(double[] pose, boolean on) {
             if (!on) return new double[0];
-            double mouth = design.frameIn / 2 + design.intakeReachIn, w = design.intakeWidthIn / 2;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut, w = design.intakeWidthIn / 2;
             // Drawn for a POLLEN (FieldSim.inIntake): touching the face, or up to 3 in out.
             double reach = design.intakeOnContact ? FieldSim.POLLEN_RADIUS_IN + FieldSim.INTAKE_CONTACT_SLACK_IN : 3;
             double near = mouth - 2, far = mouth + reach, sign = design.intakeAtBack ? -1 : 1;
@@ -1416,6 +1446,101 @@ public final class AutoSim {
         }
 
         boolean wallsLogged;
+
+        /** The slide intake goes out only while the robot drives slower than this ... */
+        static final double SLIDE_DRIVE_IN_PER_S = 25;
+        /** ... and turns slower than this. */
+        static final double SLIDE_TURN_RAD_PER_S = 0.6;
+
+        /**
+         * The slide intake (RobotDesign#slideMaxIn), run by the robot: out while it intakes, nearly still, with no FLOWER
+         * extractor down, as far as it can go without the head reaching over the centre line (G402), into a wall or the
+         * HIVE frame; back otherwise, at RobotDesign#slideSpeedInPerS. Logged as {@code Intake/SlideOut} (in).
+         */
+        void slide(WpiLog log, double[] pose, double speed, double turnRate, boolean intaking, long us) throws IOException {
+            double target = 0;
+            if (intaking && now >= CATCHER_DEPLOY_S && speed < SLIDE_DRIVE_IN_PER_S && Math.abs(turnRate) < SLIDE_TURN_RAD_PER_S
+                    && body.extractorDown <= 0 && !extractorWanted) {
+                for (double e = design.slideMaxIn; e > 0; e -= 0.5) {
+                    if (slideClear(pose, e)) {
+                        target = e;
+                        break;
+                    }
+                }
+            }
+            double step = design.slideSpeedInPerS * LOOP_S, before = body.slideOut;
+            body.slideOut = before < target ? Math.min(target, before + step) : Math.max(target, before - step);
+            if (body.slideOut != before || !slideLogged) {
+                slideLogged = true;
+                log.put(keyPrefix + "/Intake/SlideOut", body.slideOut, us);
+            }
+        }
+
+        boolean slideLogged;
+        /** RobotDesign#catchScheduled: what the Auto asked for (CatchOut / CatchIn) and how far out they are, 0 to 1. */
+        boolean catchWanted;
+        double catchOut;
+        /** Which CELL is up (FieldSim.Rocker#raisedEnd) and since when: TipOverdue. */
+        int lastRaised;
+        double raisedSince;
+        static final double TIP_OVERDUE_S = 7.0;
+
+        /** Flaps fold for whatever they would reach this soon at the robot's speed and turn rate ... */
+        static final double FLAP_LOOKAHEAD_S = 0.4;
+        /** ... and come back out once clear for this long. */
+        static final double FLAP_UNFOLD_S = 0.3;
+        double flapsClearSince = Double.NaN;
+
+        /**
+         * Folding flaps (RobotDesign#flapsAfterStart), run by the robot: folded at START, out from CATCHER_DEPLOY_S, and
+         * folded again whenever, out, they would reach over the centre line (G402), into a wall or the HIVE frame, now or
+         * {@link #FLAP_LOOKAHEAD_S} ahead, or while the FLOWER extractor is down; out again {@link #FLAP_UNFOLD_S} after
+         * that clears. A guess at a robot that knows its pose: nothing like it is drawn. Logged as {@code Flaps/Folded}.
+         */
+        void flaps(WpiLog log, double[] pose, double vx, double vy, double w, long us) throws IOException {
+            double[] ahead = {pose[0] + vx * FLAP_LOOKAHEAD_S, pose[1] + vy * FLAP_LOOKAHEAD_S, pose[2] + w * FLAP_LOOKAHEAD_S};
+            boolean blocked = now < CATCHER_DEPLOY_S || body.extractorDown > 0 || extractorWanted
+                    || flapsReach(pose) || flapsReach(ahead);
+            boolean was = body.flapsFolded;
+            if (blocked) {
+                body.flapsFolded = true;
+                flapsClearSince = Double.NaN;
+            } else {
+                if (Double.isNaN(flapsClearSince)) flapsClearSince = now;
+                if (now - flapsClearSince >= FLAP_UNFOLD_S) body.flapsFolded = false;
+            }
+            if (body.flapsFolded != was || !flapsLogged) {
+                flapsLogged = true;
+                log.put(keyPrefix + "/Flaps/Folded", body.flapsFolded, us);
+            }
+        }
+
+        boolean flapsLogged;
+
+        /** Whether the robot at {@code pose} with its flaps out reaches over the centre line, a wall or into the HIVE frame. */
+        private boolean flapsReach(double[] pose) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, false)) {
+                if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
+                if (c[0] < WALL_SLACK_IN || c[1] < WALL_SLACK_IN || c[0] > FieldSim.FIELD_SIZE_IN - WALL_SLACK_IN
+                        || c[1] > FieldSim.FIELD_SIZE_IN - WALL_SLACK_IN) return true;
+                if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+            }
+            return false;
+        }
+
+        /** Whether the slide's head, {@code e} out, stays on our half, inside the walls and out of the HIVE frame. */
+        private boolean slideClear(double[] pose, double e) {
+            double c = Math.cos(pose[2]), s = Math.sin(pose[2]);
+            double lx = (design.intakeAtBack ? -1 : 1) * (design.frameIn / 2 + design.intakeReachIn + e);
+            for (double f = -1; f <= 1.0001; f += 0.5) {
+                double ly = f * design.intakeWidthIn / 2;
+                double x = pose[0] + lx * c - ly * s, y = pose[1] + lx * s + ly * c;
+                if (alliance == Alliance.BLUE ? x < FieldSim.CENTRE_IN : x > FieldSim.CENTRE_IN) return false;
+                if (x < 0 || y < 0 || x > FieldSim.FIELD_SIZE_IN || y > FieldSim.FIELD_SIZE_IN) return false;
+                if (FieldSim.inHiveFrame(x, y)) return false;
+            }
+            return true;
+        }
 
         /** How far ahead of the face a FLOWER's centre may be for the extractor to come down on the approach. */
         static final double EXTRACTOR_DEPLOY_AHEAD_IN = 18;
@@ -1612,6 +1737,9 @@ public final class AutoSim {
                     // down until HookUp, whatever the robot does meanwhile; done once it has finished swinging.
                     .command("HookDown", RobotDesign.standard().sideWallsTravelS, () -> hook(true))
                     .command("HookUp", RobotDesign.standard().sideWallsTravelS, () -> hook(false))
+                    // RobotDesign#catchScheduled: the flaps (and slide) out for a catch and back in.
+                    .command("CatchOut", 1.0, () -> catchCard(true))
+                    .command("CatchIn", 1.0, () -> catchCard(false))
                     .trigger("IntakeFull", () -> design.countsPieces && FieldSim.full(body))
                     // What the robot holds is worth 4 POLLEN or more, a NECTAR counting its weight (mentor, 8 Oct 2026:
                     // "2 nectar 1 P ... would have been enough"). Needs a sensor that tells NECTAR from POLLEN.
@@ -1629,6 +1757,9 @@ public final class AutoSim {
                     // long as it lasts, so a long wait can be split into short ones.
                     .trigger("LeftCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.LEFT_CELL_UP)
                     .trigger("RightCellUp", () -> !cameraDown && sim.rocker(alliance).state() == HiveState.RIGHT_CELL_UP)
+                    // A CELL up this long has not filled on its own (TIP 2 comes 3.6-5.8 s after TIP 1, 60 runs; one short,
+                    // 14 s or more): the robot times it from the HIVE camera's state.
+                    .trigger("TipOverdue", () -> !cameraDown && sim.rocker(alliance).raisedEnd() != 0 && now - raisedSince >= TIP_OVERDUE_S)
                     .trigger("Empty", () -> design.countsPieces && body.stored.isEmpty())
                     .trigger("CameraBlind", () -> cameraDown);
         }
@@ -1731,6 +1862,20 @@ public final class AutoSim {
                     .setDone(() -> !design.flapsDeploy || (down ? body.wallsOut >= 1 : body.wallsOut <= 0));
         }
 
+        private Command catchCard(boolean out) {
+            return new CommandBuilder()
+                    .setStart(() -> {
+                        if (!design.catchScheduled) {
+                            pending.add("nothing scheduled to move: Catch" + (out ? "Out" : "In") + " does nothing");
+                            return;
+                        }
+                        if (catchWanted != out) pending.add("catch guides " + (out ? "out" : "in") + ": the Auto asked");
+                        catchWanted = out;
+                    })
+                    // CatchOut starts the swing and goes on (a servo); CatchIn waits until they are in, so a turn can follow.
+                    .setDone(() -> !design.catchScheduled || out || catchOut <= 0);
+        }
+
         /**
          * Picks up what the webcam sees: drives the intake onto the nearest loose piece in view, then
          * the next, until full or nothing is left in view (it turns to look around once first).
@@ -1756,14 +1901,14 @@ public final class AutoSim {
                         target[0] = nearestSeen(origin);
                         if (target[0] != null) {
                             driveOnto(target[0]);
-                        } else if (drive.pathDone() && lookedAround[0] < LOOK_AROUND_RAD && canTurnHere()) {
+                        } else if (drive.pathDone() && lookedAround[0] < Math.toRadians(design.lookAroundDeg) && canTurnHere()) {
                             // Nothing in view: turn on the spot to look around.
                             drive.turnToward(pedro(drive.pose)[2] + 0.6, LOOP_S);
                             lookedAround[0] += Math.min(0.6, design.maxTurnRadPerS * LOOP_S);
                         }
                     })
                     .setDone(() -> FieldSim.full(body)
-                            || (target[0] == null && (lookedAround[0] >= LOOK_AROUND_RAD || !canTurnHere())))
+                            || (target[0] == null && (lookedAround[0] >= Math.toRadians(design.lookAroundDeg) || !canTurnHere())))
                     .setEnd(end -> {
                         drive.hold(drive.pose);
                         if (target[0] == null && !FieldSim.full(body)) pending.add("collect: nothing to chase; " + nearestRejected);
@@ -1807,8 +1952,8 @@ public final class AutoSim {
                 if (alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN) continue;
                 double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
                 String why = p.z > 4 ? "still in the air" : FieldSim.underHive(p.x, p.y) ? "under the HIVE"
-                        : d > CAMERA_RANGE_IN ? "beyond the camera" : Math.hypot(p.x - origin[0], p.y - origin[1]) > COLLECT_RADIUS_IN ? "too far from where the collect began"
-                        : Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > CAMERA_HALF_FOV_RAD ? "out of the camera's view"
+                        : d > design.cameraRangeIn ? "beyond the camera" : Math.hypot(p.x - origin[0], p.y - origin[1]) > design.collectRadiusIn ? "too far from where the collect began"
+                        : Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg) ? "out of the camera's view"
                         : zone != null && ((alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) < zone[0] || (alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) > zone[1]) ? "outside the collect zone"
                         : approachHitsFrame(p, at, origin[2]) ? "the approach would hit the HIVE frame, a FLOWER or a wall" : null;
                 if (why != null) {
@@ -1836,7 +1981,7 @@ public final class AutoSim {
             // it may drive up to the wall for a piece until the last WALL_CLEAR_S, then stays 1 in off.
             double wall = now < AutoKit.AUTO_LENGTH_S - WALL_CLEAR_S ? 0 : 1;
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
-            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
             double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
                     design.intakeAtBack ? bearing + Math.PI : bearing};
             // Sampled every tenth of the way and of the turn (every quarter until 9 Oct 2026, when a chase beside the
@@ -1867,6 +2012,10 @@ public final class AutoSim {
                     if (outOfBounds(turned, wall)) return true;
                 }
                 if (outOfBounds(mid, wall)) return true;
+                // The whole outline, a slide's head and the V tips included, clear of the HIVE frame's feet too.
+                for (double[] c : outline(mid, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
+                    if (FieldSim.inHiveFrame(c[0], c[1])) return true;
+                }
             }
             return false;
         }
@@ -1877,7 +2026,7 @@ public final class AutoSim {
          * the frame's corners alone let it chase a piece by the centre line or the south wall with its tips over.
          */
         private boolean outOfBounds(double[] pose, double wall) {
-            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly)) {
+            for (double[] c : outline(pose, design, now, body.wallsOut, body.flapsOnly, body.slideOut, body.flapsFolded)) {
                 if (alliance == Alliance.BLUE ? c[0] < FieldSim.CENTRE_IN : c[0] > FieldSim.CENTRE_IN) return true;
                 if (c[0] < wall || c[1] < wall || c[0] > FieldSim.FIELD_SIZE_IN - wall || c[1] > FieldSim.FIELD_SIZE_IN - wall) return true;
             }
@@ -1902,7 +2051,7 @@ public final class AutoSim {
             double[] at = pedro(drive.pose);
             double bearing = Math.atan2(p.y - at[1], p.x - at[0]);
             double heading = design.intakeAtBack ? bearing + Math.PI : bearing;
-            double mouth = design.frameIn / 2 + design.intakeReachIn;
+            double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
             double tx = p.x - (mouth - 1) * Math.cos(bearing), ty = p.y - (mouth - 1) * Math.sin(bearing);
             // Stay on our own half (with room for the corners of a robot turned any way), and inside
             // the walls.
