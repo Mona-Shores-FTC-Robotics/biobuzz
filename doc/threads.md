@@ -15,6 +15,8 @@ transcripts. A thread's numbers count only once they are on `claude/simulator`.
 **Decisions every thread works under** (mentor, 6 Oct): the baseline is the Flat Intake with no guide and no
 sensors; guides are the Rigid V, Side Rails (one side at a time) and the Ramp Hook; Front Pen, funnel flaps and the
 dual hooks are dropped; one tile surface; 60 runs a cell; "known positions, no disruption" for shots.
+**Since 14 Oct:** the official Q&A's rulings in `doc/game/qa-review.md`: a G409 touch is a problem run, no
+momentary fifth piece or opponent NECTAR by design, human NECTAR in AUTO is allowed.
 
 **Where they meet next**
 - Body designs merges here when its matrix is rerun on the current physics. Its README numbers replace none of the

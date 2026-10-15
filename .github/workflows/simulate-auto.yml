@@ -107,11 +107,14 @@ jobs:
           # The median run by points, the earlier seed on a tie: the Visualizer's "typical" seed.
           ordered = sorted(runs, key=lambda r: (r["points"], r["seed"]))
           typical = ordered[(len(ordered) - 1) // 2] if ordered else None
-          # The best run: most points, then the earliest last TIP, then the lower seed.
+          # The best run: a clean one first (no G409 touch, no collision: the Q&A's Q17 makes a touch a foul every
+          # time, 14 Oct 2026), then most points, then the earliest last TIP, then the lower seed.
           def last_tip(r):
               counted = r["tipsAt"][: int(r["autoTips"])]
               return counted[-1] if counted else float("inf")
-          best = min(runs, key=lambda r: (-r["points"], last_tip(r), r["seed"])) if runs else None
+          def fouled(r):
+              return r.get("g409", 0) > 0 or r.get("robotsCollidedAt") is not None
+          best = min(runs, key=lambda r: (fouled(r), -r["points"], last_tip(r), r["seed"])) if runs else None
           request = json.load(open(os.path.join(sim, "request.json")))
           result.update({
               "auto": auto, "commit": sha, "branch": os.environ["GITHUB_REF_NAME"], "pp": request.get("pp"),

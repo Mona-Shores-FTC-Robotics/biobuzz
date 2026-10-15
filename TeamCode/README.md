@@ -1652,9 +1652,10 @@ Rules the routes and designs lean on, from the Competition Manual:
   only in the last 60 s (G410), so not in AUTO.
 - Spilled pieces must hit the tiles before a robot takes them, and waiting under the HIVE to catch
   them is a foul (G409).
-- Each TIP lets the drive team enter one NECTAR into the LOADING ZONE (G426, G427). Nothing restricts
-  that to TELEOP; check with the Q&A before an Auto counts on it. A run that picked it up for TIP 2
-  made no difference: the runs that miss a TIP miss the third.
+- Each TIP lets the drive team enter one NECTAR into the LOADING ZONE (G426, G427), in AUTO as in
+  TELEOP (Q&A Q11, 14 Oct 2026; `doc/game/qa-review.md`). It must be released before it touches the
+  tile, with the zone's tile its first touch (Q6, Q7). A run that picked it up for TIP 2 made no
+  difference: the runs that miss a TIP miss the third.
 - A TIP that completes before TELEOP starts counts for AUTO (§10.5 B).
 
 ### Two robots
@@ -2050,10 +2051,11 @@ the intake knobs: today's intake takes any piece that touches it at any speed.
 
 ### Which results hold, and timing a robot to a TIP
 
-**Two rules every Auto here assumes** (our reading; confirm in the Game Manual Q&A): the launcher
+**One rule every Auto here assumes** (our reading; not yet asked in the Game Manual Q&A): the launcher
 may not spin before the match starts, so every Auto pays the spin-up (2.0 s on the spring hood)
-before its first shot; and nobody adds NECTAR to the field during AUTO, so the simulated AUTO has
-no human player.
+before its first shot. A second assumption these runs were made under, that nobody adds NECTAR to the
+field during AUTO, is wrong: the Q&A's Q11 (14 Oct 2026) allows one NECTAR per TIP in AUTO, and the
+simulator has modelled it since 9 Oct (`AutoSim.humanNectar`). Runs in this section predate that.
 
 **Which conclusions survive unmeasured physics.** `RobustnessTest` (opt in with
 `BIOBUZZ_ROBUSTNESS=1`; `BIOBUZZ_ROBUSTNESS_ONLY` picks candidates by name) reruns the candidate

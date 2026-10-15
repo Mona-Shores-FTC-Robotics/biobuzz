@@ -82,13 +82,17 @@ Built by `baselines_v.py`; design "rigid V" (= the drawn V).
 
 **From now on, a route with any problem is disqualified.** That means a collision, or a HIVE or FLOWER hit: the
 study line's PROBLEMS, and `problemRuns` in DeepDive's `cases.csv`. The numbers below were measured before this
-check.
+check. **Since 14 Oct 2026 a G409 touch is a problem too** (Q&A Q17 and Q23: a touch is a violation every time,
+and a routine one is STRATEGIC; `doc/game/qa-review.md`). Every "G409 runs" number below is now a count of
+disqualified runs, and the simulator's `g409` is to join `problemRuns`.
 
 ## The Rigid V: decided
 
-**The V as drawn:** tips 17.8 in apart, 2.84 in ahead of the face, 4 in tall, both flaps fixed. The fallback is 45°,
-if G409 touches get called on a real field. Decided by the Intake Design chat, 6 Oct 2026, from its angle sweep
-(`doc/intake-design.md` on `spike/160-intake-design`).
+**The V as drawn:** tips 17.8 in apart, 2.84 in ahead of the face, 4 in tall, both flaps fixed. Decided by the
+Intake Design chat, 6 Oct 2026, from its angle sweep (`doc/intake-design.md` on `spike/160-intake-design`), with
+45° as the fallback "if G409 touches get called". **They are called (Q&A Q17, 14 Oct): a touch is a violation every
+time.** So the 31° choice (11 touched runs of 60, against 4 at 45°) is to be re-run with touches disqualifying,
+by the Intake Design chat; until then read 45° as the safe angle. See `doc/game/qa-review.md`.
 
 60 runs on ShootsRight. The angle is measured from straight ahead, so a steeper V is shorter:
 
@@ -343,8 +347,10 @@ wait for TIP 2's spill to land changes:
 - **Wall partner:** gains 5.4 points, with 3 TIPs in 34 of 60 runs instead of 26.
 
 **What it costs: G409.** A shorter wait means driving into a spill that is still landing. The wall partner's Auto
-goes from 16 to 32 touched runs, and partner shoots from 8 to 16. If G409 gets called on a real field, the longer
-waits are the fallback.
+goes from 16 to 32 touched runs, and partner shoots from 8 to 16. **Withdrawn as baselines, 14 Oct 2026:** the
+Q&A's Q17 makes every touch a violation and Q23 makes a routine one STRATEGIC (`doc/game/qa-review.md`), so a
+wait that touches the spill in half the runs is a foul machine, not a 5-point gain. The longer waits stand until
+a retune at G409 = 0.
 
 ## Shoot while extracting (6 Oct 2026, 60 runs)
 
@@ -734,8 +740,8 @@ score counts). 20 runs each: 2-3 TIPs, worse than the 4-TIP pair. **The blocker 
 pieces each). Measured recovery: catching a spill as it falls, standing still, gets about 2 (TIP 1's: 2, so TIP 3
 came up 6 of 8 without L's 3 from across the field); the webcam picking up a spill already on the floor gets 0-3 in
 3 s (it has scattered). So each end recovers well under half of each spill, and the 4-TIP pair works only because L
-carries pieces across. The human player's NECTAR (one per TIP into the LOADING ZONE, allowed during AUTO: team decision,
-10 Oct 2026) does not close it either: it replaces a POLLEN in a 4-piece load and never adds a load, since an emptied
+carries pieces across. The human player's NECTAR (one per TIP into the LOADING ZONE, allowed during AUTO: Q&A Q11,
+confirmed 14 Oct 2026) does not close it either: it replaces a POLLEN in a 4-piece load and never adds a load, since an emptied
 CELL needs 7.95 POLLEN-weights and 4 NECTAR weigh 6.6 (`TeamCode/README.md`, the what-if paragraph). What could close
 the gap is a mechanism that recovers far more of a spill.
 
@@ -764,6 +770,16 @@ leave the robot (set down or launched) are no longer CONTROLled, but herding a p
 
 ## Rules every chat keeps
 
+- **The official Q&A outranks our reading of the manual.** `doc/game/qa-review.md` holds every answer and what it
+  changed (14 Oct 2026); `python3 tools/game-qa/qa.py` prints the board today. Three rulings every chat works
+  under since then:
+  - **A G409 touch is a foul, every time** (Q17), and a routine one is STRATEGIC (Q23). A touched run is a problem
+    run, the same as a collision. No wait, spot or front is chosen by trading touches for points.
+  - **No MOMENTARY exception for G407 or G408** (Q3, Q4, Q23). Nothing may be designed to take a fifth piece or an
+    opponent NECTAR and give it back: the intake stops before the fifth, streaming goes through the turret with at
+    most 4 aboard, and a back exit is out.
+  - **Human NECTAR in AUTO is allowed** (Q11), one per TIP, released in the air so its first touch is the LOADING
+    ZONE's tile (Q6, Q7); a roll in a useful direction is fine, pushing a piece on the tile is not.
 - **The Pedro field frame, in inches.** It is the only frame (CLAUDE.md).
 - **Numbers come from the simulator at 60 runs on the three qualifier Autos**, each part on a route drawn for it,
   or from a cardboard or field test. Never from a guess.

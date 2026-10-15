@@ -494,6 +494,10 @@ public class AutoStudyTest {
         String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
         AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
         AutoSim.humanCue = "1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_CUE"));
+        // BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1: the robot's surfaces' bounce for a what-if (FieldSim.ROBOT_RESTITUTION
+        // otherwise). Read here so a direct run() gets it too (the body-designs chat, 15 Oct 2026).
+        String bounce = System.getenv("BIOBUZZ_AUTO_ROBOT_RESTITUTION");
+        FieldSim.robotRestitution = bounce == null ? FieldSim.ROBOT_RESTITUTION : Double.parseDouble(bounce);
         if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
@@ -557,9 +561,6 @@ public class AutoStudyTest {
         AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
         // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
         // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
-        // BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1: the robot's surfaces' bounce for a what-if (FieldSim.ROBOT_RESTITUTION otherwise).
-        String bounce = System.getenv("BIOBUZZ_AUTO_ROBOT_RESTITUTION");
-        FieldSim.robotRestitution = bounce == null ? FieldSim.ROBOT_RESTITUTION : Double.parseDouble(bounce);
         String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
         FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
         String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");
@@ -756,6 +757,11 @@ public class AutoStudyTest {
             }
             if (!Double.isNaN(r.robotsCollidedAt) && row.problems++ == 0) {
                 row.firstProblem = String.format(Locale.ROOT, "robots collide at %.1f s", r.robotsCollidedAt);
+            }
+            // A G409 touch is a foul every time and STRATEGIC when routine (the Q&A's Q17 and Q23, doc/game/qa-review.md,
+            // 14 Oct 2026): a run with one is a problem run, not a risk to weigh.
+            if (r.g409 > 0 && row.problems++ == 0) {
+                row.firstProblem = String.format(Locale.ROOT, "G409: %d spilled piece%s touched before the tiles", r.g409, r.g409 == 1 ? "" : "s");
             }
             // BIOBUZZ_AUTO_SEED_ROWS=1: one line per seed for a script to count (TIPs, points, each robot's PARK and
             // problems, the robots' collision).

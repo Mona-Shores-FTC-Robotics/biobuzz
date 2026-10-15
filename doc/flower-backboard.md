@@ -192,7 +192,7 @@ still be capped on the way to PARK. Before then, TIPs are the better use of time
   ROBOT deliberately drives into a blue ALLIANCE ROBOT that is lined up to score NECTAR into a FLOWER with 65
   seconds left"*.
 
-**Questions for the Q&A** (open since 28 Sep 2026):
+**Questions for the Q&A** (open since 28 Sep 2026; none on the board as of 14 Oct 2026, `doc/game/qa-review.md`):
 
 1. Does a NECTAR LAUNCHED by a ROBOT into a ROBOT-mounted deflector, which then falls through the top ring,
    count as *"placing … into the top of the FLOWER"* (§10.5.2)?

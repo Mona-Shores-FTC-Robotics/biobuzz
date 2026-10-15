@@ -8,28 +8,22 @@ setlocal
 set "REPO=%~dp0..\.."
 echo.
 echo  BIOBUZZ - which Auto?
+echo   The baseline (15 Oct):
 echo    1  L-Quals        the qualifier Auto from the drive team's left start (no turret)
 echo    2  R-Quals        the qualifier Auto from the right start, 3 TIPs on its own (no turret)
-echo    3  A whole match  L-Quals pair on red against R-Quals pair on blue, all four robots
-echo    4  Flower first   ShootsRight option, fires from the FLOWER seat (needs the turret)
-echo    5  Stages, angled partner
-echo    6  Stages, wall partner
-echo    7  Seat fire      shelved (needs the turret)
-echo    8  Sister         both of our robots, 4 TIPs and 2 PARK (no turret)
-echo    9  Sister five    both of our robots, 5 TIPs and no PARK when the catch allows, else 4 and PARK (needs the turret)
+echo    3  Sister         both of our robots, 4 TIPs and 2 PARK (no turret)
+echo    4  Simple pair    L-Simple (left start: TIP 1 wait, preloads, far FLOWER's 4, PARK) with R-Simple (right start: preloads, PARK); path testing
+echo   A check:
+echo    5  A whole match  L-Quals pair on red against R-Quals pair on blue, all four robots
 echo.
 set /p "N=Number [1]: "
 if "%N%"=="" set N=1
 set KEY=
 if "%N%"=="1" set KEY=l
 if "%N%"=="2" set KEY=r
-if "%N%"=="3" set KEY=match
-if "%N%"=="4" set KEY=flowerfirst
-if "%N%"=="5" set KEY=angled
-if "%N%"=="6" set KEY=wall
-if "%N%"=="7" set KEY=seatfire
-if "%N%"=="8" set KEY=sister
-if "%N%"=="9" set KEY=sister5
+if "%N%"=="3" set KEY=sister
+if "%N%"=="4" set KEY=simple
+if "%N%"=="5" set KEY=match
 if "%KEY%"=="" echo Not a choice: %N% & exit /b 1
 set /p "T=Typical run instead of the best one? [n]: "
 set TYP=

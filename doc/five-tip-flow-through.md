@@ -7,8 +7,14 @@ turret and simulator chats.
 ## Why
 
 Five TIPs need 4 + 8 + 8 + 8 + 8 = 36 pieces. Our half holds 20 that are always there (both robots' preloads, the two
-FLOWERs, the GARDEN) plus the human player's NECTAR, one per TIP into the LOADING ZONE (G426; allowed during AUTO, team
-decision 10 Oct 2026); the rest must come back out of the spills.
+FLOWERs, the GARDEN) plus the human player's NECTAR, one per TIP into the LOADING ZONE (G426; allowed during AUTO,
+Q&A Q11, 14 Oct 2026); the rest must come back out of the spills.
+
+> **Ruled out, 14 Oct 2026.** The flow-through back exit (items 1 and 2 below, and the transfer's out-the-back
+> variant) puts a fifth piece inside the robot for about 0.2 s per piece on every stream. The Q&A's Q3 and Q23 say
+> there is no MOMENTARY exception to G407 and a routine momentary fifth is STRATEGIC (`doc/game/qa-review.md`).
+> What survives: streaming through the turret with the lane at 4 or fewer (item 4's second half), the wall row
+> only if the pocket question below comes back friendly, and everything about where spills go.
 Measured today (`tools/auto-routes/sister5.py`): a robot catching a spill standing still gets about 2; picking a spill
 up off the floor with the webcam gets 0-3 in 3 s. So two robots each kept to their own end get 2-3 TIPs, and the
 4-TIP pair works only because one robot carries pieces across the field.
@@ -173,10 +179,9 @@ and pen questions below decide whether 5 TIPs work. The filmed spill test tells 
 > robot would be in violation until they leave the guide? Does the answer change if the guide was lowered after the
 > elements had already touched the tiles?
 
-> A second question, if we build a flow-through path: our intake feeds a lane that carries scoring elements through
-> the robot and out its back. While a stream passes through, a fifth element can be inside the robot's frame for
-> about 0.2 s before the first one has fully left. Is a momentary count above 4 during continuous pass-through a
-> G407 violation?
+The second half of the draft (a fifth element inside the frame for about 0.2 s during pass-through) was answered
+before we asked: Q23 (11 Oct 2026) says a routine momentary fifth is a STRATEGIC G407 violation. Q29 (pending)
+asks about lifting intakes and active expulsion; read it before submitting the paragraph above.
 
 ## Asks
 
