@@ -31,16 +31,15 @@ Kept in git history; any can come back if what killed it changes.
 | **Sister five** (`sister5p-*`) | Its fifth TIP needs a dead front: with the measured 0.4 restitution it makes 5 TIPs in 6 of 60 and scores below Sister (86.9 against 89.0). Back on the table only if a face measures under about 0.1 (`doc/tip1-catch.md`). |
 | Everything else in `TeamCode/autos/` and the experiments folder | Earlier body shapes (hooks, walls, wide and short bodies, the 18 in robot, the Flat Intake), research routes and their variants. Superseded by the Rigid V and the qualifier Autos, or by the G409 reading that rules out hooks. |
 
-## What stays in the repo (proposed; nothing deleted yet)
+## The archive (15 Oct 2026, approved by the mentor)
 
-- `TeamCode/autos/`: `l-quals.pp`, `r-quals.pp`, `l-simple.pp`, `r-simple.pp`, `partner-left-v.pp`,
-  `partner-preloads-right-high.pp`, `partner-preloads-right-south` (now in the experiments folder), and Sister's two `.pp` (moved in from the experiments folder).
-- Their generated classes, and the simulator's own partners and tests.
-- `tools/auto-routes/`: the scripts those Autos are built from. L-Quals and R-Quals come through `baselines_v.py`,
-  which pulls in `alone, autogen, guide_routes, helpers, park_first, partners, qual, qual_right, qual_shapes,
-  shape_matrix`; Sister and the simple Autos need only `alone, autogen, helpers, partners, sister, simple`.
-  Untangling `baselines_v.py` to need only `alone.py` is a follow-up.
-- `tools/auto-routes/batch/`, and the docs that record what was learned.
+Everything up to commit `287f8bc3` is the archive: `git checkout 287f8bc3 -- <path>` brings any route back.
 
-Everything else (about 360 experimental `.pp`, their generated classes, about 25 route scripts) goes to an archive
-branch, after the mentor approves the list.
+- **Removed:** 339 generated Autos that nothing else in the repo refers to, and their `.pp` (718 files): the earlier body
+  shapes (hooks, walls, wide, short, the 18 in robot, the Flat Intake), research routes and their variants.
+- **Kept, though retired:** 49 Autos the simulator's tests or `TeamCode/autos/pairs.json` still name (the published
+  Stages, flower first, seat fire and Sister five rows, the partners, the tests' fixtures). They go when the simulator
+  chat drops them from its tests and rows.
+- **Kept:** the five baseline Autos and their partners, the route scripts in `tools/auto-routes/` (L-Quals and
+  R-Quals still come through `baselines_v.py`; untangling it to need only `alone.py` is a follow-up),
+  `tools/auto-routes/batch/`, and the docs that record what was learned.
