@@ -59,9 +59,72 @@
       }
     },
     {
-      "id": "to-park-l-2",
+      "id": "to-far-flower-2",
       "color": "#3cc8e4",
-      "name": "FAR_FLOWER_TURN to PARK_L",
+      "name": "FAR_FLOWER_TURN to FAR_FLOWER",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 47.36,
+        "y": 126.64
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 90
+      }
+    },
+    {
+      "id": "to-n-fire-3",
+      "color": "#3cc8e4",
+      "name": "FAR_FLOWER to N_FIRE",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 119
+      },
+      "controlPoints": [
+        {
+          "x": 47.36,
+          "y": 116.64
+        }
+      ],
+      "heading": {
+        "type": "piecewise",
+        "piecewiseHeading": {
+          "segments": [
+            {
+              "startProgress": 0,
+              "endProgress": 0.3,
+              "interpolationType": "constant",
+              "parameters": {
+                "degrees": 90
+              }
+            },
+            {
+              "startProgress": 0.3,
+              "endProgress": 1.0,
+              "interpolationType": "linear",
+              "parameters": {
+                "startDeg": 90,
+                "endDeg": 270
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "to-park-l-4",
+      "color": "#3cc8e4",
+      "name": "N_FIRE to PARK_L",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -168,7 +231,15 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-l-2"
+      "lineId": "to-far-flower-2"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-n-fire-3"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-l-4"
     }
   ],
   "settings": {
@@ -216,7 +287,9 @@
         "LaunchAll"
       ],
       "conditions": [
-        "Empty"
+        "LeftCellUp",
+        "Empty",
+        "IntakeFull"
       ],
       "typicalS": {
         "SpinUp": 0.1,
@@ -228,6 +301,11 @@
       "START": [
         59,
         133.69,
+        270
+      ],
+      "N_FIRE": [
+        57.5,
+        119,
         270
       ],
       "PARK_L": [
@@ -253,7 +331,9 @@
     },
     "pathEnds": {
       "to-far-flower-turn-1": "FAR_FLOWER_TURN",
-      "to-park-l-2": "PARK_L"
+      "to-far-flower-2": "FAR_FLOWER",
+      "to-n-fire-3": "N_FIRE",
+      "to-park-l-4": "PARK_L"
     },
     "startAt": "START",
     "cards": [
@@ -271,6 +351,23 @@
       {
         "id": "w-3",
         "kind": "firstOf",
+        "label": "TIP 1 (the partner's preloads)",
+        "rows": [
+          {
+            "when": [
+              "LeftCellUp"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 6000,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "w-4",
+        "kind": "firstOf",
         "label": "Fire the preloads at the left CELL",
         "rows": [
           {
@@ -287,9 +384,56 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "p-4",
+        "id": "p-5",
         "kind": "path",
-        "lineId": "to-park-l-2",
+        "lineId": "to-far-flower-2",
+        "park": false
+      },
+      {
+        "id": "w-6",
+        "kind": "firstOf",
+        "label": "The far FLOWER's 4",
+        "rows": [
+          {
+            "when": [
+              "IntakeFull"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 3000,
+            "cards": []
+          }
+        ]
+      },
+      {
+        "id": "p-7",
+        "kind": "path",
+        "lineId": "to-n-fire-3",
+        "park": false
+      },
+      {
+        "id": "w-8",
+        "kind": "firstOf",
+        "label": "Fire the far FLOWER's 4",
+        "rows": [
+          {
+            "when": [
+              "Empty"
+            ],
+            "cards": []
+          },
+          {
+            "afterMs": 5000,
+            "cards": []
+          }
+        ],
+        "alongside": "LaunchAll"
+      },
+      {
+        "id": "p-9",
+        "kind": "path",
+        "lineId": "to-park-l-4",
         "park": true
       }
     ]

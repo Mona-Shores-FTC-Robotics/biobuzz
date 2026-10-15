@@ -5,7 +5,6 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 
@@ -23,7 +22,7 @@ public final class RSimpleAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "Tip"};
+    public static final String[] TRIGGERS = {"Empty"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -43,46 +42,20 @@ public final class RSimpleAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 8.06, 90);
-        Pose fire = p.of(45, 26, 90);
         Pose park = p.of(10.5, 95, 90);
-        Pose wallFlower = p.of(14.86, 47.36, 180);
-        Pose wallFlowerTurn = p.of(23.16, 47.36, 180);
 
         // Other poses the paths need (control points, unnamed endpoints).
-        Pose startToWallFlowerTurnSegment1Heading = p.of(23.16, 47.36, 90);
-        Pose startToWallFlowerTurnSegment2Start = p.of(23.16, 47.36, 90);
-        Pose wallFlowerToFireControl1 = p.of(24.86, 47.36, 0);
-        Pose wallFlowerToFireSegment1Heading = p.of(45, 26, 180);
-        Pose wallFlowerToFireSegment2Start = p.of(45, 26, 180);
-        Pose fireToParkControl1 = p.of(30, 40, 0);
+        Pose startToParkControl1 = p.of(30, 40, 0);
 
         // Paths, written as the stock Visualizer export writes them.
-        Path startToWallFlowerTurn = Paths.line(start, wallFlowerTurn).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(startToWallFlowerTurnSegment1Heading)).until(0.8, Interpolator.linear(startToWallFlowerTurnSegment2Start, wallFlowerTurn)).until(1, Interpolator.constant(wallFlowerTurn)));
-        Path wallFlowerTurnToWallFlower = Paths.line(wallFlowerTurn, wallFlower).constant(wallFlower);
-        Path wallFlowerToFire = Paths.curve(wallFlower, wallFlowerToFireControl1, fire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(wallFlowerToFireSegment1Heading)).until(0.9, Interpolator.linear(wallFlowerToFireSegment2Start, fire)).until(1, Interpolator.constant(fire)));
-        Path fireToPark = Paths.curve(fire, fireToParkControl1, park).linear(fire, park);
+        Path startToPark = Paths.curve(start, startToParkControl1, park).linear(start, park);
 
         return kit.sequence(
-                kit.guarded("Auto", fireToPark, 2.7,
+                kit.guarded("Auto", startToPark, 3.2,
                         kit.command("SpinUp"),
                         kit.firstOf("Fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(4000)),
-                        kit.firstOf("TIP 1",
-                                kit.when("Tip"),
-                                kit.afterMs(4000)),
-                        kit.firstOf("TIP 1's spill lands",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(1600)),
-                        kit.path("START to WALL_FLOWER_TURN", startToWallFlowerTurn),
-                        kit.path("WALL_FLOWER_TURN to WALL_FLOWER", wallFlowerTurnToWallFlower),
-                        kit.firstOf("The wall FLOWER's 4",
-                                kit.when("IntakeFull"),
-                                kit.afterMs(3000)),
-                        kit.path("WALL_FLOWER to FIRE", wallFlowerToFire),
-                        kit.firstOf("Fire the wall FLOWER's 4", kit.command("LaunchAll"),
-                                kit.when("Empty"),
-                                kit.afterMs(5000)),
-                        kit.path("FIRE to PARK", fireToPark)));
+                        kit.path("START to PARK", startToPark)));
     }
 }

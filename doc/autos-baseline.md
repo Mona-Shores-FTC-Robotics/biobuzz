@@ -10,15 +10,14 @@ are what we build, test and tune first.
 | **L-Quals** | `LQualsAuto` (`TeamCode/autos/l-quals.pp`) | Qualifiers, from the left start, partner shoots reliably | 73.7, 3 TIPs in 55, 0 |
 | **R-Quals** | `RQualsAuto` (`r-quals.pp`) | Qualifiers, from the right start, partner can't shoot or might not | 72.7, 3 TIPs in 54, 1 |
 | **Sister** | `SisterRightFixedAuto` + `SisterLeftFixedAuto` | Playoffs with the sister team: two of our robots | 89.0, 4 TIPs in 45, 0 |
-| **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: left start, preloads at the left CELL, PARK | LEAVE and PARK 60, all 4 preloads 54 (the turret still slewing when the partner tips the CELL in the rest), 0 |
-| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: right start, preloads at the right CELL, waits for TIP 1's spill to land, the wall FLOWER's 4, PARK | check running |
+| **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: left start, waits for the partner's TIP 1, preloads at the left CELL, the far FLOWER's 4 (8 shots), PARK | check running |
+| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: right start, preloads at the right CELL straight away (4 make a TIP), PARK. No waiting | check running |
 
 Which qualifier Auto to run (mentor, 8 Oct): partner can't shoot → R-Quals; shoots reliably → either; says it shoots
 but might not → R-Quals. None of the five needs the turret.
 
 The partners they're simulated with: `PartnerPreloadsRightHighAuto` (L-Quals), `PartnerLeftVAuto` (R-Quals) and
-`PartnerPreloadsRightSouthAuto` (L-Simple, which parks at the LOADING ZONE's north end, so the partner takes the
-south end); R-Simple with R-Quals' partner. The simple Autos' numbers are from `tools/auto-routes/batch` (both robots rigid V at 50 in/s). The whole-match row (L-Quals against R-Quals) stays as a check, not an Auto to run.
+each other (L-Simple with R-Simple as its partner); R-Simple also with R-Quals' partner. The simple Autos' numbers are from `tools/auto-routes/batch` (both robots rigid V at 50 in/s). The whole-match row (L-Quals against R-Quals) stays as a check, not an Auto to run.
 
 ## Retired, and why
 

@@ -23,7 +23,7 @@ public final class LSimpleAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "LeftCellUp"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -43,27 +43,45 @@ public final class LSimpleAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
+        Pose nFire = p.of(57.5, 119, 270);
         Pose parkL = p.of(10.5, 120, 270);
+        Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
         Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
-        Pose farFlowerTurnToParkLControl1 = p.of(44, 127, 0);
-        Pose farFlowerTurnToParkLControl2 = p.of(24, 127, 0);
+        Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
+        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
+        Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
+        Pose nFireToParkLControl1 = p.of(44, 127, 0);
+        Pose nFireToParkLControl2 = p.of(24, 127, 0);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(0.9, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)).until(1, Interpolator.constant(farFlowerTurn)));
-        Path farFlowerTurnToParkL = Paths.curve(farFlowerTurn, farFlowerTurnToParkLControl1, farFlowerTurnToParkLControl2, parkL).constant(parkL);
+        Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
+        Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
+        Path nFireToParkL = Paths.curve(nFire, nFireToParkLControl1, nFireToParkLControl2, parkL).constant(parkL);
 
         return kit.sequence(
-                kit.guarded("Auto", farFlowerTurnToParkL, 1.9,
+                kit.guarded("Auto", nFireToParkL, 2.1,
                         kit.command("SpinUp"),
                         kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
+                        kit.firstOf("TIP 1 (the partner's preloads)",
+                                kit.when("LeftCellUp"),
+                                kit.afterMs(6000)),
                         kit.firstOf("Fire the preloads at the left CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
                                 kit.afterMs(6000)),
-                        kit.path("FAR_FLOWER_TURN to PARK_L", farFlowerTurnToParkL)));
+                        kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
+                        kit.firstOf("The far FLOWER's 4",
+                                kit.when("IntakeFull"),
+                                kit.afterMs(3000)),
+                        kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
+                        kit.firstOf("Fire the far FLOWER's 4", kit.command("LaunchAll"),
+                                kit.when("Empty"),
+                                kit.afterMs(5000)),
+                        kit.path("N_FIRE to PARK_L", nFireToParkL)));
     }
 }
