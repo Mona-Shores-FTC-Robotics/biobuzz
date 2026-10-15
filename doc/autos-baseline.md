@@ -11,15 +11,14 @@ are what we build, test and tune first.
 | **R-Quals** | `RQualsAuto` (`r-quals.pp`) | Qualifiers, from the right start, partner can't shoot or might not | 72.7, 3 TIPs in 54, 1 |
 | **Sister** | `SisterRightFixedAuto` + `SisterLeftFixedAuto` | Playoffs with the sister team: two of our robots | 89.0, 4 TIPs in 45, 0 |
 | **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: left start, preloads at the left CELL, PARK | LEAVE and PARK 60, all 4 preloads 54 (the turret still slewing when the partner tips the CELL in the rest), 0 |
-| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: left start, waits for TIP 1, preloads, the far FLOWER's 4, PARK | LEAVE and PARK 60, the FLOWER's 4 every run, all 8 fired 57, 0 |
+| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: right start, preloads at the right CELL, waits for TIP 1's spill to land, the wall FLOWER's 4, PARK | check running |
 
 Which qualifier Auto to run (mentor, 8 Oct): partner can't shoot → R-Quals; shoots reliably → either; says it shoots
-but might not → R-Quals. None of the five needs the turret. L-Simple and R-Simple both start from the left start
-(the names are the mentor's; R-Simple is the one that waits for TIP 1 and takes the far FLOWER).
+but might not → R-Quals. None of the five needs the turret.
 
 The partners they're simulated with: `PartnerPreloadsRightHighAuto` (L-Quals), `PartnerLeftVAuto` (R-Quals) and
-`PartnerPreloadsRightSouthAuto` (the simple Autos, which park at the LOADING ZONE's north end, so the partner takes the
-south end). The simple Autos' numbers are from `tools/auto-routes/batch` (both robots rigid V at 50 in/s). The whole-match row (L-Quals against R-Quals) stays as a check, not an Auto to run.
+`PartnerPreloadsRightSouthAuto` (L-Simple, which parks at the LOADING ZONE's north end, so the partner takes the
+south end); R-Simple with R-Quals' partner. The simple Autos' numbers are from `tools/auto-routes/batch` (both robots rigid V at 50 in/s). The whole-match row (L-Quals against R-Quals) stays as a check, not an Auto to run.
 
 ## Retired, and why
 
