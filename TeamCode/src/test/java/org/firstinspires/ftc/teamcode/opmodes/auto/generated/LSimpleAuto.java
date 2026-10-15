@@ -70,18 +70,18 @@ public final class LSimpleAuto {
                         kit.path("START to FAR_FLOWER_TURN", startToFarFlowerTurn),
                         kit.firstOf("TIP 1 (the partner's preloads)",
                                 kit.when("LeftCellUp"),
-                                kit.afterMs(6000)),
-                        kit.firstOf("Fire the preloads at the left CELL", kit.command("LaunchAll"),
+                                kit.afterMs(7000)),
+                        kit.firstOf("Fire our preloads at the left CELL", kit.command("LaunchAll"),
                                 kit.when("Empty"),
-                                kit.afterMs(6000)),
+                                kit.afterMs(3000)),
                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                         kit.firstOf("The far FLOWER's 4",
                                 kit.when("IntakeFull"),
                                 kit.afterMs(3000)),
                         kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
-                        kit.firstOf("Fire the far FLOWER's 4", kit.command("LaunchAll"),
+                        kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
-                                kit.afterMs(5000)),
+                                kit.afterMs(2000)),
                         kit.path("N_FIRE to PARK_L", nFireToParkL)));
     }
 }

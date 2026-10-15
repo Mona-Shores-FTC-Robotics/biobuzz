@@ -360,7 +360,7 @@
             "cards": []
           },
           {
-            "afterMs": 6000,
+            "afterMs": 7000,
             "cards": []
           }
         ]
@@ -368,7 +368,7 @@
       {
         "id": "w-4",
         "kind": "firstOf",
-        "label": "Fire the preloads at the left CELL",
+        "label": "Fire our preloads at the left CELL",
         "rows": [
           {
             "when": [
@@ -377,7 +377,7 @@
             "cards": []
           },
           {
-            "afterMs": 6000,
+            "afterMs": 3000,
             "cards": []
           }
         ],
@@ -415,7 +415,7 @@
       {
         "id": "w-8",
         "kind": "firstOf",
-        "label": "Fire the far FLOWER's 4",
+        "label": "Fire the far FLOWER's 4 (TIP 2)",
         "rows": [
           {
             "when": [
@@ -424,7 +424,7 @@
             "cards": []
           },
           {
-            "afterMs": 5000,
+            "afterMs": 2000,
             "cards": []
           }
         ],

@@ -1,8 +1,9 @@
 """Two simple Autos for testing paths on the first robot (mentor, 15 Oct 2026):
 
-- L-Simple (l-simple), from the left start: out to FAR_FLOWER_TURN, wait for TIP 1 (the partner's preloads), our
-  preloads at the left CELL, the far FLOWER's 4 fired from N_FIRE (8 shots in all), PARK at the LOADING ZONE's north
-  end (PARK_L, as Sister's left robot).
+- L-Simple (l-simple), from the left start: L-Quals' opening exactly (out to FAR_FLOWER_TURN, wait for TIP 1, our
+  preloads at the left CELL, the far FLOWER's 4 fired from N_FIRE: 8 shots), then PARK at the LOADING ZONE's north end
+  (PARK_L, as Sister's left robot). With L-Quals' usual partner, which parks there too, it would meet it: pair it with
+  R-Simple, which parks at the south end.
 - R-Simple (r-simple), from the right start: the preloads at the right CELL straight away (4 make a TIP), PARK at the
   zone's south end (alone.PARK, as R-Quals). No waiting.
 
@@ -22,19 +23,21 @@ PARK_L = (10.5, 120, 270)
 PARK_L_CTRL = [(44, 127), (24, 127)]  # Sister's left robot's way to PARK_L: north of the HIVE frame's foot
 
 
-def l_simple(name="l-simple", tip1_wait_ms=6000):
+def l_simple(name="l-simple", tip1_wait_ms=7000):
+    """L-Quals' opening, card for card (alone.shoots_right_v with with_rescue's TIP 1 branch: the same points, waits
+    and timeouts), then PARK_L instead of L-Quals' TIP 3. A TIP 1 that hasn't come in tip1_wait_ms: it fires anyway
+    (L-Quals' rescue branch is left out)."""
     r = Route(name, L_START, speed=50)
     r.pt("N_FIRE", *N_FIRE).pt("PARK_L", *PARK_L)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
     r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
     r.at = "FAR_FLOWER_TURN"
-    # Waits for the partner's TIP 1 at most tip1_wait_ms, then fires whatever happened.
     r.add(r.wait("TIP 1 (the partner's preloads)", when=["LeftCellUp"], ms=tip1_wait_ms),
-          fire(r, "Fire the preloads at the left CELL", "Empty", ms=6000), r.go("FAR_FLOWER", heading=90))
+          fire(r, "Fire our preloads at the left CELL", "Empty", ms=3000), r.go("FAR_FLOWER", heading=90))
     r.at = "FAR_FLOWER"
     r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
     r.at = "N_FIRE"
-    r.add(fire(r, "Fire the far FLOWER's 4", "Empty", ms=5000),
+    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Empty", ms=2000),
           r.go("PARK_L", ctrl=PARK_L_CTRL, heading=270, park=True))
     return r
 
