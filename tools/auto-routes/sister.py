@@ -43,7 +43,8 @@ R_START, L_START = (59, 8.06, 90), (59, 133.69, 270)
 # R_N x 30 (L turns at L_N, its V to x 41.35), y 104 (clean in the scan; at y 100 R missed 1-3 of 4; L parks along
 # y 127, its front 2.2 in above R's V at y 114.4).
 R_S, R_N = (40, 22, 90), (30, 104, 90)
-L_N, L_TURN, L_S = (55, 116, 270), (57, 36, 90), (59, 22, 90)
+# L waits outside the falling spills (G409, see alone.S_CATCH): y 123.5 / 18, was 116 / 22.
+L_N, L_TURN, L_S = (55, 123.5, 270), (57, 36, 90), (59, 18, 90)
 
 
 def right(name="sister-right", rescue_ms=6500, catch_at=(57.5, 21, 90)):

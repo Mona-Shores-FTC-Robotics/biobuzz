@@ -88,7 +88,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 55,
-        "y": 116
+        "y": 123.5
       },
       "controlPoints": [
         {
@@ -180,7 +180,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 59,
-        "y": 22
+        "y": 18
       },
       "controlPoints": [],
       "heading": {
@@ -218,7 +218,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 55,
-        "y": 116
+        "y": 123.5
       },
       "controlPoints": [
         {
@@ -461,7 +461,7 @@
       ],
       "L_N": [
         55,
-        116,
+        123.5,
         270
       ],
       "L_TURN": [
@@ -471,7 +471,7 @@
       ],
       "L_S": [
         59,
-        22,
+        18,
         90
       ],
       "PARK_L": [

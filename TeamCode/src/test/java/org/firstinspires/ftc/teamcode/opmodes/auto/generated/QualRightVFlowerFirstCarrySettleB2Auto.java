@@ -48,7 +48,7 @@ public final class QualRightVFlowerFirstCarrySettleB2Auto {
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose sFire = p.of(57.5, 24, 90);
-        Pose nFire = p.of(57.5, 116, 270);
+        Pose nFire = p.of(57.5, 125.5, 270);
         Pose sweepE = p.of(57.5, 12, 180);
         Pose sweepW = p.of(22, 12, 180);
 
@@ -56,11 +56,11 @@ public final class QualRightVFlowerFirstCarrySettleB2Auto {
         Pose startToFarFlowerTurnControl1 = p.of(59, 118.34, 0);
         Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
-        Pose farFlowerToNFire = p.of(57.5, 114, 270);
+        Pose farFlowerToNFire = p.of(57.5, 123.5, 270);
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
-        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 114, 90);
-        Pose farFlowerToNFireSegment2Start = p.of(57.5, 114, 90);
-        Pose farFlowerToNFireSegment2End = p.of(57.5, 114, 270);
+        Pose farFlowerToNFireSegment1Heading = p.of(57.5, 123.5, 90);
+        Pose farFlowerToNFireSegment2Start = p.of(57.5, 123.5, 90);
+        Pose farFlowerToNFireSegment2End = p.of(57.5, 123.5, 270);
         Pose nFireToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nFireToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sweepWToGardenControl1 = p.of(12, 20, 0);
@@ -79,7 +79,7 @@ public final class QualRightVFlowerFirstCarrySettleB2Auto {
         Path startToFarFlowerTurn = Paths.curve(start, startToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(startToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(startToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFirePath = Paths.curve(farFlower, farFlowerToNFireControl1, farFlowerToNFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, farFlowerToNFireSegment2End)));
-        Path nFireToSFire = Paths.line(farFlowerToNFire, sFire).heading(Interpolator.piecewise().until(0.87, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
+        Path nFireToSFire = Paths.line(farFlowerToNFire, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nFireToSFireSegment1Heading)).until(1, Interpolator.linear(nFireToSFireSegment2Start, sFire)));
         Path sFireToSweepE = Paths.line(sFire, sweepE).linear(sFire, sweepE);
         Path sweepEToSweepW = Paths.line(sweepE, sweepW).constant(sweepW);
         Path sweepWToGarden = Paths.curve(sweepW, sweepWToGardenControl1, garden).heading(Interpolator.piecewise().until(0.15, Interpolator.constant(sweepWToGardenSegment1Heading)).until(0.6, Interpolator.linear(sweepWToGardenSegment2Start, garden)).until(1, Interpolator.constant(garden)));
@@ -110,7 +110,7 @@ public final class QualRightVFlowerFirstCarrySettleB2Auto {
                                 kit.afterMs(2500)),
                         kit.firstOf("It lands",
                                 kit.when("IntakeFull"),
-                                kit.afterMs(200)),
+                                kit.afterMs(1200)),
                         kit.path("N_FIRE to S_FIRE", nFireToSFire),
                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                 kit.when("Empty"),

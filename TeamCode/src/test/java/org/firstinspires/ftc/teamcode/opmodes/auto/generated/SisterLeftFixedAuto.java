@@ -43,9 +43,9 @@ public final class SisterLeftFixedAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
-        Pose lN = p.of(55, 116, 270);
+        Pose lN = p.of(55, 123.5, 270);
         Pose lTurn = p.of(57, 36, 90);
-        Pose lS = p.of(59, 22, 90);
+        Pose lS = p.of(59, 18, 90);
         Pose parkL = p.of(10.5, 120, 270);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
@@ -56,16 +56,16 @@ public final class SisterLeftFixedAuto {
         Pose startToFarFlowerTurnSegment1Heading = p.of(47.36, 118.34, 270);
         Pose startToFarFlowerTurnSegment2Start = p.of(47.36, 118.34, 270);
         Pose farFlowerToLNControl1 = p.of(47.36, 116.64, 0);
-        Pose farFlowerToLNSegment1Heading = p.of(55, 116, 90);
-        Pose farFlowerToLNSegment2Start = p.of(55, 116, 90);
+        Pose farFlowerToLNSegment1Heading = p.of(55, 123.5, 90);
+        Pose farFlowerToLNSegment2Start = p.of(55, 123.5, 90);
         Pose lNToLTurnControl1 = p.of(57.5, 100, 0);
         Pose lNToLTurnControl2 = p.of(57.5, 50, 0);
         Pose lNToLTurnSegment1Heading = p.of(57, 36, 270);
         Pose lNToLTurnSegment2Start = p.of(57, 36, 270);
         Pose lCToLNControl1 = p.of(57.5, 50, 0);
         Pose lCToLNControl2 = p.of(57.5, 104, 0);
-        Pose lCToLNSegment1Heading = p.of(55, 116, 90);
-        Pose lCToLNSegment2Start = p.of(55, 116, 90);
+        Pose lCToLNSegment1Heading = p.of(55, 123.5, 90);
+        Pose lCToLNSegment2Start = p.of(55, 123.5, 90);
         Pose lNToParkLControl1 = p.of(44, 127, 0);
         Pose lNToParkLControl2 = p.of(24, 127, 0);
 

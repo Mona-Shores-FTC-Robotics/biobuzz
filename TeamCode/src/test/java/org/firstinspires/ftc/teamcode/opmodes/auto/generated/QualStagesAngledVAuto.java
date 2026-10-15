@@ -43,9 +43,9 @@ public final class QualStagesAngledVAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 8.06, 90);
-        Pose nLow = p.of(57.5, 114, 270);
+        Pose nLow = p.of(57.5, 123.5, 270);
         Pose nTurn = p.of(55.5, 104, 270);
-        Pose sCatch = p.of(57.5, 28, 90);
+        Pose sCatch = p.of(57.5, 18, 90);
         Pose gardenIn = p.of(8.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);
         Pose park = p.of(10.5, 95, 90);
@@ -60,8 +60,8 @@ public final class QualStagesAngledVAuto {
         Pose sCatchToNTurnSegment1Heading = p.of(55.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(55.5, 104, 90);
         Pose nLowToRowSSegment1Start = p.of(49.34, 112.53, 270);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 137.3);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 137.3);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 123.5, 137.3);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 123.5, 137.3);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToGardenInSegment1Start = p.of(8.5, 20.56, 90);
@@ -90,7 +90,7 @@ public final class QualStagesAngledVAuto {
         Path nLowToRowS = Paths.line(nLow, rowS).heading(Interpolator.piecewise().until(0.8, Interpolator.linear(nLowToRowSSegment1Start, rowS)).until(1, Interpolator.constant(rowS)));
         Path rowSToRowN = Paths.line(rowS, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
-        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
+        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
         Path sFireToGardenIn = Paths.line(sFire, gardenIn).heading(Interpolator.piecewise().until(0.6, Interpolator.linear(sFireToGardenInSegment1Start, gardenIn)).until(1, Interpolator.constant(gardenIn)));
         Path gardenInToGarden = Paths.line(gardenIn, garden).constant(garden);
         Path gardenToSFire = Paths.line(garden, sFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(gardenToSFireSegment1Heading)).until(1, Interpolator.linear(gardenToSFireSegment2Start, sFire)));

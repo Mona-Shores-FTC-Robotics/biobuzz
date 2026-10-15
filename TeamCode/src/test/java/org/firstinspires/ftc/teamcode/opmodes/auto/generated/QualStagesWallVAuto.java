@@ -43,9 +43,9 @@ public final class QualStagesWallVAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 8.06, 90);
-        Pose nLow = p.of(57.5, 114, 270);
+        Pose nLow = p.of(57.5, 123.5, 270);
         Pose nTurn = p.of(55.5, 104, 270);
-        Pose sCatch = p.of(57.5, 28, 90);
+        Pose sCatch = p.of(57.5, 18, 90);
         Pose park = p.of(10.5, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
@@ -62,8 +62,8 @@ public final class QualStagesWallVAuto {
         Pose sCatchToNTurnSegment1Heading = p.of(55.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(55.5, 104, 90);
         Pose nLowToRowSSegment1Start = p.of(35.1, 117.35, 270);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 90);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 90);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 123.5, 90);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 123.5, 90);
         Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
         Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
@@ -90,7 +90,7 @@ public final class QualStagesWallVAuto {
         Path row3ToRow4 = Paths.line(row3, row4).constant(row4);
         Path row4ToRowN = Paths.line(row4, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
-        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.86, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
+        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);

@@ -63,7 +63,8 @@ def leave_flower(r, name, to):
 # with no problems), on the CELL's line, at x 57.5 so it can turn (a turning robot's corners reach
 # 12.7 in; the centre line is at 70.75). Drawn for RED: the right (south) CELL at y 28, the left
 # (north) at 141.5 - 28.
-CATCH_R, CATCH_L = (57.5, 28, 90), (57.5, 113.5, 270)
+# Out of the falling spill (G409): see alone.S_CATCH.
+CATCH_R, CATCH_L = (57.5, 18, 90), (57.5, 123.5, 270)
 
 
 def catch_spill(r, label, spot, ms=2500):

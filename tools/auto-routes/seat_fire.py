@@ -19,7 +19,7 @@ if __name__ == "__main__":
     for name, mode in VARIANTS.items():
         qual_right.SEAT_FIRE = mode
         try:
-            r = baselines_v.build_for_v(baselines_v.BASELINES["qual-right-v"], name)
+            r = baselines_v.build_for_v(baselines_v.shoots_right, name)
         finally:
             qual_right.SEAT_FIRE = False
         r.folder = autogen.EXPERIMENTS

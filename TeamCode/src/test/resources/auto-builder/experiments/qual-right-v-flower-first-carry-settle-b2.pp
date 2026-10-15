@@ -80,7 +80,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 114
+        "y": 123.5
       },
       "controlPoints": [
         {
@@ -133,14 +133,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.87,
+              "endProgress": 0.88,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.87,
+              "startProgress": 0.88,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -538,7 +538,7 @@
       ],
       "N_LOW": [
         57.5,
-        114,
+        123.5,
         270
       ],
       "N_TURN": [
@@ -548,22 +548,22 @@
       ],
       "S_CATCH": [
         57.5,
-        28,
+        18,
         90
       ],
       "N_CATCH": [
         57.5,
-        113.5,
+        123.5,
         270
       ],
       "S_BACK": [
         57.5,
-        25,
+        15,
         90
       ],
       "N_BACK": [
         57.5,
-        116.5,
+        126.5,
         270
       ],
       "GARDEN_IN": [
@@ -603,7 +603,7 @@
       ],
       "N_FIRE": [
         57.5,
-        116.0,
+        125.5,
         270
       ],
       "WALL_FLOWER": [
@@ -782,7 +782,7 @@
             "cards": []
           },
           {
-            "afterMs": 200,
+            "afterMs": 1200,
             "cards": []
           }
         ]
