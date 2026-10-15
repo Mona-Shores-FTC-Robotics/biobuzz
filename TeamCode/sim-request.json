@@ -1,6 +1,6 @@
 {
-  "pp": "TeamCode/src/test/resources/auto-builder/experiments/sister-right-fixed.pp",
-  "spec": "SisterRightFixedAuto,SisterLeftFixedAuto@50",
+  "pp": "TeamCode/autos/l-simple.pp",
+  "spec": "LSimpleAuto,RSimpleAuto@50",
   "design": "rigid V",
   "partnerDesign": "rigid V",
   "partnerSpeed": 50.0,
@@ -68,10 +68,10 @@
   ],
   "alliance": "RED",
   "metadata": {
-    "AutoSource": "sister-right-fixed.pp",
-    "SavedBy": "README, the Sister pairs: two of our robots, with the G409-clean catch spots (15 Oct 2026)"
+    "AutoSource": "l-simple.pp",
+    "SavedBy": "README, the simple pair of the 15 Oct baseline"
   },
-  "title": "Sister-4TIPs",
+  "title": "Simple-Pair",
   "usual": true,
-  "folder": "sister"
+  "folder": "simple"
 }
