@@ -55,7 +55,7 @@ public final class RSimpleAuto {
                         kit.command("SpinUp"),
                         kit.firstOf("Fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
-                                kit.afterMs(4000)),
+                                kit.afterMs(3000)),
                         kit.path("START to PARK", startToPark)));
     }
 }

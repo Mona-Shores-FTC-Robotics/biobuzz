@@ -51,3 +51,36 @@ The file format, including the `auto` section, is described in the Visualizer's
   biobuzz is made private, they stop working for everyone.
 
 Decided in #118.
+
+## Wait limits (`limits.json`)
+
+Each Auto waits for the robot before moving on: a FLOWER's 4 (`IntakeFull`), a fire step (`Empty`), a catch. A wait
+ends when the sensor says so, or at its **limit**. The limits for the baseline Autos (L-Quals, R-Quals, Sister,
+L-Simple, R-Simple) are in one file, `limits.json`, each with where its value came from (`estimate`, `sim` or
+`measured`) and how to time it:
+
+| Limit | Now | What it is |
+|---|---|---|
+| `flowerS` | 3.0 s | a FLOWER's 4 with the extractor seated |
+| `gardenS` | 1.5 s | the GARDEN's 4 |
+| `catchS` | 1.5 s | standing at a catch spot after a TIP |
+| `fireFirstS` | 3.0 s | the Auto's first fire: spin-up, aim and 4 shots |
+| `fireS` | 2.0 s | any later fire of up to 4 pieces |
+
+They start generous: a limit that's too long only wastes time, one that's too short leaves pieces behind. Without a
+working full or empty sensor a limit is the whole wait, so tighten it once the robot is timed
+(`doc/sensing-study.md`: R-Quals keeps its 3 TIPs with no full sensor if `flowerS` is 1.8 s, not at 2.2 s).
+
+**To change one:**
+
+1. Time it on the robot (10 tries; the slowest is what matters) and edit its `value` in `limits.json`, setting
+   `source` to `measured` and noting the date and how.
+2. Re-export the Autos that use it: from `tools/auto-routes/`, `python3 baselines_v.py 0` (L-Quals, R-Quals),
+   `python3 simple.py` (L-Simple, R-Simple), and Sister's pair from `sister.py`. The `.pp` and generated Java change
+   together; commit them with `limits.json` in one PR.
+3. Check the Autos still run: `tools/auto-routes/batch/both.sh` (README there), or the simulator's published rows.
+
+The limits are written into each exported Auto, so the robot runs whatever was last exported; changing them on the
+robot without a re-export (Panels) is issue #182. Game timing (how long a TIP takes, when a spill lands)
+is not in `limits.json`: that's the field, not the robot. `timing.json` beside it holds the Visualizer preview's
+timing facts.

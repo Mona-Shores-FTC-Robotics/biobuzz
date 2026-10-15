@@ -16,6 +16,7 @@ Auto's partner: L-Simple with PartnerPreloadsRightSouthAuto (parks at the zone's
 R-Simple with PartnerLeftVAuto.
 """
 import autogen
+from limits import ms
 from alone import FAR_FLOWER_AT, N_FIRE, PARK, S_START as R_START, Route, fire, seat
 
 L_START = (59, 133.69, 270)  # the drive team's left start (red)
@@ -33,11 +34,11 @@ def l_simple(name="l-simple", tip1_wait_ms=7000):
     r.add(r.action("SpinUp"), r.go("FAR_FLOWER_TURN", ctrl=[(59, 118.34)], turn_after=0.3, turn_by=0.9))
     r.at = "FAR_FLOWER_TURN"
     r.add(r.wait("TIP 1 (the partner's preloads)", when=["LeftCellUp"], ms=tip1_wait_ms),
-          fire(r, "Fire our preloads at the left CELL", "Empty", ms=3000), r.go("FAR_FLOWER", heading=90))
+          fire(r, "Fire our preloads at the left CELL", "Empty", ms=ms("fireFirstS")), r.go("FAR_FLOWER", heading=90))
     r.at = "FAR_FLOWER"
-    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
+    r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=ms("flowerS")), r.go("N_FIRE", turn_after=0.3, turn_by=1.0))
     r.at = "N_FIRE"
-    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Empty", ms=2000),
+    r.add(fire(r, "Fire the far FLOWER's 4 (TIP 2)", "Empty", ms=ms("fireS")),
           r.go("PARK_L", ctrl=PARK_L_CTRL, heading=270, park=True))
     return r
 
@@ -46,7 +47,7 @@ def r_simple(name="r-simple"):
     r = Route(name, R_START, speed=50)
     r.pt("PARK", *PARK)
     # Away at once along x 30, more than 25 in off the HIVE's axis: outside the falling spill (G409, doc/g409-routes.md).
-    r.add(r.action("SpinUp"), fire(r, "Fire the preloads at the right CELL (TIP 1)", "Empty", ms=4000),
+    r.add(r.action("SpinUp"), fire(r, "Fire the preloads at the right CELL (TIP 1)", "Empty", ms=ms("fireFirstS")),
           r.go("PARK", ctrl=[(30, 40)], turn_after=0.2, turn_by=0.8, park=True))
     return r
 

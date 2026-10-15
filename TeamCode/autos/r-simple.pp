@@ -199,7 +199,7 @@
             "cards": []
           },
           {
-            "afterMs": 4000,
+            "afterMs": 3000,
             "cards": []
           }
         ],

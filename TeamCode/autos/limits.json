@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "note": "How long the Autos wait for the robot before moving on: a wait ends when its sensor says so (IntakeFull, Empty) or at this limit. Generous until each is timed on the real robot; tools/auto-routes/limits.py reads them, and TeamCode/autos/README.md says how to change one. Game timing (when a TIP comes, when a spill lands) is not here.",
+  "limits": {
+    "flowerS": { "value": 3.0, "source": "estimate", "note": "a FLOWER's 4 with the extractor seated. The simulator takes 1.66-1.68 s; time the real extractor (10 tries) and set this a little above the slowest. Without a full sensor this is the whole wait: 1.8 s instead of 3.0 is worth TIP 3 on R-Quals (doc/sensing-study.md)" },
+    "gardenS": { "value": 1.5, "source": "estimate", "note": "the GARDEN's 4 from GARDEN_IN. Simulator 1.2-1.5 s" },
+    "catchS": { "value": 1.5, "source": "estimate", "note": "standing at a catch spot after a TIP, for pieces that roll in. Mostly runs to the limit in the simulator: it is a wait for the spill, not for the intake" },
+    "fireFirstS": { "value": 3.0, "source": "estimate", "note": "the Auto's first fire: spin-up, turret slew and 4 shots. Simulator 2.6 s from the right start, 0.65 s once aimed at FAR_FLOWER_TURN. Time it from PLAY" },
+    "fireS": { "value": 2.0, "source": "estimate", "note": "any later fire of up to 4 pieces, aimed. Simulator 0.65-1.1 s (0.2 s a shot). Without an empty sensor this is the whole wait" }
+  }
+}

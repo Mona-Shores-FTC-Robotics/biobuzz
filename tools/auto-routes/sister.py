@@ -30,6 +30,7 @@ stands within reach of a spill in the air. At y 28-30 under the right CELL the V
     python3 sister.py      writes them into experiments/
 """
 import autogen
+from limits import ms
 from autogen import Route
 from alone import seat, S_CATCH, N_FIRE
 from helpers import FAR_FLOWER_AT, WALL_FLOWER_AT, fire
@@ -63,22 +64,22 @@ def right(name="sister-right", rescue_ms=6500, catch_at=(57.5, 21, 90)):
         # in 1 run of 4; held at R_PRE and driven in once it landed, it caught nothing (the pieces bounced off a moving
         # intake). Standing still, further back.
         r.pt("S_CATCH", *catch_at)
-    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=3000), r.go("S_CATCH", heading=90))
+    r.add(fire(r, "Preloads at the right CELL (TIP 1)", "Empty", ms=ms("fireFirstS")), r.go("S_CATCH", heading=90))
     r.at = "S_CATCH"
-    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=1500),
+    retry = [r.wait("TIP 1 missed: catch", when=["IntakeFull"], ms=ms("catchS")),
              fire(r, "TIP 1 missed: fire the catch", "Tip", ms=3000)]
     r.add(r.wait("TIP 1", when=["Tip"], ms=4000, no=retry),
-          r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=1500))
+          r.wait("Catch TIP 1's spill", when=["IntakeFull"], ms=ms("catchS")))
     n0 = len(r.cards)
     if rescue_ms is None:
         r.add(r.wait("TIP 2 (L): the right CELL up", when=["RightCellUp"], ms=10000))
     # TIP 3: the catch the moment L's TIP 2 brings the right CELL up, then the GARDEN's 4 (L adds TIP 2's spill).
-    r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=2000),
+    r.add(fire(r, "TIP 1's catch at the right CELL", "Empty", ms=ms("fireS")),
           r.go("GARDEN_IN", turn_after=0.1, turn_by=0.7))
     r.at = "GARDEN_IN"
     r.add(r.go("GARDEN", heading=270))
     r.at = "GARDEN"
-    r.add(r.wait("The GARDEN's 4", when=["IntakeFull"], ms=1500), r.go("R_S", turn_after=0.2, turn_by=0.8))
+    r.add(r.wait("The GARDEN's 4", when=["IntakeFull"], ms=ms("gardenS")), r.go("R_S", turn_after=0.2, turn_by=0.8))
     r.at = "R_S"
     # TIP 3 can be done before R gets here (L's 3 and TIP 1's catch; on the fixed launcher, R then waited at R_S and
     # TIP 4 came up short in 4 of 60): then the GARDEN's 4 go straight up the left side for TIP 4, no wall FLOWER.
@@ -94,7 +95,7 @@ def right(name="sister-right", rescue_ms=6500, catch_at=(57.5, 21, 90)):
         r.at = "WALL_FLOWER_TURN"
         cards.append(r.go("WALL_FLOWER", heading=180))
         r.at = "WALL_FLOWER"
-        cards += [r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=3000),
+        cards += [r.wait("The wall FLOWER's 4", when=["IntakeFull"], ms=ms("flowerS")),
                   r.go("R_N", ctrl=[(30, 80)], turn_after=0.3, turn_by=0.9)]
         return cards
 
@@ -104,7 +105,7 @@ def right(name="sister-right", rescue_ms=6500, catch_at=(57.5, 21, 90)):
     which = r.wait("The right CELL up", when=["RightCellUp"], ms=1500, yes=normal(), no=[done])
     r.at = "R_N"
     r.add(which, r.wait("The left CELL up", when=["LeftCellUp"], ms=4000),
-          fire(r, "R's 4 at the left CELL (TIP 4, with L)", "Empty", ms=2000))
+          fire(r, "R's 4 at the left CELL (TIP 4, with L)", "Empty", ms=ms("fireS")))
     if rescue_ms is not None:
         # TIP 2 is L's 8 exactly, and 1 of them hit the HIVE in 4 of 60: L then had nothing left, came down the lane
         # anyway and met R waiting at S_CATCH. Not up by rescue_ms (the latest TIP 2 was 5.2 s after the catch): R
@@ -160,9 +161,9 @@ def left(name="sister-left", tips=4, stream_ms=2600, settle_ms=500, catch3_ms=20
         # A fixed launcher can't fire seated (it turns the robot, and the V into the FLOWER): the preloads from
         # FAR_FLOWER_TURN as the left CELL rises, the far FLOWER's 4 from L_N until the TIP (as qual-shoots-right-v-fixed).
         r.add(r.wait("TIP 1 (R): the left CELL up", when=["LeftCellUp"], ms=15000),
-              fire(r, "Preloads at the left CELL", "Empty", ms=3000), r.go("FAR_FLOWER", heading=90))
+              fire(r, "Preloads at the left CELL", "Empty", ms=ms("fireFirstS")), r.go("FAR_FLOWER", heading=90))
         r.at = "FAR_FLOWER"
-        r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=3000), r.go("L_N", turn_after=0.3, turn_by=1.0))
+        r.add(r.wait("The far FLOWER's 4", when=["IntakeFull"], ms=ms("flowerS")), r.go("L_N", turn_after=0.3, turn_by=1.0))
         r.at = "L_N"
         r.add(fire(r, "The far FLOWER's 4 (TIP 2)", "Tip", ms=4000))
     else:
@@ -179,7 +180,7 @@ def left(name="sister-left", tips=4, stream_ms=2600, settle_ms=500, catch3_ms=20
         # NECTAR and the lane takes 3 NECTAR and a POLLEN, so a full catch is 3, and TIP 4 came up 7 of 8 in 9 of 60.
         r.add(*[r.action("LaunchOne") for _ in range(3)])
     else:
-        r.add(fire(r, "TIP 2's catch at the right CELL (TIP 3, with R)", "Empty", ms=2000))
+        r.add(fire(r, "TIP 2's catch at the right CELL (TIP 3, with R)", "Empty", ms=ms("fireS")))
     if tips >= 4:
         # TIP 4: TIP 3's spill caught facing the HIVE at L_S, carried up the lane, turned at L_N, fired with R's.
         r.add(r.wait("TIP 3", when=["LeftCellUp"], ms=6000))
@@ -191,7 +192,7 @@ def left(name="sister-left", tips=4, stream_ms=2600, settle_ms=500, catch3_ms=20
         r.add(r.wait("Catch TIP 3's spill", when=["IntakeFull"], ms=catch3_ms),
               r.go("L_N", ctrl=[(57.5, 50), (57.5, 104)], turn_after=0.85, turn_by=1.0))
         r.at = "L_N"
-        r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=2000))
+        r.add(fire(r, "TIP 3's catch at the left CELL (TIP 4, with R)", "Empty", ms=ms("fireS")))
     if bail_ms is not None:
         # No TIP 2 by bail_ms (R is rescuing it from R_N): straight to PARK from L_N, out of R's way.
         yes = r.cards[n0:]
