@@ -10,11 +10,12 @@ are what we build, test and tune first.
 | **L-Quals** | `LQualsAuto` (`TeamCode/autos/l-quals.pp`) | Qualifiers, from the left start, partner shoots reliably | 73.7, 3 TIPs in 55, 0 |
 | **R-Quals** | `RQualsAuto` (`r-quals.pp`) | Qualifiers, from the right start, partner can't shoot or might not | 72.7, 3 TIPs in 54, 1 |
 | **Sister** | `SisterRightFixedAuto` + `SisterLeftFixedAuto` | Playoffs with the sister team: two of our robots | 89.0, 4 TIPs in 45, 0 |
-| **Simple: preloads, park** | `SimpleLeftPreloadsParkAuto` (`simple-left-preloads-park.pp`) | Path testing: left start, preloads at the left CELL, PARK | LEAVE and PARK 60, all 4 preloads 54 (the turret still slewing when the partner tips the CELL in the rest), 0 |
-| **Simple: TIP, FLOWER, park** | `SimpleLeftFlowerParkAuto` (`simple-left-flower-park.pp`) | Path testing: left start, waits for TIP 1, preloads, the far FLOWER's 4, PARK | LEAVE and PARK 60, the FLOWER's 4 every run, all 8 fired 57, 0 |
+| **L-Simple** | `LSimpleAuto` (`l-simple.pp`) | Path testing: left start, preloads at the left CELL, PARK | LEAVE and PARK 60, all 4 preloads 54 (the turret still slewing when the partner tips the CELL in the rest), 0 |
+| **R-Simple** | `RSimpleAuto` (`r-simple.pp`) | Path testing: left start, waits for TIP 1, preloads, the far FLOWER's 4, PARK | LEAVE and PARK 60, the FLOWER's 4 every run, all 8 fired 57, 0 |
 
 Which qualifier Auto to run (mentor, 8 Oct): partner can't shoot → R-Quals; shoots reliably → either; says it shoots
-but might not → R-Quals. None of the five needs the turret.
+but might not → R-Quals. None of the five needs the turret. L-Simple and R-Simple both start from the left start
+(the names are the mentor's; R-Simple is the one that waits for TIP 1 and takes the far FLOWER).
 
 The partners they're simulated with: `PartnerPreloadsRightHighAuto` (L-Quals), `PartnerLeftVAuto` (R-Quals) and
 `PartnerPreloadsRightSouthAuto` (the simple Autos, which park at the LOADING ZONE's north end, so the partner takes the
@@ -34,7 +35,7 @@ Kept in git history; any can come back if what killed it changes.
 
 ## What stays in the repo (proposed; nothing deleted yet)
 
-- `TeamCode/autos/`: `l-quals.pp`, `r-quals.pp`, `simple-left-*.pp`, `partner-left-v.pp`,
+- `TeamCode/autos/`: `l-quals.pp`, `r-quals.pp`, `l-simple.pp`, `r-simple.pp`, `partner-left-v.pp`,
   `partner-preloads-right-high.pp`, `partner-preloads-right-south` (now in the experiments folder), and Sister's two `.pp` (moved in from the experiments folder).
 - Their generated classes, and the simulator's own partners and tests.
 - `tools/auto-routes/`: the scripts those Autos are built from. L-Quals and R-Quals come through `baselines_v.py`,

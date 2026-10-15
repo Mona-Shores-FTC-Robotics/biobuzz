@@ -1,7 +1,8 @@
-"""Two simple Autos from the drive team's left start, for testing paths on the first robot (mentor, 15 Oct 2026):
+"""Two simple Autos for testing paths on the first robot (mentor, 15 Oct 2026; named by the mentor). Both start from the
+drive team's left start, despite R-Simple's name:
 
-- simple-left-preloads-park: SpinUp, out to FAR_FLOWER_TURN, the preloads at the left CELL, PARK.
-- simple-left-flower-park: the same, but waits for TIP 1 (the partner's preloads) before firing, then the far FLOWER's
+- L-Simple (l-simple): SpinUp, out to FAR_FLOWER_TURN, the preloads at the left CELL, PARK.
+- R-Simple (r-simple): the same, but waits for TIP 1 (the partner's preloads) before firing, then the far FLOWER's
   4 fired from N_FIRE, PARK.
 
 Both PARK in the LOADING ZONE's north end at PARK_L, as Sister's left robot does. Built from alone.py's pieces, so a
@@ -20,7 +21,7 @@ PARK_L = (10.5, 120, 270)
 PARK_CTRL = [(44, 127), (24, 127)]  # Sister's left robot's way to PARK_L: north of the HIVE frame's foot
 
 
-def preloads_park(name="simple-left-preloads-park"):
+def preloads_park(name="l-simple"):
     r = Route(name, START, speed=50)
     r.pt("PARK_L", *PARK_L)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)
@@ -31,7 +32,7 @@ def preloads_park(name="simple-left-preloads-park"):
     return r
 
 
-def flower_park(name="simple-left-flower-park", tip1_wait_ms=6000):
+def flower_park(name="r-simple", tip1_wait_ms=6000):
     r = Route(name, START, speed=50)
     r.pt("N_FIRE", *N_FIRE).pt("PARK_L", *PARK_L)
     seat(r, "FAR_FLOWER", FAR_FLOWER_AT, 90)

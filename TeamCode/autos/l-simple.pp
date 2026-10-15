@@ -209,7 +209,7 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "simple-left-preloads-park",
+    "exportName": "l-simple",
     "registry": {
       "actions": [
         "SpinUp",
