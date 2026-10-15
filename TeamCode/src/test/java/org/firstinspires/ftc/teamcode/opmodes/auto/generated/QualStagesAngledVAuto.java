@@ -45,7 +45,7 @@ public final class QualStagesAngledVAuto {
         Pose start = p.of(59, 8.06, 90);
         Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
-        Pose sCatch = p.of(57.5, 18, 90);
+        Pose sCatch = p.of(57.5, 21, 90);
         Pose gardenIn = p.of(8.5, 20.56, 270);
         Pose garden = p.of(9.5, 10.96, 270);
         Pose park = p.of(10.5, 95, 90);

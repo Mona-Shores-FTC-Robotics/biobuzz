@@ -45,7 +45,7 @@ public final class QualStagesWallVAuto {
         Pose start = p.of(59, 8.06, 90);
         Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
-        Pose sCatch = p.of(57.5, 18, 90);
+        Pose sCatch = p.of(57.5, 21, 90);
         Pose park = p.of(10.5, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
