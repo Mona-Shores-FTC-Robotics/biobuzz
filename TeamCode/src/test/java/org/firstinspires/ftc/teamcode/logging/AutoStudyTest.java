@@ -242,7 +242,20 @@ public class AutoStudyTest {
         wideBar.extractorLateralIn = -7.3;
         wideBar.extractorLateralMaxIn = 7.3;
         m.put(wideBar.name, wideBar);
-        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar}) {
+        // CAD's compromise (robot CAD chat, 8 Oct 2026, doc/robot-cad.md "A wider FLOWER bar"): arms at 5.6 in with a
+        // straight bar, the FLOWER seats within +-3.0 in of the centre line square on (+-2.5 at 3 deg off).
+        RobotDesign cadBar = fixedTurret.copy("rigid V, fixed turret, CAD bar");
+        cadBar.extractorLateralIn = -(3.0 - RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN);
+        cadBar.extractorLateralMaxIn = 3.0 - RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN;
+        // Its outline down (CAD, 8 Oct 2026): across +-5.52 in, 0.70-1.35 in off the tiles, 1.4 in deep, its tip 5.84 in
+        // ahead of the face.
+        cadBar.extractorBarHalfSpanIn = 5.52;
+        cadBar.extractorBarBottomIn = 0.70;
+        cadBar.extractorBarHeightIn = 1.35;
+        cadBar.extractorBarDepthIn = 1.4;
+        cadBar.extractorBarAheadIn = 5.84 - 1.4 / 2;
+        m.put(cadBar.name, cadBar);
+        for (RobotDesign base : new RobotDesign[] {fixedTurret, cornerExtractor, wideBar, cadBar}) {
             for (int e : new int[] {1, 2, 4}) {
                 RobotDesign err = base.copy(base.name + ", seat error " + e + " in");
                 err.seatErrorIn = e;
@@ -439,8 +452,31 @@ public class AutoStudyTest {
      * As above, for {@code alliance} (the Autos are rotated when they were drawn for the other one),
      * with {@code metadata} added to the log's Metadata tab.
      */
+    /**
+     * BIOBUZZ_AUTO_DESIGN_SET="field=value,field=value": every robot's design with those RobotDesign fields set (a
+     * what-if sweep: "intakeWidthIn=28,shotIntervalS=0.1,firesOnTheMove=true"), on a copy, so the named designs stay.
+     */
+    static RobotDesign withSet(RobotDesign design) throws Exception {
+        String set = System.getenv("BIOBUZZ_AUTO_DESIGN_SET");
+        if (design == null || set == null || set.isEmpty()) return design;
+        RobotDesign d = design.checked();
+        for (String kv : set.split(",")) {
+            String[] p = kv.trim().split("=");
+            java.lang.reflect.Field f = RobotDesign.class.getDeclaredField(p[0].trim());
+            f.setAccessible(true);
+            Class<?> t = f.getType();
+            if (t == double.class) f.setDouble(d, Double.parseDouble(p[1].trim()));
+            else if (t == int.class) f.setInt(d, Integer.parseInt(p[1].trim()));
+            else if (t == boolean.class) f.setBoolean(d, Boolean.parseBoolean(p[1].trim()));
+            else throw new IllegalArgumentException("BIOBUZZ_AUTO_DESIGN_SET: " + p[0] + " is not a number or a boolean");
+        }
+        return d;
+    }
+
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
+        design = withSet(design);
+        partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
         double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
         // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
@@ -449,11 +485,15 @@ public class AutoStudyTest {
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
         AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
-        // BIOBUZZ_AUTO_HUMAN_NECTAR=1: our drive team enters a NECTAR after each of our TIPs (G426.A; allowed in AUTO);
-        // BIOBUZZ_AUTO_HUMAN_DELAY_S: how long after the TIP it lands (2 s unless set).
-        if ("1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(true);
-        String humanDelay = System.getenv("BIOBUZZ_AUTO_HUMAN_DELAY_S");
-        if (humanDelay != null) AutoSim.humanDelayS = Double.parseDouble(humanDelay);
+        // The drive team's NECTAR into the LOADING ZONE after each TIP (G426) is on by default, for both alliances
+        // (team decision, 10 Oct 2026). BIOBUZZ_AUTO_HUMAN_NECTAR=0 turns it off for a comparison.
+        if ("0".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(false);
+        // BIOBUZZ_AUTO_HUMAN_ENTRY=roll / BIOBUZZ_AUTO_HUMAN_BANK=N / BIOBUZZ_AUTO_HUMAN_CUE=1: how it goes in (see
+        // AutoSim). Read here, not in the study loop, so a direct run() gets them too (the body-designs chat, 9 Oct).
+        AutoSim.humanRolls = "roll".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_ENTRY"));
+        String bank = System.getenv("BIOBUZZ_AUTO_HUMAN_BANK");
+        AutoSim.humanBank = bank == null ? 0 : Integer.parseInt(bank);
+        AutoSim.humanCue = "1".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_CUE"));
         if (cameraDown(autos[0])) sim.cameraDown();
         if (first == PartnerThreeTipAuto.class) {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
@@ -512,6 +552,18 @@ public class AutoStudyTest {
         // BIOBUZZ_AUTO_TIP_DWELL=0: no dwell before a TIP (the simulator before issue #167), for before/after comparisons.
         double[] dwellRange = FieldSim.tipDwellRange;
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_TIP_DWELL"))) FieldSim.tipDwellRange = null;
+        // BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (0: aims at once, as the simulation did before 9 Oct 2026).
+        String slew = System.getenv("BIOBUZZ_AUTO_TURRET_DEG_PER_S");
+        AutoSim.turretSlewOverrideRadPerS = slew == null ? Double.NaN : Math.toRadians(Double.parseDouble(slew));
+        // BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (0: without limit, a slip ring).
+        // BIOBUZZ_AUTO_CAPACITY: pieces a robot holds (4 is G407's limit; a what-if).
+        // BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1: the robot's surfaces' bounce for a what-if (FieldSim.ROBOT_RESTITUTION otherwise).
+        String bounce = System.getenv("BIOBUZZ_AUTO_ROBOT_RESTITUTION");
+        FieldSim.robotRestitution = bounce == null ? FieldSim.ROBOT_RESTITUTION : Double.parseDouble(bounce);
+        String cap = System.getenv("BIOBUZZ_AUTO_CAPACITY");
+        FieldSim.ROBOT_CAPACITY = cap == null ? 4 : Integer.parseInt(cap);
+        String travel = System.getenv("BIOBUZZ_AUTO_TURRET_TRAVEL_DEG");
+        AutoSim.turretTravelOverrideDeg = travel == null ? Double.NaN : Double.parseDouble(travel);
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_VARIETY"))) { FieldSim.spillVariety = 0; FieldSim.bounceScatter = 0; }
         try {
             studyAll(specs);
@@ -670,7 +722,8 @@ public class AutoStudyTest {
                 System.out.printf(Locale.ROOT, "STUDY   seed %d: %d pts, TIPs at %s%n", seed, r.autoPoints(), r.tipsAt);
             }
             String tl = System.getenv("BIOBUZZ_AUTO_TIMELINE");
-            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : !tl.equals("issues") && Long.parseLong(tl) == seed)) {
+            if (tl != null && tl.isEmpty()) tl = null;  // BIOBUZZ_AUTO_TIMELINE= (a script's empty default) means unset
+            if (tl != null && (tl.equals("1") ? seed == 1 : tl.equals("all") || (tl.equals("fail") ? (r.robots.stream().anyMatch(x -> !x.park)) : !tl.equals("issues") && Long.parseLong(tl) == seed))) {
                 System.out.println("STUDY   seed " + seed + ": " + r);
                 for (AutoSim.RobotResult robot : r.robots) {
                     for (String t : robot.timeline) System.out.println("STUDY     " + robot.auto + " " + t);

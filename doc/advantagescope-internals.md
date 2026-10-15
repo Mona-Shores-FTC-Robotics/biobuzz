@@ -11,7 +11,7 @@ The drawing is `RobotInternalsLog` (test code, `TeamCode/src/test/.../logging/`)
 writes its keys once the match is over. It draws what the simulator decided and changes no outcome: the same seeds
 score the same with it as without it.
 
-The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit 3b39912. The launcher is fixed to the robot,
+The robot is the mentor's CAD with transfer v4 (its goBILDA build, servo-driven lane and feeder), from the CAD chat's commit c569f93, with the electronics bay, the turret's servo, its two Thru-Bore encoders and the OctoQuad, and the Pinpoint. The launcher is fixed to the robot,
 and only the turret ring turns: it will carry the hood that directs the shot.
 
 ## What you see
@@ -40,7 +40,7 @@ turn at a display rate, 2 turns a second, while they run: real roller and flywhe
 |---|---|---|---|
 | 0 | FLOWER extractor | About its shaft (0.25298, 0, 0.1143) m. 0° down, 146° stowed | The simulator's `Extractor/Down`: down on the way to a FLOWER, up as the robot leaves |
 | 1 | Roller carriage, motor, float plates | Straight up, 0 to 1.3 in | Rises until the roller clears the pieces passing under it, less the 0.4 in a POLLEN squeezes the tread. So only a NECTAR lifts it, by about 0.8 in |
-| 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.051895, 0.004) m, 4 mm left of the centre line | Turns toward the raised CELL's aim point while the launcher is spun up or firing, and holds its last angle otherwise. Straight ahead at the start |
+| 2 | Turret ring (the bearing's inner race and its gear; the hood later) | About +Z through (−0.051895, 0.004) m, 4 mm left of the centre line | The simulator's turret yaw: it slews at 240°/s toward the CELL of the robot's end of the field. Straight ahead at the start |
 | 3 | Feeder: two 72 mm wheels on a shaft along X, left of the held piece | About −X through (−0.051943, 0.07283, 0.081619) m, on a yoke whose 10° swing isn't drawn | Spins while a piece is being fed, driving it up |
 | 4 | Intake roller | About +Y through its axle (0.218973, 0, 0.08636) m, plus the carriage's rise | Spins while the intake runs; the bottom moves rearward |
 | 5, 6 | Left and right flywheel axles, two 96 mm wheels each | About −X and +X through (−0.05588, 0.0765 and −0.0685, 0.1688) m, 145 mm apart | Spin while the launcher is spun up, both throwing the piece up |
@@ -72,9 +72,9 @@ timings, as above.
 - **The feed starts before the fire command.** The simulator launches a piece the moment the launcher allows it,
   with no transfer delay. The drawing puts the 0.15 s feed before that launch, so the first piece of a volley starts
   rising 0.15 s before `LaunchAll` appears in the events. The shots leave at the simulator's times.
-- **The turret's speed is a placeholder,** 360°/s (`PLACEHOLDER_TURRET_DEG_PER_S`). The simulator aims instantly; the
-  drawing turns at a finite rate, so you can see it turn. `TurretErrorDeg` shows the lag. It's large only for about
-  0.4 s after the raised CELL changes, which on the routes here is well before the next shot.
+- **The turret is the simulator's.** The simulator slews it at 240°/s (`RobotDesign.turretSlewRadPerS`, the goBILDA
+  servo, from the 8 Oct meeting), pre-aims it at the CELL of the robot's end of the field, and holds a launch until it
+  is within 2°. The drawing shows that yaw; `TurretErrorDeg` is its error against the raised CELL's aim.
 - **The roller's float** comes from the pieces' drawn places, not from any physics. The simulator's own intake rule
   decides which pieces get in.
 - **A piece shot, missed and taken in again** joins the queue again, and is drawn rising to the launcher again before

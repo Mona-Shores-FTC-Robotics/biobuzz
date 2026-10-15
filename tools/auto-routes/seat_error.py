@@ -16,12 +16,12 @@ R = "RQualsAuto,PartnerLeftVAuto"
 C = "QualSouthVCornerAuto,PartnerLeftVAuto"
 CI = "QualSouthVCornerInAuto,PartnerLeftVAuto"  # the corner route aimed 1.5 in inside the bar's end
 BASE = "rigid V, fixed turret"
-DESIGNS = {L: [BASE, BASE + ", wide bar"], R: [BASE, BASE + ", wide bar"],
+DESIGNS = {L: [BASE, BASE + ", CAD bar", BASE + ", wide bar"], R: [BASE, BASE + ", CAD bar", BASE + ", wide bar"],
            C: [BASE + ", corner extractor", BASE + ", wide bar"], CI: [BASE + ", wide bar"]}
 ERRORS = (0, 1, 2, 4)
 ENV = {"BIOBUZZ_AUTO_PARTNER_DESIGN": "spring hood", "BIOBUZZ_AUTO_PARTNER_SPEED": "40", "BIOBUZZ_AUTO_SEED_ROWS": "1"}
 NAMES = {L: "L-Quals", R: "R-Quals", C: "qual-south-v-corner", CI: "qual-south-v-corner-in"}
-EXTRACTOR = {BASE: "centre block", BASE + ", corner extractor": "corner", BASE + ", wide bar": "wide bar"}
+EXTRACTOR = {BASE: "centre block", BASE + ", CAD bar": "CAD bar (+-3.0)", BASE + ", corner extractor": "corner", BASE + ", wide bar": "wide bar"}
 
 
 def design(base, e):

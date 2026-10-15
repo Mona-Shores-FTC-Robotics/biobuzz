@@ -2,8 +2,8 @@
 step times from the simulator's logs and a few guesses (marked), with the HIVE's random dwell.
 
 The plan it times (doc/unified-design.md, "Two of our robots"): each robot keeps to its own end and recovers a whole
-spill (about 8: 4 caught, 4 more staged off the same spill), R doesn't park. Human NECTAR can't be entered during
-AUTO (mentor, 9 Oct 2026), so TIP 4's second load is the rest of TIP 2's spill. G407 holds a robot to 4 pieces, so each TIP's second load is set
+spill (about 8: 4 caught, 4 more staged off the same spill), R doesn't park. The human player's NECTAR (one per TIP,
+allowed during AUTO: team decision, 10 Oct 2026) only replaces POLLEN in a 4-piece load, so TIP 4's second load is the rest of TIP 2's spill. G407 holds a robot to 4 pieces, so each TIP's second load is set
 down beside the firing spot and picked back up (staged), or streamed: fired while intaking, never more than 4 aboard.
 
     python3 five_tip_budget.py

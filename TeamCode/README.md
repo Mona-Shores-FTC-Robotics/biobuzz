@@ -1537,7 +1537,8 @@ the robot. The other alliance runs it rotated, as on the robot. Underneath, `Aut
   CELL's closed side.
 - **The rest of the field**, when a run asks for it: a partner that stands still with its 4 POLLEN
   staged on the tiles beside it (`AutoSim.partner`), and the drive team entering one NECTAR into the
-  LOADING ZONE 2 s after each TIP (`AutoSim.humanNectar`, G426/G427).
+  LOADING ZONE 2 s after each TIP (`AutoSim.humanNectar`, G426/G427; on in every run since 10 Oct 2026, a
+  placeholder for the drive team's rolled entry).
 - **Time.** The log runs 8 s past AUTO, through the transition before TELEOP: a TIP that completes
   then still counts for AUTO (§10.5 B), so a shot launched just before 30 s can still earn its TIP.
 - **Triggers.** `IntakeFull`, `LauncherReady`, `Tip` (the alliance's HIVE has started to tip since
@@ -1758,6 +1759,51 @@ fire for it, so each such wait runs to its time limit, and `CameraBlind` is true
 still work, the start check still runs (it is the referee's rule, not the camera's), and the HIVE still
 tips when its shots land. Any robot in the spec can be blind, so a backup route can be measured beside a
 normal partner, or against blind opponents.
+
+A turret design's turret turns at `RobotDesign.turretSlewRadPerS` (240 deg/s, the servo of the 8 Oct 2026 meeting).
+While the flywheels spin it pre-aims at the CELL of the end the robot is in, switching only past the HIVE frame's span
+(`AutoSim.TURRET_SWITCH_IN`: y 51 and 90.5 for red, the mentor's rule with hysteresis, 9 Oct 2026); a launch goes at
+the raised CELL and fires once the turret is within 2 deg. The timeline reports "turret: the fire step waited N s for
+the turret" (or "on target when the fire step began"), each side switch, when the turret was on target after it, and
+how long before the next fire step the switch came; a launch at the far CELL is flagged. `BIOBUZZ_AUTO_TURRET_DEG_PER_S`
+overrides the slew for every robot in a study (0: aims at once, as before 9 Oct 2026); `BIOBUZZ_AUTO_TIMELINE=all`
+prints every seed's timeline for a script to count. The turret's travel is 720 deg (`RobotDesign.turretTravelDeg`, the
+mentor's margin inside the two-encoder turret's 1178 deg absolute window, 9 Oct 2026; `BIOBUZZ_AUTO_TURRET_TRAVEL_DEG`
+tries another, 0 for a slip ring's unlimited turn), a window centred on straight ahead: between fire steps a turret wound past 200 deg unwinds to
+the nearer reading of its bearing (`AutoSim.TURRET_UNWIND_RAD`), so the unwind happens on the drive and never inside
+a fire step; the timeline reports each one ("turret: the long way round, 300 deg in 1.2 s").
+
+What-if sweeps: `BIOBUZZ_AUTO_DESIGN_SET="intakeIntervalS=0.17,intakeMaxSpeedInPerS=120"` sets any numeric or boolean
+`RobotDesign` field on every robot's design for the study (a copy; the named designs keep their values), and
+`BIOBUZZ_AUTO_CAPACITY=5` tries a robot that holds more than G407's 4; `BIOBUZZ_AUTO_ROBOT_RESTITUTION=0.1` tries a softer
+or harder robot surface than `FieldSim.ROBOT_RESTITUTION` (the spill lands on the body's front and the intake mouth, so this
+is the lever: 0.4 → 0.1 is worth 7-9 points to the Sister pairs, 11 Oct 2026). `RobotDesign.firesOnTheMove` lets a design
+fire before it has stopped at a firing spot. All three are for asking what a different robot would score, not for
+describing ours (9 Oct 2026, the CAD chat's redesign brief). The drive team enters one NECTAR into the LOADING ZONE
+after each TIP (G426), for both alliances, in every run: the team's decision of 10 Oct 2026 is that this is allowed
+during AUTO, and the baselines carry it. The model, a drop at the zone's centre 2 s after the TIP, is a placeholder
+for the drive team's planned technique (a roll along the wall into a waiting intake, doc/human-nectar.md on the
+meeting-notes branch) until their drill gives real timings. `BIOBUZZ_AUTO_HUMAN_NECTAR=0` turns it off for a
+comparison. `BIOBUZZ_AUTO_HUMAN_ENTRY=roll` rolls it along the wall instead
+(doc/human-nectar.md on the meeting-notes branch: released 1 s after the TIP at the zone's end away from the HIVE,
+12 in/s, 5 in off the wall, one in twenty wide, held while a robot is on that half of the zone), and
+`BIOBUZZ_AUTO_HUMAN_BANK=3` holds the first entries until three are owed and rolls them in together, 0.6 s apart.
+`BIOBUZZ_AUTO_HUMAN_CUE=1` holds every entry until one of our robots sits still within 4 in of (10, 96), the catch
+spot (blue the half turn), as a drive team would wait for its robot. A 12 in/s roll leaves the zone unless a robot
+waits for it; `HumanNectarTest` pins the roll's distance. What the runs said (9 Oct 2026, 60 seeds each, today's
+robot): on the Sister five routes as drawn, nobody is at the zone when a NECTAR arrives, and every variant sits within
+noise of the fifth TIPs without it (the body-designs chat's retuned routes: 24 without, 23-25 with a catcher waiting on the
+cue, 10 when it tops up at the wall FLOWER afterwards). The catch itself is reliable (all 3 of a bank in 22 of 28
+runs, the first roll 0.4 s after the robot is seated); it breaks even because an emptied CELL needs 7.95 POLLEN-weights
+and a 4-piece load of NECTAR is 6.6, so NECTAR replaces POLLEN in a load and never adds a load.
+Two more what-ifs from the same brief:
+`RobotDesign.flowThrough` with the `GateOpen` / `GateClose` cards (a flow-through intake: with the gate open a 5th
+piece pushes the first out of the back onto the tiles, so it never CONTROLS more than 4; firing as it collects is
+`StreamOn`), and `RobotDesign.launchRangeIn` (60 in is the placeholder). `tools/auto-routes/flow_solo.py` is the
+probe that asked whether one robot can make 4 TIPs alone (no: shots from one end into the far CELL hit the HIVE, the
+spill ends against the wall and the wall FLOWER, and G407 makes every later TIP two trips). A CollectSeen that chased
+nothing now says why in the timeline ("collect: nothing to chase; nearest POLLEN 16 in away at (59, 6): the approach
+would hit the HIVE frame, a FLOWER or a wall").
 
 The new routes were written with `tools/auto-routes/` (a few lines of Python per route, exported
 with the Auto Builder's own exporter); their `.pp` files are the source as usual.

@@ -74,7 +74,8 @@ final class FieldSim {
     /** The standard design's intake ({@link RobotDesign#intakeWidthIn}), for planners that aim at it. */
     static final double INTAKE_HALF_WIDTH_IN = 7.0;
     /** Competition Manual G407: a robot may not control more than 4 SCORING ELEMENTS. */
-    static final int ROBOT_CAPACITY = 4;
+    /** How many pieces a robot holds at once (G407's limit is 4; BIOBUZZ_AUTO_CAPACITY tries another in a study). */
+    static int ROBOT_CAPACITY = 4;
     /**
      * The transfer's lane (RobotDesign#laneCapacity; Transfer v3, the transfer chat, 7 Oct 2026): pieces queue nose to
      * tail from a backstop to the intake roller's axle, and one is held once its centre is behind the axle. The
@@ -117,7 +118,14 @@ final class FieldSim {
     static final double PLACEHOLDER_WALL_RESTITUTION = 0.45;
     static final double PLACEHOLDER_PIECE_RESTITUTION = 0.5;
     static final double PLACEHOLDER_HIVE_RESTITUTION = 0.2;
-    static final double PLACEHOLDER_ROBOT_RESTITUTION = 0.1;
+    /**
+     * Restitution off the robot's surfaces (body, flaps and guides unless a design sets its own). 0.4 was measured on
+     * the mentor's black lane-bar foam over a hard backing (the lab's drop test, 10 Oct 2026: POLLEN about 0.40,
+     * NECTAR about 0.38, one slow-motion drop each); the body's surfaces (polycarbonate, aluminium, printed parts) are
+     * assumed equal until measured, so this is a pessimistic placeholder for them, to be split into face and body
+     * when Monday's set says they differ. 0.1 was the guess before it.
+     */
+    static final double ROBOT_RESTITUTION = 0.4;
     /**
      * Fraction of sliding speed lost per second in contact with a surface: a robot, the HIVE, a CELL, a
      * wall. Not on the tiles alone: a piece rolling on the tiles slows only by {@link #FILMED_ROLLING_DECEL_IN_PER_S2}.
@@ -239,7 +247,7 @@ final class FieldSim {
     static final double FILMED_TIP_DWELL_OVERLOADED_S = 0.5;
     static double[] tipDwellRange = FILMED_TIP_DWELL_SECONDS;
     /** Robots' restitution on its own, apart from bounceScale (mentor review). */
-    static double robotRestitution = PLACEHOLDER_ROBOT_RESTITUTION;
+    static double robotRestitution = ROBOT_RESTITUTION;
 
     /** A flap's or guide's restitution: its own (RobotDesign#flapRestitution) or the robot's. */
     static double flapRestitution(RobotDesign d) {
@@ -486,6 +494,11 @@ final class FieldSim {
         double[] aimPoint() {
             int end = raisedEnd();
             if (end == 0) return null;
+            return aimPointFor(end);
+        }
+
+        /** The same point for the CELL at {@code end} (+1 high y, -1 low y), raised or not: where a turret pre-aims. */
+        double[] aimPointFor(int end) {
             return toWorld(0, end * (CELL_OPENING_IN - 2.5), CELL_FLOOR_IN + 0.45 * HiveGeometry.OPENING_HEIGHT_IN);
         }
     }
@@ -527,6 +540,8 @@ final class FieldSim {
          * Its caller moves it; the walls stop pieces only while it is above 0.
          */
         double wallsOut;
+        /** A flow-through intake's back gate (RobotDesign#flowThrough): open, a 5th piece pushes the first out the back. */
+        boolean gateOpen;
         /** How far down its FLOWER extractor is ({@link RobotDesign#extractorSeatIn}), 0 stowed to 1 down. Its caller moves it. */
         double extractorDown;
         /** This seat's lateral error (RobotDesign#seatErrorIn), drawn by its caller each time the extractor comes down. */
@@ -846,6 +861,36 @@ final class FieldSim {
         return true;
     }
 
+    /** How fast a piece leaves a flow-through robot's back, in/s: it rolls to the wall behind when the robot is near it (a guess). */
+    static final double PLACEHOLDER_OUT_BACK_IN_PER_S = 20;
+
+    /**
+     * A flow-through robot ({@link RobotDesign#flowThrough}) with its gate open passes its first piece out of the
+     * back as another comes in: onto the tiles just behind it, rolling away from it at
+     * {@link #PLACEHOLDER_OUT_BACK_IN_PER_S}, so a row settles against the end wall when the robot stands near it.
+     */
+    void outBack(Bot bot) {
+        if (bot.stored.isEmpty()) return;
+        Piece p = bot.stored.remove(0);
+        double c = Math.cos(bot.h), s = Math.sin(bot.h);
+        double behind = -(bot.design.frameIn / 2 + p.kind.radius + 0.1);
+        double left = 0.5 * variety.nextGaussian();
+        double v = -PLACEHOLDER_OUT_BACK_IN_PER_S * (1 + 0.15 * variety.nextGaussian());
+        p.where = Where.FIELD;
+        p.cell = null;
+        p.flower = -1;
+        p.x = bot.x + behind * c - left * s;
+        p.y = bot.y + behind * s + left * c;
+        p.z = p.kind.radius;
+        p.vx = bot.vx + v * c;
+        p.vy = bot.vy + v * s;
+        p.vz = 0;
+        p.wx = p.wy = p.wz = 0;
+        p.touchedTile = true;
+        outtaken.add(p);
+        events.add("out the back: " + name(p.kind) + " (" + bot.stored.size() + " held)");
+    }
+
     /** Whether {@code (x, y)} is under the HIVE frame's footprint (Competition Manual §9.6.1). */
     static boolean underHive(double x, double y) {
         return Math.abs(x - CENTRE_IN) < FOOT_BAR_HALF_SPAN_X_IN && Math.abs(y - CENTRE_IN) < FOOT_BAR_HALF_LENGTH_IN;
@@ -920,6 +965,31 @@ final class FieldSim {
             p.z = NECTAR_RADIUS_IN + 4; // dropped in, not placed
             p.vx = p.vy = p.vz = 0;
             events.add("human: " + name(kind) + " into the LOADING ZONE");
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * The same NECTAR rolled along the wall instead (doc/human-nectar.md, the CAD chat, 9 Oct 2026): released
+     * {@code offWallIn} from the alliance wall at the LOADING ZONE's end away from the HIVE, rolling toward the HIVE
+     * end at {@code speedInPerS}, where a robot can wait for it with its intake back along the wall. It slows by
+     * NECTAR's rolling resistance alone, so a gentle roll stops inside the zone and a brisk one leaves it.
+     */
+    boolean enterNectarRolled(Alliance alliance, double offWallIn, double speedInPerS) {
+        Kind kind = alliance == Alliance.BLUE ? Kind.BLUE_NECTAR : Kind.RED_NECTAR;
+        double[] zone = loadingZone(alliance);
+        boolean blue = alliance == Alliance.BLUE;
+        for (Piece p : pieces) {
+            if (p.where != Where.OUTSIDE || p.kind != kind) continue;
+            p.where = Where.FIELD;
+            p.x = blue ? FIELD_SIZE_IN - offWallIn : offWallIn;
+            p.y = blue ? zone[2] + NECTAR_RADIUS_IN + 1 : zone[3] - NECTAR_RADIUS_IN - 1;
+            p.z = NECTAR_RADIUS_IN + 0.05;
+            p.vx = p.vz = 0;
+            p.vy = blue ? speedInPerS : -speedInPerS;
+            events.add(String.format(Locale.ROOT, "human: %s rolled along the wall from (%.1f, %.1f) at %.0f in/s",
+                    name(kind), p.x, p.y, speedInPerS));
             return true;
         }
         return false;
@@ -1114,6 +1184,7 @@ final class FieldSim {
                         if (why != null && !full(bot)) miss(bot, p, why);
                         continue;
                     }
+                    if (bot.design.flowThrough && bot.gateOpen && !hasRoom(bot, p.kind) && canTake(bot, p)) outBack(bot);
                     if (!hasRoom(bot, p.kind)) {
                         miss(bot, p, "full");
                     } else if (!canTake(bot, p)) {
@@ -1450,11 +1521,15 @@ final class FieldSim {
         if (!Double.isNaN(d.extractorLateralMaxIn) && !Double.isNaN(d.extractorSeatIn) && bot.extractorDown > 0.5) {
             // A wide extractor's bar, down: across the seat line, its span the lateral range plus the seat tolerance.
             double[] range = d.extractorLateralRange();
-            double lx = half + d.extractorSeatIn, ly = (range[0] + range[1]) / 2;
+            double lx = half + (Double.isNaN(d.extractorBarAheadIn) ? d.extractorSeatIn : d.extractorBarAheadIn);
+            double ly = (range[0] + range[1]) / 2;
             double cx = bx + lx * c - ly * s, cy = by + lx * s + ly * c;
             double fvx = bot.vx - bot.w * (cy - by), fvy = bot.vy + bot.w * (cx - bx);
-            flap |= box(p, cx, cy, bh, RobotDesign.FLAP_THICKNESS_IN, (range[1] - range[0]) / 2 + RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN,
-                    0, d.extractorBarHeightIn, fvx, fvy, bot.w, bounce(robotRestitution));
+            double halfDepth = Double.isNaN(d.extractorBarDepthIn) ? RobotDesign.FLAP_THICKNESS_IN : d.extractorBarDepthIn / 2;
+            double halfSpan = Double.isNaN(d.extractorBarHalfSpanIn)
+                    ? (range[1] - range[0]) / 2 + RobotDesign.EXTRACTOR_SEAT_TOLERANCE_IN : d.extractorBarHalfSpanIn;
+            flap |= box(p, cx, cy, bh, halfDepth, halfSpan, d.extractorBarBottomIn, d.extractorBarHeightIn, fvx, fvy, bot.w,
+                    bounce(robotRestitution));
         }
         if ((hit || flap) && !p.touchedTile) {
             p.frameBeforeTile |= hit;

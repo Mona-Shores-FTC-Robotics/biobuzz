@@ -87,11 +87,41 @@ public final class AutoSim {
 
     // Mechanisms: not measured, like the rest of the simulated robot.
     /** How long after a TIP a drive-team member gets a NECTAR into the LOADING ZONE. */
-    static double humanDelayS = 2.0;
+    static final double HUMAN_DELAY_S = 2.0;
+    /**
+     * The rolled entry (doc/human-nectar.md, 9 Oct 2026): released this long after the TIP once no robot is on the
+     * release half of the zone, this far off the wall give or take an inch, at this speed give or take 2 in/s, and
+     * one in twenty goes wide (6 in further off the wall). The numbers are placeholders until a practice drill
+     * measures them. BIOBUZZ_AUTO_HUMAN_ENTRY=roll turns it on; BIOBUZZ_AUTO_HUMAN_BANK=N holds the first entries
+     * until N are owed (TU02's G426 note: a NECTAR need not be entered at once) and rolls them in one after another.
+     */
+    static boolean humanRolls = false;
+    static int humanBank = 0;
+    /**
+     * Roll on cue (BIOBUZZ_AUTO_HUMAN_CUE=1): every owed NECTAR, bank or single, is held until one of the alliance's
+     * robots sits at the catch spot, {@link #HUMAN_CUE_RADIUS_IN} around {@link #HUMAN_CATCH_SPOT_RED} (blue the
+     * half turn) and nearly still, as a drive team would wait for its robot. With no catcher, nothing is entered.
+     */
+    static boolean humanCue = false;
+    static final double[] HUMAN_CATCH_SPOT_RED = {10, 96};
+    static final double HUMAN_CUE_RADIUS_IN = 4;
+    static final double HUMAN_ROLL_DELAY_S = 1.0;
+    static final double HUMAN_ROLL_OFF_WALL_IN = 5.0;
+    static final double HUMAN_ROLL_SPEED_IN_PER_S = 12.0;
+    static final double HUMAN_ROLL_MISS_CHANCE = 0.05;
+    static final double HUMAN_ROLL_GAP_S = 0.6;
     /** A frame-fixed launcher launches once the robot faces the CELL this closely. */
     static double AIM_TOLERANCE_RAD = Math.toRadians(2);
     /** Fire only once the robot is still (under 1 in/s and 2 deg/s): "known positions, no disruption" (mentor, 6 Oct 2026). */
     static boolean fireOnlyWhenStill = false;
+    /** BIOBUZZ_AUTO_TURRET_DEG_PER_S: every turret's slew (NaN: each design's own; 0: at once, as before 9 Oct 2026). */
+    static double turretSlewOverrideRadPerS = Double.NaN;
+    /** The side-of-field aim's hysteresis: the turret switches CELLs this far past the centre line (y 51 and 90.5 for red). */
+    static final double TURRET_SWITCH_IN = 19.75;
+    /** BIOBUZZ_AUTO_TURRET_TRAVEL_DEG: every turret's travel window (NaN: each design's own; 0: without limit). */
+    static double turretTravelOverrideDeg = Double.NaN;
+    /** Wound past this between fire steps, a turret with a travel window unwinds to the nearer reading of its bearing. */
+    static final double TURRET_UNWIND_RAD = Math.toRadians(200);
 
     // The webcam CollectSeen drives by (the robot's PieceVisionSubsystem): it looks the way the
     // intake faces and sees loose pieces on the tiles. Placeholders, like the rest of the robot.
@@ -326,9 +356,12 @@ public final class AutoSim {
     java.util.function.BiConsumer<FieldSim, Double> observer;
     private double[] partnerPose;
     private double[][] partnerSpots;
-    private boolean humanNectar;
+    /** On by default: the team's reading of G426/G427 (lab, 10 Oct 2026) is that the human player enters NECTAR during AUTO. */
+    private boolean humanNectar = true;
     private final List<Double> nectarDueAt = new ArrayList<>();
     private final List<Double> theirNectarDueAt = new ArrayList<>();
+    /** Whether the first bank has gone in: ours, theirs. */
+    private final boolean[] bankEntered = new boolean[2];
     private double now;
     private List<double[]> lastArc;
     private int lane;
@@ -423,13 +456,65 @@ public final class AutoSim {
     }
 
     /**
-     * Has the drive team enter one NECTAR into the LOADING ZONE {@link #humanDelayS} after each
-     * TIP of their HIVE, as G426 allows. Off unless asked for: whether that is allowed during AUTO is
-     * worth confirming with the Q&amp;A before an Auto counts on it.
+     * Whether the drive team enters one NECTAR into the LOADING ZONE {@link #HUMAN_DELAY_S} after each
+     * TIP of their HIVE, as G426 allows during AUTO (team decision, 10 Oct 2026). On by default; a study
+     * turns it off to see what the entry is worth. The mid-zone drop 2 s after the TIP is a placeholder
+     * for the drive team's technique (a roll along the wall into a waiting intake, doc/human-nectar.md)
+     * until their drill gives real timings.
      */
     AutoSim humanNectar(boolean on) {
         humanNectar = on;
         return this;
+    }
+
+    /** One loop's human-player entries for an alliance: {@code due} holds when each owed NECTAR may go in. */
+    private void humanEntries(Alliance a, List<Double> due, int side, Result result) {
+        if (due.isEmpty() || now < due.get(0)) return;
+        if (humanBank > 1 && !bankEntered[side] && due.size() < humanBank) return;  // the human waits for the bank
+        if (!humanRolls) {
+            due.remove(0);
+            sim.enterNectar(a);
+            bankEntered[side] = true;
+            return;
+        }
+        if (humanCue && !catcherReady(a)) return;  // the human waits for the robot
+        if (!releasePathClear(a)) return;  // the delay stretches while a robot is on the release half
+        due.remove(0);
+        bankEntered[side] = true;
+        boolean wide = sim.random.nextDouble() < HUMAN_ROLL_MISS_CHANCE;
+        double off = Math.max(2.5, HUMAN_ROLL_OFF_WALL_IN + sim.random.nextGaussian() + (wide ? 6 : 0));
+        double speed = Math.max(6, HUMAN_ROLL_SPEED_IN_PER_S + 2 * sim.random.nextGaussian());
+        if (sim.enterNectarRolled(a, off, speed)) {
+            String text = String.format(Locale.ROOT, "human: NECTAR rolled along the wall, %.1f in off it at %.0f in/s%s",
+                    off, speed, wide ? " (wide)" : "");
+            for (Bot b : bots) if (b.alliance == a) result.robots.get(b.index).timeline.add(String.format(Locale.ROOT, "%5.2f %s", now, text));
+        }
+        // The next of a bank follows after a gap.
+        if (!due.isEmpty()) due.set(0, Math.max(due.get(0), now + HUMAN_ROLL_GAP_S));
+    }
+
+    /** One of the alliance's robots at the catch spot and nearly still (under 2 in/s). */
+    private boolean catcherReady(Alliance a) {
+        double sx = a == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - HUMAN_CATCH_SPOT_RED[0] : HUMAN_CATCH_SPOT_RED[0];
+        double sy = a == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - HUMAN_CATCH_SPOT_RED[1] : HUMAN_CATCH_SPOT_RED[1];
+        for (Bot b : bots) {
+            if (b.alliance != a) continue;
+            double[] pose = pedro(b.drive.pose);
+            if (Math.hypot(pose[0] - sx, pose[1] - sy) < HUMAN_CUE_RADIUS_IN && b.body.speed() < 2) return true;
+        }
+        return false;
+    }
+
+    /** No robot's centre on the release half of the alliance's LOADING ZONE (the end away from the HIVE), 9 in around it. */
+    private boolean releasePathClear(Alliance a) {
+        double[] zone = FieldSim.loadingZone(a);
+        double mid = (zone[2] + zone[3]) / 2;
+        double yLo = a == Alliance.BLUE ? zone[2] : mid, yHi = a == Alliance.BLUE ? mid : zone[3];
+        for (Bot b : bots) {
+            double[] pose = pedro(b.drive.pose);
+            if (pose[0] > zone[0] - 9 && pose[0] < zone[1] + 9 && pose[1] > yLo - 9 && pose[1] < yHi + 9) return false;
+        }
+        return true;
     }
 
     /** The staged pieces' rings: {@code /Sim/Staged/Ring<i>}, one a piece Outtake pushed out. */
@@ -567,7 +652,7 @@ public final class AutoSim {
             FieldRobot.putAll(log, allRobots, 0);
         }
         fieldLog.write(log, sim, 0);
-        for (Bot b : bots) internals.record(b.index, false, false, 0);
+        for (Bot b : bots) internals.record(b.index, false, false, b.turretYaw, 0);
         putClock(log, -PRE_ROLL_S);
         long autoStartUs = Math.round(PRE_ROLL_S * 1e6);
         log.put(AdvantageScopeKeys.ENABLED, true, autoStartUs);
@@ -693,25 +778,19 @@ public final class AutoSim {
             if (ours.tips > tipsSeen) {
                 tipsSeen = ours.tips;
                 result.tipsAt.add(now);
-                if (humanNectar) nectarDueAt.add(now + humanDelayS);
+                if (humanNectar) nectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
             }
-            while (!nectarDueAt.isEmpty() && now >= nectarDueAt.get(0)) {
-                nectarDueAt.remove(0);
-                sim.enterNectar(alliance);
-            }
+            humanEntries(alliance, nectarDueAt, 0, result);
             if (result.opponents) {
                 FieldSim.Rocker theirs = sim.rocker(alliance.other());
                 if (theirs.tips > result.theirTipsAt.size()) {
                     result.theirTipsAt.add(now);
-                    if (humanNectar) theirNectarDueAt.add(now + humanDelayS);
+                    if (humanNectar) theirNectarDueAt.add(now + (humanRolls ? HUMAN_ROLL_DELAY_S : HUMAN_DELAY_S));
                 }
-                while (!theirNectarDueAt.isEmpty() && now >= theirNectarDueAt.get(0)) {
-                    theirNectarDueAt.remove(0);
-                    sim.enterNectar(alliance.other());
-                }
+                humanEntries(alliance.other(), theirNectarDueAt, 1, result);
             }
             fieldLog.write(log, sim, us);
-            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, us);
+            for (Bot b : bots) internals.record(b.index, b.spinning || b.firing || b.streaming, b.spinning, b.turretYaw, us);
             putStaged(log, us);
             if (observer != null) observer.accept(sim, now);
         }
@@ -733,7 +812,7 @@ public final class AutoSim {
         long lastUs = Math.round((PRE_ROLL_S + last) * 1e6);
         for (Bot b : bots) b.putStill(log, lastUs);
         fieldLog.write(log, sim, lastUs);
-        for (Bot b : bots) internals.record(b.index, false, false, lastUs);
+        for (Bot b : bots) internals.record(b.index, false, false, b.turretYaw, lastUs);
         internals.write(log);
         putClock(log, last);
         Scheduler.reset();
@@ -946,6 +1025,30 @@ public final class AutoSim {
         boolean firing;
         /** StreamOn: fire whatever is held whenever the launcher is ready, while the intake keeps taking more. */
         boolean streaming;
+        /**
+         * Where the turret points, rad left of forward (0 home), moved at {@link RobotDesign#turretSlewRadPerS}. Not
+         * wrapped: it counts turns, so a travel window ({@link RobotDesign#turretTravelDeg}) can hold it, and the
+         * internals log's TurretYawDeg shows how far it has wound.
+         */
+        double turretYaw;
+        /** How often the turret went the long way round to stay inside its window, and the time that took, s. */
+        int longWayRound;
+        double longWayS;
+        /**
+         * Which CELL the turret pre-aims at: +1 the high-y end, -1 the low-y end, 0 not yet chosen. The mentor's rule
+         * (9 Oct 2026): track the CELL of the end the robot is in, with hysteresis across the HIVE frame's span, where
+         * nobody fires: switch to the high end above y 90.5, to the low end below y 51 (centre +-19.75, so blue's
+         * turned-around Autos get the same rule); start on the start's end. A launch always goes at the raised CELL.
+         */
+        int turretCell;
+        /** When the turret last came within AIM_TOLERANCE_RAD of its target and stayed there; NaN while off. */
+        double aimedSince = Double.NaN;
+        /** When the current fire step (LaunchAll or StreamOn) began, and whether its turret wait is in the timeline. */
+        double fireStepStart = Double.NaN;
+        boolean fireStepReported, farCellReported;
+        /** The last side switch: when, and whether the turret has reported arriving since. */
+        double crossedAt = Double.NaN;
+        boolean crossArrivedReported;
         int shotsFired;
         int shotTarget;
         double nextShotAt;
@@ -1062,14 +1165,21 @@ public final class AutoSim {
 
         /** While a launch command runs and the launcher is ready, one volley per interval. */
         void launcher(WpiLog log, Result result, long us) throws IOException {
+            trackTurret();
             if (!(firing || streaming) || !launcherReady() || body.stored.isEmpty()) return;
             double[] aim = sim.rocker(alliance).aimPoint();
             double yawError = 0;
+            if (aim != null && design.launcher == RobotDesign.Launcher.TURRET) {
+                // The turret is still swinging to the CELL (RobotDesign#turretSlewRadPerS): fire once it is there.
+                yawError = AdvantageScopeFrame.wrap(turretTarget(aim) - turretYaw);
+            }
             if (aim != null && design.launcher != RobotDesign.Launcher.TURRET) {
                 // A frame-fixed launcher: the drivetrain turns the robot to face the CELL first (or,
-                // with slats that flip, to put its back to it, if that is the smaller turn).
+                // with slats that flip, to put its back to it, if that is the smaller turn). The bearing is
+                // from the launcher's own axis (as the turret's is), not the robot's centre: 2.5 deg out close in.
                 double[] at = pedro(drive.pose);
-                double bearing = Math.atan2(aim[1] - at[1], aim[0] - at[0]);
+                double[] from = launcherAxis(at);
+                double bearing = Math.atan2(aim[1] - from[1], aim[0] - from[0]);
                 yawError = AdvantageScopeFrame.wrap(bearing - at[2]);
                 if (design.launchesBothWays) {
                     double backError = AdvantageScopeFrame.wrap(bearing + Math.PI - at[2]);
@@ -1090,12 +1200,13 @@ public final class AutoSim {
             // Out of range: no shot (mentor review: a robot whose own CELL never rose lobbed its
             // pieces at the far CELL from home). The real LaunchAll needs the same check.
             double[] here = pedro(drive.pose);
-            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > MAX_SHOT_RANGE_IN) return;
+            if (Math.hypot(aim[0] - here[0], aim[1] - here[1]) > design.launchRangeIn) return;
             // Paths finish while the robot is still braking into their end (SimDrive.JOIN_IN): it fires
             // once nearly stopped, unless it is streaming on purpose.
-            if (!streaming && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
+            if (!streaming && !design.firesOnTheMove && drive.speedNow > SimDrive.FIRE_SPEED_IN_PER_S) return;
             // The next piece is still in the transfer (RobotDesign#transferFeedS): fire once it has arrived.
             if (now < body.stored.get(0).readyAt) return;
+            reportTurretWait();
             boolean catapult = design.launcher == RobotDesign.Launcher.CATAPULT;
             int volley = catapult ? FieldSim.ROBOT_CAPACITY : design.launchers;
             boolean dedicated = design.dedicatedLaunchers && !catapult;
@@ -1548,12 +1659,7 @@ public final class AutoSim {
                 // its angle (146 deg stowed, 0 down), the roller, the turret turned to the CELL while the launcher is
                 // spinning (to the nearest degree, so a still robot writes nothing), the J arm.
                 double down = body == null ? 0 : body.extractorDown;
-                double yaw = 0;
-                double[] aim = spinning && design.launcher == RobotDesign.Launcher.TURRET ? sim.rocker(alliance).aimPoint() : null;
-                if (aim != null) {
-                    double[] at = pedro(drive.pose);
-                    yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(Math.atan2(aim[1] - at[1], aim[0] - at[0]) - at[2]))));
-                }
+                double yaw = Math.toRadians(Math.round(Math.toDegrees(AdvantageScopeFrame.wrap(turretYaw))));
                 double key = down + 1000 * yaw;
                 if (key == shapeLogged) return;
                 shapeLogged = key;
@@ -1615,12 +1721,16 @@ public final class AutoSim {
                     .command("SpinDown", 0.1, () -> Commands.instant(() -> spinning = false))
                     .command("StreamOn", 0.1, () -> Commands.instant(() -> {
                         spinUp();
+                        fireStepBegins();
                         streaming = true;
                         nextShotAt = Math.max(nextShotAt, now);
                     }))
                     .command("StreamOff", 0.1, () -> Commands.instant(() -> streaming = false))
                     .command("IntakeOn", 0.1, () -> Commands.instant(() -> intakeEnabled = true))
                     .command("IntakeOff", 0.1, () -> Commands.instant(() -> intakeEnabled = false))
+                    // A flow-through intake's back gate (RobotDesign#flowThrough; a what-if): nothing on another design.
+                    .command("GateOpen", 0.1, () -> Commands.instant(() -> body.gateOpen = design.flowThrough))
+                    .command("GateClose", 0.1, () -> Commands.instant(() -> body.gateOpen = false))
                     .command("SetDown", 1.5, this::setDown)
                     .command("Outtake", 1.0, this::outtake)
                     // The hook from the Auto (mentor, 5 Oct 2026), next to the TIP-triggered swing in sideWalls:
@@ -1658,10 +1768,22 @@ public final class AutoSim {
          * Spins up if needed and fires up to {@code count} pieces at the raised CELL, a volley per
          * {@link RobotDesign#shotIntervalS}; done when that many have gone or the robot is empty.
          */
+        /** A fire step begins (LaunchAll, StreamOn): what the turret report measures from. */
+        private void fireStepBegins() {
+            fireStepStart = now;
+            fireStepReported = false;
+            farCellReported = false;
+            if (!Double.isNaN(crossedAt)) {
+                pending.add(String.format(Locale.ROOT, "turret: the fire step began %.1f s after the side switch", now - crossedAt));
+                crossedAt = Double.NaN;
+            }
+        }
+
         private Command launch(int count) {
             return new CommandBuilder()
                     .setStart(() -> {
                         spinUp();
+                        fireStepBegins();
                         firing = true;
                         nextShotAt = Math.max(nextShotAt, now);
                         shotTarget = count == Integer.MAX_VALUE ? Integer.MAX_VALUE : shotsFired + count;
@@ -1787,7 +1909,10 @@ public final class AutoSim {
                     })
                     .setDone(() -> FieldSim.full(body)
                             || (target[0] == null && (lookedAround[0] >= Math.toRadians(design.lookAroundDeg) || !canTurnHere())))
-                    .setEnd(end -> drive.hold(drive.pose));
+                    .setEnd(end -> {
+                        drive.hold(drive.pose);
+                        if (target[0] == null && !FieldSim.full(body)) pending.add("collect: nothing to chase; " + nearestRejected);
+                    });
         }
 
         /**
@@ -1811,25 +1936,33 @@ public final class AutoSim {
             return true;
         }
 
+        /** Why the nearest loose piece was not chased, for the timeline when CollectSeen finds nothing. */
+        private String nearestRejected = "";
+
         private FieldSim.Piece nearestSeen(double[] origin) {
             double[] at = pedro(drive.pose);
             double facing = at[2] + (design.intakeAtBack ? Math.PI : 0);
             FieldSim.Kind theirs = alliance == Alliance.BLUE ? FieldSim.Kind.RED_NECTAR : FieldSim.Kind.BLUE_NECTAR;
             FieldSim.Piece best = null;
-            double bestD = Double.MAX_VALUE;
+            double bestD = Double.MAX_VALUE, nearestD = Double.MAX_VALUE;
+            nearestRejected = "no loose piece on our half";
             for (FieldSim.Piece p : sim.pieces) {
-                if (p.where != FieldSim.Where.FIELD || p.flower >= 0 || p.cell != null || p.z > 4) continue;
+                if (p.where != FieldSim.Where.FIELD || p.flower >= 0 || p.cell != null) continue;
                 if (p.kind == theirs || (p.kind != FieldSim.Kind.POLLEN && !design.launchesNectar)) continue;
-                if (FieldSim.underHive(p.x, p.y)) continue;
-                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
-                if (d > design.cameraRangeIn || Math.hypot(p.x - origin[0], p.y - origin[1]) > design.collectRadiusIn) continue;
-                if (Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg)) continue;
                 if (alliance == Alliance.BLUE ? p.x < FieldSim.CENTRE_IN : p.x > FieldSim.CENTRE_IN) continue;
-                if (zone != null) {
-                    double xRed = alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x;
-                    if (xRed < zone[0] || xRed > zone[1]) continue;
+                double dx = p.x - at[0], dy = p.y - at[1], d = Math.hypot(dx, dy);
+                String why = p.z > 4 ? "still in the air" : FieldSim.underHive(p.x, p.y) ? "under the HIVE"
+                        : d > design.cameraRangeIn ? "beyond the camera" : Math.hypot(p.x - origin[0], p.y - origin[1]) > design.collectRadiusIn ? "too far from where the collect began"
+                        : Math.abs(AdvantageScopeFrame.wrap(Math.atan2(dy, dx) - facing)) > Math.toRadians(design.cameraHalfFovDeg) ? "out of the camera's view"
+                        : zone != null && ((alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) < zone[0] || (alliance == Alliance.BLUE ? FieldSim.FIELD_SIZE_IN - p.x : p.x) > zone[1]) ? "outside the collect zone"
+                        : approachHitsFrame(p, at, origin[2]) ? "the approach would hit the HIVE frame, a FLOWER or a wall" : null;
+                if (why != null) {
+                    if (d < nearestD) {
+                        nearestD = d;
+                        nearestRejected = String.format(Locale.ROOT, "nearest %s %.0f in away at (%.0f, %.0f): %s", FieldSim.name(p.kind), d, p.x, p.y, why);
+                    }
+                    continue;
                 }
-                if (approachHitsFrame(p, at, origin[2])) continue;
                 if (d < bestD) {
                     bestD = d;
                     best = p;
@@ -1851,14 +1984,16 @@ public final class AutoSim {
             double mouth = design.frameIn / 2 + design.intakeReachIn + body.slideOut;
             double[] end = {p.x - (mouth - 1) * Math.cos(bearing), p.y - (mouth - 1) * Math.sin(bearing),
                     design.intakeAtBack ? bearing + Math.PI : bearing};
-            for (double f = 0; f <= 1.0001; f += 0.25) {
+            // Sampled every tenth of the way and of the turn (every quarter until 9 Oct 2026, when a chase beside the
+            // foot at x 46 clipped the frame between samples, body-designs chat, seed 36).
+            for (double f = 0; f <= 1.0001; f += 0.1) {
                 double[] mid = {at[0] + (end[0] - at[0]) * f, at[1] + (end[1] - at[1]) * f, end[2]};
                 if (sim.hitsFlower(mid[0], mid[1], mid[2], span(design))) return true;
                 // 2.5 in clear of the HIVE's feet, along every edge: a spill lands right in front of the foot
                 // bars' ends (2 in wide, narrower than corners' spacing), and the robot drifts as it arrives.
                 // It turns on the way: try every heading between the one it starts with and the one it ends with.
                 double turn = AdvantageScopeFrame.wrap(end[2] - at[2]);
-                for (double g = 0; g <= 1.0001; g += 0.25) {
+                for (double g = 0; g <= 1.0001; g += 0.1) {
                     double h = at[2] + turn * g;
                     for (double[] c : edges(new double[] {mid[0], mid[1], h}, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
@@ -1867,7 +2002,7 @@ public final class AutoSim {
                 // And from anywhere on the way (the wait can end mid-drive), turn back to the heading it
                 // started collecting with: the Auto's next path starts from that heading.
                 double back = AdvantageScopeFrame.wrap(originHeading - end[2]);
-                for (double g = 0; g <= 1.0001; g += 0.25) {
+                for (double g = 0; g <= 1.0001; g += 0.1) {
                     double[] turned = {mid[0], mid[1], end[2] + back * g};
                     for (double[] c : edges(turned, span(design) + 5)) {
                         if (FieldSim.inHiveFrame(c[0], c[1])) return true;
@@ -1931,6 +2066,123 @@ public final class AutoSim {
                 return;
             }
             drive.follow(Paths.line(from, to).linear(from, to));
+        }
+
+        /**
+         * The turret's aim at {@code aim}, rad left of the robot's forward, from the turret's own axis (2 in behind
+         * the robot's centre, {@link #TURRET_AXIS_X_M}): from the centre it was up to 3 deg out at the closest firing
+         * spots, which the internals log's TurretErrorDeg showed (9 Oct 2026).
+         */
+        private double turretTarget(double[] aim) {
+            double[] at = pedro(drive.pose);
+            double[] from = launcherAxis(at);
+            return AdvantageScopeFrame.wrap(Math.atan2(aim[1] - from[1], aim[0] - from[0]) - at[2]);
+        }
+
+        /** The launcher's axis in the world, for the robot at {@code at}: {@link #TURRET_AXIS_X_M} behind its centre. */
+        private double[] launcherAxis(double[] at) {
+            double c = Math.cos(at[2]), s = Math.sin(at[2]);
+            double ax = TURRET_AXIS_X_M / AdvantageScopeFrame.METERS_PER_INCH, ay = TURRET_AXIS_Y_M / AdvantageScopeFrame.METERS_PER_INCH;
+            return new double[] {at[0] + ax * c - ay * s, at[1] + ax * s + ay * c};
+        }
+
+        /**
+         * One loop of the turret: toward the raised CELL while the flywheels spin (pre-aimed during the drive, as the
+         * HiveTracker lets the real one be), home otherwise, the short way round (it is continuous), at the design's
+         * slew. A fixed launcher has none.
+         */
+        private void trackTurret() {
+            if (design.launcher != RobotDesign.Launcher.TURRET) return;
+            FieldSim.Rocker hive = sim.rocker(alliance);
+            double y = pedro(drive.pose)[1];
+            if (turretCell == 0) turretCell = y < FieldSim.CENTRE_IN ? -1 : 1;
+            int before = turretCell;
+            if (y > FieldSim.CENTRE_IN + TURRET_SWITCH_IN) turretCell = 1;
+            if (y < FieldSim.CENTRE_IN - TURRET_SWITCH_IN) turretCell = -1;
+            if (turretCell != before) {
+                pending.add(String.format(Locale.ROOT, "turret: switched to the %s CELL at y %.1f", turretCell > 0 ? "high-end" : "low-end", y));
+                crossedAt = now;
+                crossArrivedReported = false;
+            }
+            double[] aim = null;
+            if (spinning) {
+                double[] raised = hive.aimPoint();
+                boolean launching = firing || streaming;
+                if (launching && raised != null) {
+                    aim = raised;  // a launch goes at the raised CELL wherever it is
+                    if (hive.raisedEnd() != turretCell && !farCellReported) {
+                        farCellReported = true;
+                        pending.add(String.format(Locale.ROOT, "turret: fires at the far CELL (the robot is at the %s end, y %.1f)", turretCell > 0 ? "high" : "low", y));
+                    }
+                } else {
+                    aim = hive.aimPointFor(turretCell);
+                }
+            }
+            double target = aim == null ? 0 : turretTarget(aim);
+            double slew = Double.isNaN(turretSlewOverrideRadPerS) ? design.turretSlewRadPerS
+                    : turretSlewOverrideRadPerS <= 0 ? Double.POSITIVE_INFINITY : turretSlewOverrideRadPerS;
+            // The nearest angle that reads as the target: the short way round, unless the travel window forbids it,
+            // when it is the long way (the other side of the window), which a limited turret has to take.
+            double travel = Double.isNaN(turretTravelOverrideDeg) ? design.turretTravelDeg
+                    : turretTravelOverrideDeg <= 0 ? Double.NaN : turretTravelOverrideDeg;
+            double error = AdvantageScopeFrame.wrap(target - turretYaw);
+            double goal = turretYaw + error;
+            if (!Double.isNaN(travel)) {
+                double half = Math.toRadians(travel) / 2;
+                boolean launching = firing || streaming;
+                if (goal > half) goal -= 2 * Math.PI;
+                else if (goal < -half) goal += 2 * Math.PI;
+                goal = Math.max(-half, Math.min(half, goal));
+                // Between fire steps the turret unwinds while it has the slack: once wound past TURRET_UNWIND_RAD it
+                // takes the other reading of the same bearing, nearer home, so a wide window is not used up on the
+                // drive and the unwind never lands inside a fire step (9 Oct 2026: with 720 deg L-Quals unwound 357
+                // deg at N_FIRE and its TIP 2 step timed out; with 393 the edge forced the same unwind on the drive).
+                if (!launching && Math.abs(goal) > TURRET_UNWIND_RAD) {
+                    double other = goal - Math.copySign(2 * Math.PI, goal);
+                    if (Math.abs(other) <= half && Math.abs(other) < Math.abs(goal)) goal = other;
+                }
+                if (Math.abs(goal - turretYaw) > Math.abs(error) + 1e-9 && Math.abs(error) < Math.PI - 1e-9 && aim != null
+                        && Double.isNaN(aimedSince) && !longWayFrom.equals(turretCellAndAim(aim))) {
+                    longWayFrom = turretCellAndAim(aim);
+                    longWayRound++;
+                    double s = Math.abs(goal - turretYaw) / slew;
+                    longWayS += Double.isInfinite(slew) ? 0 : s;
+                    pending.add(String.format(Locale.ROOT, "turret: the long way round, %.0f deg in %.1f s, to stay inside its %.0f deg window",
+                            Math.toDegrees(Math.abs(goal - turretYaw)), Double.isInfinite(slew) ? 0 : s, travel));
+                }
+            }
+            double step = slew * LOOP_S;
+            turretYaw = Math.abs(goal - turretYaw) <= step ? goal : turretYaw + Math.copySign(step, goal - turretYaw);
+            boolean onTarget = aim != null && Math.abs(AdvantageScopeFrame.wrap(target - turretYaw)) < AIM_TOLERANCE_RAD;
+            if (!onTarget) {
+                aimedSince = Double.NaN;
+            } else if (Double.isNaN(aimedSince)) {
+                aimedSince = now;
+                if (!Double.isNaN(crossedAt) && !crossArrivedReported) {
+                    crossArrivedReported = true;
+                    pending.add(String.format(Locale.ROOT, "turret: on target %.2f s after the side switch", now - crossedAt));
+                }
+            }
+        }
+
+        /** Which aim a long way round was last reported for (the CELL end and whether a launch is on), so each is counted once. */
+        private String longWayFrom = "";
+
+        private String turretCellAndAim(double[] aim) {
+            return turretCell + (firing || streaming ? "L" : "T") + (sim.rocker(alliance).raisedEnd());
+        }
+
+        /** A fire step's first shot: how long the step waited for the turret, from its start to the turret settling. */
+        private void reportTurretWait() {
+            if (fireStepReported || design.launcher != RobotDesign.Launcher.TURRET) return;
+            fireStepReported = true;
+            double waited = Double.isNaN(fireStepStart) || Double.isNaN(aimedSince) ? 0 : Math.max(0, aimedSince - fireStepStart);
+            // With where the robot fires from, so every fire spot can be checked against its end (mentor, 9 Oct 2026).
+            double[] at = pedro(drive.pose);
+            String where = String.format(Locale.ROOT, " (firing from (%.0f, %.0f) at the %s CELL)", at[0], at[1],
+                    sim.rocker(alliance).raisedEnd() > 0 ? "high-end" : "low-end");
+            pending.add((waited <= 0.011 ? "turret: on target when the fire step began"
+                    : String.format(Locale.ROOT, "turret: the fire step waited %.2f s for the turret", waited)) + where);
         }
 
         private void spinUp() {

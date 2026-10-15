@@ -89,8 +89,16 @@ final class RobotDesign {
      * the bar is a solid strip across the seat line that pieces bounce off ({@link #extractorBarHeightIn}).
      */
     double extractorLateralMaxIn = Double.NaN;
-    /** The bar's height off the tiles while down; a placeholder until CAD draws it. */
+    /** The bar's top off the tiles while down; a placeholder until CAD draws it. */
     double extractorBarHeightIn = 1.5;
+    /** The bar's underside off the tiles while down (pieces lower than it pass under). */
+    double extractorBarBottomIn = 0;
+    /** The bar's half-span across the robot; NaN: the lateral range plus the seat tolerance. */
+    double extractorBarHalfSpanIn = Double.NaN;
+    /** The bar's middle, ahead of the front face; NaN: at the seat (extractorSeatIn). */
+    double extractorBarAheadIn = Double.NaN;
+    /** The bar's depth, front to back; NaN: a thin plate. */
+    double extractorBarDepthIn = Double.NaN;
     /**
      * A seat-position error (body-designs chat): each time the extractor comes down, the robot's real seat is off its
      * drawn one by a lateral error drawn evenly from -this to +this (in), so the FLOWER sits that much aside.
@@ -132,6 +140,28 @@ final class RobotDesign {
      */
     double shotIntervalS = 0.2;
     double spinUpS = 1.0;
+    /**
+     * How fast the turret turns, rad/s ({@link Launcher#TURRET} only). The 8 Oct 2026 design meeting put the turret
+     * on a continuous servo (goBILDA Speed, doc/motors-and-servos.md): about 240 deg/s at the turret, 90 deg in
+     * about 0.4 s; the 312 rpm motor it replaced did about 680. The simulation aimed at once until 9 Oct 2026. The
+     * turret tracks the raised CELL whenever the flywheels spin, so it is pre-aimed by the time a launch is asked for,
+     * and a launch waits until it is within {@code AutoSim.AIM_TOLERANCE_RAD}. {@code Double.POSITIVE_INFINITY}: at once.
+     */
+    double turretSlewRadPerS = Math.toRadians(TURRET_SERVO_DEG_PER_S);
+    static final double TURRET_SERVO_DEG_PER_S = 240, TURRET_MOTOR_DEG_PER_S = 680;
+    /**
+     * How far the turret may turn in all, degrees, centred on straight ahead; NaN: without limit (a slip ring, issues
+     * #169/#170). The two-encoder turret the students drew knows its angle only inside one 393 deg window
+     * (doc/motors-and-servos.md), and about 720 if gears for it are found (the internals chat, 9 Oct 2026): inside a
+     * window the turret sometimes has to unwind the long way round, up to a turn, instead of following the target
+     * through +-180. The published routes wind the turret up to three turns one way (the internals chat's count),
+     * so a limit costs them time. 720 (mentor, 9 Oct 2026, through the internals chat): the CAD's encoder B is a
+     * 36T now (4f53e4f), absolute over 1178 deg, and 720 leaves about 229 deg each side for overshoot, backlash,
+     * the decode's 4 deg tolerance and a turret nudged while the robot is off. The 60-seed studies cost nothing
+     * even at 393. BIOBUZZ_AUTO_TURRET_TRAVEL_DEG tries another window; 0 is without limit.
+     */
+    double turretTravelDeg = TURRET_TRAVEL_DEG;
+    static final double TURRET_TRAVEL_DEG = 720, TURRET_ENCODER_WINDOW_DEG = 1178, TURRET_TWO_ENCODER_WINDOW_DEG = 393;
     /** Whether it can take in and launch NECTAR (3.6 in) as well as POLLEN (2.8 in). */
     boolean launchesNectar = true;
     /**
@@ -184,6 +214,22 @@ final class RobotDesign {
      * robot's velocity.
      */
     boolean compensatesMotion = false;
+    /**
+     * Whether it fires while still driving (a what-if for the CAD chat, 9 Oct 2026): the launcher is not held until
+     * the robot has nearly stopped at a firing spot, and the shot allows for the robot's motion
+     * ({@link #compensatesMotion}). The real robot fires once nearly still.
+     */
+    boolean firesOnTheMove = false;
+    /** How far it can launch, in: {@code AutoSim.MAX_SHOT_RANGE_IN} (60, a placeholder) unless a what-if says more. */
+    double launchRangeIn = 60;
+    /**
+     * A flow-through intake (the body-designs chat's brief, doc/five-tip-flow-through.md; a what-if for the CAD
+     * chat's redesign, 9 Oct 2026): pieces travel through the robot and, while its gate is open ({@code GateOpen}),
+     * out of the back onto the tiles behind it whenever a 5th arrives, so it never CONTROLS more than 4 (G407) however
+     * fast a spill comes; with the gate closed ({@code GateClose}) it fills to 4 like any robot. Firing as it collects
+     * is {@code StreamOn}, which every design has.
+     */
+    boolean flowThrough = false;
     /**
      * A frame-fixed launcher whose slats flip to throw straight back as well as forward (mentor,
      * 3 Oct 2026, instead of a turret): the robot turns whichever end is nearer to facing the CELL.
@@ -430,6 +476,10 @@ final class RobotDesign {
         d.extractorLateralIn = extractorLateralIn;
         d.extractorLateralMaxIn = extractorLateralMaxIn;
         d.extractorBarHeightIn = extractorBarHeightIn;
+        d.extractorBarBottomIn = extractorBarBottomIn;
+        d.extractorBarHalfSpanIn = extractorBarHalfSpanIn;
+        d.extractorBarAheadIn = extractorBarAheadIn;
+        d.extractorBarDepthIn = extractorBarDepthIn;
         d.seatErrorIn = seatErrorIn;
         d.extractorDeployS = extractorDeployS;
         d.transferFeedS = transferFeedS;
@@ -438,6 +488,8 @@ final class RobotDesign {
         d.shotIntervalS = shotIntervalS;
         d.laneCapacity = laneCapacity;
         d.spinUpS = spinUpS;
+        d.turretSlewRadPerS = turretSlewRadPerS;
+        d.turretTravelDeg = turretTravelDeg;
         d.launchesNectar = launchesNectar;
         d.countsPieces = countsPieces;
         d.nectarSpeedFactor = nectarSpeedFactor;
@@ -452,6 +504,9 @@ final class RobotDesign {
         d.catapultCup = catapultCup;
         d.catapultResidual = catapultResidual;
         d.compensatesMotion = compensatesMotion;
+        d.firesOnTheMove = firesOnTheMove;
+        d.launchRangeIn = launchRangeIn;
+        d.flowThrough = flowThrough;
         d.launchesBothWays = launchesBothWays;
         d.flipS = flipS;
         d.sideWallsSlideIn = sideWallsSlideIn;

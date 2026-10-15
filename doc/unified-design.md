@@ -650,8 +650,8 @@ match (it is fixed: see the rules below): does it shoot, how reliably, where doe
 | Partner | Run | Why | Expect |
 |---|---|---|---|
 | **Can't shoot** | **R-Quals**, the partner starting near its park (out of the standard left start) | TIP 1 is ours at once; nothing waits on the partner | 3 TIPs in 38 |
-| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 55; L-Quals 3 TIPs in 54 (±4) |
-| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 54 if it shoots; 2 TIPs in 53 if it does not |
+| **Shoots, reliably**, and (for R-Quals) is clear of the standard left start by about 6.5 s | either | | R-Quals 3 TIPs in 56; L-Quals 3 TIPs in 55 (±4) |
+| **Says it shoots, might not** | **L-Quals** | if it fails we lose at most the 9.2 s wait, then make TIP 1 ourselves | 3 TIPs in 55 if it shoots; 2 TIPs in 53 if it does not |
 
 What not to do, and why:
 - **A partner that can't shoot with L-Quals**: L-Quals waits until 9.2 s for a TIP 1 that never comes, then gets 2
@@ -734,8 +734,9 @@ score counts). 20 runs each: 2-3 TIPs, worse than the 4-TIP pair. **The blocker 
 pieces each). Measured recovery: catching a spill as it falls, standing still, gets about 2 (TIP 1's: 2, so TIP 3
 came up 6 of 8 without L's 3 from across the field); the webcam picking up a spill already on the floor gets 0-3 in
 3 s (it has scattered). So each end recovers well under half of each spill, and the 4-TIP pair works only because L
-carries pieces across. Human players can enter NECTAR during AUTO (team decision,
-10 Oct 2026), but in the simulator it doesn't close this gap (`doc/tip1-catch.md`). What could close
+carries pieces across. The human player's NECTAR (one per TIP into the LOADING ZONE, allowed during AUTO: team decision,
+10 Oct 2026) does not close it either: it replaces a POLLEN in a 4-piece load and never adds a load, since an emptied
+CELL needs 7.95 POLLEN-weights and 4 NECTAR weigh 6.6 (`TeamCode/README.md`, the what-if paragraph). What could close
 the gap is a mechanism that recovers far more of a spill.
 
 **If every spill gave 4** (the mentor: "five tip auto needs a way to reliably always get 4 from spill. If we had that
