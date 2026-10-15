@@ -1,3 +1,0 @@
-# The vision variant of the duo Autos: our robot, then our partner.
-auto-builder/experiments/duo-vision-right.pp
-auto-builder/experiments/duo-vision-left.pp
