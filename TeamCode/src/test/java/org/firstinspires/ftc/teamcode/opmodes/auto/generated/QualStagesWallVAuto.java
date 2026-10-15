@@ -43,7 +43,7 @@ public final class QualStagesWallVAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 8.06, 90);
-        Pose nLow = p.of(57.5, 123.5, 270);
+        Pose nLow = p.of(57.5, 114, 270);
         Pose nTurn = p.of(55.5, 104, 270);
         Pose sCatch = p.of(57.5, 18, 90);
         Pose park = p.of(10.5, 95, 90);
@@ -57,15 +57,16 @@ public final class QualStagesWallVAuto {
         Pose row3 = p.of(35.1, 126.15, 90);
         Pose row4 = p.of(35.1, 128.95, 90);
         Pose rowN = p.of(35.1, 130.75, 90);
+        Pose nWait = p.of(57.5, 123.5, 270);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose sCatchToNTurnSegment1Heading = p.of(55.5, 104, 90);
         Pose sCatchToNTurnSegment2Start = p.of(55.5, 104, 90);
         Pose nLowToRowSSegment1Start = p.of(35.1, 117.35, 270);
-        Pose rowNToNLowSegment1Heading = p.of(57.5, 123.5, 90);
-        Pose rowNToNLowSegment2Start = p.of(57.5, 123.5, 90);
-        Pose nLowToSFireSegment1Heading = p.of(57.5, 24, 270);
-        Pose nLowToSFireSegment2Start = p.of(57.5, 24, 270);
+        Pose rowNToNLowSegment1Heading = p.of(57.5, 114, 90);
+        Pose rowNToNLowSegment2Start = p.of(57.5, 114, 90);
+        Pose nWaitToSFireSegment1Heading = p.of(57.5, 24, 270);
+        Pose nWaitToSFireSegment2Start = p.of(57.5, 24, 270);
         Pose sFireToParkControl1 = p.of(28, 24, 0);
         Pose sFireToParkControl2 = p.of(24, 70, 0);
         Pose nLowToFarFlowerTurnControl1 = p.of(57.5, 118.34, 0);
@@ -74,10 +75,10 @@ public final class QualStagesWallVAuto {
         Pose farFlowerToNFireControl1 = p.of(47.36, 116.64, 0);
         Pose farFlowerToNFireSegment1Heading = p.of(57.5, 119, 90);
         Pose farFlowerToNFireSegment2Start = p.of(57.5, 119, 90);
-        Pose nFireToParkControl1 = p.of(57.5, -5, 0);
-        Pose nFireToParkControl2 = p.of(57.5, -10, 0);
-        Pose nFireToParkSegment1Heading = p.of(10.5, 95, 270);
-        Pose nFireToParkSegment2Start = p.of(10.5, 95, 270);
+        Pose nWaitToParkControl1 = p.of(57.5, -5, 0);
+        Pose nWaitToParkControl2 = p.of(57.5, -10, 0);
+        Pose nWaitToParkSegment1Heading = p.of(10.5, 95, 270);
+        Pose nWaitToParkSegment2Start = p.of(10.5, 95, 270);
 
         // Paths, written as the stock Visualizer export writes them.
         Path startToSCatch = Paths.line(start, sCatch).linear(start, sCatch);
@@ -90,12 +91,14 @@ public final class QualStagesWallVAuto {
         Path row3ToRow4 = Paths.line(row3, row4).constant(row4);
         Path row4ToRowN = Paths.line(row4, rowN).constant(rowN);
         Path rowNToNLow = Paths.line(rowN, nLow).heading(Interpolator.piecewise().until(0.2, Interpolator.constant(rowNToNLowSegment1Heading)).until(0.9, Interpolator.linear(rowNToNLowSegment2Start, nLow)).until(1, Interpolator.constant(nLow)));
-        Path nLowToSFire = Paths.line(nLow, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nLowToSFireSegment1Heading)).until(1, Interpolator.linear(nLowToSFireSegment2Start, sFire)));
+        Path nLowToNWait = Paths.line(nLow, nWait).constant(nWait);
+        Path nWaitToSFire = Paths.line(nWait, sFire).heading(Interpolator.piecewise().until(0.88, Interpolator.constant(nWaitToSFireSegment1Heading)).until(1, Interpolator.linear(nWaitToSFireSegment2Start, sFire)));
         Path sFireToPark = Paths.curve(sFire, sFireToParkControl1, sFireToParkControl2, park).constant(park);
         Path nLowToFarFlowerTurn = Paths.curve(nLow, nLowToFarFlowerTurnControl1, farFlowerTurn).heading(Interpolator.piecewise().until(0.5, Interpolator.constant(nLowToFarFlowerTurnSegment1Heading)).until(1, Interpolator.linear(nLowToFarFlowerTurnSegment2Start, farFlowerTurn)));
         Path farFlowerTurnToFarFlower = Paths.line(farFlowerTurn, farFlower).constant(farFlower);
         Path farFlowerToNFire = Paths.curve(farFlower, farFlowerToNFireControl1, nFire).heading(Interpolator.piecewise().until(0.3, Interpolator.constant(farFlowerToNFireSegment1Heading)).until(1, Interpolator.linear(farFlowerToNFireSegment2Start, nFire)));
-        Path nFireToPark = Paths.curve(nFire, nFireToParkControl1, nFireToParkControl2, park).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(nFireToParkSegment1Heading)).until(0.9, Interpolator.linear(nFireToParkSegment2Start, park)).until(1, Interpolator.constant(park)));
+        Path nFireToNWait = Paths.line(nFire, nWait).constant(nWait);
+        Path nWaitToPark = Paths.curve(nWait, nWaitToParkControl1, nWaitToParkControl2, park).heading(Interpolator.piecewise().until(0.45, Interpolator.constant(nWaitToParkSegment1Heading)).until(0.9, Interpolator.linear(nWaitToParkSegment2Start, park)).until(1, Interpolator.constant(park)));
 
         return kit.sequence(
                 kit.firstOf("Fire the preloads (TIP 1)", kit.command("LaunchAll"),
@@ -141,16 +144,17 @@ public final class QualStagesWallVAuto {
                 kit.firstOf("TIP 2?",
                         kit.when("Tip").then(
                                 kit.guarded("Yes", sFireToPark, 3,
+                                        kit.path("N_LOW to N_WAIT", nLowToNWait),
                                         kit.firstOf("It lands",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1300)),
-                                        kit.path("N_LOW to S_FIRE", nLowToSFire),
+                                        kit.path("N_WAIT to S_FIRE", nWaitToSFire),
                                         kit.firstOf("Fire TIP 2's spill", kit.command("LaunchAll"),
                                                 kit.when("Empty"),
                                                 kit.afterMs(2000)),
                                         kit.path("S_FIRE to PARK", sFireToPark))),
                         kit.afterMs(600).then(
-                                kit.guarded("No: the far FLOWER", nFireToPark, 4.9,
+                                kit.guarded("No: the far FLOWER", nWaitToPark, 4.9,
                                         kit.path("N_LOW to FAR_FLOWER_TURN", nLowToFarFlowerTurn),
                                         kit.path("FAR_FLOWER_TURN to FAR_FLOWER", farFlowerTurnToFarFlower),
                                         kit.firstOf("The far FLOWER",
@@ -160,9 +164,10 @@ public final class QualStagesWallVAuto {
                                         kit.firstOf("Fire the far FLOWER (TIP 2)", kit.command("LaunchAll"),
                                                 kit.when("Tip"),
                                                 kit.afterMs(2500)),
+                                        kit.path("N_FIRE to N_WAIT", nFireToNWait),
                                         kit.firstOf("It lands (B)",
                                                 kit.when("IntakeFull"),
                                                 kit.afterMs(1300)),
-                                        kit.path("N_FIRE to PARK", nFireToPark)))));
+                                        kit.path("N_WAIT to PARK", nWaitToPark)))));
     }
 }

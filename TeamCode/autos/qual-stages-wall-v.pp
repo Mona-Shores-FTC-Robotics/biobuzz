@@ -76,7 +76,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 123.5
+        "y": 114
       },
       "controlPoints": [],
       "heading": {
@@ -229,7 +229,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 123.5
+        "y": 114
       },
       "controlPoints": [],
       "heading": {
@@ -373,9 +373,28 @@
       }
     },
     {
-      "id": "to-park-14",
+      "id": "to-n-wait-14",
       "color": "#3cc8e4",
-      "name": "N_FIRE to PARK",
+      "name": "N_FIRE to N_WAIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-park-15",
+      "color": "#3cc8e4",
+      "name": "N_WAIT to PARK",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -429,9 +448,28 @@
       }
     },
     {
-      "id": "to-s-fire-15",
+      "id": "to-n-wait-16",
       "color": "#3cc8e4",
-      "name": "N_LOW to S_FIRE",
+      "name": "N_LOW to N_WAIT",
+      "waitBeforeMs": 0,
+      "waitAfterMs": 0,
+      "waitBeforeName": "",
+      "waitAfterName": "",
+      "kind": "atomic",
+      "endPoint": {
+        "x": 57.5,
+        "y": 123.5
+      },
+      "controlPoints": [],
+      "heading": {
+        "type": "constant",
+        "degrees": 270
+      }
+    },
+    {
+      "id": "to-s-fire-17",
+      "color": "#3cc8e4",
+      "name": "N_WAIT to S_FIRE",
       "waitBeforeMs": 0,
       "waitAfterMs": 0,
       "waitBeforeName": "",
@@ -468,7 +506,7 @@
       }
     },
     {
-      "id": "to-park-16",
+      "id": "to-park-18",
       "color": "#3cc8e4",
       "name": "S_FIRE to PARK",
       "waitBeforeMs": 0,
@@ -625,15 +663,23 @@
     },
     {
       "kind": "path",
-      "lineId": "to-park-14"
+      "lineId": "to-n-wait-14"
     },
     {
       "kind": "path",
-      "lineId": "to-s-fire-15"
+      "lineId": "to-park-15"
     },
     {
       "kind": "path",
-      "lineId": "to-park-16"
+      "lineId": "to-n-wait-16"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-s-fire-17"
+    },
+    {
+      "kind": "path",
+      "lineId": "to-park-18"
     }
   ],
   "settings": {
@@ -710,7 +756,7 @@
       ],
       "N_LOW": [
         57.5,
-        123.5,
+        114,
         270
       ],
       "N_TURN": [
@@ -822,6 +868,11 @@
         35.1,
         130.75,
         90
+      ],
+      "N_WAIT": [
+        57.5,
+        123.5,
+        270
       ]
     },
     "pathEnds": {
@@ -838,9 +889,11 @@
       "to-far-flower-turn-11": "FAR_FLOWER_TURN",
       "to-far-flower-12": "FAR_FLOWER",
       "to-n-fire-13": "N_FIRE",
-      "to-park-14": "PARK",
-      "to-s-fire-15": "S_FIRE",
-      "to-park-16": "PARK"
+      "to-n-wait-14": "N_WAIT",
+      "to-park-15": "PARK",
+      "to-n-wait-16": "N_WAIT",
+      "to-s-fire-17": "S_FIRE",
+      "to-park-18": "PARK"
     },
     "startAt": "START",
     "cards": [
@@ -1078,7 +1131,7 @@
         "alongside": "LaunchAll"
       },
       {
-        "id": "w-32",
+        "id": "w-34",
         "kind": "firstOf",
         "label": "TIP 2?",
         "rows": [
@@ -1088,7 +1141,13 @@
             ],
             "cards": [
               {
-                "id": "w-28",
+                "id": "p-29",
+                "kind": "path",
+                "lineId": "to-n-wait-16",
+                "park": false
+              },
+              {
+                "id": "w-30",
                 "kind": "firstOf",
                 "label": "It lands",
                 "rows": [
@@ -1105,13 +1164,13 @@
                 ]
               },
               {
-                "id": "p-29",
+                "id": "p-31",
                 "kind": "path",
-                "lineId": "to-s-fire-15",
+                "lineId": "to-s-fire-17",
                 "park": false
               },
               {
-                "id": "w-30",
+                "id": "w-32",
                 "kind": "firstOf",
                 "label": "Fire TIP 2's spill",
                 "rows": [
@@ -1129,9 +1188,9 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "p-31",
+                "id": "p-33",
                 "kind": "path",
-                "lineId": "to-park-16",
+                "lineId": "to-park-18",
                 "park": true
               }
             ],
@@ -1194,7 +1253,13 @@
                 "alongside": "LaunchAll"
               },
               {
-                "id": "w-26",
+                "id": "p-26",
+                "kind": "path",
+                "lineId": "to-n-wait-14",
+                "park": false
+              },
+              {
+                "id": "w-27",
                 "kind": "firstOf",
                 "label": "It lands (B)",
                 "rows": [
@@ -1211,9 +1276,9 @@
                 ]
               },
               {
-                "id": "p-27",
+                "id": "p-28",
                 "kind": "path",
-                "lineId": "to-park-14",
+                "lineId": "to-park-15",
                 "park": true
               }
             ],

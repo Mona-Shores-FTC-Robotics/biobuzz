@@ -80,7 +80,7 @@
       "kind": "atomic",
       "endPoint": {
         "x": 57.5,
-        "y": 123.5
+        "y": 114
       },
       "controlPoints": [
         {
@@ -133,14 +133,14 @@
           "segments": [
             {
               "startProgress": 0,
-              "endProgress": 0.88,
+              "endProgress": 0.87,
               "interpolationType": "constant",
               "parameters": {
                 "degrees": 270
               }
             },
             {
-              "startProgress": 0.88,
+              "startProgress": 0.87,
               "endProgress": 1.0,
               "interpolationType": "linear",
               "parameters": {
@@ -538,7 +538,7 @@
       ],
       "N_LOW": [
         57.5,
-        123.5,
+        114,
         270
       ],
       "N_TURN": [
@@ -603,7 +603,7 @@
       ],
       "N_FIRE": [
         57.5,
-        125.5,
+        116.0,
         270
       ],
       "WALL_FLOWER": [

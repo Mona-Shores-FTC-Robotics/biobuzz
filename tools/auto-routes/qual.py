@@ -42,7 +42,8 @@ S_CATCH, N_CATCH = (57.5, 18, 90), (57.5, 123.5, 270)  # outside where a spill f
 # Straight on, out of the tunnel's north exit: the left CELL scores from y 113 (ShotMapTest; 109 is too
 # close for the hood), and our edge (y 123) stays just below a partner at the standard left start (its
 # edge at 123.25).
-N_LOW = (57.5, 123.5, 270)  # was y 114: inside the falling spill (G409, see S_CATCH)
+N_LOW = (57.5, 114, 270)  # a firing spot: fire here, then back off to N_WAIT before a spill comes down
+N_WAIT = (57.5, 123.5, 270)  # outside the falling spill (G409, see S_CATCH)
 # Where we turn round after coming north through the tunnel: a turning robot's corners reach 12.7 in, so
 # at y 104 they clear the HIVE frame (y 90.2) and a partner at the left start or in its lane (y 118.5).
 # Then straight back into N_LOW.
