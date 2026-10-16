@@ -6,8 +6,9 @@ src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
 MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "the blade we are printing: a rounded lane down the tail between low shoulders", 6.3, 13.1))
+exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "a trough of 3 in radius down the tail, tangent to it at the centre; shoulders 0.3 in up from 0.9 in behind the lip, full height after 1.6 in; catches a ball up to ±1.3 in off centre"], ["Size", "137 × 90 × 15 mm"]]
-exec(src3[src3.index("stl_js = "):src3.index("flower_section = ")])
+exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
 panel = f'''  <div class="drive">
     <div class="views">
