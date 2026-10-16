@@ -1,5 +1,11 @@
 # Print job: FLOWER stick blocks (for a friend with a printer)
 
+**Newest first: `stl/print_plate_divot_blade.stl`** (15 Oct). One wide blade, 137 x 41 x 20 mm, with a scoop in the
+middle of its front, flat side down. It replaces the two blocks below, which the team tested on 15 Oct. If the bed is
+under 140 mm, turn it 45 degrees. Same settings as below; the hex hole is the same 8.3 mm across the flats.
+
+---
+
 **File:** `stl/print_plate_both_blocks.stl`, one plate of 81 × 69 mm, everything already flat side down.
 It holds:
 - **Block A** (left, 19.8 mm tall): for the robot's current small wheels.

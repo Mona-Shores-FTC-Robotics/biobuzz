@@ -153,10 +153,45 @@ shaft can't turn in it, so the block needs no set screws.
 - Print the fit coupon from `cad/ramp-hook/` first. Its bores are round, so on a hex shaft read it across the
   flats; or print one block and check the fit.
 
+## 15 Oct test: two blocks side by side empty it; one block fights you
+
+Carter and a mentor pushed the wheeled sled into a loaded FLOWER by hand with the two printed blocks (A and B) side by
+side on the shaft. Three videos: the FLOWER emptied, all 4 POLLEN out in the last run, in about a second once the blocks
+were under. **The concept works.** Two findings:
+
+- **One block on its own is hard to get under the POLLEN.** It's 2.72 in wide with a convex front, and it has to enter
+  the FLOWER's 2.79 in hole, so it has to be centred to about 1/32 in. By hand that's luck.
+- **Two blocks together go under easily.** The POLLEN sits in the valley between their two curved fronts. The valley
+  centres the POLLEN on the blocks instead of the blocks on the hole, and the blocks never enter the hole.
+
+### The divot blade (`divot_blade.py`)
+
+The students' sketch, built: one blade as wide as the two blocks (5.4 in), with a concave divot in the middle of its
+front sized to a POLLEN (radius 1.45 in, 1.8 in across, 0.31 in deep), the same side profile as block A (bottom 0.52 in,
+top 1.30, a 0.6 in flat top, then the slope the POLLEN roll out over), and the same 8 mm hex bore at the shaft height
+the 39 mm wheels give (0.77 in). The divot does what the valley did, on purpose, and a concave front against the
+FLOWER's two uprights still centres the robot.
+
+![The divot blade](divot_blade_w5.4_shaft0.770.png)
+
+- **Print:** `stl/print_plate_divot_blade.stl` (137 x 41 x 20 mm, flat side down; 45 degrees on a bed under 140 mm).
+  PETG, 5 walls, no supports. There's 2.2 mm of plastic under the bore, as in block A.
+- **To change it:** every size is a flag. `--width 4.5` for a narrower blade, `--shaft 0.945 --bottom 0.70` for 48 mm
+  wheels, `--divot-chord 2.2` for a wider scoop. It refuses a bore within 2 mm of a face.
+
+**Check on the FLOWER before printing a second one:**
+- [ ] With the blade seated, does anything but the divot touch the FLOWER? The front green posts come down to the base
+      about 1.55 in each side of centre and 1.55 in ahead of it. If the blade's shoulders meet them before the divot
+      reaches the POLLEN, shorten `--width` or ask for cut-back shoulders.
+- [ ] Does the POLLEN come out with the blade pushed in square, and 1 in off-centre? The divot should pull it to the
+      middle.
+- [ ] Count POLLEN out and time it, 5 runs, from a side view.
+
 ## Files
 
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
+- `divot_blade.py`: the one-piece divot blade (15 Oct), every size a flag.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.
