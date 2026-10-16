@@ -169,11 +169,18 @@ were under. **The concept works.** Two findings:
 
 ### Why it couldn't be seated against the back (16 Oct)
 
-A static force balance explains the working back and forth. The bottom POLLEN is pinched between the blade's front
-and the FLOWER's uprights, and a steady push lifts it only if the blade's contact normal is tilted up by more than
-twice the friction angle: 33° at μ 0.3, 44° at μ 0.4. The tested block's front leans 17°, and its top corner meets the
-POLLEN with the normal tilted up only 4°. It jams under a steady push and moves only when wiggled or hit. The 2-D
-simulator never saw this because its blade is kinematic: it can't stall.
+A static force balance explains the working back and forth. The bottom POLLEN is pinched between the blade's pushing
+face and the FLOWER's uprights, and a steady push lifts it only if the contact normal is tilted up by more than twice
+the friction angle: 33° at μ 0.3, 44° at μ 0.4. The blocks went in **flat back first** (the curved fronts faced the
+robot and were the exit ramp), so the pushing face was the back's plane: a sharp edge at 0.52 in rising at 41° to the
+flat top. The edge meets the POLLEN with the normal tilted up 39°, the face 41°: a steady push stalls once μ is above
+about 0.35, and it moves when wiggled because kinetic friction is lower than static. (An earlier version of this note
+had the curved front leading, 17°; that was wrong, the lab pushed with the back.) The 2-D simulator never saw this
+because its blade is kinematic: it can't stall. The levers, in order of effect: a lower and sharper edge (a sheet lip
+on the ring at 0.37 in: 47°), a steeper face (55° from horizontal lifts up to μ 0.52), a slippery skin (UHMW tape), and
+a roller, which removes the limit. The v2 blades' 45° nose with its 0.08 land (edge at 0.60 in, 35°) is only a few
+degrees different from the block as used; `v2_steep` (`--nose-deg 35 --land 0`: 55° from horizontal, sharp edge at
+0.52) is the one to print if the scoop still needs a wiggle.
 
 ### The FLOWER, from FIRST's field CAD
 
@@ -235,6 +242,7 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v2_tongue` | `--divot scoop --lane 1.2 --lane-ahead 0.4 --divot-chord 1.0 --run-len 1.0 --run-deg 3` | a 1.2 in lane reaching 0.4 in past the shoulders, between the uprights' lobes; its ridge 0.78 in past the pinned POLLEN |
 | `v2_highride` | `--divot scoop --shaft 0.945 --bottom 0.70` | the scoop for 48 mm wheels, 0.35 in over the ring |
 | `v2_plain` | `--divot none` | no hollow: the control |
+| `v2_steep` | `--divot scoop --nose-deg 35 --land 0` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
