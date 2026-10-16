@@ -169,18 +169,20 @@ were under. **The concept works.** Two findings:
 
 ### Why it couldn't be seated against the back (16 Oct)
 
-A static force balance explains the working back and forth. The bottom POLLEN is pinched between the blade's pushing
+The concept, as the lab built it: the block drives in **steep face first, ramp toward the robot**. Once the block's
+top corner is under the bottom POLLEN, the ball rides onto the flat top and rolls down the ramp, straight out of the
+FLOWER perpendicular to the wall, into the intake; the stack drops one and the next ball follows.
+`stack_sequence.py` draws that frame by frame from the simulator (`stack_sequence.png`).
+
+A static force balance explains the working back and forth. The bottom POLLEN is pinched between the block's steep
 face and the FLOWER's uprights, and a steady push lifts it only if the contact normal is tilted up by more than twice
-the friction angle: 33° at μ 0.3, 44° at μ 0.4. The blocks went in **flat back first** (the curved fronts faced the
-robot and were the exit ramp), so the pushing face was the back's plane: a sharp edge at 0.52 in rising at 41° to the
-flat top. The edge meets the POLLEN with the normal tilted up 39°, the face 41°: a steady push stalls once μ is above
-about 0.35, and it moves when wiggled because kinetic friction is lower than static. (An earlier version of this note
-had the curved front leading, 17°; that was wrong, the lab pushed with the back.) The 2-D simulator never saw this
-because its blade is kinematic: it can't stall. The levers, in order of effect: a lower and sharper edge (a sheet lip
-on the ring at 0.37 in: 47°), a steeper face (55° from horizontal lifts up to μ 0.52), a slippery skin (UHMW tape), and
-a roller, which removes the limit. The v2 blades' 45° nose with its 0.08 land (edge at 0.60 in, 35°) is only a few
-degrees different from the block as used; `v2_steep` (`--nose-deg 35 --land 0`: 55° from horizontal, sharp edge at
-0.52) is the one to print if the scoop still needs a wiggle.
+the friction angle: 33° at μ 0.3, 44° at μ 0.4. Block A's steep face leans 17° from vertical, so the push is tilted up
+17°, and it lifts only if μ is under 0.15: it stalls at any realistic friction and goes on only when wiggled or hit.
+The 2-D simulator never saw this because its blade is kinematic: it can't stall. The exit half of the concept, the
+ramp out toward the robot, is right; the entry is what has to change. The levers, in order of effect: a wedge entry
+instead of a wall (the v2 nose: 45° face, its edge at 0.60 in meets the ball at 35°; `v2_steep`, 55° with a sharp
+0.52 in edge, 39°), a lower edge still (a sheet lip on the ring at 0.37 in: 47°), a slippery skin (UHMW tape), and a
+roller, which removes the limit. v2 keeps the exit ramp (its 38° back slope) and replaces the wall with the wedge.
 
 ### The FLOWER, from FIRST's field CAD
 
