@@ -336,7 +336,7 @@ with the tail carrying the ball, peak height no longer buys anything, margin doe
 time; 4 of those leave enough plastic over the 8 mm shaft. All four are the same family: a 60° nose, a 1.10 in peak
 (0.52 to 0.54 in past the pinned POLLEN) and a 10° to 12° tail. v5 is the fastest of them: 60° nose from a 0.60 in
 edge, peak 1.10, 12° tail ending over the ring 1.85 in in front of the FLOWER's centre; all four past the Gecko in
-2.6 s worst case. v4's 0.30 in margin fails the 0.35 in short-stop scenario; v5's 0.54 passes it. 137 × 90 × 15 mm.
+2.6 s worst case. v4's 0.30 in margin fails the 0.35 in short-stop scenario; v5's 0.54 passes it. 137 × 77 × 15 mm.
 Results in `page/opt_all.jsonl`.
 
 **Carter's lane, and the sideways model (16 Oct).** Carter's divot was misread twice (a scoop in the front edge, a
@@ -372,6 +372,22 @@ blade is the design, since the curve costs nothing in the model and may help on 
 it as the control for the stick test. The model's weak point is how a real stack settles in its pipes (the balls are taken as rigid, and a
 tilted stack settles into a zigzag against the pipes); the lean slider is an input, the squirt is its consequence.
 
+**Will it survive the robot? (16 Oct)** The plastic around the 8 mm hex looks thin (2.2 mm under the bore, about
+4 mm over) and that is fixed by geometry: the bottom clears the ring by 0.17 in and the peak is tuned, so 13.5 mm of
+blade carries a 9.5 mm hex. It holds because the blade is 137 mm wide and every hit load spreads across that width:
+the drivetrain's push into the posts (about 25 lb before the wheels slip) goes nose to shaft through 13 mm of plastic
+over the full width, well under 1 MPa; a 20 lb hit on the tail tip bends the section at the bore at about 1.6 MPa
+against PETG's 50; the ball-pinch torque on the hex corners is a few in·lb over 137 mm of engagement. What wears is
+the hex corners (hence the coupon fit and the engagement length) and the nose edge (a consumable: print two sets,
+inspect, swap). The weak link is the shaft, not the plastic: an 8 mm steel shaft on a 17 in span between outboard
+arms, pushed with 25 lb at the blade, sees about 250 MPa, at yield, and takes a set; on the intake uprights (10 in
+span) about 150 MPa, fine. So: support the shaft close to the blade (arms on the uprights, or a bearing block each
+side of the blade on outboard arms), and once the shape is proven change the material (nylon or CF-PETG), not the
+thickness.
+
+**Dean's print job** is `print_job.py` → `stl/print_job_dean.stl` (169 × 157 mm: v5_lane, v5 plain, the hex coupon)
+with `print_job_dean.png` as the picture in `PRINT_ME.md`.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
@@ -393,6 +409,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag. `--gutter-*` adds Carter's lane on the tail (`v5_lane`).
 - `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `profiles_compare.py`: Block A, v2 and v3 at their stops with the pinned POLLEN. `intake_section.py`: v3 feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace (v3 profile, the Gecko as in the 16 Oct CAD).
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
+- `print_job.py`: Dean's plate, `stl/print_job_dean.stl` (the two v5 blades and the coupon) and its top view.
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.

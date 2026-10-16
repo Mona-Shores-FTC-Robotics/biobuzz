@@ -7,7 +7,7 @@ exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
 MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "the blade we are printing: one shallow curve across the tail, no flats", 6.3, 13.1))
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
-rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 90 × 15 mm"]]
+rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 77 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
 anim_js = anim_js.replace('choose("v5");', 'choose("v5l");')
@@ -110,7 +110,7 @@ body { font-size: 16px }
 .sliders + .sliders { padding-top: 0 }
 .step .wide { grid-column: 1 / -1; min-width: 0; overflow-x: auto }
 table.sweep { border-collapse: collapse; width: 100%; font-size: 12.5px; margin: 8px 0; table-layout: fixed }
-table.sweep td.k { width: 150px } table.sweep th:first-child { width: 72px }
+table.sweep td.k { width: 150px } table.loads td.k { width: auto } table.loads td { text-align: left } table.sweep th:first-child { width: 72px }
 table.sweep th, table.sweep td { border: 1px solid var(--line); padding: 5px 6px; text-align: center }
 table.sweep th { font: 500 11.5px var(--mono); color: var(--muted); letter-spacing: .03em }
 table.sweep td.k { text-align: left; font-size: 12.5px }
@@ -275,6 +275,24 @@ body = f'''
   test on the field.</p>
 </section>
 
+<section class="block" id="survive">
+  <h2>Will it survive the robot?</h2>
+  <p>The plastic around the shaft looks thin: about 2 mm under the hex hole and 4 mm over it. We cannot make it thicker, because
+  the blade's bottom has to clear the ring and its peak height is tuned. It holds anyway, because the blade is 5.4 in wide and
+  every hit spreads across that whole width. The numbers:</p>
+  <table class="sweep loads"><thead><tr><th>What happens</th><th>What takes the load</th><th>How hard it is pushed</th></tr></thead><tbody>
+    <tr><td class="k">The robot drives into the FLOWER and the posts stop the nose (about 25 lb before the wheels slip)</td><td>half an inch of plastic between the nose and the shaft, across the full width</td><td class="ok">tiny, under 1 % of what PETG takes</td></tr>
+    <tr><td class="k">Something hits the tail tip, 20 lb, 2 in behind the shaft</td><td>the plastic above and below the hole, across the full width</td><td class="ok">about 3 % of what PETG takes</td></tr>
+    <tr><td class="k">The ball is pinched at the nose and twists the blade on the shaft</td><td>the hex corners, over 5.4 in of shaft</td><td class="ok">a few inch-pounds, tiny</td></tr>
+    <tr><td class="k">The same 25 lb push, with the shaft spanning 17 in between arms outside the wheels</td><td>the 8 mm steel shaft, bending</td><td class="stuck">at the steel's limit: it would take a permanent bend</td></tr>
+    <tr><td class="k">The same push with the arms on the intake uprights, 10 in apart</td><td>the 8 mm steel shaft, bending</td><td class="ok">about 60 % of the limit, fine</td></tr>
+  </tbody></table>
+  <div class="learn"><b>What we learned</b>Width is strength. The blade's plastic is fine; the shaft between the arms is the part to design for. Keep the arms close to the blade, or add a bearing block on each side of it.</div>
+  <p>What wears out is the hex hole's corners and the nose edge. The coupon fit and the long hex engagement handle the corners.
+  The nose edge is a consumable: print two sets, look at the edge after practice, swap. Once the shape is proven, the
+  production blade can be printed in nylon or carbon-fibre PETG from the same file.</p>
+</section>
+
 <section class="block" id="next">
   <h2>Where to go next</h2>
   <p>These are the choices that are still open. The simulator above shows what each one does. Pick, test, and write down
@@ -283,7 +301,7 @@ body = f'''
     <div class="card"><h3>Carter's lane is the blade we are going with</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What to print: the coupon and the plate</h3><p>The shape is settled: v5 came out of the search and the physics, and the lane is Carter's, checked in the model. What is not settled is the printer's hole size. So the print job is a five-minute test bar with three hex holes, 8.1, 8.2 and 8.3 mm across the flats (one, two and three notches), plus the plate with both blades cut at 8.2 mm. If the two-notch hole is snug, the blades are right; if three, a few file strokes; if one, we resend at 8.1.</p><p>Measure the shaft across the flats too; it should read 8.00 mm.</p></div>
+    <div class="card"><h3>What Dean prints: one plate</h3><p>The shape is settled: v5 came out of the search and the physics, and the lane is Carter's, checked in the model. What is not settled is the printer's hole size. So the print job is one plate, 169 × 157 mm: v5 with the lane, v5 plain as the control, and a test bar with three hex holes at 8.1, 8.2 and 8.3 mm (one, two and three notches). The blades are cut at 8.2. If the two-notch hole is snug, the blades are right; if three, a few file strokes; if one, we resend at 8.1.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_dean.png")}" alt="The print plate from above: two blades side by side and the small coupon bar under them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>Measure the shaft across the flats too; it should read 8.00 mm.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>

@@ -8,5 +8,5 @@
  "blurb": "searched: 60° nose, 1.10 in peak, 12° tail; 0.54 in of margin",
  "evo": "882 shapes, each run in 12 scenarios (friction 0.3 and 0.45, 3 and 12 in/s, the robot stopping 0, 0.2 and 0.35 in short). 89 fed every time; 4 of those leave enough plastic over the shaft. The winner: a lower peak with a steeper nose and a shallow tail, 0.54 in of margin, all four past the Gecko in 2.6 s worst case.",
  "profile_text": "60° nose from a 0.60 in edge, peak 1.10 in at 0.89 ahead of the FLOWER's centre, 12° tail down to the blade's bottom over the ring, 1.8 in in front of the centre",
- "size": "137 × 90 × 15 mm"
+ "size": "137 × 77 × 15 mm"
 }

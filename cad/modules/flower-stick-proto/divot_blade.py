@@ -97,10 +97,14 @@ def slab(profile, y0, y1):
     m.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))    # y runs -(y1-y0)..0
     m.apply_translation([0, y1 * IN, 0]); return m
 W, L = a.width, a.lane
-lane = slab(prof_lane(), -L / 2, L / 2)
-left = slab(prof_sh(), L / 2, W / 2)
-right = slab(prof_sh(), -W / 2, -L / 2)
-body = lane.union(left).union(right)
+if L >= W - 1e-6:                                         # one profile the full width: no shoulder strips at the sides
+    L = W
+    body = slab(prof_lane(), -W / 2, W / 2)
+else:
+    lane = slab(prof_lane(), -L / 2, L / 2)
+    left = slab(prof_sh(), L / 2, W / 2)
+    right = slab(prof_sh(), -W / 2, -L / 2)
+    body = lane.union(left).union(right)
 R, chord = a.divot_r, a.divot_chord
 cut = None
 if a.divot == "scoop":
@@ -167,7 +171,8 @@ os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 name = a.name if a.name else f"divot_blade_v2_{a.divot}_w{a.width:.1f}_shaft{a.shaft:.3f}"
 body.export(os.path.join(HERE, "stl", name + ".stl"))
 D = lane_stop - back
-print(f"stl/{name}.stl: {W * IN:.0f} x {D * IN:.0f} x {(sh_top - a.bottom) * IN:.0f} mm, {body.volume / 1000:.0f} cm3")
+_e = body.bounds[1] - body.bounds[0]
+print(f"stl/{name}.stl: {_e[1]:.0f} x {_e[0]:.0f} x {_e[2]:.0f} mm, {body.volume / 1000:.0f} cm3")
 print(f"  lane (|y| < {L / 2}): bottom {a.bottom:.2f}, ridge ({lane_ridge:.2f}, {lane_top:.2f}) at the stop; nose {a.nose_deg:.0f} deg from x {lane_stop:.2f}; "
       f"{a.run_deg:.0f} deg run to ({lane_knee[0]:.2f}, {lane_knee[1]:.2f}), then {a.slope_deg:.0f} deg to the back edge at {lane_back:.2f}; "
       f"{a.divot} {chord:.1f} wide, {dd:.2f} deep; the pinned POLLEN at {a.pin:.2f} is {lane_ridge - a.pin:.2f} in down from the ridge")

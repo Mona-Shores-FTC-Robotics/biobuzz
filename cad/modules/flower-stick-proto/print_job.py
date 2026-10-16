@@ -1,0 +1,37 @@
+"""Dean's print job: one plate with the parts to test next, laid out to fit a 220 x 220 mm bed, plus a top-view picture.
+
+    python3 cad/modules/flower-stick-proto/print_job.py     # writes stl/print_job_dean.stl and print_job_dean.png
+
+The two blades sit side by side (flat side down, their 90 mm depth along x), the hex-fit coupon under them. Everything
+is in millimetres.
+"""
+import os
+import numpy as np
+import trimesh
+HERE = os.path.dirname(os.path.abspath(__file__))
+GAP = 8.0
+PARTS = [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon", "hex-fit coupon: 8.1 / 8.2 / 8.3")]
+ms, labels = [], []
+x = 0.0
+for name, label in PARTS[:2]:
+    m = trimesh.load(os.path.join(HERE, "stl", name + ".stl")); m.apply_translation(-m.bounds[0]); m.apply_translation([x, 0, 0])
+    ms.append(m); labels.append((label, m.bounds)); x = m.bounds[1][0] + GAP
+row_h = max(m.bounds[1][1] for m in ms)
+c = trimesh.load(os.path.join(HERE, "stl", "hex_fit_coupon.stl")); c.apply_translation(-c.bounds[0]); c.apply_translation([0, row_h + GAP, 0])
+ms.append(c); labels.append((PARTS[2][1], c.bounds))
+plate = trimesh.util.concatenate(ms)
+out = os.path.join(HERE, "stl", "print_job_dean.stl"); plate.export(out)
+b = plate.bounds; print(f"{out}: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} x {b[1][2]-b[0][2]:.0f} mm, {len(ms)} parts, {plate.volume / 1000:.0f} cm3")
+
+import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+fig, ax = plt.subplots(figsize=(7.5, 6.6))
+for m, (label, bb) in zip(ms, labels):
+    # top view: shade by height
+    tri = m.vertices[m.faces]; z = tri[:, :, 2].mean(1); order = np.argsort(z)
+    from matplotlib.collections import PolyCollection
+    pc = PolyCollection(tri[order][:, :, :2], array=z[order], cmap="Oranges", edgecolors="none"); pc.set_clim(-6, m.bounds[1][2] + 2); ax.add_collection(pc)
+    ax.text((bb[0][0] + bb[1][0]) / 2, bb[1][1] + 2.5, label, ha="center", va="bottom", fontsize=9)
+ax.add_patch(plt.Rectangle((-8, -8), b[1][0] + 16, b[1][1] + 16, fill=False, ls="--", lw=0.8, color="#888"))
+ax.set_xlim(-12, b[1][0] + 12); ax.set_ylim(-12, b[1][1] + 22); ax.set_aspect("equal"); ax.set_xlabel("mm"); ax.set_ylabel("mm")
+ax.set_title(f"print_job_dean.stl, top view: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} mm, flat side down, no supports", fontsize=10)
+fig.tight_layout(); fig.savefig(os.path.join(HERE, "print_job_dean.png"), dpi=120); print("print_job_dean.png")
