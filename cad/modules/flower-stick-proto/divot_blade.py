@@ -46,8 +46,12 @@ ap.add_argument("--pin", type=float, default=0.35, help="a lifted POLLEN's centr
 ap.add_argument("--run-deg", type=float, default=8.0, help="the lane's first slope behind the ridge, over the shaft")
 ap.add_argument("--run-len", type=float, default=0.45, help="its length, inches")
 ap.add_argument("--slope-deg", type=float, default=38.0)
-ap.add_argument("--divot-r", type=float, default=2.0)
-ap.add_argument("--divot-chord", type=float, default=1.8)
+ap.add_argument("--divot", choices=("scoop", "spoon"), default="scoop",
+                help="scoop: a vertical arc cut into the nose, concave across the blade only (reading 1 of Carter's sketch); "
+                     "spoon: a bowl hollowed into the nose face, concave across and up the face (reading 2)")
+ap.add_argument("--divot-r", type=float, default=2.0, help="scoop: radius in plan, inches")
+ap.add_argument("--divot-chord", type=float, default=1.8, help="width across the nose, inches (both)")
+ap.add_argument("--divot-depth", type=float, default=0.15, help="spoon: depth into the face at its middle, inches")
 ap.add_argument("--hex", type=float, default=8.3, help="hex bore across the flats, mm")
 a = ap.parse_args()
 
@@ -82,9 +86,24 @@ left = slab(prof_sh(), L / 2, W / 2)
 right = slab(prof_sh(), -W / 2, -L / 2)
 body = lane.union(left).union(right)
 R, chord = a.divot_r, a.divot_chord
-dd = R - math.sqrt(R * R - (chord / 2) ** 2)
-cut = cylinder(radius=R * IN, height=(lane_top - a.bottom + 1) * IN, sections=160)
-cut.apply_translation([(a.stop - back - dd + R) * IN, 0, (lane_top - a.bottom) / 2 * IN])
+if a.divot == "scoop":
+    dd = R - math.sqrt(R * R - (chord / 2) ** 2)
+    cut = cylinder(radius=R * IN, height=(lane_top - a.bottom + 1) * IN, sections=160)
+    cut.apply_translation([(a.stop - back - dd + R) * IN, 0, (lane_top - a.bottom) / 2 * IN])
+else:
+    # an ellipsoid sunk --divot-depth into the middle of the lane's nose face: its rim stays inside the face (0.9 of the
+    # face's half-length) and reaches --divot-chord across the blade
+    dd = a.divot_depth
+    face_len = math.hypot(a.stop - lane_ridge, lane_top - nose_bot)
+    rc = 0.8                                             # semi-axis along the face's normal, inches
+    rim = math.sqrt(1 - ((rc - dd) / rc) ** 2)           # fraction of a semi-axis at which the face cuts the ellipsoid
+    ra, rb = 0.9 * face_len / 2 / rim, chord / 2 / rim
+    cut = trimesh.creation.icosphere(subdivisions=4); cut.apply_scale([ra * IN, rb * IN, rc * IN])
+    th = math.radians(a.nose_deg)                        # local x along the face (up it), local z its outward normal
+    T = np.eye(4); T[:3, :3] = np.array([[-math.sin(th), 0, math.cos(th)], [0, 1, 0], [math.cos(th), 0, math.sin(th)]]).T
+    cut.apply_transform(T)
+    mx, mz = (a.stop + lane_ridge) / 2, (nose_bot + lane_top) / 2
+    cut.apply_translation([(mx - back + (rc - dd) * math.cos(th)) * IN, 0, (mz - a.bottom + (rc - dd) * math.sin(th)) * IN])
 body = body.difference(cut)
 bore = cylinder(radius=a.hex / 2 / math.cos(math.pi / 6), height=W * IN + 4, sections=6)
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
@@ -95,13 +114,13 @@ under = (a.shaft - a.bottom) * IN - a.hex / 2
 over_sh = (sh_top - a.shaft) * IN - a.hex / 2
 assert skin * IN >= 1.2, f"lane skin over the shaft only {skin * IN:.1f} mm: lengthen --run-len or flatten --run-deg"
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
-name = f"divot_blade_v2_w{a.width:.1f}_shaft{a.shaft:.3f}"
+name = f"divot_blade_v2_{a.divot}_w{a.width:.1f}_shaft{a.shaft:.3f}"
 body.export(os.path.join(HERE, "stl", name + ".stl"))
 D = a.stop - back
 print(f"stl/{name}.stl: {W * IN:.0f} x {D * IN:.0f} x {(sh_top - a.bottom) * IN:.0f} mm, {body.volume / 1000:.0f} cm3")
 print(f"  lane (|y| < {L / 2}): bottom {a.bottom:.2f}, ridge ({lane_ridge:.2f}, {lane_top:.2f}) at the stop; nose {a.nose_deg:.0f} deg from x {a.stop:.2f}; "
       f"{a.run_deg:.0f} deg run to ({lane_knee[0]:.2f}, {lane_knee[1]:.2f}), then {a.slope_deg:.0f} deg to the back edge at {lane_back:.2f}; "
-      f"divot {chord:.1f} wide, {dd:.2f} deep; the pinned POLLEN at {a.pin:.2f} is {lane_ridge - a.pin:.2f} in down from the ridge")
+      f"{a.divot} {chord:.1f} wide, {dd:.2f} deep; the pinned POLLEN at {a.pin:.2f} is {lane_ridge - a.pin:.2f} in down from the ridge")
 print(f"  shoulders: top {sh_top:.2f}; nose {sh_ridge:.2f}..{a.stop:.2f}, flat {sh_junction:.2f}..{sh_ridge:.2f}, back edge {sh_back:.2f}")
 print(f"  bore: centre x {rod_x:.2f} ({a.stop - rod_x:.2f} behind the stop), z {a.shaft:.3f}; plastic {under:.1f} mm under, {skin * IN:.1f} mm of lane skin over its "
       f"back corner, {over_sh:.1f} mm over it in the shoulders")
@@ -112,7 +131,7 @@ m = body.copy(); m.apply_translation(-m.bounds[0]); v = m.vertices / IN; f = m.f
 Lt = np.array([0.3, -0.6, 0.75]); Lt /= np.linalg.norm(Lt); k = 0.35 + 0.65 * np.clip(m.face_normals @ Lt, 0, 1)
 col = np.c_[np.outer(k, [0.95, 0.55, 0.12]), np.ones(len(k))]
 fig = plt.figure(figsize=(14, 5))
-for i, (el, az, tt) in enumerate(((28, -55, "3D: low centre lane with the divot, taller shoulders"), (0, -90, f"Side: {a.nose_deg:.0f} deg nose; lane ridge then {a.run_deg:.0f} and {a.slope_deg:.0f} deg; shoulders taller"), (90, -90, "Top: lane, divot, shoulders"))):
+for i, (el, az, tt) in enumerate(((28, -55, f"3D: low centre lane with the {a.divot}, taller shoulders"), (0, -90, f"Side: {a.nose_deg:.0f} deg nose; lane ridge then {a.run_deg:.0f} and {a.slope_deg:.0f} deg; shoulders taller"), (90, -90, f"Top: lane, {a.divot}, shoulders"))):
     ax = fig.add_subplot(1, 3, i + 1, projection="3d")
     ax.add_collection3d(Poly3DCollection(v[f], facecolors=col, edgecolors="none"))
     e = v.max(0); ax.set_xlim(0, e[0]); ax.set_ylim(0, e[1]); ax.set_zlim(0, e[2]); ax.set_box_aspect(e)

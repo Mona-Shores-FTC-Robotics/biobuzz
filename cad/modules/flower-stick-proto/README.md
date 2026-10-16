@@ -196,9 +196,14 @@ So nothing in front of the uprights is in the blade's way, and the hard stop is 
 
 ![Carter's sketch: the two blocks today (top), one blade with a divot (middle), and its front and end views (bottom)](test-2026-10-15/sketch-divot-blade.jpg)
 
-Carter's sketch, built with a wedge nose and every depth from the field CAD:
+Carter's sketch, built with a wedge nose and every depth from the field CAD. The sketch's divot can be read two ways,
+so both are built and both are on the print plate: a **scoop** cut into the front edge (the sketch's top view: an arc
+in plan, 1.8 in across, 0.21 in deep), or a **spoon** hollowed into the nose face (the front view's trapezoid: a bowl,
+1.8 in across, 0.15 in deep, concave across and up the face). Everything else is the same. Carter says which he drew;
+the test runs both.
 
-![The divot blade v2](divot_blade_v2_w5.4_shaft0.770.png)
+![The scoop](divot_blade_v2_scoop_w5.4_shaft0.770.png)
+![The spoon](divot_blade_v2_spoon_w5.4_shaft0.770.png)
 ![Seated in the field CAD's FLOWER](seated_in_field_cad.png)
 
 - **A 45° nose**, so a steady push lifts the stack (μ up to 0.41 sliding, 1.0 rolling). Tape the nose with UHMW or
@@ -214,10 +219,11 @@ Carter's sketch, built with a wedge nose and every depth from the field CAD:
 - **Checked:** swept into the CAD FLOWER, it touches nothing until its shoulders meet the uprights at x 1.18; seated,
   it is clear of the ring, the bracket and the pipes.
 
-**Print:** `stl/print_plate_divot_blade.stl` (137 × 49 × 19 mm, flat side down). PETG, 5 walls, no supports. Every
-size is a flag: `--shaft 0.945 --bottom 0.70` for 48 mm wheels, `--width`, `--nose-deg`, `--lane`.
+**Print:** `stl/print_plate_divot_blade.stl`: both blades, 137 × 108 mm, flat side down, the scoop at one end and the
+spoon at the other. PETG, 5 walls, no supports. Every size is a flag: `--divot scoop|spoon`, `--shaft 0.945 --bottom
+0.70` for 48 mm wheels, `--width`, `--nose-deg`, `--lane`.
 
-**Test it the same way:** 5 straight pushes, then 1 in off-centre, counting POLLEN out and timing from the side. The
+**Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
 fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 
