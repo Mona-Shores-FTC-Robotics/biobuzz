@@ -246,6 +246,7 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v2_plain` | `--divot none` | no hollow: the control |
 | `v2_steep` | `--divot scoop --nose-deg 35 --land 0.01` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
 | `v3_peak` | `--divot scoop --nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 45` | one mountain the full width: 55° up to a 1.28 in peak, 45° down; no flat, no lane, no shoulders |
+| `v4_carry` | as `v3_peak` with `--divot none --slope-deg 14.4` | the mountain with a 14° tail to the ring: the ball rides the blade all the way to the Gecko |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
@@ -310,6 +311,20 @@ and sliding on the uprights). Block A stalls on contact in every case (14° to 1
 0.6 in run at 4° leaves the pinned ball on a near-level surface and only momentum at 12 in/s carries it over. v2 and
 v3 empty the FLOWER at both speeds, the last ball past the Gecko about 2.5 s after the drive starts at 4 in/s and
 1.5 s at 12 in/s. A flat anywhere behind the ridge is the enemy; v3 has none.
+
+**v4, the carry (`v4_carry`, v3's flags with `--slope-deg 14.4`):** v3's ball comes off the back edge into the hole and
+has to climb the 0.35 in ring on its own speed (the dip). v4 keeps v3's nose and peak and continues the back slope at
+14° down to the blade's bottom 2.3 in in front of the FLOWER's centre, over the ring: the ball never touches the tiles
+and reaches the Gecko still on the blade. 137 × 102 × 19 mm, 113 cm³.
+
+**The simulator in the page** (`scratchpad` `sim.js`, a port of `ramp.py` + `animate.py` to JavaScript; the page's
+"Drive in" section): presets Block A, v2, v3, v4, sliders for edge height, nose angle, peak height, tail angle, drive
+speed, friction and stop error, readouts of the peak's margin past the pinned ball, the first-contact angle and the
+friction it beats, and where the tail ends. The Gecko is a soft drag wheel there (anything within its reach is pulled
+toward the robot at its surface speed), not a rigid roller. Findings: v4 feeds all four in 2.1 s at 4 in/s and 1.2 s at
+12; it tolerates the robot over-travelling (it cannot, the uprights stop it) but a stop 0.3 in short puts the ball on
+the peak, which is the whole margin. A lower peak (1.1 in) with a 60° nose has 0.5 in of margin and feeds just as fast:
+with the tail carrying the ball, peak height no longer buys anything, margin does.
 
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
