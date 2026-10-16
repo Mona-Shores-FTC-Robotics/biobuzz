@@ -338,11 +338,15 @@ edge, peak 1.10, 12° tail ending over the ring 1.85 in in front of the FLOWER's
 2.6 s worst case. v4's 0.30 in margin fails the 0.35 in short-stop scenario; v5's 0.54 passes it. 137 × 90 × 15 mm.
 Results in `page/opt_all.jsonl`.
 
-**The mentor's corner wheel.** The servo-driven 4.5 in wheel at the front right is for POLLEN in the wall corner by
-the garden. It clears the FLOWER only while the robot is within about 1 in of centred on it, and it owns 4.0 to 8.4 in
-off centre from 2.5 in up on that side, so a right-hand sled arm there stays below 2.3 in or pivots on the intake
-upright. On the left an arm can sit outboard of the front omni wheel (7.1 to 8.4 in off centre; the chassis is 16.0 in
-wide, the box 18). The shaft can run the full width under the Gecko row either way.
+**The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
+garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
+the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
+It clears the FLOWER only while the robot is within about 1 in of centred on it.
+
+**The sled arms pivot outboard of the drive wheels**, 8.3 in off centre: the chassis is 16.0 in wide and the 18 in box
+allows 9, so there is room past the front omni wheels (which end at 7.1). The blade's shaft runs 17 in across under
+the Gecko row (0.77 in high; the wheels' bottoms are at 1.94). On the right the arm passes under the corner disc:
+where the disc sits, 0.7 to 1.2 in ahead of the face, the arm is 1.8 to 2.0 in high and the disc's bottom is 2.5.
 
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that

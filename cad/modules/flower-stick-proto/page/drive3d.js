@@ -35,14 +35,18 @@ window.Drive3D = (function () {
   const geckoGeo = new THREE.CylinderGeometry(0.94, 0.94, 0.63, 28); geckoGeo.rotateX(Math.PI / 2);
   const geckos = GECKO_Y.map(y => { const m = new THREE.Mesh(geckoGeo, soft); m.position.set(-0.94, 2.89, -y); robot.add(m); return m; });
   const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 9.4, 6), steel); shaft.geometry.rotateX(Math.PI / 2); shaft.position.set(-0.94, 2.89, 0); robot.add(shaft);
+  // the arms pivot outboard of the drive wheels, 8.3 in off centre, on stubs at the Gecko shaft's height
+  for (const y of [-8.3, 8.3]) { const stub = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8), steel); stub.geometry.rotateX(Math.PI / 2); stub.position.set(-0.94, 2.89, -y); robot.add(stub); }
   for (const y of [-5.1, 5.1]) { const u = new THREE.Mesh(new THREE.BoxGeometry(1.9, 5.7, 0.5), dark); u.position.set(-0.95, 6.0, -y); robot.add(u); }
   const cross = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.5, 9.4), dark); cross.position.set(-0.95, 5.5, 0); robot.add(cross);
   const stage2 = new THREE.CylinderGeometry(1.89, 1.89, 1.9, 28); stage2.rotateX(Math.PI / 2);
   for (const y of [-1.0, 1.0]) { const m = new THREE.Mesh(stage2, soft); m.position.set(-8.2, 2.6, -y); robot.add(m); }
   const chassis = new THREE.Mesh(new THREE.BoxGeometry(10, 7, 16), body); chassis.position.set(-7, 4.6, 0); robot.add(chassis);
   // the corner wheel at the front right (4.5 in, servo driven), for POLLEN in the wall corner by the garden
-  const cornerGeo = new THREE.CylinderGeometry(2.25, 2.25, 0.5, 32); cornerGeo.rotateX(Math.PI / 2);
+  // a flat disc facing forward (its axle runs fore-aft): its face sweeps a ball sideways out of the corner
+  const cornerGeo = new THREE.CylinderGeometry(2.25, 2.25, 0.5, 32); cornerGeo.rotateZ(Math.PI / 2);
   const corner = new THREE.Mesh(cornerGeo, soft); corner.position.set(0.97, 4.7, 6.2); robot.add(corner);
+  const cornerHub = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 2.0, 12), steel); cornerHub.geometry.rotateZ(Math.PI / 2); cornerHub.position.set(0.3, 4.7, 6.2); robot.add(cornerHub);
   // the drive wheels' front pair (96 mm omni), beside the intake
   const omniGeo = new THREE.CylinderGeometry(1.89, 1.89, 1.9, 24); omniGeo.rotateX(Math.PI / 2);
   for (const y of [-6.2, 6.2]) { const w = new THREE.Mesh(omniGeo, dark); w.position.set(-1.6, 1.89, -y); robot.add(w); }
@@ -50,8 +54,8 @@ window.Drive3D = (function () {
   const bladeG = new THREE.Group(); scene.add(bladeG);
   const petg = new THREE.MeshStandardMaterial({ color: 0xd9711c, roughness: 0.55 });
   let bladeMesh = null;
-  const bladeShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 7.0, 6), steel); bladeShaft.geometry.rotateX(Math.PI / 2); bladeG.add(bladeShaft);
-  const arms = [-3.0, 3.0].map(y => { const a = new THREE.Mesh(new THREE.BoxGeometry(1, 0.35, 0.18), steel); a.position.z = -y; scene.add(a); return a; });
+  const bladeShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 17.0, 6), steel); bladeShaft.geometry.rotateX(Math.PI / 2); bladeG.add(bladeShaft);
+  const arms = [-8.3, 8.3].map(y => { const a = new THREE.Mesh(new THREE.BoxGeometry(1, 0.35, 0.18), steel); a.position.z = -y; scene.add(a); return a; });
   const sled = new THREE.Group(); scene.add(sled);
   const sledWheelGeo = new THREE.CylinderGeometry(0.77, 0.77, 0.4, 24); sledWheelGeo.rotateX(Math.PI / 2);
   for (const y of [-3.2, 3.2]) { const w = new THREE.Mesh(sledWheelGeo, dark); w.position.set(0, 0.77, -y); sled.add(w); const bar = new THREE.Mesh(new THREE.BoxGeometry(8, 0.3, 0.15), steel); bar.position.set(-4, 0.77, -y); sled.add(bar); }
