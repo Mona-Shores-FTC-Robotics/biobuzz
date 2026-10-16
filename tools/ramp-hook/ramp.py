@@ -72,6 +72,20 @@ def use_manual_flower():
     return FRONT - BACK           # how far past the hole's front edge the uprights' face is
 
 
+def use_cad_flower():
+    """Switch to the FLOWER as FIRST's field CAD has it (tools/robot-cad/flower_from_field_cad.py, 16 Oct 2026): base
+    ring 0.35 in tall with a 3.08 in hole and 0.82 in of flat in front of it; the uprights' inner corners are 1.61 in
+    behind the hole's centre, 0.61 each side, so a POLLEN lifted out of the hole is pinned with its centre 0.35 in
+    behind the hole's centre; the bracket opening is 3.90 in tall. Returns how far past the hole's front edge the
+    uprights' forward points (1.18 behind the centre) are: the blade's hard stop."""
+    global FRONT, BACK, RING_T, WINDOW_TOP
+    FRONT = CX + 3.08 / 2
+    BACK = CX - 0.35 - R          # the wall ramp.py's balls see: where the pinned POLLEN's centre stops
+    RING_T = 0.82
+    WINDOW_TOP = 3.90
+    return FRONT - (CX - 1.18)
+
+
 ROD_R = 0.125                # a 1/4 in steel rod, for a hook whose front is a rod
 
 
@@ -122,14 +136,16 @@ def contact(p, v, w, seg, seg_v, e, mu, spin=True):
 
 
 def run(ring=0.43, slope_deg=10.0, drive=12.0, tip_depth=2.4, e=0.4, mu=0.4, t_max=3.0, trace=None, float_z=None,
-        rod_z=None, wedge=None, dwell=None, back_speed=12.0, back_dist=4.0):
+        rod_z=None, wedge=None, dwell=None, back_speed=12.0, back_dist=4.0, profile=None):
     """One emptying. Returns (time the last POLLEN left the tube, time it reached the intake, POLLEN left in).
 
     With dwell set, the robot drives in to tip_depth, waits dwell seconds, then backs out at back_speed for back_dist
     inches and stops: drive in to the hard stop, then reverse."""
     slope = math.radians(slope_deg)
     fixed = flower_segments(ring)
-    if wedge is not None:
+    if profile is not None:
+        prof = profile                 # any closed outline in the robot's frame: x from the tip toward the robot, z up
+    elif wedge is not None:
         prof = wedge_profile(*wedge)
     elif rod_z is not None:
         prof = rod_profile(rod_z)

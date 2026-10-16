@@ -167,36 +167,66 @@ were under. **The concept works.** Two findings:
 - **Two blocks together go under easily.** The POLLEN sits in the valley between their two curved fronts. The valley
   centres the POLLEN on the blocks instead of the blocks on the hole, and the blocks never enter the hole.
 
-### The divot blade (`divot_blade.py`)
+### Why it couldn't be seated against the back (16 Oct)
+
+A static force balance explains the working back and forth. The bottom POLLEN is pinched between the blade's front
+and the FLOWER's uprights, and a steady push lifts it only if the blade's contact normal is tilted up by more than
+twice the friction angle: 33° at μ 0.3, 44° at μ 0.4. The tested block's front leans 17°, and its top corner meets the
+POLLEN with the normal tilted up only 4°. It jams under a steady push and moves only when wiggled or hit. The 2-D
+simulator never saw this because its blade is kinematic: it can't stall.
+
+### The FLOWER, from FIRST's field CAD
+
+The model in `tools/robot-cad/flower.py` was scaled off the manual's figure. On 16 Oct it was replaced with
+measurements from FIRST's field CAD (`tools/robot-cad/flower_from_field_cad.py`), about the bottom POLLEN's centre on
+the tiles:
+
+| | manual's figure | field CAD |
+|---|---|---|
+| base ring top | 0.43 | **0.35** |
+| hole | 2.79 | **3.08** |
+| uprights' forward points behind the POLLEN's centre | 1.25 | **1.18** (at y ±1.42) |
+| uprights' inner corners | | (1.61, ±0.61): a lifted POLLEN is pinned at **x +0.35** |
+| bracket opening | 3.55 | **3.90** |
+| green pipes | reach the base | **start 4.25 in up** |
+
+So nothing in front of the uprights is in the blade's way, and the hard stop is the uprights' forward points.
+
+### The divot blade v2 (`divot_blade.py`)
 
 ![Carter's sketch: the two blocks today (top), one blade with a divot (middle), and its front and end views (bottom)](test-2026-10-15/sketch-divot-blade.jpg)
 
-The students' sketch, built: one blade as wide as the two blocks (5.4 in), with a concave divot in the middle of its
-front sized to a POLLEN (radius 1.45 in, 1.8 in across, 0.31 in deep), the same side profile as block A (bottom 0.52 in,
-top 1.30, a 0.6 in flat top, then the slope the POLLEN roll out over), and the same 8 mm hex bore at the shaft height
-the 39 mm wheels give (0.77 in). The divot does what the valley did, on purpose, and a concave front against the
-FLOWER's two uprights still centres the robot.
+Carter's sketch, built with a wedge nose and every depth from the field CAD:
 
-![The divot blade](divot_blade_w5.4_shaft0.770.png)
+![The divot blade v2](divot_blade_v2_w5.4_shaft0.770.png)
+![Seated in the field CAD's FLOWER](seated_in_field_cad.png)
 
-- **Print:** `stl/print_plate_divot_blade.stl` (137 x 41 x 20 mm, flat side down; 45 degrees on a bed under 140 mm).
-  PETG, 5 walls, no supports. There's 2.2 mm of plastic under the bore, as in block A.
-- **To change it:** every size is a flag. `--width 4.5` for a narrower blade, `--shaft 0.945 --bottom 0.70` for 48 mm
-  wheels, `--divot-chord 2.2` for a wider scoop. It refuses a bore within 2 mm of a face.
+- **A 45° nose**, so a steady push lifts the stack (μ up to 0.41 sliding, 1.0 rolling). Tape the nose with UHMW or
+  packing tape and it has margin to spare. About 1.6 lb of push lifts the four POLLEN.
+- **A low centre lane** (2 in wide, top 1.05 in, under the POLLEN's centre at 1.40) with a shallow divot in its nose
+  that centres the POLLEN. It has **no flat top**: `tools/ramp-hook/blade_variants.py` (ramp.py with the CAD FLOWER)
+  keeps all 4 POLLEN in when a flat reaches back to the pinned POLLEN, and empties 4/4 at 2, 4 and 12 in/s, μ 0.3 or
+  0.5, when the slope starts at the ridge. The pinned POLLEN sits 0.38 in down the lane.
+- **Taller shoulders** (1.25 in) either side: they are the hard stop, on the uprights' forward points, and they hold
+  the 8 mm hex shaft with 8 mm of plastic over it. The lane only skins over the shaft (1.5 mm): the shoulders take
+  the load.
+- Width 5.4 in, 1.93 in front to back; bottom 0.52 in (0.17 over the ring); 8 mm hex bore at the sled's 0.77 in.
+- **Checked:** swept into the CAD FLOWER, it touches nothing until its shoulders meet the uprights at x 1.18; seated,
+  it is clear of the ring, the bracket and the pipes.
 
-**Check on the FLOWER before printing a second one:**
-- [ ] With the blade seated, does anything but the divot touch the FLOWER? The front green posts come down to the base
-      about 1.55 in each side of centre and 1.55 in ahead of it. If the blade's shoulders meet them before the divot
-      reaches the POLLEN, shorten `--width` or ask for cut-back shoulders.
-- [ ] Does the POLLEN come out with the blade pushed in square, and 1 in off-centre? The divot should pull it to the
-      middle.
-- [ ] Count POLLEN out and time it, 5 runs, from a side view.
+**Print:** `stl/print_plate_divot_blade.stl` (137 × 49 × 19 mm, flat side down). PETG, 5 walls, no supports. Every
+size is a flag: `--shaft 0.945 --bottom 0.70` for 48 mm wheels, `--width`, `--nose-deg`, `--lane`.
+
+**Test it the same way:** 5 straight pushes, then 1 in off-centre, counting POLLEN out and timing from the side. The
+thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
+fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 
 ## Files
 
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
-- `divot_blade.py`: the one-piece divot blade (15 Oct), every size a flag.
+- `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag.
+- `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.
