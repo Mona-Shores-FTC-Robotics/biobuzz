@@ -157,6 +157,7 @@ body = f'''
         <p>On October 15 we tested it on the practice field. It did empty the FLOWER, but only after wiggling it back and forth for 4
         to 6 seconds. One block alone could not get under the ball. Two blocks side by side could.</p>
         <div class="learn"><b>What we learned</b>Getting under the ball is the hard part. Once the blade is under, the balls come out fast.</div>
+        <div class="ask"><b>Open question</b>The blocks turned on the hex shaft. Was the printed hole a little too big, or did the push crush its corners? A hex shaft in a hex hole 0.3 mm bigger can rock about 4° either way even when it is perfect. The 36 mm blocks had only 2 mm of plastic under the hole; the new blade bears on 137 mm of shaft.</div>
       </div>
       <figure class="pic"><img class="tall" src="data:image/jpeg;base64,{b64("ph")}" alt="Two blue printed blocks side by side on a stick at the base of a loaded FLOWER."><figcaption>The two blocks on the stick at the FLOWER, October 15.</figcaption><img src="data:image/jpeg;base64,{b64("frames")}" alt="Three frames from the test video: approaching, under the ball, four balls out."><figcaption>One run: driving in, under, and out.</figcaption></figure>
     </div>
@@ -282,6 +283,7 @@ body = f'''
     <div class="card"><h3>Carter's lane is the blade we are going with</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
+    <div class="card"><h3>First print: the hex-fit coupon</h3><p>A five-minute test bar with three hex holes, 8.1, 8.2 and 8.3 mm across the flats, marked with one, two and three notches, printed the same way as the blades. Push the shaft into each. The one that is snug with no rock is the hole size the blades get. Measure the shaft across the flats too; it should read 8.00 mm.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>
