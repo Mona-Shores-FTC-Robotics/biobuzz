@@ -247,6 +247,7 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v2_steep` | `--divot scoop --nose-deg 35 --land 0.01` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
 | `v3_peak` | `--divot scoop --nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 45` | one mountain the full width: 55° up to a 1.28 in peak, 45° down; no flat, no lane, no shoulders |
 | `v4_carry` | as `v3_peak` with `--divot none --slope-deg 14.4` | the mountain with a 14° tail to the ring: the ball rides the blade all the way to the Gecko |
+| `v5` | `--divot none --nose-deg 30 --land 0.08 --lane-top 1.10 --sh-top 1.10 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 12` | the searched shape: 60° nose, 1.10 in peak, 12° tail, 0.54 in of margin |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
@@ -318,7 +319,7 @@ has to climb the 0.35 in ring on its own speed (the dip). v4 keeps v3's nose and
 and reaches the Gecko still on the blade. 137 × 102 × 19 mm, 113 cm³.
 
 **The simulator in the page** (`page/sim.js`, a port of `ramp.py` + `animate.py` to JavaScript; `page/anim2.js` draws
-it over the FLOWER's section from the field CAD, `page/flower_section.json`, and the mentor's robot cut at the
+it, and `page/drive3d.js` the same run in 3D, over the FLOWER's section from the field CAD, `page/flower_section.json`, and the mentor's robot cut at the
 centreline, `page/robot_section.json` from `page/section.py`): presets Block A, v2, v3, v4, sliders for edge height, nose angle, peak height, tail angle, drive
 speed, friction and stop error, readouts of the peak's margin past the pinned ball, the first-contact angle and the
 friction it beats, and where the tail ends. The Gecko is a soft drag wheel there (anything within its reach is pulled
@@ -326,6 +327,22 @@ toward the robot at its surface speed), not a rigid roller. Findings: v4 feeds a
 12; it tolerates the robot over-travelling (it cannot, the uprights stop it) but a stop 0.3 in short puts the ball on
 the peak, which is the whole margin. A lower peak (1.1 in) with a 60° nose has 0.5 in of margin and feeds just as fast:
 with the tail carrying the ball, peak height no longer buys anything, margin does.
+
+**v5, searched (`v5`, `--nose-deg 30 --land 0.08 --lane-top 1.10 --sh-top 1.10 --lane 5.0 --run-len 0.01 --run-deg 0
+--slope-deg 12`):** `page/opt.js` ran 882 mountain shapes (edge height 0.52 to 0.60, nose 45° to 70°, peak 0.9 to
+1.5 in, tail 10° to 30°) through the browser simulator's physics in node, each in 12 scenarios: friction 0.3 and
+0.45, drive 3 and 12 in/s, the robot stopping 0, 0.2 and 0.35 in short of the uprights. 89 shapes fed all four every
+time; 4 of those leave enough plastic over the 8 mm shaft. All four are the same family: a 60° nose, a 1.10 in peak
+(0.52 to 0.54 in past the pinned POLLEN) and a 10° to 12° tail. v5 is the fastest of them: 60° nose from a 0.60 in
+edge, peak 1.10, 12° tail ending over the ring 1.85 in in front of the FLOWER's centre; all four past the Gecko in
+2.6 s worst case. v4's 0.30 in margin fails the 0.35 in short-stop scenario; v5's 0.54 passes it. 137 × 90 × 15 mm.
+Results in `page/opt_all.jsonl`.
+
+**The mentor's corner wheel.** The servo-driven 4.5 in wheel at the front right is for POLLEN in the wall corner by
+the garden. It clears the FLOWER only while the robot is within about 1 in of centred on it, and it owns 4.0 to 8.4 in
+off centre from 2.5 in up on that side, so a right-hand sled arm there stays below 2.3 in or pivots on the intake
+upright. On the left an arm can sit outboard of the front omni wheel (7.1 to 8.4 in off centre; the chassis is 16.0 in
+wide, the box 18). The shaft can run the full width under the Gecko row either way.
 
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that

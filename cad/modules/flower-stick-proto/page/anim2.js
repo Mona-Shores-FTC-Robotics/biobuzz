@@ -34,7 +34,7 @@
   const balls = [0, 1, 2, 3].map(() => el("circle", { r: S.R * PX, fill: "var(--pollen)", "fill-opacity": 0.75, stroke: "var(--fg)", "stroke-width": 1.2 }));
   const $ = id => document.getElementById(id);
   const PRESETS = {
-    blockA: { name: "Block A, hand sled", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, onRobot: false, face: 17 },
+    blockA: { name: "Block A, hand sled", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, onRobot: false, face: 17, width: 5.44 },
     v2: { name: "v2 lane", profile: [[0, 0.52], [0, 0.60], [0.45, 1.05], [0.90, 0.99], [1.50, 0.52]], shaftBack: 0.69, onRobot: true },
     v3: { name: "v3 mountain", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 45 }, shaftBack: 0.77, onRobot: true },
     v4: { name: "v4 carry", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 14.4 }, shaftBack: 0.77, onRobot: true },
@@ -78,6 +78,7 @@
     $("sim-result").textContent = name + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
+    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || 5.4, P.shaftBack);
     draw();
   }
   function draw() {
@@ -100,6 +101,7 @@
       sledWheel.setAttribute("cx", sx(shx)); sledWheel.setAttribute("cy", sy(0.77)); sledWheel.setAttribute("r", 0.77 * PX); sledWheel.style.display = "";
     }
     f[2].forEach(([x, z], k) => { balls[k].setAttribute("cx", sx(x)); balls[k].setAttribute("cy", sy(z)); });
+    if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
   }
@@ -122,8 +124,10 @@
     compute();
   }
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => choose(b.dataset.preset);
-  for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); };
-  for (const s of ["drive", "mu", "stopErr"]) $("s-" + s).oninput = readouts;
+  let timer = null;
+  const later = () => { clearTimeout(timer); timer = setTimeout(compute, 120); };
+  for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); later(); };
+  for (const s of ["drive", "mu", "stopErr"]) $("s-" + s).oninput = () => { readouts(); later(); };
   $("sim-run").onclick = compute;
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };
