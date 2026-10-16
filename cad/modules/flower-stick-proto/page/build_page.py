@@ -20,6 +20,10 @@ body { font-size: 16px }
 .step .pic figcaption, .step .pic .cap { font-size: 13px; color: var(--muted) }
 .learn { border-left: 4px solid var(--petg); background: color-mix(in srgb, var(--petg) 8%, var(--panel)); padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 8px; max-width: 60ch }
 .learn b { font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--petg); display: block; margin-bottom: 2px }
+.ask { border-left: 4px solid #2b6cb0; background: color-mix(in srgb, #2b6cb0 8%, var(--panel)); padding: 8px 12px; border-radius: 0 8px 8px 0; margin-top: 8px; max-width: 60ch }
+.ask b { font: 500 12px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: #2b6cb0; display: block; margin-bottom: 2px }
+.decide { display: grid; gap: 12px }
+.decide .card { padding: 14px 16px; display: block } .decide .card h3 { margin-bottom: 6px } .decide .card p { margin: 0 0 6px; font-size: 15px } .decide .card p:last-child { margin: 0 }
 .big { font: 700 34px/1 var(--display); color: var(--petg) }
 .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px }
 .facts .card { padding: 12px 14px; display: block } .facts .card .big { display: block; margin-bottom: 4px } .facts .card span { font-size: 13.5px; color: var(--muted) }
@@ -34,11 +38,11 @@ NEXT_BLADE = "v5" if V5 else "v4"
 body = f'''
 <div class="wrap">
 <header class="hero">
-  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook</span>
+  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook · October 16</span>
   <h1>The FLOWER stick</h1>
-  <p class="lede">How we designed a blade that pulls the POLLEN out of a FLOWER. We built it, tested it, found out why it got
-  stuck, measured the real FLOWER, and used a computer model to pick the best shape. This page shows each step and what we
-  learned.</p>
+  <p class="lede">A blade that pulls the POLLEN out of a FLOWER. This page is where the project stands right now: what has
+  been tried, what we found out, and the questions that are still open. Read the steps, try the simulator, and then decide
+  what to test next. What you decide, and what the tests show, becomes the next part of this page.</p>
 </header>
 
 <section class="block" id="problem">
@@ -73,7 +77,8 @@ body = f'''
         liked sitting in that valley. Carter's divot does that on purpose.</p>
         <p>The sketch can be read two ways: a scoop cut into the front edge, or a spoon-shaped hollow in the front face. We built
         both so we could test them.</p>
-        <div class="learn"><b>What we learned</b>One blade is simpler than two blocks, and the shaft should go through it. Whether the divot helps is a question for the test field.</div>
+        <div class="learn"><b>What we learned</b>One blade is simpler than two blocks, and the shaft should go through it.</div>
+        <div class="ask"><b>Open question</b>What was the divot for? To hold the ball in the middle, to get under it more easily, or something else? The answer decides which version to test.</div>
       </div>
       <figure class="pic"><img src="data:image/jpeg;base64,{b64("sk")}" alt="Carter's pencil sketch: the two blocks with a ball between them, then one long blade with a divot, with its front and end views."><figcaption>Carter's sketch. Left: the two blocks with a ball between them. Middle: one blade with the divot. Right: the front view on the shaft, and the end view with the hex hole.</figcaption>
       <div class="stack"><img src="data:image/png;base64,{b64f(MOD + "divot_blade_v2_scoop_w5.4_shaft0.770.png")}" alt="A rendering of the blade with a scoop cut into its front edge."><img src="data:image/png;base64,{b64f(MOD + "divot_blade_v2_spoon_w5.4_shaft0.770.png")}" alt="A rendering of the blade with a spoon-shaped hollow in its front face."></div><div class="cap">The two ways we read the divot: a scoop cut into the edge (top) and a spoon hollow in the face (bottom).</div></figure>
@@ -103,6 +108,7 @@ body = f'''
           <div class="card"><span class="big">3.9 in</span><span>The bracket above the opening. A ball leaving the FLOWER can only be lifted about 1.1 in or it hits the bracket.</span></div>
         </div>
         <div class="learn"><b>What we learned</b>Measure, do not guess. The real FLOWER gave us a hard stop and a rule for where the peak goes.</div>
+        <div class="ask"><b>Open question</b>The CAD is the FLOWER as designed. Does the practice-field FLOWER match it? A ruler at the posts and the ring would tell us.</div>
       </div>
       <figure class="pic"><img src="data:image/jpeg;base64,{b64("seated")}" alt="Side and top views of the blade seated against the FLOWER's posts, drawn from the official CAD."><figcaption>The blade seated in the FLOWER, drawn from FIRST's CAD. The dashed circle is the lifted ball, pinned by the posts.</figcaption></figure>
     </div>
@@ -116,6 +122,7 @@ body = f'''
         climb the ring to get out. So we added a long, gentle tail that reaches over the ring. The ball rides the blade all the
         way to the intake wheels and never touches the floor.</p>
         <div class="learn"><b>What we learned</b>Fix one thing and look again. The mountain fixed the jam; the tail fixed the drop.</div>
+        <div class="ask"><b>Open question</b>The tail only works if the intake wheels are right at the FLOWER's face. Is that where our intake will be?</div>
       </div>
       <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "profiles_compare.png")}" alt="Four side views: the first block, the mountain, the mountain with a tail, and the computer-chosen shape, each with the ball resting on it."><figcaption>Four shapes with the ball resting on each: the first block, the mountain, the mountain with a tail, and the final shape.</figcaption></figure>
     </div>
@@ -130,6 +137,7 @@ body = f'''
         kind of shape: a 60 degree front, a lower peak with more room past the pinned ball, and a shallow tail. We call the best
         one v5.</p>
         <div class="learn"><b>What we learned</b>A higher peak does not help. Room past the pinned ball is what makes the blade forgiving.</div>
+        <div class="ask"><b>Open question</b>The model is only as good as what it knows. What would you test on the real field to check that it is right?</div>
       </div>
       <div class="facts">
         <div class="card"><span class="big">882</span><span>shapes tried</span></div>
@@ -154,13 +162,15 @@ body = f'''
 </section>
 
 <section class="block" id="next">
-  <h2>What we are doing next</h2>
-  <ul>
-    <li><strong>Print {NEXT_BLADE}</strong>, one plain and one with Carter's scoop, side by side on one plate.</li>
-    <li><strong>Test both on the stick</strong> on October 17: five straight pushes and one off-centre push each. Count the balls that come out and time it. If the plain one works as well as the scoop, we keep it simple.</li>
-    <li><strong>Mount it on the robot</strong> under the intake, on two arms, so the robot drives in instead of a person pushing.</li>
-    <li><strong>Ask Carter</strong> what the divot was for, so we test the right thing.</li>
-  </ul>
+  <h2>Where to go next</h2>
+  <p>These are the choices that are still open. The simulator above shows what each one does. Pick, test, and write down
+  what happened.</p>
+  <div class="decide">
+    <div class="card"><h3>Plain or scoop?</h3><p>Both can go on one print plate and be tested on the stick the same day. If the plain blade works as well as the scoop, the simpler one wins.</p><p>Try the scoop slider in the simulator first.</p></div>
+    <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
+    <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
+    <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
+  </div>
 </section>
 
 <section class="block" id="blade">
@@ -172,7 +182,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>Every version we printed or modelled. The newest is first.</p>
+  <p>Every version printed or modelled, newest first. The part files, the simulator, and the search that chose v5 are all in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
 </section>
 
 <section class="block" id="others">
@@ -187,12 +197,6 @@ body = f'''
   why our intake wheels sit right at the FLOWER's face.</p>
 </section>
 
-<section class="block" id="credits">
-  <h2>Who did what</h2>
-  <p class="credits">Carter drew the one-blade divot design and ran the October 15 test with a mentor. Bob prints the parts. The
-  mentors built the stick, measured the FLOWER from FIRST's CAD, and wrote the computer model. Everything is in our team's
-  GitHub under <code>cad/modules/flower-stick-proto</code>: the part files, the model, and the search that chose v5.</p>
-</section>
 </div>
 {js}
 {drive3d}
