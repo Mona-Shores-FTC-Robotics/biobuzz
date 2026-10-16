@@ -1,0 +1,55 @@
+<title>FLOWER Stick Blocks</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a workshop sheet. The 3D model leads; what it does and what to check sit beside it, a side view below. */
+:root {
+  --bg: #eef1f3; --panel: #ffffff; --fg: #17212b; --muted: #56636f; --line: #cdd5dc;
+  --petg: #d9711c; --steel: #8b96a1; --field: #3f8f3a; --pollen: #d8c21a; --ring: #3b4148;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #11161b; --panel: #192028; --fg: #e5ebf0; --muted: #98a5b1; --line: #2c3540;
+  --petg: #ef8a34; --steel: #7d8994; --field: #5fae58; --pollen: #e3cf35; --ring: #9aa4ae; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #11161b; --panel: #192028; --fg: #e5ebf0; --muted: #98a5b1; --line: #2c3540;
+  --petg: #ef8a34; --steel: #7d8994; --field: #5fae58; --pollen: #e3cf35; --ring: #9aa4ae; color-scheme: dark }
+* { box-sizing: border-box }
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); margin: 0 }
+.wrap { max-width: 1080px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 48px; display: grid; gap: 28px }
+header { display: grid; gap: 6px }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted) }
+h1 { font: 700 clamp(34px, 6vw, 52px)/1 var(--display); letter-spacing: .01em; margin: 0; text-wrap: balance }
+h2 { font: 600 24px/1.1 var(--display); letter-spacing: .02em; margin: 0 0 10px; text-wrap: balance }
+.lede { max-width: 64ch; margin: 0; color: var(--muted) }
+.main { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 24px; align-items: start }
+@media (max-width: 820px) { .main { grid-template-columns: minmax(0, 1fr) } }
+.viewer { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; display: grid }
+#stage { width: 100%; aspect-ratio: 4 / 3; max-width: 100%; display: block; touch-action: none; cursor: grab }
+#stage:active { cursor: grabbing }
+.controls { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border-top: 1px solid var(--line); align-items: center }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden }
+.seg button, .toggle { font: 500 13px/1 var(--body); padding: 9px 12px; background: transparent; color: var(--fg); border: 0; cursor: pointer }
+.seg button + button { border-left: 1px solid var(--line) }
+.seg button[aria-pressed="true"] { background: var(--petg); color: #fff }
+.toggle { border: 1px solid var(--line); border-radius: 7px }
+.toggle[aria-pressed="true"] { border-color: var(--petg); color: var(--petg) }
+button:focus-visible { outline: 2px solid var(--petg); outline-offset: 2px }
+.hint { font: 400 12px/1.3 var(--mono); color: var(--muted); margin-left: auto }
+.spec { display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font: 400 13px/1.5 var(--mono); padding: 12px; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums }
+.spec dt { color: var(--muted) } .spec dd { margin: 0 }
+aside { display: grid; gap: 22px; min-width: 0 }
+aside section p, aside li { margin: 0; max-width: 60ch }
+ul.check { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px }
+ul.check li { padding-left: 22px; position: relative }
+ul.check li::before { content: ""; position: absolute; left: 0; top: .45em; width: 11px; height: 11px; border: 2px solid var(--petg); border-radius: 2px }
+.diagram { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px; display: grid; gap: 10px }
+.diagram .scroll { overflow-x: auto }
+.diagram svg { display: block; width: 100%; min-width: 620px; height: auto }
+.diagram svg text { font: 500 12px var(--mono); fill: var(--fg) }
+.diagram svg .lbl { fill: var(--muted) }
+.cap { font-size: 13px; color: var(--muted); margin: 0; max-width: 72ch }
+kbd, code { font: 500 13px var(--mono) }
+</style>

@@ -1,11 +1,11 @@
-# Print job: FLOWER stick blocks (for a friend with a printer)
+# Print job: FLOWER stick blades (for a friend with a printer)
 
-**Newest first: `stl/print_plate_divot_blade.stl`** (v2, 16 Oct): **two blades on one plate, 137 x 108 mm**, flat side
-down. Each is a wedge nose with a hollow in the middle, a low centre lane and taller shoulders either side. They differ
-only in the hollow: one has a scoop (an arc cut into the front edge), the other a spoon (a bowl in the ramp face). The
-team wants to test both. If the bed is under 140 mm, turn the plate 45 degrees, or print the two STLs in `stl/` one at
-a time. Same settings as below; the hex hole is the same 8.3 mm across the flats. The skin over the hole in the middle
-lane is only 1.5 mm thick: that's by design, the shoulders carry the load.
+**Newest first: `stl/print_plate_v5.stl`** (v5, 16 Oct): **two blades on one plate, 191 x 137 mm**, flat side down.
+They are the same blade, one plain and one with a scoop in the nose; the team wants to test both. If the bed is under
+200 mm, print `stl/v5.stl` and `stl/v5_scoop.stl` one at a time (137 x 90 x 15 mm each). Same settings as below; the
+hex hole is 8.3 mm across the flats, flats top and bottom, with about 4 mm of plastic over it: no supports.
+
+The older plates below are superseded; keep them only if already printed.
 
 ---
 
