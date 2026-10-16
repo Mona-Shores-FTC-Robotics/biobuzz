@@ -14,6 +14,7 @@ d = json.load(open(os.path.join(ROOT, "tools", "ramp-hook", "intake_trace.json")
 CX, R = d["cx"], 1.4
 fx = lambda xs: CX - xs                     # sim x -> FLOWER x (+ toward the wall)
 prof, (rx, rz, rr), stop = d["profile"], d["roller"], fx(d["tip_stop"])
+gecko_z = d.get("gecko_z", 2.89)
 frames = d["trace"]
 arrive = next(i for i, f in enumerate(frames) if f[1] <= d["tip_stop"] + 1e-6)
 picks = [(arrive, "at the stop: the first ball over the ridge"), (arrive + 8, "down the back slope onto the tiles"), (arrive + 18, "at the roller; the stack has dropped")]
@@ -33,8 +34,12 @@ for ax, (i, lab) in zip(axes, picks):
     lip = fx(tip)
     pts = [(lip - x, z) for x, z in prof] + [(lip - prof[-1][0], 0.52), (lip, 0.52)]
     ax.add_patch(Polygon(pts, closed=True, color="#d9711c"))
-    ax.add_patch(Circle((lip - 0.69, 0.77), 0.16, color="#8b96a1", ec="#17212b", lw=0.8))    # the 8 mm shaft
-    ax.add_patch(Circle((lip - rx, rz), rr, color="#8b96a1"))
+    ax.add_patch(Circle((lip - 0.77, 0.77), 0.16, color="#8b96a1", ec="#17212b", lw=0.8))    # the 8 mm shaft
+    ax.add_patch(Circle((lip - rx, rz), rr, color="#8b96a1", alpha=.45))                      # the simulator's rigid roller
+    ax.add_patch(Circle((stop - rx, gecko_z), rr, fill=False, ec="#17212b", lw=1.2, ls="--"))  # the Gecko as in the CAD
+    ax.plot([stop - rx, lip - 0.77], [gecko_z, 0.77], color="#56636f", lw=2.5, solid_capstyle="round")   # the sled arm
+    face = stop - rx + rr                                                                                # the Gecko rims are flush with the robot's face
+    ax.add_patch(Rectangle((face - 3.2, 0.9), 3.2, 6.0, color="#cdd5dc", alpha=.6))                     # the robot, behind its face
     ax.annotate("", (lip - rx - 0.6, rz - rr - 0.15), (lip - rx + 0.6, rz - rr - 0.15), arrowprops=dict(arrowstyle="<-", color="#17212b"))
     for (xs, zs) in balls:
         ax.add_patch(Circle((fx(xs), zs), R, facecolor="#d8c21a", edgecolor="#17212b", alpha=.75))
@@ -46,8 +51,11 @@ for ax, (i, lab) in zip(axes, picks):
 axes[0].set_ylabel("inches above the tiles")
 axes[0].text(-7.3, 6.6, "dashed: the lintel's underside, 3.90 in", fontsize=8, color="#d9711c", va="bottom")
 axes[0].text(stop + 0.05, 1.3, "stop", fontsize=8, rotation=90)
-axes[2].text(stop - rx, rz + rr + 0.2, "intake roller", fontsize=8, ha="center")
+axes[2].text(stop - rx, rz + rr + 0.2, "simulator's roller", fontsize=7, ha="center", color="#56636f")
+axes[2].text(stop - rx - rr - 0.15, gecko_z, "48 mm Gecko,\nas in the CAD", fontsize=7, ha="right", va="center")
+axes[2].text(stop - rx + rr - 1.6, 6.5, "the robot,\nface 2.5 in from\nthe centre", fontsize=7, ha="center", color="#56636f")
+axes[2].text((stop - rx + lip - 0.77) / 2 - 0.4, (gecko_z + 0.77) / 2 + 0.15, "arm, 4.4 in", fontsize=7, rotation=29, color="#17212b")
 axes[2].text(-2.41, 6.2, "bracket's\nfront edge", fontsize=7, ha="center", color="#56636f")
-fig.suptitle("The v2 blade feeding the intake: blade at its stop, 2 in of open tile, the intake's first roller at the FLOWER's face (2-D simulator, field-CAD FLOWER)", fontsize=10.5)
+fig.suptitle("The v3 blade feeding the intake: the robot's face 2.5 in from the FLOWER's centre, the blade 3.7 in ahead of it on a 4.4 in arm from the Gecko shaft (2-D simulator, field-CAD FLOWER)", fontsize=10)
 fig.tight_layout()
 out = os.path.join(HERE, "intake_section.png"); fig.savefig(out, dpi=130); print(out)

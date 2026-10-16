@@ -290,7 +290,7 @@ drive wheels' bottoms and x measured back from the intake uprights' front faces:
 So the mouth is the floor itself, at the front: the good case. For the FLOWER: the robot's face sits 2.5 in in front of
 the FLOWER's centre (0.1 in off the ring and the bracket), the blade's stop is 3.7 in ahead of the face, its shaft
 2.9 in ahead at 0.77 in high, which passes 0.66 in under the gecko row. The sled's arms can hang from the gecko shaft
-itself on bearings (about 3.6 in long) or pivot on the uprights beside the outer wheels. The 4.5 in disc clears the
+itself on bearings (4.4 in from the gecko axle to the blade's shaft) or pivot on the uprights beside the outer wheels. The 4.5 in disc clears the
 FLOWER only while the robot is within about 1 in of centred on it.
 
 **v3, the mountain (`v3_peak`, `--nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01
@@ -312,7 +312,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
 - `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag.
-- `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `intake_section.py`: the blade feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace.
+- `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `profiles_compare.py`: Block A, v2 and v3 at their stops with the pinned POLLEN. `intake_section.py`: v3 feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace (v3 profile, the Gecko as in the 16 Oct CAD).
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
