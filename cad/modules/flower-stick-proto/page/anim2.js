@@ -32,6 +32,22 @@
   const blade = el("polygon", { fill: "var(--petg)" });
   const shaft = el("circle", { r: 0.16 * PX, fill: "var(--steel)", stroke: "var(--fg)" });
   const balls = [0, 1, 2, 3].map(() => el("circle", { r: S.R * PX, fill: "var(--pollen)", "fill-opacity": 0.75, stroke: "var(--fg)", "stroke-width": 1.2 }));
+  // the plan view (from above): half scale, under the side view; x as above, y across the field (+y up the screen)
+  const P2 = PX / 2, Y0 = 452 + 8, YC = Y0 + 4.5 * P2;
+  const px2 = x => (x - X0) * P2, py2 = y => YC - y * P2;
+  el("line", { x1: 0, x2: 697, y1: Y0 - 4, y2: Y0 - 4, stroke: "var(--line)" });
+  el("text", { x: 8, y: Y0 + 12, class: "lbl", "font-size": 10 }).textContent = "from above";
+  el("rect", { x: px2(2.71), y: py2(4.5), width: 0.69 * P2, height: 9 * P2, fill: "var(--steel)" });
+  el("circle", { cx: px2(0), cy: py2(0), r: 2.36 * P2, fill: "none", stroke: "var(--fg)", "stroke-width": 1.2 });
+  el("circle", { cx: px2(0), cy: py2(0), r: 1.54 * P2, fill: "none", stroke: "var(--fg)", "stroke-width": 0.8, "stroke-dasharray": "2 2" });
+  for (const sx_ of [S.PIPE, -S.PIPE]) for (const sy_ of [S.PIPE, -S.PIPE]) el("circle", { cx: px2(sx_), cy: py2(sy_), r: S.PIPE_R * P2, fill: "var(--field)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 });
+  for (const sg of [1, -1]) el("polygon", { points: [[1.18, 1.42 * sg], [1.61, 0.61 * sg], [2.4, 0.61 * sg], [2.4, 1.9 * sg], [1.18, 1.9 * sg]].map(([x, y]) => px2(x) + "," + py2(y)).join(" "), fill: "var(--muted)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 0.8 });
+  const planG = el("g", {});                                            // the blade and the robot's front, moved and turned with the blade
+  const planBlade = el("polygon", { fill: "var(--petg)", "fill-opacity": 0.85 }, planG);
+  const planLane = el("polygon", { fill: "#fff", "fill-opacity": 0.35 }, planG);
+  const planFace = el("line", { stroke: "var(--muted)", "stroke-width": 1.2 }, planG);
+  const planMouth = el("rect", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1 }, planG);
+  const planBalls = [0, 1, 2, 3].map(k => el("circle", { r: S.R * P2, fill: "var(--pollen)", "fill-opacity": 0.35 + 0.15 * (3 - k), stroke: "var(--fg)", "stroke-width": 0.9 }));
   const $ = id => document.getElementById(id);
   const PRESETS = {
     blockA: { name: "Block A, hand sled", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, onRobot: false, face: 17, width: 5.44 },
@@ -39,7 +55,8 @@
     v3: { name: "v3 mountain", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 45 }, shaftBack: 0.77, onRobot: true },
     v4: { name: "v4 carry", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 14.4 }, shaftBack: 0.77, onRobot: true },
   };
-  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "scoop"];
+  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "offset", "yaw", "lean", "mouth"];
+  function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6 } : null; }
   let bladeWidth = 5.4, armMode = "both";
   let preset = "v4", custom = false, result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function readShape() { return { edge: +$("s-edge").value, nose: +$("s-nose").value, peak: +$("s-peak").value, tail: +$("s-tail").value }; }
@@ -61,26 +78,33 @@
     }
     $("ro-tail").textContent = tailEnd.toFixed(2) + " in " + (tailEnd < -2.36 ? "(past the ring: no dip)" : tailEnd < -1.54 ? "(over the ring)" : "(into the hole: the ball dips)");
     $("ro-width").textContent = bladeWidth.toFixed(1) + " in: the nose meets both uprights' points up to ±" + (bladeWidth / 2 - 1.42).toFixed(1) + " in off centre" + (bladeWidth > 7.5 ? "; wider than the Gecko row (7.5)" : bladeWidth >= 7.5 ? "; matches the Gecko row" : "; the Gecko row is 7.5");
+    const g = readLane();
+    if (!g) $("ro-lane").textContent = "none: a plain tail";
+    else { const c = S.catchHalf(g), v = Math.sqrt(2 * 386 * g.rise / (1 + 2 / 3)); $("ro-lane").textContent = "catches a ball up to ±" + c.toFixed(1) + " in off its centre; holds a sideways kick up to " + v.toFixed(0) + " in/s" + (g.start < 0.85 ? ". Starts too near the nose: the FLOWER still holds the ball on its own centreline there, so an off-centre robot wedges it on the wall" : ""); }
+    $("ro-lane").style.color = g && g.start < 0.85 ? "var(--petg)" : "";
     for (const k of sliders) { const o = $("v-" + k); if (o) o.textContent = $("s-" + k).value; }
     return prof;
   }
   function compute() {
     const P = PRESETS[preset];
     profile = readouts();
-    cfg = { drive: +$("s-drive").value, mu: +$("s-mu").value, stopErr: +$("s-stopErr").value, extraDepth: P.extraDepth || 0, onRobot: P.onRobot };
+    cfg = { drive: +$("s-drive").value, mu: +$("s-mu").value, stopErr: +$("s-stopErr").value, extraDepth: P.extraDepth || 0, onRobot: P.onRobot,
+      width: P.width || bladeWidth, gutter: readLane(), offset: +$("s-offset").value, yaw: +$("s-yaw").value, lean: +$("s-lean").value, mouth: +$("s-mouth").value };
     const t0 = performance.now();
     result = S.run(profile, cfg);
     const ms = Math.round(performance.now() - t0);
     const r = result, name = custom ? "custom mountain" : P.name;
     let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: the push at the blade contact is tilted up only " + r.stalled[1].toFixed(0) + "°, under the friction angle " + (Math.atan(cfg.mu) * 180 / Math.PI).toFixed(0) + "°. A steady push cannot lift the ball.";
-    else if (cfg.onRobot && r.fed.every(v => v !== null)) s = "All four past the Gecko at " + Math.max(...r.fed).toFixed(2) + " s (first out of the FLOWER at " + r.out[0].toFixed(2) + " s).";
+    else if (cfg.onRobot && r.fed.every(v => v !== null)) { const w = Math.max(0, ...r.yAtWheels.filter(v => v !== null).map(Math.abs)); s = "All four into the wheels at " + Math.max(...r.fed).toFixed(2) + " s (first out of the FLOWER at " + (r.out[0] === null ? "?" : r.out[0].toFixed(2)) + " s)" + (w > 0.05 ? "; the furthest reached the wheels " + w.toFixed(1) + " in off the blade's centre." : "."); }
+    else if (cfg.onRobot && r.missed.some(v => v !== null)) s = r.missed.filter(v => v !== null).length + " of 4 rolled past the wheels, off to the side (" + r.yAtWheels.filter(v => v !== null).map(v => v.toFixed(1)).join(", ") + " in from the blade's centre).";
+    else if (cfg.onRobot) s = (4 - r.fed.filter(v => v !== null).length) + " of 4 never reached the wheels: stuck on the blade after " + r.frames[r.frames.length - 1][0].toFixed(1) + " s.";
     else if (r.out.every(v => v !== null)) s = "All four out of the FLOWER, the last at " + Math.max(...r.out).toFixed(2) + " s.";
     else s = (4 - r.out.filter(v => v !== null).length) + " of 4 still in the FLOWER after " + r.frames[r.frames.length - 1][0].toFixed(1) + " s.";
     $("sim-result").textContent = name + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, +$("s-scoop").value);
+    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw);
     draw();
   }
   function draw() {
@@ -102,7 +126,19 @@
       arm.setAttribute("x1", sx(X0)); arm.setAttribute("y1", sy(0.77)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));
       sledWheel.setAttribute("cx", sx(shx)); sledWheel.setAttribute("cy", sy(0.77)); sledWheel.setAttribute("r", 0.77 * PX); sledWheel.style.display = "";
     }
-    f[2].forEach(([x, z], k) => { balls[k].setAttribute("cx", sx(x)); balls[k].setAttribute("cy", sy(z)); });
+    f[2].forEach(([x, z, y], k) => { balls[k].setAttribute("cx", sx(x)); balls[k].setAttribute("cy", sy(z)); planBalls[k].setAttribute("cx", px2(x)); planBalls[k].setAttribute("cy", py2(y || 0)); });
+    // the plan: the blade's outline and lane, the robot's face and wheel row, all in the blade's frame (offset, turned)
+    const W = cfg.width || bladeWidth, len = profile[profile.length - 1][0], g = cfg.gutter, c = g ? S.catchHalf(g) : 0;
+    planG.setAttribute("transform", `translate(${px2(lip).toFixed(1)} ${py2(cfg.offset || 0).toFixed(1)}) rotate(${(-(cfg.yaw || 0)).toFixed(1)})`);
+    const pl = (xb, y) => (-xb * P2).toFixed(1) + "," + (-y * P2).toFixed(1);
+    planBlade.setAttribute("points", [pl(0, -W / 2), pl(0, W / 2), pl(len, W / 2), pl(len, -W / 2)].join(" "));
+    planLane.setAttribute("points", g ? [pl(g.start, -0.05), pl(g.start, 0.05), pl(g.start + 1.6, c), pl(len, c), pl(len, -c), pl(g.start + 1.6, -c)].join(" ") : "");
+    if (P.onRobot) {
+      const fb = S.FACE_BEHIND_LIP, m = cfg.mouth || 7.5;
+      planFace.setAttribute("x1", -fb * P2); planFace.setAttribute("x2", -fb * P2); planFace.setAttribute("y1", -8 * P2); planFace.setAttribute("y2", 8 * P2);
+      planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
+      planFace.style.display = planMouth.style.display = "";
+    } else planFace.style.display = planMouth.style.display = "none";
     if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
@@ -129,9 +165,8 @@
   let timer = null;
   const later = () => { clearTimeout(timer); timer = setTimeout(compute, 120); };
   for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); later(); };
-  for (const s of ["drive", "mu", "stopErr"]) $("s-" + s).oninput = () => { readouts(); later(); };
-  $("s-scoop").oninput = () => { readouts(); if (window.Drive3D && profile) window.Drive3D.setBlade(profile, PRESETS[preset].width || bladeWidth, PRESETS[preset].shaftBack, +$("s-scoop").value); };
-  for (const b of document.querySelectorAll("[data-width]")) b.onclick = () => { bladeWidth = +b.dataset.width; for (const o of document.querySelectorAll("[data-width]")) o.setAttribute("aria-pressed", o === b); readouts(); if (window.Drive3D && profile) window.Drive3D.setBlade(profile, PRESETS[preset].width || bladeWidth, PRESETS[preset].shaftBack, +$("s-scoop").value); };
+  for (const s of ["drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "offset", "yaw", "lean", "mouth"]) $("s-" + s).oninput = () => { readouts(); later(); };
+  for (const b of document.querySelectorAll("[data-width]")) b.onclick = () => { bladeWidth = +b.dataset.width; for (const o of document.querySelectorAll("[data-width]")) o.setAttribute("aria-pressed", o === b); readouts(); later(); };
   for (const b of document.querySelectorAll("[data-arms]")) b.onclick = () => { armMode = b.dataset.arms; for (const o of document.querySelectorAll("[data-arms]")) o.setAttribute("aria-pressed", o === b); if (window.Drive3D) window.Drive3D.setArms(armMode); };
   $("sim-run").onclick = compute;
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };

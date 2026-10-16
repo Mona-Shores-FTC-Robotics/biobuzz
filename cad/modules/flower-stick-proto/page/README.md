@@ -5,14 +5,20 @@ photos. `build_page.py` is the current builder: the engineering-notebook story (
 what is next, the parts). It reuses `make_page3.py` for the CSS, the simulator panel and the viewer script, which in turn
 imports the two earlier builders:
 
-- `sim.js`: the 2-D simulator in the browser, a port of `tools/ramp-hook/ramp.py` with the stall check and the soft
-  Gecko; `simlib.js` is the same for node. `opt.js` is the design search that produced v5; `opt_all.jsonl` its results.
+- `sim.js`: the simulator in the browser, a port of `tools/ramp-hook/ramp.py` with the stall check and the soft
+  Gecko, plus the sideways dimension (16 Oct): Carter's lane on the tail as a cross-section the ball feels, the FLOWER
+  holding the balls on its centreline (the ring's hole, the uprights' vee, the four pipes), and three ways a run can be
+  off (robot off-centre, robot turned, stack leaning). `simlib.js` is the same for node. `opt.js` is the design search
+  that produced v5; `opt_all.jsonl` its results. `lat_sweep.js` is the sideways sweep (plain tail and four lanes against
+  offset, lean, turn and intake-mouth width); `lat_sweep.jsonl` its results, which the page turns into the table in
+  step 7; `lat_test.js` a handful of spot cases.
 - `anim2.js`: the side view over `flower_section.json` (FIRST's field CAD cut at the centreline) and
   `robot_section.json` (the mentor's 16 Oct robot cut at the centreline, by `section.py`).
-- `drive3d.js`: the same run in three.js; `flower3d.b64` is the simplified FLOWER mesh it uses.
+- `drive3d.js`: the same run in three.js (the blade as a height field with the lane, the balls with their sideways
+  position, the robot and blade offset and turned as the sliders say); `flower3d.b64` is the simplified FLOWER mesh it uses.
 - `v5.json`: the searched shape and its captions.
 
-The builder expects, in the same folder: base64 of each STL it shows (`<name>.b64`, made with `base64 -w0`), the two
+The builder expects, in the same folder: base64 of each STL it shows (`<name>.b64`, made with `base64 -w0`, `v5_lane` included), the two
 test photos as `ph.b64` and `frames.b64` (from `../test-2026-10-15/`), the sketch as `sk.b64`, the seated-blade drawing as `seated.b64`, and four cropped
 screenshots of other teams' public videos in `clips/` (not committed). Then `python3 build_page.py` writes
 `flower-stick.html`, which is published as the artifact. Anyone with edit access to the artifact can republish it

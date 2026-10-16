@@ -57,6 +57,14 @@ ap.add_argument("--divot-r", type=float, default=2.0, help="scoop: radius in pla
 ap.add_argument("--divot-chord", type=float, default=1.8, help="width across the nose, inches (both)")
 ap.add_argument("--divot-depth", type=float, default=0.15, help="spoon: depth into the face at its middle, inches")
 ap.add_argument("--hex", type=float, default=8.3, help="hex bore across the flats, mm")
+ap.add_argument("--gutter-rise", type=float, default=0.0,
+                help="Carter's lane on the tail: shoulders raised this much above the tail, inches (0: none). The lane between "
+                     "them is a circular trough tangent to the tail at the centreline, so the centreline profile is unchanged")
+ap.add_argument("--gutter-r", type=float, default=3.0, help="the lane's radius across the blade, inches")
+ap.add_argument("--gutter-lead", type=float, default=1.6, help="the shoulders reach full height over this length, inches")
+ap.add_argument("--gutter-start", type=float, default=0.9,
+                help="where the shoulders begin, inches behind the stop. Not under 0.85: the FLOWER holds the POLLEN on its own "
+                     "centreline until the ball's centre is 0.85 behind the lip, and a robot parked off-centre would wedge it on the wall")
 ap.add_argument("--name", help="file stem (default: divot_blade_v2_<divot>_w<width>_shaft<shaft>)")
 a = ap.parse_args()
 
@@ -118,6 +126,32 @@ else:
     mx, mz = (lane_stop + lane_ridge) / 2, (nose_bot + lane_top) / 2
     cut.apply_translation([(mx - back + (rc - dd) * math.cos(th)) * IN, 0, (mz - a.bottom + (rc - dd) * math.sin(th)) * IN])
 if cut is not None: body = body.difference(cut)
+if a.gutter_rise > 0:
+    # the shoulders: the tail's plane raised by the rise, full width, from gutter-start back to the back edge, growing
+    # over gutter-lead (a gentle lead-in: a steep one is a bump the POLLEN meets head-on); then the lane: a cylinder of
+    # radius gutter-r whose axis runs along the tail, gutter-r above it, tangent to the tail at the centreline and
+    # climbing the shoulders on either side
+    rise, rg, lead = a.gutter_rise, a.gutter_r, a.gutter_lead
+    xg = a.stop - a.gutter_start
+    tail_z = lambda x: lane_knee[1] - (lane_knee[0] - x) * ts
+    assert xg <= lane_knee[0], "the shoulders must start on the tail, behind the ridge"
+    cap_poly = [(xg, tail_z(xg)), (xg - lead, tail_z(xg - lead) + rise), (lane_back - 0.3, tail_z(lane_back - 0.3) + rise), (lane_back - 0.3, a.bottom - 0.5), (xg, a.bottom - 0.5)]
+    cap = slab(cap_poly, -W / 2, W / 2)
+    body = body.union(cap)
+    th = math.radians(a.slope_deg)
+    tdir = np.array([-math.cos(th), 0.0, -math.sin(th)]); ndir = np.array([-math.sin(th), 0.0, math.cos(th)])
+    mid = np.array([((xg + lane_back) / 2 - back) * IN, 0.0, (tail_z((xg + lane_back) / 2) - a.bottom) * IN])
+    cyl = cylinder(radius=rg * IN, height=8 * IN, sections=240)
+    cyl.apply_transform(trimesh.geometry.align_vectors([0, 0, 1], tdir))
+    cyl.apply_translation(mid + ndir * rg * IN)
+    body = body.difference(cyl)
+    # trim what the cap added below the bottom and behind the back edge
+    keep = trimesh.creation.box(extents=[(a.stop - back) * IN, (W + 1) * IN, (sh_top - a.bottom + rise + 1) * IN])
+    keep.apply_translation([(a.stop - back) / 2 * IN, 0, (sh_top - a.bottom + rise + 1) / 2 * IN])
+    body = body.intersection(keep)
+    catch = math.sqrt(rg * rg - (rg - rise) ** 2) if rise < rg else rg
+    print(f"  lane on the tail: shoulders {rise:.2f} in up, from {a.gutter_start:.2f} behind the stop over {lead:.1f} in; trough radius {rg:.1f}, catching +-{catch:.2f} in; "
+          f"the shoulders' edge meets the trough at {math.degrees(math.asin(min(1, catch / rg))):.0f} deg")
 bore = cylinder(radius=a.hex / 2 / math.cos(math.pi / 6), height=W * IN + 4, sections=6)
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([(rod_x - back) * IN, 0, (a.shaft - a.bottom) * IN])

@@ -62,7 +62,7 @@ window.Drive3D = (function () {
   function setArms(mode) {
     armMode = mode;
     const ys = ARMS[mode];
-    arms.forEach((a, k) => { a.visible = k < ys.length; if (k < ys.length) a.position.z = ys[k]; });
+    arms.forEach((a, k) => { a.visible = k < ys.length; if (k < ys.length) a.position.z = ys[k] - offsetNow; });
     stubs.forEach((st, k) => { st.visible = k < ys.length; if (k < ys.length) st.position.set(-0.94, 2.89, ys[k]); });
     const zmin = Math.min(...ys, -2.9), zmax = Math.max(...ys, 2.9);
     bladeShaft.geometry.dispose(); bladeShaft.geometry = new THREE.CylinderGeometry(0.16, 0.16, zmax - zmin + 0.6, 6); bladeShaft.geometry.rotateX(Math.PI / 2);
@@ -74,62 +74,55 @@ window.Drive3D = (function () {
   const ballGeo = new THREE.SphereGeometry(1.4, 24, 16);
   const ballMat = new THREE.MeshStandardMaterial({ color: 0xd8c21a, roughness: 0.5 });
   const balls = [0, 1, 2, 3].map(() => { const m = new THREE.Mesh(ballGeo, ballMat); scene.add(m); return m; });
-  // The blade as a height field over its plan (x behind the lip, y across), top z = profile(x), bottom at the profile's
-  // foot, with Carter's scoop cut out: a vertical cylinder of radius SCOOP_R whose edge bites `scoop` inches into the
-  // nose at the centreline (divot_blade.py's --divot scoop). Local x runs toward the robot (-x is behind the lip).
-  const SCOOP_R = 2.0;
-  function heightAt(profile, xb) {               // top surface height at xb inches behind the lip
+  // The blade as a height field over its plan (x behind the lip, y across): top z = profile(x) + the lane's
+  // cross-section (Carter's lane: shoulders raised `rise` above the tail from `start` behind the lip, reaching full
+  // height over `lead`; between them a circular trough of radius R tangent to the tail at the centreline), bottom at the
+  // profile's foot. Local x runs toward the robot (-x is behind the lip).
+  function heightAt(profile, xb) {               // the centreline's top surface height at xb inches behind the lip
     for (let i = 1; i + 1 < profile.length; i++) {
       const [x0, z0] = profile[i], [x1, z1] = profile[i + 1];
       if (xb >= x0 && xb <= x1) return z0 + (z1 - z0) * (xb - x0) / (x1 - x0);
     }
     return xb < profile[1][0] ? profile[1][1] : profile[profile.length - 1][1];
   }
-  function bladeGeometry(profile, width, scoop) {
+  function laneRise(g, xb, y) {
+    if (!g || g.rise <= 0 || xb <= g.start) return 0;
+    const lead = g.lead || 0.4, tp = xb >= g.start + lead ? 1 : (xb - g.start) / lead;
+    const a = Math.abs(y); let h = a >= g.R ? g.rise : g.R - Math.sqrt(g.R * g.R - a * a); if (h > g.rise) h = g.rise;
+    return h * tp;
+  }
+  function bladeGeometry(profile, width, g) {
     const bottom = profile[0][1], edge = profile[1][1], len = profile[profile.length - 1][0], hw = width / 2;
-    const cx = SCOOP_R - scoop, inside = (xb, y) => scoop > 0 && Math.hypot(-xb - cx, y) < SCOOP_R;   // the cylinder's axis stands in front of the lip; local x = -xb
     const pos = [];
     const tri = (a, b, c) => pos.push(...a, ...b, ...c);
     const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
-    const snap = (xb, y) => {                     // move a point inside the scoop circle out onto it, radially
-      const dx = -xb - cx, d = Math.hypot(dx, y); if (d < 1e-6) return [xb, y];
-      return [-(cx + dx / d * SCOOP_R), y / d * SCOOP_R];
-    };
+    const top = (xb, y) => [-xb, heightAt(profile, xb) + laneRise(g, xb, y), -y], bot = (xb, y) => [-xb, bottom, -y];
     const nx = Math.max(6, Math.round(len / 0.06)), ny = Math.max(6, Math.round(width / 0.06));
-    for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
-      const xa = len * i / nx, xb2 = len * (i + 1) / nx, ya = -hw + width * j / ny, yb = -hw + width * (j + 1) / ny;
-      let c = [[xa, ya], [xb2, ya], [xb2, yb], [xa, yb]];
-      const ins = c.map(([x, y]) => inside(x, y));
-      if (ins.every(v => v)) continue;
-      if (ins.some(v => v)) c = c.map(([x, y], k) => ins[k] ? snap(x, y) : [x, y]);
-      const top = c.map(([x, y]) => [-x, heightAt(profile, x), -y]), bot = c.map(([x, y]) => [-x, bottom, -y]);
-      quad(top[0], top[3], top[2], top[1]); quad(bot[0], bot[1], bot[2], bot[3]);
+    const xs = []; for (let i = 0; i <= nx; i++) xs.push(len * i / nx);
+    if (g && g.rise > 0) { xs.push(g.start, g.start + (g.lead || 0.4)); xs.sort((a, b) => a - b); }
+    for (let i = 0; i + 1 < xs.length; i++) for (let j = 0; j < ny; j++) {
+      const xa = xs[i], xb2 = xs[i + 1], ya = -hw + width * j / ny, yb = -hw + width * (j + 1) / ny;
+      quad(top(xa, ya), top(xa, yb), top(xb2, yb), top(xb2, ya));
+      quad(bot(xa, ya), bot(xb2, ya), bot(xb2, yb), bot(xa, yb));
     }
-    // the scoop's wall
-    if (scoop > 0) {
-      const phi = Math.acos((SCOOP_R - scoop) / SCOOP_R), n = 24;
-      for (let k = 0; k < n; k++) {
-        const a0 = Math.PI - phi + 2 * phi * k / n, a1 = Math.PI - phi + 2 * phi * (k + 1) / n;   // the part of the circle inside the blade
-        const p0 = [cx + SCOOP_R * Math.cos(a0), SCOOP_R * Math.sin(a0)], p1 = [cx + SCOOP_R * Math.cos(a1), SCOOP_R * Math.sin(a1)];
-        const h0 = heightAt(profile, -p0[0]), h1 = heightAt(profile, -p1[0]);
-        quad([p0[0], bottom, -p0[1]], [p0[0], h0, -p0[1]], [p1[0], h1, -p1[1]], [p1[0], bottom, -p1[1]]);
-      }
-    }
-    // the nose's vertical face (the lip), outside the scoop's chord
-    const chord = scoop > 0 ? Math.sqrt(SCOOP_R * SCOOP_R - (SCOOP_R - scoop) ** 2) : 0;
-    for (const [y0, y1] of [[-hw, -chord], [chord, hw]]) if (y1 > y0) quad([0, bottom, -y0], [0, bottom, -y1], [0, edge, -y1], [0, edge, -y0]);
-    // the two sides: the profile as a fan
+    // the nose's vertical face (the lip), the back face (the shoulders' end), and the two sides
+    quad([0, bottom, hw], [0, bottom, -hw], [0, edge, -hw], [0, edge, hw]);
+    for (let j = 0; j < ny; j++) { const ya = -hw + width * j / ny, yb = -hw + width * (j + 1) / ny; quad(bot(len, ya), bot(len, yb), top(len, yb), top(len, ya)); }
     for (const sgn of [-1, 1]) {
-      const y = sgn * hw, pts = profile.map(([x, z]) => [-x, z, -y]);
-      for (let i = 1; i + 1 < pts.length; i++) sgn > 0 ? tri(pts[0], pts[i], pts[i + 1]) : tri(pts[0], pts[i + 1], pts[i]);
+      const y = sgn * hw;
+      for (let i = 0; i + 1 < xs.length; i++) { const q = [bot(xs[i], y), top(xs[i], y), top(xs[i + 1], y), bot(xs[i + 1], y)]; sgn > 0 ? quad(q[0], q[1], q[2], q[3]) : quad(q[3], q[2], q[1], q[0]); }
     }
-    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); g.computeVertexNormals();
-    return g;
+    const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
+    return geo;
   }
-  function setBlade(profile, width, shaftBack, scoop) {
+  let offsetNow = 0, yawNow = 0;
+  function setBlade(profile, width, shaftBack, lane, offset, yaw) {
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
-    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, scoop || 0), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
+    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
+    offsetNow = offset || 0; yawNow = (yaw || 0) * Math.PI / 180;
+    // the robot and the blade sit `offset` to the FLOWER's +y (three.js -z) and are turned by `yaw` about the vertical
+    for (const grp of [bladeG, robot, sled]) { grp.position.z = -offsetNow; grp.rotation.y = -yawNow; }
     setArms(armMode);
   }
   function frame(lip, ballPos, onRobot, shaftBack, t) {
@@ -141,13 +134,13 @@ window.Drive3D = (function () {
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
       const dx = shx - ax, dz = 0.77 - 2.89, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx);
-      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = L; arm.position.set((shx + ax) / 2, (0.77 + 2.89) / 2, arm.position.z); arm.rotation.z = ang; });
+      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = L; arm.position.set((shx + ax) / 2, (0.77 + 2.89) / 2, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
       stubs.forEach(st => st.visible = st.visible);
     } else {
       robot.visible = false; sled.visible = true; sled.position.x = shx;
       for (const arm of arms) arm.visible = false;
     }
-    ballPos.forEach(([x, z], k) => balls[k].position.set(x, z, 0));
+    ballPos.forEach(([x, z, y], k) => balls[k].position.set(x, z, -(y || 0)));
   }
   function theme() { scene.background = new THREE.Color(css("--panel")); }
   theme();

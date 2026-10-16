@@ -248,6 +248,7 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v3_peak` | `--divot scoop --nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 45` | one mountain the full width: 55° up to a 1.28 in peak, 45° down; no flat, no lane, no shoulders |
 | `v4_carry` | as `v3_peak` with `--divot none --slope-deg 14.4` | the mountain with a 14° tail to the ring: the ball rides the blade all the way to the Gecko |
 | `v5` | `--divot none --nose-deg 30 --land 0.08 --lane-top 1.10 --sh-top 1.10 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 12` | the searched shape: 60° nose, 1.10 in peak, 12° tail, 0.54 in of margin |
+| `v5_lane` | as `v5` with `--gutter-rise 0.3 --gutter-r 3` | v5 with Carter's lane: a 3 in radius trough down the tail between shoulders 0.3 in high, from 0.9 in behind the lip, full height after 1.6 in; catches ±1.3 in |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
@@ -338,6 +339,34 @@ edge, peak 1.10, 12° tail ending over the ring 1.85 in in front of the FLOWER's
 2.6 s worst case. v4's 0.30 in margin fails the 0.35 in short-stop scenario; v5's 0.54 passes it. 137 × 90 × 15 mm.
 Results in `page/opt_all.jsonl`.
 
+**Carter's lane, and the sideways model (16 Oct).** Carter's divot was misread twice (a scoop in the front edge, a
+bowl in the nose face). What he drew: the front edge stays plain; the ramp toward the intake has a rounded lane down
+its middle, like the valley the two blocks made by accident, with no sharp edges. That is `v5_lane` (`--gutter-rise`,
+`--gutter-r`, `--gutter-start`, `--gutter-lead` in `divot_blade.py`): the shoulders are added above the tail, so the
+centreline profile and everything the search found are unchanged, and the lane is a cylinder tangent to the tail at
+the centre. To judge it, `page/sim.js` gained a sideways dimension: the ring's hole (±0.14 in) and the uprights' vee
+hold the bottom POLLEN on the FLOWER's centreline until its centre is 0.85 in behind the lip; the four pipes
+(0.525 in radius at ±1.72) hold the stack, which lets the upper balls lean ±0.85; a ball on the lane feels its
+cross-slope as a sideways push, with rolling friction across the contact; ball-ball contacts are 3-D; the Gecko row
+grabs a ball only inside the intake's mouth. Three disturbances: the robot parked off-centre, the robot turned, the
+stack leaning. `page/lat_sweep.js` ran the plain tail and four lanes through offset 0/0.8/1.3 in, lean 0/0.3/0.6 in,
+turn 0/8° and a 7.5 or 3 in mouth (270 runs, `page/lat_sweep.jsonl`). What it says:
+
+- With the 7.5 in Gecko row at the FLOWER's face, the plain v5 tail fed all four in every case. The wheels take the
+  ball about 1.4 in after the FLOWER lets go of it: there is no stretch of tail for a lane to act on.
+- A gentle lane (0.3 in shoulders from 0.9 in back over 1.6 in) does the same, no better and no worse. Taller
+  shoulders (0.4 in) or a short lead-in (0.4 in) miss or stick when the robot is 0.8 to 1.3 in off-centre, because the
+  FLOWER is still holding the ball on its own line while the ball meets the shoulder head-on. A lane starting 0.5 in
+  behind the lip sticks every off-centre run.
+- A leaning stack squirts the bottom ball sideways (its weight on an off-centre ball, released when the vee lets go)
+  at 10 to 20 in/s, more than a 0.3 in shoulder holds (12 in/s). With a 3 in mouth no lane rescues that; with the
+  7.5 in row nothing needs rescuing.
+
+So on this robot the lane is neither needed nor harmful if kept gentle; it would matter if the intake were narrower or
+further back, or on the sled, where the balls roll out across the floor. Both v5 and v5_lane are on the print plate for
+the stick test. The model's weak point is how a real stack settles in its pipes (the balls are taken as rigid, and a
+tilted stack settles into a zigzag against the pipes); the lean slider is an input, the squirt is its consequence.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
@@ -356,7 +385,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
-- `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag.
+- `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag. `--gutter-*` adds Carter's lane on the tail (`v5_lane`).
 - `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `profiles_compare.py`: Block A, v2 and v3 at their stops with the pinned POLLEN. `intake_section.py`: v3 feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace (v3 profile, the Gecko as in the 16 Oct CAD).
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
