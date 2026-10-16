@@ -159,12 +159,17 @@ Carter and a mentor pushed the wheeled sled into a loaded FLOWER by hand with th
 side on the shaft. Three videos: the FLOWER emptied, all 4 POLLEN out in the last run, in about a second once the blocks
 were under. **The concept works.** Two findings:
 
+![Two blocks at the FLOWER](test-2026-10-15/two-blocks-at-the-flower.jpg)
+![Three moments of a run: in, under, out](test-2026-10-15/sled-run-frames.jpg)
+
 - **One block on its own is hard to get under the POLLEN.** It's 2.72 in wide with a convex front, and it has to enter
   the FLOWER's 2.79 in hole, so it has to be centred to about 1/32 in. By hand that's luck.
 - **Two blocks together go under easily.** The POLLEN sits in the valley between their two curved fronts. The valley
   centres the POLLEN on the blocks instead of the blocks on the hole, and the blocks never enter the hole.
 
 ### The divot blade (`divot_blade.py`)
+
+![Carter's sketch: the two blocks today (top), one blade with a divot (middle), and its front and end views (bottom)](test-2026-10-15/sketch-divot-blade.jpg)
 
 The students' sketch, built: one blade as wide as the two blocks (5.4 in), with a concave divot in the middle of its
 front sized to a POLLEN (radius 1.45 in, 1.8 in across, 0.31 in deep), the same side profile as block A (bottom 0.52 in,
