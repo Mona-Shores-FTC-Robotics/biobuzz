@@ -277,7 +277,7 @@ body = f'''
   <p>What this needs from the lab, and nothing on this page can supply: the intake's mouth height and where its first roller sits
   relative to the robot's front. If the mouth is low and at the front, the sled arms shorten to a couple of inches and the FLOWER
   tool is a small blade plus the intake you already have. If the mouth is high or set back, there is a transport problem no
-  blade solves, and that is worth knowing before Bob prints anything.</p>
+  blade solves, and that is worth knowing before Dean prints anything.</p>
   <p>Two things the field CAD rules out for anyone tempted by a bigger ramp: a roller cannot sit inside the FLOWER (a ball on a
   0.45 in lip tops out at 3.25, the bracket's underside is 3.90, nothing fits between), and a rising ramp cannot carry the ball
   to a crest (the lip stops 0.83 in past the pinned ball). Lift over a low ridge, drop, roller outside: that is the whole

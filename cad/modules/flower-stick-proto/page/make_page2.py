@@ -38,8 +38,8 @@ MOD = "/home/user/biobuzz/cad/modules/flower-stick-proto/"
 MODELS = [  # key, stl b64 file, name, blurb, shaftZ mm, shaftBack mm
     ("peak", "v3_peak", "v3 mountain, scoop", "55° up, 1.28 in peak, 45° down; Carter's scoop", 6.35, 19.6),
     ("v3plain", "v3_plain", "v3 mountain, plain", "the same with no hollow", 6.35, 19.6),
-    ("scoop", "v2_scoop", "v2 scoop", "45° nose, lane and shoulders; on Bob's plate", 6.35, 17.5),
-    ("spoon", "v2_spoon", "v2 spoon", "the bowl reading of the divot; on Bob's plate", 6.35, 17.5),
+    ("scoop", "v2_scoop", "v2 scoop", "45° nose, lane and shoulders; on Dean's plate", 6.35, 17.5),
+    ("spoon", "v2_spoon", "v2 spoon", "the bowl reading of the divot; on Dean's plate", 6.35, 17.5),
     ("steep", "v2_steep", "v2 steep", "55° nose on the v2 body", 6.35, 19.05),
     ("blockA", "blockA", "Block A, 15 Oct", "steep face first, ramp toward the robot", 6.35, 12.0),
 ]
@@ -155,7 +155,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>All on the branch as STL; Bob's plate still holds v2 scoop and spoon. v3 is the one to print next, the scoop and plain side by side on one plate.</p>
+  <p>All on the branch as STL; Dean's plate still holds v2 scoop and spoon. v3 is the one to print next, the scoop and plain side by side on one plate.</p>
 </section>
 
 <section class="block" id="drive">

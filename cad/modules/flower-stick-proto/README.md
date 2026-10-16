@@ -247,7 +247,7 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v2_steep` | `--divot scoop --nose-deg 35 --land 0.01` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
 | `v3_peak` | `--divot scoop --nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 45` | one mountain the full width: 55° up to a 1.28 in peak, 45° down; no flat, no lane, no shoulders |
 | `v4_carry` | as `v3_peak` with `--divot none --slope-deg 14.4` | the mountain with a 14° tail to the ring: the ball rides the blade all the way to the Gecko |
-| `v5` | `--divot none --nose-deg 30 --land 0.08 --lane-top 1.10 --sh-top 1.10 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 12` | the searched shape: 60° nose, 1.10 in peak, 12° tail, 0.54 in of margin |
+| `v5` | `--divot none --nose-deg 30 --land 0.08 --lane-top 1.10 --sh-top 1.10 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 12 --hex 8.2` | the searched shape: 60° nose, 1.10 in peak, 12° tail, 0.54 in of margin |
 | `v5_lane` | as `v5` with `--gutter-rise 0.3` | v5 with Carter's lane: one curve across the whole tail (12.3 in radius), 0.3 in up at both edges, from 0.9 in behind the lip, full depth after 1.6 in; no flats |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.

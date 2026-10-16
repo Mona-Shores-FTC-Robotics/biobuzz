@@ -26,8 +26,8 @@ V5 = json.load(open(os.path.join(S, "v5.json"))) if os.path.exists(os.path.join(
 MODELS = [
     ("v4", "v4_carry", "v4 carry", "55° nose, 1.28 in peak, 14° tail to the ring", 6.3, 19.1),
     ("peak", "v3_peak", "v3 mountain, scoop", "55° up, 1.28 in peak, 45° down; Carter's scoop", 6.3, 19.1),
-    ("scoop", "v2_scoop", "v2 scoop", "45° nose, lane and shoulders; on Bob's plate", 6.3, 17.2),
-    ("spoon", "v2_spoon", "v2 spoon", "the bowl reading of the divot; on Bob's plate", 6.3, 17.2),
+    ("scoop", "v2_scoop", "v2 scoop", "45° nose, lane and shoulders; on Dean's plate", 6.3, 17.2),
+    ("spoon", "v2_spoon", "v2 spoon", "the bowl reading of the divot; on Dean's plate", 6.3, 17.2),
     ("blockA", "blockA", "Block A, 15 Oct", "steep face first, ramp toward the robot", 6.0, 10.9),
 ]
 if V5:
@@ -70,7 +70,7 @@ body = f'''
   <span class="eyebrow">Mona Shores FTC 19429 / 20245 · BIOBUZZ · issue #179 · 16 Oct 2026</span>
   <h1>The FLOWER stick</h1>
   <p class="lede">A blade on two arms under the intake. The robot drives into a FLOWER until the FLOWER stops it, the blade gets
-  under the bottom POLLEN, and all four roll out over the blade into the intake. This page is for Bob, who prints, and Carter,
+  under the bottom POLLEN, and all four roll out over the blade into the intake. This page is for Dean, who prints, and Carter,
   whose sketch started the blade: try the simulator, see how the shape got here, and tell us what to print next.</p>
 </header>
 
@@ -190,7 +190,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>The print files, as Bob will see them. v5 plain and v5 scoop are the ones to print next; the rest are here for the record.</p>
+  <p>The print files, as Dean will see them. v5 plain and v5 scoop are the ones to print next; the rest are here for the record.</p>
 </section>
 
 <section class="block" id="others">
@@ -207,7 +207,7 @@ body = f'''
 <section class="block" id="next">
   <h2>Next</h2>
   <ul>
-    <li><strong>Bob:</strong> print <code>stl/print_plate_v5.stl</code>, the v5 blade plain and with Carter's scoop, side by side (191 × 137 mm; or the two STLs one at a time). PETG, 5 walls, no supports. Notes in <code>PRINT_ME.md</code>.</li>
+    <li><strong>Dean:</strong> print <code>stl/print_plate_v5.stl</code>, the v5 blade plain and with Carter's scoop, side by side (191 × 137 mm; or the two STLs one at a time). PETG, 5 walls, no supports. Notes in <code>PRINT_ME.md</code>.</li>
     <li><strong>Carter:</strong> the scoop is yours. We built both readings of the sketch and kept the scoop as an option, but we never had the reason for it. If it was to seat the ball the way the valley between the two blocks did, the wedge entry already does that. Tell us what you had in mind, and whether a shallow groove along the tail is closer to it.</li>
     <li><strong>17 Oct on the sled:</strong> both v5 blades, five straight pushes and one 1 in off-centre each, counting POLLEN out and timing from the side. If one wants a wiggle, tape the nose. If the plain blade seats and feeds as well as the scoop, the hollow goes.</li>
     <li><strong>Then on the robot:</strong> arms outboard of the wheels at 8.3 in, a 17 in shaft under the Gecko row, the blade's shaft 2.9 in ahead of the face at 0.77 in. If the intake grows wider and moves ahead of the wheels, the arms shorten.</li>
