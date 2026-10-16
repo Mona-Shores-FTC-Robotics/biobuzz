@@ -5,7 +5,7 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
-MODELS.insert(1, ("v5l", "v5_lane", "v5 with Carter's lane", "the same blade, a rounded lane down the tail between raised shoulders", 6.3, 13.1))
+MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "the blade we are printing: a rounded lane down the tail between low shoulders", 6.3, 13.1))
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "a trough of 3 in radius down the tail, tangent to it at the centre; shoulders 0.3 in up from 0.9 in behind the lip, full height after 1.6 in; catches a ball up to ±1.3 in off centre"], ["Size", "137 × 90 × 15 mm"]]
 exec(src3[src3.index("stl_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
@@ -273,7 +273,7 @@ body = f'''
   <p>These are the choices that are still open. The simulator above shows what each one does. Pick, test, and write down
   what happened.</p>
   <div class="decide">
-    <div class="card"><h3>Plain or Carter's lane?</h3><p>Both are on one print plate and can be tested on the stick the same day. The model says the plain tail is enough on our robot and a gentle lane does no harm. The stick test on the floor is where a lane would show: watch whether the balls roll out straight.</p><p>Try the lane sliders in the simulator first.</p></div>
+    <div class="card"><h3>Carter's lane is the blade we are going with</h3><p>The model says a gentle lane never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The lane has to stay gentle: shoulders 0.3 in high, starting 0.9 in behind the lip. Try taller or earlier ones in the simulator to see why.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
@@ -289,7 +289,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>Every version printed or modelled, newest first. The part files, the simulator, and the search that chose v5 are all in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
+  <p>Every version printed or modelled, the one we are printing first. The part files, the simulator, and the search that chose v5 are all in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
 </section>
 
 <section class="block" id="others">

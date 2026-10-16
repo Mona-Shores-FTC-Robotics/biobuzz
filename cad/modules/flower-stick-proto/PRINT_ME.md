@@ -1,8 +1,8 @@
 # Print job: FLOWER stick blades (for a friend with a printer)
 
 **Newest first: `stl/print_plate_v5.stl`** (v5, 16 Oct): **two blades on one plate, 191 x 137 mm**, flat side down.
-They are the same blade twice: one plain, one with Carter's lane (a rounded trough down the ramp between two low
-shoulders). The team wants to test both. If the bed is under 200 mm, print `stl/v5.stl` and `stl/v5_lane.stl` one at a
+They are the same blade twice: one with Carter's lane (a rounded trough down the ramp between two low shoulders),
+which is the one the team is going with, and one plain as the control. If the bed is under 200 mm, print `stl/v5.stl` and `stl/v5_lane.stl` one at a
 time (137 x 90 x 15 mm each). Same settings as below; the hex hole is 8.3 mm across the flats, flats top and bottom,
 with about 4 mm of plastic over it: no supports. (`stl/v5_scoop.stl`, an earlier reading of the sketch with a scoop in
 the front edge, is superseded; skip it.)

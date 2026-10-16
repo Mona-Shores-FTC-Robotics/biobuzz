@@ -363,8 +363,9 @@ turn 0/8° and a 7.5 or 3 in mouth (270 runs, `page/lat_sweep.jsonl`). What it s
   7.5 in row nothing needs rescuing.
 
 So on this robot the lane is neither needed nor harmful if kept gentle; it would matter if the intake were narrower or
-further back, or on the sled, where the balls roll out across the floor. Both v5 and v5_lane are on the print plate for
-the stick test. The model's weak point is how a real stack settles in its pipes (the balls are taken as rigid, and a
+further back, or on the sled, where the balls roll out across the floor. Decision (16 Oct): the lane blade is the
+design, since a gentle lane costs nothing in the model and may help on the floor; v5 plain is printed beside it as
+the control for the stick test. The model's weak point is how a real stack settles in its pipes (the balls are taken as rigid, and a
 tilted stack settles into a zigzag against the pipes); the lean slider is an input, the squirt is its consequence.
 
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
