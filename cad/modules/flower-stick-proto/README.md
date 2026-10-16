@@ -248,33 +248,33 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
-### Other teams, and the full-width ramp (16 Oct)
+### Other teams, and into the intake (16 Oct)
 
 Four YouTube Shorts (19705 WXYZ's Ri3D, CrossFire 9968, Hexadecimal Nibble, Eaglebots 13532) show three recipes: a thin
 lip with a powered roller right behind it, a big passive wedge, and a servo arm that sweeps the base sideways with the
-wall as the stop. All the wedges meet the ball low, which gives the steep contact angle our 45° nose gets by shape
-(a sheet edge on the ring at 0.37 in: 47°). The roller is the bigger idea: it pulls the ball back and up, so the push
-only has to get the lip under it.
+wall as the stop. All the wedges meet the ball low. The roller is the bigger idea: it pulls the ball back and up, so
+the push only has to get the lip under it. For us it says where the intake's first roller has to be.
 
-The blades above are small because they were scoped to one question on a sled; their top is below the ball's centre,
-so they de-score onto the tiles. The robot's version is the same profile the width of the intake, as a bent sheet:
+A full-width ramp (a 12 in sheet with a plate and a roller) was drawn and dropped the same day: it put a sheet in front
+of the intake and left the ball on a shelf 2 in from the roller. What replaced it is the original concept with numbers:
+the blade releases the ball straight into the intake's mouth, and the mouth sits at the FLOWER's face.
 
-- Nothing on the FLOWER limits width above the ring's top: the lip rides over the ring, the uprights' two forward
-  points are the stop, and the pipes start 4.25 in up.
-- A roller cannot sit inside the FLOWER (a ball on a 0.45 lip tops out at 3.25; the bracket's underside is 3.90), and
-  a rising ramp cannot carry the ball to a crest (the lip stops 0.83 past the pinned ball). So: lift over a 1.0 in ridge,
-  down to a 0.5 in plate, roller outside the bracket. The lintel (Layer B's strip in front of its hole, 3.90 up) allows
-  1.1 in of lift on the way out; the ridge respects it.
-- `full_ramp.py` draws it (12 in wide, lip 0.45, 45° to a ridge at 1.0 0.55 behind the lip, plate at 0.5 from 1.55,
-  roller r 1.0 with its axle 4.7 behind the lip, 0.1 in clear of the bracket at the stop) and the scene STLs for the
-  page's viewer; `full_ramp_section.py` draws `full_ramp_section.png` from the simulator's trace.
-- `tools/ramp-hook/full_ramp_sim.py` is the 2-D check, now with the lintel and a roller: at 2, 4 and 12 in/s and
-  friction 0.3 and 0.5, all four POLLEN leave the FLOWER and pass the roller, the last at 3.1, 2.0 and 1.2 s after the
-  lip starts moving.
+- Blade's stop: 1.18 in behind the FLOWER's centre (the uprights' forward points; the 5.4 in shoulders reach them).
+- Blade's back edge: 0.5 in in front of the centre; the ball leaves the back slope there.
+- Intake roller's rim: at least 2.5 in in front of the centre, the first spot clear of the bracket (2.41) and the pipes
+  (2.25), which is 0.1 in in front of the ring's edge. About 2 in of open tile between.
+- So the stick is about 3.7 in long beyond the mouth, the sled arms short, the blade's shaft about 2 in ahead of the
+  roller's axle.
+- `tools/ramp-hook/intake_sim.py` is the 2-D check (v2 lane profile, the bracket's lintel, a roller at the face):
+  all four POLLEN leave and pass the roller at 2, 4 and 12 in/s, friction 0.3 and 0.5. It has no rolling resistance,
+  so the 2 in of open tile is the part to doubt until it is tested. `intake_section.py` draws it.
 
-Costs: a fixed 12 in lip counts toward the 18 in box (WXYZ's folds); at this width it is sheet or grid plates, not a
-print. The 17 Oct sled test still answers what the ramp depends on: a 0.45 in lip seating with one push, and whether
-a hollow helps.
+Two things the field CAD rules out for a bigger ramp: a roller cannot sit inside the FLOWER (a ball on a 0.45 in lip
+tops out at 3.25, the bracket's underside is 3.90), and a rising ramp cannot carry the ball to a crest (the lip stops
+0.83 in past the pinned ball).
+
+**Needed from the lab:** the intake's mouth height and its first roller's position behind the robot's front. That sets
+the sled's arm length.
 
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
@@ -285,7 +285,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
   Onshape assembly) and the block STLs. `BLOCK=060|065|070` and `REACH=0|1` pick the variant.
 - `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag.
-- `full_ramp.py`, `full_ramp_section.py`: the full-width ramp (sheet, not a print) and its section figure; `stl/full_ramp.stl` and the `stl/scene_*.stl` are for the viewer.
+- `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `intake_section.py`: the blade feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace.
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.

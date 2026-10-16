@@ -1,13 +1,15 @@
-"""The full-width ramp in the 2-D FLOWER slice: a thin lip over the ring, a 45 deg nose to a ridge, a slope down to
-a floor plate, and a powered roller over the plate, outside the FLOWER's bracket. The ramp is driven to the uprights'
-face and stops; the roller takes the POLLEN from the plate.
+"""The v2 blade feeding the intake, in the 2-D FLOWER slice: the blade at its stop on the uprights, the POLLEN lifted
+over its ridge and rolling down its back slope onto the tiles, and the intake's first roller at the FLOWER's face,
+as close as the bracket and pipes allow. No plate, no sheet: the ball crosses about 2 in of open tile on the speed it
+gets from the drop, and the roller takes it before it can settle on the ring's edge.
 
-    python3 tools/ramp-hook/full_ramp_sim.py            # the table: out of the FLOWER / at the roller, by speed and mu
-    python3 tools/ramp-hook/full_ramp_sim.py --trace     # also writes the ball positions for the section figure
+    python3 tools/ramp-hook/intake_sim.py            # the table: out of the FLOWER / past the roller, by speed and mu
+    python3 tools/ramp-hook/intake_sim.py --trace     # also writes the ball positions for the section figure
 
-Adds to ramp.py's slice what the ramp needs and the blade did not: the bracket's lintel (the strip of Layer B in front
-of its hole, 3.90 in up, that a lifted POLLEN must pass under on its way out) and a roller, a spinning circle whose
-surface drags the ball toward the robot. Frame as ramp.py: the wall at x 0, the robot at +x driving toward -x."""
+Adds to ramp.py's slice the bracket's lintel (the strip of Layer B in front of its hole, 3.90 in up, that a lifted
+POLLEN passes under on its way out) and a roller, a spinning circle whose surface drags the ball toward the robot.
+Frame as ramp.py: the wall at x 0, the robot at +x driving toward -x. The simulator has no rolling resistance, so the
+2 in of open tile is the part of this to doubt until it is tested."""
 import argparse, json, math, os, sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ramp
@@ -17,12 +19,12 @@ TIP_DEPTH = ramp.use_cad_flower()           # the lip stops at the uprights' fac
 LINTEL = (2.41, 1.54)                       # Layer B's front edge and its hole's front edge, ahead of the FLOWER's centre
 LINTEL_Z = 3.90
 
-# the ramp's top surface, x behind the lip, z above the tiles (a bent sheet; its thickness is under the surface)
-LIP, RIDGE, RIDGE_X, PLATE, PLATE_X = 0.45, 1.00, 0.55, 0.50, 1.55
-ROLLER_X, ROLLER_R, SQUEEZE = 4.7, 1.0, -0.05  # the roller's axle behind the lip; its surface this far into a ball on the plate
-# (negative: a hair above it). A real compliant wheel squeezes the ball 0.2 to 0.3 in; the simulator's contacts are rigid, so a
-# roller set into the ball's path blocks it instead. Here the roller only touches a ball that comes down off the ridge.
-PROFILE = [(0.0, LIP - 0.10), (0.0, LIP), (RIDGE_X, RIDGE), (PLATE_X, PLATE), (14.0, PLATE)]
+# the v2 lane's top surface, x behind the lip, z above the tiles (divot_blade.py defaults: bottom 0.52, land 0.08,
+# 45 deg nose to the ridge at 1.05, 0.45 behind the lip; 8 deg run for 0.45; 38 deg down to the back edge)
+LIP, RIDGE, RIDGE_X, FLOOR = 0.60, 1.05, 0.45, 0.0
+ROLLER_X, ROLLER_R, SQUEEZE = 4.7, 1.0, -0.3  # the roller's axle behind the lip, its rim clear of the bracket's front edge (2.41) at the stop; its surface
+# 0.3 in above a ball rolling on the tiles (a real compliant wheel squeezes; the simulator's rigid one blocks a ball still bouncing from the drop)
+PROFILE = [(0.0, 0.52), (0.0, LIP), (RIDGE_X, RIDGE), (0.90, 0.99), (1.50, 0.52)]
 
 
 def roller_segments(axle, surface_speed):
@@ -45,7 +47,7 @@ def run(drive, mu, roller=True, surface_speed=40.0, e=0.4, t_max=4.0, trace=None
     balls = [[(max(ramp.CX, ramp.BACK + R), z), (0.0, 0.0), 0.0] for z in STAGED]
     out_t, fed_t = [None] * 4, [None] * 4
     tip, t, step = tip_start, 0.0, 0
-    axle_z = PLATE + 2 * R - SQUEEZE + ROLLER_R
+    axle_z = FLOOR + 2 * R - SQUEEZE + ROLLER_R
     while t < t_max:
         if tip > tip_stop:
             rv = (-drive, 0.0); tip = max(tip_stop, tip - drive * DT)
@@ -90,7 +92,7 @@ def run(drive, mu, roller=True, surface_speed=40.0, e=0.4, t_max=4.0, trace=None
 
 def main():
     ap = argparse.ArgumentParser(); ap.add_argument("--trace", action="store_true"); a = ap.parse_args()
-    print(f"lip {LIP} in over the tiles, 45 deg nose to a ridge at {RIDGE} ({RIDGE_X} behind the lip), down to a plate at {PLATE}; "
+    print(f"v2 lane: edge {LIP} in over the tiles, 45 deg nose to a ridge at {RIDGE} ({RIDGE_X} behind the lip), 38 deg down to the back edge 1.50 behind; "
           f"roller r {ROLLER_R} at {ROLLER_X} behind the lip: its axle {(ramp.FRONT - TIP_DEPTH + ROLLER_X) - ramp.CX:.2f} in ahead of the "
           f"FLOWER's centre at the stop, its rim {(ramp.FRONT - TIP_DEPTH + ROLLER_X) - ramp.CX - ROLLER_R - 2.41:.2f} in clear of the bracket's "
           f"front edge (2.41) and {(ramp.FRONT - TIP_DEPTH + ROLLER_X) - ramp.CX - ROLLER_R - 2.25:.2f} of the pipes (2.25); "
@@ -105,8 +107,8 @@ def main():
     if a.trace:
         tr = []
         run(4.0, 0.4, roller=True, trace=tr)
-        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "full_ramp_trace.json")
-        json.dump({"profile": PROFILE, "roller": [ROLLER_X, PLATE + 2 * R - SQUEEZE + ROLLER_R, ROLLER_R], "tip_stop": ramp.FRONT - TIP_DEPTH,
+        path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "intake_trace.json")
+        json.dump({"profile": PROFILE, "roller": [ROLLER_X, FLOOR + 2 * R - SQUEEZE + ROLLER_R, ROLLER_R], "tip_stop": ramp.FRONT - TIP_DEPTH,
                    "cx": ramp.CX, "front": ramp.FRONT, "trace": tr}, open(path, "w"))
         print("trace:", path, len(tr), "frames")
 
