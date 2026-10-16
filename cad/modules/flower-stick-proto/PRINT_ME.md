@@ -7,6 +7,13 @@ time (137 x 90 x 15 mm each). Same settings as below; the hex hole is 8.3 mm acr
 with about 4 mm of plastic over it: no supports. (`stl/v5_scoop.stl`, an earlier reading of the sketch with a scoop in
 the front edge, is superseded; skip it.)
 
+**First, a five-minute print: `stl/hex_fit_coupon.stl`** (66 x 12 x 18 mm, flat side down). It has three 8 mm hex
+holes, 8.1, 8.2 and 8.3 mm across the flats, marked with one, two and three notches. Push the 8 mm hex shaft into each
+and tell us which one is snug with no rock. The two small blocks from the first print turned on the shaft, and we
+think the 8.3 mm hole came out a little loose on your printer. The blade files above have 8.3 mm holes; once we know
+which coupon hole fits, we will send the blades with that size (it is one number in the script), or you can print
+them as they are and we will shim.
+
 The older plates below are superseded; keep them only if already printed.
 
 ---

@@ -393,6 +393,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `divot_blade.py`: the divot blade v2 (16 Oct): wedge nose, low lane, tall shoulders; every size a flag. `--gutter-*` adds Carter's lane on the tail (`v5_lane`).
 - `stack_sequence.py`: the 15 Oct concept frame by frame (`stack_sequence.png`). `profiles_compare.py`: Block A, v2 and v3 at their stops with the pinned POLLEN. `intake_section.py`: v3 feeding the intake, from `tools/ramp-hook/intake_sim.py`'s trace (v3 profile, the Gecko as in the 16 Oct CAD).
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
+- `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.
