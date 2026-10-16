@@ -39,7 +39,8 @@
     v3: { name: "v3 mountain", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 45 }, shaftBack: 0.77, onRobot: true },
     v4: { name: "v4 carry", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 14.4 }, shaftBack: 0.77, onRobot: true },
   };
-  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr"];
+  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "scoop"];
+  let bladeWidth = 5.4, armMode = "both";
   let preset = "v4", custom = false, result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function readShape() { return { edge: +$("s-edge").value, nose: +$("s-nose").value, peak: +$("s-peak").value, tail: +$("s-tail").value }; }
   function setShape(sh) { for (const k in sh) $("s-" + k).value = sh[k]; }
@@ -59,6 +60,7 @@
       $("ro-edge").textContent = alpha.toFixed(0) + "° (stalls above μ " + Math.tan(alpha * Math.PI / 180).toFixed(2) + ")";
     }
     $("ro-tail").textContent = tailEnd.toFixed(2) + " in " + (tailEnd < -2.36 ? "(past the ring: no dip)" : tailEnd < -1.54 ? "(over the ring)" : "(into the hole: the ball dips)");
+    $("ro-width").textContent = bladeWidth.toFixed(1) + " in: the nose meets both uprights' points up to ±" + (bladeWidth / 2 - 1.42).toFixed(1) + " in off centre" + (bladeWidth > 7.5 ? "; wider than the Gecko row (7.5)" : bladeWidth >= 7.5 ? "; matches the Gecko row" : "; the Gecko row is 7.5");
     for (const k of sliders) { const o = $("v-" + k); if (o) o.textContent = $("s-" + k).value; }
     return prof;
   }
@@ -78,7 +80,7 @@
     $("sim-result").textContent = name + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || 5.4, P.shaftBack);
+    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, +$("s-scoop").value);
     draw();
   }
   function draw() {
@@ -128,6 +130,9 @@
   const later = () => { clearTimeout(timer); timer = setTimeout(compute, 120); };
   for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); later(); };
   for (const s of ["drive", "mu", "stopErr"]) $("s-" + s).oninput = () => { readouts(); later(); };
+  $("s-scoop").oninput = () => { readouts(); if (window.Drive3D && profile) window.Drive3D.setBlade(profile, PRESETS[preset].width || bladeWidth, PRESETS[preset].shaftBack, +$("s-scoop").value); };
+  for (const b of document.querySelectorAll("[data-width]")) b.onclick = () => { bladeWidth = +b.dataset.width; for (const o of document.querySelectorAll("[data-width]")) o.setAttribute("aria-pressed", o === b); readouts(); if (window.Drive3D && profile) window.Drive3D.setBlade(profile, PRESETS[preset].width || bladeWidth, PRESETS[preset].shaftBack, +$("s-scoop").value); };
+  for (const b of document.querySelectorAll("[data-arms]")) b.onclick = () => { armMode = b.dataset.arms; for (const o of document.querySelectorAll("[data-arms]")) o.setAttribute("aria-pressed", o === b); if (window.Drive3D) window.Drive3D.setArms(armMode); };
   $("sim-run").onclick = compute;
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };

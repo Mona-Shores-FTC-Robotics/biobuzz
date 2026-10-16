@@ -78,7 +78,9 @@ body = f'''
   <h2>Try it</h2>
   <p>One run of the 2-D simulator, drawn twice: a side view with the FLOWER from FIRST's field CAD and the robot's front from the
   mentor's 16 Oct CAD cut at the centreline, and a 3D view you can orbit. Pick a blade, or drag a slider and it reruns. The
-  readouts under the sliders are the three rules the shape has to obey.</p>
+  readouts under the sliders are the rules the shape has to obey. The scoop slider cuts Carter's divot into the 3D blade (the 2-D
+  physics runs on the centreline and does not see it); the width and arms choices change only the 3D picture, so you can see
+  what fits beside the corner disc.</p>
   <div class="drive">
     <div class="views">
       <div><svg id="sim-svg" viewBox="0 0 697 452" role="img" aria-label="Side view animation of the blade driving into the FLOWER and the POLLEN rolling out into the intake."></svg><span class="viewlbl">side view</span></div>
@@ -101,11 +103,19 @@ body = f'''
       <label>drive speed <input type="range" id="s-drive" min="2" max="12" step="1" value="4"><span id="v-drive"></span> in/s</label>
       <label>friction μ <input type="range" id="s-mu" min="0.2" max="0.5" step="0.05" value="0.4"><span id="v-mu"></span></label>
       <label>stop error <input type="range" id="s-stopErr" min="-0.4" max="0.3" step="0.05" value="0"><span id="v-stopErr"></span> in</label>
+      <label>Carter's scoop, depth <input type="range" id="s-scoop" min="0" max="0.4" step="0.05" value="0"><span id="v-scoop"></span> in</label>
+    </div>
+    <div class="bar" style="border-top: 0">
+      <label>Blade width</label>
+      <span class="seg"><button data-width="5.4" aria-pressed="true">5.4 in, as printed</button><button data-width="7.5" aria-pressed="false">7.5 in, the Gecko row</button><button data-width="12" aria-pressed="false">12 in</button></span>
+      <label>Arms</label>
+      <span class="seg"><button data-arms="uprights" aria-pressed="false">on the intake uprights</button><button data-arms="left" aria-pressed="false">one, outboard left</button><button data-arms="both" aria-pressed="true">both outboard</button></span>
     </div>
     <dl class="spec" style="border-top: 1px solid var(--line)">
       <dt>peak past the pinned ball</dt><dd id="ro-margin"></dd>
       <dt>first contact at the edge</dt><dd id="ro-edge"></dd>
       <dt>tail ends at</dt><dd id="ro-tail"></dd>
+      <dt>blade width</dt><dd id="ro-width"></dd>
     </dl>
     <div class="status"><span id="sim-result">…</span></div>
   </div>
