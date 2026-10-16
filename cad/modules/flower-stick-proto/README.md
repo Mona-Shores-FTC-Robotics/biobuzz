@@ -303,6 +303,14 @@ about 19 in/s, enough for the 2 in of tile. The back slope's angle hardly matter
 peak height is capped by the ridge rule (55°: 1.28; 60°: 1.44).
 
 
+**The drive-in animation** (`tools/ramp-hook/animate.py` → `animation_runs.json`, embedded in the page): every blade at
+4 and 12 in/s, friction 0.3 and 0.4, in the slice with a stall check (a ball pinched between the blade and the uprights
+lifts only if the push at the blade contact is tilted up more than the friction angle, the ball rolling on the blade
+and sliding on the uprights). Block A stalls on contact in every case (14° to 17°). v2 steep fails at 4 in/s: its
+0.6 in run at 4° leaves the pinned ball on a near-level surface and only momentum at 12 in/s carries it over. v2 and
+v3 empty the FLOWER at both speeds, the last ball past the Gecko about 2.5 s after the drive starts at 4 in/s and
+1.5 s at 12 in/s. A flat anywhere behind the ridge is the enemy; v3 has none.
+
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
 fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
