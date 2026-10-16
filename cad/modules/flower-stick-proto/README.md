@@ -317,8 +317,9 @@ has to climb the 0.35 in ring on its own speed (the dip). v4 keeps v3's nose and
 14° down to the blade's bottom 2.3 in in front of the FLOWER's centre, over the ring: the ball never touches the tiles
 and reaches the Gecko still on the blade. 137 × 102 × 19 mm, 113 cm³.
 
-**The simulator in the page** (`scratchpad` `sim.js`, a port of `ramp.py` + `animate.py` to JavaScript; the page's
-"Drive in" section): presets Block A, v2, v3, v4, sliders for edge height, nose angle, peak height, tail angle, drive
+**The simulator in the page** (`page/sim.js`, a port of `ramp.py` + `animate.py` to JavaScript; `page/anim2.js` draws
+it over the FLOWER's section from the field CAD, `page/flower_section.json`, and the mentor's robot cut at the
+centreline, `page/robot_section.json` from `page/section.py`): presets Block A, v2, v3, v4, sliders for edge height, nose angle, peak height, tail angle, drive
 speed, friction and stop error, readouts of the peak's margin past the pinned ball, the first-contact angle and the
 friction it beats, and where the tail ends. The Gecko is a soft drag wheel there (anything within its reach is pulled
 toward the robot at its surface speed), not a rigid roller. Findings: v4 feeds all four in 2.1 s at 4 in/s and 1.2 s at
