@@ -1,7 +1,9 @@
 # The FLOWER stick page
 
 The page at https://claude.ai/artifact/7aVCkSsMtQMnwm9SBgDyn2 is built from this folder plus the module's STLs and
-photos. `build_page.py` is the current builder (it imports the two earlier ones for their CSS and viewer script):
+photos. `build_page.py` is the current builder: the engineering-notebook story (the problem, six design steps, the simulator,
+what is next, the parts). It reuses `make_page3.py` for the CSS, the simulator panel and the viewer script, which in turn
+imports the two earlier builders:
 
 - `sim.js`: the 2-D simulator in the browser, a port of `tools/ramp-hook/ramp.py` with the stall check and the soft
   Gecko; `simlib.js` is the same for node. `opt.js` is the design search that produced v5; `opt_all.jsonl` its results.
@@ -11,7 +13,7 @@ photos. `build_page.py` is the current builder (it imports the two earlier ones 
 - `v5.json`: the searched shape and its captions.
 
 The builder expects, in the same folder: base64 of each STL it shows (`<name>.b64`, made with `base64 -w0`), the two
-test photos as `ph.b64` and `frames.b64` (from `../test-2026-10-15/`), the sketch as `sk.b64`, and four cropped
+test photos as `ph.b64` and `frames.b64` (from `../test-2026-10-15/`), the sketch as `sk.b64`, the seated-blade drawing as `seated.b64`, and four cropped
 screenshots of other teams' public videos in `clips/` (not committed). Then `python3 build_page.py` writes
 `flower-stick.html`, which is published as the artifact. Anyone with edit access to the artifact can republish it
 from their own Claude session; the sources here are what to change.
