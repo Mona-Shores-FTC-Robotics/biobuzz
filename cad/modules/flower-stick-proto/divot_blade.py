@@ -60,7 +60,9 @@ ap.add_argument("--hex", type=float, default=8.3, help="hex bore across the flat
 ap.add_argument("--gutter-rise", type=float, default=0.0,
                 help="Carter's lane on the tail: shoulders raised this much above the tail, inches (0: none). The lane between "
                      "them is a circular trough tangent to the tail at the centreline, so the centreline profile is unchanged")
-ap.add_argument("--gutter-r", type=float, default=3.0, help="the lane's radius across the blade, inches")
+ap.add_argument("--gutter-r", type=float, default=0.0,
+                help="the lane's radius across the blade, inches. 0 (default): one curve across the whole width, from the centre up "
+                     "to --gutter-rise at both edges, so there are no flats and no shoulders, just a shallow trough")
 ap.add_argument("--gutter-lead", type=float, default=1.6, help="the shoulders reach full height over this length, inches")
 ap.add_argument("--gutter-start", type=float, default=0.9,
                 help="where the shoulders begin, inches behind the stop. Not under 0.85: the FLOWER holds the POLLEN on its own "
@@ -131,7 +133,8 @@ if a.gutter_rise > 0:
     # over gutter-lead (a gentle lead-in: a steep one is a bump the POLLEN meets head-on); then the lane: a cylinder of
     # radius gutter-r whose axis runs along the tail, gutter-r above it, tangent to the tail at the centreline and
     # climbing the shoulders on either side
-    rise, rg, lead = a.gutter_rise, a.gutter_r, a.gutter_lead
+    rise, lead = a.gutter_rise, a.gutter_lead
+    rg = a.gutter_r if a.gutter_r > 0 else ((W / 2) ** 2 + rise ** 2) / (2 * rise)
     xg = a.stop - a.gutter_start
     tail_z = lambda x: lane_knee[1] - (lane_knee[0] - x) * ts
     assert xg <= lane_knee[0], "the shoulders must start on the tail, behind the ridge"
@@ -150,8 +153,8 @@ if a.gutter_rise > 0:
     keep.apply_translation([(a.stop - back) / 2 * IN, 0, (sh_top - a.bottom + rise + 1) / 2 * IN])
     body = body.intersection(keep)
     catch = math.sqrt(rg * rg - (rg - rise) ** 2) if rise < rg else rg
-    print(f"  lane on the tail: shoulders {rise:.2f} in up, from {a.gutter_start:.2f} behind the stop over {lead:.1f} in; trough radius {rg:.1f}, catching +-{catch:.2f} in; "
-          f"the shoulders' edge meets the trough at {math.degrees(math.asin(min(1, catch / rg))):.0f} deg")
+    print(f"  lane on the tail: {rise:.2f} in up at the edges, from {a.gutter_start:.2f} behind the stop over {lead:.1f} in; trough radius {rg:.1f}, "
+          f"curving across +-{catch:.2f} in" + (" (the whole width)" if catch >= W / 2 - 1e-6 else f"; flat shoulders outside that, meeting the trough at {math.degrees(math.asin(min(1, catch / rg))):.0f} deg"))
 bore = cylinder(radius=a.hex / 2 / math.cos(math.pi / 6), height=W * IN + 4, sections=6)
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([(rod_x - back) * IN, 0, (a.shaft - a.bottom) * IN])

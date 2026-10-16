@@ -5,11 +5,14 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
-MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "the blade we are printing: a rounded lane down the tail between low shoulders", 6.3, 13.1))
+MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "the blade we are printing: one shallow curve across the tail, no flats", 6.3, 13.1))
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
-rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "a trough of 3 in radius down the tail, tangent to it at the centre; shoulders 0.3 in up from 0.9 in behind the lip, full height after 1.6 in; catches a ball up to ±1.3 in off centre"], ["Size", "137 × 90 × 15 mm"]]
+rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 90 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
+anim_js = anim_js.replace('choose("v5");', 'choose("v5l");')
+anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v5l: { name: "v5 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.5, rise: 0.3, start: 0.9 }, shaftBack: 0.77, onRobot: true },\n    v5: { name: "v5 plain", lane: null, shape: ')
+assert 'v5l: {' in anim_js and 'choose("v5l")' in anim_js
 panel = f'''  <div class="drive">
     <div class="views">
       <div><svg id="sim-svg" viewBox="0 0 697 700" role="img" aria-label="Side view and plan view of the blade driving into the FLOWER and the POLLEN rolling out into the intake."></svg><span class="viewlbl">side view, and from above</span></div>
@@ -17,7 +20,7 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Blade</label>
-      <span class="seg">{v5_button}<button data-preset="v4" aria-pressed="{v4_pressed}">v4 carry</button><button data-preset="v3" aria-pressed="false">v3 mountain</button><button data-preset="v2" aria-pressed="false">v2 lane</button><button data-preset="blockA" aria-pressed="false">Block A</button></span>
+      <span class="seg"><button data-preset="v5l" aria-pressed="true">v5 + Carter's lane</button><button data-preset="v5" aria-pressed="false">v5 plain</button><button data-preset="v4" aria-pressed="false">v4 carry</button><button data-preset="v3" aria-pressed="false">v3 mountain</button><button data-preset="v2" aria-pressed="false">v2 lane</button><button data-preset="blockA" aria-pressed="false">Block A</button></span>
       <button class="btn" id="sim-play">Play</button>
       <button class="btn" id="sim-slow" aria-pressed="false">Slow</button>
       <input type="range" id="sim-scrub" min="0" max="1" value="0" aria-label="Scrub through the run">
@@ -31,8 +34,8 @@ panel = f'''  <div class="drive">
       <label>tail angle <input type="range" id="s-tail" min="8" max="45" step="1" value="14"><span id="v-tail"></span>°</label>
     </div>
     <div class="sliders"><div class="grp">Carter's lane on the tail</div>
-      <label>shoulders' height <input type="range" id="s-laneRise" min="0" max="0.6" step="0.05" value="0"><span id="v-laneRise"></span> in</label>
-      <label>lane radius <input type="range" id="s-laneR" min="2" max="6" step="0.5" value="3"><span id="v-laneR"></span> in</label>
+      <label>lane depth at the edges <input type="range" id="s-laneRise" min="0" max="0.6" step="0.05" value="0.3"><span id="v-laneRise"></span> in</label>
+      <label>lane radius <input type="range" id="s-laneR" min="2" max="14" step="0.5" value="12.5"><span id="v-laneR"></span> in</label>
       <label>lane starts <input type="range" id="s-laneStart" min="0.3" max="1.6" step="0.1" value="0.9"><span id="v-laneStart"></span> in behind the lip</label>
       <label>intake mouth <input type="range" id="s-mouth" min="3" max="7.5" step="0.5" value="7.5"><span id="v-mouth"></span> in wide</label>
     </div>
@@ -67,8 +70,9 @@ import json as _json
 SW = [_json.loads(l) for l in open(os.path.join(S, "lat_sweep.jsonl"))]
 def sweep_table():
     cols = [(o, l) for o in (0, 0.8, 1.3) for l in (0, 0.3, 0.6)]
-    kinds = [("plain tail", lambda g: g is None), ("gentle lane", lambda g: g and g["rise"] == 0.3 and g["start"] == 0.9),
-             ("taller lane", lambda g: g and g["rise"] == 0.4), ("short lead-in", lambda g: g and g["start"] == 1.1), ("starts near the nose", lambda g: g and g["start"] == 0.5)]
+    kinds = [("plain tail", lambda g: g is None), ("Carter's lane: one curve, 0.3 in at the edges", lambda g: g and g["R"] == 12.3 and g["start"] == 0.9 and g["lead"] == 1.6),
+             ("deeper curve, 0.5 in", lambda g: g and g["R"] == 7.5), ("lane with flat shoulders", lambda g: g and g["R"] == 4),
+             ("the curve, short lead-in", lambda g: g and g["lead"] == 0.4), ("the curve, starting near the nose", lambda g: g and g["start"] == 0.5)]
     out = ['<table class="sweep"><thead><tr><th rowspan="2">wheels</th><th rowspan="2">tail</th><th colspan="3">robot centred</th><th colspan="3">robot 0.8 in off</th><th colspan="3">robot 1.3 in off</th></tr><tr>' + "".join('<th>stack straight</th><th>leans 0.3</th><th>leans 0.6</th>' for _ in range(3)) + '</tr></thead><tbody>']
     for mouth in (7.5, 3):
         for i, (name, pick) in enumerate(kinds):
@@ -79,7 +83,7 @@ def sweep_table():
                 cls = "ok" if ok == len(rr) else "stuck" if stuck == len(rr) else "miss"
                 txt = "✓" if cls == "ok" else "stuck" if cls == "stuck" else "missed"
                 cells.append(f'<td class="{cls}">{txt}</td>')
-            out.append(f'<tr>{"<th rowspan=\"5\">" + ("7.5 in row, as drawn" if mouth == 7.5 else "3 in mouth, if the intake were narrow") + "</th>" if i == 0 else ""}<td class="k">{name}</td>{"".join(cells)}</tr>')
+            out.append(f'<tr>{"<th rowspan=\"6\">" + ("7.5 in row, as drawn" if mouth == 7.5 else "3 in mouth, if the intake were narrow") + "</th>" if i == 0 else ""}<td class="k">{name}</td>{"".join(cells)}</tr>')
     out.append("</tbody></table>")
     return "\n".join(out)
 
@@ -106,7 +110,7 @@ body { font-size: 16px }
 .sliders + .sliders { padding-top: 0 }
 .step .wide { grid-column: 1 / -1; min-width: 0; overflow-x: auto }
 table.sweep { border-collapse: collapse; width: 100%; font-size: 12.5px; margin: 8px 0; table-layout: fixed }
-table.sweep td.k { width: 120px } table.sweep th:first-child { width: 72px }
+table.sweep td.k { width: 150px } table.sweep th:first-child { width: 72px }
 table.sweep th, table.sweep td { border: 1px solid var(--line); padding: 5px 6px; text-align: center }
 table.sweep th { font: 500 11.5px var(--mono); color: var(--muted); letter-spacing: .03em }
 table.sweep td.k { text-align: left; font-size: 12.5px }
@@ -161,16 +165,16 @@ body = f'''
       <div>
         <h3>Carter's idea: one blade with a lane</h3>
         <p>After the test, Carter sketched a better part. Instead of two blocks, one wide blade with the shaft running through it.
-        The front edge that goes into the FLOWER stays plain. On the ramp side, where the ball rolls out toward the intake, there is
-        a rounded lane down the middle, like the valley the two blocks made by accident, but smooth, with no sharp edges for the ball
-        to catch on.</p>
+        The front edge that goes into the FLOWER stays plain. On the ramp side, where the ball rolls out toward the intake, the
+        whole ramp curves gently down toward the middle, like the valley the two blocks made by accident, but smooth, with no flats
+        and no sharp edges for the ball to catch on.</p>
         <p>At first we read the sketch as a scoop cut into the front edge, and built that. Carter set us straight: the curve is on the
         ramp, not on the side that slides toward the wall.</p>
         <div class="learn"><b>What we learned</b>One blade is simpler than two blocks, and the shaft should go through it. Ask the person who drew it before building it.</div>
         <div class="ask"><b>Open question</b>Does the lane keep the balls on track into the intake, and does it cost anything on the way in? Step 7 puts it in the model.</div>
       </div>
       <figure class="pic"><img src="data:image/jpeg;base64,{b64("sk")}" alt="Carter's pencil sketch: the two blocks with a ball between them, then one long blade with a divot, with its front and end views."><figcaption>Carter's sketch. Left: the two blocks with a ball between them. Middle: one blade with the lane. Right: the front view on the shaft, and the end view with the hex hole.</figcaption>
-      <div class="stack"><img src="data:image/png;base64,{b64f(MOD + "v5_lane.png")}" alt="A rendering of the v5 blade with a rounded lane down its tail between raised shoulders."></div><div class="cap">Carter's lane on the v5 blade: a plain front edge, and a rounded trough down the ramp between two low shoulders.</div></figure>
+      <div class="stack"><img src="data:image/png;base64,{b64f(MOD + "v5_lane.png")}" alt="A rendering of the v5 blade with a rounded lane down its tail between raised shoulders."></div><div class="cap">Carter's lane on the v5 blade: a plain front edge, and one shallow curve across the ramp, lowest in the middle.</div></figure>
     </div>
 
     <div class="step">
@@ -244,13 +248,14 @@ body = f'''
         ran the plain tail and four lanes through the ways a real run can be off: the robot parked off-centre, the robot turned, and
         the stack leaning in its pipes.</p>
         <p>Three things came out. The wheels grab a ball about an inch and a half after the FLOWER lets go of it, so on our robot
-        there is almost no room for a lane to act. A lane that starts near the nose, or rises too fast, wedges the ball when the robot
-        is off-centre, because the FLOWER is still holding the ball on its own line. And a leaning stack squirts the bottom ball
-        sideways harder than any low lane can hold; it is the wide wheel row that catches it, not the blade.</p>
-        <div class="learn"><b>What we learned</b>With a 7.5 in wheel row right at the FLOWER, the plain tail feeds every ball the model threw at it. A gentle lane does no harm; a tall or early one does.</div>
+        there is almost no room for a lane to act. A lane with flat shoulders wedged the ball when the robot was off-centre: the
+        FLOWER was still holding the ball on its own line, so the ball met the shoulder's edge head-on. One smooth curve across
+        the whole width never did that, wherever it started. And a leaning stack squirts the bottom ball sideways harder than any
+        shallow curve can hold; it is the wide wheel row that catches it, not the blade.</p>
+        <div class="learn"><b>What we learned</b>With a 7.5 in wheel row right at the FLOWER, the plain tail and Carter's curve both feed every ball the model threw at them. Flat shoulders are the thing to avoid: one curve all the way across is safe.</div>
         <div class="ask"><b>Open question</b>The model assumes the intake wheels sit at the FLOWER's face, 7.5 in wide. If the intake ends up narrower or further back, the lane starts to matter. Which is it?</div>
       </div>
-      <div class="pic"><div class="cap">The lanes we tried. Gentle lane: shoulders 0.3 in high, starting 0.9 in behind the lip and reaching full height over 1.6 in. Taller: 0.4 in. Short lead-in: full height in 0.4 in. Near the nose: starting 0.5 in behind the lip.</div></div>
+      <div class="pic"><div class="cap">The lanes we tried. Carter's lane: one curve across the whole blade, 0.3 in up at the edges, starting 0.9 in behind the lip and reaching full depth over 1.6 in. Deeper: 0.5 in at the edges. Flat shoulders: a 4 in radius trough with flat shoulders 0.4 in high outside it. Short lead-in: full depth in 0.4 in. Near the nose: starting 0.5 in behind the lip.</div></div>
       <div class="wide"><div class="cap">What fed all four balls in the model, two runs per cell (robot straight, and turned 8°):</div>{sweep_table()}<div class="cap">Green: all four reached the wheels. Orange: a ball rolled past the wheels to the side. Red: a ball stuck on the blade.</div></div>
     </div>
   </div>
@@ -274,7 +279,7 @@ body = f'''
   <p>These are the choices that are still open. The simulator above shows what each one does. Pick, test, and write down
   what happened.</p>
   <div class="decide">
-    <div class="card"><h3>Carter's lane is the blade we are going with</h3><p>The model says a gentle lane never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The lane has to stay gentle: shoulders 0.3 in high, starting 0.9 in behind the lip. Try taller or earlier ones in the simulator to see why.</p></div>
+    <div class="card"><h3>Carter's lane is the blade we are going with</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>

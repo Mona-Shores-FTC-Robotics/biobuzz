@@ -57,6 +57,7 @@
   };
   const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "offset", "yaw", "lean", "mouth"];
   function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6 } : null; }
+  function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; } }
   let bladeWidth = 5.4, armMode = "both";
   let preset = "v4", custom = false, result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function readShape() { return { edge: +$("s-edge").value, nose: +$("s-nose").value, peak: +$("s-peak").value, tail: +$("s-tail").value }; }
@@ -80,7 +81,7 @@
     $("ro-width").textContent = bladeWidth.toFixed(1) + " in: the nose meets both uprights' points up to ±" + (bladeWidth / 2 - 1.42).toFixed(1) + " in off centre" + (bladeWidth > 7.5 ? "; wider than the Gecko row (7.5)" : bladeWidth >= 7.5 ? "; matches the Gecko row" : "; the Gecko row is 7.5");
     const g = readLane();
     if (!g) $("ro-lane").textContent = "none: a plain tail";
-    else { const c = S.catchHalf(g), v = Math.sqrt(2 * 386 * g.rise / (1 + 2 / 3)); $("ro-lane").textContent = "catches a ball up to ±" + c.toFixed(1) + " in off its centre; holds a sideways kick up to " + v.toFixed(0) + " in/s" + (g.start < 0.85 ? ". Starts too near the nose: the FLOWER still holds the ball on its own centreline there, so an off-centre robot wedges it on the wall" : ""); }
+    else { const hw = (P.width || bladeWidth) / 2, c0 = S.catchHalf(g), c = Math.min(c0, hw), v = Math.sqrt(2 * 386 * (c0 >= hw ? g.R - Math.sqrt(g.R * g.R - hw * hw) : g.rise) / (1 + 2 / 3)); $("ro-lane").textContent = (c0 >= hw ? "one curve across the whole blade, " + (g.R - Math.sqrt(g.R * g.R - hw * hw)).toFixed(2) + " in up at the edges" : "curves across ±" + c.toFixed(1) + " in, flat outside that") + "; holds a sideways kick up to " + v.toFixed(0) + " in/s" + (g.start < 0.85 ? ". Starts too near the nose: the FLOWER still holds the ball on its own centreline there, so an off-centre robot wedges it on the wall" : ""); }
     $("ro-lane").style.color = g && g.start < 0.85 ? "var(--petg)" : "";
     for (const k of sliders) { const o = $("v-" + k); if (o) o.textContent = $("s-" + k).value; }
     return prof;
@@ -158,6 +159,7 @@
     for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", b.dataset.preset === k);
     const P = PRESETS[k];
     if (P.shape) setShape(P.shape);
+    if ("lane" in P) setLane(P.lane);
     for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).disabled = !P.shape;
     compute();
   }
