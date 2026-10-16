@@ -244,7 +244,8 @@ hollows differ in how they centre the POLLEN and how a real push feels, which is
 | `v2_tongue` | `--divot scoop --lane 1.2 --lane-ahead 0.4 --divot-chord 1.0 --run-len 1.0 --run-deg 3` | a 1.2 in lane reaching 0.4 in past the shoulders, between the uprights' lobes; its ridge 0.78 in past the pinned POLLEN |
 | `v2_highride` | `--divot scoop --shaft 0.945 --bottom 0.70` | the scoop for 48 mm wheels, 0.35 in over the ring |
 | `v2_plain` | `--divot none` | no hollow: the control |
-| `v2_steep` | `--divot scoop --nose-deg 35 --land 0` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
+| `v2_steep` | `--divot scoop --nose-deg 35 --land 0.01` | the scoop with a 55° nose (from horizontal) and a sharp 0.52 in edge: the jam-margin option |
+| `v3_peak` | `--divot scoop --nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01 --run-deg 0 --slope-deg 45` | one mountain the full width: 55° up to a 1.28 in peak, 45° down; no flat, no lane, no shoulders |
 
 The write-up with the viewer of all six (and Block A) is the page linked from issue #179.
 
@@ -273,8 +274,34 @@ Two things the field CAD rules out for a bigger ramp: a roller cannot sit inside
 tops out at 3.25, the bracket's underside is 3.90), and a rising ramp cannot carry the ball to a crest (the lip stops
 0.83 in past the pinned ball).
 
-**Needed from the lab:** the intake's mouth height and its first roller's position behind the robot's front. That sets
-the sled's arm length.
+**The mentor's 16 Oct `Robot.step` answers that** (Google Drive, 152 MB; read with `cad/full-robot/build.py`'s
+loader, but note the export is turned 180° about the left-right axis relative to the 9 Oct one, so `module_check.py`
+places it upside down and backwards until its frame is re-derived from the wheels). In a frame with the floor at the
+drive wheels' bottoms and x measured back from the intake uprights' front faces:
+
+| what | where |
+|---|---|
+| first-stage roller | seven 48 mm GripForce Gecko wheels on a 240 mm REX shaft, axle 2.9 in high, wheel bottoms 1.94 in off the floor, rims flush with the uprights' front (0 to 1.9 in back) |
+| its width | left −4.0 to +3.5 in: 7.5 in of wheel |
+| intake opening | between the 5-hole lowside uprights at ±4.9 to 5.4 in: about 9.8 in |
+| second stage | two 96 mm Gecko wheels, 6.3 to 10.1 in back, 1.7 to 3.6 in high |
+| ahead of the face | the front omni wheels' rollers 0.3 in (at |y| 5.2 to 7.1), and a servo-driven 4.5 in disc at the front left (1.2 in ahead, |y| 4.0 to 8.4, 2.5 to 6.9 in high) |
+
+So the mouth is the floor itself, at the front: the good case. For the FLOWER: the robot's face sits 2.5 in in front of
+the FLOWER's centre (0.1 in off the ring and the bracket), the blade's stop is 3.7 in ahead of the face, its shaft
+2.9 in ahead at 0.77 in high, which passes 0.66 in under the gecko row. The sled's arms can hang from the gecko shaft
+itself on bearings (about 3.6 in long) or pivot on the uprights beside the outer wheels. The 4.5 in disc clears the
+FLOWER only while the robot is within about 1 in of centred on it.
+
+**v3, the mountain (`v3_peak`, `--nose-deg 35 --land 0.01 --lane-top 1.28 --sh-top 1.28 --lane 5.0 --run-len 0.01
+--run-deg 0 --slope-deg 45`):** the v2 lane's flat run existed only to leave skin over the 8 mm shaft; with the 55°
+nose the peak rises to 1.28 in at the same 0.30 in past the pinned POLLEN, the shaft gets 8.8 mm of plastic over it,
+and the profile is one mountain the full 5.4 in width: 55° up, peak, 45° down to the back edge 0.12 in behind the
+FLOWER's centre. No lane, no shoulders, so where the ball sits across the width does not matter, and the depth is set
+by the nose meeting the uprights' forward points anywhere within ±1.3 in of centre. Exit speed from a 1.28 in peak is
+about 19 in/s, enough for the 2 in of tile. The back slope's angle hardly matters (the speed comes from the drop); the
+peak height is capped by the ridge rule (55°: 1.28; 60°: 1.44).
+
 
 **Test it the same way:** 5 straight pushes, then 1 in off-centre, with each blade, counting POLLEN out and timing from the side. The
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
