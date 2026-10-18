@@ -777,6 +777,31 @@ arc, but at full power the robot covers several feet per step. Lifted, a draggin
 wheel still draws more current and a weak motor still runs slower, and that is
 what separates the causes.
 
+## The `autokit` package: running an Auto from the Auto Builder
+
+An Autonomous is drawn in the Visualizer fork (the Auto Builder), exported as a class in
+`opmodes/auto/generated/`, and run by `BuiltAuto` through `autokit`: the cards a generated Auto
+calls. There are three kinds of card and one branching block:
+
+- a **command**, by name, with a timeout (`DEFAULT_TIMEOUT_S` when the Auto sets none);
+- a **path**, a Pedro `Path` the drivetrain follows to its end;
+- **`firstOf`**: wait for a trigger, at most some time, optionally while a command runs, then run
+  the cards of whichever exit came first;
+- **`guarded`**: the endgame guard. It runs its cards in order and drives the park path instead as
+  soon as the time left no longer covers the park plus `GUARD_MARGIN_S`. It cuts a wait or a
+  command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
+  path it has let start runs to its end and the robot parks from there.
+
+Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
+`requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
+exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at
+once, a trigger that never fires), shown on the Driver Station at INIT, so an Auto drawn for the
+finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
+the editor; `AutoRegistrationTest` keeps the two in step.
+
+`autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
+`Scheduler` against a fake drivetrain, on a laptop.
+
 ## The `shooter` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
