@@ -32,10 +32,14 @@ public final class Robot20245 {
     private Robot20245() {}
 
     /**
-     * Mecanum Tuner output. <b>Placeholder:</b> the conventional left-reversed guess for
-     * mirror-mounted motors, not yet measured on this robot.
+     * Mecanum Tuner output, run on <b>20245</b>'s new chassis on 17 Oct 2026, pasted verbatim from
+     * the tuner's screen (issue #175). The same directions the file already held as a placeholder.
      */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
