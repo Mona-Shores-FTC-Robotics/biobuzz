@@ -9,8 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedro.RobotConstants;
 
-// Not used until the Foresight Tuner's block is pasted in, and then needed by it. Kept here so
-// the paste compiles as-is instead of sending someone hunting for three imports at a meeting.
+// Needed by the Foresight Tuner's block below.
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector2D;
@@ -44,14 +43,14 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
-     * team it would be, and copied to both robot files so testing can start. Re-measure on this
-     * robot once the chassis are assigned to teams.
+     * Pinpoint Tuner output, measured on <b>20245</b>'s new chassis on 17 Oct 2026 (battery 12.83 V),
+     * pasted verbatim from issue #175.
      */
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(-4.412711736724133);
-        c.yPodOffset.set(0.01945832934905225);
+        c.xPodOffset.set(-6.051974559393455);
+        c.yPodOffset.set(3.2221840685746805);
         c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
@@ -59,13 +58,34 @@ public final class Robot20245 {
     });
 
     /**
-     * Foresight Tuner output. <b>Not tuned yet — intentionally empty.</b> Its twelve required
-     * values have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses
-     * to build a Foresight until they are pasted in.
+     * Foresight Tuner output, run on <b>20245</b>'s new chassis on 17 Oct 2026, pasted verbatim from
+     * issue #175.
      */
-    public static ForesightConfig foresightConfig = new ForesightConfig(c -> {
-        // Paste the Foresight Tuner's output (run on 20245) over this whole field.
-    });
+    public static ForesightConfig foresightConfig = new ForesightConfig(
+            c -> {
+                Controller primaryTranslationalForward = Controller.proportional(0.2606582765728706);
+                Controller secondaryTranslationalForward = Controller.proportional(0.09630626827625094);
+                Controller primaryTranslationalLateral = Controller.proportional(0.43701809598485064);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.16146650912781296);
+
+                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
+                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
+
+                c.coast.set(Controller.proportionalFeedforward(0.013094480171022358));
+                c.brake.set(Controller.proportionalFeedforward(0.011130308145369004));
+
+                c.headingFeedback.set(Controller.proportional(3.5260038257983317));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.03710800717181879, 0.012276513664978382));
+
+                c.linearBrakeCoefficients.set(Matrix.diag(0.028397645082802254, 0.05464755023071258));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.002939691354279288, 0.0021088917095499903));
+
+                c.maxAchievableForwardVelocity.set(76.99298921198282);
+                c.maxAchievableStrafeVelocity.set(43.29306375924765);
+                c.naturalForwardDeceleration.set(39.794350624517094);
+                c.naturalStrafeDeceleration.set(54.40283120163522);
+            }
+    );
 
     /** Registered in {@code Constants.ROBOTS}. Nothing to change here when pasting. */
     public static RobotConstants constants() {
