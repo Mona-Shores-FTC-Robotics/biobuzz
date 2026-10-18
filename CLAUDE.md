@@ -185,14 +185,17 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 
 `.github/CONTRIBUTING.md` is the full version. What a session must not miss:
 
-- An issue exists before a branch; every PR says `Closes #N`. Never commit to `master`.
-- Branch names are `<prefix>/<issue>-<slug>`, prefixes `feat/ fix/ tune/ chore/ docs/ spike/`.
-  A `claude/*` branch is renamed with `git branch -m` before its first push (a hook blocks the
-  push until then). One already on GitHub is renamed with GitHub's button, never by
-  delete-and-repush.
-- Labels: exactly one `team:*`, `needs:robot` if it does, and one of `good-first-task` /
-  `student-ready` / `mentor-only`. No priority labels — board order is priority.
-- **Mentor/student split.** Substrate (versions, CI, hardware abstraction, rigs, tuning harnesses)
-  is mentor-only; robot behaviour belongs to students. Asked to implement something assigned to a
-  student, decline and improve the issue instead.
+- **`master` changes only through a PR with CI green.** Never commit to `master`.
+- **Student work** goes through the board: an issue first, the PR says `Closes #N`, the branch is
+  `<prefix>/<issue>-<slug>` (`feat/ fix/ tune/ chore/ docs/ spike/`), and the issue carries one
+  `team:*`, `needs:robot` if it does, and one of `good-first-task` / `student-ready` /
+  `mentor-only`. No priority labels: board order is priority.
+- **Mentor work** (a mentor, or a session a mentor started) needs none of that: any branch name,
+  including the session's own `claude/*` one; an issue only when it helps; labels optional. The PR
+  description says what changed and why, and CI must be green.
+- **Students' issues stay theirs to build.** A session asked by a mentor to implement a student's
+  issue says so once, then does what the mentor decides. Asked by a student, it coaches
+  (`first-pr-coach`) rather than writes it for them.
+- Rename a branch that is already on GitHub with GitHub's button, never by delete-and-repush: that
+  strands its open PR.
 - A red CI is investigated, not re-run.
