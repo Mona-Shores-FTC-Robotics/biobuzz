@@ -1,37 +1,35 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**One file: `stl/print_job_dean.stl`**, 169 x 157 x 18 mm, three parts, everything already flat side down. Fits a
-220 x 220 bed. Millimetres. PETG. About 170 cm3 of plastic.
+**Newest: `stl/print_job_dean_v6.stl`** (19 Oct), 199 x 157 x 24 mm, three parts, flat side down. Fits a 220 x 220
+bed. Millimetres. PETG. About 210 cm3 of plastic.
 
-![the plate from above](print_job_dean.png)
+![the v6 plate from above](print_job_dean_v6.png)
 
 What is on it:
-- **v5 with Carter's lane** (left, 137 x 77 x 15 mm): the blade we are going with. The ramp curves gently down toward
-  its middle.
-- **v5 plain** (right, same size): the control, identical except the ramp is flat across.
-- **the hex-fit coupon** (bottom, 66 x 12 x 18 mm): three 8 mm hex holes, 8.1, 8.2 and 8.3 mm across the flats,
-  marked with one, two and three notches.
+- **v6 with Carter's lane** (left, 137 x 95 x 24 mm): the blade we are going with. A shallower front (the first
+  blades took too much push to get under the ball), the lane reaching up to the peak with an oval front, and two
+  tall blocks at the ends that carry the shaft.
+- **v6 plain** (right, same size): the control, no lane.
+- **the hex-fit coupon** again (bottom, 66 x 12 x 18 mm), in case the first one was not printed. Skip it if it was.
 
-**The hex holes.** The blades are cut at **8.2 mm** across the flats, flats top and bottom, about 4 mm of plastic
-over the hole. The first two small blocks were 8.3 and turned on the shaft. When the plate is done, push the 8 mm hex
-shaft into the coupon's three holes and tell us which one is snug with no rock. If it is the two-notch hole, the
-blades are right. If three notches, a few strokes of a flat file on the blades' flats. If one notch, tell us and we
-resend at 8.1 (one number in the script).
+**The hex holes** are 8.2 mm across the flats, flats top and bottom, through the two end blocks (13 mm of plastic
+over the hole there). In the middle of the blade the shaft's top flat shows through the ramp, flush: that is meant.
+If the coupon said a different hole size is snug on your printer, tell us and we resend with that size.
 
 **Settings:**
 - **Material:** PETG, or nylon. Not PLA: it cracks when the robot drives the blade into the field element.
-- **Layers:** 0.2 mm. **Walls:** 5 (this matters more than infill; under the shaft hole there is only about 2 mm, and
-  5 walls makes that solid). **Infill:** 40 %. **Top and bottom layers:** 5.
+- **Layers:** 0.2 mm. **Walls:** 5. **Infill:** 40 %. **Top and bottom layers:** 5.
 - **Supports:** none. The hex holes bridge fine at this size. **Brim:** optional, if the bed's adhesion is iffy.
 - If the parts come in tiny (or 25 times too big), the slicer read them as inches: scale by 25.4 (or 1/25.4).
 
-If the bed is under 200 mm: `stl/v5_lane.stl`, `stl/v5.stl` and `stl/hex_fit_coupon.stl` one at a time.
-(`stl/print_plate_v5.stl` is the two blades without the coupon; `stl/v5_scoop.stl` is an earlier reading of the
-sketch, superseded; skip both.)
+If the bed is under 200 mm: `stl/v6_lane.stl`, `stl/v6.stl` (and `stl/hex_fit_coupon.stl`) one at a time.
 
 Thank you!
 
 ---
+
+**Earlier: `stl/print_job_dean_v5.stl`** (16 Oct, 169 x 157 mm): v5 with the lane, v5 plain, the coupon. Printed and
+tested on 19 Oct: it empties the FLOWER but the push at the nose is too hard. Superseded by v6.
 
 The older plates below are superseded; keep them only if already printed.
 

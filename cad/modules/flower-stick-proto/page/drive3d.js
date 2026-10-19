@@ -85,29 +85,37 @@ window.Drive3D = (function () {
     }
     return xb < profile[1][0] ? profile[1][1] : profile[profile.length - 1][1];
   }
-  function laneRise(g, xb, y) {
-    if (!g || g.rise <= 0 || xb <= g.start) return 0;
-    const lead = g.lead || 0.4, tp = xb >= g.start + lead ? 1 : (xb - g.start) / lead;
+  function laneRise(g, xb, y, hw) {
+    if (!g || g.rise <= 0) return 0;
+    const gs = g.start + (g.oval || 0) * (1 - Math.sqrt(Math.max(0, 1 - (y / hw) ** 2)));
+    if (xb <= gs) return 0;
+    const lead = g.lead || 0.4, tp = xb >= gs + lead ? 1 : (xb - gs) / lead;
     const a = Math.abs(y); let h = a >= g.R ? g.rise : g.R - Math.sqrt(g.R * g.R - a * a); if (h > g.rise) h = g.rise;
     return h * tp;
   }
-  function bladeGeometry(profile, width, g) {
+  function bladeGeometry(profile, width, g, bosses) {
     const bottom = profile[0][1], edge = profile[1][1], len = profile[profile.length - 1][0], hw = width / 2;
+    const bossZ = (xb, y) => bosses && Math.abs(y) >= bosses.inner && Math.abs(xb - bosses.x) <= bosses.len / 2 ? bosses.top : -1;
     const pos = [];
     const tri = (a, b, c) => pos.push(...a, ...b, ...c);
     const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
-    const top = (xb, y) => [-xb, heightAt(profile, xb) + laneRise(g, xb, y), -y], bot = (xb, y) => [-xb, bottom, -y];
+    const top = (xb, y) => [-xb, Math.max(heightAt(profile, xb) + laneRise(g, xb, y, hw), bossZ(xb, y)), -y], bot = (xb, y) => [-xb, bottom, -y];
     const nx = Math.max(6, Math.round(len / 0.06)), ny = Math.max(6, Math.round(width / 0.06));
     const xs = []; for (let i = 0; i <= nx; i++) xs.push(len * i / nx);
-    if (g && g.rise > 0) { xs.push(g.start, g.start + (g.lead || 0.4)); xs.sort((a, b) => a - b); }
-    for (let i = 0; i + 1 < xs.length; i++) for (let j = 0; j < ny; j++) {
-      const xa = xs[i], xb2 = xs[i + 1], ya = -hw + width * j / ny, yb = -hw + width * (j + 1) / ny;
+    if (g && g.rise > 0) xs.push(g.start, g.start + (g.lead || 0.4));
+    if (bosses) xs.push(bosses.x - bosses.len / 2, bosses.x - bosses.len / 2 + 1e-3, bosses.x + bosses.len / 2 - 1e-3, bosses.x + bosses.len / 2);
+    xs.sort((a, b) => a - b);
+    const ysL = []; for (let j = 0; j <= ny; j++) ysL.push(-hw + width * j / ny);
+    if (bosses) ysL.push(-bosses.inner, -bosses.inner + 1e-3, bosses.inner - 1e-3, bosses.inner); ysL.sort((a, b) => a - b);
+    for (let i = 0; i + 1 < xs.length; i++) for (let j = 0; j + 1 < ysL.length; j++) {
+      const xa = xs[i], xb2 = xs[i + 1], ya = ysL[j], yb = ysL[j + 1];
       quad(top(xa, ya), top(xa, yb), top(xb2, yb), top(xb2, ya));
       quad(bot(xa, ya), bot(xb2, ya), bot(xb2, yb), bot(xa, yb));
     }
     // the nose's vertical face (the lip), the back face (the shoulders' end), and the two sides
     quad([0, bottom, hw], [0, bottom, -hw], [0, edge, -hw], [0, edge, hw]);
-    for (let j = 0; j < ny; j++) { const ya = -hw + width * j / ny, yb = -hw + width * (j + 1) / ny; quad(bot(len, ya), bot(len, yb), top(len, yb), top(len, ya)); }
+    for (let j = 0; j + 1 < ysL.length; j++) { const ya = ysL[j], yb = ysL[j + 1]; quad(bot(len, ya), bot(len, yb), top(len, yb), top(len, ya)); }
+    if (bosses) for (const y0 of [-hw, hw]) { /* the sides already follow top(); the bosses' front and back faces: */ }
     for (const sgn of [-1, 1]) {
       const y = sgn * hw;
       for (let i = 0; i + 1 < xs.length; i++) { const q = [bot(xs[i], y), top(xs[i], y), top(xs[i + 1], y), bot(xs[i + 1], y)]; sgn > 0 ? quad(q[0], q[1], q[2], q[3]) : quad(q[3], q[2], q[1], q[0]); }
@@ -116,9 +124,9 @@ window.Drive3D = (function () {
     return geo;
   }
   let offsetNow = 0, yawNow = 0;
-  function setBlade(profile, width, shaftBack, lane, offset, yaw) {
+  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses) {
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
-    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
+    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane, bosses), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
     offsetNow = offset || 0; yawNow = (yaw || 0) * Math.PI / 180;
     // the robot and the blade sit `offset` to the FLOWER's +y (three.js -z) and are turned by `yaw` about the vertical

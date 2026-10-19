@@ -55,9 +55,9 @@
     v3: { name: "v3 mountain", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 45 }, shaftBack: 0.77, onRobot: true },
     v4: { name: "v4 carry", shape: { edge: 0.53, nose: 55, peak: 1.28, tail: 14.4 }, shaftBack: 0.77, onRobot: true },
   };
-  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "offset", "yaw", "lean", "mouth"];
-  function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6 } : null; }
-  function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; } }
+  const sliders = ["edge", "nose", "peak", "tail", "drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "laneOval", "offset", "yaw", "lean", "mouth"];
+  function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.2, oval: +$("s-laneOval").value } : null; }
+  function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; $("s-laneOval").value = l.oval || 0; } }
   let bladeWidth = 5.4, armMode = "both";
   let preset = "v4", custom = false, result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function readShape() { return { edge: +$("s-edge").value, nose: +$("s-nose").value, peak: +$("s-peak").value, tail: +$("s-tail").value }; }
@@ -79,6 +79,10 @@
     }
     $("ro-tail").textContent = tailEnd.toFixed(2) + " in " + (tailEnd < -2.36 ? "(past the ring: no dip)" : tailEnd < -1.54 ? "(over the ring)" : "(into the hole: the ball dips)");
     $("ro-width").textContent = bladeWidth.toFixed(1) + " in: the nose meets both uprights' points up to ±" + (bladeWidth / 2 - 1.42).toFixed(1) + " in off centre" + (bladeWidth > 7.5 ? "; wider than the Gecko row (7.5)" : bladeWidth >= 7.5 ? "; matches the Gecko row" : "; the Gecko row is 7.5");
+    const noseDeg = P.face && !custom ? 90 - P.face : (custom || P.shape ? sh.nose : 45);
+    const muP = +$("s-mu").value, fFace = S.pushForce(noseDeg, muP), fEdge = S.pushForce(90 - alpha, muP);
+    $("ro-push").textContent = (fFace === null ? "a steady push cannot lift the ball on this face (it stalls)" : fFace.toFixed(1) + " × the stack's weight on the face") + (fEdge === null ? "; stalls at first contact" : ", " + fEdge.toFixed(1) + " × at first contact") + " (friction " + muP + ", ball rolling on the blade)";
+    $("ro-push").style.color = fFace === null || fFace > 3 ? "var(--petg)" : "";
     const g = readLane();
     if (!g) $("ro-lane").textContent = "none: a plain tail";
     else { const hw = (P.width || bladeWidth) / 2, c0 = S.catchHalf(g), c = Math.min(c0, hw), v = Math.sqrt(2 * 386 * (c0 >= hw ? g.R - Math.sqrt(g.R * g.R - hw * hw) : g.rise) / (1 + 2 / 3)); $("ro-lane").textContent = (c0 >= hw ? "one curve across the whole blade, " + (g.R - Math.sqrt(g.R * g.R - hw * hw)).toFixed(2) + " in up at the edges" : "curves across ±" + c.toFixed(1) + " in, flat outside that") + "; holds a sideways kick up to " + v.toFixed(0) + " in/s" + (g.start < 0.85 ? ". Starts too near the nose: the FLOWER still holds the ball on its own centreline there, so an off-centre robot wedges it on the wall" : ""); }
@@ -105,7 +109,7 @@
     $("sim-result").textContent = name + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw);
+    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw, P.bosses || null);
     draw();
   }
   function draw() {
@@ -167,7 +171,7 @@
   let timer = null;
   const later = () => { clearTimeout(timer); timer = setTimeout(compute, 120); };
   for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); later(); };
-  for (const s of ["drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "offset", "yaw", "lean", "mouth"]) $("s-" + s).oninput = () => { readouts(); later(); };
+  for (const s of ["drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "laneOval", "offset", "yaw", "lean", "mouth"]) $("s-" + s).oninput = () => { readouts(); later(); };
   for (const b of document.querySelectorAll("[data-width]")) b.onclick = () => { bladeWidth = +b.dataset.width; for (const o of document.querySelectorAll("[data-width]")) o.setAttribute("aria-pressed", o === b); readouts(); later(); };
   for (const b of document.querySelectorAll("[data-arms]")) b.onclick = () => { armMode = b.dataset.arms; for (const o of document.querySelectorAll("[data-arms]")) o.setAttribute("aria-pressed", o === b); if (window.Drive3D) window.Drive3D.setArms(armMode); };
   $("sim-run").onclick = compute;

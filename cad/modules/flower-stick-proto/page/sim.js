@@ -25,7 +25,7 @@ window.FlowerSim = (function () {
   // returns the normal impulse (0 if no contact), so the caller can tilt it sideways
   function contact(b, seg, sv, e, mu) {
     const ax = seg[0][0], az = seg[0][1], ex = seg[1][0] - ax, ez = seg[1][1] - az, L2 = ex * ex + ez * ez;
-    let t = ((b.x - ax) * ex + (b.z - az) * ez) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    let t = L2 < 1e-12 ? 0 : ((b.x - ax) * ex + (b.z - az) * ez) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
     const cx = ax + t * ex, cz = az + t * ez, dx = b.x - cx, dz = b.z - cz, d = Math.hypot(dx, dz);
     if (d >= R || d < 1e-9) return 0;
     const nx = dx / d, nz = dz / d;
@@ -78,6 +78,9 @@ window.FlowerSim = (function () {
     if (h >= g.rise) return [g.rise, 0];
     return [h, y / Math.sqrt(r * r - a * a)];
   }
+  // the push needed to lift the stack with the bottom ball pinched between a face at `deg` from horizontal (the ball
+  // rolling on it) and the uprights (sliding, mu): a multiple of the stack's weight; null when a steady push cannot do it
+  function pushForce(deg, mu) { const a = deg * Math.PI / 180, d = Math.cos(a) - mu * Math.sin(a); return d <= 0 ? null : Math.sin(a) / d; }
   // how far the lane reaches in y before the shoulders' flat cap (the catch width, each side)
   function catchHalf(g) { if (!g || g.rise <= 0) return 0; return g.rise >= g.R ? g.R : Math.sqrt(g.R * g.R - (g.R - g.rise) ** 2); }
   // profile: [[x behind the lip, z], ...] from the lip's foot up over the peak and down
@@ -112,15 +115,18 @@ window.FlowerSim = (function () {
         if (Math.abs(yb) <= hw) {
           const [h, slope] = cross(g, yb);
           const seg = [];
-          let prev = null;
-          const verts = [];
-          for (let i = 0; i < profile.length; i++) verts.push(profile[i][0]);
-          if (g) { const lead = g.lead || 0.4; if (!verts.includes(g.start)) verts.push(g.start); if (!verts.includes(g.start + lead)) verts.push(g.start + lead); }
-          verts.sort((a, c) => a - c);
-          const zAt = x => { for (let i = 1; i + 1 < profile.length; i++) { const [x0, z0] = profile[i], [x1, z1] = profile[i + 1]; if (x >= x0 - 1e-9 && x <= x1 + 1e-9) return z0 + (z1 - z0) * (x - x0) / (x1 - x0); } return x < profile[1][0] ? profile[1][1] : profile[profile.length - 1][1]; };
-          const taper = x => { if (!g) return 0; const lead = g.lead || 0.4; return x <= g.start ? 0 : x >= g.start + lead ? 1 : (x - g.start) / lead; };
-          const pts = [[profile[0][0], profile[0][1]]];
-          for (const x of verts) { if (x === profile[0][0] && pts.length === 1 && profile[0][1] !== profile[1][1]) { pts.push([x, profile[1][1] + h * taper(x)]); continue; } if (x === profile[0][0]) continue; pts.push([x, zAt(x) + h * taper(x)]); }
+          const lead = g ? (g.lead || 0.4) : 0;
+          const gs = g ? g.start + (g.oval || 0) * (1 - Math.sqrt(Math.max(0, 1 - (yb / hw) ** 2))) : 0;
+          const taper = x => { if (!g) return 0; return x <= gs ? 0 : x >= gs + lead ? 1 : (x - gs) / lead; };
+          const pts = [];
+          for (let i = 0; i < profile.length; i++) {
+            const [x0, z0] = profile[i];
+            pts.push([x0, z0 + (i === 0 ? 0 : h * taper(x0))]);
+            if (g && i + 1 < profile.length) {                        // insert the lane's start and full-depth points on this segment
+              const [x1, z1] = profile[i + 1];
+              for (const xq of [gs, gs + lead]) if (xq > x0 && xq < x1) pts.push([xq, z0 + (z1 - z0) * (xq - x0) / (x1 - x0) + h * taper(xq)]);
+            }
+          }
           for (let i = 0; i + 1 < pts.length; i++) seg.push([[lip - pts[i][0], pts[i][1]], [lip - pts[i + 1][0], pts[i + 1][1]]]);
           let jsum = 0, tp = 0;
           for (const s of seg) { const j = contact(b, s, [bv, 0], e, mu); if (j > 0) { jsum += j; tp = Math.max(tp, taper(xb)); } }
@@ -173,6 +179,6 @@ window.FlowerSim = (function () {
     const xp = (p.peak - p.edge) / tn, xe = xp + (p.peak - bottom) / tt;
     return [[0, bottom], [0, p.edge], [xp, p.peak], [xe, bottom]];
   }
-  return { run, mountain, cross, catchHalf, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, PIPE, PIPE_R };
+  return { run, mountain, cross, catchHalf, pushForce, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, PIPE, PIPE_R };
 })();
 </script>
