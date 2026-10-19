@@ -59,8 +59,8 @@ dependencies {
     // SDK types) and `revhub` (the REV hardware layer — drivetrains, localizers,
     // IMU). `revhub` already brings `core` transitively; `core` is declared
     // explicitly so its version is pinned here rather than inherited.
-    implementation('com.pedropathing:core:3.0.1')
-    implementation('com.pedropathing:revhub:3.0.1')
+    implementation('com.pedropathing:core:3.0.2')
+    implementation('com.pedropathing:revhub:3.0.2')
 
     // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
     // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the

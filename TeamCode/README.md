@@ -16,8 +16,8 @@ and why — so the reasoning survives past whoever added it.
 | Library | Artifact | Purpose |
 |---|---|---|
 | Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Hot code reload — pushes only TeamCode to the robot, turning a ~40s reinstall into under a second (see [Deploying to the robot](#deploying-to-the-robot)). Also gives fast dex scanning at OpMode discovery, roughly 50% faster init than the SDK's reflective scan, and is the discovery mechanism AutoTune is built on, so it is no longer optional. |
-| Pedro Pathing (core) | `com.pedropathing:core:3.0.1` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
-| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.1` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
+| Pedro Pathing (core) | `com.pedropathing:core:3.0.2` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
+| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.2` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
 | Pedro AutoTune | `com.pedropathing:tuning:1.0.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
@@ -574,7 +574,7 @@ Rejected along the way:
 ## The `pedro` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` is copied verbatim
-from the official Pedro Pathing Quickstart at tag `v3.0.1`. It is upstream code,
+from the official Pedro Pathing Quickstart at tag `v3.0.2`. It is upstream code,
 not ours — when Pedro releases a new Quickstart, re-copy it rather than patching
 it in place.
 
@@ -1397,7 +1397,7 @@ Three things that will cost you a meeting if you forget them:
 
 `Drawing` and `Follower.telemetryDebug()` live in **`com.pedropathing:telemetry`**, which is on the
 [deliberately excluded](#deliberately-excluded) list — still published at `1.0.0`, never updated for
-Pedro 3. Checked by listing every class in `core-3.0.1`, `revhub-3.0.1`, `tuning-1.0.1`,
+Pedro 3. Checked by listing every class in `core-3.0.2`, `revhub-3.0.2`, `tuning-1.0.1`,
 `ivy:core-1.1.1` and `ivy:pedro-1.1.1`: no `Drawing`, and no reference to Panels anywhere in the
 set. So the choice was re-adding an excluded, Pedro-2-era dependency, or drawing two shapes
 ourselves.
