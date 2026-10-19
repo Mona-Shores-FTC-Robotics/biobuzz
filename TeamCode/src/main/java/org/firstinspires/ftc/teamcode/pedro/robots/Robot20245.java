@@ -1,18 +1,24 @@
 package org.firstinspires.ftc.teamcode.pedro.robots;
 
+import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
+import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.pedro.RobotConstants;
 
-// Needed by the Foresight Tuner's block below.
+// Not used until the Foresight Tuner's block is pasted in, and then needed by it. Kept here so
+// the paste compiles as-is instead of sending someone hunting for three imports at a meeting.
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector2D;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /**
  * Pedro's tuned values for <b>20245</b>, used whenever the active Driver Station configuration is
@@ -31,10 +37,6 @@ public final class Robot20245 {
 
     private Robot20245() {}
 
-    /**
-     * Mecanum Tuner output, run on <b>20245</b>'s new chassis on 17 Oct 2026, pasted verbatim from
-     * the tuner's screen (issue #175). The same directions the file already held as a placeholder.
-     */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
         c.frontLeftName.set("frontLeft");
         c.frontRightName.set("frontRight");
@@ -47,9 +49,11 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output, measured on <b>20245</b>'s new chassis on 17 Oct 2026 (battery 12.83 V),
-     * pasted verbatim from issue #175.
+     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
+     * team it would be, and copied to both robot files so testing can start. Re-measure on this
+     * robot once the chassis are assigned to teams.
      */
+    //WARNING: Offsets are NOT correct
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
         c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
@@ -62,8 +66,9 @@ public final class Robot20245 {
     });
 
     /**
-     * Foresight Tuner output, run on <b>20245</b>'s new chassis on 17 Oct 2026, pasted verbatim from
-     * issue #175.
+     * Foresight Tuner output. <b>Not tuned yet — intentionally empty.</b> Its twelve required
+     * values have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses
+     * to build a Foresight until they are pasted in.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {
@@ -90,6 +95,15 @@ public final class Robot20245 {
                 c.naturalStrafeDeceleration.set(54.40283120163522);
             }
     );
+
+    public static Follower create(HardwareMap h) {
+        return new Follower(
+                new PinpointLocalizer(h, localizerConfig),
+                new Mecanum(h, drivetrainConfig),
+                new Foresight(foresightConfig)
+        );
+    }
+
 
     /** Registered in {@code Constants.ROBOTS}. Nothing to change here when pasting. */
     public static RobotConstants constants() {
