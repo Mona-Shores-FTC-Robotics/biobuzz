@@ -10,11 +10,13 @@ What is on it:
   blades took too much push to get under the ball), the lane reaching up to the peak with an oval front, and two
   tall blocks at the ends that carry the shaft.
 - **v6 plain** (right, same size): the control, no lane.
-- **the hex-fit coupon** again (bottom, 66 x 12 x 18 mm), in case the first one was not printed. Skip it if it was.
+- **a finer hex-fit coupon** (bottom, 108 x 12 x 18 mm): five hex holes at 7.6, 7.7, 7.8, 7.9 and 8.0 mm across the
+  flats, marked with one to five notches. The first coupon's holes (8.1 to 8.3) were all loose on your printer.
 
-**The hex holes** are 8.2 mm across the flats, flats top and bottom, through the two end blocks (13 mm of plastic
-over the hole there). In the middle of the blade the shaft's top flat shows through the ramp, flush: that is meant.
-If the coupon said a different hole size is snug on your printer, tell us and we resend with that size.
+**The hex holes** are **7.9 mm** across the flats this time, flats top and bottom, through the two end blocks (13 mm
+of plastic over the hole there). Meant to be a snug fit: tap the shaft in; if it will not go, a few strokes of a flat
+file on the flats. In the middle of the blade the shaft's top flat shows through the ramp, flush: that is meant.
+Tell us which coupon hole is the snug one and we cut the next blades to it.
 
 **Settings:**
 - **Material:** PETG, or nylon. Not PLA: it cracks when the robot drives the blade into the field element.

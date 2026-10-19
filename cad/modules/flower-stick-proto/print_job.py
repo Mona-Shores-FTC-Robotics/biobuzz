@@ -13,7 +13,7 @@ GAP = 8.0
 import sys
 JOB = sys.argv[1] if len(sys.argv) > 1 else "v6"
 PARTS = {"v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon", "hex-fit coupon: 8.1 / 8.2 / 8.3")],
-         "v6": [("v6_lane", "v6 with Carter's lane"), ("v6", "v6 plain (control)"), ("hex_fit_coupon", "hex-fit coupon: 8.1 / 8.2 / 8.3")]}[JOB]
+         "v6": [("v6_lane", "v6 with Carter's lane"), ("v6", "v6 plain (control)"), ("hex_fit_coupon_7.6_7.7_7.8_7.9_8", "hex-fit coupon: 7.6 to 8.0")]}[JOB]
 ms, labels = [], []
 x = 0.0
 for name, label in PARTS[:2]:
