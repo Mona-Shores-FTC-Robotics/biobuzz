@@ -5,17 +5,17 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
-MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "one shallow curve across the tail; too much push at the nose", 6.3, 13.1))
-MODELS.insert(0, ("v6", "v6", "v6 plain", "the shallower nose, no lane: the control", 6.3, 13.1))
-MODELS.insert(0, ("v6l", "v6_lane", "v6 with Carter's lane", "the blade we are printing: 50° nose, the lane up to the peak with an oval front, end bosses for the shaft", 6.3, 13.1))
+MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "60° nose; on the plate beside v6, with the hole cut for the real shaft", 6.3, 13.1))
+MODELS.insert(0, ("v6", "v6", "v6 plain", "the 50° nose without the lane", 6.3, 14.2))
+MODELS.insert(0, ("v6l", "v6_lane", "v6 with Carter's lane", "on the plate: v5's body with a 50° nose, the lane up to the peak with an oval front", 6.3, 14.2))
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
-rows["v6l"] = [["Profile", "50° nose from a 0.60 in edge, peak 1.00 in at 0.34 behind the lip, 8° tail to the back edge 3.75 in behind it, just past the ring"], ["Push", "2.3 × the stack's weight on the face (v5: 5.6 ×)"], ["Lane", "one curve across the tail, 0.3 in up at the edges; it begins just behind the peak at the centre and 1.2 in further back at the edges, a half-oval front; full depth after 1.2 in"], ["Shaft", "8 mm hex at 0.52 behind the lip, 0.77 in high, carried in two end bosses 1.45 in tall outside the ball's path; its top flat shows flush through the ramp at the centre; the hole is cut at 7.9 mm across the flats because 8.1 printed loose"], ["Size", "137 × 95 × 24 mm"]]
-rows["v6"] = [["Profile", "as v6 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 95 × 24 mm"]]
+rows["v6l"] = [["Profile", "50° nose from a 0.60 in edge, peak 1.10 in at 0.42 behind the lip, 12° tail to the back edge over the ring: v5 with only the nose changed"], ["Push", "2.3 × the stack's weight on the face (v5: 5.6 ×)"], ["Lane", "one curve across the tail, 0.3 in up at the edges; it begins just behind the peak at the centre and 1.2 in further back at the edges, a half-oval front; full depth after 1.2 in"], ["Shaft", "goBILDA 8 mm REX: 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom (the angle is a flag for when the mount is known); 2.7 mm of plastic over it, 2.2 under"], ["Size", "137 × 80 × 15 mm"]]
+rows["v6"] = [["Profile", "as v6 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 80 × 15 mm"]]
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 77 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
 anim_js = anim_js.replace('choose("v5");', 'choose("v6l");')
-anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v6l: { name: "v6 with Carter\'s lane", shape: { edge: 0.6, nose: 50, peak: 1.0, tail: 8 }, lane: { R: 12.3, rise: 0.3, start: 0.39, oval: 1.2 }, bosses: { x: 0.52, len: 1.0, inner: 1.75, top: 1.45 }, shaftBack: 0.52, onRobot: true },\n    v6: { name: "v6 plain", shape: { edge: 0.6, nose: 50, peak: 1.0, tail: 8 }, lane: null, bosses: { x: 0.52, len: 1.0, inner: 1.75, top: 1.45 }, shaftBack: 0.52, onRobot: true },\n    v5: { name: "v5", shape: ')
+anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v6l: { name: "v6 with Carter\'s lane", shape: { edge: 0.6, nose: 50, peak: 1.1, tail: 12 }, lane: { R: 12.3, rise: 0.3, start: 0.47, oval: 1.2 }, shaftBack: 0.56, onRobot: true },\n    v6: { name: "v6 plain", shape: { edge: 0.6, nose: 50, peak: 1.1, tail: 12 }, lane: null, shaftBack: 0.56, onRobot: true },\n    v5: { name: "v5", shape: ')
 anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v5l: { name: "v5 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.5, rise: 0.3, start: 0.9 }, shaftBack: 0.77, onRobot: true },\n    v5: { name: "v5 plain", lane: null, shape: ')
 assert 'v6l: {' in anim_js and 'choose("v6l")' in anim_js
 panel = f'''  <div class="drive">
@@ -270,24 +270,27 @@ body = f'''
       <div>
         <h3>Monday: it works, but it pushes too hard</h3>
         <p>On October 19 the team ran the printed blades on the stick. They emptied the FLOWER, but it took a hard push to get under
-        the ball. That was our mistake in the search: we scored shapes on whether the balls came out, never on how hard the push is.</p>
-        <p>The physics is simple once you ask. The ball is squeezed between the blade's face and the posts. A steep face pushes the
-        ball into the posts more than it lifts it, so friction on the posts fights the lift and the push multiplies. A 60° face
-        needs 5.6 times the stack's weight; 50° needs 2.3; 45° needs 1.7. The team's ask was a shallower front, and that is right.</p>
-        <p>We went to 50°, not 45°, for one reason: a shallower nose puts the peak further behind the lip, and at 45° the ball sits
-        on the peak when the robot stops a third of an inch short. 50° with a 1.0 in peak keeps that margin and still feeds every
-        case. The lane now reaches up to the peak with an oval front, as Carter asked. And since a lower blade has no room for the
-        shaft in the middle, v6 carries the 8 mm hex in two end bosses outside the ball's path.</p>
-        <div class="learn"><b>What we learned</b>Score what you can feel. The push force was always in the physics; we only had to ask for it.</div>
-        <div class="ask"><b>Open question</b>How much push is acceptable on the robot? The drivetrain gives about 25 lb before the wheels slip; v6 needs about 2.3 times the stack's weight, around 1.5 lb. Does the stick test agree?</div>
+        the ball, and the blade was seen twisting on its shaft.</p>
+        <p>The twisting turned out to be the key. Our shaft is goBILDA's "8 mm REX": a round 8 mm shaft with six flats, 7 mm across
+        the flats. Every hole we had printed was an 8 mm hex, 8.2 mm across the flats. The shaft never touched the flats, so the
+        blade sat in what was really a round bearing and could spin. Pushed into the ball, it tilted nose-down until its underside
+        hit the ring. The blade we tested was never at 60°.</p>
+        <p>That matters because the push depends on the face angle, and near the limit it depends on it a lot. The ball is squeezed
+        between the face and the posts; a steep face shoves it into the posts more than it lifts it, and friction on the posts fights
+        the lift. Held firm, 60° needs 5.6 times the stack's weight. Tilted 4°, 11 times. Tilted 8°, it stalls. So two things were
+        true at once: the loose shaft made the push much worse, and 60° was always close to the edge.</p>
+        <div class="learn"><b>What we learned</b>Measure the shaft, not the catalogue name. And score what you can feel: the push force was always in the physics; we only had to ask for it.</div>
+        <div class="ask"><b>Open question</b>With the hole cut for the real shaft, does v5 at a true 60° push hard, or was it all the twist? The plate has v5 and v6 side by side so the stick can answer that directly.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v6_lane.png")}" alt="A rendering of the v6 blade: a shallower nose, the lane reaching up to the peak with an oval front, and tall bosses at both ends around the shaft."><figcaption>v6 with Carter's lane: 50° nose, the lane up to the peak with an oval front, end bosses for the shaft.</figcaption>
-      <table class="sweep loads"><thead><tr><th>nose</th><th>push to lift the stack</th><th>if the ball slides on the face</th></tr></thead><tbody>
-        <tr><td class="k">60° (v5)</td><td class="stuck">5.6 ×</td><td class="stuck">stalls</td></tr>
-        <tr><td class="k">50° (v6)</td><td class="ok">2.3 ×</td><td class="miss">33 ×</td></tr>
-        <tr><td class="k">45°</td><td class="ok">1.7 ×</td><td class="miss">7 ×</td></tr>
-        <tr><td class="k">40°</td><td class="ok">1.3 ×</td><td class="ok">4 ×</td></tr>
-      </tbody></table><div class="cap">Push as a multiple of the stack's weight, friction 0.4 on the posts. The slider "push to lift the stack" in the simulator computes this for any shape.</div></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v6_lane.png")}" alt="A rendering of the v6 blade: v5's body with a shallower 50° nose and the lane reaching up to the peak with an oval front."><figcaption>v6 with Carter's lane: v5's body, a 50° nose instead of 60°, the lane up to the peak with an oval front.</figcaption>
+      <table class="sweep loads"><thead><tr><th>face angle</th><th>push to lift the stack</th></tr></thead><tbody>
+        <tr><td class="k">60°, held firm (v5)</td><td class="miss">5.6 ×</td></tr>
+        <tr><td class="k">62°, v5 tilted 2° on a loose shaft</td><td class="miss">7.6 ×</td></tr>
+        <tr><td class="k">64°, tilted 4°</td><td class="stuck">11 ×</td></tr>
+        <tr><td class="k">68°, tilted 8°</td><td class="stuck">stalls</td></tr>
+        <tr><td class="k">50°, held firm (v6)</td><td class="ok">2.3 ×</td></tr>
+        <tr><td class="k">56°, v6 tilted 6°</td><td class="ok">3.7 ×</td></tr>
+      </tbody></table><div class="cap">Push as a multiple of the stack's weight, friction 0.4 on the posts, the ball rolling on the face. The "push to lift the stack" readout in the simulator computes this for any shape. v6 is v5 with only the nose changed: 50° costs 0.13 in of margin past the pinned ball, and in the model it misses only when the robot creeps in at 3 in/s and stops a third of an inch before the posts.</div></figure>
     </div>
   </div>
 </section>
@@ -331,7 +334,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What Dean prints next: the v6 plate</h3><p>One plate, 199 × 157 mm: v6 with the lane, v6 plain as the control, and a finer hex coupon with holes from 7.6 to 8.0 mm, because every hole on the first coupon (8.1 to 8.3) was loose on Dean's printer. The blades are cut at 7.9 mm, meant to be a tap-in fit; a few file strokes if it is tight. Tell us which coupon hole is snug and the next ones get that size.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_dean_v6.png")}" alt="The print plate from above: the two v6 blades side by side and the small coupon bar under them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>Test it the same way: five straight pushes and one off-centre per blade, and this time say how hard the push felt next to v5.</p></div>
+    <div class="card"><h3>What Dean prints next: v5 and v6 side by side</h3><p>One plate, 165 × 157 mm: v6 with the lane (50° nose), v5 with the lane (60° nose), and a hex coupon with holes from 7.0 to 7.4 mm across the flats, the right range for a REX shaft. Both blades are cut at 7.15 mm, a snug hex on the real 7.0 mm flats; a few file strokes if it is tight. Held firm for the first time, the two blades answer the nose question on the stick: push each into the FLOWER and say which one pushes harder, and by how much.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_dean_v6.png")}" alt="The print plate from above: the two v6 blades side by side and the small coupon bar under them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>Test it the same way: five straight pushes and one off-centre per blade, count the balls, time it, and say how hard each pushed.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>

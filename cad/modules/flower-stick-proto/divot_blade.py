@@ -56,7 +56,10 @@ ap.add_argument("--divot", choices=("scoop", "spoon", "vee", "none"), default="s
 ap.add_argument("--divot-r", type=float, default=2.0, help="scoop: radius in plan, inches")
 ap.add_argument("--divot-chord", type=float, default=1.8, help="width across the nose, inches (both)")
 ap.add_argument("--divot-depth", type=float, default=0.15, help="spoon: depth into the face at its middle, inches")
-ap.add_argument("--hex", type=float, default=8.3, help="hex bore across the flats, mm")
+ap.add_argument("--hex", type=float, default=7.15,
+                help="hex bore across the flats, mm. goBILDA 8 mm REX is 7.0 across the flats with its corners rounded on an 8 mm "
+                     "circle, so 7.15 is a snug hex; an 8.2 hole is a round 8 mm bearing and the blade spins on it")
+ap.add_argument("--hex-angle", type=float, default=0.0, help="the hex's rotation about the shaft, degrees: 0 flats top and bottom, 30 corners top and bottom")
 ap.add_argument("--gutter-rise", type=float, default=0.0,
                 help="Carter's lane on the tail: shoulders raised this much above the tail, inches (0: none). The lane between "
                      "them is a circular trough tangent to the tail at the centreline, so the centreline profile is unchanged")
@@ -88,6 +91,7 @@ skin = (lane_top - (lane_ridge - (rod_x - hex_half)) * tr) - (a.shaft + a.hex / 
 sh_junction = rod_x - 0.30
 sh_back = sh_junction - (sh_top - a.bottom) / ts
 back = min(lane_back, sh_back)
+if a.lane >= a.width - 1e-6: back = lane_back                # one profile the full width: no shoulder strips
 def prof_lane():
     return [(lane_back, a.bottom), lane_knee, (lane_ridge, lane_top), (lane_stop, nose_bot), (lane_stop, a.bottom)]
 def prof_sh():
@@ -160,6 +164,7 @@ if a.gutter_rise > 0:
     print(f"  lane on the tail: {rise:.2f} in up at the edges, from {a.gutter_start:.2f} behind the stop over {lead:.1f} in; trough radius {rg:.1f}, "
           f"curving across +-{catch:.2f} in" + (" (the whole width)" if catch >= W / 2 - 1e-6 else f"; flat shoulders outside that, meeting the trough at {math.degrees(math.asin(min(1, catch / rg))):.0f} deg"))
 bore = cylinder(radius=a.hex / 2 / math.cos(math.pi / 6), height=W * IN + 4, sections=6)
+bore.apply_transform(trimesh.transformations.rotation_matrix(math.radians(a.hex_angle), [0, 0, 1]))   # about the bore's own axis
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([(rod_x - back) * IN, 0, (a.shaft - a.bottom) * IN])
 body = body.difference(bore)

@@ -388,21 +388,31 @@ thickness.
 **Dean's print job** is `print_job.py` → `stl/print_job_dean.stl` (169 × 157 mm: v5_lane, v5 plain, the hex coupon)
 with `print_job_dean.png` as the picture in `PRINT_ME.md`.
 
+**The shaft (20 Oct).** goBILDA's 8 mm REX is a round 8 mm shaft with six flats 7.0 mm across the flats. Every bore
+we had printed was an 8 mm hex (8.2 to 8.3 mm across the flats), whose inscribed circle is larger than the shaft:
+a round bearing. The 15 Oct blocks turned on the shaft, and on 19 Oct the v5 blade tilted nose-down under the push
+until its underside met the ring, which is why it pushed hard (see the table in the next paragraph: 60° held firm is
+5.6 W, tilted 4° it is 11 W, tilted 8° it stalls). The bore is now 7.15 mm across the flats (`--hex 7.15`, the
+default in `divot_blade.py` and `blade6.py`), with `--hex-angle` for the hex's rotation about the shaft once the
+mount on the robot is known. The coupon (`hex_coupon.py`) defaults to 7.0 to 7.4.
+
 **v6: the push (19 Oct).** The v5 blades emptied the FLOWER on the stick but took a hard push to get under the ball.
 The search had scored feeding and margin, never the push. The force balance for the bottom POLLEN pinched between
 the blade's face (angle α from horizontal, the ball rolling on it) and the uprights (sliding, μ) is
 F/W = sin α / (cos α − μ sin α) times the stack's weight: 60° needs 5.6 W at μ 0.4 (and stalls outright if the ball
 slides on the face), 50° 2.3 W, 45° 1.7 W, 40° 1.3 W. `page/opt6.js` re-ran the search with the push as a column
 (`page/opt6.jsonl`): the lightest shapes that feed all 12 scenarios are 45° with a 0.90 peak (1.7 W), then 50° with
-a 1.00 peak (2.3 W). Two things decided v6 = **50°, edge 0.60, peak 1.00, tail 8°**: at 45° with a 0.95 or 1.00
-peak the ball sits on the peak when the robot stops 0.35 in short (10/12), and a 0.90 peak leaves no room for the
-8 mm hex, whose top flat would stand proud of the ramp; `page/v6_pick.js` models the proud flat as a step and it
-costs the feed (2 to 8 of 12). At 50°/1.00 the hex is buried 0.4 mm, which `blade6.py` opens so the shaft's top flat
-is flush with the ramp, and the shaft is carried by two end bosses 1.45 in tall at |y| ≥ 1.75, outside the ball's
-path. The lane begins just behind the peak at the centre and 1.2 in further back at the edges (a half-oval front,
-Carter's second ask), one curve edge to edge, 0.3 in at the edges. 12/12 with the lane; margin 0.49; 8° tail to
-3.75 behind the lip, just past the ring. `blade6.py` builds the blade as a height field (every feature a formula) and
-cuts only the bore. Dean's plate is `print_job.py v6` → `stl/print_job_dean_v6.stl` (199 × 157 mm).
+a 1.00 peak (2.3 W). At 45° the peak it needs is too low: the ball sits on the peak when the robot stops 0.35 in short
+(10/12), and a 0.90 peak leaves no room for the shaft (`page/v6_pick.js` models a hex standing proud of the ramp as
+a step: it costs the feed). A first v6 (19 Oct, 50°, peak 1.00, 8° tail, end bosses carrying the shaft, its top flat
+flush through the ramp) was 12/12 but clunky; once the shaft was found to be 7 mm across the flats and the twist
+explained, **v6 became v5's body with only the nose changed: 50°, edge 0.60, peak 1.10, tail 12°**, no bosses, the
+bore buried 2.7 mm. It is 10/12 in the model: the two misses are the robot creeping in at 3 in/s and stopping 0.35 in
+short. The lane begins just behind the peak at the centre and 1.2 in further back at the edges (a half-oval front,
+Carter's second ask), one curve edge to edge, 0.3 in at the edges. `blade6.py` builds the blade as a height field
+(every feature a formula) and cuts only the bore. Dean's plate is `print_job.py v6` → `stl/print_job_dean_v6.stl`
+(199 × 157 mm): v6 lane and v5 lane side by side, both bored for the REX, and the 7.0 to 7.4 coupon, so the stick
+test compares the two noses held firm.
 
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of

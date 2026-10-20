@@ -12,15 +12,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GAP = 8.0
 import sys
 JOB = sys.argv[1] if len(sys.argv) > 1 else "v6"
-PARTS = {"v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon", "hex-fit coupon: 8.1 / 8.2 / 8.3")],
-         "v6": [("v6_lane", "v6 with Carter's lane"), ("v6", "v6 plain (control)"), ("hex_fit_coupon_7.6_7.7_7.8_7.9_8", "hex-fit coupon: 7.6 to 8.0")]}[JOB]
+PARTS = {"v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
+         "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")]}[JOB]
 ms, labels = [], []
 x = 0.0
 for name, label in PARTS[:2]:
     m = trimesh.load(os.path.join(HERE, "stl", name + ".stl")); m.apply_translation(-m.bounds[0]); m.apply_translation([x, 0, 0])
     ms.append(m); labels.append((label, m.bounds)); x = m.bounds[1][0] + GAP
 row_h = max(m.bounds[1][1] for m in ms)
-c = trimesh.load(os.path.join(HERE, "stl", "hex_fit_coupon.stl")); c.apply_translation(-c.bounds[0]); c.apply_translation([0, row_h + GAP, 0])
+c = trimesh.load(os.path.join(HERE, "stl", PARTS[2][0] + ".stl")); c.apply_translation(-c.bounds[0]); c.apply_translation([0, row_h + GAP, 0])
 ms.append(c); labels.append((PARTS[2][1], c.bounds))
 plate = trimesh.util.concatenate(ms)
 out = os.path.join(HERE, "stl", f"print_job_dean_{JOB}.stl"); plate.export(out)

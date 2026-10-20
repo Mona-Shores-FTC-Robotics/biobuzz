@@ -28,7 +28,8 @@ ap.add_argument("--boss-in", type=float, default=1.75, help="the bosses start th
 ap.add_argument("--boss-len", type=float, default=1.0, help="the bosses' length along x, centred on the shaft")
 ap.add_argument("--shaft-x", type=float, help="the shaft's centre, inches behind the lip (default: the bore's front corner under the peak)")
 ap.add_argument("--shaft-z", type=float, default=0.77, help="the shaft's centre height, inches")
-ap.add_argument("--hex", type=float, default=8.2, help="hex bore across the flats, mm; flats top and bottom")
+ap.add_argument("--hex", type=float, default=7.15, help="hex bore across the flats, mm. goBILDA 8 mm REX is 7.0 across the flats (rounded corners on an 8 mm circle): 7.15 is snug")
+ap.add_argument("--hex-angle", type=float, default=0.0, help="the hex's rotation about the shaft, degrees: 0 flats top and bottom, 30 corners top and bottom")
 ap.add_argument("--name", default="v6")
 a = ap.parse_args()
 
@@ -36,9 +37,13 @@ tn, tt = math.tan(math.radians(a.nose)), math.tan(math.radians(a.tail))
 xp = (a.peak - a.edge) / tn
 xe = xp + (a.peak - a.bottom) / tt
 W, hw = a.width, a.width / 2
-hex_flat = a.hex / IN / 2                      # half across the flats, inches (vertical half-extent)
-hex_corner = hex_flat / math.cos(math.pi / 6)  # half across the corners (horizontal half-extent)
-shaft_x = a.shaft_x if a.shaft_x is not None else xp + hex_corner
+hex_flat = a.hex / IN / 2                      # half across the flats, inches
+hex_corner = hex_flat / math.cos(math.pi / 6)  # half across the corners
+# the hex's extent up and along the blade for its angle (0: flats top and bottom, corners fore and aft)
+_ang = math.radians(a.hex_angle)
+hex_up = max(abs(hex_corner * math.sin(math.radians(30 + 60 * k) + _ang)) for k in range(6))
+hex_along = max(abs(hex_corner * math.cos(math.radians(30 + 60 * k) + _ang)) for k in range(6))
+shaft_x = a.shaft_x if a.shaft_x is not None else xp + hex_along
 lane_start = a.lane_start if a.lane_start is not None else xp + 0.05
 Rg = a.lane_r if a.lane_r > 0 else (hw * hw + a.rise * a.rise) / (2 * a.rise) if a.rise > 0 else 0
 
@@ -90,19 +95,20 @@ assert body.is_watertight, "the height-field solid is not closed"
 if body.volume < 0: body.invert()
 # the bore: a hex prism along y, flats top and bottom
 bore = trimesh.creation.cylinder(radius=hex_corner * IN, height=(W + 1) * IN, sections=6)
+bore.apply_transform(trimesh.transformations.rotation_matrix(_ang, [0, 0, 1]))
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([shaft_x * IN, 0, a.shaft_z * IN])
 # where the top is too thin over the bore (under 0.8 mm), open it: the shaft's top flat becomes part of the surface
-skin_centre = min(top(x, 0.0) for x in np.linspace(shaft_x - hex_corner, shaft_x + hex_corner, 9)) - (a.shaft_z + hex_flat)
+skin_centre = min(top(x, 0.0) for x in np.linspace(shaft_x - hex_along, shaft_x + hex_along, 9)) - (a.shaft_z + hex_up)
 opened = False
 if skin_centre * IN < 0.8:
-    slot = trimesh.creation.box(extents=[2 * hex_corner * IN, 2 * (a.boss_in - 0.02) * IN, 2 * IN])
-    slot.apply_translation([shaft_x * IN, 0, (a.shaft_z + hex_flat + 1.0) * IN])
+    slot = trimesh.creation.box(extents=[2 * hex_along * IN, 2 * (a.boss_in - 0.02) * IN, 2 * IN])
+    slot.apply_translation([shaft_x * IN, 0, (a.shaft_z + hex_up + 1.0) * IN])
     bore = bore.union(slot); opened = True
 body = body.difference(bore)
 assert body.is_watertight
-under = (a.shaft_z - hex_flat - a.bottom) * IN
-over_boss = (a.boss_h - a.shaft_z - hex_flat) * IN if a.boss_h > 0 else 0
+under = (a.shaft_z - hex_up - a.bottom) * IN
+over_boss = (a.boss_h - a.shaft_z - hex_up) * IN if a.boss_h > 0 else 0
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 body.export(os.path.join(HERE, "stl", a.name + ".stl"))
 e = body.bounds[1] - body.bounds[0]
@@ -113,7 +119,7 @@ print(f"  profile: edge {a.edge:.2f}, {a.nose:.0f} deg nose to the peak {a.peak:
       f"peak {1.18 - xp - 0.35:.2f} in past the pinned POLLEN; back edge {1.18 - xe:.2f} in from the FLOWER's centre")
 print(f"  push to lift the stack: {FW(a.nose, 0.4):.1f}x its weight on the face, {FW(edge_ang, 0.4):.1f}x at first contact (rolling, uprights mu 0.4)")
 if a.rise > 0: print(f"  lane: {a.rise:.2f} in up at the edges, radius {Rg:.1f}; begins {lane_start:.2f} behind the lip at the centre, {lane_start + a.oval:.2f} at the edges (oval front), full depth after {a.lead:.1f} in")
-print(f"  shaft: {a.hex} mm hex at {shaft_x:.2f} behind the lip, {a.shaft_z:.2f} high; {under:.1f} mm under it; centre skin over it {skin_centre * IN:.1f} mm" + (" -> opened, the top flat is flush with the surface" if opened else "") + f"; end bosses {a.boss_in:.2f}..{hw:.2f} from the centre, {over_boss:.1f} mm over the bore")
+print(f"  shaft: {a.hex} mm hex (flats) turned {a.hex_angle:.0f} deg, at {shaft_x:.2f} behind the lip, {a.shaft_z:.2f} high; {under:.1f} mm under it; centre skin over it {skin_centre * IN:.1f} mm" + (" -> opened, the top flat is flush with the surface" if opened else "") + (f"; end bosses {a.boss_in:.2f}..{hw:.2f} from the centre, {over_boss:.1f} mm over the bore" if a.boss_h > 0 else "; no bosses"))
 
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
