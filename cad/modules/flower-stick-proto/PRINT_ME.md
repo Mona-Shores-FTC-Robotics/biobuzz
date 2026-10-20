@@ -26,6 +26,9 @@ snug one and the next blades get that size.
 - **Supports:** none. The hex holes bridge fine at this size. **Brim:** optional, if the bed's adhesion is iffy.
 - If the parts come in tiny (or 25 times too big), the slicer read them as inches: scale by 25.4 (or 1/25.4).
 
+For review in CAD before printing: `step/v6_lane.step`, `step/v5_lane.step` and `step/hex_fit_coupon.step` are the same
+parts as solids (millimetres, flat bottom on z = 0, the lip at x = 0).
+
 If the bed is under 200 mm: `stl/v6_lane.stl`, `stl/v5_lane.stl` and `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl`
 one at a time.
 
