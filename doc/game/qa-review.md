@@ -11,13 +11,27 @@ REFEREES decide, plan for the strict reading.
 
 ## What changes
 
-### 1. A G409 touch is a foul every time, and a routine one is STRATEGIC (Q17, Q23)
+### 1. A G409 touch is a violation every time, and a routine one is STRATEGIC (Q17, Q23)
 
 Q17: *"A ROBOT that deflects SCORING ELEMENTS from a tipped HIVE is in violation of G409 … if the ROBOT actions
 aren't deemed to be STRATEGIC the violation would be a VERBAL WARNING."* Q23, on G407/G408 but the same logic:
 a violation that is routine *"as part of the ROBOT design and/or strategy is likely to be perceived as
-deliberately violating … this is likely to be perceived as STRATEGIC."* STRATEGIC is a MAJOR FOUL and a YELLOW
-CARD: a TIP's worth of points, and the card.
+deliberately violating … this is likely to be perceived as STRATEGIC."*
+
+**The penalty ladder, corrected 22 Oct 2026** (manual TU05, Table 10-4 and §10.6.1). The three rules escalate
+differently, and the first draft of this review wrongly gave G409 the G407 penalty:
+
+| Rule | Not STRATEGIC | STRATEGIC |
+|---|---|---|
+| G407 (a fifth piece) | VERBAL WARNING | MAJOR FOUL (20 points to the opponents) and a YELLOW CARD, once per match |
+| G408 (opponent NECTAR) | VERBAL WARNING | YELLOW CARD, once per match; no points |
+| G409 (a falling piece) | VERBAL WARNING | YELLOW CARD, once per match; no points |
+
+A VERBAL WARNING carries no points, but warnings for the same thing in one match, or across matches, are
+the stated trigger for "STRATEGIC" (§10.6.1 A and B). YELLOW CARDS add up: a second one in the same tournament
+phase is a RED CARD, which disqualifies the team for that match (0 match points and 0 ranking points in
+qualifications; in playoffs cards go to the whole alliance). So a G409 or G408 habit costs no points on the
+first strategic call and the whole match on the second.
 
 Until now the simulator counted "G409 runs" as a risk to weigh against points, and the docs said the longer
 waits or the 45° V were the fallback "if G409 gets called on a real field". That reading is gone:
@@ -107,7 +121,7 @@ on the CELL) stands, and Q7 says a directional roll into it is fine.
 | 21 | §10.5.4 | LEAVE is judged at the end of AUTO: touching the wall then loses it | The simulator already scores LEAVE this way (`AutoSim`) and parks 1.5 in off the wall at (10.5, 95). The real Auto must do the same: SWARM is exactly 16 with both robots' LEAVE + PARK, so one wall touch costs the RP |
 | 22 | R504 | **Pending**: a potentiometer taken out of a servo | None |
 | 23 | G407 | Orange boxes don't carry the rule's weight; routine momentary over-4 or opponent-NECTAR control is STRATEGIC | Changes 1 and 2 |
-| 24 | G402 | **Pending**: should AUTO interference be a foul per instance | Watch |
+| 24 | G402 | **Pending**: should AUTO interference be a MAJOR FOUL per instance | Watch |
 | 25 | R201 | **Pending**: a mirror in front of a camera | Could let the Limelight sit lower than its 45° mount needs; watch |
 | 26 | R708 | **Pending**: HuskyLens 2 | None |
 | 27 | R403 | **Pending**: robot sign font | None |
