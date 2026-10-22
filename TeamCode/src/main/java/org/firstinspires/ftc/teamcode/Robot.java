@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
@@ -34,8 +35,9 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no intake, launcher or turret here, because none is designed yet. A subsystem for
- * hardware nobody has designed would be a guess wearing a class name.
+ * <p>There is no intake, launcher or turret here, because none is built yet. A subsystem for
+ * hardware nobody has built would be a guess wearing a class name. The FLOWER stick is the first
+ * mechanism, and the example of how small a subsystem can be.
  */
 public class Robot {
 
@@ -51,6 +53,9 @@ public class Robot {
     /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
     public final PieceVisionSubsystem pieces;
 
+    /** The FLOWER stick: one servo on a stick, the extractor's first edition (#177). */
+    public final FlowerStickSubsystem flowerStick;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -63,8 +68,10 @@ public class Robot {
         vision = new LimelightVisionSubsystem(hardwareMap);
         drive = new DriveSubsystem(hardwareMap, vision);
         pieces = new PieceVisionSubsystem(hardwareMap);
+        flowerStick = new FlowerStickSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, pieces));
+        subsystems = Collections.unmodifiableList(
+                Arrays.<Subsystem>asList(vision, drive, pieces, flowerStick));
     }
 
     /** Every subsystem, in the order they were built. */

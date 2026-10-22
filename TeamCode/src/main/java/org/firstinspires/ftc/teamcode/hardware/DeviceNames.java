@@ -57,6 +57,12 @@ public final class DeviceNames {
     public static final String LAUNCHER_CENTER = "launcher_center";
     public static final String LAUNCHER_RIGHT = "launcher_right";
 
+    /**
+     * The FLOWER extractor's first edition: one servo swinging a stick (#177).
+     * Control Hub servo port; the port itself is in each robot's XML.
+     */
+    public static final String FLOWER_STICK = "flowerStick";
+
     // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
     // one Y-cable on a single port, with one encoder, so software sees one
     // motor. See robot_launcher_rig.xml.
@@ -118,6 +124,7 @@ public final class DeviceNames {
             new Device(LAUNCHER_LEFT, Kind.MOTOR),
             new Device(LAUNCHER_CENTER, Kind.MOTOR),
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
+            new Device(FLOWER_STICK, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 

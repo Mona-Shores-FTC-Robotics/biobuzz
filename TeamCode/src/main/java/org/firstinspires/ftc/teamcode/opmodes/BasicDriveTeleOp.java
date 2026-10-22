@@ -60,6 +60,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
+        driver.when("A", "Extend FLOWER stick", () -> gamepad1.a)
+                .onPress(robot.flowerStick::extend);
+        driver.when("X", "Retract FLOWER stick", () -> gamepad1.x)
+                .onPress(robot.flowerStick::retract);
     }
 
     @Override
@@ -85,6 +89,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robot.drive.isFieldCentric() ? "field-centric" : "robot-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
+        display.status("FLOWER stick", Display.Level.OK, robot.flowerStick.extended() ? "out" : "in");
         showPinpoint();
         display.line(loopTimer.summary());
     }
