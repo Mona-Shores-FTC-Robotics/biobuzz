@@ -15,6 +15,8 @@ import java.util.function.BooleanSupplier;
  * driver.note("Left stick", "Drive");
  * driver.when("Y", "Reset heading", () -> gamepad1.y).onPress(robot.drive::resetHeading);
  * operator.when("A", "Fire (hold)", () -> gamepad2.a).whileHeld(robot.launcher.fire());
+ * driver.when("RT", "Intake (hold)", () -> gamepad1.right_trigger > 0.5)
+ *         .onPress(robot.intake::intake).onRelease(robot.intake::idle);
  * }</pre>
  *
  * <p>Bind in {@code onInit()}. {@code RobotOpMode} polls every binding once per loop after PLAY —
@@ -94,6 +96,15 @@ public final class Bindings {
          */
         public Trigger onPress(Runnable action) {
             onRise.add(action);
+            return this;
+        }
+
+        /**
+         * Run {@code action} once when released. With {@link #onPress}, this is how a hold-to-run
+         * mechanism is bound without a command ({@code onPress(intake::intake).onRelease(intake::idle)}).
+         */
+        public Trigger onRelease(Runnable action) {
+            onFall.add(action);
             return this;
         }
 

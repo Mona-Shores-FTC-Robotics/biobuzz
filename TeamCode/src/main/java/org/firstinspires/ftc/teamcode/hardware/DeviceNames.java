@@ -63,6 +63,12 @@ public final class DeviceNames {
      */
     public static final String FLOWER_STICK = "flowerStick";
 
+    /**
+     * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
+     * its current). Expansion Hub motor port 3, the one port the launcher flywheels leave free.
+     */
+    public static final String INTAKE = "intake";
+
     // Two-wheel pinch launcher test rig (hub FTC-EoM3). Both motors hang off
     // one Y-cable on a single port, with one encoder, so software sees one
     // motor. See robot_launcher_rig.xml.
@@ -125,6 +131,7 @@ public final class DeviceNames {
             new Device(LAUNCHER_CENTER, Kind.MOTOR),
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
+            new Device(INTAKE, Kind.MOTOR),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 

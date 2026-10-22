@@ -4,6 +4,7 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
@@ -35,9 +36,9 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no intake, launcher or turret here, because none is built yet. A subsystem for
- * hardware nobody has built would be a guess wearing a class name. The FLOWER stick is the first
- * mechanism, and the example of how small a subsystem can be.
+ * <p>There is no launcher or turret here, because neither is built yet. A subsystem for hardware
+ * nobody has built would be a guess wearing a class name. The FLOWER stick and the intake roller
+ * are the first mechanisms, and the examples of how small a subsystem can be.
  */
 public class Robot {
 
@@ -56,6 +57,9 @@ public class Robot {
     /** The FLOWER stick: one servo on a stick, the extractor's first edition (#177). */
     public final FlowerStickSubsystem flowerStick;
 
+    /** The intake roller: one motor, in, out or idle (#160). Piece counting is #181. */
+    public final IntakeSubsystem intake;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -69,9 +73,10 @@ public class Robot {
         drive = new DriveSubsystem(hardwareMap, vision);
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap);
+        intake = new IntakeSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, pieces, flowerStick));
+                Arrays.<Subsystem>asList(vision, drive, pieces, flowerStick, intake));
     }
 
     /** Every subsystem, in the order they were built. */
