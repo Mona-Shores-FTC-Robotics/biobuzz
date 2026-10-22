@@ -1,0 +1,15 @@
+{
+  "commands": [
+    {"name": "LaunchAll", "typicalS": 2.0},
+    {"name": "LaunchOne", "typicalS": 0.5},
+    {"name": "SpinUp", "typicalS": 0.1}
+  ],
+  "triggers": [
+    "Empty",
+    "IntakeFull",
+    "LeftCellUp",
+    "RightCellUp",
+    "Tip",
+    "CameraBlind"
+  ]
+}
