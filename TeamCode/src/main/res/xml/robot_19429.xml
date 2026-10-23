@@ -60,13 +60,19 @@
 
         </LynxModule>
 
-        <!-- Expansion Hub: the launcher flywheels. Ports are carried over from
-             the DECODE season's Driver Station configurations, which wired all
-             three launcher motors identically on both robots. -->
+        <!-- Expansion Hub: the intake, then the launcher. -->
         <LynxModule name="Expansion Hub" port="2">
-            <goBILDA5202SeriesMotor name="launcher_right"  port="0" />
-            <goBILDA5202SeriesMotor name="launcher_center" port="1" />
-            <goBILDA5202SeriesMotor name="launcher_left"   port="2" />
+
+            <!-- Intake roller: one goBILDA 5203 motor (#160, #181), on motor
+                 port 0, where the build team plugged it in (23 Oct 2026). -->
+            <goBILDA5202SeriesMotor name="intake"         port="0" />
+
+            <!-- Launcher: two flywheels and a feeder, the plan agreed with the
+                 build team (23 Oct 2026). Not built yet, so nothing is plugged
+                 into these; Validate Hardware lists them as missing until it is. -->
+            <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
+            <goBILDA5202SeriesMotor name="launcher_right" port="2" />
+            <goBILDA5202SeriesMotor name="feeder"         port="3" />
         </LynxModule>
     </LynxUsbDevice>
 

@@ -451,6 +451,12 @@ public abstract class RobotOpMode extends OpMode {
             log.pose(pose.x(), pose.y(), pose.heading());
             log.put("/Odometry/Referenced", robot.drive.poseReferenced() ? 1 : 0);
         }
+        // The keys #181 asks for, so a real match log compares with the simulator's.
+        log.put("/Intake/TicksPerSecond", robot.intake.ticksPerSecond());
+        double intakeAmps = robot.intake.currentAmps();
+        if (!Double.isNaN(intakeAmps)) {
+            log.put("/Intake/CurrentAmps", intakeAmps);
+        }
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {
