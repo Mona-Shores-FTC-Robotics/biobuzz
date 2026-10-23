@@ -135,6 +135,9 @@ assert body.is_watertight
 under = (a.shaft_z - hex_up - a.bottom) * IN
 over_boss = (a.boss_h - a.shaft_z - hex_up) * IN if a.boss_h > 0 else 0
 os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
+# the same frame as divot_blade.py's parts: the nose at +x, the back edge at x = 0, the flat bottom on z = 0
+body.apply_transform(trimesh.transformations.rotation_matrix(math.pi, [0, 0, 1]))
+body.apply_translation([-body.bounds[0][0], 0, -body.bounds[0][2]])
 body.export(os.path.join(HERE, "stl", a.name + ".stl"))
 e = body.bounds[1] - body.bounds[0]
 FW = lambda ang, mu: math.sin(math.radians(ang)) / (math.cos(math.radians(ang)) - mu * math.sin(math.radians(ang)))

@@ -9,7 +9,7 @@ MODELS[:] = [m for m in MODELS if m[0] not in ("v5",)]
 MODELS.insert(0, ("v7l", "v7_lane", "v7 with Carter's lane", "the shape that works: v5, Carter's lane, the hole cut for the real shaft", 6.3, 13.1))
 MODELS.insert(0, ("v8", "v8", "v8 plain", "the V nose without the lane: the control", 6.3, 19.1))
 MODELS.insert(0, ("v8l", "v8_lane", "v8 with Carter's lane", "on the plate: v7 with a V nose that seats on the posts and reaches 0.3 in deeper", 6.3, 19.1))
-MODELS.insert(1, ("v9l", "v9_lane", "v9 with Carter's lane", "on the plate: a lower peak, 1.0 in, for headroom under the collar", 6.0, 9.9))
+MODELS.insert(1, ("v9l", "v9_lane", "v9 with Carter's lane", "on the plate: a lower peak, 1.0 in, for headroom under the collar", 5.6, 9.9))
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
 rows["v7l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.10 in at 0.29 behind the lip, 12° tail down to the back edge over the ring: the v5 shape, which emptied the FLOWER on October 19"], ["Lane", "one curve across the tail (12.3 in radius), 0.3 in up at both edges, from 0.9 in behind the lip, full depth after 1.6 in. Seen from above its back end looks scalloped: the tail is thinnest in the middle, so it runs out sooner there"], ["Shaft", "goBILDA 8 mm REX is 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom, 0.53 in behind the lip and 0.77 in high, with 2.2 mm of plastic over and under it"], ["Size", "137 × 77 × 15 mm"]]
 rows["v7"] = [["Profile", "as v7 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 77 × 15 mm"]]
