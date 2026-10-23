@@ -164,7 +164,7 @@ if a.gutter_rise > 0:
     print(f"  lane on the tail: {rise:.2f} in up at the edges, from {a.gutter_start:.2f} behind the stop over {lead:.1f} in; trough radius {rg:.1f}, "
           f"curving across +-{catch:.2f} in" + (" (the whole width)" if catch >= W / 2 - 1e-6 else f"; flat shoulders outside that, meeting the trough at {math.degrees(math.asin(min(1, catch / rg))):.0f} deg"))
 bore = cylinder(radius=a.hex / 2 / math.cos(math.pi / 6), height=W * IN + 4, sections=6)
-bore.apply_transform(trimesh.transformations.rotation_matrix(math.radians(a.hex_angle), [0, 0, 1]))   # about the bore's own axis
+bore.apply_transform(trimesh.transformations.rotation_matrix(math.radians(30 + a.hex_angle), [0, 0, 1]))   # about the bore's own axis; +30: flats top and bottom at angle 0
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([(rod_x - back) * IN, 0, (a.shaft - a.bottom) * IN])
 body = body.difference(bore)

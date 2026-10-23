@@ -414,6 +414,20 @@ Carter's second ask), one curve edge to edge, 0.3 in at the edges. `blade6.py` b
 (199 × 157 mm): v6 lane and v5 lane side by side, both bored for the REX, and the 7.0 to 7.4 coupon, so the stick
 test compares the two noses held firm.
 
+**22 Oct stick test: the 50° noses do not work; v5 does.** The three parts printed from the 19 Oct plate (the first
+v6 with end bosses, its plain twin, the coupon) did not feed: the ball sits on the peak. The team's reading is that the
+peak is too far back for the shallower nose, which is the margin arithmetic (the peak sits (peak − edge)/tan(nose)
+behind the lip: 0.29 in for v5, 0.34 for the bossed v6, 0.42 for the 20 Oct v6), with the stop in practice evidently
+shallower than the CAD's lobe points. A second suspect on the bossed v6 is the shaft's top flat opened flush through
+the ramp right behind the peak: a flat shelf there is what the model had already shown stops the ball. The v5 blades
+(19 Oct) emptied the FLOWER even while spinning on the shaft, so the next plate is v5 lane and v5 plain with the bore
+fixed (7.15 mm across the flats). Also found while measuring the bores: trimesh's 6-gon starts with a corner on the
+axis, so every bore to date was corners up and down; the scripts now turn the hex so `--hex-angle 0` is flats top and
+bottom (2.2 mm of plastic over and under the bore on v5 instead of 1.1). Lesson for the search: the push force and
+the margin pull against each other through the nose angle, and the field says the margin wins; a lighter push has to
+come from the edge height, the face finish (a ball that slides on the face instead of rolling stalls at 60°), or a
+lower peak, not from a shallower nose.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.

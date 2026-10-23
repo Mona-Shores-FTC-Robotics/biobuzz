@@ -16,6 +16,7 @@ bar = box(extents=[L, T, H]); bar.apply_translation([L / 2, T / 2, H / 2])
 for i, af in enumerate(SIZES):
     x = 12.0 + i * 21.0
     hexhole = cylinder(radius=af / 2 / math.cos(math.pi / 6), height=T + 4, sections=6)
+    hexhole.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 6, [0, 0, 1]))   # a flat up
     hexhole.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))   # axis along y, flats top and bottom
     hexhole.apply_translation([x, T / 2, H / 2])
     bar = bar.difference(hexhole)

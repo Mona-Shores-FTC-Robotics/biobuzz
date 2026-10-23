@@ -41,8 +41,8 @@ hex_flat = a.hex / IN / 2                      # half across the flats, inches
 hex_corner = hex_flat / math.cos(math.pi / 6)  # half across the corners
 # the hex's extent up and along the blade for its angle (0: flats top and bottom, corners fore and aft)
 _ang = math.radians(a.hex_angle)
-hex_up = max(abs(hex_corner * math.sin(math.radians(30 + 60 * k) + _ang)) for k in range(6))
-hex_along = max(abs(hex_corner * math.cos(math.radians(30 + 60 * k) + _ang)) for k in range(6))
+hex_up = max(abs(hex_corner * math.sin(math.radians(60 * k) + _ang)) for k in range(6))        # corners at 0, 60, ... from the x axis: flats top and bottom
+hex_along = max(abs(hex_corner * math.cos(math.radians(60 * k) + _ang)) for k in range(6))
 shaft_x = a.shaft_x if a.shaft_x is not None else xp + hex_along
 lane_start = a.lane_start if a.lane_start is not None else xp + 0.05
 Rg = a.lane_r if a.lane_r > 0 else (hw * hw + a.rise * a.rise) / (2 * a.rise) if a.rise > 0 else 0
@@ -95,7 +95,7 @@ assert body.is_watertight, "the height-field solid is not closed"
 if body.volume < 0: body.invert()
 # the bore: a hex prism along y, flats top and bottom
 bore = trimesh.creation.cylinder(radius=hex_corner * IN, height=(W + 1) * IN, sections=6)
-bore.apply_transform(trimesh.transformations.rotation_matrix(_ang, [0, 0, 1]))
+bore.apply_transform(trimesh.transformations.rotation_matrix(_ang + math.pi / 6, [0, 0, 1]))   # +30 deg: flats top and bottom at angle 0
 bore.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0]))
 bore.apply_translation([shaft_x * IN, 0, a.shaft_z * IN])
 # where the top is too thin over the bore (under 0.8 mm), open it: the shaft's top flat becomes part of the surface
