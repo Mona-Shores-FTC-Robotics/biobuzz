@@ -51,11 +51,20 @@ public final class DeviceNames {
     // AprilTag camera: a Limelight 3A on the Control Hub's USB-Ethernet link.
     public static final String LIMELIGHT = "limelight";
 
-    // Launcher flywheels, left to right as seen from behind the robot. Carried
-    // over from the DECODE robots, which wired all three on the Expansion Hub.
+    // Launcher: two flywheels, left and right as seen from behind the robot,
+    // and the feeder that pushes a piece into them. Not built yet (Oct 2026);
+    // the names and the ports in the XML are the plan, Expansion Hub motor
+    // ports 1, 2 and 3 after the intake on 0, so the build team wires to them.
     public static final String LAUNCHER_LEFT = "launcher_left";
-    public static final String LAUNCHER_CENTER = "launcher_center";
     public static final String LAUNCHER_RIGHT = "launcher_right";
+    public static final String FEEDER = "feeder";
+
+    /**
+     * DECODE's third flywheel. On no BIOBUZZ robot: only the standalone
+     * {@code shooter/} test-rig code still names it, and that rig runs with a
+     * lane missing. Not in any device list below, so no XML declares it.
+     */
+    public static final String LAUNCHER_CENTER = "launcher_center";
 
     /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
@@ -127,11 +136,11 @@ public final class DeviceNames {
             new Device(FRONT_RIGHT, Kind.MOTOR),
             new Device(BACK_LEFT, Kind.MOTOR),
             new Device(BACK_RIGHT, Kind.MOTOR),
-            new Device(LAUNCHER_LEFT, Kind.MOTOR),
-            new Device(LAUNCHER_CENTER, Kind.MOTOR),
-            new Device(LAUNCHER_RIGHT, Kind.MOTOR),
-            new Device(FLOWER_STICK, Kind.SERVO),
             new Device(INTAKE, Kind.MOTOR),
+            new Device(LAUNCHER_LEFT, Kind.MOTOR),
+            new Device(LAUNCHER_RIGHT, Kind.MOTOR),
+            new Device(FEEDER, Kind.MOTOR),
+            new Device(FLOWER_STICK, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
