@@ -92,16 +92,23 @@ window.FlowerSim = (function () {
     const width = cfg.width || 5.4, hw = width / 2, g = cfg.gutter && cfg.gutter.rise > 0 ? cfg.gutter : null;
     const off = cfg.offset || 0, yaw = (cfg.yaw || 0) * Math.PI / 180, sy = Math.sin(yaw), cy = Math.cos(yaw);
     const lean = cfg.lean || 0, mouth = cfg.mouth || 7.5;
-    const balls = STAGED.map((z, k) => ({ x: 0, y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
+    // cfg.stagger: the stack zigzagged front to back, balls 2 and 4 this much toward the robot (negative: toward the wall)
+    const stagger = cfg.stagger || 0;
+    const balls = STAGED.map((z, k) => ({ x: k % 2 ? -stagger : 0, y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
     let lip = -4.4, t = 0, step = 0, stalled = null;
     const out = [null, null, null, null], fed = [null, null, null, null], missed = [null, null, null, null], offBlade = [null, null, null, null], frames = [];
     const yAtWheels = [null, null, null, null];
     // the blade's frame: xb behind the lip along the blade's axis, yb across it, for a blade centred `off` and turned `yaw`
     const toBlade = b => { const dx = lip - b.x, dy = b.y - off; return [dx * cy + dy * sy, dy * cy - dx * sy]; };
     const xs = profile.map(p => p[0]);
+    const tiltDeg = cfg.tilt || 0, shaftBack = cfg.shaftBack || 0.53, shaftZ = 0.77;
+    let tStop = null;
+    const tilted = (prof, deg) => { const a = deg * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a); return prof.map(([x, z]) => { const dx = x - shaftBack, dz = z - shaftZ; return [shaftBack + dx * c + dz * sn, shaftZ - dx * sn + dz * c]; }); };
     const snap = () => [+t.toFixed(3), +lip.toFixed(3), balls.map(b => [+b.x.toFixed(3), +b.z.toFixed(3), +b.y.toFixed(3)])];
     for (; t < tmax; t += DT, step++) {
       const driving = lip < stop && stalled === null;
+      if (!driving && tStop === null) tStop = t;
+      const curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
       const bv = driving ? drive : 0;
       if (driving) lip = Math.min(stop, lip + drive * DT);
       let axleX = 0, axleZ = 0;
@@ -119,11 +126,11 @@ window.FlowerSim = (function () {
           const gs = g ? g.start + (g.oval || 0) * (1 - Math.sqrt(Math.max(0, 1 - (yb / hw) ** 2))) : 0;
           const taper = x => { if (!g) return 0; return x <= gs ? 0 : x >= gs + lead ? 1 : (x - gs) / lead; };
           const pts = [];
-          for (let i = 0; i < profile.length; i++) {
-            const [x0, z0] = profile[i];
+          for (let i = 0; i < curProfile.length; i++) {
+            const [x0, z0] = curProfile[i];
             pts.push([x0, z0 + (i === 0 ? 0 : h * taper(x0))]);
-            if (g && i + 1 < profile.length) {                        // insert the lane's start and full-depth points on this segment
-              const [x1, z1] = profile[i + 1];
+            if (g && i + 1 < curProfile.length) {                        // insert the lane's start and full-depth points on this segment
+              const [x1, z1] = curProfile[i + 1];
               for (const xq of [gs, gs + lead]) if (xq > x0 && xq < x1) pts.push([xq, z0 + (z1 - z0) * (xq - x0) / (x1 - x0) + h * taper(xq)]);
             }
           }
@@ -145,7 +152,15 @@ window.FlowerSim = (function () {
           const nx = dx / d, ny = dy / d, nz = dz / d, push = (2 * R - d) / 2;
           a.x -= nx * push; a.y -= ny * push; a.z -= nz * push; c.x += nx * push; c.y += ny * push; c.z += nz * push;
           const vn = (c.vx - a.vx) * nx + (c.vy - a.vy) * ny + (c.vz - a.vz) * nz;
-          if (vn < 0) { const jj = -(1 + (-vn > REST ? e : 0)) * vn / 2; a.vx -= jj * nx; a.vy -= jj * ny; a.vz -= jj * nz; c.vx += jj * nx; c.vy += jj * ny; c.vz += jj * nz; }
+          if (vn < 0) {
+            const jj = -(1 + (-vn > REST ? e : 0)) * vn / 2; a.vx -= jj * nx; a.vy -= jj * ny; a.vz -= jj * nz; c.vx += jj * nx; c.vy += jj * ny; c.vz += jj * nz;
+            // friction between the balls (cfg.muBall, default the same mu): the surfaces' relative slip in the x-z plane,
+            // spins included, resisted up to mu times the normal impulse; it is what lets a ball above hold the one below
+            const muB = cfg.muBall ?? mu, tx = -nz, tz = nx;
+            const slip = (c.vx - a.vx) * tx + (c.vz - a.vz) * tz - (a.w + c.w) * R;
+            let jt = -slip / (2 * (1 + 1 / K)); const lim = muB * 2 * jj; if (jt > lim) jt = lim; if (jt < -lim) jt = -lim;
+            a.vx -= jt * tx; a.vz -= jt * tz; c.vx += jt * tx; c.vz += jt * tz; a.w -= jt / (K * R); c.w -= jt / (K * R);
+          }
         }
       }
       if (driving) {
