@@ -6,7 +6,7 @@ import org.junit.Test;
 
 /**
  * The team's one hard requirement for the two-wheel rig: the target RPM moves
- * by the same increments as on the three-wheel Flywheel Speed Test.
+ * by the same increments as on the DECODE three-wheel rig's speed test.
  */
 public class TargetStepsTest {
 
