@@ -468,6 +468,34 @@ v8 zero headroom and v9 0.1 in.
 from v7. The 7.15 mm bore fit the REX perfectly on the first print with it, so the fit is settled and the coupon retired. (The V was first built inverted, the middle recessed instead of protruding; caught from the page's viewer
 and fixed the same day.)
 
+**The stack that locks itself (23 Oct).** Side by side, the photos of the stuck stacks say: balls staggered side to side
+come out one after another; balls staggered front to back leave the bottom ball on the peak, with the sled pushed in as
+far as it goes. The model had every stack coming out, so the FLOWER's section was checked again: the collar's front bar
+(underside 3.90, top 4.25, inner edge at x -1.69, the opening 3.6 in across) had been drawn as a wall. As a bar
+(`FIXED[6..8]` in `page/sim.js`, `cfg.collar` to move it) the model locks the same way the photos do: the second ball
+leans toward the robot until it rests on the bar; when the blade lifts the bottom ball onto the peak the second ball
+rides up onto the bar's corner and bridges the gap, on the bar on one side and the bottom ball on the other; the third
+lies against the front pipes. Three balls make an arch, and the bottom ball cannot leave the peak toward the robot
+without lifting the one above, which the bar and the pipes hold. End state: ball 1 at (0.35, 2.49), ball 2 at
+(-0.58, 5.11) on the bar's corner, ball 3 at -0.86 (the pipes), the same positions as the photos
+(`stuck_state.png`). A side-to-side lean never locks: the upper balls lean into the gaps between the pipes, where there
+is no bar. Two more things it says: the ball sits *on* the peak only if the peak is under it, and with the lip at the
+posts' points v7's peak is 0.54 in past the pinned ball, so in the photos the sled stopped about 0.35 in short of
+where the drawing puts the points (something touches first); and the lock is timing, a fast push (8 in/s and up) gets
+the bottom ball over before the arch forms. On the field it locks most of the time, in the model some of the time
+(it is sensitive to speed and friction), so the model still misses something about how the stack settles.
+
+What feeds, over 16 runs each (a straight stack and one settled front to back `[-0.29, 0.35, 0.35]`, μ 0.3/0.45,
+3 and 6 in/s, the sled at the points and 0.35 short; `page/fix_scan.js`, `page/scan_stuck.js`, `page/fb_pick.js`):
+v7 10, v8 (V, 0.3 deeper) 15, v9 (peak 1.0) 13, v7 reaching 0.6 deeper 16, peak 0.9 16, nose 65° 7, nose 55° 12,
+tilt 6° nose-up after the stop 11, collar 0.3 higher 16, collar 0.3 lower 6. So it is the collar that makes the lock,
+and reach past the ball (or a lower peak) is what we can do about it. The page's simulator now starts with v7, the
+stack leaning front to back (the stack buttons: front to back / straight / side to side) and the stop 0.35 short,
+which locks; v8 feeds it, v9 locks. If the three-blade test agrees, the next blade is a 0.6 in V or a 0.9 in peak.
+The ring's hold on the bottom ball is now geometric (`play` in `sim.js`: the hole's radius minus the ball's
+cross-section at the ring's height), which removed a false sideways escape. The 3-D viewer draws the V nose
+(`drive3d.js`, `vee`), and the plan view too.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.

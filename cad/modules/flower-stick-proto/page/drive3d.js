@@ -93,13 +93,19 @@ window.Drive3D = (function () {
     const a = Math.abs(y); let h = a >= g.R ? g.rise : g.R - Math.sqrt(g.R * g.R - a * a); if (h > g.rise) h = g.rise;
     return h * tp;
   }
-  function bladeGeometry(profile, width, g, bosses) {
+  // vee: the V nose. xb is measured behind the centre's lip (as the simulator's lip is); the local lip sits cut(y) behind it:
+  // 0 over the middle (|y| <= 0.855), rising to vee at |y| >= 1.42 (the posts' points), and vee outside. The profile is
+  // measured from the local lip, the back edge stays straight, so the sides are vee shorter than the middle: the printed v8.
+  function bladeGeometry(profile, width, g, bosses, vee) {
     const bottom = profile[0][1], edge = profile[1][1], len = profile[profile.length - 1][0], hw = width / 2;
+    const V = vee || 0, VI = 0.855, VO = 1.42;
+    const cut = y => { const a = Math.abs(y); return !V ? 0 : a <= VI ? 0 : a >= VO ? V : V * (a - VI) / (VO - VI); };
     const bossZ = (xb, y) => bosses && Math.abs(y) >= bosses.inner && Math.abs(xb - bosses.x) <= bosses.len / 2 ? bosses.top : -1;
     const pos = [];
     const tri = (a, b, c) => pos.push(...a, ...b, ...c);
     const quad = (a, b, c, d) => { tri(a, b, c); tri(a, c, d); };
-    const top = (xb, y) => [-xb, Math.max(heightAt(profile, xb) + laneRise(g, xb, y, hw), bossZ(xb, y)), -y], bot = (xb, y) => [-xb, bottom, -y];
+    // u: distance behind the local lip (the profile's own x); xb = u + cut(y) behind the centre's lip
+    const top = (u, y) => { const xb = u + cut(y); return [-xb, Math.max(heightAt(profile, u) + laneRise(g, xb, y, hw), bossZ(xb, y)), -y]; }, bot = (u, y) => [-(u + cut(y)), bottom, -y];
     const nx = Math.max(6, Math.round(len / 0.06)), ny = Math.max(6, Math.round(width / 0.06));
     const xs = []; for (let i = 0; i <= nx; i++) xs.push(len * i / nx);
     if (g && g.rise > 0) xs.push(g.start, g.start + (g.lead || 0.4));
@@ -107,26 +113,31 @@ window.Drive3D = (function () {
     xs.sort((a, b) => a - b);
     const ysL = []; for (let j = 0; j <= ny; j++) ysL.push(-hw + width * j / ny);
     if (bosses) ysL.push(-bosses.inner, -bosses.inner + 1e-3, bosses.inner - 1e-3, bosses.inner); ysL.sort((a, b) => a - b);
+    if (V) ysL.push(-VO, -VI, VI, VO), ysL.sort((a, b) => a - b);
+    // u at the back edge for this y: the back stays straight at xb = len, so the local profile is cut off at len - cut(y)
+    const uBack = y => len - cut(y);
     for (let i = 0; i + 1 < xs.length; i++) for (let j = 0; j + 1 < ysL.length; j++) {
-      const xa = xs[i], xb2 = xs[i + 1], ya = ysL[j], yb = ysL[j + 1];
-      quad(top(xa, ya), top(xa, yb), top(xb2, yb), top(xb2, ya));
-      quad(bot(xa, ya), bot(xb2, ya), bot(xb2, yb), bot(xa, yb));
+      const ya = ysL[j], yb = ysL[j + 1];
+      const ua0 = Math.min(xs[i], uBack(ya)), ua1 = Math.min(xs[i + 1], uBack(ya)), ub0 = Math.min(xs[i], uBack(yb)), ub1 = Math.min(xs[i + 1], uBack(yb));
+      if (ua1 - ua0 < 1e-6 && ub1 - ub0 < 1e-6) continue;
+      quad(top(ua0, ya), top(ub0, yb), top(ub1, yb), top(ua1, ya));
+      quad(bot(ua0, ya), bot(ua1, ya), bot(ub1, yb), bot(ub0, yb));
     }
-    // the nose's vertical face (the lip), the back face (the shoulders' end), and the two sides
-    quad([0, bottom, hw], [0, bottom, -hw], [0, edge, -hw], [0, edge, hw]);
-    for (let j = 0; j + 1 < ysL.length; j++) { const ya = ysL[j], yb = ysL[j + 1]; quad(bot(len, ya), bot(len, yb), top(len, yb), top(len, ya)); }
+    // the nose's vertical face (the lip, following the V), the back face (straight), and the two sides
+    for (let j = 0; j + 1 < ysL.length; j++) { const ya = ysL[j], yb = ysL[j + 1]; quad(bot(0, yb), bot(0, ya), top(0, ya).map((v, k) => k === 1 ? edge : v), top(0, yb).map((v, k) => k === 1 ? edge : v)); }
+    for (let j = 0; j + 1 < ysL.length; j++) { const ya = ysL[j], yb = ysL[j + 1]; quad(bot(uBack(ya), ya), bot(uBack(yb), yb), top(uBack(yb), yb), top(uBack(ya), ya)); }
     if (bosses) for (const y0 of [-hw, hw]) { /* the sides already follow top(); the bosses' front and back faces: */ }
     for (const sgn of [-1, 1]) {
       const y = sgn * hw;
-      for (let i = 0; i + 1 < xs.length; i++) { const q = [bot(xs[i], y), top(xs[i], y), top(xs[i + 1], y), bot(xs[i + 1], y)]; sgn > 0 ? quad(q[0], q[1], q[2], q[3]) : quad(q[3], q[2], q[1], q[0]); }
+      for (let i = 0; i + 1 < xs.length; i++) { const u0 = Math.min(xs[i], uBack(y)), u1 = Math.min(xs[i + 1], uBack(y)); if (u1 - u0 < 1e-6) continue; const q = [bot(u0, y), top(u0, y), top(u1, y), bot(u1, y)]; sgn > 0 ? quad(q[0], q[1], q[2], q[3]) : quad(q[3], q[2], q[1], q[0]); }
     }
     const geo = new THREE.BufferGeometry(); geo.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3)); geo.computeVertexNormals();
     return geo;
   }
   let offsetNow = 0, yawNow = 0;
-  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses) {
+  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee) {
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
-    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane, bosses), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
+    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
     offsetNow = offset || 0; yawNow = (yaw || 0) * Math.PI / 180;
     // the robot and the blade sit `offset` to the FLOWER's +y (three.js -z) and are turned by `yaw` about the vertical

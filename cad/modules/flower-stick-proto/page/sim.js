@@ -17,10 +17,14 @@ window.FlowerSim = (function () {
   const G = 386.1, R = 1.4, K = 2 / 3, DT = 5e-5, REST = 4.0, STAGED = [1.4, 4.3, 7.2, 10.1];
   const BACK = 0.35 + R, STOP = 1.18, FACE_BEHIND_LIP = STOP + 2.5, GECKO_R = 0.94, GECKO_Z = 2.89;
   const PIPE = 1.72, PIPE_R = 0.525, PIPE_Z = 4.25, HOLE_PLAY = 0.14;
+  // the uprights' vee (the back wall for every ball), the ring and its hole, the tiles, and the collar's front bar as the
+  // field CAD's centreline section has it: underside 3.90, top 4.25 where the pipes begin, inner edge at -1.69 (the opening
+  // is 3.6 in across). Above 4.25 only the four pipes hold the stack (post(), in 3-D). COLLAR_Z lets a lower collar be tried.
+  const COLLAR_Z = 3.90, COLLAR_IN = -1.69, COLLAR_T = 0.35;
   const FIXED = [
-    [[BACK, 0], [BACK, 20]], [[-1.54, 0], [BACK, 0]], [[-1.54, 3.90], [-1.54, 20]],
+    [[BACK, 0], [BACK, 20]], [[-1.54, 0], [BACK, 0]],
     [[-1.54, 0], [-1.54, 0.35]], [[-1.54, 0.35], [-2.36, 0.35]], [[-2.36, 0.35], [-2.36, 0]], [[-60, 0], [-2.36, 0]],
-    [[-2.41, 3.90], [-1.54, 3.90]],
+    [[-2.41, COLLAR_Z], [COLLAR_IN, COLLAR_Z]], [[COLLAR_IN, COLLAR_Z], [COLLAR_IN, COLLAR_Z + COLLAR_T]], [[-2.41, COLLAR_Z + COLLAR_T], [COLLAR_IN, COLLAR_Z + COLLAR_T]],
   ];
   // returns the normal impulse (0 if no contact), so the caller can tilt it sideways
   function contact(b, seg, sv, e, mu) {
@@ -94,7 +98,11 @@ window.FlowerSim = (function () {
     const lean = cfg.lean || 0, mouth = cfg.mouth || 7.5;
     // cfg.stagger: the stack zigzagged front to back, balls 2 and 4 this much toward the robot (negative: toward the wall)
     const stagger = cfg.stagger || 0;
-    const balls = STAGED.map((z, k) => ({ x: k % 2 ? -stagger : 0, y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
+    // the stagger pattern: cfg.pattern as [dx2, dx3, dx4] in inches (toward the robot negative), or cfg.stagger for 2 and 4
+    const pat = cfg.pattern || [k => (k % 2 ? -stagger : 0)][0];
+    const balls = STAGED.map((z, k) => ({ x: Array.isArray(pat) ? (k === 0 ? 0 : pat[k - 1]) : pat(k), y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
+    if (cfg.collar) { const cz = cfg.collar; FIXED[6] = [[-2.41, cz], [COLLAR_IN, cz]]; FIXED[7] = [[COLLAR_IN, cz], [COLLAR_IN, cz + COLLAR_T]]; FIXED[8] = [[-2.41, cz + COLLAR_T], [COLLAR_IN, cz + COLLAR_T]]; }
+    else { FIXED[6] = [[-2.41, COLLAR_Z], [COLLAR_IN, COLLAR_Z]]; FIXED[7] = [[COLLAR_IN, COLLAR_Z], [COLLAR_IN, COLLAR_Z + COLLAR_T]]; FIXED[8] = [[-2.41, COLLAR_Z + COLLAR_T], [COLLAR_IN, COLLAR_Z + COLLAR_T]]; }
     let lip = -4.4, t = 0, step = 0, stalled = null;
     const out = [null, null, null, null], fed = [null, null, null, null], missed = [null, null, null, null], offBlade = [null, null, null, null], frames = [];
     const yAtWheels = [null, null, null, null];
@@ -141,8 +149,14 @@ window.FlowerSim = (function () {
           if (jsum > 0 && yaw !== 0) { /* a turned blade carries the ball along its own axis: nothing more to do, the lane's push above already follows it */ }
         }
         // the FLOWER holds the balls sideways: the bottom one in the ring's hole and the uprights' vee, the rest between the pipes
-        const inHole = Math.abs(b.x) < 0.6 && b.z < 0.35 + R + 0.25, inVee = b.x > BACK - R - 0.02 && b.z < PIPE_Z;
-        if (inHole || inVee) { if (b.y > HOLE_PLAY) { b.y = HOLE_PLAY; if (b.vy > 0) b.vy = 0; } if (b.y < -HOLE_PLAY) { b.y = -HOLE_PLAY; if (b.vy < 0) b.vy = 0; } }
+        // the ring's hole (radius 1.54): a ball whose bottom is below the ring's top can only move sideways as far as the
+        // hole's radius minus the ball's cross-section at the ring's height allows (the hole holds a ball at its centre to
+        // +-0.14 in, one 0.61 in off centre not at all); the uprights' vee holds a ball against the back the same +-0.14
+        let play = Infinity;
+        if (b.z - R < 0.35 && Math.abs(b.x) < 1.54) { const dz = 0.35 - b.z, rc = dz < -R || dz > R ? 0 : Math.sqrt(Math.max(0, R * R - dz * dz)); const room = 1.54 - rc; play = room > 0 ? Math.sqrt(Math.max(0, room * room - b.x * b.x)) : 0; play = Math.max(play, 0); }
+        const inVee = b.x > BACK - R - 0.02 && b.z < PIPE_Z;
+        if (inVee) play = Math.min(play, HOLE_PLAY);
+        if (play < Infinity) { if (b.y > play) { b.y = play; if (b.vy > 0) b.vy = 0; } if (b.y < -play) { b.y = -play; if (b.vy < 0) b.vy = 0; } }
         for (const px of [PIPE, -PIPE]) for (const py of [PIPE, -PIPE]) post(b, px, py, PIPE_R, PIPE_Z, e, mu);
         if (cfg.onRobot) { const [, yb] = toBlade(b); if (Math.abs(yb) <= mouth / 2 + 0.6) geckoDrag(b, axleX, axleZ); }
       }
