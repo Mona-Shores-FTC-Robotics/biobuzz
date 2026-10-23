@@ -47,17 +47,17 @@ hex_corner = hex_flat / math.cos(math.pi / 6)  # half across the corners
 _ang = math.radians(a.hex_angle)
 hex_up = max(abs(hex_corner * math.sin(math.radians(60 * k) + _ang)) for k in range(6))        # corners at 0, 60, ... from the x axis: flats top and bottom
 hex_along = max(abs(hex_corner * math.cos(math.radians(60 * k) + _ang)) for k in range(6))
-shaft_x = a.shaft_x if a.shaft_x is not None else xp + hex_along + a.vee      # the bore's front corner under the centre's peak
+shaft_x = a.shaft_x if a.shaft_x is not None else xp + hex_along      # the bore's front corner under the sides' peak (the middle's is further in)
 lane_start = a.lane_start if a.lane_start is not None else xp + 0.05
 Rg = a.lane_r if a.lane_r > 0 else (hw * hw + a.rise * a.rise) / (2 * a.rise) if a.rise > 0 else 0
 
 VEE_SLOPE = 0.43 / 0.81                       # the lobes' faces: 0.43 in deeper over 0.81 in inward
 vee_inner = a.vee_outer - a.vee / VEE_SLOPE if a.vee > 0 else a.vee_outer     # the flat tip's half-width
-def x_lip(y):
+def x_lip(y):                                  # where the lip is, in x behind the sides' lip: the middle reaches a.vee further in (negative)
     ay = abs(y)
     if a.vee <= 0 or ay >= a.vee_outer: return 0.0
-    if ay <= vee_inner: return a.vee
-    return (a.vee_outer - ay) * VEE_SLOPE
+    if ay <= vee_inner: return -a.vee
+    return -(a.vee_outer - ay) * VEE_SLOPE
 def profile(x):
     if x <= 0: return a.edge
     if x <= xp: return a.edge + x * tn
@@ -76,9 +76,9 @@ def top(x, y):
     return max(z, a.bottom + 0.002)               # never zero thickness: the knife edge is 0.05 mm, and the slivers past the local tail end are cut away
 
 # the solid from the height field: a grid over the plan, top and bottom sheets, four walls
-X_END = xe + a.vee
-xs = sorted(set(np.round(np.linspace(0, X_END, 110), 4)) | {round(xp, 4), round(xp + a.vee, 4), round(lane_start, 4), round(shaft_x - a.boss_len / 2, 4), round(shaft_x + a.boss_len / 2, 4)})
-xs = [x for x in xs if 0 <= x <= X_END]
+X_0, X_END = -a.vee, xe
+xs = sorted(set(np.round(np.linspace(X_0, X_END, 110), 4)) | {round(xp, 4), round(xp - a.vee, 4), round(lane_start, 4), round(shaft_x - a.boss_len / 2, 4), round(shaft_x + a.boss_len / 2, 4), 0.0})
+xs = [x for x in xs if X_0 <= x <= X_END]
 ys = sorted(set(np.round(np.linspace(-hw, hw, 73), 4)) | {-a.boss_in, a.boss_in, -a.boss_in - 1e-3, a.boss_in + 1e-3, -vee_inner, vee_inner, -a.vee_outer, a.vee_outer})
 ys = [y for y in ys if -hw <= y <= hw]
 nx, ny = len(xs), len(ys)
@@ -111,8 +111,9 @@ if a.vee > 0:
     from trimesh.creation import extrude_polygon
     from shapely.geometry import Polygon
     for sgn in (1, -1):
-        front = Polygon([(-1, sgn * vee_inner), (a.vee, sgn * vee_inner), (0, sgn * a.vee_outer), (-1, sgn * a.vee_outer)])
-        back = Polygon([(xe, 0), (X_END + 1, 0), (X_END + 1, sgn * (hw + 1)), (xe, sgn * (hw + 1))])   # a straight back edge: the V is only at the nose
+        # in front of the local lip: nothing. The middle's lip is at -vee; the slants run to the sides' lip at 0
+        front = Polygon([(X_0 - 1, sgn * vee_inner), (-a.vee, sgn * vee_inner), (0, sgn * a.vee_outer), (0, sgn * (hw + 1)), (X_0 - 1, sgn * (hw + 1))])
+        back = Polygon([(xe, 0), (xe + 1, 0), (xe + 1, sgn * (hw + 1)), (xe, sgn * (hw + 1))])   # a straight back edge: the V is only at the nose
         for poly in (front, back):
             cutter = extrude_polygon(Polygon([(x * IN, y * IN) for x, y in poly.exterior.coords]), 3 * IN); cutter.apply_translation([0, 0, -1 * IN])
             body = body.difference(cutter)
@@ -149,7 +150,7 @@ print(f"  profile: edge {a.edge:.2f}, {a.nose:.0f} deg nose to the peak {a.peak:
 if a.vee > 0: print(f"  V nose: the middle {2 * vee_inner:.2f} in of the lip is {a.vee:.2f} in deeper than the sides, the slants from |y| {vee_inner:.2f} to {a.vee_outer:.2f} lie on the uprights' lobes")
 print(f"  push to lift the stack: {FW(a.nose, 0.4):.1f}x its weight on the face, {FW(edge_ang, 0.4):.1f}x at first contact (rolling, uprights mu 0.4)")
 if a.rise > 0: print(f"  lane: {a.rise:.2f} in up at the edges, radius {Rg:.1f}; begins {lane_start:.2f} behind the lip at the centre, {lane_start + a.oval:.2f} at the edges (oval front), full depth after {a.lead:.1f} in")
-print(f"  shaft: {a.hex} mm hex (flats) turned {a.hex_angle:.0f} deg, at {shaft_x:.2f} behind the sides' lip, {a.shaft_z:.2f} high; {under:.1f} mm under it; centre skin over it {skin_centre * IN:.1f} mm" + (" -> opened, the top flat is flush with the surface" if opened else "") + (f"; end bosses {a.boss_in:.2f}..{hw:.2f} from the centre, {over_boss:.1f} mm over the bore" if a.boss_h > 0 else "; no bosses"))
+print(f"  shaft: {a.hex} mm hex (flats) turned {a.hex_angle:.0f} deg, at {shaft_x:.2f} behind the sides' lip ({shaft_x + a.vee:.2f} behind the middle's), {a.shaft_z:.2f} high; {under:.1f} mm under it; centre skin over it {skin_centre * IN:.1f} mm" + (" -> opened, the top flat is flush with the surface" if opened else "") + (f"; end bosses {a.boss_in:.2f}..{hw:.2f} from the centre, {over_boss:.1f} mm over the bore" if a.boss_h > 0 else "; no bosses"))
 
 import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection

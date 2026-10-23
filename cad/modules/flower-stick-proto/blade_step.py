@@ -30,13 +30,13 @@ def blade(name, edge, nose, peak, tail, rise, lane_start, oval, lead, width=5.4,
     hex_corner = hex_af / IN / 2 / math.cos(math.pi / 6)
     ang = math.radians(hex_angle)
     hex_along = max(abs(hex_corner * math.cos(math.radians(30 + 60 * k) + ang)) for k in range(6))
-    if shaft_x is None: shaft_x = xp + hex_along + vee
+    if shaft_x is None: shaft_x = xp + hex_along
     VEE_SLOPE = 0.43 / 0.81; vee_inner = vee_outer - vee / VEE_SLOPE if vee > 0 else vee_outer
-    def x_lip(y):
+    def x_lip(y):                              # the middle's lip reaches `vee` further into the FLOWER: negative x
         ay = abs(y)
         if vee <= 0 or ay >= vee_outer: return 0.0
-        if ay <= vee_inner: return vee
-        return (vee_outer - ay) * VEE_SLOPE
+        if ay <= vee_inner: return -vee
+        return -(vee_outer - ay) * VEE_SLOPE
     def tail_z(x): return max(bottom, peak - (x - xp) * tt)
     def lane(x, y):
         if rise <= 0: return 0.0
@@ -54,7 +54,7 @@ def blade(name, edge, nose, peak, tail, rise, lane_start, oval, lead, width=5.4,
         surf = GeomAPI_PointsToBSplineSurface(arr, 3, 8, GeomAbs_C1, 0.02).Surface()
         face = BRepBuilderAPI_MakeFace(surf, 1e-4).Face()
         sol = cq.Shape.cast(BRepPrimAPI_MakePrism(face, gp_Vec(0, 0, -(peak + 1) * IN)).Shape())
-        clip = (cq.Workplane("XY").box((u1 - u0 + vee) * IN + 10, width * IN + 10, (peak + 2) * IN, centered=(False, True, False)).translate((u0 * IN - 5, 0, bottom * IN)))
+        clip = (cq.Workplane("XY").box((u1 - u0 + vee) * IN + 10, width * IN + 10, (peak + 2) * IN, centered=(False, True, False)).translate(((u0 - vee) * IN - 5, 0, bottom * IN)))
         return cq.Workplane("XY").add(sol).intersect(clip)
     if vee > 0:
         nose_prism = patch(0, xp, 41, 81, lambda u, y: edge + u * tn)
