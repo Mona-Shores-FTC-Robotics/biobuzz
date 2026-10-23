@@ -1,6 +1,35 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**Newest: `stl/print_job_dean_v8.stl`** (24 Oct), 175 x 157 x 18 mm, three parts, flat side down. Fits a
+**Newest: `stl/print_job_dean_hedge.stl`** (24 Oct), 166 x 157 x 18 mm, three parts, flat side down. Fits a
+220 x 220 bed. Millimetres. PETG. About 175 cm3 of plastic.
+
+![the plate from above](print_job_dean_hedge.png)
+
+Two different blades, each testing one idea about why the ball stops on the peak, plus the fit coupon:
+- **v8 with Carter's lane** (left, 137 x 83 x 15 mm): the V front. The middle of the front edge reaches 0.3 in
+  deeper between the FLOWER's posts, so the peak gets further under the ball. Same height as before.
+- **v9 with Carter's lane** (right, 137 x 74 x 12 mm): a lower blade. The peak is 1.0 in instead of 1.1, so the
+  ball's top is 0.1 in lower when it goes over, in case the collar above is what holds it. Straight front edge.
+- **a hex-fit coupon** (bottom): skip it if the first one was printed.
+
+Both have the **7.15 mm hex, flats top and bottom**, snug on the REX shaft (7.0 mm across the flats). Tap the shaft
+in; file the flats a little if it will not go. v9's hole is 0.03 in lower than v8's (0.74 in above the bottom
+instead of 0.77) because the blade is thinner; on the stick that drops the blade 0.03 in, which is fine.
+
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
+optional. Millimetres: if it comes in tiny, scale by 25.4.
+
+If the bed is under 200 mm: `stl/v8_lane.stl`, `stl/v9_lane.stl`, `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl` one at
+a time. STEP for review: `step/v8_lane.step`.
+
+Thank you!
+
+---
+
+
+**`stl/print_job_dean_v8.stl`** (24 Oct, 175 x 157 x 18 mm): v8 lane, v8 plain, the coupon. Superseded by the hedge plate above, which pairs v8 with v9.
+
+(Details kept for reference.) 175 x 157 x 18 mm, three parts, flat side down. Fits a
 220 x 220 bed. Millimetres. PETG. About 180 cm3 of plastic.
 
 ![the plate from above](print_job_dean_v8.png)

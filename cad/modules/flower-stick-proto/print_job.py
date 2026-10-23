@@ -12,7 +12,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 GAP = 8.0
 import sys
 JOB = sys.argv[1] if len(sys.argv) > 1 else "v8"
-PARTS = {"v8": [("v8_lane", "v8: V nose, Carter's lane"), ("v8", "v8 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
+PARTS = {"hedge": [("v8_lane", "v8: V nose, peak 1.10"), ("v9_lane", "v9: straight lip, peak 1.00"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
+         "v8": [("v8_lane", "v8: V nose, Carter's lane"), ("v8", "v8 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v7": [("v7_lane", "v7 with Carter's lane"), ("v7", "v7 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")]}[JOB]

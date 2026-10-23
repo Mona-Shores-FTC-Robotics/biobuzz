@@ -454,6 +454,15 @@ sled; if the wheels hit the wall or the base plate first, that is the thing to f
 `step/v8.step` (the surface is measured from the local lip, so both patches keep a rectangular domain; the fit is
 within 4 % by volume because of the V's kinks).
 
+**v9 and the hedge plate (24 Oct).** With the sled fully seated on the posts, the ball still sits on the peak, which
+means it is not resting against the posts (that would put it 1.1 in past the peak) but is held an inch further
+forward, where only the collar's front bar is. So the V nose (depth) and a lower peak (headroom) test two different
+hypotheses, and the plate for Dean carries one of each: `v8_lane` (V nose, peak 1.10) and `v9_lane` (straight lip,
+peak 1.00, 10° tail, shaft at 0.74 so 1.5 mm of plastic stays over the bore; a V on a 1.00 peak leaves under 1 mm
+at the outer edges, so v9 has no V). Both feed all 16 model cases. `stl/print_job_dean_hedge.stl`. The collar's
+height above the tile, 3.90 in the drawing, is still the number that decides the design; a to-spec collar gives
+v8 zero headroom and v9 0.1 in.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
