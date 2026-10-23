@@ -112,7 +112,7 @@ if a.vee > 0:
     from shapely.geometry import Polygon
     for sgn in (1, -1):
         front = Polygon([(-1, sgn * vee_inner), (a.vee, sgn * vee_inner), (0, sgn * a.vee_outer), (-1, sgn * a.vee_outer)])
-        back = Polygon([(X_END + 1, sgn * vee_inner), (xe + a.vee, sgn * vee_inner), (xe, sgn * a.vee_outer), (xe, sgn * (hw + 1)), (X_END + 1, sgn * (hw + 1))])
+        back = Polygon([(xe, 0), (X_END + 1, 0), (X_END + 1, sgn * (hw + 1)), (xe, sgn * (hw + 1))])   # a straight back edge: the V is only at the nose
         for poly in (front, back):
             cutter = extrude_polygon(Polygon([(x * IN, y * IN) for x, y in poly.exterior.coords]), 3 * IN); cutter.apply_translation([0, 0, -1 * IN])
             body = body.difference(cutter)
