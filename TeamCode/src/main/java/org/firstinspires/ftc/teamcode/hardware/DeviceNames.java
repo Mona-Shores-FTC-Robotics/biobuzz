@@ -65,7 +65,7 @@ public final class DeviceNames {
 
     /**
      * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
-     * its current). Expansion Hub motor port 3, the one port the launcher flywheels leave free.
+     * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
      */
     public static final String INTAKE = "intake";
 
