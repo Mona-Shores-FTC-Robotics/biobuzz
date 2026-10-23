@@ -21,11 +21,13 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
 | `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
-| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. |
+| `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
+| `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
+| `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
 | `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
 
@@ -154,7 +156,7 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 
 ## Hard constraints
 
-- **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.1 + AutoTune, the
+- **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.2 + AutoTune, the
   `0.3.2+…` Sloth build of Panels, Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump
   one alone; close Dependabot PRs that raise `appcompat`.
   → README § "Why the versions are locked together"
@@ -190,14 +192,17 @@ Remote containers have no `gh`; use the GitHub MCP tools.
 
 `.github/CONTRIBUTING.md` is the full version. What a session must not miss:
 
-- An issue exists before a branch; every PR says `Closes #N`. Never commit to `master`.
-- Branch names are `<prefix>/<issue>-<slug>`, prefixes `feat/ fix/ tune/ chore/ docs/ spike/`.
-  A `claude/*` branch is renamed with `git branch -m` before its first push (a hook blocks the
-  push until then). One already on GitHub is renamed with GitHub's button, never by
-  delete-and-repush.
-- Labels: exactly one `team:*`, `needs:robot` if it does, and one of `good-first-task` /
-  `student-ready` / `mentor-only`. No priority labels — board order is priority.
-- **Mentor/student split.** Substrate (versions, CI, hardware abstraction, rigs, tuning harnesses)
-  is mentor-only; robot behaviour belongs to students. Asked to implement something assigned to a
-  student, decline and improve the issue instead.
+- **`master` changes only through a PR with CI green.** Never commit to `master`.
+- **Student work** goes through the board: an issue first, the PR says `Closes #N`, the branch is
+  `<prefix>/<issue>-<slug>` (`feat/ fix/ tune/ chore/ docs/ spike/`), and the issue carries one
+  `team:*`, `needs:robot` if it does, and one of `good-first-task` / `student-ready` /
+  `mentor-only`. No priority labels: board order is priority.
+- **Mentor work** (a mentor, or a session a mentor started) needs none of that: any branch name,
+  including the session's own `claude/*` one; an issue only when it helps; labels optional. The PR
+  description says what changed and why, and CI must be green.
+- **Students' issues stay theirs to build.** A session asked by a mentor to implement a student's
+  issue says so once, then does what the mentor decides. Asked by a student, it coaches
+  (`first-pr-coach`) rather than writes it for them.
+- Rename a branch that is already on GitHub with GitHub's button, never by delete-and-repush: that
+  strands its open PR.
 - A red CI is investigated, not re-run.

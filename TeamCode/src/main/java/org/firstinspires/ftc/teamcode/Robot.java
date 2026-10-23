@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.HiveSubsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
@@ -35,8 +37,9 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no intake, launcher or turret here, because none is designed yet. A subsystem for
- * hardware nobody has designed would be a guess wearing a class name.
+ * <p>There is no launcher or turret here, because neither is built yet. A subsystem for hardware
+ * nobody has built would be a guess wearing a class name. The FLOWER stick and the intake roller
+ * are the first mechanisms, and the examples of how small a subsystem can be.
  */
 public class Robot {
 
@@ -55,6 +58,12 @@ public class Robot {
     /** Game pieces by colour, from the webcam. Optional; off unless enabled while intaking. */
     public final PieceVisionSubsystem pieces;
 
+    /** The FLOWER stick: one servo on a stick, the extractor's first edition (#177). */
+    public final FlowerStickSubsystem flowerStick;
+
+    /** The intake roller: one motor, in, out or idle (#160). Piece counting is #181. */
+    public final IntakeSubsystem intake;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -69,8 +78,11 @@ public class Robot {
         // After the drive, so it compares this loop's camera with this loop's pose.
         hive = new HiveSubsystem(vision, drive);
         pieces = new PieceVisionSubsystem(hardwareMap);
+        flowerStick = new FlowerStickSubsystem(hardwareMap);
+        intake = new IntakeSubsystem(hardwareMap);
 
-        subsystems = Collections.unmodifiableList(Arrays.<Subsystem>asList(vision, drive, hive, pieces));
+        subsystems = Collections.unmodifiableList(
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake));
     }
 
     /** Every subsystem, in the order they were built. */

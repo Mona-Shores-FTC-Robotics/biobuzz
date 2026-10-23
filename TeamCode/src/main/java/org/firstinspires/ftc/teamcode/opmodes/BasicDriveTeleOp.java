@@ -50,6 +50,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** Below this, a stick is treated as centred. Guards against drift on a worn gamepad. */
     private static final double STICK_DEADBAND = 0.05;
 
+    /** A trigger pulled past this counts as pressed. Well clear of a resting trigger's drift. */
+    private static final double TRIGGER_PRESSED = 0.5;
+
     @Override
     protected void onInit() {
         driver.note("Left stick", "Drive");
@@ -60,6 +63,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
+        driver.when("A", "Extend FLOWER stick", () -> gamepad1.a)
+                .onPress(robot.flowerStick::extend);
+        driver.when("X", "Retract FLOWER stick", () -> gamepad1.x)
+                .onPress(robot.flowerStick::retract);
+        driver.when("Right trigger (hold)", "Intake", () -> gamepad1.right_trigger > TRIGGER_PRESSED)
+                .onPress(robot.intake::intake)
+                .onRelease(robot.intake::idle);
+        driver.when("Left trigger (hold)", "Eject", () -> gamepad1.left_trigger > TRIGGER_PRESSED)
+                .onPress(robot.intake::eject)
+                .onRelease(robot.intake::idle);
     }
 
     @Override
@@ -85,6 +98,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robot.drive.isFieldCentric() ? "field-centric" : "robot-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
+        display.status("FLOWER stick", Display.Level.OK, robot.flowerStick.extended() ? "out" : "in");
+        robot.intake.describe(display);
         showPinpoint();
         display.line(loopTimer.summary());
     }
