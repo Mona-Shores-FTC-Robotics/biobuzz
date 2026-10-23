@@ -36,6 +36,14 @@ public class IntakeSubsystemTest {
     }
 
     @Test
+    public void rpmNeedsTicksPerRev() {
+        assertEquals(60.0, IntakeSubsystem.rpm(537.7, 537.7), EPS);
+        assertEquals(Double.NaN, IntakeSubsystem.rpm(537.7, Double.NaN), EPS);
+        assertEquals(Double.NaN, IntakeSubsystem.rpm(537.7, 0.0), EPS);
+        assertEquals(Double.NaN, IntakeSubsystem.rpm(537.7, -1.0), EPS);
+    }
+
+    @Test
     public void nanStopsTheRoller() {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6, false), EPS);
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN, false), EPS);

@@ -5,7 +5,10 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
+
+import java.util.Locale;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
 /**
@@ -17,7 +20,10 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * what belongs in the OpMode's bindings, not here.
  *
  * <p>What this does not do yet: count pieces, stop at four, or feed the Auto's {@code IntakeFull}
- * trigger. That is #181, and it layers on top of this class.
+ * trigger. That is #181, and it layers on top of this class. What it does do for #181 is read the
+ * roller's speed and current once per loop ({@link #ticksPerSecond()}, {@link #currentAmps()}),
+ * which {@code RobotOpMode} logs and the Match page shows: slipping is high speed at low current,
+ * stalling is low speed at high current.
  *
  * <p>The powers and the direction are {@code @Configurable}. Nobody can tell from a desk which way
  * the roller is wired: if it spits pieces out on "intake", flip {@link #reversed} in Panels and
@@ -41,8 +47,18 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static boolean reversed = false;
 
+    /**
+     * Encoder ticks per revolution of the roller motor's output shaft, for {@link #rpm()}. <b>NaN
+     * until read off the motor's label:</b> a goBILDA 5203 counts 28 per motor revolution, so
+     * 1150 RPM = 145.1, 435 RPM = 384.5, 312 RPM = 537.7, 223 RPM = 751.8, 117 RPM = 1425.1. Speed
+     * is shown in ticks/s regardless; RPM only once this is set.
+     */
+    public static double ticksPerRev = Double.NaN;
+
     private final DcMotorEx motor;
     private State state = State.IDLE;
+    private double ticksPerSecond = 0.0;
+    private double currentAmps = Double.NaN;
 
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public IntakeSubsystem(HardwareMap hardwareMap) {
@@ -64,9 +80,27 @@ public class IntakeSubsystem implements Subsystem {
         state = State.IDLE;
     }
 
-    /** What the roller has been asked to do. There is no sensor, so this is the request. */
+    /** What the roller has been asked to do. The request, not a measurement. */
     public State state() {
         return state;
+    }
+
+    /** Roller motor speed from the last {@link #update()}, encoder ticks per second. 0 without an encoder. */
+    public double ticksPerSecond() {
+        return ticksPerSecond;
+    }
+
+    /** {@link #ticksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
+    public double rpm() {
+        return rpm(ticksPerSecond, ticksPerRev);
+    }
+
+    /**
+     * Roller motor current from the last {@link #update()}, amps. NaN while idle: the hub reads
+     * current outside the bulk read, so it is only asked for while the roller is doing something.
+     */
+    public double currentAmps() {
+        return currentAmps;
     }
 
     /** Start idle, in plain power mode. */
@@ -78,10 +112,15 @@ public class IntakeSubsystem implements Subsystem {
         motor.setPower(0.0);
     }
 
-    /** One write per loop: the power the request asks for, clamped so Panels cannot overdrive it. */
+    /**
+     * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
+     * then one read of speed (from the bulk read) and, while running, one of current.
+     */
     @Override
     public void update() {
         motor.setPower(powerFor(state, inPower, outPower, reversed));
+        ticksPerSecond = motor.getVelocity();
+        currentAmps = state == State.IDLE ? Double.NaN : motor.getCurrent(CurrentUnit.AMPS);
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
@@ -95,6 +134,17 @@ public class IntakeSubsystem implements Subsystem {
     public void describe(Display display) {
         display.status("Intake", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.IN ? "IN" : state == State.OUT ? "OUT" : "idle");
+        double rpm = rpm();
+        display.line(String.format(Locale.US, "Roller %.0f ticks/s%s · %s",
+                ticksPerSecond,
+                Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
+                Double.isNaN(currentAmps) ? "current not read while idle"
+                        : String.format(Locale.US, "%.2f A", currentAmps)));
+    }
+
+    /** Ticks per second to RPM, or NaN when ticks per revolution is unset (NaN or not positive). */
+    static double rpm(double ticksPerSecond, double ticksPerRev) {
+        return ticksPerRev > 0.0 ? ticksPerSecond / ticksPerRev * 60.0 : Double.NaN;
     }
 
     /**
