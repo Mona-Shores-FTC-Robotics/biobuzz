@@ -1,6 +1,30 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**Newest: `stl/print_job_dean_hedge.stl`** (24 Oct), 166 x 157 x 18 mm, three parts, flat side down. Fits a
+**Newest: `stl/print_job_dean_three.stl`** (24 Oct), 168 x 219 x 15 mm, three blades, flat side down. Needs a bed of
+at least 220 x 220. Millimetres. PETG. About 240 cm3 of plastic. If the bed is smaller, print `stl/v7_lane.stl`,
+`stl/v8_lane.stl` and `stl/v9_lane.stl` one at a time (each 137 x 74 to 83 x 12 to 15 mm).
+
+![the plate from above](print_job_dean_three.png)
+
+Three blades, each one change from the one that works, all with Carter's lane:
+- **v7** (top left): the shape that emptied the FLOWER on 19 Oct, now with a snug shaft hole. The baseline.
+- **v8** (top right): v7 with a V front. The middle of the front edge juts 0.3 in further between the FLOWER's posts.
+- **v9** (bottom, turned sideways): v7 with a lower peak, 1.0 in instead of 1.1, so the ball rides 0.1 in lower.
+
+All three have the **7.15 mm hex, flats top and bottom**, which fit the REX shaft perfectly on the last print. v9's
+hole is 0.03 in lower in the blade than the others' because the blade is thinner. No coupon needed any more.
+
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
+optional. Millimetres: if it comes in tiny, scale by 25.4.
+
+Thank you!
+
+---
+
+
+**`stl/print_job_dean_hedge.stl`** (24 Oct, 166 x 157 x 18 mm): v8 and v9 only, with the coupon. Superseded by the three-blade plate above.
+
+(Details kept for reference.) 166 x 157 x 18 mm, three parts, flat side down. Fits a
 220 x 220 bed. Millimetres. PETG. About 175 cm3 of plastic.
 
 ![the plate from above](print_job_dean_hedge.png)

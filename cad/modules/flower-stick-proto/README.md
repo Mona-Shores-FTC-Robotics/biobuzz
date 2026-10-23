@@ -463,6 +463,11 @@ at the outer edges, so v9 has no V). Both feed all 16 model cases. `stl/print_jo
 height above the tile, 3.90 in the drawing, is still the number that decides the design; a to-spec collar gives
 v8 zero headroom and v9 0.1 in.
 
+**The three-blade plate (24 Oct)** is the print for the next test: `print_job.py three` → `stl/print_job_dean_three.stl`
+(168 × 219 mm): v7 lane (the baseline with the snug hole), v8 lane (the V), v9 lane (the lower peak), each one change
+from v7. The 7.15 mm bore fit the REX perfectly on the first print with it, so the fit is settled and the coupon retired. (The V was first built inverted, the middle recessed instead of protruding; caught from the page's viewer
+and fixed the same day.)
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
