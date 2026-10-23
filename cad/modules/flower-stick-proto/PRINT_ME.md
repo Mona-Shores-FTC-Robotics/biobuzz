@@ -1,12 +1,12 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**Newest: `stl/print_job_dean_hedge.stl`** (24 Oct), 159 x 157 x 18 mm, three parts, flat side down. Fits a
+**Newest: `stl/print_job_dean_hedge.stl`** (24 Oct), 166 x 157 x 18 mm, three parts, flat side down. Fits a
 220 x 220 bed. Millimetres. PETG. About 175 cm3 of plastic.
 
 ![the plate from above](print_job_dean_hedge.png)
 
 Two different blades, each testing one idea about why the ball stops on the peak, plus the fit coupon:
-- **v8 with Carter's lane** (left, 137 x 77 x 15 mm): the V front. The middle of the front edge reaches 0.3 in
+- **v8 with Carter's lane** (left, 137 x 83 x 15 mm): the V front. The middle of the front edge reaches 0.3 in
   deeper between the FLOWER's posts, so the peak gets further under the ball. Same height as before.
 - **v9 with Carter's lane** (right, 137 x 74 x 12 mm): a lower blade. The peak is 1.0 in instead of 1.1, so the
   ball's top is 0.1 in lower when it goes over, in case the collar above is what holds it. Straight front edge.
@@ -35,7 +35,7 @@ Thank you!
 ![the plate from above](print_job_dean_v8.png)
 
 What is on it:
-- **v8 with Carter's lane** (left, 137 x 77 x 15 mm): v7 with a V-shaped front. The middle of the front edge reaches
+- **v8 with Carter's lane** (left, 137 x 83 x 15 mm): v7 with a V-shaped front. The middle of the front edge reaches
   0.3 in deeper than the sides, and the slanted parts sit on the FLOWER's two posts, so the blade centres itself and
   gets further under the ball. Everything else is v7.
 - **v8 plain** (right, same size): the control, no lane.
