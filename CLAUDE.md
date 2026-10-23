@@ -29,7 +29,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
-| `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
+| `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
 
 **Adding a mechanism:** copy `subsystems/ExampleSubsystem`, add a `public final` field on `Robot`,
 build it in the constructor, add it to the list. If `Subsystem` doesn't fit your mechanism, change
@@ -153,8 +153,8 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
   top of every loop; read each sensor once and pass the value around.
 - **Nothing is looked up or allocated per loop** that could be done once in init: hardware
   lookups, lists, formatters, commands.
-- **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
-  `shooter/FlywheelBank`).
+- **Don't wrap motors in CachingHardware.** A stale cache drops the repeat `setPower` that would
+  recover a motor a hub has zeroed behind its back.
 - **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
 - **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
   OpMode before and after adding a subsystem and put both numbers in the PR.
