@@ -1,10 +1,10 @@
-# Print job: FLOWER stick blades (for Dean)
+# Print job: FLOWER stick blades (for whoever prints)
 
-**Newest: `stl/print_job_dean_three.stl`** (24 Oct), 168 x 219 x 15 mm, three blades, flat side down. Needs a bed of
+**Newest: `stl/print_job_three.stl`** (24 Oct), 168 x 219 x 15 mm, three blades, flat side down. Needs a bed of
 at least 220 x 220. Millimetres. PETG. About 240 cm3 of plastic. If the bed is smaller, print `stl/v7_lane.stl`,
 `stl/v8_lane.stl` and `stl/v9_lane.stl` one at a time (each 137 x 74 to 83 x 12 to 15 mm).
 
-![the plate from above](print_job_dean_three.png)
+![the plate from above](print_job_three.png)
 
 Three blades, each one change from the one that works, all with Carter's lane:
 - **v7** (top left): the shape that emptied the FLOWER on 19 Oct, now with a snug shaft hole. The baseline.

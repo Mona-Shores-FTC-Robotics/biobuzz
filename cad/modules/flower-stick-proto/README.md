@@ -463,7 +463,7 @@ at the outer edges, so v9 has no V). Both feed all 16 model cases. `stl/print_jo
 height above the tile, 3.90 in the drawing, is still the number that decides the design; a to-spec collar gives
 v8 zero headroom and v9 0.1 in.
 
-**The three-blade plate (24 Oct)** is the print for the next test: `print_job.py three` → `stl/print_job_dean_three.stl`
+**The three-blade plate (24 Oct)** is the print for the next test: `print_job.py three` → `stl/print_job_three.stl`
 (168 × 219 mm): v7 lane (the baseline with the snug hole), v8 lane (the V), v9 lane (the lower peak), each one change
 from v7. The 7.15 mm bore fit the REX perfectly on the first print with it, so the fit is settled and the coupon retired. (The V was first built inverted, the middle recessed instead of protruding; caught from the page's viewer
 and fixed the same day.)
@@ -491,7 +491,7 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `blade_step.py`: the same blades as STEP solids for review in Onshape (`step/`: v6_lane, v5_lane, the coupon); the tail with the lane is a B-spline surface through the height field, within 0.02 mm of the printed mesh.
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
-- `print_job.py v5|v6`: Dean's plate, `stl/print_job_dean_<job>.stl` (the two blades and the coupon) and its top view.
+- `print_job.py three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
