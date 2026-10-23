@@ -1,6 +1,6 @@
 """Dean's print job: one plate with the parts to test next, laid out to fit a 220 x 220 mm bed, plus a top-view picture.
 
-    python3 cad/modules/flower-stick-proto/print_job.py v7  # writes stl/print_job_dean_v7.stl and print_job_dean_v7.png
+    python3 cad/modules/flower-stick-proto/print_job.py v8  # writes stl/print_job_dean_v8.stl and print_job_dean_v8.png
 
 The two blades sit side by side (flat side down, their 90 mm depth along x), the hex-fit coupon under them. Everything
 is in millimetres.
@@ -11,8 +11,9 @@ import trimesh
 HERE = os.path.dirname(os.path.abspath(__file__))
 GAP = 8.0
 import sys
-JOB = sys.argv[1] if len(sys.argv) > 1 else "v7"
-PARTS = {"v7": [("v7_lane", "v7 with Carter's lane"), ("v7", "v7 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
+JOB = sys.argv[1] if len(sys.argv) > 1 else "v8"
+PARTS = {"v8": [("v8_lane", "v8: V nose, Carter's lane"), ("v8", "v8 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
+         "v7": [("v7_lane", "v7 with Carter's lane"), ("v7", "v7 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")]}[JOB]
 ms, labels = [], []

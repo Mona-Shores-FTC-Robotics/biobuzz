@@ -1,21 +1,22 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**Newest: `stl/print_job_dean_v7.stl`** (23 Oct), 162 x 157 x 18 mm, three parts, flat side down. Fits a 220 x 220
-bed. Millimetres. PETG. About 180 cm3 of plastic.
+**Newest: `stl/print_job_dean_v8.stl`** (24 Oct), 175 x 157 x 18 mm, three parts, flat side down. Fits a
+220 x 220 bed. Millimetres. PETG. About 180 cm3 of plastic.
 
-![the plate from above](print_job_dean_v7.png)
+![the plate from above](print_job_dean_v8.png)
 
-What is on it: v7, which is the blade that worked on 19 Oct with the shaft hole fixed, plus the fit coupon.
-- **v7 with Carter's lane** (left, 137 x 77 x 15 mm): 60 degree front, the ramp curving gently down toward its middle.
-- **v7 plain** (right, same size): the control, no lane.
+What is on it:
+- **v8 with Carter's lane** (left, 137 x 83 x 15 mm): v7 with a V-shaped front. The middle of the front edge reaches
+  0.3 in deeper than the sides, and the slanted parts sit on the FLOWER's two posts, so the blade centres itself and
+  gets further under the ball. Everything else is v7.
+- **v8 plain** (right, same size): the control, no lane.
 - **a hex-fit coupon** (bottom, 108 x 12 x 18 mm): five hex holes at 7.0, 7.1, 7.2, 7.3 and 7.4 mm across the flats,
-  marked with one to five notches.
+  marked with one to five notches. Skip it if the first one was printed.
 
-**The hex holes.** The shaft is goBILDA "8 mm REX": a round 8 mm shaft with six flats **7.0 mm across the flats**. The
-19 Oct blades had 8 mm hex holes, bigger than the shaft's round part, so they spun on it. These are cut at **7.15 mm
-across the flats, flats top and bottom**, about 2.2 mm of plastic over and under the hole: a snug hex. Tap the shaft
-in; if it will not go, a few strokes of a flat file on the flats. Tell us which coupon hole is the snug one and the
-next blades get that size.
+**The hex holes.** The shaft is goBILDA "8 mm REX": a round 8 mm shaft with six flats **7.0 mm across the flats**.
+These are cut at **7.15 mm across the flats, flats top and bottom**: a snug hex. Tap the shaft in; if it will not go,
+a few strokes of a flat file on the flats. Tell us which coupon hole is the snug one and the next blades get that
+size.
 
 **Settings:**
 - **Material:** PETG, or nylon. Not PLA: it cracks when the robot drives the blade into the field element.
@@ -23,12 +24,15 @@ next blades get that size.
 - **Supports:** none. The hex holes bridge fine at this size. **Brim:** optional, if the bed's adhesion is iffy.
 - If the parts come in tiny (or 25 times too big), the slicer read them as inches: scale by 25.4 (or 1/25.4).
 
-If the bed is under 200 mm: `stl/v7_lane.stl`, `stl/v7.stl` and `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl` one at a
-time. STEP solids for review: `step/v7_lane.step`, `step/hex_fit_coupon.step`.
+If the bed is under 200 mm: `stl/v8_lane.stl`, `stl/v8.stl` and `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl` one at a
+time. STEP solids for review: `step/v8_lane.step`, `step/v8.step`, `step/hex_fit_coupon.step`.
 
 Thank you!
 
 ---
+
+**`stl/print_job_dean_v7.stl`** (23 Oct, 162 x 157 mm): v7 lane, v7 plain, the coupon. v7 is v8 without the V front.
+Still a good print if v8 is not wanted; the holes are the same.
 
 **v6** (the 50 degree noses, 19 and 20 Oct) is retired: the ball sat on the peak. Its files are gone from the repo.
 

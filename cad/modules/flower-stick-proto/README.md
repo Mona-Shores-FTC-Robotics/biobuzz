@@ -439,6 +439,21 @@ the corners): the tail thins to a knife edge over the ring and the nose is a wed
 shaft; the tail cantilevers behind it. A shaft further back needs the tail thicker there, which the ball's path
 (above) and the ring (below) do not allow, or a different mount (bolted at the ends, where the blade can be thick).
 
+**v8: the V nose (24 Oct).** On the stick, the v7 blades stop short: the ball is left balanced on the peak, pinned
+against the post, and the lifted ball's top meets the collar's front bar (the design had zero headroom there: peak
+1.10 + 2.8 = 3.90, the CAD's collar height). Dustin's suggestion, notches or a V so the blade drives further in. v8 is
+v7 with a V-shaped lip that matches the uprights' lobes: the middle 1.7 in of the lip is 0.3 in deeper than the
+sides, the slants from |y| 0.85 to 1.42 lie on the lobes' faces (which run from the points at |y| 1.42 to the inner
+corners at |y| 0.61, 0.43 in deeper), and the outer lip still stops on the points. It seats on both lobes at once, so
+it centres itself, and the centre's peak sits 0.84 in past the pinned POLLEN instead of 0.54. The whole mountain
+follows the lip (`blade6.py --vee 0.3`: every section is the v7 profile measured from its own lip), so the peak
+height, the push and the shaft are unchanged; the bore sits 0.75 behind the sides' lip with 1.4 mm of plastic over
+it at the outer edges and 2.8 under. In the model (`page/v8_check.js`, the centre 0.3 deeper) it feeds all 16 cases
+including a stop half an inch short, where v7 fails two. The V helps only if the lip on the posts is what stops the
+sled; if the wheels hit the wall or the base plate first, that is the thing to fix. STEP: `step/v8_lane.step`,
+`step/v8.step` (the surface is measured from the local lip, so both patches keep a rectangular domain; the fit is
+within 4 % by volume because of the V's kinks).
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.
