@@ -428,6 +428,17 @@ the margin pull against each other through the nose angle, and the field says th
 come from the edge height, the face finish (a ball that slides on the face instead of rolling stalls at 60°), or a
 lower peak, not from a shallower nose.
 
+**v7 (23 Oct)** is one name for the blade that works: the v5 shape (60° nose from a 0.60 edge, 1.10 peak at 0.29
+behind the lip, 12° tail), Carter's lane (full-width curve from 0.9 behind the lip), and the bore cut for the REX
+(7.15 across the flats, flats top and bottom). `stl/v7.stl`, `stl/v7_lane.stl`, `step/v7_lane.step`, and Dean's
+plate `print_job.py v7` → `stl/print_job_dean_v7.stl` (v7 lane, v7 plain, the 7.0 to 7.4 coupon). The v6 files
+(both 50° designs) are removed; `blade6.py` stays as the height-field builder. The v5 files stay as the shape's
+history. **Why the shaft is where it is:** the bore sits 0.53 in behind the lip, just behind the peak, because that
+is the only place the blade is thick enough (14.7 mm at the peak, for a hex 7.15 across the flats and 8.26 across
+the corners): the tail thins to a knife edge over the ring and the nose is a wedge. The nose load is close to the
+shaft; the tail cantilevers behind it. A shaft further back needs the tail thicker there, which the ball's path
+(above) and the ring (below) do not allow, or a different mount (bolted at the ends, where the blade can be thick).
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.

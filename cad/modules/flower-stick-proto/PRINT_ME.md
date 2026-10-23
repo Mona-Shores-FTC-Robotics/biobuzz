@@ -1,13 +1,13 @@
 # Print job: FLOWER stick blades (for Dean)
 
-**Newest: `stl/print_job_dean_v5.stl`** (23 Oct), 162 x 157 x 18 mm, three parts, flat side down. Fits a 220 x 220
+**Newest: `stl/print_job_dean_v7.stl`** (23 Oct), 162 x 157 x 18 mm, three parts, flat side down. Fits a 220 x 220
 bed. Millimetres. PETG. About 180 cm3 of plastic.
 
-![the plate from above](print_job_dean_v5.png)
+![the plate from above](print_job_dean_v7.png)
 
-What is on it: the two blades that worked on 19 Oct, with the shaft hole fixed, plus the fit coupon.
-- **v5 with Carter's lane** (left, 137 x 77 x 15 mm): 60 degree front, the ramp curving gently down toward its middle.
-- **v5 plain** (right, same size): the control, no lane.
+What is on it: v7, which is the blade that worked on 19 Oct with the shaft hole fixed, plus the fit coupon.
+- **v7 with Carter's lane** (left, 137 x 77 x 15 mm): 60 degree front, the ramp curving gently down toward its middle.
+- **v7 plain** (right, same size): the control, no lane.
 - **a hex-fit coupon** (bottom, 108 x 12 x 18 mm): five hex holes at 7.0, 7.1, 7.2, 7.3 and 7.4 mm across the flats,
   marked with one to five notches.
 
@@ -23,16 +23,14 @@ next blades get that size.
 - **Supports:** none. The hex holes bridge fine at this size. **Brim:** optional, if the bed's adhesion is iffy.
 - If the parts come in tiny (or 25 times too big), the slicer read them as inches: scale by 25.4 (or 1/25.4).
 
-If the bed is under 200 mm: `stl/v5_lane.stl`, `stl/v5.stl` and `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl` one at a
-time. STEP solids for review: `step/v5_lane.step`, `step/hex_fit_coupon.step`.
+If the bed is under 200 mm: `stl/v7_lane.stl`, `stl/v7.stl` and `stl/hex_fit_coupon_7_7.1_7.2_7.3_7.4.stl` one at a
+time. STEP solids for review: `step/v7_lane.step`, `step/hex_fit_coupon.step`.
 
 Thank you!
 
 ---
 
-**`stl/print_job_dean_v6.stl`** (20 Oct, 165 x 157 mm): v6 (50 degree nose) and v5 side by side with the lane, both
-bored for the REX, and the coupon. Kept for comparison; the 50 degree noses printed on 19 Oct did not work (the ball
-sat on the peak), so v5 is the blade for now.
+**v6** (the 50 degree noses, 19 and 20 Oct) is retired: the ball sat on the peak. Its files are gone from the repo.
 
 **Earlier: `stl/print_job_dean_v5.stl`** (16 Oct, 169 x 157 mm): v5 with the lane, v5 plain, a coupon with 8 mm hex
 holes. Printed and tested on 19 Oct: it empties the FLOWER, but the hole was an 8 mm hex on a REX shaft (7 mm flats),

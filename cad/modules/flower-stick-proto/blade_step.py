@@ -2,7 +2,7 @@
 instead of a mesh. The tail with Carter's lane is a B-spline surface interpolated through the height field, so it is
 the printed STL to within a few hundredths of a millimetre.
 
-    python3 cad/modules/flower-stick-proto/blade_step.py          # writes step/v6_lane.step, step/v5_lane.step, step/hex_fit_coupon.step
+    python3 cad/modules/flower-stick-proto/blade_step.py          # writes step/v7_lane.step, step/hex_fit_coupon.step
 
 Frame as blade6.py: x inches behind the lip (toward the robot), y across, z above the tiles; the file is in mm with the
 blade's flat bottom on z = 0 and the lip at x = 0.
@@ -78,8 +78,7 @@ def blade(name, edge, nose, peak, tail, rise, lane_start, oval, lead, width=5.4,
     print(f"{out}: {solid.Volume() / 1000:.1f} cm3; bbox {[round(v, 1) for v in (solid.BoundingBox().xlen, solid.BoundingBox().ylen, solid.BoundingBox().zlen)]} mm")
     return solid.Volume()
 
-v6 = blade("v6_lane", edge=0.60, nose=50, peak=1.10, tail=12, rise=0.3, lane_start=(1.10 - 0.60) / math.tan(math.radians(50)) + 0.05, oval=1.2, lead=1.2)
-v5 = blade("v5_lane", edge=0.60, nose=60, peak=1.10, tail=12, rise=0.3, lane_start=0.9, oval=0.0, lead=1.6, lane_mode="cut")
+v7 = blade("v7_lane", edge=0.60, nose=60, peak=1.10, tail=12, rise=0.3, lane_start=0.9, oval=0.0, lead=1.6, lane_mode="cut")
 # the coupon
 SIZES = [7.0, 7.1, 7.2, 7.3, 7.4]; L, H, T = 24.0 + 21.0 * (len(SIZES) - 1), 18.0, 12.0
 bar = cq.Workplane("XY").box(L, T, H, centered=(False, False, False))
@@ -91,5 +90,5 @@ for i, af in enumerate(SIZES):
 cq.exporters.export(bar, os.path.join(HERE, "step", "hex_fit_coupon.step")); print("step/hex_fit_coupon.step")
 # compare with the printed meshes
 import trimesh
-for n, v in (("v6_lane", v6), ("v5_lane", v5)):
+for n, v in (("v7_lane", v7),):
     m = trimesh.load(os.path.join(HERE, "stl", n + ".stl")); print(f"  {n}: STEP {v / 1000:.1f} cm3 vs STL {m.volume / 1000:.1f} cm3")

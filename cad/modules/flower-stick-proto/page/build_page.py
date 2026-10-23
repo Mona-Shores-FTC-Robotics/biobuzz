@@ -5,19 +5,20 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
-MODELS.insert(0, ("v6", "v6", "v6 plain", "the 50° nose without the lane; the ball sat on the peak", 6.3, 14.2))
-MODELS.insert(0, ("v6l", "v6_lane", "v6 with Carter's lane", "v5's body with a 50° nose; the 50° noses did not work on October 22", 6.3, 14.2))
-MODELS.insert(0, ("v5l", "v5_lane", "v5 with Carter's lane", "on the plate: the blade that works, with the hole cut for the real shaft", 6.3, 13.1))
+MODELS[:] = [m for m in MODELS if m[0] not in ("v5",)]
+MODELS.insert(0, ("v7", "v7", "v7 plain", "the same blade without the lane: the control", 6.3, 13.1))
+MODELS.insert(0, ("v7l", "v7_lane", "v7 with Carter's lane", "the blade that works: v5's shape, Carter's lane, the hole cut for the real shaft", 6.3, 13.1))
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
-rows["v6l"] = [["Profile", "50° nose from a 0.60 in edge, peak 1.10 in at 0.42 behind the lip, 12° tail to the back edge over the ring: v5 with only the nose changed"], ["Push", "2.3 × the stack's weight on the face (v5: 5.6 ×)"], ["Lane", "one curve across the tail, 0.3 in up at the edges; it begins just behind the peak at the centre and 1.2 in further back at the edges, a half-oval front; full depth after 1.2 in"], ["Shaft", "goBILDA 8 mm REX: 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom (the angle is a flag for when the mount is known); 2.7 mm of plastic over it, 2.2 under"], ["Size", "137 × 80 × 15 mm"]]
-rows["v6"] = [["Profile", "as v6 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 80 × 15 mm"]]
+rows["v7l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.10 in at 0.29 behind the lip, 12° tail down to the back edge over the ring: the v5 shape, which emptied the FLOWER on October 19"], ["Lane", "one curve across the tail (12.3 in radius), 0.3 in up at both edges, from 0.9 in behind the lip, full depth after 1.6 in"], ["Shaft", "goBILDA 8 mm REX is 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom, 0.53 in behind the lip and 0.77 in high, with 2.2 mm of plastic over and under it"], ["Size", "137 × 77 × 15 mm"]]
+rows["v7"] = [["Profile", "as v7 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 77 × 15 mm"]]
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 77 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
 anim_js = anim_js.replace('choose("v5");', 'choose("v5l");')
-anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v6l: { name: "v6 with Carter\'s lane", shape: { edge: 0.6, nose: 50, peak: 1.1, tail: 12 }, lane: { R: 12.3, rise: 0.3, start: 0.47, oval: 1.2 }, shaftBack: 0.56, onRobot: true },\n    v6: { name: "v6 plain", shape: { edge: 0.6, nose: 50, peak: 1.1, tail: 12 }, lane: null, shaftBack: 0.56, onRobot: true },\n    v5: { name: "v5", shape: ')
+anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v7l: { name: "v7 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.3, rise: 0.3, start: 0.9, oval: 0 }, shaftBack: 0.53, onRobot: true },\n    v7: { name: "v7 plain", shape: ' + json.dumps(V5["shape"]) + ', lane: null, shaftBack: 0.53, onRobot: true },\n    v5: { name: "v5", shape: ')
 anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v5l: { name: "v5 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.5, rise: 0.3, start: 0.9 }, shaftBack: 0.77, onRobot: true },\n    v5: { name: "v5 plain", lane: null, shape: ')
-assert 'v6l: {' in anim_js and 'choose("v5l")' in anim_js
+anim_js = anim_js.replace('choose("v5l");', 'choose("v7l");')
+assert 'v7l: {' in anim_js and 'choose("v7l")' in anim_js
 panel = f'''  <div class="drive">
     <div class="views">
       <div><svg id="sim-svg" viewBox="0 0 697 700" role="img" aria-label="Side view and plan view of the blade driving into the FLOWER and the POLLEN rolling out into the intake."></svg><span class="viewlbl">side view, and from above</span></div>
@@ -25,7 +26,7 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Blade</label>
-      <span class="seg"><button data-preset="v5l" aria-pressed="true">v5 + Carter's lane</button><button data-preset="v6l" aria-pressed="false">v6 + lane (50°)</button><button data-preset="v6" aria-pressed="false">v6 plain</button><button data-preset="v5" aria-pressed="false">v5 plain</button><button data-preset="v4" aria-pressed="false">v4 carry</button><button data-preset="v3" aria-pressed="false">v3 mountain</button><button data-preset="v2" aria-pressed="false">v2 lane</button><button data-preset="blockA" aria-pressed="false">Block A</button></span>
+      <span class="seg"><button data-preset="v7l" aria-pressed="true">v7 + Carter's lane</button><button data-preset="v7" aria-pressed="false">v7 plain</button><button data-preset="v4" aria-pressed="false">v4 carry</button><button data-preset="v3" aria-pressed="false">v3 mountain</button><button data-preset="v2" aria-pressed="false">v2 lane</button><button data-preset="blockA" aria-pressed="false">Block A</button></span>
       <button class="btn" id="sim-play">Play</button>
       <button class="btn" id="sim-slow" aria-pressed="false">Slow</button>
       <input type="range" id="sim-scrub" min="0" max="1" value="0" aria-label="Scrub through the run">
@@ -282,12 +283,12 @@ body = f'''
         <p>On October 22 the team tried the 50° blades. They did not work: the ball sat on the peak instead of rolling past it.
         The team's reading is that the shallower nose put the peak too far back from the lip, and the arithmetic agrees: the peak
         sits further back the shallower the nose is, 0.29 in for v5 and 0.34 to 0.42 in for the 50° blades. The field says the
-        margin matters more than the model thought. The v5 blades had emptied the FLOWER even while spinning on the shaft, so v5
-        with the hole fixed is the blade now.</p>
+        margin matters more than the model thought. The v5 blades had emptied the FLOWER even while spinning on the shaft, so the v5
+        shape with the hole fixed is the blade now. We call it v7, so there is one name for the one that works.</p>
         <div class="learn"><b>What we learned</b>Measure the shaft, not the catalogue name. And the push and the margin pull against each other through the nose angle; the field says the margin wins. A lighter push has to come from somewhere else.</div>
-        <div class="ask"><b>Open question</b>With the hole cut for the real shaft, how hard does v5 push at a true 60°? If it is still too hard, the levers left are a lower, sharper edge, a smoother face so the ball rolls instead of slides, and a lower peak, not a shallower nose.</div>
+        <div class="ask"><b>Open question</b>With the hole cut for the real shaft, how hard does v7 push at a true 60°? If it is still too hard, the levers left are a lower, sharper edge, a smoother face so the ball rolls instead of slides, and a lower peak, not a shallower nose.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v6_lane.png")}" alt="A rendering of the v6 blade: v5's body with a shallower 50° nose and the lane reaching up to the peak with an oval front."><figcaption>v6 with Carter's lane: v5's body, a 50° nose instead of 60°, the lane up to the peak with an oval front.</figcaption>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v7_lane.png")}" alt="A rendering of the v7 blade: the v5 shape with Carter's lane and the hex hole cut for the REX shaft."><figcaption>v7 with Carter's lane: the v5 shape, the lane, the hole cut for the real shaft. The 50° blades are retired.</figcaption>
       <table class="sweep loads"><thead><tr><th>face angle</th><th>push to lift the stack</th></tr></thead><tbody>
         <tr><td class="k">60°, held firm (v5)</td><td class="miss">5.6 ×</td></tr>
         <tr><td class="k">62°, v5 tilted 2° on a loose shaft</td><td class="miss">7.6 ×</td></tr>
@@ -339,7 +340,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What Dean prints next: v5 with the hole fixed</h3><p>One plate, 162 × 157 mm: v5 with the lane, v5 plain, and a hex coupon with holes from 7.0 to 7.4 mm across the flats, the right range for a REX shaft. Both blades are cut at 7.15 mm, flats top and bottom, a snug hex on the real 7.0 mm flats; a few file strokes if it is tight. These are the blades that emptied the FLOWER on October 19, now held firm for the first time.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_dean_v5.png")}" alt="The print plate from above: the two v6 blades side by side and the small coupon bar under them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>Test it the same way: five straight pushes and one off-centre per blade, count the balls, time it, and say how hard each pushed.</p></div>
+    <div class="card"><h3>What Dean prints: v7</h3><p>v7 is the blade that works, with one number so nobody has to remember which file had which hole: the v5 shape, Carter's lane, and the hole cut for the real REX shaft. One plate, 162 × 157 mm: v7 with the lane, v7 plain as the control, and a hex coupon with holes from 7.0 to 7.4 mm across the flats. The holes are 7.15 mm across the flats, flats top and bottom, a snug hex on the real 7.0 mm flats; a few file strokes if it is tight. The 50° blades are retired.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_dean_v7.png")}" alt="The print plate from above: the two v6 blades side by side and the small coupon bar under them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>Test it the same way: five straight pushes and one off-centre per blade, count the balls, time it, and say how hard each pushed.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>
