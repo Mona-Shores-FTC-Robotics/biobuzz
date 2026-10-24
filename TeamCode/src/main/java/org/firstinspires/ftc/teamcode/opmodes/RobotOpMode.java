@@ -156,7 +156,6 @@ public abstract class RobotOpMode extends OpMode {
     private boolean prevPageButton;
 
     /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
-    private boolean poseFromAuto;
     private Display.Level handoffLevel;
     private String handoffNote;
 
@@ -344,7 +343,6 @@ public abstract class RobotOpMode extends OpMode {
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
-            poseFromAuto = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
