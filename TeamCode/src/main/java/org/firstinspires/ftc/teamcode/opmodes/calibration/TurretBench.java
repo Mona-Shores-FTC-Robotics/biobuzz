@@ -24,7 +24,7 @@ import java.util.Locale;
  *
  * <ol>
  *   <li><b>Does the encoder count?</b> Turn the turret by hand and watch {@code counts}.</li>
- *   <li><b>Encoder direction.</b> Press A with the turret at home, turn it counter-clockwise
+ *   <li><b>Encoder direction.</b> Press Cross (A) with the turret at home, turn it counter-clockwise
  *       (seen from above): {@code angle} should go up. If it goes down, set {@code direction} to
  *       -1 in Panels. Every angle in this codebase is counter-clockwise positive.</li>
  *   <li><b>Gear ratio.</b> One full turret turn by hand: {@code encoder turns} is
@@ -32,7 +32,7 @@ import java.util.Locale;
  *       degrees.</li>
  *   <li><b>Servo direction.</b> Push the left stick left: the turret should turn
  *       counter-clockwise. If it turns the other way, set {@code servoDirection} to -1.</li>
- *   <li><b>Closed loop.</b> Y holds the turret at {@code targetDeg}; dpad up/down moves the
+ *   <li><b>Closed loop.</b> Triangle (Y) holds the turret at {@code targetDeg}; D-pad up/down moves the
  *       target. Raise {@code kP} until it arrives briskly without hunting. If it runs away the
  *       servo direction is wrong; the hold cuts out past {@code runawayDeg} and says so.</li>
  * </ol>
@@ -41,7 +41,7 @@ import java.util.Locale;
  * {@code Subsystem}, the exception CLAUDE.md allows for rigs. It reads the feeder motor's encoder
  * socket and never touches that motor's power or mode; the feeder runs without its encoder.
  *
- * <p>Nothing moves in INIT: the servo gets power only after PLAY. Zeroing with A works in INIT, so
+ * <p>Nothing moves in INIT: the servo gets power only after PLAY. Zeroing with Cross works in INIT, so
  * the turret can be put at home and zeroed before anything can turn it.
  */
 @TeleOp(name = "Turret Bench", group = "Diagnostics")
@@ -68,10 +68,10 @@ public class TurretBench extends OpMode {
     /** Hold gain: servo power per degree of error. */
     public static double kP = 0.01;
 
-    /** Where Y holds the turret, degrees from home, counter-clockwise positive. Dpad up/down moves it. */
+    /** Where Triangle holds the turret, degrees from home, counter-clockwise positive. D-pad up/down moves it. */
     public static double targetDeg = 0.0;
 
-    /** Dpad step for the target, degrees. */
+    /** D-pad step for the target, degrees. */
     public static double targetStepDeg = 15.0;
 
     /** Inside this many degrees of the target the hold sends no power, so the servo does not buzz. */
@@ -148,7 +148,7 @@ public class TurretBench extends OpMode {
             // Until A is pressed, angles are relative to wherever the turret sat at INIT.
             zeroCounts = encoderHost.getCurrentPosition();
         }
-        telemetry.addLine("Turret Bench. Put the turret at home and press A. Nothing moves until PLAY.");
+        telemetry.addLine("Turret Bench. Put the turret at home and press Cross. Nothing moves until PLAY.");
         report();
     }
 
@@ -310,13 +310,13 @@ public class TurretBench extends OpMode {
         telemetry.addLine(String.format(Locale.US, "servo power %+.2f  mode %s%s", powerSent,
                 holding ? "HOLD" : "MANUAL",
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
-                        : String.format(Locale.US, "  (Y holds at %s)", deg(targetDeg))));
+                        : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
                 "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f",
                 turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP));
         telemetry.addLine("");
-        telemetry.addLine("A zero (turret at home) · stick left/right = CCW/CW · LB/RB nudge");
-        telemetry.addLine("Y hold at target · dpad up/down target ±step · B stop hold");
+        telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");
+        telemetry.addLine("Triangle hold at target · D-pad up/down target ±step · Circle stop hold");
         telemetry.addLine("Check: hand-turn CCW, angle should rise (else direction -1); stick left, turret CCW (else servoDirection -1)");
         telemetry.addLine("");
         telemetry.addLine(loopTimer.summary());
