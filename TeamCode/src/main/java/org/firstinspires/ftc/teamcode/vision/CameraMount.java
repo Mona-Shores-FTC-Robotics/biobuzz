@@ -29,20 +29,21 @@ import com.bylazar.configurables.annotations.Configurable;
  * If they don't, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
  * unit tests will tell you whether the rest of the chain still holds.
  *
- * <p>The mounting numbers below are placeholders until someone measures the real
- * robot. They are live-tunable in Panels so that can be done on the field.
+ * <p>The mounting numbers below were measured on 19429 on 3 Oct 2026 (#156): tape
+ * and level, then checked against a tape at the RED start position (range within
+ * about an inch, row height within 0.2 in). They are live-tunable in Panels.
  */
 @Configurable
 public class CameraMount {
 
     /** Forward (+toward the front) from the robot origin to the lens, inches. */
-    public static double mountForwardIn = 0.0;
+    public static double mountForwardIn = 4.0;
 
     /** Left (+toward the robot's left) from the robot origin to the lens, inches. */
     public static double mountLeftIn = 0.0;
 
     /** Height of the lens above the floor, inches. */
-    public static double mountUpIn = 0.0;
+    public static double mountUpIn = 14.0;
 
     /**
      * Camera pitch, degrees, positive = aimed upward.
@@ -50,7 +51,7 @@ public class CameraMount {
      * <p>Expect this to be well above zero: the HIVE is overhead and the tags are
      * on the undersides of the cells, so the camera has to look up at them.
      */
-    public static double pitchDeg = 0.0;
+    public static double pitchDeg = 45.0;
 
     /** Camera yaw relative to robot forward, degrees, positive = rotated left (CCW). */
     public static double yawDeg = 0.0;

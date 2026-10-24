@@ -45,6 +45,7 @@ public final class DeviceNames {
     public static final String BACK_LEFT = "backLeft";
     public static final String BACK_RIGHT = "backRight";
 
+
     // Odometry.
     public static final String PINPOINT = "pinpoint";
 
@@ -58,6 +59,20 @@ public final class DeviceNames {
     public static final String LAUNCHER_LEFT = "launcher_left";
     public static final String LAUNCHER_RIGHT = "launcher_right";
     public static final String FEEDER = "feeder";
+
+    /**
+     * The turret's angle encoder is read through this motor's encoder socket, not a device of its
+     * own. A Studica Cypher Max rides the turret's drive gear; its quadrature (A/B/I) output plugs
+     * into the encoder socket beside Expansion Hub motor port 3, whose motor is {@link #FEEDER}
+     * (the build team's choice, 24 Oct 2026: the drive motors' sockets hold their own encoders).
+     * The SDK reads whatever is plugged into a socket as that motor's position, so the feeder's
+     * {@code getVelocity()} on a competition robot is the turret encoder moving, not the feeder;
+     * the feeder runs without its encoder and shows that number only on the Robot page. Code
+     * that wants the turret angle asks for this motor and reads only its encoder; nothing may set
+     * its power except the feeder code, and nothing may reset its count except the turret code.
+     * The socket is in each robot's XML.
+     */
+    public static final String TURRET_ENCODER_HOST = FEEDER;
     // The launcher bench's Y-cabled flywheel pair: both motors on one port, so
     // software sees one motor. Bench only; the robots have LAUNCHER_LEFT/RIGHT.
     public static final String LAUNCHER = "launcher";
@@ -78,6 +93,14 @@ public final class DeviceNames {
     // into stars on a continuous-rotation servo with one-way clutches, #160).
     // Control Hub servo port 5 on both robots, wired 24 Oct 2026.
     public static final String INTAKE_STARS = "intakeStars";
+
+    /**
+     * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
+     * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
+     * Expansion Hub servo port; the port itself is in each robot's XML. Its angle comes from
+     * {@link #TURRET_ENCODER_HOST}.
+     */
+    public static final String TURRET = "turret";
 
     // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
     // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
@@ -103,7 +126,15 @@ public final class DeviceNames {
      */
     public enum Kind {
         MOTOR,
+        /** A positional servo: {@code <Servo>}, asked for as {@code Servo}. */
         SERVO,
+        /**
+         * A continuous-rotation servo: {@code <ContinuousRotationServo>}, asked for as
+         * {@code CRServo}. A different kind from {@link #SERVO} because the SDK builds a different
+         * class for it, so {@code ValidateHardware} has to ask for a different one; it shares the
+         * servo ports.
+         */
+        CR_SERVO,
         I2C,
 
         /**
@@ -154,7 +185,8 @@ public final class DeviceNames {
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
-            new Device(INTAKE_STARS, Kind.SERVO),
+            new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 

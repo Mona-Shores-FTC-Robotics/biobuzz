@@ -40,16 +40,21 @@ public final class FieldFrame {
      * The field heading that means "away from me" for a driver standing at {@code alliance}'s
      * station, in radians, or NaN if not known.
      *
-     * <p><b>Both NaN until measured.</b> Red and blue drivers stand on opposite sides, so this is
+     * <p><b>Red measured, blue not yet.</b> Red and blue drivers stand on opposite sides, so this is
      * what makes field-centric "push away, robot goes away" true for both — but which Pedro heading
      * that is depends on where the stations sit in Pedro's frame for BIOBUZZ, and that is checked on
      * a field, not guessed. To measure: at each station, square the robot to face directly away from
      * the drivers and read its handed-over heading. While NaN, TeleOp falls back to "forward is
      * the way the robot faces at PLAY", and says so.
+     *
+     * <p>Red: 0 (field +x). Measured on 20245, 24 Oct 2026: the red station is on the red-side
+     * wall, and a robot squared to face away from it read a heading of 0 on the Pose section.
+     * Blue is expected to be the mirror, pi, but it stays NaN until someone stands at the blue
+     * station and reads it.
      */
     public static double driverForwardHeading(Alliance alliance) {
         switch (alliance) {
-            case RED:  return Double.NaN;
+            case RED:  return 0.0;
             case BLUE: return Double.NaN;
             default:   return Double.NaN;
         }

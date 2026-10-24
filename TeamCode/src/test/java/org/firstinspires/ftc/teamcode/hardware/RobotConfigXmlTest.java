@@ -60,6 +60,9 @@ public class RobotConfigXmlTest {
      */
     private static final String ETHERNET_TAG = "EthernetDevice";
 
+    /** The SDK's element for a continuous-rotation servo ({@code BuiltInConfigurationType.CONTINUOUS_ROTATION_SERVO}). */
+    private static final String CR_SERVO_TAG = "ContinuousRotationServo";
+
     /**
      * What {@code SerialNumber.fromString} needs to see to build an
      * {@code EthernetOverUsbSerialNumber}. {@code Limelight3A} stores its serial
@@ -227,7 +230,7 @@ public class RobotConfigXmlTest {
                     if (kind == DeviceNames.Kind.I2C) {
                         continue;
                     }
-                    String slot = kind + " port " + device.getAttribute("port");
+                    String slot = portSpace(kind) + " port " + device.getAttribute("port");
                     String previous = occupied.put(slot, device.getAttribute("name"));
                     if (previous != null) {
                         fail(file.getName() + ": on \"" + hub + "\", both \"" + previous
@@ -374,10 +377,22 @@ public class RobotConfigXmlTest {
         if (device.hasAttribute("bus")) {
             return DeviceNames.Kind.I2C;
         }
+        if (CR_SERVO_TAG.equals(device.getTagName())) {
+            return DeviceNames.Kind.CR_SERVO;
+        }
         if (device.getTagName().contains("Servo")) {
             return DeviceNames.Kind.SERVO;
         }
         return DeviceNames.Kind.MOTOR;
+    }
+
+    /**
+     * The port space a kind occupies on a hub. Positional and continuous-rotation servos are
+     * different kinds (the SDK builds different classes) but plug into the same six servo ports,
+     * so two of them on one port number is a collision.
+     */
+    private static String portSpace(DeviceNames.Kind kind) {
+        return kind == DeviceNames.Kind.CR_SERVO ? DeviceNames.Kind.SERVO.name() : kind.name();
     }
 
     private static Map<String, Element> devicesIn(File file) {
