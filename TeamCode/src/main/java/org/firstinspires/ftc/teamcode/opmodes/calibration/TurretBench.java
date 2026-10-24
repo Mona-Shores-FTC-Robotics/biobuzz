@@ -76,7 +76,7 @@ public class TurretBench extends OpMode {
      * brakes into the target instead of being carried past it. 0 = none. Start at 0.002 and raise
      * it until the hump over the target disappears; too much and the approach gets sluggish.
      */
-    public static double kD = 0.0;
+    public static double kD = 0.002;
 
     /** In the creep zone, faster than this the hold brakes rather than creeps, deg/s. */
     public static double creepMaxRateDps = 30.0;
@@ -88,7 +88,7 @@ public class TurretBench extends OpMode {
     public static double targetStepDeg = 15.0;
 
     /** Inside this many degrees of the target the hold sends no power, so the servo does not buzz. */
-    public static double holdToleranceDeg = 2.0;
+    public static double holdToleranceDeg = 1.0;
 
     /**
      * Least power the hold sends while outside the tolerance, [0, 1]. A continuous servo does not

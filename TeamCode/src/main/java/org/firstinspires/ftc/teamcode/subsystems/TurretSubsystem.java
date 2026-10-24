@@ -61,7 +61,7 @@ public class TurretSubsystem implements Subsystem {
     // The hold, as it held on the bench.
     public static double kP = 0.004;
     /** Damping: power per deg/s of turret rate, taken off the drive. 0 = none; start at 0.002. */
-    public static double kD = 0.0;
+    public static double kD = 0.002;
     /** In the creep zone, faster than this the hold brakes instead of creeping, deg/s. */
     public static double creepMaxRateDps = 30.0;
     public static double minPower = 0.07;
