@@ -95,8 +95,25 @@ public class TurretBench extends OpMode {
      * seen; a loop here is about 14 ms, which is why this is in milliseconds and not loops.
      * {@code creepOffMs} 0: no pulsing, minPower is continuous.
      */
-    public static double creepOnMs = 60.0;
-    public static double creepOffMs = 120.0;
+    public static double creepOnMs = 10.0;
+    public static double creepOffMs = 100.0;
+
+    /**
+     * Inside this many degrees of the target the hold creeps (pulses of {@code minPower}); outside
+     * it, it drives continuously at {@code minPower + kP * error}, so a big error moves briskly
+     * and only the last degrees are stepped.
+     */
+    public static double creepBelowDeg = 5.0;
+
+    /**
+     * The power at which this servo actually stands still, [-0.2, 0.2]. A continuous servo's
+     * centre is rarely exactly 0: at 0 it drifts slowly one way, which shows as the angle
+     * wandering off the target after the hold has arrived. Added to every power sent, including
+     * the hold's 0, so "0" means stopped. Find it: stick centred, watch the angle drift, adjust
+     * until it stops. Better still, set the servo's centre with the goBILDA programmer and leave
+     * this at 0.
+     */
+    public static double servoStopPower = 0.0;
 
     /** A hold error past this means the servo is driving the wrong way: cut power and say so. */
     public static double runawayDeg = 180.0;
@@ -207,7 +224,7 @@ public class TurretBench extends OpMode {
         }
         powerSent = clamp(requested * servoSign(), unitRange(maxPower));
         if (turret != null) {
-            turret.setPower(powerSent);
+            turret.setPower(clamp(powerSent + stopOffset(), 1.0));
         }
 
         report();
@@ -308,13 +325,18 @@ public class TurretBench extends OpMode {
             return 0.0;
         }
         double gain = kP > 0.0 && !Double.isInfinite(kP) ? kP : 0.0;
-        double power = gain * errorDeg;
         double floor = unitRange(minPower);
-        if (Math.abs(power) < floor) {
+        if (Math.abs(errorDeg) < Math.max(finite(creepBelowDeg), 0.0)) {
             // Creeping: a pulse of minPower, then silence, so each step is a fraction of a degree.
-            power = creepPulseOn() ? Math.copySign(floor, errorDeg) : 0.0;
+            return creepPulseOn() ? Math.copySign(floor, errorDeg) : 0.0;
         }
-        return power;
+        // Driving: the floor the servo needs to move at all, plus the gain on top.
+        return Math.copySign(floor + gain * Math.abs(errorDeg), errorDeg);
+    }
+
+    /** The servo's centre correction, clamped so a typo cannot make "stopped" mean "spinning". */
+    private static double stopOffset() {
+        return clamp(servoStopPower, 0.2);
     }
 
     /** Where we are in the on/off creep cycle. Always on when {@code creepOffMs} is 0. */
@@ -350,14 +372,14 @@ public class TurretBench extends OpMode {
                 TurretEncoder.encoderTurns(counts, zeroCounts)));
         telemetry.addLine(String.format(Locale.US, "angle %s  (wrapped %s)  rate %s/s",
                 deg(angleDeg), deg(TurretEncoder.wrap180(angleDeg)), deg(rateDps)));
-        telemetry.addLine(String.format(Locale.US, "servo power %+.2f  mode %s%s", powerSent,
+        telemetry.addLine(String.format(Locale.US, "servo power %+.2f (stop offset %+.3f)  mode %s%s", powerSent, stopOffset(),
                 holding ? "HOLD" : "MANUAL",
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
                         : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
-                "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f  minPower %.2f  creep %.0f/%.0f ms  tol %.1f",
+                "settings: ratio %.3f  dir %+d  servoDir %+d  maxPower %.2f  kP %.4f  minPower %.2f  creep %.0f/%.0f ms below %.1f  tol %.1f",
                 turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, unitRange(minPower),
-                creepOnMs, creepOffMs, holdToleranceDeg));
+                creepOnMs, creepOffMs, creepBelowDeg, holdToleranceDeg));
         telemetry.addLine("");
         telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");
         telemetry.addLine("Triangle hold at target · D-pad up/down target ±step · Circle stop hold");
