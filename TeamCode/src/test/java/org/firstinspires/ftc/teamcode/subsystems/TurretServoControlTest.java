@@ -53,26 +53,47 @@ public class TurretServoControlTest {
     }
 
     @Test
-    public void dampingTakesPowerOffAsTheTurretSpeedsUp() {
+    public void dampingEasesTheDriveOffButNeverTurnsItAround() {
         TurretServoControl c = new TurretServoControl();
         TurretServoControl.Gains g = bench();
         g.set(0.007, 0.002, 30.0, 0.12, 1.0, 5.0, 1.0, 30.0, 100.0);
         double still = c.power(40.0, 0.0, g, 0);
-        double moving = c.power(40.0, 100.0, g, 0);          // 100 deg/s toward the target
         assertEquals(0.12 + 0.007 * 40, still, EPS);
-        assertEquals(still - 0.002 * 100, moving, EPS);
-        // Moving the wrong way adds power.
-        assertEquals(still + 0.002 * 100, c.power(40.0, -100.0, g, 0), EPS);
+        // 100 deg/s toward the target: eased off.
+        assertEquals(still - 0.002 * 100, c.power(40.0, 100.0, g, 0), EPS);
+        // Very fast toward the target: eased to zero, never reversed.
+        assertEquals(0.0, c.power(40.0, 1000.0, g, 0), EPS);
+        // Moving away from the target: the full drive, damping does not add to it.
+        assertEquals(still, c.power(40.0, -100.0, g, 0), EPS);
+        // Same on the negative side.
+        assertEquals(-(still - 0.002 * 100), c.power(-40.0, -100.0, g, 0), EPS);
     }
 
     @Test
-    public void arrivingFastInTheCreepZoneBrakesInsteadOfCreeping() {
+    public void arrivingFastBrakesGentlyAndOnlyAgainstMotionTowardTheTarget() {
         TurretServoControl c = new TurretServoControl();
         TurretServoControl.Gains g = bench();
         g.set(0.007, 0.002, 30.0, 0.12, 1.0, 5.0, 1.0, 30.0, 100.0);
-        assertEquals(-0.002 * 200, c.power(3.0, 200.0, g, 0), EPS);   // brake
-        assertEquals(0.12, c.power(3.0, 10.0, g, 0), EPS);            // slow enough: creep pulse
-        assertEquals(-0.002 * 200, c.power(0.5, 200.0, g, 0), EPS);   // even inside the band
+        // Coming in at 200 deg/s: a brake, capped at minPower, never a reversal at speed.
+        assertEquals(-0.12, c.power(3.0, 200.0, g, 0), EPS);
+        assertEquals(-0.12, c.power(0.5, 200.0, g, 0), EPS);
+        // A slow brake inside the cap.
+        assertEquals(-0.002 * 40, c.power(3.0, 40.0, g, 0), EPS);
+        // Slow enough: a creep pulse toward the target.
+        assertEquals(0.12, c.power(3.0, 10.0, g, 0), EPS);
+        // Moving away fast in the creep zone: not braked (that would push it further away); creep toward.
+        assertEquals(0.12, c.power(3.0, -200.0, g, 0), EPS);
+        // Inside the band and moving away: nothing.
+        assertEquals(0.0, c.power(0.5, -200.0, g, 0), EPS);
+    }
+
+    @Test
+    public void brakingOffWhenCreepMaxRateIsZero() {
+        TurretServoControl c = new TurretServoControl();
+        TurretServoControl.Gains g = bench();
+        g.set(0.007, 0.002, 0.0, 0.12, 1.0, 5.0, 1.0, 30.0, 100.0);
+        assertEquals(0.12, c.power(3.0, 500.0, g, 0), EPS);
+        assertEquals(0.0, c.power(0.5, 500.0, g, 0), EPS);
     }
 
     @Test

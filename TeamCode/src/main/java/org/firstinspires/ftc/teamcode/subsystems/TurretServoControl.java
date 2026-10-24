@@ -14,7 +14,12 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       {@code kD} times the rate: damping, so the power eases off as the turret picks up speed
  *       and the servo brakes into the target instead of being carried past it.</li>
  *   <li><b>Braking</b>, inside {@code creepBelowDeg} but still moving faster than
- *       {@code creepMaxRateDps}: {@code -kD * rate} alone, to kill the speed before creeping.</li>
+ *       {@code creepMaxRateDps} <em>toward</em> the target: {@code -kD * rate}, capped at
+ *       {@code minPower}, to take the speed off before creeping. A continuous servo does not
+ *       brake, it reverses, so the brake is capped at the power that barely moves it and is
+ *       never applied to a turret already moving away from the target: the drive handles that.
+ *       Uncapped, a brake flung the turret the other way and it swung 100 deg either side of the
+ *       target (bench, 24 Oct 2026).</li>
  *   <li><b>Creeping</b>, the last degrees, slow: pulses of {@code minPower}, {@code creepOnMs} on
  *       then {@code creepOffMs} off, so each step is a fraction of a degree and it lands in the
  *       band instead of jumping over it. The servo reads its signal every 20 ms, so a pulse is
@@ -75,20 +80,32 @@ public final class TurretServoControl {
         }
         double rate = Double.isNaN(rateDps) ? 0.0 : rateDps;
         double magnitude = Math.abs(errorDeg);
+        boolean towardTarget = rate != 0.0 && Math.signum(rate) == Math.signum(errorDeg);
+        boolean fast = gains.creepMaxRateDps > 0 && Math.abs(rate) > gains.creepMaxRateDps;
         if (magnitude <= gains.toleranceDeg) {
-            // Arrived; if still moving fast, one braking push rather than nothing.
-            return Math.abs(rate) > gains.creepMaxRateDps && gains.creepMaxRateDps > 0
-                    ? clamp(-gains.kD * rate, gains.maxPower) : 0.0;
+            // Arrived. Still coming in fast: one gentle brake rather than nothing.
+            return fast && towardTarget ? brake(rate, gains) : 0.0;
         }
         if (magnitude < gains.creepBelowDeg) {
-            if (Math.abs(rate) > gains.creepMaxRateDps && gains.creepMaxRateDps > 0) {
-                return clamp(-gains.kD * rate, gains.maxPower);
+            if (fast && towardTarget) {
+                return brake(rate, gains);
             }
             double pulse = creepPulseOn(gains, nowNs) ? gains.minPower : 0.0;
             return Math.copySign(Math.min(pulse, gains.maxPower), errorDeg);
         }
-        double drive = Math.copySign(gains.minPower + gains.kP * magnitude, errorDeg) - gains.kD * rate;
-        return clamp(drive, gains.maxPower);
+        // Driving. Damping only eases the drive off as it speeds up toward the target; it never
+        // turns the drive around (floor of 0), and moving away from the target is the drive's job.
+        double drive = gains.minPower + gains.kP * magnitude;
+        if (towardTarget) {
+            drive = Math.max(0.0, drive - gains.kD * Math.abs(rate));
+        }
+        return Math.copySign(Math.min(drive, gains.maxPower), errorDeg);
+    }
+
+    /** Against the motion, no stronger than the power that barely moves the servo. */
+    private static double brake(double rate, TurretServoControl.Gains gains) {
+        double cap = Math.min(gains.minPower, gains.maxPower);
+        return clamp(-gains.kD * rate, cap);
     }
 
     private static double clamp(double value, double limit) {
