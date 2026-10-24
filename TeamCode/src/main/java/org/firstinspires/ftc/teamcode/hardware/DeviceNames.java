@@ -74,6 +74,10 @@ public final class DeviceNames {
      * Control Hub servo port; the port itself is in each robot's XML.
      */
     public static final String FLOWER_STICK = "flowerStick";
+    // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
+    // into stars on a continuous-rotation servo with one-way clutches, #160).
+    // Control Hub servo port 5 on both robots, wired 24 Oct 2026.
+    public static final String INTAKE_STARS = "intakeStars";
 
     // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
     // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
@@ -150,6 +154,7 @@ public final class DeviceNames {
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
+            new Device(INTAKE_STARS, Kind.SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
