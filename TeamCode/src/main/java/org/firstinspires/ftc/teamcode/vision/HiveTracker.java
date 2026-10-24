@@ -9,16 +9,25 @@ import com.bylazar.configurables.annotations.Configurable;
  * <p>It starts from the match-start position, {@link HiveState#RIGHT_CELL_UP}, so it is right for
  * an Autonomous run from the start of the match. {@link HiveSubsystem} feeds it every loop:
  * <ul>
- *   <li>A settled state the camera sees is taken as it is.</li>
- *   <li>A TIP starts when a CELL is seen mid-tip, <em>or</em> when a CELL seen settled drops out of
- *       view while the robot keeps looking where it was: a CELL's tags turn away from the camera
- *       as soon as it starts to move. (A robot or POLLEN blocking the view for longer than
- *       {@link Tuning#lostAfterMs} looks the same; if the CELL reappears where it was, the TIP is
- *       cancelled, but a trigger may already have fired.)</li>
+ *   <li>A settled state the camera sees on {@link Tuning#minTags} or more tags is taken as it is.
+ *       A single tag flickers in and out at range, and a state built on one would vanish and
+ *       "TIP" every time it did (five phantom TIPs on the untouched blue HIVE, 24 Oct 2026).</li>
+ *   <li>A TIP starts when a CELL is seen mid-tip for {@link Tuning#midTipMs} running, <em>or</em>
+ *       when a CELL seen settled drops out of view while the robot keeps looking where it was: a
+ *       CELL's tags turn away from the camera as soon as it starts to move. (A robot or POLLEN
+ *       blocking the view for longer than {@link Tuning#lostAfterMs} looks the same; if the CELL
+ *       reappears where it was, the TIP is cancelled, but a trigger may already have fired.) One
+ *       frame at an in-between height is not a TIP: a lowered CELL glimpsed from behind at an odd
+ *       angle reads that way, and started a second TIP that put the tracker on the wrong CELL
+ *       (24 Oct 2026).</li>
  *   <li>A TIP, once started, finishes (the HIVE is built that way). It reads
  *       {@link HiveState#TRANSITION} until the camera sees the HIVE settle, or until
  *       {@link Tuning#tipSeconds} has passed, after which the other CELL is assumed up and held
  *       until the camera next sees the HIVE.</li>
+ *   <li>While a position is assumed rather than seen, a mid-tip sighting starts nothing: the
+ *       tracker has not seen the HIVE settle since it guessed, so the glimpse is more likely the
+ *       same TIP, or the lowered CELL misread, than a new one. The next settled sighting puts
+ *       everything right.</li>
  *   <li>Otherwise, out of view is {@link HiveState#UNSEEN}: a position seen earlier is not
  *       remembered once the robot looks away, because anyone can TIP the HIVE meanwhile.</li>
  * </ul>
@@ -47,7 +56,16 @@ public final class HiveTracker {
          * not to delay the Auto. Set on a field.
          */
         public static double lostAfterMs = 200;
+
+        /** Tags of this HIVE that must be in the frame for a sighting to settle or start a TIP. */
+        public static int minTags = 2;
+
+        /** How long a CELL must read mid-tip, ms, before that starts a TIP. */
+        public static double midTipMs = 250;
     }
+
+    /** When the current run of mid-tip sightings began; NaN while none. */
+    private double midTipSinceMs = Double.NaN;
 
     private HiveState settled = HiveState.RIGHT_CELL_UP;
     private HiveState state = HiveState.UNSEEN;
@@ -61,24 +79,42 @@ public final class HiveTracker {
      * Feeds one loop.
      *
      * @param seen         what the camera says (see {@link HiveState#of})
+     * @param tagsSeen     how many of this HIVE's tags are in the frame behind {@code seen}
      * @param lostForMs    ms since a tag of this HIVE was last in a frame; infinite if never
      * @param stillLooking the robot has not turned or moved since that frame, so the HIVE would
      *                     still be in view if nothing about it had changed
      * @param nowMs        a monotonic clock, in milliseconds
      * @return the state after this loop
      */
-    HiveState observe(HiveState seen, double lostForMs, boolean stillLooking, long nowMs) {
+    HiveState observe(HiveState seen, int tagsSeen, double lostForMs, boolean stillLooking, long nowMs) {
         // The camera's settled state outlives the tags a little; out of view is out of view.
         boolean lost = Tuning.lostAfterMs > 0 ? !(lostForMs < Tuning.lostAfterMs) : Double.isInfinite(lostForMs);
         if (lost) seen = HiveState.UNSEEN;
+        boolean solid = tagsSeen >= Math.max(1, Tuning.minTags);
 
-        if (seen.settled()) {
-            settleAt(seen);
-            assumed = false;
+        if (seen != HiveState.TRANSITION || !solid) {
+            midTipSinceMs = Double.NaN;
+        }
+
+        if (lost) {
+            if (state.settled() && !assumed && stillLooking && !Double.isInfinite(lostForMs)) {
+                startTip(nowMs - (long) lostForMs); // it vanished where the robot is still looking
+            } else if (!tipping && !assumed) {
+                state = HiveState.UNSEEN;
+            }
+        } else if (seen.settled()) {
+            if (solid) {
+                settleAt(seen);
+                assumed = false;
+            }
+            // On too few tags: not trusted; whatever we had stands.
         } else if (seen == HiveState.TRANSITION) {
-            startTip(nowMs);
-        } else if (state.settled() && !assumed && stillLooking && !Double.isInfinite(lostForMs)) {
-            startTip(nowMs - (long) lostForMs); // it vanished where the robot is still looking
+            if (solid && !assumed) {
+                if (Double.isNaN(midTipSinceMs)) midTipSinceMs = nowMs;
+                if (tipping || nowMs - midTipSinceMs >= Math.max(0.0, Tuning.midTipMs)) {
+                    startTip((long) midTipSinceMs);
+                }
+            }
         } else if (!tipping && !assumed) {
             state = HiveState.UNSEEN;
         }
@@ -155,5 +191,6 @@ public final class HiveTracker {
         assumed = false;
         tips = 0;
         tipsStarted = 0;
+        midTipSinceMs = Double.NaN;
     }
 }

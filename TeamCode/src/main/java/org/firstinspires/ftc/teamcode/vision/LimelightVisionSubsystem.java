@@ -325,6 +325,16 @@ public class LimelightVisionSubsystem implements Subsystem {
         return trackerFor(cell).candidateState() == HiveCellState.UNKNOWN;
     }
 
+    /** How many of {@code alliance}'s HIVE tags are in the current (unexpired) sightings. */
+    public int hiveTagsInView(Alliance alliance) {
+        return tagsOf(HiveCell.leftCell(alliance)) + tagsOf(HiveCell.rightCell(alliance));
+    }
+
+    private int tagsOf(HiveCell cell) {
+        CellSighting sighting = cell == null ? null : sightings.get(cell);
+        return sighting == null ? 0 : sighting.tagCount();
+    }
+
     /**
      * Milliseconds since a tag of either of {@code alliance}'s CELLs was last in a camera frame;
      * infinite if none is remembered or the alliance is UNKNOWN.
