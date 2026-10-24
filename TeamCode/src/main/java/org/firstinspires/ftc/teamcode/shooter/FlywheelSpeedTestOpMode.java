@@ -97,7 +97,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         }
 
         telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
-        telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
+        telemetry.addLine("Cross (A) = spin up, Circle (B) = stop, D-pad = target RPM.");
         telemetry.addLine("Tune everything else in Panels under FlywheelBank.");
         reportMissingMotors();
         telemetry.update();
@@ -109,7 +109,7 @@ public class FlywheelSpeedTestOpMode extends OpMode {
         // anyone presses play.
         bank.periodic();
         telemetry.addLine("Flywheel Speed Test ready.  Build: " + BUILD);
-        telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
+        telemetry.addLine("Cross (A) = spin up, Circle (B) = stop, D-pad = target RPM.");
         reportMissingMotors();
         telemetry.update();
     }
@@ -216,8 +216,8 @@ public class FlywheelSpeedTestOpMode extends OpMode {
 
     private void publishDriverStation() {
         telemetry.addData("Build", BUILD);
-        telemetry.addLine(bank.isSpinning() ? ">>> SPINNING  (B to stop)" : "--- STOPPED   (A to spin up)");
-        telemetry.addData("Target RPM", "%.0f   dpad U/D %.0f, R/L %.0f",
+        telemetry.addLine(bank.isSpinning() ? ">>> SPINNING  (Circle to stop)" : "--- STOPPED   (Cross to spin up)");
+        telemetry.addData("Target RPM", "%.0f   D-pad U/D %.0f, R/L %.0f",
                 FlywheelBank.config.target.targetRpm,
                 FlywheelBank.config.target.fineStepRpm,
                 FlywheelBank.config.target.coarseStepRpm);
