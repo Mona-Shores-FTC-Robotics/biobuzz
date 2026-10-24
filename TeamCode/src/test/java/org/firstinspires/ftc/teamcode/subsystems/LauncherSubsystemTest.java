@@ -81,6 +81,20 @@ public class LauncherSubsystemTest {
     }
 
     @Test
+    public void aWheelsTargetIsTheCommonTargetPlusItsTrim() {
+        assertEquals(1000.0, LauncherSubsystem.wheelTarget(1000.0, 0.0), EPS);
+        assertEquals(1200.0, LauncherSubsystem.wheelTarget(1000.0, 200.0), EPS);
+        assertEquals(800.0, LauncherSubsystem.wheelTarget(1000.0, -200.0), EPS);
+    }
+
+    @Test
+    public void aTrimCannotTakeAWheelBelowZeroOrPoisonIt() {
+        assertEquals(0.0, LauncherSubsystem.wheelTarget(1000.0, -5000.0), EPS);
+        assertEquals(1000.0, LauncherSubsystem.wheelTarget(1000.0, Double.NaN), EPS);
+        assertEquals(200.0, LauncherSubsystem.wheelTarget(Double.NaN, 200.0), EPS);
+    }
+
+    @Test
     public void rpmReusesTheIntakesRule() {
         assertEquals(60.0, IntakeSubsystem.rpm(28.0, 28.0), EPS);
         assertEquals(Double.NaN, IntakeSubsystem.rpm(28.0, Double.NaN), EPS);
