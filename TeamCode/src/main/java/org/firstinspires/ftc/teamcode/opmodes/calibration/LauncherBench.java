@@ -190,14 +190,25 @@ public class LauncherBench extends OpMode {
     private void publish() {
         if (panels == null || fault != null) return;
         try {
-            panels.addData("left_target_tps", launcher.leftTarget());
-            panels.addData("right_target_tps", launcher.rightTarget());
-            panels.addData("left_tps", launcher.leftTicksPerSecond());
-            panels.addData("right_tps", launcher.rightTicksPerSecond());
+            if (launcher.layout() == LauncherSubsystem.Layout.Y_CABLED) {
+                // One motor to software: one target, one speed, one current (both motors together).
+                panels.addData("launcher_target_tps", launcher.leftTarget());
+                panels.addData("launcher_tps", launcher.leftTicksPerSecond());
+                panels.addData("launcher_amps", launcher.leftCurrentAmps());
+                panels.addData("launcher_rpm", launcher.leftRpm()); // NaN until ticksPerRev is set
+            } else {
+                panels.addData("left_target_tps", launcher.leftTarget());
+                panels.addData("right_target_tps", launcher.rightTarget());
+                panels.addData("left_tps", launcher.leftTicksPerSecond());
+                panels.addData("right_tps", launcher.rightTicksPerSecond());
+                panels.addData("left_amps", launcher.leftCurrentAmps());
+                panels.addData("right_amps", launcher.rightCurrentAmps());
+            }
             panels.addData("at_speed", launcher.atSpeed() ? 1.0 : 0.0);
-            panels.addData("left_amps", launcher.leftCurrentAmps());
-            panels.addData("right_amps", launcher.rightCurrentAmps());
             panels.addData("feeder_power", feeder.power());
+            panels.addData("feeder_tps", feeder.ticksPerSecond());
+            panels.addData("feeder_amps", feeder.currentAmps());
+            panels.addData("feeder_rpm", feeder.rpm());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {

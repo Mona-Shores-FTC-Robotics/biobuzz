@@ -96,11 +96,12 @@ public class LauncherSubsystem implements Subsystem {
     public static boolean rightReversed = false;
 
     /**
-     * Encoder ticks per revolution of each flywheel motor's output shaft, for the RPM display.
-     * <b>NaN until read off the motor's label</b> (see {@link IntakeSubsystem#ticksPerRev} for the
-     * goBILDA 5203 table). Speed is shown in ticks/s regardless; RPM only once this is set.
+     * Encoder ticks per revolution of each flywheel <b>motor</b>, for the RPM display. 28: the
+     * motors are believed to be goBILDA 5203 6000 RPM (1:1) at the bench on 24 Oct 2026; confirm on
+     * the label. The encoder is on the motor, so the RPM shown is motor RPM; the wheel turns at that
+     * times the module's belt ratio, which is a CAD number not written here yet.
      */
-    public static double ticksPerRev = Double.NaN;
+    public static double ticksPerRev = 28.0;
 
     /**
      * A wheel commanded for this long that still reads below {@link #encoderSilentTicksPerSecond}
