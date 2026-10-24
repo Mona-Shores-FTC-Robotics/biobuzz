@@ -422,12 +422,14 @@ in continuous-rotation mode, which the SDK builds as a `CRServo` from a
 
 Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
 The encoder's quadrature output (2048 counts per encoder turn, both edges of
-both channels) plugs into the **encoder socket beside Control Hub motor port 0**,
-`frontRight`'s. The drivetrain never reads its motor encoders (Pedro localizes
-from the Pinpoint), so the socket is free, and the SDK reads whatever is in it
-as that motor's position. `DeviceNames.TURRET_ENCODER_HOST` names which motor
-that is; turret code asks for that motor and reads only its encoder, and
-nothing else may set its power or reset its count. The count is relative: zero
+both channels) plugs into the **encoder socket beside Expansion Hub motor port
+3**, the feeder's (the build team's choice: the drive motors' sockets hold their
+own encoders). The feeder runs without its encoder, so the socket is free, and
+the SDK reads whatever is in it as that motor's position, which means the
+feeder's velocity line on the Robot page shows the turret moving on a
+competition robot. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
+is; turret code asks for that motor and reads only its encoder, and nothing
+but the turret code may reset its count. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub
 stays on. A person puts the turret at its home mark before INIT and the code
 zeroes there. The encoder's absolute PWM output exists, and an OctoQuad could

@@ -19,7 +19,7 @@ import java.util.Locale;
 /**
  * Bench test for the turret's drive and angle sensing, on a competition robot: a continuous
  * servo ({@code DeviceNames.TURRET}) turning the turret, and a Studica Cypher Max encoder read
- * through the encoder socket of Control Hub motor port 0 ({@code DeviceNames.TURRET_ENCODER_HOST}).
+ * through the encoder socket of Expansion Hub motor port 3 ({@code DeviceNames.TURRET_ENCODER_HOST}).
  * It settles the facts a {@code TurretSubsystem} needs, none of which may be guessed:
  *
  * <ol>
@@ -38,8 +38,8 @@ import java.util.Locale;
  * </ol>
  *
  * <p>Standalone diagnostics, like {@code ValidateHardware}: no {@code Robot}, no
- * {@code Subsystem}, the exception CLAUDE.md allows for rigs. It reads the drive motor's encoder
- * and never touches that motor's power or mode; the drivetrain never reads the encoder.
+ * {@code Subsystem}, the exception CLAUDE.md allows for rigs. It reads the feeder motor's encoder
+ * socket and never touches that motor's power or mode; the feeder runs without its encoder.
  *
  * <p>Nothing moves in INIT: the servo gets power only after PLAY. Zeroing with A works in INIT, so
  * the turret can be put at home and zeroed before anything can turn it.
