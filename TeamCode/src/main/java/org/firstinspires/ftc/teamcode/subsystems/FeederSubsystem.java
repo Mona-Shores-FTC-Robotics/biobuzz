@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 
@@ -41,9 +42,17 @@ public class FeederSubsystem implements Subsystem {
      */
     public static boolean reversed = false;
 
+    /**
+     * Encoder ticks per revolution of the feeder motor's output shaft, for {@link #rpm()}. 384.5:
+     * the feeder motors are goBILDA 5203 435 RPM, read off the label at the bench on 24 Oct 2026.
+     */
+    public static double ticksPerRev = 384.5;
+
     private final DcMotorEx motor;
     private State state = State.IDLE;
     private double power;
+    private double ticksPerSecond;
+    private double currentAmps = Double.NaN;
 
     /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
     public FeederSubsystem(HardwareMap hardwareMap) {
@@ -75,6 +84,25 @@ public class FeederSubsystem implements Subsystem {
         return power;
     }
 
+    /** Feeder motor speed from the last {@link #update()}, encoder ticks per second, signed. 0 without an encoder. */
+    public double ticksPerSecond() {
+        return ticksPerSecond;
+    }
+
+    /**
+     * Feeder motor current from the last {@link #update()}, amps; NaN while idle. Read only while
+     * running, since current is a separate hub transaction. A rising current with a falling speed is
+     * a piece jamming.
+     */
+    public double currentAmps() {
+        return currentAmps;
+    }
+
+    /** {@link #ticksPerSecond()} in output-shaft RPM, or NaN until {@link #ticksPerRev} is set. */
+    public double rpm() {
+        return IntakeSubsystem.rpm(ticksPerSecond, ticksPerRev);
+    }
+
     /** Start idle, in plain power mode, braking so a held piece stays put. */
     @Override
     public void initialize() {
@@ -84,11 +112,16 @@ public class FeederSubsystem implements Subsystem {
         motor.setPower(0.0);
     }
 
-    /** One write per loop: the power the request asks for, clamped so Panels cannot overdrive it. */
+    /**
+     * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
+     * then one read of speed (from the bulk read) and, while running, one of current.
+     */
     @Override
     public void update() {
         power = powerFor(state, feedPower, reversePower, reversed);
         motor.setPower(power);
+        ticksPerSecond = motor.getVelocity();
+        currentAmps = state == State.IDLE ? Double.NaN : motor.getCurrent(CurrentUnit.AMPS);
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
@@ -105,6 +138,11 @@ public class FeederSubsystem implements Subsystem {
                 state == State.FEED ? String.format(Locale.US, "FEEDING (%.2f)", power)
                         : state == State.REVERSE ? String.format(Locale.US, "REVERSE (%.2f)", power)
                         : "idle");
+        double rpm = rpm();
+        display.line(String.format(Locale.US, "Feeder %.0f ticks/s%s · %s", ticksPerSecond,
+                Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
+                Double.isNaN(currentAmps) ? "current not read while idle"
+                        : String.format(Locale.US, "%.2f A", currentAmps)));
     }
 
     /**
