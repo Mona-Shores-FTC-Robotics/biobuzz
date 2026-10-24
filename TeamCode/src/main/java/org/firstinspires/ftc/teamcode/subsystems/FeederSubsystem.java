@@ -26,6 +26,9 @@ import java.util.Locale;
  */
 @Configurable
 public class FeederSubsystem implements Subsystem {
+    // On the competition robots this motor's encoder socket carries the turret's encoder
+    // (DeviceNames.TURRET_ENCODER_HOST), so ticksPerSecond() and rpm() there are the turret
+    // moving, not the feeder. They read the feeder itself only on the launcher bench rig.
 
     /** What the feeder is being asked to do. */
     public enum State { IDLE, FEED, REVERSE }
