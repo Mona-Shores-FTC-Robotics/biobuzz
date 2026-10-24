@@ -1,0 +1,202 @@
+package org.firstinspires.ftc.teamcode.opmodes.calibration;
+
+import com.bylazar.configurables.PanelsConfigurables;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.lynx.LynxModule;
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
+import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
+import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
+import org.firstinspires.ftc.teamcode.util.LoopTimer;
+
+import java.util.Locale;
+
+/**
+ * The launcher on a bench: the real {@link LauncherSubsystem} and {@link FeederSubsystem}, driven
+ * from one gamepad, on a spare Control Hub with {@code robot_launcher_bench} active. No
+ * {@code Robot}, because a bench has no drivetrain to build; the same two classes the robot runs,
+ * so every number found here is a number for the robot.
+ *
+ * <p>Each wheel can be run at its own speed: the common target plus a per-wheel trim
+ * ({@link LauncherSubsystem#leftTrimTicksPerSecond}, {@link LauncherSubsystem#rightTrimTicksPerSecond}),
+ * nudged from the gamepad or typed in Panels. That is how to find whether the pinch wants spin and
+ * whether two motors match.
+ *
+ * <h2>Gamepad 1, PlayStation names (Xbox in brackets)</h2>
+ *
+ * <ul>
+ *   <li>Cross (A): spin up both wheels. Circle (B): spin down, wheels coast.</li>
+ *   <li>D-pad up / down: common target +100 / −100 ticks per second.</li>
+ *   <li>L1 / L2: left wheel trim −100 / +100. R1 / R2: right wheel trim −100 / +100.</li>
+ *   <li>Square (X) held: feed. Triangle (Y) held: reverse the feeder.</li>
+ *   <li>Share (Back): zero both trims.</li>
+ * </ul>
+ *
+ * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
+ */
+@TeleOp(name = "Launcher Bench", group = "Diagnostics")
+public class LauncherBench extends OpMode {
+
+    private static final double STEP_TICKS_PER_SECOND = 100.0;
+    private static final double TRIGGER_PRESSED = 0.5;
+
+    private LauncherSubsystem launcher;
+    private FeederSubsystem feeder;
+    private Display display;
+    private final LoopTimer loopTimer = new LoopTimer();
+    private TelemetryManager panels;
+    private String panelsProblem;
+    private String configWarning;
+    private String fault;
+
+    private boolean aWas, bWas, upWas, downWas, l1Was, l2Was, r1Was, r2Was, backWas;
+
+    @Override
+    public void init() {
+        for (LynxModule hub : hardwareMap.getAll(LynxModule.class)) {
+            hub.setBulkCachingMode(LynxModule.BulkCachingMode.AUTO);
+        }
+        configWarning = checkActiveConfig();
+        display = new Display(telemetry);
+        try {
+            launcher = new LauncherSubsystem(hardwareMap);
+            feeder = new FeederSubsystem(hardwareMap);
+            launcher.initialize();
+            feeder.initialize();
+        } catch (RuntimeException e) {
+            fault = "Hardware: " + (e.getMessage() == null ? e.toString() : e.getMessage());
+        }
+        try {
+            panels = PanelsTelemetry.INSTANCE.getTelemetry();
+            if (panels == null) panelsProblem = "PanelsTelemetry returned no telemetry manager";
+        } catch (RuntimeException | LinkageError e) {
+            panels = null;
+            panelsProblem = "not available at init: " + e;
+        }
+        show();
+    }
+
+    @Override
+    public void init_loop() {
+        // Read-only before PLAY: the wheels stay still, the screen shows the config and the numbers.
+        show();
+    }
+
+    @Override
+    public void loop() {
+        loopTimer.lap();
+        if (fault == null) {
+            readGamepad();
+            launcher.update();
+            feeder.update();
+        }
+        show();
+        publish();
+    }
+
+    @Override
+    public void stop() {
+        if (launcher != null) launcher.stop();
+        if (feeder != null) feeder.stop();
+    }
+
+    private void readGamepad() {
+        boolean a = gamepad1.a, b = gamepad1.b, up = gamepad1.dpad_up, down = gamepad1.dpad_down;
+        boolean l1 = gamepad1.left_bumper, l2 = gamepad1.left_trigger > TRIGGER_PRESSED;
+        boolean r1 = gamepad1.right_bumper, r2 = gamepad1.right_trigger > TRIGGER_PRESSED;
+        boolean back = gamepad1.back;
+
+        if (a && !aWas) launcher.spinUp();
+        if (b && !bWas) launcher.spinDown();
+        if (up && !upWas) nudge(STEP_TICKS_PER_SECOND, 0, 0);
+        if (down && !downWas) nudge(-STEP_TICKS_PER_SECOND, 0, 0);
+        if (l1 && !l1Was) nudge(0, -STEP_TICKS_PER_SECOND, 0);
+        if (l2 && !l2Was) nudge(0, STEP_TICKS_PER_SECOND, 0);
+        if (r1 && !r1Was) nudge(0, 0, -STEP_TICKS_PER_SECOND);
+        if (r2 && !r2Was) nudge(0, 0, STEP_TICKS_PER_SECOND);
+        if (back && !backWas) {
+            LauncherSubsystem.leftTrimTicksPerSecond = 0.0;
+            LauncherSubsystem.rightTrimTicksPerSecond = 0.0;
+            refreshPanels();
+        }
+        aWas = a; bWas = b; upWas = up; downWas = down;
+        l1Was = l1; l2Was = l2; r1Was = r1; r2Was = r2; backWas = back;
+
+        // Held buttons, decided every loop: feed only once the launcher is at speed, reverse any time.
+        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(), true);
+        switch (request) {
+            case FEED: feeder.feed(); break;
+            case REVERSE: feeder.reverse(); break;
+            default: feeder.idle();
+        }
+    }
+
+    private void nudge(double common, double leftTrim, double rightTrim) {
+        LauncherSubsystem.targetTicksPerSecond = Math.max(0.0, LauncherSubsystem.targetTicksPerSecond + common);
+        LauncherSubsystem.leftTrimTicksPerSecond += leftTrim;
+        LauncherSubsystem.rightTrimTicksPerSecond += rightTrim;
+        refreshPanels();
+    }
+
+    /** Panels re-sends a class's values only when told to; without this the page shows stale numbers after a nudge. */
+    private void refreshPanels() {
+        try {
+            PanelsConfigurables.refreshClass(LauncherSubsystem.class);
+        } catch (RuntimeException ignored) {
+            // A dashboard problem must not stop the bench.
+        }
+    }
+
+    private void show() {
+        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad ± common · "
+                + "L1/L2 left trim · R1/R2 right trim · Square feed · Triangle reverse · Share zero trims</small>");
+        if (configWarning != null) display.status("Config", Display.Level.WARN, configWarning);
+        if (fault != null) {
+            display.status("Bench", Display.Level.FAULT, fault);
+        } else {
+            launcher.describe(display);
+            feeder.describe(display);
+            display.line(String.format(Locale.US, "Targets: common %.0f · left trim %+.0f · right trim %+.0f ticks/s",
+                    launcher.target(), LauncherSubsystem.leftTrimTicksPerSecond, LauncherSubsystem.rightTrimTicksPerSecond));
+        }
+        display.line(loopTimer.summary());
+        if (panelsProblem != null) display.line("Panels: " + panelsProblem);
+        telemetry.update();
+    }
+
+    private void publish() {
+        if (panels == null || fault != null) return;
+        try {
+            panels.addData("left_target_tps", launcher.leftTarget());
+            panels.addData("right_target_tps", launcher.rightTarget());
+            panels.addData("left_tps", launcher.leftTicksPerSecond());
+            panels.addData("right_tps", launcher.rightTicksPerSecond());
+            panels.addData("at_speed", launcher.atSpeed() ? 1.0 : 0.0);
+            panels.addData("left_amps", launcher.leftCurrentAmps());
+            panels.addData("right_amps", launcher.rightCurrentAmps());
+            panels.addData("feeder_power", feeder.power());
+            panels.addData("loop_ms", loopTimer.lastMs());
+            panels.update();
+        } catch (RuntimeException ignored) {
+            // Telemetry never takes the bench down.
+        }
+    }
+
+    private static String checkActiveConfig() {
+        String wanted = RobotIdentity.LAUNCHER_BENCH.configName;
+        String active;
+        try {
+            active = ActiveConfig.name();
+        } catch (RuntimeException e) {
+            return "Could not read the active configuration: " + e.getMessage();
+        }
+        if (wanted.equals(active)) return null;
+        return "Active config is \"" + (active == null ? "none" : active) + "\", not \"" + wanted
+                + "\". Driver Station: Configure Robot -> " + wanted + " -> Activate.";
+    }
+}

@@ -159,11 +159,20 @@ public final class DeviceNames {
      * per-robot lists above. Not a requirement on any one configuration; each
      * {@link RobotIdentity} carries its own list for that.
      */
+    /**
+     * The launcher bench (robot_launcher_bench.xml): a spare Control Hub with the two flywheels and
+     * the feeder on the same motor numbers the robots use (1, 2, 3), on the Control Hub itself.
+     */
+    public static final List<Device> LAUNCHER_BENCH = Collections.unmodifiableList(Arrays.asList(
+            new Device(LAUNCHER_LEFT, Kind.MOTOR),
+            new Device(LAUNCHER_RIGHT, Kind.MOTOR),
+            new Device(FEEDER, Kind.MOTOR)));
+
     /** The OctoQuad turret-encoder bench rig (robot_octoquad_rig.xml): a spare Control Hub and the OctoQuad. */
     public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
             new Device(OCTOQUAD, Kind.I2C)));
 
-    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG, OCTOQUAD_RIG);
+    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG, LAUNCHER_BENCH, OCTOQUAD_RIG);
 
     @SafeVarargs
     private static List<Device> union(List<Device>... lists) {
