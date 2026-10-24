@@ -33,8 +33,9 @@ import java.util.Locale;
  *   <li><b>Servo direction.</b> Push the left stick left: the turret should turn
  *       counter-clockwise. If it turns the other way, set {@code servoDirection} to -1.</li>
  *   <li><b>Closed loop.</b> Triangle (Y) holds the turret at {@code targetDeg}; D-pad up/down moves the
- *       target. Raise {@code kP} until it arrives briskly without hunting. If it runs away the
- *       servo direction is wrong; the hold cuts out past {@code runawayDeg} and says so.</li>
+ *       target. Raise {@code kP} until it arrives briskly without hunting; if it stops a degree or
+ *       two short, raise {@code minPower} until the last degrees close. If it runs away the servo
+ *       direction is wrong; the hold cuts out past {@code runawayDeg} and says so.</li>
  * </ol>
  *
  * <p>Standalone diagnostics, like {@code ValidateHardware}: no {@code Robot}, no
@@ -76,6 +77,13 @@ public class TurretBench extends OpMode {
 
     /** Inside this many degrees of the target the hold sends no power, so the servo does not buzz. */
     public static double holdToleranceDeg = 1.0;
+
+    /**
+     * Least power the hold sends while outside the tolerance, [0, 1]. A continuous servo does not
+     * move below some power, so a small error times {@code kP} can ask for less than that and the
+     * turret stops a degree or two short. 0: off. Raise it until the last few degrees close.
+     */
+    public static double minPower = 0.0;
 
     /** A hold error past this means the servo is driving the wrong way: cut power and say so. */
     public static double runawayDeg = 180.0;
@@ -286,7 +294,12 @@ public class TurretBench extends OpMode {
             return 0.0;
         }
         double gain = kP > 0.0 && !Double.isInfinite(kP) ? kP : 0.0;
-        return gain * errorDeg;
+        double power = gain * errorDeg;
+        double floor = unitRange(minPower);
+        if (Math.abs(power) < floor) {
+            power = Math.copySign(floor, errorDeg);
+        }
+        return power;
     }
 
     private int servoSign() {
@@ -312,8 +325,8 @@ public class TurretBench extends OpMode {
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
                         : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
-                "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f",
-                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP));
+                "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f  minPower %.2f  tol %.1f",
+                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, unitRange(minPower), holdToleranceDeg));
         telemetry.addLine("");
         telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");
         telemetry.addLine("Triangle hold at target · D-pad up/down target ±step · Circle stop hold");
