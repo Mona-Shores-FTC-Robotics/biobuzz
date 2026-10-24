@@ -22,10 +22,11 @@ import java.util.Locale;
  * {@code Robot}, because a bench has no drivetrain to build; the same two classes the robot runs,
  * so every number found here is a number for the robot.
  *
- * <p>Each wheel can be run at its own speed: the common target plus a per-wheel trim
- * ({@link LauncherSubsystem#leftTrimTicksPerSecond}, {@link LauncherSubsystem#rightTrimTicksPerSecond}),
- * nudged from the gamepad or typed in Panels. That is how to find whether the pinch wants spin and
- * whether two motors match.
+ * <p>The rig is {@link LauncherSubsystem.Layout#Y_CABLED}: both flywheel motors on one port through
+ * a Y cable, and both feeder motors on another. Software sees one launcher motor and one feeder
+ * motor; both wheels get the same signal, so there is no per-wheel trim here and the trim buttons
+ * are shown as unused. The wheels turning opposite ways comes from mounting and wiring, not code:
+ * if both turn the same way, that is a wiring fix.
  *
  * <h2>Gamepad 1, PlayStation names (Xbox in brackets)</h2>
  *
@@ -64,7 +65,7 @@ public class LauncherBench extends OpMode {
         configWarning = checkActiveConfig();
         display = new Display(telemetry);
         try {
-            launcher = new LauncherSubsystem(hardwareMap);
+            launcher = LauncherSubsystem.yCabled(hardwareMap);
             feeder = new FeederSubsystem(hardwareMap);
             launcher.initialize();
             feeder.initialize();
@@ -115,10 +116,11 @@ public class LauncherBench extends OpMode {
         if (b && !bWas) launcher.spinDown();
         if (up && !upWas) nudge(STEP_TICKS_PER_SECOND, 0, 0);
         if (down && !downWas) nudge(-STEP_TICKS_PER_SECOND, 0, 0);
-        if (l1 && !l1Was) nudge(0, -STEP_TICKS_PER_SECOND, 0);
-        if (l2 && !l2Was) nudge(0, STEP_TICKS_PER_SECOND, 0);
-        if (r1 && !r1Was) nudge(0, 0, -STEP_TICKS_PER_SECOND);
-        if (r2 && !r2Was) nudge(0, 0, STEP_TICKS_PER_SECOND);
+        boolean trims = launcher.layout() == LauncherSubsystem.Layout.TWO_MOTORS;
+        if (trims && l1 && !l1Was) nudge(0, -STEP_TICKS_PER_SECOND, 0);
+        if (trims && l2 && !l2Was) nudge(0, STEP_TICKS_PER_SECOND, 0);
+        if (trims && r1 && !r1Was) nudge(0, 0, -STEP_TICKS_PER_SECOND);
+        if (trims && r2 && !r2Was) nudge(0, 0, STEP_TICKS_PER_SECOND);
         if (back && !backWas) {
             LauncherSubsystem.leftTrimTicksPerSecond = 0.0;
             LauncherSubsystem.rightTrimTicksPerSecond = 0.0;
@@ -153,16 +155,21 @@ public class LauncherBench extends OpMode {
     }
 
     private void show() {
-        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad ± common · "
-                + "L1/L2 left trim · R1/R2 right trim · Square feed · Triangle reverse · Share zero trims</small>");
+        boolean yCabled = launcher != null && launcher.layout() == LauncherSubsystem.Layout.Y_CABLED;
+        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad ± speed · "
+                + (yCabled ? "Y-cabled: trims unused" : "L1/L2 left trim · R1/R2 right trim · Share zero trims")
+                + " · Square feed · Triangle reverse</small>");
         if (configWarning != null) display.status("Config", Display.Level.WARN, configWarning);
         if (fault != null) {
             display.status("Bench", Display.Level.FAULT, fault);
         } else {
             launcher.describe(display);
             feeder.describe(display);
-            display.line(String.format(Locale.US, "Targets: common %.0f · left trim %+.0f · right trim %+.0f ticks/s",
-                    launcher.target(), LauncherSubsystem.leftTrimTicksPerSecond, LauncherSubsystem.rightTrimTicksPerSecond));
+            display.line(yCabled
+                    ? String.format(Locale.US, "Target %.0f ticks/s (one signal to both wheels)", launcher.target())
+                    : String.format(Locale.US, "Targets: common %.0f · left trim %+.0f · right trim %+.0f ticks/s",
+                            launcher.target(), LauncherSubsystem.leftTrimTicksPerSecond,
+                            LauncherSubsystem.rightTrimTicksPerSecond));
         }
         display.line(loopTimer.summary());
         if (panelsProblem != null) display.line("Panels: " + panelsProblem);
