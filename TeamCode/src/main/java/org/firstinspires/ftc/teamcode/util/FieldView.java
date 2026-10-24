@@ -156,6 +156,13 @@ public final class FieldView {
         field.line(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES + 4.0);
     }
 
+    /** A line between two field points, for a bearing, a ray or a path segment. */
+    public void drawLine(double x1, double y1, double x2, double y2, String colour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), colour, 1.0);
+        field.moveCursor(x1, y1);
+        field.line(x2, y2);
+    }
+
     /** Marks a point — a path target, a detected game element, wherever you were aiming. */
     public void drawMarker(double x, double y, double radius, String outlineColour) {
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
