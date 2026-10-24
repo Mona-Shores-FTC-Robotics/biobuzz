@@ -33,7 +33,8 @@ import java.util.Locale;
  *
  * <ul>
  *   <li>Cross (A): spin up both wheels. Circle (B): spin down, wheels coast.</li>
- *   <li>D-pad up / down: common target +100 / −100 ticks per second.</li>
+ *   <li>D-pad up / down: launcher target +100 / −100 ticks per second.</li>
+ *   <li>D-pad right / left: feeder power +0.1 / −0.1 (0 to 1).</li>
  *   <li>L1 / L2: left wheel trim −100 / +100. R1 / R2: right wheel trim −100 / +100.</li>
  *   <li>Square (X) held: feed, whenever it is held. Triangle (Y) held: reverse the feeder.</li>
  *   <li>Share (Back): zero both trims.</li>
@@ -54,6 +55,7 @@ public class LauncherBench extends OpMode {
     public static boolean feedOnlyAtSpeed = false;
 
     private static final double STEP_TICKS_PER_SECOND = 100.0;
+    private static final double STEP_FEED_POWER = 0.1;
     private static final double TRIGGER_PRESSED = 0.5;
 
     private LauncherSubsystem launcher;
@@ -65,7 +67,7 @@ public class LauncherBench extends OpMode {
     private String configWarning;
     private String fault;
 
-    private boolean aWas, bWas, upWas, downWas, l1Was, l2Was, r1Was, r2Was, backWas;
+    private boolean aWas, bWas, upWas, downWas, leftWas, rightWas, l1Was, l2Was, r1Was, r2Was, backWas;
 
     @Override
     public void init() {
@@ -118,6 +120,7 @@ public class LauncherBench extends OpMode {
 
     private void readGamepad() {
         boolean a = gamepad1.a, b = gamepad1.b, up = gamepad1.dpad_up, down = gamepad1.dpad_down;
+        boolean dleft = gamepad1.dpad_left, dright = gamepad1.dpad_right;
         boolean l1 = gamepad1.left_bumper, l2 = gamepad1.left_trigger > TRIGGER_PRESSED;
         boolean r1 = gamepad1.right_bumper, r2 = gamepad1.right_trigger > TRIGGER_PRESSED;
         boolean back = gamepad1.back;
@@ -126,6 +129,8 @@ public class LauncherBench extends OpMode {
         if (b && !bWas) launcher.spinDown();
         if (up && !upWas) nudge(STEP_TICKS_PER_SECOND, 0, 0);
         if (down && !downWas) nudge(-STEP_TICKS_PER_SECOND, 0, 0);
+        if (dright && !rightWas) nudgeFeed(STEP_FEED_POWER);
+        if (dleft && !leftWas) nudgeFeed(-STEP_FEED_POWER);
         boolean trims = launcher.layout() == LauncherSubsystem.Layout.TWO_MOTORS;
         if (trims && l1 && !l1Was) nudge(0, -STEP_TICKS_PER_SECOND, 0);
         if (trims && l2 && !l2Was) nudge(0, STEP_TICKS_PER_SECOND, 0);
@@ -136,7 +141,7 @@ public class LauncherBench extends OpMode {
             LauncherSubsystem.rightTrimTicksPerSecond = 0.0;
             refreshPanels();
         }
-        aWas = a; bWas = b; upWas = up; downWas = down;
+        aWas = a; bWas = b; upWas = up; downWas = down; leftWas = dleft; rightWas = dright;
         l1Was = l1; l2Was = l2; r1Was = r1; r2Was = r2; backWas = back;
 
         // Held buttons, decided every loop. No gate unless feedOnlyAtSpeed is switched on in Panels.
@@ -156,10 +161,17 @@ public class LauncherBench extends OpMode {
         refreshPanels();
     }
 
+    private void nudgeFeed(double delta) {
+        double p = FeederSubsystem.feedPower + delta;
+        FeederSubsystem.feedPower = Math.round(Math.max(0.0, Math.min(1.0, p)) * 100.0) / 100.0;
+        refreshPanels();
+    }
+
     /** Panels re-sends a class's values only when told to; without this the page shows stale numbers after a nudge. */
     private void refreshPanels() {
         try {
             PanelsConfigurables.refreshClass(LauncherSubsystem.class);
+            PanelsConfigurables.refreshClass(FeederSubsystem.class);
         } catch (RuntimeException ignored) {
             // A dashboard problem must not stop the bench.
         }
@@ -167,7 +179,8 @@ public class LauncherBench extends OpMode {
 
     private void show() {
         boolean yCabled = launcher != null && launcher.layout() == LauncherSubsystem.Layout.Y_CABLED;
-        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad ± speed · "
+        telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad up/down launcher speed · "
+                + "D-pad right/left feeder power · "
                 + (yCabled ? "Y-cabled: trims unused" : "L1/L2 left trim · R1/R2 right trim · Share zero trims")
                 + " · Square feed" + (feedOnlyAtSpeed ? " (once at speed)" : "") + " · Triangle reverse</small>");
         if (configWarning != null) display.status("Config", Display.Level.WARN, configWarning);
@@ -177,7 +190,8 @@ public class LauncherBench extends OpMode {
             launcher.describe(display);
             feeder.describe(display);
             display.line(yCabled
-                    ? String.format(Locale.US, "Target %.0f ticks/s (one signal to both wheels)", launcher.target())
+                    ? String.format(Locale.US, "Launcher target %.0f ticks/s (one signal to both wheels) · feeder power %.2f",
+                            launcher.target(), FeederSubsystem.feedPower)
                     : String.format(Locale.US, "Targets: common %.0f · left trim %+.0f · right trim %+.0f ticks/s",
                             launcher.target(), LauncherSubsystem.leftTrimTicksPerSecond,
                             LauncherSubsystem.rightTrimTicksPerSecond));
