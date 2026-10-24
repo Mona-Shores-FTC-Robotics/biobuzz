@@ -189,7 +189,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
 
     /**
      * Field-centric "forward" becomes this field heading, radians. Used at PLAY when the pose is
-     * field-absolute (handed over from Autonomous) and the driver's forward for the alliance is known.
+     * field-referenced (handed over from Autonomous, or seeded by the camera) and the driver's
+     * forward for the alliance is known.
      */
     public void setFieldForward(double fieldHeading) {
         headingOffset = fieldHeading;

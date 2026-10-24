@@ -260,11 +260,16 @@ public abstract class RobotOpMode extends OpMode {
         driver.prime();
         operator.prime();
         if (!isAutonomous()) {
+            // Field-centric forward: the driver's "away from me" when the pose is on the field
+            // (handed over from Autonomous, or seeded by the camera in INIT) and that heading has
+            // been measured for the alliance; otherwise the way the robot faces now.
             double forward = FieldFrame.driverForwardHeading(setup.alliance());
-            if (poseFromAuto && !Double.isNaN(forward)) {
+            if (robot.drive.poseReferenced() && !Double.isNaN(forward)) {
                 robot.drive.setFieldForward(forward);
+                log.event("PLAY: field forward = driver forward");
             } else {
                 robot.drive.resetHeading();
+                log.event("PLAY: field forward = robot's facing");
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
