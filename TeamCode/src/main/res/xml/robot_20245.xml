@@ -58,6 +58,12 @@
                  edition (#177). Plug it into servo port 0. -->
             <Servo name="flowerStick" port="0" />
 
+            <!-- Intake star wheels: a continuous-rotation servo on servo port 5.
+                 One-way clutches mean the stars only ever turn inward; the
+                 code runs them while the intake pulls in and stops them
+                 otherwise. Wired 24 Oct 2026. -->
+            <ContinuousRotationServo name="intakeStars" port="5" />
+
         </LynxModule>
 
         <!-- Expansion Hub: the intake, then the launcher. -->

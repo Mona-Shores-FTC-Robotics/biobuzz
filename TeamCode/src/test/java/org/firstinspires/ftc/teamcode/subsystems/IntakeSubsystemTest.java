@@ -44,6 +44,21 @@ public class IntakeSubsystemTest {
     }
 
     @Test
+    public void starsTurnOnlyWhileTakingIn() {
+        assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 1.0, false), EPS);
+        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, false), EPS);
+        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IDLE, 1.0, false), EPS);
+    }
+
+    @Test
+    public void starsReversedFlipsThemAndTheirPowerIsClamped() {
+        assertEquals(-1.0, IntakeSubsystem.starsPowerFor(State.IN, 1.0, true), EPS);
+        assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 3.0, false), EPS);
+        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, false), EPS);
+        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, true), EPS);
+    }
+
+    @Test
     public void nanStopsTheRoller() {
         assertEquals(0.0, IntakeSubsystem.powerFor(State.IN, Double.NaN, 0.6, false), EPS);
         assertEquals(0.0, IntakeSubsystem.powerFor(State.OUT, 1.0, Double.NaN, false), EPS);
