@@ -77,14 +77,14 @@ public class TurretBench extends OpMode {
     public static double targetStepDeg = 15.0;
 
     /** Inside this many degrees of the target the hold sends no power, so the servo does not buzz. */
-    public static double holdToleranceDeg = 0.5;
+    public static double holdToleranceDeg = 2.0;
 
     /**
      * Least power the hold sends while outside the tolerance, [0, 1]. A continuous servo does not
      * move below some power, so a small error times {@code kP} can ask for less than that and the
      * turret stops a degree or two short. 0: off. Raise it until the last few degrees close.
      */
-    public static double minPower = 0.0;
+    public static double minPower = 0.12;
 
     /**
      * Creep: when the hold is down to {@code minPower}, send it for {@code creepOnMs}, then 0 for
@@ -95,7 +95,7 @@ public class TurretBench extends OpMode {
      * seen; a loop here is about 14 ms, which is why this is in milliseconds and not loops.
      * {@code creepOffMs} 0: no pulsing, minPower is continuous.
      */
-    public static double creepOnMs = 10.0;
+    public static double creepOnMs = 30.0;
     public static double creepOffMs = 100.0;
 
     /**
