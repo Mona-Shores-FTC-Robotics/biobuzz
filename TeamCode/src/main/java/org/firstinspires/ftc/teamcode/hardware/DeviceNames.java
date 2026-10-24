@@ -72,6 +72,12 @@ public final class DeviceNames {
      */
     public static final String FLOWER_STICK = "flowerStick";
 
+    // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
+    // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
+    // channels (#169). On the OctoQuad bench rig today; on the competition
+    // robots once a turret exists (#174 adds it to COMPETITION_ROBOT).
+    public static final String OCTOQUAD = "octoquad";
+
     /**
      * The intake roller: one goBILDA 5203 motor (#160's floating roller, #181 counts pieces from
      * its current). Expansion Hub motor port 0; the port itself is in each robot's XML.
@@ -153,7 +159,11 @@ public final class DeviceNames {
      * per-robot lists above. Not a requirement on any one configuration; each
      * {@link RobotIdentity} carries its own list for that.
      */
-    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG);
+    /** The OctoQuad turret-encoder bench rig (robot_octoquad_rig.xml): a spare Control Hub and the OctoQuad. */
+    public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
+            new Device(OCTOQUAD, Kind.I2C)));
+
+    public static final List<Device> ALL = union(COMPETITION_ROBOT, LAUNCHER_RIG, OCTOQUAD_RIG);
 
     @SafeVarargs
     private static List<Device> union(List<Device>... lists) {
