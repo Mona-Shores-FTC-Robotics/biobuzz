@@ -60,7 +60,17 @@ public class LauncherSubsystem implements Subsystem {
      */
     public static double targetTicksPerSecond = 1000.0;
 
-    /** How close both wheels must be to the target, ticks per second, to count as at speed. */
+    /**
+     * Added to {@link #targetTicksPerSecond} for the left wheel only, ticks per second. Zero means
+     * both wheels run the same speed. A bench sets it to run the wheels apart (to find whether the
+     * pinch wants spin, or to match two motors that differ); a measured value gets written back.
+     */
+    public static double leftTrimTicksPerSecond = 0.0;
+
+    /** As {@link #leftTrimTicksPerSecond}, for the right wheel. */
+    public static double rightTrimTicksPerSecond = 0.0;
+
+    /** How close each wheel must be to its own target, ticks per second, to count as at speed. */
     public static double toleranceTicksPerSecond = 60.0;
 
     /** How long both wheels must stay within tolerance before {@link #atSpeed()} says so, ms. */
@@ -159,9 +169,19 @@ public class LauncherSubsystem implements Subsystem {
         return atSpeed;
     }
 
-    /** The speed in force, ticks per second: {@link #targetTicksPerSecond} clamped the way the wheels get it. */
+    /** The common speed in force, ticks per second: {@link #targetTicksPerSecond} clamped the way the wheels get it. */
     public double target() {
         return nonNegative(targetTicksPerSecond);
+    }
+
+    /** The left wheel's own target: the common target plus its trim, never below zero. */
+    public double leftTarget() {
+        return wheelTarget(targetTicksPerSecond, leftTrimTicksPerSecond);
+    }
+
+    /** The right wheel's own target: the common target plus its trim, never below zero. */
+    public double rightTarget() {
+        return wheelTarget(targetTicksPerSecond, rightTrimTicksPerSecond);
     }
 
     /** Left wheel speed from the last {@link #update()}, ticks per second, direction removed. */
@@ -221,28 +241,29 @@ public class LauncherSubsystem implements Subsystem {
     @Override
     public void update() {
         long now = System.nanoTime();
-        double target = target();
+        double leftTarget = leftTarget();
+        double rightTarget = rightTarget();
 
         leftTicksPerSecond = Math.abs(left.getVelocity());
         rightTicksPerSecond = Math.abs(right.getVelocity());
 
         if (state == State.SPINNING) {
             double elapsedMs = (now - spinUpStartedNs) / 1e6;
-            if (!leftFault && encoderSilent(target, leftTicksPerSecond, elapsedMs,
+            if (!leftFault && encoderSilent(leftTarget, leftTicksPerSecond, elapsedMs,
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 leftFault = true;
             }
-            if (!rightFault && encoderSilent(target, rightTicksPerSecond, elapsedMs,
+            if (!rightFault && encoderSilent(rightTarget, rightTicksPerSecond, elapsedMs,
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 rightFault = true;
             }
-            command(left, leftFault ? 0.0 : commandFor(target, leftReversed));
-            command(right, rightFault ? 0.0 : commandFor(target, rightReversed));
+            command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed));
+            command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed));
             leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
             rightCurrentAmps = right.getCurrent(CurrentUnit.AMPS);
-            boolean within = !leftFault && !rightFault && target > 0.0
-                    && Math.abs(leftTicksPerSecond - target) <= toleranceTicksPerSecond
-                    && Math.abs(rightTicksPerSecond - target) <= toleranceTicksPerSecond;
+            boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
+                    && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
+                    && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
         } else {
             left.setPower(0.0);
@@ -269,8 +290,12 @@ public class LauncherSubsystem implements Subsystem {
         } else if (state == State.IDLE) {
             display.status("Launcher", Display.Level.OK, "idle");
         } else {
+            double l = leftTarget();
+            double r = rightTarget();
             display.status("Launcher", atSpeed ? Display.Level.OK : Display.Level.WARN,
-                    String.format(Locale.US, "%s · target %.0f ticks/s", atSpeed ? "AT SPEED" : "spinning up", target()));
+                    String.format(Locale.US, "%s · target %s ticks/s", atSpeed ? "AT SPEED" : "spinning up",
+                            l == r ? String.format(Locale.US, "%.0f", l)
+                                    : String.format(Locale.US, "L %.0f / R %.0f", l, r)));
         }
         display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
                 leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(),
@@ -309,6 +334,14 @@ public class LauncherSubsystem implements Subsystem {
     static boolean encoderSilent(double target, double measured, double elapsedMs,
                                  double faultAfterMs, double silentFloor) {
         return target > 0.0 && elapsedMs >= faultAfterMs && Math.abs(measured) < silentFloor;
+    }
+
+    /**
+     * One wheel's target: the common target plus that wheel's trim, clamped to [0, ∞). A NaN trim
+     * counts as zero, so a Panels typo in a trim leaves the wheel at the common speed.
+     */
+    static double wheelTarget(double common, double trim) {
+        return nonNegative(nonNegative(common) + (Double.isNaN(trim) ? 0.0 : trim));
     }
 
     /** Clamps a Panels-editable speed to [0, ∞) and treats NaN as 0: a typo spins down, never backwards. */
