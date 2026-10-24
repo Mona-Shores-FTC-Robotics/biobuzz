@@ -99,11 +99,11 @@ public class HiveAndPose extends RobotOpMode {
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
         driver.note("Left bumper (hold)", "Slow");
-        driver.when("A", "Relocalize from the camera", () -> gamepad1.a)
+        driver.when("Cross (A)", "Relocalize from the camera", () -> gamepad1.a)
                 .onPress(() -> relocalizeNote = robot.drive.relocalizeFromCamera());
-        driver.when("Y", "Reset field-centric forward", () -> gamepad1.y)
+        driver.when("Triangle (Y)", "Reset field-centric forward", () -> gamepad1.y)
                 .onPress(robot.drive::resetHeading);
-        driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
+        driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
     }
 
@@ -120,8 +120,8 @@ public class HiveAndPose extends RobotOpMode {
                 deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale,
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
         showEverything();
-        display.line("<small>A relocalize · Y reset forward · B field/robot-centric · "
-                + "Back/Share: controls, robot pages</small>");
+        display.line("<small>Cross (A) relocalize · Triangle (Y) reset forward · Circle (B) field/robot-centric · "
+                + "Share (Back): controls, robot pages</small>");
     }
 
     /** The Match page, the Panels graphs and the field view, from this loop's state. */
