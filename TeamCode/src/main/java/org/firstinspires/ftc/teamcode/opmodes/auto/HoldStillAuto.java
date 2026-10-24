@@ -4,6 +4,8 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 
 /**
@@ -14,11 +16,17 @@ import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
  * <p>Run it, stop it, then init any TeleOp: the Match page should say "pose from Auto Ns ago" and
  * the alliance should arrive already chosen.
  *
- * <p>To check a start position, override {@code startPosition()} to return one from
- * {@code StartPositions} once they are measured.
+ * <p>It declares {@link StartPositions#RED_AUDIENCE}, the one start measured so far, so INIT runs
+ * the start check: place the robot there, and the Match page says whether the camera agrees. To
+ * check another start once it is measured, point {@link #startPosition()} at it.
  */
 @Autonomous(name = "Auto: Hold Still", group = "Auto")
 public class HoldStillAuto extends RobotOpMode {
+
+    @Override
+    protected StartPosition startPosition() {
+        return StartPositions.RED_AUDIENCE;
+    }
 
     @Override
     protected void onLoop() {
