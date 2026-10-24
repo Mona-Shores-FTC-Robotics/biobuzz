@@ -47,6 +47,13 @@
             <!-- Drivetrain: mecanum. Layout carried over from the DECODE
                  season's robots, which used these same four ports. -->
             <goBILDA5202SeriesMotor name="frontRight" port="0" />
+            <!-- The ENCODER socket beside motor port 0 carries the turret's
+                 Studica Cypher Max (quadrature A/B/I, its FTC Control Hub
+                 cable), not frontRight's own encoder: the drivetrain never
+                 reads its motor encoders, the Pinpoint does odometry. Code
+                 reads the turret angle as frontRight's position
+                 (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
+                 to 3V3. -->
             <goBILDA5202SeriesMotor name="frontLeft"  port="1" />
             <goBILDA5202SeriesMotor name="backRight"  port="2" />
             <goBILDA5202SeriesMotor name="backLeft"   port="3" />
@@ -63,6 +70,11 @@
                  code runs them while the intake pulls in and stops them
                  otherwise. Wired 24 Oct 2026. -->
             <ContinuousRotationServo name="intakeStars" port="5" />
+
+            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
+                 servo port 1 (port 0 is the FLOWER stick's). Its angle is the
+                 Cypher Max on motor port 0's encoder socket, above. -->
+            <ContinuousRotationServo name="turret" port="1" />
 
         </LynxModule>
 

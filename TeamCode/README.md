@@ -411,6 +411,35 @@ devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
 `port="0" bus="1"` and behaved identically, which is why — the `port` difference
 was cosmetic. These files keep the two equal so the file cannot be misread.
 
+### The turret: a servo on a servo port, an encoder on a motor's encoder socket
+
+The turret has no motor port: all eight are taken. It turns on a goBILDA servo
+in continuous-rotation mode, which the SDK builds as a `CRServo` from a
+`<ContinuousRotationServo>` element, a different class from the `Servo` a
+`<Servo>` element gives. So `DeviceNames.Kind` has `CR_SERVO` beside `SERVO`:
+`ValidateHardware` asks the hardware map for the right class, and
+`RobotConfigXmlTest` still treats the two as sharing the six servo ports.
+
+Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
+The encoder's quadrature output (2048 counts per encoder turn, both edges of
+both channels) plugs into the **encoder socket beside Control Hub motor port 0**,
+`frontRight`'s. The drivetrain never reads its motor encoders (Pedro localizes
+from the Pinpoint), so the socket is free, and the SDK reads whatever is in it
+as that motor's position. `DeviceNames.TURRET_ENCODER_HOST` names which motor
+that is; turret code asks for that motor and reads only its encoder, and
+nothing else may set its power or reset its count. The count is relative: zero
+wherever the encoder sat at hub power-up, kept across OpModes while the hub
+stays on. A person puts the turret at its home mark before INIT and the code
+zeroes there. The encoder's absolute PWM output exists, and an OctoQuad could
+read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
+3V3.
+
+`subsystems/TurretEncoder` is the pure math (counts to degrees, with the
+measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measures them: encoder direction, gear ratio, servo direction, and a
+proportional hold to try a gain. Its javadoc is the checklist.
+
 ### The Limelight: an Ethernet device, not a hub device
 
 A Limelight 3A has no hub port. SDK 12 models it as an `<EthernetDevice>`

@@ -45,6 +45,17 @@ public final class DeviceNames {
     public static final String BACK_LEFT = "backLeft";
     public static final String BACK_RIGHT = "backRight";
 
+    /**
+     * The turret's angle encoder is read through this motor's encoder socket, not a device of its
+     * own. A Studica Cypher Max rides the turret's drive gear; its quadrature (A/B/I) output plugs
+     * into the encoder socket beside Control Hub motor port 0, whose motor is {@link #FRONT_RIGHT}.
+     * The drivetrain never reads its motors' encoders (Pedro localizes from the Pinpoint), so the
+     * socket is free, and the SDK reads whatever is plugged into it as that motor's position.
+     * Code that wants the turret angle asks for this motor and reads only its encoder; nothing may
+     * set its power or reset its count except the turret code. The socket is in each robot's XML.
+     */
+    public static final String TURRET_ENCODER_HOST = FRONT_RIGHT;
+
     // Odometry.
     public static final String PINPOINT = "pinpoint";
 
@@ -79,6 +90,14 @@ public final class DeviceNames {
     // Control Hub servo port 5 on both robots, wired 24 Oct 2026.
     public static final String INTAKE_STARS = "intakeStars";
 
+    /**
+     * The turret's drive: a goBILDA servo in continuous-rotation mode, so it occupies a servo port
+     * and a {@code <ContinuousRotationServo>} element, not a motor port (all eight are taken).
+     * Control Hub servo port; the port itself is in each robot's XML. Its angle comes from
+     * {@link #TURRET_ENCODER_HOST}.
+     */
+    public static final String TURRET = "turret";
+
     // Turret angle sensing: a Digital Chicken Labs OctoQuad (FTC Edition) on
     // I2C, reading two REV Thru-Bore absolute outputs on its pulse-width
     // channels (#169). On the OctoQuad bench rig today; on the competition
@@ -103,7 +122,15 @@ public final class DeviceNames {
      */
     public enum Kind {
         MOTOR,
+        /** A positional servo: {@code <Servo>}, asked for as {@code Servo}. */
         SERVO,
+        /**
+         * A continuous-rotation servo: {@code <ContinuousRotationServo>}, asked for as
+         * {@code CRServo}. A different kind from {@link #SERVO} because the SDK builds a different
+         * class for it, so {@code ValidateHardware} has to ask for a different one; it shares the
+         * servo ports.
+         */
+        CR_SERVO,
         I2C,
 
         /**
@@ -154,7 +181,8 @@ public final class DeviceNames {
             new Device(LAUNCHER_RIGHT, Kind.MOTOR),
             new Device(FEEDER, Kind.MOTOR),
             new Device(FLOWER_STICK, Kind.SERVO),
-            new Device(INTAKE_STARS, Kind.SERVO),
+            new Device(INTAKE_STARS, Kind.CR_SERVO),
+            new Device(TURRET, Kind.CR_SERVO),
             new Device(PINPOINT, Kind.I2C),
             new Device(LIMELIGHT, Kind.ETHERNET)));
 
