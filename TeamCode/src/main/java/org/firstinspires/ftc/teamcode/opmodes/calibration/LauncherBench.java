@@ -129,8 +129,10 @@ public class LauncherBench extends OpMode {
         aWas = a; bWas = b; upWas = up; downWas = down;
         l1Was = l1; l2Was = l2; r1Was = r1; r2Was = r2; backWas = back;
 
-        // Held buttons, decided every loop: feed only once the launcher is at speed, reverse any time.
-        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(), true);
+        // Held buttons, decided every loop: a feed starts only once the launcher is at speed and then
+        // runs for as long as Square is held; reverse any time.
+        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(), true,
+                feeder.state() == FeederSubsystem.State.FEED);
         switch (request) {
             case FEED: feeder.feed(); break;
             case REVERSE: feeder.reverse(); break;

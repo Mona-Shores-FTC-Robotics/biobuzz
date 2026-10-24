@@ -123,11 +123,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.drive.drive(forward, strafe, turn);
 
         // The feeder is a held input gated on a changing fact, so it is decided every loop here
-        // rather than on a press: a trigger held through the spin-up starts feeding at speed.
+        // rather than on a press: a trigger held through the spin-up starts feeding at speed, and
+        // once feeding it keeps feeding through the wheels' dip (see FeederSubsystem.requestFor).
         FeederSubsystem.State feed = FeederSubsystem.requestFor(
                 gamepad2.right_trigger > TRIGGER_PRESSED,
                 gamepad2.left_trigger > TRIGGER_PRESSED,
-                robot.launcher.atSpeed(), feedOnlyAtSpeed);
+                robot.launcher.atSpeed(), feedOnlyAtSpeed,
+                robot.feeder.state() == FeederSubsystem.State.FEED);
         switch (feed) {
             case FEED:
                 robot.feeder.feed();
