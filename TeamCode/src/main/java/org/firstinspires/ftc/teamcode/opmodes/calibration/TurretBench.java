@@ -56,11 +56,11 @@ public class TurretBench extends OpMode {
     /** Encoder turns per turret turn, from the gearing. 1 on the encoder's own shaft; 2.75 on the goBILDA kit. */
     public static double turnsPerTurretTurn = 1.0;
 
-    /** +1 if the count rises as the turret turns counter-clockwise seen from above, -1 if it falls. */
-    public static int direction = 1;
+    /** +1 if the count rises as the turret turns counter-clockwise seen from above, -1 if it falls. -1 on 20245 (24 Oct 2026). */
+    public static int direction = -1;
 
-    /** +1 if positive servo power turns the turret counter-clockwise, -1 if clockwise. */
-    public static int servoDirection = 1;
+    /** +1 if positive servo power turns the turret counter-clockwise, -1 if clockwise. -1 on 20245 (24 Oct 2026). */
+    public static int servoDirection = -1;
 
     /** Most servo power the stick or the hold may ask for, [0, 1]. 1.0 held fine on the bench (24 Oct 2026). */
     public static double maxPower = 1.0;

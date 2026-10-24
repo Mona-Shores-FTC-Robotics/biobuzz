@@ -49,11 +49,11 @@ public class TurretSubsystem implements Subsystem {
     /** Encoder turns per turret turn: 2038 counts per flag turn on the bench, so 1 (24 Oct 2026). */
     public static double turnsPerTurretTurn = 1.0;
 
-    /** +1 if the count rises as the turret turns counter-clockwise seen from above (bench, 24 Oct 2026). */
-    public static int direction = 1;
+    /** +1 if the count rises as the turret turns counter-clockwise seen from above. -1 on 20245: it falls (robot, 24 Oct 2026). */
+    public static int direction = -1;
 
-    /** +1 if positive servo power turns the turret counter-clockwise (bench, 24 Oct 2026). */
-    public static int servoDirection = 1;
+    /** +1 if positive servo power turns the turret counter-clockwise. -1 on 20245 (robot, 24 Oct 2026). */
+    public static int servoDirection = -1;
 
     /** The power at which the servo stands still, [-0.2, 0.2]; see {@code Turret Bench}. 0 until measured. */
     public static double servoStopPower = 0.0;
