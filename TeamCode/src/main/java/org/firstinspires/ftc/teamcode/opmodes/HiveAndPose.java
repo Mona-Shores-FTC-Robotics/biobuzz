@@ -121,7 +121,8 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
-        driver.when("D-pad up", "Turret: zero here (turret at its home mark)", () -> gamepad1.dpad_up)
+        driver.when("D-pad up", "Turret: zero here (turret at its home mark; also in INIT)", () -> gamepad1.dpad_up)
+                .duringInit()
                 .onPress(robot.turret::zeroHere);
         driver.when("Square (X)", "Turret: aim at our raised CELL / off", () -> gamepad1.x)
                 .onPress(this::toggleAim);

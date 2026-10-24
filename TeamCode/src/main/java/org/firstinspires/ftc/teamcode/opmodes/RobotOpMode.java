@@ -245,6 +245,8 @@ public abstract class RobotOpMode extends OpMode {
             display.status("Start", handoffLevel, handoffNote);
         }
         startCheck.describe(display);
+        driver.updateDuringInit();
+        operator.updateDuringInit();
         onInitLoop();
         Scheduler.execute();
         finishPage();
