@@ -365,9 +365,9 @@ public abstract class RobotOpMode extends OpMode {
         display.header();
         if (page == Display.Page.CONTROLS) {
             display.section("BEFORE PLAY — either gamepad");
-            display.line("X — Blue alliance");
-            display.line("B — Red alliance");
-            display.line("Back/Share — next page (any time)");
+            display.line("Square (X) — Blue alliance");
+            display.line("Circle (B) — Red alliance");
+            display.line("Share (Back) — next page (any time)");
             describeBindings(driver);
             describeBindings(operator);
         } else {
