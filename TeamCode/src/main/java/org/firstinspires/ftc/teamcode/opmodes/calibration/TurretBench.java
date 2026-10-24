@@ -34,7 +34,8 @@ import java.util.Locale;
  *       counter-clockwise. If it turns the other way, set {@code servoDirection} to -1.</li>
  *   <li><b>Closed loop.</b> Triangle (Y) holds the turret at {@code targetDeg}; D-pad up/down moves the
  *       target. Raise {@code kP} until it arrives briskly without hunting; if it stops a degree or
- *       two short, raise {@code minPower} until the last degrees close. If it runs away the servo
+ *       two short, raise {@code minPower} until the last degrees close, and set
+ *       {@code creepPeriodLoops} to pulse it so it steps onto the target instead of jumping past. If it runs away the servo
  *       direction is wrong; the hold cuts out past {@code runawayDeg} and says so.</li>
  * </ol>
  *
@@ -85,6 +86,14 @@ public class TurretBench extends OpMode {
      */
     public static double minPower = 0.0;
 
+    /**
+     * Creep: when the hold is down to {@code minPower}, send it for one loop in every this many,
+     * 0 the rest. Punching a sticky servo with a steady power moves it several degrees a loop,
+     * and where it stops is luck: 0.5 deg one time, 5 the next. A pulse moves it a fraction of a
+     * degree, so it steps onto the target. 1: no pulsing, minPower is continuous. Try 3 to 6.
+     */
+    public static int creepPeriodLoops = 1;
+
     /** A hold error past this means the servo is driving the wrong way: cut power and say so. */
     public static double runawayDeg = 180.0;
 
@@ -116,6 +125,7 @@ public class TurretBench extends OpMode {
     private String holdNote;
     private double errorDeg = Double.NaN;
     private double powerSent;
+    private int creepLoop;
 
     private boolean aWasDown;
     private boolean yWasDown;
@@ -297,7 +307,10 @@ public class TurretBench extends OpMode {
         double power = gain * errorDeg;
         double floor = unitRange(minPower);
         if (Math.abs(power) < floor) {
-            power = Math.copySign(floor, errorDeg);
+            // Creeping: a pulse of minPower, then silence, so each step is a fraction of a degree.
+            int period = Math.max(1, creepPeriodLoops);
+            creepLoop = (creepLoop + 1) % period;
+            power = creepLoop == 0 ? Math.copySign(floor, errorDeg) : 0.0;
         }
         return power;
     }
@@ -325,8 +338,9 @@ public class TurretBench extends OpMode {
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
                         : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
-                "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f  minPower %.2f  tol %.1f",
-                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, unitRange(minPower), holdToleranceDeg));
+                "settings: turnsPerTurretTurn %.3f  direction %+d  servoDirection %+d  maxPower %.2f  kP %.4f  minPower %.2f  creep 1/%d  tol %.1f",
+                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, unitRange(minPower),
+                Math.max(1, creepPeriodLoops), holdToleranceDeg));
         telemetry.addLine("");
         telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");
         telemetry.addLine("Triangle hold at target · D-pad up/down target ±step · Circle stop hold");
