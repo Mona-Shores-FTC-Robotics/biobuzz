@@ -20,7 +20,7 @@ package org.firstinspires.ftc.teamcode.subsystems;
  *       never applied to a turret already moving away from the target: the drive handles that.
  *       Uncapped, a brake flung the turret the other way and it swung 100 deg either side of the
  *       target (bench, 24 Oct 2026).</li>
- *   <li><b>Creeping</b>, the last degrees, slow: pulses of {@code minPower}, {@code creepOnMs} on
+ *   <li><b>Creeping</b>, the last degrees, slow: pulses of {@code creepPower}, {@code creepOnMs} on
  *       then {@code creepOffMs} off, so each step is a fraction of a degree and it lands in the
  *       band instead of jumping over it. The servo reads its signal every 20 ms, so a pulse is
  *       timed in milliseconds, not loops.</li>
@@ -39,24 +39,34 @@ public final class TurretServoControl {
         /** Faster than this inside the creep zone, the hold brakes instead of creeping, deg/s. */
         public double creepMaxRateDps;
         public double minPower;
+        /**
+         * The power of a creep pulse. A short kick from a dead stop needs more than the steady
+         * floor that keeps a moving servo moving (0.12 against 0.07 on the bench, 24 Oct 2026).
+         * 0: use {@link #minPower}.
+         */
+        public double creepPower;
         public double maxPower;
         public double creepBelowDeg;
         public double toleranceDeg;
         public double creepOnMs;
         public double creepOffMs;
 
-        public Gains(double kP, double kD, double creepMaxRateDps, double minPower, double maxPower,
-                     double creepBelowDeg, double toleranceDeg, double creepOnMs, double creepOffMs) {
-            set(kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, toleranceDeg, creepOnMs, creepOffMs);
+        public Gains(double kP, double kD, double creepMaxRateDps, double minPower, double creepPower,
+                     double maxPower, double creepBelowDeg, double toleranceDeg, double creepOnMs,
+                     double creepOffMs) {
+            set(kP, kD, creepMaxRateDps, minPower, creepPower, maxPower, creepBelowDeg, toleranceDeg,
+                    creepOnMs, creepOffMs);
         }
 
         /** Guarded: NaN, negative and infinite values become the harmless end, never a fast servo. */
-        public void set(double kP, double kD, double creepMaxRateDps, double minPower, double maxPower,
-                        double creepBelowDeg, double toleranceDeg, double creepOnMs, double creepOffMs) {
+        public void set(double kP, double kD, double creepMaxRateDps, double minPower, double creepPower,
+                        double maxPower, double creepBelowDeg, double toleranceDeg, double creepOnMs,
+                        double creepOffMs) {
             this.kP = nonNegative(kP);
             this.kD = nonNegative(kD);
             this.creepMaxRateDps = nonNegative(creepMaxRateDps);
             this.minPower = unit(minPower);
+            this.creepPower = unit(creepPower) > 0.0 ? unit(creepPower) : this.minPower;
             this.maxPower = unit(maxPower);
             this.creepBelowDeg = nonNegative(creepBelowDeg);
             this.toleranceDeg = nonNegative(toleranceDeg);
@@ -90,7 +100,7 @@ public final class TurretServoControl {
             if (fast && towardTarget) {
                 return brake(rate, gains);
             }
-            double pulse = creepPulseOn(gains, nowNs) ? gains.minPower : 0.0;
+            double pulse = creepPulseOn(gains, nowNs) ? gains.creepPower : 0.0;
             return Math.copySign(Math.min(pulse, gains.maxPower), errorDeg);
         }
         // Driving. Damping only eases the drive off as it speeds up toward the target; it never

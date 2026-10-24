@@ -68,8 +68,8 @@ public class TurretBench extends OpMode {
     /** Servo power while a bumper is held. */
     public static double nudgePower = 0.12;
 
-    /** Hold gain: servo power per degree of error. 0.007 arrived without rocking on the bench (24 Oct 2026). */
-    public static double kP = 0.007;
+    /** Hold gain: servo power per degree of error. 0.004 with a 0.07 floor on the bench (24 Oct 2026). */
+    public static double kP = 0.004;
 
     /**
      * Damping: power per degree per second of turret rate, taken off the drive, so the servo
@@ -95,7 +95,13 @@ public class TurretBench extends OpMode {
      * move below some power, so a small error times {@code kP} can ask for less than that and the
      * turret stops a degree or two short. 0: off. Raise it until the last few degrees close.
      */
-    public static double minPower = 0.12;
+    public static double minPower = 0.07;
+
+    /**
+     * The power of a creep pulse, [0, 1]. A short kick from a dead stop needs more than the steady
+     * floor: 0.12 against 0.07 on the bench (24 Oct 2026, full battery). 0 = same as minPower.
+     */
+    public static double creepPower = 0.12;
 
     /**
      * Creep: when the hold is down to {@code minPower}, send it for {@code creepOnMs}, then 0 for
@@ -106,7 +112,7 @@ public class TurretBench extends OpMode {
      * seen; a loop here is about 14 ms, which is why this is in milliseconds and not loops.
      * {@code creepOffMs} 0: no pulsing, minPower is continuous.
      */
-    public static double creepOnMs = 30.0;
+    public static double creepOnMs = 25.0;
     public static double creepOffMs = 100.0;
 
     /**
@@ -167,7 +173,8 @@ public class TurretBench extends OpMode {
     private final LoopTimer loopTimer = new LoopTimer();
     private final TurretServoControl control = new TurretServoControl();
     private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
-            kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
+            kP, kD, creepMaxRateDps, minPower, creepPower, maxPower, creepBelowDeg, holdToleranceDeg,
+            creepOnMs, creepOffMs);
     private TelemetryManager panels;
     private String panelsProblem;
 
@@ -335,7 +342,8 @@ public class TurretBench extends OpMode {
             return 0.0;
         }
         // The same law the robot's TurretSubsystem runs, so what is tuned here is what it gets.
-        gains.set(kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
+        gains.set(kP, kD, creepMaxRateDps, minPower, creepPower, maxPower, creepBelowDeg, holdToleranceDeg,
+                creepOnMs, creepOffMs);
         return control.power(errorDeg, rateDps, gains, System.nanoTime());
     }
 
@@ -367,9 +375,9 @@ public class TurretBench extends OpMode {
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
                         : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
-                "settings: ratio %.3f  dir %+d  servoDir %+d  maxPower %.2f  kP %.4f  kD %.4f  minPower %.2f  creep %.0f/%.0f ms below %.1f  tol %.1f",
+                "settings: ratio %.3f  dir %+d  servoDir %+d  maxPower %.2f  kP %.4f  kD %.4f  minPower %.2f  creep %.2f %.0f/%.0f ms below %.1f  tol %.1f",
                 turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, kD, unitRange(minPower),
-                creepOnMs, creepOffMs, creepBelowDeg, holdToleranceDeg));
+                unitRange(creepPower), creepOnMs, creepOffMs, creepBelowDeg, holdToleranceDeg));
         telemetry.addLine("");
         telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");
         telemetry.addLine("Triangle hold at target · D-pad up/down target ±step · Circle stop hold");
