@@ -78,6 +78,14 @@ public class TurretSubsystem implements Subsystem {
     /** How far the turret may be asked to turn each way from home, degrees. Stops are the wires'; NaN = no clamp yet. */
     public static double travelEachWayDeg = Double.NaN;
 
+    /**
+     * A hold error past this means the servo is driving the wrong way, or the encoder is reading
+     * the wrong way: the hold is dropped and the turret goes idle rather than spinning. The Robot
+     * page says so. Flip {@link #servoDirection} (if the turret ran away from the target) or
+     * {@link #direction} (if it ran but the angle went the other way), then aim again.
+     */
+    public static double runawayDeg = 180.0;
+
     // ------------------------------------------------------------ state
 
     private enum Mode { IDLE, HOLD, MANUAL }
@@ -104,6 +112,7 @@ public class TurretSubsystem implements Subsystem {
     private double rateDps = Double.NaN;
     private double errorDeg = Double.NaN;
     private double powerSent;
+    private String runawayNote;
 
     /** Looks both devices up once. A missing one fails init with the SDK's own message. */
     public TurretSubsystem(HardwareMap hardwareMap) {
@@ -123,6 +132,9 @@ public class TurretSubsystem implements Subsystem {
     public void aim(double deg) {
         if (Double.isNaN(deg)) {
             return;
+        }
+        if (mode != Mode.HOLD) {
+            runawayNote = null;
         }
         double limit = travelEachWayDeg;
         targetDeg = Double.isNaN(limit) || limit <= 0 ? deg : Math.max(-limit, Math.min(limit, deg));
@@ -213,6 +225,14 @@ public class TurretSubsystem implements Subsystem {
         switch (mode) {
             case HOLD:
                 errorDeg = Double.isNaN(angleDeg) ? Double.NaN : targetDeg - angleDeg;
+                if (Math.abs(errorDeg) > Math.max(finite(runawayDeg), 1.0)) {
+                    runawayNote = String.format(Locale.US,
+                            "RUNAWAY: %.0f° from target; hold dropped. Flip servoDirection (or direction) and aim again.",
+                            errorDeg);
+                    mode = Mode.IDLE;
+                    requested = 0.0;
+                    break;
+                }
                 requested = control.power(errorDeg, gains, System.nanoTime());
                 break;
             case MANUAL:
@@ -257,6 +277,14 @@ public class TurretSubsystem implements Subsystem {
                 break;
         }
         display.status("Turret", level, what + (zeroed ? "" : " · <b>NOT ZEROED</b>: put it at home, zero it"));
+        if (runawayNote != null) {
+            display.status("Turret", Display.Level.FAULT, runawayNote);
+        }
+    }
+
+    /** Why the last hold was dropped, or null. Shown by the OpMode too. */
+    public String runawayNote() {
+        return runawayNote;
     }
 
     // ------------------------------------------------------------ helpers
@@ -276,6 +304,10 @@ public class TurretSubsystem implements Subsystem {
             encoder = null;
             settingsProblem = "bad settings: " + e.getMessage();
         }
+    }
+
+    private static double finite(double value) {
+        return Double.isNaN(value) || Double.isInfinite(value) ? 0.0 : value;
     }
 
     private static double clamp(double value, double limit) {

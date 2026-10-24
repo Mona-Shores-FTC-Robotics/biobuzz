@@ -304,6 +304,9 @@ public class HiveAndPose extends RobotOpMode {
         } else {
             display.status("Turret", Display.Level.OK, String.format(Locale.US, "%.1f° · idle", angle));
         }
+        if (robot.turret.runawayNote() != null) {
+            display.status("Turret", Display.Level.FAULT, robot.turret.runawayNote());
+        }
         if (aiming) {
             display.line("Aim: " + aimSource
                     + (aimCell == null ? "" : " · " + cellName(aimCell) + " CELL")
