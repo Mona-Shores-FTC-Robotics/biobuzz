@@ -77,8 +77,9 @@ public class HiveAndPose extends RobotOpMode {
     /** Where the turret points (yellow) and where it should (green), on the field view. */
     private static final String TURRET_RAY = "#FFEB3B";
     private static final String TURRET_TARGET_RAY = "#00E676";
-    /** How long to draw the turret rays when the range is not known, inches. */
-    private static final double TURRET_RAY_IN = 30.0;
+    /** The turret drawn on the robot: a small circle at its axis, and the length of its pointer, inches. */
+    private static final double TURRET_RADIUS_IN = 2.5;
+    private static final double TURRET_POINTER_IN = 12.0;
     private static final String RED_CELL = "#E53935";
     private static final String BLUE_CELL = "#1E88E5";
     private static final HiveCell[] CELLS = HiveCell.values();
@@ -373,9 +374,10 @@ public class HiveAndPose extends RobotOpMode {
     }
 
     /**
-     * The turret on the field: a ray from its axis along where it points, a second along the aim
-     * target, and a marker on the aimed CELL's field point. If the green ray lands on the CELL
-     * and the real flag does not, the maths is right and the zero or the mounting is off.
+     * The turret on the field: a small yellow circle on the robot at the turret's axis with a
+     * pointer the way it faces, a green line from there to the aim target, and a ring on the aimed
+     * CELL's field point. If the green line lands on the ring and the real flag does not, the maths
+     * is right and the zero or the mounting is off.
      */
     private void drawTurret(Pose pose) {
         double angle = robot.turret.angleDegrees();
@@ -386,18 +388,22 @@ public class HiveAndPose extends RobotOpMode {
         double left = TurretSubsystem.turretLeftIn;
         double axisX = pose.x() + fwd * c - left * s;
         double axisY = pose.y() + fwd * s + left * c;
-        double length = Double.isNaN(aimRangeIn) ? TURRET_RAY_IN : aimRangeIn;
+        // The turret itself: a small circle on the robot where its axis is, with a pointer the way it faces.
+        field.drawMarker(axisX, axisY, TURRET_RADIUS_IN, TURRET_RAY);
         double pointing = pose.heading() + Math.toRadians(angle);
-        field.drawLine(axisX, axisY, axisX + length * Math.cos(pointing), axisY + length * Math.sin(pointing), TURRET_RAY);
+        field.drawLine(axisX, axisY, axisX + TURRET_POINTER_IN * Math.cos(pointing),
+                axisY + TURRET_POINTER_IN * Math.sin(pointing), TURRET_RAY);
+        // The target: a thin line all the way to the CELL, so a miss is visible against the ring.
         double target = robot.turret.targetDegrees();
         if (!Double.isNaN(target)) {
+            double length = Double.isNaN(aimRangeIn) ? TURRET_POINTER_IN : aimRangeIn;
             double wanted = pose.heading() + Math.toRadians(target);
             field.drawLine(axisX, axisY, axisX + length * Math.cos(wanted), axisY + length * Math.sin(wanted),
                     TURRET_TARGET_RAY);
         }
         if (aiming && aimCell != null) {
             Vec3 row = HiveFieldPoints.rowCentre(aimCell, HiveCellState.UP);
-            if (row != null) field.drawMarker(row.x(), row.y(), 2.0, TURRET_TARGET_RAY);
+            if (row != null) field.drawMarker(row.x(), row.y(), 1.5, TURRET_TARGET_RAY);
         }
     }
 
