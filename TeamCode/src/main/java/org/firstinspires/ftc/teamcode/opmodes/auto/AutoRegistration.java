@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
-import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
@@ -36,11 +35,14 @@ import java.util.function.BooleanSupplier;
  * lists them, {@link BuiltAuto} shows the list on the Driver Station at INIT, and each one goes
  * when its mechanism lands:
  * <ul>
- *   <li>{@code LaunchAll}, {@code LaunchOne}, {@code SpinUp}, {@code Empty}: the launcher.</li>
  *   <li>{@code IntakeFull}: the intake, counting pieces (#181).</li>
  *   <li>{@code LeftCellUp}, {@code RightCellUp}: which CELL is up as the drive team sees it;
  *       needs the left/right naming of the CELLs (#114) and the HIVE tracker (#173).</li>
  * </ul>
+ *
+ * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
+ * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
+ * without a piece sensor.
  */
 public final class AutoRegistration {
 
@@ -49,7 +51,7 @@ public final class AutoRegistration {
 
     /** The names registered as placeholders, in registration order. Shown at INIT. */
     public static final List<String> PLACEHOLDERS = Collections.unmodifiableList(Arrays.asList(
-            "LaunchAll", "LaunchOne", "SpinUp", "Empty", "IntakeFull", "LeftCellUp", "RightCellUp"));
+            "IntakeFull", "LeftCellUp", "RightCellUp"));
 
     private static final HiveCell[] CELLS = HiveCell.values();
 
@@ -60,12 +62,18 @@ public final class AutoRegistration {
      * {@link AutoRegistry#describe() describe} the list; a null robot's triggers are never called.
      */
     public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
+        // The launcher's cards share one object, so Empty can see which LaunchAll has finished. A
+        // null robot only describes the list; its factories are never called.
+        final LaunchCards launch = robot == null ? null : LaunchCards.forRobot(robot);
         return new AutoRegistry()
-                // ---- placeholders: the launcher and the intake do not exist on this robot yet.
-                .command("LaunchAll", 2.0, () -> Commands.instant(() -> { }))
-                .command("LaunchOne", 0.5, () -> Commands.instant(() -> { }))
-                .command("SpinUp", 0.1, () -> Commands.instant(() -> { }))
-                .trigger("Empty", () -> false)
+                // ---- real: the launcher and the feeder. Typical seconds are what the editor's
+                // preview shows; the feed times themselves are LaunchCards' Panels numbers.
+                .command("LaunchAll", 2.0, () -> launch.launchAll())
+                .command("LaunchOne", 0.5, () -> launch.launchOne())
+                .command("SpinUp", 0.1, () -> launch.spinUp())
+                .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
+                // ---- placeholders: the intake does not count pieces yet, and the CELLs have no
+                // left/right naming on master.
                 .trigger("IntakeFull", () -> false)
                 .trigger("LeftCellUp", () -> false)
                 .trigger("RightCellUp", () -> false)
