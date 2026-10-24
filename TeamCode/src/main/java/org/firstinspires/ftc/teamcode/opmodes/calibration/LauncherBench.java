@@ -36,7 +36,8 @@ import java.util.Locale;
  *   <li>D-pad up / down: launcher target +100 / −100 ticks per second.</li>
  *   <li>D-pad right / left: feeder power +0.1 / −0.1 (0 to 1).</li>
  *   <li>L1 / L2: left wheel trim −100 / +100. R1 / R2: right wheel trim −100 / +100.</li>
- *   <li>Square (X) held: feed, whenever it is held. Triangle (Y) held: reverse the feeder.</li>
+ *   <li>Square (X): feeder on; press again for off. Circle also turns it off. Triangle (Y) held:
+ *       reverse the feeder, and cancels the toggle.</li>
  *   <li>Share (Back): zero both trims.</li>
  * </ul>
  *
@@ -67,7 +68,9 @@ public class LauncherBench extends OpMode {
     private String configWarning;
     private String fault;
 
-    private boolean aWas, bWas, upWas, downWas, leftWas, rightWas, l1Was, l2Was, r1Was, r2Was, backWas;
+    private boolean aWas, bWas, xWas, upWas, downWas, leftWas, rightWas, l1Was, l2Was, r1Was, r2Was, backWas;
+    /** Square's toggle: the feeder has been asked to run until Square, Circle or Triangle says otherwise. */
+    private boolean feedToggled;
 
     @Override
     public void init() {
@@ -119,14 +122,19 @@ public class LauncherBench extends OpMode {
     }
 
     private void readGamepad() {
-        boolean a = gamepad1.a, b = gamepad1.b, up = gamepad1.dpad_up, down = gamepad1.dpad_down;
+        boolean a = gamepad1.a, b = gamepad1.b, x = gamepad1.x, up = gamepad1.dpad_up, down = gamepad1.dpad_down;
         boolean dleft = gamepad1.dpad_left, dright = gamepad1.dpad_right;
         boolean l1 = gamepad1.left_bumper, l2 = gamepad1.left_trigger > TRIGGER_PRESSED;
         boolean r1 = gamepad1.right_bumper, r2 = gamepad1.right_trigger > TRIGGER_PRESSED;
         boolean back = gamepad1.back;
 
         if (a && !aWas) launcher.spinUp();
-        if (b && !bWas) launcher.spinDown();
+        if (b && !bWas) {
+            launcher.spinDown();
+            feedToggled = false;
+        }
+        if (x && !xWas) feedToggled = !feedToggled;
+        if (gamepad1.y) feedToggled = false;
         if (up && !upWas) nudge(STEP_TICKS_PER_SECOND, 0, 0);
         if (down && !downWas) nudge(-STEP_TICKS_PER_SECOND, 0, 0);
         if (dright && !rightWas) nudgeFeed(STEP_FEED_POWER);
@@ -141,11 +149,12 @@ public class LauncherBench extends OpMode {
             LauncherSubsystem.rightTrimTicksPerSecond = 0.0;
             refreshPanels();
         }
-        aWas = a; bWas = b; upWas = up; downWas = down; leftWas = dleft; rightWas = dright;
+        aWas = a; bWas = b; xWas = x; upWas = up; downWas = down; leftWas = dleft; rightWas = dright;
         l1Was = l1; l2Was = l2; r1Was = r1; r2Was = r2; backWas = back;
 
-        // Held buttons, decided every loop. No gate unless feedOnlyAtSpeed is switched on in Panels.
-        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(),
+        // Decided every loop: Square's toggle stands in for a held feed button; Triangle is held.
+        // No gate unless feedOnlyAtSpeed is switched on in Panels.
+        FeederSubsystem.State request = FeederSubsystem.requestFor(feedToggled, gamepad1.y, launcher.atSpeed(),
                 feedOnlyAtSpeed, feeder.state() == FeederSubsystem.State.FEED);
         switch (request) {
             case FEED: feeder.feed(); break;
@@ -182,7 +191,8 @@ public class LauncherBench extends OpMode {
         telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad up/down launcher speed · "
                 + "D-pad right/left feeder power · "
                 + (yCabled ? "Y-cabled: trims unused" : "L1/L2 left trim · R1/R2 right trim · Share zero trims")
-                + " · Square feed" + (feedOnlyAtSpeed ? " (once at speed)" : "") + " · Triangle reverse</small>");
+                + " · Square feeder on/off" + (feedOnlyAtSpeed ? " (starts once at speed)" : "")
+                + " · Triangle reverse</small>");
         if (configWarning != null) display.status("Config", Display.Level.WARN, configWarning);
         if (fault != null) {
             display.status("Bench", Display.Level.FAULT, fault);
