@@ -61,23 +61,23 @@ public class TurretBench extends OpMode {
     /** +1 if positive servo power turns the turret counter-clockwise, -1 if clockwise. */
     public static int servoDirection = 1;
 
-    /** Most servo power the stick or the hold may ask for, [0, 1]. Start low; this is a bench. */
-    public static double maxPower = 0.3;
+    /** Most servo power the stick or the hold may ask for, [0, 1]. 1.0 held fine on the bench (24 Oct 2026). */
+    public static double maxPower = 1.0;
 
     /** Servo power while a bumper is held. */
     public static double nudgePower = 0.12;
 
-    /** Hold gain: servo power per degree of error. */
-    public static double kP = 0.01;
+    /** Hold gain: servo power per degree of error. 0.007 arrived without rocking on the bench (24 Oct 2026). */
+    public static double kP = 0.007;
 
     /** Where Triangle holds the turret, degrees from home, counter-clockwise positive. D-pad up/down moves it. */
-    public static double targetDeg = 0.0;
+    public static double targetDeg = 45.0;
 
     /** D-pad step for the target, degrees. */
     public static double targetStepDeg = 15.0;
 
     /** Inside this many degrees of the target the hold sends no power, so the servo does not buzz. */
-    public static double holdToleranceDeg = 1.0;
+    public static double holdToleranceDeg = 0.5;
 
     /**
      * Least power the hold sends while outside the tolerance, [0, 1]. A continuous servo does not
