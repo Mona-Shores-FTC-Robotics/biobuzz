@@ -103,7 +103,7 @@ public class TurretBench extends OpMode {
      * it, it drives continuously at {@code minPower + kP * error}, so a big error moves briskly
      * and only the last degrees are stepped.
      */
-    public static double creepBelowDeg = 5.0;
+    public static double creepBelowDeg = 10.0;
 
     /**
      * The power at which this servo actually stands still, [-0.2, 0.2]. A continuous servo's

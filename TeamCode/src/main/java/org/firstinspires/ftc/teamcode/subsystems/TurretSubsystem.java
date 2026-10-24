@@ -62,7 +62,7 @@ public class TurretSubsystem implements Subsystem {
     public static double kP = 0.007;
     public static double minPower = 0.12;
     public static double maxPower = 1.0;
-    public static double creepBelowDeg = 5.0;
+    public static double creepBelowDeg = 10.0;
     public static double holdToleranceDeg = 1.0;
     public static double creepOnMs = 30.0;
     public static double creepOffMs = 100.0;
