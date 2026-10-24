@@ -75,11 +75,13 @@ public class TurretSubsystem implements Subsystem {
 
     /**
      * Where the turret's axis sits from the robot's tracked point, inches, robot frame (+forward,
-     * +left). <b>Not measured:</b> 0, 0 aims from the robot centre, which is within a couple of
-     * degrees at HIVE range for an offset of a few inches. Tape it and write it here.
+     * +left). <b>From the CAD, not yet taped:</b> the turret ring's centre measured against three
+     * wheel axles in Onshape (24 Oct 2026): 84.5 mm behind the midpoint of the four wheels and
+     * 47.6 mm to the right of it. Assumes the Pinpoint tracks that midpoint. Tape it once the
+     * turret is bolted on, and re-measure if the ring moves in the CAD.
      */
-    public static double turretForwardIn = 0.0;
-    public static double turretLeftIn = 0.0;
+    public static double turretForwardIn = -3.33;
+    public static double turretLeftIn = -1.87;
 
     /** How far the turret may be asked to turn each way from home, degrees. Stops are the wires'; NaN = no clamp yet. */
     public static double travelEachWayDeg = Double.NaN;

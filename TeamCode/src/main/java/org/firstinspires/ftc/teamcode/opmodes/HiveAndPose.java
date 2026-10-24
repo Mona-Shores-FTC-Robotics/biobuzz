@@ -319,7 +319,9 @@ public class HiveAndPose extends RobotOpMode {
                     + (aimCell == null ? "" : " · " + cellName(aimCell) + " CELL")
                     + (Double.isNaN(aimRangeIn) ? "" : String.format(Locale.US, " · %.0f in", aimRangeIn))
                     + (TurretSubsystem.turretForwardIn == 0.0 && TurretSubsystem.turretLeftIn == 0.0
-                    ? " · turret offset not measured: aiming from the robot centre" : ""));
+                    ? " · turret offset not measured: aiming from the robot centre"
+                    : String.format(Locale.US, " · turret at %+.1f fwd, %+.1f left",
+                    TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn)));
         } else {
             display.line("Aim: off (Square)");
         }
