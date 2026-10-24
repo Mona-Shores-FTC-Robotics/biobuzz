@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
@@ -85,6 +87,14 @@ public class HiveAndPose extends RobotOpMode {
     private FieldView field;
     private String relocalizeNote = "not pressed yet";
 
+    /** A camera sighting older than this is not used to aim; odometry takes over. */
+    private static final double AIM_SIGHTING_FRESH_MS = 300;
+    private boolean aiming;
+    private String aimSource = "off";
+    private HiveCell aimCell;
+    private double aimTargetDeg = Double.NaN;
+    private double aimRangeIn = Double.NaN;
+
     @Override
     protected void onInit() {
         panels = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -105,6 +115,69 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
+        driver.when("D-pad up", "Turret: zero here (turret at its home mark)", () -> gamepad1.dpad_up)
+                .onPress(robot.turret::zeroHere);
+        driver.when("Square (X)", "Turret: aim at our raised CELL / off", () -> gamepad1.x)
+                .onPress(this::toggleAim);
+        driver.when("D-pad down", "Turret: home (0°), aim off", () -> gamepad1.dpad_down)
+                .onPress(() -> {
+                    aiming = false;
+                    aimSource = "off";
+                    robot.turret.home();
+                });
+    }
+
+    private void toggleAim() {
+        aiming = !aiming;
+        if (!aiming) {
+            aimSource = "off";
+            robot.turret.idle();
+        }
+    }
+
+    /**
+     * Where the turret should point this loop: at our alliance's raised CELL, from the camera when
+     * it sees that CELL now, else from odometry and the CELL's measured field point. With neither,
+     * the turret holds its last target.
+     */
+    private void updateAim() {
+        if (!aiming) return;
+        Alliance alliance = setup.alliance();
+        if (alliance == Alliance.UNKNOWN) {
+            aimSource = "no alliance chosen";
+            return;
+        }
+        HiveTracker hive = robot.hive.of(alliance);
+        HiveCell cell = hive.rightCellUp() ? HiveCell.rightCell(alliance)
+                : hive.leftCellUp() ? HiveCell.leftCell(alliance) : null;
+        if (cell == null) {
+            aimSource = "HIVE state unknown, holding last";
+            return;
+        }
+        aimCell = cell;
+        double fwd = TurretSubsystem.turretForwardIn;
+        double left = TurretSubsystem.turretLeftIn;
+        CellSighting sighting = robot.vision.sighting(cell);
+        if (sighting != null && sighting.ageMs() <= AIM_SIGHTING_FRESH_MS) {
+            Vec3 row = sighting.rowCentreRobot();
+            aimTargetDeg = TurretAim.fromRobotFrameDeg(row, fwd, left);
+            aimRangeIn = Math.hypot(row.x() - fwd, row.y() - left);
+            aimSource = "camera";
+        } else if (robot.drive.poseReferenced()) {
+            Pose pose = robot.drive.pose();
+            Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
+            if (pose == null || row == null) {
+                aimSource = "no field point for " + cellName(cell);
+                return;
+            }
+            aimTargetDeg = TurretAim.fromFieldDeg(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
+            aimRangeIn = TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
+            aimSource = "odometry";
+        } else {
+            aimSource = "no camera on it, pose not on the field";
+            return;
+        }
+        robot.turret.aim(aimTargetDeg);
     }
 
     @Override
@@ -119,8 +192,10 @@ public class HiveAndPose extends RobotOpMode {
                 deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale,
                 deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale,
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
+        updateAim();
         showEverything();
         display.line("<small>Cross (A) relocalize · Triangle (Y) reset forward · Circle (B) field/robot-centric · "
+                + "Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");
     }
 
@@ -130,6 +205,7 @@ public class HiveAndPose extends RobotOpMode {
         showHives();
         showCells();
         showPose(camera);
+        showTurret();
         try {
             publish(camera);
         } catch (RuntimeException ignored) {
@@ -215,6 +291,30 @@ public class HiveAndPose extends RobotOpMode {
         }
     }
 
+    private void showTurret() {
+        display.section("Turret");
+        double angle = robot.turret.angleDegrees();
+        if (!robot.turret.zeroed()) {
+            display.status("Turret", Display.Level.WARN, String.format(Locale.US,
+                    "%.1f° · NOT ZEROED — put it at its home mark, press D-pad up", angle));
+        } else if (robot.turret.holding()) {
+            display.status("Turret", robot.turret.onTarget() ? Display.Level.OK : Display.Level.WARN,
+                    String.format(Locale.US, "%.1f° → %.1f° (%+.1f)", angle,
+                            robot.turret.targetDegrees(), robot.turret.errorDegrees()));
+        } else {
+            display.status("Turret", Display.Level.OK, String.format(Locale.US, "%.1f° · idle", angle));
+        }
+        if (aiming) {
+            display.line("Aim: " + aimSource
+                    + (aimCell == null ? "" : " · " + cellName(aimCell) + " CELL")
+                    + (Double.isNaN(aimRangeIn) ? "" : String.format(Locale.US, " · %.0f in", aimRangeIn))
+                    + (TurretSubsystem.turretForwardIn == 0.0 && TurretSubsystem.turretLeftIn == 0.0
+                    ? " · turret offset not measured: aiming from the robot centre" : ""));
+        } else {
+            display.line("Aim: off (Square)");
+        }
+    }
+
     // ---------------------------------------------------------------- Panels
 
     private void publish(Pose camera) {
@@ -248,6 +348,11 @@ public class HiveAndPose extends RobotOpMode {
         if (robot.drive.wouldRelocalizeCount() > 0) {
             panels.addData("would_relocalize_in", robot.drive.wouldRelocalizeErrorIn());
         }
+        panels.addData("turret_angle_deg", robot.turret.angleDegrees());
+        panels.addData("turret_target_deg", robot.turret.targetDegrees());
+        panels.addData("turret_error_deg", robot.turret.errorDegrees());
+        panels.addData("turret_aim_source", !aiming ? 0 : "camera".equals(aimSource) ? 1
+                : "odometry".equals(aimSource) ? 2 : 3);
         panels.update();
 
         if (field.shouldDraw()) {

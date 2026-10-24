@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.vision.HiveSubsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
 import org.firstinspires.ftc.teamcode.vision.PieceVisionSubsystem;
@@ -39,11 +40,11 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no turret here, because none is built yet. A subsystem for hardware nobody has
- * built would be a guess wearing a class name. The FLOWER stick and the intake roller are the first
- * mechanisms, and the examples of how small a subsystem can be. The launcher and the feeder are
- * written to the wiring spec the build team wires to (Expansion Hub 1, 2 and 3), ahead of the
- * mechanism, so the first bench test has code to run; nothing in them is measured yet.
+ * <p>The FLOWER stick and the intake roller are the first mechanisms, and the examples of how
+ * small a subsystem can be. The launcher and the feeder are written to the wiring spec the build
+ * team wires to (Expansion Hub 1, 2 and 3), ahead of the mechanism, so the first bench test has
+ * code to run; nothing in them is measured yet. The turret is the bench setup on 20245: a
+ * continuous servo and a Cypher Max encoder, with the hold tuned there on 24 Oct 2026.
  */
 public class Robot {
 
@@ -74,6 +75,9 @@ public class Robot {
     /** The feeder: one motor that pushes a piece into the launcher. The transfer's first rung (#164). */
     public final FeederSubsystem feeder;
 
+    /** The turret: a continuous servo holding an angle read from its own encoder (#81, #169). */
+    public final TurretSubsystem turret;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -92,9 +96,11 @@ public class Robot {
         intake = new IntakeSubsystem(hardwareMap);
         launcher = new LauncherSubsystem(hardwareMap);
         feeder = new FeederSubsystem(hardwareMap);
+        // After the drive and the hive: an aim this loop uses this loop's pose and HIVE state.
+        turret = new TurretSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder));
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder, turret));
     }
 
     /** Every subsystem, in the order they were built. */
