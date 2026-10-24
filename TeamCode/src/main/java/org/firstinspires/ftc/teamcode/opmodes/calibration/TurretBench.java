@@ -339,6 +339,11 @@ public class TurretBench extends OpMode {
         return control.power(errorDeg, rateDps, gains, System.nanoTime());
     }
 
+    /** The servo's centre correction, clamped so a typo cannot make "stopped" mean "spinning". */
+    private static double stopOffset() {
+        return clamp(servoStopPower, 0.2);
+    }
+
     private int servoSign() {
         return servoDirection == -1 ? -1 : 1;
     }
