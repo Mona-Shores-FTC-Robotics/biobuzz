@@ -75,29 +75,29 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onInit() {
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
-        driver.note("Left bumper (hold)", "Slow");
-        driver.note("Right bumper (hold)", "Turbo — full power, no acceleration limit");
-        driver.when("Y", "Reset field-centric forward", () -> gamepad1.y)
+        driver.note("L1 (hold)", "Slow");
+        driver.note("R1 (hold)", "Turbo — full power, no acceleration limit");
+        driver.when("Triangle (Y)", "Reset field-centric forward", () -> gamepad1.y)
                 .onPress(robot.drive::resetHeading);
-        driver.when("B", "Toggle field / robot-centric", () -> gamepad1.b)
+        driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
-        driver.when("A", "Extend FLOWER stick", () -> gamepad1.a)
+        driver.when("Cross (A)", "Extend FLOWER stick", () -> gamepad1.a)
                 .onPress(robot.flowerStick::extend);
-        driver.when("X", "Retract FLOWER stick", () -> gamepad1.x)
+        driver.when("Square (X)", "Retract FLOWER stick", () -> gamepad1.x)
                 .onPress(robot.flowerStick::retract);
-        driver.when("Right trigger (hold)", "Intake", () -> gamepad1.right_trigger > TRIGGER_PRESSED)
+        driver.when("R2 (hold)", "Intake", () -> gamepad1.right_trigger > TRIGGER_PRESSED)
                 .onPress(robot.intake::intake)
                 .onRelease(robot.intake::idle);
-        driver.when("Left trigger (hold)", "Eject", () -> gamepad1.left_trigger > TRIGGER_PRESSED)
+        driver.when("L2 (hold)", "Eject", () -> gamepad1.left_trigger > TRIGGER_PRESSED)
                 .onPress(robot.intake::eject)
                 .onRelease(robot.intake::idle);
 
-        operator.when("A", "Launcher spin up", () -> gamepad2.a)
+        operator.when("Cross (A)", "Launcher spin up", () -> gamepad2.a)
                 .onPress(robot.launcher::spinUp);
-        operator.when("B", "Launcher spin down", () -> gamepad2.b)
+        operator.when("Circle (B)", "Launcher spin down", () -> gamepad2.b)
                 .onPress(robot.launcher::spinDown);
-        operator.note("Right trigger (hold)", "Feed into the launcher — only once it is at speed (feedOnlyAtSpeed in Panels)");
-        operator.note("Left trigger (hold)", "Reverse the feeder, to clear a jam");
+        operator.note("R2 (hold)", "Feed into the launcher — only once it is at speed (feedOnlyAtSpeed in Panels)");
+        operator.note("L2 (hold)", "Reverse the feeder, to clear a jam");
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
@@ -105,7 +105,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     @Override
     protected void onInitLoop() {
-        display.status("Basic Drive", Display.Level.OK, "ready — Back/Share shows the controls");
+        display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showPinpoint();
     }
 
