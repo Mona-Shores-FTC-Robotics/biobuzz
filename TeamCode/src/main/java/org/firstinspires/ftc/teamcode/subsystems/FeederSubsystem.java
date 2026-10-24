@@ -109,13 +109,16 @@ public class FeederSubsystem implements Subsystem {
 
     /**
      * The TeleOp policy for the feeder, as one pure function: reverse wins (clearing a jam is
-     * always allowed), then feed if asked and either the launcher is ready or the policy does not
-     * require it, else idle.
+     * always allowed); then feed if asked, where the launcher being at speed is a condition for
+     * <b>starting</b> a feed, not for continuing one. A piece meeting the wheels slows them for a
+     * moment, and a gate checked every loop would stop the feeder on that dip, recover, feed again,
+     * and pulse. So once feeding ({@code alreadyFeeding}), a held button keeps feeding until it is
+     * released. {@code requireAtSpeed} false drops the start condition for a bench.
      */
     public static State requestFor(boolean feedHeld, boolean reverseHeld, boolean launcherAtSpeed,
-                                   boolean requireAtSpeed) {
+                                   boolean requireAtSpeed, boolean alreadyFeeding) {
         if (reverseHeld) return State.REVERSE;
-        if (feedHeld && (launcherAtSpeed || !requireAtSpeed)) return State.FEED;
+        if (feedHeld && (alreadyFeeding || launcherAtSpeed || !requireAtSpeed)) return State.FEED;
         return State.IDLE;
     }
 
