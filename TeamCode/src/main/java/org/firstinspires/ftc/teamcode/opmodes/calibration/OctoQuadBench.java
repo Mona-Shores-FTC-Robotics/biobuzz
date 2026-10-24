@@ -90,7 +90,7 @@ public class OctoQuadBench extends OpMode {
             panels = null;
             panelsProblem = "not available at init: " + e;
         }
-        telemetry.addLine("OctoQuad Bench. INIT shows the readings; PLAY is the same. X re-runs setup.");
+        telemetry.addLine("OctoQuad Bench. INIT shows the readings; PLAY is the same. Square (X) re-runs setup.");
         report();
     }
 

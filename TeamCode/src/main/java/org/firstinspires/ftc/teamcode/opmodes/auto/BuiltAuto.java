@@ -93,7 +93,7 @@ public abstract class BuiltAuto extends RobotOpMode {
     protected void onStart() {
         Alliance alliance = setup.alliance();
         if (alliance == Alliance.UNKNOWN) {
-            problem = "No alliance chosen before PLAY (X = blue, B = red during INIT). Not moving.";
+            problem = "No alliance chosen before PLAY (Square (X) = blue, Circle (B) = red during INIT). Not moving.";
             return;
         }
         boolean rotated = !alliance.name().equals(drawnFor);
