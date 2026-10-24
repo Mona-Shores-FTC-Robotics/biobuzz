@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!--
+  Robot configuration for the OctoQuad turret-encoder bench rig.
+
+  THIS IS NOT A ROBOT. It is a spare Control Hub on a bench with a Digital
+  Chicken Labs OctoQuad (FTC Edition) on I2C and two REV Thru-Bore encoders
+  on the OctoQuad's pulse-width channels. It exists to settle the facts #169
+  needs before a turret exists: firmware version, which bus, which channels,
+  the pulse range, whether both encoders read cleanly, and how much the
+  difference between the two moves per turn of whatever drives them.
+
+  Like the robot configs, it ships inside the APK and appears in the Driver
+  Station list as "robot_octoquad_rig" as soon as the app is installed. The one
+  manual step, once per hub: on the rig's Driver Station,
+  Configure Robot -> robot_octoquad_rig -> Activate. The OctoQuad Bench OpMode
+  warns if some other configuration is active.
+
+  WIRING:
+  OctoQuad on the Control Hub's I2C bus 2, the same bus the competition robots
+  will use for it (#174), so the bench facts carry over. Bus 0 is shared with
+  the hub's own IMU; bus 1 is the Pinpoint's on the robots.
+  Each REV Thru-Bore's ABS (absolute, pulse-width) output goes to one of the
+  OctoQuad's channels 4-7, which the OpMode puts in pulse-width mode. Which two
+  channels are a bench choice the OpMode reads from Panels, not a fact this
+  file knows, so it is not written here.
+
+  Device names here must match org.firstinspires.ftc.teamcode.hardware.DeviceNames
+  (the OCTOQUAD_RIG list). RobotConfigXmlTest fails the build if they disagree.
+  For I2C, `bus` is what the SDK reads; `port` is kept equal to it.
+-->
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+
+            <!-- Turret angle sensing under test: OctoQuad on I2C bus 2. -->
+            <OctoQuadFTC name="octoquad" port="2" bus="2" />
+
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>
