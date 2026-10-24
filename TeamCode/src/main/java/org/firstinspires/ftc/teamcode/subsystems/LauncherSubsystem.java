@@ -53,6 +53,15 @@ public class LauncherSubsystem implements Subsystem {
     public enum State { IDLE, SPINNING }
 
     /**
+     * How the two flywheel motors are wired. {@link #TWO_MOTORS} is the robot: each motor on its own
+     * port with its own encoder, so each wheel has its own speed loop and its own trim.
+     * {@link #Y_CABLED} is the bench rig: both motors on one port through a Y cable, so software sees
+     * one motor with one encoder, both wheels get the same signal, and the trims do nothing. The
+     * wheels turning opposite ways then comes from how the motors are mounted and wired, not code.
+     */
+    public enum Layout { TWO_MOTORS, Y_CABLED }
+
+    /**
      * The speed both wheels are asked to hold while spinning, encoder ticks per second. <b>A
      * starting point for the bench, not a measured value.</b> A goBILDA 5203 counts 28 ticks per
      * motor revolution, so a 6000 RPM bare motor tops out near 2800; 1000 is a gentle first spin.
@@ -102,7 +111,9 @@ public class LauncherSubsystem implements Subsystem {
     /** Below this measured speed, a commanded wheel is "not moving" for the encoder check. */
     public static double encoderSilentTicksPerSecond = 20.0;
 
+    private final Layout layout;
     private final DcMotorEx left;
+    /** The right wheel's motor, or null when {@link Layout#Y_CABLED}: the left motor object drives both. */
     private final DcMotorEx right;
 
     private State state = State.IDLE;
@@ -116,10 +127,30 @@ public class LauncherSubsystem implements Subsystem {
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
 
-    /** Looks both motors up once. A missing motor fails init with the SDK's own message. */
+    /** The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message. */
     public LauncherSubsystem(HardwareMap hardwareMap) {
+        layout = Layout.TWO_MOTORS;
         left = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_LEFT);
         right = hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER_RIGHT);
+    }
+
+    private LauncherSubsystem(DcMotorEx pair) {
+        layout = Layout.Y_CABLED;
+        left = pair;
+        right = null;
+    }
+
+    /**
+     * The bench rig's launcher: both motors on one port through a Y cable, one device named
+     * {@link DeviceNames#LAUNCHER}. An explicit decision, not a missing device being tolerated.
+     */
+    public static LauncherSubsystem yCabled(HardwareMap hardwareMap) {
+        return new LauncherSubsystem(hardwareMap.get(DcMotorEx.class, DeviceNames.LAUNCHER));
+    }
+
+    /** How the motors are wired; see {@link Layout}. */
+    public Layout layout() {
+        return layout;
     }
 
     /** Ask both wheels to hold {@link #targetTicksPerSecond}. Takes effect in the next {@link #update()}. */
@@ -179,9 +210,13 @@ public class LauncherSubsystem implements Subsystem {
         return wheelTarget(targetTicksPerSecond, leftTrimTicksPerSecond);
     }
 
-    /** The right wheel's own target: the common target plus its trim, never below zero. */
+    /**
+     * The right wheel's own target: the common target plus its trim, never below zero. Y-cabled,
+     * there is one signal, so this is {@link #leftTarget()}.
+     */
     public double rightTarget() {
-        return wheelTarget(targetTicksPerSecond, rightTrimTicksPerSecond);
+        return layout == Layout.Y_CABLED ? leftTarget()
+                : wheelTarget(targetTicksPerSecond, rightTrimTicksPerSecond);
     }
 
     /** Left wheel speed from the last {@link #update()}, ticks per second, direction removed. */
@@ -216,6 +251,7 @@ public class LauncherSubsystem implements Subsystem {
 
     /** A one-line description of what is wrong, or null when nothing is. */
     public String fault() {
+        if (layout == Layout.Y_CABLED && leftFault) return "launcher reads no speed while commanded: encoder cable?";
         if (leftFault && rightFault) return "both wheels read no speed while commanded: encoder cables?";
         if (leftFault) return "left wheel reads no speed while commanded: encoder cable?";
         if (rightFault) return "right wheel reads no speed while commanded: encoder cable?";
@@ -227,6 +263,7 @@ public class LauncherSubsystem implements Subsystem {
     public void initialize() {
         spinDown();
         for (DcMotorEx motor : new DcMotorEx[] {left, right}) {
+            if (motor == null) continue;
             motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
             motor.setPower(0.0);
@@ -244,8 +281,9 @@ public class LauncherSubsystem implements Subsystem {
         double leftTarget = leftTarget();
         double rightTarget = rightTarget();
 
+        // Y-cabled: one motor object, one encoder, so the right side mirrors the left.
         leftTicksPerSecond = Math.abs(left.getVelocity());
-        rightTicksPerSecond = Math.abs(right.getVelocity());
+        rightTicksPerSecond = right == null ? leftTicksPerSecond : Math.abs(right.getVelocity());
 
         if (state == State.SPINNING) {
             double elapsedMs = (now - spinUpStartedNs) / 1e6;
@@ -253,21 +291,21 @@ public class LauncherSubsystem implements Subsystem {
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 leftFault = true;
             }
-            if (!rightFault && encoderSilent(rightTarget, rightTicksPerSecond, elapsedMs,
+            if (right != null && !rightFault && encoderSilent(rightTarget, rightTicksPerSecond, elapsedMs,
                     encoderFaultAfterMs, encoderSilentTicksPerSecond)) {
                 rightFault = true;
             }
             command(left, leftFault ? 0.0 : commandFor(leftTarget, leftReversed));
-            command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed));
+            if (right != null) command(right, rightFault ? 0.0 : commandFor(rightTarget, rightReversed));
             leftCurrentAmps = left.getCurrent(CurrentUnit.AMPS);
-            rightCurrentAmps = right.getCurrent(CurrentUnit.AMPS);
+            rightCurrentAmps = right == null ? Double.NaN : right.getCurrent(CurrentUnit.AMPS);
             boolean within = !leftFault && !rightFault && (leftTarget > 0.0 || rightTarget > 0.0)
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
         } else {
             left.setPower(0.0);
-            right.setPower(0.0);
+            if (right != null) right.setPower(0.0);
             leftCurrentAmps = Double.NaN;
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
@@ -279,7 +317,7 @@ public class LauncherSubsystem implements Subsystem {
     public void stop() {
         state = State.IDLE;
         left.setPower(0.0);
-        right.setPower(0.0);
+        if (right != null) right.setPower(0.0);
     }
 
     @Override
@@ -296,6 +334,15 @@ public class LauncherSubsystem implements Subsystem {
                     String.format(Locale.US, "%s · target %s ticks/s", atSpeed ? "AT SPEED" : "spinning up",
                             l == r ? String.format(Locale.US, "%.0f", l)
                                     : String.format(Locale.US, "L %.0f / R %.0f", l, r)));
+        }
+        if (layout == Layout.Y_CABLED) {
+            double rpm = leftRpm();
+            display.line(String.format(Locale.US, "Y-cabled pair %.0f ticks/s%s · %s · one encoder, trims unused",
+                    leftTicksPerSecond,
+                    Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
+                    Double.isNaN(leftCurrentAmps) ? "current not read while idle"
+                            : String.format(Locale.US, "%.1f A (both motors)", leftCurrentAmps)));
+            return;
         }
         display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
                 leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(),

@@ -58,6 +58,9 @@ public final class DeviceNames {
     public static final String LAUNCHER_LEFT = "launcher_left";
     public static final String LAUNCHER_RIGHT = "launcher_right";
     public static final String FEEDER = "feeder";
+    // The launcher bench's Y-cabled flywheel pair: both motors on one port, so
+    // software sees one motor. Bench only; the robots have LAUNCHER_LEFT/RIGHT.
+    public static final String LAUNCHER = "launcher";
 
     /**
      * DECODE's third flywheel. On no BIOBUZZ robot: only the standalone
@@ -160,13 +163,13 @@ public final class DeviceNames {
      * {@link RobotIdentity} carries its own list for that.
      */
     /**
-     * The launcher bench (robot_launcher_bench.xml): a spare Control Hub with the two flywheels and
-     * the feeder on the same motor numbers the robots use (1, 2, 3), on the Control Hub itself.
+     * The launcher bench (robot_launcher_bench.xml): a spare Control Hub with the two flywheel motors
+     * Y-cabled to one port (one motor to software, {@link #LAUNCHER}) and the two feeder motors
+     * Y-cabled to another ({@link #FEEDER}).
      */
     public static final List<Device> LAUNCHER_BENCH = Collections.unmodifiableList(Arrays.asList(
-            new Device(LAUNCHER_LEFT, Kind.MOTOR),
-            new Device(LAUNCHER_RIGHT, Kind.MOTOR),
-            new Device(FEEDER, Kind.MOTOR)));
+            new Device(FEEDER, Kind.MOTOR),
+            new Device(LAUNCHER, Kind.MOTOR)));
 
     /** The OctoQuad turret-encoder bench rig (robot_octoquad_rig.xml): a spare Control Hub and the OctoQuad. */
     public static final List<Device> OCTOQUAD_RIG = Collections.unmodifiableList(Arrays.asList(
