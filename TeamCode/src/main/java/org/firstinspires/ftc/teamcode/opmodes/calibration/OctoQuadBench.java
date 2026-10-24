@@ -174,7 +174,7 @@ public class OctoQuadBench extends OpMode {
         double a = degreesFromPulse(pulseOn(channelA));
         double b = degreesFromPulse(pulseOn(channelB));
         double diff = wrap360(a - b);
-        telemetry.addLine(String.format(Locale.US, "A %s · B %s · diff (A-B) %s",
+        telemetry.addLine(String.format(Locale.US, "Encoder A %s · Encoder B %s · diff (A−B) %s",
                 fmt(a), fmt(b), fmt(diff)));
         telemetry.addLine("Turn the shaft one full turn and note how far diff moves; at rest, how much it jitters.");
         telemetry.addLine("");

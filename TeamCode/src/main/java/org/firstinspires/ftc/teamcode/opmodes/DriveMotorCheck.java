@@ -114,7 +114,7 @@ public class DriveMotorCheck extends LinearOpMode {
             line("LIFT THE ROBOT: all four wheels off the ground before PLAY.");
             line("Robot: " + robot.fileName() + "   Battery: " + batteryText());
             line("");
-            line("Hand-turn check: press A to zero, then turn each wheel ONE full turn.");
+            line("Hand-turn check: press Cross (A) to zero, then turn each wheel ONE full turn.");
             line("The sizes should match (the sign may differ). One that differs in size");
             line("has a different gearbox ratio from the others.");
             for (int i = 0; i < 4; i++) {
