@@ -3,8 +3,10 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FlowerStickSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.vision.HiveSubsystem;
 import org.firstinspires.ftc.teamcode.vision.LimelightVisionSubsystem;
@@ -37,9 +39,11 @@ import java.util.List;
  * <p>If a mechanism misbehaves, comment out its line in the list and its construction, and Sloth
  * Load. The robot runs without it. {@link #drive} is the exception: it is never removed.
  *
- * <p>There is no launcher or turret here, because neither is built yet. A subsystem for hardware
- * nobody has built would be a guess wearing a class name. The FLOWER stick and the intake roller
- * are the first mechanisms, and the examples of how small a subsystem can be.
+ * <p>There is no turret here, because none is built yet. A subsystem for hardware nobody has
+ * built would be a guess wearing a class name. The FLOWER stick and the intake roller are the first
+ * mechanisms, and the examples of how small a subsystem can be. The launcher and the feeder are
+ * written to the wiring spec the build team wires to (Expansion Hub 1, 2 and 3), ahead of the
+ * mechanism, so the first bench test has code to run; nothing in them is measured yet.
  */
 public class Robot {
 
@@ -64,6 +68,12 @@ public class Robot {
     /** The intake roller: one motor, in, out or idle (#160). Piece counting is #181. */
     public final IntakeSubsystem intake;
 
+    /** The launcher: two flywheels held at one speed (#80). Aiming is #81, the table is #80. */
+    public final LauncherSubsystem launcher;
+
+    /** The feeder: one motor that pushes a piece into the launcher. The transfer's first rung (#164). */
+    public final FeederSubsystem feeder;
+
     /**
      * Every subsystem above, for the code that has to walk all of them. Built once rather than per
      * call, because it is read inside the control loop.
@@ -80,9 +90,12 @@ public class Robot {
         pieces = new PieceVisionSubsystem(hardwareMap);
         flowerStick = new FlowerStickSubsystem(hardwareMap);
         intake = new IntakeSubsystem(hardwareMap);
+        launcher = new LauncherSubsystem(hardwareMap);
+        feeder = new FeederSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake));
+        subsystems = Collections.unmodifiableList(
+                Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder));
     }
 
     /** Every subsystem, in the order they were built. */

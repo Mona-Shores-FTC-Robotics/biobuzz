@@ -457,6 +457,20 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(intakeAmps)) {
             log.put("/Intake/CurrentAmps", intakeAmps);
         }
+        // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
+        log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
+        log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
+        log.put("/Launcher/RightTicksPerSecond", robot.launcher.rightTicksPerSecond());
+        log.put("/Launcher/AtSpeed", robot.launcher.atSpeed() ? 1 : 0);
+        double leftAmps = robot.launcher.leftCurrentAmps();
+        double rightAmps = robot.launcher.rightCurrentAmps();
+        if (!Double.isNaN(leftAmps)) {
+            log.put("/Launcher/LeftCurrentAmps", leftAmps);
+        }
+        if (!Double.isNaN(rightAmps)) {
+            log.put("/Launcher/RightCurrentAmps", rightAmps);
+        }
+        log.put("/Feeder/Power", robot.feeder.power());
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {
