@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
 import org.firstinspires.ftc.teamcode.subsystems.TurretEncoder;
+import org.firstinspires.ftc.teamcode.subsystems.TurretServoControl;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 
 import java.util.Locale;
@@ -69,6 +70,16 @@ public class TurretBench extends OpMode {
 
     /** Hold gain: servo power per degree of error. 0.007 arrived without rocking on the bench (24 Oct 2026). */
     public static double kP = 0.007;
+
+    /**
+     * Damping: power per degree per second of turret rate, taken off the drive, so the servo
+     * brakes into the target instead of being carried past it. 0 = none. Start at 0.002 and raise
+     * it until the hump over the target disappears; too much and the approach gets sluggish.
+     */
+    public static double kD = 0.0;
+
+    /** In the creep zone, faster than this the hold brakes rather than creeps, deg/s. */
+    public static double creepMaxRateDps = 30.0;
 
     /** Where Triangle holds the turret, degrees from home, counter-clockwise positive. D-pad up/down moves it. */
     public static double targetDeg = 45.0;
@@ -146,7 +157,6 @@ public class TurretBench extends OpMode {
     private String holdNote;
     private double errorDeg = Double.NaN;
     private double powerSent;
-    private long creepCycleStartNs;
 
     private boolean aWasDown;
     private boolean yWasDown;
@@ -155,6 +165,9 @@ public class TurretBench extends OpMode {
     private boolean downWasDown;
 
     private final LoopTimer loopTimer = new LoopTimer();
+    private final TurretServoControl control = new TurretServoControl();
+    private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
+            kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
     private TelemetryManager panels;
     private String panelsProblem;
 
@@ -321,37 +334,9 @@ public class TurretBench extends OpMode {
                     errorDeg);
             return 0.0;
         }
-        if (Math.abs(errorDeg) <= Math.max(finite(holdToleranceDeg), 0.0)) {
-            return 0.0;
-        }
-        double gain = kP > 0.0 && !Double.isInfinite(kP) ? kP : 0.0;
-        double floor = unitRange(minPower);
-        if (Math.abs(errorDeg) < Math.max(finite(creepBelowDeg), 0.0)) {
-            // Creeping: a pulse of minPower, then silence, so each step is a fraction of a degree.
-            return creepPulseOn() ? Math.copySign(floor, errorDeg) : 0.0;
-        }
-        // Driving: the floor the servo needs to move at all, plus the gain on top.
-        return Math.copySign(floor + gain * Math.abs(errorDeg), errorDeg);
-    }
-
-    /** The servo's centre correction, clamped so a typo cannot make "stopped" mean "spinning". */
-    private static double stopOffset() {
-        return clamp(servoStopPower, 0.2);
-    }
-
-    /** Where we are in the on/off creep cycle. Always on when {@code creepOffMs} is 0. */
-    private boolean creepPulseOn() {
-        double on = Math.max(0.0, finite(creepOnMs));
-        double off = Math.max(0.0, finite(creepOffMs));
-        if (off <= 0.0) return true;
-        long now = System.nanoTime();
-        double cycleMs = on + off;
-        double intoCycle = (now - creepCycleStartNs) / 1e6;
-        if (intoCycle < 0 || intoCycle >= cycleMs) {
-            creepCycleStartNs = now;
-            intoCycle = 0;
-        }
-        return intoCycle < on;
+        // The same law the robot's TurretSubsystem runs, so what is tuned here is what it gets.
+        gains.set(kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
+        return control.power(errorDeg, rateDps, gains, System.nanoTime());
     }
 
     private int servoSign() {
@@ -377,8 +362,8 @@ public class TurretBench extends OpMode {
                 holding ? String.format(Locale.US, "  target %s  error %s", deg(targetDeg), deg(errorDeg))
                         : String.format(Locale.US, "  (Triangle holds at %s)", deg(targetDeg))));
         telemetry.addLine(String.format(Locale.US,
-                "settings: ratio %.3f  dir %+d  servoDir %+d  maxPower %.2f  kP %.4f  minPower %.2f  creep %.0f/%.0f ms below %.1f  tol %.1f",
-                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, unitRange(minPower),
+                "settings: ratio %.3f  dir %+d  servoDir %+d  maxPower %.2f  kP %.4f  kD %.4f  minPower %.2f  creep %.0f/%.0f ms below %.1f  tol %.1f",
+                turnsPerTurretTurn, direction, servoDirection, unitRange(maxPower), kP, kD, unitRange(minPower),
                 creepOnMs, creepOffMs, creepBelowDeg, holdToleranceDeg));
         telemetry.addLine("");
         telemetry.addLine("Cross zero (turret at home) · left stick left/right = CCW/CW · L1/R1 nudge");

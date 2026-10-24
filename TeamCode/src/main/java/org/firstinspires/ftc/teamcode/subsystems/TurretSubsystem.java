@@ -60,6 +60,10 @@ public class TurretSubsystem implements Subsystem {
 
     // The hold, as it held on the bench.
     public static double kP = 0.007;
+    /** Damping: power per deg/s of turret rate, taken off the drive. 0 = none; start at 0.002. */
+    public static double kD = 0.0;
+    /** In the creep zone, faster than this the hold brakes instead of creeping, deg/s. */
+    public static double creepMaxRateDps = 30.0;
     public static double minPower = 0.12;
     public static double maxPower = 1.0;
     public static double creepBelowDeg = 10.0;
@@ -94,7 +98,7 @@ public class TurretSubsystem implements Subsystem {
     private final CRServo servo;
     private final TurretServoControl control = new TurretServoControl();
     private final TurretServoControl.Gains gains = new TurretServoControl.Gains(
-            kP, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
+            kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
 
     private TurretEncoder encoder;
     private double encoderTurnsSetting = Double.NaN;
@@ -233,7 +237,7 @@ public class TurretSubsystem implements Subsystem {
                     requested = 0.0;
                     break;
                 }
-                requested = control.power(errorDeg, gains, System.nanoTime());
+                requested = control.power(errorDeg, rateDps, gains, System.nanoTime());
                 break;
             case MANUAL:
                 errorDeg = Double.NaN;
@@ -291,7 +295,7 @@ public class TurretSubsystem implements Subsystem {
 
     /** Pulls the Panels values in; rebuilds the converter only when its two inputs change. */
     private void refreshSettings() {
-        gains.set(kP, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
+        gains.set(kP, kD, creepMaxRateDps, minPower, maxPower, creepBelowDeg, holdToleranceDeg, creepOnMs, creepOffMs);
         if (encoderTurnsSetting == turnsPerTurretTurn && directionSetting == direction && encoder != null) {
             return;
         }
