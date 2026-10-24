@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.bylazar.configurables.PanelsConfigurables;
+import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
@@ -34,14 +35,23 @@ import java.util.Locale;
  *   <li>Cross (A): spin up both wheels. Circle (B): spin down, wheels coast.</li>
  *   <li>D-pad up / down: common target +100 / −100 ticks per second.</li>
  *   <li>L1 / L2: left wheel trim −100 / +100. R1 / R2: right wheel trim −100 / +100.</li>
- *   <li>Square (X) held: feed. Triangle (Y) held: reverse the feeder.</li>
+ *   <li>Square (X) held: feed, whenever it is held. Triangle (Y) held: reverse the feeder.</li>
  *   <li>Share (Back): zero both trims.</li>
  * </ul>
+ *
+ * <p><b>No interlock on the bench.</b> Basic Drive stops the feeder from pushing a piece into wheels
+ * that are still spinning up; here the person holding the gamepad is that check, and the point of a
+ * bench is to run each motor on its own. {@link #feedOnlyAtSpeed} is off by default and in Panels
+ * for anyone who wants the robot's behaviour back.
  *
  * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
  */
 @TeleOp(name = "Launcher Bench", group = "Diagnostics")
+@Configurable
 public class LauncherBench extends OpMode {
+
+    /** Off: Square feeds whenever held. On: a feed starts only once the launcher is at speed, as on the robot. */
+    public static boolean feedOnlyAtSpeed = false;
 
     private static final double STEP_TICKS_PER_SECOND = 100.0;
     private static final double TRIGGER_PRESSED = 0.5;
@@ -129,10 +139,9 @@ public class LauncherBench extends OpMode {
         aWas = a; bWas = b; upWas = up; downWas = down;
         l1Was = l1; l2Was = l2; r1Was = r1; r2Was = r2; backWas = back;
 
-        // Held buttons, decided every loop: a feed starts only once the launcher is at speed and then
-        // runs for as long as Square is held; reverse any time.
-        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(), true,
-                feeder.state() == FeederSubsystem.State.FEED);
+        // Held buttons, decided every loop. No gate unless feedOnlyAtSpeed is switched on in Panels.
+        FeederSubsystem.State request = FeederSubsystem.requestFor(gamepad1.x, gamepad1.y, launcher.atSpeed(),
+                feedOnlyAtSpeed, feeder.state() == FeederSubsystem.State.FEED);
         switch (request) {
             case FEED: feeder.feed(); break;
             case REVERSE: feeder.reverse(); break;
@@ -160,7 +169,7 @@ public class LauncherBench extends OpMode {
         boolean yCabled = launcher != null && launcher.layout() == LauncherSubsystem.Layout.Y_CABLED;
         telemetry.addLine("<b>Launcher Bench</b>  <small>Cross spin up · Circle spin down · D-pad ± speed · "
                 + (yCabled ? "Y-cabled: trims unused" : "L1/L2 left trim · R1/R2 right trim · Share zero trims")
-                + " · Square feed · Triangle reverse</small>");
+                + " · Square feed" + (feedOnlyAtSpeed ? " (once at speed)" : "") + " · Triangle reverse</small>");
         if (configWarning != null) display.status("Config", Display.Level.WARN, configWarning);
         if (fault != null) {
             display.status("Bench", Display.Level.FAULT, fault);
