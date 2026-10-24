@@ -158,6 +158,21 @@ window.FlowerSim = (function () {
       const a = tp.deg * Math.PI / 180 * f, L = tp.len, [x0, z0] = prof[0];
       return [[x0 - L * Math.cos(a), z0 + L * Math.sin(a)], ...prof];
     };
+    // cfg.finger: the blade's centre ahead of the shaft is a separate finger keyed to the shaft, with a toe `len` beyond the
+    // lip; after the stop the shaft turns it nose-up by `deg` over `time` s (the body behind the shaft stays put)
+    const fingered = (prof, fg, f) => {
+      const a = fg.deg * Math.PI / 180 * f, c = Math.cos(a), sn = Math.sin(a);
+      const pts = fg.len ? [[prof[0][0] - fg.len, prof[0][1]], ...prof] : prof.slice();
+      // split the profile at the shaft's x so the part ahead of it rotates about the shaft
+      const out = [];
+      for (let i = 0; i < pts.length; i++) {
+        const [x, z] = pts[i];
+        if (i > 0) { const [x0, z0] = pts[i - 1]; if (x0 < shaftBack && x > shaftBack) out.push([shaftBack, z0 + (z - z0) * (shaftBack - x0) / (x - x0), true]); }
+        out.push([x, z]);
+      }
+      const [px, pz] = fg.pivot || [shaftBack, shaftZ];                  // the hinge: the shaft, or any point of the profile
+      return out.map(([x, z, split]) => { if (x > shaftBack + 1e-9) return [x, z]; const dx = x - px, dz = z - pz; return [px + dx * c + dz * sn, pz - dx * sn + dz * c]; });
+    };
     const tilted = (prof, deg) => { const a = deg * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a); return prof.map(([x, z]) => { const dx = x - shaftBack, dz = z - shaftZ; return [shaftBack + dx * c + dz * sn, shaftZ - dx * sn + dz * c]; }); };
     let toeNow = 0;                                                      // the toe's angle this step, degrees (0: lying flat)
     const snap = () => [+t.toFixed(3), +lip.toFixed(3), balls.map(b => [+b.x.toFixed(3), +b.z.toFixed(3), +b.y.toFixed(3)]), +toeNow.toFixed(1)];
@@ -165,6 +180,7 @@ window.FlowerSim = (function () {
       const driving = lip < stop && stalled === null;
       if (!driving && tStop === null) tStop = t;
       let curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
+      if (cfg.finger && tStop !== null && t > tStop + (cfg.finger.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.finger.delay || 0)) / (cfg.finger.time || 0.3)); toeNow = cfg.finger.deg * f; curProfile = fingered(curProfile, cfg.finger, f); }
       if (cfg.toe && tStop !== null && t > tStop + (cfg.toe.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.toe.delay || 0)) / (cfg.toe.time || 0.3)); toeNow = cfg.toe.deg * f; curProfile = toed(curProfile, cfg.toe, f); }
       if (cfg.flap && tStop !== null && t > tStop + (cfg.flap.delay || 0)) curProfile = flapped(curProfile, cfg.flap, Math.min(1, (t - tStop - (cfg.flap.delay || 0)) / (cfg.flap.time || 0.3)));
       const bv = driving ? drive : 0;
