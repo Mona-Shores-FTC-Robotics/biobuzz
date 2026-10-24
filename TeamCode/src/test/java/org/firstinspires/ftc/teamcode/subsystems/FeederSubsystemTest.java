@@ -12,25 +12,33 @@ public class FeederSubsystemTest {
 
     @Test
     public void nothingHeldIsIdle() {
-        assertEquals(State.IDLE, FeederSubsystem.requestFor(false, false, true, true));
-        assertEquals(State.IDLE, FeederSubsystem.requestFor(false, false, false, false));
+        assertEquals(State.IDLE, FeederSubsystem.requestFor(false, false, true, true, false));
+        assertEquals(State.IDLE, FeederSubsystem.requestFor(false, false, false, false, false));
+        assertEquals("releasing the button stops a feed", State.IDLE,
+                FeederSubsystem.requestFor(false, false, true, true, true));
     }
 
     @Test
-    public void feedWaitsForTheLauncherWhenThePolicySaysSo() {
-        assertEquals(State.IDLE, FeederSubsystem.requestFor(true, false, false, true));
-        assertEquals(State.FEED, FeederSubsystem.requestFor(true, false, true, true));
+    public void aFeedStartsOnlyOnceTheLauncherIsAtSpeed() {
+        assertEquals(State.IDLE, FeederSubsystem.requestFor(true, false, false, true, false));
+        assertEquals(State.FEED, FeederSubsystem.requestFor(true, false, true, true, false));
+    }
+
+    @Test
+    public void aFeedAlreadyRunningKeepsRunningThroughASpeedDip() {
+        // The wheels slow as a piece meets them; the feeder must not pulse.
+        assertEquals(State.FEED, FeederSubsystem.requestFor(true, false, false, true, true));
     }
 
     @Test
     public void benchPolicyFeedsRegardless() {
-        assertEquals(State.FEED, FeederSubsystem.requestFor(true, false, false, false));
+        assertEquals(State.FEED, FeederSubsystem.requestFor(true, false, false, false, false));
     }
 
     @Test
     public void reverseAlwaysWins() {
-        assertEquals(State.REVERSE, FeederSubsystem.requestFor(false, true, false, true));
-        assertEquals(State.REVERSE, FeederSubsystem.requestFor(true, true, true, true));
+        assertEquals(State.REVERSE, FeederSubsystem.requestFor(false, true, false, true, false));
+        assertEquals(State.REVERSE, FeederSubsystem.requestFor(true, true, true, true, true));
     }
 
     @Test
