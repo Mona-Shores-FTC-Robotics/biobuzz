@@ -30,6 +30,7 @@
   const arm = el("line", { stroke: "var(--muted)", "stroke-width": 5, "stroke-linecap": "round" });
   const sledWheel = el("circle", { fill: "none", stroke: "var(--fg)", "stroke-width": 2 });
   const blade = el("polygon", { fill: "var(--petg)" });
+  const toeEl = el("polygon", { fill: "var(--petg)", stroke: "var(--fg)", "stroke-width": 0.8 });
   const shaft = el("circle", { r: 0.16 * PX, fill: "var(--steel)", stroke: "var(--fg)" });
   const balls = [0, 1, 2, 3].map(() => el("circle", { r: S.R * PX, fill: "var(--pollen)", "fill-opacity": 0.75, stroke: "var(--fg)", "stroke-width": 1.2 }));
   // the plan view (from above): half scale, under the side view; x as above, y across the field (+y up the screen)
@@ -62,6 +63,10 @@
   // between the pipes. Straight: all four on the centreline.
   const STACKS = { fb: { pattern: [-0.29, 0.35, 0.35] }, straight: { pattern: [0, 0, 0] }, ss: { lean: 0.6 } };
   let stack = "fb";
+  // the lifter: a plate ahead of the lip under the ball, the blade's thickness, that swings up about the lip's foot when the
+  // blade stops on the posts (a mechanism the posts trip), pushing the ball toward the robot
+  const TOES = { none: null, lifter: { len: 1.3, deg: 75, time: 0.3 } };
+  let toe = "none";
   function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6, oval: +$("s-laneOval").value } : null; }
   function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; $("s-laneOval").value = l.oval || 0; } }
   let bladeWidth = 5.4, armMode = "both";
@@ -101,7 +106,7 @@
     profile = readouts();
     cfg = { drive: +$("s-drive").value, mu: +$("s-mu").value, stopErr: +$("s-stopErr").value, extraDepth: P.extraDepth || 0, onRobot: P.onRobot,
       width: P.width || bladeWidth, gutter: readLane(), offset: +$("s-offset").value, yaw: +$("s-yaw").value, mouth: +$("s-mouth").value, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]);
+    Object.assign(cfg, STACKS[stack]); cfg.toe = TOES[toe];
     const t0 = performance.now();
     result = S.run(profile, cfg);
     const ms = Math.round(performance.now() - t0);
@@ -118,7 +123,7 @@
     else if (r.out.every(v => v !== null)) s = "All four out of the FLOWER, the last at " + Math.max(...r.out).toFixed(2) + " s.";
     else s = (4 - r.out.filter(v => v !== null).length) + " of 4 still in the FLOWER after " + r.frames[r.frames.length - 1][0].toFixed(1) + " s.";
     const stackName = { fb: "stack leaning front to back", straight: "straight stack", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = name + ", " + stackName + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
+    $("sim-result").textContent = name + (toe === "none" ? "" : " with the lifter") + ", " + stackName + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
     if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw, P.bosses || null, P.vee || 0);
@@ -128,6 +133,9 @@
     if (!result) return;
     const f = result.frames[i], t = f[0], lip = f[1], P = PRESETS[preset];
     blade.setAttribute("points", profile.map(([x, z]) => sx(lip - x) + "," + sy(z)).join(" "));
+    if (cfg.toe) { const a = (f[3] || 0) * Math.PI / 180, L = cfg.toe.len, th = 0.1, z0 = profile[0][1], c = Math.cos(a), s_ = Math.sin(a);
+      const pts = [[0, 0], [L, 0], [L, th], [0, th]].map(([u, v]) => [lip + u * c + v * s_, z0 + u * s_ - v * c]);
+      toeEl.setAttribute("points", pts.map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); toeEl.style.display = ""; } else toeEl.style.display = "none";
     const shx = lip - P.shaftBack;
     shaft.setAttribute("cx", sx(shx)); shaft.setAttribute("cy", sy(0.77));
     if (P.onRobot) {
@@ -157,7 +165,7 @@
       planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
       planFace.style.display = planMouth.style.display = "";
     } else planFace.style.display = planMouth.style.display = "none";
-    if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t);
+    if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t, cfg.toe ? [cfg.toe.len, f[3] || 0] : null);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
   }
@@ -185,6 +193,7 @@
   const later = () => { clearTimeout(timer); timer = setTimeout(compute, 120); };
   for (const s of ["edge", "nose", "peak", "tail"]) $("s-" + s).oninput = () => { custom = true; for (const b of document.querySelectorAll("[data-preset]")) b.setAttribute("aria-pressed", "false"); readouts(); later(); };
   for (const s of ["drive", "mu", "stopErr", "laneR", "laneRise", "laneStart", "laneOval", "offset", "yaw", "mouth"]) $("s-" + s).oninput = () => { readouts(); later(); };
+  for (const b of document.querySelectorAll("[data-toe]")) b.onclick = () => { toe = b.dataset.toe; for (const o of document.querySelectorAll("[data-toe]")) o.setAttribute("aria-pressed", o === b); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; for (const o of document.querySelectorAll("[data-stack]")) o.setAttribute("aria-pressed", o === b); compute(); };
   for (const b of document.querySelectorAll("[data-width]")) b.onclick = () => { bladeWidth = +b.dataset.width; for (const o of document.querySelectorAll("[data-width]")) o.setAttribute("aria-pressed", o === b); readouts(); later(); };
   for (const b of document.querySelectorAll("[data-arms]")) b.onclick = () => { armMode = b.dataset.arms; for (const o of document.querySelectorAll("[data-arms]")) o.setAttribute("aria-pressed", o === b); if (window.Drive3D) window.Drive3D.setArms(armMode); };

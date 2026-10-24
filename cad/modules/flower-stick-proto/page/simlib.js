@@ -15,17 +15,51 @@ const window = {};
 // `mouth` wide: a ball reaching the wheels outside it rolls past.
 window.FlowerSim = (function () {
   const G = 386.1, R = 1.4, K = 2 / 3, DT = 5e-5, REST = 4.0, STAGED = [1.4, 4.3, 7.2, 10.1];
-  const BACK = 0.35 + R, STOP = 1.18, FACE_BEHIND_LIP = STOP + 2.5, GECKO_R = 0.94, GECKO_Z = 2.89;
+  const BACK = 0.33 + R, STOP = 1.18, FACE_BEHIND_LIP = STOP + 2.5, GECKO_R = 0.94, GECKO_Z = 2.89;
   const PIPE = 1.72, PIPE_R = 0.525, PIPE_Z = 4.25, HOLE_PLAY = 0.14;
   // the uprights' vee (the back wall for every ball), the ring and its hole, the tiles, and the collar's front bar as the
   // field CAD's centreline section has it: underside 3.90, top 4.25 where the pipes begin, inner edge at -1.69 (the opening
   // is 3.6 in across). Above 4.25 only the four pipes hold the stack (post(), in 3-D). COLLAR_Z lets a lower collar be tried.
-  const COLLAR_Z = 3.90, COLLAR_IN = -1.69, COLLAR_T = 0.35;
+  // Layer B measured from the field CAD: a plate from 3.90 up whose opening is 1.93 in in radius, with a ridge 1.71 in in
+  // radius from 4.10 to 4.25 (the pipes' sockets sit on it). The corner a leaning ball rests on is the ridge's, at 4.25.
+  const COLLAR_Z = 3.90, COLLAR_IN = -1.71, COLLAR_T = 0.35, COLLAR_LOW = -1.93, COLLAR_STEP = 4.10;
+  const collarSegs = (cz, sg) => [[[sg * -2.41, cz], [sg * COLLAR_LOW, cz]], [[sg * COLLAR_LOW, cz], [sg * COLLAR_LOW, cz + 0.20]], [[sg * COLLAR_LOW, cz + 0.20], [sg * COLLAR_IN, cz + 0.20]], [[sg * COLLAR_IN, cz + 0.20], [sg * COLLAR_IN, cz + COLLAR_T]], [[sg * -2.41, cz + COLLAR_T], [sg * COLLAR_IN, cz + COLLAR_T]]];
   const FIXED = [
-    [[BACK, 0], [BACK, 20]], [[-1.54, 0], [BACK, 0]],
+    [[BACK, 0], [BACK, PIPE_Z]], [[-1.54, 0], [BACK, 0]],
     [[-1.54, 0], [-1.54, 0.35]], [[-1.54, 0.35], [-2.36, 0.35]], [[-2.36, 0.35], [-2.36, 0]], [[-60, 0], [-2.36, 0]],
-    [[-2.41, COLLAR_Z], [COLLAR_IN, COLLAR_Z]], [[COLLAR_IN, COLLAR_Z], [COLLAR_IN, COLLAR_Z + COLLAR_T]], [[-2.41, COLLAR_Z + COLLAR_T], [COLLAR_IN, COLLAR_Z + COLLAR_T]],
+    ...collarSegs(COLLAR_Z, 1), ...collarSegs(COLLAR_Z, -1),
   ];
+  const N_COLLAR = 10;
+  // the two posts (the uprights' lobes) seen from above, from the field CAD: the point at (1.18, +-1.42), the slanted face
+  // running inward to the inner corner (1.61, +-0.61), and the flat front face out to +-1.9. They stand from the ring's top to
+  // the collar, and hold a ball sideways in a funnel: a ball at x 0.35 is pinned, one at x 0 can move +-0.65 before it meets a face.
+  const LOBES = [];
+  for (const sg of [1, -1]) { const c = [[1.184, 1.417], [1.66, 0.614], [2.463, 1.09], [1.987, 1.893]].map(([x, y]) => [x, y * sg]); for (let i = 0; i < 4; i++) LOBES.push([c[i], c[(i + 1) % 4]]); }
+  // the collar's round opening holds a ball passing through it: where the ball's cross-section at the plate's height
+  // reaches the opening's edge, the ball is pushed back toward the centre (the lower plate at 1.93 in, the ridge at 1.71)
+  function ringHold(b, cz) {
+    for (const [z0, z1, ro] of [[cz, cz + 0.20, -COLLAR_LOW], [cz + 0.20, cz + COLLAR_T, -COLLAR_IN]]) {
+      if (b.z + R < z0 || b.z - R > z1) continue;
+      const zc = b.z < z0 ? z0 : b.z > z1 ? z1 : b.z, dz = b.z - zc, rc = Math.sqrt(Math.max(0, R * R - dz * dz));
+      const d = Math.hypot(b.x, b.y); if (d >= ro) continue;                  // the ball's centre is over the plate, not in the opening
+      const room = ro - rc; if (d <= room || d < 1e-9) continue;
+      const nx = -b.x / d, ny = -b.y / d; b.x = -nx * room; b.y = -ny * room;
+      const vn = b.vx * nx + b.vy * ny; if (vn < 0) { b.vx -= vn * nx; b.vy -= vn * ny; }
+    }
+  }
+  // a vertical wall segment in plan (x-y) between z0 and z1: push the ball out, with friction
+  function wall(b, seg, z0, z1, e, mu) {
+    if (b.z + R < z0 || b.z - R > z1) return;
+    const ax = seg[0][0], ay = seg[0][1], ex = seg[1][0] - ax, ey = seg[1][1] - ay, L2 = ex * ex + ey * ey;
+    let t = ((b.x - ax) * ex + (b.y - ay) * ey) / L2; t = t < 0 ? 0 : t > 1 ? 1 : t;
+    const cx = ax + t * ex, cy = ay + t * ey, dx = b.x - cx, dy = b.y - cy, d = Math.hypot(dx, dy);
+    if (d >= R || d < 1e-9) return;
+    const nx = dx / d, ny = dy / d; b.x = cx + nx * R; b.y = cy + ny * R;
+    const vn = b.vx * nx + b.vy * ny; if (vn >= 0) return;
+    const jn = -(1 + (-vn > REST ? e : 0)) * vn; b.vx += jn * nx; b.vy += jn * ny;
+    const tx = -ny, ty = nx, vt = b.vx * tx + b.vy * ty; let jt = -vt; const l = mu * jn; if (jt > l) jt = l; if (jt < -l) jt = -l;
+    b.vx += jt * tx; b.vy += jt * ty;
+  }
   // returns the normal impulse (0 if no contact), so the caller can tilt it sideways
   function contact(b, seg, sv, e, mu) {
     const ax = seg[0][0], az = seg[0][1], ex = seg[1][0] - ax, ez = seg[1][1] - az, L2 = ex * ex + ez * ez;
@@ -101,8 +135,7 @@ window.FlowerSim = (function () {
     // the stagger pattern: cfg.pattern as [dx2, dx3, dx4] in inches (toward the robot negative), or cfg.stagger for 2 and 4
     const pat = cfg.pattern || [k => (k % 2 ? -stagger : 0)][0];
     const balls = STAGED.map((z, k) => ({ x: Array.isArray(pat) ? (k === 0 ? 0 : pat[k - 1]) : pat(k), y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
-    if (cfg.collar) { const cz = cfg.collar; FIXED[6] = [[-2.41, cz], [COLLAR_IN, cz]]; FIXED[7] = [[COLLAR_IN, cz], [COLLAR_IN, cz + COLLAR_T]]; FIXED[8] = [[-2.41, cz + COLLAR_T], [COLLAR_IN, cz + COLLAR_T]]; }
-    else { FIXED[6] = [[-2.41, COLLAR_Z], [COLLAR_IN, COLLAR_Z]]; FIXED[7] = [[COLLAR_IN, COLLAR_Z], [COLLAR_IN, COLLAR_Z + COLLAR_T]]; FIXED[8] = [[-2.41, COLLAR_Z + COLLAR_T], [COLLAR_IN, COLLAR_Z + COLLAR_T]]; }
+    { const cz = cfg.collar || COLLAR_Z, segs = [...collarSegs(cz, 1), ...collarSegs(cz, -1)]; for (let i = 0; i < N_COLLAR; i++) FIXED[6 + i] = segs[i]; }
     let lip = -4.4, t = 0, step = 0, stalled = null;
     const out = [null, null, null, null], fed = [null, null, null, null], missed = [null, null, null, null], offBlade = [null, null, null, null], frames = [];
     const yAtWheels = [null, null, null, null];
@@ -111,12 +144,29 @@ window.FlowerSim = (function () {
     const xs = profile.map(p => p[0]);
     const tiltDeg = cfg.tilt || 0, shaftBack = cfg.shaftBack || 0.53, shaftZ = 0.77;
     let tStop = null;
+    // cfg.flap: a lifter hinged at the peak, lying along the tail, that swings up to `deg` over `time` s starting `delay` s
+    // after the blade stops (a mechanism tripped by the posts): the tail's first `len` inches rise behind the ball
+    const flapped = (prof, fl, f) => {
+      const [xp, zp] = prof[2], tailA = Math.atan2(prof[3][1] - zp, prof[3][0] - xp), a = tailA + (fl.deg * Math.PI / 180 - tailA) * f;
+      const L = fl.len, tip = [xp + L * Math.cos(a), zp + L * Math.sin(a)], foot = [xp + L * Math.cos(tailA), zp + L * Math.sin(tailA)];
+      return [prof[0], prof[1], prof[2], tip, foot, ...prof.slice(3)];
+    };
+    // cfg.toe: a plate ahead of the lip, under the ball (the blade's thickness, lying on the posts' side), hinged at the
+    // lip's foot, that swings up to `deg` over `time` s starting `delay` s after the stop: it lifts the ball's back and
+    // pushes it toward the robot (a lifter tripped by the posts, on the right side of the ball)
+    const toed = (prof, tp, f) => {
+      const a = tp.deg * Math.PI / 180 * f, L = tp.len, [x0, z0] = prof[0];
+      return [[x0 - L * Math.cos(a), z0 + L * Math.sin(a)], ...prof];
+    };
     const tilted = (prof, deg) => { const a = deg * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a); return prof.map(([x, z]) => { const dx = x - shaftBack, dz = z - shaftZ; return [shaftBack + dx * c + dz * sn, shaftZ - dx * sn + dz * c]; }); };
-    const snap = () => [+t.toFixed(3), +lip.toFixed(3), balls.map(b => [+b.x.toFixed(3), +b.z.toFixed(3), +b.y.toFixed(3)])];
+    let toeNow = 0;                                                      // the toe's angle this step, degrees (0: lying flat)
+    const snap = () => [+t.toFixed(3), +lip.toFixed(3), balls.map(b => [+b.x.toFixed(3), +b.z.toFixed(3), +b.y.toFixed(3)]), +toeNow.toFixed(1)];
     for (; t < tmax; t += DT, step++) {
       const driving = lip < stop && stalled === null;
       if (!driving && tStop === null) tStop = t;
-      const curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
+      let curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
+      if (cfg.toe && tStop !== null && t > tStop + (cfg.toe.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.toe.delay || 0)) / (cfg.toe.time || 0.3)); toeNow = cfg.toe.deg * f; curProfile = toed(curProfile, cfg.toe, f); }
+      if (cfg.flap && tStop !== null && t > tStop + (cfg.flap.delay || 0)) curProfile = flapped(curProfile, cfg.flap, Math.min(1, (t - tStop - (cfg.flap.delay || 0)) / (cfg.flap.time || 0.3)));
       const bv = driving ? drive : 0;
       if (driving) lip = Math.min(stop, lip + drive * DT);
       let axleX = 0, axleZ = 0;
@@ -154,10 +204,10 @@ window.FlowerSim = (function () {
         // +-0.14 in, one 0.61 in off centre not at all); the uprights' vee holds a ball against the back the same +-0.14
         let play = Infinity;
         if (b.z - R < 0.35 && Math.abs(b.x) < 1.54) { const dz = 0.35 - b.z, rc = dz < -R || dz > R ? 0 : Math.sqrt(Math.max(0, R * R - dz * dz)); const room = 1.54 - rc; play = room > 0 ? Math.sqrt(Math.max(0, room * room - b.x * b.x)) : 0; play = Math.max(play, 0); }
-        const inVee = b.x > BACK - R - 0.02 && b.z < PIPE_Z;
-        if (inVee) play = Math.min(play, HOLE_PLAY);
         if (play < Infinity) { if (b.y > play) { b.y = play; if (b.vy > 0) b.vy = 0; } if (b.y < -play) { b.y = -play; if (b.vy < 0) b.vy = 0; } }
         for (const px of [PIPE, -PIPE]) for (const py of [PIPE, -PIPE]) post(b, px, py, PIPE_R, PIPE_Z, e, mu);
+        for (const sgm of LOBES) wall(b, sgm, 0.35, 4.10, e, mu);
+        ringHold(b, cfg.collar || COLLAR_Z);
         if (cfg.onRobot) { const [, yb] = toBlade(b); if (Math.abs(yb) <= mouth / 2 + 0.6) geckoDrag(b, axleX, axleZ); }
       }
       for (let i = 0; i < 4; i++) for (let j = i + 1; j < 4; j++) {
@@ -172,8 +222,14 @@ window.FlowerSim = (function () {
             // spins included, resisted up to mu times the normal impulse; it is what lets a ball above hold the one below
             const muB = cfg.muBall ?? mu, tx = -nz, tz = nx;
             const slip = (c.vx - a.vx) * tx + (c.vz - a.vz) * tz - (a.w + c.w) * R;
-            let jt = -slip / (2 * (1 + 1 / K)); const lim = muB * 2 * jj; if (jt > lim) jt = lim; if (jt < -lim) jt = -lim;
+            let jt = -slip / (2 * (1 + 1 / K));
+            // and across (y): the balls' sideways slip at the contact, resisted by the same friction, so a ball cannot be
+            // squeezed out sideways from under a stack it is holding up
+            const slipY = (c.vy - a.vy) - ((c.vx - a.vx) * nx + (c.vz - a.vz) * nz) * ny;
+            let jy = -slipY / 2;
+            const lim = muB * 2 * jj, mag = Math.hypot(jt, jy); if (mag > lim) { jt *= lim / mag; jy *= lim / mag; }
             a.vx -= jt * tx; a.vz -= jt * tz; c.vx += jt * tx; c.vz += jt * tz; a.w -= jt / (K * R); c.w -= jt / (K * R);
+            a.vy -= jy; c.vy += jy;
           }
         }
       }

@@ -65,6 +65,8 @@ panel = f'''  <div class="drive">
     <div class="bar" style="border-top: 0">
       <label>The stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
+      <label>Lifter</label>
+      <span class="seg"><button data-toe="none" aria-pressed="true">none</button><button data-toe="lifter" aria-pressed="false">toe that flips up on the posts</button></span>
       <label>Blade width</label>
       <span class="seg"><button data-width="5.4" aria-pressed="true">5.4 in, as printed</button><button data-width="7.5" aria-pressed="false">7.5 in, the Gecko row</button><button data-width="12" aria-pressed="false">12 in</button></span>
       <label>Arms</label>
@@ -326,39 +328,72 @@ body = f'''
         <h3>The stack that locks itself</h3>
         <p>Then we looked at the photos of the stuck stacks side by side. When the four balls are staggered side to side, they come
         out one after another. When they are staggered front to back, the bottom ball rides up onto the peak and stays there, even
-        with the sled pushed in as far as it goes. The model had no idea why: in it, every stack came out. So we went back to the
-        FLOWER's drawing to find what we had left out.</p>
-        <p>It was the collar. The bar across the front of the FLOWER, 3.90 to 4.25 in above the tile where the pipes begin, we had
-        drawn as a wall. It is a bar, with a corner a ball can rest on. With the bar in the model, this happens: the second ball
-        leans toward the robot until it rests against the bar. When the blade lifts the bottom ball onto the peak, the second ball
-        rides up onto the bar's corner and sits across the gap, on the bar on one side and on the bottom ball on the other. The third
-        ball lies against the front pipes. Three balls make an arch. The bottom ball cannot roll off the peak toward the robot without
-        lifting the one above it, and the bar and the pipes hold that one. The stack has locked itself. The positions are the ones in
-        our photos: the bottom ball on the peak, pinned against the posts, the next one hanging out over the bar.</p>
+        with the sled pushed in as far as it goes. The model had every stack coming out, so we went back to FIRST's field CAD and
+        measured the FLOWER again, part by part, instead of trusting what we had drawn.</p>
+        <p>The posts were right: two square tubes standing on their corners, 1.18 in behind the ball's centre at their front corners,
+        with faces that slant inward to 1.66 in, pinning a lifted ball 0.33 in back. The collar was not. The plate at 3.90 in has a
+        round opening 1.93 in in radius, with a ridge on top of it, 1.71 in in radius, from 4.10 to 4.25 in where the pipes start. We
+        had drawn the whole thing as a wall. It is a ledge with a corner a ball can rest on. With the ledge in the model, this
+        happens: the second ball leans toward the robot until it rests against the ridge. When the blade lifts the bottom ball onto
+        the peak, the second ball rides up onto the ridge's corner and sits across the gap, on the ridge on one side and on the
+        bottom ball on the other. The third sits back against the posts, the fourth against the front pipes. The bottom ball cannot
+        roll off the peak toward the robot without lifting the one above it, and the ridge holds that one. The stack has locked
+        itself, in the same positions as our photos.</p>
         <p>A stack leaning side to side never does this, in the model or on the field. Its upper balls lean into the gaps between the
-        pipes, where there is no bar, so nothing loads the bottom ball from the robot's side. That is why left-right stacks fall
-        easily and front-back stacks stick.</p>
-        <p>The model says two more things. The ball can only sit on the peak if the peak is under it. With the lip at the posts'
-        points the peak would be half an inch past the pinned ball, so in the photos the blade stopped about a third of an inch
-        short of where the drawing puts those points: something touches first. And the lock is a matter of timing. A fast push gets
-        the bottom ball over before the arch forms; in the model it locks at 3 to 6 in/s and not at 8 and above. On the field it
-        locks most of the time, in the model only some of the time, so the model still misses something about how the stack settles.</p>
+        pipes, where there is no ledge, so nothing loads the bottom ball from the robot's side. That is why left-right stacks fall
+        easily and front-back stacks stick. With the measured collar the model locks most of the time, as the field does, where
+        before it locked only now and then.</p>
+        <p>Two more things it says. The ball can only sit <i>on</i> the peak if the peak is under it. With the lip at the posts' corners
+        v7's peak would be half an inch past the pinned ball, so in the photos the blade stopped about a third of an inch short of
+        the posts' corners: something touches first. And the lock is a matter of timing: a fast push gets the bottom ball over before
+        the stack settles into its arch. Pushed at 12 in/s nothing locks; at 3 to 6 in/s most things do.</p>
         <table class="sweep loads"><thead><tr><th style="width:68%">Blade</th><th>Cases that feed</th></tr></thead><tbody>
-          <tr><td class="k">v7, the blade that works</td><td class="stuck">10 of 16</td></tr>
-          <tr><td class="k">v8, the V nose 0.3 in deeper</td><td class="ok">15 of 16</td></tr>
-          <tr><td class="k">v9, the 1.0 in peak</td><td class="ok">13 of 16</td></tr>
-          <tr><td class="k">v7 reaching 0.6 in deeper</td><td class="ok">16 of 16</td></tr>
-          <tr><td class="k">a 0.9 in peak</td><td class="ok">16 of 16</td></tr>
-          <tr><td class="k">v7 with a 65° nose</td><td class="stuck">7 of 16</td></tr>
-          <tr><td class="k">v7 with a 55° nose</td><td class="stuck">12 of 16</td></tr>
-          <tr><td class="k">v7 tilted 6° nose-up after it stops</td><td class="stuck">11 of 16</td></tr>
-          <tr><td class="k">v7, the collar 0.3 in higher (not ours to change)</td><td class="ok">16 of 16</td></tr>
-          <tr><td class="k">v7, the collar 0.3 in lower</td><td class="stuck">6 of 16</td></tr>
-        </tbody></table><div class="cap">Sixteen runs each: a straight stack and one settled front to back against the collar, friction 0.3 and 0.45, pushed at 3 and 6 in/s, the sled at the posts' points and a third of an inch short. The collar rows show it is the collar that makes the lock; the depth and peak rows show what we can do about it.</div>
-        <div class="learn"><b>What we learned</b>Draw everything that is really there. The collar was a bar we had drawn as a wall, and it turned out to be the whole story. Reach past the ball is still the number that matters: the deeper the peak gets under the ball before the arch forms, the fewer ways there are to lock.</div>
-        <div class="ask"><b>Open question</b>The robot's intake wheels pull on the ball; the hand sled does not. Does that break the arch? And what stops the sled a third of an inch short of the posts' points? Put a mark on the sled, push it in, and measure where the lip really is.</div>
+          <tr><td class="k">v7, the blade that works</td><td class="stuck">9 of 16</td></tr>
+          <tr><td class="k">v8, the V nose 0.3 in deeper</td><td class="stuck">12 of 16</td></tr>
+          <tr><td class="k">v9, the 1.0 in peak</td><td class="stuck">6 of 16</td></tr>
+          <tr><td class="k">v7 reaching 0.6 in deeper</td><td class="stuck">13 of 16</td></tr>
+          <tr><td class="k">v7 reaching 0.9 in deeper</td><td class="stuck">14 of 16</td></tr>
+          <tr><td class="k">v7 reaching 1.2 in deeper</td><td class="ok">16 of 16</td></tr>
+          <tr><td class="k">a 0.9 in peak</td><td class="stuck">7 of 16</td></tr>
+          <tr><td class="k">v7 with a 55° or 65° nose</td><td class="stuck">6 and 5 of 16</td></tr>
+          <tr><td class="k">v7 tilted 6° nose-up after it stops</td><td class="stuck">10 of 16</td></tr>
+          <tr><td class="k">v7 pushed at 12 in/s</td><td class="ok">16 of 16</td></tr>
+          <tr><td class="k">v7, the collar 0.3 in higher (not ours to change)</td><td class="stuck">14 of 16</td></tr>
+        </tbody></table><div class="cap">Sixteen runs each: a straight stack and one settled front to back against the collar, friction 0.3 and 0.45, pushed at 3 and 6 in/s, the sled at the posts' corners and a third of an inch short. The collar row shows the ledge is what makes the lock. Reach helps, but it takes more than an inch of it; a lower peak and a different nose angle do not help.</div>
+        <div class="learn"><b>What we learned</b>Measure the real thing, part by part. The collar was a ledge we had drawn as a wall, and it turned out to be the whole story. And a push that is fast enough beats the lock: the stack needs time to settle into its arch.</div>
+        <div class="ask"><b>Open question</b>The robot's intake wheels pull on the ball; the hand sled does not. Does that break the arch? And what stops the sled a third of an inch short of the posts' corners? Put a mark on the sled, push it in, and measure where the lip really is.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "stuck_state.png")}" alt="A side-view drawing of the model's locked stack: the bottom ball on the blade's peak against the posts, the second ball resting on the collar's front bar, the third against the front pipes, the fourth on top."><figcaption>The model's locked stack with v7, pushed at 4 in/s and stopped 0.35 in short. Ball 1 on the peak, ball 2 on the collar's bar, ball 3 on the front pipes. Compare it with the October 23 photos.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "stuck_state.png")}" alt="A side-view drawing of the model's locked stack: the bottom ball on the blade's peak against the posts, the second ball resting on the collar's front bar, the third against the front pipes, the fourth on top."><figcaption>The model's locked stack with v7, pushed at 4 in/s and stopped 0.35 in short. Ball 1 on the peak, ball 2 on the collar's ridge, ball 3 back on the posts, ball 4 on the front pipes. Compare it with the October 23 photos.</figcaption></figure>
+    </div>
+    <div class="step">
+      <div>
+        <h3>A lifter the posts trip</h3>
+        <p>If gravity alone will not break the arch, something has to push the bottom ball toward the robot. The idea from the
+        team: a piece that swings up when the blade drives into the posts, so the drive motors do the lifting instead of
+        gravity. We tried two versions in the model.</p>
+        <p>A flap on the tail, hinged at the peak and swinging up behind the ball on the robot's side, makes everything worse: it
+        pushes the ball toward the wall, into the posts, and nothing feeds. The ball has to be pushed from the wall's side. So the
+        second version is a toe: a plate the blade's own thickness, 1.2 in wide, lying ahead of the lip under the ball between the
+        posts' inner corners, hinged at the lip's foot. When the blade stops, the toe swings up and lifts the back of the ball,
+        rolling it over the peak toward the robot. In the model a 1.3 in toe swinging up 75° feeds every case, including the ones
+        that lock everything else. Swinging only 60° it never reaches the ball and changes nothing.</p>
+        <table class="sweep loads"><thead><tr><th style="width:68%">Lifter</th><th>Cases that feed</th></tr></thead><tbody>
+          <tr><td class="k">v7, no lifter</td><td class="stuck">9 of 16</td></tr>
+          <tr><td class="k">flap on the tail, 1.0 in, swings up 45°</td><td class="stuck">0 of 16</td></tr>
+          <tr><td class="k">toe ahead of the lip, 1.0 in, swings up 60°</td><td class="stuck">9 of 16</td></tr>
+          <tr><td class="k">toe 1.0 in, swings up 75°</td><td class="stuck">14 of 16</td></tr>
+          <tr><td class="k">toe 1.0 in, swings up 90°</td><td class="ok">16 of 16</td></tr>
+          <tr><td class="k">toe 1.3 in, swings up 75°</td><td class="ok">16 of 16</td></tr>
+        </tbody></table><div class="cap">The same sixteen runs as above. The toe lies between the posts' inner corners, which are 1.2 in apart, so it is 1.2 in wide; it needs to swing up far enough to touch the ball's back, 75° for a 1.3 in toe.</div>
+        <p>How it could be driven: the blade keeps pushing on the posts after it stops, so the arms could carry a spring and a
+        link that turns the extra travel into the toe's swing; or a servo on the blade, told to swing when the drive motors
+        stall. The model only says the motion works. It does not know how much force the toe needs, or whether a 1.2 in wide
+        plate lifting a soft ball from one side will roll it or just dent it. That is a test with a hand lever on the sled before
+        anything is built.</p>
+        <div class="learn"><b>What we learned</b>Push the ball from the wall's side, not the robot's. A lifter on the tail is the obvious place and the wrong one.</div>
+        <div class="ask"><b>Open question</b>Can the toe be passive, driven by the sled's last third of an inch of travel, or does it need a servo? And does a 1.2 in plate roll a POLLEN or dent it?</div>
+      </div>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "toe_lifter.png")}" alt="Side view of the model with the toe lifter swung up ahead of the blade's lip, pushing the bottom ball over the peak toward the robot while the stack above drops."><figcaption>The toe swung up to 75° in the model: it lifts the back of the bottom ball and rolls it over the peak. Press "toe that flips up on the posts" in the simulator to watch it.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -371,7 +406,8 @@ body = f'''
   or turn it. The stack buttons start the balls leaning front to back, settled against the collar's bar the way they were in
   our photos, or straight, or leaning side to side. The run starts with v7, the blade that works, and the sled stopping a third
   of an inch short: that is the stuck stack. Switch to v8 or v9 to see what the model predicts for the other two blades on the
-  plate. The width and arm choices show how the blade could mount on the robot.</p>
+  plate, and press the lifter button to add the toe. The FLOWER in the 3D view is FIRST's own CAD: the base, the two posts, the
+  collar and the four pipes. The width and arm choices show how the blade could mount on the robot.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -406,7 +442,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 goes over, v9 locks. If the field agrees, the next blade reaches deeper still: a V 0.6 in deep, or a 0.9 in peak. Both clear every case in the model. Try them in the simulator: v8 with the stop error at zero, or the peak slider at 0.9.</p></div>
+    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is the toe lifter above, first with a hand lever on the sled.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>

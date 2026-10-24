@@ -135,7 +135,9 @@ window.Drive3D = (function () {
     return geo;
   }
   let offsetNow = 0, yawNow = 0;
+  let bladeBottom = 0.52;
   function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee) {
+    bladeBottom = profile[0][1];
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
     bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
@@ -144,8 +146,13 @@ window.Drive3D = (function () {
     for (const grp of [bladeG, robot, sled]) { grp.position.z = -offsetNow; grp.rotation.y = -yawNow; }
     setArms(armMode);
   }
-  function frame(lip, ballPos, onRobot, shaftBack, t) {
+  let toeMesh = null;
+  function frame(lip, ballPos, onRobot, shaftBack, t, toe) {
     bladeG.position.x = lip;
+    if (toe) {
+      if (!toeMesh) { toeMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 1.2), petg); toeMesh.geometry.translate(0.5, -0.05, 0); bladeG.add(toeMesh); }
+      toeMesh.visible = true; toeMesh.scale.x = toe[0]; toeMesh.position.set(0, bladeBottom, 0); toeMesh.rotation.z = toe[1] * Math.PI / 180;
+    } else if (toeMesh) toeMesh.visible = false;
     const shx = lip - shaftBack;
     if (onRobot) {
       robot.visible = true; sled.visible = false;
