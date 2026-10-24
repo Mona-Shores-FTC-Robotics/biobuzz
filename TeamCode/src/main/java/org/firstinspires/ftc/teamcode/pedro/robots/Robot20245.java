@@ -66,9 +66,10 @@ public final class Robot20245 {
     });
 
     /**
-     * Foresight Tuner output. <b>Not tuned yet — intentionally empty.</b> Its twelve required
-     * values have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses
-     * to build a Foresight until they are pasted in.
+     * Foresight Tuner output, measured on 20245 on 17 Oct 2026 (before the turret and launcher
+     * were mounted; re-run the tuner once the robot's mass settles). Its twelve required values
+     * have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses to
+     * build a Foresight until a tuner's block is pasted here.
      */
     public static ForesightConfig foresightConfig = new ForesightConfig(
             c -> {

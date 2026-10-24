@@ -30,7 +30,7 @@ public final class RQualsAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 8.06, 90);
+        return poses(rotated).of(55, 9.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -42,7 +42,7 @@ public final class RQualsAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 8.06, 90);
+        Pose start = p.of(55, 9.7, 90);
         Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 270);
         Pose nFire = p.of(57.5, 119, 270);
