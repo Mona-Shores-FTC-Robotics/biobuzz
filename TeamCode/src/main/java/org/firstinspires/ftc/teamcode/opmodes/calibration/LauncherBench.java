@@ -54,7 +54,7 @@ public class LauncherBench extends OpMode {
     /** Off: Square feeds whenever held. On: a feed starts only once the launcher is at speed, as on the robot. */
     public static boolean feedOnlyAtSpeed = false;
 
-    private static final double STEP_TICKS_PER_SECOND = 100.0;
+    private static final double STEP_TICKS_PER_SECOND = 5;
     private static final double STEP_FEED_POWER = 0.1;
     private static final double TRIGGER_PRESSED = 0.5;
 
