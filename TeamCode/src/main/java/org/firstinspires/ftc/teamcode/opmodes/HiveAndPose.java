@@ -121,7 +121,7 @@ public class HiveAndPose extends RobotOpMode {
 
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
-        driver.note("Left bumper (hold)", "Slow");
+        driver.note("L1 (hold)", "Slow");
         driver.when("Cross (A)", "Relocalize from the camera", () -> gamepad1.a)
                 .onPress(() -> relocalizeNote = robot.drive.relocalizeFromCamera());
         driver.when("Triangle (Y)", "Reset field-centric forward", () -> gamepad1.y)
