@@ -33,10 +33,13 @@ public final class HiveTracker {
     public static class Tuning {
         /**
          * Seconds from the start of a TIP to the HIVE settled the other way; NaN, zero or negative
-         * assumes nothing, and a TIP ends only when seen. 2.5 is provisional: one hand-tipped HIVE
-         * filmed at normal speed on 19429 (#156). HIVE lesson 3 (#129) times it properly.
+         * assumes nothing, and a TIP ends only when seen. 3.5: the mock HIVE took 2.5 to 3.5 s to
+         * spill 3 POLLEN added onto 3 NECTAR, timed by hand on 24 Oct 2026. This is only the
+         * fallback for a TIP the camera does not see finish, so it errs late: assuming the other
+         * CELL up while the HIVE is still moving would aim the turret at a CELL in motion. HIVE
+         * lesson 3 (#129) times it properly, on a real HIVE.
          */
-        public static double tipSeconds = 2.5;
+        public static double tipSeconds = 3.5;
 
         /**
          * How long a settled CELL must be out of view, while the robot keeps looking, before that
