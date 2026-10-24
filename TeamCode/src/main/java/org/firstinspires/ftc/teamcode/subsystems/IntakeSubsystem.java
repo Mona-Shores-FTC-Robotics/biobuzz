@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -28,6 +29,14 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * <p>The powers and the direction are {@code @Configurable}. Nobody can tell from a desk which way
  * the roller is wired: if it spits pieces out on "intake", flip {@link #reversed} in Panels and
  * write {@code true} back here with a note saying which robot it was checked on.
+ *
+ * <h2>The star wheels</h2>
+ *
+ * <p>The intake-assist wheels (#160): SWYFT wheels cut into stars, driven by a continuous-rotation
+ * servo on {@link DeviceNames#INTAKE_STARS}, with one-way clutch bearings so a ball can overrun
+ * them inward and they can never turn outward. They run at {@link #starsPower} whenever the roller
+ * is taking in, and stop otherwise, including on eject: the clutches would only freewheel. Their
+ * direction is {@link #starsReversed}, unknown until a robot has shown it.
  */
 @Configurable
 public class IntakeSubsystem implements Subsystem {
@@ -55,14 +64,25 @@ public class IntakeSubsystem implements Subsystem {
      */
     public static double ticksPerRev = Double.NaN;
 
+    /** Star-wheel servo power while taking pieces in, 0 to 1. <b>Not yet tuned.</b> */
+    public static double starsPower = 1.0;
+
+    /**
+     * Flips the star-wheel servo so that positive power turns the stars inward. <b>Not yet checked
+     * on a robot:</b> {@code false} is the SDK's default direction, not a fact about the wiring.
+     */
+    public static boolean starsReversed = false;
+
     private final DcMotorEx motor;
+    private final CRServo stars;
     private State state = State.IDLE;
     private double ticksPerSecond = 0.0;
     private double currentAmps = Double.NaN;
 
-    /** Looks the motor up once. A missing motor fails init with the SDK's own message. */
+    /** Looks the motor and the star-wheel servo up once. A missing device fails init with the SDK's own message. */
     public IntakeSubsystem(HardwareMap hardwareMap) {
         motor = hardwareMap.get(DcMotorEx.class, DeviceNames.INTAKE);
+        stars = hardwareMap.get(CRServo.class, DeviceNames.INTAKE_STARS);
     }
 
     /** Ask for pieces in. Takes effect in the next {@link #update()}. */
@@ -110,15 +130,18 @@ public class IntakeSubsystem implements Subsystem {
         motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         motor.setPower(0.0);
+        stars.setPower(0.0);
     }
 
     /**
-     * One write per loop, the power the request asks for, clamped so Panels cannot overdrive it;
-     * then one read of speed (from the bulk read) and, while running, one of current.
+     * One write per loop to the roller and one to the star wheels, the powers the request asks for,
+     * clamped so Panels cannot overdrive them; then one read of speed (from the bulk read) and,
+     * while running, one of current.
      */
     @Override
     public void update() {
         motor.setPower(powerFor(state, inPower, outPower, reversed));
+        stars.setPower(starsPowerFor(state, starsPower, starsReversed));
         ticksPerSecond = motor.getVelocity();
         currentAmps = state == State.IDLE ? Double.NaN : motor.getCurrent(CurrentUnit.AMPS);
     }
@@ -128,12 +151,13 @@ public class IntakeSubsystem implements Subsystem {
     public void stop() {
         state = State.IDLE;
         motor.setPower(0.0);
+        stars.setPower(0.0);
     }
 
     @Override
     public void describe(Display display) {
         display.status("Intake", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
-                state == State.IN ? "IN" : state == State.OUT ? "OUT" : "idle");
+                state == State.IN ? "IN · stars turning" : state == State.OUT ? "OUT · stars stopped" : "idle");
         double rpm = rpm();
         display.line(String.format(Locale.US, "Roller %.0f ticks/s%s · %s",
                 ticksPerSecond,
@@ -164,6 +188,16 @@ public class IntakeSubsystem implements Subsystem {
                 power = 0.0;
         }
         return reversed ? -power : power;
+    }
+
+    /**
+     * The star-wheel servo's power for a request: {@code +power} while taking in, 0 otherwise. Not
+     * run on eject: the one-way clutches would freewheel, so there is nothing to gain. Negated when
+     * {@code starsReversed}. Pure, so a test can check it.
+     */
+    static double starsPowerFor(State state, double power, boolean reversed) {
+        double p = state == State.IN ? unitRange(power) : 0.0;
+        return reversed ? -p : p;
     }
 
     /**
