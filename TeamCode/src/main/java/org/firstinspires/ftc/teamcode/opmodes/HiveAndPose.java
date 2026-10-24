@@ -286,6 +286,11 @@ public class HiveAndPose extends RobotOpMode {
         panels.addData("turret_error_deg", robot.turret.errorDegrees());
         panels.addData("turret_aim_source", !aiming ? 0 : "camera".equals(aimSource) ? 1
                 : "odometry".equals(aimSource) ? 2 : 3);
+        panels.addData("loop_ms", loopTimer.lastMs());
+        panels.addData("cost_onloop_ms", costs.onLoopMs());
+        panels.addData("cost_subsystems_ms", costs.subsystemsMs());
+        panels.addData("cost_page_ms", costs.pageMs());
+        panels.addData("cost_log_ms", costs.logMs());
         panels.update();
 
         if (field.shouldDraw()) {
