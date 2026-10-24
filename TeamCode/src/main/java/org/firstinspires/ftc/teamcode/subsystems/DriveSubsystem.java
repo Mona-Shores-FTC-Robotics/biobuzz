@@ -269,7 +269,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             java.util.List<CellSighting.Member> members = sighting.members();
             for (int m = 0; m < members.size(); m++) { // index loop: no iterator per loop
                 CellSighting.Member member = members.get(m);
-                Vec3 field = HiveFieldPoints.tagPosition(member.tagId, state);
+                // Only a measured field point may move the pose; a derived one may only be aimed at.
+                Vec3 field = HiveFieldPoints.tagPositionForFix(member.tagId, state);
                 if (field == null || tagCount >= tagFieldX.length) continue;
                 tagFieldX[tagCount] = field.x();
                 tagFieldY[tagCount] = field.y();

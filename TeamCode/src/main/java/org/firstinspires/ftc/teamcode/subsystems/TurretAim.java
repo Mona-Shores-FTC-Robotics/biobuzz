@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 /**
@@ -44,6 +46,33 @@ public final class TurretAim {
         double axisY = robotY + turretForwardIn * s + turretLeftIn * c;
         double fieldBearing = Math.atan2(targetY - axisY, targetX - axisX);
         return TurretEncoder.wrap180(Math.toDegrees(fieldBearing - headingRad));
+    }
+
+    /**
+     * Which of our CELLs to keep the turret on, from where the robot is: the one at the robot's end
+     * of the field, AUDIENCE below the HIVE's axle line and SCORING above it, with a band either
+     * side of the line inside which the previous choice stands, so driving along the HIVE does not
+     * flip the turret back and forth. The two CELLs are nearly in line from anywhere near our end,
+     * so the tip state barely changes where to point; it changes whether a shot scores and how
+     * hard to throw, which is the launcher's business. A CELL the camera sees raised right now is
+     * the better target, and the caller prefers it.
+     *
+     * @param alliance  ours; UNKNOWN gives null
+     * @param robotY    the robot's field y, inches
+     * @param previous  the CELL last chosen, or null; held while inside the band
+     * @param axleY     the HIVE axle's field y ({@code HiveFieldPoints.AXLE_Y_IN})
+     * @param bandIn    half-width of the band around the axle line, inches
+     */
+    public static HiveCell nearEndCell(Alliance alliance, double robotY, HiveCell previous,
+                                       double axleY, double bandIn) {
+        HiveCell audience = HiveCell.cell(alliance, HiveCell.Side.AUDIENCE);
+        HiveCell scoring = HiveCell.cell(alliance, HiveCell.Side.SCORING);
+        if (audience == null || scoring == null || Double.isNaN(robotY)) return null;
+        double band = Double.isNaN(bandIn) ? 0.0 : Math.abs(bandIn);
+        if (robotY < axleY - band) return audience;
+        if (robotY > axleY + band) return scoring;
+        if (previous == audience || previous == scoring) return previous;
+        return robotY < axleY ? audience : scoring;
     }
 
     /** Horizontal distance from the turret's axis to a field point, inches, for a launcher's speed table. */

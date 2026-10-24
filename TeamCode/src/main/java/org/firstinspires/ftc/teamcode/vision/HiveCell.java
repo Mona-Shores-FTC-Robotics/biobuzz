@@ -66,6 +66,14 @@ public enum HiveCell {
         return null;
     }
 
+    /** The alliance's CELL at {@code side}; null for UNKNOWN. */
+    public static HiveCell cell(Alliance alliance, Side side) {
+        for (HiveCell cell : values()) {
+            if (cell.belongsTo(alliance) && cell.side == side) return cell;
+        }
+        return null;
+    }
+
     /** Looks up a cell by its SDK cluster name, or null if no cell matches. */
     public static HiveCell forClusterName(String name) {
         if (name == null) return null;

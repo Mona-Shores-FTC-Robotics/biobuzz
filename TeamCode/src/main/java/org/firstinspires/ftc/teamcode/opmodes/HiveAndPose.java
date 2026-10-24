@@ -95,6 +95,13 @@ public class HiveAndPose extends RobotOpMode {
 
     /** A camera sighting older than this is not used to aim; odometry takes over. */
     private static final double AIM_SIGHTING_FRESH_MS = 300;
+
+    /**
+     * Half-width of the band about the HIVE's axle line inside which the aimed CELL does not
+     * switch ends, inches. 19.75 is the HIVE frame's half-span, where nobody fires from anyway
+     * (the simulator's rule, 9 Oct 2026).
+     */
+    public static double aimSwitchBandIn = 19.75;
     private boolean aiming;
     private String aimSource = "off";
     private HiveCell aimCell;
@@ -143,9 +150,15 @@ public class HiveAndPose extends RobotOpMode {
     }
 
     /**
-     * Where the turret should point this loop: at our alliance's raised CELL, from the camera when
-     * it sees that CELL now, else from odometry and the CELL's measured field point. With neither,
-     * the turret holds its last target.
+     * Where the turret should point this loop. The target CELL is the one at the robot's end of
+     * the field ({@link TurretAim#nearEndCell}), unless the camera sees one of our CELLs raised
+     * right now, which is what a shot would go at. The angle comes from the camera when it sees
+     * the chosen CELL now, else from odometry and the CELL's field point (its raised point: the
+     * two differ by an inch and a half and the turret aims the same way at either). With no pose
+     * on the field and nothing in view, the turret holds its last target.
+     *
+     * <p>The HIVE's tip state is deliberately not what picks the CELL: a phantom TIP would swing
+     * the turret to the wrong end. It decides whether a shot scores and the launcher's range.
      */
     private void updateAim() {
         if (!aiming) return;
@@ -154,14 +167,20 @@ public class HiveAndPose extends RobotOpMode {
             aimSource = "no alliance chosen";
             return;
         }
-        HiveTracker hive = robot.hive.of(alliance);
-        HiveCell cell = hive.rightCellUp() ? HiveCell.rightCell(alliance)
-                : hive.leftCellUp() ? HiveCell.leftCell(alliance) : null;
+        Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+
+        // The CELL: a raised one the camera sees now beats the near-end rule.
+        HiveCell cell = raisedCellInView(alliance);
         if (cell == null) {
-            aimSource = "HIVE state unknown, holding last";
+            cell = TurretAim.nearEndCell(alliance, pose == null ? Double.NaN : pose.y(), aimCell,
+                    HiveFieldPoints.AXLE_Y_IN, aimSwitchBandIn);
+        }
+        if (cell == null) {
+            aimSource = "no pose on the field, no CELL in view: holding last";
             return;
         }
         aimCell = cell;
+
         double fwd = TurretSubsystem.turretForwardIn;
         double left = TurretSubsystem.turretLeftIn;
         CellSighting sighting = robot.vision.sighting(cell);
@@ -170,10 +189,9 @@ public class HiveAndPose extends RobotOpMode {
             aimTargetDeg = TurretAim.fromRobotFrameDeg(row, fwd, left);
             aimRangeIn = Math.hypot(row.x() - fwd, row.y() - left);
             aimSource = "camera";
-        } else if (robot.drive.poseReferenced()) {
-            Pose pose = robot.drive.pose();
+        } else if (pose != null) {
             Vec3 row = HiveFieldPoints.rowCentre(cell, HiveCellState.UP);
-            if (pose == null || row == null) {
+            if (row == null) {
                 aimSource = "no field point for " + cellName(cell);
                 return;
             }
@@ -181,121 +199,24 @@ public class HiveAndPose extends RobotOpMode {
             aimRangeIn = TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
             aimSource = "odometry";
         } else {
-            aimSource = "no camera on it, pose not on the field";
+            aimSource = "no camera on it, pose not on the field: holding last";
             return;
         }
         robot.turret.aim(aimTargetDeg);
     }
 
-    @Override
-    protected void onInitLoop() {
-        showEverything();
-    }
-
-    @Override
-    protected void onLoop() {
-        double scale = Math.max(0.0, Math.min(1.0, gamepad1.left_bumper ? slowSpeed : speed));
-        robot.drive.drive(
-                deadband(gamepad1.left_stick_y) * FORWARD_SIGN * scale,
-                deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale,
-                deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
-        updateAim();
-        showEverything();
-        display.line("<small>Cross (A) relocalize · Triangle (Y) reset forward · Circle (B) field/robot-centric · "
-                + "Square (X) aim · D-pad up zero turret · D-pad down turret home · "
-                + "Share (Back): controls, robot pages</small>");
-    }
-
-    /** The Match page, the Panels graphs and the field view, from this loop's state. */
-    private void showEverything() {
-        Pose camera = robot.drive.cameraPose();
-        showHives();
-        showCells();
-        showPose(camera);
-        showTurret();
-        try {
-            publish(camera);
-        } catch (RuntimeException ignored) {
-            // A Panels hiccup must never take the robot down.
-        }
-    }
-
-    // ------------------------------------------------------------ Match page
-
-    private void showHives() {
-        display.section("HIVEs");
-        showHive(Alliance.RED);
-        showHive(Alliance.BLUE);
-    }
-
-    private void showHive(Alliance alliance) {
-        HiveTracker hive = robot.hive.of(alliance);
-        HiveState state = hive.state();
-        String which;
-        Display.Level level = Display.Level.OK;
-        if (state == HiveState.RIGHT_CELL_UP) {
-            which = cellName(HiveCell.rightCell(alliance)) + " CELL up";
-        } else if (state == HiveState.LEFT_CELL_UP) {
-            which = cellName(HiveCell.leftCell(alliance)) + " CELL up";
-        } else if (state == HiveState.TRANSITION) {
-            which = "TIPPING";
-            level = Display.Level.WARN;
-        } else {
-            which = "not seen";
-            level = Display.Level.WARN;
-        }
-        display.status(alliance.toString(), level, "<b>" + which + "</b>"
-                + (hive.assumed() ? " (assumed: TIP not seen to finish)" : "")
-                + " · " + hive.tips() + " TIP" + (hive.tips() == 1 ? "" : "s"));
-    }
-
-    private void showCells() {
-        display.section("CELLs in view");
-        boolean any = false;
-        for (HiveCell cell : CELLS) {
+    /** One of {@code alliance}'s CELLs the camera sees settled UP right now, else null. */
+    private HiveCell raisedCellInView(Alliance alliance) {
+        for (int i = 0; i < CELLS.length; i++) {
+            HiveCell cell = CELLS[i];
+            if (!cell.belongsTo(alliance)) continue;
             CellSighting sighting = robot.vision.sighting(cell);
-            if (sighting == null) continue;
-            any = true;
-            HiveCellState state = robot.vision.state(cell);
-            double height = sighting.rowCentreRobot().z();
-            display.status(cell.toString(),
-                    state == HiveCellState.UNKNOWN ? Display.Level.WARN : Display.Level.OK,
-                    String.format(Locale.US, "<b>%s</b> · %.1f in up, %+.0f° · %d tag%s · %.0f in away",
-                            state, height, rockerAngle(height), sighting.tagCount(),
-                            sighting.tagCount() == 1 ? "" : "s", sighting.groundRangeIn()));
+            if (sighting != null && sighting.ageMs() <= AIM_SIGHTING_FRESH_MS
+                    && robot.vision.state(cell) == HiveCellState.UP) {
+                return cell;
+            }
         }
-        if (!any) {
-            display.line(robot.vision.isAvailable()
-                    ? "none — point the camera at a HIVE"
-                    : "camera unavailable — see the Robot page");
-        }
-    }
-
-    private void showPose(Pose camera) {
-        display.section("Where the robot is");
-        Pose pose = robot.drive.pose();
-        if (pose == null) {
-            display.status("Pose", Display.Level.FAULT, "no Pinpoint — " + robot.drive.localizerFault());
-            return;
-        }
-        display.status("Odometry", robot.drive.poseReferenced() ? Display.Level.OK : Display.Level.WARN,
-                describe(pose) + (robot.drive.poseReferenced() ? "" : " — not on the field yet"));
-        if (camera == null) {
-            display.status("Camera", Display.Level.WARN,
-                    "no tag on a settled CELL in view");
-        } else {
-            double gap = Math.hypot(camera.x() - pose.x(), camera.y() - pose.y());
-            display.status("Camera", gap <= 3 ? Display.Level.OK : Display.Level.WARN,
-                    describe(camera) + String.format(Locale.US, " · %.1f in from odometry", gap));
-        }
-        display.line("Camera set the pose: " + robot.drive.cameraPoseNote());
-        display.line("Last A: " + relocalizeNote);
-        if (robot.drive.wouldRelocalizeCount() > 0) {
-            display.line(String.format(Locale.US,
-                    "Still and in view: off by %.1f in (worst %.1f in, %d samples)%s",
-                    robot.drive.wouldRelocalizeErrorIn(), robot.drive.wouldRelocalizeMaxErrorIn(),
-                    robot.drive.wouldRelocalizeCount(), robot.drive.isStill() ? " · still now" : ""));
-        }
+        return null;
     }
 
     private void showTurret() {

@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
+import org.firstinspires.ftc.teamcode.util.Alliance;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.Vec3;
 import org.junit.Test;
 
@@ -56,5 +59,41 @@ public class TurretAimTest {
         double fromCamera = TurretAim.fromRobotFrameDeg(new Vec3(40, 10, 0), 1.5, -0.5);
         double fromField = TurretAim.fromFieldDeg(20, 30, h, 1.5, -0.5, px, py);
         assertEquals(fromCamera, fromField, 1e-9);
+    }
+
+    // ---------------------------------------------------------------- which CELL
+
+    private static final double AXLE = 72.29;
+    private static final double BAND = 19.75;
+
+    @Test
+    public void theCellAtTheRobotsEndOfTheField() {
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.nearEndCell(Alliance.RED, 10, null, AXLE, BAND));
+        assertEquals(HiveCell.RED_SCORING, TurretAim.nearEndCell(Alliance.RED, 120, null, AXLE, BAND));
+        assertEquals(HiveCell.BLUE_AUDIENCE, TurretAim.nearEndCell(Alliance.BLUE, 10, null, AXLE, BAND));
+        assertEquals(HiveCell.BLUE_SCORING, TurretAim.nearEndCell(Alliance.BLUE, 120, null, AXLE, BAND));
+    }
+
+    @Test
+    public void insideTheBandThePreviousChoiceStands() {
+        // Driving up past the HIVE from the audience end: stays on AUDIENCE until clear of the band.
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.nearEndCell(Alliance.RED, 60, HiveCell.RED_AUDIENCE, AXLE, BAND));
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.nearEndCell(Alliance.RED, 85, HiveCell.RED_AUDIENCE, AXLE, BAND));
+        assertEquals(HiveCell.RED_SCORING, TurretAim.nearEndCell(Alliance.RED, 93, HiveCell.RED_AUDIENCE, AXLE, BAND));
+        // And back down: stays on SCORING until clear the other way.
+        assertEquals(HiveCell.RED_SCORING, TurretAim.nearEndCell(Alliance.RED, 60, HiveCell.RED_SCORING, AXLE, BAND));
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.nearEndCell(Alliance.RED, 50, HiveCell.RED_SCORING, AXLE, BAND));
+    }
+
+    @Test
+    public void insideTheBandWithNoPreviousChoiceTheNearerSideWins() {
+        assertEquals(HiveCell.RED_AUDIENCE, TurretAim.nearEndCell(Alliance.RED, 70, null, AXLE, BAND));
+        assertEquals(HiveCell.RED_SCORING, TurretAim.nearEndCell(Alliance.RED, 75, null, AXLE, BAND));
+    }
+
+    @Test
+    public void noAllianceOrNoPoseGivesNoCell() {
+        assertNull(TurretAim.nearEndCell(Alliance.UNKNOWN, 10, null, AXLE, BAND));
+        assertNull(TurretAim.nearEndCell(Alliance.RED, Double.NaN, HiveCell.RED_AUDIENCE, AXLE, BAND));
     }
 }

@@ -39,6 +39,30 @@ public final class HiveFieldPoints {
     private HiveFieldPoints() {
     }
 
+    /**
+     * Field y of the HIVEs' axle, the line the CELLs rock about: the AUDIENCE CELLs are on the low-y
+     * side of it, the SCORING CELLs on the high-y side. From the rocker geometry (class comment).
+     */
+    public static final double AXLE_Y_IN = 72.29;
+
+    /**
+     * Which points have been measured, as against derived from the rocker: index as
+     * {@link #ROW_CENTRE}. Only measured points may set or correct the pose
+     * ({@link #tagPositionForFix}); every point may be aimed at ({@link #rowCentre}).
+     *
+     * <p>Measured: the two AUDIENCE CELLs raised (y by Sighting Diagnostics from the red audience
+     * start, z by camera, #156). Derived: everything lowered, and both SCORING CELLs. From behind
+     * the HIVE on 24 Oct 2026 the camera, fitting on the derived points, put the robot 6 in from
+     * where a tape put it; from the start spot, on the measured one, under an inch. Until the
+     * derived rows are taken from the field CAD they are not to be trusted for a fix.
+     */
+    private static final boolean[][] MEASURED = {
+            /* RED_SCORING   */ {false, false},
+            /* RED_AUDIENCE  */ {true, false},
+            /* BLUE_AUDIENCE */ {true, false},
+            /* BLUE_SCORING  */ {false, false},
+    };
+
     // Row centre, Pedro frame, inches: {x, y, z}. Index: HiveCell ordinal, then UP = 0, DOWN = 1.
     private static final double[][][] ROW_CENTRE = {
             /* RED_SCORING   */ {{58.0, 86.2, 50.2}, {58.0, 84.7, 35.0}},
@@ -85,9 +109,26 @@ public final class HiveFieldPoints {
         return new Vec3(row.x() + along, row.y(), row.z());
     }
 
-    /** The row centre of {@code cell} in {@code state}, or null if unmeasured or the state is unknown. */
+    /** The row centre of {@code cell} in {@code state}, or null if unknown or the state is unknown. */
     public static Vec3 rowCentre(HiveCell cell, HiveCellState state) {
         return rowCentre(ROW_CENTRE, cell, state);
+    }
+
+    /** Whether {@code cell}'s row in {@code state} was measured on a field, not derived. */
+    public static boolean measured(HiveCell cell, HiveCellState state) {
+        if (state == HiveCellState.UP) return MEASURED[cell.ordinal()][0];
+        if (state == HiveCellState.DOWN) return MEASURED[cell.ordinal()][1];
+        return false;
+    }
+
+    /**
+     * {@link #tagPosition}, but only for a row that was {@link #measured}: what a camera fix may
+     * use. Null otherwise.
+     */
+    public static Vec3 tagPositionForFix(int tagId, HiveCellState state) {
+        HiveCell cell = BiobuzzTags.cellForTag(tagId);
+        if (cell == null || !measured(cell, state)) return null;
+        return tagPosition(tagId, state);
     }
 
     /** Whether any of the eight points has been filled in. */
