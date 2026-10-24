@@ -94,7 +94,6 @@ public class Robot {
         feeder = new FeederSubsystem(hardwareMap);
 
         subsystems = Collections.unmodifiableList(
-        subsystems = Collections.unmodifiableList(
                 Arrays.<Subsystem>asList(vision, drive, hive, pieces, flowerStick, intake, launcher, feeder));
     }
 
