@@ -154,7 +154,7 @@ public class Launcher2SpeedTestOpMode extends OpMode {
 
     private void showInitScreen() {
         telemetry.addLine("Launcher2 Speed Test ready.  Build: " + BUILD);
-        telemetry.addLine("A = spin up, B = stop, dpad = target RPM.");
+        telemetry.addLine("Cross (A) = spin up, Circle (B) = stop, D-pad = target RPM.");
         telemetry.addLine("Watch the wheels on the first spin: the RPM cannot show direction.");
         reportProblems();
         telemetry.update();
@@ -220,8 +220,8 @@ public class Launcher2SpeedTestOpMode extends OpMode {
         Launcher2Config.Target target = Launcher2.config.target;
 
         telemetry.addData("Build", BUILD);
-        telemetry.addLine(launcher.isSpinning() ? ">>> SPINNING  (B to stop)" : "--- STOPPED   (A to spin up)");
-        telemetry.addData("Target RPM", "%.0f   dpad U/D %.0f, R/L %.0f",
+        telemetry.addLine(launcher.isSpinning() ? ">>> SPINNING  (Circle to stop)" : "--- STOPPED   (Cross to spin up)");
+        telemetry.addData("Target RPM", "%.0f   D-pad U/D %.0f, R/L %.0f",
                 target.targetRpm, target.fineStepRpm, target.coarseStepRpm);
 
         double voltage = launcher.getBatteryVoltage();
