@@ -5,7 +5,8 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
@@ -16,9 +17,9 @@ import java.util.Locale;
 /**
  * Speed test for the two-wheel pinch launcher rig on Control Hub FTC-EoM3.
  *
- * <p>Same controls and the same RPM steps as the three-wheel
- * <b>Flywheel Speed Test</b>, so a number found on one rig means the same thing
- * on the other. Everything with a number is in Panels under {@code Launcher2}.
+ * <p>Same controls and the same RPM steps as the DECODE three-wheel rig's speed
+ * test, so numbers measured there (26 Sep 2026) still mean the same thing here.
+ * Everything with a number is in Panels under {@code Launcher2}.
  *
  * <h2>Gamepad 1</h2>
  * <table>
@@ -43,7 +44,8 @@ import java.util.Locale;
  * <p>The RPM readout is an absolute value, so it cannot show direction; see
  * {@link Launcher2}.
  */
-@TeleOp(name = "Launcher2 Speed Test", group = "Shooter")
+@Disabled
+@Utility(name = "Launcher2 Speed Test", description = "The old two-wheel pinch rig; disabled, superseded by Launcher Bench")
 public class Launcher2SpeedTestOpMode extends OpMode {
 
     /** Bump when behaviour changes; if the rig shows an older one, redeploy. */

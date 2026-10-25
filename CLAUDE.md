@@ -20,7 +20,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 |---|---|
 | `Robot` | Owns every subsystem, in one list. That list is the only registration: it is how a subsystem is initialized, updated and stopped. |
 | `subsystems/Subsystem` | `initialize()` / `update()` / `stop()`. `update()` is one non-blocking step; `stop()` is final teardown only — a mechanism that pauses needs its own name (`idle()`, `spinDown()`). |
-| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. |
+| `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `Bindings`: bind gamepads in `onInit()` via `driver`/`operator`, every binding labelled (`when("Y", "Reset heading", ...)`); the DS Controls page is generated from the labels, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
 | `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
@@ -29,7 +29,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
 | `opmodes/auto/` | `BuiltAuto` runs a generated Auto; each Auto is a five-line `*OpMode extends BuiltAuto`. `AutoRegistration` is the only list of command and trigger names an Auto may use; a name whose mechanism does not exist yet is an explicit placeholder in `PLACEHOLDERS`, never a silent stub. `opmodes/auto/generated/**` is written by the Auto Builder's export: never edit it, change the `.pp` and export again. |
 | `util/` | Shared helpers: `LoopTimer`, `FieldView`, `AccelLimiter`, `Alliance`, `WelfordVariance`. Reuse before writing another. |
-| `shooter/`, `launcher2/` | **Test rigs**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy their pattern into robot code. |
+| `launcher2/` | **Test rig**, deliberately standalone: no `Robot`, no `Subsystem`. Don't copy its pattern into robot code. |
 
 **Adding a mechanism:** copy `subsystems/ExampleSubsystem`, add a `public final` field on `Robot`,
 build it in the constructor, add it to the list. If `Subsystem` doesn't fit your mechanism, change
@@ -153,8 +153,8 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
   top of every loop; read each sensor once and pass the value around.
 - **Nothing is looked up or allocated per loop** that could be done once in init: hardware
   lookups, lists, formatters, commands.
-- **Don't wrap motors in CachingHardware.** A stale cache suppresses recovery writes (see
-  `shooter/FlywheelBank`).
+- **Don't wrap motors in CachingHardware.** A stale cache drops the repeat `setPower` that would
+  recover a motor a hub has zeroed behind its back.
 - **Telemetry is lean**: one Panels `update` per loop, and `FieldView.shouldDraw()` for drawing.
 - **Measure, don't argue.** `RobotOpMode.loopTimer` times every loop; run the `LoopTimeBaseline`
   OpMode before and after adding a subsystem and put both numbers in the PR.

@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -35,7 +35,7 @@ import java.util.List;
  * <p>"3D poses missing" counting up while tags are visible means the Limelight
  * pipeline is not emitting full 3D pose, and no sighting can be built at all.
  */
-@TeleOp(name = "Vision: Raw Tag Dump", group = "Vision")
+@Utility(name = "Vision: Raw Tag Dump", description = "Every AprilTag as the Limelight reports it, raw and in the robot frame (lesson 1)")
 public class VisionTagDump extends RobotOpMode {
 
     @Override
