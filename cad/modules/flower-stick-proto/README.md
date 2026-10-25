@@ -651,7 +651,9 @@ only stop it lifting or sliding. For keeps, 4 mm pop rivets or M4 button heads f
 behind the front flange), if the coach allows. 85 x 104 x 60 mm, 75 cm3 solid (about 45 g at 30 % infill); prints standing
 on its back wall with support under the front wall's lip. `WEB_UP` is the channel's top above the tile (5.61 from the
 exports; Dustin's Onshape measurement to the intake's stop on 25 Oct says 6.55, a full inch apart, so `poker_u_hi` is the
-same part for 6.55 with the poke hanging below the roof, and the robot decides). `print_job.py next` prints both with the plain blade;
+same part for 6.55 with the poke hanging below the roof, and the robot decides). `poker_u_variants.py` draws four takes on it (`poker_u_variants.png`: classic, lite, clip, adj;
+the adj one's poke bolts to a serrated mast and sets in 2 mm steps over +-12 mm, so one print covers both channel
+readings). `print_job.py next` prints both with the plain blade;
 `low_arm_step.py` places it; `poker_u_fit.png` shows it on the channel and the motor from the export. The forms before it
 (a web-bolted bracket, a clip, a bolted saddle, a web-bolted plate reaching sideways, a plate bolted to the channel that is
 not there) are in git history.
