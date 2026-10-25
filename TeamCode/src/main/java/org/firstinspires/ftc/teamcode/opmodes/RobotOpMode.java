@@ -166,7 +166,10 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * Where this OpMode expects the robot to start, from {@code StartPositions}. Autonomous
-     * overrides it; null (the default) means no declared start and no start check.
+     * overrides it; null (the default) means no declared start and no start check. It is read at
+     * init and again every INIT loop, so an Auto whose start depends on the alliance returns the
+     * matching one; return the same instance while nothing has changed, since a different instance
+     * moves the pose and restarts the start check.
      */
     protected StartPosition startPosition() {
         return null;
@@ -235,11 +238,21 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
+        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
+        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
+        // The declared start may follow the alliance (BuiltAuto: the drawing's start, or the
+        // rotated one). When it changes, the pose moves there and the fix statistics restart.
+        StartPosition wanted = startPosition();
+        if (wanted != declaredStart) {
+            declaredStart = wanted;
+            if (wanted != null) {
+                robot.drive.setPose(wanted.pose);
+                log.event("Start: now declaring " + wanted);
+            }
+        }
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
-        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
-        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
