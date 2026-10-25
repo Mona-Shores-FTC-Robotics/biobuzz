@@ -1319,8 +1319,10 @@ tell you why.
 Every run of a `RobotOpMode` writes a `.wpilog` to `/sdcard/FIRST/logs/` on the hub (one file per
 match: an Autonomous pauses it and the TeleOp that follows continues it; see
 `logging/MatchLog`). AdvantageScope on a laptop opens it. **Nobody types adb for this:**
-`tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to
-`%USERPROFILE%\biobuzz-logs\<robot network>\` and opens the newest, and a `-Watch` mode that does
+`tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to the team's
+shared Google Drive (`Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs\<robot network>\`,
+via Drive for Desktop; a laptop without it falls back to `%USERPROFILE%\biobuzz-logs`) and opens
+the newest, and a `-Watch` mode that does
 it by itself each time an OpMode stops. Its README says what to drag where in AdvantageScope and
 how it copes with the adb states described above. Decided in #214. `tools/advantagescope/` sets
 the laptop's AdvantageScope up once: the robot drawn from its CAD (`cad/advantagescope/`, from the

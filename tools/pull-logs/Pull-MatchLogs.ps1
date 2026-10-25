@@ -24,8 +24,11 @@ Nothing here runs on the robot. A hub that is not reachable is reported, not ret
 The hub's address. 192.168.43.1 is a Control Hub; a phone Robot Controller is 192.168.49.1.
 
 .PARAMETER Dest
-Where logs go on this laptop. A folder per robot network is created inside it, so logs from
-19429 and 20245 do not mix. Default: %USERPROFILE%\biobuzz-logs.
+Where logs go. A folder per robot network is created inside it, so logs from 19429 and 20245 do
+not mix. Default: the team's shared Google Drive folder, "Shared drives\Robotics Team 3572 -
+Wavelength\2026-2027 FTC Biobuzz\Logs", on whichever drive letter Google Drive for Desktop
+mounts (G: usually), so every pull is on Drive for the whole team as soon as the laptop is back
+on the internet. A laptop without Drive falls back to %USERPROFILE%\biobuzz-logs.
 
 .PARAMETER Watch
 Keep running. Every -EverySeconds: reconnect if needed, pull what is new, open what has settled.
@@ -55,7 +58,7 @@ At the start of a meeting. Leave the window open.
 param(
     [string]$Robot = '192.168.43.1',
     [int]$Port = 5555,
-    [string]$Dest = (Join-Path $env:USERPROFILE 'biobuzz-logs'),
+    [string]$Dest,
     [switch]$Watch,
     [int]$EverySeconds = 5,
     [switch]$NoOpen,
@@ -68,6 +71,10 @@ Set-StrictMode -Version 2
 $ErrorActionPreference = 'Continue'
 
 $RemoteFolder = '/sdcard/FIRST/logs'
+# The team's folder on Google Drive, relative to a drive root. Drive for Desktop mounts shared
+# drives under "<letter>:\Shared drives\"; the letter is per laptop, so every drive is tried.
+$SharedDriveLogs = 'Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs'
+$LocalLogs = Join-Path $env:USERPROFILE 'biobuzz-logs'
 $Target = "${Robot}:${Port}"
 
 function Say($text) {
@@ -105,6 +112,18 @@ function Find-Adb {
     $onPath = Get-Command adb -ErrorAction SilentlyContinue
     if ($onPath) { return $onPath.Source }
     throw "adb not found. Install Android Studio's SDK platform-tools, or pass -Adb <path to adb.exe>."
+}
+
+# Where logs go when -Dest is not given: the team's Google Drive folder if this laptop has it,
+# else a local folder. The Drive folder is only used if it already exists, so a laptop that has
+# Drive but is not a member of the shared drive, or has it on another letter, still gets its logs.
+function Find-Dest {
+    if ($Dest) { return $Dest }
+    foreach ($drive in (Get-PSDrive -PSProvider FileSystem)) {
+        $candidate = Join-Path $drive.Root $SharedDriveLogs
+        if (Test-Path -LiteralPath $candidate -PathType Container) { return $candidate }
+    }
+    return $LocalLogs
 }
 
 function Find-AdvantageScope {
@@ -284,10 +303,15 @@ function Open-Log {
 
 $script:AdbExe = Find-Adb
 $script:AsExe = Find-AdvantageScope
+$Dest = Find-Dest
 $Folder = Join-Path $Dest (Get-RobotLabel)
 Say "adb: $script:AdbExe"
 if ($script:AsExe) { Say "AdvantageScope: $script:AsExe" } else { Say 'AdvantageScope: not found (logs are still pulled)' }
-Say "logs go to $Folder"
+if ($Dest -eq $LocalLogs) {
+    Say "logs go to $Folder (this laptop only: the team's Google Drive folder was not found)"
+} else {
+    Say "logs go to $Folder"
+}
 
 if (-not $Watch) {
     if (-not (Connect-Robot)) { exit 1 }
