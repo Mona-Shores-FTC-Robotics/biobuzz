@@ -1277,7 +1277,7 @@ server, which is still there and still serves the RC's own pages.
 |---|---|---|
 | Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
 | Text lines | Telemetry | same manager → `debug(line)` |
-| Robot pose and paths | Field View | `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
+| Robot pose and paths | Field View | Drawn by `RobotOpMode` in every OpMode on it; for more, `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
 | Replay a run afterwards | Capture | browser-side, nothing to write |
 | Start/stop OpModes from the laptop | OpMode Control | browser-side |
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
@@ -1383,6 +1383,18 @@ if (fieldView.shouldDraw()) {
 Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
 circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
 the honest shape rather than a compromise.
+
+**Every `RobotOpMode` draws the robot.** `RobotOpMode` creates one `FieldView` at init and, after
+the subsystems have updated each loop (INIT loops included), draws the pose from `robot.drive` with
+exactly the gated shape above, inside a `try`/`catch` that swallows. So the Field plugin shows the
+robot in Basic Drive and in every Auto with nothing written in the OpMode, and skips drawing when the
+drive has no heading (no Pinpoint). An OpMode that wants more on the field — `HiveAndPose` draws the
+camera's pose and the turret's ray — makes its own `FieldView` and draws in `onLoop()`: both are
+handles on the same Panels field, so its `send()` spends the throttle and the base class's draw that
+loop finds nothing to do. No robot is drawn twice.
+
+> **Before 25 Oct 2026** only `HiveAndPose` and `LoopTimeBaseline` drew anything, so the Field
+> plugin was blank during a match. Noticed running R-Simple on 20245.
 
 ### Bringing the field view up on a robot
 
