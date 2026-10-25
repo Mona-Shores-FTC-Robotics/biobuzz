@@ -161,9 +161,10 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
 
 ## Hard constraints
 
-- **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.2 + AutoTune, the
-  `0.3.2+…` Sloth build of Panels, Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump
-  one alone; close Dependabot PRs that raise `appcompat`.
+- **Dependency versions are a locked set:** Sloth `0.3.2`, Pedro 3.0.2 + AutoTune, Panels
+  `com.bylazar:fullpanels` 1.0.19 (upstream, Sloth-native; not the frozen `com.bylazar.sloth`
+  fork), Ivy 1.1.x, `androidx.appcompat {strictly 1.2.0}`. Never bump one alone; close
+  Dependabot PRs that raise `appcompat`.
   → README § "Why the versions are locked together"
 - **Never add:** FTC Dashboard or AdvantageScope Lite (their NanoHTTPD servers collide with
   Panels and the RC crash-loops on `BindException` — it compiles fine, only a robot catches it),
