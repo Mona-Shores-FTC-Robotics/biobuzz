@@ -29,6 +29,10 @@ back = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + ROOF_T, centered=(F
 poke = cq.Workplane("XY").box(REACH - x_out, POKE_W, POKE_HI - POKE_LO, centered=(False, True, False)).translate((x_out, 0, POKE_LO))
 buttress = cq.Workplane("XZ").polyline([(BUTTRESS_BACK, ROOF_T - 0.01), (x_out + 0.01, ROOF_T - 0.01), (x_out + 0.01, POKE_HI)]).close().extrude(POKE_W / 2, both=True)
 part = roof.union(front).union(back).union(poke).union(buttress)
+# three 12 mm holes in the roof on the channel's 14 mm bearing holes (its centreline, 24 mm pitch): to see the channel's holes
+# through and centre the U on them, and for a tie down one and up the next, round the web, if the lip ties are not enough
+for y in (-24.0, 0.0, 24.0):
+    part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, -1)))
 for y in (HOLE_Y, -HOLE_Y):
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(CHAN_D + 20, both=True).translate((-CHAN_D / 2, y, HOLE_Z)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
