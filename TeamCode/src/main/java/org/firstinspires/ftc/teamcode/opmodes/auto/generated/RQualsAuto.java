@@ -46,7 +46,7 @@ public final class RQualsAuto {
         Pose sCatch = p.of(57.5, 18, 90);
         Pose sFire = p.of(55, 24, 270);
         Pose nFire = p.of(57.5, 119, 270);
-        Pose park = p.of(10.5, 95, 90);
+        Pose park = p.of(14, 95, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose wallFlower = p.of(14.86, 47.36, 180);

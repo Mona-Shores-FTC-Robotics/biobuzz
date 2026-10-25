@@ -44,7 +44,7 @@ public final class LSimpleAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
         Pose nFire = p.of(57.5, 119, 270);
-        Pose parkL = p.of(10.5, 120, 270);
+        Pose parkL = p.of(14, 120, 270);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
 
