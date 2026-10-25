@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.logging;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -83,6 +84,33 @@ public class MatchLogTest {
 
         List<String> events = strings(r, AdvantageScopeKeys.EVENTS);
         assertEquals(java.util.Arrays.asList("OpMode init: Test TeleOp", "PLAY", "OpMode stopped"), events);
+    }
+
+    /** A path ({@link MatchLog#poses}) and its end ({@link MatchLog#pose(String, double, double, double)}). */
+    @Test
+    public void poseSetsReadBackInAdvantageScopesFrameAndAnEmptyOneClears() {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        MatchLog log = MatchLog.toStream("test", out, "", null, clock);
+        double[] path = {10, 20, 0, 30, 40, Math.PI / 2};
+        log.poses(FieldRobot.ROBOT.activePath, path);
+        log.pose(FieldRobot.ROBOT.target, 30, 40, Math.PI / 2);
+        loop(log);
+        loop(log);
+        log.poses(FieldRobot.ROBOT.activePath, new double[0]);
+        loop(log);
+        log.close(null, 5000);
+        assertNull(log.failure());
+
+        WpiLogReader r = new WpiLogReader(out.toByteArray());
+        WpiLogReader.Entry active = r.entry(FieldRobot.ROBOT.activePath);
+        assertEquals("struct:Pose2d[]", active.type);
+        assertEquals("written when given, not every loop", 2, active.records.size());
+        assertArrayEquals(FieldRobot.toAdvantageScope(path), active.records.get(0).asDoubles(), 1e-12);
+        assertEquals(0, active.records.get(1).payload.length);
+        WpiLogReader.Entry target = r.entry(FieldRobot.ROBOT.target);
+        assertEquals("struct:Pose2d", target.type);
+        assertArrayEquals(new double[] {AdvantageScopeFrame.xMeters(30, 40), AdvantageScopeFrame.yMeters(30, 40),
+                AdvantageScopeFrame.headingRad(Math.PI / 2)}, target.records.get(0).asDoubles(), 1e-12);
     }
 
     @Test

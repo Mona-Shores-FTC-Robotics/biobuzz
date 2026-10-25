@@ -72,6 +72,30 @@ public class AutoKitTest {
         return Paths.line(new Pose(x0, 0, 0), new Pose(x1, 0, 0)).tangent();
     }
 
+    // -------------------------------------------------------------- paths
+
+    /** What the match log hangs off: every path once, and each start and end as it happens. */
+    @Test
+    public void pathsAreListedOnceEachAndTheWatcherSeesEveryStartAndEnd() {
+        Path a = line(0, 10), b = line(10, 20), park = line(20, 30);
+        List<String> seen = new ArrayList<>();
+        kit.watchPaths(new AutoKit.PathWatcher() {
+            @Override public void pathStarted(Path path) { seen.add("start " + name(path)); }
+            @Override public void pathEnded(Path path) { seen.add("end " + name(path)); }
+
+            private String name(Path path) {
+                return path == a ? "a" : path == b ? "b" : path == park ? "park" : "?";
+            }
+        });
+        Command auto = kit.guarded("Auto", park, 1.0, kit.path("A", a), kit.path("B", b), kit.path("park", park));
+        // The cards are built (left to right) before guarded() itself sees the park path again.
+        assertEquals("every path once, in the order the cards were built",
+                java.util.Arrays.asList(a, b, park), kit.paths());
+        assertTrue(seen.isEmpty());
+        run(auto, 10);
+        assertEquals(java.util.Arrays.asList("start a", "end a", "start b", "end b", "start park", "end park"), seen);
+    }
+
     // ------------------------------------------------------------ first of
 
     /** A command that runs for {@code seconds} of simulated time, logging how it ended. */

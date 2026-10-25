@@ -33,7 +33,9 @@ import java.util.concurrent.TimeUnit;
  *
  * <p>What every loop records, so no OpMode or subsystem has to: match state, alliance, both
  * gamepads (written when they change), the robot's pose, loop time. Anything else goes in with
- * {@link #put(String, double)} or {@link #event(String)}.
+ * {@link #put(String, double)} or {@link #event(String)}. A set of poses (an Auto's path, written
+ * when the path starts, never per loop) goes in with {@link #poses} and {@link #pose(String,
+ * double, double, double)}.
  *
  * <p>Has no dependency on the FTC SDK, so {@code MatchLogTest} runs it against the simulated
  * match's checks on a laptop. {@code RobotOpMode} is what fills it on the robot.
@@ -44,6 +46,8 @@ public final class MatchLog {
     public static final int MAX_CHANNELS = 128;
     /** Events one loop can carry; more are counted as dropped. */
     public static final int MAX_EVENTS_PER_LOOP = 8;
+    /** Pose sets ({@link #poses}, {@link #pose(String, double, double, double)}) one loop can carry. */
+    public static final int MAX_POSE_SETS_PER_LOOP = 8;
     /** Frames in flight between the loop and the writer: about 1.3 s of loops at 50 Hz. */
     public static final int FRAMES = 64;
     /** How often the writer flushes (and syncs a file): the most a brownout can lose. */
@@ -86,6 +90,11 @@ public final class MatchLog {
         int channelCount;
         final String[] events = new String[MAX_EVENTS_PER_LOOP];
         int eventCount;
+        /** Pose sets this loop: a key, packed Pedro {@code x, y, heading} per pose, and whether the key is an array. */
+        final String[] poseKeys = new String[MAX_POSE_SETS_PER_LOOP];
+        final double[][] poseSets = new double[MAX_POSE_SETS_PER_LOOP][];
+        final boolean[] poseSetIsArray = new boolean[MAX_POSE_SETS_PER_LOOP];
+        int poseSetCount;
         /** True for the last frame: the writer closes the file after it. */
         boolean last;
 
@@ -95,6 +104,11 @@ public final class MatchLog {
             channelCount = 0;
             for (int i = 0; i < eventCount; i++) events[i] = null;
             eventCount = 0;
+            for (int i = 0; i < poseSetCount; i++) {
+                poseKeys[i] = null;
+                poseSets[i] = null;
+            }
+            poseSetCount = 0;
         }
     }
 
@@ -255,6 +269,41 @@ public final class MatchLog {
             frame.channels[frame.channelCount] = index;
             frame.values[frame.channelCount] = value;
             frame.channelCount++;
+        }
+    }
+
+    /**
+     * Several poses as one {@code struct:Pose2d[]} value under {@code key}, stamped with this loop:
+     * a path to draw on the field. In Pedro's frame, packed {@code x, y, heading} per pose
+     * (inches, radians); an empty array clears the key. The array is kept, not copied, until the
+     * writer has it, so the caller hands it over and does not reuse it. Like an event, it is the
+     * caller's one allocation, for something that happens a few times an Auto, never every loop.
+     * Beyond {@link #MAX_POSE_SETS_PER_LOOP} in one loop, or in a loop the writer drops, it is lost.
+     */
+    public void poses(String key, double[] pedroXyHeading) {
+        if (pedroXyHeading.length % 3 != 0) {
+            throw new IllegalArgumentException("pose array length must be a multiple of 3");
+        }
+        poseSet(key, pedroXyHeading, true);
+    }
+
+    /**
+     * One pose as a {@code struct:Pose2d} value under {@code key}, in Pedro's frame, stamped with
+     * this loop: where a path ends. Not the robot's own pose, which is {@link #pose(double,
+     * double, double)}. Same rules as {@link #poses}.
+     */
+    public void pose(String key, double xIn, double yIn, double headingRad) {
+        poseSet(key, new double[] {xIn, yIn, headingRad}, false);
+    }
+
+    private void poseSet(String key, double[] pedroXyHeading, boolean array) {
+        if (frame.poseSetCount < MAX_POSE_SETS_PER_LOOP) {
+            int i = frame.poseSetCount++;
+            frame.poseKeys[i] = key;
+            frame.poseSets[i] = pedroXyHeading;
+            frame.poseSetIsArray[i] = array;
+        } else {
+            droppedEvents++;
         }
     }
 
@@ -464,6 +513,16 @@ public final class MatchLog {
             }
             for (int i = 0; i < f.channelCount; i++) {
                 log.put(channelNames[f.channels[i]], f.values[i], us);
+            }
+            for (int i = 0; i < f.poseSetCount; i++) {
+                double[] pedro = f.poseSets[i];
+                if (f.poseSetIsArray[i]) {
+                    log.putPose2dArray(f.poseKeys[i], FieldRobot.toAdvantageScope(pedro), us);
+                } else {
+                    log.putPose2d(f.poseKeys[i], AdvantageScopeFrame.xMeters(pedro[0], pedro[1]),
+                            AdvantageScopeFrame.yMeters(pedro[0], pedro[1]),
+                            AdvantageScopeFrame.headingRad(pedro[2]), us);
+                }
             }
             for (int i = 0; i < f.eventCount; i++) {
                 // putEvent moves a second event in the same microsecond 1 µs on, so none is lost.
