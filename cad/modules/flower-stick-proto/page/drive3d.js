@@ -192,7 +192,7 @@ window.Drive3D = (function () {
   function setPoker(pk) {
     if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.geometry.dispose(); pokerMesh = null; }
     if (!pk) return;
-    pokerMesh = new THREE.Mesh(new THREE.BoxGeometry(pk.reach, pk.z1 - pk.z0, 1.4), new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }));
+    pokerMesh = new THREE.Mesh(new THREE.BoxGeometry(pk.reach, pk.z1 - pk.z0, pk.hw ? 2 * pk.hw : 1.4), new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }));
     pokerMesh.position.set(pk.reach / 2, (pk.z0 + pk.z1) / 2, 0); robot.add(pokerMesh);
   }
   function theme() { scene.background = new THREE.Color(css("--panel")); }

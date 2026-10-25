@@ -390,13 +390,18 @@ body = f'''
         <h3>A poker on the robot</h3>
         <p>Go back to what the lock is: ball 2 leaning out over the collar's ridge, sitting on ball 1 from the robot's side.
         Nothing on the blade can reach ball 2. The robot can. A plate on the robot's frame, separate from the blade, 1.2 in ahead
-        of the intake face and 5.3 to 7.5 in above the tile, meets ball 2 just as the lip meets the posts and pushes it back onto
+        of the intake face and 5.3 to 7.5 in above the tile, three quarters of an inch wide, meets ball 2 just as the lip meets the posts and pushes it back onto
         the stack. With nothing leaning on the ridge there is no arch, and ball 1 rolls over the peak the way it always did when
         the stack was straight.</p>
         <p>We checked that it touches before we trusted the score, this time. With the sled a third of an inch short, the plate
         sinks 0.36 in into ball 2 and moves it back to a quarter inch off centre, where its surface clears the ridge. It sits
-        between the front pipes and above their sockets, so it must be 1.4 in wide or less, and it passes over the collar. It is
-        fixed: no hinge, no spring, no servo. A piece of polycarbonate on two standoffs.</p>
+        between the front pipes and above their sockets, and it passes over the collar. It is fixed: no hinge, no spring, no
+        servo. A strip of polycarbonate on two standoffs.</p>
+        <p>How wide? The pipes are 2.39 in apart at that height, so the poker's edge hits a pipe once the robot is off-centre by
+        more than 1.2 in minus half its width. Thinner buys aim. But a thin plate hitting a ball off-centre shoves it partly
+        sideways, so we gave the model's poker a real width and parked the robot off-centre: 1 in wide still works 1 in off, 0.75
+        in works to about 0.8 in off, 0.5 in starts missing at 1 in off. Three quarters of an inch it is: it clears the pipes to
+        0.8 in either side and does its job out to there, which is close to the blade's own 1.3 in.</p>
         <table class="sweep loads"><thead><tr><th style="width:52%">Poker</th><th>3 in/s</th><th>6 in/s</th><th>8 in/s</th><th>10 in/s</th></tr></thead><tbody>
           <tr><td class="k">none, v7</td><td class="stuck">16 of 24</td><td class="stuck">18 of 24</td><td></td><td class="ok">24 of 24</td></tr>
           <tr><td class="k">1.1 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td></tr>
@@ -405,7 +410,7 @@ body = f'''
           <tr><td class="k">1.3 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="stuck">20</td><td class="stuck">18</td><td class="stuck">20</td></tr>
         </tbody></table><div class="cap">Twenty-four runs per cell: six stacks (straight, three ways of leaning front to back, leaning toward the wall, leaning side to side), friction 0.3 and 0.45, the sled at the posts and a third of an inch short. Too long a poker shoves the stack into the back of the FLOWER at speed; the tall one copes with that.</div>
         <div class="learn"><b>What we learned</b>When a lock is made of two balls, the second ball is a target too. The blade was the wrong place to look for the fix.</div>
-        <div class="ask"><b>Open question</b>Where does the poker mount on the real intake, and does it clear the ball on its way out? And the width: the pipes' sockets leave only 1.5 in between them at the poker's height, so measure before cutting.</div>
+        <div class="ask"><b>Open question</b>Where does the poker mount on the real intake, and does it clear the ball on its way out? The robot's CAD answers that next.</div>
       </div>
       <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Press "on the robot" in the simulator to watch it.</figcaption></figure>
     </div>

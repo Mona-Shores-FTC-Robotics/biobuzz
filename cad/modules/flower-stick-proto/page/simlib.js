@@ -225,7 +225,21 @@ window.FlowerSim = (function () {
           if (jsum > 0) { touch[balls.indexOf(b)] = true; if (slope !== 0 && tp > 0) b.vy -= jsum * slope * tp / (1 + K); }
           if (jsum > 0 && yaw !== 0) { /* a turned blade carries the ball along its own axis: nothing more to do, the lane's push above already follows it */ }
         }
-        if (cfg.pusher) { const px = lip - FACE_BEHIND_LIP + cfg.pusher.reach; contact(b, [[px, cfg.pusher.z0], [px, cfg.pusher.z1]], [bv, 0], e, mu); contact(b, [[px - 2, cfg.pusher.z1], [px, cfg.pusher.z1]], [bv, 0], e, mu); }
+        if (cfg.pusher) {
+          const pk = cfg.pusher, px = lip - FACE_BEHIND_LIP + pk.reach;
+          if (pk.hw) {                                                     // a plate of finite width: a box, hit in 3-D
+            const yc = off, x0 = px - 2, x1 = px, y0 = yc - pk.hw, y1 = yc + pk.hw;
+            const cx = Math.min(Math.max(b.x, x0), x1), cy = Math.min(Math.max(b.y, y0), y1), cz = Math.min(Math.max(b.z, pk.z0), pk.z1);
+            const dx = b.x - cx, dy = b.y - cy, dz = b.z - cz, d = Math.hypot(dx, dy, dz);
+            if (d < R && d > 1e-9) {
+              const nx = dx / d, ny = dy / d, nz = dz / d; b.x = cx + nx * R; b.y = cy + ny * R; b.z = cz + nz * R;
+              const vn = (b.vx - bv) * nx + b.vy * ny + b.vz * nz;
+              if (vn < 0) { const jn = -(1 + (-vn > REST ? e : 0)) * vn; b.vx += jn * nx; b.vy += jn * ny; b.vz += jn * nz;
+                const tvx = (b.vx - bv) - ((b.vx - bv) * nx + b.vy * ny + b.vz * nz) * nx, tvy = b.vy - ((b.vx - bv) * nx + b.vy * ny + b.vz * nz) * ny, tvz = b.vz - ((b.vx - bv) * nx + b.vy * ny + b.vz * nz) * nz;
+                const tm = Math.hypot(tvx, tvy, tvz); if (tm > 1e-9) { const jt = Math.min(mu * jn, tm); b.vx -= jt * tvx / tm; b.vy -= jt * tvy / tm; b.vz -= jt * tvz / tm; } }
+            }
+          } else { contact(b, [[px, pk.z0], [px, pk.z1]], [bv, 0], e, mu); contact(b, [[px - 2, pk.z1], [px, pk.z1]], [bv, 0], e, mu); }
+        }
         // the FLOWER holds the balls sideways: the bottom one in the ring's hole and the uprights' vee, the rest between the pipes
         // the ring's hole (radius 1.54): a ball whose bottom is below the ring's top can only move sideways as far as the
         // hole's radius minus the ball's cross-section at the ring's height allows (the hole holds a ball at its centre to

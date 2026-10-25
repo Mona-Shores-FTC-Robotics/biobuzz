@@ -64,7 +64,7 @@
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
-  const POKER = { reach: 1.2, z0: 5.3, z1: 7.5 };
+  const POKER = { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   let preset = "v7", stack = "fb", push = 4, stopErr = -0.35, poker = false;
   let result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
