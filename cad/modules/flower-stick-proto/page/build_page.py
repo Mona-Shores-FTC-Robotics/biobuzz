@@ -445,9 +445,10 @@ body = f'''
         5.7 to 7.5 in up, and behind it a wedge as wide as the poke runs the full depth of the seat, from the poke's top down to
         the back plate. The ball pushes the poke toward the robot: down the wedge, into the back plate, onto the cross channel,
         in compression; the bolts only hold it on. Symmetric, nothing reaching sideways, and its position comes from the two
-        channels, not from whoever fits it. For the first test it does not even need the bolts: the same shape with a flat back and two
-        holes (<code>poker_test</code>) gets taped, hot-glued or zip-tied on, because the push goes into the cross channel by
-        contact either way; the bolted version waits for the coach's say on a permanent mount. The intake is on slides, so the poke
+        channels, not from whoever fits it. For the first test it does not even need the bolts: the same shape with a flat back
+        (<code>poker_test</code>) takes four zip ties, two through its front lip and the flat channel's own flange holes, two
+        through its back plate and the standing channel's bearing holes, because the push goes into the cross channel by contact
+        either way; the bolted version waits for the coach's say on a permanent mount. The intake is on slides, so the poke
         is sized for the intake in its lowered position, where it has to be for the stick anyway. It starts 5.7 in up rather than
         5.3 because the folded blade's lip reaches 5.59 under it; the model is as happy with 5.7 to 7.5 at 1.3 in of reach (24 of
         24 at every speed) as it was with the lower, shorter one. The bolt-on bracket it replaces

@@ -645,12 +645,15 @@ two clear holes are off to one side. The intake's cross channel (11-hole lowside
 behind its bearing holes at +-1.89 (the centre has a servo hub shaft behind it). So the bracket is: a 6 mm back plate
 against the cross channel's face, 116 mm wide, 24 mm tall, two 13.8 mm bosses into its 14 mm holes at +-48 mm (8.6 mm
 above the web top, the channel's centreline) with an M4 x 16 through each and the nut inside the channel behind; a 6 mm
-seat on the top channel's web from the cross channel to the front flange with a 4 mm lip 15 mm down the flange; the poke
+seat on the top channel's web from the cross channel to the front flange with a 4 mm lip 15 mm down the flange, the lip
+with two zip-tie holes in line with the flange's own holes (8 mm pitch, mid-flange) at 1.63 and 2.58 on the encoder side; the poke
 off the front (33 mm = 1.3 in ahead of the face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered;
 `page/pokez_scan.js`); and a wedge as wide as the poke, the full depth of the seat, from the poke's top down to the back
 plate. Loads: the ball's push goes down the wedge into the back plate and the cross channel in compression, the bolts only
 hold it on; tip-back is the lip plus two bolts; a side hit is two bosses 3.8 in apart. 86 x 116 x 63 mm, 110 cm3.
-`print_job.py next` prints it with the plain blade; `low_arm_step.py` places it. The clip, the saddle and the plate through
+`poker_plate.py --test` is the test nose: flat back with 14.5 mm holes, held by four zip ties (lip and back plate). `print_job.py
+next` prints both with the plain blade; `low_arm_step.py` places the bolted one; `poker_fit.py` draws it on the channels and
+the motor from the export (`poker_fit.png`); `page/channels.py` is where those meshes come from. The clip, the saddle and the plate through
 the web are in git history only; the bolt-on bracket on the top channel below is superseded.
 
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole

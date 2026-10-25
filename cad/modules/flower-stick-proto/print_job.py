@@ -27,7 +27,7 @@ if JOB in ("wide", "low", "next"):      # the blade alone on the first row, the 
     y = m.bounds[1][1] + GAP; x = 0.0
     for name, label in PARTS[1:]:
         c = trimesh.load(os.path.join(HERE, "stl", name + ".stl"))
-        c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))   # on its side: a flat side face down
+        if name in ("poker_hang", "poker_stand", "poker_hang_1in", "poker_stand_1in", "poker_hang_2.1in", "poker_stand_2.1in"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))   # the old pokers on their sides; the bracket and nose seat-down (supports under the lip)
         c.apply_translation(-c.bounds[0]); c.apply_translation([x, y, 0]); ms.append(c); labels.append((label, c.bounds)); x = c.bounds[1][0] + GAP
 else:
     x = 0.0

@@ -5,9 +5,10 @@
 `stl/poker_test.stl` (the test nose: the bracket with a flat back and two 14.5 mm holes, to tape, hot-glue or zip-tie onto the
 intake for the first test) and `stl/poker_plate.stl` (the bolted bracket, 86 x 116 x 63 mm, 110 cm3, for when the mount is
 agreed with the coach), both on their flat seats. This is what to print first: the blade goes on the sled for the field test, the nose sits on the intake's top channel against the
-cross channel behind it. For the test, tape or hot-glue the test nose there, or zip-tie it through the cross channel's bearing
-holes 1.9 in either side of centre (the test nose has matching holes). The bolted bracket uses those same holes with two M4 x 16
-and nuts. Needs a bed of at least 290 mm one way, or print the parts one
+cross channel behind it, and four zip ties hold it for the test: two through the holes in its front lip and the flat channel's
+own front-flange holes (round under the flange), two through the holes in its back plate and the standing channel's bearing
+holes 1.9 in either side of centre (round over the channel's top). The bolted bracket uses those two bearing holes with M4 x 16
+and nuts instead. Print both seat-down with supports under the front lip only. Needs a bed of at least 290 mm one way, or print the parts one
 at a time. Millimetres. PETG. About 235 cm3.
 
 ![the plate](print_job_next.png)

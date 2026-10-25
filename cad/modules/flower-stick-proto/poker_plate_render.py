@@ -22,7 +22,8 @@ ax.add_patch(Rectangle((-52.5, 8.6 - 6.9), 5, 13.8, fc="#e0552b", ec="k", lw=0.8
 ax.plot([-58, -40], [8.6, 8.6], color="k", lw=1.5); ax.add_patch(Rectangle((-57, 6.6), 3, 4, fc="#555"))            # the bolt, nut inside the channel
 ax.annotate("wedge behind the poke, full depth,\ninto the back plate, onto the cross channel", (-30, 20), (-70, 50), fontsize=7, arrowprops=dict(arrowstyle="->"))
 ax.annotate("boss into the cross channel's 14 mm hole,\nM4 through, nut inside the channel\n(x2, at 1.9 in either side of centre)", (-52, 8.6), (6, -40), fontsize=7, arrowprops=dict(arrowstyle="->"))
-ax.annotate("lip over the\nfront flange", (2.3, -12), (14, -8), fontsize=7, arrowprops=dict(arrowstyle="->"))
+ax.annotate("lip over the front flange, with\nzip-tie holes in line with the flange's", (2.3, -12), (12, -6), fontsize=7, arrowprops=dict(arrowstyle="->"))
+ax.add_patch(Circle((2.3, -6.1), 2.0, fc="white", ec="k", lw=0.6))
 ax.annotate("", (33, -20), (0, -20), arrowprops=dict(arrowstyle="<->")); ax.text(16, -24, "33 mm = 1.3 in ahead of the face", ha="center", fontsize=7)
 ax.annotate("", (38, 48), (38, 2.3), arrowprops=dict(arrowstyle="<->")); ax.text(40, 25, "5.7 to 7.5 in up\n(intake lowered)", fontsize=7, va="center")
 ax.set_xlim(-72, 60); ax.set_ylim(-48, 56); ax.set_aspect("equal"); ax.set_xlabel("mm, + ahead of the intake face"); ax.set_title("on the intake, from the side: bolted to the cross channel, seated on the top channel", fontsize=9)
