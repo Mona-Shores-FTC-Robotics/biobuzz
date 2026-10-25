@@ -4,7 +4,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
@@ -43,7 +43,7 @@ import java.util.Locale;
  * <p>The SDK's names are not Limelight's: {@code getRoll()} is the turn about camera X (Limelight's
  * "pitch"), {@code getPitch()} about camera Y, {@code getYaw()} about camera Z. See {@link TagTilt}.
  */
-@TeleOp(name = "Vision: Tag Tilt", group = "Vision")
+@Utility(name = "Vision: Tag Tilt", description = "Settles the tag orientation convention from a level tag")
 public class VisionTagTilt extends RobotOpMode {
 
     private static final TagTilt.Order[] ORDERS = TagTilt.Order.values();

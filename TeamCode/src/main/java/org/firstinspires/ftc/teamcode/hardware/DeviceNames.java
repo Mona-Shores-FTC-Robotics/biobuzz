@@ -78,13 +78,6 @@ public final class DeviceNames {
     public static final String LAUNCHER = "launcher";
 
     /**
-     * DECODE's third flywheel. On no BIOBUZZ robot: only the standalone
-     * {@code shooter/} test-rig code still names it, and that rig runs with a
-     * lane missing. Not in any device list below, so no XML declares it.
-     */
-    public static final String LAUNCHER_CENTER = "launcher_center";
-
-    /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
      * Control Hub servo port; the port itself is in each robot's XML.
      */

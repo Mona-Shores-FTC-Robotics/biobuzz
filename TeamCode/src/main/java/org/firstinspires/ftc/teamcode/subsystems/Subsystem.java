@@ -49,7 +49,7 @@ import org.firstinspires.ftc.teamcode.controls.Display;
  * streaming at the end of a match are different things, and the first one needs its own name
  * ({@code idle()}, {@code coast()}, {@code spinDown()}).
  *
- * <p>That clash is real, not hypothetical: {@code FlywheelBank.stop()} in the shooter rig means
+ * <p>That clash is real, not hypothetical: {@code Launcher2.stop()} in the launcher rig means
  * "cut power and keep running". The rig is not a {@code Subsystem} and does not need to be, but if
  * it ever becomes one, that method gets renamed rather than this contract bent to fit it.
  *

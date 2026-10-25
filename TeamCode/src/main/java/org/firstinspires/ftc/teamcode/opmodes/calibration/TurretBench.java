@@ -4,7 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
@@ -47,7 +47,7 @@ import java.util.Locale;
  * <p>Nothing moves in INIT: the servo gets power only after PLAY. Zeroing with Cross works in INIT, so
  * the turret can be put at home and zeroed before anything can turn it.
  */
-@TeleOp(name = "Turret Bench", group = "Diagnostics")
+@Utility(name = "Turret Bench", description = "The turret's servo and encoder: direction, ratio, and the hold law's numbers")
 @Configurable
 public class TurretBench extends OpMode {
 
