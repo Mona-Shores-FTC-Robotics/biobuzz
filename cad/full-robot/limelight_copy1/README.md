@@ -112,3 +112,12 @@ the lens. The HIVE's tags, which the 45° pitch is for, are in the blocked part.
   older `Robot.step` was aligned by (the comment in `build.placed_team`).
 - The FOV is the datasheet figure; the lens' exact principal point in the STEP is `real_parts.LL_LENS` (79.5, 8.8, 16.2) mm,
   taken from the model's glass, not from Limelight.
+
+## In the Fresh CAD assembly (`limelight_in_fresh_cad.step`)
+
+The "flowerextractordown" export of the Fresh CAD assembly has a different origin from Robot Copy 1's: `limelight_in_robot_copy1.step`
+inserted at its origin landed 2.14 in low, 0.32 in forward and 0.12 in left of the plan. `limelight_in_fresh_cad.step` is the
+same camera moved by that amount in the export's own coordinates, so inserting it at the Fresh CAD origin puts the lens at the
+planned spot (3.56 in behind the intake face, 14.0 in up, centred, pitched 45° up). Made by `make_ll_fresh.py` from the
+export. The planned spot is still the one the stowed stick blocks by two thirds; the 2 in lower spot the export had it at
+blocks about a quarter.

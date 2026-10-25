@@ -595,6 +595,19 @@ side-to-side stack only at 10 in/s. Both run in the simulator ("Coach's CAD"). `
 three cases at first contact. The poker's reach was re-checked with the face at 3.81: 1.2 and 1.3 in feed 24/24 at
 every speed, 1.1 misses at 3 in/s, 1.4 misses (`page/poker_scan2.js`).
 
+**The second export, "flowerextractordown" (`coach_stick_down.py`, `page/coach_stick_down.json`).** His assembly exported
+with the arms swung part way: the frame set by the mecanum wheels (floor), the intake uprights (face) and the servo on the
+pivot (which lands within 0.02 in of Robot Copy 1's). The arm is 41° below horizontal with the plate flat and 1.3 in off
+the tile; the intake is in its lowered position (axle 2.77 up); the Limelight, inserted at the assembly origin, sits 2.1 in
+lower and 0.3 in further forward than the plan (body 2.8 to 4.5 in behind the face, 10.9 to 12.6 up), where the stowed arm
+still crosses its view. The shaft is 9.65 in from the pivot in this export (9.09 in Robot Copy 1): swung onto 0.77 in
+wheels the arm is 48° down, the shaft 4.14 in ahead of the face, the plate 4° nose-down with its lip 4.56 in ahead and
+0.50 in off the tile. In the model that plate feeds side-to-side at 4 and 10 in/s and locks front-to-back at 4 in/s
+(`page/coach_down_check.js`). With the face 4.67 in behind our blade's lip the poker needs 2.1 to 2.2 in of reach (24/24
+at 3, 6 and 10 in/s); 1.2 in gives 16/24 at 3 in/s. `poker.py --reach 2.1` builds that pair. The arm's length is the
+open measurement. `cad/full-robot/limelight_copy1/limelight_in_fresh_cad.step` is the camera at the planned spot in this
+assembly's own coordinates (insert at the origin).
+
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
 low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
 slots, a 19 mm block down the channel's face with one M4 through it, the block's front 30.5 mm (1.2 in) ahead of the
@@ -612,7 +625,7 @@ face. `poker_hang` (block below the web, intake as in the CAD) and `poker_stand`
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
 - `print_job.py wide|three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
-- `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
+- `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `coach_stick_down.py`: the same from the second export (`coach_stick_down.png`). `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.

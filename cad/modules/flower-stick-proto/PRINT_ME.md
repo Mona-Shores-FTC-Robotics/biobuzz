@@ -13,7 +13,9 @@ one way (a 220 x 220 bed prints the three parts one at a time: `stl/mountain_wid
   top channel: the 6 mm flange sits on the channel's web with two M4 bolts through the web's holes (14 mm slots), the
   19 mm block runs down the channel's front face with one M4 through it, and the block's front is the poker, 30.5 mm
   (1.2 in) ahead of the intake face. Print both: which one fits depends on whether the intake is up (hang) or lowered
-  1.8 in for the FLOWER (stand). Test on the sled first with a strip of plywood clamped at the same place.
+  1.8 in for the FLOWER (stand). Test on the sled first with a strip of plywood clamped at the same place. **Wait for the
+  arm measurement before printing the pokers:** the reach is 1.2 in if the stick's shaft lands 3.3 in ahead of the intake
+  face, 2.1 in if it lands 4.1 in ahead (`stl/poker_hang_2.1in.stl`, `stl/poker_stand_2.1in.stl`). The blade can go now.
 
 **Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
 optional. Millimetres: if it comes in tiny, scale by 25.4.

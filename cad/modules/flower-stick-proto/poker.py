@@ -11,9 +11,15 @@ then spans 5.3 to 7.5 in). "stand": the block rises above the web, for the intak
 top 5.73: the poker spans 5.7 to 7.9). Which one is right depends on where the intake sits while the stick feeds.
 Millimetres; x forward (ahead of the channel's front face), y across, z up from the channel's web top.
 """
-import os, cadquery as cq
+import os, sys, argparse, cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__)); os.makedirs(os.path.join(HERE, "step"), exist_ok=True)
-REACH, W, H = 30.5, 19.0, 56.0          # 1.2 in ahead of the face, 0.75 in wide, 2.2 in tall (5.3 to 7.5 in up)
+ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+ap.add_argument("--reach", type=float, default=1.2, help="inches ahead of the intake face (default 1.2: the poke 1.2 in ahead of a face that is 3.81 in "
+                "behind the blade's lip, i.e. the shaft 3.28 in ahead of the face on a 9.09 in arm). The reach follows the arm: it is 1.2 + (shaft ahead - 3.28). "
+                "The flowerextractordown export has the shaft 4.14 in ahead, which needs --reach 2.1.")
+args = ap.parse_args()
+REACH, W, H = args.reach * 25.4, 19.0, 56.0   # ahead of the face, 0.75 in wide, 2.2 in tall (5.3 to 7.5 in up)
+SUFFIX = "" if abs(args.reach - 1.2) < 1e-6 else f"_{args.reach:g}in"
 CH_DEPTH, CH_FACE = 48.0, 12.0          # goBILDA low-side U-channel: 48 mm deep, 12 mm tall front face
 FL_T = 6.0                              # the flange on the web
 def build(mode):
@@ -34,7 +40,7 @@ def build(mode):
     gus = cq.Workplane("XZ").polyline([(0, FL_T), (-10, FL_T), (0, FL_T + 10)]).close().extrude(W / 2, both=True)
     if mode == "hang": part = part.union(gus)
     v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid(), mode
-    cq.exporters.export(part, os.path.join(HERE, "stl", f"poker_{mode}.stl"), tolerance=0.05, angularTolerance=0.2)
-    cq.exporters.export(part, os.path.join(HERE, "step", f"poker_{mode}.step"))
-    bb = v.BoundingBox(); print(f"stl/poker_{mode}.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")
+    cq.exporters.export(part, os.path.join(HERE, "stl", f"poker_{mode}{SUFFIX}.stl"), tolerance=0.05, angularTolerance=0.2)
+    cq.exporters.export(part, os.path.join(HERE, "step", f"poker_{mode}{SUFFIX}.step"))
+    bb = v.BoundingBox(); print(f"stl/poker_{mode}{SUFFIX}.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")
 for m in ("hang", "stand"): build(m)
