@@ -409,17 +409,16 @@ body = f'''
         The posts' corners pass through gaps in the hinge, so nothing on the body ever reaches them.</p>
         <p>In the model, with the motion tied to the body's travel the way the real one is, it feeds all 16 cases, with a 1.3 in
         toe or a 1.5 in one, straight or bent up. The parts are drawn: a body cut from v7 with its lane, the nose piece, the pin.
-        Two prints and one rod from the hardware drawer, plus two clips to keep the rod in. The step in the pictures is where the
-        gaps for the posts' corners are.</p>
-        <table class="sweep loads"><thead><tr><th style="width:68%">Part</th><th>What it is</th></tr></thead><tbody>
-          <tr><td class="k">body</td><td class="ok">v7 with Carter's lane, cut at the hinge; ears at the sides hold the pin</td></tr>
-          <tr><td class="k">nose piece</td><td class="ok">lip and face, 5.4 in wide; hub on the pin in the middle; toe 1.2 × 1.3 in; heel</td></tr>
-          <tr><td class="k">pin</td><td class="ok">4 mm steel rod, 142 mm, two clips</td></tr>
+        Two prints and one rod from the hardware drawer, plus two clips to keep the rod in.</p>
+        <table class="sweep loads"><thead><tr><th style="width:30%">Part</th><th>What it is</th></tr></thead><tbody>
+          <tr><td class="k">body</td><td>v7 with Carter's lane, cut at the hinge; ears at the sides hold the pin</td></tr>
+          <tr><td class="k">nose piece</td><td>lip and face, 5.4 in wide; hub on the pin in the middle; toe 1.2 × 1.3 in; heel</td></tr>
+          <tr><td class="k">pin</td><td>4 mm steel rod, 142 mm, two clips</td></tr>
         </tbody></table><div class="cap">The toe lies 0.42 in off the tiles when flat, which clears the FLOWER's ring by 0.07 in, the same clearance the blade's bottom already has.</div>
         <div class="learn"><b>What we learned</b>Before adding a mechanism, ask what already moves. The robot's push after the lip stops was there all along; a hinge in the right place turns it into the lift.</div>
         <div class="ask"><b>Open question</b>The plastic over the pin is 3 mm. Does it survive a season of hits? And does the nose piece fall flat every time, or does it hang up on the ball above? A print and the sled will tell.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece and toe ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat and tripped, with the posts. The body is blue, the nose piece with its toe orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece and toe ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece with its toe orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
     </div>
   </div>
 </section>
