@@ -44,7 +44,7 @@ public final class LQualsAuto {
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(59, 133.69, 270);
         Pose nFire = p.of(57.5, 119, 270);
-        Pose park = p.of(10.5, 95, 90);
+        Pose park = p.of(14, 95, 90);
         Pose fire3 = p.of(45, 26, 90);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
