@@ -636,14 +636,21 @@ at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_bo
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
-**The poker saddle (`poker_clip.py`, `poker_clip_render.py`).** The poker's final form, no hardware: an upside-down U
-over the intake's top channel (48 x 12.2 mm, web up, flanges down; 4 mm walls, 0.3 mm clearance), a 2.5 mm lip under the
-front flange, one slotted 13.8 mm peg in the web's centre hole 24 mm back, and the poke rising off the front (33 mm = 1.3 in ahead
-of the face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered, web top 5.61; it starts above the
-folded blade's lip at 5.59, and `page/pokez_scan.js` says 5.7 to 7.5 at 1.3 in feeds 24/24 at every speed). Hook the lip, rotate
-down; the back wall behind the back flange stops it sliding forward and the lip stops the front lifting; the ball's push
-presses the front wall onto the flange. 85 x 40 x 63 mm, 46 cm3. `print_job.py low` prints two with the blade;
-`low_arm_step.py` places it. The bolt-on bracket below is superseded.
+**The poker plate (`poker_plate.py`, `poker_plate_render.py`).** The poker's final form, and the export chose it: the intake
+motor sits inside the top channel's cavity at the centre (body 0.4 left to 2.0 right, up to 5.45; encoder cap to 1.1 left;
+the web's underside is 5.13), the intake's gearbox fills it on the right out to 3.3, the cross channel butts against the
+channel's back flange and stands 1 in above the web, and two pattern spacers sit on the web beyond 3.03 in either side. So
+nothing goes under the channel near the middle (no through-bolts, no centre peg), nothing wraps its back (no saddle), and
+only the bearing holes 1.89 and 2.83 in from the centre on the motor's encoder side (not the gearbox side) have a clear
+cavity below. The plate sits on the web from the cross channel's
+face (0.5 mm off it) to the front flange, 2.6 in to the gearbox side and 3.1 in to the encoder side, with a tab to 3.05 ahead of the spacer, 6 mm
+thick, two 13.8 mm bosses into those two holes with an M4 x 16 down each and a nut below (reach in from under the web
+between the intake wheels), a 4 mm lip 15 mm down the front flange, and the poke off the front (33 mm = 1.3 in ahead of the
+face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered; `page/pokez_scan.js`). Loads: the ball's
+push bears the plate's rear edge on the cross channel (compression); the tip-back is two bolts in tension; a side hit is
+two bosses in two holes, the lip along the flange and the plate on the web. `print_job.py next` prints it with the plain
+blade; `low_arm_step.py` places it. The saddle it replaces (a clip with a lip, then two through-bolts under the channel) is
+in git history only; the bolt-on bracket below is superseded.
 
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
 low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
