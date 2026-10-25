@@ -121,7 +121,17 @@ public final class FieldView {
      * @param heading field heading in radians, Pedro's frame
      */
     public void drawRobot(double x, double y, double heading) {
-        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getBLUE(), 1.0);
+        drawRobot(x, y, heading, PanelsField.INSTANCE.getBLUE());
+    }
+
+    /**
+     * {@link #drawRobot(double, double, double)} in another colour, for a second opinion of where
+     * the robot is (the camera's, say) drawn over the first.
+     *
+     * @param outlineColour a CSS colour, e.g. {@code "#FFB300"}
+     */
+    public void drawRobot(double x, double y, double heading, String outlineColour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
         field.moveCursor(x, y);
         field.circle(robotRadius);
 
@@ -144,6 +154,13 @@ public final class FieldView {
         field.line(FieldFrame.FIELD_CENTRE_INCHES + 4.0, FieldFrame.FIELD_CENTRE_INCHES);
         field.moveCursor(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES - 4.0);
         field.line(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES + 4.0);
+    }
+
+    /** A line between two field points, for a bearing, a ray or a path segment. */
+    public void drawLine(double x1, double y1, double x2, double y2, String colour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), colour, 1.0);
+        field.moveCursor(x1, y1);
+        field.line(x2, y2);
     }
 
     /** Marks a point — a path target, a detected game element, wherever you were aiming. */

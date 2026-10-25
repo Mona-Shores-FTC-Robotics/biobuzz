@@ -15,6 +15,8 @@ import java.util.function.BooleanSupplier;
  * driver.note("Left stick", "Drive");
  * driver.when("Y", "Reset heading", () -> gamepad1.y).onPress(robot.drive::resetHeading);
  * operator.when("A", "Fire (hold)", () -> gamepad2.a).whileHeld(robot.launcher.fire());
+ * driver.when("RT", "Intake (hold)", () -> gamepad1.right_trigger > 0.5)
+ *         .onPress(robot.intake::intake).onRelease(robot.intake::idle);
  * }</pre>
  *
  * <p>Bind in {@code onInit()}. {@code RobotOpMode} polls every binding once per loop after PLAY —
@@ -57,6 +59,18 @@ public final class Bindings {
     }
 
     /**
+     * Polls only the triggers marked {@link Trigger#duringInit()}. Called every INIT loop by
+     * {@code RobotOpMode}, where everything else stays unarmed so a button held through PLAY is
+     * not a press and nothing drives before the match.
+     */
+    public void updateDuringInit() {
+        for (int i = 0; i < triggers.size(); i++) {
+            Trigger trigger = triggers.get(i);
+            if (trigger.duringInit) trigger.poll();
+        }
+    }
+
+    /**
      * Treat every button as already in its current state, so one held through PLAY — say B, still
      * down from choosing Red in INIT — does not count as a fresh press. Called at PLAY.
      */
@@ -82,9 +96,20 @@ public final class Bindings {
         private final List<Runnable> onRise = new ArrayList<>();
         private final List<Runnable> onFall = new ArrayList<>();
         private final List<Command> held = new ArrayList<>();
+        private boolean duringInit;
 
         Trigger(BooleanSupplier condition) {
             this.condition = condition;
+        }
+
+        /**
+         * Also live during INIT, before PLAY. For setting state with nothing moving: zeroing the
+         * turret at its home mark, say. Never for anything that drives a mechanism. The Controls
+         * page labels it "(also in INIT)".
+         */
+        public Trigger duringInit() {
+            duringInit = true;
+            return this;
         }
 
         /**
@@ -94,6 +119,15 @@ public final class Bindings {
          */
         public Trigger onPress(Runnable action) {
             onRise.add(action);
+            return this;
+        }
+
+        /**
+         * Run {@code action} once when released. With {@link #onPress}, this is how a hold-to-run
+         * mechanism is bound without a command ({@code onPress(intake::intake).onRelease(intake::idle)}).
+         */
+        public Trigger onRelease(Runnable action) {
+            onFall.add(action);
             return this;
         }
 

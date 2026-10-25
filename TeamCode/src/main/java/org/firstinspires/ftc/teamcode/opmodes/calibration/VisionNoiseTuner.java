@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
@@ -38,7 +38,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveCell;
  * <p>It also measures range and bearing rather than a field pose, because under
  * BIOBUZZ there is no field pose to measure.
  */
-@TeleOp(name = "Vision: Noise Tuner", group = "Vision")
+@Utility(name = "Vision: Noise Tuner", description = "How much a CELL sighting jitters, standing still; the camera's noise numbers")
 @Configurable
 public class VisionNoiseTuner extends RobotOpMode {
 

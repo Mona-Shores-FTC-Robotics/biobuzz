@@ -16,10 +16,10 @@ and why — so the reasoning survives past whoever added it.
 | Library | Artifact | Purpose |
 |---|---|---|
 | Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Hot code reload — pushes only TeamCode to the robot, turning a ~40s reinstall into under a second (see [Deploying to the robot](#deploying-to-the-robot)). Also gives fast dex scanning at OpMode discovery, roughly 50% faster init than the SDK's reflective scan, and is the discovery mechanism AutoTune is built on, so it is no longer optional. |
-| Pedro Pathing (core) | `com.pedropathing:core:3.0.1` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
-| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.1` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
-| Pedro AutoTune | `com.pedropathing:tuning:1.0.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
-| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
+| Pedro Pathing (core) | `com.pedropathing:core:3.0.2` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
+| Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.2` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
+| Pedro AutoTune | `com.pedropathing:tuning:1.0.2` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
+| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
 
@@ -439,6 +439,67 @@ devices. DECODE's two robots declared the Pinpoint as `port="1" bus="1"` and
 `port="0" bus="1"` and behaved identically, which is why — the `port` difference
 was cosmetic. These files keep the two equal so the file cannot be misread.
 
+### The turret: a servo on a servo port, an encoder on a motor's encoder socket
+
+The turret has no motor port: all eight are taken. It turns on a goBILDA servo
+in continuous-rotation mode, which the SDK builds as a `CRServo` from a
+`<ContinuousRotationServo>` element, a different class from the `Servo` a
+`<Servo>` element gives. So `DeviceNames.Kind` has `CR_SERVO` beside `SERVO`:
+`ValidateHardware` asks the hardware map for the right class, and
+`RobotConfigXmlTest` still treats the two as sharing the six servo ports.
+
+Its angle comes from a Studica Cypher Max encoder on the turret's drive gear.
+The encoder's quadrature output (2048 counts per encoder turn, both edges of
+both channels) plugs into the **encoder socket beside Expansion Hub motor port
+3**, the feeder's (the build team's choice: the drive motors' sockets hold their
+own encoders). The feeder runs without its encoder, so the socket is free, and
+the SDK reads whatever is in it as that motor's position, which means the
+feeder's velocity line on the Robot page shows the turret moving on a
+competition robot. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
+is; turret code asks for that motor and reads only its encoder, and nothing
+but the turret code may reset its count. The count is relative: zero
+wherever the encoder sat at hub power-up, kept across OpModes while the hub
+stays on. A person puts the turret at its home mark before INIT and the code
+zeroes there. The encoder's absolute PWM output exists, and an OctoQuad could
+read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
+home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
+3V3.
+
+`subsystems/TurretEncoder` is the pure math (counts to degrees, with the
+measured gear ratio and direction) and `Turret Bench` is the OpMode that
+measures them: encoder direction, gear ratio, servo direction, and a
+proportional hold to try a gain. Its javadoc is the checklist.
+
+### The Limelight: an Ethernet device, not a hub device
+
+A Limelight 3A has no hub port. SDK 12 models it as an `<EthernetDevice>`
+(`BuiltInConfigurationType.ETHERNET_OVER_USB_DEVICE`), which
+`ReadXMLFileHandler.parseRobot` reads only as a **direct child of `<Robot>`**,
+beside `<LynxUsbDevice>`. `HardwareFactory.mapEthernetOverUsb` then builds the
+`Limelight3A` from two attributes: `name`, and `ipAddress`, where the RC sends
+its HTTP requests. `172.29.0.1` is the 3A's factory address on a Linux/Android
+USB-Ethernet link. `serialNumber` is only a hardware-map key: it has to start
+`EthernetOverUsb:` (the `Limelight3A` constructor stores it as an
+`EthernetOverUsbSerialNumber`), and nothing compares it with what is plugged in.
+
+So `DeviceNames.Kind` has a fourth value, `ETHERNET`, and `RobotConfigXmlTest`
+checks it in its own way: the element sits under `<Robot>`, `ipAddress` is a
+dotted IPv4 address no other Ethernet device uses, and `serialNumber` parses.
+No port range check (#64).
+
+**Consequence: a configured Limelight is always "found".** The SDK builds it from
+the file, so an unplugged camera, or one moved to a static IP that the file does
+not name, is in the hardware map and never answers. `LIMELIGHT NOT FOUND` now
+means the active config is wrong. A dead cable shows as **Link: NO RESPONSE** in
+every Vision OpMode, and as a FAULT on the Robot page.
+`LimelightVisionSubsystem.isConnected()` is the accessor (the SDK's own
+250 ms test).
+
+Rejected: `USB` or `PORTLESS` as the kind. The webcam is also portless, but it
+is a different element (`<Webcam>`) with a per-unit serial number, so one kind
+for both would mean "not on a hub", not "checked like this". The webcam is still
+on `DeviceNameLiteralTest`'s allowlist, waiting on its own decision.
+
 ### Risk: bundled configs depend on Sloth, not just the SDK
 
 **This is load-bearing and completely non-obvious.** Sloth reflectively
@@ -565,9 +626,9 @@ empty body. `Robot.initialize()` and `Robot.stop()` walk the `subsystems` list (
 the list is the single place a subsystem is registered.
 
 **`stop()` means teardown and only teardown.** The disagreement that kept it off the interface was
-real: `FlywheelBank.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
+real: `Launcher2.stop()` cuts power and keeps the object live, where `LimelightVisionSubsystem.stop()`
 ends it. The resolution is to name it, not paper over it — "stop the mechanism for a moment" gets its
-own name (`idle()`, `spinDown()`). `FlywheelBank` is not a `Subsystem` and the shooter rig stays
+own name (`idle()`, `spinDown()`). `Launcher2` is not a `Subsystem` and the launcher rig stays
 standalone, so nothing had to change; if it ever becomes one, its `stop()` gets renamed.
 
 **If the interface makes your subsystem awkward, change the interface — do not work around it.** It
@@ -575,10 +636,11 @@ was designed against one existing subsystem and will meet its second one soon.
 
 ### This does not supersede "No command framework"
 
-The [shooter rig](#no-command-framework) stays a plain `OpMode` with no scheduler. That section
-already anticipated this: *"when the real BIOBUZZ launcher lands and shots have to be sequenced
-against an intake, that is the point to introduce Ivy commands."* The launcher has not landed. A rig
-with one behaviour still has nothing for a scheduler to arbitrate.
+The `launcher2` rig stays a plain `OpMode` — no Ivy `Command`, no scheduler — as the DECODE flywheel
+rig it was copied from did. The reasoning has not changed: a rig with one behaviour has nothing for a
+scheduler to arbitrate. When the real BIOBUZZ launcher lands and shots have to be sequenced against
+an intake, that is the point to introduce Ivy commands, and it happens in a `Subsystem`, not in the
+rig.
 
 ### Why this shape, and what was rejected
 
@@ -615,7 +677,7 @@ Rejected along the way:
 ## The `pedro` package
 
 `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/pedro/` is copied verbatim
-from the official Pedro Pathing Quickstart at tag `v3.0.1`. It is upstream code,
+from the official Pedro Pathing Quickstart at tag `v3.0.2`. It is upstream code,
 not ours — when Pedro releases a new Quickstart, re-copy it rather than patching
 it in place.
 
@@ -651,7 +713,6 @@ the package is still untouched upstream code.
 the stubs are filled in — there is not a single `@TeleOp` or `@Autonomous`
 annotation in it. AutoTune creates its tuning OpModes at runtime from the
 registered procedures; they never exist as annotated classes here.
-The module's one annotated OpMode lives in `shooter/`, documented below.
 
 ### Our hardware, and what still needs measuring
 
@@ -818,181 +879,30 @@ arc, but at full power the robot covers several feet per step. Lifted, a draggin
 wheel still draws more current and a weak motor still runs slower, and that is
 what separates the causes.
 
-## The `shooter` package
+## The `autokit` package: running an Auto from the Auto Builder
 
-`TeamCode/src/main/java/org/firstinspires/ftc/teamcode/shooter/` is a flywheel
-speed test rig: spin the three launcher wheels up, read the RPM, and tune the
-gains. It registers one OpMode, **Flywheel Speed Test** (TeleOp, group
-`Shooter`).
+An Autonomous is drawn in the Visualizer fork (the Auto Builder), exported as a class in
+`opmodes/auto/generated/`, and run by `BuiltAuto` through `autokit`: the cards a generated Auto
+calls. There are three kinds of card and one branching block:
 
-It exists to characterize shooting speeds on **last season's DECODE robot**
-before BIOBUZZ hardware is ready, so it is deliberately standalone — no
-drivetrain, no pathing, no intake, no feeder, and no dependency on
-Pedro's tuned values. Point it at a robot with the three
-launcher motors in its config and it runs.
+- a **command**, by name, with a timeout (`DEFAULT_TIMEOUT_S` when the Auto sets none);
+- a **path**, a Pedro `Path` the drivetrain follows to its end;
+- **`firstOf`**: wait for a trigger, at most some time, optionally while a command runs, then run
+  the cards of whichever exit came first;
+- **`guarded`**: the endgame guard. It runs its cards in order and drives the park path instead as
+  soon as the time left no longer covers the park plus `GUARD_MARGIN_S`. It cuts a wait or a
+  command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
+  path it has let start runs to its end and the robot parks from there.
 
-### Zero recompiles
+Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
+`requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not
+exist yet are registered as explicit placeholders (`PLACEHOLDERS`; a command that finishes at
+once, a trigger that never fires), shown on the Driver Station at INIT, so an Auto drawn for the
+finished robot runs on today's robot as a timed script. `auto-registry.json` is the same list for
+the editor; `AutoRegistrationTest` keeps the two in step.
 
-The whole point is that a student meeting never has to touch Android Studio.
-Everything numeric is a live Panels field under `FlywheelBank → config`:
-
-| Group | What's in it |
-|---|---|
-| `measurement` | `ticksPerRev`, `gearRatio` — how encoder ticks become RPM |
-| `target` | `targetRpm`, `maxRpm` ceiling, and the two gamepad nudge steps |
-| `readiness` | `rpmToleranceRpm` (to become READY), `dropOutToleranceRpm` (to stop being READY — wider, so jitter does not flicker the state), `atSpeedHoldMs` |
-| `voltageCompensation` | `enabled`, `nominalVoltage`, `minVoltage` |
-| `left` / `center` / `right` | `enabled`, `reversed`, `rpmTrim`, `kS`, `kV`, `kP` |
-
-The motor names are deliberately **not** in that tree. They live in
-`DeviceNames`, and `RobotConfigXmlTest` holds them to `robot_*.xml`, so a wrong
-name is a failed build rather than something to discover at a meeting. An
-earlier version of this rig carried an editable `motorName` ported forward from
-DECODE — the very pattern `DeviceNames` exists to end.
-
-On the gamepad: **A** spins up, **B** stops, **dpad up/down** moves the target
-by the fine step, **dpad left/right** by the coarse step. The Driver Station
-shows the same lane table as Panels, so the rig is still usable with no laptop
-connected.
-
-### What it publishes, and where
-
-> **History note.** This said *three* places, the third being an FTC Dashboard
-> packet stream keyed `shooter/<lane>/…` that desktop AdvantageScope read as a
-> browsable tree. Dashboard is no longer installed — see [Why FTC Dashboard is
-> not in the dependency set](#why-ftc-dashboard-is-not-in-the-dependency-set).
-> **No measurement was lost**: the four series only Dashboard carried are now
-> published to Panels alongside the rest. The keys are flat and prefixed
-> `left_` / `center_` / `right_` rather than slash-delimited, because Panels
-> does not render a tree.
-
-Two places at once, and you can use either alone:
-
-| Where | What you get |
-|---|---|
-| **Panels** | Every series below as a graphable trace, plus the lane table as text |
-| **Driver Station** | The lane table — works with no laptop at all |
-
-Per lane, prefixed `left_`, `center_`, `right_`:
-
-| Key | Why you care |
-|---|---|
-| `_rpm` / `_target` / `_error` | The basic picture. Plot measured against target. |
-| `_tps` | Raw ticks/sec, before the ticks-per-rev maths — check here first if RPM looks wrong by a constant factor |
-| `_power` | What actually reached the motor, after voltage compensation and clipping |
-| `_ff` / `_fb` | **The tuning signal.** See below. |
-| `_amps` / `_watts` | Load. A binding wheel or over-tight belt shows here long before it shows as a speed you can't hold. |
-| `_at_speed` / `_spin_up_ms` | Readiness, and time-to-first-in-tolerance |
-
-Plus `battery_volts`, `voltage_multiplier`, `loop_ms` and `spinning`.
-
-### Reading the feedforward / feedback split
-
-This is the part worth understanding, because it turns tuning from guesswork
-into reading a graph.
-
-The control law is `power = (kS + kV × target) + kP × error`. The rig publishes
-those two halves separately:
-
-- **`_ff` (feedforward) should be carrying nearly all the power** once the wheel
-  is at speed. That is the whole point of feedforward — it predicts the power
-  needed rather than reacting to being wrong.
-- **`_fb` (feedback) should settle near zero.** If it is doing real work at
-  steady state, **kV is wrong**, and kP is quietly papering over it. Fix kV
-  rather than raising kP.
-
-At steady state, kV ≈ `power_feedforward` ÷ `target_rpm` — both numbers are on
-the graph, so you can read the correct value off directly instead of bisecting.
-
-One trap: `shooter/voltage_multiplier` scales the applied power. Derive kV from
-`power_feedforward` (before compensation), not from `power_applied` (after), or
-your answer is off by exactly that factor.
-
-### First time on the robot
-
-**Nobody has run this on a robot yet.** Before you rely on it at a meeting, put
-the robot somewhere the flywheels can spin free and walk through this once:
-
-1. **Does the OpMode show up?** Look for **Flywheel Speed Test** in the TeleOp
-   list on the Driver Station. If it isn't there, do a full **TeamCode**
-   install rather than a Sloth Load.
-2. **Does Panels come up?** Open Panels and look for `FlywheelBank → config`.
-   Nobody has run Panels on the Sloth `0.3.2` stack yet, so this is the step
-   most likely to surprise you. If it doesn't appear, the Driver Station
-   readout still works and the gamepad still tunes the target speed.
-3. **Press A.** The target starts at 1500 RPM. All three lanes should climb and
-   land on `[READY]`.
-4. **Is any lane showing a negative RPM?** Look at the wheel before touching
-   anything. Two different faults read the same:
-   - **The wheel spins the wrong way** → tick `reversed`. That flips the
-     motor and its encoder together, so the RPM goes positive. (DECODE's
-     robot 20245 ran its right lane reversed; 19429 ran all three forward.)
-   - **The wheel spins the right way** → tick `encoderReversed`. The encoder
-     counts backwards relative to its own motor, so `reversed` cannot fix it:
-     the RPM stays negative whichever way that box is set. Seen on the right
-     lane, 26 Sep 2026, where it read about -4000.
-
-   Until the sign is right, the lane runs on feedforward only. Before that
-   guard existed, a negative reading made the feedback term demand ever more
-   power and the wheel ran away to full speed.
-   **If ticking it changes nothing,** check the lane's `dir` column (and the
-   `<lane>_reversed` graph key). That is the direction the running code
-   actually applied. If Panels says `reversed` is ticked but `dir` still says
-   `FWD`, the edit landed in a copy of the config that this OpMode does not
-   read. The suspected cause is Sloth Load: Panels can end up holding fields
-   from both the installed APK's classes and the hot-reloaded ones, and editing
-   the stale set. The cure is a full **TeamCode** install, a power-cycle, and a
-   reload of the Panels page. Seen 26 Sep 2026 on the right lane; the cause was
-   inferred from the Panels `configurables-0.3.2+1.0.5` bytecode (it keeps fields
-   per class loader and groups them by class name for the browser), not yet
-   confirmed on the robot.
-5. **Does the RPM look believable?** If it's off by a constant factor — double,
-   half, ten times — the encoder maths is wrong, not the motor. Fix
-   `measurement.ticksPerRev` first, then `gearRatio`.
-
-Once those five pass, the rig works. Press B to stop; the wheels coast down.
-
-### What was ported from DECODE, and what wasn't
-
-Ported forward from `subsystems/LauncherSubsystem.java` and
-`subsystems/launcher/config/LauncherFlywheelConfig.java`:
-
-- the control law, unchanged —
-  `power = (kS + kV * targetRpm) + kP * (targetRpm - measuredRpm)`, scaled by
-  battery voltage and clipped to `[0, 1]`;
-- the starting gains (kS `0.10`, kV `0.00017`, kP `0.001`), which were identical
-  across both DECODE robots, so they are a real starting point and not a guess;
-- voltage compensation, unchanged;
-- the "don't wrap flywheels in `CachingHardware`" rule, and DECODE's reason for
-  it: a wheel held at near-constant power gets every repeat `setPower` dropped by
-  the cache, so a hub that zeroes the motor behind the cache's back stays dead.
-
-Two things were deliberately **not** ported, both because a measurement rig has
-different duties than a match robot:
-
-- **`Math.abs()` on the measured velocity.** DECODE took the absolute value,
-  which makes a backwards-spinning wheel look perfectly healthy. Here RPM keeps
-  its sign, a backwards wheel never reaches speed, and the readout says which
-  lane to flip.
-- **`fallbackReadyMs`.** DECODE declared a lane ready on a timer when the encoder
-  looked dead — the right call when a match is running. On a rig whose whole job
-  is measurement, a lane that never reaches speed has to keep saying so.
-
-`RobotProfile`'s two-robot machinery did not come across either. DECODE needed
-`invalidate()` / `reloadProfileConfigs()` because its config defaults were
-resolved per robot from the WiFi SSID, which is not known when Panels' boot-time
-`@Configurable` scan runs. These defaults are plain constants, so none of that
-applies.
-
-### No command framework
-
-The rig is a plain `OpMode` — no Ivy `Command`, no scheduler. DECODE was already
-on Ivy (at `com.pedropathing:ivy:1.0.0`, the Pedro 2 coordinates; this repo has
-`com.pedropathing.ivy:pedro:1.1.1`), but its flywheel control lived in the
-subsystem, not in a command, so there was no command class to port in the first
-place. A rig with one behaviour has nothing for a scheduler to arbitrate. When
-the real BIOBUZZ launcher lands and shots have to be sequenced against an intake,
-that is the point to introduce Ivy commands.
+`autokit` depends only on Ivy and Pedro, so `AutoKitTest` runs every card through Ivy's real
+`Scheduler` against a fake drivetrain, on a laptop.
 
 ## The `vision` package
 
@@ -1099,7 +1009,10 @@ cannot be settled without hardware, and both are isolated to one place each:
 
 ### Setup this depends on
 
-- Limelight in the hardware map as `limelight`.
+- Limelight in the hardware map as `DeviceNames.LIMELIGHT` (`limelight`), which
+  both competition robots' `robot_*.xml` declare. See
+  [The Limelight: an Ethernet device](#the-limelight-an-ethernet-device-not-a-hub-device).
+  Check **Link: ok** before reading anything else.
 - An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
   range is off by a constant factor, with nothing about the output looking broken.
 - That pipeline emitting **full 3D pose**. Without it no sighting can be built at
@@ -1221,19 +1134,68 @@ Ordered roughly by what unblocks what.
 
 #### Settled: can the camera see the lowered cell's tags?
 
-Yes, most likely — so there is no shortcut here, and height classification is
-genuinely needed.
+**From the start positions, no — measured on 19429 (#156).** Facing the red HIVE from the
+red audience start, the UP CELL's four tags read cleanly; tipped DOWN, its tags face away and
+the CELL drops out of the sighting list. Mid-tip, one tag stayed in view while the row fell
+about 7 in (50 → 43 in) with the state reading UNKNOWN, then it was lost. So a TIP shows as
+"UNKNOWN, height falling" first and "tags gone" second; `HiveTracker` uses both. The DOWN
+height in `CellStateTracker.Geometry` is therefore a tape measurement, not a camera reading.
+Other viewpoints (far side, steep angles) are untested.
 
-The question was whether a lowered cell's tags rotate out of view, which would have
-meant "a visible tag implies UP" and deleted most of the work above. They do not.
-Figure 9-7 labels the cluster "**AprilTag Cluster under each CELL**" and shows both
-the raised and the lowered cell's clusters in the same side elevation. The geometry
-agrees: the rocker swings ±30°, so a cell bottom that faces straight down at rest
-stays within 30° of vertical in both positions rather than rotating away.
+### HIVE tracking and camera localization, end to end (#157)
 
-Read off a figure rather than measured, so confirm it on a real field — actual
-sightlines also depend on camera height and range. But plan for both cells being
-readable, which is the harder case and also the more useful one.
+The measured numbers, all from 19429 on 3 Oct 2026 (#156):
+
+| What | Value | Where it lives |
+|---|---|---|
+| Camera mount | fwd 4, left 0, up 14 in, pitch 45°, yaw 0 | `CameraMount` |
+| Tag row height | UP 50.2 in (camera), DOWN 35.0 in (tape) | `CellStateTracker.Geometry` |
+| Row swing | ~15 in, not the 9.4 in `HiveGeometry.STATE_HEIGHT_DELTA_IN` derives: the tags sit ~15 in from the pivot, not at the CELL centre | — |
+| CELL field points | AUDIENCE rows at y 58.4 (UP) / 59.9 (DOWN); the rest from the rocker geometry | `HiveFieldPoints` |
+| TIP time | ~2.5 s, from one video; provisional | `HiveTracker.Tuning.tipSeconds` |
+
+**TIP tracking.** `CellStateTracker` says what each CELL is now (UP / DOWN / UNKNOWN, by
+height). `HiveSubsystem` (`robot.hive`) feeds one `HiveTracker` per HIVE: a CELL seen mid-tip,
+or a settled CELL lost while the robot holds still, starts a TIP; after `tipSeconds` the other
+CELL is assumed up until the camera says otherwise.
+
+**Localization, DECODE's shape without MegaTag.** Every tag on a settled CELL has a known field
+position (`HiveFieldPoints.tagPosition`): its row centre plus its own offset along the row, which a
+TIP leaves alone because the row runs along the axle. So **any two or more tags in view, on one
+CELL or several, give the robot's whole pose** by a least-squares fit (`CellFix.fit`), the way
+MegaTag1 did; **one tag plus the Pinpoint's heading gives the position exactly**. Tags on two
+CELLs give a better heading than four on one. `DriveSubsystem` uses it three ways, and the
+Pinpoint carries the pose in between:
+
+1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
+   row agree. The driver's field-centric forward does not move.
+2. **Relocalize** on demand (`relocalizeFromCamera()`), refused beyond DECODE's 18 in / 20°.
+3. **Would-relocalize.** Whenever the robot is still and a settled CELL is in view, record how far
+   the camera says the pose is off, without acting. This is the measurement that decides whether
+   stationary relocalizing should ever act.
+
+Continuous camera fixes (`LocalizationTuning.continuousFixes`) are **off by default**: a tuned
+Pinpoint holds a match on its own, the tags sit on flexing polycarbonate, and a bad fix drags the
+pose somewhere false (Chief Delphi thread 524104, #3, #4, #15). #82 session 5 is where that gets
+measured.
+
+Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
+SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
+from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
+a SCORING one. That predicted RED_AUDIENCE, which was then measured. The other three are derived;
+facing each with Raw Tag Dump confirms it (highest id on the robot's right facing +y for AUDIENCE,
+left for SCORING).
+
+**Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
+the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
+graphs of each CELL's height and rocker angle (a TIP is a clean curve) and a field view with the
+odometry robot in blue, the camera's robot in amber, and the CELLs' tag rows as dots. A
+relocalizes, Y resets field-centric forward.
+
+**The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
+`new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
+so `getRoll()` is the turn about camera X, which Limelight's docs call "pitch". The tag tilt of
+a tipping CELL seen head-on is in `getRoll()`. `Vision: Tag Tilt` settles the rotation order.
 
 ### What was dropped from the DECODE port, and why
 
@@ -1285,16 +1247,16 @@ kind of source it is:
    (the Control Hub) and the **live source** to **FTC Dashboard**.
 2. **File → Connect to Robot.**
 
-Once connected, anything published as a `TelemetryPacket` shows up — Pedro
-Pathing's output and the whole `shooter/` tree included.
+Once connected, anything published as a `TelemetryPacket` shows up, Pedro
+Pathing's output included.
 
 > Nobody on the team has run this end to end yet, so treat the menu names as
 > approximate. If your build words them differently, correct this list rather
 > than working around it.
 
-Keys are slash-delimited on purpose: AdvantageScope renders `shooter/left/…` as a
+Keys are slash-delimited on purpose: AdvantageScope renders `launcher/left/…` as a
 browsable tree. Publish flat keys and you get thirty loose series instead of one
-node per lane.
+node per mechanism.
 
 Field assets are a one-time download from Mechanical-Advantage's
 [AdvantageScopeAssets](https://github.com/Mechanical-Advantage/AdvantageScopeAssets/releases/tag/bundles-v1)
@@ -1344,6 +1306,16 @@ tell you why.
 > The stack trace is a bare thread entry point and names nobody, so identify the
 > loser from what initialises immediately before the crash.
 
+## Match logs: getting one off the robot
+
+Every run of a `RobotOpMode` writes a `.wpilog` to `/sdcard/FIRST/logs/` on the hub (one file per
+match: an Autonomous pauses it and the TeleOp that follows continues it; see
+`logging/MatchLog`). AdvantageScope on a laptop opens it. **Nobody types adb for this:**
+`tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to
+`%USERPROFILE%\biobuzz-logs\<robot network>\` and opens the newest, and a `-Watch` mode that does
+it by itself each time an OpMode stops. Its README says what to drag where in AdvantageScope and
+how it copes with the adb states described above. Decided in #214.
+
 ## The Panels stack: seeing data and changing values at a meeting
 
 **The decision, 24 Sep 2026: Panels is the whole dashboard.** Sloth, Pedro, Ivy and Panels; no
@@ -1374,7 +1346,7 @@ server, which is still there and still serves the RC's own pages.
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
 
 Call `update()` once per loop after the `addData`/`debug` calls, and wrap the whole block in a
-`try`/`catch` that swallows. `FlywheelSpeedTestOpMode.publishPanels()` is the reference
+`try`/`catch` that swallows. `Launcher2SpeedTestOpMode.publishPanels()` is the reference
 implementation: telemetry must never take a mechanism down mid-run.
 
 **`update(telemetry)` publishes to both.** `TelemetryManager` has a second overload that takes the
@@ -1384,7 +1356,7 @@ There is no reason to maintain two parallel sets of telemetry calls, and the old
 predate this being known.
 
 Keys are flat strings. Panels does not render a `a/b/c` key tree the way AdvantageScope did, so
-prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
+prefix instead — `left_rpm`, `right_rpm`.
 
 ### Changing values live
 
@@ -1392,15 +1364,15 @@ prefix instead — `left_rpm`, `center_rpm`, `right_rpm`.
 non-`final`**. Primitives, enums, strings, arrays, lists, maps and custom objects all work.
 
 The pattern this repo uses, and the one to copy, is a single static root holding plain nested
-objects — `FlywheelBank` declares:
+objects — `launcher2/Launcher2` declares:
 
 ```java
 @Configurable
-public class FlywheelBank {
-    public static FlywheelTuningConfig config = new FlywheelTuningConfig();
+public class Launcher2 {
+    public static Launcher2Config config = new Launcher2Config();
 ```
 
-and everything under `FlywheelTuningConfig` is ordinary instance fields. Panels reflects through
+and everything under `Launcher2Config` is ordinary instance fields. Panels reflects through
 the static root into the tree, so one annotation exposes the whole structure and the sub-configs
 stay readable as normal Java.
 
@@ -1413,8 +1385,8 @@ Three things that will cost you a meeting if you forget them:
   Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
   when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code
   that writes a configurable must call `refreshClass` right after, or the page shows a stale number
-  and an edit typed over it looks like it did nothing. `FlywheelSpeedTestOpMode.refreshPanelsConfig()`
-  is the example — its d-pad nudges write `targetRpm`.
+  and an edit typed over it looks like it did nothing. `Launcher2SpeedTestOpMode.nudgeTarget()`
+  is the example — its d-pad nudges write `targetRpm`, then call `refreshClass`.
   > **History note, 26 Sep 2026.** This bullet used to say only "refresh the browser". That was
   > the workaround, not the answer: `refreshClass` is Panels' own call for this (checked in
   > `configurables-0.3.2+1.0.5`, which sends values on connect, on a browser edit, and on
@@ -1435,7 +1407,7 @@ Three things that will cost you a meeting if you forget them:
 
 `Drawing` and `Follower.telemetryDebug()` live in **`com.pedropathing:telemetry`**, which is on the
 [deliberately excluded](#deliberately-excluded) list — still published at `1.0.0`, never updated for
-Pedro 3. Checked by listing every class in `core-3.0.1`, `revhub-3.0.1`, `tuning-1.0.1`,
+Pedro 3. Checked by listing every class in `core-3.0.2`, `revhub-3.0.2`, `tuning-1.0.1`,
 `ivy:core-1.1.1` and `ivy:pedro-1.1.1`: no `Drawing`, and no reference to Panels anywhere in the
 set. So the choice was re-adding an excluded, Pedro-2-era dependency, or drawing two shapes
 ourselves.
@@ -1537,15 +1509,15 @@ Recorded here so it is a choice rather than a surprise:
 
 | Gap | Cost |
 |---|---|
-| Only `FlywheelSpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
+| Only `Launcher2SpeedTestOpMode` and `LoopTimeBaseline` publish to Panels. The vision and calibration OpModes use Driver Station `telemetry` only. | No graphs for the thing most in need of them. |
 | Nothing draws game elements on the field — `FieldView.drawMarker` exists and has no callers. | Vision sightings are numbers in a list rather than dots where the robot thinks they are. |
 | No shared telemetry helper, so each OpMode still publishes in its own style. | Key names and update cadence will drift between OpModes. |
 
 ## Why FTC Dashboard is not in the dependency set
 
 > **History note.** Everything in this file that predates 24 Sep 2026 assumes FTC
-> Dashboard is installed: the `Included` table listed it, the `shooter` package
-> published to it, and the AdvantageScope section treated it as the data path.
+> Dashboard is installed: the `Included` table listed it, the DECODE flywheel rig
+> (since removed) published to it, and the AdvantageScope section treated it as the data path.
 > Those passages have been corrected in place where they were load-bearing, but
 > if you find one that still assumes it, this section is what supersedes it.
 
@@ -1600,8 +1572,37 @@ no stream to read. That is a real loss and is not meant to be permanent — see
 
 ## Deliberately excluded
 
-- **NextFTC** — the previous command framework. Migrated off it onto Ivy;
-  reintroducing it would mean maintaining two overlapping command schedulers.
+- **NextFTC** — the previous command framework. Still excluded, but not for the reason this
+  bullet used to give.
+
+  **History note, 25 Oct 2026.** This bullet said *"reintroducing it would mean maintaining two
+  overlapping command schedulers."* That is no longer true. NextFTC v2 (`dev.nextftc.v2:robot`,
+  v0.3.0 tagged 17 Oct 2026) has no scheduler of its own: its `robot` module depends on
+  `com.pedropathing.ivy:core:1.1.1`, the same Ivy we use, and `Mechanism.instant`/`infinite` are
+  Ivy's `Commands.instant`/`infinite` plus `requiring(this)` — what our `Subsystem.periodic()`
+  already does. The scheduler argument is gone. What remains:
+
+  - *Hardware layer.* Its wrappers take device names as string literals in Java
+    (`new NextMotor("l")`) or a hub plus port number
+    (`new NextServo(RobotController.controlHub(), name, 0)`), and resolve lazily on first use.
+    That breaks § "Robot configuration" three ways: names live only in `DeviceNames`, Java never
+    knows a port, and a missing device fails in the constructor rather than mid-match.
+  - *Loop ownership.* `NextOpMode` owns the loop, bulk caching, scheduler and telemetry flush,
+    and registers OpModes by classpath scan. Adopting it replaces `RobotOpMode`,
+    `LoopContractTest`, `MatchSetup`, `Display` and `Handoff` rather than adding to them.
+  - *Telemetry.* Its backends are the Driver Station, FTC Dashboard and FateWeaver. There is no
+    Panels backend, so it is a second telemetry path, and it puts FTC Dashboard (below) back
+    within reach.
+  - *The locked set.* It pulls Kotlin stdlib 2.3.0 and `kotlin-reflect` transitively next to
+    Panels' own Kotlin, and nobody has shown SDK 12 + Sloth 0.3.2 + Panels + NextFTC v2 running
+    together: the published BIOBUZZ example
+    ([13201 Hazmat](https://github.com/13201Hazmat/BioBuzz-RI30h)) is SDK 11.2.1, Sloth 0.3.0,
+    Panels commented out. It is 0.x and changed weekly through October 2026.
+
+  Worth borrowing without the dependency: its trigger table (`debounce`, `toggleOnTrue`,
+  `and`/`or`, analog thresholds) as ideas for `controls/Bindings` when a driver asks for them,
+  and its standalone `control` module as a possible later spike if the launcher needs
+  feedforward velocity control that Pedro does not cover. The investigation is in issue #217.
 - **`com.pedropathing:telemetry`** — only existed as a crutch for one
   unmigrated file in the source project this was based on. Don't carry it
   forward; if a file needs it, port that file to the current telemetry API

@@ -69,21 +69,16 @@ public class DeviceNameLiteralTest {
      * fails if one is left behind after the name reaches {@code DeviceNames}.
      *
      * <ul>
-     *   <li><b>limelight</b> — {@code LimelightVisionSubsystem.DEFAULT_DEVICE_NAME}.
-     *       Adding it to {@code DeviceNames} is not a one-line change: {@code Kind}
-     *       has only {@code MOTOR}, {@code SERVO} and {@code I2C}, and a Limelight
-     *       is none of them, so {@code RobotConfigXmlTest.kindOf} would classify
-     *       its XML element as a motor and then port-range-check it against 0-3.
-     *       Until that is sorted, neither {@code robot_*.xml} declares a Limelight
-     *       and all three Vision OpModes report LIMELIGHT NOT FOUND on both
-     *       robots.</li>
-     *   <li><b>webcam</b> — {@code PieceVisionSubsystem.DEVICE_NAME}. Same {@code Kind} gap,
-     *       and a webcam's config element also carries a per-robot serial number that no
-     *       bundled XML can know in advance.</li>
+     *   <li><b>webcam</b> — {@code PieceVisionSubsystem.DEVICE_NAME}. No {@code Kind}
+     *       fits it yet: like the Limelight it is a direct child of {@code <Robot>}, not
+     *       a hub device, but it is a {@code <Webcam>} element rather than an
+     *       {@code <EthernetDevice>} (see {@code DeviceNames.Kind.ETHERNET}), and it
+     *       carries a per-unit serial number that no bundled XML can know in
+     *       advance.</li>
      * </ul>
      */
     private static final Set<String> KNOWN_MISSING_FROM_DEVICE_NAMES =
-            new HashSet<>(Arrays.asList("limelight", "webcam"));
+            new HashSet<>(Arrays.asList("webcam"));
 
     /** A string literal handed straight to a hardware map lookup. */
     private static final Pattern LOOKUP_LITERAL = Pattern.compile(

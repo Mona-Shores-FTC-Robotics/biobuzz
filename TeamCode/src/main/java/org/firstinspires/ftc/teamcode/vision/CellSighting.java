@@ -46,6 +46,7 @@ public final class CellSighting {
 
     private final HiveCell cell;
     private final List<Integer> tagIds;
+    private final List<Member> members;
     private final Vec3 rowCentreRobot;
     private final boolean lateralCorrectionApplied;
     private final double totalAreaPercent;
@@ -54,12 +55,14 @@ public final class CellSighting {
     private CellSighting(
             HiveCell cell,
             List<Integer> tagIds,
+            List<Member> members,
             Vec3 rowCentreRobot,
             boolean lateralCorrectionApplied,
             double totalAreaPercent,
             long captureTimeNs) {
         this.cell = cell;
         this.tagIds = Collections.unmodifiableList(tagIds);
+        this.members = Collections.unmodifiableList(members);
         this.rowCentreRobot = rowCentreRobot;
         this.lateralCorrectionApplied = lateralCorrectionApplied;
         this.totalAreaPercent = totalAreaPercent;
@@ -126,7 +129,8 @@ public final class CellSighting {
             }
         }
 
-        return new CellSighting(cell, ids, rowCentre, corrected, areaSum, captureTimeNs);
+        return new CellSighting(cell, ids, new ArrayList<>(members), rowCentre, corrected, areaSum,
+                captureTimeNs);
     }
 
     /**
@@ -157,6 +161,12 @@ public final class CellSighting {
     public List<Integer> tagIds() { return tagIds; }
 
     public int tagCount() { return tagIds.size(); }
+
+    /**
+     * Each visible tag with where the robot sees it, in the order supplied. With the tags' field
+     * positions ({@code HiveFieldPoints.tagPosition}) this is what {@code CellFix.fit} localizes from.
+     */
+    public List<Member> members() { return members; }
 
     /** Centre of the four-tag row, robot frame, inches. See the class docs. */
     public Vec3 rowCentreRobot() { return rowCentreRobot; }

@@ -77,6 +77,28 @@ public class BindingsTest {
         assertEquals(0, count[0]);
     }
 
+    @Test
+    public void onlyBindingsMarkedDuringInitFireBeforePlay() {
+        int[] zeroed = {0};
+        int[] aimed = {0};
+        bindings.when("D-pad up", "Zero turret", () -> pressed).duringInit().onPress(() -> zeroed[0]++);
+        bindings.when("Square", "Aim", () -> pressed).onPress(() -> aimed[0]++);
+
+        // INIT: press and release twice.
+        for (boolean state : new boolean[] {false, true, false, true, false}) {
+            pressed = state;
+            bindings.updateDuringInit();
+        }
+        assertEquals(2, zeroed[0]);
+        assertEquals(0, aimed[0]);
+
+        // PLAY: both are live; the ordinary one sees its first press now.
+        bindings.prime();
+        poll(true);
+        assertEquals(3, zeroed[0]);
+        assertEquals(1, aimed[0]);
+    }
+
     private void poll(boolean... states) {
         for (boolean state : states) {
             pressed = state;

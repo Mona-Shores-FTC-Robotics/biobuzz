@@ -7,7 +7,7 @@ import com.pedropathing.localization.Localizer;
 import com.pedropathing.math.Pose;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -62,7 +62,7 @@ import org.firstinspires.ftc.teamcode.util.WelfordVariance;
  *   <li><b>Back</b> — reset the loop statistics.
  * </ul>
  */
-@TeleOp(name = "Loop Time Baseline", group = "Diagnostics")
+@Utility(name = "Loop Time Baseline", description = "How long a loop takes with everything running; measure before and after a change")
 public class LoopTimeBaseline extends LinearOpMode {
 
     /**

@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.pedro.robots;
 
+import com.pedropathing.algorithm.Foresight;
 import com.pedropathing.algorithm.ForesightConfig;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.pedropathing.revhub.drivetrains.MecanumConfig;
 import com.pedropathing.revhub.localizers.PinpointConfig;
+import com.pedropathing.revhub.localizers.PinpointLocalizer;
 import com.qualcomm.hardware.gobilda.GoBildaPinpointDriver;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -14,6 +18,7 @@ import org.firstinspires.ftc.teamcode.pedro.RobotConstants;
 import com.pedropathing.controllers.Controller;
 import com.pedropathing.math.Matrix;
 import com.pedropathing.math.Vector2D;
+import com.qualcomm.robotcore.hardware.HardwareMap;
 
 /**
  * Pedro's tuned values for <b>20245</b>, used whenever the active Driver Station configuration is
@@ -32,11 +37,11 @@ public final class Robot20245 {
 
     private Robot20245() {}
 
-    /**
-     * Mecanum Tuner output. <b>Placeholder:</b> the conventional left-reversed guess for
-     * mirror-mounted motors, not yet measured on this robot.
-     */
     public static MecanumConfig drivetrainConfig = new MecanumConfig(c -> {
+        c.frontLeftName.set("frontLeft");
+        c.frontRightName.set("frontRight");
+        c.backLeftName.set("backLeft");
+        c.backRightName.set("backRight");
         c.frontLeftDirection.set(DcMotorSimple.Direction.REVERSE);
         c.frontRightDirection.set(DcMotorSimple.Direction.FORWARD);
         c.backLeftDirection.set(DcMotorSimple.Direction.REVERSE);
@@ -44,28 +49,62 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output. <b>Placeholder:</b> zero offsets treat the pods as sitting on the
-     * tracking centre, which they don't, so heading changes corrupt the position estimate until
-     * the measured values are in.
+     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
+     * team it would be, and copied to both robot files so testing can start. Re-measure on this
+     * robot once the chassis are assigned to teams.
      */
+    //WARNING: Offsets are NOT correct
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
+        c.name.set("pinpoint");
         c.podType.set(GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD);
-        c.xPodOffset.set(0.0);
-        c.yPodOffset.set(0.0);
-        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
-        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.FORWARD);
+        c.xPodOffset.set(-6.051974559393455);
+        c.yPodOffset.set(3.2221840685746805);
+        c.xPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
+        c.yPodDirection.set(GoBildaPinpointDriver.EncoderDirection.REVERSED);
         c.globalDistanceUnit.set(DistanceUnit.INCH);
         c.offsetUnits.set(DistanceUnit.INCH);
     });
 
     /**
-     * Foresight Tuner output. <b>Not tuned yet — intentionally empty.</b> Its twelve required
-     * values have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses
-     * to build a Foresight until they are pasted in.
+     * Foresight Tuner output, measured on 20245 on 17 Oct 2026 (before the turret and launcher
+     * were mounted; re-run the tuner once the robot's mass settles). Its twelve required values
+     * have no defaults and must not be guessed; {@code Constants.createAlgorithm()} refuses to
+     * build a Foresight until a tuner's block is pasted here.
      */
-    public static ForesightConfig foresightConfig = new ForesightConfig(c -> {
-        // Paste the Foresight Tuner's output (run on 20245) over this whole field.
-    });
+    public static ForesightConfig foresightConfig = new ForesightConfig(
+            c -> {
+                Controller primaryTranslationalForward = Controller.proportional(0.2606582765728706);
+                Controller secondaryTranslationalForward = Controller.proportional(0.09630626827625094);
+                Controller primaryTranslationalLateral = Controller.proportional(0.43701809598485064);
+                Controller secondaryTranslationalLateral = Controller.proportional(0.16146650912781296);
+
+                c.forwardTranslational.set(Controller.piecewise(secondaryTranslationalForward).put(2.5, primaryTranslationalForward));
+                c.strafeTranslational.set(Controller.piecewise(secondaryTranslationalLateral).put(2.5, primaryTranslationalLateral));
+
+                c.coast.set(Controller.proportionalFeedforward(0.013094480171022358));
+                c.brake.set(Controller.proportionalFeedforward(0.011130308145369004));
+
+                c.headingFeedback.set(Controller.proportional(3.5260038257983317));
+                c.headingBrakeCoefficients.set(Vector2D.cartesian(0.03710800717181879, 0.012276513664978382));
+
+                c.linearBrakeCoefficients.set(Matrix.diag(0.028397645082802254, 0.05464755023071258));
+                c.quadraticBrakeCoefficients.set(Matrix.diag(0.002939691354279288, 0.0021088917095499903));
+
+                c.maxAchievableForwardVelocity.set(76.99298921198282);
+                c.maxAchievableStrafeVelocity.set(43.29306375924765);
+                c.naturalForwardDeceleration.set(39.794350624517094);
+                c.naturalStrafeDeceleration.set(54.40283120163522);
+            }
+    );
+
+    public static Follower create(HardwareMap h) {
+        return new Follower(
+                new PinpointLocalizer(h, localizerConfig),
+                new Mecanum(h, drivetrainConfig),
+                new Foresight(foresightConfig)
+        );
+    }
+
 
     /** Registered in {@code Constants.ROBOTS}. Nothing to change here when pasting. */
     public static RobotConstants constants() {

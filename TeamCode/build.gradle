@@ -116,13 +116,13 @@ dependencies {
     // SDK types) and `revhub` (the REV hardware layer — drivetrains, localizers,
     // IMU). `revhub` already brings `core` transitively; `core` is declared
     // explicitly so its version is pinned here rather than inherited.
-    implementation('com.pedropathing:core:3.0.1')
-    implementation('com.pedropathing:revhub:3.0.1')
+    implementation('com.pedropathing:core:3.0.2')
+    implementation('com.pedropathing:revhub:3.0.2')
 
     // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
     // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the
     // reason the Sloth stack above is pinned to 0.3.2 (AutoTune requires it).
-    implementation('com.pedropathing:tuning:1.0.1')
+    implementation('com.pedropathing:tuning:1.0.2')
 
     // Ivy (command-based control flow). 1.1.x is the Pedro 3 pairing —
     // 1.1.1 is compiled against com.pedropathing:core:3.0.0. 1.0.1 was built
