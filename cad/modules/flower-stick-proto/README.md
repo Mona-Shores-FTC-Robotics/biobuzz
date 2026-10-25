@@ -653,7 +653,8 @@ on its back wall with support under the front wall's lip. `WEB_UP` is the channe
 exports; Dustin's Onshape measurement to the intake's stop on 25 Oct says 6.55, a full inch apart, so `poker_u_hi` is the
 same part for 6.55 with the poke hanging below the roof, and the robot decides). `poker_u_variants.py` draws four takes on it (`poker_u_variants.png`: classic, lite, clip, adj;
 the adj one's poke bolts to a serrated mast and sets in 2 mm steps over +-12 mm, so one print covers both channel
-readings). `print_job.py next` prints both with the plain blade;
+readings; its block is cut at 1.1 in of reach and `poker_u_adj_shim2`/`shim4`, serrated both sides, push it out 2 mm at a
+time to 1.5 in, so a test can walk the reach and the height; `poker_u_adj.png`). `print_job.py next` prints both with the plain blade;
 `low_arm_step.py` places it; `poker_u_fit.png` shows it on the channel and the motor from the export. The forms before it
 (a web-bolted bracket, a clip, a bolted saddle, a web-bolted plate reaching sideways, a plate bolted to the channel that is
 not there) are in git history.
@@ -673,7 +674,7 @@ face. `poker_hang` (block below the web, intake as in the CAD) and `poker_stand`
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `blade_step.py`: the same blades as STEP solids for review in Onshape (`step/`: v6_lane, v5_lane, the coupon); the tail with the lane is a B-spline surface through the height field, within 0.02 mm of the printed mesh.
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
-- `print_job.py next|low|wide|three|v8|hedge|v7|v5`: the print plate (`next`: the plain wide blade for the sled and the poker U, nothing else; `low`: the eared blade for the arm and the U), `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
+- `print_job.py next|variants|all|shims|low|wide|three|v8|hedge|v7|v5`: the print plate (`next`: the plain wide blade for the sled and the poker U at both channel heights; `variants`: lite, clip, adj and its block and shims, for a 220 bed; `all`: the blade and every U, for a 256 bed; `shims`: the four shims; `low`: the eared blade for the arm and the U), `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
 - `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `coach_stick_down.py`: the same from the second export (`coach_stick_down.png`). `low_arm.py`, `blade_ears.py`, `low_arm_step.py`, `start_box.py`: the low arm, its eared blade, the assembly STEPs and the start-box check. `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).

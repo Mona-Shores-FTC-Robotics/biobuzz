@@ -104,5 +104,19 @@ for k in range(int((2.0 * IN + 12) / 2)):
     z = MID - 6 + 2 * k
     t = cq.Workplane("YZ").polyline([(-MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.9), (-MAST_W / 2, z + 0.9)]).close().extrude(-0.8).translate((x_fl, 0, 0))
     ft = t if ft is None else ft.union(t)
-pokeb = flange.union(ft).union(box(x_fl + FL_T - 0.01, REACH, -POKE_W / 2, POKE_W / 2, MID, MID + 1.8 * IN).edges("|Z").edges(">X").fillet(4.0))
+BLOCK_REACH = float(os.environ.get("BLOCK_REACH", "1.1")) * IN     # the block's own reach, face of the flange to the poke's front
+pokeb = flange.union(ft).union(box(x_fl + FL_T - 0.01, BLOCK_REACH, -POKE_W / 2, POKE_W / 2, MID, MID + 1.8 * IN).edges("|Z").edges(">X").fillet(4.0))
 finish(pokeb, "adj_poke")
+# shims between the mast and the block, serrated both sides, to push the poke out: a shim with a t mm core adds t + 0.8 mm
+# of reach (the teeth interleave 0.2 mm short of touching); 2 and 4 mm ones stack to any even number
+for add in (2, 4):
+    core = add - 0.8
+    sh = box(0, core, -MAST_W / 2, MAST_W / 2, MID - 6, MID + 2.0 * IN + 6)
+    for y in (-13.0, 13.0): sh = sh.cut(cq.Workplane("YZ").circle(2.2).extrude(core + 2, both=True).translate((core / 2, y, MID + 20)))
+    tt = None
+    for k in range(int((2.0 * IN + 12) / 2)):
+        z = MID - 6 + 2 * k
+        for x0, d in ((core, 0.8), (0, -0.8)):
+            t = cq.Workplane("YZ").polyline([(-MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.9), (-MAST_W / 2, z + 0.9)]).close().extrude(d).translate((x0, 0, 0))
+            tt = t if tt is None else tt.union(t)
+    finish(sh.union(tt), f"adj_shim{add}")

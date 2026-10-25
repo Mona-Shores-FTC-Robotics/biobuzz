@@ -21,10 +21,12 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "wide": [("mountain_wide", "the mountain blade with Carter's lane, 7.9 in wide"), ("poker_hang", "the poker, hanging"), ("poker_stand", "the poker, standing")],
          "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_u", "the poker U: over the intake's front channel, four zip ties"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
          "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "poker_u: for the channel top 5.6 in up (the coach's export)"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up (the Onshape stop); the poke hangs")]}.get(JOB, [])
-COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("poker_u_adj", "adj: the U with the mast"), ("poker_u_adj_poke", "adj: the poke block, on its side")]],
-        "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]]}
+COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("poker_u_adj", "adj: the U with the mast"), ("poker_u_adj_poke", "adj: the poke block, on its side")], [("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
+        "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]],
+        "shims": [[("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim")], [("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]]}
 def orient(name, c):
-    if name.startswith("poker_u_adj_poke"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0]))      # on its side: the L profile down, no support
+    if name.startswith("poker_u_adj_shim"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [0, 1, 0]))   # flat, teeth up and down: the underside teeth print as a textured first layer
+    elif name.startswith("poker_u_adj_poke"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0]))      # on its side: the L profile down, no support
     elif name.startswith("poker_u"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [0, 1, 0]))         # standing on the back wall
     return c
 ms, labels = [], []
