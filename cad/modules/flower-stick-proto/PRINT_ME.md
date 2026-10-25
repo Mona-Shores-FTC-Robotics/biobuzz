@@ -11,8 +11,9 @@ channel's centre. Four zip ties: in through the wall and the lip's hole, under t
 three holes in the roof sit over the channel's big bearing holes: look through them to centre the U, and a fifth tie can go
 down one and up the next, round the channel's top, if four are not enough. Fits a 220 mm bed. Millimetres. PETG. About 235 cm3.
 
-(`stl/print_job_next.stl`, 198 x 201 mm, is the same with the full 3.0 in blade, the one the sled test ran: print that instead
-if you want the proven shape.)
+**Or print everything at once: `stl/print_job_both.stl`**, 204 x 216 mm, four parts: both blades (the full 3.0 in one the sled test
+ran, and the 2.0 in one) and both U's. Fits a 220 mm bed, no brim on the 216 mm side. About 330 cm3, a long print.
+(`stl/print_job_next.stl`, 198 x 201 mm, is the 3.0 in blade with the two U's.)
 
 ![the plate](print_job_next2.png)
 
