@@ -6,20 +6,23 @@ anyone typing an adb command.
 
 ## At a meeting
 
-1. Join the robot's Wi-Fi on the laptop that deploys.
-2. Double-click `pull-logs.cmd`, or from a terminal:
+1. Join the robot's Wi-Fi on the laptop that deploys, with REV Hardware Client 2 open (see
+   "What it does about adb" for why that order).
+2. Whenever you want to look, double-click `pull-logs.cmd`. It connects, copies every log the
+   laptop does not have yet into `%USERPROFILE%\biobuzz-logs\<robot network>\`, opens the newest
+   in AdvantageScope, and exits. Once at the end of the meeting gets everything; the logs wait
+   on the hub until then.
 
-   ```bash
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1 -Watch
-   ```
+From a terminal it is:
 
-3. Leave the window open. Every time an OpMode stops, its log is copied to
-   `%USERPROFILE%\biobuzz-logs\<robot network>\` and AdvantageScope opens it a few seconds later.
-   An Autonomous that hands off to TeleOp opens twice: after the Auto, and again with the whole
-   match once TeleOp stops.
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1
+```
 
-Without `-Watch` it runs once: connect, pull what is new, open the newest, exit. That is the
-double-click default.
+`watch-logs.cmd` is the live version for when someone wants each log on screen seconds after
+the OpMode stops: it keeps running in its own window and opens each log as it finishes. An
+Autonomous that hands off to TeleOp opens twice: after the Auto, and again with the whole match
+once TeleOp stops. Optional; the one-shot pull is the normal way.
 
 | Flag | What |
 |---|---|
@@ -45,8 +48,31 @@ the way that section says, so the watcher survives a meeting:
 - **Nothing answers at the address**: the laptop is not on the robot's network. It says so
   instead of hanging in `adb connect`.
 
-It uses Android Studio's adb (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`), the same one
-the deploy uses, so the two never kill each other's server.
+It uses whichever adb already has a server running on the laptop, so it joins the adb that is
+holding the hub rather than starting a rival: REV Hardware Client's if that is open, Android
+Studio's if that is. With nothing running it starts Android Studio's
+(`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`). `-Adb <path>` overrides. The first line it
+prints says which one it picked.
+
+**Open REV Hardware Client 2 before anything else that talks adb.** Seen 25 Oct on 20245: with
+Android Studio's own adb server holding the hub, the hub's adb daemon wedged within a minute of
+the watcher joining (adb listed the hub `offline`, REV Hardware Client said "debug connection
+unavailable, power cycle needed"), and only a power cycle brought it back. With REV Hardware
+Client open first, its adb server owned the hub, Android Studio connected instantly through it,
+and the watcher ran beside both for the rest of the session. The watcher sides with whichever
+adb server is already running, so the order is what matters:
+
+1. REV Hardware Client 2, and leave it open.
+2. Android Studio.
+3. The pull (`pull-logs.cmd`) whenever wanted, or the watcher in its own window
+   (`watch-logs.cmd`) if someone wants logs live.
+
+Sloth Load in that arrangement has not been checked yet; if it fails, stop the watcher for the
+deploy and start it again after.
+
+If the hub does wedge: close everything that talks adb, power-cycle the hub, then
+`adb kill-server`, `adb connect 192.168.43.1:5555`, and `adb devices` must say `device`, not
+`offline`, before starting the watcher.
 
 ## Reading a log in AdvantageScope
 
