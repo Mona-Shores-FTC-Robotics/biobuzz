@@ -27,15 +27,11 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Design</label>
-      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="false">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="true">9. mountain + poker, 7.9 in wide</button><button data-preset="final2" aria-pressed="false">10. same, tail cut to 2.0 in</button></span>
+      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="false">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="false">9. mountain + poker, 7.9 in wide</button><button data-preset="final2" aria-pressed="true">10. same, tail cut to 2.0 in</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
       <label>Stick</label>
       <span class="seg"><button data-stow="0" aria-pressed="true">extended</button><button data-stow="1" aria-pressed="false">stowed</button></span>
-      <label>Camera</label>
-      <span class="seg"><button data-cam="plan" aria-pressed="true">planned: 3.6 in behind the face, 14 up</button><button data-cam="corner" aria-pressed="false">low front corner: over the front wheel, 5.5 up</button></span>
-      <label>Stow angle</label>
-      <span class="seg"><button data-stowdir="coach" aria-pressed="true">coach's, 10° forward of vertical</button><button data-stowdir="back20" aria-pressed="false">20° back</button><button data-stowdir="back30" aria-pressed="false">30° back</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -538,16 +534,14 @@ body = f'''
   horizontal and the shaft sits 3.28 in ahead of the face. They are drawn solid where they are and dashed where they stow. The intake
   wheels are drawn lowered to 2.9 in. The face is 3.8 in behind the lip, and the orange part on the intake's front channel is the poker U,
   its poke reaching 1.3 in, 5.7 to 7.5 in up. The blue box is the Limelight at its planned spot, lens 3.56 in behind the face and 14 in up,
-  pitched 45° up, with its 42° vertical field of view drawn as the wedge. "Stowed" raises the stick to the coach's stowed position, arm and
-  blade together about the pivot, zooms the side view out, and the line under the views says how close it passes to the poker, the intake's
-  face and the camera on the way up, and how much of the camera's view the stowed blade covers. "Stow angle" tries the stick leaning 20° back past
-  vertical instead of the coach's 10° forward, which takes the blade out of the camera's view, and "Camera" tries the Limelight low on the front
-  corner beside the intake instead of the planned spot; the report under the views gives the blade's share of the camera's window and whether the
-  shaft crosses it, for whichever design, stow angle and camera are picked. Design 10 is the same blade with its tail cut to 2.0 in, which the model
-  rates the same as the full one. The grey shapes behind are the rest of the robot from
-  the coach's October 25 export, as the boxes around each part (the launcher hood at the back, its flywheel, the Control Hub enclosure, the intake's
-  slides), so a stowed stick can be checked against them; solid ones are within 4 in of the centreline, where the blade is, dashed ones are out at
-  the arms.</p>
+  pitched 45° up, with its 42° vertical field of view drawn as the wedge. "Stowed" backs the robot 9 in off the FLOWER and raises the stick to its stowed position,
+  20° back past vertical, arm and blade together about the pivot, and the line under the views says how close it passes to the poker, the
+  intake's face and the camera on the way up, and that the stowed blade and the shaft are out of the camera's view (the coach's stow, 10° forward
+  of vertical, put the shaft across the middle of the picture; 20° back clears the top of the camera's window by 24°). The grey shapes behind are
+  the rest of the robot from the coach's October 25 export, as the boxes around each part (the launcher hood at the back, its flywheel, the
+  Control Hub enclosure, the intake's slides), so the stowed stick can be checked against them; solid ones are within 4 in of the centreline,
+  where the blade is, dashed ones are out at the arms. Design 10 is the blade with its tail cut to 2.0 in, which the model rates the same as the
+  full one; the page opens on it.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft

@@ -117,9 +117,9 @@
   const truncate = (prof, cut) => { if (cut >= prof[prof.length - 1][0]) return prof; const out = prof.filter(([x]) => x <= cut); for (let i = 0; i + 1 < prof.length; i++) { const [x0, z0] = prof[i], [x1, z1] = prof[i + 1]; if (x0 <= cut && cut <= x1) { out.push([cut, z0 + (z1 - z0) * (cut - x0) / (x1 - x0)]); break; } } out.push([cut + 0.001, prof[0][1]]); return out; };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
   // stowT: 0 extended .. 1 stowed, animated; the robot backs 6 in off the FLOWER to swing the stick, over 1.8 s
-  const BACK_OFF = 6.0, STOW_MS = 1800, ease = u => u * u * (3 - 2 * u);
-  // backT: 0 at the FLOWER .. 1 backed off
-  let preset = "final", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null, stowDir = "coach", camKey = "plan"; const push = 4, stopErr = 0;
+  const BACK_OFF = 9.0, STOW_MS = 1800, ease = u => u * u * (3 - 2 * u);
+  // backT: 0 at the FLOWER .. 1 backed off 9 in, enough that the swing (7.3 in ahead of the face at its widest) clears the FLOWER's pipes
+  let preset = "final2", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null, stowDir = "back20", camKey = "plan"; const push = 4, stopErr = 0;   // the stow is 20 deg back past vertical; the camera at its planned spot
   const STOWS = { coach: [Math.cos(80 * Math.PI / 180), Math.sin(80 * Math.PI / 180)], back20: [Math.cos(110 * Math.PI / 180), Math.sin(110 * Math.PI / 180)], back30: [Math.cos(120 * Math.PI / 180), Math.sin(120 * Math.PI / 180)] };   // where the stick stows: the coach's 10 deg forward of vertical, or 20 deg back
   const mt = () => Object.assign({}, S.MOUNTS[mount], { stowedDir: STOWS[stowDir] });
   let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
