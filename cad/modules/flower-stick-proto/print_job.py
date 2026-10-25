@@ -23,7 +23,8 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "poker_u: for the channel top 5.6 in up (the coach's export)"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up (the Onshape stop); the poke hangs")]}.get(JOB, [])
 COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("poker_u_adj", "adj: the U with the mast"), ("poker_u_adj_poke", "adj: the poke block, on its side")], [("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
         "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]],
-        "shims": [[("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim")], [("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]]}
+        "shims": [[("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim")], [("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
+        "next2": [[("mountain_wide_2in", "the wide mountain blade with its tail cut to 2.0 in")], [("poker_u", "poker_u: for the channel top 5.6 in up")], [("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]]}
 def orient(name, c):
     if name.startswith("poker_u_adj_shim"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [0, 1, 0]))   # flat, teeth up and down: the underside teeth print as a textured first layer
     elif name.startswith("poker_u_adj_poke"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0]))      # on its side: the L profile down, no support

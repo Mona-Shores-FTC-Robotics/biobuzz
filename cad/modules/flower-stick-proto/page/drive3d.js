@@ -54,12 +54,16 @@ window.Drive3D = (function () {
     for (const q of list) { const [x0, x1, y0, y1, z0, z1] = q.box; const bx = new THREE.Mesh(new THREE.BoxGeometry(Math.max(0.05, x1 - x0), Math.max(0.05, z1 - z0), Math.max(0.05, y1 - y0)), m); bx.position.set((x0 + x1) / 2, (z0 + z1) / 2, -(y0 + y1) / 2); robot.add(bx); }
   }
   // the Limelight 3A at its planned pose: lens 3.56 in behind the face, 14.0 up, pitched 45 deg up; 54.5 x 42 deg field of view
-  { const cam = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.7, 2.3), new THREE.MeshStandardMaterial({ color: 0x2bb5e0, roughness: 0.5 })); cam.position.set(-3.56 - 0.5, 14.0, 0); cam.rotation.z = Math.PI / 4; robot.add(cam);
+  let camMeshes = [];
+  { const cam = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.7, 2.3), new THREE.MeshStandardMaterial({ color: 0x2bb5e0, roughness: 0.5 })); cam.rotation.z = Math.PI / 4; robot.add(cam);
     const R = 12, hw = R * Math.tan(54.5 / 2 * Math.PI / 180), hh = R * Math.tan(42 / 2 * Math.PI / 180);
     const v = new Float32Array([0, 0, 0, R, hh, -hw, R, hh, hw, 0, 0, 0, R, -hh, hw, R, -hh, -hw, 0, 0, 0, R, hh, hw, R, -hh, hw, 0, 0, 0, R, -hh, -hw, R, hh, -hw, R, hh, -hw, R, -hh, -hw, R, -hh, hw, R, hh, -hw, R, -hh, hw, R, hh, hw]);
     const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(v, 3)); g.computeVertexNormals();
-    const fov = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false })); fov.position.set(-3.56, 14.0, 0); fov.rotation.z = Math.PI / 4; robot.add(fov);
-    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.5 })); edges.position.copy(fov.position); edges.rotation.z = Math.PI / 4; robot.add(edges); }
+    const fov = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false })); fov.rotation.z = Math.PI / 4; robot.add(fov);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.5 })); edges.rotation.z = Math.PI / 4; robot.add(edges);
+    camMeshes = [cam, fov, edges]; }
+  function setCamera(x, z) { const y = z < 8 ? -7.0 : 0; camMeshes[0].position.set(x - 0.5, z, y); camMeshes[1].position.set(x, z, y); camMeshes[2].position.set(x, z, y); }   // the low corner spot sits 7 in off centre, outboard of the arm
+  setCamera(-3.56, 14.0);
   // the blade and its arms, in a group whose x is the lip
   const bladeG = new THREE.Group(); scene.add(bladeG);
   const petg = new THREE.MeshStandardMaterial({ color: 0xd9711c, roughness: 0.55 });
@@ -249,6 +253,6 @@ window.Drive3D = (function () {
     if (w && h && (canvas.width !== Math.round(w * r) || canvas.height !== Math.round(h * r))) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
   }
   (function loop() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
-  return { setBlade, setArms, frame, setPoker, setMount, setBoxes };
+  return { setBlade, setArms, frame, setPoker, setMount, setBoxes, setCamera };
 })();
 </script>

@@ -31,12 +31,18 @@
   const mirror = segs => segs.map(([a, b]) => [[-a[0], a[1]], [-b[0], b[1]]]);
   el("path", { d: segPath(mirror(RS.centre)), stroke: "var(--muted)", "stroke-width": 1.1, fill: "none", opacity: 0.8 }, robotG);
   el("path", { d: segPath(mirror(RS.gecko)), stroke: "var(--fg)", "stroke-width": 1.4, fill: "none", opacity: 0.9 }, robotG);
-  const LL = { x: -3.56, z: 14.0, pitch: 45, vfov: 42, hfov: 54.5, body: [[-4.45, 13.15], [-2.7, 14.85]], reach: 12 };   // the Limelight 3A at its planned pose (cad/full-robot/limelight_copy1)
+  const CAMS = { plan: { x: -3.56, z: 14.0, name: "planned: 3.6 in behind the face, 14 in up" }, corner: { x: 0.0, z: 5.5, name: "low front corner: at the face, 5.5 in up, over the front wheel outboard of the arm (7 in off centre)" } };
+  const LL = { x: -3.56, z: 14.0, pitch: 45, vfov: 42, hfov: 54.5, body: [[-4.45, 13.15], [-2.7, 14.85]], reach: 12 };   // the Limelight 3A, pitched 45 deg up (cad/full-robot/limelight_copy1)
   const llWedge = el("polygon", { fill: "#2bb5e0", "fill-opacity": 0.15, stroke: "#2bb5e0", "stroke-width": 0.8, "stroke-dasharray": "3 2" }, robotG);
   const llBody = el("rect", { fill: "#2bb5e0", "fill-opacity": 0.6, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);
-  { const [lo, hi] = LL.body; llBody.setAttribute("x", sx(lo[0])); llBody.setAttribute("y", sy(hi[1])); llBody.setAttribute("width", (hi[0] - lo[0]) * PX); llBody.setAttribute("height", (hi[1] - lo[1]) * PX);
+  function placeCam(key) {
+    const C = CAMS[key]; LL.x = C.x; LL.z = C.z; LL.body = [[C.x - 0.89, C.z - 0.85], [C.x + 0.86, C.z + 0.85]];
+    const [lo, hi] = LL.body; llBody.setAttribute("x", sx(lo[0])); llBody.setAttribute("y", sy(hi[1])); llBody.setAttribute("width", (hi[0] - lo[0]) * PX); llBody.setAttribute("height", (hi[1] - lo[1]) * PX);
     const rays = [LL.pitch - LL.vfov / 2, LL.pitch + LL.vfov / 2].map(d => { const r = d * Math.PI / 180; return [LL.x + LL.reach * Math.cos(r), LL.z + LL.reach * Math.sin(r)]; });
-    llWedge.setAttribute("points", [[LL.x, LL.z], rays[0], rays[1]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); }
+    llWedge.setAttribute("points", [[LL.x, LL.z], rays[0], rays[1]].map(([x, z]) => sx(x) + "," + sy(z)).join(" "));
+    if (window.Drive3D && window.Drive3D.setCamera) window.Drive3D.setCamera(C.x, C.z);
+  }
+  placeCam("plan");
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
   const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the poker U over the intake's front channel, with its buttress
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
@@ -96,6 +102,7 @@
     v8: { name: "the V-nose blade", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3, field: "On the field, no real difference. Retired." },
     v9: { name: "the low-peak blade", profile: M({ edge: 0.6, nose: 60, peak: 1.0, tail: 10 }), shaftBack: 0.39, field: "On the plate with the V nose; the model says it does not help." },
     final: { name: "the mountain blade, 7.9 in wide, with the poker on the robot", shaftBack: 0.53, width: 7.9, pusher: true, field: "On the field a stick held by hand at the second ball freed the stack; the mounted poker and the wide blade are the next prints." },
+    final2: { name: "the mountain blade with a 2.0 in tail, 7.9 in wide, with the poker on the robot", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, field: "In the model it feeds every case at every speed, like the full blade (page/tailcut_tall.js); a third less blade. Not yet tried on the field." },
     coach: { name: "the coach's plate as drawn", profile: coachDrawn.profile, outline: true, width: 7.9, lane: null, shaftBack: coachDrawn.lip - S.SHAFT_AHEAD, stowed: CS.stowed_outline_centre, field: "Keyed to the hex shaft as drawn, the plate stands leaning 49° toward the FLOWER when the shaft is on the wheels: the ball meets an overhang." },
     coachFlat: { name: "the coach's plate turned to lie flat", profile: coachFlat.profile, outline: true, width: 7.9, lane: null, shaftBack: coachFlat.lip - S.SHAFT_AHEAD, stowed: rotAbout(CS.stowed_outline_centre, sh0, -CS.rot), field: "The same plate turned 131° on the shaft so it lies flat: a 0.1 in lip and a 0.48 in bump. Stowed it would stand 49° off the arm tips." },
   };
@@ -112,13 +119,13 @@
   // stowT: 0 extended .. 1 stowed, animated; the robot backs 6 in off the FLOWER to swing the stick, over 1.8 s
   const BACK_OFF = 6.0, STOW_MS = 1800, ease = u => u * u * (3 - 2 * u);
   // backT: 0 at the FLOWER .. 1 backed off
-  let preset = "final", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null, stowDir = "coach"; const push = 4, stopErr = 0;
-  const STOWS = { coach: [Math.cos(80 * Math.PI / 180), Math.sin(80 * Math.PI / 180)], back20: [Math.cos(110 * Math.PI / 180), Math.sin(110 * Math.PI / 180)] };   // where the stick stows: the coach's 10 deg forward of vertical, or 20 deg back
+  let preset = "final", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null, stowDir = "coach", camKey = "plan"; const push = 4, stopErr = 0;
+  const STOWS = { coach: [Math.cos(80 * Math.PI / 180), Math.sin(80 * Math.PI / 180)], back20: [Math.cos(110 * Math.PI / 180), Math.sin(110 * Math.PI / 180)], back30: [Math.cos(120 * Math.PI / 180), Math.sin(120 * Math.PI / 180)] };   // where the stick stows: the coach's 10 deg forward of vertical, or 20 deg back
   const mt = () => Object.assign({}, S.MOUNTS[mount], { stowedDir: STOWS[stowDir] });
   let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
-    profile = P.profile || S.mountain(SHAPE); if (mount === "low" && !P.outline) profile = truncate(profile, TAIL_CUT);
+    profile = P.profile || S.mountain(SHAPE); if (P.tailCut) profile = truncate(profile, P.tailCut); if (mount === "low" && !P.outline) profile = truncate(profile, TAIL_CUT);
     cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: P.width || 5.4, shaftBack: P.shaftBack, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
     Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; cfg.mount = mount; if (P.pusher) cfg.pusher = POKERS[mount];
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
@@ -163,8 +170,9 @@
     const el0 = LL.pitch - LL.vfov / 2, el1 = LL.pitch + LL.vfov / 2; let lo = 90, hi = -90;
     for (const [x, z] of bladeR.map(([x, z]) => { const c = Math.cos(phiMax), s_ = Math.sin(phiMax); return [pv[0] + (x - pv[0]) * c - (z - pv[1]) * s_, pv[1] + (x - pv[0]) * s_ + (z - pv[1]) * c]; })) { const e = Math.atan2(z - LL.z, x - LL.x) * 180 / Math.PI; lo = Math.min(lo, e); hi = Math.max(hi, e); }
     const covered = Math.max(0, Math.min(hi, el1) - Math.max(lo, el0)), pct = Math.round(100 * covered / (el1 - el0));
+    const shS = (() => { const c = Math.cos(phiMax), s_ = Math.sin(phiMax); return [pv[0] + (shx - pv[0]) * c - (0.77 - pv[1]) * s_, pv[1] + (shx - pv[0]) * s_ + (0.77 - pv[1]) * c]; })(), shEl = Math.atan2(shS[1] - LL.z, shS[0] - LL.x) * 180 / Math.PI, shaftIn = shS[0] > LL.x - 0.5 && shEl > el0 && shEl < el1;
     const parts = Object.keys(best).map(n => `${n} ${best[n].d < 0.05 ? "HIT" : best[n].d.toFixed(2) + " in"} (at ${best[n].deg.toFixed(0)}°)`);
-    return `Stick raised ${(phiMax * 180 / Math.PI).toFixed(0)}° to its stowed position (${stowDir === "coach" ? "the coach's, 10° forward of vertical" : "20° back past vertical"}): top ${top.toFixed(1)} in up, foremost point ${front.toFixed(1)} in ahead of the face. Closest approach on the way up: ${parts.join("; ")}. The stowed blade sits in ${pct}% of the camera's vertical view (${lo.toFixed(0)}° to ${hi.toFixed(0)}° elevation; the camera sees ${el0}° to ${el1}°).`;
+    return `Stick raised ${(phiMax * 180 / Math.PI).toFixed(0)}° to its stowed position (${{ coach: "the coach's, 10° forward of vertical", back20: "20° back past vertical", back30: "30° back past vertical" }[stowDir]}): top ${top.toFixed(1)} in up, foremost point ${front.toFixed(1)} in ahead of the face. Closest approach on the way up: ${parts.join("; ")}. Camera ${CAMS[camKey].name}: the stowed blade sits in ${pct}% of its vertical view (${lo.toFixed(0)}° to ${hi.toFixed(0)}° elevation; it sees ${el0}° to ${el1}°${pct === 0 && lo > el1 ? `, so the blade clears the top of the picture by ${(lo - el1).toFixed(0)}°` : ""})${shaftIn ? `, and the shaft itself crosses the picture at ${shEl.toFixed(0)}°` : ", the shaft is out of the picture"}.`;
   }
   function draw() {
     if (!result) return;
@@ -249,6 +257,7 @@
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
   for (const b of document.querySelectorAll("[data-mount]")) b.onclick = () => { mount = b.dataset.mount; pressed("data-mount", mount); compute(); };
+  for (const b of document.querySelectorAll("[data-cam]")) b.onclick = () => { camKey = b.dataset.cam; pressed("data-cam", camKey); placeCam(camKey); if (stowed) $("sim-result").textContent = stowReport(); draw(); };
   for (const b of document.querySelectorAll("[data-stowdir]")) b.onclick = () => { stowDir = b.dataset.stowdir; pressed("data-stowdir", stowDir); if (stowed) $("sim-result").textContent = stowReport(); draw(); };
   for (const b of document.querySelectorAll("[data-stow]")) b.onclick = () => { stowed = b.dataset.stow === "1"; if (stowed) backedOff = true; pressed("data-stow", b.dataset.stow); playing = false; $("sim-play").textContent = "Play"; $("sim-result").textContent = stowed ? stowReport() : (backedOff ? "Backed off the FLOWER with the stick down, to look at the geometry. Play drives in and runs." : runText); draw(); };
   $("sim-play").onclick = function () { if (!result) return; if (stowed) { stowed = false; pressed("data-stow", "0"); } backedOff = false; $("sim-result").textContent = runText; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
