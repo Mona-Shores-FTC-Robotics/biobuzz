@@ -523,6 +523,11 @@ drawn in both views; `v10.png` is the render (`page/make_render_v10.py` → `ren
 Open: 3 mm of plastic over the pin, whether the piece always falls flat under the ball above, and whether the push on
 the lip is enough to turn it with the stack on the peak.
 
+**The page's clean pass (25 Oct, `page/build_page.py`, `page/anim3.js`).** The simulator lost its sliders: four choices
+(blade v7 / v8 / v10, stack front-to-back / straight / side-to-side, push 4 or 10 in/s, sled 0.35 short or at the
+posts), play, slow, scrub. It opens on the stuck case from the photos. The parts viewer shows v10, v8 and v7 only,
+from coarse meshes (0.25 mm) in the print frame; the other-teams section is gone. 3.8 MB instead of 10.9.
+
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of
 the corner toward the intake: 0.5 in thick, 1.2 in ahead of the face, 4.0 to 8.4 in off centre, 2.5 to 6.9 in high.

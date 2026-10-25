@@ -1,17 +1,18 @@
-"""The FLOWER stick as an engineering-portfolio page: the problem, each step we took, what we learned, the tool we built,
+"""The FLOWER stick page, clean pass (25 Oct): the story, a simulator with four choices and no sliders, the last three
+blades in the parts viewer. The FLOWER stick as an engineering-portfolio page: the problem, each step we took, what we learned, the tool we built,
 what is next. Reuses make_page3's head, viewer, simulator and 3D scripts."""
 import os, json
 S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
-MODELS[:] = [m for m in MODELS if m[0] != "v5s"]
-MODELS[:] = [m for m in MODELS if m[0] not in ("v5",)]
-MODELS.insert(0, ("v7l", "v7_lane", "v7 with Carter's lane", "the shape that works: v5, Carter's lane, the hole cut for the real shaft", 6.3, 13.1))
-MODELS.insert(0, ("v8", "v8", "v8 plain", "the V nose without the lane: the control", 6.3, 19.1))
-MODELS.insert(0, ("v8l", "v8_lane", "v8 with Carter's lane", "on the plate: v7 with a V nose that seats on the posts and reaches 0.3 in deeper", 6.3, 19.1))
-MODELS.insert(1, ("v9l", "v9_lane", "v9 with Carter's lane", "on the plate: a lower peak, 1.0 in, for headroom under the collar", 5.6, 9.9))
+MODELS[:] = [
+    ("v10", "v10_assembled", "v10: the nose that trips itself", "v7 split at a hinge behind the peak; the nose piece turns up when the posts stop it", 6.3, 13.1),
+    ("v8l", "v8_lane", "v8: the V nose", "on the plate: v7 with a V nose that reaches 0.3 in deeper", 6.3, 19.1),
+    ("v7l", "v7_lane", "v7", "the shape that works, with Carter's lane and the snug hex", 6.3, 13.1),
+]
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
 rows["v7l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.10 in at 0.29 behind the lip, 12° tail down to the back edge over the ring: the v5 shape, which emptied the FLOWER on October 19"], ["Lane", "one curve across the tail (12.3 in radius), 0.3 in up at both edges, from 0.9 in behind the lip, full depth after 1.6 in. Seen from above its back end looks scalloped: the tail is thinnest in the middle, so it runs out sooner there"], ["Shaft", "goBILDA 8 mm REX is 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom, 0.53 in behind the lip and 0.77 in high, with 2.2 mm of plastic over and under it"], ["Size", "137 × 77 × 15 mm"]]
+rows["v10"] = [["Body", "v7 with Carter's lane, cut 0.32 in behind the lip; ears at the sides carry a 4 mm pin 0.96 in up"], ["Nose piece", "the lip and the 60° face across the full width, a hub on the pin in the middle, a heel that rests on the body"], ["How it trips", "the posts stop the lip below the pin; the robot's push turns the nose up to 54° as the body drives 0.22 in further; it falls flat when the robot backs out"], ["Size", "the same 137 × 77 × 15 mm, in two prints"]]
 rows["v7"] = [["Profile", "as v7 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 77 × 15 mm"]]
 rows["v8l"] = [["Profile", "v7's, measured from a V-shaped lip: the middle 1.7 in of the front edge is 0.3 in deeper than the sides, and the slants lie on the FLOWER's posts, so the blade centres itself and the peak sits 0.84 in past the pinned ball instead of 0.54"], ["Lane", "as v7"], ["Shaft", "as v7, 0.45 in behind the sides' lip and 0.75 behind the middle's; 1.4 mm of plastic over it at the outer edges, 2.8 under"], ["Size", "137 × 83 × 15 mm"]]
 rows["v8"] = [["Profile", "as v8 with the lane"], ["Lane", "none: the control"], ["Size", "137 × 83 × 15 mm"]]
@@ -19,13 +20,7 @@ rows["v9l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.00 in at 0.23 
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 77 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
-anim_js = anim_js.replace('choose("v5");', 'choose("v5l");')
-anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v7l: { name: "v7 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.3, rise: 0.3, start: 0.9, oval: 0 }, shaftBack: 0.53, onRobot: true },\n    v7: { name: "v7 plain", shape: ' + json.dumps(V5["shape"]) + ', lane: null, shaftBack: 0.53, onRobot: true },\n    v5: { name: "v5", shape: ')
-anim_js = anim_js.replace('    v5: { name: "v5", shape: ', '    v5l: { name: "v5 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.5, rise: 0.3, start: 0.9 }, shaftBack: 0.77, onRobot: true },\n    v5: { name: "v5 plain", lane: null, shape: ')
-import re as _re
-anim_js = _re.sub(r'\n    v5: \{ name: "v5', lambda m: '\n    v8l: { name: "v8 with Carter\'s lane", shape: ' + json.dumps(V5["shape"]) + ', lane: { R: 12.3, rise: 0.3, start: 0.9, oval: 0 }, extraDepth: 0.3, shaftBack: 0.75, vee: 0.3, onRobot: true },\n    v9l: { name: "v9 with Carter\'s lane", shape: { edge: 0.6, nose: 60, peak: 1.0, tail: 10 }, lane: { R: 12.3, rise: 0.3, start: 0.9, oval: 0 }, shaftBack: 0.39, onRobot: true },' + m.group(0), anim_js, count=1)
-anim_js = anim_js.replace('choose("v5l");', 'choose("v7l");')
-assert 'v8l: {' in anim_js and 'v9l: {' in anim_js and 'choose("v7l")' in anim_js
+anim_js = open(os.path.join(S, "sim.js")).read() + open(os.path.join(S, "anim3.js")).read().replace("__FLOWER__", json.dumps(flower_section, separators=(",", ":"))).replace("__ROBOT__", json.dumps(robot_section, separators=(",", ":")))
 panel = f'''  <div class="drive">
     <div class="views">
       <div><svg id="sim-svg" viewBox="0 0 697 700" role="img" aria-label="Side view and plan view of the blade driving into the FLOWER and the POLLEN rolling out into the intake."></svg><span class="viewlbl">side view, and from above</span></div>
@@ -33,53 +28,22 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Blade</label>
-      <span class="seg"><button data-preset="v7l" aria-pressed="true">v7 + Carter's lane</button><button data-preset="v8l" aria-pressed="false">v8: V nose + lane</button><button data-preset="v9l" aria-pressed="false">v9: lower peak + lane</button><button data-preset="v7" aria-pressed="false">v7 plain</button><button data-preset="v4" aria-pressed="false">v4 carry</button><button data-preset="v3" aria-pressed="false">v3 mountain</button><button data-preset="v2" aria-pressed="false">v2 lane</button><button data-preset="blockA" aria-pressed="false">Block A</button></span>
+      <span class="seg"><button data-preset="v7" aria-pressed="true">v7</button><button data-preset="v8" aria-pressed="false">v8: V nose</button><button data-preset="v10" aria-pressed="false">v10: tipping nose</button></span>
+      <label>Stack</label>
+      <span class="seg"><button data-stack="fb" aria-pressed="true">front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">side to side</button></span>
+    </div>
+    <div class="bar" style="border-top: 0">
+      <label>Push</label>
+      <span class="seg"><button data-push="4" aria-pressed="true">slow, 4 in/s</button><button data-push="10" aria-pressed="false">fast, 10 in/s</button></span>
+      <label>Sled stops</label>
+      <span class="seg"><button data-stop="-0.35" aria-pressed="true">a third of an inch short</button><button data-stop="0" aria-pressed="false">at the posts</button></span>
+    </div>
+    <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
       <button class="btn" id="sim-slow" aria-pressed="false">Slow</button>
       <input type="range" id="sim-scrub" min="0" max="1" value="0" aria-label="Scrub through the run">
       <b id="sim-clock" style="font: 500 13px var(--mono); color: var(--muted)">0.00 s</b>
-      <button class="btn" id="sim-run" title="The sliders run on their own; this replays">Run</button>
     </div>
-    <div class="sliders"><div class="grp">The blade's shape</div>
-      <label>edge height <input type="range" id="s-edge" min="0.52" max="0.70" step="0.01" value="0.53"><span id="v-edge"></span> in</label>
-      <label>nose angle <input type="range" id="s-nose" min="35" max="70" step="1" value="55"><span id="v-nose"></span>°</label>
-      <label>peak height <input type="range" id="s-peak" min="0.9" max="1.6" step="0.02" value="1.28"><span id="v-peak"></span> in</label>
-      <label>tail angle <input type="range" id="s-tail" min="8" max="45" step="1" value="14"><span id="v-tail"></span>°</label>
-    </div>
-    <div class="sliders"><div class="grp">Carter's lane on the tail</div>
-      <label>lane depth at the edges <input type="range" id="s-laneRise" min="0" max="0.6" step="0.05" value="0.3"><span id="v-laneRise"></span> in</label>
-      <label>lane radius <input type="range" id="s-laneR" min="2" max="14" step="0.5" value="12.5"><span id="v-laneR"></span> in</label>
-      <label>lane starts <input type="range" id="s-laneStart" min="0.3" max="1.6" step="0.1" value="0.4"><span id="v-laneStart"></span> in behind the lip</label>
-      <label>oval front <input type="range" id="s-laneOval" min="0" max="2" step="0.1" value="1.2"><span id="v-laneOval"></span> in further back at the edges</label>
-      <label>intake mouth <input type="range" id="s-mouth" min="3" max="7.5" step="0.5" value="7.5"><span id="v-mouth"></span> in wide</label>
-    </div>
-    <div class="sliders"><div class="grp">The run</div>
-      <label>drive speed <input type="range" id="s-drive" min="2" max="12" step="1" value="4"><span id="v-drive"></span> in/s</label>
-      <label>friction μ <input type="range" id="s-mu" min="0.2" max="0.5" step="0.05" value="0.4"><span id="v-mu"></span></label>
-      <label>stop error <input type="range" id="s-stopErr" min="-0.4" max="0.3" step="0.05" value="-0.35"><span id="v-stopErr"></span> in</label>
-    </div>
-    <div class="sliders"><div class="grp">What can be off</div>
-      <label>robot off-centre <input type="range" id="s-offset" min="-2" max="2" step="0.1" value="0"><span id="v-offset"></span> in</label>
-      <label>robot turned <input type="range" id="s-yaw" min="0" max="12" step="1" value="0"><span id="v-yaw"></span>°</label>
-    </div>
-    <div class="bar" style="border-top: 0">
-      <label>The stack</label>
-      <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
-      <label>Lifter</label>
-      <span class="seg"><button data-toe="none" aria-pressed="true">none</button><button data-toe="lifter" aria-pressed="false">v10: the self-tripping nose</button></span>
-      <label>Blade width</label>
-      <span class="seg"><button data-width="5.4" aria-pressed="true">5.4 in, as printed</button><button data-width="7.5" aria-pressed="false">7.5 in, the Gecko row</button><button data-width="12" aria-pressed="false">12 in</button></span>
-      <label>Arms</label>
-      <span class="seg"><button data-arms="uprights" aria-pressed="false">on the intake uprights</button><button data-arms="left" aria-pressed="false">one, outboard left</button><button data-arms="both" aria-pressed="true">both outboard</button></span>
-    </div>
-    <dl class="spec" style="border-top: 1px solid var(--line)">
-      <dt>peak past the pinned ball</dt><dd id="ro-margin"></dd>
-      <dt>first contact at the edge</dt><dd id="ro-edge"></dd>
-      <dt>push to lift the stack</dt><dd id="ro-push"></dd>
-      <dt>tail ends at</dt><dd id="ro-tail"></dd>
-      <dt>blade width</dt><dd id="ro-width"></dd>
-      <dt>the lane</dt><dd id="ro-lane"></dd>
-    </dl>
     <div class="status"><span id="sim-result">…</span></div>
   </div>
 '''
@@ -148,7 +112,7 @@ NEXT_BLADE = "v5" if V5 else "v4"
 body = f'''
 <div class="wrap">
 <header class="hero">
-  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook · October 16</span>
+  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook · October 25</span>
   <h1>The FLOWER stick</h1>
   <p class="lede">A blade that pulls the POLLEN out of a FLOWER. This page is where the project stands right now: what has
   been tried, what we found out, and the questions that are still open. Read the steps, try the simulator, and then decide
@@ -429,14 +393,9 @@ body = f'''
 
 <section class="block" id="drive">
   <h2>Try our simulator</h2>
-  <p>This is the computer model we used. Pick a blade, or move a slider, and watch what happens. The left side is a side view with
-  the real FLOWER shape and the front of our robot, with a view from above under it. The right side is the same run in 3D; drag it
-  to look around. The lane sliders put Carter's lane on the tail. The "what can be off" sliders park the robot off-centre, turn
-  or turn it. The stack buttons start the balls leaning front to back, settled against the collar's bar the way they were in
-  our photos, or straight, or leaning side to side. The run starts with v7, the blade that works, and the sled stopping a third
-  of an inch short: that is the stuck stack. Switch to v8 or v9 to see what the model predicts for the other two blades on the
-  plate, and press the v10 button to put the self-tripping nose on it. The FLOWER in the 3D view is FIRST's own CAD: the base, the two posts, the
-  collar and the four pipes. The width and arm choices show how the blade could mount on the robot.</p>
+  <p>Pick a blade, a stack and a push, and watch. The left side is a side view with the real FLOWER and the front of our
+  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck
+  case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -485,20 +444,9 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>Every version printed or modelled, the one we are printing first. The part files, the simulator, and the search that chose v5 are all in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
+  <p>The two blades on the plate and the one drawn next. The part files, the simulator and everything behind this page are in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
 </section>
 
-<section class="block" id="others">
-  <h2>Ideas from other teams</h2>
-  <div class="four">
-    <div class="card"><h3>19705 WXYZ</h3><img src="data:image/jpeg;base64,{b64f("clips/wxyz.jpg")}" alt="A wide red ramp with a thin lip and a row of compliant wheels behind it."><div class="foot">A thin ramp with spinning wheels right behind it.</div></div>
-    <div class="card"><h3>CrossFire 9968</h3><img src="data:image/jpeg;base64,{b64f("clips/crossfire.jpg")}" alt="A bent plate wedge on a beam under a FLOWER's stack, a string roller behind it."><div class="foot">A bent metal wedge with a string roller behind.</div></div>
-    <div class="card"><h3>Hexadecimal Nibble</h3><img src="data:image/jpeg;base64,{b64f("clips/hexnibble.jpg")}" alt="A large yellow printed wedge in front of a loaded FLOWER."><div class="foot">A big wedge the ball climbs over.</div></div>
-    <div class="card"><h3>Eaglebots 13532</h3><img src="data:image/jpeg;base64,{b64f("clips/eaglebots.jpg")}" alt="A robot parked beside a FLOWER with a servo arm sweeping a wedge through its base."><div class="foot">An arm that sweeps the balls out sideways.</div></div>
-  </div>
-  <p>We looked at what other teams built. Every wedge meets the ball low, and most have spinning wheels right behind it. That is
-  why our intake wheels sit right at the FLOWER's face.</p>
-</section>
 
 </div>
 {js}
