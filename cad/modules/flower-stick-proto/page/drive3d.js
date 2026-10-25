@@ -62,7 +62,7 @@ window.Drive3D = (function () {
   const ARMS = { uprights: [6.07, -5.65], left: [-5.65], both: [6.07, -5.65] };
   // the two mounts (simlib MOUNTS): the coach's tall arms, or the low arm with 39 mm wheels on the shaft outboard of the arms
   const MOUNTS = { tall: { pivot: [-2.37, 7.89], L: 9.09, back: 1.5, fwd: 9.8, w: 1.26, t: 0.48, ys: [6.07, -5.65], wheels: null },
-                   low: { pivot: [0.8, 2.2], L: 3 * 24 / 25.4, back: 24 / 25.4, fwd: 4 * 24 / 25.4, w: 32 / 25.4, t: 0.5, ys: [4.2, -4.2], wheels: { r: 0.77, ys: [4.7, -4.7], w: 0.5 } } };
+                   low: { pivot: [0.8, 2.2], L: 3 * 24 / 25.4, back: 24 / 25.4, fwd: 2 * 24 / 25.4 + 0.47, w: 32 / 25.4, t: 0.5, ys: [4.2, -4.2], wheels: { r: 0.77, ys: [4.7, -4.7], w: 0.5 } } };
   let mountNow = "tall";
   const wheelMeshes = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.77, 0.77, 0.5, 24), dark); m.geometry.rotateX(Math.PI / 2); m.visible = false; bladeG.add(m); return m; });
   function setMount(mode) {

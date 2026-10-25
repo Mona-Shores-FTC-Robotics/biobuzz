@@ -5,7 +5,7 @@ file inserts at the Fresh CAD origin and lands on the robot.
 
     python3 cad/modules/flower-stick-proto/low_arm_step.py    # step/low_arm_deployed.step, step/low_arm_stowed.step
 
-The channels are drawn as plain bars with their 24 mm holes (goBILDA 5-hole lowside U-channel, 144 x 32 x 13 mm); the
+The channels are drawn as plain bars with their 24 mm holes (a goBILDA lowside U-channel cut to 4 holes, 32 x 13 mm); the
 bracket is a block from the rail's front end to the pivot, to be replaced by whatever goBILDA bracket reaches.
 """
 import os, sys, json, math, importlib.util, cadquery as cq
@@ -23,13 +23,12 @@ def place_y(shape, y0mm):
 parts = []                                                                      # (name, solid) in the face frame, mm: X ahead, Y left, Z up
 # the arms: a bar along the arm with 5 holes, pivot at hole 1, shaft at hole 4; standing on edge 13 mm thick in y
 for sg, (y0, y1) in zip((1, -1), (A["arm_y"], [-A["arm_y"][1], -A["arm_y"][0]])):
-    # the channel runs from one hole behind the pivot to 12 mm past the shaft hole (cut there), and its lower corner at the tip is
-    # cut off parallel to the tile when deployed, 0.1 in up: a 32 mm channel ending at a shaft 0.77 in up would otherwise dig in
-    along = mm(4 * H) + 12.0
+    # the channel runs from one hole behind the pivot to 12 mm past its last hole, one hole short of the shaft (the shaft
+    # rides in the blade's ears): holes at 0, 1 and 2 holes from the pivot, the last two bolting into the blade's tail and ear
+    along = mm(4 * H) + 12.0 - mm(H)
     bar = cq.Workplane("XZ").center(along / 2 - mm(H), 0).rect(along, mm(A["arm_w"])).extrude(mm(y1 - y0) / 2, both=True)
-    for k in range(4): bar = bar.cut(cq.Workplane("XZ").circle(7.0).extrude(mm(y1 - y0), both=True).translate((mm(k * H), 0, 0)))
+    for k in range(3): bar = bar.cut(cq.Workplane("XZ").circle(7.0 if k == 0 else 2.2).extrude(mm(y1 - y0), both=True).translate((mm(k * H), 0, 0)))
     bar = bar.rotate((0, 0, 0), (0, 1, 0), -math.degrees(ang)).translate((mm(px), 0, mm(pz)))
-    bar = bar.intersect(cq.Workplane("XY").box(500, 500, 500, centered=(True, True, False)).translate((0, 0, mm(0.1))))
     bar = place_y(bar, mm(y0))
     parts.append((f"arm_{'left' if sg > 0 else 'right'}", bar))
     # the bracket: from the rail's front end to the pivot, outboard of the arm

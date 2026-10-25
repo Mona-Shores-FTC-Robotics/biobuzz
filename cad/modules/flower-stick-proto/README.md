@@ -613,20 +613,22 @@ the photo of another robot: a short arm pivoting low at the chassis front, a whe
 folded blade sits in front of the intake mouth and that is fine: the blade is the intake's ramp (a floor POLLEN goes over
 the 60° nose and the tail into the wheels the same way), down whenever we intake, folded only for the start box and the
 drive. On our chassis (the export): pivot 0.8 in ahead of the face, 2.2 in up, on brackets off the side rails' front ends
-(4.9 to 5.35 out, 1.2 to 3.1 up); arms 5-hole lowside U-channels on edge at 3.95 to 4.45 out, tip cut level with the tile;
-shaft 72 mm down the arm in the channel's 8x14x4 bearings, the sled's 39 mm wheels keyed to it outboard (4.45 to 4.95 out);
+(4.9 to 5.35 out, 1.2 to 3.1 up); arms lowside U-channels on edge at 3.95 to 4.45 out, cut to four holes; the shaft 72 mm down from the pivot, carried in
+the blade's ears (plain 8.3 mm bores; the wheels push the shaft up into 1.45 in of ear), the channel stopping one hole short
+of it, 0.46 in off the tile at its lowest (a 32 mm channel reaching the shaft touched the tile); the sled's 39 mm wheels
+keyed to the shaft outboard (4.45 to 4.95 out);
 arm 30.3° down, shaft (3.25, 0.77), lip 3.78 ahead of the face, the same place the coach's 9.09 in arms put it, so the poker
 is the same 1.2 in part (`page/lowarm_scan2.js`: 1.2 and 1.3 feed 24/24 at 3 to 10 in/s). The blade bolts to the arms
-through its ends (the arm's first hole up lands in the tail, 1.35 behind the lip and 0.73 up) and 0.5 in ears over the
-second (2.16 behind, 1.21 up); its bore is a free 8.6 mm hex so the shaft turns. Its tail is cut off 2.4 in behind the lip:
+through its tail (the arm's last hole, 1.35 behind the lip and 0.73 up) and 0.5 in ears (the hole before, 2.16 behind,
+1.21 up); the body's bore is a free 8.6 mm hex, the ears' 8.3 mm round. Its tail is cut off 2.4 in behind the lip:
 `page/tailcut_scan.js` feeds the same with the tail cut anywhere down to 1.6 in, and a shorter tail folds smaller.
 
 Folding: a forward-swinging arm always ends with the tail pointing forward and down (the tail direction (-1, 0) turned by
 the fold angle), and nothing may reach behind the face line, where the intake is at every height (lowered or raised). A
 mid-height pivot that folds the blade back over the intake would have to clear the raised intake's uprights at 10.7 in,
 which is why the coach's arms are as tall as they are; everything at |y| 3.95 to 5.67 behind the face is intake or chassis
-cross-channel. So the low arm folds forward: stowed at 85° its foremost point is 2.07 in ahead of the face, rearmost
-0.09, top 5.8 (pivot x and stow angle swept; 2.06 is the floor). The chassis plates end 15.0 in behind the face and the
+cross-channel. So the low arm folds forward: stowed at 82° its foremost point is 2.14 in ahead of the face, rearmost at the
+face line (the channel's corner at the pivot), top 5.8 (pivot x and stow angle swept; about 2.1 is the floor). The chassis plates end 15.0 in behind the face and the
 mecanums 15.41, so the robot with the stick folded is 17.1 to 17.5 in: inside the 18 in box. The launcher concept's belt
 at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_box.png`. The simulator has the low arm under
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`

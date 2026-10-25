@@ -1,5 +1,5 @@
-"""The wide mountain blade with ears for the low arm (low_arm.py): the blade bolts to the arms through the ears, over the
-arm's next two holes up from the shaft, and the shaft turns freely in an 8.6 mm bore. Built as a real solid from
+"""The wide mountain blade with ears for the low arm (low_arm.py): the blade bolts to the arms through its tail and the ears,
+and the ears carry the wheels' shaft in a plain 8.3 mm bore; the arm channel stops one hole short of the shaft. Built as a real solid from
 blade_step.py's surfaces, so it is both the STEP for the assembly and the STL to print.
 
     python3 cad/modules/flower-stick-proto/blade_ears.py      # step/mountain_wide_ears.step, stl/mountain_wide_ears.stl
@@ -27,10 +27,9 @@ for sg in (1, -1):
     body = body.union(ear)
 for p in holes:
     body = body.cut(cq.Workplane("XZ").circle(2.2).extrude((W + 1) * IN, both=True).translate((p[0] * IN, 0, p[1] * IN)))
-body = body.cut(cq.Workplane("XZ").circle(4.3).extrude((W + 1) * IN, both=True).translate((SHAFT_X * IN, 0, (SHAFT_Z - BOTTOM) * IN)))
-print("bolt holes, in behind the lip / up from the bottom:", [(round(p[0], 2), round(p[1], 2)) for p in holes])
-# the ears must not reach below the blade's bottom (they sit on the tile otherwise)
-body = body.intersect(cq.Workplane("XY").box(400, 400, 100, centered=(True, True, False)).translate((0, 0, 0)))
+# the shaft: a plain 8.3 mm bore through the ears (the body's own bore is the larger 8.6 hex, so only the ears touch the shaft).
+# The wheels carry the blade, so the shaft bears upward on the bore, where the ear is 1.45 in tall; below it 2 mm of wall is enough.
+body = body.cut(cq.Workplane("XZ").circle(4.15).extrude((W + 1) * IN, both=True).translate((SHAFT_X * IN, 0, (SHAFT_Z - BOTTOM) * IN)))
 v = body.val(); assert len(body.solids().vals()) == 1 and v.isValid()
 cq.exporters.export(body, os.path.join(HERE, "step", "mountain_wide_ears.step"))
 cq.exporters.export(body, os.path.join(HERE, "stl", "mountain_wide_ears.stl"), tolerance=0.05, angularTolerance=0.2)

@@ -1,11 +1,11 @@
 # Print job: the low arm's blade and poker (for whoever prints)
 
 **Newest: `stl/print_job_low.stl`**, 165 x 281 x 37 mm, three parts, flat side down: `stl/mountain_wide_ears.stl` (the wide
-mountain blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 203 x 37 mm, 126 cm3),
+mountain blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 202 x 37 mm, 137 cm3),
 `stl/poker_hang.stl` and `stl/poker_stand.stl` (the 1.2 in poker, for the intake up or lowered). Needs a bed of at least
-290 mm one way, or print the three one at a time. Millimetres. PETG. About 205 cm3. The blade's bore is a loose 8.6 mm
-hex on purpose: the shaft turns in it and only carries the wheels; the blade is held by two M4 bolts per side through the
-arm into the blade's end and ear.
+290 mm one way, or print the three one at a time. Millimetres. PETG. About 205 cm3. The blade's body bore is a loose 8.6 mm hex
+and the ears' bores are 8.3 mm round on purpose: the shaft turns in the ears and only carries the wheels; the blade is held by
+two M4 bolts per side through the arm into the blade's tail and ear.
 
 ![the plate from above](print_job_low.png)
 

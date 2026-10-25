@@ -22,21 +22,18 @@ from shapely.geometry import Polygon as SPoly, Point
 HERE = os.path.dirname(os.path.abspath(__file__))
 MOUNTAIN = json.load(open(os.path.join(HERE, "page", "mountain_profile.json")))
 HOLE = 24 / 25.4
-PIVOT = np.array([0.8, 2.2]); L = 3 * HOLE; SHAFT_Z = 0.77; WHEEL_R = 0.77; SHAFT_BACK = 0.53; TAIL_CUT = 2.4; EAR = (1.0, 2.4, 1.45)
-ARM_W = 32 / 25.4; ARM_Y = (3.95, 4.45); WHEEL_Y = (4.45, 4.95); STOW_DEG = 85.0; POKER = (1.2, 5.3, 7.5)
+PIVOT = np.array([0.8, 2.2]); L = 3 * HOLE; SHAFT_Z = 0.77; WHEEL_R = 0.77; SHAFT_BACK = 0.53; TAIL_CUT = 2.4; EAR = (0.3, 2.4, 1.45)
+ARM_W = 32 / 25.4; ARM_Y = (3.95, 4.45); WHEEL_Y = (4.45, 4.95); STOW_DEG = float(os.environ.get("STOW", 82.0)); POKER = (1.2, 5.3, 7.5)
 ang_dep = -math.asin((PIVOT[1] - SHAFT_Z) / L); ang_stow = math.radians(STOW_DEG)
 def at(ang): return PIVOT + L * np.array([math.cos(ang), math.sin(ang)])
 shaft = at(ang_dep); lip = shaft[0] + SHAFT_BACK
 def rot(P, c, a):
     co, si = math.cos(a), math.sin(a); q = np.asarray(P) - c; return c + np.c_[co * q[:, 0] - si * q[:, 1], si * q[:, 0] + co * q[:, 1]]
 def arm_poly(ang):
-    """the channel from one hole behind the pivot to 12 mm past the shaft hole, its tip's lower corner cut off level with 0.1 in up
-    when deployed (a 32 mm channel ending at a shaft 0.77 in up would dig into the tile otherwise)"""
+    """the channel from one hole behind the pivot to 12 mm past its last hole, which is one hole short of the shaft: the shaft
+    rides in the blade's ears, so a 32 mm channel never has to reach down to it"""
     d = np.array([math.cos(ang), math.sin(ang)]); n = np.array([-d[1], d[0]]) * ARM_W / 2
-    a, b = PIVOT - d * HOLE, PIVOT + d * (L + 12 / 25.4); poly = SPoly([a + n, b + n, b - n, a - n])
-    cut = SPoly([(-20, 0.1), (20, 0.1), (20, 30), (-20, 30)])         # in the deployed pose: keep what is above 0.1 in
-    dep = rot(np.array(poly.exterior.coords), PIVOT, ang_dep - ang); kept = SPoly(dep).intersection(cut)
-    return rot(np.array(kept.exterior.coords), PIVOT, ang - ang_dep)
+    a, b = PIVOT - d * HOLE, PIVOT + d * (L - HOLE + 12 / 25.4); return np.array([a + n, b + n, b - n, a - n])
 # the blade: the mountain with its tail cut off TAIL_CUT behind the lip (a vertical drop; the model says it feeds the same,
 # page/tailcut_scan.js), which is what the folded overhang wants
 _pts = [[x, z] for x, z in MOUNTAIN if x <= TAIL_CUT]
@@ -78,8 +75,8 @@ ax.add_patch(Polygon(arm_poly(ang_stow), fc="none", ec="#999", ls="--", lw=1)); 
 ax.add_patch(Polygon(arm_poly(ang_dep), fc="#ccc", ec="k", lw=0.8, alpha=0.85)); ax.add_patch(Polygon(ear_dep, fc="#e07020", ec="k", lw=0.6, alpha=0.9))
 ax.add_patch(Polygon(blade_dep, fc="#e07020", ec="k", lw=0.8)); ax.add_patch(Circle(tuple(shaft), WHEEL_R, fc="#444", ec="k", alpha=0.35)); ax.add_patch(Circle(tuple(shaft), 0.16, fc="k"))
 ox = first_contact(blade_dep); flower(ax, ox, balls)
-ax.annotate(f"arm {math.degrees(-ang_dep):.0f}° down, 72 mm pivot to shaft, tip cut level;\nshaft {shaft[0]:.2f} in ahead on 39 mm wheels, lip {lip:.2f}", (shaft[0], shaft[1] + 0.3), (-8.8, 5.6), fontsize=8, arrowprops=dict(arrowstyle="->"))
-ax.annotate("ears: the blade bolts to the arm's\nnext two holes; the shaft is free in it", (ear_dep[2][0], ear_dep[2][1]), (-8.8, 7.6), fontsize=8, arrowprops=dict(arrowstyle="->"))
+ax.annotate(f"arm {math.degrees(-ang_dep):.0f}° down, 72 mm pivot to shaft; the channel stops\none hole short, the ears carry the shaft; 39 mm wheels, lip {lip:.2f}", (shaft[0], shaft[1] + 0.3), (-8.8, 5.6), fontsize=8, arrowprops=dict(arrowstyle="->"))
+ax.annotate("ears: the arm bolts to the tail and the ear;\nthe ear carries the shaft", (ear_dep[2][0], ear_dep[2][1]), (-8.8, 7.6), fontsize=8, arrowprops=dict(arrowstyle="->"))
 ax.set_title("A. Deployed: the blade is the intake's ramp, the wheels set its height", fontsize=10)
 ax = axes[1]; robot(ax)
 ax.add_patch(Polygon(arm_poly(ang_dep), fc="none", ec="#999", ls="--", lw=1)); ax.add_patch(Polygon(blade_dep, fc="none", ec="#c60", ls="--", lw=1))
@@ -98,6 +95,6 @@ out = {"pivot": PIVOT.tolist(), "L": L, "hole": HOLE, "shaft_z": SHAFT_Z, "wheel
        "poker": POKER, "tail_cut": TAIL_CUT, "ear": EAR, "ear_dep": ear_dep.tolist(), "blade_stow": blade_stow.tolist(), "ear_stow": ear_stow.tolist(), "stowed_dir": [math.cos(ang_stow), math.sin(ang_stow)]}
 print(f"deployed: arm {math.degrees(-ang_dep):.1f} deg, shaft ({shaft[0]:.2f}, {shaft[1]:.2f}), lip {lip:.2f} ahead of the face, FLOWER centre at first contact {ox:.2f}")
 back = min(blade_stow[:, 0].min(), ear_stow[:, 0].min(), arm_poly(ang_stow)[:, 0].min(), shaft_stow[0] - WHEEL_R)
-out["stowed_back"] = back; out["blade_dep"] = blade_dep.tolist(); out["arm_dep"] = arm_poly(ang_dep).tolist(); out["arm_stow"] = arm_poly(ang_stow).tolist()
-print(f"stowed at {STOW_DEG} deg: shaft ({shaft_stow[0]:.2f}, {shaft_stow[1]:.2f}), foremost point {front:.2f} ahead of the face, rearmost {back:.2f}, top {top:.2f}; chassis plates end at -15.0, mecanums at -15.4, the launcher concept's belt at -17.62")
+out["stowed_back"] = back; out["blade_dep"] = blade_dep.tolist(); out["arm_dep"] = arm_poly(ang_dep).tolist(); out["arm_stow"] = arm_poly(ang_stow).tolist(); out["arm_lowest_dep"] = float(arm_poly(ang_dep)[:, 1].min())
+print(f"deployed arm lowest point {arm_poly(ang_dep)[:, 1].min():.2f} in up"); print(f"stowed at {STOW_DEG} deg: shaft ({shaft_stow[0]:.2f}, {shaft_stow[1]:.2f}), foremost point {front:.2f} ahead of the face, rearmost {back:.2f}, top {top:.2f}; chassis plates end at -15.0, mecanums at -15.4, the launcher concept's belt at -17.62")
 json.dump(out, open(os.path.join(HERE, "page", "low_arm.json"), "w"), indent=1)
