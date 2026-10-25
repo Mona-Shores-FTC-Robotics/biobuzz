@@ -254,7 +254,11 @@ function Open-Log {
     $exe = $script:AsExe
     if ($exe) {
         Say "opening in AdvantageScope: $Path"
-        Start-Process -FilePath $exe -ArgumentList "`"$Path`"" | Out-Null
+        # AdvantageScope is a Chromium app. A second copy started while one is open logs a burst
+        # of "Unable to move the cache: Access is denied" to stderr before handing the file to the
+        # first copy. Harmless, but it buries the watcher's own lines, so it goes to a file.
+        $noise = Join-Path $env:TEMP 'advantagescope-launch.log'
+        Start-Process -FilePath $exe -ArgumentList "`"$Path`"" -RedirectStandardError $noise | Out-Null
     } else {
         Say "AdvantageScope not found at the usual place; open this by hand: $Path"
     }
