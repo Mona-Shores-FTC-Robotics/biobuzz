@@ -46,7 +46,7 @@ public final class SisterLeftFixedAuto {
         Pose lN = p.of(55, 123.5, 270);
         Pose lTurn = p.of(57, 36, 90);
         Pose lS = p.of(59, 18, 90);
-        Pose parkL = p.of(10.5, 120, 270);
+        Pose parkL = p.of(14, 120, 270);
         Pose farFlower = p.of(47.36, 126.64, 90);
         Pose farFlowerTurn = p.of(47.36, 118.34, 90);
         Pose lC = p.of(58, 40, 90);

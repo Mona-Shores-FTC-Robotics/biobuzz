@@ -6,6 +6,7 @@ import com.pedropathing.math.Pose;
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
@@ -34,6 +35,13 @@ import java.util.function.Function;
  * drawn for (BIOBUZZ is rotationally symmetric, not mirrored), sets the start pose and
  * starts. It never guesses an alliance: with none chosen it does not move.
  *
+ * <p>It declares its start ({@link #startPosition()}) so the start check runs during INIT and the
+ * camera can confirm the alliance without a button press. Until an alliance is known the declared
+ * start is the drawing's own; once one is chosen that differs from {@code DRAWN_FOR}, the declared
+ * start becomes the rotated one, and {@link RobotOpMode} moves the pose there. A robot placed on
+ * the other alliance's tape therefore reads as out of position until Square (X) or Circle (B) says
+ * which side it is on; the camera then confirms that placement too.
+ *
  * <p>While mechanisms are still missing, the names {@link AutoRegistration#PLACEHOLDERS} lists are
  * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
  * the Driver Station: the Auto then runs as a timed script, every such wait running to its limit.
@@ -51,6 +59,9 @@ public abstract class BuiltAuto extends RobotOpMode {
     private final String drawnFor;
     private final Function<Boolean, Pose> startPose;
     private final BiFunction<AutoKit, Boolean, Command> build;
+    /** The two places this Auto can start, built once so INIT never allocates. */
+    private final StartPosition drawnStart;
+    private final StartPosition rotatedStart;
 
     private AutoRegistry registry;
     /** The placeholder names this Auto uses, for the INIT page. */
@@ -66,6 +77,21 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.drawnFor = drawnFor;
         this.startPose = startPose;
         this.build = build;
+        Alliance drawn = Alliance.valueOf(drawnFor);
+        Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
+        this.drawnStart = new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
+        this.rotatedStart = new StartPosition(other + " start (drawing rotated)", other, startPose.apply(true));
+    }
+
+    /**
+     * The drawing's start until an alliance is known; the rotated start once the chosen alliance
+     * is not the one the Auto was drawn for. Re-read every INIT loop by {@link RobotOpMode}.
+     */
+    @Override
+    protected StartPosition startPosition() {
+        Alliance alliance = setup.alliance();
+        boolean rotated = alliance != Alliance.UNKNOWN && !alliance.name().equals(drawnFor);
+        return rotated ? rotatedStart : drawnStart;
     }
 
     @Override

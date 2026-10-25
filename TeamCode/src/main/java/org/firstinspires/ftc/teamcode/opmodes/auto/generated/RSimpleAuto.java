@@ -42,7 +42,7 @@ public final class RSimpleAuto {
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
         Pose start = p.of(55, 9.7, 90);
-        Pose park = p.of(10.5, 95, 90);
+        Pose park = p.of(14, 95, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
         Pose startToParkControl1 = p.of(30, 40, 0);
