@@ -1,11 +1,11 @@
-# Print now: the wide mountain blade and the poker plate (for whoever prints)
+# Print now: the wide mountain blade and the poker bracket (for whoever prints)
 
 **`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
 201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
-`stl/poker_plate.stl` (the poker plate, 81 x 112 x 63 mm, 96 cm3) on its flat top, and the hex-fit coupon (skip it if the
-last one fit). This is what to print first: the blade goes on the sled for the field test, the plate bolts down on the
-intake's top channel on the robot with two M4 x 16 and nuts through the web's bearing holes 1.9 and 2.8 in from the centre
-on the intake motor's encoder side (not the gearbox side). Needs a bed of at least 290 mm one way, or print the parts one
+`stl/poker_plate.stl` (the poker bracket, 86 x 116 x 63 mm, 110 cm3) on its flat seat, and the hex-fit coupon (skip it if the
+last one fit). This is what to print first: the blade goes on the sled for the field test, the poker bracket sits on the intake's top channel
+and bolts to the cross channel behind it with two M4 x 16 and nuts through that channel's bearing holes 1.9 in either side of
+centre. Needs a bed of at least 290 mm one way, or print the parts one
 at a time. Millimetres. PETG. About 235 cm3.
 
 ![the plate](print_job_next.png)
@@ -25,8 +25,8 @@ blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each e
 down, and `stl/poker_plate.stl` (the poker plate) with the hex coupon. Needs a
 bed of at least 290 mm one way, or print the three one at a time. Millimetres. PETG. About 235 cm3. The blade's body
 bore is a loose 8.6 mm hex and the ears' bores are 8.3 mm round on purpose: the shaft turns in the ears and only carries the
-wheels; the blade is held by two M4 bolts per side through the arm into the blade's tail and ear. The plate takes two
-M4 x 16 bolts and nuts down through the channel's bearing holes.
+wheels; the blade is held by two M4 bolts per side through the arm into the blade's tail and ear. The bracket takes two
+M4 x 16 bolts and nuts into the cross channel's bearing holes.
 
 ![the plate from above](print_job_low.png)
 
