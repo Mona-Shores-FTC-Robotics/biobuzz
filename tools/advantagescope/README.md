@@ -27,7 +27,7 @@ asks for it, so the first open needs internet.
 
 | Tab | Shows |
 |---|---|
-| **Field** (2D) | `/Odometry/Robot`. Turn on the trail in the tab's options to see where the robot went. (The planned path is not in the log yet: `FieldRobot` names `/Path/Full`, `/Path/Active` and `/Path/Target` for it, but nothing on the robot writes them. When it does, add them here as trajectories and a ghost.) |
+| **Field** (2D) | `/Odometry/Robot`, the Auto's full path in grey (`/Path/Full`), the path being driven in yellow (`/Path/Active`) and its end as a ghost (`/Path/Target`). Turn on the trail in the tab's options to see where the robot went. |
 | **3D** | The same pose as **BIOBUZZ Robot** (the CAD) on the 3D field, `/Odometry/Robot3d`. |
 | **Limelight** | The 3D field seen from the Limelight's lens, as mounted on the model (right-click → Orbit Field to leave). |
 | **Loop** | `/Robot/LoopMs` and the `/Loop/*` split on the left, battery volts on the right, with the robot mode shaded. |
