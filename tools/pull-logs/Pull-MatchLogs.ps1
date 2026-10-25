@@ -135,19 +135,25 @@ function Connect-Robot {
         Invoke-Adb @('disconnect', $Target) | Out-Null
     }
     $reply = (Invoke-Adb @('connect', $Target)) -join ' '
-    if ($reply -match 'connected to') {
-        Say "adb connected to $Target."
-        return $true
-    }
     if ($reply -match "doesn't match this client") {
         # Two copies of adb fighting (README: "Two copies of adb"). Restart ours and try once more.
         Say 'adb server version mismatch; restarting the adb server.'
         Invoke-Adb @('kill-server') | Out-Null
         $reply = (Invoke-Adb @('connect', $Target)) -join ' '
-        if ($reply -match 'connected to') { return $true }
     }
-    Say "adb could not connect: $reply"
-    return $false
+    if ($reply -notmatch 'connected to') {
+        Say "adb could not connect: $reply"
+        return $false
+    }
+    # "connected to" is adb's word for "the socket opened". After a Wi-Fi drop the hub's adb
+    # daemon can accept the socket and still list the device as offline, in which case nothing
+    # works until it recovers (or the hub reboots). Say so once; do not claim a connection.
+    if ((Get-AdbState) -ne 'device') {
+        Say "the hub answers but adb lists it as '$(Get-AdbState)'; waiting for it to recover."
+        return $false
+    }
+    Say "adb connected to $Target."
+    return $true
 }
 
 # ------------------------------------------------------------------ list, pull, remove
@@ -277,9 +283,11 @@ $lastSize = @{}        # name -> size on the hub last tick
 $changed = @{}         # name -> $true while a file has grown since it was last opened
 $connected = $false
 $first = $true
+$failures = 0          # consecutive ticks without the hub; the retry interval grows with it
 while ($true) {
     if (Connect-Robot) {
         if (-not $connected) { Say 'connected.'; $connected = $true }
+        $failures = 0
         $remote = @(Get-RobotLogs)
         $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
         if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
@@ -298,9 +306,13 @@ while ($true) {
         }
         if ($first) { Say "$($remote.Count) logs on the robot; new ones open as they finish." }
         $first = $false
-    } elseif ($connected) {
-        Say 'lost the robot; will keep trying.'
+    } else {
+        if ($connected) { Say 'lost the robot; will keep trying.' }
         $connected = $false
+        $failures++
     }
-    Start-Sleep -Seconds $EverySeconds
+    # While the hub is away, retry less and less often (up to a minute) rather than hammering
+    # its adb daemon every tick while it is trying to come back.
+    $wait = $EverySeconds * [Math]::Min([Math]::Pow(2, $failures), 12)
+    Start-Sleep -Seconds ([int][Math]::Min($wait, 60))
 }
