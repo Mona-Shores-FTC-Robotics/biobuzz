@@ -23,7 +23,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 MOUNTAIN = json.load(open(os.path.join(HERE, "page", "mountain_profile.json")))
 HOLE = 24 / 25.4
 PIVOT = np.array([0.8, 2.2]); L = 3 * HOLE; SHAFT_Z = 0.77; WHEEL_R = 0.77; SHAFT_BACK = 0.53; TAIL_CUT = 2.4; EAR = (0.3, 2.4, 1.45)
-ARM_W = 32 / 25.4; ARM_Y = (3.95, 4.45); WHEEL_Y = (4.45, 4.95); STOW_DEG = float(os.environ.get("STOW", 82.0)); POKER = (1.2, 5.3, 7.5)
+ARM_W = 32 / 25.4; ARM_Y = (3.95, 4.45); WHEEL_Y = (4.45, 4.95); STOW_DEG = float(os.environ.get("STOW", 82.0)); POKER = (1.3, 5.7, 7.5)
 ang_dep = -math.asin((PIVOT[1] - SHAFT_Z) / L); ang_stow = math.radians(STOW_DEG)
 def at(ang): return PIVOT + L * np.array([math.cos(ang), math.sin(ang)])
 shaft = at(ang_dep); lip = shaft[0] + SHAFT_BACK

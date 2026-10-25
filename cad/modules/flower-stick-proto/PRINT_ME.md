@@ -1,11 +1,12 @@
 # Print job: the low arm's blade and poker (for whoever prints)
 
-**Newest: `stl/print_job_low.stl`**, 165 x 281 x 37 mm, three parts, flat side down: `stl/mountain_wide_ears.stl` (the wide
-mountain blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 202 x 37 mm, 137 cm3),
-`stl/poker_hang.stl` and `stl/poker_stand.stl` (the 1.2 in poker, for the intake up or lowered). Needs a bed of at least
-290 mm one way, or print the three one at a time. Millimetres. PETG. About 205 cm3. The blade's body bore is a loose 8.6 mm hex
-and the ears' bores are 8.3 mm round on purpose: the shaft turns in the ears and only carries the wheels; the blade is held by
-two M4 bolts per side through the arm into the blade's tail and ear.
+**Newest: `stl/print_job_low.stl`**, 165 x 281 x 40 mm, three parts: `stl/mountain_wide_ears.stl` (the wide mountain
+blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 202 x 37 mm, 137 cm3) flat side
+down, and two of `stl/poker_clip.stl` (the poker saddle, 85 x 40 x 63 mm, 46 cm3; one is a spare) on their sides. Needs a
+bed of at least 290 mm one way, or print the three one at a time. Millimetres. PETG. About 235 cm3. The blade's body
+bore is a loose 8.6 mm hex and the ears' bores are 8.3 mm round on purpose: the shaft turns in the ears and only carries the
+wheels; the blade is held by two M4 bolts per side through the arm into the blade's tail and ear. The saddle needs no
+hardware: it hooks under the front flange of the intake's top channel and rotates down over it.
 
 ![the plate from above](print_job_low.png)
 

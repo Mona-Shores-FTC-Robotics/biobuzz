@@ -636,6 +636,15 @@ at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_bo
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
+**The poker saddle (`poker_clip.py`, `poker_clip_render.py`).** The poker's final form, no hardware: an upside-down U
+over the intake's top channel (48 x 12.2 mm, web up, flanges down; 4 mm walls, 0.3 mm clearance), a 2.5 mm lip under the
+front flange, one slotted 13.8 mm peg in the web's centre hole 24 mm back, and the poke rising off the front (33 mm = 1.3 in ahead
+of the face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered, web top 5.61; it starts above the
+folded blade's lip at 5.59, and `page/pokez_scan.js` says 5.7 to 7.5 at 1.3 in feeds 24/24 at every speed). Hook the lip, rotate
+down; the back wall behind the back flange stops it sliding forward and the lip stops the front lifting; the ball's push
+presses the front wall onto the flange. 85 x 40 x 63 mm, 46 cm3. `print_job.py low` prints two with the blade;
+`low_arm_step.py` places it. The bolt-on bracket below is superseded.
+
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
 low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
 slots, a 19 mm block down the channel's face with one M4 through it, the block's front 30.5 mm (1.2 in) ahead of the

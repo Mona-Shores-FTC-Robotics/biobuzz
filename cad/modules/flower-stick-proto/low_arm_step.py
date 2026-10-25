@@ -1,5 +1,5 @@
 """The low arm as a STEP for the Fresh CAD assembly (low_arm.py's geometry): two arm channels on a bracket off each chassis
-side rail, the pivot pins, the shaft with its two 39 mm wheels, the wide mountain blade with ears, and the 1.2 in poker on
+side rail, the pivot pins, the shaft with its two 39 mm wheels, the wide mountain blade with ears, and the poker saddle on
 the intake's top channel. Deployed and stowed, each in the "flowerextractordown" export's own coordinates, so either
 file inserts at the Fresh CAD origin and lands on the robot.
 
@@ -45,8 +45,8 @@ for sg in (1, -1):
 blade = cq.importers.importStep(os.path.join(HERE, "step", "mountain_wide_ears.step")).rotate((0, 0, 0), (0, 0, 1), 180).translate((mm(lip), 0, mm(0.52)))
 parts.append(("blade_mountain_wide_ears", blade))
 # the poker, standing on the intake's top channel (lowered intake: web top 5.61 up); its file: x ahead of the channel face, z up from the web
-poker = cq.importers.importStep(os.path.join(HERE, "step", "poker_stand.step")).translate((0, 0, mm(5.61)))
-parts.append(("poker_stand_1.2in", poker))
+poker = cq.importers.importStep(os.path.join(HERE, "step", "poker_clip.step")).translate((0, 0, mm(5.61)))   # the saddle on the web top (5.61 up, intake lowered)
+parts.append(("poker_clip", poker))
 for n, sh in parts:
     bb = sh.val().BoundingBox(); print(f"  {n:26s} ahead {bb.xmin / IN:6.2f}..{bb.xmax / IN:6.2f}  left {bb.ymin / IN:6.2f}..{bb.ymax / IN:6.2f}  up {bb.zmin / IN:5.2f}..{bb.zmax / IN:5.2f}")
 def to_raw(shape):

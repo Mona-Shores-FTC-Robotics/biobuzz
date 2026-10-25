@@ -91,7 +91,7 @@
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
-  const POKERS = { tall: { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 }, low: { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 } };   // the face is 3.8 in behind the lip on both
+  const POKERS = { tall: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375 }, low: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375 } };   // the face is 3.8 in behind the lip on both; the poke starts above the folded blade (pokez_scan.js)
   const TAIL_CUT = 2.4;   // the low arm's blade has its tail cut off here (page/tailcut_scan.js: no change in the model), for the folded overhang
   const truncate = (prof, cut) => { if (cut >= prof[prof.length - 1][0]) return prof; const out = prof.filter(([x]) => x <= cut); for (let i = 0; i + 1 < prof.length; i++) { const [x0, z0] = prof[i], [x1, z1] = prof[i + 1]; if (x0 <= cut && cut <= x1) { out.push([cut, z0 + (z1 - z0) * (cut - x0) / (x1 - x0)]); break; } } out.push([cut + 0.001, prof[0][1]]); return out; };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
