@@ -48,6 +48,23 @@ the way that section says, so the watcher survives a meeting:
 It uses Android Studio's adb (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`), the same one
 the deploy uses, so the two never kill each other's server.
 
+**Do not run the watcher and Android Studio against the hub at the same time.** Seen 25 Oct on
+20245: with both open, the hub's adb daemon wedged within a minute (adb listed the hub `offline`,
+REV Hardware Client said "debug connection unavailable, power cycle needed"), and only a power
+cycle brought it back. With Android Studio closed, the watcher ran all session. Android Studio
+keeps its own device polling and logcat links open to the hub over Wi-Fi, and the Control Hub's
+adb daemon does not cope with that plus the watcher's reconnects. So at a meeting, one at a time:
+
+- **Deploying:** stop the watcher (Ctrl+C), deploy with Sloth Load, then start the watcher again.
+- **Running and reviewing logs:** close Android Studio (not just the Run window) and leave the
+  watcher running.
+- REV Hardware Client stays closed throughout: it ships its own adb, and the two servers kill
+  each other (`TeamCode/README.md`, "Two copies of adb").
+
+If the hub does wedge: close everything that talks adb, power-cycle the hub, then
+`adb kill-server`, `adb connect 192.168.43.1:5555`, and `adb devices` must say `device`, not
+`offline`, before starting the watcher.
+
 ## Reading a log in AdvantageScope
 
 - **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. Pick the 2026-27 FTC
