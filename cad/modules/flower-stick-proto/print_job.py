@@ -20,9 +20,23 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "wide": [("mountain_wide", "the mountain blade with Carter's lane, 7.9 in wide"), ("poker_hang", "the poker, hanging"), ("poker_stand", "the poker, standing")],
          "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_u", "the poker U: over the intake's front channel, four zip ties"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
-         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "poker_u: for the channel top 5.6 in up (the coach's export)"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up (the Onshape stop); the poke hangs")]}[JOB]
+         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "poker_u: for the channel top 5.6 in up (the coach's export)"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up (the Onshape stop); the poke hangs")]}.get(JOB, [])
+COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("poker_u_adj", "adj: the U with the mast"), ("poker_u_adj_poke", "adj: the poke block, on its side")]],
+        "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]]}
+def orient(name, c):
+    if name.startswith("poker_u_adj_poke"): c.apply_transform(trimesh.transformations.rotation_matrix(np.pi / 2, [1, 0, 0]))      # on its side: the L profile down, no support
+    elif name.startswith("poker_u"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [0, 1, 0]))         # standing on the back wall
+    return c
 ms, labels = [], []
-if JOB in ("wide", "low", "next"):      # the blade alone on the first row, the two pokers on their sides on the second
+if JOB in COLS:                         # columns of parts along x; within a column the parts stack along y
+    x = 0.0
+    for col in COLS[JOB]:
+        y, col_w = 0.0, 0.0
+        for name, label in col:
+            c = orient(name, trimesh.load(os.path.join(HERE, "stl", name + ".stl"))); c.apply_translation(-c.bounds[0]); c.apply_translation([x, y, 0])
+            ms.append(c); labels.append((label, c.bounds)); y = c.bounds[1][1] + GAP; col_w = max(col_w, c.bounds[1][0] - c.bounds[0][0])
+        x += col_w + GAP
+elif JOB in ("wide", "low", "next"):      # the blade alone on the first row, the two pokers on their sides on the second
     m = trimesh.load(os.path.join(HERE, "stl", PARTS[0][0] + ".stl")); m.apply_translation(-m.bounds[0]); ms.append(m); labels.append((PARTS[0][1], m.bounds))
     y = m.bounds[1][1] + GAP; x = 0.0
     if JOB == "next": y = 0.0; x = m.bounds[1][0] + GAP     # the U beside the blade: the plate fits a 220 mm bed
@@ -56,5 +70,5 @@ for m, (label, bb) in zip(ms, labels):
 ax.plot([-8, b[1][0] + 8, b[1][0] + 8, -8, -8], [-8, -8, b[1][1] + 8, b[1][1] + 8, -8], [0, 0, 0, 0, 0], color="#888", lw=0.8, ls="--")
 span = max(b[1][0] + 16, b[1][1] + 16); ax.set_xlim(-8, -8 + span); ax.set_ylim(-8, -8 + span); ax.set_zlim(0, span * 0.5)
 ax.view_init(elev=55, azim=-40); ax.set_box_aspect((1, 1, 0.5)); ax.set_axis_off()
-ax.set_title(f"print_job_{JOB}.stl: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} mm, {len(ms)} parts, flat side down" + (", support under the U's front lip only" if JOB == "next" else ", no supports"), fontsize=10)
+ax.set_title(f"print_job_{JOB}.stl: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} mm, {len(ms)} parts, flat side down" + (", support under the U's front lip only" if JOB == "next" else ", supports for the U's lips and the mast" if JOB in COLS else ", no supports"), fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(HERE, f"print_job_{JOB}.png"), dpi=120); print(f"print_job_{JOB}.png")
