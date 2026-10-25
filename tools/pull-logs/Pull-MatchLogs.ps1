@@ -82,8 +82,24 @@ function Find-Adb {
     # builds on one laptop (Android Studio's, REV Hardware Client's) each kill the other's server
     # on sight ("adb server version doesn't match this client"), and that fight is what makes a
     # hub flap between connected and offline. Whichever one is live owns the hub for now.
-    $running = Get-Process adb -ErrorAction SilentlyContinue | Where-Object { $_.Path } | Select-Object -First 1
-    if ($running) { return $running.Path }
+    # One exception: a Microsoft Store app's adb (REV Hardware Client 2 from the Store lives under
+    # C:\Program Files\WindowsApps) cannot be run by anything outside the app ("Access is denied").
+    # Its server is still the one to talk to, and any adb client of the same version does that, so
+    # fall through to Android Studio's binary.
+    $running = Get-Process adb -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -and $_.Path -notlike '*\WindowsApps\*' } | Select-Object -First 1
+    if ($running -and (Test-Path $running.Path)) {
+        $usable = $false
+        try {
+            $ErrorActionPreference = 'Stop'   # a launch failure ("Access is denied") must be caught, not printed
+            & $running.Path version 2>&1 | Out-Null
+            $usable = ($LASTEXITCODE -eq 0)
+        } catch {
+        } finally {
+            $ErrorActionPreference = 'Continue'
+        }
+        if ($usable) { return $running.Path }
+    }
     $studio = Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe'
     if (Test-Path $studio) { return $studio }
     $onPath = Get-Command adb -ErrorAction SilentlyContinue
