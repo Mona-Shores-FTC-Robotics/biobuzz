@@ -48,8 +48,9 @@ import java.util.function.Function;
  *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
  * match log as events and the last few lines to the Match page. The paths go to the match log too
- * ({@link AutoPathLog}): the whole plan once the Auto is built, at PLAY, since which way round it
- * is drawn depends on the alliance, and the path being driven as each one starts and ends.
+ * ({@link AutoPathLog}): the declared start as the target during INIT, the whole plan once the
+ * Auto is built, at PLAY, since which way round it is drawn depends on the alliance, and the path
+ * being driven, and its end, as each one starts and ends.
  */
 public abstract class BuiltAuto extends RobotOpMode {
 
@@ -71,6 +72,9 @@ public abstract class BuiltAuto extends RobotOpMode {
     private long startNs;
     private String problem;
     private AutoTrace trace;
+    private AutoPathLog pathLog;
+    /** The start last written as the log's target, so INIT writes it only when it changes. */
+    private StartPosition targetWritten;
 
     protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
@@ -106,10 +110,17 @@ public abstract class BuiltAuto extends RobotOpMode {
             }
         }
         robot.drive.preparePathFollowing();
+        pathLog = new AutoPathLog(log);
     }
 
     @Override
     protected void onInitLoop() {
+        // The ghost sits on the robot until the first path moves it; see AutoPathLog.target.
+        StartPosition start = startPosition();
+        if (start != targetWritten) {
+            targetWritten = start;
+            pathLog.target(start.pose);
+        }
         display.line("Drawn for " + drawnFor + "; the other alliance runs it rotated.");
         if (!placeholders.isEmpty()) {
             display.status("Placeholders", Display.Level.WARN, String.join(", ", placeholders)
@@ -129,7 +140,6 @@ public abstract class BuiltAuto extends RobotOpMode {
         startNs = System.nanoTime();
         // Every line to the match log, the last few to the Match page.
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
-        AutoPathLog pathLog = new AutoPathLog(log);
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
                 .watchPaths(pathLog);

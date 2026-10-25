@@ -143,6 +143,23 @@ public class AutoPathLogTest {
                 active.records.get(0).timestampUs, target.records.get(0).timestampUs);
     }
 
+    /** Before any path, the ghost sits where the robot starts, not at AdvantageScope's origin. */
+    @Test
+    public void theTargetDuringInitIsTheDeclaredStart() {
+        Pose start = RSimpleAuto.startPose(false);
+        pathLog.target(start);
+        loop();
+        runAuto(RSimpleAuto.build(kit, false));
+
+        WpiLogReader r = readBack();
+        WpiLogReader.Entry target = r.entry(FieldRobot.ROBOT.target);
+        assertEquals("the start, then the one path's end", 2, target.records.size());
+        assertArrayEquals(new double[] {
+                AdvantageScopeFrame.xMeters(start.x(), start.y()), AdvantageScopeFrame.yMeters(start.x(), start.y()),
+                AdvantageScopeFrame.headingRad(start.heading())}, target.records.get(0).asDoubles(), EPS);
+        assertTrue(target.records.get(0).timestampUs < r.entry(FieldRobot.ROBOT.fullPath).records.get(0).timestampUs);
+    }
+
     @Test
     public void theFullPlanIsEveryPathInCardOrder() {
         Path a = Paths.line(new Pose(10, 10, 0), new Pose(30, 10, 0)).tangent();

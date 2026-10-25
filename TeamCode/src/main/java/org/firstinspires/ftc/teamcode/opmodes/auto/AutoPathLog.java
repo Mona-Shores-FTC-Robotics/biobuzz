@@ -15,9 +15,10 @@ import java.util.List;
  * ({@link FieldRobot#activePath}, {@code /Path/Active}, empty between paths) and where it ends as a
  * ghost ({@link FieldRobot#target}, {@code /Path/Target}).
  *
- * <p>{@link BuiltAuto} gives one to its {@link AutoKit} ({@link AutoKit#watchPaths}) and calls
- * {@link #plan} once the Auto is built. Each path is sampled once, when the Auto is built and again
- * as it starts, about {@link #SAMPLE_SPACING_IN} apart along the curve; nothing here runs per loop.
+ * <p>{@link BuiltAuto} writes the declared start as the {@link #target} during INIT, gives one to
+ * its {@link AutoKit} ({@link AutoKit#watchPaths}) and calls {@link #plan} once the Auto is built.
+ * Each path is sampled once, when the Auto is built and again as it starts, about
+ * {@link #SAMPLE_SPACING_IN} apart along the curve; nothing here runs per loop.
  * The samples are Pedro inches and radians; {@link MatchLog} converts them to AdvantageScope's
  * frame the way it converts {@code /Odometry/Robot}.
  *
@@ -63,6 +64,16 @@ public final class AutoPathLog implements AutoKit.PathWatcher {
             at += one.length;
         }
         log.poses(robot.fullPath, all);
+    }
+
+    /**
+     * Where the robot should be while no path is being driven: its declared start during INIT.
+     * Write it from the first INIT loop on, and again when the declared start changes. AdvantageScope
+     * draws a ghost whose key has no value yet at the field centre, so {@link FieldRobot#target}
+     * needs a value before the first path gives it one.
+     */
+    public void target(Pose pose) {
+        log.pose(robot.target, pose.x(), pose.y(), pose.heading());
     }
 
     @Override
