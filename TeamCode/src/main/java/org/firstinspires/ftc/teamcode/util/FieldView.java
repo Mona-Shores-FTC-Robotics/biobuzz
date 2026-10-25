@@ -33,14 +33,19 @@ import com.bylazar.field.PanelsField;
  * and flip; only the centre differs, by 1.25 in. Without this the drawn robot sits that far off
  * where the robot is, which is exactly the kind of small frame disagreement nobody spots.
  *
- * <h2>The throttle, which will bite you if you ignore it</h2>
+ * <h2>The throttle, and why every draw is gated on it</h2>
  *
  * <p>{@code FieldManager.update()} only sends when at least {@code canvasUpdateInterval}
- * milliseconds have passed — 100 ms by default, so 10 Hz. When it is not time yet, it returns
- * having done <b>nothing at all</b>, and that includes not clearing the canvas. Shapes added since
- * the last send stay in the list. So a 200 Hz loop that draws unconditionally piles twenty copies
- * of the robot into one canvas and ships them together, which costs bandwidth and looks like a
- * smear on the field.
+ * milliseconds have passed — 100 ms by default, so 10 Hz. Whether or not it sends, it then clears
+ * the canvas: {@code update()} is "send if it is time, then reset". So a loop that draws every
+ * time and calls {@code update()} every time still shows one robot, the one from whichever loop
+ * the send landed on. What it wastes is the drawing: at 200 Hz, nineteen canvases in twenty are
+ * built, cleared and never seen.
+ *
+ * <p>That is the reason for the gate. CLAUDE.md's loop-time rule is that nothing is done per loop
+ * that does not need doing, and building a canvas that will not transmit is exactly that. The
+ * other reason the gate matters is that it is how the base class and an OpMode's own drawing share
+ * one canvas: see {@code RobotOpMode#drawField()}.
  *
  * <p>{@link #shouldDraw()} is the guard. The three-line shape to copy:
  *
@@ -51,8 +56,18 @@ import com.bylazar.field.PanelsField;
  * }
  * }</pre>
  *
- * <p>Drawing is skipped entirely on most loops, which is also why field view costs almost nothing
- * in {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ * <p>Drawing is skipped entirely on most loops, which is why field view costs almost nothing in
+ * {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ *
+ * <p><b>History note, 25 Oct 2026.</b> This section used to say that a skipped {@code update()}
+ * "does nothing at all, and that includes not clearing the canvas", so an ungated draw piled
+ * twenty robots into one canvas and shipped a smear. The library does not do that. Checked by
+ * disassembling {@code com.bylazar:field:1.0.10}, the module {@code fullpanels:1.0.19} pulls in
+ * ({@code javap -p -c com/bylazar/field/FieldManager.class}): {@code update()} sends, stamps
+ * {@code lastUpdate} and copies the canvas into {@code lastCanvas} only when
+ * {@code getShouldUpdateCanvas()} is true, and then unconditionally calls {@code canvas.reset()}
+ * and zeroes the cursor. The Sloth fork {@code 0.3.2+1.0.7} the old text was written against
+ * disassembles the same way. The gate was right; the stated reason was not.
  *
  * <h2>The background is already the right one</h2>
  *
@@ -111,7 +126,8 @@ public final class FieldView {
     /**
      * Whether the next {@link #send()} would actually transmit.
      *
-     * <p>Gate all drawing on this. See the class comment for what happens if you do not.
+     * <p>Gate all drawing on this, so the loops that will not transmit do no drawing work. See the
+     * class comment.
      */
     public boolean shouldDraw() {
         return field.getShouldUpdateCanvas();
@@ -174,7 +190,7 @@ public final class FieldView {
         field.circle(radius);
     }
 
-    /** Sends the canvas and clears it, if the throttle allows. */
+    /** Sends the canvas if the throttle allows, then clears it either way. */
     public void send() {
         field.update();
     }
