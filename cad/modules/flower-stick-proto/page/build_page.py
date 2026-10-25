@@ -27,17 +27,13 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Design</label>
-      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="true">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="false">9. mountain + poker, 7.9 in wide</button></span>
-      <label>Coach's CAD</label>
-      <span class="seg"><button data-preset="coach" aria-pressed="false">plate as drawn</button><button data-preset="coachFlat" aria-pressed="false">plate turned flat</button></span>
-      <label>Mount</label>
-      <span class="seg"><button data-mount="tall" aria-pressed="true">coach's tall arms</button><button data-mount="low" aria-pressed="false">low arm</button></span>
+      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="false">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="true">9. mountain + poker, 7.9 in wide</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
-      <button class="btn" id="sim-slow" aria-pressed="false">Slow</button>
+      <button class="btn" id="sim-slow" aria-pressed="true">Slow</button>
       <input type="range" id="sim-scrub" min="0" max="1" value="0" aria-label="Scrub through the run">
       <b id="sim-clock" style="font: 500 13px var(--mono); color: var(--muted)">0.00 s</b>
     </div>
@@ -531,15 +527,11 @@ body = f'''
   ball into the ring's hole; the mountains clear a side-to-side stack and lock on a front-to-back one, with or without the lane,
   the 50° nose, the V nose or the lower peak; and the poker clears both. The status line under the views says what each one
   did on the field as well.</p>
-  <p>The robot is drawn from its October 25 CAD. The stick's two arms pivot 2.37 in behind the intake face and 7.89 in up, and
-  the shaft across their tips is 9.09 in from the pivot, so with the shaft on the 0.77 in sled wheels the arms stop 52° below
-  horizontal and the shaft sits 3.28 in ahead of the face; the arms are drawn solid where they are and dashed where they stow.
-  The intake wheels are drawn lowered to 2.9 in; the CAD has them 4.7 in up, on slides. The two "Coach's CAD" buttons run the
-  plate in that CAD on the same arms: keyed to the hex shaft as it is drawn, and turned 131° on the shaft so it lies flat.
-  "Mount" switches to the low arm: a channel pivoting 0.8 in ahead of the face and 2.2 in up off the chassis side rails,
-  72 mm from pivot to shaft, the shaft in the blade's ears on 39 mm wheels, the arm 30° down, the blade's tail cut 2.4 in behind the lip.
-  The blade then stows folded in front of the intake mouth. The face is 3.8 in behind the lip on both mounts, so the poker is
-  the same part: the plate on the intake's top channel, reaching 1.3 in, 5.7 to 7.5 in up.</p>
+  <p>The arms are the low arm: a channel pivoting 0.8 in ahead of the face and 2.2 in up off the chassis side rails,
+  72 mm from pivot to shaft, the shaft in the blade's ears on 39 mm wheels, the arm 30° down, the blade's tail cut 2.4 in behind the lip,
+  drawn solid where they are and dashed where they stow, folded in front of the intake mouth. The intake wheels are drawn lowered to
+  2.9 in. The face is 3.8 in behind the lip, and the orange part on the intake's front channel is the poker U, its poke reaching
+  1.3 in, 5.7 to 7.5 in up.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft

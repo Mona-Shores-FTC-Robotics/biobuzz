@@ -8,7 +8,8 @@ two answers for (5.6 and 6.55 in above the tile with the intake down); the robot
 goes on the sled for the field test. A U sits over the flat channel across the front of the intake, above the intake wheels:
 its roof on the channel's top, its walls down the channel's front and back lips, the two holes in each wall on the lips'
 4 mm holes 40 mm either side of the channel's centre. Four zip ties: in through the wall and the lip's hole, under the lip's
-bottom edge, back out and closed. The plate is 198 x 201 mm, so it fits a 220 mm bed; or print the parts one at a time.
+bottom edge, back out and closed. The three holes in the roof sit over the channel's big bearing holes: look through them to
+centre the U, and a fifth tie can go down one and up the next, round the channel's top, if four are not enough. The plate is 198 x 201 mm, so it fits a 220 mm bed; or print the parts one at a time.
 Millimetres. PETG. About 265 cm3 solid.
 
 ![the plate](print_job_next.png)

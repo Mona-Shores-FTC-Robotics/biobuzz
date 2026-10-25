@@ -96,8 +96,8 @@
   const TAIL_CUT = 2.4;   // the low arm's blade has its tail cut off here (page/tailcut_scan.js: no change in the model), for the folded overhang
   const truncate = (prof, cut) => { if (cut >= prof[prof.length - 1][0]) return prof; const out = prof.filter(([x]) => x <= cut); for (let i = 0; i + 1 < prof.length; i++) { const [x0, z0] = prof[i], [x1, z1] = prof[i + 1]; if (x0 <= cut && cut <= x1) { out.push([cut, z0 + (z1 - z0) * (cut - x0) / (x1 - x0)]); break; } } out.push([cut + 0.001, prof[0][1]]); return out; };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
-  let preset = "v7", stack = "fb", mount = "tall"; const push = 4, stopErr = 0;
-  let result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
+  let preset = "final", stack = "fb", mount = "low"; const push = 4, stopErr = 0;
+  let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
     profile = P.profile || S.mountain(SHAPE); if (mount === "low" && !P.outline) profile = truncate(profile, TAIL_CUT);
