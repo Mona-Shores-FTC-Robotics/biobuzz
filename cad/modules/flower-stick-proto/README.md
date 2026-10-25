@@ -649,7 +649,9 @@ lip passes 2.8 mm under it), and a buttress as wide as the poke from the poke's 
 face. The ball's push goes down the buttress into the roof and the front wall and onto the flange, in compression; the ties
 only stop it lifting or sliding. For keeps, 4 mm pop rivets or M4 button heads from inside the flange (the motor is 3.5 mm
 behind the front flange), if the coach allows. 85 x 104 x 60 mm, 75 cm3 solid (about 45 g at 30 % infill); prints standing
-on its back wall with support under the front wall's lip. `print_job.py next` prints it with the plain blade;
+on its back wall with support under the front wall's lip. `WEB_UP` is the channel's top above the tile (5.61 from the
+exports; Dustin's Onshape measurement to the intake's stop on 25 Oct says 6.55, a full inch apart, so `poker_u_hi` is the
+same part for 6.55 with the poke hanging below the roof, and the robot decides). `print_job.py next` prints both with the plain blade;
 `low_arm_step.py` places it; `poker_u_fit.png` shows it on the channel and the motor from the export. The forms before it
 (a web-bolted bracket, a clip, a bolted saddle, a web-bolted plate reaching sideways, a plate bolted to the channel that is
 not there) are in git history.

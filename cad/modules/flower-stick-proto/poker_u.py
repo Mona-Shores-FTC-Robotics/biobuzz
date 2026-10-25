@@ -5,7 +5,7 @@ a zip tie through each (in through the wall and the flange, under the flange's b
 rivets or M4 button heads from inside for keeps, if the coach allows (the intake motor is 3.5 mm behind the front flange).
 
     python3 cad/modules/flower-stick-proto/poker_u.py     # stl/poker_u.stl, step/poker_u.step
-    WEB_UP=5.2 python3 .../poker_u.py                      # the same with the channel's top 5.2 in up: the poke rises to suit
+    WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py     # the same for the channel's top 6.55 in up (Dustin's Onshape stop, 25 Oct): the poke hangs below the roof
 
 The push from the ball goes into the poke, down the buttress into the roof, and through the front wall into the channel's front
 flange, in compression; the ties only keep the U from lifting or sliding. Heights follow the channel: WEB_UP is its web top above the tile
@@ -32,6 +32,7 @@ part = roof.union(front).union(back).union(poke).union(buttress)
 for y in (HOLE_Y, -HOLE_Y):
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(CHAN_D + 20, both=True).translate((-CHAN_D / 2, y, HOLE_Z)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
-cq.exporters.export(part, os.path.join(HERE, "stl", "poker_u.stl"), tolerance=0.05, angularTolerance=0.2)
-cq.exporters.export(part, os.path.join(HERE, "step", "poker_u.step"))
-bb = v.BoundingBox(); print(f"stl/poker_u.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")
+NAME = os.environ.get("NAME", "poker_u")
+cq.exporters.export(part, os.path.join(HERE, "stl", NAME + ".stl"), tolerance=0.05, angularTolerance=0.2)
+cq.exporters.export(part, os.path.join(HERE, "step", NAME + ".step"))
+bb = v.BoundingBox(); print(f"stl/{NAME}.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")
