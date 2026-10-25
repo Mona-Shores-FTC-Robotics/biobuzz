@@ -7,7 +7,9 @@ anyone typing an adb command.
 ## At a meeting
 
 1. Join the robot's Wi-Fi on the laptop that deploys.
-2. Double-click `pull-logs.cmd`, or from a terminal:
+2. Double-click `watch-logs.cmd`. It opens its own window, which is the point: a watcher started
+   in Android Studio's terminal dies when Android Studio closes, and Android Studio has to close
+   while the robot runs (below). From a standalone PowerShell window it is the same thing:
 
    ```bash
    powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1 -Watch
@@ -18,8 +20,7 @@ anyone typing an adb command.
    An Autonomous that hands off to TeleOp opens twice: after the Auto, and again with the whole
    match once TeleOp stops.
 
-Without `-Watch` it runs once: connect, pull what is new, open the newest, exit. That is the
-double-click default.
+`pull-logs.cmd` is the one-shot version: connect, pull what is new, open the newest, exit.
 
 | Flag | What |
 |---|---|

@@ -39,11 +39,9 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
 
 ## At the robot, in order
 
-1. [ ] **Join the robot's Wi-Fi on the laptop. Start the watcher** and leave its window open:
-
-   ```bash
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1 -Watch
-   ```
+1. [ ] **Join the robot's Wi-Fi on the laptop. Start the watcher** by double-clicking
+   `tools\pull-logs\watch-logs.cmd` (its own window, not Android Studio's terminal) and leave
+   that window open:
 
    It says `connected.` and how many logs are on the robot. If it says nothing answers, the laptop
    is not on the robot's network.
