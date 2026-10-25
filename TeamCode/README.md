@@ -1322,7 +1322,9 @@ match: an Autonomous pauses it and the TeleOp that follows continues it; see
 `tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to
 `%USERPROFILE%\biobuzz-logs\<robot network>\` and opens the newest, and a `-Watch` mode that does
 it by itself each time an OpMode stops. Its README says what to drag where in AdvantageScope and
-how it copes with the adb states described above. Decided in #214.
+how it copes with the adb states described above. Decided in #214. `tools/advantagescope/` sets
+the laptop's AdvantageScope up once: the robot drawn from its CAD (`cad/advantagescope/`, from the
+simulator branch) and a match layout.
 
 ## The Panels stack: seeing data and changing values at a meeting
 
