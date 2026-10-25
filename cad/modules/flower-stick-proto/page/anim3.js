@@ -53,10 +53,12 @@
   const $ = id => document.getElementById(id);
   // the three blades: the same mountain (60 deg nose from a 0.60 in edge, peak 1.10 in, 12 deg tail) with Carter's lane
   const SHAPE = { edge: 0.6, nose: 60, peak: 1.1, tail: 12 }, LANE = { R: 12.3, rise: 0.3, start: 0.9, lead: 1.6, oval: 0 };
+  // the designs in the order we went through them: the first block, the mountain with Carter's lane, the V nose, the poker
   const PRESETS = {
-    v7: { name: "v7", shaftBack: 0.53 },
-    v8: { name: "v8, the V nose", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3 },
-    v10: { name: "v10, the nose that trips itself", shaftBack: 0.53, extraDepth: 0.22, finger: { len: 0, deg: 54, advance: 0.22, pivot: [0.32, 0.96] } },
+    blockA: { name: "Block A, our first block (October 15)", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null },
+    v7: { name: "v7, the mountain with Carter's lane (October 19)", shaftBack: 0.53 },
+    v8: { name: "v8, the V nose (October 24)", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3 },
+    final: { name: "v7 with the poker on the robot (October 25)", shaftBack: 0.53, pusher: true },
   };
   // how the stack sits before the blade arrives: front to back (the second ball against the collar, the way our photos
   // show it), straight, or leaning side to side into the gaps between the pipes
@@ -65,13 +67,14 @@
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
   const POKER = { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
-  let preset = "v7", stack = "fb", push = 4, stopErr = -0.35, poker = false;
+  // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
+  let preset = "v7", stack = "fb"; const push = 4, stopErr = 0;
   let result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
-    profile = S.mountain(SHAPE);
-    cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: 5.4, gutter: LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (poker) cfg.pusher = POKER;
+    profile = P.profile || S.mountain(SHAPE);
+    cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: 5.4, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
+    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (P.pusher) cfg.pusher = POKER;
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball.";
@@ -83,10 +86,10 @@
       s = left + " of 4 never reached the intake" + (onPeak && onBar ? ": the stack locked itself. The bottom ball sits on the peak against the posts, and the ball above leans out over the collar's ledge and holds it there, as in our October 23 photos." : onPeak ? ": the bottom ball sits on the peak against the posts." : ": stuck on the blade.");
     }
     const stackName = { fb: "stack leaning front to back", straight: "straight stack", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = P.name + (poker ? " with the poker on the robot" : "") + ", " + stackName + ", pushed at " + push + " in/s" + (stopErr ? ", sled stopping " + (-stopErr).toFixed(2) + " in short" : ", sled at the posts") + ". " + s;
+    $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s;
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) { window.Drive3D.setBlade(profile, 5.4, P.shaftBack, LANE, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0); if (window.Drive3D.setPoker) window.Drive3D.setPoker(poker ? POKER : null); }
+    if (window.Drive3D) { window.Drive3D.setBlade(profile, 5.4, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKER : null); }
     draw();
   }
   function draw() {
@@ -147,9 +150,6 @@
   function pressed(attr, val) { for (const b of document.querySelectorAll("[" + attr + "]")) b.setAttribute("aria-pressed", b.getAttribute(attr) === String(val)); }
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
-  for (const b of document.querySelectorAll("[data-push]")) b.onclick = () => { push = +b.dataset.push; pressed("data-push", push); compute(); };
-  for (const b of document.querySelectorAll("[data-poker]")) b.onclick = () => { poker = b.dataset.poker === "on"; pressed("data-poker", poker ? "on" : "off"); compute(); };
-  for (const b of document.querySelectorAll("[data-stop]")) b.onclick = () => { stopErr = +b.dataset.stop; pressed("data-stop", stopErr); compute(); };
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };
   $("sim-scrub").oninput = function () { if (!result) return; playing = false; $("sim-play").textContent = "Play"; i = +this.value; draw(); };

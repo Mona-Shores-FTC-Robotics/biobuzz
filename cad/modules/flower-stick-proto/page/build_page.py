@@ -26,18 +26,10 @@ panel = f'''  <div class="drive">
       <div><canvas id="drive3d" aria-label="3D view of the same run: the robot's intake, the blade on its arms, the FLOWER and the POLLEN. Drag to orbit."></canvas><span class="viewlbl">3D, drag to orbit</span></div>
     </div>
     <div class="bar">
-      <label>Blade</label>
-      <span class="seg"><button data-preset="v7" aria-pressed="true">v7</button><button data-preset="v8" aria-pressed="false">v8: V nose</button></span>
+      <label>Design</label>
+      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. Block A</button><button data-preset="v7" aria-pressed="true">2. v7 + Carter's lane</button><button data-preset="v8" aria-pressed="false">3. v8, the V nose</button><button data-preset="final" aria-pressed="false">4. v7 + the poker</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">side to side</button></span>
-    </div>
-    <div class="bar" style="border-top: 0">
-      <label>Push</label>
-      <span class="seg"><button data-push="4" aria-pressed="true">slow, 4 in/s</button><button data-push="10" aria-pressed="false">fast, 10 in/s</button></span>
-      <label>Sled stops</label>
-      <span class="seg"><button data-stop="-0.35" aria-pressed="true">a third of an inch short</button><button data-stop="0" aria-pressed="false">at the posts</button></span>
-      <label>Poker</label>
-      <span class="seg"><button data-poker="off" aria-pressed="true">none</button><button data-poker="on" aria-pressed="false">on the robot</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -419,15 +411,19 @@ body = f'''
         for the lowered position. If the intake does not come down, that is a bigger problem than the poker.</p>
         <div class="ask"><b>Open question</b>Does the intake lower for the FLOWER, and to what height? The poker is sized for a wheel axle 2.9 in up. Where does the Limelight go on the tower, and does the poker's finger stay out of its view?</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Press "on the robot" in the simulator to watch it.</figcaption><img src="data:image/png;base64,{b64f(MOD + "poker_mount.png")}" alt="Side and front views of the poker mounted on the intake's top channel, between the front pipes and above their sockets, with the ball pushed back onto the stack."><figcaption>Where it mounts: on the front of the intake's top channel, drawn from the robot's October 25 CAD with the intake in its lowered position.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Pick "v7 + the poker" in the simulator to watch it.</figcaption><img src="data:image/png;base64,{b64f(MOD + "poker_mount.png")}" alt="Side and front views of the poker mounted on the intake's top channel, between the front pipes and above their sockets, with the ball pushed back onto the stack."><figcaption>Where it mounts: on the front of the intake's top channel, drawn from the robot's October 25 CAD with the intake in its lowered position.</figcaption></figure>
     </div>
   </div>
 </section>
 
 <section class="block" id="drive">
   <h2>Try our simulator</h2>
-  <p>Pick a blade, a stack and a push, and watch. The left side is a side view with the real FLOWER and the front of our
-  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short. Turn the poker on to see the fix.</p>
+  <p>Pick a design from the sequence we went through, and a stack, and watch. The left side is a side view with the real FLOWER
+  and the front of our robot, with a view from above under it. The right side is the same run in 3D, drag to look around.
+  Every run is the worst case: a slow push at 4 in/s, which is the one that locks, with the sled driven all the way to the
+  posts. It opens on v7 with the stack leaning front to back, the stuck case from our photos. Step through the designs to see
+  what each one fixed and what it did not: the first block stalls, v7 locks on a front-to-back stack, the V nose does not
+  change that, and the poker clears it.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
