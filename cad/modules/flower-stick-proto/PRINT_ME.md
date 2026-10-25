@@ -1,18 +1,17 @@
 # Print now: the wide mountain blade and the poker U (for whoever prints)
 
-**`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
+**`stl/print_job_next.stl`**, two parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
 201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
-`stl/poker_u.stl` (the poker U, 85 x 104 x 60 mm, 75 cm3) standing on its back wall, and the hex-fit coupon (skip it if the
-last one fit). The blade goes on the sled for the field test. The U sits over the flat channel across the front of the
+and `stl/poker_u.stl` (the poker U, 85 x 104 x 60 mm, 75 cm3) standing on its back wall. The blade goes on the sled for the field test. The U sits over the flat channel across the front of the
 intake, above the intake wheels: its roof on the channel's top, its walls down the channel's front and back lips, and the
 two holes in each wall on the lips' 4 mm holes 40 mm either side of the channel's centre. Four zip ties: in through the
-wall and the lip's hole, under the lip's bottom edge, back out and closed. Needs a bed of at least 290 mm one way, or print
-the parts one at a time. Millimetres. PETG. About 215 cm3 solid.
+wall and the lip's hole, under the lip's bottom edge, back out and closed. The plate is 144 x 201 mm, so it fits a 220 mm bed; or print the two one at a time. Millimetres. PETG. About 200 cm3
+solid.
 
 ![the plate](print_job_next.png)
 
 **Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 30 % infill, 5 top and bottom layers, support under the U's
-front lip only (the blade and the coupon need none), brim optional. Millimetres: if it comes in tiny, scale by 25.4.
+front lip only (the blade needs none), brim optional. Millimetres: if it comes in tiny, scale by 25.4.
 
 Thank you!
 

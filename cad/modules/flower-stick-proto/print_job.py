@@ -20,11 +20,12 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "wide": [("mountain_wide", "the mountain blade with Carter's lane, 7.9 in wide"), ("poker_hang", "the poker, hanging"), ("poker_stand", "the poker, standing")],
          "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_u", "the poker U: over the intake's front channel, four zip ties"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
-         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "the poker U: sits over the intake's front channel; four zip ties through its flange holes"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")]}[JOB]
+         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "the poker U: sits over the intake's front channel; four zip ties through its flange holes")]}[JOB]
 ms, labels = [], []
 if JOB in ("wide", "low", "next"):      # the blade alone on the first row, the two pokers on their sides on the second
     m = trimesh.load(os.path.join(HERE, "stl", PARTS[0][0] + ".stl")); m.apply_translation(-m.bounds[0]); ms.append(m); labels.append((PARTS[0][1], m.bounds))
     y = m.bounds[1][1] + GAP; x = 0.0
+    if JOB == "next": y = 0.0; x = m.bounds[1][0] + GAP     # the U beside the blade: the plate fits a 220 mm bed
     for name, label in PARTS[1:]:
         c = trimesh.load(os.path.join(HERE, "stl", name + ".stl"))
         if name in ("poker_hang", "poker_stand", "poker_hang_1in", "poker_stand_1in", "poker_hang_2.1in", "poker_stand_2.1in"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
@@ -55,5 +56,5 @@ for m, (label, bb) in zip(ms, labels):
 ax.plot([-8, b[1][0] + 8, b[1][0] + 8, -8, -8], [-8, -8, b[1][1] + 8, b[1][1] + 8, -8], [0, 0, 0, 0, 0], color="#888", lw=0.8, ls="--")
 span = max(b[1][0] + 16, b[1][1] + 16); ax.set_xlim(-8, -8 + span); ax.set_ylim(-8, -8 + span); ax.set_zlim(0, span * 0.5)
 ax.view_init(elev=55, azim=-40); ax.set_box_aspect((1, 1, 0.5)); ax.set_axis_off()
-ax.set_title(f"print_job_{JOB}.stl: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} mm, {len(ms)} parts, flat side down, no supports", fontsize=10)
+ax.set_title(f"print_job_{JOB}.stl: {b[1][0]-b[0][0]:.0f} x {b[1][1]-b[0][1]:.0f} mm, {len(ms)} parts, flat side down" + (", support under the U's front lip only" if JOB == "next" else ", no supports"), fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(HERE, f"print_job_{JOB}.png"), dpi=120); print(f"print_job_{JOB}.png")
