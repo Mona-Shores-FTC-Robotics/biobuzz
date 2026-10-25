@@ -9,9 +9,9 @@ anyone typing an adb command.
 1. Join the robot's Wi-Fi on the laptop that deploys, with REV Hardware Client 2 open (see
    "What it does about adb" for why that order).
 2. Whenever you want to look, double-click `pull-logs.cmd`. It connects, copies every log the
-   laptop does not have yet into `%USERPROFILE%\biobuzz-logs\<robot network>\`, opens the newest
-   in AdvantageScope, and exits. Once at the end of the meeting gets everything; the logs wait
-   on the hub until then.
+   laptop does not have yet into the team's Google Drive folder (below), opens the newest in
+   AdvantageScope, and exits. Once at the end of the meeting gets everything; the logs wait on
+   the hub until then.
 
 From a terminal it is:
 
@@ -30,7 +30,25 @@ once TeleOp stops. Optional; the one-shot pull is the normal way.
 | `-NoOpen` | copy only |
 | `-RemoveFromRobot` | delete from the hub what has been copied (never the newest file) |
 | `-Robot 192.168.49.1` | a phone Robot Controller instead of a Control Hub |
-| `-Dest <folder>` | somewhere other than `%USERPROFILE%\biobuzz-logs` |
+| `-Dest <folder>` | somewhere other than the Drive folder |
+
+## Where logs go
+
+Logs go to the team's shared Google Drive, so nobody has to fetch them from a particular laptop:
+
+```
+G:\Shared drives\Robotics Team 3572 - Wavelength\2026-2027 FTC Biobuzz\Logs\<robot network>\
+```
+
+That needs **Google Drive for Desktop** on the laptop, signed in as a member of the
+`Robotics Team 3572 - Wavelength` shared drive. The script looks for the folder on every drive
+letter, so it does not matter which one Drive mounts. While the laptop is on the robot's Wi-Fi it
+has no internet; Drive holds the files and uploads them when the laptop is back on a network, so
+check the folder on drive.google.com after a meeting before trusting `-RemoveFromRobot`.
+
+A laptop without the folder (no Drive, or not a member) falls back to
+`%USERPROFILE%\biobuzz-logs\<robot network>\` and says so in its first lines. Those logs are on
+that laptop only; copy them into the Drive folder by hand, or pass `-Dest` next time.
 
 ## What it does about adb
 
