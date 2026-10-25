@@ -1,7 +1,7 @@
 {
   "startPoint": {
-    "x": 59,
-    "y": 8.06,
+    "x": 55,
+    "y": 9.7,
     "name": "START",
     "headingDeg": 90
   },
@@ -698,8 +698,8 @@
     },
     "points": {
       "START": [
-        59,
-        8.06,
+        55,
+        9.7,
         90
       ],
       "S_CATCH": [

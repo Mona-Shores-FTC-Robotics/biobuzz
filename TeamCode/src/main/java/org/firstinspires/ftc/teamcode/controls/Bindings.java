@@ -59,6 +59,18 @@ public final class Bindings {
     }
 
     /**
+     * Polls only the triggers marked {@link Trigger#duringInit()}. Called every INIT loop by
+     * {@code RobotOpMode}, where everything else stays unarmed so a button held through PLAY is
+     * not a press and nothing drives before the match.
+     */
+    public void updateDuringInit() {
+        for (int i = 0; i < triggers.size(); i++) {
+            Trigger trigger = triggers.get(i);
+            if (trigger.duringInit) trigger.poll();
+        }
+    }
+
+    /**
      * Treat every button as already in its current state, so one held through PLAY — say B, still
      * down from choosing Red in INIT — does not count as a fresh press. Called at PLAY.
      */
@@ -84,9 +96,20 @@ public final class Bindings {
         private final List<Runnable> onRise = new ArrayList<>();
         private final List<Runnable> onFall = new ArrayList<>();
         private final List<Command> held = new ArrayList<>();
+        private boolean duringInit;
 
         Trigger(BooleanSupplier condition) {
             this.condition = condition;
+        }
+
+        /**
+         * Also live during INIT, before PLAY. For setting state with nothing moving: zeroing the
+         * turret at its home mark, say. Never for anything that drives a mechanism. The Controls
+         * page labels it "(also in INIT)".
+         */
+        public Trigger duringInit() {
+            duringInit = true;
+            return this;
         }
 
         /**

@@ -79,6 +79,17 @@
             <goBILDA5202SeriesMotor name="launcher_left"  port="1" />
             <goBILDA5202SeriesMotor name="launcher_right" port="2" />
             <goBILDA5202SeriesMotor name="feeder"         port="3" />
+            <!-- The ENCODER socket beside motor port 3 carries the turret's
+                 Studica Cypher Max (quadrature A/B/I, its FTC Control Hub
+                 cable), not the feeder's own encoder; the feeder runs without
+                 one. Code reads the turret angle as the feeder's position
+                 (DeviceNames.TURRET_ENCODER_HOST). Set the encoder's switch
+                 to 3V3. Build team's choice, 24 Oct 2026. -->
+
+            <!-- Turret drive: a goBILDA servo in continuous-rotation mode, on
+                 this hub's servo port 0. Its angle is the Cypher Max on motor
+                 port 3's encoder socket, above. -->
+            <ContinuousRotationServo name="turret" port="0" />
         </LynxModule>
     </LynxUsbDevice>
 

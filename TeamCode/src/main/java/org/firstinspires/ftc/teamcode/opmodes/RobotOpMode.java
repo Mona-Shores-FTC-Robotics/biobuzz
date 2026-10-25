@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
+import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
 import java.io.File;
 import java.util.Iterator;
@@ -156,7 +157,6 @@ public abstract class RobotOpMode extends OpMode {
     private boolean prevPageButton;
 
     /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
-    private boolean poseFromAuto;
     private Display.Level handoffLevel;
     private String handoffNote;
 
@@ -245,6 +245,8 @@ public abstract class RobotOpMode extends OpMode {
             display.status("Start", handoffLevel, handoffNote);
         }
         startCheck.describe(display);
+        driver.updateDuringInit();
+        operator.updateDuringInit();
         onInitLoop();
         Scheduler.execute();
         finishPage();
@@ -258,11 +260,16 @@ public abstract class RobotOpMode extends OpMode {
         driver.prime();
         operator.prime();
         if (!isAutonomous()) {
+            // Field-centric forward: the driver's "away from me" when the pose is on the field
+            // (handed over from Autonomous, or seeded by the camera in INIT) and that heading has
+            // been measured for the alliance; otherwise the way the robot faces now.
             double forward = FieldFrame.driverForwardHeading(setup.alliance());
-            if (poseFromAuto && !Double.isNaN(forward)) {
+            if (robot.drive.poseReferenced() && !Double.isNaN(forward)) {
                 robot.drive.setFieldForward(forward);
+                log.event("PLAY: field forward = driver forward");
             } else {
                 robot.drive.resetHeading();
+                log.event("PLAY: field forward = robot's facing");
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
@@ -276,10 +283,62 @@ public abstract class RobotOpMode extends OpMode {
         beginPage();
         driver.update();
         operator.update();
+        long t0 = System.nanoTime();
         onLoop();
+        long t1 = System.nanoTime();
         Scheduler.execute();
+        long t2 = System.nanoTime();
         finishPage();
+        long t3 = System.nanoTime();
         recordLoop(isAutonomous() ? MatchLog.Mode.AUTONOMOUS : MatchLog.Mode.TELEOP, loopTimer.lastMs());
+        long t4 = System.nanoTime();
+        costs.record(t0, t1, t2, t3, t4);
+    }
+
+    /**
+     * Where a loop's time goes, so a slow loop can be blamed on the right thing: the OpMode's own
+     * {@code onLoop()} (its drive request, Match page and Panels), the subsystems' updates through
+     * the Scheduler (sensors, the camera, the localizer, every mechanism), the Controls or Robot
+     * page, and the match log. Shown on the Robot page and written to the match log under
+     * {@code /Loop/...}. The bulk-cache clear and the bindings run before the first stamp and are
+     * microseconds.
+     */
+    protected final LoopCosts costs = new LoopCosts();
+
+    /** Running means of the loop's phases, ms. Allocated once; nothing per loop. */
+    protected final class LoopCosts {
+        private final WelfordVariance onLoopMs = new WelfordVariance();
+        private final WelfordVariance subsystemsMs = new WelfordVariance();
+        private final WelfordVariance pageMs = new WelfordVariance();
+        private final WelfordVariance logMs = new WelfordVariance();
+        private double lastOnLoopMs, lastSubsystemsMs, lastPageMs, lastLogMs;
+
+        void record(long t0, long t1, long t2, long t3, long t4) {
+            lastOnLoopMs = (t1 - t0) / 1e6;
+            lastSubsystemsMs = (t2 - t1) / 1e6;
+            lastPageMs = (t3 - t2) / 1e6;
+            lastLogMs = (t4 - t3) / 1e6;
+            onLoopMs.update(lastOnLoopMs);
+            subsystemsMs.update(lastSubsystemsMs);
+            pageMs.update(lastPageMs);
+            logMs.update(lastLogMs);
+            log.put("/Loop/OnLoopMs", lastOnLoopMs);
+            log.put("/Loop/SubsystemsMs", lastSubsystemsMs);
+            log.put("/Loop/PageMs", lastPageMs);
+            log.put("/Loop/LogMs", lastLogMs);
+        }
+
+        public double onLoopMs() { return onLoopMs.mean(); }
+        public double subsystemsMs() { return subsystemsMs.mean(); }
+        public double pageMs() { return pageMs.mean(); }
+        public double logMs() { return logMs.mean(); }
+
+        /** One line for the Robot page. */
+        public String summary() {
+            return String.format(java.util.Locale.US,
+                    "mean: onLoop %.1f · subsystems %.1f · page %.1f · log %.1f ms",
+                    onLoopMs.mean(), subsystemsMs.mean(), pageMs.mean(), logMs.mean());
+        }
     }
 
     @Override
@@ -337,7 +396,6 @@ public abstract class RobotOpMode extends OpMode {
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
-            poseFromAuto = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
@@ -373,6 +431,7 @@ public abstract class RobotOpMode extends OpMode {
         } else {
             display.section("Loop");
             display.line(loopTimer.summary());
+            display.line(costs.summary());
             display.section("Log");
             if (log.failure() != null) {
                 display.status("Log", Display.Level.WARN, log.failure());

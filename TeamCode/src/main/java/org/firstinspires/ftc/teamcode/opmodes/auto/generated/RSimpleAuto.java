@@ -29,7 +29,7 @@ public final class RSimpleAuto {
 
     /** Where the robot starts, for the given alliance. */
     public static Pose startPose(boolean rotated) {
-        return poses(rotated).of(59, 8.06, 90);
+        return poses(rotated).of(55, 9.7, 90);
     }
 
     private static PoseFactory poses(boolean rotated) {
@@ -41,7 +41,7 @@ public final class RSimpleAuto {
         PoseFactory p = poses(rotated);
 
         // Named points (x, y in inches, heading in degrees, Pedro field frame).
-        Pose start = p.of(59, 8.06, 90);
+        Pose start = p.of(55, 9.7, 90);
         Pose park = p.of(10.5, 95, 90);
 
         // Other poses the paths need (control points, unnamed endpoints).
@@ -51,7 +51,7 @@ public final class RSimpleAuto {
         Path startToPark = Paths.curve(start, startToParkControl1, park).linear(start, park);
 
         return kit.sequence(
-                kit.guarded("Auto", startToPark, 3.2,
+                kit.guarded("Auto", startToPark, 3.1,
                         kit.command("SpinUp"),
                         kit.firstOf("Fire the preloads at the right CELL (TIP 1)", kit.command("LaunchAll"),
                                 kit.when("Empty"),
