@@ -26,6 +26,7 @@
   el("path", { d: segPath(mirror(RS.centre)), stroke: "var(--muted)", "stroke-width": 1.1, fill: "none", opacity: 0.8 }, robotG);
   el("path", { d: segPath(mirror(RS.gecko)), stroke: "var(--fg)", "stroke-width": 1.4, fill: "none", opacity: 0.9 }, robotG);
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
+  const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the saddle over the intake's top channel
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
   // the arms from the October 25 CAD: 11-hole U-channels (1.26 in wide) on a pivot 2.37 in behind the face and 7.89 in up,
@@ -144,7 +145,11 @@
       pivotEl.setAttribute("cx", sx(pvx)); pivotEl.setAttribute("cy", sy(pvz));
       if (P.stowed) { plateStow.setAttribute("points", P.stowed.map(([a, z]) => sx(face + a) + "," + sy(z)).join(" ")); plateStow.style.display = ""; } else plateStow.style.display = "none";
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
-      if (cfg.pusher) { pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = ""; } else pokerEl.style.display = "none";
+      if (cfg.pusher) {
+        pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = "";
+        const web = cfg.pusher.z0 - 0.09;                                  // the channel's web top; the saddle's side profile
+        saddleEl.setAttribute("points", [[-2.06, web + 0.16], [0.17, web + 0.16], [0.17, web - 0.59], [-0.10, web - 0.59], [-0.10, web - 0.49], [0.01, web - 0.49], [0.01, web], [-1.90, web], [-1.90, web - 0.48], [-2.06, web - 0.48]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); saddleEl.style.display = "";
+      } else pokerEl.style.display = saddleEl.style.display = "none";
     } else {
       robotG.style.display = gecko.style.display = spoke.style.display = "none";
       arm.setAttribute("x1", sx(X0)); arm.setAttribute("y1", sy(0.77)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));

@@ -1,5 +1,5 @@
 """Split the built flower-stick.html into two pages: the notes (the story) and the simulator (the tool), each linking to
-the other. Usage: python3 split_pages.py <sim url> <notes url>"""
+the other. The simulator page carries only the simulator: no parts viewer. Usage: python3 split_pages.py <sim url> <notes url>"""
 import re, sys
 SIM_URL, NOTES_URL = sys.argv[1], sys.argv[2]
 h = open("flower-stick.html").read()
@@ -19,6 +19,9 @@ open("flower-stick-notes.html", "w").write(notes)
 # the simulator page
 hero_sim = hero.replace("<h1>The FLOWER stick</h1>", "<h1>The FLOWER stick simulator</h1>")
 hero_sim = re.sub(r'<p class="lede">.*?</p>', '<p class="lede">The computer model we tested every FLOWER stick design in: the FLOWER drawn from FIRST\'s field CAD, the front of our robot, four POLLEN with friction and bounce, and the blade driven in until the posts stop it. Pick a design from the sequence we went through, pick how the stack leans, and watch. The story behind the designs is in our notes, linked at the end.</p>', hero_sim, flags=re.S)
-sim = head.replace("<title>The FLOWER Stick</title>", "<title>FLOWER Stick Simulator</title>") + "<div class=\"wrap\">\n" + hero_sim + drive + blade + link_card(NOTES_URL, "Our notes", "The problem, every design in order, what each taught us, and what is next.") + "</div>\n" + scripts
+# the simulator page carries no parts viewer: drop its section and its mesh script (the `const STL = {` block)
+sim_scripts = re.sub(r'<script>\s*const STL = \{.*?</script>\s*', "", scripts, count=1, flags=re.S)
+sim_head = head.replace("<title>The FLOWER Stick</title>", "<title>FLOWER Stick Simulator</title>")   # STLLoader stays: the 3-D view loads the FLOWER with it
+sim = sim_head + "<div class=\"wrap\">\n" + hero_sim + drive + link_card(NOTES_URL, "Our notes", "The problem, every design in order, what each taught us, and what is next.") + "</div>\n" + sim_scripts
 open("flower-stick-sim.html", "w").write(sim)
 print("notes", len(notes) // 1000, "KB; sim", len(sim) // 1000, "KB")

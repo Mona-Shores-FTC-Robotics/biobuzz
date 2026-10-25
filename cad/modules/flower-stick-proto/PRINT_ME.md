@@ -1,6 +1,24 @@
-# Print job: the low arm's blade and poker (for whoever prints)
+# Print now: the wide mountain blade and the poker saddle (for whoever prints)
 
-**Newest: `stl/print_job_low.stl`**, 165 x 281 x 40 mm, three parts: `stl/mountain_wide_ears.stl` (the wide mountain
+**`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
+201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
+and two of `stl/poker_clip.stl` (the poker saddle, 85 x 40 x 63 mm, 46 cm3, one spare) on their sides. This is what to
+print first: the blade goes on the sled for the field test, the saddle clips over the intake's top channel on the robot.
+Needs a bed of at least 290 mm one way, or print the three one at a time. Millimetres. PETG. About 215 cm3.
+
+![the plate](print_job_next.png)
+
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
+optional. Millimetres: if it comes in tiny, scale by 25.4.
+
+Thank you!
+
+---
+
+# Later, for the arm build: the blade with ears (not yet)
+
+**`stl/print_job_low.stl`**, 179 x 272 x 40 mm, three parts (print this once the low arm exists; the eared blade's bore is
+loose on purpose and will not key to the sled): `stl/mountain_wide_ears.stl` (the wide mountain
 blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 202 x 37 mm, 137 cm3) flat side
 down, and two of `stl/poker_clip.stl` (the poker saddle, 85 x 40 x 63 mm, 46 cm3; one is a spare) on their sides. Needs a
 bed of at least 290 mm one way, or print the three one at a time. Millimetres. PETG. About 235 cm3. The blade's body

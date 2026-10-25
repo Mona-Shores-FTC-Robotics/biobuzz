@@ -211,13 +211,21 @@ window.Drive3D = (function () {
     }
     ballPos.forEach(([x, z, y], k) => balls[k].position.set(x, z, -(y || 0)));
   }
-  // the poker on the robot: a plate `reach` ahead of the face, z0 to z1 up, 1.4 in wide, in the middle
+  // the poker on the robot: the saddle over the intake's top channel (poker_clip.py), its web top 0.09 in below the poke's
+  // bottom: a top plate from 2.06 behind the face to 0.17 ahead, walls down both flanges, the lip under the front one, and the
+  // poke `reach` ahead of the face, z0 to z1 up, 2*hw wide
   let pokerMesh = null;
   function setPoker(pk) {
-    if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.geometry.dispose(); pokerMesh = null; }
+    if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); pokerMesh = null; }
     if (!pk) return;
-    pokerMesh = new THREE.Mesh(new THREE.BoxGeometry(pk.reach, pk.z1 - pk.z0, pk.hw ? 2 * pk.hw : 1.4), new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }));
-    pokerMesh.position.set(pk.reach / 2, (pk.z0 + pk.z1) / 2, 0); robot.add(pokerMesh);
+    const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.z0 - 0.09, W = 1.57, w = pk.hw ? 2 * pk.hw : 0.75;
+    const add = (x0, x1, z0, z1, wd) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, z1 - z0, wd), mat); m.position.set((x0 + x1) / 2, (z0 + z1) / 2, 0); g.add(m); };
+    add(-2.06, 0.17, web, web + 0.16, W);            // the top plate
+    add(0.01, 0.17, web - 0.59, web + 0.16, W);      // the front wall
+    add(-0.10, 0.17, web - 0.59, web - 0.49, W);     // the lip under the front flange
+    add(-2.06, -1.90, web - 0.48, web + 0.16, W);    // the back wall
+    add(0, pk.reach, pk.z0, pk.z1, w);               // the poke
+    pokerMesh = g; robot.add(g);
   }
   function theme() { scene.background = new THREE.Color(css("--panel")); }
   theme();
