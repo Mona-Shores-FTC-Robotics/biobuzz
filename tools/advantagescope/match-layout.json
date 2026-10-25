@@ -10,7 +10,6 @@
      "width": 307,
      "expanded": [
       "/Odometry",
-      "/Path",
       "/Events",
       "/Loop",
       "/Launcher",
@@ -33,35 +32,6 @@
        "title": "Field",
        "controller": {
         "sources": [
-         {
-          "type": "trajectory",
-          "logKey": "/Path/Full",
-          "logType": "Pose2d[]",
-          "visible": true,
-          "options": {
-           "color": "#858584",
-           "size": "normal"
-          }
-         },
-         {
-          "type": "trajectory",
-          "logKey": "/Path/Active",
-          "logType": "Pose2d[]",
-          "visible": true,
-          "options": {
-           "color": "#e5b31b",
-           "size": "normal"
-          }
-         },
-         {
-          "type": "ghost",
-          "logKey": "/Path/Target",
-          "logType": "Pose2d",
-          "visible": true,
-          "options": {
-           "color": "#e5b31b"
-          }
-         },
          {
           "type": "robot",
           "logKey": "/Odometry/Robot",
