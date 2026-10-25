@@ -106,7 +106,8 @@
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
   // stowT: 0 extended .. 1 stowed, animated; the robot backs 6 in off the FLOWER to swing the stick, over 1.8 s
   const BACK_OFF = 6.0, STOW_MS = 1800, ease = u => u * u * (3 - 2 * u);
-  let preset = "final", stack = "fb", mount = "tall", stowed = false, runText = "", stowT = 0, lastStow = null; const push = 4, stopErr = 0;
+  // backT: 0 at the FLOWER .. 1 backed off
+  let preset = "final", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null; const push = 4, stopErr = 0;
   let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
@@ -160,7 +161,7 @@
   }
   function draw() {
     if (!result) return;
-    const f = result.frames[i], t = f[0], P = PRESETS[preset], u = ease(stowT), lip = f[1] - BACK_OFF * Math.min(1, u * 2);   // the robot backs off during the first half of the move
+    const f = result.frames[i], t = f[0], P = PRESETS[preset], u = ease(stowT), lip = f[1] - BACK_OFF * ease(backT);   // the robot backed off the FLOWER
     if (cfg.finger) {                                                   // the body behind the pin, and the nose piece turned about it
       const px = cfg.finger.pivot[0], pz = cfg.finger.pivot[1], zAt = x => { for (let i = 0; i + 1 < profile.length; i++) { const [x0, z0] = profile[i], [x1, z1] = profile[i + 1]; if (x >= x0 && x <= x1) return z0 + (z1 - z0) * (x - x0) / (x1 - x0); } return profile[0][1]; };
       const body = [[px, profile[0][1]], [px, zAt(px)], ...profile.filter(p => p[0] > px)];
@@ -210,27 +211,25 @@
       planFace.style.display = planMouth.style.display = "";
     } else planFace.style.display = planMouth.style.display = "none";
     let phi = 0;
-    if (stowT > 0) {                                                     // the stick raised: arm, shaft and blade turned about the pivot together
+    if (stowT > 0 || backT > 0) {                                        // the stick raised, or the robot backed off to look at it: arm, shaft and blade turned about the pivot together
       const MT = S.MOUNTS[mount], face = lip - S.shaftAhead(MT) - P.shaftBack, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
-      phi = stowAngle(MT, shx - pvx, 0.77 - pvz) * Math.max(0, (u - 0.3) / 0.7);   // the swing starts once the robot is backing off
+      phi = stowAngle(MT, shx - pvx, 0.77 - pvz) * u;
       const rot = ([x, z]) => { const dx = x - pvx, dz = z - pvz, c = Math.cos(phi), s_ = Math.sin(phi); return [pvx + dx * c - dz * s_, pvz + dx * s_ + dz * c]; };
       blade.setAttribute("points", profile.map(([x, z]) => rot([lip - x, z])).map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); toeEl.style.display = "none";
       const [sxr, szr] = rot([shx, 0.77]); shaft.setAttribute("cx", sx(sxr)); shaft.setAttribute("cy", sy(szr));
       arm.setAttribute("d", barPath([pvx, pvz], [sxr - pvx, szr - pvz], MT.back, MT.fwd, MT.w)); armStow.style.display = plateStow.style.display = "none";
       if (MT.wheels) { wheelEl.setAttribute("cx", sx(sxr)); wheelEl.setAttribute("cy", sy(szr)); }
-      const s = 1 - 0.58 * Math.min(1, u * 3); sideG.setAttribute("transform", `translate(${(40 * (1 - s) / 0.58).toFixed(1)} ${(sy(0) * (1 - s)).toFixed(1)}) scale(${s})`);   // zoomed out about the floor line, the robot kept in view
+      const s = 1 - 0.58 * ease(backT); sideG.setAttribute("transform", `translate(${(40 * (1 - s) / 0.58).toFixed(1)} ${(sy(0) * (1 - s)).toFixed(1)}) scale(${s})`);   // zoomed out about the floor line, the robot kept in view
     } else { armStow.style.display = ""; sideG.removeAttribute("transform"); }
     if (window.Drive3D) window.Drive3D.frame(lip, f[2], true, P.shaftBack, t, cfg.finger ? [f[3] || 0, cfg.finger.pivot, NOSE_POLY] : null, phi);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
   }
   function tick(now) {
-    const target = stowed ? 1 : 0;
-    if (stowT !== target && result) {                                     // the stick swinging: back off first, then turn, and the reverse coming down
-      const dt = lastStow === null ? 0 : now - lastStow; lastStow = now;
-      stowT = Math.max(0, Math.min(1, stowT + Math.sign(target - stowT) * dt / STOW_MS)); draw();
-    } else lastStow = null;
-    if (playing && result) {
+    const sT = stowed ? 1 : 0, bT = backedOff ? 1 : 0, dt = lastStow === null ? 0 : now - lastStow; lastStow = now;
+    if (result && backT !== bT && (bT === 1 || stowT === 0)) { backT = Math.max(0, Math.min(1, backT + Math.sign(bT - backT) * dt / 900)); draw(); }         // back off before the swing; drive in only with the stick down
+    else if (result && stowT !== sT && (sT === 0 || backT === 1)) { stowT = Math.max(0, Math.min(1, stowT + Math.sign(sT - stowT) * dt / STOW_MS)); draw(); }   // the swing, once backed off
+    if (playing && result && backT === 0) {
       if (last !== null) acc += (now - last) * (slow ? 0.3 : 1);
       last = now;
       while (acc >= 10 && i < result.frames.length - 1) { acc -= 10; i++; }
@@ -243,8 +242,8 @@
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
   for (const b of document.querySelectorAll("[data-mount]")) b.onclick = () => { mount = b.dataset.mount; pressed("data-mount", mount); compute(); };
-  for (const b of document.querySelectorAll("[data-stow]")) b.onclick = () => { stowed = b.dataset.stow === "1"; pressed("data-stow", b.dataset.stow); playing = false; $("sim-play").textContent = "Play"; $("sim-result").textContent = stowed ? stowReport() : runText; draw(); };
-  $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
+  for (const b of document.querySelectorAll("[data-stow]")) b.onclick = () => { stowed = b.dataset.stow === "1"; if (stowed) backedOff = true; pressed("data-stow", b.dataset.stow); playing = false; $("sim-play").textContent = "Play"; $("sim-result").textContent = stowed ? stowReport() : (backedOff ? "Backed off the FLOWER with the stick down, to look at the geometry. Play drives in and runs." : runText); draw(); };
+  $("sim-play").onclick = function () { if (!result) return; if (stowed) { stowed = false; pressed("data-stow", "0"); } backedOff = false; $("sim-result").textContent = runText; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };
   $("sim-scrub").oninput = function () { if (!result) return; playing = false; $("sim-play").textContent = "Play"; i = +this.value; draw(); };
   compute();
