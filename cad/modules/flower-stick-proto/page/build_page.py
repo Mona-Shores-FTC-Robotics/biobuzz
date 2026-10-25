@@ -583,4 +583,22 @@ body = f'''
 {drive3d}
 {anim_js}
 '''
+# a phone needs the viewport meta, or it lays the page out 980 px wide and shrinks it
+if 'name="viewport"' not in head:
+    tag = '<meta name="viewport" content="width=device-width, initial-scale=1">'
+    if "<head>" in head: head = head.replace("<head>", "<head>" + tag, 1)
+    else: head = head.replace("<title>", tag + "<title>", 1)
+assert 'name="viewport"' in head, "nowhere to hang the viewport meta"
+# on a phone the segmented button rows have to wrap: each button becomes its own pill, and the bar stays within the screen
+head = head.replace("</style>", """
+@media (max-width: 720px) {
+  .bar { gap: 8px 10px; padding: 10px }
+  .bar .seg { flex-wrap: wrap; border: 0; border-radius: 0; overflow: visible; gap: 6px }
+  .bar .seg button { border: 1px solid var(--line); border-radius: 7px; padding: 9px 10px }
+  .bar .seg button + button { border-left: 1px solid var(--line) }
+  .bar .seg button[aria-pressed="true"] { border-color: var(--petg) }
+  .bar label { flex-basis: 100%; margin-top: 2px }
+  #sim-scrub { flex: 1 1 140px; min-width: 120px }
+}
+</style>""")
 out = os.path.join(S, "flower-stick.html"); open(out, "w").write(head + body); print(out, len(head + body))
