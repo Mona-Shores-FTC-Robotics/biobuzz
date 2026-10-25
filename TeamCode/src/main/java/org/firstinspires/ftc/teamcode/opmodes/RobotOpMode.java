@@ -24,6 +24,7 @@ import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
@@ -65,6 +66,11 @@ import java.util.Map;
  *       this same loop, not the next one.</li>
  *   <li><b>The Driver Station page.</b> See {@link Display}: Back/Share on gamepad 1 cycles Match,
  *       Controls and Robot.</li>
+ *   <li><b>The Panels Field view.</b> The robot's pose from {@code robot.drive}, drawn through
+ *       {@link FieldView} at the throttle's rate (about 10 Hz) and skipped without a Pinpoint. Every
+ *       OpMode on this class gets it for free; an OpMode that draws more (a camera's opinion of the
+ *       pose, a target) draws into the same view in {@code onLoop()} and sends it, and this send then
+ *       finds nothing to do that loop.</li>
  *   <li><b>The match log.</b> See {@link #log}: this loop's state goes to the background writer.</li>
  * </ol>
  *
@@ -129,6 +135,13 @@ public abstract class RobotOpMode extends OpMode {
     /** The Driver Station screen. Use it to write the Match page in {@link #onLoop()}. */
     protected Display display;
 
+    /**
+     * The Panels Field view, in Pedro coordinates, drawn by this class every loop (throttled; see
+     * {@link FieldView#shouldDraw()}). Null when Panels could not provide one at init, in which case
+     * nothing is drawn and the robot runs on regardless.
+     */
+    private FieldView fieldView;
+
     /** The alliance, settled during INIT and locked at PLAY. Read {@code setup.alliance()}. */
     protected final MatchSetup setup = new MatchSetup();
 
@@ -166,7 +179,10 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * Where this OpMode expects the robot to start, from {@code StartPositions}. Autonomous
-     * overrides it; null (the default) means no declared start and no start check.
+     * overrides it; null (the default) means no declared start and no start check. It is read at
+     * init and again every INIT loop, so an Auto whose start depends on the alliance returns the
+     * matching one; return the same instance while nothing has changed, since a different instance
+     * moves the pose and restarts the start check.
      */
     protected StartPosition startPosition() {
         return null;
@@ -197,6 +213,14 @@ public abstract class RobotOpMode extends OpMode {
     public final void init() {
         display = new Display(telemetry);
         openLog();
+        // Once, here: the view is a handle on Panels' shared field, not something to look up per
+        // loop. A dashboard failure is not a robot failure, so it is allowed to be absent.
+        try {
+            fieldView = FieldView.pedroCoordinates();
+        } catch (RuntimeException e) {
+            fieldView = null;
+            log.event("field view unavailable: " + e);
+        }
 
         // Before the robot is built, so no read anywhere — constructors included — bypasses it.
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -235,11 +259,21 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
+        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
+        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
+        // The declared start may follow the alliance (BuiltAuto: the drawing's start, or the
+        // rotated one). When it changes, the pose moves there and the fix statistics restart.
+        StartPosition wanted = startPosition();
+        if (wanted != declaredStart) {
+            declaredStart = wanted;
+            if (wanted != null) {
+                robot.drive.setPose(wanted.pose);
+                log.event("Start: now declaring " + wanted);
+            }
+        }
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
-        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
-        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
@@ -250,6 +284,7 @@ public abstract class RobotOpMode extends OpMode {
         onInitLoop();
         Scheduler.execute();
         finishPage();
+        drawField();
         recordLoop(MatchLog.Mode.DISABLED, Double.NaN);
     }
 
@@ -289,6 +324,7 @@ public abstract class RobotOpMode extends OpMode {
         Scheduler.execute();
         long t2 = System.nanoTime();
         finishPage();
+        drawField();
         long t3 = System.nanoTime();
         recordLoop(isAutonomous() ? MatchLog.Mode.AUTONOMOUS : MatchLog.Mode.TELEOP, loopTimer.lastMs());
         long t4 = System.nanoTime();
@@ -299,9 +335,9 @@ public abstract class RobotOpMode extends OpMode {
      * Where a loop's time goes, so a slow loop can be blamed on the right thing: the OpMode's own
      * {@code onLoop()} (its drive request, Match page and Panels), the subsystems' updates through
      * the Scheduler (sensors, the camera, the localizer, every mechanism), the Controls or Robot
-     * page, and the match log. Shown on the Robot page and written to the match log under
-     * {@code /Loop/...}. The bulk-cache clear and the bindings run before the first stamp and are
-     * microseconds.
+     * page together with the Panels Field view, and the match log. Shown on the Robot page and
+     * written to the match log under {@code /Loop/...}. The bulk-cache clear and the bindings run
+     * before the first stamp and are microseconds.
      */
     protected final LoopCosts costs = new LoopCosts();
 
@@ -366,6 +402,29 @@ public abstract class RobotOpMode extends OpMode {
             log.pause("OpMode stopped: " + opModeName(), Handoff.MAX_AGE_MS);
         } else {
             log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
+        }
+    }
+
+    /**
+     * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
+     * pose. Gated on the throttle, so on most loops this is one boolean read; skipped when the
+     * drive has no heading (no Pinpoint), since then there is no pose to draw. The publish is
+     * caught and swallowed: telemetry never takes a mechanism down.
+     */
+    private void drawField() {
+        if (fieldView == null || !robot.drive.hasHeading()) {
+            return;
+        }
+        try {
+            if (fieldView.shouldDraw()) {
+                Pose pose = robot.drive.pose();
+                if (pose != null) {
+                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+                }
+                fieldView.send();
+            }
+        } catch (RuntimeException ignored) {
+            // Panels is a window onto the robot, not part of it.
         }
     }
 

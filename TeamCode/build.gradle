@@ -13,7 +13,7 @@ apply plugin: 'com.android.application'
 // Sloth Load plugin — enables Sinister fast dex scanning at OpMode discovery
 // time (~50% faster init vs. plain FTC SDK reflective scanning). Required for
 // the Sloth runtime dependency below to function. Must stay version-locked to
-// the Sloth runtime and to the Sloth-variant builds of Panels / FTC Dashboard;
+// the Sloth runtime, which AutoTune and Panels both declare a dependency on;
 // see TeamCode/README.md.
 buildscript {
     repositories {
@@ -122,7 +122,10 @@ dependencies {
     // AutoTune — the robot-hosted tuning webpage that backs the OpModes in
     // org.firstinspires.ftc.teamcode.pedro. Separate artifact in 3.x, and the
     // reason the Sloth stack above is pinned to 0.3.2 (AutoTune requires it).
-    implementation('com.pedropathing:tuning:1.0.2')
+    // 1.0.2 is skipped on purpose: its TunerScanner throws on the first @Tuner
+    // it finds (putIfAbsent returns null), so the AutoTune page lists nothing.
+    // 1.0.3-beta.1 is 1.0.2 plus that one-line fix (upstream PR #4); see #222.
+    implementation('com.pedropathing:tuning:1.0.3-beta.1')
 
     // Ivy (command-based control flow). 1.1.x is the Pedro 3 pairing —
     // 1.1.1 is compiled against com.pedropathing:core:3.0.0. 1.0.1 was built
@@ -134,8 +137,11 @@ dependencies {
     // the cached one.
     implementation('dev.frozenmilk.dairy:CachingHardware:1.0.0')
 
-    // Panels — Sloth-compatible variant (replaces com.bylazar:fullpanels)
-    implementation("com.bylazar.sloth:fullpanels:0.3.2+1.0.13")
+    // Panels. Upstream is Sloth-native from 1.0.16 (it depends on Sloth 0.3.2
+    // and scans through Sinister), so the Dairy fork
+    // com.bylazar.sloth:fullpanels:0.3.2+1.0.13 is frozen and no longer needed.
+    // Its `panels` module pins androidx.appcompat strictly to 1.2.0.
+    implementation("com.bylazar:fullpanels:1.0.19")
 
     // FTC Dashboard is deliberately absent. It and Panels each work alone; with
     // both present the Robot Controller crash-loops on a BindException before

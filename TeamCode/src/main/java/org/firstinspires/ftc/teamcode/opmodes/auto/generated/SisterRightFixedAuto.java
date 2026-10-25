@@ -48,7 +48,7 @@ public final class SisterRightFixedAuto {
         Pose garden = p.of(9.5, 10.96, 270);
         Pose rS = p.of(40, 22, 90);
         Pose rN = p.of(30, 104, 90);
-        Pose park = p.of(10.5, 95, 90);
+        Pose park = p.of(14, 95, 90);
         Pose wallFlower = p.of(14.86, 47.36, 180);
         Pose wallFlowerTurn = p.of(23.16, 47.36, 180);
         Pose rPre = p.of(57, 20, 90);

@@ -18,10 +18,10 @@ and why — so the reasoning survives past whoever added it.
 | Sloth | `dev.frozenmilk.sinister:Sloth:0.3.2` (+ `dev.frozenmilk:Load:0.3.2` Gradle plugin) | Hot code reload — pushes only TeamCode to the robot, turning a ~40s reinstall into under a second (see [Deploying to the robot](#deploying-to-the-robot)). Also gives fast dex scanning at OpMode discovery, roughly 50% faster init than the SDK's reflective scan, and is the discovery mechanism AutoTune is built on, so it is no longer optional. |
 | Pedro Pathing (core) | `com.pedropathing:core:3.0.2` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
 | Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.2` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
-| Pedro AutoTune | `com.pedropathing:tuning:1.0.2` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
+| Pedro AutoTune | `com.pedropathing:tuning:1.0.3-beta.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
 | Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
-| Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
+| Panels | `com.bylazar:fullpanels:1.0.19` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Upstream is Sloth-native from 1.0.16; the Dairy fork `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` we used until Oct 2026 is frozen at that version. |
 
 
 FTC Dashboard used to be the tenth row of that table. It is gone — not because it
@@ -46,11 +46,19 @@ others in the same commit:
 1. **AutoTune requires Sloth `0.3.2`.** `com.pedropathing:tuning` discovers
    `@Tuner`-annotated fields via `TunerScanner`, which is a Sinister `Scanner`
    — i.e. AutoTune does not work without the Sloth runtime.
-2. **The Sloth-variant builds of Panels and FTC Dashboard are version-locked to
-   the Sloth runtime**, which is what the `0.3.2+…` prefix in their version
-   strings means. They must track the Sloth version, and `dev.frozenmilk:Load`
-   (the Gradle plugin) must match it too.
-3. **Panels `0.3.2+1.0.5` declares `androidx.appcompat:appcompat` as
+2. **Panels declares its own Sloth dependency.** Since FullPanels 1.0.16
+   (3 Oct 2026, when Oscar's Sloth support was merged upstream) the plain
+   `com.bylazar` artifacts depend on `dev.frozenmilk.sinister:Sloth` directly —
+   1.0.19 asks for `0.3.2` — and `configurables` / `opmodecontrol` are Sinister
+   `Scanner`s. So the Sloth version Panels wants, the one AutoTune wants and the
+   one we declare must agree, and `dev.frozenmilk:Load` (the Gradle plugin)
+   must match too. Before that, the same lock was expressed by the Dairy fork's
+   `0.3.2+…` version prefix (`com.bylazar.sloth:fullpanels:0.3.2+1.0.13`, the
+   last one published; the fork is frozen there and we moved off it in #220).
+   The Sloth build of FTC Dashboard (`com.acmerobotics.slothboard`) still uses
+   that prefix scheme.
+3. **Panels (`panels` 1.0.8, inside FullPanels 1.0.19; the same since
+   `0.3.2+1.0.5`) declares `androidx.appcompat:appcompat` as
    `{strictly 1.2.0}`.** That is why `build.dependencies.gradle` pins appcompat
    at `1.2.0` and not something newer. A Dependabot PR raising appcompat will
    fail to resolve — close it rather than trying to force the version, since
@@ -1340,7 +1348,7 @@ server, which is still there and still serves the RC's own pages.
 |---|---|---|
 | Numeric series, graphable | Telemetry + Graph View | `PanelsTelemetry.INSTANCE.getTelemetry()` → `addData(key, value)` |
 | Text lines | Telemetry | same manager → `debug(line)` |
-| Robot pose and paths | Field View | `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
+| Robot pose and paths | Field View | Drawn by `RobotOpMode` in every OpMode on it; for more, `util/FieldView.java` — `shouldDraw()` / `drawRobot(x, y, heading)` / `send()` |
 | Replay a run afterwards | Capture | browser-side, nothing to write |
 | Start/stop OpModes from the laptop | OpMode Control | browser-side |
 | Limelight pipeline tuning without a USB cable | Limelight proxy | browser-side |
@@ -1446,6 +1454,18 @@ if (fieldView.shouldDraw()) {
 Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
 circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
 the honest shape rather than a compromise.
+
+**Every `RobotOpMode` draws the robot.** `RobotOpMode` creates one `FieldView` at init and, after
+the subsystems have updated each loop (INIT loops included), draws the pose from `robot.drive` with
+exactly the gated shape above, inside a `try`/`catch` that swallows. So the Field plugin shows the
+robot in Basic Drive and in every Auto with nothing written in the OpMode, and skips drawing when the
+drive has no heading (no Pinpoint). An OpMode that wants more on the field — `HiveAndPose` draws the
+camera's pose and the turret's ray — makes its own `FieldView` and draws in `onLoop()`: both are
+handles on the same Panels field, so its `send()` spends the throttle and the base class's draw that
+loop finds nothing to do. No robot is drawn twice.
+
+> **Before 25 Oct 2026** only `HiveAndPose` and `LoopTimeBaseline` drew anything, so the Field
+> plugin was blank during a match. Noticed running R-Simple on 20245.
 
 ### Bringing the field view up on a robot
 
@@ -1559,7 +1579,9 @@ declares a dependency on the other; both pull
 `org.nanohttpd:nanohttpd-websocket:2.3.1` and both exclude the core `nanohttpd`,
 expecting the SDK's bundled `fi.iki.elonen` classes — which is the class in the
 crash stack. Beyond that it needs the maintainers, and it is worth reporting
-upstream to Dairy Foundation (who build both Sloth variants) and bylazar.
+upstream to Dairy Foundation (who build the Sloth Dashboard) and bylazar. The
+measurement was taken on the Dairy fork of Panels; upstream 1.0.19 pulls the
+same `nanohttpd-websocket` and binds the same port, so assume it still holds.
 
 **Why Dashboard rather than Panels was the one dropped:** seven files import
 `com.bylazar.*`; one imported `com.acmerobotics.*`. The cost was one OpMode's

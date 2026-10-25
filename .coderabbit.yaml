@@ -1,0 +1,8 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+# CodeRabbit reads this from the branch under review. Draft PRs are where this
+# team's work sits while it waits for the robot, so they get reviewed too.
+language: en-US
+reviews:
+  auto_review:
+    enabled: true
+    drafts: true

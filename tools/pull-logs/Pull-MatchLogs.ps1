@@ -38,6 +38,11 @@ Pull only; never start AdvantageScope.
 After a file is pulled and its size matches, delete it from the hub. The newest file is never
 deleted (it may still be being written). Off by default: the hub has room for a season of logs.
 
+.PARAMETER Adb
+The adb.exe to use. By default: the one behind an adb server that is already running (so a
+laptop that talks to the hub through REV Hardware Client keeps using that adb), else Android
+Studio's, else the one on PATH.
+
 .EXAMPLE
 .\Pull-MatchLogs.ps1
 Pull everything new and open the newest log.
@@ -73,6 +78,12 @@ function Say($text) {
 
 function Find-Adb {
     if ($Adb) { return $Adb }
+    # An adb server is already running: use the very binary that started it. Two different adb
+    # builds on one laptop (Android Studio's, REV Hardware Client's) each kill the other's server
+    # on sight ("adb server version doesn't match this client"), and that fight is what makes a
+    # hub flap between connected and offline. Whichever one is live owns the hub for now.
+    $running = Get-Process adb -ErrorAction SilentlyContinue | Where-Object { $_.Path } | Select-Object -First 1
+    if ($running) { return $running.Path }
     $studio = Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe'
     if (Test-Path $studio) { return $studio }
     $onPath = Get-Command adb -ErrorAction SilentlyContinue
@@ -135,19 +146,25 @@ function Connect-Robot {
         Invoke-Adb @('disconnect', $Target) | Out-Null
     }
     $reply = (Invoke-Adb @('connect', $Target)) -join ' '
-    if ($reply -match 'connected to') {
-        Say "adb connected to $Target."
-        return $true
-    }
     if ($reply -match "doesn't match this client") {
         # Two copies of adb fighting (README: "Two copies of adb"). Restart ours and try once more.
         Say 'adb server version mismatch; restarting the adb server.'
         Invoke-Adb @('kill-server') | Out-Null
         $reply = (Invoke-Adb @('connect', $Target)) -join ' '
-        if ($reply -match 'connected to') { return $true }
     }
-    Say "adb could not connect: $reply"
-    return $false
+    if ($reply -notmatch 'connected to') {
+        Say "adb could not connect: $reply"
+        return $false
+    }
+    # "connected to" is adb's word for "the socket opened". After a Wi-Fi drop the hub's adb
+    # daemon can accept the socket and still list the device as offline, in which case nothing
+    # works until it recovers (or the hub reboots). Say so once; do not claim a connection.
+    if ((Get-AdbState) -ne 'device') {
+        Say "the hub answers but adb lists it as '$(Get-AdbState)'; waiting for it to recover."
+        return $false
+    }
+    Say "adb connected to $Target."
+    return $true
 }
 
 # ------------------------------------------------------------------ list, pull, remove
@@ -165,15 +182,36 @@ function Get-RobotLogs {
     return @($files | Sort-Object Name)
 }
 
-# The Wi-Fi network this laptop is on, as a folder name: the robot's network is named after the
-# robot, so logs from the two robots land in two folders. 'robot' if it cannot be read (USB).
+# The robot's Wi-Fi network, as a folder name: the robot's network is named after the robot, so
+# logs from the two robots land in two folders. A laptop with two adapters (one on the robot,
+# one on the building's Wi-Fi) is labelled by the adapter that reaches the hub, not the first
+# one netsh lists. 'robot' if the hub is reached some other way (USB, Ethernet) or nothing can
+# be read.
 function Get-RobotLabel {
     try {
+        $alias = $null
+        try {
+            $route = Find-NetRoute -RemoteIPAddress $Robot -ErrorAction Stop | Select-Object -First 1
+            if ($route) { $alias = $route.InterfaceAlias }
+        } catch { }
+        $name = $null
+        $firstSsid = $null
+        $ssidByName = @{}
         foreach ($line in (& netsh wlan show interfaces 2>$null)) {
-            if ($line -match '^\s*SSID\s*:\s*(.+?)\s*$') {
-                return ($Matches[1] -replace '[^A-Za-z0-9._-]', '_')
+            if ($line -match '^\s*Name\s*:\s*(.+?)\s*$') {
+                $name = $Matches[1]
+            } elseif ($line -match '^\s*SSID\s*:\s*(.+?)\s*$') {
+                if (-not $firstSsid) { $firstSsid = $Matches[1] }
+                if ($name) { $ssidByName[$name] = $Matches[1] }
             }
         }
+        $ssid = $null
+        if ($alias) {
+            if ($ssidByName.ContainsKey($alias)) { $ssid = $ssidByName[$alias] }
+        } else {
+            $ssid = $firstSsid
+        }
+        if ($ssid) { return ($ssid -replace '[^A-Za-z0-9._-]', '_') }
     } catch { }
     return 'robot'
 }
@@ -212,11 +250,15 @@ function Remove-PulledFromRobot {
 
 function Open-Log {
     param([string]$Path)
-    if ($NoOpen) { return }
+    if ($NoOpen -or -not $Path) { return }
     $exe = $script:AsExe
     if ($exe) {
         Say "opening in AdvantageScope: $Path"
-        Start-Process -FilePath $exe -ArgumentList "`"$Path`"" | Out-Null
+        # AdvantageScope is a Chromium app. A second copy started while one is open logs a burst
+        # of "Unable to move the cache: Access is denied" to stderr before handing the file to the
+        # first copy. Harmless, but it buries the watcher's own lines, so it goes to a file.
+        $noise = Join-Path $env:TEMP 'advantagescope-launch.log'
+        Start-Process -FilePath $exe -ArgumentList "`"$Path`"" -RedirectStandardError $noise | Out-Null
     } else {
         Say "AdvantageScope not found at the usual place; open this by hand: $Path"
     }
@@ -233,12 +275,12 @@ Say "logs go to $Folder"
 
 if (-not $Watch) {
     if (-not (Connect-Robot)) { exit 1 }
-    $remote = Get-RobotLogs
+    $remote = @(Get-RobotLogs)
     if ($remote.Count -eq 0) {
         Say "No .wpilog files in $RemoteFolder on the robot. Has a RobotOpMode run since the install?"
         exit 0
     }
-    $pulled = Sync-Logs -Remote $remote -Folder $Folder
+    $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
     if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
     if ($pulled.Count -eq 0) {
         Say "Nothing new: all $($remote.Count) logs are already here."
@@ -256,11 +298,13 @@ $lastSize = @{}        # name -> size on the hub last tick
 $changed = @{}         # name -> $true while a file has grown since it was last opened
 $connected = $false
 $first = $true
+$failures = 0          # consecutive ticks without the hub; the retry interval grows with it
 while ($true) {
     if (Connect-Robot) {
         if (-not $connected) { Say 'connected.'; $connected = $true }
-        $remote = Get-RobotLogs
-        $pulled = Sync-Logs -Remote $remote -Folder $Folder
+        $failures = 0
+        $remote = @(Get-RobotLogs)
+        $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
         if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
         foreach ($f in $remote) {
             $prev = -1
@@ -277,9 +321,13 @@ while ($true) {
         }
         if ($first) { Say "$($remote.Count) logs on the robot; new ones open as they finish." }
         $first = $false
-    } elseif ($connected) {
-        Say 'lost the robot; will keep trying.'
+    } else {
+        if ($connected) { Say 'lost the robot; will keep trying.' }
         $connected = $false
+        $failures++
     }
-    Start-Sleep -Seconds $EverySeconds
+    # While the hub is away, retry less and less often (up to a minute) rather than hammering
+    # its adb daemon every tick while it is trying to come back.
+    $wait = $EverySeconds * [Math]::Min([Math]::Pow(2, $failures), 12)
+    Start-Sleep -Seconds ([int][Math]::Min($wait, 60))
 }
