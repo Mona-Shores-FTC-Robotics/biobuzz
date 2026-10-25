@@ -2,7 +2,7 @@
 
 **`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
 201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
-`stl/poker_plate.stl` (the poker plate, 81 x 158 x 63 mm, 92 cm3) on its flat top, and the hex-fit coupon (skip it if the
+`stl/poker_plate.stl` (the poker plate, 81 x 112 x 63 mm, 96 cm3) on its flat top, and the hex-fit coupon (skip it if the
 last one fit). This is what to print first: the blade goes on the sled for the field test, the plate bolts down on the
 intake's top channel on the robot with two M4 x 16 and nuts through the web's bearing holes 1.9 and 2.8 in from the centre
 on the intake motor's encoder side (not the gearbox side). Needs a bed of at least 290 mm one way, or print the parts one

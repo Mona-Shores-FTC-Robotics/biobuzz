@@ -439,11 +439,13 @@ body = f'''
         middle, nothing can wrap its back, and only two of the web's bearing holes have a clear cavity below them, both on the
         motor's encoder side.</p>
         <p>So the poker is a plate that bolts down through those two. It sits on the web from the cross channel's face to the
-        front flange, 2.6 in to the gearbox side and 3.1 in to the encoder side with a tab out to the second hole, two bosses dropping into the
+        front flange, 1.3 in to the gearbox side, just past the poke, and 3 in to the encoder side with a tab out to the second hole, two bosses dropping into the
         web's 14 mm holes 1.9 and 2.8 in from the centre on the encoder side with an M4 down each and a nut below, and a lip turned down over the front flange. The poke
-        rises off its front 33 mm (1.3 in) ahead of the face, 5.7 to 7.5 in up. The ball pushes the poke toward the robot: the
-        plate's rear edge bears on the cross channel's face in compression, the tip-back puts the bolts in tension through the
-        web, and a sideways hit works against two bosses in two holes, the lip along the flange and 5.7 in of plate on the web.
+        rises off its front 33 mm (1.3 in) ahead of the face, 5.7 to 7.5 in up, and behind it a wedge as wide as the poke runs the
+        full depth of the plate, from the poke's top down to the cross channel's face, which it bears on over the channel's
+        height above the web. The ball pushes the poke toward the robot: that load goes down the wedge in compression straight
+        into the cross channel. The tip-back puts the bolts in tension through the web, and a sideways hit works against two
+        bosses in two holes and the lip along the flange.
         Its position comes from the channel, not from whoever fits it. The intake is on slides, so the poke
         is sized for the intake in its lowered position, where it has to be for the stick anyway. It starts 5.7 in up rather than
         5.3 because the folded blade's lip reaches 5.59 under it; the model is as happy with 5.7 to 7.5 at 1.3 in of reach (24 of

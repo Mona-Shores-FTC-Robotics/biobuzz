@@ -643,12 +643,13 @@ channel's back flange and stands 1 in above the web, and two pattern spacers sit
 nothing goes under the channel near the middle (no through-bolts, no centre peg), nothing wraps its back (no saddle), and
 only the bearing holes 1.89 and 2.83 in from the centre on the motor's encoder side (not the gearbox side) have a clear
 cavity below. The plate sits on the web from the cross channel's
-face (0.5 mm off it) to the front flange, 2.6 in to the gearbox side and 3.1 in to the encoder side, with a tab to 3.05 ahead of the spacer, 6 mm
+face (0.5 mm off it) to the front flange, 1.3 in to the gearbox side (just past the poke) and 2.6 in to the encoder side, with a tab to 3.05 ahead of the spacer, 6 mm
 thick, two 13.8 mm bosses into those two holes with an M4 x 16 down each and a nut below (reach in from under the web
 between the intake wheels), a 4 mm lip 15 mm down the front flange, and the poke off the front (33 mm = 1.3 in ahead of the
-face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered; `page/pokez_scan.js`). Loads: the ball's
-push bears the plate's rear edge on the cross channel (compression); the tip-back is two bolts in tension; a side hit is
-two bosses in two holes, the lip along the flange and the plate on the web. `print_job.py next` prints it with the plain
+face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered; `page/pokez_scan.js`). Behind the poke a wedge as wide as it runs the full depth of the plate, from the poke's top at the front down to 24 mm
+at the rear, where it bears on the cross channel's face. Loads: the ball's push goes down the wedge in compression into the
+cross channel; the tip-back is two bolts in tension; a side hit is two bosses in two holes and the lip along the flange.
+81 x 112 x 63 mm, 96 cm3. `print_job.py next` prints it with the plain
 blade; `low_arm_step.py` places it. The saddle it replaces (a clip with a lip, then two through-bolts under the channel) is
 in git history only; the bolt-on bracket below is superseded.
 
