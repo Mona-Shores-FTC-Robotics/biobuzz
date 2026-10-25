@@ -65,7 +65,11 @@
   let stack = "fb";
   // the lifter: a plate ahead of the lip under the ball, the blade's thickness, that swings up about the lip's foot when the
   // blade stops on the posts (a mechanism the posts trip), pushing the ball toward the robot
-  const TOES = { none: null, lifter: { len: 1.3, deg: 75, time: 0.3 } };
+  // v10: the nose piece on a 4 mm pin 0.32 in behind the lip, 0.96 in up, with a 1.3 in toe; the posts push the lip below the
+  // pin, so it turns nose-up as the body drives 0.22 in further, to 54 deg where the lip's corner reaches the pin's height
+  const TOES = { none: null, lifter: { len: 1.3, deg: 54, advance: 0.22, pivot: [0.32, 0.96] } };
+  // the nose piece's outline, in inches behind the lip and up: toe, lip, face, hub, heel
+  const NOSE_POLY = [[-1.3, 0.42], [-1.3, 0.52], [0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52], [0.05, 0.52], [0.05, 0.42]];
   let toe = "none";
   function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6, oval: +$("s-laneOval").value } : null; }
   function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; $("s-laneOval").value = l.oval || 0; } }
@@ -106,7 +110,7 @@
     profile = readouts();
     cfg = { drive: +$("s-drive").value, mu: +$("s-mu").value, stopErr: +$("s-stopErr").value, extraDepth: P.extraDepth || 0, onRobot: P.onRobot,
       width: P.width || bladeWidth, gutter: readLane(), offset: +$("s-offset").value, yaw: +$("s-yaw").value, mouth: +$("s-mouth").value, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]); cfg.toe = TOES[toe];
+    Object.assign(cfg, STACKS[stack]); if (TOES[toe]) { cfg.finger = TOES[toe]; cfg.extraDepth += TOES[toe].advance; }
     const t0 = performance.now();
     result = S.run(profile, cfg);
     const ms = Math.round(performance.now() - t0);
@@ -123,19 +127,23 @@
     else if (r.out.every(v => v !== null)) s = "All four out of the FLOWER, the last at " + Math.max(...r.out).toFixed(2) + " s.";
     else s = (4 - r.out.filter(v => v !== null).length) + " of 4 still in the FLOWER after " + r.frames[r.frames.length - 1][0].toFixed(1) + " s.";
     const stackName = { fb: "stack leaning front to back", straight: "straight stack", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = name + (toe === "none" ? "" : " with the lifter") + ", " + stackName + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
+    $("sim-result").textContent = name + (toe === "none" ? "" : " with the self-tripping nose") + ", " + stackName + ", " + cfg.drive + " in/s, friction " + cfg.mu + (cfg.stopErr ? ", stop " + (cfg.stopErr > 0 ? "+" : "") + cfg.stopErr + " in" : "") + ". " + s + " (" + ms + " ms)";
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw, P.bosses || null, P.vee || 0);
+    if (window.Drive3D) window.Drive3D.setBlade(profile, P.width || bladeWidth, P.shaftBack, cfg.gutter, cfg.offset, cfg.yaw, P.bosses || null, P.vee || 0, cfg.finger ? cfg.finger.pivot[0] : 0);
     draw();
   }
   function draw() {
     if (!result) return;
     const f = result.frames[i], t = f[0], lip = f[1], P = PRESETS[preset];
-    blade.setAttribute("points", profile.map(([x, z]) => sx(lip - x) + "," + sy(z)).join(" "));
-    if (cfg.toe) { const a = (f[3] || 0) * Math.PI / 180, L = cfg.toe.len, th = 0.1, z0 = profile[0][1], c = Math.cos(a), s_ = Math.sin(a);
-      const pts = [[0, 0], [L, 0], [L, th], [0, th]].map(([u, v]) => [lip + u * c + v * s_, z0 + u * s_ - v * c]);
-      toeEl.setAttribute("points", pts.map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); toeEl.style.display = ""; } else toeEl.style.display = "none";
+    if (cfg.finger) {                                                   // the body behind the pin, and the nose piece turned about it
+      const px = cfg.finger.pivot[0], pz = cfg.finger.pivot[1], zAt = x => { for (let i = 0; i + 1 < profile.length; i++) { const [x0, z0] = profile[i], [x1, z1] = profile[i + 1]; if (x >= x0 && x <= x1) return z0 + (z1 - z0) * (x - x0) / (x1 - x0); } return profile[0][1]; };
+      const body = [[px, profile[0][1]], [px, zAt(px)], ...profile.filter(p => p[0] > px)];
+      blade.setAttribute("points", body.map(([x, z]) => sx(lip - x) + "," + sy(z)).join(" "));
+      const a = (f[3] || 0) * Math.PI / 180, c = Math.cos(a), s_ = Math.sin(a);
+      const pts = NOSE_POLY.map(([x, z]) => { const dx = x - px, dz = z - pz; return [px + dx * c + dz * s_, pz - dx * s_ + dz * c]; });
+      toeEl.setAttribute("points", pts.map(([x, z]) => sx(lip - x) + "," + sy(z)).join(" ")); toeEl.style.display = "";
+    } else { blade.setAttribute("points", profile.map(([x, z]) => sx(lip - x) + "," + sy(z)).join(" ")); toeEl.style.display = "none"; }
     const shx = lip - P.shaftBack;
     shaft.setAttribute("cx", sx(shx)); shaft.setAttribute("cy", sy(0.77));
     if (P.onRobot) {
@@ -165,7 +173,7 @@
       planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
       planFace.style.display = planMouth.style.display = "";
     } else planFace.style.display = planMouth.style.display = "none";
-    if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t, cfg.toe ? [cfg.toe.len, f[3] || 0] : null);
+    if (window.Drive3D) window.Drive3D.frame(lip, f[2], P.onRobot, P.shaftBack, t, cfg.finger ? [f[3] || 0, cfg.finger.pivot, NOSE_POLY] : null);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
   }

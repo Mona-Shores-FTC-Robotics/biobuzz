@@ -162,7 +162,7 @@ window.FlowerSim = (function () {
     // lip; after the stop the shaft turns it nose-up by `deg` over `time` s (the body behind the shaft stays put)
     const fingered = (prof, fg, f) => {
       const a = fg.deg * Math.PI / 180 * f, c = Math.cos(a), sn = Math.sin(a);
-      const pts = fg.len ? [[prof[0][0] - fg.len, prof[0][1]], ...prof] : prof.slice();
+      const pts = fg.len ? [[prof[0][0] - fg.len, prof[0][1] + (fg.rise || 0)], ...prof] : prof.slice();   // fg.rise: the toe's tip bent up
       // split the profile at the shaft's x so the part ahead of it rotates about the shaft
       const out = [];
       for (let i = 0; i < pts.length; i++) {
@@ -180,7 +180,11 @@ window.FlowerSim = (function () {
       const driving = lip < stop && stalled === null;
       if (!driving && tStop === null) tStop = t;
       let curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
-      if (cfg.finger && tStop !== null && t > tStop + (cfg.finger.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.finger.delay || 0)) / (cfg.finger.time || 0.3)); toeNow = cfg.finger.deg * f; curProfile = fingered(curProfile, cfg.finger, f); }
+      if (cfg.finger && cfg.finger.advance) {                              // self-tripping: the posts stop the nose piece at the trip
+        // point and the body drives `advance` further, turning the piece as it goes (f: the fraction of that advance done)
+        const trip = STOP + (cfg.stopErr || 0), f = Math.max(0, Math.min(1, (lip - trip) / cfg.finger.advance));
+        if (f > 0) { toeNow = cfg.finger.deg * f; curProfile = fingered(curProfile, cfg.finger, f); }
+      } else if (cfg.finger && tStop !== null && t > tStop + (cfg.finger.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.finger.delay || 0)) / (cfg.finger.time || 0.3)); toeNow = cfg.finger.deg * f; curProfile = fingered(curProfile, cfg.finger, f); }
       if (cfg.toe && tStop !== null && t > tStop + (cfg.toe.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.toe.delay || 0)) / (cfg.toe.time || 0.3)); toeNow = cfg.toe.deg * f; curProfile = toed(curProfile, cfg.toe, f); }
       if (cfg.flap && tStop !== null && t > tStop + (cfg.flap.delay || 0)) curProfile = flapped(curProfile, cfg.flap, Math.min(1, (t - tStop - (cfg.flap.delay || 0)) / (cfg.flap.time || 0.3)));
       const bv = driving ? drive : 0;

@@ -135,24 +135,42 @@ window.Drive3D = (function () {
     return geo;
   }
   let offsetNow = 0, yawNow = 0;
-  let bladeBottom = 0.52;
-  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee) {
-    bladeBottom = profile[0][1];
+  let bladeBottom = 0.52, bladeWidthNow = 5.4;
+  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee, cutAt) {
+    bladeBottom = profile[0][1]; bladeWidthNow = width;
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
-    bladeMesh = new THREE.Mesh(bladeGeometry(profile, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
+    let prof = profile;
+    if (cutAt) {                                                         // the body only: cut off ahead of the pin
+      const zAt = x => { for (let i = 0; i + 1 < profile.length; i++) { const [x0, z0] = profile[i], [x1, z1] = profile[i + 1]; if (x >= x0 && x <= x1) return z0 + (z1 - z0) * (x - x0) / (x1 - x0); } return profile[0][1]; };
+      prof = [[cutAt, profile[0][1]], [cutAt, zAt(cutAt)], ...profile.filter(p => p[0] > cutAt)];
+    }
+    bladeMesh = new THREE.Mesh(bladeGeometry(prof, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
     offsetNow = offset || 0; yawNow = (yaw || 0) * Math.PI / 180;
     // the robot and the blade sit `offset` to the FLOWER's +y (three.js -z) and are turned by `yaw` about the vertical
     for (const grp of [bladeG, robot, sled]) { grp.position.z = -offsetNow; grp.rotation.y = -yawNow; }
     setArms(armMode);
   }
-  let toeMesh = null;
-  function frame(lip, ballPos, onRobot, shaftBack, t, toe) {
+  // the nose piece (v10): its outline extruded across the blade, the toe 1.2 in wide, turning about the pin
+  let noseG = null;
+  function nosePiece(poly, pivot, width) {
+    const g = new THREE.Group();
+    const shape = new THREE.Shape(); poly.forEach(([x, z], i) => { const X = -(x - pivot[0]), Y = z - pivot[1]; i ? shape.lineTo(X, Y) : shape.moveTo(X, Y); }); shape.closePath();
+    const wedge = poly.filter(([x]) => x >= 0).concat();                 // behind the lip: full width; the toe ahead of it: 1.2 in
+    const full = new THREE.Shape(); let first = true;
+    for (const [x, z] of poly) { if (x < 0) continue; const X = -(x - pivot[0]), Y = z - pivot[1]; first ? full.moveTo(X, Y) : full.lineTo(X, Y); first = false; } full.closePath();
+    const m1 = new THREE.Mesh(new THREE.ExtrudeGeometry(full, { depth: width, bevelEnabled: false }), petg); m1.position.z = -width / 2;
+    const toeShape = new THREE.Shape(); first = true;
+    for (const [x, z] of [[-1.3, 0.42], [-1.3, 0.52], [0.05, 0.52], [0.05, 0.42]]) { const X = -(x - pivot[0]), Y = z - pivot[1]; first ? toeShape.moveTo(X, Y) : toeShape.lineTo(X, Y); first = false; } toeShape.closePath();
+    const m2 = new THREE.Mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 1.2, bevelEnabled: false }), petg); m2.position.z = -0.6;
+    g.add(m1, m2); g.position.set(-pivot[0], pivot[1], 0); return g;
+  }
+  function frame(lip, ballPos, onRobot, shaftBack, t, nose) {
     bladeG.position.x = lip;
-    if (toe) {
-      if (!toeMesh) { toeMesh = new THREE.Mesh(new THREE.BoxGeometry(1, 0.1, 1.2), petg); toeMesh.geometry.translate(0.5, -0.05, 0); bladeG.add(toeMesh); }
-      toeMesh.visible = true; toeMesh.scale.x = toe[0]; toeMesh.position.set(0, bladeBottom, 0); toeMesh.rotation.z = toe[1] * Math.PI / 180;
-    } else if (toeMesh) toeMesh.visible = false;
+    if (nose) {
+      if (!noseG) { noseG = nosePiece(nose[2], nose[1], bladeWidthNow); bladeG.add(noseG); }
+      noseG.visible = true; noseG.rotation.z = nose[0] * Math.PI / 180;
+    } else if (noseG) noseG.visible = false;
     const shx = lip - shaftBack;
     if (onRobot) {
       robot.visible = true; sled.visible = false;
