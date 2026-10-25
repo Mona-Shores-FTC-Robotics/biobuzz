@@ -6,21 +6,23 @@ anyone typing an adb command.
 
 ## At a meeting
 
-1. Join the robot's Wi-Fi on the laptop that deploys.
-2. Double-click `watch-logs.cmd`. It opens its own window, which is the point: a watcher started
-   in Android Studio's terminal dies when Android Studio closes, and Android Studio has to close
-   while the robot runs (below). From a standalone PowerShell window it is the same thing:
+1. Join the robot's Wi-Fi on the laptop that deploys, with REV Hardware Client 2 open (see
+   "What it does about adb" for why that order).
+2. Whenever you want to look, double-click `pull-logs.cmd`. It connects, copies every log the
+   laptop does not have yet into `%USERPROFILE%\biobuzz-logs\<robot network>\`, opens the newest
+   in AdvantageScope, and exits. Once at the end of the meeting gets everything; the logs wait
+   on the hub until then.
 
-   ```bash
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1 -Watch
-   ```
+From a terminal it is:
 
-3. Leave the window open. Every time an OpMode stops, its log is copied to
-   `%USERPROFILE%\biobuzz-logs\<robot network>\` and AdvantageScope opens it a few seconds later.
-   An Autonomous that hands off to TeleOp opens twice: after the Auto, and again with the whole
-   match once TeleOp stops.
+```bash
+powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1
+```
 
-`pull-logs.cmd` is the one-shot version: connect, pull what is new, open the newest, exit.
+`watch-logs.cmd` is the live version for when someone wants each log on screen seconds after
+the OpMode stops: it keeps running in its own window and opens each log as it finishes. An
+Autonomous that hands off to TeleOp opens twice: after the Auto, and again with the whole match
+once TeleOp stops. Optional; the one-shot pull is the normal way.
 
 | Flag | What |
 |---|---|
@@ -62,7 +64,8 @@ adb server is already running, so the order is what matters:
 
 1. REV Hardware Client 2, and leave it open.
 2. Android Studio.
-3. The watcher, in its own window (`watch-logs.cmd`).
+3. The pull (`pull-logs.cmd`) whenever wanted, or the watcher in its own window
+   (`watch-logs.cmd`) if someone wants logs live.
 
 Sloth Load in that arrangement has not been checked yet; if it fails, stop the watcher for the
 deploy and start it again after.
