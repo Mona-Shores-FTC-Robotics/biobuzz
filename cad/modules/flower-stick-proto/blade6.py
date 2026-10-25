@@ -34,6 +34,8 @@ ap.add_argument("--vee", type=float, default=0.0,
                 help="a V nose: the lip's middle reaches this much deeper than its sides, inches, so it seats on the uprights' lobes "
                      "(their faces slant from the points at |y| 1.42 to the inner corners at |y| 0.61, 0.43 in deeper); 0: a straight lip")
 ap.add_argument("--vee-outer", type=float, default=1.42, help="the V begins this far from the centre (the lobes' points)")
+ap.add_argument("--nx", type=int, default=110, help="grid points along the blade (fewer: a lighter mesh for the page's viewer)")
+ap.add_argument("--ny", type=int, default=73, help="grid points across")
 ap.add_argument("--name", default="v6")
 a = ap.parse_args()
 
@@ -77,9 +79,9 @@ def top(x, y):
 
 # the solid from the height field: a grid over the plan, top and bottom sheets, four walls
 X_0, X_END = -a.vee, xe
-xs = sorted(set(np.round(np.linspace(X_0, X_END, 110), 4)) | {round(xp, 4), round(xp - a.vee, 4), round(lane_start, 4), round(shaft_x - a.boss_len / 2, 4), round(shaft_x + a.boss_len / 2, 4), 0.0})
+xs = sorted(set(np.round(np.linspace(X_0, X_END, a.nx), 4)) | {round(xp, 4), round(xp - a.vee, 4), round(lane_start, 4), round(shaft_x - a.boss_len / 2, 4), round(shaft_x + a.boss_len / 2, 4), 0.0})
 xs = [x for x in xs if X_0 <= x <= X_END]
-ys = sorted(set(np.round(np.linspace(-hw, hw, 73), 4)) | {-a.boss_in, a.boss_in, -a.boss_in - 1e-3, a.boss_in + 1e-3, -vee_inner, vee_inner, -a.vee_outer, a.vee_outer})
+ys = sorted(set(np.round(np.linspace(-hw, hw, a.ny), 4)) | {-a.boss_in, a.boss_in, -a.boss_in - 1e-3, a.boss_in + 1e-3, -vee_inner, vee_inner, -a.vee_outer, a.vee_outer})
 ys = [y for y in ys if -hw <= y <= hw]
 nx, ny = len(xs), len(ys)
 V, F = [], []
