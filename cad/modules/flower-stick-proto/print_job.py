@@ -19,15 +19,16 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "v5": [("v5_lane", "v5 with Carter's lane"), ("v5", "v5 plain (control)"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "wide": [("mountain_wide", "the mountain blade with Carter's lane, 7.9 in wide"), ("poker_hang", "the poker, hanging"), ("poker_stand", "the poker, standing")],
-         "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_plate", "the poker plate: bolts down on the intake top channel"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
-         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_test", "the test nose: tape, glue or zip-tie it to the intake"), ("poker_plate", "the bolted poker bracket, for when the mount is agreed")]}[JOB]
+         "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_u", "the poker U: over the intake's front channel, four zip ties"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
+         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_u", "the poker U: sits over the intake's front channel; four zip ties through its flange holes"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")]}[JOB]
 ms, labels = [], []
 if JOB in ("wide", "low", "next"):      # the blade alone on the first row, the two pokers on their sides on the second
     m = trimesh.load(os.path.join(HERE, "stl", PARTS[0][0] + ".stl")); m.apply_translation(-m.bounds[0]); ms.append(m); labels.append((PARTS[0][1], m.bounds))
     y = m.bounds[1][1] + GAP; x = 0.0
     for name, label in PARTS[1:]:
         c = trimesh.load(os.path.join(HERE, "stl", name + ".stl"))
-        if name in ("poker_hang", "poker_stand", "poker_hang_1in", "poker_stand_1in", "poker_hang_2.1in", "poker_stand_2.1in"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))   # the old pokers on their sides; the bracket and nose seat-down (supports under the lip)
+        if name in ("poker_hang", "poker_stand", "poker_hang_1in", "poker_stand_1in", "poker_hang_2.1in", "poker_stand_2.1in"): c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [1, 0, 0]))
+        if name == "poker_u": c.apply_transform(trimesh.transformations.rotation_matrix(-np.pi / 2, [0, 1, 0]))   # standing on its back wall: the roof vertical, the poke on top; support under the front wall's lip
         c.apply_translation(-c.bounds[0]); c.apply_translation([x, y, 0]); ms.append(c); labels.append((label, c.bounds)); x = c.bounds[1][0] + GAP
 else:
     x = 0.0

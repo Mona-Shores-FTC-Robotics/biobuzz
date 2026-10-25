@@ -636,25 +636,23 @@ at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_bo
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
-**The poker bracket (`poker_plate.py`, `poker_plate_render.py`).** The poker's final form, and the export chose it. The
-intake's top channel (9-hole lowside U at the face line, 48 mm deep, web on top at 5.61 with the intake lowered) has the
-intake motor inside its cavity at the centre (up to 5.45; the web's underside is 5.13), the gearbox inside it out to 3.3 on
-one side, and pattern spacers on its web beyond 3.03 either side: nothing can go through its web near the middle, and the
-two clear holes are off to one side. The intake's cross channel (11-hole lowside U, ahead -2.36..-1.89, up 5.32..6.58,
-+-5.67 wide) butts against the top channel's back flange with its 32 mm face and pattern toward the FLOWER, and nothing
-behind its bearing holes at +-1.89 (the centre has a servo hub shaft behind it). So the bracket is: a 6 mm back plate
-against the cross channel's face, 116 mm wide, 24 mm tall, two 13.8 mm bosses into its 14 mm holes at +-48 mm (8.6 mm
-above the web top, the channel's centreline) with an M4 x 16 through each and the nut inside the channel behind; a 6 mm
-seat on the top channel's web from the cross channel to the front flange with a 4 mm lip 15 mm down the flange, the lip
-with two zip-tie holes in line with the flange's own holes (8 mm pitch, mid-flange) at 1.63 and 2.58 on the encoder side; the poke
-off the front (33 mm = 1.3 in ahead of the face, 19 wide, web top +2.3 to +48 mm: 5.7 to 7.5 in up with the intake lowered;
-`page/pokez_scan.js`); and a wedge as wide as the poke, the full depth of the seat, from the poke's top down to the back
-plate. Loads: the ball's push goes down the wedge into the back plate and the cross channel in compression, the bolts only
-hold it on; tip-back is the lip plus two bolts; a side hit is two bosses 3.8 in apart. 86 x 116 x 63 mm, 110 cm3.
-`poker_plate.py --test` is the test nose: flat back with 14.5 mm holes, held by four zip ties (lip and back plate). `print_job.py
-next` prints both with the plain blade; `low_arm_step.py` places the bolted one; `poker_fit.py` draws it on the channels and
-the motor from the export (`poker_fit.png`); `page/channels.py` is where those meshes come from. The clip, the saddle and the plate through
-the web are in git history only; the bolt-on bracket on the top channel below is superseded.
+**The poker U (`poker_u.py`, `poker_u_render.py`).** The poker's final form, and the only one that matches the robot: an
+upside-down U over the intake's front channel, the flat 9-hole lowside U-channel across the front above the intake wheels
+(web on top at 5.61 up with the intake lowered, 48 mm deep, 12 mm flanges down with 4 mm holes on an 8 mm pitch 8 mm below the
+web top, the intake motor inside its cavity; it is the only channel there: the week-old export shows an 11-hole channel
+standing behind it that the coach's current CAD does not have, and the coach's CAD is upside down, which is how the two got
+confused). A 4 mm roof on the web, 4 mm walls down both flanges, 104 mm long, with a 4.3 mm hole in each wall 40 mm either
+side of the channel's centre, on the flange holes. A zip tie through each: in through the wall and the flange hole, under
+the flange's bottom edge and back out, four in all, nothing through the cavity, so the motor never matters. The poke off the
+front wall, 33 mm (1.3 in) ahead of the flange's face, 19 wide, 5.7 to 7.5 in up (`page/pokez_scan.js`; the folded blade's
+lip passes 2.8 mm under it), and a buttress as wide as the poke from the poke's top back along the roof to 36 mm behind the
+face. The ball's push goes down the buttress into the roof and the front wall and onto the flange, in compression; the ties
+only stop it lifting or sliding. For keeps, 4 mm pop rivets or M4 button heads from inside the flange (the motor is 3.5 mm
+behind the front flange), if the coach allows. 85 x 104 x 60 mm, 75 cm3 solid (about 45 g at 30 % infill); prints standing
+on its back wall with support under the front wall's lip. `print_job.py next` prints it with the plain blade;
+`low_arm_step.py` places it; `poker_u_fit.png` shows it on the channel and the motor from the export. The forms before it
+(a web-bolted bracket, a clip, a bolted saddle, a web-bolted plate reaching sideways, a plate bolted to the channel that is
+not there) are in git history.
 
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
 low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
@@ -671,7 +669,7 @@ face. `poker_hang` (block below the web, intake as in the CAD) and `poker_stand`
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `blade_step.py`: the same blades as STEP solids for review in Onshape (`step/`: v6_lane, v5_lane, the coupon); the tail with the lane is a B-spline surface through the height field, within 0.02 mm of the printed mesh.
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
-- `print_job.py next|low|wide|three|v8|hedge|v7|v5`: the print plate (`next`: the plain wide blade for the sled and two saddles; `low`: the eared blade for the arm), `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
+- `print_job.py next|low|wide|three|v8|hedge|v7|v5`: the print plate (`next`: the plain wide blade for the sled and the poker U; `low`: the eared blade for the arm and the U), `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
 - `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `coach_stick_down.py`: the same from the second export (`coach_stick_down.png`). `low_arm.py`, `blade_ears.py`, `low_arm_step.py`, `start_box.py`: the low arm, its eared blade, the assembly STEPs and the start-box check. `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).

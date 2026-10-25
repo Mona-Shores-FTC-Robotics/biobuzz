@@ -1,6 +1,6 @@
 """The low arm as a STEP for the Fresh CAD assembly (low_arm.py's geometry): two arm channels on a bracket off each chassis
-side rail, the pivot pins, the shaft with its two 39 mm wheels, the wide mountain blade with ears, and the poker plate on
-the intake's top channel. Deployed and stowed, each in the "flowerextractordown" export's own coordinates, so either
+side rail, the pivot pins, the shaft with its two 39 mm wheels, the wide mountain blade with ears, and the poker U over
+the intake's front channel. Deployed and stowed, each in the "flowerextractordown" export's own coordinates, so either
 file inserts at the Fresh CAD origin and lands on the robot.
 
     python3 cad/modules/flower-stick-proto/low_arm_step.py    # step/low_arm_deployed.step, step/low_arm_stowed.step
@@ -44,9 +44,10 @@ for sg in (1, -1):
 # the blade with ears: its file has x behind the lip, y across, z up from its bottom (0.52 up); turn it round and place it
 blade = cq.importers.importStep(os.path.join(HERE, "step", "mountain_wide_ears.step")).rotate((0, 0, 0), (0, 0, 1), 180).translate((mm(lip), 0, mm(0.52)))
 parts.append(("blade_mountain_wide_ears", blade))
-# the poker, standing on the intake's top channel (lowered intake: web top 5.61 up); its file: x ahead of the channel face, z up from the web
-poker = cq.importers.importStep(os.path.join(HERE, "step", "poker_plate.step")).translate((0, 0, mm(5.61)))   # the plate on the web top (5.61 up, intake lowered)
-parts.append(("poker_plate", poker))
+# the poker U over the intake's front channel (lowered intake: web top 5.607 up, channel centre 0.12 in left of the frame's
+# centre); its file: x ahead of the front flange's face, y across from the channel's centre, z up from the web top
+poker = cq.importers.importStep(os.path.join(HERE, "step", "poker_u.step")).translate((0, mm(0.122), mm(5.607)))
+parts.append(("poker_u", poker))
 for n, sh in parts:
     bb = sh.val().BoundingBox(); print(f"  {n:26s} ahead {bb.xmin / IN:6.2f}..{bb.xmax / IN:6.2f}  left {bb.ymin / IN:6.2f}..{bb.ymax / IN:6.2f}  up {bb.zmin / IN:5.2f}..{bb.zmax / IN:5.2f}")
 def to_raw(shape):

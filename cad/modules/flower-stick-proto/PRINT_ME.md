@@ -1,20 +1,18 @@
-# Print now: the wide mountain blade and the poker bracket (for whoever prints)
+# Print now: the wide mountain blade and the poker U (for whoever prints)
 
 **`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
 201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
-`stl/poker_test.stl` (the test nose: the bracket with a flat back and two 14.5 mm holes, to tape, hot-glue or zip-tie onto the
-intake for the first test) and `stl/poker_plate.stl` (the bolted bracket, 86 x 116 x 63 mm, 110 cm3, for when the mount is
-agreed with the coach), both on their flat seats. This is what to print first: the blade goes on the sled for the field test, the nose sits on the intake's top channel against the
-cross channel behind it, and four zip ties hold it for the test: two through the holes in its front lip and the flat channel's
-own front-flange holes (round under the flange), two through the holes in its back plate and the standing channel's bearing
-holes 1.9 in either side of centre (round over the channel's top). The bolted bracket uses those two bearing holes with M4 x 16
-and nuts instead. Print both seat-down with supports under the front lip only. Needs a bed of at least 290 mm one way, or print the parts one
-at a time. Millimetres. PETG. About 235 cm3.
+`stl/poker_u.stl` (the poker U, 85 x 104 x 60 mm, 75 cm3) standing on its back wall, and the hex-fit coupon (skip it if the
+last one fit). The blade goes on the sled for the field test. The U sits over the flat channel across the front of the
+intake, above the intake wheels: its roof on the channel's top, its walls down the channel's front and back lips, and the
+two holes in each wall on the lips' 4 mm holes 40 mm either side of the channel's centre. Four zip ties: in through the
+wall and the lip's hole, under the lip's bottom edge, back out and closed. Needs a bed of at least 290 mm one way, or print
+the parts one at a time. Millimetres. PETG. About 215 cm3 solid.
 
 ![the plate](print_job_next.png)
 
-**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
-optional. Millimetres: if it comes in tiny, scale by 25.4.
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 30 % infill, 5 top and bottom layers, support under the U's
+front lip only (the blade and the coupon need none), brim optional. Millimetres: if it comes in tiny, scale by 25.4.
 
 Thank you!
 
@@ -25,11 +23,11 @@ Thank you!
 **`stl/print_job_low.stl`**, 179 x 272 x 40 mm, three parts (print this once the low arm exists; the eared blade's bore is
 loose on purpose and will not key to the sled): `stl/mountain_wide_ears.stl` (the wide mountain
 blade with Carter's lane, its tail cut short at 2.4 in, and a bolt ear at each end; 62 x 202 x 37 mm, 137 cm3) flat side
-down, and `stl/poker_plate.stl` (the poker plate) with the hex coupon. Needs a
+down, and `stl/poker_u.stl` (the poker U) with the hex coupon. Needs a
 bed of at least 290 mm one way, or print the three one at a time. Millimetres. PETG. About 235 cm3. The blade's body
 bore is a loose 8.6 mm hex and the ears' bores are 8.3 mm round on purpose: the shaft turns in the ears and only carries the
-wheels; the blade is held by two M4 bolts per side through the arm into the blade's tail and ear. The bracket takes two
-M4 x 16 bolts and nuts into the cross channel's bearing holes.
+wheels; the blade is held by two M4 bolts per side through the arm into the blade's tail and ear. The U takes four zip ties
+through the front channel's lip holes, as above.
 
 ![the plate from above](print_job_low.png)
 
