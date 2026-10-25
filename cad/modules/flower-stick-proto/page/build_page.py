@@ -19,7 +19,7 @@ rows["v9l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.00 in at 0.23 
 rows["v5l"] = [["Profile", "as v5 plain on the centreline"], ["Lane", "one curve across the whole tail (12.3 in radius), tangent to the tail at the centre and 0.3 in up at both edges; it starts 0.9 in behind the lip and reaches full depth over 1.6 in"], ["Size", "137 × 77 × 15 mm"]]
 exec(src3[src3.index("rows_js = "):src3.index("flower_section = ")])
 # the simulator's panel: the side view with the plan under it, the 3D view, the blade presets, then the sliders in four rows
-anim_js = open(os.path.join(S, "sim.js")).read() + open(os.path.join(S, "anim3.js")).read().replace("__FLOWER__", json.dumps(flower_section, separators=(",", ":"))).replace("__ROBOT__", json.dumps(robot_section, separators=(",", ":"))).replace("__COACH__", json.dumps(json.load(open(os.path.join(S, "coach_stick.json"))), separators=(",", ":")))
+anim_js = open(os.path.join(S, "sim.js")).read() + open(os.path.join(S, "anim3.js")).read().replace("__FLOWER__", json.dumps(flower_section, separators=(",", ":"))).replace("__ROBOT__", json.dumps(robot_section, separators=(",", ":"))).replace("__COACH__", json.dumps(json.load(open(os.path.join(S, "coach_stick.json"))), separators=(",", ":"))).replace("__BOXES__", json.dumps(json.load(open(os.path.join(S, "robot_boxes.json")))["boxes"], separators=(",", ":")))
 panel = f'''  <div class="drive">
     <div class="views">
       <div><svg id="sim-svg" viewBox="0 0 697 804" role="img" aria-label="Side view and plan view of the blade driving into the FLOWER and the POLLEN rolling out into the intake."></svg><span class="viewlbl">side view, and from above</span></div>
@@ -32,6 +32,8 @@ panel = f'''  <div class="drive">
       <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
       <label>Stick</label>
       <span class="seg"><button data-stow="0" aria-pressed="true">extended</button><button data-stow="1" aria-pressed="false">stowed</button></span>
+      <label>Stow angle</label>
+      <span class="seg"><button data-stowdir="coach" aria-pressed="true">coach's, 10° forward of vertical</button><button data-stowdir="back20" aria-pressed="false">20° back</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -536,7 +538,11 @@ body = f'''
   its poke reaching 1.3 in, 5.7 to 7.5 in up. The blue box is the Limelight at its planned spot, lens 3.56 in behind the face and 14 in up,
   pitched 45° up, with its 42° vertical field of view drawn as the wedge. "Stowed" raises the stick to the coach's stowed position, arm and
   blade together about the pivot, zooms the side view out, and the line under the views says how close it passes to the poker, the intake's
-  face and the camera on the way up, and how much of the camera's view the stowed blade covers.</p>
+  face and the camera on the way up, and how much of the camera's view the stowed blade covers. "Stow angle" tries the stick leaning 20° back past
+  vertical instead of the coach's 10° forward, which takes the blade out of the camera's view. The grey shapes behind are the rest of the robot from
+  the coach's October 25 export, as the boxes around each part (the launcher hood at the back, its flywheel, the Control Hub enclosure, the intake's
+  slides), so a stowed stick can be checked against them; solid ones are within 4 in of the centreline, where the blade is, dashed ones are out at
+  the arms.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft

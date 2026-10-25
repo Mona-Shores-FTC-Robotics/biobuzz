@@ -48,6 +48,11 @@ window.Drive3D = (function () {
   // the drive wheels' front pair (96 mm omni), beside the intake
   const omniGeo = new THREE.CylinderGeometry(1.89, 1.89, 1.9, 24); omniGeo.rotateX(Math.PI / 2);
   for (const y of [-6.2, 6.2]) { const w = new THREE.Mesh(omniGeo, dark); w.position.set(-1.6, 1.89, -y); robot.add(w); }
+  // the rest of the robot from the Oct 25 export, as translucent boxes (x ahead of the face, y left -> -z here, z up -> y)
+  function setBoxes(list) {
+    const m = new THREE.MeshStandardMaterial({ color: 0x8a949e, roughness: 0.9, transparent: true, opacity: 0.18, depthWrite: false });
+    for (const q of list) { const [x0, x1, y0, y1, z0, z1] = q.box; const bx = new THREE.Mesh(new THREE.BoxGeometry(Math.max(0.05, x1 - x0), Math.max(0.05, z1 - z0), Math.max(0.05, y1 - y0)), m); bx.position.set((x0 + x1) / 2, (z0 + z1) / 2, -(y0 + y1) / 2); robot.add(bx); }
+  }
   // the Limelight 3A at its planned pose: lens 3.56 in behind the face, 14.0 up, pitched 45 deg up; 54.5 x 42 deg field of view
   { const cam = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.7, 2.3), new THREE.MeshStandardMaterial({ color: 0x2bb5e0, roughness: 0.5 })); cam.position.set(-3.56 - 0.5, 14.0, 0); cam.rotation.z = Math.PI / 4; robot.add(cam);
     const R = 12, hw = R * Math.tan(54.5 / 2 * Math.PI / 180), hh = R * Math.tan(42 / 2 * Math.PI / 180);
@@ -244,6 +249,6 @@ window.Drive3D = (function () {
     if (w && h && (canvas.width !== Math.round(w * r) || canvas.height !== Math.round(h * r))) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
   }
   (function loop() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
-  return { setBlade, setArms, frame, setPoker, setMount };
+  return { setBlade, setArms, frame, setPoker, setMount, setBoxes };
 })();
 </script>
