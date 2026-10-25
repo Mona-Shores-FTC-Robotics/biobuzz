@@ -52,21 +52,20 @@ Studio's if that is. With nothing running it starts Android Studio's
 (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`). `-Adb <path>` overrides. The first line it
 prints says which one it picked.
 
-**Do not run the watcher and Android Studio against the hub at the same time.** Seen 25 Oct on
-20245: with both open, the hub's adb daemon wedged within a minute (adb listed the hub `offline`,
-REV Hardware Client said "debug connection unavailable, power cycle needed"), and only a power
-cycle brought it back. With Android Studio closed, the watcher ran all session. Android Studio
-keeps its own device polling and logcat links open to the hub over Wi-Fi, and the Control Hub's
-adb daemon does not cope with that plus the watcher's reconnects. So at a meeting, one at a time:
+**Open REV Hardware Client 2 before anything else that talks adb.** Seen 25 Oct on 20245: with
+Android Studio's own adb server holding the hub, the hub's adb daemon wedged within a minute of
+the watcher joining (adb listed the hub `offline`, REV Hardware Client said "debug connection
+unavailable, power cycle needed"), and only a power cycle brought it back. With REV Hardware
+Client open first, its adb server owned the hub, Android Studio connected instantly through it,
+and the watcher ran beside both for the rest of the session. The watcher sides with whichever
+adb server is already running, so the order is what matters:
 
-- **Deploying:** stop the watcher (Ctrl+C), deploy with Sloth Load, then start the watcher again.
-- **Running and reviewing logs:** close Android Studio (not just the Run window) and leave the
-  watcher running.
-- REV Hardware Client and Android Studio are the same story with each other: each ships its
-  own adb, and two different adb builds kill each other's server on sight
-  (`TeamCode/README.md`, "Two copies of adb"). The watcher sides with whichever is already
-  running, so REV Hardware Client plus the watcher is a fine pair for running and reviewing;
-  close it to deploy from Android Studio.
+1. REV Hardware Client 2, and leave it open.
+2. Android Studio.
+3. The watcher, in its own window (`watch-logs.cmd`).
+
+Sloth Load in that arrangement has not been checked yet; if it fails, stop the watcher for the
+deploy and start it again after.
 
 If the hub does wedge: close everything that talks adb, power-cycle the hub, then
 `adb kill-server`, `adb connect 192.168.43.1:5555`, and `adb devices` must say `device`, not
