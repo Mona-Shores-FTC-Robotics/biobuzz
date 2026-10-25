@@ -187,6 +187,14 @@ window.Drive3D = (function () {
     }
     ballPos.forEach(([x, z, y], k) => balls[k].position.set(x, z, -(y || 0)));
   }
+  // the poker on the robot: a plate `reach` ahead of the face, z0 to z1 up, 1.4 in wide, in the middle
+  let pokerMesh = null;
+  function setPoker(pk) {
+    if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.geometry.dispose(); pokerMesh = null; }
+    if (!pk) return;
+    pokerMesh = new THREE.Mesh(new THREE.BoxGeometry(pk.reach, pk.z1 - pk.z0, 1.4), new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }));
+    pokerMesh.position.set(pk.reach / 2, (pk.z0 + pk.z1) / 2, 0); robot.add(pokerMesh);
+  }
   function theme() { scene.background = new THREE.Color(css("--panel")); }
   theme();
   new MutationObserver(theme).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
@@ -196,6 +204,6 @@ window.Drive3D = (function () {
     if (w && h && (canvas.width !== Math.round(w * r) || canvas.height !== Math.round(h * r))) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
   }
   (function loop() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
-  return { setBlade, setArms, frame };
+  return { setBlade, setArms, frame, setPoker };
 })();
 </script>

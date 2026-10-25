@@ -531,6 +531,20 @@ tenth of an inch under the ball as the piece turns, which breaks the model's loc
 simulation score is not a mechanism. The lip-hinged toe at 75° (step 11) does touch the ball (after 61°); that swing
 needs the robot's travel through a lever, or a servo. The v10 files stay as the record.
 
+**A poker on the robot (25 Oct).** The lock is ball 2 leaning out over the collar's ridge onto ball 1; the blade cannot
+reach ball 2 but the robot can. `cfg.pusher` in `page/sim.js` is a fixed plate on the robot's face, `reach` ahead of it
+between `z0` and `z1`, that meets ball 2 as the lip meets the posts and pushes it back onto the stack (checked by hand
+first this time: with the sled 0.35 short a 1.2 in reach sinks 0.36 in into ball 2 and moves it to 0.25 off centre,
+where its surface clears the ridge by 0.06). Over 24 runs per speed (six stacks: straight, three front-to-back leans,
+a lean to the wall, side to side; μ 0.3/0.45; at the posts and 0.35 short; `page/poker_scan.js`): v7 alone 16/18/–/24
+at 3/6/10 in/s; poker 1.1 in ahead, 5.3–6.5 up: 24 at every speed; 1.2 in, 5.3–6.5: 24/24/22/20; 1.2 in, 5.3–7.5: 24 at
+every speed; 1.3 in: 24/20/18/20 (too long shoves the stack into the back of the FLOWER at speed). It sits between the
+front pipes (2.39 in apart) and above their sockets (which leave 1.5 in at z 4.25–5.25), so 1.4 in wide or less, 1.2 in
+ahead of the intake face, 5.3 to 7.5 in above the tile, in the middle. The robot's own CAD is needed to place it; the
+sled test is a strip of plywood clamped at that height. `cfg.ram` (back off and drive in again faster) was also tried:
+12–14 of 16, not enough on its own. The page has the poker as a toggle in the simulator, drawn in both views, and
+step 13 (`poker.png`, `page/poker_fig.js`).
+
 **The page's clean pass (25 Oct, `page/build_page.py`, `page/anim3.js`).** The simulator lost its sliders: four choices
 (blade v7 / v8 / v10, stack front-to-back / straight / side-to-side, push 4 or 10 in/s, sled 0.35 short or at the
 posts), play, slow, scrub. It opens on the stuck case from the photos. The parts viewer shows v10, v8 and v7 only,

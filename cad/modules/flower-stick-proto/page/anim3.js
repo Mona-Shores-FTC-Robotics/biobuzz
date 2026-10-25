@@ -25,6 +25,7 @@
   const mirror = segs => segs.map(([a, b]) => [[-a[0], a[1]], [-b[0], b[1]]]);
   el("path", { d: segPath(mirror(RS.centre)), stroke: "var(--muted)", "stroke-width": 1.1, fill: "none", opacity: 0.8 }, robotG);
   el("path", { d: segPath(mirror(RS.gecko)), stroke: "var(--fg)", "stroke-width": 1.4, fill: "none", opacity: 0.9 }, robotG);
+  const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
   const arm = el("line", { stroke: "var(--muted)", "stroke-width": 5, "stroke-linecap": "round" });
@@ -61,13 +62,16 @@
   // show it), straight, or leaning side to side into the gaps between the pipes
   const STACKS = { fb: { pattern: [-0.29, 0.35, 0.35] }, straight: { pattern: [0, 0, 0] }, ss: { lean: 0.6 } };
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
-  let preset = "v7", stack = "fb", push = 4, stopErr = -0.35;
+  // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
+  // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
+  const POKER = { reach: 1.2, z0: 5.3, z1: 7.5 };
+  let preset = "v7", stack = "fb", push = 4, stopErr = -0.35, poker = false;
   let result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
     profile = S.mountain(SHAPE);
     cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: 5.4, gutter: LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger;
+    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (poker) cfg.pusher = POKER;
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball.";
@@ -79,10 +83,10 @@
       s = left + " of 4 never reached the intake" + (onPeak && onBar ? ": the stack locked itself. The bottom ball sits on the peak against the posts, and the ball above leans out over the collar's ledge and holds it there, as in our October 23 photos." : onPeak ? ": the bottom ball sits on the peak against the posts." : ": stuck on the blade.");
     }
     const stackName = { fb: "stack leaning front to back", straight: "straight stack", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s" + (stopErr ? ", sled stopping " + (-stopErr).toFixed(2) + " in short" : ", sled at the posts") + ". " + s;
+    $("sim-result").textContent = P.name + (poker ? " with the poker on the robot" : "") + ", " + stackName + ", pushed at " + push + " in/s" + (stopErr ? ", sled stopping " + (-stopErr).toFixed(2) + " in short" : ", sled at the posts") + ". " + s;
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) window.Drive3D.setBlade(profile, 5.4, P.shaftBack, LANE, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0);
+    if (window.Drive3D) { window.Drive3D.setBlade(profile, 5.4, P.shaftBack, LANE, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0); if (window.Drive3D.setPoker) window.Drive3D.setPoker(poker ? POKER : null); }
     draw();
   }
   function draw() {
@@ -106,6 +110,7 @@
       spoke.setAttribute("x1", sx(ax)); spoke.setAttribute("y1", sy(az)); spoke.setAttribute("x2", sx(ax + S.GECKO_R * Math.cos(a))); spoke.setAttribute("y2", sy(az + S.GECKO_R * Math.sin(a)));
       arm.setAttribute("x1", sx(ax)); arm.setAttribute("y1", sy(az)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
+      if (cfg.pusher) { pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = ""; } else pokerEl.style.display = "none";
     } else {
       robotG.style.display = gecko.style.display = spoke.style.display = "none";
       arm.setAttribute("x1", sx(X0)); arm.setAttribute("y1", sy(0.77)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));
@@ -143,6 +148,7 @@
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
   for (const b of document.querySelectorAll("[data-push]")) b.onclick = () => { push = +b.dataset.push; pressed("data-push", push); compute(); };
+  for (const b of document.querySelectorAll("[data-poker]")) b.onclick = () => { poker = b.dataset.poker === "on"; pressed("data-poker", poker ? "on" : "off"); compute(); };
   for (const b of document.querySelectorAll("[data-stop]")) b.onclick = () => { stopErr = +b.dataset.stop; pressed("data-stop", stopErr); compute(); };
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };

@@ -143,7 +143,7 @@ window.FlowerSim = (function () {
     const toBlade = b => { const dx = lip - b.x, dy = b.y - off; return [dx * cy + dy * sy, dy * cy - dx * sy]; };
     const xs = profile.map(p => p[0]);
     const tiltDeg = cfg.tilt || 0, shaftBack = cfg.shaftBack || 0.53, shaftZ = 0.77;
-    let tStop = null;
+    let tStop = null, ramLip = null;
     // cfg.flap: a lifter hinged at the peak, lying along the tail, that swings up to `deg` over `time` s starting `delay` s
     // after the blade stops (a mechanism tripped by the posts): the tail's first `len` inches rise behind the ball
     const flapped = (prof, fl, f) => {
@@ -177,8 +177,15 @@ window.FlowerSim = (function () {
     let toeNow = 0;                                                      // the toe's angle this step, degrees (0: lying flat)
     const snap = () => [+t.toFixed(3), +lip.toFixed(3), balls.map(b => [+b.x.toFixed(3), +b.z.toFixed(3), +b.y.toFixed(3)]), +toeNow.toFixed(1)];
     for (; t < tmax; t += DT, step++) {
-      const driving = lip < stop && stalled === null;
+      let driving = lip < stop && stalled === null;
       if (!driving && tStop === null) tStop = t;
+      let bvSign = 1, speedNow = drive;
+      if (cfg.ram && tStop !== null) {                                   // the re-ram: dwell, back off, then in again, faster
+        const rm = cfg.ram, t1 = tStop + (rm.dwell || 0.3), t2 = t1 + rm.retreat / drive;
+        if (t >= t1 && t < t2) { driving = true; bvSign = -1; }
+        else if (t >= t2 && ramLip === null) ramLip = lip;
+        if (ramLip !== null && lip < stop) { driving = true; speedNow = rm.speed || 12; }
+      }
       let curProfile = tiltDeg && tStop !== null ? tilted(profile, tiltDeg * Math.min(1, (t - tStop) / 0.15)) : profile;
       if (cfg.finger && cfg.finger.advance) {                              // self-tripping: the posts stop the nose piece at the trip
         // point and the body drives `advance` further, turning the piece as it goes (f: the fraction of that advance done)
@@ -187,8 +194,8 @@ window.FlowerSim = (function () {
       } else if (cfg.finger && tStop !== null && t > tStop + (cfg.finger.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.finger.delay || 0)) / (cfg.finger.time || 0.3)); toeNow = cfg.finger.deg * f; curProfile = fingered(curProfile, cfg.finger, f); }
       if (cfg.toe && tStop !== null && t > tStop + (cfg.toe.delay || 0)) { const f = Math.min(1, (t - tStop - (cfg.toe.delay || 0)) / (cfg.toe.time || 0.3)); toeNow = cfg.toe.deg * f; curProfile = toed(curProfile, cfg.toe, f); }
       if (cfg.flap && tStop !== null && t > tStop + (cfg.flap.delay || 0)) curProfile = flapped(curProfile, cfg.flap, Math.min(1, (t - tStop - (cfg.flap.delay || 0)) / (cfg.flap.time || 0.3)));
-      const bv = driving ? drive : 0;
-      if (driving) lip = Math.min(stop, lip + drive * DT);
+      const bv = driving ? bvSign * speedNow : 0;
+      if (driving) lip = bvSign > 0 ? Math.min(stop, lip + speedNow * DT) : lip - speedNow * DT;
       let axleX = 0, axleZ = 0;
       if (cfg.onRobot) { axleX = lip - FACE_BEHIND_LIP - GECKO_R; axleZ = GECKO_Z; }
       const touch = balls.map(() => false);
@@ -218,6 +225,7 @@ window.FlowerSim = (function () {
           if (jsum > 0) { touch[balls.indexOf(b)] = true; if (slope !== 0 && tp > 0) b.vy -= jsum * slope * tp / (1 + K); }
           if (jsum > 0 && yaw !== 0) { /* a turned blade carries the ball along its own axis: nothing more to do, the lane's push above already follows it */ }
         }
+        if (cfg.pusher) { const px = lip - FACE_BEHIND_LIP + cfg.pusher.reach; contact(b, [[px, cfg.pusher.z0], [px, cfg.pusher.z1]], [bv, 0], e, mu); contact(b, [[px - 2, cfg.pusher.z1], [px, cfg.pusher.z1]], [bv, 0], e, mu); }
         // the FLOWER holds the balls sideways: the bottom one in the ring's hole and the uprights' vee, the rest between the pipes
         // the ring's hole (radius 1.54): a ball whose bottom is below the ring's top can only move sideways as far as the
         // hole's radius minus the ball's cross-section at the ring's height allows (the hole holds a ball at its centre to

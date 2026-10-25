@@ -36,6 +36,8 @@ panel = f'''  <div class="drive">
       <span class="seg"><button data-push="4" aria-pressed="true">slow, 4 in/s</button><button data-push="10" aria-pressed="false">fast, 10 in/s</button></span>
       <label>Sled stops</label>
       <span class="seg"><button data-stop="-0.35" aria-pressed="true">a third of an inch short</button><button data-stop="0" aria-pressed="false">at the posts</button></span>
+      <label>Poker</label>
+      <span class="seg"><button data-poker="off" aria-pressed="true">none</button><button data-poker="on" aria-pressed="false">on the robot</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -383,13 +385,37 @@ body = f'''
       </div>
       <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tipped (below), beside the posts. Tipped the 54° the posts can give, nothing on the orange piece comes within 0.4 in of the ball above it.</figcaption></figure>
     </div>
+    <div class="step">
+      <div>
+        <h3>A poker on the robot</h3>
+        <p>Go back to what the lock is: ball 2 leaning out over the collar's ridge, sitting on ball 1 from the robot's side.
+        Nothing on the blade can reach ball 2. The robot can. A plate on the robot's frame, separate from the blade, 1.2 in ahead
+        of the intake face and 5.3 to 7.5 in above the tile, meets ball 2 just as the lip meets the posts and pushes it back onto
+        the stack. With nothing leaning on the ridge there is no arch, and ball 1 rolls over the peak the way it always did when
+        the stack was straight.</p>
+        <p>We checked that it touches before we trusted the score, this time. With the sled a third of an inch short, the plate
+        sinks 0.36 in into ball 2 and moves it back to a quarter inch off centre, where its surface clears the ridge. It sits
+        between the front pipes and above their sockets, so it must be 1.4 in wide or less, and it passes over the collar. It is
+        fixed: no hinge, no spring, no servo. A piece of polycarbonate on two standoffs.</p>
+        <table class="sweep loads"><thead><tr><th style="width:52%">Poker</th><th>3 in/s</th><th>6 in/s</th><th>8 in/s</th><th>10 in/s</th></tr></thead><tbody>
+          <tr><td class="k">none, v7</td><td class="stuck">16 of 24</td><td class="stuck">18 of 24</td><td></td><td class="ok">24 of 24</td></tr>
+          <tr><td class="k">1.1 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td></tr>
+          <tr><td class="k">1.2 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="stuck">22</td><td class="stuck">20</td></tr>
+          <tr><td class="k">1.2 in ahead, 5.3 to 7.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td></tr>
+          <tr><td class="k">1.3 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="stuck">20</td><td class="stuck">18</td><td class="stuck">20</td></tr>
+        </tbody></table><div class="cap">Twenty-four runs per cell: six stacks (straight, three ways of leaning front to back, leaning toward the wall, leaning side to side), friction 0.3 and 0.45, the sled at the posts and a third of an inch short. Too long a poker shoves the stack into the back of the FLOWER at speed; the tall one copes with that.</div>
+        <div class="learn"><b>What we learned</b>When a lock is made of two balls, the second ball is a target too. The blade was the wrong place to look for the fix.</div>
+        <div class="ask"><b>Open question</b>Where does the poker mount on the real intake, and does it clear the ball on its way out? And the width: the pipes' sockets leave only 1.5 in between them at the poker's height, so measure before cutting.</div>
+      </div>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Press "on the robot" in the simulator to watch it.</figcaption></figure>
+    </div>
   </div>
 </section>
 
 <section class="block" id="drive">
   <h2>Try our simulator</h2>
   <p>Pick a blade, a stack and a push, and watch. The left side is a side view with the real FLOWER and the front of our
-  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short.</p>
+  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short. Turn the poker on to see the fix.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -424,7 +450,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is a lifter that reaches the ball, driven by the robot's travel or a servo, after a hand-lever test on the sled. The self-tripping nose turned out not to reach the ball; the last step says why.</p></div>
+    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is the poker on the robot from the last step: a plate 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, on two standoffs. On the sled, a strip of plywood clamped at that height does for the first test. The self-tripping nose turned out not to reach the ball; step 12 says why.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>
