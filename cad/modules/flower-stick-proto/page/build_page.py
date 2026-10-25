@@ -6,8 +6,8 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [
-    ("v8l", "v8_lane", "v8: the V nose", "on the plate: v7 with a V nose that reaches 0.3 in deeper", 6.3, 19.1),
-    ("v7l", "v7_lane", "v7", "the shape that works, with Carter's lane and the snug hex", 6.3, 13.1),
+    ("v8l", "v8_lane", "the V-nose blade", "on the plate: the mountain blade with a V nose that reaches 0.3 in deeper (file v8_lane)", 6.3, 19.1),
+    ("v7l", "v7_lane", "the mountain blade", "the shape that works: a 60° nose, a 1.1 in peak, Carter's lane across the tail, the snug hex (file v7_lane)", 6.3, 13.1),
 ]
 exec(src3[src3.index("stl_js = "):src3.index("rows_js = ")])
 rows["v7l"] = [["Profile", "60° nose from a 0.60 in edge, peak 1.10 in at 0.29 behind the lip, 12° tail down to the back edge over the ring: the v5 shape, which emptied the FLOWER on October 19"], ["Lane", "one curve across the tail (12.3 in radius), 0.3 in up at both edges, from 0.9 in behind the lip, full depth after 1.6 in. Seen from above its back end looks scalloped: the tail is thinnest in the middle, so it runs out sooner there"], ["Shaft", "goBILDA 8 mm REX is 7.0 mm across the flats, so the hole is 7.15 mm across the flats, flats top and bottom, 0.53 in behind the lip and 0.77 in high, with 2.2 mm of plastic over and under it"], ["Size", "137 × 77 × 15 mm"]]
@@ -27,7 +27,7 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Design</label>
-      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. Block A</button><button data-preset="v7" aria-pressed="true">2. v7 + Carter's lane</button><button data-preset="v8" aria-pressed="false">3. v8, the V nose</button><button data-preset="final" aria-pressed="false">4. v7 + the poker</button></span>
+      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. the first block</button><button data-preset="v7" aria-pressed="true">2. the mountain blade</button><button data-preset="v8" aria-pressed="false">3. the V-nose blade</button><button data-preset="final" aria-pressed="false">4. the mountain blade + the poker</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">side to side</button></span>
     </div>
@@ -395,7 +395,7 @@ body = f'''
         in works to about 0.8 in off, 0.5 in starts missing at 1 in off. Three quarters of an inch it is: it clears the pipes to
         0.8 in either side and does its job out to there, which is close to the blade's own 1.3 in.</p>
         <table class="sweep loads"><thead><tr><th style="width:52%">Poker</th><th>3 in/s</th><th>6 in/s</th><th>8 in/s</th><th>10 in/s</th></tr></thead><tbody>
-          <tr><td class="k">none, v7</td><td class="stuck">16 of 24</td><td class="stuck">18 of 24</td><td></td><td class="ok">24 of 24</td></tr>
+          <tr><td class="k">none, the mountain blade</td><td class="stuck">16 of 24</td><td class="stuck">18 of 24</td><td></td><td class="ok">24 of 24</td></tr>
           <tr><td class="k">1.1 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td></tr>
           <tr><td class="k">1.2 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="stuck">22</td><td class="stuck">20</td></tr>
           <tr><td class="k">1.2 in ahead, 5.3 to 7.5 in up</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td><td class="ok">24</td></tr>
@@ -411,7 +411,7 @@ body = f'''
         for the lowered position. If the intake does not come down, that is a bigger problem than the poker.</p>
         <div class="ask"><b>Open question</b>Does the intake lower for the FLOWER, and to what height? The poker is sized for a wheel axle 2.9 in up. Where does the Limelight go on the tower, and does the poker's finger stay out of its view?</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Pick "v7 + the poker" in the simulator to watch it.</figcaption><img src="data:image/png;base64,{b64f(MOD + "poker_mount.png")}" alt="Side and front views of the poker mounted on the intake's top channel, between the front pipes and above their sockets, with the ball pushed back onto the stack."><figcaption>Where it mounts: on the front of the intake's top channel, drawn from the robot's October 25 CAD with the intake in its lowered position.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Pick "the mountain blade + the poker" in the simulator to watch it.</figcaption><img src="data:image/png;base64,{b64f(MOD + "poker_mount.png")}" alt="Side and front views of the poker mounted on the intake's top channel, between the front pipes and above their sockets, with the ball pushed back onto the stack."><figcaption>Where it mounts: on the front of the intake's top channel, drawn from the robot's October 25 CAD with the intake in its lowered position.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -421,9 +421,9 @@ body = f'''
   <p>Pick a design from the sequence we went through, and a stack, and watch. The left side is a side view with the real FLOWER
   and the front of our robot, with a view from above under it. The right side is the same run in 3D, drag to look around.
   Every run is the worst case: a slow push at 4 in/s, which is the one that locks, with the sled driven all the way to the
-  posts. It opens on v7 with the stack leaning front to back, the stuck case from our photos. Step through the designs to see
-  what each one fixed and what it did not: the first block stalls, v7 locks on a front-to-back stack, the V nose does not
-  change that, and the poker clears it.</p>
+  posts. It opens on the mountain blade with the stack leaning front to back, the stuck case from our photos. Step through the designs to see
+  what each one fixed and what it did not: the first block stalls, the mountain blade locks on a front-to-back stack, the V nose
+  does not change that, and the poker clears it.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -472,7 +472,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>The two blades on the plate. The part files, the simulator and everything behind this page are in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
+  <p>The two blades on the plate. The names: the mountain blade is the 60° nose, 1.1 in peak and 12° tail with Carter's lane (our files call it v7), the V-nose blade is the same with its middle reaching 0.3 in further (v8); the low-peak blade (v9) is also on the plate. The part files, the simulator and everything behind this page are in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
 </section>
 
 

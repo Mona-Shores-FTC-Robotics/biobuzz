@@ -55,10 +55,10 @@
   const SHAPE = { edge: 0.6, nose: 60, peak: 1.1, tail: 12 }, LANE = { R: 12.3, rise: 0.3, start: 0.9, lead: 1.6, oval: 0 };
   // the designs in the order we went through them: the first block, the mountain with Carter's lane, the V nose, the poker
   const PRESETS = {
-    blockA: { name: "Block A, our first block (October 15)", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null },
-    v7: { name: "v7, the mountain with Carter's lane (October 19)", shaftBack: 0.53 },
-    v8: { name: "v8, the V nose (October 24)", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3 },
-    final: { name: "v7 with the poker on the robot (October 25)", shaftBack: 0.53, pusher: true },
+    blockA: { name: "the first block (October 15)", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null },
+    v7: { name: "the mountain blade with Carter's lane (October 19)", shaftBack: 0.53 },
+    v8: { name: "the V-nose blade (October 24)", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3 },
+    final: { name: "the mountain blade with the poker on the robot (October 25)", shaftBack: 0.53, pusher: true },
   };
   // how the stack sits before the blade arrives: front to back (the second ball against the collar, the way our photos
   // show it), straight, or leaning side to side into the gaps between the pipes
