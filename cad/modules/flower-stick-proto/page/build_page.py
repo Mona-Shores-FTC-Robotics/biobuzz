@@ -527,11 +527,11 @@ body = f'''
   ball into the ring's hole; the mountains clear a side-to-side stack and lock on a front-to-back one, with or without the lane,
   the 50° nose, the V nose or the lower peak; and the poker clears both. The status line under the views says what each one
   did on the field as well.</p>
-  <p>The arms are the low arm: a channel pivoting 0.8 in ahead of the face and 2.2 in up off the chassis side rails,
-  72 mm from pivot to shaft, the shaft in the blade's ears on 39 mm wheels, the arm 30° down, the blade's tail cut 2.4 in behind the lip,
-  drawn solid where they are and dashed where they stow, folded in front of the intake mouth. The intake wheels are drawn lowered to
-  2.9 in. The face is 3.8 in behind the lip, and the orange part on the intake's front channel is the poker U, its poke reaching
-  1.3 in, 5.7 to 7.5 in up.</p>
+  <p>The robot and its arms are drawn from the coach's October 25 CAD: the stick's two arms pivot 2.37 in behind the intake face
+  and 7.89 in up, the shaft across their tips is 9.09 in from the pivot, so with the shaft on the 0.77 in wheels the arms stop 52° below
+  horizontal and the shaft sits 3.28 in ahead of the face. They are drawn solid where they are and dashed where they stow. The intake
+  wheels are drawn lowered to 2.9 in. The face is 3.8 in behind the lip, and the orange part on the intake's front channel is the poker U,
+  its poke reaching 1.3 in, 5.7 to 7.5 in up.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
