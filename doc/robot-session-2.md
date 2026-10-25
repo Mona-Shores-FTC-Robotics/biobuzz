@@ -39,23 +39,18 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
 
 ## At the robot, in order
 
-1. [ ] **Join the robot's Wi-Fi on the laptop. Start the watcher** and leave its window open:
-
-   ```bash
-   powershell -NoProfile -ExecutionPolicy Bypass -File tools/pull-logs/Pull-MatchLogs.ps1 -Watch
-   ```
-
-   It says `connected.` and how many logs are on the robot. If it says nothing answers, the laptop
-   is not on the robot's network.
-   *Stop line: `connected.`*
+1. [ ] **Join the robot's Wi-Fi on the laptop, with REV Hardware Client 2 open first.** Logs
+   wait on the hub; nothing to start. Whenever you want to look, double-click
+   `tools\pull-logs\pull-logs.cmd`: it copies what is new and opens the newest in AdvantageScope.
+   (`watch-logs.cmd` is the live version, if wanted.)
+   *Stop line: on the robot's Wi-Fi.*
 
 2. [ ] **Activate `robot_20245`, run Validate Hardware.** Fix what it reports.
        *Stop line: nothing reported.*
 
 3. [ ] **Basic Drive, two minutes.** Drive a lap. Cycle to the Robot page (Share) and find the
-       **Log** section: a file name and a rising "loops written". Then **stop the OpMode and look
-       at the laptop**: within ten seconds the watcher says `pulled …` then `opening in
-       AdvantageScope`. Drag `/Odometry/Robot` onto a 2D Field and pick the 2026-27 FTC field.
+       **Log** section: a file name and a rising "loops written". Then **stop the OpMode and
+       double-click `pull-logs.cmd`**: it says `pulled …` then `opening in AdvantageScope`. Drag `/Odometry/Robot` onto a 2D Field and pick the 2026-27 FTC field.
        The lap you drove is on the screen.
        *Stop line: the lap is on the laptop with nobody having typed adb.* **Logging is done.**
 
@@ -66,8 +61,8 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
 5. [ ] **Auto: R-Simple, red, three times** from the taped start. Each run: INIT, Circle (B),
        PLAY. The launcher spins up and the feeder runs (the "Fire" card), then it drives
        START → PARK (10.5, 95) and holds. Part of the robot must be in the LOADING ZONE tape.
-       - After each run the log opens on the laptop. Read the final pose off `/Odometry/Robot`
-         (or the Match page before you stop) into the table.
+       - Read the final pose off the Match page before you stop into the table, or pull the
+         logs after the three runs and read it off `/Odometry/Robot`.
        - Three endings within a couple of inches of each other is a pass. Where they end against
          (10.5, 95) is the next nudge in the Visualizer, not a code change.
        *Stop line: leaves the start and parks, 3 of 3.* **Paths are done.**
@@ -95,7 +90,7 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
 | Fact | Value |
 |---|---|
 | Battery at rest, 20245 | |
-| Watcher: seconds from OpMode stop to AdvantageScope open | |
+| Pull: seconds from double-click to AdvantageScope open | |
 | Log size of one R-Simple run (KB) | |
 | R-Simple final pose, runs 1–3 (drawn PARK 10.5, 95) | |
 | R-Quals: completed / guard parked early / FAULT, and the last trace line | |
@@ -106,9 +101,9 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
 
 ## If something fails
 
-- **Watcher: "Nothing answers at 192.168.43.1:5555."** The laptop is on another network, or the
+- **Pull: "Nothing answers at 192.168.43.1:5555."** The laptop is on another network, or the
   hub is off. Nothing in the robot code is involved.
-- **Watcher connected but "No .wpilog files".** Nothing has run since the install, or the Robot
+- **Pull connected but "No .wpilog files".** Nothing has run since the install, or the Robot
   page's Log section shows a WARN with the reason the file could not open. Post the reason.
 - **Sloth Load, then the watcher says "lost the robot".** Expected: Sloth disconnects adb after
   every deploy. The watcher reconnects on its next tick.
