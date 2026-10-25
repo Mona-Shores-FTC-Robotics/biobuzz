@@ -1367,11 +1367,13 @@ have. `util/FieldView.java` sets that preset and draws the robot; it is about fo
 >
 > The one-size rule is in CLAUDE.md, and `FieldFrameTest` enforces it.
 
-**The throttle is the part that will bite you.** `FieldManager.update()` sends only when
-`canvasUpdateInterval` has elapsed — 100 ms by default. When it is not time yet it returns having
-done *nothing*, and that includes not clearing the canvas, so shapes added since the last send stay
-in the list. A 200 Hz loop that draws unconditionally ships twenty overlapping robots in one
-canvas. Gate on `shouldDraw()`:
+**The throttle, and why every draw is gated on it.** `FieldManager.update()` sends only when
+`canvasUpdateInterval` has elapsed — 100 ms by default. Whether or not it sends, it then clears
+the canvas: `update()` is "send if it is time, then reset". So drawing every loop and calling
+`update()` every loop does not pile up robots; it shows one, from whichever loop the send landed
+on. What it wastes is the drawing. At 200 Hz, nineteen canvases in twenty are built, cleared and
+never seen, and the loop-time rule in CLAUDE.md is that nothing is done per loop that does not need
+doing. Gate on `shouldDraw()`:
 
 ```java
 if (fieldView.shouldDraw()) {
@@ -1379,6 +1381,20 @@ if (fieldView.shouldDraw()) {
     fieldView.send();
 }
 ```
+
+On most loops that is one boolean read. The gate is also how two `FieldView`s share one canvas
+(see "Every `RobotOpMode` draws the robot", below): the first to pass it spends the throttle for
+that loop.
+
+> **History note, 25 Oct 2026.** This paragraph used to say that a skipped `update()` "returns
+> having done *nothing*, and that includes not clearing the canvas", so an ungated draw shipped
+> twenty overlapping robots in one canvas. The library does not do that. Checked by disassembling
+> `com.bylazar:field:1.0.10`, the module `fullpanels:1.0.19` pulls in (`javap -p -c
+> com/bylazar/field/FieldManager.class`): `update()` sends, stamps `lastUpdate` and copies the
+> canvas into `lastCanvas` only when `getShouldUpdateCanvas()` is true, then unconditionally calls
+> `canvas.reset()` and zeroes the cursor. The Sloth fork `0.3.2+1.0.7` the old text was written
+> against disassembles the same way. The gate and the three-line shape stay; the reason for them is
+> loop time, not a smear. The class Javadoc on `FieldView` was corrected in the same PR.
 
 Panels' `Rectangle` takes no rotation, so an oriented chassis outline is not available at all. A
 circle at the footprint radius plus a line along the heading is what `drawRobot` draws, and it is
