@@ -82,6 +82,10 @@ If the hub does wedge: close everything that talks adb, power-cycle the hub, the
 - **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. Pick the 2026-27 FTC
   field in the tab's settings, and `BIOBUZZ Robot` as the robot model.
   `/Odometry/PedroInches` is the same pose in Pedro's own numbers.
+- **What the Auto planned**: `/Path/Full` (every path of the Auto, grey in the layout) and
+  `/Path/Active` (the one being driven, yellow) as trajectories on the 2D Field, `/Path/Target`
+  (where it ends) as a ghost. Written by `BuiltAuto` as the Auto is built and as each path starts
+  and ends; a TeleOp-only log has none of them.
 - **What the Auto did**: `/Events` on a timeline or in the Table. Every `auto: …` line is a card
   starting, a wait ending and why, or the endgame guard's decision, exactly as the Match page
   showed them.

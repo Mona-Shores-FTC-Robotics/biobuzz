@@ -8,8 +8,10 @@ import com.pedropathing.ivy.groups.Groups;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -29,9 +31,27 @@ import java.util.function.DoubleSupplier;
  * time runs short, cutting a wait or a command but never a path.
  *
  * <p>Depends only on Ivy and Pedro — not on {@code Robot} or the FTC SDK — so it can move to its own
- * library later, and so the tests run on a laptop.
+ * library later, and so the tests run on a laptop. What the robot logs about an Auto's paths comes
+ * through {@link PathWatcher} and {@link #paths()}, so the logging stays outside this package.
  */
 public final class AutoKit {
+
+    /**
+     * Told when a path card starts driving its path and when it stops, whether it reached the end
+     * or was interrupted. Set with {@link #watchPaths}; the match log draws the active path from it.
+     */
+    public interface PathWatcher {
+        /** {@code path} has just been handed to the drivetrain. */
+        void pathStarted(Path path);
+
+        /** The card driving {@code path} has ended; nothing is being followed by this Auto now. */
+        void pathEnded(Path path);
+    }
+
+    private static final PathWatcher NO_WATCHER = new PathWatcher() {
+        @Override public void pathStarted(Path path) { }
+        @Override public void pathEnded(Path path) { }
+    };
 
     /** Length of the Autonomous period. */
     public static final double AUTO_LENGTH_S = 30.0;
@@ -48,8 +68,12 @@ public final class AutoKit {
     private final AutoRegistry registry;
     private final DoubleSupplier secondsSinceStart;
     private Consumer<String> trace = line -> { };
+    private PathWatcher watcher = NO_WATCHER;
     /** The cards made by {@link #path}: the guard lets a path it has started run to its end. */
     private final Set<Command> paths = Collections.newSetFromMap(new IdentityHashMap<>());
+    /** Every distinct path a card of this Auto can drive, in the order the cards were built. */
+    private final List<Path> allPaths = new ArrayList<>();
+    private final Set<Path> knownPaths = Collections.newSetFromMap(new IdentityHashMap<>());
 
     public AutoKit(AutoDrive drive, AutoRegistry registry, DoubleSupplier secondsSinceStart) {
         this.drive = drive;
@@ -61,6 +85,21 @@ public final class AutoKit {
     public AutoKit trace(Consumer<String> sink) {
         this.trace = sink == null ? line -> { } : sink;
         return this;
+    }
+
+    /** Where each path start and end goes (the match log). Null watches nothing. */
+    public AutoKit watchPaths(PathWatcher watcher) {
+        this.watcher = watcher == null ? NO_WATCHER : watcher;
+        return this;
+    }
+
+    /**
+     * Every distinct path a card of this Auto can drive, in the order the cards were built: the
+     * paths of {@link #path} cards and the park path of each {@link #guarded} block. Complete once
+     * the Auto is built, so the match log can write the whole plan before PLAY moves the robot.
+     */
+    public List<Path> paths() {
+        return Collections.unmodifiableList(allPaths);
     }
 
     /** Seconds left in the Autonomous period. */
@@ -298,9 +337,14 @@ public final class AutoKit {
     }
 
     private Command follow(Path path) {
+        if (knownPaths.add(path)) allPaths.add(path);
         return new CommandBuilder()
-                .setStart(() -> drive.follow(path))
-                .setDone(drive::pathDone);
+                .setStart(() -> {
+                    drive.follow(path);
+                    watcher.pathStarted(path);
+                })
+                .setDone(drive::pathDone)
+                .setEnd(end -> watcher.pathEnded(path));
     }
 
     /**

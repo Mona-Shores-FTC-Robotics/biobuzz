@@ -47,7 +47,9 @@ import java.util.function.Function;
  * the Driver Station: the Auto then runs as a timed script, every such wait running to its limit.
  *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
- * match log as events and the last few lines to the Match page.
+ * match log as events and the last few lines to the Match page. The paths go to the match log too
+ * ({@link AutoPathLog}): the whole plan once the Auto is built, at PLAY, since which way round it
+ * is drawn depends on the alliance, and the path being driven as each one starts and ends.
  */
 public abstract class BuiltAuto extends RobotOpMode {
 
@@ -127,9 +129,13 @@ public abstract class BuiltAuto extends RobotOpMode {
         startNs = System.nanoTime();
         // Every line to the match log, the last few to the Match page.
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
+        AutoPathLog pathLog = new AutoPathLog(log);
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
-                .trace(trace);
-        build.apply(kit, rotated).schedule();
+                .trace(trace)
+                .watchPaths(pathLog);
+        Command auto = build.apply(kit, rotated);
+        pathLog.plan(kit.paths());
+        auto.schedule();
     }
 
     @Override
