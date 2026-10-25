@@ -19,7 +19,7 @@ and why — so the reasoning survives past whoever added it.
 | Pedro Pathing (core) | `com.pedropathing:core:3.0.2` | Pathing, geometry and math. Pure Java — no Android or FTC SDK types. |
 | Pedro Pathing (revhub) | `com.pedropathing:revhub:3.0.2` | The REV hardware layer: mecanum/swerve drivetrains, Pinpoint/OTOS/OctoQuad/dead-wheel localizers, hub IMU. Brings `core` transitively; `core` is still declared explicitly so its version is pinned in one place. |
 | Pedro AutoTune | `com.pedropathing:tuning:1.0.1` | Robot-hosted tuning webpage. Backs the procedures in `org.firstinspires.ftc.teamcode.pedro`. |
-| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework — used in place of NextFTC. |
+| Ivy | `com.pedropathing.ivy:pedro:1.1.1` | Command-based control flow (scheduler, `Command`/`CommandBuilder`, subsystem requirements/priority). Pedro Pathing's own command framework. NextFTC v2 is built on it too; we use it directly — see § "Deliberately excluded" for why. |
 | CachingHardware | `dev.frozenmilk.dairy:CachingHardware:1.0.0` | Wraps motor/servo writes to skip redundant `setPower`/`setPosition` calls when the new value is within tolerance of the cached one. |
 | Panels | `com.bylazar.sloth:fullpanels:0.3.2+1.0.13` | Live dashboard: real-time tuning of constants, field/pose overlay, wireless Limelight pipeline tuning, telemetry graphs. Sloth-compatible build variant of `com.bylazar:fullpanels`. |
 
@@ -1501,8 +1501,37 @@ no stream to read. That is a real loss and is not meant to be permanent — see
 
 ## Deliberately excluded
 
-- **NextFTC** — the previous command framework. Migrated off it onto Ivy;
-  reintroducing it would mean maintaining two overlapping command schedulers.
+- **NextFTC** — the previous command framework. Still excluded, but not for the reason this
+  bullet used to give.
+
+  **History note, 25 Oct 2026.** This bullet said *"reintroducing it would mean maintaining two
+  overlapping command schedulers."* That is no longer true. NextFTC v2 (`dev.nextftc.v2:robot`,
+  v0.3.0 tagged 17 Oct 2026) has no scheduler of its own: its `robot` module depends on
+  `com.pedropathing.ivy:core:1.1.1`, the same Ivy we use, and `Mechanism.instant`/`infinite` are
+  Ivy's `Commands.instant`/`infinite` plus `requiring(this)` — what our `Subsystem.periodic()`
+  already does. The scheduler argument is gone. What remains:
+
+  - *Hardware layer.* Its wrappers take device names as string literals in Java
+    (`new NextMotor("l")`) or a hub plus port number
+    (`new NextServo(RobotController.controlHub(), name, 0)`), and resolve lazily on first use.
+    That breaks § "Robot configuration" three ways: names live only in `DeviceNames`, Java never
+    knows a port, and a missing device fails in the constructor rather than mid-match.
+  - *Loop ownership.* `NextOpMode` owns the loop, bulk caching, scheduler and telemetry flush,
+    and registers OpModes by classpath scan. Adopting it replaces `RobotOpMode`,
+    `LoopContractTest`, `MatchSetup`, `Display` and `Handoff` rather than adding to them.
+  - *Telemetry.* Its backends are the Driver Station, FTC Dashboard and FateWeaver. There is no
+    Panels backend, so it is a second telemetry path, and it puts FTC Dashboard (below) back
+    within reach.
+  - *The locked set.* It pulls Kotlin stdlib 2.3.0 and `kotlin-reflect` transitively next to
+    Panels' own Kotlin, and nobody has shown SDK 12 + Sloth 0.3.2 + Panels + NextFTC v2 running
+    together: the published BIOBUZZ example
+    ([13201 Hazmat](https://github.com/13201Hazmat/BioBuzz-RI30h)) is SDK 11.2.1, Sloth 0.3.0,
+    Panels commented out. It is 0.x and changed weekly through October 2026.
+
+  Worth borrowing without the dependency: its trigger table (`debounce`, `toggleOnTrue`,
+  `and`/`or`, analog thresholds) as ideas for `controls/Bindings` when a driver asks for them,
+  and its standalone `control` module as a possible later spike if the launcher needs
+  feedforward velocity control that Pedro does not cover. The investigation is in issue #217.
 - **`com.pedropathing:telemetry`** — only existed as a crutch for one
   unmigrated file in the source project this was based on. Don't carry it
   forward; if a file needs it, port that file to the current telemetry API

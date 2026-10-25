@@ -167,7 +167,9 @@ Every millisecond in the loop is a millisecond Pedro isn't correcting. The rules
   → README § "Why the versions are locked together"
 - **Never add:** FTC Dashboard or AdvantageScope Lite (their NanoHTTPD servers collide with
   Panels and the RC crash-loops on `BindException` — it compiles fine, only a robot catches it),
-  NextFTC, Road Runner, Marrow, `com.pedropathing:telemetry`, `maven.pedropathing.com`.
+  NextFTC (v2 included: it is built on Ivy, so the objection is its hardware layer, its OpMode
+  loop and its telemetry, not its scheduler), Road Runner, Marrow, `com.pedropathing:telemetry`,
+  `maven.pedropathing.com`.
   → README § "Deliberately excluded"
 - **Never patch `FtcRobotController/`.** It is stock v12.0 and gets replaced wholesale.
 - **SDK 12 split `AprilTagDetection`** into `AprilTagSingleDetection` /
