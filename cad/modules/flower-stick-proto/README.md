@@ -557,6 +557,13 @@ The model's wheel axle is 2.9 up (a ball off the blade needs that); the CAD's is
 lowered intake and the question of whether and how far the intake lowers is open. A tower-mounted arm would have to
 cross behind the face above the intake motor and drop a finger at the centre. The Limelight is not in this CAD.
 
+**The page as the design story.** The simulator carries the whole sequence as nine designs (the first block, the wedge
+with a low lane, the steep-tailed mountain, the mountain that carries, the mountain with Carter's lane, the 50° nose, the V
+nose, the low peak, the mountain with the poker), two stacks (front to back, side to side; a real stack always leans one way),
+always the worst case (4 in/s to the posts), with each design's field verdict in the status line (`page/seq_check.js` is
+the matrix). A scoreboard table at the top of the story: each design against each stack, field and model, what it taught,
+what changed next; the spinner that came before the first block is row 0. No dates on designs. The V nose is retired.
+
 **The page's clean pass (25 Oct, `page/build_page.py`, `page/anim3.js`).** The simulator lost its sliders: four choices
 (blade v7 / v8 / v10, stack front-to-back / straight / side-to-side, push 4 or 10 in/s, sled 0.35 short or at the
 posts), play, slow, scrub. It opens on the stuck case from the photos. The parts viewer shows v10, v8 and v7 only,

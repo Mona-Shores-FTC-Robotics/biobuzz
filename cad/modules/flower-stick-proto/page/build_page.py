@@ -27,9 +27,9 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Design</label>
-      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. the first block</button><button data-preset="v7" aria-pressed="true">2. the mountain blade</button><button data-preset="v8" aria-pressed="false">3. the V-nose blade</button><button data-preset="final" aria-pressed="false">4. the mountain blade + the poker</button></span>
+      <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="true">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="false">9. mountain + poker</button></span>
       <label>Stack</label>
-      <span class="seg"><button data-stack="fb" aria-pressed="true">front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">side to side</button></span>
+      <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -106,7 +106,7 @@ v10anim = open(os.path.join(S, "v10anim.js")).read()
 body = f'''
 <div class="wrap">
 <header class="hero">
-  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook · October 25</span>
+  <span class="eyebrow">Mona Shores FTC 19429 and 20245 · BIOBUZZ 2026 · engineering notebook</span>
   <h1>The FLOWER stick</h1>
   <p class="lede">A blade that pulls the POLLEN out of a FLOWER. This page is where the project stands right now: what has
   been tried, what we found out, and the questions that are still open. Read the steps, try the simulator, and then decide
@@ -122,7 +122,22 @@ body = f'''
 </section>
 
 <section class="block" id="steps">
+  <h2>The story in one table</h2>
+  <p>Four designs, two kinds of stack, and what each one taught us. "Field" is what happened on the practice field; "model" is
+  what the simulator below says for the same case. Dead ends are in the steps that follow: the 50° nose that put the peak in
+  the wrong place, and the nose that was supposed to trip itself on the posts and never reached the ball.</p>
+  <table class="sweep loads"><thead><tr><th style="width:17%">Design</th><th>Side to side</th><th>Front to back</th><th style="width:24%">What it taught us</th><th style="width:20%">What we changed next</th></tr></thead><tbody>
+    <tr><td class="k">0. The spinner</td><td class="miss">Field: a spinning contraption that pulled the balls out. It worked, and it was far too bulky to carry on the robot.</td><td class="miss">Same.</td><td>Moving parts cost space and weight. A blade that is just pushed in would be cheaper if it could be made to work.</td><td>Built the first block.</td></tr>
+    <tr><td class="k">1. The first block</td><td class="miss">Field: two blocks side by side emptied it, but only with a wiggle; one block fought you.<br>Model: stalls on a steady push.</td><td class="stuck">Not reached.</td><td>The face was too shallow: the push tilts up less than the friction angle, so it cannot lift the ball at all. Meet the ball low, with a steep face.</td><td>Measured the real FLOWER from the field CAD. Drew the mountain: a steep nose, a peak just past the pinned ball, a tail that carries the ball out.</td></tr>
+    <tr><td class="k">1a. The wedge with a low lane, the steep-tailed mountain, the mountain that carries</td><td class="miss">Model: the wedge drops the ball into the ring's hole; the mountains feed.</td><td class="stuck">Model: all lock.</td><td>A computer search over hundreds of shapes: a higher peak does not help, room past the pinned ball does, and the tail has to carry the ball out instead of dropping it.</td><td>Printed the search's shape with a 60° nose and a 1.1 in peak, with Carter's lane across the tail.</td></tr>
+    <tr><td class="k">2. The mountain blade with Carter's lane</td><td class="ok">Field: emptied the FLOWER. Pushed hard and twisted on a loose hex, fixed with a 7.15 mm hole.<br>Model: feeds every case.</td><td class="stuck">Field: the bottom ball sits on the peak and stays, sled fully in.<br>Model: locks, once the collar is drawn as the ledge it is.</td><td>The lock is two balls and the collar: the second ball leans out over the collar's ridge and pins the first on the peak. Side-to-side stacks lean into the pipe gaps instead, so nothing pins them.</td><td>Tried more reach (the V nose) and a lower peak, on one plate with the baseline.</td></tr>
+    <tr><td class="k">2a. The 50° nose</td><td class="stuck">Field: failed. The gentler slope put the peak too far forward, and the ball sat on it.<br>Model: feeds, but with 0.13 in less margin past the pinned ball.</td><td class="stuck">Field: failed.<br>Model: locks.</td><td>The push was easier, and it did not matter: the margin past the ball is what fails first. The field is stricter than the model here.</td><td>Back to the 60° nose, with the snug hex hole.</td></tr>
+    <tr><td class="k">3. The V-nose blade</td><td class="ok">Model: feeds, as the mountain does.</td><td class="stuck">Field: no real difference.<br>Model: a little better, 12 of 16 against 9, not enough to count on.</td><td>A quarter inch of reach does not undo a lock made above the blade. Nothing on the blade can reach the second ball.</td><td>Stopped changing the blade. Looked at the second ball instead.</td></tr>
+    <tr><td class="k">3a. The low-peak blade</td><td class="ok">Model: feeds.</td><td class="stuck">Model: locks; 6 of 16, worse than the mountain.</td><td>The ball's top was never what held it; the collar's corner holds the ball above. A lower peak just gives up margin.</td><td>Printed on the same plate as the V nose, as the control for that question.</td></tr>
+    <tr><td class="k">4. The mountain blade with the poker on the robot</td><td class="ok">Model: feeds.</td><td class="ok">Field: a stick held by hand at the second ball freed it.<br>Model: feeds every case, at every speed.</td><td>When a lock is made of two balls, the second ball is a target too. A fixed plate on the robot pushes it back onto the stack as the lip meets the posts.</td><td>Draw the poker on the intake's top channel, 0.75 in wide, and test it on the sled with a strip of plywood first.</td></tr>
+  </tbody></table>
   <h2>Our design steps</h2>
+
   <div class="steps">
 
     <div class="step">
@@ -418,12 +433,15 @@ body = f'''
 
 <section class="block" id="drive">
   <h2>Try our simulator</h2>
-  <p>Pick a design from the sequence we went through, and a stack, and watch. The left side is a side view with the real FLOWER
-  and the front of our robot, with a view from above under it. The right side is the same run in 3D, drag to look around.
-  Every run is the worst case: a slow push at 4 in/s, which is the one that locks, with the sled driven all the way to the
-  posts. It opens on the mountain blade with the stack leaning front to back, the stuck case from our photos. Step through the designs to see
-  what each one fixed and what it did not: the first block stalls, the mountain blade locks on a front-to-back stack, the V nose
-  does not change that, and the poker clears it.</p>
+  <p>Pick a design from the sequence we went through, and a stack, and watch. A real stack of four always leans one way or the
+  other: front to back, with the second ball out over the collar's ledge, or side to side, into the gaps between the pipes.
+  The left side is a side view with the real FLOWER and the front of our robot, with a view from above under it. The right
+  side is the same run in 3D, drag to look around. Every run is the worst case: a slow push at 4 in/s, the one that locks, with
+  the sled driven all the way to the posts. It opens on the mountain blade with the stack leaning front to back, the stuck case
+  from our photos. Step through the nine designs in order: the first block stalls on a steady push; the wedge with the low lane drops the
+  ball into the ring's hole; the mountains clear a side-to-side stack and lock on a front-to-back one, with or without the lane,
+  the 50° nose, the V nose or the lower peak; and the poker clears both. The status line under the views says what each one
+  did on the field as well.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -458,7 +476,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is the poker on the robot from the last step: a plate 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, on two standoffs. On the sled, a strip of plywood clamped at that height does for the first test. The self-tripping nose turned out not to reach the ball; step 12 says why.</p></div>
+    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>Where this stands: the V nose is retired. The field saw no difference and the model agrees it cannot undo a lock that is made above the blade. The next prints are the mountain blade with Carter's lane at the width of the robot's arms, 7.9 in, which is in the files as <code>mountain_wide</code>, and the poker, after a test on the sled with a strip of plywood clamped at its height.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>

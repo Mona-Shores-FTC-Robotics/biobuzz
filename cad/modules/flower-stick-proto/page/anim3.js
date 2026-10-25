@@ -54,15 +54,21 @@
   // the three blades: the same mountain (60 deg nose from a 0.60 in edge, peak 1.10 in, 12 deg tail) with Carter's lane
   const SHAPE = { edge: 0.6, nose: 60, peak: 1.1, tail: 12 }, LANE = { R: 12.3, rise: 0.3, start: 0.9, lead: 1.6, oval: 0 };
   // the designs in the order we went through them: the first block, the mountain with Carter's lane, the V nose, the poker
+  const M = p => S.mountain(p);
   const PRESETS = {
-    blockA: { name: "the first block (October 15)", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null },
-    v7: { name: "the mountain blade with Carter's lane (October 19)", shaftBack: 0.53 },
-    v8: { name: "the V-nose blade (October 24)", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3 },
-    final: { name: "the mountain blade with the poker on the robot (October 25)", shaftBack: 0.53, pusher: true },
+    blockA: { name: "the first block", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null, field: "On the field two of these side by side emptied a side-to-side stack with a wiggle; one fought you." },
+    v2: { name: "the wedge with a low lane", profile: [[0, 0.52], [0, 0.60], [0.45, 1.05], [0.90, 0.99], [1.50, 0.52]], shaftBack: 0.69, lane: null, field: "Never printed: the model showed the ball dipping into the ring's hole." },
+    v3: { name: "the first mountain, with a steep tail", profile: M({ edge: 0.53, nose: 55, peak: 1.28, tail: 45 }), shaftBack: 0.77, lane: null, field: "Never printed: the computer search preferred a tail that carries the ball." },
+    v4: { name: "the mountain that carries", profile: M({ edge: 0.53, nose: 55, peak: 1.28, tail: 14.4 }), shaftBack: 0.77, lane: null, field: "The shape the search chose; printed with a 60° nose and a lower peak as the next one." },
+    v7: { name: "the mountain blade with Carter's lane", shaftBack: 0.53, field: "On the field it emptied side-to-side stacks and locked on front-to-back ones." },
+    v6: { name: "the 50° nose", profile: M({ edge: 0.6, nose: 50, peak: 1.1, tail: 12 }), shaftBack: 0.58, field: "On the field it failed: the peak sat too far forward and the ball stayed on it." },
+    v8: { name: "the V-nose blade", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3, field: "On the field, no real difference. Retired." },
+    v9: { name: "the low-peak blade", profile: M({ edge: 0.6, nose: 60, peak: 1.0, tail: 10 }), shaftBack: 0.39, field: "On the plate with the V nose; the model says it does not help." },
+    final: { name: "the mountain blade with the poker on the robot", shaftBack: 0.53, pusher: true, field: "On the field a stick held by hand at the second ball freed the stack; the mounted poker is the next build." },
   };
   // how the stack sits before the blade arrives: front to back (the second ball against the collar, the way our photos
   // show it), straight, or leaning side to side into the gaps between the pipes
-  const STACKS = { fb: { pattern: [-0.29, 0.35, 0.35] }, straight: { pattern: [0, 0, 0] }, ss: { lean: 0.6 } };
+  const STACKS = { fb: { pattern: [-0.29, 0.35, 0.35] }, ss: { lean: 0.6 } };   // a real stack leans one way or the other
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
@@ -77,16 +83,16 @@
     Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (P.pusher) cfg.pusher = POKER;
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
-    if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball.";
+    if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball on this face." + (preset === "blockA" ? " On October 15 two of these, pushed by hand with a wiggle, did empty a side-to-side stack; a steady push could not." : "");
     else if (r.fed.every(v => v !== null)) s = "All four balls into the intake, the last at " + Math.max(...r.fed).toFixed(2) + " s.";
     else if (r.missed.some(v => v !== null)) s = r.missed.filter(v => v !== null).length + " of 4 rolled past the wheels, off to the side.";
     else {
       const end = r.frames[r.frames.length - 1][2], left = 4 - r.fed.filter(v => v !== null).length;
       const onPeak = end.some(b => b[0] > 0.1 && b[0] < 0.7 && b[1] > 2.1 && b[1] < 2.8), onBar = end.some(b => b[0] < -0.3 && b[0] > -1.0 && b[1] > 4.6 && b[1] < 5.5);
-      s = left + " of 4 never reached the intake" + (onPeak && onBar ? ": the stack locked itself. The bottom ball sits on the peak against the posts, and the ball above leans out over the collar's ledge and holds it there, as in our October 23 photos." : onPeak ? ": the bottom ball sits on the peak against the posts." : ": stuck on the blade.");
+      s = left + " of 4 never reached the intake" + (onPeak && onBar ? ": the stack locked itself. The bottom ball sits on the peak against the posts, and the ball above leans out over the collar's ledge and holds it there, as in our photos." : onPeak ? ": the bottom ball sits on the peak against the posts." : ": stuck on the blade.");
     }
-    const stackName = { fb: "stack leaning front to back", straight: "straight stack", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s;
+    const stackName = { fb: "stack leaning front to back", ss: "stack leaning side to side" }[stack];
+    $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : "");
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
     if (window.Drive3D) { window.Drive3D.setBlade(profile, 5.4, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKER : null); }

@@ -1,3 +1,5 @@
+> **Update:** the V nose (v8) is retired: the field saw no difference and the model agrees it cannot undo the front-to-back lock. The next prints are `stl/mountain_wide.stl` (the mountain blade with Carter's lane at the robot arms' 7.9 in width) and the poker on the robot (a 0.75 in wide plate, 1.2 in ahead of the intake face, 5.3 to 7.5 in up), after a sled test with a strip of plywood. The plate below is kept as the record of what was printed.
+
 # Print job: FLOWER stick blades (for whoever prints)
 
 **Newest: `stl/print_job_three.stl`** (24 Oct), 168 x 219 x 15 mm, three blades, flat side down. Needs a bed of
