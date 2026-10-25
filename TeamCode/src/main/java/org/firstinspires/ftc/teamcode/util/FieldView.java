@@ -10,6 +10,10 @@ import com.bylazar.field.PanelsField;
  *
  * <p>Open it at {@code http://192.168.43.1:8001} and pick the Field plugin.
  *
+ * <p>Every OpMode on {@code RobotOpMode} already draws the robot through this, once per throttle
+ * interval, after its subsystems update. Create your own only to draw more than the robot (a
+ * second pose, a target, a path), and draw it in {@code onLoop()} with the gated shape below.
+ *
  * <h2>Why this exists rather than calling Pedro's drawing helper</h2>
  *
  * <p>Pedro's {@code Drawing} class, and the {@code Follower.telemetryDebug()} that uses it, are
