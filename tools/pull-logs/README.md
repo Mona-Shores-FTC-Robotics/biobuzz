@@ -49,10 +49,12 @@ the way that section says, so the watcher survives a meeting:
   instead of hanging in `adb connect`.
 
 It uses whichever adb already has a server running on the laptop, so it joins the adb that is
-holding the hub rather than starting a rival: REV Hardware Client's if that is open, Android
-Studio's if that is. With nothing running it starts Android Studio's
-(`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`). `-Adb <path>` overrides. The first line it
-prints says which one it picked.
+holding the hub rather than starting a rival, unless that adb cannot be run from outside its
+app (REV Hardware Client 2 installed from the Microsoft Store keeps its adb under
+`C:\Program Files\WindowsApps`, which Windows refuses to run: "Access is denied"); then, and
+with nothing running, it uses Android Studio's (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`),
+which talks to REV's server all the same. `-Adb <path>` overrides. The first line it prints says
+which one it picked.
 
 **Open REV Hardware Client 2 before anything else that talks adb.** Seen 25 Oct on 20245: with
 Android Studio's own adb server holding the hub, the hub's adb daemon wedged within a minute of
