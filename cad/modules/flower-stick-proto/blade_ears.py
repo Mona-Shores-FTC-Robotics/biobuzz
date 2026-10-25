@@ -15,13 +15,15 @@ ns = {"__file__": os.path.join(HERE, "blade_step.py")}; exec(src, ns)
 A = json.load(open(os.path.join(HERE, "page", "low_arm.json")))
 W, BOTTOM, SHAFT_Z, SHAFT_X = 7.9, 0.52, 0.77, 0.53
 body = ns["blade"]("mountain_wide", edge=0.60, nose=60, peak=1.10, tail=12, rise=0.3, lane_start=0.9, oval=0.0, lead=1.6, width=W, hex_af=8.6, shaft_x=SHAFT_X)
-# the ears: a vertical wall 0.5 in thick at each end of the blade, over the tail from 1.0 to 2.8 in behind the lip and up to
-# 1.6 in above the bottom. With the arm 30 deg down, its first hole up from the shaft lands inside the blade's own tail
-# (1.35 in behind the lip, 0.73 up) and its second lands in the ear (2.17 behind, 1.21 up): two M4 bolts per side.
+# the ears: a vertical wall 0.5 in thick at each end of the blade, EAR[0] to EAR[1] behind the lip and EAR[2] up from the
+# bottom. With the arm 30 deg down its first hole up from the shaft lands inside the blade's own tail (1.35 in behind the
+# lip, 0.73 up) and its second in the ear (2.16 behind, 1.21 up): two M4 bolts per side. The tail is cut off at TAIL_CUT.
 ang = math.radians(-A["ang_dep_deg"]); d = np.array([math.cos(ang), math.sin(ang)])
 c = np.array([SHAFT_X, SHAFT_Z - BOTTOM]); holes = [c + d * k * A["hole"] for k in (1, 2)]
+E0, E1, EH = A["ear"]; CUT = A["tail_cut"]
+body = body.intersect(cq.Workplane("XY").box(CUT * IN, 400, 100, centered=(False, True, False)))
 for sg in (1, -1):
-    ear = cq.Workplane("XY").box(1.8 * IN, 0.5 * IN, 1.6 * IN, centered=(False, False, False)).translate((1.0 * IN, (W / 2 - 0.5) * IN if sg > 0 else -W / 2 * IN, 0))
+    ear = cq.Workplane("XY").box((E1 - E0) * IN, 0.5 * IN, EH * IN, centered=(False, False, False)).translate((E0 * IN, (W / 2 - 0.5) * IN if sg > 0 else -W / 2 * IN, 0))
     body = body.union(ear)
 for p in holes:
     body = body.cut(cq.Workplane("XZ").circle(2.2).extrude((W + 1) * IN, both=True).translate((p[0] * IN, 0, p[1] * IN)))
