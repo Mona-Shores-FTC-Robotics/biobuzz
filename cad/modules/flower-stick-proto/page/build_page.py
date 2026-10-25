@@ -30,6 +30,8 @@ panel = f'''  <div class="drive">
       <span class="seg"><button data-preset="blockA" aria-pressed="false">1. first block</button><button data-preset="v2" aria-pressed="false">2. wedge, low lane</button><button data-preset="v3" aria-pressed="false">3. mountain, steep tail</button><button data-preset="v4" aria-pressed="false">4. mountain that carries</button><button data-preset="v7" aria-pressed="false">5. mountain + Carter's lane</button><button data-preset="v6" aria-pressed="false">6. 50° nose</button><button data-preset="v8" aria-pressed="false">7. V nose</button><button data-preset="v9" aria-pressed="false">8. low peak</button><button data-preset="final" aria-pressed="true">9. mountain + poker, 7.9 in wide</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">leaning front to back</button><button data-stack="ss" aria-pressed="false">leaning side to side</button></span>
+      <label>Stick</label>
+      <span class="seg"><button data-stow="0" aria-pressed="true">extended</button><button data-stow="1" aria-pressed="false">stowed</button></span>
     </div>
     <div class="bar" style="border-top: 0">
       <button class="btn" id="sim-play">Play</button>
@@ -531,7 +533,10 @@ body = f'''
   and 7.89 in up, the shaft across their tips is 9.09 in from the pivot, so with the shaft on the 0.77 in wheels the arms stop 52° below
   horizontal and the shaft sits 3.28 in ahead of the face. They are drawn solid where they are and dashed where they stow. The intake
   wheels are drawn lowered to 2.9 in. The face is 3.8 in behind the lip, and the orange part on the intake's front channel is the poker U,
-  its poke reaching 1.3 in, 5.7 to 7.5 in up.</p>
+  its poke reaching 1.3 in, 5.7 to 7.5 in up. The blue box is the Limelight at its planned spot, lens 3.56 in behind the face and 14 in up,
+  pitched 45° up, with its 42° vertical field of view drawn as the wedge. "Stowed" raises the stick to the coach's stowed position, arm and
+  blade together about the pivot, zooms the side view out, and the line under the views says how close it passes to the poker, the intake's
+  face and the camera on the way up, and how much of the camera's view the stowed blade covers.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft

@@ -48,6 +48,13 @@ window.Drive3D = (function () {
   // the drive wheels' front pair (96 mm omni), beside the intake
   const omniGeo = new THREE.CylinderGeometry(1.89, 1.89, 1.9, 24); omniGeo.rotateX(Math.PI / 2);
   for (const y of [-6.2, 6.2]) { const w = new THREE.Mesh(omniGeo, dark); w.position.set(-1.6, 1.89, -y); robot.add(w); }
+  // the Limelight 3A at its planned pose: lens 3.56 in behind the face, 14.0 up, pitched 45 deg up; 54.5 x 42 deg field of view
+  { const cam = new THREE.Mesh(new THREE.BoxGeometry(1.75, 1.7, 2.3), new THREE.MeshStandardMaterial({ color: 0x2bb5e0, roughness: 0.5 })); cam.position.set(-3.56 - 0.5, 14.0, 0); cam.rotation.z = Math.PI / 4; robot.add(cam);
+    const R = 12, hw = R * Math.tan(54.5 / 2 * Math.PI / 180), hh = R * Math.tan(42 / 2 * Math.PI / 180);
+    const v = new Float32Array([0, 0, 0, R, hh, -hw, R, hh, hw, 0, 0, 0, R, -hh, hw, R, -hh, -hw, 0, 0, 0, R, hh, hw, R, -hh, hw, 0, 0, 0, R, -hh, -hw, R, hh, -hw, R, hh, -hw, R, -hh, -hw, R, -hh, hw, R, hh, -hw, R, -hh, hw, R, hh, hw]);
+    const g = new THREE.BufferGeometry(); g.setAttribute("position", new THREE.BufferAttribute(v, 3)); g.computeVertexNormals();
+    const fov = new THREE.Mesh(g, new THREE.MeshBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.12, side: THREE.DoubleSide, depthWrite: false })); fov.position.set(-3.56, 14.0, 0); fov.rotation.z = Math.PI / 4; robot.add(fov);
+    const edges = new THREE.LineSegments(new THREE.EdgesGeometry(g), new THREE.LineBasicMaterial({ color: 0x2bb5e0, transparent: true, opacity: 0.5 })); edges.position.copy(fov.position); edges.rotation.z = Math.PI / 4; robot.add(edges); }
   // the blade and its arms, in a group whose x is the lip
   const bladeG = new THREE.Group(); scene.add(bladeG);
   const petg = new THREE.MeshStandardMaterial({ color: 0xd9711c, roughness: 0.55 });
@@ -187,8 +194,8 @@ window.Drive3D = (function () {
     if (poly.some(([x]) => x < 0)) { const m2 = new THREE.Mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 1.2, bevelEnabled: false }), petg); m2.position.z = -0.6; g.add(m2); }
     g.position.set(-pivot[0], pivot[1], 0); return g;
   }
-  function frame(lip, ballPos, onRobot, shaftBack, t, nose) {
-    bladeG.position.x = lip;
+  function frame(lip, ballPos, onRobot, shaftBack, t, nose, phi) {
+    phi = phi || 0; bladeG.position.set(lip, 0, 0); bladeG.rotation.z = 0;
     if (nose) {
       if (!noseG) { noseG = nosePiece(nose[2], nose[1], bladeWidthNow); bladeG.add(noseG); }
       noseG.visible = true; noseG.rotation.z = nose[0] * Math.PI / 180;
@@ -200,7 +207,8 @@ window.Drive3D = (function () {
       const face = lip - shaftBack - sa, px = face + M.pivot[0], pz = M.pivot[1];
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
-      const dx = shx - px, dz = 0.77 - pz, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (M.fwd - M.back) / 2;
+      if (phi) { const c = Math.cos(phi), s = Math.sin(phi); bladeG.position.set(px + (lip - px) * c - (0 - pz) * s, pz + (lip - px) * s + (0 - pz) * c, 0); bladeG.rotation.z = phi; }
+      const dx0 = shx - px, dz0 = 0.77 - pz, c0 = Math.cos(phi), s0 = Math.sin(phi), dx = dx0 * c0 - dz0 * s0, dz = dx0 * s0 + dz0 * c0, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (M.fwd - M.back) / 2;
       arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = M.back + M.fwd; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang;
         armCaps[k][0].visible = armCaps[k][1].visible = arm.visible; armCaps[k][0].position.set(px - ux * M.back, pz - uz * M.back, ARMS[armMode][k] - offsetNow); armCaps[k][1].position.set(px + ux * M.fwd, pz + uz * M.fwd, ARMS[armMode][k] - offsetNow); });
       wheelMeshes.forEach((m, k) => { if (M.wheels) m.position.set(-shaftBack, 0.77, -M.wheels.ys[k] - 0); });

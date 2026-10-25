@@ -4,7 +4,8 @@
   const PX = 52, X0 = -10.0, ZTOP = 8.4;
   const sx = x => (x - X0) * PX, sy = z => (ZTOP - z) * PX;
   const svg = document.getElementById("sim-svg"), NS = "http://www.w3.org/2000/svg";
-  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
+  const sideG = document.createElementNS(NS, "g"); svg.appendChild(sideG); let curG = sideG;   // the side view, zoomed out when the stick is stowed
+  const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || curG).appendChild(e); return e; };
   const segPath = segs => segs.map(([a, b]) => `M${sx(a[0]).toFixed(1)},${sy(a[1]).toFixed(1)}L${sx(b[0]).toFixed(1)},${sy(b[1]).toFixed(1)}`).join("");
   // the field: tiles and the wall (not in the FLOWER's CAD), then the FLOWER's own sections from FIRST's STEP
   el("rect", { x: sx(X0), y: sy(0), width: (3.4 - X0) * PX, height: 0.3 * PX, fill: "var(--steel)" });
@@ -25,6 +26,12 @@
   const mirror = segs => segs.map(([a, b]) => [[-a[0], a[1]], [-b[0], b[1]]]);
   el("path", { d: segPath(mirror(RS.centre)), stroke: "var(--muted)", "stroke-width": 1.1, fill: "none", opacity: 0.8 }, robotG);
   el("path", { d: segPath(mirror(RS.gecko)), stroke: "var(--fg)", "stroke-width": 1.4, fill: "none", opacity: 0.9 }, robotG);
+  const LL = { x: -3.56, z: 14.0, pitch: 45, vfov: 42, hfov: 54.5, body: [[-4.45, 13.15], [-2.7, 14.85]], reach: 12 };   // the Limelight 3A at its planned pose (cad/full-robot/limelight_copy1)
+  const llWedge = el("polygon", { fill: "#2bb5e0", "fill-opacity": 0.15, stroke: "#2bb5e0", "stroke-width": 0.8, "stroke-dasharray": "3 2" }, robotG);
+  const llBody = el("rect", { fill: "#2bb5e0", "fill-opacity": 0.6, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);
+  { const [lo, hi] = LL.body; llBody.setAttribute("x", sx(lo[0])); llBody.setAttribute("y", sy(hi[1])); llBody.setAttribute("width", (hi[0] - lo[0]) * PX); llBody.setAttribute("height", (hi[1] - lo[1]) * PX);
+    const rays = [LL.pitch - LL.vfov / 2, LL.pitch + LL.vfov / 2].map(d => { const r = d * Math.PI / 180; return [LL.x + LL.reach * Math.cos(r), LL.z + LL.reach * Math.sin(r)]; });
+    llWedge.setAttribute("points", [[LL.x, LL.z], rays[0], rays[1]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); }
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
   const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the poker U over the intake's front channel, with its buttress
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
@@ -43,6 +50,7 @@
   const shaft = el("circle", { r: 0.16 * PX, fill: "var(--steel)", stroke: "var(--fg)" });
   const balls = [0, 1, 2, 3].map(() => el("circle", { r: S.R * PX, fill: "var(--pollen)", "fill-opacity": 0.75, stroke: "var(--fg)", "stroke-width": 1.2 }));
   // the plan view (from above): half scale, under the side view; x as above, y across the field (+y up the screen)
+  curG = svg;
   const P2 = PX / 2, Y0 = 452 + 8, YC = Y0 + 6.5 * P2;
   const px2 = x => (x - X0) * P2, py2 = y => YC - y * P2;
   el("line", { x1: 0, x2: 697, y1: Y0 - 4, y2: Y0 - 4, stroke: "var(--line)" });
@@ -96,7 +104,7 @@
   const TAIL_CUT = 2.4;   // the low arm's blade has its tail cut off here (page/tailcut_scan.js: no change in the model), for the folded overhang
   const truncate = (prof, cut) => { if (cut >= prof[prof.length - 1][0]) return prof; const out = prof.filter(([x]) => x <= cut); for (let i = 0; i + 1 < prof.length; i++) { const [x0, z0] = prof[i], [x1, z1] = prof[i + 1]; if (x0 <= cut && cut <= x1) { out.push([cut, z0 + (z1 - z0) * (cut - x0) / (x1 - x0)]); break; } } out.push([cut + 0.001, prof[0][1]]); return out; };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
-  let preset = "final", stack = "fb", mount = "tall"; const push = 4, stopErr = 0;
+  let preset = "final", stack = "fb", mount = "tall", stowed = false, runText = ""; const push = 4, stopErr = 0;
   let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
@@ -115,11 +123,38 @@
     }
     const stackName = { fb: "stack leaning front to back", ss: "stack leaning side to side" }[stack];
     const mountName = { tall: "on the coach's tall arms", low: "on the low arm" }[mount];
-    $("sim-result").textContent = P.name + " " + mountName + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : "");
+    runText = P.name + " " + mountName + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : ""); $("sim-result").textContent = stowed ? stowReport() : runText;
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
     if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKERS[mount] : null); if (window.Drive3D.setMount) window.Drive3D.setMount(mount); }
     draw();
+  }
+  // the stick raised: the angle from the deployed arm to the stowed one, counter-clockwise in the side view
+  const stowAngle = (MT, dx, dz) => { const a0 = Math.atan2(dz, dx), a1 = Math.atan2(MT.stowedDir[1], MT.stowedDir[0]); let d = a1 - a0; while (d < 0) d += 2 * Math.PI; return d; };
+  const segDist = (p, a, b) => { const vx = b[0] - a[0], vz = b[1] - a[1], L2 = vx * vx + vz * vz || 1e-9; let u = ((p[0] - a[0]) * vx + (p[1] - a[1]) * vz) / L2; u = Math.max(0, Math.min(1, u)); return Math.hypot(p[0] - a[0] - u * vx, p[1] - a[1] - u * vz); };
+  const polyDist = (A, B) => { let d = Infinity; for (let i = 0; i < A.length; i++) for (let j = 0; j < B.length; j++) { d = Math.min(d, segDist(A[i], B[j], B[(j + 1) % B.length]), segDist(B[j], A[i], A[(i + 1) % A.length])); } return d; };
+  function stowReport() {
+    // sweep the stick from deployed to stowed and find its closest approach to the poker, the intake's face and the camera (robot frame, x ahead of the face)
+    const P = PRESETS[preset], MT = S.MOUNTS[mount], fbl = S.shaftAhead(MT) + P.shaftBack, pv = MT.pivot, shx = S.shaftAhead(MT), phiMax = stowAngle(MT, shx - pv[0], 0.77 - pv[1]);
+    const bladeR = profile.map(([x, z]) => [fbl - x, z]), ux = (shx - pv[0]) / MT.L, uz = (0.77 - pv[1]) / MT.L, nx = -uz * MT.w / 2, nz = ux * MT.w / 2;
+    const armR = [[pv[0] - ux * MT.back + nx, pv[1] - uz * MT.back + nz], [pv[0] + ux * MT.fwd + nx, pv[1] + uz * MT.fwd + nz], [pv[0] + ux * MT.fwd - nx, pv[1] + uz * MT.fwd - nz], [pv[0] - ux * MT.back - nx, pv[1] - uz * MT.back - nz]];
+    const web = cfg.pusher ? cfg.pusher.z0 - 0.09 : 0;
+    const obstacles = { "the poker": cfg.pusher ? [[-2.06, web - 0.47], [-2.06, web + 0.16], [-1.73, web + 0.16], [0.17, cfg.pusher.z1], [cfg.pusher.reach, cfg.pusher.z1], [cfg.pusher.reach, cfg.pusher.z0], [0.17, cfg.pusher.z0], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web], [-1.9, web], [-1.9, web - 0.47]] : null,
+      "the intake's face": [[0, 3.9], [0, 10.7], [-0.01, 10.7], [-0.01, 3.9]], "the camera": [[LL.body[0][0], LL.body[0][1]], [LL.body[1][0], LL.body[0][1]], [LL.body[1][0], LL.body[1][1]], [LL.body[0][0], LL.body[1][1]]] };
+    const best = {}; const N = 120;
+    for (let k = 0; k <= N; k++) {
+      const phi = phiMax * k / N, c = Math.cos(phi), s_ = Math.sin(phi), rot = ([x, z]) => [pv[0] + (x - pv[0]) * c - (z - pv[1]) * s_, pv[1] + (x - pv[0]) * s_ + (z - pv[1]) * c];
+      const parts = [bladeR.map(rot)];                                 // the arms ride outboard of the intake, the poker and the camera, so only the blade can hit them
+      for (const name in obstacles) { if (!obstacles[name]) continue; const d = Math.min(...parts.map(p => polyDist(p, obstacles[name]))); if (!best[name] || d < best[name].d) best[name] = { d, deg: phi * 180 / Math.PI }; }
+    }
+    const top = Math.max(...bladeR.concat(armR).map(([x, z]) => { const c = Math.cos(phiMax), s_ = Math.sin(phiMax); return pv[1] + (x - pv[0]) * s_ + (z - pv[1]) * c; }));
+    const front = Math.max(...bladeR.concat(armR).map(([x, z]) => { const c = Math.cos(phiMax), s_ = Math.sin(phiMax); return pv[0] + (x - pv[0]) * c - (z - pv[1]) * s_; }));
+    // what the camera sees past the stowed stick: the elevation the stowed blade and arm cover, within the 24-66 deg window
+    const el0 = LL.pitch - LL.vfov / 2, el1 = LL.pitch + LL.vfov / 2; let lo = 90, hi = -90;
+    for (const [x, z] of bladeR.map(([x, z]) => { const c = Math.cos(phiMax), s_ = Math.sin(phiMax); return [pv[0] + (x - pv[0]) * c - (z - pv[1]) * s_, pv[1] + (x - pv[0]) * s_ + (z - pv[1]) * c]; })) { const e = Math.atan2(z - LL.z, x - LL.x) * 180 / Math.PI; lo = Math.min(lo, e); hi = Math.max(hi, e); }
+    const covered = Math.max(0, Math.min(hi, el1) - Math.max(lo, el0)), pct = Math.round(100 * covered / (el1 - el0));
+    const parts = Object.keys(best).map(n => `${n} ${best[n].d < 0.05 ? "HIT" : best[n].d.toFixed(2) + " in"} (at ${best[n].deg.toFixed(0)}°)`);
+    return `Stick raised ${(phiMax * 180 / Math.PI).toFixed(0)}° to its stowed position: top ${top.toFixed(1)} in up, foremost point ${front.toFixed(1)} in ahead of the face. Closest approach on the way up: ${parts.join("; ")}. The stowed blade sits in ${pct}% of the camera's vertical view (${lo.toFixed(0)}° to ${hi.toFixed(0)}° elevation; the camera sees ${el0}° to ${el1}°).`;
   }
   function draw() {
     if (!result) return;
@@ -172,7 +207,18 @@
       planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
       planFace.style.display = planMouth.style.display = "";
     } else planFace.style.display = planMouth.style.display = "none";
-    if (window.Drive3D) window.Drive3D.frame(lip, f[2], true, P.shaftBack, t, cfg.finger ? [f[3] || 0, cfg.finger.pivot, NOSE_POLY] : null);
+    let phi = 0;
+    if (stowed) {                                                        // the stick raised: arm, shaft and blade turned about the pivot together
+      const MT = S.MOUNTS[mount], face = lip - S.shaftAhead(MT) - P.shaftBack, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
+      phi = stowAngle(MT, shx - pvx, 0.77 - pvz);
+      const rot = ([x, z]) => { const dx = x - pvx, dz = z - pvz, c = Math.cos(phi), s_ = Math.sin(phi); return [pvx + dx * c - dz * s_, pvz + dx * s_ + dz * c]; };
+      blade.setAttribute("points", profile.map(([x, z]) => rot([lip - x, z])).map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); toeEl.style.display = "none";
+      const [sxr, szr] = rot([shx, 0.77]); shaft.setAttribute("cx", sx(sxr)); shaft.setAttribute("cy", sy(szr));
+      arm.setAttribute("d", barPath([pvx, pvz], [sxr - pvx, szr - pvz], MT.back, MT.fwd, MT.w)); armStow.style.display = plateStow.style.display = "none";
+      if (MT.wheels) { wheelEl.setAttribute("cx", sx(sxr)); wheelEl.setAttribute("cy", sy(szr)); }
+      const s = 0.42; sideG.setAttribute("transform", `translate(40 ${(sy(0) * (1 - s)).toFixed(1)}) scale(${s})`);   // zoomed out about the floor line, the robot kept in view
+    } else { armStow.style.display = ""; sideG.removeAttribute("transform"); }
+    if (window.Drive3D) window.Drive3D.frame(lip, f[2], true, P.shaftBack, t, cfg.finger ? [f[3] || 0, cfg.finger.pivot, NOSE_POLY] : null, phi);
     $("sim-clock").textContent = t.toFixed(2) + " s";
     $("sim-scrub").value = i;
   }
@@ -190,6 +236,7 @@
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
   for (const b of document.querySelectorAll("[data-mount]")) b.onclick = () => { mount = b.dataset.mount; pressed("data-mount", mount); compute(); };
+  for (const b of document.querySelectorAll("[data-stow]")) b.onclick = () => { stowed = b.dataset.stow === "1"; pressed("data-stow", b.dataset.stow); $("sim-result").textContent = stowed ? stowReport() : runText; draw(); };
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };
   $("sim-scrub").oninput = function () { if (!result) return; playing = false; $("sim-play").textContent = "Play"; i = +this.value; draw(); };
