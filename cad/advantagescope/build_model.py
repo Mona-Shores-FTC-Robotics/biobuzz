@@ -1,0 +1,264 @@
+"""The whole robot as an AdvantageScope model: Robot_BIOBUZZ/{model.glb, model_0.glb .. model_7.glb, config.json,
+extractor_poses.json}.
+
+AdvantageScope's robot frame (as TeamCode's simulator RobotAssets uses it): +X forward, +Y left, +Z up, metres,
+origin on the floor under the point Pedro tracks (here: the chassis frame's centre, 7.56 in behind the front face).
+
+    python3 cad/advantagescope/build_model.py ROBOT_MESH_PKL ADDON_MESH_PKL [POD_MESH_PKL [TRANSFER_MESH_PKL]]
+
+ROBOT_MESH_PKL is `python3 cad/full-robot/build.py --mesh Robot.step keep.pkl` (the mentor's CAD, lined up and edited
+as the full-robot STEP has it). ADDON_MESH_PKL is cad/intake-b/build.py's MESH_OUT; POD_MESH_PKL is
+cad/robot-addons/build.py's; TRANSFER_MESH_PKL is cad/transfer/build.py's. VENDOR_PKL (environment) is
+cad/full-robot/real_parts.py's vendor meshes.
+
+model.glb is the robot and everything fixed. Components: model_0 is the FLOWER extractor, drawn deployed; model_1 is the
+roller's motor, carriage and float plates without the roller, drawn down (it floats straight up to 1.3 in); model_2 is
+what turns on the turret (the goBILDA bearing's inner race and its gear), facing forward; model_3 is the transfer's
+feeder (wheels, shaft, pulley; it spins); model_4 is the intake roller (it floats and spins); model_5 and model_6 are
+the launcher's two flywheel axles (they spin); model_7 is the transfer's sprung pad (it swings).
+The rest of the designer's Launcher Concept (frame, the bearing's outer race) is fixed, in model.glb.
+"""
+import json, math, os, pickle, re, sys
+import numpy as np, trimesh, fast_simplification
+import importlib.util
+_spec = importlib.util.spec_from_file_location("transfer", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "transfer", "build.py"))
+TRF = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(TRF)   # the transfer's numbers (feeder axes)
+_spec = importlib.util.spec_from_file_location("real_parts", os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "full-robot", "real_parts.py"))
+RPM = importlib.util.module_from_spec(_spec); _spec.loader.exec_module(RPM)
+LENS = RPM.limelight_lens_in()[0]                 # the camera's lens on its goBILDA mount, inches
+FEEDER_PART = re.compile(TRF.FEEDER_SPINS + "|" + TRF.PAD_SWINGS)
+
+IN, M = 25.4, 0.0254
+C, F, FACE = -59.62, -151.75, 207.73                 # robot CAD (mm): centre x, floor y, front face z
+CENTRE_BACK_IN = 7.56                                 # chassis centre, inches behind the front face: half the rails'
+                                                      # 384 mm (15.12 in) length, midway between the wheel axles (1.89, 13.23)
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Robot_BIOBUZZ")
+NAME = "BIOBUZZ Robot"
+
+def cad_to_as(v):
+    """Robot CAD mm (x left, y up, z forward) -> AdvantageScope m (X forward, Y left, Z up)."""
+    v = np.asarray(v, float)
+    return np.c_[(v[:, 2] - (FACE - CENTRE_BACK_IN * IN)) / 1000, (v[:, 0] - C) / 1000, (v[:, 1] - F) / 1000]
+
+def colour_of(name):
+    for pat, c in ((r"Nectar", (0.82, 0.23, 0.18)), (r"Gecko", (0.35, 0.66, 0.31)), (r"3606|roller", (0.22, 0.24, 0.27)),
+                   (r"belt|5000|5103|5203|motor|body|Gearbox", (0.19, 0.2, 0.23)), (r"Shaft|shaft|REX", (0.82, 0.84, 0.86))):
+        if re.search(pat, name): return c
+    return (0.67, 0.7, 0.74)
+
+def mesh(v, f, rgb, alpha=1.0, decimate=None):
+    v, f = np.asarray(v, np.float32), np.asarray(f, np.int32)
+    if decimate and len(f) > 400:
+        m = trimesh.Trimesh(v, f, process=True); m.merge_vertices(digits_vertex=4)
+        tgt = max(40, int(len(m.faces) * decimate))
+        if tgt < len(m.faces):
+            try: v, f = fast_simplification.simplify(m.vertices.astype(np.float32), m.faces.astype(np.int32), target_reduction=1 - tgt / len(m.faces))
+            except Exception: v, f = m.vertices, m.faces
+    t = trimesh.Trimesh(cad_to_as(v), f, process=False)
+    t.visual = trimesh.visual.TextureVisuals(material=trimesh.visual.material.PBRMaterial(
+        baseColorFactor=[int(255 * c) for c in rgb] + [int(255 * alpha)], metallicFactor=0.2, roughnessFactor=0.6,
+        alphaMode="BLEND" if alpha < 1 else "OPAQUE", doubleSided=True))
+    return t
+
+# AdvantageScope's loader (OptimizeGeometries.ts) drops any mesh without a NORMAL attribute, so every export
+# below passes include_normals=True; without it the whole robot drew blank (6 Oct 2026).
+def merged(meshes):
+    """One mesh per colour keeps the file small and quick to draw."""
+    by = {}
+    for m in meshes: by.setdefault(tuple(m.visual.material.baseColorFactor), []).append(m)
+    s = trimesh.Scene()
+    for i, (col, ms) in enumerate(by.items()):
+        s.add_geometry(trimesh.util.concatenate(ms), geom_name=f"part_{i}")
+    return s
+
+def as_in_to_cad(p):
+    """AdvantageScope inches (X forward, Y left, Z up) -> robot CAD mm."""
+    p = np.asarray(p, float)
+    return np.c_[C + p[:, 1] * IN, F + p[:, 2] * IN, FACE - CENTRE_BACK_IN * IN + p[:, 0] * IN]
+
+def limelight(mount_only=False):
+    """The Limelight 3A at the Limelight chat's earlier position (lens 4.0 in ahead, 14.0 in up, pitched 45 deg up; not
+    config.json's camera, which is on the goBILDA mount at real_parts.limelight_lens_in()), on a stand-in mount: a 16 mm beam between the two front towers' tops and a plate with a 45 deg printed wedge under the camera.
+    The body is about 3.5 x 2.4 x 0.95 in; the mount is drawn only to show where it goes, below the camera's view."""
+    lens, a = np.array([4.0, 0.0, 14.0]), math.radians(45)
+    n, u = np.array([math.cos(a), 0, math.sin(a)]), np.array([-math.sin(a), 0, math.cos(a)])   # view direction, camera up
+    W, H, D = 3.5 / 2, 2.4 / 2, 0.95 / 2
+    c = lens - n * D
+    body = np.array([c + sy * W * np.array([0, 1, 0]) + sh * H * u + sd * D * n for sy in (-1, 1) for sh in (-1, 1) for sd in (-1, 1)])
+    glass = np.array([lens + n * s1 * 0.04 + np.array([0, sy * 0.35, 0]) + u * sh * 0.35 for s1 in (0, 1) for sy in (-1, 1) for sh in (-1, 1)])
+    bot = c - H * u                                                  # the middle of the camera's bottom face
+    edge = [bot + sd * D * n for sd in (-1, 1)]
+    wedge = np.array([e + np.array([0, sy * 1.2, 0]) for e in edge for sy in (-1, 1)] +
+                     [np.array([x, sy * 1.2, 12.25]) for x in (min(e[0] for e in edge), 5.4) for sy in (-1, 1)])
+    def boxpts(lo, hi): return np.array([[x, y, z] for x in (lo[0], hi[0]) for y in (lo[1], hi[1]) for z in (lo[2], hi[2])])
+    if mount_only:                                   # the real camera is drawn from Limelight's STEP: sit the wedge under its bottom face
+        back, low = 16.9 / IN, 19.1 / IN             # lens to its back face and to its bottom face
+        edge = [lens - u * low - n * back, lens - u * low]
+        wedge = np.array([e + np.array([0, sy * 1.2, 0]) for e in edge for sy in (-1, 1)] +
+                         [np.array([x, sy * 1.2, 12.25]) for x in (min(e[0] for e in edge), 5.4) for sy in (-1, 1)])
+    out = []
+    for pts, rgb in (() if mount_only else ((body, (0.13, 0.14, 0.16)), (glass, (0.05, 0.05, 0.06)))) + ((wedge, (0.18, 0.37, 0.62)),
+                     (boxpts([4.2, -1.2, 12.13], [6.9, 1.2, 12.25]), (0.18, 0.37, 0.62)), (boxpts([6.3, -4.85, 11.5], [6.9, 4.85, 12.13]), (0.67, 0.7, 0.74))):
+        h = trimesh.convex.convex_hull(pts)
+        out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
+    return out
+
+def transfer():
+    """The fallback without a transfer mesh: the v1 transfer (issue #164) as placeholder solids from its envelope boxes,
+    drawn fixed, in AdvantageScope inches. cad/transfer/build.py's MESH_OUT replaces it."""
+    from shapely.geometry import Polygon, Point
+    from shapely.ops import unary_union
+    PURPLE, GREEN, DARK, GREY = (0.55, 0.47, 0.75), (0.35, 0.66, 0.31), (0.19, 0.2, 0.23), (0.67, 0.7, 0.74)
+    out = []
+    def put(h, rgb): out.append(mesh(as_in_to_cad(h.vertices), h.faces, rgb))
+    def boxm(lo, hi): return trimesh.creation.box(bounds=[lo, hi])
+    def xz_solid(poly, y0, y1):
+        """A shape drawn in the X-Z plane, extruded across Y from y0 to y1."""
+        h = trimesh.creation.extrude_polygon(poly, y1 - y0)          # polygon in (X, Z), extruded along its +z
+        v = h.vertices.copy(); h.vertices = np.c_[v[:, 0], v[:, 2] + y0, v[:, 1]]
+        h.invert() if h.volume < 0 else None
+        return h
+    def ycyl(cx, cz, r, y0, y1):
+        h = trimesh.creation.cylinder(radius=r, height=y1 - y0, sections=32)
+        h.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [1, 0, 0])); h.apply_translation([cx, (y0 + y1) / 2, cz]); return h
+    # lane: floor at 0.9 (0.1 thick) and walls 0.06 thick at Y +-2.1, X -1.3..7.2, up to 5.0; notched to 3.4 over the
+    # drive motors' encoder caps (X 2.3..4.0) and to 4.7 under the raised 11-hole channel (X 4.95..5.6)
+    put(boxm([-1.3, -2.16, 0.8], [7.2, 2.16, 0.9]), PURPLE)
+    for s in (-1, 1):
+        y0, y1 = sorted((s * 2.1, s * 2.16))
+        for x0, x1, top in ((-1.3, 2.3, 5.0), (2.3, 4.0, 3.4), (4.0, 4.95, 5.0), (4.95, 5.6, 4.7), (5.6, 7.2, 5.0)):
+            put(boxm([x0, y0, 0.9], [x1, y1, top]), PURPLE)
+    # ramp: from (8.0, 0.05) down to the lane floor at (5.8, 0.9)
+    a, b = np.array([8.0, 0.05]), np.array([5.8, 0.9]); d = (b - a) / np.linalg.norm(b - a); nrm = np.array([-d[1], d[0]]) * 0.06
+    put(xz_solid(Polygon([a, b, b + nrm, a + nrm]), -2.1, 2.1), PURPLE)
+    # J-wheel (48 mm, 2 in wide) on its axle at (-1.32, 4.54), arms to the pivot at (0.85, 3.29)
+    put(ycyl(-1.32, 4.54, 0.945, -1.0, 1.0), GREEN)
+    for s in (-1, 1):
+        ax, pv = np.array([-1.32, 4.54]), np.array([0.85, 3.29]); d = (pv - ax) / np.linalg.norm(pv - ax); nrm = np.array([-d[1], d[0]]) * 0.25
+        put(xz_solid(Polygon([ax - nrm, pv - nrm, pv + nrm, ax + nrm]), s * 1.06 - 0.06, s * 1.06 + 0.06), GREY)
+    # outer J and chute: a 3.64 in arc about the axle from the lane floor round to the back, then a wall at X -4.96 to 6.6
+    c, r0, r1 = np.array([-1.32, 4.54]), 3.64, 3.70
+    arc = lambda r: [c + r * np.array([math.cos(q), math.sin(q)]) for q in np.linspace(-math.pi / 2, -math.pi, 24)]
+    shell = Polygon(arc(r1) + [np.array([-4.96 - 0.06, 6.6]), np.array([-4.96, 6.6])] + arc(r0)[::-1])
+    put(xz_solid(shell.buffer(0), -2.2, 2.2), PURPLE)
+    # countershaft pulley (24 mm) at (6.0, 4.0), Y +2.6; the J motor (any spot in its box: drawn along X in it)
+    put(ycyl(6.0, 4.0, 0.47, 2.5, 2.7), DARK)
+    h = trimesh.creation.cylinder(radius=0.73, height=4.7, sections=24)
+    h.apply_transform(trimesh.transformations.rotation_matrix(math.pi / 2, [0, 1, 0])); h.apply_translation([-1.6, 3.6, 2.4]); put(h, DARK)
+    # turret bearing: a ring, 105 mm (4.13 in) inside, 6.6..7.8 up, centred on (-3.17, 0)
+    ring = trimesh.creation.annulus(r_min=4.13 / 2, r_max=5.5 / 2, height=1.2, sections=48); ring.apply_translation([-3.17, 0, 7.2]); put(ring, GREY)
+    return out
+
+# What spins or turns, robot frame (inches). The turret: the goBILDA bearing's inner race (its 1600-0001-0120 inner ring
+# too) and the 176-tooth gear on it, about +Z through the inner race's centre. The flywheels: each axle's shaft and
+# everything centred on it (wheels, hubs, 41T pulley, spacers), about +X. The roller: its shaft, wheels and pulleys.
+TURRET_TURNS = r"1628-0105-0001-Inner-Race|1600-0001-0120:1 <1> / IR:|2325-0105-0176"
+TURRET_AXIS = (-2.8431 + TRF.LAUNCHER_SHIFT, 0.1575)   # the inner race's centre, with the launcher moved forward (cad/transfer)
+FLYWHEEL_AXLES = {"Launcher subassembly <2>": TRF.FLY_Y[0], "Launcher subassembly <1>": TRF.FLY_Y[1]}   # axle Y (the modules moved in); both at z 6.6455
+FLYWHEEL_Z = 6.646
+FLYWHEEL_X = -3.0 + TRF.LAUNCHER_SHIFT  # a point on both axles
+FEEDERS = {"L": 3}                     # component 3: the transfer's feeder (wheels, shaft, pulley); component 7 is the sprung pad
+PAD = 7
+ROLLER_AXLE = (TRF.ROLLER_AXLE_X, 3.4)                            # X, z at rest
+ROLLER_SPINS = r"^roller_shaft|^roller_centre_wheel|^roller_vector|^roller_lane_pulley|^roller_pulley|^roller_collar|^roller_eclip"
+
+def on_axle(v, y, z, tol=0.12):
+    """True when a part (CAD-inch vertices) is centred on the flywheel axle at (y, z) in the robot frame."""
+    a = cad_to_as(np.asarray(v) * IN) / M
+    lo, hi = a.min(0), a.max(0)
+    return abs((lo[1] + hi[1]) / 2 - y) < tol and abs((lo[2] + hi[2]) / 2 - z) < tol
+
+def main(robot_pkl, addon_pkl, pod_pkl=None, transfer_pkl=None):
+    keep = pickle.load(open(robot_pkl, "rb"))
+    add = pickle.load(open(addon_pkl, "rb"))
+    base, turret, fly = [], [], {k: [] for k in FLYWHEEL_AXLES}
+    for path, v, f, col in keep:                      # the team's robot, in inches as full-robot --mesh writes it
+        if re.search(r"Intake <1> / (48mm Gecko|240mm Steel|5000|5103|5203|Pattern Spacer|1201-0043)", path): continue   # the old roller and motor, replaced
+        if re.search(r"Nectar|Pollen", path): continue   # game pieces staged in the CAD: the simulator draws the ones the robot holds
+        lift = [0, 0, 0]                              # ROBOT_MESH_PKL comes from cad/full-robot/build.py --mesh, already lined up and edited
+        m = mesh(np.asarray(v) * IN + lift, f, colour_of(path), decimate=0.08)
+        # the designer's Launcher Concept is fixed (it shoots up into a hood on the turret); only the bearing's
+        # inner race and gear turn, and the flywheels spin
+        sub = next((k for k in FLYWHEEL_AXLES if k in path), None)
+        if path.startswith("Launcher Concept") and re.search(TURRET_TURNS, path): turret.append(m)
+        elif sub and not re.search(r"Bearing|belt|Channel|Block", path) and on_axle(v, FLYWHEEL_AXLES[sub], FLYWHEEL_Z): fly[sub].append(m)
+        else: base.append(m)
+    for n, m in add.items():
+        if m["grp"] in ("fixed", "vee") and "STAND-IN" not in n:
+            base.append(mesh(m["v"], m["f"], m["col"], 0.6 if "polycarbonate" in n else 1.0))
+    vendor = pickle.load(open(os.environ["VENDOR_PKL"], "rb")) if os.environ.get("VENDOR_PKL") else {}
+    if vendor:                                        # goBILDA's pods and Limelight's 3A, part by part (cad/full-robot/real_parts.py)
+        base += [mesh(m["v"], m["f"], m["col"], decimate=0.03) for m in vendor.values()]
+    elif pod_pkl:
+        for n, m in pickle.load(open(pod_pkl, "rb")).items():
+            if m["grp"] == "pod": base.append(mesh(m["v"], m["f"], m["col"], decimate=0.05))
+    else:
+        for n, m in add.items():
+            if "STAND-IN" in n: base.append(mesh(m["v"], m["f"], m["col"]))
+    if not any(m["kind"] == "mount" for m in vendor.values()):      # the goBILDA mount comes with the vendor meshes
+        base += limelight(mount_only=any(m["kind"] == "camera" for m in vendor.values()))
+    tr = pickle.load(open(transfer_pkl, "rb")) if transfer_pkl else None
+    if tr is None: base += transfer()                 # placeholder solids without TRANSFER_MESH_PKL
+    else:
+        FLY_L = re.compile(r"^flywheel_(shaft_L|spacers_L|feeder_pulley|shaft_eclip_L|pulley_L)")       # ours on the left flywheel's shaft: it spins
+        base += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if m["grp"] in ("fixed", "launcher", "elec") and not FEEDER_PART.match(n) and not FLY_L.match(n) and not n.startswith("flywheel_pulley_R")]   # the feeders spin: components 3 and 7
+        left = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] > 0)
+        fly[left] += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if FLY_L.match(n)]
+        right = next(k for k in FLYWHEEL_AXLES if FLYWHEEL_AXLES[k] < 0)
+        fly[right] += [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if n.startswith("flywheel_pulley_R")]
+    ext = [mesh(m["v"], m["f"], m["col"]) for n, m in add.items() if m["grp"] == "hook"]
+    floats = [(n, m) for n, m in add.items() if m["grp"] == "float"] + ([(n, m) for n, m in tr.items() if m["grp"] == "float"] if tr else [])
+    flt = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if not re.search(ROLLER_SPINS, n)]
+    roller = [mesh(m["v"], m["f"], m["col"]) for n, m in floats if re.search(ROLLER_SPINS, n)]
+    feed = {"L": [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.FEEDER_SPINS, n)]} if tr else {}
+    pad = [mesh(m["v"], m["f"], m["col"]) for n, m in tr.items() if re.match(TRF.PAD_SWINGS, n)] if tr else []
+    os.makedirs(OUT, exist_ok=True)
+    merged(base).export(include_normals=True, file_obj=os.path.join(OUT, "model.glb"))
+    merged(ext).export(include_normals=True, file_obj=os.path.join(OUT, "model_0.glb"))
+    merged(flt).export(include_normals=True, file_obj=os.path.join(OUT, "model_1.glb"))
+    merged(turret).export(include_normals=True, file_obj=os.path.join(OUT, "model_2.glb"))
+    merged(roller).export(include_normals=True, file_obj=os.path.join(OUT, "model_4.glb"))
+    for i, k in enumerate(FLYWHEEL_AXLES): merged(fly[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{5 + i}.glb"))
+    for k, i in FEEDERS.items(): merged(feed[k]).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{i}.glb"))
+    merged(pad).export(include_normals=True, file_obj=os.path.join(OUT, f"model_{PAD}.glb"))
+    # The Limelight where the CAD's goBILDA mount puts its lens (cad/full-robot/real_parts.py, limelight_rig): on the
+    # centreline, pitched 45 deg up, yaw 0; Limelight 3A, 640 x 480, 54.5 deg across. (The Limelight chat's earlier
+    # number, from 19429's mount, was 4.0 in ahead and 14.0 in up; TeamCode's CameraMount is measured on the robot.)
+    camera = {"name": "Limelight", "rotations": [{"axis": "y", "degrees": -45.0}, {"axis": "z", "degrees": 0.0}],
+              "position": [round(LENS[0] * M, 5), 0.0, round(LENS[2] * M, 5)], "resolution": [640, 480], "fov": 54.5}
+    # disableSimplification: AdvantageScope otherwise decimates a model and drops meshes by rendering mode, and
+    # this one (plain part names, no NOSIMPLIFY) came out blank on the field (6 Oct 2026).
+    config = {"name": NAME, "isFTC": True, "disableSimplification": True, "rotations": [], "position": [0, 0, 0], "cameras": [camera],
+              "components": [{"zeroedRotations": [], "zeroedPosition": [0, 0, 0]} for _ in range(8)]}
+    json.dump(config, open(os.path.join(OUT, "config.json"), "w"), indent=2)
+    # the extractor's poses: it turns about its own shaft (+Y through PIVOT, 2.4 in ahead of the face and 4.5 in up);
+    # front up = rotation about +Y by -angle
+    pivot = np.array([(CENTRE_BACK_IN + 2.4) * M, 0.0, 4.5 * M])
+    poses = {}
+    for name, deg in (("deployed", 0.0), ("stowed", 146.0)):
+        a = math.radians(-deg); R = np.array([[math.cos(a), 0, math.sin(a)], [0, 1, 0], [-math.sin(a), 0, math.cos(a)]])
+        t = pivot - R @ pivot
+        poses[name] = {"angle_deg": deg, "translation_m": [round(x, 5) for x in t],
+                       "rotation_quaternion_wxyz": [round(math.cos(a / 2), 6), 0.0, round(math.sin(a / 2), 6), 0.0]}
+    json.dump({"component": "model_0: FLOWER extractor", "pivot_m": [round(x, 5) for x in pivot], "axis": "+Y",
+               "note": "pose = rotation about +Y by -angle about the pivot; 0 deg deployed (as drawn), 146 deg stowed",
+               "poses": poses, "model_1": "the roller and its motor: translation [0, 0, rise] with rise 0 (down, as drawn) to 0.03302 m (1.3 in)",
+               "model_2": "what turns on the turret (the bearing's inner race and its 176T gear; the hood will join it): rotation about +Z by the yaw about (%.6f, %.6f) m (the inner race's centre, X %.4f in, Y %.4f in); positive yaw turns left; 0 = facing forward, as drawn" % (TURRET_AXIS[0] * M, TURRET_AXIS[1] * M, *TURRET_AXIS),
+               "model_4": {"what": "the intake roller: its shaft, WCP 2 in vector wheels, a 48 mm gecko centre wheel, end spacers and its pulley", "axis_point_m": [round(ROLLER_AXLE[0] * M, 6), 0.0, round(ROLLER_AXLE[1] * M, 6)], "axis": [0, 1, 0],
+                           "intake_spin": "+angle about +Y (the bottom of the roller moves rearward)", "diameter_m": 0.0508,
+                           "pose": "spin about the resting axle first, then translation [0, 0, rise] as model_1"},
+               **{f"model_{5 + i}": {"what": f"flywheel axle {'left (+Y)' if y > 0 else 'right (-Y)'}: two 96 mm Gecko 15A wheels, shaft, hub, 41T pulley", "axis_point_m": [round(FLYWHEEL_X * M, 6), round(y * M, 6), round(FLYWHEEL_Z * M, 6)],
+                                      "axis": [-1, 0, 0] if y > 0 else [1, 0, 0], "throw_spin": "+angle about the axis as given throws the piece up (the rims between the wheels move up)", "diameter_m": 0.096}
+                  for i, y in enumerate(FLYWHEEL_AXLES.values())},
+               "model_3": {"what": "the feeder: two 72 mm Gecko wheels, shaft and pulley, along X on the left under the flywheels",
+                           "axis_point_m": [round(TRF.COL_X * M, 6), round(TRF.FEED_Y * M, 6), round(TRF.FEED_Z * M, 6)],
+                           "axis": [-1, 0, 0], "feed_spin": "+angle about the axis as given drives the ball up", "diameter_m": 0.072},
+               "model_7": {"what": "the sprung pad opposite the feeder: plate and foam, hinged along X at its foot",
+                           "axis_point_m": [round(TRF.COL_X * M, 6), round(TRF.PAD_HINGE[0] * M, 6), round(TRF.PAD_HINGE[1] * M, 6)],
+                           "axis": [1, 0, 0], "swing": "+angle about the axis as given swings the pad's top out (-Y); 0 at rest (POLLEN), about 29 deg for a NECTAR"}},
+              open(os.path.join(OUT, "extractor_poses.json"), "w"), indent=2)
+    for fn in ["model.glb"] + [f"model_{i}.glb" for i in range(8)]:
+        s = trimesh.load(os.path.join(OUT, fn)); print(fn, os.path.getsize(os.path.join(OUT, fn)) // 1000, "kB, bounds (m)", np.round(s.bounds, 3).tolist())
+
+if __name__ == "__main__":
+    main(*sys.argv[1:])
