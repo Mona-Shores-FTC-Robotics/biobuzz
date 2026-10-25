@@ -1,4 +1,21 @@
-# Print job: the wide mountain blade and the poker (for whoever prints)
+# Print job: the low arm's blade and poker (for whoever prints)
+
+**Newest: `stl/print_job_low.stl`**, three parts, flat side down: `stl/mountain_wide_ears.stl` (the wide mountain blade
+with Carter's lane and a bolt ear at each end, 7.9 in wide), `stl/poker_hang_1in.stl` and `stl/poker_stand_1in.stl`
+(the poker reaching 1.0 in, for the intake up or lowered). Needs a bed of at least 290 mm one way, or print the three
+one at a time. Millimetres. PETG. The blade's bore is a loose 8.6 mm hex on purpose: the shaft turns in it and only
+carries the wheels; the blade is held by two M4 bolts per side through the arm into the blade's end and ear.
+
+![the plate from above](print_job_low.png)
+
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
+optional. Millimetres: if it comes in tiny, scale by 25.4.
+
+Thank you!
+
+---
+
+# Print job: the wide mountain blade and the poker (for the coach's tall arms; superseded by the low arm's plate above)
 
 **Newest: `stl/print_job_wide.stl`**, 165 x 281 x 19 mm, three parts, flat side down. Needs a bed of at least 290 mm
 one way (a 220 x 220 bed prints the three parts one at a time: `stl/mountain_wide.stl`, 201 x 76 x 15 mm;

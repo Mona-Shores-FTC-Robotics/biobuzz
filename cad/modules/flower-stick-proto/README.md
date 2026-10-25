@@ -608,6 +608,21 @@ at 3, 6 and 10 in/s); 1.2 in gives 16/24 at 3 in/s. `poker.py --reach 2.1` build
 open measurement. `cad/full-robot/limelight_copy1/limelight_in_fresh_cad.step` is the camera at the planned spot in this
 assembly's own coordinates (insert at the origin).
 
+**The low arm (`low_arm.py`, `blade_ears.py`, `low_arm_step.py`, `page/low_arm.json`).** The mount settled on the photo of
+another robot: a short arm pivoting low at the chassis front, a wheel at the tip, the blade on the axle. The folded blade
+sits in front of the intake mouth and that is fine: the blade is the intake's ramp (a floor POLLEN goes over the 60° nose
+and the tail into the wheels the same way), down whenever we intake, folded only for the start box and the drive. On our
+chassis (the export): pivot 0.5 in ahead of the face, 2.2 in up, on brackets off the side rails' front ends (4.9 to 5.35
+out, 1.2 to 3.1 up); arms 5-hole lowside U-channels on edge at 3.95 to 4.45 out; shaft 72 mm down the arm in the channel's
+8x14x4 bearings, the sled's 39 mm wheels keyed to it outboard (4.45 to 4.95 out); arm 30.3° down, shaft (2.95, 0.77), lip
+3.48 ahead of the face. The blade bolts to the arms through its ends (the arm's first hole up lands in the tail, 1.35
+behind the lip and 0.73 up) and 0.5 in ears over the second (2.17 behind, 1.21 up); its bore is a free 8.6 mm hex so the
+shaft turns. Stowed at 95°: foremost point 1.89 ahead of the face, top 5.8 up; the robot as exported is already 18.4 in
+long (a launcher belt at −17.62), so the folded blade makes 19.5: an open problem for the start box. The poker's reach
+on this arm is 1.0 in (`page/lowarm_scan.js`: 0.9 and 1.0 feed 24/24 at 3 to 10 in/s, 1.1 misses). The simulator has it
+under Mount; `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step` insert at the
+Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang_1in`, `poker_stand_1in`).
+
 **The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
 low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
 slots, a 19 mm block down the channel's face with one M4 through it, the block's front 30.5 mm (1.2 in) ahead of the
@@ -623,9 +638,9 @@ face. `poker_hang` (block below the web, intake as in the CAD) and `poker_stand`
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `blade_step.py`: the same blades as STEP solids for review in Onshape (`step/`: v6_lane, v5_lane, the coupon); the tail with the lane is a B-spline surface through the height field, within 0.02 mm of the printed mesh.
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
-- `print_job.py wide|three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
+- `print_job.py low|wide|three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
-- `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `coach_stick_down.py`: the same from the second export (`coach_stick_down.png`). `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
+- `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `coach_stick_down.py`: the same from the second export (`coach_stick_down.png`). `low_arm.py`, `blade_ears.py`, `low_arm_step.py`: the low arm, its eared blade and the assembly STEPs. `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.

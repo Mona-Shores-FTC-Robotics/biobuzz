@@ -19,8 +19,16 @@ window.FlowerSim = (function () {
   // the arms from the October 25 CAD: two 11-hole mini channels pivoting 2.37 in behind the intake face and 7.89 in up, 9.09 in
   // from pivot to the shaft across their tips. With the shaft on 0.77 in sled wheels the arm stops 52 deg below horizontal and
   // the shaft sits SHAFT_AHEAD of the face; the lip is shaftBack further on, so the face is SHAFT_AHEAD + shaftBack behind it.
-  const ARM = { pivot: [-2.37, 7.89], L: 9.09, shaftZ: 0.77, stowedDir: [0.177, 0.984] };
-  const SHAFT_AHEAD = ARM.pivot[0] + Math.sqrt(ARM.L * ARM.L - (ARM.pivot[1] - ARM.shaftZ) ** 2);
+  // Two mounts. "tall": the coach's arms. "low": the low arm (low_arm.py): a 5-hole lowside U-channel pivoting 0.5 in ahead
+  // of the face and 2.2 in up on a bracket off the chassis side rails, the shaft 72 mm (3 holes) down the arm on 39 mm wheels,
+  // the arm 30 deg below horizontal when down and stowed 5 deg back from vertical; the blade folds up in front of the mouth.
+  const HOLE = 24 / 25.4;
+  const MOUNTS = {
+    tall: { pivot: [-2.37, 7.89], L: 9.09, shaftZ: 0.77, stowedDir: [0.177, 0.984], back: 1.5, fwd: 9.8, w: 1.26, armY: [[5.41, 5.89], [-6.30, -5.83]], wheels: null },
+    low: { pivot: [0.5, 2.2], L: 3 * HOLE, shaftZ: 0.77, stowedDir: [Math.cos(95 * Math.PI / 180), Math.sin(95 * Math.PI / 180)], back: HOLE, fwd: 3 * HOLE + 0.47, w: 32 / 25.4, armY: [[3.95, 4.45], [-4.45, -3.95]], wheels: { r: 0.77, y: [[4.45, 4.95], [-4.95, -4.45]] } },
+  };
+  const shaftAhead = m => m.pivot[0] + Math.sqrt(m.L * m.L - (m.pivot[1] - m.shaftZ) ** 2);
+  const ARM = MOUNTS.tall, SHAFT_AHEAD = shaftAhead(ARM);
   const FACE_BEHIND_LIP = SHAFT_AHEAD + 0.53;
   const PIPE = 1.72, PIPE_R = 0.525, PIPE_Z = 4.25, HOLE_PLAY = 0.14;
   // the uprights' vee (the back wall for every ball), the ring and its hole, the tiles, and the collar's front bar as the
@@ -203,7 +211,7 @@ window.FlowerSim = (function () {
       const bv = driving ? bvSign * speedNow : 0;
       if (driving) lip = bvSign > 0 ? Math.min(stop, lip + speedNow * DT) : lip - speedNow * DT;
       let axleX = 0, axleZ = 0;
-      const fbl = cfg.faceBehindLip || (SHAFT_AHEAD + shaftBack);
+      const fbl = cfg.faceBehindLip || (shaftAhead(MOUNTS[cfg.mount || "tall"]) + shaftBack);
       if (cfg.onRobot) { axleX = lip - fbl - GECKO_R; axleZ = GECKO_Z; }
       const touch = balls.map(() => false);
       for (const b of balls) {
@@ -313,6 +321,6 @@ window.FlowerSim = (function () {
     const xp = (p.peak - p.edge) / tn, xe = xp + (p.peak - bottom) / tt;
     return [[0, bottom], [0, p.edge], [xp, p.peak], [xe, bottom]];
   }
-  return { run, mountain, cross, catchHalf, pushForce, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, SHAFT_AHEAD, ARM, PIPE, PIPE_R };
+  return { run, mountain, cross, catchHalf, pushForce, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, SHAFT_AHEAD, ARM, MOUNTS, shaftAhead, PIPE, PIPE_R };
 })();
 module.exports = window.FlowerSim;

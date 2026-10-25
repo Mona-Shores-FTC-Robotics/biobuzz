@@ -60,12 +60,23 @@ window.Drive3D = (function () {
   const stubs = [0, 1].map(() => { const st = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8), steel); st.geometry.rotateX(Math.PI / 2); robot.add(st); return st; });
   // where the arms pivot: left is +y in the CAD, -z here; the corner disc is on the right (+z)
   const ARMS = { uprights: [6.07, -5.65], left: [-5.65], both: [6.07, -5.65] };
+  // the two mounts (simlib MOUNTS): the coach's tall arms, or the low arm with 39 mm wheels on the shaft outboard of the arms
+  const MOUNTS = { tall: { pivot: [-2.37, 7.89], L: 9.09, back: 1.5, fwd: 9.8, w: 1.26, t: 0.48, ys: [6.07, -5.65], wheels: null },
+                   low: { pivot: [0.5, 2.2], L: 3 * 24 / 25.4, back: 24 / 25.4, fwd: 4 * 24 / 25.4, w: 32 / 25.4, t: 0.5, ys: [4.2, -4.2], wheels: { r: 0.77, ys: [4.7, -4.7], w: 0.5 } } };
+  let mountNow = "tall";
+  const wheelMeshes = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.77, 0.77, 0.5, 24), dark); m.geometry.rotateX(Math.PI / 2); m.visible = false; bladeG.add(m); return m; });
+  function setMount(mode) {
+    mountNow = mode; const M = MOUNTS[mode]; ARMS.both = M.ys; armMode = "both";
+    arms.forEach(a => { a.geometry.dispose(); a.geometry = new THREE.BoxGeometry(1, M.w, M.t); });
+    wheelMeshes.forEach((m, k) => { m.visible = !!M.wheels; if (M.wheels) m.position.set(-shaftBackNow, 0.77, -M.wheels.ys[k]); });
+    setArms("both");
+  }
   let armMode = "both";
   function setArms(mode) {
     armMode = mode;
     const ys = ARMS[mode];
     arms.forEach((a, k) => { a.visible = k < ys.length; if (k < ys.length) a.position.z = ys[k] - offsetNow; });
-    stubs.forEach((st, k) => { st.visible = k < ys.length; if (k < ys.length) st.position.set(-2.37, 7.89, ys[k]); });
+    stubs.forEach((st, k) => { st.visible = k < ys.length; if (k < ys.length) st.position.set(MOUNTS[mountNow].pivot[0], MOUNTS[mountNow].pivot[1], ys[k]); });
     const zmin = Math.min(...ys, -2.9), zmax = Math.max(...ys, 2.9);
     bladeShaft.geometry.dispose(); bladeShaft.geometry = new THREE.CylinderGeometry(0.16, 0.16, zmax - zmin + 0.6, 6); bladeShaft.geometry.rotateX(Math.PI / 2);
     bladeShaft.position.z = (zmin + zmax) / 2;
@@ -182,11 +193,13 @@ window.Drive3D = (function () {
     const shx = lip - shaftBack;
     if (onRobot) {
       robot.visible = true; sled.visible = false;
-      const face = lip - shaftBack - 3.28, px = face - 2.37, pz = 7.89;              // the shaft is 3.28 ahead of the face on these arms
+      const M = MOUNTS[mountNow], sa = M.pivot[0] + Math.sqrt(M.L * M.L - (M.pivot[1] - 0.77) ** 2);
+      const face = lip - shaftBack - sa, px = face + M.pivot[0], pz = M.pivot[1];
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
-      const dx = shx - px, dz = 0.77 - pz, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (9.8 - 1.5) / 2;
-      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = 11.3; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
+      const dx = shx - px, dz = 0.77 - pz, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (M.fwd - M.back) / 2;
+      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = M.back + M.fwd; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
+      wheelMeshes.forEach((m, k) => { if (M.wheels) m.position.set(-shaftBack, 0.77, -M.wheels.ys[k] - 0); });
       stubs.forEach(st => st.visible = st.visible);
     } else {
       robot.visible = false; sled.visible = true; sled.position.x = shx;
@@ -211,6 +224,6 @@ window.Drive3D = (function () {
     if (w && h && (canvas.width !== Math.round(w * r) || canvas.height !== Math.round(h * r))) { renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
   }
   (function loop() { resize(); controls.update(); renderer.render(scene, camera); requestAnimationFrame(loop); })();
-  return { setBlade, setArms, frame, setPoker };
+  return { setBlade, setArms, frame, setPoker, setMount };
 })();
 </script>

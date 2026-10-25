@@ -35,6 +35,7 @@
   const plateStow = el("polygon", { fill: "none", stroke: "var(--petg)", "stroke-width": 1, "stroke-dasharray": "4 3" });
   const arm = el("polygon", { fill: "var(--muted)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 0.8 });
   const pivotEl = el("circle", { r: 0.14 * PX, fill: "var(--fg)" });
+  const wheelEl = el("circle", { fill: "var(--steel)", "fill-opacity": 0.3, stroke: "var(--fg)", "stroke-width": 1 });   // the low arm's wheels on the shaft
   const sledWheel = el("circle", { fill: "none", stroke: "var(--fg)", "stroke-width": 2 });
   const blade = el("polygon", { fill: "var(--petg)" });
   const toeEl = el("polygon", { fill: "var(--petg)", stroke: "var(--fg)", "stroke-width": 0.8 });
@@ -55,8 +56,8 @@
   const planLane = el("polygon", { fill: "#fff", "fill-opacity": 0.35 }, planG);
   const planFace = el("line", { stroke: "var(--muted)", "stroke-width": 1.2 }, planG);
   const planMouth = el("rect", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1 }, planG);
-  const ARM_Y = CS.arms_y.map(([a, b]) => [Math.min(a, b), Math.max(a, b)]);        // the arms seen from above: y 5.41..5.89 and -6.30..-5.83
-  const planArms = ARM_Y.map(() => el("rect", { fill: "var(--muted)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 }, planG));
+  const planArms = [0, 1].map(() => el("rect", { fill: "var(--muted)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 }, planG));   // the arms seen from above
+  const planWheels = [0, 1].map(() => el("rect", { fill: "var(--steel)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 }, planG));
   const planBalls = [0, 1, 2, 3].map(k => el("circle", { r: S.R * P2, fill: "var(--pollen)", "fill-opacity": 0.35 + 0.15 * (3 - k), stroke: "var(--fg)", "stroke-width": 0.9 }));
   const $ = id => document.getElementById(id);
   // the three blades: the same mountain (60 deg nose from a 0.60 in edge, peak 1.10 in, 12 deg tail) with Carter's lane
@@ -90,15 +91,15 @@
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
-  const POKER = { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
+  const POKERS = { tall: { reach: 1.2, z0: 5.3, z1: 7.5, hw: 0.375 }, low: { reach: 1.0, z0: 5.3, z1: 7.5, hw: 0.375 } };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
-  let preset = "v7", stack = "fb"; const push = 4, stopErr = 0;
+  let preset = "v7", stack = "fb", mount = "tall"; const push = 4, stopErr = 0;
   let result = null, i = 0, playing = false, slow = false, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
     profile = P.profile || S.mountain(SHAPE);
     cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: P.width || 5.4, shaftBack: P.shaftBack, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (P.pusher) cfg.pusher = POKER;
+    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; cfg.mount = mount; if (P.pusher) cfg.pusher = POKERS[mount];
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball on this face." + (preset === "blockA" ? " On October 15 two of these, pushed by hand with a wiggle, did empty a side-to-side stack; a steady push could not." : "");
@@ -110,10 +111,11 @@
       s = left + " of 4 never reached the intake" + (onPeak && onBar ? ": the stack locked itself. The bottom ball sits on the peak against the posts, and the ball above leans out over the collar's ledge and holds it there, as in our photos." : onPeak ? ": the bottom ball sits on the peak against the posts." : ": stuck on the blade.");
     }
     const stackName = { fb: "stack leaning front to back", ss: "stack leaning side to side" }[stack];
-    $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : "");
+    const mountName = { tall: "on the coach's tall arms", low: "on the low arm" }[mount];
+    $("sim-result").textContent = P.name + " " + mountName + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : "");
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKER : null); }
+    if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKERS[mount] : null); if (window.Drive3D.setMount) window.Drive3D.setMount(mount); }
     draw();
   }
   function draw() {
@@ -130,12 +132,13 @@
     const shx = lip - P.shaftBack;
     shaft.setAttribute("cx", sx(shx)); shaft.setAttribute("cy", sy(0.77));
     if (true) {
-      const face = lip - S.SHAFT_AHEAD - P.shaftBack, ax = face - S.GECKO_R, az = S.GECKO_Z, pvx = face + S.ARM.pivot[0], pvz = S.ARM.pivot[1];
+      const MT = S.MOUNTS[mount], face = lip - S.shaftAhead(MT) - P.shaftBack, ax = face - S.GECKO_R, az = S.GECKO_Z, pvx = face + MT.pivot[0], pvz = MT.pivot[1];
       robotG.setAttribute("transform", `translate(${(face * PX).toFixed(1)} 0)`);
       gecko.setAttribute("cx", sx(ax)); gecko.setAttribute("cy", sy(az)); gecko.setAttribute("r", S.GECKO_R * PX);
       const a = t * 40 / S.GECKO_R;
       spoke.setAttribute("x1", sx(ax)); spoke.setAttribute("y1", sy(az)); spoke.setAttribute("x2", sx(ax + S.GECKO_R * Math.cos(a))); spoke.setAttribute("y2", sy(az + S.GECKO_R * Math.sin(a)));
-      arm.setAttribute("points", barPts([pvx, pvz], [shx - pvx, 0.77 - pvz], 1.5, 9.8, 1.26)); armStow.setAttribute("points", barPts([pvx, pvz], S.ARM.stowedDir, 1.5, 9.8, 1.26));
+      arm.setAttribute("points", barPts([pvx, pvz], [shx - pvx, 0.77 - pvz], MT.back, MT.fwd, MT.w)); armStow.setAttribute("points", barPts([pvx, pvz], MT.stowedDir, MT.back, MT.fwd, MT.w));
+      if (MT.wheels) { wheelEl.setAttribute("cx", sx(shx)); wheelEl.setAttribute("cy", sy(0.77)); wheelEl.setAttribute("r", MT.wheels.r * PX); wheelEl.style.display = ""; } else wheelEl.style.display = "none";
       pivotEl.setAttribute("cx", sx(pvx)); pivotEl.setAttribute("cy", sy(pvz));
       if (P.stowed) { plateStow.setAttribute("points", P.stowed.map(([a, z]) => sx(face + a) + "," + sy(z)).join(" ")); plateStow.style.display = ""; } else plateStow.style.display = "none";
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
@@ -154,9 +157,10 @@
     planBlade.setAttribute("points", (V ? [pl(V, -W / 2), pl(V, -1.42), pl(0, -0.855), pl(0, 0.855), pl(V, 1.42), pl(V, W / 2)] : [pl(0, -W / 2), pl(0, W / 2)]).concat([pl(len, W / 2), pl(len, -W / 2)]).join(" "));
     planLane.setAttribute("points", g ? [pl(g.start, -0.05), pl(g.start, 0.05), pl(g.start + 1.6, c), pl(len, c), pl(len, -c), pl(g.start + 1.6, -c)].join(" ") : "");
     if (true) {
-      const fb = S.SHAFT_AHEAD + P.shaftBack, m = cfg.mouth || 7.5;
-      const ux = (S.SHAFT_AHEAD - S.ARM.pivot[0]) / S.ARM.L, ax0 = S.ARM.pivot[0] - 1.5 * ux, ax1 = S.ARM.pivot[0] + 9.8 * ux;   // the deployed arms from above
-      planArms.forEach((r, k) => { const [y0, y1] = ARM_Y[k]; r.setAttribute("x", ((ax0 - fb) * P2).toFixed(1)); r.setAttribute("width", ((ax1 - ax0) * P2).toFixed(1)); r.setAttribute("y", (-y1 * P2).toFixed(1)); r.setAttribute("height", ((y1 - y0) * P2).toFixed(1)); });
+      const MT = S.MOUNTS[mount], sa = S.shaftAhead(MT), fb = sa + P.shaftBack, m = cfg.mouth || 7.5;
+      const ux = (sa - MT.pivot[0]) / MT.L, ax0 = MT.pivot[0] - MT.back * ux, ax1 = MT.pivot[0] + MT.fwd * ux;   // the deployed arms from above
+      planArms.forEach((r, k) => { const [y0, y1] = MT.armY[k]; r.setAttribute("x", ((ax0 - fb) * P2).toFixed(1)); r.setAttribute("width", ((ax1 - ax0) * P2).toFixed(1)); r.setAttribute("y", (-y1 * P2).toFixed(1)); r.setAttribute("height", ((y1 - y0) * P2).toFixed(1)); });
+      planWheels.forEach((r, k) => { if (!MT.wheels) { r.style.display = "none"; return; } const [y0, y1] = MT.wheels.y[k]; r.style.display = ""; r.setAttribute("x", ((-P.shaftBack - MT.wheels.r) * P2).toFixed(1)); r.setAttribute("width", (2 * MT.wheels.r * P2).toFixed(1)); r.setAttribute("y", (-y1 * P2).toFixed(1)); r.setAttribute("height", ((y1 - y0) * P2).toFixed(1)); });
       planFace.setAttribute("x1", -fb * P2); planFace.setAttribute("x2", -fb * P2); planFace.setAttribute("y1", -8 * P2); planFace.setAttribute("y2", 8 * P2);
       planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
       planFace.style.display = planMouth.style.display = "";
@@ -178,6 +182,7 @@
   function pressed(attr, val) { for (const b of document.querySelectorAll("[" + attr + "]")) b.setAttribute("aria-pressed", b.getAttribute(attr) === String(val)); }
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
+  for (const b of document.querySelectorAll("[data-mount]")) b.onclick = () => { mount = b.dataset.mount; pressed("data-mount", mount); compute(); };
   $("sim-play").onclick = function () { if (!result) return; if (i >= result.frames.length - 1) { i = 0; acc = 0; } playing = !playing; this.textContent = playing ? "Pause" : "Play"; };
   $("sim-slow").onclick = function () { slow = !slow; this.setAttribute("aria-pressed", slow); };
   $("sim-scrub").oninput = function () { if (!result) return; playing = false; $("sim-play").textContent = "Play"; i = +this.value; draw(); };
