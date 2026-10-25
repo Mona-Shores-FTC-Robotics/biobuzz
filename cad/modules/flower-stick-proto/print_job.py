@@ -20,7 +20,7 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
          "v6": [("v6_lane", "v6: 50 deg nose, Carter's lane"), ("v5_lane", "v5: 60 deg nose, Carter's lane"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon for REX: 7.0 to 7.4")],
          "wide": [("mountain_wide", "the mountain blade with Carter's lane, 7.9 in wide"), ("poker_hang", "the poker, hanging"), ("poker_stand", "the poker, standing")],
          "low": [("mountain_wide_ears", "the wide mountain blade with ears and a short tail, for the low arm"), ("poker_plate", "the poker plate: bolts down on the intake top channel"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")],
-         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_plate", "the poker plate: bolts down on the intake top channel"), ("hex_fit_coupon_7_7.1_7.2_7.3_7.4", "hex-fit coupon (skip if the last one fit)")]}[JOB]
+         "next": [("mountain_wide", "the wide mountain blade with Carter's lane, 7.15 mm hex: for the sled test now"), ("poker_test", "the test nose: tape, glue or zip-tie it to the intake"), ("poker_plate", "the bolted poker bracket, for when the mount is agreed")]}[JOB]
 ms, labels = [], []
 if JOB in ("wide", "low", "next"):      # the blade alone on the first row, the two pokers on their sides on the second
     m = trimesh.load(os.path.join(HERE, "stl", PARTS[0][0] + ".stl")); m.apply_translation(-m.bounds[0]); ms.append(m); labels.append((PARTS[0][1], m.bounds))

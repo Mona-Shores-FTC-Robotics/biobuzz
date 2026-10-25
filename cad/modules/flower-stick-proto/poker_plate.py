@@ -8,15 +8,18 @@ through each, nut inside the channel behind; a seat plate lying on the top chann
 the poke rising off the front, 1.3 in ahead of the intake face, 0.75 in wide, 5.7 to 7.5 in up with the intake lowered, with a
 wedge the full depth of the seat behind it, from the poke's top down to the back plate. Symmetric, nothing reaching sideways.
 
-    python3 cad/modules/flower-stick-proto/poker_plate.py     # stl/poker_plate.stl, step/poker_plate.step
+    python3 cad/modules/flower-stick-proto/poker_plate.py            # stl/poker_plate.stl, step/poker_plate.step (bolted)
+    python3 cad/modules/flower-stick-proto/poker_plate.py --test     # stl/poker_test.stl: flat back, 14.5 mm holes, for tape or zip ties
 
 Loads: the ball pushes the poke toward the robot: down the wedge, into the back plate, onto the cross channel's face, in
 compression; the bolts only hold the bracket on. The tip-back lifts the front: the lip over the flange and the two bolts in
 bending resist it; the seat on the web takes the rest. A side hit is two bosses in two holes 3.8 in apart. Millimetres;
 x ahead of the top channel's front face, y across, z up from its web's top surface.
 """
-import os, cadquery as cq
+import os, sys, cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__)); os.makedirs(os.path.join(HERE, "step"), exist_ok=True)
+TEST = "--test" in sys.argv        # the test nose: the same shape with a flat back and two 14.5 mm holes instead of the bosses, for
+                                   # tape, hot glue or zip ties through the cross channel's bearing holes; the bolted one waits on the coach
 IN = 25.4
 REACH, POKE_W, POKE_LO, POKE_HI = 33.0, 19.0, 2.3, 48.0     # the poke: 1.3 in ahead, 0.75 wide, web top +0.09 in to +1.9 in (5.7 to 7.5 up)
 CH_D, T = 48.0, 6.0                                          # the top channel's depth; the plates' thickness
@@ -31,11 +34,15 @@ poke = cq.Workplane("XY").box(REACH, POKE_W, POKE_HI - POKE_LO, centered=(False,
 wedge = cq.Workplane("XZ").polyline([(BACK_X, T - 0.01), (0, T - 0.01), (0, POKE_HI), (BACK_X, BACK_H)]).close().extrude(POKE_W / 2, both=True)
 part = seat.union(back).union(lip).union(poke).union(wedge)
 for sy in (BOSS_Y, -BOSS_Y):
+    if TEST:
+        part = part.cut(cq.Workplane("YZ").circle(7.25).extrude(T + 2, both=True).translate((BACK_X, sy, BOSS_Z)))         # a 14.5 mm hole in line with the channel's: a zip tie goes through both
+        continue
     boss = cq.Workplane("YZ").circle(BOSS_D / 2).extrude(-BOSS_L).translate((BACK_X, sy, BOSS_Z)).edges("<X").chamfer(0.8)   # into the cross channel's hole
     part = part.union(boss)
     part = part.cut(cq.Workplane("YZ").circle(2.25).extrude(T + BOSS_L + 2, both=True).translate((BACK_X, sy, BOSS_Z)))   # M4 clearance, through
     part = part.cut(cq.Workplane("YZ").circle(4.0).extrude(3.0).translate((BACK_X + T - 3.0, sy, BOSS_Z)))                  # a 3 mm counterbore for the head, from the front
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
-cq.exporters.export(part, os.path.join(HERE, "stl", "poker_plate.stl"), tolerance=0.05, angularTolerance=0.2)
-cq.exporters.export(part, os.path.join(HERE, "step", "poker_plate.step"))
-bb = v.BoundingBox(); print(f"stl/poker_plate.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")
+NAME = "poker_test" if TEST else "poker_plate"
+cq.exporters.export(part, os.path.join(HERE, "stl", NAME + ".stl"), tolerance=0.05, angularTolerance=0.2)
+cq.exporters.export(part, os.path.join(HERE, "step", NAME + ".step"))
+bb = v.BoundingBox(); print(f"stl/{NAME}.stl: {bb.xlen:.0f} x {bb.ylen:.0f} x {bb.zlen:.0f} mm, {v.Volume() / 1000:.0f} cm3")

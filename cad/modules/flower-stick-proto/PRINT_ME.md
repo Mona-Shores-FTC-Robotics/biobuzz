@@ -2,10 +2,12 @@
 
 **`stl/print_job_next.stl`**, three parts: `stl/mountain_wide.stl` (the mountain blade with Carter's lane at 7.9 in wide,
 201 x 76 x 15 mm, 123 cm3, **7.15 mm hex bore, flats top and bottom**, so it keys to the sled's REX shaft) flat side down,
-`stl/poker_plate.stl` (the poker bracket, 86 x 116 x 63 mm, 110 cm3) on its flat seat, and the hex-fit coupon (skip it if the
-last one fit). This is what to print first: the blade goes on the sled for the field test, the poker bracket sits on the intake's top channel
-and bolts to the cross channel behind it with two M4 x 16 and nuts through that channel's bearing holes 1.9 in either side of
-centre. Needs a bed of at least 290 mm one way, or print the parts one
+`stl/poker_test.stl` (the test nose: the bracket with a flat back and two 14.5 mm holes, to tape, hot-glue or zip-tie onto the
+intake for the first test) and `stl/poker_plate.stl` (the bolted bracket, 86 x 116 x 63 mm, 110 cm3, for when the mount is
+agreed with the coach), both on their flat seats. This is what to print first: the blade goes on the sled for the field test, the nose sits on the intake's top channel against the
+cross channel behind it. For the test, tape or hot-glue the test nose there, or zip-tie it through the cross channel's bearing
+holes 1.9 in either side of centre (the test nose has matching holes). The bolted bracket uses those same holes with two M4 x 16
+and nuts. Needs a bed of at least 290 mm one way, or print the parts one
 at a time. Millimetres. PETG. About 235 cm3.
 
 ![the plate](print_job_next.png)
