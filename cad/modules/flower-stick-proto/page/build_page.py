@@ -6,7 +6,6 @@ S = os.path.dirname(os.path.abspath(__file__))
 src3 = open(os.path.join(S, "make_page3.py")).read()
 exec(src3[:src3.index("body = f'''")])        # head, b64, b64f, theory_svg, MOD, MODELS, js, anim_js, drive3d, buttons, V5, v5_button, v4_pressed
 MODELS[:] = [
-    ("v10", "v10_assembled", "v10: the nose that trips itself", "v7 split at a hinge behind the peak; the nose piece turns up when the posts stop it", 6.3, 13.1),
     ("v8l", "v8_lane", "v8: the V nose", "on the plate: v7 with a V nose that reaches 0.3 in deeper", 6.3, 19.1),
     ("v7l", "v7_lane", "v7", "the shape that works, with Carter's lane and the snug hex", 6.3, 13.1),
 ]
@@ -28,7 +27,7 @@ panel = f'''  <div class="drive">
     </div>
     <div class="bar">
       <label>Blade</label>
-      <span class="seg"><button data-preset="v7" aria-pressed="true">v7</button><button data-preset="v8" aria-pressed="false">v8: V nose</button><button data-preset="v10" aria-pressed="false">v10: tipping nose</button></span>
+      <span class="seg"><button data-preset="v7" aria-pressed="true">v7</button><button data-preset="v8" aria-pressed="false">v8: V nose</button></span>
       <label>Stack</label>
       <span class="seg"><button data-stack="fb" aria-pressed="true">front to back</button><button data-stack="straight" aria-pressed="false">straight</button><button data-stack="ss" aria-pressed="false">side to side</button></span>
     </div>
@@ -349,7 +348,7 @@ body = f'''
           <tr><td class="k">toe 1.0 in, swings up 75°</td><td class="stuck">14 of 16</td></tr>
           <tr><td class="k">toe 1.0 in, swings up 90°</td><td class="ok">16 of 16</td></tr>
           <tr><td class="k">toe 1.3 in, swings up 75°</td><td class="ok">16 of 16</td></tr>
-        </tbody></table><div class="cap">The same sixteen runs as above. The toe lies between the posts' inner corners, which are 1.2 in apart, so it is 1.2 in wide; it needs to swing up far enough to touch the ball's back, 75° for a 1.3 in toe.</div>
+        </tbody></table><div class="cap">The same sixteen runs as above. The toe lies between the posts' inner corners, which are 1.2 in apart, so it is 1.2 in wide; it touches the ball's back after about 60° of swing and needs 75° to roll it over. That much swing has to be driven: by the robot's own travel through a lever, or a servo.</div>
         <p>How it could be driven: the blade keeps pushing on the posts after it stops, so the arms could carry a spring and a
         link that turns the extra travel into the toe's swing; or a servo on the blade, told to swing when the drive motors
         stall. The model only says the motion works. It does not know how much force the toe needs, or whether a 1.2 in wide
@@ -362,32 +361,27 @@ body = f'''
     </div>
     <div class="step">
       <div>
-        <h3>Two parts and a pin: the nose that trips itself</h3>
+        <h3>The nose that trips itself, and the check that caught it</h3>
         <p>A toe with springs, slides and levers is a lot of hardware for a half-inch motion, and a toe wide enough to lift the
-        ball has to thread the 1.2 in gap between the posts' inner corners, which means aiming the robot to a hundredth of an
-        inch. The simpler way is to let the posts do the work and drop the toe. Split the blade at a hinge just behind the peak:
-        the body behind, on the shaft as before, and a nose piece in front that carries the lip and the 60° face across the full
-        width. The pin is a 4 mm steel rod 0.32 in behind the lip and 0.96 in up, half an inch above the lip. Nothing reaches
-        between the posts, so the aim is the same as v7's.</p>
-        <p>When the lip lands on the posts and the robot keeps driving, the push comes in at the lip, below the pin, so it turns the
-        nose piece up by itself. It keeps turning until the lip's corner has risen to the pin's height, 54°, with the body 0.22 in
-        further in; then there is no more lever and it just stops. Back the robot out and the nose piece falls flat again under
-        its own weight, with a heel that rests on the body so it cannot droop. No spring, no slide, no lever, nothing to adjust.
-        The posts' corners pass through gaps in the hinge, so nothing on the body ever reaches them.</p>
-        <p>In the model, with the motion tied to the body's travel the way the real one is, it feeds all 16 cases. It is the two
-        things together that do it: the body reaching 0.22 in further alone feeds 12, the nose tilting alone feeds 10, both
-        together 16. The tilting face lifts the back of the ball while the peak moves under it. A toe ahead of the lip adds
-        nothing, so there is none. The parts are drawn: a body cut from v7 with its lane, the nose piece, the pin. Two prints and
-        one rod from the hardware drawer, plus two clips to keep the rod in.</p>
-        <table class="sweep loads"><thead><tr><th style="width:30%">Part</th><th>What it is</th></tr></thead><tbody>
-          <tr><td class="k">body</td><td>v7 with Carter's lane, cut at the hinge; ears at the sides hold the pin</td></tr>
-          <tr><td class="k">nose piece</td><td>lip and face, 5.4 in wide; hub on the pin in the middle; heel</td></tr>
-          <tr><td class="k">pin</td><td>4 mm steel rod, 142 mm, two clips</td></tr>
-        </tbody></table><div class="cap">The hinge's gaps at the sides are where the posts' corners pass; nothing on the body reaches them.</div>
-        <div class="learn"><b>What we learned</b>Before adding a mechanism, ask what already moves. The robot's push after the lip stops was there all along; a hinge in the right place turns it into the lift.</div>
-        <div class="ask"><b>Open question</b>The plastic over the pin is 3 mm. Does it survive a season of hits? Does the nose piece fall flat every time, or hang up on the ball above? And is the push on the lip enough to turn it with a stack sitting on the peak? A print and the sled will tell; a short stick ahead of the lip is the fallback if the tilt alone is not enough on the field.</div>
+        ball has to thread the 1.2 in gap between the posts' inner corners. So we tried letting the posts do the work: split the
+        blade at a hinge just behind the peak, a 4 mm pin 0.32 in behind the lip and 0.96 in up, with the lip and the 60° face on
+        the front piece. When the lip lands on the posts and the robot keeps pushing, the push comes in below the pin and turns the
+        piece up by itself, until the lip's corner rises to the pin's height at 54°. No spring, no slide, no lever. We drew it,
+        and in the model it fed all 16 cases.</p>
+        <p>Then we drew the moment it is supposed to work, by hand: the lip on the post, the body 0.22 in further in, the nose
+        tipped the 54° the posts can give, the ball locked on the peak. Nothing on the nose piece is within 0.4 in of the ball.
+        A toe on that hinge, of any length from 0.4 to 2 in, needs 72° or more of swing before it touches the ball, and no pin
+        that fits inside the nose can self-limit past about 52°. The model's balls came out anyway because turning the piece
+        shifts the peak corner under the ball by a tenth of an inch, and the model's lock is fragile enough that a nudge that
+        small breaks it. On the field the lock is not that fragile. The score was real in the model and meaningless for the
+        robot.</p>
+        <p>What stands: a lifter that reaches the ball, the toe of the previous step swung to 75°, touches it after 61° and does
+        push it over. The posts alone cannot swing anything that far. That lift needs the robot's own travel through a lever, or
+        a servo. The v10 parts stay in the files as the record of a wrong turn.</p>
+        <div class="learn"><b>What we learned</b>A simulation score is not a mechanism. Before trusting a number, draw the part at the moment it is supposed to work and check that it touches what it is supposed to push. We did that one step late.</div>
+        <div class="ask"><b>Open question</b>Is the fragile lock the model's weakness, or is the real lock fragile too? Tap the blade with the stack locked on the sled: if a tap frees it, the model was right and a nudge is all it takes.</div>
       </div>
-      <figure class="pic"><svg id="v10-svg" viewBox="0 0 700 612" role="img" aria-label="Animated close-up of v10: the lip meets the post, the nose piece tips up about its pin as the body drives on, and the ball rolls over the peak." style="width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></svg><figcaption>How v10 works, from the simulator's own run, close up. The orange nose piece turns on its pin when the post stops its lip and the robot keeps pushing. Tap to pause.</figcaption><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tipped (below), beside the posts. Tipped the 54° the posts can give, nothing on the orange piece comes within 0.4 in of the ball above it.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -395,8 +389,7 @@ body = f'''
 <section class="block" id="drive">
   <h2>Try our simulator</h2>
   <p>Pick a blade, a stack and a push, and watch. The left side is a side view with the real FLOWER and the front of our
-  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck
-  case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short.</p>
+  robot, with a view from above under it. The right side is the same run in 3D, drag to look around. It opens on the stuck case from our photos: v7, the stack leaning front to back, a slow push, the sled stopping a third of an inch short.</p>
 {panel}
   <p>What the model knows: the balls have friction and bounce, and rub on each other; the blade drives in until the posts stop
   it; the FLOWER's ring, posts, collar bar and pipes hold the stack the way the field drawing says they do; and the intake's soft
@@ -431,7 +424,7 @@ body = f'''
     <div class="card"><h3>Carter's lane stays</h3><p>The model says the curve never costs a ball, and it may keep them rolling straight on the floor and in a narrower intake. So the lane blade is the one we test first, and the plain blade is the control printed beside it. If the lane blade does as well or better on the stick, it stays.</p><p>The curve runs across the whole width, 0.3 in up at the edges, with no flat anywhere. Try a lane with flat shoulders in the simulator (lane radius 4) to see why that matters.</p></div>
     <div class="card"><h3>How wide?</h3><p>As wide as the two posts (5.4 in), as wide as the intake wheels (7.5 in), or wider. A wider blade means the robot does not have to line up as carefully.</p><p>Try the width buttons in the simulator.</p></div>
     <div class="card"><h3>How does it mount on the robot?</h3><p>On the intake's own uprights, on one arm outside the wheels, or on two arms. The corner disc on the right side is in the way of a right-hand arm.</p><p>Try the arm buttons in the simulator.</p></div>
-    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is v10, the nose that trips itself: two prints and a 4 mm rod, drawn in the last step. Print it, pin it, and push it into a front-to-back stack on the sled.</p></div>
+    <div class="card"><h3>What to print: three blades, one change each</h3><p>With the sled fully seated the ball still sits on the peak, so something other than the posts is holding it. Rather than guess, the plate carries three blades that each change one thing from the blade that works: v7 with the snug hole, the baseline; v8, the V nose that juts 0.3 in further between the posts; and v9, a lower peak so the ball rides 0.1 in lower. All three with Carter's lane, holes 7.15 mm. One plate, 168 × 219 mm, or the three parts one at a time on a small bed.</p><img src="data:image/png;base64,{b64f(MOD + "print_job_three.png")}" alt="The print plate from above: v7 and v8 side by side, v9 turned sideways below them." style="width:100%;max-width:520px;border:1px solid var(--line);border-radius:8px;margin-top:6px"><p>How to read the test: if v8 goes over and v7 does not, it was depth. If v9 goes over and v7 does not, it was the collar. If v7 goes over too, it was the loose shaft all along. The collar's height above the tile is still worth a tape measure: the drawing says 3.90 in.</p><p>The model's prediction, with the stack leaning front to back and the sled a third of an inch short: v7 locks, v8 locks, v9 locks. v8 is better than v7 over all the cases, but not enough to count on. If the field agrees, reach alone is not the answer: it takes more than an inch, which only a narrow tongue between the posts' inner corners could get. The thing to try next is a lifter that reaches the ball, driven by the robot's travel or a servo, after a hand-lever test on the sled. The self-tripping nose turned out not to reach the ball; the last step says why.</p></div>
     <div class="card"><h3>A test to start from</h3><p>Five straight pushes and one off-centre push for each blade. Count the balls that come out and time each push. Film it so we can see where it sticks.</p></div>
   </div>
 </section>
@@ -445,7 +438,7 @@ body = f'''
     </div>
     <dl class="spec" id="spec"></dl>
   </div>
-  <p>The two blades on the plate and the one drawn next. The part files, the simulator and everything behind this page are in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
+  <p>The two blades on the plate. The part files, the simulator and everything behind this page are in the team GitHub under <code>cad/modules/flower-stick-proto</code>.</p>
 </section>
 
 
@@ -453,6 +446,5 @@ body = f'''
 {js}
 {drive3d}
 {anim_js}
-{v10anim}
 '''
 out = os.path.join(S, "flower-stick.html"); open(out, "w").write(head + body); print(out, len(head + body))

@@ -523,6 +523,14 @@ drawn in both views; `v10.png` is the render (`page/make_render_v10.py` → `ren
 Open: 3 mm of plastic over the pin, whether the piece always falls flat under the ball above, and whether the push on
 the lip is enough to turn it with the stack on the peak.
 
+**v10 retired (25 Oct, `page/v10_contact_check.py`).** Drawn at the moment it is supposed to work (the lip on the post,
+the body 0.22 in further in, the nose tipped the 54° the posts give, the ball locked at (0.33, 2.48)), nothing on the
+nose piece comes within 0.4 in of the ball; a toe on that pin needs 72° or more of swing for any length from 0.4 to
+2 in, and no pin inside the nose self-limits past about 52°. The model's 16/16 came from the peak corner shifting a
+tenth of an inch under the ball as the piece turns, which breaks the model's lock but would not break the field's. A
+simulation score is not a mechanism. The lip-hinged toe at 75° (step 11) does touch the ball (after 61°); that swing
+needs the robot's travel through a lever, or a servo. The v10 files stay as the record.
+
 **The page's clean pass (25 Oct, `page/build_page.py`, `page/anim3.js`).** The simulator lost its sliders: four choices
 (blade v7 / v8 / v10, stack front-to-back / straight / side-to-side, push 4 or 10 in/s, sled 0.35 short or at the
 posts), play, slow, scrub. It opens on the stuck case from the photos. The parts viewer shows v10, v8 and v7 only,
