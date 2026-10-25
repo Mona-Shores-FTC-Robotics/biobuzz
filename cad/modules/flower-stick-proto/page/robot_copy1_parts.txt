@@ -1,0 +1,30 @@
+team CAD: 3013 parts, 848 distinct, read in 130 s
+aligned by the front uprights: +-159.26 mm across, +-7.52 mm forward
+3013 parts; align (-159.25540601499378, -7.52062300179)
+2570 Chassis <1>                                                  fwd  -2.91.. 22.04  left  -8.70..  7.63  up   3.52.. 18.29
+ 222 V2 Launcher Concept <1>                                      fwd   9.49.. 30.60  left  -7.39.. 10.06  up   0.11.. 17.01
+ 185 Launcher Concept <1>                                         fwd -12.36.. 20.36  left  -6.84..  6.63  up   5.64.. 23.86
+   5 8x14x4mm Bearing                                             fwd   6.10..  8.38  left  -5.97..  5.55  up   1.14.. 11.05
+   3 Dual Block (GB)                                              fwd  15.51.. 19.52  left  -5.35..  5.36  up  10.44.. 17.43
+   2 96mm Gecko Wheel - 15A Gripforce(GB)                         fwd  11.33.. 15.11  left  -1.88..  1.90  up  14.73.. 16.63
+   2 11 Hole Mini U-Channel (GB)                                  fwd   5.61..  8.88  left  -6.30..  5.89  up   0.40.. 11.79
+   2 3x5 hole Aluminum Plate (GB)                                 fwd  19.04.. 20.63  left  -5.18..  5.21  up  14.12.. 14.22
+   2 48mm GoRail (GB)                                             fwd   8.01..  8.97  left  -3.31..  3.31  up  13.42.. 15.31
+   2 3.5in OD 7mm Hex Bore                                        fwd   6.74.. 10.25  left  -4.58..  4.58  up  16.57.. 17.07
+   2 11 Hole Lowside U-Channel (GB)                               fwd  12.26.. 17.32  left  -5.66..  5.68  up  17.05.. 17.53
+   1 8x14x5mm Bearing - Round Bore (GB)                           fwd  12.92.. 13.51  left  -0.29..  0.30  up  17.01.. 17.21
+   1 Compact Servo Block (GB)                                     fwd   7.56..  8.62  left  -5.45.. -4.77  up   9.29.. 11.59
+   1 Blue Nectar                                                  fwd  13.43.. 17.05  left   1.27..  4.89  up  13.43.. 17.05
+   1 312mm Steel Shaft - 8mm REX (GB)                             fwd   6.17..  6.66  left  -5.94..  6.35  up   1.20..  1.62
+   1 Mini Quad Block (GB)                                         fwd   7.55..  8.61  left   4.88..  5.36  up   9.90.. 11.59
+   1 32mm Steel Shaft - 8mm REX (GB)                              fwd   7.84..  8.32  left   4.72..  5.98  up  10.50.. 10.91
+   1 Servo Hub Shaft - 16mm (GB)                                  fwd   7.46..  8.72  left  -5.83.. -5.22  up  10.11.. 11.37
+   1 8t Press Fit Sprocket - 8mm REX Bore (GB)                    fwd   7.50..  8.66  left   5.51..  5.99  up  10.16.. 11.33
+   1 Part 4                                                       fwd   5.96..  9.22  left  -4.36..  3.51  up   0.47..  1.89
+   1 72mm Steel Shaft - 8mm REX (GB)                              fwd  13.04.. 13.46  left  -0.24..  0.25  up  14.30.. 17.14
+   1 8mm REX Hyper Hub Hub                                        fwd  12.74.. 13.69  left  -0.47..  0.48  up  16.07.. 16.94
+   1 1505-0032-0160                                               fwd  12.59.. 13.85  left  -0.62..  0.64  up  15.36.. 16.00
+   1 Sonic Hub - 8mm  REX  (GB)                                   fwd   7.45..  8.71  left   4.88..  5.28  up  10.19.. 11.29
+   1 1mm Spacer - 8/10mm                                          fwd  13.02.. 13.41  left  -0.19..  0.20  up  16.94.. 16.98
+   1 Servo - Speed (SWYFT)                                        fwd   7.69..  8.49  left  -5.35.. -3.53  up   9.28.. 11.41
+   1 3400-0014-0032                                               fwd   5.61..  7.20  left   5.10..  5.33  up   0.65..  2.24

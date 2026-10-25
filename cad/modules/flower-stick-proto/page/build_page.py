@@ -410,9 +410,16 @@ body = f'''
           <tr><td class="k">1.3 in ahead, 5.3 to 6.5 in up</td><td class="ok">24</td><td class="stuck">20</td><td class="stuck">18</td><td class="stuck">20</td></tr>
         </tbody></table><div class="cap">Twenty-four runs per cell: six stacks (straight, three ways of leaning front to back, leaning toward the wall, leaning side to side), friction 0.3 and 0.45, the sled at the posts and a third of an inch short. Too long a poker shoves the stack into the back of the FLOWER at speed; the tall one copes with that.</div>
         <div class="learn"><b>What we learned</b>When a lock is made of two balls, the second ball is a target too. The blade was the wrong place to look for the fix.</div>
-        <div class="ask"><b>Open question</b>Where does the poker mount on the real intake, and does it clear the ball on its way out? The robot's CAD answers that next.</div>
+        <p>Where it mounts, from the robot's October 25 CAD: the intake's top channel runs across the front at the face line, and the
+        poker is a plate bolted to that channel's front, 0.75 in wide, rising to 7.5 in and reaching 1.2 in forward. Nothing else
+        is in that zone. The side towers would also carry it, but an arm from them has to cross behind the face above the intake
+        motor and drop a finger at the centre, which is more metal for the same poke. One catch: the CAD has the intake's wheel row
+        4.7 in up, on vertical slides, and the model has it at 2.9 in, where it can take a ball off the blade. The poker's heights
+        are measured from the tile, so if the intake comes down for the FLOWER the plate rides down with it and has to be sized
+        for the lowered position. If the intake does not come down, that is a bigger problem than the poker.</p>
+        <div class="ask"><b>Open question</b>Does the intake lower for the FLOWER, and to what height? The poker is sized for a wheel axle 2.9 in up. Where does the Limelight go on the tower, and does the poker's finger stay out of its view?</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Press "on the robot" in the simulator to watch it.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "poker.png")}" alt="Four side views from the model: the stack leaning on the collar's ridge, the poker meeting ball 2 as the lip meets the posts, ball 2 pushed back, and ball 1 rolling over the peak."><figcaption>The poker in the model, four moments of one run with v7 pushed at 4 in/s and stopped a third of an inch short. Press "on the robot" in the simulator to watch it.</figcaption><img src="data:image/png;base64,{b64f(MOD + "poker_mount.png")}" alt="Side and front views of the poker mounted on the intake's top channel, between the front pipes and above their sockets, with the ball pushed back onto the stack."><figcaption>Where it mounts: on the front of the intake's top channel, drawn from the robot's October 25 CAD with the intake in its lowered position.</figcaption></figure>
     </div>
   </div>
 </section>

@@ -545,6 +545,18 @@ sled test is a strip of plywood clamped at that height. `cfg.ram` (back off and 
 12–14 of 16, not enough on its own. The page has the poker as a toggle in the simulator, drawn in both views, and
 step 13 (`poker.png`, `page/poker_fig.js`).
 
+**The poker on the October 25 robot CAD** (`Robot Copy 1.step`, Google Drive; `page/list_parts.py` →
+`page/robot_copy1_parts.txt`, `robot_front_cad.png`, `poker_mount.png`). In the robot's frame (inches ahead of the
+intake uprights' face, left, above the floor): the intake's seven 48 mm Gecko wheels sit 0–1.9 behind the face with
+their axle 4.67 up, on vertical Viper slides; the intake's top channel (9-hole lowside) at the face line, 7.03–7.51 up;
+the intake motor 0.2–1.7 behind the face, 5.8–7.4 up, at the centre; two 11-hole mini channels stand at |y| 5.4–5.9
+from 6.5 to 17.9 up at the face line (the towers); nothing is ahead of the face but the wheel rollers. The poker: a
+plate on the front of the intake's top channel, 0.75 wide, from 5.3 to 7.5 above the tile, 1.2 ahead of the face,
+between the front pipes (2.39 apart) and above their sockets (1.5 apart, 4.25–5.25 up); 0.8 in of aim either side.
+The model's wheel axle is 2.9 up (a ball off the blade needs that); the CAD's is 4.67, so the poker is sized for the
+lowered intake and the question of whether and how far the intake lowers is open. A tower-mounted arm would have to
+cross behind the face above the intake motor and drop a finger at the centre. The Limelight is not in this CAD.
+
 **The page's clean pass (25 Oct, `page/build_page.py`, `page/anim3.js`).** The simulator lost its sliders: four choices
 (blade v7 / v8 / v10, stack front-to-back / straight / side-to-side, push 4 or 10 in/s, sled 0.35 short or at the
 posts), play, slow, scrub. It opens on the stuck case from the photos. The parts viewer shows v10, v8 and v7 only,
