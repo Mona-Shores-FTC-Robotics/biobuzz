@@ -1,6 +1,6 @@
 <script>
 (function () {
-  const S = window.FlowerSim, FS = __FLOWER__, RS = __ROBOT__;
+  const S = window.FlowerSim, FS = __FLOWER__, RS = __ROBOT__, CS = __COACH__;
   const PX = 52, X0 = -10.0, ZTOP = 8.4;
   const sx = x => (x - X0) * PX, sy = z => (ZTOP - z) * PX;
   const svg = document.getElementById("sim-svg"), NS = "http://www.w3.org/2000/svg";
@@ -28,18 +28,24 @@
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
-  const arm = el("line", { stroke: "var(--muted)", "stroke-width": 5, "stroke-linecap": "round" });
+  // the arms from the October 25 CAD: 11-hole U-channels (1.26 in wide) on a pivot 2.37 in behind the face and 7.89 in up,
+  // 9.09 in to the shaft; drawn where they are (deployed) and dashed where they stow (10 deg forward of vertical)
+  const barPts = (from, dir, back, fwd, w) => { const L = Math.hypot(dir[0], dir[1]), ux = dir[0] / L, uz = dir[1] / L, nx = -uz * w / 2, nz = ux * w / 2; const a = [from[0] - ux * back, from[1] - uz * back], b = [from[0] + ux * fwd, from[1] + uz * fwd]; return [[a[0] + nx, a[1] + nz], [b[0] + nx, b[1] + nz], [b[0] - nx, b[1] - nz], [a[0] - nx, a[1] - nz]].map(([x, z]) => sx(x) + "," + sy(z)).join(" "); };
+  const armStow = el("polygon", { fill: "none", stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "4 3" });
+  const plateStow = el("polygon", { fill: "none", stroke: "var(--petg)", "stroke-width": 1, "stroke-dasharray": "4 3" });
+  const arm = el("polygon", { fill: "var(--muted)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 0.8 });
+  const pivotEl = el("circle", { r: 0.14 * PX, fill: "var(--fg)" });
   const sledWheel = el("circle", { fill: "none", stroke: "var(--fg)", "stroke-width": 2 });
   const blade = el("polygon", { fill: "var(--petg)" });
   const toeEl = el("polygon", { fill: "var(--petg)", stroke: "var(--fg)", "stroke-width": 0.8 });
   const shaft = el("circle", { r: 0.16 * PX, fill: "var(--steel)", stroke: "var(--fg)" });
   const balls = [0, 1, 2, 3].map(() => el("circle", { r: S.R * PX, fill: "var(--pollen)", "fill-opacity": 0.75, stroke: "var(--fg)", "stroke-width": 1.2 }));
   // the plan view (from above): half scale, under the side view; x as above, y across the field (+y up the screen)
-  const P2 = PX / 2, Y0 = 452 + 8, YC = Y0 + 4.5 * P2;
+  const P2 = PX / 2, Y0 = 452 + 8, YC = Y0 + 6.5 * P2;
   const px2 = x => (x - X0) * P2, py2 = y => YC - y * P2;
   el("line", { x1: 0, x2: 697, y1: Y0 - 4, y2: Y0 - 4, stroke: "var(--line)" });
   el("text", { x: 8, y: Y0 + 12, class: "lbl", "font-size": 10 }).textContent = "from above";
-  el("rect", { x: px2(2.71), y: py2(4.5), width: 0.69 * P2, height: 9 * P2, fill: "var(--steel)" });
+  el("rect", { x: px2(2.71), y: py2(6.5), width: 0.69 * P2, height: 13 * P2, fill: "var(--steel)" });
   el("circle", { cx: px2(0), cy: py2(0), r: 2.36 * P2, fill: "none", stroke: "var(--fg)", "stroke-width": 1.2 });
   el("circle", { cx: px2(0), cy: py2(0), r: 1.54 * P2, fill: "none", stroke: "var(--fg)", "stroke-width": 0.8, "stroke-dasharray": "2 2" });
   for (const sx_ of [S.PIPE, -S.PIPE]) for (const sy_ of [S.PIPE, -S.PIPE]) el("circle", { cx: px2(sx_), cy: py2(sy_), r: S.PIPE_R * P2, fill: "var(--field)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 });
@@ -49,12 +55,22 @@
   const planLane = el("polygon", { fill: "#fff", "fill-opacity": 0.35 }, planG);
   const planFace = el("line", { stroke: "var(--muted)", "stroke-width": 1.2 }, planG);
   const planMouth = el("rect", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1 }, planG);
+  const ARM_Y = CS.arms_y.map(([a, b]) => [Math.min(a, b), Math.max(a, b)]);        // the arms seen from above: y 5.41..5.89 and -6.30..-5.83
+  const planArms = ARM_Y.map(() => el("rect", { fill: "var(--muted)", "fill-opacity": 0.5, stroke: "var(--fg)", "stroke-width": 0.8 }, planG));
   const planBalls = [0, 1, 2, 3].map(k => el("circle", { r: S.R * P2, fill: "var(--pollen)", "fill-opacity": 0.35 + 0.15 * (3 - k), stroke: "var(--fg)", "stroke-width": 0.9 }));
   const $ = id => document.getElementById(id);
   // the three blades: the same mountain (60 deg nose from a 0.60 in edge, peak 1.10 in, 12 deg tail) with Carter's lane
   const SHAPE = { edge: 0.6, nose: 60, peak: 1.1, tail: 12 }, LANE = { R: 12.3, rise: 0.3, start: 0.9, lead: 1.6, oval: 0 };
   // the designs in the order we went through them: the first block, the mountain with Carter's lane, the V nose, the poker
   const M = p => S.mountain(p);
+  // the coach's plate from the October 25 CAD, swung to the ground on his arms (page/coach_stick.json): as drawn, keyed to the
+  // hex shaft, it stands leaning toward the FLOWER; turned 131 deg on the shaft it lies flat. Both as closed outlines, x behind
+  // the lip (the plate's foremost point), which the posts stop.
+  const asProfile = pts => { const lip = Math.max(...pts.map(p => p[0])), out = pts.map(([a, z]) => [lip - a, z]); out.push(out[0]); return { lip, profile: out }; };
+  const coachDrawn = asProfile(CS.deployed_outline["-0.43"]);
+  const sh0 = CS.shaft_stowed, sh1 = CS.shaft_deployed, flatPts = CS.stowed_outline_centre.map(([a, z]) => [a + sh1[0] - sh0[0], z + sh1[1] - sh0[1]]);
+  const coachFlat = asProfile(flatPts);
+  const rotAbout = (pts, c, ang) => pts.map(([a, z]) => { const dx = a - c[0], dz = z - c[1], co = Math.cos(ang), si = Math.sin(ang); return [c[0] + co * dx - si * dz, c[1] + si * dx + co * dz]; });
   const PRESETS = {
     blockA: { name: "the first block", profile: [[0, 0.52], [0, 0.64], [0.2, 1.30], [0.7, 1.30], [1.4, 0.52]], extraDepth: 0.57, shaftBack: 0.93, lane: null, field: "On the field two of these side by side emptied a side-to-side stack with a wiggle; one fought you." },
     v2: { name: "the wedge with a low lane", profile: [[0, 0.52], [0, 0.60], [0.45, 1.05], [0.90, 0.99], [1.50, 0.52]], shaftBack: 0.69, lane: null, field: "Never printed: the model showed the ball dipping into the ring's hole." },
@@ -64,7 +80,9 @@
     v6: { name: "the 50° nose", profile: M({ edge: 0.6, nose: 50, peak: 1.1, tail: 12 }), shaftBack: 0.58, field: "On the field it failed: the peak sat too far forward and the ball stayed on it." },
     v8: { name: "the V-nose blade", shaftBack: 0.75, extraDepth: 0.3, vee: 0.3, field: "On the field, no real difference. Retired." },
     v9: { name: "the low-peak blade", profile: M({ edge: 0.6, nose: 60, peak: 1.0, tail: 10 }), shaftBack: 0.39, field: "On the plate with the V nose; the model says it does not help." },
-    final: { name: "the mountain blade with the poker on the robot", shaftBack: 0.53, pusher: true, field: "On the field a stick held by hand at the second ball freed the stack; the mounted poker is the next build." },
+    final: { name: "the mountain blade, 7.9 in wide, with the poker on the robot", shaftBack: 0.53, width: 7.9, pusher: true, field: "On the field a stick held by hand at the second ball freed the stack; the mounted poker and the wide blade are the next prints." },
+    coach: { name: "the coach's plate as drawn", profile: coachDrawn.profile, outline: true, width: 7.9, lane: null, shaftBack: coachDrawn.lip - S.SHAFT_AHEAD, stowed: CS.stowed_outline_centre, field: "Keyed to the hex shaft as drawn, the plate stands leaning 49° toward the FLOWER when the shaft is on the wheels: the ball meets an overhang." },
+    coachFlat: { name: "the coach's plate turned to lie flat", profile: coachFlat.profile, outline: true, width: 7.9, lane: null, shaftBack: coachFlat.lip - S.SHAFT_AHEAD, stowed: rotAbout(CS.stowed_outline_centre, sh0, -CS.rot), field: "The same plate turned 131° on the shaft so it lies flat: a 0.1 in lip and a 0.48 in bump. Stowed it would stand 49° off the arm tips." },
   };
   // how the stack sits before the blade arrives: front to back (the second ball against the collar, the way our photos
   // show it), straight, or leaning side to side into the gaps between the pipes
@@ -79,7 +97,7 @@
   function compute() {
     const P = PRESETS[preset];
     profile = P.profile || S.mountain(SHAPE);
-    cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: 5.4, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
+    cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: P.width || 5.4, shaftBack: P.shaftBack, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
     Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; if (P.pusher) cfg.pusher = POKER;
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
@@ -95,7 +113,7 @@
     $("sim-result").textContent = P.name + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : "");
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) { window.Drive3D.setBlade(profile, 5.4, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKER : null); }
+    if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKER : null); }
     draw();
   }
   function draw() {
@@ -112,12 +130,14 @@
     const shx = lip - P.shaftBack;
     shaft.setAttribute("cx", sx(shx)); shaft.setAttribute("cy", sy(0.77));
     if (true) {
-      const face = lip - S.FACE_BEHIND_LIP, ax = face - S.GECKO_R, az = S.GECKO_Z;
+      const face = lip - S.SHAFT_AHEAD - P.shaftBack, ax = face - S.GECKO_R, az = S.GECKO_Z, pvx = face + S.ARM.pivot[0], pvz = S.ARM.pivot[1];
       robotG.setAttribute("transform", `translate(${(face * PX).toFixed(1)} 0)`);
       gecko.setAttribute("cx", sx(ax)); gecko.setAttribute("cy", sy(az)); gecko.setAttribute("r", S.GECKO_R * PX);
       const a = t * 40 / S.GECKO_R;
       spoke.setAttribute("x1", sx(ax)); spoke.setAttribute("y1", sy(az)); spoke.setAttribute("x2", sx(ax + S.GECKO_R * Math.cos(a))); spoke.setAttribute("y2", sy(az + S.GECKO_R * Math.sin(a)));
-      arm.setAttribute("x1", sx(ax)); arm.setAttribute("y1", sy(az)); arm.setAttribute("x2", sx(shx)); arm.setAttribute("y2", sy(0.77));
+      arm.setAttribute("points", barPts([pvx, pvz], [shx - pvx, 0.77 - pvz], 1.5, 9.8, 1.26)); armStow.setAttribute("points", barPts([pvx, pvz], S.ARM.stowedDir, 1.5, 9.8, 1.26));
+      pivotEl.setAttribute("cx", sx(pvx)); pivotEl.setAttribute("cy", sy(pvz));
+      if (P.stowed) { plateStow.setAttribute("points", P.stowed.map(([a, z]) => sx(face + a) + "," + sy(z)).join(" ")); plateStow.style.display = ""; } else plateStow.style.display = "none";
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
       if (cfg.pusher) { pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = ""; } else pokerEl.style.display = "none";
     } else {
@@ -127,14 +147,16 @@
     }
     f[2].forEach(([x, z, y], k) => { balls[k].setAttribute("cx", sx(x)); balls[k].setAttribute("cy", sy(z)); planBalls[k].setAttribute("cx", px2(x)); planBalls[k].setAttribute("cy", py2(y || 0)); });
     // the plan: the blade's outline and lane, the robot's face and wheel row, all in the blade's frame (offset, turned)
-    const W = 5.4, len = profile[profile.length - 1][0], g = cfg.gutter, c = g ? S.catchHalf(g) : 0;
+    const W = cfg.width, len = Math.max(...profile.map(p => p[0])), g = cfg.gutter, c = g ? S.catchHalf(g) : 0;
     planG.setAttribute("transform", `translate(${px2(lip).toFixed(1)} ${py2(cfg.offset || 0).toFixed(1)}) rotate(${(-(cfg.yaw || 0)).toFixed(1)})`);
     const pl = (xb, y) => (-xb * P2).toFixed(1) + "," + (-y * P2).toFixed(1);
     const V = P.vee || 0;                                              // the V nose from above: the sides sit V behind the middle's lip
     planBlade.setAttribute("points", (V ? [pl(V, -W / 2), pl(V, -1.42), pl(0, -0.855), pl(0, 0.855), pl(V, 1.42), pl(V, W / 2)] : [pl(0, -W / 2), pl(0, W / 2)]).concat([pl(len, W / 2), pl(len, -W / 2)]).join(" "));
     planLane.setAttribute("points", g ? [pl(g.start, -0.05), pl(g.start, 0.05), pl(g.start + 1.6, c), pl(len, c), pl(len, -c), pl(g.start + 1.6, -c)].join(" ") : "");
     if (true) {
-      const fb = S.FACE_BEHIND_LIP, m = cfg.mouth || 7.5;
+      const fb = S.SHAFT_AHEAD + P.shaftBack, m = cfg.mouth || 7.5;
+      const ux = (S.SHAFT_AHEAD - S.ARM.pivot[0]) / S.ARM.L, ax0 = S.ARM.pivot[0] - 1.5 * ux, ax1 = S.ARM.pivot[0] + 9.8 * ux;   // the deployed arms from above
+      planArms.forEach((r, k) => { const [y0, y1] = ARM_Y[k]; r.setAttribute("x", ((ax0 - fb) * P2).toFixed(1)); r.setAttribute("width", ((ax1 - ax0) * P2).toFixed(1)); r.setAttribute("y", (-y1 * P2).toFixed(1)); r.setAttribute("height", ((y1 - y0) * P2).toFixed(1)); });
       planFace.setAttribute("x1", -fb * P2); planFace.setAttribute("x2", -fb * P2); planFace.setAttribute("y1", -8 * P2); planFace.setAttribute("y2", 8 * P2);
       planMouth.setAttribute("x", -(fb + 2 * S.GECKO_R) * P2); planMouth.setAttribute("y", -m / 2 * P2); planMouth.setAttribute("width", 2 * S.GECKO_R * P2); planMouth.setAttribute("height", m * P2);
       planFace.style.display = planMouth.style.display = "";

@@ -15,7 +15,13 @@
 // `mouth` wide: a ball reaching the wheels outside it rolls past.
 window.FlowerSim = (function () {
   const G = 386.1, R = 1.4, K = 2 / 3, DT = 5e-5, REST = 4.0, STAGED = [1.4, 4.3, 7.2, 10.1];
-  const BACK = 0.33 + R, STOP = 1.18, FACE_BEHIND_LIP = STOP + 2.5, GECKO_R = 0.94, GECKO_Z = 2.89;
+  const BACK = 0.33 + R, STOP = 1.18, GECKO_R = 0.94, GECKO_Z = 2.89;
+  // the arms from the October 25 CAD: two 11-hole mini channels pivoting 2.37 in behind the intake face and 7.89 in up, 9.09 in
+  // from pivot to the shaft across their tips. With the shaft on 0.77 in sled wheels the arm stops 52 deg below horizontal and
+  // the shaft sits SHAFT_AHEAD of the face; the lip is shaftBack further on, so the face is SHAFT_AHEAD + shaftBack behind it.
+  const ARM = { pivot: [-2.37, 7.89], L: 9.09, shaftZ: 0.77, stowedDir: [0.177, 0.984] };
+  const SHAFT_AHEAD = ARM.pivot[0] + Math.sqrt(ARM.L * ARM.L - (ARM.pivot[1] - ARM.shaftZ) ** 2);
+  const FACE_BEHIND_LIP = SHAFT_AHEAD + 0.53;
   const PIPE = 1.72, PIPE_R = 0.525, PIPE_Z = 4.25, HOLE_PLAY = 0.14;
   // the uprights' vee (the back wall for every ball), the ring and its hole, the tiles, and the collar's front bar as the
   // field CAD's centreline section has it: underside 3.90, top 4.25 where the pipes begin, inner edge at -1.69 (the opening
@@ -197,7 +203,8 @@ window.FlowerSim = (function () {
       const bv = driving ? bvSign * speedNow : 0;
       if (driving) lip = bvSign > 0 ? Math.min(stop, lip + speedNow * DT) : lip - speedNow * DT;
       let axleX = 0, axleZ = 0;
-      if (cfg.onRobot) { axleX = lip - FACE_BEHIND_LIP - GECKO_R; axleZ = GECKO_Z; }
+      const fbl = cfg.faceBehindLip || (SHAFT_AHEAD + shaftBack);
+      if (cfg.onRobot) { axleX = lip - fbl - GECKO_R; axleZ = GECKO_Z; }
       const touch = balls.map(() => false);
       for (const b of balls) {
         b.vz -= G * DT; b.x += b.vx * DT; b.y += b.vy * DT; b.z += b.vz * DT;
@@ -226,7 +233,7 @@ window.FlowerSim = (function () {
           if (jsum > 0 && yaw !== 0) { /* a turned blade carries the ball along its own axis: nothing more to do, the lane's push above already follows it */ }
         }
         if (cfg.pusher) {
-          const pk = cfg.pusher, px = lip - FACE_BEHIND_LIP + pk.reach;
+          const pk = cfg.pusher, px = lip - fbl + pk.reach;
           if (pk.hw) {                                                     // a plate of finite width: a box, hit in 3-D
             const yc = off, x0 = px - 2, x1 = px, y0 = yc - pk.hw, y1 = yc + pk.hw;
             const cx = Math.min(Math.max(b.x, x0), x1), cy = Math.min(Math.max(b.y, y0), y1), cz = Math.min(Math.max(b.z, pk.z0), pk.z1);
@@ -306,6 +313,6 @@ window.FlowerSim = (function () {
     const xp = (p.peak - p.edge) / tn, xe = xp + (p.peak - bottom) / tt;
     return [[0, bottom], [0, p.edge], [xp, p.peak], [xe, bottom]];
   }
-  return { run, mountain, cross, catchHalf, pushForce, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, PIPE, PIPE_R };
+  return { run, mountain, cross, catchHalf, pushForce, STOP, R, GECKO_R, GECKO_Z, FACE_BEHIND_LIP, SHAFT_AHEAD, ARM, PIPE, PIPE_R };
 })();
 </script>

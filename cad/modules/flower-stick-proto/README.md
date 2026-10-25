@@ -583,6 +583,24 @@ where the disc sits, 0.7 to 1.2 in ahead of the face, the arm is 1.8 to 2.0 in h
 thing to watch is whether it seats with one steady push. If it still needs a wiggle, tape the nose first; if that
 fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 
+**The coach's arms (Oct 25 CAD, `coach_stick.py`, `page/coach_stick.json`).** Robot Copy 1 has the stick's arms: two
+11-hole U-channels pivoting 2.37 in behind the intake face and 7.89 in up (at |y| 5.4 to 6.3), a 312 mm REX shaft across
+their tips 9.09 in from the pivot, a servo on the left arm. Stowed they stand 10° forward of vertical with the shaft
+16.8 in up. Swung until the shaft is 0.77 in up (our sled wheels), the arms are 52° below horizontal and the shaft is
+3.28 in ahead of the face, so the face is 3.81 in behind the mountain blade's lip (`SHAFT_AHEAD + shaftBack` in the
+model; it was a flat 3.68). This supersedes the 8.3-in sled-arm guess below. His plate (7.9 x 3.26 x 0.48 in, a 0.1 in
+lip and a 0.48 in bump near the shaft) lies flat over the arm tips when stowed; keyed to the hex that way it stands up 49°
+at the ground, leaning toward the FLOWER, and the model stalls on it. Turned 131° on the shaft it lies flat and feeds a
+side-to-side stack only at 10 in/s. Both run in the simulator ("Coach's CAD"). `coach_stick_as_drawn.png` shows the
+three cases at first contact. The poker's reach was re-checked with the face at 3.81: 1.2 and 1.3 in feed 24/24 at
+every speed, 1.1 misses at 3 in/s, 1.4 misses (`page/poker_scan2.js`).
+
+**The printed poker (`poker.py`, `poker_render.py`).** A bracket that hooks over the intake's top channel (a 9-hole
+low-side U-channel, 48 mm deep, 12 mm face, at the face line 7.03 to 7.51 up): a 6 mm flange on the web with two M4
+slots, a 19 mm block down the channel's face with one M4 through it, the block's front 30.5 mm (1.2 in) ahead of the
+face. `poker_hang` (block below the web, intake as in the CAD) and `poker_stand` (block above the web, intake lowered
+1.8 in). `print_job.py wide` puts the wide blade and both pokers on one 165 x 281 mm plate.
+
 ## Files
 
 - `build.py`: the module, in his robot's frame. It writes `flower-stick-proto.step` (insert at the origin of his
@@ -592,8 +610,9 @@ fixes it, the friction is higher than 0.4 and the next print gets a 50° nose.
 - `seated_in_field_cad.png`: the blade seated in FIRST's field CAD FLOWER.
 - `blade_step.py`: the same blades as STEP solids for review in Onshape (`step/`: v6_lane, v5_lane, the coupon); the tail with the lane is a B-spline surface through the height field, within 0.02 mm of the printed mesh.
 - `blade6.py`: the v6 blade as a height field: nose, peak, tail, the lane with its oval front, the end bosses, the bore (opened flush where the ramp is thinner than the hex).
-- `print_job.py three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
+- `print_job.py wide|three|v8|hedge|v7|v5`: the print plate, `stl/print_job_<job>.stl`, and its top view (older plates keep their `print_job_dean_` names).
 - `hex_coupon.py`: a hex-fit coupon (`stl/hex_fit_coupon.stl`), three 8 mm hex holes at 8.1/8.2/8.3 mm across the flats, printed like the blades, to find the hole size that is snug on a given printer. The 15 Oct blocks turned on the shaft; their hole is 8.3 and their hex bearing length only 36 mm. The 137 mm blade bears on 3.8 times the length, and the fitted size goes in with `divot_blade.py --hex`.
+- `coach_stick.py`: the coach's arms and plate from the Oct 25 CAD, swung to the ground (`coach_stick_as_drawn.png`). `poker.py`: the poker bracket (`stl/poker_hang.stl`, `stl/poker_stand.stl`, `step/`); `poker_render.py` draws it.
 - `block.py`: the block's STL for any shaft height (`--shaft`) or wheel size (`--wheel-mm`).
 - `proto.png`: the picture above, drawn from his Robot.step.
 - `block_template.pdf` (`template.py`): a 1:1 paper template for cutting the block from 3/4 in plywood, hardwood or HDPE when there is no printer.

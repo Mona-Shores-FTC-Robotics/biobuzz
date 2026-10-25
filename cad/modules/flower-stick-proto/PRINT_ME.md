@@ -1,4 +1,28 @@
-> **Update:** the V nose (v8) is retired: the field saw no difference and the model agrees it cannot undo the front-to-back lock. The next prints are `stl/mountain_wide.stl` (the mountain blade with Carter's lane at the robot arms' 7.9 in width) and the poker on the robot (a 0.75 in wide plate, 1.2 in ahead of the intake face, 5.3 to 7.5 in up), after a sled test with a strip of plywood. The plate below is kept as the record of what was printed.
+# Print job: the wide mountain blade and the poker (for whoever prints)
+
+**Newest: `stl/print_job_wide.stl`**, 165 x 281 x 19 mm, three parts, flat side down. Needs a bed of at least 290 mm
+one way (a 220 x 220 bed prints the three parts one at a time: `stl/mountain_wide.stl`, 201 x 76 x 15 mm;
+`stl/poker_hang.stl`, 79 x 19 x 72 mm; `stl/poker_stand.stl`, 79 x 19 x 56 mm). Millimetres. PETG. About 200 cm3.
+
+![the plate from above](print_job_wide.png)
+
+- **mountain_wide** (top): the mountain blade with Carter's lane, the shape that emptied the FLOWER, at 7.9 in wide,
+  the width of the robot's stick arms. Same 60° nose, 1.1 in peak, 12° tail, 7.15 mm hex (flats top and bottom), no end
+  bosses. On the robot the hex is keyed so the blade lies flat when the arms are down (52° below horizontal).
+- **poker_hang** and **poker_stand** (bottom, printed on their backs): the poker bracket. It hooks over the intake's
+  top channel: the 6 mm flange sits on the channel's web with two M4 bolts through the web's holes (14 mm slots), the
+  19 mm block runs down the channel's front face with one M4 through it, and the block's front is the poker, 30.5 mm
+  (1.2 in) ahead of the intake face. Print both: which one fits depends on whether the intake is up (hang) or lowered
+  1.8 in for the FLOWER (stand). Test on the sled first with a strip of plywood clamped at the same place.
+
+**Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 40 % infill, 5 top and bottom layers, no supports, brim
+optional. Millimetres: if it comes in tiny, scale by 25.4.
+
+Thank you!
+
+---
+
+> The V nose (v8) is retired: the field saw no difference and the model agrees it cannot undo the front-to-back lock. The plate below is kept as the record of what was printed.
 
 # Print job: FLOWER stick blades (for whoever prints)
 

@@ -54,16 +54,18 @@ window.Drive3D = (function () {
   let bladeMesh = null;
   const bladeShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 17.0, 6), steel); bladeShaft.geometry.rotateX(Math.PI / 2); bladeG.add(bladeShaft);
   let shaftBackNow = 0.77;
-  const arms = [0, 1].map(() => { const a = new THREE.Mesh(new THREE.BoxGeometry(1, 0.35, 0.18), steel); scene.add(a); return a; });
+  // the arms from the October 25 CAD: 11-hole U-channels, 11.3 in long and 1.26 wide, pivoting 2.37 in behind the face and
+  // 7.89 in up, the shaft 9.09 in from the pivot; the left arm at y 5.65, the right at -6.07
+  const arms = [0, 1].map(() => { const a = new THREE.Mesh(new THREE.BoxGeometry(1, 1.26, 0.48), steel); scene.add(a); return a; });
   const stubs = [0, 1].map(() => { const st = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.2, 1.2, 8), steel); st.geometry.rotateX(Math.PI / 2); robot.add(st); return st; });
   // where the arms pivot: left is +y in the CAD, -z here; the corner disc is on the right (+z)
-  const ARMS = { uprights: [4.9, -4.9], left: [4.9 * 0 - 8.3], both: [-8.3, 8.3] };
+  const ARMS = { uprights: [6.07, -5.65], left: [-5.65], both: [6.07, -5.65] };
   let armMode = "both";
   function setArms(mode) {
     armMode = mode;
     const ys = ARMS[mode];
     arms.forEach((a, k) => { a.visible = k < ys.length; if (k < ys.length) a.position.z = ys[k] - offsetNow; });
-    stubs.forEach((st, k) => { st.visible = k < ys.length; if (k < ys.length) st.position.set(-0.94, 2.89, ys[k]); });
+    stubs.forEach((st, k) => { st.visible = k < ys.length; if (k < ys.length) st.position.set(-2.37, 7.89, ys[k]); });
     const zmin = Math.min(...ys, -2.9), zmax = Math.max(...ys, 2.9);
     bladeShaft.geometry.dispose(); bladeShaft.geometry = new THREE.CylinderGeometry(0.16, 0.16, zmax - zmin + 0.6, 6); bladeShaft.geometry.rotateX(Math.PI / 2);
     bladeShaft.position.z = (zmin + zmax) / 2;
@@ -136,7 +138,12 @@ window.Drive3D = (function () {
   }
   let offsetNow = 0, yawNow = 0;
   let bladeBottom = 0.52, bladeWidthNow = 5.4;
-  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee, cutAt) {
+  // a blade given as a closed outline (x behind the lip, z), extruded across its width: the coach's plate
+  function outlineGeometry(poly, width) {
+    const shape = new THREE.Shape(); poly.forEach(([x, z], i) => i ? shape.lineTo(-x, z) : shape.moveTo(-x, z)); shape.closePath();
+    const g = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: false }); g.translate(0, 0, -width / 2); return g;
+  }
+  function setBlade(profile, width, shaftBack, lane, offset, yaw, bosses, vee, cutAt, outline) {
     bladeBottom = profile[0][1]; bladeWidthNow = width;
     if (bladeMesh) { bladeG.remove(bladeMesh); bladeMesh.geometry.dispose(); }
     let prof = profile;
@@ -144,7 +151,7 @@ window.Drive3D = (function () {
       const zAt = x => { for (let i = 0; i + 1 < profile.length; i++) { const [x0, z0] = profile[i], [x1, z1] = profile[i + 1]; if (x >= x0 && x <= x1) return z0 + (z1 - z0) * (x - x0) / (x1 - x0); } return profile[0][1]; };
       prof = [[cutAt, profile[0][1]], [cutAt, zAt(cutAt)], ...profile.filter(p => p[0] > cutAt)];
     }
-    bladeMesh = new THREE.Mesh(bladeGeometry(prof, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
+    bladeMesh = new THREE.Mesh(outline ? outlineGeometry(outline, width) : bladeGeometry(prof, width, lane, bosses, vee), petg); bladeMesh.material.side = THREE.DoubleSide; bladeG.add(bladeMesh);
     shaftBackNow = shaftBack; bladeShaft.position.x = -shaftBack; bladeShaft.position.y = 0.77;
     offsetNow = offset || 0; yawNow = (yaw || 0) * Math.PI / 180;
     // the robot and the blade sit `offset` to the FLOWER's +y (three.js -z) and are turned by `yaw` about the vertical
@@ -175,11 +182,11 @@ window.Drive3D = (function () {
     const shx = lip - shaftBack;
     if (onRobot) {
       robot.visible = true; sled.visible = false;
-      const face = lip - 3.68, ax = face - 0.94;
+      const face = lip - shaftBack - 3.28, px = face - 2.37, pz = 7.89;              // the shaft is 3.28 ahead of the face on these arms
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
-      const dx = shx - ax, dz = 0.77 - 2.89, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx);
-      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = L; arm.position.set((shx + ax) / 2, (0.77 + 2.89) / 2, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
+      const dx = shx - px, dz = 0.77 - pz, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (9.8 - 1.5) / 2;
+      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = 11.3; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
       stubs.forEach(st => st.visible = st.visible);
     } else {
       robot.visible = false; sled.visible = true; sled.position.x = shx;
