@@ -592,7 +592,9 @@ model; it was a flat 3.68). This supersedes the 8.3-in sled-arm guess below. His
 lip and a 0.48 in bump near the shaft) lies flat over the arm tips when stowed; keyed to the hex that way it stands up 49°
 at the ground, leaning toward the FLOWER, and the model stalls on it. Turned 131° on the shaft it lies flat and feeds a
 side-to-side stack only at 10 in/s. Both run in the simulator ("Coach's CAD"). `coach_stick_as_drawn.png` shows the
-three cases at first contact. The poker's reach was re-checked with the face at 3.81: 1.2 and 1.3 in feed 24/24 at
+three cases at first contact, and flags that his channel runs 1 in past the shaft: at 52° with the shaft on the wheels its
+corner is 0.4 in below the tile, so the channel must end at the shaft hole with the corner rounded or cut (the simulator
+draws both mounts' arms with rounded ends, the tall one ending at the shaft). The poker's reach was re-checked with the face at 3.81: 1.2 and 1.3 in feed 24/24 at
 every speed, 1.1 misses at 3 in/s, 1.4 misses (`page/poker_scan2.js`).
 
 **The second export, "flowerextractordown" (`coach_stick_down.py`, `page/coach_stick_down.json`).** His assembly exported

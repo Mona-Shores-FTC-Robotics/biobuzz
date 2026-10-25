@@ -61,13 +61,16 @@ window.Drive3D = (function () {
   // where the arms pivot: left is +y in the CAD, -z here; the corner disc is on the right (+z)
   const ARMS = { uprights: [6.07, -5.65], left: [-5.65], both: [6.07, -5.65] };
   // the two mounts (simlib MOUNTS): the coach's tall arms, or the low arm with 39 mm wheels on the shaft outboard of the arms
-  const MOUNTS = { tall: { pivot: [-2.37, 7.89], L: 9.09, back: 1.5, fwd: 9.8, w: 1.26, t: 0.48, ys: [6.07, -5.65], wheels: null },
+  const MOUNTS = { tall: { pivot: [-2.37, 7.89], L: 9.09, back: 1.5, fwd: 9.09, w: 1.26, t: 0.48, ys: [6.07, -5.65], wheels: null },
                    low: { pivot: [0.8, 2.2], L: 3 * 24 / 25.4, back: 24 / 25.4, fwd: 2 * 24 / 25.4 + 0.47, w: 32 / 25.4, t: 0.5, ys: [4.2, -4.2], wheels: { r: 0.77, ys: [4.7, -4.7], w: 0.5 } } };
   let mountNow = "tall";
+  // rounded ends on the arms: a cap cylinder at each end, placed with the arm every frame
+  const armCaps = [0, 1].map(() => [0, 1].map(() => { const c = new THREE.Mesh(new THREE.CylinderGeometry(0.63, 0.63, 0.48, 16), steel); c.geometry.rotateX(Math.PI / 2); scene.add(c); return c; }));
   const wheelMeshes = [0, 1].map(() => { const m = new THREE.Mesh(new THREE.CylinderGeometry(0.77, 0.77, 0.5, 24), dark); m.geometry.rotateX(Math.PI / 2); m.visible = false; bladeG.add(m); return m; });
   function setMount(mode) {
     mountNow = mode; const M = MOUNTS[mode]; ARMS.both = M.ys; armMode = "both";
     arms.forEach(a => { a.geometry.dispose(); a.geometry = new THREE.BoxGeometry(1, M.w, M.t); });
+    armCaps.forEach(pair => pair.forEach(c => { c.geometry.dispose(); c.geometry = new THREE.CylinderGeometry(M.w / 2, M.w / 2, M.t, 16); c.geometry.rotateX(Math.PI / 2); }));
     wheelMeshes.forEach((m, k) => { m.visible = !!M.wheels; if (M.wheels) m.position.set(-shaftBackNow, 0.77, -M.wheels.ys[k]); });
     setArms("both");
   }
@@ -198,12 +201,13 @@ window.Drive3D = (function () {
       robot.position.x = face;
       const a = t * 40 / 0.94; for (const g of geckos) g.rotation.z = -a;
       const dx = shx - px, dz = 0.77 - pz, L = Math.hypot(dx, dz), ang = Math.atan2(dz, dx), ux = dx / L, uz = dz / L, mid = (M.fwd - M.back) / 2;
-      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = M.back + M.fwd; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang; });
+      arms.forEach((arm, k) => { arm.visible = k < ARMS[armMode].length; arm.scale.x = M.back + M.fwd; arm.position.set(px + ux * mid, pz + uz * mid, ARMS[armMode][k] - offsetNow); arm.rotation.z = ang;
+        armCaps[k][0].visible = armCaps[k][1].visible = arm.visible; armCaps[k][0].position.set(px - ux * M.back, pz - uz * M.back, ARMS[armMode][k] - offsetNow); armCaps[k][1].position.set(px + ux * M.fwd, pz + uz * M.fwd, ARMS[armMode][k] - offsetNow); });
       wheelMeshes.forEach((m, k) => { if (M.wheels) m.position.set(-shaftBack, 0.77, -M.wheels.ys[k] - 0); });
       stubs.forEach(st => st.visible = st.visible);
     } else {
       robot.visible = false; sled.visible = true; sled.position.x = shx;
-      for (const arm of arms) arm.visible = false;
+      for (const arm of arms) arm.visible = false; armCaps.forEach(pair => pair.forEach(c => c.visible = false));
     }
     ballPos.forEach(([x, z, y], k) => balls[k].position.set(x, z, -(y || 0)));
   }

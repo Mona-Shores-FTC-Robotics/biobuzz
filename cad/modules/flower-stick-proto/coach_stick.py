@@ -57,6 +57,8 @@ ax.add_patch(Polygon(deployed, fc="#e07020", ec="k", lw=0.8))
 ax.add_patch(Circle(tuple(sh1), 0.77, fc="none", ec="k", ls=":", lw=0.8)); ax.add_patch(Circle(tuple(sh1), 0.16, fc="k"))
 ax.annotate("the plate's face leans 49° toward the FLOWER:\nthe ball meets an overhang, and is pushed down", (lip_a - 0.3, 2.6), (-7.8, 11.5), fontsize=9, arrowprops=dict(arrowstyle="->"))
 ax.text(piv[0] + 2.0, piv[1] - 3.4, "arm (at the sides,\n5.4 in out)", fontsize=8, rotation=-52, ha="center", va="center")
+low = arm_bar(sh1 - piv)[:, 1].min(); ax.plot([2.5, 5.5], [0, 0], color="#c33", lw=2)
+ax.annotate(f"the channel runs 1 in past the shaft:\nits corner is {-low:.1f} in below the tile here.\nCut it back to the shaft hole.", (sh1[0] + 0.9, low), (3.2, 13.0), fontsize=8, color="#c33", arrowprops=dict(arrowstyle="->", color="#c33"))
 ax.set_title("A. The plate as drawn, keyed to the hex shaft,\nswung until the shaft is 0.77 in up", fontsize=10)
 # B: the same plate keyed to lie flat
 ax = axes[1]; robot(ax, 4.67)

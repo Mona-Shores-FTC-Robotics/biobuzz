@@ -30,10 +30,10 @@
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
   // the arms from the October 25 CAD: 11-hole U-channels (1.26 in wide) on a pivot 2.37 in behind the face and 7.89 in up,
   // 9.09 in to the shaft; drawn where they are (deployed) and dashed where they stow (10 deg forward of vertical)
-  const barPts = (from, dir, back, fwd, w) => { const L = Math.hypot(dir[0], dir[1]), ux = dir[0] / L, uz = dir[1] / L, nx = -uz * w / 2, nz = ux * w / 2; const a = [from[0] - ux * back, from[1] - uz * back], b = [from[0] + ux * fwd, from[1] + uz * fwd]; return [[a[0] + nx, a[1] + nz], [b[0] + nx, b[1] + nz], [b[0] - nx, b[1] - nz], [a[0] - nx, a[1] - nz]].map(([x, z]) => sx(x) + "," + sy(z)).join(" "); };
-  const armStow = el("polygon", { fill: "none", stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "4 3" });
+  const barPath = (from, dir, back, fwd, w) => { const L = Math.hypot(dir[0], dir[1]), ux = dir[0] / L, uz = dir[1] / L, nx = -uz * w / 2, nz = ux * w / 2, r = (w / 2 * PX).toFixed(1); const a = [from[0] - ux * back, from[1] - uz * back], b = [from[0] + ux * fwd, from[1] + uz * fwd]; const P = ([x, z]) => sx(x).toFixed(1) + "," + sy(z).toFixed(1); return `M${P([a[0] + nx, a[1] + nz])}L${P([b[0] + nx, b[1] + nz])}A${r},${r} 0 0 1 ${P([b[0] - nx, b[1] - nz])}L${P([a[0] - nx, a[1] - nz])}A${r},${r} 0 0 1 ${P([a[0] + nx, a[1] + nz])}Z`; };
+  const armStow = el("path", { fill: "none", stroke: "var(--muted)", "stroke-width": 1, "stroke-dasharray": "4 3" });
   const plateStow = el("polygon", { fill: "none", stroke: "var(--petg)", "stroke-width": 1, "stroke-dasharray": "4 3" });
-  const arm = el("polygon", { fill: "var(--muted)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 0.8 });
+  const arm = el("path", { fill: "var(--muted)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 0.8 });
   const pivotEl = el("circle", { r: 0.14 * PX, fill: "var(--fg)" });
   const wheelEl = el("circle", { fill: "var(--steel)", "fill-opacity": 0.3, stroke: "var(--fg)", "stroke-width": 1 });   // the low arm's wheels on the shaft
   const sledWheel = el("circle", { fill: "none", stroke: "var(--fg)", "stroke-width": 2 });
@@ -139,7 +139,7 @@
       gecko.setAttribute("cx", sx(ax)); gecko.setAttribute("cy", sy(az)); gecko.setAttribute("r", S.GECKO_R * PX);
       const a = t * 40 / S.GECKO_R;
       spoke.setAttribute("x1", sx(ax)); spoke.setAttribute("y1", sy(az)); spoke.setAttribute("x2", sx(ax + S.GECKO_R * Math.cos(a))); spoke.setAttribute("y2", sy(az + S.GECKO_R * Math.sin(a)));
-      arm.setAttribute("points", barPts([pvx, pvz], [shx - pvx, 0.77 - pvz], MT.back, MT.fwd, MT.w)); armStow.setAttribute("points", barPts([pvx, pvz], MT.stowedDir, MT.back, MT.fwd, MT.w));
+      arm.setAttribute("d", barPath([pvx, pvz], [shx - pvx, 0.77 - pvz], MT.back, MT.fwd, MT.w)); armStow.setAttribute("d", barPath([pvx, pvz], MT.stowedDir, MT.back, MT.fwd, MT.w));
       if (MT.wheels) { wheelEl.setAttribute("cx", sx(shx)); wheelEl.setAttribute("cy", sy(0.77)); wheelEl.setAttribute("r", MT.wheels.r * PX); wheelEl.style.display = ""; } else wheelEl.style.display = "none";
       pivotEl.setAttribute("cx", sx(pvx)); pivotEl.setAttribute("cy", sy(pvz));
       if (P.stowed) { plateStow.setAttribute("points", P.stowed.map(([a, z]) => sx(face + a) + "," + sy(z)).join(" ")); plateStow.style.display = ""; } else plateStow.style.display = "none";
