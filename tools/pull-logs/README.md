@@ -76,9 +76,11 @@ If the hub does wedge: close everything that talks adb, power-cycle the hub, the
 
 ## Reading a log in AdvantageScope
 
+- **First, once per laptop:** `tools/advantagescope/` installs the team's robot model and a match
+  layout with the Field, 3D, Limelight, Loop and Launcher tabs already set up. With it, the rest
+  of this list is already on screen.
 - **Where the robot was**: drag `/Odometry/Robot` onto a 2D or 3D Field. Pick the 2026-27 FTC
-  field in the tab's settings (the FTC assets bundle; see `TeamCode/README.md` § AdvantageScope),
-  and `BIOBUZZ Robot` as the robot model if `cad/advantagescope/` is in your assets folder.
+  field in the tab's settings, and `BIOBUZZ Robot` as the robot model.
   `/Odometry/PedroInches` is the same pose in Pedro's own numbers.
 - **What the Auto did**: `/Events` on a timeline or in the Table. Every `auto: …` line is a card
   starting, a wait ending and why, or the endgame guard's decision, exactly as the Match page
