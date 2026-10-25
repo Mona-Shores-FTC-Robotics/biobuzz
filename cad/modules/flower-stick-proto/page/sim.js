@@ -25,7 +25,7 @@ window.FlowerSim = (function () {
   // the arm 30 deg below horizontal when down and stowed 8 deg short of vertical; the blade folds up in front of the mouth.
   const HOLE = 24 / 25.4;
   const MOUNTS = {
-    tall: { pivot: [-2.37, 7.89], L: 9.09, shaftZ: 0.77, stowedDir: [0.177, 0.984], back: 1.5, fwd: 9.09, w: 1.26, armY: [[5.41, 5.89], [-6.30, -5.83]], wheels: null },
+    tall: { pivot: [-2.37, 7.89], L: 9.09, shaftZ: 0.77, stowedDir: [0.177, 0.984], back: 1.5, fwd: 9.09, w: 1.26, armY: [[5.41, 5.89], [-6.30, -5.83]], wheels: { r: 0.77, y: [[4.45, 4.95], [-4.95, -4.45]] } },   // 39 mm wheels on the shaft between the blade and the arms set the lip's height, whatever the servo does
     low: { pivot: [0.8, 2.2], L: 3 * HOLE, shaftZ: 0.77, stowedDir: [Math.cos(82 * Math.PI / 180), Math.sin(82 * Math.PI / 180)], back: HOLE, fwd: 2 * HOLE + 0.47, w: 32 / 25.4, armY: [[3.95, 4.45], [-4.45, -3.95]], wheels: { r: 0.77, y: [[4.45, 4.95], [-4.95, -4.45]] } },
   };
   const shaftAhead = m => m.pivot[0] + Math.sqrt(m.L * m.L - (m.pivot[1] - m.shaftZ) ** 2);
