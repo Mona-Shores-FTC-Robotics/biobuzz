@@ -1,11 +1,13 @@
 """v10: the self-tripping nose. Two printed parts and one 4 mm pin.
 
 The body is v7 with Carter's lane (step/v7_lane.step) with its nose cut off at a hinge line 0.32 in behind the lip,
-0.96 in up. The nose piece carries the lip and the 60 deg face across the full width, a hub around the pin in the
-middle, and a toe 1.2 in wide reaching 1.3 in ahead of the lip under the ball. When the lip stops on the posts and the
-robot keeps driving, the push comes in below the pin and turns the piece nose-up; it stops turning when the lip's
-bottom corner has risen to the pin's height (54 deg, the body 0.22 in further in) and falls flat again when the robot
-backs out. The posts' corners pass through gaps in the hinge at |y| 1.2 to 1.6, so nothing on the body reaches them.
+0.96 in up. The nose piece carries the lip and the 60 deg face across the full width and a hub around the pin in the
+middle. When the lip stops on the posts and the robot keeps driving, the push comes in below the pin and turns the
+piece nose-up; it stops turning when the lip's bottom corner has risen to the pin's height (54 deg, the body 0.22 in
+further in) and falls flat again when the robot backs out. In the model the tilt and the extra reach together feed
+every case; neither alone does. No toe: nothing reaches between the posts, so the aim is v7's. The posts' corners pass
+through gaps in the hinge at |y| 1.2 to 1.6, so nothing on the body reaches them. TOE_L > 0 adds a stick ahead of the
+lip (the model does not need it).
 
     python3 cad/modules/flower-stick-proto/toe_blade.py     # step/v10_body.step, step/v10_nose.step, stl/..., v10.png
 """
@@ -20,7 +22,7 @@ HUB_R, CLEAR_R = 0.15, 0.16                          # the knuckles' radius and 
 HUB_HW, EAR_Y = 1.2, 1.6                             # the nose's hub spans |y| < 1.2; the body's ears are |y| > 1.6
 W, HW = 5.4, 2.7
 BOTTOM, EDGE, PEAK = 0.52, 0.60, 1.10
-TOE_L, TOE_HW, TOE_T = 1.3, 0.6, 0.10
+TOE_L, TOE_HW, TOE_T = 0.0, 0.25, 0.10                  # no toe; a 0.5 in wide stick if TOE_L is set
 HEEL_X = 0.45
 TRIP_DEG, ADVANCE = 54, 0.22
 
@@ -56,7 +58,8 @@ wedge = cq.Workplane("XZ", origin=(0, HW * IN, 0)).polyline([(x * IN, z * IN) fo
 hub = cyl_y(HUB_R, -HUB_HW, HUB_HW, PIN_X, PIN_Z)
 heel = box(PIN_X, HEEL_X, -HUB_HW, HUB_HW, BOTTOM, PIN_Z - HUB_R + 0.02)
 toe = box(-TOE_L, 0.05, -TOE_HW, TOE_HW, BOTTOM - TOE_T, BOTTOM + 0.03)   # overlaps the wedge so the union is one solid
-nose = wedge.union(hub).union(heel).union(toe)
+nose = wedge.union(hub).union(heel)
+if TOE_L > 0: nose = nose.union(toe)
 # outboard, the wedge must clear the body's ears: nothing of the nose within the clearance circle for |y| > 1.55
 for sgn in (1, -1):
     y0, y1 = (EAR_Y - 0.05, HW + 0.1) if sgn > 0 else (-HW - 0.1, -EAR_Y + 0.05)
@@ -93,7 +96,7 @@ def tripped(m):
     T = trimesh.transformations.rotation_matrix(a, [0, 1, 0], point=[PIN_X * IN, 0, PIN_Z * IN])    # nose-up about the pin (the toe is at -x)
     m.apply_transform(T); return m
 fig = plt.figure(figsize=(13, 5.5), dpi=140)
-ax = fig.add_subplot(1, 2, 1, projection="3d"); show(ax, [(mb, "#2b7de9"), (mn, "#e0552b"), (mp, "#8a94a6")], 28, -35, "v10 flat: the body (blue), the nose piece with its toe (orange), the pin")
+ax = fig.add_subplot(1, 2, 1, projection="3d"); show(ax, [(mb, "#2b7de9"), (mn, "#e0552b"), (mp, "#8a94a6")], 28, -35, "v10 flat: the body (blue), the nose piece (orange), the pin")
 ax = fig.add_subplot(1, 2, 2, projection="3d")
 mb2 = mb.copy(); mb2.apply_translation([-ADVANCE * IN, 0, 0]); mp2 = mp.copy(); mp2.apply_translation([-ADVANCE * IN, 0, 0])
 mn2 = tripped(mn); mn2.apply_translation([-ADVANCE * IN, 0, 0])

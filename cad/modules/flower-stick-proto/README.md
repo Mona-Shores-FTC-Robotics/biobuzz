@@ -505,20 +505,23 @@ both views. The model is kinematic: it says the motion works, not what force it 
 soft POLLEN rather than denting it. That is a hand-lever test on the sled before anything is built; the drive could be
 a spring and link on the arms using the sled's last third of an inch of travel, or a servo on a stall.
 
-**v10, the nose that trips itself (25 Oct, `toe_blade.py`).** The toe without the hardware: the blade split at a hinge
-just behind the peak, a 4 mm pin at (0.32 behind the lip, 0.96 up). The body (`step/v10_body.step`, v7 with its lane
-cut at the pin plane, ears at |y| > 1.6 for the pin) stays on the shaft. The nose piece (`step/v10_nose.step`) carries
-the lip and the 60° face across the full width, a hub on the pin for |y| < 1.2, a heel behind the pin that rests on the
-body so it cannot droop, and the 1.2 × 1.3 in toe hanging 0.1 in below the lip's foot (0.42 off the tiles, 0.07 over
-the ring). The posts' corners pass through the hinge's gaps at |y| 1.2 to 1.6, so the pin's end there is behind them
-by 0.02 at full travel. When the lip stops on the posts' corners the push comes in below the pin and turns the piece
-nose-up; it self-limits at 54°, where the lip's bottom corner reaches the pin's height, with the body 0.22 in further
-in; the piece falls flat by gravity when the robot backs out. Modelled as the body's advance turning the piece
-(`cfg.finger` with `advance`, `pivot`, `selftrip_scan3.js`): 16 of 16 with a 1.3 or 1.5 in toe, straight or bent up
-0.1. A finger about the main shaft instead (the whole nose turning) does nothing (10/16): it lifts the peak with the
-ball. Not printed yet. The page's simulator has it as the "v10" button, drawn in both views; `v10.png` is the render
-(`page/render_v10.html` + `page/shot_v10.js`). Open: 3 mm of plastic over the pin, and whether the piece always falls
-flat under the ball above.
+**v10, the nose that trips itself (25 Oct, `toe_blade.py`).** The lifter without the hardware, and without the toe: the
+blade split at a hinge just behind the peak, a 4 mm pin at (0.32 behind the lip, 0.96 up). The body
+(`step/v10_body.step`, v7 with its lane cut at the pin plane, ears at |y| > 1.6 for the pin) stays on the shaft. The
+nose piece (`step/v10_nose.step`) carries the lip and the 60° face across the full width, a hub on the pin for
+|y| < 1.2, and a heel behind the pin that rests on the body so it cannot droop. The posts' corners pass through the
+hinge's gaps at |y| 1.2 to 1.6; the pin's end there stays behind them by 0.02 at full travel. When the lip stops on
+the posts' corners the push comes in below the pin and turns the piece nose-up; it self-limits at 54°, where the lip's
+bottom corner reaches the pin's height, with the body 0.22 in further in; the piece falls flat by gravity when the
+robot backs out. Modelled as the body's advance turning the piece (`cfg.finger` with `advance`, `pivot`;
+`stick_scan2.js`): 16 of 16. It is the two together: 0.22 in of reach alone 12, the tilt alone (time-driven, no
+advance) 10, both 16. A toe ahead of the lip adds nothing (`stick_scan.js`: 0 to 1.3 in all 16/16), and a toe wide
+enough to matter would have to thread the 1.22 in gap between the posts' inner corners, so there is none; `TOE_L` in
+`toe_blade.py` adds a 0.5 in stick as a fallback. A finger about the main shaft instead (the whole nose turning) does
+nothing (10/16): it lifts the peak with the ball. Not printed yet. The page's simulator has it as the "v10" button,
+drawn in both views; `v10.png` is the render (`page/make_render_v10.py` → `render_v10.html`, `page/shot_v10.js`).
+Open: 3 mm of plastic over the pin, whether the piece always falls flat under the ball above, and whether the push on
+the lip is enough to turn it with the stack on the peak.
 
 **The mentor's corner disc.** The servo-driven 4.5 in disc at the front right is for POLLEN in the wall corner by the
 garden. It is a flat disc facing forward, spinning about a fore-aft axis, so its face sweeps a ball sideways out of

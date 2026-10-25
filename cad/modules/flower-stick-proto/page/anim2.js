@@ -65,11 +65,11 @@
   let stack = "fb";
   // the lifter: a plate ahead of the lip under the ball, the blade's thickness, that swings up about the lip's foot when the
   // blade stops on the posts (a mechanism the posts trip), pushing the ball toward the robot
-  // v10: the nose piece on a 4 mm pin 0.32 in behind the lip, 0.96 in up, with a 1.3 in toe; the posts push the lip below the
-  // pin, so it turns nose-up as the body drives 0.22 in further, to 54 deg where the lip's corner reaches the pin's height
-  const TOES = { none: null, lifter: { len: 1.3, deg: 54, advance: 0.22, pivot: [0.32, 0.96] } };
-  // the nose piece's outline, in inches behind the lip and up: toe, lip, face, hub, heel
-  const NOSE_POLY = [[-1.3, 0.42], [-1.3, 0.52], [0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52], [0.05, 0.52], [0.05, 0.42]];
+  // v10: the nose piece on a 4 mm pin 0.32 in behind the lip, 0.96 in up; the posts push the lip below the pin, so it turns
+  // nose-up as the body drives 0.22 in further, to 54 deg where the lip's corner reaches the pin's height. No toe.
+  const TOES = { none: null, lifter: { len: 0, deg: 54, advance: 0.22, pivot: [0.32, 0.96] } };
+  // the nose piece's outline, in inches behind the lip and up: lip, face, hub, heel
+  const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];
   let toe = "none";
   function readLane() { const rise = +$("s-laneRise").value; return rise > 0 ? { R: +$("s-laneR").value, rise, start: +$("s-laneStart").value, lead: 1.6, oval: +$("s-laneOval").value } : null; }
   function setLane(l) { $("s-laneRise").value = l ? l.rise : 0; if (l) { $("s-laneR").value = l.R; $("s-laneStart").value = l.start; $("s-laneOval").value = l.oval || 0; } }

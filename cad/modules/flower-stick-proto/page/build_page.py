@@ -398,27 +398,31 @@ body = f'''
     <div class="step">
       <div>
         <h3>Two parts and a pin: the nose that trips itself</h3>
-        <p>A toe with springs, slides and levers is a lot of hardware for a half-inch motion. The simpler way is to let the posts
-        do the work. Split the blade at a hinge just behind the peak: the body behind, on the shaft as before, and a nose piece in
-        front that carries the lip, the 60° face across the full width, and the toe in the middle. The pin is a 4 mm steel rod
-        0.32 in behind the lip and 0.96 in up, half an inch above the lip.</p>
+        <p>A toe with springs, slides and levers is a lot of hardware for a half-inch motion, and a toe wide enough to lift the
+        ball has to thread the 1.2 in gap between the posts' inner corners, which means aiming the robot to a hundredth of an
+        inch. The simpler way is to let the posts do the work and drop the toe. Split the blade at a hinge just behind the peak:
+        the body behind, on the shaft as before, and a nose piece in front that carries the lip and the 60° face across the full
+        width. The pin is a 4 mm steel rod 0.32 in behind the lip and 0.96 in up, half an inch above the lip. Nothing reaches
+        between the posts, so the aim is the same as v7's.</p>
         <p>When the lip lands on the posts and the robot keeps driving, the push comes in at the lip, below the pin, so it turns the
         nose piece up by itself. It keeps turning until the lip's corner has risen to the pin's height, 54°, with the body 0.22 in
         further in; then there is no more lever and it just stops. Back the robot out and the nose piece falls flat again under
         its own weight, with a heel that rests on the body so it cannot droop. No spring, no slide, no lever, nothing to adjust.
         The posts' corners pass through gaps in the hinge, so nothing on the body ever reaches them.</p>
-        <p>In the model, with the motion tied to the body's travel the way the real one is, it feeds all 16 cases, with a 1.3 in
-        toe or a 1.5 in one, straight or bent up. The parts are drawn: a body cut from v7 with its lane, the nose piece, the pin.
-        Two prints and one rod from the hardware drawer, plus two clips to keep the rod in.</p>
+        <p>In the model, with the motion tied to the body's travel the way the real one is, it feeds all 16 cases. It is the two
+        things together that do it: the body reaching 0.22 in further alone feeds 12, the nose tilting alone feeds 10, both
+        together 16. The tilting face lifts the back of the ball while the peak moves under it. A toe ahead of the lip adds
+        nothing, so there is none. The parts are drawn: a body cut from v7 with its lane, the nose piece, the pin. Two prints and
+        one rod from the hardware drawer, plus two clips to keep the rod in.</p>
         <table class="sweep loads"><thead><tr><th style="width:30%">Part</th><th>What it is</th></tr></thead><tbody>
           <tr><td class="k">body</td><td>v7 with Carter's lane, cut at the hinge; ears at the sides hold the pin</td></tr>
-          <tr><td class="k">nose piece</td><td>lip and face, 5.4 in wide; hub on the pin in the middle; toe 1.2 × 1.3 in; heel</td></tr>
+          <tr><td class="k">nose piece</td><td>lip and face, 5.4 in wide; hub on the pin in the middle; heel</td></tr>
           <tr><td class="k">pin</td><td>4 mm steel rod, 142 mm, two clips</td></tr>
-        </tbody></table><div class="cap">The toe lies 0.42 in off the tiles when flat, which clears the FLOWER's ring by 0.07 in, the same clearance the blade's bottom already has.</div>
+        </tbody></table><div class="cap">The hinge's gaps at the sides are where the posts' corners pass; nothing on the body reaches them.</div>
         <div class="learn"><b>What we learned</b>Before adding a mechanism, ask what already moves. The robot's push after the lip stops was there all along; a hinge in the right place turns it into the lift.</div>
-        <div class="ask"><b>Open question</b>The plastic over the pin is 3 mm. Does it survive a season of hits? And does the nose piece fall flat every time, or does it hang up on the ball above? A print and the sled will tell.</div>
+        <div class="ask"><b>Open question</b>The plastic over the pin is 3 mm. Does it survive a season of hits? Does the nose piece fall flat every time, or hang up on the ball above? And is the push on the lip enough to turn it with a stack sitting on the peak? A print and the sled will tell; a short stick ahead of the lip is the fallback if the tilt alone is not enough on the field.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece and toe ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece with its toe orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
+      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
     </div>
   </div>
 </section>

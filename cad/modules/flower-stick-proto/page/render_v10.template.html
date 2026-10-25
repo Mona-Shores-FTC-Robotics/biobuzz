@@ -1,0 +1,30 @@
+<!doctype html><html><head><meta charset="utf-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/STLLoader.js"></script>
+<style>body{margin:0;background:#fff;font:14px system-ui}.row{display:flex;flex-direction:column}.v{width:640px}.v canvas{width:640px;height:400px;display:block}.v p{display:none}</style></head><body>
+<div class="row"><div class="v"><canvas id="c1"></canvas><p>v10 flat: the body (blue), the nose piece (orange) and the 4 mm pin, seen from the FLOWER's side</p></div>
+<div class="v"><canvas id="c2"></canvas><p>tripped: the posts hold the lip, the body drives 0.22 in further, the nose piece turns 54°</p></div></div>
+<script>
+const IN = 25.4, PIN = [0.32 * IN, 0, 0.96 * IN];
+const parts = { body: "__BODY__", nose: "__NOSE__", pin: "__PIN__" };
+const loader = new THREE.STLLoader();
+function geo(b64) { const bin = atob(b64), buf = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i); return loader.parse(buf.buffer); }
+function scene(id, tripped) {
+  const canvas = document.getElementById(id), r = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true }); r.setPixelRatio(2); r.setSize(640, 400, false);
+  const s = new THREE.Scene(); s.background = new THREE.Color(0xffffff);
+  s.add(new THREE.HemisphereLight(0xffffff, 0x667788, 0.9)); const d = new THREE.DirectionalLight(0xffffff, 0.8); d.position.set(-60, -80, 120); s.add(d);
+  const mat = c => new THREE.MeshStandardMaterial({ color: c, roughness: 0.6, metalness: 0.05 });
+  // STL frame: x behind the lip (toward the robot), y across, z up. three.js: use z-up by rotating the camera's up
+  const body = new THREE.Mesh(geo(parts.body), mat(0x2b7de9)), nose = new THREE.Mesh(geo(parts.nose), mat(0xe0552b)), pin = new THREE.Mesh(geo(parts.pin), mat(0x8a94a6));
+  const adv = tripped ? -0.22 * IN : 0;                    // the body drives on toward the wall (-x) while the lip stays on the posts
+  body.position.x = adv; pin.position.x = adv;
+  const g = new THREE.Group(); g.position.set(PIN[0] + adv, 0, PIN[2]); nose.position.set(-PIN[0], 0, -PIN[2]); g.add(nose); g.rotation.y = tripped ? 54 * Math.PI / 180 : 0;
+  s.add(body, pin, g);
+  // the floor and the FLOWER's two posts: seated, the lip is on the posts' corners
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(200, 200), new THREE.MeshStandardMaterial({ color: 0xe9edf2 })); floor.position.z = 0; s.add(floor);
+  for (const sg of [1, -1]) { const post = new THREE.Mesh(new THREE.BoxGeometry(0.9 * IN, 0.9 * IN, 3.75 * IN), new THREE.MeshStandardMaterial({ color: 0xa8d8a0, transparent: true, opacity: 0.6 })); post.position.set(-0.64 * IN, sg * 1.25 * IN, 0.35 * IN + 3.75 * IN / 2); post.rotation.z = Math.PI / 4; s.add(post); }
+  const cam = new THREE.PerspectiveCamera(30, 640 / 400, 1, 2000); cam.up.set(0, 0, 1); cam.position.set(-150, -170, 110); cam.lookAt(10, 0, 15);
+  r.render(s, cam);
+}
+scene("c1", false); scene("c2", true);
+</script></body></html>

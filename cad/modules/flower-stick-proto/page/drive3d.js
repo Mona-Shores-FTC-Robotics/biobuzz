@@ -162,8 +162,9 @@ window.Drive3D = (function () {
     const m1 = new THREE.Mesh(new THREE.ExtrudeGeometry(full, { depth: width, bevelEnabled: false }), petg); m1.position.z = -width / 2;
     const toeShape = new THREE.Shape(); first = true;
     for (const [x, z] of [[-1.3, 0.42], [-1.3, 0.52], [0.05, 0.52], [0.05, 0.42]]) { const X = -(x - pivot[0]), Y = z - pivot[1]; first ? toeShape.moveTo(X, Y) : toeShape.lineTo(X, Y); first = false; } toeShape.closePath();
-    const m2 = new THREE.Mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 1.2, bevelEnabled: false }), petg); m2.position.z = -0.6;
-    g.add(m1, m2); g.position.set(-pivot[0], pivot[1], 0); return g;
+    g.add(m1);
+    if (poly.some(([x]) => x < 0)) { const m2 = new THREE.Mesh(new THREE.ExtrudeGeometry(toeShape, { depth: 1.2, bevelEnabled: false }), petg); m2.position.z = -0.6; g.add(m2); }
+    g.position.set(-pivot[0], pivot[1], 0); return g;
   }
   function frame(lip, ballPos, onRobot, shaftBack, t, nose) {
     bladeG.position.x = lip;
