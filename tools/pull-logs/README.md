@@ -45,8 +45,11 @@ the way that section says, so the watcher survives a meeting:
 - **Nothing answers at the address**: the laptop is not on the robot's network. It says so
   instead of hanging in `adb connect`.
 
-It uses Android Studio's adb (`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`), the same one
-the deploy uses, so the two never kill each other's server.
+It uses whichever adb already has a server running on the laptop, so it joins the adb that is
+holding the hub rather than starting a rival: REV Hardware Client's if that is open, Android
+Studio's if that is. With nothing running it starts Android Studio's
+(`%LOCALAPPDATA%\Android\Sdk\platform-tools\adb.exe`). `-Adb <path>` overrides. The first line it
+prints says which one it picked.
 
 **Do not run the watcher and Android Studio against the hub at the same time.** Seen 25 Oct on
 20245: with both open, the hub's adb daemon wedged within a minute (adb listed the hub `offline`,
@@ -58,8 +61,11 @@ adb daemon does not cope with that plus the watcher's reconnects. So at a meetin
 - **Deploying:** stop the watcher (Ctrl+C), deploy with Sloth Load, then start the watcher again.
 - **Running and reviewing logs:** close Android Studio (not just the Run window) and leave the
   watcher running.
-- REV Hardware Client stays closed throughout: it ships its own adb, and the two servers kill
-  each other (`TeamCode/README.md`, "Two copies of adb").
+- REV Hardware Client and Android Studio are the same story with each other: each ships its
+  own adb, and two different adb builds kill each other's server on sight
+  (`TeamCode/README.md`, "Two copies of adb"). The watcher sides with whichever is already
+  running, so REV Hardware Client plus the watcher is a fine pair for running and reviewing;
+  close it to deploy from Android Studio.
 
 If the hub does wedge: close everything that talks adb, power-cycle the hub, then
 `adb kill-server`, `adb connect 192.168.43.1:5555`, and `adb devices` must say `device`, not

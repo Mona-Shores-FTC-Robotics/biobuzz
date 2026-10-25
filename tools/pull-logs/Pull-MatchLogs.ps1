@@ -38,6 +38,11 @@ Pull only; never start AdvantageScope.
 After a file is pulled and its size matches, delete it from the hub. The newest file is never
 deleted (it may still be being written). Off by default: the hub has room for a season of logs.
 
+.PARAMETER Adb
+The adb.exe to use. By default: the one behind an adb server that is already running (so a
+laptop that talks to the hub through REV Hardware Client keeps using that adb), else Android
+Studio's, else the one on PATH.
+
 .EXAMPLE
 .\Pull-MatchLogs.ps1
 Pull everything new and open the newest log.
@@ -73,6 +78,12 @@ function Say($text) {
 
 function Find-Adb {
     if ($Adb) { return $Adb }
+    # An adb server is already running: use the very binary that started it. Two different adb
+    # builds on one laptop (Android Studio's, REV Hardware Client's) each kill the other's server
+    # on sight ("adb server version doesn't match this client"), and that fight is what makes a
+    # hub flap between connected and offline. Whichever one is live owns the hub for now.
+    $running = Get-Process adb -ErrorAction SilentlyContinue | Where-Object { $_.Path } | Select-Object -First 1
+    if ($running) { return $running.Path }
     $studio = Join-Path $env:LOCALAPPDATA 'Android\Sdk\platform-tools\adb.exe'
     if (Test-Path $studio) { return $studio }
     $onPath = Get-Command adb -ErrorAction SilentlyContinue
