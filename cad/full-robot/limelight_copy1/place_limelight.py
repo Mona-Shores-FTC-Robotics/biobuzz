@@ -206,7 +206,7 @@ def main():
     e_bf, e_bb = elev(blade["ahead"][1], blade["up"][0]), elev(blade["ahead"][0], blade["up"][0])
     ax.annotate(f"stowed blade (Part 4): bottom-front edge at {e_bf:.0f}°,\nbottom-back edge at {e_bb:.0f}° — over the lens",
                 (blade["ahead"][1], blade["up"][0]), (0.6, 15.0), color=INK, fontsize=8.5, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
-    ax.annotate(f"shaft, {elev(-0.76, 16.84):.0f}° (on the axis)", (-0.76, 16.84), (0.8, 17.3), color=INK, fontsize=8.5, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
+    ax.annotate(f"shaft, {elev(-0.76, 16.84):.0f}° (on the axis)", (-0.6, 16.84), (0.8, 17.45), color=INK, fontsize=8.5, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8))
     ax.text(-3.2, 7.0, f"arms (hatched: 5.4 in off centre,\n{best[0]:.0f}° off-axis, outside the\n±{FOV_H / 2:.0f}° horizontal FOV)", color=MUTED, fontsize=8, ha="right")
     ax.set_xlim(-10, 10); ax.set_ylim(-0.5, 19.5); ax.set_aspect("equal")
     ax.set_xlabel("inches ahead of the intake face  (robot forward →)", color=INK); ax.set_ylabel("inches above the floor", color=INK)
