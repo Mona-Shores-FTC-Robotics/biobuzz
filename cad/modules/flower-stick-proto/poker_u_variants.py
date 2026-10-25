@@ -76,47 +76,42 @@ finish(lite, "lite")
 # clip
 clip = tie_holes(u_body(roof_holes=True, lips=True).union(poke_block(hollow=True)).union(buttress_ribs()))
 finish(clip, "clip")
-# adj: the base U with a mast, and the poke block with its flange
+# adj: the base U with a mast, and the poke block with its flange. Serrations: 0.8 mm teeth, 0.8 deep, 2 mm pitch, on a grid
+# fixed to the mast (teeth at even millimetres from the wall's bottom); whatever faces the mast carries teeth on the odd grid,
+# so they interleave with 0.2 mm to spare and the block steps 2 mm at a time
 MID = (5.7 - (5.61 + 6.55) / 2) * IN                      # the poke's bottom at the middle setting, mm above the roof
 MAST_T, MAST_W, MAST_TOP = 6.0, 44.0, MID + 2.0 * IN + 6   # the mast: from the wall's bottom up past the poke's top at the middle setting
+BOLT_Y, SLOT_L = 13.5, 25.0                                 # the two M4s: 27 mm apart, in 25 mm slots; their heads clear the ribs at |y| 18..22
+def teeth(x_face, depth, odd, z0, z1, width=MAST_W):
+    """ridges on a face at x_face, sticking out `depth` (signed), on the even (odd=False) or odd grid, between z0 and z1"""
+    tt = None; k0 = int((z0 + FLANGE_H) // 2)
+    for k in range(k0 - 1, k0 + int((z1 - z0) / 2) + 2):
+        z = -FLANGE_H + 2 * k + (1.0 if odd else 0.0)
+        if z + 0.1 < z0 or z + 0.9 > z1: continue
+        t = cq.Workplane("YZ").polyline([(-width / 2, z + 0.1), (width / 2, z + 0.1), (width / 2, z + 0.9), (-width / 2, z + 0.9)]).close().extrude(depth).translate((x_face, 0, 0))
+        tt = t if tt is None else tt.union(t)
+    return tt
 mast = box(x_in, x_in + MAST_T, -MAST_W / 2, MAST_W / 2, -FLANGE_H, MAST_TOP)
-for y in (-13.0, 13.0): mast = mast.cut(cq.Workplane("YZ").slot2D(25 + 4.3, 4.3, 90).extrude(MAST_T + 2, both=True).translate((x_in + MAST_T / 2, y, MID + 20)))
-teeth = None
-for k in range(int((MAST_TOP + FLANGE_H) / 2)):   # 1 mm serrations, 2 mm pitch, across the mast's front face
-    z = -FLANGE_H + 2 * k
-    t = cq.Workplane("YZ").polyline([(-MAST_W / 2, z), (MAST_W / 2, z), (MAST_W / 2, z + 1.0), (-MAST_W / 2, z + 1.0)]).close().extrude(0.8).translate((x_in + MAST_T, 0, 0))
-    teeth = t if teeth is None else teeth.union(t)
-base = tie_holes(u_body(roof_holes=True).union(mast).union(teeth).union(buttress_ribs(back=-44.0, t=4.0).translate((0, 0, 0))))
-# the ribs sit outside the slots: move them to |y| 15..19 and make them reach the mast's top
+for y in (-BOLT_Y, BOLT_Y): mast = mast.cut(cq.Workplane("YZ").slot2D(SLOT_L + 4.3, 4.3, 90).extrude(MAST_T + 2, both=True).translate((x_in + MAST_T / 2, y, MID + 20)))
 ribs = None
-for y0 in (-19.0, 15.0):
+for y0 in (-22.0, 18.0):
     rib = cq.Workplane("XZ").polyline([(-44.0, ROOF_T - 0.01), (x_in + 0.01, ROOF_T - 0.01), (x_in + 0.01, MAST_TOP)]).close().extrude(4.0).translate((0, y0 + 4.0, 0))
     ribs = rib if ribs is None else ribs.union(rib)
-base = tie_holes(u_body(roof_holes=True).union(mast).union(teeth).union(ribs))
+base = tie_holes(u_body(roof_holes=True).union(mast).union(teeth(x_in + MAST_T, 0.8, False, -FLANGE_H, MAST_TOP)).union(ribs))
 finish(base, "adj")
-FL_T = 6.0; x_fl = x_in + MAST_T + 0.8                     # the poke block's flange rides on the teeth
-flange = box(x_fl, x_fl + FL_T, -MAST_W / 2, MAST_W / 2, MID - 6, MID + 2.0 * IN + 6)
-for y in (-13.0, 13.0):
+FL_T = 6.0; x_fl = x_in + MAST_T + 0.8                     # the block's flange rides on the teeth, its own teeth in the mast's gaps
+FL_LO, FL_HI = MID - 6, MID + 2.0 * IN + 6
+flange = box(x_fl, x_fl + FL_T, -MAST_W / 2, MAST_W / 2, FL_LO, FL_HI)
+for y in (-BOLT_Y, BOLT_Y):
     flange = flange.cut(cq.Workplane("YZ").circle(2.2).extrude(FL_T + 2, both=True).translate((x_fl + FL_T / 2, y, MID + 20)))
-    flange = flange.cut(cq.Workplane("YZ").polygon(6, 8.1).extrude(3.2).translate((x_fl + FL_T - 3.2, y, MID + 20)))   # a hex pocket for the M4 nut, from the front
-ft = None
-for k in range(int((2.0 * IN + 12) / 2)):
-    z = MID - 6 + 2 * k
-    t = cq.Workplane("YZ").polyline([(-MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.9), (-MAST_W / 2, z + 0.9)]).close().extrude(-0.8).translate((x_fl, 0, 0))
-    ft = t if ft is None else ft.union(t)
+    flange = flange.cut(cq.Workplane("YZ").polygon(6, 8.3).extrude(3.4).translate((x_fl + FL_T - 3.4, y, MID + 20)))   # a hex pocket for the M4 nut, from the front, 7.2 across flats
 BLOCK_REACH = float(os.environ.get("BLOCK_REACH", "1.1")) * IN     # the block's own reach, face of the flange to the poke's front
-pokeb = flange.union(ft).union(box(x_fl + FL_T - 0.01, BLOCK_REACH, -POKE_W / 2, POKE_W / 2, MID, MID + 1.8 * IN).edges("|Z").edges(">X").fillet(4.0))
+pokeb = flange.union(teeth(x_fl, -0.8, True, FL_LO, FL_HI)).union(box(x_fl + FL_T - 0.01, BLOCK_REACH, -POKE_W / 2, POKE_W / 2, MID, MID + 1.8 * IN).edges("|Z").edges(">X").fillet(4.0))
 finish(pokeb, "adj_poke")
-# shims between the mast and the block, serrated both sides, to push the poke out: a shim with a t mm core adds t + 0.8 mm
-# of reach (the teeth interleave 0.2 mm short of touching); 2 and 4 mm ones stack to any even number
+# shims between the mast and the block to push the poke out: a t mm core with teeth on both faces adds t + 0.8 mm of reach;
+# the back face's teeth sit in the mast's gaps (odd grid), the front face's on the even grid, where the block's gaps are
 for add in (2, 4):
     core = add - 0.8
-    sh = box(0, core, -MAST_W / 2, MAST_W / 2, MID - 6, MID + 2.0 * IN + 6)
-    for y in (-13.0, 13.0): sh = sh.cut(cq.Workplane("YZ").circle(2.2).extrude(core + 2, both=True).translate((core / 2, y, MID + 20)))
-    tt = None
-    for k in range(int((2.0 * IN + 12) / 2)):
-        z = MID - 6 + 2 * k
-        for x0, d in ((core, 0.8), (0, -0.8)):
-            t = cq.Workplane("YZ").polyline([(-MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.1), (MAST_W / 2, z + 0.9), (-MAST_W / 2, z + 0.9)]).close().extrude(d).translate((x0, 0, 0))
-            tt = t if tt is None else tt.union(t)
-    finish(sh.union(tt), f"adj_shim{add}")
+    sh = box(0, core, -MAST_W / 2, MAST_W / 2, FL_LO, FL_HI)
+    for y in (-BOLT_Y, BOLT_Y): sh = sh.cut(cq.Workplane("YZ").circle(2.2).extrude(core + 2, both=True).translate((core / 2, y, MID + 20)))
+    finish(sh.union(teeth(0, -0.8, True, FL_LO, FL_HI)).union(teeth(core, 0.8, False, FL_LO, FL_HI)), f"adj_shim{add}")
