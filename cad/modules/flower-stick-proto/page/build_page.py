@@ -109,6 +109,7 @@ table.sweep td.stuck { background: color-mix(in srgb, #b03030 30%, var(--panel))
 </style>""")
 NEXT_BLADE = "v5" if V5 else "v4"
 
+v10anim = open(os.path.join(S, "v10anim.js")).read()
 body = f'''
 <div class="wrap">
 <header class="hero">
@@ -386,7 +387,7 @@ body = f'''
         <div class="learn"><b>What we learned</b>Before adding a mechanism, ask what already moves. The robot's push after the lip stops was there all along; a hinge in the right place turns it into the lift.</div>
         <div class="ask"><b>Open question</b>The plastic over the pin is 3 mm. Does it survive a season of hits? Does the nose piece fall flat every time, or hang up on the ball above? And is the push on the lip enough to turn it with a stack sitting on the peak? A print and the sled will tell; a short stick ahead of the lip is the fallback if the tilt alone is not enough on the field.</div>
       </div>
-      <figure class="pic"><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
+      <figure class="pic"><svg id="v10-svg" viewBox="0 0 700 612" role="img" aria-label="Animated close-up of v10: the lip meets the post, the nose piece tips up about its pin as the body drives on, and the ball rolls over the peak." style="width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)"></svg><figcaption>How v10 works, from the simulator's own run, close up. The orange nose piece turns on its pin when the post stops its lip and the robot keeps pushing. Tap to pause.</figcaption><img src="data:image/png;base64,{b64f(MOD + "v10.png")}" alt="Two renders of v10 beside the FLOWER's posts: flat, with the orange nose piece ahead of the blue body; and tripped, with the nose piece turned up 54 degrees."><figcaption>v10 flat (above) and tripped (below), seen from the FLOWER's side with its two posts. The body is blue, the nose piece orange. Press "v10: the self-tripping nose" in the simulator to watch it feed a locked stack.</figcaption></figure>
     </div>
   </div>
 </section>
@@ -452,5 +453,6 @@ body = f'''
 {js}
 {drive3d}
 {anim_js}
+{v10anim}
 '''
 out = os.path.join(S, "flower-stick.html"); open(out, "w").write(head + body); print(out, len(head + body))
