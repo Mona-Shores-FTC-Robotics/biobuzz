@@ -1235,6 +1235,16 @@ tell you why.
 > The stack trace is a bare thread entry point and names nobody, so identify the
 > loser from what initialises immediately before the crash.
 
+## Match logs: getting one off the robot
+
+Every run of a `RobotOpMode` writes a `.wpilog` to `/sdcard/FIRST/logs/` on the hub (one file per
+match: an Autonomous pauses it and the TeleOp that follows continues it; see
+`logging/MatchLog`). AdvantageScope on a laptop opens it. **Nobody types adb for this:**
+`tools/pull-logs/` has the one command that connects over Wi-Fi, copies what is new to
+`%USERPROFILE%iobuzz-logs\<robot network>\` and opens the newest, and a `-Watch` mode that does
+it by itself each time an OpMode stops. Its README says what to drag where in AdvantageScope and
+how it copes with the adb states described above. Decided in #214.
+
 ## The Panels stack: seeing data and changing values at a meeting
 
 **The decision, 24 Sep 2026: Panels is the whole dashboard.** Sloth, Pedro, Ivy and Panels; no
