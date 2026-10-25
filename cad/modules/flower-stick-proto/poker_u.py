@@ -5,10 +5,11 @@ a zip tie through each (in through the wall and the flange, under the flange's b
 rivets or M4 button heads from inside for keeps, if the coach allows (the intake motor is 3.5 mm behind the front flange).
 
     python3 cad/modules/flower-stick-proto/poker_u.py     # stl/poker_u.stl, step/poker_u.step
+    WEB_UP=5.2 python3 .../poker_u.py                      # the same with the channel's top 5.2 in up: the poke rises to suit
 
 The push from the ball goes into the poke, down the buttress into the roof, and through the front wall into the channel's front
-flange, in compression; the ties only keep the U from lifting or sliding. Heights follow the channel: with its web top 5.61 in
-above the tile (intake lowered) the poke spans 5.7 to 7.5 in, 1.3 in ahead of the flange's face, which is what the model wants
+flange, in compression; the ties only keep the U from lifting or sliding. Heights follow the channel: WEB_UP is its web top above the tile
+(intake lowered, 5.61 in assumed) and the poke spans 5.7 to 7.5 in whatever that is, 1.3 in ahead of the flange's face, which is what the model wants
 (page/pokez_scan.js: 24/24 at every speed; the folded blade passes 2.8 mm under it). Measure the web's height on the robot with
 the intake down. Millimetres; x ahead of the front flange's face, y across from the channel's centre, z up from the web top.
 """
@@ -18,7 +19,8 @@ IN = 25.4
 CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm deep, flanges 12 mm down from the web top; 0.3 mm each side
 ROOF_T, WALL_T, HALF_L = 4.0, 4.0, 52.0                     # the U: 4 mm roof and walls, 104 mm long (ties 80 mm apart)
 HOLE_Y, HOLE_Z, HOLE_D = 40.0, -8.0, 4.3                    # the channel's flange holes: 8 mm pitch from its centre, 8 mm below the web top, 4 mm
-REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - 5.607) * IN, (7.5 - 5.607) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
+WEB_UP = float(os.environ.get("WEB_UP", "5.61"))                 # the channel's top above the tile with the intake down, inches: measure it
+REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
 BUTTRESS_BACK = -36.0                                       # the buttress runs from the poke's top back to here on the roof
 x_in, x_out = CLR, CLR + WALL_T                             # the front wall; the back wall mirrors it about the channel's depth
 roof = cq.Workplane("XY").box(CHAN_D + 2 * CLR + 2 * WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-CHAN_D - CLR - WALL_T, 0, 0))
