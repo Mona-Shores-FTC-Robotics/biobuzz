@@ -165,15 +165,36 @@ function Get-RobotLogs {
     return @($files | Sort-Object Name)
 }
 
-# The Wi-Fi network this laptop is on, as a folder name: the robot's network is named after the
-# robot, so logs from the two robots land in two folders. 'robot' if it cannot be read (USB).
+# The robot's Wi-Fi network, as a folder name: the robot's network is named after the robot, so
+# logs from the two robots land in two folders. A laptop with two adapters (one on the robot,
+# one on the building's Wi-Fi) is labelled by the adapter that reaches the hub, not the first
+# one netsh lists. 'robot' if the hub is reached some other way (USB, Ethernet) or nothing can
+# be read.
 function Get-RobotLabel {
     try {
+        $alias = $null
+        try {
+            $route = Find-NetRoute -RemoteIPAddress $Robot -ErrorAction Stop | Select-Object -First 1
+            if ($route) { $alias = $route.InterfaceAlias }
+        } catch { }
+        $name = $null
+        $firstSsid = $null
+        $ssidByName = @{}
         foreach ($line in (& netsh wlan show interfaces 2>$null)) {
-            if ($line -match '^\s*SSID\s*:\s*(.+?)\s*$') {
-                return ($Matches[1] -replace '[^A-Za-z0-9._-]', '_')
+            if ($line -match '^\s*Name\s*:\s*(.+?)\s*$') {
+                $name = $Matches[1]
+            } elseif ($line -match '^\s*SSID\s*:\s*(.+?)\s*$') {
+                if (-not $firstSsid) { $firstSsid = $Matches[1] }
+                if ($name) { $ssidByName[$name] = $Matches[1] }
             }
         }
+        $ssid = $null
+        if ($alias) {
+            if ($ssidByName.ContainsKey($alias)) { $ssid = $ssidByName[$alias] }
+        } else {
+            $ssid = $firstSsid
+        }
+        if ($ssid) { return ($ssid -replace '[^A-Za-z0-9._-]', '_') }
     } catch { }
     return 'robot'
 }
@@ -212,7 +233,7 @@ function Remove-PulledFromRobot {
 
 function Open-Log {
     param([string]$Path)
-    if ($NoOpen) { return }
+    if ($NoOpen -or -not $Path) { return }
     $exe = $script:AsExe
     if ($exe) {
         Say "opening in AdvantageScope: $Path"
@@ -233,12 +254,12 @@ Say "logs go to $Folder"
 
 if (-not $Watch) {
     if (-not (Connect-Robot)) { exit 1 }
-    $remote = Get-RobotLogs
+    $remote = @(Get-RobotLogs)
     if ($remote.Count -eq 0) {
         Say "No .wpilog files in $RemoteFolder on the robot. Has a RobotOpMode run since the install?"
         exit 0
     }
-    $pulled = Sync-Logs -Remote $remote -Folder $Folder
+    $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
     if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
     if ($pulled.Count -eq 0) {
         Say "Nothing new: all $($remote.Count) logs are already here."
@@ -259,8 +280,8 @@ $first = $true
 while ($true) {
     if (Connect-Robot) {
         if (-not $connected) { Say 'connected.'; $connected = $true }
-        $remote = Get-RobotLogs
-        $pulled = Sync-Logs -Remote $remote -Folder $Folder
+        $remote = @(Get-RobotLogs)
+        $pulled = @(Sync-Logs -Remote $remote -Folder $Folder)
         if ($RemoveFromRobot) { Remove-PulledFromRobot -Remote $remote -Folder $Folder }
         foreach ($f in $remote) {
             $prev = -1
