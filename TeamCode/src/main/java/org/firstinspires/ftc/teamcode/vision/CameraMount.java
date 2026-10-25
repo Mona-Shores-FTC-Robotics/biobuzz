@@ -23,9 +23,11 @@ import com.bylazar.configurables.annotations.Configurable;
  * The {@code +X} right / {@code +Y} down / {@code +Z} forward reading above is
  * Limelight's documented convention, but the FTC SDK wrapper passes the three
  * numbers straight through from the camera's JSON without normalising them, so
- * nothing in the SDK proves it. Run {@code VisionTagDump}, put a tag straight
- * ahead, and confirm that the forward distance lands in {@code Z} and that the
- * signs of {@code X}/{@code Y} match a tag held left-of-centre and above centre.
+ * nothing in the SDK proves it. Run {@code VisionTagDump}, hold a tag square to
+ * the lens along the direction it points (the camera is pitched up, so that is
+ * not "straight ahead of the robot"), and confirm that the lens-to-tag range
+ * lands in {@code Z} and that the signs of {@code X}/{@code Y} match a tag held
+ * right-of-centre and above centre.
  * If they don't, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
  * unit tests will tell you whether the rest of the chain still holds.
  *
