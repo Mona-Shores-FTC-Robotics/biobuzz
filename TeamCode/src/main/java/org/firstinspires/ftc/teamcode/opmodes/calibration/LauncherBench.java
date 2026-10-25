@@ -6,7 +6,7 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
@@ -48,7 +48,7 @@ import java.util.Locale;
  *
  * <p>Standalone diagnostics, like {@code OctoQuadBench}: the exception CLAUDE.md allows for rigs.
  */
-@TeleOp(name = "Launcher Bench", group = "Diagnostics")
+@Utility(name = "Launcher Bench", description = "The launcher and feeder on a bench hub: speeds, powers, directions, graphs")
 @Configurable
 public class LauncherBench extends OpMode {
 

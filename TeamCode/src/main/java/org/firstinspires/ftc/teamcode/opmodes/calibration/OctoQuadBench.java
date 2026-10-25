@@ -5,7 +5,8 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.digitalchickenlabs.OctoQuad;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
@@ -39,7 +40,8 @@ import java.util.Locale;
  *
  * <p>X re-runs the setup after a cable change. Panels gets every reading under flat keys.
  */
-@TeleOp(name = "OctoQuad Bench", group = "Diagnostics")
+@Disabled
+@Utility(name = "OctoQuad Bench", description = "Two Thru-Bores through an OctoQuad; disabled since the turret chose the Cypher Max (#169)")
 @Configurable
 public class OctoQuadBench extends OpMode {
 

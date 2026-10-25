@@ -7,7 +7,7 @@ import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -56,7 +56,7 @@ import java.util.Locale;
  * one it cannot see: roller orientation, weight balance, or the floor.
  */
 @Configurable
-@TeleOp(name = "Drive Motor Check", group = "Diagnostics")
+@Utility(name = "Drive Motor Check", description = "Each drive wheel's RPM and current, lifted; find a weak or miswired motor")
 public class DriveMotorCheck extends LinearOpMode {
 
     /** Power for every step. Full power is where the arc showed up. */

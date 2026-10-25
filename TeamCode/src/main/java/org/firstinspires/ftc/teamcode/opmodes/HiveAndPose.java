@@ -4,7 +4,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
@@ -58,7 +58,7 @@ import java.util.Locale;
  *       the would-relocalize gap. A brings them back together.</li>
  * </ol>
  */
-@TeleOp(name = "Vision: HIVE & Pose", group = "Vision")
+@Utility(name = "Vision: HIVE & Pose", description = "HIVE state, Pinpoint vs camera pose, relocalize, turret aim; the camera test bed")
 @Configurable
 public class HiveAndPose extends RobotOpMode {
 

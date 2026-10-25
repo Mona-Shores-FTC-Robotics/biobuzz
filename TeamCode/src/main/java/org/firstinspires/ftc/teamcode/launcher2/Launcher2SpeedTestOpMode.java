@@ -5,7 +5,8 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
 import org.firstinspires.ftc.teamcode.hardware.RobotIdentity;
@@ -43,7 +44,8 @@ import java.util.Locale;
  * <p>The RPM readout is an absolute value, so it cannot show direction; see
  * {@link Launcher2}.
  */
-@TeleOp(name = "Launcher2 Speed Test", group = "Shooter")
+@Disabled
+@Utility(name = "Launcher2 Speed Test", description = "The old two-wheel pinch rig; disabled, superseded by Launcher Bench")
 public class Launcher2SpeedTestOpMode extends OpMode {
 
     /** Bump when behaviour changes; if the rig shows an older one, redeploy. */
