@@ -1,0 +1,207 @@
+part,face,dia_mm,along_mm,across_mm,note
+1121-0014-0360,flange (both),4.0,8,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,16,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,24,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,32,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,40,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,48,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,56,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,64,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,72,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,80,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,88,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,96,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,104,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,112,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,120,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,128,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,136,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,144,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,152,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,160,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,168,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,176,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,184,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,192,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,200,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,208,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,216,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,224,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,232,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,240,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,248,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,256,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,264,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,272,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,280,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,288,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,296,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,304,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,312,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,320,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,328,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,336,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,344,8.0,from the web's outer face
+1121-0014-0360,flange (both),4.0,352,8.0,from the web's outer face
+1121-0014-0360,web,4.0,8,-16,from the web's centreline
+1121-0014-0360,web,4.0,8,-8,from the web's centreline
+1121-0014-0360,web,4.0,8,8,from the web's centreline
+1121-0014-0360,web,4.0,8,16,from the web's centreline
+1121-0014-0360,web,4.0,16,-16,from the web's centreline
+1121-0014-0360,web,4.0,16,-8,from the web's centreline
+1121-0014-0360,web,4.0,16,8,from the web's centreline
+1121-0014-0360,web,4.0,16,16,from the web's centreline
+1121-0014-0360,web,4.0,24,-16,from the web's centreline
+1121-0014-0360,web,4.0,24,16,from the web's centreline
+1121-0014-0360,web,14.0,24,0,centre bore
+1121-0014-0360,web,4.0,32,-16,from the web's centreline
+1121-0014-0360,web,4.0,32,-8,from the web's centreline
+1121-0014-0360,web,4.0,32,8,from the web's centreline
+1121-0014-0360,web,4.0,32,16,from the web's centreline
+1121-0014-0360,web,4.0,40,-16,from the web's centreline
+1121-0014-0360,web,4.0,40,-8,from the web's centreline
+1121-0014-0360,web,4.0,40,8,from the web's centreline
+1121-0014-0360,web,4.0,40,16,from the web's centreline
+1121-0014-0360,web,4.0,48,-16,from the web's centreline
+1121-0014-0360,web,4.0,48,16,from the web's centreline
+1121-0014-0360,web,14.0,48,0,centre bore
+1121-0014-0360,web,4.0,56,-16,from the web's centreline
+1121-0014-0360,web,4.0,56,-8,from the web's centreline
+1121-0014-0360,web,4.0,56,8,from the web's centreline
+1121-0014-0360,web,4.0,56,16,from the web's centreline
+1121-0014-0360,web,4.0,64,-16,from the web's centreline
+1121-0014-0360,web,4.0,64,-8,from the web's centreline
+1121-0014-0360,web,4.0,64,8,from the web's centreline
+1121-0014-0360,web,4.0,64,16,from the web's centreline
+1121-0014-0360,web,4.0,72,-16,from the web's centreline
+1121-0014-0360,web,4.0,72,16,from the web's centreline
+1121-0014-0360,web,14.0,72,0,centre bore
+1121-0014-0360,web,4.0,80,-16,from the web's centreline
+1121-0014-0360,web,4.0,80,-8,from the web's centreline
+1121-0014-0360,web,4.0,80,8,from the web's centreline
+1121-0014-0360,web,4.0,80,16,from the web's centreline
+1121-0014-0360,web,4.0,88,-16,from the web's centreline
+1121-0014-0360,web,4.0,88,-8,from the web's centreline
+1121-0014-0360,web,4.0,88,8,from the web's centreline
+1121-0014-0360,web,4.0,88,16,from the web's centreline
+1121-0014-0360,web,4.0,96,-16,from the web's centreline
+1121-0014-0360,web,4.0,96,16,from the web's centreline
+1121-0014-0360,web,14.0,96,0,centre bore
+1121-0014-0360,web,4.0,104,-16,from the web's centreline
+1121-0014-0360,web,4.0,104,-8,from the web's centreline
+1121-0014-0360,web,4.0,104,8,from the web's centreline
+1121-0014-0360,web,4.0,104,16,from the web's centreline
+1121-0014-0360,web,4.0,112,-16,from the web's centreline
+1121-0014-0360,web,4.0,112,-8,from the web's centreline
+1121-0014-0360,web,4.0,112,8,from the web's centreline
+1121-0014-0360,web,4.0,112,16,from the web's centreline
+1121-0014-0360,web,4.0,120,-16,from the web's centreline
+1121-0014-0360,web,4.0,120,16,from the web's centreline
+1121-0014-0360,web,14.0,120,0,centre bore
+1121-0014-0360,web,4.0,128,-16,from the web's centreline
+1121-0014-0360,web,4.0,128,-8,from the web's centreline
+1121-0014-0360,web,4.0,128,8,from the web's centreline
+1121-0014-0360,web,4.0,128,16,from the web's centreline
+1121-0014-0360,web,4.0,136,-16,from the web's centreline
+1121-0014-0360,web,4.0,136,-8,from the web's centreline
+1121-0014-0360,web,4.0,136,8,from the web's centreline
+1121-0014-0360,web,4.0,136,16,from the web's centreline
+1121-0014-0360,web,4.0,144,-16,from the web's centreline
+1121-0014-0360,web,4.0,144,16,from the web's centreline
+1121-0014-0360,web,14.0,144,0,centre bore
+1121-0014-0360,web,4.0,152,-16,from the web's centreline
+1121-0014-0360,web,4.0,152,-8,from the web's centreline
+1121-0014-0360,web,4.0,152,8,from the web's centreline
+1121-0014-0360,web,4.0,152,16,from the web's centreline
+1121-0014-0360,web,4.0,160,-16,from the web's centreline
+1121-0014-0360,web,4.0,160,-8,from the web's centreline
+1121-0014-0360,web,4.0,160,8,from the web's centreline
+1121-0014-0360,web,4.0,160,16,from the web's centreline
+1121-0014-0360,web,4.0,168,-16,from the web's centreline
+1121-0014-0360,web,4.0,168,16,from the web's centreline
+1121-0014-0360,web,14.0,168,0,centre bore
+1121-0014-0360,web,4.0,176,-16,from the web's centreline
+1121-0014-0360,web,4.0,176,-8,from the web's centreline
+1121-0014-0360,web,4.0,176,8,from the web's centreline
+1121-0014-0360,web,4.0,176,16,from the web's centreline
+1121-0014-0360,web,4.0,184,-16,from the web's centreline
+1121-0014-0360,web,4.0,184,-8,from the web's centreline
+1121-0014-0360,web,4.0,184,8,from the web's centreline
+1121-0014-0360,web,4.0,184,16,from the web's centreline
+1121-0014-0360,web,4.0,192,-16,from the web's centreline
+1121-0014-0360,web,4.0,192,16,from the web's centreline
+1121-0014-0360,web,14.0,192,0,centre bore
+1121-0014-0360,web,4.0,200,-16,from the web's centreline
+1121-0014-0360,web,4.0,200,-8,from the web's centreline
+1121-0014-0360,web,4.0,200,8,from the web's centreline
+1121-0014-0360,web,4.0,200,16,from the web's centreline
+1121-0014-0360,web,4.0,208,-16,from the web's centreline
+1121-0014-0360,web,4.0,208,-8,from the web's centreline
+1121-0014-0360,web,4.0,208,8,from the web's centreline
+1121-0014-0360,web,4.0,208,16,from the web's centreline
+1121-0014-0360,web,4.0,216,-16,from the web's centreline
+1121-0014-0360,web,4.0,216,16,from the web's centreline
+1121-0014-0360,web,14.0,216,0,centre bore
+1121-0014-0360,web,4.0,224,-16,from the web's centreline
+1121-0014-0360,web,4.0,224,-8,from the web's centreline
+1121-0014-0360,web,4.0,224,8,from the web's centreline
+1121-0014-0360,web,4.0,224,16,from the web's centreline
+1121-0014-0360,web,4.0,232,-16,from the web's centreline
+1121-0014-0360,web,4.0,232,-8,from the web's centreline
+1121-0014-0360,web,4.0,232,8,from the web's centreline
+1121-0014-0360,web,4.0,232,16,from the web's centreline
+1121-0014-0360,web,4.0,240,-16,from the web's centreline
+1121-0014-0360,web,4.0,240,16,from the web's centreline
+1121-0014-0360,web,14.0,240,0,centre bore
+1121-0014-0360,web,4.0,248,-16,from the web's centreline
+1121-0014-0360,web,4.0,248,-8,from the web's centreline
+1121-0014-0360,web,4.0,248,8,from the web's centreline
+1121-0014-0360,web,4.0,248,16,from the web's centreline
+1121-0014-0360,web,4.0,256,-16,from the web's centreline
+1121-0014-0360,web,4.0,256,-8,from the web's centreline
+1121-0014-0360,web,4.0,256,8,from the web's centreline
+1121-0014-0360,web,4.0,256,16,from the web's centreline
+1121-0014-0360,web,4.0,264,-16,from the web's centreline
+1121-0014-0360,web,4.0,264,16,from the web's centreline
+1121-0014-0360,web,14.0,264,0,centre bore
+1121-0014-0360,web,4.0,272,-16,from the web's centreline
+1121-0014-0360,web,4.0,272,-8,from the web's centreline
+1121-0014-0360,web,4.0,272,8,from the web's centreline
+1121-0014-0360,web,4.0,272,16,from the web's centreline
+1121-0014-0360,web,4.0,280,-16,from the web's centreline
+1121-0014-0360,web,4.0,280,-8,from the web's centreline
+1121-0014-0360,web,4.0,280,8,from the web's centreline
+1121-0014-0360,web,4.0,280,16,from the web's centreline
+1121-0014-0360,web,4.0,288,-16,from the web's centreline
+1121-0014-0360,web,4.0,288,16,from the web's centreline
+1121-0014-0360,web,14.0,288,0,centre bore
+1121-0014-0360,web,4.0,296,-16,from the web's centreline
+1121-0014-0360,web,4.0,296,-8,from the web's centreline
+1121-0014-0360,web,4.0,296,8,from the web's centreline
+1121-0014-0360,web,4.0,296,16,from the web's centreline
+1121-0014-0360,web,4.0,304,-16,from the web's centreline
+1121-0014-0360,web,4.0,304,-8,from the web's centreline
+1121-0014-0360,web,4.0,304,8,from the web's centreline
+1121-0014-0360,web,4.0,304,16,from the web's centreline
+1121-0014-0360,web,4.0,312,-16,from the web's centreline
+1121-0014-0360,web,4.0,312,16,from the web's centreline
+1121-0014-0360,web,14.0,312,0,centre bore
+1121-0014-0360,web,4.0,320,-16,from the web's centreline
+1121-0014-0360,web,4.0,320,-8,from the web's centreline
+1121-0014-0360,web,4.0,320,8,from the web's centreline
+1121-0014-0360,web,4.0,320,16,from the web's centreline
+1121-0014-0360,web,4.0,328,-16,from the web's centreline
+1121-0014-0360,web,4.0,328,-8,from the web's centreline
+1121-0014-0360,web,4.0,328,8,from the web's centreline
+1121-0014-0360,web,4.0,328,16,from the web's centreline
+1121-0014-0360,web,4.0,336,-16,from the web's centreline
+1121-0014-0360,web,4.0,336,16,from the web's centreline
+1121-0014-0360,web,14.0,336,0,centre bore
+1121-0014-0360,web,4.0,344,-16,from the web's centreline
+1121-0014-0360,web,4.0,344,-8,from the web's centreline
+1121-0014-0360,web,4.0,344,8,from the web's centreline
+1121-0014-0360,web,4.0,344,16,from the web's centreline
+1121-0014-0360,web,4.0,352,-16,from the web's centreline
+1121-0014-0360,web,4.0,352,-8,from the web's centreline
+1121-0014-0360,web,4.0,352,8,from the web's centreline
+1121-0014-0360,web,4.0,352,16,from the web's centreline
