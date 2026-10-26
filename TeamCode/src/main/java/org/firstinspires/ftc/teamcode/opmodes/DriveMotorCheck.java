@@ -7,7 +7,7 @@ import com.pedropathing.drivetrain.DrivePowers;
 import com.pedropathing.revhub.drivetrains.Mecanum;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.VoltageSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -56,7 +56,7 @@ import java.util.Locale;
  * one it cannot see: roller orientation, weight balance, or the floor.
  */
 @Configurable
-@TeleOp(name = "Drive Motor Check", group = "Diagnostics")
+@Utility(name = "Drive Motor Check", description = "Each drive wheel's RPM and current, lifted; find a weak or miswired motor")
 public class DriveMotorCheck extends LinearOpMode {
 
     /** Power for every step. Full power is where the arc showed up. */
@@ -114,7 +114,7 @@ public class DriveMotorCheck extends LinearOpMode {
             line("LIFT THE ROBOT: all four wheels off the ground before PLAY.");
             line("Robot: " + robot.fileName() + "   Battery: " + batteryText());
             line("");
-            line("Hand-turn check: press A to zero, then turn each wheel ONE full turn.");
+            line("Hand-turn check: press Cross (A) to zero, then turn each wheel ONE full turn.");
             line("The sizes should match (the sign may differ). One that differs in size");
             line("has a different gearbox ratio from the others.");
             for (int i = 0; i < 4; i++) {

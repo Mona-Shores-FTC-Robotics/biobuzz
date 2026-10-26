@@ -5,20 +5,36 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
+import org.firstinspires.ftc.robotcore.internal.system.AppUtil;
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.controls.Bindings;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.Handoff;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
+import org.firstinspires.ftc.teamcode.hardware.ActiveConfig;
+import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
+import org.firstinspires.ftc.teamcode.logging.GamepadLog;
+import org.firstinspires.ftc.teamcode.logging.MatchLog;
+import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
+import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
+import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
+import java.io.File;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * The base class for every OpMode that runs the robot. It owns the loop, so your OpMode is only
@@ -50,6 +66,12 @@ import java.util.List;
  *       this same loop, not the next one.</li>
  *   <li><b>The Driver Station page.</b> See {@link Display}: Back/Share on gamepad 1 cycles Match,
  *       Controls and Robot.</li>
+ *   <li><b>The Panels Field view.</b> The robot's pose from {@code robot.drive}, drawn through
+ *       {@link FieldView} at the throttle's rate (about 10 Hz) and skipped without a Pinpoint. Every
+ *       OpMode on this class gets it for free; an OpMode that draws more (a camera's opinion of the
+ *       pose, a target) draws into the same view in {@code onLoop()} and sends it, and this send then
+ *       finds nothing to do that loop.</li>
+ *   <li><b>The match log.</b> See {@link #log}: this loop's state goes to the background writer.</li>
  * </ol>
  *
  * <p>{@code init_loop()} does the same with {@link #onInitLoop()}, except that bindings are not
@@ -74,6 +96,18 @@ import java.util.List;
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
  * camera checks the placement ({@link StartCheck}): a confirmed placement is also what confirms the
  * alliance from vision.
+ *
+ * <h2>The match log</h2>
+ *
+ * <p>Every run writes a {@code .wpilog} to {@code /sdcard/FIRST/logs/}, which AdvantageScope
+ * opens. <b>One file per match</b>: an Autonomous pauses its log when it stops, and the TeleOp
+ * that follows (the one that receives its handoff) continues the same file, so Auto, the break and
+ * TeleOp share one timeline. A TeleOp on its own starts its own file; see {@link MatchLogFiles}. It
+ * records match state, alliance, both gamepads, the pose, loop time, battery voltage and events
+ * (init, PLAY, alliance changes, slow loops, stop), with no code in the OpMode. Add anything else
+ * with {@code log.put("/Shooter/LeftRPM", rpm)} or {@code log.event("...")}. The loop only copies
+ * numbers; a background thread writes the file, and a logging failure never stops the robot. See
+ * {@link MatchLog}.
  *
  * <h2>Why the scheduler is always on</h2>
  *
@@ -101,14 +135,41 @@ public abstract class RobotOpMode extends OpMode {
     /** The Driver Station screen. Use it to write the Match page in {@link #onLoop()}. */
     protected Display display;
 
+    /**
+     * The Panels Field view, in Pedro coordinates, drawn by this class every loop (throttled; see
+     * {@link FieldView#shouldDraw()}). Null when Panels could not provide one at init, in which case
+     * nothing is drawn and the robot runs on regardless.
+     */
+    private FieldView fieldView;
+
     /** The alliance, settled during INIT and locked at PLAY. Read {@code setup.alliance()}. */
     protected final MatchSetup setup = new MatchSetup();
+
+    /**
+     * This run's match log. Already records the match state, gamepads, pose and loop time; add
+     * more with {@code log.put(key, value)} and {@code log.event(text)}. Opened before the robot is
+     * built, so a robot that fails to build still leaves a file saying why.
+     */
+    protected MatchLog log = MatchLog.disabled("not started");
+
+    /** A loop longer than this is an event in the log, with its time. */
+    private static final double SLOW_LOOP_EVENT_MS = 80.0;
+    /** Battery voltage is a hub command, not bulk-read data, so it is read this often, not every loop. */
+    private static final long BATTERY_EVERY_MS = 1000;
+    /** How long stop() waits for the log's last writes before leaving the writer to finish alone. */
+    private static final long LOG_CLOSE_WAIT_MS = 300;
+
+    /** This run's match ID: when the match's first OpMode started, inherited through the handoff. */
+    private String matchId;
+    private VoltageSensor battery;
+    private long lastBatteryNs;
+    private Alliance loggedAlliance;
+    private MatchSetup.Source loggedSource;
 
     private List<LynxModule> hubs;
     private boolean prevPageButton;
 
     /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
-    private boolean poseFromAuto;
     private Display.Level handoffLevel;
     private String handoffNote;
 
@@ -118,7 +179,10 @@ public abstract class RobotOpMode extends OpMode {
 
     /**
      * Where this OpMode expects the robot to start, from {@code StartPositions}. Autonomous
-     * overrides it; null (the default) means no declared start and no start check.
+     * overrides it; null (the default) means no declared start and no start check. It is read at
+     * init and again every INIT loop, so an Auto whose start depends on the alliance returns the
+     * matching one; return the same instance while nothing has changed, since a different instance
+     * moves the pose and restarts the start check.
      */
     protected StartPosition startPosition() {
         return null;
@@ -148,6 +212,15 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init() {
         display = new Display(telemetry);
+        openLog();
+        // Once, here: the view is a handle on Panels' shared field, not something to look up per
+        // loop. A dashboard failure is not a robot failure, so it is allowed to be absent.
+        try {
+            fieldView = FieldView.pedroCoordinates();
+        } catch (RuntimeException e) {
+            fieldView = null;
+            log.event("field view unavailable: " + e);
+        }
 
         // Before the robot is built, so no read anywhere — constructors included — bypasses it.
         hubs = hardwareMap.getAll(LynxModule.class);
@@ -155,8 +228,17 @@ public abstract class RobotOpMode extends OpMode {
             hubs.get(i).setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
         }
 
-        robot = new Robot(hardwareMap);
-        robot.initialize();
+        try {
+            robot = new Robot(hardwareMap);
+            robot.initialize();
+        } catch (RuntimeException e) {
+            // Still thrown: the Driver Station shows it. The log keeps it for after the match.
+            log.event("init failed: " + e);
+            throw e;
+        }
+        // Optional by design: a configuration with no voltage sensor logs no battery voltage.
+        Iterator<VoltageSensor> sensors = hardwareMap.voltageSensor.iterator();
+        battery = sensors.hasNext() ? sensors.next() : null;
         receiveHandoff();
         declaredStart = startPosition();
         if (declaredStart != null) {
@@ -177,19 +259,33 @@ public abstract class RobotOpMode extends OpMode {
     @Override
     public final void init_loop() {
         clearBulkCache();
+        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
+        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
+        // The declared start may follow the alliance (BuiltAuto: the drawing's start, or the
+        // rotated one). When it changes, the pose moves there and the fix statistics restart.
+        StartPosition wanted = startPosition();
+        if (wanted != declaredStart) {
+            declaredStart = wanted;
+            if (wanted != null) {
+                robot.drive.setPose(wanted.pose);
+                log.event("Start: now declaring " + wanted);
+            }
+        }
         StartCheck.Result startCheck = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
-        if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
-        if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
         }
         startCheck.describe(display);
+        driver.updateDuringInit();
+        operator.updateDuringInit();
         onInitLoop();
         Scheduler.execute();
         finishPage();
+        drawField();
+        recordLoop(MatchLog.Mode.DISABLED, Double.NaN);
     }
 
     @Override
@@ -199,13 +295,19 @@ public abstract class RobotOpMode extends OpMode {
         driver.prime();
         operator.prime();
         if (!isAutonomous()) {
+            // Field-centric forward: the driver's "away from me" when the pose is on the field
+            // (handed over from Autonomous, or seeded by the camera in INIT) and that heading has
+            // been measured for the alliance; otherwise the way the robot faces now.
             double forward = FieldFrame.driverForwardHeading(setup.alliance());
-            if (poseFromAuto && !Double.isNaN(forward)) {
+            if (robot.drive.poseReferenced() && !Double.isNaN(forward)) {
                 robot.drive.setFieldForward(forward);
+                log.event("PLAY: field forward = driver forward");
             } else {
                 robot.drive.resetHeading();
+                log.event("PLAY: field forward = robot's facing");
             }
         }
+        log.event("PLAY: " + setup.alliance() + " alliance");
         onStart();
     }
 
@@ -216,21 +318,76 @@ public abstract class RobotOpMode extends OpMode {
         beginPage();
         driver.update();
         operator.update();
+        long t0 = System.nanoTime();
         onLoop();
+        long t1 = System.nanoTime();
         Scheduler.execute();
+        long t2 = System.nanoTime();
         finishPage();
+        drawField();
+        long t3 = System.nanoTime();
+        recordLoop(isAutonomous() ? MatchLog.Mode.AUTONOMOUS : MatchLog.Mode.TELEOP, loopTimer.lastMs());
+        long t4 = System.nanoTime();
+        costs.record(t0, t1, t2, t3, t4);
+    }
+
+    /**
+     * Where a loop's time goes, so a slow loop can be blamed on the right thing: the OpMode's own
+     * {@code onLoop()} (its drive request, Match page and Panels), the subsystems' updates through
+     * the Scheduler (sensors, the camera, the localizer, every mechanism), the Controls or Robot
+     * page together with the Panels Field view, and the match log. Shown on the Robot page and
+     * written to the match log under {@code /Loop/...}. The bulk-cache clear and the bindings run
+     * before the first stamp and are microseconds.
+     */
+    protected final LoopCosts costs = new LoopCosts();
+
+    /** Running means of the loop's phases, ms. Allocated once; nothing per loop. */
+    protected final class LoopCosts {
+        private final WelfordVariance onLoopMs = new WelfordVariance();
+        private final WelfordVariance subsystemsMs = new WelfordVariance();
+        private final WelfordVariance pageMs = new WelfordVariance();
+        private final WelfordVariance logMs = new WelfordVariance();
+        private double lastOnLoopMs, lastSubsystemsMs, lastPageMs, lastLogMs;
+
+        void record(long t0, long t1, long t2, long t3, long t4) {
+            lastOnLoopMs = (t1 - t0) / 1e6;
+            lastSubsystemsMs = (t2 - t1) / 1e6;
+            lastPageMs = (t3 - t2) / 1e6;
+            lastLogMs = (t4 - t3) / 1e6;
+            onLoopMs.update(lastOnLoopMs);
+            subsystemsMs.update(lastSubsystemsMs);
+            pageMs.update(lastPageMs);
+            logMs.update(lastLogMs);
+            log.put("/Loop/OnLoopMs", lastOnLoopMs);
+            log.put("/Loop/SubsystemsMs", lastSubsystemsMs);
+            log.put("/Loop/PageMs", lastPageMs);
+            log.put("/Loop/LogMs", lastLogMs);
+        }
+
+        public double onLoopMs() { return onLoopMs.mean(); }
+        public double subsystemsMs() { return subsystemsMs.mean(); }
+        public double pageMs() { return pageMs.mean(); }
+        public double logMs() { return logMs.mean(); }
+
+        /** One line for the Robot page. */
+        public String summary() {
+            return String.format(java.util.Locale.US,
+                    "mean: onLoop %.1f · subsystems %.1f · page %.1f · log %.1f ms",
+                    onLoopMs.mean(), subsystemsMs.mean(), pageMs.mean(), logMs.mean());
+        }
     }
 
     @Override
     public final void stop() {
         onStop();
 
-        if (isAutonomous() && robot != null) {
+        boolean handedOff = isAutonomous() && robot != null;
+        if (handedOff) {
             // Only a field pose is worth handing on. An Auto with no declared start knows where
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, System.currentTimeMillis());
+            Handoff.record(setup.alliance(), pose, matchId, log, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -240,6 +397,35 @@ public abstract class RobotOpMode extends OpMode {
             robot.stop();
         }
         Scheduler.reset();
+        if (handedOff) {
+            // The file stays open for the TeleOp that follows; unclaimed, it closes by itself.
+            log.pause("OpMode stopped: " + opModeName(), Handoff.MAX_AGE_MS);
+        } else {
+            log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
+        }
+    }
+
+    /**
+     * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
+     * pose. Gated on the throttle, so on most loops this is one boolean read; skipped when the
+     * drive has no heading (no Pinpoint), since then there is no pose to draw. The publish is
+     * caught and swallowed: telemetry never takes a mechanism down.
+     */
+    private void drawField() {
+        if (fieldView == null || !robot.drive.hasHeading()) {
+            return;
+        }
+        try {
+            if (fieldView.shouldDraw()) {
+                Pose pose = robot.drive.pose();
+                if (pose != null) {
+                    fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
+                }
+                fieldView.send();
+            }
+        } catch (RuntimeException ignored) {
+            // Panels is a window onto the robot, not part of it.
+        }
     }
 
     /** Page button edge, then the header — so the OpMode's Match lines land under it. */
@@ -269,7 +455,6 @@ public abstract class RobotOpMode extends OpMode {
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
-            poseFromAuto = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
@@ -297,14 +482,22 @@ public abstract class RobotOpMode extends OpMode {
         display.header();
         if (page == Display.Page.CONTROLS) {
             display.section("BEFORE PLAY — either gamepad");
-            display.line("X — Blue alliance");
-            display.line("B — Red alliance");
-            display.line("Back/Share — next page (any time)");
+            display.line("Square (X) — Blue alliance");
+            display.line("Circle (B) — Red alliance");
+            display.line("Share (Back) — next page (any time)");
             describeBindings(driver);
             describeBindings(operator);
         } else {
             display.section("Loop");
             display.line(loopTimer.summary());
+            display.line(costs.summary());
+            display.section("Log");
+            if (log.failure() != null) {
+                display.status("Log", Display.Level.WARN, log.failure());
+            } else {
+                display.line(log.name() + " · " + log.framesWritten() + " loops written"
+                        + (log.droppedLoops() > 0 ? " · " + log.droppedLoops() + " dropped" : ""));
+            }
             List<Subsystem> subsystems = robot.subsystems();
             for (int i = 0; i < subsystems.size(); i++) {
                 Subsystem subsystem = subsystems.get(i);
@@ -323,6 +516,130 @@ public abstract class RobotOpMode extends OpMode {
         for (int i = 0; i < labels.size(); i++) {
             display.line(labels.get(i));
         }
+    }
+
+    /** Opens this run's log file. Never throws: a log that cannot open is disabled and says why. */
+    private void openLog() {
+        String name = opModeName();
+        long nowMs = System.currentTimeMillis();
+
+        // One file per match: a TeleOp that follows an Autonomous carries on writing the file
+        // that Autonomous paused (the same handoff receiveHandoff() reads later).
+        Handoff.Snapshot handoff = isAutonomous() ? null : Handoff.fresh(nowMs);
+        if (handoff != null && handoff.log != null && handoff.log.resume()) {
+            log = handoff.log;
+            matchId = handoff.matchId;
+            log.event("OpMode init: " + name + " · continues match " + matchId);
+            return;
+        }
+
+        // A new file: this OpMode starts the match (an Autonomous, or a TeleOp on its own).
+        matchId = handoff != null && handoff.matchId != null ? handoff.matchId : MatchLogFiles.matchId(nowMs);
+        Map<String, String> metadata = new LinkedHashMap<>();
+        metadata.put("MatchId", matchId);
+        metadata.put("OpMode", name);
+        metadata.put("OpModeClass", getClass().getName());
+        String config = ActiveConfig.name();
+        metadata.put("RobotConfig", config == null ? "(none active)" : config);
+        File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER);
+        File file = MatchLogFiles.next(folder, matchId, name);
+        // A local, not a field: the clock outlives this OpMode when TeleOp continues the file.
+        final long startNs = System.nanoTime();
+        log = MatchLog.toFile(file, "BIOBUZZ match " + matchId, metadata,
+                () -> (System.nanoTime() - startNs) / 1000L);
+        log.event("OpMode init: " + name + " · match " + matchId);
+    }
+
+    /** This loop's state into the log, then hand it to the writer. Copies numbers only. */
+    private void recordLoop(MatchLog.Mode mode, double loopMs) {
+        Alliance alliance = setup.alliance();
+        MatchSetup.Source source = setup.source();
+        if (alliance != loggedAlliance || source != loggedSource) {
+            log.event("Alliance " + alliance + " (" + source + ")");
+            loggedAlliance = alliance;
+            loggedSource = source;
+        }
+        long station = alliance == Alliance.UNKNOWN ? 0
+                : AdvantageScopeKeys.allianceStation(alliance == Alliance.RED, 1);
+        log.match(mode, station);
+        copyGamepad(gamepad1, log.gamepad1());
+        copyGamepad(gamepad2, log.gamepad2());
+        Pose pose = robot.drive.pose();
+        if (pose != null) {
+            log.pose(pose.x(), pose.y(), pose.heading());
+            log.put("/Odometry/Referenced", robot.drive.poseReferenced() ? 1 : 0);
+        }
+        // The keys #181 asks for, so a real match log compares with the simulator's.
+        log.put("/Intake/TicksPerSecond", robot.intake.ticksPerSecond());
+        double intakeAmps = robot.intake.currentAmps();
+        if (!Double.isNaN(intakeAmps)) {
+            log.put("/Intake/CurrentAmps", intakeAmps);
+        }
+        // The launcher's speed loop and the feeder, so a log shows what the wheels did at each shot.
+        log.put("/Launcher/TargetTicksPerSecond", robot.launcher.isSpinning() ? robot.launcher.target() : 0.0);
+        log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
+        log.put("/Launcher/RightTicksPerSecond", robot.launcher.rightTicksPerSecond());
+        log.put("/Launcher/AtSpeed", robot.launcher.atSpeed() ? 1 : 0);
+        double leftAmps = robot.launcher.leftCurrentAmps();
+        double rightAmps = robot.launcher.rightCurrentAmps();
+        if (!Double.isNaN(leftAmps)) {
+            log.put("/Launcher/LeftCurrentAmps", leftAmps);
+        }
+        if (!Double.isNaN(rightAmps)) {
+            log.put("/Launcher/RightCurrentAmps", rightAmps);
+        }
+        log.put("/Feeder/Power", robot.feeder.power());
+        log.put("/Feeder/TicksPerSecond", robot.feeder.ticksPerSecond());
+        double feederAmps = robot.feeder.currentAmps();
+        if (!Double.isNaN(feederAmps)) {
+            log.put("/Feeder/CurrentAmps", feederAmps);
+        }
+        if (!Double.isNaN(loopMs)) {
+            log.loopMs(loopMs);
+            if (loopMs > SLOW_LOOP_EVENT_MS) {
+                log.event(String.format(Locale.US, "slow loop: %.0f ms", loopMs));
+            }
+        }
+        long now = System.nanoTime();
+        if (battery != null && now - lastBatteryNs >= BATTERY_EVERY_MS * 1_000_000L) {
+            log.put("/Robot/BatteryVolts", battery.getVoltage());
+            lastBatteryNs = now;
+        }
+        log.commit();
+    }
+
+    /** The SDK's gamepad into the log's plain copy of it. */
+    private static void copyGamepad(Gamepad from, GamepadLog.State to) {
+        to.a = from.a;
+        to.b = from.b;
+        to.x = from.x;
+        to.y = from.y;
+        to.back = from.back;
+        to.guide = from.guide;
+        to.start = from.start;
+        to.leftStickButton = from.left_stick_button;
+        to.rightStickButton = from.right_stick_button;
+        to.leftBumper = from.left_bumper;
+        to.rightBumper = from.right_bumper;
+        to.dpadUp = from.dpad_up;
+        to.dpadDown = from.dpad_down;
+        to.dpadLeft = from.dpad_left;
+        to.dpadRight = from.dpad_right;
+        to.touchpad = from.touchpad;
+        to.leftStickX = from.left_stick_x;
+        to.leftStickY = from.left_stick_y;
+        to.rightStickX = from.right_stick_x;
+        to.rightStickY = from.right_stick_y;
+        to.leftTrigger = from.left_trigger;
+        to.rightTrigger = from.right_trigger;
+    }
+
+    /** The name the Driver Station lists, or the class name if the annotation leaves it blank. */
+    private String opModeName() {
+        TeleOp teleOp = getClass().getAnnotation(TeleOp.class);
+        Autonomous auto = getClass().getAnnotation(Autonomous.class);
+        String name = teleOp != null ? teleOp.name() : auto != null ? auto.name() : "";
+        return name.isEmpty() ? getClass().getSimpleName() : name;
     }
 
     /** Index loop, not for-each: this runs every loop and must not allocate an iterator. */

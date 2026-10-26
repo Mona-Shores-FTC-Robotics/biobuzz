@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes.calibration;
 
 import com.bylazar.configurables.annotations.Configurable;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.vision.CameraMount;
@@ -38,7 +38,7 @@ import org.firstinspires.ftc.teamcode.vision.HiveCell;
  * offset in the dashboard, but the class was annotated with neither
  * {@code @Config} nor {@code @Configurable}, so the field never appeared.)
  */
-@TeleOp(name = "Vision: Sighting Diagnostics", group = "Vision")
+@Utility(name = "Vision: Sighting Diagnostics", description = "Range, bearing and height of every CELL in view, for the tape-measure checks")
 @Configurable
 public class VisionSightingDiagnostics extends RobotOpMode {
 

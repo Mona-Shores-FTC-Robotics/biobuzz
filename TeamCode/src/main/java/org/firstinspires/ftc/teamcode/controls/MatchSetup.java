@@ -94,7 +94,7 @@ public final class MatchSetup {
         String lock = locked ? " · locked" : "";
         if (!known(chosen)) {
             display.status("Alliance", Display.Level.FAULT,
-                    locked ? "NONE — was not chosen before PLAY" : "NONE — press X for blue, B for red");
+                    locked ? "NONE — was not chosen before PLAY" : "NONE — press Square (X) for blue, Circle (B) for red");
         } else if (hasDisagreement()) {
             display.status("Alliance", Display.Level.WARN,
                     chosen + " (" + label(source()) + ") — but " + dissent() + lock);

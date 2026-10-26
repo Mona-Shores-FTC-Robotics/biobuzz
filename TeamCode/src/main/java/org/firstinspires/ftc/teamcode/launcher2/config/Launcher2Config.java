@@ -4,8 +4,8 @@ package org.firstinspires.ftc.teamcode.launcher2.config;
  * The whole tunable surface of the two-wheel launcher rig — one object, so
  * Panels renders it as a single tree under {@code Launcher2}.
  *
- * <p>Copied from the three-wheel rig's {@code FlywheelTuningConfig} and cut
- * down to one motor. The rig's two motors share a port through a Y-cable, so
+ * <p>Copied from the DECODE three-wheel rig's tuning tree (since removed) and
+ * cut down to one motor. The rig's two motors share a port through a Y-cable, so
  * there is one power, one encoder and one set of gains; see
  * {@code robot_launcher_rig.xml}. Left out, and why:
  *
