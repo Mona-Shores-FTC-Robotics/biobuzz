@@ -1328,6 +1328,27 @@ how it copes with the adb states described above. Decided in #214. `tools/advant
 the laptop's AdvantageScope up once: the robot drawn from its CAD (`cad/advantagescope/`, from the
 simulator branch) and a match layout.
 
+### What a log says about itself
+
+The 25 Oct 2026 logs from 20245 had to be read three ways round: which code ran was worked out
+from where the robot parked (PARK had moved that afternoon), a launcher that "never reached speed"
+was a launcher that was not on the robot, and the last runs were on a battery nobody knew was
+flat. Each is now a line in the file, on AdvantageScope's Metadata tab or in `/Events`:
+
+| Line | What | Where it comes from |
+|---|---|---|
+| `Build`, `GitCommit`, `GitBranch` | the commit the APK was built from, `-dirty` if the tree had uncommitted edits, and its branch | `TeamCode/build.gradle` stamps them into `BuildConfig`; `logging/BuildStamp` reads them. A Sloth Load rebuilds `BuildConfig` with the rest, so the stamp follows what was loaded |
+| `Hardware/<Subsystem>` | what each subsystem found at init: Pinpoint present or its fault, the Limelight answering or not, the turret zeroed or not | each subsystem's `health()`. **The hub cannot tell an empty motor or servo port from a stalled mechanism**, so a motor-only subsystem says "presence unknown until it moves" and never "present" |
+| event `intake: commanded for 1.0 s, encoder never moved`, `launcher: …` | a mechanism asked to move whose encoder never did | `logging/MotionWatch` for the intake and feeder; the launcher's own `fault()` |
+| `BatteryAtInit`, event `battery low: …`, event `PLAY: battery …` | the battery at INIT (warned on the INIT page below 12.0 V, nearly empty at rest) and at PLAY | `RobotOpMode` |
+| `Tunable/<Class>.<field>` | every Panels knob's value at PLAY, so the run can be repeated | `logging/Tunables`, by reflection over its list; `TunablesTest` keeps the list equal to the `@Configurable` classes outside the benches |
+| `AutoSource`, `AutoDrawnFor`, `AutoPlaceholders` | which `.pp` drawing ran, for which alliance, and which of its waits were on placeholder triggers | `BuiltAuto` |
+| `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg`, `Zeroed`, `Holding` | the turret, every loop | `RobotOpMode`, beside the launcher's and feeder's keys |
+
+`MatchLog.metadata(key, value)` is how anything learned after the file opened gets on the Metadata
+tab; a key sent again shows its latest value. It is for facts, not series: anything that changes
+during a run is a channel or an event.
+
 ## The Panels stack: seeing data and changing values at a meeting
 
 **The decision, 24 Sep 2026: Panels is the whole dashboard.** Sloth, Pedro, Ivy and Panels; no

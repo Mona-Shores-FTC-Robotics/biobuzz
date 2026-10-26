@@ -322,6 +322,13 @@ public class LauncherSubsystem implements Subsystem {
     }
 
     @Override
+    public String health() {
+        String fault = fault();
+        return "motors configured (" + layout + "); presence unknown until they spin"
+                + (fault != null ? "; " + fault : "");
+    }
+
+    @Override
     public void describe(Display display) {
         String fault = fault();
         if (fault != null) {

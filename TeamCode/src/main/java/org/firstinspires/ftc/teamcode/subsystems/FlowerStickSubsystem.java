@@ -70,6 +70,11 @@ public class FlowerStickSubsystem implements Subsystem {
     public void stop() {
     }
 
+    @Override
+    public String health() {
+        return "servo configured; presence unknown (a servo reports nothing back)";
+    }
+
     /**
      * Clamps a Panels-editable position to [0, 1], and treats NaN as 0. A typo in Panels should
      * leave the stick in, never command the servo past its travel or send NaN.

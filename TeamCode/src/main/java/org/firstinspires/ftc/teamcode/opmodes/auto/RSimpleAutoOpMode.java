@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RSimpleAuto;
 @Autonomous(name = "Auto: R-Simple", group = "Auto")
 public class RSimpleAutoOpMode extends BuiltAuto {
     public RSimpleAutoOpMode() {
-        super(RSimpleAuto.COMMANDS, RSimpleAuto.TRIGGERS, RSimpleAuto.DRAWN_FOR,
+        super(RSimpleAuto.SOURCE, RSimpleAuto.COMMANDS, RSimpleAuto.TRIGGERS, RSimpleAuto.DRAWN_FOR,
                 RSimpleAuto::startPose, RSimpleAuto::build);
     }
 }
