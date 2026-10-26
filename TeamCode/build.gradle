@@ -90,8 +90,39 @@ tasks.named('dexSloth') {
     }
 }
 
+// Which code this is. The git commit, branch and whether the tree had uncommitted changes when
+// it was built go into BuildConfig, and from there into every match log's metadata
+// (logging/BuildStamp; TeamCode/README.md § "Match logs"). The 25 Oct 2026 logs had to be dated
+// by where the robot parked. "unknown" when git is not available (a zip download). BuildConfig is
+// compiled with the rest of TeamCode, so a Sloth Load carries the stamp of what it loaded.
+def gitStamp = { ->
+    def run = { List<String> command ->
+        try {
+            def process = command.execute(null, project.rootDir)
+            def out = process.text.trim()
+            return process.waitFor() == 0 ? out : null
+        } catch (Exception ignored) {
+            return null
+        }
+    }
+    def commit = run(['git', 'rev-parse', '--short=10', 'HEAD']) ?: 'unknown'
+    def branch = run(['git', 'rev-parse', '--abbrev-ref', 'HEAD']) ?: 'unknown'
+    def status = run(['git', 'status', '--porcelain', '--untracked-files=no'])
+    return [commit: commit, branch: branch, dirty: status != null && !status.isEmpty()]
+}()
+
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
+
+    buildFeatures {
+        buildConfig true
+    }
+
+    defaultConfig {
+        buildConfigField 'String', 'GIT_COMMIT', "\"${gitStamp.commit}\""
+        buildConfigField 'String', 'GIT_BRANCH', "\"${gitStamp.branch}\""
+        buildConfigField 'boolean', 'GIT_DIRTY', "${gitStamp.dirty}"
+    }
 
     packagingOptions {
         jniLibs.useLegacyPackaging true

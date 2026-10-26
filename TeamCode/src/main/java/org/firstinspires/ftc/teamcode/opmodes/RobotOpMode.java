@@ -20,6 +20,10 @@ import org.firstinspires.ftc.teamcode.logging.AdvantageScopeKeys;
 import org.firstinspires.ftc.teamcode.logging.GamepadLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.logging.MatchLogFiles;
+import org.firstinspires.ftc.teamcode.logging.BuildStamp;
+import org.firstinspires.ftc.teamcode.logging.MotionWatch;
+import org.firstinspires.ftc.teamcode.logging.Tunables;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -175,6 +179,16 @@ public abstract class RobotOpMode extends OpMode {
 
     private StartPosition declaredStart;
 
+    /** Below this at INIT the battery is reported, on the INIT page and in the log: 12.0 V resting is nearly empty. */
+    static final double LOW_BATTERY_VOLTS = 12.0;
+    /** The INIT page's battery warning, null when the battery read fine or there is no sensor. */
+    private String batteryNote;
+
+    // A mechanism asked to move whose encoder never does: one event each, from the log alone.
+    private final MotionWatch intakeWatch = new MotionWatch("intake");
+    private final MotionWatch feederWatch = new MotionWatch("feeder");
+    private String loggedLauncherFault;
+
     // ------------------------------------------------------------------ hooks
 
     /**
@@ -253,6 +267,24 @@ public abstract class RobotOpMode extends OpMode {
             Scheduler.schedule(subsystems.get(i).periodic());
         }
 
+        // What each subsystem found, on the log's Metadata tab: the one place that says whether
+        // the Pinpoint answered, the camera is connected and the turret was zeroed. Motors cannot
+        // be known this way; MotionWatch catches one that is commanded and never moves.
+        for (int i = 0; i < subsystems.size(); i++) {
+            String health = subsystems.get(i).health();
+            if (health != null) {
+                log.metadata("Hardware/" + subsystems.get(i).getClass().getSimpleName(), health);
+            }
+        }
+        if (battery != null) {
+            double volts = battery.getVoltage();
+            log.metadata("BatteryAtInit", String.format(Locale.US, "%.2f V", volts));
+            if (volts < LOW_BATTERY_VOLTS) {
+                batteryNote = String.format(Locale.US, "%.2f V at INIT, below %.1f V: swap it", volts, LOW_BATTERY_VOLTS);
+                log.event("battery low: " + batteryNote);
+            }
+        }
+
         onInit();
     }
 
@@ -277,6 +309,9 @@ public abstract class RobotOpMode extends OpMode {
         beginPage();
         if (handoffNote != null) {
             display.status("Start", handoffLevel, handoffNote);
+        }
+        if (batteryNote != null) {
+            display.status("Battery", Display.Level.WARN, batteryNote);
         }
         startCheck.describe(display);
         driver.updateDuringInit();
@@ -308,6 +343,11 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
+        if (battery != null) {
+            log.event(String.format(Locale.US, "PLAY: battery %.2f V", battery.getVoltage()));
+        }
+        // Every Panels tunable as it stands now, so the log can be reproduced. Once, at PLAY.
+        Tunables.snapshot(log);
         onStart();
     }
 
@@ -541,6 +581,10 @@ public abstract class RobotOpMode extends OpMode {
         metadata.put("OpModeClass", getClass().getName());
         String config = ActiveConfig.name();
         metadata.put("RobotConfig", config == null ? "(none active)" : config);
+        // Which code this is, so a log can be matched to a commit (and a wrong-branch install shows).
+        metadata.put("Build", BuildStamp.describe());
+        metadata.put("GitCommit", BuildStamp.commit());
+        metadata.put("GitBranch", BuildStamp.branch());
         File folder = new File(AppUtil.FIRST_FOLDER, MatchLogFiles.LOGS_FOLDER);
         File file = MatchLogFiles.next(folder, matchId, name);
         // A local, not a field: the clock outlives this OpMode when TeleOp continues the file.
@@ -594,13 +638,31 @@ public abstract class RobotOpMode extends OpMode {
         if (!Double.isNaN(feederAmps)) {
             log.put("/Feeder/CurrentAmps", feederAmps);
         }
+        // The turret: where it points, where it was asked to, and whether anyone zeroed it.
+        log.put("/Turret/AngleDeg", robot.turret.angleDegrees());
+        log.put("/Turret/TargetDeg", robot.turret.targetDegrees());
+        log.put("/Turret/ErrorDeg", robot.turret.errorDegrees());
+        log.put("/Turret/Zeroed", robot.turret.zeroed() ? 1 : 0);
+        log.put("/Turret/Holding", robot.turret.holding() ? 1 : 0);
+        long now = System.nanoTime();
+        // A mechanism asked to move that never does, as one event: the only way a match log can
+        // learn a motor is absent, since the hub cannot tell an empty port from a stalled motor.
+        String launcherFault = robot.launcher.fault();
+        if (launcherFault != null && !launcherFault.equals(loggedLauncherFault)) {
+            log.event("launcher: " + launcherFault);
+        }
+        loggedLauncherFault = launcherFault;
+        String stalled = intakeWatch.check(robot.intake.state() != IntakeSubsystem.State.IDLE,
+                robot.intake.ticksPerSecond(), now);
+        if (stalled != null) log.event(stalled);
+        stalled = feederWatch.check(robot.feeder.power() != 0.0, robot.feeder.ticksPerSecond(), now);
+        if (stalled != null) log.event(stalled);
         if (!Double.isNaN(loopMs)) {
             log.loopMs(loopMs);
             if (loopMs > SLOW_LOOP_EVENT_MS) {
                 log.event(String.format(Locale.US, "slow loop: %.0f ms", loopMs));
             }
         }
-        long now = System.nanoTime();
         if (battery != null && now - lastBatteryNs >= BATTERY_EVERY_MS * 1_000_000L) {
             log.put("/Robot/BatteryVolts", battery.getVoltage());
             lastBatteryNs = now;

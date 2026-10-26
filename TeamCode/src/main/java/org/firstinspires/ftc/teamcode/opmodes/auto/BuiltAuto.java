@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
+import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 import java.util.ArrayList;
@@ -23,8 +24,8 @@ import java.util.function.Function;
  * &#64;Autonomous(name = "Auto: Hive Rush", group = "Auto")
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
- *         super(HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS, HiveRushAuto.DRAWN_FOR,
- *                 HiveRushAuto::startPose, HiveRushAuto::build);
+ *         super(HiveRushAuto.SOURCE, HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS,
+ *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build);
  *     }
  * }
  * </pre>
@@ -46,6 +47,14 @@ import java.util.function.Function;
  * placeholders (a command that finishes at once, a trigger that never fires), and INIT says so on
  * the Driver Station: the Auto then runs as a timed script, every such wait running to its limit.
  *
+ * <p><b>The intake runs for the whole Auto.</b> The Autos are drawn the way the simulator plays
+ * them: the roller is on whenever the robot has room for a piece, and a "catch" step is the robot
+ * standing in the right place with the roller turning until {@code IntakeFull} or the step's time
+ * limit. No card turns the intake on or off, so the drawing and the simulator need none. PLAY
+ * starts it ({@link #intakeRequest}); the OpMode's stop idles it. Until the intake counts what it
+ * holds (#181) "has room" is always true and the roller runs the full thirty seconds; once it
+ * counts, the same rule stops the roller at {@link #MAX_HELD} and {@code IntakeFull} ends the wait.
+ *
  * <p>The trace (each card starting, each wait ending and why, the guard's decisions) goes to the
  * match log as events and the last few lines to the Match page. The paths go to the match log too
  * ({@link AutoPathLog}): the declared start as the target during INIT, the whole plan once the
@@ -57,6 +66,11 @@ public abstract class BuiltAuto extends RobotOpMode {
     /** How many of the Auto's latest trace lines the Match page shows. */
     private static final int TRACE_LINES = 4;
 
+    /** The most pieces a robot may hold (BIOBUZZ G407): the intake has room below this. */
+    public static final int MAX_HELD = 4;
+
+    /** The {@code .pp} file in {@code TeamCode/autos/} this Auto was exported from; in the log's metadata. */
+    private final String source;
     private final String[] commands;
     private final String[] triggers;
     private final String drawnFor;
@@ -76,8 +90,9 @@ public abstract class BuiltAuto extends RobotOpMode {
     /** The start last written as the log's target, so INIT writes it only when it changes. */
     private StartPosition targetWritten;
 
-    protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
+    protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
+        this.source = source;
         this.commands = commands;
         this.triggers = triggers;
         this.drawnFor = drawnFor;
@@ -111,6 +126,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         }
         robot.drive.preparePathFollowing();
         pathLog = new AutoPathLog(log);
+        // Which drawing this was, and which of its waits were running on placeholders.
+        log.metadata("AutoSource", source);
+        log.metadata("AutoDrawnFor", drawnFor);
+        log.metadata("AutoPlaceholders", placeholders.isEmpty() ? "none" : String.join(", ", placeholders));
     }
 
     @Override
@@ -146,6 +165,16 @@ public abstract class BuiltAuto extends RobotOpMode {
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();
+        // The intake does not count pieces yet (#181), so it holds none as far as the code knows.
+        if (intakeRequest(0) == IntakeSubsystem.State.IN) robot.intake.intake();
+    }
+
+    /**
+     * What the Auto asks of the intake while it runs: in while the robot has room, idle once it
+     * holds {@link #MAX_HELD}. The one place the "intake on whenever there is room" rule is written.
+     */
+    static IntakeSubsystem.State intakeRequest(int held) {
+        return held < MAX_HELD ? IntakeSubsystem.State.IN : IntakeSubsystem.State.IDLE;
     }
 
     @Override

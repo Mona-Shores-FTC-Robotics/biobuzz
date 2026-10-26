@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.SisterRightFixedAut
 @Autonomous(name = "Auto: Sister right", group = "Auto")
 public class SisterRightFixedAutoOpMode extends BuiltAuto {
     public SisterRightFixedAutoOpMode() {
-        super(SisterRightFixedAuto.COMMANDS, SisterRightFixedAuto.TRIGGERS, SisterRightFixedAuto.DRAWN_FOR,
-                SisterRightFixedAuto::startPose, SisterRightFixedAuto::build);
+        super(SisterRightFixedAuto.SOURCE, SisterRightFixedAuto.COMMANDS, SisterRightFixedAuto.TRIGGERS,
+                SisterRightFixedAuto.DRAWN_FOR, SisterRightFixedAuto::startPose, SisterRightFixedAuto::build);
     }
 }
