@@ -48,6 +48,8 @@ public final class MatchLog {
     public static final int MAX_EVENTS_PER_LOOP = 8;
     /** Pose sets ({@link #poses}, {@link #pose(String, double, double, double)}) one loop can carry. */
     public static final int MAX_POSE_SETS_PER_LOOP = 8;
+    /** Metadata lines one loop can carry: PLAY writes every tunable at once. More are counted as dropped. */
+    public static final int MAX_METADATA_PER_LOOP = 160;
     /** Frames in flight between the loop and the writer: about 1.3 s of loops at 50 Hz. */
     public static final int FRAMES = 64;
     /** How often the writer flushes (and syncs a file): the most a brownout can lose. */
@@ -95,6 +97,10 @@ public final class MatchLog {
         final double[][] poseSets = new double[MAX_POSE_SETS_PER_LOOP][];
         final boolean[] poseSetIsArray = new boolean[MAX_POSE_SETS_PER_LOOP];
         int poseSetCount;
+        /** Metadata lines this loop ({@link #metadata}): key and value, written at time 0. */
+        final String[] metadataKeys = new String[MAX_METADATA_PER_LOOP];
+        final String[] metadataValues = new String[MAX_METADATA_PER_LOOP];
+        int metadataCount;
         /** True for the last frame: the writer closes the file after it. */
         boolean last;
 
@@ -109,6 +115,11 @@ public final class MatchLog {
                 poseSets[i] = null;
             }
             poseSetCount = 0;
+            for (int i = 0; i < metadataCount; i++) {
+                metadataKeys[i] = null;
+                metadataValues[i] = null;
+            }
+            metadataCount = 0;
         }
     }
 
@@ -316,6 +327,23 @@ public final class MatchLog {
         }
     }
 
+    /**
+     * A line on AdvantageScope's Metadata tab ({@code /RealMetadata/key}), for a fact learned after
+     * the file was opened: what a subsystem found at init, a tunable's value at PLAY, which Auto
+     * drawing ran. Written at time 0 like the metadata the file opened with, so the tab shows it
+     * whatever the timeline position; a key sent again shows its latest value. Not for anything
+     * that changes during a run: that is a {@link #put channel} or an {@link #event}.
+     */
+    public void metadata(String key, String value) {
+        if (frame.metadataCount < MAX_METADATA_PER_LOOP) {
+            int i = frame.metadataCount++;
+            frame.metadataKeys[i] = key;
+            frame.metadataValues[i] = value == null ? "" : value;
+        } else {
+            droppedEvents++;
+        }
+    }
+
     /** Hands this loop's frame to the writer and starts the next. Never waits. */
     public void commit() {
         if (!isLogging()) {
@@ -510,6 +538,9 @@ public final class MatchLog {
             }
             if (!Double.isNaN(f.loopMs)) {
                 log.put("/Robot/LoopMs", f.loopMs, us);
+            }
+            for (int i = 0; i < f.metadataCount; i++) {
+                log.putMetadata(f.metadataKeys[i], f.metadataValues[i]);
             }
             for (int i = 0; i < f.channelCount; i++) {
                 log.put(channelNames[f.channels[i]], f.values[i], us);

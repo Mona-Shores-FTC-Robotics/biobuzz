@@ -264,6 +264,13 @@ public class TurretSubsystem implements Subsystem {
     }
 
     @Override
+    public String health() {
+        return "servo configured; encoder read through " + DeviceNames.TURRET_ENCODER_HOST
+                + "; zeroed at init: " + (zeroed() ? "yes" : "no (zeroHere() was not called)")
+                + (settingsProblem != null ? "; settings: " + settingsProblem : "");
+    }
+
+    @Override
     public void describe(Display display) {
         if (settingsProblem != null) {
             display.status("Turret", Display.Level.FAULT, settingsProblem);

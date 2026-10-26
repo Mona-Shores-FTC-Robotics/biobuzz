@@ -125,4 +125,17 @@ public interface Subsystem {
      */
     default void describe(Display display) {
     }
+
+    /**
+     * One line on what this subsystem found when it was built and initialized, for the match
+     * log's Metadata tab: the device that answered, the fault a fallback is covering, or what
+     * cannot be known. The hub cannot tell an empty motor or servo port from a stalled mechanism,
+     * so a subsystem that is only motors says so ("configured; presence unknown until it moves")
+     * rather than claiming it is there. Read once by {@code RobotOpMode}, after init.
+     *
+     * <p>Optional — null says nothing.
+     */
+    default String health() {
+        return null;
+    }
 }
