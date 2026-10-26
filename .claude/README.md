@@ -34,6 +34,16 @@ is a different thing and works fine; this is only about what a session can reach
 allow-list entry for `gh ...` would be dead weight. All GitHub access goes through the GitHub MCP
 tools, which is why the read side of those is allow-listed above.
 
+## `hooks/`
+
+| Hook | What it does |
+|---|---|
+| `session-start.sh` | Installs `gh` in remote containers, which ship without it. |
+
+*History:* until 17 Oct 2026 a `name-branch-before-push.sh` hook blocked a session's first push of a
+`claude/*` branch until it renamed it `<prefix>/<issue>-<slug>`. It went with the issue-first rule for
+mentor work (CONTRIBUTING.md, "How we work"): a session's branch name no longer has to say anything.
+
 ## `skills/`
 
 | Skill | Use it for |

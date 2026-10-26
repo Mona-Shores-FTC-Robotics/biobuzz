@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.eventloop.opmode.Utility;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareDevice;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -35,7 +37,7 @@ import java.util.TreeSet;
  * <p>Reports during init, so you do not have to press play. The report goes
  * to Panels ({@code http://192.168.43.1:8001}) and the Driver Station together.
  */
-@TeleOp(name = "Validate Hardware", group = "Diagnostics")
+@Utility(name = "Validate Hardware", description = "Every device the active config expects, and whether it answered")
 public class ValidateHardware extends LinearOpMode {
 
     /**
@@ -176,6 +178,11 @@ public class ValidateHardware extends LinearOpMode {
                         "WRONG TYPE - is " + actualType + ", needs " + required.getSimpleName());
                 problems.add(expected.name + " is configured as " + actualType
                         + " but the code uses it as a " + required.getSimpleName() + ".");
+            } else if (expected.kind == DeviceNames.Kind.ETHERNET) {
+                // The SDK builds an Ethernet device from the config alone, so being here
+                // proves the config, not the cable.
+                data(expected.name, "configured - " + actualType + " (whether it answers: the"
+                        + " Link line in any Vision OpMode)");
             } else {
                 data(expected.name, "ok - " + actualType);
             }
@@ -213,6 +220,11 @@ public class ValidateHardware extends LinearOpMode {
                 return DcMotorEx.class;
             case SERVO:
                 return Servo.class;
+            case CR_SERVO:
+                return CRServo.class;
+            case ETHERNET:
+                // The only Ethernet device SDK 12 builds (HardwareFactory.mapEthernetOverUsb).
+                return Limelight3A.class;
             default:
                 // I2C covers many unrelated driver classes; presence plus the
                 // reported concrete type is the useful signal, not an

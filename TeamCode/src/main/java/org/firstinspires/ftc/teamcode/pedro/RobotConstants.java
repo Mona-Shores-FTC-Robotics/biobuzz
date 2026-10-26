@@ -19,8 +19,9 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * literals. Both robots have the same names, so a per-robot copy of those lines is a place for one
  * robot's names to drift from the other's and from the {@code res/xml} configs. The constructor
  * overwrites every name from {@link DeviceNames}, so whatever a robot file says, the names are the
- * shared ones — and {@code PedroRobotsTest} fails the build if a pasted name line is left in a
- * robot file, so the file doesn't claim something that isn't true.
+ * shared ones. The tuners' name lines may stay in a robot file, so a block can be pasted verbatim;
+ * {@code PedroRobotsTest} fails the build only if one names something other than
+ * {@link DeviceNames} does, so a file never claims a name the robot isn't using.
  */
 public final class RobotConstants {
 

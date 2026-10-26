@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!--
+  Robot configuration for the BIOBUZZ launcher bench.
+
+  THIS IS NOT A ROBOT. It is a spare Control Hub with the launcher's two
+  flywheel modules and the feeder on it, before they are bolted to a chassis.
+  It exists so the launcher's numbers (which way it is wired, the speed each
+  piece leaves at, how long the feeder runs) can be found at a bench while
+  the build team has the robots.
+
+  Like the robot configs, it ships inside the APK and appears in the Driver
+  Station list as "robot_launcher_bench" as soon as the app is installed. The
+  one manual step, once per hub: on the bench's Driver Station,
+  Configure Robot -> robot_launcher_bench -> Activate. The Launcher Bench
+  OpMode warns if some other configuration is active.
+
+  WIRING, as the bench was built on 24 Oct 2026 - read before changing:
+    feeder    motor port 1: BOTH feeder motors on one Y cable
+    launcher  motor port 2: BOTH flywheel motors on one Y cable, one encoder
+                            in encoder port 2 (only one of the pair can be)
+  A Y cable means software sees ONE motor per port: every command reaches
+  both motors, and the speed read is whichever motor's encoder is plugged
+  in. The wheels turning opposite ways comes from how the motors are
+  mounted and wired, not from code. If both wheels turn the same way, that
+  is a wiring fix; no software setting can separate them. There is no
+  per-wheel trim on this rig for the same reason.
+
+  This differs from the robots, where launcher_left and launcher_right each
+  have their own port and encoder (Expansion Hub 1 and 2, feeder on 3).
+
+  Device names here must match org.firstinspires.ftc.teamcode.hardware.DeviceNames
+  (the LAUNCHER_BENCH list). RobotConfigXmlTest fails the build if they disagree.
+-->
+<Robot type="FirstInspires-FTC">
+    <LynxUsbDevice name="Control Hub Portal" serialNumber="(embedded)" parentModuleAddress="173">
+        <LynxModule name="Control Hub" port="173">
+
+            <!-- Both feeder motors, Y-cabled to one port. -->
+            <goBILDA5202SeriesMotor name="feeder"   port="1" />
+
+            <!-- Both flywheel motors, Y-cabled to one port; one encoder. -->
+            <goBILDA5202SeriesMotor name="launcher" port="2" />
+
+        </LynxModule>
+    </LynxUsbDevice>
+</Robot>

@@ -17,6 +17,9 @@ has its `.pp` file committed here, in the same PR as the Java generated from it.
   bar).
 - **The file carries the robot's size and motion settings.** They time the preview and the park
   guard's seconds in the Java, so the same `.pp` exports the same Java on any laptop.
+- **Each Auto gets a five-line OpMode** in `opmodes/auto/`, `<Class>OpMode extends BuiltAuto`
+  (see `BuiltAuto`'s javadoc), which is what the Driver Station lists. The generated class itself
+  is not an OpMode.
 
 ## Opening a committed Auto from a link
 

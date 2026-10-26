@@ -49,9 +49,9 @@ import java.util.function.Supplier;
  * <p>Each tuner ends on a page of generated Java whose first line is
  * {@code public static <Type> <field> = ...}. Paste it over the field of that name in
  * <b>the file of the robot you ran it on</b> — {@code Robot19429.java} for 19429,
- * {@code Robot20245.java} for 20245 — then delete any {@code ...Name.set("...")} lines it
- * brought with it. Device names are shared, and {@link RobotConstants} sets them from
- * {@link DeviceNames}; {@code PedroRobotsTest} fails the build if one is left behind.
+ * {@code Robot20245.java} for 20245 — exactly as the tuner shows it, name lines included.
+ * Device names are shared, and {@link RobotConstants} sets them from {@link DeviceNames} regardless;
+ * {@code PedroRobotsTest} fails the build only if a pasted name differs from {@link DeviceNames}.
  *
  * <h2>Adding a robot: one file plus one line</h2>
  *

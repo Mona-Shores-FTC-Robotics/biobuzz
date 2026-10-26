@@ -66,7 +66,7 @@ public final class Display {
     /** The first line of every page: where you are and how to move on. */
     public void header() {
         telemetry.addLine("<b>" + page.title + "</b>  <small>(" + (page.ordinal() + 1)
-                + "/" + PAGES.length + " · Back/Share for next page)</small>");
+                + "/" + PAGES.length + " · Share (Back) for next page)</small>");
     }
 
     /** A bold heading. */

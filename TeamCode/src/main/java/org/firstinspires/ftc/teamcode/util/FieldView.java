@@ -10,6 +10,10 @@ import com.bylazar.field.PanelsField;
  *
  * <p>Open it at {@code http://192.168.43.1:8001} and pick the Field plugin.
  *
+ * <p>Every OpMode on {@code RobotOpMode} already draws the robot through this, once per throttle
+ * interval, after its subsystems update. Create your own only to draw more than the robot (a
+ * second pose, a target, a path), and draw it in {@code onLoop()} with the gated shape below.
+ *
  * <h2>Why this exists rather than calling Pedro's drawing helper</h2>
  *
  * <p>Pedro's {@code Drawing} class, and the {@code Follower.telemetryDebug()} that uses it, are
@@ -29,14 +33,19 @@ import com.bylazar.field.PanelsField;
  * and flip; only the centre differs, by 1.25 in. Without this the drawn robot sits that far off
  * where the robot is, which is exactly the kind of small frame disagreement nobody spots.
  *
- * <h2>The throttle, which will bite you if you ignore it</h2>
+ * <h2>The throttle, and why every draw is gated on it</h2>
  *
  * <p>{@code FieldManager.update()} only sends when at least {@code canvasUpdateInterval}
- * milliseconds have passed — 100 ms by default, so 10 Hz. When it is not time yet, it returns
- * having done <b>nothing at all</b>, and that includes not clearing the canvas. Shapes added since
- * the last send stay in the list. So a 200 Hz loop that draws unconditionally piles twenty copies
- * of the robot into one canvas and ships them together, which costs bandwidth and looks like a
- * smear on the field.
+ * milliseconds have passed — 100 ms by default, so 10 Hz. Whether or not it sends, it then clears
+ * the canvas: {@code update()} is "send if it is time, then reset". So a loop that draws every
+ * time and calls {@code update()} every time still shows one robot, the one from whichever loop
+ * the send landed on. What it wastes is the drawing: at 200 Hz, nineteen canvases in twenty are
+ * built, cleared and never seen.
+ *
+ * <p>That is the reason for the gate. CLAUDE.md's loop-time rule is that nothing is done per loop
+ * that does not need doing, and building a canvas that will not transmit is exactly that. The
+ * other reason the gate matters is that it is how the base class and an OpMode's own drawing share
+ * one canvas: see {@code RobotOpMode#drawField()}.
  *
  * <p>{@link #shouldDraw()} is the guard. The three-line shape to copy:
  *
@@ -47,8 +56,18 @@ import com.bylazar.field.PanelsField;
  * }
  * }</pre>
  *
- * <p>Drawing is skipped entirely on most loops, which is also why field view costs almost nothing
- * in {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ * <p>Drawing is skipped entirely on most loops, which is why field view costs almost nothing in
+ * {@code LoopTimeBaseline}'s numbers — the expensive loop is one in twenty.
+ *
+ * <p><b>History note, 25 Oct 2026.</b> This section used to say that a skipped {@code update()}
+ * "does nothing at all, and that includes not clearing the canvas", so an ungated draw piled
+ * twenty robots into one canvas and shipped a smear. The library does not do that. Checked by
+ * disassembling {@code com.bylazar:field:1.0.10}, the module {@code fullpanels:1.0.19} pulls in
+ * ({@code javap -p -c com/bylazar/field/FieldManager.class}): {@code update()} sends, stamps
+ * {@code lastUpdate} and copies the canvas into {@code lastCanvas} only when
+ * {@code getShouldUpdateCanvas()} is true, and then unconditionally calls {@code canvas.reset()}
+ * and zeroes the cursor. The Sloth fork {@code 0.3.2+1.0.7} the old text was written against
+ * disassembles the same way. The gate was right; the stated reason was not.
  *
  * <h2>The background is already the right one</h2>
  *
@@ -107,7 +126,8 @@ public final class FieldView {
     /**
      * Whether the next {@link #send()} would actually transmit.
      *
-     * <p>Gate all drawing on this. See the class comment for what happens if you do not.
+     * <p>Gate all drawing on this, so the loops that will not transmit do no drawing work. See the
+     * class comment.
      */
     public boolean shouldDraw() {
         return field.getShouldUpdateCanvas();
@@ -121,7 +141,17 @@ public final class FieldView {
      * @param heading field heading in radians, Pedro's frame
      */
     public void drawRobot(double x, double y, double heading) {
-        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), PanelsField.INSTANCE.getBLUE(), 1.0);
+        drawRobot(x, y, heading, PanelsField.INSTANCE.getBLUE());
+    }
+
+    /**
+     * {@link #drawRobot(double, double, double)} in another colour, for a second opinion of where
+     * the robot is (the camera's, say) drawn over the first.
+     *
+     * @param outlineColour a CSS colour, e.g. {@code "#FFB300"}
+     */
+    public void drawRobot(double x, double y, double heading, String outlineColour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
         field.moveCursor(x, y);
         field.circle(robotRadius);
 
@@ -146,6 +176,13 @@ public final class FieldView {
         field.line(FieldFrame.FIELD_CENTRE_INCHES, FieldFrame.FIELD_CENTRE_INCHES + 4.0);
     }
 
+    /** A line between two field points, for a bearing, a ray or a path segment. */
+    public void drawLine(double x1, double y1, double x2, double y2, String colour) {
+        field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), colour, 1.0);
+        field.moveCursor(x1, y1);
+        field.line(x2, y2);
+    }
+
     /** Marks a point — a path target, a detected game element, wherever you were aiming. */
     public void drawMarker(double x, double y, double radius, String outlineColour) {
         field.setStyle(PanelsField.INSTANCE.getTRANSPARENT(), outlineColour, 1.0);
@@ -153,7 +190,7 @@ public final class FieldView {
         field.circle(radius);
     }
 
-    /** Sends the canvas and clears it, if the throttle allows. */
+    /** Sends the canvas if the throttle allows, then clears it either way. */
     public void send() {
         field.update();
     }
