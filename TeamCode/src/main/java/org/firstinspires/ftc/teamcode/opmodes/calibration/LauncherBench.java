@@ -229,6 +229,8 @@ public class LauncherBench extends OpMode {
                 panels.addData("right_amps", launcher.rightCurrentAmps());
             }
             panels.addData("at_speed", launcher.atSpeed() ? 1.0 : 0.0);
+            panels.addData("shots", launcher.shots());
+            panels.addData("last_shot_dip_tps", launcher.lastShotDipTicksPerSecond());
             panels.addData("feeder_power", feeder.power());
             panels.addData("feeder_tps", feeder.ticksPerSecond());
             panels.addData("feeder_amps", feeder.currentAmps());

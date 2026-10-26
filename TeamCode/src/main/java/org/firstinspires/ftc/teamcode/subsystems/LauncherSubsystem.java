@@ -42,6 +42,17 @@ import java.util.Locale;
  * {@link #encoderFaultAfterMs} is cut and reported on the Match page; {@link #spinDown()} clears
  * the fault so a fixed cable can be tried again without restarting.
  *
+ * <h2>Shots are counted from the speed dip</h2>
+ *
+ * <p>A piece meeting the wheels pulls their speed down and the loop pulls it back. That dip is the
+ * one thing the launcher can see of a shot without a sensor, so {@link ShotDetector} counts one
+ * shot per dip: the wheels were at speed, fell at least {@link #shotDipTicksPerSecond} below target,
+ * and came back within tolerance. Spin-up is not a dip (the wheels were never at speed), a wobble
+ * inside the threshold is not a dip, and a target change re-arms the detector so a Panels nudge is
+ * not a shot. The count and the last dip's depth go to the Robot page, Panels and the match log; a
+ * student writes hit or miss next to each row afterwards. That is how #80's speed-vs-distance
+ * table gets its rows. It is a measurement, never a gate: nothing here waits for it.
+ *
  * <p>Nothing here is measured yet. The directions, the starting setpoint and the tolerance are
  * {@code @Configurable} so the bench sets them in Panels; the values that work get written back
  * here with the robot they were checked on.
@@ -86,6 +97,13 @@ public class LauncherSubsystem implements Subsystem {
     public static double atSpeedHoldMs = 150.0;
 
     /**
+     * How far below its target a wheel must fall, from at speed, for the dip to count as a shot,
+     * ticks per second. <b>A starting point, not measured:</b> read the real dip off the Panels
+     * graph on the first shots and set this to about half of it.
+     */
+    public static double shotDipTicksPerSecond = 150.0;
+
+    /**
      * Flips the left wheel so that a positive command throws a piece out. <b>Not yet checked on a
      * robot:</b> {@code false} is the SDK's default direction, not a fact about the wiring. The two
      * modules are mirror images, so expect exactly one of the pair to need flipping.
@@ -127,6 +145,9 @@ public class LauncherSubsystem implements Subsystem {
     private boolean rightFault;
     private final AtSpeedTimer readiness = new AtSpeedTimer();
     private boolean atSpeed;
+    private final ShotDetector shots = new ShotDetector();
+    private double lastLeftTarget = Double.NaN;
+    private double lastRightTarget = Double.NaN;
 
     /** The robot's launcher: looks both motors up once. A missing motor fails init with the SDK's own message. */
     public LauncherSubsystem(HardwareMap hardwareMap) {
@@ -159,6 +180,7 @@ public class LauncherSubsystem implements Subsystem {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
             readiness.reset();
+            shots.reset();
         }
         state = State.SPINNING;
     }
@@ -180,6 +202,7 @@ public class LauncherSubsystem implements Subsystem {
         leftFault = false;
         rightFault = false;
         readiness.reset();
+        shots.reset();
         atSpeed = false;
     }
 
@@ -199,6 +222,31 @@ public class LauncherSubsystem implements Subsystem {
      */
     public boolean atSpeed() {
         return atSpeed;
+    }
+
+    /** Shots counted from speed dips since this OpMode started (class comment). Not cleared by {@link #spinDown()}. */
+    public int shots() {
+        return shots.shots();
+    }
+
+    /** True in the loop after a shot was counted, for a once-per-shot log line. */
+    public boolean shotJustDetected() {
+        return shots.justCounted();
+    }
+
+    /** How far below target the slower wheel fell on the last counted shot, ticks per second; NaN before the first. */
+    public double lastShotDipTicksPerSecond() {
+        return shots.lastDipTicksPerSecond();
+    }
+
+    /** The common target in force on the last counted shot, ticks per second; NaN before the first. */
+    public double lastShotTargetTicksPerSecond() {
+        return shots.lastTargetTicksPerSecond();
+    }
+
+    /** True while the wheels are down in a dip that has not yet recovered: a piece in the wheels, or a jam. */
+    public boolean inDip() {
+        return shots.inDip();
     }
 
     /** The common speed in force, ticks per second: {@link #targetTicksPerSecond} clamped the way the wheels get it. */
@@ -304,6 +352,10 @@ public class LauncherSubsystem implements Subsystem {
                     && Math.abs(leftTicksPerSecond - leftTarget) <= toleranceTicksPerSecond
                     && Math.abs(rightTicksPerSecond - rightTarget) <= toleranceTicksPerSecond;
             atSpeed = readiness.update(within, now, atSpeedHoldMs);
+            // A target change (Panels nudge, a table lookup) re-arms the detector: not a shot.
+            if (leftTarget != lastLeftTarget || rightTarget != lastRightTarget) shots.reset();
+            shots.update(deficit(leftTarget, leftTicksPerSecond, rightTarget, rightTicksPerSecond),
+                    within, target(), shotDipTicksPerSecond);
         } else {
             left.setPower(0.0);
             if (right != null) right.setPower(0.0);
@@ -311,6 +363,8 @@ public class LauncherSubsystem implements Subsystem {
             rightCurrentAmps = Double.NaN;
             atSpeed = false;
         }
+        lastLeftTarget = leftTarget;
+        lastRightTarget = rightTarget;
     }
 
     /** Cut power. Safe to call whether or not {@link #initialize()} ran. */
@@ -350,12 +404,23 @@ public class LauncherSubsystem implements Subsystem {
                     Double.isNaN(rpm) ? "" : String.format(Locale.US, " (%.0f rpm)", rpm),
                     Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                             : String.format(Locale.US, "%.1f A (both motors)", leftCurrentAmps)));
+            display.line(shotsLine());
             return;
         }
         display.line(String.format(Locale.US, "Wheels L %.0f / R %.0f ticks/s%s · %s",
                 leftTicksPerSecond, rightTicksPerSecond, rpmSuffix(),
                 Double.isNaN(leftCurrentAmps) ? "current not read while idle"
                         : String.format(Locale.US, "L %.1f / R %.1f A", leftCurrentAmps, rightCurrentAmps)));
+        display.line(shotsLine());
+    }
+
+    /** The shot count and the last dip, for the Robot page and the bench. */
+    public String shotsLine() {
+        int n = shots.shots();
+        String last = n == 0 ? "no shots yet"
+                : String.format(Locale.US, "last dip %.0f ticks/s below a %.0f target",
+                        shots.lastDipTicksPerSecond(), shots.lastTargetTicksPerSecond());
+        return String.format(Locale.US, "Shots %d · %s%s", n, last, shots.inDip() ? " · IN A DIP" : "");
     }
 
     private String rpmSuffix() {
@@ -399,9 +464,91 @@ public class LauncherSubsystem implements Subsystem {
         return nonNegative(nonNegative(common) + (Double.isNaN(trim) ? 0.0 : trim));
     }
 
+    /**
+     * How far below target the slower wheel is, ticks per second: the larger of the two wheels'
+     * shortfalls, so one wheel dragged down by a piece shows even if the other holds. Negative when
+     * both are over target. Pure, so a test can check it.
+     */
+    static double deficit(double leftTarget, double leftMeasured, double rightTarget, double rightMeasured) {
+        return Math.max(leftTarget - leftMeasured, rightTarget - rightMeasured);
+    }
+
     /** Clamps a Panels-editable speed to [0, ∞) and treats NaN as 0: a typo spins down, never backwards. */
     static double nonNegative(double value) {
         return value > 0.0 ? value : 0.0;
+    }
+
+    /**
+     * Counts shots from speed dips (class comment): armed once the wheels are within tolerance,
+     * a dip starts when the deficit reaches the threshold, and the shot is counted when the wheels
+     * are back within tolerance, with the deepest point of the dip. A dip that never recovers (a
+     * jam, or a spin-down) is never counted. Pure, so a test can drive it with made-up readings.
+     */
+    static final class ShotDetector {
+        private boolean armed;
+        private boolean inDip;
+        private double deepest;
+        private double dipTarget;
+        private int shots;
+        private double lastDip = Double.NaN;
+        private double lastTarget = Double.NaN;
+        private boolean justCounted;
+
+        /**
+         * Feed this loop's reading. {@code deficit} is how far below target the slower wheel is,
+         * {@code within} whether both wheels are inside the at-speed tolerance, {@code target} the
+         * common target in force. Returns true in the loop a shot is counted.
+         */
+        boolean update(double deficit, boolean within, double target, double dipThreshold) {
+            justCounted = false;
+            if (within) {
+                if (inDip) {
+                    shots++;
+                    lastDip = deepest;
+                    lastTarget = dipTarget;
+                    inDip = false;
+                    justCounted = true;
+                }
+                armed = true;
+                return justCounted;
+            }
+            if (inDip) {
+                if (deficit > deepest) deepest = deficit;
+            } else if (armed && deficit >= dipThreshold) {
+                inDip = true;
+                deepest = deficit;
+                dipTarget = target;
+            }
+            return false;
+        }
+
+        /** Forget the arming and any dip in progress; the count and the last shot stay. */
+        void reset() {
+            armed = false;
+            inDip = false;
+            deepest = 0.0;
+            justCounted = false;
+        }
+
+        int shots() {
+            return shots;
+        }
+
+        boolean justCounted() {
+            return justCounted;
+        }
+
+        boolean inDip() {
+            return inDip;
+        }
+
+        double lastDipTicksPerSecond() {
+            return lastDip;
+        }
+
+        double lastTargetTicksPerSecond() {
+            return lastTarget;
+        }
     }
 
     /**
