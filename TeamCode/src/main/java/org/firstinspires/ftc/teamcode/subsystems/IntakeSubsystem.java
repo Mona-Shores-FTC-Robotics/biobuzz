@@ -155,6 +155,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     @Override
+    public String health() {
+        return "roller motor and star servo configured; presence unknown until they move";
+    }
+
+    @Override
     public void describe(Display display) {
         display.status("Intake", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.IN ? "IN · stars turning" : state == State.OUT ? "OUT · stars stopped" : "idle");

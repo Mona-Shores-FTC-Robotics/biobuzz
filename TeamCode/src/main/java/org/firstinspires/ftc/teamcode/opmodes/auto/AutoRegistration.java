@@ -35,7 +35,8 @@ import java.util.function.BooleanSupplier;
  * lists them, {@link BuiltAuto} shows the list on the Driver Station at INIT, and each one goes
  * when its mechanism lands:
  * <ul>
- *   <li>{@code IntakeFull}: the intake, counting pieces (#181).</li>
+ *   <li>{@code IntakeFull}: the intake, counting pieces (#181). The roller itself already runs
+ *       for the whole Auto ({@link BuiltAuto}); only the count is missing.</li>
  *   <li>{@code LeftCellUp}, {@code RightCellUp}: which CELL is up as the drive team sees it;
  *       needs the left/right naming of the CELLs (#114) and the HIVE tracker (#173).</li>
  * </ul>
