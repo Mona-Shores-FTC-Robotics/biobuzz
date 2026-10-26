@@ -95,8 +95,9 @@ are off (`LocalizationTuning.continuousFixes`) until a measurement shows they he
 never moves the driver's field-centric forward. Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
-`HiveFieldPoints`, `StartPositions`, `FieldFrame` and `LocalizationTuning` hold measured field
-facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
+`HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
+checked against the field once; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
+measured field facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
 
 **Autos from the Visualizer.** A generated Auto lives in `opmodes/auto/generated/`, and its `.pp`

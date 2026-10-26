@@ -269,7 +269,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             java.util.List<CellSighting.Member> members = sighting.members();
             for (int m = 0; m < members.size(); m++) { // index loop: no iterator per loop
                 CellSighting.Member member = members.get(m);
-                // Only a measured field point may move the pose; a derived one may only be aimed at.
+                // Every settled row has a CAD field point (HiveFieldPoints); an unsettled CELL gives none.
                 Vec3 field = HiveFieldPoints.tagPositionForFix(member.tagId, state);
                 if (field == null || tagCount >= tagFieldX.length) continue;
                 tagFieldX[tagCount] = field.x();
@@ -600,10 +600,6 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         } else {
             display.status("Pose", Display.Level.WARN,
                     "not field-referenced — no start, handoff or camera seed yet");
-        }
-        if (!HiveFieldPoints.anyMeasured()) {
-            display.line("<small>Camera off: HIVE field points not measured</small>");
-            return;
         }
         display.line("<small>Camera pose: " + cameraPoseNote + "</small>");
         if (wouldCount > 0) {
