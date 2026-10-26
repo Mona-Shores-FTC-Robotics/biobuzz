@@ -1,7 +1,8 @@
 # Print now: the 2.0 in mountain blade and the poker U, twice (for whoever prints)
 
 **`stl/print_job_next2.stl`**, 173 x 201 mm, three parts: `stl/mountain_wide_2in.stl` (the mountain blade with Carter's lane at
-7.9 in wide and its tail cut off 2.0 in behind the lip, 203 x 52 x 18 mm, 93 cm3, **7.15 mm hex bore, flats top and bottom**)
+7.9 in wide and its tail cut off 2.0 in behind the lip, 51 x 201 x 15 mm, 89 cm3, **the same 7.15 mm hex bore as the full blade,
+flats top and bottom**; the first print of this one had the loose 8.6 mm bore by mistake and dropped through the shaft: reprint it)
 flat side down, and two poker U's standing on their back walls: `stl/poker_u.stl` (85 x 104 x 60 mm, 75 cm3) and
 `stl/poker_u_hi.stl` (85 x 104 x 46 mm, 66 cm3). The two U's are the same part for two heights of the intake's front channel,
 which the CAD gives two answers for (5.6 and 6.55 in above the tile with the intake down); the robot decides, and the other is
