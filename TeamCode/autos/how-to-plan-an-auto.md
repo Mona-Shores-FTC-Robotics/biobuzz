@@ -4,9 +4,10 @@ A one-page guide to planning an Autonomous in our
 [Visualizer](https://mona-shores-ftc-robotics.github.io/Visualizer/). You need a laptop and a
 browser. No login, no Android Studio. (Phones don't work.)
 
-**For now you're planning only:** spots, routes and timing. The robot can't run your Auto yet. That
-waits on the drive being tuned and the launcher and intake being built. Make a good plan and save
-it. Exporting Java comes later.
+**Plan first:** spots, routes and timing. Since 25 Oct 2026 the robot drives what the Visualizer
+draws (20245 ran R-Simple and R-Quals that night; 19429 follows once its drive is tuned), but the
+launcher and intake are not yet measured, so the preview's timings are estimates. Make a good plan
+and save it. Exporting Java is a step you do with a mentor, see the [README](README.md).
 
 ## 1. Open the sample
 
@@ -72,10 +73,14 @@ On a path card:
 
 Use **↑ ↓** to reorder a card, **Duplicate** to copy it, **✕ Delete** to remove it.
 
-**Commands the robot knows today:** `LaunchAll`. **Triggers:** `Tip` (our HIVE started to tip) and
-`IntakeFull` (holding 4 POLLEN). There's no "intake on" command, because the robot collects on its
-own whenever it isn't full or launching. Need something else? Add it in **Setup**, and tell a
-mentor, since that's a request for new robot code.
+**Commands the robot knows today:** `SpinUp`, `LaunchAll`, `LaunchOne`. **Triggers:** `Tip` (our
+HIVE tipped since the wait began), `Empty` (the launcher has fired everything), `CameraBlind` (no
+HIVE tag seen for half a second), `IntakeFull` (holding 4 pieces), `LeftCellUp` and `RightCellUp`
+(which of our CELLs is up). The last three are placeholders until their mechanism lands, and the
+Driver Station lists them at INIT. The full list is `AutoRegistration` in the code, and the
+editor loads the same list. There's no "intake on" command, because the robot collects on its own
+whenever it isn't full or launching. Need something else? Add it in **Setup**, and tell a mentor,
+since that's a request for new robot code.
 
 ## 6. Follow the rules
 
