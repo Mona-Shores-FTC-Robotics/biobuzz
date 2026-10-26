@@ -349,7 +349,7 @@ wait for TIP 2's spill to land changes:
 **What it costs: G409.** A shorter wait means driving into a spill that is still landing. The wall partner's Auto
 goes from 16 to 32 touched runs, and partner shoots from 8 to 16. **Withdrawn as baselines, 14 Oct 2026:** the
 Q&A's Q17 makes every touch a violation and Q23 makes a routine one STRATEGIC (`doc/game/qa-review.md`), so a
-wait that touches the spill in half the runs is a foul machine, not a 5-point gain. The longer waits stand until
+wait that touches the spill in half the runs collects warnings, then a YELLOW CARD, not a 5-point gain. The longer waits stand until
 a retune at G409 = 0.
 
 ## Shoot while extracting (6 Oct 2026, 60 runs)
@@ -773,7 +773,9 @@ leave the robot (set down or launched) are no longer CONTROLled, but herding a p
 - **The official Q&A outranks our reading of the manual.** `doc/game/qa-review.md` holds every answer and what it
   changed (14 Oct 2026); `python3 tools/game-qa/qa.py` prints the board today. Three rulings every chat works
   under since then:
-  - **A G409 touch is a foul, every time** (Q17), and a routine one is STRATEGIC (Q23). A touched run is a problem
+  - **A G409 touch is a violation, every time** (Q17), and a routine one is STRATEGIC (Q23): a YELLOW CARD, and
+    a second card in the phase is a RED CARD (the match lost). It carries no points; G407 is the one with the
+    20-point MAJOR FOUL. A touched run is a problem
     run, the same as a collision. No wait, spot or front is chosen by trading touches for points.
   - **No MOMENTARY exception for G407 or G408** (Q3, Q4, Q23). Nothing may be designed to take a fifth piece or an
     opponent NECTAR and give it back: the intake stops before the fifth, streaming goes through the turret with at

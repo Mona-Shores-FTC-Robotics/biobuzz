@@ -75,7 +75,8 @@ About 10 runs end with 3 whatever the front is: pieces lost over the centre line
    rig first.
 3. **Hold at most 4 pieces, physically** (G407: herding counts as control), and **stop the intake before a fifth is
    CONTROLLED**: there is no MOMENTARY exception, and take-and-reverse by design is STRATEGIC (Q&A Q3, Q23, 14 Oct).
-4. **Never touch a falling piece** (G409: a touch is a foul every time, Q17; routine touches are STRATEGIC, Q23), so
+4. **Never touch a falling piece** (G409: a touch is a violation every time, Q17; routine touches are STRATEGIC and
+   a YELLOW CARD, Q23), so
    the catch spot and the front stay outside the landing area, and never wait under the HIVE.
 5. Everything the current robot already does: the turret is fast enough (it never added more than 0.36 s of waiting),
    firing rate is not the limit, and the drive speed stays about where the routes are timed.
