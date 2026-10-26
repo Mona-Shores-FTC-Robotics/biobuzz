@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem.AtSpeedTimer;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem.ShotDetector;
 import org.junit.Test;
 
 /**
@@ -98,5 +99,87 @@ public class LauncherSubsystemTest {
     public void rpmReusesTheIntakesRule() {
         assertEquals(60.0, IntakeSubsystem.rpm(28.0, 28.0), EPS);
         assertEquals(Double.NaN, IntakeSubsystem.rpm(28.0, Double.NaN), EPS);
+    }
+
+    // ---------------------------------------------------------------- shots from the speed dip
+
+    private static final double TARGET = 1500.0;
+    private static final double DIP = 150.0;
+
+    /** One loop of the detector at a measured speed, both wheels the same, tolerance 60. */
+    private static boolean at(ShotDetector d, double measured) {
+        double deficit = LauncherSubsystem.deficit(TARGET, measured, TARGET, measured);
+        boolean within = Math.abs(measured - TARGET) <= 60.0;
+        return d.update(deficit, within, TARGET, DIP);
+    }
+
+    @Test
+    public void aDipFromAtSpeedThatRecoversIsOneShot() {
+        ShotDetector d = new ShotDetector();
+        at(d, 1500); at(d, 1490);                 // at speed: armed
+        assertFalse(at(d, 1300));                 // the piece hits: dip starts
+        assertFalse(at(d, 1150));                 // bottom
+        assertFalse(at(d, 1400));                 // recovering, not yet within
+        assertTrue(d.inDip());
+        assertTrue(at(d, 1460));                  // back within tolerance: counted now
+        assertEquals(1, d.shots());
+        assertEquals(350.0, d.lastDipTicksPerSecond(), EPS);
+        assertEquals(TARGET, d.lastTargetTicksPerSecond(), EPS);
+        assertTrue(d.justCounted());
+        assertFalse(at(d, 1500));
+        assertFalse(d.justCounted());
+        assertEquals(1, d.shots());
+    }
+
+    @Test
+    public void spinUpIsNotAShot() {
+        ShotDetector d = new ShotDetector();
+        for (double v : new double[] {0, 300, 800, 1200, 1400}) assertFalse(at(d, v));
+        assertFalse(at(d, 1480));
+        assertEquals(0, d.shots());
+        assertFalse(d.inDip());
+    }
+
+    @Test
+    public void aWobbleInsideTheThresholdIsNotAShot() {
+        ShotDetector d = new ShotDetector();
+        at(d, 1500);
+        assertFalse(at(d, 1400));                 // 100 below: out of tolerance, under the dip threshold
+        assertFalse(at(d, 1470));
+        assertEquals(0, d.shots());
+    }
+
+    @Test
+    public void twoDipsAreTwoShotsAndOnlyTheSlowerWheelNeedsToDip() {
+        ShotDetector d = new ShotDetector();
+        at(d, 1500);
+        at(d, 1200); assertTrue(at(d, 1500));
+        // Right wheel alone drops: still a dip.
+        assertFalse(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1250), false, TARGET, DIP));
+        assertTrue(d.update(LauncherSubsystem.deficit(TARGET, 1500, TARGET, 1480), true, TARGET, DIP));
+        assertEquals(2, d.shots());
+        assertEquals(250.0, d.lastDipTicksPerSecond(), EPS);
+    }
+
+    @Test
+    public void aDipThatNeverRecoversIsNotCountedAndResetDropsIt() {
+        ShotDetector d = new ShotDetector();
+        at(d, 1500);
+        at(d, 1000); at(d, 900);
+        assertTrue(d.inDip());
+        d.reset();                                // spin-down, or a target change
+        assertFalse(d.inDip());
+        assertEquals(0, d.shots());
+        // Not armed after a reset: a return to speed is not a shot, and the next dip is.
+        assertFalse(at(d, 1500));
+        at(d, 1200); assertTrue(at(d, 1500));
+        assertEquals(1, d.shots());
+    }
+
+    @Test
+    public void deficitIsTheSlowerWheelsShortfall() {
+        assertEquals(300.0, LauncherSubsystem.deficit(1500, 1400, 1500, 1200), EPS);
+        assertEquals(-20.0, LauncherSubsystem.deficit(1500, 1520, 1500, 1530), EPS);
+        assertEquals(250.0, LauncherSubsystem.deficit(1500, 1250, 1600, 1600), EPS);
     }
 }
