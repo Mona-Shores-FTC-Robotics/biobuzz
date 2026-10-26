@@ -580,6 +580,12 @@ public abstract class RobotOpMode extends OpMode {
         log.put("/Launcher/LeftTicksPerSecond", robot.launcher.leftTicksPerSecond());
         log.put("/Launcher/RightTicksPerSecond", robot.launcher.rightTicksPerSecond());
         log.put("/Launcher/AtSpeed", robot.launcher.atSpeed() ? 1 : 0);
+        log.put("/Launcher/Shots", robot.launcher.shots());
+        log.put("/Launcher/InDip", robot.launcher.inDip() ? 1 : 0);
+        double lastDip = robot.launcher.lastShotDipTicksPerSecond();
+        if (!Double.isNaN(lastDip)) {
+            log.put("/Launcher/LastShotDipTicksPerSecond", lastDip);
+        }
         double leftAmps = robot.launcher.leftCurrentAmps();
         double rightAmps = robot.launcher.rightCurrentAmps();
         if (!Double.isNaN(leftAmps)) {
