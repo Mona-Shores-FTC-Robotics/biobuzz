@@ -7,6 +7,18 @@ what the robot did, card by card: where each difference comes from, what was fed
 what only the robot can answer next session. The short version is on
 [issue #155](https://github.com/Mona-Shores-FTC-Robotics/biobuzz/issues/155).
 
+> **Correction, 26 Oct 2026 (from the session that wrote the brief).** The robot's pose log runs at about 43 Hz, so the
+> 100 ms windows this page first used held four samples and their peaks were noise. Recomputed with a centred 300 ms
+> window on the same four logs (taken from that session's message; not re-read here): the 116 in straight peaked at
+> **76 and 78 in/s** (Foresight's own 77), accelerated at 63 and 71 in/s² (averaged to 90% of peak) and braked at 48
+> and 76 in/s²; R-Simple's curve, which holds heading 90° so part of it is strafe against a 43 in/s maximum, peaked
+> at **56 and 57 in/s**, accelerated at about 30 in/s² and braked at 100 to 120 in/s². Everything from the Events
+> timestamps and the pose at each card is unchanged: the 2.1 s straight, the end errors, the guard's decision, the
+> parks. So **wherever this page says 93 in/s, 100 in/s², 60 in/s², or 73 in/s, read the figures in this note.** The
+> columns headed "@93/100/60" below are the simulator at the overstated profile and are kept for the record; the
+> corrected runs are in the study table. `driveSpeed` 1.5 in `timing.json` comes from card durations, not peaks, and
+> stands.
+
 **What the robot was.** The light chassis: drivetrain, Pinpoint and Limelight only. No turret, launchers,
 transfer or FLOWER extractor. Foresight tuned on 17 Oct (`pedro/robots/Robot20245.java`: 77 in/s max forward,
 43 in/s strafe, 40 in/s² natural deceleration). Battery 11.95 V at the end of the night. So every number below
@@ -38,11 +50,11 @@ PARK (14, 95) (moved off the wall that afternoon, PR #227). The simulator's 15 O
 10.1 in here) and the park path (76.3 in against 77.7 in) differ a little in length and nothing else does.
 
 Times are match seconds. "Sim @50" is the simulator at the drawings' settings: seed 24, the README's typical run
-of 15 Oct, reproduced exactly by this session's re-run. "Sim @93/100/60" is the same seed with the measured
+of 15 Oct, reproduced exactly by this session's re-run. "Sim @93/100/60" is the same seed with the first, overstated
 profile (below). A path's duration is from its `path` trace line to the next card's; the real robot's is what
 Pedro reported, the simulator's is its own end rule (4 in short of the point, then settling in the wait).
 
-| Card | Real (19:53) | Sim @50, seed 24 | Sim @93/100/60, seed 24 | What differs, and why |
+| Card | Real (19:53) | Sim @50, seed 24 | Sim @93/100/60 (overstated), seed 24 | What differs, and why |
 |---|---|---|---|---|
 | `SpinUp` | 0.00 | 0.00 | 0.00 | — |
 | wait **Fire the preloads (TIP 1)** | 0.00–3.01, **limit** (3 s) | 0.00–2.64, `Empty` | 0.00–2.64, `Empty` | mechanism: no launcher. The simulator's 2.64 s is its 2 s spin-up and 0.2 s a shot |
@@ -51,7 +63,7 @@ Pedro reported, the simulator's is its own end rule (4 in short of the point, th
 | wait **TIP 1 missed: catch** | 7.53–9.04, limit (1.5 s) | not run | not run | the rescue branch: real only, because TIP 1 never came |
 | wait **TIP 1 missed: fire the catch** | 9.06–12.07, limit (3 s) | not run | not run | same |
 | wait **Catch TIP 1's spill** | 12.11–13.63, limit (1.5 s) | 3.78–5.28, limit | 3.78–5.28, limit | both run to the limit: on the robot `IntakeFull` is a placeholder; in the simulator the catch wait is a wait for the spill, not the intake (`limits.json`) |
-| path **S_CATCH → FAR_FLOWER_TURN**, 106.6 in straight | 13.65–15.79, **2.14 s**; ended **4.9 and 5.6 in past** the point (y 123.2 / 123.9, drawn 118.3), settled to 118.1 during the next wait | 5.30–8.16, **2.86 s**; "done" 4 in short, at the point by 8.26 s | 5.30–7.34, **2.04 s** | physics: the drawing's trapezoid takes 3.24 s, the robot 2.14 s (peak about 93 in/s, about 100 in/s² from rest, about 60 in/s² braking, from odometry over 100 ms windows). With the measured profile the simulator is within 0.1 s. The overshoot is Pedro's end rule, which the simulator does not have (gap 1) |
+| path **S_CATCH → FAR_FLOWER_TURN**, 106.6 in straight | 13.65–15.79, **2.14 s**; ended **4.9 and 5.6 in past** the point (y 123.2 / 123.9, drawn 118.3), settled to 118.1 during the next wait | 5.30–8.16, **2.86 s**; "done" 4 in short, at the point by 8.26 s | 5.30–7.34, **2.04 s** | physics: the drawing's trapezoid takes 3.24 s, the robot 2.14 s (peak 76 to 78 in/s, about 63 to 71 in/s² from rest, 48 to 76 in/s² braking; the first 100 ms-window figures of 93 / 100 / 60 were noise, see the correction). With the measured profile the simulator is within 0.1 s. The overshoot is Pedro's end rule, which the simulator does not have (gap 1) |
 | wait **Fire the catch at the left CELL** | 15.79–17.80, **limit** (2 s) | 8.16–8.46, `Empty` after 0.30 s | 7.34–7.64, `Empty` 0.30 s | mechanism: no launcher. The simulator fires its 1 caught piece |
 | path **FAR_FLOWER_TURN → FAR_FLOWER**, 8.3 in | 17.82–18.27, 0.45 s | 8.48–8.94, 0.46 s | 7.66–7.98, 0.32 s | agree at @50 (a short path never reaches full speed, so the top speed hardly matters). At the measured acceleration the simulator is 0.13 s quicker than the robot: short paths are where Pedro's own braking and settling cost most (gap 2) |
 | wait **The far FLOWER's 4** | 18.27–21.27, **limit** (3 s) | 8.94–10.62, `IntakeFull` after 1.68 s | 7.98–9.64, 1.66 s | mechanism: no extractor, `IntakeFull` a placeholder. `flowerS` 3.0 is the limit the drawing carries |
@@ -71,10 +83,10 @@ Master's `r-simple.pp` at d11eb1af: START (55, 9.7), one path START → PARK (14
 robot 2 of the Simple pair (`LSimpleAuto,RSimpleAuto@50`, seed 24, 15 Oct): START (59, 8.06), PARK (10.5, 95),
 100.2 in.
 
-| Card | Real (19:44 and 19:49) | Sim @50 | Sim @93/100/60 | What differs |
+| Card | Real (19:44 and 19:49) | Sim @50 | Sim @93/100/60 (overstated) | What differs |
 |---|---|---|---|---|
 | wait **Fire the preloads at the right CELL (TIP 1)** | the card times are not in the figures this page has; on R-Quals the same card ran to its limit, so this one most likely ran its 4 s. To read from the log | 0.00–2.64, `Empty` | 0.00–2.64 | mechanism |
-| path **START → PARK**, 95 in curve | within 2 in of PARK **2.5 s** after the path started; parked 0.5 and 0.4 in from PARK | 2.66–5.40, 2.74 s to a dead stop at the point | 2.66–4.70, 2.04 s | physics: the drawing's trapezoid previews 3.02 s (the Java's park seconds are 3.1). Peak about 73 in/s, about 40 in/s² from rest, about 90 in/s² braking: slower off the line and slower at the peak than the straight, because Pedro slows for the curve. The simulator at the measured profile is now 0.5 s *faster* than the robot here, because it drives curves at full speed (gap 2) |
+| path **START → PARK**, 95 in curve | within 2 in of PARK **2.5 s** after the path started; parked 0.5 and 0.4 in from PARK | 2.66–5.40, 2.74 s to a dead stop at the point | 2.66–4.70, 2.04 s | physics: the drawing's trapezoid previews 3.02 s (the Java's park seconds are 3.1). Peak 56 to 57 in/s, about 30 in/s² from rest, 100 to 120 in/s² braking (strafe against a 43 in/s maximum): slower off the line and slower at the peak than the straight, because Pedro slows for the curve. The simulator at the measured profile is now 0.5 s *faster* than the robot here, because it drives curves at full speed (gap 2) |
 | end | parked, 0.4–0.5 in off | parked, 0.0 in off | parked | agree |
 
 ## What the differences are
@@ -110,13 +122,14 @@ acceleration. 60 runs each, the `rigid V` design, R-Quals with `PartnerLeftVAuto
 | Spec | TIP 1 | TIP 2 | TIP 3 | Points | PARK | G409 |
 |---|---|---|---|---|---|---|
 | R-Quals @50 (the drawings; the README's row) | 60/60 at 5.8 s | 56/60 at 12.2 s | 54/60 at 26.3 s | 72.7 | 120/120 | 1 run |
-| R-Quals @77/100/60 (Foresight's measured max forward velocity, the night's acceleration and braking) | 60 at 5.7 | 56 at 11.2 | 55 at 23.3 | 73.0 | 120/120 | 1 run |
-| R-Quals @93/100/60 (the night's peak, acceleration and braking) | 60 at 5.7 | 56 at 11.1 | 53 at 23.1 | 72.3 | 120/120 | 3 runs |
+| R-Quals @77/100/60 (Foresight's max forward, the overstated acceleration) | 60 at 5.7 | 56 at 11.2 | 55 at 23.3 | 73.0 | 120/120 | 1 run |
+| R-Quals @93/100/60 (the overstated first profile) | 60 at 5.7 | 56 at 11.1 | 53 at 23.1 | 72.3 | 120/120 | 3 runs |
+| R-Quals @77/65/55 (corrected: peak, acceleration and braking, 300 ms windows) | 60/60 at 5.7 s | 56/60 at 11.5 s | 51/60 at 24.5 s | 71.7 | 120/120 | 1 run |
 | Simple pair @50 | 56/60 at 4.4 | 55/60 at 11.8 | — | 53.0 | 120/120 | 0 |
-| Simple pair @93/100/60 | 56 at 4.4 | 55 at 11.4 | — | 53.0 | 120/120 | 0 |
+| Simple pair @93/100/60 (overstated) | 56 at 4.4 | 55 at 11.4 | — | 53.0 | 120/120 | 0 |
+| Simple pair @57/30/110 (corrected curve) | 56/60 at 4.4 s | 55/60 at 11.9 s | — | 53.0 | 120/120 | 0 |
 
-So the measured speed moves R-Quals' TIP 3 from 26 s to 23 s and its finish from 28 s to 24 s, and changes the
-score by nothing: every TIP waits on a mechanism (the intake filling, the HIVE's dwell, the volley), not on the
+At the corrected profile R-Quals' TIP 3 moves from 26.3 s to 24.5 s and TIP 2 from 12.2 to 11.5 s, the score is 71.7 against 72.7 (TIP 3 in 51 runs against 54: within the ±4 the README reads these rows with), and every TIP still waits on a mechanism, not the drive: every TIP waits on a mechanism (the intake filling, the HIVE's dwell, the volley), not on the
 drive, and the faster robot reaches TIP 2's spill a little earlier, where it touches a falling piece in 3 runs
 instead of 1 (G409, `doc/g409-routes.md`: the catch spots were placed for the 50 in/s robot and want re-checking
 at the real speed). The 1 "problem" in every R-Quals row is the partner's drawing (`partner-left-v` starts off
@@ -161,13 +174,13 @@ the simulator changes.
    Fix: model the end as Pedro does it, a path done when the robot passes the point's parametric end at speed,
    then a braking-and-settling tail at `naturalForwardDeceleration` that the next card sees as motion (a fire
    step that needs the robot still would wait for it, as `FIRE_SPEED_IN_PER_S` already does). Until the real
-   rule is confirmed, a measured overshoot of about 5 in at 93 in/s is the number to reproduce.
-2. **One acceleration for everything, and no slowing for curves.** Evidence: the straight 100 in/s² up and 60
-   down; the curve 40 up, 90 down, peak 73 not 93; at the measured profile the simulator drives R-Simple's
+   rule is confirmed, a measured overshoot of about 5 in at 77 in/s is the number to reproduce.
+2. **One acceleration for everything, and no slowing for curves.** Evidence: the straight about 63 to 71 in/s² up and 48 to 76
+   down at a 77 in/s peak; the curve about 30 up, 100 to 120 down, peak 56 to 57, partly strafe; at the measured profile the simulator drives R-Simple's
    curve 0.5 s faster than the robot. This session gave `SimDrive` a separate braking rate (and the study spec a
    third number); the curve is still driven at the straight's speed. Fix: a curvature-dependent speed cap in
    `SimDrive` (Pedro's own limit is the centripetal one, `maxVelocityConstraint` and the brake coefficients),
-   fitted to R-Simple's curve once its speed trace is read at 20 ms (the 100 ms windows above smear the peaks).
+   fitted to R-Simple's curve once its speed trace is read at 20 ms (the log is about 43 Hz, so any short window is noisy).
 3. **A heading turn drawn over the end of a path is not finished when Pedro says the path is.** Evidence:
    FAR_FLOWER → N_FIRE ended 20° and 15° short of 270° on the two runs, done by the end of the next wait. The
    simulator ends a path only once the heading is within 5° (1° if stopped), so it never shows this. Fix: in
@@ -198,7 +211,7 @@ the simulator changes.
 
 ## What only the robot can answer next session
 
-Log, in the match log, at 20 ms (the 100 ms windows made every peak approximate):
+Log, in the match log, at 20 ms (the pose log is about 43 Hz and short windows were noise):
 
 - Pedro's own end decision: `follower.atParametricEnd()`, `distanceToEndpoint()` and the follower's mode each
   loop, so the end rule (gap 1) is read, not inferred. Also the five `ForesightConfig` constraint values the

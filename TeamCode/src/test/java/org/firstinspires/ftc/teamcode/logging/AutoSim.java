@@ -415,7 +415,7 @@ public final class AutoSim {
 
     /**
      * As {@link #speed(double, double)}, braking at {@code decelInPerS2}: the 25 Oct 2026 logs of 20245 (light
-     * chassis) show about 100 in/s² from rest and about 60 in/s² braking (doc/real-vs-sim-25-oct.md).
+     * chassis) show about 63 to 71 in/s² from rest and 48 to 76 in/s² braking at a 77 in/s peak (doc/real-vs-sim-25-oct.md).
      */
     AutoSim speed(double maxInPerS, double accelInPerS2, double decelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;

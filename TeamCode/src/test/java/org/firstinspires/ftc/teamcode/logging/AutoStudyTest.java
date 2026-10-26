@@ -24,7 +24,7 @@ import java.util.Map;
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
  * The number after {@code @} is the drivetrain's top speed in in/s, accelerating and braking at 0.9 of it;
- * {@code @93/100/60} gives the top speed, the acceleration and the braking separately (in/s, in/s², in/s²: the
+ * {@code @77/65/55} gives the top speed, the acceleration and the braking separately (in/s, in/s², in/s²: the
  * 25 Oct 2026 measurements of 20245, issue #155).
  * An Auto followed by {@code :blind} ({@code BackupLAuto:blind,PartnerLeftVAuto@50}) runs with its camera down
  * ({@link AutoSim#cameraDown}): its HIVE waits run to their time limits, as Smart Auto's BACKUP plan would.
@@ -478,7 +478,7 @@ public class AutoStudyTest {
 
     /**
      * A spec's drive profile after its {@code @}: {@code "50"} (top speed; accelerate and brake at 0.9 of it),
-     * {@code "93/100"} (top speed and acceleration, braking the same) or {@code "93/100/60"} (and braking), in/s and
+     * {@code "77/65"} (top speed and acceleration, braking the same) or {@code "77/65/55"} (and braking), in/s and
      * in/s². Returned as {top speed, acceleration, braking}.
      */
     static double[] profile(String spec) {
@@ -495,7 +495,7 @@ public class AutoStudyTest {
         partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
         // "@50": top speed 50 in/s, accelerating and braking at 0.9 of it (the Visualizer's preview is 50 and 45).
-        // "@93/100/60" (25 Oct 2026): top speed, acceleration and braking as measured on the robot (issue #155).
+        // "@77/65/55" (25 Oct 2026): top speed, acceleration and braking as measured on the robot (issue #155).
         double[] profile = profile(at.length > 1 ? at[1] : "50");
         double speed = profile[0];
         // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
