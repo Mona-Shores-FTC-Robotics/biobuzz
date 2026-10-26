@@ -49,6 +49,10 @@ POLLEN; adopted 7 Oct, no Auto's numbers moved). Both robots PARK in every run. 
 flags it, like the HIVE frame and a FLOWER). Known: the angled Auto clips the HIVE frame in the 4 runs TIP 1 fails; R-Quals, in 1 run of 60, is cut by the
 endgame guard as it leaves the wall FLOWER and the park path drags it through the FLOWER (the guard should back out first).
 Everything behind these numbers: [doc/simulator.md](doc/simulator.md).
+**First real match logs, 25 Oct 2026** (20245, light chassis, R-Simple and R-Quals from master): the robot drives the long paths about
+1.5× faster than the drawings' 50 in/s previews them, Pedro ends a long path 5–6 in past its point and settles during the next
+wait, and every wait ran to its limit because the mechanisms are not on the robot yet. The simulator at the measured speed scores
+the same and finishes 4 s sooner. Card by card, the fidelity gaps and what to log next: [doc/real-vs-sim-25-oct.md](doc/real-vs-sim-25-oct.md).
 
 ## Watch a match
 

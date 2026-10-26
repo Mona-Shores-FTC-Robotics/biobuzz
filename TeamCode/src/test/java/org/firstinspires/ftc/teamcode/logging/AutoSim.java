@@ -408,10 +408,19 @@ public final class AutoSim {
         return this;
     }
 
-    /** Sets the drivetrain's top speed and acceleration, in/s and in/s². */
+    /** Sets the drivetrain's top speed and acceleration, in/s and in/s²; it brakes as hard as it accelerates. */
     AutoSim speed(double maxInPerS, double accelInPerS2) {
+        return speed(maxInPerS, accelInPerS2, accelInPerS2);
+    }
+
+    /**
+     * As {@link #speed(double, double)}, braking at {@code decelInPerS2}: the 25 Oct 2026 logs of 20245 (light
+     * chassis) show about 100 in/s² from rest and about 60 in/s² braking (doc/real-vs-sim-25-oct.md).
+     */
+    AutoSim speed(double maxInPerS, double accelInPerS2, double decelInPerS2) {
         configuring.drive.maxSpeed = maxInPerS;
         configuring.drive.accel = accelInPerS2;
+        configuring.drive.decel = decelInPerS2;
         return this;
     }
 
@@ -2224,6 +2233,8 @@ public final class AutoSim {
         Path current;
         double maxSpeed = MAX_SPEED_IN_PER_S;
         double accel = ACCEL_IN_PER_S2;
+        /** Braking, in/s²: the same as {@link #accel} unless {@link AutoSim#speed(double, double, double)} says otherwise. */
+        double decel = ACCEL_IN_PER_S2;
         /** Turning is rate-limited too: a path ends when the robot is there and facing its way. */
         double maxTurn = RobotDesign.standard().maxTurnRadPerS;
         private double startedAt = Double.NaN;
@@ -2304,7 +2315,7 @@ public final class AutoSim {
             }
             if (Double.isNaN(startedAt)) startedAt = now;
             double total = leadIn + length;
-            double s = distanceAt(now - startedAt, total, maxSpeed, accel, entrySpeed);
+            double s = distanceAt(now - startedAt, total, maxSpeed, accel, decel, entrySpeed);
             double px = pose.x(), py = pose.y();
             // The profile's last step lands on the length only to rounding: finish within a micro-inch.
             boolean arrived = s >= total - 1e-6;
@@ -2355,29 +2366,32 @@ public final class AutoSim {
             return from + Math.max(-maxStep, Math.min(maxStep, error));
         }
 
-        /** Distance along a rest-to-rest trapezoid {@code t} seconds in. */
-        /** As {@link #distanceAt(double, double, double, double)}, starting at speed {@code v0}. */
+        /** As {@link #distanceAt(double, double, double, double, double, double)}, braking as hard as it accelerates. */
         static double distanceAt(double t, double length, double v, double a, double v0) {
-            if (v0 <= 1e-9) return distanceAt(t, length, v, a);
-            v0 = Math.min(v0, Math.min(v, Math.sqrt(2 * a * length))); // can always stop by the end
-            double peak = Math.min(v, Math.sqrt(a * length + v0 * v0 / 2));
+            return distanceAt(t, length, v, a, a, v0);
+        }
+
+        /** Distance along a rest-to-rest trapezoid {@code t} seconds in, braking as hard as it accelerates. */
+        static double distanceAt(double t, double length, double v, double a) {
+            return distanceAt(t, length, v, a, a, 0);
+        }
+
+        /**
+         * Distance {@code t} seconds into a trapezoid over {@code length}: from speed {@code v0}, accelerating at
+         * {@code a} to at most {@code v}, braking at {@code d} to rest at the end. The peak is where the ramp up
+         * and the ramp down meet: {@code p² = (2·L·a·d + d·v0²) / (a + d)}, the Visualizer's own
+         * {@code calculateMotionProfileTime} when {@code v0} is 0.
+         */
+        static double distanceAt(double t, double length, double v, double a, double d, double v0) {
+            v0 = Math.max(0, Math.min(v0, Math.min(v, Math.sqrt(2 * d * length)))); // can always stop by the end
+            double peak = Math.min(v, Math.sqrt((2 * length * a * d + d * v0 * v0) / (a + d)));
             double tUp = (peak - v0) / a, sUp = (peak * peak - v0 * v0) / (2 * a);
-            double sDown = peak * peak / (2 * a), tDown = peak / a;
+            double sDown = peak * peak / (2 * d), tDown = peak / d;
             double tCruise = Math.max(0, (length - sUp - sDown) / peak);
             if (t <= tUp) return v0 * t + 0.5 * a * t * t;
             if (t <= tUp + tCruise) return sUp + peak * (t - tUp);
             double td = Math.min(t - tUp - tCruise, tDown);
-            return Math.min(length, sUp + peak * tCruise + peak * td - 0.5 * a * td * td);
-        }
-
-        static double distanceAt(double t, double length, double v, double a) {
-            double peak = Math.min(v, Math.sqrt(length * a));
-            double tRamp = peak / a, sRamp = peak * peak / (2 * a);
-            double tCruise = (length - 2 * sRamp) / peak;
-            if (t <= tRamp) return 0.5 * a * t * t;
-            if (t <= tRamp + tCruise) return sRamp + peak * (t - tRamp);
-            double td = Math.min(t - tRamp - tCruise, tRamp);
-            return Math.min(length, sRamp + peak * tCruise + peak * td - 0.5 * a * td * td);
+            return Math.min(length, sUp + peak * tCruise + peak * td - 0.5 * d * td * td);
         }
 
         private static double clamp01(double v) {

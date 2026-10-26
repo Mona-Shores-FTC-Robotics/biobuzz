@@ -23,6 +23,9 @@ import java.util.Map;
  * BIOBUZZ_AUTO_STUDY="SoloTwoTipAuto@40;Recycle3RightAuto,Recycle3LeftAuto@50" \
  *   BIOBUZZ_AUTO_DESIGNS="turret|spring hood" ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i
  * </pre>
+ * The number after {@code @} is the drivetrain's top speed in in/s, accelerating and braking at 0.9 of it;
+ * {@code @93/100/60} gives the top speed, the acceleration and the braking separately (in/s, in/s², in/s²: the
+ * 25 Oct 2026 measurements of 20245, issue #155).
  * An Auto followed by {@code :blind} ({@code BackupLAuto:blind,PartnerLeftVAuto@50}) runs with its camera down
  * ({@link AutoSim#cameraDown}): its HIVE waits run to their time limits, as Smart Auto's BACKUP plan would.
  * Optional: {@code BIOBUZZ_AUTO_RUNS} (default 10); {@code BIOBUZZ_AUTO_PER_SEED} prints each seed's points and TIP times. PartnerThreeTipAuto gets its standing partner.
@@ -473,18 +476,34 @@ public class AutoStudyTest {
         return d;
     }
 
+    /**
+     * A spec's drive profile after its {@code @}: {@code "50"} (top speed; accelerate and brake at 0.9 of it),
+     * {@code "93/100"} (top speed and acceleration, braking the same) or {@code "93/100/60"} (and braking), in/s and
+     * in/s². Returned as {top speed, acceleration, braking}.
+     */
+    static double[] profile(String spec) {
+        String[] p = spec.split("/");
+        double v = Double.parseDouble(p[0]);
+        double a = p.length > 1 ? Double.parseDouble(p[1]) : v * 0.9;
+        double d = p.length > 2 ? Double.parseDouble(p[2]) : a;
+        return new double[] {v, a, d};
+    }
+
     static AutoSim.Result run(String spec, RobotDesign design, RobotDesign partnerDesign, double partnerSpeed, long seed,
                               Alliance alliance, Map<String, String> metadata, File file) throws Exception {
         design = withSet(design);
         partnerDesign = withSet(partnerDesign);
         String[] at = spec.split("@");
-        double speed = at.length > 1 ? Double.parseDouble(at[1]) : 50;
+        // "@50": top speed 50 in/s, accelerating and braking at 0.9 of it (the Visualizer's preview is 50 and 45).
+        // "@93/100/60" (25 Oct 2026): top speed, acceleration and braking as measured on the robot (issue #155).
+        double[] profile = profile(at.length > 1 ? at[1] : "50");
+        double speed = profile[0];
         // "A,B|C,D": our alliance's Autos, then the opponents' (mentor, 8 Oct 2026: all four robots, so the other
         // alliance's pieces, spills and traffic are there, and the blue versions of our Autos get run).
         String[] sides = at[0].split("\\|");
         String[] autos = sides[0].split(",");
         Class<?> first = Class.forName(PKG + autoName(autos[0]));
-        AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, speed * 0.9).design(design);
+        AutoSim sim = new AutoSim(first, alliance, seed).speed(speed, profile[1], profile[2]).design(design);
         // The drive team's NECTAR into the LOADING ZONE after each TIP (G426) is on by default, for both alliances
         // (team decision, 10 Oct 2026). BIOBUZZ_AUTO_HUMAN_NECTAR=0 turns it off for a comparison.
         if ("0".equals(System.getenv("BIOBUZZ_AUTO_HUMAN_NECTAR"))) sim.humanNectar(false);
@@ -503,9 +522,9 @@ public class AutoStudyTest {
             sim.partner(DesignComparisonTest.LEFT_PARTNER, DesignComparisonTest.LEFT_PARTNER_POLLEN);
         }
         if (autos.length > 1) {
-            double pSpeed = Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
+            double[] pProfile = Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
             Class<?> second = Class.forName(PKG + autoName(autos[1]));
-            sim.alsoRun(second).speed(pSpeed, pSpeed * 0.9).design(partnerDesign == null ? design : partnerDesign);
+            sim.alsoRun(second).speed(pProfile[0], pProfile[1], pProfile[2]).design(partnerDesign == null ? design : partnerDesign);
             if (cameraDown(autos[1])) sim.cameraDown();
             // The reference partner that only leaves and parks sets its preloads out for us (mentor review).
             double[][] staged = stagedFor(second.getSimpleName());
@@ -516,8 +535,8 @@ public class AutoStudyTest {
             for (int i = 0; i < theirs.length; i++) {
                 Class<?> opponent = Class.forName(PKG + autoName(theirs[i]));
                 // Their first robot like ours, their second like our partner.
-                double s = i == 0 || Double.isNaN(partnerSpeed) ? speed : partnerSpeed;
-                sim.alsoRunOpponent(opponent).speed(s, s * 0.9).design(i == 0 || partnerDesign == null ? design : partnerDesign);
+                double[] s = i == 0 || Double.isNaN(partnerSpeed) ? profile : profile(Double.toString(partnerSpeed));
+                sim.alsoRunOpponent(opponent).speed(s[0], s[1], s[2]).design(i == 0 || partnerDesign == null ? design : partnerDesign);
                 if (cameraDown(theirs[i])) sim.cameraDown();
                 double[][] staged = stagedFor(opponent.getSimpleName());
                 if (staged != null) sim.stagesPreloads(staged);
