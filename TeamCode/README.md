@@ -1159,7 +1159,7 @@ The measured numbers, all from 19429 on 3 Oct 2026 (#156):
 | Camera mount | fwd 4, left 0, up 14 in, pitch 45°, yaw 0 | `CameraMount` |
 | Tag row height | UP 50.2 in (camera), DOWN 35.0 in (tape) | `CellStateTracker.Geometry` |
 | Row swing | ~15 in, not the 9.4 in `HiveGeometry.STATE_HEIGHT_DELTA_IN` derives: the tags sit ~15 in from the pivot, not at the CELL centre | — |
-| CELL field points | AUDIENCE rows at y 58.4 (UP) / 59.9 (DOWN); the rest from the rocker geometry | `HiveFieldPoints` |
+| CELL field points | All eight from the field CAD (axle on the centre line, row 14.25 in out and 1.52 in below it); the camera put the raised AUDIENCE rows within an inch of it | `HiveFieldPoints` |
 | TIP time | ~2.5 s, from one video; provisional | `HiveTracker.Tuning.tipSeconds` |
 
 **TIP tracking.** `CellStateTracker` says what each CELL is now (UP / DOWN / UNKNOWN, by

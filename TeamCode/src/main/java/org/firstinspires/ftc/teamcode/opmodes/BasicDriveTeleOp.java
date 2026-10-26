@@ -1,11 +1,21 @@
 package org.firstinspires.ftc.teamcode.opmodes;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
+import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
+import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
+import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
+import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 import java.util.Locale;
 
@@ -25,10 +35,20 @@ import java.util.Locale;
  * values the drivers like back here — Panels edits are lost on restart. The acceleration limit
  * lives on {@code DriveSubsystem}, because it is about the robot, not the driver.
  *
- * <p>The operator (gamepad 2) runs the launcher and the feeder. The feeder only feeds while the
- * launcher is at speed, so a piece is never pushed into wheels that are still spinning up; that
- * is a policy, and {@link #feedOnlyAtSpeed} switches it off for a bench that wants to move the
- * feeder on its own.
+ * <p>The operator (gamepad 2) runs the launcher and the feeder, with nothing in between them:
+ * spin up, hold feed, watch what happens. While the launcher is being brought up on the robot
+ * that is the whole point, so the feeder is not gated on the launcher being at speed;
+ * {@link #feedOnlyAtSpeed} puts the gate back in Panels once a match loop wants it.
+ *
+ * <h2>What the launcher reports</h2>
+ *
+ * <p>Every loop the launcher's and feeder's numbers go to Panels as flat keys (targets, speeds,
+ * currents, at-speed, shots), so the speed dip of each shot is a graph, and the target and trims
+ * are live in Panels' configurables. Each shot the launcher counts from that dip
+ * ({@code LauncherSubsystem.shots()}) is one line in the match log with its target, dip and the
+ * range to the CELL: the camera's ground range to a CELL it sees, else the pose's range to the
+ * near-end CELL, else none. Hit or miss is written next to it by hand afterwards. That is #80's
+ * speed-vs-distance table being filled in from ordinary driving, with no procedure to follow.
  */
 @TeleOp(name = "Basic Drive", group = "Drive")
 @Configurable
@@ -66,13 +86,27 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private static final long SIGHTING_FRESH_MS = 500;
 
     /**
-     * The feeder feeds only while {@code robot.launcher.atSpeed()}. Set false in Panels to run the
-     * feeder with the launcher idle or spinning up, for a bench test of the feeder alone.
+     * Off: R2 feeds whenever held, launcher spinning or not, so the launcher can be tested the way
+     * a bench tests it. On: a feed starts only once the launcher is at speed, the match policy. A
+     * feed already running is never cut by the gate (see {@code FeederSubsystem.requestFor}).
      */
-    public static boolean feedOnlyAtSpeed = true;
+    public static boolean feedOnlyAtSpeed = false;
+
+    /** The range to log with a shot when the camera does not see a CELL: the pose's, to the near-end CELL. */
+    private static final double AIM_SWITCH_BAND_IN = 19.75;
+
+    private TelemetryManager panels;
+    private HiveCell nearEndCell;
+    private double lastShotRangeIn = Double.NaN;
+    private String lastShotRangeSource = "";
 
     @Override
     protected void onInit() {
+        try {
+            panels = PanelsTelemetry.INSTANCE.getTelemetry();
+        } catch (RuntimeException | LinkageError e) {
+            panels = null; // Panels is a window onto the robot, not part of it.
+        }
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
         driver.note("L1 (hold)", "Slow");
@@ -96,7 +130,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.launcher::spinUp);
         operator.when("Circle (B)", "Launcher spin down", () -> gamepad2.b)
                 .onPress(robot.launcher::spinDown);
-        operator.note("R2 (hold)", "Feed into the launcher — only once it is at speed (feedOnlyAtSpeed in Panels)");
+        operator.note("R2 (hold)", "Feed into the launcher (feedOnlyAtSpeed in Panels makes it wait for at speed)");
         operator.note("L2 (hold)", "Reverse the feeder, to clear a jam");
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
@@ -149,9 +183,89 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.intake.describe(display);
         robot.launcher.describe(display);
         robot.feeder.describe(display);
+        recordShot();
         showAim();
         showPinpoint();
         display.line(loopTimer.summary());
+        publish();
+    }
+
+    /**
+     * One match-log line per shot the launcher counted in its last update, with the range it was
+     * taken from, so the log is #80's table: target, dip, range, and a hit or miss added by hand.
+     */
+    private void recordShot() {
+        if (robot.launcher.shotJustDetected()) {
+            lastShotRangeIn = shotRangeIn();
+            log.event(String.format(Locale.US, "shot %d: target %.0f ticks/s, dip %.0f, range %s",
+                    robot.launcher.shots(), robot.launcher.lastShotTargetTicksPerSecond(),
+                    robot.launcher.lastShotDipTicksPerSecond(),
+                    Double.isNaN(lastShotRangeIn) ? "unknown"
+                            : String.format(Locale.US, "%.0f in (%s)", lastShotRangeIn, lastShotRangeSource)));
+        }
+        if (!Double.isNaN(lastShotRangeIn)) {
+            display.line(String.format(Locale.US, "Last shot: %.0f in (%s)", lastShotRangeIn, lastShotRangeSource));
+        }
+    }
+
+    /**
+     * The horizontal range to the CELL a shot was aimed at, inches: the camera's ground range to
+     * the nearest fresh CELL of our alliance (any CELL if the alliance is not chosen yet), else the
+     * pose's range from the turret axis to the near-end CELL's raised row, else NaN. Sets
+     * {@link #lastShotRangeSource} to say which.
+     */
+    private double shotRangeIn() {
+        Alliance alliance = setup.alliance();
+        double best = Double.NaN;
+        for (CellSighting sighting : robot.vision.sightings()) {
+            if (sighting == null || sighting.ageMs() > SIGHTING_FRESH_MS) continue;
+            if (alliance != Alliance.UNKNOWN && !sighting.cell().belongsTo(alliance)) continue;
+            double range = sighting.groundRangeIn();
+            if (Double.isNaN(best) || range < best) best = range;
+        }
+        if (!Double.isNaN(best)) {
+            lastShotRangeSource = "camera";
+            return best;
+        }
+        Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
+        if (pose == null || alliance == Alliance.UNKNOWN) {
+            lastShotRangeSource = "";
+            return Double.NaN;
+        }
+        nearEndCell = TurretAim.nearEndCell(alliance, pose.y(), nearEndCell, HiveFieldPoints.AXLE_Y_IN, AIM_SWITCH_BAND_IN);
+        Vec3 row = nearEndCell == null ? null : HiveFieldPoints.rowCentre(nearEndCell, HiveCellState.UP);
+        if (row == null) {
+            lastShotRangeSource = "";
+            return Double.NaN;
+        }
+        lastShotRangeSource = "odometry, " + nearEndCell;
+        return TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(),
+                TurretSubsystem.turretForwardIn, TurretSubsystem.turretLeftIn, row.x(), row.y());
+    }
+
+    /** The launcher and feeder to Panels, flat keys, one update per loop. Never takes the robot down. */
+    private void publish() {
+        if (panels == null) return;
+        try {
+            panels.addData("left_target_tps", robot.launcher.isSpinning() ? robot.launcher.leftTarget() : 0.0);
+            panels.addData("right_target_tps", robot.launcher.isSpinning() ? robot.launcher.rightTarget() : 0.0);
+            panels.addData("left_tps", robot.launcher.leftTicksPerSecond());
+            panels.addData("right_tps", robot.launcher.rightTicksPerSecond());
+            panels.addData("left_amps", robot.launcher.leftCurrentAmps());
+            panels.addData("right_amps", robot.launcher.rightCurrentAmps());
+            panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
+            panels.addData("shots", robot.launcher.shots());
+            panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
+            panels.addData("last_shot_range_in", lastShotRangeIn);
+            // The feeder's own speed is not published: on the competition robots its encoder socket
+            // carries the turret's encoder (DeviceNames.TURRET_ENCODER_HOST).
+            panels.addData("feeder_power", robot.feeder.power());
+            panels.addData("feeder_amps", robot.feeder.currentAmps());
+            panels.addData("loop_ms", loopTimer.lastMs());
+            panels.update();
+        } catch (RuntimeException ignored) {
+            // Telemetry never takes a mechanism down.
+        }
     }
 
     /**
