@@ -576,6 +576,12 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     }
 
     @Override
+    public String health() {
+        return localizer != null ? "Pinpoint present; drive motors configured, presence unknown until they move"
+                : "Pinpoint missing (" + localizerFault + "): driving robot-centric, no paths";
+    }
+
+    @Override
     public void describe(Display display) {
         if (localizer != null) {
             display.status("Pinpoint", Display.Level.OK, "present");
