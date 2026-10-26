@@ -24,8 +24,8 @@ import java.util.function.Function;
  * &#64;Autonomous(name = "Auto: Hive Rush", group = "Auto")
  * public class HiveRushOpMode extends BuiltAuto {
  *     public HiveRushOpMode() {
- *         super(HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS, HiveRushAuto.DRAWN_FOR,
- *                 HiveRushAuto::startPose, HiveRushAuto::build);
+ *         super(HiveRushAuto.SOURCE, HiveRushAuto.COMMANDS, HiveRushAuto.TRIGGERS,
+ *                 HiveRushAuto.DRAWN_FOR, HiveRushAuto::startPose, HiveRushAuto::build);
  *     }
  * }
  * </pre>
@@ -69,6 +69,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     /** The most pieces a robot may hold (BIOBUZZ G407): the intake has room below this. */
     public static final int MAX_HELD = 4;
 
+    /** The {@code .pp} file in {@code TeamCode/autos/} this Auto was exported from; in the log's metadata. */
+    private final String source;
     private final String[] commands;
     private final String[] triggers;
     private final String drawnFor;
@@ -88,8 +90,9 @@ public abstract class BuiltAuto extends RobotOpMode {
     /** The start last written as the log's target, so INIT writes it only when it changes. */
     private StartPosition targetWritten;
 
-    protected BuiltAuto(String[] commands, String[] triggers, String drawnFor,
+    protected BuiltAuto(String source, String[] commands, String[] triggers, String drawnFor,
                         Function<Boolean, Pose> startPose, BiFunction<AutoKit, Boolean, Command> build) {
+        this.source = source;
         this.commands = commands;
         this.triggers = triggers;
         this.drawnFor = drawnFor;
@@ -123,6 +126,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         }
         robot.drive.preparePathFollowing();
         pathLog = new AutoPathLog(log);
+        // Which drawing this was, and which of its waits were running on placeholders.
+        log.metadata("AutoSource", source);
+        log.metadata("AutoDrawnFor", drawnFor);
+        log.metadata("AutoPlaceholders", placeholders.isEmpty() ? "none" : String.join(", ", placeholders));
     }
 
     @Override

@@ -466,6 +466,18 @@ public class LimelightVisionSubsystem implements Subsystem {
     /** The last polled result. Diagnostics only — prefer the sighting accessors. */
     public LLResult lastResult() { return lastResult; }
 
+    /**
+     * For the match log at init. "Answering" is the SDK's 250 ms heartbeat, read right after
+     * {@link #initialize()}: a camera still booting can say no here and connect a moment later,
+     * so a "no" is a hint, and the Link line on the Driver Station is the live answer.
+     */
+    @Override
+    public String health() {
+        if (!available) return "Limelight not in the hardware map: " + unavailableReason;
+        return "Limelight configured (" + connectionInfo() + "); answering at init: "
+                + (isConnected() ? "yes" : "no");
+    }
+
     /** Stops streaming. Safe to call during OpMode teardown. */
     @Override
     public void stop() {

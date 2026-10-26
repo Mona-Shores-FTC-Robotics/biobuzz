@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.opmodes.auto.generated.RQualsAuto;
 @Autonomous(name = "Auto: R-Quals", group = "Auto")
 public class RQualsAutoOpMode extends BuiltAuto {
     public RQualsAutoOpMode() {
-        super(RQualsAuto.COMMANDS, RQualsAuto.TRIGGERS, RQualsAuto.DRAWN_FOR,
+        super(RQualsAuto.SOURCE, RQualsAuto.COMMANDS, RQualsAuto.TRIGGERS, RQualsAuto.DRAWN_FOR,
                 RQualsAuto::startPose, RQualsAuto::build);
     }
 }

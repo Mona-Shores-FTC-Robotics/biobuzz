@@ -136,6 +136,11 @@ public class FeederSubsystem implements Subsystem {
     }
 
     @Override
+    public String health() {
+        return "motor configured; presence unknown until it moves";
+    }
+
+    @Override
     public void describe(Display display) {
         display.status("Feeder", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
                 state == State.FEED ? String.format(Locale.US, "FEEDING (%.2f)", power)

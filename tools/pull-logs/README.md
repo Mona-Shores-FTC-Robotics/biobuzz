@@ -112,7 +112,15 @@ If the hub does wedge: close everything that talks adb, power-cycle the hub, the
 - **Where the time went**: `/Loop/*` on a Line Graph. `/DriverStation/RobotMode` shows the
   Auto / disabled / TeleOp stretches.
 - **The gamepads**: the Joysticks tab, `/DriverStation/Joystick0` and `1`.
-- **Which robot and config**: the metadata pane (`/RealMetadata/RobotConfig`, `OpMode`, `MatchId`).
+- **The turret**: `/Turret/AngleDeg`, `TargetDeg`, `ErrorDeg` on a Line Graph; `Zeroed` says
+  whether anyone zeroed it before PLAY.
+- **Which robot, config and code, and what was attached**: the Metadata tab. `RobotConfig`,
+  `OpMode`, `MatchId`; `Build` (branch and commit, `-dirty` for uncommitted edits);
+  `Hardware/<Subsystem>` for what each found at init (the Pinpoint, the camera, the turret's
+  zero; motors cannot be known and say so); `BatteryAtInit`; every Panels knob as
+  `Tunable/<Class>.<field>` at PLAY; for an Auto, `AutoSource` (the `.pp` drawing) and
+  `AutoPlaceholders`. A motor that was commanded and never moved is a line in `/Events`
+  (`intake: commanded for 1.0 s, encoder never moved`, `launcher: …`), as is a low battery.
 
 ## Why a script here, and not something on the robot
 
