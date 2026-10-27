@@ -20,8 +20,9 @@ mesh of the channel (zero overlap).
    turn it end for end.
 2. The two screw heads come up through the relief holes and the three roof holes sit over bearing holes. If not, it is one hole
    over: lift and move it.
-3. Two wide zip ties (50 lb): down one roof hole, through the channel, up the next, closed on top. Two thin ones through the
-   wall's holes and the lip's holes behind them if you want belt and braces.
+3. Two wide zip ties (50 lb): down one roof hole, through the channel, up the next, closed on top. The front wall has six
+   holes on the lip's holes; a thin tie through any of them and the lip hole behind it, under the lip's edge and back, if you
+   want belt and braces.
 4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
 5. Run it. If it works, print the spares from the same file and change nothing.
 

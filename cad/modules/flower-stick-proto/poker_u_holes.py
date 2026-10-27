@@ -24,9 +24,10 @@ for dy in (-8, -40):
     for sy in (SCREW_Y, -SCREW_Y): ax.add_patch(Circle((sy, dy), 5, fc="none", ec="green", lw=1.5))     # relief, both sides
 for dx in (-8.2, 8.2):
     for dy in (-8.2, 8.2): ax.add_patch(Circle((dx, -24 + dy), 1.95, fc="#1f5fbf", ec="k", lw=0.5))     # the pegs
-for y in (-32, 32): ax.add_patch(Circle((y, -2.2), 2.15, fc="none", ec="#a03a18", lw=1.5)); ax.text(y, 3, "lip tie", ha="center", fontsize=7, color="#a03a18")
+for y in (-32, -24, -16, 16, 24, 32): ax.add_patch(Circle((y, -2.2), 2.15, fc="none", ec="#a03a18", lw=1.5))
+for y in (-24, 24): ax.text(y, 3, "wall holes on the lip's holes", ha="center", fontsize=7, color="#a03a18")
 ax.text(0, -52, "orange: the 80 mm L's roof and its holes   blue: the four pegs, in the web's 4.5 mm holes around the middle bearing hole\n"
-        "green: relief over the screw heads (cut both sides, so the L fits either way round)   the lip's holes along the top edge, ties at 32 mm", ha="center", fontsize=8)
+        "green: relief over the screw heads (cut both sides, so the L fits either way round)   the wall's six holes on the lip's holes along the top edge", ha="center", fontsize=8)
 ax.set_xlim(-125, 125); ax.set_ylim(-58, 8); ax.axis("off")
 ax.set_title("poker_u on the intake's front channel, from above: mm from the channel's centre, the front lip at the top", fontsize=10)
 fig.tight_layout(); fig.savefig(os.path.join(HERE, "poker_u_holes.png"), dpi=130); print("poker_u_holes.png")

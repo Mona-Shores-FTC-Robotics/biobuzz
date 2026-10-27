@@ -640,7 +640,8 @@ insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_
 second edition below plus four 3.9 mm pegs under the roof, 2 mm long, into the web's 4.5 mm holes at (8.2, 8.2) around the
 channel's middle bearing hole, so the L drops on centred and cannot slide (the first print went on one hole off, dodging the
 screw heads; the video shows it); zip ties are the fastening for keeps, two wide ones down the roof holes, since the push is
-carried in compression and the ties only stop lift. The hole positions come from goBILDA's mesh of the channel, not the photo:
+carried in compression and the ties only stop lift; the front wall's holes are the lip's holes, six of them at 16, 24 and
+32 mm either side (the two at 8 mm would hide behind the poke). The hole positions come from goBILDA's mesh of the channel, not the photo:
 `poker_u_holes.png` draws the footprint on them and the build checks the part against the mesh with zero overlap.
 Second edition, 26 Oct: no back wall (the
 first print's stopped the intake sliding to its rest and was broken off on the robot) and 10 mm relief holes in the roof over the two screws standing
