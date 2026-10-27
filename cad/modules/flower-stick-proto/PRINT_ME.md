@@ -20,11 +20,10 @@ mesh of the channel (zero overlap).
    turn it end for end.
 2. The two screw heads come up through the relief holes and the three roof holes sit over bearing holes. If not, it is one hole
    over: lift and move it.
-3. Four zip ties (`poker_u_ties.png`). Two thin ones through the roof first, one each side of the buttress: down the small
-   front tie hole, under the channel's top inside the cavity, up the small rear tie hole, closed on top; they seat the pegs.
-   (The two 12 mm holes are for seeing the channel's bearing holes through, not for ties.) Then one each side through the
-   wall: in at the 32 mm hole and the lip hole behind it, back out at 24, closed on the outside (or, if the bend inside is
-   too tight, down round the lip's bottom edge and back). Heads outside and on top, tails cut flush.
+3. Two zip ties (`poker_u_ties.png`), one each side. From the outside, push the tie in through the wall hole 24 mm from the
+   centre and the lip hole behind it, angled up and back; its tip finds the big bearing hole inside and comes out the 12 mm
+   roof hole above it. Close on top, tail cut flush. Each tie wraps the channel's front top corner and the L's corner with
+   it. If you want more, a second tie each side goes in from the back lip's hole at the same 24 mm and out the same roof hole.
 4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
 5. Run it. If it works, print the spares from the same file and change nothing.
 

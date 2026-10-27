@@ -639,9 +639,10 @@ insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_
 **The poker L (`poker_u.py`, `poker_u_render.py`, `poker_u_holes.py`; the file keeps the U's name).** Final, 27 Oct: the
 second edition below plus four 3.9 mm pegs under the roof, 2 mm long, into the web's 4.5 mm holes at (8.2, 8.2) around the
 channel's middle bearing hole, so the L drops on centred and cannot slide (the first print went on one hole off, dodging the
-screw heads; the video shows it); zip ties are the fastening for keeps, two thin ones front-to-back through 4.5 mm tie holes
-16 mm either side of the buttress (the roof's centre hole was under the buttress and is gone), since the push is carried in
-compression and the ties only stop lift; the front wall's holes are the lip's holes, six of them at 16, 24 and
+screw heads; the video shows it); zip ties are the fastening for keeps, one each side in through the wall hole at 24 mm from
+outside and out the 12 mm roof hole over the bearing hole at the same 24 (small front-to-back tie holes were tried in the
+file and dropped: no room for fingers over the motor; the roof's centre hole was under the buttress and is gone), since
+the push is carried in compression and the ties only stop lift; the front wall's holes are the lip's holes, six of them at 16, 24 and
 32 mm either side (the two at 8 mm would hide behind the poke). The hole positions come from goBILDA's mesh of the channel, not the photo:
 `poker_u_holes.png` draws the footprint on them and the build checks the part against the mesh with zero overlap.
 The roof reaches 38 of the web's 48 mm (`ROOF_BACK`): the stars' servo mount has tabs standing over the web's back edge, and
