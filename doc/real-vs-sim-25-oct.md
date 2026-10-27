@@ -258,3 +258,16 @@ guard, and the FAR_FLOWER → N_FIRE turn.
   @50 rows until the Autos are re-simulated at a speed measured on the full robot).
 
 **Read from the logs on 27 Oct 2026** (`review.py` run on the mentor's machine against master's `r-simple.pp`, 19:44 and 19:49 R-Simple logs): the start pose matched the declared one, the fire wait ran to its 4 s limit (4.02 and 4.01 s), the park took 2.47 and 2.53 s to within 2 in and ended 0.4 and 0.5 in off, and the Autonomous period ran 30.1 s. The R-Quals figures above are still the review tool's as posted on #155 (not re-read here).
+
+## Redo this (no Claude needed)
+
+1. **Real log, drawn against driven:** from a checkout, get the review tool (`git fetch origin claude/sharp-euler-3t56jg`, then
+   `cmd /c "git show origin/claude/sharp-euler-3t56jg:tools/log-review/review.py > review.py"` and the same for `wpilog.py`; on
+   Windows use `cmd /c`, because PowerShell's `>` writes UTF-16) and run
+   `py review.py <log.wpilog> --pp <the .pp that ran>`. The drawing that ran on 25 Oct is master's file at d11eb1af.
+2. **Either log, card by card:** `py tools/real-vs-sim/timeline.py <log.wpilog>` (add `--robot 2` for the second robot of a
+   simulated pair). The same columns for a real and a simulated log, peak speed over a 300 ms window. Tested on simulated
+   logs here; the real-log path (match time from `/DriverStation/RobotMode`) has not yet been run on a real log.
+3. **The simulator at a measured speed:** the study spec takes `@top/accel/brake`, e.g.
+   `BIOBUZZ_AUTO_STUDY="RQualsAuto,PartnerLeftVAuto@77/65/55" BIOBUZZ_AUTO_DESIGNS="rigid V" BIOBUZZ_AUTO_RUNS=60 ./gradlew :TeamCode:testDebugUnitTest --tests '*AutoStudyTest*' -i`
+   (needs the Android SDK, `local.properties` with `sdk.dir`).
