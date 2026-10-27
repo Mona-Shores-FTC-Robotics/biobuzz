@@ -4,6 +4,8 @@ Every Autonomous drawn in our [Visualizer fork](https://mona-shores-ftc-robotics
 has its `.pp` file committed here, in the same PR as the Java generated from it. The Java goes in
 `opmodes/auto/generated/` (package `org.firstinspires.ftc.teamcode.opmodes.auto.generated`).
 
+**New to the Visualizer?** Start with [How to plan an Auto](how-to-plan-an-auto.md).
+
 - **The `.pp` is the source; the Java is generated.** Change an Auto by opening its `.pp` in the
   Visualizer, editing it, and exporting again (Export → Export Auto (Java)). Never edit the
   generated Java by hand: the next export overwrites it.
