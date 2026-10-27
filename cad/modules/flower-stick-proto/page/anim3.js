@@ -112,7 +112,7 @@
   const NOSE_POLY = [[0, 0.52], [0, 0.6], [0.29, 1.1], [0.32, 1.11], [0.45, 1.0], [0.45, 0.52]];   // v10's nose piece: lip, face, hub, heel
   // the poker: a fixed plate on the robot's frame, 1.2 in ahead of the intake face, 5.3 to 7.5 in up, 1.4 in wide, that
   // meets the second ball as the lip meets the posts and pushes it back off the collar's ridge
-  const POKERS = { tall: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375 }, low: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375 } };   // the face is 3.8 in behind the lip on both; the poke starts above the folded blade (pokez_scan.js)
+  const POKERS = { tall: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375, web: 6.55 }, low: { reach: 1.3, z0: 5.7, z1: 7.5, hw: 0.375, web: 5.61 } };   // web: the channel's top above the tile; 6.55 on the coach's arms (the lower-nose L fitted on 26 Oct)   // the face is 3.8 in behind the lip on both; the poke starts above the folded blade (pokez_scan.js)
   const TAIL_CUT = 2.4;   // the low arm's blade has its tail cut off here (page/tailcut_scan.js: no change in the model), for the folded overhang
   const truncate = (prof, cut) => { if (cut >= prof[prof.length - 1][0]) return prof; const out = prof.filter(([x]) => x <= cut); for (let i = 0; i + 1 < prof.length; i++) { const [x0, z0] = prof[i], [x1, z1] = prof[i + 1]; if (x0 <= cut && cut <= x1) { out.push([cut, z0 + (z1 - z0) * (cut - x0) / (x1 - x0)]); break; } } out.push([cut + 0.001, prof[0][1]]); return out; };   // 0.75 in wide: clears the pipes to 0.8 in off-centre
   // the worst case, always: the slow push that locks (4 in/s) and the sled driven to the posts
@@ -155,7 +155,7 @@
     const P = PRESETS[preset], MT = mt(), fbl = S.shaftAhead(MT) + P.shaftBack, pv = MT.pivot, shx = S.shaftAhead(MT), phiMax = stowAngle(MT, shx - pv[0], 0.77 - pv[1]);
     const bladeR = profile.map(([x, z]) => [fbl - x, z]), ux = (shx - pv[0]) / MT.L, uz = (0.77 - pv[1]) / MT.L, nx = -uz * MT.w / 2, nz = ux * MT.w / 2;
     const armR = [[pv[0] - ux * MT.back + nx, pv[1] - uz * MT.back + nz], [pv[0] + ux * MT.fwd + nx, pv[1] + uz * MT.fwd + nz], [pv[0] + ux * MT.fwd - nx, pv[1] + uz * MT.fwd - nz], [pv[0] - ux * MT.back - nx, pv[1] - uz * MT.back - nz]];
-    const web = cfg.pusher ? cfg.pusher.z0 - 0.09 : 0;
+    const web = cfg.pusher ? (cfg.pusher.web || cfg.pusher.z0 - 0.09) : 0;
     const obstacles = { "the poker": cfg.pusher ? [[-2.06, web - 0.47], [-2.06, web + 0.16], [-1.73, web + 0.16], [0.17, cfg.pusher.z1], [cfg.pusher.reach, cfg.pusher.z1], [cfg.pusher.reach, cfg.pusher.z0], [0.17, cfg.pusher.z0], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web], [-1.9, web], [-1.9, web - 0.47]] : null,
       "the intake's face": [[0, 3.9], [0, 10.7], [-0.01, 10.7], [-0.01, 3.9]], "the camera": [[LL.body[0][0], LL.body[0][1]], [LL.body[1][0], LL.body[0][1]], [LL.body[1][0], LL.body[1][1]], [LL.body[0][0], LL.body[1][1]]] };
     const best = {}; const N = 120;
@@ -200,7 +200,7 @@
       robotG.style.display = gecko.style.display = spoke.style.display = ""; sledWheel.style.display = "none";
       if (cfg.pusher) {
         pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = "";
-        const web = cfg.pusher.z0 - 0.09;                                  // the channel's web top; the plate's side profile: plate, lip, a boss
+        const web = cfg.pusher.web || cfg.pusher.z0 - 0.09;                                  // the channel's web top; the plate's side profile: plate, lip, a boss
         saddleEl.setAttribute("points", [[-1.89, web], [-1.89, web + 0.2], [-1.71, web + 0.2], [-1.71, web + 0.35], [-1.42, web + 0.35], [0.17, cfg.pusher.z1], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web], [-0.18, web], [-0.18, web + 0.2], [-1.71, web + 0.2]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); saddleEl.style.display = "";
       } else pokerEl.style.display = saddleEl.style.display = "none";
     } else {

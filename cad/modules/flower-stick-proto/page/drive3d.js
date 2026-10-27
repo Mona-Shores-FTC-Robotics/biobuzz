@@ -230,10 +230,11 @@ window.Drive3D = (function () {
   }
   // the poker on the robot (poker_u.py): an L over the intake's front channel: a wall down the front lip, the roof 5 mm above
   // the web on two thin rails (bolt heads pass under), the poke ahead of the wall and a buttress from its top back along the roof
+  let pokerMesh = null;
   function setPoker(pk) {
     if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); pokerMesh = null; }
     if (!pk) return;
-    const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.z0 - 0.09, U = 4.1, w = pk.hw ? 2 * pk.hw : 0.75, T = 0.16, D = 1.9, R = 0.2;
+    const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.web || pk.z0 - 0.09, U = 4.1, w = pk.hw ? 2 * pk.hw : 0.75, T = 0.16, D = 1.9, R = 0.2;
     const add = (x0, x1, z0, z1, wd, y) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, z1 - z0, wd), mat); m.position.set((x0 + x1) / 2, (z0 + z1) / 2, -(y || 0)); g.add(m); };
     add(-D, T, web + R, web + R + T, U);             // the roof, 5 mm above the web
     add(0.01, T, web - 0.47, web + R + T, U);        // the front wall down the lip
