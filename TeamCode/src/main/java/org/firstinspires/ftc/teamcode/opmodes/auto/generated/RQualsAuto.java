@@ -23,7 +23,7 @@ public final class RQualsAuto {
     public static final String[] COMMANDS = {"LaunchAll", "SpinUp"};
 
     /** Registered robot triggers this Auto uses; checked when the OpMode initialises. */
-    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "RightCellUp", "Tip"};
+    public static final String[] TRIGGERS = {"Empty", "IntakeFull", "Tip"};
 
     /** The alliance the Auto was drawn for ("RED" or "BLUE"); the other alliance runs it rotated half a turn about the field centre. */
     public static final String DRAWN_FOR = "RED";
@@ -112,7 +112,7 @@ public final class RQualsAuto {
                                 kit.afterMs(3000)),
                         kit.path("FAR_FLOWER to N_FIRE", farFlowerToNFire),
                         kit.firstOf("Fire the far FLOWER's 4 (TIP 2)", kit.command("LaunchAll"),
-                                kit.when("RightCellUp"),
+                                kit.when("Tip"),
                                 kit.afterMs(4000)),
                         kit.firstOf("TIP 2's spill lands",
                                 kit.when("IntakeFull"),
