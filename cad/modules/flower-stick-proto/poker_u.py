@@ -24,7 +24,7 @@ HERE = os.path.dirname(os.path.abspath(__file__)); os.makedirs(os.path.join(HERE
 IN = 25.4
 CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm deep, the lip 12 mm down from the web top; 0.3 mm clearance
 WALL_T = 4.0
-HALF_L = float(os.environ.get("HALF_L", "52"))             # half the L's length along the channel: 52 (104 mm) unless the intake's hard stops on the web need it shorter
+HALF_L = float(os.environ.get("HALF_L", "40"))             # half the L's length along the channel: 40 (80 mm), so the intake's round stops under the lip can come inboard to 60 mm from centre, clear of the servo
 ROOF_T = 4.0
 RELIEF = [(-24.0 + 15.0, y) for y in (32.0, -32.0)] + [(-24.0 - 15.0, y) for y in (32.0, -32.0)]   # 10 mm relief holes over the screws standing out of the web: the pattern's outer rows (14 and 16 mm from the centreline), 32 mm along, both sides
 HOLE_Y, HOLE_Z, HOLE_D = 8.0 * int((HALF_L - 8.0) // 8.0), -8.0, 4.3   # the lip's holes: 8 mm pitch from the channel's centre, 8 mm below the web top, 4 mm; the outermost pair that fits
@@ -50,7 +50,9 @@ for x, y in RELIEF:
 # intake's round hard stops, moved inboard, bolt down through the roof with their own M4s and clamp the L to the channel
 # wherever they land; the zip ties are then only for a test without the stops.
 PATTERN = []
-for k in range(-int((HALF_L - 6) // 8), int((HALF_L - 6) // 8) + 1):
+for k in (range(-int((HALF_L - 6) // 8), int((HALF_L - 6) // 8) + 1) if os.environ.get("PATTERN_ROOF") else []):   # PATTERN_ROOF=1 to cut it; off by default, the stops sit beside the L, not on it
+    pass
+for k in (range(-int((HALF_L - 6) // 8), int((HALF_L - 6) // 8) + 1) if os.environ.get("PATTERN_ROOF") else []):
     y = 8.0 * k
     for dep in (-16.0, -8.0, 8.0, 16.0):
         x = -24.0 + dep
