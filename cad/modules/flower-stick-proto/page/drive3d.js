@@ -36,7 +36,7 @@ window.Drive3D = (function () {
   const geckos = GECKO_Y.map(y => { const m = new THREE.Mesh(geckoGeo, soft); m.position.set(-0.94, 2.89, -y); robot.add(m); return m; });
   const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 9.4, 6), steel); shaft.geometry.rotateX(Math.PI / 2); shaft.position.set(-0.94, 2.89, 0); robot.add(shaft);
   for (const y of [-5.1, 5.1]) { const u = new THREE.Mesh(new THREE.BoxGeometry(1.9, 5.7, 0.5), dark); u.position.set(-0.95, 6.0, -y); robot.add(u); }
-  const cross = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.5, 9.4), dark); cross.position.set(-0.95, 5.5, 0); robot.add(cross);
+  const cross = new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.5, 9.4), dark); cross.position.set(-0.95, 5.5, 0); robot.add(cross);   // the intake's front channel; setPoker moves it to where the poker says the web is
   const stage2 = new THREE.CylinderGeometry(1.89, 1.89, 1.9, 28); stage2.rotateX(Math.PI / 2);
   for (const y of [-1.0, 1.0]) { const m = new THREE.Mesh(stage2, soft); m.position.set(-8.2, 2.6, -y); robot.add(m); }
   const chassis = new THREE.Mesh(new THREE.BoxGeometry(10, 7, 16), body); chassis.position.set(-7, 4.6, 0); robot.add(chassis);
@@ -236,6 +236,7 @@ window.Drive3D = (function () {
     if (!pk) return;
     const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.web || pk.z0 - 0.09, U = 4.1, w = pk.hw ? 2 * pk.hw : 0.75, T = 0.16, D = 1.9, R = 0.2;
     const add = (x0, x1, z0, z1, wd, y) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, z1 - z0, wd), mat); m.position.set((x0 + x1) / 2, (z0 + z1) / 2, -(y || 0)); g.add(m); };
+    cross.position.y = web - 0.24;                   // the channel's top at the web height the poker was fitted to
     add(-D, T, web, web + T, U);                     // the roof, flat on the web
     add(0.01, T, web - 0.47, web + T, U);            // the front wall down the lip
     add(T, pk.reach, pk.z0, pk.z1, w);               // the poke
