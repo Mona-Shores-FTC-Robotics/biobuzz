@@ -643,6 +643,9 @@ screw heads; the video shows it); zip ties are the fastening for keeps, two wide
 carried in compression and the ties only stop lift; the front wall's holes are the lip's holes, six of them at 16, 24 and
 32 mm either side (the two at 8 mm would hide behind the poke). The hole positions come from goBILDA's mesh of the channel, not the photo:
 `poker_u_holes.png` draws the footprint on them and the build checks the part against the mesh with zero overlap.
+The roof reaches 38 of the web's 48 mm (`ROOF_BACK`): the stars' servo mount has tabs standing over the web's back edge, and
+the intake bottoming out should load the steel stops, not the part. `SCREWS=1` (`poker_u_hi_bolt`) turns the front relief
+into a 4.5 mm hole so the web's own front screw, 4 mm longer, clamps the L.
 Second edition, 26 Oct: no back wall (the
 first print's stopped the intake sliding to its rest and was broken off on the robot) and 10 mm relief holes in the roof over the two screws standing
 out of the web (the pattern's outer rows, 32 mm to one side of centre, cut both sides), so the roof sits flat; two lip ties

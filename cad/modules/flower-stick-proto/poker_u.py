@@ -8,6 +8,8 @@ first night on 20245:
 - Four pegs under the roof, into the web's 4.5 mm holes around the channel's middle bearing hole, so the L can only go on
   centred and cannot slide: the first print went on one hole off centre, dodging the screw heads.
 - 80 mm long, so the intake's round hard stop under the lip, moved inboard to clear the stick's servo, sits beside it.
+- The roof stops 10 mm short of the web's back edge (`ROOF_BACK`): the stars' servo mount has tabs standing over that edge.
+  The rear screw's relief becomes a notch open to the back; the pegs, 32 mm back, keep 4 mm of roof behind them.
 - The front wall's holes are the lip's holes: six, 16, 24 and 32 mm either side of the centre, so a tie goes wherever is
   easiest and a lip hole shows through each one.
 
@@ -19,7 +21,7 @@ compression; the pegs take the sideways load and the ties only keep the L from l
     python3 cad/modules/flower-stick-proto/poker_u.py                 # stl/poker_u.stl, step/poker_u.step (web top 5.61 up)
     WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py                 # the one on the robots: the channel's top 6.55 in up
     HALF_L=36 NAME=poker_u_72 python3 .../poker_u.py                   # a 72 mm one, if a stop lands closer than 60 mm from centre
-    SCREWS=1 WEB_UP=6.55 NAME=poker_u_hi_bolt python3 .../poker_u.py  # bolted: the web's two screws, 4 mm longer, go through the roof and clamp it
+    SCREWS=1 WEB_UP=6.55 NAME=poker_u_hi_bolt python3 .../poker_u.py  # bolted: the web's front screw, 4 mm longer, goes through the roof and clamps it
 
 Heights follow the channel: WEB_UP is its web top above the tile (intake lowered) and the poke spans 5.7 to 7.5 in whatever
 that is, 1.3 in ahead of the lip's face (page/pokez_scan.js: 24/24 at every speed). Millimetres; x ahead of the front lip's
@@ -33,6 +35,7 @@ CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm
 WALL_T = 4.0
 HALF_L = float(os.environ.get("HALF_L", "40"))             # half the L's length along the channel: 40 (80 mm), so the intake's round stops under the lip can come inboard to 60 mm from centre, clear of the servo
 ROOF_T = 4.0
+ROOF_BACK = float(os.environ.get("ROOF_BACK", "38"))        # how far back from the front lip the roof reaches: 38 of the web's 48, leaving the rear 10 mm clear for the stars' servo mount tabs that stand over the web's back edge
 RELIEF = [(-8.0, y) for y in (32.0, -32.0)] + [(-40.0, y) for y in (32.0, -32.0)]   # 10 mm relief holes centred on the screws standing out of the web: the pattern's rows 8 mm in from each lip, 32 mm along, both sides
 PEGS = [(-24.0 + dx, dy) for dx in (-8.2, 8.2) for dy in (-8.2, 8.2)]   # the web's 4.5 mm holes around the middle bearing hole
 PEG_D, PEG_H = 3.9, 2.0                                     # the pegs: 0.3 mm of play in the hole, 2 mm into a 2.5 mm web, never through it
@@ -44,7 +47,7 @@ HOLE_YS = [y for k in range(1, 8) for y in (8.0 * k, -8.0 * k) if 8.0 * k <= HAL
 BUTTRESS_BACK = -36.0                                       # the buttress runs from the poke's top back to here on the roof
 x_in, x_out = CLR, CLR + WALL_T                             # the front wall, outside the lip
 roof_z0, roof_z1 = 0.0, ROOF_T
-roof = cq.Workplane("XY").box(CHAN_D + CLR + WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-CHAN_D, 0, roof_z0))
+roof = cq.Workplane("XY").box(ROOF_BACK + CLR + WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-ROOF_BACK, 0, roof_z0))
 front = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + roof_z1, centered=(False, True, False)).translate((x_in, 0, -FLANGE_H))
 poke = cq.Workplane("XY").box(REACH - x_out, POKE_W, POKE_HI - POKE_LO, centered=(False, True, False)).translate((x_out, 0, POKE_LO))
 buttress = cq.Workplane("XZ").polyline([(BUTTRESS_BACK, roof_z1 - 0.01), (x_out + 0.01, roof_z1 - 0.01), (x_out + 0.01, POKE_HI)]).close().extrude(POKE_W / 2, both=True)
@@ -53,9 +56,9 @@ for x, y in PEGS:   # the locating pegs under the roof, chamfered to find their 
     part = part.union(cq.Workplane("XY").circle(PEG_D / 2).extrude(-PEG_H).translate((x, y, roof_z0)).faces("<Z").chamfer(0.6))
 for y in HOLE_YS:   # the wall's holes on the lip's holes, through the front wall only
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(20, both=True).translate((x_in + WALL_T / 2, y, HOLE_Z)))
-SCREWS = bool(os.environ.get("SCREWS"))                      # SCREWS=1: the two screws standing out of the web go through the roof instead (4.5 mm holes, screws 4 mm longer) and clamp the L
+SCREWS = bool(os.environ.get("SCREWS"))                      # SCREWS=1: the front screw standing out of the web goes through the roof (4.5 mm hole, a screw 4 mm longer) and clamps the L; the rear one is past the roof's end
 for x, y in RELIEF:
-    part = part.cut(cq.Workplane("XY").circle(2.25 if SCREWS else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
+    part = part.cut(cq.Workplane("XY").circle(2.25 if SCREWS and x > -ROOF_BACK + 5 else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))   # a screw hole only where the roof fully covers it; the rear one is a notch either way
 # three 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch), for the roof ties
 for y in ROOF_HOLES:
     part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))

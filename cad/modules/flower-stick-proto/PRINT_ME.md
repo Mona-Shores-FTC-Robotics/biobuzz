@@ -1,6 +1,6 @@
 # Print now: the poker L, final (for whoever prints)
 
-**`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (81 x 80 x 46 mm, 50 cm3), standing on its front wall's back.
+**`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (71 x 80 x 46 mm, 48 cm3), standing on its front wall's back.
 The final poker after the first night on 20245, with the lower nose, the one that worked, plus what that night taught:
 
 - **No back wall.** The first print's stopped the intake sliding to its rest and had to be broken off.
@@ -26,10 +26,16 @@ mesh of the channel (zero overlap).
 4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
 5. Run it. If it works, print the spares from the same file and change nothing.
 
-**Or bolt it:** `stl/poker_u_hi_bolt.stl` is the same part with the two relief holes replaced by 4.5 mm holes. The two screws
-already standing out of the channel's top come out, the L goes on (pegs), and the same screws go back 4 mm longer, through the
-roof into whatever they held: the L is then bolted to the intake with no new holes in the channel. One wide tie across the
-other side's roof holes. Print this one if two M4s 4 mm longer than those screws are in the kit tonight; print the first if not.
+**Or bolt it:** `stl/poker_u_hi_bolt.stl` is the same part with the front relief hole replaced by a 4.5 mm hole. The front
+screw already standing out of the channel's top comes out, the L goes on (pegs), and a screw 4 mm longer goes back through the
+roof into whatever it held: the L is then bolted to the intake with no new holes in the channel, the pegs take the sideways
+load and one wide tie across the roof holes keeps the far side down. Print this one if an M4 4 mm longer than that screw is
+in the kit tonight; print the first if not.
+
+**The roof stops 10 mm short of the channel's back edge** (38 of its 48 mm). The stars' servo mount has tabs standing over
+that edge, and whatever touches the part when the intake bottoms out should touch the steel stops, not this. The rear screw
+sits in a notch open to the back. If something still crosses the roof in Onshape, say how far from the front lip and how high
+above the channel's top, and the roof gets cut around it.
 
 ![the plate](print_job_u_only.png)
 
