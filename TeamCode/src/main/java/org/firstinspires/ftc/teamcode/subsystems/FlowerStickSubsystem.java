@@ -30,13 +30,13 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
 public class FlowerStickSubsystem implements Subsystem {
 
     /**
-     * Servo position with the stick in, 0 to 1. <b>Not yet measured:</b> starts at one end of the
-     * servo's travel, which is a fact of the servo API, not a guess about the stick.
+     * Servo position with the stick in, 0 to 1. Measured on 20245 on 26 Oct 2026 with the goBILDA
+     * Torque servo on Expansion Hub servo port 1; 19429 not yet checked.
      */
-    public static double RETRACTED = 0.0;
+    public static double RETRACTED = 0.6;
 
-    /** Servo position with the stick out, 0 to 1. <b>Not yet measured</b>, see {@link #RETRACTED}. */
-    public static double EXTENDED = 1.0;
+    /** Servo position with the stick out, 0 to 1. Measured with {@link #RETRACTED}. */
+    public static double EXTENDED = 0.0;
 
     /**
      * Milliseconds the servo is given to finish a swing before the pulse is cut. A goBILDA Torque
