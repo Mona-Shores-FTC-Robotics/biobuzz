@@ -1,7 +1,6 @@
 """How the poker L is zip-tied to the intake's front channel: one tie each side (two in all). In through the front wall's hole
 24 mm from the centre and the lip hole behind it, from outside, angled up and back inside the channel, out through the bearing
-hole and the 12 mm roof hole above it, closed on top. Optionally a second each side in from the back lip's hole and out the
-same roof hole. -> poker_u_ties.png"""
+hole and the 12 mm roof hole above it, closed on top. Nothing out the back: a tie there fouls the intake's slides. -> poker_u_ties.png"""
 import os, matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle, Circle, FancyBboxPatch
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -19,7 +18,7 @@ ax.plot([12, -3.5, -24, -24], [-8, -8, -3, 8], color=TIE, lw=3, solid_capstyle="
 ax.add_patch(FancyBboxPatch((-27, 7), 5, 3, boxstyle="round,pad=0.3", fc=TIE, ec="k", lw=0.5))
 ax.annotate("in from outside: through the wall hole and\nthe lip hole behind it, 8 mm below the top", (10, -8), (6, -30), fontsize=8, color=TIE, arrowprops=dict(arrowstyle="->", color=TIE))
 ax.annotate("angled up and back inside; the tip finds\nthe 14 mm bearing hole and comes out the\n12 mm roof hole; close on top", (-24, 6), (-46, 16), fontsize=8, color=TIE, arrowprops=dict(arrowstyle="->", color=TIE))
-ax.plot([-56, -45.5, -24, -24], [-8, -8, -3, 8], color=TIE2, lw=2, ls="--"); ax.text(-52, -14, "optional second tie:\nin from the back lip's hole,\nout the same roof hole", ha="center", fontsize=7, color=TIE2)
+ax.text(-52, -14, "nothing out the back:\na tie there fouls the\nintake's slides", ha="center", fontsize=7, color="#888")
 ax.text(-12, -5.5, "room above the motor", fontsize=7, color="k")
 ax.set_xlim(-62, 24); ax.set_ylim(-44, 26); ax.set_xlabel("mm, + ahead of the channel's lip"); ax.set_ylabel("mm, up from the channel's top")
 ax.set_title("A. One tie from the side, cut 24 mm from the centre (the same on the other side)", fontsize=9)

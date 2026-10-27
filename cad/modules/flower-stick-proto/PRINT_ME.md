@@ -23,7 +23,7 @@ mesh of the channel (zero overlap).
 3. Two zip ties (`poker_u_ties.png`), one each side. From the outside, push the tie in through the wall hole 24 mm from the
    centre and the lip hole behind it, angled up and back; its tip finds the big bearing hole inside and comes out the 12 mm
    roof hole above it. Close on top, tail cut flush. Each tie wraps the channel's front top corner and the L's corner with
-   it. If you want more, a second tie each side goes in from the back lip's hole at the same 24 mm and out the same roof hole.
+   it. Nothing goes out the back of the channel: a tie there fouls the intake's slides.
 4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
 5. Run it. If it works, print the spares from the same file and change nothing.
 

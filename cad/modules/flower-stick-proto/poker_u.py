@@ -15,8 +15,8 @@ first night on 20245:
 
 Fastening: zip ties, for keeps. One each side: in through the wall hole 24 mm from the centre and the lip hole behind it,
 from outside where the fingers are, angled up and back inside the channel, out through the bearing hole and the 12 mm roof
-hole above it, closed on top. It wraps the channel's front top corner and the L's roof-and-wall corner with it. A second
-tie each side can come in through the back lip's hole at the same 24 mm and out the same roof hole. The buttress covers
+hole above it, closed on top. It wraps the channel's front top corner and the L's roof-and-wall corner with it. Nothing out
+the back lip: a tie there fouls the intake's slides. The buttress covers
 the roof's centre, so there is no hole there. The ball's push goes into the poke, down the buttress into the roof and the front wall, onto the lip, in
 compression; the pegs take the sideways load and the ties only keep the L from lifting.
 
