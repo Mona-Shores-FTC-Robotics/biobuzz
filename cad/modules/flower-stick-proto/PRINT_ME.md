@@ -1,16 +1,29 @@
-# Print now: the poker L (for whoever prints)
+# Print now: the poker L, final (for whoever prints)
 
 **`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (81 x 80 x 46 mm, 50 cm3), standing on its front wall's back.
-The second edition of the poker after the first night on 20245, with the lower nose, the one that worked: **no back wall** (it
-stopped the intake sliding to its rest and had to be broken off) and **relief holes in the roof over the two screws standing up out
-of the channel's top** (10 mm, in the pattern's outer rows 32 mm to one side of the channel's centre, cut both sides so it
-fits either way round), so the roof sits flat on the channel. It sits over the flat
-channel across the front of the intake, above the intake wheels: the wall down the channel's front lip, the two holes in the
-wall on the lip's 4 mm holes 32 mm either side of the channel's centre, the three roof holes over the channel's big bearing
-holes. It is 80 mm long because the intake's round hard stop under the channel's lip was moved inboard for good on 26 Oct, to
-clear the stick's servo: at 60 mm from centre it leaves the L 4 mm of air (`stops_on_photo.png`). Four zip ties: two in through the wall and the lip's hole, under the lip's edge, back out and closed; two down one roof
-hole, through the channel, up the next, closed on top. Millimetres. PETG, 30 % infill, support under the wall's lip. The blade
-is not on this plate: the 2.0 in one printed on 26 Oct is the one.
+The final poker after the first night on 20245, with the lower nose, the one that worked, plus what that night taught:
+
+- **No back wall.** The first print's stopped the intake sliding to its rest and had to be broken off.
+- **Relief holes in the roof over the two screws** standing up out of the channel's top (10 mm, cut both sides so the part
+  fits either way round), so the roof sits flat.
+- **Four pegs under the roof** that drop into the channel's small holes around its middle bearing hole. The part can only go on
+  centred and cannot slide. The first print went on one hole off centre, dodging the screw heads; this one cannot.
+- **80 mm long**, so the intake's round hard stop, moved inboard, sits beside it.
+
+`poker_u_holes.png` is the part's footprint on the channel's own hole pattern; every hole and peg was checked against goBILDA's
+mesh of the channel (zero overlap).
+
+**To fit it:**
+
+1. Intake lowered. Set the L on the front channel, poke forward, the four pegs into the four small holes around the channel's
+   middle bearing hole (the 5th of 9, four each side). It drops on with no play sideways. If it rocks, a peg is on a screw head:
+   turn it end for end.
+2. The two screw heads come up through the relief holes and the three roof holes sit over bearing holes. If not, it is one hole
+   over: lift and move it.
+3. Two wide zip ties (50 lb): down one roof hole, through the channel, up the next, closed on top. Two thin ones through the
+   wall's holes and the lip's holes behind them if you want belt and braces.
+4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
+5. Run it. If it works, print the spares from the same file and change nothing.
 
 ![the plate](print_job_u_only.png)
 

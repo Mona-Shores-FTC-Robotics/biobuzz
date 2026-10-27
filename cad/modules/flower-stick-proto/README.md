@@ -636,7 +636,13 @@ at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_bo
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
-**The poker L (`poker_u.py`, `poker_u_render.py`; the file keeps the U's name).** Second edition, 26 Oct: no back wall (the
+**The poker L (`poker_u.py`, `poker_u_render.py`, `poker_u_holes.py`; the file keeps the U's name).** Final, 27 Oct: the
+second edition below plus four 3.9 mm pegs under the roof, 2 mm long, into the web's 4.5 mm holes at (8.2, 8.2) around the
+channel's middle bearing hole, so the L drops on centred and cannot slide (the first print went on one hole off, dodging the
+screw heads; the video shows it); zip ties are the fastening for keeps, two wide ones down the roof holes, since the push is
+carried in compression and the ties only stop lift. The hole positions come from goBILDA's mesh of the channel, not the photo:
+`poker_u_holes.png` draws the footprint on them and the build checks the part against the mesh with zero overlap.
+Second edition, 26 Oct: no back wall (the
 first print's stopped the intake sliding to its rest and was broken off on the robot) and 10 mm relief holes in the roof over the two screws standing
 out of the web (the pattern's outer rows, 32 mm to one side of centre, cut both sides), so the roof sits flat; two lip ties
 and two roof ties. 80 mm long (`HALF_L`), the lip ties at 32 mm: the intake's round hard stop, a hub on the rail under the
