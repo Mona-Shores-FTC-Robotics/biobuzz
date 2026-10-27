@@ -42,6 +42,12 @@ import java.util.Locale;
  * D-pad up zeroes it by hand and always wins. D-pad left relocalizes the pose from the camera, for
  * after a restart or a shove; the Match page says what it did.
  *
+ * <p>The driver's D-pad up, held, picks the nearest FLOWER ({@link FlowerPicker}): line up, stick
+ * down and intake on during the approach, push in, dwell, back out, stick up, every phase timed in
+ * the match log. Letting go or touching a drive stick stops it. It needs a field-referenced pose,
+ * so after an Auto or a camera relocalize. It is a test unit for making the pick faster, not a
+ * claim about how a match is driven.
+ *
  * <p>The operator (gamepad 2) runs the launcher and the feeder, with nothing in between them:
  * spin up, hold feed, watch what happens. While the launcher is being brought up on the robot
  * that is the whole point, so the feeder is not gated on the launcher being at speed;
@@ -105,8 +111,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** What the turret is doing for the operator: held straight ahead, or aiming at our CELL. */
     private enum TurretMode { LOCKED, AIM }
 
+    /** A drive stick past this during a FLOWER pick hands the robot back to the driver. */
+    private static final double PICK_ABORT_STICK = 0.2;
+
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
+    private FlowerPicker picker;
     private String relocalizeNote;
 
     private TelemetryManager panels;
@@ -122,6 +132,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels = null; // Panels is a window onto the robot, not part of it.
         }
         aimer = new TurretAimer(robot);
+        picker = new FlowerPicker(robot, text -> log.event(text));
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
         driver.note("L1 (hold)", "Slow");
@@ -140,6 +151,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         driver.when("L2 (hold)", "Eject", () -> gamepad1.left_trigger > TRIGGER_PRESSED)
                 .onPress(robot.intake::eject)
                 .onRelease(robot.intake::idle);
+        driver.note("D-pad up (hold)", "Pick the nearest FLOWER (let go or move a stick to stop)");
 
         operator.when("Cross (A)", "Launcher spin up", () -> gamepad2.a)
                 .onPress(robot.launcher::spinUp);
@@ -195,8 +207,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
 
-        robot.drive.setAccelLimited(!turbo);
-        robot.drive.drive(forward, strafe, turn);
+        // A FLOWER pick drives the robot while held; letting go or a stick hands it back, this loop.
+        picker.update(gamepad1.dpad_up, Math.abs(forward) > PICK_ABORT_STICK
+                || Math.abs(strafe) > PICK_ABORT_STICK || Math.abs(turn) > PICK_ABORT_STICK);
+        if (!picker.active()) {
+            robot.drive.setAccelLimited(!turbo);
+            robot.drive.drive(forward, strafe, turn);
+        }
 
         // The feeder is a held input gated on a changing fact, so it is decided every loop here
         // rather than on a press: a trigger held through the spin-up starts feeding at speed, and
@@ -222,6 +239,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
+        String pick = picker.line();
+        if (!pick.isEmpty()) display.line(pick);
         robot.intake.describe(display);
         robot.launcher.describe(display);
         robot.feeder.describe(display);
