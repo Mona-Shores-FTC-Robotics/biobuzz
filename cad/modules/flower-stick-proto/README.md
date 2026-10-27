@@ -637,9 +637,10 @@ Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deploye
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
 **The poker L (`poker_u.py`, `poker_u_render.py`; the file keeps the U's name).** Second edition, 26 Oct: no back wall (the
-first print's stopped the intake sliding to its rest and was broken off on the robot) and the roof on two 4.5 mm rails along
-the web's outer strips, 5 mm above it, so the bolt heads standing out of the channel's top pass under; two lip ties and two
-roof ties. The first edition, below, for the record: The poker's final form, and the only one that matches the robot: an
+first print's stopped the intake sliding to its rest and was broken off on the robot) and 10 mm relief holes in the roof over the two screws standing
+out of the web (the pattern's outer rows, 32 mm to one side of centre, cut both sides), so the roof sits flat; two lip ties
+and two roof ties. (A roof lifted 5 mm on rails along the web's clear outer strips was tried in the file first and dropped
+for less contact with the channel.) The first edition, below, for the record: The poker's final form, and the only one that matches the robot: an
 upside-down U over the intake's front channel, the flat 9-hole lowside U-channel across the front above the intake wheels
 (web on top at 5.61 up with the intake lowered, 48 mm deep, 12 mm flanges down with 4 mm holes on an 8 mm pitch 8 mm below the
 web top, the intake motor inside its cavity; it is the only channel there: the week-old export shows an 11-hole channel
