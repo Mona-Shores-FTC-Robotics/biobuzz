@@ -44,7 +44,7 @@
   }
   placeCam("plan");
   const pokerEl = el("rect", { fill: "#e0552b", stroke: "var(--fg)", "stroke-width": 1 }, robotG);
-  const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the poker L over the intake's front channel: a wall down the lip, the roof on two rails 5 mm above the web, the buttress
+  const saddleEl = el("polygon", { fill: "#e0552b", "fill-opacity": 0.8, stroke: "var(--fg)", "stroke-width": 0.8 }, robotG);   // the poker L over the intake's front channel: a wall down the lip, the roof flat on the web (relief holes over the screws), the buttress
   const gecko = el("circle", { fill: "var(--steel)", "fill-opacity": 0.35, stroke: "var(--fg)", "stroke-width": 1.2 });
   const spoke = el("line", { stroke: "var(--fg)", "stroke-width": 2 });
   // the arms from the October 25 CAD: 11-hole U-channels (1.26 in wide) on a pivot 2.37 in behind the face and 7.89 in up,
@@ -201,7 +201,7 @@
       if (cfg.pusher) {
         pokerEl.setAttribute("x", sx(0)); pokerEl.setAttribute("y", sy(cfg.pusher.z1)); pokerEl.setAttribute("width", cfg.pusher.reach * PX); pokerEl.setAttribute("height", (cfg.pusher.z1 - cfg.pusher.z0) * PX); pokerEl.style.display = "";
         const web = cfg.pusher.web || cfg.pusher.z0 - 0.09;                                  // the channel's web top; the plate's side profile: plate, lip, a boss
-        saddleEl.setAttribute("points", [[-1.89, web], [-1.89, web + 0.2], [-1.71, web + 0.2], [-1.71, web + 0.35], [-1.42, web + 0.35], [0.17, cfg.pusher.z1], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web], [-0.18, web], [-0.18, web + 0.2], [-1.71, web + 0.2]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); saddleEl.style.display = "";
+        saddleEl.setAttribute("points", [[-1.89, web], [-1.89, web + 0.16], [-1.42, web + 0.16], [0.17, cfg.pusher.z1], [0.17, web - 0.47], [0.01, web - 0.47], [0.01, web]].map(([x, z]) => sx(x) + "," + sy(z)).join(" ")); saddleEl.style.display = "";
       } else pokerEl.style.display = saddleEl.style.display = "none";
     } else {
       robotG.style.display = gecko.style.display = spoke.style.display = "none";
