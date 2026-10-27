@@ -1,13 +1,14 @@
 # Print now: the poker L (for whoever prints)
 
-**`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (81 x 104 x 46 mm, 63 cm3), standing on its front wall's back.
+**`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (81 x 80 x 46 mm, 50 cm3), standing on its front wall's back.
 The second edition of the poker after the first night on 20245, with the lower nose, the one that worked: **no back wall** (it
 stopped the intake sliding to its rest and had to be broken off) and **relief holes in the roof over the two screws standing up out
 of the channel's top** (10 mm, in the pattern's outer rows 32 mm to one side of the channel's centre, cut both sides so it
 fits either way round), so the roof sits flat on the channel. It sits over the flat
 channel across the front of the intake, above the intake wheels: the wall down the channel's front lip, the two holes in the
-wall on the lip's 4 mm holes 40 mm either side of the channel's centre, the three roof holes over the channel's big bearing
-holes. Four zip ties: two in through the wall and the lip's hole, under the lip's edge, back out and closed; two down one roof
+wall on the lip's 4 mm holes 32 mm either side of the channel's centre, the three roof holes over the channel's big bearing
+holes. It is 80 mm long because the intake's round hard stop under the channel's lip was moved inboard for good on 26 Oct, to
+clear the stick's servo: at 60 mm from centre it leaves the L 4 mm of air (`stops_on_photo.png`). Four zip ties: two in through the wall and the lip's hole, under the lip's edge, back out and closed; two down one roof
 hole, through the channel, up the next, closed on top. Millimetres. PETG, 30 % infill, support under the wall's lip. The blade
 is not on this plate: the 2.0 in one printed on 26 Oct is the one.
 
