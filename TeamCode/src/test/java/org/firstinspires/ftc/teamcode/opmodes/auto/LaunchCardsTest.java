@@ -28,6 +28,8 @@ public class LaunchCardsTest {
     private double now;
     private boolean spinning;
     private boolean atSpeed;
+    private boolean settled;
+    private final List<String> notes = new ArrayList<>();
     private LaunchCards cards;
 
     @Before
@@ -36,6 +38,8 @@ public class LaunchCardsTest {
         now = 0;
         spinning = false;
         atSpeed = false;
+        settled = true;
+        PathEndSettle.maxSettleWaitS = 1.0;
         LaunchCards.launchAllFeedS = 2.0;
         LaunchCards.launchOneFeedS = 0.5;
         cards = new LaunchCards(
@@ -47,6 +51,8 @@ public class LaunchCardsTest {
                     @Override public void feed() { log.add(String.format(java.util.Locale.US, "feed@%.2f", now)); }
                     @Override public void idle() { log.add(String.format(java.util.Locale.US, "idle@%.2f", now)); }
                 },
+                () -> settled,
+                notes::add,
                 () -> now);
     }
 
@@ -109,6 +115,40 @@ public class LaunchCardsTest {
         assertTrue("idled at the end: " + log, idled != null);
         assertEquals("feeds for launchAllFeedS", 2.0, timeOf(idled) - timeOf(fed), LOOP_S + EPS);
         assertEquals(1, cards.launchAllsCompleted());
+    }
+
+    /** #193: a fire after a path waits for the robot to be still and aimed, not for Pedro's done. */
+    @Test
+    public void aLaunchAtSpeedWaitsForTheRobotToSettle() {
+        atSpeed = true;
+        settled = false;
+        Command launch = cards.launchAll();
+        launch.schedule();
+        step(0.5);
+        assertEquals("nothing fed while the robot is still moving: " + log, null, first("feed"));
+        settled = true;
+        finish(launch, 5.0);
+        assertEquals("fed as soon as it settled", 0.5, timeOf(first("feed")), LOOP_S + EPS);
+        assertTrue("a settled feed is not noted: " + notes, notes.isEmpty());
+    }
+
+    @Test
+    public void aRobotThatNeverSettlesFiresAtTheMaxWaitAndTheLogSaysSo() {
+        atSpeed = true;
+        settled = false;
+        run(cards.launchAll(), 5.0);
+        assertEquals("fed at maxSettleWaitS", 1.0, timeOf(first("feed")), LOOP_S + EPS);
+        assertEquals(notes.toString(), 1, notes.size());
+        assertTrue(notes.get(0), notes.get(0).startsWith("LaunchAll fed before the robot settled"));
+    }
+
+    @Test
+    public void aBadMaxSettleWaitNeverStallsTheCard() {
+        atSpeed = true;
+        settled = false;
+        PathEndSettle.maxSettleWaitS = Double.NaN;
+        run(cards.launchOne(), 2.0);
+        assertEquals("NaN waits not at all", 0.0, timeOf(first("feed")), LOOP_S + EPS);
     }
 
     @Test

@@ -393,6 +393,34 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         pathControl = true;
     }
 
+    // Read-only, for the Auto's settle check and its path-end log (opmodes/auto/PathEndSettle).
+    // Pedro's own numbers, so the log can say which end condition ended a path.
+
+    /** Speed over the ground, inches/s, from Pedro's Follower; NaN without one. */
+    public double speedInPerSec() {
+        return follower == null ? Double.NaN : follower.velocity().linSpeed();
+    }
+
+    /** Turn rate, radians/s, either sign, from Pedro's Follower; NaN without one. */
+    public double turnRadPerSec() {
+        return follower == null ? Double.NaN : follower.velocity().omega;
+    }
+
+    /** The Follower's mode (FOLLOW, HOLD, MANUAL, IDLE), or NONE before one is built. */
+    public String followerMode() {
+        return follower == null ? "NONE" : follower.mode().name();
+    }
+
+    /** Pedro's {@code atParametricEnd()}; false without a Follower. */
+    public boolean atParametricEnd() {
+        return follower != null && follower.atParametricEnd();
+    }
+
+    /** Pedro's {@code distanceToEndpoint()}, inches; NaN without a Follower. */
+    public double distanceToEndpoint() {
+        return follower == null ? Double.NaN : follower.distanceToEndpoint();
+    }
+
     // ------------------------------------------------------------ lifecycle
 
     @Override
