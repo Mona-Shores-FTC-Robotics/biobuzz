@@ -19,14 +19,17 @@ for k in range(-4, 5):                                                          
 for k in range(-15, 16): ax.add_patch(Rectangle((8 * k - 2, -1.2), 4, 1.2, fc="white", ec="k", lw=0.3))   # the lip's holes, seen edge-on
 for dy in (-8, -40): ax.add_patch(Circle((SCREW_Y, dy), 3.5, fc="#444", ec="k")); ax.text(SCREW_Y, -46, "screw heads", ha="center", fontsize=7, color="#444")
 ax.add_patch(Rectangle((-HALF_L, -38), 2 * HALF_L, 38, fc="#e0552b", ec="#a03a18", lw=1.5, alpha=0.35))   # the L's roof, 38 of the web's 48 mm: the rear 10 mm clear for the stars' servo mount
-for y in (-24, 0, 24): ax.add_patch(Circle((y, -24), 6, fc="none", ec="#a03a18", lw=1.5, ls="--"))         # its roof holes
+for y in (-24, 24): ax.add_patch(Circle((y, -24), 6, fc="none", ec="#a03a18", lw=1.5, ls="--"))            # its 12 mm holes, to see the bearing holes through
+for y in (-15.8, 15.8):
+    for x in (-15.8, -32.2): ax.add_patch(Circle((y, x), 2.25, fc="none", ec="#a03a18", lw=1.8))             # the roof tie holes
+ax.add_patch(Rectangle((-9.5, -36), 19, 36, fc="none", ec="#a03a18", lw=1, ls=":")); ax.text(0, -33, "buttress", ha="center", fontsize=7, color="#a03a18")
 for dy in (-8, -40):
     for sy in (SCREW_Y, -SCREW_Y): ax.add_patch(Circle((sy, dy), 5, fc="none", ec="green", lw=1.5))     # relief, both sides
 for dx in (-8.2, 8.2):
     for dy in (-8.2, 8.2): ax.add_patch(Circle((dx, -24 + dy), 1.95, fc="#1f5fbf", ec="k", lw=0.5))     # the pegs
 for y in (-32, -24, -16, 16, 24, 32): ax.add_patch(Circle((y, -2.2), 2.15, fc="none", ec="#a03a18", lw=1.5))
 for y in (-24, 24): ax.text(y, 3, "wall holes on the lip's holes", ha="center", fontsize=7, color="#a03a18")
-ax.text(0, -52, "orange: the 80 mm L's roof (38 of 48 mm, the back clear for the servo mount) and its holes   blue: the four pegs, in the web's 4.5 mm holes around the middle bearing hole\n"
+ax.text(0, -52, "orange: the 80 mm L's roof (38 of 48 mm, the back clear for the servo mount), its tie holes beside the buttress, and its viewing holes   blue: the four pegs, in the web's 4.5 mm holes around the middle bearing hole\n"
         "green: relief over the screw heads (cut both sides, so the L fits either way round)   the wall's six holes on the lip's holes along the top edge", ha="center", fontsize=8)
 ax.set_xlim(-125, 125); ax.set_ylim(-58, 8); ax.axis("off")
 ax.set_title("poker_u on the intake's front channel, from above: mm from the channel's centre, the front lip at the top", fontsize=10)

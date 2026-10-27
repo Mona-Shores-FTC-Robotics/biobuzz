@@ -13,9 +13,11 @@ first night on 20245:
 - The front wall's holes are the lip's holes: six, 16, 24 and 32 mm either side of the centre, so a tie goes wherever is
   easiest and a lip hole shows through each one.
 
-Fastening: zip ties, for keeps. Two wide ones down through the roof's 12 mm holes over the channel's bearing holes (down one,
-through the channel, up the next, closed on top; the motor leaves room under the web there), and if wanted two thin ones through
-any of the front wall's holes and the lip's hole behind (in through the wall and the lip, under the lip's edge, back out). The ball's push goes into the poke, down the buttress into the roof and the front wall, onto the lip, in
+Fastening: zip ties, for keeps. Two thin ones through the roof's 4.5 mm tie holes, 16 mm either side of the centre (down the
+front hole, under the web inside the channel, up the rear hole, closed on top; the motor leaves room under the web there), and
+two through the front wall, one each side (in through a wall hole and the lip's hole behind, back out the next pair, closed on
+the outside). The buttress covers the roof's centre, so the tie holes sit beside it; the 12 mm holes over the bearing holes
+are for seeing the channel's holes through. The ball's push goes into the poke, down the buttress into the roof and the front wall, onto the lip, in
 compression; the pegs take the sideways load and the ties only keep the L from lifting.
 
     python3 cad/modules/flower-stick-proto/poker_u.py                 # stl/poker_u.stl, step/poker_u.step (web top 5.61 up)
@@ -39,7 +41,8 @@ ROOF_BACK = float(os.environ.get("ROOF_BACK", "38"))        # how far back from 
 RELIEF = [(-8.0, y) for y in (32.0, -32.0)] + [(-40.0, y) for y in (32.0, -32.0)]   # 10 mm relief holes centred on the screws standing out of the web: the pattern's rows 8 mm in from each lip, 32 mm along, both sides
 PEGS = [(-24.0 + dx, dy) for dx in (-8.2, 8.2) for dy in (-8.2, 8.2)]   # the web's 4.5 mm holes around the middle bearing hole
 PEG_D, PEG_H = 3.9, 2.0                                     # the pegs: 0.3 mm of play in the hole, 2 mm into a 2.5 mm web, never through it
-ROOF_HOLES = [y for y in (-48.0, -24.0, 0.0, 24.0, 48.0) if abs(y) <= HALF_L - 8.0]   # the roof holes over the channel's bearing holes that fit
+ROOF_HOLES = [y for y in (-48.0, -24.0, 24.0, 48.0) if abs(y) <= HALF_L - 8.0]   # the 12 mm roof holes over the channel's bearing holes that fit, to see them through (the middle one would be under the buttress)
+TIE_HOLES = [(x, y) for y in (-15.8, 15.8) for x in (-15.8, -32.2)]   # 4.5 mm holes for the roof ties, over the web's 4.5 mm holes beside the pegs: each tie goes down the front one, under the web, up the rear one; clear of the buttress
 WEB_UP = float(os.environ.get("WEB_UP", "5.61"))            # the channel's top above the tile with the intake down, inches: measure it
 REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
 HOLE_Z, HOLE_D = -8.0, 4.3                                  # the lip's holes: 8 mm below the web top, 4 mm, 8 mm apart from the channel's centre
@@ -59,7 +62,9 @@ for y in HOLE_YS:   # the wall's holes on the lip's holes, through the front wal
 SCREWS = bool(os.environ.get("SCREWS"))                      # SCREWS=1: the front screw standing out of the web goes through the roof (4.5 mm hole, a screw 4 mm longer) and clamps the L; the rear one is past the roof's end
 for x, y in RELIEF:
     part = part.cut(cq.Workplane("XY").circle(2.25 if SCREWS and x > -ROOF_BACK + 5 else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))   # a screw hole only where the roof fully covers it; the rear one is a notch either way
-# three 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch), for the roof ties
+for x, y in TIE_HOLES:
+    part = part.cut(cq.Workplane("XY").circle(2.25).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
+# 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch), to see them through
 for y in ROOF_HOLES:
     part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
