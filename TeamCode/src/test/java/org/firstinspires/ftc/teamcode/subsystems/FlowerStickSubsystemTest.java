@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -25,5 +27,14 @@ public class FlowerStickSubsystemTest {
     @Test
     public void nanLeavesTheStickIn() {
         assertEquals(0.0, FlowerStickSubsystem.unitRange(Double.NaN), EPS);
+    }
+
+    @Test
+    public void goesLimpOnlyAfterTheSettleTimeAndOnlyWhereAsked() {
+        assertFalse(FlowerStickSubsystem.shouldGoLimp(0, 1500, true));
+        assertFalse(FlowerStickSubsystem.shouldGoLimp(1499, 1500, true));
+        assertTrue(FlowerStickSubsystem.shouldGoLimp(1500, 1500, true));
+        assertTrue(FlowerStickSubsystem.shouldGoLimp(60_000, 1500, true));
+        assertFalse(FlowerStickSubsystem.shouldGoLimp(60_000, 1500, false));
     }
 }
