@@ -149,11 +149,12 @@ window.FlowerSim = (function () {
     const stagger = cfg.stagger || 0;
     // the stagger pattern: cfg.pattern as [dx2, dx3, dx4] in inches (toward the robot negative), or cfg.stagger for 2 and 4
     const pat = cfg.pattern || [k => (k % 2 ? -stagger : 0)][0];
-    const balls = STAGED.map((z, k) => ({ x: Array.isArray(pat) ? (k === 0 ? 0 : pat[k - 1]) : pat(k), y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
+    const staged = cfg.stack ? Array.from({ length: cfg.stack }, (_, k) => STAGED[0] + 2.9 * k) : STAGED;   // cfg.stack: how many POLLEN in the FLOWER (4 unless asked)
+    const balls = staged.map((z, k) => ({ x: Array.isArray(pat) ? (k === 0 ? 0 : pat[k - 1]) : pat(k), y: lean * k / 3, z, vx: 0, vy: 0, vz: 0, w: 0, u: 0 }));
     { const cz = cfg.collar || COLLAR_Z, segs = [...collarSegs(cz, 1), ...collarSegs(cz, -1)]; for (let i = 0; i < N_COLLAR; i++) FIXED[6 + i] = segs[i]; }
     let lip = -4.4, t = 0, step = 0, stalled = null;
-    const out = [null, null, null, null], fed = [null, null, null, null], missed = [null, null, null, null], offBlade = [null, null, null, null], frames = [];
-    const yAtWheels = [null, null, null, null];
+    const out = balls.map(() => null), fed = balls.map(() => null), missed = balls.map(() => null), offBlade = balls.map(() => null), frames = [];
+    const yAtWheels = balls.map(() => null);
     // the blade's frame: xb behind the lip along the blade's axis, yb across it, for a blade centred `off` and turned `yaw`
     const toBlade = b => { const dx = lip - b.x, dy = b.y - off; return [dx * cy + dy * sy, dy * cy - dx * sy]; };
     const xs = profile.map(p => p[0]);
