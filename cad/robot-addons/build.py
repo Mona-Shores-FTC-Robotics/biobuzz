@@ -40,6 +40,15 @@ def cyl(axis, c, d, a0, a1):
     if axis == "x": return cq.Workplane("YZ").circle(d / 2).extrude(L).translate((min(a0, a1), c[1], c[2]))
     if axis == "y": return cq.Workplane("XZ").circle(d / 2).extrude(-L).translate((c[0], min(a0, a1), c[2]))
     return cq.Workplane("XY").circle(d / 2).extrude(L).translate((c[0], c[1], min(a0, a1)))
+def rex(axis, c, a0, a1):
+    """An 8 mm REX shaft along axis 'x'|'y'|'z' from a0 to a1: goBILDA's profile, an 8 mm round with six flats 7 mm across."""
+    return cyl(axis, c, 8.0, a0, a1).intersect(_hex(axis, c, 7.0, a0, a1))
+def _hex(axis, c, af, a0, a1):
+    """A hexagonal prism, af across flats, along axis from a0 to a1, through c (as cyl)."""
+    L = abs(a1 - a0); d = af / math.cos(math.radians(30))
+    if axis == "x": return cq.Workplane("YZ").polygon(6, d).extrude(L).translate((min(a0, a1), c[1], c[2]))
+    if axis == "y": return cq.Workplane("XZ").polygon(6, d).extrude(-L).translate((c[0], min(a0, a1), c[2]))
+    return cq.Workplane("XY").polygon(6, d).extrude(L).translate((c[0], c[1], min(a0, a1)))
 def mirror(wp):  # right side -> left side, about the robot's centre plane
     return wp.mirror("YZ", (C, 0, 0))
 
@@ -66,7 +75,7 @@ for side, f in (("R", xr), ("L", xl)):
         for z in STANDOFF_Z:
             add(f"standoff_{side}_{z:+.0f}_{y:.0f} (M4, 56 mm)", cyl("x", (0, y, z), 7.0, f(RAIL_OUT), f(PLATE_IN)), (0.55, 0.6, 0.66), "buy")
     for z in (AX_ZF, AX_ZR):
-        add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (8mm REX, 80 mm, replaces 72 mm)", cyl("x", (0, AX_Y, z), 8.0, f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
+        add(f"wheel_shaft_{side}_{'front' if z > 0 else 'rear'} (goBILDA 2106-4008-0800, 8mm REX, 80 mm, replaces 72 mm)", rex("x", (0, AX_Y, z), f(121.5), f(201.5)), (0.8, 0.82, 0.85), "buy")
         add(f"bearing_{side}_{'front' if z > 0 else 'rear'} (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, AX_Y, z), 14.0, f(PLATE_IN), f(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 add("bearing_R_hinge (goBILDA 1611-0514-4008, 8mm REX bore)", cyl("x", (0, HY, HZ), 14.0, xr(PLATE_IN), xr(PLATE_IN + PLATE_T + 1.2)), (0.85, 0.75, 0.3), "buy")
 
@@ -130,13 +139,13 @@ for nm, wp in (("hinge_hub", hubR), ("riser", riserR), ("corner_block", cornerR)
     hadd(nm + "_R (print)", wp, (0.18, 0.37, 0.62), "print")     # one arm only: a second would corral spilled pieces
 hadd("flower_block (print)", ramp_block(), (0.69, 0.42, 0.85), "print")
 for s, f in (("R", xr),):
-    hadd(f"arm_shaft_bottom_{s} (8mm REX, 192 mm)", cyl("z", (f(SIDE), LO_Y, 0), 8.0, HZ + 4, HZ + 4 + 192), (0.8, 0.82, 0.85), "buy")
-    hadd(f"arm_shaft_top_{s} (8mm REX, 144 mm)", cyl("z", (f(SIDE), HI_Y, 0), 8.0, CORNER_Z0 + 19 - 144, CORNER_Z0 + 19), (0.8, 0.82, 0.85), "buy")
+    hadd(f"arm_shaft_bottom_{s} (goBILDA 2106-4008-1920, 8mm REX, 192 mm)", rex("z", (f(SIDE), LO_Y, 0), HZ + 4, HZ + 4 + 192), (0.8, 0.82, 0.85), "buy")
+    hadd(f"arm_shaft_top_{s} (goBILDA 2106-4008-1440, 8mm REX, 144 mm)", rex("z", (f(SIDE), HI_Y, 0), CORNER_Z0 + 19 - 144, CORNER_Z0 + 19), (0.8, 0.82, 0.85), "buy")
     hadd(f"side_panel_{s} (1/16 polycarbonate)", box(f(SIDE) - 0.8, f(SIDE) + 0.8, LO_Y + 8, HI_Y - 8, RISER_Z + 10, CORNER_Z0 - 2), (0.6, 0.78, 0.96), "cut")
     for z in (RISER_Z + 28, CORNER_Z0 - 22):
         hadd(f"side_clip_{s}_{z:.0f}_lo (print)", clip("z").translate((f(SIDE), LO_Y - 7.5, z)), (0.18, 0.37, 0.62), "print")
         hadd(f"side_clip_{s}_{z:.0f}_hi (print)", clip("z").mirror("XZ").translate((f(SIDE), HI_Y + 7.5, z)), (0.18, 0.37, 0.62), "print")
-hadd("front_shaft (8mm REX, 288 mm)", cyl("x", (0, FS_Y, FS_Z), 8.0, xr(156.0), xl(FRONT_LEFT)), (0.8, 0.82, 0.85), "buy")
+hadd("front_shaft (goBILDA 2106-4008-2880, 8mm REX, 288 mm)", rex("x", (0, FS_Y, FS_Z), xr(156.0), xl(FRONT_LEFT)), (0.8, 0.82, 0.85), "buy")
 for d in (60, 110):
     for f in (xr, xl): hadd(f"curtain_clip_{d}_{'R' if f is xr else 'L'} (print)", clip("x").translate((f(d), FS_Y - 7.5, FS_Z)), (0.18, 0.37, 0.62), "print")
 for s, f in (("R", xr), ("L", xl)):

@@ -81,3 +81,7 @@ lint/tmp/
 # lint/reports/
 # Python bytecode from the CAD and simulation scripts
 __pycache__/
+
+# goBILDA's STEP downloads (cad/gobilda/parts.py): vendor files, fetched per machine
+cad/gobilda/step/
+cad/intake-b/dhs-intake-b-vendor.step
