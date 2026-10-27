@@ -467,8 +467,18 @@ competition robot. `DeviceNames.TURRET_ENCODER_HOST` names which motor that
 is; turret code asks for that motor and reads only its encoder, and nothing
 but the turret code may reset its count. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub
-stays on. A person puts the turret at its home mark before INIT and the code
-zeroes there. The encoder's absolute PWM output exists, and an OctoQuad could
+stays on. Nobody has to remember to zero it: the match-start rule is that the
+turret sits at its home mark, so it zeroes where it stands at PLAY, and a TeleOp
+that follows an Autonomous (or a TeleOp restarted after a crash) takes the earlier zero instead, through `Handoff`
+(the count is still good, and the Auto may have turned the turret away from
+home; zeroing at PLAY there would call that spot home). A person pressing the
+zero button always wins, and the Robot page says which of the three set the
+zero (`TurretZeroPolicy`). The one case it gets wrong is someone re-homing the
+turret by hand between an Auto and the TeleOp without pressing the button.
+Considered and not done: zeroing only by button (a forgotten press is silent:
+nothing can tell the turret was not at home), and a check that the count is
+still where the Auto left it (it cannot tell a bump from a re-home). The
+encoder's absolute PWM output exists, and an OctoQuad could
 read it (the `OctoQuad Bench` and #169); the build team chose relative plus a
 home mark for the time it saves (Oct 2026). Set the encoder's voltage switch to
 3V3.

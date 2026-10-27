@@ -98,6 +98,20 @@ public class TurretSubsystem implements Subsystem {
 
     private enum Mode { IDLE, HOLD, MANUAL }
 
+    /** Where the zero came from, for the Robot page and the log. */
+    public enum ZeroSource {
+        NONE("not zeroed yet"),
+        HAND("zeroed by hand"),
+        PLAY("zeroed at PLAY, assumed at home"),
+        AUTO("zero carried from the Auto");
+
+        public final String text;
+
+        ZeroSource(String text) {
+            this.text = text;
+        }
+    }
+
     private final DcMotorEx encoderHost;
     private final CRServo servo;
     private final TurretServoControl control = new TurretServoControl();
@@ -117,6 +131,7 @@ public class TurretSubsystem implements Subsystem {
     private long counts;
     private long zeroCounts;
     private boolean zeroed;
+    private ZeroSource zeroSource = ZeroSource.NONE;
     private double angleDeg = Double.NaN;
     private double rateDps = Double.NaN;
     private double errorDeg = Double.NaN;
@@ -131,10 +146,41 @@ public class TurretSubsystem implements Subsystem {
 
     // ------------------------------------------------------------ requests
 
-    /** The turret is at home right now: angles are measured from here on. */
+    /** The turret is at home right now: angles are measured from here on. A person's request, and it wins. */
     public void zeroHere() {
         zeroCounts = counts;
         zeroed = true;
+        zeroSource = ZeroSource.HAND;
+    }
+
+    /** At PLAY: the turret is assumed at home, so zero here unless a person or the handoff already did. */
+    public void zeroAtPlay() {
+        if (zeroed) {
+            return;
+        }
+        zeroCounts = counts;
+        zeroed = true;
+        zeroSource = ZeroSource.PLAY;
+    }
+
+    /**
+     * Take the zero an Autonomous left behind. The count is the hub's and was never reset, so the
+     * same offset still gives the same angle, wherever the Auto turned the turret to.
+     */
+    public void restoreZero(long autoZeroCounts) {
+        zeroCounts = autoZeroCounts;
+        zeroed = true;
+        zeroSource = ZeroSource.AUTO;
+    }
+
+    /** The offset that makes an angle: the encoder count at home. For the handoff to carry. */
+    public long zeroCounts() {
+        return zeroCounts;
+    }
+
+    /** Where the current zero came from. */
+    public ZeroSource zeroSource() {
+        return zeroSource;
     }
 
     /** Hold {@code deg} from home, counter-clockwise positive, chassis frame. Clamped into the travel if known. */
@@ -214,6 +260,7 @@ public class TurretSubsystem implements Subsystem {
         counts = encoderHost.getCurrentPosition();
         zeroCounts = counts;
         zeroed = false;
+        zeroSource = ZeroSource.NONE;
     }
 
     /** One encoder read, one servo write. */
@@ -266,7 +313,7 @@ public class TurretSubsystem implements Subsystem {
     @Override
     public String health() {
         return "servo configured; encoder read through " + DeviceNames.TURRET_ENCODER_HOST
-                + "; zeroed at init: " + (zeroed() ? "yes" : "no (zeroHere() was not called)")
+                + "; zero: " + zeroSource.text
                 + (settingsProblem != null ? "; settings: " + settingsProblem : "");
     }
 
@@ -292,7 +339,8 @@ public class TurretSubsystem implements Subsystem {
                 level = Display.Level.OK;
                 break;
         }
-        display.status("Turret", level, what + (zeroed ? "" : " · <b>NOT ZEROED</b>: put it at home, zero it"));
+        display.status("Turret", level, what + " · "
+                + (zeroed ? zeroSource.text : "not zeroed yet: it zeroes where it stands at PLAY, or zero it now"));
         if (runawayNote != null) {
             display.status("Turret", Display.Level.FAULT, runawayNote);
         }
