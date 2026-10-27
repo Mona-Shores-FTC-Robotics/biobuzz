@@ -78,6 +78,30 @@ public class HandoffTest {
     }
 
     @Test
+    public void theTurretsZeroRidesAlongSoTeleOpKeepsTheAutosAngles() {
+        Handoff.record(Alliance.RED, null, null, null, Long.valueOf(-1234), T0);
+
+        assertEquals(Long.valueOf(-1234), Handoff.fresh(T0 + 8_000).turretZeroCounts);
+    }
+
+    @Test
+    public void anAutoWithNoTurretZeroHandsOnNone() {
+        Handoff.record(Alliance.RED, null, null, null, T0);
+        assertNull(Handoff.fresh(T0).turretZeroCounts);
+
+        Handoff.record(Alliance.RED, null, null, null, (Long) null, T0 + 1_000);
+        assertNull(Handoff.fresh(T0 + 1_000).turretZeroCounts);
+    }
+
+    @Test
+    public void aZeroOfZeroCountsIsStillAZero() {
+        Handoff.record(Alliance.RED, null, null, null, Long.valueOf(0), T0);
+
+        assertNotNull(Handoff.fresh(T0).turretZeroCounts);
+        assertEquals(0L, Handoff.fresh(T0).turretZeroCounts.longValue());
+    }
+
+    @Test
     public void theMatchIdRidesAlongSoTeleOpsLogCanNameItsAuto() {
         Handoff.record(Alliance.RED, null, "2026-10-04_14-32-10", null, T0);
 

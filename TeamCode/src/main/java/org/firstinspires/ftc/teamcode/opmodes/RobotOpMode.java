@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
@@ -92,9 +93,11 @@ import java.util.Map;
  *
  * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
  * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
- * stops, this records the alliance and the robot's final pose in {@link Handoff}. When any other
- * OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose and inherits
- * the alliance, and the Match page says so — or says there was no handoff. Subclasses never touch
+ * stops, this records the alliance, the robot's final pose and the turret's zero in {@link Handoff}.
+ * When any other OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose
+ * and the turret's zero and inherits the alliance, and the Match page says so — or says there was
+ * no handoff. With no Auto before it, the turret is assumed at home and zeroes where it stands at
+ * PLAY ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch
  * either.
  *
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
@@ -343,6 +346,11 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
+        // The turret is assumed at home at the start of a match; a person's zero or an Auto's wins.
+        if (TurretZeroPolicy.atPlay(robot.turret.zeroed()) == TurretZeroPolicy.Action.ZERO_HERE) {
+            robot.turret.zeroAtPlay();
+        }
+        log.event("PLAY: turret " + robot.turret.zeroSource().text);
         if (battery != null) {
             log.event(String.format(Locale.US, "PLAY: battery %.2f V", battery.getVoltage()));
         }
@@ -427,7 +435,9 @@ public abstract class RobotOpMode extends OpMode {
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, matchId, log, System.currentTimeMillis());
+            // The turret's zero goes too (null if this Auto never got one, say it stopped in INIT).
+            Long turretZero = robot.turret.zeroed() ? Long.valueOf(robot.turret.zeroCounts()) : null;
+            Handoff.record(setup.alliance(), pose, matchId, log, turretZero, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -492,6 +502,10 @@ public abstract class RobotOpMode extends OpMode {
             return;
         }
         setup.inheritFromAuto(handoff.alliance);
+        if (TurretZeroPolicy.atInit(false, handoff.turretZeroCounts != null)
+                == TurretZeroPolicy.Action.RESTORE_FROM_AUTO) {
+            robot.turret.restoreZero(handoff.turretZeroCounts);
+        }
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);

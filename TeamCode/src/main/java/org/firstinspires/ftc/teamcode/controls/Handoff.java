@@ -6,8 +6,8 @@ import org.firstinspires.ftc.teamcode.logging.MatchLog;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 
 /**
- * What Autonomous leaves for TeleOp: the alliance, where the robot ended up, and the match log,
- * still open, so TeleOp writes the rest of the match into the same file.
+ * What Autonomous leaves for TeleOp: the alliance, where the robot ended up, the turret's zero, and
+ * the match log, still open, so TeleOp writes the rest of the match into the same file.
  *
  * <p><b>This is the one piece of static robot state in the codebase, on purpose.</b> The SDK builds
  * a fresh OpMode for TeleOp, and a static field is the only thing that survives the switch. Nothing
@@ -38,13 +38,21 @@ public final class Handoff {
         public final String matchId;
         /** The Autonomous's match log, paused for TeleOp to resume; null if it had none. */
         public final MatchLog log;
+        /**
+         * The turret's zero when the Autonomous ended, as an encoder count, or null if it never
+         * had one. The hub keeps counting between OpModes, so the same offset still gives the
+         * same angle in TeleOp, wherever the Auto turned the turret.
+         */
+        public final Long turretZeroCounts;
         public final long recordedAtMs;
 
-        Snapshot(Alliance alliance, Pose pose, String matchId, MatchLog log, long recordedAtMs) {
+        Snapshot(Alliance alliance, Pose pose, String matchId, MatchLog log, Long turretZeroCounts,
+                 long recordedAtMs) {
             this.alliance = alliance;
             this.pose = pose;
             this.matchId = matchId;
             this.log = log;
+            this.turretZeroCounts = turretZeroCounts;
             this.recordedAtMs = recordedAtMs;
         }
 
@@ -58,9 +66,16 @@ public final class Handoff {
     private Handoff() {
     }
 
-    /** Called by {@code RobotOpMode} when an Autonomous OpMode stops. */
+    /** Called by {@code RobotOpMode} when an Autonomous OpMode stops, with no turret zero to hand on. */
     public static void record(Alliance alliance, Pose pose, String matchId, MatchLog log, long nowMs) {
-        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose, matchId, log, nowMs);
+        record(alliance, pose, matchId, log, null, nowMs);
+    }
+
+    /** Called by {@code RobotOpMode} when an Autonomous OpMode stops. */
+    public static void record(Alliance alliance, Pose pose, String matchId, MatchLog log,
+                              Long turretZeroCounts, long nowMs) {
+        latest = new Snapshot(alliance == null ? Alliance.UNKNOWN : alliance, pose, matchId, log,
+                turretZeroCounts, nowMs);
     }
 
     /** The last Autonomous's handoff, or null if there is none or it is stale. */

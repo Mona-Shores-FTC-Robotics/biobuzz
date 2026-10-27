@@ -35,6 +35,12 @@ import java.util.Locale;
  * values the drivers like back here — Panels edits are lost on restart. The acceleration limit
  * lives on {@code DriveSubsystem}, because it is about the robot, not the driver.
  *
+ * <p>The turret starts every OpMode LOCKED straight ahead, and the operator's D-pad right switches
+ * it between LOCKED and AIM ({@link TurretAimer}, the same auto-aim the HIVE &amp; Pose test bed
+ * runs). It zeroes itself, assuming it starts a match at its home mark, or taking the Auto's zero
+ * when an Auto just ran ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy});
+ * D-pad up zeroes it by hand and always wins.
+ *
  * <p>The operator (gamepad 2) runs the launcher and the feeder, with nothing in between them:
  * spin up, hold feed, watch what happens. While the launcher is being brought up on the robot
  * that is the whole point, so the feeder is not gated on the launcher being at speed;
@@ -95,6 +101,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The range to log with a shot when the camera does not see a CELL: the pose's, to the near-end CELL. */
     private static final double AIM_SWITCH_BAND_IN = 19.75;
 
+    /** What the turret is doing for the operator: held straight ahead, or aiming at our CELL. */
+    private enum TurretMode { LOCKED, AIM }
+
+    private TurretMode turretMode = TurretMode.LOCKED;
+    private TurretAimer aimer;
+
     private TelemetryManager panels;
     private HiveCell nearEndCell;
     private double lastShotRangeIn = Double.NaN;
@@ -107,6 +119,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         } catch (RuntimeException | LinkageError e) {
             panels = null; // Panels is a window onto the robot, not part of it.
         }
+        aimer = new TurretAimer(robot);
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
         driver.note("L1 (hold)", "Slow");
@@ -130,11 +143,36 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.launcher::spinUp);
         operator.when("Circle (B)", "Launcher spin down", () -> gamepad2.b)
                 .onPress(robot.launcher::spinDown);
+        operator.when("D-pad right", "Turret: switch LOCKED (straight ahead) / AIM at our CELL", () -> gamepad2.dpad_right)
+                .onPress(this::toggleTurretMode);
+        operator.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad2.dpad_up)
+                .duringInit()
+                .onPress(robot.turret::zeroHere);
         operator.note("R2 (hold)", "Feed into the launcher (feedOnlyAtSpeed in Panels makes it wait for at speed)");
         operator.note("L2 (hold)", "Reverse the feeder, to clear a jam");
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
+    }
+
+    /** PLAY: the turret has been zeroed by now (RobotOpMode does it); hold it straight ahead. */
+    @Override
+    protected void onStart() {
+        turretMode = TurretMode.LOCKED;
+        aimer.off();
+        robot.turret.home();
+    }
+
+    /** LOCKED to AIM and back. Either way a fresh request, which also lets a dropped hold try again. */
+    private void toggleTurretMode() {
+        if (turretMode == TurretMode.LOCKED) {
+            turretMode = TurretMode.AIM;
+            aimer.start();
+        } else {
+            turretMode = TurretMode.LOCKED;
+            aimer.off();
+            robot.turret.home();
+        }
     }
 
     @Override
@@ -183,6 +221,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.intake.describe(display);
         robot.launcher.describe(display);
         robot.feeder.describe(display);
+        if (turretMode == TurretMode.AIM) {
+            aimer.update(setup.alliance(), AIM_SWITCH_BAND_IN);
+        }
+        robot.turret.describe(display);
+        display.line(turretMode == TurretMode.AIM ? aimer.line()
+                : "Turret: LOCKED straight ahead (operator D-pad right to aim)");
         recordShot();
         showAim();
         showPinpoint();
@@ -261,6 +305,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
             // carries the turret's encoder (DeviceNames.TURRET_ENCODER_HOST).
             panels.addData("feeder_power", robot.feeder.power());
             panels.addData("feeder_amps", robot.feeder.currentAmps());
+            panels.addData("turret_mode", turretMode == TurretMode.AIM ? 1 : 0);
+            panels.addData("turret_angle_deg", robot.turret.angleDegrees());
+            panels.addData("turret_target_deg", robot.turret.targetDegrees());
+            panels.addData("turret_error_deg", robot.turret.errorDegrees());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {
