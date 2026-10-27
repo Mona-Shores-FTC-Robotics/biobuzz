@@ -73,8 +73,8 @@ Pedro reported, the simulator's is its own end rule (4 in short of the point, th
 | path **park** | 26.26–30.07, from N_FIRE straight to PARK: within 2 in after **1.86 s**, final pose 0.1–0.3 in off | FIRE3 → PARK 25.70–28.00, 2.30 s | 22.26–24.0, 1.74 s | the real park was the guard's: the park path's start is FIRE3, 93 in away, and Pedro drove to the nearest point of the path instead, which is PARK itself. The simulator would have driven to FIRE3 first (gap 4) |
 | end | Auto ends 30.07 | finished 28.0 s (2.0 s spare) | finished 24.0 s (6.0 s spare) | at the measured speed the simulator's R-Quals gains 4 s of slack, all of it from the four long paths |
 
-Real path ends: every path ended within 1.2 in of its drawn point except the 106.6 in straight (above). The
-real start pose against the declared one is not among the figures this page has; `review.py` prints it.
+Real path ends: every path ended within 1.2 in of its drawn point except the 106.6 in straight (above). Both
+R-Simple runs started at (55.0, 9.7, 90°), exactly the declared start (read from the logs, 27 Oct).
 
 ## R-Simple, card by card
 
@@ -85,8 +85,8 @@ robot 2 of the Simple pair (`LSimpleAuto,RSimpleAuto@50`, seed 24, 15 Oct): STAR
 
 | Card | Real (19:44 and 19:49) | Sim @50 | Sim @93/100/60 (overstated) | What differs |
 |---|---|---|---|---|
-| wait **Fire the preloads at the right CELL (TIP 1)** | the card times are not in the figures this page has; on R-Quals the same card ran to its limit, so this one most likely ran its 4 s. To read from the log | 0.00–2.64, `Empty` | 0.00–2.64 | mechanism |
-| path **START → PARK**, 95 in curve | within 2 in of PARK **2.5 s** after the path started; parked 0.5 and 0.4 in from PARK | 2.66–5.40, 2.74 s to a dead stop at the point | 2.66–4.70, 2.04 s | physics: the drawing's trapezoid previews 3.02 s (the Java's park seconds are 3.1). Peak 56 to 57 in/s, about 30 in/s² from rest, 100 to 120 in/s² braking (strafe against a 43 in/s maximum): slower off the line and slower at the peak than the straight, because Pedro slows for the curve. The simulator at the measured profile is now 0.5 s *faster* than the robot here, because it drives curves at full speed (gap 2) |
+| wait **Fire the preloads at the right CELL (TIP 1)** | **4.02 and 4.01 s: the 4 s limit** on both runs (`Empty` never fired; no launcher). The path started at 4.03 and 4.04 s | 0.00–2.64, `Empty` | 0.00–2.64 | mechanism |
+| path **START → PARK**, 95 in curve | within 2 in of PARK **2.47 and 2.53 s** after the path started; parked 0.4 and 0.5 in from PARK (final (13.6, 95.1) and (13.5, 95.1) against (14, 95); heading 90° both) | 2.66–5.40, 2.74 s to a dead stop at the point | 2.66–4.70, 2.04 s | physics: the drawing's trapezoid previews 3.02 s (the Java's park seconds are 3.1). Peak 56 to 57 in/s, about 30 in/s² from rest, 100 to 120 in/s² braking (strafe against a 43 in/s maximum): slower off the line and slower at the peak than the straight, because Pedro slows for the curve. The simulator at the measured profile is now 0.5 s *faster* than the robot here, because it drives curves at full speed (gap 2) |
 | end | parked, 0.4–0.5 in off | parked, 0.0 in off | parked | agree |
 
 ## What the differences are
@@ -256,3 +256,5 @@ guard, and the FAR_FLOWER → N_FIRE turn.
 - `doc/what-the-simulator-knows.md`: the driving row.
 - Not changed: the `.pp` files' speed settings (the guard), the generated Java, the README's rows (they stay the
   @50 rows until the Autos are re-simulated at a speed measured on the full robot).
+
+**Read from the logs on 27 Oct 2026** (`review.py` run on the mentor's machine against master's `r-simple.pp`, 19:44 and 19:49 R-Simple logs): the start pose matched the declared one, the fire wait ran to its 4 s limit (4.02 and 4.01 s), the park took 2.47 and 2.53 s to within 2 in and ended 0.4 and 0.5 in off, and the Autonomous period ran 30.1 s. The R-Quals figures above are still the review tool's as posted on #155 (not re-read here).
