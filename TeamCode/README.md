@@ -469,7 +469,7 @@ but the turret code may reset its count. The count is relative: zero
 wherever the encoder sat at hub power-up, kept across OpModes while the hub
 stays on. Nobody has to remember to zero it: the match-start rule is that the
 turret sits at its home mark, so it zeroes where it stands at PLAY, and a TeleOp
-that follows an Autonomous takes the Auto's zero instead, through `Handoff`
+that follows an Autonomous (or a TeleOp restarted after a crash) takes the earlier zero instead, through `Handoff`
 (the count is still good, and the Auto may have turned the turret away from
 home; zeroing at PLAY there would call that spot home). A person pressing the
 zero button always wins, and the Robot page says which of the three set the

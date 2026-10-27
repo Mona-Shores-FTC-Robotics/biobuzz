@@ -85,9 +85,11 @@ updates through `periodic()`, and behaviour beyond that is commands. Each loop r
 cache → `onLoop()` → `Scheduler.execute()`, so inputs reach hardware in the same loop. No default
 commands (not in Ivy 1.1.1). Subsystems share state through read-only accessors, never statics —
 the single exception is `controls/Handoff`, which carries alliance, pose and the turret's zero from
-Autonomous to TeleOp and is written and read only by `RobotOpMode`. The turret zeroes itself: an
-Auto's zero carries to the TeleOp after it, and otherwise the turret is assumed at home and zeroes
-at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`).
+one OpMode to the next and is written and read only by `RobotOpMode`: the Auto's final record, and
+the latest loop's state every loop, so a crashed Auto or a restarted TeleOp resumes where the robot
+is. The turret zeroes itself: a carried zero is taken, and otherwise the turret is assumed at home
+and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`).
+`RobotOpMode` logs an uncaught exception to the match log and rethrows it; it never swallows one.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
 sets it and may correct it, only through `localization/CellFix`: any two or more tags on settled

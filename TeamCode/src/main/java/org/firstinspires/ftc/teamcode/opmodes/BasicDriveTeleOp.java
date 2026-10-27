@@ -39,7 +39,8 @@ import java.util.Locale;
  * it between LOCKED and AIM ({@link TurretAimer}, the same auto-aim the HIVE &amp; Pose test bed
  * runs). It zeroes itself, assuming it starts a match at its home mark, or taking the Auto's zero
  * when an Auto just ran ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy});
- * D-pad up zeroes it by hand and always wins.
+ * D-pad up zeroes it by hand and always wins. D-pad left relocalizes the pose from the camera, for
+ * after a restart or a shove; the Match page says what it did.
  *
  * <p>The operator (gamepad 2) runs the launcher and the feeder, with nothing in between them:
  * spin up, hold feed, watch what happens. While the launcher is being brought up on the robot
@@ -106,6 +107,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
+    private String relocalizeNote;
 
     private TelemetryManager panels;
     private HiveCell nearEndCell;
@@ -145,6 +147,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.launcher::spinDown);
         operator.when("D-pad right", "Turret: switch LOCKED (straight ahead) / AIM at our CELL", () -> gamepad2.dpad_right)
                 .onPress(this::toggleTurretMode);
+        operator.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad2.dpad_left)
+                .onPress(() -> relocalizeNote = robot.drive.relocalizeFromCamera());
         operator.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad2.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -227,6 +231,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.turret.describe(display);
         display.line(turretMode == TurretMode.AIM ? aimer.line()
                 : "Turret: LOCKED straight ahead (operator D-pad right to aim)");
+        if (relocalizeNote != null) {
+            display.line("Last relocalize: " + relocalizeNote);
+        }
         recordShot();
         showAim();
         showPinpoint();
