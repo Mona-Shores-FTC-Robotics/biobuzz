@@ -79,7 +79,7 @@ public final class DeviceNames {
 
     /**
      * The FLOWER extractor's first edition: one servo swinging a stick (#177).
-     * Control Hub servo port; the port itself is in each robot's XML.
+     * Expansion Hub servo port; the port itself is in each robot's XML.
      */
     public static final String FLOWER_STICK = "flowerStick";
     // The intake's star wheels (the intake-assist wheels: SWYFT wheels cut
