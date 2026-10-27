@@ -134,6 +134,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double forward;
     private double strafe;
     private double turn;
+    /** This command is in the robot's own frame, whatever {@link #fieldCentric} says. */
+    private boolean robotCentricCommand;
     private boolean accelLimited = true;
 
     /** Built by {@link #preparePathFollowing()}; null until then. */
@@ -170,9 +172,20 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      */
     public void drive(double forward, double strafe, double turn) {
         pathControl = false;
+        robotCentricCommand = false;
         this.forward = forward;
         this.strafe = strafe;
         this.turn = turn;
+    }
+
+    /**
+     * As {@link #drive}, but always in the robot's own frame (+forward is the way it faces), even
+     * while the driver is field-centric. For a sequence that drives the robot into something it
+     * faces, such as a FLOWER. The next {@link #drive} call goes back to the driver's mode.
+     */
+    public void driveRobotCentric(double forward, double strafe, double turn) {
+        drive(forward, strafe, turn);
+        robotCentricCommand = true;
     }
 
     /** False skips the acceleration limit, for a driver who wants speed now (turbo). */
@@ -432,7 +445,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             turnLimiter.reset(t);
         }
 
-        DrivePowers powers = fieldCentric
+        DrivePowers powers = fieldCentric && !robotCentricCommand
                 ? ManualDrive.fieldCentric(f, s, t, heading())
                 : new DrivePowers(f, s, t);
 
