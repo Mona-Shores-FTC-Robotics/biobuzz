@@ -8,7 +8,7 @@ function truncate(prof, cut) { if (cut >= prof[prof.length - 1][0]) return prof;
 const prof = truncate(full, 2.0);
 console.log("push a steady drive needs, as a multiple of the stack's weight (locks where the wedge angle and friction say no):");
 for (const nose of [60, 55, 50, 45]) console.log(`  ${nose} deg nose: ` + [0.2, 0.3, 0.4, 0.45, 0.5, 0.6].map(mu => { const f = S.pushForce ? S.pushForce(nose, mu) : null; return `mu ${mu}: ${f === null || f === undefined ? "LOCKS" : f.toFixed(1) + "x"}`; }).join(" | "));
-for (const stack of [4, 5, 6, 7]) {
+for (const stack of [4, 5, 6, 7, 8, 9, 10]) {
   const out = [];
   for (const drive of [3, 4, 6, 10]) { let ok = 0, n = 0, bottom = 0;
     for (const mu of [0.3, 0.45]) for (const stopErr of [0, -0.35]) for (const lean of [0, 0.6]) { n++;
