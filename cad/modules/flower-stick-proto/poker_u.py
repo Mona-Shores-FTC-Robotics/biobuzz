@@ -19,6 +19,7 @@ compression; the pegs take the sideways load and the ties only keep the L from l
     python3 cad/modules/flower-stick-proto/poker_u.py                 # stl/poker_u.stl, step/poker_u.step (web top 5.61 up)
     WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py                 # the one on the robots: the channel's top 6.55 in up
     HALF_L=36 NAME=poker_u_72 python3 .../poker_u.py                   # a 72 mm one, if a stop lands closer than 60 mm from centre
+    SCREWS=1 WEB_UP=6.55 NAME=poker_u_hi_bolt python3 .../poker_u.py  # bolted: the web's two screws, 4 mm longer, go through the roof and clamp it
 
 Heights follow the channel: WEB_UP is its web top above the tile (intake lowered) and the poke spans 5.7 to 7.5 in whatever
 that is, 1.3 in ahead of the lip's face (page/pokez_scan.js: 24/24 at every speed). Millimetres; x ahead of the front lip's
@@ -52,8 +53,9 @@ for x, y in PEGS:   # the locating pegs under the roof, chamfered to find their 
     part = part.union(cq.Workplane("XY").circle(PEG_D / 2).extrude(-PEG_H).translate((x, y, roof_z0)).faces("<Z").chamfer(0.6))
 for y in HOLE_YS:   # the wall's holes on the lip's holes, through the front wall only
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(20, both=True).translate((x_in + WALL_T / 2, y, HOLE_Z)))
+SCREWS = bool(os.environ.get("SCREWS"))                      # SCREWS=1: the two screws standing out of the web go through the roof instead (4.5 mm holes, screws 4 mm longer) and clamp the L
 for x, y in RELIEF:
-    part = part.cut(cq.Workplane("XY").circle(5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
+    part = part.cut(cq.Workplane("XY").circle(2.25 if SCREWS else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
 # three 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch), for the roof ties
 for y in ROOF_HOLES:
     part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))

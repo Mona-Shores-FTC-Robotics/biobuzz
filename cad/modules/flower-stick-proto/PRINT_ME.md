@@ -26,6 +26,11 @@ mesh of the channel (zero overlap).
 4. Check the hard stop beside it is clear of the L's end. Any gap is fine.
 5. Run it. If it works, print the spares from the same file and change nothing.
 
+**Or bolt it:** `stl/poker_u_hi_bolt.stl` is the same part with the two relief holes replaced by 4.5 mm holes. The two screws
+already standing out of the channel's top come out, the L goes on (pegs), and the same screws go back 4 mm longer, through the
+roof into whatever they held: the L is then bolted to the intake with no new holes in the channel. One wide tie across the
+other side's roof holes. Print this one if two M4s 4 mm longer than those screws are in the kit tonight; print the first if not.
+
 ![the plate](print_job_u_only.png)
 
 (The earlier plates: `print_job_next2.stl` is the 2.0 in blade with these two L's, `print_job_next.stl` the 3.0 in blade with
