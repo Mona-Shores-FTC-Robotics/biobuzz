@@ -179,7 +179,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robot.drive.isFieldCentric() ? "field-centric" : "robot-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
-        display.status("FLOWER stick", Display.Level.OK, robot.flowerStick.extended() ? "out" : "in");
+        display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         robot.intake.describe(display);
         robot.launcher.describe(display);
         robot.feeder.describe(display);
