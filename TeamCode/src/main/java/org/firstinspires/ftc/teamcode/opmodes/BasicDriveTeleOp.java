@@ -141,10 +141,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
-        driver.when("Cross (A)", "Extend FLOWER stick", () -> gamepad1.a)
-                .onPress(robot.flowerStick::extend);
-        driver.when("Square (X)", "Retract FLOWER stick", () -> gamepad1.x)
-                .onPress(robot.flowerStick::retract);
+        driver.when("Cross (A)", "FLOWER stick out / in (press again to swing it back)", () -> gamepad1.a)
+                .onPress(robot.flowerStick::toggle);
         driver.when("R2 (hold)", "Intake", () -> gamepad1.right_trigger > TRIGGER_PRESSED)
                 .onPress(robot.intake::intake)
                 .onRelease(robot.intake::idle);
