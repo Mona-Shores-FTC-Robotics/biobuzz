@@ -11,6 +11,7 @@ L from lifting or sliding.
 
     python3 cad/modules/flower-stick-proto/poker_u.py                 # stl/poker_u.stl, step/poker_u.step (web top 5.61 up)
     WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py                 # for the channel's top 6.55 in up: the poke hangs lower
+    HALF_L=36 NAME=poker_u_72 python3 .../poker_u.py                   # a 72 mm one, if the intake's hard stops on the web close in to 40 mm from centre
 
 Heights follow the channel: WEB_UP is its web top above the tile (intake lowered, 5.61 in assumed) and the poke spans 5.7 to
 7.5 in whatever that is, 1.3 in ahead of the lip's face (page/pokez_scan.js: 24/24 at every speed). Millimetres; x ahead of
@@ -20,9 +21,11 @@ import os, cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__)); os.makedirs(os.path.join(HERE, "step"), exist_ok=True); os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 IN = 25.4
 CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm deep, the lip 12 mm down from the web top; 0.3 mm clearance
-WALL_T, HALF_L = 4.0, 52.0                                  # the front wall; the L is 104 mm long
+WALL_T = 4.0
+HALF_L = float(os.environ.get("HALF_L", "52"))             # half the L's length along the channel: 52 (104 mm) unless the intake's hard stops on the web need it shorter
 RAIL_W, RAIL_H, ROOF_T = 4.5, 5.0, 4.0                      # the rails on the web's clear outer strips (its holes end 16 mm from its centreline, 19.5 with a 7 mm head), 5 mm tall: bolt heads pass under the roof
-HOLE_Y, HOLE_Z, HOLE_D = 40.0, -8.0, 4.3                    # the lip's holes: 8 mm pitch from the channel's centre, 8 mm below the web top, 4 mm
+HOLE_Y, HOLE_Z, HOLE_D = 8.0 * int((HALF_L - 8.0) // 8.0), -8.0, 4.3   # the lip's holes: 8 mm pitch from the channel's centre, 8 mm below the web top, 4 mm; the outermost pair that fits
+ROOF_HOLES = [y for y in (-48.0, -24.0, 0.0, 24.0, 48.0) if abs(y) <= HALF_L - 8.0]   # the roof holes over the channel's bearing holes that fit
 WEB_UP = float(os.environ.get("WEB_UP", "5.61"))            # the channel's top above the tile with the intake down, inches: measure it
 REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
 BUTTRESS_BACK = -36.0                                       # the buttress runs from the poke's top back to here on the roof
@@ -39,7 +42,7 @@ for y in (HOLE_Y, -HOLE_Y):   # the lip ties, through the front wall only
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(20, both=True).translate((x_in + WALL_T / 2, y, HOLE_Z)))
 # three 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch): to see the channel's holes
 # through and centre the L on them, and for the roof ties, down one and up the next
-for y in (-24.0, 0.0, 24.0):
+for y in ROOF_HOLES:
     part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
 NAME = os.environ.get("NAME", "poker_u")
