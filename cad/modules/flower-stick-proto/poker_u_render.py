@@ -20,7 +20,7 @@ ax.text(-24, -46, "the intake's front channel: web on top,\n12 mm flanges down, 
 # the L: the front wall down the lip, the roof flat on the web with relief holes over the screws, the poke, the buttress
 U = "#e0552b"; ax.add_patch(Rectangle((-48, 0), 52.3, 4, fc=U, ec="k", lw=0.8)); ax.add_patch(Rectangle((0.3, -12), 4, 16, fc=U, ec="k", lw=0.8))
 ax.add_patch(Rectangle((4.3, 2.4), 28.7, 45.7, fc=U, ec="k", lw=0.8)); ax.add_patch(Polygon([[-36, 4], [4.3, 4], [4.3, 48.1]], fc=U, ec="k", lw=0.8))
-for hx in (-39, -9): ax.add_patch(Rectangle((hx - 5, -0.5), 10, 5, fc="white", ec="k", lw=0.5, ls="--"))   # the relief holes over the screws
+for hx in (-40, -8): ax.add_patch(Rectangle((hx - 5, -0.5), 10, 5, fc="white", ec="k", lw=0.5, ls="--"))   # the relief holes over the screws
 ax.text(-24, -27, "the screws on the channel's top\nstand up through relief holes", ha="center", fontsize=7, color="white")
 for px in (-32.2, -15.8): ax.add_patch(Rectangle((px - 1.95, -2), 3.9, 2, fc="#1f5fbf", ec="k", lw=0.5))   # the pegs, 2 mm into the web's holes
 ax.text(-24, 7.5, "pegs into the web's holes", ha="center", fontsize=7, color="#1f5fbf")
