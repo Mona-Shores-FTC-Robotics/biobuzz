@@ -4,7 +4,8 @@ screws stand up out of the web (26 Oct photo: in the pattern's outer rows, 32 mm
 relief is cut both sides so the L fits either way round). No back wall: the first print's back wall stopped the intake sliding
 to its rest (26 Oct 2026) and was broken off.
 
-Fastening, all zip ties: two through the front wall's holes and the lip's 4 mm holes 40 mm either side of the channel's centre
+Fastening: the intake's round hard stops, moved inboard onto the roof, bolt through its goBILDA-pattern holes with their own
+M4s and clamp the L to the channel (the best fastening: no ties, and the stops locate it). For a test without the stops, zip ties: two through the front wall's holes and the lip's 4 mm holes 40 mm either side of the channel's centre
 (in through the wall and the lip, under the lip's edge, back out), and two through the roof's holes over the channel's bearing
 holes (down one, through the channel, up the next, closed on top; the motor leaves 4 mm under the web there). The ball's push
 goes into the poke, down the buttress into the roof and the front wall, onto the lip, in compression; the ties only keep the
@@ -44,6 +45,20 @@ for y in (HOLE_Y, -HOLE_Y):   # the lip ties, through the front wall only
 # through and centre the L on them, and for the roof ties, down one and up the next
 for x, y in RELIEF:
     part = part.cut(cq.Workplane("XY").circle(5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
+# the goBILDA pattern through the roof: 4.5 mm holes at every pattern position the roof covers (the web's rows 8 and 16 mm
+# either side of its centreline, 8 mm along), skipping the ones a bearing-hole opening or a relief already takes. So the
+# intake's round hard stops, moved inboard, bolt down through the roof with their own M4s and clamp the L to the channel
+# wherever they land; the zip ties are then only for a test without the stops.
+PATTERN = []
+for k in range(-int((HALF_L - 6) // 8), int((HALF_L - 6) // 8) + 1):
+    y = 8.0 * k
+    for dep in (-16.0, -8.0, 8.0, 16.0):
+        x = -24.0 + dep
+        if any(abs(y - ry) < 1e-6 and abs(dep) < 9 for ry in ROOF_HOLES): continue           # merges with a bearing-hole opening
+        if any(abs(x - rx) < 6 and abs(y - ry) < 6 for rx, ry in RELIEF): continue          # a relief hole is already there
+        PATTERN.append((x, y))
+for x, y in PATTERN:
+    part = part.cut(cq.Workplane("XY").circle(2.25).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
 for y in ROOF_HOLES:
     part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
