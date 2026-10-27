@@ -30,6 +30,7 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
+import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
@@ -92,9 +93,11 @@ import java.util.Map;
  *
  * <p>{@link #setup} settles the alliance during INIT — vision proposes, X/B on either gamepad
  * overrides — and locks it at PLAY; see {@link MatchSetup}. When an {@code @Autonomous} OpMode
- * stops, this records the alliance and the robot's final pose in {@link Handoff}. When any other
- * OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose and inherits
- * the alliance, and the Match page says so — or says there was no handoff. Subclasses never touch
+ * stops, this records the alliance, the robot's final pose and the turret's zero in {@link Handoff}.
+ * When any other OpMode initializes within {@link Handoff#MAX_AGE_MS} of that, it restores the pose
+ * and the turret's zero and inherits the alliance, and the Match page says so — or says there was
+ * no handoff. With no Auto before it, the turret is assumed at home and zeroes where it stands at
+ * PLAY ({@link TurretZeroPolicy}); a person's zero button always wins. Subclasses never touch
  * either.
  *
  * <p>An Autonomous overrides {@link #startPosition()}. The pose starts there, and during INIT the
@@ -178,6 +181,9 @@ public abstract class RobotOpMode extends OpMode {
     private String handoffNote;
 
     private StartPosition declaredStart;
+
+    /** How many stack frames of a crash go into the match log: enough to find the line, short enough for one event. */
+    private static final int CRASH_FRAMES = 6;
 
     /** Below this at INIT the battery is reported, on the INIT page and in the log: 12.0 V resting is nearly empty. */
     static final double LOW_BATTERY_VOLTS = 12.0;
@@ -290,6 +296,15 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void init_loop() {
+        try {
+            initLoopBody();
+        } catch (RuntimeException | Error e) {
+            logCrash("init_loop", e);
+            throw e;
+        }
+    }
+
+    private void initLoopBody() {
         clearBulkCache();
         if (gamepad1.x || gamepad2.x) setup.chooseManually(Alliance.BLUE);
         if (gamepad1.b || gamepad2.b) setup.chooseManually(Alliance.RED);
@@ -325,6 +340,15 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void start() {
+        try {
+            startBody();
+        } catch (RuntimeException | Error e) {
+            logCrash("start", e);
+            throw e;
+        }
+    }
+
+    private void startBody() {
         loopTimer.reset();
         setup.lock();
         driver.prime();
@@ -343,6 +367,11 @@ public abstract class RobotOpMode extends OpMode {
             }
         }
         log.event("PLAY: " + setup.alliance() + " alliance");
+        // The turret is assumed at home at the start of a match; a person's zero or an Auto's wins.
+        if (TurretZeroPolicy.atPlay(robot.turret.zeroed()) == TurretZeroPolicy.Action.ZERO_HERE) {
+            robot.turret.zeroAtPlay();
+        }
+        log.event("PLAY: turret " + robot.turret.zeroSource().text);
         if (battery != null) {
             log.event(String.format(Locale.US, "PLAY: battery %.2f V", battery.getVoltage()));
         }
@@ -353,6 +382,39 @@ public abstract class RobotOpMode extends OpMode {
 
     @Override
     public final void loop() {
+        try {
+            loopBody();
+        } catch (RuntimeException | Error e) {
+            logCrash("loop", e);
+            throw e;
+        }
+    }
+
+    /**
+     * An uncaught exception ends the OpMode: the SDK stops the robot and shows the error on the
+     * Driver Station, where it stays until someone clears it. This puts the same error in the match
+     * log too, which keeps the stack after the Driver Station has forgotten it, then rethrows so
+     * nothing about the crash changes. Never throws itself.
+     */
+    private void logCrash(String where, Throwable e) {
+        try {
+            StringBuilder text = new StringBuilder("CRASH in ").append(where).append(": ").append(e);
+            StackTraceElement[] frames = e.getStackTrace();
+            for (int i = 0; i < Math.min(frames.length, CRASH_FRAMES); i++) {
+                text.append(" | at ").append(frames[i]);
+            }
+            Throwable cause = e.getCause();
+            if (cause != null) {
+                text.append(" | caused by ").append(cause);
+            }
+            log.event(text.toString());
+            log.commit();
+        } catch (RuntimeException ignored) {
+            // The crash is the story; a log problem must not replace it.
+        }
+    }
+
+    private void loopBody() {
         loopTimer.lap();
         clearBulkCache();
         beginPage();
@@ -427,7 +489,9 @@ public abstract class RobotOpMode extends OpMode {
             // it is relative to init, not on the field; passing that on would make TeleOp treat
             // it as field-referenced and feed camera fixes computed from a meaningless heading.
             Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-            Handoff.record(setup.alliance(), pose, matchId, log, System.currentTimeMillis());
+            // The turret's zero goes too (null if this Auto never got one, say it stopped in INIT).
+            Long turretZero = robot.turret.zeroed() ? Long.valueOf(robot.turret.zeroCounts()) : null;
+            Handoff.record(setup.alliance(), pose, matchId, log, turretZero, System.currentTimeMillis());
         }
 
         // Guarded because stop() runs even when init() threw partway through — a missing device, a
@@ -488,22 +552,28 @@ public abstract class RobotOpMode extends OpMode {
         Handoff.Snapshot handoff = Handoff.fresh(now);
         if (handoff == null) {
             handoffLevel = Display.Level.WARN;
-            handoffNote = "no Auto handoff — pose starts at 0,0; forward = robot's facing at PLAY";
+            handoffNote = "no handoff (no Auto in the last 3 minutes, no TeleOp in the last 30 seconds) — "
+                    + "pose starts at 0,0; forward = robot's facing at PLAY";
             return;
         }
+        String from = handoff.fromAuto ? "Auto" : "the TeleOp that just stopped";
         setup.inheritFromAuto(handoff.alliance);
+        if (TurretZeroPolicy.atInit(false, handoff.turretZeroCounts != null)
+                == TurretZeroPolicy.Action.RESTORE_FROM_AUTO) {
+            robot.turret.restoreZero(handoff.turretZeroCounts);
+        }
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
-                    "pose from Auto %s (%.0f, %.0f, %.0f°)%s", age,
+                    "pose from %s %s (%.0f, %.0f, %.0f°)%s", from, age,
                     handoff.pose.x(), handoff.pose.y(), Math.toDegrees(handoff.pose.heading()),
                     forwardKnown ? "" : "; forward = robot's facing at PLAY (not measured)");
         } else {
             handoffLevel = Display.Level.WARN;
-            handoffNote = "alliance from Auto " + age + ", but no field pose (Auto declared no "
+            handoffNote = "alliance from " + from + " " + age + ", but no field pose (no declared "
                     + "start, or no Pinpoint); forward = robot's facing at PLAY";
         }
     }
@@ -609,9 +679,17 @@ public abstract class RobotOpMode extends OpMode {
         copyGamepad(gamepad1, log.gamepad1());
         copyGamepad(gamepad2, log.gamepad2());
         Pose pose = robot.drive.pose();
+        boolean referenced = pose != null && robot.drive.poseReferenced();
         if (pose != null) {
             log.pose(pose.x(), pose.y(), pose.heading());
-            log.put("/Odometry/Referenced", robot.drive.poseReferenced() ? 1 : 0);
+            log.put("/Odometry/Referenced", referenced ? 1 : 0);
+        }
+        if (mode != MatchLog.Mode.DISABLED) {
+            // Where the robot is, every loop, so an OpMode that crashes still leaves it behind.
+            Handoff.update(mode == MatchLog.Mode.AUTONOMOUS, alliance, referenced,
+                    referenced ? pose.x() : 0.0, referenced ? pose.y() : 0.0,
+                    referenced ? pose.heading() : 0.0, robot.turret.zeroed(), robot.turret.zeroCounts(),
+                    matchId, System.currentTimeMillis());
         }
         // The keys #181 asks for, so a real match log compares with the simulator's.
         log.put("/Intake/TicksPerSecond", robot.intake.ticksPerSecond());
