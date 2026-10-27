@@ -228,19 +228,19 @@ window.Drive3D = (function () {
     }
     ballPos.forEach(([x, z, y], k) => balls[k].position.set(x, z, -(y || 0)));
   }
-  // the poker on the robot (poker_u.py): an upside-down U over the intake's front channel (web top 0.09 below the poke's
-  // bottom), walls down both flanges, the poke ahead of the front wall and a buttress from its top back along the roof
-  let pokerMesh = null;
+  // the poker on the robot (poker_u.py): an L over the intake's front channel: a wall down the front lip, the roof 5 mm above
+  // the web on two thin rails (bolt heads pass under), the poke ahead of the wall and a buttress from its top back along the roof
   function setPoker(pk) {
     if (pokerMesh) { robot.remove(pokerMesh); pokerMesh.traverse(o => { if (o.geometry) o.geometry.dispose(); }); pokerMesh = null; }
     if (!pk) return;
-    const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.z0 - 0.09, U = 4.1, w = pk.hw ? 2 * pk.hw : 0.75, T = 0.16, D = 1.9;
+    const mat = new THREE.MeshStandardMaterial({ color: 0xe0552b, roughness: 0.6 }), g = new THREE.Group(), web = pk.z0 - 0.09, U = 4.1, w = pk.hw ? 2 * pk.hw : 0.75, T = 0.16, D = 1.9, R = 0.2;
     const add = (x0, x1, z0, z1, wd, y) => { const m = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, z1 - z0, wd), mat); m.position.set((x0 + x1) / 2, (z0 + z1) / 2, -(y || 0)); g.add(m); };
-    add(-D - T, T, web, web + T, U);                 // the roof on the channel's web
-    add(0.01, T, web - 0.47, web, U);                // the front wall down the front flange
-    add(-D - T, -D, web - 0.47, web, U);             // the back wall down the back flange
+    add(-D, T, web + R, web + R + T, U);             // the roof, 5 mm above the web
+    add(0.01, T, web - 0.47, web + R + T, U);        // the front wall down the lip
+    add(-0.18, 0.01, web, web + R, U);               // the front rail
+    add(-D, -D + 0.18, web, web + R, U);             // the back rail
     add(T, pk.reach, pk.z0, pk.z1, w);               // the poke
-    const sh = new THREE.Shape(); sh.moveTo(-1.73, web + T); sh.lineTo(T, web + T); sh.lineTo(T, pk.z1); sh.closePath();   // the buttress
+    const sh = new THREE.Shape(); sh.moveTo(-1.42, web + R + T); sh.lineTo(T, web + R + T); sh.lineTo(T, pk.z1); sh.closePath();   // the buttress
     const but = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: w, bevelEnabled: false }), mat); but.position.z = -w / 2; g.add(but);
     pokerMesh = g; robot.add(g);
   }

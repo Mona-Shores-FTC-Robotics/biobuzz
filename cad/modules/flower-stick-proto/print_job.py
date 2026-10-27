@@ -24,6 +24,7 @@ PARTS = {"three": [("v7_lane", "v7: the shape that works, snug hole"), ("v8_lane
 COLS = {"variants": [[("poker_u_lite", "lite"), ("poker_u_clip", "clip")], [("poker_u_adj", "adj: the U with the mast"), ("poker_u_adj_poke", "adj: the poke block, on its side")], [("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
         "all": [[("mountain_wide", "the wide mountain blade")], [("poker_u_classic", "classic"), ("poker_u_lite", "lite")], [("poker_u_clip", "clip"), ("poker_u_adj", "adj: the U with the mast")], [("poker_u_adj_poke", "adj: the poke block")]],
         "shims": [[("poker_u_adj_shim2", "2 mm shim"), ("poker_u_adj_shim2", "2 mm shim")], [("poker_u_adj_shim4", "4 mm shim"), ("poker_u_adj_shim4", "4 mm shim")]],
+        "u_only": [[("poker_u", "poker_u: for the channel top 5.6 in up")], [("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]],
         "next2": [[("mountain_wide_2in", "the wide mountain blade with its tail cut to 2.0 in")], [("poker_u", "poker_u: for the channel top 5.6 in up")], [("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]],
         "both": [[("mountain_wide", "design 9: the full 3.0 in blade, the sled-tested one")], [("mountain_wide_2in", "design 10: the same blade, tail cut to 2.0 in")], [("poker_u", "poker_u: for the channel top 5.6 in up"), ("poker_u_hi", "poker_u_hi: for the channel top 6.55 in up; the poke hangs")]]}
 def orient(name, c):

@@ -1,40 +1,46 @@
-"""The poker: an upside-down U that sits over the intake's front channel (the flat 9-hole lowside U-channel across the front
-above the intake wheels, web on top, 12 mm flanges down, the only channel there), with the poke and its buttress on top. Four
-holes, two in the front wall and two in the back wall, sit on the channel's 4 mm flange holes 40 mm either side of its centre:
-a zip tie through each (in through the wall and the flange, under the flange's bottom edge, back out) for the test; 4 mm pop
-rivets or M4 button heads from inside for keeps, if the coach allows (the intake motor is 3.5 mm behind the front flange).
+"""The poker: an L over the intake's front channel (the flat 9-hole lowside U-channel across the front above the intake wheels,
+web on top, the only channel there): a wall down the front lip, and a roof over the web standing 5 mm clear of it on two thin
+rails along the web's outer strips, where the goBILDA pattern has no holes, so whatever is bolted through the web passes under
+the roof. No back wall: the first print's back wall stopped the intake sliding to its rest (26 Oct 2026) and was broken off.
 
-    python3 cad/modules/flower-stick-proto/poker_u.py     # stl/poker_u.stl, step/poker_u.step
-    WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py     # the same for the channel's top 6.55 in up (Dustin's Onshape stop, 25 Oct): the poke hangs below the roof
+Fastening, all zip ties: two through the front wall's holes and the lip's 4 mm holes 40 mm either side of the channel's centre
+(in through the wall and the lip, under the lip's edge, back out), and two through the roof's holes over the channel's bearing
+holes (down one, through the channel, up the next, closed on top; the motor leaves 4 mm under the web there). The ball's push
+goes into the poke, down the buttress into the roof and the front wall, onto the lip, in compression; the ties only keep the
+L from lifting or sliding.
 
-The push from the ball goes into the poke, down the buttress into the roof, and through the front wall into the channel's front
-flange, in compression; the ties only keep the U from lifting or sliding. Heights follow the channel: WEB_UP is its web top above the tile
-(intake lowered, 5.61 in assumed) and the poke spans 5.7 to 7.5 in whatever that is, 1.3 in ahead of the flange's face, which is what the model wants
-(page/pokez_scan.js: 24/24 at every speed; the folded blade passes 2.8 mm under it). Measure the web's height on the robot with
-the intake down. Millimetres; x ahead of the front flange's face, y across from the channel's centre, z up from the web top.
+    python3 cad/modules/flower-stick-proto/poker_u.py                 # stl/poker_u.stl, step/poker_u.step (web top 5.61 up)
+    WEB_UP=6.55 NAME=poker_u_hi python3 .../poker_u.py                 # for the channel's top 6.55 in up: the poke hangs lower
+
+Heights follow the channel: WEB_UP is its web top above the tile (intake lowered, 5.61 in assumed) and the poke spans 5.7 to
+7.5 in whatever that is, 1.3 in ahead of the lip's face (page/pokez_scan.js: 24/24 at every speed). Millimetres; x ahead of
+the front lip's face, y across from the channel's centre, z up from the web top.
 """
 import os, cadquery as cq
 HERE = os.path.dirname(os.path.abspath(__file__)); os.makedirs(os.path.join(HERE, "step"), exist_ok=True); os.makedirs(os.path.join(HERE, "stl"), exist_ok=True)
 IN = 25.4
-CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm deep, flanges 12 mm down from the web top; 0.3 mm each side
-ROOF_T, WALL_T, HALF_L = 4.0, 4.0, 52.0                     # the U: 4 mm roof and walls, 104 mm long (ties 80 mm apart)
-HOLE_Y, HOLE_Z, HOLE_D = 40.0, -8.0, 4.3                    # the channel's flange holes: 8 mm pitch from its centre, 8 mm below the web top, 4 mm
-WEB_UP = float(os.environ.get("WEB_UP", "5.61"))                 # the channel's top above the tile with the intake down, inches: measure it
+CHAN_D, FLANGE_H, CLR = 48.0, 12.0, 0.3                     # the channel: 48 mm deep, the lip 12 mm down from the web top; 0.3 mm clearance
+WALL_T, HALF_L = 4.0, 52.0                                  # the front wall; the L is 104 mm long
+RAIL_W, RAIL_H, ROOF_T = 4.5, 5.0, 4.0                      # the rails on the web's clear outer strips (its holes end 16 mm from its centreline, 19.5 with a 7 mm head), 5 mm tall: bolt heads pass under the roof
+HOLE_Y, HOLE_Z, HOLE_D = 40.0, -8.0, 4.3                    # the lip's holes: 8 mm pitch from the channel's centre, 8 mm below the web top, 4 mm
+WEB_UP = float(os.environ.get("WEB_UP", "5.61"))            # the channel's top above the tile with the intake down, inches: measure it
 REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
 BUTTRESS_BACK = -36.0                                       # the buttress runs from the poke's top back to here on the roof
-x_in, x_out = CLR, CLR + WALL_T                             # the front wall; the back wall mirrors it about the channel's depth
-roof = cq.Workplane("XY").box(CHAN_D + 2 * CLR + 2 * WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-CHAN_D - CLR - WALL_T, 0, 0))
-front = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + ROOF_T, centered=(False, True, False)).translate((x_in, 0, -FLANGE_H))
-back = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + ROOF_T, centered=(False, True, False)).translate((-CHAN_D - CLR - WALL_T, 0, -FLANGE_H))
+x_in, x_out = CLR, CLR + WALL_T                             # the front wall, outside the lip
+roof_z0, roof_z1 = RAIL_H, RAIL_H + ROOF_T
+roof = cq.Workplane("XY").box(CHAN_D + CLR + WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-CHAN_D, 0, roof_z0))
+front = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + roof_z1, centered=(False, True, False)).translate((x_in, 0, -FLANGE_H))
+rail_f = cq.Workplane("XY").box(RAIL_W + CLR + WALL_T, 2 * HALF_L, RAIL_H + 0.01, centered=(False, True, False)).translate((-RAIL_W, 0, 0))   # joins the front wall
+rail_b = cq.Workplane("XY").box(RAIL_W, 2 * HALF_L, RAIL_H + 0.01, centered=(False, True, False)).translate((-CHAN_D, 0, 0))
 poke = cq.Workplane("XY").box(REACH - x_out, POKE_W, POKE_HI - POKE_LO, centered=(False, True, False)).translate((x_out, 0, POKE_LO))
-buttress = cq.Workplane("XZ").polyline([(BUTTRESS_BACK, ROOF_T - 0.01), (x_out + 0.01, ROOF_T - 0.01), (x_out + 0.01, POKE_HI)]).close().extrude(POKE_W / 2, both=True)
-part = roof.union(front).union(back).union(poke).union(buttress)
-# three 12 mm holes in the roof on the channel's 14 mm bearing holes (its centreline, 24 mm pitch): to see the channel's holes
-# through and centre the U on them, and for a tie down one and up the next, round the web, if the lip ties are not enough
+buttress = cq.Workplane("XZ").polyline([(BUTTRESS_BACK, roof_z1 - 0.01), (x_out + 0.01, roof_z1 - 0.01), (x_out + 0.01, POKE_HI)]).close().extrude(POKE_W / 2, both=True)
+part = roof.union(front).union(rail_f).union(rail_b).union(poke).union(buttress)
+for y in (HOLE_Y, -HOLE_Y):   # the lip ties, through the front wall only
+    part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(20, both=True).translate((x_in + WALL_T / 2, y, HOLE_Z)))
+# three 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch): to see the channel's holes
+# through and centre the L on them, and for the roof ties, down one and up the next
 for y in (-24.0, 0.0, 24.0):
-    part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, -1)))
-for y in (HOLE_Y, -HOLE_Y):
-    part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(CHAN_D + 20, both=True).translate((-CHAN_D / 2, y, HOLE_Z)))
+    part = part.cut(cq.Workplane("XY").circle(6.0).extrude(ROOF_T + 2).translate((-CHAN_D / 2, y, roof_z0 - 1)))
 v = part.val(); assert len(part.solids().vals()) == 1 and v.isValid()
 NAME = os.environ.get("NAME", "poker_u")
 cq.exporters.export(part, os.path.join(HERE, "stl", NAME + ".stl"), tolerance=0.05, angularTolerance=0.2)

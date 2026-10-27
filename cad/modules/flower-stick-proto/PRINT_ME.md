@@ -1,22 +1,20 @@
-# Print now: the 2.0 in mountain blade and the poker U, twice (for whoever prints)
+# Print now: the poker L, twice (for whoever prints)
 
-**`stl/print_job_next2.stl`**, 173 x 201 mm, three parts: `stl/mountain_wide_2in.stl` (the mountain blade with Carter's lane at
-7.9 in wide and its tail cut off 2.0 in behind the lip, 51 x 201 x 15 mm, 89 cm3, **the same 7.15 mm hex bore as the full blade,
-flats top and bottom**; the first print of this one had the loose 8.6 mm bore by mistake and dropped through the shaft: reprint it)
-flat side down, and two poker U's standing on their back walls: `stl/poker_u.stl` (85 x 104 x 60 mm, 75 cm3) and
-`stl/poker_u_hi.stl` (85 x 104 x 46 mm, 66 cm3). The two U's are the same part for two heights of the intake's front channel,
-which the CAD gives two answers for (5.6 and 6.55 in above the tile with the intake down); the robot decides, and the other is
-spare. A U sits over the flat channel across the front of the intake, above the intake wheels: its roof on the channel's top,
-its walls down the channel's front and back lips, the two holes in each wall on the lips' 4 mm holes 40 mm either side of the
-channel's centre. Four zip ties: in through the wall and the lip's hole, under the lip's bottom edge, back out and closed. The
-three holes in the roof sit over the channel's big bearing holes: look through them to centre the U, and a fifth tie can go
-down one and up the next, round the channel's top, if four are not enough. Fits a 220 mm bed. Millimetres. PETG. About 235 cm3.
+**`stl/print_job_u_only.stl`**, two parts standing on their front walls' backs: `stl/poker_u.stl` (81 x 104 x 60 mm, 72 cm3,
+for the channel's top 5.6 in up) and `stl/poker_u_hi.stl` (81 x 104 x 46 mm, 63 cm3, for 6.55 in up); fit the one that puts
+the poke at 5.7 to 7.5 in above the tile with the intake down, the other is spare. The second edition after the first night
+on 20245: **no back wall** (it stopped the intake sliding to its rest and had to be broken off) and **the roof stands 5 mm
+above the channel's top on two thin rails** along the top's outer strips, so the bolt heads standing up out of the channel's
+top pass under it. It sits over the flat channel across the front of the intake, above the intake wheels: the wall down the
+channel's front lip, the two holes in the wall on the lip's 4 mm holes 40 mm either side of the channel's centre, the three
+roof holes over the channel's big bearing holes. Four zip ties: two in through the wall and the lip's hole, under the lip's
+edge, back out and closed; two down one roof hole, through the channel, up the next, closed on top. Millimetres. PETG, 30 %
+infill, support under the wall's lip. The blade is not on this plate: the 2.0 in one printed on 26 Oct is the one.
 
-**Or print everything at once: `stl/print_job_both.stl`**, 204 x 216 mm, four parts: both blades (the full 3.0 in one the sled test
-ran, and the 2.0 in one) and both U's. Fits a 220 mm bed, no brim on the 216 mm side. About 330 cm3, a long print.
-(`stl/print_job_next.stl`, 198 x 201 mm, is the 3.0 in blade with the two U's.)
+![the plate](print_job_u_only.png)
 
-![the plate](print_job_next2.png)
+(The earlier plates: `print_job_next2.stl` is the 2.0 in blade with these two L's, `print_job_next.stl` the 3.0 in blade with
+them, `print_job_both.stl` both blades with them.)
 
 **Settings:** PETG (not PLA), 0.2 mm layers, 5 walls, 30 % infill, 5 top and bottom layers, support under the U's
 front lip only, both U's (the blade needs none), brim optional. Millimetres: if it comes in tiny, scale by 25.4.
