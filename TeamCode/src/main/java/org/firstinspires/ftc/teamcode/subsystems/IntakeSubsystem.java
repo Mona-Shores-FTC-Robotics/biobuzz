@@ -34,9 +34,10 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  *
  * <p>The intake-assist wheels (#160): SWYFT wheels cut into stars, driven by a continuous-rotation
  * servo on {@link DeviceNames#INTAKE_STARS}, with one-way clutch bearings so a ball can overrun
- * them inward and they can never turn outward. They run at {@link #starsPower} whenever the roller
- * is taking in, and stop otherwise, including on eject: the clutches would only freewheel. Their
- * direction is {@link #starsReversed}, unknown until a robot has shown it.
+ * them inward. They run at {@link #starsPower} whenever the roller is taking in, backwards at the
+ * same power while it ejects (asked for on 26 Oct 2026, so the stars push a piece out with the
+ * roller rather than sit in its way), and stop when the roller is idle. Their direction is
+ * {@link #starsReversed}, unknown until a robot has shown it.
  */
 @Configurable
 public class IntakeSubsystem implements Subsystem {
@@ -51,10 +52,11 @@ public class IntakeSubsystem implements Subsystem {
     public static double outPower = 0.6;
 
     /**
-     * Flips the motor so that positive power takes pieces in. <b>Not yet checked on a robot:</b>
-     * {@code false} is the SDK's default direction, not a fact about the wiring.
+     * Flips the motor so that positive power takes pieces in. {@code true} as checked on 20245 on
+     * 26 Oct 2026: with the SDK's default direction R2 ran the roller backwards. 19429 is wired
+     * the same way by intent and has not been checked yet.
      */
-    public static boolean reversed = false;
+    public static boolean reversed = true;
 
     /**
      * Encoder ticks per revolution of the roller motor's output shaft, for {@link #rpm()}. <b>NaN
@@ -162,7 +164,7 @@ public class IntakeSubsystem implements Subsystem {
     @Override
     public void describe(Display display) {
         display.status("Intake", state == State.IDLE ? Display.Level.OK : Display.Level.WARN,
-                state == State.IN ? "IN · stars turning" : state == State.OUT ? "OUT · stars stopped" : "idle");
+                state == State.IN ? "IN · stars turning" : state == State.OUT ? "OUT · stars backing" : "idle");
         double rpm = rpm();
         display.line(String.format(Locale.US, "Roller %.0f ticks/s%s · %s",
                 ticksPerSecond,
@@ -196,12 +198,11 @@ public class IntakeSubsystem implements Subsystem {
     }
 
     /**
-     * The star-wheel servo's power for a request: {@code +power} while taking in, 0 otherwise. Not
-     * run on eject: the one-way clutches would freewheel, so there is nothing to gain. Negated when
-     * {@code starsReversed}. Pure, so a test can check it.
+     * The star-wheel servo's power for a request: {@code +power} while taking in, {@code -power}
+     * while ejecting, 0 when idle. Negated when {@code starsReversed}. Pure, so a test can check it.
      */
     static double starsPowerFor(State state, double power, boolean reversed) {
-        double p = state == State.IN ? unitRange(power) : 0.0;
+        double p = state == State.IN ? unitRange(power) : state == State.OUT ? -unitRange(power) : 0.0;
         return reversed ? -p : p;
     }
 

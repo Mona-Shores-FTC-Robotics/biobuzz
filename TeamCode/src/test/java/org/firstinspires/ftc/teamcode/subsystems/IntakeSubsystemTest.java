@@ -46,7 +46,7 @@ public class IntakeSubsystemTest {
     @Test
     public void starsTurnOnlyWhileTakingIn() {
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 1.0, false), EPS);
-        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, false), EPS);
+        assertEquals(-1.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, false), EPS);
         assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IDLE, 1.0, false), EPS);
     }
 
@@ -55,7 +55,7 @@ public class IntakeSubsystemTest {
         assertEquals(-1.0, IntakeSubsystem.starsPowerFor(State.IN, 1.0, true), EPS);
         assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.IN, 3.0, false), EPS);
         assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.IN, Double.NaN, false), EPS);
-        assertEquals(0.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, true), EPS);
+        assertEquals(1.0, IntakeSubsystem.starsPowerFor(State.OUT, 1.0, true), EPS);
     }
 
     @Test
