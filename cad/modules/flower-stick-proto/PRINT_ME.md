@@ -224,24 +224,22 @@ file the hole open.
 
 Thank you!
 
-## Thursday test: the poke family (28 Oct 2026, revised for sideways error)
+## Thursday test: two pokers (28 Oct 2026, final cut)
 
-`stl/print_job_family.stl` prints five pokers: reach **1.3, 1.6, 1.9, 2.2 and 2.5 in**, each **36 mm (1.4 in) wide** instead of 19 mm,
-top edge beveled 8 mm, bottom square, narrowing from 36 to 24 mm over the last 10 mm, the pegs, relief, wall holes (24 and 32 mm; the
-ones at 16 are behind the wider poke), the counterbored M4 hole over the front screw and the roof cut short. 1.3 is the current reach
-with the new nose and width: the control.
+`stl/print_job_family.stl` prints two pokers, both **38 mm (1.5 in) wide** at the nose, with the nose narrowing to 24 mm over its
+last 10 mm, the top edge beveled 8 mm (bottom square), the buttress behind the wall 30 mm wide (so the roof holes at 24 mm stay
+clear), the pegs, relief, wall holes at 24 and 32 mm, the counterbored M4 hole over the front screw and the roof cut short:
 
-**Why wide.** We cannot drive in dead centre, so the poke has to work across the whole opening. `page/lat_grid.js` offsets the whole
-robot sideways (the 7.9 in blade and the poker together) from minus 2.4 to plus 2.4 in, at 4 in/s, three stack leans and two
-frictions (cases fed of 6; results in `page/lat_grid_results/`). The narrow 0.75 in poke works to about 0.8 in off centre and then
-drops to 2 to 4 of 6. A 1.5 in poke is 6 of 6 out to 1.6 in off centre at the best reach; wider than that adds nothing (2.25 and 3.0
-in are the same or slightly worse), and every shape fails at 2.4 in, because the blade itself no longer meets the FLOWER squarely.
-Best reach in the model: 1.3 in if the blade's lip sits 3.8 in ahead of the face, 1.9 to 2.2 in if 4.7 in. At the wrong reach
-the model drops to 2 to 4 of 6 whatever the width, so width fixes sideways error and reach still has to be right.
+- **Reach 2.2 in, the main bet:** best if the blade's lip sits about 4.7 in ahead of the face (the overhead photos and the coach's CAD).
+- **Reach 1.9 in, the hedge:** best if the lip is 4.1 to 4.4 in. Dustin is certain the current 1.3 in poke is not deep enough.
 
-Fix the off-centre blade first (the FLOWER's axis was 2.4 in off the poker's in the ring photo), then deliberately test with the robot
-pushed in 1 and 1.5 in to each side, not just centred. Run slow (about 3 in/s) and at speed, and note how many of four balls it frees.
-Checks: the 18 in start box (stowed robot 16.7 in with the 1.3 in poke, so about 17.6 in with 2.2 and 17.9 in with 2.5: tape it);
-one stow cycle with each (the model keeps the stowed blade 3.0 in or more from the 2.5 in poker, without the bevels); each poker is
-about 75 to 125 cm3, so allow more print time and filament. Nothing here is lower than the locked poker (the stowed blade's lip
-passes 2.8 mm under it).
+**Why 38 mm wide.** The robot cannot be driven in dead centre, so the poke has to work across the opening. `page/lat_grid.js` offsets
+the whole robot from minus 2.4 to plus 2.4 in at 4 in/s: a 0.75 in poke works to about 0.8 in off centre, 1.26 in to about 0.8 in, 1.5 in
+to about 1.6 in at the right reach; wider than 1.5 gains nothing, and every shape fails at 2.4 in because the blade itself no longer
+meets the FLOWER squarely. Width does not replace reach: at the wrong reach the model drops to 2 to 4 of 6 at any width.
+
+Fix the off-centre blade first (the FLOWER's axis was 2.4 in off the poker's in the ring photo). Then test centred and also pushed in
+1 and 1.5 in to each side, slow (about 3 in/s) and at speed; keep the one that frees all four balls at the widest offsets. Each is about
+100 to 115 cm3, so allow the print time. One stow cycle with each: the model keeps the stowed blade 3 in or more from the poker, without the
+bevels. The 18 in start box is not a concern (Dustin). The M4 counterbore is 8 mm for a 7 mm head with a 4.5 mm hole: if the print is
+tight, chase it with a drill bit. Nothing here is lower than the locked poker.
