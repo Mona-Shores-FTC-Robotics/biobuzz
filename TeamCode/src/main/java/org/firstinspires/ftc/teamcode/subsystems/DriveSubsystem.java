@@ -259,6 +259,30 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     }
 
     /**
+     * Sets x and y to a measured corner's, for a driver who has squared the robot into it. The
+     * heading is kept when the pose is already on the field (the Pinpoint's heading barely drifts,
+     * so it is better than the squaring); otherwise the corner's own heading is taken, since the
+     * robot squared into it faces that way. The driver's field-centric forward stays where it was.
+     *
+     * @return what happened, for the driver
+     */
+    public String snapToCorner(Pose corner) {
+        if (localizer == null) {
+            return "corner snap: no Pinpoint";
+        }
+        if (corner == null) {
+            return "corner snap: no measured corner to use (see CornerPositions)";
+        }
+        boolean keepHeading = poseReferenced;
+        Pose target = keepHeading
+                ? new Pose(corner.x(), corner.y(), localizer.pose().heading())
+                : corner;
+        setPoseKeepingDriverForward(target);
+        return "snapped to corner " + describePose(target)
+                + (keepHeading ? ", heading kept" : ", heading from the corner");
+    }
+
+    /**
      * Fills the tag arrays from the CELLs in view that are settled UP or DOWN: each tag's field
      * position against where the robot sees it. {@code freshOnly} takes only sightings not used
      * before (once per camera frame) and marks them used.

@@ -1,9 +1,9 @@
 package org.firstinspires.ftc.teamcode.logging;
 
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
-import org.firstinspires.ftc.teamcode.opmodes.BasicDriveTeleOp;
 import org.firstinspires.ftc.teamcode.opmodes.FlowerPicker;
 import org.firstinspires.ftc.teamcode.opmodes.HiveAndPose;
+import org.firstinspires.ftc.teamcode.opmodes.TeleOpConfig;
 import org.firstinspires.ftc.teamcode.opmodes.auto.LaunchCards;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
@@ -45,7 +45,7 @@ public final class Tunables {
             LocalizationTuning.class,
             CameraMount.class,
             PieceVisionSubsystem.class,
-            BasicDriveTeleOp.class,
+            TeleOpConfig.class,
             FlowerPicker.class,
             HiveAndPose.class,
     };
