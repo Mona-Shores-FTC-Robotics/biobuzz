@@ -24,10 +24,18 @@ public final class ResetPositions {
     private ResetPositions() {
     }
 
-    /** Red: not measured. */
+    /**
+     * Red: the corner on the red driver's left, against the red-side wall and the back wall (away
+     * from the audience), robot squared into both walls with the intake toward the blue side. Not
+     * measured: read x, y and heading off the Pose line with the robot placed there.
+     */
     public static final Pose RED = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
-    /** Blue: not measured. Measure it on the field rather than mirror red: placement is by hand. */
+    /**
+     * Blue: the corner on the blue driver's left, against the blue-side wall and the audience wall,
+     * robot squared into both walls with the intake toward the red side. Not measured. Measure it on
+     * the field rather than derive it from red: the field is not a mirror, and placement is by hand.
+     */
     public static final Pose BLUE = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
     /** {@code alliance}'s reset spot, or null if it is not measured or the alliance is unknown. */
