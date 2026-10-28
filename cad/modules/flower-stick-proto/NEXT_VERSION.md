@@ -39,3 +39,17 @@ reach wanted is **the lip's distance ahead of the intake face, minus 2.5 in**. B
 
 (Cases fed of 24 at 3 in/s.) Too shallow plateaus at 16; too deep falls to nothing. The window is about 0.3 in wide, so the
 number to measure is the lip's distance from the face, extended, flat, wheels down. The model assumed 3.81.
+
+## Versions in the simulator (28 Oct 2026)
+
+The simulator and the notes page now keep a planned and a real line, so each test can be compared with what was built:
+
+| Version | What it is |
+|---|---|
+| 10 | planned: the 2.0 in blade with the poker |
+| 10 real | as run 26 Oct: blade canted about 5 degrees, first poker with its back wall broken off. Model: 19 of 24 at 3 in/s |
+| 11 | the changes: tightened flat, the L poker |
+| 11 real | as built 28 Oct: flat, the locked L. The lip distance is typed into the simulator once measured |
+| 12 | next: reach = lip distance minus 2.5 in, chamfered top; lower and V nose after the stow check |
+
+After the next test: add "12 real" the same way, with what was built, the photos, what differed and why.

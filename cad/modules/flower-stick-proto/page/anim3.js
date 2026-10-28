@@ -104,6 +104,10 @@
     v9: { name: "the low-peak blade", profile: M({ edge: 0.6, nose: 60, peak: 1.0, tail: 10 }), shaftBack: 0.39, field: "On the plate with the V nose; the model says it does not help." },
     final: { name: "the mountain blade, 7.9 in wide, with the poker on the robot", shaftBack: 0.53, width: 7.9, pusher: true, field: "On the field a stick held by hand at the second ball freed the stack; the mounted poker and the wide blade are the next prints." },
     final2: { name: "the mountain blade with a 2.0 in tail, 7.9 in wide, with the poker on the robot", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, field: "In the model it feeds every case at every speed, like the full blade (page/tailcut_tall.js); a third less blade. Not yet tried on the field." },
+    r10: { name: "10 real: as run on 20245, 26 Oct", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, cant: 5, field: "AS BUILT: the 2.0 in blade with its hex through the ramp was canted up about 5 degrees (modelled nose up), the first poker had a back wall that was broken off, a hard stop had to move in. In the model the cant lifts the lip 0.05 in and drops the tail end 0.17 in: it feeds all 24 cases at 6 and 10 in/s but only 19 of 24 at 3 in/s, which is the slow-approach failure seen on the field. Stacks of 6 or 7 POLLEN would not drive under." },
+    d11: { name: "11: the changes after the first night", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, field: "THE CHANGE: tighten everything so the blade lies flat with the wheels on the tile; the poker becomes the L (no back wall, relief over the screw, four pegs, roof cut short for the servo mount). In the model this is design 10 again: the robot was meant to be this." },
+    r11: { name: "11 real: as built, 28 Oct", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, lipInput: true, field: "AS BUILT: flat blade, wheels on the tile, the locked L fitted centred. The auto (extend, drive in, wait, drive out) picks all four balls fast. Slow pushes still fail to free the piece, and the photos show the poke tip stopping at the FLOWER's black collar with only about 7 mm of the nearest ball over it (a scaled estimate from one photo). Type the measured lip distance below to see what the model says; until it is measured the model's 3.81 in is used." },
+    d12: { name: "12: next, the poke follows the lip", shaftBack: 0.53, width: 7.9, pusher: true, tailCut: 2.0, lipInput: true, pokeFromLip: true, field: "THE CHANGE (not built): the poke's reach is the measured lip distance minus 2.5 in (page/reach_vs_lip.js), a chamfered top, the lower and V nose after a check against the stowed blade (its lip passes 2.8 mm under the poke)." },
     coach: { name: "the coach's plate as drawn", profile: coachDrawn.profile, outline: true, width: 7.9, lane: null, shaftBack: coachDrawn.lip - S.SHAFT_AHEAD, stowed: CS.stowed_outline_centre, field: "Keyed to the hex shaft as drawn, the plate stands leaning 49° toward the FLOWER when the shaft is on the wheels: the ball meets an overhang." },
     coachFlat: { name: "the coach's plate turned to lie flat", profile: coachFlat.profile, outline: true, width: 7.9, lane: null, shaftBack: coachFlat.lip - S.SHAFT_AHEAD, stowed: rotAbout(CS.stowed_outline_centre, sh0, -CS.rot), field: "The same plate turned 131° on the shaft so it lies flat: a 0.1 in lip and a 0.48 in bump. Stowed it would stand 49° off the arm tips." },
   };
@@ -120,15 +124,18 @@
   // stowT: 0 extended .. 1 stowed, animated; the robot backs 6 in off the FLOWER to swing the stick, over 1.8 s
   const BACK_OFF = 9.0, STOW_MS = 1800, ease = u => u * u * (3 - 2 * u);
   // backT: 0 at the FLOWER .. 1 backed off 9 in, enough that the swing (7.3 in ahead of the face at its widest) clears the FLOWER's pipes
+  let measuredLip = 3.81; try { const v = parseFloat(localStorage.getItem("fs_lip")); if (v >= 3 && v <= 6) measuredLip = v; } catch (e) {}
+  const tiltProfile = (prof, deg, sb) => { const a = deg * Math.PI / 180, c = Math.cos(a), sn = Math.sin(a), sz = 0.77; return prof.map(([x, z]) => { const dx = x - sb, dz = z - sz; return [sb + dx * c + dz * sn, sz - dx * sn + dz * c]; }); };   // nose-up by deg about the shaft
   let preset = "final2", stack = "fb", mount = "tall", stowed = false, backedOff = false, runText = "", stowT = 0, backT = 0, lastStow = null, stowDir = "back20", camKey = "plan"; const push = 4, stopErr = 0;   // the stow is 20 deg back past vertical; the camera at its planned spot
   const STOWS = { coach: [Math.cos(80 * Math.PI / 180), Math.sin(80 * Math.PI / 180)], back20: [Math.cos(110 * Math.PI / 180), Math.sin(110 * Math.PI / 180)], back30: [Math.cos(120 * Math.PI / 180), Math.sin(120 * Math.PI / 180)] };   // where the stick stows: the coach's 10 deg forward of vertical, or 20 deg back
   const mt = () => Object.assign({}, S.MOUNTS[mount], { stowedDir: STOWS[stowDir] });
   let result = null, i = 0, playing = false, slow = true, acc = 0, last = null, profile = null, cfg = null;
   function compute() {
     const P = PRESETS[preset];
-    profile = P.profile || S.mountain(SHAPE); if (P.tailCut) profile = truncate(profile, P.tailCut); if (mount === "low" && !P.outline) profile = truncate(profile, TAIL_CUT);
+    profile = P.profile || S.mountain(SHAPE); if (P.tailCut) profile = truncate(profile, P.tailCut); if (mount === "low" && !P.outline) profile = truncate(profile, TAIL_CUT); if (P.cant) profile = tiltProfile(profile, P.cant, P.shaftBack);
     cfg = { drive: push, mu: 0.4, stopErr, extraDepth: P.extraDepth || 0, onRobot: true, width: P.width || 5.4, shaftBack: P.shaftBack, gutter: P.lane === null ? null : LANE, offset: 0, yaw: 0, mouth: 7.5, muBall: 0.4 };
-    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; cfg.mount = mount; if (P.pusher) cfg.pusher = POKERS[mount];
+    Object.assign(cfg, STACKS[stack]); if (P.finger) cfg.finger = P.finger; cfg.mount = mount; if (P.pusher) cfg.pusher = Object.assign({}, POKERS[mount]); if (P.lipInput) { cfg.faceBehindLip = measuredLip; if (P.pokeFromLip) cfg.pusher.reach = Math.max(1.0, Math.min(3.0, measuredLip - 2.5)); }
+    const lipBox = $("lip-box"); if (lipBox) lipBox.style.display = P.lipInput ? "" : "none";
     const t0 = performance.now(); result = S.run(profile, cfg); const ms = Math.round(performance.now() - t0);
     const r = result; let s;
     if (r.stalled) s = "Stalled at " + r.stalled[0].toFixed(2) + " s: a steady push cannot lift the ball on this face." + (preset === "blockA" ? " On October 15 two of these, pushed by hand with a wiggle, did empty a side-to-side stack; a steady push could not." : "");
@@ -144,7 +151,7 @@
     runText = P.name + " " + mountName + ", " + stackName + ", pushed at " + push + " in/s to the posts. " + s + (P.field ? " " + P.field : ""); $("sim-result").textContent = stowed ? stowReport() : runText;
     i = 0; acc = 0; $("sim-scrub").max = r.frames.length - 1; $("sim-scrub").value = 0;
     playing = true; $("sim-play").textContent = "Pause";
-    if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? POKERS[mount] : null); if (window.Drive3D.setMount) window.Drive3D.setMount(mount); }
+    if (window.Drive3D) { window.Drive3D.setBlade(profile, cfg.width, P.shaftBack, cfg.gutter, 0, 0, null, P.vee || 0, P.finger ? P.finger.pivot[0] : 0, P.outline ? profile : null); if (window.Drive3D.setPoker) window.Drive3D.setPoker(P.pusher ? cfg.pusher : null); if (window.Drive3D.setMount) window.Drive3D.setMount(mount); }
     draw();
   }
   // the stick raised: the angle from the deployed arm to the stowed one, counter-clockwise in the side view
@@ -257,6 +264,7 @@
   }
   function pressed(attr, val) { for (const b of document.querySelectorAll("[" + attr + "]")) b.setAttribute("aria-pressed", b.getAttribute(attr) === String(val)); }
   for (const b of document.querySelectorAll("[data-preset]")) b.onclick = () => { preset = b.dataset.preset; pressed("data-preset", preset); compute(); };
+  { const li = $("lip-in"); if (li) { li.value = measuredLip.toFixed(2); li.oninput = () => { const v = parseFloat(li.value); if (v >= 3 && v <= 6) { measuredLip = v; try { localStorage.setItem("fs_lip", String(v)); } catch (e) {} compute(); } }; } }
   for (const b of document.querySelectorAll("[data-stack]")) b.onclick = () => { stack = b.dataset.stack; pressed("data-stack", stack); compute(); };
   for (const b of document.querySelectorAll("[data-mount]")) b.onclick = () => { mount = b.dataset.mount; pressed("data-mount", mount); compute(); };
   for (const b of document.querySelectorAll("[data-cam]")) b.onclick = () => { camKey = b.dataset.cam; pressed("data-cam", camKey); placeCam(camKey); if (stowed) $("sim-result").textContent = stowReport(); draw(); };
