@@ -224,18 +224,18 @@ file the hole open.
 
 Thank you!
 
-## Thursday test: the poke family (28 Oct 2026)
+## Thursday test: the poke family (28 Oct 2026, revised)
 
 `stl/print_job_family.stl` prints five pokers in one go, identical to the locked L (pegs, relief, six wall holes, the counterbored
-M4 hole over the front screw, roof cut short) except the nose: reach **0.7, 1.0, 1.3, 1.7 and 2.1 in** ahead of the lip's face, each with
-the nose's top edge beveled 8 mm (so balls above fall forward; the bottom edge stays square) and narrowed in plan (19 mm to 11 mm over the last
-10 mm). 1.3 is the current reach with the new nose, so it is the control. The model and the photos disagree about which side of
-1.3 is right, so the robot decides: fit one, run the extend, drive in slowly (about 3 in/s), then at speed; note how many of four
-balls it frees and whether the piece comes loose. Fix the off-centre blade first. Check the 18 in start box with the longest
-(2.1 in should be about 17.5 in, against 16.7 stowed with 1.3: tape it) and the stowed blade clears it (the simulator says yes to 2.25 in).
-Nothing here is lower than the locked poker: the stowed blade's lip passes 2.8 mm under it.
+M4 hole over the front screw, roof cut short) except the nose: reach **1.3, 1.6, 1.9, 2.2 and 2.5 in** ahead of the lip's face. 1.3 is
+the current reach with the new nose, so it is the control. Each nose has its top edge beveled 8 mm (so balls above fall forward; the
+bottom stays square) and narrows in plan from 19 mm to 11 mm over the last 10 mm. Dustin is certain the poke is not deep enough, so
+nothing shorter than the control is printed. Fix the off-centre blade first (the FLOWER's axis was 2.4 in off the poker's in the ring
+photo). Then fit one, extend, drive in slowly (about 3 in/s), then at speed; note how many of four balls it frees.
 
-Update, same night: Dustin does not think the screw ahead of the channel's lip stops the blade; he thinks the blade settles as in the
-CAD, so the stop-screw explanation of the two photo readings is withdrawn and the 4.7 versus 3.1 in spread stays unexplained. With the lip
-at 3.1 in the model feeds 23 to 24 of 24 with a 0.6 to 1.0 in reach, 19 of 24 with 1.3 (works partly: the slow failure) and 10 or fewer
-with 1.7 or more, which is why 0.7 was added. If the long ones do better on the robot, the model is wrong about the deep side.
+Checks: the 18 in start box (stowed robot 16.7 in with the 1.3 in poke, so about 17.6 in with 2.2 and 17.9 in with 2.5: TAPE IT
+before trusting 2.5), and one stow cycle with each (the simulator's closest approach of the stowed blade to the poker stays 3.0 in
+or more at 2.5 in, but it does not model the bevels). Nothing here is lower than the locked poker: the stowed blade's lip passes
+2.8 mm under it.
+
+The model prefers 0.6 to 1.0 in if the blade stops with its lip 3.1 in ahead of the face, and 2.2 in if 4.7 in. The robot decides.
