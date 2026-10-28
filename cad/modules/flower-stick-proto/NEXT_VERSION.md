@@ -19,3 +19,23 @@ Result: the screw on one side, a zip tie on the other. The rear screw stays in i
 
 **Constraint to check before lowering it.** The stowed blade's lip passes only 2.8 mm under the poke. Any lowering or
 reach into 0.8 to 2.1 in ahead of the lip has to be run against the stow sweep first.
+
+## The poke's reach follows the blade's lip (28 Oct 2026)
+
+Dustin found the blade (the ramp with the hex through it) was canted up about 5 degrees and tightened it flat, so the wheels
+are on the tile and the blade lies flat when deployed. The drive-in distance is right but the poke no longer matches.
+
+`page/reach_vs_lip.js` scans it. The poke feeds all 24 cases when its tip sits about 2.5 in behind the blade's lip, so the
+reach wanted is **the lip's distance ahead of the intake face, minus 2.5 in**. Both directions fail, but not equally:
+
+| lip ahead of the face (in) | reach 1.3 | 1.6 | 1.9 | 2.2 | 2.5 |
+|---|---|---|---|---|---|
+| 3.5 | 19 | 15 | 8 | 0 | 0 |
+| 3.8 (the model's) | **24** | 19 | 15 | 8 | 0 |
+| 4.1 | 20 | **24** | 19 | 15 | 8 |
+| 4.4 | 16 | 20 | **24** | 19 | 15 |
+| 4.7 | 16 | 16 | 20 | **24** | 19 |
+| 5.0 | 16 | 16 | 16 | 20 | **24** |
+
+(Cases fed of 24 at 3 in/s.) Too shallow plateaus at 16; too deep falls to nothing. The window is about 0.3 in wide, so the
+number to measure is the lip's distance from the face, extended, flat, wheels down. The model assumed 3.81.
