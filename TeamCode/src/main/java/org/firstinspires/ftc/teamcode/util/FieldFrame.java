@@ -18,7 +18,7 @@ public final class FieldFrame {
      * The playing field's side, wall face to wall face, in inches.
      *
      * <p>Not 144. The nominal 12 ft ignores the thickness of the perimeter wall; last season showed
-     * 141.5 in matches the real field, and it is what our Visualizer fork draws and mirrors with.
+     * 141.5 in matches the real field, and it is what our Visualizer fork draws and rotates on.
      * (A tape measure on our practice field is the check, if it is ever in doubt.) A second
      * number here is how last season's frame bugs started, so nothing else in the code states the
      * field's size: {@code FieldFrameTest} fails the build if one appears.
@@ -26,10 +26,14 @@ public final class FieldFrame {
     public static final double FIELD_SIZE_INCHES = 141.5;
 
     /**
-     * Field centre on either axis, in inches — also the line the two alliances mirror across.
+     * Field centre on either axis, in inches — also the point the two alliances turn about.
      *
-     * <p>The Visualizer's exported Autos mirror with {@code PoseFactory.mirrorX(70.75)}; robot code
-     * that mirrors writes {@code mirrorX(FieldFrame.FIELD_CENTRE_INCHES)}, never {@code 144 - x}.
+     * <p>BIOBUZZ is rotationally symmetric, not mirrored: blue's side is red's turned half a turn
+     * about the field centre (manual §9.3, Figure 9-2: red's LOADING ZONE and blue's sit in
+     * diagonally opposite corners, as do the GARDENs). A pose on the other alliance is
+     * {@code (2c - x, 2c - y, heading + pi)}, c being this. The Visualizer's exported Autos do it
+     * with {@code PoseFactory.mirrorAroundPoint(70.75, 70.75)} (a reflection through a point is a
+     * half turn); robot code writes {@code FieldFrame.FIELD_CENTRE_INCHES}, never {@code 144 - x}.
      */
     public static final double FIELD_CENTRE_INCHES = FIELD_SIZE_INCHES / 2.0;
 
@@ -49,7 +53,7 @@ public final class FieldFrame {
      *
      * <p>Red: 0 (field +x). Measured on 20245, 24 Oct 2026: the red station is on the red-side
      * wall, and a robot squared to face away from it read a heading of 0 on the Pose section.
-     * Blue is expected to be the mirror, pi, but it stays NaN until someone stands at the blue
+     * Blue is expected to be the half turn of red, pi, but it stays NaN until someone stands at the blue
      * station and reads it.
      */
     public static double driverForwardHeading(Alliance alliance) {

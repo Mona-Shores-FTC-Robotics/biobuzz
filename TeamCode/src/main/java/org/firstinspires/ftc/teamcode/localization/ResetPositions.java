@@ -33,8 +33,9 @@ public final class ResetPositions {
 
     /**
      * Blue: the corner on the blue driver's left, against the blue-side wall and the audience wall,
-     * robot squared into both walls with the intake toward the red side. Not measured. Measure it on
-     * the field rather than derive it from red: the field is not a mirror, and placement is by hand.
+     * robot squared into both walls with the intake toward the red side: red's spot turned half a
+     * turn about the field centre, as the whole field is (manual Figure 9-2). Not measured. Measure
+     * it on the field rather than derive it from red: placement is by hand.
      */
     public static final Pose BLUE = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
