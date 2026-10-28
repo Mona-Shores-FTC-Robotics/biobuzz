@@ -53,3 +53,11 @@ The simulator and the notes page now keep a planned and a real line, so each tes
 | 12 | next: reach = lip distance minus 2.5 in, chamfered top; lower and V nose after the stow check |
 
 After the next test: add "12 real" the same way, with what was built, the photos, what differed and why.
+
+## What the photos can and cannot give (28 Oct 2026)
+
+Tried to read the blade lip's distance from the poke tip off the two top-down photos, correcting for the poke being nearer the
+camera than the blade (scale from the blade's known 7.9 in width and the poke's 19 mm width). The two photos gave a tip-to-lip
+gap of 1.6 in and 2.7 in; the model's best is 2.5 in with a window of about 0.3 in. So the photos are not good enough to
+set the reach. The earlier "about 7 mm of ball over the tip" was read without that correction and is withdrawn. To use a
+photo: straight side-on, camera level with the tile, a ruler laid along the blade in frame. Or one tape measure.
