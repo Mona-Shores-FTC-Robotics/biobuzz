@@ -228,15 +228,14 @@ Thank you!
 
 `stl/print_job_family.stl` prints five pokers in one go, identical to the locked L (pegs, relief, six wall holes, the counterbored
 M4 hole over the front screw, roof cut short) except the nose: reach **0.7, 1.0, 1.3, 1.7 and 2.1 in** ahead of the lip's face, each with
-the nose beveled (8 mm on the top edge, 10 mm on the bottom edge: a side-view V) and narrowed in plan (19 mm to 11 mm over the last
+the nose's top edge beveled 8 mm (so balls above fall forward; the bottom edge stays square) and narrowed in plan (19 mm to 11 mm over the last
 10 mm). 1.3 is the current reach with the new nose, so it is the control. The model and the photos disagree about which side of
 1.3 is right, so the robot decides: fit one, run the extend, drive in slowly (about 3 in/s), then at speed; note how many of four
 balls it frees and whether the piece comes loose. Fix the off-centre blade first. Check the 18 in start box with the longest
 (2.1 in should be about 17.5 in, against 16.7 stowed with 1.3: tape it) and the stowed blade clears it (the simulator says yes to 2.25 in).
 Nothing here is lower than the locked poker: the stowed blade's lip passes 2.8 mm under it.
 
-Update, same night: the screw Dustin circled just ahead of the channel's lip, behind the blade's tail, is a hodgepodge stop for the
-blade: it explains why the ring photo (blade pushed in) shows the lip at about 3.1 in and the overhead photos (unloaded) about 4.7. With
-the lip at 3.1 in the model feeds 23 to 24 of 24 with a 0.6 to 1.0 in reach, 19 of 24 with 1.3 (works partly: the slow failure) and
-10 or fewer with 1.7 or more, which is why 0.7 was added. If the long ones do better on the robot, the model is wrong about the deep
-side and the 1.7 or 2.1 wins.
+Update, same night: Dustin does not think the screw ahead of the channel's lip stops the blade; he thinks the blade settles as in the
+CAD, so the stop-screw explanation of the two photo readings is withdrawn and the 4.7 versus 3.1 in spread stays unexplained. With the lip
+at 3.1 in the model feeds 23 to 24 of 24 with a 0.6 to 1.0 in reach, 19 of 24 with 1.3 (works partly: the slow failure) and 10 or fewer
+with 1.7 or more, which is why 0.7 was added. If the long ones do better on the robot, the model is wrong about the deep side.

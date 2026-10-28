@@ -57,6 +57,7 @@ front = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + roof_z1, centered=
 poke = cq.Workplane("XY").box(REACH - x_out, POKE_W, POKE_HI - POKE_LO, centered=(False, True, False)).translate((x_out, 0, POKE_LO))
 if TOP_CH or BOT_CH:   # the side-view V: bevel the nose's top and bottom edges
     prof = [(x_out - 1, POKE_LO), (REACH - BOT_CH, POKE_LO), (REACH, POKE_LO + BOT_CH), (REACH, POKE_HI - TOP_CH), (REACH - TOP_CH, POKE_HI), (x_out - 1, POKE_HI)]
+    prof = [pt for i, pt in enumerate(prof) if i == 0 or pt != prof[i - 1]]   # no zero-length edges when a bevel is 0
     poke = cq.Workplane("XZ").polyline(prof).close().extrude(POKE_W / 2, both=True)
 if TIP_W and TIP_LEN:  # the plan-view V: narrow the nose
     plan = [(x_out - 1, -POKE_W / 2), (REACH - TIP_LEN, -POKE_W / 2), (REACH, -TIP_W / 2), (REACH, TIP_W / 2), (REACH - TIP_LEN, POKE_W / 2), (x_out - 1, POKE_W / 2)]
