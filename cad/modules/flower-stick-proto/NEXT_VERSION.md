@@ -61,3 +61,12 @@ camera than the blade (scale from the blade's known 7.9 in width and the poke's 
 gap of 1.6 in and 2.7 in; the model's best is 2.5 in with a window of about 0.3 in. So the photos are not good enough to
 set the reach. The earlier "about 7 mm of ball over the tip" was read without that correction and is withdrawn. To use a
 photo: straight side-on, camera level with the tile, a ruler laid along the blade in frame. Or one tape measure.
+
+## Update: the lip measured from the photos (28 Oct 2026)
+
+Done properly in `photo_fit/`: the camera pose solved from the poker's own corners and holes. The blade's lip is
+**about 4.75 in ahead of the intake face** (4.6 to 5.0), the coach's CAD says 4.67, the model assumed 3.81. The previous
+paragraph's 1.6 and 2.7 in are withdrawn. So the poke wants about 2.25 in of reach (lip minus 2.5), not 1.3. In the model, 11 real
+at 4.75 locks at 4 in/s, which is the slow failure; design 12 at reach 2.25 feeds. Checks before printing: the 18 in start box
+(the stowed robot was 16.7 in with a 1.3 in poke, so about 17.65 in with 2.25), the stowed blade against the longer poke (the
+page's stow check passes, with the model's arm geometry), and one tape measure of the lip to confirm.
