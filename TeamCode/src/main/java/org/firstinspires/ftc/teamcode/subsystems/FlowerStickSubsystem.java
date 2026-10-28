@@ -11,8 +11,8 @@ import org.firstinspires.ftc.teamcode.hardware.DeviceNames;
  * The FLOWER stick: one servo swinging a stick, the FLOWER extractor's first edition (#177).
  *
  * <p>The smallest real subsystem in the repo, and the pattern every mechanism follows: the OpMode
- * says what it wants ({@link #extend()}, {@link #retract()}), {@link #update()} does it, once per
- * loop. Which button triggers it belongs in the OpMode's bindings, not here.
+ * says what it wants ({@link #extend()}, {@link #retract()}, {@link #toggle()}), {@link #update()}
+ * does it, once per loop. Which button triggers it belongs in the OpMode's bindings, not here.
  *
  * <p>The servo only swings the stick. Once the stick is down, its wheels sit on the tile and the
  * push from the FLOWER goes into the tile through the arm, not into the servo, as long as nothing
@@ -73,6 +73,14 @@ public class FlowerStickSubsystem implements Subsystem {
     /** Ask for the stick in. Takes effect in the next {@link #update()}. */
     public void retract() {
         out = false;
+    }
+
+    /**
+     * Ask for the other end: in if the stick is out, out if it is in. One button on a gamepad does
+     * both; a press mid-swing turns the stick round, which the servo handles as a new target.
+     */
+    public void toggle() {
+        out = !out;
     }
 
     /** Whether the stick has been asked out. The servo has no sensor, so this is the request. */
