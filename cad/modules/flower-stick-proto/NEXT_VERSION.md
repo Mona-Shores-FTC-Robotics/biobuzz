@@ -73,3 +73,12 @@ would make the poke slightly deep, not shallow, which is the opposite of the ear
 To decide: measure the lip's distance from the face at rest and again at the moment of the pick (blade against the posts); the
 simulator's 11 real and 12 take the number. The earlier 1.6 and 2.7 in, and the first "4.75 in, reach 2.25" conclusion, are
 withdrawn.
+
+## The blade is off centre (28 Oct 2026)
+
+In the ring photo, solved the same way, the blade's centre sits about 2.4 in (62 mm, plus or minus 10) to the robot's right of
+the poker, while the blade itself is centred on the FLOWER's hub. So the poke meets the pile off its axis: a likely reason it
+"stops at the collar's rim". Dustin knows and will move a spacer on the shaft. Re-photograph after, and re-read the poke's
+reach then: the off-axis poke may be most of what was seen. The CAD gives the lip at 3.81 in (Robot Copy 1, arm 9.09 in) or
+4.67 in (the later export, arm 9.65 in), two answers 0.56 in apart; neither is the robot as reassembled (flat blade, spacer, an
+added screw), which is why the model's number is only a starting point.
