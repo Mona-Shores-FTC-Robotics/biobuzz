@@ -92,3 +92,12 @@ CAD's POLLEN: 2.8 in across, centres 1.4, 4.29, 7.17 and 10.05 in up (the balls 
 8.69 to 11.45). The poke band, 5.7 to 7.5 in up, therefore meets the third ball of an untouched stack; the second ball's top is
 5.67, just under the poke. To meet the second ball's equator the poke would have to be near 4.3 in up, below where the stowed
 blade's lip passes (5.59). That is the height question; the family changes reach, not height.
+
+## The posts, traced on the ring photo (28 Oct 2026)
+
+Dustin traced the black polygon posts on the ring photo's true top view and said they are the CAD's shape. Corrected for the posts
+standing 3.5 in above the blade's plane (camera 644 mm up), the two forward points are 65 mm apart (CAD 72; the marks are good to
+about 5 mm each) and centred 60 mm to the robot's right of the poker, so the FLOWER's axis is about 2.4 in off the poker's: the
+robot, or the blade on its shaft, is that far off centre. The forward points are about 63 mm (2.5 in) ahead of the channel's lip
+face, and the poke tip is at 33 mm, so the tip is roughly 1.2 to 1.8 in behind the posts' forward points (plus or minus 0.5): the
+model's "deep" side, which is why the family goes down to 0.7 in. The offset is the first thing to fix.
