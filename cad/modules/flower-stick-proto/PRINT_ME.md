@@ -224,23 +224,23 @@ file the hole open.
 
 Thank you!
 
-## Thursday: two pokers (28 Oct 2026, after the Onshape measurement)
+## Thursday: two pokers (28 Oct 2026, from the pipes in the ring photo)
 
-`stl/print_job_family.stl` prints two pokers, both **38 mm (1.5 in) wide** at the nose, with the nose narrowing to 24 mm over its
-last 10 mm, the top edge beveled 8 mm (bottom square), the buttress behind the wall 30 mm wide (so the roof holes at 24 mm stay
-clear), the pegs, relief, wall holes at 24 and 32 mm, the counterbored M4 hole over the front screw and the roof cut short:
+`stl/print_job_family.stl` prints two pokers, both **19 mm wide** like the one on the robot, with the nose pointed in plan (19 mm
+narrowing to 8 mm over the last 12 mm), the top edge beveled 8 mm (bottom square), the pegs, relief, wall holes, the counterbored M4
+hole over the front screw and the roof cut short:
 
-- **Reach 2.9 in, the main bet.** Dustin measured about 5.74 in in Onshape, close to the intake face to the blade's lip. With the lip
-  at 5.4 to 5.75 in the model's best reach is 2.9 in (24 of 24 at 5.4), and it covers 1.6 in off centre each way at 5.4 (0.8 at 5.75).
-  The current 1.3 in poke and even a 2.2 in one sit on the model's "works partly" plateau there (16 of 18), which is what the robot shows.
-- **Reach 2.2 in, the hedge:** best if the lip is nearer 4.7 in (the overhead photos and the coach's earlier export).
+- **Reach 1.7 in.** In the ring photo, with the camera solved from the poker and checked on the four green pipes (their spacing comes
+  out 87 to 89 mm against the CAD's 87), today's 1.3 in tip sits on the near pipes' centre line, about 0.3 in short of the bottom
+  ball's near side. The model's best tip position is about 0.4 in further in: 1.7 in.
+- **Reach 2.3 in.** About one pipe width (1.05 in) past today's tip: Dustin's read of the same photo.
 
-The stowed blade stays 2.5 in from the 2.9 in poker in the model (without the bevels): do one stow cycle. About 145 and 115 cm3.
+**Why narrow, not 38 mm.** The near pipes stand at the poke's height (from 4.25 in up) and the poke has to pass between them: their
+inner edges are 2.39 in apart. A 19 mm poke can be up to about 0.8 in off centre before it hits a pipe; a 38 mm one only 0.45 in. The
+simulator's sideways scan did not include the pipes, so its "wider is better" is withdrawn. In the photo the FLOWER's centre was about
+1.1 in off the poker's line, enough for the 19 mm poke to be up against the near pipe, which may be what stopped the robot short. The
+pointed nose is there so a pipe it does touch slides it toward the gap instead of stopping it. Drive to within about 0.8 in of centre.
 
-**Why 38 mm wide.** The robot cannot be driven in dead centre, so the poke has to work across the opening. `page/lat_grid.js` offsets
-the whole robot from minus 2.4 to plus 2.4 in at 4 in/s: a 0.75 in poke works to about 0.8 in off centre, 1.26 in to about 0.8 in, 1.5 in
-to about 1.6 in at the right reach; wider than 1.5 gains nothing, and every shape fails at 2.4 in because the blade itself no longer
-meets the FLOWER squarely. Width does not replace reach: at the wrong reach the model drops to 2 to 4 of 6 at any width.
 
 Fix the off-centre blade first (the FLOWER's axis was 2.4 in off the poker's in the ring photo). Then test centred and also pushed in
 1 and 1.5 in to each side, slow (about 3 in/s) and at speed; keep the one that frees all four balls at the widest offsets. Each is about
