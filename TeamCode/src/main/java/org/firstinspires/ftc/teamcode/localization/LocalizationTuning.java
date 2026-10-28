@@ -80,6 +80,46 @@ public final class LocalizationTuning {
     public static double stillTurnDegPerSec = 2.0;
     public static double stillForMs = 250;
 
+    // ---------------------------------------------------------------- TagGate
+    // Starting values, to be set from Vision: HIVE & Pose's per-tag residuals (README § "The camera
+    // fix: gates, averaging, and how to tune it"). Each rejected tag shows its reason there.
+
+    /** Fewer accepted tags than this and a frame gives no fix. Two: one tag cannot be cross-checked. */
+    public static int minFixTags = 2;
+
+    /**
+     * A tag whose measured height is further than this from its map height is dropped, inches. The
+     * camera put raised rows 0.4 in above the CAD (#156); a 1° pitch error at 60 in is about 1 in.
+     */
+    public static double maxTagHeightErrorIn = 3.0;
+
+    /** A tag further than this along the floor is dropped, inches: errors grow with range. */
+    public static double maxTagRangeIn = 96.0;
+
+    /** A tag whose position is further than this from the other tags' median is dropped, inches. */
+    public static double tagOutlierIn = 3.0;
+
+    // ------------------------------------------------------- stationary fixes
+
+    /**
+     * Whether averaged, gated fixes go into the filter while the robot holds still. <b>Off</b> until
+     * the per-tag residuals are under an inch at the measured spots and Vision: HIVE &amp; Pose shows
+     * the averaged camera position sitting steady. Independent of {@link #continuousFixes}.
+     */
+    public static boolean stillFixes = false;
+
+    /** Gated camera frames averaged, still, before one stationary fix. */
+    public static int stillFixFrames = 5;
+
+    /** Those frames must agree to within this (furthest from their mean), inches. */
+    public static double maxFixSpreadIn = 1.5;
+
+    /**
+     * A stationary fix further than this from the pose is not applied, inches. Larger errors are for
+     * the driver: relocalize ({@link #maxRelocalizeJumpIn}) or the reset spot.
+     */
+    public static double maxFixJumpIn = 6.0;
+
     /** Start check: a robot further than this from its declared start should be nudged, inches. */
     public static double startMarginIn = 2.0;
 

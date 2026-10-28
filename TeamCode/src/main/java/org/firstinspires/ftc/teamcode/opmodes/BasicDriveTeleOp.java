@@ -159,6 +159,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(this::toggleTurretMode);
         operator.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad2.dpad_left)
                 .onPress(() -> relocalizeNote = robot.drive.relocalizeFromCamera());
+        operator.when("D-pad down", "Pose: reset to our marked spot (robot squared to its wall)", () -> gamepad2.dpad_down)
+                .onPress(() -> relocalizeNote = robot.drive.resetToSpot(setup.alliance()));
         operator.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad2.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -249,7 +251,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.line(turretMode == TurretMode.AIM ? aimer.line()
                 : "Turret: LOCKED straight ahead (operator D-pad right to aim)");
         if (relocalizeNote != null) {
-            display.line("Last relocalize: " + relocalizeNote);
+            display.line("Last pose button: " + relocalizeNote);
         }
         recordShot();
         showAim();

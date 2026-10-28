@@ -1187,7 +1187,8 @@ Pinpoint carries the pose in between:
 
 1. **Seed.** No declared start and no Auto handoff: the pose is set once three camera poses in a
    row agree. The driver's field-centric forward does not move.
-2. **Relocalize** on demand (`relocalizeFromCamera()`), refused beyond DECODE's 18 in / 20°.
+2. **Relocalize** on demand (`relocalizeFromCamera()`): once the pose is referenced, x and y only,
+   heading kept, refused beyond 18 in.
 3. **Would-relocalize.** Whenever the robot is still and a settled CELL is in view, record how far
    the camera says the pose is off, without acting. This is the measurement that decides whether
    stationary relocalizing should ever act.
@@ -1196,6 +1197,61 @@ Continuous camera fixes (`LocalizationTuning.continuousFixes`) are **off by defa
 Pinpoint holds a match on its own, the tags sit on flexing polycarbonate, and a bad fix drags the
 pose somewhere false (Chief Delphi thread 524104, #3, #4, #15). #82 session 5 is where that gets
 measured.
+
+#### The camera fix: gates, averaging, and how to tune it
+
+**Why heading comes from the Pinpoint.** A CELL's four tags span 13 in. Solving the robot's
+heading from them (`CellFix.fit`) puts a degree or two of noise into the heading, and at 60 in
+each degree moves the position an inch. That is the 1–4 in jump seen with 3–4 tags in view. The
+Pinpoint's heading is far steadier, so once the pose is referenced each tag gives a position on its
+own: its field point minus where the robot sees it, rotated into the field by the Pinpoint heading
+(`CellFix.position`). `fit` is kept only to seed a pose that has no heading yet.
+
+**The gates** (`localization/TagGate`, one frame at a time). They are FRC 3572's (`Robot-2026`,
+`Vision.java`), adapted to moving tags and to a camera that reports no ambiguity:
+
+| Check | Drops | Tunable |
+|---|---|---|
+| Height | a tag whose measured height is off its map height (UP 49.8 / DOWN 35.5 in): pitch error, a flexing CELL, a misread state | `maxTagHeightErrorIn` |
+| Range | a tag too far away | `maxTagRangeIn` |
+| Outlier | a tag whose position is far from the other tags' median (stands in for Wavelength's ambiguity check) | `tagOutlierIn` |
+| Tag count | a frame with too few tags left: one tag cannot be cross-checked | `minFixTags` |
+| Field | a frame that puts the robot off the field | — |
+
+UP against DOWN is the tracker's job (`CellStateTracker`, by height), not the gate's: a tag's UP
+and DOWN positions are only 1.5 in apart along the floor, but 14 in apart in height.
+
+**Stationary fixes.** While the robot holds still (`stillSpeedInPerSec`, `stillTurnDegPerSec`,
+`stillForMs`), `stillFixFrames` gated frames are averaged (`FixAverager`). If they agree to within
+`maxFixSpreadIn` and sit within `maxFixJumpIn` of the pose, their mean goes into Pedro's filter
+through `addMeasurement`, heading NaN, with one frame's variance. Averaging removes jitter, not a
+mount or field-point error, so dividing the variance by the frame count would claim more than it
+knows. This is a blend, not a snap, so the filter can still weigh a bad fix against the Pinpoint.
+`stillFixes` is **off** until the session below shows it helps; the Robot page says how each batch
+went (`READY` means it would have applied).
+
+**The reset spot.** `ResetPositions` holds one measured pose per alliance: a spot where the robot
+squares against a wall, so heading is known too. The button sets the whole pose. That also gives a
+TeleOp started without an Auto handoff a field heading. A fixed spot, not "the nearest corner":
+picking the nearest corner trusts the pose that is being reset. It stays NaN (the button says so)
+until measured.
+
+**Tuning order** (robot, `Vision: HIVE & Pose`, a field with HIVEs):
+
+1. **Mount and field points together.** Declare or reset to a known pose, then stand still in front
+   of a CELL. The Tags section shows, per tag, the robot it implies minus odometry, in field axes
+   and in robot axes. Turn the robot through three headings, then repeat at two or three spots.
+   A residual that **turns with the robot** (steady in robot axes) is the camera mount
+   (`CameraMount`): pitch if it grows with range, yaw if it is sideways. One that **stays put on the
+   field** (steady in field axes, at every heading) is that tag's field point (`HiveFieldPoints`).
+   A height error that is the same for every tag is pitch or mount height. Aim for under 1 in.
+2. **Gates.** Set `maxTagHeightErrorIn` and `tagOutlierIn` to about twice the worst residual
+   seen in step 1, so good tags never drop; `maxTagRangeIn` to the range beyond which residuals grow.
+3. **Averaging.** Standing still, compare `camera_x_in` / `camera_y_in` (one frame each) with
+   `still_fix_x_in` / `still_fix_y_in` in Panels. Raise `stillFixFrames` until the averaged line is
+   steady; set `maxFixSpreadIn` just above the spread seen when nothing is wrong.
+4. **Turn on `stillFixes`**, drive #82 session 1's taped path, and compare with it off.
+5. **Continuous fixes** are their own session, later (#82 session 5).
 
 Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
 SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away

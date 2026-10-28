@@ -8,6 +8,9 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
+import org.firstinspires.ftc.teamcode.localization.TagGate;
+import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldView;
@@ -35,8 +38,11 @@ import java.util.Locale;
  *   <li><b>CELLs</b>: each one in view with its state, row height, rocker angle and tag count.</li>
  *   <li><b>Pose</b>: where odometry says the robot is, where the camera says it is (from every
  *       tag of every settled CELL in view, {@code robot.drive.cameraPose()}), and how far
- *       apart; what the camera last did to the pose (seeded, relocalized, refused); the
- *       would-relocalize error while still.</li>
+ *       apart; what last set the pose (seeded, relocalized, reset, refused); the
+ *       would-relocalize error while still; the stationary fix (averaging, applied, refused and why).</li>
+ *   <li><b>Tags</b>: each tag in the latest frame, accepted or why not, its height error and range,
+ *       and the robot it implies against odometry, in field and robot axes. On a measured spot that
+ *       is the mount-and-field-point measurement (README § "The camera fix: gates, averaging, and how to tune it").</li>
  * </ul>
  *
  * <h2>Panels</h2>
@@ -46,7 +52,9 @@ import java.util.Locale;
  *   <li><b>Graphs</b>: {@code cell_<name>_height_in} and {@code _angle_deg} (a TIP is a clean
  *       curve), {@code hive_red} / {@code hive_blue} (+1 right CELL up, -1 left, 0 tipping),
  *       {@code tips_red} / {@code tips_blue}, {@code pose_*}, {@code camera_*},
- *       {@code camera_gap_in}, {@code would_relocalize_in}.</li>
+ *       {@code camera_gap_in}, {@code would_relocalize_in}, {@code tags_accepted} /
+ *       {@code tags_rejected}, and {@code still_fix_*}: the averaged position against the
+ *       single-frame {@code camera_*}, which is the jitter comparison.</li>
  * </ul>
  *
  * <h2>Try</h2>
@@ -73,6 +81,8 @@ public class HiveAndPose extends RobotOpMode {
     public static double slowSpeed = 0.25;
 
     private static final String CAMERA_ROBOT = "#FFB300";
+    /** The last stationary batch's mean, on the field view. */
+    private static final String STILL_FIX = "#00E5FF";
     /** Where the turret points (yellow) and where it should (green), on the field view. */
     private static final String TURRET_RAY = "#FFEB3B";
     private static final String TURRET_TARGET_RAY = "#00E676";
@@ -122,6 +132,8 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.drive::resetHeading);
         driver.when("Circle (B)", "Toggle field / robot-centric", () -> gamepad1.b)
                 .onPress(robot.drive::toggleFieldCentric);
+        driver.when("D-pad left", "Pose: reset to our marked spot (squared to its wall)", () -> gamepad1.dpad_left)
+                .onPress(() -> relocalizeNote = robot.drive.resetToSpot(setup.alliance()));
         driver.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad1.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -159,8 +171,8 @@ public class HiveAndPose extends RobotOpMode {
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
         if (aiming) aimer.update(setup.alliance(), aimSwitchBandIn);
         showEverything();
-        display.line("<small>Cross (A) relocalize · Triangle (Y) reset forward · Circle (B) field/robot-centric · "
-                + "Square (X) aim · D-pad up zero turret · D-pad down turret home · "
+        display.line("<small>Cross (A) relocalize · D-pad left reset spot · Triangle (Y) reset forward · "
+                + "Circle (B) field/robot-centric · Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");
     }
 
@@ -170,6 +182,7 @@ public class HiveAndPose extends RobotOpMode {
         showHives();
         showCells();
         showPose(camera);
+        showTags();
         showTurret();
         try {
             publish(camera);
@@ -246,13 +259,57 @@ public class HiveAndPose extends RobotOpMode {
             display.status("Camera", gap <= 3 ? Display.Level.OK : Display.Level.WARN,
                     describe(camera) + String.format(Locale.US, " · %.1f in from odometry", gap));
         }
-        display.line("Camera set the pose: " + robot.drive.cameraPoseNote());
-        display.line("Last A: " + relocalizeNote);
+        display.line("Pose set by: " + robot.drive.poseNote());
+        display.line("Last A / D-pad left: " + relocalizeNote);
+        DriveSubsystem.StillFix stillFix = robot.drive.stillFix();
+        String batch = Double.isNaN(robot.drive.stillFixSpreadIn()) ? "" : String.format(Locale.US,
+                " · last batch spread %.1f in, %.1f in from odometry",
+                robot.drive.stillFixSpreadIn(), robot.drive.stillFixJumpIn());
+        display.status("Still fix", stillFix == DriveSubsystem.StillFix.TOO_SPREAD
+                        || stillFix == DriveSubsystem.StillFix.TOO_FAR ? Display.Level.WARN : Display.Level.OK,
+                (stillFix == DriveSubsystem.StillFix.AVERAGING
+                        ? "averaging " + robot.drive.stillFixFrames() + "/" + LocalizationTuning.stillFixFrames
+                        : stillFix.toString())
+                        + batch + (LocalizationTuning.stillFixes
+                        ? " · " + robot.drive.stillFixesApplied() + " applied" : " · applying off"));
         if (robot.drive.wouldRelocalizeCount() > 0) {
             display.line(String.format(Locale.US,
                     "Still and in view: off by %.1f in (worst %.1f in, %d samples)%s",
                     robot.drive.wouldRelocalizeErrorIn(), robot.drive.wouldRelocalizeMaxErrorIn(),
                     robot.drive.wouldRelocalizeCount(), robot.drive.isStill() ? " · still now" : ""));
+        }
+    }
+
+    /**
+     * Each tag in the latest frame: what the gate made of it, and — once the pose is referenced —
+     * how far the robot it implies sits from odometry, in the field frame and in the robot's own.
+     * Placed on a measured spot, that residual is the session's measurement: one that turns with
+     * the robot is the camera mount, one that stays put on the field is that tag's field point.
+     */
+    private void showTags() {
+        TagGate frame = robot.drive.lastFrame();
+        display.section("Tags (latest frame)");
+        if (frame.count() == 0) {
+            display.line("none on a settled CELL");
+            return;
+        }
+        display.line(String.format(Locale.US, "%d of %d passed · %s", frame.acceptedCount(), frame.count(),
+                frame.verdict()));
+        Pose pose = robot.drive.pose();
+        for (int i = 0; i < frame.count(); i++) {
+            String residual = "";
+            if (pose != null && !Double.isNaN(frame.candidateX(i))) {
+                double dx = frame.candidateX(i) - pose.x();
+                double dy = frame.candidateY(i) - pose.y();
+                double c = Math.cos(pose.heading());
+                double s = Math.sin(pose.heading());
+                residual = String.format(Locale.US, " · field %+.1f, %+.1f · robot fwd %+.1f, left %+.1f",
+                        dx, dy, c * dx + s * dy, -s * dx + c * dy);
+            }
+            display.status("Tag " + frame.tagId(i),
+                    frame.reason(i) == TagGate.Reason.ACCEPTED ? Display.Level.OK : Display.Level.WARN,
+                    String.format(Locale.US, "%s · height %+.1f · %.0f in", frame.reason(i),
+                            frame.heightErrorIn(i), frame.rangeIn(i)) + residual);
         }
     }
 
@@ -312,6 +369,17 @@ public class HiveAndPose extends RobotOpMode {
         if (robot.drive.wouldRelocalizeCount() > 0) {
             panels.addData("would_relocalize_in", robot.drive.wouldRelocalizeErrorIn());
         }
+        TagGate frame = robot.drive.lastFrame();
+        panels.addData("tags_accepted", frame.acceptedCount());
+        panels.addData("tags_rejected", frame.count() - frame.acceptedCount());
+        Pose stillFix = robot.drive.stillFixPose();
+        if (stillFix != null) {
+            // Against camera_x_in / camera_y_in (one frame each), this is the jitter the averaging removes.
+            panels.addData("still_fix_x_in", stillFix.x());
+            panels.addData("still_fix_y_in", stillFix.y());
+            panels.addData("still_fix_spread_in", robot.drive.stillFixSpreadIn());
+            panels.addData("still_fix_jump_in", robot.drive.stillFixJumpIn());
+        }
         panels.addData("turret_angle_deg", robot.turret.angleDegrees());
         panels.addData("turret_target_deg", robot.turret.targetDegrees());
         panels.addData("turret_error_deg", robot.turret.errorDegrees());
@@ -328,6 +396,7 @@ public class HiveAndPose extends RobotOpMode {
             drawCells();
             if (pose != null) field.drawRobot(pose.x(), pose.y(), pose.heading());
             if (camera != null) field.drawRobot(camera.x(), camera.y(), camera.heading(), CAMERA_ROBOT);
+            if (stillFix != null) field.drawMarker(stillFix.x(), stillFix.y(), 1.5, STILL_FIX);
             if (pose != null) drawTurret(pose);
             field.send();
         }

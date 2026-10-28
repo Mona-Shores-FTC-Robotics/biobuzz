@@ -684,6 +684,11 @@ public abstract class RobotOpMode extends OpMode {
             log.pose(pose.x(), pose.y(), pose.heading());
             log.put("/Odometry/Referenced", referenced ? 1 : 0);
         }
+        // What the camera's gate made of the latest frame, and how the stationary fix stands.
+        log.put("/Vision/TagsAccepted", robot.drive.lastFrame().acceptedCount());
+        log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());
+        log.put("/Vision/StillFix", robot.drive.stillFix().ordinal());
+        log.put("/Vision/StillFixesApplied", robot.drive.stillFixesApplied());
         if (mode != MatchLog.Mode.DISABLED) {
             // Where the robot is, every loop, so an OpMode that crashes still leaves it behind.
             Handoff.update(mode == MatchLog.Mode.AUTONOMOUS, alliance, referenced,
