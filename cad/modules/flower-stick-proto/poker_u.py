@@ -43,7 +43,10 @@ PEGS = [(-24.0 + dx, dy) for dx in (-8.2, 8.2) for dy in (-8.2, 8.2)]   # the we
 PEG_D, PEG_H = 3.9, 2.0                                     # the pegs: 0.3 mm of play in the hole, 2 mm into a 2.5 mm web, never through it
 ROOF_HOLES = [y for y in (-48.0, -24.0, 24.0, 48.0) if abs(y) <= HALF_L - 8.0]   # the 12 mm roof holes over the channel's bearing holes that fit, in line with the wall's holes at the same y (the middle one would be under the buttress)
 WEB_UP = float(os.environ.get("WEB_UP", "5.61"))            # the channel's top above the tile with the intake down, inches: measure it
-REACH, POKE_W, POKE_LO, POKE_HI = 1.3 * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: 1.3 in ahead of the face, 0.75 wide, 5.7 to 7.5 up
+REACH_IN = float(os.environ.get("REACH_IN", "1.3"))                 # how far the poke's tip is ahead of the lip's face, inches
+REACH, POKE_W, POKE_LO, POKE_HI = REACH_IN * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: ahead of the face, 0.75 wide, 5.7 to 7.5 up
+TOP_CH, BOT_CH = float(os.environ.get("TOP_CH", "0")), float(os.environ.get("BOT_CH", "0"))   # mm: bevels on the nose's top and bottom edges (side-view V); 0 = square
+TIP_W, TIP_LEN = float(os.environ.get("TIP_W", "0")), float(os.environ.get("TIP_LEN", "0"))   # mm: the nose narrows from 19 to TIP_W over its last TIP_LEN (plan-view V); 0 = straight
 HOLE_Z, HOLE_D = -8.0, 4.3                                  # the lip's holes: 8 mm below the web top, 4 mm, 8 mm apart from the channel's centre
 HOLE_YS = [y for k in range(1, 8) for y in (8.0 * k, -8.0 * k) if 8.0 * k <= HALF_L - 8.0 and 8.0 * k >= POKE_W / 2 + HOLE_D / 2 + 1.0]   # every lip hole the wall covers and the poke does not hide: 16, 24, 32 each side
 BUTTRESS_BACK = -36.0                                       # the buttress runs from the poke's top back to here on the roof
@@ -52,6 +55,12 @@ roof_z0, roof_z1 = 0.0, ROOF_T
 roof = cq.Workplane("XY").box(ROOF_BACK + CLR + WALL_T, 2 * HALF_L, ROOF_T, centered=(False, True, False)).translate((-ROOF_BACK, 0, roof_z0))
 front = cq.Workplane("XY").box(WALL_T, 2 * HALF_L, FLANGE_H + roof_z1, centered=(False, True, False)).translate((x_in, 0, -FLANGE_H))
 poke = cq.Workplane("XY").box(REACH - x_out, POKE_W, POKE_HI - POKE_LO, centered=(False, True, False)).translate((x_out, 0, POKE_LO))
+if TOP_CH or BOT_CH:   # the side-view V: bevel the nose's top and bottom edges
+    prof = [(x_out - 1, POKE_LO), (REACH - BOT_CH, POKE_LO), (REACH, POKE_LO + BOT_CH), (REACH, POKE_HI - TOP_CH), (REACH - TOP_CH, POKE_HI), (x_out - 1, POKE_HI)]
+    poke = cq.Workplane("XZ").polyline(prof).close().extrude(POKE_W / 2, both=True)
+if TIP_W and TIP_LEN:  # the plan-view V: narrow the nose
+    plan = [(x_out - 1, -POKE_W / 2), (REACH - TIP_LEN, -POKE_W / 2), (REACH, -TIP_W / 2), (REACH, TIP_W / 2), (REACH - TIP_LEN, POKE_W / 2), (x_out - 1, POKE_W / 2)]
+    poke = poke.intersect(cq.Workplane("XY").polyline(plan).close().extrude(POKE_HI - POKE_LO + 2).translate((0, 0, POKE_LO - 1)))
 buttress = cq.Workplane("XZ").polyline([(BUTTRESS_BACK, roof_z1 - 0.01), (x_out + 0.01, roof_z1 - 0.01), (x_out + 0.01, POKE_HI)]).close().extrude(POKE_W / 2, both=True)
 part = roof.union(front).union(poke).union(buttress)
 for x, y in PEGS:   # the locating pegs under the roof, chamfered to find their holes

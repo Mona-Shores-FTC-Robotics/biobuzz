@@ -82,3 +82,13 @@ the poker, while the blade itself is centred on the FLOWER's hub. So the poke me
 reach then: the off-axis poke may be most of what was seen. The CAD gives the lip at 3.81 in (Robot Copy 1, arm 9.09 in) or
 4.67 in (the later export, arm 9.65 in), two answers 0.56 in apart; neither is the robot as reassembled (flat blade, spacer, an
 added screw), which is why the model's number is only a starting point.
+
+## Field CAD touch points (28 Oct 2026)
+
+Parts of FIRST's field FLOWER at the blade's height (0 to 1.5 in), from the CAD itself: the base plate (top at 0.35 in), the two
+polygon "peanut" posts (front faces 1.18 in beyond the bottom ball's centre, 0.35 to 4.10 tall) and the flat-head screws inside
+them. The four round pipes start 4.25 in up. The model has all of these, so the blade's stop is already the polygon posts. The
+CAD's POLLEN: 2.8 in across, centres 1.4, 4.29, 7.17 and 10.05 in up (the balls span 0.02 to 2.78, 2.91 to 5.67, 5.80 to 8.56,
+8.69 to 11.45). The poke band, 5.7 to 7.5 in up, therefore meets the third ball of an untouched stack; the second ball's top is
+5.67, just under the poke. To meet the second ball's equator the poke would have to be near 4.3 in up, below where the stowed
+blade's lip passes (5.59). That is the height question; the family changes reach, not height.
