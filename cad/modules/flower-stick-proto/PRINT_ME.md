@@ -1,5 +1,7 @@
 # Print now: the poker L, final (for whoever prints)
 
+**Fitted on 20245, 28 Oct 2026: it seated flat on its pegs and came out perfectly centred (Dustin).** The tie went in through the wall at the top and out the roof hole, as drawn.
+
 **LOCKED 28 Oct 2026: this is the part on the robot. Backups come from the same file, unchanged.** Print `stl/print_job_u_only.stl`
 (`poker_u_hi.stl`, the zip-tie version). Do not print `poker_u_hi_bolt.stl` or any earlier plate for backups.
 
