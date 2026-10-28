@@ -226,8 +226,8 @@ Thank you!
 
 ## Thursday: two pokers (28 Oct 2026, from the pipes in the ring photo)
 
-`stl/print_job_family.stl` prints two pokers, both **19 mm wide** like the one on the robot, with the nose pointed in plan (19 mm
-narrowing to 8 mm over the last 12 mm), the top edge beveled 8 mm (bottom square), the pegs, relief, wall holes, the counterbored M4
+`stl/print_job_family.stl` prints two pokers, both **19 mm wide** like the one on the robot, with square sides and a flat 13 mm front face (the
+two vertical corners chamfered 3 mm at 45 degrees so they do not snag on a pipe), the top edge beveled 8 mm (bottom square), the pegs, relief, wall holes, the counterbored M4
 hole over the front screw and the roof cut short:
 
 - **Reach 1.7 in.** In the ring photo, with the camera solved from the poker and checked on the four green pipes (their spacing comes
@@ -238,8 +238,9 @@ hole over the front screw and the roof cut short:
 **Why narrow, not 38 mm.** The near pipes stand at the poke's height (from 4.25 in up) and the poke has to pass between them: their
 inner edges are 2.39 in apart. A 19 mm poke can be up to about 0.8 in off centre before it hits a pipe; a 38 mm one only 0.45 in. The
 simulator's sideways scan did not include the pipes, so its "wider is better" is withdrawn. In the photo the FLOWER's centre was about
-1.1 in off the poker's line, enough for the 19 mm poke to be up against the near pipe, which may be what stopped the robot short. The
-pointed nose is there so a pipe it does touch slides it toward the gap instead of stopping it. Drive to within about 0.8 in of centre.
+1.1 in off the poker's line, enough for the 19 mm poke to be up against the near pipe, which may be what stopped the robot short. The sides
+are square because a slanted side face would push an off-centre ball mostly sideways into the pipes instead of back; the small
+corner chamfers keep the corners from snagging on a pipe. Drive to within about 0.8 in of centre.
 
 
 Fix the off-centre blade first (the FLOWER's axis was 2.4 in off the poker's in the ring photo). Then test centred and also pushed in
