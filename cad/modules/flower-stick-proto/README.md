@@ -636,6 +636,8 @@ at -17.62 is over the box on its own (18.4) and with the stick (19.7): `start_bo
 Mount (with the tail cut); `low_arm.png` is the side view; `step/low_arm_deployed.step` and `step/low_arm_stowed.step`
 insert at the Fresh CAD origin; `print_job.py low` is the plate (`mountain_wide_ears`, `poker_hang`, `poker_stand`).
 
+**Locked 28 Oct 2026: `stl/poker_u_hi.stl` (71 x 80 x 46 mm, 48 cm3) is the poker on the robot; backups are printed from it unchanged.**
+
 **The poker L (`poker_u.py`, `poker_u_render.py`, `poker_u_holes.py`; the file keeps the U's name).** Final, 27 Oct: the
 second edition below plus four 3.9 mm pegs under the roof, 2 mm long, into the web's 4.5 mm holes at (8.2, 8.2) around the
 channel's middle bearing hole, so the L drops on centred and cannot slide (the first print went on one hole off, dodging the

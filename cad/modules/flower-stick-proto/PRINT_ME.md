@@ -1,5 +1,8 @@
 # Print now: the poker L, final (for whoever prints)
 
+**LOCKED 28 Oct 2026: this is the part on the robot. Backups come from the same file, unchanged.** Print `stl/print_job_u_only.stl`
+(`poker_u_hi.stl`, the zip-tie version). Do not print `poker_u_hi_bolt.stl` or any earlier plate for backups.
+
 **`stl/print_job_u_only.stl`**: one part, `stl/poker_u_hi.stl` (71 x 80 x 46 mm, 48 cm3), standing on its front wall's back.
 The final poker after the first night on 20245, with the lower nose, the one that worked, plus what that night taught:
 
