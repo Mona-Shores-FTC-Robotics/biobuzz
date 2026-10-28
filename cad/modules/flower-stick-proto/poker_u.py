@@ -44,7 +44,8 @@ PEG_D, PEG_H = 3.9, 2.0                                     # the pegs: 0.3 mm o
 ROOF_HOLES = [y for y in (-48.0, -24.0, 24.0, 48.0) if abs(y) <= HALF_L - 8.0]   # the 12 mm roof holes over the channel's bearing holes that fit, in line with the wall's holes at the same y (the middle one would be under the buttress)
 WEB_UP = float(os.environ.get("WEB_UP", "5.61"))            # the channel's top above the tile with the intake down, inches: measure it
 REACH_IN = float(os.environ.get("REACH_IN", "1.3"))                 # how far the poke's tip is ahead of the lip's face, inches
-REACH, POKE_W, POKE_LO, POKE_HI = REACH_IN * IN, 19.0, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: ahead of the face, 0.75 wide, 5.7 to 7.5 up
+POKE_W_MM = float(os.environ.get("POKE_W_MM", "19"))               # the poke's width across the robot, mm: 19 (0.75 in) is the narrow one on the robot; 36 clears the wall and roof holes at 24 mm
+REACH, POKE_W, POKE_LO, POKE_HI = REACH_IN * IN, POKE_W_MM, (5.7 - WEB_UP) * IN, (7.5 - WEB_UP) * IN   # the poke: ahead of the face, 0.75 wide, 5.7 to 7.5 up
 TOP_CH, BOT_CH = float(os.environ.get("TOP_CH", "0")), float(os.environ.get("BOT_CH", "0"))   # mm: bevels on the nose's top and bottom edges (side-view V); 0 = square
 TIP_W, TIP_LEN = float(os.environ.get("TIP_W", "0")), float(os.environ.get("TIP_LEN", "0"))   # mm: the nose narrows from 19 to TIP_W over its last TIP_LEN (plan-view V); 0 = straight
 HOLE_Z, HOLE_D = -8.0, 4.3                                  # the lip's holes: 8 mm below the web top, 4 mm, 8 mm apart from the channel's centre

@@ -101,3 +101,8 @@ about 5 mm each) and centred 60 mm to the robot's right of the poker, so the FLO
 robot, or the blade on its shaft, is that far off centre. The forward points are about 63 mm (2.5 in) ahead of the channel's lip
 face, and the poke tip is at 33 mm, so the tip is roughly 1.2 to 1.8 in behind the posts' forward points (plus or minus 0.5): the
 model's "deep" side, which is why the family goes down to 0.7 in. The offset is the first thing to fix.
+
+## Sideways error (28 Oct 2026)
+
+The poke has to work for any entry across the opening. Result of `page/lat_grid.js`: width 1.5 in covers about 1.6 in off centre each
+way at the right reach; 0.75 in covers 0.8; wider than 1.5 gains nothing. The family is 36 mm wide for this reason.
