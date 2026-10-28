@@ -224,14 +224,18 @@ file the hole open.
 
 Thank you!
 
-## Thursday test: two pokers (28 Oct 2026, final cut)
+## Thursday: two pokers (28 Oct 2026, after the Onshape measurement)
 
 `stl/print_job_family.stl` prints two pokers, both **38 mm (1.5 in) wide** at the nose, with the nose narrowing to 24 mm over its
 last 10 mm, the top edge beveled 8 mm (bottom square), the buttress behind the wall 30 mm wide (so the roof holes at 24 mm stay
 clear), the pegs, relief, wall holes at 24 and 32 mm, the counterbored M4 hole over the front screw and the roof cut short:
 
-- **Reach 2.2 in, the main bet:** best if the blade's lip sits about 4.7 in ahead of the face (the overhead photos and the coach's CAD).
-- **Reach 1.9 in, the hedge:** best if the lip is 4.1 to 4.4 in. Dustin is certain the current 1.3 in poke is not deep enough.
+- **Reach 2.9 in, the main bet.** Dustin measured about 5.74 in in Onshape, close to the intake face to the blade's lip. With the lip
+  at 5.4 to 5.75 in the model's best reach is 2.9 in (24 of 24 at 5.4), and it covers 1.6 in off centre each way at 5.4 (0.8 at 5.75).
+  The current 1.3 in poke and even a 2.2 in one sit on the model's "works partly" plateau there (16 of 18), which is what the robot shows.
+- **Reach 2.2 in, the hedge:** best if the lip is nearer 4.7 in (the overhead photos and the coach's earlier export).
+
+The stowed blade stays 2.5 in from the 2.9 in poker in the model (without the bevels): do one stow cycle. About 145 and 115 cm3.
 
 **Why 38 mm wide.** The robot cannot be driven in dead centre, so the poke has to work across the opening. `page/lat_grid.js` offsets
 the whole robot from minus 2.4 to plus 2.4 in at 4 in/s: a 0.75 in poke works to about 0.8 in off centre, 1.26 in to about 0.8 in, 1.5 in

@@ -1,0 +1,4 @@
+rows: the blade lip's distance ahead of the face (in); columns: poke reach past the face (in); cells: cases fed of 24 at 3 / 6 in/s, poke 5.7 to 7.5 up
+lip 5.4 in ahead of the face | 2.2: 16/18  2.6: 20/21  2.9: 24/24  3.2: 19/20
+lip 5.75 in ahead of the face | 2.2: 16/18  2.6: 16/18  2.9: 20/20  3.2: 20/24
+this build's lip distance: 3.81 in (shaft 3.28 + 0.53)
