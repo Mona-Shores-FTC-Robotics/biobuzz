@@ -60,7 +60,10 @@ for y in HOLE_YS:   # the wall's holes on the lip's holes, through the front wal
     part = part.cut(cq.Workplane("YZ").circle(HOLE_D / 2).extrude(20, both=True).translate((x_in + WALL_T / 2, y, HOLE_Z)))
 SCREWS = bool(os.environ.get("SCREWS"))                      # SCREWS=1: the front screw standing out of the web goes through the roof (4.5 mm hole, a screw 4 mm longer) and clamps the L; the rear one is past the roof's end
 for x, y in RELIEF:
-    part = part.cut(cq.Workplane("XY").circle(2.25 if SCREWS and x > -ROOF_BACK + 5 else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))   # a screw hole only where the roof fully covers it; the rear one is a notch either way
+    screw_here = SCREWS and x > -ROOF_BACK + 5                                                   # a screw hole only where the roof fully covers it; the rear one is a notch either way
+    part = part.cut(cq.Workplane("XY").circle(2.25 if screw_here else 5.0).extrude(ROOF_T + 2).translate((x, y, roof_z0 - 1)))
+    if screw_here:                                                                               # M4: a 4.5 mm hole, and an 8 mm counterbore 2.5 mm deep for the 7 mm head, leaving a 1.5 mm floor to clamp on
+        part = part.cut(cq.Workplane("XY").circle(4.0).extrude(3.0).translate((x, y, ROOF_T - 2.5)))
 # 12 mm holes in the roof over the channel's 14 mm bearing holes (its centreline, 24 mm pitch): a tie comes in through the
 # wall hole at the same y (and the lip hole behind it), up through the bearing hole and out here, closed on top
 for y in ROOF_HOLES:
