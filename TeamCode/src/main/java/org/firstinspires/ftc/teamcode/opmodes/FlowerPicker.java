@@ -98,13 +98,25 @@ public final class FlowerPicker extends GrabRoutine {
 
     @Override
     protected String findTarget(Pose pose) {
-        flower = FlowerFieldPoints.nearest(pose.x(), pose.y(), nn(maxRangeIn));
+        // The nearest in range; in an Auto, only one on the robot's own half (GrabRoutine).
+        flower = null;
+        double best = nn(maxRangeIn);
+        for (Flower f : FlowerFieldPoints.ALL) {
+            if (inAuto() && !ownHalf(pose.x(), f.x)) continue;
+            double range = Math.hypot(f.x - pose.x(), f.y - pose.y());
+            if (range <= best) {
+                flower = f;
+                best = range;
+            }
+        }
         return flower == null ? null : flower.toString();
     }
 
     @Override
     protected String noTargetWhy() {
-        return String.format(Locale.US, "no FLOWER within %.0f in", maxRangeIn);
+        return inAuto()
+                ? String.format(Locale.US, "no FLOWER on our side of the centre line within %.0f in (an Auto may not cross it)", maxRangeIn)
+                : String.format(Locale.US, "no FLOWER within %.0f in", maxRangeIn);
     }
 
     @Override
