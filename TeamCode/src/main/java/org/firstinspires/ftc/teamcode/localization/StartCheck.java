@@ -64,23 +64,21 @@ public final class StartCheck {
             if (map != null) {
                 for (String line : map) display.line(line);
             }
+            // "● Start ^: Left wheels on B-C seam" — the arrow is the robot on the map above.
+            String label = "Start " + start.arrow();
             switch (status) {
                 case UNCONFIRMED:
-                    display.status("Start", Display.Level.OK, start + " (the " + start.arrow()
-                            + ") — place: " + start.howToPlace());
-                    display.line("<small>Camera: not seeing it yet (nothing to do)</small>");
+                    display.status(label, Display.Level.OK, start.placement());
+                    display.line("<small>camera: not seeing it yet</small>");
                     return;
                 case IN_POSITION:
-                    display.status("Start", Display.Level.OK, start + " (the " + start.arrow()
-                            + ") — place: " + start.howToPlace());
+                    display.status(label, Display.Level.OK, start.placement());
                     display.line(String.format(java.util.Locale.US,
-                            "<small>Camera: %.1f in from the start, recorded (don't adjust for it)</small>",
-                            errorIn));
+                            "<small>camera: %.1f in off, logged (don't adjust)</small>", errorIn));
                     return;
                 default:
-                    display.status("Start", Display.Level.WARN, String.format(java.util.Locale.US,
-                            "%s: the camera puts the robot %.0f in away — CHECK THE MARKS", start, errorIn));
-                    display.line("Place (the " + start.arrow() + "): " + start.howToPlace());
+                    display.status(label, Display.Level.WARN, start.placement() + String.format(
+                            java.util.Locale.US, " — camera says %.0f in off: CHECK THE MARKS", errorIn));
             }
         }
     }

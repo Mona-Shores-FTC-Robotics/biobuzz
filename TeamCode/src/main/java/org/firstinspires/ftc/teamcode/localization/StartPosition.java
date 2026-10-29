@@ -18,26 +18,49 @@ public final class StartPosition {
     public final Alliance alliance;
     /** Pedro field frame: inches, radians. */
     public final Pose pose;
+
     /**
-     * How a drive team puts the robot there, in one sentence, in the manual's tile and seam names
-     * (§9.4); null for a start nobody has written one for, which then reads as {@link #where}.
+     * How far the left wheels may be from the robot's centre for {@link #placement} to name the seam
+     * they are on, inches: about half the robot's track width.
      */
-    public final String placement;
+    static final double LEFT_WHEELS_FROM_CENTRE_MAX_IN = 10.0;
 
     public StartPosition(String name, Alliance alliance, Pose pose) {
-        this(name, alliance, pose, null);
-    }
-
-    public StartPosition(String name, Alliance alliance, Pose pose, String placement) {
         this.name = name;
         this.alliance = alliance;
         this.pose = pose;
-        this.placement = placement;
     }
 
-    /** The placement sentence, or the tile and facing when there is none. */
-    public String howToPlace() {
-        return placement != null ? placement : where();
+    /**
+     * How to put the robot there, as short as it can be: "Left wheels on B-C seam", the seam on
+     * the robot's left as it faces at the start (columns for a robot facing along the field, rows
+     * for one facing across it). Worked out from the pose, so a start turned half a turn for the
+     * other alliance gets its own seam. Falls back to {@link #where} when no seam is close enough
+     * to the robot's left to be where its wheels are.
+     */
+    public String placement() {
+        String seam = leftSeam();
+        return seam == null ? where() : "Left wheels on " + seam + " seam";
+    }
+
+    /** The seam just to the robot's left, "B-C" or "2-3", or null if none is within reach. */
+    String leftSeam() {
+        double tile = FieldFrame.TILE_INCHES;
+        String facing = FieldFrame.facing(pose.heading());
+        double along;     // the coordinate across the robot (x or y)
+        int k;            // the seam's index: it lies at k tiles
+        boolean columns;  // a seam between columns (x) or between rows (y)
+        if (facing.equals("away from the audience")) {        // left is -x
+            along = pose.x(); k = (int) Math.floor(along / tile); columns = true;
+        } else if (facing.equals("toward the audience")) {    // left is +x
+            along = pose.x(); k = (int) Math.ceil(along / tile); columns = true;
+        } else if (facing.equals("toward the blue wall")) {   // left is +y
+            along = pose.y(); k = (int) Math.ceil(along / tile); columns = false;
+        } else {                                               // toward the red wall: left is -y
+            along = pose.y(); k = (int) Math.floor(along / tile); columns = false;
+        }
+        if (k < 1 || k > 5 || Math.abs(along - k * tile) > LEFT_WHEELS_FROM_CENTRE_MAX_IN) return null;
+        return columns ? (char) ('A' + k - 1) + "-" + (char) ('A' + k) : k + "-" + (k + 1);
     }
 
     /** The field with this start's robot on it, for the Driver Station: see {@link FieldMap}. */

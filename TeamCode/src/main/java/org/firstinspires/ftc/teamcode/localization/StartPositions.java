@@ -31,16 +31,14 @@ public final class StartPositions {
      * field. From here the camera sees the red AUDIENCE CELL about 49 in away.
      */
     public static final StartPosition RED_AUDIENCE =
-            new StartPosition("Red audience", Alliance.RED, new Pose(55.0, 9.7, Math.toRadians(90)),
-                    "tile C1: back flat on the audience wall, facing away from the audience, "
-                            + "left wheels on seam W");
+            new StartPosition("Red audience", Alliance.RED, new Pose(55.0, 9.7, Math.toRadians(90)));
 
     /** Every declared start, for finding one by its pose. */
     private static final StartPosition[] ALL = {RED_AUDIENCE};
 
     /**
      * The declared start at {@code pose} (within an inch and a degree), or null: lets an Auto drawn
-     * from a known start show that start's name and placement.
+     * from a known start show that start's name.
      */
     public static StartPosition at(Pose pose) {
         for (StartPosition start : ALL) {
