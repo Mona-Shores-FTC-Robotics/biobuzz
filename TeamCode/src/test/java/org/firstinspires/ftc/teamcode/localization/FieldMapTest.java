@@ -17,10 +17,12 @@ public class FieldMapTest {
         String[] map = FieldMap.lines(StartPositions.RED_AUDIENCE);
 
         assertEquals("   A B C D E F", plain(map[0]));
-        assertEquals("6 |. . * . . .|", plain(map[1]));  // red FAR FLOWER
-        assertEquals("4 |. . h H . *|", plain(map[3]));  // SCORING CELLs: red down, blue up; blue WALL FLOWER
-        assertEquals("3 |* . H h . .|", plain(map[4]));  // red WALL FLOWER; AUDIENCE CELLs: red up, blue down
-        assertEquals("1 |. . ^ * . .|", plain(map[6]));  // our robot, facing up the field; blue FAR FLOWER
+        assertEquals("6 |. .*. . . .|", plain(map[1]));  // red FAR FLOWER, on seam W at the far wall
+        assertEquals("5 |L . . . . .*", plain(map[2]));  // red LOADING ZONE; blue WALL FLOWER (rows 4|5)
+        assertEquals("4 |. . h H . .*", plain(map[3]));  // SCORING CELLs: red down, blue up
+        assertEquals("3 *. . H h . .|", plain(map[4]));  // red WALL FLOWER (rows 2|3); AUDIENCE CELLs
+        assertEquals("2 *. . . . . L|", plain(map[5]));  // blue LOADING ZONE
+        assertEquals("1 |. . ^ .*. .|", plain(map[6]));  // our robot; blue FAR FLOWER on seam Y
         assertEquals("   audience", plain(map[7]));
     }
 }
