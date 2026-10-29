@@ -11,7 +11,7 @@ import java.util.Map;
  * {@code TeamCode/build/cheat-sheets/}; open it in a browser and print (landscape, one page).
  *
  * <p>The header carries the team's logo when one is given (a {@code data:} URI; the test reads
- * {@code TeamCode/cheat-sheets/logo-<number>.png} or {@code .svg} if it exists), and otherwise a
+ * {@code TeamCode/cheat-sheets/logo-<number>.jpg}, {@code .png} or {@code .svg}), and otherwise a
  * drawn emblem: the team number on its colour.
  */
 public final class CheatSheet {
@@ -56,15 +56,18 @@ public final class CheatSheet {
                 .append(STYLE)
                 .append("</style></head><body>\n<div class=\"page\">\n");
 
-        out.append("<header>\n<div class=\"mark\">");
         if (logoDataUri != null) {
-            out.append("<img src=\"").append(logoDataUri).append("\" alt=\"").append(escape(team.name)).append(" logo\">");
+            // The logo is the team's name and number: the header stays white around it.
+            out.append("<header class=\"logo\">\n<img class=\"wordmark\" src=\"").append(logoDataUri)
+                    .append("\" alt=\"").append(escape(team.name)).append(' ').append(team.number).append("\">")
+                    .append("\n<div class=\"title\"><div class=\"sub\">BIOBUZZ TeleOp controls</div></div>\n");
         } else {
-            out.append(emblem(team));
+            out.append("<header>\n<div class=\"mark\">").append(emblem(team))
+                    .append("</div>\n<div class=\"title\"><div class=\"team\">").append(escape(team.name.toUpperCase(Locale.US)))
+                    .append(" <span>").append(team.number).append("</span></div>")
+                    .append("<div class=\"sub\">BIOBUZZ TeleOp controls</div></div>\n");
         }
-        out.append("</div>\n<div class=\"title\"><div class=\"team\">").append(escape(team.name.toUpperCase(Locale.US)))
-                .append(" <span>").append(team.number).append("</span></div>")
-                .append("<div class=\"sub\">BIOBUZZ TeleOp controls</div></div>\n")
+        out
                 .append("<div class=\"scheme\"><div class=\"k\">Scheme</div><div class=\"v\">").append(scheme.name())
                 .append("</div><div class=\"d\">").append(escape(scheme.title.substring(scheme.title.indexOf(':') + 1).trim()))
                 .append("</div></div>\n</header>\n");
@@ -144,7 +147,11 @@ public final class CheatSheet {
             + "header{display:flex;align-items:center;gap:18px;padding:12px 18px;border-radius:14px;color:#fff;"
             + "background:linear-gradient(110deg,var(--deep),var(--bright))}\n"
             + ".mark{width:78px;height:78px;flex:none;display:flex;align-items:center;justify-content:center}\n"
-            + ".mark img{max-width:78px;max-height:78px;background:#fff;border-radius:10px;padding:4px}\n"
+            + "header.logo{background:#fff;color:var(--deep);border-radius:0;padding:4px 4px 12px;"
+            + "border-bottom:6px solid var(--deep);border-image:linear-gradient(90deg,var(--deep),var(--bright)) 1}\n"
+            + ".wordmark{height:84px;width:auto;flex:none}\n"
+            + "header.logo .sub{font-size:26px;font-weight:800;opacity:1;letter-spacing:.02em}\n"
+            + "header.logo .scheme{background:linear-gradient(110deg,var(--deep),var(--bright));color:#fff;border:0}\n"
             + ".title{flex:1}\n"
             + ".team{font-size:34px;font-weight:900;letter-spacing:.06em;line-height:1}\n"
             + ".team span{font-weight:300;opacity:.85}\n"

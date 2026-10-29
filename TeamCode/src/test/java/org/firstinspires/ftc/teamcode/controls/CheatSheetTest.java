@@ -16,8 +16,8 @@ import java.util.Map;
  * {@code TeamCode/build/cheat-sheets/}, and checks each lists every input its scheme binds.
  * {@code ./gradlew testDebugUnitTest}, then open a file in a browser and print it landscape.
  *
- * <p>A team logo, if someone has added one, is {@code TeamCode/cheat-sheets/logo-<number>.png}
- * (or {@code .svg}); without one the sheet draws an emblem in the team's colours.
+ * <p>A team's logo is {@code TeamCode/cheat-sheets/logo-<number>.jpg} (or {@code .png}, {@code .svg});
+ * without one the sheet draws an emblem in the team's colours.
  */
 public class CheatSheetTest {
 
@@ -42,11 +42,13 @@ public class CheatSheetTest {
 
     /** The team's logo as a data URI, or null when there is none in the folder. */
     private static String logo(File folder, int number) throws IOException {
-        File png = new File(folder, "logo-" + number + ".png");
-        File svg = new File(folder, "logo-" + number + ".svg");
-        File file = png.isFile() ? png : svg.isFile() ? svg : null;
-        if (file == null) return null;
-        String type = file == png ? "image/png" : "image/svg+xml";
-        return "data:" + type + ";base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
+        String[][] kinds = {{"jpg", "image/jpeg"}, {"png", "image/png"}, {"svg", "image/svg+xml"}};
+        for (String[] kind : kinds) {
+            File file = new File(folder, "logo-" + number + "." + kind[0]);
+            if (file.isFile()) {
+                return "data:" + kind[1] + ";base64," + Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
+            }
+        }
+        return null;
     }
 }
