@@ -37,7 +37,37 @@ public final class FieldFrame {
      */
     public static final double FIELD_CENTRE_INCHES = FIELD_SIZE_INCHES / 2.0;
 
+    /** One tile's side, inches: the field is six tiles across, wall face to wall face. */
+    public static final double TILE_INCHES = FIELD_SIZE_INCHES / 6.0;
+
     private FieldFrame() {
+    }
+
+    /**
+     * The manual's name for the tile under {@code (x, y)} (§9.4, Figure 9-5), so a pose can be read
+     * the way a drive team places a robot: column A–F across from the red wall (left to right as the
+     * audience sees the field), row 1–6 up from the audience wall. The red audience start is "C1".
+     * Null off the field. The seams between columns are V (A|B), W (B|C), X, Y, Z (Figure 9-4).
+     */
+    public static String tileName(double x, double y) {
+        int column = (int) Math.floor(x / TILE_INCHES);
+        int row = (int) Math.floor(y / TILE_INCHES);
+        if (x < 0 || y < 0 || column > 5 || row > 5) return null;
+        return String.valueOf((char) ('A' + column)) + (row + 1);
+    }
+
+    /**
+     * Which way {@code headingRad} faces, in field words, to the nearest quarter turn: +x is toward
+     * the blue wall, +y away from the audience.
+     */
+    public static String facing(double headingRad) {
+        int quarter = (int) Math.floorMod(Math.round(headingRad / (Math.PI / 2)), 4L);
+        switch (quarter) {
+            case 0:  return "toward the blue wall";
+            case 1:  return "away from the audience";
+            case 2:  return "toward the red wall";
+            default: return "toward the audience";
+        }
     }
 
     /**

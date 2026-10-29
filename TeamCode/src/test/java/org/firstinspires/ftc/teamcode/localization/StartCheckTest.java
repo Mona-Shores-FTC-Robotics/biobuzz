@@ -58,6 +58,11 @@ public class StartCheckTest {
     }
 
     @Test
+    public void theRedAudienceStartIsDescribedInTiles() {
+        assertEquals("tile C1, facing away from the audience", StartPositions.RED_AUDIENCE.where());
+    }
+
+    @Test
     public void aRobotOnTheMarkIsToldToLeaveIt() {
         assertEquals("leave it", StartCheck.evaluate(RED, 10, 10.1, 19.9).move());
     }

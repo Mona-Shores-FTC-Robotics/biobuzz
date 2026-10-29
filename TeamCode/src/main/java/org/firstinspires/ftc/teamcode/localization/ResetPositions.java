@@ -26,19 +26,19 @@ public final class ResetPositions {
     }
 
     /**
-     * Red: the corner on the red driver's left, against the red-side wall and the back wall (away
-     * from the audience), by red's LOADING ZONE; robot squared into both walls with the intake
-     * toward the blue side. Not measured: read x, y and heading off the Pose line with the robot
-     * placed there.
+     * Red: tile A6, the corner on the red driver's left, against the red-side wall and the back
+     * wall (away from the audience), next to red's LOADING ZONE in A5; robot squared into both
+     * walls with the intake toward the blue side. Not measured: read x, y and heading off the Pose
+     * line with the robot placed there.
      */
     public static final Pose RED = new Pose(Double.NaN, Double.NaN, Double.NaN);
 
     /**
-     * Blue: the corner on the blue driver's left, against the blue-side wall and the audience wall,
-     * by blue's LOADING ZONE; robot squared into both walls with the intake toward the red side:
-     * red's spot turned half a turn about the field centre, as the whole field is (manual
-     * Figure 9-2). Not measured. Measure it on the field rather than derive it from red: placement
-     * is by hand.
+     * Blue: tile F1, the corner on the blue driver's left, against the blue-side wall and the
+     * audience wall, next to blue's LOADING ZONE in F2; robot squared into both walls with the
+     * intake toward the red side: red's spot turned half a turn about the field centre, as the
+     * whole field is (manual Figure 9-2). Not measured. Measure it on the field rather than derive
+     * it from red: placement is by hand.
      */
     public static final Pose BLUE = new Pose(Double.NaN, Double.NaN, Double.NaN);
 

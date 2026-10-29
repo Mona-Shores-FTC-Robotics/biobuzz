@@ -64,16 +64,16 @@ public final class StartCheck {
                 case NOT_DECLARED:
                     return;
                 case UNCONFIRMED:
-                    display.status("Start", Display.Level.WARN, start + ": camera can't confirm — "
-                            + "using the declared pose");
+                    display.status("Start", Display.Level.WARN, start + " (" + start.where()
+                            + "): camera can't confirm — using the declared pose");
                     return;
                 case IN_POSITION:
                     display.status("Start", Display.Level.OK, String.format(java.util.Locale.US,
-                            "%s: in position (%.1f in off: %s)", start, errorIn, move()));
+                            "%s (%s): in position (%.1f in off: %s)", start, start.where(), errorIn, move()));
                     return;
                 default:
                     display.status("Start", Display.Level.WARN, String.format(java.util.Locale.US,
-                            "%s: OFF BY %.1f in — %s", start, errorIn, move()));
+                            "%s (%s): OFF BY %.1f in — %s", start, start.where(), errorIn, move()));
             }
         }
     }

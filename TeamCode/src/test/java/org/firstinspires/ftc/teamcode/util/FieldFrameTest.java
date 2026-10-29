@@ -75,6 +75,30 @@ public class FieldFrameTest {
         }
     }
 
+    /** The manual's tile names (§9.4): A–F from the red wall, 1–6 from the audience. */
+    @Test
+    public void tilesAreNamedAsTheManualNamesThem() {
+        double tile = FieldFrame.TILE_INCHES;
+        assertEquals("C1", FieldFrame.tileName(55.0, 9.7)); // the red audience start
+        assertEquals("A1", FieldFrame.tileName(0.5, 0.5));
+        assertEquals("F6", FieldFrame.tileName(6 * tile - 0.5, 6 * tile - 0.5));
+        assertEquals("B1", FieldFrame.tileName(tile + 0.01, 0.0)); // just past seam V
+        // The red audience start turned half a turn about the centre is blue's: D6.
+        double c = FieldFrame.FIELD_CENTRE_INCHES;
+        assertEquals("D6", FieldFrame.tileName(2 * c - 55.0, 2 * c - 9.7));
+        assertEquals(null, FieldFrame.tileName(-1, 5));
+        assertEquals(null, FieldFrame.tileName(5, 6 * tile + 1));
+    }
+
+    @Test
+    public void headingsAreNamedByWhatTheRobotFaces() {
+        assertEquals("away from the audience", FieldFrame.facing(Math.toRadians(90)));
+        assertEquals("toward the audience", FieldFrame.facing(Math.toRadians(-90)));
+        assertEquals("toward the audience", FieldFrame.facing(Math.toRadians(270)));
+        assertEquals("toward the blue wall", FieldFrame.facing(Math.toRadians(10)));
+        assertEquals("toward the red wall", FieldFrame.facing(Math.PI));
+    }
+
     /** Guards the scan itself, so a moved source tree can't turn the test above into a no-op. */
     @Test
     public void theScanActuallyReadsTheTeamSources() {
