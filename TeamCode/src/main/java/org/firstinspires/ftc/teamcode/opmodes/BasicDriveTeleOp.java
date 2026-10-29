@@ -39,8 +39,12 @@ import java.util.Locale;
  * it between LOCKED and AIM ({@link TurretAimer}, the same auto-aim the HIVE &amp; Pose test bed
  * runs). It zeroes itself, assuming it starts a match at its home mark, or taking the Auto's zero
  * when an Auto just ran ({@link org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy});
- * D-pad up zeroes it by hand and always wins. D-pad left relocalizes the pose from the camera, for
- * after a restart or a shove; the Match page says what it did.
+ * D-pad up zeroes it by hand and always wins.
+ *
+ * <p>D-pad left, on either gamepad, relocalizes the pose from the camera, for after a restart or a
+ * shove, or when a pose carried from the last run is a little off; the Match page says what it
+ * did. It works in INIT too, so the pose can be put right before PLAY with one person and one
+ * gamepad.
  *
  * <p>The driver's D-pad up, held, picks the nearest FLOWER ({@link FlowerPicker}): line up, stick
  * down and intake on during the approach, push in, dwell, back out, stick up, every phase timed in
@@ -150,6 +154,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.intake::eject)
                 .onRelease(robot.intake::idle);
         driver.note("D-pad up (hold)", "Pick the nearest FLOWER (let go or move a stick to stop)");
+        driver.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad1.dpad_left)
+                .duringInit()
+                .onPress(this::relocalize);
 
         operator.when("Cross (A)", "Launcher spin up", () -> gamepad2.a)
                 .onPress(robot.launcher::spinUp);
@@ -158,7 +165,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         operator.when("D-pad right", "Turret: switch LOCKED (straight ahead) / AIM at our CELL", () -> gamepad2.dpad_right)
                 .onPress(this::toggleTurretMode);
         operator.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad2.dpad_left)
-                .onPress(() -> relocalizeNote = robot.drive.relocalizeFromCamera());
+                .duringInit()
+                .onPress(this::relocalize);
         operator.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad2.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -177,6 +185,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.turret.home();
     }
 
+    /** The camera sets the pose, if it can; the Match page and the match log say what happened. */
+    private void relocalize() {
+        relocalizeNote = robot.drive.relocalizeFromCamera();
+        log.event("pose: " + relocalizeNote);
+    }
+
     /** LOCKED to AIM and back. Either way a fresh request, which also lets a dropped hold try again. */
     private void toggleTurretMode() {
         if (turretMode == TurretMode.LOCKED) {
@@ -192,6 +206,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     @Override
     protected void onInitLoop() {
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
+        if (relocalizeNote != null) {
+            display.line("Last relocalize: " + relocalizeNote);
+        }
         showPinpoint();
     }
 
