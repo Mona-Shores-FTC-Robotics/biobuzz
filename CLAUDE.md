@@ -23,7 +23,7 @@ Paths below are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | `opmodes/RobotOpMode` | Owns the loop. OpModes that run the robot extend it and fill in `onInit`/`onLoop`; `LoopContractTest` fails any that set bulk caching or call `Scheduler`/`robot.stop()` themselves. Standalone diagnostics (`ValidateHardware`, `LoopTimeBaseline`) and rigs are the exception. Only match OpModes are `@TeleOp` / `@Autonomous`; every diagnostic, bench and tuner is `@Utility`, so the Driver Station's Utility menu holds them and the TeleOp list holds what a drive team runs. |
 | `subsystems/DriveSubsystem` | The drivetrain, and the worked example: the OpMode says what it wants (`drive(...)`), `update()` does it. Drives robot-centric if the Pinpoint is missing. Also the Auto Builder's `AutoDrive`: a path or hold hands the loop to Pedro's `Follower` until the next `drive(...)`. |
 | `controls/` | `ControlScheme` is the only place an input is chosen: it maps each `Action` to an `Input`, one layout per scheme (A, B; picked in Panels by `TeleOpConfig.scheme`, read once at INIT). The TeleOp asks `controls.held(Action.FIRE)` / `controls.on(Action.X)`, never a raw button; a new scheme is one new layout. `Input` cannot name Share, Options, the touchpad or PS. `Bindings` underneath labels every binding, and the DS Controls page and the printed cheat sheet (`CheatSheet`, written by `CheatSheetTest` to `TeamCode/build/cheat-sheets/`) are generated from the same layout, so never document controls anywhere else. `Display`: the DS pages; write the Match page in `onLoop()`, give a subsystem a Robot-page block by overriding `describe()`. |
-| `localization/` | CELL sighting → position fix (`CellFix`), field points, start positions and the start check. The filter is Pedro's. See "Localization" below. |
+| `localization/` | CELL sighting → gated position fix (`TagGate`, `CellFix`), field points, start and reset positions, the start check. The filter is Pedro's. See "Localization" below. |
 | `hardware/` | Device names, robot identity, active config — see below. |
 | `pedro/` | `Constants.java`, `Tuning.java`, `RobotConstants.java` and `robots/` (tuned values, one file per robot) are ours. `pedro/procedures/**` is upstream: never edit it. |
 | `autokit/` | The Auto Builder's runtime: the cards a generated Auto calls — commands, paths, the one branching block (`firstOf`: wait for a trigger, at most some time, optionally while a command runs) and the endgame guard, which cuts a wait or a command when time runs short but never a path. Depends only on Ivy and Pedro, never on `Robot` or the SDK. |
@@ -92,18 +92,27 @@ and zeroes at PLAY; the zero button on a gamepad always wins (`TurretZeroPolicy`
 `RobotOpMode` logs an uncaught exception to the match log and rethrows it; it never swallows one.
 
 **Localization.** The Pinpoint carries the pose, through Pedro's `FusionLocalizer`. The camera
-sets it and may correct it, only through `localization/CellFix`: any two or more tags on settled
+sets it and may correct it, only through `localization/`: every frame passes `TagGate` (height,
+range, outlier, tag count, field bounds) before `CellFix` uses it. Two or more gated tags on settled
 CELLs give the whole pose (each tag's field position is known, since a TIP turns the row about its
-own line), which seeds an unreferenced pose and backs `relocalizeFromCamera()`; continuous fixes into the filter
-are off (`LocalizationTuning.continuousFixes`) until a measurement shows they help. Relocalizing
-never moves the driver's field-centric forward. Read the pose from `robot.drive`, never from the
+own line), which seeds an unreferenced pose. Once the pose is referenced the camera gives position
+only, with the Pinpoint's heading: `relocalizeFromCamera()` moves x and y and keeps the heading.
+Stationary fixes (`stillFixes`) and continuous fixes (`continuousFixes`) into the filter are both
+off until a measurement shows they help. The reset spot (`ResetPositions`, NaN until measured) is a
+fixed, measured pose per alliance, never "the nearest corner". Relocalizing or resetting never moves
+the driver's field-centric forward. Read the pose from `robot.drive`, never from the
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
 checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
 centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
 measured field facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
-overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
+overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. A TeleOp with
+no handoff declares its alliance's start too (`StartPositions.forAlliance`), so a test drive starts
+from a known pose with the right field-centric forward; after an Auto it keeps the Auto's pose. The drive team
+places by the marks (wall and seam, the manual's tile names), and the marks win: the start check
+never tells anyone to move the robot by the camera. It warns only past `startMarginIn` (a real
+mistake), and logs the camera's gap at PLAY as a calibration sample.
 
 **Autos from the Visualizer.** A generated Auto lives in `opmodes/auto/generated/`, and its `.pp`
 source is committed in `TeamCode/autos/` in the same PR, under the name its `SOURCE` constant
@@ -115,20 +124,25 @@ generated Java by hand. `AutoSourcesTest` fails a generated class whose `.pp` is
 the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
 intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it
 starves the fusion of tag fixes.
+There is one vision OpMode, **Vision: HIVE & Pose**: a camera check or experiment goes into it,
+never into a new OpMode. It needs no Panels setup to be useful (known start, its own buttons, its
+numbers in the match log); keep it that way.
 
 **Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
 Degrees only on screens. It is the only frame a person reads or types — on the DS, in Panels, in
 the Visualizer, in docs, issues and conversation. A library that works in another frame (Panels'
 canvas, Limelight camera space) is converted inside the one class that talks to it, and nothing
 downstream sees the other frame; never add a frame or unit toggle anywhere. The field is
-`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and mirrors across
-`FIELD_CENTRE_INCHES`; `FieldFrameTest` fails any other file that states the size (generated
+`FieldFrame.FIELD_SIZE_INCHES` (141.5, wall face to wall face — not 144) and is rotationally
+symmetric, not a mirror: blue's side is red's turned half a turn about the centre
+(`FIELD_CENTRE_INCHES` on both axes; manual Figure 9-2); `FieldFrameTest` fails any other file that states the size (generated
 Autos, written by the Visualizer on the same field, are exempt). Field facts
 that depend on the frame live in `util/FieldFrame`.
 
 **Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
-proposes, X/B on either gamepad overrides, Auto's handoff is inherited — and never guesses one.
+proposes, X/B on either gamepad overrides, Auto's handoff is inherited. An Autonomous never guesses
+one (with none it does not move); any other OpMode defaults to red, shown as "RED (default)".
 Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
 that requires the subsystem — that would interrupt its `periodic()`.
 

@@ -125,8 +125,8 @@ public final class HiveFieldPoints {
      * cluster frame x = y × z: an AUDIENCE CELL (opening toward low field y) gives
      * (0,-1,0) × (0,0,-1) = +x, a SCORING CELL (toward high y) gives -x. On 19429 (#156), from the
      * red audience start facing +y, RED_AUDIENCE's tag 37 (cluster +6.5) sat on the robot's right,
-     * which is field +x, as predicted. To check another CELL: face it with Vision: Raw Tag Dump; its
-     * highest id should sit on the robot's right when facing +y for an AUDIENCE CELL, left for SCORING.
+     * which is field +x, as predicted. To check another CELL: face it in Vision: HIVE & Pose (the Tags
+     * section lists ids); its highest id should sit on the robot's right when facing +y for an AUDIENCE CELL, left for SCORING.
      */
     private static final double[] CLUSTER_X_ALONG_FIELD_X = {
             /* RED_SCORING   */ -1,

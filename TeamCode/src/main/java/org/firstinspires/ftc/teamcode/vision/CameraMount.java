@@ -23,12 +23,10 @@ import com.bylazar.configurables.annotations.Configurable;
  * The {@code +X} right / {@code +Y} down / {@code +Z} forward reading above is
  * Limelight's documented convention, but the FTC SDK wrapper passes the three
  * numbers straight through from the camera's JSON without normalising them, so
- * nothing in the SDK proves it. Run {@code VisionTagDump}, hold a tag square to
- * the lens along the direction it points (the camera is pitched up, so that is
- * not "straight ahead of the robot"), and confirm that the lens-to-tag range
- * lands in {@code Z} and that the signs of {@code X}/{@code Y} match a tag held
- * right-of-centre and above centre.
- * If they don't, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
+ * nothing in the SDK proves it. It was checked on the robot with a tag held
+ * square to the lens (the {@code VisionTagDump} OpMode, now in git history): the
+ * lens-to-tag range landed in {@code Z}, and the measured mount below agreed with
+ * a tape. If it is ever in doubt, fix it in {@link #cameraAxesToRobotAxes} — one place, and the
  * unit tests will tell you whether the rest of the chain still holds.
  *
  * <p>The mounting numbers below were measured on 19429 on 3 Oct 2026 (#156): tape
@@ -67,7 +65,7 @@ public class CameraMount {
      * <em>without</em> applying any mounting rotation or translation.
      *
      * <p>This is the single place the camera's axis convention is encoded. If
-     * {@code VisionTagDump} shows the camera using different axes, change it here.
+     * the camera ever turns out to use different axes, change it here.
      */
     public static Vec3 cameraAxesToRobotAxes(Vec3 cameraSpace) {
         return new Vec3(

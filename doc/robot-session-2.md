@@ -22,8 +22,8 @@ which has the Auto runtime (#189), the match log (#112), the taped red start (`S
   limit. `Tip` and `CameraBlind` are real: with no HIVE in view, `Tip` waits run to their limits
   too. The Driver Station lists the placeholders at INIT.
 - The red start is taped and measured: centre (55, 9.7), facing up the field (90°). Place it as
-  **back flat on the audience wall, left wheels on the tile seam two tiles from the red-side
-  wall.** Every right-side Auto (R-Simple, R-Quals, Sister-Right) starts there. The left-side
+  **tile C1, back flat on the audience wall, facing away from the audience, left wheels on
+  seam W** (between columns B and C; the manual's tile names, §9.4). Every right-side Auto (R-Simple, R-Quals, Sister-Right) starts there. The left-side
   Autos start at (59, 133.69, 270°), which nobody has taped; leave them.
 
 ## Before leaving the laptop

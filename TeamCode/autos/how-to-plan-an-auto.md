@@ -93,7 +93,8 @@ The editor can't check these, so you have to:
 - **Don't touch the HIVE.** Only POLLEN we launch may move it.
 - **Park at least partly in our LOADING ZONE** at the end (5 points), off the wall.
 
-Draw for **RED**. The robot mirrors your Auto for BLUE on its own.
+Draw for **RED**. The robot turns your Auto half a turn about the field centre for BLUE on its own
+(BIOBUZZ is rotationally symmetric, not a mirror).
 
 ## 7. Save your work
 

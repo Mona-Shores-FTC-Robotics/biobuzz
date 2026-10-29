@@ -62,7 +62,4 @@ public final class TeleOpConfig {
 
     /** Chassis aim: the most turn power it may ask for. Clamped to [0, 1]. */
     public static double chassisAimMaxTurn = 0.5;
-
-    /** How many measured corners per alliance the corner snap may use: 1 or 2. */
-    public static int cornerCount = 1;
 }

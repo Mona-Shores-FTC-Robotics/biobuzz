@@ -25,6 +25,7 @@ import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
+import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
@@ -32,6 +33,7 @@ import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
 import java.io.File;
@@ -179,6 +181,8 @@ public abstract class RobotOpMode extends OpMode {
     /** True when the drive pose was restored from Autonomous, so headings are field-absolute. */
     private Display.Level handoffLevel;
     private String handoffNote;
+    /** Whether the pose came from an Auto, or a TeleOp just restarted, rather than starting unknown. */
+    private boolean handoffPose;
 
     private StartPosition declaredStart;
 
@@ -206,6 +210,14 @@ public abstract class RobotOpMode extends OpMode {
      */
     protected StartPosition startPosition() {
         return null;
+    }
+
+    /**
+     * Whether the pose was handed over (an Auto just ran, or this TeleOp restarted), so a TeleOp
+     * keeps it instead of declaring a start. Known from {@code onInit} on.
+     */
+    protected final boolean hasHandoffPose() {
+        return handoffPose;
     }
 
     /** Called once, after the robot is built and initialized. Put your init telemetry here. */
@@ -260,6 +272,10 @@ public abstract class RobotOpMode extends OpMode {
         Iterator<VoltageSensor> sensors = hardwareMap.voltageSensor.iterator();
         battery = sensors.hasNext() ? sensors.next() : null;
         receiveHandoff();
+        // A TeleOp or test OpMode is red unless told otherwise; an Auto must be told or see.
+        if (!isAutonomous()) {
+            setup.defaultTo(MatchSetup.DEFAULT_ALLIANCE);
+        }
         declaredStart = startPosition();
         if (declaredStart != null) {
             robot.drive.setPose(declaredStart.pose);
@@ -322,7 +338,9 @@ public abstract class RobotOpMode extends OpMode {
                 robot.drive.meanFixX(), robot.drive.meanFixY());
         setup.offerVision(startCheck.confirmedAlliance(), robot.vision.allianceEvidence());
         beginPage();
-        if (handoffNote != null) {
+        // With no handoff and a declared start, the start line says where the robot is; the
+        // "no handoff" note would only contradict it.
+        if (handoffNote != null && (handoffPose || declaredStart == null)) {
             display.status("Start", handoffLevel, handoffNote);
         }
         if (batteryNote != null) {
@@ -334,7 +352,7 @@ public abstract class RobotOpMode extends OpMode {
         onInitLoop();
         Scheduler.execute();
         finishPage();
-        drawField();
+        drawField(true);
         recordLoop(MatchLog.Mode.DISABLED, Double.NaN);
     }
 
@@ -350,6 +368,7 @@ public abstract class RobotOpMode extends OpMode {
 
     private void startBody() {
         loopTimer.reset();
+        logStartCheck();
         setup.lock();
         driver.prime();
         operator.prime();
@@ -426,7 +445,7 @@ public abstract class RobotOpMode extends OpMode {
         Scheduler.execute();
         long t2 = System.nanoTime();
         finishPage();
-        drawField();
+        drawField(false);
         long t3 = System.nanoTime();
         recordLoop(isAutonomous() ? MatchLog.Mode.AUTONOMOUS : MatchLog.Mode.TELEOP, loopTimer.lastMs());
         long t4 = System.nanoTime();
@@ -510,12 +529,74 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
-     * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
-     * pose. Gated on the throttle, so on most loops this is one boolean read; skipped when the
-     * drive has no heading (no Pinpoint), since then there is no pose to draw. The publish is
-     * caught and swallowed: telemetry never takes a mechanism down.
+     * At PLAY, what the camera made of the placement over the time the robot sat untouched before it
+     * ({@link SettledStats}), against the declared start: into the match log's Metadata tab
+     * ({@code StartCheck}) and as numbers ({@code /StartCheck/*}). The drive team placed it by the
+     * marks, so each run is a calibration sample. Position and heading: a gap that follows one robot
+     * to every field is its camera mount, one on every robot at one field is that field's HIVE, one
+     * that changes run to run is placement. Per CELL: one CELL off and the others not is that CELL.
+     * {@code RobotConfig} and the date are already in the log. {@code SettledSeconds} says how much
+     * to trust the sample: a robot adjusted just before PLAY gives a short one.
      */
-    private void drawField() {
+    private void logStartCheck() {
+        if (declaredStart == null) {
+            return;
+        }
+        SettledStats s = robot.drive.settled();
+        if (s.frames() == 0) {
+            log.metadata("StartCheck", declaredStart + ": no camera frames while settled");
+            return;
+        }
+        Pose start = declaredStart.pose;
+        double dx = s.x() - start.x();
+        double dy = s.y() - start.y();
+        double c = Math.cos(start.heading());
+        double sn = Math.sin(start.heading());
+        double fwd = c * dx + sn * dy;
+        double left = -sn * dx + c * dy;
+        StringBuilder text = new StringBuilder(String.format(Locale.US,
+                "%s: settled %.0f s, %d frames; camera minus start x %+.2f, y %+.2f in "
+                        + "(fwd %+.2f, left %+.2f); heading %+.2f deg (%d frames)",
+                declaredStart, s.seconds(), s.frames(), dx, dy, fwd, left,
+                s.headingDiffDeg(), s.headingFrames()));
+        for (HiveCell cell : HiveCell.values()) {
+            if (s.tags(cell) == 0) continue;
+            text.append(String.format(Locale.US,
+                    "; %s: %d tag sightings, x %+.2f, y %+.2f, height %+.2f, range %.0f in",
+                    cell, s.tags(cell), s.cellDx(cell), s.cellDy(cell), s.cellHeightErrorIn(cell),
+                    s.cellRangeIn(cell)));
+            String key = "/StartCheck/" + cell.name() + "/";
+            log.put(key + "DxIn", s.cellDx(cell));
+            log.put(key + "DyIn", s.cellDy(cell));
+            log.put(key + "RangeIn", s.cellRangeIn(cell));
+            log.put(key + "HeightErrorIn", s.cellHeightErrorIn(cell));
+        }
+        log.metadata("StartCheck", text.toString());
+        log.put("/StartCheck/SettledSeconds", s.seconds());
+        log.put("/StartCheck/Frames", s.frames());
+        log.put("/StartCheck/CameraMinusStartXIn", dx);
+        log.put("/StartCheck/CameraMinusStartYIn", dy);
+        log.put("/StartCheck/CameraFwdOfStartIn", fwd);
+        log.put("/StartCheck/CameraLeftOfStartIn", left);
+        if (s.headingFrames() > 0) {
+            log.put("/StartCheck/CameraMinusStartHeadingDeg", s.headingDiffDeg());
+        }
+    }
+
+    /** Where the robot should start (during INIT), and where the camera says it is, on the field. */
+    private static final String START_COLOUR = "#00E676";
+    private static final String CAMERA_COLOUR = "#FFB300";
+
+    /**
+     * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
+     * pose. During INIT, an OpMode with a declared start also gets that start (green) and where the
+     * camera's latest fixes put the robot (amber): the gap between them is the start check's
+     * error, and the way to move the robot. Then {@link #drawOnField} adds the OpMode's own.
+     * Gated on the throttle, so on most loops this is one boolean read; skipped when the drive has
+     * no heading (no Pinpoint), since then there is no pose to draw. The publish is caught and
+     * swallowed: telemetry never takes a mechanism down.
+     */
+    private void drawField(boolean initializing) {
         if (fieldView == null || !robot.drive.hasHeading()) {
             return;
         }
@@ -525,11 +606,29 @@ public abstract class RobotOpMode extends OpMode {
                 if (pose != null) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
                 }
+                if (initializing && declaredStart != null) {
+                    Pose start = declaredStart.pose;
+                    fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    double cameraX = robot.drive.meanFixX();
+                    double cameraY = robot.drive.meanFixY();
+                    if (!Double.isNaN(cameraX)) {
+                        fieldView.drawRobot(cameraX, cameraY, start.heading(), CAMERA_COLOUR);
+                    }
+                }
+                drawOnField(fieldView);
                 fieldView.send();
             }
         } catch (RuntimeException ignored) {
             // Panels is a window onto the robot, not part of it.
         }
+    }
+
+    /**
+     * An OpMode's own marks on the Panels Field view, drawn over the robot each time the view is
+     * sent. Override instead of making a second {@code FieldView}: two views sending in turn make
+     * the field flicker between them.
+     */
+    protected void drawOnField(FieldView field) {
     }
 
     /** Page button edge, then the header — so the OpMode's Match lines land under it. */
@@ -565,6 +664,7 @@ public abstract class RobotOpMode extends OpMode {
         String age = (handoff.ageMs(now) / 1000) + "s ago";
         if (handoff.pose != null && robot.drive.hasHeading()) {
             robot.drive.setPose(handoff.pose);
+            handoffPose = true;
             boolean forwardKnown = !Double.isNaN(FieldFrame.driverForwardHeading(handoff.alliance));
             handoffLevel = forwardKnown ? Display.Level.OK : Display.Level.WARN;
             handoffNote = String.format(java.util.Locale.US,
@@ -684,6 +784,11 @@ public abstract class RobotOpMode extends OpMode {
             log.pose(pose.x(), pose.y(), pose.heading());
             log.put("/Odometry/Referenced", referenced ? 1 : 0);
         }
+        // What the camera's gate made of the latest frame, and how the stationary fix stands.
+        log.put("/Vision/TagsAccepted", robot.drive.lastFrame().acceptedCount());
+        log.put("/Vision/TagsRejected", robot.drive.lastFrame().count() - robot.drive.lastFrame().acceptedCount());
+        log.put("/Vision/StillFix", robot.drive.stillFix().ordinal());
+        log.put("/Vision/StillFixesApplied", robot.drive.stillFixesApplied());
         if (mode != MatchLog.Mode.DISABLED) {
             // Where the robot is, every loop, so an OpMode that crashes still leaves it behind.
             Handoff.update(mode == MatchLog.Mode.AUTONOMOUS, alliance, referenced,

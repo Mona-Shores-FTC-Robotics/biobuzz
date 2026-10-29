@@ -12,8 +12,9 @@ import org.firstinspires.ftc.teamcode.controls.Controls;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.controls.IntakeArbiter;
 import org.firstinspires.ftc.teamcode.controls.LongPress;
-import org.firstinspires.ftc.teamcode.localization.CornerPositions;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
@@ -159,7 +160,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.FLOWER_PICK);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
-        controls.on(Action.CORNER_SNAP).onPress(this::snapToCorner);
+        controls.on(Action.RESET_TO_SPOT).onPress(() -> {
+            poseNote = robot.drive.resetToSpot(setup.alliance());
+            log.event("pose: " + poseNote);
+        });
         controls.on(Action.DRIVER_RELOCALIZE).duringInit().onPress(this::relocalize);
         controls.note(Action.RESET_HEADING);
         controls.on(Action.AUTO_PARK).onPress(() -> {
@@ -180,6 +184,17 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
+    }
+
+    /**
+     * With no Auto before it (and no TeleOp just restarted), Basic Drive starts from the Autos'
+     * start, so the drive team lines up there for a test too: the pose is known, field-centric
+     * forward is the alliance's from PLAY, and the run is a calibration sample. After an Auto it
+     * keeps the Auto's pose. Red until an alliance is chosen, as the Autos are drawn.
+     */
+    @Override
+    protected StartPosition startPosition() {
+        return hasHandoffPose() ? null : StartPositions.forAlliance(setup.alliance());
     }
 
     /** PLAY: the turret has been zeroed by now (RobotOpMode does it); hold it straight ahead. */
@@ -240,19 +255,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void relocalize() {
         poseNote = robot.drive.relocalizeFromCamera();
         log.event("pose: " + poseNote);
-    }
-
-    private void snapToCorner() {
-        Pose pose = robot.drive.pose();
-        Pose[] corners = CornerPositions.forAlliance(setup.alliance());
-        Pose corner = pose == null ? null : CornerPositions.choose(corners, TeleOpConfig.cornerCount,
-                robot.drive.poseReferenced(), pose.x(), pose.y());
-        if (pose != null && corner == null && corners.length > 0) {
-            poseNote = "corner snap: two corners and no pose on the field to pick between them";
-        } else {
-            poseNote = robot.drive.snapToCorner(corner);
-        }
-        log.event(poseNote);
     }
 
     @Override

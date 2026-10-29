@@ -17,7 +17,7 @@ public enum Action {
     FLOWER_PICK(Pad.DRIVER, "Pick the nearest FLOWER (hold; let go or move a stick to stop)"),
     FLOWER_STICK(Pad.DRIVER, "FLOWER stick out / in"),
     CHASSIS_AIM(Pad.DRIVER, "Point the robot at our CELL (hold; left stick still drives, right stick cancels)"),
-    CORNER_SNAP(Pad.DRIVER, "Pose: snap to the nearest measured corner (robot squared into it)"),
+    RESET_TO_SPOT(Pad.DRIVER, "Pose: reset to our marked spot (robot squared into its corner)"),
     DRIVER_RELOCALIZE(Pad.DRIVER, "Pose: relocalize from the camera (hold still, 2+ tags in view; also in INIT)"),
     RESET_HEADING(Pad.DRIVER, "Reset field-centric forward (hold 1 s; a tap does nothing)"),
     AUTO_PARK(Pad.DRIVER, "Auto-park (hold): not built yet"),

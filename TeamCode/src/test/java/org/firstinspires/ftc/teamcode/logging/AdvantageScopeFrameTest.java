@@ -15,7 +15,7 @@ public class AdvantageScopeFrameTest {
     private static final double IN = AdvantageScopeFrame.METERS_PER_INCH;
     private static final double C = AdvantageScopeFrame.PEDRO_FIELD_CENTER_IN;
 
-    /** The Visualizer's field is 141.5 in, and its Pedro 3 export mirrors about half of that. */
+    /** The Visualizer's field is 141.5 in, and its Pedro 3 export turns alliances about half of that. */
     @Test
     public void centreIsHalfTheVisualizersField() {
         assertEquals(141.5 / 2, C, 0.0);
