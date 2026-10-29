@@ -40,6 +40,12 @@ use, so nobody types or places them again. They work like PathPlanner's linked w
 - **Never edit `spots.json` by hand.** Change spots in the Visualizer, so the Autos that use them
   are re-exported in the same commit. A hand edit changes no Auto until each is opened and
   exported again.
+- **Starts are team spots named `START_…`.** The builder's start buttons are the team's
+  `START_` spots (`START_RIGHT` → *Right start*); make one to add a start. A start measured on the
+  field is also in `localization/StartPositions` (`TEAM_SPOTS` names its spot), and
+  `TeamSpotsTest` fails while the two differ: measure, then change both. `START_LEFT` is where the
+  left-side Autos were drawn to start, not measured yet, so the robot treats it as "start (as
+  drawn)".
 - Poses are drawn for RED, in Pedro's frame (inches, degrees), like everything in an Auto; the
   robot turns them for BLUE.
 
