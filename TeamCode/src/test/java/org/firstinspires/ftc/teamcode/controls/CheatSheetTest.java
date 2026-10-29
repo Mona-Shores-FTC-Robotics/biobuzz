@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * Builds the printable cheat sheets, one per team, into {@code TeamCode/build/cheat-sheets/}, and
- * checks each lists every input the layout binds.
+ * checks each lists every button the layout binds (the sticks are left off).
  * {@code ./gradlew testDebugUnitTest}, then open a file in a browser and print it landscape.
  *
  * <p>A team's logo is {@code TeamCode/cheat-sheets/logo-<number>.jpg} (or {@code .png}, {@code .svg});
@@ -30,6 +30,7 @@ public class CheatSheetTest {
             String logo = logo(new File(teamCode, "cheat-sheets"), team.number);
             String html = CheatSheet.html(team, logo);
             for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).entrySet()) {
+                if (entry.getValue().isStick()) continue; // the sheet leaves the sticks off
                 assertTrue(team + " sheet is missing " + entry.getKey(),
                         html.contains(entry.getKey().description.replace("&", "&amp;")));
             }
