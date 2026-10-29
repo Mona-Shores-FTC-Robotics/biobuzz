@@ -8,6 +8,8 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.vision.HiveCellState;
+import org.firstinspires.ftc.teamcode.vision.HiveState;
+import org.firstinspires.ftc.teamcode.vision.HiveTracker;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,13 +39,28 @@ import java.util.function.BooleanSupplier;
  * <ul>
  *   <li>{@code IntakeFull}: the intake, counting pieces (#181). The roller itself already runs
  *       for the whole Auto ({@link BuiltAuto}); only the count is missing.</li>
- *   <li>{@code LeftCellUp}, {@code RightCellUp}: which CELL is up as the drive team sees it;
- *       needs the left/right naming of the CELLs (#114) and the HIVE tracker (#173).</li>
  * </ul>
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
  * without a piece sensor.
+ *
+ * <h2>LeftCellUp and RightCellUp</h2>
+ *
+ * <p>True while our HIVE's {@link HiveTracker} says that CELL is up, LEFT and RIGHT as our drive
+ * team sees them from our alliance area ({@link HiveState}). They are conditions, not events: the
+ * Auto Builder lists only {@code Tip} as an event, so a wait on {@code RightCellUp} ends at once if
+ * the RIGHT CELL is already up when it starts. Nothing is guessed:
+ * <ul>
+ *   <li>No alliance chosen: false. {@link BuiltAuto} does not move without one, so this only
+ *       matters to a caller outside it.</li>
+ *   <li>{@link HiveState#UNSEEN} or {@link HiveState#TRANSITION}: false for both, so the wait runs
+ *       to its limit or another row ends it. In particular the match-start position is not
+ *       assumed: a HIVE the camera has not seen yet is not "RIGHT CELL up".</li>
+ *   <li>A position the tracker assumes after a TIP it saw start but not finish
+ *       ({@link HiveTracker#assumed()}): taken as it stands. That TIP was seen, and the tracker
+ *       holds the guess only until the camera next sees the HIVE.</li>
+ * </ul>
  */
 public final class AutoRegistration {
 
@@ -52,7 +69,7 @@ public final class AutoRegistration {
 
     /** The names registered as placeholders, in registration order. Shown at INIT. */
     public static final List<String> PLACEHOLDERS = Collections.unmodifiableList(Arrays.asList(
-            "IntakeFull", "LeftCellUp", "RightCellUp"));
+            "IntakeFull"));
 
     private static final HiveCell[] CELLS = HiveCell.values();
 
@@ -73,12 +90,11 @@ public final class AutoRegistration {
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
-                // ---- placeholders: the intake does not count pieces yet, and the CELLs have no
-                // left/right naming on master.
+                // ---- placeholder: the intake does not count pieces yet (#181).
                 .trigger("IntakeFull", () -> false)
-                .trigger("LeftCellUp", () -> false)
-                .trigger("RightCellUp", () -> false)
-                // ---- real: the camera.
+                // ---- real: the camera, through our HIVE's tracker. See the class comment.
+                .trigger("LeftCellUp", () -> cellUp(ourHive(robot, setup), true))
+                .trigger("RightCellUp", () -> cellUp(ourHive(robot, setup), false))
                 // Our HIVE has tipped since this wait began: one of our CELLs that was settled UP
                 // or DOWN when the wait started is now settled the other way. Settled state comes
                 // from the Limelight's CellStateTracker, which the vision subsystem keeps current.
@@ -86,6 +102,20 @@ public final class AutoRegistration {
                 // A camera that never saw the HIVE, or no alliance chosen, never says Tip.
                 .triggerSince("Tip", () -> tipSince(robot, setup))
                 .trigger("CameraBlind", () -> cameraBlind(robot));
+    }
+
+    /**
+     * {@code LeftCellUp} ({@code left}) or {@code RightCellUp}: what our HIVE's tracker says, and
+     * false with no tracker (no alliance chosen). UNSEEN and TRANSITION are false for both.
+     */
+    static boolean cellUp(HiveTracker hive, boolean left) {
+        if (hive == null) return false;
+        return left ? hive.leftCellUp() : hive.rightCellUp();
+    }
+
+    /** Our alliance's HIVE; null with no robot, no setup or no alliance chosen. */
+    private static HiveTracker ourHive(Robot robot, MatchSetup setup) {
+        return robot == null || setup == null ? null : robot.hive.of(setup.alliance());
     }
 
     /** The check for one wait: true once one of our CELLs has settled in the other state. */
