@@ -247,9 +247,18 @@
     "yVelocity": 65,
     "aVelocity": 3.141592653589793,
     "kFriction": 0.1,
-    "rWidth": 17.5,
+    "rWidth": 16.56,
     "rHeight": 16,
-    "rForward": 1.03,
+    "features": [
+      {
+        "name": "FLOWER poker",
+        "length": 1.5,
+        "width": 1.5,
+        "forward": 9.03,
+        "left": 0,
+        "collides": true
+      }
+    ],
     "safetyMargin": 1,
     "maxVelocity": 50,
     "maxAcceleration": 45.0,
