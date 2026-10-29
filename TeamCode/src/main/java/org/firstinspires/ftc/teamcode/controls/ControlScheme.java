@@ -25,7 +25,7 @@ public enum ControlScheme {
     B("B: shared intake, driver wins");
 
     /** Where the FLOWER pick goes unless {@code TeleOpConfig.flowerPickButton} says otherwise. */
-    public static final Input DEFAULT_FLOWER_PICK = Input.DPAD_UP;
+    public static final Input DEFAULT_FLOWER_PICK = Input.CROSS;
 
     public final String title;
 
@@ -48,11 +48,12 @@ public enum ControlScheme {
         map.put(Action.SLOW, Input.L1);
         map.put(Action.TURBO, Input.R1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
-        map.put(Action.FLOWER_STICK, Input.CROSS);
+        map.put(Action.FLOWER_STICK, Input.SQUARE);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
-        map.put(Action.RESET_TO_SPOT, Input.SQUARE);
-        map.put(Action.DRIVER_RELOCALIZE, Input.DPAD_LEFT);
         map.put(Action.RESET_HEADING, Input.TRIANGLE);
+        // Pose fixes are occasional, so they sit on the D-pad and leave the face buttons for play.
+        map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_LEFT);
+        map.put(Action.RESET_TO_SPOT, Input.DPAD_RIGHT);
         map.put(Action.AUTO_PARK, Input.DPAD_DOWN);
 
         map.put(Action.LAUNCHER_TOGGLE, Input.R1);
@@ -63,7 +64,6 @@ public enum ControlScheme {
         map.put(Action.TRIM_RESET, Input.DPAD_DOWN);
         map.put(Action.TURRET_LOCK, Input.TRIANGLE);
         map.put(Action.TURRET_ZERO, Input.DPAD_UP);
-        map.put(Action.RELOCALIZE, Input.CROSS);
         switch (this) {
             case A:
                 break;

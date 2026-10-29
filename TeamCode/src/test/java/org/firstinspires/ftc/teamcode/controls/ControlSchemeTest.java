@@ -72,11 +72,12 @@ public class ControlSchemeTest {
 
     @Test
     public void movingTheFlowerPickSwapsItWithWhatWasThere() {
-        Map<Action, Input> layout = ControlScheme.A.layout(Input.CROSS);
-        assertEquals(Input.CROSS, layout.get(Action.FLOWER_PICK));
-        assertEquals(Input.DPAD_UP, layout.get(Action.FLOWER_STICK));
-        // The operator's Cross is the operator's: untouched.
-        assertEquals(Input.CROSS, layout.get(Action.RELOCALIZE));
+        Map<Action, Input> layout = ControlScheme.A.layout(Input.SQUARE);
+        assertEquals(Input.SQUARE, layout.get(Action.FLOWER_PICK));
+        assertEquals(Input.CROSS, layout.get(Action.FLOWER_STICK));
+        // The operator's Triangle is the operator's: untouched by moving the driver's pick.
+        assertEquals(Input.TRIANGLE, ControlScheme.A.layout(Input.TRIANGLE).get(Action.TURRET_LOCK));
+        assertEquals(Input.CROSS, ControlScheme.A.layout(Input.TRIANGLE).get(Action.RESET_HEADING));
     }
 
     @Test

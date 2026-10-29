@@ -160,9 +160,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.FLOWER_PICK);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
-        controls.on(Action.RESET_TO_SPOT).onPress(this::resetToSpot);
-        controls.on(Action.DRIVER_RELOCALIZE).duringInit().onPress(this::relocalize);
         controls.note(Action.RESET_HEADING);
+        controls.on(Action.CAMERA_RELOCALIZE).duringInit().onPress(this::relocalize);
+        controls.on(Action.RESET_TO_SPOT).onPress(this::resetToSpot);
         controls.on(Action.AUTO_PARK).onPress(() -> {
             autoParkNote = "Auto-park: not built yet (the loading zone is not measured)";
             log.event("auto-park pressed: not built yet");
@@ -177,7 +177,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.TURRET_ZERO).duringInit().onPress(robot.turret::zeroHere);
-        controls.on(Action.RELOCALIZE).duringInit().onPress(this::relocalize);
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
@@ -251,9 +250,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The camera sets the pose, if it can; the Match page and the match log say what happened. On
-     * both gamepads and live in INIT, so one person with one gamepad can put a pose carried from
-     * the last run right before PLAY.
+     * The camera sets the pose, if it can; the Match page and the match log say what happened. Live
+     * in INIT, so one person with one gamepad can put a pose carried from the last run right before
+     * PLAY.
      */
     private void relocalize() {
         poseNote = robot.drive.relocalizeFromCamera();

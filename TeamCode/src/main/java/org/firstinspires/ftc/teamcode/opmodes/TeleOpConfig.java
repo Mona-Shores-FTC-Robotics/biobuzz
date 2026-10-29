@@ -26,7 +26,7 @@ public final class TeleOpConfig {
 
     /**
      * The driver's FLOWER pick button: any face button or D-pad direction. Whatever was there
-     * swaps onto D-pad up. Anything else is ignored and the pick stays on D-pad up. Read at INIT.
+     * swaps onto Cross. Anything else is ignored and the pick stays on Cross. Read at INIT.
      */
     public static Input flowerPickButton = ControlScheme.DEFAULT_FLOWER_PICK;
 
