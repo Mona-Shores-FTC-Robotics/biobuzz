@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
+import com.pedropathing.paths.Path;
 
 import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
@@ -60,6 +61,10 @@ import java.util.function.Function;
  * ({@link AutoPathLog}): the declared start as the target during INIT, the whole plan once the
  * Auto is built, at PLAY, since which way round it is drawn depends on the alliance, and the path
  * being driven, and its end, as each one starts and ends.
+ *
+ * <p><b>A fire waits for a settled robot.</b> The launch cards feed only once the robot is still
+ * and at the last path's end heading ({@link PathEndSettle}), not on Pedro's "done"; each path end
+ * and each settle goes to the match log as an event, with Pedro's own view of how the path ended.
  */
 public abstract class BuiltAuto extends RobotOpMode {
 
@@ -87,6 +92,8 @@ public abstract class BuiltAuto extends RobotOpMode {
     private String problem;
     private AutoTrace trace;
     private AutoPathLog pathLog;
+    /** Whether the robot has settled after the last path; the launch cards wait for it. */
+    private PathEndSettle settle;
     /** The start last written as the log's target, so INIT writes it only when it changes. */
     private StartPosition targetWritten;
 
@@ -117,7 +124,8 @@ public abstract class BuiltAuto extends RobotOpMode {
 
     @Override
     protected void onInit() {
-        registry = AutoRegistration.forRobot(robot, setup);
+        settle = PathEndSettle.forRobot(robot, line -> log.event(line));
+        registry = AutoRegistration.forRobot(robot, setup, settle, line -> log.event(line));
         registry.requireAll(commands, triggers);
         for (String name : AutoRegistration.PLACEHOLDERS) {
             if (Arrays.asList(commands).contains(name) || Arrays.asList(triggers).contains(name)) {
@@ -161,7 +169,7 @@ public abstract class BuiltAuto extends RobotOpMode {
         trace = new AutoTrace(TRACE_LINES, line -> log.event(line));
         AutoKit kit = new AutoKit(robot.drive, registry, () -> (System.nanoTime() - startNs) / 1e9)
                 .trace(trace)
-                .watchPaths(pathLog);
+                .watchPaths(both(pathLog, settle));
         Command auto = build.apply(kit, rotated);
         pathLog.plan(kit.paths());
         auto.schedule();
@@ -183,6 +191,22 @@ public abstract class BuiltAuto extends RobotOpMode {
             display.status("Auto", Display.Level.FAULT, problem);
             return;
         }
+        settle.update();
         if (trace != null) trace.forEachRecent(display::line);
+    }
+
+    /** AutoKit takes one path watcher; the log and the settle check both need every start and end. */
+    private static AutoKit.PathWatcher both(AutoKit.PathWatcher first, AutoKit.PathWatcher second) {
+        return new AutoKit.PathWatcher() {
+            @Override public void pathStarted(Path path) {
+                first.pathStarted(path);
+                second.pathStarted(path);
+            }
+
+            @Override public void pathEnded(Path path) {
+                first.pathEnded(path);
+                second.pathEnded(path);
+            }
+        };
     }
 }
