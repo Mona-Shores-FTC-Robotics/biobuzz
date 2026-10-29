@@ -910,7 +910,9 @@ calls. There are three kinds of card and one branching block:
 - **`guarded`**: the endgame guard. It runs its cards in order and drives the park path instead as
   soon as the time left no longer covers the park plus `GUARD_MARGIN_S`. It cuts a wait or a
   command at that deadline, since the robot is standing on a drawn spot, and never cuts a path: a
-  path it has let start runs to its end and the robot parks from there.
+  path it has let start runs to its end and the robot parks from there. The same holds inside a
+  `firstOf` row's cards: a path there is never cut, and one that would start after the deadline
+  does not start (#142).
 
 Names come from `AutoRegistration`, the only list of commands and triggers an Auto may use;
 `requireAll` at INIT stops an Auto that uses an unregistered name. Names whose mechanism does not

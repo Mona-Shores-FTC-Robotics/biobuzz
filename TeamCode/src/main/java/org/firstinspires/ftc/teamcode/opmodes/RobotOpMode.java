@@ -554,6 +554,11 @@ public abstract class RobotOpMode extends OpMode {
         double sn = Math.sin(start.heading());
         double fwd = c * dx + sn * dy;
         double left = -sn * dx + c * dy;
+        // SettledStats keeps each CELL against the pose; a relocalize in INIT moves the pose off
+        // the start, so shift those back onto the start like everything else here.
+        Pose now = robot.drive.pose();
+        double shiftX = now == null ? 0.0 : now.x() - start.x();
+        double shiftY = now == null ? 0.0 : now.y() - start.y();
         StringBuilder text = new StringBuilder(String.format(Locale.US,
                 "%s: settled %.0f s, %d frames; camera minus start x %+.2f, y %+.2f in "
                         + "(fwd %+.2f, left %+.2f); heading %+.2f deg (%d frames)",
@@ -563,11 +568,11 @@ public abstract class RobotOpMode extends OpMode {
             if (s.tags(cell) == 0) continue;
             text.append(String.format(Locale.US,
                     "; %s: %d tag sightings, x %+.2f, y %+.2f, height %+.2f, range %.0f in",
-                    cell, s.tags(cell), s.cellDx(cell), s.cellDy(cell), s.cellHeightErrorIn(cell),
-                    s.cellRangeIn(cell)));
+                    cell, s.tags(cell), s.cellDx(cell) + shiftX, s.cellDy(cell) + shiftY,
+                    s.cellHeightErrorIn(cell), s.cellRangeIn(cell)));
             String key = "/StartCheck/" + cell.name() + "/";
-            log.put(key + "DxIn", s.cellDx(cell));
-            log.put(key + "DyIn", s.cellDy(cell));
+            log.put(key + "DxIn", s.cellDx(cell) + shiftX);
+            log.put(key + "DyIn", s.cellDy(cell) + shiftY);
             log.put(key + "RangeIn", s.cellRangeIn(cell));
             log.put(key + "HeightErrorIn", s.cellHeightErrorIn(cell));
         }
