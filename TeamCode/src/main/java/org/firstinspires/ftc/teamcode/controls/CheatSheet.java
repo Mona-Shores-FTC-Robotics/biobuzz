@@ -74,14 +74,14 @@ public final class CheatSheet {
 
     // ----------------------------------------------------------------- the controller drawing
 
-    /** Drawing units: the controller is drawn in a 400 x 250 box, shoulders at the top. */
+    /** Drawing units: the controller is drawn in a 400 x 290 box, shoulders at the top. */
     private static final double PAD_W = 400;
     /** One drawing, controller in the middle and labels either side, in page pixels. */
     private static final double KEY_W = 760;
     private static final double KEY_H = 380;
-    private static final double SCALE = 0.9;
+    private static final double SCALE = 1.0;
     private static final double PAD_X = (KEY_W - PAD_W * SCALE) / 2;
-    private static final double PAD_Y = 40;
+    private static final double PAD_Y = 30;
     /** Space between two label lines, page pixels. */
     private static final double LINE = 18;
     /** Space between two labels, page pixels. */
@@ -92,20 +92,20 @@ public final class CheatSheet {
     /** Where each input sits on the drawing, in drawing units; a label's line ends here. */
     private static double[] anchor(Input input) {
         switch (input) {
-            case L2: return new double[]{92, 14};
-            case L1: return new double[]{100, 43};
-            case R2: return new double[]{308, 14};
-            case R1: return new double[]{300, 43};
-            case DPAD_UP: return new double[]{100, 95};
-            case DPAD_LEFT: return new double[]{80, 115};
-            case DPAD_RIGHT: return new double[]{120, 115};
-            case DPAD_DOWN: return new double[]{100, 135};
-            case TRIANGLE: return new double[]{300, 93};
-            case SQUARE: return new double[]{278, 115};
-            case CIRCLE: return new double[]{322, 115};
-            case CROSS: return new double[]{300, 137};
-            case LEFT_STICK: return new double[]{150, 165};
-            default: return new double[]{250, 165}; // RIGHT_STICK_X
+            case L2: return new double[]{85, 10};
+            case L1: return new double[]{85, 34};
+            case R2: return new double[]{315, 10};
+            case R1: return new double[]{315, 34};
+            case DPAD_UP: return new double[]{78, 106};
+            case DPAD_LEFT: return new double[]{54, 130};
+            case DPAD_RIGHT: return new double[]{102, 130};
+            case DPAD_DOWN: return new double[]{78, 154};
+            case TRIANGLE: return new double[]{322, 107};
+            case SQUARE: return new double[]{299, 130};
+            case CIRCLE: return new double[]{345, 130};
+            case CROSS: return new double[]{322, 153};
+            case LEFT_STICK: return new double[]{140, 175};
+            default: return new double[]{260, 175}; // RIGHT_STICK_X
         }
     }
 
@@ -122,29 +122,39 @@ public final class CheatSheet {
         StringBuilder svg = new StringBuilder();
         svg.append(String.format(Locale.US, "<svg viewBox=\"0 0 %.0f %.0f\">", KEY_W, KEY_H));
         svg.append(String.format(Locale.US, "<g transform=\"translate(%.1f %.1f) scale(%.2f)\">", PAD_X, PAD_Y, SCALE));
-        // Triggers behind, bumpers in front, then the body over the bumpers' lower edge.
-        shape(svg, layout, pad, Input.L2, "<path d=\"M62 34 C62 8 78 2 92 2 C108 2 122 8 122 34 Z\"");
-        shape(svg, layout, pad, Input.R2, "<path d=\"M278 34 C278 8 292 2 308 2 C322 2 338 8 338 34 Z\"");
-        shape(svg, layout, pad, Input.L1, "<rect x=\"58\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
-        shape(svg, layout, pad, Input.R1, "<rect x=\"258\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
-        svg.append("<path d=\"M108 50 C150 44 250 44 292 50 C340 54 362 68 372 108 C384 156 396 206 386 230 "
-                + "C378 248 350 250 338 232 C322 206 300 190 270 186 C230 182 170 182 130 186 C100 190 78 206 62 232 "
-                + "C50 250 22 248 14 230 C4 206 16 156 28 108 C38 68 60 54 108 50 Z\" fill=\"#fff\" stroke=\"#16161d\" "
-                + "stroke-width=\"2.5\"/>");
-        svg.append("<rect x=\"152\" y=\"54\" width=\"96\" height=\"62\" rx=\"10\" fill=\"none\" stroke=\"#bbb\" stroke-width=\"2\"/>");
-        shape(svg, layout, pad, Input.DPAD_UP, "<rect x=\"91\" y=\"86\" width=\"18\" height=\"20\" rx=\"3\"");
-        shape(svg, layout, pad, Input.DPAD_DOWN, "<rect x=\"91\" y=\"124\" width=\"18\" height=\"20\" rx=\"3\"");
-        shape(svg, layout, pad, Input.DPAD_LEFT, "<rect x=\"70\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
-        shape(svg, layout, pad, Input.DPAD_RIGHT, "<rect x=\"110\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
-        shape(svg, layout, pad, Input.TRIANGLE, "<circle cx=\"300\" cy=\"93\" r=\"11\"");
-        shape(svg, layout, pad, Input.SQUARE, "<circle cx=\"278\" cy=\"115\" r=\"11\"");
-        shape(svg, layout, pad, Input.CIRCLE, "<circle cx=\"322\" cy=\"115\" r=\"11\"");
-        shape(svg, layout, pad, Input.CROSS, "<circle cx=\"300\" cy=\"137\" r=\"11\"");
-        svg.append("<path d=\"M300 87 L295 97 L305 97 Z M274 111 h8 v8 h-8 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.8\"/>")
-                .append("<circle cx=\"322\" cy=\"115\" r=\"4.5\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.8\"/>")
-                .append("<path d=\"M296 133 L304 141 M304 133 L296 141\" stroke=\"#fff\" stroke-width=\"1.8\"/>");
-        shape(svg, layout, pad, Input.LEFT_STICK, "<circle cx=\"150\" cy=\"165\" r=\"19\"");
-        shape(svg, layout, pad, Input.RIGHT_STICK_X, "<circle cx=\"250\" cy=\"165\" r=\"19\"");
+        // Shoulders: each trigger behind its bumper, both just above the body's top edge.
+        shape(svg, layout, pad, Input.L2, "<path d=\"M52 30 C52 10 64 2 85 2 C106 2 118 10 118 30 Z\"");
+        shape(svg, layout, pad, Input.R2, "<path d=\"M282 30 C282 10 294 2 315 2 C336 2 348 10 348 30 Z\"");
+        shape(svg, layout, pad, Input.L1, "<rect x=\"44\" y=\"26\" width=\"82\" height=\"16\" rx=\"8\"");
+        shape(svg, layout, pad, Input.R1, "<rect x=\"274\" y=\"26\" width=\"82\" height=\"16\" rx=\"8\"");
+        // The body, a DualSense from the front, drawn 30 below the shoulders.
+        svg.append("<g transform=\"translate(0 30)\">");
+        svg.append("<path d=\"M200 18 C250 18 290 16 315 20 C350 24 378 40 388 80 C398 120 402 175 395 215 "
+                + "C390 245 360 258 345 245 C325 228 305 205 285 198 C260 192 140 192 115 198 "
+                + "C95 205 75 228 55 245 C40 258 10 245 5 215 C-2 175 2 120 12 80 C22 40 50 24 85 20 "
+                + "C110 16 150 18 200 18 Z\" fill=\"#fff\" stroke=\"#2a2a33\" stroke-width=\"2\"/>");
+        // Touchpad, its light bars, Create and Options, the PS button.
+        svg.append("<path d=\"M132 20 H268 L260 84 Q258 92 250 92 H150 Q142 92 140 84 Z\" fill=\"#fafafc\" "
+                + "stroke=\"#9a9aa5\" stroke-width=\"1.5\"/>")
+                .append("<path d=\"M126 26 L118 86 M274 26 L282 86\" stroke=\"#c9c9d1\" stroke-width=\"3\" stroke-linecap=\"round\"/>")
+                .append("<rect x=\"106\" y=\"32\" width=\"7\" height=\"16\" rx=\"3.5\" fill=\"#fff\" stroke=\"#b5b5be\" stroke-width=\"1.5\"/>")
+                .append("<rect x=\"287\" y=\"32\" width=\"7\" height=\"16\" rx=\"3.5\" fill=\"#fff\" stroke=\"#b5b5be\" stroke-width=\"1.5\"/>")
+                .append("<circle cx=\"200\" cy=\"140\" r=\"6\" fill=\"#fff\" stroke=\"#b5b5be\" stroke-width=\"1.5\"/>")
+                .append("<path d=\"M190 160 H210\" stroke=\"#c9c9d1\" stroke-width=\"3\" stroke-linecap=\"round\"/>");
+        // D-pad: four arrow-shaped keys round a centre.
+        shape(svg, layout, pad, Input.DPAD_UP, "<path d=\"M70 70 H86 V88 L78 96 L70 88 Z\" stroke-linejoin=\"round\"");
+        shape(svg, layout, pad, Input.DPAD_DOWN, "<path d=\"M70 130 H86 V112 L78 104 L70 112 Z\" stroke-linejoin=\"round\"");
+        shape(svg, layout, pad, Input.DPAD_LEFT, "<path d=\"M48 92 V108 H66 L74 100 L66 92 Z\" stroke-linejoin=\"round\"");
+        shape(svg, layout, pad, Input.DPAD_RIGHT, "<path d=\"M108 92 V108 H90 L82 100 L90 92 Z\" stroke-linejoin=\"round\"");
+        // Face buttons, each with its symbol drawn in its own colour.
+        face(svg, layout, pad, Input.TRIANGLE, 322, 77, "<path d=\"M322 71 L316 82 H328 Z\"");
+        face(svg, layout, pad, Input.SQUARE, 299, 100, "<rect x=\"294\" y=\"95\" width=\"10\" height=\"10\"");
+        face(svg, layout, pad, Input.CIRCLE, 345, 100, "<circle cx=\"345\" cy=\"100\" r=\"5.5\"");
+        face(svg, layout, pad, Input.CROSS, 322, 123, "<path d=\"M317 118 L327 128 M327 118 L317 128\"");
+        // Sticks: a ring and a cap.
+        stick(svg, layout, pad, Input.LEFT_STICK, 140, 145);
+        stick(svg, layout, pad, Input.RIGHT_STICK_X, 260, 145);
+        svg.append("</g>");
         svg.append("</g>");
         labels(svg, layout, pad, LEFT_SIDE, true);
         labels(svg, layout, pad, RIGHT_SIDE, false);
@@ -152,11 +162,46 @@ public final class CheatSheet {
         return svg.toString();
     }
 
-    /** One part of the controller: its colour if {@code pad}'s person uses it, else grey. */
+    /** One part of the controller: tinted in its colour if {@code pad}'s person uses it, else outlined grey. */
     private static void shape(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input input, String open) {
         boolean used = actionFor(layout, pad, input) != null;
-        svg.append(open).append(" fill=\"").append(used ? fill(input) : "#ececf1")
-                .append("\" stroke=\"").append(used ? "#16161d" : "#b5b5be").append("\" stroke-width=\"2\"/>");
+        svg.append(open).append(used ? usedStyle(input) : " fill=\"#fff\" stroke=\"#c9c9d1\" stroke-width=\"1.5\"").append("/>");
+    }
+
+    /** A face button at ({@code cx}, {@code cy}) with its symbol, in its colour if used. */
+    private static void face(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input input,
+                             double cx, double cy, String symbol) {
+        boolean used = actionFor(layout, pad, input) != null;
+        shape(svg, layout, pad, input, String.format(Locale.US, "<circle cx=\"%.0f\" cy=\"%.0f\" r=\"11\"", cx, cy));
+        svg.append(symbol).append(" fill=\"none\" stroke=\"").append(used ? stroke(input) : "#c9c9d1")
+                .append("\" stroke-width=\"1.8\" stroke-linejoin=\"round\" stroke-linecap=\"round\"/>");
+    }
+
+    /** A stick: a ring and a cap, never labelled. */
+    private static void stick(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input input, double cx, double cy) {
+        svg.append(String.format(Locale.US, "<circle cx=\"%.0f\" cy=\"%.0f\" r=\"25\" fill=\"#fff\" stroke=\"#9a9aa5\" stroke-width=\"1.5\"/>", cx, cy));
+        shape(svg, layout, pad, input, String.format(Locale.US, "<circle cx=\"%.0f\" cy=\"%.0f\" r=\"16\"", cx, cy));
+    }
+
+    /** A used part: a light tint of its colour, outlined in the colour itself. */
+    private static String usedStyle(Input input) {
+        switch (input) {
+            case CROSS: return " fill=\"#dbe7ff\" stroke=\"#1d4ed8\" stroke-width=\"2\"";
+            case CIRCLE: return " fill=\"#ffe0e0\" stroke=\"#c81e1e\" stroke-width=\"2\"";
+            case SQUARE: return " fill=\"#fbe1f2\" stroke=\"#b0277f\" stroke-width=\"2\"";
+            case TRIANGLE: return " fill=\"#d9f5e6\" stroke=\"#11804a\" stroke-width=\"2\"";
+            default: return " fill=\"var(--bright)\" fill-opacity=\".3\" stroke=\"var(--deep)\" stroke-width=\"2\"";
+        }
+    }
+
+    /** A used face button's colour, for its symbol. */
+    private static String stroke(Input input) {
+        switch (input) {
+            case CROSS: return "#1d4ed8";
+            case CIRCLE: return "#c81e1e";
+            case SQUARE: return "#b0277f";
+            default: return "#11804a";
+        }
     }
 
     /**
@@ -230,17 +275,6 @@ public final class CheatSheet {
         }
         lines.add(line.toString());
         return lines;
-    }
-
-    /** A used part's fill: the face buttons' own colours, the rest the team colour. */
-    private static String fill(Input input) {
-        switch (input) {
-            case CROSS: return "#1d4ed8";
-            case CIRCLE: return "#c81e1e";
-            case SQUARE: return "#b0277f";
-            case TRIANGLE: return "#11804a";
-            default: return "var(--bright)";
-        }
     }
 
     /** The team number on a disc of the team's colour, with a wave across it: a stand-in for a logo. */
