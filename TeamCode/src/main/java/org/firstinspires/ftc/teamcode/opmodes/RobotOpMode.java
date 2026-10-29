@@ -272,6 +272,10 @@ public abstract class RobotOpMode extends OpMode {
         Iterator<VoltageSensor> sensors = hardwareMap.voltageSensor.iterator();
         battery = sensors.hasNext() ? sensors.next() : null;
         receiveHandoff();
+        // A TeleOp or test OpMode is red unless told otherwise; an Auto must be told or see.
+        if (!isAutonomous()) {
+            setup.defaultTo(MatchSetup.DEFAULT_ALLIANCE);
+        }
         declaredStart = startPosition();
         if (declaredStart != null) {
             robot.drive.setPose(declaredStart.pose);

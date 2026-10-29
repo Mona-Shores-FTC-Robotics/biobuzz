@@ -141,7 +141,8 @@ that depend on the frame live in `util/FieldFrame`.
 
 **Driver Station** — the human view: Match / Controls / Robot pages, HTML, cycled with gamepad 1
 Back/Share (see `controls/Display`). Before PLAY, `RobotOpMode.setup` settles the alliance — vision
-proposes, X/B on either gamepad overrides, Auto's handoff is inherited — and never guesses one.
+proposes, X/B on either gamepad overrides, Auto's handoff is inherited. An Autonomous never guesses
+one (with none it does not move); any other OpMode defaults to red, shown as "RED (default)".
 Read it as `setup.alliance()`; never add another way to choose it. One-shot buttons use `onPress(robot.x::method)`, not a command
 that requires the subsystem — that would interrupt its `periodic()`.
 
