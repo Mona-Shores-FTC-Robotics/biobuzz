@@ -118,6 +118,9 @@ mistake), and logs the camera's gap at PLAY as a calibration sample.
 source is committed in `TeamCode/autos/` in the same PR, under the name its `SOURCE` constant
 gives. The `.pp` is the source: change the Auto in the Visualizer and export again, never edit the
 generated Java by hand. `AutoSourcesTest` fails a generated class whose `.pp` is missing.
+`TeamCode/autos/spots.json` is the team's shared spots, written only by the Visualizer's *Save
+team spots*, which re-exports every Auto that uses a changed spot in the same commit; never edit it
+by hand.
 → `TeamCode/autos/README.md`
 
 **Cameras.** The Limelight is for AprilTags only (pitched up at the HIVE). Game pieces come from

@@ -71,12 +71,27 @@ public final class AutoKit {
     private PathWatcher watcher = NO_WATCHER;
     /** True while a path card, at any depth, is driving its path: the guard never cuts then. */
     private boolean drivingPath;
+    /** True while a grab ({@link AutoRegistry#grab}) runs: the guard never cuts one either. */
+    private boolean grabbing;
+    /**
+     * The park from the spot the robot last arrived at, set by a path card that carries one
+     * ({@link #path(String, Path, double, Path, double)}); null before any, so the guard's own park path.
+     */
+    private Command spotPark;
+    private double spotParkSeconds = Double.NaN;
+    /** The running guard's own park seconds, for {@link #leftSpot}. */
+    private double ownParkSeconds = Double.NaN;
     /**
      * The running guard's park seconds while it may still park, NaN otherwise. A path card nested
      * in a block reads it to refuse to start once the park no longer fits; see {@link #guarded}.
      */
     private double guardParkSeconds = Double.NaN;
     private String guardLabel = "";
+    /**
+     * A drive or a grab refused to start because it and the park after it no longer fit: the
+     * guard parks at its next look, from where the robot is, rather than run the next card.
+     */
+    private boolean parkWanted;
     /** Every distinct path a card of this Auto can drive, in the order the cards were built. */
     private final List<Path> allPaths = new ArrayList<>();
     private final Set<Path> knownPaths = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -135,23 +150,36 @@ public final class AutoKit {
      */
     public Command command(String name, double timeoutS) {
         final Command inner = registry.command(name);
+        final boolean grab = registry.isGrab(name);
+        final double grabSeconds = grab ? registry.typicalSeconds(name) : 0.0;
         final double[] startedAt = new double[1];
         final boolean[] timedOut = new boolean[1];
+        final boolean[] refused = new boolean[1];
         return new CommandBuilder()
                 .requiring(inner.requirements())
                 .setStart(() -> {
                     trace.accept("command " + name);
                     startedAt[0] = secondsSinceStart.getAsDouble();
                     timedOut[0] = false;
+                    // A grab the guard could not cut must not start unless it and the park both fit.
+                    refused[0] = grab && !Double.isNaN(guardParkSeconds)
+                            && tooLateToContinue(guardLabel, grabSeconds + guardParkSeconds, "not starting " + name);
+                    if (refused[0]) parkWanted = true;
+                    if (refused[0]) return;
+                    grabbing = grab;
                     inner.start();
                 })
-                .setExecute(inner::execute)
+                .setExecute(() -> {
+                    if (!refused[0]) inner.execute();
+                })
                 .setDone(() -> {
-                    if (inner.done()) return true;
+                    if (refused[0] || inner.done()) return true;
                     timedOut[0] = secondsSinceStart.getAsDouble() - startedAt[0] >= timeoutS;
                     return timedOut[0];
                 })
                 .setEnd(end -> {
+                    if (refused[0]) return;
+                    if (grab) grabbing = false;
                     if (timedOut[0]) {
                         trace.accept(String.format(Locale.US, "command %s timed out after %.1f s", name, timeoutS));
                         inner.end(EndCondition.INTERRUPTED);
@@ -161,9 +189,48 @@ public final class AutoKit {
                 });
     }
 
-    /** Drives {@code path} to its end. */
+    /**
+     * Drives {@code path} to its end. The robot is then somewhere no park was drawn from, so the
+     * guard goes back to its own park path (see {@link #path(String, Path, double, Path, double)}).
+     * With no drive time, the guard only checks that its park from here still fits before starting
+     * it; an exported Auto gives the time ({@link #path(String, Path, double)}).
+     */
     public Command path(String label, Path path) {
-        return traced("path " + label, follow(label, path, true));
+        return traced("path " + label, follow(label, path, true, () -> guardParkSeconds, this::leftSpot));
+    }
+
+    /**
+     * {@link #path(String, Path)}, {@code driveSeconds} long: it does not start unless the drive and
+     * then the guard's own park from where it ends both still fit.
+     */
+    public Command path(String label, Path path, double driveSeconds) {
+        return traced("path " + label, follow(label, path, true, () -> driveSeconds + ownParkSeconds, this::leftSpot));
+    }
+
+    /**
+     * Drives {@code path} ({@code driveSeconds} long) to its end, and from then on, if the endgame
+     * guard parks before another such card, it drives {@code parkPath} ({@code parkSeconds} long)
+     * from there instead of its own: the park drawn from this spot. It does not start unless the
+     * drive and then that park both still fit, so the robot never sets off for a spot it could not
+     * park from in time. Drives and grabs are never cut short, so the robot is always on the last
+     * such spot when the guard parks.
+     */
+    public Command path(String label, Path path, double driveSeconds, Path parkPath, double parkSeconds) {
+        return spotPath(label, path, () -> driveSeconds + parkSeconds, parkPath, parkSeconds);
+    }
+
+    /** {@link #path(String, Path, double, Path, double)} with no drive time: checked as {@link #path(String, Path)}. */
+    public Command path(String label, Path path, Path parkPath, double parkSeconds) {
+        return spotPath(label, path, () -> guardParkSeconds, parkPath, parkSeconds);
+    }
+
+    private Command spotPath(String label, Path path, DoubleSupplier needed, Path parkPath, double parkSeconds) {
+        final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false, null, null));
+        return traced("path " + label, follow(label, path, true, needed, () -> {
+            spotPark = park;
+            spotParkSeconds = parkSeconds;
+            if (!Double.isNaN(guardParkSeconds)) guardParkSeconds = parkSeconds;
+        }));
     }
 
     /**
@@ -244,14 +311,30 @@ public final class AutoKit {
      * guard parks from there: cutting a drive part-way leaves the robot somewhere nobody drew a
      * path from, and the park path's lead-in was drawn from a spot (mentor, 18 Oct 2026; the
      * simulator had already cut a tunnel run between the HIVE's feet). The check before each card
-     * starts still keeps a path from starting once the park no longer fits. (It does not know how
-     * long the path itself will take: a path started just before the deadline runs past it.)
+     * starts still keeps a path from starting once the park no longer fits.
+     *
+     * <p><b>Each drive and grab asks before it starts: can I do this, and then still park from
+     * where it leaves me?</b> An exported drive knows its time ({@link #path(String, Path, double)})
+     * and the park from the spot it goes to, so it does not set off unless both fit; a grab adds
+     * its typical time to the park from here. One that does not fit does not start, and the guard
+     * parks at once from the spot the robot is on, rather than run the cards after it from the
+     * wrong spot (mentor, 29 Oct 2026). A drive with no time given ({@link #path(String, Path)})
+     * only checks the park from here, so one started just before the deadline runs past it.
      *
      * <p><b>The same rules hold inside a block.</b> A {@link #firstOf} whose row runs its own cards
      * (L-Quals and the Sister Autos are mostly that) is one card to the guard, so it goes by what is
      * running inside: it cuts the block at the deadline while a wait or a command inside it runs,
-     * never while a path inside it drives, and a path inside it that would start after the
-     * deadline does not start: it finishes at once and the guard parks.
+     * never while a path inside it drives, and a path inside it that does not fit does not start:
+     * it finishes at once, the block ends, and the guard parks.
+     *
+     * <p><b>Grabs are treated as paths.</b> A grab ({@link AutoRegistry#grab}: a FLOWER pick, a
+     * GARDEN gather) drives the robot off its spot and back, so the guard never cuts one either.
+     *
+     * <p><b>It parks from the spot the robot is on.</b> A path card that carries a park
+     * ({@link #path(String, Path, double, Path, double)}) makes that park the guard's from when it
+     * arrives, with that park's own time, until a path card without one arrives somewhere else.
+     * Since drives and grabs are never cut, the robot is on that spot whenever the guard parks, so
+     * it drives a park drawn from where it is.
      *
      * <p>The last card is assumed to be the park itself and is never skipped or cut short.
      *
@@ -263,35 +346,42 @@ public final class AutoKit {
      * mid-drive and let a block's next path start after the deadline.
      */
     public Command guarded(String label, Path parkPath, double parkSeconds, Command... cards) {
-        final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false));
+        final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false, null, null));
         final int[] index = new int[1];
         final Command[] current = new Command[1];
+        final Command[] parking = new Command[1];
         final CommandBuilder card = new CommandBuilder();
         card.setStart(() -> {
             index[0] = 0;
             current[0] = null;
+            parking[0] = null;
+            spotPark = null;
+            spotParkSeconds = Double.NaN;
+            parkWanted = false;
             watchFromHere(label, parkSeconds);
-            advance(label, parkSeconds, cards, index, current, park);
+            advance(label, parkSeconds, cards, index, current, park, parking);
         });
         card.setExecute(() -> {
             if (current[0] == null) return;
             if (current[0].done()) {
                 current[0].end(EndCondition.NATURALLY);
-                if (current[0] == park) {
+                if (current[0] == parking[0]) {
                     current[0] = null;
                     index[0] = cards.length;
                     return;
                 }
                 index[0]++;
-                advance(label, parkSeconds, cards, index, current, park);
+                advance(label, parkSeconds, cards, index, current, park, parking);
                 return;
             }
             boolean last = index[0] == cards.length - 1;
             // drivingPath, not "is this card a path": a block's row may be driving one of its own.
-            boolean cuttable = current[0] != park && !last && !drivingPath;
-            if (cuttable && tooLateToContinue(label, parkSeconds, "cutting card short")) {
+            boolean cuttable = current[0] != parking[0] && !last && !drivingPath && !grabbing;
+            // A drive or grab inside a block that refused: the block's next cards would run from
+            // the wrong spot, so the block ends here and the guard parks.
+            if (cuttable && (parkWanted || tooLateToContinue(label, parkSecondsNow(parkSeconds), "cutting card short"))) {
                 current[0].end(EndCondition.INTERRUPTED);
-                startPark(park, current);
+                startPark(parkNow(park), current, parking);
                 return;
             }
             current[0].execute();
@@ -307,6 +397,14 @@ public final class AutoKit {
     private void watchFromHere(String label, double parkSeconds) {
         guardLabel = label;
         guardParkSeconds = parkSeconds;
+        ownParkSeconds = parkSeconds;
+    }
+
+    /** The robot has arrived somewhere with no park of its own: the guard's own park again. */
+    private void leftSpot() {
+        spotPark = null;
+        spotParkSeconds = Double.NaN;
+        if (!Double.isNaN(guardParkSeconds)) guardParkSeconds = ownParkSeconds;
     }
 
     /** From the park, or the last card, on, nothing is the guard's to refuse. */
@@ -314,21 +412,38 @@ public final class AutoKit {
         guardParkSeconds = Double.NaN;
     }
 
-    private void startPark(Command park, Command[] current) {
+    private void startPark(Command park, Command[] current, Command[] parking) {
         stopWatching();
+        parkWanted = false;
+        if (park == spotPark) trace.accept("parking from the spot the robot is on");
         current[0] = park;
+        parking[0] = park;
         park.start();
     }
 
+    /** The park to drive now: from the spot the robot last arrived at, or the guard's own. */
+    private Command parkNow(Command own) {
+        return spotPark != null ? spotPark : own;
+    }
+
+    private double parkSecondsNow(double own) {
+        return spotPark != null ? spotParkSeconds : own;
+    }
+
     private void advance(String label, double parkSeconds, Command[] cards, int[] index, Command[] current,
-                         Command park) {
+                         Command park, Command[] parking) {
         if (index[0] >= cards.length) {
             current[0] = null;
             return;
         }
         boolean last = index[0] == cards.length - 1;
-        if (!last && tooLateToContinue(label, parkSeconds, "parking now")) {
-            startPark(park, current);
+        if (parkWanted) {
+            trace.accept(label + ": the next drive or grab did not fit with its park: parking now");
+            startPark(parkNow(park), current, parking);
+            return;
+        }
+        if (!last && tooLateToContinue(label, parkSecondsNow(parkSeconds), "parking now")) {
+            startPark(parkNow(park), current, parking);
             return;
         }
         if (last) stopWatching();
@@ -378,13 +493,14 @@ public final class AutoKit {
      * and the guard parks on its next check. That is how a path inside a block's row is kept from
      * starting late, where the guard itself sees only the block.
      */
-    private Command follow(String label, Path path, boolean guardable) {
+    private Command follow(String label, Path path, boolean guardable, DoubleSupplier needed, Runnable onArrived) {
         if (knownPaths.add(path)) allPaths.add(path);
         final boolean[] refused = new boolean[1];
         return new CommandBuilder()
                 .setStart(() -> {
                     refused[0] = guardable && !Double.isNaN(guardParkSeconds)
-                            && tooLateToContinue(guardLabel, guardParkSeconds, "not starting " + label);
+                            && tooLateToContinue(guardLabel, needed.getAsDouble(), "not starting " + label);
+                    if (refused[0]) parkWanted = true;
                     if (refused[0]) return;
                     drive.follow(path);
                     drivingPath = true;
@@ -395,6 +511,7 @@ public final class AutoKit {
                     if (refused[0]) return;
                     drivingPath = false;
                     watcher.pathEnded(path);
+                    if (onArrived != null && end == EndCondition.NATURALLY) onArrived.run();
                 });
     }
 
