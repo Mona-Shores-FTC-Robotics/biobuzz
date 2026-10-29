@@ -27,6 +27,8 @@ public enum Action {
     OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),
     UNJAM(Pad.OPERATOR, "Unjam (hold)"),
     LAUNCHER_TOGGLE(Pad.OPERATOR, "Launcher Spin Up / Idle (Toggle)"),
+    LAUNCHER_TRIM_DOWN(Pad.OPERATOR, "Launcher Trim Down"),
+    LAUNCHER_TRIM_UP(Pad.OPERATOR, "Launcher Trim Up"),
     FIRE(Pad.OPERATOR, "Fire (hold)"),
     FLOWER_STICK(Pad.OPERATOR, "FLOWER Stick Deploy / Retract (Toggle)"),
     TURRET_LOCK(Pad.OPERATOR, "Turret Autoaim (Toggle)"),

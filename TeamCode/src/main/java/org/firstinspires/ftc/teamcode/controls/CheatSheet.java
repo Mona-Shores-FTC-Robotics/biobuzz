@@ -86,7 +86,7 @@ public final class CheatSheet {
     /** One drawing, controller in the middle and labels either side, in page pixels. */
     private static final double KEY_W = 760;
     private static final double KEY_H = 380;
-    private static final double SCALE = 0.95;
+    private static final double SCALE = 0.9;
     private static final double PAD_X = (KEY_W - PAD_W * SCALE) / 2;
     private static final double PAD_Y = 30;
     /** Space between two label lines, page pixels. */

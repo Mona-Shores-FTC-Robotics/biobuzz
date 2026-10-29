@@ -45,6 +45,12 @@ public final class TeleOpConfig {
      */
     public static double launcherIdleTicksPerSecond = 0.0;
 
+    /**
+     * Ticks per second one launcher trim press moves the launch speed. Clamped to [0, 200]. The
+     * trim lasts the OpMode; the launch speed it trims is {@code LauncherSubsystem.targetTicksPerSecond}.
+     */
+    public static double launcherTrimStepTps = 25.0;
+
     /** Enforce the at-speed gate: a feed starts only once the launcher is at launch speed. */
     public static boolean enforceAtSpeedGate = false;
 

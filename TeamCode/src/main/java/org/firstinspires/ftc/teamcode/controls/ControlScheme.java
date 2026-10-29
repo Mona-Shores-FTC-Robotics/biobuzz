@@ -48,7 +48,9 @@ public final class ControlScheme {
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);
-        map.put(Action.LAUNCHER_TOGGLE, Input.R1);
+        map.put(Action.LAUNCHER_TOGGLE, Input.CROSS);
+        map.put(Action.LAUNCHER_TRIM_DOWN, Input.L1);
+        map.put(Action.LAUNCHER_TRIM_UP, Input.R1);
         map.put(Action.FIRE, Input.CIRCLE);
         map.put(Action.TURRET_LOCK, Input.TRIANGLE);
         map.put(Action.FLOWER_STICK, Input.SQUARE);

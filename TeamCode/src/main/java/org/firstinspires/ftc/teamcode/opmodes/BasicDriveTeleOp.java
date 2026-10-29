@@ -17,6 +17,7 @@ import org.firstinspires.ftc.teamcode.localization.StartPosition;
 import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.subsystems.FeederSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
+import org.firstinspires.ftc.teamcode.subsystems.LauncherSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretAim;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -104,6 +105,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** How long the heading reset must be held. A tap does nothing. */
     private static final long RESET_HOLD_MS = 1000;
 
+    /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
+    private static final double MAX_LAUNCHER_TRIM_STEP_TPS = 200.0;
+
     /** The trim step can never be more than this, degrees, whatever Panels says. */
     private static final double MAX_TRIM_STEP_DEG = 5.0;
 
@@ -120,6 +124,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private FlowerPicker picker;
     private GardenGather gatherer;
     private boolean launchMode;
+    /** The operator's trim on the launch speed, ticks per second; lasts the OpMode. */
+    private double launcherTrimTps;
     private boolean chassisAimCancelled;
     private boolean lastFire;
     private Bar bar = Bar.NONE;
@@ -171,6 +177,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.OPERATOR_INTAKE);
         controls.note(Action.UNJAM);
         controls.on(Action.LAUNCHER_TOGGLE).onPress(this::toggleLauncher);
+        controls.on(Action.LAUNCHER_TRIM_DOWN).onPress(() -> trimLauncher(-1));
+        controls.on(Action.LAUNCHER_TRIM_UP).onPress(() -> trimLauncher(+1));
         controls.note(Action.FIRE);
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
@@ -226,18 +234,38 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private void toggleLauncher() {
         launchMode = !launchMode;
         if (launchMode) {
-            robot.launcher.spinUp();
-            log.event("launcher: launch speed");
+            robot.launcher.spinUp(launchSpeed());
+            log.event(String.format(Locale.US, "launcher: launch speed %.0f ticks/s", launchSpeed()));
             return;
         }
         double idle = TeleOpConfig.launcherIdleTicksPerSecond;
         if (idle > 0.0) {
             // Never past the launch speed: an idle typed as 16000 is a typo, not a request.
-            robot.launcher.spinUp(Math.min(idle, robot.launcher.target()));
+            robot.launcher.spinUp(Math.min(idle, launchSpeed()));
         } else {
             robot.launcher.spinDown();
         }
         log.event(String.format(Locale.US, "launcher: idle (%.0f ticks/s)", Math.max(0.0, idle)));
+    }
+
+    /** The launch speed: the configured one plus the operator's trim, never below zero. */
+    private double launchSpeed() {
+        return Math.max(0.0, LauncherSubsystem.targetTicksPerSecond + launcherTrimTps);
+    }
+
+    /**
+     * One launcher trim press, +1 up or -1 down. Takes effect at once if the launcher is at launch
+     * speed, and otherwise at the next spin-up. The step is guarded: NaN or negative is no step.
+     */
+    private void trimLauncher(int direction) {
+        double step = TeleOpConfig.launcherTrimStepTps > 0.0
+                ? Math.min(TeleOpConfig.launcherTrimStepTps, MAX_LAUNCHER_TRIM_STEP_TPS) : 0.0;
+        launcherTrimTps = Math.max(-LauncherSubsystem.targetTicksPerSecond, launcherTrimTps + direction * step);
+        if (launchMode) {
+            robot.launcher.spinUp(launchSpeed());
+        }
+        log.event(String.format(Locale.US, "launcher trim %+.0f ticks/s: launch speed %.0f",
+                launcherTrimTps, launchSpeed()));
     }
 
     /** +1 a step left, -1 a step right, 0 back to zero. The step is guarded: NaN or negative is no step. */
@@ -317,6 +345,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         // The pick or the gather runs the intake itself while it is active.
         log.put("/Controls/IntakeOwner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
         log.put("/Controls/TrimDeg", aimer.trimDeg());
+        log.put("/Controls/LauncherTrimTps", launcherTrimTps);
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
         fire();
@@ -340,6 +369,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.intake.describe(display);
         display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         robot.launcher.describe(display);
+        if (launcherTrimTps != 0.0) {
+            display.line(String.format(Locale.US, "Launcher trim %+.0f ticks/s: launch speed %.0f",
+                    launcherTrimTps, launchSpeed()));
+        }
         robot.feeder.describe(display);
         robot.turret.describe(display);
         if (turretMode == TurretMode.AIM) {
@@ -554,6 +587,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("right_amps", robot.launcher.rightCurrentAmps());
             panels.addData("at_speed", robot.launcher.atSpeed() ? 1.0 : 0.0);
             panels.addData("launch_mode", launchMode ? 1.0 : 0.0);
+            panels.addData("launcher_trim_tps", launcherTrimTps);
             panels.addData("shots", robot.launcher.shots());
             panels.addData("last_shot_dip_tps", robot.launcher.lastShotDipTicksPerSecond());
             panels.addData("last_shot_range_in", lastShotRangeIn);
