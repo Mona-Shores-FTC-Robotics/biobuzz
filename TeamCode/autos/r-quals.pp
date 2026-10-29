@@ -111,7 +111,7 @@
             },
             {
               "startProgress": 0.3,
-              "endProgress": 1.0,
+              "endProgress": 1,
               "interpolationType": "linear",
               "parameters": {
                 "startDeg": 90,
@@ -453,6 +453,7 @@
       "lineId": "to-park-10"
     }
   ],
+  "fieldPoints": [],
   "settings": {
     "xVelocity": 75,
     "yVelocity": 65,
@@ -462,8 +463,8 @@
     "rHeight": 18,
     "safetyMargin": 1,
     "maxVelocity": 50,
-    "maxAcceleration": 45.0,
-    "maxDeceleration": 45.0,
+    "maxAcceleration": 45,
+    "maxDeceleration": 45,
     "fieldMap": "biobuzz.webp",
     "robotImage": "/robot.png",
     "showGhostPaths": false,
@@ -473,7 +474,7 @@
     "onionNextPointOnly": false,
     "showHeadingArrow": false,
     "showCurrentTValue": false,
-    "leftPanelWidth": 262,
+    "leftPanelWidth": 920,
     "rightPanelWidth": 714,
     "headingArrowLength": 50,
     "headingArrowColor": "#ffffff",
@@ -491,7 +492,6 @@
   "auto": {
     "version": 1,
     "drawnFor": "RED",
-    "exportName": "r-quals",
     "registry": {
       "actions": [
         "SpinUp",
@@ -503,13 +503,13 @@
         "Tip",
         "RightCellUp"
       ],
-      "typicalS": {
-        "SpinUp": 0.1,
-        "LaunchAll": 2.0
-      },
       "events": [
         "Tip"
-      ]
+      ],
+      "typicalS": {
+        "SpinUp": 0.1,
+        "LaunchAll": 2
+      }
     },
     "points": {
       "START": [
@@ -590,7 +590,6 @@
       "to-fire3-9": "FIRE3",
       "to-park-10": "PARK"
     },
-    "startAt": "START",
     "cards": [
       {
         "id": "a-1",
@@ -751,7 +750,7 @@
         "rows": [
           {
             "when": [
-              "RightCellUp"
+              "Tip"
             ],
             "cards": []
           },
@@ -868,7 +867,10 @@
         "lineId": "to-park-10",
         "park": true
       }
-    ]
+    ],
+    "startAt": "START",
+    "exportName": "r-quals"
   },
-  "version": "1.5.0"
+  "version": "1.5.0",
+  "timestamp": "2026-10-27T22:01:49.758Z"
 }

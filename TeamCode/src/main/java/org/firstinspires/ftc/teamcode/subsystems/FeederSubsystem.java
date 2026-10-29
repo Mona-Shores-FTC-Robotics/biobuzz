@@ -40,10 +40,11 @@ public class FeederSubsystem implements Subsystem {
     public static double reversePower = 0.5;
 
     /**
-     * Flips the motor so that positive power feeds toward the launcher. <b>Not yet checked on a
-     * robot:</b> {@code false} is the SDK's default direction, not a fact about the wiring.
+     * Flips the motor so that positive power feeds toward the launcher. {@code true}: on the
+     * launcher bench the default direction ran the feeder backwards (Square reversed, Triangle
+     * fed). <b>Not yet checked on a robot:</b> if its feeder runs the wrong way, flip this in Panels.
      */
-    public static boolean reversed = false;
+    public static boolean reversed = true;
 
     /**
      * Encoder ticks per revolution of the feeder motor's output shaft, for {@link #rpm()}. 384.5:
