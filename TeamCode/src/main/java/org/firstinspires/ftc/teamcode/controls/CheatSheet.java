@@ -69,7 +69,14 @@ public final class CheatSheet {
 
     private static void pad(StringBuilder out, String who, String which, Map<Action, Input> layout, Action.Pad pad) {
         out.append("<section><h2>").append(who).append(" <small>").append(which).append("</small></h2>\n")
-                .append(drawing(layout, pad)).append("\n</section>\n");
+                .append(drawing(layout, pad)).append('\n');
+        for (Map.Entry<Action, Input> entry : layout.entrySet()) {
+            if (entry.getKey().pad == pad && entry.getKey().description.startsWith("*")) {
+                out.append("<p class=\"note\">* work in progress</p>\n");
+                break;
+            }
+        }
+        out.append("</section>\n");
     }
 
     // ----------------------------------------------------------------- the controller drawing
@@ -106,6 +113,17 @@ public final class CheatSheet {
             case CROSS: return new double[]{322, 153};
             case LEFT_STICK: return new double[]{140, 175};
             default: return new double[]{260, 175}; // RIGHT_STICK_X
+        }
+    }
+
+    /** How far from its anchor an input's edge is, drawing units: where a label's line stops. */
+    private static double radius(Input input) {
+        switch (input) {
+            case L2: case R2: return 12;
+            case L1: case R1: return 8;
+            case CROSS: case CIRCLE: case SQUARE: case TRIANGLE: return 11;
+            case LEFT_STICK: case RIGHT_STICK_X: return 16;
+            default: return 9; // a D-pad key
         }
     }
 
@@ -233,13 +251,21 @@ public final class CheatSheet {
         for (int i = 0; i < n; i++) {
             Action action = actionFor(layout, pad, used[i]);
             double[] a = anchor(used[i]);
-            double ax = PAD_X + a[0] * SCALE;
-            double ay = PAD_Y + a[1] * SCALE;
+            double cx = PAD_X + a[0] * SCALE;
+            double cy = PAD_Y + a[1] * SCALE;
             double ly = y[i] - 5.5;
+            // The line stops at the button's edge, on the side it comes from.
+            double bendX = textX + (left ? 14 : -14);
+            double dx = bendX - cx;
+            double dy = ly - cy;
+            double len = Math.hypot(dx, dy);
+            double edge = radius(used[i]) * SCALE;
+            double ax = len > edge ? cx + dx / len * edge : cx;
+            double ay = len > edge ? cy + dy / len * edge : cy;
             svg.append(String.format(Locale.US,
                     "<polyline points=\"%.1f,%.1f %.1f,%.1f %.1f,%.1f\" fill=\"none\" stroke=\"#8a8a95\" stroke-width=\"1.2\"/>",
                     textX + (left ? 5 : -5), ly, textX + (left ? 14 : -14), ly, ax, ay));
-            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.6\" fill=\"#16161d\"/>", ax, ay));
+            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.2\" fill=\"#16161d\"/>", ax, ay));
             svg.append(String.format(Locale.US,
                     "<text x=\"%.1f\" y=\"%.1f\" text-anchor=\"%s\" font-size=\"16\" font-weight=\"700\" fill=\"#16161d\">",
                     textX, y[i], left ? "end" : "start"));
@@ -261,8 +287,21 @@ public final class CheatSheet {
         return null;
     }
 
-    /** {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces. */
+    /**
+     * {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces; a label too
+     * long for one line breaks before its bracket first, so "Gyro Reset" stays whole.
+     */
     private static List<String> wrap(String text) {
+        int bracket = text.indexOf(" (");
+        if (text.length() > WRAP_AT && bracket > 0) {
+            List<String> lines = wrapWords(text.substring(0, bracket));
+            lines.addAll(wrapWords(text.substring(bracket + 1)));
+            return lines;
+        }
+        return wrapWords(text);
+    }
+
+    private static List<String> wrapWords(String text) {
         List<String> lines = new ArrayList<>();
         StringBuilder line = new StringBuilder();
         for (String word : text.split(" ")) {
@@ -315,5 +354,6 @@ public final class CheatSheet {
             + "display:flex;flex-direction:column}\n"
             + "h2{margin:0;font-size:24px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}\n"
             + "h2 small{font-size:14px;color:#666;text-transform:none;letter-spacing:0;font-weight:400}\n"
+            + ".note{margin:0;font-size:13px;color:#555}\n"
             + "section svg{display:block;width:100%;height:auto;margin:auto 0}\n";
 }

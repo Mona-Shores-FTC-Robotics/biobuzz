@@ -40,7 +40,8 @@ next thing on the list for whichever OpMode crashed.** Nothing here needs a lapt
 3. After 30 seconds it no longer trusts the last pose, because someone may have moved the robot. The
    page says **"no handoff"**. Face the robot away from the driver, hold **driver D-pad up**
    for a second to reset forward, and press **driver D-pad left** with two tags in view to fix the pose
-   (or back into the left corner by the LOADING ZONE and press **driver D-pad right**).
+   (or back into the left corner by the LOADING ZONE, intake toward the other alliance, and press
+   **driver D-pad down**).
 4. The alliance is not remembered after 30 seconds either: press X (blue) or B (red) in INIT.
 
 ## Things nobody has checked on a robot yet

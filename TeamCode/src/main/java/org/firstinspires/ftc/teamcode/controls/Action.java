@@ -4,7 +4,8 @@ package org.firstinspires.ftc.teamcode.controls;
  * Everything a person can ask the robot to do in TeleOp, by name. The OpMode asks
  * "is {@link #FIRE} held?", never "is R2 held?"; which input that is lives in one place,
  * {@link ControlScheme}, and so does the text the drivers read for it, on the Driver Station's
- * Controls page and on the printed cheat sheet.
+ * Controls page and on the printed cheat sheet. A description starting with {@code *} is work in
+ * progress: the sheet footnotes it.
  */
 public enum Action {
     // Driver
@@ -14,13 +15,13 @@ public enum Action {
     DRIVER_UNJAM(Pad.DRIVER, "Unjam (hold)"),
     SLOW(Pad.DRIVER, "Slow (hold)"),
     TURBO(Pad.DRIVER, "Turbo (hold)"),
-    FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold; a stick cancels)"),
-    GARDEN_GATHER(Pad.DRIVER, "Gather GARDEN (hold; a stick cancels)"),
-    CHASSIS_AIM(Pad.DRIVER, "Aim chassis at CELL (hold)"),
-    RESET_HEADING(Pad.DRIVER, "Reset field-centric forward (hold 1 s)"),
-    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera relocalize (also in INIT)"),
-    RESET_TO_SPOT(Pad.DRIVER, "Fixed relocalize (left Loading Zone corner)"),
-    AUTO_PARK(Pad.DRIVER, "Auto-park (not built yet)"),
+    FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
+    GARDEN_GATHER(Pad.DRIVER, "Gather GARDEN (hold)"),
+    CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),
+    RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 1\u00a0s)"),
+    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold still; also in INIT)"),
+    RESET_TO_SPOT(Pad.DRIVER, "Pose Reset (left corner, intake toward opponents)"),
+    AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
     OPERATOR_INTAKE(Pad.OPERATOR, "Intake (hold)"),

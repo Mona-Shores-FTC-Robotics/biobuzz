@@ -44,7 +44,7 @@ public final class ControlScheme {
         // buttons for play.
         map.put(Action.RESET_HEADING, Input.DPAD_UP);
         map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_LEFT);
-        map.put(Action.RESET_TO_SPOT, Input.DPAD_RIGHT);
+        map.put(Action.RESET_TO_SPOT, Input.DPAD_DOWN);
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);
