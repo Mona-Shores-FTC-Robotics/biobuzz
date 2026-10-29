@@ -40,6 +40,20 @@ public final class StartPosition {
         return placement != null ? placement : where();
     }
 
+    /** The field with this start's robot on it, for the Driver Station: see {@link FieldMap}. */
+    public String[] map() {
+        return FieldMap.lines(this);
+    }
+
+    /** The way the robot faces on {@link #map}: ^ away from the audience, &gt; toward blue. */
+    public String arrow() {
+        String facing = FieldFrame.facing(pose.heading());
+        if (facing.startsWith("away")) return "^";
+        if (facing.endsWith("blue wall")) return "&gt;";
+        if (facing.endsWith("red wall")) return "&lt;";
+        return "v";
+    }
+
     /** Where it is in a drive team's terms: "tile C1, facing away from the audience". */
     public String where() {
         String tile = FieldFrame.tileName(pose.x(), pose.y());

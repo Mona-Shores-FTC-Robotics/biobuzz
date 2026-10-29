@@ -59,15 +59,20 @@ public final class StartCheck {
         }
 
         public void describe(Display display) {
+            if (status == Status.NOT_DECLARED) return;
+            String[] map = start.map();
+            if (map != null) {
+                for (String line : map) display.line(line);
+            }
             switch (status) {
-                case NOT_DECLARED:
-                    return;
                 case UNCONFIRMED:
-                    display.status("Start", Display.Level.OK, start + " — place: " + start.howToPlace());
+                    display.status("Start", Display.Level.OK, start + " (the " + start.arrow()
+                            + ") — place: " + start.howToPlace());
                     display.line("<small>Camera: not seeing it yet (nothing to do)</small>");
                     return;
                 case IN_POSITION:
-                    display.status("Start", Display.Level.OK, start + " — place: " + start.howToPlace());
+                    display.status("Start", Display.Level.OK, start + " (the " + start.arrow()
+                            + ") — place: " + start.howToPlace());
                     display.line(String.format(java.util.Locale.US,
                             "<small>Camera: %.1f in from the start, recorded (don't adjust for it)</small>",
                             errorIn));
@@ -75,7 +80,7 @@ public final class StartCheck {
                 default:
                     display.status("Start", Display.Level.WARN, String.format(java.util.Locale.US,
                             "%s: the camera puts the robot %.0f in away — CHECK THE MARKS", start, errorIn));
-                    display.line("Place: " + start.howToPlace());
+                    display.line("Place (the " + start.arrow() + "): " + start.howToPlace());
             }
         }
     }
