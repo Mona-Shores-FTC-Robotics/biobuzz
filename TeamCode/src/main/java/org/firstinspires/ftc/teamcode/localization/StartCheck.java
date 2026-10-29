@@ -40,18 +40,45 @@ public final class StartCheck {
          */
         public final double moveForwardIn;
         public final double moveLeftIn;
+        /** Where the camera's latest fixes put the robot, field inches; NaN until confirmed. */
+        public final double cameraX;
+        public final double cameraY;
 
-        Result(Status status, StartPosition start, double errorIn, double moveForwardIn, double moveLeftIn) {
+        Result(Status status, StartPosition start, double errorIn, double moveForwardIn, double moveLeftIn,
+               double cameraX, double cameraY) {
             this.status = status;
             this.start = start;
             this.errorIn = errorIn;
             this.moveForwardIn = moveForwardIn;
             this.moveLeftIn = moveLeftIn;
+            this.cameraX = cameraX;
+            this.cameraY = cameraY;
         }
 
         /** The alliance the camera confirms, or {@code UNKNOWN} — only a confirmed placement counts. */
         public Alliance confirmedAlliance() {
             return status == Status.IN_POSITION ? start.alliance : Alliance.UNKNOWN;
+        }
+
+        /** The field's tiles: where the start is (green) and where the camera puts the robot (amber). */
+        private void drawTiles(Display display) {
+            display.line("<small>Tiles, audience at the bottom, red on the left: "
+                    + "<font color=\"" + StartPicture.TARGET + "\">start</font>"
+                    + (Double.isNaN(cameraX) ? "" : ", <font color=\"" + StartPicture.CAMERA + "\">camera</font>")
+                    + "</small>");
+            for (String row : StartPicture.tileMap(start.pose.x(), start.pose.y(), cameraX, cameraY)) {
+                display.line(row);
+            }
+        }
+
+        /** One square per inch around the start, the robot's forward at the top. */
+        private void drawCloseUp(Display display) {
+            display.line("<small>Close up, 1 square = 1 in, top = the way the robot faces: move "
+                    + "<font color=\"" + StartPicture.CAMERA + "\">where the camera has it</font> to "
+                    + "<font color=\"" + StartPicture.TARGET + "\">the start</font></small>");
+            for (String row : StartPicture.closeUp(moveForwardIn, moveLeftIn)) {
+                display.line(row);
+            }
         }
 
         /** Which way to move the robot, in words. */
@@ -66,14 +93,20 @@ public final class StartCheck {
                 case UNCONFIRMED:
                     display.status("Start", Display.Level.WARN, start + " (" + start.where()
                             + "): camera can't confirm — using the declared pose");
+                    drawTiles(display);
                     return;
                 case IN_POSITION:
                     display.status("Start", Display.Level.OK, String.format(java.util.Locale.US,
                             "%s (%s): in position (%.1f in off: %s)", start, start.where(), errorIn, move()));
+                    drawCloseUp(display);
                     return;
                 default:
                     display.status("Start", Display.Level.WARN, String.format(java.util.Locale.US,
                             "%s (%s): OFF BY %.1f in — %s", start, start.where(), errorIn, move()));
+                    if (!StartPicture.sameTile(start.pose.x(), start.pose.y(), cameraX, cameraY)) {
+                        drawTiles(display);
+                    }
+                    drawCloseUp(display);
             }
         }
     }
@@ -101,10 +134,10 @@ public final class StartCheck {
      */
     public static Result evaluate(StartPosition start, int fixCount, double meanFixX, double meanFixY) {
         if (start == null) {
-            return new Result(Status.NOT_DECLARED, null, Double.NaN, Double.NaN, Double.NaN);
+            return new Result(Status.NOT_DECLARED, null, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         }
         if (fixCount < FIXES_TO_CONFIRM) {
-            return new Result(Status.UNCONFIRMED, start, Double.NaN, Double.NaN, Double.NaN);
+            return new Result(Status.UNCONFIRMED, start, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         }
         // Where the robot is, minus where it should be; the move is the opposite, turned into the
         // start's own frame so it reads as the robot faces.
@@ -117,6 +150,6 @@ public final class StartCheck {
         double error = Math.hypot(dx, dy);
         Status status = error <= LocalizationTuning.startMarginIn
                 ? Status.IN_POSITION : Status.OUT_OF_POSITION;
-        return new Result(status, start, error, moveForward, moveLeft);
+        return new Result(status, start, error, moveForward, moveLeft, meanFixX, meanFixY);
     }
 }

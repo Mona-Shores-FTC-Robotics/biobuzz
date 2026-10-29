@@ -24,8 +24,8 @@ public final class StartPositions {
 
     /**
      * Red, against the audience wall, under the red HIVE: <b>tile C1, facing away from the
-     * audience, back flat against the audience wall, left wheels on seam W</b> (the B|C seam, two
-     * tiles from the red wall; tile and seam names are the manual's, §9.4).
+     * audience, back flat against the audience wall, left wheels on seam W</b> (between columns B
+     * and C; tile and seam names are the manual's, §9.4 Figures 9-4 and 9-5).
      * Measured on 20245, 24 Oct 2026: robot centre 55 in from the red-side wall (tape), 9.7 in
      * from the audience wall (the camera's fit, with the back on the wall), facing straight up the
      * field. From here the camera sees the red AUDIENCE CELL about 49 in away.
