@@ -233,7 +233,9 @@ hole over the front screw and the roof cut short:
 - **Reach 1.7 in.** In the ring photo, with the camera solved from the poker and checked on the four green pipes (their spacing comes
   out 87 to 89 mm against the CAD's 87), today's 1.3 in tip sits on the near pipes' centre line, about 0.3 in short of the bottom
   ball's near side. The model's best tip position is about 0.4 in further in: 1.7 in.
-- **Reach 2.35 in.** Today's 1.3 in plus one pipe width (1.05 in) extra: Dustin's read of the same photo.
+- **Reach 1.85 in.** The longest that fits the 18 in starting box: with the 2.35 in poker on, Onshape measures 18.37 in from its tip
+  to the back of the robot, so 2.35 is illegal; 1.85 gives about 17.87 in (0.13 in to spare) and 1.7 about 17.72 in. Dustin's read
+  wanted a full pipe width (2.35 in); this is as close as the rules allow.
 
 **Why narrow, not 38 mm.** The near pipes stand at the poke's height (from 4.25 in up) and the poke has to pass between them: their
 inner edges are 2.39 in apart. A 19 mm poke can be up to about 0.8 in off centre before it hits a pipe; a 38 mm one only 0.45 in. The
