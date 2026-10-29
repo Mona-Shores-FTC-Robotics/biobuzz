@@ -37,7 +37,6 @@ public final class ControlScheme {
         map.put(Action.SLOW, Input.L1);
         map.put(Action.TURBO, Input.R1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
-        map.put(Action.FLOWER_STICK, Input.SQUARE);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         map.put(Action.RESET_HEADING, Input.TRIANGLE);
         // Pose fixes are occasional, so they sit on the D-pad and leave the face buttons for play.
@@ -51,6 +50,7 @@ public final class ControlScheme {
         map.put(Action.LAUNCHER_TOGGLE, Input.R1);
         map.put(Action.FIRE, Input.CIRCLE);
         map.put(Action.TURRET_LOCK, Input.TRIANGLE);
+        map.put(Action.FLOWER_STICK, Input.SQUARE);
         map.put(Action.TRIM_LEFT, Input.DPAD_LEFT);
         map.put(Action.TRIM_RIGHT, Input.DPAD_RIGHT);
         map.put(Action.TRIM_RESET, Input.DPAD_DOWN);

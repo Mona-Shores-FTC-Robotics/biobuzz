@@ -159,7 +159,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.TURBO);
         controls.note(Action.FLOWER_PICK);
         controls.note(Action.GARDEN_GATHER);
-        controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.RESET_HEADING);
         controls.on(Action.CAMERA_RELOCALIZE).duringInit().onPress(this::relocalize);
@@ -174,6 +173,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.LAUNCHER_TOGGLE).onPress(this::toggleLauncher);
         controls.note(Action.FIRE);
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
+        controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
         controls.on(Action.TRIM_RIGHT).onPress(() -> trim(-1));
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
