@@ -19,15 +19,20 @@ import java.util.Locale;
  * {@link HiveAndPose}), so there is one copy of the rules. An OpMode owns the decision to aim;
  * this owns where to point and tells {@code robot.turret} once per loop while aiming.
  *
- * <p>Where the turret should point this loop. The target CELL is the one at the robot's end of
- * the field ({@link TurretAim#nearEndCell}), unless the camera sees one of our CELLs raised right
- * now, which is what a shot would go at. The angle comes from the camera when it sees the chosen
- * CELL now, else from odometry and the CELL's field point (its raised point: the two differ by an
- * inch and a half and the turret aims the same way at either). With no pose on the field and
- * nothing in view, the turret holds its last target.
+ * <p>Where the turret should point this loop. The target CELL is ours at the robot's end of the
+ * field ({@link TurretAim#nearEndCell}): left half, left CELL; right half, right CELL, with a band
+ * about the HIVE's axle line so it does not flick between them. Nothing the camera sees changes
+ * which CELL that is; the operator decides whether it is up. Only with no pose on the field, when
+ * there is no half to go by, is it the CELL already chosen, else the nearest of ours in view.
  *
- * <p>The HIVE's tip state is deliberately not what picks the CELL: a phantom TIP would swing the
- * turret to the wrong end. It decides whether a shot scores and the launcher's range.
+ * <p>The angle comes from the camera when it sees the chosen CELL now, else from odometry and the
+ * CELL's field point (its raised point: the two differ by an inch and a half and the turret aims
+ * the same way at either). With no pose on the field and nothing in view, the turret holds its
+ * last target.
+ *
+ * <p>The operator's trim ({@link #trimLeft}, {@link #trimRight}) is added to every aim and stays
+ * until {@link #resetTrim}. {@link #solve} works out the aim without moving the turret, which is
+ * what the chassis aim and the aim gate use while the turret is LOCKED.
  *
  * <p>If the turret drops its hold (it ran away from the target, so a direction is wrong),
  * {@link #update} stops asking until {@link #start()} is called again: asking every loop would have
@@ -43,6 +48,8 @@ public final class TurretAimer {
     private HiveCell cell;
     private double targetDeg = Double.NaN;
     private double rangeIn = Double.NaN;
+    private double trimDeg;
+    private double aimDeg = Double.NaN;
 
     public TurretAimer(Robot robot) {
         this.robot = robot;
@@ -63,29 +70,42 @@ public final class TurretAimer {
     }
 
     /**
-     * One loop of aiming. {@code switchBandIn} is the half-width of the band about the HIVE's axle
-     * line inside which the aimed CELL does not switch ends, inches.
+     * One loop of aiming the turret: {@link #solve}, then point the turret there. {@code switchBandIn}
+     * is the half-width of the band about the HIVE's axle line inside which the aimed CELL does not
+     * switch ends, inches.
      */
     public void update(Alliance alliance, double switchBandIn) {
         if (robot.turret.runawayNote() != null) {
             source = "turret dropped the hold: see its note; press the mode button again to retry";
+            aimDeg = Double.NaN;
             return;
         }
+        if (solve(alliance, switchBandIn)) {
+            robot.turret.aim(aimDeg);
+        }
+    }
+
+    /**
+     * Where a shot should go this loop, without moving anything: {@link #aimDeg()}, the angle from
+     * the robot's forward, trim included. True when there is a fresh answer; false leaves the last
+     * one and says why in {@link #source()}.
+     */
+    public boolean solve(Alliance alliance, double switchBandIn) {
+        aimDeg = Double.NaN;
         if (alliance == Alliance.UNKNOWN) {
             source = "no alliance chosen";
-            return;
+            return false;
         }
         Pose pose = robot.drive.poseReferenced() ? robot.drive.pose() : null;
-
-        // The CELL: a raised one the camera sees now beats the near-end rule.
-        HiveCell chosen = raisedCellInView(alliance);
-        if (chosen == null) {
-            chosen = TurretAim.nearEndCell(alliance, pose == null ? Double.NaN : pose.y(), cell,
-                    HiveFieldPoints.AXLE_Y_IN, switchBandIn);
+        HiveCell chosen = TurretAim.nearEndCell(alliance, pose == null ? Double.NaN : pose.y(), cell,
+                HiveFieldPoints.AXLE_Y_IN, switchBandIn);
+        if (chosen == null && pose == null) {
+            // No pose, so no half of the field: keep the CELL we had, else the nearest of ours in view.
+            chosen = cell != null && cell.belongsTo(alliance) ? cell : nearestInView(alliance);
         }
         if (chosen == null) {
-            source = "no pose on the field, no CELL in view: holding last";
-            return;
+            source = "no pose on the field, none of our CELLs in view: holding last";
+            return false;
         }
         cell = chosen;
 
@@ -101,31 +121,57 @@ public final class TurretAimer {
             Vec3 row = HiveFieldPoints.rowCentre(chosen, HiveCellState.UP);
             if (row == null) {
                 source = "no field point for " + name(chosen);
-                return;
+                return false;
             }
             targetDeg = TurretAim.fromFieldDeg(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
             rangeIn = TurretAim.rangeFromFieldIn(pose.x(), pose.y(), pose.heading(), fwd, left, row.x(), row.y());
             source = "odometry";
         } else {
             source = "no camera on it, pose not on the field: holding last";
-            return;
+            return false;
         }
-        robot.turret.aim(targetDeg);
+        aimDeg = targetDeg + trimDeg;
+        return true;
     }
 
-    /** One of {@code alliance}'s CELLs the camera sees settled UP right now, else null. */
-    private HiveCell raisedCellInView(Alliance alliance) {
+    /** This loop's aim from {@link #solve}, degrees from the robot's forward, + left; NaN when there is none. */
+    public double aimDeg() {
+        return aimDeg;
+    }
+
+    /** Trim one step to the left (counter-clockwise), degrees. */
+    public void trimLeft(double stepDeg) {
+        trimDeg += stepDeg;
+    }
+
+    /** Trim one step to the right (clockwise), degrees. */
+    public void trimRight(double stepDeg) {
+        trimDeg -= stepDeg;
+    }
+
+    public void resetTrim() {
+        trimDeg = 0.0;
+    }
+
+    /** The operator's trim, degrees, + left. */
+    public double trimDeg() {
+        return trimDeg;
+    }
+
+    /** The nearest of {@code alliance}'s CELLs the camera sees now, in any state, else null. */
+    private HiveCell nearestInView(Alliance alliance) {
+        HiveCell best = null;
+        double bestRange = Double.POSITIVE_INFINITY;
         HiveCell[] cells = HiveCell.values();
         for (int i = 0; i < cells.length; i++) {
-            HiveCell candidate = cells[i];
-            if (!candidate.belongsTo(alliance)) continue;
-            CellSighting sighting = robot.vision.sighting(candidate);
-            if (sighting != null && sighting.ageMs() <= SIGHTING_FRESH_MS
-                    && robot.vision.state(candidate) == HiveCellState.UP) {
-                return candidate;
+            if (!cells[i].belongsTo(alliance)) continue;
+            CellSighting sighting = robot.vision.sighting(cells[i]);
+            if (sighting != null && sighting.ageMs() <= SIGHTING_FRESH_MS && sighting.groundRangeIn() < bestRange) {
+                bestRange = sighting.groundRangeIn();
+                best = cells[i];
             }
         }
-        return null;
+        return best;
     }
 
     /** Where the last target came from: "camera", "odometry", or why there is none. */
@@ -147,6 +193,7 @@ public final class TurretAimer {
     public String line() {
         return "Turret aim: " + source
                 + (cell == null ? "" : " · " + name(cell) + " CELL")
+                + (trimDeg == 0.0 ? "" : String.format(Locale.US, " · trim %+.1f°", trimDeg))
                 + (Double.isNaN(rangeIn) ? "" : String.format(Locale.US, " · %.0f in", rangeIn))
                 + (TurretSubsystem.turretForwardIn == 0.0 && TurretSubsystem.turretLeftIn == 0.0
                 ? " · turret offset not measured: aiming from the robot centre"

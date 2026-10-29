@@ -865,8 +865,8 @@ left, robot-centric, with nothing correcting heading. So it shows the robot's ow
 strafe, and a robot that arcs there (a "rainbow") has a mechanical problem, not a
 tuning one. Two things hide it in everyday driving. Basic Drive runs at 60%, and
 it is **field-centric** by default, so the Pinpoint heading quietly steers out
-the drift. To see what the tuner sees, open Basic Drive, press **B** for
-robot-centric, hold the **right bumper** (turbo) and push straight left.
+the drift. To see what the tuner sees, open **Basic Drive (robot-centric)**,
+hold the **right bumper** (turbo) and push straight left.
 
 If it arcs there too, run **Drive Motor Check** (Diagnostics group, #121) with
 **the robot lifted**. It takes about 20 s:

@@ -136,6 +136,8 @@ public class LauncherSubsystem implements Subsystem {
     private final DcMotorEx right;
 
     private State state = State.IDLE;
+    /** A speed this OpMode asked for with {@link #spinUp(double)}, ticks per second; NaN for {@link #targetTicksPerSecond}. */
+    private double heldTicksPerSecond = Double.NaN;
     private double leftTicksPerSecond;
     private double rightTicksPerSecond;
     private double leftCurrentAmps = Double.NaN;
@@ -177,22 +179,28 @@ public class LauncherSubsystem implements Subsystem {
 
     /** Ask both wheels to hold {@link #targetTicksPerSecond}. Takes effect in the next {@link #update()}. */
     public void spinUp() {
+        heldTicksPerSecond = Double.NaN;
+        start();
+    }
+
+    /**
+     * Ask both wheels to hold a given speed, ticks per second: a trimmed launch speed or an idle
+     * speed. For this OpMode only: {@link #targetTicksPerSecond}, the configured speed, is left as
+     * it is, since a static changed here would outlive the OpMode and every run would start from
+     * the last one's trim. {@link #spinUp()} goes back to the configured speed.
+     */
+    public void spinUp(double ticksPerSecond) {
+        heldTicksPerSecond = ticksPerSecond;
+        start();
+    }
+
+    private void start() {
         if (state != State.SPINNING) {
             spinUpStartedNs = System.nanoTime();
             readiness.reset();
             shots.reset();
         }
         state = State.SPINNING;
-    }
-
-    /**
-     * Ask both wheels to hold a given speed, ticks per second. Sets {@link #targetTicksPerSecond},
-     * so Panels shows the number in force wherever it came from; an Auto or an aiming table calls
-     * this, a gamepad calls {@link #spinUp()}.
-     */
-    public void spinUp(double ticksPerSecond) {
-        targetTicksPerSecond = ticksPerSecond;
-        spinUp();
     }
 
     /** Let both wheels coast to a stop. Not {@link #stop()}: the subsystem keeps running. Clears any encoder fault. */
@@ -249,14 +257,21 @@ public class LauncherSubsystem implements Subsystem {
         return shots.inDip();
     }
 
-    /** The common speed in force, ticks per second: {@link #targetTicksPerSecond} clamped the way the wheels get it. */
+    /**
+     * The common speed in force, ticks per second: the one {@link #spinUp(double)} asked for, else
+     * {@link #targetTicksPerSecond}, clamped the way the wheels get it.
+     */
     public double target() {
-        return nonNegative(targetTicksPerSecond);
+        return nonNegative(common());
+    }
+
+    private double common() {
+        return Double.isNaN(heldTicksPerSecond) ? targetTicksPerSecond : heldTicksPerSecond;
     }
 
     /** The left wheel's own target: the common target plus its trim, never below zero. */
     public double leftTarget() {
-        return wheelTarget(targetTicksPerSecond, leftTrimTicksPerSecond);
+        return wheelTarget(common(), leftTrimTicksPerSecond);
     }
 
     /**
@@ -265,7 +280,7 @@ public class LauncherSubsystem implements Subsystem {
      */
     public double rightTarget() {
         return layout == Layout.Y_CABLED ? leftTarget()
-                : wheelTarget(targetTicksPerSecond, rightTrimTicksPerSecond);
+                : wheelTarget(common(), rightTrimTicksPerSecond);
     }
 
     /** Left wheel speed from the last {@link #update()}, ticks per second, direction removed. */
