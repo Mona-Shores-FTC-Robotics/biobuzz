@@ -1,18 +1,21 @@
 package org.firstinspires.ftc.teamcode.controls;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
 /**
- * A printable one-page controller sheet, in a team's colours: the driver's and the operator's
- * inputs side by side, from the same {@link ControlScheme#layout} the robot runs, so the paper and
- * the Driver Station's Controls page cannot disagree. {@code CheatSheetTest} writes one HTML file
- * per team to
- * {@code TeamCode/build/cheat-sheets/}; open it in a browser and print (landscape, one page).
+ * A printable one-page controller sheet, in a team's colours: two PS5 controllers, the driver's
+ * and the operator's, each button labelled with what it does. It is drawn from the same
+ * {@link ControlScheme#layout} the robot runs, so the paper and the Driver Station's Controls page
+ * cannot disagree. {@code CheatSheetTest} writes one HTML file per team to
+ * {@code TeamCode/build/cheat-sheets/}; open it in a browser and print (portrait, one page).
  *
  * <p>The header carries the team's logo when one is given (a {@code data:} URI; the test reads
  * {@code TeamCode/cheat-sheets/logo-<number>.jpg}, {@code .png} or {@code .svg}), and otherwise a
- * drawn emblem: the team number on its colour.
+ * drawn emblem: the team number on its colour. The sticks are left unlabelled: everyone knows they
+ * drive.
  */
 public final class CheatSheet {
 
@@ -37,14 +40,6 @@ public final class CheatSheet {
         }
     }
 
-    /** The order and grouping inputs are printed in: how a hand finds them on the pad. */
-    private static final Input[][] GROUPS = {
-            {Input.L2, Input.R2, Input.L1, Input.R1},
-            {Input.CROSS, Input.CIRCLE, Input.SQUARE, Input.TRIANGLE},
-            {Input.DPAD_UP, Input.DPAD_DOWN, Input.DPAD_LEFT, Input.DPAD_RIGHT},
-    };
-    private static final String[] GROUP_TITLES = {"Triggers · bumpers", "Buttons", "D-pad"};
-
     /** {@code team}'s sheet, as a standalone HTML page. {@code logoDataUri} may be null. */
     public static String html(Team team, String logoDataUri) {
         Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
@@ -54,7 +49,6 @@ public final class CheatSheet {
                 .append(":root{--deep:").append(team.deep).append(";--bright:").append(team.bright).append(";}\n")
                 .append(STYLE)
                 .append("</style></head><body>\n<div class=\"page\">\n");
-
         if (logoDataUri != null) {
             // The logo is the team's name and number: the header stays white around it.
             out.append("<header class=\"logo\">\n<img class=\"wordmark\" src=\"").append(logoDataUri)
@@ -67,48 +61,35 @@ public final class CheatSheet {
                     .append("<div class=\"sub\">BIOBUZZ TeleOp controls</div></div>\n");
         }
         out.append("</header>\n");
-
-        out.append("<main>\n");
-        column(out, "Driver", "gamepad 1", layout, Action.Pad.DRIVER);
-        column(out, "Operator", "gamepad 2", layout, Action.Pad.OPERATOR);
-        out.append("</main>\n");
-        out.append("<div class=\"pad-key\">").append(padKey()).append("</div>\n");
-
+        pad(out, "Driver", "gamepad 1", layout, Action.Pad.DRIVER);
+        pad(out, "Operator", "gamepad 2", layout, Action.Pad.OPERATOR);
         out.append("</div>\n</body></html>\n");
         return out.toString();
     }
 
-    private static void column(StringBuilder out, String who, String pad, Map<Action, Input> layout, Action.Pad side) {
-        out.append("<section><h2>").append(who).append(" <small>").append(pad).append("</small></h2>\n");
-        for (int g = 0; g < GROUPS.length; g++) {
-            StringBuilder rows = new StringBuilder();
-            for (Input input : GROUPS[g]) {
-                for (Map.Entry<Action, Input> entry : layout.entrySet()) {
-                    if (entry.getKey().pad != side || entry.getValue() != input) continue;
-                    rows.append("<tr><td>").append(chip(input)).append("</td><td>")
-                            .append(escape(entry.getKey().description)).append("</td></tr>\n");
-                }
-            }
-            if (rows.length() == 0) continue;
-            out.append("<h3>").append(GROUP_TITLES[g]).append("</h3>\n<table>\n").append(rows).append("</table>\n");
-        }
-        out.append("</section>\n");
+    private static void pad(StringBuilder out, String who, String which, Map<Action, Input> layout, Action.Pad pad) {
+        out.append("<section><h2>").append(who).append(" <small>").append(which).append("</small></h2>\n")
+                .append(drawing(layout, pad)).append("\n</section>\n");
     }
 
     // ----------------------------------------------------------------- the controller drawing
 
     /** Drawing units: the controller is drawn in a 400 x 250 box, shoulders at the top. */
     private static final double PAD_W = 400;
-    /** The whole key, controller in the middle and names either side, in page pixels. */
-    private static final double KEY_W = 960;
-    private static final double KEY_H = 220;
-    private static final double SCALE = 0.82;
+    /** One drawing, controller in the middle and labels either side, in page pixels. */
+    private static final double KEY_W = 760;
+    private static final double KEY_H = 380;
+    private static final double SCALE = 0.9;
     private static final double PAD_X = (KEY_W - PAD_W * SCALE) / 2;
-    private static final double PAD_Y = 6;
-    /** Space between two names' baselines, page pixels. */
-    private static final double LABEL_STEP = 24;
+    private static final double PAD_Y = 40;
+    /** Space between two label lines, page pixels. */
+    private static final double LINE = 18;
+    /** Space between two labels, page pixels. */
+    private static final double GAP = 8;
+    /** Characters in one label line before it wraps. */
+    private static final int WRAP_AT = 18;
 
-    /** Where each input sits on the drawing, in drawing units; the name's line ends here. */
+    /** Where each input sits on the drawing, in drawing units; a label's line ends here. */
     private static double[] anchor(Input input) {
         switch (input) {
             case L2: return new double[]{92, 14};
@@ -134,102 +115,132 @@ public final class CheatSheet {
             Input.CIRCLE, Input.CROSS, Input.RIGHT_STICK_X};
 
     /**
-     * Where the buttons are: one PS5 controller seen from the front, its shoulders above, every
-     * input named with a line to it, in the same colours as the chips in the tables.
+     * {@code pad}'s controller: a PS5 controller seen from the front, its shoulders above, each
+     * input that person uses in its colour with a line to what it does; the rest grey.
      */
-    private static String padKey() {
+    private static String drawing(Map<Action, Input> layout, Action.Pad pad) {
         StringBuilder svg = new StringBuilder();
         svg.append(String.format(Locale.US, "<svg viewBox=\"0 0 %.0f %.0f\">", KEY_W, KEY_H));
         svg.append(String.format(Locale.US, "<g transform=\"translate(%.1f %.1f) scale(%.2f)\">", PAD_X, PAD_Y, SCALE));
         // Triggers behind, bumpers in front, then the body over the bumpers' lower edge.
-        shape(svg, Input.L2, "<path d=\"M62 34 C62 8 78 2 92 2 C108 2 122 8 122 34 Z\"");
-        shape(svg, Input.R2, "<path d=\"M278 34 C278 8 292 2 308 2 C322 2 338 8 338 34 Z\"");
-        shape(svg, Input.L1, "<rect x=\"58\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
-        shape(svg, Input.R1, "<rect x=\"258\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
+        shape(svg, layout, pad, Input.L2, "<path d=\"M62 34 C62 8 78 2 92 2 C108 2 122 8 122 34 Z\"");
+        shape(svg, layout, pad, Input.R2, "<path d=\"M278 34 C278 8 292 2 308 2 C322 2 338 8 338 34 Z\"");
+        shape(svg, layout, pad, Input.L1, "<rect x=\"58\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
+        shape(svg, layout, pad, Input.R1, "<rect x=\"258\" y=\"32\" width=\"84\" height=\"20\" rx=\"9\"");
         svg.append("<path d=\"M108 50 C150 44 250 44 292 50 C340 54 362 68 372 108 C384 156 396 206 386 230 "
                 + "C378 248 350 250 338 232 C322 206 300 190 270 186 C230 182 170 182 130 186 C100 190 78 206 62 232 "
                 + "C50 250 22 248 14 230 C4 206 16 156 28 108 C38 68 60 54 108 50 Z\" fill=\"#fff\" stroke=\"#16161d\" "
                 + "stroke-width=\"2.5\"/>");
         svg.append("<rect x=\"152\" y=\"54\" width=\"96\" height=\"62\" rx=\"10\" fill=\"none\" stroke=\"#bbb\" stroke-width=\"2\"/>");
-        shape(svg, Input.DPAD_UP, "<rect x=\"91\" y=\"86\" width=\"18\" height=\"20\" rx=\"3\"");
-        shape(svg, Input.DPAD_DOWN, "<rect x=\"91\" y=\"124\" width=\"18\" height=\"20\" rx=\"3\"");
-        shape(svg, Input.DPAD_LEFT, "<rect x=\"70\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
-        shape(svg, Input.DPAD_RIGHT, "<rect x=\"110\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
-        shape(svg, Input.TRIANGLE, "<circle cx=\"300\" cy=\"93\" r=\"11\"");
-        shape(svg, Input.SQUARE, "<circle cx=\"278\" cy=\"115\" r=\"11\"");
-        shape(svg, Input.CIRCLE, "<circle cx=\"322\" cy=\"115\" r=\"11\"");
-        shape(svg, Input.CROSS, "<circle cx=\"300\" cy=\"137\" r=\"11\"");
+        shape(svg, layout, pad, Input.DPAD_UP, "<rect x=\"91\" y=\"86\" width=\"18\" height=\"20\" rx=\"3\"");
+        shape(svg, layout, pad, Input.DPAD_DOWN, "<rect x=\"91\" y=\"124\" width=\"18\" height=\"20\" rx=\"3\"");
+        shape(svg, layout, pad, Input.DPAD_LEFT, "<rect x=\"70\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
+        shape(svg, layout, pad, Input.DPAD_RIGHT, "<rect x=\"110\" y=\"106\" width=\"20\" height=\"18\" rx=\"3\"");
+        shape(svg, layout, pad, Input.TRIANGLE, "<circle cx=\"300\" cy=\"93\" r=\"11\"");
+        shape(svg, layout, pad, Input.SQUARE, "<circle cx=\"278\" cy=\"115\" r=\"11\"");
+        shape(svg, layout, pad, Input.CIRCLE, "<circle cx=\"322\" cy=\"115\" r=\"11\"");
+        shape(svg, layout, pad, Input.CROSS, "<circle cx=\"300\" cy=\"137\" r=\"11\"");
         svg.append("<path d=\"M300 87 L295 97 L305 97 Z M274 111 h8 v8 h-8 Z\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.8\"/>")
                 .append("<circle cx=\"322\" cy=\"115\" r=\"4.5\" fill=\"none\" stroke=\"#fff\" stroke-width=\"1.8\"/>")
                 .append("<path d=\"M296 133 L304 141 M304 133 L296 141\" stroke=\"#fff\" stroke-width=\"1.8\"/>");
-        shape(svg, Input.LEFT_STICK, "<circle cx=\"150\" cy=\"165\" r=\"19\"");
-        shape(svg, Input.RIGHT_STICK_X, "<circle cx=\"250\" cy=\"165\" r=\"19\"");
+        shape(svg, layout, pad, Input.LEFT_STICK, "<circle cx=\"150\" cy=\"165\" r=\"19\"");
+        shape(svg, layout, pad, Input.RIGHT_STICK_X, "<circle cx=\"250\" cy=\"165\" r=\"19\"");
         svg.append("</g>");
-        names(svg, LEFT_SIDE, true);
-        names(svg, RIGHT_SIDE, false);
+        labels(svg, layout, pad, LEFT_SIDE, true);
+        labels(svg, layout, pad, RIGHT_SIDE, false);
         svg.append("</svg>");
         return svg.toString();
     }
 
-    /** One part of the controller, in its chip's colour. */
-    private static void shape(StringBuilder svg, Input input, String open) {
-        svg.append(open).append(" fill=\"").append(fill(input)).append("\" stroke=\"#16161d\" stroke-width=\"2\"/>");
+    /** One part of the controller: its colour if {@code pad}'s person uses it, else grey. */
+    private static void shape(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input input, String open) {
+        boolean used = actionFor(layout, pad, input) != null;
+        svg.append(open).append(" fill=\"").append(used ? fill(input) : "#ececf1")
+                .append("\" stroke=\"").append(used ? "#16161d" : "#b5b5be").append("\" stroke-width=\"2\"/>");
     }
 
-    /** The names down one side, each as level with its input as the names above it allow. */
-    private static void names(StringBuilder svg, Input[] inputs, boolean left) {
-        double next = 14;
-        double textX = left ? PAD_X - 70 : PAD_X + PAD_W * SCALE + 70;
+    /**
+     * The labels down one side, each as level with its input as the labels above it allow, with a
+     * line to the input; a long one wraps. Never overlapping, never off the bottom.
+     */
+    private static void labels(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input[] inputs, boolean left) {
+        int n = 0;
+        Input[] used = new Input[inputs.length];
         for (Input input : inputs) {
-            double[] a = anchor(input);
+            if (actionFor(layout, pad, input) != null) used[n++] = input;
+        }
+        if (n == 0) return;
+        List<List<String>> lines = new ArrayList<>();
+        double[] y = new double[n];
+        double next = 18;
+        for (int i = 0; i < n; i++) {
+            lines.add(wrap(actionFor(layout, pad, used[i]).description));
+            y[i] = Math.max(PAD_Y + anchor(used[i])[1] * SCALE + 6, next);
+            next = y[i] + LINE * lines.get(i).size() + GAP;
+        }
+        // Past the bottom: slide the stack back up, as far as the label above allows.
+        for (int i = n - 1; i >= 0; i--) {
+            double end = y[i] + LINE * (lines.get(i).size() - 1);
+            double limit = i == n - 1 ? KEY_H - 6 : y[i + 1] - GAP - LINE;
+            if (end > limit) y[i] -= end - limit;
+        }
+        double textX = left ? PAD_X - 16 : PAD_X + PAD_W * SCALE + 16;
+        for (int i = 0; i < n; i++) {
+            Action action = actionFor(layout, pad, used[i]);
+            double[] a = anchor(used[i]);
             double ax = PAD_X + a[0] * SCALE;
             double ay = PAD_Y + a[1] * SCALE;
-            double y = Math.max(ay + 5, next);
-            next = y + LABEL_STEP;
+            double ly = y[i] - 5.5;
             svg.append(String.format(Locale.US,
-                    "<polyline points=\"%.1f,%.1f %.1f,%.1f %.1f,%.1f\" fill=\"none\" stroke=\"#8a8a95\" stroke-width=\"1\"/>",
-                    textX + (left ? 6 : -6), y - 5, textX + (left ? 20 : -20), y - 5, ax, ay));
-            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.2\" fill=\"#16161d\"/>", ax, ay));
+                    "<polyline points=\"%.1f,%.1f %.1f,%.1f %.1f,%.1f\" fill=\"none\" stroke=\"#8a8a95\" stroke-width=\"1.2\"/>",
+                    textX + (left ? 5 : -5), ly, textX + (left ? 14 : -14), ly, ax, ay));
+            svg.append(String.format(Locale.US, "<circle cx=\"%.1f\" cy=\"%.1f\" r=\"2.6\" fill=\"#16161d\"/>", ax, ay));
             svg.append(String.format(Locale.US,
-                    "<text x=\"%.1f\" y=\"%.1f\" text-anchor=\"%s\" font-size=\"15\" font-weight=\"700\" fill=\"%s\">%s</text>",
-                    textX, y, left ? "end" : "start", text(input), escape(input.label)));
+                    "<text x=\"%.1f\" y=\"%.1f\" text-anchor=\"%s\" font-size=\"16\" font-weight=\"700\" fill=\"#16161d\">",
+                    textX, y[i], left ? "end" : "start"));
+            svg.append("<title>").append(escape(action.description)).append("</title>");
+            for (int l = 0; l < lines.get(i).size(); l++) {
+                svg.append(String.format(Locale.US, "<tspan x=\"%.1f\" dy=\"%.0f\">", textX, l == 0 ? 0 : LINE))
+                        .append(escape(lines.get(i).get(l))).append("</tspan>");
+            }
+            svg.append("</text>");
         }
     }
 
-    /** A part's fill on the drawing: the face buttons' own colours, the rest the team colour. */
+    /** What {@code pad}'s person does with {@code input}, or null. The sticks are never labelled. */
+    private static Action actionFor(Map<Action, Input> layout, Action.Pad pad, Input input) {
+        if (input.isStick()) return null;
+        for (Map.Entry<Action, Input> entry : layout.entrySet()) {
+            if (entry.getKey().pad == pad && entry.getValue() == input) return entry.getKey();
+        }
+        return null;
+    }
+
+    /** {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces. */
+    private static List<String> wrap(String text) {
+        List<String> lines = new ArrayList<>();
+        StringBuilder line = new StringBuilder();
+        for (String word : text.split(" ")) {
+            if (line.length() > 0 && line.length() + 1 + word.length() > WRAP_AT) {
+                lines.add(line.toString());
+                line.setLength(0);
+            }
+            if (line.length() > 0) line.append(' ');
+            line.append(word);
+        }
+        lines.add(line.toString());
+        return lines;
+    }
+
+    /** A used part's fill: the face buttons' own colours, the rest the team colour. */
     private static String fill(Input input) {
         switch (input) {
             case CROSS: return "#1d4ed8";
             case CIRCLE: return "#c81e1e";
             case SQUARE: return "#b0277f";
             case TRIANGLE: return "#11804a";
-            case LEFT_STICK: case RIGHT_STICK_X: return "#d9d9e0";
             default: return "var(--bright)";
         }
-    }
-
-    /** A name's colour: the face buttons' own, the rest near-black. */
-    private static String text(Input input) {
-        return input.isFaceOrDpad() && !input.name().startsWith("DPAD") ? fill(input) : "#16161d";
-    }
-
-    /** An input as a chip: PlayStation face buttons in their own colours, the rest neutral. */
-    private static String chip(Input input) {
-        String cls;
-        String glyph;
-        switch (input) {
-            case CROSS: cls = "cross"; glyph = "✕"; break;
-            case CIRCLE: cls = "circle"; glyph = "○"; break;
-            case SQUARE: cls = "square"; glyph = "□"; break;
-            case TRIANGLE: cls = "triangle"; glyph = "△"; break;
-            case DPAD_UP: cls = "pad"; glyph = "▲"; break;
-            case DPAD_DOWN: cls = "pad"; glyph = "▼"; break;
-            case DPAD_LEFT: cls = "pad"; glyph = "◀"; break;
-            case DPAD_RIGHT: cls = "pad"; glyph = "▶"; break;
-            default: cls = "plain"; glyph = "";
-        }
-        return "<span class=\"chip " + cls + "\">" + (glyph.isEmpty() ? "" : "<i>" + glyph + "</i>")
-                + escape(input.label) + "</span>";
     }
 
     /** The team number on a disc of the team's colour, with a wave across it: a stand-in for a logo. */
@@ -250,38 +261,25 @@ public final class CheatSheet {
     }
 
     private static final String STYLE = ""
-            + "@page{size:letter landscape;margin:0}\n"
+            + "@page{size:letter portrait;margin:0}\n"
             + "*{box-sizing:border-box}\n"
             + "html,body{margin:0;background:#fff;color:#16161d;font-family:'Helvetica Neue',Arial,sans-serif;"
             + "-webkit-print-color-adjust:exact;print-color-adjust:exact}\n"
-            + ".page{width:11in;height:8.5in;padding:.35in .4in;display:flex;flex-direction:column;gap:.18in}\n"
+            + ".page{width:8.5in;height:11in;padding:.35in .4in;display:flex;flex-direction:column;gap:.18in}\n"
             + "header{display:flex;align-items:center;gap:18px;padding:12px 18px;border-radius:14px;color:#fff;"
             + "background:linear-gradient(110deg,var(--deep),var(--bright))}\n"
             + ".mark{width:78px;height:78px;flex:none;display:flex;align-items:center;justify-content:center}\n"
             + "header.logo{background:#fff;color:var(--deep);border-radius:0;padding:4px 4px 12px;"
             + "border-bottom:6px solid var(--deep);border-image:linear-gradient(90deg,var(--deep),var(--bright)) 1}\n"
-            + ".wordmark{height:70px;width:auto;flex:none}\n"
+            + ".wordmark{height:76px;width:auto;flex:none}\n"
             + "header.logo .sub{font-size:26px;font-weight:800;opacity:1;letter-spacing:.02em}\n"
             + ".title{flex:1}\n"
             + ".team{font-size:34px;font-weight:900;letter-spacing:.06em;line-height:1}\n"
             + ".team span{font-weight:300;opacity:.85}\n"
             + ".sub{font-size:15px;margin-top:6px;opacity:.92;letter-spacing:.04em}\n"
-            + "main{display:grid;grid-template-columns:1fr 1fr;gap:.25in;min-height:0}\n"
-            + "section{border:2px solid var(--deep);border-radius:14px;padding:10px 14px}\n"
-            + ".pad-key svg{display:block;width:100%;height:auto}\n"
-            + "h2{margin:0 0 4px;font-size:22px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}\n"
-            + "h2 small{font-size:13px;color:#666;text-transform:none;letter-spacing:0;font-weight:400}\n"
-            + "h3{margin:8px 0 2px;font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:var(--bright);"
-            + "border-bottom:1px solid #ddd;padding-bottom:2px}\n"
-            + "table{width:100%;border-collapse:collapse}\n"
-            + "td{padding:2px 0;font-size:15px;vertical-align:middle}\n"
-            + "td:first-child{width:8.4em}\n"
-            + ".chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px 2px 7px;border-radius:999px;"
-            + "font-size:13.5px;font-weight:700;background:#ececf1;color:#16161d;white-space:nowrap}\n"
-            + ".chip i{font-style:normal;font-size:13px}\n"
-            + ".chip.cross{background:#dbe7ff;color:#1d4ed8}\n"
-            + ".chip.circle{background:#ffe0e0;color:#c81e1e}\n"
-            + ".chip.square{background:#fbe1f2;color:#b0277f}\n"
-            + ".chip.triangle{background:#d9f5e6;color:#11804a}\n"
-            + ".chip.pad{background:#16161d;color:#fff}\n";
+            + "section{flex:1;min-height:0;border:2px solid var(--deep);border-radius:14px;padding:10px 14px;"
+            + "display:flex;flex-direction:column}\n"
+            + "h2{margin:0;font-size:24px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}\n"
+            + "h2 small{font-size:14px;color:#666;text-transform:none;letter-spacing:0;font-weight:400}\n"
+            + "section svg{display:block;width:100%;height:auto;margin:auto 0}\n";
 }

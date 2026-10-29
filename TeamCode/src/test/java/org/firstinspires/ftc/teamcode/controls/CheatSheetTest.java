@@ -14,7 +14,7 @@ import java.util.Map;
 /**
  * Builds the printable cheat sheets, one per team, into {@code TeamCode/build/cheat-sheets/}, and
  * checks each lists every button the layout binds (the sticks are left off).
- * {@code ./gradlew testDebugUnitTest}, then open a file in a browser and print it landscape.
+ * {@code ./gradlew testDebugUnitTest}, then open a file in a browser and print it (portrait).
  *
  * <p>A team's logo is {@code TeamCode/cheat-sheets/logo-<number>.jpg} (or {@code .png}, {@code .svg});
  * without one the sheet draws an emblem in the team's colours.
