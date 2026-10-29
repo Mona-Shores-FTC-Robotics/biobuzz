@@ -17,7 +17,7 @@ public enum Action {
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold; a stick cancels)"),
     GARDEN_GATHER(Pad.DRIVER, "Gather GARDEN (hold; a stick cancels)"),
     FLOWER_STICK(Pad.DRIVER, "FLOWER stick out / in"),
-    CHASSIS_AIM(Pad.DRIVER, "Aim at CELL (hold)"),
+    CHASSIS_AIM(Pad.DRIVER, "Aim chassis at CELL (hold)"),
     RESET_HEADING(Pad.DRIVER, "Reset field-centric forward (hold 1 s)"),
     CAMERA_RELOCALIZE(Pad.DRIVER, "Camera relocalize (also in INIT)"),
     RESET_TO_SPOT(Pad.DRIVER, "Fixed relocalize (left Loading Zone corner)"),
