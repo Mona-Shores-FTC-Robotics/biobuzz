@@ -33,7 +33,7 @@ public enum Action {
     TRIM_LEFT(Pad.OPERATOR, "Trim aim left"),
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
     TRIM_RESET(Pad.OPERATOR, "Trim reset"),
-    TURRET_ZERO(Pad.OPERATOR, "Zero turret at home mark (also in INIT)");
+    TURRET_ZERO(Pad.OPERATOR, "Zero Turret");
 
     /** Which person, and so which gamepad. */
     public enum Pad { DRIVER, OPERATOR }
