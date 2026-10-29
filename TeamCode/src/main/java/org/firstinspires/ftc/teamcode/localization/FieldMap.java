@@ -8,7 +8,8 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
 
 /**
  * The field on the Driver Station, one character per tile, as the manual draws it (§9.4: columns
- * A–F, rows 1–6, audience at the bottom): the red and blue walls, the HIVE CELLs as they start the
+ * A–F, rows 1–6, audience at the bottom): the LOADING ZONE tape in its alliance's colour (which
+ * also says which side is whose, so the walls are not drawn), the HIVE CELLs as they start the
  * match, the FLOWERs, and a start's robot as an arrow the way it faces. The placement sentence
  * refers to it ("tile C1, the ^").
  *
@@ -43,18 +44,19 @@ public final class FieldMap {
     /** The map with {@code start}'s robot on it: header, six rows (row 6 first), footer, key. */
     public static String[] lines(StartPosition start) {
         String[][] cells = new String[6][6];
-        // gaps[r][k]: the seam between columns k and k+1 on row r; walls: each row's left and right.
+        // gaps[r][k]: the seam between columns k and k+1 on row r; walls: a FLOWER on a side wall,
+        // else blank (a non-breaking space on the left, so HTML does not fold it into the next one).
         String[][] gaps = new String[6][5];
         String[] leftWall = new String[6];
         String[] rightWall = new String[6];
         for (int r = 0; r < 6; r++) {
             for (int c = 0; c < 6; c++) cells[r][c] = ".";
             for (int k = 0; k < 5; k++) gaps[r][k] = " ";
-            leftWall[r] = colour(RED, "|");
-            rightWall[r] = colour(BLUE, "|");
+            leftWall[r] = "&nbsp;";
+            rightWall[r] = "";
         }
-        putTile(cells, RED_LOADING_ZONE, colour(RED, "L"));
-        putTile(cells, BLUE_LOADING_ZONE, colour(BLUE, "L"));
+        putTile(cells, RED_LOADING_ZONE, colour(RED, "<b>|</b>"));
+        putTile(cells, BLUE_LOADING_ZONE, colour(BLUE, "<b>|</b>"));
         String flower = colour(FLOWER, "*");
         double tile = FieldFrame.TILE_INCHES;
         double field = FieldFrame.FIELD_SIZE_INCHES;
@@ -96,8 +98,8 @@ public final class FieldMap {
             lines[6 - r] = line.append(rightWall[r]).append("</tt>").toString();
         }
         lines[7] = "<tt>&nbsp;&nbsp;&nbsp;audience</tt>";
-        lines[8] = "<small>" + colour(RED, "|") + " red wall · " + colour(BLUE, "|") + " blue wall · "
-                + "<b>H</b> HIVE CELL up at the start, h down · L LOADING ZONE · "
+        lines[8] = "<small>" + colour(RED, "|") + colour(BLUE, "|") + " LOADING ZONE tape · "
+                + "<b>H</b> HIVE CELL up at the start, h down · "
                 + flower + " FLOWER, on a seam" + (start == null ? "" : " · " + colour(ROBOT, start.arrow())
                 + " our robot") + "</small>";
         return lines;
