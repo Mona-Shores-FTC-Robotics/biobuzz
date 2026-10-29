@@ -44,8 +44,9 @@ import java.util.Locale;
  * with every fire press, but block nothing until their flag in {@link TeleOpConfig} is turned on.
  *
  * <p>Moving a drive stick cancels the driver's automatic routines: the FLOWER pick
- * ({@link FlowerPicker}, which stows the stick and idles the intake as it stops) on either stick,
- * and the chassis aim on the right stick, since the left stick keeps driving under it.
+ * ({@link FlowerPicker}, which stows the stick and idles the intake as it stops) and the GARDEN
+ * gather ({@link GardenGather}) on either stick, one of them at a time, and the chassis aim on the
+ * right stick, since the left stick keeps driving under it.
  *
  * <h2>Aiming</h2>
  *
@@ -106,7 +107,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** The trim step can never be more than this, degrees, whatever Panels says. */
     private static final double MAX_TRIM_STEP_DEG = 5.0;
 
-    /** {@code /Controls/IntakeOwner} while the FLOWER pick runs the intake. */
+    /** {@code /Controls/IntakeOwner} while the FLOWER pick or the GARDEN gather runs the intake. */
     private static final int INTAKE_OWNER_PICK = IntakeArbiter.Owner.values().length;
 
     private Controls controls;
@@ -117,6 +118,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
     private FlowerPicker picker;
+    private GardenGather gatherer;
     private boolean launchMode;
     private boolean chassisAimCancelled;
     private boolean lastFire;
@@ -144,6 +146,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
+        gatherer = new GardenGather(robot, text -> log.event(text));
         controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
 
@@ -155,6 +158,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.SLOW);
         controls.note(Action.TURBO);
         controls.note(Action.FLOWER_PICK);
+        controls.note(Action.GARDEN_GATHER);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.RESET_HEADING);
@@ -292,10 +296,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double aimDeg = aimer.aimDeg();
         aimErrorDeg = Double.isNaN(aimDeg) ? Double.NaN : aimDeg - robot.turret.angleDegrees();
 
-        // A FLOWER pick drives the robot while held; letting go or a stick hands it back, this loop.
-        picker.update(controls.held(Action.FLOWER_PICK), leftStick || rightStick);
+        // A FLOWER pick or a GARDEN gather drives the robot while held, one at a time; letting go or
+        // a stick hands it back, this loop.
+        boolean sticksMoved = leftStick || rightStick;
+        picker.update(controls.held(Action.FLOWER_PICK) && !gatherer.active(), sticksMoved);
+        gatherer.update(controls.held(Action.GARDEN_GATHER) && !picker.active(), sticksMoved);
         boolean chassisAim = chassisAim(rightStick);
-        if (!picker.active()) {
+        if (!routineActive()) {
             double turnCommand = chassisAim ? chassisAimTurn() : turn;
             robot.drive.setAccelLimited(!turbo);
             if (robotCentric()) {
@@ -307,8 +314,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
                     controls.held(Action.UNJAM), controls.held(Action.OPERATOR_INTAKE));
             setIntake(intakeArbiter.state());
         }
-        // The pick runs the intake itself while it is active.
-        log.put("/Controls/IntakeOwner", picker.active() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+        // The pick or the gather runs the intake itself while it is active.
+        log.put("/Controls/IntakeOwner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
         log.put("/Controls/TrimDeg", aimer.trimDeg());
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
@@ -323,13 +330,15 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);
+        String gather = gatherer.line();
+        if (!gather.isEmpty()) display.line(gather);
         if (controls.held(Action.CHASSIS_AIM)) {
             display.line(chassisAimCancelled ? "Chassis aim: cancelled by the right stick (let go to re-arm)"
                     : turretMode == TurretMode.AIM ? "Chassis aim: off while the turret aims (lock it first)"
                     : "Chassis aim: " + aimer.source());
         }
         robot.intake.describe(display);
-        display.line("Intake: " + (picker.active() ? "FLOWER pick" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
+        display.line("Intake: " + (picker.active() ? "FLOWER pick" : gatherer.active() ? "GARDEN gather" : intakeArbiter.owner().toString().toLowerCase(Locale.US)));
         robot.launcher.describe(display);
         robot.feeder.describe(display);
         robot.turret.describe(display);
@@ -360,7 +369,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             chassisAimCancelled = false;
             return false;
         }
-        if (turretMode != TurretMode.LOCKED || chassisAimCancelled || picker.active()) return false;
+        if (turretMode != TurretMode.LOCKED || chassisAimCancelled || routineActive()) return false;
         if (rightStick) {
             chassisAimCancelled = true;
             log.event("chassis aim cancelled: right stick");
@@ -380,6 +389,11 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double max = unitRange(TeleOpConfig.chassisAimMaxTurn);
         double turn = kp * Math.toRadians(aimErrorDeg);
         return Math.max(-max, Math.min(max, turn));
+    }
+
+    /** A FLOWER pick or a GARDEN gather is driving the robot and running the intake. */
+    private boolean routineActive() {
+        return picker.active() || gatherer.active();
     }
 
     private void setIntake(IntakeSubsystem.State state) {
@@ -555,7 +569,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("trim_deg", aimer.trimDeg());
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
-            panels.addData("intake_owner", picker.active() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
+            panels.addData("intake_owner", routineActive() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();
         } catch (RuntimeException ignored) {

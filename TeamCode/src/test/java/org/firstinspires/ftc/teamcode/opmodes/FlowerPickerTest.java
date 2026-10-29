@@ -56,4 +56,41 @@ public class FlowerPickerTest {
         assertEquals(0.0, FlowerPicker.nn(Double.NaN), EPS);
         assertEquals(12.0, FlowerPicker.nn(12.0), EPS);
     }
+
+    /** An Auto's drive leaves the robot at the pick spot: close enough skips the approach path. */
+    @Test
+    public void atPoseNeedsBothPlaceAndHeading() {
+        com.pedropathing.math.Pose spot = new com.pedropathing.math.Pose(26.71, 47.36, Math.PI);
+        assertEquals(true, FlowerPicker.atPose(new com.pedropathing.math.Pose(27.5, 47.0, Math.PI - 0.05), spot, 1.5, 5.0));
+        assertEquals("too far", false, FlowerPicker.atPose(new com.pedropathing.math.Pose(29.0, 47.36, Math.PI), spot, 1.5, 5.0));
+        assertEquals("turned", false, FlowerPicker.atPose(new com.pedropathing.math.Pose(26.71, 47.36, Math.PI - 0.2), spot, 1.5, 5.0));
+        assertEquals("the short way round", true, FlowerPicker.atPose(new com.pedropathing.math.Pose(26.71, 47.36, -Math.PI + 0.02), spot, 1.5, 5.0));
+    }
+
+    @Test
+    public void speedFractionsStayBetweenSlowAndFull() {
+        assertEquals(0.35, FlowerPicker.unitFraction(0.35), EPS);
+        assertEquals(1.0, FlowerPicker.unitFraction(3.0), EPS);
+        assertEquals("a typo drives slowly, it does not stop", 0.05, FlowerPicker.unitFraction(0.0), EPS);
+        assertEquals(0.05, FlowerPicker.unitFraction(Double.NaN), EPS);
+    }
+
+    /** An Auto's pick pushes straight ahead from its spot to 12 in from the FLOWER's centre. */
+    @Test
+    public void aheadToStopsShortOfTheFlowerAlongTheHeading() {
+        // The R-Quals wall pick spot: 24 in out from the WALL FLOWER (2.71, 47.36), facing it.
+        com.pedropathing.math.Pose spot = new com.pedropathing.math.Pose(26.71, 47.36, Math.PI);
+        com.pedropathing.math.Pose contact = FlowerPicker.aheadTo(spot, 2.71, 47.36, 12.0);
+        assertEquals(14.71, contact.x(), 1e-9);
+        assertEquals(47.36, contact.y(), 1e-9);
+        assertEquals(Math.PI, contact.heading(), 1e-12);
+        // A spot 3 in to one side still pushes straight ahead: along its own heading.
+        com.pedropathing.math.Pose beside = FlowerPicker.aheadTo(
+                new com.pedropathing.math.Pose(26.71, 50.36, Math.PI), 2.71, 47.36, 12.0);
+        assertEquals(50.36, beside.y(), 1e-9);
+        assertEquals("already closer than the contact", null,
+                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(10.0, 47.36, Math.PI), 2.71, 47.36, 12.0));
+        assertEquals("facing away", null,
+                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(26.71, 47.36, 0.0), 2.71, 47.36, 12.0));
+    }
 }
