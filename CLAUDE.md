@@ -100,7 +100,8 @@ never moves the driver's field-centric forward. Read the pose from `robot.drive`
 Pinpoint or the Limelight directly. Anything that drives or aims from field coordinates checks
 `robot.drive.poseReferenced()` first and degrades without it; driving itself never needs it.
 `HiveFieldPoints` is the field CAD's rocker model (axle on the centre line, one row radius),
-checked against the field once; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
+checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
+centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
 measured field facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
 overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
 
