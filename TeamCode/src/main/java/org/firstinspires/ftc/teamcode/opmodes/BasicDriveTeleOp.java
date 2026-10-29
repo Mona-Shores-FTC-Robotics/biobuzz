@@ -53,7 +53,8 @@ import java.util.Locale;
  * down and intake on during the approach, push in, dwell, back out, stick up, every phase timed in
  * the match log. Letting go or touching a drive stick stops it. It needs a field-referenced pose,
  * so after an Auto or a camera relocalize. It is a test unit for making the pick faster, not a
- * claim about how a match is driven.
+ * claim about how a match is driven. D-pad down, held, gathers from the nearest GARDEN the same way
+ * ({@link GardenGather}): line up, intake on, drive in, dwell, back out.
  *
  * <p>The operator (gamepad 2) runs the launcher and the feeder, with nothing in between them:
  * spin up, hold feed, watch what happens. While the launcher is being brought up on the robot
@@ -124,6 +125,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
     private FlowerPicker picker;
+    private GardenGather gatherer;
     private String relocalizeNote;
 
     private TelemetryManager panels;
@@ -140,6 +142,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
+        gatherer = new GardenGather(robot, text -> log.event(text));
         driver.note("Left stick", "Drive");
         driver.note("Right stick X", "Turn");
         driver.note("L1 (hold)", "Slow");
@@ -157,6 +160,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 .onPress(robot.intake::eject)
                 .onRelease(robot.intake::idle);
         driver.note("D-pad up (hold)", "Pick the nearest FLOWER (let go or move a stick to stop)");
+        driver.note("D-pad down (hold)", "Gather from the nearest GARDEN (let go or move a stick to stop)");
         driver.when("D-pad left", "Pose: relocalize from the camera (hold still, 2+ tags in view)", () -> gamepad1.dpad_left)
                 .duringInit()
                 .onPress(this::relocalize);
@@ -244,10 +248,13 @@ public class BasicDriveTeleOp extends RobotOpMode {
         double strafe = deadband(gamepad1.left_stick_x) * STRAFE_SIGN * scale;
         double turn = deadband(gamepad1.right_stick_x) * TURN_SIGN * scale;
 
-        // A FLOWER pick drives the robot while held; letting go or a stick hands it back, this loop.
-        picker.update(gamepad1.dpad_up, Math.abs(forward) > PICK_ABORT_STICK
-                || Math.abs(strafe) > PICK_ABORT_STICK || Math.abs(turn) > PICK_ABORT_STICK);
-        if (!picker.active()) {
+        // A FLOWER pick or a GARDEN gather drives the robot while held, one at a time; letting go or
+        // a stick hands it back, this loop.
+        boolean sticksMoved = Math.abs(forward) > PICK_ABORT_STICK
+                || Math.abs(strafe) > PICK_ABORT_STICK || Math.abs(turn) > PICK_ABORT_STICK;
+        picker.update(gamepad1.dpad_up && !gatherer.active(), sticksMoved);
+        gatherer.update(gamepad1.dpad_down && !picker.active(), sticksMoved);
+        if (!picker.active() && !gatherer.active()) {
             robot.drive.setAccelLimited(!turbo);
             robot.drive.drive(forward, strafe, turn);
         }
@@ -278,6 +285,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);
+        String gather = gatherer.line();
+        if (!gather.isEmpty()) display.line(gather);
         robot.intake.describe(display);
         robot.launcher.describe(display);
         robot.feeder.describe(display);
