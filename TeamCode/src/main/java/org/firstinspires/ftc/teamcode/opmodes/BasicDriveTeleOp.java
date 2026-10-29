@@ -160,6 +160,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
         controls.on(Action.CORNER_SNAP).onPress(this::snapToCorner);
+        controls.on(Action.DRIVER_RELOCALIZE).duringInit().onPress(this::relocalize);
         controls.note(Action.RESET_HEADING);
         controls.on(Action.AUTO_PARK).onPress(() -> {
             autoParkNote = "Auto-park: not built yet (the loading zone is not measured)";
@@ -175,10 +176,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
         controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.TURRET_ZERO).duringInit().onPress(robot.turret::zeroHere);
-        controls.on(Action.RELOCALIZE).onPress(() -> {
-            poseNote = robot.drive.relocalizeFromCamera();
-            log.event("camera relocalize: " + poseNote);
-        });
+        controls.on(Action.RELOCALIZE).duringInit().onPress(this::relocalize);
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
@@ -234,6 +232,16 @@ public class BasicDriveTeleOp extends RobotOpMode {
         log.event(String.format(Locale.US, "trim %+.1f°", aimer.trimDeg()));
     }
 
+    /**
+     * The camera sets the pose, if it can; the Match page and the match log say what happened. On
+     * both gamepads and live in INIT, so one person with one gamepad can put a pose carried from
+     * the last run right before PLAY.
+     */
+    private void relocalize() {
+        poseNote = robot.drive.relocalizeFromCamera();
+        log.event("pose: " + poseNote);
+    }
+
     private void snapToCorner() {
         Pose pose = robot.drive.pose();
         Pose[] corners = CornerPositions.forAlliance(setup.alliance());
@@ -251,6 +259,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     protected void onInitLoop() {
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showScheme();
+        if (poseNote != null) display.line("Last pose fix: " + poseNote);
         showPinpoint();
     }
 

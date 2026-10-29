@@ -51,6 +51,7 @@ public enum ControlScheme {
         map.put(Action.FLOWER_STICK, Input.CROSS);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
         map.put(Action.CORNER_SNAP, Input.SQUARE);
+        map.put(Action.DRIVER_RELOCALIZE, Input.DPAD_LEFT);
         map.put(Action.RESET_HEADING, Input.TRIANGLE);
         map.put(Action.AUTO_PARK, Input.DPAD_DOWN);
 

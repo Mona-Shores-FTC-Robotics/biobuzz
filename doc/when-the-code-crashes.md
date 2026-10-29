@@ -28,7 +28,7 @@ next thing on the list for whichever OpMode crashed.** Nothing here needs a lapt
      PLAY, so face it away from the driver first. The turret then zeroes where it stands at PLAY:
      if it is not at its home mark, leave it LOCKED and do not use AIM, or turn it home by hand
      before PLAY.
-4. If the pose looks wrong, hold still with two tags in view and press **operator D-pad left**.
+4. If the pose looks wrong, hold still with two tags in view and press **D-pad left** on the driver's gamepad or **Cross** on the operator's.
    The page says what it did.
 
 ## TeleOp crashed, say 20 seconds in
@@ -38,8 +38,9 @@ next thing on the list for whichever OpMode crashed.** Nothing here needs a lapt
    **"pose from the TeleOp that just stopped Ns ago"**. The alliance, the pose and the turret's zero
    all come back. The log starts a new file for the same match.
 3. After 30 seconds it no longer trusts the last pose, because someone may have moved the robot. The
-   page says **"no handoff"**. Face the robot away from the driver, press **driver Triangle (Y)**
-   to reset forward, and press **operator D-pad left** with two tags in view to fix the pose.
+   page says **"no handoff"**. Face the robot away from the driver, hold **driver Triangle (Y)**
+   for a second to reset forward, and press **driver D-pad left** (or operator Cross) with two tags in
+   view to fix the pose.
 4. The alliance is not remembered after 30 seconds either: press X (blue) or B (red) in INIT.
 
 ## Things nobody has checked on a robot yet

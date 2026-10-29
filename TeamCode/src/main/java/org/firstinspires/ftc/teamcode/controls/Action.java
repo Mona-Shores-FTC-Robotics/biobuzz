@@ -18,6 +18,7 @@ public enum Action {
     FLOWER_STICK(Pad.DRIVER, "FLOWER stick out / in"),
     CHASSIS_AIM(Pad.DRIVER, "Point the robot at our CELL (hold; left stick still drives, right stick cancels)"),
     CORNER_SNAP(Pad.DRIVER, "Pose: snap to the nearest measured corner (robot squared into it)"),
+    DRIVER_RELOCALIZE(Pad.DRIVER, "Pose: relocalize from the camera (hold still, 2+ tags in view; also in INIT)"),
     RESET_HEADING(Pad.DRIVER, "Reset field-centric forward (hold 1 s; a tap does nothing)"),
     AUTO_PARK(Pad.DRIVER, "Auto-park (hold): not built yet"),
 
@@ -31,7 +32,7 @@ public enum Action {
     TRIM_RESET(Pad.OPERATOR, "Aim trim back to zero"),
     TURRET_LOCK(Pad.OPERATOR, "Turret: LOCKED forward / AIM at our CELL"),
     TURRET_ZERO(Pad.OPERATOR, "Turret: zero here, at its home mark (also in INIT)"),
-    RELOCALIZE(Pad.OPERATOR, "Pose: relocalize from the camera (hold still, 2+ tags in view)");
+    RELOCALIZE(Pad.OPERATOR, "Pose: relocalize from the camera (hold still, 2+ tags in view; also in INIT)");
 
     /** Which person, and so which gamepad. */
     public enum Pad { DRIVER, OPERATOR }

@@ -8,15 +8,21 @@ import com.pedropathing.ivy.commands.Commands;
 
 import org.firstinspires.ftc.teamcode.Robot;
 
+import java.util.Locale;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 import java.util.function.DoubleSupplier;
 
 /**
  * The launcher's cards for the Auto Builder: {@code SpinUp}, {@code LaunchAll}, {@code LaunchOne}
  * and the {@code Empty} trigger, built on {@code robot.launcher} and {@code robot.feeder}.
  *
- * <p>A launch card spins the launcher up, waits until it is at speed, runs the feeder for a set
- * time, then idles the feeder. The launcher is left spinning: the Autos call {@code SpinUp} once
+ * <p>A launch card spins the launcher up, waits until it is at speed <em>and the robot has
+ * settled</em> ({@link PathEndSettle}: still, and at the last path's end heading), runs the feeder
+ * for a set time, then idles the feeder. A fire step after a path therefore waits for the robot,
+ * not for Pedro's "done" (#193). If the robot has not settled within
+ * {@link PathEndSettle#maxSettleWaitS} of the card starting, it feeds anyway and says so in the
+ * match log, so a robot that never quite settles still fires. The launcher is left spinning: the Autos call {@code SpinUp} once
  * and fire several times, and spinning down between shots would cost a spin-up each time. The
  * OpMode's stop cuts the wheels at the end.
  *
@@ -65,20 +71,29 @@ public final class LaunchCards {
 
     private final Launcher launcher;
     private final Feeder feeder;
+    private final BooleanSupplier settled;
+    private final Consumer<String> note;
     private final DoubleSupplier secondsNow;
     private int launchAllsCompleted;
 
-    public LaunchCards(Launcher launcher, Feeder feeder, DoubleSupplier secondsNow) {
-        if (launcher == null || feeder == null || secondsNow == null) {
-            throw new IllegalArgumentException("LaunchCards needs a launcher, a feeder and a clock");
+    /**
+     * @param settled true once the robot is still and aimed ({@link PathEndSettle#settled})
+     * @param note    where "fed before the robot settled" goes (the match log)
+     */
+    public LaunchCards(Launcher launcher, Feeder feeder, BooleanSupplier settled, Consumer<String> note,
+                       DoubleSupplier secondsNow) {
+        if (launcher == null || feeder == null || settled == null || secondsNow == null) {
+            throw new IllegalArgumentException("LaunchCards needs a launcher, a feeder, a settle check and a clock");
         }
         this.launcher = launcher;
         this.feeder = feeder;
+        this.settled = settled;
+        this.note = note == null ? line -> { } : note;
         this.secondsNow = secondsNow;
     }
 
-    /** The cards for a real robot, on the system clock. */
-    public static LaunchCards forRobot(Robot robot) {
+    /** The cards for a real robot, on the system clock, gated on {@code settle}. */
+    public static LaunchCards forRobot(Robot robot, PathEndSettle settle, Consumer<String> note) {
         Launcher launcher = new Launcher() {
             @Override public void spinUp() { robot.launcher.spinUp(); }
             @Override public boolean atSpeed() { return robot.launcher.atSpeed(); }
@@ -87,7 +102,7 @@ public final class LaunchCards {
             @Override public void feed() { robot.feeder.feed(); }
             @Override public void idle() { robot.feeder.idle(); }
         };
-        return new LaunchCards(launcher, feeder, () -> System.nanoTime() / 1e9);
+        return new LaunchCards(launcher, feeder, settle::settled, note, () -> System.nanoTime() / 1e9);
     }
 
     /** {@code SpinUp}: ask the launcher for speed and finish at once. The wheels come up while the robot drives. */
@@ -95,14 +110,14 @@ public final class LaunchCards {
         return Commands.instant(launcher::spinUp);
     }
 
-    /** {@code LaunchAll}: spin up, wait for speed, feed for {@link #launchAllFeedS}, idle the feeder. */
+    /** {@code LaunchAll}: spin up, wait for speed and a settled robot, feed for {@link #launchAllFeedS}, idle the feeder. */
     public Command launchAll() {
-        return launch(() -> launchAllFeedS, true);
+        return launch("LaunchAll", () -> launchAllFeedS, true);
     }
 
     /** {@code LaunchOne}: as {@link #launchAll()} with {@link #launchOneFeedS}; does not count toward Empty. */
     public Command launchOne() {
-        return launch(() -> launchOneFeedS, false);
+        return launch("LaunchOne", () -> launchOneFeedS, false);
     }
 
     /** How many {@code LaunchAll} cards have run their whole feed since this object was made. */
@@ -119,17 +134,24 @@ public final class LaunchCards {
         return () -> launchAllsCompleted > before;
     }
 
-    private Command launch(DoubleSupplier feedSeconds, boolean countsAsEmptying) {
+    private Command launch(String name, DoubleSupplier feedSeconds, boolean countsAsEmptying) {
         final double[] fedAt = {Double.NaN};
+        final double[] startedAt = new double[1];
         return new CommandBuilder()
                 .setStart(() -> {
                     fedAt[0] = Double.NaN;
+                    startedAt[0] = secondsNow.getAsDouble();
                     launcher.spinUp();
                 })
                 .setExecute(() -> {
-                    if (Double.isNaN(fedAt[0]) && launcher.atSpeed()) {
-                        feeder.feed();
-                        fedAt[0] = secondsNow.getAsDouble();
+                    if (!Double.isNaN(fedAt[0]) || !launcher.atSpeed()) return;
+                    double now = secondsNow.getAsDouble();
+                    if (settled.getAsBoolean()) {
+                        feed(fedAt, now);
+                    } else if (now - startedAt[0] >= PathEndSettle.maxWaitS()) {
+                        note.accept(String.format(Locale.US, "%s fed before the robot settled: %.2f s since it started",
+                                name, now - startedAt[0]));
+                        feed(fedAt, now);
                     }
                 })
                 .setDone(() -> !Double.isNaN(fedAt[0])
@@ -140,6 +162,11 @@ public final class LaunchCards {
                         launchAllsCompleted++;
                     }
                 });
+    }
+
+    private void feed(double[] fedAt, double now) {
+        feeder.feed();
+        fedAt[0] = now;
     }
 
     /** A Panels-editable time clamped to [0, ∞), NaN as 0: a typo makes a short feed, never a stuck card. */
