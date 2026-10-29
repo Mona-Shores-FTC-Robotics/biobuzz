@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.opmodes.auto;
 
 
+import com.pedropathing.ivy.commands.Commands;
+
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.MatchSetup;
@@ -38,6 +40,9 @@ import java.util.function.Consumer;
  * lists them, {@link BuiltAuto} shows the list on the Driver Station at INIT, and each one goes
  * when its mechanism lands:
  * <ul>
+ *   <li>{@code PickFlower}: the FLOWER picker, which is not built yet. The Visualizer's simple
+ *       builder offers it next to {@code LaunchAll}, so Autos can be drawn with it now; its typical
+ *       4 s is what the preview shows while the robot drives in to the FLOWER and back.</li>
  *   <li>{@code IntakeFull}: the intake, counting pieces (#181). The roller itself already runs
  *       for the whole Auto ({@link BuiltAuto}); only the count is missing.</li>
  * </ul>
@@ -70,7 +75,7 @@ public final class AutoRegistration {
 
     /** The names registered as placeholders, in registration order. Shown at INIT. */
     public static final List<String> PLACEHOLDERS = Collections.unmodifiableList(Arrays.asList(
-            "IntakeFull"));
+            "PickFlower", "IntakeFull"));
 
     private static final HiveCell[] CELLS = HiveCell.values();
 
@@ -92,6 +97,8 @@ public final class AutoRegistration {
                 .command("LaunchAll", 2.0, () -> launch.launchAll())
                 .command("LaunchOne", 0.5, () -> launch.launchOne())
                 .command("SpinUp", 0.1, () -> launch.spinUp())
+                // ---- placeholder: the FLOWER picker is not built yet. Finishes at once.
+                .command("PickFlower", 4.0, () -> Commands.instant(() -> { }))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- placeholder: the intake does not count pieces yet (#181).
                 .trigger("IntakeFull", () -> false)
