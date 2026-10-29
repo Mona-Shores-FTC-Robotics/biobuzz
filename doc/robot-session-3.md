@@ -6,7 +6,8 @@ waits. Go down the list; each step has a stop line.
 
 Follows [robot-session-2.md](robot-session-2.md) (25 Oct: both Autos drove their drawn paths on
 20245, every mechanism a placeholder). Assumes master with these merged: the CELL triggers (#250),
-the endgame guard inside blocks (#252) and settled-before-fire (#253), on top of the launcher
+the endgame guard inside blocks (#252), settled-before-fire (#253) and R-Quals' TIP 2 fire
+waiting on `Tip` (#257), on top of the launcher
 and feeder cards, the intake running through every Auto (#240), the turret in Basic Drive (#247)
 and the match log's build, hardware and tunables (#243). If any of the three is not merged, stop
 and run session 2's list instead: the log events below will not be there.
@@ -61,12 +62,13 @@ and run session 2's list instead: the log events below will not be there.
        Limelight must all be present.
        *Stop line: nothing reported.*
 
-3. [ ] **Auto: R-Quals, INIT only**, on the tape, Circle (B). The Placeholders line names
-       **`IntakeFull` only** (R-Quals uses `RightCellUp`, so it would be listed if #250 were
-       missing), and the start check passes. Stop without PLAY. (R-Simple uses no placeholder, so
-       its INIT shows no such line at all.)
-       *Stop line: only `IntakeFull` listed, no FAULT. If `RightCellUp` is listed, #250 is not in
-       this install: reinstall from master.*
+3. [ ] **Auto: L-Quals, INIT only**, then **Auto: R-Quals, INIT only**, each on the tape,
+       Circle (B), each stopped without PLAY. L-Quals' Placeholders line names **`IntakeFull`
+       only** (L-Quals uses `LeftCellUp`, so it would be listed if #250 were missing). R-Quals'
+       names `IntakeFull` only either way (since #257 it uses no CELL trigger), and its start check
+       passes. (R-Simple uses no placeholder, so its INIT shows no such line at all.)
+       *Stop line: only `IntakeFull` listed, no FAULT. If L-Quals lists `LeftCellUp`, #250 is not
+       in this install: reinstall from master.*
 
 4. [ ] **Auto: R-Simple, red, three times.** Preloads in, robot on the tape, INIT, Circle (B), PLAY.
        It spins up, fires at the right CELL from START, then drives START → PARK (14, 95) and holds.
@@ -97,11 +99,11 @@ and run session 2's list instead: the log events below will not be there.
        - **The path into N_FIRE** (the 180° turn that ended 15–20° short on 25 Oct): its `path end`
          line's heading, and its `settled … s after path end` line. That number is the one the
          settle rule exists for.
-       - **TIP 2's fire** (`Fire the far FLOWER's 4 (TIP 2)`, waits on `RightCellUp`): it should end
-         `RightCellUp after N s` once the HIVE swings back. **If it reads `RightCellUp after 0.0x s`,
-         the HIVE was still RIGHT CELL up when the robot got there (TIP 1 never happened) and the
-         launch was cut before it fed.** That is the drawing's choice showing (#250); write it down,
-         don't fix it tonight.
+       - **TIP 2's fire** (`Fire the far FLOWER's 4 (TIP 2)`, waits on `Tip` since #257): it should
+         end `Tip after N s` once the HIVE swings, whether or not TIP 1 happened. `4000 ms passed`
+         means no TIP was seen: note whether the HIVE moved and whether the camera could see it from
+         N_FIRE. A `Tip after 0.0x s` means a TIP already under way settled just as the wait began;
+         note it, since the launch was cut before it fed.
        - **The guard:** `parking now`, `cutting card short` or `not starting <path>`, and the time
          left when it did. On 25 Oct it cut TIP 2's fire at 3.7 s left.
 
@@ -130,7 +132,7 @@ and run session 2's list instead: the log events below will not be there.
 | R-Quals: TIP 1 branch taken, and did the HIVE TIP | | #155 |
 | R-Quals: the N_FIRE path end's heading error, and its settle time | | #155 |
 | R-Quals: the longest settle of the run, and which path | | #155 |
-| R-Quals: TIP 2 fire's ending line (`RightCellUp after …` / `4000 ms passed` / cut) | | #155 |
+| R-Quals: TIP 2 fire's ending line (`Tip after …` / `4000 ms passed` / cut) | | #155 |
 | R-Quals: the guard's line and the time left | | #155 |
 | Any `fed before the robot settled` lines | | #155 |
 | Which settle knob was changed in Panels, if any, and from which run | | #155 |
@@ -142,7 +144,7 @@ they say which of Pedro's end conditions ended each path, which the 25 Oct logs 
 
 ## If something fails
 
-- **INIT lists `RightCellUp` as a placeholder.** The install predates #250.
+- **L-Quals' INIT lists `LeftCellUp` as a placeholder.** The install predates #250.
   Full TeamCode install from master.
 - **The fire wait ends `4000 ms passed`, nothing fed.** Read the Robot page: launcher at speed?
   If it never reaches `targetTicksPerSecond`, that is #80, not the Auto. If it is at speed and
@@ -157,7 +159,8 @@ they say which of Pedro's end conditions ended each path, which the 25 Oct logs 
 - **A TIP happened on the field but the log says `4000 ms passed`.** The camera did not see it.
   Note where the robot was and whether the HIVE was in its view (the Robot page's HIVE line, and
   `CameraBlind`); that is #173's tuning, not the Auto's.
-- **R-Quals' TIP 2 fire ends at once.** See step 5: the drawing's `RightCellUp` row, not a bug.
+- **R-Quals' TIP 2 fire ends at once (`Tip after 0.0x s`).** A TIP was settling as the robot
+  arrived (see step 5). Record the line and what the HIVE was doing.
 - **The guard parks earlier than on 25 Oct.** Expected if settling now adds time before each fire.
   Record the guard's line; the wait limits are the Visualizer's (#182).
 - **A path Auto FAULTs at INIT naming Foresight.** You are on 19429, or the wrong config is active.
