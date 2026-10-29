@@ -17,8 +17,8 @@ import java.util.function.Consumer;
  * started, the stick coming up on the way. The sequence is {@link GrabRoutine}'s, shared with the
  * GARDEN gather; this class says where a FLOWER is and what the stick does.
  *
- * <p>The one pick routine: the driver's D-pad up runs it while held (BasicDriveTeleOp), lining up
- * first, square to the nearest FLOWER within {@link #maxRangeIn}, {@link #approachStandoffIn} back
+ * <p>The one pick routine: the driver's FLOWER pick button runs it while held (BasicDriveTeleOp;
+ * the button is in {@code controls/ControlScheme}), lining up first, square to the nearest FLOWER within {@link #maxRangeIn}, {@link #approachStandoffIn} back
  * ({@link FlowerFieldPoints}); an Auto's {@code PickFlower} card runs it to the end ({@link #command})
  * with no line-up, pushing straight ahead from where the Auto's drive left the robot, and refuses
  * when the FLOWER is more than {@link #aheadToleranceIn} off that line. Each phase is timed and

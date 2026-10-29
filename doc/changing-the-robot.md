@@ -11,13 +11,13 @@ Paths are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | Want to | Go to | Notes |
 |---|---|---|
 | Flip a motor that runs the wrong way | the `reversed` field at the top of that subsystem: `IntakeSubsystem.reversed`, `FeederSubsystem.reversed`, `LauncherSubsystem.leftReversed` / `rightReversed` | Change it in Panels first to prove it, then write it into the file |
-| Change a power or a speed | `IntakeSubsystem.inPower` / `outPower`, `FeederSubsystem.feedPower` / `reversePower`, `LauncherSubsystem.targetTicksPerSecond`, `BasicDriveTeleOp.normalSpeed` / `turboSpeed` / `slowSpeed` | Same: Panels, then the file |
+| Change a power or a speed | `IntakeSubsystem.inPower` / `outPower`, `FeederSubsystem.feedPower` / `reversePower`, `LauncherSubsystem.targetTicksPerSecond`, `TeleOpConfig.normalSpeed` / `turboSpeed` / `slowSpeed` | Same: Panels, then the file |
 | Set the FLOWER stick's two positions | `FlowerStickSubsystem.RETRACTED` / `EXTENDED` | Servo positions, 0 to 1 |
 | Say how long the Auto feeds when it fires | `LaunchCards.launchAllFeedS` / `launchOneFeedS` | Seconds the feeder runs after the launcher is at speed |
-| Let the feeder run without the launcher (bench) | `BasicDriveTeleOp.feedOnlyAtSpeed` | `false` in Panels for a bench test; leave `true` in the file |
+| Make fire wait for the launcher or the aim | `TeleOpConfig.enforceAtSpeedGate` / `enforceAimGate` (`aimToleranceDeg`) | Off: fire feeds at once and the match log says when a gate would have blocked. Turn one on only once the log shows it helps |
 | Show RPM instead of ticks per second | `IntakeSubsystem.ticksPerRev`, `LauncherSubsystem.ticksPerRev` | Read off the motor's label; the field's comment has the goBILDA table |
 | Tell the camera where it sits | `vision/CameraMount`: `mountForwardIn`, `mountLeftIn`, `mountUpIn`, `pitchDeg` | Inches from the robot centre and degrees up; measured with a tape, never guessed |
-| Move a button or add one | `opmodes/BasicDriveTeleOp.onInit()`, one `when(...)` line per button | The Driver Station's Controls page is generated from these lines, so there is nowhere else to document a control |
+| Move a button or add one | `controls/ControlScheme.layout()` for which input; a new `controls/Action` and its line in `opmodes/BasicDriveTeleOp.onInit()` for a new job | The Driver Station's Controls page and the printed cheat sheet (`TeamCode/build/cheat-sheets/`, after `./gradlew testDebugUnitTest`) are generated from the scheme, so there is nowhere else to document a control |
 | See what the robot is doing | the Driver Station's Match page; gamepad 1 Share (Back) cycles Match / Controls / Robot | Panels at `http://192.168.43.1:8001` has the same numbers as graphs |
 | Choose the alliance | Square (X) = blue, Circle (B) = red on either gamepad during INIT | The camera proposes one; nothing moves in an Auto until one is chosen |
 | Add a mechanism | copy `subsystems/ExampleSubsystem`, add a `public final` field in `Robot`, build it in the constructor, add it to the list | The list is the only registration |
@@ -40,7 +40,7 @@ So a subsystem has two halves: the methods the OpMode calls to *ask* for somethi
 
 ## Where the OpModes are
 
-- **TeleOp list:** Basic Drive. Only what a drive team runs at a competition.
+- **TeleOp list:** Basic Drive, and Basic Drive (robot-centric) for a match where the Pinpoint has failed. Only what a drive team runs at a competition.
 - **Autonomous list:** the six Autos and Hold Still.
 - **Utility menu** (Driver Station 11.2 or later): everything else. Validate Hardware, Drive Motor Check, Loop Time Baseline, Launcher Bench, Turret Bench, and the Vision tools. Pedro's tuners are in the TeleOp list because they are Pedro's code, and their screens say A, B, X, Y: Cross, Circle, Square, Triangle.
 

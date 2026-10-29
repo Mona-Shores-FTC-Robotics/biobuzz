@@ -19,8 +19,9 @@ import java.util.function.Consumer;
  * <p>For now it is the plainest gather there is, a drive in and back out. A sweep, coming in at an
  * angle, or a helper mechanism is a change here, and every Auto that gathers gets it.
  *
- * <p>The driver's D-pad down runs it while held (BasicDriveTeleOp), lining up first at the GARDEN's
- * line-up pose ({@link GardenFieldPoints}); an Auto's {@code GardenGather} card runs it to the end
+ * <p>The driver's GARDEN gather button runs it while held (BasicDriveTeleOp; the button is in
+ * {@code controls/ControlScheme}), lining up first at the GARDEN's line-up pose
+ * ({@link GardenFieldPoints}); an Auto's {@code GardenGather} card runs it to the end
  * ({@link #command}) with no line-up: it drives in to the GARDEN from wherever the card is called and
  * comes back there. Each phase is timed and written to the match log.
  *
