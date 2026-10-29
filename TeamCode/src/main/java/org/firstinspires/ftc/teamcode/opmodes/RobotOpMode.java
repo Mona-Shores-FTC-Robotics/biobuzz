@@ -334,7 +334,7 @@ public abstract class RobotOpMode extends OpMode {
         onInitLoop();
         Scheduler.execute();
         finishPage();
-        drawField();
+        drawField(true);
         recordLoop(MatchLog.Mode.DISABLED, Double.NaN);
     }
 
@@ -426,7 +426,7 @@ public abstract class RobotOpMode extends OpMode {
         Scheduler.execute();
         long t2 = System.nanoTime();
         finishPage();
-        drawField();
+        drawField(false);
         long t3 = System.nanoTime();
         recordLoop(isAutonomous() ? MatchLog.Mode.AUTONOMOUS : MatchLog.Mode.TELEOP, loopTimer.lastMs());
         long t4 = System.nanoTime();
@@ -509,13 +509,20 @@ public abstract class RobotOpMode extends OpMode {
         }
     }
 
+    /** Where the robot should start (during INIT), and where the camera says it is, on the field. */
+    private static final String START_COLOUR = "#00E676";
+    private static final String CAMERA_COLOUR = "#FFB300";
+
     /**
      * The robot on the Panels Field view, after the subsystems have updated so it is this loop's
-     * pose. Gated on the throttle, so on most loops this is one boolean read; skipped when the
-     * drive has no heading (no Pinpoint), since then there is no pose to draw. The publish is
-     * caught and swallowed: telemetry never takes a mechanism down.
+     * pose. During INIT, an OpMode with a declared start also gets that start (green) and where the
+     * camera's latest fixes put the robot (amber): the gap between them is the start check's
+     * error, and the way to move the robot. Then {@link #drawOnField} adds the OpMode's own.
+     * Gated on the throttle, so on most loops this is one boolean read; skipped when the drive has
+     * no heading (no Pinpoint), since then there is no pose to draw. The publish is caught and
+     * swallowed: telemetry never takes a mechanism down.
      */
-    private void drawField() {
+    private void drawField(boolean initializing) {
         if (fieldView == null || !robot.drive.hasHeading()) {
             return;
         }
@@ -525,11 +532,29 @@ public abstract class RobotOpMode extends OpMode {
                 if (pose != null) {
                     fieldView.drawRobot(pose.x(), pose.y(), pose.heading());
                 }
+                if (initializing && declaredStart != null) {
+                    Pose start = declaredStart.pose;
+                    fieldView.drawRobot(start.x(), start.y(), start.heading(), START_COLOUR);
+                    double cameraX = robot.drive.meanFixX();
+                    double cameraY = robot.drive.meanFixY();
+                    if (!Double.isNaN(cameraX)) {
+                        fieldView.drawRobot(cameraX, cameraY, start.heading(), CAMERA_COLOUR);
+                    }
+                }
+                drawOnField(fieldView);
                 fieldView.send();
             }
         } catch (RuntimeException ignored) {
             // Panels is a window onto the robot, not part of it.
         }
+    }
+
+    /**
+     * An OpMode's own marks on the Panels Field view, drawn over the robot each time the view is
+     * sent. Override instead of making a second {@code FieldView}: two views sending in turn make
+     * the field flicker between them.
+     */
+    protected void drawOnField(FieldView field) {
     }
 
     /** Page button edge, then the header — so the OpMode's Match lines land under it. */

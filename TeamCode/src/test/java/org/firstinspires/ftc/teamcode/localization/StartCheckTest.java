@@ -44,4 +44,21 @@ public class StartCheckTest {
         assertEquals(4.0, r.errorIn, 1e-9);
         assertEquals(Alliance.UNKNOWN, r.confirmedAlliance());
     }
+
+    /** The red audience start faces +y (90°): the robot's forward is field +y, its left field -x. */
+    @Test
+    public void theMoveIsInTheRobotsOwnTermsAtItsStart() {
+        StartPosition facingUpField = new StartPosition("Up field", Alliance.RED, new Pose(55, 9.7, Math.PI / 2));
+        // The camera puts the robot 2 in further up the field and 1 in toward +x than the start.
+        StartCheck.Result r = StartCheck.evaluate(facingUpField, 10, 56, 11.7);
+
+        assertEquals(-2.0, r.moveForwardIn, 1e-9); // back 2
+        assertEquals(1.0, r.moveLeftIn, 1e-9);     // +x is the robot's right, so move it left
+        assertEquals("move it 2.0 in back, 1.0 in left", r.move());
+    }
+
+    @Test
+    public void aRobotOnTheMarkIsToldToLeaveIt() {
+        assertEquals("leave it", StartCheck.evaluate(RED, 10, 10.1, 19.9).move());
+    }
 }

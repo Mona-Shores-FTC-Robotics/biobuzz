@@ -52,7 +52,9 @@ import java.util.Locale;
  * <h2>Panels</h2>
  * <ul>
  *   <li><b>Field</b>: the robot as odometry has it (blue), as the camera has it (amber), and each
- *       CELL's tag row where it is now (red / blue dots).</li>
+ *       CELL's tag row where it is now (red / blue dots). During INIT, also where the robot should
+ *       be (green, the red audience start) and where the camera's latest fixes put it (amber):
+ *       the gap is the start check's error.</li>
  *   <li><b>Graphs</b>: {@code cell_<name>_height_in} and {@code _angle_deg} (a TIP is a clean
  *       curve), {@code hive_red} / {@code hive_blue} (+1 right CELL up, -1 left, 0 tipping),
  *       {@code tips_red} / {@code tips_blue}, {@code pose_*}, {@code camera_*},
@@ -110,7 +112,6 @@ public class HiveAndPose extends RobotOpMode {
     private final String[] stateKeys = new String[CELLS.length];
 
     private TelemetryManager panels;
-    private FieldView field;
     private String relocalizeNote = "not pressed yet";
 
     /**
@@ -144,7 +145,6 @@ public class HiveAndPose extends RobotOpMode {
     @Override
     protected void onInit() {
         panels = PanelsTelemetry.INSTANCE.getTelemetry();
-        field = FieldView.pedroCoordinates();
         aimer = new TurretAimer(robot);
         for (int i = 0; i < CELLS.length; i++) {
             String name = CELLS[i].name().toLowerCase(Locale.US);
@@ -486,14 +486,21 @@ public class HiveAndPose extends RobotOpMode {
         panels.addData("cost_log_ms", costs.logMs());
         panels.update();
 
-        if (field.shouldDraw()) {
-            drawCells();
-            if (pose != null) field.drawRobot(pose.x(), pose.y(), pose.heading());
-            if (camera != null) field.drawRobot(camera.x(), camera.y(), camera.heading(), CAMERA_ROBOT);
-            if (stillFix != null) field.drawMarker(stillFix.x(), stillFix.y(), 1.5, STILL_FIX);
-            if (pose != null) drawTurret(pose);
-            field.send();
-        }
+    }
+
+    /**
+     * On {@code RobotOpMode}'s field view, over the odometry robot it draws: each CELL's tag row,
+     * the camera's robot (amber), the last stationary batch (cyan) and the turret.
+     */
+    @Override
+    protected void drawOnField(FieldView field) {
+        drawCells(field);
+        Pose camera = robot.drive.cameraPose();
+        if (camera != null) field.drawRobot(camera.x(), camera.y(), camera.heading(), CAMERA_ROBOT);
+        Pose stillFix = robot.drive.stillFixPose();
+        if (stillFix != null) field.drawMarker(stillFix.x(), stillFix.y(), 1.5, STILL_FIX);
+        Pose pose = robot.drive.pose();
+        if (pose != null) drawTurret(field, pose);
     }
 
     /**
@@ -502,7 +509,7 @@ public class HiveAndPose extends RobotOpMode {
      * CELL's field point. If the green line lands on the ring and the real flag does not, the maths
      * is right and the zero or the mounting is off.
      */
-    private void drawTurret(Pose pose) {
+    private void drawTurret(FieldView field, Pose pose) {
         double angle = robot.turret.angleDegrees();
         if (Double.isNaN(angle)) return;
         double c = Math.cos(pose.heading());
@@ -540,18 +547,18 @@ public class HiveAndPose extends RobotOpMode {
     }
 
     /** Each CELL's tag row where its HIVE says it is now (UP if unknown), as a dot. */
-    private void drawCells() {
+    private void drawCells(FieldView field) {
         for (Alliance alliance : ALLIANCES) {
             HiveState state = robot.hive.of(alliance).state();
             HiveCell right = HiveCell.rightCell(alliance);
             HiveCell left = HiveCell.leftCell(alliance);
             boolean rightUp = state != HiveState.LEFT_CELL_UP;
-            drawCell(right, rightUp ? HiveCellState.UP : HiveCellState.DOWN, alliance);
-            drawCell(left, rightUp ? HiveCellState.DOWN : HiveCellState.UP, alliance);
+            drawCell(field, right, rightUp ? HiveCellState.UP : HiveCellState.DOWN, alliance);
+            drawCell(field, left, rightUp ? HiveCellState.DOWN : HiveCellState.UP, alliance);
         }
     }
 
-    private void drawCell(HiveCell cell, HiveCellState state, Alliance alliance) {
+    private void drawCell(FieldView field, HiveCell cell, HiveCellState state, Alliance alliance) {
         Vec3 point = HiveFieldPoints.rowCentre(cell, state);
         if (point == null) return;
         field.drawMarker(point.x(), point.y(), state == HiveCellState.UP ? 3.0 : 1.5,

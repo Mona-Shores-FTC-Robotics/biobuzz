@@ -101,8 +101,15 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private final long[] consumedNs = new long[CELLS.length];
     private static final HiveCell[] CELLS = HiveCell.values();
     private int fixCount;
-    private double fixSumX;
-    private double fixSumY;
+    /**
+     * The latest fixes, newest overwriting oldest: the start check averages these, not every fix
+     * since the pose was set, so a robot nudged during INIT reads its new spot within a second.
+     */
+    private static final int RECENT_FIXES = 10;
+    private final double[] recentFixX = new double[RECENT_FIXES];
+    private final double[] recentFixY = new double[RECENT_FIXES];
+    private int recentFixNext;
+    private int recentFixFilled;
     /** Camera poses in a row that agreed, toward a seed; and the last of them. */
     private int seedAgreeing;
     private Pose seedCandidate;
@@ -231,8 +238,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             localizer.setPose(pose);
             poseReferenced = true;
             fixCount = 0;
-            fixSumX = 0.0;
-            fixSumY = 0.0;
+            recentFixNext = 0;
+            recentFixFilled = 0;
             averager.reset();
         }
     }
@@ -434,14 +441,24 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         return fixCount;
     }
 
-    /** Average x of those fixes, inches — where the camera says the robot is. For the start check. */
+    /**
+     * Average x of the latest few fixes (up to ten), inches — where the camera says the robot is
+     * now. For the start check. NaN with none.
+     */
     public double meanFixX() {
-        return fixCount == 0 ? Double.NaN : fixSumX / fixCount;
+        return recentMean(recentFixX);
     }
 
-    /** Average y of those fixes, inches. */
+    /** Average y of the latest few fixes, inches. */
     public double meanFixY() {
-        return fixCount == 0 ? Double.NaN : fixSumY / fixCount;
+        return recentMean(recentFixY);
+    }
+
+    private double recentMean(double[] values) {
+        if (recentFixFilled == 0) return Double.NaN;
+        double sum = 0;
+        for (int i = 0; i < recentFixFilled; i++) sum += values[i];
+        return sum / recentFixFilled;
     }
 
     /** Why the Pinpoint is missing, or null when it is there. */
@@ -575,8 +592,10 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
                     CellFix.variance(gate.nearestRangeIn(), gate.acceptedCount()));
         }
         fixCount++;
-        fixSumX += fix.x();
-        fixSumY += fix.y();
+        recentFixX[recentFixNext] = fix.x();
+        recentFixY[recentFixNext] = fix.y();
+        recentFixNext = (recentFixNext + 1) % RECENT_FIXES;
+        recentFixFilled = Math.min(recentFixFilled + 1, RECENT_FIXES);
     }
 
     /**
