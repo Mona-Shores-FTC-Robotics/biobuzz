@@ -15,7 +15,6 @@ Paths are under `TeamCode/src/main/java/org/firstinspires/ftc/teamcode/`.
 | Set the FLOWER stick's two positions | `FlowerStickSubsystem.RETRACTED` / `EXTENDED` | Servo positions, 0 to 1 |
 | Say how long the Auto feeds when it fires | `LaunchCards.launchAllFeedS` / `launchOneFeedS` | Seconds the feeder runs after the launcher is at speed |
 | Make fire wait for the launcher or the aim | `TeleOpConfig.enforceAtSpeedGate` / `enforceAimGate` (`aimToleranceDeg`) | Off: fire feeds at once and the match log says when a gate would have blocked. Turn one on only once the log shows it helps |
-| Switch control scheme | `TeleOpConfig.scheme` (A: driver-only intake, B: shared intake, driver wins) | Read at INIT: change it in Panels, then press INIT |
 | Show RPM instead of ticks per second | `IntakeSubsystem.ticksPerRev`, `LauncherSubsystem.ticksPerRev` | Read off the motor's label; the field's comment has the goBILDA table |
 | Tell the camera where it sits | `vision/CameraMount`: `mountForwardIn`, `mountLeftIn`, `mountUpIn`, `pitchDeg` | Inches from the robot centre and degrees up; measured with a tape, never guessed |
 | Move a button or add one | `controls/ControlScheme.layout()` for which input; a new `controls/Action` and its line in `opmodes/BasicDriveTeleOp.onInit()` for a new job | The Driver Station's Controls page and the printed cheat sheet (`TeamCode/build/cheat-sheets/`, after `./gradlew testDebugUnitTest`) are generated from the scheme, so there is nowhere else to document a control |

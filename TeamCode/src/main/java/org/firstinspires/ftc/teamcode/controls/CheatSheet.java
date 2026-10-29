@@ -4,10 +4,10 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * A printable one-page controller sheet for a {@link ControlScheme}, in a team's colours: the
- * driver's and the operator's inputs side by side, from the same {@link ControlScheme#layout} the
- * robot runs, so the paper and the Driver Station's Controls page cannot disagree.
- * {@code CheatSheetTest} writes one HTML file per team and scheme to
+ * A printable one-page controller sheet, in a team's colours: the driver's and the operator's
+ * inputs side by side, from the same {@link ControlScheme#layout} the robot runs, so the paper and
+ * the Driver Station's Controls page cannot disagree. {@code CheatSheetTest} writes one HTML file
+ * per team to
  * {@code TeamCode/build/cheat-sheets/}; open it in a browser and print (landscape, one page).
  *
  * <p>The header carries the team's logo when one is given (a {@code data:} URI; the test reads
@@ -45,13 +45,12 @@ public final class CheatSheet {
     };
     private static final String[] GROUP_TITLES = {"Sticks · triggers · bumpers", "Buttons", "D-pad"};
 
-    /** One scheme's sheet for {@code team}, as a standalone HTML page. {@code logoDataUri} may be null. */
-    public static String html(ControlScheme scheme, Team team, String logoDataUri) {
-        Map<Action, Input> layout = scheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
+    /** {@code team}'s sheet, as a standalone HTML page. {@code logoDataUri} may be null. */
+    public static String html(Team team, String logoDataUri) {
+        Map<Action, Input> layout = ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK);
         StringBuilder out = new StringBuilder();
         out.append("<!doctype html>\n<html><head><meta charset=\"utf-8\"><title>")
-                .append(team.number).append(' ').append(team.name).append(" controls, scheme ")
-                .append(scheme.name()).append("</title>\n<style>\n")
+                .append(team.number).append(' ').append(team.name).append(" controls</title>\n<style>\n")
                 .append(":root{--deep:").append(team.deep).append(";--bright:").append(team.bright).append(";}\n")
                 .append(STYLE)
                 .append("</style></head><body>\n<div class=\"page\">\n");
@@ -67,20 +66,13 @@ public final class CheatSheet {
                     .append(" <span>").append(team.number).append("</span></div>")
                     .append("<div class=\"sub\">BIOBUZZ TeleOp controls</div></div>\n");
         }
-        out
-                .append("<div class=\"scheme\"><div class=\"k\">Scheme</div><div class=\"v\">").append(scheme.name())
-                .append("</div><div class=\"d\">").append(escape(scheme.title.substring(scheme.title.indexOf(':') + 1).trim()))
-                .append("</div></div>\n</header>\n");
+        out.append("</header>\n");
 
         out.append("<main>\n");
         column(out, "Driver", "gamepad 1", layout, Action.Pad.DRIVER);
         column(out, "Operator", "gamepad 2", layout, Action.Pad.OPERATOR);
         out.append("</main>\n");
 
-        out.append("<footer><div><b>Before PLAY, either gamepad:</b> ").append(chip(Input.SQUARE)).append(" Blue · ")
-                .append(chip(Input.CIRCLE)).append(" Red alliance</div>")
-                .append("<div><b>Gamepad 1 Share:</b> next Driver Station page</div>")
-                .append("<div class=\"src\">From <code>ControlScheme</code>, the table the robot runs · scheme set in Panels, applies at INIT</div></footer>\n");
         out.append("</div>\n</body></html>\n");
         return out.toString();
     }
@@ -151,16 +143,10 @@ public final class CheatSheet {
             + "border-bottom:6px solid var(--deep);border-image:linear-gradient(90deg,var(--deep),var(--bright)) 1}\n"
             + ".wordmark{height:84px;width:auto;flex:none}\n"
             + "header.logo .sub{font-size:26px;font-weight:800;opacity:1;letter-spacing:.02em}\n"
-            + "header.logo .scheme{background:linear-gradient(110deg,var(--deep),var(--bright));color:#fff;border:0}\n"
             + ".title{flex:1}\n"
             + ".team{font-size:34px;font-weight:900;letter-spacing:.06em;line-height:1}\n"
             + ".team span{font-weight:300;opacity:.85}\n"
             + ".sub{font-size:15px;margin-top:6px;opacity:.92;letter-spacing:.04em}\n"
-            + ".scheme{text-align:center;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.45);"
-            + "border-radius:12px;padding:6px 16px}\n"
-            + ".scheme .k{font-size:11px;text-transform:uppercase;letter-spacing:.14em;opacity:.9}\n"
-            + ".scheme .v{font-size:40px;font-weight:900;line-height:1}\n"
-            + ".scheme .d{font-size:11px;opacity:.95}\n"
             + "main{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:.25in;min-height:0}\n"
             + "section{border:2px solid var(--deep);border-radius:14px;padding:10px 14px}\n"
             + "h2{margin:0 0 4px;font-size:22px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}\n"
@@ -177,7 +163,5 @@ public final class CheatSheet {
             + ".chip.circle{background:#ffe0e0;color:#c81e1e}\n"
             + ".chip.square{background:#fbe1f2;color:#b0277f}\n"
             + ".chip.triangle{background:#d9f5e6;color:#11804a}\n"
-            + ".chip.pad{background:#16161d;color:#fff}\n"
-            + "footer{display:flex;gap:22px;align-items:center;font-size:12px;color:#333;flex-wrap:wrap}\n"
-            + "footer .src{margin-left:auto;color:#888;font-size:10px}\n";
+            + ".chip.pad{background:#16161d;color:#fff}\n";
 }

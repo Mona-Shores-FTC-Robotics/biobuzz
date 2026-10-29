@@ -4,47 +4,36 @@ import java.util.EnumMap;
 import java.util.Map;
 
 /**
- * Which input runs which {@link Action}: the only place a button is chosen. A scheme is picked
- * in Panels ({@code TeleOpConfig.scheme}) and read once, at INIT, so a change can never strand a
- * held mechanism mid-match; it takes effect the next time INIT is pressed.
+ * Which input runs which {@link Action}: the only place a button is chosen. One layout, shared by
+ * both teams; the drive team changes it here, and the Driver Station's Controls page and the
+ * printed cheat sheet follow.
  *
- * <p>The schemes share the driver's layout and differ in who may run the intake:
+ * <p>Both people can run the intake (R2) and unjam (L2), the same input on each pad. When both
+ * press the intake at once, the driver wins ({@link IntakeArbiter}).
  *
- * <ul>
- *   <li>{@link #A}: the driver alone.</li>
- *   <li>{@link #B}: the operator too, on L1; whenever the driver presses intake or reverse,
- *       the driver wins ({@link IntakeArbiter}).</li>
- * </ul>
- *
- * <p>A third scheme is a new constant and its lines in {@link #layout}; nothing else changes.
- * {@code ControlSchemeTest} checks every scheme: no input used twice on one gamepad, every action
- * the OpMode needs present.
+ * <p>{@code ControlSchemeTest} checks the layout: no input used twice on one gamepad, every
+ * action the OpMode needs present.
  */
-public enum ControlScheme {
-    A("A: driver-only intake"),
-    B("B: shared intake, driver wins");
+public final class ControlScheme {
+
+    private ControlScheme() {
+    }
 
     /** Where the FLOWER pick goes unless {@code TeleOpConfig.flowerPickButton} says otherwise. */
     public static final Input DEFAULT_FLOWER_PICK = Input.CROSS;
 
-    public final String title;
-
-    ControlScheme(String title) {
-        this.title = title;
-    }
-
     /**
-     * This scheme's inputs, with the FLOWER pick on {@code flowerPick}. The pick may be any face
-     * button or D-pad direction; whatever driver action had that input moves to the pick's default
+     * The inputs, with the FLOWER pick on {@code flowerPick}. The pick may be any face button or
+     * D-pad direction; whatever driver action had that input moves to the pick's default
      * ({@link #DEFAULT_FLOWER_PICK}), so the two swap and nothing is lost. Anything else (a stick,
      * a trigger, null) leaves the pick on its default.
      */
-    public Map<Action, Input> layout(Input flowerPick) {
+    public static Map<Action, Input> layout(Input flowerPick) {
         EnumMap<Action, Input> map = new EnumMap<>(Action.class);
         map.put(Action.DRIVE, Input.LEFT_STICK);
         map.put(Action.TURN, Input.RIGHT_STICK_X);
         map.put(Action.INTAKE, Input.R2);
-        map.put(Action.REVERSE_INTAKE, Input.L2);
+        map.put(Action.DRIVER_UNJAM, Input.L2);
         map.put(Action.SLOW, Input.L1);
         map.put(Action.TURBO, Input.R1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
@@ -56,21 +45,15 @@ public enum ControlScheme {
         map.put(Action.RESET_TO_SPOT, Input.DPAD_RIGHT);
         map.put(Action.AUTO_PARK, Input.DPAD_DOWN);
 
-        map.put(Action.LAUNCHER_TOGGLE, Input.R1);
-        map.put(Action.FIRE, Input.R2);
+        map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);
+        map.put(Action.LAUNCHER_TOGGLE, Input.R1);
+        map.put(Action.FIRE, Input.CIRCLE);
+        map.put(Action.TURRET_LOCK, Input.TRIANGLE);
         map.put(Action.TRIM_LEFT, Input.DPAD_LEFT);
         map.put(Action.TRIM_RIGHT, Input.DPAD_RIGHT);
         map.put(Action.TRIM_RESET, Input.DPAD_DOWN);
-        map.put(Action.TURRET_LOCK, Input.TRIANGLE);
         map.put(Action.TURRET_ZERO, Input.DPAD_UP);
-        switch (this) {
-            case A:
-                break;
-            case B:
-                map.put(Action.OPERATOR_INTAKE, Input.L1);
-                break;
-        }
         if (flowerPick != null && flowerPick != DEFAULT_FLOWER_PICK && flowerPick.isFaceOrDpad()) {
             for (Map.Entry<Action, Input> entry : map.entrySet()) {
                 if (entry.getKey().pad == Action.Pad.DRIVER && entry.getValue() == flowerPick) {

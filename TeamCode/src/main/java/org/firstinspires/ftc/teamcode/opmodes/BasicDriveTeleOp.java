@@ -34,11 +34,10 @@ import java.util.Locale;
  *
  * <h2>Controls</h2>
  *
- * <p>Which input does what is {@link ControlScheme}, picked in Panels ({@link TeleOpConfig#scheme})
- * and read once, at INIT: scheme A gives the intake to the driver alone, scheme B lets the
- * operator run it too, the driver winning ({@link IntakeArbiter}). The Driver Station's Controls
- * page (Share) and the printed cheat sheet are both generated from the scheme. Nothing here names
- * a button.
+ * <p>Which input does what is {@link ControlScheme}, one layout for both teams. Both people run
+ * the intake (R2) and unjam (L2), the driver winning when both press ({@link IntakeArbiter}); unjam
+ * on either pad also reverses the feeder. The Driver Station's Controls page (Share) and the
+ * printed cheat sheet are both generated from the layout. Nothing here names a button.
  *
  * <p>Buttons do what is asked at once. Fire feeds the moment it is held: the checks a shot could
  * wait for ({@link FireGates}: launcher at speed, aim on our CELL) run every loop and are logged
@@ -61,7 +60,7 @@ import java.util.Locale;
  * <h2>What it reports</h2>
  *
  * <p>The operator's light bar is green at launch speed, amber spinning up, blue at idle, with a
- * short rumble the moment it reaches speed. The match log has the scheme, every fire press with
+ * short rumble the moment it reaches speed. The match log has every fire press with
  * its launcher speed, aim error, trim, pose and gates, every trim, who ran the intake each loop,
  * and every routine a stick cancelled. Each shot the launcher counts from its speed dip is one line
  * with the range to the CELL, which is #80's speed-vs-distance table filled in from ordinary
@@ -145,16 +144,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
         aimer = new TurretAimer(robot);
         picker = new FlowerPicker(robot, text -> log.event(text));
-        ControlScheme scheme = TeleOpConfig.scheme == null ? ControlScheme.A : TeleOpConfig.scheme;
-        controls = new Controls(scheme, TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
-        log.metadata("Controls/Scheme", scheme.title);
+        controls = new Controls(TeleOpConfig.flowerPickButton, gamepad1, gamepad2, driver, operator);
         log.metadata("Controls/Drive", robotCentric() ? "robot-centric" : "field-centric");
 
         // Bound in Action order, so the Controls page reads like the cheat sheet.
         controls.note(Action.DRIVE);
         controls.note(Action.TURN);
         controls.note(Action.INTAKE);
-        controls.note(Action.REVERSE_INTAKE);
+        controls.note(Action.DRIVER_UNJAM);
         controls.note(Action.SLOW);
         controls.note(Action.TURBO);
         controls.note(Action.FLOWER_PICK);
@@ -168,14 +165,14 @@ public class BasicDriveTeleOp extends RobotOpMode {
             log.event("auto-park pressed: not built yet");
         });
 
+        controls.note(Action.OPERATOR_INTAKE);
+        controls.note(Action.UNJAM);
         controls.on(Action.LAUNCHER_TOGGLE).onPress(this::toggleLauncher);
         controls.note(Action.FIRE);
-        controls.note(Action.UNJAM);
-        controls.note(Action.OPERATOR_INTAKE);
+        controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
         controls.on(Action.TRIM_RIGHT).onPress(() -> trim(-1));
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
-        controls.on(Action.TURRET_LOCK).onPress(this::toggleTurretMode);
         controls.on(Action.TURRET_ZERO).duringInit().onPress(robot.turret::zeroHere);
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
@@ -199,8 +196,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         turretMode = TurretMode.LOCKED;
         aimer.off();
         robot.turret.home();
-        log.event("PLAY: controls scheme " + controls.scheme().title
-                + (robotCentric() ? ", robot-centric" : ""));
+        log.event("PLAY: " + (robotCentric() ? "robot-centric" : "field-centric"));
     }
 
     /** The pose set to our alliance's measured reset spot, if it has been measured. */
@@ -262,7 +258,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     @Override
     protected void onInitLoop() {
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
-        showScheme();
+        showControlsNotes();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
         showPinpoint();
     }
@@ -307,20 +303,18 @@ public class BasicDriveTeleOp extends RobotOpMode {
             } else {
                 robot.drive.drive(forward, strafe, turnCommand);
             }
-            intakeArbiter.decide(controls.held(Action.INTAKE), controls.held(Action.REVERSE_INTAKE),
+            intakeArbiter.decide(controls.held(Action.INTAKE), controls.held(Action.DRIVER_UNJAM),
                     controls.held(Action.UNJAM), controls.held(Action.OPERATOR_INTAKE));
             setIntake(intakeArbiter.state());
         }
         // The pick runs the intake itself while it is active.
         log.put("/Controls/IntakeOwner", picker.active() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
-        log.put("/Controls/Scheme", controls.scheme().ordinal());
         log.put("/Controls/TrimDeg", aimer.trimDeg());
         log.put("/Controls/AimErrorDeg", aimErrorDeg);
 
         fire();
         lightBar();
 
-        display.status("Controls", Display.Level.OK, "scheme " + controls.scheme().title);
         display.status("Mode", robotCentric() ? Display.Level.WARN : Display.Level.OK,
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
@@ -417,7 +411,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         lastFire = fireHeld;
         // requestFor's "at speed" is the enforced gates' verdict here, and it is always required:
         // with nothing enforced the gates are always open.
-        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld, controls.held(Action.UNJAM),
+        FeederSubsystem.State feed = FeederSubsystem.requestFor(fireHeld, unjamHeld(),
                 open, true, robot.feeder.state() == FeederSubsystem.State.FEED);
         switch (feed) {
             case FEED:
@@ -431,17 +425,21 @@ public class BasicDriveTeleOp extends RobotOpMode {
         }
     }
 
-    /** One fire press, for the log: scheme, launcher, aim, trim, pose, gates, and what happened. */
+    /** Unjam on either pad: it reverses the feeder as well as the intake. */
+    private boolean unjamHeld() {
+        return controls.held(Action.UNJAM) || controls.held(Action.DRIVER_UNJAM);
+    }
+
+    /** One fire press, for the log: launcher, aim, trim, pose, gates, and what happened. */
     private String fireLine(boolean open) {
         Pose pose = robot.drive.pose();
         String where = pose == null ? "no pose"
                 : String.format(Locale.US, "pose (%.1f, %.1f, %.0f°)%s", pose.x(), pose.y(),
                 Math.toDegrees(pose.heading()), robot.drive.poseReferenced() ? "" : " not on the field");
-        String outcome = controls.held(Action.UNJAM) ? "not fed: unjam is held"
+        String outcome = unjamHeld() ? "not fed: unjam is held"
                 : !open ? "WAITING: an enforced gate is closed"
                 : gates.anyWouldBlock() ? "fired; a gate would have blocked it (shadow)" : "fired; gates clear";
-        return String.format(Locale.US, "fire [%s]: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
-                controls.scheme().name(),
+        return String.format(Locale.US, "fire: launcher %.0f/%.0f ticks/s%s, aim %s (%s), trim %+.1f°, turret %s, %s, gates %s → %s",
                 (robot.launcher.leftTicksPerSecond() + robot.launcher.rightTicksPerSecond()) / 2.0,
                 robot.launcher.target(), launchMode ? "" : " (idle)",
                 Double.isNaN(aimErrorDeg) ? "unknown" : String.format(Locale.US, "%+.1f°", aimErrorDeg),
@@ -466,13 +464,10 @@ public class BasicDriveTeleOp extends RobotOpMode {
         bar = now;
     }
 
-    /** The scheme on the INIT page, and a warning when Panels has been changed since INIT. */
-    private void showScheme() {
-        display.status("Controls", Display.Level.OK, "scheme " + controls.scheme().title
-                + (robotCentric() ? " · ROBOT-CENTRIC" : ""));
-        if (TeleOpConfig.scheme != null && TeleOpConfig.scheme != controls.scheme()) {
-            display.status("Scheme", Display.Level.WARN, "Panels now says " + TeleOpConfig.scheme.title
-                    + ": stop and press INIT again to use it");
+    /** On the INIT page: robot-centric if it is, and a FLOWER pick button Panels cannot use. */
+    private void showControlsNotes() {
+        if (robotCentric()) {
+            display.status("Drive", Display.Level.WARN, "ROBOT-CENTRIC");
         }
         if (TeleOpConfig.flowerPickButton != null && !TeleOpConfig.flowerPickButton.isFaceOrDpad()) {
             display.status("FLOWER pick", Display.Level.WARN, TeleOpConfig.flowerPickButton.label
@@ -560,7 +555,6 @@ public class BasicDriveTeleOp extends RobotOpMode {
             panels.addData("trim_deg", aimer.trimDeg());
             panels.addData("gate_speed", gates.verdict(FireGates.Gate.LAUNCHER_AT_SPEED).ordinal());
             panels.addData("gate_aim", gates.verdict(FireGates.Gate.AIM_ON_TARGET).ordinal());
-            panels.addData("control_scheme", controls.scheme().ordinal());
             panels.addData("intake_owner", picker.active() ? INTAKE_OWNER_PICK : intakeArbiter.owner().ordinal());
             panels.addData("loop_ms", loopTimer.lastMs());
             panels.update();

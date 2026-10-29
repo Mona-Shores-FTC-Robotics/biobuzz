@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.controls.ControlScheme;
 import org.firstinspires.ftc.teamcode.controls.Input;
 
 /**
- * The TeleOp's driver-facing knobs, in one Panels class: the control scheme, speeds, aim trim,
+ * The TeleOp's driver-facing knobs, in one Panels class: the FLOWER pick button, speeds, aim trim,
  * the fire gates and chassis aim. A mechanism's own constants (powers, launcher speed, the FLOWER
  * pick's distances) stay on the class that owns the mechanism.
  *
@@ -20,9 +20,6 @@ public final class TeleOpConfig {
 
     private TeleOpConfig() {
     }
-
-    /** Which {@link ControlScheme}. Read once at INIT: change it here, then press INIT. */
-    public static ControlScheme scheme = ControlScheme.A;
 
     /**
      * The driver's FLOWER pick button: any face button or D-pad direction. Whatever was there

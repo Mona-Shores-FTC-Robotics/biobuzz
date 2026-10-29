@@ -12,8 +12,8 @@ import java.util.Base64;
 import java.util.Map;
 
 /**
- * Builds the printable cheat sheets, one per team and scheme, into
- * {@code TeamCode/build/cheat-sheets/}, and checks each lists every input its scheme binds.
+ * Builds the printable cheat sheets, one per team, into {@code TeamCode/build/cheat-sheets/}, and
+ * checks each lists every input the layout binds.
  * {@code ./gradlew testDebugUnitTest}, then open a file in a browser and print it landscape.
  *
  * <p>A team's logo is {@code TeamCode/cheat-sheets/logo-<number>.jpg} (or {@code .png}, {@code .svg});
@@ -22,21 +22,19 @@ import java.util.Map;
 public class CheatSheetTest {
 
     @Test
-    public void everyTeamAndSchemeHasASheetListingEveryInput() throws IOException {
+    public void everyTeamHasASheetListingEveryInput() throws IOException {
         File teamCode = new File("src").isDirectory() ? new File(".") : new File("TeamCode");
         File dir = new File(new File(teamCode, "build"), "cheat-sheets");
         assertTrue("cannot make " + dir, dir.isDirectory() || dir.mkdirs());
         for (CheatSheet.Team team : CheatSheet.Team.values()) {
             String logo = logo(new File(teamCode, "cheat-sheets"), team.number);
-            for (ControlScheme scheme : ControlScheme.values()) {
-                String html = CheatSheet.html(scheme, team, logo);
-                for (Map.Entry<Action, Input> entry : scheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).entrySet()) {
-                    assertTrue(team + " " + scheme + " sheet is missing " + entry.getKey(),
-                            html.contains(entry.getKey().description.replace("&", "&amp;")));
-                }
-                String name = "controls-" + team.number + "-" + team.name.toLowerCase() + "-scheme-" + scheme.name() + ".html";
-                Files.write(new File(dir, name).toPath(), html.getBytes(StandardCharsets.UTF_8));
+            String html = CheatSheet.html(team, logo);
+            for (Map.Entry<Action, Input> entry : ControlScheme.layout(ControlScheme.DEFAULT_FLOWER_PICK).entrySet()) {
+                assertTrue(team + " sheet is missing " + entry.getKey(),
+                        html.contains(entry.getKey().description.replace("&", "&amp;")));
             }
+            String name = "controls-" + team.number + "-" + team.name.toLowerCase() + ".html";
+            Files.write(new File(dir, name).toPath(), html.getBytes(StandardCharsets.UTF_8));
         }
     }
 
