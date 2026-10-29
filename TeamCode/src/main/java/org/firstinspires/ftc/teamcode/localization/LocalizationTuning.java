@@ -7,8 +7,8 @@ import com.pedropathing.math.Pose;
 
 /**
  * The numbers localization runs on. <b>Starting values</b>: the filter's are DECODE's, which ran
- * Pedro's {@link FusionLocalizer} all last season; the fix model's are a first guess until the Vision
- * Noise Tuner measures them on this robot. Read when the OpMode initializes.
+ * Pedro's {@link FusionLocalizer} all last season; the fix model's are a first guess until the jitter
+ * line in Vision: HIVE &amp; Pose measures them on this robot. Read when the OpMode initializes.
  */
 @Configurable
 public final class LocalizationTuning {
@@ -24,10 +24,13 @@ public final class LocalizationTuning {
     public static double headingMeasurementVariance = 0.0248;
     public static int historySize = 100;
 
-    /** One-sigma error of a camera fix at close range, inches. Measure with Vision: Noise Tuner. */
+    /**
+     * One-sigma error of a camera fix at close range, inches: Vision: HIVE &amp; Pose's jitter line,
+     * close in.
+     */
     public static double fixSigmaIn = 1.5;
 
-    /** Extra fix sigma per inch of range. From the Noise Tuner at two or three distances. */
+    /** Extra fix sigma per inch of range. From that jitter line at two or three distances. */
     public static double fixSigmaPerInch = 0.02;
 
     /**

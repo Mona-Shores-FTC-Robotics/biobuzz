@@ -977,8 +977,9 @@ and the field-pose layer should not either.
 A damped, pivoting, volunteer-assembled game element will not return to precisely the
 same pose on every tip. A hive-derived pose deserves considerably larger covariance
 than a wall tag would, should be gated against odometry, and should never hard-reset
-the pose estimate. The spread across many tips is worth measuring — point **Vision:
-Noise Tuner** at a cell and tip it by hand between samples.
+the pose estimate. The spread across many tips is worth measuring: in **Vision: HIVE &
+Pose**, hold still facing a cell, tip it by hand between readings, and watch the camera
+jitter line.
 
 ### What the SDK does publish, and how we use it
 
@@ -1015,9 +1016,11 @@ cannot be settled without hardware, and both are isolated to one place each:
 1. **The camera's axis convention.** Limelight documents `targetpose_cameraspace`
    as +X right, +Y down, +Z forward, but the FTC SDK wrapper passes the three
    numbers straight through from the camera's JSON without normalising them, so
-   nothing in the SDK proves it. Run **Vision: Raw Tag Dump** and check. If it is
-   different, fix `CameraMount.cameraAxesToRobotAxes` — one method, and
-   `CameraMountTest` covers the rest of the chain.
+   nothing in the SDK proves it. Checked on 19429 on 3 Oct 2026 (#156): range within
+   about an inch and row height within 0.2 in of a tape. If it is ever in doubt again,
+   fix `CameraMount.cameraAxesToRobotAxes` — one method, and `CameraMountTest` covers
+   the rest of the chain. (The raw per-tag check OpMode, `VisionTagDump`, is in git
+   history.)
 2. **The offset from the tag row out to the cell opening.** A fixed
    `(0, +7.187, -5.622)` inches in the cluster plane, but applying it needs the
    cluster's 3D orientation, which needs the Euler convention the Limelight reports
@@ -1034,20 +1037,19 @@ cannot be settled without hardware, and both are isolated to one place each:
 - An AprilTag pipeline with tag size set to **3.25"**. Get this wrong and every
   range is off by a constant factor, with nothing about the output looking broken.
 - That pipeline emitting **full 3D pose**. Without it no sighting can be built at
-  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and both
-  diagnostic OpModes display it, so the failure says what it is instead of just
-  reporting "no target".
+  all; `LimelightVisionSubsystem.framesMissing3dPose()` counts the case and **Vision:
+  HIVE & Pose** says so in its Tags section, so the failure says what it is instead of
+  just reporting "no target".
 
-### The OpModes, in the order to run them
+### The vision OpMode
 
-All three are under the **Vision** group and are enabled, not `@Disabled`.
-
-1. **Vision: Raw Tag Dump** — raw per-fiducial numbers before any of our maths.
-   Settles the axis convention above.
-2. **Vision: Sighting Diagnostics** — live range/bearing/elevation per cell, with
-   camera mounting live-tunable in Panels. The tape-measure check.
-3. **Vision: Noise Tuner** — running mean and standard deviation of a stationary
-   sighting. Re-measure at a few distances; AprilTag noise grows quickly with range.
+There is one: **Vision: HIVE & Pose** (Utility menu). It shows the HIVEs, every CELL in
+view (state, row height, range, bearing), odometry against the camera, each tag's gate
+verdict and residual, the stationary fix, and how much the camera jitters while still.
+It needs no setup: it starts from the red audience start, its buttons switch what it
+tests, and the match log keeps its numbers. Anything new to try with the camera goes
+into it, not into another OpMode. The four single-purpose vision OpModes it replaced
+(Raw Tag Dump, Sighting Diagnostics, Noise Tuner, Tag Tilt) are in git history.
 
 ### Published HIVE geometry
 
@@ -1110,9 +1112,8 @@ Two properties are deliberate and worth not "fixing":
 
 `CellStateTracker.Geometry` defaults both nominal heights to NaN, which makes every
 cell report UNKNOWN until someone measures them. That is intentional; an unmeasured
-field is not a reason to guess. **Vision: Sighting Diagnostics** prints the measured
-row height per cell, labelled, so settling a cell and reading it off is the whole
-procedure.
+field is not a reason to guess. **Vision: HIVE & Pose** prints the measured row height
+of each CELL in view, so settling a cell and reading it off is the whole procedure.
 
 ### Open work
 
@@ -1144,8 +1145,8 @@ Ordered roughly by what unblocks what.
    > is needed. Until item 2, the robot runs on the Pinpoint alone. The gate against
    > odometry described above was deliberately left to Pedro's filter: add one only if a
    > robot shows it is needed.
-4. **Measure tip-to-tip repeatability.** Point **Vision: Noise Tuner** at a cell and
-   tip it by hand between samples. The spread across tips — not the frame-to-frame
+4. **Measure tip-to-tip repeatability.** In **Vision: HIVE & Pose**, hold still facing a
+   cell and tip it by hand between readings of the jitter line. The spread across tips — not the frame-to-frame
    noise — is what sets the covariance a hive-derived pose deserves.
 5. **Add orientation as a confirming discriminator**, once the Limelight's Euler
    convention has been established on the robot.
@@ -1236,29 +1237,34 @@ TeleOp started without an Auto handoff a field heading. A fixed spot, not "the n
 picking the nearest corner trusts the pose that is being reset. It stays NaN (the button says so)
 until measured.
 
-**Tuning order** (robot, `Vision: HIVE & Pose`, a field with HIVEs):
+**A vision session** (robot, `Vision: HIVE & Pose`, a field with HIVEs). Nothing to set in Panels:
+the OpMode starts from a known pose, a button switches fixes, and the match log records every
+tag's residual and the jitter. Afterwards, hand the session's match log to whoever changes the
+code (a Claude session can read it): the numbers come off the log, not off someone's notes.
 
-1. **Mount and field points together.** Declare or reset to a known pose, then stand still in front
-   of a CELL. The Tags section shows, per tag, the robot it implies minus odometry, in field axes
-   and in robot axes. Turn the robot through three headings, then repeat at two or three spots.
-   A residual that **turns with the robot** (steady in robot axes) is the camera mount
-   (`CameraMount`): pitch if it grows with range, yaw if it is sideways. One that **stays put on the
-   field** (steady in field axes, at every heading) is that tag's field point (`HiveFieldPoints`).
-   A height error that is the same for every tag is pitch or mount height. Aim for under 1 in.
-2. **Gates.** Set `maxTagHeightErrorIn` and `tagOutlierIn` to about twice the worst residual
-   seen in step 1, so good tags never drop; `maxTagRangeIn` to the range beyond which residuals grow.
-3. **Averaging.** Standing still, compare `camera_x_in` / `camera_y_in` (one frame each) with
-   `still_fix_x_in` / `still_fix_y_in` in Panels. Raise `stillFixFrames` until the averaged line is
-   steady; set `maxFixSpreadIn` just above the spread seen when nothing is wrong.
-4. **Turn on `stillFixes`**, drive #82 session 1's taped path, and compare with it off.
+1. **Start known.** Place the robot on the red audience start, INIT `Vision: HIVE & Pose`, and
+   check the start line agrees.
+2. **Mount and field points.** Stand still facing a CELL, then turn on the spot through two more
+   headings, then drive to one or two other spots. The Tags section shows, per tag, the robot it
+   implies minus odometry, in field axes and in robot axes. A residual that **turns with the
+   robot** (steady in robot axes) is the camera mount (`CameraMount`): pitch if it grows with range,
+   yaw if it is sideways. One that **stays put on the field** (steady in field axes, at every
+   heading) is that tag's field point (`HiveFieldPoints`). A height error the same on every tag is
+   pitch or mount height. The goal is under 1 in; the fix goes into the code from the log.
+3. **Jitter.** Each time the robot holds still facing a HIVE, the jitter line gives the camera's
+   standard deviation at that range: `fixSigmaIn` and `fixSigmaPerInch` come from two or three of
+   those.
+4. **Fixes.** D-pad right turns stationary fixes on for that run. Push the robot a few inches by
+   hand, stop facing a HIVE, and watch the pose come back. Then the real test: Basic Drive on
+   #82 session 1's taped path, with `LocalizationTuning.stillFixes` set in code, against without.
 5. **Continuous fixes** are their own session, later (#82 session 5).
 
 Which way each row runs along the field (`HiveFieldPoints.clusterXAlongFieldX`) follows from the
 SDK's cluster layout: the opening sits at +y, -z of the row in cluster axes, the opening faces away
 from the axle and the tags face down, so x = y × z points along +x for an AUDIENCE CELL and -x for
 a SCORING one. That predicted RED_AUDIENCE, which was then measured. The other three are derived;
-facing each with Raw Tag Dump confirms it (highest id on the robot's right facing +y for AUDIENCE,
-left for SCORING).
+facing each in Vision: HIVE & Pose confirms it (its Tags section lists the ids: highest id on the
+robot's right facing +y for AUDIENCE, left for SCORING).
 
 **Seeing it.** `Vision: HIVE & Pose` drives the robot and shows all of it: on the Driver Station
 the HIVEs, the CELLs in view, odometry against camera, and the would-relocalize gap; in Panels,
@@ -1269,7 +1275,9 @@ relocalizes, Y resets field-centric forward.
 **The SDK's orientation names are not Limelight's.** The SDK builds a tag's `Pose3D` as
 `new YawPitchRollAngles(DEGREES, rz, ry, rx)` (Hardware 12.0.0, `LLResult.createPose3DRobot`),
 so `getRoll()` is the turn about camera X, which Limelight's docs call "pitch". The tag tilt of
-a tipping CELL seen head-on is in `getRoll()`. `Vision: Tag Tilt` settles the rotation order.
+a tipping CELL seen head-on is in `getRoll()`. Nothing depends on the rotation order (the
+tracker reads state from height); the OpMode that was built to settle it, `VisionTagTilt`, is in
+git history.
 
 ### What was dropped from the DECODE port, and why
 
@@ -1478,8 +1486,8 @@ stay readable as normal Java.
 Three things that will cost you a meeting if you forget them:
 
 - **A field with no annotation above it simply never appears.** No error, no warning — it is
-  just absent from the tree. `VisionSightingDiagnostics` carries a note about exactly this
-  happening once already.
+  just absent from the tree. `CameraMount`'s values once failed to appear this way, in
+  DECODE's diagnostic OpMode.
 - **It is one-way unless code asks otherwise.** Edits in Panels reach the robot immediately.
   Values changed *in code* reach the browser only when a tab connects, after a browser edit, or
   when the code calls `PanelsConfigurables.refreshClass(TheConfigurableClass.class)`. So any code

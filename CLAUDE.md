@@ -119,6 +119,9 @@ generated Java by hand. `AutoSourcesTest` fails a generated class whose `.pp` is
 the webcam (`vision/PieceVisionSubsystem`, the SDK's colour-blob processor), enabled only while
 intaking because it costs Control Hub CPU. Never switch the Limelight to a colour pipeline — it
 starves the fusion of tag fixes.
+There is one vision OpMode, **Vision: HIVE & Pose**: a camera check or experiment goes into it,
+never into a new OpMode. It needs no Panels setup to be useful (known start, its own buttons, its
+numbers in the match log); keep it that way.
 
 **Field frame and units.** Pedro's frame everywhere: origin at a field corner, inches, radians CCW.
 Degrees only on screens. It is the only frame a person reads or types — on the DS, in Panels, in

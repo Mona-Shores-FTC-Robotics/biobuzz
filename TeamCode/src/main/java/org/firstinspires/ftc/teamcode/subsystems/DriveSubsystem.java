@@ -124,6 +124,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double stillFixJumpIn = Double.NaN;
     private int stillFixesApplied;
     private Pose stillFixPose;
+    /** Whether stationary fixes go into the filter this run: {@link LocalizationTuning#stillFixes} at init. */
+    private boolean applyStillFixes = LocalizationTuning.stillFixes;
     private Pose lastCameraPose;
     private long lastCameraPoseNs;
 
@@ -602,7 +604,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             stillFix = StillFix.TOO_SPREAD;
         } else if (stillFixJumpIn > LocalizationTuning.maxFixJumpIn) {
             stillFix = StillFix.TOO_FAR;
-        } else if (LocalizationTuning.stillFixes) {
+        } else if (applyStillFixes) {
             localizer.addMeasurement(new Pose(x, y, Double.NaN), averager.newestCaptureNs(),
                     CellFix.variance(averager.nearestRangeIn(), averager.minTags()));
             stillFixesApplied++;
@@ -676,13 +678,22 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         TOO_SPREAD,
         /** The last batch was further than {@link LocalizationTuning#maxFixJumpIn} from the pose. */
         TOO_FAR,
-        /** The last batch passed, but {@link LocalizationTuning#stillFixes} is off. */
+        /** The last batch passed, but stationary fixes are off ({@link #stillFixesOn}). */
         READY,
         /** The last batch went into the filter. */
         APPLIED
     }
 
     public StillFix stillFix() { return stillFix; }
+
+    /**
+     * Turns stationary fixes on or off for this run only, for a test OpMode's button. The next
+     * OpMode starts from {@link LocalizationTuning#stillFixes} again.
+     */
+    public void setStillFixes(boolean on) { applyStillFixes = on; }
+
+    /** Whether stationary fixes go into the filter this run. */
+    public boolean stillFixesOn() { return applyStillFixes; }
 
     /** Frames in the batch being averaged. */
     public int stillFixFrames() { return averager.frames(); }
@@ -794,6 +805,6 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         display.line("<small>Camera fixes: " + fixCount
                 + (LocalizationTuning.continuousFixes ? " (correcting)" : " (counted only)")
                 + " · still fixes: " + stillFix
-                + (LocalizationTuning.stillFixes ? ", " + stillFixesApplied + " applied" : " (off)") + "</small>");
+                + (applyStillFixes ? ", " + stillFixesApplied + " applied" : " (off)") + "</small>");
     }
 }

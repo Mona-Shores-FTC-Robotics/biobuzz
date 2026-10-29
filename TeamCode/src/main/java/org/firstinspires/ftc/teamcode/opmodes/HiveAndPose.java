@@ -9,11 +9,15 @@ import com.qualcomm.robotcore.eventloop.opmode.Utility;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
+import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.subsystems.DriveSubsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldView;
+import org.firstinspires.ftc.teamcode.util.WelfordVariance;
+import org.firstinspires.ftc.teamcode.vision.BiobuzzTags;
 import org.firstinspires.ftc.teamcode.vision.CellSighting;
 import org.firstinspires.ftc.teamcode.vision.CellStateTracker;
 import org.firstinspires.ftc.teamcode.vision.HiveCell;
@@ -57,9 +61,16 @@ import java.util.Locale;
  *       single-frame {@code camera_*}, which is the jitter comparison.</li>
  * </ul>
  *
+ * <p><b>The one vision OpMode.</b> Everything the camera needs checking with lives here; to try
+ * something new with the camera, add it here rather than a new OpMode. It needs no setup: it
+ * starts from the red audience start, its own buttons switch what it tests, and the match log
+ * keeps every number it shows, so a session's measurements survive without anyone writing them
+ * down.
+ *
  * <h2>Try</h2>
  * <ol>
- *   <li>Start facing the HIVE: the pose seeds from the camera within a second (Pose turns green).</li>
+ *   <li>Place the robot on the red audience start ({@link StartPositions#RED_AUDIENCE}) and INIT:
+ *       the pose starts there and the start check says whether the camera agrees.</li>
  *   <li>Hold still and tip the HIVE by hand: TRANSITION, then the other CELL up.</li>
  *   <li>Drive, get shoved, stop facing the HIVE: the two robots on the field have drifted apart by
  *       the would-relocalize gap. A brings them back together.</li>
@@ -111,6 +122,25 @@ public class HiveAndPose extends RobotOpMode {
     private boolean aiming;
     private TurretAimer aimer;
 
+    /** How much the camera's position jitters while the robot holds still, x and y, inches. */
+    private final WelfordVariance jitterX = new WelfordVariance();
+    private final WelfordVariance jitterY = new WelfordVariance();
+    /** The camera pose last added to the jitter: a new object means a new camera frame. */
+    private Pose lastJitterPose;
+
+    /** Match log keys per HIVE tag, made once: field residual x/y, height error, gate reason. */
+    private static final int TAG_COUNT = BiobuzzTags.LAST_TAG_ID - BiobuzzTags.FIRST_TAG_ID + 1;
+    private final String[] tagDxKeys = new String[TAG_COUNT];
+    private final String[] tagDyKeys = new String[TAG_COUNT];
+    private final String[] tagHeightKeys = new String[TAG_COUNT];
+    private final String[] tagReasonKeys = new String[TAG_COUNT];
+
+    /** Every session starts here, so the pose is known without an Auto first. */
+    @Override
+    protected StartPosition startPosition() {
+        return StartPositions.RED_AUDIENCE;
+    }
+
     @Override
     protected void onInit() {
         panels = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -121,6 +151,13 @@ public class HiveAndPose extends RobotOpMode {
             heightKeys[i] = "cell_" + name + "_height_in";
             angleKeys[i] = "cell_" + name + "_angle_deg";
             stateKeys[i] = "cell_" + name + "_state";
+        }
+        for (int i = 0; i < TAG_COUNT; i++) {
+            String tag = "/Vision/Tag" + (BiobuzzTags.FIRST_TAG_ID + i) + "/";
+            tagDxKeys[i] = tag + "FieldDxIn";
+            tagDyKeys[i] = tag + "FieldDyIn";
+            tagHeightKeys[i] = tag + "HeightErrorIn";
+            tagReasonKeys[i] = tag + "Reason";
         }
 
         driver.note("Left stick", "Drive");
@@ -134,6 +171,8 @@ public class HiveAndPose extends RobotOpMode {
                 .onPress(robot.drive::toggleFieldCentric);
         driver.when("D-pad left", "Pose: reset to our marked spot (squared to its wall)", () -> gamepad1.dpad_left)
                 .onPress(() -> relocalizeNote = robot.drive.resetToSpot(setup.alliance()));
+        driver.when("D-pad right", "Stationary camera fixes on / off (this run only; starts off)", () -> gamepad1.dpad_right)
+                .onPress(() -> robot.drive.setStillFixes(!robot.drive.stillFixesOn()));
         driver.when("D-pad up", "Turret: zero here, at its home mark (it zeroes itself at PLAY)", () -> gamepad1.dpad_up)
                 .duringInit()
                 .onPress(robot.turret::zeroHere);
@@ -171,7 +210,8 @@ public class HiveAndPose extends RobotOpMode {
                 deadband(gamepad1.right_stick_x) * TURN_SIGN * scale);
         if (aiming) aimer.update(setup.alliance(), aimSwitchBandIn);
         showEverything();
-        display.line("<small>Cross (A) relocalize · D-pad left reset spot · Triangle (Y) reset forward · "
+        display.line("<small>Cross (A) relocalize · D-pad left reset spot · D-pad right fixes on/off · "
+                + "Triangle (Y) reset forward · "
                 + "Circle (B) field/robot-centric · Square (X) aim · D-pad up zero turret · D-pad down turret home · "
                 + "Share (Back): controls, robot pages</small>");
     }
@@ -179,6 +219,7 @@ public class HiveAndPose extends RobotOpMode {
     /** The Match page, the Panels graphs and the field view, from this loop's state. */
     private void showEverything() {
         Pose camera = robot.drive.cameraPose();
+        trackJitter(camera);
         showHives();
         showCells();
         showPose(camera);
@@ -188,6 +229,46 @@ public class HiveAndPose extends RobotOpMode {
             publish(camera);
         } catch (RuntimeException ignored) {
             // A Panels hiccup must never take the robot down.
+        }
+        logTags();
+    }
+
+    /**
+     * Each new camera frame while the robot holds still, into the jitter statistics; any movement
+     * starts them again. The standard deviation is what {@code LocalizationTuning.fixSigmaIn} wants,
+     * at this range.
+     */
+    private void trackJitter(Pose camera) {
+        if (!robot.drive.isStill() || !robot.drive.poseReferenced()) {
+            jitterX.reset();
+            jitterY.reset();
+            lastJitterPose = null;
+            return;
+        }
+        if (camera != null && camera != lastJitterPose) {
+            jitterX.update(camera.x());
+            jitterY.update(camera.y());
+            lastJitterPose = camera;
+        }
+    }
+
+    /** The latest frame's tags into the match log, so a session's residuals can be read off later. */
+    private void logTags() {
+        TagGate frame = robot.drive.lastFrame();
+        Pose pose = robot.drive.pose();
+        for (int i = 0; i < frame.count(); i++) {
+            int k = frame.tagId(i) - BiobuzzTags.FIRST_TAG_ID;
+            if (k < 0 || k >= TAG_COUNT) continue;
+            log.put(tagHeightKeys[k], frame.heightErrorIn(i));
+            log.put(tagReasonKeys[k], frame.reason(i).ordinal());
+            if (pose != null && !Double.isNaN(frame.candidateX(i))) {
+                log.put(tagDxKeys[k], frame.candidateX(i) - pose.x());
+                log.put(tagDyKeys[k], frame.candidateY(i) - pose.y());
+            }
+        }
+        if (jitterX.n() >= 2) {
+            log.put("/Vision/JitterXIn", jitterX.stdDev());
+            log.put("/Vision/JitterYIn", jitterY.stdDev());
         }
     }
 
@@ -231,9 +312,10 @@ public class HiveAndPose extends RobotOpMode {
             double height = sighting.rowCentreRobot().z();
             display.status(cell.toString(),
                     state == HiveCellState.UNKNOWN ? Display.Level.WARN : Display.Level.OK,
-                    String.format(Locale.US, "<b>%s</b> · %.1f in up, %+.0f° · %d tag%s · %.0f in away",
+                    String.format(Locale.US, "<b>%s</b> · %.1f in up, %+.0f° · %d tag%s · %.0f in away, %+.0f° (+ left)",
                             state, height, rockerAngle(height), sighting.tagCount(),
-                            sighting.tagCount() == 1 ? "" : "s", sighting.groundRangeIn()));
+                            sighting.tagCount() == 1 ? "" : "s", sighting.groundRangeIn(),
+                            Math.toDegrees(sighting.bearingRad())));
         }
         if (!any) {
             display.line(robot.vision.isAvailable()
@@ -270,8 +352,13 @@ public class HiveAndPose extends RobotOpMode {
                 (stillFix == DriveSubsystem.StillFix.AVERAGING
                         ? "averaging " + robot.drive.stillFixFrames() + "/" + LocalizationTuning.stillFixFrames
                         : stillFix.toString())
-                        + batch + (LocalizationTuning.stillFixes
-                        ? " · " + robot.drive.stillFixesApplied() + " applied" : " · applying off"));
+                        + batch + (robot.drive.stillFixesOn()
+                        ? " · ON, " + robot.drive.stillFixesApplied() + " applied" : " · off (D-pad right)"));
+        if (jitterX.n() >= 2) {
+            display.line(String.format(Locale.US,
+                    "Camera jitter while still: %.2f in x, %.2f in y, over %d frames, %.0f in away",
+                    jitterX.stdDev(), jitterY.stdDev(), jitterX.n(), robot.drive.lastFrame().nearestRangeIn()));
+        }
         if (robot.drive.wouldRelocalizeCount() > 0) {
             display.line(String.format(Locale.US,
                     "Still and in view: off by %.1f in (worst %.1f in, %d samples)%s",
@@ -289,6 +376,13 @@ public class HiveAndPose extends RobotOpMode {
     private void showTags() {
         TagGate frame = robot.drive.lastFrame();
         display.section("Tags (latest frame)");
+        if (robot.vision.isAvailable() && !robot.vision.isConnected()) {
+            display.status("Camera", Display.Level.FAULT, "no response from "
+                    + robot.vision.connectionInfo() + " — plugged in? powered? IP matches robot_*.xml?");
+        } else if (robot.vision.framesMissing3dPose() > 0) {
+            display.status("Camera", Display.Level.WARN, robot.vision.framesMissing3dPose()
+                    + " tags without a 3D pose: the Limelight pipeline is not set to full 3D");
+        }
         if (frame.count() == 0) {
             display.line("none on a settled CELL");
             return;
