@@ -64,21 +64,19 @@ public final class StartCheck {
             if (map != null) {
                 for (String line : map) display.line(line);
             }
-            // "● Start ^: Left wheels on B-C seam" — the arrow is the robot on the map above.
-            String label = "Start " + start.arrow();
-            switch (status) {
-                case UNCONFIRMED:
-                    display.status(label, Display.Level.OK, start.placement());
-                    display.line("<small>camera: not seeing it yet</small>");
-                    return;
-                case IN_POSITION:
-                    display.status(label, Display.Level.OK, start.placement());
-                    display.line(String.format(java.util.Locale.US,
-                            "<small>camera: %.1f in off, logged (don't adjust)</small>", errorIn));
-                    return;
-                default:
-                    display.status(label, Display.Level.WARN, start.placement() + String.format(
-                            java.util.Locale.US, " — camera says %.0f in off: CHECK THE MARKS", errorIn));
+            // "^ Start: Left wheels on B-C Seam", bold, the arrow in the colour of how it stands: the
+            // one line to read, under the map whose arrow it is.
+            boolean warn = status == Status.OUT_OF_POSITION;
+            display.line("<b><font color=\"" + (warn ? "#FFB300" : "#4CAF50") + "\">"
+                    + start.arrow() + "</font> Start: " + start.placement() + "</b>");
+            if (status == Status.UNCONFIRMED) {
+                display.line("<small>camera: not seeing it yet</small>");
+            } else if (warn) {
+                display.line(String.format(java.util.Locale.US,
+                        "camera disagrees by %.0f in — CHECK THE MARKS", errorIn));
+            } else {
+                display.line(String.format(java.util.Locale.US,
+                        "<small>camera disagrees by %.1f in (don't adjust)</small>", errorIn));
             }
         }
     }

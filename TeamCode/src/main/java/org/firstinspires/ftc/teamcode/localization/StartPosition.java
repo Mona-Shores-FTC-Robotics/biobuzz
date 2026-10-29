@@ -32,7 +32,7 @@ public final class StartPosition {
     }
 
     /**
-     * How to put the robot there, as short as it can be: "Left wheels on B-C seam", the seam on
+     * How to put the robot there, as short as it can be: "Left wheels on B-C Seam", the seam on
      * the robot's left as it faces at the start (columns for a robot facing along the field, rows
      * for one facing across it). Worked out from the pose, so a start turned half a turn for the
      * other alliance gets its own seam. Falls back to {@link #where} when no seam is close enough
@@ -40,7 +40,7 @@ public final class StartPosition {
      */
     public String placement() {
         String seam = leftSeam();
-        return seam == null ? where() : "Left wheels on " + seam + " seam";
+        return seam == null ? where() : "Left wheels on " + seam + " Seam";
     }
 
     /** The seam just to the robot's left, "B-C" or "2-3", or null if none is within reach. */

@@ -41,7 +41,10 @@ public final class FieldMap {
     private FieldMap() {
     }
 
-    /** The map with {@code start}'s robot on it: header, six rows (row 6 first), footer, key. */
+    /**
+     * The map with {@code start}'s robot on it: header, six rows (row 6 first), and "audience" under
+     * it. No key: every mark is recognisable on the field it stands for.
+     */
     public static String[] lines(StartPosition start) {
         String[][] cells = new String[6][6];
         // gaps[r][k]: the seam between columns k and k+1 on row r; walls: a FLOWER on a side wall,
@@ -87,7 +90,7 @@ public final class FieldMap {
             put(cells, start.pose.x(), start.pose.y(), colour(ROBOT, "<b>" + start.arrow() + "</b>"));
         }
 
-        String[] lines = new String[9];
+        String[] lines = new String[8];
         lines[0] = "<tt>&nbsp;&nbsp;&nbsp;A B C D E F</tt>";
         for (int r = 5; r >= 0; r--) {
             StringBuilder line = new StringBuilder("<tt>").append(r + 1).append(' ').append(leftWall[r]);
@@ -98,10 +101,6 @@ public final class FieldMap {
             lines[6 - r] = line.append(rightWall[r]).append("</tt>").toString();
         }
         lines[7] = "<tt>&nbsp;&nbsp;&nbsp;audience</tt>";
-        lines[8] = "<small>" + colour(RED, "|") + colour(BLUE, "|") + " LOADING ZONE tape · "
-                + "<b>H</b> HIVE CELL up at the start, h down · "
-                + flower + " FLOWER, on a seam" + (start == null ? "" : " · " + colour(ROBOT, start.arrow())
-                + " our robot") + "</small>";
         return lines;
     }
 
