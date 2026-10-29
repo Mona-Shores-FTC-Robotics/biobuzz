@@ -47,6 +47,9 @@ import java.util.function.Consumer;
  * <p>{@code PickFlower} is {@link FlowerPicker}, the routine the driver's D-pad up runs, and
  * {@code GardenGather} is {@link GardenGather}, the driver's D-pad down. Give their cards a timeout
  * longer than the grab (the Visualizer's builder sets 8 s): a card's default 5 s can cut one short.
+ * Both are registered as grabs ({@code AutoRegistry.grab}): they drive the robot off its spot and
+ * back, so the endgame guard never cuts one and does not start one unless its typical time (the
+ * gather's 6 s allows for a long drive in and back) and the park both fit.
  *
  * <p>{@code SpinUp}, {@code LaunchAll}, {@code LaunchOne} and {@code Empty} are real since the
  * launcher and feeder landed (#194): see {@link LaunchCards}, including what {@code Empty} means
@@ -100,10 +103,10 @@ public final class AutoRegistration {
                 .command("SpinUp", 0.1, () -> launch.spinUp())
                 // ---- real: the FLOWER pick, the same routine as the driver's D-pad up. It starts at
                 // the pick spot an Auto drives to and ends back there (FlowerPicker's contract).
-                .command("PickFlower", 4.0, () -> FlowerPicker.command(robot, note))
+                .grab("PickFlower", 4.0, () -> FlowerPicker.command(robot, note))
                 // ---- real: the GARDEN gather, the same routine as the driver's D-pad down. It drives in
                 // to the GARDEN from wherever the card is called and back there (GrabRoutine's contract).
-                .command("GardenGather", 4.0, () -> GardenGather.command(robot, note))
+                .grab("GardenGather", 6.0, () -> GardenGather.command(robot, note))
                 .triggerSince("Empty", () -> launch == null ? () -> false : launch.emptySince())
                 // ---- placeholder: the intake does not count pieces yet (#181).
                 .trigger("IntakeFull", () -> false)

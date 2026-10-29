@@ -4,7 +4,7 @@
     {"name": "LaunchOne", "typicalS": 0.5},
     {"name": "SpinUp", "typicalS": 0.1},
     {"name": "PickFlower", "typicalS": 4.0},
-    {"name": "GardenGather", "typicalS": 4.0}
+    {"name": "GardenGather", "typicalS": 6.0}
   ],
   "triggers": [
     "Empty",
