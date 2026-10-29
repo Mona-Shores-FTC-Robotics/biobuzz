@@ -18,6 +18,7 @@ import org.firstinspires.ftc.teamcode.localization.FixAverager;
 import org.firstinspires.ftc.teamcode.localization.HiveFieldPoints;
 import org.firstinspires.ftc.teamcode.localization.LocalizationTuning;
 import org.firstinspires.ftc.teamcode.localization.ResetPositions;
+import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
 import org.firstinspires.ftc.teamcode.util.AccelLimiter;
@@ -131,6 +132,8 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
     private double stillFixJumpIn = Double.NaN;
     private int stillFixesApplied;
     private Pose stillFixPose;
+    /** The camera's view of the placement over the time the robot has sat untouched: see {@link SettledStats}. */
+    private final SettledStats settled = new SettledStats();
     /** Whether stationary fixes go into the filter this run: {@link LocalizationTuning#stillFixes} at init. */
     private boolean applyStillFixes = LocalizationTuning.stillFixes;
     private Pose lastCameraPose;
@@ -240,6 +243,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
             fixCount = 0;
             recentFixNext = 0;
             recentFixFilled = 0;
+            settled.reset();
             averager.reset();
         }
     }
@@ -560,6 +564,7 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         still = trackStillness();
         if (!still) {
             averager.reset();
+            settled.reset();
             if (stillFix == StillFix.AVERAGING) stillFix = StillFix.WAITING;
         }
         if (!gatherTags(true) || gate.count() == 0) {
@@ -584,7 +589,11 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
         lastCameraPose = new Pose(gate.x(), gate.y(), heading);
         lastCameraPoseNs = System.nanoTime();
         if (still) {
-            recordWouldRelocalize(fix, fitAccepted());
+            Pose full = fitAccepted();
+            recordWouldRelocalize(fix, full);
+            Pose now = localizer.pose();
+            settled.add(gate, now.x(), now.y(), heading, full == null ? Double.NaN : full.heading(),
+                    lastCameraPoseNs);
             offerStillFix(heading);
         }
         if (LocalizationTuning.continuousFixes) {
@@ -732,6 +741,9 @@ public class DriveSubsystem implements Subsystem, AutoDrive {
      * Read only: the drive refills it every frame.
      */
     public TagGate lastFrame() { return gate; }
+
+    /** The camera's view of the placement since the robot last moved. Read only. */
+    public SettledStats settled() { return settled; }
 
     /** Whether the robot has been still long enough for a would-relocalize sample. */
     public boolean isStill() { return still; }

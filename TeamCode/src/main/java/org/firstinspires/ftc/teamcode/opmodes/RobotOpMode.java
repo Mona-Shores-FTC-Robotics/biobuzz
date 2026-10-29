@@ -25,14 +25,15 @@ import org.firstinspires.ftc.teamcode.logging.MotionWatch;
 import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
+import org.firstinspires.ftc.teamcode.localization.SettledStats;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
-import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldView;
 import org.firstinspires.ftc.teamcode.subsystems.Subsystem;
 import org.firstinspires.ftc.teamcode.subsystems.TurretZeroPolicy;
 import org.firstinspires.ftc.teamcode.util.LoopTimer;
+import org.firstinspires.ftc.teamcode.vision.HiveCell;
 import org.firstinspires.ftc.teamcode.util.WelfordVariance;
 
 import java.io.File;
@@ -512,41 +513,55 @@ public abstract class RobotOpMode extends OpMode {
     }
 
     /**
-     * At PLAY, where the camera put the robot against where it was declared to start, into the
-     * match log's Metadata tab ({@code StartCheck}) and as numbers ({@code /StartCheck/*}). The
-     * drive team placed it by the marks, so each run is a calibration sample: a gap that follows
-     * one robot to every field is its camera mount; one that shows on every robot at one field is
-     * that field's HIVE. {@code RobotConfig} and the date are already in the log to tell them apart.
+     * At PLAY, what the camera made of the placement over the time the robot sat untouched before it
+     * ({@link SettledStats}), against the declared start: into the match log's Metadata tab
+     * ({@code StartCheck}) and as numbers ({@code /StartCheck/*}). The drive team placed it by the
+     * marks, so each run is a calibration sample. Position and heading: a gap that follows one robot
+     * to every field is its camera mount, one on every robot at one field is that field's HIVE, one
+     * that changes run to run is placement. Per CELL: one CELL off and the others not is that CELL.
+     * {@code RobotConfig} and the date are already in the log. {@code SettledSeconds} says how much
+     * to trust the sample: a robot adjusted just before PLAY gives a short one.
      */
     private void logStartCheck() {
         if (declaredStart == null) {
             return;
         }
-        StartCheck.Result r = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
-                robot.drive.meanFixX(), robot.drive.meanFixY());
-        if (r.status == StartCheck.Status.UNCONFIRMED) {
-            log.metadata("StartCheck", declaredStart + ": camera never confirmed ("
-                    + robot.drive.fixCount() + " fixes)");
+        SettledStats s = robot.drive.settled();
+        if (s.frames() == 0) {
+            log.metadata("StartCheck", declaredStart + ": no camera frames while settled");
             return;
         }
-        double dx = robot.drive.meanFixX() - declaredStart.pose.x();
-        double dy = robot.drive.meanFixY() - declaredStart.pose.y();
-        TagGate frame = robot.drive.lastFrame();
-        StringBuilder tags = new StringBuilder();
-        for (int i = 0; i < frame.count(); i++) {
-            if (frame.reason(i) != TagGate.Reason.ACCEPTED) continue;
-            if (tags.length() > 0) tags.append(' ');
-            tags.append(frame.tagId(i));
+        Pose start = declaredStart.pose;
+        double dx = s.x() - start.x();
+        double dy = s.y() - start.y();
+        double c = Math.cos(start.heading());
+        double sn = Math.sin(start.heading());
+        double fwd = c * dx + sn * dy;
+        double left = -sn * dx + c * dy;
+        StringBuilder text = new StringBuilder(String.format(Locale.US,
+                "%s: settled %.0f s, %d frames; camera minus start x %+.2f, y %+.2f in "
+                        + "(fwd %+.2f, left %+.2f); heading %+.2f deg (%d frames)",
+                declaredStart, s.seconds(), s.frames(), dx, dy, fwd, left,
+                s.headingDiffDeg(), s.headingFrames()));
+        for (HiveCell cell : HiveCell.values()) {
+            if (s.tags(cell) == 0) continue;
+            text.append(String.format(Locale.US, "; %s: %d tag sightings, x %+.2f, y %+.2f, range %.0f in",
+                    cell, s.tags(cell), s.cellDx(cell), s.cellDy(cell), s.cellRangeIn(cell)));
+            String key = "/StartCheck/" + cell.name() + "/";
+            log.put(key + "DxIn", s.cellDx(cell));
+            log.put(key + "DyIn", s.cellDy(cell));
+            log.put(key + "RangeIn", s.cellRangeIn(cell));
         }
-        log.metadata("StartCheck", String.format(Locale.US,
-                "%s: camera minus start x %+.2f, y %+.2f in (%.2f in; robot fwd %+.2f, left %+.2f); "
-                        + "%d fixes; tags %s",
-                declaredStart, dx, dy, r.errorIn, -r.moveForwardIn, -r.moveLeftIn,
-                robot.drive.fixCount(), tags.length() == 0 ? "none" : tags));
+        log.metadata("StartCheck", text.toString());
+        log.put("/StartCheck/SettledSeconds", s.seconds());
+        log.put("/StartCheck/Frames", s.frames());
         log.put("/StartCheck/CameraMinusStartXIn", dx);
         log.put("/StartCheck/CameraMinusStartYIn", dy);
-        log.put("/StartCheck/CameraFwdOfStartIn", -r.moveForwardIn);
-        log.put("/StartCheck/CameraLeftOfStartIn", -r.moveLeftIn);
+        log.put("/StartCheck/CameraFwdOfStartIn", fwd);
+        log.put("/StartCheck/CameraLeftOfStartIn", left);
+        if (s.headingFrames() > 0) {
+            log.put("/StartCheck/CameraMinusStartHeadingDeg", s.headingDiffDeg());
+        }
     }
 
     /** Where the robot should start (during INIT), and where the camera says it is, on the field. */
