@@ -86,15 +86,16 @@ public final class CheatSheet {
     /** One drawing, controller in the middle and labels either side, in page pixels. */
     private static final double KEY_W = 760;
     private static final double KEY_H = 380;
-    private static final double SCALE = 0.9;
-    private static final double PAD_X = (KEY_W - PAD_W * SCALE) / 2;
+    private static final double SCALE = 0.85;
     private static final double PAD_Y = 30;
     /** Space between two label lines, page pixels. */
     private static final double LINE = 18;
     /** Space between two labels, page pixels. */
     private static final double GAP = 8;
-    /** Characters in one label line before it wraps. */
-    private static final int WRAP_AT = 18;
+    /** About how wide one label character is, page pixels: turns a width into a wrap length. */
+    private static final double CHAR_W = 8.7;
+    /** Space kept clear at the drawing's left and right edges, page pixels. */
+    private static final double MARGIN = 6;
     /** Room between the controller and its labels, page pixels: the lines bend in here. */
     private static final double GUTTER = 36;
     /** From a label's baseline up to the middle of its first line, page pixels. */
@@ -135,9 +136,13 @@ public final class CheatSheet {
      * input that person uses in its colour with a line to what it does; the rest grey.
      */
     private static String drawing(Map<Action, Input> layout, Action.Pad pad) {
+        double leftWidth = leftWidth(layout, pad);
+        double padX = MARGIN + leftWidth + GUTTER;
+        int wrapLeft = (int) (leftWidth / CHAR_W);
+        int wrapRight = (int) ((textBudget() - leftWidth) / CHAR_W);
         StringBuilder svg = new StringBuilder();
         svg.append(String.format(Locale.US, "<svg viewBox=\"0 0 %.0f %.0f\">", KEY_W, KEY_H));
-        svg.append(String.format(Locale.US, "<g transform=\"translate(%.1f %.1f) scale(%.2f)\">", PAD_X, PAD_Y, SCALE));
+        svg.append(String.format(Locale.US, "<g transform=\"translate(%.1f %.1f) scale(%.2f)\">", padX, PAD_Y, SCALE));
         // Shoulders: each trigger behind its bumper, both just above the body's top edge.
         shape(svg, layout, pad, Input.L2, "<path d=\"M52 30 C52 10 64 2 85 2 C106 2 118 10 118 30 Z\"");
         shape(svg, layout, pad, Input.R2, "<path d=\"M282 30 C282 10 294 2 315 2 C336 2 348 10 348 30 Z\"");
@@ -172,10 +177,47 @@ public final class CheatSheet {
         stick(svg, layout, pad, Input.RIGHT_STICK_X, 260, 145);
         svg.append("</g>");
         svg.append("</g>");
-        labels(svg, layout, pad, LEFT_SIDE, true);
-        labels(svg, layout, pad, RIGHT_SIDE, false);
+        labels(svg, layout, pad, LEFT_SIDE, true, padX, wrapLeft);
+        labels(svg, layout, pad, RIGHT_SIDE, false, padX, wrapRight);
         svg.append("</svg>");
         return svg.toString();
+    }
+
+    /** The width beside the controller that labels may use, both sides together, page pixels. */
+    private static double textBudget() {
+        return KEY_W - PAD_W * SCALE - 2 * GUTTER - 2 * MARGIN;
+    }
+
+    /**
+     * How much of {@link #textBudget()} goes to the left labels: the split whose taller stack of
+     * labels is shortest, then the fewest lines, then the most even. So the controller sits off-centre when one side's
+     * labels are longer, as the driver's D-pad resets are.
+     */
+    private static double leftWidth(Map<Action, Input> layout, Action.Pad pad) {
+        double budget = textBudget();
+        double best = budget / 2;
+        int bestLines = Integer.MAX_VALUE;
+        for (double left = 9 * CHAR_W; left <= budget - 9 * CHAR_W; left += CHAR_W) {
+            int leftLines = lineCount(layout, pad, LEFT_SIDE, (int) (left / CHAR_W));
+            int rightLines = lineCount(layout, pad, RIGHT_SIDE, (int) ((budget - left) / CHAR_W));
+            // The taller side first, then the total: the two stacks come out about even.
+            int lines = Math.max(leftLines, rightLines) * 100 + leftLines + rightLines;
+            boolean evener = Math.abs(left - budget / 2) < Math.abs(best - budget / 2);
+            if (lines < bestLines || (lines == bestLines && evener)) {
+                bestLines = lines;
+                best = left;
+            }
+        }
+        return best;
+    }
+
+    private static int lineCount(Map<Action, Input> layout, Action.Pad pad, Input[] inputs, int wrapAt) {
+        int lines = 0;
+        for (Input input : inputs) {
+            Action action = actionFor(layout, pad, input);
+            if (action != null) lines += wrap(action.description, wrapAt).size();
+        }
+        return lines;
     }
 
     /** One part of the controller: tinted in its colour if {@code pad}'s person uses it, else outlined grey. */
@@ -227,7 +269,8 @@ public final class CheatSheet {
      * by its neighbour a drop onto its top. The jogs step closer to the controller label by label,
      * which is what keeps the lines from crossing.
      */
-    private static void labels(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input[] inputs, boolean left) {
+    private static void labels(StringBuilder svg, Map<Action, Input> layout, Action.Pad pad, Input[] inputs,
+                               boolean left, double padX, int wrapAt) {
         int n = 0;
         Input[] used = new Input[inputs.length];
         for (Input input : inputs) {
@@ -238,18 +281,18 @@ public final class CheatSheet {
         double[] y = new double[n];
         double next = 18;
         for (int i = 0; i < n; i++) {
-            lines.add(wrap(actionFor(layout, pad, used[i]).description));
+            lines.add(wrap(actionFor(layout, pad, used[i]).description, wrapAt));
             y[i] = Math.max(PAD_Y + route(used[i])[0] * SCALE + MID, next);
             next = y[i] + LINE * lines.get(i).size() + GAP;
         }
         double side = left ? -1 : 1;
-        double bodyEdge = left ? PAD_X : PAD_X + PAD_W * SCALE;
+        double bodyEdge = left ? padX : padX + PAD_W * SCALE;
         double textX = bodyEdge + side * GUTTER;
         for (int i = 0; i < n; i++) {
             Input input = used[i];
             double[] r = route(input);
             double routeY = PAD_Y + r[0] * SCALE;
-            double toX = PAD_X + r[1] * SCALE;
+            double toX = padX + r[1] * SCALE;
             double labelY = y[i] - MID;
             double jogX = textX - side * (10 + i * 3.0);
             StringBuilder points = new StringBuilder();
@@ -286,30 +329,30 @@ public final class CheatSheet {
     }
 
     /**
-     * {@code text} in lines of at most {@link #WRAP_AT} characters, broken at spaces. A slash stays
+     * {@code text} in lines of at most {@code wrapAt} characters, broken at spaces. A slash stays
      * with the word before it ("Spin Up /"), and a too-long label breaks before its bracket first,
      * so "Gyro Reset" stays whole; the bracket shares the last line when it fits.
      */
-    private static List<String> wrap(String text) {
+    private static List<String> wrap(String text, int wrapAt) {
         String glued = text.replace(" / ", "\u00a0/ ");
         int bracket = glued.indexOf(" (");
-        if (glued.length() <= WRAP_AT || bracket < 0) return wrapWords(glued);
-        List<String> lines = wrapWords(glued.substring(0, bracket));
+        if (glued.length() <= wrapAt || bracket < 0) return wrapWords(glued, wrapAt);
+        List<String> lines = wrapWords(glued.substring(0, bracket), wrapAt);
         String tail = glued.substring(bracket + 1);
         String last = lines.get(lines.size() - 1);
-        if (lines.size() > 1 && last.length() + 1 + tail.length() <= WRAP_AT) {
+        if (lines.size() > 1 && last.length() + 1 + tail.length() <= wrapAt) {
             lines.set(lines.size() - 1, last + " " + tail);
         } else {
-            lines.addAll(wrapWords(tail));
+            lines.addAll(wrapWords(tail, wrapAt));
         }
         return lines;
     }
 
-    private static List<String> wrapWords(String text) {
+    private static List<String> wrapWords(String text, int wrapAt) {
         List<String> lines = new ArrayList<>();
         StringBuilder line = new StringBuilder();
         for (String word : text.split(" ")) {
-            if (line.length() > 0 && line.length() + 1 + word.length() > WRAP_AT) {
+            if (line.length() > 0 && line.length() + 1 + word.length() > wrapAt) {
                 lines.add(line.toString());
                 line.setLength(0);
             }

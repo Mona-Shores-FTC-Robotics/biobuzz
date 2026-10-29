@@ -102,7 +102,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
     /** A drive stick past this cancels a routine that is driving the robot. */
     private static final double CANCEL_STICK = 0.2;
 
-    /** How long the heading reset must be held. A tap does nothing. */
+    /** How long a reset (gyro, camera, pose, turret zero) must be held. A tap does nothing. */
     private static final long RESET_HOLD_MS = 1000;
 
     /** The launcher trim step can never be more than this, ticks per second, whatever Panels says. */
@@ -118,6 +118,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
     private final IntakeArbiter intakeArbiter = new IntakeArbiter();
     private final FireGates gates = new FireGates();
     private final LongPress headingReset = new LongPress(RESET_HOLD_MS);
+    private final LongPress cameraReset = new LongPress(RESET_HOLD_MS);
+    private final LongPress poseReset = new LongPress(RESET_HOLD_MS);
+    private final LongPress turretZero = new LongPress(RESET_HOLD_MS);
 
     private TurretMode turretMode = TurretMode.LOCKED;
     private TurretAimer aimer;
@@ -167,8 +170,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.GARDEN_GATHER);
         controls.note(Action.CHASSIS_AIM);
         controls.note(Action.RESET_HEADING);
-        controls.on(Action.CAMERA_RELOCALIZE).duringInit().onPress(this::relocalize);
-        controls.on(Action.RESET_TO_SPOT).onPress(this::resetToSpot);
+        controls.note(Action.CAMERA_RELOCALIZE);
+        controls.note(Action.RESET_TO_SPOT);
         controls.on(Action.AUTO_PARK).onPress(() -> {
             autoParkNote = "Auto-park: not built yet (the loading zone is not measured)";
             log.event("auto-park pressed: not built yet");
@@ -185,7 +188,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.on(Action.TRIM_LEFT).onPress(() -> trim(+1));
         controls.on(Action.TRIM_RIGHT).onPress(() -> trim(-1));
         controls.on(Action.TRIM_RESET).onPress(() -> trim(0));
-        controls.on(Action.TURRET_ZERO).duringInit().onPress(robot.turret::zeroHere);
+        controls.note(Action.TURRET_ZERO);
 
         driver.note("Angles on the Match page", "degrees; heading is in the field frame; "
                 + "a bearing is from the robot's forward, 0 = ahead, + = left (counter-clockwise), - = right");
@@ -278,9 +281,35 @@ public class BasicDriveTeleOp extends RobotOpMode {
     }
 
     /**
-     * The camera sets the pose, if it can; the Match page and the match log say what happened. Live
-     * in INIT, so one person with one gamepad can put a pose carried from the last run right before
-     * PLAY.
+     * The resets, each a 1 s hold so a brushed button does nothing, each with a short rumble on the
+     * pad that held it. In INIT only the ones that move nothing: the camera reset and the turret
+     * zero.
+     */
+    private void holdResets(long now, boolean init) {
+        if (!init && headingReset.update(controls.held(Action.RESET_HEADING), now)) {
+            robot.drive.resetHeading();
+            gamepad1.rumble(200);
+            log.event("gyro reset: field-centric forward = the robot's facing");
+        }
+        if (cameraReset.update(controls.held(Action.CAMERA_RELOCALIZE), now)) {
+            relocalize();
+            gamepad1.rumble(200);
+        }
+        if (!init && poseReset.update(controls.held(Action.RESET_TO_SPOT), now)) {
+            resetToSpot();
+            gamepad1.rumble(200);
+        }
+        if (turretZero.update(controls.held(Action.TURRET_ZERO), now)) {
+            robot.turret.zeroHere();
+            gamepad2.rumble(200);
+            log.event("turret zeroed here by the operator");
+        }
+    }
+
+    /**
+     * The camera sets the pose, if it can; the Match page and the match log say what happened. A 1 s
+     * hold, live in INIT, so one person with one gamepad can put a pose carried from the last run
+     * right before PLAY.
      */
     private void relocalize() {
         poseNote = robot.drive.relocalizeFromCamera();
@@ -289,6 +318,8 @@ public class BasicDriveTeleOp extends RobotOpMode {
 
     @Override
     protected void onInitLoop() {
+        // Camera reset and turret zero move nothing, so they work before PLAY too.
+        holdResets(System.nanoTime(), true);
         display.status("Basic Drive", Display.Level.OK, "ready — Share (Back) shows the controls");
         showControlsNotes();
         if (poseNote != null) display.line("Last pose fix: " + poseNote);
@@ -308,11 +339,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         boolean leftStick = Math.abs(forward) > CANCEL_STICK || Math.abs(strafe) > CANCEL_STICK;
         boolean rightStick = Math.abs(turn) > CANCEL_STICK;
 
-        if (headingReset.update(controls.held(Action.RESET_HEADING), now)) {
-            robot.drive.resetHeading();
-            gamepad1.rumble(200);
-            log.event("heading reset: field-centric forward = the robot's facing");
-        }
+        holdResets(now, false);
 
         // Where a shot would go, every loop: the turret aims there in AIM; LOCKED, the chassis aim
         // and the aim gate use it.
@@ -355,7 +382,9 @@ public class BasicDriveTeleOp extends RobotOpMode {
                 robotCentric() || !robot.drive.isFieldCentric() ? "robot-centric" : "field-centric");
         display.status("Speed", turbo ? Display.Level.WARN : Display.Level.OK,
                 slow ? "slow" : turbo ? "TURBO" : "normal");
-        if (headingReset.pending()) display.line("Keep holding to reset field-centric forward…");
+        if (headingReset.pending() || cameraReset.pending() || poseReset.pending() || turretZero.pending()) {
+            display.line("Keep holding (1 s) to reset…");
+        }
         display.status("FLOWER stick", Display.Level.OK, (robot.flowerStick.extended() ? "out" : "in") + (robot.flowerStick.limp() ? ", servo limp" : ", servo holding"));
         String pick = picker.line();
         if (!pick.isEmpty()) display.line(pick);

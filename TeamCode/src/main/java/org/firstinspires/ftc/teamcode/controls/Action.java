@@ -16,11 +16,11 @@ public enum Action {
     SLOW(Pad.DRIVER, "Slow (hold)"),
     TURBO(Pad.DRIVER, "Turbo (hold)"),
     FLOWER_PICK(Pad.DRIVER, "Pick FLOWER (hold)"),
-    GARDEN_GATHER(Pad.DRIVER, "Gather GARDEN (hold)"),
+    GARDEN_GATHER(Pad.DRIVER, "*Gather GARDEN (hold)"),
     CHASSIS_AIM(Pad.DRIVER, "Aim Chassis (hold)"),
     RESET_HEADING(Pad.DRIVER, "Gyro Reset (hold 1\u00a0s)"),
-    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold still; also in INIT)"),
-    RESET_TO_SPOT(Pad.DRIVER, "Pose Reset (left corner, intake toward opponents)"),
+    CAMERA_RELOCALIZE(Pad.DRIVER, "Camera Reset (hold 1\u00a0s, robot still)"),
+    RESET_TO_SPOT(Pad.DRIVER, "Pose Reset (hold 1\u00a0s; left corner, intake toward opponents)"),
     AUTO_PARK(Pad.DRIVER, "*Auto-Park (hold)"),
 
     // Operator
@@ -35,7 +35,7 @@ public enum Action {
     TRIM_LEFT(Pad.OPERATOR, "Trim aim left"),
     TRIM_RIGHT(Pad.OPERATOR, "Trim aim right"),
     TRIM_RESET(Pad.OPERATOR, "Trim reset"),
-    TURRET_ZERO(Pad.OPERATOR, "Zero Turret");
+    TURRET_ZERO(Pad.OPERATOR, "Zero Turret (hold 1\u00a0s)");
 
     /** Which person, and so which gamepad. */
     public enum Pad { DRIVER, OPERATOR }
