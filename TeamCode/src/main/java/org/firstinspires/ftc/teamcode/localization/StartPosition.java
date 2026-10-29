@@ -18,11 +18,26 @@ public final class StartPosition {
     public final Alliance alliance;
     /** Pedro field frame: inches, radians. */
     public final Pose pose;
+    /**
+     * How a drive team puts the robot there, in one sentence, in the manual's tile and seam names
+     * (§9.4); null for a start nobody has written one for, which then reads as {@link #where}.
+     */
+    public final String placement;
 
     public StartPosition(String name, Alliance alliance, Pose pose) {
+        this(name, alliance, pose, null);
+    }
+
+    public StartPosition(String name, Alliance alliance, Pose pose, String placement) {
         this.name = name;
         this.alliance = alliance;
         this.pose = pose;
+        this.placement = placement;
+    }
+
+    /** The placement sentence, or the tile and facing when there is none. */
+    public String howToPlace() {
+        return placement != null ? placement : where();
     }
 
     /** Where it is in a drive team's terms: "tile C1, facing away from the audience". */

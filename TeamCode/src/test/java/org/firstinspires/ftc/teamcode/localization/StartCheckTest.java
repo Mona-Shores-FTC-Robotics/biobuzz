@@ -62,6 +62,14 @@ public class StartCheckTest {
         assertEquals("tile C1, facing away from the audience", StartPositions.RED_AUDIENCE.where());
     }
 
+    /** R-Quals, R-Simple and Sister-Right are drawn from (55, 9.7, 90°): they get its name and sentence. */
+    @Test
+    public void anAutoDrawnFromTheRedAudienceStartFindsIt() {
+        assertEquals(StartPositions.RED_AUDIENCE, StartPositions.at(new Pose(55.0, 9.7, Math.toRadians(90))));
+        assertEquals(null, StartPositions.at(new Pose(59.0, 133.69, Math.toRadians(270))));
+        assertEquals(null, StartPositions.at(new Pose(55.0, 9.7, Math.toRadians(270))));
+    }
+
     @Test
     public void aRobotOnTheMarkIsToldToLeaveIt() {
         assertEquals("leave it", StartCheck.evaluate(RED, 10, 10.1, 19.9).move());

@@ -26,6 +26,7 @@ import org.firstinspires.ftc.teamcode.logging.Tunables;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.localization.StartCheck;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.TagGate;
 import org.firstinspires.ftc.teamcode.util.Alliance;
 import org.firstinspires.ftc.teamcode.util.FieldFrame;
 import org.firstinspires.ftc.teamcode.util.FieldView;
@@ -350,6 +351,7 @@ public abstract class RobotOpMode extends OpMode {
 
     private void startBody() {
         loopTimer.reset();
+        logStartCheck();
         setup.lock();
         driver.prime();
         operator.prime();
@@ -507,6 +509,44 @@ public abstract class RobotOpMode extends OpMode {
         } else {
             log.close("OpMode stopped: " + opModeName(), LOG_CLOSE_WAIT_MS);
         }
+    }
+
+    /**
+     * At PLAY, where the camera put the robot against where it was declared to start, into the
+     * match log's Metadata tab ({@code StartCheck}) and as numbers ({@code /StartCheck/*}). The
+     * drive team placed it by the marks, so each run is a calibration sample: a gap that follows
+     * one robot to every field is its camera mount; one that shows on every robot at one field is
+     * that field's HIVE. {@code RobotConfig} and the date are already in the log to tell them apart.
+     */
+    private void logStartCheck() {
+        if (declaredStart == null) {
+            return;
+        }
+        StartCheck.Result r = StartCheck.evaluate(declaredStart, robot.drive.fixCount(),
+                robot.drive.meanFixX(), robot.drive.meanFixY());
+        if (r.status == StartCheck.Status.UNCONFIRMED) {
+            log.metadata("StartCheck", declaredStart + ": camera never confirmed ("
+                    + robot.drive.fixCount() + " fixes)");
+            return;
+        }
+        double dx = robot.drive.meanFixX() - declaredStart.pose.x();
+        double dy = robot.drive.meanFixY() - declaredStart.pose.y();
+        TagGate frame = robot.drive.lastFrame();
+        StringBuilder tags = new StringBuilder();
+        for (int i = 0; i < frame.count(); i++) {
+            if (frame.reason(i) != TagGate.Reason.ACCEPTED) continue;
+            if (tags.length() > 0) tags.append(' ');
+            tags.append(frame.tagId(i));
+        }
+        log.metadata("StartCheck", String.format(Locale.US,
+                "%s: camera minus start x %+.2f, y %+.2f in (%.2f in; robot fwd %+.2f, left %+.2f); "
+                        + "%d fixes; tags %s",
+                declaredStart, dx, dy, r.errorIn, -r.moveForwardIn, -r.moveLeftIn,
+                robot.drive.fixCount(), tags.length() == 0 ? "none" : tags));
+        log.put("/StartCheck/CameraMinusStartXIn", dx);
+        log.put("/StartCheck/CameraMinusStartYIn", dy);
+        log.put("/StartCheck/CameraFwdOfStartIn", -r.moveForwardIn);
+        log.put("/StartCheck/CameraLeftOfStartIn", -r.moveLeftIn);
     }
 
     /** Where the robot should start (during INIT), and where the camera says it is, on the field. */

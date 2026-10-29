@@ -7,6 +7,7 @@ import org.firstinspires.ftc.teamcode.autokit.AutoKit;
 import org.firstinspires.ftc.teamcode.autokit.AutoRegistry;
 import org.firstinspires.ftc.teamcode.controls.Display;
 import org.firstinspires.ftc.teamcode.localization.StartPosition;
+import org.firstinspires.ftc.teamcode.localization.StartPositions;
 import org.firstinspires.ftc.teamcode.opmodes.RobotOpMode;
 import org.firstinspires.ftc.teamcode.subsystems.IntakeSubsystem;
 import org.firstinspires.ftc.teamcode.util.Alliance;
@@ -100,7 +101,10 @@ public abstract class BuiltAuto extends RobotOpMode {
         this.build = build;
         Alliance drawn = Alliance.valueOf(drawnFor);
         Alliance other = drawn == Alliance.RED ? Alliance.BLUE : Alliance.RED;
-        this.drawnStart = new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
+        // A drawing that starts on a declared start takes its name and placement sentence.
+        StartPosition known = StartPositions.at(startPose.apply(false));
+        this.drawnStart = known != null && known.alliance == drawn ? known
+                : new StartPosition(drawn + " start (as drawn)", drawn, startPose.apply(false));
         this.rotatedStart = new StartPosition(other + " start (drawing rotated)", other, startPose.apply(true));
     }
 
