@@ -160,10 +160,7 @@ public class BasicDriveTeleOp extends RobotOpMode {
         controls.note(Action.FLOWER_PICK);
         controls.on(Action.FLOWER_STICK).onPress(robot.flowerStick::toggle);
         controls.note(Action.CHASSIS_AIM);
-        controls.on(Action.RESET_TO_SPOT).onPress(() -> {
-            poseNote = robot.drive.resetToSpot(setup.alliance());
-            log.event("pose: " + poseNote);
-        });
+        controls.on(Action.RESET_TO_SPOT).onPress(this::resetToSpot);
         controls.on(Action.DRIVER_RELOCALIZE).duringInit().onPress(this::relocalize);
         controls.note(Action.RESET_HEADING);
         controls.on(Action.AUTO_PARK).onPress(() -> {
@@ -205,6 +202,12 @@ public class BasicDriveTeleOp extends RobotOpMode {
         robot.turret.home();
         log.event("PLAY: controls scheme " + controls.scheme().title
                 + (robotCentric() ? ", robot-centric" : ""));
+    }
+
+    /** The pose set to our alliance's measured reset spot, if it has been measured. */
+    private void resetToSpot() {
+        poseNote = robot.drive.resetToSpot(setup.alliance());
+        log.event("pose: " + poseNote);
     }
 
     /** LOCKED to AIM and back. Either way a fresh request, which also lets a dropped hold try again. */
