@@ -107,7 +107,10 @@ Pinpoint or the Limelight directly. Anything that drives or aims from field coor
 checked against the field once; `FlowerFieldPoints` is the official field model's four FLOWER
 centres; `StartPositions`, `FieldFrame` and `LocalizationTuning` hold
 measured field facts — NaN or empty until measured, never guessed. An Autonomous declares its start by
-overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check.
+overriding `startPosition()`; `RobotOpMode` sets the pose and runs the start check. The drive team
+places by the marks (wall and seam, the manual's tile names), and the marks win: the start check
+never tells anyone to move the robot by the camera. It warns only past `startMarginIn` (a real
+mistake), and logs the camera's gap at PLAY as a calibration sample.
 
 **Autos from the Visualizer.** A generated Auto lives in `opmodes/auto/generated/`, and its `.pp`
 source is committed in `TeamCode/autos/` in the same PR, under the name its `SOURCE` constant

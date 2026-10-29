@@ -36,12 +36,21 @@ public class StartCheckTest {
         assertEquals(Alliance.RED, r.confirmedAlliance());
     }
 
+    /** A couple of inches is the camera's to explain, not the drive team's to fix: no warning. */
+    @Test
+    public void aSmallGapIsOnlyInformation() {
+        StartCheck.Result r = StartCheck.evaluate(RED, 20, 12.2, 20);
+
+        assertEquals(StartCheck.Status.IN_POSITION, r.status);
+    }
+
     @Test
     public void aMisplacedRobotIsCalledOutAndConfirmsNoAlliance() {
-        StartCheck.Result r = StartCheck.evaluate(RED, 20, 14, 20);
+        // Seven inches: past the 6 in margin, so a real placement mistake.
+        StartCheck.Result r = StartCheck.evaluate(RED, 20, 17, 20);
 
         assertEquals(StartCheck.Status.OUT_OF_POSITION, r.status);
-        assertEquals(4.0, r.errorIn, 1e-9);
+        assertEquals(7.0, r.errorIn, 1e-9);
         assertEquals(Alliance.UNKNOWN, r.confirmedAlliance());
     }
 
@@ -54,7 +63,6 @@ public class StartCheckTest {
 
         assertEquals(-2.0, r.moveForwardIn, 1e-9); // back 2
         assertEquals(1.0, r.moveLeftIn, 1e-9);     // +x is the robot's right, so move it left
-        assertEquals("move it 2.0 in back, 1.0 in left", r.move());
     }
 
     @Test
@@ -70,8 +78,4 @@ public class StartCheckTest {
         assertEquals(null, StartPositions.at(new Pose(55.0, 9.7, Math.toRadians(270))));
     }
 
-    @Test
-    public void aRobotOnTheMarkIsToldToLeaveIt() {
-        assertEquals("leave it", StartCheck.evaluate(RED, 10, 10.1, 19.9).move());
-    }
 }

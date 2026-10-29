@@ -17,8 +17,12 @@ import org.firstinspires.ftc.teamcode.util.Alliance;
  * instead: 2° at 50 in from the CELL is about 1.7 in. So a small sideways error can be the robot
  * not being square, not just not being in the right place.
  *
- * <p>It also says which way to move the robot, in the robot's own terms (forward/back,
- * left/right as the robot faces at its start), since "off by 2 in" alone does not say where.
+ * <p><b>The marks win.</b> The drive team places the robot by the wall and the seam, and the
+ * camera is not yet trusted to an inch, so a small gap is shown as information and recorded
+ * ({@code RobotOpMode} logs it at PLAY as a calibration sample), never as an instruction. Only a
+ * gap past {@link LocalizationTuning#startMarginIn} (a wrong tile, side or facing) warns, and then
+ * it says to check the marks, not to follow the camera. Which way the camera has the robot,
+ * {@link Result#moveForwardIn} / {@link Result#moveLeftIn}, goes to the log only.
  */
 public final class StartCheck {
 
@@ -54,45 +58,26 @@ public final class StartCheck {
             return status == Status.IN_POSITION ? start.alliance : Alliance.UNKNOWN;
         }
 
-        /** Which way to move the robot, in words. */
-        public String move() {
-            return StartCheck.move(moveForwardIn, moveLeftIn);
-        }
-
         public void describe(Display display) {
             switch (status) {
                 case NOT_DECLARED:
                     return;
                 case UNCONFIRMED:
-                    display.status("Start", Display.Level.WARN, start + ": camera can't confirm — "
-                            + "using the declared pose");
-                    display.line("Place: " + start.howToPlace());
+                    display.status("Start", Display.Level.OK, start + " — place: " + start.howToPlace());
+                    display.line("<small>Camera: not seeing it yet (nothing to do)</small>");
                     return;
                 case IN_POSITION:
-                    display.status("Start", Display.Level.OK, String.format(java.util.Locale.US,
-                            "%s: in position (%.1f in off: %s)", start, errorIn, move()));
+                    display.status("Start", Display.Level.OK, start + " — place: " + start.howToPlace());
+                    display.line(String.format(java.util.Locale.US,
+                            "<small>Camera: %.1f in from the start, recorded (don't adjust for it)</small>",
+                            errorIn));
                     return;
                 default:
                     display.status("Start", Display.Level.WARN, String.format(java.util.Locale.US,
-                            "%s: OFF BY %.1f in — %s", start, errorIn, move()));
+                            "%s: the camera puts the robot %.0f in away — CHECK THE MARKS", start, errorIn));
                     display.line("Place: " + start.howToPlace());
             }
         }
-    }
-
-    /** "move it 1.8 in back, 0.6 in right", leaving out a part under a quarter inch. */
-    static String move(double forwardIn, double leftIn) {
-        StringBuilder words = new StringBuilder("move it");
-        if (Math.abs(forwardIn) >= 0.25) {
-            words.append(String.format(java.util.Locale.US, " %.1f in %s", Math.abs(forwardIn),
-                    forwardIn > 0 ? "forward" : "back"));
-        }
-        if (Math.abs(leftIn) >= 0.25) {
-            if (words.length() > "move it".length()) words.append(',');
-            words.append(String.format(java.util.Locale.US, " %.1f in %s", Math.abs(leftIn),
-                    leftIn > 0 ? "left" : "right"));
-        }
-        return words.length() == "move it".length() ? "leave it" : words.toString();
     }
 
     /**

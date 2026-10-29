@@ -123,8 +123,14 @@ public final class LocalizationTuning {
      */
     public static double maxFixJumpIn = 6.0;
 
-    /** Start check: a robot further than this from its declared start should be nudged, inches. */
-    public static double startMarginIn = 2.0;
+    /**
+     * Start check: the camera putting the robot further than this from its declared start is a real
+     * mistake (wrong tile, wrong side, facing the wrong way) and the Driver Station says to check the
+     * marks, inches. Under it the camera's opinion is only recorded: the drive team places by the
+     * marks, and the camera's offsets are not trusted enough to nudge a robot by. Tighten once the
+     * logged starts show the camera agrees with the marks to under an inch.
+     */
+    public static double startMarginIn = 6.0;
 
     /** Pedro's filter over {@code odometry}, with the values above. */
     public static FusionLocalizer newFusionLocalizer(Localizer odometry) {
