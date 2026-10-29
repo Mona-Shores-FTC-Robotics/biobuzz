@@ -49,9 +49,10 @@ public final class Robot20245 {
     });
 
     /**
-     * Pinpoint Tuner output. <b>Provisional:</b> measured on one chassis before it was known which
-     * team it would be, and copied to both robot files so testing can start. Re-measure on this
-     * robot once the chassis are assigned to teams.
+     * Pinpoint Tuner output, measured on 20245's chassis on 17 Oct 2026 and posted in #175, where
+     * the block matches this one. The warning line below was added when the block was pasted; it is
+     * not in the block posted in #175, and no Pedro, AutoTune or Panels library prints it. Whoever
+     * tuned it knows what it meant: confirm with them, and spin the robot in place to check.
      */
     //WARNING: Offsets are NOT correct
     public static PinpointConfig localizerConfig = new PinpointConfig(c -> {
