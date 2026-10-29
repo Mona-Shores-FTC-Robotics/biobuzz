@@ -257,6 +257,54 @@ public class AutoKitTest {
         assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("parking now")));
     }
 
+    /**
+     * #142, inside a block: L-Quals runs most of its Auto as the cards of one firstOf row. A path in
+     * the row that is driving at the deadline runs to its end; the row's next path, which would
+     * start after the deadline, does not start; the guard parks from where the first one ended.
+     */
+    @Test
+    public void guardNeverCutsAPathInsideABlockAndStartsNoPathThereAfterTheDeadline() {
+        Path leg = line(0, 20);
+        Path next = line(20, 40);
+        Path park = line(20, 30);
+        drive.stepPerLoop = 0.01; // a path takes 2 s (100 loops)
+        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.0 s
+        now = deadline - 1; // the leg starts with 1 s in hand and runs 1 s past the deadline
+        tipped = true;
+        run(kit.guarded("Auto", park, 2.0,
+                kit.firstOf("Left CELL up?",
+                        kit.when("HiveTipped").then(
+                                kit.path("Leg", leg),
+                                kit.path("Next", next),
+                                kit.command("ShootAll")),
+                        kit.afterMs(7000)),
+                kit.path("Park", park)), 10);
+        assertEquals("the leg, then the park; never the row's next path", java.util.Arrays.asList(leg, park), drive.followed);
+        assertEquals("the park starts when the leg ends", deadline + 1, drive.followedAt.get(1), 0.1);
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("not starting Next")));
+        assertFalse("the row's command is skipped: " + log, log.contains("ShootAll"));
+    }
+
+    /** #142, inside a block: a wait in a row's cards is cut at the deadline, as at the top level. */
+    @Test
+    public void guardCutsAWaitInsideABlockAtTheDeadline() {
+        Path park = line(0, 10);
+        double deadline = AutoKit.AUTO_LENGTH_S - (2.0 + AutoKit.GUARD_MARGIN_S); // 27.0 s
+        now = deadline - 5;
+        tipped = true;
+        run(kit.guarded("Auto", park, 2.0,
+                kit.firstOf("Tipped?",
+                        kit.when("HiveTipped").then(
+                                kit.firstOf("Catch", kit.when("IntakeFull"), kit.afterMs(10000)),
+                                kit.command("ShootAll")),
+                        kit.afterMs(7000)),
+                kit.path("Park", park)), 10);
+        assertTrue(trace.toString(), trace.stream().anyMatch(t -> t.endsWith("cutting card short")));
+        assertEquals(java.util.Collections.singletonList(park), drive.followed);
+        assertEquals("the park starts at the deadline", deadline, drive.followedAt.get(0), 0.03);
+        assertFalse(log.toString(), log.contains("ShootAll"));
+    }
+
     @Test
     public void guardNeverCutsTheParkCardShort() {
         Path park = line(0, 10);
