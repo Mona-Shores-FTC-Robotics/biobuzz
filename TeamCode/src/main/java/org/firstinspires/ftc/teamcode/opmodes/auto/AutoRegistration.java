@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Consumer;
 
 /**
  * The commands and triggers this robot offers the Auto Builder: every name an Auto drawn in the
@@ -76,13 +77,15 @@ public final class AutoRegistration {
     private AutoRegistration() {}
 
     /**
-     * The registry for this robot. {@code robot} and {@code setup} may be null only to
-     * {@link AutoRegistry#describe() describe} the list; a null robot's triggers are never called.
+     * The registry for this robot. {@code robot}, {@code setup} and {@code settle} may be null only
+     * to {@link AutoRegistry#describe() describe} the list; a null robot's triggers are never called.
+     * The launch cards fire only once {@code settle} says the robot is settled; {@code note} gets a
+     * line when one fires without.
      */
-    public static AutoRegistry forRobot(Robot robot, MatchSetup setup) {
+    public static AutoRegistry forRobot(Robot robot, MatchSetup setup, PathEndSettle settle, Consumer<String> note) {
         // The launcher's cards share one object, so Empty can see which LaunchAll has finished. A
         // null robot only describes the list; its factories are never called.
-        final LaunchCards launch = robot == null ? null : LaunchCards.forRobot(robot);
+        final LaunchCards launch = robot == null ? null : LaunchCards.forRobot(robot, settle, note);
         return new AutoRegistry()
                 // ---- real: the launcher and the feeder. Typical seconds are what the editor's
                 // preview shows; the feed times themselves are LaunchCards' Panels numbers.

@@ -24,7 +24,7 @@ public class AutoRegistrationTest {
 
     @Test
     public void theEditorsListMatchesWhatTheRobotRegisters() throws IOException {
-        String expected = AutoRegistration.forRobot(null, null).describe();
+        String expected = AutoRegistration.forRobot(null, null, null, null).describe();
         File file = new File(teamCode(), "auto-registry.json");
         if ("1".equals(System.getenv("UPDATE_AUTO_REGISTRY"))) {
             Files.write(file.toPath(), expected.getBytes(StandardCharsets.UTF_8));
