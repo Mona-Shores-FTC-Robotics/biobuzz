@@ -27,12 +27,21 @@ public final class StartPositions {
      * Red, against the audience wall, under the red HIVE: <b>tile C1, facing away from the
      * audience, back flat against the audience wall, left wheels on seam W</b> (between columns B
      * and C; tile and seam names are the manual's, §9.4 Figures 9-4 and 9-5).
-     * Measured on 20245, 24 Oct 2026: robot centre 55 in from the red-side wall (tape), 9.7 in
-     * from the audience wall (the camera's fit, with the back on the wall), facing straight up the
-     * field. From here the camera sees the red AUDIENCE CELL about 49 in away.
+     * Derived from the robot's measured size (CAD, 29 Oct 2026), not from the camera:
+     * <ul>
+     *   <li>x 54.06 = seam W, 2 tiles from the red wall (47.17), + 6.14 (half of 12.277 in, left
+     *       wheel bearing to right) + 0.754 (left bearing to the left wheel's outer face). The seam is
+     *       the line through the middle of the tiles' interlocking teeth.</li>
+     *   <li>y 7.72 = half of 15.433 in, back face to front face over the wheels; the back plate and
+     *       the rear wheels are flush, so either one on the wall puts the centre here.</li>
+     * </ul>
+     * The centre is taken as the middle of the wheelbase, the point the Pinpoint's pod offsets are
+     * measured from. It replaced (55, 9.7): 55 was taped, 9.7 was the camera's own fit, and the
+     * camera had been reading about 2 in up the field from this. From here the camera sees the red
+     * AUDIENCE CELL about 49 in away.
      */
     public static final StartPosition RED_AUDIENCE =
-            new StartPosition("Red audience", Alliance.RED, new Pose(55.0, 9.7, Math.toRadians(90)));
+            new StartPosition("Red audience", Alliance.RED, new Pose(54.06, 7.72, Math.toRadians(90)));
 
     /**
      * {@link #RED_AUDIENCE} turned half a turn about the field centre, the way the field is (manual

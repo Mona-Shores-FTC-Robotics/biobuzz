@@ -47,7 +47,7 @@ and run session 2's list instead: the log events below will not be there.
 - [ ] The two drawings open: `https://mona-shores-ftc-robotics.github.io/Visualizer/#gh=r-simple.pp`
       and `#gh=r-quals.pp`.
 - [ ] Batteries charged. Red start taped as in session 2 (back on the audience wall, left wheels
-      on the seam two tiles from the red-side wall: (55, 9.7, 90°)).
+      on the seam two tiles from the red-side wall: (54.06, 7.72, 90°), from the robot's CAD).
 - [ ] **A HIVE on the field with its AprilTags**, red side, in the match-start position (RIGHT CELL
       up). Without one every `Tip`, `LeftCellUp` and `RightCellUp` wait runs to its limit and step
       5 answers nothing.
