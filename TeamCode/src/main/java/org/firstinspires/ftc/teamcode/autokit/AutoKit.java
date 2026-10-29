@@ -69,8 +69,14 @@ public final class AutoKit {
     private final DoubleSupplier secondsSinceStart;
     private Consumer<String> trace = line -> { };
     private PathWatcher watcher = NO_WATCHER;
-    /** The cards made by {@link #path}: the guard lets a path it has started run to its end. */
-    private final Set<Command> paths = Collections.newSetFromMap(new IdentityHashMap<>());
+    /** True while a path card, at any depth, is driving its path: the guard never cuts then. */
+    private boolean drivingPath;
+    /**
+     * The running guard's park seconds while it may still park, NaN otherwise. A path card nested
+     * in a block reads it to refuse to start once the park no longer fits; see {@link #guarded}.
+     */
+    private double guardParkSeconds = Double.NaN;
+    private String guardLabel = "";
     /** Every distinct path a card of this Auto can drive, in the order the cards were built. */
     private final List<Path> allPaths = new ArrayList<>();
     private final Set<Path> knownPaths = Collections.newSetFromMap(new IdentityHashMap<>());
@@ -157,9 +163,7 @@ public final class AutoKit {
 
     /** Drives {@code path} to its end. */
     public Command path(String label, Path path) {
-        Command card = traced("path " + label, follow(path));
-        paths.add(card);
-        return card;
+        return traced("path " + label, follow(label, path, true));
     }
 
     /**
@@ -240,23 +244,33 @@ public final class AutoKit {
      * guard parks from there: cutting a drive part-way leaves the robot somewhere nobody drew a
      * path from, and the park path's lead-in was drawn from a spot (mentor, 18 Oct 2026; the
      * simulator had already cut a tunnel run between the HIVE's feet). The check before each card
-     * starts still keeps a path from starting when the park no longer fits after it.
+     * starts still keeps a path from starting once the park no longer fits. (It does not know how
+     * long the path itself will take: a path started just before the deadline runs past it.)
+     *
+     * <p><b>The same rules hold inside a block.</b> A {@link #firstOf} whose row runs its own cards
+     * (L-Quals and the Sister Autos are mostly that) is one card to the guard, so it goes by what is
+     * running inside: it cuts the block at the deadline while a wait or a command inside it runs,
+     * never while a path inside it drives, and a path inside it that would start after the
+     * deadline does not start: it finishes at once and the guard parks.
      *
      * <p>The last card is assumed to be the park itself and is never skipped or cut short.
      *
      * <p>History: until 1 Oct 2026 the guard checked only between cards. A "wait for Tip, at most
      * 7000 ms" started at 20 s then ran to 27 s before the guard looked, a 3.3 s park no longer
      * fit, and the robot lost AUTO PARK; so the guard began to cut the running card, whatever it
-     * was. Since 18 Oct it cuts waits and commands, never paths.
+     * was. Since 18 Oct it cuts waits and commands, never paths. Since 27 Oct that holds inside a
+     * block too (#142): before, the guard knew only its own top-level path cards, so it cut a block
+     * mid-drive and let a block's next path start after the deadline.
      */
     public Command guarded(String label, Path parkPath, double parkSeconds, Command... cards) {
-        final Command park = traced("path " + label + " park", follow(parkPath));
+        final Command park = traced("path " + label + " park", follow(label + " park", parkPath, false));
         final int[] index = new int[1];
         final Command[] current = new Command[1];
         final CommandBuilder card = new CommandBuilder();
         card.setStart(() -> {
             index[0] = 0;
             current[0] = null;
+            watchFromHere(label, parkSeconds);
             advance(label, parkSeconds, cards, index, current, park);
         });
         card.setExecute(() -> {
@@ -273,11 +287,11 @@ public final class AutoKit {
                 return;
             }
             boolean last = index[0] == cards.length - 1;
-            boolean cuttable = current[0] != park && !last && !paths.contains(current[0]);
+            // drivingPath, not "is this card a path": a block's row may be driving one of its own.
+            boolean cuttable = current[0] != park && !last && !drivingPath;
             if (cuttable && tooLateToContinue(label, parkSeconds, "cutting card short")) {
                 current[0].end(EndCondition.INTERRUPTED);
-                current[0] = park;
-                park.start();
+                startPark(park, current);
                 return;
             }
             current[0].execute();
@@ -285,8 +299,25 @@ public final class AutoKit {
         card.setDone(() -> current[0] == null);
         card.setEnd(end -> {
             if (current[0] != null) current[0].end(end);
+            stopWatching();
         });
         return card;
+    }
+
+    private void watchFromHere(String label, double parkSeconds) {
+        guardLabel = label;
+        guardParkSeconds = parkSeconds;
+    }
+
+    /** From the park, or the last card, on, nothing is the guard's to refuse. */
+    private void stopWatching() {
+        guardParkSeconds = Double.NaN;
+    }
+
+    private void startPark(Command park, Command[] current) {
+        stopWatching();
+        current[0] = park;
+        park.start();
     }
 
     private void advance(String label, double parkSeconds, Command[] cards, int[] index, Command[] current,
@@ -296,7 +327,12 @@ public final class AutoKit {
             return;
         }
         boolean last = index[0] == cards.length - 1;
-        current[0] = !last && tooLateToContinue(label, parkSeconds, "parking now") ? park : cards[index[0]];
+        if (!last && tooLateToContinue(label, parkSeconds, "parking now")) {
+            startPark(park, current);
+            return;
+        }
+        if (last) stopWatching();
+        current[0] = cards[index[0]];
         current[0].start();
     }
 
@@ -336,15 +372,30 @@ public final class AutoKit {
         return Commands.instant(() -> { });
     }
 
-    private Command follow(Path path) {
+    /**
+     * Drives {@code path} to its end. With {@code guardable}, a card that starts while a guard is
+     * watching and the park no longer fits does not drive at all: it finishes at once, untouched,
+     * and the guard parks on its next check. That is how a path inside a block's row is kept from
+     * starting late, where the guard itself sees only the block.
+     */
+    private Command follow(String label, Path path, boolean guardable) {
         if (knownPaths.add(path)) allPaths.add(path);
+        final boolean[] refused = new boolean[1];
         return new CommandBuilder()
                 .setStart(() -> {
+                    refused[0] = guardable && !Double.isNaN(guardParkSeconds)
+                            && tooLateToContinue(guardLabel, guardParkSeconds, "not starting " + label);
+                    if (refused[0]) return;
                     drive.follow(path);
+                    drivingPath = true;
                     watcher.pathStarted(path);
                 })
-                .setDone(drive::pathDone)
-                .setEnd(end -> watcher.pathEnded(path));
+                .setDone(() -> refused[0] || drive.pathDone())
+                .setEnd(end -> {
+                    if (refused[0]) return;
+                    drivingPath = false;
+                    watcher.pathEnded(path);
+                });
     }
 
     /**
