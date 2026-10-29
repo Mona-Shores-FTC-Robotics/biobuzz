@@ -61,7 +61,7 @@ public class ControlSchemeTest {
     public void movingTheFlowerPickSwapsItWithWhatWasThere() {
         Map<Action, Input> layout = ControlScheme.layout(Input.TRIANGLE);
         assertEquals(Input.TRIANGLE, layout.get(Action.FLOWER_PICK));
-        assertEquals(Input.CROSS, layout.get(Action.RESET_HEADING));
+        assertEquals(Input.CROSS, layout.get(Action.GARDEN_GATHER));
         // The operator's buttons are the operator's: moving the driver's pick never touches them.
         Map<Action, Input> onCircle = ControlScheme.layout(Input.CIRCLE);
         assertEquals(Input.CIRCLE, onCircle.get(Action.FIRE));

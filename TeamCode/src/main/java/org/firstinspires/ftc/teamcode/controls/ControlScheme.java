@@ -38,12 +38,13 @@ public final class ControlScheme {
         map.put(Action.TURBO, Input.R1);
         map.put(Action.FLOWER_PICK, DEFAULT_FLOWER_PICK);
         map.put(Action.CHASSIS_AIM, Input.CIRCLE);
-        map.put(Action.RESET_HEADING, Input.TRIANGLE);
-        // Pose fixes are occasional, so they sit on the D-pad and leave the face buttons for play.
+        map.put(Action.GARDEN_GATHER, Input.TRIANGLE);
+        map.put(Action.AUTO_PARK, Input.SQUARE);
+        // Pose and heading fixes are occasional, so they sit on the D-pad and leave the face
+        // buttons for play.
+        map.put(Action.RESET_HEADING, Input.DPAD_UP);
         map.put(Action.CAMERA_RELOCALIZE, Input.DPAD_LEFT);
         map.put(Action.RESET_TO_SPOT, Input.DPAD_RIGHT);
-        map.put(Action.AUTO_PARK, Input.DPAD_DOWN);
-        map.put(Action.GARDEN_GATHER, Input.DPAD_UP);
 
         map.put(Action.OPERATOR_INTAKE, Input.R2);
         map.put(Action.UNJAM, Input.L2);

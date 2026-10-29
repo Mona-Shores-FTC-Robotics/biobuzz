@@ -38,7 +38,7 @@ next thing on the list for whichever OpMode crashed.** Nothing here needs a lapt
    **"pose from the TeleOp that just stopped Ns ago"**. The alliance, the pose and the turret's zero
    all come back. The log starts a new file for the same match.
 3. After 30 seconds it no longer trusts the last pose, because someone may have moved the robot. The
-   page says **"no handoff"**. Face the robot away from the driver, hold **driver Triangle (Y)**
+   page says **"no handoff"**. Face the robot away from the driver, hold **driver D-pad up**
    for a second to reset forward, and press **driver D-pad left** with two tags in view to fix the pose
    (or back into the left corner by the LOADING ZONE and press **driver D-pad right**).
 4. The alliance is not remembered after 30 seconds either: press X (blue) or B (red) in INIT.
