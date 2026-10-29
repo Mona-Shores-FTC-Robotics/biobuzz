@@ -74,4 +74,23 @@ public class FlowerPickerTest {
         assertEquals("a typo drives slowly, it does not stop", 0.05, FlowerPicker.unitFraction(0.0), EPS);
         assertEquals(0.05, FlowerPicker.unitFraction(Double.NaN), EPS);
     }
+
+    /** An Auto's pick pushes straight ahead from its spot to 12 in from the FLOWER's centre. */
+    @Test
+    public void aheadToStopsShortOfTheFlowerAlongTheHeading() {
+        // The R-Quals wall pick spot: 24 in out from the WALL FLOWER (2.71, 47.36), facing it.
+        com.pedropathing.math.Pose spot = new com.pedropathing.math.Pose(26.71, 47.36, Math.PI);
+        com.pedropathing.math.Pose contact = FlowerPicker.aheadTo(spot, 2.71, 47.36, 12.0);
+        assertEquals(14.71, contact.x(), 1e-9);
+        assertEquals(47.36, contact.y(), 1e-9);
+        assertEquals(Math.PI, contact.heading(), 1e-12);
+        // A spot 3 in to one side still pushes straight ahead: along its own heading.
+        com.pedropathing.math.Pose beside = FlowerPicker.aheadTo(
+                new com.pedropathing.math.Pose(26.71, 50.36, Math.PI), 2.71, 47.36, 12.0);
+        assertEquals(50.36, beside.y(), 1e-9);
+        assertEquals("already closer than the contact", null,
+                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(10.0, 47.36, Math.PI), 2.71, 47.36, 12.0));
+        assertEquals("facing away", null,
+                FlowerPicker.aheadTo(new com.pedropathing.math.Pose(26.71, 47.36, 0.0), 2.71, 47.36, 12.0));
+    }
 }
