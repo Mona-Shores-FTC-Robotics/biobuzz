@@ -17,7 +17,9 @@ import org.firstinspires.ftc.teamcode.vision.HiveCell;
  * per CELL, each accepted tag's position against the pose and its range. A heading difference that
  * changes run to run is placement; one that follows a robot everywhere is its camera mount; one on
  * every robot at one field is that field. Per CELL: one CELL off and the others not is that CELL on
- * that field. An error that grows with range is camera pitch.
+ * that field. An error that grows with range is camera pitch. Height error per CELL separates
+ * pitch (tags read too high or low, and the position pushed forward or back) from the map being
+ * off in depth (position pushed, height right).
  */
 public final class SettledStats {
 
@@ -37,6 +39,7 @@ public final class SettledStats {
     private final double[] cellSumDx = new double[CELLS.length];
     private final double[] cellSumDy = new double[CELLS.length];
     private final double[] cellSumRange = new double[CELLS.length];
+    private final double[] cellSumHeight = new double[CELLS.length];
 
     public void reset() {
         sinceNs = -1;
@@ -51,6 +54,7 @@ public final class SettledStats {
             cellSumDx[c] = 0;
             cellSumDy[c] = 0;
             cellSumRange[c] = 0;
+            cellSumHeight[c] = 0;
         }
     }
 
@@ -82,6 +86,7 @@ public final class SettledStats {
             cellSumDx[c] += gate.candidateX(i) - poseX;
             cellSumDy[c] += gate.candidateY(i) - poseY;
             cellSumRange[c] += gate.rangeIn(i);
+            cellSumHeight[c] += gate.heightErrorIn(i);
         }
     }
 
@@ -115,6 +120,9 @@ public final class SettledStats {
 
     /** Average range to {@code cell}'s tags, inches; NaN if unseen. */
     public double cellRangeIn(HiveCell cell) { return mean(cellSumRange, cell); }
+
+    /** Average of {@code cell}'s tags' measured height minus map height, inches; NaN if unseen. */
+    public double cellHeightErrorIn(HiveCell cell) { return mean(cellSumHeight, cell); }
 
     private double mean(double[] sums, HiveCell cell) {
         int n = cellTags[cell.ordinal()];

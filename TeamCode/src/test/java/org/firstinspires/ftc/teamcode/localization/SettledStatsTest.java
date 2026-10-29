@@ -49,6 +49,7 @@ public class SettledStatsTest {
         assertEquals(1.0, stats.cellDx(cell), 1e-9);
         assertEquals(2.0, stats.cellDy(cell), 1e-9);
         assertTrue(stats.cellRangeIn(cell) > 40);
+        assertEquals(0.0, stats.cellHeightErrorIn(cell), 1e-9); // seen at its map height
     }
 
     /** Lifted and put down somewhere else: only the frames after the jump count. */

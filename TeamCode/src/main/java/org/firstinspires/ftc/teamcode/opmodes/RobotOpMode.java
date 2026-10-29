@@ -545,12 +545,15 @@ public abstract class RobotOpMode extends OpMode {
                 s.headingDiffDeg(), s.headingFrames()));
         for (HiveCell cell : HiveCell.values()) {
             if (s.tags(cell) == 0) continue;
-            text.append(String.format(Locale.US, "; %s: %d tag sightings, x %+.2f, y %+.2f, range %.0f in",
-                    cell, s.tags(cell), s.cellDx(cell), s.cellDy(cell), s.cellRangeIn(cell)));
+            text.append(String.format(Locale.US,
+                    "; %s: %d tag sightings, x %+.2f, y %+.2f, height %+.2f, range %.0f in",
+                    cell, s.tags(cell), s.cellDx(cell), s.cellDy(cell), s.cellHeightErrorIn(cell),
+                    s.cellRangeIn(cell)));
             String key = "/StartCheck/" + cell.name() + "/";
             log.put(key + "DxIn", s.cellDx(cell));
             log.put(key + "DyIn", s.cellDy(cell));
             log.put(key + "RangeIn", s.cellRangeIn(cell));
+            log.put(key + "HeightErrorIn", s.cellHeightErrorIn(cell));
         }
         log.metadata("StartCheck", text.toString());
         log.put("/StartCheck/SettledSeconds", s.seconds());
