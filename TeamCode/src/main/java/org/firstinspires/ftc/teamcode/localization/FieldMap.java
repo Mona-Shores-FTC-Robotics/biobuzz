@@ -18,7 +18,9 @@ import org.firstinspires.ftc.teamcode.vision.Vec3;
  *
  * <p>Seams: the space between two columns is the seam between them (V to Z), so a FLOWER on the far
  * or audience wall is drawn in that gap. A FLOWER on a side wall sits on a seam between two rows,
- * and there is no gap between lines, so it is drawn on the wall at both rows it touches.
+ * and there is no gap between lines, so it is drawn on the wall of the lower row as a superscript:
+ * raised to the top of that row, which is the seam. (Android's superscript moves the baseline and
+ * keeps the size, so the column stays its width.)
  */
 public final class FieldMap {
 
@@ -65,12 +67,10 @@ public final class FieldMap {
                 int r = nearest == toBottom ? 0 : 5;
                 if (k >= 0 && k < 5) gaps[r][k] = flower;
             } else {
-                int m = (int) Math.round(f.y / tile);       // the row seam it sits on
+                int m = (int) Math.round(f.y / tile);       // the row seam it sits on: rows m | m+1
                 String[] wall = nearest == toLeft ? leftWall : rightWall;
-                if (m >= 1 && m <= 5) {
-                    wall[m - 1] = flower;
-                    wall[m] = flower;
-                }
+                if (m >= 1 && m <= 5) wall[m - 1] = "<sup>" + flower + "</sup>"; // top of row m
+
             }
         }
         for (HiveCell cell : HiveCell.values()) {
