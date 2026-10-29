@@ -10,6 +10,7 @@ import com.pedropathing.paths.interpolator.Interpolator;
 
 import org.firstinspires.ftc.teamcode.Robot;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.util.FieldFrame;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -50,6 +51,11 @@ import java.util.function.Consumer;
  * <p>It drives the robot by calling {@code robot.drive} each loop, as the sticks and the Auto's paths
  * do; {@link #command} does not require the drive, which would interrupt the drive's own
  * {@code periodic()}. Nothing else may drive while {@link #active()}.
+ *
+ * <p><b>An Auto never leaves its half.</b> A robot may not cross the centre line during the Auto, so
+ * an Auto's card only considers targets on the robot's own side of it ({@link #ownHalf}); the button
+ * considers every one, since in TeleOp they are all ours to use. The robot is always on its own half
+ * in an Auto, so this needs no alliance.
  *
  * <p>The robot comes to rest at the start and the end of each grab. A grab that keeps moving into
  * the next drive is a later change, here, for every grab at once.
@@ -107,6 +113,11 @@ public abstract class GrabRoutine {
         this.robot = robot;
         this.event = event;
         this.lineUp = lineUp;
+    }
+
+    /** An Auto's card, which must not leave the robot's half; the button may. */
+    protected boolean inAuto() {
+        return !lineUp;
     }
 
     // ------------------------------------------------------------- what a grab says about itself
@@ -467,6 +478,15 @@ public abstract class GrabRoutine {
         double drive = ahead - standoffIn;
         if (!(drive > 0.5)) return null;
         return new Pose(pose.x() + drive * Math.cos(h), pose.y() + drive * Math.sin(h), h);
+    }
+
+    /**
+     * Whether a target at {@code targetX} is on the same side of the centre line (x = the field's
+     * centre) as a robot at {@code robotX}: the only targets an Auto may go to.
+     */
+    static boolean ownHalf(double robotX, double targetX) {
+        double c = FieldFrame.FIELD_CENTRE_INCHES;
+        return (robotX < c) == (targetX < c);
     }
 
     /** Whether {@code pose} is within {@code inches} and {@code degrees} of {@code target}. */

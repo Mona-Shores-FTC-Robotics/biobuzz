@@ -93,4 +93,13 @@ public class FlowerPickerTest {
         assertEquals("facing away", null,
                 FlowerPicker.aheadTo(new com.pedropathing.math.Pose(26.71, 47.36, 0.0), 2.71, 47.36, 12.0));
     }
+
+    /** An Auto may not cross the centre line (x = 70.75), so it only grabs on its own half. */
+    @Test
+    public void ownHalfIsTheSameSideOfTheCentreLine() {
+        assertEquals(true, FlowerPicker.ownHalf(55.0, 2.71));
+        assertEquals("red's robot, blue's GARDEN", false, FlowerPicker.ownHalf(59.87, 132.0));
+        assertEquals(true, FlowerPicker.ownHalf(100.0, 138.79));
+        assertEquals(false, FlowerPicker.ownHalf(100.0, 47.36));
+    }
 }
